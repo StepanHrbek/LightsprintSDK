@@ -1084,6 +1084,8 @@ void SVCanvas::Paint(wxPaintEvent& event)
 		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
+			for (unsigned i=0;i<solver->realtimeLights.size();i++)
+				solver->realtimeLights[i]->shadowTransparencyRequested = svs.shadowTransparency;
 			rr::RRDynamicSolver::CalculateParameters params;
 			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			{
@@ -1139,6 +1141,7 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency!=T_OPAQUE && svs.renderMaterialTextures;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency!=T_OPAQUE;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency==T_ALPHA_BLEND || svs.renderMaterialTransparency==T_RGB_BLEND;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = svs.renderMaterialTransparency==T_RGB_BLEND;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.renderTonemapping && svs.tonemappingBrightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = svs.renderTonemapping && svs.tonemappingGamma!=1;
 			float clipPlanes[6] = {0,0,0,0,0,0};

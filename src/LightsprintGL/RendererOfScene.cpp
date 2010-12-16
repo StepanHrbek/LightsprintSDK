@@ -261,6 +261,8 @@ void RendererOfOriginalScene::render(
 					{
 						if (material->needsBlending() && _uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND)
 						{
+							// here we process everything that needs sorting, i.e. what is blended in final render
+							// blended objects rendered into rgb shadowmap are not processed here, because they don't need sort
 							if (!needsIndividualStaticObjectsOnlyForBlending || pass!=0)
 							{
 								objectWillBeRendered = true;
@@ -333,9 +335,11 @@ void RendererOfOriginalScene::render(
 
 	PreserveCullFace p1;
 	PreserveCullMode p2;
-	PreserveBlend p3;
+	PreserveBlend p3;     // changed by RendererOfMesh (in MultiPass)
+	PreserveColorMask p4; // changed by RendererOfMesh
+	PreserveDepthMask p5; // changed by RendererOfMesh
 
-	// Render non-blended facegroups.
+	// Render non-sorted facegroups.
 	for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap.begin();i!=nonBlendedFaceGroupsMap.end();++i)
 	{
 		rr::RRVector<FaceGroupRange>*& nonBlendedFaceGroups = i->second;
@@ -348,7 +352,7 @@ void RendererOfOriginalScene::render(
 				// setup culling at the beginning
 				glDisable(GL_CULL_FACE);
 			}
-			MultiPass multiPass(_lights,classUberProgramSetup,uberProgram,_brightness,_gamma,_clipPlanes);
+			MultiPass multiPass(_lights,_renderingFromThisLight,classUberProgramSetup,uberProgram,_brightness,_gamma,_clipPlanes);
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
 			Program* program;
@@ -407,15 +411,12 @@ void RendererOfOriginalScene::render(
 	// Render water.
 	//...
 
-	// Render blended facegroups.
+	// Render sorted facegroups.
 	if (blendedFaceGroups.size())
 	{
 		// Sort blended objects.
 		s_perObjectBuffers = &perObjectBuffers;
 		std::sort(&blendedFaceGroups[0],&blendedFaceGroups[0]+blendedFaceGroups.size());
-
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
 
 		// Render them by facegroup, it's usually small number.
 		for (unsigned i=0;i<blendedFaceGroups.size();i++)
@@ -427,7 +428,7 @@ void RendererOfOriginalScene::render(
 			fgUberProgramSetup.enableUsedMaterials(material);
 			fgUberProgramSetup.reduceMaterials(_uberProgramSetup);
 			fgUberProgramSetup.validate();
-			MultiPass multiPass(_lights,fgUberProgramSetup,uberProgram,_brightness,_gamma,_clipPlanes);
+			MultiPass multiPass(_lights,_renderingFromThisLight,fgUberProgramSetup,uberProgram,_brightness,_gamma,_clipPlanes);
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
 			Program* program;

@@ -34,7 +34,8 @@ namespace rr_gl
 		shadowOnly = false;
 		areaType = LINE;
 		areaSize = 0.2f;
-		shadowTransparency = ALPHA_KEYED_SHADOWS;
+		shadowTransparencyRequested = RGB_SHADOWS;
+		shadowTransparencyActual = RGB_SHADOWS;
 		numInstancesInArea = 1;
 		positionOfLastDDI = rr::RRVec3(1e6);
 		numSoftShadowSamples = 4;
@@ -45,10 +46,9 @@ namespace rr_gl
 	{
 		delete[] smallMapCPU;
 		if (deleteParent) delete getParent();
-		for (unsigned i=0;i<shadowmaps.size();i++)
-		{
-			delete shadowmaps[i];
-		}
+		for (unsigned c=0;c<2;c++)
+			for (unsigned i=0;i<shadowmaps[c].size();i++)
+				delete shadowmaps[c][i];
 	}
 
 	void RealtimeLight::configureCSM(const Camera* observer, const rr::RRObject* scene)
@@ -144,9 +144,10 @@ namespace rr_gl
 		return oldParent;
 	}
 
-	unsigned RealtimeLight::getNumShadowmaps() const
+	unsigned RealtimeLight::getNumShadowmaps(bool color) const
 	{
 		if (!rrlight.castShadows) return 0;
+		if (color && shadowTransparencyActual!=RGB_SHADOWS) return 0;
 		switch (rrlight.type)
 		{
 			case rr::RRLight::POINT: return 6;
@@ -176,26 +177,27 @@ namespace rr_gl
 		}
 	}
 
-	Texture* RealtimeLight::getShadowmap(unsigned instance)
+	Texture* RealtimeLight::getShadowmap(unsigned instance, bool color)
 	{
+		unsigned c = color?1:0;
 		// check inputs
-		unsigned numShadowmaps = getNumShadowmaps();
+		unsigned numShadowmaps = getNumShadowmaps(color);
 		if (instance>=numShadowmaps)
 		{
 			RR_ASSERT(0);
 			return NULL;
 		}
 		// resize vector if necessary
-		while (shadowmaps.size()<=instance)
-			shadowmaps.push_back(NULL);
+		while (shadowmaps[c].size()<=instance)
+			shadowmaps[c].push_back(NULL);
 		// delete shadowmap if size does not match
-		Texture*& shadowmap = shadowmaps[instance];
+		Texture*& shadowmap = shadowmaps[c][instance];
 		if (shadowmap && (shadowmap->getBuffer()->getWidth()!=rrlight.rtShadowmapSize || shadowmap->getBuffer()->getHeight()!=rrlight.rtShadowmapSize))
 			RR_SAFE_DELETE(shadowmap);
 		// allocate shadowmap if it is NULL
 		if (!shadowmap)
 		{
-			shadowmap = Texture::createShadowmap(rrlight.rtShadowmapSize,rrlight.rtShadowmapSize);
+			shadowmap = Texture::createShadowmap(rrlight.rtShadowmapSize,rrlight.rtShadowmapSize,color);
 			dirtyShadowmap = true;
 
 			static int i = 0;

@@ -67,8 +67,8 @@ public:
 	//! Should not be used in new programs.
 	Camera* setParent(Camera* parent);
 
-	//! Returns number of shadowmaps.
-	virtual unsigned getNumShadowmaps() const;
+	//! Returns number of shadowmaps (depth maps or color maps).
+	virtual unsigned getNumShadowmaps(bool color = false) const;
 
 	//! Provides light with data necessary for CSM calculations in getShadowmapCamera().
 	void configureCSM(const Camera* observer, const rr::RRObject* scene);
@@ -85,8 +85,8 @@ public:
 	//! set lower resolution for area and more blurry shadows.
 	void setShadowmapSize(unsigned newSize);
 
-	//! Returns shadowmap for given light instance (element of area light).
-	Texture* getShadowmap(unsigned instance);
+	//! Returns shadowmap (depth or color) for given light instance (element of area light).
+	Texture* getShadowmap(unsigned instance, bool color = false);
 
 	//! Recommends number of shadow samples for given light. Valid numbers 1,2,4,8.
 	//! In case of dirlight, this is number of samples close to camera.
@@ -113,8 +113,13 @@ public:
 	//! Size factor, light source size scales linearly with areaSize.
 	float areaSize;
 
-	//! Specifies how shadows of transparent materials are created and rendered.
-	ShadowTransparency shadowTransparency;
+	//! Requested shadow transparency mode.
+	//! It defaults to the highest quality mode, you can change it freely to reduce quality and increase speed.
+	//! Renderer is still allowed to use lower(simpler) transparency modes for materials that need it, but not higher.
+	//! If you set unnecessarily high mode, there's no performance penalty, renderer detects it and uses lower mode (see shadowTransparencyActual).
+	ShadowTransparency shadowTransparencyRequested;
+	//! Actual shadow transparency mode. For reading only, set by RRDynamicSolverGL::updateShadowmaps().
+	ShadowTransparency shadowTransparencyActual;
 
 	//! Helper for GI calculation, used by RRDynamicSolverGL.
 	unsigned* smallMapCPU;
@@ -170,7 +175,7 @@ protected:
 	rr::RRVec3 csmSceneSize;
 	Camera* parent;
 	bool deleteParent;
-	rr::RRVector<Texture*> shadowmaps; //! Vector of shadow maps. Size of vector is updated lazily, only when map is requested and actual number of maps doesn't match.
+	rr::RRVector<Texture*> shadowmaps[2]; //! Vectors of depth and color shadow maps. Sizes of vectors are updated lazily, only when map is requested and actual number of maps doesn't match.
 	//! Number of samples in soft shadows, defaults to 4, you may change it to 1,2,8.
 	unsigned numSoftShadowSamples;
 };

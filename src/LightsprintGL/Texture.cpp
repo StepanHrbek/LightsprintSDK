@@ -384,14 +384,14 @@ static GLenum filtering()
 	return Workaround::needsUnfilteredShadowmaps()?GL_NEAREST:GL_LINEAR;
 }
 
-Texture* Texture::createShadowmap(unsigned width, unsigned height)
+Texture* Texture::createShadowmap(unsigned width, unsigned height, bool color)
 {
 	if (width==0 || height==0)
 	{
 		rr::RRReporter::report(rr::ERRO,"Attempt to create %dx%d shadowmap.\n",width,height);
 		return NULL;
 	}
-	rr::RRBuffer* buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,rr::BF_DEPTH,true,(const unsigned char*)1);
+	rr::RRBuffer* buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,color?rr::BF_RGB:rr::BF_DEPTH,true,(const unsigned char*)1);
 	if (!buffer)
 		return NULL;
 	Texture* texture = new Texture(buffer,false,false, filtering(), filtering(), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);

@@ -28,7 +28,7 @@ enum
 	TEXTURE_2D_MATERIAL_EMISSIVE         = 4, ///< Texture image unit used by our uberprogram for emissive map.
 	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 5, ///< Texture image unit used by our uberprogram for diffuse cube map.
 	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 6, ///< Texture image unit used by our uberprogram for specular cube map.
-	TEXTURE_2D_SHADOWMAP_0               = 7, ///< Texture image unit used by our shadowmap 0. For more shadowmaps in single shader, use up to TEXTURE_2D_SHADOWMAP_0+7
+	TEXTURE_2D_SHADOWMAP_0               = 7, ///< Texture image unit used by our shadowmap 0. For more shadowmaps in single shader, use up to TEXTURE_2D_SHADOWMAP_0+7. If there are 6 shadowmaps and 6 color maps, color maps use TEXTURE_2D_SHADOWMAP_0+6..11. Conflict with TEXTURE_2D_LIGHT_INDIRECT2 is no issue, we don't use the latter now. High number of texture image units used may be an issue, needs additional testing.
 	TEXTURE_2D_LIGHT_INDIRECT2           = 15, ///< Texture image unit used by our uberprogram for ambient map2.
 
 	// texcoords assigned to UberProgram
@@ -58,6 +58,7 @@ struct RR_GL_API UberProgramSetup
 {
 	unsigned SHADOW_MAPS                   :8; ///< Number of shadow maps processed in one pass. 0=no shadows, 1=hard shadows, more=soft shadows. Valid values: 0..detectMaxShadowmaps().
 	unsigned SHADOW_SAMPLES                :8; ///< Number of samples read from each shadowmap. 0=no shadows, 1=hard shadows, 2,4,8=soft shadows. Valid values: 0,1,2,4,8.
+	bool     SHADOW_COLOR                  :1; ///< Enables colored semitransparent shadows.
 	bool     SHADOW_PENUMBRA               :1; ///< Enables blend of all shadowmaps, used by penumbra shadows.
 	bool     SHADOW_CASCADE                :1; ///< Enables cascading of all shadowmaps, used by cascaded shadowmapping.
 	bool     SHADOW_ONLY                   :1; ///< Renders only direct shadows without direct illumination. Must be combined with indirect illumination, shadows are subtracted from indirect light. Has no visible effect if there's no indirect light.
@@ -98,6 +99,7 @@ struct RR_GL_API UberProgramSetup
 	bool     MATERIAL_TRANSPARENCY_MAP     :1; ///< Enables materials's specular transmittance modulated by texture (rgb or alpha). Optimization: with diffuse map enabled and transparency in its alpha, set only MATERIAL_TRANSPARENCY_IN_ALPHA, not MATERIAL_TRANSPARENCY_MAP.
 	bool     MATERIAL_TRANSPARENCY_IN_ALPHA:1; ///< If(!MATERIAL_TRANSPARENCY_CONST && !MATERIAL_TRANSPARENCY_MAP), enables materials's specular transmittance modulated by diffuse alpha (0=transparent), otherwise makes transparency read from alpha (0=transparent) rather than from rgb (1=transparent). 
 	bool     MATERIAL_TRANSPARENCY_BLEND   :1; ///< When rendering transparency, uses blending (for semitransparency) rather than alpha keying (0% or 100%).
+	bool     MATERIAL_TRANSPARENCY_TO_RGB  :1; ///< When blending, uses more realistic RGB blending rather than usual alpha blending. When not blending, transparency color is just sent to RGB instead of A (this mode must not be combined with diffuse/specular/emis because they also write to RGB).
 
 	bool     MATERIAL_NORMAL_MAP           :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
 	bool     MATERIAL_CULLING              :1; ///< Enables materials's n-sided property (culling is enabled/disabled according to material, no change in shader).

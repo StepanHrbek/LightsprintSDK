@@ -84,6 +84,7 @@ void UberProgramSetup::enableAllMaterials()
 	MATERIAL_TRANSPARENCY_MAP = true;
 	MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 	MATERIAL_TRANSPARENCY_BLEND = true;
+	MATERIAL_TRANSPARENCY_TO_RGB = true;
 	MATERIAL_NORMAL_MAP = false;
 	MATERIAL_CULLING = true;
 }
@@ -113,6 +114,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material)
 	MATERIAL_TRANSPARENCY_MAP = material->specularTransmittance.texture!=NULL;
 	MATERIAL_TRANSPARENCY_IN_ALPHA = material->specularTransmittance.color!=rr::RRVec3(0) && material->specularTransmittanceKeyed;
 	MATERIAL_TRANSPARENCY_BLEND = material->specularTransmittance.color!=rr::RRVec3(0) && !material->specularTransmittanceKeyed;
+	MATERIAL_TRANSPARENCY_TO_RGB = MATERIAL_TRANSPARENCY_BLEND;
 
 	// misc
 	MATERIAL_NORMAL_MAP = false;
@@ -126,9 +128,10 @@ const char* UberProgramSetup::getSetupString()
 	RR_ASSERT(!MATERIAL_TRANSPARENCY_CONST || !MATERIAL_TRANSPARENCY_MAP); // engine does not support both together
 
 	static char setup[2000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
+		SHADOW_COLOR?"#define SHADOW_COLOR\n":"",
 		SHADOW_BILINEAR?"#define SHADOW_BILINEAR\n":"",
 		SHADOW_PENUMBRA?"#define SHADOW_PENUMBRA\n":"",
 		SHADOW_CASCADE?"#define SHADOW_CASCADE\n":"",
@@ -163,6 +166,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_TRANSPARENCY_MAP?"#define MATERIAL_TRANSPARENCY_MAP\n":"",
 		MATERIAL_TRANSPARENCY_IN_ALPHA?"#define MATERIAL_TRANSPARENCY_IN_ALPHA\n":"",
 		MATERIAL_TRANSPARENCY_BLEND?"#define MATERIAL_TRANSPARENCY_BLEND\n":"",
+		MATERIAL_TRANSPARENCY_TO_RGB?"#define MATERIAL_TRANSPARENCY_TO_RGB\n":"",
 		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
 		ANIMATION_WAVE?"#define ANIMATION_WAVE\n":"",
 		POSTPROCESS_NORMALS?"#define POSTPROCESS_NORMALS\n":"",
@@ -269,6 +273,7 @@ void UberProgramSetup::reduceMaterials(const UberProgramSetup& fullMaterial)
 	MATERIAL_TRANSPARENCY_MAP      &= fullMaterial.MATERIAL_TRANSPARENCY_MAP;
 	MATERIAL_TRANSPARENCY_IN_ALPHA &= fullMaterial.MATERIAL_TRANSPARENCY_IN_ALPHA;
 	MATERIAL_TRANSPARENCY_BLEND    &= fullMaterial.MATERIAL_TRANSPARENCY_BLEND;
+	MATERIAL_TRANSPARENCY_TO_RGB   &= fullMaterial.MATERIAL_TRANSPARENCY_TO_RGB;
 	MATERIAL_NORMAL_MAP            &= fullMaterial.MATERIAL_NORMAL_MAP;
 	MATERIAL_CULLING               &= fullMaterial.MATERIAL_CULLING;
 }
@@ -285,6 +290,7 @@ void UberProgramSetup::validate()
 	{
 		SHADOW_MAPS = 0;
 		SHADOW_SAMPLES = 0;
+		SHADOW_COLOR = 0;
 		LIGHT_DIRECT_MAP = 0;
 		LIGHT_DIRECTIONAL = 0;
 		LIGHT_DIRECT_ATT_SPOT = 0;
@@ -342,6 +348,7 @@ void UberProgramSetup::validate()
 		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_MAP = MATERIAL_TRANSPARENCY_MAP;
 		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_IN_ALPHA = MATERIAL_TRANSPARENCY_IN_ALPHA; // if not preserved, breaks unlit alpha map
 		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_BLEND = MATERIAL_TRANSPARENCY_BLEND; // if not preserved, breaks Z-only pre rendering of >50% transparent objects
+		uberProgramSetupBlack.MATERIAL_TRANSPARENCY_TO_RGB = MATERIAL_TRANSPARENCY_TO_RGB;
 		uberProgramSetupBlack.OBJECT_SPACE = OBJECT_SPACE;
 		uberProgramSetupBlack.CLIP_PLANE_XA = CLIP_PLANE_XA;
 		uberProgramSetupBlack.CLIP_PLANE_XB = CLIP_PLANE_XB;
@@ -392,7 +399,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		Texture* shadowmap = light->getShadowmap(firstInstance+i);
 		if (shadowmap)
 		{
-			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+i); // for binding "shadowmapN" texture
+			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+i); // for binding "shadowMapN" texture
 			// prepare samplers
 			shadowmap->bindTexture();
 			//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
@@ -406,6 +413,21 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			glMultMatrixd(lightInstance->frustumMatrix);
 			glMultMatrixd(lightInstance->viewMatrix);
 			delete lightInstance;
+		}
+	}
+	if (SHADOW_COLOR)
+	for (unsigned i=0;i<SHADOW_MAPS;i++)
+	{
+		Texture* shadowmap = light->getShadowmap(firstInstance+i,true);
+		if (shadowmap)
+		{
+			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+SHADOW_MAPS+i); // for binding "shadowColorMapN" texture
+			// prepare samplers
+			shadowmap->bindTexture();
+			//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
+			char name[] = "shadowColorMap0"; // for individual samplers
+			name[14] = '0'+i; // for individual samplers
+			program->sendUniform(name, (int)(TEXTURE_2D_SHADOWMAP_0+SHADOW_MAPS+i)); // for individual samplers
 		}
 	}
 	//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)

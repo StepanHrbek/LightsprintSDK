@@ -4,6 +4,7 @@
 // Options:
 //  #define SHADOW_MAPS [0..10]
 //  #define SHADOW_SAMPLES [0|1|2|4|8]
+//  #define SHADOW_COLOR
 //  #define SHADOW_BILINEAR
 //  #define SHADOW_PENUMBRA
 //  #define SHADOW_CASCADE
@@ -38,6 +39,7 @@
 //  #define MATERIAL_TRANSPARENCY_MAP
 //  #define MATERIAL_TRANSPARENCY_IN_ALPHA
 //  #define MATERIAL_TRANSPARENCY_BLEND
+//  #define MATERIAL_TRANSPARENCY_TO_RGB
 //  #define MATERIAL_NORMAL_MAP
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS

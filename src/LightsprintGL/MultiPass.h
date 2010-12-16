@@ -32,7 +32,7 @@ public:
 	//! For render with all features according to light properties,
 	//! set at least SHADOW_MAPS,LIGHT_DIRECT,LIGHT_DIRECT_COLOR,LIGHT_DIRECT_MAP,LIGHT_DIRECT_ATT_SPOT.
 	//! If you clear any one of them, it will stay cleared for all lights.
-	MultiPass(const RealtimeLights* lights, UberProgramSetup mainUberProgramSetup, UberProgram* uberProgram, const rr::RRVec4* brightness, float gamma, float* clipPlanes);
+	MultiPass(const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight, UberProgramSetup mainUberProgramSetup, UberProgram* uberProgram, const rr::RRVec4* brightness, float gamma, float* clipPlanes);
 
 	//! Returns true and all outXxx are set, do render.
 	//! Or returns false and outXxx stay unchanged, rendering is done.
@@ -50,7 +50,10 @@ protected:
 	float* clipPlanes;
 
 	// intermediates
+	GLboolean depthMask;
+	GLboolean colorMask;
 	int separatedZPass; ///< Z pass is added for blended objects, to avoid blending multiple fragments in undefined order.
+	int separatedMultiplyPass; ///< Multiply pass (without Z write) is for blended objects (with MATERIAL_TRANSPARENCY_TO_RGB).
 	int separatedAmbientPass; ///< Ambient pass is separated if there are no lights to piggyback on.
 	int lightIndex; // getNextPass() may increase it by more than one in presence of disabled light.
 	int colorPassIndex; // getNextPass increases it always by one. Starts at -1 for Z-only pass, 0 otherwise.

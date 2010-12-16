@@ -203,9 +203,37 @@ void RRDynamicSolverGL::updateShadowmaps()
 {
 	if (!getMultiObjectCustom()) return;
 
-	PreserveViewport p1;
-	PreserveMatrices p2;
-	PreserveFBO p3; // must go after viewport, so that viewport is restored later
+	PreserveClearColor p1;
+	PreserveViewport p2;
+	PreserveMatrices p3;
+	PreserveFBO p4; // must go after viewport, so that viewport is restored later
+
+	// calculate max reasonable level of shadow transparency for materials
+	//  using higher level would slow down rendering, without improving quality
+	RealtimeLight::ShadowTransparency shadowTransparencyRequestedByMaterials = RealtimeLight::FULLY_OPAQUE_SHADOWS;
+	const rr::RRObjects& dynobjects = getDynamicObjects();
+	for (int i=-1;i<(int)dynobjects.size();i++)
+	{
+		rr::RRObject* object = (i<0)?getMultiObjectCustom():dynobjects[i];
+		if (object)
+		{
+			for (unsigned g=0;g<object->faceGroups.size();g++)
+			{
+				const rr::RRMaterial* material = object->faceGroups[g].material;
+				if (material && material->specularTransmittance.color!=rr::RRVec3(0))
+				{
+					if (!material->specularTransmittanceKeyed)
+					{
+						shadowTransparencyRequestedByMaterials = RealtimeLight::RGB_SHADOWS;
+						goto done;
+					}
+					if (shadowTransparencyRequestedByMaterials==RealtimeLight::FULLY_OPAQUE_SHADOWS)
+						shadowTransparencyRequestedByMaterials = RealtimeLight::ALPHA_KEYED_SHADOWS;
+				}
+			}
+		}
+	}
+done:
 
 	for (unsigned i=0;i<realtimeLights.size();i++)
 	{
@@ -218,6 +246,14 @@ void RRDynamicSolverGL::updateShadowmaps()
 		if (!light->getRRLight().enabled)
 			continue;
 
+		// adjust shadow transparency
+		RealtimeLight::ShadowTransparency shadowTransparencyActual = RR_MIN(shadowTransparencyRequestedByMaterials,light->shadowTransparencyRequested);
+		if (light->shadowTransparencyActual!=shadowTransparencyActual)
+		{
+			light->shadowTransparencyActual = shadowTransparencyActual;
+			reportDirectIlluminationChange(i,true,true);
+		}
+
 		// update shadowmap[s]
 		bool isDirtyOnlyBecauseObserverHasMoved = !light->dirtyShadowmap && observer && observer->pos!=light->getObserverPos() && light->getParent()->orthogonal && light->getNumShadowmaps();
 		if (light->dirtyShadowmap || isDirtyOnlyBecauseObserverHasMoved)
@@ -225,13 +261,18 @@ void RRDynamicSolverGL::updateShadowmaps()
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
 			light->dirtyShadowmap = false;
 			light->configureCSM(observer,getMultiObjectCustom());
-			glColorMask(0,0,0,0);
 			glEnable(GL_POLYGON_OFFSET_FILL);
-			UberProgramSetup uberProgramSetup; // default constructor sets nearly all off, perfect for shadowmap
-			switch(light->shadowTransparency)
+			// Setup shader for rendering to SM.
+			// Default constructor sets nearly all off, perfect for shadowmap.
+			// Note that MATERIAL_TRANSPARENCY_BLEND must stay off, it would trigger multipass rendering.
+			UberProgramSetup uberProgramSetup;
+			switch(light->shadowTransparencyActual)
 			{
 				case RealtimeLight::RGB_SHADOWS:
-					// not yet implemented
+					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = true;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = true;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = true;
 					break;
 				case RealtimeLight::ALPHA_KEYED_SHADOWS:
 					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = true;
@@ -255,7 +296,7 @@ void RRDynamicSolverGL::updateShadowmaps()
 				Texture* shadowmap = light->getShadowmap(i);
 				if (!shadowmap)
 				{
-					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (texture=NULL).\n"));
+					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (shadow=NULL).\n"));
 				}
 				else
 				{
@@ -263,32 +304,45 @@ void RRDynamicSolverGL::updateShadowmaps()
 					float fixedBias = (light->getRRLight().type==rr::RRLight::POINT)?slopeBias*4:slopeBias;
 					Workaround::needsIncreasedBias(slopeBias,fixedBias,light->getRRLight());
 					glPolygonOffset(slopeBias,fixedBias);
-					if (!shadowmap->getBuffer())
+					glViewport(0, 0, light->getRRLight().rtShadowmapSize, light->getRRLight().rtShadowmapSize);
+					FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,shadowmap);
+					if (light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS)
 					{
-						RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (buffer=NULL).\n"));
+						Texture* colormap = light->getShadowmap(i,true);
+						if (!colormap)
+						{
+							RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (color=NULL).\n"));
+						}
+						else
+						{
+							FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,colormap);
+						}
+					}
+					if (!FBO::isOk())
+					{
+						// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
+						RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (FBO).\n"));
 					}
 					else
 					{
-						glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
-						FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,shadowmap);
-						if (!FBO::isOk())
+						if (light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS)
 						{
-							// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
-							RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (FBO).\n"));
+							// we assert that color mask is 1, clear would be masked otherwise
+							glClearColor(1,1,1,1);
+							glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 						}
 						else
 						{
 							glClear(GL_DEPTH_BUFFER_BIT);
-							bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
-							if (depthClamp) glEnable(GL_DEPTH_CLAMP);
-							renderScene(uberProgramSetup,&light->getRRLight(),false,-1,-1,0,NULL,1);
-							if (depthClamp) glDisable(GL_DEPTH_CLAMP);
 						}
+						bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
+						if (depthClamp) glEnable(GL_DEPTH_CLAMP);
+						renderScene(uberProgramSetup,&light->getRRLight(),false,-1,-1,0,NULL,1);
+						if (depthClamp) glDisable(GL_DEPTH_CLAMP);
 					}
 				}
 			}
 			glDisable(GL_POLYGON_OFFSET_FILL);
-			glColorMask(1,1,1,1);
 		}
 	}
 }
@@ -450,6 +504,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		UberProgramSetup uberProgramSetup;
 		uberProgramSetup.SHADOW_MAPS = (ddiLight->getRRLight().type==rr::RRLight::POINT)?ddiLight->getNumShadowmaps():(ddiLight->getNumShadowmaps()?1:0);
 		uberProgramSetup.SHADOW_SAMPLES = uberProgramSetup.SHADOW_MAPS?1:0; // for 1-light render, won't be reset by MultiPass
+		uberProgramSetup.SHADOW_COLOR = uberProgramSetup.SHADOW_MAPS && ddiLight->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		uberProgramSetup.LIGHT_DIRECT_COLOR = ddiLight->getRRLight().color!=rr::RRVec3(1);
 		uberProgramSetup.LIGHT_DIRECT_MAP = uberProgramSetup.SHADOW_MAPS && ddiLight->getProjectedTexture();

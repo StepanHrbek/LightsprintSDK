@@ -29,8 +29,8 @@ class RR_GL_API Texture : public rr::RRUniformlyAllocatedNonCopyable
 public:
 	//! Creates texture. Buffer is not adopted, not deleted in destructor.
 	Texture(rr::RRBuffer* buffer, bool buildMipMaps, bool compress, int magn = GL_LINEAR, int mini = GL_LINEAR, int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
-	//! Creates depth texture (shadowmap).
-	static Texture* createShadowmap(unsigned width, unsigned height);
+	//! Creates shadowmap, depth or color texture.
+	static Texture* createShadowmap(unsigned width, unsigned height, bool color = false);
 	//! Returns texture buffer (with type, width, height, format, data).
 	rr::RRBuffer* getBuffer();
 	//! Returns texture buffer (with type, width, height, format, data).

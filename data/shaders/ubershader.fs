@@ -4,6 +4,7 @@
 // Options:
 //  #define SHADOW_MAPS [0..10]
 //  #define SHADOW_SAMPLES [0|1|2|4|8]
+//  #define SHADOW_COLOR
 //  #define SHADOW_BILINEAR
 //  #define SHADOW_PENUMBRA
 //  #define SHADOW_CASCADE
@@ -38,6 +39,7 @@
 //  #define MATERIAL_TRANSPARENCY_MAP
 //  #define MATERIAL_TRANSPARENCY_IN_ALPHA
 //  #define MATERIAL_TRANSPARENCY_BLEND
+//  #define MATERIAL_TRANSPARENCY_TO_RGB
 //  #define MATERIAL_NORMAL_MAP
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
@@ -51,33 +53,63 @@
 #if SHADOW_SAMPLES>0
 #if SHADOW_MAPS>0
 	uniform sampler2DShadow shadowMap0;
+	#ifdef SHADOW_COLOR
+	uniform sampler2D shadowColorMap0;
+	#endif
 #endif
 #if SHADOW_MAPS>1
 	uniform sampler2DShadow shadowMap1;
+	#ifdef SHADOW_COLOR
+	uniform sampler2D shadowColorMap1;
+	#endif
 #endif
 #if SHADOW_MAPS>2
 	uniform sampler2DShadow shadowMap2;
+	#ifdef SHADOW_COLOR
+	uniform sampler2D shadowColorMap2;
+	#endif
 #endif
 #if SHADOW_MAPS>3
 	uniform sampler2DShadow shadowMap3;
+	#ifdef SHADOW_COLOR
+	uniform sampler2D shadowColorMap3;
+	#endif
 #endif
 #if SHADOW_MAPS>4
 	uniform sampler2DShadow shadowMap4;
+	#ifdef SHADOW_COLOR
+	uniform sampler2D shadowColorMap4;
+	#endif
 #endif
 #if SHADOW_MAPS>5
 	uniform sampler2DShadow shadowMap5;
+	#ifdef SHADOW_COLOR
+	uniform sampler2D shadowColorMap5;
+	#endif
 #endif
 #if SHADOW_MAPS>6
 	uniform sampler2DShadow shadowMap6;
+	#ifdef SHADOW_COLOR
+	uniform sampler2D shadowColorMap6;
+	#endif
 #endif
 #if SHADOW_MAPS>7
 	uniform sampler2DShadow shadowMap7;
+	#ifdef SHADOW_COLOR
+	uniform sampler2D shadowColorMap7;
+	#endif
 #endif
 #if SHADOW_MAPS>8
 	uniform sampler2DShadow shadowMap8;
+	#ifdef SHADOW_COLOR
+	uniform sampler2D shadowColorMap8;
+	#endif
 #endif
 #if SHADOW_MAPS>9
 	uniform sampler2DShadow shadowMap9;
+	#ifdef SHADOW_COLOR
+	uniform sampler2D shadowColorMap9;
+	#endif
 #endif
 #endif
 
@@ -240,37 +272,46 @@ void main()
 	//
 	// material
 
-	float opacity = 1.0;
+	float opacityA = 1.0;
+	vec3 transparencyRGB = vec3(0.0);
 	#ifdef MATERIAL_DIFFUSE_CONST
 		#if defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
-			opacity = materialDiffuseConst.a;
+			opacityA = materialDiffuseConst.a;
+			transparencyRGB = vec3(1.0-materialDiffuseConst.a);
 		#endif
 	#endif
 	#ifdef MATERIAL_TRANSPARENCY_CONST
 		#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
-			opacity = materialTransparencyConst.a;
+			opacityA = materialTransparencyConst.a;
+			transparencyRGB = vec3(1.0-materialTransparencyConst.a);
 		#else
-			opacity = 1.0-(materialTransparencyConst.r+materialTransparencyConst.g+materialTransparencyConst.b)*0.33333;
+			opacityA = 1.0-(materialTransparencyConst.r+materialTransparencyConst.g+materialTransparencyConst.b)*0.33333;
+			transparencyRGB = materialTransparencyConst.rgb;
 		#endif
 	#endif
 	#ifdef MATERIAL_TRANSPARENCY_MAP
 		vec4 materialTransparencyMapColor = texture2D(materialTransparencyMap, materialTransparencyCoord);
 		#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
-			opacity = materialTransparencyMapColor.a;
+			opacityA = materialTransparencyMapColor.a;
+			transparencyRGB = vec3(1.0-materialTransparencyMapColor.a);
 		#else
-			opacity = 1.0-(materialTransparencyMapColor.r+materialTransparencyMapColor.g+materialTransparencyMapColor.b)*0.33333;
+			opacityA = 1.0-(materialTransparencyMapColor.r+materialTransparencyMapColor.g+materialTransparencyMapColor.b)*0.33333;
+			transparencyRGB = materialTransparencyMapColor.rgb;
 		#endif
 	#endif
 	#ifdef MATERIAL_DIFFUSE_MAP
 		vec4 materialDiffuseMapColor = texture2D(materialDiffuseMap, materialDiffuseCoord);
 		#if !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP) && defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
-			opacity = materialDiffuseMapColor.a;
+			opacityA = materialDiffuseMapColor.a;
+			transparencyRGB = vec3(1.0-materialDiffuseMapColor.a);
 		#endif
 	#endif
-	#if (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)) && !defined(MATERIAL_TRANSPARENCY_BLEND)
+	#if (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)) && !defined(MATERIAL_TRANSPARENCY_BLEND) && !defined(MATERIAL_TRANSPARENCY_TO_RGB)
 		// Shader based alpha test with fixed treshold
 		// We don't use GL_ALPHA_TEST because Radeons ignore it when rendering into shadowmap (all Radeons, last version tested: Catalyst 9-10)
-		if (opacity<0.5) discard;
+		//  MATERIAL_TRANSPARENCY_BLEND = alpha blending, not alpha keying
+		//  MATERIAL_TRANSPARENCY_TO_RGB = rendering blended material into rgb shadowmap or rgb blending, not alpha keying
+		if (opacityA<0.5) discard;
 	#endif
 	#ifdef MATERIAL_SPECULAR_MAP
 		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
@@ -294,11 +335,27 @@ void main()
 
 	#if SHADOW_SAMPLES*SHADOW_MAPS>0
 
-		float visibility = 0.0; // 0=shadowed, 1=lit
+		#ifdef SHADOW_COLOR
+			// colored shadow
+			#define VISIBILITY_T vec4
+			#if SHADOW_SAMPLES==1
+				#define SHADOW_COLOR_LOOKUP(index) * texture2DProj(shadowColorMap##index,shadowCoord[index].xyw)
+			#else
+				#define SHADOW_COLOR_LOOKUP(index) * texture2D(shadowColorMap##index,center.xy)
+			#endif
+			#define SHADOW_COLOR_LOOKUP_CSM(index) * texture2DProj(shadowColorMap##index,shadowCoord[index].xyw)
+		#else
+			// standard shadow
+			#define VISIBILITY_T float
+			#define SHADOW_COLOR_LOOKUP(index)
+			#define SHADOW_COLOR_LOOKUP_CSM(index)
+		#endif
+
+		VISIBILITY_T visibility = VISIBILITY_T(0.0); // 0=shadowed, 1=lit, 1,0,0=red shadow
 
 		#if SHADOW_SAMPLES==1
 			// hard shadows with 1 lookup
-			#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
+			#define SHADOWMAP_LOOKUP(shadowMap,index) \
 				visibility += shadow2DProj(shadowMap, shadowCoord[index]).z
 		#else
 			// soft shadows with 2, 4 or 8 lookups in rotating kernel
@@ -311,13 +368,13 @@ void main()
 			vec3 shift1 = sc*shadowBlurWidth.w;
 			vec3 shift2 = sc.yxz*shadowBlurWidth.xyz;
 			#if SHADOW_SAMPLES==2
-				#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
+				#define SHADOWMAP_LOOKUP(shadowMap,index) \
 				center = shadowCoord[index].xyz/shadowCoord[index].w; \
 				visibility += ( \
 					shadow2D(shadowMap, center+shift1).z \
 					+shadow2D(shadowMap, center-shift1).z )
 			#elif SHADOW_SAMPLES==4
-				#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
+				#define SHADOWMAP_LOOKUP(shadowMap,index) \
 				center = shadowCoord[index].xyz/shadowCoord[index].w; \
 				visibility += ( \
 					shadow2D(shadowMap, center+shift1).z \
@@ -325,7 +382,7 @@ void main()
 					+shadow2D(shadowMap, center+shift2).z \
 					+shadow2D(shadowMap, center-shift2).z )
 			#elif SHADOW_SAMPLES==8
-				#define SHADOWMAP_LOOKUP_SUB(shadowMap,index) \
+				#define SHADOWMAP_LOOKUP(shadowMap,index) \
 				center = shadowCoord[index].xyz/shadowCoord[index].w; \
 				visibility += ( \
 					shadow2D(shadowMap, center+shift1).z \
@@ -343,28 +400,30 @@ void main()
 			// optimized path, step() not necessary
 			// previosuly used also if defined(LIGHT_DIRECT_MAP), with projected texture set to clamp to black border,
 			//  but it projected also backwards in areas where Z was never written to SM after clear (e.g. spotlight looking into the sky), at least on 4870 cat811-901
-			#define SHADOWMAP_LOOKUP(shadowMap,index) SHADOWMAP_LOOKUP_SUB(shadowMap,index)
+			#define SHADOW_CLAMP(index)
 		#else
 			// standard path
-			#define SHADOWMAP_LOOKUP(shadowMap,index) SHADOWMAP_LOOKUP_SUB(shadowMap,index) * step(0.0,shadowCoord[index].z)
+			#define SHADOW_CLAMP(index) * step(0.0,shadowCoord[index].z)
 		#endif
+
+		#define ACCUMULATE_SHADOW(index) SHADOWMAP_LOOKUP(shadowMap##index,index) SHADOW_CLAMP(index) SHADOW_COLOR_LOOKUP(index)
 
 		vec3 center; // temporary, used by macros
 		#if defined(SHADOW_CASCADE) && SHADOW_MAPS>1
 			#if SHADOW_MAPS==2
-				float visibility0 = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES);
-				{SHADOWMAP_LOOKUP(shadowMap1,1);}
+				VISIBILITY_T visibility0 = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES) SHADOW_COLOR_LOOKUP_CSM(0);
+				{ACCUMULATE_SHADOW(1);}
 				center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
 				float centerMax = max(center.x,max(center.y,center.z));
 				float blendFactor = smoothstep(0.3,0.49,centerMax);
 				visibility = mix(visibility,visibility0,blendFactor);
 			#else
-				float visibility1 = shadow2DProj(shadowMap1,shadowCoord[1]).z*float(SHADOW_SAMPLES);
+				VISIBILITY_T visibility1 = shadow2DProj(shadowMap1,shadowCoord[1]).z*float(SHADOW_SAMPLES) SHADOW_COLOR_LOOKUP_CSM(1);
 				center = abs(shadowCoord[2].xyz/shadowCoord[2].w-vec3(0.5));
 				float centerMax = max(center.x,max(center.y,center.z));
 				if (centerMax>0.49)
 				{
-					float visibility0 = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES);
+					VISIBILITY_T visibility0 = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES) SHADOW_COLOR_LOOKUP_CSM(0);
 					center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
 					float centerMax = max(center.x,max(center.y,center.z));
 					float blendFactor = smoothstep(0.3,0.49,centerMax);
@@ -372,42 +431,42 @@ void main()
 				}
 				else
 				{
-					{SHADOWMAP_LOOKUP(shadowMap2,2);}
+					{ACCUMULATE_SHADOW(2);}
 					float blendFactor = smoothstep(0.3,0.49,centerMax);
 					visibility = mix(visibility,visibility1,blendFactor);
 				}
 			#endif
 		#else
 			#if SHADOW_MAPS>0
-				SHADOWMAP_LOOKUP(shadowMap0,0);
+				ACCUMULATE_SHADOW(0);
 			#endif
 			#if SHADOW_MAPS>1
-				SHADOWMAP_LOOKUP(shadowMap1,1);
+				ACCUMULATE_SHADOW(1);
 			#endif
 			#if SHADOW_MAPS>2
-				SHADOWMAP_LOOKUP(shadowMap2,2);
+				ACCUMULATE_SHADOW(2);
 			#endif
 		#endif
 		#if SHADOW_MAPS>3
-			SHADOWMAP_LOOKUP(shadowMap3,3);
+			ACCUMULATE_SHADOW(3);
 		#endif
 		#if SHADOW_MAPS>4
-			SHADOWMAP_LOOKUP(shadowMap4,4);
+			ACCUMULATE_SHADOW(4);
 		#endif
 		#if SHADOW_MAPS>5
-			SHADOWMAP_LOOKUP(shadowMap5,5);
+			ACCUMULATE_SHADOW(5);
 		#endif
 		#if SHADOW_MAPS>6
-			SHADOWMAP_LOOKUP(shadowMap6,6);
+			ACCUMULATE_SHADOW(6);
 		#endif
 		#if SHADOW_MAPS>7
-			SHADOWMAP_LOOKUP(shadowMap7,7);
+			ACCUMULATE_SHADOW(7);
 		#endif
 		#if SHADOW_MAPS>8
-			SHADOWMAP_LOOKUP(shadowMap8,8);
+			ACCUMULATE_SHADOW(8);
 		#endif
 		#if SHADOW_MAPS>9
-			SHADOWMAP_LOOKUP(shadowMap9,9);
+			ACCUMULATE_SHADOW(9);
 		#endif
 
 		#ifdef SHADOW_PENUMBRA
@@ -417,7 +476,7 @@ void main()
 		#endif
 
 		#ifdef SHADOW_ONLY
-			visibility -= 1.0;
+			visibility -= VISIBILITY_T(1.0);
 		#endif
 
 	#endif // SHADOW_SAMPLES*SHADOW_MAPS>0
@@ -520,7 +579,7 @@ void main()
 					//        incoming DIFFUSE_CONST were already premultipled by average opacity, but multiply them again if(transparency_map)
 					//             TODO: if(MATERIAL_TRANSPARENCY_MAP), renderer should divide diffuse_const by average opacity before sending them to GPU (it is very atypical setup, never encountered yet)
 					//        incoming specular and emission should be separated from transparency, do nothing (buggy look with real data not encountered yet, but it may come)
-					opacity *
+					opacityA *
 				#endif
 				vec4(( 
 					#ifdef LIGHT_DIRECT
@@ -617,11 +676,14 @@ void main()
 			gl_FragColor.rgb = max(gl_FragColor.rgb,vec3(0.33,0.33,0.33));
 		#endif
 
+		#ifdef MATERIAL_TRANSPARENCY_TO_RGB
+			gl_FragColor.rgb = transparencyRGB;
+		#endif
 		#ifdef FORCE_2D_POSITION
 			gl_FragColor.a = 1.0;
 		#else
 			#if defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
-				gl_FragColor.a = opacity;
+				gl_FragColor.a = opacityA;
 			#endif
 			#if (defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP)) && !defined(MATERIAL_DIFFUSE_CONST) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP)
 				// only if not defined by material, opacity is taken from lightmap/vertex colors

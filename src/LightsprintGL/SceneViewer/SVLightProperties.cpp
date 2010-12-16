@@ -191,7 +191,7 @@ void SVLightProperties::updatePosDir()
 			updateProperty(propDirection,rtlight->getParent()->dir) +
 			updateFloat(propAltitude,ANGLEX2ALT(rtlight->getParent()->angleX)) +
 			updateFloat(propAzimuth,ANGLE2AZI(rtlight->getParent()->angle)) +
-			updateInt(propShadowTransparency,rtlight->shadowTransparency)
+			updateInt(propShadowTransparency,rtlight->shadowTransparencyActual)
 			;
 		if (numChanges)
 		{
