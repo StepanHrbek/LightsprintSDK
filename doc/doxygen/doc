@@ -142,7 +142,7 @@ Data input / output
 
 Global illumination
 - realtime global illumination / realtime radiosity / realtime raytracing
-- realtime penumbra shadows, soft shadows
+- realtime penumbra shadows, soft shadows, RGB shadows, RGB blending
 - realtime color bleeding
 - dynamic lights
 - dynamic objects
