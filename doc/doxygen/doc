@@ -218,7 +218,7 @@ Scene formats
 - Gamebryo LightSpeed 3.1.1
 - Gamebryo 2.6 ( *.gsa )
 - Unreal Engine 3
-- Lightsprint ( .rr3 )
+- \subpage rr3_specification "Lightsprint ( .rr3 )"
 - Collada ( *.dae )    <------ if not sure, use Collada, see \subpage collada_plugins
 - Biovision BVH ( *.bvh )
 - 3D Studio Max 3DS ( *.3ds )
@@ -366,7 +366,39 @@ Video formats
   Avoid. Max/Maya may include Collada support out of the box. We have never seen it doing its job well.
 
 
+\page rr3_specification .rr3 format
 
+ .rr3 is 3d scene format created by Lightsprint.
+
+ Lightsprint stands against common business practise of creating truckloads of new formats and locking customers' data in these formats; we work for customers, not against them.
+ In the end, after 4 years and supporting over 70 standard formats, we created .rr3 as an option and we don't force you to use it.
+
+ \section rr3_benefits .rr3 benefits
+ - loads 50-200x faster than other formats (not counting time to load textures)
+ - files are 2-6x smaller than in other formats
+ - supports saving
+ - supports instances
+ - full import/export source code included with commercial license
+
+ \section rr3_data .rr3 contents
+ .rr3 contains all data present in RRScene with these exceptions:
+ - RRObject::illumination is not saved
+ - void* customData is not saved
+ - if you subclass our classes, your customization won't be saved, only base classes like RRObject, RRMeshArrays, RRLight are saved
+
+ To see what is in RRScene and therefore in .rr3, visit "Member data documentation" of RRScene. It contains collection of objects and lights, so
+ in next step, see "Member data documentation" in RRObject and RRLight. Here you can see that object contains mesh, collection of facegroups
+ and world matrix, so in next step, visit RRMeshArrays, RRObject::FaceGroup, RRMatrix3x4. Facegroups contain number of faces
+ and material, so finally visit RRMaterial.
+
+ Whenever RRBuffer is encountered and RRBuffer::filename is empty, buffer is embedded into .rr3, otherwise only RRBuffer::filename is saved.
+
+ \section rr3_export Working with .rr3 in your program
+
+ When exporting from your program to .rr3, we recommend copying your data to <code>RRScene</code> and then calling <code>scene.save("foo.rr3");</code>
+ rather than recreating .rr3 structure in your own code. It is much easier and it ensures 100% compatibility.
+
+ If you import data, do the opposite, <code>RRScene scene("foo.rr3");</code> and then read data from scene.
 
 
 
@@ -475,7 +507,11 @@ Video formats
   We contribute our improvements back to original projects, however,
   recent improvements may still be present only in Lightsprint SDK.
 
-  No changes in Lightsprint SDK at the moment. (Our small contribution is listed in Assimp credits, Stepan Hrbek)
+  \section as_patch1 Patch1
+  We submitted fix of memory leak at https://sourceforge.net/tracker/index.php?func=detail&aid=3134561&group_id=226462&atid=1067632
+ 
+  \section as_patch_accepted Accepted patches
+  Fix of .obj crash (https://github.com/assimp/assimp/blob/master/CREDITS).
 
 \page tpl_freeimage FreeImage
   - www: <a href="http://freeimage.sourceforge.net/">FreeImage</a>
@@ -3255,7 +3291,7 @@ rr::RRVector<*>{
  Solution is simple - open User preferences window, adjust Import / Units and open scene again.
 
  Lightsprint SDK itself is unit independent, global illumination does not need to know units or convert scene to meters.
- Only scene viewer converts imported scenes to meters, to simplify merging scenes etc.
+ Scene viewer converts imported scenes to meters, to simplify merging scenes etc.
 
 */
 

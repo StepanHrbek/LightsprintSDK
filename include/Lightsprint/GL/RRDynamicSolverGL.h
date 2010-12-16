@@ -14,7 +14,7 @@
 #include "RendererOfScene.h"
 #include "UberProgramSetup.h"
 
-//! LightsprintGL - OpenGL 2.0 renderer that displays realtime global illumination.
+//! LightsprintGL - multiplatform OpenGL based renderer that displays realtime global illumination.
 namespace rr_gl
 {
 

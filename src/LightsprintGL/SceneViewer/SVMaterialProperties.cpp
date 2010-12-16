@@ -67,7 +67,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	AppendIn(propTransparent,new ImageFileProperty(wxT("texture or video"),"Opacity texture or video. Type in c@pture to use live video input."));
 	AppendIn(propTransparent,propTransparency1bit = new wxBoolProperty(wxT("1-bit")));
 	SetPropertyEditor(propTransparency1bit,wxPGEditor_CheckBox);
-	propTransparency1bit->SetHelpString("Makes opacity either 0%% or 100%%.");
+	propTransparency1bit->SetHelpString("Makes opacity either 0% or 100%.");
 	AppendIn(propTransparent,propTransparencyInAlpha = new wxBoolProperty(wxT("in alpha")));
 	SetPropertyEditor(propTransparencyInAlpha,wxPGEditor_CheckBox);
 	propTransparencyInAlpha->SetHelpString("Reads opacity from alpha rather than from rgb.");

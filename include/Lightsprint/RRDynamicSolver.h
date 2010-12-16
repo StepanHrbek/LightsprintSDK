@@ -879,7 +879,7 @@ namespace rr
 
 	protected:
 
-		//! Optional extension of calculate(), sets dirty flags in lights.
+		//! Optional extension of calculate(), sets dirty flags in lights when it detects change in transparency texture or video.
 		//
 		//! Realtime GI implementations (like rr_gl::RRDynamicSolverGL)
 		//! call it from calculate(), before updating shadowmaps.
