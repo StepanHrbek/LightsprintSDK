@@ -391,7 +391,7 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 	{
 		bool enabled;
 		ar & make_nvp("renderMaterialTransparency",enabled);
-		a.renderMaterialTransparency = enabled ? rr_gl::TFR_UP_TO_24BIT : rr_gl::TFR_OPAQUE;
+		a.renderMaterialTransparency = enabled ? rr_gl::T_RGB_BLEND : rr_gl::T_OPAQUE;
 	}
 	else
 	{

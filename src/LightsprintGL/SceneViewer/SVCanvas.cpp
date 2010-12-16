@@ -1135,10 +1135,10 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			uberProgramSetup.MATERIAL_SPECULAR_CONST = svs.renderMaterialSpecular;
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = svs.renderMaterialEmission;
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = svs.renderMaterialEmission && svs.renderMaterialTextures;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderMaterialTransparency!=TFR_OPAQUE;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency!=TFR_OPAQUE && svs.renderMaterialTextures;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency!=TFR_OPAQUE;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency==TFR_UP_TO_8BIT || svs.renderMaterialTransparency==TFR_UP_TO_24BIT;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderMaterialTransparency!=T_OPAQUE;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency!=T_OPAQUE && svs.renderMaterialTextures;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency!=T_OPAQUE;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency==T_ALPHA_BLEND || svs.renderMaterialTransparency==T_RGB_BLEND;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.renderTonemapping && svs.tonemappingBrightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = svs.renderTonemapping && svs.tonemappingGamma!=1;
 			float clipPlanes[6] = {0,0,0,0,0,0};
