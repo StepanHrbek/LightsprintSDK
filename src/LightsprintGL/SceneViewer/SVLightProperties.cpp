@@ -125,6 +125,13 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propCastShadows = new BoolRefProperty(wxT("Cast shadows"), "Shadows add realism, but reduce speed.", light->castShadows);
 			Append(propCastShadows);
 			
+			const wxChar* tsStrings[] = {wxT("0-bit (opaque shadows)"),wxT("1-bit (alpha keyed shadows)"),wxT("24-bit (rgb shadows)"),NULL};
+			const long tsValues[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS};
+			propShadowTransparency = new wxEnumProperty("Shadow transparency",wxPG_LABEL,tsStrings,tsValues);
+			propShadowTransparency->SetHelpString("How shadows actually work. Can be controlled via Scene properties / GI quality / Shadow transparency.");
+			propShadowTransparency->Enable(false);
+			AppendIn(propCastShadows,propShadowTransparency);
+			
 			propShadowmaps = new FloatProperty("Shadowmaps","Number of shadowmaps, more=higher quality, slower.",light->rtNumShadowmaps,0,1,3,10,false);
 			AppendIn(propCastShadows,propShadowmaps);
 
@@ -165,6 +172,7 @@ void SVLightProperties::updateHide()
 	propFallOffExponent->Hide(light->distanceAttenuationType!=rr::RRLight::EXPONENTIAL,false);
 	propFallOffAngle->Hide(light->type!=rr::RRLight::SPOT,false);
 	propSpotExponent->Hide(light->type!=rr::RRLight::SPOT,false);
+	propShadowTransparency->Hide(!light->castShadows,false);
 	propShadowmaps->Hide(!light->castShadows || light->type!=rr::RRLight::DIRECTIONAL,false);
 	propShadowmapRes->Hide(!light->castShadows,false);
 	propShadowSamples->Hide(!light->castShadows,false);
@@ -182,7 +190,8 @@ void SVLightProperties::updatePosDir()
 			updateProperty(propPosition,rtlight->getParent()->pos) +
 			updateProperty(propDirection,rtlight->getParent()->dir) +
 			updateFloat(propAltitude,ANGLEX2ALT(rtlight->getParent()->angleX)) +
-			updateFloat(propAzimuth,ANGLE2AZI(rtlight->getParent()->angle))
+			updateFloat(propAzimuth,ANGLE2AZI(rtlight->getParent()->angle)) +
+			updateInt(propShadowTransparency,rtlight->shadowTransparencyActual)
 			;
 		if (numChanges)
 		{
@@ -213,7 +222,6 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propType)
 	{
-		//!!! nemutable svetla to ignorujou
 		// change type
 		light->type = (rr::RRLight::Type)property->GetValue().GetInteger();
 		// change dirlight attenuation to NONE

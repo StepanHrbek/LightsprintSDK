@@ -63,6 +63,7 @@ namespace rr_gl
 		wxPGProperty*     propFallOffAngle;
 		wxPGProperty*     propCastShadows;
 		wxPGProperty*     propSpotExponent;
+		wxPGProperty*     propShadowTransparency;
 		wxPGProperty*     propShadowmaps;
 		wxPGProperty*     propShadowmapRes;
 		wxPGProperty*     propShadowSamples;
