@@ -92,7 +92,7 @@ namespace rr_gl
 		wxPGProperty*     propGridNumSegments;
 		wxPGProperty*     propGridSegmentSize;
 
-		wxPGProperty*     propGITransparentMaterialShadows;
+		wxPGProperty*     propGIShadowTransparency;
 		wxPGProperty*     propGIFireballQuality;
 		BoolRefProperty*  propGIRaytracedCubes;
 		wxPGProperty*     propGIRaytracedCubesDiffuseRes;

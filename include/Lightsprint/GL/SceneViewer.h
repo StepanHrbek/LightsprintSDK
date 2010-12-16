@@ -44,12 +44,17 @@ enum LightingIndirect
 	LI_REALTIME_FIREBALL_LDM,///< Indirect illumination is realtime computed by Fireball solver, LDM from ldmLayerNumber adds details. Fast, but initial LDM build is slow.
 };
 
-enum TransparencyInFinalRender
+//! Transparency modes used by realtime renderer, to trade speed/quality. Offline GI solver always works as if the highest quality mode is selected.
+enum Transparency
 {
-	TFR_OPAQUE, // fully opaque
-	TFR_UP_TO_1BIT, // alpha keying
-	TFR_UP_TO_8BIT, // colorless glass
-	TFR_UP_TO_24BIT, // colored glass
+	//! No transparency, the fastest mode, no object sorting, light is completely blocked by surface.
+	T_OPAQUE,
+	//! 1-bit transparency, very fast mode, no object sorting, light either stops or goes through, no semi-translucency. Good for fences, plants etc.
+	T_ALPHA_KEY,
+	//! 8-bit transparency, fast mode, objects must be sorted, fraction of light goes through without changing color, creates semi-translucency effect. Good for non-colored glass. Unlike alpha keying, blending may generate artifacts when semi-translucent faces overlap.
+	T_ALPHA_BLEND,
+	//! 24-bit transparency, the highest quality mode, objects must be sorted, semi-translucency is evaluated separately in rgb channels. Good for colored glass (only blue light goes through blue glass). Unlike alpha keying, blending may generate artifacts when semi-translucent faces overlap.
+	T_RGB_BLEND,
 };
 
 
@@ -77,7 +82,7 @@ struct SceneViewerState
 	bool             renderMaterialDiffuse;     //! Render diffuse color.
 	bool             renderMaterialSpecular;    //! Render specular reflections.
 	bool             renderMaterialEmission;    //! Render emissivity.
-	TransparencyInFinalRender renderMaterialTransparency;//! Render transparency.
+	Transparency     renderMaterialTransparency;//! Render transparency. Allows realtime renderer to use modes up to this one. Offline GI always uses the highest one.
 	bool             renderMaterialTextures;    //! Render textures (diffuse, emissive) rather than constant colors.
 	bool             renderWater;               //! Render water surface as a plane at y=waterLevel.
 	bool             renderWireframe;           //! Render all in wireframe.
@@ -148,7 +153,7 @@ struct SceneViewerState
 		renderMaterialDiffuse = 1;
 		renderMaterialSpecular = 1;
 		renderMaterialEmission = 1;
-		renderMaterialTransparency = TFR_UP_TO_24BIT;
+		renderMaterialTransparency = T_RGB_BLEND;
 		renderMaterialTextures = 1;
 		renderWater = 0;
 		renderWireframe = 0;
