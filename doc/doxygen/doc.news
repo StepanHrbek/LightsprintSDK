@@ -12,13 +12,13 @@ namespace rr
 
 NEWS
 
-- <b>realtime transparent colored shadows</b>
+- <b>realtime RGB shadows</b>
   - correct realtime shadows from colored glass and other thin semi-translucent materials
   - To see it, run SceneViewer sample, pick some shadow caster and change <code>Material properties / Transparency / color</code> e.g. to red.
     Shadow is now red.
     Change <code>Scene properties / GI quality / Shadow transparency</code> from 24-bit (rgb shadows)
     to 0-bit or 1-bit to see the difference, standard shadows don't have color.
-  - realtime GI improves as well (red shadow emits red light etc)
+  - realtime GI improves as well (red shadow reflects red light etc)
 - <b>realtime RGB blending</b>
   - correct realtime rendering of colored glass and other thin semi-translucent materials
   - To see it, run SceneViewer sample and change <code>Material properties / Transparency / color</code> e.g. to red.
@@ -26,11 +26,19 @@ NEWS
     Change <code>Scene properties / Render materials / Transparency</code> from 24-bit (rgb blending)
     to 8-bit (alpha blending) to see the difference, common alpha blending lets other colors pass through.
 
+  <table border=0><tr align=top><td>
+  \image html features/rgbblend3.jpg RGB shadows + RGB blending
+  </td><td>
+  \image html features/rgbblend2.jpg monochromatic shadows
+  </td><td>
+  \image html features/rgbblend1.jpg alpha blending
+  </td></tr></table>
+
 CHANGES
 
-- very slightly increased effect of color bleeding (result of fix in GI solver)
 - TransparentMaterialShadows renamed to ShadowTransparency
 - transparentMaterialShadows split to rr_gl::RealtimeLight::shadowTransparencyRequested and rr_gl::RealtimeLight::shadowTransparencyActual
+- very slightly increased effect of color bleeding (result of fix in GI solver)
 
 \section news113 ------------------------------------ 2010.11.19 -------------------------------------
 

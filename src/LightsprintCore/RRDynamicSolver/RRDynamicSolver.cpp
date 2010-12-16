@@ -473,7 +473,7 @@ void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
 		}
 #else
 		// detect texture changes also in dynamic objects
-		// this is bit dangerous, as adding dynobj changes versionSum, which triggers expensive SM and GI update
+		// this is bit dangerous, as adding dynobj changes versionSum, which triggers expensive SM and GI update, it often but not always is what user expects
 		const RRObjects& dynobjects = getDynamicObjects();
 		for (int i=-1;i<(int)dynobjects.size();i++)
 		{
