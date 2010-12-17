@@ -46,6 +46,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			EnableProperty(propCubeDiffuse,false);
 			Append(propCubeSpecular = new FloatProperty("Specular cube size","Size of realtime raytraced specular reflection cubemap",object->illumination.specularEnvMap?object->illumination.specularEnvMap->getWidth():0,_precision,0,100000,1,false));
 			EnableProperty(propCubeSpecular,false);
+			Append(new wxIntProperty(wxT("#facegroups"),wxPG_LABEL,object->faceGroups.size()));
 
 			// mesh
 			const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(mesh);
