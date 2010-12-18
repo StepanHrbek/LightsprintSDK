@@ -20,7 +20,7 @@
 #include "../tmpstr.h"
 #include "wx/aboutdlg.h"
 #ifdef _WIN32
-	#include <shlobj.h> // SHGetSpecialFolderPath
+	#include <shlobj.h> // SHGetFolderPath, SHGetSpecialFolderPath
 	#include <process.h> // _beginthread in AlphaSplashScreen
 #endif
 
