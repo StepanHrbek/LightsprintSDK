@@ -332,6 +332,8 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		material->specularTransmittance.updateColorFromTexture(NULL,material->specularTransmittanceInAlpha,rr::RRMaterial::UTA_KEEP);
 		updateProperty(propTransparent->GetPropertyByName("color"),material->specularTransmittance.color);
 		composeMaterialPropertyRoot(propTransparent,material->specularTransmittance);
+		material->updateKeyingFromTransmittance();
+		propTransparency1bit->SetValue(material->specularTransmittanceKeyed);
 		transmittanceChanged = true;
 		textureChanged = true;
 	}
@@ -340,6 +342,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		material->specularTransmittance.color << property->GetValue();
 		composeMaterialPropertyRoot(propTransparent,material->specularTransmittance);
+		propTransparency1bit->SetValue(material->specularTransmittanceKeyed = material->specularTransmittance.color==rr::RRVec3(0) || material->specularTransmittance.color==rr::RRVec3(1));
 		transmittanceChanged = true;
 	}
 	else
