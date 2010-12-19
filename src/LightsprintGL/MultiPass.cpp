@@ -27,7 +27,10 @@ MultiPass::MultiPass(const RealtimeLights* _lights, const rr::RRLight* _renderin
 	gamma = _gamma;
 	clipPlanes = _clipPlanes;
 	separatedZPass = (mainUberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && (mainUberProgramSetup.MATERIAL_TRANSPARENCY_CONST || mainUberProgramSetup.MATERIAL_TRANSPARENCY_MAP || mainUberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA) && !mainUberProgramSetup.FORCE_2D_POSITION)?1:0; // needs MATERIAL_TRANSPARENCY_BLEND, not triggered by rendering to SM
+
+	// GL3.3 ARB_blend_func_extended can do it without separated pass, we do extra pass to be compatible with GL2
 	separatedMultiplyPass = (separatedZPass && mainUberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB)?1:0; // needs MATERIAL_TRANSPARENCY_BLEND, not triggered by rendering to SM
+
 	separatedAmbientPass = (!numLights)?1:0; // triggered by rendering to SM
 	lightIndex = -separatedZPass-separatedMultiplyPass-separatedAmbientPass;
 	colorPassIndex = -separatedZPass;
