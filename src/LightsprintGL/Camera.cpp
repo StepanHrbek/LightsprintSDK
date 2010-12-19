@@ -328,43 +328,6 @@ void Camera::setupForRender() const
 	glLoadMatrixd(viewMatrix);
 }
 
-void Camera::moveForward(float units)
-{
-	pos += dir*units;
-}
-
-void Camera::moveBack(float units)
-{
-	pos -= dir*units;
-}
-
-void Camera::moveRight(float units)
-{
-	pos[0]-=dir[2]*units;
-	pos[2]+=dir[0]*units;
-}
-
-void Camera::moveLeft(float units)
-{
-	pos[0]+=dir[2]*units;
-	pos[2]-=dir[0]*units;
-}
-
-void Camera::moveUp(float units)
-{
-	pos[1]+=units;
-}
-
-void Camera::moveDown(float units)
-{
-	pos[1]-=units;
-}
-
-void Camera::lean(float units)
-{
-	leanAngle+=units;
-}
-
 void Camera::mirror(float altitude)
 {
 	pos[1] = 2*altitude-pos[1];

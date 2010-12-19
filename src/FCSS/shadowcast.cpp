@@ -1438,13 +1438,13 @@ no_level:
 	float previousFrameDuration = previousFrameStartTime ? (thisFrameStartTime-previousFrameStartTime)/(float)PER_SEC : 0;
 	RR_CLAMP(previousFrameDuration,0.0001f,0.3f);
 	rr_gl::Camera* cam = modeMovingEye?&currentFrame.eye:&currentFrame.light;
-	if (speedForward) cam->moveForward(speedForward*previousFrameDuration);
-	if (speedBack) cam->moveBack(speedBack*previousFrameDuration);
-	if (speedRight) cam->moveRight(speedRight*previousFrameDuration);
-	if (speedLeft) cam->moveLeft(speedLeft*previousFrameDuration);
-	if (speedUp) cam->moveUp(speedUp*previousFrameDuration);
-	if (speedDown) cam->moveDown(speedDown*previousFrameDuration);
-	if (speedLean) cam->lean(speedLean*previousFrameDuration);
+	if (speedForward) cam->pos += cam->dir * (speedForward*previousFrameDuration);
+	if (speedBack) cam->pos -= cam->dir * (speedBack*previousFrameDuration);
+	if (speedRight) cam->pos += cam->right * (speedRight*previousFrameDuration);
+	if (speedLeft) cam->pos -= cam->right * (speedLeft*previousFrameDuration);
+	if (speedUp) cam->pos += cam->up * (speedUp*previousFrameDuration);
+	if (speedDown) cam->pos -= cam->up * (speedDown*previousFrameDuration);
+	if (speedLean) cam->leanAngle += speedLean*previousFrameDuration;
 	if (speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
 	{
 		//printf(" %f ",seconds);
@@ -1495,7 +1495,7 @@ no_level:
 			}
 			// poznamena si o kolik byl snimek s DDI delsi
 			struct FrameStats { bool hadDDI; float tookSeconds; bool animationCut; };
-			static FrameStats frameStats[3] = {{0,0,0},{0,0,0},{0,0,0}};
+			static FrameStats frameStats[4] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
 			class DDIDurationSamples
 			{
 			public:

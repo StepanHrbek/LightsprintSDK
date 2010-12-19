@@ -890,13 +890,13 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 
 		{
 			// yes -> respond to keyboard
-			if (speedForward) cam->moveForward(speedForward*meters);
-			if (speedBack) cam->moveBack(speedBack*meters);
-			if (speedRight) cam->moveRight(speedRight*meters);
-			if (speedLeft) cam->moveLeft(speedLeft*meters);
-			if (speedUp) cam->moveUp(speedUp*meters);
-			if (speedDown) cam->moveDown(speedDown*meters);
-			if (speedLean) cam->lean(speedLean*seconds*0.5f);
+			if (speedForward) cam->pos += cam->dir * (speedForward*meters);
+			if (speedBack) cam->pos -= cam->dir * (speedBack*meters);
+			if (speedRight) cam->pos += cam->right * (speedRight*meters);
+			if (speedLeft) cam->pos -= cam->right * (speedLeft*meters);
+			if (speedUp) cam->pos += cam->up * (speedUp*meters);
+			if (speedDown) cam->pos -= cam->up * (speedDown*meters);
+			if (speedLean) cam->leanAngle += speedLean*seconds*0.5f;
 		}
 
 		// light change report

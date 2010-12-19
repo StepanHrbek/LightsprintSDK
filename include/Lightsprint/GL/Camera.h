@@ -139,22 +139,6 @@ public:
 	bool operator==(const Camera& a) const;
 	//! != operator, true when inputs differ.
 	bool operator!=(const Camera& a) const;
-	//! Type of moveForward, moveBackward, moveRight and moveLeft for convenient mapping to keys.
-	typedef void (Camera::*Move)(float units);
-	//! Moves camera to given distance in world space.
-	void moveForward(float units);
-	//! Moves camera to given distance in world space.
-	void moveBack(float units);
-	//! Moves camera to given distance in world space.
-	void moveRight(float units);
-	//! Moves camera to given distance in world space.
-	void moveLeft(float units);
-	//! Moves camera to given distance in world space.
-	void moveUp(float units);
-	//! Moves camera to given distance in world space.
-	void moveDown(float units);
-	//! Leans camera = rotates around z axis.
-	void lean(float units);
 	//! Mirrors camera for reflection rendering. Second call takes changes back.
 	//! \param altitude Altitude of mirroring plane.
 	void mirror(float altitude);

@@ -291,12 +291,12 @@ void idle()
 		if (keyPressed[GLUT_KEY_LEFT+256]) lightTime -= seconds*SUN_SPEED;
 		if (keyPressed[GLUT_KEY_DOWN+256]) lightTime += seconds*5*SUN_SPEED;
 		if (keyPressed[GLUT_KEY_UP+256]) lightTime -= seconds*5*SUN_SPEED;
-		if (keyPressed['w']) cam->moveForward(distance);
-		if (keyPressed['s']) cam->moveBack(distance);
-		if (keyPressed['a']) cam->moveLeft(distance);
-		if (keyPressed['d']) cam->moveRight(distance);
-		if (keyPressed['q']) cam->moveUp(distance);
-		if (keyPressed['z']) cam->moveDown(distance);
+		if (keyPressed['w']) cam->pos += cam->dir * distance;
+		if (keyPressed['s']) cam->pos -= cam->dir * distance;
+		if (keyPressed['a']) cam->pos -= cam->right * distance;
+		if (keyPressed['d']) cam->pos += cam->right * distance;
+		if (keyPressed['q']) cam->pos += cam->up * distance;
+		if (keyPressed['z']) cam->pos -= cam->up * distance;
 		if (autopilot) objectTime += seconds*OBJ_SPEED;
 		lightTime01 = fabs(fmod(lightTime,2.0f)-1);
 	}

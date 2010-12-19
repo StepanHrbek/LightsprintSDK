@@ -8,6 +8,19 @@ namespace rr
 
 \page main_news What's new
 
+\section news115 ------------------------------------ 2010.12.xx -------------------------------------
+
+CHANGES
+
+- removed trivial functions in rr_gl::Camera, replace them with
+  - cam->moveForward(a) -> cam->pos+=cam->dir*a;
+  - cam->moveBack(a)    -> cam->pos-=cam->dir*a;
+  - cam->moveRight(a)   -> cam->pos+=cam->right*a;
+  - cam->moveLeft(a)    -> cam->pos-=cam->right*a;
+  - cam->moveUp(a)      -> cam->pos+=cam->up*a;
+  - cam->moveDown(a)    -> cam->pos-=cam->up*a;
+  - cam->lean(a)        -> cam->leanAngle+=a;
+
 \section news114 ------------------------------------ 2010.12.16 -------------------------------------
 
 NEWS
