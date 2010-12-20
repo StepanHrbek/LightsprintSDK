@@ -35,7 +35,7 @@ Camera::Camera()
 	update();
 }
 
-Camera::Camera(GLfloat _posx, GLfloat _posy, GLfloat _posz, float _angle, float _leanAngle, float _angleX, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar)
+Camera::Camera(float _posx, float _posy, float _posz, float _angle, float _leanAngle, float _angleX, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar)
 {
 	pos[0] = _posx;
 	pos[1] = _posy;
@@ -140,8 +140,8 @@ void Camera::setRange(float _near, float _far)
 
 rr::RRVec2 Camera::getPositionInWindow(rr::RRVec3 worldPosition) const
 {
-	GLint viewport[4] = {-1,-1,2,2};
-	GLdouble positionInWindow[3];
+	int viewport[4] = {-1,-1,2,2};
+	double positionInWindow[3];
 	gluProject(worldPosition[0],worldPosition[1],worldPosition[2],viewMatrix,frustumMatrix,viewport,positionInWindow,positionInWindow+1,positionInWindow+2);
 	return rr::RRVec2((rr::RRReal)positionInWindow[0],(rr::RRReal)positionInWindow[1]);
 }
