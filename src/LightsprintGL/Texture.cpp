@@ -394,7 +394,7 @@ Texture* Texture::createShadowmap(unsigned width, unsigned height, bool color)
 	rr::RRBuffer* buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,color?rr::BF_RGB:rr::BF_DEPTH,true,(const unsigned char*)1);
 	if (!buffer)
 		return NULL;
-	Texture* texture = new Texture(buffer,false,false, filtering(), filtering(), GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
+	Texture* texture = new Texture(buffer,false,false, filtering(), filtering(), color?GL_CLAMP_TO_EDGE:GL_CLAMP_TO_BORDER, color?GL_CLAMP_TO_EDGE:GL_CLAMP_TO_BORDER);
 	delete buffer; // Texture already created its own reference, so here we just remove our reference
 	return texture;
 }
