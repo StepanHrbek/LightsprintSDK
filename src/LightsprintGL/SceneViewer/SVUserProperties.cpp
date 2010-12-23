@@ -101,6 +101,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 				propSshotEnhancedShadowSamples->SetHelpString("Number of shadow samples per pixel, max depends on GPU.");
 				AppendIn(propSshotEnhanced,propSshotEnhancedShadowSamples);
 			}
+
 		}
 
 		SetPropertyBackgroundColour(propSshot,headerColor,false);
@@ -152,16 +153,19 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propSshotEnhanced)
 	{
 		updateHide();
+		svframe->m_canvas->OnSize(wxSizeEvent());
 	}
 	else
 	if (property==propSshotEnhancedWidth)
 	{
 		userPreferences.sshotEnhancedWidth = property->GetValue().GetInteger();
+		svframe->m_canvas->OnSize(wxSizeEvent());
 	}
 	else
 	if (property==propSshotEnhancedHeight)
 	{
 		userPreferences.sshotEnhancedHeight = property->GetValue().GetInteger();
+		svframe->m_canvas->OnSize(wxSizeEvent());
 	}
 	else
 	if (property==propSshotEnhancedFSAA)

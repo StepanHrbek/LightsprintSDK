@@ -404,9 +404,17 @@ void SVCanvas::OnSize(wxSizeEvent& event)
 	if (context)
 	{
 		SetCurrent(*context);
-		glViewport(0, 0, (GLint) w, (GLint) h);
 		winWidth = w;
 		winHeight = h;
+		// with Enhanced screenshot checked, viewport maintains the same aspect as screenshot
+		if (parent->userPreferences.sshotEnhanced)
+		{
+			if (w*parent->userPreferences.sshotEnhancedHeight > h*parent->userPreferences.sshotEnhancedWidth)
+				winWidth = h*parent->userPreferences.sshotEnhancedWidth/parent->userPreferences.sshotEnhancedHeight;
+			else
+				winHeight = w*parent->userPreferences.sshotEnhancedHeight/parent->userPreferences.sshotEnhancedWidth;
+		}
+		glViewport((w-winWidth)/2,(h-winHeight)/2,winWidth,winHeight);
 	}
 }
 
@@ -1461,7 +1469,7 @@ rendered:
 		}
 
 
-		// render helper text, using own shader (because text output ignores color passed to line shader shader)
+		// render helper text, using own shader (because text output ignores color passed to line shader)
 		if (svs.renderHelpers)
 		{
 			centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below

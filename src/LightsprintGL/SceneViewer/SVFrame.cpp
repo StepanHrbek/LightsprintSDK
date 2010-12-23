@@ -1016,10 +1016,12 @@ save_scene_as:
 				}
 				else
 				{
-					// 3b. propagate new size/aspect to renderer
+					// 3b. propagate new size/aspect to renderer, correct screenCenter so that camera still points to the same area
 					wxSize oldSize(m_canvas->winWidth,m_canvas->winHeight);
-					//rr::RRVec2 oldCenter = svs.eye.screenCenter;
-					//svs.eye.screenCenter = rr::RRVec2(0);
+					Camera oldEye = svs.eye;
+					svs.eye.setAspect(bigSize.x/(float)bigSize.y,(bigSize.x*m_canvas->winHeight>m_canvas->winWidth*bigSize.y)?1:0);
+					svs.eye.screenCenter.x *= tan(oldEye.getFieldOfViewHorizontalRad()/2)/tan(svs.eye.getFieldOfViewHorizontalRad()/2);
+					svs.eye.screenCenter.y *= tan(oldEye.getFieldOfViewVerticalRad()/2)/tan(svs.eye.getFieldOfViewVerticalRad()/2);
 					m_canvas->winWidth = bigSize.x;
 					m_canvas->winHeight = bigSize.y;
 					glViewport(0,0,bigSize.x,bigSize.y);
@@ -1085,12 +1087,12 @@ save_scene_as:
 					// 3b. cleanup
 					m_canvas->winWidth = oldSize.x;
 					m_canvas->winHeight = oldSize.y;
-					//svs.eye.screenCenter = oldCenter;
+					svs.eye = oldEye;
 				}
 
 				// 3a. cleanup
 				oldFBOState.restore();
-				glViewport(0,0,m_canvas->winWidth,m_canvas->winHeight);
+				m_canvas->OnSize(wxSizeEvent()); //glViewport(0,0,m_canvas->winWidth,m_canvas->winHeight);
 
 				// 2. cleanup
 				delete bufDepth;
