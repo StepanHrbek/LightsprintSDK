@@ -1022,7 +1022,7 @@ save_scene_as:
 					//svs.eye.screenCenter = rr::RRVec2(0);
 					m_canvas->winWidth = bigSize.x;
 					m_canvas->winHeight = bigSize.y;
-					glViewport(0,0,bigSize.x,bigSize.x);
+					glViewport(0,0,bigSize.x,bigSize.y);
 
 					// 4. disable automatic tonemapping, uses FBO, would not work
 					bool oldTonemapping = svs.tonemappingAutomatic;
