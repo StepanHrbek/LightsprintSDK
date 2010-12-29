@@ -66,7 +66,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 
 		// enhanced
 		{
-			propSshotEnhanced = new BoolRefProperty(wxT("Enhanced render"),"Enables extra settings, won't save exactly what's on screen.",userPreferences.sshotEnhanced);
+			propSshotEnhanced = new BoolRefProperty(wxT("Enhanced render"),"Enables enhanced (higher resolution and quality) screenshots. Enforces screenshot aspect in main viewport.",userPreferences.sshotEnhanced);
 			AppendIn(propSshot,propSshotEnhanced);
 
 			propSshotEnhancedWidth = new wxIntProperty(wxT("Width"),"Width in pixels, max depends on GPU.",userPreferences.sshotEnhancedWidth);
