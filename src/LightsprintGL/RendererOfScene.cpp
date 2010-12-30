@@ -342,9 +342,9 @@ void RendererOfOriginalScene::render(
 	PreserveDepthMask p5; // changed by RendererOfMesh
 
 	// Render non-sorted facegroups.
-	for (bool transparencyToRGB=false;!transparencyToRGB;transparencyToRGB=true) // 2 passes, MATERIAL_TRANSPARENCY_TO_RGB(e.g. window) must go _after_ !MATERIAL_TRANSPARENCY_TO_RGB(e.g. wall), otherwise in "light - wall - window" scene, window would paint to rgb shadowmap (wall does not write to rgb) and cast rgb shadow on wall
+	for (unsigned transparencyToRGB=0;transparencyToRGB<2;transparencyToRGB++) // 2 passes, MATERIAL_TRANSPARENCY_TO_RGB(e.g. window) must go _after_ !MATERIAL_TRANSPARENCY_TO_RGB(e.g. wall), otherwise in "light - wall - window" scene, window would paint to rgb shadowmap (wall does not write to rgb) and cast rgb shadow on wall
 	for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap.begin();i!=nonBlendedFaceGroupsMap.end();++i)
-	if (i->first.MATERIAL_TRANSPARENCY_TO_RGB == transparencyToRGB)
+	if (i->first.MATERIAL_TRANSPARENCY_TO_RGB == (transparencyToRGB!=0))
 	{
 		rr::RRVector<FaceGroupRange>*& nonBlendedFaceGroups = i->second;
 		if (nonBlendedFaceGroups && nonBlendedFaceGroups->size())
