@@ -1303,16 +1303,7 @@ rendered:
 			gluSphere(lightFieldQuadric, 0.05f, 16, 16);
 		}
 
-		// render light icons, using own shader
-		if (entityIcons->isOk())
-		{
-			SVEntities entities;
-			if (parent->m_lightProperties->IsShown())
-				entities.addLights(solver->getLights(),sunIconPosition);
-			entityIcons->renderIcons(entities,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
-		}
-
-		// render vignette, using own shader
+		// render vignette, using own shader (must go before video capture)
 		if (svs.renderVignette)
 		{
 			if (!vignetteLoadAttempted)
@@ -1329,6 +1320,30 @@ rendered:
 				glDisable(GL_BLEND);
 			}
 		}
+
+		// render logo, using own shader (must go before video capture)
+		if (textureRenderer)
+		{
+			if (svs.renderLogo)
+			{
+				if (!logoLoadAttempted)
+				{
+					logoLoadAttempted = true;
+					RR_ASSERT(!logoImage);
+					logoImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_logo.png",svs.pathToShaders));
+				}
+				if (logoImage)
+				{
+					float w = logoImage->getWidth()/(float)winWidth;
+					float h = logoImage->getHeight()/(float)winHeight;
+					glEnable(GL_BLEND);
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					textureRenderer->render2D(getTexture(logoImage,false,false),NULL,1-w,1-h,w,h);
+					glDisable(GL_BLEND);
+				}
+			}
+		}
+
 
 		bool renderCrosshair = s_ciRelevant && (s_ci.mouseMiddle || s_ci.mouseRight);
 		if (svs.renderGrid || renderCrosshair)
@@ -1384,6 +1399,15 @@ rendered:
 			}
 		}
 
+
+		// render icons, using own shader (must go after video capture)
+		if (entityIcons->isOk())
+		{
+			SVEntities entities;
+			if (parent->m_lightProperties->IsShown())
+				entities.addLights(solver->getLights(),sunIconPosition);
+			entityIcons->renderIcons(entities,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
+		}
 	}
 
 	if (svs.renderHelpers
@@ -1774,30 +1798,6 @@ rendered:
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			textureRenderer->render2D(getTexture(helpImage,false,false),NULL,(1-w)*0.5f,(1-h)*0.5f,w,h);
 			glDisable(GL_BLEND);
-		}
-	}
-
-
-	// render logo, using own shader
-	if (textureRenderer)
-	{
-		if (svs.renderLogo)
-		{
-			if (!logoLoadAttempted)
-			{
-				logoLoadAttempted = true;
-				RR_ASSERT(!logoImage);
-				logoImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_logo.png",svs.pathToShaders));
-			}
-			if (logoImage)
-			{
-				float w = logoImage->getWidth()/(float)winWidth;
-				float h = logoImage->getHeight()/(float)winHeight;
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				textureRenderer->render2D(getTexture(logoImage,false,false),NULL,1-w,1-h,w,h);
-				glDisable(GL_BLEND);
-			}
 		}
 	}
 
