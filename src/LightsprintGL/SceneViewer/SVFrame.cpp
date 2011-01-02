@@ -754,9 +754,11 @@ void SVFrame::UpdateMenuBar()
 	delete oldMenuBar;
 }
 
-static std::string getSupportedLoaderExtensions()
+static std::string getSupportedLoaderExtensions(SceneViewerStateEx& svs)
 {
 	// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
+	if (svs.licPoll()&0x40)
+		return "All scene formats|*.skp;*.kmz;*.rr3|SketchUp (*.skp)|*.skp|Google Earth (*.kmz)|*.kmz|Lightsprint (*.rr3)|*.rr3";
 	std::string extensions = rr::RRScene::getSupportedLoaderExtensions();
 	std::string wxextensions = "All scene formats|"+extensions;
 	while (!extensions.empty())
@@ -837,7 +839,7 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 
 		case ME_FILE_OPEN_SCENE:
 			{
-				wxFileDialog dialog(this,"Choose a 3d scene to open","","",getSupportedLoaderExtensions().c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,"Choose a 3d scene to open","","",getSupportedLoaderExtensions(svs).c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
@@ -849,7 +851,7 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 			break;
 		case ME_FILE_MERGE_SCENE:
 			{
-				wxFileDialog dialog(this,"Choose a 3d scene to merge with current scene","","",getSupportedLoaderExtensions().c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,"Choose a 3d scene to merge with current scene","","",getSupportedLoaderExtensions(svs).c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
