@@ -757,8 +757,6 @@ void SVFrame::UpdateMenuBar()
 static std::string getSupportedLoaderExtensions(SceneViewerStateEx& svs)
 {
 	// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
-	if (svs.licPoll && (svs.licPoll()&0x40))
-		return "All scene formats|*.skp;*.kmz;*.rr3|SketchUp (*.skp)|*.skp|Google Earth (*.kmz)|*.kmz|Lightsprint (*.rr3)|*.rr3";
 	std::string extensions = rr::RRScene::getSupportedLoaderExtensions();
 	std::string wxextensions = "All scene formats|"+extensions;
 	while (!extensions.empty())
