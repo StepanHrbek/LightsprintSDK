@@ -5,6 +5,7 @@
 
 #include <cstdio>
 #include "Lightsprint/RRObject.h"
+#include <boost/unordered_set.hpp>
 
 namespace rr
 {
@@ -224,6 +225,35 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 		}
 	}
 	return buffersTouched;
+}
+
+unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool report)
+{
+	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
+	unsigned numMeshesWithoutArrays = 0;
+	boost::unordered_set<RRMeshArrays*> arrays;
+	for (unsigned i=0;i<size();i++)
+	{
+		RRMeshArrays* mesh = const_cast<RRMeshArrays*>(dynamic_cast<const RRMeshArrays*>((*this)[i]->getCollider()->getMesh()));
+		if (mesh)
+			arrays.insert(mesh);
+		else
+			numMeshesWithoutArrays++;
+	}
+	// warn when working with non-arrays
+	if (numMeshesWithoutArrays)
+		RRReporter::report(WARN,"flipFrontBack() supports only RRMeshArrays meshes.\n");
+	// flip
+	unsigned numFlips = 0;
+	for (boost::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
+	{
+		numFlips += (*i)->flipFrontBack(numNormalsThatMustPointBack);
+	}
+	if (report && numFlips)
+	{
+		RRReporter::report(WARN,"flipFrontBack(): %d faces flipped.\n",numFlips);
+	}
+	return numFlips;
 }
 
 } // namespace

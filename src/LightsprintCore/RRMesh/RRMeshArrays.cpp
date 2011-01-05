@@ -5,6 +5,7 @@
 
 #include <cstring>
 #include "Lightsprint/RRMesh.h"
+#include "../RRMathPrivate.h"
 
 namespace rr
 {
@@ -373,6 +374,35 @@ void RRMeshArrays::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 	if (_mini) *_mini = aabbCache->mini;
 	if (_maxi) *_maxi = aabbCache->maxi;
 	if (_center) *_center = aabbCache->center;
+}
+
+unsigned RRMeshArrays::flipFrontBack(unsigned numNormalsThatMustPointBack)
+{
+	unsigned numFlips = 0;
+	for (unsigned t=0;t<numTriangles;t++)
+	{
+		unsigned numNormalsPointingBack = 0;
+		if (numNormalsThatMustPointBack)
+		{
+			RRVec3 triangleNormal = orthogonalTo(position[triangle[t][1]]-position[triangle[t][0]],position[triangle[t][2]]-position[triangle[t][0]]).normalized();
+			if (triangleNormal.finite())
+			{
+				for (unsigned v=0;v<3;v++)
+				{
+					if (normal[triangle[t][v]].dot(triangleNormal)<0)
+						numNormalsPointingBack++;
+				}
+			}
+		}
+		if (numNormalsPointingBack>=numNormalsThatMustPointBack)
+		{
+			unsigned i = triangle[t][0];
+			triangle[t][0] = triangle[t][1];
+			triangle[t][1] = i;
+			numFlips++;
+		}
+	}
+	return numFlips;
 }
 
 

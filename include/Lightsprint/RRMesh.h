@@ -552,6 +552,12 @@ namespace rr
 		virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
 		virtual void         getUvChannels(rr::RRVector<unsigned>& out) const;
 		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
+
+		// Tools.
+		//! Flips front/back if at least this number of normals in triangle points to back side.
+		//! So all triangles are flipped if numNormalsThatMustPointBack==0.
+		//! \return Number of triangles flipped.
+		unsigned             flipFrontBack(unsigned numNormalsThatMustPointBack);
 	private:
 		unsigned poolSize; ///< All arrays in mesh are allocated from one pool of this size.
 	};

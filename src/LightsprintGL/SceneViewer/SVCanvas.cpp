@@ -168,6 +168,7 @@ void SVCanvas::createContextCore()
 		rr::RRScene* scene = new rr::RRScene(svs.sceneFilename.c_str(),&solver->aborting);
 		scene->normalizeUnits(parent->userPreferences.import.getUnitLength(svs.sceneFilename.c_str()));
 		scene->normalizeUpAxis(parent->userPreferences.import.getUpAxis(svs.sceneFilename.c_str()));
+		scene->objects.flipFrontBack(3,true);
 		mergedScenes.push_back(scene);
 
 		// send everything to solver

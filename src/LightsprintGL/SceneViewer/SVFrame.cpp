@@ -859,6 +859,7 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 					rr::RRScene* scene = new rr::RRScene(dialog.GetPath(),&solver->aborting);
 					scene->normalizeUnits(userPreferences.import.getUnitLength(dialog.GetPath()));
 					scene->normalizeUpAxis(userPreferences.import.getUpAxis(dialog.GetPath()));
+					scene->objects.flipFrontBack(3,true);
 					m_canvas->addOrRemoveScene(scene,true);
 					m_canvas->mergedScenes.push_back(scene);
 				}

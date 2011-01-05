@@ -504,6 +504,11 @@ namespace rr
 		//! Removes duplicates, the same material is never listed twice.
 		void getAllMaterials(RRVector<RRMaterial*>& materials) const;
 
+		//! Flips front/back if at least this number of normals in triangle points to back side.
+		//! So all triangles are flipped if numNormalsThatMustPointBack==0.
+		//! \return Number of triangles flipped.
+		virtual unsigned flipFrontBack(unsigned numNormalsThatMustPointBack, bool report);
+
 		//! Destructor does not delete objects in collection (but individual adapters may do).
 		virtual ~RRObjects() {};
 	};

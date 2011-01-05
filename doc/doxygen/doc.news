@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news116 ------------------------------------ 2011.01.xx -------------------------------------
+
+NEWS
+
+- faces with flipped front/back can be automatically corrected
+  - RRMeshArrays::flipFrontBack()
+  - RRObjects::flipFrontBack()
+
 \section news115 ------------------------------------ 2010.12.21 -------------------------------------
 
 CHANGES
