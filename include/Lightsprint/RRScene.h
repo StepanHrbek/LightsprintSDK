@@ -75,16 +75,23 @@ public:
 	//////////////////////////////////////////////////////////////////////////////
 
 	//! Transforms scene by given matrix (i.e. transforms all object matrices and lights).
+	//
+	//! This function reads contents of scene from objects and lights, not protectedObjects and protectedLights,
+	//! so if you call it from your RRScene constructor, fill objects and lights first.
 	void transform(const RRMatrix3x4& transformation);
 	//! Changes units to meters.
 	//
-	//! Importers already try to change units to meters, so use this only if automatic conversion fails.
 	//! Using meters is not strictly necessary, global illumination works on all scales.
+	//! However, it is recommended to import scenes in meters.
+	//! This function reads contents of scene from objects and lights, not protectedObjects and protectedLights,
+	//! so if you call it from your RRScene constructor, fill objects and lights first.
 	void normalizeUnits(float currentUnitLengthInMeters);
 	//! Changes up axist to Y.
 	//
-	//! Importers already try to change up to Y, so use this only if automatic conversion fails.
 	//! Using up Y is not strictly necessary, global illumination works in all directions.
+	//! However, it is recommended to import scenes so that Y is up.
+	//! This function reads contents of scene from objects and lights, not protectedObjects and protectedLights,
+	//! so if you call it from your RRScene constructor, fill objects and lights first.
 	//! \param currentUpAxis
 	//!  0=X, 1=Y, 2=Z
 	void normalizeUpAxis(unsigned currentUpAxis);
