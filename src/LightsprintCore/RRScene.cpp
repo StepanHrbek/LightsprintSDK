@@ -132,7 +132,15 @@ RRScene::RRScene(const char* filename, bool* aborting, float emissiveMultiplier)
 		if (extensionListMatches(filename,s_loaders[i].extensions.c_str()))
 		{
 			loaderFound = true;
-			implementation = s_loaders[i].loader(filename,aborting,emissiveMultiplier);
+			try
+			{
+				implementation = s_loaders[i].loader(filename,aborting,emissiveMultiplier);
+			}
+			catch (...)
+			{
+				RRReporter::report(WARN,"Import ended by throwing C++ exception, something is broken.\n");
+				implementation = NULL;
+			}
 			if (implementation)
 			{
 				lights = implementation->protectedLights ? *implementation->protectedLights : implementation->lights;
@@ -182,8 +190,15 @@ bool RRScene::save(const char* filename)
 	{
 		if (extensionListMatches(filename,s_savers[i].extensions.c_str()))
 		{
-			if (s_savers[i].saver(this,filename))
-				return true; // saved, success
+			try
+			{
+				if (s_savers[i].saver(this,filename))
+					return true; // saved, success
+			}
+			catch (...)
+			{
+				RRReporter::report(WARN,"Export ended by throwing C++ exception, something is broken.\n");
+			}
 			saverFound = true;
 			// save failed, but don't give up for cycle yet,
 			//  it's possible that another saver for the same extension will succeed
