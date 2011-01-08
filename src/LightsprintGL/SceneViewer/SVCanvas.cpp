@@ -1363,7 +1363,7 @@ rendered:
 				rr::RRVec3 pos = s_ci.hitPoint3d;
 				float size = s_ci.hitDistance/30;
 				glColor3f(1,0,0);
-				glLineWidth(3);
+				glLineWidth(3); // this makes crosshair disappear on Radeon HD2400 10.02 with grid or helpers, blink without grid and helpers
 				glBegin(GL_LINES);
 				glVertex3f(pos.x-size,pos.y,pos.z);
 				glVertex3f(pos.x+size,pos.y,pos.z);
