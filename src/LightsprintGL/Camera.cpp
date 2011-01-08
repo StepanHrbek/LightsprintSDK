@@ -24,7 +24,7 @@ Camera::Camera()
 	angle = 0;
 	leanAngle = 0;
 	angleX = 0;
-	setAspect(1);
+	aspect = 1; // ctor must set it directly, setAspect() may fail if old aspect is NaN
 	setFieldOfViewVerticalDeg(90);
 	setRange(0.1f,100);
 	orthogonal = 0;
@@ -43,7 +43,7 @@ Camera::Camera(float _posx, float _posy, float _posz, float _angle, float _leanA
 	angle = _angle;
 	leanAngle = _leanAngle;
 	angleX = _angleX;
-	setAspect(_aspect);
+	aspect = _aspect; // ctor must set it directly, setAspect() may fail if old aspect is NaN
 	setFieldOfViewVerticalDeg(_fieldOfViewVerticalDeg); // aspect must be already set
 	setRange(_anear,_afar);
 	orthogonal = 0;
@@ -68,7 +68,7 @@ Camera::Camera(rr::RRLight& light)
 	{
 		setDirection(light.direction);
 	}
-	setAspect(1);
+	aspect = 1; // ctor must set it directly, setAspect() may fail if old aspect is NaN
 	setFieldOfViewVerticalDeg( (light.type==rr::RRLight::SPOT) ? RR_RAD2DEG(light.outerAngleRad)*2 : 90 ); // aspect must be already set
 	setRange( (light.type==rr::RRLight::DIRECTIONAL) ? 10.f : .1f, (light.type==rr::RRLight::DIRECTIONAL) ? 200.f : 100.f );
 	orthogonal = (light.type==rr::RRLight::DIRECTIONAL) ? 1 : 0;
@@ -99,7 +99,7 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 
 void Camera::setAspect(float _aspect, float _effectOnFOV)
 {
-	if (_aspect!=aspect)
+	if (_finite(_aspect) && _aspect!=aspect) // never set NaN, != would never succeed and NaN would stay set forever (at least in 2011-01 release static x64 configuration)
 	{
 		float oldAspect = aspect;
 		aspect = RR_CLAMPED(_aspect,0.001f,1000);
