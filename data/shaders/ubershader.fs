@@ -495,6 +495,10 @@ void main()
 			#endif
 		#endif
 		#ifndef MATERIAL_NORMAL_MAP
+			// Both front and back may be lit, but only if normals go to front; none is lit if normals go to back.
+			// This is sufficient if scenes with normals going to back side (like stadium.kmz from sketchup) are fixed by scene->flipFrontBack().
+			// Earlier, we calculated this entirely in vs and scene->flipFrontBack() was not necessary,
+			// but individual vertices flipped between front/back lighting based on view angle (looked bad on lowpoly terrains).
 			float lightDirectVColorOurSide = max(0.0,gl_FrontFacing?-lightDirectVColor:lightDirectVColor);
 		#endif
 		vec4 lightDirect =
