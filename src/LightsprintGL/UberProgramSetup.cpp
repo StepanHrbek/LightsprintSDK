@@ -112,7 +112,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material)
 	// transp
 	MATERIAL_TRANSPARENCY_CONST = !material->specularTransmittance.texture && material->specularTransmittance.color!=rr::RRVec3(0);
 	MATERIAL_TRANSPARENCY_MAP = material->specularTransmittance.texture!=NULL;
-	MATERIAL_TRANSPARENCY_IN_ALPHA = material->specularTransmittance.color!=rr::RRVec3(0) && material->specularTransmittanceKeyed;
+	MATERIAL_TRANSPARENCY_IN_ALPHA = material->specularTransmittance.color!=rr::RRVec3(0) && material->specularTransmittanceInAlpha;
 	MATERIAL_TRANSPARENCY_BLEND = material->specularTransmittance.color!=rr::RRVec3(0) && !material->specularTransmittanceKeyed;
 	MATERIAL_TRANSPARENCY_TO_RGB = MATERIAL_TRANSPARENCY_BLEND;
 
