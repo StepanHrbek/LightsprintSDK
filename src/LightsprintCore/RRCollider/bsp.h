@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Build of acceleration structure for ray-mesh intersections.
-// Copyright (c) 2000-2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2000-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef COLLIDER_BSP_H

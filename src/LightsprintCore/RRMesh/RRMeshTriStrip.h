@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Mesh adapter.
-// Copyright (c) 2005-2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2005-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #pragma once

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Realtime update of cube reflection maps.
-// Copyright (c) 2006-2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2006-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 

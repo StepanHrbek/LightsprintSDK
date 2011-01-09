@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file UberProgram.h
 //! \brief LightsprintGL | general Program parametrized using \#defines
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2010
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2011
 //! All rights reserved
 //----------------------------------------------------------------------------
 

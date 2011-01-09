@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Scene viewer - light icons.
-// Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef SVENTITYICONS_H

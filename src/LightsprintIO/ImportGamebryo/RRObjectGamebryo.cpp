@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Lightsprint adapters for Gamebryo scene.
-// Copyright (C) 2008-2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2008-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 #pragma unmanaged
 

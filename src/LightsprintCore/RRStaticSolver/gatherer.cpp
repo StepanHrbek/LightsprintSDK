@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Final gather support.
-// Copyright (c) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 

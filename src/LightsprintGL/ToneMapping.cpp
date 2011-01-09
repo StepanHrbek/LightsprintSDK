@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Tone mapping
-// Copyright (C) 2008-2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2008-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cstdlib>

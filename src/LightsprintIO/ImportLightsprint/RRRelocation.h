@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Support for relocating files with absolute paths.
-// Copyright (C) 2009-2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2009-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RRRELOCATION_H

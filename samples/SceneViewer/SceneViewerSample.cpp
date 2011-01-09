@@ -21,7 +21,7 @@
 // Similar features are implemented also in RealtimeLights sample,
 // its source code is more open for your experiments, customization.
 //
-// Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/SceneViewer.h"

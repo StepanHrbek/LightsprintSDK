@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file LensFlare.h
 //! \brief LightsprintGL | lens flare effect
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2010
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2011
 //! All rights reserved
 //----------------------------------------------------------------------------
 

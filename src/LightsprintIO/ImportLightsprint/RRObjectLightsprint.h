@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Lightsprint adapters for Lightsprint RR3 format.
-// Copyright (C) 2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2010-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECTLIGHTSPRINT_H

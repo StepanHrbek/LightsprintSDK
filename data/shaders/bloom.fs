@@ -1,5 +1,5 @@
 // LightsprintGL: Bloom effect
-// Copyright (C) Stepan Hrbek, Lightsprint 2010
+// Copyright (C) 2010-2011 Stepan Hrbek, Lightsprint
 //
 // Options:
 // #define PASS [1|2|3]

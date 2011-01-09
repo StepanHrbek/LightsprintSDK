@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Scene viewer - animation properties window.
-// Copyright (C) 2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2010-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifdef SUPPORT_SCENEVIEWER

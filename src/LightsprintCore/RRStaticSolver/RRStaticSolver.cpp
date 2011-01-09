@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Radiosity solver - high level.
-// Copyright (c) 2000-2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2000-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cmath>

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Scene viewer - save & load functions.
-// Copyright (C) 2007-2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifdef SUPPORT_SCENEVIEWER

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Video load & play using DirectShow.
-// Copyright (C) 2010 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2010-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "../supported_formats.h"

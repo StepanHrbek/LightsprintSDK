@@ -1,5 +1,5 @@
 // Water with planar reflection, fresnel and animated waves
-// Copyright (C) Stepan Hrbek, Lightsprint 2007-2010
+// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint
 //
 // Options:
 // #define FRESNEL

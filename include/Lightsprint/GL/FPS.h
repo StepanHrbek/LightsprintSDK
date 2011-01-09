@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //! \file FPS.h
 //! \brief LightsprintGL | FPS counter.
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2010
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2011
 //! All rights reserved
 //---------------------------------------------------------------------------
 

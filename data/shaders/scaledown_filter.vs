@@ -1,6 +1,6 @@
 // LightsprintGL: Scale down filter
 // Used by detectDirectIllumination()
-// Copyright (C) Stepan Hrbek, Lightsprint 2006-2010
+// Copyright (C) 2006-2011 Stepan Hrbek, Lightsprint
 //
 // Options:
 // #define SIZEX n
