@@ -194,6 +194,7 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 	else
 	{
 		// Disable reporter when trying different paths for textures.
+		// (not good, we can miss important messages)
 		rr::RRReporter* oldReporter = rr::RRReporter::getReporter();
 		rr::RRReporter::setReporter(NULL);
 
@@ -202,11 +203,15 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 		if (g_nextBufferIsCube)
 			a.buffer = rr::RRBuffer::loadCube(relocatedFilename.c_str());
 		else
-			a.buffer = rr::RRBuffer::load(relocatedFilename.c_str(),NULL);
+			a.buffer = rr::RRBuffer::load(relocatedFilename.c_str());
+
+		// If it fails, look for file at original location (where it was at save time).
 		if (!a.buffer && relocatedFilename!=filename.c_str())
 		{
-			// Look for file at original location (where it was at save time).
-			a.buffer = rr::RRBuffer::load(filename.c_str(),NULL);
+			if (g_nextBufferIsCube)
+				a.buffer = rr::RRBuffer::loadCube(filename.c_str());
+			else
+				a.buffer = rr::RRBuffer::load(filename.c_str());
 		}
 
 		rr::RRReporter::setReporter(oldReporter);

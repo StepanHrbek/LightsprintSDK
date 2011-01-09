@@ -337,8 +337,6 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 		pixels = loadFreeImage(filenameMask,true,true,width,height,format,scaled);
 		if (!pixels)
 			return false;
-bool cross = !(width*3!=height*4 && width*4!=height*3); //!!!temporary
-rr::RRReporter::report(rr::INF2,"Loading sky %s %dx%d as %s.\n",filenameMask,width,height,cross?"cube (cross)":"2d (equirectangular)"); //!!!temporary
 		if (!shuffleCrossToCube(pixels,width,height,getBytesPerPixel(format)))
 		{
 			// In early days, we returned only cubes.
@@ -355,7 +353,6 @@ rr::RRReporter::report(rr::INF2,"Loading sky %s %dx%d as %s.\n",filenameMask,wid
 	}
 	else
 	{
-rr::RRReporter::report(rr::INF2,"Loading sky %s as cube (6 images).\n",filenameMask); //!!!temporary
 		// LOAD PIXELS FROM SIX FILES
 		unsigned char* sides[6] = {NULL,NULL,NULL,NULL,NULL,NULL};
 		for (unsigned side=0;side<6;side++)
