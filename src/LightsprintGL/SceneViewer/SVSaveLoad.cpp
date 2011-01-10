@@ -550,7 +550,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 BOOST_CLASS_VERSION(rr::RRLight, 4)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences, 5) // must be increased also each time panel is added/removed
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 20)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 21)
 
 //---------------------------------------------------------------------------
 
