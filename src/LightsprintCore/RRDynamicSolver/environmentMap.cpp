@@ -661,7 +661,22 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 			unsigned minSize = RR_MIN(gatherSize,specularSize);
 			RRReal filterRadius = 1-minSize*sqrtf(1.0f/(3+minSize*minSize));
 			//RRReal filterRadius = 0.25f/minSize;
-			updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,filterRadius,illumination->specularEnvMap);
+			if (gatherSize==specularSize && gatherSize>16)
+			{
+				const rr::RRScaler* scaler = illumination->specularEnvMap->getScaled()?priv->scaler:NULL;
+				for (unsigned i=0;i<gatherSize*gatherSize*6;i++)
+				{
+					RRVec3 exitance = gatheredExitance[i];
+					if (scaler) scaler->getCustomScale(exitance);
+					illumination->specularEnvMap->setElement(i,RRVec4(exitance,0));
+				}
+				// faster but works only for specularEnvMap BF_RGBF,!scaled
+				//illumination->specularEnvMap->reset(rr::BT_CUBE_TEXTURE,specularSize,specularSize,6,illumination->specularEnvMap->getFormat(),false,(unsigned char*)gatheredExitance);
+			}
+			else
+			{
+				updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,filterRadius,illumination->specularEnvMap);
+			}
 		}
 	}
 
