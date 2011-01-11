@@ -236,6 +236,7 @@ CubeGatheringKit::~CubeGatheringKit()
 // outputs:
 //  - triangleNumbers, multiobj postImport numbers, UINT_MAX for skybox, may be NULL
 //  - exitanceHdr, float exitance in physical scale, may be NULL
+//  - false=exitanceHdr not filled, true=exitanceHdr filled
 bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, RRVec3* exitanceHdr)
 {
 	const RRObject* multiObject = getMultiObjectCustom();
@@ -275,10 +276,18 @@ bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, RRVec3* 
 	CubeGatheringKit* kit = NULL;
 	#pragma omp critical(cubeGatheringKits)
 	{
-		unsigned i=0;
-		while (priv->cubeGatheringKits[i].inUse) ++i%=10;
-		kit = priv->cubeGatheringKits+i;
-		kit->inUse = true;
+		for (unsigned i=0;i<10;i++)
+			if (!priv->cubeGatheringKits[i].inUse)
+				{
+					kit = priv->cubeGatheringKits+i;
+					kit->inUse = true;
+					break;
+				}
+	}
+	if (!kit)
+	{
+		RRReporter::report(ERRO,"Why are you calling cubeMapGather() for single solver 11 times in parallel? 11th call ignored.\n");
+		return false;
 	}
 
 	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static
