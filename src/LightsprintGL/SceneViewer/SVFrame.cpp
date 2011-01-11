@@ -1374,7 +1374,7 @@ reload_skybox:
 				aabbMin.w = aabbMax.w = 0;
 				delete lightField;
 				lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
-				lightField->captureLighting(solver,0);
+				lightField->captureLighting(solver,0,false);
 			}
 			break;
 		case ME_STATIC_BUILD_LIGHTFIELD_3D:
@@ -1390,7 +1390,7 @@ reload_skybox:
 				aabbMin.w = aabbMax.w = 0;
 				delete lightField;
 				lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
-				lightField->captureLighting(solver,0);
+				lightField->captureLighting(solver,0,false);
 			}
 			break;
 		/*case ME_STATIC_BUILD_1OBJ:

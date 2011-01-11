@@ -158,7 +158,10 @@ namespace rr
 		//!  Lighting in scene will be stored to given slot.
 		//!  Time slot numbers are 0..numTimeSlots-1
 		//!  where numTimeSlots was specified by create().
-		virtual void captureLighting(class RRDynamicSolver* solver, unsigned timeSlot) = 0;
+		//! \param prefilterSeams
+		//!  True = prefilters cube map edges, reducing effective resolution from n*n*6 to (n-1)*(n-1)*6.
+		//!  False = creates full resolution unfiltered maps, good for GPU with "seamless cube maps" filtering enabled.
+		virtual void captureLighting(class RRDynamicSolver* solver, unsigned timeSlot, bool prefilterSeams) = 0;
 
 		//! Updates diffuse and/or specular environment maps in object illumination.
 		//

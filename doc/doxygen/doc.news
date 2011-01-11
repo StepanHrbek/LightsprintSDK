@@ -15,6 +15,11 @@ NEWS
 - faces with flipped front/back can be automatically corrected
   - RRMeshArrays::flipFrontBack()
   - RRObjects::flipFrontBack()
+- faster cube map seam filtering
+  - GPU is automatically used whenever possible
+  - prefilterSeams parameter added to RRDynamicSolver::updateEnvironmentMap()
+  - prefilterSeams parameter added to RRLightField::captureLighting()
+
 
 \section news115 ------------------------------------ 2010.12.21 -------------------------------------
 

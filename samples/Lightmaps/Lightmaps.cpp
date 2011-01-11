@@ -217,7 +217,7 @@ void keyboard(unsigned char c, int x, int y)
 				aabbMin.w = aabbMax.w = 0;
 				if (!lightField) lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
 				if (lightField)
-					lightField->captureLighting(solver,0);
+					lightField->captureLighting(solver,0,false);
 
 				// start rendering computed maps
 				renderLayer = LAYER_OFFLINE_PIXEL;

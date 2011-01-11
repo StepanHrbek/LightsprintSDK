@@ -92,6 +92,7 @@ private:
 	TextureRenderer* textureRenderer;
 	UberProgram* uberProgram;
 	RendererOfMeshCache rendererOfMeshCache;
+	bool prefilterSeams;
 
 	// PERMANENT ALLOCATION, TEMPORARY CONTENT
 	rr::RRObjects multiObjects;
@@ -117,6 +118,10 @@ RendererOfOriginalScene::RendererOfOriginalScene(const char* pathToShaders)
 	uberProgram = UberProgram::create(
 		tmpstr("%subershader.vs",pathToShaders),
 		tmpstr("%subershader.fs",pathToShaders));
+
+	// init "seamless cube maps" feature
+	prefilterSeams = !glewIsSupported("GL_ARB_seamless_cube_map");
+	if(!prefilterSeams) glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
 RendererOfOriginalScene::~RendererOfOriginalScene()
@@ -328,7 +333,7 @@ void RendererOfOriginalScene::render(
 					// built-in version check
 					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE||objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 					{
-						_solver->updateEnvironmentMap(&illumination);
+						_solver->updateEnvironmentMap(&illumination,prefilterSeams);
 					}
 				}
 			}

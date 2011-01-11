@@ -52,13 +52,13 @@ struct CubeSide
 		return getTexelDir(RRVec2( RRReal(int(1+2*x-size))/size , RRReal(int(1+2*y-size))/size ));
 	}
 
-	// as getTexelDir, but for edge/corner texels, returns dir to edge/corner of cube
-	RRVec3 getTexelDirSticky(unsigned size, unsigned x, unsigned y) const
+	// as getTexelDir, but for prefilterSeams edge/corner texels returns dir to edge/corner of cube
+	RRVec3 getTexelDirSticky(unsigned size, unsigned x, unsigned y, bool prefilterSeams) const
 	{
-		return getTexelDir(RRVec2(
-			(x==0) ? -1 : ( (x>=size-1) ? 1 : RRReal(int(1+2*x-size))/size ),
-			(y==0) ? -1 : ( (y>=size-1) ? 1 : RRReal(int(1+2*y-size))/size )
-			));
+		return getTexelDir(!prefilterSeams
+			? RRVec2( RRReal(int(1+2*x-size))/size , RRReal(int(1+2*y-size))/size )
+			: RRVec2( (x==0) ? -1 : ( (x>=size-1) ? 1 : RRReal(int(1+2*x-size))/size ),
+			          (y==0) ? -1 : ( (y>=size-1) ? 1 : RRReal(int(1+2*y-size))/size ) ));
 	}
 
 	// returns texel size in steradians. approximative
@@ -437,14 +437,14 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 
 // thread safe: yes
 // radius = 1-minDot (dot=cos(angle) musi byt aspon tak velky jako minDot, jinak jde o prilis vzdaleny texel)
-void buildCubeFilter(unsigned iSize, unsigned oSize, float radius, Interpolator* interpolator)
+void buildCubeFilter(unsigned iSize, unsigned oSize, float radius, bool prefilterSeams, Interpolator* interpolator)
 {
 	for (int oside=0;oside<6;oside++)
 	{
 		for (unsigned oj=0;oj<oSize;oj++)
 			for (unsigned oi=0;oi<oSize;oi++)
 			{
-				RRVec3 odir = cubeSide[oside].getTexelDirSticky(oSize,oi,oj).normalized();
+				RRVec3 odir = cubeSide[oside].getTexelDirSticky(oSize,oi,oj,prefilterSeams).normalized();
 				interpolator->learnDestinationBegin();
 				RRReal sum = 0;
 				for (unsigned iside=0;iside<6;iside++)
@@ -494,11 +494,11 @@ public:
 	InterpolatorCache()
 	{
 	}
-	const Interpolator* getInterpolator(unsigned iSize, unsigned oSize, RRReal radius)
+	const Interpolator* getInterpolator(unsigned iSize, unsigned oSize, RRReal radius, bool prefilterSeams)
 	{
 		// this is just hash, but good enough for us
 		// (there was problem with proper struct Key in VS2010, reducing Key to float solved it)
-		float key = radius + iSize + oSize*3.378f;
+		float key = radius + iSize + oSize*3.378f + (prefilterSeams?2.13f:0);
 
 		Interpolator* result;
 		#pragma omp critical(interpolators)
@@ -513,7 +513,7 @@ public:
 			{
 				// not found in cache
 				result = interpolators[key] = new Interpolator();
-				buildCubeFilter(iSize,oSize,radius,result);
+				buildCubeFilter(iSize,oSize,radius,prefilterSeams,result);
 			}
 		}
 		return result;
@@ -581,13 +581,13 @@ static void filterEdges(unsigned iSize, CubeColor* iExitance)
 // main
 
 // returns number of buffers updated
-static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, unsigned gatherSize, const RRScaler* scaler, RRReal filterRadius, RRBuffer* buffer)
+static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, unsigned gatherSize, const RRScaler* scaler, RRReal filterRadius, bool prefilterSeams, RRBuffer* buffer)
 {
 	RR_ASSERT(gatheredExitance);
 	RR_ASSERT(gatherSize);
 	RR_ASSERT(filterRadius);
 	if (!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
-	const Interpolator* interpolator = cache.getInterpolator(gatherSize,buffer->getWidth(),filterRadius);
+	const Interpolator* interpolator = cache.getInterpolator(gatherSize,buffer->getWidth(),filterRadius,prefilterSeams);
 	interpolator->interpolate(gatheredExitance,buffer,scaler);
 	// setting version from solver is not enough, cube would not update if it only moves around scene
 	//buffer->version = version;
@@ -614,7 +614,7 @@ void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illuminati
 	cubeMapGather(illumination,NULL);
 }
 
-unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illumination)
+unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illumination, bool prefilterSeams)
 {
 	if (!illumination)
 	{
@@ -655,7 +655,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	{
 		// fill envmaps
 		if (diffuseSize)
-			updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,0.9f,illumination->diffuseEnvMap);
+			updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,0.9f,prefilterSeams,illumination->diffuseEnvMap);
 		if (specularSize)
 		{
 			unsigned minSize = RR_MIN(gatherSize,specularSize);
@@ -675,7 +675,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 			}
 			else
 			{
-				updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,filterRadius,illumination->specularEnvMap);
+				updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,filterRadius,prefilterSeams,illumination->specularEnvMap);
 			}
 		}
 	}
