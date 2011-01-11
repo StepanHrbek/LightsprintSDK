@@ -386,7 +386,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		else
 		{
 			materialPhysical->copyFrom(*materialCustom);
-			materialPhysical->convertToCustomScale(lastSolver->getScaler());
+			materialPhysical->convertToPhysicalScale(lastSolver->getScaler());
 		}
 	}
 
