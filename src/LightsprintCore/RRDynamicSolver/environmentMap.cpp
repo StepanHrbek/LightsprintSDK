@@ -587,9 +587,29 @@ static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, unsig
 	RR_ASSERT(gatherSize);
 	RR_ASSERT(filterRadius);
 	if (!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
-	const Interpolator* interpolator = cache.getInterpolator(gatherSize,buffer->getWidth(),filterRadius,prefilterSeams);
-	interpolator->interpolate(gatheredExitance,buffer,scaler);
+	unsigned bufferSize = buffer->getWidth();
+	if (gatherSize==bufferSize && gatherSize>16 && filterRadius<0.1f)
+	{
+		// optimized specular, copy without filtering
+		// not entirely correct if prefilterSeams==true, but likelihood of such setting is acceptably low (dude with stone-age GPU wants hires cube?)
+		if (!buffer->getScaled())
+			scaler = NULL;
+		for (unsigned i=0;i<gatherSize*gatherSize*6;i++)
+		{
+			RRVec3 exitance = gatheredExitance[i];
+			if (scaler) scaler->getCustomScale(exitance);
+			buffer->setElement(i,RRVec4(exitance,0));
+		}
+		// faster but works only for specularEnvMap BF_RGBF,!scaled
+		//illumination->specularEnvMap->reset(rr::BT_CUBE_TEXTURE,specularSize,specularSize,6,illumination->specularEnvMap->getFormat(),false,(unsigned char*)gatheredExitance);
+	}
+	else
+	{
+		const Interpolator* interpolator = cache.getInterpolator(gatherSize,buffer->getWidth(),filterRadius,prefilterSeams);
+		interpolator->interpolate(gatheredExitance,buffer,scaler);
+	}
 	// setting version from solver is not enough, cube would not update if it only moves around scene
+	// furthermore, setting version differently may lead to updating always, even if it is not necessary
 	//buffer->version = version;
 	buffer->version++;
 	buffer->version = (version<<16)+(buffer->version&65535);
@@ -661,22 +681,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 			unsigned minSize = RR_MIN(gatherSize,specularSize);
 			RRReal filterRadius = 1-minSize*sqrtf(1.0f/(3+minSize*minSize));
 			//RRReal filterRadius = 0.25f/minSize;
-			if (gatherSize==specularSize && gatherSize>16)
-			{
-				const rr::RRScaler* scaler = illumination->specularEnvMap->getScaled()?priv->scaler:NULL;
-				for (unsigned i=0;i<gatherSize*gatherSize*6;i++)
-				{
-					RRVec3 exitance = gatheredExitance[i];
-					if (scaler) scaler->getCustomScale(exitance);
-					illumination->specularEnvMap->setElement(i,RRVec4(exitance,0));
-				}
-				// faster but works only for specularEnvMap BF_RGBF,!scaled
-				//illumination->specularEnvMap->reset(rr::BT_CUBE_TEXTURE,specularSize,specularSize,6,illumination->specularEnvMap->getFormat(),false,(unsigned char*)gatheredExitance);
-			}
-			else
-			{
-				updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,filterRadius,prefilterSeams,illumination->specularEnvMap);
-			}
+			updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,filterRadius,prefilterSeams,illumination->specularEnvMap);
 		}
 	}
 
