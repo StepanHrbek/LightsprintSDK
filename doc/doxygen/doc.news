@@ -15,10 +15,10 @@ NEWS
 - faces with flipped front/back can be automatically corrected
   - RRMeshArrays::flipFrontBack()
   - RRObjects::flipFrontBack()
-- faster cube map seam filtering
-  - GPU is automatically used whenever possible
+- support for filtering cube map seams on GPU
   - prefilterSeams parameter added to RRDynamicSolver::updateEnvironmentMap()
   - prefilterSeams parameter added to RRLightField::captureLighting()
+  - if you want GPU to filter seams, set prefilterSeams=false and enable GPU filtering in renderer (in OpenGL by glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);)
 
 CHANGES
 

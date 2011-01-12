@@ -120,7 +120,7 @@ RendererOfOriginalScene::RendererOfOriginalScene(const char* pathToShaders)
 		tmpstr("%subershader.fs",pathToShaders));
 
 	// init "seamless cube maps" feature
-	prefilterSeams = !glewIsSupported("GL_ARB_seamless_cube_map");
+	prefilterSeams = true;//!glewIsSupported("GL_ARB_seamless_cube_map");
 	if(!prefilterSeams) glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
