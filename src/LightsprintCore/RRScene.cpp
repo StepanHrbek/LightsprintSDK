@@ -91,7 +91,7 @@ RRScene::RRScene()
 	environment = NULL;
 }
 
-RRScene::RRScene(const char* filename, bool* aborting, float emissiveMultiplier)
+RRScene::RRScene(const char* filename, bool* aborting)
 {
 	implementation = NULL;
 	protectedObjects = NULL;
@@ -134,7 +134,7 @@ RRScene::RRScene(const char* filename, bool* aborting, float emissiveMultiplier)
 			loaderFound = true;
 			try
 			{
-				implementation = s_loaders[i].loader(filename,aborting,emissiveMultiplier);
+				implementation = s_loaders[i].loader(filename,aborting);
 			}
 			catch (...)
 			{

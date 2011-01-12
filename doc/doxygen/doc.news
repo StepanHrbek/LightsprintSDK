@@ -20,6 +20,10 @@ NEWS
   - prefilterSeams parameter added to RRDynamicSolver::updateEnvironmentMap()
   - prefilterSeams parameter added to RRLightField::captureLighting()
 
+CHANGES
+
+- emissiveMultiplier parameter removed from all scene import functions
+- generic RRObjects::multiplyEmittance() added to compensate previous removal
 
 \section news115 ------------------------------------ 2010.12.21 -------------------------------------
 

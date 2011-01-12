@@ -256,4 +256,29 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 	return numFlips;
 }
 
+void RRObjects::multiplyEmittance(float emissiveMultiplier)
+{
+	if (emissiveMultiplier==1)
+		return;
+	// gather unique materials
+	boost::unordered_set<RRMaterial*> materials;
+	for (unsigned i=0;i<size();i++)
+	{
+		RRObject* object = (*this)[i];
+		if (object)
+			for (unsigned fg=0;fg<object->faceGroups.size();fg++)
+				materials.insert(object->faceGroups[fg].material);
+	}
+	// multiply
+	for (boost::unordered_set<RRMaterial*>::iterator i=materials.begin();i!=materials.end();++i)
+	{
+		if (*i)
+		{
+			(*i)->diffuseEmittance.color *= emissiveMultiplier;
+			if ((*i)->diffuseEmittance.texture)
+				(*i)->diffuseEmittance.texture->multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0));
+		}
+	}
+}
+
 } // namespace

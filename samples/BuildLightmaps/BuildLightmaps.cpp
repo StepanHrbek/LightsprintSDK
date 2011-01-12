@@ -404,7 +404,8 @@ int main(int argc, char **argv)
 	//
 	// load scene
 	//
-	rr::RRScene scene(globalParameters.sceneFilename,NULL,globalParameters.emissiveMultiplier);
+	rr::RRScene scene(globalParameters.sceneFilename,NULL);
+	scene.objects.multiplyEmittance(globalParameters.emissiveMultiplier);
 
 	//
 	// set solver geometry

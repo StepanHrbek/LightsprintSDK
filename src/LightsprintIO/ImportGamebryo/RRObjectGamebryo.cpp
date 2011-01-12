@@ -2035,10 +2035,10 @@ public:
 	virtual ~RRSceneGamebryo();
 
 	//! Loader suitable for RRScene::registerLoader().
-	static RRScene* load(const char* filename, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, bool* aborting)
 	{
 		bool not_aborting = false;
-		return new RRSceneGamebryo(filename,true,aborting ? *aborting : not_aborting,emissiveMultiplier);
+		return new RRSceneGamebryo(filename,true,aborting ? *aborting : not_aborting,1);
 	}
 
 protected:

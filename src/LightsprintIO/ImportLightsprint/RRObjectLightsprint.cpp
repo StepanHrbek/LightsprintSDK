@@ -147,7 +147,7 @@ class RRSceneLightsprint : public RRScene
 {
 public:
 
-	static RRScene* load(const char* filename, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, bool* aborting)
 	{
 		try
 		{

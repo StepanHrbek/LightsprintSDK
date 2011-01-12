@@ -198,7 +198,7 @@ public:
 class RRScene3DS : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, bool* aborting)
 	{
 		RRScene3DS* scene = new RRScene3DS;
 		if (!scene->scene_3ds.Load(filename,1))

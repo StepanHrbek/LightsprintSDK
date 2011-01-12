@@ -72,7 +72,7 @@ RRMatrix3x4 convertMatrix(const aiMatrix4x4& transform)
 class RRObjectsAssimp : public RRObjects
 {
 public:
-	RRObjectsAssimp(const aiScene* _scene, const char* _pathToTextures, float _emissiveMultiplier)
+	RRObjectsAssimp(const aiScene* _scene, const char* _pathToTextures)
 	{
 		pathToTextures = _pathToTextures;
 		materials = NULL;
@@ -406,7 +406,7 @@ public:
 class RRSceneAssimp : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, bool* aborting)
 	{
 		const aiScene* aiscene = aiImportFile(filename,0
 			//|aiProcess_CalcTangentSpace
@@ -444,7 +444,7 @@ public:
 		char* tmp = RR_MAX(strrchr(pathToTextures,'\\'),strrchr(pathToTextures,'/'));
 		if (tmp) tmp[1] = 0;
 		RRReportInterval report(INF3,"Adapting scene...\n");
-		scene->protectedObjects = new RRObjectsAssimp(aiscene,pathToTextures,emissiveMultiplier);
+		scene->protectedObjects = new RRObjectsAssimp(aiscene,pathToTextures);
 		scene->protectedLights = new RRLightsAssimp(aiscene);
 		free(pathToTextures);
 		aiReleaseImport(aiscene);

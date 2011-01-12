@@ -509,6 +509,9 @@ namespace rr
 		//! \return Number of triangles flipped.
 		virtual unsigned flipFrontBack(unsigned numNormalsThatMustPointBack, bool report);
 
+		//! Multiplies emittance in all materials, both colors and textures.
+		virtual void multiplyEmittance(float emissiveMultiplier);
+
 		//! Destructor does not delete objects in collection (but individual adapters may do).
 		virtual ~RRObjects() {};
 	};

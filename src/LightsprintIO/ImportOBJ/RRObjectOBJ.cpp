@@ -213,7 +213,7 @@ public:
 class RRSceneOBJ : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, bool* aborting)
 	{
 		RRSceneOBJ* scene = new RRSceneOBJ;
 		scene->protectedObjects = adaptObjectsFromOBJ(filename);

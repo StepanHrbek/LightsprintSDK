@@ -44,9 +44,7 @@ public:
 	//!  Filename of scene. If it is NULL, scene will be empty.
 	//! \param aborting
 	//!  Import may be asynchronously aborted by setting *aborting to true.
-	//! \param emissiveMultiplier
-	//!  Multiplies emittance in all materials. Default 1 keeps original values.
-	RRScene(const char* filename, bool* aborting = NULL, float emissiveMultiplier = 1);
+	RRScene(const char* filename, bool* aborting = NULL);
 	//! Saves 3d scene to file.
 	//
 	//! Scene save is attempted using savers registered via registerSaver().
@@ -102,7 +100,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////
 
 	//! Template of custom scene loader.
-	typedef RRScene* Loader(const char* filename, bool* aborting, float emissiveMultiplier);
+	typedef RRScene* Loader(const char* filename, bool* aborting);
 	//! Template of custom scene saver.
 	typedef bool Saver(const RRScene* scene, const char* filename);
 	//! Registers scene loader so it can be used by RRScene constructor.

@@ -344,10 +344,9 @@ RRReal colorToFloat(FMVector4 color)
 class MaterialCacheFCollada
 {
 public:
-	MaterialCacheFCollada(const char* _pathToTextures, float _emissiveMultiplier)
+	MaterialCacheFCollada(const char* _pathToTextures)
 	{
 		pathToTextures = _pathToTextures;
-		emissiveMultiplier = _emissiveMultiplier;
 		invertedA_ONETransparency = false;
 		defaultMaterial.reset(false);
 	}
@@ -538,7 +537,6 @@ private:
 
 		loadTexture(FUDaeTextureChannel::DIFFUSE,material.diffuseReflectance,materialInstance,effectStandard);
 		loadTexture(FUDaeTextureChannel::EMISSION,material.diffuseEmittance,materialInstance,effectStandard);
-		material.diffuseEmittance.multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0));
 		loadTexture(FUDaeTextureChannel::TRANSPARENT,material.specularTransmittance,materialInstance,effectStandard);
 		material.specularTransmittanceInAlpha = effectStandard->GetTransparencyMode()==FCDEffectStandard::A_ONE;
 		if (material.specularTransmittance.texture)
@@ -601,7 +599,6 @@ private:
 	Cache cache;
 
 	RRString pathToTextures;
-	float emissiveMultiplier;
 	bool invertedA_ONETransparency; // workaround for Google Sketch Up bug
 	RRMaterial defaultMaterial;
 };
@@ -720,7 +717,7 @@ RRObjectFCollada::~RRObjectFCollada()
 class RRObjectsFCollada : public RRObjects
 {
 public:
-	RRObjectsFCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier);
+	RRObjectsFCollada(FCDocument* document, const char* pathToTextures);
 	virtual ~RRObjectsFCollada();
 
 private:
@@ -830,8 +827,8 @@ void RRObjectsFCollada::addNode(const FCDSceneNode* node)
 	}
 }
 
-RRObjectsFCollada::RRObjectsFCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier)
-	: materialCache(pathToTextures,emissiveMultiplier)
+RRObjectsFCollada::RRObjectsFCollada(FCDocument* document, const char* pathToTextures)
+	: materialCache(pathToTextures)
 {
 	if (!document)
 		return;
@@ -999,7 +996,7 @@ RRLightsFCollada::~RRLightsFCollada()
 class RRSceneFCollada : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, bool* aborting, float emissiveMultiplier)
+	static RRScene* load(const char* filename, bool* aborting)
 	{
 		RRSceneFCollada* scene = new RRSceneFCollada;
 		FCollada::Initialize();
@@ -1023,7 +1020,7 @@ public:
 			char* tmp = RR_MAX(strrchr(pathToTextures,'\\'),strrchr(pathToTextures,'/'));
 			if (tmp) tmp[1] = 0;
 			RRReportInterval report(INF3,"Adapting scene...\n");
-			scene->protectedObjects = adaptObjectsFromFCollada(scene->scene_dae,pathToTextures,emissiveMultiplier);
+			scene->protectedObjects = adaptObjectsFromFCollada(scene->scene_dae,pathToTextures);
 			scene->protectedLights = adaptLightsFromFCollada(scene->scene_dae);
 			free(pathToTextures);
 			return scene;
@@ -1044,9 +1041,9 @@ private:
 //
 // main
 
-RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures, float emissiveMultiplier)
+RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures)
 {
-	return new RRObjectsFCollada(document,pathToTextures,emissiveMultiplier);
+	return new RRObjectsFCollada(document,pathToTextures);
 }
 
 RRLights* adaptLightsFromFCollada(class FCDocument* document)
