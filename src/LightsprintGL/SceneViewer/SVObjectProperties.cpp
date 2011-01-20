@@ -37,36 +37,36 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			mesh->getAABB(&mini,&maxi,&localCenter);
 
 			// object
-			Append(propName = new wxStringProperty(wxT("Name"),wxPG_LABEL,object->name.c_str()));
+			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,object->name.c_str()));
 			const rr::RRMatrix3x4 worldMatrix = object->getWorldMatrixRef();
-			Append(tmp = new RRVec3Property(wxT("World center"),"Center of object in world space",_precision,worldMatrix.transformedPosition(localCenter)));
+			Append(tmp = new RRVec3Property(_("World center"),_("Center of object in world space"),_precision,worldMatrix.transformedPosition(localCenter)));
 			EnableProperty(tmp,false);
-			Append(propWTranslation = new RRVec3Property(wxT("World translation"),"Translation of object in world space",_precision,worldMatrix.getTranslation()));
-			Append(propCubeDiffuse = new FloatProperty("Diffuse cube size","Size of realtime raytraced diffuse reflection cubemap",object->illumination.diffuseEnvMap?object->illumination.diffuseEnvMap->getWidth():0,_precision,0,100000,1,false));
+			Append(propWTranslation = new RRVec3Property(_("World translation"),_("Translation of object in world space"),_precision,worldMatrix.getTranslation()));
+			Append(propCubeDiffuse = new FloatProperty("Diffuse cube size",_("Size of realtime raytraced diffuse reflection cubemap"),object->illumination.diffuseEnvMap?object->illumination.diffuseEnvMap->getWidth():0,_precision,0,100000,1,false));
 			EnableProperty(propCubeDiffuse,false);
-			Append(propCubeSpecular = new FloatProperty("Specular cube size","Size of realtime raytraced specular reflection cubemap",object->illumination.specularEnvMap?object->illumination.specularEnvMap->getWidth():0,_precision,0,100000,1,false));
+			Append(propCubeSpecular = new FloatProperty("Specular cube size",_("Size of realtime raytraced specular reflection cubemap"),object->illumination.specularEnvMap?object->illumination.specularEnvMap->getWidth():0,_precision,0,100000,1,false));
 			EnableProperty(propCubeSpecular,false);
-			Append(new wxIntProperty(wxT("#facegroups"),wxPG_LABEL,object->faceGroups.size()));
+			Append(new wxIntProperty(_("#facegroups"),wxPG_LABEL,object->faceGroups.size()));
 
 			// mesh
 			const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(mesh);
-			Append(tmp = new wxStringProperty(wxT("Mesh"), wxPG_LABEL,tmpstr("%x",(int)(size_t)mesh)));
-			AppendIn(tmp, new wxIntProperty(wxT("#triangles"),wxPG_LABEL,mesh->getNumTriangles()));
-			AppendIn(tmp, new wxIntProperty(wxT("#vertices"),wxPG_LABEL,mesh->getNumVertices()));
+			Append(tmp = new wxStringProperty(_("Mesh"), wxPG_LABEL,tmpstr("%x",(int)(size_t)mesh)));
+			AppendIn(tmp, new wxIntProperty(_("#triangles"),wxPG_LABEL,mesh->getNumTriangles()));
+			AppendIn(tmp, new wxIntProperty(_("#vertices"),wxPG_LABEL,mesh->getNumVertices()));
 			if (arrays)
 			{
 				wxString channels;
 				for (unsigned i=0;i<arrays->texcoord.size();i++)
 					if (arrays->texcoord[i])
 						channels += tmpstr("%d ",i);
-				AppendIn(tmp, new wxStringProperty(wxT("uv channels"),wxPG_LABEL,channels));
-				AppendIn(tmp, new wxBoolProperty(wxT("tangents"),wxPG_LABEL,arrays->tangent?true:false));
-				AppendIn(tmp, new wxIntProperty(wxT("version"),wxPG_LABEL,arrays->version));
+				AppendIn(tmp, new wxStringProperty(_("uv channels"),wxPG_LABEL,channels));
+				AppendIn(tmp, new wxBoolProperty(_("tangents"),wxPG_LABEL,arrays->tangent?true:false));
+				AppendIn(tmp, new wxIntProperty(_("version"),wxPG_LABEL,arrays->version));
 			}
-			AppendIn(tmp, new RRVec3Property(wxT("Local size"),"Mesh size in object space",_precision,maxi-mini));
-			AppendIn(tmp, new RRVec3Property(wxT("Local min"),"Mesh AABB min in object space",_precision,mini));
-			AppendIn(tmp, new RRVec3Property(wxT("Local max"),"Mesh AABB max in object space",_precision,maxi));
-			AppendIn(tmp, new RRVec3Property(wxT("Local center"),"Mesh center in object space",_precision,localCenter));
+			AppendIn(tmp, new RRVec3Property(_("Local size"),_("Mesh size in object space"),_precision,maxi-mini));
+			AppendIn(tmp, new RRVec3Property(_("Local min"),_("Mesh AABB min in object space"),_precision,mini));
+			AppendIn(tmp, new RRVec3Property(_("Local max"),_("Mesh AABB max in object space"),_precision,maxi));
+			AppendIn(tmp, new RRVec3Property(_("Local center"),_("Mesh center in object space"),_precision,localCenter));
 			EnableProperty(tmp,false);
 			SetPropertyBackgroundColour(tmp,headerColor,false);
 		}

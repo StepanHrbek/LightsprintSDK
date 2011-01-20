@@ -36,13 +36,13 @@ SVSceneTree::SVSceneTree(SVFrame* _svframe)
 	callDepth = 0;
 	needsUpdateContent = false;
 
-	wxTreeItemId root = AddRoot("root");
+	wxTreeItemId root = AddRoot(_("root"));
 
 
-	lights = AppendItem(root,"0 lights");
+	lights = AppendItem(root,_("0 lights"));
 
-	staticObjects = AppendItem(root,"0 static objects");
-	dynamicObjects = AppendItem(root,"0 dynamic objects");
+	staticObjects = AppendItem(root,_("0 static objects"));
+	dynamicObjects = AppendItem(root,_("0 dynamic objects"));
 
 
 	Expand(lights); // wxmsw ignores this because lights is empty
@@ -62,17 +62,17 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	#define USE_IF_NONEMPTY_ELSE(str,maxlength) str.size() ? str :
 	SetItemText(GetRootItem(),
 		USE_IF_NONEMPTY_ELSE(svs.sceneFilename,40)
-		"scene");
+		_("scene"));
 
 	// update lights
 	if (solver)
 	{
-		SetItemText(lights,tmpstr("%d lights",solver?solver->getLights().size():0));
+		SetItemText(lights,tmpstr(_("%d lights"),solver?solver->getLights().size():0));
 		DeleteChildren(lights);
 		for (unsigned i=0;solver && i<solver->getLights().size();i++)
 		{
 			wxString name = solver->getLights()[i]->name.c_str();
-			if (name.empty()) name = wxString("light ")<<i;
+			if (name.empty()) name = tmpstr(_("light %d"),i);
 			AppendItem(lights,name,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
 		}
 	}
@@ -80,13 +80,13 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	// update first 1000 static objects, more would be slow and difficult to control
 	if (solver)
 	{
-		SetItemText(staticObjects,tmpstr("%d static objects",solver?solver->getStaticObjects().size():0));
+		SetItemText(staticObjects,tmpstr(_("%d static objects"),solver?solver->getStaticObjects().size():0));
 		DeleteChildren(staticObjects);
 		unsigned numStaticObjects = RR_MIN(solver->getStaticObjects().size(),1000);
 		for (unsigned i=0;solver && i<numStaticObjects;i++)
 		{
 			wxString name = solver->getStaticObjects()[i]->name.c_str();
-			if (name.empty()) name = wxString("object ")<<i;
+			if (name.empty()) name = tmpstr(_("object %d"),i);
 			AppendItem(staticObjects,name,-1,-1,new ItemData(EntityId(ST_STATIC_OBJECT,i)));
 		}
 	}
@@ -94,13 +94,13 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	// update first 1000 dynamic objects
 	if (solver)
 	{
-		SetItemText(dynamicObjects,tmpstr("%d dynamic objects",solver?solver->getDynamicObjects().size():0));
+		SetItemText(dynamicObjects,tmpstr(_("%d dynamic objects"),solver?solver->getDynamicObjects().size():0));
 		DeleteChildren(dynamicObjects);
 		unsigned numDynamicObjects = RR_MIN(solver->getDynamicObjects().size(),1000);
 		for (unsigned i=0;solver && i<numDynamicObjects;i++)
 		{
 			wxString name = solver->getDynamicObjects()[i]->name.c_str();
-			if (name.empty()) name = wxString("object ")<<i;
+			if (name.empty()) name = tmpstr(_("object %d"),i);
 			AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_DYNAMIC_OBJECT,i)));
 		}
 	}
@@ -189,17 +189,17 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 		if (temporaryContext==lights)
 		{
 			wxMenu menu;
-			menu.Append(CM_LIGHT_SPOT, wxT("Add spot light (alt-s)"));
-			menu.Append(CM_LIGHT_POINT, wxT("Add point light (alt-o)"));
-			menu.Append(CM_LIGHT_DIR, wxT("Add directional light"));
-			menu.Append(CM_LIGHT_FLASH, wxT("Toggle flashlight (alt-f)"));
+			menu.Append(CM_LIGHT_SPOT, _("Add spot light")+" (alt-s)");
+			menu.Append(CM_LIGHT_POINT, _("Add point light")+" (alt-o)");
+			menu.Append(CM_LIGHT_DIR, _("Add directional light"));
+			menu.Append(CM_LIGHT_FLASH, _("Toggle flashlight")+" (alt-f)");
 			PopupMenu(&menu, event.GetPoint());
 		}
 		else
 		if (GetItemParent(temporaryContext)==lights)
 		{
 			wxMenu menu;
-			menu.Append(CM_LIGHT_DELETE, wxT("Delete light (del)"));
+			menu.Append(CM_LIGHT_DELETE, _("Delete light")+" (del)");
 			PopupMenu(&menu, event.GetPoint());
 		}
 	}

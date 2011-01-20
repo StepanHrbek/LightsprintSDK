@@ -30,53 +30,53 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	showPhysical = false;
 	shown = true;
 
-	Append(propPoint = new BoolRefProperty(wxT("Pixel details"),"Clicking scene shows material properties of pixel rather than face.",showPoint));
-	Append(propPhysical = new BoolRefProperty(wxT("In physical scale"),"Displays values in linear physical scale, rather than in sRGB.",showPhysical));
+	Append(propPoint = new BoolRefProperty(_("Pixel details"),_("Clicking scene shows material properties of pixel rather than face."),showPoint));
+	Append(propPhysical = new BoolRefProperty(_("In physical scale"),_("Displays values in linear physical scale, rather than in sRGB."),showPhysical));
 
-	Append(propName = new wxStringProperty(wxT("Name")));
+	Append(propName = new wxStringProperty(_("Name")));
 
-	Append(propFront = new wxBoolProperty(wxT("Front")));
+	Append(propFront = new wxBoolProperty(_("Front")));
 	SetPropertyEditor(propFront,wxPGEditor_CheckBox);
-	Append(propBack = new wxBoolProperty(wxT("Back")));
+	Append(propBack = new wxBoolProperty(_("Back")));
 	SetPropertyEditor(propBack,wxPGEditor_CheckBox);
 
-	Append(propDiffuse = new wxStringProperty(wxT("Diffuse")));
-	AppendIn(propDiffuse,new HDRColorProperty(wxT("color"),"If texture is set, color is calculated from texture and can't be edited.",svs.precision));
-	AppendIn(propDiffuse,new wxIntProperty(wxT("uv")));
-	AppendIn(propDiffuse,new ImageFileProperty(wxT("texture or video"),"Diffuse texture or video. Type in c@pture to use live video input."));
+	Append(propDiffuse = new wxStringProperty(_("Diffuse")));
+	AppendIn(propDiffuse,new HDRColorProperty(_("color"),_("If texture is set, color is calculated from texture and can't be edited."),svs.precision));
+	AppendIn(propDiffuse,new wxIntProperty(_("uv")));
+	AppendIn(propDiffuse,new ImageFileProperty(_("texture or video"),_("Diffuse texture or video. Type in c@pture to use live video input.")));
 	SetPropertyBackgroundColour(propDiffuse,headerColor,false);
 	Collapse(propDiffuse);
 
-	Append(propSpecular = new wxStringProperty(wxT("Specular")));
-	AppendIn(propSpecular,new HDRColorProperty(wxT("color"),"If texture is set, color is calculated from texture and can't be edited.",svs.precision));
-	AppendIn(propSpecular,new wxIntProperty(wxT("uv")));
-	AppendIn(propSpecular,new ImageFileProperty(wxT("texture or video"),"Specular texture or video. Type in c@pture to use live video input."));
+	Append(propSpecular = new wxStringProperty(_("Specular")));
+	AppendIn(propSpecular,new HDRColorProperty(_("color"),_("If texture is set, color is calculated from texture and can't be edited."),svs.precision));
+	AppendIn(propSpecular,new wxIntProperty(_("uv")));
+	AppendIn(propSpecular,new ImageFileProperty(_("texture or video"),_("Specular texture or video. Type in c@pture to use live video input.")));
 	SetPropertyBackgroundColour(propSpecular,headerColor,false);
 	Collapse(propSpecular);
 
-	Append(propEmissive = new wxStringProperty(wxT("Emissive")));
-	AppendIn(propEmissive,new HDRColorProperty(wxT("color"),"If texture is set, color is calculated from texture and can't be edited.",svs.precision));
-	AppendIn(propEmissive,new wxIntProperty(wxT("uv")));
-	AppendIn(propEmissive,new ImageFileProperty(wxT("texture or video"),"Emissive texture or video. Type in c@pture to use live video input."));
+	Append(propEmissive = new wxStringProperty(_("Emissive")));
+	AppendIn(propEmissive,new HDRColorProperty(_("color"),_("If texture is set, color is calculated from texture and can't be edited."),svs.precision));
+	AppendIn(propEmissive,new wxIntProperty(_("uv")));
+	AppendIn(propEmissive,new ImageFileProperty(_("texture or video"),_("Emissive texture or video. Type in c@pture to use live video input.")));
 	SetPropertyBackgroundColour(propEmissive,headerColor,false);
 	Collapse(propEmissive);
 
-	Append(propTransparent = new wxStringProperty(wxT("Transparency")));
-	AppendIn(propTransparent,new HDRColorProperty(wxT("color"),"If texture is set, color is calculated from texture and can't be edited.",svs.precision));
-	AppendIn(propTransparent,new wxIntProperty(wxT("uv")));
-	AppendIn(propTransparent,new ImageFileProperty(wxT("texture or video"),"Opacity texture or video. Type in c@pture to use live video input."));
-	AppendIn(propTransparent,propTransparency1bit = new wxBoolProperty(wxT("1-bit")));
+	Append(propTransparent = new wxStringProperty(_("Transparency")));
+	AppendIn(propTransparent,new HDRColorProperty(_("color"),_("If texture is set, color is calculated from texture and can't be edited."),svs.precision));
+	AppendIn(propTransparent,new wxIntProperty(_("uv")));
+	AppendIn(propTransparent,new ImageFileProperty(_("texture or video"),_("Opacity texture or video. Type in c@pture to use live video input.")));
+	AppendIn(propTransparent,propTransparency1bit = new wxBoolProperty(_("1-bit")));
 	SetPropertyEditor(propTransparency1bit,wxPGEditor_CheckBox);
-	propTransparency1bit->SetHelpString("Makes opacity either 0% or 100%.");
-	AppendIn(propTransparent,propTransparencyInAlpha = new wxBoolProperty(wxT("in alpha")));
+	propTransparency1bit->SetHelpString(_("Makes opacity either 0% or 100%."));
+	AppendIn(propTransparent,propTransparencyInAlpha = new wxBoolProperty(_("in alpha")));
 	SetPropertyEditor(propTransparencyInAlpha,wxPGEditor_CheckBox);
-	propTransparencyInAlpha->SetHelpString("Reads opacity from alpha rather than from rgb.");
-	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index","Index of refraction when light hits surface from front side.",1,svs.precision,0,2,0.1f,false));
+	propTransparencyInAlpha->SetHelpString(_("Reads opacity from alpha rather than from rgb."));
+	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index",_("Index of refraction when light hits surface from front side."),1,svs.precision,0,2,0.1f,false));
 	SetPropertyBackgroundColour(propTransparent,headerColor,false);
 	Collapse(propTransparent);
 
-	Append(propLightmapTexcoord = new wxIntProperty(wxT("Lightmap uv")));
-	Append(propQualityForPoints = new wxIntProperty(wxT("Quality for point materials")));
+	Append(propLightmapTexcoord = new wxIntProperty(_("Lightmap uv")));
+	Append(propQualityForPoints = new wxIntProperty(_("Quality for point materials")));
 
 	setMaterial(NULL,UINT_MAX,rr::RRVec2(0)); // hides properties, they were not filled yet
 }
@@ -88,12 +88,12 @@ static void composeMaterialPropertyRoot(wxPGProperty* prop, rr::RRMaterial::Prop
 	if (material.color==rr::RRVec3(0) && !material.texture)
 	{
 		prop->SetValueImage(*(wxBitmap*)NULL);
-		prop->SetValueFromString("none");
+		prop->SetValueFromString(_("none"));
 	}
 	else
 	{
-		wxBitmap* bitmap = prop->GetPropertyByName("texture or video")->GetValueImage();
-		if (!bitmap) bitmap = prop->GetPropertyByName("color")->GetValueImage();
+		wxBitmap* bitmap = prop->GetPropertyByName(_("texture or video"))->GetValueImage();
+		if (!bitmap) bitmap = prop->GetPropertyByName(_("color"))->GetValueImage();
 		prop->SetValueImage(*bitmap);
 		prop->SetValueFromString("");
 	}
@@ -102,9 +102,9 @@ static void composeMaterialPropertyRoot(wxPGProperty* prop, rr::RRMaterial::Prop
 // copy part of material to propertygrid
 static void setMaterialProperty(wxPGProperty* prop, rr::RRMaterial::Property& material)
 {
-	wxPGProperty* propColor = prop->GetPropertyByName("color");
-	wxPGProperty* propUv = prop->GetPropertyByName("uv");
-	ImageFileProperty* propTexture = (ImageFileProperty*)prop->GetPropertyByName("texture or video");
+	wxPGProperty* propColor = prop->GetPropertyByName(_("color"));
+	wxPGProperty* propUv = prop->GetPropertyByName(_("uv"));
+	ImageFileProperty* propTexture = (ImageFileProperty*)prop->GetPropertyByName(_("texture or video"));
 
 	// update children
 	updateProperty(propColor,material.color);
@@ -189,16 +189,16 @@ void SVMaterialProperties::updateReadOnly()
 		EnableProperty(propBack,!showPoint);
 		EnableProperty(propDiffuse,!showPoint);
 		SetPropertyReadOnly(propDiffuse,true,0);
-		EnableProperty(propDiffuse->GetPropertyByName("color"),!(showPoint||material->diffuseReflectance.texture));
+		EnableProperty(propDiffuse->GetPropertyByName(_("color")),!(showPoint||material->diffuseReflectance.texture));
 		EnableProperty(propSpecular,!showPoint);
 		SetPropertyReadOnly(propSpecular,true,0);
-		EnableProperty(propSpecular->GetPropertyByName("color"),!(showPoint||material->specularReflectance.texture));
+		EnableProperty(propSpecular->GetPropertyByName(_("color")),!(showPoint||material->specularReflectance.texture));
 		EnableProperty(propEmissive,!showPoint);
 		SetPropertyReadOnly(propEmissive,true,0);
-		EnableProperty(propEmissive->GetPropertyByName("color"),!(showPoint||material->diffuseEmittance.texture));
+		EnableProperty(propEmissive->GetPropertyByName(_("color")),!(showPoint||material->diffuseEmittance.texture));
 		EnableProperty(propTransparent,!showPoint);
 		SetPropertyReadOnly(propTransparent,true,0);
-		EnableProperty(propTransparent->GetPropertyByName("color"),!(showPoint||material->specularTransmittance.texture));
+		EnableProperty(propTransparent->GetPropertyByName(_("color")),!(showPoint||material->specularTransmittance.texture));
 		EnableProperty(propLightmapTexcoord,!showPoint);
 		EnableProperty(propQualityForPoints,!showPoint);
 	}
@@ -243,23 +243,23 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 
 	// - diffuseReflectance
-	if (property==propDiffuse->GetPropertyByName("uv"))
+	if (property==propDiffuse->GetPropertyByName(_("uv")))
 	{
 		material->diffuseReflectance.texcoord = property->GetValue().GetInteger();
 		diffuseChanged = true;
 	}
 	else
-	if (property==propDiffuse->GetPropertyByName("texture or video"))
+	if (property==propDiffuse->GetPropertyByName(_("texture or video")))
 	{
 		((ImageFileProperty*)property)->updateBufferAndIcon(material->diffuseReflectance.texture,svs.playVideos);
 		material->diffuseReflectance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP);
-		updateProperty(propDiffuse->GetPropertyByName("color"),material->diffuseReflectance.color);
+		updateProperty(propDiffuse->GetPropertyByName(_("color")),material->diffuseReflectance.color);
 		composeMaterialPropertyRoot(propDiffuse,material->diffuseReflectance);
 		diffuseChanged = true;
 		textureChanged = true;
 	}
 	else
-	if (property==propDiffuse->GetPropertyByName("color"))
+	if (property==propDiffuse->GetPropertyByName(_("color")))
 	{
 		material->diffuseReflectance.color << property->GetValue();
 		composeMaterialPropertyRoot(propDiffuse,material->diffuseReflectance);
@@ -268,23 +268,23 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 
 	// - specularReflectance
-	if (property==propSpecular->GetPropertyByName("uv"))
+	if (property==propSpecular->GetPropertyByName(_("uv")))
 	{
 		material->specularReflectance.texcoord = property->GetValue().GetInteger();
 		specularChanged = true;
 	}
 	else
-	if (property==propSpecular->GetPropertyByName("texture or video"))
+	if (property==propSpecular->GetPropertyByName(_("texture or video")))
 	{
 		((ImageFileProperty*)property)->updateBufferAndIcon(material->specularReflectance.texture,svs.playVideos);
 		material->specularReflectance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP);
-		updateProperty(propSpecular->GetPropertyByName("color"),material->specularReflectance.color);
+		updateProperty(propSpecular->GetPropertyByName(_("color")),material->specularReflectance.color);
 		composeMaterialPropertyRoot(propSpecular,material->specularReflectance);
 		specularChanged = true;
 		textureChanged = true;
 	}
 	else
-	if (property==propSpecular->GetPropertyByName("color"))
+	if (property==propSpecular->GetPropertyByName(_("color")))
 	{
 		material->specularReflectance.color << property->GetValue();
 		composeMaterialPropertyRoot(propSpecular,material->specularReflectance);
@@ -293,23 +293,23 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 
 	// - diffuseEmittance
-	if (property==propEmissive->GetPropertyByName("uv"))
+	if (property==propEmissive->GetPropertyByName(_("uv")))
 	{
 		material->diffuseEmittance.texcoord = property->GetValue().GetInteger();
 		emittanceChanged = true;
 	}
 	else
-	if (property==propEmissive->GetPropertyByName("texture or video"))
+	if (property==propEmissive->GetPropertyByName(_("texture or video")))
 	{
 		((ImageFileProperty*)property)->updateBufferAndIcon(material->diffuseEmittance.texture,svs.playVideos);
 		material->diffuseEmittance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP);
-		updateProperty(propEmissive->GetPropertyByName("color"),material->diffuseEmittance.color);
+		updateProperty(propEmissive->GetPropertyByName(_("color")),material->diffuseEmittance.color);
 		composeMaterialPropertyRoot(propEmissive,material->diffuseEmittance);
 		emittanceChanged = true;
 		textureChanged = true;
 	}
 	else
-	if (property==propEmissive->GetPropertyByName("color"))
+	if (property==propEmissive->GetPropertyByName(_("color")))
 	{
 		material->diffuseEmittance.color << property->GetValue();
 		composeMaterialPropertyRoot(propEmissive,material->diffuseEmittance);
@@ -318,19 +318,19 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 
 	// - specularTransmittance
-	if (property==propTransparent->GetPropertyByName("uv"))
+	if (property==propTransparent->GetPropertyByName(_("uv")))
 	{
 		material->specularTransmittance.texcoord = property->GetValue().GetInteger();
 		transmittanceChanged = true;
 	}
 	else
-	if (property==propTransparent->GetPropertyByName("texture or video"))
+	if (property==propTransparent->GetPropertyByName(_("texture or video")))
 	{
 		((ImageFileProperty*)property)->updateBufferAndIcon(material->specularTransmittance.texture,svs.playVideos);
 		if (material->specularTransmittance.texture && material->specularTransmittance.texture->getFormat()!=rr::BF_RGBA && material->specularTransmittance.texture->getFormat()!=rr::BF_RGBAF)
 			material->specularTransmittanceInAlpha = false;
 		material->specularTransmittance.updateColorFromTexture(NULL,material->specularTransmittanceInAlpha,rr::RRMaterial::UTA_KEEP);
-		updateProperty(propTransparent->GetPropertyByName("color"),material->specularTransmittance.color);
+		updateProperty(propTransparent->GetPropertyByName(_("color")),material->specularTransmittance.color);
 		composeMaterialPropertyRoot(propTransparent,material->specularTransmittance);
 		material->updateKeyingFromTransmittance();
 		propTransparency1bit->SetValue(material->specularTransmittanceKeyed);
@@ -338,7 +338,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		textureChanged = true;
 	}
 	else
-	if (property==propTransparent->GetPropertyByName("color"))
+	if (property==propTransparent->GetPropertyByName(_("color")))
 	{
 		material->specularTransmittance.color << property->GetValue();
 		composeMaterialPropertyRoot(propTransparent,material->specularTransmittance);

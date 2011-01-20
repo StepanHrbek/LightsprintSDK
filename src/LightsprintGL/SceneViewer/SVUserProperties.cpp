@@ -18,23 +18,23 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 
 	// import
 	{
-		propImport = new wxStringProperty(wxT("Import"), wxPG_LABEL);
+		propImport = new wxStringProperty(_("Import"), wxPG_LABEL);
 		Append(propImport);
 		SetPropertyReadOnly(propImport,true,wxPG_DONT_RECURSE);
 
 		// units
 		{
-			const wxChar* viewStrings[] = {wxT("custom"),wxT("m"),wxT("inch"),wxT("cm"),wxT("mm"),NULL};
+			const wxChar* viewStrings[] = {_("custom"),wxT("m"),_("inch"),wxT("cm"),wxT("mm"),NULL};
 			const long viewValues[] = {ImportParameters::U_CUSTOM,ImportParameters::U_M,ImportParameters::U_INCH,ImportParameters::U_CM,ImportParameters::U_MM};
-			propImportUnitsEnum = new wxEnumProperty(wxT("Units"), wxPG_LABEL, viewStrings, viewValues);
+			propImportUnitsEnum = new wxEnumProperty(_("Units"), wxPG_LABEL, viewStrings, viewValues);
 			propImportUnitsEnum->SetValueFromInt(userPreferences.import.unitEnum,wxPG_FULL_VALUE);
-			propImportUnitsEnum->SetHelpString("How long it is if imported scene file says 1?");
+			propImportUnitsEnum->SetHelpString(_("How long it is if imported scene file says 1?"));
 			AppendIn(propImport,propImportUnitsEnum);
 
-			propImportUnitsFloat = new FloatProperty(wxT("Unit length in meters"),"Define any other unit by specifying its lenth in meters.",userPreferences.import.unitFloat,svs.precision,0,10000000,1,false);
+			propImportUnitsFloat = new FloatProperty(_("Unit length in meters"),_("Define any other unit by specifying its lenth in meters."),userPreferences.import.unitFloat,svs.precision,0,10000000,1,false);
 			AppendIn(propImportUnitsEnum,propImportUnitsFloat);
 
-			propImportUnitsForce = new BoolRefProperty(wxT("Force units"),"Checked = selected units are used always. Unchecked = only if file does not know its own units.",userPreferences.import.unitForce);
+			propImportUnitsForce = new BoolRefProperty(_("Force units"),_("Checked = selected units are used always. Unchecked = only if file does not know its own units."),userPreferences.import.unitForce);
 			AppendIn(propImport,propImportUnitsForce);
 		}
 
@@ -42,12 +42,12 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 		{
 			const wxChar* viewStrings[] = {wxT("x"),wxT("y"),wxT("z"),NULL};
 			const long viewValues[] = {0,1,2};
-			propImportUp = new wxEnumProperty(wxT("Up axis"), wxPG_LABEL, viewStrings, viewValues);
+			propImportUp = new wxEnumProperty(_("Up axis"), wxPG_LABEL, viewStrings, viewValues);
 			propImportUp->SetValueFromInt(userPreferences.import.up,wxPG_FULL_VALUE);
-			propImportUp->SetHelpString("What axis in imported scene file points up?");
+			propImportUp->SetHelpString(_("What axis in imported scene file points up?"));
 			AppendIn(propImport,propImportUp);
 
-			propImportUpForce = new BoolRefProperty(wxT("Force up"),"Checked = selected up is used always. Unchecked = only if file does not know its own up.",userPreferences.import.upForce);
+			propImportUpForce = new BoolRefProperty(_("Force up"),_("Checked = selected up is used always. Unchecked = only if file does not know its own up."),userPreferences.import.upForce);
 			AppendIn(propImport,propImportUpForce);
 		}
 
@@ -56,49 +56,49 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 
 	// sshot
 	{
-		propSshot = new wxStringProperty(wxT("Screenshots"), wxPG_LABEL);
+		propSshot = new wxStringProperty(_("Screenshots"), wxPG_LABEL);
 		Append(propSshot);
 		SetPropertyReadOnly(propSshot,true,wxPG_DONT_RECURSE);
 
-		propSshotFilename = new wxFileProperty(wxT("Filename"),wxPG_LABEL,userPreferences.sshotFilename);
-		propSshotFilename->SetHelpString("Filename, is automatically incremented on save.");
+		propSshotFilename = new wxFileProperty(_("Filename"),wxPG_LABEL,userPreferences.sshotFilename);
+		propSshotFilename->SetHelpString(_("Filename, is automatically incremented on save."));
 		AppendIn(propSshot,propSshotFilename);
 
 		// enhanced
 		{
-			propSshotEnhanced = new BoolRefProperty(wxT("Enhanced render"),"Enables enhanced (higher resolution and quality) screenshots. Enforces screenshot aspect in main viewport.",userPreferences.sshotEnhanced);
+			propSshotEnhanced = new BoolRefProperty(_("Enhanced render"),_("Enables enhanced (higher resolution and quality) screenshots. Enforces screenshot aspect in main viewport."),userPreferences.sshotEnhanced);
 			AppendIn(propSshot,propSshotEnhanced);
 
-			propSshotEnhancedWidth = new wxIntProperty(wxT("Width"),"Width in pixels, max depends on GPU.",userPreferences.sshotEnhancedWidth);
+			propSshotEnhancedWidth = new wxIntProperty(_("Width"),_("Width in pixels, max depends on GPU."),userPreferences.sshotEnhancedWidth);
 			AppendIn(propSshotEnhanced,propSshotEnhancedWidth);
 
-			propSshotEnhancedHeight = new wxIntProperty(wxT("Height"),"Height in pixels, max depends on GPU.",userPreferences.sshotEnhancedHeight);
+			propSshotEnhancedHeight = new wxIntProperty(_("Height"),_("Height in pixels, max depends on GPU."),userPreferences.sshotEnhancedHeight);
 			AppendIn(propSshotEnhanced,propSshotEnhancedHeight);
 
 			{
-				const wxChar* viewStrings[] = {wxT("none"),wxT("4x"),wxT("8x"),wxT("16x"),NULL};
+				const wxChar* viewStrings[] = {_("none"),wxT("4x"),wxT("8x"),wxT("16x"),NULL};
 				const long viewValues[] = {1,4,9,16};
-				propSshotEnhancedFSAA = new wxEnumProperty(wxT("FSAA"), wxPG_LABEL, viewStrings, viewValues);
+				propSshotEnhancedFSAA = new wxEnumProperty("FSAA", wxPG_LABEL, viewStrings, viewValues);
 				propSshotEnhancedFSAA->SetValueFromInt(userPreferences.sshotEnhancedFSAA,wxPG_FULL_VALUE);
-				propSshotEnhancedFSAA->SetHelpString("Fullscreen antialiasing mode, max depends on resolution and GPU.");
+				propSshotEnhancedFSAA->SetHelpString(_("Fullscreen antialiasing mode, max depends on resolution and GPU."));
 				AppendIn(propSshotEnhanced,propSshotEnhancedFSAA);
 			}
 
 			{
-				const wxChar* viewStrings[] = {wxT("0.5x"),wxT("default"),wxT("2x"),wxT("4x"),NULL};
+				const wxChar* viewStrings[] = {wxT("0.5x"),_("default"),wxT("2x"),wxT("4x"),NULL};
 				const long viewValues[] = {1,2,4,8};
-				propSshotEnhancedShadowResolutionFactor = new wxEnumProperty(wxT("Shadow resolution"), wxPG_LABEL, viewStrings, viewValues);
+				propSshotEnhancedShadowResolutionFactor = new wxEnumProperty(_("Shadow resolution"), wxPG_LABEL, viewStrings, viewValues);
 				propSshotEnhancedShadowResolutionFactor->SetValueFromInt(userPreferences.sshotEnhancedShadowResolutionFactor*2,wxPG_FULL_VALUE);
-				propSshotEnhancedShadowResolutionFactor->SetHelpString("Resolution of shadows, max depends on GPU and shadow resolution in lights.");
+				propSshotEnhancedShadowResolutionFactor->SetHelpString(_("Resolution of shadows, max depends on GPU and shadow resolution in lights."));
 				AppendIn(propSshotEnhanced,propSshotEnhancedShadowResolutionFactor);
 			}
 
 			{
-				const wxChar* viewStrings[] = {wxT("1"),wxT("2"),wxT("4"),wxT("default"),wxT("8"),NULL};
+				const wxChar* viewStrings[] = {wxT("1"),wxT("2"),wxT("4"),_("default"),wxT("8"),NULL};
 				const long viewValues[] = {1,2,4,0,8};
-				propSshotEnhancedShadowSamples = new wxEnumProperty(wxT("Shadow samples"), wxPG_LABEL, viewStrings, viewValues);
+				propSshotEnhancedShadowSamples = new wxEnumProperty(_("Shadow samples"), wxPG_LABEL, viewStrings, viewValues);
 				propSshotEnhancedShadowSamples->SetValueFromInt(userPreferences.sshotEnhancedShadowSamples,wxPG_FULL_VALUE);
-				propSshotEnhancedShadowSamples->SetHelpString("Number of shadow samples per pixel, max depends on GPU.");
+				propSshotEnhancedShadowSamples->SetHelpString(_("Number of shadow samples per pixel, max depends on GPU."));
 				AppendIn(propSshotEnhanced,propSshotEnhancedShadowSamples);
 			}
 

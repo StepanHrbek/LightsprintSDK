@@ -34,48 +34,48 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 	// camera
 	{
-		propCamera = new wxStringProperty(wxT("Camera"), wxPG_LABEL);
+		propCamera = new wxStringProperty(_("Camera"), wxPG_LABEL);
 		Append(propCamera);
 		SetPropertyReadOnly(propCamera,true,wxPG_DONT_RECURSE);
 
 
-		propCameraSpeed = new FloatProperty("Speed (m/s)","Controls how quickly camera moves when controlled by arrows/wsad.",svs.cameraMetersPerSecond,svs.precision,0,1e10f,1,false);
+		propCameraSpeed = new FloatProperty("Speed (m/s)",_("Controls how quickly camera moves when controlled by arrows/wsad."),svs.cameraMetersPerSecond,svs.precision,0,1e10f,1,false);
 		AppendIn(propCamera,propCameraSpeed);
 
-		const wxChar* viewStrings[] = {wxT("Custom"),wxT("Top"),wxT("Bottom"),wxT("Front"),wxT("Back"),wxT("Left"),wxT("Right"),NULL};
+		const wxChar* viewStrings[] = {_("Custom"),_("Top"),_("Bottom"),_("Front"),_("Back"),_("Left"),_("Right"),NULL};
 		const long viewValues[] = {SVFrame::ME_VIEW_RANDOM,SVFrame::ME_VIEW_TOP,SVFrame::ME_VIEW_BOTTOM,SVFrame::ME_VIEW_FRONT,SVFrame::ME_VIEW_BACK,SVFrame::ME_VIEW_LEFT,SVFrame::ME_VIEW_RIGHT};
-		propCameraView = new wxEnumProperty(wxT("View"), wxPG_LABEL, viewStrings, viewValues);
+		propCameraView = new wxEnumProperty(_("View"), wxPG_LABEL, viewStrings, viewValues);
 		AppendIn(propCamera,propCameraView);
 
-		propCameraPosition = new RRVec3Property(wxT("Position (m)"),"Camera position in world space",svs.precision,svs.eye.pos,1);
+		propCameraPosition = new RRVec3Property(_("Position (m)"),_("Camera position in world space"),svs.precision,svs.eye.pos,1);
 		AppendIn(propCamera,propCameraPosition);
 
-		propCameraDirection = new RRVec3Property(wxT("Direction"),"Camera direction in world space, normalized",svs.precision,svs.eye.dir,0.2f);
+		propCameraDirection = new RRVec3Property(_("Direction"),_("Camera direction in world space, normalized"),svs.precision,svs.eye.dir,0.2f);
 		AppendIn(propCamera,propCameraDirection);
 		EnableProperty(propCameraDirection,false);
 
-		propCameraAngles = new RRVec3Property(wxT("Angles (deg)"),"Camera direction in angles: azimuth, elevation, leaning",svs.precision,RR_RAD2DEG(RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle)),10);
+		propCameraAngles = new RRVec3Property(_("Angles (deg)"),_("Camera direction in angles: azimuth, elevation, leaning"),svs.precision,RR_RAD2DEG(RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle)),10);
 		AppendIn(propCamera,propCameraAngles);
 
-		propCameraOrtho = new BoolRefProperty(wxT("Orthogonal"),"Switches between orthogonal and perspective camera.",svs.eye.orthogonal);
+		propCameraOrtho = new BoolRefProperty(_("Orthogonal"),_("Switches between orthogonal and perspective camera."),svs.eye.orthogonal);
 		AppendIn(propCamera,propCameraOrtho);
 
-		propCameraOrthoSize = new FloatProperty(wxT("Size (m)"),"World space distance between top and bottom of viewport.",svs.eye.orthoSize,svs.precision,0,1000000,10,false);
+		propCameraOrthoSize = new FloatProperty(_("Size (m)"),_("World space distance between top and bottom of viewport."),svs.eye.orthoSize,svs.precision,0,1000000,10,false);
 		AppendIn(propCameraOrtho,propCameraOrthoSize);
 
-		propCameraFov = new FloatProperty("FOV vertical (deg)","Vertical field of view angle, angle between top and bottom of viewport",svs.eye.getFieldOfViewVerticalDeg(),svs.precision,0,180,10,false);
+		propCameraFov = new FloatProperty("FOV vertical (deg)",_("Vertical field of view angle, angle between top and bottom of viewport"),svs.eye.getFieldOfViewVerticalDeg(),svs.precision,0,180,10,false);
 		AppendIn(propCameraOrtho,propCameraFov);
 
-		propCameraNear = new FloatProperty("Near (m)","Near plane distance, elements closer to camera are not rendered.",svs.eye.getNear(),svs.precision,-1e10f,1e10f,0.1f,false);
+		propCameraNear = new FloatProperty("Near (m)",_("Near plane distance, elements closer to camera are not rendered."),svs.eye.getNear(),svs.precision,-1e10f,1e10f,0.1f,false);
 		AppendIn(propCamera,propCameraNear);
 
-		propCameraFar = new FloatProperty("Far (m)","Far plane distance, elements farther from camera are not rendered.",svs.eye.getFar(),svs.precision,-1e10f,1e10f,1,false);
+		propCameraFar = new FloatProperty("Far (m)",_("Far plane distance, elements farther from camera are not rendered."),svs.eye.getFar(),svs.precision,-1e10f,1e10f,1,false);
 		AppendIn(propCamera,propCameraFar);
 
-		propCameraRangeAutomatic = new BoolRefProperty(wxT("Automatic near/far"),"Near/far is set automatically based on distance of objects in viewport.",svs.cameraDynamicNear);
+		propCameraRangeAutomatic = new BoolRefProperty(_("Automatic near/far"),_("Near/far is set automatically based on distance of objects in viewport."),svs.cameraDynamicNear);
 		AppendIn(propCamera,propCameraRangeAutomatic);
 
-		propCameraCenter = new RRVec2Property(wxT("Center of screen"),"Shifts look up/down/left/right without distorting image. E.g. in architecture, 0,0.3 moves horizon down without skewing vertical lines.",svs.precision,svs.eye.screenCenter,1);
+		propCameraCenter = new RRVec2Property(_("Center of screen"),_("Shifts look up/down/left/right without distorting image. E.g. in architecture, 0,0.3 moves horizon down without skewing vertical lines."),svs.precision,svs.eye.screenCenter,1);
 		AppendIn(propCamera,propCameraCenter);
 
 		SetPropertyBackgroundColour(propCamera,headerColor,false);
@@ -83,28 +83,28 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 	// environment
 	{
-		propEnv = new wxStringProperty(wxT("Environment"), wxPG_LABEL);
+		propEnv = new wxStringProperty(_("Environment"), wxPG_LABEL);
 		Append(propEnv);
 		SetPropertyReadOnly(propEnv,true,wxPG_DONT_RECURSE);
 
-		propEnvMap = new ImageFileProperty(wxT("Sky texture or video"),"Supported formats: equirectangular panoramas, cross-shaped 3:4 and 4:3 images, Quake-like sets of 6 images, 40+ fileformats including HDR. Type in c@pture to use live video input as environment.");
+		propEnvMap = new ImageFileProperty(_("Sky texture or video"),_("Supported formats: equirectangular panoramas, cross-shaped 3:4 and 4:3 images, Quake-like sets of 6 images, 40+ fileformats including HDR. Type in c@pture to use live video input as environment."));
 		// string is updated from OnIdle
 		AppendIn(propEnv,propEnvMap);
 
-		//propEnvSimulateSky = new BoolRefProperty(wxT("Simulate sky"),"Work in progress, has no effect.",svs.envSimulateSky);
+		//propEnvSimulateSky = new BoolRefProperty(_("Simulate sky"),_("Work in progress, has no effect."),svs.envSimulateSky);
 		//AppendIn(propEnv,propEnvSimulateSky);
 
-		propEnvSimulateSun = new BoolRefProperty(wxT("Simulate Sun"),"Calculates Sun position from date, time and location. Affects first directional light only, insert one if none exists. World directions: north=Z+, east=X+, up=Y+.",svs.envSimulateSun);
+		propEnvSimulateSun = new BoolRefProperty(_("Simulate Sun"),_("Calculates Sun position from date, time and location. Affects first directional light only, insert one if none exists. World directions: north=Z+, east=X+, up=Y+."),svs.envSimulateSun);
 		AppendIn(propEnv,propEnvSimulateSun);
 
-		propEnvLocation = new LocationProperty(wxT("Location"),"Geolocation used for Sun and sky simulation.",svs.precision,rr::RRVec2(svs.envLatitudeDeg,svs.envLongitudeDeg));
+		propEnvLocation = new LocationProperty(_("Location"),_("Geolocation used for Sun and sky simulation."),svs.precision,rr::RRVec2(svs.envLatitudeDeg,svs.envLongitudeDeg));
 		AppendIn(propEnv,propEnvLocation);
 
-		propEnvDate = new wxDateProperty(wxT("Date"),wxPG_LABEL,wxDateTime(svs.envDateTime));
-		propEnvDate->SetHelpString("Date used for Sun and sky simulation.");
+		propEnvDate = new wxDateProperty(_("Date"),wxPG_LABEL,wxDateTime(svs.envDateTime));
+		propEnvDate->SetHelpString(_("Date used for Sun and sky simulation."));
 		AppendIn(propEnv,propEnvDate);
 
-		propEnvTime = new FloatProperty(wxT("Local time (hour)"),"Hour, 0..24, local time used for Sun and sky simulation.",svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f,svs.precision,0,24,1,true);
+		propEnvTime = new FloatProperty(_("Local time (hour)"),_("Hour, 0..24, local time used for Sun and sky simulation."),svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f,svs.precision,0,24,1,true);
 		AppendIn(propEnv,propEnvTime);
 
 		SetPropertyBackgroundColour(propEnv,headerColor,false);
@@ -112,24 +112,24 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 	// tone mapping
 	{
-		propToneMapping = new BoolRefProperty(wxT("Tone Mapping"),"Enables fullscreen brightness and contrast adjustments.",svs.renderTonemapping);
+		propToneMapping = new BoolRefProperty(_("Tone Mapping"),_("Enables fullscreen brightness and contrast adjustments."),svs.renderTonemapping);
 		Append(propToneMapping);
 
-		propToneMappingAutomatic = new BoolRefProperty(wxT("Automatic"),"Makes brightness adjust automatically.",svs.tonemappingAutomatic);
+		propToneMappingAutomatic = new BoolRefProperty(_("Automatic"),_("Makes brightness adjust automatically."),svs.tonemappingAutomatic);
 		AppendIn(propToneMapping,propToneMappingAutomatic);
 
 		{
-			propToneMappingAutomaticTarget = new FloatProperty("Target screen intensity","Automatic tone mapping tries to reach this average image intensity.",svs.tonemappingAutomaticTarget,svs.precision,0.125f,0.875f,0.1f,false);
+			propToneMappingAutomaticTarget = new FloatProperty(_("Target screen intensity"),_("Automatic tone mapping tries to reach this average image intensity."),svs.tonemappingAutomaticTarget,svs.precision,0.125f,0.875f,0.1f,false);
 			AppendIn(propToneMappingAutomatic,propToneMappingAutomaticTarget);
 
-			propToneMappingAutomaticSpeed = new FloatProperty("Speed","Speed of automatic tone mapping changes.",svs.tonemappingAutomaticSpeed,svs.precision,0,100,1,false);
+			propToneMappingAutomaticSpeed = new FloatProperty(_("Speed"),_("Speed of automatic tone mapping changes."),svs.tonemappingAutomaticSpeed,svs.precision,0,100,1,false);
 			AppendIn(propToneMappingAutomatic,propToneMappingAutomaticSpeed);
 		}
 
-		propToneMappingBrightness = new FloatProperty("Brightness","Brightness correction applied to rendered images, default=1.",svs.tonemappingBrightness[0],svs.precision,0,1000,0.1f,false);
+		propToneMappingBrightness = new FloatProperty(_("Brightness"),_("Brightness correction applied to rendered images, default=1."),svs.tonemappingBrightness[0],svs.precision,0,1000,0.1f,false);
 		AppendIn(propToneMapping,propToneMappingBrightness);
 
-		propToneMappingContrast = new FloatProperty("Contrast","Contrast correction applied to rendered images, default=1.",svs.tonemappingGamma,svs.precision,0,100,0.1f,false);
+		propToneMappingContrast = new FloatProperty(_("Contrast"),_("Contrast correction applied to rendered images, default=1."),svs.tonemappingGamma,svs.precision,0,100,0.1f,false);
 		AppendIn(propToneMapping,propToneMappingContrast);
 
 		SetPropertyBackgroundColour(propToneMapping,headerColor,false);
@@ -137,26 +137,26 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 	// render materials
 	{
-		propRenderMaterials = new wxStringProperty(wxT("Render materials"), wxPG_LABEL);
+		propRenderMaterials = new wxStringProperty(_("Render materials"), wxPG_LABEL);
 		Append(propRenderMaterials);
 		SetPropertyReadOnly(propRenderMaterials,true,wxPG_DONT_RECURSE);
 
-		propRenderMaterialDiffuse = new BoolRefProperty("Diffuse color","Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible.",svs.renderMaterialDiffuse);
+		propRenderMaterialDiffuse = new BoolRefProperty(_("Diffuse color"),_("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."),svs.renderMaterialDiffuse);
 		AppendIn(propRenderMaterials,propRenderMaterialDiffuse);
 
-		propRenderMaterialSpecular = new BoolRefProperty("Specular","Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster.",svs.renderMaterialSpecular);
+		propRenderMaterialSpecular = new BoolRefProperty(_("Specular"),_("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."),svs.renderMaterialSpecular);
 		AppendIn(propRenderMaterials,propRenderMaterialSpecular);
 
-		propRenderMaterialEmittance = new BoolRefProperty("Emittance","Toggles rendering emittance of emissive surfaces.",svs.renderMaterialEmission);
+		propRenderMaterialEmittance = new BoolRefProperty(_("Emittance"),_("Toggles rendering emittance of emissive surfaces."),svs.renderMaterialEmission);
 		AppendIn(propRenderMaterials,propRenderMaterialEmittance);
 
-		const wxChar* tfrStrings[] = {wxT("off (opaque)"),wxT("1-bit (alpha keying)"),wxT("8-bit (alpha blending)"),wxT("24bit (RGB blending)"),NULL};
+		const wxChar* tfrStrings[] = {_("off (opaque)"),_("1-bit (alpha keying)"),_("8-bit (alpha blending)"),_("24bit (RGB blending)"),NULL};
 		const long tfrValues[] = {T_OPAQUE,T_ALPHA_KEY,T_ALPHA_BLEND,T_RGB_BLEND};
-		propRenderMaterialTransparency = new wxEnumProperty("Transparency",wxPG_LABEL,tfrStrings,tfrValues);
-		propRenderMaterialTransparency->SetHelpString("Changes how realistically semi-transparent surfaces are rendered.");
+		propRenderMaterialTransparency = new wxEnumProperty(_("Transparency"),wxPG_LABEL,tfrStrings,tfrValues);
+		propRenderMaterialTransparency->SetHelpString(_("Changes how realistically semi-transparent surfaces are rendered."));
 		AppendIn(propRenderMaterials,propRenderMaterialTransparency);
 
-		propRenderMaterialTextures = new BoolRefProperty("Textures","(ctrl-t) Toggles between material textures and flat colors. Disabling textures could make rendering faster.",svs.renderMaterialTextures);
+		propRenderMaterialTextures = new BoolRefProperty(_("Textures"),_("(ctrl-t) Toggles between material textures and flat colors. Disabling textures could make rendering faster."),svs.renderMaterialTextures);
 		AppendIn(propRenderMaterials,propRenderMaterialTextures);
 
 		SetPropertyBackgroundColour(propRenderMaterials,headerColor,false);
@@ -164,69 +164,69 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 	// render extras
 	{
-		propRenderExtras = new wxStringProperty(wxT("Render extras"), wxPG_LABEL);
+		propRenderExtras = new wxStringProperty(_("Render extras"), wxPG_LABEL);
 		Append(propRenderExtras);
 		SetPropertyReadOnly(propRenderExtras,true,wxPG_DONT_RECURSE);
 
 		// water
 		{
-			propWater = new BoolRefProperty("Water","Enables rendering of water layer, with reflection and waves.",svs.renderWater);
+			propWater = new BoolRefProperty(_("Water"),_("Enables rendering of water layer, with reflection and waves."),svs.renderWater);
 			AppendIn(propRenderExtras,propWater);
 
-			propWaterColor = new HDRColorProperty("Color","Color of scattered light coming out of water.",svs.precision,svs.waterColor);
+			propWaterColor = new HDRColorProperty(_("Color"),_("Color of scattered light coming out of water."),svs.precision,svs.waterColor);
 			AppendIn(propWater,propWaterColor);
 
-			propWaterLevel = new FloatProperty("Level","Altitude of water surface, Y coordinate in world space.",svs.waterLevel,svs.precision,-1e10f,1e10f,1,false);
+			propWaterLevel = new FloatProperty(_("Level"),_("Altitude of water surface, Y coordinate in world space."),svs.waterLevel,svs.precision,-1e10f,1e10f,1,false);
 			AppendIn(propWater,propWaterLevel);
 		}
 
-		propRenderWireframe = new BoolRefProperty("Wireframe","(ctrl-w) Toggles between solid and wireframe rendering modes.",svs.renderWireframe);
+		propRenderWireframe = new BoolRefProperty(_("Wireframe"),_("(ctrl-w) Toggles between solid and wireframe rendering modes."),svs.renderWireframe);
 		AppendIn(propRenderExtras,propRenderWireframe);
 
-		propRenderFPS = new BoolRefProperty("FPS","(ctrl-f) FPS counter shows number of frames rendered in last second.",svs.renderFPS);
+		propRenderFPS = new BoolRefProperty(_("FPS"),_("(ctrl-f) FPS counter shows number of frames rendered in last second."),svs.renderFPS);
 		AppendIn(propRenderExtras,propRenderFPS);
 
 		// logo
 		{
-			propLogo = new BoolRefProperty("Logo","Logo is loaded from data/maps/sv_logo.png.",svs.renderLogo);
+			propLogo = new BoolRefProperty(_("Logo"),_("Logo is loaded from data/maps/sv_logo.png."),svs.renderLogo);
 			AppendIn(propRenderExtras,propLogo);
 		}
 
-		propRenderBloom = new BoolRefProperty("Bloom","Applies fullscreen bloom effect.",svs.renderBloom);
+		propRenderBloom = new BoolRefProperty(_("Bloom"),_("Applies fullscreen bloom effect."),svs.renderBloom);
 		AppendIn(propRenderExtras,propRenderBloom);
 
 		// lens flare
 		{
-			propLensFlare = new BoolRefProperty("Lens Flare","Renders lens flare for all directional lights.",svs.renderLensFlare);
+			propLensFlare = new BoolRefProperty(_("Lens Flare"),_("Renders lens flare for all directional lights."),svs.renderLensFlare);
 			AppendIn(propRenderExtras,propLensFlare);
 
-			propLensFlareSize = new FloatProperty("Size","Relative size of lens flare effects.",(float)svs.lensFlareSize,svs.precision,0,40,0.5,false);
+			propLensFlareSize = new FloatProperty(_("Size"),_("Relative size of lens flare effects."),(float)svs.lensFlareSize,svs.precision,0,40,0.5,false);
 			AppendIn(propLensFlare,propLensFlareSize);
 
-			propLensFlareId = new FloatProperty("Id","Other lens flare parameters are generated from this number; change it randomly until you get desired look.",(float)svs.lensFlareId,svs.precision,1,(float)UINT_MAX,10,true);
+			propLensFlareId = new FloatProperty(_("Id"),_("Other lens flare parameters are generated from this number; change it randomly until you get desired look."),(float)svs.lensFlareId,svs.precision,1,(float)UINT_MAX,10,true);
 			AppendIn(propLensFlare,propLensFlareId);
 		}
 
 		// vignette
 		{
-			propVignette = new BoolRefProperty("Vignette","Renders vignette overlay image.",svs.renderVignette);
+			propVignette = new BoolRefProperty(_("Vignette"),_("Renders vignette overlay image."),svs.renderVignette);
 			AppendIn(propRenderExtras,propVignette);
 
 		}
 
 		// grid
 		{
-			propGrid = new BoolRefProperty("Grid","Toggles rendering 2d grid in y=0 plane, around world center.",svs.renderGrid);
+			propGrid = new BoolRefProperty(_("Grid"),_("Toggles rendering 2d grid in y=0 plane, around world center."),svs.renderGrid);
 			AppendIn(propRenderExtras,propGrid);
 
-			propGridNumSegments = new FloatProperty("Segments","Number of grid segments per line, e.g. 10 makes grid of 10x10 squares.",svs.gridNumSegments,svs.precision,1,1000,10,false);
+			propGridNumSegments = new FloatProperty(_("Segments"),_("Number of grid segments per line, e.g. 10 makes grid of 10x10 squares."),svs.gridNumSegments,svs.precision,1,1000,10,false);
 			AppendIn(propGrid,propGridNumSegments);
 
-			propGridSegmentSize = new FloatProperty("Segment size (m)","Distance between grid lines.",svs.gridSegmentSize,svs.precision,0,1e10f,1,false);
+			propGridSegmentSize = new FloatProperty(_("Segment size (m)"),_("Distance between grid lines."),svs.gridSegmentSize,svs.precision,0,1e10f,1,false);
 			AppendIn(propGrid,propGridSegmentSize);
 		}
 
-		propRenderHelpers = new BoolRefProperty("Helpers","Helpers are non-scene elements rendered with scene, usually for diagnostic purposes.",svs.renderHelpers);
+		propRenderHelpers = new BoolRefProperty(_("Helpers"),_("Helpers are non-scene elements rendered with scene, usually for diagnostic purposes."),svs.renderHelpers);
 		AppendIn(propRenderExtras,propRenderHelpers);
 
 		SetPropertyBackgroundColour(propRenderExtras,headerColor,false);
@@ -234,74 +234,74 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 	// GI quality
 	{
-		wxPGProperty* propGI = new wxStringProperty(wxT("GI quality"), wxPG_LABEL);
+		wxPGProperty* propGI = new wxStringProperty(_("GI quality"), wxPG_LABEL);
 		Append(propGI);
 		SetPropertyReadOnly(propGI,true,wxPG_DONT_RECURSE);
 
-		const wxChar* tsStrings[] = {wxT("0-bit (opaque shadows)"),wxT("1-bit (alpha keyed shadows)"),wxT("24-bit (rgb shadows)"),NULL};
+		const wxChar* tsStrings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),NULL};
 		const long tsValues[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS};
-		propGIShadowTransparency = new wxEnumProperty("Shadow transparency",wxPG_LABEL,tsStrings,tsValues);
-		propGIShadowTransparency->SetHelpString("Changes how realistically semi-transparent shadows are rendered.");
+		propGIShadowTransparency = new wxEnumProperty(_("Shadow transparency"),wxPG_LABEL,tsStrings,tsValues);
+		propGIShadowTransparency->SetHelpString(_("Changes how realistically semi-transparent shadows are rendered."));
 		AppendIn(propGI,propGIShadowTransparency);
 
-		propGIFireballQuality = new FloatProperty("Fireball quality","More = longer precalculation, higher quality realtime GI. Rebuild Fireball for this change to take effect.",svs.fireballQuality,0,0,1000000,100,false);
+		propGIFireballQuality = new FloatProperty(_("Fireball quality"),_("More = longer precalculation, higher quality realtime GI. Rebuild Fireball for this change to take effect."),svs.fireballQuality,0,0,1000000,100,false);
 		AppendIn(propGI,propGIFireballQuality);
 
 		// cubes
 		{
-			propGIRaytracedCubes = new BoolRefProperty("Realtime raytraced reflections","Increases realism by realtime raytracing diffuse and specular reflection cubemaps.",svs.raytracedCubesEnabled);
+			propGIRaytracedCubes = new BoolRefProperty(_("Realtime raytraced reflections"),_("Increases realism by realtime raytracing diffuse and specular reflection cubemaps."),svs.raytracedCubesEnabled);
 			AppendIn(propGI,propGIRaytracedCubes);
 		
-			propGIRaytracedCubesDiffuseRes = new FloatProperty("Diffuse resolution","Resolution of diffuse reflection cube maps (total size is x*x*6 pixels). Applied only to dynamic objects. More = higher quality, slower. Default=4.",svs.raytracedCubesDiffuseRes,0,1,16,1,false);
+			propGIRaytracedCubesDiffuseRes = new FloatProperty(_("Diffuse resolution"),_("Resolution of diffuse reflection cube maps (total size is x*x*6 pixels). Applied only to dynamic objects. More = higher quality, slower. Default=4."),svs.raytracedCubesDiffuseRes,0,1,16,1,false);
 			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesDiffuseRes);
 
-			propGIRaytracedCubesSpecularRes = new FloatProperty("Specular resolution","Resolution of specular reflection cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16.",svs.raytracedCubesSpecularRes,0,1,64,1,false);
+			propGIRaytracedCubesSpecularRes = new FloatProperty(_("Specular resolution"),_("Resolution of specular reflection cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16."),svs.raytracedCubesSpecularRes,0,1,64,1,false);
 			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesSpecularRes);
 
-			propGIRaytracedCubesMaxObjects = new FloatProperty("Max objects","How many objects in scene before raytracing turns off automatically. Raytracing usually becomes bottleneck when there are more than 1000 objects.",svs.raytracedCubesMaxObjects,0,0,1000000,10,false);
+			propGIRaytracedCubesMaxObjects = new FloatProperty(_("Max objects"),_("How many objects in scene before raytracing turns off automatically. Raytracing usually becomes bottleneck when there are more than 1000 objects."),svs.raytracedCubesMaxObjects,0,0,1000000,10,false);
 			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesMaxObjects);
 		}
 
-		propGIEmisMultiplier = new FloatProperty("Emissive multiplier","Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1.",svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
+		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
 		AppendIn(propGI,propGIEmisMultiplier);
 
 		// emissive video
 		{
-			propGIEmisVideoAffectsGI = new BoolRefProperty("Emissive video realtime GI","Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.",svs.videoEmittanceAffectsGI);
+			propGIEmisVideoAffectsGI = new BoolRefProperty(_("Emissive video realtime GI"),_("Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEmittanceAffectsGI);
 			AppendIn(propGI,propGIEmisVideoAffectsGI);
 
-			propGIEmisVideoGIQuality = new FloatProperty("Quality","Number of samples taken from each triangle.",svs.videoEmittanceGIQuality,0,0,1000,10,false);
+			propGIEmisVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from each triangle."),svs.videoEmittanceGIQuality,0,0,1000,10,false);
 			AppendIn(propGIEmisVideoAffectsGI,propGIEmisVideoGIQuality);
 		}
 
 		// transmittance video
 		{
-			propGITranspVideoAffectsGI = new BoolRefProperty("Transparency video realtime GI","Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame.",svs.videoTransmittanceAffectsGI);
+			propGITranspVideoAffectsGI = new BoolRefProperty(_("Transparency video realtime GI"),_("Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame."),svs.videoTransmittanceAffectsGI);
 			AppendIn(propGI,propGITranspVideoAffectsGI);
 
-			propGITranspVideoAffectsGIFull = new BoolRefProperty("Full GI","Full GI is updated rather than just shadows.",svs.videoTransmittanceAffectsGIFull);
+			propGITranspVideoAffectsGIFull = new BoolRefProperty(_("Full GI"),_("Full GI is updated rather than just shadows."),svs.videoTransmittanceAffectsGIFull);
 			AppendIn(propGITranspVideoAffectsGI,propGITranspVideoAffectsGIFull);
 		}
 
 		// environment video
 		{
-			propGIEnvVideoAffectsGI = new BoolRefProperty("Environment video realtime GI","Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame.",svs.videoEnvironmentAffectsGI);
+			propGIEnvVideoAffectsGI = new BoolRefProperty(_("Environment video realtime GI"),_("Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEnvironmentAffectsGI);
 			AppendIn(propGI,propGIEnvVideoAffectsGI);
 
-			propGIEnvVideoGIQuality = new FloatProperty("Quality","Number of samples taken from environment.",svs.videoEnvironmentGIQuality,0,1,100000,200,false);
+			propGIEnvVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from environment."),svs.videoEnvironmentGIQuality,0,1,100000,200,false);
 			AppendIn(propGIEnvVideoAffectsGI,propGIEnvVideoGIQuality);
 		}
 
 		// lightmap
 		{
-			wxPGProperty* propGILightmap = new wxStringProperty(wxT("Lightmap baking"), wxPG_LABEL);
+			wxPGProperty* propGILightmap = new wxStringProperty(_("Lightmap baking"), wxPG_LABEL);
 			AppendIn(propGI,propGILightmap);
 			SetPropertyReadOnly(propGILightmap,true,wxPG_DONT_RECURSE);
 
-			propGILightmapSmoothingAmount = new FloatProperty("Smoothing amount","Amount of smoothing applied when baking lightmaps. Makes edges smoother, reduces noise, but washes out tiny details. Reasonable values are around 1. 0=off.",svs.lightmapFilteringParameters.smoothingAmount,svs.precision,0,10,1,false);
+			propGILightmapSmoothingAmount = new FloatProperty(_("Smoothing amount"),_("Amount of smoothing applied when baking lightmaps. Makes edges smoother, reduces noise, but washes out tiny details. Reasonable values are around 1. 0=off."),svs.lightmapFilteringParameters.smoothingAmount,svs.precision,0,10,1,false);
 			AppendIn(propGILightmap,propGILightmapSmoothingAmount);
 
-			propGILightmapWrapping = new BoolRefProperty("Wrapping","Checked = smoothing works across lightmap boundaries.",svs.lightmapFilteringParameters.wrap);
+			propGILightmapWrapping = new BoolRefProperty(_("Wrapping"),_("Checked = smoothing works across lightmap boundaries."),svs.lightmapFilteringParameters.wrap);
 			AppendIn(propGILightmap,propGILightmapWrapping);
 		}
 

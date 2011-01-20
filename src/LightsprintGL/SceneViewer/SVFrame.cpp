@@ -217,16 +217,16 @@ static bool getQuality(wxString title, wxWindow* parent, unsigned& quality)
 {
 	wxArrayString choices;
 	choices.Add("1");
-	choices.Add("10 - low");
+	choices.Add("10 - "+_("low"));
 	choices.Add("40");
-	choices.Add("100 - medium");
+	choices.Add("100 - "+_("medium"));
 	choices.Add("350");
-	choices.Add("1000 - high");
+	choices.Add("1000 - "+_("high"));
 	choices.Add("3000");
-	choices.Add("10000 - very high");
+	choices.Add("10000 - "+_("very high"));
 	choices.Add("30000");
 	choices.Add("100000");
-	wxSingleChoiceDialog dialog(parent,title,"Please select quality",choices);
+	wxSingleChoiceDialog dialog(parent,title,_("Please select quality"),choices);
 	for (size_t i=0;i<choices.size();i++)
 	{
 		unsigned u = getUnsigned(choices[i]);
@@ -250,7 +250,7 @@ static bool getQuality(wxString title, wxWindow* parent, unsigned& quality)
 static bool getResolution(wxString title, wxWindow* parent, unsigned& resolution, bool offerPerVertex)
 {
 	wxArrayString choices;
-	if (offerPerVertex)	choices.Add("per-vertex");
+	if (offerPerVertex)	choices.Add(_("per-vertex"));
 	choices.Add("8x8");
 	choices.Add("16x16");
 	choices.Add("32x32");
@@ -261,7 +261,7 @@ static bool getResolution(wxString title, wxWindow* parent, unsigned& resolution
 	choices.Add("1024x1024");
 	choices.Add("2048x2048");
 	choices.Add("4096x4096");
-	wxSingleChoiceDialog dialog(parent,title,"Resolution",choices);
+	wxSingleChoiceDialog dialog(parent,title,_("Resolution"),choices);
 	for (size_t i=0;i<choices.size();i++)
 	{
 		unsigned u = getUnsigned(choices[i]);
@@ -284,7 +284,7 @@ static bool getResolution(wxString title, wxWindow* parent, unsigned& resolution
 // Incoming resolution is taken as default value.
 static bool getResolution(wxString title, wxWindow* parent, unsigned& width, unsigned& height)
 {
-	wxString result = wxGetTextFromUser(title,"Resolution",tmpstr("%dx%d",width,height),parent);
+	wxString result = wxGetTextFromUser(title,_("Resolution"),tmpstr("%dx%d",width,height),parent);
 	unsigned x = result.find('x');
 	if (x>0)
 	{
@@ -314,19 +314,6 @@ bool getFactor(wxWindow* parent, float& factor, const wxString& message, const w
 			factor = (float)d;
 			return true;
 		}
-	}
-	return false;
-}
-
-// true = valid answer
-// false = dialog was escaped
-static bool getBrightness(wxWindow* parent, rr::RRVec4& brightness)
-{
-	float average = brightness.avg();
-	if (getFactor(parent,average,"Please adjust brightness (default is 1).","Brightness"))
-	{
-		brightness = rr::RRVec4(average);
-		return true;
 	}
 	return false;
 }
@@ -393,7 +380,7 @@ void SVFrame::UpdateEverything()
 
 	updateAllPanels();
 
-	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().Name(wxT("glcanvas")).CenterPane().PaneBorder(false));
+	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().Name("glcanvas").CenterPane().PaneBorder(false));
 	m_mgr.Update();
 
 	// start playing videos
@@ -480,7 +467,7 @@ SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 	int x,y,width,height;
 	::wxClientDisplayRect(&x,&y,&width,&height);
 	const int border = (width+height)/25;
-	return new SVFrame(NULL, APP_NAME+" - loading", wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border), svs);
+	return new SVFrame(NULL, APP_NAME+" - "+_("loading"), wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border), svs);
 }
 
 SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos, const wxSize& _size, SceneViewerStateEx& _svs)
@@ -589,9 +576,9 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_mgr.SetArtProvider(dockArt);
 
 	// create panes
-	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name(wxT("scenetree")).Caption(wxT("Scene tree")).CloseButton(true).Left());
-	m_mgr.AddPane(m_userProperties, wxAuiPaneInfo().Name(wxT("userproperties")).Caption(wxT("User preferences")).CloseButton(true).Left());
-	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name(wxT("sceneproperties")).Caption(wxT("Scene properties")).CloseButton(true).Left());
+	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name("scenetree").Caption(_("Scene tree")).CloseButton(true).Left());
+	m_mgr.AddPane(m_userProperties, wxAuiPaneInfo().Name("userproperties").Caption(_("User preferences")).CloseButton(true).Left());
+	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name("sceneproperties").Caption(_("Scene properties")).CloseButton(true).Left());
 	if (!layoutLoaded)
 	{
 		userPreferences.windowLayout[1].fullscreen = false;
@@ -599,9 +586,9 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 		userPreferences.windowLayout[1].perspective = m_mgr.SavePerspective();
 		userPreferences.currentWindowLayout = 2;
 	}
-	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name(wxT("lightproperties")).Caption(wxT("Light properties")).CloseButton(true).Right());
-	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name(wxT("objectproperties")).Caption(wxT("Object properties")).CloseButton(true).Right());
-	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name(wxT("materialproperties")).Caption(wxT("Material properties")).CloseButton(true).Right());
+	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name("lightproperties").Caption(_("Light properties")).CloseButton(true).Right());
+	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name("objectproperties").Caption(_("Object properties")).CloseButton(true).Right());
+	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name("materialproperties").Caption(_("Material properties")).CloseButton(true).Right());
 	if (!layoutLoaded)
 	{
 		userPreferences.windowLayout[2].fullscreen = false;
@@ -654,21 +641,21 @@ void SVFrame::UpdateMenuBar()
 	if (rr::RRScene::getSupportedLoaderExtensions() && rr::RRScene::getSupportedLoaderExtensions()[0])
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_FILE_OPEN_SCENE,_T("Open scene..."));
-		winMenu->Append(ME_FILE_MERGE_SCENE,_T("Merge scene..."),_T("Merge automatically reduces lighting quality, click Global Illumination / Indirect: Firebal to restore it when you finish merging."));
-		winMenu->Append(ME_FILE_SAVE_SCENE,_T("Save scene"));
-		winMenu->Append(ME_FILE_SAVE_SCENE_AS,_T("Save scene as..."));
-		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_T("Save screenshot (F9)"),_T("See options in user preferences."));
-		winMenu->Append(ME_EXIT,_T("Exit"));
-		menuBar->Append(winMenu, _T("File"));
+		winMenu->Append(ME_FILE_OPEN_SCENE,_("Open scene..."));
+		winMenu->Append(ME_FILE_MERGE_SCENE,_("Merge scene..."),_("Merge automatically reduces lighting quality, click Global Illumination / Indirect: Firebal to restore it when you finish merging."));
+		winMenu->Append(ME_FILE_SAVE_SCENE,_("Save scene"));
+		winMenu->Append(ME_FILE_SAVE_SCENE_AS,_("Save scene as..."));
+		winMenu->Append(ME_FILE_SAVE_SCREENSHOT,_("Save screenshot")+" (F9)",_("See options in user preferences."));
+		winMenu->Append(ME_EXIT,_("Exit"));
+		menuBar->Append(winMenu, _("File"));
 	}
 
 	// Global illumination...
 	{
 		winMenu = new wxMenu;
-		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_REALTIME,_T("Direct illumination: realtime"));
-		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_STATIC,_T("Direct illumination: static lightmap"));
-		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_NONE,_T("Direct illumination: none"));
+		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_REALTIME,_("Direct illumination: realtime"));
+		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_STATIC,_("Direct illumination: static lightmap"));
+		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_NONE,_("Direct illumination: none"));
 		switch (svs.renderLightDirect)
 		{
 			case LD_REALTIME: winMenu->Check(ME_LIGHTING_DIRECT_REALTIME,true); break;
@@ -676,12 +663,12 @@ void SVFrame::UpdateMenuBar()
 			case LD_NONE: winMenu->Check(ME_LIGHTING_DIRECT_NONE,true); break;
 		}
 		winMenu->AppendSeparator();
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL_LDM,_T("Indirect illumination: realtime Fireball+LDM (fast+detailed)"),_T("Changes lighting technique to Fireball with LDM, fast and detailed realtime GI that supports lights, emissive materials, skylight."));
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL,_T("Indirect illumination: realtime Fireball (fast)"),_T("Changes lighting technique to Fireball, fast realtime GI that supports lights, emissive materials, skylight."));
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_ARCHITECT,_T("Indirect illumination: realtime Architect (no precalc)"),_T("Changes lighting technique to Architect, legacy realtime GI that supports lights, emissive materials."));
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_STATIC,_T("Indirect illumination: static lightmap"),_T("Changes lighting technique to precomputed lightmaps. If you haven't built lightmaps yet, everything will be dark."));
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_CONST,_T("Indirect illumination: constant ambient"));
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_NONE,_T("Indirect illumination: none"));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL_LDM,_("Indirect illumination: realtime Fireball+LDM (fast+detailed)"),_("Changes lighting technique to Fireball with LDM, fast and detailed realtime GI that supports lights, emissive materials, skylight."));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL,_("Indirect illumination: realtime Fireball (fast)"),_("Changes lighting technique to Fireball, fast realtime GI that supports lights, emissive materials, skylight."));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_ARCHITECT,_("Indirect illumination: realtime Architect (no precalc)"),_("Changes lighting technique to Architect, legacy realtime GI that supports lights, emissive materials."));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_STATIC,_("Indirect illumination: static lightmap"),_("Changes lighting technique to precomputed lightmaps. If you haven't built lightmaps yet, everything will be dark."));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_CONST,_("Indirect illumination: constant ambient"));
+		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_NONE,_("Indirect illumination: none"));
 		switch (svs.renderLightIndirect)
 		{
 			case LI_REALTIME_FIREBALL_LDM: winMenu->Check(ME_LIGHTING_INDIRECT_FIREBALL_LDM,true); break;
@@ -692,61 +679,61 @@ void SVFrame::UpdateMenuBar()
 			case LI_NONE: winMenu->Check(ME_LIGHTING_INDIRECT_NONE,true); break;
 		}
 		winMenu->AppendSeparator();
-		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_T("Build Fireball..."),_T("(Re)builds Fireball, acceleration structure used by realtime GI. Scene properties / GI quality / Fireball quality is ") wxSTRINGIZE_T(svs.fireballQuality) _T("."));
-		winMenu->Append(ME_REALTIME_LDM_BUILD,_T("Build LDM (light detail map)..."),_T("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
+		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_("Build Fireball..."),_("(Re)builds Fireball, acceleration structure used by realtime GI."));
+		winMenu->Append(ME_REALTIME_LDM_BUILD,_("Build LDM (light detail map)..."),_("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
 		winMenu->AppendSeparator();
-		winMenu->Append(ME_STATIC_BUILD_UNWRAP,_T("Build unwrap..."),_T("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
-		winMenu->Append(ME_STATIC_BUILD,_T("Build lightmaps..."),_T("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel is efficient only with good unwrap in scene."));
-		winMenu->Append(ME_STATIC_2D,_T("Inspect unwrap+lightmaps in 2D"),_T("Shows unwrap and lightmap in 2D."));
-		winMenu->Append(ME_STATIC_BILINEAR,_T("Toggle lightmap bilinear interpolation"));
-		//winMenu->Append(ME_STATIC_BUILD_1OBJ,_T("Build lightmap for selected obj, only direct..."),_T("For testing only."));
+		winMenu->Append(ME_STATIC_BUILD_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
+		winMenu->Append(ME_STATIC_BUILD,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel is efficient only with good unwrap in scene."));
+		winMenu->Append(ME_STATIC_2D,_("Inspect unwrap+lightmaps in 2D"),_("Shows unwrap and lightmap in 2D."));
+		winMenu->Append(ME_STATIC_BILINEAR,_("Toggle lightmap bilinear interpolation"));
+		//winMenu->Append(ME_STATIC_BUILD_1OBJ,_("Build lightmap for selected obj, only direct..."),_("For testing only."));
 #ifdef DEBUG_TEXEL
-		winMenu->Append(ME_STATIC_DIAGNOSE,_T("Diagnose texel..."),_T("For debugging purposes, shows rays traced from texel in final gather step."));
+		winMenu->Append(ME_STATIC_DIAGNOSE,_("Diagnose texel..."),_("For debugging purposes, shows rays traced from texel in final gather step."));
 #endif
 		winMenu->AppendSeparator();
-		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_T("Build 2d lightfield"),_T("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
-		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_T("Build 3d lightfield"),_T("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
-		menuBar->Append(winMenu, _T("Global illumination"));
+		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_("Build 2d lightfield"),_("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
+		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_("Build 3d lightfield"),_("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
+		menuBar->Append(winMenu, _("Global illumination"));
 	}
 
 	// Window...
 	{
 		winMenu = new wxMenu;
-		winMenu->AppendCheckItem(ME_WINDOW_FULLSCREEN_META,_T("Fullscreen (F11)"),_T("Fullscreen mode uses full desktop resolution."));
+		winMenu->AppendCheckItem(ME_WINDOW_FULLSCREEN_META,_("Fullscreen")+" (F11)",_("Fullscreen mode uses full desktop resolution."));
 		winMenu->Check(ME_WINDOW_FULLSCREEN_META,svs.fullscreen);
-		winMenu->AppendCheckItem(ME_WINDOW_TREE,_T("Scene tree"),_T("Opens scene tree window."));
+		winMenu->AppendCheckItem(ME_WINDOW_TREE,_("Scene tree"),_("Opens scene tree window."));
 		winMenu->Check(ME_WINDOW_TREE,m_sceneTree->IsShown());
-		winMenu->AppendCheckItem(ME_WINDOW_USER_PROPERTIES,_T("User preferences"),_T("Opens user preferences window."));
+		winMenu->AppendCheckItem(ME_WINDOW_USER_PROPERTIES,_("User preferences"),_("Opens user preferences window."));
 		winMenu->Check(ME_WINDOW_USER_PROPERTIES,m_userProperties->IsShown());
-		winMenu->AppendCheckItem(ME_WINDOW_SCENE_PROPERTIES,_T("Scene properties"),_T("Opens scene properties window."));
+		winMenu->AppendCheckItem(ME_WINDOW_SCENE_PROPERTIES,_("Scene properties"),_("Opens scene properties window."));
 		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,m_sceneProperties->IsShown());
-		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_T("Light properties"),_T("Opens light properties window and starts rendering light icons."));
+		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_("Light properties"),_("Opens light properties window and starts rendering light icons."));
 		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,m_lightProperties->IsShown());
-		winMenu->AppendCheckItem(ME_WINDOW_OBJECT_PROPERTIES,_T("Object properties"),_T("Opens object properties window."));
+		winMenu->AppendCheckItem(ME_WINDOW_OBJECT_PROPERTIES,_("Object properties"),_("Opens object properties window."));
 		winMenu->Check(ME_WINDOW_OBJECT_PROPERTIES,m_objectProperties->IsShown());
-		winMenu->AppendCheckItem(ME_WINDOW_MATERIAL_PROPERTIES,_T("Material properties"),_T("Opens material properties window."));
+		winMenu->AppendCheckItem(ME_WINDOW_MATERIAL_PROPERTIES,_("Material properties"),_("Opens material properties window."));
 		winMenu->Check(ME_WINDOW_MATERIAL_PROPERTIES,m_materialProperties->IsShown());
 		winMenu->AppendSeparator();
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_T("Workspace 1 (alt-1)"),_T("Your custom window layout, changes automatically saved per user."));
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_T("Workspace 2 (alt-2)"),_T("Your custom window layout, changes automatically saved per user."));
-		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_T("Workspace 3 (alt-3)"),_T("Your custom window layout, changes automatically saved per user."));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_("Workspace")+" 1 (alt-1)",_("Your custom window layout, changes automatically saved per user."));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_("Workspace")+" 2 (alt-2)",_("Your custom window layout, changes automatically saved per user."));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_("Workspace")+" 3 (alt-3)",_("Your custom window layout, changes automatically saved per user."));
 		winMenu->Check(ME_WINDOW_LAYOUT1+userPreferences.currentWindowLayout,true);
 		winMenu->AppendSeparator();
-		winMenu->AppendCheckItem(ME_WINDOW_RESIZE,_T("Set viewport size"),_T("Lets you set exact viewport size in pixels."));
-		menuBar->Append(winMenu, _T("Windows"));
+		winMenu->AppendCheckItem(ME_WINDOW_RESIZE,_("Set viewport size"),_("Lets you set exact viewport size in pixels."));
+		menuBar->Append(winMenu, _("Windows"));
 	}
 
 	// About...
 	{
 		winMenu = new wxMenu;
-		winMenu->Append(ME_HELP,_T("Help - controls (h)"));
-		winMenu->Append(ME_SDK_HELP,_T("Lightsprint SDK manual"));
-		winMenu->Append(ME_SUPPORT,_T("Report bug, get support"));
-		winMenu->Append(ME_CHECK_SOLVER,_T("Log solver diagnose"),_T("For diagnostic purposes."));
-		winMenu->Append(ME_CHECK_SCENE,_T("Log scene errors"),_T("For diagnostic purposes."));
-		winMenu->Append(ME_LIGHTSPRINT,_T("Lightsprint web"));
-		winMenu->Append(ME_ABOUT,_T("About"));
-		menuBar->Append(winMenu, _T("Help"));
+		winMenu->Append(ME_HELP,_("Help - controls")+" (h)");
+		winMenu->Append(ME_SDK_HELP,_("Lightsprint SDK manual"));
+		winMenu->Append(ME_SUPPORT,_("Report bug, get support"));
+		winMenu->Append(ME_CHECK_SOLVER,_("Log solver diagnose"),_("For diagnostic purposes."));
+		winMenu->Append(ME_CHECK_SCENE,_("Log scene errors"),_("For diagnostic purposes."));
+		winMenu->Append(ME_LIGHTSPRINT,_("Lightsprint web"));
+		winMenu->Append(ME_ABOUT,_("About"));
+		menuBar->Append(winMenu, _("Help"));
 	}
 
 	wxMenuBar* oldMenuBar = GetMenuBar();
@@ -758,7 +745,7 @@ static std::string getSupportedLoaderExtensions(SceneViewerStateEx& svs)
 {
 	// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
 	std::string extensions = rr::RRScene::getSupportedLoaderExtensions();
-	std::string wxextensions = "All scene formats|"+extensions;
+	std::string wxextensions = _("All scene formats")+"|"+extensions;
 	while (!extensions.empty())
 	{
 		size_t i = extensions.find(';');
@@ -837,7 +824,7 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 
 		case ME_FILE_OPEN_SCENE:
 			{
-				wxFileDialog dialog(this,"Choose a 3d scene to open","","",getSupportedLoaderExtensions(svs).c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,_("Choose a 3d scene to open"),"","",getSupportedLoaderExtensions(svs).c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
@@ -849,7 +836,7 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 			break;
 		case ME_FILE_MERGE_SCENE:
 			{
-				wxFileDialog dialog(this,"Choose a 3d scene to merge with current scene","","",getSupportedLoaderExtensions(svs).c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,_("Choose a 3d scene to merge with current scene"),"","",getSupportedLoaderExtensions(svs).c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
@@ -885,7 +872,7 @@ save_scene:
 				scene.lights = m_canvas->solver->getLights();
 				scene.environment = m_canvas->solver->getEnvironment();
 				if (!scene.save(svs.sceneFilename.c_str()))
-					wxMessageBox("Scene save failed.","Not saved.",wxOK|wxICON_ERROR);
+					wxMessageBox(_("Scene save failed."),_("Not saved."),wxOK|wxICON_ERROR);
 				scene.environment = NULL; // would be deleted in destructor otherwise
 			}
 			break;
@@ -896,7 +883,7 @@ save_scene_as:
 				std::string extensions = rr::RRScene::getSupportedSaverExtensions();
 				if (extensions.empty())
 				{
-					wxMessageBox("Program built without saving.","No savers registered.",wxOK);
+					wxMessageBox(_("Program built without saving."),_("No savers registered."),wxOK);
 				}
 				else
 				{
@@ -919,7 +906,7 @@ save_scene_as:
 					bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=std::string::npos;
 					if (!extensionSupportsSave) presetFilename = presetFilename.substr(0,presetFilename.size()-extension.size());
 
-					wxFileDialog dialog(this,"Save as","","",wxextensions.c_str(),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+					wxFileDialog dialog(this,_("Save as"),"","",wxextensions.c_str(),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 					dialog.SetPath(presetFilename);
 					if (dialog.ShowModal()==wxID_OK)
 					{
@@ -1013,7 +1000,7 @@ save_scene_as:
 				FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,&texColor);
 				if (!FBO::isOk())
 				{
-					wxMessageBox("Try lower resolution or disable FSAA (both in User preferences / Screenshot).","Rendering screenshot failed.");
+					wxMessageBox(_("Try lower resolution or disable FSAA (both in User preferences / Screenshot)."),_("Rendering screenshot failed."));
 				}
 				else
 				{
@@ -1139,7 +1126,7 @@ save_scene_as:
 			goto reload_skybox;
 		case ME_ENV_OPEN:
 			{
-				wxFileDialog dialog(this,"Choose a skybox image","","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,_("Choose a skybox image"),"","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.skyboxFilename);
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
@@ -1327,7 +1314,7 @@ reload_skybox:
 			break;
 		case ME_REALTIME_FIREBALL_BUILD:
 			{
-				if (getQuality("Fireball build",this,svs.fireballQuality))
+				if (getQuality(_("Fireball build"),this,svs.fireballQuality))
 				{
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver);
@@ -1423,7 +1410,7 @@ reload_skybox:
 					solver->leaveFireball();
 					fireballLoadAttempted = false;
 					unsigned quality = 100;
-					if (getQuality("Lightmap diagnose",this,quality))
+					if (getQuality(_("Lightmap diagnose"),this,quality))
 					{
 						rr::RRDynamicSolver::UpdateParameters params(quality);
 						params.debugObject = m_canvas->centerObject;
@@ -1444,7 +1431,7 @@ reload_skybox:
 		case ME_STATIC_BUILD_UNWRAP:
 			{
 				unsigned res = 256;
-				if (getResolution("Unwrap build",this,res,false))
+				if (getResolution(_("Unwrap build"),this,res,false))
 				{
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver);
@@ -1472,7 +1459,7 @@ reload_skybox:
 			{
 				unsigned res = 256; // 0=vertex buffers
 				unsigned quality = 100;
-				if (getResolution("Lightmap build",this,res,true) && getQuality("Lightmap build",this,quality))
+				if (getResolution(_("Lightmap build"),this,res,true) && getQuality(_("Lightmap build"),this,quality))
 				{
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver);
@@ -1535,27 +1522,27 @@ reload_skybox:
 			GetSize(windowCoord+2,windowCoord+3);
 			break;
 		case ME_WINDOW_TREE:
-			m_mgr.GetPane(wxT("scenetree")).Show(!m_sceneTree->IsShown());
+			m_mgr.GetPane("scenetree").Show(!m_sceneTree->IsShown());
 			m_mgr.Update();
 			break;
 		case ME_WINDOW_USER_PROPERTIES:
-			m_mgr.GetPane(wxT("userproperties")).Show(!m_userProperties->IsShown());
+			m_mgr.GetPane("userproperties").Show(!m_userProperties->IsShown());
 			m_mgr.Update();
 			break;
 		case ME_WINDOW_SCENE_PROPERTIES:
-			m_mgr.GetPane(wxT("sceneproperties")).Show(!m_sceneProperties->IsShown());
+			m_mgr.GetPane("sceneproperties").Show(!m_sceneProperties->IsShown());
 			m_mgr.Update();
 			break;
 		case ME_WINDOW_LIGHT_PROPERTIES:
-			m_mgr.GetPane(wxT("lightproperties")).Show(!m_lightProperties->IsShown());
+			m_mgr.GetPane("lightproperties").Show(!m_lightProperties->IsShown());
 			m_mgr.Update();
 			break;
 		case ME_WINDOW_OBJECT_PROPERTIES:
-			m_mgr.GetPane(wxT("objectproperties")).Show(!m_objectProperties->IsShown());
+			m_mgr.GetPane("objectproperties").Show(!m_objectProperties->IsShown());
 			m_mgr.Update();
 			break;
 		case ME_WINDOW_MATERIAL_PROPERTIES:
-			m_mgr.GetPane(wxT("materialproperties")).Show(!m_materialProperties->IsShown());
+			m_mgr.GetPane("materialproperties").Show(!m_materialProperties->IsShown());
 			m_mgr.Update();
 			break;
 		case ME_WINDOW_LAYOUT1:
@@ -1569,7 +1556,7 @@ reload_skybox:
 			{
 				unsigned w = m_canvas->winWidth;
 				unsigned h = m_canvas->winHeight;
-				if (getResolution("3d viewport",this,w,h) && (w!=m_canvas->winWidth || h!=m_canvas->winHeight))
+				if (getResolution(_("3d viewport"),this,w,h) && (w!=m_canvas->winWidth || h!=m_canvas->winHeight))
 				{
 					if (svs.fullscreen)
 					{
@@ -1588,7 +1575,7 @@ reload_skybox:
 					if (m_canvas->winWidth!=w || m_canvas->winHeight!=h)
 					{
 						bool panes = m_sceneTree->IsShown() || m_userProperties->IsShown() || m_sceneProperties->IsShown() || m_lightProperties->IsShown() || m_objectProperties->IsShown() || m_materialProperties->IsShown();
-						wxMessageBox(panes?"There's not enough space. You can make more space by resizing or closing panes.":"There's not enough space. Switch to fullscreen mode for maximal resolution.");
+						wxMessageBox(panes?_("There's not enough space. You can make more space by resizing or closing panes."):_("There's not enough space. Switch to fullscreen mode for maximal resolution."));
 					}
 				}
 			}
@@ -1636,7 +1623,7 @@ reload_skybox:
 				wxAboutDialogInfo info;
 				if (icon) info.SetIcon(*icon);
 				info.SetName("Lightsprint SDK");
-				info.SetCopyright("(c) 1999-2011 Stepan Hrbek, Lightsprint\n\n3rd party contributions - see Lightsprint SDK manual.\n");
+				info.SetCopyright("(c) 1999-2011 Stepan Hrbek, Lightsprint\n\n"+_("3rd party contributions - see Lightsprint SDK manual.")+"\n");
 				info.SetWebSite("http://lightsprint.com");
 				wxAboutBox(info);
 				delete icon;

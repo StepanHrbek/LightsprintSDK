@@ -39,112 +39,112 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 
 		// light name
 		{
-			Append(propName = new wxStringProperty(wxT("Name"),wxPG_LABEL,light->name.c_str()));
+			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,light->name.c_str()));
 		}
 
 		// enabled
 		{
-			propEnabled = new BoolRefProperty(wxT("Enabled"), "Disabled light has no effect on scene, no light, no shadows.", light->enabled);
+			propEnabled = new BoolRefProperty(_("Enabled"), _("Disabled light has no effect on scene, no light, no shadows."), light->enabled);
 			Append(propEnabled);
 		}
 
 		// light type
 		{
-			const wxChar* typeStrings[] = {wxT("Directional"),wxT("Point"),wxT("Spot"),NULL};
+			const wxChar* typeStrings[] = {_("Directional"),_("Point"),_("Spot"),NULL};
 			const long typeValues[] = {rr::RRLight::DIRECTIONAL,rr::RRLight::POINT,rr::RRLight::SPOT};
-			propType = new wxEnumProperty(wxT("Light type"), wxPG_LABEL, typeStrings, typeValues, light->type);
+			propType = new wxEnumProperty(_("Light type"), wxPG_LABEL, typeStrings, typeValues, light->type);
 			Append(propType);
 
-			propPosition = new RRVec3Property(wxT("Position (m)"),"Light source position in world space",_precision,light->position,1);
+			propPosition = new RRVec3Property(_("Position (m)"),_("Light source position in world space"),_precision,light->position,1);
 			AppendIn(propType,propPosition);
 
-			propDirection = new RRVec3Property(wxT("Direction"),"Major light direction in world space, normalized",_precision,light->direction,0.1f);
+			propDirection = new RRVec3Property(_("Direction"),_("Major light direction in world space, normalized"),_precision,light->direction,0.1f);
 			AppendIn(propType,propDirection);
 
-			propAltitude = new FloatProperty("Elevation (deg)","Solar elevation angle, 90 for sun in zenith, 0 for sun on horizon, negative for sun below horizon.",ANGLEX2ALT(rtlight->getParent()->angleX),_precision,-90,90,10,false);
+			propAltitude = new FloatProperty(_("Elevation (deg)"),_("Solar elevation angle, 90 for sun in zenith, 0 for sun on horizon, negative for sun below horizon."),ANGLEX2ALT(rtlight->getParent()->angleX),_precision,-90,90,10,false);
 			AppendIn(propType,propAltitude);
 
-			propAzimuth = new FloatProperty("Azimuth (deg)","Solar azimuth angle, 90 for east, 180 for south, 270 for west.",ANGLE2AZI(rtlight->getParent()->angle),_precision,0,360,10,true);
+			propAzimuth = new FloatProperty(_("Azimuth (deg)"),_("Solar azimuth angle, 90 for east, 180 for south, 270 for west."),ANGLE2AZI(rtlight->getParent()->angle),_precision,0,360,10,true);
 			AppendIn(propType,propAzimuth);
 
-			propOuterAngle = new FloatProperty("Outer angle (deg)","Outer cone angle, angle between major direction and border direction.",RR_RAD2DEG(light->outerAngleRad),_precision,0,180,10,false);
+			propOuterAngle = new FloatProperty(_("Outer angle (deg)"),_("Outer cone angle, angle between major direction and border direction."),RR_RAD2DEG(light->outerAngleRad),_precision,0,180,10,false);
 			AppendIn(propType,propOuterAngle);
 
-			propFallOffAngle = new FloatProperty("Fall off angle (deg)","Outer angle minus inner angle, part of outer angle where intensity falls off.",RR_RAD2DEG(light->fallOffAngleRad),_precision,0,180,10,false);
+			propFallOffAngle = new FloatProperty(_("Fall off angle (deg)"),_("Outer angle minus inner angle, part of outer angle where intensity falls off."),RR_RAD2DEG(light->fallOffAngleRad),_precision,0,180,10,false);
 			AppendIn(propType,propFallOffAngle);
 
-			propSpotExponent = new FloatProperty("Spot exponent","Controls attenuation curve inside fall off angle.",light->spotExponent,_precision,0,1000,0.1f,false);
+			propSpotExponent = new FloatProperty(_("Spot exponent"),_("Controls attenuation curve inside fall off angle."),light->spotExponent,_precision,0,1000,0.1f,false);
 			AppendIn(propType,propSpotExponent);
 		}
 
 		// color
 		{
-			propColor = new HDRColorProperty(wxT("Color"),"Light color and intensity.",_precision,light->color);
+			propColor = new HDRColorProperty(_("Color"),_("Light color and intensity."),_precision,light->color);
 			Append(propColor);
 		}
 		{
-			propTexture = new ImageFileProperty(wxT("Projected texture or video"),"Texture or video projected by light. Both color and texture are applied. Type in c@pture to project live video input.");
+			propTexture = new ImageFileProperty(_("Projected texture or video"),_("Texture or video projected by light. Both color and texture are applied. Type in c@pture to project live video input."));
 			updateString(propTexture,getTextureDescription(light->rtProjectedTexture));
 			propTexture->updateIcon(light->rtProjectedTexture);
 			Append(propTexture);
-			//SetPropertyAttribute( wxT("FileProperty"), wxPG_FILE_WILDCARD, wxT("All files (*.*)|*.*") );
+			//SetPropertyAttribute( _("FileProperty"), wxPG_FILE_WILDCARD, _("All files")+": (*.*)|*.*" );
 
-			propTextureChangeAffectsGI = new wxBoolProperty(wxT("Realtime GI from projected video"), wxPG_LABEL, rtlight->changesInProjectedTextureAffectGI);
+			propTextureChangeAffectsGI = new wxBoolProperty(_("Realtime GI from projected video"), wxPG_LABEL, rtlight->changesInProjectedTextureAffectGI);
 			AppendIn(propTexture,propTextureChangeAffectsGI);
 			SetPropertyEditor(propTextureChangeAffectsGI,wxPGEditor_CheckBox);
 		}
 
 		// distance attenuation
 		{
-			const wxChar* attenuationStrings[] = {wxT("none"),wxT("realistic"),wxT("polynomial"),wxT("exponential"),NULL};
+			const wxChar* attenuationStrings[] = {_("none"),_("realistic"),_("polynomial"),_("exponential"),NULL};
 			const long attenuationValues[] = {rr::RRLight::NONE,rr::RRLight::PHYSICAL,rr::RRLight::POLYNOMIAL,rr::RRLight::EXPONENTIAL};
-			propDistanceAttType = new wxEnumProperty(wxT("Distance attenuation type"), wxPG_LABEL, attenuationStrings, attenuationValues, light->distanceAttenuationType);
+			propDistanceAttType = new wxEnumProperty(_("Distance attenuation type"), wxPG_LABEL, attenuationStrings, attenuationValues, light->distanceAttenuationType);
 			Append(propDistanceAttType);
 
-			propConstant = new FloatProperty("Constant","One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)",light->polynom[0],_precision,0,1e10f,0.1f,false);
+			propConstant = new FloatProperty(_("Constant"),_("One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)"),light->polynom[0],_precision,0,1e10f,0.1f,false);
 			AppendIn(propDistanceAttType,propConstant);
 
-			propLinear = new FloatProperty("Linear","One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)",light->polynom[1],_precision,0,1e10f,0.1f,false);
+			propLinear = new FloatProperty(_("Linear"),_("One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)"),light->polynom[1],_precision,0,1e10f,0.1f,false);
 			AppendIn(propDistanceAttType,propLinear);
 
-			propQuadratic = new FloatProperty("Quadratic","One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)",light->polynom[2],_precision,0,1e10f,0.1f,false);
+			propQuadratic = new FloatProperty(_("Quadratic"),_("One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)"),light->polynom[2],_precision,0,1e10f,0.1f,false);
 			AppendIn(propDistanceAttType,propQuadratic);
 
-			propClamp = new FloatProperty("Clamp","One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)",light->polynom[3],_precision,0,1,0.01f,false);
+			propClamp = new FloatProperty(_("Clamp"),_("One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)"),light->polynom[3],_precision,0,1,0.01f,false);
 			AppendIn(propDistanceAttType,propClamp);
 
-			propRadius = new FloatProperty("Radius (m)","One of coefficients in selected distance attenuation function pow(MAX(0,1-(distance/radius)^2),exponent)",light->radius,_precision,0,1e10f,1,false);
+			propRadius = new FloatProperty(_("Radius (m)"),_("One of coefficients in selected distance attenuation function pow(MAX(0,1-(distance/radius)^2),exponent)"),light->radius,_precision,0,1e10f,1,false);
 			AppendIn(propDistanceAttType,propRadius);
 
-			propFallOffExponent = new FloatProperty("Exponent","One of coefficients in selected distance attenuation function pow(MAX(0,1-(distance/radius)^2),exponent)",light->fallOffExponent,_precision,0,100,0.1f,false);
+			propFallOffExponent = new FloatProperty(_("Exponent"),_("One of coefficients in selected distance attenuation function pow(MAX(0,1-(distance/radius)^2),exponent)"),light->fallOffExponent,_precision,0,100,0.1f,false);
 			AppendIn(propDistanceAttType,propFallOffExponent);
 		}
 
 		// shadows
 		{
-			propCastShadows = new BoolRefProperty(wxT("Cast shadows"), "Shadows add realism, but reduce speed.", light->castShadows);
+			propCastShadows = new BoolRefProperty(_("Cast shadows"), _("Shadows add realism, but reduce speed."), light->castShadows);
 			Append(propCastShadows);
 			
-			const wxChar* tsStrings[] = {wxT("0-bit (opaque shadows)"),wxT("1-bit (alpha keyed shadows)"),wxT("24-bit (rgb shadows)"),NULL};
+			const wxChar* tsStrings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),NULL};
 			const long tsValues[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS};
-			propShadowTransparency = new wxEnumProperty("Shadow transparency",wxPG_LABEL,tsStrings,tsValues);
-			propShadowTransparency->SetHelpString("How shadows actually work. Can be controlled via Scene properties / GI quality / Shadow transparency.");
+			propShadowTransparency = new wxEnumProperty(_("Shadow transparency"),wxPG_LABEL,tsStrings,tsValues);
+			propShadowTransparency->SetHelpString(_("How shadows actually work. Can be controlled via Scene properties / GI quality / Shadow transparency."));
 			propShadowTransparency->Enable(false);
 			AppendIn(propCastShadows,propShadowTransparency);
 			
-			propShadowmaps = new FloatProperty("Shadowmaps","Number of shadowmaps, more=higher quality, slower.",light->rtNumShadowmaps,0,1,3,10,false);
+			propShadowmaps = new FloatProperty(_("Shadowmaps"),_("Number of shadowmaps, more=higher quality, slower."),light->rtNumShadowmaps,0,1,3,10,false);
 			AppendIn(propCastShadows,propShadowmaps);
 
-			propShadowmapRes = new wxIntProperty(wxT("Resolution"),wxPG_LABEL,rtlight->getRRLight().rtShadowmapSize);
+			propShadowmapRes = new wxIntProperty(_("Resolution"),wxPG_LABEL,rtlight->getRRLight().rtShadowmapSize);
 			AppendIn(propCastShadows,propShadowmapRes);
 
-			propShadowSamples = new wxIntProperty(wxT("Shadow Samples"),wxPG_LABEL,rtlight->getNumShadowSamples());
+			propShadowSamples = new wxIntProperty(_("Shadow Samples"),wxPG_LABEL,rtlight->getNumShadowSamples());
 			AppendIn(propCastShadows,propShadowSamples);
 
-			propNear = new FloatProperty("Near (m)","Near plane distance for generating shadowmaps. Greater value reduces shadow bias.",rtlight->getParent()->getNear(),_precision,0,1e10f,0.1f,false);
+			propNear = new FloatProperty(_("Near (m)"),_("Near plane distance for generating shadowmaps. Greater value reduces shadow bias."),rtlight->getParent()->getNear(),_precision,0,1e10f,0.1f,false);
 			AppendIn(propCastShadows,propNear);
 
-			propFar = new FloatProperty("Far (m)","Far plane distance for generating shadowmaps.",rtlight->getParent()->getFar(),_precision,0,1e10f,1,false);
+			propFar = new FloatProperty(_("Far (m)"),_("Far plane distance for generating shadowmaps."),rtlight->getParent()->getFar(),_precision,0,1e10f,1,false);
 			AppendIn(propCastShadows,propFar);
 		}
 

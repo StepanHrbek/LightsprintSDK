@@ -122,12 +122,12 @@ HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& help,
 	SetHelpString(help);
 
 	RRVec3 hsv = rgb.getHsvFromRgb();
-	AddPrivateChild(new FloatProperty("red","Red component intensity",rgb[0],precision,0,100,0.1f,false));
-	AddPrivateChild(new FloatProperty("green","Green component intensity",rgb[1],precision,0,100,0.1f,false));
-	AddPrivateChild(new FloatProperty("blue","Blue component intensity",rgb[2],precision,0,100,0.1f,false));
-	AddPrivateChild(new FloatProperty("hue","Color hue, 0..360",hsv[0],precision,0,360,10,true));
-	AddPrivateChild(new FloatProperty("saturation","Color saturation, 0..1",hsv[1],precision,0,1,0.1f,false));
-	AddPrivateChild(new FloatProperty("value","Overall intensity",hsv[2],precision,0,100,0.1f,false));
+	AddPrivateChild(new FloatProperty(_("red"),_("Red component intensity"),rgb[0],precision,0,100,0.1f,false));
+	AddPrivateChild(new FloatProperty(_("green"),_("Green component intensity"),rgb[1],precision,0,100,0.1f,false));
+	AddPrivateChild(new FloatProperty(_("blue"),_("Blue component intensity"),rgb[2],precision,0,100,0.1f,false));
+	AddPrivateChild(new FloatProperty(_("hue"),_("Color hue, 0..360"),hsv[0],precision,0,360,10,true));
+	AddPrivateChild(new FloatProperty(_("saturation"),_("Color saturation, 0..1"),hsv[1],precision,0,1,0.1f,false));
+	AddPrivateChild(new FloatProperty(_("value"),_("Overall intensity"),hsv[2],precision,0,100,0.1f,false));
 }
 
 void HDRColorProperty::RefreshChildren()
@@ -281,7 +281,7 @@ struct CityLocation
 
 const CityLocation cityLocations[] =
 {
-	{wxT("unknown"),0,0,'N',0,0,'W'},
+	{_("unknown"),0,0,'N',0,0,'W'},
 	{wxT("Aberdeen, Scotland"),57,9,'N',2,9,'W'},
 	{wxT("Adelaide, Australia"),34,55,'S',138,36,'E'},
 	{wxT("Albany, N.Y., USA"),42,40,'N',73,45,'W'},
@@ -559,9 +559,9 @@ LocationProperty::LocationProperty(const wxString& label, const wxString& help, 
 		cityStrings[i] = cityLocations[i].city;
 		cityValues[i] = i;
 	}
-	AddPrivateChild(new wxEnumProperty("city",wxPG_LABEL,cityStrings,cityValues,findCity(latitudeLongitude)));
-	AddPrivateChild(new FloatProperty("latitude (deg)","Location latitude, 0 for equator, -90 for south pole, 90 for north pole.",latitudeLongitude[0],precision,-90,90,1,false));
-	AddPrivateChild(new FloatProperty("longitude (deg)","Location longitude, -180..180, positive eastward and negative westward of Greenwich, London.",latitudeLongitude[1],precision,-180,180,1,true));
+	AddPrivateChild(new wxEnumProperty(_("city"),wxPG_LABEL,cityStrings,cityValues,findCity(latitudeLongitude)));
+	AddPrivateChild(new FloatProperty(_("latitude (deg)"),_("Location latitude, 0 for equator, -90 for south pole, 90 for north pole."),latitudeLongitude[0],precision,-90,90,1,false));
+	AddPrivateChild(new FloatProperty(_("longitude (deg)"),_("Location longitude, -180..180, positive eastward and negative westward of Greenwich, London."),latitudeLongitude[1],precision,-180,180,1,true));
 }
 
 LocationProperty::~LocationProperty()

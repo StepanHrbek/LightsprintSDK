@@ -46,7 +46,7 @@ static int s_attribList[] = {
 	0, 0};
 
 SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
-	: wxGLCanvas(_parent, wxID_ANY, s_attribList, wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE, _T("GLCanvas")), svs(_svs)
+	: wxGLCanvas(_parent, wxID_ANY, s_attribList, wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE, "GLCanvas"), svs(_svs)
 {
 	context = NULL;
 	parent = _parent;
