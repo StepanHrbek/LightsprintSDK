@@ -1,3 +1,4 @@
+echo Running 4 build threads in parallel...
 
 start build_wxWidgets_platform vc71 32 "%vs71comntools%vsvars32.bat"
 start build_wxWidgets_2platforms vc80  "%vs80comntools%vsvars32.bat"  "%vs80comntools%..\..\vc\bin\amd64\vcvarsamd64.bat"
@@ -6,7 +7,7 @@ start build_wxWidgets_2platforms vc100 "%vs100comntools%vsvars32.bat" "%vs100com
 
 exit
 
-nmake nevim proc nezvlada 32bit a 64bit paralelne, takze nejde pustit 7 threadu, max 4
+building 32bit and 64bit in parallel causes conflicts, so we can't run 7 threads in parallel as shown here:
 
 start build_wxWidgets_platform vc71  32 "%vs71comntools%vsvars32.bat"
 start build_wxWidgets_platform vc80  32 "%vs80comntools%vsvars32.bat"

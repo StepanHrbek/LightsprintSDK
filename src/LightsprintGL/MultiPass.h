@@ -21,7 +21,7 @@ namespace rr_gl
 // Splits complex rendering setup (possibly too big for 1 pass) into several simpler setups doable per pass.
 // Inputs: lights, uberProgramSetup and stuff for setting shader
 // Outputs: each getNextPass() sets shader and returns uberProgramSetup
-// We schedule one light per pass, but it's possible to reimplement MultiPass and shader to render multiple lights per pass.
+// It schedules one light per pass, but it's possible to reimplement MultiPass and shader to render multiple lights per pass.
 
 class RR_GL_API MultiPass
 {

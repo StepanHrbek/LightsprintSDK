@@ -435,11 +435,6 @@ Video formats
  - \subpage tpl_glut
  - \subpage tpl_bunny
 
- Installation of 3rd party components:
- - Windows: works out of the box
- - Ubuntu: <code>sudo apt-get install g++ libboost-dev libboost-serialization-dev libboost-filesystem-dev libboost-iostreams-dev libglew-dev libfreeimage-dev libglut3-dev</code>
- - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code> (not tested for some time, may be incomplete)
-
 \page tpl_squish libsquish
   - www: <a href="http://code.google.com/p/libsquish/">libsquish</a>
   - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
@@ -467,34 +462,84 @@ Video formats
   - XBox360, PS3 System Software: not used
 
 \page tpl_wx wxWidgets
-  - www: <a href="http://wxwidgets.org/">wxWidgets</a>
-  - license: <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
-  - optional, source code licensees can remove by deleting <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code>
-  - Windows: wxWidgets trunk svn revision 66419 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
-  - other platforms: not used
+  \section wx_www Web
+   - <a href="http://wxwidgets.org/">wxwidgets.org</a>
 
- \page wxwidgets_patch wxWidgets patch
+  \section wx_license License
+   - <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
 
-  We contribute our improvements back to original projects, however,
-  recent improvements may still be present only in Lightsprint SDK.
+  \section wx_version Version
+   - Windows: wxWidgets trunk svn revision 66419 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
+   - other platforms: not used
 
-  \section wx_patch1 Patch1
-  We submitted patch at http://trac.wxwidgets.org/ticket/11537
-  It fixes: closed floating pane can't be reopened.
+  \section wx_building Installing/building
+   Only for LightsprintGL source code licensees:
+   You will need wxWidgets when rebuilding LightsprintGL from source code, follow instructions
+   - Windows
+    - Get \ref tpl_wx source code from wxWidgets.org svn trunk.
+    - If you use one version of Visual Studio and target only win32,
+      you can simply build appropriate solution, e.g. build/msw/wx_vc9.sln.
+      If you target x64, the only additional step is to add x64 target to that solution.
+    - If you use multiple Visual Studio versions and/or target both win32 and x64,
+      all wxWidgets solutions would build to the same directory and overwite files.
+      We provide script that builds all targets at once and keeps them separated, follow instructions:
+      - Set environment variable WXWIDGETS_DIR to your wxWidgets root,
+        e.g. C:\\wxWidgets. No spaces please.
+      - Run our bin/build_wxWidgets.bat.
+      - LightsprintGL DLL works now. For static LightsprintGL library, add wx library path
+        to <code>Tools / Options / Projects and Solutions / VC++ Directories / Library Files</code>.
+	- \$(WXWIDGETS_DIR)\\lib\\vc90_lib for vc2008 win32 target
+	- \$(WXWIDGETS_DIR)\\lib\\vc80_amd64_lib for vc2005 x64 target
+	- \$(WXWIDGETS_DIR)\\lib\\vc100_lib for vc2010 win32 target
+	- etc
+   - Linux
+    - For now, wxWidgets is not used by Linux port.
+    - When we start using it, obtaining it will be as simple as [example for Ubuntu]:
+      \code
+	sudo apt-get install libwxgtk2.9-dev
+      \endcode
 
-  \section wx_patch_accepted Accepted patches
-  We fixed crash when scene viewer is opened for second time http://trac.wxwidgets.org/ticket/11787
+  \section wx_removing Removing
+   Only for LightsprintGL source code licensees:
+   If you don't have time building wxWidgets or simply don't need sceneViewer() function,
+   you can build Lightsprint SDK without wxWidgets
+   - delete <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code>
+
+  \page wxwidgets_patch wxWidgets patch
+   We contribute our improvements back to original projects, however,
+   recent improvements may still be present only in Lightsprint SDK.
+
+   \section wx_patch1 Patch1
+   We submitted patch at http://trac.wxwidgets.org/ticket/11537
+   It fixes: closed floating pane can't be reopened.
+
+   \section wx_patch_accepted Accepted patches
+   We fixed crash when scene viewer is opened for second time http://trac.wxwidgets.org/ticket/11787
 
 \page tpl_art 2d art
   - scene viewer uses icons from <a href="http://www.fatcow.com/free-icons/index.bml">Fat Cow</a>, under <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>
   - optional, remove by replacing <code>data/maps/sv_[point|spot|sun].png</code> images
 
 \page tpl_boost Boost
-  - www: <a href="http://boost.org/">boost</a>
-  - license: <a href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>
-  - version 1.43 is used internally by Lightsprint libraries, it's not visible from outside (no headers or dll files)
-  - Windows: <a href="http://www.boost.org/doc/libs/release/more/getting_started/windows.html">installation instructions</a>
-  - Ubuntu: <code>sudo apt-get install libboost-dev libboost-serialization-dev libboost-filesystem-dev</code>
+  \section boost_www Web
+   - <a href="http://boost.org/">boost.org</a>
+
+  \section boost_license License
+   - <a href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>
+
+  \section boost_version Version
+   - version 1.43 is used internally by Lightsprint libraries, it's not visible from outside (no headers or dll files)
+
+  \section boost_build Installing/building boost
+   You need boost when building Ligtsprint libraries from source code,
+   - Windows: <a href="http://www.boost.org/doc/libs/release/more/getting_started/windows.html">installation instructions</a>
+   - Ubuntu: <code>sudo apt-get install libboost-dev libboost-serialization-dev libboost-filesystem-dev</code>
+
+  \section boost_remove Removing boost
+   Boost is good, but if you really must build Lightsprint SDK without it, do
+   - delete <code>\#define SUPPORT_ASSIMP</code> and <code>\#define SUPPORT_LIGHTSPRINT</code> in <code>src/LightsprintIO/supported_formats.h</code>
+   - replace all boost/unordered_set and boost/unordered_map with similar classes supported by your compiler (e.g. hash_set and hash_map)
+   - few more places might need tweak
 
 \page tpl_assimp Assimp
   - www: <a href="http://assimp.sourceforge.net/">Assimp</a>
@@ -895,52 +940,23 @@ Video formats
 
  \section building_windows Windows
 
+  Setting up third party libraries
+  - \ref tpl_boost
+  - \ref tpl_wx (you need it only if you build LightsprintGL from source code)
+
   Lightsprint SDK includes solutions for all supported Visual C++ compilers,
   simply open solution and build.
 
  \section building_linux Linux
 
+  Setting up third party libraries:
+  - Ubuntu: <code>sudo apt-get install g++ libboost-dev libboost-serialization-dev libboost-filesystem-dev libboost-iostreams-dev libglew-dev libfreeimage-dev libglut3-dev</code>
+  - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code> (no longer tested, may be incomplete)
+
   Lightsprint SDK includes makefiles for Linux on all supported architectures.
   Simply run make in directory you want to make.
+  (Linux support is included on request)
 
- \section building_source LightsprintGL from source code
-
-  LightsprintGL source code licensee only:
-  \n LightsprintGL may be configured with or without rr_gl::sceneViewer() function.
-  \n Before building LightsprintGL with sceneViewer from source code,
-  wxWidgets libraries must be available. See \subpage obtaining_wxwidgets.
-
-
-\page obtaining_wxwidgets Obtaining wxWidgets
-
- wxWidgets is 3rd party GUI library.
- It's optional, and even if you use it, you don't have to redistribute any wxWidgets files with your application,
- you need it only when rebuilding LightsprintGL from source code.
-
- \section wx_windows Windows
-   - Get \ref tpl_wx source code from wxWidgets.org svn trunk.
-   - If you use one version of Visual Studio and target only win32,
-     you can simply build appropriate solution, e.g. build/msw/wx_vc9.sln.
-     If you target x64, the only additional step is to add x64 target to that solution.
-   - If you use multiple Visual Studio versions and/or target both win32 and x64,
-     all wxWidgets solutions would build to the same directory and overwite files.
-     We provide script that builds all targets at once and keeps them separated, follow instructions:
-     - Set environment variable WXWIDGETS_DIR to your wxWidgets root,
-       e.g. C:\\wxWidgets. No spaces please.
-     - Run bin/build_wxWidgets.bat.
-     - LightsprintGL DLL works now. For static LightsprintGL library, add wx library path
-       to <code>Tools / Options / Projects and Solutions / VC++ Directories / Library Files</code>.
-	- \$(WXWIDGETS_DIR)\\lib\\vc90_lib for vc2008 win32 target
-	- \$(WXWIDGETS_DIR)\\lib\\vc80_amd64_lib for vc2005 x64 target
-	- \$(WXWIDGETS_DIR)\\lib\\vc100_lib for vc2010 win32 target
-	- etc
-
- \section wx_linux Linux
-   - For now, wxWidgets is not used by Linux port.
-   - When we start using it, obtaining it will be as simple as [example for Ubuntu]:
-     \code
-	sudo apt-get install libwxgtk2.9-dev
-     \endcode
 
 
 
