@@ -78,7 +78,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 			{
 				const wxChar* viewStrings[] = {_("none"),wxT("4x"),wxT("8x"),wxT("16x"),NULL};
 				const long viewValues[] = {1,4,9,16};
-				propSshotEnhancedFSAA = new wxEnumProperty("FSAA", wxPG_LABEL, viewStrings, viewValues);
+				propSshotEnhancedFSAA = new wxEnumProperty(_("Antialiasing"), wxPG_LABEL, viewStrings, viewValues);
 				propSshotEnhancedFSAA->SetValueFromInt(userPreferences.sshotEnhancedFSAA,wxPG_FULL_VALUE);
 				propSshotEnhancedFSAA->SetHelpString(_("Fullscreen antialiasing mode, max depends on resolution and GPU."));
 				AppendIn(propSshotEnhanced,propSshotEnhancedFSAA);
