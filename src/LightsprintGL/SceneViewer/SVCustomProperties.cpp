@@ -6,7 +6,6 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVCustomProperties.h"
-#include "../tmpstr.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -251,8 +250,8 @@ wxString getTextureDescription(rr::RRBuffer* buffer)
 	// must not contain <>*?/\, wxFileProperty would say "Validation conflict: '<no texture>' is invalid." on attempt to change texture
 	return buffer
 		? (buffer->filename.empty()
-		?rr_gl::tmpstr("(%dx%d embedded)",buffer->getWidth(),buffer->getHeight())
-			:buffer->filename.c_str())
+			? wxString::Format("(%dx%d embedded)",buffer->getWidth(),buffer->getHeight())
+			: buffer->filename.c_str())
 		:"(no texture)";
 }
 

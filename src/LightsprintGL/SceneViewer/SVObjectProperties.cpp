@@ -8,7 +8,6 @@
 #include "SVObjectProperties.h"
 #include "SVCustomProperties.h"
 #include "SVFrame.h" // updateSceneTree()
-#include "../tmpstr.h"
 
 namespace rr_gl
 {
@@ -50,7 +49,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 
 			// mesh
 			const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(mesh);
-			Append(tmp = new wxStringProperty(_("Mesh"), wxPG_LABEL,tmpstr("%x",(int)(size_t)mesh)));
+			Append(tmp = new wxStringProperty(_("Mesh"), wxPG_LABEL,wxString::Format("%x",(int)(size_t)mesh)));
 			AppendIn(tmp, new wxIntProperty(_("#triangles"),wxPG_LABEL,mesh->getNumTriangles()));
 			AppendIn(tmp, new wxIntProperty(_("#vertices"),wxPG_LABEL,mesh->getNumVertices()));
 			if (arrays)
@@ -58,7 +57,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 				wxString channels;
 				for (unsigned i=0;i<arrays->texcoord.size();i++)
 					if (arrays->texcoord[i])
-						channels += tmpstr("%d ",i);
+						channels += wxString::Format("%d ",i);
 				AppendIn(tmp, new wxStringProperty(_("uv channels"),wxPG_LABEL,channels));
 				AppendIn(tmp, new wxBoolProperty(_("tangents"),wxPG_LABEL,arrays->tangent?true:false));
 				AppendIn(tmp, new wxIntProperty(_("version"),wxPG_LABEL,arrays->version));

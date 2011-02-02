@@ -555,7 +555,6 @@ BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 21)
 //---------------------------------------------------------------------------
 
 #include "wx/wx.h"
-#include "../tmpstr.h"
 #include <cstdio>
 #include <boost/filesystem.hpp>
 #include <boost/archive/xml_iarchive.hpp>

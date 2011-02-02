@@ -6,7 +6,6 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVLightmapViewer.h"
-#include "../tmpstr.h"
 
 namespace rr_gl
 {
@@ -18,7 +17,7 @@ SVLightmapViewer::SVLightmapViewer(const char* _pathToShaders)
 	alpha = false;
 	zoom = 1;
 	center = rr::RRVec2(0);
-	uberProgram = UberProgram::create(tmpstr("%stexture.vs",_pathToShaders),tmpstr("%stexture.fs",_pathToShaders));
+	uberProgram = UberProgram::create(wxString::Format("%stexture.vs",_pathToShaders),wxString::Format("%stexture.fs",_pathToShaders));
 	buffer = NULL;
 	object = NULL;
 }

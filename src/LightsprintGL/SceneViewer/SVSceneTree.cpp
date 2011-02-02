@@ -7,7 +7,6 @@
 
 #include "SVSceneTree.h"
 #include "SVFrame.h"
-#include "../tmpstr.h"
 
 namespace rr_gl
 {
@@ -39,10 +38,10 @@ SVSceneTree::SVSceneTree(SVFrame* _svframe)
 	wxTreeItemId root = AddRoot(_("root"));
 
 
-	lights = AppendItem(root,_("0 lights"));
+	lights = AppendItem(root,"");
 
-	staticObjects = AppendItem(root,_("0 static objects"));
-	dynamicObjects = AppendItem(root,_("0 dynamic objects"));
+	staticObjects = AppendItem(root,"");
+	dynamicObjects = AppendItem(root,"");
 
 
 	Expand(lights); // wxmsw ignores this because lights is empty
@@ -67,12 +66,12 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	// update lights
 	if (solver)
 	{
-		SetItemText(lights,tmpstr(_("%d lights"),solver?solver->getLights().size():0));
+		SetItemText(lights,wxString::Format(_("%d lights"),solver?solver->getLights().size():0));
 		DeleteChildren(lights);
 		for (unsigned i=0;solver && i<solver->getLights().size();i++)
 		{
 			wxString name = solver->getLights()[i]->name.c_str();
-			if (name.empty()) name = tmpstr(_("light %d"),i);
+			if (name.empty()) name = wxString::Format(_("light %d"),i);
 			AppendItem(lights,name,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
 		}
 	}
@@ -80,13 +79,13 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	// update first 1000 static objects, more would be slow and difficult to control
 	if (solver)
 	{
-		SetItemText(staticObjects,tmpstr(_("%d static objects"),solver?solver->getStaticObjects().size():0));
+		SetItemText(staticObjects,wxString::Format(_("%d static objects"),solver?solver->getStaticObjects().size():0));
 		DeleteChildren(staticObjects);
 		unsigned numStaticObjects = RR_MIN(solver->getStaticObjects().size(),1000);
 		for (unsigned i=0;solver && i<numStaticObjects;i++)
 		{
 			wxString name = solver->getStaticObjects()[i]->name.c_str();
-			if (name.empty()) name = tmpstr(_("object %d"),i);
+			if (name.empty()) name = wxString::Format(_("object %d"),i);
 			AppendItem(staticObjects,name,-1,-1,new ItemData(EntityId(ST_STATIC_OBJECT,i)));
 		}
 	}
@@ -94,13 +93,13 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	// update first 1000 dynamic objects
 	if (solver)
 	{
-		SetItemText(dynamicObjects,tmpstr(_("%d dynamic objects"),solver?solver->getDynamicObjects().size():0));
+		SetItemText(dynamicObjects,wxString::Format(_("%d dynamic objects"),solver?solver->getDynamicObjects().size():0));
 		DeleteChildren(dynamicObjects);
 		unsigned numDynamicObjects = RR_MIN(solver->getDynamicObjects().size(),1000);
 		for (unsigned i=0;solver && i<numDynamicObjects;i++)
 		{
 			wxString name = solver->getDynamicObjects()[i]->name.c_str();
-			if (name.empty()) name = tmpstr(_("object %d"),i);
+			if (name.empty()) name = wxString::Format(_("object %d"),i);
 			AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_DYNAMIC_OBJECT,i)));
 		}
 	}

@@ -17,7 +17,6 @@
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
 #include "SVSceneTree.h"
-#include "../tmpstr.h"
 #include "wx/aboutdlg.h"
 #ifdef _WIN32
 	#include <shlobj.h> // SHGetFolderPath, SHGetSpecialFolderPath
@@ -284,7 +283,7 @@ static bool getResolution(wxString title, wxWindow* parent, unsigned& resolution
 // Incoming resolution is taken as default value.
 static bool getResolution(wxString title, wxWindow* parent, unsigned& width, unsigned& height)
 {
-	wxString result = wxGetTextFromUser(title,_("Resolution"),tmpstr("%dx%d",width,height),parent);
+	wxString result = wxGetTextFromUser(title,_("Resolution"),wxString::Format("%dx%d",width,height),parent);
 	unsigned x = result.find('x');
 	if (x>0)
 	{
@@ -533,7 +532,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 #if defined(_WIN32) && _MSC_VER>=1400
 #ifdef NDEBUG
 	double splashStartSec = GETSEC;
-	AlphaSplashScreen splash(tmpstr("%s../maps/sv_splash.png",svs.pathToShaders),230,-245);
+	AlphaSplashScreen splash(wxString::Format("%s../maps/sv_splash.png",svs.pathToShaders),230,-245);
 #endif
 #endif
 
@@ -940,7 +939,7 @@ save_scene_as:
 #endif
 					userPreferences.sshotFilename = screenshotFilename;
 					time_t t = time(NULL);
-					userPreferences.sshotFilename += tmpstr("/screenshot%04d.jpg",t%10000);
+					userPreferences.sshotFilename += wxString::Format("/screenshot%04d.jpg",t%10000);
 				}
 
 				// 9. save
@@ -1050,7 +1049,7 @@ save_scene_as:
 #endif
 						userPreferences.sshotFilename = screenshotFilename;
 						time_t t = time(NULL);
-						userPreferences.sshotFilename += tmpstr("/screenshot%04d.jpg",t%10000);
+						userPreferences.sshotFilename += wxString::Format("/screenshot%04d.jpg",t%10000);
 					}
 
 					// 9. save
@@ -1586,10 +1585,10 @@ reload_skybox:
 
 		case ME_HELP: svs.renderHelp = !svs.renderHelp; break;
 		case ME_SDK_HELP:
-			ShellExecuteA(NULL,"open",tmpstr("%s..\\..\\doc\\Lightsprint.chm",svs.pathToShaders),NULL,NULL,SW_SHOWNORMAL);
+			ShellExecuteA(NULL,"open",wxString::Format("%s..\\..\\doc\\Lightsprint.chm",svs.pathToShaders),NULL,NULL,SW_SHOWNORMAL);
 			break;
 		case ME_SUPPORT:
-			ShellExecuteA(NULL,"open",tmpstr("mailto:support@lightsprint.com?Subject=Bug in build %s %s%d %d",__DATE__,
+			ShellExecuteA(NULL,"open",wxString::Format("mailto:support@lightsprint.com?Subject=Bug in build %s %s%d %d",__DATE__,
 	#if defined(_WIN32)
 				"win",
 	#else
@@ -1619,7 +1618,7 @@ reload_skybox:
 			break;
 		case ME_ABOUT:
 			{
-				wxIcon* icon = loadIcon(tmpstr("%s../maps/sv_logo.png",svs.pathToShaders));
+				wxIcon* icon = loadIcon(wxString::Format("%s../maps/sv_logo.png",svs.pathToShaders));
 				wxAboutDialogInfo info;
 				if (icon) info.SetIcon(*icon);
 				info.SetName("Lightsprint SDK");

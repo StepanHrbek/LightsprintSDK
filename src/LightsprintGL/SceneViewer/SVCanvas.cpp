@@ -19,7 +19,6 @@
 #include "Lightsprint/GL/LensFlare.h"
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/Water.h"
-#include "../tmpstr.h"
 #include "../PreserveState.h"
 #ifdef _WIN32
 	#include <GL/wglew.h>
@@ -212,7 +211,7 @@ void SVCanvas::createContextCore()
 	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
 	lightFieldObjectIllumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
 	{
-		entityIcons = new SVEntityIcons(tmpstr("%s../maps/",svs.pathToShaders),solver->getUberProgram());
+		entityIcons = new SVEntityIcons(wxString::Format("%s../maps/",svs.pathToShaders),solver->getUberProgram());
 		rr::RRVec3 sceneMin,sceneMax;
 		rr::RRObject* object = solver->getMultiObjectCustom();
 		if (object)
@@ -1311,7 +1310,7 @@ rendered:
 			{
 				vignetteLoadAttempted = true;
 				RR_ASSERT(!vignetteImage);
-				vignetteImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_vignette.png",svs.pathToShaders));
+				vignetteImage = rr::RRBuffer::load(wxString::Format("%s../maps/sv_vignette.png",svs.pathToShaders));
 			}
 			if (vignetteImage && textureRenderer)
 			{
@@ -1331,7 +1330,7 @@ rendered:
 				{
 					logoLoadAttempted = true;
 					RR_ASSERT(!logoImage);
-					logoImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_logo.png",svs.pathToShaders));
+					logoImage = rr::RRBuffer::load(wxString::Format("%s../maps/sv_logo.png",svs.pathToShaders));
 				}
 				if (logoImage)
 				{
@@ -1766,7 +1765,7 @@ rendered:
 		{
 			helpLoadAttempted = true;
 			RR_ASSERT(!helpImage);
-			helpImage = rr::RRBuffer::load(tmpstr("%s../maps/sv_help.png",svs.pathToShaders));
+			helpImage = rr::RRBuffer::load(wxString::Format("%s../maps/sv_help.png",svs.pathToShaders));
 			if (!helpImage)
 			{
 				wxMessageBox("To LOOK, move mouse with left button pressed.\n"
@@ -1811,7 +1810,7 @@ rendered:
 		{
 			fpsLoadAttempted = true;
 			RR_ASSERT(!fpsDisplay);
-			fpsDisplay = FpsDisplay::create(tmpstr("%s../maps/",svs.pathToShaders));
+			fpsDisplay = FpsDisplay::create(wxString::Format("%s../maps/",svs.pathToShaders));
 		}
 		if (fpsDisplay)
 		{
