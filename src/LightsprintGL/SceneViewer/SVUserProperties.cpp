@@ -8,6 +8,7 @@
 #include "SVUserProperties.h"
 #include "SVCustomProperties.h"
 
+
 namespace rr_gl
 {
 
@@ -15,6 +16,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 	: SVProperties(_svframe), userPreferences(_svframe->userPreferences)
 {
 	wxColour headerColor(230,230,230);
+
 
 	// import
 	{

@@ -519,6 +519,7 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 	if (version<3)
 		throw 1;
 
+
 	ar & make_nvp("currentWindowLayout",a.currentWindowLayout);
 	ar & make_nvp("windowLayout",a.windowLayout);
 	if (version>3)
@@ -549,7 +550,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
 BOOST_CLASS_VERSION(rr::RRLight, 4)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences, 5) // must be increased also each time panel is added/removed
+BOOST_CLASS_VERSION(rr_gl::UserPreferences, 6) // must be increased also each time panel is added/removed
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 21)
 
 //---------------------------------------------------------------------------

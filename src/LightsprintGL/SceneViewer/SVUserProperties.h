@@ -31,6 +31,7 @@ namespace rr_gl
 
 		UserPreferences&  userPreferences;
 
+
 		wxPGProperty*     propImport;
 		wxPGProperty*     propImportUnitsEnum;
 		wxPGProperty*     propImportUnitsFloat;

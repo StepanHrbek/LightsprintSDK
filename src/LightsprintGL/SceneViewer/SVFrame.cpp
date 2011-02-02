@@ -476,6 +476,8 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	updateMenuBarNeeded = false;
 	m_canvas = NULL;
 	bool layoutLoaded = userPreferences.load(); // must be loaded before SVUserProperties is created
+
+
 	m_userProperties = new SVUserProperties(this);
 	m_sceneProperties = new SVSceneProperties(this);
 	m_lightProperties = new SVLightProperties(this);
