@@ -464,6 +464,8 @@ void registerLoaderAssimp()
 	aiString extensions;
 	aiGetExtensionList(&extensions);
 	std::string str(convertStr(extensions));
+	// hide assimp dxf loader, users say it's bad
+	str.erase(str.find("*.dxf;"),6);
 #if defined(SUPPORT_OPENCOLLADA) || defined(SUPPORT_FCOLLADA)
 	// hide assimp collada loader if better one exists
 	str.erase(str.find("*.dae;"),6);
