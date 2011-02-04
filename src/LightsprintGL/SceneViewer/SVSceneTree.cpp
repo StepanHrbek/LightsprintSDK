@@ -35,6 +35,7 @@ SVSceneTree::SVSceneTree(SVFrame* _svframe)
 	callDepth = 0;
 	needsUpdateContent = false;
 
+
 	wxTreeItemId root = AddRoot(_("root"));
 
 

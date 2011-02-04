@@ -30,8 +30,6 @@ int view2ME_VIEW(Camera::View view)
 SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 	: SVProperties(_svframe)
 {
-	wxColour headerColor(230,230,230);
-
 	// camera
 	{
 		propCamera = new wxStringProperty(_("Camera"), wxPG_LABEL);
@@ -80,7 +78,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propCameraCenter = new RRVec2Property(_("Center of screen"),_("Shifts look up/down/left/right without distorting image. E.g. in architecture, 0,0.3 moves horizon down without skewing vertical lines."),svs.precision,svs.eye.screenCenter,1);
 		AppendIn(propCamera,propCameraCenter);
 
-		SetPropertyBackgroundColour(propCamera,headerColor,false);
+		SetPropertyBackgroundColour(propCamera,importantPropertyBackgroundColor,false);
 	}
 
 	// environment
@@ -109,7 +107,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propEnvTime = new FloatProperty(_("Local time (hour)"),_("Hour, 0..24, local time used for Sun and sky simulation."),svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f,svs.precision,0,24,1,true);
 		AppendIn(propEnv,propEnvTime);
 
-		SetPropertyBackgroundColour(propEnv,headerColor,false);
+		SetPropertyBackgroundColour(propEnv,importantPropertyBackgroundColor,false);
 	}
 
 	// tone mapping
@@ -134,7 +132,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propToneMappingContrast = new FloatProperty(_("Contrast"),_("Contrast correction applied to rendered images, default=1."),svs.tonemappingGamma,svs.precision,0,100,0.1f,false);
 		AppendIn(propToneMapping,propToneMappingContrast);
 
-		SetPropertyBackgroundColour(propToneMapping,headerColor,false);
+		SetPropertyBackgroundColour(propToneMapping,importantPropertyBackgroundColor,false);
 	}
 
 	// render materials
@@ -161,7 +159,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderMaterialTextures = new BoolRefProperty(_("Textures"),_("(ctrl-t) Toggles between material textures and flat colors. Disabling textures could make rendering faster."),svs.renderMaterialTextures);
 		AppendIn(propRenderMaterials,propRenderMaterialTextures);
 
-		SetPropertyBackgroundColour(propRenderMaterials,headerColor,false);
+		SetPropertyBackgroundColour(propRenderMaterials,importantPropertyBackgroundColor,false);
 	}
 
 	// render extras
@@ -231,7 +229,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderHelpers = new BoolRefProperty(_("Helpers"),_("Helpers are non-scene elements rendered with scene, usually for diagnostic purposes."),svs.renderHelpers);
 		AppendIn(propRenderExtras,propRenderHelpers);
 
-		SetPropertyBackgroundColour(propRenderExtras,headerColor,false);
+		SetPropertyBackgroundColour(propRenderExtras,importantPropertyBackgroundColor,false);
 	}
 
 	// GI quality
@@ -307,7 +305,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propGILightmap,propGILightmapWrapping);
 		}
 
-		SetPropertyBackgroundColour(propGI,headerColor,false);
+		SetPropertyBackgroundColour(propGI,importantPropertyBackgroundColor,false);
 	}
 
 	updateHide();

@@ -15,8 +15,6 @@ namespace rr_gl
 SVUserProperties::SVUserProperties(SVFrame* _svframe)
 	: SVProperties(_svframe), userPreferences(_svframe->userPreferences)
 {
-	wxColour headerColor(230,230,230);
-
 
 	// import
 	{
@@ -53,7 +51,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 			AppendIn(propImport,propImportUpForce);
 		}
 
-		SetPropertyBackgroundColour(propImport,headerColor,false);
+		SetPropertyBackgroundColour(propImport,importantPropertyBackgroundColor,false);
 	}
 
 	// sshot
@@ -106,7 +104,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 
 		}
 
-		SetPropertyBackgroundColour(propSshot,headerColor,false);
+		SetPropertyBackgroundColour(propSshot,importantPropertyBackgroundColor,false);
 	}
 
 	updateHide();

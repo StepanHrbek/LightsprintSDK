@@ -20,8 +20,6 @@ SVObjectProperties::SVObjectProperties(SVFrame* _svframe)
 
 void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 {
-	wxColour headerColor(230,230,230);
-
 	if (_object!=object)
 	{
 		object = _object;
@@ -67,7 +65,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			AppendIn(tmp, new RRVec3Property(_("Local max"),_("Mesh AABB max in object space"),_precision,maxi));
 			AppendIn(tmp, new RRVec3Property(_("Local center"),_("Mesh center in object space"),_precision,localCenter));
 			EnableProperty(tmp,false);
-			SetPropertyBackgroundColour(tmp,headerColor,false);
+			SetPropertyBackgroundColour(tmp,importantPropertyBackgroundColor,false);
 		}
 	}
 }

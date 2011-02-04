@@ -20,8 +20,6 @@ namespace rr_gl
 SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	: SVProperties(_svframe)
 {
-	wxColour headerColor(230,230,230);
-
 	lastSolver = NULL;
 	lastTriangle = UINT_MAX;
 	lastPoint2d = rr::RRVec2(0);
@@ -44,21 +42,21 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	AppendIn(propDiffuse,new HDRColorProperty(_("color"),_("If texture is set, color is calculated from texture and can't be edited."),svs.precision));
 	AppendIn(propDiffuse,new wxIntProperty(_("uv")));
 	AppendIn(propDiffuse,new ImageFileProperty(_("texture or video"),_("Diffuse texture or video. Type in c@pture to use live video input.")));
-	SetPropertyBackgroundColour(propDiffuse,headerColor,false);
+	SetPropertyBackgroundColour(propDiffuse,importantPropertyBackgroundColor,false);
 	Collapse(propDiffuse);
 
 	Append(propSpecular = new wxStringProperty(_("Specular")));
 	AppendIn(propSpecular,new HDRColorProperty(_("color"),_("If texture is set, color is calculated from texture and can't be edited."),svs.precision));
 	AppendIn(propSpecular,new wxIntProperty(_("uv")));
 	AppendIn(propSpecular,new ImageFileProperty(_("texture or video"),_("Specular texture or video. Type in c@pture to use live video input.")));
-	SetPropertyBackgroundColour(propSpecular,headerColor,false);
+	SetPropertyBackgroundColour(propSpecular,importantPropertyBackgroundColor,false);
 	Collapse(propSpecular);
 
 	Append(propEmissive = new wxStringProperty(_("Emissive")));
 	AppendIn(propEmissive,new HDRColorProperty(_("color"),_("If texture is set, color is calculated from texture and can't be edited."),svs.precision));
 	AppendIn(propEmissive,new wxIntProperty(_("uv")));
 	AppendIn(propEmissive,new ImageFileProperty(_("texture or video"),_("Emissive texture or video. Type in c@pture to use live video input.")));
-	SetPropertyBackgroundColour(propEmissive,headerColor,false);
+	SetPropertyBackgroundColour(propEmissive,importantPropertyBackgroundColor,false);
 	Collapse(propEmissive);
 
 	Append(propTransparent = new wxStringProperty(_("Transparency")));
@@ -72,7 +70,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	SetPropertyEditor(propTransparencyInAlpha,wxPGEditor_CheckBox);
 	propTransparencyInAlpha->SetHelpString(_("Reads opacity from alpha rather than from rgb."));
 	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index",_("Index of refraction when light hits surface from front side."),1,svs.precision,0,2,0.1f,false));
-	SetPropertyBackgroundColour(propTransparent,headerColor,false);
+	SetPropertyBackgroundColour(propTransparent,importantPropertyBackgroundColor,false);
 	Collapse(propTransparent);
 
 	Append(propLightmapTexcoord = new wxIntProperty(_("Lightmap uv")));
