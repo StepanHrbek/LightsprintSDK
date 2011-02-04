@@ -65,6 +65,8 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 		propCameraFov = new FloatProperty("FOV vertical (deg)",_("Vertical field of view angle, angle between top and bottom of viewport"),svs.eye.getFieldOfViewVerticalDeg(),svs.precision,0,180,10,false);
 		AppendIn(propCameraOrtho,propCameraFov);
+		// why it's not safe to move FOV above Ortho:
+		//   when Ortho is checked, FOV disappears and Ortho moves one line up, but just checked Ortho checkbox is rendered into old position
 
 		propCameraNear = new FloatProperty("Near (m)",_("Near plane distance, elements closer to camera are not rendered."),svs.eye.getNear(),svs.precision,-1e10f,1e10f,0.1f,false);
 		AppendIn(propCamera,propCameraNear);
