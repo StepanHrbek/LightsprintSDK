@@ -294,7 +294,9 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 		// must be changed if setStaticObjects() behaviour changes
 		// we don't switch to architect, but rather to const ambient, because architect ignores environment, scenes without lights are black
 		if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)
+		{
 			svs.renderLightIndirect = LI_CONSTANT;
+		}
 
 		// fix dangling pointer in light properties pane
 		parent->updateAllPanels();
