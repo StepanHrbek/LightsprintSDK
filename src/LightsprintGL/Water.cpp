@@ -108,9 +108,16 @@ void Water::render(float size, rr::RRVec3 center, rr::RRVec4 waterColor, rr::RRV
 	if (size>0)
 	{
 		glBegin(GL_TRIANGLES);
-		glVertex3f(center[0]-0.5f*size,altitude,center[2]-0.86602540378444f*size);
-		glVertex3f(center[0]-0.5f*size,altitude,center[2]+0.86602540378444f*size);
-		glVertex3f(center[0]+size,altitude,center[2]);
+		// rendering one huge triangle is not good, rounding errors in shader might be visible,
+		// smaller triangles improve precision in near water
+		for (int i=10;i>=0;i--)
+		{
+			float localsize = size * expf((float)-i);
+			float localalt = altitude + i*1e-3f;
+			glVertex3f(center[0]-0.5f*localsize,localalt,center[2]-0.86602540378444f*localsize);
+			glVertex3f(center[0]-0.5f*localsize,localalt,center[2]+0.86602540378444f*localsize);
+			glVertex3f(center[0]+localsize,localalt,center[2]);
+		}
 		glEnd();
 	}
 	//if (!blend)
