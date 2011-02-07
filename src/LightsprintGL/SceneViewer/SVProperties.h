@@ -29,10 +29,10 @@ namespace rr_gl
 	{
 	public:
 		SVProperties(SVFrame* _svframe)
-		: wxPropertyGrid(_svframe, wxID_ANY, wxDefaultPosition, wxSize(300,300), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER/*|wxPG_TOOLTIPS*/), svs(_svframe->svs)
+		: wxPropertyGrid(_svframe, wxID_ANY, wxDefaultPosition, wxSize(300,300), wxPG_DEFAULT_STYLE|wxPG_SPLITTER_AUTO_CENTER|SV_SUBWINDOW_BORDER|wxPG_TOOLTIPS), svs(_svframe->svs)
 		{
 			svframe = _svframe;
-			//SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS);
+			SetExtraStyle(wxPG_EX_HELP_AS_TOOLTIPS);
 
 			importantPropertyBackgroundColor = wxColour(230,230,230);
 			SetMarginColour(wxColour(220,220,220));
