@@ -18,6 +18,7 @@
 #include "SVMaterialProperties.h"
 #include "SVSceneTree.h"
 #include "wx/aboutdlg.h"
+#include "wx/regex.h"
 #ifdef _WIN32
 	#include <shlobj.h> // SHGetFolderPath, SHGetSpecialFolderPath
 	#include <process.h> // _beginthread in AlphaSplashScreen
@@ -444,6 +445,13 @@ void SVFrame::userPreferencesApplyToWx()
 		OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
 	if (!svs.fullscreen && userPreferences.windowLayout[userPreferences.currentWindowLayout].maximized != IsMaximized())
 		Maximize(!IsMaximized());
+
+	// remove captions from layout so that LoadPerspective does not interfere with language selection
+	// wx must be patched according to http://trac.wxwidgets.org/ticket/12528
+	wxString perspective = userPreferences.windowLayout[userPreferences.currentWindowLayout].perspective;
+	wxRegEx("caption=[^;]*;").ReplaceAll(&perspective, wxEmptyString);
+	userPreferences.windowLayout[userPreferences.currentWindowLayout].perspective = perspective;
+
 	m_mgr.LoadPerspective(userPreferences.windowLayout[userPreferences.currentWindowLayout].perspective,true);
 	UpdateMenuBar();
 }
