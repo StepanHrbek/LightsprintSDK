@@ -49,7 +49,6 @@ namespace rr_gl
 			{
 				fullscreen = false;
 				maximized = false;
-				perspective = "";
 			}
 		};
 		WindowLayout windowLayout[3];
