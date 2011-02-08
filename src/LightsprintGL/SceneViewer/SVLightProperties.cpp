@@ -55,22 +55,22 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propType = new wxEnumProperty(_("Light type"), wxPG_LABEL, typeStrings, typeValues, light->type);
 			Append(propType);
 
-			propPosition = new RRVec3Property(_("Position (m)"),_("Light source position in world space"),_precision,light->position,1);
+			propPosition = new RRVec3Property(_("Position")+" (m)",_("Light source position in world space"),_precision,light->position,1);
 			AppendIn(propType,propPosition);
 
 			propDirection = new RRVec3Property(_("Direction"),_("Major light direction in world space, normalized"),_precision,light->direction,0.1f);
 			AppendIn(propType,propDirection);
 
-			propAltitude = new FloatProperty(_("Elevation (deg)"),_("Solar elevation angle, 90 for sun in zenith, 0 for sun on horizon, negative for sun below horizon."),ANGLEX2ALT(rtlight->getParent()->angleX),_precision,-90,90,10,false);
+			propAltitude = new FloatProperty(_("Elevation")+L" (\u00b0)",_("Solar elevation angle, 90 for sun in zenith, 0 for sun on horizon, negative for sun below horizon."),ANGLEX2ALT(rtlight->getParent()->angleX),_precision,-90,90,10,false);
 			AppendIn(propType,propAltitude);
 
-			propAzimuth = new FloatProperty(_("Azimuth (deg)"),_("Solar azimuth angle, 90 for east, 180 for south, 270 for west."),ANGLE2AZI(rtlight->getParent()->angle),_precision,0,360,10,true);
+			propAzimuth = new FloatProperty(_("Azimuth")+L" (\u00b0)",_("Solar azimuth angle, 90 for east, 180 for south, 270 for west."),ANGLE2AZI(rtlight->getParent()->angle),_precision,0,360,10,true);
 			AppendIn(propType,propAzimuth);
 
-			propOuterAngle = new FloatProperty(_("Outer angle (deg)"),_("Outer cone angle, angle between major direction and border direction."),RR_RAD2DEG(light->outerAngleRad),_precision,0,180,10,false);
+			propOuterAngle = new FloatProperty(_("Outer angle")+L" (\u00b0)",_("Outer cone angle, angle between major direction and border direction."),RR_RAD2DEG(light->outerAngleRad),_precision,0,180,10,false);
 			AppendIn(propType,propOuterAngle);
 
-			propFallOffAngle = new FloatProperty(_("Fall off angle (deg)"),_("Outer angle minus inner angle, part of outer angle where intensity falls off."),RR_RAD2DEG(light->fallOffAngleRad),_precision,0,180,10,false);
+			propFallOffAngle = new FloatProperty(_("Fall off angle")+L" (\u00b0)",_("Outer angle minus inner angle, part of outer angle where intensity falls off."),RR_RAD2DEG(light->fallOffAngleRad),_precision,0,180,10,false);
 			AppendIn(propType,propFallOffAngle);
 
 			propSpotExponent = new FloatProperty(_("Spot exponent"),_("Controls attenuation curve inside fall off angle."),light->spotExponent,_precision,0,1000,0.1f,false);
@@ -113,7 +113,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propClamp = new FloatProperty(_("Clamp"),_("One of coefficients in selected distance attenuation function 1/MAX(constant+linear*distance+quadratic*distance^2,clamp)"),light->polynom[3],_precision,0,1,0.01f,false);
 			AppendIn(propDistanceAttType,propClamp);
 
-			propRadius = new FloatProperty(_("Radius (m)"),_("One of coefficients in selected distance attenuation function pow(MAX(0,1-(distance/radius)^2),exponent)"),light->radius,_precision,0,1e10f,1,false);
+			propRadius = new FloatProperty(_("Radius")+" (m)",_("One of coefficients in selected distance attenuation function pow(MAX(0,1-(distance/radius)^2),exponent)"),light->radius,_precision,0,1e10f,1,false);
 			AppendIn(propDistanceAttType,propRadius);
 
 			propFallOffExponent = new FloatProperty(_("Exponent"),_("One of coefficients in selected distance attenuation function pow(MAX(0,1-(distance/radius)^2),exponent)"),light->fallOffExponent,_precision,0,100,0.1f,false);
@@ -141,10 +141,10 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propShadowSamples = new wxIntProperty(_("Shadow Samples"),wxPG_LABEL,rtlight->getNumShadowSamples());
 			AppendIn(propCastShadows,propShadowSamples);
 
-			propNear = new FloatProperty(_("Near (m)"),_("Near plane distance for generating shadowmaps. Greater value reduces shadow bias."),rtlight->getParent()->getNear(),_precision,0,1e10f,0.1f,false);
+			propNear = new FloatProperty(_("Near")+" (m)",_("Near plane distance for generating shadowmaps. Greater value reduces shadow bias."),rtlight->getParent()->getNear(),_precision,0,1e10f,0.1f,false);
 			AppendIn(propCastShadows,propNear);
 
-			propFar = new FloatProperty(_("Far (m)"),_("Far plane distance for generating shadowmaps."),rtlight->getParent()->getFar(),_precision,0,1e10f,1,false);
+			propFar = new FloatProperty(_("Far")+" (m)",_("Far plane distance for generating shadowmaps."),rtlight->getParent()->getFar(),_precision,0,1e10f,1,false);
 			AppendIn(propCastShadows,propFar);
 		}
 

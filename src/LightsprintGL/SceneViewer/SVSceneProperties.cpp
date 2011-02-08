@@ -37,7 +37,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		SetPropertyReadOnly(propCamera,true,wxPG_DONT_RECURSE);
 
 
-		propCameraSpeed = new FloatProperty("Speed (m/s)",_("Controls how quickly camera moves when controlled by arrows/wsad."),svs.cameraMetersPerSecond,svs.precision,0,1e10f,1,false);
+		propCameraSpeed = new FloatProperty(_("Speed")+" (m/s)",_("Controls how quickly camera moves when controlled by arrows/wsad."),svs.cameraMetersPerSecond,svs.precision,0,1e10f,1,false);
 		AppendIn(propCamera,propCameraSpeed);
 
 		const wxChar* viewStrings[] = {_("Custom"),_("Top"),_("Bottom"),_("Front"),_("Back"),_("Left"),_("Right"),NULL};
@@ -45,31 +45,31 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propCameraView = new wxEnumProperty(_("View"), wxPG_LABEL, viewStrings, viewValues);
 		AppendIn(propCamera,propCameraView);
 
-		propCameraPosition = new RRVec3Property(_("Position (m)"),_("Camera position in world space"),svs.precision,svs.eye.pos,1);
+		propCameraPosition = new RRVec3Property(_("Position")+" (m)",_("Camera position in world space"),svs.precision,svs.eye.pos,1);
 		AppendIn(propCamera,propCameraPosition);
 
 		propCameraDirection = new RRVec3Property(_("Direction"),_("Camera direction in world space, normalized"),svs.precision,svs.eye.dir,0.2f);
 		AppendIn(propCamera,propCameraDirection);
 		EnableProperty(propCameraDirection,false);
 
-		propCameraAngles = new RRVec3Property(_("Angles (deg)"),_("Camera direction in angles: azimuth, elevation, leaning"),svs.precision,RR_RAD2DEG(RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle)),10);
+		propCameraAngles = new RRVec3Property(_("Angles")+L" (\u00b0)",_("Camera direction in angles: azimuth, elevation, leaning"),svs.precision,RR_RAD2DEG(RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle)),10);
 		AppendIn(propCamera,propCameraAngles);
 
 		propCameraOrtho = new BoolRefProperty(_("Orthogonal"),_("Switches between orthogonal and perspective camera."),svs.eye.orthogonal);
 		AppendIn(propCamera,propCameraOrtho);
 
-		propCameraOrthoSize = new FloatProperty(_("Size (m)"),_("World space distance between top and bottom of viewport."),svs.eye.orthoSize,svs.precision,0,1000000,10,false);
+		propCameraOrthoSize = new FloatProperty(_("Size")+" (m)",_("World space distance between top and bottom of viewport."),svs.eye.orthoSize,svs.precision,0,1000000,10,false);
 		AppendIn(propCameraOrtho,propCameraOrthoSize);
 
-		propCameraFov = new FloatProperty("FOV vertical (deg)",_("Vertical field of view angle, angle between top and bottom of viewport"),svs.eye.getFieldOfViewVerticalDeg(),svs.precision,0,180,10,false);
+		propCameraFov = new FloatProperty(_("FOV vertical")+L" (\u00b0)",_("Vertical field of view angle, angle between top and bottom of viewport"),svs.eye.getFieldOfViewVerticalDeg(),svs.precision,0,180,10,false);
 		AppendIn(propCamera,propCameraFov);
 		// why it's not safe to move FOV above Ortho:
 		//   when Ortho is checked, FOV disappears and Ortho moves one line up, but just checked Ortho checkbox is rendered into old position
 
-		propCameraNear = new FloatProperty("Near (m)",_("Near plane distance, elements closer to camera are not rendered."),svs.eye.getNear(),svs.precision,-1e10f,1e10f,0.1f,false);
+		propCameraNear = new FloatProperty(_("Near")+" (m)",_("Near plane distance, elements closer to camera are not rendered."),svs.eye.getNear(),svs.precision,-1e10f,1e10f,0.1f,false);
 		AppendIn(propCamera,propCameraNear);
 
-		propCameraFar = new FloatProperty("Far (m)",_("Far plane distance, elements farther from camera are not rendered."),svs.eye.getFar(),svs.precision,-1e10f,1e10f,1,false);
+		propCameraFar = new FloatProperty(_("Far")+" (m)",_("Far plane distance, elements farther from camera are not rendered."),svs.eye.getFar(),svs.precision,-1e10f,1e10f,1,false);
 		AppendIn(propCamera,propCameraFar);
 
 		propCameraRangeAutomatic = new BoolRefProperty(_("Automatic near/far"),_("Near/far is set automatically based on distance of objects in viewport."),svs.cameraDynamicNear);
@@ -222,7 +222,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propGridNumSegments = new FloatProperty(_("Segments"),_("Number of grid segments per line, e.g. 10 makes grid of 10x10 squares."),svs.gridNumSegments,svs.precision,1,1000,10,false);
 			AppendIn(propGrid,propGridNumSegments);
 
-			propGridSegmentSize = new FloatProperty(_("Segment size (m)"),_("Distance between grid lines."),svs.gridSegmentSize,svs.precision,0,1e10f,1,false);
+			propGridSegmentSize = new FloatProperty(_("Segment size")+" (m)",_("Distance between grid lines."),svs.gridSegmentSize,svs.precision,0,1e10f,1,false);
 			AppendIn(propGrid,propGridSegmentSize);
 		}
 

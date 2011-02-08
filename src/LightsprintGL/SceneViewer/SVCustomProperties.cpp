@@ -559,8 +559,8 @@ LocationProperty::LocationProperty(const wxString& label, const wxString& help, 
 		cityValues[i] = i;
 	}
 	AddPrivateChild(new wxEnumProperty(_("city"),wxPG_LABEL,cityStrings,cityValues,findCity(latitudeLongitude)));
-	AddPrivateChild(new FloatProperty(_("latitude (deg)"),_("Location latitude, 0 for equator, -90 for south pole, 90 for north pole."),latitudeLongitude[0],precision,-90,90,1,false));
-	AddPrivateChild(new FloatProperty(_("longitude (deg)"),_("Location longitude, -180..180, positive eastward and negative westward of Greenwich, London."),latitudeLongitude[1],precision,-180,180,1,true));
+	AddPrivateChild(new FloatProperty(_("latitude")+L" (\u00b0)",_("Location latitude, 0 for equator, -90 for south pole, 90 for north pole."),latitudeLongitude[0],precision,-90,90,1,false));
+	AddPrivateChild(new FloatProperty(_("longitude")+L" (\u00b0)",_("Location longitude, -180..180, positive eastward and negative westward of Greenwich, London."),latitudeLongitude[1],precision,-180,180,1,true));
 }
 
 LocationProperty::~LocationProperty()
