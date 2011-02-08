@@ -156,7 +156,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderMaterialTransparency->SetHelpString(_("Changes how realistically semi-transparent surfaces are rendered."));
 		AppendIn(propRenderMaterials,propRenderMaterialTransparency);
 
-		propRenderMaterialTextures = new BoolRefProperty(_("Textures"),_("(ctrl-t) Toggles between material textures and flat colors. Disabling textures could make rendering faster."),svs.renderMaterialTextures);
+		propRenderMaterialTextures = new BoolRefProperty(_("Textures"),_("Toggles between material textures and flat colors. Disabling textures could make rendering faster.")+" (ctrl-t)",svs.renderMaterialTextures);
 		AppendIn(propRenderMaterials,propRenderMaterialTextures);
 
 		SetPropertyBackgroundColour(propRenderMaterials,importantPropertyBackgroundColor,false);
@@ -180,10 +180,10 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propWater,propWaterLevel);
 		}
 
-		propRenderWireframe = new BoolRefProperty(_("Wireframe"),_("(ctrl-w) Toggles between solid and wireframe rendering modes."),svs.renderWireframe);
+		propRenderWireframe = new BoolRefProperty(_("Wireframe"),_("Toggles between solid and wireframe rendering modes.")+" (ctrl-w)",svs.renderWireframe);
 		AppendIn(propRenderExtras,propRenderWireframe);
 
-		propRenderFPS = new BoolRefProperty(_("FPS"),_("(ctrl-f) FPS counter shows number of frames rendered in last second."),svs.renderFPS);
+		propRenderFPS = new BoolRefProperty(_("FPS"),_("FPS counter shows number of frames rendered in last second.")+" (ctrl-f)",svs.renderFPS);
 		AppendIn(propRenderExtras,propRenderFPS);
 
 		// logo
