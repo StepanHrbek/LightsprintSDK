@@ -478,7 +478,7 @@ SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 }
 
 SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos, const wxSize& _size, SceneViewerStateEx& _svs)
-	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE), svs(_svs)
+	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE|wxMINIMIZE), svs(_svs)
 {
 	fullyInited = false;
 	updateMenuBarNeeded = false;
@@ -586,6 +586,17 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name("lightproperties").Caption(_("Light properties")).CloseButton(true).Right());
 	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name("objectproperties").Caption(_("Object properties")).CloseButton(true).Right());
 	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name("materialproperties").Caption(_("Material properties")).CloseButton(true).Right());
+	// invisibly render first GL frame (it takes ages, all shaders are compiled, textures compressed etc)
+	// here it does not work because window is minimized
+	// it would work with restored or never minimized window, but
+	//  - window 1x1 on screen is ugly
+	//  - window moved outside screen is ok, not visible, but Centre() is later ignored if user moves other window meanwhile
+	//wxPaintEvent e;
+	//m_canvas->Paint(e);
+
+	// render first visible frame, with good panels, disabled glcanvas
+	m_canvas->renderEmptyFrames = true;
+	Restore();
 
 	// synchronize fullscreen state between 3 places
 	// - userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen
@@ -602,6 +613,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	m_mgr.Update();
 	fullyInited = true;
+	m_canvas->renderEmptyFrames = false;
 }
 
 SVFrame::~SVFrame()

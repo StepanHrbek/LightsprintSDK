@@ -47,6 +47,7 @@ static int s_attribList[] = {
 SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 	: wxGLCanvas(_parent, wxID_ANY, s_attribList, wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE, "GLCanvas"), svs(_svs)
 {
+	renderEmptyFrames = false;
 	context = NULL;
 	parent = _parent;
 	solver = NULL;
@@ -1024,6 +1025,14 @@ void SVCanvas::OnPaintCore(wxPaintEvent& event)
 void SVCanvas::Paint(wxPaintEvent& event)
 {
 	rr::RRReportInterval report(rr::INF3,"display...\n");
+	if (renderEmptyFrames)
+	{
+		glClearColor(0.31f,0.31f,0.31f,0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0,0,0,0);
+		SwapBuffers();
+		return;
+	}
 	if (svs.renderLightmaps2d && lv)
 	{
 		if (svs.selectedObjectIndex<solver->getStaticObjects().size())

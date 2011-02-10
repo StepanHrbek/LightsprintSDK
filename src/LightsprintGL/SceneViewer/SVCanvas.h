@@ -59,6 +59,7 @@ namespace rr_gl
 		void OnEnterWindow(wxMouseEvent& event);
 
 
+		bool                       renderEmptyFrames;
 		// public only for SVFrame::selectEntity()
 		rr_gl::RRDynamicSolverGL*  solver;
 		EntityType                 selectedType;
