@@ -26,10 +26,10 @@
 
 	#define LOG_CAPTION NULL
 // naming convention for lightmaps and ldm. final name is prefix+objectnumber+postfix
-#define LMAP_PREFIX (wxString(svs.sceneFilename)+".").c_str()
+#define LMAP_PREFIX  (wxString(svs.sceneFilename).BeforeLast('.')+"_precalculated/").c_str()
 #define LMAP_POSTFIX "lightmap.png"
-#define LDM_PREFIX (wxString(svs.sceneFilename)+".").c_str()
-#define LDM_POSTFIX "ldm.png"
+#define LDM_PREFIX   LMAP_PREFIX
+#define LDM_POSTFIX  "ldm.png"
 
 namespace rr_gl
 {
