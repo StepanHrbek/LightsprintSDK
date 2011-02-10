@@ -483,9 +483,11 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	fullyInited = false;
 	updateMenuBarNeeded = false;
 	m_canvas = NULL;
-	bool layoutLoaded = userPreferences.load(); // must be loaded before SVUserProperties is created
 
+	// load preferences (must be done very early)
+	bool layoutLoaded = userPreferences.load(NULL);
 
+	// create properties (based also on data from preferences)
 	m_userProperties = new SVUserProperties(this);
 	m_sceneProperties = new SVSceneProperties(this);
 	m_lightProperties = new SVLightProperties(this);
@@ -549,13 +551,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_mgr.SetManagedWindow(this);
 
 	UpdateEverything(); // slow. if specified by filename, loads scene from disk
-	// create layouts if load failed
-	if (!layoutLoaded)
-	{
-		userPreferences.windowLayout[0].fullscreen = false;
-		userPreferences.windowLayout[0].maximized = true;
-		userPreferences.windowLayout[0].perspective = m_mgr.SavePerspective();
-	}
 
 	// setup dock art (colors etc)
 	wxAuiDockArt* dockArt = new wxAuiDefaultDockArt;
@@ -588,22 +583,9 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name("scenetree").Caption(_("Scene tree")).CloseButton(true).Left());
 	m_mgr.AddPane(m_userProperties, wxAuiPaneInfo().Name("userproperties").Caption(_("User preferences")).CloseButton(true).Left());
 	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name("sceneproperties").Caption(_("Scene properties")).CloseButton(true).Left());
-	if (!layoutLoaded)
-	{
-		userPreferences.windowLayout[1].fullscreen = false;
-		userPreferences.windowLayout[1].maximized = false;
-		userPreferences.windowLayout[1].perspective = m_mgr.SavePerspective();
-		userPreferences.currentWindowLayout = 2;
-	}
 	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name("lightproperties").Caption(_("Light properties")).CloseButton(true).Right());
 	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name("objectproperties").Caption(_("Object properties")).CloseButton(true).Right());
 	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name("materialproperties").Caption(_("Material properties")).CloseButton(true).Right());
-	if (!layoutLoaded)
-	{
-		userPreferences.windowLayout[2].fullscreen = false;
-		userPreferences.windowLayout[2].maximized = false;
-		userPreferences.windowLayout[2].perspective = m_mgr.SavePerspective();
-	}
 
 	// synchronize fullscreen state between 3 places
 	// - userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen

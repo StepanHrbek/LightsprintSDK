@@ -663,14 +663,14 @@ bool UserPreferences::save() const
 #endif
 }
 
-bool UserPreferences::load()
+bool UserPreferences::load(const wchar_t* nonDefaultFilename)
 {
 #if defined(_MSC_VER) && _MSC_VER<1400
 	return false; // Visual Studio 2003 doesn't accept std::ofstream(const wchar_t*)
 #else
 	try
 	{
-		std::ifstream ifs(suggestPreferencesFilename().c_str());
+		std::ifstream ifs(nonDefaultFilename?nonDefaultFilename:suggestPreferencesFilename().c_str());
 		if (!ifs || ifs.bad())
 		{
 			// don't warn, we attempt to load prefs each time, without knowing the file exists
@@ -682,7 +682,7 @@ bool UserPreferences::load()
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to load %S.\n",suggestPreferencesFilename().c_str());
+		rr::RRReporter::report(rr::ERRO,"Failed to load %S.\n",nonDefaultFilename?nonDefaultFilename:suggestPreferencesFilename().c_str());
 		return false;
 	}
 
