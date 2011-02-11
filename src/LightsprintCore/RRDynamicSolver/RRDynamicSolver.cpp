@@ -340,20 +340,25 @@ const RRObjects& RRDynamicSolver::getDynamicObjects() const
 	return priv->dynamicObjects;
 }
 
-void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& buffers) const
+void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsigned>* _layers) const
 {
 	if (!this)
 		return;
 	typedef boost::unordered_set<RRBuffer*> Set;
 	Set set;
 	// fill set
-	for (unsigned i=0;i<buffers.size();i++)
-		set.insert(buffers[i]);
+	// - original contents of vector
+	for (unsigned i=0;i<_buffers.size();i++)
+		set.insert(_buffers[i]);
+	// - maps from lights
 	for (unsigned i=0;i<getLights().size();i++)
 		set.insert(getLights()[i]->rtProjectedTexture);
-	if (getMultiObjectCustom())
+	// - maps from materials
+	const RRObjects& objects = getDynamicObjects();
+	for (int i=-1;i<objects.size();i++)
 	{
-		RRObject::FaceGroups& faceGroups = getMultiObjectCustom()->faceGroups;
+		const RRObject* object = (i==-1)?getMultiObjectCustom():objects[i];
+		const RRObject::FaceGroups& faceGroups = object->faceGroups;
 		for (unsigned g=0;g<faceGroups.size();g++)
 		{
 			RRMaterial* m = faceGroups[g].material;
@@ -366,12 +371,24 @@ void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& buffers) const
 			}
 		}
 	}
+	// - environment
 	set.insert(getEnvironment());
-	// copy set to buffers
-	buffers.clear();
+	// - illumination layers
+	if (_layers)
+	{
+		for (unsigned k=0;k<2;k++)
+		{
+			const RRObjects& objects = k?getDynamicObjects():getStaticObjects();
+			for (unsigned i=0;i<objects.size();i++)
+				for (unsigned j=0;j<_layers->size();j++)
+					set.insert(objects[i]->illumination.getLayer(j));
+		}
+	}
+	// copy set back to vector
+	_buffers.clear();
 	for (Set::const_iterator i=set.begin();i!=set.end();++i)
 		if (*i)
-			buffers.push_back(*i);
+			_buffers.push_back(*i);
 }
 
 RRObject* RRDynamicSolver::getMultiObjectCustom() const

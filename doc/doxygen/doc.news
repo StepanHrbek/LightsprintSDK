@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news117 ------------------------------------ 2011.02.xx -------------------------------------
+
+NEWS
+
+- RRDynamicSolver::getAllBuffers() can gather selected illumination buffers, second parameter added
+
 \section news116 ------------------------------------ 2011.01.22 -------------------------------------
 
 NEWS

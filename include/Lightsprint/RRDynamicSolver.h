@@ -238,13 +238,16 @@ namespace rr
 		const RRObjects& getDynamicObjects() const;
 
 
-		//! Inserts all buffers found in solver's materials, lights and environment into collection.
+		//! Inserts all buffers found in solver's materials, lights, environment and illumination layers into collection.
 		//
 		//! Can be used to gather all texture filenames, to pause all videos etc.
-		//! Note that illumination buffers (lightmaps) are not inserted.
-		//! May shuffle elements that were already present in collection.
-		//! Removes duplicates, the same buffer is never listed twice.
-		void getAllBuffers(RRVector<RRBuffer*>& buffers) const;
+		//! \param buffers
+		//!  In-out collection of buffers.
+		//!  Unique inout buffers are preserved, new buffers from solver are added.
+		//!  Ordering of input buffers may change and duplicates and NULL buffers are removed.
+		//! \param layers
+		//!  Illumination from given layers will be gathered too.
+		void getAllBuffers(RRVector<RRBuffer*>& buffers, const RRVector<unsigned>* layers) const;
 
 
 		//! Optional parameters of calculate(). Currently used only by Fireball.

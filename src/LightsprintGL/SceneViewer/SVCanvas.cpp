@@ -468,7 +468,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			if (solver)
 			{
 				rr::RRVector<rr::RRBuffer*> buffers;
-				solver->getAllBuffers(buffers);
+				solver->getAllBuffers(buffers,NULL);
 				svs.playVideos = !svs.playVideos;
 				for (unsigned i=0;i<buffers.size();i++)
 					if (svs.playVideos)
