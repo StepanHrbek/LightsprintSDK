@@ -9,7 +9,7 @@
 namespace rr
 {
 
-extern bool typeEnabled[TIMI+1];
+extern bool g_typeEnabled[TIMI+1];
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -17,7 +17,7 @@ extern bool typeEnabled[TIMI+1];
 
 RRReportInterval::RRReportInterval(RRReportType type, const char* format, ...)
 {
-	enabled = type>=ERRO && type<=TIMI && typeEnabled[type];
+	enabled = type>=ERRO && type<=TIMI && g_typeEnabled[type];
 	if (enabled)
 	{
 		creationTime = GETTIME;
