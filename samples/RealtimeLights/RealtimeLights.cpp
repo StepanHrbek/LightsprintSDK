@@ -337,7 +337,7 @@ int main(int argc, char **argv)
 		error("",false);
 	}
 	// log messages to console
-	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
 	//rr::RRReporter::setFilter(true,3,true);
 	//rr_gl::Program::logMessages(true);
 
@@ -429,7 +429,6 @@ int main(int argc, char **argv)
 	delete solver;
 	delete robot;
 	delete potato;
-	delete rr::RRReporter::getReporter();
-	rr::RRReporter::setReporter(NULL);
+	delete reporter;
 	return 0;
 }

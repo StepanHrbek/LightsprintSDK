@@ -23,9 +23,9 @@ using namespace rr;
 int main(int argc, char** argv)
 {
 #ifdef XBOX
-	RRReporter::setReporter(RRReporter::createFileReporter("game:\\results.txt"));
+	RRReporter* reporter = RRReporter::createFileReporter("game:\\results.txt");
 #else
-	RRReporter::setReporter(RRReporter::createPrintfReporter());
+	RRReporter* reporter = RRReporter::createPrintfReporter();
 #endif
 
 	RRReporter::report(INF1,"Stanford Bunny Benchmark\n");
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
 	delete watch;
 	delete rrMesh;
 	delete collider;
-	delete RRReporter::getReporter();
+	delete reporter;
 
 	return 0;
 }

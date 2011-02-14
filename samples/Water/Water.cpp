@@ -144,7 +144,7 @@ void idle()
 int main(int argc, char **argv)
 {
 	// log messages to console
-	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	rr::RRReporter::createPrintfReporter();
 
 	rr_io::registerLoaders();
 

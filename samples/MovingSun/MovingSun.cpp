@@ -324,7 +324,7 @@ int main(int argc, char **argv)
 		error("",false);
 	}
 	// log messages to console
-	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
 	//rr::RRReporter::setFilter(true,1,true);
 
 	rr_io::registerLoaders();
@@ -449,7 +449,6 @@ int main(int argc, char **argv)
 	delete solver;
 	for (unsigned i=0;i<dynamicObjects.size();i++)
 		delete dynamicObjects[i];
-	delete rr::RRReporter::getReporter();
-	rr::RRReporter::setReporter(NULL);
+	delete reporter;
 	return 0;
 }

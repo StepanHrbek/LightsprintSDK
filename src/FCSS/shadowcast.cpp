@@ -106,6 +106,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 //
 // globals
 
+rr::RRReporter* reporter;
 AnimationFrame currentFrame(0);
 GLUquadricObj *quadric;
 rr_gl::RealtimeLight* realtimeLight = NULL;
@@ -970,8 +971,7 @@ void keyboard(unsigned char c, int x, int y)
 			delete demoPlayer;
 
 			done_gl_resources();
-			delete rr::RRReporter::getReporter();
-			rr::RRReporter::setReporter(NULL);
+			delete reporter;
 			exiting = true;
 			exit(30000);
 			break;
@@ -1979,12 +1979,12 @@ int main(int argc, char **argv)
 	parseOptions(argc, argv);
 
 #ifdef CONSOLE
-	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	reporter = rr::RRReporter::createPrintfReporter();
 #else
 	// this is windows only code
 	// designed to work on vista with restricted write access
-	rr::RRReporter* r = rr::RRReporter::createFileReporter("../log.txt",false);
-	if (!r)
+	reporter = rr::RRReporter::createFileReporter("../log.txt",false);
+	if (!reporter)
 	{
 		// primary output directory is . (data)
 		// if it fails (program files in vista is not writeable), secondary is created in appdata
@@ -1996,11 +1996,9 @@ int main(int argc, char **argv)
 
 			char logname[1000];
 			sprintf(logname,"%s/log.txt",globalOutputDirectory);
-			r = rr::RRReporter::createFileReporter(logname,false);
+			reporter = rr::RRReporter::createFileReporter(logname,false);
 		}
 	}
-	rr::RRReporter::setReporter(r);
-	//rr::RRReporter::setReporter(rr::RRReporter::createFileReporter("../log.txt",false));
 #endif
 #ifdef _WIN32
 	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);

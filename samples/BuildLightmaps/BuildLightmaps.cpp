@@ -325,9 +325,9 @@ int main(int argc, char **argv)
 	//
 	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 #ifdef _WIN32
-	rr::RRReporter::setReporter(rr::RRReporter::createWindowedReporter(solver));
+	rr::RRReporter* reporter = rr::RRReporter::createWindowedReporter(solver);
 #else
-	rr::RRReporter::setReporter(rr::RRReporter::createPrintfReporter());
+	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
 #endif
 	rr::RRReporter::report(rr::INF2,"This is Lightsprint SDK %s\n",rr::RR_INTERFACE_DESC_LIB());
 
@@ -532,7 +532,7 @@ int main(int argc, char **argv)
 	delete solver->getEnvironment();
 	delete solver->getScaler();
 	RR_SAFE_DELETE(solver); // sets solver to NULL (it's important because reporter still references solver)
-	delete rr::RRReporter::getReporter(); // deletes current reporter, current is set to NULL
+	delete reporter;
 
 	return 0;
 }

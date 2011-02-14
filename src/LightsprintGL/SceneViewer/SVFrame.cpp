@@ -170,8 +170,6 @@ public:
 			s_logIsOn = true;
 			window = _window;
 			localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&_solver,LOG_CAPTION);
-			oldReporter = rr::RRReporter::getReporter();
-			rr::RRReporter::setReporter(localReporter);
 		}
 	}
 	~LogWithAbort()
@@ -180,7 +178,6 @@ public:
 		{
 			// restore old reporter, close log
 			s_logIsOn = false;
-			rr::RRReporter::setReporter(oldReporter);
 			delete localReporter;
 			// When windowed reporter shuts down, z-order changes (why?), SV drops below toolbench.
 			// This bring SV back to front.
@@ -191,7 +188,6 @@ private:
 	bool enabled;
 	wxWindow* window;
 	rr::RRReporter* localReporter;
-	rr::RRReporter* oldReporter;
 };
 
 

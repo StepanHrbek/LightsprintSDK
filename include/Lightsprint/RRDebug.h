@@ -44,15 +44,17 @@ namespace rr
 	//
 	//! Reporting messages
 	//
-	//! This system is used by Lightsprint internals to send
-	//! messages to you.
-	//! 
-	//! By default, all messages are ignored.
-	//! If you encounter problems, it could help to 
-	//! set reporter and read system messages.
+	//! When you or Lightsprint internals call static RRReporter::report(),
+	//! message is passed to all existing reporters.
+	//! At the beginning, there are no reporters, messages are lost.
+	//! If you encounter problems, it could help to create reporter and
+	//! check messages.
 	//!
-	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
-	//! All new implementations must be thread safe too.
+	//! Thread safe: yes with exception,
+	//!   multiple threads may report at once,
+	//!   multiple threads may create/delete reporters at once,
+	//!   but you must not create/delete reporters and report at the same time (very unlikely case).
+	//! All new implementations must be at least this thread safe too.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 	class RR_API RRReporter : public RRUniformlyAllocatedNonCopyable
@@ -78,6 +80,7 @@ namespace rr
 		//! Thread safe: yes, correct implementation must be thread safe.
 		virtual void customReport(RRReportType type, int indentation, const char* message) = 0;
 
+		RRReporter();
 		virtual ~RRReporter();
 
 		/////////////////////////////////////////////////////////////
@@ -112,12 +115,6 @@ namespace rr
 		//!  Enables processing of timing messages (TIMI).
 		static void setFilter(bool warnings = true, unsigned infLevel = 2, bool timing = true);
 
-		//! Sets custom reporter, NULL for none.
-		static void setReporter(RRReporter* reporter);
-
-		//! Returns current active reporter, NULL for none.
-		static RRReporter* getReporter();
-
 		//! Creates reporter that logs all messages to plain text file.
 		//! Optional caching makes writes faster but last messages may be lost when program crashes.
 		static RRReporter* createFileReporter(const char* filename, bool caching);
@@ -135,15 +132,15 @@ namespace rr
 		//! Window is closed when both user attempts to close the window and you delete returned reporter.
 		//! This means that window may exist even when you delete reporter.
 		//! \n Usage example: \code
-		//! // create window, set it as current reporter
-		//! RRReporter::setReporter(RRReporter::createWindowedReporter(solver));
+		//! // create window
+		//! RRReporter* reporter = RRReporter::createWindowedReporter(solver);
 		//! // do any work here, it is logged to window, may be aborted
 		//! solver->updateLightmaps();
 		//! // you don't have to delete solver here, but if you do, do it safely, reporter still references solver.
 		//! // plain 'delete solver;' would make reporter destructor write to freed memory!
 		//! RR_SAFE_DELETE(solver);
 		//! // leave window, set current reporter to NULL. window passively exists until user closes it
-		//! delete RRReporter::getReporter();
+		//! delete reporter;
 		//! // here solver is no longer referenced (even if window may still exist)
 		//! \endcode
 		//! \param solver

@@ -43,7 +43,6 @@ int main(int argc, char **argv)
 	}
 	// log messages to console
 	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
-	rr::RRReporter::setReporter(reporter);
 	//rr::RRReporter::setFilter(true,3,true);
 
 	rr_io::registerLoaders();
@@ -100,7 +99,6 @@ int main(int argc, char **argv)
 	// release memory
 	delete solver;
 	delete scaler;
-	rr::RRReporter::setReporter(NULL);
 	delete reporter;
 
 	printf("\nPress any key to close...");

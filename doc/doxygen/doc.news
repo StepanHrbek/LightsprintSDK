@@ -13,6 +13,9 @@ namespace rr
 NEWS
 
 - RRDynamicSolver::getAllBuffers() can gather selected illumination buffers, second parameter added
+- extended reporting
+  - messages are passed to all created reporters
+  - RRReporter::setReporter() and RRReporter::getReporter() removed
 
 \section news116 ------------------------------------ 2011.01.22 -------------------------------------
 
