@@ -358,16 +358,19 @@ void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVecto
 	for (int i=-1;i<(int)objects.size();i++)
 	{
 		const RRObject* object = (i==-1)?getMultiObjectCustom():objects[i];
-		const RRObject::FaceGroups& faceGroups = object->faceGroups;
-		for (unsigned g=0;g<faceGroups.size();g++)
+		if (object)
 		{
-			RRMaterial* m = faceGroups[g].material;
-			if (m)
+			const RRObject::FaceGroups& faceGroups = object->faceGroups;
+			for (unsigned g=0;g<faceGroups.size();g++)
 			{
-				set.insert(m->diffuseReflectance.texture);
-				set.insert(m->specularReflectance.texture);
-				set.insert(m->diffuseEmittance.texture);
-				set.insert(m->specularTransmittance.texture);
+				RRMaterial* m = faceGroups[g].material;
+				if (m)
+				{
+					set.insert(m->diffuseReflectance.texture);
+					set.insert(m->specularReflectance.texture);
+					set.insert(m->diffuseEmittance.texture);
+					set.insert(m->specularTransmittance.texture);
+				}
 			}
 		}
 	}
