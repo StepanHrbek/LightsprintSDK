@@ -888,6 +888,14 @@ public:
 			return UINT_MAX;
 	}
 
+	static bool exists(const char* filename)
+	{
+		FILE* f = fopen(filename,"rb");
+		if (!f) return false;
+		fclose(f);
+		return true;
+	}
+
 	void applyColorOrTexture(rr::RRMaterial::Property& prop, COLLADAFW::ColorOrTexture& cot, unsigned int uvChannel, COLLADAFW::EffectCommon* common, float multiFactor = 1.0f, float defaultGrey = 0.5f, bool zeroBased = true)
 	{
 		if(cot.isColor())
@@ -922,29 +930,30 @@ public:
 				size_t pos = imageFilePath.find_last_of("/\\");
 				if (pos!=-1) imageFilePath.erase(0,pos+1);
 
-				RRBuffer* buffer;
-
-				// disable reporter when trying different paths for textures
-				RRReporter* oldReporter = RRReporter::getReporter();
-				RRReporter::setReporter(NULL);
-
 				// try absolute image path
-				buffer = rr::RRBuffer::load(imagePath.c_str(),NULL);
-				if(buffer == NULL)
+				RRBuffer* buffer = NULL;
+				bool loadAttempted = false;
+				if (exists(imagePath.c_str()))
 				{
-					// try joining scenefile path with image path
-					std::string joinedPath = filepath + imagePath;
-					buffer = rr::RRBuffer::load(joinedPath.c_str(),NULL);
-					if(buffer == NULL)
-					{
-						// try stripping path from the image and joining it with scenefilepath
-						std::string strippedPath = filepath + imageFilePath;
-						buffer = rr::RRBuffer::load(strippedPath.c_str(),NULL);
-					}
+					loadAttempted = true;
+					buffer = rr::RRBuffer::load(imagePath.c_str(),NULL);
 				}
-				RRReporter::setReporter(oldReporter);
+				// try joining scenefile path with image path
+				std::string joinedPath = filepath + imagePath;
+				if (!buffer && exists(joinedPath.c_str()))
+				{
+					loadAttempted = true;
+					buffer = rr::RRBuffer::load(joinedPath.c_str(),NULL);
+				}
+				// try stripping path from the image and joining it with scenefilepath
+				std::string strippedPath = filepath + imageFilePath;
+				if (!buffer && exists(strippedPath.c_str()))
+				{
+					loadAttempted = true;
+					buffer = rr::RRBuffer::load(strippedPath.c_str(),NULL);
+				}
 
-				if(buffer != NULL)
+				if(buffer)
 				{
 					prop.texcoord = uvChannel;
 
@@ -961,7 +970,8 @@ public:
 				}
 				else
 				{
-					RRReporter::report(WARN,"Can't load texture %s\n",imageFilePath.c_str());
+					if (!loadAttempted) // if we called load(), failure already was reported
+						RRReporter::report(WARN,"Texture %s not found.\n",imageFilePath.c_str());
 
 					prop.color.x = defaultGrey;
 					prop.color.y = defaultGrey;

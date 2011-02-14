@@ -434,6 +434,13 @@ public:
 		}
 	}
 private:
+	static bool exists(const char* filename)
+	{
+		FILE* f = fopen(filename,"rb");
+		if (!f) return false;
+		fclose(f);
+		return true;
+	}
 	// _filename may contain path, it is used in first attempt
 	// _pathToTextures should end by \ or /, it is used in second attempt
 	static RRBuffer* loadTextureTwoPaths(const char* _filename, const char* _pathToTextures)
@@ -441,8 +448,7 @@ private:
 		if (!_filename) return NULL;
 		if (!_pathToTextures) return NULL; // we expect sanitized string
 		RRBuffer* buffer = NULL;
-		RRReporter* oldReporter = RRReporter::getReporter();
-		RRReporter::setReporter(NULL); // disable reporting temporarily while we try texture load at 2 locations
+		bool loadAttempted = false;
 		for (unsigned stripPaths=0;stripPaths<2;stripPaths++)
 		{
 			std::string strippedName = _filename;
@@ -455,18 +461,21 @@ private:
 			{
 				strippedName.insert(0,_pathToTextures);
 			}
-			buffer = rr::RRBuffer::load(strippedName.c_str(),NULL);
-			if (buffer) break;
+			if (exists(strippedName.c_str()))
+			{
+				loadAttempted = true;
+				buffer = rr::RRBuffer::load(strippedName.c_str(),NULL);
+				if (buffer) break;
+			}
 		}
-		RRReporter::setReporter(oldReporter);
-		if (!buffer)
+		if (!loadAttempted) // if we called load(), failure already was reported
 		{
 			std::string strippedName = _filename;
 			if (strippedName.size()>=2 && strippedName[0]!='/' && strippedName[0]!='\\' && strippedName[1]!=':')
 			{
 				strippedName.insert(0,_pathToTextures);
 			}
-			RRReporter::report(WARN,"Can't load texture %s\n",strippedName.c_str());
+			RRReporter::report(WARN,"Texture %s not found.\n",strippedName.c_str());
 		}
 		return buffer;
 	}

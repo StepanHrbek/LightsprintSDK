@@ -82,6 +82,14 @@ enum
 //
 // RRObjectQuake3 load
 
+static bool exists(const char* filename)
+{
+	FILE* f = fopen(filename,"rb");
+	if (!f) return false;
+	fclose(f);
+	return true;
+}
+
 // Inputs: m
 // Outputs: t, s
 static void fillMaterial(RRMaterial& s, TTexture* m,const char* pathToTextures, RRBuffer* fallback)
@@ -90,8 +98,7 @@ static void fillMaterial(RRMaterial& s, TTexture* m,const char* pathToTextures, 
 
 	// load texture
 	RRBuffer* t = NULL;
-	RRReporter* oldReporter = RRReporter::getReporter();
-	RRReporter::setReporter(NULL); // disable reporting temporarily, we don't know image extension so we try all of them
+	bool loadAttempted = false;
 	// first try to load from proper path, then strip paths and look in scene directory
 	for (unsigned stripPaths=0;stripPaths<2;stripPaths++)
 	{
@@ -106,28 +113,34 @@ static void fillMaterial(RRMaterial& s, TTexture* m,const char* pathToTextures, 
 			char buf[300];
 			_snprintf(buf,299,"%s%s%s%s",pathToTextures,stripPaths?"":"../",strippedName,exts[e]);
 			buf[299]=0;
-			t = RRBuffer::load(buf);
-#ifdef MARK_OPENED
-			if (t) _chmod(buf,_S_IREAD); // mark opened files read only
-#endif
-			//if (t) {puts(buf);break;}
-			if (t)
+			if (exists(buf))
 			{
-				t->flip(false,true,false);
-				goto loaded;
+				loadAttempted = true;
+				t = RRBuffer::load(buf);
+#ifdef MARK_OPENED
+				if (t) _chmod(buf,_S_IREAD); // mark opened files read only
+#endif
+				//if (t) {puts(buf);break;}
+				if (t)
+				{
+					t->flip(false,true,false);
+					goto loaded;
+				}
 			}
 			//if (e==2) printf("Not found: %s\n",buf);
 		}
 	}
 loaded:
-	RRReporter::setReporter(oldReporter);
 	if (!t)
 	{
 		t = fallback;
-		const char* strippedName = m->mName;
-		while (strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
-		if (strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble")) // temporary: don't report known missing textures in Lightsmark
-			RRReporter::report(WARN,"Can't load texture %s%s.*\n",pathToTextures,strippedName);
+		if (!loadAttempted) // if we called load(), failure already was reported
+		{
+			const char* strippedName = m->mName;
+			while (strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
+			if (strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble")) // temporary: don't report known missing textures in Lightsmark
+				RRReporter::report(WARN,"Texture %s%s.* not found.\n",pathToTextures,strippedName);
+		}
 	}
 
 	// for diffuse textures provided by bsp,
