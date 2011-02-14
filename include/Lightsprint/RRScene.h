@@ -38,7 +38,7 @@ public:
 	//! Our loaders try to load all textures from proper paths specified by scene file,
 	//! but if it fails, second attempts are made in the same directory where scene file is.
 	//!
-	//! If RScefile contains information on units or up direction,
+	//! If file contains information on units or up direction,
 	//! our importers convert units to meters and up to Y.
 	//! \param filename
 	//!  Filename of scene. If it is NULL, scene will be empty.
