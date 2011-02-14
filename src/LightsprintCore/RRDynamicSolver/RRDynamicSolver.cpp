@@ -355,7 +355,7 @@ void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVecto
 		set.insert(getLights()[i]->rtProjectedTexture);
 	// - maps from materials
 	const RRObjects& objects = getDynamicObjects();
-	for (int i=-1;i<objects.size();i++)
+	for (int i=-1;i<(int)objects.size();i++)
 	{
 		const RRObject* object = (i==-1)?getMultiObjectCustom():objects[i];
 		const RRObject::FaceGroups& faceGroups = object->faceGroups;
