@@ -130,6 +130,7 @@ struct SceneViewerState
 	unsigned         gridNumSegments;           //! Number of grid segments per line, e.g. 10 makes grid with 10x10 squares.
 	float            gridSegmentSize;           //! Distance of grid lines in meters (scene units).
 	int              precision;                 //! Max number of digits after decimal point in float properties. -1 for full precision.
+	bool             openLogWindows;            //! True = opens new log window for each task. False = does not create any new log window (works with preexisting windows).
 	bool             autodetectCamera;          //! At initialization, ignore what's set in eye and generate camera (and cameraMetersPerSecond) from scene.
 
 	//! Sets default state with realtime GI and random camera.
@@ -197,6 +198,7 @@ struct SceneViewerState
 		renderGrid = 0;
 		gridNumSegments = 100;
 		gridSegmentSize = 1;
+		openLogWindows = false;
 		autodetectCamera = 1;
 		precision = -1; // display all significant digits
 	}
@@ -273,6 +275,7 @@ struct SceneViewerState
 			&& a.gridNumSegments==gridNumSegments
 			&& a.gridSegmentSize==gridSegmentSize
 			&& a.precision==precision
+			&& a.openLogWindows==openLogWindows
 			&& a.autodetectCamera==autodetectCamera
 			;
 	}

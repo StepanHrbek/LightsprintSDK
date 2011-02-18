@@ -26,7 +26,7 @@
 
 	#define LOG_CAPTION NULL
 // naming convention for lightmaps and ldm. final name is prefix+objectnumber+postfix
-#define LMAP_PREFIX  (wxString(svs.sceneFilename).BeforeLast('.')+"_precalculated/").c_str()
+#define LMAP_PREFIX  (const char*)(wxString(svs.sceneFilename).BeforeLast('.')+"_precalculated/")
 #define LMAP_POSTFIX "lightmap.png"
 #define LDM_PREFIX   LMAP_PREFIX
 #define LDM_POSTFIX  "ldm.png"
@@ -479,6 +479,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	fullyInited = false;
 	updateMenuBarNeeded = false;
 	m_canvas = NULL;
+	s_logIsOn = !svs.openLogWindows;
 
 	// load preferences (must be done very early)
 	bool layoutLoaded = userPreferences.load(NULL);
