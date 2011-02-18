@@ -285,6 +285,9 @@ namespace rr
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
 		//!  \n Examples: {"0","1","2","3","4","5"}, {"bk","ft","dn","up","rt","lf"}.
 		//!  \n Must be NULL for vertex buffers and 2d textures, non-NULL for cubemaps (even cubemaps in 1 file).
+		//! \param fileLocator
+		//!  NULL = load will be attempted only from filename.
+		//!  Non-NULL = load will be attempted from paths offered by fileLocator.
 		//! \return
 		//!  Returns newly created buffer.
 		//!  In case of failure, NULL is returned and details logged via RRReporter.
@@ -305,6 +308,9 @@ namespace rr
 		//!  - cross shaped 4:3 or 3:4 image; is loaded into cubemap
 		//!  - any other 2d image; is loaded into 2d map
 		//!  It should be full filename, e.g. cube_ft.jpg rather than cube_%%s.jpg.
+		//! \param fileLocator
+		//!  NULL = load will be attempted only from filename.
+		//!  Non-NULL = load will be attempted from paths offered by fileLocator.
 		static RRBuffer* loadCube(const char *filename, const RRFileLocator* fileLocator = NULL);
 		//! Similar to load(), but loads from disk into existing buffer.
 		//
