@@ -837,6 +837,18 @@
 		</File>
 		<File
 			RelativePath="RRFileLocator.cpp">
+			<FileConfiguration
+				Name="Release static|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					ExceptionHandling="TRUE"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release DLL|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					ExceptionHandling="TRUE"/>
+			</FileConfiguration>
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\RRFileLocator.h">
