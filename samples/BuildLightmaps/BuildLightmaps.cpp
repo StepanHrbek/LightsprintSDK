@@ -79,7 +79,7 @@
 void error(const char* message, const char* caption = "Houston, we have a problem")
 {
 #ifdef _WIN32
-	MessageBox(NULL,message,caption,MB_OK);
+	MessageBox(NULL,message,caption,MB_OK|MB_SETFOREGROUND);
 #else
 	printf("%s: %s\n\nHit enter to close...",caption,message);
 	fgetc(stdin);
@@ -517,11 +517,11 @@ int main(int argc, char **argv)
 		svs.staticLayerNumber = globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP; // switch from default layer to our layer 0
 #ifdef NDEBUG
 		// release returns quickly without freeing resources
-		rr_gl::sceneViewer(solver,NULL,NULL,"../../data/shaders/",&svs,false);
+		rr_gl::sceneViewer(solver,globalParameters.sceneFilename,NULL,"../../data/shaders/",&svs,false);
 		return 0;
 #endif
 		// debug frees everything and reports memory leaks
-		rr_gl::sceneViewer(solver,NULL,NULL,"../../data/shaders/",&svs,true);
+		rr_gl::sceneViewer(solver,globalParameters.sceneFilename,NULL,"../../data/shaders/",&svs,true);
 		rr_gl::deleteAllTextures();
 	}
 #endif
