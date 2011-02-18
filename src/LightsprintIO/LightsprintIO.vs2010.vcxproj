@@ -1417,7 +1417,6 @@
     <ClInclude Include="ImportLightsprint\portable_binary_iarchive.hpp" />
     <ClInclude Include="ImportLightsprint\portable_binary_oarchive.hpp" />
     <ClInclude Include="ImportLightsprint\RRObjectLightsprint.h" />
-    <ClInclude Include="ImportLightsprint\RRRelocation.h" />
     <ClInclude Include="ImportLightsprint\RRSerialization.h" />
     <ClInclude Include="..\..\include\Lightsprint\IO\ImportScene.h" />
     <ClInclude Include="supported_formats.h" />

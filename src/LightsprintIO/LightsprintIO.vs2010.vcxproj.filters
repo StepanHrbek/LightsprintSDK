@@ -2292,9 +2292,6 @@
     <ClInclude Include="ImportLightsprint\RRObjectLightsprint.h">
       <Filter>Lightsprint</Filter>
     </ClInclude>
-    <ClInclude Include="ImportLightsprint\RRRelocation.h">
-      <Filter>Lightsprint</Filter>
-    </ClInclude>
     <ClInclude Include="ImportLightsprint\RRSerialization.h">
       <Filter>Lightsprint</Filter>
     </ClInclude>

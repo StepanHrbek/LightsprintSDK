@@ -91,70 +91,35 @@ inline void swap32(void* p)
 
 Model_3DS::Model_3DS()
 {
-	// Initialization
 	memset(this,0,sizeof(*this));
-
-	// Set up the path
-	path = new char[580];
-	path[0] = 0;//sprintf(path, "");
 }
 
 Model_3DS::~Model_3DS()
 {
-	delete[] path;
 	delete[] Materials;
 	delete[] Objects;
 }
 
-bool Model_3DS::Load(const char *_filename, float _scale)
+bool Model_3DS::Load(const char *_filename, const rr::RRFileLocator* _textureLocator, float _scale)
 {
-	char buf[500];
-	strncpy(buf,_filename,499);
-	buf[499]=0;
-	char* name = buf;
+	rr::RRFileLocator* localLocator = _textureLocator ? NULL : rr::RRFileLocator::create();
+	if (localLocator)
+		localLocator->setParent(_filename);
+	textureLocator = _textureLocator ? _textureLocator : localLocator;
 
 	scale = _scale;
 
 	// holds the main chunk header
 	ChunkHeader main;
 
-	// strip "'s
-	if (strstr(name, "\""))
-		name = strtok(name, "\"");
-
-	// Find the path
-	if (strstr(name, "/") || strstr(name, "\\"))
-	{
-		// Holds the name of the model minus the path
-		char *temp;
-
-		// Find the name without the path
-		if (strstr(name, "/"))
-			temp = strrchr(name, '/');
-		else
-			temp = strrchr(name, '\\');
-
-		// Allocate space for the path
-		delete[] path;
-		path = new char[strlen(name)-strlen(temp)+10];
-		// Get a pointer to the end of the path and name
-		char *src = name + strlen(name) - 1;
-
-		// Back up until a \ or the start
-		while (src != path && !((*(src-1)) == '\\' || (*(src-1)) == '/'))
-			src--;
-
-		// Copy the path into path
-		memcpy (path, name, src-name);
-		path[src-name] = 0;
-	}
-
 	// Load the file
-	bin3ds = fopen(name,"rb");
+	bin3ds = fopen(_filename,"rb");
 
 	if (!bin3ds)
 	{
-		printf("file not found: %s\n",name);
+		textureLocator = NULL;
+		RR_SAFE_DELETE(localLocator);
+		printf("file not found: %s\n",_filename);
 		return false;
 	}
 
@@ -182,9 +147,6 @@ bool Model_3DS::Load(const char *_filename, float _scale)
 			Objects[i].Normals[g].normalizeSafe();
 		}
 	}
-
-	// For future reference
-	modelname = name;
 
 	// Find the total number of faces and vertices
 	totalFaces = 0;
@@ -235,6 +197,8 @@ bool Model_3DS::Load(const char *_filename, float _scale)
 	if (!identity)
 		rr::RRReporter::report(rr::WARN,"Object transformations in .3ds are not supported.\n");
 
+	textureLocator = NULL;
+	RR_SAFE_DELETE(localLocator);
 	return true;
 }
 
@@ -807,9 +771,7 @@ char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial:
 	}
 
 	// Load the texture
-	char fullname[580];
-	sprintf(fullname, "%s%s", path, name);
-	materialProperty.texture = rr::RRBuffer::load(fullname,NULL);
+	materialProperty.texture = rr::RRBuffer::load(name,NULL,textureLocator);
 	materialProperty.texcoord = 0;
 	if (materialProperty.texture)
 	{

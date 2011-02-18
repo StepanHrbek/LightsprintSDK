@@ -15,9 +15,9 @@ namespace rr
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Interface of 3d scene and its load from file.
+// Interface of 3d scene and its load/save.
 
-//! 3d scene loaded from file.
+//! 3d scene.
 class RR_API RRScene : public RRUniformlyAllocatedNonCopyable
 {
 public:
@@ -42,9 +42,12 @@ public:
 	//! our importers convert units to meters and up to Y.
 	//! \param filename
 	//!  Filename of scene. If it is NULL, scene will be empty.
+	//! \param textureLocator
+	//!  Optional custom file locator, for finding texture files in unusual location.
+	//!  NULL = default locator will be used.
 	//! \param aborting
 	//!  Import may be asynchronously aborted by setting *aborting to true.
-	RRScene(const char* filename, bool* aborting = NULL);
+	RRScene(const char* filename, RRFileLocator* textureLocator = NULL, bool* aborting = NULL);
 	//! Saves 3d scene to file.
 	//
 	//! Scene save is attempted using savers registered via registerSaver().
@@ -100,7 +103,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////
 
 	//! Template of custom scene loader.
-	typedef RRScene* Loader(const char* filename, bool* aborting);
+	typedef RRScene* Loader(const char* filename, RRFileLocator* textureLocator, bool* aborting);
 	//! Template of custom scene saver.
 	typedef bool Saver(const RRScene* scene, const char* filename);
 	//! Registers scene loader so it can be used by RRScene constructor.

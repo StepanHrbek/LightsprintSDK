@@ -30,10 +30,10 @@ class RRBufferDirectShow : public RRBuffer, public ISampleGrabberCB
 {
 public:
 
-	//! First in buffer's lifetime.
-	static RRBuffer* load(const char *filename)
+	//! First in buffer's lifetime (load from one location).
+	static RRBuffer* load(const char *_filename, const char* _cubeSideName[6])
 	{
-		RRBufferDirectShow* video = new RRBufferDirectShow(filename);
+		RRBufferDirectShow* video = new RRBufferDirectShow(_filename);
 		if (!video->getWidth() || !video->getHeight())
 			RR_SAFE_DELETE(video);
 		return video;
@@ -442,7 +442,7 @@ private:
 
 void registerLoaderDirectShow()
 {
-	RRBuffer::setLoader(RRBufferDirectShow::load);
+	RRBuffer::registerLoader(RRBufferDirectShow::load);
 }
 
 #endif // SUPPORT_DIRECTSHOW

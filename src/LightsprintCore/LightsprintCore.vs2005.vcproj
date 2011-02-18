@@ -1700,6 +1700,14 @@
 			>
 		</File>
 		<File
+			RelativePath="RRFileLocator.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\RRFileLocator.h"
+			>
+		</File>
+		<File
 			RelativePath="RRMemory.cpp"
 			>
 		</File>

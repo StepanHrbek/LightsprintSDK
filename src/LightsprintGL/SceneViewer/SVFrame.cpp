@@ -537,6 +537,8 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	CreateStatusBar();
 
+	textureLocator = rr::RRFileLocator::create();
+
 #if defined(_WIN32) && _MSC_VER>=1400
 #ifdef NDEBUG
 	double splashStartSec = GETSEC;
@@ -620,6 +622,7 @@ SVFrame::~SVFrame()
 		userPreferences.save();
 	}
 	m_mgr.UnInit();
+	RR_SAFE_DELETE(textureLocator);
 }
 
 
@@ -842,7 +845,7 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,m_canvas->solver);
 
-					rr::RRScene* scene = new rr::RRScene(dialog.GetPath(),&solver->aborting);
+					rr::RRScene* scene = new rr::RRScene(dialog.GetPath(),textureLocator,&solver->aborting);
 					scene->normalizeUnits(userPreferences.import.getUnitLength(dialog.GetPath()));
 					scene->normalizeUpAxis(userPreferences.import.getUpAxis(dialog.GetPath()));
 					scene->objects.flipFrontBack(3,true);

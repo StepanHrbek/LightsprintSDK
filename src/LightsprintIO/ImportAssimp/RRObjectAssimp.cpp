@@ -72,9 +72,9 @@ RRMatrix3x4 convertMatrix(const aiMatrix4x4& transform)
 class RRObjectsAssimp : public RRObjects
 {
 public:
-	RRObjectsAssimp(const aiScene* _scene, const char* _pathToTextures)
+	RRObjectsAssimp(const aiScene* _scene, const RRFileLocator* _textureLocator)
 	{
-		pathToTextures = _pathToTextures;
+		textureLocator = _textureLocator;
 		materials = NULL;
 		numMeshes = 0;
 
@@ -238,53 +238,6 @@ public:
 		}
 	}
 
-	static bool exists(const char* filename)
-	{
-		FILE* f = fopen(filename,"rb");
-		if (!f) return false;
-		fclose(f);
-		return true;
-	}
-
-	// _filename may contain path, it is used in first attempt
-	// _pathToTextures should end by \ or /, it is used in second attempt
-	static RRBuffer* loadTextureTwoPaths(const char* _filename, const char* _pathToTextures)
-	{
-		if (!_filename) return NULL;
-		if (!_pathToTextures) return NULL; // we expect sanitized string
-		RRBuffer* buffer = NULL;
-		bool loadAttempted = false;
-		for (unsigned stripPaths=0;stripPaths<2;stripPaths++)
-		{
-			std::string strippedName = _filename;
-			if (stripPaths)
-			{
-				size_t pos = strippedName.find_last_of("/\\");
-				if (pos!=-1) strippedName.erase(0,pos+1);
-			}
-			if (stripPaths || (strippedName.size()>=2 && strippedName[0]!='/' && strippedName[0]!='\\' && strippedName[1]!=':'))
-			{
-				strippedName.insert(0,_pathToTextures);
-			}
-			if (exists(strippedName.c_str()))
-			{
-				loadAttempted = true;
-				buffer = rr::RRBuffer::load(strippedName.c_str(),NULL);
-				if (buffer) break;
-			}
-		}
-		if (!loadAttempted) // if we called load(), failure already was reported
-		{
-			std::string strippedName = _filename;
-			if (strippedName.size()>=2 && strippedName[0]!='/' && strippedName[0]!='\\' && strippedName[1]!=':')
-			{
-				strippedName.insert(0,_pathToTextures);
-			}
-			RRReporter::report(WARN,"Texture %s not found.\n",strippedName.c_str());
-		}
-		return buffer;
-	}
-
 	void convertMaterialProperty(aiMaterial* aimaterial, aiTextureType aitype, const char* aimatkey, unsigned zero1, unsigned zero2, RRMaterial::Property& property)
 	{
 		aiString str;
@@ -292,7 +245,7 @@ public:
 		if (str.length)
 		{
 			//property.texture = RRBuffer::load(convertStr(str));
-			property.texture = loadTextureTwoPaths(convertStr(str),pathToTextures.c_str());
+			property.texture = RRBuffer::load(convertStr(str),NULL,textureLocator);
 			aimaterial->Get(_AI_MATKEY_UVWSRC_BASE,aitype,0,(int&)property.texcoord);
 			if (property.texture)
 			{
@@ -340,7 +293,7 @@ public:
 	}
 
 private:
-	RRString pathToTextures;
+	const RRFileLocator* textureLocator;
 	RRMaterial* materials;
 	unsigned numMeshes;
 	RRMeshArrays* meshes;
@@ -416,7 +369,7 @@ public:
 class RRSceneAssimp : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, bool* aborting)
+	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		const aiScene* aiscene = aiImportFile(filename,0
 			//|aiProcess_CalcTangentSpace
@@ -450,13 +403,9 @@ public:
 			return NULL;
 		}
 		RRSceneAssimp* scene = new RRSceneAssimp;
-		char* pathToTextures = _strdup(filename);
-		char* tmp = RR_MAX(strrchr(pathToTextures,'\\'),strrchr(pathToTextures,'/'));
-		if (tmp) tmp[1] = 0;
 		RRReportInterval report(INF3,"Adapting scene...\n");
-		scene->protectedObjects = new RRObjectsAssimp(aiscene,pathToTextures);
+		scene->protectedObjects = new RRObjectsAssimp(aiscene,textureLocator);
 		scene->protectedLights = new RRLightsAssimp(aiscene);
-		free(pathToTextures);
 		aiReleaseImport(aiscene);
 		return scene;
 	}

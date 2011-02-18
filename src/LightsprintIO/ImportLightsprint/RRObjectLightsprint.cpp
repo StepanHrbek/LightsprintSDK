@@ -147,7 +147,7 @@ class RRSceneLightsprint : public RRScene
 {
 public:
 
-	static RRScene* load(const char* filename, bool* aborting)
+	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		try
 		{
@@ -208,9 +208,15 @@ public:
 #endif
 			RRSceneLightsprint* scene = new RRSceneLightsprint;
 
-			g_relocator.newReference = filename;
-			ar & boost::serialization::make_nvp("filename", g_relocator.oldReference);
+			g_textureLocator = textureLocator;
+			std::string oldReference;
+			ar & boost::serialization::make_nvp("filename", oldReference);
+			if (g_textureLocator)
+				g_textureLocator->setRelocation(oldReference.c_str(),filename);
 			ar & boost::serialization::make_nvp("scene", *(RRScene*)scene);
+			if (g_textureLocator)
+				g_textureLocator->setRelocation(NULL,NULL);
+			g_textureLocator = NULL;
 
 			// remember materials and meshes created by boost, so we can free them in destructor
 			// user is allowed to manipulate scene, add or remove parts, but we will still delete only what load() created
@@ -293,8 +299,7 @@ public:
 			out.push(ofs);
 			portable_binary_oarchive ar(out);
 #endif
-			g_relocator.newReference = g_relocator.oldReference = filename;
-			ar & boost::serialization::make_nvp("filename", g_relocator.oldReference);
+			ar & boost::serialization::make_nvp("filename", std::string(filename));
 			ar & boost::serialization::make_nvp("scene", *scene);
 
 			return true;

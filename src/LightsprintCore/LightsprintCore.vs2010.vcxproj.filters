@@ -227,6 +227,7 @@
     <ClCompile Include="RRMemory.cpp" />
     <ClCompile Include="RRObject\RRScaler.cpp" />
     <ClCompile Include="Unwrapper.cpp" />
+    <ClCompile Include="RRFileLocator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RRCollider\bsp.h">
@@ -424,6 +425,7 @@
     <ClInclude Include="..\..\include\Lightsprint\RRMemory.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRVector.h" />
     <ClInclude Include="NumReports.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRFileLocator.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="squish\singlecolourlookup.inl">

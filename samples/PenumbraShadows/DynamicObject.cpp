@@ -14,7 +14,7 @@
 DynamicObject* DynamicObject::create(const char* filename,float scale)
 {
 	DynamicObject* d = new DynamicObject();
-	if (d->model.Load(filename,scale) && d->model.numObjects)
+	if (d->model.Load(filename,NULL,scale) && d->model.numObjects)
 	{
 		return d;
 	}

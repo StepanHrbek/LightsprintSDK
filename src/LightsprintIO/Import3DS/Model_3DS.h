@@ -115,8 +115,7 @@ public:
 		}
 	};
 
-	char *modelname;		// The name of the model
-	char *path;				// The path of the model
+	const rr::RRFileLocator* textureLocator;
 	int numObjects;			// Total number of objects in the model
 	int numMaterials;		// Total number of materials in the model
 	int totalVerts;			// Total number of vertices in the model
@@ -129,7 +128,7 @@ public:
 	bool smoothAll;         // True: average normals of all vertices on the same position
 	rr::RRVec3 localCenter;
 	float localMinY;
-	bool Load(const char *name, float scale); // Loads a model
+	bool Load(const char *filename, const rr::RRFileLocator* textureLocator, float scale); // Loads a model (good textureLocator is NULL)
 	void Draw(
 		void* model,
 		bool lit, // scene is lit, feed normals

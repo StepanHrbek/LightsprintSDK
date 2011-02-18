@@ -85,6 +85,7 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/RRCollider.h" \
                          "../../include/Lightsprint/RRDebug.h" \
                          "../../include/Lightsprint/RRDynamicSolver.h" \
+                         "../../include/Lightsprint/RRFileLocator.h" \
                          "../../include/Lightsprint/RRHash.h" \
                          "../../include/Lightsprint/RRIllumination.h" \
                          "../../include/Lightsprint/RRLight.h" \

@@ -402,7 +402,7 @@ int main(int argc, char **argv)
 	//environmentMap = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
 
 	// init static .3ds scene
-	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
+	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",NULL,0.03f))
 		error("",false);
 
 	// init dynamic objects

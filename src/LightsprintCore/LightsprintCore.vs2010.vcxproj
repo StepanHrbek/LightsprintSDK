@@ -592,6 +592,12 @@
     <ClCompile Include="RRCollider\RRRay.cpp" />
     <ClCompile Include="RRCollider\fpcube.cpp" />
     <ClCompile Include="RRCollider\pcube.cpp" />
+    <ClCompile Include="RRFileLocator.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
+    </ClCompile>
     <ClCompile Include="RRMesh\RRMesh.cpp" />
     <ClCompile Include="RRMesh\RRMeshAccelerated.cpp" />
     <ClCompile Include="RRMesh\RRMeshArrays.cpp" />
@@ -701,6 +707,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\Lightsprint\RRFileLocator.h" />
     <ClInclude Include="NumReports.h" />
     <ClInclude Include="RRCollider\bsp.h" />
     <ClInclude Include="RRCollider\config.h" />

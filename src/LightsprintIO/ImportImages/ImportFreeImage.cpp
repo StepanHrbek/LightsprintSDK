@@ -7,13 +7,15 @@
 #ifdef SUPPORT_IMAGES
 
 // This file is the only connection between Lightsprint and FreeImage.
-// Link it to project and textures from disk will be opened by FreeImage.
+// If you don't use LightsprintIO, add this .cpp to your project
+// and textures from disk will be opened by FreeImage.
 // Remove it from project and textures from disk won't be opened.
 
 // You can use any other image library if you implement two simple callbacks,
-// load and save, and call RRBuffer::setReloader().
+// load and save, and call RRBuffer::registerLoader().
 
 #define _CRT_SECURE_NO_WARNINGS
+#include <climits>
 #include <cstdio>
 #include <cstring>
 #include "Lightsprint/RRBuffer.h"
@@ -41,7 +43,7 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// FreeImage
+// FreeImage load
 
 static unsigned char* loadFreeImage(const char *filename,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat,bool& outScaled)
 {
@@ -185,10 +187,6 @@ static unsigned char* loadFreeImage(const char *filename,bool flipV,bool flipH,u
 /////////////////////////////////////////////////////////////////////////////
 //
 // RRBuffer load
-//
-// Universal code that loads texture into system memory, using FreeImage,
-// and then calls virtual RRBuffer::reset().
-// Handles cube textures in 1 or 6 images.
 
 static void shuffleBlock(unsigned char*& dst, const unsigned char* pixelsOld, unsigned iofs, unsigned jofs, unsigned blockWidth, unsigned blockHeight, unsigned widthOld, unsigned bytesPerPixel, bool flip=false)
 {
@@ -401,13 +399,17 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 	return true;
 }
 
-bool main_reload(RRBuffer* buffer, const char *filename, const char* cubeSideName[6])
+static RRBuffer* load(const char *filename, const char* cubeSideName[6])
 {
-	return (strstr(filename,".vbu") || strstr(filename,".VBU"))
+	RRBuffer* buffer = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
+	bool reloaded = (strstr(filename,".vbu") || strstr(filename,".VBU"))
 		? reloadVertexBuffer(buffer,filename)
 		: (cubeSideName
-		? reloadCube(buffer,filename,cubeSideName)
-		: reload2d(buffer,filename) );
+			? reloadCube(buffer,filename,cubeSideName)
+			: reload2d(buffer,filename) );
+	if (!reloaded)
+		RR_SAFE_DELETE(buffer);
+	return buffer;
 }
 
 
@@ -425,7 +427,7 @@ BOOL FIFSupportsExportBPP(FREE_IMAGE_FORMAT fif, int bpp)
 	}
 }
 
-bool main_save(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
+bool save(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
 {
 	bool result = false;
 
@@ -646,8 +648,8 @@ ende:
 
 void registerLoaderImages()
 {
-	RRBuffer::setReloader(main_reload);
-	RRBuffer::setSaver(main_save);
+	RRBuffer::registerLoader(load);
+	RRBuffer::registerSaver(save);
 }
 
 #endif // SUPPORT_IMAGES

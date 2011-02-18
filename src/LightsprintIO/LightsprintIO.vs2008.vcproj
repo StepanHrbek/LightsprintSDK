@@ -4384,10 +4384,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ImportLightsprint\RRRelocation.h"
-				>
-			</File>
-			<File
 				RelativePath=".\ImportLightsprint\RRSerialization.h"
 				>
 			</File>

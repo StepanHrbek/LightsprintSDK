@@ -9,7 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <cstring> // NULL
-#include "RRMemory.h"
+#include "RRFileLocator.h"
 
 namespace rr
 {
@@ -292,7 +292,7 @@ namespace rr
 		//!  Image load/save is implemented outside LightsprintCore.
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
 		//!  or use setLoader() to assign custom code.
-		static RRBuffer* load(const char *filename, const char* cubeSideName[6] = NULL);
+		static RRBuffer* load(const char *filename, const char* cubeSideName[6] = NULL, const RRFileLocator* fileLocator = NULL);
 		//! Loads texture from 1 or 6 files to system memory, converting it to cubemap if possible.
 		//
 		//! This is convenience function working with incomplete information,
@@ -305,17 +305,12 @@ namespace rr
 		//!  - cross shaped 4:3 or 3:4 image; is loaded into cubemap
 		//!  - any other 2d image; is loaded into 2d map
 		//!  It should be full filename, e.g. cube_ft.jpg rather than cube_%%s.jpg.
-		static RRBuffer* loadCube(const char *filename);
-
-		//! Similar to load(), but loads from disk into existing buffer. Supports user implemented buffers.
+		static RRBuffer* loadCube(const char *filename, const RRFileLocator* fileLocator = NULL);
+		//! Similar to load(), but loads from disk into existing buffer.
 		//
-		//! Unlike load() that creates new instance of appropriate class, reload() keeps buffer instance, therefore it succeeds
-		//! only if buffer class and filename class are compatible. Currently Lightsprint SDK implements two buffer classes,
-		//! one for all static images, one for videos and some static images.
-		//! Therefore it's not always possible to reload() image into video or vice versa, use load() to avoid this issue.
-		bool reload(const char *filename, const char* cubeSideName[6]);
-		//! Similar to loadCube(), but loads from disk into existing buffer. Supports user implemented buffers.
-		bool reloadCube(const char *filename);
+		//! Default implementation uses buffer's load() and reset()
+		//! to load and copy single static frame, it does not work for videos.
+		virtual bool reload(const char *filename, const char* cubeSideName[6], const RRFileLocator* fileLocator);
 
 		//! Rarely used additional save parameters, not necessarily supported by all implementations.
 		struct SaveParameters
@@ -342,34 +337,20 @@ namespace rr
 		//!  or use setLoader() to assign custom code.
 		bool save(const char* filenameMask, const char* cubeSideName[6] = NULL, const SaveParameters* saveParameters = NULL);
 
-		//! Type of user defined function that loads content from file into existing buffer, using reset().
-		typedef bool (Reloader)(RRBuffer* buffer, const char *filename, const char* cubeSideName[6]);
 		//! Type of user defined function that loads content from file into new buffer.
-		typedef RRBuffer* (Loader)(const char *filename);
+		typedef RRBuffer* (Loader)(const char *filename, const char* cubeSideName[6]);
 		//! Type of user defined function that saves buffer contents to file.
 		typedef bool (Saver)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6], const SaveParameters* parameters);
-		//! Hooks external code that handles loading content from files into existing buffers.
-		//
-		//! Usually called from rr_io::registerLoaders().
-		//! Initial state is no code hooked, attempts to reload buffer are ignored, reload() returns false.
-		//! Reloader is designed for content that can be passed to existing buffer via reset() - images, cubemaps, vertex colors.
-		//! Both load() and reload() use reloader.
-		//! \return Previous reloader.
-		static Reloader* setReloader(Reloader* reloader);
 		//! Hooks external code that handles loading content from files into new buffers.
 		//
 		//! Usually called from rr_io::registerLoaders().
-		//! Initial state is no code hooked, attempts to load buffer fall back to creating empty buffer and reloading it (see setReloader()).
-		//! Loader is designed for content that can't be passed to existing buffer via reset() - videos.
-		//! Only load() uses loader, reload() can't use it, however, custom video buffers may implement its own reload().
-		//! \return Previous loader.
-		static Loader* setLoader(Loader* loader);
+		//! Initial state is no code hooked, attempts to load buffer are ignored, load() returns NULL.
+		static void registerLoader(Loader* loader);
 		//! Hooks external code that handles saving images to disk.
 		//
 		//! Usually called from rr_io::registerLoaders().
 		//! Initial state is no code hooked, attempts to save buffer are ignored, save() returns false.
-		//! \return Previous saver.
-		static Saver* setSaver(Saver* saver);
+		static void registerSaver(Saver* saver);
 
 
 		//////////////////////////////////////////////////////////////////////////////

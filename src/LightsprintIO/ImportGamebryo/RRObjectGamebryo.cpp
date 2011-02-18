@@ -2035,7 +2035,7 @@ public:
 	virtual ~RRSceneGamebryo();
 
 	//! Loader suitable for RRScene::registerLoader().
-	static RRScene* load(const char* filename, bool* aborting)
+	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		bool not_aborting = false;
 		return new RRSceneGamebryo(filename,true,aborting ? *aborting : not_aborting,1);

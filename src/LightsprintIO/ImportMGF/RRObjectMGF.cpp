@@ -319,7 +319,7 @@ public:
 class RRSceneMGF : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, bool* aborting)
+	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		RRSceneMGF* scene = new RRSceneMGF;
 		scene->protectedObjects = adaptObjectsFromMGF(filename);

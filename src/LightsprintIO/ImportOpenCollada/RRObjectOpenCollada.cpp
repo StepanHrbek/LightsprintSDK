@@ -405,7 +405,7 @@ class RRSceneOpenCollada : public RRScene
 {
 	friend class RRWriterOpenCollada;
 public:
-	static RRScene* load(const char* filename, bool* aborting);
+	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting);
 	static bool save141(const RRScene* scene, const char* filename);
 	static bool save150(const RRScene* scene, const char* filename);
 
@@ -559,7 +559,7 @@ class RRWriterOpenCollada : public COLLADAFW::IWriter
 	PARSE_RUN_TYPE                  parseStep;
 
 	const char*                     filename;
-	std::string                     filepath;
+	const RRFileLocator*            textureLocator;
 
 	RRObjectsOpenCollada*           objects;
 	RRLightsOpenCollada*            lights;
@@ -590,13 +590,13 @@ class RRWriterOpenCollada : public COLLADAFW::IWriter
 
 	ExtraDataCallbackHandler        extraHandler;
 public:
-	RRWriterOpenCollada(RRObjectsOpenCollada* _objects, RRLightsOpenCollada* _lights, const char* _filename)
+	RRWriterOpenCollada(RRObjectsOpenCollada* _objects, RRLightsOpenCollada* _lights, const char* _filename, const RRFileLocator* _textureLocator)
 	{
 		parseStep = RUN_COPY_ELEMENTS;
 		objects = _objects;
 		lights = _lights;
 		filename = _filename;
-		filepath = GetPathFromFilename(filename);
+		textureLocator = _textureLocator;
 		instanceVisualScene = NULL;
 		rescaleUnit = 1;
 	}
@@ -888,14 +888,6 @@ public:
 			return UINT_MAX;
 	}
 
-	static bool exists(const char* filename)
-	{
-		FILE* f = fopen(filename,"rb");
-		if (!f) return false;
-		fclose(f);
-		return true;
-	}
-
 	void applyColorOrTexture(rr::RRMaterial::Property& prop, COLLADAFW::ColorOrTexture& cot, unsigned int uvChannel, COLLADAFW::EffectCommon* common, float multiFactor = 1.0f, float defaultGrey = 0.5f, bool zeroBased = true)
 	{
 		if(cot.isColor())
@@ -925,34 +917,7 @@ public:
 				COLLADAFW::Image& image = imageIter->second;
 				const COLLADABU::URI& uri = image.getImageURI();
 				COLLADABU::String imagePath = COLLADABU::URI::uriDecode( uri.toNativePath() );
-				// load image filename by hand, getPathFile does not work properly everytime
-				std::string imageFilePath = imagePath;
-				size_t pos = imageFilePath.find_last_of("/\\");
-				if (pos!=-1) imageFilePath.erase(0,pos+1);
-
-				// try absolute image path
-				RRBuffer* buffer = NULL;
-				bool loadAttempted = false;
-				if (exists(imagePath.c_str()))
-				{
-					loadAttempted = true;
-					buffer = rr::RRBuffer::load(imagePath.c_str(),NULL);
-				}
-				// try joining scenefile path with image path
-				std::string joinedPath = filepath + imagePath;
-				if (!buffer && exists(joinedPath.c_str()))
-				{
-					loadAttempted = true;
-					buffer = rr::RRBuffer::load(joinedPath.c_str(),NULL);
-				}
-				// try stripping path from the image and joining it with scenefilepath
-				std::string strippedPath = filepath + imageFilePath;
-				if (!buffer && exists(strippedPath.c_str()))
-				{
-					loadAttempted = true;
-					buffer = rr::RRBuffer::load(strippedPath.c_str(),NULL);
-				}
-
+				RRBuffer* buffer = rr::RRBuffer::load(imagePath.c_str(),NULL,textureLocator);
 				if(buffer)
 				{
 					prop.texcoord = uvChannel;
@@ -970,9 +935,6 @@ public:
 				}
 				else
 				{
-					if (!loadAttempted) // if we called load(), failure already was reported
-						RRReporter::report(WARN,"Texture %s not found.\n",imageFilePath.c_str());
-
 					prop.color.x = defaultGrey;
 					prop.color.y = defaultGrey;
 					prop.color.z = defaultGrey;
@@ -2091,7 +2053,7 @@ private:
 //
 // RRSceneOpenCollada
 
-RRScene* RRSceneOpenCollada::load(const char* filename, bool* aborting)
+RRScene* RRSceneOpenCollada::load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
 {
 	//return NULL;
 	RRReportInterval report(INF2,"Importing with OpenCollada\n");
@@ -2101,7 +2063,7 @@ RRScene* RRSceneOpenCollada::load(const char* filename, bool* aborting)
 	RRObjectsOpenCollada* objects = new RRObjectsOpenCollada;
 	RRLightsOpenCollada* lights = new RRLightsOpenCollada;
 
-	RRWriterOpenCollada writer(objects, lights, filename);
+	RRWriterOpenCollada writer(objects, lights, filename, textureLocator);
 
 	if( !writer.parseDocument() )
 		return false;

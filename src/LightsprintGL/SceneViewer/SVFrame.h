@@ -142,6 +142,7 @@ namespace rr_gl
 		class SVMaterialProperties*  m_materialProperties; // public only for SVCanvas
 		SceneViewerStateEx&          svs; // the only svs instance used throughout whole scene viewer. public only for SVProperties
 		UserPreferences              userPreferences; // public only for SVUserProperties
+		rr::RRFileLocator*           textureLocator;
 	private:
 		//! Creates empty frame.
 		SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, SceneViewerStateEx& svse);

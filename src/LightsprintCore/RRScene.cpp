@@ -10,6 +10,10 @@
 namespace rr
 {
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// loaders/savers
+
 // case insensitive match
 static bool extensionMatches(const char* filename, const char* extension) // ext="3ds"
 {
@@ -91,20 +95,20 @@ RRScene::RRScene()
 	environment = NULL;
 }
 
-RRScene::RRScene(const char* filename, bool* aborting)
+RRScene::RRScene(const char* _filename, RRFileLocator* _textureLocator, bool* _aborting)
 {
 	implementation = NULL;
 	protectedObjects = NULL;
 	protectedLights = NULL;
 	environment = NULL;
-	if (!filename)
+	if (!_filename)
 	{
 		// don't warn, it's documented as a valid way to create empty scene
 		//RRReporter::report(WARN,"RRScene(NULL), invalid argument.\n");
 		return;
 	}
 
-	RRReportInterval report(INF1,"Loading scene %s...\n",filename);
+	RRReportInterval report(INF1,"Loading scene %s...\n",_filename);
 
 	// test whether loaders were registered
 	if (s_loaders.empty())
@@ -114,10 +118,10 @@ RRScene::RRScene(const char* filename, bool* aborting)
 	}
 
 	// test whether file exists (to properly report this common error)
-	FILE* f = fopen(filename,"rb");
+	FILE* f = fopen(_filename,"rb");
 	if (!f)
 	{
-		RRReporter::report(WARN,"Scene %s does not exist.\n",filename);
+		RRReporter::report(WARN,"Scene %s does not exist.\n",_filename);
 		return;
 	}
 	else
@@ -125,16 +129,20 @@ RRScene::RRScene(const char* filename, bool* aborting)
 		fclose(f);
 	}
 
+	// tell texture locator scene filename
+	RRFileLocator* localTextureLocator = _textureLocator?_textureLocator:RRFileLocator::create();
+	localTextureLocator->setParent(_filename);
+
 	// attempt load
 	bool loaderFound = false;
 	for (unsigned i=0;i<s_loaders.size();i++)
 	{
-		if (extensionListMatches(filename,s_loaders[i].extensions.c_str()))
+		if (extensionListMatches(_filename,s_loaders[i].extensions.c_str()))
 		{
 			loaderFound = true;
 			try
 			{
-				implementation = s_loaders[i].loader(filename,aborting);
+				implementation = s_loaders[i].loader(_filename,localTextureLocator,_aborting);
 			}
 			catch (...)
 			{
@@ -147,6 +155,8 @@ RRScene::RRScene(const char* filename, bool* aborting)
 				objects = implementation->protectedObjects ? *implementation->protectedObjects : implementation->objects;
 				if (implementation->environment)
 					environment = implementation->environment->createReference();
+				if (!_textureLocator)
+					delete localTextureLocator;
 				return; // loaded, success
 			}
 			// load failed, but don't give up for cycle yet,
@@ -154,10 +164,13 @@ RRScene::RRScene(const char* filename, bool* aborting)
 		}
 	}
 
+	if (!_textureLocator)
+		delete localTextureLocator;
+
 	// test whether loader exists
 	if (!loaderFound)
 	{
-		RRReporter::report(WARN,"Scene %s not loaded, no loader for this extension was registered.\n",filename);
+		RRReporter::report(WARN,"Scene %s not loaded, no loader for this extension was registered.\n",_filename);
 		return;
 	}
 

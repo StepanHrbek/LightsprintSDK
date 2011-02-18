@@ -11,18 +11,19 @@
 // If you don't have boost, simply don't include this header, e.g. by disabling #define SUPPORT_LIGHTSPRINT.
 
 #include "Lightsprint/RRScene.h"
-#include "RRRelocation.h"
 #include <boost/serialization/binary_object.hpp> // either install boost or don't serialize
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
 #include <boost/unordered_set.hpp>
+#include <boost/filesystem.hpp> // is_complete
 
-// Helper for relocating absolute paths.
+namespace bf = boost::filesystem;
+// Helper for relocating paths.
 // Must be set up before serialization.
 // Global, don't serialize in multiple threads at the same time.
-RRRelocator g_relocator;
+rr::RRFileLocator* g_textureLocator = NULL;
 
 namespace boost {
 namespace serialization {
@@ -163,17 +164,11 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 	{
 		// saved paths must be absolute, necessary for proper relocation at load time
 		// saved type must be RRString (saving std::string and loading RRString works if scene has at least 1 light or material, fails in empty scene)
-		rr::RRString absoluteFilename = RRRelocator::getAbsoluteFilename(a.filename.c_str()).c_str();
-		ar & make_nvp("filename",absoluteFilename);
-	}
-}
+		ar & make_nvp("filename",a.filename);
 
-static bool exists(const char* filename)
-{
-	FILE* f = fopen(filename,"rb");
-	if (!f) return false;
-	fclose(f);
-	return true;
+		if (!bf::path(a.filename.c_str()).is_complete())
+			RRReporter::report(WARN,"Saving relative path %s to .rr3.\n",a.filename.c_str());
+	}
 }
 
 template<class Archive>
@@ -201,31 +196,10 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 	}
 	else
 	{
-		// Look for file at expected new location.
-		a.buffer = NULL;
-		bool loadAttempted = false;
-		std::string relocatedFilename = g_relocator.getRelocatedFilename(filename.c_str());
-		if (exists(relocatedFilename.c_str()))
-		{
-			loadAttempted = true;
-			if (g_nextBufferIsCube)
-				a.buffer = rr::RRBuffer::loadCube(relocatedFilename.c_str());
-			else
-				a.buffer = rr::RRBuffer::load(relocatedFilename.c_str());
-		}
-
-		// If it fails, look for file at original location (where it was at save time).
-		if (!a.buffer && relocatedFilename!=filename.c_str() && exists(filename.c_str()))
-		{
-			loadAttempted = true;
-			if (g_nextBufferIsCube)
-				a.buffer = rr::RRBuffer::loadCube(filename.c_str());
-			else
-				a.buffer = rr::RRBuffer::load(filename.c_str());
-		}
-
-		if (!loadAttempted) // if we called load(), failure already was reported
-			RRReporter::report(WARN,"Texture %s not found.\n",relocatedFilename.c_str());
+		if (g_nextBufferIsCube)
+			a.buffer = rr::RRBuffer::loadCube(filename.c_str(),g_textureLocator);
+		else
+			a.buffer = rr::RRBuffer::load(filename.c_str(),NULL,g_textureLocator);
 	}
 }
 

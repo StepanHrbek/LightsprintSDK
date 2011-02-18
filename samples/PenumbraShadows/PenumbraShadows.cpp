@@ -348,7 +348,7 @@ int main(int argc, char **argv)
 	realtimeLight->numInstancesInArea = shadowmapsPerPass;
 
 	// init static .3ds scene
-	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",0.03f))
+	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",NULL,0.03f))
 		error("",false);
 
 	// init dynamic objects

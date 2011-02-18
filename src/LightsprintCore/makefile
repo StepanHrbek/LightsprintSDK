@@ -86,6 +86,7 @@ squish/rangefit.cpp \
 squish/singlecolourfit.cpp \
 squish/squish.cpp \
 Preferences.cpp \
+RRFileLocator.cpp \
 RRLight.cpp \
 RRLightField.cpp \
 RRMath.cpp \

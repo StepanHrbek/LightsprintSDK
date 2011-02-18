@@ -344,9 +344,9 @@ RRReal colorToFloat(FMVector4 color)
 class MaterialCacheFCollada
 {
 public:
-	MaterialCacheFCollada(const char* _pathToTextures)
+	MaterialCacheFCollada(const RRFileLocator* _textureLocator)
 	{
-		pathToTextures = _pathToTextures;
+		textureLocator = _textureLocator;
 		invertedA_ONETransparency = false;
 		defaultMaterial.reset(false);
 	}
@@ -434,51 +434,6 @@ public:
 		}
 	}
 private:
-	static bool exists(const char* filename)
-	{
-		FILE* f = fopen(filename,"rb");
-		if (!f) return false;
-		fclose(f);
-		return true;
-	}
-	// _filename may contain path, it is used in first attempt
-	// _pathToTextures should end by \ or /, it is used in second attempt
-	static RRBuffer* loadTextureTwoPaths(const char* _filename, const char* _pathToTextures)
-	{
-		if (!_filename) return NULL;
-		if (!_pathToTextures) return NULL; // we expect sanitized string
-		RRBuffer* buffer = NULL;
-		bool loadAttempted = false;
-		for (unsigned stripPaths=0;stripPaths<2;stripPaths++)
-		{
-			std::string strippedName = _filename;
-			if (stripPaths)
-			{
-				size_t pos = strippedName.find_last_of("/\\");
-				if (pos!=-1) strippedName.erase(0,pos+1);
-			}
-			if (stripPaths || (strippedName.size()>=2 && strippedName[0]!='/' && strippedName[0]!='\\' && strippedName[1]!=':'))
-			{
-				strippedName.insert(0,_pathToTextures);
-			}
-			if (exists(strippedName.c_str()))
-			{
-				loadAttempted = true;
-				buffer = rr::RRBuffer::load(strippedName.c_str(),NULL);
-				if (buffer) break;
-			}
-		}
-		if (!loadAttempted) // if we called load(), failure already was reported
-		{
-			std::string strippedName = _filename;
-			if (strippedName.size()>=2 && strippedName[0]!='/' && strippedName[0]!='\\' && strippedName[1]!=':')
-			{
-				strippedName.insert(0,_pathToTextures);
-			}
-			RRReporter::report(WARN,"Texture %s not found.\n",strippedName.c_str());
-		}
-		return buffer;
-	}
 	void loadTexture(FUDaeTextureChannel::Channel channel, RRMaterial::Property& materialProperty, const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)
 	{
 		materialProperty.texture = NULL;
@@ -491,7 +446,7 @@ private:
 			if (image)
 			{
 				const fstring& filename = image->GetFilename();
-				materialProperty.texture = loadTextureTwoPaths(filename.c_str(),pathToTextures.c_str());
+				materialProperty.texture = RRBuffer::load(filename.c_str(),NULL,textureLocator);
 			}
 			// load texcoord
 			if (materialInstance)
@@ -607,7 +562,7 @@ private:
 #endif
 	Cache cache;
 
-	RRString pathToTextures;
+	const RRFileLocator* textureLocator;
 	bool invertedA_ONETransparency; // workaround for Google Sketch Up bug
 	RRMaterial defaultMaterial;
 };
@@ -726,18 +681,18 @@ RRObjectFCollada::~RRObjectFCollada()
 class RRObjectsFCollada : public RRObjects
 {
 public:
-	RRObjectsFCollada(FCDocument* document, const char* pathToTextures);
+	RRObjectsFCollada(FCDocument* document, const RRFileLocator* textureLocator);
 	virtual ~RRObjectsFCollada();
 
 private:
 	const RRCollider*          newColliderCached(const FCDGeometryMesh* mesh);
-	RRObjectFCollada*           newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance);
+	RRObjectFCollada*          newObject(const FCDSceneNode* node, const FCDGeometryInstance* geometryInstance);
 	void                       addNode(const FCDSceneNode* node);
 
 	// collider and mesh cache, for instancing
 	typedef std::map<const FCDGeometryMesh*,const RRCollider*> ColliderCache;
 	ColliderCache              colliderCache;
-	MaterialCacheFCollada       materialCache;
+	MaterialCacheFCollada      materialCache;
 };
 
 // Creates new RRCollider from FCDGeometryMesh.
@@ -836,8 +791,8 @@ void RRObjectsFCollada::addNode(const FCDSceneNode* node)
 	}
 }
 
-RRObjectsFCollada::RRObjectsFCollada(FCDocument* document, const char* pathToTextures)
-	: materialCache(pathToTextures)
+RRObjectsFCollada::RRObjectsFCollada(FCDocument* document, const RRFileLocator* textureLocator)
+	: materialCache(textureLocator)
 {
 	if (!document)
 		return;
@@ -1005,7 +960,7 @@ RRLightsFCollada::~RRLightsFCollada()
 class RRSceneFCollada : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, bool* aborting)
+	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		RRSceneFCollada* scene = new RRSceneFCollada;
 		FCollada::Initialize();
@@ -1025,13 +980,9 @@ public:
 		}
 		else
 		{
-			char* pathToTextures = _strdup(filename);
-			char* tmp = RR_MAX(strrchr(pathToTextures,'\\'),strrchr(pathToTextures,'/'));
-			if (tmp) tmp[1] = 0;
 			RRReportInterval report(INF3,"Adapting scene...\n");
-			scene->protectedObjects = adaptObjectsFromFCollada(scene->scene_dae,pathToTextures);
+			scene->protectedObjects = adaptObjectsFromFCollada(scene->scene_dae,textureLocator);
 			scene->protectedLights = adaptLightsFromFCollada(scene->scene_dae);
-			free(pathToTextures);
 			return scene;
 		}
 	}
@@ -1050,9 +1001,9 @@ private:
 //
 // main
 
-RRObjects* adaptObjectsFromFCollada(FCDocument* document, const char* pathToTextures)
+RRObjects* adaptObjectsFromFCollada(FCDocument* document, const RRFileLocator* textureLocator)
 {
-	return new RRObjectsFCollada(document,pathToTextures);
+	return new RRObjectsFCollada(document,textureLocator);
 }
 
 RRLights* adaptLightsFromFCollada(class FCDocument* document)

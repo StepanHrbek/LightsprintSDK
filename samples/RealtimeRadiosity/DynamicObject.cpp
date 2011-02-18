@@ -18,7 +18,7 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 	DynamicObject* d = new DynamicObject();
 	d->model = new Model_3DS;
 	//d->model->smoothAll = true; // use for characters from lowpolygon3d.com
-	if (d->model->Load(_filename,_scale) && d->model->numObjects)
+	if (d->model->Load(_filename,NULL,_scale) && d->model->numObjects)
 	{
 		d->material = _material;
 		// create envmaps

@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <vector>
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRLight.h"
@@ -15,9 +16,8 @@
 namespace rr
 {
 
-static RRBuffer::Reloader* s_reload = NULL;
-static RRBuffer::Loader* s_load = NULL;
-static RRBuffer::Saver* s_save = NULL;
+static std::vector<RRBuffer::Loader*> s_loaders;
+static std::vector<RRBuffer::Saver*> s_savers;
 
 RRBuffer::RRBuffer()
 {
@@ -639,27 +639,17 @@ void RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 // ImageCache
 // - needs exceptions, implemented in exceptions.cpp
 
-RRBuffer* load_noncached(const char *_filename, const char* _cubeSideName[6])
+RRBuffer* load_noncached(const char* _filename, const char* _cubeSideName[6])
 {
 	if (!_filename || !_filename[0])
 	{
 		return NULL;
 	}
-	// try reloader for images (don't call texture->reload(), it would report failure)
-	if (s_reload)
+	for (unsigned i=0;i<s_loaders.size();i++)
 	{
-		RRBuffer* texture = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-		if (s_reload(texture,_filename,_cubeSideName))
-		{
-			texture->filename = _filename;
-			return texture;
-		}
-		delete texture;
-	}
-	// try loader for videos
-	if (s_load)
-	{
-		return s_load(_filename);
+		RRBuffer* loaded = s_loaders[i](_filename,_cubeSideName);
+		if (loaded)
+			return loaded;
 	}
 	return NULL;
 }
@@ -671,38 +661,92 @@ extern RRBuffer* load_cached(const char* filename, const char* cubeSideName[6]);
 //
 // save & load
 
-RRBuffer::Reloader* RRBuffer::setReloader(Reloader* reloader)
+void RRBuffer::registerLoader(Loader* loader)
 {
-	Reloader* result = s_reload;
-	s_reload = reloader;
-	return result;
+	s_loaders.push_back(loader);
 }
 
-RRBuffer::Loader* RRBuffer::setLoader(Loader* loader)
+void RRBuffer::registerSaver(Saver* saver)
 {
-	Loader* result = s_load;
-	s_load = loader;
-	return result;
-}
-
-RRBuffer::Saver* RRBuffer::setSaver(Saver* saver)
-{
-	Saver* result = s_save;
-	s_save = saver;
-	return result;
+	s_savers.push_back(saver);
 }
 
 bool RRBuffer::save(const char *_filename, const char* _cubeSideName[6], const SaveParameters* _parameters)
 {
-	if (s_save && this && _filename && _filename[0] && s_save(this,_filename,_cubeSideName,_parameters))
+	if (!_filename || !_filename[0])
 	{
-		filename = _filename;
-		return true;
+		return false;
 	}
+	if (!this)
+	{
+		RRReporter::report(WARN,"Attempted NULL->save().\n");
+		return false;
+	}
+	if (s_savers.empty())
+	{
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't save images, register saver first, see LightsprintIO.\n"));
+		return false;
+	}
+	for (unsigned i=0;i<s_savers.size();i++)
+		if (s_savers[i](this,_filename,_cubeSideName,_parameters))
+		{
+			filename = _filename;
+			return true;
+		}
 	return false;
 }
 
-bool RRBuffer::reload(const char *_filename, const char* _cubeSideName[6])
+static bool exists(const char* filename)
+{
+	FILE* f = fopen(filename,"rb");
+	if (!f) return false;
+	fclose(f);
+	return true;
+}
+
+RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6], const RRFileLocator* _fileLocator)
+{
+	if (!_filename || !_filename[0])
+	{
+		return NULL;
+	}
+	if (s_loaders.empty())
+	{
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't load images, register loader first, see LightsprintIO.\n"));
+		return NULL;
+	}
+
+	if (_fileLocator)
+	{
+		for (unsigned attempt=0;attempt<UINT_MAX;attempt++)
+		{
+			RRString location = _fileLocator->getLocation(_filename,attempt);
+			if (location.empty())
+				break;
+			char location_buf[1000];
+			if (_cubeSideName && strstr(location.c_str(),"%s"))
+				_snprintf(location_buf,999,location.c_str(),_cubeSideName[0]);
+			else
+				_snprintf(location_buf,999,location.c_str());
+			location_buf[999] = 0;
+rr::RRReporter::report(rr::INF2,"%d: %s\n",attempt,location.c_str());
+			if (exists(location_buf))
+			{
+				RRBuffer* result = load_cached(location.c_str(),_cubeSideName);
+				if (result)
+					return result;
+			}
+		}
+		RRReporter::report(WARN,"Failed to load %s.\n",_filename);
+		return NULL;
+	}
+	else
+	{
+		return load_cached(_filename,_cubeSideName);
+	}
+}
+
+bool RRBuffer::reload(const char *_filename, const char* _cubeSideName[6], const RRFileLocator* _fileLocator)
 {
 	if (!_filename || !_filename[0])
 	{
@@ -713,49 +757,33 @@ bool RRBuffer::reload(const char *_filename, const char* _cubeSideName[6])
 		RRReporter::report(WARN,"Attempted NULL->reload().\n");
 		return false;
 	}
-	if (!s_reload)
+
+	// load into new buffer
+	RRBuffer* loaded = load(_filename,_cubeSideName,_fileLocator);
+	if (!loaded) return false;
+
+	if (getDuration() || loaded->getDuration())
+		RRReporter::report(WARN,"Default reload() does not support video/animation.\n");
+
+	// reload into existing buffer
+	const unsigned char* loadedData = loaded->lock(BL_READ);
+	reset(loaded->getType(),loaded->getWidth(),loaded->getHeight(),loaded->getDepth(),loaded->getFormat(),loaded->getScaled(),loadedData);
+	filename = loaded->filename;
+	if (loadedData)
 	{
-		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't reload(), no reloader.\n"));
-		return false;
+		loaded->unlock();
 	}
-	if (!s_reload(this,_filename,_cubeSideName))
+	else
 	{
-		RRReporter::report(WARN,"Failed to reload(%s).\n",_filename);
-		return false;
+		unsigned pixels = loaded->getWidth()*loaded->getHeight()*loaded->getDepth();
+		for (unsigned i=0;i<pixels;i++)
+			setElement(i,loaded->getElement(i));
 	}
-	filename = _filename;
+	delete loaded;
 	return true;
 }
 
-RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6])
-{
-	if (!_filename || !_filename[0])
-	{
-		return NULL;
-	}
-	if (!s_load && !s_reload)
-	{
-		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't load images, register loader or reloader first, see LightsprintIO.\n"));
-		return NULL;
-	}
-	// cached version
-	RRBuffer* result = load_cached(_filename,_cubeSideName);
-	if (!result)
-	{
-		RRReporter::report(WARN,"Failed to load(%s).\n",_filename);
-		return NULL;
-	}
-	return result;
-
-	// non-cached version
-	//RRBuffer* texture = create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-	//if (!texture->reload(filename,cubeSideName))
-	//{
-	//	RR_SAFE_DELETE(texture);
-	//}
-	//return texture;
-}
-
+// sideeffect: plants %s into filename
 static const char** selectCubeSideNames(char *_filename)
 {
 	const unsigned numConventions = 3;
@@ -789,7 +817,7 @@ static const char** selectCubeSideNames(char *_filename)
 	return cubeSideNames[0];
 }
 
-RRBuffer* RRBuffer::loadCube(const char *_filename)
+RRBuffer* RRBuffer::loadCube(const char *_filename, const RRFileLocator* _fileLocator)
 {
 	if (!_filename || !_filename[0])
 	{
@@ -797,11 +825,11 @@ RRBuffer* RRBuffer::loadCube(const char *_filename)
 	}
 	char* filename = _strdup(_filename);
 	const char** cubeSideNames = selectCubeSideNames(filename);
-	RRBuffer* result = load(filename,cubeSideNames);
+	RRBuffer* result = load(filename,cubeSideNames,_fileLocator);
 	free(filename);
 	return result;
 }
-
+/*
 bool RRBuffer::reloadCube(const char *_filename)
 {
 	if (!_filename || !_filename[0])
@@ -810,9 +838,9 @@ bool RRBuffer::reloadCube(const char *_filename)
 	}
 	char* filename = _strdup(_filename);
 	const char** cubeSideNames = selectCubeSideNames(filename);
-	bool result = reload(filename,cubeSideNames);
+	bool result = reload(filename,cubeSideNames,NULL);
 	free(filename);
 	return result;
 }
-
+*/
 }; // namespace

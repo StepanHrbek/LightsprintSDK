@@ -14,12 +14,8 @@
 #include <cstdio>
 #include <vector>
 #include "RRObjectBSP.h"
-
-//#define MARK_OPENED // mark used textures by read-only attribute
-#ifdef MARK_OPENED
-	#include <io.h>
-	#include <sys/stat.h>
-#endif
+#include <boost/filesystem.hpp> // parent_path()
+namespace bf = boost::filesystem;
 
 #define PACK_VERTICES // reindex vertices, remove unused ones (optimization that makes vertex buffers smaller)
 
@@ -36,7 +32,7 @@ using namespace rr;
 class RRObjectQuake3 : public RRObject, public RRMesh
 {
 public:
-	RRObjectQuake3(TMapQ3* model, const char* pathToTextures, RRBuffer* missingTexture);
+	RRObjectQuake3(TMapQ3* model, const RRFileLocator* textureLocator);
 	virtual ~RRObjectQuake3();
 
 	// RRMesh
@@ -82,66 +78,22 @@ enum
 //
 // RRObjectQuake3 load
 
-static bool exists(const char* filename)
-{
-	FILE* f = fopen(filename,"rb");
-	if (!f) return false;
-	fclose(f);
-	return true;
-}
+// enables Lightsmark 2008 specific code. it affects only wop_padattic scene, you can safely delete it
+bool g_lightsmark = false;
 
 // Inputs: m
 // Outputs: t, s
-static void fillMaterial(RRMaterial& s, TTexture* m,const char* pathToTextures, RRBuffer* fallback)
+static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textureLocator)
 {
 	enum {size = 8}; // use 8x8 samples to detect average texture color
 
 	// load texture
-	RRBuffer* t = NULL;
-	bool loadAttempted = false;
-	// first try to load from proper path, then strip paths and look in scene directory
-	for (unsigned stripPaths=0;stripPaths<2;stripPaths++)
-	{
-		const char* strippedName = m->mName;
-		if (stripPaths)
-		{
-			while (strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
-		}
-		const char* exts[3]={".jpg",".png",".tga"};
-		for (unsigned e=0;e<3;e++)
-		{
-			char buf[300];
-			_snprintf(buf,299,"%s%s%s%s",pathToTextures,stripPaths?"":"../",strippedName,exts[e]);
-			buf[299]=0;
-			if (exists(buf))
-			{
-				loadAttempted = true;
-				t = RRBuffer::load(buf);
-#ifdef MARK_OPENED
-				if (t) _chmod(buf,_S_IREAD); // mark opened files read only
-#endif
-				//if (t) {puts(buf);break;}
-				if (t)
-				{
-					t->flip(false,true,false);
-					goto loaded;
-				}
-			}
-			//if (e==2) printf("Not found: %s\n",buf);
-		}
-	}
-loaded:
-	if (!t)
-	{
-		t = fallback;
-		if (!loadAttempted) // if we called load(), failure already was reported
-		{
-			const char* strippedName = m->mName;
-			while (strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
-			if (strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble")) // temporary: don't report known missing textures in Lightsmark
-				RRReporter::report(WARN,"Texture %s%s.* not found.\n",pathToTextures,strippedName);
-		}
-	}
+	const char* strippedName = m->mName;
+	while (strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
+	bool knownMissingTexture = g_lightsmark && !(strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble")); // temporary: don't report known missing textures in Lightsmark
+	RRBuffer* t = knownMissingTexture ? NULL : RRBuffer::load(m->mName,NULL,textureLocator);
+	if (t)
+		t->flip(false,true,false);
 
 	// for diffuse textures provided by bsp,
 	// it is sufficient to compute average texture color
@@ -188,12 +140,9 @@ loaded:
 
 // Creates internal copies of .bsp geometry and material properties.
 // Implementation is simpler with internal copies, although less memory efficient.
-RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuffer* missingTexture)
+RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocator)
 {
 	model = amodel;
-
-	// Lightsmark 2008 specific code. it affects only wop_padattic scene, but you can safely delete it
-	bool lightsmark = strstr(pathToTextures,"wop_padattic")!=NULL;
 
 #ifdef PACK_VERTICES
 	// prepare for unused vertex removal
@@ -219,7 +168,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 						// try load texture when it is mapped on at least 1 triangle
 						if (!triedLoadTexture)
 						{
-							fillMaterial(*material,&model->mTextures[s],pathToTextures,missingTexture);
+							fillMaterial(*material,&model->mTextures[s],textureLocator);
 							triedLoadTexture = true;
 						}
 						// if texture was loaded, accept triangles, otherwise ignore them
@@ -231,7 +180,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const char* pathToTextures, RRBuf
 							ti.t[2] = model->mFaces[f].mVertex + model->mMeshVertices[j+1].mMeshVert;
 
 							// clip parts of scene never visible in Lightsmark 2008
-							if (lightsmark)
+							if (g_lightsmark)
 							{
 								unsigned clipped = 0;
 								for (unsigned v=0;v<3;v++)
@@ -416,9 +365,9 @@ bool RRObjectQuake3::getTriangleMapping(unsigned t, TriangleMapping& out, unsign
 class RRObjectsQuake3 : public RRObjects
 {
 public:
-	RRObjectsQuake3(TMapQ3* model,const char* pathToTextures,RRBuffer* missingTexture)
+	RRObjectsQuake3(TMapQ3* model,RRFileLocator* textureLocator)
 	{
-		RRObjectQuake3* object = new RRObjectQuake3(model,pathToTextures,missingTexture);
+		RRObjectQuake3* object = new RRObjectQuake3(model,textureLocator);
 		push_back(object);
 	}
 	virtual ~RRObjectsQuake3()
@@ -435,7 +384,7 @@ public:
 class RRSceneQuake3 : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, bool* aborting)
+	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		RRSceneQuake3* scene = new RRSceneQuake3;
 		if (!readMap(filename,scene->scene_bsp))
@@ -446,11 +395,19 @@ public:
 		}
 		else
 		{
-			char* maps = _strdup(filename);
-			char* mapsEnd;
-			mapsEnd = RR_MAX(strrchr(maps,'\\'),strrchr(maps,'/')); if (mapsEnd) mapsEnd[1] = 0;
-			scene->protectedObjects = adaptObjectsFromTMapQ3(&scene->scene_bsp,maps,NULL);
-			free(maps);
+			if (textureLocator)
+			{
+				textureLocator->setLibrary(bf::path(filename).parent_path().directory_string().c_str());
+				textureLocator->setExtensions(".jpg;.png;.tga");
+			}
+			g_lightsmark = strstr(filename,"wop_padattic")!=NULL;
+			scene->protectedObjects = adaptObjectsFromTMapQ3(&scene->scene_bsp,textureLocator);
+			g_lightsmark = false;
+			if (textureLocator)
+			{
+				textureLocator->setLibrary(NULL);
+				textureLocator->setExtensions(NULL);
+			}
 			return scene;
 		}
 	}
@@ -467,9 +424,9 @@ private:
 //
 // main
 
-RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model,const char* pathToTextures,RRBuffer* missingTexture)
+RRObjects* adaptObjectsFromTMapQ3(TMapQ3* model, RRFileLocator* textureLocator)
 {
-	return new RRObjectsQuake3(model,pathToTextures,missingTexture);
+	return new RRObjectsQuake3(model,textureLocator);
 }
 
 void registerLoaderQuake3()

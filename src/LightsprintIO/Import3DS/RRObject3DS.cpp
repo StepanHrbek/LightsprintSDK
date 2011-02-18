@@ -198,10 +198,10 @@ public:
 class RRScene3DS : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, bool* aborting)
+	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		RRScene3DS* scene = new RRScene3DS;
-		if (!scene->scene_3ds.Load(filename,1))
+		if (!scene->scene_3ds.Load(filename,textureLocator,1))
 		{
 			delete scene;
 			RRReporter::report(WARN,"Failed loading scene %s.\n");
