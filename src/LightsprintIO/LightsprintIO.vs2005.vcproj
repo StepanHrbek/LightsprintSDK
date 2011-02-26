@@ -1094,6 +1094,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\ColladaExporter.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\ColladaHelper.h"
 					>
 				</File>
@@ -1171,6 +1175,10 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\Exceptional.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\Exporter.cpp"
 					>
 				</File>
 				<File
@@ -1731,6 +1739,10 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\SpatialSort.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\SplitByBoneCountProcess.cpp"
 					>
 				</File>
 				<File

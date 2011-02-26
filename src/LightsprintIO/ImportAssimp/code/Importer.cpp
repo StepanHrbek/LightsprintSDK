@@ -175,7 +175,7 @@ using namespace Assimp::Formatter;
 #ifndef ASSIMP_BUILD_NO_COB_IMPORTER
 #	include "COBLoader.h"
 #endif
-#ifndef ASSIMP_BUILD_NO_COB_IMPORTER
+#ifndef ASSIMP_BUILD_NO_BLEND_IMPORTER
 #	include "BlenderLoader.h"
 #endif
 //#ifndef ASSIMP_BUILD_NO_SWORDOFMOONLIGHT_IMPORTER
@@ -256,6 +256,9 @@ using namespace Assimp::Formatter;
 #endif
 #ifndef ASSIMP_BUILD_NO_OPTIMIZEGRAPH_PROCESS
 #	include "OptimizeGraph.h"
+#endif
+#ifndef ASSIMP_BUILD_NO_SPLITBYBONECOUNT_PROCESS
+#	include "SplitByBoneCountProcess.h"
 #endif
 
 using namespace Assimp;
@@ -478,6 +481,9 @@ Importer::Importer()
 #if (!defined ASSIMP_BUILD_NO_FIXINFACINGNORMALS_PROCESS)
 	pimpl->mPostProcessingSteps.push_back( new FixInfacingNormalsProcess());
 #endif
+#if (!defined ASSIMP_BUILD_NO_SPLITBYBONECOUNT_PROCESS)
+	pimpl->mPostProcessingSteps.push_back( new SplitByBoneCountProcess());
+#endif
 #if (!defined ASSIMP_BUILD_NO_SPLITLARGEMESHES_PROCESS)
 	pimpl->mPostProcessingSteps.push_back( new SplitLargeMeshesProcess_Triangle());
 #endif
@@ -545,11 +551,9 @@ Importer::~Importer()
 	for( unsigned int a = 0; a < pimpl->mPostProcessingSteps.size(); a++)
 		delete pimpl->mPostProcessingSteps[a];
 
-	// Delete the assigned progress handler
-	delete pimpl->mProgressHandler;
-
-	// Delete the assigned IO handler
+	// Delete the assigned IO and progress handler
 	delete pimpl->mIOHandler;
+	delete pimpl->mProgressHandler;
 
 	// Kill imported scene. Destructors should do that recursivly
 	delete pimpl->mScene;
@@ -907,6 +911,8 @@ void WriteLogOpening(const std::string& file)
 		<< " amd64"
 #elif defined(ASSIMP_BUILD_IA_64BIT_ARCHITECTURE)
 		<< " itanium"
+#elif defined(ASSIMP_BUILD_PPC_32BIT_ARCHITECTURE)
+		<< " ppc32"
 #else
 #	error unknown architecture
 #endif
@@ -1190,8 +1196,10 @@ BaseImporter* Importer::FindLoader (const char* szExtension) const
 	for(;*szExtension == '*' || *szExtension == '.'; ++szExtension);
 
 	std::string ext(szExtension);
-	if (ext.empty())
+	if (ext.empty()) {
 		return NULL;
+	}
+	std::transform(ext.begin(),ext.end(), ext.begin(), tolower);
 
 	std::set<std::string> str;
 	for (std::vector<BaseImporter*>::const_iterator i =  pimpl->mImporter.begin();i != pimpl->mImporter.end();++i)	{
@@ -1255,18 +1263,6 @@ void Importer::SetPropertyFloat(const char* szName, float iValue,
 void Importer::SetPropertyString(const char* szName, const std::string& value, 
 	bool* bWasExisting /*= NULL*/)
 {
-	try {
-		std::cout << "";
-	}
-	catch (...) {
-		try {
-			throw;
-		}
-		catch(std::exception&) {
-			return;
-		}
-	}
-
 	ASSIMP_BEGIN_EXCEPTION_REGION();
 		SetGenericProperty<std::string>(pimpl->mStringProperties, szName,value,bWasExisting);	
 	ASSIMP_END_EXCEPTION_REGION(void);

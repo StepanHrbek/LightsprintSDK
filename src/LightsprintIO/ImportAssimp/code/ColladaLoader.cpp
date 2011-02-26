@@ -431,16 +431,21 @@ void ColladaLoader::BuildMeshesForNode( const ColladaParser& pParser, const Coll
 				continue;
 
 			// find material assigned to this submesh
+			std::string meshMaterial;
 			std::map<std::string, Collada::SemanticMappingTable >::const_iterator meshMatIt = mid.mMaterials.find( submesh.mMaterial);
 
-			const Collada::SemanticMappingTable* table;
+			const Collada::SemanticMappingTable* table = NULL;
 			if( meshMatIt != mid.mMaterials.end())
+			{
 				table = &meshMatIt->second;
-			else {
-				table = NULL;
-				DefaultLogger::get()->warn( boost::str( boost::format( "Collada: No material specified for subgroup \"%s\" in geometry \"%s\".") % submesh.mMaterial % mid.mMeshOrController));
+				meshMaterial = table->mMatName;
 			}
-			const std::string& meshMaterial = table ? table->mMatName : "";
+			else 
+			{
+				DefaultLogger::get()->warn( boost::str( boost::format( "Collada: No material specified for subgroup \"%s\" in geometry \"%s\".") % submesh.mMaterial % mid.mMeshOrController));
+				if( !mid.mMaterials.empty() )
+					meshMaterial = mid.mMaterials.begin()->second.mMatName;
+			}
 
 			// OK ... here the *real* fun starts ... we have the vertex-input-to-effect-semantic-table
 			// given. The only mapping stuff which we do actually support is the UV channel.
@@ -639,14 +644,14 @@ aiMesh* ColladaLoader::CreateMesh( const ColladaParser& pParser, const Collada::
 
 				float weight = ReadFloat( weightsAcc, weights, vertexIndex, 0);
 
-        // one day I gonna kill that XSI Collada exporter
-        if( weight > 0.0f)
-        {
-				  aiVertexWeight w;
-				  w.mVertexId = a - pStartVertex;
-				  w.mWeight = weight;
-				  dstBones[jointIndex].push_back( w);
-        }
+				// one day I gonna kill that XSI Collada exporter
+				if( weight > 0.0f)
+				{
+					aiVertexWeight w;
+					w.mVertexId = a - pStartVertex;
+					w.mWeight = weight;
+					dstBones[jointIndex].push_back( w);
+				}
 			}
 		}
 
@@ -685,41 +690,41 @@ aiMesh* ColladaLoader::CreateMesh( const ColladaParser& pParser, const Collada::
 			bone->mWeights = new aiVertexWeight[bone->mNumWeights];
 			std::copy( dstBones[a].begin(), dstBones[a].end(), bone->mWeights);
 
-      // apply bind shape matrix to offset matrix
-      aiMatrix4x4 bindShapeMatrix;
-      bindShapeMatrix.a1 = pSrcController->mBindShapeMatrix[0];
-      bindShapeMatrix.a2 = pSrcController->mBindShapeMatrix[1];
-      bindShapeMatrix.a3 = pSrcController->mBindShapeMatrix[2];
-      bindShapeMatrix.a4 = pSrcController->mBindShapeMatrix[3];
-      bindShapeMatrix.b1 = pSrcController->mBindShapeMatrix[4];
-      bindShapeMatrix.b2 = pSrcController->mBindShapeMatrix[5];
-      bindShapeMatrix.b3 = pSrcController->mBindShapeMatrix[6];
-      bindShapeMatrix.b4 = pSrcController->mBindShapeMatrix[7];
-      bindShapeMatrix.c1 = pSrcController->mBindShapeMatrix[8];
-      bindShapeMatrix.c2 = pSrcController->mBindShapeMatrix[9];
-      bindShapeMatrix.c3 = pSrcController->mBindShapeMatrix[10];
-      bindShapeMatrix.c4 = pSrcController->mBindShapeMatrix[11];
-      bindShapeMatrix.d1 = pSrcController->mBindShapeMatrix[12];
-      bindShapeMatrix.d2 = pSrcController->mBindShapeMatrix[13];
-      bindShapeMatrix.d3 = pSrcController->mBindShapeMatrix[14];
-      bindShapeMatrix.d4 = pSrcController->mBindShapeMatrix[15];
-      bone->mOffsetMatrix *= bindShapeMatrix;
+			// apply bind shape matrix to offset matrix
+			aiMatrix4x4 bindShapeMatrix;
+			bindShapeMatrix.a1 = pSrcController->mBindShapeMatrix[0];
+			bindShapeMatrix.a2 = pSrcController->mBindShapeMatrix[1];
+			bindShapeMatrix.a3 = pSrcController->mBindShapeMatrix[2];
+			bindShapeMatrix.a4 = pSrcController->mBindShapeMatrix[3];
+			bindShapeMatrix.b1 = pSrcController->mBindShapeMatrix[4];
+			bindShapeMatrix.b2 = pSrcController->mBindShapeMatrix[5];
+			bindShapeMatrix.b3 = pSrcController->mBindShapeMatrix[6];
+			bindShapeMatrix.b4 = pSrcController->mBindShapeMatrix[7];
+			bindShapeMatrix.c1 = pSrcController->mBindShapeMatrix[8];
+			bindShapeMatrix.c2 = pSrcController->mBindShapeMatrix[9];
+			bindShapeMatrix.c3 = pSrcController->mBindShapeMatrix[10];
+			bindShapeMatrix.c4 = pSrcController->mBindShapeMatrix[11];
+			bindShapeMatrix.d1 = pSrcController->mBindShapeMatrix[12];
+			bindShapeMatrix.d2 = pSrcController->mBindShapeMatrix[13];
+			bindShapeMatrix.d3 = pSrcController->mBindShapeMatrix[14];
+			bindShapeMatrix.d4 = pSrcController->mBindShapeMatrix[15];
+			bone->mOffsetMatrix *= bindShapeMatrix;
 
-      // HACK: (thom) Some exporters address the bone nodes by SID, others address them by ID or even name.
-      // Therefore I added a little name replacement here: I search for the bone's node by either name, ID or SID,
-      // and replace the bone's name by the node's name so that the user can use the standard
-      // find-by-name method to associate nodes with bones.
-      const Collada::Node* bnode = FindNode( pParser.mRootNode, bone->mName.data);
-      if( !bnode)
-        bnode = FindNodeBySID( pParser.mRootNode, bone->mName.data);
+			// HACK: (thom) Some exporters address the bone nodes by SID, others address them by ID or even name.
+			// Therefore I added a little name replacement here: I search for the bone's node by either name, ID or SID,
+			// and replace the bone's name by the node's name so that the user can use the standard
+			// find-by-name method to associate nodes with bones.
+			const Collada::Node* bnode = FindNode( pParser.mRootNode, bone->mName.data);
+			if( !bnode)
+				bnode = FindNodeBySID( pParser.mRootNode, bone->mName.data);
 
-      // assign the name that we would have assigned for the source node
-      if( bnode)
-        bone->mName.Set( FindNameForNode( bnode));
-      else
-        DefaultLogger::get()->warn( boost::str( boost::format( "ColladaLoader::CreateMesh(): could not find corresponding node for joint \"%s\".") % bone->mName.data));
+			// assign the name that we would have assigned for the source node
+			if( bnode)
+				bone->mName.Set( FindNameForNode( bnode));
+			else
+				DefaultLogger::get()->warn( boost::str( boost::format( "ColladaLoader::CreateMesh(): could not find corresponding node for joint \"%s\".") % bone->mName.data));
 
-      // and insert bone
+			// and insert bone
 			dstMesh->mBones[boneCount++] = bone;
 		}
 	}

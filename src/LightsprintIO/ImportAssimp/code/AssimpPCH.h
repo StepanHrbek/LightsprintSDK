@@ -54,9 +54,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "../include/aiDefines.h"
 
-/* Include our stdint.h replacement header for MSVC, take the global header for gcc/mingw
- */
-#ifdef _MSC_VER
+// Include our stdint.h replacement header for MSVC, take the global header for gcc/mingw
+#if defined( _MSC_VER) && (_MSC_VER < 1600)
 #	include "pstdint.h"
 #else
 #	include <stdint.h>
@@ -137,6 +136,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "../include/aiScene.h"
 #include "../include/aiPostProcess.h"
 #include "../include/assimp.hpp"
+#include "../include/export.hpp"
 
 // Internal utility headers
 #include "BaseImporter.h"

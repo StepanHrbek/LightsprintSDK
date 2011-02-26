@@ -585,6 +585,7 @@
     <ClCompile Include="ImportAssimp\code\BVHLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\CalcTangentsProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\COBLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\ColladaExporter.cpp" />
     <ClCompile Include="ImportAssimp\code\ColladaLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\ColladaParser.cpp" />
     <ClCompile Include="ImportAssimp\code\ComputeUVMappingProcess.cpp" />
@@ -594,6 +595,7 @@
     <ClCompile Include="ImportAssimp\code\DefaultIOSystem.cpp" />
     <ClCompile Include="ImportAssimp\code\DefaultLogger.cpp" />
     <ClCompile Include="ImportAssimp\code\DXFLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\Exporter.cpp" />
     <ClCompile Include="ImportAssimp\code\FindDegenerates.cpp" />
     <ClCompile Include="ImportAssimp\code\FindInstancesProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\FindInvalidDataProcess.cpp" />
@@ -651,6 +653,7 @@
     <ClCompile Include="ImportAssimp\code\SMDLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\SortByPTypeProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\SpatialSort.cpp" />
+    <ClCompile Include="ImportAssimp\code\SplitByBoneCountProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\SplitLargeMeshes.cpp" />
     <ClCompile Include="ImportAssimp\code\StandardShapes.cpp" />
     <ClCompile Include="ImportAssimp\code\STLLoader.cpp" />
