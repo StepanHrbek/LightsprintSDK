@@ -420,6 +420,7 @@ void registerLoaderAssimp()
 {
 	aiSetImportPropertyInteger(AI_CONFIG_PP_SBP_REMOVE,aiPrimitiveType_LINE|aiPrimitiveType_POINT);
 	aiSetImportPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,aiComponent_COLORS|aiComponent_BONEWEIGHTS|aiComponent_ANIMATIONS|aiComponent_CAMERAS);
+	aiSetImportPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE,30.f);
 	aiString extensions;
 	aiGetExtensionList(&extensions);
 	std::string str(convertStr(extensions));
