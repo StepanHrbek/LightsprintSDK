@@ -161,7 +161,8 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 		rr::RRReporter::report(rr::ERRO,"Creating texture from NULL buffer.\n");
 
 	buffer = _buffer ? _buffer->createReference() : NULL;
-	buffer->customData = this;
+	if (buffer)
+		buffer->customData = this;
 
 	if (!s_numPotentialFBOUsers)
 	{
