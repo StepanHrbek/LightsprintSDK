@@ -2644,33 +2644,38 @@ Video formats
     - Use faster CPU. Performance increases nearly linearly with number of cores.
 
  \section g3_max Preparing art assets
-    - Lightsprint SDK integration includes sample scenes (Cathedral, CornellBox) that work out of the box. When preparing new scene for baking, one must follow Gamebryo rules:
-    - Due to GI Package 2.1.1 bug, LightMapMaterial is not available in 3ds Max out of the box.
-      To fix it, open GI Package solution in VS 2005 (usually <code>C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.1.1\\Build\\Win32\\VC80\\Gamebryo_GI.sln</code>), change configuration to Shipping DLL and rebuild.
-    - See GI Package documentation, usually installed at <code>C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.1.1\\Documentation\\GI Package Documentation.pdf</code>
-    - See video tutorial at https://pulse.emergent.net/index.php?autocom=downloads&showfile=288, it shows how to set up your objects to receive light maps in your art tool.
-      While other parts of the tutorial are Gamebryo 2.6 specific, this part is still relevant for Gamebyo 3.1.1.
-    - Note that you need meshes with unwrap uv channel only for baking GI into lightmap textures. If you don't have unwrap, you can still set LsBakeTarget=Vertices and bake GI into vertices.
+  - Lightsprint SDK integration includes sample scenes (Cathedral, CornellBox) that work out of the box. When preparing new scene for baking, one must follow Gamebryo rules:
+  - Due to GI Package 2.1.1 bug, LightMapMaterial is not available in 3ds Max out of the box.
+    To fix it, open GI Package solution in VS 2005 (usually <code>C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.1.1\\Build\\Win32\\VC80\\Gamebryo_GI.sln</code>), change configuration to Shipping DLL and rebuild.
+  - See GI Package documentation, usually installed at <code>C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.1.1\\Documentation\\GI Package Documentation.pdf</code>
+  - See video tutorial at https://pulse.emergent.net/index.php?autocom=downloads&showfile=288, it shows how to set up your objects to receive light maps in your art tool.
+    While other parts of the tutorial are Gamebryo 2.6 specific, this part is still relevant for Gamebyo 3.1.1.
+  - Note that you need meshes with unwrap uv channel only for baking GI into lightmap textures. If you don't have unwrap, you can still set LsBakeTarget=Vertices and bake GI into vertices.
 
  \section g3_gsa Legacy .gsa support
-    - our tools from \ref main_gamebryo26 "Gamebryo 2.6 integration" still work under LightSpeed
-    - this includes both offline and realtime GI
-    - note that our legacy samples read scenes from Gamebryo 2.6 and GI Package 1.0.0 directories,
-      those must be installed for samples to work
-      <table border=0><tr><td>
-      \image html BuildLightmaps_2.jpg
-      </td><td>
-      \image html Gamebryo-RT2.jpg
-      </td></tr></table border=0>
+  - our tools from \ref main_gamebryo26 "Gamebryo 2.6 integration" still work under LightSpeed
+  - this includes both offline and realtime GI
+  - note that our legacy samples read scenes from Gamebryo 2.6 and GI Package 1.0.0 directories,
+    those must be installed for samples to work
+    <table border=0><tr><td>
+    \image html BuildLightmaps_2.jpg
+    </td><td>
+    \image html Gamebryo-RT2.jpg
+    </td></tr></table border=0>
+
+ \section g3_backporting Legacy Lightspeed support
+  - SDK includes source code of Toolbench plugins, you can build it with any Lightspeed 3.x and GI Package 2.x version installed (possibly with minor modifications, we stopped testing old versions).
+  - Before building plugins in legacy environment, make sure that legacy DirectX SDK is used (Gamebryo 2.6 requires DirectX SDK aug08, 3.0 requires nov08, 3.1. requires mar09, 3.1.1 requires aug09),
+    you may need to modify paths in Lightsprint.Toolbench.Plugin.vcproj.
 
  \section g3_source Source code
-    - open <code>src/Lightsprint.vs2008.sln</code>
-    - see <code>Lightsprint.Toolbench.Plugin</code> and <code>Lightsprint.Toolbench.Plugin.UI</code> projects,
-      feel free to customize them or tell us what needs to be changed to match your needs
-    - for standard VC90/Shipping Toolbench, build plugins in Shipping DLL Win32 configuration
-    - if you build Debug DLL or Release DLL Win32 plugins, use them by running VC90 Debug / Release Toolbench
-    - Gamebryo does not support 64bit code, so x64 configurations have plugin build disabled
-    - let us know if you need projects for different compiler version
+  - open <code>src/Lightsprint.vs2008.sln</code>
+  - see <code>Lightsprint.Toolbench.Plugin</code> and <code>Lightsprint.Toolbench.Plugin.UI</code> projects,
+    feel free to customize them or tell us what needs to be changed to match your needs
+  - for standard VC90/Shipping Toolbench, build plugins in Shipping DLL Win32 configuration
+  - if you build Debug DLL or Release DLL Win32 plugins, use them by running VC90 Debug / Release Toolbench
+  - Gamebryo does not support 64bit code, so x64 configurations have plugin build disabled
+  - let us know if you need projects for different compiler version
 
  \section g3_depl Deployment
   - <code>bin/install_toolbench_plugins.bat</code> installs plugins and model library to Toolbench. It simply copies files from Lightsprint SDK.
