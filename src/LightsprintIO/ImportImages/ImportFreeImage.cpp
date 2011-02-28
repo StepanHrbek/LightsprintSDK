@@ -407,9 +407,9 @@ static RRBuffer* load(const char *filename, const char* cubeSideName[6])
 		: (cubeSideName
 			? reloadCube(buffer,filename,cubeSideName)
 			: reload2d(buffer,filename) );
+	buffer->filename = filename;
 	if (!reloaded)
 		RR_SAFE_DELETE(buffer);
-	buffer->filename = filename;
 	return buffer;
 }
 
