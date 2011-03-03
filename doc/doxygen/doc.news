@@ -12,8 +12,9 @@ namespace rr
 
 CHANGES
 
-- extended RRFileLocator, parameter added to all setXxx() functions
-  \n supports multiple libraries, parents etc
+- for source code licensee only: updated to boost 1.46
+- parameter added to all RRFileLocator::setXxx() functions
+  \n to support multiple libraries, parents etc
 
 \section news117 ------------------------------------ 2011.02.21 -------------------------------------
 

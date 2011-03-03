@@ -615,7 +615,7 @@ public:
 		loader.registerExtraDataCallbackHandler ( &extraHandler );
 
 //		if ( !root.loadDocument(filename) )
-		if ( !root.loadDocument(boost::filesystem::system_complete(filename).file_string()) ) // workaround for http://code.google.com/p/opencollada/issues/detail?id=122
+		if ( !root.loadDocument(boost::filesystem::system_complete(filename).string()) ) // workaround for http://code.google.com/p/opencollada/issues/detail?id=122
 			return false;
 
 		return true;

@@ -47,22 +47,21 @@ public:
 		bf::path oldBasePath = system_complete(bf::path(oldReference).parent_path());
 		oldBasePath.normalize();
 		bf::path oldAbsoluteFilename = bf::system_complete(filename);
-//rr::RRReporter::report(rr::INF1,"reloc2: %s\n",oldAbsoluteFilename.file_string().c_str());
+//rr::RRReporter::report(rr::INF1,"reloc2: %s\n",oldAbsoluteFilename.string().c_str());
 		oldAbsoluteFilename.normalize();
-//rr::RRReporter::report(rr::INF1,"reloc3: %s\n",oldAbsoluteFilename.file_string().c_str());
-		if (oldAbsoluteFilename.root_name()!=oldBasePath.root_name())
-			oldAbsoluteFilename = (oldBasePath.root_name()+oldAbsoluteFilename.root_directory())/oldAbsoluteFilename.relative_path();
-//rr::RRReporter::report(rr::INF1,"reloc3+ %s\n",oldAbsoluteFilename.file_string().c_str());
+//rr::RRReporter::report(rr::INF1,"reloc3: %s\n",oldAbsoluteFilename.string().c_str());
+		oldAbsoluteFilename = oldBasePath.root_name() / oldAbsoluteFilename.root_directory() / oldAbsoluteFilename.relative_path();
+//rr::RRReporter::report(rr::INF1,"reloc3+ %s\n",oldAbsoluteFilename.string().c_str());
 		bf::path relativeFilename = getRelativeFile(oldAbsoluteFilename,oldBasePath);
-//rr::RRReporter::report(rr::INF1,"reloc4: %s\n",relativeFilename.file_string().c_str());
+//rr::RRReporter::report(rr::INF1,"reloc4: %s\n",relativeFilename.string().c_str());
 
 		// make filename absolute using new reference
 		bf::path newBasePath = system_complete(bf::path(newReference).parent_path());
 		newBasePath.normalize();
-		bf::path newAbsoluteFilename = bf::complete(relativeFilename,newBasePath);
-//rr::RRReporter::report(rr::INF1,"reloc5: %s\n",newAbsoluteFilename.file_string().c_str());
+		bf::path newAbsoluteFilename = bf::absolute(relativeFilename,newBasePath);
+//rr::RRReporter::report(rr::INF1,"reloc5: %s\n",newAbsoluteFilename.string().c_str());
 		newAbsoluteFilename.normalize();
-//rr::RRReporter::report(rr::INF1,"reloc6: %s\n",newAbsoluteFilename.file_string().c_str());
+//rr::RRReporter::report(rr::INF1,"reloc6: %s\n",newAbsoluteFilename.string().c_str());
 //rr::RRReporter::report(rr::INF1,"\n");
 
 		return newAbsoluteFilename;
@@ -73,8 +72,8 @@ private:
 	{
 		bf::path::iterator itFrom = basePath.begin();
 		bf::path::iterator itTo = absoluteFile.begin();
-		std::string root1 = *itFrom;
-		std::string root2 = *itTo;
+		std::string root1 = itFrom->string();
+		std::string root2 = itTo->string();
 		if (root1!=root2)
 		{
 	#ifdef _WIN32
@@ -179,7 +178,7 @@ public:
 	}
 	virtual RRString getLocation(const char* originalFilename, unsigned attemptNumber) const
 	{
-		return getLocation(fixNull(originalFilename),attemptNumber).file_string().c_str();
+		return getLocation(fixNull(originalFilename),attemptNumber).string().c_str();
 	}
 protected:
 	bf::path getLocation(bf::path originalFilename, unsigned attemptNumber) const

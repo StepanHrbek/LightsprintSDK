@@ -74,7 +74,7 @@ void save(Archive & ar, const rr::RRLight& a, const unsigned int version)
 	ar & make_nvp("spotExponent",a.spotExponent);
 	ar & make_nvp("fallOffAngleRad",a.fallOffAngleRad);
 	ar & make_nvp("castShadows",a.castShadows);
-	ar & make_nvp("rtProjectedTextureFilename",a.rtProjectedTexture?bf::system_complete(a.rtProjectedTexture->filename.c_str()).file_string():""); // must be absolute, otherwise load may fail, load relocator would not have complete information
+	ar & make_nvp("rtProjectedTextureFilename",a.rtProjectedTexture?bf::system_complete(a.rtProjectedTexture->filename.c_str()).string():""); // must be absolute, otherwise load may fail, load relocator would not have complete information
 	ar & make_nvp("rtNumShadowmaps",a.rtNumShadowmaps);
 	ar & make_nvp("rtShadowmapSize",a.rtShadowmapSize);
 	// skip customData;
@@ -358,8 +358,8 @@ void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int v
 	// skip autodetectCamera
 	// skip initialInputSolver;
 	// skip pathToShaders;
-	ar & make_nvp("sceneFilename",bf::system_complete(a.sceneFilename).file_string()); // must be absolute, otherwise load may fail, load relocator would not have complete information
-	ar & make_nvp("skyboxFilename",bf::system_complete(a.skyboxFilename).file_string()); // must be absolute, otherwise load may fail, load relocator would not have complete information
+	ar & make_nvp("sceneFilename",bf::system_complete(a.sceneFilename).string()); // must be absolute, otherwise load may fail, load relocator would not have complete information
+	ar & make_nvp("skyboxFilename",bf::system_complete(a.skyboxFilename).string()); // must be absolute, otherwise load may fail, load relocator would not have complete information
 }
 
 template<class Archive>

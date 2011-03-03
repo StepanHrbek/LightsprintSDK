@@ -528,7 +528,7 @@ Video formats
    - <a href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>
 
   \section boost_version Version
-   - version 1.43 is used internally by Lightsprint libraries, it's not visible from outside (no headers or dll files)
+   - version 1.46 is used internally by Lightsprint libraries, it's not visible from outside (no headers or dll files)
 
   \section boost_build Installing/building boost
    You need boost when building Ligtsprint libraries from source code,
