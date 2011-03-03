@@ -2111,18 +2111,30 @@ retry:
 #ifndef CONSOLE
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShow)
 {
-	int argc;
-	LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
-	char** argv = new char*[argc+1];
-	for (int i=0;i<argc;i++)
-	{
-		argv[i] = (char*)malloc(wcslen(argvw[i])+1);
-		sprintf(argv[i], "%ws", argvw[i]);
-	}
-	argv[argc] = NULL;
 #ifdef SET_ICON
 	hIcon = LoadImage(hInstance,MAKEINTRESOURCE(IDI_ICON1),IMAGE_ICON,0,0,0);
 #endif
-	return main(argc,argv);
+	int argc = 0;
+	LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
+	if (argvw && argc)
+	{
+		// build argv from commandline
+		char** argv = new char*[argc+1];
+		for (int i=0;i<argc;i++)
+		{
+			argv[i] = (char*)malloc(wcslen(argvw[i])+1);
+			sprintf(argv[i], "%ws", argvw[i]);
+		}
+		argv[argc] = NULL;
+		return main(argc,argv);
+	}
+	else
+	{
+		// someone calls us with invalid arguments, but don't panic, build argv from module filename
+		char szFileName[MAX_PATH];
+		GetModuleFileNameA(NULL,szFileName,MAX_PATH);
+		char* argv[2] = {szFileName,NULL};
+		return main(1,argv);
+	}
 }
 #endif

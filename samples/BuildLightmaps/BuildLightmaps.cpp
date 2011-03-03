@@ -545,15 +545,27 @@ int main(int argc, char **argv)
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShow)
 {
-	int argc;
+	int argc = 0;
 	LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
-	char** argv = new char*[argc+1];
-	for (int i=0;i<argc;i++)
+	if (argvw && argc)
 	{
-		argv[i] = (char*)malloc(wcslen(argvw[i])+1);
-		sprintf(argv[i], "%ws", argvw[i]);
+		// build argv from commandline
+		char** argv = new char*[argc+1];
+		for (int i=0;i<argc;i++)
+		{
+			argv[i] = (char*)malloc(wcslen(argvw[i])+1);
+			sprintf(argv[i], "%ws", argvw[i]);
+		}
+		argv[argc] = NULL;
+		return main(argc,argv);
 	}
-	argv[argc] = NULL;
-	return main(argc,argv);
+	else
+	{
+		// someone calls us with invalid arguments, but don't panic, build argv from module filename
+		char szFileName[MAX_PATH];
+		GetModuleFileNameA(NULL,szFileName,MAX_PATH);
+		char* argv[2] = {szFileName,NULL};
+		return main(1,argv);
+	}
 }
 #endif
