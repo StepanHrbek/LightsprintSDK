@@ -19,9 +19,15 @@ namespace rr
 	//
 	//! All inputs and outputs are in local charset (may change in future).
 	//! \n Inputs don't have to be permanent, internal copies are created.
-	//! \n Default implementation ignores all setXxx() functions,
-	//!    use create() for advanced locator.
-	//! \n Thread safe: yes.
+	//!
+	//! Locator supports multiple libraries, parents etc,
+	//! call setLibrary(true,lib1); setLibrary(true,lib2); to add two libraries.
+	//! Call setLibrary(false,lib1); to remove one of libraries.
+	//!
+	//! Default implementation ignores all setXxx() functions,
+	//! use create() for advanced locator.
+	//!
+	//! Thread safe: yes.
 	//
 	/////////////////////////////////////////////////////////////////////////////
 
@@ -35,16 +41,16 @@ namespace rr
 
 		//! If non-NULL (e.g. "foo/bar/baz.3ds"), tells locator to look for files also in parent directory ("foo/bar/").
 		//! Ignored by default implementation, honoured by create().
-		virtual void setParent(const char* parentFilename) {}
+		virtual void setParent(bool add, const char* parentFilename) {}
 		//! If both relocation filenames are non-NULL (e.g. "c:/foo/bar/baz.3ds" and "d:/bar/baz.3ds"),
 		//! locator calculates where requested file might be after such relocation.
 		//! Ignored by default implementation, honoured by create().
-		virtual void setRelocation(const char* relocationSourceFilename, const char* relocationDestinationFilename) {}
+		virtual void setRelocation(bool add, const char* relocationSourceFilename, const char* relocationDestinationFilename) {}
 		//! If non-NULL (e.g. "foo/bar/"), tells locator to look for files also in this directory ("foo/bar/").
 		//! Ignored by default implementation, honoured by create().
-		virtual void setLibrary(const char* libraryDirectory) {}
+		virtual void setLibrary(bool add, const char* libraryDirectory) {}
 		//! If non-NULL (e.g. ".jpg;.png;.tga"), tells locator to try these extensions for files without extension.
-		virtual void setExtensions(const char* extensions) {}
+		virtual void setExtensions(bool add, const char* extensions) {}
 
 		//! Returns possible file location.
 		//

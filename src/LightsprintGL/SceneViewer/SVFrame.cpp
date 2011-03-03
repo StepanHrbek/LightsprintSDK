@@ -1140,7 +1140,7 @@ save_scene_as:
 		case ME_ENV_RELOAD: // not a menu item, just command we can call from outside
 			{
 reload_skybox:
-				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename.c_str());
+				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename.c_str(),textureLocator);
 				if (envToBeDeletedOnExit && solver->getEnvironment(0))
 				{
 					solver->getEnvironment(0)->stop();

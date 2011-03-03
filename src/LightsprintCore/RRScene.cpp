@@ -131,7 +131,7 @@ RRScene::RRScene(const char* _filename, RRFileLocator* _textureLocator, bool* _a
 
 	// tell texture locator scene filename
 	RRFileLocator* localTextureLocator = _textureLocator?_textureLocator:RRFileLocator::create();
-	localTextureLocator->setParent(_filename);
+	localTextureLocator->setParent(true,_filename);
 
 	// attempt load
 	bool loaderFound = false;
@@ -155,15 +155,14 @@ RRScene::RRScene(const char* _filename, RRFileLocator* _textureLocator, bool* _a
 				objects = implementation->protectedObjects ? *implementation->protectedObjects : implementation->objects;
 				if (implementation->environment)
 					environment = implementation->environment->createReference();
-				if (!_textureLocator)
-					delete localTextureLocator;
-				return; // loaded, success
+				break; // loaded, success
 			}
 			// load failed, but don't give up for cycle yet,
 			//  it's possible that another loader for the same extension will succeed
 		}
 	}
 
+	localTextureLocator->setParent(false,_filename);
 	if (!_textureLocator)
 		delete localTextureLocator;
 

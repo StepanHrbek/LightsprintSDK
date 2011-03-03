@@ -116,33 +116,70 @@ private:
 //
 // FileLocator
 
-#define REPLACE_NULL(s) ((s)?(s):"")
+bf::path fixNull(const char* p)
+{
+	return p?p:"";
+}
+
+template<class C>
+void addOrRemove(bool _add, std::vector<C>& _paths, C& _path)
+{
+	if (_add)
+		_paths.push_back(_path);
+	else
+	{
+		for (size_t i=_paths.size();i--;)
+			if (_paths[i]==_path)
+			{
+				_paths.erase(_paths.begin()+i);
+				return;
+			}
+		RRReporter::report(WARN,"RRFileLocator::setXxx(false,x): attempt to remove x that was not added before.\n");
+	}
+}
 
 class FileLocator : public RRFileLocator
 {
 public:
-	virtual void setParent(const char* _parentFilename)
+	virtual void setParent(bool _add, const char* _parentFilename)
 	{
-		parentFilename = REPLACE_NULL(_parentFilename);
+		addOrRemove(_add,parentFilenames,fixNull(_parentFilename));
 	}
-	virtual void setRelocation(const char* _relocationSourceFilename, const char* _relocationDestinationFilename)
+	virtual void setRelocation(bool _add, const char* _relocationSourceFilename, const char* _relocationDestinationFilename)
 	{
-		relocationSourceFilename = REPLACE_NULL(_relocationSourceFilename);
-		relocationDestinationFilename = REPLACE_NULL(_relocationDestinationFilename);
+		addOrRemove(_add,relocationFilenames,std::pair<bf::path,bf::path>(fixNull(_relocationSourceFilename),fixNull(_relocationDestinationFilename)));
 	}
-	virtual void setLibrary(const char* _libraryDirectory)
+	virtual void setLibrary(bool _add, const char* _libraryDirectory)
 	{
-		libraryDirectory = REPLACE_NULL(_libraryDirectory);
+		addOrRemove(_add,libraryDirectories,fixNull(_libraryDirectory));
 	}
-	virtual void setExtensions(const char* _extensions)
+	virtual void setExtensions(bool _add, const char* _extensions)
 	{
-		extensions.clear();
 		if (_extensions)
-			boost::split(extensions,_extensions,boost::is_any_of(";"));
+		{
+			if (_add)
+				boost::split(extensions,_extensions,boost::is_any_of(";"));
+			else
+			{
+				std::vector<std::string> tmpExtensions;
+				boost::split(tmpExtensions,_extensions,boost::is_any_of(";"));
+				for (size_t i=0;i<tmpExtensions.size();i++)
+				{
+					for (size_t j=0;j<extensions.size();j++)
+						if (tmpExtensions[i]==extensions[j])
+						{
+							extensions.erase(extensions.begin()+j);
+							goto erased;
+						}
+					RRReporter::report(WARN,"RRFileLocator::setExtensions(false,%s): attempt to remove %s that was not added before.\n",_extensions,tmpExtensions[i].c_str());
+					erased:;
+				}
+			}
+		}
 	}
 	virtual RRString getLocation(const char* originalFilename, unsigned attemptNumber) const
 	{
-		return getLocation(bf::path(REPLACE_NULL(originalFilename)),attemptNumber).file_string().c_str();
+		return getLocation(fixNull(originalFilename),attemptNumber).file_string().c_str();
 	}
 protected:
 	bf::path getLocation(bf::path originalFilename, unsigned attemptNumber) const
@@ -162,31 +199,39 @@ protected:
 		}
 
 		// original
-		if ((parentFilename.empty() || originalFilename.has_root_path()) && !attemptNumber--)
+		if ((parentFilenames.empty() || originalFilename.has_root_path()) && !attemptNumber--)
 			return originalFilename;
 
 		// relative to parent
-		if (!parentFilename.empty() && !attemptNumber--)
-			return parentFilename.parent_path() / originalFilename.relative_path();
-		if (!parentFilename.empty() && originalFilename.relative_path().has_parent_path() && !attemptNumber--)
-			return parentFilename.parent_path() / originalFilename.filename();
+		for (size_t i=0;i<parentFilenames.size();i++)
+		{
+			if (!parentFilenames[i].empty() && !attemptNumber--)
+				return parentFilenames[i].parent_path() / originalFilename.relative_path();
+			if (!parentFilenames[i].empty() && originalFilename.relative_path().has_parent_path() && !attemptNumber--)
+				return parentFilenames[i].parent_path() / originalFilename.filename();
+		}
 
 		// relocated
-		if (!relocationSourceFilename.empty() && !relocationDestinationFilename.empty() && originalFilename.has_root_path() && !attemptNumber--)
-			return Relocator::getRelocatedFilename(originalFilename,relocationSourceFilename,relocationDestinationFilename);
+		for (size_t i=0;i<relocationFilenames.size();i++)
+		{
+			if (!relocationFilenames[i].first.empty() && !relocationFilenames[i].second.empty() && originalFilename.has_root_path() && !attemptNumber--)
+				return Relocator::getRelocatedFilename(originalFilename,relocationFilenames[i].first,relocationFilenames[i].second);
+		}
 
 		// library
-		if (!libraryDirectory.empty() && !attemptNumber--)
-			return libraryDirectory.parent_path() / originalFilename.relative_path();
-		if (!libraryDirectory.empty() && originalFilename.relative_path().has_parent_path() && !attemptNumber--)
-			return libraryDirectory.parent_path() / originalFilename.filename();
+		for (size_t i=0;i<libraryDirectories.size();i++)
+		{
+			if (!libraryDirectories[i].empty() && !attemptNumber--)
+				return libraryDirectories[i].parent_path() / originalFilename.relative_path();
+			if (!libraryDirectories[i].empty() && originalFilename.relative_path().has_parent_path() && !attemptNumber--)
+				return libraryDirectories[i].parent_path() / originalFilename.filename();
+		}
 
 		return "";
 	}
-	bf::path parentFilename;
-	bf::path relocationSourceFilename;
-	bf::path relocationDestinationFilename;
-	bf::path libraryDirectory;
+	std::vector<bf::path> parentFilenames;
+	std::vector<std::pair<bf::path,bf::path> > relocationFilenames;
+	std::vector<bf::path> libraryDirectories;
 	std::vector<std::string> extensions;
 };
 

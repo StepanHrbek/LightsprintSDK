@@ -212,10 +212,10 @@ public:
 			std::string oldReference;
 			ar & boost::serialization::make_nvp("filename", oldReference);
 			if (g_textureLocator)
-				g_textureLocator->setRelocation(oldReference.c_str(),filename);
+				g_textureLocator->setRelocation(true,oldReference.c_str(),filename);
 			ar & boost::serialization::make_nvp("scene", *(RRScene*)scene);
 			if (g_textureLocator)
-				g_textureLocator->setRelocation(NULL,NULL);
+				g_textureLocator->setRelocation(false,oldReference.c_str(),filename);
 			g_textureLocator = NULL;
 
 			// remember materials and meshes created by boost, so we can free them in destructor

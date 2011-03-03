@@ -397,16 +397,18 @@ public:
 		{
 			if (textureLocator)
 			{
-				textureLocator->setLibrary(bf::path(filename).parent_path().directory_string().c_str());
-				textureLocator->setExtensions(".jpg;.png;.tga");
+				// tweak locator for .bsp
+				textureLocator->setLibrary(true,bf::path(filename).parent_path().directory_string().c_str());
+				textureLocator->setExtensions(true,".jpg;.png;.tga");
 			}
 			g_lightsmark = strstr(filename,"wop_padattic")!=NULL;
 			scene->protectedObjects = adaptObjectsFromTMapQ3(&scene->scene_bsp,textureLocator);
 			g_lightsmark = false;
 			if (textureLocator)
 			{
-				textureLocator->setLibrary(NULL);
-				textureLocator->setExtensions(NULL);
+				// undo local changes
+				textureLocator->setLibrary(false,bf::path(filename).parent_path().directory_string().c_str());
+				textureLocator->setExtensions(false,".jpg;.png;.tga");
 			}
 			return scene;
 		}

@@ -104,7 +104,7 @@ bool Model_3DS::Load(const char *_filename, const rr::RRFileLocator* _textureLoc
 {
 	rr::RRFileLocator* localLocator = _textureLocator ? NULL : rr::RRFileLocator::create();
 	if (localLocator)
-		localLocator->setParent(_filename);
+		localLocator->setParent(true,_filename);
 	textureLocator = _textureLocator ? _textureLocator : localLocator;
 
 	scale = _scale;
