@@ -126,6 +126,7 @@ void SVCanvas::createContextCore()
 	}
 
 	// init GL
+	rr::RRReporter::report(rr::INF2,"OpenGL %s by %s on %s.\n",glGetString(GL_VERSION),glGetString(GL_VENDOR),glGetString(GL_RENDERER));
 	int major, minor;
 	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 	{
