@@ -41,7 +41,7 @@ public:
 	//! If file contains information on units or up direction,
 	//! our importers convert units to meters and up to Y.
 	//! \param filename
-	//!  Filename of scene. If it is NULL, scene will be empty.
+	//!  Filename of scene. If it is NULL or "", scene will be empty.
 	//! \param textureLocator
 	//!  Optional custom file locator, for finding texture files in unusual location.
 	//!  NULL = default locator will be used.

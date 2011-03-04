@@ -101,7 +101,7 @@ RRScene::RRScene(const char* _filename, RRFileLocator* _textureLocator, bool* _a
 	protectedObjects = NULL;
 	protectedLights = NULL;
 	environment = NULL;
-	if (!_filename)
+	if (!_filename || !_filename[0])
 	{
 		// don't warn, it's documented as a valid way to create empty scene
 		//RRReporter::report(WARN,"RRScene(NULL), invalid argument.\n");
