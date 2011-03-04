@@ -943,7 +943,7 @@ save_scene_as:
 #endif
 					userPreferences.sshotFilename = screenshotFilename;
 					time_t t = time(NULL);
-					userPreferences.sshotFilename += wxString::Format("/screenshot%04d.jpg",t%10000);
+					userPreferences.sshotFilename += wxString::Format("/screenshot%04d.jpg",(int)(t%10000));
 				}
 
 				// 9. save
@@ -1053,7 +1053,7 @@ save_scene_as:
 #endif
 						userPreferences.sshotFilename = screenshotFilename;
 						time_t t = time(NULL);
-						userPreferences.sshotFilename += wxString::Format("/screenshot%04d.jpg",t%10000);
+						userPreferences.sshotFilename += wxString::Format("/screenshot%04d.jpg",(int)(t%10000));
 					}
 
 					// 9. save
