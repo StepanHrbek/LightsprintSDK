@@ -93,55 +93,6 @@ using namespace rr;
 //
 // RRSceneLightsprint
 
-/*
-Q: jak serializovat i dynobj?
-a) RRScene rozsirit o dynobjs a save()
-	-slozitejsi save v SV, musel bych pred savem data zkopirovat ze solveru do RRScene
-	-dynobjs zmatou uzivatele, zadny jiny fileformat dynobj nepodporuje
-b) serializovat solver, solver->save()/load()
-	-nezapada do koncepce rr_io RRScene(filename)
-	-slozitejsi load v SV, musel bych pridat treti cestu (solver,file,rr3file)
-
-Q: rr_io se builduje moc dlouho, navic rr3 muze zaviset na boostu, co s tim?
-a) YES
-   sirit binarni rr_io, nejaky loader zverejnit na ukazku v samplu Loader (po loadu pusti scene viewer)
-   -nutno vyrobit novy sampl a 2 ukazkove loadery, do arrays a do custom meshe
-      *v ukazce pouzit 3ds, procistit kod
-      *v src nechat jeste rrobjectassimp bez assimpu, rrobjectobj a rrobjectfcollada bez fcollady, jen na ukazku
-   +src muzu nabizet za priplatek
-   +zmensi include (o fcolladu,freeimage)
-   *do build.bat a .lst pridat rr_io_dd.dll
-b) rr3 a opencolladu dat do core
-   -nesystemove umisteni
-
-Q: jak na xrefy?
-+dostatecne obecne xrefy jednou ranou vyresi meshe i textury (nekdy odkaz, nekdy pripakovat primo data)
-*pro mesh i texturu: do streamu vlozit odkaz na soubor nebo primo data
-*vic odkazu na tentyz mesh/tex: ohlidat at se loadne jen jednou
-*pro mesh i texturu: podle filename se rozhodovat zda je to xref nebo builtin (""=builtin, !""=xref) (v SV jde rucne zmenit)
-*mozne UI: do "import scene" pridat dialog
- 1(a) open as new scene
-  (b) insert into existing scene
-
- 2(a) pridat do sceny jako xref, zmeny se neulozi
-      +3(a) = vlozit multiobj s name="XREF:filename"
-              rozbije blendovani pokud je tam mnoho oken
-      +3(b) = vlozit jako mnoho obj s name="xref:name", pridat specialni prazdny obj s name="XREF:filename"
-              pri savu "xref:*" ignorovat, "XREF:*" ulozit
-  (b) vlozit primo data, mnoho meshu, bude ulozeno do rr3
-
- 3(a) keep individual meshes
-  (b) load as one big mesh (may break sorting of semitransparent meshes)
-
- 4(a) static   \
-  (b) dynamic  / neptat se pokud jde o .rr3
-
-  [ 1.0 ] scale
-
-Q: kdo uvolni objekty nahrane boostem z disku?
-
-*/
-
 
 class RRSceneLightsprint : public RRScene
 {
