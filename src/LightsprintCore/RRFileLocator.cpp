@@ -15,127 +15,7 @@ namespace rr
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Relocator - helper for relocating absolute paths
-
-class Relocator
-{
-public:
-	// use before saving path
-	static bf::path getAbsoluteFilename(const bf::path& filename)
-	{
-		return bf::system_complete(filename).normalize();
-	}
-
-	// use after loading path
-	// see how oldReference did transform into newReference and apply the same transformation on filename
-	static bf::path getRelocatedFilename(const bf::path& filename, const bf::path& oldReference, const bf::path& newReference)
-	{
-//rr::RRReporter::report(rr::INF1,"reloc0: %s (%s -> %s)\n",filename.c_str(),oldReference.c_str(),newReference.c_str());
-		if (filename.empty())
-			return "";
-
-		if (!filename.has_root_directory())
-		{
-			// relative path: just make it absolute
-			return getAbsoluteFilename(filename);
-		}
-
-		// absolute path: relocate
-
-		// make filename relative using old reference
-//rr::RRReporter::report(rr::INF1,"reloc1: %s\n",filename.c_str());
-		bf::path oldBasePath = system_complete(bf::path(oldReference).parent_path());
-		oldBasePath.normalize();
-		bf::path oldAbsoluteFilename = bf::system_complete(filename);
-//rr::RRReporter::report(rr::INF1,"reloc2: %s\n",oldAbsoluteFilename.string().c_str());
-		oldAbsoluteFilename.normalize();
-//rr::RRReporter::report(rr::INF1,"reloc3: %s\n",oldAbsoluteFilename.string().c_str());
-		oldAbsoluteFilename = oldBasePath.root_name() / oldAbsoluteFilename.root_directory() / oldAbsoluteFilename.relative_path();
-//rr::RRReporter::report(rr::INF1,"reloc3+ %s\n",oldAbsoluteFilename.string().c_str());
-		bf::path relativeFilename = getRelativeFile(oldAbsoluteFilename,oldBasePath);
-//rr::RRReporter::report(rr::INF1,"reloc4: %s\n",relativeFilename.string().c_str());
-
-		// make filename absolute using new reference
-		bf::path newBasePath = system_complete(bf::path(newReference).parent_path());
-		newBasePath.normalize();
-		bf::path newAbsoluteFilename = bf::absolute(relativeFilename,newBasePath);
-//rr::RRReporter::report(rr::INF1,"reloc5: %s\n",newAbsoluteFilename.string().c_str());
-		newAbsoluteFilename.normalize();
-//rr::RRReporter::report(rr::INF1,"reloc6: %s\n",newAbsoluteFilename.string().c_str());
-//rr::RRReporter::report(rr::INF1,"\n");
-
-		return newAbsoluteFilename;
-	}
-
-private:
-	static bf::path getRelativeFile(const bf::path& absoluteFile, const bf::path& basePath)
-	{
-		bf::path::iterator itFrom = basePath.begin();
-		bf::path::iterator itTo = absoluteFile.begin();
-		std::string root1 = itFrom->string();
-		std::string root2 = itTo->string();
-		if (root1!=root2)
-		{
-	#ifdef _WIN32
-			// windows hack: skip first elements if they are c: and C:
-			// (windows file selector returns C:, boost system_complete returns c:)
-			if (!_stricmp(root1.c_str(),root2.c_str()))
-			{
-				++itFrom;
-				++itTo;
-			}
-			else
-	#endif
-			// first elements really differ, panic
-			{
-				RR_ASSERT(*itFrom == *itTo );
-				return absoluteFile;
-			}
-		}
-		while ( (itFrom != basePath.end()) && (itTo != absoluteFile.end()) && (*itFrom == *itTo) )
-		{
-			++itFrom;
-			++itTo;
-		}
-		bf::path relPath;
-		for ( ;itFrom != basePath.end(); ++itFrom )
-		{
-			relPath /= "..";
-		}
-		for ( ;itTo != absoluteFile.end(); ++itTo)
-		{
-			relPath /= *itTo;
-		}
-		return relPath;
-	}
-};
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // FileLocator
-
-bf::path fixNull(const char* p)
-{
-	return p?p:"";
-}
-
-template<class C>
-void addOrRemove(bool _add, std::vector<C>& _paths, C& _path)
-{
-	if (_add)
-		_paths.push_back(_path);
-	else
-	{
-		for (size_t i=_paths.size();i--;)
-			if (_paths[i]==_path)
-			{
-				_paths.erase(_paths.begin()+i);
-				return;
-			}
-		RRReporter::report(WARN,"RRFileLocator::setXxx(false,x): attempt to remove x that was not added before.\n");
-	}
-}
 
 class FileLocator : public RRFileLocator
 {
@@ -180,6 +60,7 @@ public:
 	{
 		return getLocation(fixNull(originalFilename),attemptNumber).string().c_str();
 	}
+
 protected:
 	bf::path getLocation(bf::path originalFilename, unsigned attemptNumber) const
 	{
@@ -187,7 +68,7 @@ protected:
 		if (attemptNumber==123456)
 		{
 			if (relocationFilenames.size())
-				return Relocator::getRelocatedFilename(originalFilename,relocationFilenames[0].first,relocationFilenames[0].second);
+				return getRelocatedFilename(originalFilename,relocationFilenames[0].first,relocationFilenames[0].second);
 			else
 				return originalFilename;
 		}
@@ -223,7 +104,7 @@ protected:
 		for (size_t i=0;i<relocationFilenames.size();i++)
 		{
 			if (!relocationFilenames[i].first.empty() && !relocationFilenames[i].second.empty() && originalFilename.has_root_path() && !attemptNumber--)
-				return Relocator::getRelocatedFilename(originalFilename,relocationFilenames[i].first,relocationFilenames[i].second);
+				return getRelocatedFilename(originalFilename,relocationFilenames[i].first,relocationFilenames[i].second);
 		}
 
 		// library
@@ -237,6 +118,66 @@ protected:
 
 		return "";
 	}
+
+	// see how oldReference did transform into newReference and apply the same transformation on filename
+	static bf::path getRelocatedFilename(const bf::path& filename, const bf::path& oldReference, const bf::path& newReference)
+	{
+		if (filename.empty())
+			return "";
+
+		// relative path or bad inputs: just make it absolute
+		if (!filename.has_root_directory() || oldReference.empty() || newReference.empty())
+		{
+			return bf::system_complete(filename).normalize();
+		}
+
+		// absolute path: relocate
+		bf::path relativeFilename = relative(filename,bf::path(oldReference).parent_path());
+		bf::path relocatedFilename = bf::absolute(relativeFilename,system_complete(bf::path(newReference).parent_path())).normalize();
+		return relocatedFilename;
+	}
+
+	static bf::path relative(bf::path file, bf::path base)
+	{
+		file = bf::system_complete(file).relative_path().normalize();
+		base = bf::system_complete(base).relative_path().normalize();
+		bf::path::const_iterator itBase = base.begin();
+		bf::path::const_iterator itFile = file.begin();
+		while ((itBase!=base.end()) && (itFile!=file.end()) && (*itBase==*itFile))
+		{
+			++itBase;
+			++itFile;
+		}
+		bf::path result;
+		for (;itBase!=base.end();++itBase)
+			result /= "..";
+		for (;itFile!=file.end();++itFile)
+			result /= *itFile;
+		return result;
+	}
+
+	static bf::path fixNull(const char* p)
+	{
+		return p?p:"";
+	}
+
+	template<class C>
+	static void addOrRemove(bool _add, std::vector<C>& _paths, C& _path)
+	{
+		if (_add)
+			_paths.push_back(_path);
+		else
+		{
+			for (size_t i=_paths.size();i--;)
+				if (_paths[i]==_path)
+				{
+					_paths.erase(_paths.begin()+i);
+					return;
+				}
+			RRReporter::report(WARN,"RRFileLocator::setXxx(false,x): attempt to remove x that was not added before.\n");
+		}
+	}
+
 	std::vector<bf::path> parentFilenames;
 	std::vector<std::pair<bf::path,bf::path> > relocationFilenames;
 	std::vector<bf::path> libraryDirectories;
