@@ -11,6 +11,7 @@
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/RRScene.h"
 #include <string>
+#include <wx/wx.h>
 	#define SV_SUBWINDOW_BORDER wxBORDER_SUNKEN // wxBORDER_NONE // wxBORDER_SIMPLE
 
 // string conversions, RR=RRString, WX=wxString, PATH=bf::path, CHAR=const char*, STREAM=fstream constructor

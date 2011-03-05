@@ -23,6 +23,8 @@
 	#include <shlobj.h> // SHGetFolderPath, SHGetSpecialFolderPath
 	#include <process.h> // _beginthread in AlphaSplashScreen
 #endif
+#include <boost/filesystem.hpp>
+namespace bf = boost::filesystem;
 
 	#define LOG_CAPTION NULL
 // naming convention for lightmaps and ldm. final name is prefix+objectnumber+postfix
@@ -641,7 +643,7 @@ void SVFrame::UpdateMenuBar()
 	wxMenu *winMenu = NULL;
 
 	// File...
-	if (rr::RRScene::getSupportedLoaderExtensions().size())
+	if (rr::RRScene::getSupportedLoaderExtensions())
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_("Open scene..."));

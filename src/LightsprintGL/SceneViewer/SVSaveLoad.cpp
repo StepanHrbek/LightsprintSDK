@@ -170,6 +170,25 @@ void load(Archive & ar, rr_gl::Camera& a, const unsigned int version)
 	ar & make_nvp("dir",a.dir);
 }
 
+//------------------------------ wxString -----------------------------------
+
+#define SERIALIZE_WXSTRING(name,wxstring,utf8) \
+	{ \
+		std::string s; \
+		if (Archive::is_saving::value) s = wxstring.ToUTF8(); \
+		ar & make_nvp(name,s); \
+		if (Archive::is_loading::value) wxstring = utf8 ? wxString::FromUTF8(s.c_str()) : s; \
+	}
+
+// filename must be saved absolute, otherwise load may fail, load relocator would not have complete information
+#define SERIALIZE_FILENAME(name,wxstring,utf8) \
+	{ \
+		std::string s; \
+		if (Archive::is_saving::value) s = wxString(PATH2WX(bf::system_complete(WX2PATH(wxstring)))).ToUTF8(); \
+		ar & make_nvp(name,s); \
+		if (Archive::is_loading::value) wxstring = utf8 ? wxString::FromUTF8(s.c_str()) : s; \
+	}
+
 
 //------------------------------ tm -----------------------------------
 
