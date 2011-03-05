@@ -482,7 +482,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	s_logIsOn = !svs.openLogWindows;
 
 	// load preferences (must be done very early)
-	bool layoutLoaded = userPreferences.load(NULL);
+	bool layoutLoaded = userPreferences.load("");
 
 	// create properties (based also on data from preferences)
 	m_userProperties = new SVUserProperties(this);
@@ -641,7 +641,7 @@ void SVFrame::UpdateMenuBar()
 	wxMenu *winMenu = NULL;
 
 	// File...
-	if (rr::RRScene::getSupportedLoaderExtensions() && rr::RRScene::getSupportedLoaderExtensions()[0])
+	if (rr::RRScene::getSupportedLoaderExtensions().size())
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_FILE_OPEN_SCENE,_("Open scene..."));
@@ -744,22 +744,22 @@ void SVFrame::UpdateMenuBar()
 	delete oldMenuBar;
 }
 
-static std::string getSupportedLoaderExtensions(SceneViewerStateEx& svs)
+static wxString getSupportedLoaderExtensions(SceneViewerStateEx& svs)
 {
 	// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
-	std::string extensions = rr::RRScene::getSupportedLoaderExtensions();
-	std::string wxextensions = _("All scene formats")+"|"+extensions;
+	wxString extensions = rr::RRScene::getSupportedLoaderExtensions();
+	wxString wxextensions = _("All scene formats")+"|"+extensions;
 	while (!extensions.empty())
 	{
 		size_t i = extensions.find(';');
-		std::string ext = (i==-1) ? extensions : extensions.substr(0,i);
-		wxextensions += std::string("|")+ext+'|'+ext;
+		wxString ext = (i==-1) ? extensions : extensions.substr(0,i);
+		wxextensions += wxString("|")+ext+'|'+ext;
 		extensions.erase(0,ext.size()+1);
 	}
 	return wxextensions;
 }
 
-static void incrementFilename(std::string& filename)
+static void incrementFilename(wxString& filename)
 {
 	size_t i = filename.find_last_of('.');
 	while (i>0)
@@ -784,7 +784,7 @@ static void incrementFilename(std::string& filename)
 			filename[i] = 'a';
 			continue;
 		}
-		filename[i]++;
+		filename[i] = ((unsigned)filename[i])+1;
 		if (!(filename[i]>='a' && filename[i]<='z') && !(filename[i]>='A' && filename[i]<='Z') && !(filename[i]>='0' && filename[i]<='9') && filename[i]!='/' && filename[i]!='\\' && filename[i]!=':' && filename[i]!='.')
 		{
 			filename[i] = '0';
@@ -827,7 +827,7 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 
 		case ME_FILE_OPEN_SCENE:
 			{
-				wxFileDialog dialog(this,_("Choose a 3d scene to open"),"","",getSupportedLoaderExtensions(svs).c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,_("Choose a 3d scene to open"),"","",getSupportedLoaderExtensions(svs),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
@@ -839,7 +839,7 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 			break;
 		case ME_FILE_MERGE_SCENE:
 			{
-				wxFileDialog dialog(this,_("Choose a 3d scene to merge with current scene"),"","",getSupportedLoaderExtensions(svs).c_str(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,_("Choose a 3d scene to merge with current scene"),"","",getSupportedLoaderExtensions(svs),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
@@ -861,9 +861,9 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 				goto save_scene_as;
 			// name that can't be saved?
 			{
-				std::string extension = svs.sceneFilename.substr(svs.sceneFilename.find_last_of("."));
-				std::string extensions = rr::RRScene::getSupportedSaverExtensions();
-				bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=std::string::npos;
+				wxString extension = PATH2WX(bf::path(WX2PATH(svs.sceneFilename)).extension());
+				wxString extensions = rr::RRScene::getSupportedSaverExtensions();
+				bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=-1;
 				if (!extensionSupportsSave) goto save_scene_as;
 			}
 			// valid name, save it
@@ -874,7 +874,7 @@ save_scene:
 				scene.objects = m_canvas->solver->getStaticObjects();
 				scene.lights = m_canvas->solver->getLights();
 				scene.environment = m_canvas->solver->getEnvironment();
-				if (!scene.save(svs.sceneFilename.c_str()))
+				if (!scene.save(svs.sceneFilename))
 					wxMessageBox(_("Scene save failed."),_("Not saved."),wxOK|wxICON_ERROR);
 				scene.environment = NULL; // would be deleted in destructor otherwise
 			}
@@ -883,33 +883,33 @@ save_scene:
 			{
 save_scene_as:
 				// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
-				std::string extensions = rr::RRScene::getSupportedSaverExtensions();
+				wxString extensions = rr::RRScene::getSupportedSaverExtensions();
 				if (extensions.empty())
 				{
 					wxMessageBox(_("Program built without saving."),_("No savers registered."),wxOK);
 				}
 				else
 				{
-					std::string wxextensions;
+					wxString wxextensions;
 					while (!extensions.empty())
 					{
 						size_t i = extensions.find(';');
-						std::string ext = (i==-1) ? extensions : extensions.substr(0,i);
+						wxString ext = (i==-1) ? extensions : extensions.substr(0,i);
 						if (!wxextensions.empty())
-							wxextensions += std::string("|");
+							wxextensions += "|";
 						wxextensions += ext+'|'+ext;
 						extensions.erase(0,ext.size()+1);
 					}
 
 					// delete extension if it can't be saved, dialog will automatically append supported one
-					std::string presetFilename = svs.sceneFilename;
-					std::string::size_type lastDot = svs.sceneFilename.find_last_of(".");
-					std::string extension = (lastDot==std::string::npos) ? presetFilename : presetFilename.substr(lastDot);
-					std::string extensions = rr::RRScene::getSupportedSaverExtensions();
-					bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=std::string::npos;
+					wxString presetFilename = svs.sceneFilename;
+					wxString::size_type lastDot = svs.sceneFilename.find_last_of(".");
+					wxString extension = (lastDot==std::string::npos) ? presetFilename : presetFilename.substr(lastDot);
+					wxString extensions = rr::RRScene::getSupportedSaverExtensions();
+					bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=-1;
 					if (!extensionSupportsSave) presetFilename = presetFilename.substr(0,presetFilename.size()-extension.size());
 
-					wxFileDialog dialog(this,_("Save as"),"","",wxextensions.c_str(),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+					wxFileDialog dialog(this,_("Save as"),"","",wxextensions,wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 					dialog.SetPath(presetFilename);
 					if (dialog.ShowModal()==wxID_OK)
 					{
@@ -949,10 +949,10 @@ save_scene_as:
 				// 9. save
 				rr::RRBuffer::SaveParameters saveParameters;
 				saveParameters.jpegQuality = 100;
-				if (sshot->save(userPreferences.sshotFilename.c_str(),NULL,&saveParameters))
-					rr::RRReporter::report(rr::INF2,"Saved %s.\n",userPreferences.sshotFilename.c_str());
+				if (sshot->save(userPreferences.sshotFilename,NULL,&saveParameters))
+					rr::RRReporter::report(rr::INF2,"Saved %s.\n",WX2CHAR(userPreferences.sshotFilename));
 				else
-					rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",userPreferences.sshotFilename.c_str());
+					rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",WX2CHAR(userPreferences.sshotFilename));
 
 				// 10. increment filename
 				incrementFilename(userPreferences.sshotFilename);
@@ -1059,10 +1059,10 @@ save_scene_as:
 					// 9. save
 					rr::RRBuffer::SaveParameters saveParameters;
 					saveParameters.jpegQuality = 100;
-					if (sshot->save(userPreferences.sshotFilename.c_str(),NULL,&saveParameters))
-						rr::RRReporter::report(rr::INF2,"Saved %s.\n",userPreferences.sshotFilename.c_str());
+					if (sshot->save(userPreferences.sshotFilename,NULL,&saveParameters))
+						rr::RRReporter::report(rr::INF2,"Saved %s.\n",WX2CHAR(userPreferences.sshotFilename));
 					else
-						rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",userPreferences.sshotFilename.c_str());
+						rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",WX2CHAR(userPreferences.sshotFilename));
 
 					// 10. increment filename
 					incrementFilename(userPreferences.sshotFilename);
@@ -1140,7 +1140,7 @@ save_scene_as:
 		case ME_ENV_RELOAD: // not a menu item, just command we can call from outside
 			{
 reload_skybox:
-				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename.c_str(),textureLocator);
+				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename,textureLocator);
 				if (envToBeDeletedOnExit && solver->getEnvironment(0))
 				{
 					solver->getEnvironment(0)->stop();

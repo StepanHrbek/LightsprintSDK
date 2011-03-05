@@ -34,7 +34,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			mesh->getAABB(&mini,&maxi,&localCenter);
 
 			// object
-			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,object->name.c_str()));
+			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,RR2WX(object->name)));
 			const rr::RRMatrix3x4 worldMatrix = object->getWorldMatrixRef();
 			Append(tmp = new RRVec3Property(_("World center"),_("Center of object in world space"),_precision,worldMatrix.transformedPosition(localCenter)));
 			EnableProperty(tmp,false);
@@ -84,7 +84,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	wxPGProperty *property = event.GetProperty();
 	if (property==propName)
 	{
-		object->name = property->GetValue().GetString().c_str();
+		object->name = WX2RR(property->GetValue().GetString());
 		svframe->updateSceneTree();
 	}
 	else

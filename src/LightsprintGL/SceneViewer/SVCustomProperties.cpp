@@ -238,7 +238,7 @@ void ImageFileProperty::updateBufferAndIcon(rr::RRBuffer*& buffer, bool playVide
 		buffer->stop();
 		delete buffer;
 	}
-	buffer = rr::RRBuffer::load(GetValue().GetString().c_str());
+	buffer = rr::RRBuffer::load(GetValue().GetString());
 	if (buffer && playVideos)
 		buffer->play();
 

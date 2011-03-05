@@ -10,6 +10,7 @@
 
 #include "Lightsprint/GL/SceneViewer.h"
 #include "SVApp.h"
+#include "wx/wx.h"
 
 namespace rr_gl
 {
@@ -44,7 +45,7 @@ namespace rr_gl
 		{
 			bool fullscreen;
 			bool maximized;
-			std::string perspective;
+			wxString perspective;
 			WindowLayout()
 			{
 				fullscreen = false;
@@ -55,7 +56,7 @@ namespace rr_gl
 
 		ImportParameters import;
 
-		std::string sshotFilename;
+		wxString    sshotFilename;
 		bool        sshotEnhanced;
 		unsigned    sshotEnhancedWidth;
 		unsigned    sshotEnhancedHeight;
@@ -85,8 +86,8 @@ namespace rr_gl
 		}
 		//! Saves preferences, filename is automatic.
 		bool save() const;
-		//! Loads preferences, NULL=filename is automatic.
-		bool load(const wchar_t* nonDefaultFilename);
+		//! Loads preferences, ""=filename is automatic.
+		bool load(const wxString& nonDefaultFilename);
 	};
 
 

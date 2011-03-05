@@ -55,105 +55,6 @@ void serialize(Archive & ar, rr::RRVec4& a, const unsigned int version)
 	ar & make_nvp("w",a.w);
 }
 
-//------------------------------ RRLight ------------------------------------
-
-template<class Archive>
-void save(Archive & ar, const rr::RRLight& a, const unsigned int version)
-{
-	ar & make_nvp("name",std::string(a.name.c_str()));
-	ar & make_nvp("enabled",a.enabled);
-	ar & make_nvp("type",a.type);
-	ar & make_nvp("position",a.position);
-	ar & make_nvp("direction",a.direction);
-	ar & make_nvp("outerAngleRad",a.outerAngleRad);
-	ar & make_nvp("radius",a.radius);
-	ar & make_nvp("color",a.color);
-	ar & make_nvp("distanceAttenuationType",a.distanceAttenuationType);
-	ar & make_nvp("polynom",a.polynom);
-	ar & make_nvp("fallOffExponent",a.fallOffExponent);
-	ar & make_nvp("spotExponent",a.spotExponent);
-	ar & make_nvp("fallOffAngleRad",a.fallOffAngleRad);
-	ar & make_nvp("castShadows",a.castShadows);
-	ar & make_nvp("rtProjectedTextureFilename",a.rtProjectedTexture?bf::system_complete(a.rtProjectedTexture->filename.c_str()).string():""); // must be absolute, otherwise load may fail, load relocator would not have complete information
-	ar & make_nvp("rtNumShadowmaps",a.rtNumShadowmaps);
-	ar & make_nvp("rtShadowmapSize",a.rtShadowmapSize);
-	// skip customData;
-}
-
-template<class Archive>
-void load(Archive & ar, rr::RRLight& a, const unsigned int version)
-{
-	if (version>0)
-	{
-		std::string name;
-		ar & make_nvp("name", name);
-		a.name = name.c_str();
-	}
-	if (version>2)
-	{
-		ar & make_nvp("enabled", a.enabled);
-	}
-	ar & make_nvp("type",a.type);
-	ar & make_nvp("position",a.position);
-	ar & make_nvp("direction",a.direction);
-	ar & make_nvp("outerAngleRad",a.outerAngleRad);
-	ar & make_nvp("radius",a.radius);
-	ar & make_nvp("color",a.color);
-	ar & make_nvp("distanceAttenuationType",a.distanceAttenuationType);
-	ar & make_nvp("polynom",a.polynom);
-	ar & make_nvp("fallOffExponent",a.fallOffExponent);
-	ar & make_nvp("spotExponent",a.spotExponent);
-	ar & make_nvp("fallOffAngleRad",a.fallOffAngleRad);
-	ar & make_nvp("castShadows",a.castShadows);
-	{
-		std::string rtProjectedTextureFilenameString;
-		ar & make_nvp("rtProjectedTextureFilename", rtProjectedTextureFilenameString);
-		a.rtProjectedTexture = rr::RRBuffer::load(rtProjectedTextureFilenameString.c_str());
-	}
-	if (version<2)
-	{
-		float rtMaxShadowSize;
-		ar & make_nvp("rtMaxShadowSize",rtMaxShadowSize);
-	}
-	else
-	{
-		ar & make_nvp("rtNumShadowmaps",a.rtNumShadowmaps);
-	}
-	if (version>3)
-	{
-		ar & make_nvp("rtShadowmapSize",a.rtShadowmapSize);
-	}
-	// skip customData;
-}
-
-//----------------------------- RRLights ------------------------------------
-
-template<class Archive>
-void save(Archive & ar, const rr::RRLights& a, const unsigned int version)
-{
-	unsigned count = a.size();
-	ar & make_nvp("count",count);
-	for (unsigned i=0;i<count;i++)
-	{
-		RR_ASSERT(a[i]);
-		ar & make_nvp("light",*a[i]);
-	}
-}
-
-template<class Archive>
-void load(Archive & ar, rr::RRLights& a, const unsigned int version)
-{
-	RR_ASSERT(!a.size());
-	unsigned count;
-	ar & make_nvp("count",count);
-	while (count--)
-	{
-		rr::RRLight* light = new rr::RRLight;
-		ar & make_nvp("light", *light);
-		a.push_back(light);
-	}
-}
-
 //------------------------------ CalculateParameters -------------------------------------
 
 template<class Archive>
@@ -290,80 +191,7 @@ void serialize(Archive & ar, tm& a, const unsigned int version)
 //------------------------- SceneViewerStateEx ------------------------------
 
 template<class Archive>
-void save(Archive & ar, const rr_gl::SceneViewerStateEx& a, const unsigned int version)
-{
-	ar & make_nvp("eye",a.eye);
-
-	ar & make_nvp("envSimulateSky",a.envSimulateSky);
-	ar & make_nvp("envSimulateSun",a.envSimulateSun);
-	ar & make_nvp("envLongitude",a.envLongitudeDeg);
-	ar & make_nvp("envLatitude",a.envLatitudeDeg);
-	ar & make_nvp("envDateTime",a.envDateTime);
-
-	ar & make_nvp("staticLayerNumber",a.staticLayerNumber);
-	ar & make_nvp("realtimeLayerNumber",a.realtimeLayerNumber);
-	ar & make_nvp("ldmLayerNumber",a.ldmLayerNumber);
-	ar & make_nvp("selectedLightIndex",a.selectedLightIndex);
-	ar & make_nvp("selectedObjectIndex",a.selectedObjectIndex);
-	ar & make_nvp("fullscreen",a.fullscreen);
-	ar & make_nvp("renderLightDirect",a.renderLightDirect);
-	ar & make_nvp("renderLightIndirect",a.renderLightIndirect);
-	ar & make_nvp("renderLightmaps2d",a.renderLightmaps2d);
-	ar & make_nvp("renderLightmapsBilinear",a.renderLightmapsBilinear);
-	ar & make_nvp("renderMaterialDiffuse",a.renderMaterialDiffuse);
-	ar & make_nvp("renderMaterialSpecular",a.renderMaterialSpecular);
-	ar & make_nvp("renderMaterialEmission",a.renderMaterialEmission);
-	ar & make_nvp("renderMaterialTransparency",a.renderMaterialTransparency);
-	ar & make_nvp("renderMaterialTextures",a.renderMaterialTextures);
-	ar & make_nvp("renderWater",a.renderWater);
-	ar & make_nvp("renderWireframe",a.renderWireframe);
-	ar & make_nvp("renderFPS",a.renderFPS);
-	ar & make_nvp("renderIcons",a.renderIcons);
-	ar & make_nvp("renderHelpers",a.renderHelpers);
-	ar & make_nvp("renderBloom",a.renderBloom);
-	ar & make_nvp("renderLensFlare",a.renderLensFlare);
-	ar & make_nvp("lensFlareSize",a.lensFlareSize);
-	ar & make_nvp("lensFlareId",a.lensFlareId);
-	ar & make_nvp("renderVignette",a.renderVignette);
-	ar & make_nvp("renderHelp",a.renderHelp);
-	ar & make_nvp("renderLogo",a.renderLogo);
-	ar & make_nvp("renderTonemapping",a.renderTonemapping);
-	ar & make_nvp("adjustTonemapping",a.tonemappingAutomatic);
-	ar & make_nvp("tonemappingAutomaticTarget",a.tonemappingAutomaticTarget);
-	ar & make_nvp("tonemappingAutomaticSpeed",a.tonemappingAutomaticSpeed);
-	ar & make_nvp("playVideos",a.playVideos);
-	ar & make_nvp("shadowTransparency",a.shadowTransparency);
-	ar & make_nvp("emissiveMultiplier",a.emissiveMultiplier);
-	ar & make_nvp("videoEmittanceAffectsGI",a.videoEmittanceAffectsGI);
-	ar & make_nvp("videoEmittanceGIQuality",a.videoEmittanceGIQuality);
-	ar & make_nvp("videoTransmittanceAffectsGI",a.videoTransmittanceAffectsGI);
-	ar & make_nvp("videoTransmittanceAffectsGIFull",a.videoTransmittanceAffectsGIFull);
-	ar & make_nvp("videoEnvironmentAffectsGI",a.videoEnvironmentAffectsGI);
-	ar & make_nvp("videoEnvironmentGIQuality",a.videoEnvironmentGIQuality);
-	ar & make_nvp("fireballQuality",a.fireballQuality);
-	ar & make_nvp("raytracedCubesEnabled",a.raytracedCubesEnabled);
-	ar & make_nvp("raytracedCubesDiffuseRes",a.raytracedCubesDiffuseRes);
-	ar & make_nvp("raytracedCubesSpecularRes",a.raytracedCubesSpecularRes);
-	ar & make_nvp("raytracedCubesMaxObjects",a.raytracedCubesMaxObjects);
-	ar & make_nvp("lightmapFilteringParameters",a.lightmapFilteringParameters);
-	ar & make_nvp("cameraDynamicNear",a.cameraDynamicNear);
-	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
-	ar & make_nvp("brightness",a.tonemappingBrightness);
-	ar & make_nvp("gamma",a.tonemappingGamma);
-	ar & make_nvp("waterLevel",a.waterLevel);
-	ar & make_nvp("waterColor",a.waterColor);
-	ar & make_nvp("renderGrid",a.renderGrid);
-	ar & make_nvp("gridNumSegments",a.gridNumSegments);
-	ar & make_nvp("gridSegmentSize",a.gridSegmentSize);
-	// skip autodetectCamera
-	// skip initialInputSolver;
-	// skip pathToShaders;
-	ar & make_nvp("sceneFilename",bf::system_complete(a.sceneFilename).string()); // must be absolute, otherwise load may fail, load relocator would not have complete information
-	ar & make_nvp("skyboxFilename",bf::system_complete(a.skyboxFilename).string()); // must be absolute, otherwise load may fail, load relocator would not have complete information
-}
-
-template<class Archive>
-void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
+void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 {
 	ar & make_nvp("eye",a.eye);
 	if (version>9)
@@ -481,11 +309,8 @@ void load(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int version)
 		ar & make_nvp("gridSegmentSize",a.gridSegmentSize);
 	}
 	// skip autodetectCamera
-	// skip initialInputSolver;
-	// skip pathToShaders;
-	ar & make_nvp("sceneFilename",a.sceneFilename);
-	ar & make_nvp("skyboxFilename",a.skyboxFilename);
-	// skip releaseResources;
+	SERIALIZE_FILENAME("sceneFilename",a.sceneFilename,version>21);
+	SERIALIZE_FILENAME("skyboxFilename",a.skyboxFilename,version>21);
 }
 
 //------------------------- ImportParameters ------------------------------
@@ -507,7 +332,7 @@ void serialize(Archive & ar, rr_gl::UserPreferences::WindowLayout& a, const unsi
 {
 	ar & make_nvp("fullscreen",a.fullscreen);
 	ar & make_nvp("maximized",a.maximized);
-	ar & make_nvp("perspective",a.perspective);
+	SERIALIZE_WXSTRING("perspective",a.perspective,version>0);
 }
 
 template<class Archive>
@@ -528,7 +353,7 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 	}
 	if (version>2)
 	{
-		ar & make_nvp("sshotFilename",a.sshotFilename);
+		SERIALIZE_WXSTRING("sshotFilename",a.sshotFilename,version>6);
 		ar & make_nvp("sshotEnhanced",a.sshotEnhanced);
 		ar & make_nvp("sshotEnhancedWidth",a.sshotEnhancedWidth);
 		ar & make_nvp("sshotEnhancedHeight",a.sshotEnhancedHeight);
@@ -543,15 +368,14 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 } // namespace
 } // namespace
 
-BOOST_SERIALIZATION_SPLIT_FREE(rr::RRLight)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRLights)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
-BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::SceneViewerStateEx)
 
 BOOST_CLASS_VERSION(rr::RRLight, 4)
 BOOST_CLASS_VERSION(rr_gl::Camera, 1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences, 6) // must be increased also each time panel is added/removed
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 21)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout, 1)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences, 7) // must be increased also each time panel is added/removed
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 22)
 
 //---------------------------------------------------------------------------
 
@@ -611,18 +435,18 @@ unsigned ImportParameters::getUpAxis(const char* filename) const
 //
 // UserPreferences save/load
 
-static std::wstring suggestPreferencesDirectory()
+static wxString suggestPreferencesDirectory()
 {
 #ifdef _WIN32
 		#define APPDATA_SUBDIR L"\\Lightsprint"
 		// Vista, 7
 		const wchar_t* appdata = _wgetenv(L"LOCALAPPDATA");
 		if (appdata)
-			return std::wstring(appdata) + APPDATA_SUBDIR;
+			return wxString(appdata) + APPDATA_SUBDIR;
 		// XP
 		const wchar_t* user = _wgetenv(L"USERPROFILE");
 		if (user)
-			return std::wstring(user) + L"\\Local Settings\\Application Data" + APPDATA_SUBDIR;
+			return wxString(user) + L"\\Local Settings\\Application Data" + APPDATA_SUBDIR;
 		// unknown
 		return APPDATA_SUBDIR;
 #else
@@ -630,7 +454,7 @@ static std::wstring suggestPreferencesDirectory()
 #endif
 }
 
-static std::wstring suggestPreferencesFilename()
+static wxString suggestPreferencesFilename()
 {
 	return suggestPreferencesDirectory() + L"\\SceneViewer.prefs";
 }
@@ -642,11 +466,11 @@ bool UserPreferences::save() const
 #else
 	try
 	{
-		bf::create_directories(suggestPreferencesDirectory());
-		std::ofstream ofs(suggestPreferencesFilename().c_str());
+		bf::create_directories(WX2PATH(suggestPreferencesDirectory()));
+		std::ofstream ofs(WX2STREAM(suggestPreferencesFilename()));
 		if (!ofs || ofs.bad())
 		{
-			rr::RRReporter::report(rr::WARN,"File %s can't be created, preferences not saved.\n",suggestPreferencesFilename().c_str());
+			rr::RRReporter::report(rr::WARN,"File %s can't be created, preferences not saved.\n",WX2CHAR(suggestPreferencesFilename()));
 			return false;
 		}
 		boost::archive::xml_oarchive ar(ofs);
@@ -655,7 +479,7 @@ bool UserPreferences::save() const
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to save %S.\n",suggestPreferencesFilename().c_str());
+		rr::RRReporter::report(rr::ERRO,"Failed to save %S.\n",WX2CHAR(suggestPreferencesFilename()));
 		return false;
 	}
 
@@ -663,14 +487,14 @@ bool UserPreferences::save() const
 #endif
 }
 
-bool UserPreferences::load(const wchar_t* nonDefaultFilename)
+bool UserPreferences::load(const wxString& nonDefaultFilename)
 {
 #if defined(_MSC_VER) && _MSC_VER<1400
 	return false; // Visual Studio 2003 doesn't accept std::ofstream(const wchar_t*)
 #else
 	try
 	{
-		std::ifstream ifs(nonDefaultFilename?nonDefaultFilename:suggestPreferencesFilename().c_str());
+		std::ifstream ifs(WX2STREAM(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
 		if (!ifs || ifs.bad())
 		{
 			// don't warn, we attempt to load prefs each time, without knowing the file exists
@@ -682,7 +506,7 @@ bool UserPreferences::load(const wchar_t* nonDefaultFilename)
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to load %S.\n",nonDefaultFilename?nonDefaultFilename:suggestPreferencesFilename().c_str());
+		rr::RRReporter::report(rr::ERRO,"Failed to load %S.\n",WX2CHAR(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
 		return false;
 	}
 

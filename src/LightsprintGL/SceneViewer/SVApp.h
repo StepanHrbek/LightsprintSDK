@@ -13,6 +13,14 @@
 #include <string>
 	#define SV_SUBWINDOW_BORDER wxBORDER_SUNKEN // wxBORDER_NONE // wxBORDER_SIMPLE
 
+// string conversions, RR=RRString, WX=wxString, PATH=bf::path, CHAR=const char*, STREAM=fstream constructor
+#define WX2CHAR(w)   ((const char*)(w))
+#define WX2RR(w)     ((const char*)(w))
+#define WX2PATH(w)   ((const wchar_t*)(w))
+#define WX2STREAM(w) ((const wchar_t*)(w))
+#define RR2WX(r)     ((r).c_str())
+#define PATH2WX(p)   ((p).wstring())
+
 namespace rr_gl
 {
 
@@ -25,10 +33,10 @@ struct SceneViewerStateEx : public SceneViewerState
 	//! Initial and never changing path to shaders, never freed.
 	const char* pathToShaders;
 	//! Current scene filename, e.g. path/scene.dae.
-	std::string sceneFilename;
+	wxString sceneFilename;
 	//! Current skybox filename, e.g. skybox.hdr or skybox_ft.tga.
 	//! To specify Quake-style cube map, use name of any one of 6 images (Quake uses suffixes ft,bk,up,dn,rt,lf).
-	std::string skyboxFilename;
+	wxString skyboxFilename;
 	bool releaseResources;
 
 	SceneViewerStateEx()

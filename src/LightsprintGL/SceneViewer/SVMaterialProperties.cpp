@@ -158,7 +158,7 @@ void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hit
 
 	if (material)
 	{
-		updateString(propName,material->name.c_str());
+		updateString(propName,RR2WX(material->name));
 
 		updateBool(propFront,material->sideBits[0].renderFrom);
 		updateBool(propBack,material->sideBits[1].renderFrom);
@@ -222,7 +222,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 
 	if (property==propName)
 	{
-		material->name = property->GetValue().GetString().c_str();
+		material->name = WX2RR(property->GetValue().GetString());
 	}
 	else
 	if (property==propFront)

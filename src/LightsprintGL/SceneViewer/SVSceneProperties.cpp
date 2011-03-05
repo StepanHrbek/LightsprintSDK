@@ -386,7 +386,7 @@ void SVSceneProperties::updateProperties()
 		+ updateProperty(propCameraCenter,svs.eye.screenCenter)
 		//+ updateBoolRef(propEnvSimulateSky)
 		+ updateBoolRef(propEnvSimulateSun)
-		+ updateString(propEnvMap,(svframe->m_canvas&&svframe->m_canvas->solver&&svframe->m_canvas->solver->getEnvironment())?svframe->m_canvas->solver->getEnvironment()->filename.c_str():"(no texture)")
+		+ updateString(propEnvMap,(svframe->m_canvas&&svframe->m_canvas->solver&&svframe->m_canvas->solver->getEnvironment())?RR2WX(svframe->m_canvas->solver->getEnvironment()->filename):"(no texture)")
 		+ updateProperty(propEnvLocation,rr::RRVec2(svs.envLatitudeDeg,svs.envLongitudeDeg))
 		+ updateDate(propEnvDate,wxDateTime(svs.envDateTime))
 		+ updateFloat(propEnvTime,svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f)
@@ -518,7 +518,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propEnvMap)
 	{
-		svs.skyboxFilename = propEnvMap->GetValue().GetString().c_str();
+		svs.skyboxFilename = WX2RR(propEnvMap->GetValue().GetString());
 		svframe->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_ENV_RELOAD));
 	}
 	else

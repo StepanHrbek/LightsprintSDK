@@ -23,6 +23,10 @@
 #ifdef _WIN32
 	#include <GL/wglew.h>
 #endif
+#include <cctype>
+#include <boost/filesystem.hpp> // extension()==".gsa"
+
+namespace bf = boost::filesystem;
 
 #if !wxUSE_GLCANVAS
     #error "OpenGL required: set wxUSE_GLCANVAS to 1 and rebuild the library"
@@ -166,9 +170,9 @@ void SVCanvas::createContextCore()
 	if (!svs.sceneFilename.empty())
 	{
 		// load scene
-		rr::RRScene* scene = new rr::RRScene(svs.sceneFilename.c_str(),parent->textureLocator,&solver->aborting);
-		scene->normalizeUnits(parent->userPreferences.import.getUnitLength(svs.sceneFilename.c_str()));
-		scene->normalizeUpAxis(parent->userPreferences.import.getUpAxis(svs.sceneFilename.c_str()));
+		rr::RRScene* scene = new rr::RRScene(svs.sceneFilename,parent->textureLocator,&solver->aborting);
+		scene->normalizeUnits(parent->userPreferences.import.getUnitLength(svs.sceneFilename));
+		scene->normalizeUpAxis(parent->userPreferences.import.getUpAxis(svs.sceneFilename));
 		scene->objects.flipFrontBack(3,true);
 		mergedScenes.push_back(scene);
 
@@ -327,13 +331,7 @@ SVCanvas::~SVCanvas()
 	{
 		// user requested fast exit without releasing resources
 		// however, if scene is .gsa, we must ignore him and release resources (it shutdowns gamebryo)
-		bool sceneMustBeReleased = false;
-		if (svs.sceneFilename.size()>4)
-		{
-			const char* sceneExtension = svs.sceneFilename.c_str() + svs.sceneFilename.size()-4;
-			if (!_stricmp(sceneExtension,".gsa"))
-				sceneMustBeReleased = true;
-		}
+		bool sceneMustBeReleased = _stricmp(bf::path(WX2PATH(svs.sceneFilename)).extension().string().c_str(),".gsa")==0;
 		if (!sceneMustBeReleased)
 		{
 			// save time and don't release scene

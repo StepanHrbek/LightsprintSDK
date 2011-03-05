@@ -71,7 +71,7 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		DeleteChildren(lights);
 		for (unsigned i=0;solver && i<solver->getLights().size();i++)
 		{
-			wxString name = solver->getLights()[i]->name.c_str();
+			wxString name = RR2WX(solver->getLights()[i]->name);
 			if (name.empty()) name = wxString::Format(_("light %d"),i);
 			AppendItem(lights,name,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
 		}
@@ -85,7 +85,7 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		unsigned numStaticObjects = RR_MIN(solver->getStaticObjects().size(),1000);
 		for (unsigned i=0;solver && i<numStaticObjects;i++)
 		{
-			wxString name = solver->getStaticObjects()[i]->name.c_str();
+			wxString name = RR2WX(solver->getStaticObjects()[i]->name);
 			if (name.empty()) name = wxString::Format(_("object %d"),i);
 			AppendItem(staticObjects,name,-1,-1,new ItemData(EntityId(ST_STATIC_OBJECT,i)));
 		}
@@ -99,7 +99,7 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		unsigned numDynamicObjects = RR_MIN(solver->getDynamicObjects().size(),1000);
 		for (unsigned i=0;solver && i<numDynamicObjects;i++)
 		{
-			wxString name = solver->getDynamicObjects()[i]->name.c_str();
+			wxString name = RR2WX(solver->getDynamicObjects()[i]->name);
 			if (name.empty()) name = wxString::Format(_("object %d"),i);
 			AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_DYNAMIC_OBJECT,i)));
 		}
