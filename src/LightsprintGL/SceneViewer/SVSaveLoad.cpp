@@ -427,7 +427,7 @@ ImportParameters::ImportParameters()
 float ImportParameters::getUnitLength(const char* filename) const
 {
 	wxString ext = wxString(filename).Right(4).Lower();
-	bool alreadyNormalized = ext==".rr3" || ext==".dae" || ext==".kmz";
+	bool alreadyNormalized = ext==".rr3" || ext==".dae" || ext==".kmz" || ext==".skp" || ext==".fbx";
 	if (alreadyNormalized && !unitForce)
 		return 1;
 	switch (unitEnum)
