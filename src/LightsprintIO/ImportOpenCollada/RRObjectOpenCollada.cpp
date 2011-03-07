@@ -207,7 +207,11 @@ public:
 	const char* currProfile;
 	ExtraData* currExtraData;
 
-	ExtraDataCallbackHandler() { }
+	ExtraDataCallbackHandler()
+	{
+		currProfile = NULL;
+		currExtraData = NULL;
+	}
 
 	virtual ~ExtraDataCallbackHandler()
 	{
@@ -285,18 +289,21 @@ public:
 
 	virtual bool elementBegin( const GeneratedSaxParser::ParserChar* elementName, const GeneratedSaxParser::xmlChar** attributes)
 	{
+		if (!currExtraData) return false;
 		currExtraData->elementBegin(elementName, currProfile);
 		return true;
 	}
 
 	virtual bool elementEnd(const GeneratedSaxParser::ParserChar* elementName )
 	{
+		if (!currExtraData) return false;
 		currExtraData->elementEnd(elementName);
 		return true;
 	}
 
 	virtual bool textData(const GeneratedSaxParser::ParserChar* text, size_t textLength)
 	{
+		if (!currExtraData) return false;
 		currExtraData->elementData(text,textLength);
 		return true;
 	}
