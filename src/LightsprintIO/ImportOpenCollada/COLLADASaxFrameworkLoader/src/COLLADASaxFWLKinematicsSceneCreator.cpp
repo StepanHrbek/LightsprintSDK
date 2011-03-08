@@ -46,7 +46,7 @@ namespace COLLADASaxFWL
 					invertedRotate->setRotationAngle( -sourceRotate->getRotationAngle() );
 					invertedTransformation = invertedRotate;
 				}
-				assert( invertedTransformation );
+				COLLADABU_ASSERT( invertedTransformation );
 				target.append( invertedTransformation );
 			}
 		}
@@ -155,7 +155,7 @@ namespace COLLADASaxFWL
 	{
 		COLLADAFW::KinematicsModel::LinkJointConnections& linkJointConnections = fwKinematicsModel->getLinkJointConnections();
 
-		const TransformationList& linkTransformations = link->getTransformations();
+		//TODO UNUSED const TransformationList& linkTransformations = link->getTransformations();
 
 		const KinematicAttachmentList& attachments = link->getAttachments();
 		KinematicAttachmentList::const_iterator it = attachments.begin();
@@ -179,11 +179,11 @@ namespace COLLADASaxFWL
 			{
 				//this must be a KinematicInstance
 				const KinematicInstance* instanceJoint = intermediateTargetableSafeCast<KinematicInstance>(jointTreeNode->getIntermediateTargetableTarget());
-				assert(instanceJoint);
+				COLLADABU_ASSERT(instanceJoint);
 				SidAddress referencedJointAddress( instanceJoint->getUrl() );
 				const SidTreeNode* referencedJointTreeNode = mDocumentProcessor->resolveSid( referencedJointAddress );
 				
-				assert( referencedJointTreeNode->getTargetType() == SidTreeNode::TARGETTYPECLASS_OBJECT );
+				COLLADABU_ASSERT( referencedJointTreeNode->getTargetType() == SidTreeNode::TARGETTYPECLASS_OBJECT );
 				jointUniqueId = &instanceJoint->getReplacingObjectUniqueId();
 				joint = COLLADAFW::objectSafeCast<COLLADAFW::Joint>(referencedJointTreeNode->getObjectTarget());
 			}
@@ -195,7 +195,7 @@ namespace COLLADASaxFWL
 			if ( !joint )
 			{
 				//TODO: handle error
-				assert(joint);
+				COLLADABU_ASSERT(joint);
 				continue;
 			}
 
@@ -214,7 +214,7 @@ namespace COLLADASaxFWL
 
 				const COLLADAFW::JointPrimitivePointerArray& jointPrimitives = joint->getJointPrimitives();
 				const COLLADAFW::JointPrimitivePointerArray& clonedJointPrimitives = clonedJoint->getJointPrimitives();
-				assert(jointPrimitives.getCount() == clonedJointPrimitives.getCount() );
+				COLLADABU_ASSERT(jointPrimitives.getCount() == clonedJointPrimitives.getCount() );
 				for ( size_t j = 0; j < jointPrimitives.getCount(); ++j)
 				{
 					mOriginalClonedJointPrimitiveMap.insert(std::make_pair(jointPrimitives[j], clonedJointPrimitives[j] ));
@@ -243,7 +243,7 @@ namespace COLLADASaxFWL
 	{
 		COLLADAFW::KinematicsModel::LinkJointConnections& linkJointConnections = fwKinematicsModel->getLinkJointConnections();
 
-		const TransformationList& linkTransformations = attachment->getTransformations();
+		// @TODO UNUSED const TransformationList& linkTransformations = attachment->getTransformations();
 
 		mLinkNumberStack.push(mLargestLinkNumber++);
 
@@ -412,7 +412,7 @@ namespace COLLADASaxFWL
 			const COLLADAFW::UniqueId nodeUniqueId = mDocumentProcessor->getUniqueIdByUrl(nodeUri, true);
 			if ( !nodeUniqueId.isValid() )
 			{
-				String msg = "Node with id \"" + nodeId + "\" referenced in <bind_joint_axis> in <bind_kinematics_model> in.";
+				String msg = "Node with id \"" + nodeId + "\" referenced in <bind_joint_axis> in <bind_kinematics_model> could not be found.";
 				
 				mDocumentProcessor->handleFWLError(SaxFWLError::ERROR_UNRESOLVED_REFERENCE, msg);
 				continue;
@@ -542,7 +542,7 @@ namespace COLLADASaxFWL
 
 			KinematicsModelFWKinematicsModelMap::const_iterator it = mKinematicsModelFWKinematicsModelMap.find(kinematicsModel);
 			// there hast to be always a corresponding fw kin model
-			assert( it != mKinematicsModelFWKinematicsModelMap.end());
+			COLLADABU_ASSERT( it != mKinematicsModelFWKinematicsModelMap.end());
 
 			COLLADAFW::KinematicsModel* fwKinematicsModel = it->second;
 

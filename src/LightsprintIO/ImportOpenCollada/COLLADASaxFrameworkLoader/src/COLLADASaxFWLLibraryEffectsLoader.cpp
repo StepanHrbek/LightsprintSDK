@@ -31,11 +31,11 @@ namespace COLLADASaxFWL
 		, mCurrentSamplerWrapS(COLLADAFW::Sampler::WRAP_MODE_WRAP)
 		, mCurrentSamplerWrapT(COLLADAFW::Sampler::WRAP_MODE_WRAP)
         , mTransparency(1)
+		, mOpaqueMode(UNSPECIFIED_OPAQUE)
 		, mNextSamplerIndex(0)
         , mInProfileCommonTechnique (false)
         , mInTexture (false)
         , mInSurface (false)
-        , mOpaqueMode( UNSPECIFIED_OPAQUE )
         , mInSampler2D (false)
         , mSurfaceIndex (0)
 	{
@@ -191,7 +191,10 @@ namespace COLLADASaxFWL
 				COLLADAFW::Texture& texture = colorOrTexture->getTexture();
                 texture.setUniqueId ( createUniqueId(COLLADAFW::Texture::ID()) );
 				texture.setSamplerId( samplerIndex );
-				texture.setTextureMapId( getTextureMapIdBySematic( attributeData.texcoord) );
+				if ( attributeData.texcoord )
+				{
+					texture.setTextureMapId( getTextureMapIdBySematic( attributeData.texcoord) );
+				}
 
 				break;
 			}

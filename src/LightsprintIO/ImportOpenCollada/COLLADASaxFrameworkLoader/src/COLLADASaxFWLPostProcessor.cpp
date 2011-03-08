@@ -86,8 +86,6 @@ namespace COLLADASaxFWL
 		{
 			createAndWriteKinematicsScene();
 		}
-
-		writer()->finish();
 	}
 
 	//-----------------------------
@@ -243,10 +241,10 @@ namespace COLLADASaxFWL
 		COLLADAFW::Formulas* formulas = FW_NEW COLLADAFW::Formulas();
 		COLLADAFW::FormulaArray& formulaList = formulas->getFormulas();
 
-		Loader::FormulaList::const_iterator it = mFormulas.begin();
-		for (; it != mFormulas.end(); ++it)
+		Loader::UniqueIdFormulaMap::const_iterator it = mFormulasMap.begin();
+		for (; it != mFormulasMap.end(); ++it)
 		{
-			formulaList.append( *it );
+			formulaList.append( it->second );
 		}
 
 		FormulasLinker formulasLinker(this, formulaList);

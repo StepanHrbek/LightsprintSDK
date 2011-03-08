@@ -22,6 +22,15 @@ namespace COLLADASaxFWL
 	const char* sidSeparator = "/";
 
 	//------------------------------
+	SidAddress::SidAddress( )
+		: mMemberSelection(MEMBER_SELECTION_NONE)
+		, mFirstIndex(0)
+		, mSecondIndex(0)
+		, mIsValid(false)
+	{
+	}
+
+	//------------------------------
 	SidAddress::SidAddress( const String& sidAddress )
 		: mMemberSelection(MEMBER_SELECTION_NONE)
 		, mFirstIndex(0)
@@ -103,9 +112,8 @@ namespace COLLADASaxFWL
 
 
 		// regular expression: "(.+)\.(.+)"
-		static const char _accessorNameRegex[69]={69,82,67,80,69,0,0,0,0,0,0,0,5,0,0,0,2,0,0,0,0,0,46,2,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,94,0,25,95,0,7,0,1,59,12,85,0,7,28,46,95,0,7,0,2,59,12,85,0,7,85,0,25,0,};
-		static const COLLADABU::PcreCompiledPattern accessorNameRegexCompiledPattern("(.+)\\.(.+)", _accessorNameRegex);
-		pcre* accessorNameRegex = accessorNameRegexCompiledPattern.getPattern();
+		static const COLLADABU::PcreCompiledPattern accessorNameRegexCompiledPattern("(.+)\\.(.+)");
+		pcre* accessorNameRegex = accessorNameRegexCompiledPattern.getCompiledPattern();
 
 		int accessorNameMatches[regExpMatchesVectorLength];
 
@@ -127,7 +135,7 @@ namespace COLLADASaxFWL
 			// this matches only, if the name accessor is present. Therefor there are exactly two matches 
 			int idOrSidStart = accessorNameMatches[2*1];
 			int idOrSidEnd = accessorNameMatches[2*1+1];
-			assert( idOrSidStart >= 0 );
+			COLLADABU_ASSERT( idOrSidStart >= 0 );
 			if ( idOrSidStart >= 0 )
 			{
 				if ( hasId )
@@ -144,7 +152,7 @@ namespace COLLADASaxFWL
 
 			int& nameStart = accessorNameMatches[2*2];
 			int& nameEnd = accessorNameMatches[2*2+1];
-			assert(nameStart>=0);
+			COLLADABU_ASSERT(nameStart>=0);
 			if ( nameStart>=0 )
 			{
 				mMemberSelectionName.assign(secondPart + nameStart, nameEnd - nameStart);
@@ -157,9 +165,8 @@ namespace COLLADASaxFWL
 		else 
 		{
 			// regular expression: "([^(]+)(?:\(([0-9]+)\))?(?:\(([0-9]+)\))?"
-			static const char _accessorIndexRegex[163]={69,82,67,80,-93,0,0,0,0,0,0,0,1,0,0,0,3,0,0,0,0,0,0,0,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,94,0,119,95,0,7,0,1,46,40,85,0,7,103,94,0,49,28,40,95,0,39,0,2,78,0,0,0,0,0,0,-1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,85,0,39,28,41,85,0,49,103,94,0,49,28,40,95,0,39,0,3,78,0,0,0,0,0,0,-1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,85,0,39,28,41,85,0,49,85,0,119,0,};
-			static const COLLADABU::PcreCompiledPattern accessorIndexRegexCompiledPattern("([^(]+)(?:\\(([0-9]+)\\))?(?:\\(([0-9]+)\\))?", _accessorIndexRegex);
-			pcre* accessorIndexRegex = accessorIndexRegexCompiledPattern.getPattern();
+			static const COLLADABU::PcreCompiledPattern accessorIndexRegexCompiledPattern("([^(]+)(?:\\(([0-9]+)\\))?(?:\\(([0-9]+)\\))?");
+			pcre* accessorIndexRegex = accessorIndexRegexCompiledPattern.getCompiledPattern();
 
 			int accessorIndexMatches[regExpMatchesVectorLength];
 
@@ -179,7 +186,7 @@ namespace COLLADASaxFWL
 				// the first match is id or sid
 				int& idOrSidStart = accessorIndexMatches[2*1];
 				int& idOrSidEnd = accessorIndexMatches[2*1+1];
-				assert( idOrSidStart >= 0 );
+				COLLADABU_ASSERT( idOrSidStart >= 0 );
 
 				if ( idOrSidStart >= 0 )
 				{

@@ -37,6 +37,7 @@ namespace COLLADASaxFWL
 	FormulasLoader::FormulasLoader( )
 		: mCurrentFormula( 0 )
 		, mSepOccurred( false )
+		, mCurrentCSymbolFunctionUniqueId(COLLADAFW::UniqueId::INVALID)
 		, mCurrentCSymbolIsFunction(false)
 		, mCurrentApplyHasChild(false)
 		, mWithinNewParam(false)
@@ -598,10 +599,10 @@ namespace COLLADASaxFWL
 	//-----------------------------------------------------------------
 	MathML::AST::INode* FormulasLoader::createUserDefinedFunctionOperation( const NodeVector& nodes )
 	{
-		assert(!nodes.empty());
+		COLLADABU_ASSERT(!nodes.empty());
 		MathML::AST::INode* firstNode = nodes.front();
 
-		assert( firstNode->getNodeType() == MathML::AST::INode::USERDEFINED);
+		COLLADABU_ASSERT( firstNode->getNodeType() == MathML::AST::INode::USERDEFINED);
 		COLLADACsymbol* csymbol = (COLLADACsymbol*)firstNode;
 		size_t nodesCount = nodes.size();
 		if ( nodesCount > 1)
@@ -830,6 +831,10 @@ namespace COLLADASaxFWL
 			// The csymbol appears as first child of apply. I must be a user defined function.
 			mOperatorStack.push(USER_DEFINED_FUNCTION);
 			mCurrentCSymbolIsFunction = true;
+			if (attributeData.definitionURL)
+			{
+				mCurrentCSymbolFunctionUniqueId = getHandlingFilePartLoader()->createUniqueIdFromUrl(attributeData.definitionURL, COLLADAFW::Formula::ID());
+			}
 		}
 		mCurrentApplyHasChild = true;
 		return true;
@@ -838,10 +843,19 @@ namespace COLLADASaxFWL
 	//-----------------------------------------------------------------
 	bool FormulasLoader::end__csymbol()
 	{
-		COLLADACsymbol* csymbol = FW_NEW COLLADACsymbol( mCurrentTextData, mCurrentCSymbolIsFunction ?  COLLADACsymbol::FUNCTION : COLLADACsymbol::PARAMETER );
+		COLLADACsymbol* csymbol = 0;
+		if ( mCurrentCSymbolIsFunction )
+		{
+			csymbol = FW_NEW COLLADACsymbol( mCurrentTextData, mCurrentCSymbolFunctionUniqueId );
+		}
+		else
+		{
+			csymbol = FW_NEW COLLADACsymbol( mCurrentTextData);
+		}
 		mCurrentTextData.clear(); 
 		mNodeListStack.top().push_back( csymbol );
 		mCurrentCSymbolIsFunction = false;
+		mCurrentCSymbolFunctionUniqueId = COLLADAFW::UniqueId::INVALID;
 		return true;
 	}
 

@@ -127,7 +127,7 @@ namespace COLLADASaxFWL
 				return linkedNode;
 			}
 		default:
-			assert(false);
+			COLLADABU_ASSERT(false);
 		}
 		return 0;
 	}
@@ -146,38 +146,12 @@ namespace COLLADASaxFWL
 			csymbolName = &targetAddress.getId();
 		}
 
-		
 		if ( csymbol->getCSymbolType() == COLLADACsymbol::FUNCTION )
 		{
-			// the csymbol is a function. Try to find the corresponding formula
-			const SidTreeNode* targetSidTreeNode = mDocumentProcessor->resolveSid( targetAddress );
+			const COLLADAFW::UniqueId& formulaUniqueId = csymbol->getFormulaUniqueId();
 
-			if ( !targetSidTreeNode )
-			{
-				// formula not found
-				String msg = "Formula with sid address \"" + targetAddress.getSidAddressString() + "\" ";
-				const String& formulaName = formula->getName();
-				if ( !formulaName.empty() )
-				{
-					msg.append( "referenced in \"" + formulaName + "\" ");
-				}
-				msg.append( "could not be resolved." );
-
-				success = mDocumentProcessor->handleFWLError(SaxFWLError::ERROR_UNRESOLVED_FORMULA, msg);
-			}
-
-			COLLADAFW::Formula* targetFormula = 0;
-			if ( success )
-			{
-				// the sid could be resolved
-				if  (targetSidTreeNode->getTargetType() == SidTreeNode::TARGETTYPECLASS_OBJECT)
-				{
-					// target is an object
-					// Object can only be of type Formula
-					targetFormula = COLLADAFW::objectSafeCast<COLLADAFW::Formula>(targetSidTreeNode->getObjectTarget());
-				}
-			}
-
+			COLLADAFW::Formula* targetFormula = mDocumentProcessor->getFormulaByUniqueId(formulaUniqueId);
+		
 			MathML::AST::FragmentExpression* fragmentExpression = 0;
 
 			if ( targetFormula )
@@ -233,13 +207,8 @@ namespace COLLADASaxFWL
 				// formula not found
 				fragmentExpression = new MathML::AST::FragmentExpression(targetAddress.getSidAddressString(), MathML::AST::INode::CLONEFLAG_DEEPCOPY_FRAGMENT_PARAMS);
 
-				String msg = "Element with sid address \"" + targetAddress.getSidAddressString() + "\" ";
-				const String& formulaName = formula->getName();
-				if ( !formulaName.empty() )
-				{
-					msg.append( "referenced in \"" + formulaName + "\" ");
-				}
-				msg.append( "is not a <formula> element." );
+				String msg = "Formula with unique id\"" + formulaUniqueId.toAscii() + "\" ";
+				msg.append( "could not be found." );
 
 				success = mDocumentProcessor->handleFWLError(SaxFWLError::ERROR_UNRESOLVED_FORMULA, msg);
 			}
@@ -255,7 +224,7 @@ namespace COLLADASaxFWL
 			{
 				//search for the parameter name in the formulas new params
 				bool found = false;
-				size_t newParamIndex = getNewParamIndex(formula, *csymbolName, found);
+				getNewParamIndex(formula, *csymbolName, found);
 				if ( found )
 				{
 					// we are done. create new VariableExpression and return
@@ -289,17 +258,17 @@ namespace COLLADASaxFWL
 				{
 					// the parameter is an object, e.g. a joint
 					const COLLADAFW::Object* object = targetSidTreeNode->getObjectTarget();
-					assert(object);
+					COLLADABU_ASSERT(object);
 					variableExpression = new MathML::AST::VariableExpression(object->getUniqueId().toAscii());
 				}
 				else if (targetSidTreeNode->getTargetType() == SidTreeNode::TARGETTYPECLASS_INTERMEDIATETARGETABLE)
 				{
 					// the parameter is an object, e.g. a joint
 					const IntermediateTargetable* intermediateTargetable = targetSidTreeNode->getIntermediateTargetableTarget();
-					assert(intermediateTargetable);
+					COLLADABU_ASSERT(intermediateTargetable);
 					const KinematicInstance* kinematicInstance = intermediateTargetableSafeCast<KinematicInstance>(intermediateTargetable);
 					// for now we only support kinematic instances here
-					assert(kinematicInstance);
+					COLLADABU_ASSERT(kinematicInstance);
 					variableExpression = new MathML::AST::VariableExpression(kinematicInstance->getReplacingObjectUniqueId().toAscii());
 				}
 				else
