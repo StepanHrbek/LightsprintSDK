@@ -198,19 +198,21 @@ namespace rr
 		//! Major occluders (buildings, large furniture etc) should be part
 		//! of static scene.
 		//! Handling major occluders as dynamic objects is safe,
-		//! but it introduces errors in lighting, so it is not recommended.
+		//! but it reduces realism of realtime indirect illumination, so it is not recommended.
 		//!
-		//! For all static objects with RRObject::illumination NULL, illumination is allocated.
-		//!
-		//! setStaticObjects() removes effects of previous loadFireball() or calculate().
+		//! If Fireball was enabled, setStaticObjects() disables it.
 		//!
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
 		//!  Object's getTriangleMaterial() and getPointMaterial() should return values
 		//!  in custom scale (usually screen colors).
-		//!  \n You guarantee that these objects will stay completely static(constant)
-		//!  until next setStaticObjects() call or solver destruction.
-		//!  Changing their meshes, positions, colors etc could lead to crash.
+		//!  \n Objects are passed via RRObjects, collection of pointers to objects.
+		//!     Solver creates its own copy of these pointers, but it does not copy actual objects.
+		//!     So while your collection is no longer accessed after this call,
+		//!     actual objects are, you must not deallocate or modify them
+		//!     until next setStaticObjects() call or solver destruction.
+		//!     Changing objects, meshes, positions, colors etc while they are set in solver could crash program.
+		//!     Changing illumiation stored in objects is safe.
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
 		//!  Set NULL for default values.
