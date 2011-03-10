@@ -60,6 +60,9 @@ namespace rr_gl
 		void userPreferencesGatherFromWx();
 		void userPreferencesApplyToWx();
 
+		//! Loads and returns scene with normalized units and up axis.
+		rr::RRScene* loadScene(const char* filename, float units, unsigned upAxis) const;
+
 		enum
 		{
 			ME_FILE_OPEN_SCENE = 10000, // avoid conflict with wxWidgets event numbers

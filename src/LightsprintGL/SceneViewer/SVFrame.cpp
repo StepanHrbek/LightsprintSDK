@@ -848,10 +848,7 @@ void SVFrame::OnMenuEventCore(wxCommandEvent& event)
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,m_canvas->solver);
 
-					rr::RRScene* scene = new rr::RRScene(dialog.GetPath(),textureLocator,&solver->aborting);
-					scene->normalizeUnits(userPreferences.import.getUnitLength(dialog.GetPath()));
-					scene->normalizeUpAxis(userPreferences.import.getUpAxis(dialog.GetPath()));
-					scene->objects.flipFrontBack(3,true);
+					rr::RRScene* scene = loadScene(dialog.GetPath(),userPreferences.import.getUnitLength(dialog.GetPath()),userPreferences.import.getUpAxis(dialog.GetPath()));
 					m_canvas->addOrRemoveScene(scene,true);
 					m_canvas->mergedScenes.push_back(scene);
 				}
@@ -1783,6 +1780,15 @@ void SVFrame::commitPropertyChanges()
 	m_sceneProperties->CommitChangesFromEditor();
 	m_objectProperties->CommitChangesFromEditor();
 	m_materialProperties->CommitChangesFromEditor();
+}
+
+rr::RRScene* SVFrame::loadScene(const char* _filename, float _units, unsigned _upAxis) const
+{
+	rr::RRScene* scene = new rr::RRScene(_filename,textureLocator,&m_canvas->solver->aborting);
+	scene->normalizeUnits(_units);
+	scene->normalizeUpAxis(_upAxis);
+	scene->objects.flipFrontBack(3,true);
+	return scene;
 }
 
 void SVFrame::simulateSun()

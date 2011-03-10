@@ -170,10 +170,7 @@ void SVCanvas::createContextCore()
 	if (!svs.sceneFilename.empty())
 	{
 		// load scene
-		rr::RRScene* scene = new rr::RRScene(svs.sceneFilename,parent->textureLocator,&solver->aborting);
-		scene->normalizeUnits(parent->userPreferences.import.getUnitLength(svs.sceneFilename));
-		scene->normalizeUpAxis(parent->userPreferences.import.getUpAxis(svs.sceneFilename));
-		scene->objects.flipFrontBack(3,true);
+		rr::RRScene* scene = parent->loadScene(svs.sceneFilename,parent->userPreferences.import.getUnitLength(svs.sceneFilename),parent->userPreferences.import.getUpAxis(svs.sceneFilename));
 		mergedScenes.push_back(scene);
 
 		// send everything to solver
