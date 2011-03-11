@@ -134,7 +134,7 @@ void SVCanvas::createContextCore()
 	int major, minor;
 	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
 	{
-		rr::RRReporter::report(rr::ERRO,"OpenGL 2.0 capable graphics card is required.\n");
+		rr::RRReporter::report(rr::ERRO,"Your system does not support OpenGL 2.0. Note: Some systems degrade OpenGL version in presence of secondary display.\n");
 		exitRequested = true;
 		return;
 	}
