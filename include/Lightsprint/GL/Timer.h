@@ -41,6 +41,7 @@
 	// GETTIME: 1-10ms precision,  Timer: high precision
 	#define WINDOWS_TIME
 	#include <windows.h>
+	#include <mmsystem.h> // might be necessary with WIN32_LEAN_AND_MEAN
 	#define TIME    DWORD
 	#define GETTIME timeGetTime()
 	#define PER_SEC 1000
