@@ -189,9 +189,9 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 		if (temporaryContext==lights)
 		{
 			wxMenu menu;
+			menu.Append(CM_LIGHT_DIR, _("Add Sun light"));
 			menu.Append(CM_LIGHT_SPOT, _("Add spot light")+" (alt-s)");
 			menu.Append(CM_LIGHT_POINT, _("Add point light")+" (alt-o)");
-			menu.Append(CM_LIGHT_DIR, _("Add directional light"));
 			menu.Append(CM_LIGHT_FLASH, _("Toggle flashlight")+" (alt-f)");
 			PopupMenu(&menu, event.GetPoint());
 		}
