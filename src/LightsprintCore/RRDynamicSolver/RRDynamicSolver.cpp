@@ -296,7 +296,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		RRVec3 mini,maxi;
 		getStaticObjects()[i]->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
 		getStaticObjects()[i]->illumination.envMapObjectNumber = i;
-		getStaticObjects()[i]->illumination.envMapWorldRadius = (maxi-mini).length()/2*getStaticObjects()[i]->getWorldMatrixRef().getUniformScale();
+		getStaticObjects()[i]->illumination.envMapWorldRadius = (maxi-mini).length()/2*getStaticObjects()[i]->getWorldMatrixRef().getScale().abs().avg();
 	}
 }
 

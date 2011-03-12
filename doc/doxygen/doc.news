@@ -10,11 +10,17 @@ namespace rr
 
 \section news118 ------------------------------------ 2011.03.xx -------------------------------------
 
+NEWS
+
+- enhanced RRMatrix4x3
+  - RRMatrix4x3::getScale() added
+  - RRMatrix4x3::setScale() added
+
 CHANGES
 
 - for source code licensee only: updated to boost 1.46
-- parameter added to all RRFileLocator::setXxx() functions
-  \n to support multiple libraries, parents etc
+- one parameter added to all RRFileLocator::setXxx() functions
+  \n to support multiple libraries, multiple parents etc
 
 \section news117 ------------------------------------ 2011.02.21 -------------------------------------
 

@@ -237,7 +237,7 @@ void RRScene::transform(const RRMatrix3x4& transformation)
 			object->setWorldMatrix(&world);
 		}
 	}
-	RRReal scale = transformation.getUniformScale();
+	RRReal scale = transformation.getScale().abs().avg();
 	for (unsigned i=0;i<lights.size();i++)
 	{
 		RRLight* light = lights[i];

@@ -186,13 +186,39 @@ void RRMatrix3x4::setTranslation(const RRVec3& a)
 	m[2][3] = a[2];
 }
 
-RRReal RRMatrix3x4::getUniformScale() const
+RRVec3 RRMatrix3x4::getScale() const
 {
-	RRReal scale = 0;
-	for (unsigned j=0;j<3;j++)
-		for (unsigned i=0;i<3;i++)
-			scale += fabs(m[i][j]);
-	return scale/3;
+	RRVec3 scale;
+	for (unsigned i=0;i<3;i++)
+	{
+		RRReal sign = m[i][0]+m[i][1]+m[i][2];
+		RRReal value = abs(m[i][0])+abs(m[i][1])+abs(m[i][2]);
+		scale[i] = sign>=0?value:-value;
+	}
+	return scale;
+}
+
+void RRMatrix3x4::setScale(const RRVec3& newScale)
+{
+	RRVec3 oldScale = getScale();
+	for (unsigned i=0;i<3;i++)
+	{
+		if (_finite(newScale[i])) // work only if inputs are valid
+		{
+			if (_finite(newScale[i]/oldScale[i]))
+			{
+				// standard scaling
+				for (unsigned j=0;j<3;j++)
+					m[i][j] = m[i][j]/oldScale[i]*newScale[i];
+			}
+			else
+			{
+				// matrix reconstruction after previous setScale(0)
+				for (unsigned j=0;j<3;j++)
+					m[i][j] = (i==j)?newScale[i]:0;
+			}
+		}
+	}
 }
 
 
