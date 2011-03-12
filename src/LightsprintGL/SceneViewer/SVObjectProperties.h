@@ -28,15 +28,23 @@ namespace rr_gl
 		//! Copy property -> object (all values).
 		void OnPropertyChange(wxPropertyGridEvent& event);
 
+		//! Select material in mat.props when facegroup is clicked.
+		void OnPropertySelect(wxPropertyGridEvent& event);
+
 	private:
 		rr::RRObject*     object;
 		rr::RRVec3        localCenter;
 
 		wxPGProperty*     propName;
-		wxPGProperty*     propWTranslation;
-
+		wxPGProperty*     propLocation;
+		wxPGProperty*     propCenter;
+		wxPGProperty*     propTranslation;
+		wxPGProperty*     propScale;
+		wxPGProperty*     propIllumination;
 		wxPGProperty*     propCubeDiffuse;
 		wxPGProperty*     propCubeSpecular;
+		wxPGProperty*     propFacegroups;
+		wxPGProperty*     propMesh;
 
 		DECLARE_EVENT_TABLE()
 	};

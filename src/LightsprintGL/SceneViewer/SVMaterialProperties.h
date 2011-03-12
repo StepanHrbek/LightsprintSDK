@@ -19,13 +19,18 @@ namespace rr_gl
 	public:
 		SVMaterialProperties(SVFrame* svframe);
 
-		//! Copy material -> property.
+		//! Copy material -> property (selected by clicking facegroup, honours physical flag, clears point flag).
+		void setMaterial(rr::RRMaterial* material);
+
+		//! Copy material -> property (selected by clicking pixel in viewport, honours point and physical flags).
 		void setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d);
 
 		//! Copy property -> material.
 		void OnPropertyChange(wxPropertyGridEvent& event);
 
 	private:
+		void updateProperties();
+		void updateHide();
 		void updateReadOnly();
 
 		rr::RRDynamicSolver* lastSolver;

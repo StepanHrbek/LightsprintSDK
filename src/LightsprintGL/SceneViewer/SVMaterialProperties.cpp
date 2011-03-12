@@ -114,33 +114,8 @@ static void setMaterialProperty(wxPGProperty* prop, rr::RRMaterial::Property& ma
 	composeMaterialPropertyRoot(prop,material);
 }
 
-// copy material to propertygrid
-void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d)
+void SVMaterialProperties::updateHide()
 {
-	lastSolver = solver;
-	lastTriangle = hitTriangle;
-	lastPoint2d = hitPoint2d;
-
-	if (hitTriangle==UINT_MAX || !solver)
-	{
-		material = NULL;
-	}
-	else
-	if (showPoint)
-	{
-		if (showPhysical)
-			solver->getMultiObjectPhysical()->getPointMaterial(hitTriangle,hitPoint2d,materialPoint);
-		else
-			solver->getMultiObjectCustom()->getPointMaterial(hitTriangle,hitPoint2d,materialPoint);
-		material = &materialPoint;
-	}
-	else
-	{
-		materialPhysical = solver->getMultiObjectPhysical()->getTriangleMaterial(hitTriangle,NULL,NULL);
-		materialCustom = solver->getMultiObjectCustom()->getTriangleMaterial(hitTriangle,NULL,NULL);
-		material = showPhysical ? materialPhysical : materialCustom;
-	}
-
 	if ((material!=NULL)!=shown)
 	{
 		shown = material!=NULL;
@@ -154,28 +129,6 @@ void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hit
 		HideProperty(propTransparent,!material);
 		HideProperty(propLightmapTexcoord,!material);
 		HideProperty(propQualityForPoints,!material);
-	}
-
-	if (material)
-	{
-		updateString(propName,RR2WX(material->name));
-
-		updateBool(propFront,material->sideBits[0].renderFrom);
-		updateBool(propBack,material->sideBits[1].renderFrom);
-
-		setMaterialProperty(propDiffuse,material->diffuseReflectance);
-		setMaterialProperty(propSpecular,material->specularReflectance);
-		setMaterialProperty(propEmissive,material->diffuseEmittance);
-		setMaterialProperty(propTransparent,material->specularTransmittance);
-
-		updateBool(propTransparency1bit,material->specularTransmittanceKeyed);
-		updateBool(propTransparencyInAlpha,material->specularTransmittanceInAlpha);
-		updateFloat(propRefraction,material->refractionIndex);
-
-		updateInt(propLightmapTexcoord,material->lightmapTexcoord);
-		updateInt(propQualityForPoints,material->minimalQualityForPointMaterials);
-
-		updateReadOnly();
 	}
 }
 
@@ -200,6 +153,80 @@ void SVMaterialProperties::updateReadOnly()
 		EnableProperty(propLightmapTexcoord,!showPoint);
 		EnableProperty(propQualityForPoints,!showPoint);
 	}
+}
+
+void SVMaterialProperties::updateProperties()
+{
+	if (material)
+	{
+		updateString(propName,RR2WX(material->name));
+
+		updateBool(propFront,material->sideBits[0].renderFrom);
+		updateBool(propBack,material->sideBits[1].renderFrom);
+
+		setMaterialProperty(propDiffuse,material->diffuseReflectance);
+		setMaterialProperty(propSpecular,material->specularReflectance);
+		setMaterialProperty(propEmissive,material->diffuseEmittance);
+		setMaterialProperty(propTransparent,material->specularTransmittance);
+
+		updateBool(propTransparency1bit,material->specularTransmittanceKeyed);
+		updateBool(propTransparencyInAlpha,material->specularTransmittanceInAlpha);
+		updateFloat(propRefraction,material->refractionIndex);
+
+		updateInt(propLightmapTexcoord,material->lightmapTexcoord);
+		updateInt(propQualityForPoints,material->minimalQualityForPointMaterials);
+	}
+	updateHide();
+	updateReadOnly();
+}
+
+//! Copy material -> property (selected by clicking facegroup, honours physical flag, clears point flag).
+void SVMaterialProperties::setMaterial(rr::RRMaterial* _material)
+{
+	EnableProperty(propPoint,false);
+	EnableProperty(propPhysical,false);
+
+	updateBool(propPoint,showPoint = false);
+	updateBool(propPhysical,showPhysical = false);
+
+	materialPhysical = NULL;
+	materialCustom = _material;
+	material = _material;
+
+	updateProperties();
+}
+
+// copy material to propertygrid
+void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d)
+{
+	EnableProperty(propPoint,true);
+	EnableProperty(propPhysical,true);
+
+	lastSolver = solver;
+	lastTriangle = hitTriangle;
+	lastPoint2d = hitPoint2d;
+
+	if (hitTriangle==UINT_MAX || !solver)
+	{
+		material = NULL;
+	}
+	else
+	if (showPoint)
+	{
+		if (showPhysical)
+			solver->getMultiObjectPhysical()->getPointMaterial(hitTriangle,hitPoint2d,materialPoint);
+		else
+			solver->getMultiObjectCustom()->getPointMaterial(hitTriangle,hitPoint2d,materialPoint);
+		material = &materialPoint;
+	}
+	else
+	{
+		materialPhysical = solver->getMultiObjectPhysical()->getTriangleMaterial(hitTriangle,NULL,NULL);
+		materialCustom = solver->getMultiObjectCustom()->getTriangleMaterial(hitTriangle,NULL,NULL);
+		material = showPhysical ? materialPhysical : materialCustom;
+	}
+
+	updateProperties();
 }
 
 void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
