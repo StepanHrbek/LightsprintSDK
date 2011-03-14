@@ -182,6 +182,13 @@ public:
 	//! Returns whether camera is in one of predefined orthogonal views, or OTHER if it is not.
 	//! View is detected from direction angles, position and range are ignored.
 	View getView() const;
+
+	//! Fixes NaN and INF values found in camera inputs (pos, dir etc).
+	//
+	//! It is important before serializing camera into text stream that can't handle infinite numbers.
+	//! It does not change outputs (up, right, matrices etc), use update() to update outputs from inputs.
+	//! \return Number of changes made.
+	unsigned fixInvalidValues();
 };
 
 }; // namespace

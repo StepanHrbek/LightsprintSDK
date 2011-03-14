@@ -600,4 +600,49 @@ void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* time
 
 #endif
 
+
+////////////////////////////////////////////////////////////////////////
+//
+// fix
+
+static unsigned makeFinite(float& f, float def)
+{
+	if (_finite(f))
+		return 0;
+	f = def;
+	return 1;
+}
+
+static unsigned makeFinite(rr::RRVec2& v, const rr::RRVec2& def)
+{
+	return makeFinite(v[0],def[0])+makeFinite(v[1],def[1]);
+}
+
+static unsigned makeFinite(rr::RRVec3& v, const rr::RRVec3& def)
+{
+	return makeFinite(v[0],def[0])+makeFinite(v[1],def[1])+makeFinite(v[2],def[2]);
+}
+
+unsigned Camera::fixInvalidValues()
+{
+	unsigned numFixes =
+		+ makeFinite(pos,rr::RRVec3(0))
+		+ makeFinite(aspect,1)
+		+ makeFinite(fieldOfViewVerticalDeg,90)
+		+ makeFinite(anear,0.1f)
+		+ makeFinite(afar,100)
+		+ makeFinite(screenCenter,rr::RRVec2(0))
+		+ makeFinite(orthoSize,100)
+		+ makeFinite(orthoSize,100)
+		;
+	if (updateDirFromAngles)
+		return numFixes
+			+ makeFinite(angle,0)
+			+ makeFinite(leanAngle,0)
+			+ makeFinite(angleX,0);
+	else
+		return numFixes
+			+ makeFinite(dir,rr::RRVec3(1));
+}
+
 }; // namespace

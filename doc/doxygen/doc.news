@@ -15,6 +15,7 @@ NEWS
 - enhanced RRMatrix4x3
   - RRMatrix4x3::getScale() added
   - RRMatrix4x3::setScale() added
+  - getUniformScale() removed, use getScale().abs().avg()
 
 CHANGES
 
