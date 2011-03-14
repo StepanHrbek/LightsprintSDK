@@ -176,7 +176,7 @@ empty_scene:
 			if (!_finite(pos[j]))
 				pos[j] = mini[j] + (maxi[j]-mini[j])*(rand()/float(RAND_MAX));
 		RRVec3 dir = (center-pos).normalizedSafe();
-		pos += dir*_maxdist*0.1f;
+		pos += dir*_maxdist* ((rand()-RAND_MAX/2)/(RAND_MAX*2.5f)); // -0.2 .. 0.2
 
 		// measure quality (=number of unique triangles hit by 100 rays)
 		hitTriangles.clear();
