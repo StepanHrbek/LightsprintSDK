@@ -28,6 +28,8 @@ namespace rr_gl
 		dirtyGI = true;
 
 		csmObserverPos = rr::RRVec3(0);
+		csmObserverDir = rr::RRVec3(1,0,0);
+		csmObserverNear = 0;
 		csmSceneSize = rr::RRVec3(1);
 		parent = new Camera(_rrlight);
 		deleteParent = true;
@@ -58,6 +60,8 @@ namespace rr_gl
 			if (observer)
 			{
 				csmObserverPos = observer->pos;
+				csmObserverDir = observer->dir;
+				csmObserverNear = observer->getNear();
 			}
 			if (scene)
 			{
@@ -202,7 +206,7 @@ namespace rr_gl
 
 			static int i = 0;
 			if (i++==3000)
-				rr::RRReporter::report(rr::WARN,"3000th (re)allocation of shadowmap, let's party. Oh, isn't it too much?\n");
+				rr::RRReporter::report(rr::WARN,"3000th (re)allocation of shadowmap, either you change settings too often or something is wrong.\n");
 		}
 		// return shadowmap
 		return shadowmap;
@@ -237,16 +241,7 @@ namespace rr_gl
 
 	unsigned RealtimeLight::getNumShadowSamples(unsigned instance) const
 	{
-		if (instance>=getNumShadowmaps()) return 0;
-		if (!getRRLight().castShadows) return 0;
-		switch(getRRLight().type)
-		{
-			case rr::RRLight::POINT: return 1;
-			case rr::RRLight::SPOT: return numSoftShadowSamples;
-			case rr::RRLight::DIRECTIONAL: return (instance==getNumShadowmaps()-1)?numSoftShadowSamples:1;
-			default: RR_ASSERT(0);
-		}
-		return 1;
+		return getNumShadowSamples();
 	}
 
 	void RealtimeLight::instanceMakeup(Camera& light, unsigned instance, bool jittered) const
@@ -272,11 +267,24 @@ namespace rr_gl
 			}
 			else
 			{
-				light.pos = csmObserverPos;
 				float base = 0.3f-pow(light.orthoSize,0.3f)/80; // base is 0.2 for ortho up to 1km, drops to 0.1 above 10km
 				RR_CLAMP(base,0.1f,0.2f);
+				if (csmObserverNear>0) // may be negative for ortho observer
+				{
+					// if near is big, increase SM sizes, don't boosting waste SM space on tiny fraction of screen (or even in area cropped by near)
+					// satisfy light.orthoSize * base^(numInstances-1) > csmObserverNear*10
+					//         base^(numInstances-1) > csmObserverNear*10/light.orthoSize
+					//         base > pow(csmObserverNear*10/light.orthoSize,1/(numInstances-1))
+					// 10 works well in ex5.dae and sponza.dae
+					float minBase = pow(csmObserverNear*10/light.orthoSize,1.0f/(numInstances-1));
+					if (_finite(minBase) && base<minBase)
+						base = RR_MIN(minBase,0.5f);
+				}
 				float visibleArea = powf(base,(float)instance);
 				light.orthoSize *= visibleArea;
+				light.pos = csmObserverPos
+					// move SM center in view direction -> improves quality in front of camera, reduces quality behind camera (visible if camera turns back)
+					+csmObserverDir*(light.orthoSize*0.5f);
 				if (Workaround::supportsDepthClamp())
 					light.setRange(light.getNear()*visibleArea,light.getFar()*visibleArea);
 				double r = light.pos[0]*light.inverseViewMatrix[0]+light.pos[1]*light.inverseViewMatrix[1]+light.pos[2]*light.inverseViewMatrix[2];

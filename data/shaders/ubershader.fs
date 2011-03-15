@@ -343,12 +343,10 @@ void main()
 			#else
 				#define SHADOW_COLOR_LOOKUP(index) * texture2D(shadowColorMap##index,center.xy)
 			#endif
-			#define SHADOW_COLOR_LOOKUP_CSM(index) * texture2DProj(shadowColorMap##index,shadowCoord[index].xyw)
 		#else
 			// standard shadow
 			#define VISIBILITY_T float
 			#define SHADOW_COLOR_LOOKUP(index)
-			#define SHADOW_COLOR_LOOKUP_CSM(index)
 		#endif
 
 		VISIBILITY_T visibility = VISIBILITY_T(0.0); // 0=shadowed, 1=lit, 1,0,0=red shadow
@@ -411,27 +409,31 @@ void main()
 		vec3 center; // temporary, used by macros
 		#if defined(SHADOW_CASCADE) && SHADOW_MAPS>1
 			#if SHADOW_MAPS==2
-				VISIBILITY_T visibility0 = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES) SHADOW_COLOR_LOOKUP_CSM(0);
-				{ACCUMULATE_SHADOW(1);}
+				ACCUMULATE_SHADOW(0);
+				VISIBILITY_T visibility0 = visibility;
+				visibility = VISIBILITY_T(0);
+				ACCUMULATE_SHADOW(1);
 				center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
 				float centerMax = max(center.x,max(center.y,center.z));
 				float blendFactor = smoothstep(0.3,0.49,centerMax);
 				visibility = mix(visibility,visibility0,blendFactor);
 			#else
-				VISIBILITY_T visibility1 = shadow2DProj(shadowMap1,shadowCoord[1]).z*float(SHADOW_SAMPLES) SHADOW_COLOR_LOOKUP_CSM(1);
+				ACCUMULATE_SHADOW(1);
+				VISIBILITY_T visibility1 = visibility;
+				visibility = VISIBILITY_T(0);
 				center = abs(shadowCoord[2].xyz/shadowCoord[2].w-vec3(0.5));
 				float centerMax = max(center.x,max(center.y,center.z));
 				if (centerMax>0.49)
 				{
-					VISIBILITY_T visibility0 = shadow2DProj(shadowMap0,shadowCoord[0]).z*float(SHADOW_SAMPLES) SHADOW_COLOR_LOOKUP_CSM(0);
+					ACCUMULATE_SHADOW(0);
 					center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
 					float centerMax = max(center.x,max(center.y,center.z));
 					float blendFactor = smoothstep(0.3,0.49,centerMax);
-					visibility = mix(visibility1,visibility0,blendFactor);
+					visibility = mix(visibility1,visibility,blendFactor);
 				}
 				else
 				{
-					{ACCUMULATE_SHADOW(2);}
+					ACCUMULATE_SHADOW(2);
 					float blendFactor = smoothstep(0.3,0.49,centerMax);
 					visibility = mix(visibility,visibility1,blendFactor);
 				}

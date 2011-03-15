@@ -172,6 +172,8 @@ protected:
 	//!  It is enabled in UberProgramSetup::useProgram(), so set it false when generating shadowmaps.
 	virtual void instanceMakeup(Camera& light, unsigned instance, bool jittered) const;
 	rr::RRVec3 csmObserverPos;
+	rr::RRVec3 csmObserverDir;
+	float csmObserverNear;
 	rr::RRVec3 csmSceneSize;
 	Camera* parent;
 	bool deleteParent;

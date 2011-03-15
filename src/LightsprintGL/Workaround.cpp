@@ -94,6 +94,7 @@ bool Workaround::needsOneSampleShadowmaps(const rr::RRLight& light)
 {
 	// legacy AMD (X300, X1650) render shadow acne in distant 1-sample shadows if near shadows use 4 or 8 samples.
 	// increased bias did not help, forcing 1-sample for near shadows helps
+	// near4-distant1-sample mode was removed, maybe this workaround can be removed too
 	init();
 	return light.type==rr::RRLight::DIRECTIONAL && s_isRadeon && (s_modelNumber>=9500 || s_modelNumber<2199);
 }

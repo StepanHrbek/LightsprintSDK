@@ -12,6 +12,10 @@ namespace rr
 
 NEWS
 
+- enhanced realtime shadows from Sun
+- enhanced scene viewer
+  - Object properties/Materials
+  - Object properties/Scale
 - enhanced RRMatrix4x3
   - RRMatrix4x3::getScale() added
   - RRMatrix4x3::setScale() added
