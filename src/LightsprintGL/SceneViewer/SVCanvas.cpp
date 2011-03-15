@@ -1170,7 +1170,7 @@ void SVCanvas::Paint(wxPaintEvent& event)
 					clipPlanes[3] = svs.waterLevel;
 					uberProgramSetup.CLIP_PLANE_YB = true;
 				}
-				water->updateReflectionInit(winWidth/4,winHeight/4,&svs.eye,svs.waterLevel);
+				water->updateReflectionInit(winWidth/2,winHeight/2,&svs.eye,svs.waterLevel);
 				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 				solver->renderScene(
 					uberProgramSetup,
