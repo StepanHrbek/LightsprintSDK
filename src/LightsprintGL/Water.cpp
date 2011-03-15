@@ -113,7 +113,7 @@ void Water::render(float size, rr::RRVec3 center, rr::RRVec4 waterColor, rr::RRV
 		for (int i=10;i>=0;i--)
 		{
 			float localsize = size * expf((float)-i);
-			float localalt = altitude + i*1e-3f;
+			float localalt = altitude + i*(size*1e-7f);
 			glVertex3f(center[0]-0.5f*localsize,localalt,center[2]-0.86602540378444f*localsize);
 			glVertex3f(center[0]-0.5f*localsize,localalt,center[2]+0.86602540378444f*localsize);
 			glVertex3f(center[0]+localsize,localalt,center[2]);
