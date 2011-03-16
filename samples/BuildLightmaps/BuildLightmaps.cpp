@@ -18,7 +18,6 @@
 // It supports inputs in various file formats
 // - Collada
 // - Gamebryo
-// - Quake 3
 // - other partially supported formats
 //
 // It supports outputs in various file formats
@@ -61,14 +60,14 @@
 #include <cstdio>
 #include <string>
 #ifdef _WIN32
-#include <windows.h>
-#include <direct.h> // _chdir
+	#include <windows.h>
+	#include <direct.h> // _chdir
 #endif
 #include "Lightsprint/RRMath.h"
 #include "Lightsprint/IO/ImportScene.h"
 #ifdef SCENE_VIEWER
-#include "Lightsprint/GL/SceneViewer.h"
-#include "Lightsprint/GL/Texture.h"
+	#include "Lightsprint/GL/SceneViewer.h"
+	#include "Lightsprint/GL/Texture.h"
 #endif
 
 
@@ -76,12 +75,15 @@
 //
 // termination with error message
 
-void error(const char* message, const char* caption = "Houston, we have a problem")
+void error(bool& aborting, const char* message)
 {
+	if (message)
+		rr::RRReporter::report(rr::ERRO,"%s\n",message);
 #ifdef _WIN32
-	MessageBox(NULL,message,caption,MB_OK|MB_SETFOREGROUND);
+	rr::RRReporter::report(rr::INF1,"\nPress Esc or click Abort to quit...\n");
+	while (!aborting) Sleep(1);
 #else
-	printf("%s: %s\n\nHit enter to close...",caption,message);
+	printf("\nHit Enter to close...");
 	fgetc(stdin);
 #endif
 	exit(0);
@@ -126,6 +128,9 @@ struct Parameters
 	bool buildOcclusion;
 	bool buildBentNormals;
 	rr::RRObject::LayerParameters layerParameters;
+	float ppSmoothing;
+	float ppBrightness;
+	float ppContrast;
 
 	// create parameters from commandline arguments
 	//  objectIndex=-1 -> gather global parameters
@@ -146,6 +151,9 @@ struct Parameters
 		buildBentNormals = false;
 		runViewer = false;
 		layerParameters.objectIndex = objectIndex;
+		ppSmoothing = 0;
+		ppBrightness = 1;
+		ppContrast = 1;
 
 		// parse commandline
 		int parsingObjectIndex = -1;
@@ -224,6 +232,18 @@ struct Parameters
 				{
 				}
 				else
+				if (sscanf(argv[i],"smoothing=%f",&ppSmoothing)==1)
+				{
+				}
+				else
+				if (sscanf(argv[i],"brightness=%f",&ppBrightness)==1)
+				{
+				}
+				else
+				if (sscanf(argv[i],"contrast=%f",&ppContrast)==1)
+				{
+				}
+				else
 				if (!strcmp(argv[i],"viewer"))
 				{
 					runViewer = true;
@@ -267,15 +287,42 @@ struct Parameters
 		//  outputpath=aga -> outputpath=scenepath/aga
 	}
 
+	rr::RRBuffer* newBuffer() const
+	{
+		return layerParameters.createBuffer(false,true); // floats not necessary, alpha for smoothing
+	}
+
 	// allocate layers for 1 object (lightmaps etc)
 	void layersCreate(rr::RRObjectIllumination* illumination) const
 	{
-		illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.createBuffer() : NULL;
-		illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? layerParameters.createBuffer() : NULL;
-		illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? layerParameters.createBuffer() : NULL;
-		illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? layerParameters.createBuffer() : NULL;
-		illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? layerParameters.createBuffer() : NULL;
-		illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? layerParameters.createBuffer() : NULL;
+		illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? newBuffer() : NULL;
+		illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? newBuffer() : NULL;
+		illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? newBuffer() : NULL;
+		illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? newBuffer() : NULL;
+		illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? newBuffer() : NULL;
+		illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? newBuffer() : NULL;
+	}
+
+	// postprocess layers of 1 object, returns number of successfully saved layers
+	unsigned layersPostprocess(const rr::RRObjectIllumination* illumination) const
+	{
+		unsigned postprocessed = 0;
+		for (unsigned layerIndex = LAYER_LIGHTMAP; layerIndex<LAYER_LAST; layerIndex++)
+		{
+			rr::RRBuffer* buffer = illumination->getLayer(layerIndex);
+			if (buffer)
+			{
+				if (buffer->getType()==rr::BT_2D_TEXTURE)
+				{
+					buffer->lightmapSmooth(ppSmoothing,false);
+					buffer->lightmapGrowForBilinearInterpolation(false);
+					buffer->lightmapGrow(1024,false);
+				}
+				buffer->brightnessGamma(rr::RRVec4(ppBrightness),rr::RRVec4(ppContrast));
+				postprocessed++;
+			}
+		}
+		return postprocessed;
 	}
 
 	// save layers of 1 object, returns number of successfully saved layers
@@ -313,14 +360,6 @@ int main(int argc, char **argv)
 #endif
 
 	//
-	// check for dll version mismatch
-	//
-	if (!RR_INTERFACE_OK)
-	{
-		error("DLL version mismatch.");
-	}
-
-	//
 	// create message reporter
 	//
 	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
@@ -329,7 +368,15 @@ int main(int argc, char **argv)
 #else
 	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
 #endif
-	rr::RRReporter::report(rr::INF2,"This is Lightsprint SDK %s\n",rr::RR_INTERFACE_DESC_LIB());
+	rr::RRReporter::report(rr::INF2,"Using Lightsprint SDK %s\n",rr::RR_INTERFACE_DESC_LIB());
+
+	//
+	// check for dll version mismatch
+	//
+	if (!RR_INTERFACE_OK)
+	{
+		error(solver->aborting,"DLL version mismatch.");
+	}
 
 	//
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop
@@ -347,7 +394,8 @@ int main(int argc, char **argv)
 	Parameters globalParameters(argc,argv);
 	if (!globalParameters.sceneFilename)
 	{
-		error(
+		rr::RRReporter::report(rr::INF1,"%s",
+			"\n"
 			"Lightsprint commandline lightmap builder\n"
 			"\n"
 			"Usage:\n"
@@ -369,6 +417,8 @@ int main(int argc, char **argv)
 			"  viewer                  (run scene viewer after build)\n"
 #endif
 			"\n"
+			); // split in two messages, because standard reporters limit message to 1000 characters
+		rr::RRReporter::report(rr::INF1,"%s",
 			"Per-object arguments:\n"
 			"  directional             (build directional lightmaps)\n"
 			"  bentnormals             (build bent normals)\n"
@@ -378,8 +428,12 @@ int main(int argc, char **argv)
 			"  minmapsize=32           (minimal map resolution, Gamebryo only)\n"
 			"  maxmapsize=1024         (maximal map resolution, Gamebryo only)\n"
 			"  pixelsperworldunit=1.0  (Gamebryo only)\n"
-			,
-			"Scene filename not set");
+			"  smoothing=0.0           (postprocess: smoothing, radius in pixels)\n"
+			"  brightness=1.0          (postprocess: brightness adjustment)\n"
+			"  contrast=1.0            (postprocess: contrast adjustment)\n"
+			"\n"
+			);
+		error(solver->aborting,"Scene filename not set or not found.");
 	}
 
 	//
@@ -388,7 +442,7 @@ int main(int argc, char **argv)
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 	{
-		error(licError);
+		error(solver->aborting,licError);
 	}
 
 	//
@@ -405,6 +459,8 @@ int main(int argc, char **argv)
 	// load scene
 	//
 	rr::RRScene scene(globalParameters.sceneFilename,NULL);
+	if (!scene.objects.size())
+		error(solver->aborting,"No objects loaded.");
 	scene.objects.multiplyEmittance(globalParameters.emissiveMultiplier);
 
 	//
@@ -479,7 +535,7 @@ int main(int argc, char **argv)
 #endif
 
 	//
-	// save layers
+	// postprocess and save layers
 	//
 	if (globalParameters.buildQuality && !solver->aborting)
 	{
@@ -492,11 +548,16 @@ int main(int argc, char **argv)
 			Parameters objectParameters(argc,argv,objectIndex);
 			// query filename
 			scene.objects[objectIndex]->recommendLayerParameters(objectParameters.layerParameters);
+			// postprocess
+			objectParameters.layersPostprocess(&scene.objects[objectIndex]->illumination);
 			// save
 			saved += objectParameters.layersSave(&scene.objects[objectIndex]->illumination);
 		}
 
 		rr::RRReporter::report(rr::INF2,"Saved %d files.\n",saved);
+		// saving 0 files is strange, force user to read log and quit
+		if (!saved)
+			error(solver->aborting,NULL);
 	}
 
 	//
@@ -518,21 +579,23 @@ int main(int argc, char **argv)
 #ifdef NDEBUG
 		// release returns quickly without freeing resources
 		rr_gl::sceneViewer(solver,globalParameters.sceneFilename,NULL,"../../data/shaders/",&svs,false);
-		return 0;
-#endif
+#else
 		// debug frees everything and reports memory leaks
 		rr_gl::sceneViewer(solver,globalParameters.sceneFilename,NULL,"../../data/shaders/",&svs,true);
 		rr_gl::deleteAllTextures();
+#endif
 	}
 #endif
 
 	//
 	// free memory
 	//
+#ifndef NDEBUG
 	delete solver->getEnvironment();
 	delete solver->getScaler();
 	RR_SAFE_DELETE(solver); // sets solver to NULL (it's important because reporter still references solver)
 	delete reporter;
+#endif
 
 	return 0;
 }
@@ -546,7 +609,8 @@ int main(int argc, char **argv)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShow)
 {
 	int argc = 0;
-	LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
+	LPWSTR commandline = GetCommandLineW();
+	LPWSTR* argvw = CommandLineToArgvW(commandline, &argc);
 	if (argvw && argc)
 	{
 		// build argv from commandline

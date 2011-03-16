@@ -16,6 +16,10 @@ NEWS
 - enhanced scene viewer
   - Object properties/Materials
   - Object properties/Scale
+- enhanced BuildLightmaps tool, new parameters
+  - smoothing=
+  - brightness=
+  - contrast=
 - enhanced RRMatrix4x3
   - RRMatrix4x3::getScale() added
   - RRMatrix4x3::setScale() added
