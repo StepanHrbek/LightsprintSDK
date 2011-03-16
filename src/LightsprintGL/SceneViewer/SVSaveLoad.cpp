@@ -525,7 +525,7 @@ bool UserPreferences::load(const wxString& nonDefaultFilename)
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to load %S.\n",WX2CHAR(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
+		rr::RRReporter::report(rr::ERRO,"Failed to load preferences %S.\n",WX2CHAR(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
 		return false;
 	}
 

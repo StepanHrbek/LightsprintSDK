@@ -182,7 +182,7 @@ public:
 		}
 		catch(...)
 		{
-			rr::RRReporter::report(rr::ERRO,"Failed to load %s.\n",filename);
+			rr::RRReporter::report(rr::ERRO,"Failed to load scene %s.\n",filename);
 			return NULL;
 		}
 	}

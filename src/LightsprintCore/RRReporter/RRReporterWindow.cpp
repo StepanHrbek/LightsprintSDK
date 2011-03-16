@@ -396,7 +396,6 @@ public:
 			// This is very dangerous place.
 			// It's common error in main program to 'delete solver' rather than RR_SAFE_DELETE(solver),
 			// it makes our pointer invalid and we overwrite freed memory here.
-			// TODO: enforce some form of smart pointer on solver to prevent this error
 			solver[0]->aborting = false;
 		}
 	}

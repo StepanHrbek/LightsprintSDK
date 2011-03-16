@@ -169,7 +169,7 @@ RRScene::RRScene(const char* _filename, RRFileLocator* _textureLocator, bool* _a
 	// test whether loader exists
 	if (!loaderFound)
 	{
-		RRReporter::report(WARN,"Scene %s not loaded, no loader for this extension was registered.\n",_filename);
+		RRReporter::report(WARN,"Scene not loaded, no loader registered for %s.\n",_filename);
 		return;
 	}
 
