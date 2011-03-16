@@ -403,7 +403,7 @@ namespace rr
 		//! \param wrap
 		//!  True = smooth through lightmap boundaries.
 		//! \return
-		//!  True on success, may fail when allocation fails.
+		//!  True on success, may fail when allocation fails or buffer is not 2d texture.
 		virtual bool lightmapSmooth(float sigma, bool wrap);
 		//! Fills in unused lightmap texels relevant when bilinearly interpolating lightmap.
 		//
@@ -412,7 +412,7 @@ namespace rr
 		//! \param wrap
 		//!  True = grow through lightmap boundaries.
 		//! \return
-		//!  False when lightmap is empty, all texels have alpha<0.002.
+		//!  False when lightmap is empty (all texels have alpha<0.002) or not 2d texture.
 		virtual bool lightmapGrowForBilinearInterpolation(bool wrap);
 		//! Fills in unused lightmap texels in proximity of used ones, may help when mipmapping or compressing lightmap.
 		//
@@ -423,14 +423,16 @@ namespace rr
 		//! \param wrap
 		//!  True = grow through lightmap boundaries.
 		//! \return
-		//!  True on success, may fail when allocation fails.
+		//!  True on success, may fail when allocation fails or buffer is not 2d texture.
 		virtual bool lightmapGrow(unsigned distance, bool wrap);
 		//! Fills unused texels in lightmap by backgroundColor.
 		//
 		//! Expects used texels to have alpha>0.
 		//! \param backgroundColor
 		//!  Color (and alpha) to set to all unused texels.
-		virtual void lightmapFillBackground(RRVec4 backgroundColor);
+		//! \return
+		//!  True on success, may fail when buffer is not 2d texture.
+		virtual bool lightmapFillBackground(RRVec4 backgroundColor);
 	};
 
 } // namespace

@@ -340,6 +340,8 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap)
 	}
 	if (_sigma<0)
 		return false;
+	if (getType()!=BT_2D_TEXTURE)
+		return false;
 	if (_sigma==0)
 		return true;
 
@@ -464,6 +466,13 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap)
 
 bool RRBuffer::lightmapGrowForBilinearInterpolation(bool _wrap)
 {
+	if (!this)
+	{
+		RR_ASSERT(0);
+		return false;
+	}
+	if (getType()!=BT_2D_TEXTURE)
+		return false;
 	bool notEmpty = false;
 	unsigned width = getWidth();
 	unsigned height = getHeight();
@@ -528,6 +537,8 @@ bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap)
 		RR_ASSERT(0);
 		return false;
 	}
+	if (getType()!=BT_2D_TEXTURE)
+		return false;
 	if (_numSteps==0)
 		return true;
 	if (getFormat()==BF_DXT1 || getFormat()==BF_DXT3 || getFormat()==BF_DXT5)
@@ -623,14 +634,22 @@ bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap)
 	return true;
 }
 
-void RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
+bool RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 {
+	if (!this)
+	{
+		RR_ASSERT(0);
+		return false;
+	}
+	if (getType()!=BT_2D_TEXTURE)
+		return false;
 	unsigned numElements = getWidth()*getHeight()*getDepth();
 	for (unsigned i=0;i<numElements;i++)
 	{
 		RRVec4 color = getElement(i);
 		setElement(i,(color[3]<0)?backgroundColor:color);
 	}
+	return true;
 }
 
 
