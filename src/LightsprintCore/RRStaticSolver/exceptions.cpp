@@ -97,7 +97,7 @@ public:
 			if (i->second.buffer // we try again if previous load failed, perhaps file was created on background
 				&& (i->second.buffer->getDuration() // always take videos from cache
 					|| i->second.buffer->version==i->second.bufferVersionWhenLoaded) // take static content from cache only if version did not change
-				// && i->second.fileTimeWhenLoaded==boost::filesystem::last_write_time(filename)
+				// && i->second.fileTimeWhenLoaded==bf::last_write_time(filename)
 				)
 			{
 				// detect and report possible error
@@ -120,7 +120,7 @@ public:
 		{
 			value.buffer->createReference(); // keep initial ref for us, add one ref for user
 			value.bufferVersionWhenLoaded = value.buffer->version;
-			//value.fileTimeWhenLoaded = boost::filesystem::last_write_time(filename);
+			//value.fileTimeWhenLoaded = bf::last_write_time(filename);
 		}
 		return value.buffer;
 	}

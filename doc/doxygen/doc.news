@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news118 ------------------------------------ 2011.03.xx -------------------------------------
+\section news118 ------------------------------------ 2011.03.17 -------------------------------------
 
 NEWS
 
@@ -21,8 +21,8 @@ NEWS
   - brightness=
   - contrast=
 - enhanced RRMatrix4x3
-  - RRMatrix4x3::getScale() added
-  - RRMatrix4x3::setScale() added
+  - RRMatrix3x4::getScale() added
+  - RRMatrix3x4::setScale() added
   - getUniformScale() removed, use getScale().abs().avg()
 
 CHANGES
