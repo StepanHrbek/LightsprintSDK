@@ -12,13 +12,12 @@ namespace rr_gl
 {
 
 //#define OPTIMIZE_BLOOM // optional optimization
-#define NO_SYSTEM_MEMORY (unsigned char*)1
 
 Bloom::Bloom(const char* pathToShaders)
 {
-	bigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,NO_SYSTEM_MEMORY),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	smallMap1 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,NO_SYSTEM_MEMORY),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	smallMap2 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,NO_SYSTEM_MEMORY),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	bigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	smallMap1 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	smallMap2 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	scaleDownProgram = Program::create("#define PASS 1\n",tmpstr("%sbloom.vs",pathToShaders),tmpstr("%sbloom.fs",pathToShaders));
 	blurProgram = Program::create("#define PASS 2\n",tmpstr("%sbloom.vs",pathToShaders),tmpstr("%sbloom.fs",pathToShaders));
 	blendProgram = Program::create("#define PASS 3\n",tmpstr("%sbloom.vs",pathToShaders),tmpstr("%sbloom.fs",pathToShaders));
@@ -43,14 +42,14 @@ void Bloom::applyBloom(unsigned _w, unsigned _h)
 	// adjust map sizes to match render target size
 	if (_w!=bigMap->getBuffer()->getWidth() || _h!=bigMap->getBuffer()->getHeight())
 	{
-		bigMap->getBuffer()->reset(rr::BT_2D_TEXTURE,_w,_h,1,rr::BF_RGBA,true,NO_SYSTEM_MEMORY);
+		bigMap->getBuffer()->reset(rr::BT_2D_TEXTURE,_w,_h,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
 #ifdef OPTIMIZE_BLOOM
 		if (!oldFBOState.color_id)
 #endif
 			bigMap->reset(false,false);
-		smallMap1->getBuffer()->reset(rr::BT_2D_TEXTURE,_w/4,_h/4,1,rr::BF_RGBA,true,NO_SYSTEM_MEMORY);
+		smallMap1->getBuffer()->reset(rr::BT_2D_TEXTURE,_w/4,_h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
 		smallMap1->reset(false,false);
-		smallMap2->getBuffer()->reset(rr::BT_2D_TEXTURE,_w/4,_h/4,1,rr::BF_RGBA,true,NO_SYSTEM_MEMORY);
+		smallMap2->getBuffer()->reset(rr::BT_2D_TEXTURE,_w/4,_h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
 		smallMap2->reset(false,false);
 	}
 	

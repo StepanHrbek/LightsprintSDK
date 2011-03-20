@@ -135,11 +135,12 @@ namespace rr
 		//! \param data
 		//!  Data to be copied into texture. When set to NULL, contents of texture stays uninitialized.
 		//!  Format of data is specified by format, interpretation of data is partially specified by scaled.
-		//!  Special value 1 creates buffer without any memory allocated for elements
+		//!  Special value RR_GHOST_BUFFER creates buffer without any memory allocated for elements
 		//!  (it's good when buffer is needed, but its contents is never accessed, e.g. when creating uninitialized texture in rr_gl::Texture).
 		//! \return
 		//!  True on success, false on failure (invalid parameters).
 		virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data) = 0;
+		#define RR_GHOST_BUFFER (const unsigned char*)1
 		//! Sets single element in buffer. Value is converted to current buffer format.
 		//
 		//! Index is index into array of all elements, x+y*width+z*width*height.
@@ -164,6 +165,9 @@ namespace rr
 		//! \return False when buffer data are in physical (linear) scale, true for data in custom scale (screen colors, sRGB).
 		virtual bool getScaled() const = 0;
 		//! \return Size of buffer in bytes, pure buffer size without several fixed bytes of class size.
+		//
+		//! In case of video, size of one uncompressed frame is calculated.
+		//! In case of RR_GHOST_BUFFER, 0 is returned as no memory is allocated.
 		virtual unsigned getBufferBytes() const;
 		//! \return Number of bits in one element, e.g. 96 for BF_RGBF, implementation defined for BF_DEPTH.
 		virtual unsigned getElementBits() const;
@@ -233,7 +237,7 @@ namespace rr
 		// Tools for creation/copying
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Creates buffer in system memory. See reset() for parameter details. Returns NULL when parameters are invalid.
+		//! Creates buffer in system memory. See reset() for parameter details. Returns NULL when parameters are invalid or allocation fails.
 		static RRBuffer* create(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data);
 
 		//! Creates reference to the same buffer. Both buffer and reference must be deleted (in any order).

@@ -995,7 +995,7 @@ save_scene_as:
 
 				// 2. alloc temporary textures
 				rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_RGB,true,NULL);
-				rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_DEPTH,true,(unsigned char*)1);
+				rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 				Texture texColor(bufColor,false,false);
 				Texture texDepth(bufDepth,false,false);
 

@@ -16,7 +16,7 @@ namespace rr_gl
 Water::Water(const char* pathToShaders, bool _fresnel, bool _dirlight)
 {
 	normalMap = new Texture(rr::RRBuffer::load(tmpstr("%s../maps/water_n.png",pathToShaders)),true,false);
-	mirrorMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,NULL),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+	mirrorMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	mirrorDepth = Texture::createShadowmap(16,16);
 	mirrorProgram = Program::create(
 		tmpstr("%s%s",_fresnel?"#define FRESNEL\n":"",_dirlight?"#define DIRLIGHT\n":""),
@@ -46,9 +46,9 @@ void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Came
 	{
 		// RGBF improves HDR sun reflection (RGBA = LDR reflection is weak),
 		//  but float/short render target is not supported by GF6100-6200 and Rad9500-?
-		mirrorMap->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_RGBA,true,NULL);
+		mirrorMap->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
 		mirrorMap->reset(false,false);
-		mirrorDepth->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_DEPTH,true,NULL);
+		mirrorDepth->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 		mirrorDepth->reset(false,false);
 	}
 	oldFBOState = FBO::getState();

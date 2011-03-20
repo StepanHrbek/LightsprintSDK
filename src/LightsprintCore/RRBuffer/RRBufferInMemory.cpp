@@ -172,7 +172,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	{
 		RR_SAFE_DELETE_ARRAY(data);
 		// pointer value 1 = don't allocate buffer, caller promises he will never use it
-		if ((_data || _format!=BF_DEPTH) && _data!=(unsigned char*)1)
+		if ((_data || _format!=BF_DEPTH) && _data!=RR_GHOST_BUFFER)
 		{
 			data = new (std::nothrow) unsigned char[bytesTotal];
 			if (!data)
@@ -254,7 +254,7 @@ RRVec4 RRBufferInMemory::getElement(unsigned index) const
 {
 	if (!data)
 	{
-		RR_LIMITED_TIMES(10,RRReporter::report(WARN,"getElement() called on an uninitialized buffer.\n"));
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"getElement() called on an uninitialized buffer.\n"));
 		return RRVec4(0);
 	}
 	if (index>=width*height*depth)
@@ -374,12 +374,12 @@ RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool sca
 {
 	if (upper==lower)
 	{
-		RRVec4 data[6] = {upper,upper,upper,upper,upper,upper};
-		return create(BT_CUBE_TEXTURE,1,1,6,BF_RGBAF,scaled,(unsigned char*)data);
+		const RRVec4 data[6] = {upper,upper,upper,upper,upper,upper};
+		return create(BT_CUBE_TEXTURE,1,1,6,BF_RGBAF,scaled,(const unsigned char*)data);
 	}
 	else
 	{
-		RRVec4 data[24] = {
+		const RRVec4 data[24] = {
 			upper,upper,lower,lower,
 			upper,upper,lower,lower,
 			upper,upper,upper,upper,
@@ -387,7 +387,7 @@ RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool sca
 			upper,upper,lower,lower,
 			upper,upper,lower,lower
 		};
-		return create(BT_CUBE_TEXTURE,2,2,6,BF_RGBAF,scaled,(unsigned char*)data);
+		return create(BT_CUBE_TEXTURE,2,2,6,BF_RGBAF,scaled,(const unsigned char*)data);
 	}
 }
 
