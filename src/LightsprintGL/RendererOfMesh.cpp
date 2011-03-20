@@ -162,10 +162,18 @@ static void copyBufferToVBO(rr::RRBuffer* buffer, unsigned VBO)
 	RR_ASSERT(buffer);
 	RR_ASSERT(buffer->getType()==rr::BT_VERTEX_BUFFER);
 	RR_ASSERT(VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, buffer->getBufferBytes(), buffer->lock(rr::BL_READ), GL_STREAM_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	buffer->unlock();
+	const unsigned char* data = buffer->lock(rr::BL_READ);
+	if (data)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, buffer->getBufferBytes(), data, GL_STREAM_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		buffer->unlock();
+	}
+	else
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Rendering empty (or unlockable) vertex buffer.\n"));
+	}
 }
 
 void MeshArraysVBOs::render(
