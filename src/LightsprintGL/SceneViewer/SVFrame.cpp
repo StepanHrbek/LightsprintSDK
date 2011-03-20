@@ -99,20 +99,23 @@ public:
 		bitmapinfo.bmiHeader.biCompression = BI_RGB;
 		buffer->setFormat(rr::BF_RGBA);
 		unsigned char* data = buffer->lock(rr::BL_READ_WRITE);
-		for (unsigned i=0;i<buffer->getBufferBytes();i+=4)
+		if (data)
 		{
-			// swap r,b, premultiply by a
-			unsigned char r = data[i];
-			unsigned char g = data[i+1];
-			unsigned char b = data[i+2];
-			unsigned char a = data[i+3];
-			data[i] = b*a/255;
-			data[i+1] = g*a/255;
-			data[i+2] = r*a/255;
-			data[i+3] = a;
+			for (unsigned i=0;i<buffer->getBufferBytes();i+=4)
+			{
+				// swap r,b, premultiply by a
+				unsigned char r = data[i];
+				unsigned char g = data[i+1];
+				unsigned char b = data[i+2];
+				unsigned char a = data[i+3];
+				data[i] = b*a/255;
+				data[i+1] = g*a/255;
+				data[i+2] = r*a/255;
+				data[i+3] = a;
+			}
+			SetDIBitsToDevice(hdcBackBuffer,0,0,buffer->getWidth(),buffer->getHeight(),0,0,0,buffer->getHeight(),data,&bitmapinfo,0);
+			buffer->unlock();
 		}
-		SetDIBitsToDevice(hdcBackBuffer,0,0,buffer->getWidth(),buffer->getHeight(),0,0,0,buffer->getHeight(),data,&bitmapinfo,0);
-		buffer->unlock();
 		delete buffer;
 
 		// start rendering splash
