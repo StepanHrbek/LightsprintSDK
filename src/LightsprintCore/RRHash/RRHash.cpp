@@ -163,7 +163,8 @@ RRHash::RRHash(unsigned char* data, unsigned size)
 {
 	sha1::sha1_context ctx;
 	sha1::sha1_starts(&ctx);
-	sha1::sha1_update(&ctx, data, size);
+	if (data)
+		sha1::sha1_update(&ctx, data, size);
 	sha1::sha1_finish(&ctx, value);
 }
 
