@@ -50,8 +50,6 @@ public:
 //
 // LensFlare
 
-#define NO_SYSTEM_MEMORY (unsigned char*)1
-
 LensFlare::LensFlare(const char* pathToShaders, const char* prefix)
 {
 	for (unsigned i=0;i<NUM_PRIMARY_MAPS;i++)
