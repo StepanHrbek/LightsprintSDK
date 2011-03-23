@@ -46,11 +46,11 @@ void Bloom::applyBloom(unsigned _w, unsigned _h)
 #ifdef OPTIMIZE_BLOOM
 		if (!oldFBOState.color_id)
 #endif
-			bigMap->reset(false,false);
+			bigMap->reset(false,false,false);
 		smallMap1->getBuffer()->reset(rr::BT_2D_TEXTURE,_w/4,_h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-		smallMap1->reset(false,false);
+		smallMap1->reset(false,false,false);
 		smallMap2->getBuffer()->reset(rr::BT_2D_TEXTURE,_w/4,_h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-		smallMap2->reset(false,false);
+		smallMap2->reset(false,false,false);
 	}
 	
 	// disable depth

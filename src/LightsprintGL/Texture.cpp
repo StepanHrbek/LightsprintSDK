@@ -179,7 +179,7 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 
 	glGenTextures(1, &id);
 	internalFormat = 0;
-	reset(_buildMipmaps,_compress);
+	reset(_buildMipmaps,_compress,false);
 
 	// changes anywhere
 	glTexParameteri(cubeOr2d, GL_TEXTURE_MIN_FILTER, (_buildMipmaps&&(mini==GL_LINEAR))?GL_LINEAR_MIPMAP_LINEAR:mini);
@@ -188,7 +188,7 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 	glTexParameteri(cubeOr2d, GL_TEXTURE_WRAP_T, (buffer && buffer->getType()==rr::BT_CUBE_TEXTURE)?GL_CLAMP_TO_EDGE:wrapT);
 }
 
-void Texture::reset(bool _buildMipmaps, bool _compress)
+void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 {
 	if (!buffer)
 		return;
@@ -203,16 +203,19 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 		_compress = false;
 	}
 
+	bool srgb = _scaledAsSRGB && buffer->getScaled();
 	GLenum glinternal; // GL_RGB8, GL_RGBA8, GL_SRGB8, GL_SRGB8_ALPHA8, GL_COMPRESSED_RGB, GL_COMPRESSED_RGBA, GL_COMPRESSED_SRGB, GL_COMPRESSED_SRGB_ALPHA, GL_RGB16F_ARB, GL_RGBA16F_ARB, GL_DEPTH_COMPONENT24...
 	GLenum glformat; // GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT
 	GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
 	switch(buffer->getFormat())
 	{
-		case rr::BF_RGB: glinternal = _compress?GL_COMPRESSED_RGB:GL_RGB8; glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
-		case rr::BF_BGR: glinternal = _compress?GL_COMPRESSED_RGB:GL_RGB8; glformat = GL_BGR; gltype = GL_UNSIGNED_BYTE; break;
-		case rr::BF_RGBA: glinternal = _compress?GL_COMPRESSED_RGBA:GL_RGBA8; glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; break;
-		case rr::BF_RGBF: glinternal = GL_RGB16F_ARB; glformat = GL_RGB; gltype = GL_FLOAT; break;
-		case rr::BF_RGBAF: glinternal = GL_RGBA16F_ARB; glformat = GL_RGBA; gltype = GL_FLOAT; break;
+		case rr::BF_RGB: glinternal = srgb?(_compress?GL_COMPRESSED_SRGB:GL_SRGB8):(_compress?GL_COMPRESSED_RGB:GL_RGB8); glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_BGR: glinternal = srgb?(_compress?GL_COMPRESSED_SRGB:GL_SRGB8):(_compress?GL_COMPRESSED_RGB:GL_RGB8); glformat = GL_BGR; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_RGBA: glinternal = srgb?(_compress?GL_COMPRESSED_SRGB_ALPHA:GL_SRGB8_ALPHA8):(_compress?GL_COMPRESSED_RGBA:GL_RGBA8); glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_RGBF: glinternal = srgb?(_compress?GL_COMPRESSED_SRGB:GL_SRGB8):GL_RGB16F_ARB; glformat = GL_RGB; gltype = GL_FLOAT; break;
+		case rr::BF_RGBAF: glinternal = srgb?(_compress?GL_COMPRESSED_SRGB_ALPHA:GL_SRGB8_ALPHA8):GL_RGBA16F_ARB; glformat = GL_RGBA; gltype = GL_FLOAT; break;
+		// GL_SRGB8, GL_SRGB8_ALPHA8, GL_COMPRESSED_SRGB, GL_COMPRESSED_SRGB_ALPHA in GL 2.1 or GL_EXT_texture_sRGB
+		// GL_RGB16F_ARB, GL_RGBA16F_ARB in GL 3.0 or GL_ARB_texture_float
 		// GL_DEPTH_COMPONENT24 reduces shadow bias (compared to GL_DEPTH_COMPONENT)
 		// GL_DEPTH_COMPONENT32 does not reduce shadow bias (compared to GL_DEPTH_COMPONENT24)
 		// Workaround::needsIncreasedBias() is tweaked for GL_DEPTH_COMPONENT24
@@ -226,7 +229,13 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 		return;
 	}
 
+	if (srgb && !GLEW_EXT_texture_sRGB)
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"sRGB textures not suported, results may be incorrect. Upgrade your GPU or driver.\n"));
+	if (srgb && buffer->getElementBits()>32)
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Float textures don't support sRGB, reducing precison.\n"));
+
 	internalFormat = glinternal;
+
 	switch(buffer->getType())
 	{
 		//case rr::BT_1D_TEXTURE: cubeOr2d = GL_TEXTURE_1D; break;
@@ -427,7 +436,7 @@ Texture* getTexture(const rr::RRBuffer* _buffer, bool _buildMipMaps, bool _compr
 	buffer->update();
 
 	if (texture->version!=_buffer->version)
-		texture->reset(_buildMipMaps,_compress);
+		texture->reset(_buildMipMaps,_compress,false);
 	return texture;
 }
 

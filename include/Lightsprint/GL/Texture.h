@@ -35,8 +35,15 @@ public:
 	rr::RRBuffer* getBuffer();
 	//! Returns texture buffer (with type, width, height, format, data).
 	const rr::RRBuffer* getBuffer() const;
-	//! Rebuilds texture according to buffer. To be called when buffer changes.
-	void reset(bool buildMipMaps, bool compress);
+	//! Rebuilds texture from buffer and additional parameters.
+	//
+	//! \param buildMipMaps
+	//!  Builds texture with mipmaps.
+	//! \param compress
+	//!  Builds compressed texture.
+	//! \param scaledAsSRGB
+	//!  Builds SRGB (rather than RGB) texture for scaled buffers.
+	void reset(bool buildMipMaps, bool compress, bool scaledAsSRGB);
 	//! Binds texture.
 	void bindTexture() const;
 	//! Returns number of bits per texel.

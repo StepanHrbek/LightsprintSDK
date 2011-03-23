@@ -47,9 +47,9 @@ void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Came
 		// RGBF improves HDR sun reflection (RGBA = LDR reflection is weak),
 		//  but float/short render target is not supported by GF6100-6200 and Rad9500-?
 		mirrorMap->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-		mirrorMap->reset(false,false);
+		mirrorMap->reset(false,false,false);
 		mirrorDepth->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
-		mirrorDepth->reset(false,false);
+		mirrorDepth->reset(false,false,false);
 	}
 	oldFBOState = FBO::getState();
 	FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,mirrorDepth);
