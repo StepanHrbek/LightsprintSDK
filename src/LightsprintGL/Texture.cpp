@@ -23,7 +23,7 @@ static GLuint   s_fb_id = 0;
 
 void FBO::init()
 {
-	if (!glewIsSupported("GL_EXT_framebuffer_object"))
+	if (!GLEW_EXT_framebuffer_object) // added in GL 3.0
 	{
 		rr::RRReporter::report(rr::ERRO,"GL_EXT_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n");
 		exit(0);
@@ -178,6 +178,7 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 	}
 
 	glGenTextures(1, &id);
+	internalFormat = 0;
 	reset(_buildMipmaps,_compress);
 
 	// changes anywhere
@@ -192,23 +193,6 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 	if (!buffer)
 		return;
 
-	if (buffer->version==version)
-	{
-		// buffer did not change since last reset
-		// (we ignore possibility that _buildMipmaps or _compress changed)
-		return;
-	}
-
-	const unsigned char* data = buffer->lock(rr::BL_READ);
-	switch(buffer->getType())
-	{
-		//case rr::BT_1D_TEXTURE: cubeOr2d = GL_TEXTURE_1D; break;
-		case rr::BT_2D_TEXTURE: cubeOr2d = GL_TEXTURE_2D; break;
-		//case rr::BT_3D_TEXTURE: cubeOr2d = GL_TEXTURE_3D; break;
-		case rr::BT_CUBE_TEXTURE: cubeOr2d = GL_TEXTURE_CUBE_MAP; break;
-		default: rr::RRReporter::report(rr::ERRO,"Texture of invalid type created.\n"); break;
-	}
-
 	if (// it would be slow to mipmap or compress video
 		buffer->getDuration()
 		// this might help some drivers (I experienced very rare crash in 8800 driver while creating 1x1 compressed mipmapped texture)
@@ -219,8 +203,8 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 		_compress = false;
 	}
 
-	GLenum glinternal; // GL_RGB, GL_RGBA
-	GLenum glformat; // GL_RGB, GL_RGBA
+	GLenum glinternal; // GL_RGB8, GL_RGBA8, GL_SRGB8, GL_SRGB8_ALPHA8, GL_COMPRESSED_RGB, GL_COMPRESSED_RGBA, GL_COMPRESSED_SRGB, GL_COMPRESSED_SRGB_ALPHA, GL_RGB16F_ARB, GL_RGBA16F_ARB, GL_DEPTH_COMPONENT24...
+	GLenum glformat; // GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT
 	GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
 	switch(buffer->getFormat())
 	{
@@ -235,6 +219,24 @@ void Texture::reset(bool _buildMipmaps, bool _compress)
 		case rr::BF_DEPTH: glinternal = GL_DEPTH_COMPONENT24; glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; break;
 		default: rr::RRReporter::report(rr::ERRO,"Texture of unknown format created.\n"); break;
 	}
+	if (buffer->version==version && glinternal==internalFormat)
+	{
+		// buffer did not change since last reset
+		// internal format (affected by _buildMipmaps, _compress, _scaledAsSRGB) did not change since last reset
+		return;
+	}
+
+	internalFormat = glinternal;
+	switch(buffer->getType())
+	{
+		//case rr::BT_1D_TEXTURE: cubeOr2d = GL_TEXTURE_1D; break;
+		case rr::BT_2D_TEXTURE: cubeOr2d = GL_TEXTURE_2D; break;
+		//case rr::BT_3D_TEXTURE: cubeOr2d = GL_TEXTURE_3D; break;
+		case rr::BT_CUBE_TEXTURE: cubeOr2d = GL_TEXTURE_CUBE_MAP; break;
+		default: rr::RRReporter::report(rr::ERRO,"Texture of invalid type created.\n"); break;
+	}
+
+	const unsigned char* data = buffer->lock(rr::BL_READ);
 	/* print histogram
 	switch(buffer->getFormat())
 	{

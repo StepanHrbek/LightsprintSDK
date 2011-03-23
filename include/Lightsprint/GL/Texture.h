@@ -47,8 +47,9 @@ public:
 protected:
 	friend class FBO;
 	rr::RRBuffer* buffer;
-	GLuint   id; // For internal use only.
-	GLenum   cubeOr2d; // GL_TEXTURE_1D, GL_TEXTURE_2D, GL_TEXTURE_3D, GL_TEXTURE_CUBE_MAP
+	GLuint   id; // Texture id in OpenGL.
+	GLenum   cubeOr2d; // one of GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP
+	GLenum   internalFormat; // one of GL_RGB8, GL_RGBA8, GL_SRGB8, GL_SRGB8_ALPHA8, GL_COMPRESSED_RGB, GL_COMPRESSED_RGBA, GL_COMPRESSED_SRGB, GL_COMPRESSED_SRGB_ALPHA, GL_RGB16F_ARB, GL_RGBA16F_ARB, GL_DEPTH_COMPONENT24...
 };
 
 
