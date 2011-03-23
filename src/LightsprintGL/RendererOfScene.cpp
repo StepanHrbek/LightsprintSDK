@@ -50,7 +50,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RendererOfOriginalScene
+// RendererOfSceneImpl
 
 struct PerObjectBuffers
 {
@@ -64,11 +64,11 @@ struct PerObjectBuffers
 	UberProgramSetup objectUberProgramSetup; // only for blended facegroups. everything is set except for MATERIAL_XXX, use enableUsedMaterials()
 };
 
-class RendererOfOriginalScene
+class RendererOfSceneImpl
 {
 public:
-	RendererOfOriginalScene(const char* pathToShaders);
-	~RendererOfOriginalScene();
+	RendererOfSceneImpl(const char* pathToShaders);
+	~RendererOfSceneImpl();
 
 	virtual void render(rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
@@ -112,7 +112,7 @@ bool FaceGroupRange::operator <(const FaceGroupRange& a) const // for sort()
 	return (*s_perObjectBuffers)[object].eyeDistance>(*s_perObjectBuffers)[a.object].eyeDistance;
 }
 
-RendererOfOriginalScene::RendererOfOriginalScene(const char* pathToShaders)
+RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 {
 	textureRenderer = new TextureRenderer(pathToShaders);
 	uberProgram = UberProgram::create(
@@ -124,7 +124,7 @@ RendererOfOriginalScene::RendererOfOriginalScene(const char* pathToShaders)
 	if(!prefilterSeams) glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
-RendererOfOriginalScene::~RendererOfOriginalScene()
+RendererOfSceneImpl::~RendererOfSceneImpl()
 {
 	delete uberProgram;
 	delete textureRenderer;
@@ -143,7 +143,7 @@ rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
 	return (buffer && buffer->getType()==rr::BT_2D_TEXTURE) ? buffer : NULL;
 }
 
-void RendererOfOriginalScene::render(
+void RendererOfSceneImpl::render(
 		rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
 		const RealtimeLights* _lights,
@@ -469,7 +469,7 @@ void RendererOfOriginalScene::render(
 
 RendererOfScene::RendererOfScene(const char* pathToShaders)
 {
-	renderer = new RendererOfOriginalScene(pathToShaders);
+	renderer = new RendererOfSceneImpl(pathToShaders);
 }
 
 RendererOfScene::~RendererOfScene()

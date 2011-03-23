@@ -81,7 +81,7 @@ public:
 	class RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh);
 	class TextureRenderer* getTextureRenderer();
 private:
-	class RendererOfOriginalScene* renderer;
+	class RendererOfSceneImpl* renderer;
 };
 
 }; // namespace
