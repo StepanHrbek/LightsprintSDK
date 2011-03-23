@@ -259,7 +259,6 @@ done:
 		if (light->dirtyShadowmap || isDirtyOnlyBecauseObserverHasMoved)
 		{
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
-			light->dirtyShadowmap = false;
 			light->configureCSM(observer,getMultiObjectCustom());
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			// Setup shader for rendering to SM.
@@ -343,6 +342,7 @@ done:
 				}
 			}
 			glDisable(GL_POLYGON_OFFSET_FILL);
+			light->dirtyShadowmap = false; // clear it now when all is done (if cleared sooner, getShadowmap() during update might set it)
 		}
 	}
 }
