@@ -20,30 +20,8 @@ static bool        s_isQuadro = false;
 static bool        s_isRadeon = false;
 static bool        s_isFire = false;
 static unsigned    s_modelNumber = 0;
-static bool        s_isDepthClampSupported = false;
 
 #include <string.h>
-
-static bool isExtensionSupported(const char *extension)
-{
-	// Extension names should not have spaces.
-	GLubyte* where = (GLubyte*)strchr(extension,' ');
-	if (where || *extension==0)
-		return false;
-
-	const GLubyte* extensions = glGetString(GL_EXTENSIONS);
-	// It takes a bit of care to be fool-proof about parsing the OpenGL extensions string. Don't be fooled by sub-strings, etc.
-	const GLubyte* start = extensions;
-	for(GLubyte* where=(GLubyte*)strstr((const char*)start,extension);where;)
-	{
-		GLubyte *terminator = where + strlen(extension);
-		if (where==start || *(where-1)==' ')
-			if (*terminator==' ' || *terminator==0)
-				return true;
-		start = terminator;
-	}
-	return false;
-}
 
 static void init()
 {
@@ -74,8 +52,6 @@ static void init()
 				s_modelNumber = (s_renderer[i+1]-'0')*100 + (s_renderer[i+2]-'0')*10 + (s_renderer[i+3]-'0');
 				break;
 			}
-
-		s_isDepthClampSupported = isExtensionSupported("GL_ARB_depth_clamp");
 	}
 }
 
@@ -158,8 +134,13 @@ bool Workaround::supportsDepthClamp()
 	// true: all geforces, radeon 5870
 	// false:
 	// unknown: older radeons
-	init();
-	return s_isDepthClampSupported;
+	return GLEW_ARB_depth_clamp!=GL_FALSE; // added in GL 3.2
+}
+
+bool Workaround::supportsSRGB()
+{
+	return GLEW_ARB_framebuffer_sRGB // added in GL 3.0
+		&& GLEW_EXT_texture_sRGB; // added in GL 2.1
 }
 
 }; // namespace

@@ -27,6 +27,7 @@ public:
 
 	// is feature supported?
 	static bool supportsDepthClamp();
+	static bool supportsSRGB();
 };
 
 }; // namespace
