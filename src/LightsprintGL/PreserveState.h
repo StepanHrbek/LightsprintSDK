@@ -51,6 +51,7 @@ DECLARE_PRESERVE_STATE( PreserveMatrix    ,                       ,glPushMatrix(
 // projection and modelview matrices only
 DECLARE_PRESERVE_STATE( PreserveMatrices  ,GLint matrixMode       ,glGetIntegerv(GL_MATRIX_MODE,&matrixMode);glMatrixMode(GL_PROJECTION);glPushMatrix();glMatrixMode(GL_MODELVIEW);glPushMatrix(), glMatrixMode(GL_PROJECTION);glPopMatrix();glMatrixMode(GL_MODELVIEW);glPopMatrix();glMatrixMode(matrixMode););
 DECLARE_PRESERVE_STATE( PreserveFBO       ,FBO state              ,state=FBO::getState()                       ,state.restore());
+DECLARE_PRESERVE_STATE( PreserveFBSRGB    ,GLboolean enabled      ,enabled=glIsEnabled(GL_FRAMEBUFFER_SRGB)    ,if (enabled) glEnable(GL_FRAMEBUFFER_SRGB); else glDisable(GL_FRAMEBUFFER_SRGB));
 
 #undef DECLARE_PRESERVE_STATE
 
