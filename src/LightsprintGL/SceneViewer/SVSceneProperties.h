@@ -29,6 +29,9 @@ namespace rr_gl
 		//! Copy property -> svs.
 		void OnPropertyChange(wxPropertyGridEvent& event);
 
+		//! Must be called after glewInit().
+		void updateAfterGLInit();
+
 	private:
 		//! Copy svs -> hide/show property.
 		void updateHide();
@@ -92,6 +95,7 @@ namespace rr_gl
 		wxPGProperty*     propGridNumSegments;
 		wxPGProperty*     propGridSegmentSize;
 
+		BoolRefProperty*  propGISRGBCorrect;
 		wxPGProperty*     propGIShadowTransparency;
 		wxPGProperty*     propGIFireballQuality;
 		BoolRefProperty*  propGIRaytracedCubes;

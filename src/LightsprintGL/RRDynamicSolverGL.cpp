@@ -146,7 +146,7 @@ void RRDynamicSolverGL::reportDirectIlluminationChange(int lightIndex, bool dirt
 
 void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 {
-	REPORT(rr::RRReportInterval report(rr::INF3,"calculate...\n"));
+	REPORT(rr::RRReportInterval report(rr::INF3,"calculate GL...\n"));
 
 	CalculateParameters params = _params ? *_params : CalculateParameters();
 
@@ -336,7 +336,7 @@ done:
 						}
 						bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
 						if (depthClamp) glEnable(GL_DEPTH_CLAMP);
-						renderScene(uberProgramSetup,&light->getRRLight(),false,-1,-1,0,NULL,1);
+						renderScene(uberProgramSetup,&light->getRRLight(),false,-1,-1,0,false,NULL,1);
 						if (depthClamp) glDisable(GL_DEPTH_CLAMP);
 					}
 				}
@@ -466,6 +466,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 	PreserveDepthMask p4;
 	PreserveDepthTest p5;
 	PreserveFBO p6; // must go after viewport, so that viewport is restored later
+	PreserveFlag p7(GL_FRAMEBUFFER_SRGB,false); // we need GL_FRAMEBUFFER_SRGB disabled
 
 	// setup render states
 	glClearColor(0,0,0,1);
@@ -556,7 +557,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		glEnd();
 
 		// read downscaled image to memory
-		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", triCountX, triCountY));
+		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", triCountX, triCountYInThisPass));
 		RR_ASSERT(_space+2047>=firstCapturedTriangle+triCountX*triCountYInThisPass);
 		glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, _results+firstCapturedTriangle);
 	}
@@ -631,6 +632,7 @@ void RRDynamicSolverGL::renderScene(
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
 		float* _clipPlanes,
+		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
 		float _gamma)
 {
@@ -643,6 +645,7 @@ void RRDynamicSolverGL::renderScene(
 		_lightIndirectLayer,
 		_lightDetailMapLayer,
 		_clipPlanes,
+		_srgbCorrect,
 		_brightness,
 		_gamma);
 }

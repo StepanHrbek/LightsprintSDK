@@ -1018,7 +1018,7 @@ void SVCanvas::OnPaintCore(wxPaintEvent& event)
 }
 
 
-void SVCanvas::Paint(wxPaintEvent& event)
+void SVCanvas::Paint(wxPaintEvent& _event)
 {
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if (renderEmptyFrames)
@@ -1041,7 +1041,7 @@ void SVCanvas::Paint(wxPaintEvent& event)
 				NULL,
 				NULL,
 				svs.renderLightmapsBilinear);
-		lv->OnPaint(event,GetSize());
+		lv->OnPaint(_event,GetSize());
 	}
 	else
 	{
@@ -1135,6 +1135,9 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			svs.eye.setupForRender();
 
+			rr::RRVec4 brightness = svs.renderTonemapping ? svs.tonemappingBrightness * pow(svs.tonemappingGamma,0.45f) : rr::RRVec4(1);
+			float gamma = svs.renderTonemapping ?svs.tonemappingGamma : 1;
+
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.LIGHT_DIRECT = svs.renderLightDirect==LD_REALTIME;
@@ -1157,8 +1160,8 @@ void SVCanvas::Paint(wxPaintEvent& event)
 			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency!=T_OPAQUE;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency==T_ALPHA_BLEND || svs.renderMaterialTransparency==T_RGB_BLEND;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = svs.renderMaterialTransparency==T_RGB_BLEND;
-			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.renderTonemapping && svs.tonemappingBrightness!=rr::RRVec4(1);
-			uberProgramSetup.POSTPROCESS_GAMMA = svs.renderTonemapping && svs.tonemappingGamma!=1;
+			uberProgramSetup.POSTPROCESS_BRIGHTNESS = brightness!=rr::RRVec4(1);
+			uberProgramSetup.POSTPROCESS_GAMMA = gamma!=1;
 			float clipPlanes[6] = {0,0,0,0,0,0};
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			if (svs.renderWater && water && !svs.renderWireframe)
@@ -1170,7 +1173,7 @@ void SVCanvas::Paint(wxPaintEvent& event)
 					clipPlanes[3] = svs.waterLevel;
 					uberProgramSetup.CLIP_PLANE_YB = true;
 				}
-				water->updateReflectionInit(winWidth/2,winHeight/2,&svs.eye,svs.waterLevel);
+				water->updateReflectionInit(winWidth/2,winHeight/2,&svs.eye,svs.waterLevel,svs.srgbCorrect);
 				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 				solver->renderScene(
 					uberProgramSetup,
@@ -1179,8 +1182,9 @@ void SVCanvas::Paint(wxPaintEvent& event)
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
 					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
-					svs.renderTonemapping?&svs.tonemappingBrightness:NULL,
-					svs.renderTonemapping?svs.tonemappingGamma:1);
+					svs.srgbCorrect,
+					&brightness,
+					gamma);
 				water->updateReflectionDone();
 				float oldFar = svs.eye.getFar();
 				svs.eye.setFar(oldFar*5); // far is set to end right behind scene. water polygon continues behind scene, we need it visible -> increase far
@@ -1206,8 +1210,9 @@ rendered:
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
 					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
-					svs.renderTonemapping?&svs.tonemappingBrightness:NULL,
-					svs.renderTonemapping?svs.tonemappingGamma:1);
+					svs.srgbCorrect,
+					&brightness,
+					gamma);
 				svs.eye.setFar(oldFar);
 			}
 			else
@@ -1219,8 +1224,9 @@ rendered:
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
 					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
-					svs.renderTonemapping?&svs.tonemappingBrightness:NULL,
-					svs.renderTonemapping?svs.tonemappingGamma:1);
+					svs.srgbCorrect,
+					&brightness,
+					gamma);
 			}
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			if (svs.renderTonemapping && svs.tonemappingAutomatic

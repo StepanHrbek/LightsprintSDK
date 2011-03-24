@@ -64,7 +64,7 @@ void display(void)
 	if (!winWidth || !winHeight) return; // can't display without window
 
 	// init water reflection
-	water->updateReflectionInit(winWidth/4,winHeight/4,&eye);
+	water->updateReflectionInit(winWidth/4,winHeight/4,&eye,0,false);
 	textureRenderer->renderEnvironment(environmentMap,NULL,0,NULL,1,false);
 	water->updateReflectionDone();
 

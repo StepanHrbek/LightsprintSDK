@@ -56,9 +56,9 @@ namespace rr_gl
 		virtual void setLights(const rr::RRLights& lights);
 
 		//! Renders scene in solver, with all static and dynamic objects, lights, environment.
-		//! 
-		//! Renderer uses camera actually set in OpenGL fixed pipeline, so you can set it by standard OpenGL commands
-		//! or by our Camera::setupForRender().
+		//!
+		//! Parameters are identical to RendererOfScene::render(),
+		//! this is just shortcut for solver->getRendererOfScene()->render(solver,...).
 		virtual void renderScene(
 			const UberProgramSetup& _uberProgramSetup,
 			const rr::RRLight* _renderingFromThisLight,
@@ -66,6 +66,7 @@ namespace rr_gl
 			unsigned _lightIndirectLayer,
 			int _lightDetailMapLayer,
 			float* _clipPlanes,
+			bool _srgbCorrect,
 			const rr::RRVec4* _brightness,
 			float _gamma);
 

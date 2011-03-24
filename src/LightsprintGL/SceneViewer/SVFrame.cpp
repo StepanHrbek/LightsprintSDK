@@ -17,6 +17,7 @@
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
 #include "SVSceneTree.h"
+#include "../Workaround.h"
 #include "wx/aboutdlg.h"
 #include "wx/regex.h"
 #ifdef _WIN32
@@ -378,7 +379,7 @@ void SVFrame::UpdateEverything()
 	if (svs.autodetectCamera && !(svs.initialInputSolver && svs.initialInputSolver->aborting)) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_VIEW_RANDOM));
 
 	UpdateTitle();
-
+	m_sceneProperties->updateAfterGLInit();
 	updateAllPanels();
 
 	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().Name("glcanvas").CenterPane().PaneBorder(false));
@@ -966,6 +967,8 @@ save_scene_as:
 			break;
 		case ME_FILE_SAVE_SCREENSHOT_ENHANCED:
 			{
+				rr::RRReportInterval report(rr::INF2,"Saving enhanced screenshot...\n");
+
 				// 1a. enable FSAA
 				// (1*1*FSAA is ugly, worse than plain capture)
 				// (2*2*FSAA works fine, but it's too much for Quadro)
@@ -988,16 +991,19 @@ save_scene_as:
 					if (userPreferences.sshotEnhancedShadowSamples)
 						rl->setNumShadowSamples(userPreferences.sshotEnhancedShadowSamples);
 				}
-				rr::RRDynamicSolver::CalculateParameters params;
-				params.qualityIndirectStatic = 0; // set it to update only shadows
-				params.qualityIndirectDynamic = 0;
-				m_canvas->solver->calculate(&params); // renders into FBO, must go before FBO::setRenderTarget()
 
 				// 2. alloc temporary textures
 				rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_RGB,true,NULL);
 				rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 				Texture texColor(bufColor,false,false);
 				Texture texDepth(bufDepth,false,false);
+				bool srgb = Workaround::supportsSRGB() && svs.srgbCorrect;
+				if (srgb)
+				{
+					// prepare framebuffer for sRGB correct rendering
+					// (GL_FRAMEBUFFER_SRGB will be enabled inside Paint())
+					texColor.reset(false,false,true);
+				}
 
 				// 3a. set new rendertarget
 				FBO oldFBOState = FBO::getState();

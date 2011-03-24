@@ -118,6 +118,7 @@ struct SceneViewerState
 	unsigned         raytracedCubesDiffuseRes;  //! Resolution of diffuse cubes.
 	unsigned         raytracedCubesSpecularRes; //! Resolution of specular cubes.
 	unsigned         raytracedCubesMaxObjects;  //! But only if there is less than this number of objects in scene.
+	bool             srgbCorrect;               //! Add realtime lights sRGB correctly, if OpenGL 3.0+ or sufficient extensions are found.
 	//rr::RRDynamicSolver::CalculateParameters calculateParameters;        //! Realtime GI settings.
 	//rr::RRDynamicSolver::UpdateParameters    lightmapDirectParameters;   //! Lightmap baking settings.
 	//rr::RRDynamicSolver::UpdateParameters    lightmapIndirectParameters; //! Lightmap baking settings.
@@ -191,6 +192,7 @@ struct SceneViewerState
 		raytracedCubesDiffuseRes = 4;
 		raytracedCubesSpecularRes = 16;
 		raytracedCubesMaxObjects = 1000;
+		srgbCorrect = false;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
 		waterColor = rr::RRVec3(0.1f,0.25f,0.35f);
@@ -266,6 +268,7 @@ struct SceneViewerState
 			&& a.raytracedCubesDiffuseRes==raytracedCubesDiffuseRes
 			&& a.raytracedCubesSpecularRes==raytracedCubesSpecularRes
 			&& a.raytracedCubesMaxObjects==raytracedCubesMaxObjects
+			&& a.srgbCorrect==srgbCorrect
 			&& a.lightmapFilteringParameters==lightmapFilteringParameters
 			&& a.cameraDynamicNear==cameraDynamicNear
 			&& a.cameraMetersPerSecond==cameraMetersPerSecond

@@ -318,7 +318,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 		true,
 		0,
 		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX,
-		NULL,//level->setup->waterLevel,
+		NULL,false,//level->setup->waterLevel,
 		&globalBrightnessBoosted,
 		globalGammaBoosted);
 }
@@ -362,7 +362,7 @@ void drawEyeViewSoftShadowed(void)
 		// update water reflection
 		if (water && level->setup->renderWater)
 		{
-			water->updateReflectionInit(winWidth/4,winHeight/4,&currentFrame.eye,level->setup->waterLevel);
+			water->updateReflectionInit(winWidth/4,winHeight/4,&currentFrame.eye,level->setup->waterLevel,false);
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;

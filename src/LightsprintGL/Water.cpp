@@ -7,7 +7,8 @@
 #include <cstdio>
 #include "Lightsprint/GL/Water.h"
 #include "Lightsprint/GL/Timer.h"
-//#include "Lightsprint/GL/TextureRenderer.h"
+#include "PreserveState.h"
+#include "Workaround.h"
 #include "tmpstr.h"
 
 namespace rr_gl
@@ -24,6 +25,7 @@ Water::Water(const char* pathToShaders, bool _fresnel, bool _dirlight)
 		tmpstr("%swater.fs",pathToShaders));
 	eye = NULL;
 	altitude = 0;
+	srgbCorrect = false;
 	fresnel = _fresnel;
 	dirlight = _dirlight;
 }
@@ -38,18 +40,24 @@ Water::~Water()
 	delete normalMap;
 }
 
-void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Camera* _eye, float _altitude)
+void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Camera* _eye, float _altitude, bool _srgbCorrect)
 {
 	if (!mirrorMap || !mirrorDepth || !mirrorProgram) return;
+
+	// Ensure sRGB correctness.
+	if (!Workaround::supportsSRGB())
+		_srgbCorrect = false;
+
 	// adjust size
-	if (_reflWidth!=mirrorMap->getBuffer()->getWidth() || _reflHeight!=mirrorMap->getBuffer()->getHeight())
+	if (_reflWidth!=mirrorMap->getBuffer()->getWidth() || _reflHeight!=mirrorMap->getBuffer()->getHeight() || _srgbCorrect!=srgbCorrect)
 	{
 		// RGBF improves HDR sun reflection (RGBA = LDR reflection is weak),
 		//  but float/short render target is not supported by GF6100-6200 and Rad9500-?
-		mirrorMap->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-		mirrorMap->reset(false,false,false);
+		mirrorMap->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_RGB,true,RR_GHOST_BUFFER);
+		mirrorMap->reset(false,false,_srgbCorrect);
 		mirrorDepth->getBuffer()->reset(rr::BT_2D_TEXTURE,_reflWidth,_reflHeight,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 		mirrorDepth->reset(false,false,false);
+		srgbCorrect = _srgbCorrect;
 	}
 	oldFBOState = FBO::getState();
 	FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,mirrorDepth);
@@ -91,6 +99,20 @@ void Water::render(float size, rr::RRVec3 center, rr::RRVec4 waterColor, rr::RRV
 	normalMap->bindTexture();
 	mirrorProgram->sendUniform("normalMap",1);
 	mirrorProgram->sendUniform("time",(float)(fmod(GETSEC,10000)));
+
+	// Ensure sRGB correctness.
+	PreserveFlag p1(GL_FRAMEBUFFER_SRGB,srgbCorrect);
+	if (srgbCorrect)
+	{
+		// !srgbCorrect -> mirrorMap is GL_RGB, all colors are in custom scale, result is written GL_RGB framebuffer
+		// srgbCorrect -> mirrorMap is GL_SRGB8, shader reads it as linear, we send all colors linear, result is written to GL_SRGB8 framebuffer
+		for (unsigned i=0;i<3;i++)
+		{
+			waterColor[i] = pow(waterColor[i],2.222f);
+			lightColor[i] = pow(lightColor[i],2.222f);
+		}
+	}
+
 	mirrorProgram->sendUniform("waterColor",waterColor[0],waterColor[1],waterColor[2],waterColor[3]);
 	if (dirlight || fresnel)
 	{

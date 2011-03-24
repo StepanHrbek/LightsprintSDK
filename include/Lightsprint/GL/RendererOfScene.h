@@ -38,6 +38,10 @@ public:
 	//! Use standard OpenGL way of setting camera projection and view matrices before calling render(),
 	//! they are respected by render(). You can also use rr_gl::Camera::setupBeforeRender() to do it.
 	//!
+	//! To render to texture, set render target with FBO::setRenderTarget().
+	//! When rendering sRGB correctly, target texture must be sRGB,
+	//! make it sRGB with Texture::reset(,,true) before FBO::setRenderTarget().
+	//!
 	//! Render target is not cleared automatically, so you may want to clear both color and depth before calling render().
 	//!
 	//! \param _solver
@@ -62,10 +66,12 @@ public:
 	//!  Specifies source of light detail maps.
 	//! \param _clipPlanes
 	//!  NULL or array of six floats specifying max x, min x, max y, min y, max z, min z coordinates of rendered geometry.
+	//! \param _srgbCorrect
+	//!  Calculates illumination in slower but more accurate sRGB correct way. Has no effect on very old GPUs.
 	//! \param _brightness
-	//!  Specifies global brightness.
+	//!  Specifies global brightness. Default is 1.
 	//! \param _gamma
-	//!  Specifies global gamma (contrast) factor.
+	//!  Specifies global gamma (contrast) factor. Default is 1 for standard pipeline, 2.2 for sRGB correct pipeline.
 	void render(
 		rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
@@ -75,6 +81,7 @@ public:
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
 		float* _clipPlanes,
+		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
 		float _gamma);
 

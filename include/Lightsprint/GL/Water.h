@@ -49,12 +49,14 @@ public:
 	//!  Camera used for rendering scene. It will be modified
 	//! \param altitude
 	//!  Altitude of water surface in world.
-	void updateReflectionInit(unsigned reflWidth, unsigned reflHeight, Camera* eye, float altitude=0);
+	//! \param srgbCorrect
+	//!  Following render() will be sRGB correct.
+	void updateReflectionInit(unsigned reflWidth, unsigned reflHeight, Camera* eye, float altitude, bool srgbCorrect);
 
 	//! Finishes rendering into reflection map, restores camera settings.
 	void updateReflectionDone();
 
-	//! Renders water quad with reflection.
+	//! Renders water plane with reflection.
 	//
 	//! If you don't want simple quad, call render(0) and issue your own
 	//! water primitives, reflection shader is still active and will be used.
@@ -80,6 +82,7 @@ protected:
 	Program* mirrorProgram;
 	Camera*  eye;
 	float    altitude;
+	bool     srgbCorrect;
 	FBO      oldFBOState;
 	GLint    viewport[4];
 	bool     fresnel;

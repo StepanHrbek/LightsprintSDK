@@ -8,6 +8,7 @@
 #include "SVSceneProperties.h"
 #include "SVFrame.h" // solver access
 #include "SVCanvas.h" // solver access
+#include "../Workaround.h"
 #include "wx/datetime.h" // Tm
 
 namespace rr_gl
@@ -244,6 +245,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propGIShadowTransparency->SetHelpString(_("Changes how realistically semi-transparent shadows are rendered."));
 		AppendIn(propGI,propGIShadowTransparency);
 
+		propGISRGBCorrect = new BoolRefProperty(_("sRGB correctness"),_("Increases realism by correctly adding realtime lights. Works only if OpenGL 3.0+ or necessary extensions are found."),svs.srgbCorrect);
+		AppendIn(propGI,propGISRGBCorrect);
+
 		propGIFireballQuality = new FloatProperty(_("Fireball quality"),_("More = longer precalculation, higher quality realtime GI. Rebuild Fireball for this change to take effect."),svs.fireballQuality,0,0,1000000,100,false);
 		AppendIn(propGI,propGIFireballQuality);
 
@@ -352,6 +356,11 @@ void SVSceneProperties::updateHide()
 
 }
 
+void SVSceneProperties::updateAfterGLInit()
+{
+	propGISRGBCorrect->Hide(!Workaround::supportsSRGB(),false);
+}
+
 void SVSceneProperties::updateProperties()
 {
 	// This function can update any property that has suddenly changed in svs, outside property grid.
@@ -409,6 +418,7 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)
 		+ updateFloat(propGridSegmentSize,svs.gridSegmentSize)
+		+ updateBoolRef(propGISRGBCorrect)
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
 		+ updateBoolRef(propGIRaytracedCubes)

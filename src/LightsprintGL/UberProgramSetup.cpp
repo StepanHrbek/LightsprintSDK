@@ -598,7 +598,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		// uniform is unused (and usually removed by shader compiler) when there is no light
 		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP))
 	{
-		rr::RRVec4 correctedBrightness(brightness?*brightness*pow(gamma,0.45f):rr::RRVec4(1.0f));
+		rr::RRVec4 correctedBrightness(brightness?*brightness:rr::RRVec4(1.0f));
 		program->sendUniform4fv("postprocessBrightness", &correctedBrightness.x);
 	}
 

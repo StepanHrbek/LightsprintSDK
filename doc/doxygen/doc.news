@@ -8,6 +8,15 @@ namespace rr
 
 \page main_news What's new
 
+\section news119 ------------------------------------ 2011.03.xx -------------------------------------
+
+NEWS
+
+- sRGB correct realtime rendering
+  - new sRGB correct path is more accurate, bit slower, requires OpenGL 3.0 or 2.x with extensions
+  - old path stays unchanged, works fine with OpenGL 2.0
+  - srgbCorrect parameter added to several rendering functions
+
 \section news118 ------------------------------------ 2011.03.17 -------------------------------------
 
 NEWS

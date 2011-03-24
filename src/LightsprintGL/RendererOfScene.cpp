@@ -13,6 +13,7 @@
 #include "PreserveState.h"
 #include "MultiPass.h"
 #include "RendererOfMesh.h"
+#include "Workaround.h"
 #include "tmpstr.h"
 
 namespace rr_gl
@@ -71,10 +72,10 @@ public:
 	~RendererOfSceneImpl();
 
 	virtual void render(rr::RRDynamicSolver* _solver,
-		const UberProgramSetup& _uberProgramSetup,
+		UberProgramSetup _uberProgramSetup,
 		const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight,
 		bool _updateLightIndirect, unsigned _lightIndirectLayer, int _lightDetailMapLayer,
-		float* _clipPlanes,
+		float* _clipPlanes, bool _srgbCorrect,
 		const rr::RRVec4* _brightness, float _gamma);
 
 	RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
@@ -120,7 +121,7 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 		tmpstr("%subershader.fs",pathToShaders));
 
 	// init "seamless cube maps" feature
-	prefilterSeams = true;//!glewIsSupported("GL_ARB_seamless_cube_map");
+	prefilterSeams = true;//!GLEW_ARB_seamless_cube_map;
 	if(!prefilterSeams) glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
@@ -145,13 +146,13 @@ rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
 
 void RendererOfSceneImpl::render(
 		rr::RRDynamicSolver* _solver,
-		const UberProgramSetup& _uberProgramSetup,
+		UberProgramSetup _uberProgramSetup,
 		const RealtimeLights* _lights,
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLightIndirect,
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
-		float* _clipPlanes,
+		float* _clipPlanes, bool _srgbCorrect,
 		const rr::RRVec4* _brightness, float _gamma)
 {
 	if (!_solver)
@@ -166,6 +167,16 @@ void RendererOfSceneImpl::render(
 	{
 		RR_ASSERT(0); // eye not set
 		return;
+	}
+
+	// Ensure sRGB correctness.
+	if (!Workaround::supportsSRGB())
+		_srgbCorrect = false;
+	PreserveFlag p0(GL_FRAMEBUFFER_SRGB,_srgbCorrect);
+	if (_srgbCorrect)
+	{
+		_gamma *= 2.2f;
+		_uberProgramSetup.POSTPROCESS_GAMMA = true;
 	}
 
 	// Will we render multiobject or individual objects?
@@ -361,7 +372,7 @@ void RendererOfSceneImpl::render(
 				// setup culling at the beginning
 				glDisable(GL_CULL_FACE);
 			}
-			MultiPass multiPass(_lights,_renderingFromThisLight,classUberProgramSetup,uberProgram,_brightness,_gamma,_clipPlanes);
+			MultiPass multiPass(_lights,_renderingFromThisLight,classUberProgramSetup,uberProgram,_clipPlanes,_srgbCorrect,_brightness,_gamma);
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
 			Program* program;
@@ -437,7 +448,7 @@ void RendererOfSceneImpl::render(
 			fgUberProgramSetup.enableUsedMaterials(material);
 			fgUberProgramSetup.reduceMaterials(_uberProgramSetup);
 			fgUberProgramSetup.validate();
-			MultiPass multiPass(_lights,_renderingFromThisLight,fgUberProgramSetup,uberProgram,_brightness,_gamma,_clipPlanes);
+			MultiPass multiPass(_lights,_renderingFromThisLight,fgUberProgramSetup,uberProgram,_clipPlanes,_srgbCorrect,_brightness,_gamma);
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
 			Program* program;
@@ -481,7 +492,7 @@ void RendererOfScene::render(rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
 		const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight,
 		bool _updateLightIndirect, unsigned _lightIndirectLayer, int _lightDetailMapLayer,
-		float* _clipPlanes,
+		float* _clipPlanes, bool _srgbCorrect,
 		const rr::RRVec4* _brightness, float _gamma)
 {
 	renderer->render(
@@ -493,6 +504,7 @@ void RendererOfScene::render(rr::RRDynamicSolver* _solver,
 		_lightIndirectLayer,
 		_lightDetailMapLayer,
 		_clipPlanes,
+		_srgbCorrect,
 		_brightness,
 		_gamma);
 }

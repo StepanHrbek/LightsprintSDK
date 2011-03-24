@@ -359,6 +359,7 @@ void display(void)
 		renderLayer,
 		-1,
 		0,
+		false,
 		&brightness,
 		contrast);
 

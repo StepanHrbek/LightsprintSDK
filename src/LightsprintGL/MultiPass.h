@@ -32,7 +32,8 @@ public:
 	//! For render with all features according to light properties,
 	//! set at least SHADOW_MAPS,LIGHT_DIRECT,LIGHT_DIRECT_COLOR,LIGHT_DIRECT_MAP,LIGHT_DIRECT_ATT_SPOT.
 	//! If you clear any one of them, it will stay cleared for all lights.
-	MultiPass(const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight, UberProgramSetup mainUberProgramSetup, UberProgram* uberProgram, const rr::RRVec4* brightness, float gamma, float* clipPlanes);
+	MultiPass(const RealtimeLights* lights, const rr::RRLight* renderingFromThisLight, UberProgramSetup mainUberProgramSetup, UberProgram* uberProgram,
+		float* clipPlanes, bool srgbCorrect, const rr::RRVec4* brightness, float gamma);
 
 	//! Returns true and all outXxx are set, do render.
 	//! Or returns false and outXxx stay unchanged, rendering is done.
