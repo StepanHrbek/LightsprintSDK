@@ -119,11 +119,15 @@ void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRen
 				rr::RRVec2 lightPositionInWindow = _eye.getPositionInWindow(_eye.pos-light->direction*1e10f);
 				if (_eye.dir.dot(light->direction)<0 && lightPositionInWindow.x>-1 && lightPositionInWindow.x<1 && lightPositionInWindow.y>-1 && lightPositionInWindow.y<1)
 				{
-					// is it visible, not occluded?
-					rr::RRVec3 transparencySum(0);
-					rr::RRVec3 dirSum(0);
-					if (_scene)
+					if (!_scene)
 					{
+						renderLensFlare(_flareSize,_flareId,_textureRenderer,_eye.getAspect(),lightPositionInWindow);
+					}
+					else
+					{
+						// is it visible, not occluded?
+						rr::RRVec3 transparencySum(0);
+						rr::RRVec3 dirSum(0);
 						ray->rayOrigin = _eye.getRayOrigin(_eye.pos);
 						ray->rayLengthMin = 0;
 						ray->rayLengthMax = 1e10f;
@@ -144,14 +148,14 @@ void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRen
 						}
 						// cleanup
 						srand(oldSeed);
-					}
-					float transparency = transparencySum.avg()/_quality;
-					if (transparency>0.15f) // hide tiny flares, they jump randomly when looking through tree
-					{
-						// move flare a bit if light is half occluded
-						lightPositionInWindow = _eye.getPositionInWindow(_eye.pos-dirSum*1e10f);
+						float transparency = transparencySum.avg()/_quality;
+						if (transparency>0.15f) // hide tiny flares, they jump randomly when looking through tree
+						{
+							// move flare a bit if light is half occluded
+							lightPositionInWindow = _eye.getPositionInWindow(_eye.pos-dirSum*1e10f);
 
-						renderLensFlare(_flareSize*transparency,_flareId,_textureRenderer,_eye.getAspect(),lightPositionInWindow);
+							renderLensFlare(_flareSize*transparency,_flareId,_textureRenderer,_eye.getAspect(),lightPositionInWindow);
+						}
 					}
 				}
 			}
