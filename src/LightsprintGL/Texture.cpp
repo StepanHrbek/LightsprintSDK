@@ -204,6 +204,11 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 	}
 
 	bool srgb = _scaledAsSRGB && buffer->getScaled();
+	if (srgb && !GLEW_EXT_texture_sRGB)
+	{
+		srgb = false;
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"sRGB textures not suported, results may be incorrect. Upgrade your GPU or driver.\n"));
+	}
 	GLenum glinternal; // GL_RGB8, GL_RGBA8, GL_SRGB8, GL_SRGB8_ALPHA8, GL_COMPRESSED_RGB, GL_COMPRESSED_RGBA, GL_COMPRESSED_SRGB, GL_COMPRESSED_SRGB_ALPHA, GL_RGB16F_ARB, GL_RGBA16F_ARB, GL_DEPTH_COMPONENT24...
 	GLenum glformat; // GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT
 	GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
@@ -229,8 +234,6 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 		return;
 	}
 
-	if (srgb && !GLEW_EXT_texture_sRGB)
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"sRGB textures not suported, results may be incorrect. Upgrade your GPU or driver.\n"));
 	if (srgb && buffer->getElementBits()>32)
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Float textures don't support sRGB, reducing precison.\n"));
 
