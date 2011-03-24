@@ -55,6 +55,37 @@ DECLARE_PRESERVE_STATE( PreserveFBSRGB    ,GLboolean enabled      ,enabled=glIsE
 
 #undef DECLARE_PRESERVE_STATE
 
+//! Faster preservation of flag.
+//
+//! Requested value is set in ctor, old value is restored in dtor.
+//! Restore works reliably only if you don't touch flag between ctor and dtor.
+class PreserveFlag
+{
+	GLenum name;
+	bool oldval;
+	bool newval;
+public:
+	PreserveFlag(GLenum _name, bool _newval)
+	{
+		name = _name;
+		oldval = glIsEnabled(name)!=GL_FALSE;
+		newval = _newval;
+		if (newval!=oldval)
+			if (newval)
+				glEnable(name);
+			else
+				glDisable(name);
+	}
+	~PreserveFlag()
+	{
+		if (newval!=oldval)
+			if (oldval)
+				glEnable(name);
+			else
+				glDisable(name);
+	}
+};
+
 }; // namespace
 
 #endif
