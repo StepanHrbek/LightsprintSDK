@@ -543,6 +543,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	SetIcon(wxIcon(sample_xpm));
 
 	CreateStatusBar();
+	enableTooltips(userPreferences.tooltips);
 
 	textureLocator = rr::RRFileLocator::create();
 
@@ -1831,6 +1832,15 @@ void SVFrame::simulateSun()
 			}
 		}
 	}
+}
+
+void SVFrame::enableTooltips(bool enable)
+{
+	m_lightProperties->enableTooltips(enable);
+	m_objectProperties->enableTooltips(enable);
+	m_materialProperties->enableTooltips(enable);
+	m_sceneProperties->enableTooltips(enable);
+	m_userProperties->enableTooltips(enable);
 }
 
 BEGIN_EVENT_TABLE(SVFrame, wxFrame)

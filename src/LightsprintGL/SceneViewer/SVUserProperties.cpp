@@ -16,6 +16,10 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 	: SVProperties(_svframe), userPreferences(_svframe->userPreferences)
 {
 
+	// tooltips
+	propTooltips = new BoolRefProperty(_("Tooltips"),_("Enables tooltips."),userPreferences.tooltips);
+	Append(propTooltips);
+
 	// import
 	{
 		propImport = new wxStringProperty(_("Import"), wxPG_LABEL);
@@ -129,6 +133,11 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
 	wxPGProperty *property = event.GetProperty();
 
+	if (property==propTooltips)
+	{
+		svframe->enableTooltips(svframe->userPreferences.tooltips);
+	}
+	else
 	if (property==propImportUnitsEnum)
 	{
 		userPreferences.import.unitEnum = (ImportParameters::Unit)(property->GetValue().GetInteger());

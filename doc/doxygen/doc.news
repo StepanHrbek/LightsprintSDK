@@ -16,6 +16,9 @@ NEWS
   - new sRGB correct path is more accurate, bit slower, requires OpenGL 3.0 or 2.x with extensions
   - old path stays unchanged, works fine with OpenGL 2.0
   - srgbCorrect parameter added to several rendering functions
+- enhanced scene viewer
+  - Scene properties/GI quality/sRGB correct
+  - User preferences/Tooltips
 
 \section news118 ------------------------------------ 2011.03.17 -------------------------------------
 

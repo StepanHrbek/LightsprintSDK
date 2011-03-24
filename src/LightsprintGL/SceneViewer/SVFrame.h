@@ -57,6 +57,8 @@ namespace rr_gl
 		//! Updates sun (first dirlight) direction, called when user changes time or location.
 		void simulateSun();
 
+		void enableTooltips(bool enable);
+
 		void userPreferencesGatherFromWx();
 		void userPreferencesApplyToWx();
 

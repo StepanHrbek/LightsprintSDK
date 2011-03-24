@@ -40,6 +40,7 @@ namespace rr_gl
 
 	struct UserPreferences
 	{
+		bool tooltips;
 		unsigned currentWindowLayout;
 		struct WindowLayout
 		{
@@ -66,6 +67,7 @@ namespace rr_gl
 
 		UserPreferences()
 		{
+			tooltips = true;
 			currentWindowLayout = 0;
 			windowLayout[0].fullscreen = false;
 			windowLayout[0].maximized = false;
