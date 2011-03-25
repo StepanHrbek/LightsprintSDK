@@ -108,6 +108,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propEnvTime = new FloatProperty(_("Local time (hour)"),_("Hour, 0..24, local time used for Sun and sky simulation."),svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f,svs.precision,0,24,1,true);
 		AppendIn(propEnv,propEnvTime);
 
+		propEnvSpeed = new FloatProperty(_("Speed"),_("How quickly simulation runs, 0=stopped, 1=realtime, 3600=one day in 24seconds."),svs.envSpeed,svs.precision,0,1000000,1,false);
+		AppendIn(propEnv,propEnvSpeed);
+
 		SetPropertyBackgroundColour(propEnv,importantPropertyBackgroundColor,false);
 	}
 
@@ -328,6 +331,7 @@ void SVSceneProperties::updateHide()
 	propEnvLocation->Hide(!svs.envSimulateSky&&!svs.envSimulateSun);
 	propEnvDate->Hide(!svs.envSimulateSky&&!svs.envSimulateSun,false);
 	propEnvTime->Hide(!svs.envSimulateSky&&!svs.envSimulateSun,false);
+	propEnvSpeed->Hide(!svs.envSimulateSky&&!svs.envSimulateSun,false);
 
 	propToneMappingAutomatic->Hide(!svs.renderTonemapping,false);
 	propToneMappingAutomaticTarget->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
@@ -399,6 +403,7 @@ void SVSceneProperties::updateProperties()
 		+ updateProperty(propEnvLocation,rr::RRVec2(svs.envLatitudeDeg,svs.envLongitudeDeg))
 		+ updateDate(propEnvDate,wxDateTime(svs.envDateTime))
 		+ updateFloat(propEnvTime,svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f)
+		+ updateFloat(propEnvSpeed,svs.envSpeed)
 		+ updateFloat(propToneMappingAutomaticTarget,svs.tonemappingAutomaticTarget)
 		+ updateFloat(propToneMappingAutomaticSpeed,svs.tonemappingAutomaticSpeed)
 		+ updateFloat(propToneMappingBrightness,svs.tonemappingBrightness[0])
@@ -559,7 +564,13 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.envDateTime.tm_hour = (int)h;
 		svs.envDateTime.tm_min = fmodf(h,1)*60;
 		svs.envDateTime.tm_sec = 0;
+		svs.envDateTime.tm_nsec = 0;
 		svframe->simulateSun();
+	}
+	else
+	if (property==propEnvSpeed)
+	{
+		svs.envSpeed = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propToneMapping)

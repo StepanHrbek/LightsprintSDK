@@ -190,10 +190,10 @@ void load(Archive & ar, rr_gl::Camera& a, const unsigned int version)
 	}
 
 
-//------------------------------ tm -----------------------------------
+//------------------------------ DateTime -----------------------------------
 
 template<class Archive>
-void serialize(Archive & ar, tm& a, const unsigned int version)
+void serialize(Archive & ar, rr_gl::DateTime& a, const unsigned int version)
 {
 	a.tm_year += 1900;
 	a.tm_mon += 1;
@@ -203,6 +203,10 @@ void serialize(Archive & ar, tm& a, const unsigned int version)
 	ar & make_nvp("hour",a.tm_hour);
 	ar & make_nvp("minute",a.tm_min);
 	ar & make_nvp("second",a.tm_sec);
+	if (version>0)
+	{
+		ar & make_nvp("nanosecond",a.tm_nsec);
+	}
 	a.tm_mon -= 1;
 	a.tm_year -= 1900;
 }
@@ -220,6 +224,10 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 		ar & make_nvp("envLongitude",a.envLongitudeDeg);
 		ar & make_nvp("envLatitude",a.envLatitudeDeg);
 		ar & make_nvp("envDateTime",a.envDateTime);
+	}
+	if (version>22)
+	{
+		ar & make_nvp("envSpeed",a.envSpeed);
 	}
 	ar & make_nvp("staticLayerNumber",a.staticLayerNumber);
 	ar & make_nvp("realtimeLayerNumber",a.realtimeLayerNumber);
@@ -394,11 +402,12 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRLights)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
 
-BOOST_CLASS_VERSION(rr::RRLight, 4)
-BOOST_CLASS_VERSION(rr_gl::Camera, 1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout, 1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences, 8) // must be increased also each time panel is added/removed
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx, 22)
+BOOST_CLASS_VERSION(rr::RRLight,4)
+BOOST_CLASS_VERSION(rr_gl::Camera,1)
+BOOST_CLASS_VERSION(rr_gl::DateTime,1)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences,8) // must be increased also each time panel is added/removed
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,23)
 
 //---------------------------------------------------------------------------
 

@@ -18,6 +18,7 @@ NEWS
   - srgbCorrect parameter added to several rendering functions
 - enhanced scene viewer
   - Scene properties/GI quality/sRGB correct
+  - Scene properties/Environment/Speed
   - User preferences/Tooltips
 
 \section news118 ------------------------------------ 2011.03.17 -------------------------------------

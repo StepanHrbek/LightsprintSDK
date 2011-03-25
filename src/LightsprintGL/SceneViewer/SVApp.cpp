@@ -11,6 +11,50 @@
 namespace rr_gl
 {
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// DateTime
+
+DateTime::DateTime()
+{
+	time_t now = time(NULL);
+	*(tm*)this = *localtime(&now);
+	tm_nsec = 0;
+}
+
+void DateTime::addSeconds(double _seconds)
+{
+	_seconds += tm_nsec*1e-9;
+	tm_nsec = fmod(_seconds,1)*1e9;
+	unsigned seconds = (unsigned)_seconds;
+	if (seconds)
+	{
+		seconds += tm_sec;
+		tm_sec = seconds%60;
+		unsigned minutes = seconds/60;
+		if (minutes)
+		{
+			minutes += tm_min;
+			tm_min = minutes%60;
+			unsigned hours = minutes/60;
+			if (hours)
+			{
+				hours += tm_hour;
+				tm_hour = hours%24;
+				unsigned days = hours/24;
+				if (days)
+				{
+					// it becomes complicated here
+				}
+			}
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SVApp
+
 // the only instance used by whole scene viewer
 static SceneViewerStateEx s_svs;
 

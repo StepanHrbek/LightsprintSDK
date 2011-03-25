@@ -1011,6 +1011,17 @@ void SVCanvas::OnPaintCore(wxPaintEvent& event)
 	}
 #endif
 
+	if (svs.envSimulateSun && svs.envSpeed)
+	{
+		static TIME t0 = 0;
+		TIME now = GETTIME;
+		double seconds = (now-t0)/(double)PER_SEC;
+		if (seconds>0 && seconds<1)
+			svs.envDateTime.addSeconds(seconds*svs.envSpeed);
+		t0 = now;
+		parent->simulateSun();
+	}
+
 	Paint(event);
 
 	// done

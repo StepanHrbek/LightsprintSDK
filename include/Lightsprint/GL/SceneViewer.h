@@ -16,7 +16,6 @@
 
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDynamicSolver.h"
-#include "ctime" // struct tm
 
 #if _MSC_VER==1600
 //#define CUSTOMIZED_FOR_3DRENDER
@@ -69,7 +68,7 @@ struct SceneViewerState
 	bool             envSimulateSun;            //! Should we simulate Sun according to location and datetime?
 	float            envLongitudeDeg;           //! Longitude for sky/sun simulation, -180..180, east is positive, west is negative.
 	float            envLatitudeDeg;            //! Latitude for sky/sun simulation, -90..90, north is positive, south is negative.
-	tm               envDateTime;               //! Date and time for sky/sun simulation.
+	float            envSpeed;                  //! How qualicky simulation runs, 0=stopped, 1=realtime, 3600=day in 24sec.
 
 	unsigned         staticLayerNumber;         //! Layer used for all static lighting operations. Set it to precomputed layer you want to display.
 	unsigned         realtimeLayerNumber;       //! Layer used for all realtime lighting operations.
@@ -142,8 +141,7 @@ struct SceneViewerState
 		envSimulateSun = false;
 		envLongitudeDeg = 14+26/60.f; // Prague
 		envLatitudeDeg = 50+5/60.f;
-		time_t now = time(NULL);
-		envDateTime = *localtime(&now);
+		envSpeed = 0;
 
 		staticLayerNumber = 192837464; // any numbers unlikely to collide with user's layer numbers, better than 0 that nearly always collides
 		realtimeLayerNumber = 192837465;
@@ -214,12 +212,7 @@ struct SceneViewerState
 			&& a.envSimulateSun==envSimulateSun
 			&& a.envLongitudeDeg==envLongitudeDeg
 			&& a.envLatitudeDeg==envLatitudeDeg
-			&& a.envDateTime.tm_year==envDateTime.tm_year
-			&& a.envDateTime.tm_mon==envDateTime.tm_mon
-			&& a.envDateTime.tm_mday==envDateTime.tm_mday
-			&& a.envDateTime.tm_hour==envDateTime.tm_hour
-			&& a.envDateTime.tm_min==envDateTime.tm_min
-			&& a.envDateTime.tm_sec==envDateTime.tm_sec
+			&& a.envSpeed==envSpeed
 
 			&& a.staticLayerNumber==staticLayerNumber
 			&& a.realtimeLayerNumber==realtimeLayerNumber

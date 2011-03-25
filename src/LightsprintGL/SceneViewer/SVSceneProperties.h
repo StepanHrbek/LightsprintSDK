@@ -57,6 +57,7 @@ namespace rr_gl
 		LocationProperty* propEnvLocation;
 		wxDateProperty*   propEnvDate;
 		FloatProperty*    propEnvTime;
+		FloatProperty*    propEnvSpeed;
 
 		BoolRefProperty*  propToneMapping;
 		BoolRefProperty*  propToneMappingAutomatic;
