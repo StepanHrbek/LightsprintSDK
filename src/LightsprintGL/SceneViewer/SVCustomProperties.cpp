@@ -6,6 +6,7 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVCustomProperties.h"
+#include "wx/colordlg.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -110,6 +111,21 @@ wxVariant RRVec3Property::ChildChanged( wxVariant& thisValue, int childIndex, wx
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// helpers
+
+static RRVec3 wxColour2RRVec3(wxColour c)
+{
+	return RRVec3(RR_BYTE2FLOAT(c.Red()),RR_BYTE2FLOAT(c.Green()),RR_BYTE2FLOAT(c.Blue()));
+}
+
+static wxColour RRVec32wxColour(RRVec3 c)
+{
+	return wxColour(RR_FLOAT2BYTE(c[0]),RR_FLOAT2BYTE(c[1]),RR_FLOAT2BYTE(c[2]));
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // HDRColorProperty
 
 WX_PG_IMPLEMENT_PROPERTY_CLASS(HDRColorProperty,wxPGProperty,RRVec3,const RRVec3&,TextCtrl)
@@ -119,7 +135,7 @@ HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& help,
 {
 	SetValue(WXVARIANT(rgb));
 	SetHelpString(help);
-
+	SetEditor("SpinCtrl");
 	RRVec3 hsv = rgb.getHsvFromRgb();
 	AddPrivateChild(new FloatProperty(_("red"),_("Red component intensity"),rgb[0],precision,0,100,0.1f,false));
 	AddPrivateChild(new FloatProperty(_("green"),_("Green component intensity"),rgb[1],precision,0,100,0.1f,false));
@@ -140,15 +156,6 @@ void HDRColorProperty::RefreshChildren()
 	Item(3)->SetValue(hsv[0]);
 	Item(4)->SetValue(hsv[1]);
 	Item(5)->SetValue(hsv[2]);
-
-	// update ValueImage
-	unsigned char* data = image.GetData();
-	data[0] = data[3] = RR_FLOAT2BYTE(rgb[0]);
-	data[1] = data[4] = RR_FLOAT2BYTE(rgb[1]);
-	data[2] = data[5] = RR_FLOAT2BYTE(rgb[2]);
-	delete bitmap;
-	bitmap = new wxBitmap(image);
-	SetValueImage(*bitmap);
 }
 
 wxVariant HDRColorProperty::ChildChanged( wxVariant& thisValue, int childIndex, wxVariant& childValue ) const
@@ -172,6 +179,69 @@ wxVariant HDRColorProperty::ChildChanged( wxVariant& thisValue, int childIndex, 
 	}
 	thisValue << rgb;
 	return thisValue;
+}
+
+void HDRColorProperty::updateImage()
+{
+	// update ValueImage
+	wxColour c = RRVec32wxColour(RRVec3RefFromVariant(m_value));
+	unsigned char* data = image.GetData();
+	data[0] = data[3] = c.Red();
+	data[1] = data[4] = c.Green();
+	data[2] = data[5] = c.Blue();
+	delete bitmap;
+	bitmap = new wxBitmap(image);
+	SetValueImage(*bitmap);
+}
+
+wxString HDRColorProperty::ValueToString(wxVariant& value, int argFlags) const
+{
+	((HDRColorProperty*)this)->updateImage();
+	return "";
+}
+
+bool HDRColorProperty::StringToValue(wxVariant& variant, const wxString& text, int argFlags)
+{
+	return false;
+}
+
+bool HDRColorProperty::OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event)
+{
+	rr::RRReporter::report(rr::INF2,"%d %d\n",event.GetEventType(),event.GetId());
+	if (event.GetEventType()==wxEVT_SCROLL_LINEUP)
+	{
+		// number of steps is in ((wxPGSpinButton*)event.GetObject())->GetSpins(), unfortunately wxPGSpinButton is wx private class
+		SetValueInEvent(WXVARIANT(RRVec3RefFromVariant(m_value)*1.2f));
+	}
+	else
+	if (event.GetEventType()==wxEVT_SCROLL_LINEDOWN)
+	{
+		SetValueInEvent(WXVARIANT(RRVec3RefFromVariant(m_value)/1.2f));
+	}
+	else
+	if (event.GetEventType()==wxEVT_SET_FOCUS)
+		// wxEVT_SET_FOCUS first click
+		// wxEVT_LEFT_DOWN second click in, first click out
+		// wxEVT_ENTER_WINDOW wxEVT_SET_CURSOR mouse over
+		// wxEVT_KEY_DOWN key
+		//never:
+		// wxEVT_NAVIGATION_KEY
+		// wxEVT_LEFT_DCLICK
+		// wxEVT_COMMAND_TOOL_ENTER wxEVT_COMMAND_ENTER wxEVT_ACTIVATE wxEVT_COMMAND_SET_FOCUS wxEVT_COMMAND_LEFT_CLICK wxEVT_COMMAND_BUTTON_CLICKED
+	{
+		wxEVT_COMMAND_LEFT_CLICK;
+		static wxColourData data;
+		data.SetColour(RRVec32wxColour(RRVec3RefFromVariant(m_value)));
+		wxColourDialog dialog(NULL,&data);
+		int result = dialog.ShowModal();
+		data = dialog.GetColourData();
+		if (result == wxID_OK)
+		{
+			RRVec3 rgb = wxColour2RRVec3(data.GetColour());
+			SetValueInEvent(WXVARIANT(rgb));
+		}
+	}
+	return wxPGProperty::OnEvent(propgrid,wnd_primary,event);
 }
 
 HDRColorProperty::~HDRColorProperty()

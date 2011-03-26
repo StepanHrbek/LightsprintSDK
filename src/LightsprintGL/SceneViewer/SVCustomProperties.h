@@ -79,6 +79,10 @@ public:
 	virtual ~HDRColorProperty();
 	virtual wxVariant ChildChanged(wxVariant& thisValue, int childIndex, wxVariant& childValue) const;
 	virtual void RefreshChildren();
+	void updateImage();
+	virtual wxString ValueToString(wxVariant& value, int argFlags) const;
+	virtual bool StringToValue(wxVariant& variant, const wxString& text, int argFlags);
+	virtual bool OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event);
 private:
 	wxImage image;
 	wxBitmap* bitmap;
