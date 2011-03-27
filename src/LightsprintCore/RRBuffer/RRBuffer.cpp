@@ -744,9 +744,9 @@ RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6], co
 				break;
 			char location_buf[1000];
 			if (_cubeSideName && strstr(location.c_str(),"%s"))
-				_snprintf(location_buf,999,location.c_str(),_cubeSideName[0]);
+				_snprintf(location_buf,999,location.c_str(),_cubeSideName[0]); //!!! what if user loads "%s%s.jpg"?
 			else
-				_snprintf(location_buf,999,location.c_str());
+				_snprintf(location_buf,999,"%s",location.c_str());
 			location_buf[999] = 0;
 rr::RRReporter::report(rr::INF2,"%d: %s\n",attempt,location.c_str());
 			if (exists(location_buf))
