@@ -460,7 +460,7 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap)
 	for (unsigned i=0;i<size;i++)
 		if (source[i][3]>0)
 			setElement(i,RRVec4(source[i][0],source[i][1],source[i][2],getElement(i)[3]));
-	delete[] buf;
+	free(buf);
 	return true;
 }
 
