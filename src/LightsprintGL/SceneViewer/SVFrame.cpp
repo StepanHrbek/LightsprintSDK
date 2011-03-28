@@ -1098,7 +1098,7 @@ save_scene_as:
 
 				// 3a. cleanup
 				oldFBOState.restore();
-				m_canvas->OnSize(wxSizeEvent()); //glViewport(0,0,m_canvas->winWidth,m_canvas->winHeight);
+				m_canvas->OnSize(); //glViewport(0,0,m_canvas->winWidth,m_canvas->winHeight);
 
 				// 2. cleanup
 				delete bufDepth;

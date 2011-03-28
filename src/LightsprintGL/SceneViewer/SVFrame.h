@@ -27,7 +27,7 @@ namespace rr_gl
 	public:
 		static SVFrame *Create(SceneViewerStateEx& svse);
 
-		void OnMenuEvent(unsigned eventCode);
+		void OnMenuEvent(unsigned eventCode); // helper for us, we call it instead of OnMenuEvent(non-const ref to temporary)
 		void OnMenuEvent(wxCommandEvent& event);
 		void OnMenuEventCore(wxCommandEvent& event);
 		void OnExit(wxCommandEvent& event);
