@@ -164,7 +164,7 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 	{
 		// saved paths must be absolute, necessary for proper relocation at load time
 		// saved type must be RRString (saving std::string and loading RRString works if scene has at least 1 light or material, fails in empty scene)
-		RRString absolute = bf::system_complete(a.filename.c_str()).string().c_str();
+		rr::RRString absolute = bf::system_complete(a.filename.c_str()).string().c_str();
 		ar & make_nvp("filename",absolute);
 	}
 }
