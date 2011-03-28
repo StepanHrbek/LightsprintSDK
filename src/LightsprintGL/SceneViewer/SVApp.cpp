@@ -95,7 +95,9 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, 
 	s_svs.releaseResources = _releaseResources;
 
 	wxApp::SetInitializerFunction(wxCreateApp);
-	wxEntry(0,NULL);
+	int argc = 0;
+	char** argv = NULL;
+	wxEntry(argc,argv);
 }
  
 }; // namespace
