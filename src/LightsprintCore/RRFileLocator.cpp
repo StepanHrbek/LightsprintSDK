@@ -162,7 +162,7 @@ protected:
 	}
 
 	template<class C>
-	static void addOrRemove(bool _add, std::vector<C>& _paths, C& _path)
+	static void addOrRemove(bool _add, std::vector<C>& _paths, const C& _path)
 	{
 		if (_add)
 			_paths.push_back(_path);
