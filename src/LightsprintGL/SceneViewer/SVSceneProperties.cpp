@@ -465,7 +465,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCameraView)
 	{
 		int menuCode = property->GetValue().GetInteger();
-		svframe->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,menuCode));
+		svframe->OnMenuEvent(menuCode);
 	}
 	else
 	if (property==propCameraSpeed)
@@ -534,7 +534,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propEnvMap)
 	{
 		svs.skyboxFilename = WX2RR(propEnvMap->GetValue().GetString());
-		svframe->OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_ENV_RELOAD));
+		svframe->OnMenuEvent(SVFrame::ME_ENV_RELOAD);
 	}
 	else
 	if (property==propEnvLocation)

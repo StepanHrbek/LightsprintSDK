@@ -376,7 +376,7 @@ void SVFrame::UpdateEverything()
 	// without SetFocus, keyboard events may be sent to frame instead of canvas
 	m_canvas->SetFocus();
 
-	if (svs.autodetectCamera && !(svs.initialInputSolver && svs.initialInputSolver->aborting)) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_VIEW_RANDOM));
+	if (svs.autodetectCamera && !(svs.initialInputSolver && svs.initialInputSolver->aborting)) OnMenuEvent(ME_VIEW_RANDOM);
 
 	UpdateTitle();
 	m_sceneProperties->updateAfterGLInit();
@@ -444,7 +444,7 @@ void SVFrame::userPreferencesGatherFromWx()
 void SVFrame::userPreferencesApplyToWx()
 {
 	if (userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen != svs.fullscreen)
-		OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN));
+		OnMenuEvent(ME_WINDOW_FULLSCREEN);
 	if (!svs.fullscreen && userPreferences.windowLayout[userPreferences.currentWindowLayout].maximized != IsMaximized())
 		Maximize(!IsMaximized());
 
@@ -800,6 +800,12 @@ static void incrementFilename(wxString& filename)
 	}
 }
 
+void SVFrame::OnMenuEvent(unsigned eventCode)
+{
+	wxCommandEvent event(wxEVT_COMMAND_MENU_SELECTED,eventCode);
+	OnMenuEventCore(event);
+}
+
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
 {
 #ifdef _WIN32
@@ -926,7 +932,7 @@ save_scene_as:
 			}
 			break;
 		case ME_FILE_SAVE_SCREENSHOT:
-			OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,userPreferences.sshotEnhanced?SVFrame::ME_FILE_SAVE_SCREENSHOT_ENHANCED:SVFrame::ME_FILE_SAVE_SCREENSHOT_ORIGINAL));
+			OnMenuEvent(userPreferences.sshotEnhanced?SVFrame::ME_FILE_SAVE_SCREENSHOT_ENHANCED:SVFrame::ME_FILE_SAVE_SCREENSHOT_ORIGINAL);
 			break;
 		case ME_FILE_SAVE_SCREENSHOT_ORIGINAL:
 			{
@@ -1199,7 +1205,7 @@ reload_skybox:
 
 		case ME_LIGHTING_INDIRECT_FIREBALL_LDM:
 			// starts fireball, sets LI_REALTIME_FIREBALL
-			OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL));
+			OnMenuEvent(ME_LIGHTING_INDIRECT_FIREBALL);
 			// enables ldm if in ram
 			for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 				if (solver->getStaticObjects()[i]->illumination.getLayer(svs.ldmLayerNumber))
@@ -1239,7 +1245,7 @@ reload_skybox:
 				solver->buildFireball(svs.fireballQuality,NULL);
 				solver->reportDirectIlluminationChange(-1,true,true);
 				// this would ask questions
-				//OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_REALTIME_FIREBALL_BUILD));
+				//OnMenuEvent(ME_REALTIME_FIREBALL_BUILD);
 			}
 			break;
 
@@ -1320,7 +1326,7 @@ reload_skybox:
 					solver->getStaticObjects().saveLayer(svs.ldmLayerNumber,LDM_PREFIX,LDM_POSTFIX);
 
 					// switch to fireball+ldm
-					OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,SVFrame::ME_LIGHTING_INDIRECT_FIREBALL_LDM));
+					OnMenuEvent(ME_LIGHTING_INDIRECT_FIREBALL_LDM);
 				}
 			}
 			break;
@@ -1572,7 +1578,7 @@ reload_skybox:
 				{
 					if (svs.fullscreen)
 					{
-						OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_FULLSCREEN_META));
+						OnMenuEvent(ME_WINDOW_FULLSCREEN_META);
 					}
 					if (IsMaximized())
 					{
@@ -1698,7 +1704,7 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 			m_lightProperties->setLight(m_canvas->solver->realtimeLights[entity.index],svs.precision);
 			m_canvas->selectedType = entity.type;
 			svs.selectedLightIndex = entity.index;
-			if (action==SEA_ACTION) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_LIGHT_PROPERTIES));
+			if (action==SEA_ACTION) OnMenuEvent(ME_WINDOW_LIGHT_PROPERTIES);
 			break;
 
 		case ST_STATIC_OBJECT:
@@ -1710,7 +1716,7 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 			}
 			m_canvas->selectedType = entity.type;
 			svs.selectedObjectIndex = entity.index;
-			if (action==SEA_ACTION) OnMenuEvent(wxCommandEvent(wxEVT_COMMAND_MENU_SELECTED,ME_WINDOW_OBJECT_PROPERTIES));
+			if (action==SEA_ACTION) OnMenuEvent(ME_WINDOW_OBJECT_PROPERTIES);
 			break;
 
 		case ST_CAMERA:
