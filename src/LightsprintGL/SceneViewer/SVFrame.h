@@ -134,9 +134,11 @@ namespace rr_gl
 			ME_WINDOW_RESIZE,
 
 			ME_HELP,
+#ifdef _WIN32
 			ME_SDK_HELP,
 			ME_SUPPORT,
 			ME_LIGHTSPRINT,
+#endif
 			ME_CHECK_SOLVER,
 			ME_CHECK_SCENE,
 			ME_ABOUT,
