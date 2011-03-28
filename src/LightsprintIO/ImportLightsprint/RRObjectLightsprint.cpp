@@ -250,7 +250,8 @@ public:
 			out.push(ofs);
 			portable_binary_oarchive ar(out);
 #endif
-			ar & boost::serialization::make_nvp("filename", std::string(filename));
+			std::string filenameStr(filename);
+			ar & boost::serialization::make_nvp("filename", filenameStr);
 			ar & boost::serialization::make_nvp("scene", *scene);
 
 			return true;
