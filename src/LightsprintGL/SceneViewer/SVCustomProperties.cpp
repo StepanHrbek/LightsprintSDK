@@ -5,6 +5,7 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
+#include "SVApp.h"
 #include "SVCustomProperties.h"
 #include "wx/colordlg.h"
 
@@ -321,7 +322,7 @@ wxString getTextureDescription(rr::RRBuffer* buffer)
 	return buffer
 		? (buffer->filename.empty()
 			? wxString::Format("(%dx%d embedded)",buffer->getWidth(),buffer->getHeight())
-			: buffer->filename.c_str())
+			: wxString(RR2WX(buffer->filename)))
 		:"(no texture)";
 }
 
