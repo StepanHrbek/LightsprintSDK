@@ -360,7 +360,7 @@ const CityLocation cityLocations[] =
 	{wxT("Amsterdam, Netherlands"),52,22,'N',4,53,'E'},
 	{wxT("Anchorage, Alaska, USA"),61,13,'N',149,54,'W'},
 	{wxT("Ankara, Turkey"),39,55,'N',32,55,'E'},
-	{wxT("Asunción, Paraguay"),25,15,'S',57,40,'W'},
+	{wxT("Asuncion, Paraguay"),25,15,'S',57,40,'W'}, // Asunción
 	{wxT("Athens, Greece"),37,58,'N',23,43,'E'},
 	{wxT("Atlanta, Ga., USA"),33,45,'N',84,23,'W'},
 	{wxT("Auckland, New Zealand"),36,52,'S',174,45,'E'},
@@ -371,14 +371,14 @@ const CityLocation cityLocations[] =
 	{wxT("Bangor, Maine, USA"),44,48,'N',68,47,'W'},
 	{wxT("Barcelona, Spain"),41,23,'N',2,9,'E'},
 	{wxT("Beijing, China"),39,55,'N',116,25,'E'},
-	{wxT("Belém, Brazil"),1,28,'S',48,29,'W'},
+	{wxT("Belem, Brazil"),1,28,'S',48,29,'W'}, // Belém
 	{wxT("Belfast, Northern Ireland"),54,37,'N',5,56,'W'},
 	{wxT("Belgrade, Serbia"),44,52,'N',20,32,'E'},
 	{wxT("Berlin, Germany"),52,30,'N',13,25,'E'},
 	{wxT("Birmingham, England"),52,25,'N',1,55,'W'},
 	{wxT("Birmingham, Ala., USA"),33,30,'N',86,50,'W'},
 	{wxT("Bismarck, N.D., USA"),46,48,'N',100,47,'W'},
-	{wxT("Bogotá, Colombia"),4,32,'N',74,15,'W'},
+	{wxT("Bogota, Colombia"),4,32,'N',74,15,'W'}, // Bogotá
 	{wxT("Boise, Idaho, USA"),43,36,'N',116,13,'W'},
 	{wxT("Bombay, India"),19,0,'N',72,48,'E'},
 	{wxT("Bordeaux, France"),44,50,'N',0,31,'W'},
@@ -411,7 +411,7 @@ const CityLocation cityLocations[] =
 	{wxT("Columbia, S.C., USA"),34,0,'N',81,2,'W'},
 	{wxT("Columbus, Ohio, USA"),40,0,'N',83,1,'W'},
 	{wxT("Copenhagen, Denmark"),55,40,'N',12,34,'E'},
-	{wxT("Córdoba, Argentina"),31,28,'S',64,10,'W'},
+	{wxT("Cordoba, Argentina"),31,28,'S',64,10,'W'}, // Córdoba
 	{wxT("Dakar, Senegal"),14,40,'N',17,28,'W'},
 	{wxT("Dallas, Tex., USA"),32,46,'N',96,46,'W'},
 	{wxT("Darwin, Australia"),12,28,'S',130,51,'E'},
@@ -487,7 +487,7 @@ const CityLocation cityLocations[] =
 	{wxT("Manchester, N.H., USA"),43,0,'N',71,30,'W'},
 	{wxT("Manila, Philippines"),14,35,'N',120,57,'E'},
 	{wxT("Marseilles, France"),43,20,'N',5,20,'E'},
-	{wxT("Mazatlán, Mexico"),23,12,'N',106,25,'W'},
+	{wxT("Mazatlan, Mexico"),23,12,'N',106,25,'W'}, // Mazatlán
 	{wxT("Mecca, Saudi Arabia"),21,29,'N',39,45,'E'},
 	{wxT("Melbourne, Australia"),37,47,'S',144,58,'E'},
 	{wxT("Memphis, Tenn., USA"),35,9,'N',90,3,'W'},
@@ -543,7 +543,7 @@ const CityLocation cityLocations[] =
 	{wxT("Raleigh, N.C., USA"),35,46,'N',78,39,'W'},
 	{wxT("Rangoon, Myanmar"),16,50,'N',96,0,'E'},
 	{wxT("Reno, Nev., USA"),39,30,'N',119,49,'W'},
-	{wxT("Reykjavík, Iceland"),64,4,'N',21,58,'W'},
+	{wxT("Reykjavik, Iceland"),64,4,'N',21,58,'W'}, // Reykjavík
 	{wxT("Richfield, Utah, USA"),38,46,'N',112,5,'W'},
 	{wxT("Richmond, Va., USA"),37,33,'N',77,29,'W'},
 	{wxT("Rio de Janeiro, Brazil"),22,57,'S',43,12,'W'},
@@ -559,7 +559,7 @@ const CityLocation cityLocations[] =
 	{wxT("San Juan, P.R., USA"),18,30,'N',66,10,'W'},
 	{wxT("Santa Fe, N.M., USA"),35,41,'N',105,57,'W'},
 	{wxT("Santiago, Chile"),33,28,'S',70,45,'W'},
-	{wxT("São Paulo, Brazil"),23,31,'S',46,31,'W'},
+	{wxT("Sao Paulo, Brazil"),23,31,'S',46,31,'W'}, // São Paulo
 	{wxT("Savannah, Ga., USA"),32,5,'N',81,5,'W'},
 	{wxT("Seattle, Wash., USA"),47,37,'N',122,20,'W'},
 	{wxT("Shanghai, China"),31,10,'N',121,28,'E'},
@@ -599,7 +599,7 @@ const CityLocation cityLocations[] =
 	{wxT("Wichita, Kan., USA"),37,43,'N',97,17,'W'},
 	{wxT("Wilmington, N.C., USA"),34,14,'N',77,57,'W'},
 	{wxT("Winnipeg, Man., Canada"),49,54,'N',97,7,'W'},
-	{wxT("Zürich, Switzerland"),47,21,'N',8,31,'E'},
+	{wxT("Zurich, Switzerland"),47,21,'N',8,31,'E'}, // Zürich
 	{NULL,0,0,'N',0,0,'W'}
 };
 
