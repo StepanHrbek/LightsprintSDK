@@ -50,8 +50,9 @@ namespace rr_gl
 		// set context, paint, swap, catch exceptions
 		void OnPaint(wxPaintEvent& event);
 
-		void OnSize(); // helper for us, we call it instead of OnSize(non-const ref to temporary)
 		void OnSize(wxSizeEvent& event);
+		void OnSizeCore();
+
 		void OnEraseBackground(wxEraseEvent& event) {} // Do nothing, to avoid flashing.
 		void OnKeyDown(wxKeyEvent& event);
 		void OnKeyUp(wxKeyEvent& event);

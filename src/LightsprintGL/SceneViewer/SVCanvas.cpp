@@ -395,13 +395,12 @@ SVCanvas::~SVCanvas()
 	delete context;
 }
 
-void SVCanvas::OnSize()
+void SVCanvas::OnSize(wxSizeEvent& event)
 {
-	wxSizeEvent event;
-	OnSize(event);
+	OnSizeCore();
 }
 
-void SVCanvas::OnSize(wxSizeEvent& event)
+void SVCanvas::OnSizeCore()
 {
 	// set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
 	int w, h;
