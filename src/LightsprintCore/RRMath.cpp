@@ -192,7 +192,7 @@ RRVec3 RRMatrix3x4::getScale() const
 	for (unsigned i=0;i<3;i++)
 	{
 		RRReal sign = m[i][0]+m[i][1]+m[i][2];
-		RRReal value = abs(m[i][0])+abs(m[i][1])+abs(m[i][2]);
+		RRReal value = fabs(m[i][0])+fabs(m[i][1])+fabs(m[i][2]);
 		scale[i] = sign>=0?value:-value;
 	}
 	return scale;
