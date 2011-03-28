@@ -188,7 +188,7 @@ void SVCanvas::createContextCore()
 	if (!solver->getEnvironment() && !svs.skyboxFilename.empty())
 	{
 		rr::RRReportInterval report(rr::INF3,"Loading skybox...\n");
-		parent->OnMenuEvent(SVFrame::ME_ENV_RELOAD);
+		parent->OnMenuEventCore(SVFrame::ME_ENV_RELOAD);
 	}
 
 
@@ -198,9 +198,9 @@ void SVCanvas::createContextCore()
 		rr::RRReportInterval report(rr::INF3,"Setting illumination type...\n");
 		switch (svs.renderLightIndirect)
 		{
-			case LI_REALTIME_FIREBALL_LDM: parent->OnMenuEvent(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL_LDM); break;
-			case LI_REALTIME_FIREBALL:     parent->OnMenuEvent(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL    ); break;
-			case LI_STATIC_LIGHTMAPS:      parent->OnMenuEvent(SVFrame::ME_LIGHTING_INDIRECT_STATIC      ); break;
+			case LI_REALTIME_FIREBALL_LDM: parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL_LDM); break;
+			case LI_REALTIME_FIREBALL:     parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL    ); break;
+			case LI_STATIC_LIGHTMAPS:      parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_STATIC      ); break;
 		}
 	}
 
@@ -449,18 +449,18 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	else if (event.GetModifiers()==wxMOD_ALT) switch (evkey)
 	{
 		case 'S': // alt-s
-			parent->OnMenuEvent(SVFrame::ME_LIGHT_SPOT);
+			parent->OnMenuEventCore(SVFrame::ME_LIGHT_SPOT);
 			break;
 		case 'O': // alt-o
-			parent->OnMenuEvent(SVFrame::ME_LIGHT_POINT);
+			parent->OnMenuEventCore(SVFrame::ME_LIGHT_POINT);
 			break;
 		case 'F': // alt-f
-			parent->OnMenuEvent(SVFrame::ME_LIGHT_FLASH);
+			parent->OnMenuEventCore(SVFrame::ME_LIGHT_FLASH);
 			break;
 		case '1':
 		case '2':
 		case '3':
-			parent->OnMenuEvent(SVFrame::ME_WINDOW_LAYOUT1+evkey-'1');
+			parent->OnMenuEventCore(SVFrame::ME_WINDOW_LAYOUT1+evkey-'1');
 			break;
 	}
 	else switch(evkey)
@@ -480,8 +480,8 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			}
 			break;
 
-		case WXK_F8: parent->OnMenuEvent(SVFrame::ME_FILE_SAVE_SCREENSHOT); break;
-		case WXK_F11: parent->OnMenuEvent(SVFrame::ME_WINDOW_FULLSCREEN_META); break;
+		case WXK_F8: parent->OnMenuEventCore(SVFrame::ME_FILE_SAVE_SCREENSHOT); break;
+		case WXK_F11: parent->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META); break;
 		case WXK_NUMPAD_ADD:
 		case '+': svs.tonemappingBrightness *= 1.2f; needsRefresh = true; break;
 		case WXK_NUMPAD_SUBTRACT:
@@ -524,18 +524,18 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case 'C': speedLean = +speed; break;
 
 		case 'h':
-		case 'H': parent->OnMenuEvent(SVFrame::ME_HELP); break;
+		case 'H': parent->OnMenuEventCore(SVFrame::ME_HELP); break;
 
 		case WXK_DELETE:
 			if (selectedType==ST_LIGHT)
-				parent->OnMenuEvent(SVFrame::ME_LIGHT_DELETE);
+				parent->OnMenuEventCore(SVFrame::ME_LIGHT_DELETE);
 			break;
 
-		case 'L': parent->OnMenuEvent(SVFrame::ME_VIEW_LEFT); break;
-		case 'R': parent->OnMenuEvent(SVFrame::ME_VIEW_RIGHT); break;
-		case 'F': parent->OnMenuEvent(SVFrame::ME_VIEW_FRONT); break;
-		case 'B': parent->OnMenuEvent(SVFrame::ME_VIEW_BACK); break;
-		case 'T': parent->OnMenuEvent(SVFrame::ME_VIEW_TOP); break;
+		case 'L': parent->OnMenuEventCore(SVFrame::ME_VIEW_LEFT); break;
+		case 'R': parent->OnMenuEventCore(SVFrame::ME_VIEW_RIGHT); break;
+		case 'F': parent->OnMenuEventCore(SVFrame::ME_VIEW_FRONT); break;
+		case 'B': parent->OnMenuEventCore(SVFrame::ME_VIEW_BACK); break;
+		case 'T': parent->OnMenuEventCore(SVFrame::ME_VIEW_TOP); break;
 
 
 		case 27:
@@ -551,7 +551,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			else
 			if (svs.fullscreen)
 			{
-				parent->OnMenuEvent(SVFrame::ME_WINDOW_FULLSCREEN_META);
+				parent->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META);
 			}
 			else
 			{
@@ -757,7 +757,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// handle double clicking
 	if (event.LeftDClick() && s_ci.hitTriangle==UINT_MAX)
 	{
-		parent->OnMenuEvent(SVFrame::ME_WINDOW_FULLSCREEN_META);
+		parent->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META);
 	}
 
 	// handle dragging
