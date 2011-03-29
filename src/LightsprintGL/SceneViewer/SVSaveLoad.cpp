@@ -13,12 +13,20 @@
 // boost::serialization support
 
 #include "SVApp.h"
+#include "wx/wx.h"
+#include <cstdio>
+#include <fstream>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 
+
+namespace bf = boost::filesystem;
 
 namespace boost
 {
@@ -410,16 +418,6 @@ BOOST_CLASS_VERSION(rr_gl::UserPreferences,8) // must be increased also each tim
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,23)
 
 //---------------------------------------------------------------------------
-
-#include "wx/wx.h"
-#include <cstdio>
-#include <boost/filesystem.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#ifdef _WIN32
-	#include <shlobj.h> // SHGetSpecialFolderPath
-#endif
-namespace bf = boost::filesystem;
 
 namespace rr_gl
 {
