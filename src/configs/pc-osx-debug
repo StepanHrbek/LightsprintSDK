@@ -1,25 +1,8 @@
+-include $(CFG_DIR)/pc-osx.common
+
 CONFIG = pc-osx-debug
-BITS = 64
 
 CPP_FLAGS += -O0
 CPP_FLAGS += -g
 CPP_FLAGS += -D_DEBUG
 
-CORE_LIBS = \
-	-lstdc++ \
-	../../bin/$(CONFIG)/libLightsprintCore.so
-#	-lgomp \
-
-GL_LIBS = \
-	-lGL \
-	-lGLEW \
-	../../bin/$(CONFIG)/libLightsprintGL.so
-
-IO_LIBS = \
-	-lfreeimage \
-	-lboost_serialization \
-	-lboost_iostreams \
-	-lboost_filesystem \
-	../../bin/$(CONFIG)/libLightsprintIO.so
-#	-lxml2 \
-#	/../../lib/pc-osx/libfcollada.a \

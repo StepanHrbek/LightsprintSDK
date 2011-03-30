@@ -1,5 +1,6 @@
+-include pc-osx.common
+
 CONFIG = pc-osx
-BITS = 64
 
 CPP_FLAGS += -O3
 #CPP_FLAGS += -ffast-math
@@ -7,23 +8,5 @@ CPP_FLAGS += -fomit-frame-pointer
 CPP_FLAGS += -fopenmp
 CPP_FLAGS += -DNDEBUG
 
-LINK_FLAGS += -s
+CPP_IO_FLAGS = -Os
 
-CORE_LIBS = \
-	-lstdc++ \
-	-lgomp \
-	../../bin/$(CONFIG)/libLightsprintCore.so
-
-GL_LIBS = \
-	-lGL \
-	-lGLEW \
-	../../bin/$(CONFIG)/libLightsprintGL.so
-
-IO_LIBS = \
-	-lfreeimage \
-	-lboost_serialization \
-	-lboost_iostreams \
-	-lboost_filesystem \
-	../../bin/$(CONFIG)/libLightsprintIO.so
-#	-lxml2 \
-#	/../../lib/pc-osx/libfcollada.a \

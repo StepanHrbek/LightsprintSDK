@@ -1,0 +1,41 @@
+BITS = 64
+
+CPP_FLAGS += -I/opt/local/include
+CPP_FLAGS += -I/opt/local/include/wx-devel/wx-2.9
+CPP_FLAGS += -I/opt/local/lib/wx-devel/wx/include/osx_cocoa-unicode-2.9
+CPP_FLAGS += -D__WXOSX_COCOA__
+
+LINK_FLAGS += -L/opt/local/lib
+LINK_FLAGS += -L/opt/local/lib/wx-devel
+
+CORE_DEPS = \
+	-lstdc++ \
+	-lgomp \
+	-lboost_filesystem \
+	-lboost_system
+
+CORE_LIBS = \
+	$(CORE_DEPS) \
+	../../bin/$(CONFIG)/libLightsprintCore.so
+
+GL_DEPS = \
+	-framework OpenGL \
+	-framework CoreFoundation \
+	-lGLEW \
+	-lwx_osx_cocoau-2.9 \
+	-lwx_osx_cocoau_gl-2.9 \
+	-lboost_serialization \
+	-lboost_iostreams
+
+GL_LIBS = \
+	$(GL_DEPS) \
+	../../bin/$(CONFIG)/libLightsprintGL.so
+
+IO_DEPS = \
+	-lfreeimage \
+	-lboost_serialization \
+	-lboost_iostreams
+
+IO_LIBS = \
+	$(IO_DEPS) \
+	../../bin/$(CONFIG)/libLightsprintIO.so
