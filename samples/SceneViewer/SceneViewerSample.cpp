@@ -25,6 +25,7 @@
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/GL/Program.h"
 #include "Lightsprint/IO/ImportScene.h"
 #include <cstdlib>
 #include <cstdio>
