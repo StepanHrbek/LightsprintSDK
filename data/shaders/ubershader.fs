@@ -404,28 +404,30 @@ void main()
 			#define SHADOW_CLAMP(index) * step(0.0,shadowCoord[index].z)
 		#endif
 
-		#define ACCUMULATE_SHADOW(index) SHADOWMAP_LOOKUP(shadowMap##index,index) SHADOW_CLAMP(index) SHADOW_COLOR_LOOKUP(index)
+		// fails in buggy OSX
+		// #define ACCUMULATE_SHADOW(index) SHADOWMAP_LOOKUP(shadowMap##index,index) SHADOW_CLAMP(index) SHADOW_COLOR_LOOKUP(index)
+		#define ACCUMULATE_SHADOW(shadowMap,index) SHADOWMAP_LOOKUP(shadowMap,index) SHADOW_CLAMP(index) SHADOW_COLOR_LOOKUP(index)
 
 		vec3 center; // temporary, used by macros
 		#if defined(SHADOW_CASCADE) && SHADOW_MAPS>1
 			#if SHADOW_MAPS==2
-				ACCUMULATE_SHADOW(0);
+				ACCUMULATE_SHADOW(shadowMap0,0);
 				VISIBILITY_T visibility0 = visibility;
 				visibility = VISIBILITY_T(0);
-				ACCUMULATE_SHADOW(1);
+				ACCUMULATE_SHADOW(shadowMap1,1);
 				center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
 				float centerMax = max(center.x,max(center.y,center.z));
 				float blendFactor = smoothstep(0.3,0.49,centerMax);
 				visibility = mix(visibility,visibility0,blendFactor);
 			#else
-				ACCUMULATE_SHADOW(1);
+				ACCUMULATE_SHADOW(shadowMap1,1);
 				VISIBILITY_T visibility1 = visibility;
 				visibility = VISIBILITY_T(0);
 				center = abs(shadowCoord[2].xyz/shadowCoord[2].w-vec3(0.5));
 				float centerMax = max(center.x,max(center.y,center.z));
 				if (centerMax>0.49)
 				{
-					ACCUMULATE_SHADOW(0);
+					ACCUMULATE_SHADOW(shadowMap0,0);
 					center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
 					float centerMax = max(center.x,max(center.y,center.z));
 					float blendFactor = smoothstep(0.3,0.49,centerMax);
@@ -433,42 +435,42 @@ void main()
 				}
 				else
 				{
-					ACCUMULATE_SHADOW(2);
+					ACCUMULATE_SHADOW(shadowMap2,2);
 					float blendFactor = smoothstep(0.3,0.49,centerMax);
 					visibility = mix(visibility,visibility1,blendFactor);
 				}
 			#endif
 		#else
 			#if SHADOW_MAPS>0
-				ACCUMULATE_SHADOW(0);
+				ACCUMULATE_SHADOW(shadowMap0,0);
 			#endif
 			#if SHADOW_MAPS>1
-				ACCUMULATE_SHADOW(1);
+				ACCUMULATE_SHADOW(shadowMap1,1);
 			#endif
 			#if SHADOW_MAPS>2
-				ACCUMULATE_SHADOW(2);
+				ACCUMULATE_SHADOW(shadowMap2,2);
 			#endif
 		#endif
 		#if SHADOW_MAPS>3
-			ACCUMULATE_SHADOW(3);
+			ACCUMULATE_SHADOW(shadowMap3,3);
 		#endif
 		#if SHADOW_MAPS>4
-			ACCUMULATE_SHADOW(4);
+			ACCUMULATE_SHADOW(shadowMap4,4);
 		#endif
 		#if SHADOW_MAPS>5
-			ACCUMULATE_SHADOW(5);
+			ACCUMULATE_SHADOW(shadowMap5,5);
 		#endif
 		#if SHADOW_MAPS>6
-			ACCUMULATE_SHADOW(6);
+			ACCUMULATE_SHADOW(shadowMap6,6);
 		#endif
 		#if SHADOW_MAPS>7
-			ACCUMULATE_SHADOW(7);
+			ACCUMULATE_SHADOW(shadowMap7,7);
 		#endif
 		#if SHADOW_MAPS>8
-			ACCUMULATE_SHADOW(8);
+			ACCUMULATE_SHADOW(shadowMap8,8);
 		#endif
 		#if SHADOW_MAPS>9
-			ACCUMULATE_SHADOW(9);
+			ACCUMULATE_SHADOW(shadowMap9,9);
 		#endif
 
 		#ifdef SHADOW_PENUMBRA
