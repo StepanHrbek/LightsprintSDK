@@ -468,7 +468,7 @@ unsigned ImportParameters::getUpAxis(const char* filename) const
 static wxString suggestPreferencesDirectory()
 {
 #ifdef _WIN32
-		#define APPDATA_SUBDIR L"\\Lightsprint"
+		#define APPDATA_SUBDIR "\\Lightsprint"
 		// Vista, 7
 		const wchar_t* appdata = _wgetenv(L"LOCALAPPDATA");
 		if (appdata)
@@ -476,17 +476,21 @@ static wxString suggestPreferencesDirectory()
 		// XP
 		const wchar_t* user = _wgetenv(L"USERPROFILE");
 		if (user)
-			return wxString(user) + L"\\Local Settings\\Application Data" + APPDATA_SUBDIR;
+			return wxString(user) + "\\Local Settings\\Application Data" + APPDATA_SUBDIR;
 		// unknown
 		return APPDATA_SUBDIR;
 #else
-	return L".";
+	// theoretically $HOME can be wrong, NSHomeDirectory() in OSX would be better
+	const char* user = getenv("HOME");
+	if (user)
+		return wxString(user) + "/.Lightsprint";
+	return ".Lightsprint";
 #endif
 }
 
 static wxString suggestPreferencesFilename()
 {
-	return suggestPreferencesDirectory() + L"\\SceneViewer.prefs";
+	return suggestPreferencesDirectory() + "/SceneViewer.prefs";
 }
 
 bool UserPreferences::save() const
