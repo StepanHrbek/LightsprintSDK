@@ -63,6 +63,8 @@ namespace rr
 		//! \return
 		//!  Possible file location or empty string when attemptNumber is too high.
 		virtual RRString getLocation(const char* originalFilename, unsigned attemptNumber) const;
+		//! Returns file location or empty string if not found. Uses getLocation(,i) and fopen() for i=0,1,2...
+		virtual RRString getLocation(const char* originalFilename) const;
 
 		virtual ~RRFileLocator() {}
 

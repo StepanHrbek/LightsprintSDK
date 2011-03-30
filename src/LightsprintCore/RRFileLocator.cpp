@@ -194,6 +194,30 @@ RRString RRFileLocator::getLocation(const char* originalFilename, unsigned attem
 	return attemptNumber ? NULL : originalFilename;
 }
 
+static bool exists(const char* filename)
+{
+	FILE* f = fopen(filename,"rb");
+	if (!f) return false;
+	fclose(f);
+	return true;
+}
+
+RRString RRFileLocator::getLocation(const char* originalFilename) const
+{
+	for (unsigned attempt=0;attempt<UINT_MAX;attempt++)
+	{
+		RRString location = getLocation(originalFilename,attempt);
+		if (location.empty())
+			return NULL;
+rr::RRReporter::report(rr::INF2," %d: %s\n",attempt,location.c_str());
+		if (exists(location.c_str()))
+		{
+			return location;
+		}
+	}
+	return NULL;
+}
+
 RRFileLocator* RRFileLocator::create()
 {
 	return new FileLocator;
