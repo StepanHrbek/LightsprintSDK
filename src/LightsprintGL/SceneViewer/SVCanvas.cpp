@@ -992,7 +992,7 @@ static void drawTriangle(rr::RRMesh::TriangleBody body)
 	glEnd();
 }
 
-void SVCanvas::OnPaintCore(wxPaintEvent& event)
+void SVCanvas::OnPaint(wxPaintEvent& event)
 {
 	if (exitRequested || !fullyCreated || !winWidth || !winHeight)
 		return;
@@ -1027,14 +1027,33 @@ void SVCanvas::OnPaintCore(wxPaintEvent& event)
 		parent->simulateSun();
 	}
 
-	Paint(event);
+	Paint(false);
 
 	// done
 	SwapBuffers();
 }
 
+void SVCanvas::Paint(bool _takingSshot)
+{
+#ifdef _MSC_VER
+	__try
+	{
+#endif
+		PaintCore(_takingSshot);
+#ifdef _MSC_VER
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"3D renderer crashed, you'll see no image. The rest of application (menus, windows, hotkeys) may still work.\n"));
+		glClearColor(1,0,0,0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0,0,0,0);
+	}
+#endif
+}
 
-void SVCanvas::Paint(wxPaintEvent& _event)
+
+void SVCanvas::PaintCore(bool _takingSshot)
 {
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if (renderEmptyFrames)
@@ -1057,7 +1076,7 @@ void SVCanvas::Paint(wxPaintEvent& _event)
 				NULL,
 				NULL,
 				svs.renderLightmapsBilinear);
-		lv->OnPaint(_event,GetSize());
+		lv->OnPaint(GetSize());
 	}
 	else
 	{
@@ -1430,7 +1449,7 @@ rendered:
 
 
 		// render icons, using own shader (must go after video capture)
-		if (entityIcons->isOk())
+		if (entityIcons->isOk() && !_takingSshot)
 		{
 			SVEntities entities;
 			if (parent->m_lightProperties->IsShown())
@@ -1847,26 +1866,6 @@ rendered:
 		}
 	}
 
-}
-
-void SVCanvas::OnPaint(wxPaintEvent& event)
-{
-#ifdef _MSC_VER
-	__try
-	{
-		OnPaintCore(event);
-	}
-	__except(EXCEPTION_EXECUTE_HANDLER)
-	{
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"3D renderer crashed, you'll see no image. The rest of application (menus, windows, hotkeys) may still work.\n"));
-		glClearColor(1,0,0,0);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glClearColor(0,0,0,0);
-		SwapBuffers();
-	}
-#else
-	OnPaintCore(event);
-#endif
 }
 
 

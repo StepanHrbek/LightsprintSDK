@@ -40,7 +40,7 @@ public:
 	rr::RRVec2 getCenterUv(wxSize windowSize);
 
 	void OnMouseEvent(wxMouseEvent& event, wxSize windowSize);
-	void OnPaint(wxPaintEvent& event, wxSize windowSize);
+	void OnPaint(wxSize windowSize);
 
 private:
 	bool nearest;

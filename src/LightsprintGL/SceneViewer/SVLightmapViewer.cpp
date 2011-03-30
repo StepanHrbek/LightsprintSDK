@@ -88,7 +88,7 @@ void SVLightmapViewer::OnMouseEvent(wxMouseEvent& event, wxSize windowSize)
 	previousPosition = event.GetPosition();
 }
 
-void SVLightmapViewer::OnPaint(wxPaintEvent& event, wxSize windowSize)
+void SVLightmapViewer::OnPaint(wxSize windowSize)
 {
 	if (!uberProgram)
 	{

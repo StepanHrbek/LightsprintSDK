@@ -43,12 +43,12 @@ namespace rr_gl
 
 		void reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers);
 
-		// paints to current buffer, may be called from outside to paint hires screenshot to texture
-		void Paint(wxPaintEvent& event);
-		// set context, paint, swap
-		void OnPaintCore(wxPaintEvent& event);
 		// set context, paint, swap, catch exceptions
 		void OnPaint(wxPaintEvent& event);
+		// paints to current buffer, may be called from outside to paint hires screenshot to texture
+		void Paint(bool takingSshot);
+		// helper
+		void PaintCore(bool takingSshot);
 
 		void OnSize(wxSizeEvent& event);
 		void OnSizeCore();

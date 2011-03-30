@@ -598,7 +598,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	//  - window 1x1 on screen is ugly
 	//  - window moved outside screen is ok, not visible, but Centre() is later ignored if user moves other window meanwhile
 	//wxPaintEvent e;
-	//m_canvas->Paint(e);
+	//m_canvas->Paint(false);
 
 	// render first visible frame, with good panels, disabled glcanvas
 	m_canvas->renderEmptyFrames = true;
@@ -1039,7 +1039,7 @@ save_scene_as:
 
 					// 6. render to texColor
 					wxPaintEvent e;
-					m_canvas->Paint(e);
+					m_canvas->Paint(true);
 
 					// 7. downscale to sshot
 					rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,smallSize.x,smallSize.y,1,rr::BF_RGB,true,NULL);
@@ -1086,7 +1086,6 @@ save_scene_as:
 
 					// 7. cleanup
 					delete sshot;
-
 
 					// 4. cleanup
 					svs.tonemappingAutomatic = oldTonemapping;
