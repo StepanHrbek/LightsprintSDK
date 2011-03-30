@@ -23,6 +23,7 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
 # project-dependent compiler/preprocessor flags
 
+CPP_FLAGS += -DRR_BUILD
 CPP_FLAGS += -DSUPPORT_INTERPOL
 CPP_FLAGS += -DSUPPORT_OFFLINE
 CPP_FLAGS += -DSUPPORT_FIREBALL
@@ -97,7 +98,7 @@ Unwrapper.cpp
 
 # libraries
 
-LIBS += -lgomp
+LIBS += $(CORE_DEPS)
 
 # include directories
 

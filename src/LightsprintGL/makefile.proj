@@ -23,6 +23,8 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
 # project-dependent compiler/preprocessor flags
 
+CPP_FLAGS += -DRR_GL_BUILD
+CPP_FLAGS += -DSUPPORT_SCENEVIEWER
 CPP_FLAGS += -DSUPPORT_OFFLINE
 CPP_FLAGS += -DSUPPORT_FIREBALL
 CPP_FLAGS += -DSUPPORT_ARCHITECT
@@ -51,23 +53,25 @@ UberProgram.cpp \
 UberProgramSetup.cpp \
 Water.cpp \
 Workaround.cpp \
-SceneViewer/SVApp.spp \
-SceneViewer/SVComment.spp \
-SceneViewer/SVCanvas.spp \
-SceneViewer/SVCustomProperties.spp \
-SceneViewer/SVEntityIcons.spp \
-SceneViewer/SVFrame.spp \
-SceneViewer/SVLightProperties.spp \
-SceneViewer/SVLightmapViewer.spp \
-SceneViewer/SVMaterialProperties.spp \
-SceneViewer/SVObjectProperties.spp \
-SceneViewer/SVRayLog.spp \
-SceneViewer/SVSaveLoad.spp \
-SceneViewer/SVSceneProperties.spp \
+SceneViewer/SVApp.cpp \
+SceneViewer/SVCanvas.cpp \
+SceneViewer/SVCustomProperties.cpp \
+SceneViewer/SVEntityIcons.cpp \
+SceneViewer/SVFrame.cpp \
+SceneViewer/SVLightProperties.cpp \
+SceneViewer/SVLightmapViewer.cpp \
+SceneViewer/SVMaterialProperties.cpp \
+SceneViewer/SVObjectProperties.cpp \
+SceneViewer/SVRayLog.cpp \
+SceneViewer/SVSaveLoad.cpp \
+SceneViewer/SVSceneProperties.cpp \
 SceneViewer/SVSceneTree.cpp \
-SceneViewer/SVStub.spp
+SceneViewer/SVStub.cpp \
+SceneViewer/SVUserProperties.cpp
 
 # libraries
+
+LIBS += $(CORE_LIBS) $(GL_DEPS)
 
 # include directories
 
