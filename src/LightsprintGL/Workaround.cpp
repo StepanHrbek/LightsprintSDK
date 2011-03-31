@@ -139,8 +139,8 @@ bool Workaround::supportsDepthClamp()
 
 bool Workaround::supportsSRGB()
 {
-	return GLEW_ARB_framebuffer_sRGB // added in GL 3.0
-		&& GLEW_EXT_texture_sRGB; // added in GL 2.1
+	return (GLEW_EXT_framebuffer_sRGB || GLEW_ARB_framebuffer_sRGB || GLEW_VERSION_3_0) // added in GL 3.0
+		&& (GLEW_EXT_texture_sRGB || GLEW_VERSION_2_1); // added in GL 2.1
 }
 
 }; // namespace
