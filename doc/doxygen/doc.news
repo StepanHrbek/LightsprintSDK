@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news119 ------------------------------------ 2011.03.xx -------------------------------------
+\section news119 ------------------------------------ 2011.04.xx -------------------------------------
 
 NEWS
 
@@ -16,6 +16,13 @@ NEWS
   - new sRGB correct path is more accurate, bit slower, requires OpenGL 3.0 or 2.x with extensions
   - old path stays unchanged, works fine with OpenGL 2.0
   - srgbCorrect parameter added to several rendering functions
+
+  <table border=0><tr align=top><td>
+  \image html features/srgb_correct.jpg sRGB correct, spotlight is visible only in shadow
+  </td><td>
+  \image html features/srgb_incorrect.jpg sRGB incorrect, spotlight is visible even in sunlight
+  </td></tr></table>
+
 - enhanced scene viewer
   - Scene properties/GI quality/sRGB correct
   - Scene properties/Environment/Speed
