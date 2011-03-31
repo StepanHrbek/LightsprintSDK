@@ -208,7 +208,7 @@ bool HDRColorProperty::StringToValue(wxVariant& variant, const wxString& text, i
 
 bool HDRColorProperty::OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event)
 {
-	rr::RRReporter::report(rr::INF2,"%d %d\n",event.GetEventType(),event.GetId());
+	//rr::RRReporter::report(rr::INF2,"%d %d\n",event.GetEventType(),event.GetId());
 	if (event.GetEventType()==wxEVT_SCROLL_LINEUP)
 	{
 		// number of steps is in ((wxPGSpinButton*)event.GetObject())->GetSpins(), unfortunately wxPGSpinButton is wx private class
