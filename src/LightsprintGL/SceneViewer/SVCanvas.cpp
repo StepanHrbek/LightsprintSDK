@@ -897,9 +897,10 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 
 		{
 			// yes -> respond to keyboard
-			if (speedForward-speedBack) cam->pos += cam->dir * ((speedForward-speedBack)*meters);
-			if (speedRight-speedLeft) cam->pos += cam->right * ((speedRight-speedLeft)*meters);
-			if (speedUp-speedDown) cam->pos += cam->up * ((speedUp-speedDown)*meters);
+			Camera* reference = (selectedType==ST_LIGHT && solver->getLights()[svs.selectedLightIndex]->type==rr::RRLight::SPOT)?solver->realtimeLights[svs.selectedLightIndex]->getParent():&svs.eye;
+			if (speedForward-speedBack) cam->pos += reference->dir * ((speedForward-speedBack)*meters);
+			if (speedRight-speedLeft) cam->pos += reference->right * ((speedRight-speedLeft)*meters);
+			if (speedUp-speedDown) cam->pos += reference->up * ((speedUp-speedDown)*meters);
 			if (speedY) cam->pos.y += speedY*meters;
 			if (speedLean) cam->leanAngle += speedLean*seconds*0.5f;
 		}
