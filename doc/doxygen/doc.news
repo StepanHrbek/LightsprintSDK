@@ -20,7 +20,9 @@ NEWS
   - Scene properties/GI quality/sRGB correct
   - Scene properties/Environment/Speed
   - User preferences/Tooltips
-  - enhanced color properties (color picker, spin buttons)
+  - enhanced color properties (color picker, main spin buttons for brightness)
+  - pgup/pgdn = movement in world up direction (q/z = movement in local up direction)
+  - pointlights move in camera directions
 
 \section news118 ------------------------------------ 2011.03.17 -------------------------------------
 
