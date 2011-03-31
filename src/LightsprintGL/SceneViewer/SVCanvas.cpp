@@ -71,6 +71,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 	speedLeft = 0;
 	speedUp = 0;
 	speedDown = 0;
+	speedY = 0;
 	speedLean = 0;
 	exitRequested = 0;
 	menuHandle = 0;
@@ -492,10 +493,9 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case WXK_NUMPAD_DIVIDE:
 		case '/': svs.tonemappingGamma /= 1.2f; needsRefresh = true; break;
 
-		case WXK_LEFT:
-		case 'a':
-		case 'A': speedLeft = speed; break;
-
+		case WXK_UP:
+		case 'w':
+		case 'W': speedForward = speed; break;
 		case WXK_DOWN:
 		case 's':
 		case 'S': speedBack = speed; break;
@@ -503,22 +503,20 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case WXK_RIGHT:
 		case 'd':
 		case 'D': speedRight = speed; break;
+		case WXK_LEFT:
+		case 'a':
+		case 'A': speedLeft = speed; break;
 
-		case WXK_UP:
-		case 'w':
-		case 'W': speedForward = speed; break;
-
-		case WXK_PAGEUP:
 		case 'q':
 		case 'Q': speedUp = speed; break;
-
-		case WXK_PAGEDOWN:
 		case 'z':
 		case 'Z': speedDown = speed; break;
 
+		case WXK_PAGEUP: speedY = speed; break;
+		case WXK_PAGEDOWN: speedY = -speed; break;
+
 		case 'x':
 		case 'X': speedLean = -speed; break;
-
 		case 'c':
 		case 'C': speedLean = +speed; break;
 
@@ -578,10 +576,9 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 	long evkey = event.GetKeyCode();
 	switch(evkey)
 	{
-		case WXK_LEFT:
-		case 'a':
-		case 'A': speedLeft = 0; break;
-
+		case WXK_UP:
+		case 'w':
+		case 'W': speedForward = 0; break;
 		case WXK_DOWN:
 		case 's':
 		case 'S': speedBack = 0; break;
@@ -589,22 +586,20 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 		case WXK_RIGHT:
 		case 'd':
 		case 'D': speedRight = 0; break;
+		case WXK_LEFT:
+		case 'a':
+		case 'A': speedLeft = 0; break;
 
-		case WXK_UP:
-		case 'w':
-		case 'W': speedForward = 0; break;
-
-		case WXK_PAGEUP:
 		case 'q':
 		case 'Q': speedUp = 0; break;
-
-		case WXK_PAGEDOWN:
 		case 'z':
 		case 'Z': speedDown = 0; break;
 
-		case 'x':
-		case 'X': speedLean = 0; break;
+		case WXK_PAGEUP:
+		case WXK_PAGEDOWN: speedY = 0; break;
 
+		case 'x':
+		case 'X':
 		case 'c':
 		case 'C': speedLean = 0; break;
 	}
@@ -902,17 +897,15 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 
 		{
 			// yes -> respond to keyboard
-			if (speedForward) cam->pos += cam->dir * (speedForward*meters);
-			if (speedBack) cam->pos -= cam->dir * (speedBack*meters);
-			if (speedRight) cam->pos += cam->right * (speedRight*meters);
-			if (speedLeft) cam->pos -= cam->right * (speedLeft*meters);
-			if (speedUp) cam->pos += cam->up * (speedUp*meters);
-			if (speedDown) cam->pos -= cam->up * (speedDown*meters);
+			if (speedForward-speedBack) cam->pos += cam->dir * ((speedForward-speedBack)*meters);
+			if (speedRight-speedLeft) cam->pos += cam->right * ((speedRight-speedLeft)*meters);
+			if (speedUp-speedDown) cam->pos += cam->up * ((speedUp-speedDown)*meters);
+			if (speedY) cam->pos.y += speedY*meters;
 			if (speedLean) cam->leanAngle += speedLean*seconds*0.5f;
 		}
 
 		// light change report
-		if (speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
+		if (speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedY || speedLean)
 		{
 			if (cam!=&svs.eye) 
 			{

@@ -85,6 +85,7 @@ namespace rr_gl
 		float                      speedUp;
 		float                      speedDown;
 		float                      speedLean;
+		float                      speedY;
 		bool                       exitRequested;
 		int                        menuHandle;
 		bool                       envToBeDeletedOnExit; // whether environment is owned and deleted by us
