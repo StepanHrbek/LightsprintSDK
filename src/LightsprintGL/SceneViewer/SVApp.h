@@ -36,6 +36,7 @@ struct DateTime : public tm
 	int tm_nsec; // nanoseconds in second, 0..999999999
 
 	DateTime();
+	void setNow();
 	void addSeconds(double seconds); // tested for small positive values of seconds
 };
 

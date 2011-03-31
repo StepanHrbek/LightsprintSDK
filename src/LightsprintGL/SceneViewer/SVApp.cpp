@@ -17,6 +17,11 @@ namespace rr_gl
 
 DateTime::DateTime()
 {
+	setNow();
+}
+
+void DateTime::setNow()
+{
 	time_t now = time(NULL);
 	*(tm*)this = *localtime(&now);
 	tm_nsec = 0;
