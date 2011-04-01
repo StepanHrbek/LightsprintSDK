@@ -162,6 +162,7 @@ protected:
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
 		float* _clipPlanes,
+		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
 		float _gamma)
 	{
