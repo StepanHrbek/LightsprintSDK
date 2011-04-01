@@ -8,14 +8,15 @@ namespace rr
 
 \page main_news What's new
 
-\section news119 ------------------------------------ 2011.04.xx -------------------------------------
+\section news119 ------------------------------------ 2011.04.01 -------------------------------------
 
 NEWS
 
-- sRGB correct realtime rendering
+- <b>sRGB correct realtime rendering</b>
   - new sRGB correct path is more accurate, bit slower, requires OpenGL 3.0 or 2.x with extensions
   - old path stays unchanged, works fine with OpenGL 2.0
   - srgbCorrect parameter added to several rendering functions
+    \n (if you reimplemented virtual renderScene(), add srgbCorrect parameter to your version)
 
   <table border=0><tr align=top><td>
   \image html features/srgb_correct.jpg sRGB correct, spotlight is visible only in shadow
