@@ -647,15 +647,20 @@ void SVFrame::UpdateMenuBar()
 {
 	if (svs.fullscreen) return; // menu in fullscreen is disabled
 #ifdef __WXMAC__
-	// this is necessary to make menu visible in OSX
-	// other option is to build application as bundle
 	static bool macInited = false;
 	if (!macInited)
 	{
 		macInited = true;
+		// makes menu visible in OSX
+		//  other option is to build application as bundle
 		ProcessSerialNumber PSN;
 		GetCurrentProcess(&PSN);
 		TransformProcessType(&PSN,kProcessTransformToForegroundApplication);
+		// populates default OSX menu
+		wxApp::s_macAboutMenuItemId = ME_ABOUT;
+		//wxApp::s_macPreferencesMenuItemId = ME_;
+		wxApp::s_macExitMenuItemId = ME_EXIT;
+		wxApp::s_macHelpMenuTitleName = _("Help");
 	}
 #endif
 	updateMenuBarNeeded = false;
