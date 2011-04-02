@@ -24,6 +24,9 @@
 	#include <shlobj.h> // SHGetFolderPath, SHGetSpecialFolderPath
 	#include <process.h> // _beginthread in AlphaSplashScreen
 #endif
+#ifdef __WXMAC__
+	#include <ApplicationServices/ApplicationServices.h> // TransformProcessType
+#endif
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
@@ -643,6 +646,18 @@ void SVFrame::OnExit(wxCommandEvent& event)
 void SVFrame::UpdateMenuBar()
 {
 	if (svs.fullscreen) return; // menu in fullscreen is disabled
+#ifdef __WXMAC__
+	// this is necessary to make menu visible in OSX
+	// other option is to build application as bundle
+	static bool macInited = false;
+	if (!macInited)
+	{
+		macInited = true;
+		ProcessSerialNumber PSN;
+		GetCurrentProcess(&PSN);
+		TransformProcessType(&PSN,kProcessTransformToForegroundApplication);
+	}
+#endif
 	updateMenuBarNeeded = false;
 	wxMenuBar *menuBar = new wxMenuBar;
 	wxMenu *winMenu = NULL;
