@@ -91,7 +91,7 @@ Shader* Shader::create(const char* defines, const char* filename, GLenum shaderT
 	// C parser doesn't recognize "#version" tag
 
 	const char *source[3];
-	source[0] = "#version 110\n";
+	source[0] = "#version 110\n"; // this is just for clarity, 110 is default so it's not necessary to specify it
 	source[1] = "";
 	source[2] = readShader(parsedSrcName);
 
