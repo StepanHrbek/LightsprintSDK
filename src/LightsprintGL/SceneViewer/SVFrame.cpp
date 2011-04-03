@@ -1655,7 +1655,11 @@ reload_skybox:
 			break;
 		case ME_ABOUT:
 			{
+#ifdef __WXMAC__
+				wxIcon* icon = NULL; // icon asserts in wx 2.9.1 @ OSX 10.6
+#else
 				wxIcon* icon = loadIcon(wxString::Format("%s../maps/sv_logo.png",svs.pathToShaders));
+#endif
 				wxAboutDialogInfo info;
 				if (icon) info.SetIcon(*icon);
 				info.SetName("Lightsprint SDK");
