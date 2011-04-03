@@ -932,16 +932,16 @@ save_scene_as:
 						extensions.erase(0,ext.size()+1);
 					}
 
-					// delete extension if it can't be saved, dialog will automatically append supported one
-					wxString presetFilename = svs.sceneFilename;
-					wxString::size_type lastDot = svs.sceneFilename.find_last_of(".");
-					wxString extension = (lastDot==std::string::npos) ? presetFilename : presetFilename.substr(lastDot);
+					// replace extension if current one can't be saved
+					//  windows would append valid extension if we just delete bad one, wx 2.9.1 @ osx needs valid ext from us
+					bf::path presetFilename = WX2PATH(svs.sceneFilename);
+					wxString extension = PATH2WX(presetFilename.extension());
 					wxString extensions = rr::RRScene::getSupportedSaverExtensions();
 					bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=-1;
-					if (!extensionSupportsSave) presetFilename = presetFilename.substr(0,presetFilename.size()-extension.size());
+					if (!extensionSupportsSave) presetFilename.replace_extension(".rr3");
 
 					wxFileDialog dialog(this,_("Save as"),"","",wxextensions,wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-					dialog.SetPath(presetFilename);
+					dialog.SetPath(PATH2WX(presetFilename));
 					if (dialog.ShowModal()==wxID_OK)
 					{
 						svs.sceneFilename = dialog.GetPath();
