@@ -862,7 +862,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 		case ME_FILE_OPEN_SCENE:
 			{
 				wxFileDialog dialog(this,_("Choose a 3d scene to open"),"","",getSupportedLoaderExtensions(svs),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-				dialog.SetPath(svs.sceneFilename);
+				dialog.SetPath(svs.sceneFilename.IsEmpty()?"../../data/scenes/":svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
 					svs.initialInputSolver = NULL;
@@ -874,7 +874,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 		case ME_FILE_MERGE_SCENE:
 			{
 				wxFileDialog dialog(this,_("Choose a 3d scene to merge with current scene"),"","",getSupportedLoaderExtensions(svs),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-				dialog.SetPath(svs.sceneFilename);
+				dialog.SetPath(svs.sceneFilename.IsEmpty()?"../../data/scenes/":svs.sceneFilename);
 				if (dialog.ShowModal()==wxID_OK)
 				{
 					// display log window with 'abort' while this function runs
@@ -1165,7 +1165,7 @@ save_scene_as:
 		case ME_ENV_OPEN:
 			{
 				wxFileDialog dialog(this,_("Choose a skybox image"),"","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-				dialog.SetPath(svs.skyboxFilename);
+				dialog.SetPath(svs.skyboxFilename.IsEmpty()?"../../data/maps/skybox/":svs.skyboxFilename);
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 
