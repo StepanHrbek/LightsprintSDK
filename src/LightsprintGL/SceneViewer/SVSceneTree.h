@@ -19,7 +19,7 @@ namespace rr_gl
 
 	enum ContextMenu
 	{
-		CM_LIGHT_SPOT,
+		CM_LIGHT_SPOT = 1, // OSX does not support menu item 0, so we start by 1
 		CM_LIGHT_POINT,
 		CM_LIGHT_DIR,
 		CM_LIGHT_FLASH,
