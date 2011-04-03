@@ -862,7 +862,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 		case ME_FILE_OPEN_SCENE:
 			{
 				wxFileDialog dialog(this,_("Choose a 3d scene to open"),"","",getSupportedLoaderExtensions(svs),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-				dialog.SetPath(svs.sceneFilename.IsEmpty()?"../../data/scenes/":svs.sceneFilename);
+				dialog.SetPath(PATH2WX(bf::absolute(svs.sceneFilename.IsEmpty()?L"../../data/scenes/":WX2PATH(svs.sceneFilename)))); // absolute path is necessary in wx 2.9.1 @ OSX
 				if (dialog.ShowModal()==wxID_OK)
 				{
 					svs.initialInputSolver = NULL;
@@ -874,7 +874,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 		case ME_FILE_MERGE_SCENE:
 			{
 				wxFileDialog dialog(this,_("Choose a 3d scene to merge with current scene"),"","",getSupportedLoaderExtensions(svs),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-				dialog.SetPath(svs.sceneFilename.IsEmpty()?"../../data/scenes/":svs.sceneFilename);
+				dialog.SetPath(PATH2WX(bf::absolute(svs.sceneFilename.IsEmpty()?L"../../data/scenes/":WX2PATH(svs.sceneFilename)))); // absolute path is necessary in wx 2.9.1 @ OSX
 				if (dialog.ShowModal()==wxID_OK)
 				{
 					// display log window with 'abort' while this function runs
