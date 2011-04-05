@@ -748,7 +748,7 @@ RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6], co
 			else
 				_snprintf(location_buf,999,"%s",location.c_str());
 			location_buf[999] = 0;
-rr::RRReporter::report(rr::INF2,"%d: %s\n",attempt,location.c_str());
+rr::RRReporter::report(rr::INF2,"%d%c %s\n",attempt,exists(location_buf)?'+':'-',location.c_str());
 			if (exists(location_buf))
 			{
 				RRBuffer* result = load_cached(location.c_str(),_cubeSideName);
