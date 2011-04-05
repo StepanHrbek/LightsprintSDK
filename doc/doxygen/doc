@@ -365,6 +365,14 @@ Video formats
  \section cp_autodesk Autodesk Collada
   Avoid. Max/Maya may include Collada support out of the box. We have never seen it doing its job well.
 
+ <hr>
+
+ \section cp_coherency Coherency test
+  We support Collada 1.4.1 and 1.5.0 as they are specified by <a href="http://khronos.org">Khronos group</a>.
+  We try very hard to support also broken Collada files produced by broken third party programs.
+  But everything has its limits.
+  To test correctness of your Collada documents, use <a href="http://sourceforge.net/projects/colladarefinery/files/COLLADA%20Coherency%20Test/">Collada Coherency Test</a>.
+
 
 \page rr3_specification .rr3 format
 
