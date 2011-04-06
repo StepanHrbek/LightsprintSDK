@@ -93,7 +93,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 							float sizeMidi = size.sum()-size.maxi()-size.mini();
 							// continue only for non-planar objects, cubical reflection looks bad on plane
 							// (size is in object's space, so this is not precise for non-uniform scale)
-							if (size.mini()>0.3*sizeMidi)
+							if (size.mini()>0.1*sizeMidi)
 							{
 								// allocate specular cube map
 								RRVec3 center;
