@@ -91,7 +91,13 @@ static void composeMaterialPropertyRoot(wxPGProperty* prop, rr::RRMaterial::Prop
 	else
 	{
 		wxBitmap* bitmap = prop->GetPropertyByName(_("texture or video"))->GetValueImage();
-		if (!bitmap) bitmap = prop->GetPropertyByName(_("color"))->GetValueImage();
+		if (!bitmap)
+		{
+			wxVariant v;
+			wxPGProperty* propColor = prop->GetPropertyByName(_("color"));
+			propColor->ValueToString(v); // updates value image
+			bitmap = propColor->GetValueImage();
+		}
 		prop->SetValueImage(*bitmap);
 		prop->SetValueFromString("");
 	}
