@@ -73,7 +73,6 @@ ImportAssimp/code/UnrealLoader.cpp \
 ImportAssimp/code/LWOBLoader.cpp \
 ImportAssimp/code/ColladaParser.cpp \
 ImportAssimp/code/ImproveCacheLocality.cpp \
-ImportAssimp/code/aiAssert.cpp \
 ImportAssimp/code/MD2Loader.cpp \
 ImportAssimp/code/RawLoader.cpp \
 ImportAssimp/code/ACLoader.cpp \
@@ -132,6 +131,7 @@ ImportAssimp/code/Q3BSPFileImporter.cpp \
 ImportAssimp/code/Q3BSPFileParser.cpp \
 ImportAssimp/code/Q3BSPZipArchive.cpp \
 ImportAssimp/code/SplitByBoneCountProcess.cpp \
+ImportAssimp/code/AssimpCExport.cpp \
 ImportAssimp/contrib/irrXML/irrXML.cpp \
 ImportAssimp/contrib/unzip/ioapi.c \
 ImportAssimp/contrib/unzip/unzip.c \
