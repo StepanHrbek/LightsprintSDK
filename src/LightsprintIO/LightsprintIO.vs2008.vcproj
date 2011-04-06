@@ -955,10 +955,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\code\aiAssert.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\ImportAssimp\code\ASELoader.cpp"
 					>
 				</File>
@@ -980,6 +976,10 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\Assimp.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\AssimpCExport.cpp"
 					>
 				</File>
 				<File
@@ -1059,6 +1059,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\BlobIOSystem.h"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\BVHLoader.cpp"
 					>
 				</File>
@@ -1079,6 +1083,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\CInterfaceIOWrapper.h"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\COBLoader.cpp"
 					>
 				</File>
@@ -1092,6 +1100,10 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\ColladaExporter.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\ColladaExporter.h"
 					>
 				</File>
 				<File
@@ -1160,6 +1172,10 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\DefaultProgressHandler.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\DXFHelper.h"
 					>
 				</File>
 				<File
@@ -1740,6 +1756,10 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\SplitByBoneCountProcess.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\SplitByBoneCountProcess.h"
 					>
 				</File>
 				<File

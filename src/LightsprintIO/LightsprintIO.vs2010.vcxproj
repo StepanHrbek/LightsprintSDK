@@ -570,10 +570,10 @@
     <ClCompile Include="ImportAssimp\code\3DSConverter.cpp" />
     <ClCompile Include="ImportAssimp\code\3DSLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\ACLoader.cpp" />
-    <ClCompile Include="ImportAssimp\code\aiAssert.cpp" />
     <ClCompile Include="ImportAssimp\code\ASELoader.cpp" />
     <ClCompile Include="ImportAssimp\code\ASEParser.cpp" />
     <ClCompile Include="ImportAssimp\code\Assimp.cpp" />
+    <ClCompile Include="ImportAssimp\code\AssimpCExport.cpp" />
     <ClCompile Include="ImportAssimp\code\AssimpPCH.cpp" />
     <ClCompile Include="ImportAssimp\code\B3DImporter.cpp" />
     <ClCompile Include="ImportAssimp\code\BaseImporter.cpp" />
@@ -917,11 +917,14 @@
     <ClInclude Include="ImportAssimp\code\BlenderModifier.h" />
     <ClInclude Include="ImportAssimp\code\BlenderScene.h" />
     <ClInclude Include="ImportAssimp\code\BlenderSceneGen.h" />
+    <ClInclude Include="ImportAssimp\code\BlobIOSystem.h" />
     <ClInclude Include="ImportAssimp\code\BVHLoader.h" />
     <ClInclude Include="ImportAssimp\code\ByteSwap.h" />
     <ClInclude Include="ImportAssimp\code\CalcTangentsProcess.h" />
+    <ClInclude Include="ImportAssimp\code\CInterfaceIOWrapper.h" />
     <ClInclude Include="ImportAssimp\code\COBLoader.h" />
     <ClInclude Include="ImportAssimp\code\COBScene.h" />
+    <ClInclude Include="ImportAssimp\code\ColladaExporter.h" />
     <ClInclude Include="ImportAssimp\code\ColladaHelper.h" />
     <ClInclude Include="ImportAssimp\code\ColladaLoader.h" />
     <ClInclude Include="ImportAssimp\code\ColladaParser.h" />
@@ -931,6 +934,7 @@
     <ClInclude Include="ImportAssimp\code\DefaultIOStream.h" />
     <ClInclude Include="ImportAssimp\code\DefaultIOSystem.h" />
     <ClInclude Include="ImportAssimp\code\DefaultProgressHandler.h" />
+    <ClInclude Include="ImportAssimp\code\DXFHelper.h" />
     <ClInclude Include="ImportAssimp\code\DXFLoader.h" />
     <ClInclude Include="ImportAssimp\code\Exceptional.h" />
     <ClInclude Include="ImportAssimp\code\fast_atof.h" />
@@ -1015,6 +1019,7 @@
     <ClInclude Include="ImportAssimp\code\SmoothingGroups.h" />
     <ClInclude Include="ImportAssimp\code\SortByPTypeProcess.h" />
     <ClInclude Include="ImportAssimp\code\SpatialSort.h" />
+    <ClInclude Include="ImportAssimp\code\SplitByBoneCountProcess.h" />
     <ClInclude Include="ImportAssimp\code\SplitLargeMeshes.h" />
     <ClInclude Include="ImportAssimp\code\StandardShapes.h" />
     <ClInclude Include="ImportAssimp\code\StdOStreamLogStream.h" />

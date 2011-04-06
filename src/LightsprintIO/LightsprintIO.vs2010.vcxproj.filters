@@ -856,9 +856,6 @@
     <ClCompile Include="ImportAssimp\code\ACLoader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
-    <ClCompile Include="ImportAssimp\code\aiAssert.cpp">
-      <Filter>Assimp\code</Filter>
-    </ClCompile>
     <ClCompile Include="ImportAssimp\code\ASELoader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -866,6 +863,9 @@
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\Assimp.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\AssimpCExport.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\AssimpPCH.cpp">
@@ -901,6 +901,9 @@
     <ClCompile Include="ImportAssimp\code\COBLoader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ColladaExporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="ImportAssimp\code\ColladaLoader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -926,6 +929,9 @@
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\DXFLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\Exporter.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\FindDegenerates.cpp">
@@ -1099,6 +1105,9 @@
     <ClCompile Include="ImportAssimp\code\SpatialSort.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="ImportAssimp\code\SplitByBoneCountProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="ImportAssimp\code\SplitLargeMeshes.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -1136,15 +1145,6 @@
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\XFileParser.cpp">
-      <Filter>Assimp\code</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportAssimp\code\ColladaExporter.cpp">
-      <Filter>Assimp\code</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportAssimp\code\Exporter.cpp">
-      <Filter>Assimp\code</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportAssimp\code\SplitByBoneCountProcess.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
   </ItemGroup>
@@ -2363,6 +2363,9 @@
     <ClInclude Include="ImportAssimp\code\BlenderSceneGen.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BlobIOSystem.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
     <ClInclude Include="ImportAssimp\code\BVHLoader.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
@@ -2372,10 +2375,16 @@
     <ClInclude Include="ImportAssimp\code\CalcTangentsProcess.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
+    <ClInclude Include="ImportAssimp\code\CInterfaceIOWrapper.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
     <ClInclude Include="ImportAssimp\code\COBLoader.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\COBScene.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ColladaExporter.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\ColladaHelper.h">
@@ -2403,6 +2412,9 @@
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\DefaultProgressHandler.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\DXFHelper.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\DXFLoader.h">
@@ -2655,6 +2667,9 @@
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\SpatialSort.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\SplitByBoneCountProcess.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\SplitLargeMeshes.h">

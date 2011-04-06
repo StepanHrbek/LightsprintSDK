@@ -60,7 +60,7 @@ ASSIMP_API unsigned int aiGetCompileFlags ()	{
 }
 
 // include current build revision, which is even updated from time to time -- :-)
-#define SVNRevision 907
+#define SVNRevision 943
 
 // ------------------------------------------------------------------------------------------------
 ASSIMP_API unsigned int aiGetVersionRevision ()
