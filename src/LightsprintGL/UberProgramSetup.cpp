@@ -339,6 +339,15 @@ void UberProgramSetup::validate()
 		MATERIAL_SPECULAR_MAP = 0;
 		LIGHT_INDIRECT_ENV_SPECULAR = 0;
 	}
+	if (MATERIAL_TRANSPARENCY_BLEND)
+	{
+		// do this - and semitransparent pixels don't receive colored shadows
+		// don't - and semitransparent pixels not in full shadow cast colored shadows on themselves
+		//         (so 0.8 specular 0.1 transparency glass behind fence has strong specular only in fence shadow,
+		//         unshadowed glass has 10x weaker specular and is darker, visible in 2010-01-eiranranta, looks very wrong)
+		// both is wrong, but first evil is smaller
+		SHADOW_COLOR = 0;
+	}
 	bool incomingLight = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR;
 	bool reflectsLight = MATERIAL_DIFFUSE || MATERIAL_SPECULAR;
 	if (!incomingLight || !reflectsLight)
