@@ -834,7 +834,8 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	RR_ASSERT(IS_NUMBER(ray.hitDistance));
 	if (shootingKernel->recursionDepth>25) 
 	{
-		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Photon bounce limit reached, scene may contain physically impossible materials.\n"));
+		// happens too often
+		//RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Photon bounce limit reached, scene may contain physically impossible materials.\n"));
 		return HitChannels(0);
 	}
 	shootingKernel->recursionDepth++;
