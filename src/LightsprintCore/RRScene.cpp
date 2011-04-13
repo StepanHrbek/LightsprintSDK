@@ -6,6 +6,9 @@
 #include <cstdio>
 #include <vector>
 #include "Lightsprint/RRScene.h"
+#ifdef _MSC_VER
+	#include <windows.h> // EXCEPTION_EXECUTE_HANDLER
+#endif
 
 namespace rr
 {
@@ -95,6 +98,24 @@ RRScene::RRScene()
 	environment = NULL;
 }
 
+static RRScene* callLoader(RRScene::Loader* loader, const char* filename, RRFileLocator* locator, bool* aborting)
+{
+#ifdef _MSC_VER
+	// for example .rr3 import crashes on bogus .rr3 files, it is catched here
+	__try
+	{
+#endif
+		return loader(filename,locator,aborting);
+#ifdef _MSC_VER
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Scene import crashed.\n"));
+		return NULL;
+	}
+#endif
+}
+
 RRScene::RRScene(const char* _filename, RRFileLocator* _textureLocator, bool* _aborting)
 {
 	implementation = NULL;
@@ -142,7 +163,7 @@ RRScene::RRScene(const char* _filename, RRFileLocator* _textureLocator, bool* _a
 			loaderFound = true;
 			try
 			{
-				implementation = s_loaders[i].loader(_filename,localTextureLocator,_aborting);
+				implementation = callLoader(s_loaders[i].loader,_filename,localTextureLocator,_aborting);
 			}
 			catch (...)
 			{
