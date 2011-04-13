@@ -267,8 +267,11 @@ namespace rr_gl
 			}
 			else
 			{
-				float base = 0.3f-pow(light.orthoSize,0.3f)/80; // base is 0.2 for ortho up to 1km, drops to 0.1 above 10km
-				RR_CLAMP(base,0.1f,0.2f);
+				// keep constant pixel size in 3-level CSM in 1-15km scenes
+				// base is 0.2 for ortho up to 1km, drops to 0.05 above 15km
+				float base = sqrt(40/light.orthoSize);
+				RR_CLAMP(base,0.05f,0.2f);
+				// increase pixel size when looking from distance
 				if (csmObserverNear>0) // may be negative for ortho observer
 				{
 					// if near is big, increase SM sizes, don't boosting waste SM space on tiny fraction of screen (or even in area cropped by near)
