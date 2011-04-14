@@ -91,7 +91,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		if (mainUberProgramSetup.MATERIAL_TRANSPARENCY_BLEND)
 		{
 			// before alpha blending
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			glEnable(GL_BLEND);
 		}
 		else
@@ -105,7 +105,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	{
 		// before second color pass
 		glDepthMask(0);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+		glBlendFunc(GL_ONE,GL_ONE);
 		glEnable(GL_BLEND);
 	}
 
