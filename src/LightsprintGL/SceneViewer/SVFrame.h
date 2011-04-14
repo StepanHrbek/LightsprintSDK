@@ -60,6 +60,7 @@ namespace rr_gl
 		void simulateSun();
 
 		void enableTooltips(bool enable);
+		void enableDebugging(bool enable);
 
 		void userPreferencesGatherFromWx();
 		void userPreferencesApplyToWx();

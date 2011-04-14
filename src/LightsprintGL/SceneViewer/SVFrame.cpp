@@ -547,6 +547,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	CreateStatusBar();
 	enableTooltips(userPreferences.tooltips);
+	enableDebugging(userPreferences.debugging);
 
 	textureLocator = rr::RRFileLocator::create();
 
@@ -1869,6 +1870,12 @@ void SVFrame::enableTooltips(bool enable)
 	m_materialProperties->enableTooltips(enable);
 	m_sceneProperties->enableTooltips(enable);
 	m_userProperties->enableTooltips(enable);
+}
+
+void SVFrame::enableDebugging(bool enable)
+{
+	rr::RRReporter::setFilter(true,enable?3:2,true);
+	rr_gl::Program::logMessages(enable);
 }
 
 BEGIN_EVENT_TABLE(SVFrame, wxFrame)

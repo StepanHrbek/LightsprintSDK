@@ -15,8 +15,10 @@ NEWS
 - improved specular reflection
   - RRMaterial::specularModel added, so you can select from Phong/Blinn-Phong/Torrance-Sparrow/Blinn-Torrance-Sparrow
   - RRMaterial::specularShininess added, as a parameter for models above
-  - Material properies/Specular/Model (in scene viewer)
+- improved scene viewer
+  - Material properies/Specular/Model
   - Material properies/Specular/Shininess,roughness
+  - User preferences/Debugging
 
 \section news119 ------------------------------------ 2011.04.01 -------------------------------------
 

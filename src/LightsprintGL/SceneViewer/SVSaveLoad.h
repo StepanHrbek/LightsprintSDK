@@ -40,8 +40,8 @@ namespace rr_gl
 
 	struct UserPreferences
 	{
-		bool tooltips;
-		unsigned currentWindowLayout;
+		bool        tooltips;
+		unsigned    currentWindowLayout;
 		struct WindowLayout
 		{
 			bool fullscreen;
@@ -64,6 +64,7 @@ namespace rr_gl
 		unsigned    sshotEnhancedFSAA;
 		float       sshotEnhancedShadowResolutionFactor;
 		unsigned    sshotEnhancedShadowSamples;
+		bool        debugging;
 
 		UserPreferences()
 		{
@@ -85,6 +86,7 @@ namespace rr_gl
 			sshotEnhancedFSAA = 4;
 			sshotEnhancedShadowResolutionFactor = 2;
 			sshotEnhancedShadowSamples = 8;
+			debugging = false;
 		}
 		//! Saves preferences, filename is automatic.
 		bool save() const;

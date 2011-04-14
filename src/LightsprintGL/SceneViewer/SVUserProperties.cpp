@@ -111,6 +111,10 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 		SetPropertyBackgroundColour(propSshot,importantPropertyBackgroundColor,false);
 	}
 
+	// debugging
+	propDebugging = new BoolRefProperty(_("Debugging"),_("Logs more information, helps while debugging."),userPreferences.debugging);
+	Append(propDebugging);
+
 	updateHide();
 }
 
@@ -190,6 +194,11 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propSshotEnhancedShadowSamples)
 	{
 		userPreferences.sshotEnhancedShadowSamples = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propDebugging)
+	{
+		svframe->enableDebugging(svframe->userPreferences.debugging);
 	}
 }
 

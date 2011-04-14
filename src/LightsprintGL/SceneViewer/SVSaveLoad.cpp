@@ -393,6 +393,10 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 		ar & make_nvp("sshotEnhancedShadowResolutionFactor",a.sshotEnhancedShadowResolutionFactor);
 		ar & make_nvp("sshotEnhancedShadowSamples",a.sshotEnhancedShadowSamples);
 	}
+	if (version>8)
+	{
+		ar & make_nvp("debugging",a.debugging);
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -407,7 +411,7 @@ BOOST_CLASS_VERSION(rr::RRLight,4)
 BOOST_CLASS_VERSION(rr_gl::Camera,1)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences,8) // must be increased also each time panel is added/removed
+BOOST_CLASS_VERSION(rr_gl::UserPreferences,9) // must be increased also each time panel is added/removed
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,23)
 
 //---------------------------------------------------------------------------

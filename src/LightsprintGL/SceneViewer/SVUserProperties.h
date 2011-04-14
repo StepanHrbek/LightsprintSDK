@@ -48,6 +48,7 @@ namespace rr_gl
 		wxPGProperty*     propSshotEnhancedFSAA;
 		wxPGProperty*     propSshotEnhancedShadowResolutionFactor;
 		wxPGProperty*     propSshotEnhancedShadowSamples;
+		wxPGProperty*     propDebugging;
 
 		DECLARE_EVENT_TABLE()
 	};
