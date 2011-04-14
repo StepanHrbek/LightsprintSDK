@@ -532,6 +532,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	{
 		program->sendUniform("lightDirectSpotOuterAngleRad",light->getRRLight().outerAngleRad);
 		program->sendUniform("lightDirectSpotFallOffAngleRad",light->getRRLight().fallOffAngleRad);
+		program->sendUniform("lightDirectSpotExponent",RR_MAX(light->getRRLight().spotExponent,0.00000001f));
 	}
 
 	if (LIGHT_DIRECT_ATT_PHYSICAL)

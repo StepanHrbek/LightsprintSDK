@@ -13,8 +13,13 @@ namespace rr
 NEWS
 
 - improved specular reflection
-  - RRMaterial::specularModel added, so you can select from Phong/Blinn-Phong/Torrance-Sparrow/Blinn-Torrance-Sparrow
+  - Phong, Blinn-Phong, Torrance-Sparrow, Blinn-Torrance-Sparrow
+  - RRMaterial::specularModel added
   - RRMaterial::specularShininess added, as a parameter for models above
+- improved realtime renderer
+  - supports all specular reflection models
+  - supports spotlight exponent (RRLight::spotExponent)
+  - more detailed sun shadows
 - improved scene viewer
   - Material properies/Specular/Model
   - Material properies/Specular/Shininess,roughness

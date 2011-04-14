@@ -686,8 +686,9 @@ public:
 				break;
 			case COLLADAFW::Light::SPOT_LIGHT:
 				{
-					// FIXME opencollada does not have any outerangle?
+					// collada does not have outerangle, it has exponent. luckily, Lightsprint supports both
 					rrLight = RRLight::createSpotLightPoly(position,color,polynom,direction,(rr::RRReal)light.getFallOffAngle(),(rr::RRReal)light.getFallOffAngle(),(rr::RRReal)light.getFallOffExponent());
+					rrLight->spotExponent = (rr::RRReal)light.getFallOffExponent();
 				}
 				break;
 			case COLLADAFW::Light::DIRECTIONAL_LIGHT:

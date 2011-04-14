@@ -141,6 +141,7 @@
 #ifdef LIGHT_DIRECT_ATT_SPOT
 	uniform float lightDirectSpotOuterAngleRad;
 	uniform float lightDirectSpotFallOffAngleRad;
+	uniform float lightDirectSpotExponent;
 #endif
 
 #ifdef LIGHT_DIRECT_COLOR
@@ -528,7 +529,7 @@ void main()
 				* texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
 			#endif
 			#ifdef LIGHT_DIRECT_ATT_SPOT
-				* clamp( ((lightDirectSpotOuterAngleRad-acos(dot(worldLightDir,-worldLightDirFromPixel)))/lightDirectSpotFallOffAngleRad), 0.0, 1.0 )
+				* pow(clamp( ((lightDirectSpotOuterAngleRad-acos(dot(worldLightDir,-worldLightDirFromPixel)))/lightDirectSpotFallOffAngleRad), 0.0, 1.0 ),lightDirectSpotExponent)
 			#endif
 			#if SHADOW_SAMPLES*SHADOW_MAPS>0
 				* visibility
