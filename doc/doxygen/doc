@@ -857,6 +857,19 @@ Video formats
   it works only in one axis, tangent or bitangent (depends on naming convention).
   When mirrored along wrong axis, RNMs use different set of directions and lighting differs.
 
+ \section artist_offline_penumbra Soft or Penumbra shadows
+  "Soft" shadows, shadows with smooth edges, can be created with smoothing parameter
+  (BuildLightmaps: smoothing=, ToolBench: LsSmoothing, code: smoothingAmount or lightmapSmooth()).
+  It makes all edges equally smooth.
+
+  "Penumbra" shadows, shadows of varying softness, are created when light does not come from single point but from multiple directions, either
+  - from sky (set sky/environment texture and make sure there are open windows or 'holes' in mesh so that skylight gets inside)
+  - or from large surface with emissive material
+  - or from cloud of 20+ lights (created manually or by your program)
+  - or from realtime area light (supported only in Lightsprint's realtime renderer)
+
+  "occlusion" option in BuildLightmaps tool also creates penumbra shadows, it works by setting white environment.
+
 
 \page main_artist_realtime Realtime GI
 
