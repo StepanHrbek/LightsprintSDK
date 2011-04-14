@@ -1042,25 +1042,38 @@ public:
 			material.reset( extraEffect->double_sided == 1.f || extraGeometry->double_sided == 1.f );
 			material.lightmapTexcoord = bindingPlaceholder.sourceMesh->lastUVSet;
 
-			// basic material properties
-			applyColorOrTexture(material.diffuseReflectance, common->getDiffuse(), drC, common);
+			// shininess
+			if (common->getShininess().getType() == COLLADAFW::FloatOrParam::FLOAT)
+				material.specularShininess = common->getShininess().getFloatValue();
+			
+			// model (needs shininess)
+			COLLADAFW::EffectCommon::ShaderType model = common->getShaderType();
+			material.specularModel = (model==COLLADAFW::EffectCommon::SHADER_BLINN)
+				? ((material.specularShininess<=1)?rr::RRMaterial::BLINN_TORRANCE_SPARROW:rr::RRMaterial::BLINN_PHONG)
+				: rr::RRMaterial::PHONG;
+
+			// basic material properties (needs model)
+			if (model==COLLADAFW::EffectCommon::SHADER_CONSTANT)
+				material.diffuseReflectance.color = RRVec3(0);
+			else
+				applyColorOrTexture(material.diffuseReflectance, common->getDiffuse(), drC, common);
+			if (model==COLLADAFW::EffectCommon::SHADER_PHONG || model==COLLADAFW::EffectCommon::SHADER_BLINN)
+				applyColorOrTexture(material.specularReflectance, common->getSpecular(), srC, common, extraEffect->spec_level);
 			applyColorOrTexture(material.diffuseEmittance, common->getEmission(), deC, common, extraEffect->emission_level);
-			applyColorOrTexture(material.specularReflectance, common->getSpecular(), srC, common, extraEffect->spec_level);
 			applyColorOrTexture(material.specularTransmittance,common->getOpacity(), stC, common, 1.0f, 0.5f, transparencyInverted);
 
+			// refraction
 			if(common->getIndexOfRefraction().getType() == COLLADAFW::FloatOrParam::FLOAT)
 				material.refractionIndex = common->getIndexOfRefraction().getFloatValue();
-
 			// opencollada have default -1 for refraction
 			if(material.refractionIndex == -1.f)
 				material.refractionIndex = 1.f;
-
 
 			if( lmC != UINT_MAX )
 				material.lightmapTexcoord = lmC;
 
 			// transparency in diffuse texture
-			if(material.diffuseReflectance.texture != NULL)
+			if(!material.specularTransmittance.texture && material.diffuseReflectance.texture)
 			{
 				if( material.diffuseReflectance.texture->getFormat() == BF_RGBA )
 				{

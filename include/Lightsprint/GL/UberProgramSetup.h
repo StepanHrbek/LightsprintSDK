@@ -91,6 +91,7 @@ struct RR_GL_API UberProgramSetup
 	bool     MATERIAL_SPECULAR             :1; ///< Enables material's specular reflectance. All enabled MATERIAL_SPECULAR_XXX are multiplied. When only MATERIAL_SPECULAR is enabled, specular color is 1 (white).
 	bool     MATERIAL_SPECULAR_CONST       :1; ///< Enables material's specular reflectance modulated by constant color.
 	bool     MATERIAL_SPECULAR_MAP         :1; ///< Enables specular map, each pixel gets 100% diffuse or 100% specular. Decision is based on contents of diffuse map.
+	unsigned char MATERIAL_SPECULAR_MODEL  :2; ///< Copy of specularModel from material.
 
 	bool     MATERIAL_EMISSIVE_CONST       :1; ///< Enables material's emission stored in constant. All enabled MATERIAL_EMISSIVE_XXX are accumulated.
 	bool     MATERIAL_EMISSIVE_MAP         :1; ///< Enables material's emission stored in sRGB map.

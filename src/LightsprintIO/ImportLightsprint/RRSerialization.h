@@ -268,6 +268,20 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	ar & make_nvp("diffuseReflectance",a.diffuseReflectance);
 	ar & make_nvp("diffuseEmittance",a.diffuseEmittance);
 	ar & make_nvp("specularReflectance",a.specularReflectance);
+	if (version>0)
+	{
+		ar & make_nvp("specularModel",a.specularModel);
+		ar & make_nvp("specularShininess",a.specularShininess);
+	}
+	else
+	{
+		// reset() was not called, we must initialize variables not loaded from rr3
+		if (Archive::is_loading::value)
+		{
+			a.specularModel = rr::RRMaterial::PHONG;
+			a.specularShininess = 100; // DEFAULT_SHININESS
+		}
+	}
 	ar & make_nvp("specularTransmittance",a.specularTransmittance);
 	ar & make_nvp("specularTransmittanceInAlpha",a.specularTransmittanceInAlpha);
 	ar & make_nvp("specularTransmittanceKeyed",a.specularTransmittanceKeyed);
@@ -630,6 +644,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(RRMeshProxy)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRSideBits)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRObject)
 
+BOOST_CLASS_VERSION(rr::RRMaterial,1)
 BOOST_CLASS_VERSION(rr::RRLight,3)
 
 #endif

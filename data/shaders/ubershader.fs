@@ -50,6 +50,8 @@
 //  #define CLIP_PLANE_[X|Y|Z][A|B]
 //  #define FORCE_2D_POSITION
 
+#define sqr(a) ((a)*(a))
+
 #if SHADOW_SAMPLES>0
 #if SHADOW_MAPS>0
 	uniform sampler2DShadow shadowMap0;
@@ -186,6 +188,10 @@
 
 #if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT) || defined(CLIP_PLANE_XA) || defined(CLIP_PLANE_XB) || defined(CLIP_PLANE_YA) || defined(CLIP_PLANE_YB) || defined(CLIP_PLANE_ZA) || defined(CLIP_PLANE_ZB)
 	varying vec3 worldPos;
+#endif
+
+#if defined(MATERIAL_SPECULAR) && defined(LIGHT_DIRECT)
+	uniform float materialSpecularShininess;
 #endif
 
 #ifdef MATERIAL_SPECULAR_CONST
@@ -541,6 +547,10 @@ void main()
 			vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
 		#endif
 
+		#if defined(MATERIAL_SPECULAR) && defined(LIGHT_DIRECT)
+			float NH = max(0.0,dot(worldNormal,(worldLightDirFromPixel+normalize(worldEyePos-worldPos))/2.0));
+		#endif
+
 		#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
 			vec4 lightIndirectLightmap = 
 					#ifdef LIGHT_INDIRECT_VCOLOR
@@ -630,7 +640,19 @@ void main()
 				#endif
 				vec4((
 					#ifdef LIGHT_DIRECT
-						+ pow(max(0.0,dot(worldLightDirFromPixel,normalize(worldViewReflected))),10.0)*2.0
+						#if MATERIAL_SPECULAR_MODEL==0
+							// Phong, materialSpecularShininess in 1..inf
+							+ pow( max(0.0,dot(worldLightDirFromPixel,normalize(worldViewReflected))) ,materialSpecularShininess) * (materialSpecularShininess+1.0)
+						#elif MATERIAL_SPECULAR_MODEL==1
+							// Blinn-Phong, materialSpecularShininess in 1..inf
+							+ pow(NH,materialSpecularShininess) * (materialSpecularShininess+1.0)
+						#elif MATERIAL_SPECULAR_MODEL==2
+							// Torrance-Sparrow (Gaussian), materialSpecularShininess=m^2=0..1
+							+ exp((1.0-1.0/(NH*NH))/materialSpecularShininess) / (4.0*materialSpecularShininess*((NH*NH)*(NH*NH))+0.0000000000001)
+						#else
+							// Blinn-Torrance-Sparrow, materialSpecularShininess=c3^2=0..1
+							+ sqr(materialSpecularShininess/(NH*NH*(materialSpecularShininess-1.0)+1.0))
+						#endif
 						* lightDirect
 					#endif
 					#ifdef LIGHT_INDIRECT_CONST

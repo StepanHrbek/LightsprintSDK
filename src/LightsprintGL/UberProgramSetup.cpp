@@ -104,6 +104,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material)
 	MATERIAL_SPECULAR = material->specularReflectance.color!=rr::RRVec3(0);
 	MATERIAL_SPECULAR_CONST = !material->specularReflectance.texture && material->specularReflectance.color!=rr::RRVec3(1);
 	MATERIAL_SPECULAR_MAP = material->specularReflectance.texture!=NULL;
+	MATERIAL_SPECULAR_MODEL = material->specularModel;
 
 	// emi
 	MATERIAL_EMISSIVE_CONST = material->diffuseEmittance.color!=rr::RRVec3(0) && !material->diffuseEmittance.texture;
@@ -128,7 +129,8 @@ const char* UberProgramSetup::getSetupString()
 	RR_ASSERT(!MATERIAL_TRANSPARENCY_CONST || !MATERIAL_TRANSPARENCY_MAP); // engine does not support both together
 
 	static char setup[2000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s"
+		"#define MATERIAL_SPECULAR_MODEL %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		SHADOW_COLOR?"#define SHADOW_COLOR\n":"",
@@ -160,6 +162,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_SPECULAR?"#define MATERIAL_SPECULAR\n":"",
 		MATERIAL_SPECULAR_CONST?"#define MATERIAL_SPECULAR_CONST\n":"",
 		MATERIAL_SPECULAR_MAP?"#define MATERIAL_SPECULAR_MAP\n":"",
+		MATERIAL_SPECULAR_MODEL,
 		MATERIAL_EMISSIVE_CONST?"#define MATERIAL_EMISSIVE_CONST\n":"",
 		MATERIAL_EMISSIVE_MAP?"#define MATERIAL_EMISSIVE_MAP\n":"",
 		MATERIAL_TRANSPARENCY_CONST?"#define MATERIAL_TRANSPARENCY_CONST\n":"",
@@ -677,6 +680,25 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	if (MATERIAL_DIFFUSE_CONST)
 	{
 		program->sendUniform("materialDiffuseConst",material->diffuseReflectance.color[0],material->diffuseReflectance.color[1],material->diffuseReflectance.color[2],1.0f);
+	}
+
+	if (MATERIAL_SPECULAR && LIGHT_DIRECT)
+	{
+		float shininess = material->specularShininess;
+		switch (MATERIAL_SPECULAR_MODEL)
+		{
+			case rr::RRMaterial::PHONG:
+			case rr::RRMaterial::BLINN_PHONG:
+				shininess = RR_CLAMPED(material->specularShininess,1,1e10f);
+				break;
+			case rr::RRMaterial::TORRANCE_SPARROW:
+				shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,0.001f,1);
+				break;
+			case rr::RRMaterial::BLINN_TORRANCE_SPARROW:
+				shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,0,1);
+				break;
+		}
+		program->sendUniform("materialSpecularShininess",shininess);
 	}
 
 	if (MATERIAL_SPECULAR_CONST)

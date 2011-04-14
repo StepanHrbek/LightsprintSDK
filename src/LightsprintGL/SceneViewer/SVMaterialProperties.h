@@ -44,7 +44,6 @@ namespace rr_gl
 
 		bool              showPoint;
 		bool              showPhysical;
-		bool              shown;
 
 		wxPGProperty*     propPoint;
 		wxPGProperty*     propPhysical;
@@ -53,6 +52,9 @@ namespace rr_gl
 		wxPGProperty*     propBack;
 		wxPGProperty*     propDiffuse;
 		wxPGProperty*     propSpecular;
+		wxPGProperty*     propSpecularModel;
+		wxPGProperty*     propSpecularShininess;
+		wxPGProperty*     propSpecularRoughness;
 		wxPGProperty*     propEmissive;
 		wxPGProperty*     propTransparent;
 		wxPGProperty*     propTransparency1bit;

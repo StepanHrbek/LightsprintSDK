@@ -192,6 +192,17 @@ namespace rr
 		Property      diffuseEmittance;
 		//! Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (each channel separately).
 		Property      specularReflectance;
+		enum SpecularModel
+		{
+			PHONG                  = 0, //< as in http://en.wikipedia.org/wiki/Phong_shading
+			BLINN_PHONG            = 1, //< as in http://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model
+			TORRANCE_SPARROW       = 2, //< as in Zara J.: Pocitacova grafika (1992)
+			BLINN_TORRANCE_SPARROW = 3, //< as in http://www.siggraph.org/education/materials/HyperGraph/illumin/specular_highlights/blinn_model_for_specular_reflect_1.htm
+		};
+		//! Selects what model / distribution function to use for specular reflectance.
+		SpecularModel specularModel;
+		//! Interpreted as shininess or roughness, according to specularModel.
+		RRReal        specularShininess;
 		//! Fraction of energy that continues through surface (with direction possibly changed by refraction).
 		//
 		//! Whether light gets through translucent object, e.g. sphere, it depends on material sphere is made of

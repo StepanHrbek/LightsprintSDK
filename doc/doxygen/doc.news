@@ -8,6 +8,16 @@ namespace rr
 
 \page main_news What's new
 
+\section news120 ------------------------------------ 2011.04.xx -------------------------------------
+
+NEWS
+
+- improved specular reflection
+  - RRMaterial::specularModel added, so you can select from Phong/Blinn-Phong/Torrance-Sparrow/Blinn-Torrance-Sparrow
+  - RRMaterial::specularShininess added, as a parameter for models above
+  - Material properies/Specular/Model (in scene viewer)
+  - Material properies/Specular/Shininess,roughness
+
 \section news119 ------------------------------------ 2011.04.01 -------------------------------------
 
 NEWS

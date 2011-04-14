@@ -26,7 +26,6 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	material = NULL;
 	showPoint = false;
 	showPhysical = false;
-	shown = true;
 
 	Append(propPoint = new BoolRefProperty(_("Pixel details"),_("Clicking scene shows material properties of pixel rather than face."),showPoint));
 	Append(propPhysical = new BoolRefProperty(_("In physical scale"),_("Displays values in linear physical scale, rather than in sRGB."),showPhysical));
@@ -49,6 +48,15 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	AppendIn(propSpecular,new HDRColorProperty(_("color"),_("If texture is set, color is calculated from texture and can't be edited."),svs.precision));
 	AppendIn(propSpecular,new wxIntProperty(_("uv")));
 	AppendIn(propSpecular,new ImageFileProperty(_("texture or video"),_("Specular texture or video. Type in c@pture to use live video input.")));
+	{
+		const wxChar* strings[] = {wxT("Phong"),wxT("Blinn-Phong"),wxT("Torrance-Sparrow (Gaussian)"),wxT("Blinn-Torrance-Sparrow"),NULL};
+		const long values[] = {rr::RRMaterial::PHONG,rr::RRMaterial::BLINN_PHONG,rr::RRMaterial::TORRANCE_SPARROW,rr::RRMaterial::BLINN_TORRANCE_SPARROW};
+		propSpecularModel = new wxEnumProperty(_("model"),wxPG_LABEL,strings,values);
+		propSpecularModel->SetHelpString(_("Changes shape and intensity of specular highlights."));
+		AppendIn(propSpecular,propSpecularModel);
+	}
+	AppendIn(propSpecularModel,propSpecularShininess = new FloatProperty(_("shininess"),_("Effect depends on model."),10,svs.precision,1,1000000,5,false));
+	AppendIn(propSpecularModel,propSpecularRoughness = new FloatProperty(_("roughness"),_("Effect depends on model."),10,svs.precision,0,1,0.2f,false));
 	SetPropertyBackgroundColour(propSpecular,importantPropertyBackgroundColor,false);
 	Collapse(propSpecular);
 
@@ -122,15 +130,14 @@ static void setMaterialProperty(wxPGProperty* prop, rr::RRMaterial::Property& ma
 
 void SVMaterialProperties::updateHide()
 {
-	if ((material!=NULL)!=shown)
 	{
-		shown = material!=NULL;
-
 		HideProperty(propName,!material);
 		HideProperty(propFront,!material);
 		HideProperty(propBack,!material);
 		HideProperty(propDiffuse,!material);
 		HideProperty(propSpecular,!material);
+		HideProperty(propSpecularShininess,!material || material->specularModel==rr::RRMaterial::TORRANCE_SPARROW || material->specularModel==rr::RRMaterial::BLINN_TORRANCE_SPARROW);
+		HideProperty(propSpecularRoughness,!material || material->specularModel==rr::RRMaterial::PHONG || material->specularModel==rr::RRMaterial::BLINN_PHONG);
 		HideProperty(propEmissive,!material);
 		HideProperty(propTransparent,!material);
 		HideProperty(propLightmapTexcoord,!material);
@@ -175,6 +182,9 @@ void SVMaterialProperties::updateProperties()
 		setMaterialProperty(propEmissive,material->diffuseEmittance);
 		setMaterialProperty(propTransparent,material->specularTransmittance);
 
+		updateInt(propSpecularModel,material->specularModel);
+		updateFloat(propSpecularShininess,material->specularShininess);
+		updateFloat(propSpecularRoughness,material->specularShininess);
 		updateBool(propTransparency1bit,material->specularTransmittanceKeyed);
 		updateBool(propTransparencyInAlpha,material->specularTransmittanceInAlpha);
 		updateFloat(propRefraction,material->refractionIndex);
@@ -320,6 +330,17 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		material->specularReflectance.color << property->GetValue();
 		composeMaterialPropertyRoot(propSpecular,material->specularReflectance);
 		specularChanged = true;
+	}
+	else
+	if (property==propSpecularModel)
+	{
+		material->specularModel = (rr::RRMaterial::SpecularModel)(property->GetValue().GetInteger());
+		updateHide();
+	}
+	else
+	if (property==propSpecularShininess || property==propSpecularRoughness)
+	{
+		material->specularShininess = property->GetValue().GetDouble();
 	}
 	else
 

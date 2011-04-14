@@ -102,10 +102,24 @@ public:
 				material.name = convertStr(str);
 			}
 
+			// shininess
+			aimaterial->Get(AI_MATKEY_SHININESS_STRENGTH,material.specularShininess);
+
+			// model (needs shininess)
+			aiShadingMode model = aiShadingMode_Phong;
+			aimaterial->Get(AI_MATKEY_SHADING_MODEL,model);
+			material.specularModel = (model==aiShadingMode_Blinn)
+				? ((material.specularShininess<=1)?rr::RRMaterial::BLINN_TORRANCE_SPARROW:rr::RRMaterial::BLINN_PHONG)
+				: rr::RRMaterial::PHONG;
+
 			// diffuseReflectance
-			convertMaterialProperty(aimaterial,aiTextureType_DIFFUSE,AI_MATKEY_COLOR_DIFFUSE,material.diffuseReflectance);
+			if (model==aiShadingMode_NoShading)
+				material.diffuseReflectance.color = RRVec3(0);
+			else
+				convertMaterialProperty(aimaterial,aiTextureType_DIFFUSE,AI_MATKEY_COLOR_DIFFUSE,material.diffuseReflectance);
 
 			// specularReflectance
+			if (model!=aiShadingMode_NoShading)
 			{
 				RRVec3 specular(0);
 				{
@@ -128,6 +142,12 @@ public:
 					if (!reflectiveColorSet && reflectivitySet) reflective = RRVec3(reflectivity);
 				}
 				material.specularReflectance.color = specular+reflective;
+				if (reflective.sum()>specular.sum())
+				{
+					// mirroring
+					material.specularModel = RRMaterial::PHONG;
+					material.specularShininess = 10000;
+				}
 			}
 
 			// diffuseEmittance

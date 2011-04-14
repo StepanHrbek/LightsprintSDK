@@ -11,6 +11,8 @@
 #include "memory.h"
 #include <climits> // UINT_MAX
 
+#define DEFAULT_SHININESS 100
+
 namespace rr
 {
 
@@ -56,6 +58,8 @@ void RRMaterial::copyFrom(const RRMaterial& a)
 	copyProperty(diffuseEmittance,a.diffuseEmittance);
 	copyProperty(specularReflectance,a.specularReflectance);
 	copyProperty(specularTransmittance,a.specularTransmittance);
+	specularModel = a.specularModel;
+	specularShininess = a.specularShininess;
 	specularTransmittanceInAlpha = a.specularTransmittanceInAlpha;
 	specularTransmittanceKeyed = a.specularTransmittanceKeyed;
 	refractionIndex = a.refractionIndex;
@@ -74,6 +78,8 @@ void RRMaterial::reset(bool twoSided)
 	sideBits[0]                  = sideBitsTmp[twoSided?1:0][0];
 	sideBits[1]                  = sideBitsTmp[twoSided?1:0][1];
 	diffuseReflectance.color     = RRVec3(0.5f);
+	specularModel                = PHONG;
+	specularShininess            = DEFAULT_SHININESS;
 	specularTransmittanceInAlpha = false;
 	specularTransmittanceKeyed   = false;
 	refractionIndex              = 1;
