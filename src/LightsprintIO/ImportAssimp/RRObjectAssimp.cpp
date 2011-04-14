@@ -89,58 +89,69 @@ public:
 			RRMaterial& material = materials[m];
 
 			// sideBits
-			int twoSided = 0;
-			aimaterial->Get(AI_MATKEY_TWOSIDED,twoSided);
-			material.reset(twoSided!=0);
+			{
+				int twoSided = 0;
+				aimaterial->Get(AI_MATKEY_TWOSIDED,twoSided);
+				material.reset(twoSided!=0);
+			}
 
 			// name
-			aiString str;
-			aimaterial->Get(AI_MATKEY_NAME,str);
-			material.name = convertStr(str);
+			{
+				aiString str;
+				aimaterial->Get(AI_MATKEY_NAME,str);
+				material.name = convertStr(str);
+			}
 
 			// diffuseReflectance
 			convertMaterialProperty(aimaterial,aiTextureType_DIFFUSE,AI_MATKEY_COLOR_DIFFUSE,material.diffuseReflectance);
 
 			// specularReflectance
-			convertMaterialProperty(aimaterial,aiTextureType_SPECULAR,AI_MATKEY_COLOR_SPECULAR,material.specularReflectance);
-			aiColor3D specularColor;
-			bool specularColorSet = aimaterial->Get(AI_MATKEY_COLOR_SPECULAR,specularColor)==AI_SUCCESS;
-			float shininessStrength;
-			bool shininessStrengthSet = aimaterial->Get(AI_MATKEY_SHININESS_STRENGTH,shininessStrength)==AI_SUCCESS;
-			aiColor3D reflectiveColor;
-			bool reflectiveColorSet = aimaterial->Get(AI_MATKEY_COLOR_REFLECTIVE,reflectiveColor)==AI_SUCCESS;
-			float reflectivity;
-			bool reflectivitySet = aimaterial->Get(AI_MATKEY_REFLECTIVITY,reflectivity)==AI_SUCCESS;
-			reflectivity *= 0.01f;
-			if (specularColorSet && shininessStrengthSet) material.specularReflectance.color = convertColor(specularColor)*shininessStrength; else
-			if (specularColorSet && !shininessStrengthSet) material.specularReflectance.color = RRVec3(0); else//convertColor(specularColor); else ...3ds with specularColorSet and !shininessStrengthSet should not spec.reflect
-			if (!specularColorSet && shininessStrengthSet) material.specularReflectance.color = RRVec3(shininessStrength); else
-			if (!specularColorSet && !shininessStrengthSet) material.specularReflectance.color = RRVec3(0);
-			if (reflectiveColorSet && reflectivitySet) material.specularReflectance.color += convertColor(specularColor)*reflectivity; else
-			if (reflectiveColorSet && !reflectivitySet) material.specularReflectance.color += convertColor(specularColor); else
-			if (!reflectiveColorSet && reflectivitySet) material.specularReflectance.color += RRVec3(reflectivity); else
-			if (!reflectiveColorSet && !reflectivitySet) material.specularReflectance.color += RRVec3(0);				
+			{
+				RRVec3 specular(0);
+				{
+					aiColor3D specularColor;
+					bool specularColorSet = aimaterial->Get(AI_MATKEY_COLOR_SPECULAR,specularColor)==AI_SUCCESS;
+					float shininessStrength;
+					bool shininessStrengthSet = aimaterial->Get(AI_MATKEY_SHININESS_STRENGTH,shininessStrength)==AI_SUCCESS;
+					if (specularColorSet && shininessStrengthSet) specular = convertColor(specularColor)*shininessStrength; else
+					if (specularColorSet && !shininessStrengthSet) specular = convertColor(specularColor); else
+					if (!specularColorSet && shininessStrengthSet) specular = RRVec3(shininessStrength);
+				}
+				RRVec3 reflective(0);
+				{
+					aiColor3D reflectiveColor;
+					bool reflectiveColorSet = aimaterial->Get(AI_MATKEY_COLOR_REFLECTIVE,reflectiveColor)==AI_SUCCESS;
+					float reflectivity;
+					bool reflectivitySet = aimaterial->Get(AI_MATKEY_REFLECTIVITY,reflectivity)==AI_SUCCESS;
+					if (reflectiveColorSet && reflectivitySet) reflective = convertColor(reflectiveColor)*reflectivity; else
+					if (reflectiveColorSet && !reflectivitySet) reflective = convertColor(reflectiveColor); else
+					if (!reflectiveColorSet && reflectivitySet) reflective = RRVec3(reflectivity);
+				}
+				material.specularReflectance.color = specular+reflective;
+			}
 
 			// diffuseEmittance
 			convertMaterialProperty(aimaterial,aiTextureType_EMISSIVE,AI_MATKEY_COLOR_EMISSIVE,material.diffuseEmittance);
 
 			// specularTransmittance
-			convertMaterialProperty(aimaterial,aiTextureType_OPACITY,AI_MATKEY_COLOR_TRANSPARENT,material.specularTransmittance);
-			aiColor3D transparentColor;
-			bool transparentColorSet = aimaterial->Get(AI_MATKEY_COLOR_TRANSPARENT,transparentColor)==AI_SUCCESS;
-			float opacity;
-			bool opacitySet = aimaterial->Get(AI_MATKEY_OPACITY,opacity)==AI_SUCCESS;
-			if (transparentColorSet && opacitySet) material.specularTransmittance.color = convertColor(transparentColor)*(1-opacity); else
-			if (transparentColorSet && !opacitySet) material.specularTransmittance.color = convertColor(transparentColor); else
-			if (!transparentColorSet && opacitySet) material.specularTransmittance.color = RRVec3(1-opacity); else
-			if (!transparentColorSet && !opacitySet) material.specularTransmittance.color = RRVec3(0);
-			if (material.diffuseReflectance.texture && !material.specularTransmittance.texture && material.diffuseReflectance.texture->getFormat()==BF_RGBA)
 			{
-				RRReporter::report(INF2,"Using transparency from diffuse map.\n");
-				material.specularTransmittance.texture = material.diffuseReflectance.texture->createReference();
-				material.specularTransmittance.texcoord = material.diffuseReflectance.texcoord;
+				convertMaterialProperty(aimaterial,aiTextureType_OPACITY,AI_MATKEY_COLOR_TRANSPARENT,material.specularTransmittance);
+				aiColor3D transparentColor;
+				bool transparentColorSet = aimaterial->Get(AI_MATKEY_COLOR_TRANSPARENT,transparentColor)==AI_SUCCESS;
+				float opacity;
+				bool opacitySet = aimaterial->Get(AI_MATKEY_OPACITY,opacity)==AI_SUCCESS;
+				if (transparentColorSet && opacitySet) material.specularTransmittance.color = convertColor(transparentColor)*(1-opacity); else
+				if (transparentColorSet && !opacitySet) material.specularTransmittance.color = convertColor(transparentColor); else
+				if (!transparentColorSet && opacitySet) material.specularTransmittance.color = RRVec3(1-opacity); else
+				if (!transparentColorSet && !opacitySet) material.specularTransmittance.color = RRVec3(0);
+				if (material.diffuseReflectance.texture && !material.specularTransmittance.texture && material.diffuseReflectance.texture->getFormat()==BF_RGBA)
+				{
+					RRReporter::report(INF2,"Using transparency from diffuse map.\n");
+					material.specularTransmittance.texture = material.diffuseReflectance.texture->createReference();
+					material.specularTransmittance.texcoord = material.diffuseReflectance.texcoord;
+				}
+				material.specularTransmittanceInAlpha = material.specularTransmittance.texture && material.specularTransmittance.texture->getFormat()==BF_RGBA;
 			}
-			material.specularTransmittanceInAlpha = material.specularTransmittance.texture && material.specularTransmittance.texture->getFormat()==BF_RGBA;
 
 			// refractionIndex
 			aimaterial->Get(AI_MATKEY_REFRACTI,material.refractionIndex);
@@ -150,9 +161,11 @@ public:
 				aimaterial->Get(_AI_MATKEY_UVWSRC_BASE,aiTextureType_AMBIENT,0,(int&)material.lightmapTexcoord);
 
 			// get average colors from textures
-			RRScaler* scaler = RRScaler::createRgbScaler();
-			material.updateColorsFromTextures(scaler,RRMaterial::UTA_NULL);
-			delete scaler;
+			{
+				RRScaler* scaler = RRScaler::createRgbScaler();
+				material.updateColorsFromTextures(scaler,RRMaterial::UTA_NULL);
+				delete scaler;
+			}
 
 			// autodetect keying
 			material.updateKeyingFromTransmittance();
