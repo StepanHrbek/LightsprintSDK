@@ -8,7 +8,7 @@
 #ifndef UBERPROGRAMSETUP_H
 #define UBERPROGRAMSETUP_H
 
-#include "cstring"
+#include <cstring>
 #include "UberProgram.h"
 #include "RealtimeLight.h"
 
@@ -56,8 +56,8 @@ enum
 //! Call validate() to get nearest supported combination.
 struct RR_GL_API UberProgramSetup
 {
-	unsigned SHADOW_MAPS                   :8; ///< Number of shadow maps processed in one pass. 0=no shadows, 1=hard shadows, more=soft shadows. Valid values: 0..detectMaxShadowmaps().
-	unsigned SHADOW_SAMPLES                :8; ///< Number of samples read from each shadowmap. 0=no shadows, 1=hard shadows, 2,4,8=soft shadows. Valid values: 0,1,2,4,8.
+	unsigned char SHADOW_MAPS              :4; ///< Number of shadow maps processed in one pass. 0=no shadows, 1=hard shadows, more=soft shadows. Valid values: 0..detectMaxShadowmaps().
+	unsigned char SHADOW_SAMPLES           :4; ///< Number of samples read from each shadowmap. 0=no shadows, 1=hard shadows, 2,4,8=soft shadows. Valid values: 0,1,2,4,8.
 	bool     SHADOW_COLOR                  :1; ///< Enables colored semitransparent shadows.
 	bool     SHADOW_PENUMBRA               :1; ///< Enables blend of all shadowmaps, used by penumbra shadows.
 	bool     SHADOW_CASCADE                :1; ///< Enables cascading of all shadowmaps, used by cascaded shadowmapping.
