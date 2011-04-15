@@ -212,6 +212,12 @@ namespace rr
 		//!
 		//! Note that higher transmittance does not decrease reflectance and emittance, they are independent properties.
 		//! There's single exception to this rule: higher transmittance decreases diffuseReflectance.texture (we multiply rgb from diffuse texture by opacity on the fly).
+		//!
+		//! Material with transparency stored in alpha of diffuse texture is initialized like \code
+		//!	diffuseReflectance.texture = RRBuffer::load(foo);
+		//!	specularTransmittance.texture = diffuseReflectance.texture->createReference();
+		//!	specularTransmittanceInAlpha = true;
+		//! \endcode
 		Property      specularTransmittance;
 		//! Whether specular transmittance is in specularTransmittance.texture's Alpha (0=transparent) or in RGB (1,1,1=transparent). It is irrelevant when specularTransmittance.texture==NULL.
 		bool          specularTransmittanceInAlpha;
