@@ -30,18 +30,22 @@
 #include <string>
 #include <vector>
 #ifdef _MSC_VER
-#include <windows.h> // SetCurrentDirectoryA
-#include <direct.h> // _mkdir
+	#include <windows.h> // SetCurrentDirectoryA
+	#include <direct.h> // _mkdir
 #endif // _MSC_VER
 #include <GL/glew.h>
-#include <GL/glut.h>
+#ifdef __APPLE__
+	#include <GLUT/glut.h>
+#else
+	#include <GL/glut.h>
+#endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/IO/ImportScene.h"
 
 #if defined(LINUX) || defined(linux)
-#include <sys/stat.h>
-#include <sys/types.h>
+	#include <sys/stat.h>
+	#include <sys/types.h>
 #endif
 
 // only longjmp can break us from glut mainloop

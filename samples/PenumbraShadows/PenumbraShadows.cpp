@@ -22,7 +22,11 @@
 #include <cstdlib>
 #include <ctime>
 #include <GL/glew.h>
-#include <GL/glut.h>
+#ifdef __APPLE__
+	#include <GLUT/glut.h>
+#else
+	#include <GL/glut.h>
+#endif
 #include "Lightsprint/GL/FBO.h"
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/TextureRenderer.h"

@@ -15,7 +15,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include <GL/glew.h>
-#include <GL/glut.h>
+#ifdef __APPLE__
+	#include <GLUT/glut.h>
+#else
+	#include <GL/glut.h>
+#endif
 #include "Lightsprint/IO/ImportScene.h"
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/Water.h"

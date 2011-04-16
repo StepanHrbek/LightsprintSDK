@@ -29,7 +29,7 @@
 // --------------------------------------------------------------------------
 
 #ifdef _WIN32
-#include <windows.h>    // SetCurrentDirectory
+	#include <windows.h>    // SetCurrentDirectory
 #endif
 #include <ctime>
 #include <cmath>
@@ -37,7 +37,11 @@
 #include <cstdlib>
 #include <vector>
 #include <GL/glew.h>
-#include <GL/glut.h>
+#ifdef __APPLE__
+	#include <GLUT/glut.h>
+#else
+	#include <GL/glut.h>
+#endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/IO/ImportScene.h"
