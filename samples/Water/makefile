@@ -1,15 +1,14 @@
-CPP = gcc
-CPPFLAGS = -Wall -I../../include -O3 -DNDEBUG -DGLEW_STATIC
-MAKE = makefile
+RR_IO_PATH = ../../src/LightsprintIO
+RR_GL_PATH = ../../src/LightsprintGL
 
-OBJS = Water.o
-LIBS = ../../lib/libDemoEngine.a
+all:
+	@if [ -e $(RR_IO_PATH) ] ; then \
+		cd $(RR_IO_PATH) && make; \
+	fi
+	@if [ -e $(RR_GL_PATH) ] ; then \
+		cd $(RR_GL_PATH) && make; \
+	fi
+	@make -f makefile.proj
 
-all: Water.exe
-
-Water.exe: $(OBJS) $(MAKE) $(LIBS)
-	gcc $(OBJS) $(LIBS) ../../bin/win32/glew32.dll ../../lib/win32/FreeImage.a -lwinmm -lOpenGL32 -lGLU32 -lGLUT -lstdc++ -s -o Water.exe
-
-clean:
-	del *.o
-	del Water.exe
+%:
+	@make -f makefile.proj $@

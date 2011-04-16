@@ -9,7 +9,7 @@ endif
 
 # general project settings
 
-PROJECT = RealtimeLights
+PROJECT = Water
 TARGET = ../../bin/$(CONFIG)/$(PROJECT).exe
 CFG_TYPE = exe
 OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
@@ -21,7 +21,7 @@ CPP_FLAGS +=
 # source files
 
 SOURCES = \
-RealtimeLights.cpp
+Water.cpp
 
 # libraries
 
