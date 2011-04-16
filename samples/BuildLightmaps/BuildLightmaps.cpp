@@ -603,7 +603,7 @@ int main(int argc, char **argv)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// WinMain() calls main() for compatibility with Linux
+// WinMain() calls main(), for compatibility with Windows
 
 #ifdef _WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShow)
