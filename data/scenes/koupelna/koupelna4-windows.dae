@@ -111,8 +111,8 @@
     <image id="C__Documents_and_Settings_Dee_Dokumenty_C_rr_data_scenes_koupelna_ZED_ZEL_JPG" name="C__Documents_and_Settings_Dee_Dokumenty_C_rr_data_scenes_koupelna_ZED_ZEL_JPG">
       <init_from>./ZED_ZEL.JPG</init_from>
     </image>
-    <image id="C__Documents_and_Settings_Dee_Dokumenty_C_rr_data_scenes_koupelna_ZED_ZLU_JPG" name="C__Documents_and_Settings_Dee_Dokumenty_C_rr_data_scenes_koupelna_ZED_ZLU_JPG">
-      <init_from>./ZED_ZLU.JPG</init_from>
+    <image id="glass_JPG" name="glass_JPG">
+      <init_from>./glass.png</init_from>
     </image>
   </library_images>
   <library_materials>
@@ -409,7 +409,7 @@
           <extra>
             <technique profile="FCOLLADA">
               <spec_level>
-                <float>0.500000</float>
+                <float>0.000000</float>
               </spec_level>
               <emission_level>
                 <float>0</float>
@@ -481,7 +481,7 @@
           <extra>
             <technique profile="FCOLLADA">
               <spec_level>
-                <float>0.200000</float>
+                <float>0.100000</float>
               </spec_level>
               <emission_level>
                 <float>0</float>
@@ -573,15 +573,15 @@
     </effect>
     <effect id="zluta-fx" name="zluta">
       <profile_COMMON>
-        <newparam sid="C__Documents_and_Settings_Dee_Dokumenty_C_rr_data_scenes_koupelna_ZED_ZLU_JPG-surface">
+        <newparam sid="glass_JPG-surface">
           <surface type="2D">
-            <init_from>C__Documents_and_Settings_Dee_Dokumenty_C_rr_data_scenes_koupelna_ZED_ZLU_JPG</init_from>
+            <init_from>glass_JPG</init_from>
             <format>A8R8G8B8</format>
           </surface>
         </newparam>
-        <newparam sid="C__Documents_and_Settings_Dee_Dokumenty_C_rr_data_scenes_koupelna_ZED_ZLU_JPG-sampler">
+        <newparam sid="glass_JPG-sampler">
           <sampler2D>
-            <source>C__Documents_and_Settings_Dee_Dokumenty_C_rr_data_scenes_koupelna_ZED_ZLU_JPG-surface</source>
+            <source>glass_JPG-surface</source>
             <minfilter>LINEAR_MIPMAP_LINEAR</minfilter>
             <magfilter>LINEAR</magfilter>
           </sampler2D>
@@ -592,13 +592,7 @@
               <color>1.000000 1.000000 1.000000 1.000000</color>
             </ambient>
             <diffuse>
-              <texture texture="C__Documents_and_Settings_Dee_Dokumenty_C_rr_data_scenes_koupelna_ZED_ZLU_JPG-sampler" texcoord="CHANNEL1">
-                <extra>
-                  <technique profile="MAX3D">
-                    <amount>1.000000</amount>
-                  </technique>
-                </extra>
-              </texture>
+              <color>0.000000 0.000000 0.000000 0.000000</color>
             </diffuse>
             <specular>
               <color>1.000000 1.000000 1.000000 1.000000</color>
@@ -613,7 +607,7 @@
               <float>1.000000</float>
             </reflectivity>
             <transparent opaque="RGB_ZERO">
-              <color>1.000000 1.000000 1.000000 1.000000</color>
+              <texture texture="glass_JPG-sampler" texcoord="CHANNEL1" />
             </transparent>
             <transparency>
               <float>0</float>
@@ -625,7 +619,7 @@
           <extra>
             <technique profile="FCOLLADA">
               <spec_level>
-                <float>0.800000</float>
+                <float>0.600000</float>
               </spec_level>
               <emission_level>
                 <float>0</float>
