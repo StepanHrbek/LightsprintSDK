@@ -50,7 +50,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -79,7 +79,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -141,7 +141,7 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -170,7 +170,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -227,7 +227,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -255,7 +255,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -313,7 +313,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -341,7 +341,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -401,7 +401,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -429,7 +429,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -504,7 +504,7 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				StringPooling="true"
 				ExceptionHandling="1"
@@ -532,7 +532,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -602,7 +602,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -630,7 +630,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -702,7 +702,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
@@ -730,7 +730,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1029"
-				AdditionalIncludeDirectories="..\..\include;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"

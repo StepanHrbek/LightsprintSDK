@@ -1,21 +1,22 @@
 List of headers
----------------
+_______________
 
 Lightsprint
- - Lightsprint libraries, essential
+ - Lightsprint headers, essential
 
-gl
- - GLEW and GLUT libraries, required only for OpenGL rendering
- - bundled for Windows only, lower case makes it invisible in Linux
+Windows
+ - 3rd party headers, bundled for Windows only (Linux and OSX get them via apt-get and ports)
 
-FCDocument
-FMath
-FUtils
-libxml
-FCollada.h
- - FCollada library and dependencies, required only for Collada support
-   when building LightsprintIO from source code
+ GL
+   - GLEW and GLUT headers, required only for OpenGL rendering
 
-freeimage.h
- - FreeImage library
- - bundled for Windows only, lower case makes it invisible in Linux
+ FCDocument
+ FMath
+ FUtils
+ libxml
+ FCollada.h
+   - FCollada headers, not used. Required only when building LightsprintIO from source code
+     with SUPPORT_FCOLLADA manually enabled.
+
+ FreeImage.h
+   - FreeImage header, required only when building LightsprintIO from source code

@@ -25,6 +25,11 @@ NEWS
   - Material properies/Specular/Shininess,roughness
   - User preferences/Debugging
 
+CHANGES
+
+- all third party headers moved from include to include/Windows
+  to prevent collisions on other platforms
+
 \section news119 ------------------------------------ 2011.04.01 -------------------------------------
 
 NEWS
