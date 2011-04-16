@@ -9,10 +9,6 @@
 
 #define SELECTED_OBJECT_NUMBER 0 // selected object gets per-pixel lightmap, others get per-vertex
 
-#ifdef _WIN32
-#include <crtdbg.h>
-#include <windows.h>  // SetPriorityClass
-#endif
 #include <cstdlib>
 #include <stdio.h>    // printf
 
