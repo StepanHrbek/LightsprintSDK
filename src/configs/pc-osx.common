@@ -40,3 +40,6 @@ IO_DEPS = \
 IO_LIBS = \
 	$(IO_DEPS) \
 	../../bin/$(CONFIG)/libLightsprintIO.so
+
+GLUT_LIB = \
+	-framework GLUT

@@ -1,4 +1,4 @@
--include $(CFG_DIR)/pc-osx.common
+include $(CFG_DIR)/pc-osx.common
 
 CONFIG = pc-osx-debug
 

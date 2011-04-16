@@ -27,13 +27,11 @@ LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS)
 
 # include directories
 
-INC_DIRS = .
 INC_DIRS += ../../include
-INC_DIRS += ../../include/libxml
 
 # library directories
 
-LIB_DIRS = .
+LIB_DIRS +=
 
 # include the core part of the makefile
 

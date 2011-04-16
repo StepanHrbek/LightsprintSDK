@@ -16,6 +16,8 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 
 # project-dependent compiler/preprocessor flags
 
+CPP_FLAGS +=
+
 # source files
 
 SOURCES = \
@@ -23,16 +25,15 @@ Lightmaps.cpp
 
 # libraries
 
-LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) -lglut
+LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLUT_LIB)
 
 # include directories
 
-INC_DIRS = .
 INC_DIRS += ../../include
 
 # library directories
 
-LIB_DIRS = .
+LIB_DIRS +=
 
 # include the core part of the makefile
 
