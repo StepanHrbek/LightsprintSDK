@@ -356,7 +356,8 @@ int main(int argc, char **argv)
 	}
 	// log messages to console
 	rr::RRReporter::createPrintfReporter();
-	//rr_gl::Program::showLog = true; // log also results of shader compiler
+	//rr::RRReporter::setFilter(true,3,true); // log more
+	//rr_gl::Program::logMessages(true); // log also results of shader compiler
 
 	rr_io::registerLoaders();
 

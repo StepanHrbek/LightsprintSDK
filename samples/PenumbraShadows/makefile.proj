@@ -23,7 +23,7 @@ CPP_FLAGS +=
 SOURCES = \
 PenumbraShadows.cpp \
 DynamicObject.cpp \
-../RealtimeRadiosity/RendererOf3DS.cpp
+../../src/LightsprintIO/Import3DS/Model_3DS.cpp
 
 # libraries
 
