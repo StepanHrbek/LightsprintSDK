@@ -161,16 +161,12 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));
 		return;
 	}
+	// use material
+	uberProgramSetup.useMaterial(program,model->Materials);
 	// set matrix
 	if (uberProgramSetup.OBJECT_SPACE)
 	{
 		program->sendUniform("worldMatrix",worldMatrix,false,4);
-	}
-	// set material
-	//  3ds renderer sets nearly everything, we only have to set this:
-	if (uberProgramSetup.MATERIAL_SPECULAR_CONST)
-	{
-		program->sendUniform("materialSpecularConst",.5f,.5f,.5f,1.0f);
 	}
 	// set envmap
 	if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)

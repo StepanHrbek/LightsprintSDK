@@ -32,6 +32,8 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));
 		return;
 	}
+	// use material
+	uberProgramSetup.useMaterial(program,model.Materials);
 	// set specular environment map
 	if (uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 	{
