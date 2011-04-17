@@ -18,8 +18,8 @@ namespace rr_gl
 enum
 {
 	// textures assigned to UberProgram
-	// GeForce supports 0..31, ok
-	// Radeon supports 0..15, ok
+	// GeForce usually supports 0..31, ok
+	// some Radeons support only 0..15, ok
 	// Mesa supports only 0..7, ok if you use at most 1 shadowmap and 1 lightmap
 	TEXTURE_2D_MATERIAL_DIFFUSE          = 0, ///< Texture image unit used by our uberprogram for diffuse map.
 	TEXTURE_2D_LIGHT_DIRECT              = 1, ///< Texture image unit used by our uberprogram for projected light map.
