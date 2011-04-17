@@ -141,6 +141,13 @@ void SVCanvas::createContextCore()
 		exitRequested = true;
 		return;
 	}
+	int i1=0,i2=0,i3=0,i4=0,i5=0;
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&i1);
+	glGetIntegerv(GL_MAX_TEXTURE_UNITS,&i2);
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,&i3);
+	glGetIntegerv(GL_MAX_TEXTURE_COORDS,&i4);
+	glGetIntegerv(GL_MAX_VARYING_FLOATS,&i5);
+	rr::RRReporter::report(rr::INF2,"  %d image units, %d units, %d combined, %d coords, %d varyings.\n",i1,i2,i3,i4,i5);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glDepthFunc(GL_LEQUAL);
