@@ -416,15 +416,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	}
 	program->useIt();
 
-	// shadowMap[], gl_TextureMatrix[]
-	glMatrixMode(GL_TEXTURE);
-	GLdouble tmp[16]={
-		1,0,0,0,
-		0,1,0,0,
-		0,0,1,0,
-		1,1,1,2
-	};
-	//GLint samplers[100]; // for array of samplers (needs OpenGL 2.0 compliant card)
+	// shadowMapN, textureMatrixN, shadowColorN
 	for (unsigned i=0;i<SHADOW_MAPS;i++)
 	{
 		if (!light)
@@ -435,20 +427,25 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		Texture* shadowmap = light->getShadowmap(firstInstance+i);
 		if (shadowmap)
 		{
-			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+i); // for binding "shadowMapN" texture
-			// prepare samplers
+			// bind depth texture
+			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+i);
 			shadowmap->bindTexture();
-			//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
-			char name[] = "shadowMap0"; // for individual samplers
-			name[9] = '0'+i; // for individual samplers
-			program->sendUniform(name, (int)(TEXTURE_2D_SHADOWMAP_0+i)); // for individual samplers
-			// prepare and send matrices
+			// set depth sampler
+			char name[] = "shadowMap0";
+			name[9] = '0'+i;
+			program->sendUniform(name, (int)(TEXTURE_2D_SHADOWMAP_0+i));
+			// set matrix
 			Camera* lightInstance = light->getShadowmapCamera(firstInstance+i,true);
-			glActiveTexture(GL_TEXTURE0+i); // for feeding gl_TextureMatrix[0..maps-1]
-			glLoadMatrixd(tmp);
-			glMultMatrixd(lightInstance->frustumMatrix);
-			glMultMatrixd(lightInstance->viewMatrix);
+			double m1[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,2 };
+			double m2[16];
+			float m3[16];
+#define MULT_MATRIX(a,b,c) { for (unsigned i=0;i<4;i++) for (unsigned j=0;j<4;j++) c[4*i+j] = b[4*i]*a[j] + b[4*i+1]*a[4+j] + b[4*i+2]*a[8+j] + b[4*i+3]*a[12+j]; }
+			MULT_MATRIX(m1,lightInstance->frustumMatrix,m2);
+			MULT_MATRIX(m2,lightInstance->viewMatrix,m3);
 			delete lightInstance;
+			char name2[] = "textureMatrix0";
+			name2[13] = '0'+i;
+			program->sendUniform(name2,m3,false,4);
 		}
 	}
 	if (SHADOW_COLOR)
@@ -457,17 +454,15 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		Texture* shadowmap = light->getShadowmap(firstInstance+i,true);
 		if (shadowmap)
 		{
-			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+SHADOW_MAPS+i); // for binding "shadowColorMapN" texture
-			// prepare samplers
+			// bind color texture
+			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+SHADOW_MAPS+i);
 			shadowmap->bindTexture();
-			//samplers[i]=i; // for array of samplers (needs OpenGL 2.0 compliant card)
-			char name[] = "shadowColorMap0"; // for individual samplers
-			name[14] = '0'+i; // for individual samplers
-			program->sendUniform(name, (int)(TEXTURE_2D_SHADOWMAP_0+SHADOW_MAPS+i)); // for individual samplers
+			// set color sampler
+			char name[] = "shadowColorMap0";
+			name[14] = '0'+i;
+			program->sendUniform(name, (int)(TEXTURE_2D_SHADOWMAP_0+SHADOW_MAPS+i));
 		}
 	}
-	//myProg->sendUniform("shadowMap", instances, samplers); // for array of samplers (needs OpenGL 2.0 compliant card)
-	glMatrixMode(GL_MODELVIEW);
 
 	if (SHADOW_SAMPLES>1)
 	{

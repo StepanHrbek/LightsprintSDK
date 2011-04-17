@@ -57,7 +57,53 @@
 #endif
 
 #if SHADOW_MAPS>0
-	varying vec4 shadowCoord[SHADOW_MAPS];
+	uniform mat4 textureMatrix0;
+	varying vec4 shadowCoord0;
+#endif
+
+#if SHADOW_MAPS>1
+	uniform mat4 textureMatrix1;
+	varying vec4 shadowCoord1;
+#endif
+
+#if SHADOW_MAPS>2
+	uniform mat4 textureMatrix2;
+	varying vec4 shadowCoord2;
+#endif
+
+#if SHADOW_MAPS>3
+	uniform mat4 textureMatrix3;
+	varying vec4 shadowCoord3;
+#endif
+
+#if SHADOW_MAPS>4
+	uniform mat4 textureMatrix4;
+	varying vec4 shadowCoord4;
+#endif
+
+#if SHADOW_MAPS>5
+	uniform mat4 textureMatrix5;
+	varying vec4 shadowCoord5;
+#endif
+
+#if SHADOW_MAPS>6
+	uniform mat4 textureMatrix6;
+	varying vec4 shadowCoord6;
+#endif
+
+#if SHADOW_MAPS>7
+	uniform mat4 textureMatrix7;
+	varying vec4 shadowCoord7;
+#endif
+
+#if SHADOW_MAPS>8
+	uniform mat4 textureMatrix8;
+	varying vec4 shadowCoord8;
+#endif
+
+#if SHADOW_MAPS>9
+	uniform mat4 textureMatrix9;
+	varying vec4 shadowCoord9;
 #endif
 
 #if defined(LIGHT_DIRECT) && !defined(MATERIAL_NORMAL_MAP)
@@ -180,39 +226,35 @@ void main()
 		materialTransparencyCoord = gl_MultiTexCoord4.xy;
 	#endif
 
-	// for cycle (for any OpenGL 2.0 compliant card)
-	//for(int i=0;i<SHADOW_MAPS;i++)
-	//  shadowCoord[i] = gl_TextureMatrix[i] * worldPos4;
-	// unrolled version (this fixed broken render on ATI)
 	#if SHADOW_MAPS>0
-		shadowCoord[0] = gl_TextureMatrix[0] * worldPos4;
+		shadowCoord0 = textureMatrix0 * worldPos4;
 	#endif
 	#if SHADOW_MAPS>1
-		shadowCoord[1] = gl_TextureMatrix[1] * worldPos4;
+		shadowCoord1 = textureMatrix1 * worldPos4;
 	#endif
 	#if SHADOW_MAPS>2
-		shadowCoord[2] = gl_TextureMatrix[2] * worldPos4;
+		shadowCoord2 = textureMatrix2 * worldPos4;
 	#endif
 	#if SHADOW_MAPS>3
-		shadowCoord[3] = gl_TextureMatrix[3] * worldPos4;
+		shadowCoord3 = textureMatrix3 * worldPos4;
 	#endif
 	#if SHADOW_MAPS>4
-		shadowCoord[4] = gl_TextureMatrix[4] * worldPos4;
+		shadowCoord4 = textureMatrix4 * worldPos4;
 	#endif
 	#if SHADOW_MAPS>5
-		shadowCoord[5] = gl_TextureMatrix[5] * worldPos4;
+		shadowCoord5 = textureMatrix5 * worldPos4;
 	#endif
 	#if SHADOW_MAPS>6
-		shadowCoord[6] = gl_TextureMatrix[6] * worldPos4;
+		shadowCoord6 = textureMatrix6 * worldPos4;
 	#endif
 	#if SHADOW_MAPS>7
-		shadowCoord[7] = gl_TextureMatrix[7] * worldPos4;
+		shadowCoord7 = textureMatrix7 * worldPos4;
 	#endif
 	#if SHADOW_MAPS>8
-		shadowCoord[8] = gl_TextureMatrix[8] * worldPos4;
+		shadowCoord8 = textureMatrix8 * worldPos4;
 	#endif
 	#if SHADOW_MAPS>9
-		shadowCoord[9] = gl_TextureMatrix[9] * worldPos4;
+		shadowCoord9 = textureMatrix9 * worldPos4;
 	#endif
   
 	#ifdef FORCE_2D_POSITION

@@ -49,74 +49,86 @@
 //  #define OBJECT_SPACE
 //  #define CLIP_PLANE_[X|Y|Z][A|B]
 //  #define FORCE_2D_POSITION
+//
+// For every great GLSL feature, there is buggy implementation.
+// For cycles and some arrays did not work on ATI,
+// remaining arrays and ## did not work in OSX etc.
+// And I'm not yet talking about Intel.
+// This shader evolves into greatness by using less of GLSL.
 
 #define sqr(a) ((a)*(a))
 
 #if SHADOW_SAMPLES>0
 #if SHADOW_MAPS>0
+	varying vec4 shadowCoord0;
 	uniform sampler2DShadow shadowMap0;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap0;
 	#endif
 #endif
 #if SHADOW_MAPS>1
+	varying vec4 shadowCoord1;
 	uniform sampler2DShadow shadowMap1;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap1;
 	#endif
 #endif
 #if SHADOW_MAPS>2
+	varying vec4 shadowCoord2;
 	uniform sampler2DShadow shadowMap2;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap2;
 	#endif
 #endif
 #if SHADOW_MAPS>3
+	varying vec4 shadowCoord3;
 	uniform sampler2DShadow shadowMap3;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap3;
 	#endif
 #endif
 #if SHADOW_MAPS>4
+	varying vec4 shadowCoord4;
 	uniform sampler2DShadow shadowMap4;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap4;
 	#endif
 #endif
 #if SHADOW_MAPS>5
+	varying vec4 shadowCoord5;
 	uniform sampler2DShadow shadowMap5;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap5;
 	#endif
 #endif
 #if SHADOW_MAPS>6
+	varying vec4 shadowCoord6;
 	uniform sampler2DShadow shadowMap6;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap6;
 	#endif
 #endif
 #if SHADOW_MAPS>7
+	varying vec4 shadowCoord7;
 	uniform sampler2DShadow shadowMap7;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap7;
 	#endif
 #endif
 #if SHADOW_MAPS>8
+	varying vec4 shadowCoord8;
 	uniform sampler2DShadow shadowMap8;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap8;
 	#endif
 #endif
 #if SHADOW_MAPS>9
+	varying vec4 shadowCoord9;
 	uniform sampler2DShadow shadowMap9;
 	#ifdef SHADOW_COLOR
 	uniform sampler2D shadowColorMap9;
 	#endif
 #endif
-#endif
-
-#if SHADOW_MAPS>0
-	varying vec4 shadowCoord[SHADOW_MAPS];
 #endif
 
 #if SHADOW_SAMPLES>1
@@ -346,26 +358,22 @@ void main()
 			// colored shadow
 			#define VISIBILITY_T vec4
 			#if SHADOW_SAMPLES==1
-				// OSX 10.6 does not support ##
-				//#define SHADOW_COLOR_LOOKUP(index) * texture2DProj(shadowColorMap##index,shadowCoord[index].xyw)
-				#define SHADOW_COLOR_LOOKUP(shadowColorMap,index) * texture2DProj(shadowColorMap,shadowCoord[index].xyw)
+				#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * texture2DProj(shadowColorMap,shadowCoord.xyw)
 			#else
-				// OSX 10.6 does not support ##
-				//#define SHADOW_COLOR_LOOKUP(index) * texture2D(shadowColorMap##index,center.xy)
-				#define SHADOW_COLOR_LOOKUP(shadowColorMap,index) * texture2D(shadowColorMap,center.xy)
+				#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * texture2D(shadowColorMap,center.xy)
 			#endif
 		#else
 			// standard shadow
 			#define VISIBILITY_T float
-			#define SHADOW_COLOR_LOOKUP(shadowColorMap,index)
+			#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord)
 		#endif
 
 		VISIBILITY_T visibility = VISIBILITY_T(0.0); // 0=shadowed, 1=lit, 1,0,0=red shadow
 
 		#if SHADOW_SAMPLES==1
 			// hard shadows with 1 lookup
-			#define SHADOWMAP_LOOKUP(shadowMap,index) \
-				visibility += shadow2DProj(shadowMap, shadowCoord[index]).z
+			#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) \
+				visibility += shadow2DProj(shadowMap, shadowCoord).z
 		#else
 			// soft shadows with 2, 4 or 8 lookups in rotating kernel
 			#ifdef SHADOW_BILINEAR
@@ -377,22 +385,22 @@ void main()
 			vec3 shift1 = sc*shadowBlurWidth.w;
 			vec3 shift2 = sc.yxz*shadowBlurWidth.xyz;
 			#if SHADOW_SAMPLES==2
-				#define SHADOWMAP_LOOKUP(shadowMap,index) \
-				center = shadowCoord[index].xyz/shadowCoord[index].w; \
+				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) \
+				center = shadowCoord.xyz/shadowCoord.w; \
 				visibility += ( \
 					shadow2D(shadowMap, center+shift1).z \
 					+shadow2D(shadowMap, center-shift1).z )
 			#elif SHADOW_SAMPLES==4
-				#define SHADOWMAP_LOOKUP(shadowMap,index) \
-				center = shadowCoord[index].xyz/shadowCoord[index].w; \
+				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) \
+				center = shadowCoord.xyz/shadowCoord.w; \
 				visibility += ( \
 					shadow2D(shadowMap, center+shift1).z \
 					+shadow2D(shadowMap, center-shift1).z \
 					+shadow2D(shadowMap, center+shift2).z \
 					+shadow2D(shadowMap, center-shift2).z )
 			#elif SHADOW_SAMPLES==8
-				#define SHADOWMAP_LOOKUP(shadowMap,index) \
-				center = shadowCoord[index].xyz/shadowCoord[index].w; \
+				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) \
+				center = shadowCoord.xyz/shadowCoord.w; \
 				visibility += ( \
 					shadow2D(shadowMap, center+shift1).z \
 					+shadow2D(shadowMap, center-shift1).z \
@@ -409,79 +417,77 @@ void main()
 			// optimized path, step() not necessary
 			// previosuly used also if defined(LIGHT_DIRECT_MAP), with projected texture set to clamp to black border,
 			//  but it projected also backwards in areas where Z was never written to SM after clear (e.g. spotlight looking into the sky), at least on 4870 cat811-901
-			#define SHADOW_CLAMP(index)
+			#define SHADOW_CLAMP(shadowCoord)
 		#else
 			// standard path
-			#define SHADOW_CLAMP(index) * step(0.0,shadowCoord[index].z)
+			#define SHADOW_CLAMP(shadowCoord) * step(0.0,shadowCoord.z)
 		#endif
 
-		// OSX 10.6 does not support ##
-		// #define ACCUMULATE_SHADOW(index) SHADOWMAP_LOOKUP(shadowMap##index,index) SHADOW_CLAMP(index) SHADOW_COLOR_LOOKUP(index)
-		#define ACCUMULATE_SHADOW(shadowMap,shadowColorMap,index) SHADOWMAP_LOOKUP(shadowMap,index) SHADOW_CLAMP(index) SHADOW_COLOR_LOOKUP(shadowColorMap,index)
+		#define ACCUMULATE_SHADOW(shadowMap,shadowColorMap,shadowCoord) SHADOWMAP_LOOKUP(shadowMap,shadowCoord) SHADOW_CLAMP(shadowCoord) SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord)
 
 		vec3 center; // temporary, used by macros
 		#if defined(SHADOW_CASCADE) && SHADOW_MAPS>1
 			#if SHADOW_MAPS==2
-				ACCUMULATE_SHADOW(shadowMap0,shadowColorMap0,0);
+				ACCUMULATE_SHADOW(shadowMap0,shadowColorMap0,shadowCoord0);
 				VISIBILITY_T visibility0 = visibility;
 				visibility = VISIBILITY_T(0);
-				ACCUMULATE_SHADOW(shadowMap1,shadowColorMap1,1);
-				center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
+				ACCUMULATE_SHADOW(shadowMap1,shadowColorMap1,shadowCoord1);
+				center = abs(shadowCoord1.xyz/shadowCoord1.w-vec3(0.5));
 				float centerMax = max(center.x,max(center.y,center.z));
 				float blendFactor = smoothstep(0.3,0.49,centerMax);
 				visibility = mix(visibility,visibility0,blendFactor);
 			#else
-				ACCUMULATE_SHADOW(shadowMap1,shadowColorMap1,1);
+				ACCUMULATE_SHADOW(shadowMap1,shadowColorMap1,shadowCoord1);
 				VISIBILITY_T visibility1 = visibility;
 				visibility = VISIBILITY_T(0);
-				center = abs(shadowCoord[2].xyz/shadowCoord[2].w-vec3(0.5));
+				center = abs(shadowCoord2.xyz/shadowCoord2.w-vec3(0.5));
 				float centerMax = max(center.x,max(center.y,center.z));
 				if (centerMax>0.49)
 				{
-					ACCUMULATE_SHADOW(shadowMap0,shadowColorMap0,0);
-					center = abs(shadowCoord[1].xyz/shadowCoord[1].w-vec3(0.5));
+					ACCUMULATE_SHADOW(shadowMap0,shadowColorMap0,shadowCoord0);
+					center = abs(shadowCoord1.xyz/shadowCoord1.w-vec3(0.5));
 					float centerMax = max(center.x,max(center.y,center.z));
 					float blendFactor = smoothstep(0.3,0.49,centerMax);
 					visibility = mix(visibility1,visibility,blendFactor);
 				}
 				else
 				{
-					ACCUMULATE_SHADOW(shadowMap2,shadowColorMap2,2);
+					ACCUMULATE_SHADOW(shadowMap2,shadowColorMap2,shadowCoord2);
 					float blendFactor = smoothstep(0.3,0.49,centerMax);
 					visibility = mix(visibility,visibility1,blendFactor);
 				}
 			#endif
 		#else
 			#if SHADOW_MAPS>0
-				ACCUMULATE_SHADOW(shadowMap0,shadowColorMap0,0);
+				ACCUMULATE_SHADOW(shadowMap0,shadowColorMap0,shadowCoord0);
 			#endif
 			#if SHADOW_MAPS>1
-				ACCUMULATE_SHADOW(shadowMap1,shadowColorMap1,1);
+				ACCUMULATE_SHADOW(shadowMap1,shadowColorMap1,shadowCoord1);
 			#endif
 			#if SHADOW_MAPS>2
-				ACCUMULATE_SHADOW(shadowMap2,shadowColorMap2,2);
+				ACCUMULATE_SHADOW(shadowMap2,shadowColorMap2,shadowCoord2);
 			#endif
 		#endif
 		#if SHADOW_MAPS>3
-			ACCUMULATE_SHADOW(shadowMap3,shadowColorMap3,3);
+			ACCUMULATE_SHADOW(shadowMap3,shadowColorMap3,shadowCoord3);
 		#endif
 		#if SHADOW_MAPS>4
-			ACCUMULATE_SHADOW(shadowMap4,shadowColorMap4,4);
+			ACCUMULATE_SHADOW(shadowMap4,shadowColorMap4,shadowCoord4);
 		#endif
 		#if SHADOW_MAPS>5
-			ACCUMULATE_SHADOW(shadowMap5,shadowColorMap5,5);
+			ACCUMULATE_SHADOW(shadowMap5,shadowColorMap5,shadowCoord5);
 		#endif
 		#if SHADOW_MAPS>6
-			ACCUMULATE_SHADOW(shadowMap6,shadowColorMap6,6);
+			ACCUMULATE_SHADOW(shadowMap6,shadowColorMap6,shadowCoord6);
 		#endif
 		#if SHADOW_MAPS>7
-			ACCUMULATE_SHADOW(shadowMap7,shadowColorMap7,7);
+			ACCUMULATE_SHADOW(shadowMap7,shadowColorMap7,shadowCoord7);
 		#endif
 		#if SHADOW_MAPS>8
-			ACCUMULATE_SHADOW(shadowMap8,shadowColorMap8,8);
+			ACCUMULATE_SHADOW(shadowMap8,shadowColorMap8,shadowCoord8);
 		#endif
 		#if SHADOW_MAPS>9
-			ACCUMULATE_SHADOW(shadowMap9,shadowColorMap9,9);
+			ACCUMULATE_SHADOW(shadowMap9,shadowColorMap9,shadowCoord9);
 		#endif
 
 		#ifdef SHADOW_PENUMBRA
@@ -526,7 +532,13 @@ void main()
 				* lightDirectColor
 			#endif
 			#ifdef LIGHT_DIRECT_MAP
-				* texture2DProj(lightDirectMap, shadowCoord[SHADOW_MAPS/2])
+				#if SHADOW_MAPS<3
+					* texture2DProj(lightDirectMap, shadowCoord0)
+				#elif SHADOW_MAPS<5
+					* texture2DProj(lightDirectMap, shadowCoord1)
+				#else
+					* texture2DProj(lightDirectMap, shadowCoord2)
+				#endif
 			#endif
 			#ifdef LIGHT_DIRECT_ATT_SPOT
 				* pow(clamp( ((lightDirectSpotOuterAngleRad-acos(dot(worldLightDir,-worldLightDirFromPixel)))/lightDirectSpotFallOffAngleRad), 0.0, 1.0 ),lightDirectSpotExponent)
