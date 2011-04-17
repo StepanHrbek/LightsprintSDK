@@ -90,6 +90,8 @@ RRBuffer* RRBufferInMemory::createReference()
 	return this;
 }
 
+static void* g_classHeader;
+
 RRBufferInMemory::~RRBufferInMemory()
 {
 	// when you delete buffer, this is called first
@@ -97,6 +99,8 @@ RRBufferInMemory::~RRBufferInMemory()
 	{
 		// skip destructor
 		filename._skipDestructor();
+		// backup first 4 or 8 bytes
+		memcpy(&g_classHeader,this,sizeof(void*));
 	}
 	else
 	{
@@ -113,10 +117,8 @@ void RRBufferInMemory::operator delete(void* p, std::size_t n)
 		RRBufferInMemory* b = (RRBufferInMemory*)p;
 		if (b->refCount)
 		{
-			// fix instance after destructor (copy first 4 or 8 bytes from living buffer)
-			static RRBufferInMemory reference;
-			size_t headerSize = (char*)&b->filename-(char*)b; // filename must be first member variable in RRBuffer
-			memcpy(b,&reference,headerSize);
+			// fix instance after destructor (restore first 4 or 8 bytes)
+			memcpy(b,&g_classHeader,sizeof(void*));
 		}
 		else
 		{
