@@ -31,6 +31,7 @@ CHANGES
 
 - all third party headers moved from include to include/Windows
   to prevent collisions on other platforms
+- TEXTURE_XXX enum values replaced by TEX_CODE_XXX with slightly different use
 
 \section news119 ------------------------------------ 2011.04.01 -------------------------------------
 
