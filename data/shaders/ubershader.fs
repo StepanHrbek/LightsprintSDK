@@ -722,7 +722,8 @@ void main()
 			#endif
 			#if (defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP)) && !defined(MATERIAL_DIFFUSE_CONST) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP)
 				// only if not defined by material, opacity is taken from lightmap/vertex colors
-				gl_FragColor.a = lightIndirectLightmap.a;
+				// before enabling this, UberProgramSetup::validate() would have to be changed, it disables lightmap if diffuse is not present
+				//gl_FragColor.a = lightIndirectLightmap.a;
 			#endif
 		#endif
 	#else

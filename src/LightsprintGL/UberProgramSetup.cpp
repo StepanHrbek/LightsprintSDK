@@ -334,6 +334,7 @@ void UberProgramSetup::validate()
 		MATERIAL_DIFFUSE_X2 = 0;
 		MATERIAL_DIFFUSE_CONST = 0;
 		MATERIAL_DIFFUSE_MAP = 0;
+		LIGHT_INDIRECT_MAP = 0; // lightmap is used only for diffuse reflection, alpha is ignored
 		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 	}
 	if (!MATERIAL_SPECULAR)
