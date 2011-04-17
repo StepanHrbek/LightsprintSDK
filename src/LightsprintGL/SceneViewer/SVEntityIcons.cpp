@@ -76,8 +76,7 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye, u
 
 	program->useIt();
 	program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
-	glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
-	program->sendUniform("materialDiffuseMap", TEXTURE_2D_MATERIAL_DIFFUSE);
+	program->sendTexture("materialDiffuseMap", NULL); // renderIcon() will repeatedly bind texture
 
 	// render icons
 	unsigned counter = 0;

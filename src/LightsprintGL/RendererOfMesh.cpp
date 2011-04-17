@@ -236,11 +236,7 @@ void MeshArraysVBOs::render(
 	// set indirect illumination texcoords + map (lightmap or light detail map)
 	if ((_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) || (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
 	{
-		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
-		if (_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer)
-			getTexture(_lightIndirectBuffer,true,false)->bindTexture(); // bind lightmap
-		else
-			getTexture(_lightDetailMap)->bindTexture(); // bind light detail map
+		_program->sendTexture("lightIndirectMap",(_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) ? getTexture(_lightIndirectBuffer,true,false) : getTexture(_lightDetailMap), TEX_CODE_2D_LIGHT_INDIRECT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
@@ -411,8 +407,8 @@ void MeshArraysVBOs::render(
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
-		glBindTexture(GL_TEXTURE_2D,0);
+		//_program->sendTexture("lightIndirectMap",NULL, TEX_CODE_2D_LIGHT_INDIRECT);
+		//glBindTexture(GL_TEXTURE_2D,0);
 	}
 	// unset indirect illumination colors
 	if (_uberProgramSetup.LIGHT_INDIRECT_VCOLOR)

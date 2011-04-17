@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "Lightsprint/GL/Program.h"
+#include "Lightsprint/GL/Texture.h"
 #include "Shader.h"
 #include "Lightsprint/RRDebug.h"
 
@@ -128,6 +129,19 @@ bool Program::isValid()
 void Program::useIt()
 {
 	glUseProgram(handle);
+	nextTextureUnit = 0;
+	memset(assignedTextureUnit,-1,sizeof(assignedTextureUnit));
+}
+
+unsigned Program::sendTexture(const char *name, const Texture* t, int code)
+{
+	unsigned textureUnit = (code>=0 && code<16)
+		? ( (assignedTextureUnit[code]<0) ? assignedTextureUnit[code] = nextTextureUnit++ : assignedTextureUnit[code] )
+		: nextTextureUnit++;
+	glActiveTexture(GL_TEXTURE0+textureUnit);
+	if (t) t->bindTexture();
+	glUniform1i(getLoc(name),textureUnit);
+	return textureUnit;
 }
 
 void Program::sendUniform(const char *name, float x)

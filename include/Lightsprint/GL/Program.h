@@ -50,6 +50,22 @@ public:
 	//! Used for debugging.
 	void enumVariables();
 
+	//! Sets uniform texture (activates texture unit, binds texture), returns texture unit used.
+	//
+	//! First call after useIt() uses texture unit 0, next one uses unit 1 etc.
+	//! If code in range 0..15 is entered, all textures with the same code are sent to the same unit.
+	//!
+	//! Following fragments of code do the same
+	//! - sendTexture(name,tex);
+	//! - sendTexture(name,NULL); tex->bindTexture();
+	//! - unsigned unit = sendTexture(name,NULL); glActiveTexture(GL_TEXTURE0+unit); tex->bindTexture();
+	//!
+	//! When doing multiple renders that differ only in textures, use codes
+	//! - useIt(); for (int i=0;i<100;i++) { sendTexture(name1,...,1); sendTexture(name2,...,2); draw(); }
+	//! With codes, the same 2 texture units are used 100 times.
+	//! Without codes, 200 texture units would be allocated.
+	unsigned sendTexture(const char *name, const class Texture* t, int code = -1);
+
 	//! Sets uniform of type float.
 	void sendUniform(const char *name, float x);
 	//! Sets uniform of type vec2.
@@ -90,6 +106,8 @@ private:
 	class Shader *vertex, *fragment;
 	unsigned handle;
 	bool linked;
+	unsigned nextTextureUnit; // texture unit to be used in next setTexture()
+	signed char assignedTextureUnit[16]; // indexed by code
 };
 
 }; // namespace

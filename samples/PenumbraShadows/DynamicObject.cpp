@@ -23,7 +23,7 @@ DynamicObject* DynamicObject::create(const char* filename,float scale)
 	return NULL;
 }
 
-void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::RealtimeLight* light,unsigned firstInstance,rr_gl::Texture* lightIndirectEnvSpecular,const rr_gl::Camera& eye,float rot)
+void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::RealtimeLight* light,unsigned firstInstance,rr::RRBuffer* lightIndirectEnvSpecular,const rr_gl::Camera& eye,float rot)
 {
 	// use program
 	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,light,firstInstance,NULL,1,NULL);
@@ -34,20 +34,10 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	}
 	// use material
 	uberProgramSetup.useMaterial(program,model.Materials);
-	// set specular environment map
-	if (uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
-	{
-		if (!lightIndirectEnvSpecular)
-		{
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Rendering dynamic object with NULL cubemap.\n"));
-			return;
-		}
-		GLint activeTexture;
-		glGetIntegerv(GL_ACTIVE_TEXTURE,&activeTexture);
-		glActiveTexture(GL_TEXTURE0+rr_gl::TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-		lightIndirectEnvSpecular->bindTexture();
-		glActiveTexture(activeTexture);
-	}
+	// use environment map
+	illumination.specularEnvMap = lightIndirectEnvSpecular;
+	uberProgramSetup.useIlluminationEnvMaps(program,&illumination);
+	illumination.specularEnvMap = NULL;
 	// set matrices
 	if (uberProgramSetup.OBJECT_SPACE)
 	{
@@ -62,5 +52,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		program->sendUniform("worldMatrix",m,false,4);
 	}
 	// render
+	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
+		program->sendTexture("materialDiffuseMap",NULL); // activate unit, Draw will bind textures
 	model.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
 }

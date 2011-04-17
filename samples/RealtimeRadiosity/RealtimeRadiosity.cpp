@@ -101,10 +101,13 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL,0,NULL,1,false);
 
 	// render static scene
-	if (!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&rr::RRVec4(2):NULL,1,NULL))
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,realtimeLight,0,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&rr::RRVec4(2):NULL,1,NULL);
+	if (!program)
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
+		program->sendTexture("materialDiffuseMap",NULL); // activate unit, Draw will bind textures
 	m3ds.Draw(solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 
 	// render dynamic objects

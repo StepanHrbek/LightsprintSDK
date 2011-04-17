@@ -27,11 +27,12 @@ class DynamicObject
 {
 public:
 	static DynamicObject* create(const char* filename,float scale);
-	void render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::RealtimeLight* light,unsigned firstInstance,rr_gl::Texture* lightIndirectEnvSpecular,const rr_gl::Camera& eye,float rot);
+	void render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,rr_gl::RealtimeLight* light,unsigned firstInstance,rr::RRBuffer* lightIndirectEnvSpecular,const rr_gl::Camera& eye,float rot);
 
 	float worldFoot[3];
 private:
 	Model_3DS model;
+	rr::RRObjectIllumination illumination;
 };
 
 #endif

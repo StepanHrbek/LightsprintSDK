@@ -20,6 +20,8 @@ NEWS
   - supports all specular reflection models
   - supports spotlight exponent (RRLight::spotExponent)
   - more detailed sun shadows
+  - advanced materials and lighting available also on low end GPUs
+  - Program::sendTexture() added, dynamically allocates texture units
 - improved scene viewer
   - Material properies/Specular/Model
   - Material properies/Specular/Shininess,roughness

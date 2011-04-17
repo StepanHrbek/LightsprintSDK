@@ -169,23 +169,15 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		program->sendUniform("worldMatrix",worldMatrix,false,4);
 	}
 	// set envmap
-	if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
-	{
-		// backup active texture
-		GLint activeTexture;
-		glGetIntegerv(GL_ACTIVE_TEXTURE,&activeTexture);
-
-		uberProgramSetup.useIlluminationEnvMaps(program,illumination);
-
-		// activate previously active texture
-		//  sometimes it's diffuse, sometimes emissive
-		glActiveTexture(activeTexture);
-	}
+	uberProgramSetup.useIlluminationEnvMaps(program,illumination);
 	// set animation
 	if (uberProgramSetup.ANIMATION_WAVE)
 	{
 		program->sendUniform("animationTime",animationTime);
 	}
+
+	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
+		program->sendTexture("materialDiffuseMap",NULL); // activate unit, render() will bind textures
 
 	// simple render, cached inside display list
 	rendererCached->render();

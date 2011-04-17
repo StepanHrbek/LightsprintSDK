@@ -17,21 +17,17 @@ namespace rr_gl
 
 enum
 {
-	// textures assigned to UberProgram
-	// GeForce usually supports 0..31, ok
-	// some Radeons support only 0..15, ok
-	// Mesa supports only 0..7, ok if you use at most 1 shadowmap and 1 lightmap
-	TEXTURE_2D_MATERIAL_DIFFUSE          = 0, ///< Texture image unit used by our uberprogram for diffuse map.
-	TEXTURE_2D_LIGHT_DIRECT              = 1, ///< Texture image unit used by our uberprogram for projected light map.
-	TEXTURE_2D_LIGHT_INDIRECT            = 2, ///< Texture image unit used by our uberprogram for lightmap/ambient map/light detail map.
-	TEXTURE_2D_MATERIAL_TRANSPARENCY     = 3, ///< Texture image unit used by our uberprogram for rgb transparency map.
-	TEXTURE_2D_MATERIAL_EMISSIVE         = 4, ///< Texture image unit used by our uberprogram for emissive map.
-	TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 5, ///< Texture image unit used by our uberprogram for diffuse cube map.
-	TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR = 6, ///< Texture image unit used by our uberprogram for specular cube map.
-	TEXTURE_2D_SHADOWMAP_0               = 7, ///< Texture image unit used by our shadowmap 0. For more shadowmaps in single shader, use up to TEXTURE_2D_SHADOWMAP_0+7. If there are 6 shadowmaps and 6 color maps, color maps use TEXTURE_2D_SHADOWMAP_0+6..11. Conflict with TEXTURE_2D_LIGHT_INDIRECT2 is no issue, we don't use the latter now. High number of texture image units used may be an issue, needs additional testing.
-	TEXTURE_2D_LIGHT_INDIRECT2           = 15, ///< Texture image unit used by our uberprogram for ambient map2.
+	// Program::sendTexture() codes, not sent to OpenGL
+	// (Program remembers dynamically allocated texture units in slots indexed by these codes)
+	TEX_CODE_2D_MATERIAL_DIFFUSE          = 0, ///< Program::sendTexture() code used by our uberprogram for diffuse map.
+	TEX_CODE_2D_LIGHT_DIRECT              = 1, ///< Program::sendTexture() code used by our uberprogram for projected light map.
+	TEX_CODE_2D_LIGHT_INDIRECT            = 2, ///< Program::sendTexture() code used by our uberprogram for lightmap/ambient map/light detail map.
+	TEX_CODE_2D_MATERIAL_TRANSPARENCY     = 3, ///< Program::sendTexture() code used by our uberprogram for rgb transparency map.
+	TEX_CODE_2D_MATERIAL_EMISSIVE         = 4, ///< Program::sendTexture() code used by our uberprogram for emissive map.
+	TEX_CODE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 5, ///< Program::sendTexture() code used by our uberprogram for diffuse cube map.
+	TEX_CODE_CUBE_LIGHT_INDIRECT_SPECULAR = 6, ///< Program::sendTexture() code used by our uberprogram for specular cube map.
 
-	// texcoords assigned to UberProgram
+	// texcoords assigned to UberProgram, sent to OpenGL
 	// these constants are hardcoded in shaders
 	MULTITEXCOORD_MATERIAL_DIFFUSE       = 0, ///< Texcoord channel used by our uberprogram for diffuse map uv.
 	MULTITEXCOORD_LIGHT_INDIRECT         = 1, ///< Texcoord channel used by our uberprogram for lightmap/ambient map/light detail map uv.

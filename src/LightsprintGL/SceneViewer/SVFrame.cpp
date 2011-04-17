@@ -1379,7 +1379,6 @@ reload_skybox:
 			{	
 				if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) && solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
 				{
-					glActiveTexture(GL_TEXTURE0+TEXTURE_2D_LIGHT_INDIRECT);
 					getTexture(solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber))->bindTexture();
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);

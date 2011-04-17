@@ -210,7 +210,7 @@ unsigned UberProgramSetup::detectMaxShadowmaps(UberProgram* uberProgram, int arg
 {
 	GLint maxTextureImageUnits = 0;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&maxTextureImageUnits);
-	int maxShadowmapUnits = maxTextureImageUnits-TEXTURE_2D_SHADOWMAP_0; // should be 1 on mesa, 9 on radeon, 25 on geforce
+	int maxShadowmapUnits = maxTextureImageUnits-4; // reserve 4 units for other textures
 	if (maxShadowmapUnits<1) return 0;
 
 	while (argc--)
@@ -428,13 +428,10 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		Texture* shadowmap = light->getShadowmap(firstInstance+i);
 		if (shadowmap)
 		{
-			// bind depth texture
-			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+i);
-			shadowmap->bindTexture();
-			// set depth sampler
+			// set depth texture
 			char name[] = "shadowMap0";
 			name[9] = '0'+i;
-			program->sendUniform(name, (int)(TEXTURE_2D_SHADOWMAP_0+i));
+			program->sendTexture(name,shadowmap);
 			// set matrix
 			Camera* lightInstance = light->getShadowmapCamera(firstInstance+i,true);
 			double m1[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,2 };
@@ -455,13 +452,10 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		Texture* shadowmap = light->getShadowmap(firstInstance+i,true);
 		if (shadowmap)
 		{
-			// bind color texture
-			glActiveTexture(GL_TEXTURE0+TEXTURE_2D_SHADOWMAP_0+SHADOW_MAPS+i);
-			shadowmap->bindTexture();
-			// set color sampler
+			// set color texture
 			char name[] = "shadowColorMap0";
 			name[14] = '0'+i;
-			program->sendUniform(name, (int)(TEXTURE_2D_SHADOWMAP_0+SHADOW_MAPS+i));
+			program->sendTexture(name,shadowmap);
 		}
 	}
 
@@ -518,10 +512,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			rr::RRReporter::report(rr::ERRO,"useProgram: LIGHT_DIRECT_MAP set, but getProjectedTexture()==NULL.\n");
 			return false;
 		}
-		int id=TEXTURE_2D_LIGHT_DIRECT;
-		glActiveTexture(GL_TEXTURE0+id);
-		light->getProjectedTexture()->bindTexture();
-		program->sendUniform("lightDirectMap", id);
+		program->sendTexture("lightDirectMap", light->getProjectedTexture(), TEX_CODE_2D_LIGHT_DIRECT);
 	}
 
 	if (LIGHT_DIRECT_ATT_SPOT)
@@ -552,54 +543,6 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	if (LIGHT_INDIRECT_CONST)
 	{
 		program->sendUniform("lightIndirectConst",0.2f,0.2f,0.2f,1.0f);
-	}
-
-	if (LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_DETAIL_MAP)
-	{
-		int id=TEXTURE_2D_LIGHT_INDIRECT;
-		//glActiveTexture(GL_TEXTURE0+id);
-		program->sendUniform("lightIndirectMap", id);
-	}
-
-	if (LIGHT_INDIRECT_MAP2)
-	{
-		int id=TEXTURE_2D_LIGHT_INDIRECT2;
-		//glActiveTexture(GL_TEXTURE0+id);
-		program->sendUniform("lightIndirectMap2", id);
-	}
-
-	if (LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE)
-	{
-		int id=TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE;
-		//glActiveTexture(GL_TEXTURE0+id);
-		program->sendUniform("lightIndirectDiffuseEnvMap", id);
-	}
-
-	if (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)
-	{
-		int id=TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR;
-		//glActiveTexture(GL_TEXTURE0+id);
-		program->sendUniform("lightIndirectSpecularEnvMap", id);
-	}
-
-	if (MATERIAL_DIFFUSE_MAP)
-	{
-		int id=TEXTURE_2D_MATERIAL_DIFFUSE;
-		glActiveTexture(GL_TEXTURE0+id); // last before drawScene, must stay active
-		program->sendUniform("materialDiffuseMap", id);
-	}
-
-	if (MATERIAL_EMISSIVE_MAP)
-	{
-		int id=TEXTURE_2D_MATERIAL_EMISSIVE;
-		glActiveTexture(GL_TEXTURE0+id); // last before drawScene, must stay active (EMISSIVE is typically used without DIFFUSE)
-		program->sendUniform("materialEmissiveMap", id);
-	}
-
-	if (MATERIAL_TRANSPARENCY_MAP)
-	{
-		int id=TEXTURE_2D_MATERIAL_TRANSPARENCY;
-		program->sendUniform("materialTransparencyMap", id);
 	}
 
 	if (POSTPROCESS_BRIGHTNESS
@@ -715,19 +658,19 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 
 	if (MATERIAL_DIFFUSE_MAP)
 	{
-		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_DIFFUSE);
+		program->sendTexture("materialDiffuseMap",NULL,TEX_CODE_2D_MATERIAL_DIFFUSE);
 		s_buffers1x1.bindPropertyTexture(material->diffuseReflectance,0);
 	}
 
 	if (MATERIAL_EMISSIVE_MAP)
 	{
-		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_EMISSIVE);
+		program->sendTexture("materialEmissiveMap",NULL,TEX_CODE_2D_MATERIAL_EMISSIVE);
 		s_buffers1x1.bindPropertyTexture(material->diffuseEmittance,1);
 	}
 
 	if (MATERIAL_TRANSPARENCY_MAP)
 	{
-		glActiveTexture(GL_TEXTURE0+TEXTURE_2D_MATERIAL_TRANSPARENCY);
+		program->sendTexture("materialTransparencyMap",NULL,TEX_CODE_2D_MATERIAL_TRANSPARENCY);
 		s_buffers1x1.bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
 	}
 }
@@ -746,27 +689,19 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 	}
 	if (LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE)
 	{
-		if (illumination->diffuseEnvMap)
-		{
-			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-			getTexture(illumination->diffuseEnvMap,false,false)->bindTexture();
-		}
-		else
+		if (!illumination->diffuseEnvMap)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: diffuseEnvMap==NULL.\n"));
 		}
+		program->sendTexture("lightIndirectDiffuseEnvMap",getTexture(illumination->diffuseEnvMap,false,false),TEX_CODE_CUBE_LIGHT_INDIRECT_DIFFUSE);
 	}
 	if (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)
 	{
-		if (illumination->specularEnvMap)
-		{
-			glActiveTexture(GL_TEXTURE0+TEXTURE_CUBE_LIGHT_INDIRECT_SPECULAR);
-			getTexture(illumination->specularEnvMap,false,false)->bindTexture();
-		}
-		else
+		if (!illumination->specularEnvMap)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: specularEnvMap==NULL.\n"));
 		}
+		program->sendTexture("lightIndirectSpecularEnvMap",getTexture(illumination->specularEnvMap,false,false),TEX_CODE_CUBE_LIGHT_INDIRECT_SPECULAR);
 	}
 }
 

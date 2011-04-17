@@ -82,10 +82,13 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL,0,NULL,1,false);
 
 	// render static scene
-	if (!uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1,NULL))
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1,NULL);
+	if (!program)
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
+		program->sendTexture("materialDiffuseMap",NULL); // activate unit, Draw will bind textures
 	m3ds.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
 
 	// render dynamic objects
@@ -109,7 +112,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			// LIGHT_INDIRECT_ENV = specular surface reflects constant envmap
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 		}
-		potato->render(uberProgram,uberProgramSetup,realtimeLight,0,uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR?rr_gl::getTexture(environmentMap):NULL,eye,rotation/2);
+		potato->render(uberProgram,uberProgramSetup,realtimeLight,0,environmentMap,eye,rotation/2);
 	}
 	if (robot)
 	{
@@ -125,7 +128,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 		}
-		robot->render(uberProgram,uberProgramSetup,realtimeLight,0,uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR?rr_gl::getTexture(environmentMap):NULL,eye,rotation);
+		robot->render(uberProgram,uberProgramSetup,realtimeLight,0,environmentMap,eye,rotation);
 	}
 }
 
