@@ -48,6 +48,7 @@
 #include <GL/glew.h>
 #ifdef __APPLE__
 	#include <GLUT/glut.h>
+	#include <ApplicationServices/ApplicationServices.h>
 #else
 	#include <GL/glut.h>
 #endif
@@ -430,6 +431,11 @@ int main(int argc, char **argv)
 	glutMouseFunc(mouse);
 	glutPassiveMotionFunc(passive);
 	glutIdleFunc(idle);
+#ifdef __APPLE__
+//	OSX kills events ruthlessly
+//	see http://stackoverflow.com/questions/728049/glutpassivemotionfunc-and-glutwarpmousepointer
+	CGSetLocalEventsSuppressionInterval(0.0);
+#endif
 
 	// init GLEW
 	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
