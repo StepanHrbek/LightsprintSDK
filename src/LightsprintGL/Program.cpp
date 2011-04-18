@@ -135,12 +135,14 @@ void Program::useIt()
 
 unsigned Program::sendTexture(const char *name, const Texture* t, int code)
 {
+	bool oldNextTextureUnit = nextTextureUnit;
 	unsigned textureUnit = (code>=0 && code<16)
 		? ( (assignedTextureUnit[code]<0) ? assignedTextureUnit[code] = nextTextureUnit++ : assignedTextureUnit[code] )
 		: nextTextureUnit++;
+	if (nextTextureUnit!=oldNextTextureUnit) // set only what was not set yet
+		glUniform1i(getLoc(name),textureUnit);
 	glActiveTexture(GL_TEXTURE0+textureUnit);
 	if (t) t->bindTexture();
-	glUniform1i(getLoc(name),textureUnit);
 	return textureUnit;
 }
 
