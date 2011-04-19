@@ -235,7 +235,11 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 	ar & make_nvp("ldmLayerNumber",a.ldmLayerNumber);
 	ar & make_nvp("selectedLightIndex",a.selectedLightIndex);
 	ar & make_nvp("selectedObjectIndex",a.selectedObjectIndex);
-	ar & make_nvp("fullscreen",a.fullscreen);
+	if (version<24)
+	{
+		bool fullscreen;
+		ar & make_nvp("fullscreen",fullscreen);
+	}
 	ar & make_nvp("renderLightDirect",a.renderLightDirect);
 	ar & make_nvp("renderLightIndirect",a.renderLightIndirect);
 	ar & make_nvp("renderLightmaps2d",a.renderLightmaps2d);
@@ -412,7 +416,7 @@ BOOST_CLASS_VERSION(rr_gl::Camera,1)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,9) // must be increased also each time panel is added/removed
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,23)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,24)
 
 //---------------------------------------------------------------------------
 
