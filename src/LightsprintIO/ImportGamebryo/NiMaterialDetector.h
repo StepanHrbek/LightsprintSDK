@@ -63,7 +63,7 @@
 #include <windows.h>
 
 #ifndef NIMD_RENDER_TEXTURE_SIZE
-#define NIMD_RENDER_TEXTURE_SIZE 128
+#define NIMD_RENDER_TEXTURE_SIZE 64 // in South2, 64 takes 130MB of memory, 128 takes 460MB
 #endif
 
 class NiMaterialPointValues : public NiRefObject 
