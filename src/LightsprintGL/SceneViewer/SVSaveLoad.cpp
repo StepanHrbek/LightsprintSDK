@@ -491,7 +491,8 @@ static wxString suggestPreferencesDirectory()
 
 static wxString suggestPreferencesFilename()
 {
-	return suggestPreferencesDirectory() + "/SceneViewer.prefs";
+	return suggestPreferencesDirectory()
+		+ "/SceneViewer.prefs";
 }
 
 bool UserPreferences::save() const
