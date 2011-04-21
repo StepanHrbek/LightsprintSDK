@@ -136,6 +136,7 @@ HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& help,
 {
 	SetValue(WXVARIANT(rgb));
 	SetHelpString(help);
+	SetAttribute("MotionSpin",true);
 	SetEditor("SpinCtrl");
 	RRVec3 hsv = rgb.getHsvFromRgb();
 	AddPrivateChild(new FloatProperty(_("red"),_("Red component intensity"),rgb[0],precision,0,100,0.1f,false));
