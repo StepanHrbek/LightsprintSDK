@@ -421,12 +421,12 @@ const RRMesh* RRMesh::createMultiMesh(const RRMesh* const* meshes, unsigned numM
 	return fast ? RRMeshMultiFast::create(meshes,numMeshes) : RRMeshMultiSmall::create(meshes,numMeshes);
 }
 
-const RRMesh* RRMesh::createOptimizedVertices(float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch) const
+const RRMesh* RRMesh::createOptimizedVertices(float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, const RRVector<unsigned>* texcoords) const
 {
 	if (!this) return NULL;
 	if (maxDistanceBetweenVerticesToStitch<0 || maxRadiansBetweenNormalsToStitch<0)
 		return this;
-	RRMesh* tmp = new RRLessVerticesFilter<unsigned>(this,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch);
+	RRMesh* tmp = new RRLessVerticesFilter<unsigned>(this,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,texcoords);
 	if (tmp->getNumVertices()<getNumVertices())
 		return tmp;
 	delete tmp;

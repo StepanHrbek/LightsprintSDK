@@ -17,6 +17,9 @@ namespace rr
 // Importer filters
 //
 // RRLessVerticesFilter<INDEX> - importer slow-filter that removes duplicate vertices
+//
+// Differences in positions and normals are limited by parameters.
+// Uvs must exactly match in selected channels, may differ in other channels.
 
 int __cdecl compareXyz(const void* elem1, const void* elem2);
 
@@ -24,7 +27,7 @@ template <class INDEX>
 class RRLessVerticesFilter : public RRMeshFilter
 {
 public:
-	RRLessVerticesFilter(const RRMesh* original, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch)
+	RRLessVerticesFilter(const RRMesh* original, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, const RRVector<unsigned>* texcoords)
 		: RRMeshFilter(original)
 	{
 		RR_ASSERT(maxDistanceBetweenVerticesToStitch>=0); // negative value would remove no vertices -> no improvement
@@ -37,22 +40,28 @@ public:
 		Unique2Dupl = new INDEX[numVertices];
 		UniqueVertices = 0;
 
+		bool preserveUvs = texcoords && texcoords->size();
+
 		// build temporary position.x sorted array of vertices
+		enum {MAX_UVS=4};
 		struct Vertex
 		{
 			RRVec3 position;
 			RRVec3 normal;
+			RRVec2 uv[MAX_UVS];
 		};
 		Vertex* vertices = new Vertex[numVertices];
+		memset(vertices,0,sizeof(Vertex)*numVertices);
 		Vertex** sortedVertices = new Vertex*[numVertices];
 		for (unsigned i=0;i<numVertices;i++)
 		{
-			inherited->getVertex(i,vertices[i].position);
-			vertices[i].normal = RRVec3(0); // clear normals
 			sortedVertices[i] = &vertices[i];
+			// load position
+			inherited->getVertex(i,vertices[i].position);
 		}
 		for (unsigned i=0;i<numTriangles;i++)
 		{
+			// load normal
 			RRMesh::Triangle t;
 			RRMesh::TriangleNormals tn;
 			inherited->getTriangle(i,t);
@@ -64,6 +73,25 @@ public:
 			vertices[t[0]].normal += tn.vertex[0].normal*area; // accumulate normals
 			vertices[t[1]].normal += tn.vertex[1].normal*area;
 			vertices[t[2]].normal += tn.vertex[2].normal*area;
+			
+			// load uvs
+			if (preserveUvs)
+			{
+				TriangleMapping tm;
+				unsigned uvs = 0;
+				for (unsigned j=0;j<texcoords->size();j++)
+				{
+					if ((*texcoords)[j])
+					{
+						inherited->getTriangleMapping(i,tm,(*texcoords)[j]);
+						vertices[t[0]].uv[uvs] = tm.uv[0];
+						vertices[t[1]].uv[uvs] = tm.uv[1];
+						vertices[t[2]].uv[uvs] = tm.uv[2];
+						uvs++;
+						if (uvs==MAX_UVS) break;
+					}
+				}
+			}
 		}
 		for (unsigned i=0;i<numVertices;i++)
 		{
@@ -96,8 +124,11 @@ public:
 					if ( (stitchOnlyIdenticalNormals && dfl.normal==ufl.normal)
 						|| (!stitchOnlyIdenticalNormals && dfl.normal.dot(ufl.normal)>=minNormalDotNormalToStitch) ) // normals must be normalized here
 					{
-						Dupl2Unique[d] = u;
-						goto dupl;
+						if (!preserveUvs || !memcmp(dfl.uv,ufl.uv,sizeof(ufl.uv)))
+						{
+							Dupl2Unique[d] = u;
+							goto dupl;
+						}
 					}
 				}
 				#undef CLOSE

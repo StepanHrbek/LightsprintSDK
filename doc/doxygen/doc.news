@@ -26,6 +26,9 @@ NEWS
   - Material properies/Specular/Model
   - Material properies/Specular/Shininess,roughness
   - User preferences/Debugging
+- misc helper functions
+  - RRMesh::createOptimizedVertices() parameter added,
+    \n you can specify what uv channels must match for stitching
 
 CHANGES
 

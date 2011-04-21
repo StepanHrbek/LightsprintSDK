@@ -34,7 +34,6 @@ public:
 		{
 			// create multimesh
 			transformedMeshes = new const RRMesh*[numObjects+MI_MAX];
-				//!!! pri getWorldMatrix()==NULL by se misto WorldSpaceMeshe mohl pouzit original a pak ho neuvolnovat
 			for (unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
 			for (unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = NULL;
 
@@ -47,7 +46,7 @@ public:
 			if (vertexStitching && !aborting)
 			{
 				oldMesh = multiMesh;
-				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch);
+				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,NULL);
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles
@@ -212,7 +211,7 @@ public:
 			if (vertexStitching && !aborting)
 			{
 				oldMesh = multiMesh;
-				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch);
+				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,NULL);
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles

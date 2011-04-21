@@ -133,7 +133,7 @@ bool Object::buildTopIVertices(const RRDynamicSolver::SmoothingParameters* smoot
 	// it's kind of smoothing, stitched vertices share one ivertex, one irradiance
 	// we don't want to stitch multiobject, it would require !indexed render (complicated to ensure, slower)
 	const RRMesh* originalMesh = importer->getCollider()->getMesh();
-	const RRMesh* stitchedMesh = originalMesh->createOptimizedVertices(smoothing->vertexWeldDistance,fabs(smoothing->maxSmoothAngle));
+	const RRMesh* stitchedMesh = originalMesh->createOptimizedVertices(smoothing->vertexWeldDistance,fabs(smoothing->maxSmoothAngle),NULL);
 	unsigned stitchedVertices = stitchedMesh->getNumVertices();
 
 	// build 1 ivertex for each stitched vertex, insert all corners

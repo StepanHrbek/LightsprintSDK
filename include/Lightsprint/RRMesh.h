@@ -422,8 +422,8 @@ namespace rr
 		//! Creates and returns nearly identical mesh with optimized set of vertices (removes duplicates).
 		//
 		//! Stitches identical or similar vertices so that number of vertices in returned mesh decreases.
-		//! Only vertex positions and/or normals are tested, so vertices with completely
-		//! different texcoords and tangents may be stitched.
+		//! Only vertex positions, normals and uvs are tested, so vertices with completely
+		//! different tangents may be stitched.
 		//!
 		//! Created instance requires only small amount of additional memory, 
 		//!  but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
@@ -436,7 +436,10 @@ namespace rr
 		//!  For negative value, no stitching is performed.
 		//!  For 0, vertices with identical normals may be stitched.
 		//!  For positive value, also vertices with lower or equal angle between normals may be stitched.
-		const RRMesh* createOptimizedVertices(float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch) const;
+		//! \param texcoords
+		//!  Vertices are stitched only if they exactly match in selected texcoord channels.
+		//!  NULL = texcoords are ignored, vertices don't have to match to be stitched.
+		const RRMesh* createOptimizedVertices(float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, const RRVector<unsigned>* texcoords) const;
 
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
 		//
@@ -540,7 +543,11 @@ namespace rr
 		//!  Lets you specify what texcoord channels to copy from original mesh.
 		bool                 reload(const RRMesh* mesh, bool indexed, const RRVector<unsigned>& texcoords);
 
-		// Implementation of RRMesh interface.
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Implementation of RRMesh interface
+		//////////////////////////////////////////////////////////////////////////////
+
 		RRMeshArrays();
 		virtual ~RRMeshArrays();
 		virtual unsigned     getNumVertices() const;
@@ -553,7 +560,11 @@ namespace rr
 		virtual void         getUvChannels(rr::RRVector<unsigned>& out) const;
 		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
 
-		// Tools.
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Tools
+		//////////////////////////////////////////////////////////////////////////////
+
 		//! Flips front/back if at least this number of normals in triangle points to back side.
 		//! So all triangles are flipped if numNormalsThatMustPointBack==0.
 		//! \return Number of triangles flipped.
