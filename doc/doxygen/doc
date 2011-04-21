@@ -2547,7 +2547,7 @@ Video formats
 
  \section g3_prerequisites Prerequisites
   - Emergent's <code>Gamebryo LightSpeed 3.1.1</code> must be installed
-  - Emergent's <code>LightSpeed Global Illumination Package <b>2.1.1 from 2010-05-05</b></code> must be installed (beware, Emergent released more than one 2.1.1 version, make sure you did not download it before 2010-05-05)
+  - \subpage gipackage must be installed
   - Lightsprint SDK with LightSpeed integration.
     To save your time, we send you Lightsprint SDK preconfigured for your engine.
     If we make mistake and your integration is missing, please let us know.
@@ -2636,7 +2636,7 @@ Video formats
       - Finally, resolution is limited to be >=32 and <=2048. Let us know if you want to change these limits, we will expose them in LightsprintScene.
 
    \subsection g3_cache - lightmap cache
-    - located in (asset root)/PrecomputedLighting/cache
+    - located in <temp>/LightmapCache/<block_name>
     - how does it work?
       - "Bake lighting"/"Bake selected" calculates lighting, saves raw .exr lightmaps to cache (overwriting previous cache contents) and saves postprocessed lightmaps to Gamebryo's .nif
       - "Bake from cache"/"Bake selected from cache" reads raw lightmaps from cache and saves postprocessed lightmaps to Gamebryo's .nif
@@ -2708,6 +2708,20 @@ Video formats
  \section g3_trouble Troubleshooting
   - \ref trouble_memory "How to process even bigger scenes"
   - \ref trouble_gamebryo_error_shader
+
+
+\page gipackage Fixed Global Illumination Package
+
+ Global Illumination Package is Emergent's support library for GI in Gamebryo.
+ Since Emergent abandoned it with bugs, we fix them and provide fixed source code.
+
+ For Gamebryo version 3.1.1, install Emergent's <code>LightSpeed Global Illumination Package <b>2.1.1</b></code>.
+ Beware, Emergent released more than one 2.1.1 version, the good one is from 2010-05-05, make sure you did not download it before 2010-05-05.
+
+ To fix your GI Package after installation,
+ - copy our src\\GIPackage\\NiGIDescriptor.cpp over C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.1.1\\Source\\NiGIMaterial\\NiGIDescriptor.cpp
+ - open C:\\Emergent\\Integrations\\LightSpeed_GlobalIllumination_2.1.1\\Build\\Win32\\VC90\\Gamebryo_GI.sln
+ - change configuration to Shipping DLL and build
 
 
 

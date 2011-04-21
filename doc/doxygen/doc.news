@@ -12,6 +12,9 @@ namespace rr
 
 NEWS
 
+- improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
+  - "Fixed GI Package"
+  - lightmaps are cached in temp, improves performance in low quality bakes (by removing asset controller overhead)
 - improved specular reflection
   - Phong, Blinn-Phong, Torrance-Sparrow, Blinn-Torrance-Sparrow
   - RRMaterial::specularModel added
@@ -28,6 +31,7 @@ NEWS
   - Material properies/Specular/Model
   - Material properies/Specular/Shininess,roughness
   - User preferences/Debugging
+  - clicking object in Scene tree opens it also in Material properties
 - misc helper functions
   - RRObjects::stitchAndSmooth()
   - RRMeshArrays::buildNormals()
