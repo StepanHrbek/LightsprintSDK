@@ -11,6 +11,9 @@
 
 #include <cstdlib>
 #include <stdio.h>    // printf
+#ifdef _MSC_VER
+	#include <crtdbg.h>
+#endif
 
 #include "Lightsprint/RRDynamicSolver.h"
 #include "Lightsprint/IO/ImportScene.h"
