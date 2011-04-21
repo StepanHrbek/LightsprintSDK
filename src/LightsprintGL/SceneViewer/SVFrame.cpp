@@ -713,6 +713,8 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_("Build Fireball..."),_("(Re)builds Fireball, acceleration structure used by realtime GI."));
 		winMenu->Append(ME_REALTIME_LDM_BUILD,_("Build LDM (light detail map)..."),_("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
 		winMenu->AppendSeparator();
+		winMenu->Append(ME_BUILD_NORMALS,_("Build normals..."),_("Rebuild mesh to have smooth normals"));
+		winMenu->Append(ME_BUILD_TANGENTS,_("Build tangents..."),_("Rebuild mesh to have tangents and bitangents"));
 		winMenu->Append(ME_STATIC_BUILD_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
 		winMenu->Append(ME_STATIC_BUILD,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel is efficient only with good unwrap in scene."));
 		winMenu->Append(ME_STATIC_2D,_("Inspect unwrap+lightmaps in 2D"),_("Shows unwrap and lightmap in 2D."));
@@ -1466,6 +1468,30 @@ reload_skybox:
 			}
 			break;
 #endif
+		case ME_BUILD_NORMALS:
+			{
+				static float deg = 30;
+				if (getFactor(this,deg,_("Please enter smoothing angle, max angle between face normals to make edge smooth"),_("Smoothing angle")))
+				{
+					// display log window with 'abort' while this function runs
+					LogWithAbort logWithAbort(this,solver);
+					solver->getStaticObjects().stitchAndSmooth(true,true,true,true,0,RR_DEG2RAD(deg),true);
+					m_canvas->reportObjectsChange();
+				}
+			}
+			break;
+		case ME_BUILD_TANGENTS:
+			{
+				for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+				{
+					rr::RRMeshArrays* arrays = dynamic_cast<rr::RRMeshArrays*>(const_cast<rr::RRMesh*>(solver->getStaticObjects()[i]->getCollider()->getMesh()));
+					if (arrays)
+						arrays->buildTangents();
+				}
+				m_canvas->reportObjectsChange();
+			}
+			break;
+
 		case ME_STATIC_BUILD_UNWRAP:
 			{
 				unsigned res = 256;
@@ -1473,22 +1499,8 @@ reload_skybox:
 				{
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver);
-
 					solver->getStaticObjects().buildUnwrap(res,true,solver->aborting);
-					// static objects may be modified even after abort (unwrap is not atomic)
-					// so it's better if following setStaticObjects is not aborted
-					solver->aborting = false;
-
-					// buildUnwrap usually splits a few vertices, we have to send modified data to solver
-					// solver would crash if we add/remove triangles/vertices silently
-					solver->setStaticObjects(solver->getStaticObjects(),NULL);
-
-					// fix dangling pointer in collisionHandler
-					delete m_canvas->collisionHandler;
-					m_canvas->collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
-
-					// resize rtgi buffers, vertex counts may differ
-					m_canvas->reallocateBuffersForRealtimeGI(true);
+					m_canvas->reportObjectsChange();
 				}
 			}
 			break;

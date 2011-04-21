@@ -68,7 +68,10 @@ namespace rr_gl
 		// public only for SVSceneTree::runContextMenuAction()
 		rr::RRLights               lightsToBeDeletedOnExit; // list of lights owned and deleted by us
 		std::vector<rr::RRScene*>  mergedScenes; // Inited empty, filled by user via menu File/Open|Merge, deleted when no longer needed.
+
 	private:
+		void reportObjectsChange();
+
 		class wxGLContext*         context; // context for this canvas (we have only one canvas, so there's no need to share context yet)
 		class SVFrame*             parent;
 		SceneViewerStateEx&        svs;

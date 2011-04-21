@@ -405,6 +405,49 @@ unsigned RRMeshArrays::flipFrontBack(unsigned numNormalsThatMustPointBack)
 	return numFlips;
 }
 
+void RRMeshArrays::buildNormals()
+{
+	memset(normal,0,sizeof(normal[0])*numVertices);
+	for (unsigned t=0;t<numTriangles;t++)
+	{
+		RRVec3 n = orthogonalTo(position[triangle[t][1]]-position[triangle[t][0]],position[triangle[t][2]]-position[triangle[t][0]]).normalized()
+			* getTriangleArea(t); // protection agains tiny needle with wrong normal doing big damage
+		if (n.finite())
+		{
+			normal[triangle[t][0]] += n;
+			normal[triangle[t][1]] += n;
+			normal[triangle[t][2]] += n;
+		}
+	}
+	for (unsigned v=0;v<numVertices;v++)
+	{
+		normal[v].normalizeSafe();
+	}
+}
+
+void RRMeshArrays::buildTangents()
+{
+	// allocate tangents
+	if (!tangent)
+	{
+		RRVector<unsigned> texcoords;
+		for (unsigned i=0;i<texcoord.size();i++) if (texcoord[i]) texcoords.push_back(i);
+		RRMeshArrays* tmp = createArrays(true,texcoords);
+		resizeMesh(numTriangles,numVertices,&texcoords,true);
+		reload(tmp,true,texcoords);
+		delete tmp;
+	}
+	// generate tangents
+	for (unsigned v=0;v<numVertices;v++)
+	{
+		TangentBasis tb;
+		tb.normal = normal[v];
+		tb.buildBasisFromNormal();
+		tangent[v] = tb.tangent;
+		bitangent[v] = tb.bitangent;
+	}
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //

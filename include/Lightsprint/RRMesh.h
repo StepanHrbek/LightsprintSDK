@@ -569,6 +569,11 @@ namespace rr
 		//! So all triangles are flipped if numNormalsThatMustPointBack==0.
 		//! \return Number of triangles flipped.
 		unsigned             flipFrontBack(unsigned numNormalsThatMustPointBack);
+
+		//! Builds new smooth vertex normals from angles between faces.
+		void                 buildNormals();
+		//! Builds new tangents and bitangents from normals.
+		void                 buildTangents();
 	private:
 		unsigned poolSize; ///< All arrays in mesh are allocated from one pool of this size.
 	};

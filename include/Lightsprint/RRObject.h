@@ -505,9 +505,31 @@ namespace rr
 		void getAllMaterials(RRVector<RRMaterial*>& materials) const;
 
 		//! Flips front/back if at least this number of normals in triangle points to back side.
+		//
 		//! So all triangles are flipped if numNormalsThatMustPointBack==0.
 		//! \return Number of triangles flipped.
 		virtual unsigned flipFrontBack(unsigned numNormalsThatMustPointBack, bool report);
+
+		//! Rebuilds objects to make them smooth (possibly changing numbers of triangles, vertices, facegroups).
+		//
+		//! If there are multiple objects sharing one mesh, all objects must be smoothed at once
+		//! (because smoothing can remove triangles and object facegroups must reflect that).
+		//! \param splitVertices
+		//!  Allows splitting vertices to make mesh less smooth.
+		//! \param stitchVertices
+		//!  Allows stitching vertices to make mesh more smooth.
+		//! \param removeDegeneratedTriangles
+		//!  Removes degenerated triangles (already present or created by stitching).
+		//! \param generateNormals
+		//!  True = resets all vertex normals to averages of normals of connected faces.
+		//!  False = old normals stay.
+		//! \param maxDistanceBetweenVerticesToStitch
+		//!  When stitchVertices==true, controls maximal distance between vertices to stitch and smooth.
+		//! \param maxRadiansBetweenNormalsToStitch
+		//!  When stitchVertices==true, controls maximal angle between face normals to stitch and smooth.
+		//! \param report
+		//!  Allows reporting warnings.
+		virtual void stitchAndSmooth(bool splitVertices, bool stitchVertices, bool removeDegeneratedTriangles, bool generateNormals, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool report) const;
 
 		//! Multiplies emittance in all materials, both colors and textures.
 		virtual void multiplyEmittance(float emissiveMultiplier);

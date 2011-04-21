@@ -23,12 +23,17 @@ NEWS
   - advanced materials and lighting available also on low end GPUs
   - Program::sendTexture() added, dynamically allocates texture units
 - improved scene viewer
+  - menu Global illumination/Build normals
+  - menu Global illumination/Build tangents
   - Material properies/Specular/Model
   - Material properies/Specular/Shininess,roughness
   - User preferences/Debugging
 - misc helper functions
+  - RRObjects::stitchAndSmooth()
+  - RRMeshArrays::buildNormals()
+  - RRMeshArrays::buildTangents()
   - RRMesh::createOptimizedVertices() parameter added,
-    \n you can specify what uv channels must match for stitching
+    you can specify what uv channels must match for stitching
 
 CHANGES
 

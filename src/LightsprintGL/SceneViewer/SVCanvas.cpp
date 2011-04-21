@@ -1871,6 +1871,23 @@ rendered:
 
 }
 
+void SVCanvas::reportObjectsChange()
+{
+	// static objects may be modified even after abort (unwrap is not atomic)
+	// so it's better if following setStaticObjects is not aborted
+	solver->aborting = false;
+
+	// number of vertices may have changed, we have to send modified data to solver (or expect crash)
+	solver->setStaticObjects(solver->getStaticObjects(),NULL);
+
+	// fix dangling pointer in collisionHandler
+	delete collisionHandler;
+	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
+
+	// resize rtgi buffers, vertex counts may differ
+	reallocateBuffersForRealtimeGI(true);
+}
+
 
 BEGIN_EVENT_TABLE(SVCanvas, wxGLCanvas)
     EVT_SIZE(SVCanvas::OnSize)

@@ -150,9 +150,11 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 		else
 			numMeshesWithoutArrays++;
 	}
+
 	// warn when working with non-arrays
-	if (numMeshesWithoutArrays)
+	if (report && numMeshesWithoutArrays)
 		RRReporter::report(WARN,"flipFrontBack() supports only RRMeshArrays meshes.\n");
+
 	// flip
 	unsigned numFlips = 0;
 	for (boost::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
@@ -164,6 +166,121 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 		RRReporter::report(WARN,"flipFrontBack(): %d faces flipped.\n",numFlips);
 	}
 	return numFlips;
+}
+
+void RRObjects::stitchAndSmooth(bool splitVertices, bool stitchVertices, bool removeDegeneratedTriangles, bool smoothNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, bool report) const
+{
+	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
+	unsigned numMeshesWithoutArrays = 0;
+	boost::unordered_set<RRMeshArrays*> arrays;
+	for (unsigned i=0;i<size();i++)
+	{
+		RRMeshArrays* mesh = const_cast<RRMeshArrays*>(dynamic_cast<const RRMeshArrays*>((*this)[i]->getCollider()->getMesh()));
+		if (mesh)
+			arrays.insert(mesh);
+		else
+			numMeshesWithoutArrays++;
+	}
+
+	// warn when working with non-arrays
+	if (report && numMeshesWithoutArrays)
+		RRReporter::report(WARN,"smoothNormals() supports only RRMeshArrays meshes.\n");
+
+	// stats
+	unsigned numTriangles = 0;
+	unsigned numVertices = 0;
+	unsigned numFaceGroups = 0;
+	for (boost::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
+	{
+		numTriangles += (*i)->numTriangles;
+		numVertices += (*i)->numVertices;
+	}
+	for (unsigned i=0;i<size();i++)
+		numFaceGroups += (*this)[i]->faceGroups.size();
+
+	// stitch
+	for (boost::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
+	{
+		RRMeshArrays* mesh = *i;
+
+		// create temporary meshes that don't depend on original
+		RRVector<unsigned> texcoords;
+		mesh->getUvChannels(texcoords);
+		RRMeshArrays* mesh1 = mesh->createArrays(!splitVertices,texcoords);
+		mesh1->buildNormals(); // createOptimizedVertices() uses vertex normals, we want it to use triangle normals
+		const RRMesh* mesh2 = stitchVertices ? mesh1->createOptimizedVertices(maxDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,&texcoords) : mesh1; // stitch less, preserve uvs
+		const RRMesh* mesh3 = removeDegeneratedTriangles ? mesh2->createOptimizedTriangles() : mesh2;
+
+		// smooth when stitching
+		if (smoothNormals && stitchVertices)
+		{
+			// calc smooth normals from mesh1, write them back to mesh1
+			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,NULL); // stitch more, even if uvs differ
+			RRMeshArrays* mesh5 = mesh4->createArrays(true,texcoords);
+			mesh5->buildNormals();
+			for (unsigned t=0;t<mesh1->numTriangles;t++)
+			{
+				mesh1->normal[mesh1->triangle[t][0]] = mesh5->normal[mesh5->triangle[t][0]];
+				mesh1->normal[mesh1->triangle[t][1]] = mesh5->normal[mesh5->triangle[t][1]];
+				mesh1->normal[mesh1->triangle[t][2]] = mesh5->normal[mesh5->triangle[t][2]];
+			}
+			if (mesh5!=mesh4) delete mesh5;
+			if (mesh4!=mesh1) delete mesh4;
+		}
+
+		// fix facegroups in objects
+		if (removeDegeneratedTriangles) // facegroups should be unchanged if we did not remove triangles
+		{
+			for (unsigned j=0;j<size();j++)
+			{
+				RRObject* object = (*this)[j];
+				if (object->getCollider()->getMesh()==*i)
+				{
+					RRObject::FaceGroups faceGroups;
+					for (unsigned postImportTriangle=0;postImportTriangle<mesh->numTriangles;postImportTriangle++)
+					{
+						unsigned preImportTriangle = mesh3->getPreImportTriangle(postImportTriangle).index;
+						RRMaterial* m = object->getTriangleMaterial(preImportTriangle,NULL,NULL);
+						if (!faceGroups.size() || faceGroups[faceGroups.size()-1].material!=m)
+						{
+							faceGroups.push_back(RRObject::FaceGroup(m,1));
+						}
+						else
+						{
+							faceGroups[faceGroups.size()-1].numTriangles++;
+						}
+					}
+					object->faceGroups = faceGroups;
+				}
+			}
+		}
+
+		// overwrite original mesh with temporary
+		(*i)->reload(mesh3,true,texcoords);
+
+		// smooth when not stitching
+		if (smoothNormals && !stitchVertices)
+			(*i)->buildNormals();
+
+		// delete temporary meshes
+		if (mesh3!=mesh2) delete mesh3;
+		if (mesh2!=mesh1) delete mesh2;
+		if (mesh1!=mesh) delete mesh1;
+	}
+
+	// stats
+	unsigned numTriangles2 = 0;
+	unsigned numVertices2 = 0;
+	unsigned numFaceGroups2 = 0;
+	for (boost::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
+	{
+		numTriangles2 += (*i)->numTriangles;
+		numVertices2 += (*i)->numVertices;
+	}
+	for (unsigned i=0;i<size();i++)
+		numFaceGroups2 += (*this)[i]->faceGroups.size();
+	if (report)
+		RRReporter::report(INF2,"Smoothing stats: tris %+d(%d), verts %+d(%d), fgs %+d(%d)\n",numTriangles2-numTriangles,numTriangles2,numVertices2-numVertices,numVertices2,numFaceGroups2-numFaceGroups,numFaceGroups2);
 }
 
 void RRObjects::multiplyEmittance(float emissiveMultiplier)

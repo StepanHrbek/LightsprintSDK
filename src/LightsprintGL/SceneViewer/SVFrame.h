@@ -120,6 +120,8 @@ namespace rr_gl
 #endif
 			ME_STATIC_BUILD_LIGHTFIELD_2D,
 			ME_STATIC_BUILD_LIGHTFIELD_3D,
+			ME_BUILD_NORMALS,
+			ME_BUILD_TANGENTS,
 
 			ME_WINDOW_FULLSCREEN_META, // SV: identical to non-META. RL: toggles two predefined workspaces
 			ME_WINDOW_FULLSCREEN, // toggles fullscreen in current workspace
