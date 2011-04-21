@@ -437,9 +437,9 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			double m1[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,2 };
 			double m2[16];
 			float m3[16];
-#define MULT_MATRIX(a,b,c) { for (unsigned i=0;i<4;i++) for (unsigned j=0;j<4;j++) c[4*i+j] = b[4*i]*a[j] + b[4*i+1]*a[4+j] + b[4*i+2]*a[8+j] + b[4*i+3]*a[12+j]; }
-			MULT_MATRIX(m1,lightInstance->frustumMatrix,m2);
-			MULT_MATRIX(m2,lightInstance->viewMatrix,m3);
+#define MULT_MATRIX(a,b,c,ctype) { for (unsigned i=0;i<4;i++) for (unsigned j=0;j<4;j++) c[4*i+j] = (ctype)( b[4*i]*a[j] + b[4*i+1]*a[4+j] + b[4*i+2]*a[8+j] + b[4*i+3]*a[12+j] ); }
+			MULT_MATRIX(m1,lightInstance->frustumMatrix,m2,double);
+			MULT_MATRIX(m2,lightInstance->viewMatrix,m3,float);
 			delete lightInstance;
 			char name2[] = "textureMatrix0";
 			name2[13] = '0'+i;
