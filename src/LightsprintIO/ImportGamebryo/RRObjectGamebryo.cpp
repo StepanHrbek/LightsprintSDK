@@ -1323,6 +1323,7 @@ public:
 		};
 
 		// fill filename
+		layerParameters.actualFilename = NULL;
 		LightmapFunctor lightmapFunctor;
 		lightmapFunctor.layerParameters = &layerParameters;
 		lightmapFunctor.object = this;
