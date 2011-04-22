@@ -1313,7 +1313,7 @@ public:
 							RRReporter::report(WARN,"Light map directory \"%s\" cannot be created for file \"%s\".", kDirectoryName, kProps.m_pcLightMapFilename);
 						}
 					}
-					layerParameters->actualFilename = _strdup(kDirectoryName + "/" + kProps.m_pcLightMapFilename + "." + layerParameters->suggestedExt.c_str());
+					layerParameters->actualFilename = kDirectoryName + "/" + kProps.m_pcLightMapFilename + "." + layerParameters->suggestedExt.c_str();
 					return true;
 				}
 				return false;
