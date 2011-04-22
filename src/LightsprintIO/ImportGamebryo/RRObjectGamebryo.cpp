@@ -1342,7 +1342,15 @@ public:
 		layerParameters.actualBuildDirectional = false;
 		layerParameters.actualBuildBentNormals = false;
 #else
-		layerParameters.actualFilename = NULL;
+		// fill actualFilename
+		layerParameters.suggestedName = efd::utf8string(efd::Formatted,"%016llx%016llx_%d",
+			*(__int64*)(meshProperties.m_pEntity->GetDataFileID().m_value),
+			*(__int64*)(meshProperties.m_pEntity->GetDataFileID().m_value+8),
+			meshProperties.m_meshTraversalNumber).c_str();
+		if (perEntitySettings.lsBakeTarget==PE_VERTICES)
+			layerParameters.suggestedExt = "vbu";
+		RRObject::recommendLayerParameters(layerParameters);
+
 		if (perEntitySettings.lsBakeTarget==PE_TARGET_NONE)
 		{
 			layerParameters.actualBuildNonDirectional = false;
