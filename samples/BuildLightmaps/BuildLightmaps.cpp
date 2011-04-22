@@ -254,6 +254,11 @@ struct Parameters
 					layerParameters.suggestedPath = argv[i]+11;
 				}
 				else
+				if (!strncmp(argv[i],"outputname=",11))
+				{
+					layerParameters.suggestedName = argv[i]+11;
+				}
+				else
 				if (!strncmp(argv[i],"outputext=",10))
 				{
 					layerParameters.suggestedExt = argv[i]+10;
@@ -423,6 +428,7 @@ int main(int argc, char **argv)
 			"  directional             (build directional lightmaps)\n"
 			"  bentnormals             (build bent normals)\n"
 			"  outputpath=\"where/to/save/lightmaps/\"\n"
+			"  outputname=\"my_lightmap_name\"\n"
 			"  outputext=png           (format of saved maps, jpg, tga, hdr, png, bmp...)\n"
 			"  mapsize=256             (map resolution, 0=build vertex buffers)\n"
 			"  minmapsize=32           (minimal map resolution, Gamebryo only)\n"

@@ -444,7 +444,7 @@ RRObject* RRObject::createMultiObject(const RRObjects* objects, RRCollider::Inte
 // RRObject recommends
 
 // formats filename from prefix(path), object number and postfix(ext)
-const char* formatFilename(const char* path, unsigned objectIndex, const char* ext, bool isVertexBuffer)
+const char* formatFilename(const char* path, const char* objectName, unsigned objectIndex, const char* ext, bool isVertexBuffer)
 {
 	char* tmp = NULL;
 	const char* finalExt;
@@ -476,7 +476,7 @@ const char* formatFilename(const char* path, unsigned objectIndex, const char* e
 			finalExt = ext;
 		}
 	}
-	const char* result = tmpstr("%s%05d.%s",path?path:"",objectIndex,finalExt);
+	const char* result = objectName ? tmpstr("%s%s.%s",path?path:"",objectName,finalExt) : tmpstr("%s%05d.%s",path?path:"",objectIndex,finalExt);
 	delete[] tmp;
 	return result;
 }
@@ -488,7 +488,7 @@ void RRObject::recommendLayerParameters(RRObject::LayerParameters& layerParamete
 	layerParameters.actualType = layerParameters.suggestedMapSize ? BT_2D_TEXTURE : BT_VERTEX_BUFFER;
 	layerParameters.actualFormat = layerParameters.suggestedMapSize ? BF_RGB : BF_RGBF;
 	layerParameters.actualScaled = layerParameters.suggestedMapSize ? true : false;
-	layerParameters.actualFilename = formatFilename(layerParameters.suggestedPath.c_str(),layerParameters.objectIndex,layerParameters.suggestedExt.c_str(),layerParameters.actualType==BT_VERTEX_BUFFER);
+	layerParameters.actualFilename = formatFilename(layerParameters.suggestedPath.c_str(),layerParameters.suggestedName.c_str(),layerParameters.objectIndex,layerParameters.suggestedExt.c_str(),layerParameters.actualType==BT_VERTEX_BUFFER);
 }
 
 // Moved to file with exceptions enabled:

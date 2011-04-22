@@ -335,6 +335,7 @@ namespace rr
 			unsigned       suggestedMaxMapSize;
 			float          suggestedPixelsPerWorldUnit;
 			RRString       suggestedPath; ///< If not set, default directory is used.
+			RRString       suggestedName; ///< If not set, 5-digit object number is used.
 			RRString       suggestedExt; ///< If not set, "png" is used for textures, "vbu" for vertex buffers.
 
 			// outputs of RRObject::recommendLayerParameters()
@@ -343,7 +344,7 @@ namespace rr
 			unsigned       actualHeight;
 			RRBufferFormat actualFormat;
 			bool           actualScaled;
-			RRString       actualFilename;
+			RRString       actualFilename; ///< Set to suggestedPath + suggestedName + suggestedExt.
 			bool           actualBuildNonDirectional; ///< not yet used outside Gamebryo
 			bool           actualBuildDirectional; ///< not yet used outside Gamebryo
 			bool           actualBuildBentNormals; ///< not yet used outside Gamebryo
