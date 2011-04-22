@@ -127,6 +127,7 @@ struct Parameters
 	bool buildDirectional;
 	bool buildOcclusion;
 	bool buildBentNormals;
+	bool buildNothing;
 	rr::RRObject::LayerParameters layerParameters;
 	float ppSmoothing;
 	float ppBrightness;
@@ -149,6 +150,7 @@ struct Parameters
 		buildDirectional = false;
 		buildOcclusion = false;
 		buildBentNormals = false;
+		buildNothing = false;
 		runViewer = false;
 		layerParameters.objectIndex = objectIndex;
 		ppSmoothing = 0;
@@ -214,6 +216,11 @@ struct Parameters
 				if (!strcmp(argv[i],"bentnormals"))
 				{
 					buildBentNormals = true;
+				}
+				else
+				if (!strcmp(argv[i],"nothing"))
+				{
+					buildNothing = true;
 				}
 				else
 				if (sscanf(argv[i],"mapsize=%d",&layerParameters.suggestedMapSize)==1)
@@ -284,6 +291,12 @@ struct Parameters
 			buildDirect = true;
 			buildIndirect = true;
 		}
+		if (buildNothing)
+		{
+			buildOcclusion = false;
+			buildDirectional = false;
+			buildBentNormals = false;
+		}
 		// outputpath is relative to currentdirectory=exedirectory
 		// TODO: make it relative to scenepath
 		//  outputpath not set -> outputpath=scenepath
@@ -300,12 +313,15 @@ struct Parameters
 	// allocate layers for 1 object (lightmaps etc)
 	void layersCreate(rr::RRObjectIllumination* illumination) const
 	{
-		illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? newBuffer() : NULL;
-		illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? newBuffer() : NULL;
-		illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? newBuffer() : NULL;
-		illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? newBuffer() : NULL;
-		illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? newBuffer() : NULL;
-		illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? newBuffer() : NULL;
+		if (!buildNothing)
+		{
+			illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? newBuffer() : NULL;
+			illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? newBuffer() : NULL;
+			illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? newBuffer() : NULL;
+			illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? newBuffer() : NULL;
+			illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? newBuffer() : NULL;
+			illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? newBuffer() : NULL;
+		}
 	}
 
 	// postprocess layers of 1 object, returns number of successfully saved layers
@@ -427,6 +443,7 @@ int main(int argc, char **argv)
 			"Per-object arguments:\n"
 			"  directional             (build directional lightmaps)\n"
 			"  bentnormals             (build bent normals)\n"
+			"  nothing                 (build nothing)\n"
 			"  outputpath=\"where/to/save/lightmaps/\"\n"
 			"  outputname=\"my_lightmap_name\"\n"
 			"  outputext=png           (format of saved maps, jpg, tga, hdr, png, bmp...)\n"
