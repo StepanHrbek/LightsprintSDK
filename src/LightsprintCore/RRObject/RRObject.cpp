@@ -69,7 +69,10 @@ RRBuffer* RRObject::LayerParameters::createBuffer(bool forceFloats, bool forceAl
 			f = actualFormat;
 			break;
 	}
-	return RRBuffer::create(actualType,actualWidth,actualHeight,1,f,actualScaled,NULL);
+	RRBuffer* buffer = RRBuffer::create(actualType,actualWidth,actualHeight,1,f,actualScaled,NULL);
+	if (buffer)
+		buffer->filename = actualFilename;
+	return buffer;
 }
 
 
