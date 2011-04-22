@@ -334,8 +334,8 @@ namespace rr
 			unsigned       suggestedMinMapSize;
 			unsigned       suggestedMaxMapSize;
 			float          suggestedPixelsPerWorldUnit;
-			const char*    suggestedPath;
-			const char*    suggestedExt;
+			RRString       suggestedPath; ///< If not set, default directory is used.
+			RRString       suggestedExt; ///< If not set, "png" is used for textures, "vbu" for vertex buffers.
 
 			// outputs of RRObject::recommendLayerParameters()
 			RRBufferType   actualType;
@@ -343,7 +343,7 @@ namespace rr
 			unsigned       actualHeight;
 			RRBufferFormat actualFormat;
 			bool           actualScaled;
-			char*          actualFilename; ///< NULL in constructor, malloced in RRObject::recommendLayerParameters(), freed in destructor.
+			RRString       actualFilename;
 			bool           actualBuildNonDirectional; ///< not yet used outside Gamebryo
 			bool           actualBuildDirectional; ///< not yet used outside Gamebryo
 			bool           actualBuildBentNormals; ///< not yet used outside Gamebryo
@@ -356,9 +356,6 @@ namespace rr
 				suggestedMinMapSize = 32;
 				suggestedMaxMapSize = 1024;
 				suggestedPixelsPerWorldUnit = 1;
-				suggestedPath = "";
-				suggestedExt = "png";
-				actualFilename = NULL;
 			}
 
 			//! Creates buffer from actualXxx fields (filled by RRObject::recommendLayerParameters()).
@@ -370,11 +367,6 @@ namespace rr
 			//! \param forceAlpha
 			//!  Creates buffer with alpha channel.
 			RRBuffer* createBuffer(bool forceFloats = false, bool forceAlpha = false) const;
-
-			~LayerParameters()
-			{
-				free(actualFilename);
-			}
 		};
 
 		//! Recommends layer parameters (resolution, filename etc).

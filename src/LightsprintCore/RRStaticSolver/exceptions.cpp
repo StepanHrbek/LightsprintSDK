@@ -249,17 +249,17 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 			layerParameters.suggestedExt = ext;
 			layerParameters.suggestedMapSize = 256;
 			object->recommendLayerParameters(layerParameters);
-			if ( !exists(layerParameters.actualFilename) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
+			if ( !exists(layerParameters.actualFilename.c_str()) || !(buffer=RRBuffer::load(layerParameters.actualFilename.c_str(),NULL)) )
 			{
 				// if it fails, try to load per-vertex format
 				layerParameters.suggestedMapSize = 0;
 				object->recommendLayerParameters(layerParameters);
-				if (exists(layerParameters.actualFilename))
-					buffer = RRBuffer::load(layerParameters.actualFilename);
+				if (exists(layerParameters.actualFilename.c_str()))
+					buffer = RRBuffer::load(layerParameters.actualFilename.c_str());
 			}
 			if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=object->getCollider()->getMesh()->getNumVertices())
 			{
-				RR_LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size.\n",layerParameters.actualFilename));
+				RR_LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size.\n",layerParameters.actualFilename.c_str()));
 				RR_SAFE_DELETE(buffer);
 			}
 			if (buffer)
@@ -267,11 +267,11 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 				delete object->illumination.getLayer(layerNumber);
 				object->illumination.getLayer(layerNumber) = buffer;
 				result++;
-				RRReporter::report(INF3,"Loaded %s.\n",layerParameters.actualFilename);
+				RRReporter::report(INF3,"Loaded %s.\n",layerParameters.actualFilename.c_str());
 			}
 			else
 			{
-				RRReporter::report(INF3,"Not loaded %s.\n",layerParameters.actualFilename);
+				RRReporter::report(INF3,"Not loaded %s.\n",layerParameters.actualFilename.c_str());
 			}
 		}
 		RRReporter::report(INF2,"Loaded layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
@@ -301,14 +301,14 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 				layerParameters.suggestedExt = ext;
 				layerParameters.suggestedMapSize = (buffer->getType()==BT_VERTEX_BUFFER) ? 0 : 256;
 				object->recommendLayerParameters(layerParameters);
-				if (buffer->save(layerParameters.actualFilename))
+				if (buffer->save(layerParameters.actualFilename.c_str()))
 				{
 					result++;
-					RRReporter::report(INF3,"Saved %s.\n",layerParameters.actualFilename);
+					RRReporter::report(INF3,"Saved %s.\n",layerParameters.actualFilename.c_str());
 				}
 				else
-				if (layerParameters.actualFilename)
-					RRReporter::report(WARN,"Not saved %s.\n",layerParameters.actualFilename);
+				if (!layerParameters.actualFilename.empty())
+					RRReporter::report(WARN,"Not saved %s.\n",layerParameters.actualFilename.c_str());
 			}
 		}
 		if (result)

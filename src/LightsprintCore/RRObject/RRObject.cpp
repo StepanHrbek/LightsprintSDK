@@ -488,8 +488,7 @@ void RRObject::recommendLayerParameters(RRObject::LayerParameters& layerParamete
 	layerParameters.actualType = layerParameters.suggestedMapSize ? BT_2D_TEXTURE : BT_VERTEX_BUFFER;
 	layerParameters.actualFormat = layerParameters.suggestedMapSize ? BF_RGB : BF_RGBF;
 	layerParameters.actualScaled = layerParameters.suggestedMapSize ? true : false;
-	free(layerParameters.actualFilename);
-	layerParameters.actualFilename = _strdup(formatFilename(layerParameters.suggestedPath,layerParameters.objectIndex,layerParameters.suggestedExt,layerParameters.actualType==BT_VERTEX_BUFFER));
+	layerParameters.actualFilename = formatFilename(layerParameters.suggestedPath.c_str(),layerParameters.objectIndex,layerParameters.suggestedExt.c_str(),layerParameters.actualType==BT_VERTEX_BUFFER);
 }
 
 // Moved to file with exceptions enabled:

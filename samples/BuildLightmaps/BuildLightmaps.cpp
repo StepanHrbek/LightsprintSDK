@@ -334,7 +334,7 @@ struct Parameters
 			if (illumination->getLayer(layerIndex))
 			{
 				// insert layer name before extension
-				std::string filename = layerParameters.actualFilename;
+				std::string filename = layerParameters.actualFilename.c_str();
 				const char* layerName[] = {"","occlusion.","directional1.","directional2.","directional3.","bentnormals."};
 				int ofs = (int)filename.rfind('.',-1);
 				if (ofs>=0) filename.insert(ofs+1,layerName[layerIndex]);

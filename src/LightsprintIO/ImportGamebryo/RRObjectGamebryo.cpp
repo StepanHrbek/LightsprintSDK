@@ -1299,11 +1299,11 @@ public:
 			{
 				if (pkMesh==object->mesh)
 				{
-					NiString kDirectoryName = NiString(layerParameters->suggestedPath);
-					size_t pathlen = strlen(layerParameters->suggestedPath);
+					NiString kDirectoryName = NiString(layerParameters->suggestedPath.c_str());
+					size_t pathlen = strlen(layerParameters->suggestedPath.c_str());
 					if (pathlen
-						&& layerParameters->suggestedPath[pathlen-1]!='/'
-						&& layerParameters->suggestedPath[pathlen-1]!='\\') kDirectoryName += "/";
+						&& layerParameters->suggestedPath.c_str()[pathlen-1]!='/'
+						&& layerParameters->suggestedPath.c_str()[pathlen-1]!='\\') kDirectoryName += "/";
 					kDirectoryName += kProps.m_pcEntityDirectory;
 					if (!NiFile::DirectoryExists(kDirectoryName))
 					{
@@ -1313,8 +1313,7 @@ public:
 							RRReporter::report(WARN,"Light map directory \"%s\" cannot be created for file \"%s\".", kDirectoryName, kProps.m_pcLightMapFilename);
 						}
 					}
-					free(layerParameters->actualFilename);
-					layerParameters->actualFilename = _strdup(kDirectoryName + "/" + kProps.m_pcLightMapFilename + "." + layerParameters->suggestedExt);
+					layerParameters->actualFilename = _strdup(kDirectoryName + "/" + kProps.m_pcLightMapFilename + "." + layerParameters->suggestedExt.c_str());
 					return true;
 				}
 				return false;
@@ -1324,7 +1323,6 @@ public:
 		};
 
 		// fill filename
-		RR_SAFE_FREE(layerParameters.actualFilename);
 		LightmapFunctor lightmapFunctor;
 		lightmapFunctor.layerParameters = &layerParameters;
 		lightmapFunctor.object = this;
@@ -1343,6 +1341,7 @@ public:
 		layerParameters.actualBuildDirectional = false;
 		layerParameters.actualBuildBentNormals = false;
 #else
+		layerParameters.actualFilename = NULL;
 		if (perEntitySettings.lsBakeTarget==PE_TARGET_NONE)
 		{
 			layerParameters.actualBuildNonDirectional = false;
@@ -1357,7 +1356,6 @@ public:
 			layerParameters.actualHeight = 1;
 			layerParameters.actualFormat = BF_RGBA;
 			layerParameters.actualScaled = true;
-			RR_SAFE_FREE(layerParameters.actualFilename);
 			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
 			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
 			layerParameters.actualBuildBentNormals = false;
@@ -1387,7 +1385,6 @@ public:
 			layerParameters.actualHeight = resolutionPOT;
 			layerParameters.actualFormat = (perEntitySettings.lsBakeTarget==PE_COMPRESSED_TEXTURE)?BF_DXT1:BF_RGB;
 			layerParameters.actualScaled = true;
-			RR_SAFE_FREE(layerParameters.actualFilename);
 			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
 			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
 			layerParameters.actualBuildBentNormals = false;
@@ -1399,7 +1396,6 @@ public:
 			layerParameters.actualHeight = RR_CLAMPED(perEntitySettings.lsResolutionFixedHeight,layerParameters.suggestedMinMapSize,layerParameters.suggestedMaxMapSize);
 			layerParameters.actualFormat = (perEntitySettings.lsBakeTarget==PE_COMPRESSED_TEXTURE)?BF_DXT1:BF_RGB;
 			layerParameters.actualScaled = true;
-			RR_SAFE_FREE(layerParameters.actualFilename);
 			layerParameters.actualBuildNonDirectional = perEntitySettings.lsBakeDirectionality==PE_NON_DIRECTIONAL;
 			layerParameters.actualBuildDirectional = !layerParameters.actualBuildNonDirectional;
 			layerParameters.actualBuildBentNormals = false;
