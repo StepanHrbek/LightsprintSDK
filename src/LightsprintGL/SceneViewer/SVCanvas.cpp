@@ -1886,6 +1886,9 @@ void SVCanvas::reportObjectsChange()
 
 	// resize rtgi buffers, vertex counts may differ
 	reallocateBuffersForRealtimeGI(true);
+
+	// update shadows and GI
+	solver->reportDirectIlluminationChange(-1,true,true);
 }
 
 

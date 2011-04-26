@@ -816,6 +816,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVDialogs.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVDialogs.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVEntity.h"
 				>
 			</File>

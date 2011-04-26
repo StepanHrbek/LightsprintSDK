@@ -91,6 +91,9 @@
       <Filter>SceneViewer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\Lightsprint\GL\FBO.h" />
+    <ClInclude Include="SceneViewer\SVDialogs.h">
+      <Filter>SceneViewer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SceneViewer\SVApp.cpp">
@@ -162,6 +165,9 @@
     <ClCompile Include="Bloom.cpp" />
     <ClCompile Include="LensFlare.cpp" />
     <ClCompile Include="SceneViewer\SVUserProperties.cpp">
+      <Filter>SceneViewer</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneViewer\SVDialogs.cpp">
       <Filter>SceneViewer</Filter>
     </ClCompile>
   </ItemGroup>

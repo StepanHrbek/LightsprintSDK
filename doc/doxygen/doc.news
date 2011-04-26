@@ -37,6 +37,7 @@ NEWS
   - Material properies/Specular/Shininess,roughness
   - User preferences/Debugging
   - clicking object in Scene tree opens it also in Material properties
+  - dialog with options in in File/Merge
 - improved BuildLightmaps tool
   - "mapsize=w*h" parameter
   - "outputname=" parameter

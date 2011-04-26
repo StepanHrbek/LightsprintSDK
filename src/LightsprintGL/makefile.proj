@@ -56,6 +56,7 @@ Workaround.cpp \
 SceneViewer/SVApp.cpp \
 SceneViewer/SVCanvas.cpp \
 SceneViewer/SVCustomProperties.cpp \
+SceneViewer/SVDialogs.cpp \
 SceneViewer/SVEntityIcons.cpp \
 SceneViewer/SVFrame.cpp \
 SceneViewer/SVLightProperties.cpp \

@@ -483,7 +483,7 @@ SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 }
 
 SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos, const wxSize& _size, SceneViewerStateEx& _svs)
-	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE|wxMINIMIZE), svs(_svs)
+	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE|wxMINIMIZE), svs(_svs), smoothDlg(this), importDlg(this)
 {
 	fullyInited = false;
 	updateMenuBarNeeded = false;
@@ -880,12 +880,21 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 				dialog.SetPath(PATH2WX(bf::absolute(svs.sceneFilename.IsEmpty()?L"../../data/scenes/":WX2PATH(svs.sceneFilename)))); // absolute path is necessary in wx 2.9.1 @ OSX
 				if (dialog.ShowModal()==wxID_OK)
 				{
-					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,m_canvas->solver);
+					// [x] objects, [x] lights dialog
+					if (importDlg.ShowModal()==wxID_OK)
+					{
+						// display log window with 'abort' while this function runs
+						LogWithAbort logWithAbort(this,m_canvas->solver);
 
-					rr::RRScene* scene = loadScene(dialog.GetPath(),userPreferences.import.getUnitLength(dialog.GetPath()),userPreferences.import.getUpAxis(dialog.GetPath()));
-					m_canvas->addOrRemoveScene(scene,true);
-					m_canvas->mergedScenes.push_back(scene);
+						rr::RRScene* scene = loadScene(dialog.GetPath(),userPreferences.import.getUnitLength(dialog.GetPath()),userPreferences.import.getUpAxis(dialog.GetPath()));
+						if (!importDlg.objects->GetValue())
+							scene->objects.clear();
+						if (!importDlg.lights->GetValue())
+							scene->lights.clear();
+
+						m_canvas->addOrRemoveScene(scene,true);
+						m_canvas->mergedScenes.push_back(scene);
+					}
 				}
 			}
 			break;
@@ -1470,12 +1479,21 @@ reload_skybox:
 #endif
 		case ME_BUILD_NORMALS:
 			{
-				static float deg = 30;
-				if (getFactor(this,deg,_("Please enter smoothing angle, max angle between face normals to make edge smooth"),_("Smoothing angle")))
+				if (smoothDlg.ShowModal()==wxID_OK)
 				{
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver);
-					solver->getStaticObjects().stitchAndSmooth(true,true,true,true,0,RR_DEG2RAD(deg),true);
+
+					double d = 0;
+					float weldDistance = smoothDlg.weldDistance->GetValue().ToDouble(&d) ? (float)d : 0;
+					float smoothAngle = smoothDlg.smoothAngle->GetValue().ToDouble(&d) ? (float)d : 30;
+					solver->getStaticObjects().stitchAndSmooth(
+						smoothDlg.splitVertices->GetValue(),
+						smoothDlg.stitchVertices->GetValue(),
+						true,true,
+						smoothDlg.preserveUvs->GetValue(),
+						weldDistance,
+						RR_DEG2RAD(smoothAngle),true);
 					m_canvas->reportObjectsChange();
 				}
 			}

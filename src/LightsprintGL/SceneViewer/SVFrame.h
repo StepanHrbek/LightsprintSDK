@@ -10,6 +10,7 @@
 
 #include "Lightsprint/GL/SceneViewer.h"
 #include "SVCanvas.h"
+#include "SVDialogs.h"
 #include "wx/aui/aui.h"
 
 #define DEBUG_TEXEL
@@ -175,6 +176,9 @@ namespace rr_gl
 		wxAuiManager             m_mgr;
 		class SVSceneProperties* m_sceneProperties;
 		class SVUserProperties*  m_userProperties;
+
+		SmoothDlg                smoothDlg;
+		ImportDlg                importDlg;
 
 		DECLARE_EVENT_TABLE()
 	};

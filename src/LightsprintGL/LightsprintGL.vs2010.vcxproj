@@ -574,6 +574,7 @@
     <ClInclude Include="SceneViewer\SVCanvas.h" />
     <ClInclude Include="SceneViewer\SVComment.h" />
     <ClInclude Include="SceneViewer\SVCustomProperties.h" />
+    <ClInclude Include="SceneViewer\SVDialogs.h" />
     <ClInclude Include="SceneViewer\SVEntity.h" />
     <ClInclude Include="SceneViewer\SVEntityIcons.h" />
     <ClInclude Include="SceneViewer\SVFrame.h" />
@@ -618,6 +619,7 @@
     <ClCompile Include="SceneViewer\SVCanvas.cpp" />
     <ClCompile Include="SceneViewer\SVComment.cpp" />
     <ClCompile Include="SceneViewer\SVCustomProperties.cpp" />
+    <ClCompile Include="SceneViewer\SVDialogs.cpp" />
     <ClCompile Include="SceneViewer\SVEntityIcons.cpp" />
     <ClCompile Include="SceneViewer\SVFrame.cpp" />
     <ClCompile Include="SceneViewer\SVLightmapViewer.cpp" />
