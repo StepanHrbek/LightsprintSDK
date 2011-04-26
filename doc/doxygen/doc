@@ -2558,6 +2558,7 @@ Video formats
   - fully automatic, quality controlled by single number, optional settings in Lightsprint Model Library (HDR or LDR environment map etc)
   - postprocessing: color tone, brightness, contrast, smoothing can be changed in a second
   - baking GI for multiple scene configurations at once
+  - no size limits, can process huge scenes in 64bit code, even in 32bit Toolbench
   - Lightsprint tools and samples (baking, realtime GI) support .gsa, old Gamebryo scene format (this may be dropped in future, depends on your feedback)
   - realtime GI in Gamebryo scenes can be displayed using Lightsprint renderer
   - all data processed in native Gamebryo format in memory, no conversion/duplication/saving to disk
@@ -3298,6 +3299,10 @@ rr::RRVector<*>{
 
   If you must use 32bit code (because your engine is 32bit only, e.g. UE3, Gamebryo),
   address space is severely limited by operating system, application can't use whole memory, purchasing more RAM usually does not help.
+
+  If you use Gamebryo Toolbench (32bit) and "Bake lightmaps" function fails due to insufficient address space, use "Calculate to cache" and "Bake from cache" functions.
+  In 64bit Windows, it lets you process blocks of virtually unlimited size.
+  In 32bit Windows, it lets you process bigger blocks at higher quality.
 
   If you must use 32bit code, run it in 64bit operating system, this gives you 4GB of address space per-process.
   It is good enough for majority of tasks today.

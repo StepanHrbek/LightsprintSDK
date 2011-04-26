@@ -13,8 +13,13 @@ namespace rr
 NEWS
 
 - improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
-  - "Fixed GI Package"
-  - lightmaps are cached in temp, improves performance in low quality bakes (by removing asset controller overhead)
+  - Toolbench menu "Calculate to cache"
+    \n processes huge scenes in 64bit code, not limited by tiny address space of 32bit Toolbench
+    \n calculation is non-blocking, you can work in Toolbench and even close it
+    \n when calculation finishes, run "Bake from cache" to load lightmaps from cache to Gamebryo
+  - Toolbench menu "Documentation"
+  - SDK includes patch to fix GI Package
+  - lightmaps are cached in temp, improves performance (asset controller slowed things down in old location)
 - improved specular reflection
   - Phong, Blinn-Phong, Torrance-Sparrow, Blinn-Torrance-Sparrow
   - RRMaterial::specularModel added
