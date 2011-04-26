@@ -330,7 +330,8 @@ namespace rr
 		{
 			// inputs to RRObject::recommendLayerParameters()
 			int            objectIndex; ///< default implementation uses it only when formatting recommended filename
-			unsigned       suggestedMapSize;
+			unsigned       suggestedMapWidth;
+			unsigned       suggestedMapHeight;
 			unsigned       suggestedMinMapSize;
 			unsigned       suggestedMaxMapSize;
 			float          suggestedPixelsPerWorldUnit;
@@ -353,7 +354,8 @@ namespace rr
 			LayerParameters()
 			{
 				objectIndex = -1;
-				suggestedMapSize = 256;
+				suggestedMapWidth = 256;
+				suggestedMapHeight = 256;
 				suggestedMinMapSize = 32;
 				suggestedMaxMapSize = 1024;
 				suggestedPixelsPerWorldUnit = 1;

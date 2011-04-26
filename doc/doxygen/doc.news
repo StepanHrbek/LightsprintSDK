@@ -33,7 +33,9 @@ NEWS
   - User preferences/Debugging
   - clicking object in Scene tree opens it also in Material properties
 - improved BuildLightmaps tool
-  - outputname= parameter
+  - "mapsize=w*h" parameter
+  - "outputname=" parameter
+  - "nothing" parameter
 - misc helper functions
   - RRObjects::stitchAndSmooth()
   - RRMeshArrays::buildNormals()

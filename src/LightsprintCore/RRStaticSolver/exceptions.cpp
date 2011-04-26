@@ -247,12 +247,11 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 			layerParameters.objectIndex = objectIndex;
 			layerParameters.suggestedPath = path;
 			layerParameters.suggestedExt = ext;
-			layerParameters.suggestedMapSize = 256;
 			object->recommendLayerParameters(layerParameters);
 			if ( !exists(layerParameters.actualFilename.c_str()) || !(buffer=RRBuffer::load(layerParameters.actualFilename.c_str(),NULL)) )
 			{
 				// if it fails, try to load per-vertex format
-				layerParameters.suggestedMapSize = 0;
+				layerParameters.suggestedMapWidth = layerParameters.suggestedMapHeight = 0;
 				object->recommendLayerParameters(layerParameters);
 				if (exists(layerParameters.actualFilename.c_str()))
 					buffer = RRBuffer::load(layerParameters.actualFilename.c_str());
@@ -299,7 +298,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 				layerParameters.objectIndex = objectIndex;
 				layerParameters.suggestedPath = path;
 				layerParameters.suggestedExt = ext;
-				layerParameters.suggestedMapSize = (buffer->getType()==BT_VERTEX_BUFFER) ? 0 : 256;
+				layerParameters.suggestedMapWidth = layerParameters.suggestedMapHeight = (buffer->getType()==BT_VERTEX_BUFFER) ? 0 : 256;
 				object->recommendLayerParameters(layerParameters);
 				if (buffer->save(layerParameters.actualFilename.c_str()))
 				{

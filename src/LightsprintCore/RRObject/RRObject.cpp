@@ -486,11 +486,11 @@ const char* formatFilename(const char* path, const char* objectName, unsigned ob
 
 void RRObject::recommendLayerParameters(RRObject::LayerParameters& layerParameters) const
 {
-	layerParameters.actualWidth = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : getCollider()->getMesh()->getNumVertices();
-	layerParameters.actualHeight = layerParameters.suggestedMapSize ? layerParameters.suggestedMapSize : 1;
-	layerParameters.actualType = layerParameters.suggestedMapSize ? BT_2D_TEXTURE : BT_VERTEX_BUFFER;
-	layerParameters.actualFormat = layerParameters.suggestedMapSize ? BF_RGB : BF_RGBF;
-	layerParameters.actualScaled = layerParameters.suggestedMapSize ? true : false;
+	layerParameters.actualWidth  = layerParameters.suggestedMapWidth ? layerParameters.suggestedMapWidth : getCollider()->getMesh()->getNumVertices();
+	layerParameters.actualHeight = layerParameters.suggestedMapWidth ? layerParameters.suggestedMapHeight : 1;
+	layerParameters.actualType   = layerParameters.suggestedMapWidth ? BT_2D_TEXTURE : BT_VERTEX_BUFFER;
+	layerParameters.actualFormat = layerParameters.suggestedMapWidth ? BF_RGB : BF_RGBF;
+	layerParameters.actualScaled = layerParameters.suggestedMapWidth ? true : false;
 	layerParameters.actualFilename = formatFilename(layerParameters.suggestedPath.c_str(),layerParameters.suggestedName.c_str(),layerParameters.objectIndex,layerParameters.suggestedExt.c_str(),layerParameters.actualType==BT_VERTEX_BUFFER);
 }
 

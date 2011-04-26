@@ -223,8 +223,13 @@ struct Parameters
 					buildNothing = true;
 				}
 				else
-				if (sscanf(argv[i],"mapsize=%d",&layerParameters.suggestedMapSize)==1)
+				if (sscanf(argv[i],"mapsize=%d*%d",&layerParameters.suggestedMapWidth,&layerParameters.suggestedMapHeight)==2)
 				{
+				}
+				else
+				if (sscanf(argv[i],"mapsize=%d",&layerParameters.suggestedMapWidth)==1)
+				{
+					layerParameters.suggestedMapHeight = layerParameters.suggestedMapWidth;
 				}
 				else
 				if (sscanf(argv[i],"minmapsize=%d",&layerParameters.suggestedMinMapSize)==1)
@@ -385,7 +390,7 @@ int main(int argc, char **argv)
 	//
 	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 #ifdef _WIN32
-	rr::RRReporter* reporter = rr::RRReporter::createWindowedReporter(solver);
+	rr::RRReporter* reporter = rr::RRReporter::createWindowedReporter(solver,"BUILD LIGHTMAPS tool");
 #else
 	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
 #endif
@@ -413,7 +418,7 @@ int main(int argc, char **argv)
 	// start with defaults
 	//
 	Parameters globalParameters(argc,argv);
-	if (!globalParameters.sceneFilename)
+	if (!globalParameters.sceneFilename && !globalParameters.runViewer)
 	{
 		rr::RRReporter::report(rr::INF1,"%s",
 			"\n"
@@ -446,8 +451,8 @@ int main(int argc, char **argv)
 			"  nothing                 (build nothing)\n"
 			"  outputpath=\"where/to/save/lightmaps/\"\n"
 			"  outputname=\"my_lightmap_name\"\n"
-			"  outputext=png           (format of saved maps, jpg, tga, hdr, png, bmp...)\n"
-			"  mapsize=256             (map resolution, 0=build vertex buffers)\n"
+			"  outputext=png           (format of saved maps, jpg, tga, hdr, exr, bmp...)\n"
+			"  mapsize=256*512         (map resolution, 0=build vertex buffers)\n"
 			"  minmapsize=32           (minimal map resolution, Gamebryo only)\n"
 			"  maxmapsize=1024         (maximal map resolution, Gamebryo only)\n"
 			"  pixelsperworldunit=1.0  (Gamebryo only)\n"
@@ -482,7 +487,7 @@ int main(int argc, char **argv)
 	// load scene
 	//
 	rr::RRScene scene(globalParameters.sceneFilename,NULL);
-	if (!scene.objects.size())
+	if (!scene.objects.size() && !globalParameters.runViewer)
 		error(solver->aborting,"No objects loaded.");
 	scene.objects.multiplyEmittance(globalParameters.emissiveMultiplier);
 
@@ -508,7 +513,11 @@ int main(int argc, char **argv)
 		}
 		else
 		{
-			environment = rr::RRBuffer::createSky(globalParameters.skyUpper,globalParameters.skyLower);
+			if (!globalParameters.sceneFilename && globalParameters.skyUpper+globalParameters.skyLower==rr::RRVec4(0))
+				// load some sky when running without scene and without sky
+				environment = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_up.jpg");
+			else
+				environment = rr::RRBuffer::createSky(globalParameters.skyUpper,globalParameters.skyLower);
 		}
 		solver->setEnvironment(environment);
 	}
@@ -629,10 +638,9 @@ int main(int argc, char **argv)
 // WinMain() calls main(), for compatibility with Windows
 
 #ifdef _WIN32
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShow)
+int parseCommandline(const wchar_t* commandline)
 {
 	int argc = 0;
-	LPWSTR commandline = GetCommandLineW();
 	LPWSTR* argvw = CommandLineToArgvW(commandline, &argc);
 	if (argvw && argc)
 	{
@@ -644,6 +652,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 			sprintf(argv[i], "%ws", argvw[i]);
 		}
 		argv[argc] = NULL;
+		if (argvw && argc==2 && argvw[1][0]=='@')
+		{
+			// read argv from file
+			std::wstring wstr = std::wstring(L"\"")+argvw[0]+L"\" ";
+			FILE* f = fopen(argv[1]+1,"rt");
+			if (f)
+			{
+				unsigned char c;
+				while (fread(&c,1,1,f)==1)
+					wstr += c;
+				fclose(f);
+				RR_LIMITED_TIMES(1,return parseCommandline(wstr.c_str()));
+			}
+		}
 		return main(argc,argv);
 	}
 	else
@@ -654,5 +676,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 		char* argv[2] = {szFileName,NULL};
 		return main(1,argv);
 	}
+}
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nShow)
+{
+	return parseCommandline(GetCommandLineW());
 }
 #endif
