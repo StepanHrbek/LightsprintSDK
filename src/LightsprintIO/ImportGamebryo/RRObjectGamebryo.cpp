@@ -800,11 +800,16 @@ public:
 	MaterialCacheGamebryo()
 	{
 		defaultMaterial.reset(false);
+		adaptMaterials = true;
 	}
 	// Looks for material in cache. Not found -> creates new material and stores it in cache.
 	// Called once per mesh.
 	RRMaterial* getMaterial(MaterialInputs _materialInputs)
 	{
+		if (!adaptMaterials)
+		{
+			return &defaultMaterial;
+		}
 		if (!_materialInputs.mesh)
 		{
 			return &defaultMaterial;
@@ -839,6 +844,7 @@ public:
 		slowCache->push_front(CacheElement(_materialInputs));
 		return slowCache->begin()->material = detectMaterial(_materialInputs);
 	}
+	bool adaptMaterials;
 private:
 	RRMaterial defaultMaterial;
 
@@ -1494,8 +1500,9 @@ public:
 	}
 #if GAMEBRYO_MAJOR_VERSION==3
 	// path used by Gamebryo 3.x Toolbench plugin
-	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool _onlySelected, bool& _aborting)
+	RRObjectsGamebryo(efd::ServiceManager* serviceManager, bool _adaptMaterials, bool _onlySelected, bool& _aborting)
 	{
+		materialCache.adaptMaterials = _adaptMaterials;
 		RRObject::LodInfo lodInfo;
 		lodInfo.base = 0; // start hierarchy traversal with base 0 marking we are not in LOD
 		lodInfo.level = 0;
@@ -2035,7 +2042,7 @@ public:
 	RRSceneGamebryo(const char* filename, bool initGamebryo, bool& aborting, float emissiveMultiplier = 1);
 #if GAMEBRYO_MAJOR_VERSION==3
 	//! Imports scene from toolbench.
-	RRSceneGamebryo(efd::ServiceManager* serviceManager, bool onlySelected, bool& aborting);
+	RRSceneGamebryo(efd::ServiceManager* serviceManager, bool adaptMaterials, bool onlySelected, bool& aborting);
 #endif
 	virtual ~RRSceneGamebryo();
 
@@ -2108,7 +2115,7 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
 }
 
 #if GAMEBRYO_MAJOR_VERSION==3
-RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool _onlySelected, bool& _aborting)
+RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* _serviceManager, bool _adaptMaterials, bool _onlySelected, bool& _aborting)
 {
 	initGamebryo = false;
 	pkEntityScene = NULL;
@@ -2116,13 +2123,13 @@ RRSceneGamebryo::RRSceneGamebryo(efd::ServiceManager* serviceManager, bool _only
 	gamebryoInit();
 
 	// adapt lights
-	protectedLights = adaptLightsFromGamebryo(serviceManager);
+	protectedLights = adaptLightsFromGamebryo(_serviceManager);
 
 	// adapt meshes
-	protectedObjects = adaptObjectsFromGamebryo(serviceManager,_onlySelected,_aborting);
+	protectedObjects = adaptObjectsFromGamebryo(_serviceManager,_adaptMaterials,_onlySelected,_aborting);
 
 	// adapt environment
-	environment = adaptEnvironmentFromGamebryo(serviceManager);
+	environment = adaptEnvironmentFromGamebryo(_serviceManager);
 
 	// Scenes constructed from filename receive special treatment, protectedObjects are copied to objects automatically.
 	// In this exceptional case (not from filename) we must explicitly copy protectedObjects to objects.
@@ -2247,9 +2254,9 @@ RRLights* adaptLightsFromGamebryo(NiScene* scene)
 }
 
 #if GAMEBRYO_MAJOR_VERSION==3
-RRObjects* adaptObjectsFromGamebryo(efd::ServiceManager* serviceManager, bool onlySelected, bool& aborting)
+RRObjects* adaptObjectsFromGamebryo(efd::ServiceManager* _serviceManager, bool _adaptMaterials, bool _onlySelected, bool& _aborting)
 {
-	return new RRObjectsGamebryo(serviceManager,onlySelected,aborting);
+	return new RRObjectsGamebryo(_serviceManager,_adaptMaterials,_onlySelected,_aborting);
 }
 
 RRLights* adaptLightsFromGamebryo(efd::ServiceManager* serviceManager)
@@ -2337,9 +2344,9 @@ RRBuffer* adaptEnvironmentFromGamebryo(class efd::ServiceManager* serviceManager
 	return environment;
 }
 
-RRScene* adaptSceneFromGamebryo(efd::ServiceManager* serviceManager, bool onlySelected, bool& aborting)
+RRScene* adaptSceneFromGamebryo(efd::ServiceManager* serviceManager, bool adaptMaterials, bool onlySelected, bool& aborting)
 {
-	return new RRSceneGamebryo(serviceManager,onlySelected,aborting);
+	return new RRSceneGamebryo(serviceManager,adaptMaterials,onlySelected,aborting);
 }
 #endif
 

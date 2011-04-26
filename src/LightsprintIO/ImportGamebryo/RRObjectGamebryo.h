@@ -39,7 +39,7 @@ rr::RRLights* adaptLightsFromGamebryo(class NiScene* scene);
 //!  You can get ServiceManager* from Emergent::Toolbench::Framework::FrameworkService::ActiveServiceManager::get().
 //! \param aborting
 //!  Import may be asynchronously aborted by setting *aborting to true.
-rr::RRObjects* adaptObjectsFromGamebryo(class efd::ServiceManager* serviceManager, bool onlySelected, bool& aborting);
+rr::RRObjects* adaptObjectsFromGamebryo(class efd::ServiceManager* serviceManager, bool adaptMaterials, bool onlySelected, bool& aborting);
 
 //! Creates Lightsprint interface for Gamebryo lights in memory.
 //
@@ -65,7 +65,7 @@ rr::RRBuffer* adaptEnvironmentFromGamebryo(class efd::ServiceManager* serviceMan
 //!  You can get ServiceManager* from Emergent::Toolbench::Framework::FrameworkService::ActiveServiceManager::get().
 //! \param aborting
 //!  Import may be asynchronously aborted by setting *aborting to true.
-rr::RRScene* adaptSceneFromGamebryo(class efd::ServiceManager* serviceManager, bool onlySelected, bool& aborting);
+rr::RRScene* adaptSceneFromGamebryo(class efd::ServiceManager* serviceManager, bool adaptMaterials, bool onlySelected, bool& aborting);
 
 
 //! Makes it possible to load .gsa scenes from disk via rr::RRScene::RRScene().
