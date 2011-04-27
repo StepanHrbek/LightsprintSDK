@@ -59,7 +59,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 				wxPGProperty* tmp = new wxStringProperty(
 					wxString::Format("%d triangles",faceGroup.numTriangles),
 					wxPG_LABEL,
-					wxString::Format("%s 0x%x",wxString(faceGroup.material?RR2WX(faceGroup.material->name):""),(unsigned)(intptr_t)(faceGroup.material))
+					wxString::Format("%s 0x%x",wxString(faceGroup.material?RR2WX(faceGroup.material->name):L""),(unsigned)(intptr_t)(faceGroup.material))
 					);
 				AppendIn(propFacegroups, tmp);
 				EnableProperty(tmp,false);
