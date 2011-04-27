@@ -865,7 +865,9 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 		case ME_FILE_OPEN_SCENE:
 			{
 				wxFileDialog dialog(this,_("Choose a 3d scene to open"),"","",getSupportedLoaderExtensions(svs),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+#ifdef __APPLE__
 				dialog.SetPath(PATH2WX(bf::absolute(svs.sceneFilename.IsEmpty()?L"../../data/scenes/":WX2PATH(svs.sceneFilename)))); // absolute path is necessary in wx 2.9.1 @ OSX
+#endif
 				if (dialog.ShowModal()==wxID_OK)
 				{
 					svs.initialInputSolver = NULL;
@@ -877,7 +879,9 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 		case ME_FILE_MERGE_SCENE:
 			{
 				wxFileDialog dialog(this,_("Choose a 3d scene to merge with current scene"),"","",getSupportedLoaderExtensions(svs),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+#ifdef __APPLE__
 				dialog.SetPath(PATH2WX(bf::absolute(svs.sceneFilename.IsEmpty()?L"../../data/scenes/":WX2PATH(svs.sceneFilename)))); // absolute path is necessary in wx 2.9.1 @ OSX
+#endif
 				if (dialog.ShowModal()==wxID_OK)
 				{
 					// [x] objects, [x] lights dialog
