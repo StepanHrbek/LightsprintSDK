@@ -64,32 +64,32 @@ public:
 	//! - useIt(); for (int i=0;i<100;i++) { sendTexture(name1,...,1); sendTexture(name2,...,2); draw(); }
 	//! With codes, the same 2 texture units are used 100 times.
 	//! Without codes, 200 texture units would be allocated.
-	unsigned sendTexture(const char *name, const class Texture* t, int code = -1);
+	unsigned sendTexture(const char* name, const class Texture* t, int code = -1);
 
 	//! Sets uniform of type float.
-	void sendUniform(const char *name, float x);
+	void sendUniform(const char* name, float x);
 	//! Sets uniform of type vec2.
-	void sendUniform(const char *name, float x, float y);
+	void sendUniform(const char* name, float x, float y);
 	//! Sets uniform of type vec3.
-	void sendUniform(const char *name, float x, float y, float z);
+	void sendUniform(const char* name, float x, float y, float z);
 	//! Sets uniform of type vec3.
-	void sendUniform3fv(const char *name, const float xyz[3]);
+	void sendUniform3fv(const char* name, const float xyz[3]);
 	//! Sets uniform of type vec4.
-	void sendUniform(const char *name, float x, float y, float z, float w);
+	void sendUniform(const char* name, float x, float y, float z, float w);
 	//! Sets uniform of type vec4.
-	void sendUniform4fv(const char *name, const float xyzw[4]);
+	void sendUniform4fv(const char* name, const float xyzw[4]);
 	//! Sets array of uniforms of type int or sampler2D or samplerCube or sampler2DShadow.
-	void sendUniform(const char *name, int count, const GLint* x);
+	void sendUniform(const char* name, int count, const GLint* x);
 	//! Sets uniform of type int or sampler2D or samplerCube or sampler2DShadow.
-	void sendUniform(const char *name, int x);
+	void sendUniform(const char* name, int x);
 	//! Sets uniform of type int2.
-	void sendUniform(const char *name, int x, int y);
+	void sendUniform(const char* name, int x, int y);
 	//! Sets uniform of type int3.
-	void sendUniform(const char *name, int x, int y, int z);
+	void sendUniform(const char* name, int x, int y, int z);
 	//! Sets uniform of type int4.
-	void sendUniform(const char *name, int x, int y, int z, int w);
+	void sendUniform(const char* name, int x, int y, int z, int w);
 	//! Sets uniform of type mat2, mat3 or mat4.
-	void sendUniform(const char *name, float *m, bool transp=false, int size=4);
+	void sendUniform(const char* name, float *m, bool transp=false, int size=4);
 
 	//! Returns location of uniform.
 	//! Used to detect Nvidia driver bug.
@@ -99,7 +99,7 @@ public:
 	static void logMessages(bool enable);
 private:
 	Program(const char* defines, const char* vertexShader, const char* fragmentShader);
-	int getLoc(const char *name);
+	int getLoc(const char* name);
 	bool isLinked();
 	bool logLooksSafe();
 
