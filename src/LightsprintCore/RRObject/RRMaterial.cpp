@@ -85,7 +85,7 @@ void RRMaterial::reset(bool twoSided)
 	refractionIndex              = 1;
 	lightmapTexcoord             = UINT_MAX; // no unwrap by default
 	minimalQualityForPointMaterials = UINT_MAX; // Keep point materials disabled, adapter must explicitly want them.
-	name                         = NULL;
+	name.clear();
 }
 
 // Extract mean and variance from buffer.

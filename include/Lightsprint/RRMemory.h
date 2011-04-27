@@ -99,33 +99,49 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//! Portable but limited, minimalistic string.
+	//! Minimalistic string, for portable API.
 	//
-	//! Purpose of RRString is to replace std::string in public Lightsprint headers,
-	//! to make Lightsprint work with any STL implementation.
-	//! It works like std::string in simple cases in Lightsprint SDK interface.
-	//! It is not suitable for more complex operations.
+	//! RRString is intentionally minimalistic, for passing data, not for manipulation.
+	//! Its only purpose is to replace std::[w]string in public Lightsprint headers,
+	//! to make SDK compatible with any STL implementation.
+	//!
+	//! Encoding:
+	//! - char is always interpreted as local charset
+	//! - wchar_t is always interpreted as UTF16 or UTF32
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
 	class RR_API RRString : public RRUniformlyAllocated
 	{
 	public:
+		// modifiers
 		RRString();
 		RRString(const RRString& a);
 		RRString(const char* a);
+		RRString(const wchar_t* a);
+		void clear();
 		RRString& operator =(const RRString& a);
 		RRString& operator =(const char* a);
+		RRString& operator =(const wchar_t* a);
+
+		// comparators
 		bool operator ==(const RRString& a) const;
 		bool operator ==(const char* a) const;
+		bool operator ==(const wchar_t* a) const;
 		bool operator !=(const RRString& a) const;
 		bool operator !=(const char* a) const;
+		bool operator !=(const wchar_t* a) const;
+		
+		// accessors
 		const char* c_str() const {return str?str:"";} ///< Never returns NULL, empty string is "".
+		const wchar_t* w_str() const {return wstr?wstr:L"";} ///< Never returns NULL, empty string is L"".
 		bool empty() const {return str==NULL;}
+
 		~RRString();
 		void _skipDestructor(); ///< For internal use only.
 	private:
 		char* str; ///< Never "", empty string is NULL.
+		wchar_t* wstr; ///< Never "", empty string is NULL.
 	};
 
 } // namespace

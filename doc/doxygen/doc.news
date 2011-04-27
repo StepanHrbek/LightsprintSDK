@@ -42,6 +42,9 @@ NEWS
   - "mapsize=w*h" parameter
   - "outputname=" parameter
   - "nothing" parameter
+- Unicode support
+  - RRString accepts and returns both unicode (wchar_t) and local charset (char)
+  - string.clear() replaces string = NULL; (NULL is ambiguous)
 - misc helper functions
   - RRObjects::stitchAndSmooth()
   - RRMeshArrays::buildNormals()

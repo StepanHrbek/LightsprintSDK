@@ -87,40 +87,108 @@ void RRAligned::operator delete[](void* p, std::size_t n)
 RRString::RRString()
 {
 	str = NULL;
+	wstr = NULL;
 }
 
 RRString::RRString(const RRString& a)
 {
 	str = a.str?_strdup(a.str):NULL;
+	wstr = a.wstr?(wchar_t*)(str+((char*)a.wstr-a.str)):NULL;
+	if (a.str)
+	{
+		size_t bytes1 = (char*)a.wstr-a.str;
+		size_t bytes2 = (wcslen(a.wstr)+1)*sizeof(wchar_t);
+		str = (char*)malloc(bytes1+bytes2);
+		memcpy(str,a.str,bytes1+bytes2);
+		wstr = (wchar_t*)(str+bytes1);
+	}
+	else
+	{
+		str = NULL;
+		wstr = NULL;
+	}
 }
 
 RRString::RRString(const char* a)
 {
-	str = (a&&a[0])?_strdup(a):NULL;
+	if (a&&a[0])
+	{
+		size_t bytes1 = strlen(a)+1;
+		size_t bytes2 = (mbstowcs(NULL,a,INT_MAX)+1)*sizeof(wchar_t);
+		RR_ASSERT(bytes1>0);
+		RR_ASSERT(bytes2>0);
+		str = (char*)malloc(bytes1+bytes2);
+		wstr = (wchar_t*)(str+bytes1);
+		memcpy(str,a,bytes1);
+		mbstowcs(wstr,a,INT_MAX);
+	}
+	else
+	{
+		str = NULL;
+		wstr = NULL;
+	}
+}
+
+RRString::RRString(const wchar_t* a)
+{
+	if (a&&a[0])
+	{
+		size_t bytes1 = wcstombs(NULL,a,INT_MAX)+1;
+		size_t bytes2 = (wcslen(a)+1)*sizeof(wchar_t);
+		RR_ASSERT(bytes1>0);
+		RR_ASSERT(bytes2>0);
+		str = (char*)malloc(bytes1+bytes2);
+		wstr = (wchar_t*)(str+bytes1);
+		wcstombs(str,a,INT_MAX);
+		memcpy(wstr,a,bytes2);
+	}
+	else
+	{
+		str = NULL;
+		wstr = NULL;
+	}
+}
+
+void RRString::clear()
+{
+	free(str);
+	::new(this) RRString();
 }
 
 RRString& RRString::operator =(const RRString& a)
 {
 	free(str);
-	str = a.str?_strdup(a.str):NULL;
+	::new(this) RRString(a);
 	return *this;
 }
 
 RRString& RRString::operator =(const char* a)
 {
 	free(str);
-	str = (a&&a[0])?_strdup(a):NULL;
+	::new(this) RRString(a);
+	return *this;
+}
+
+RRString& RRString::operator =(const wchar_t* a)
+{
+	free(str);
+	::new(this) RRString(a);
 	return *this;
 }
 
 bool RRString::operator ==(const RRString& a) const
 {
-	return (!str && !a.str) || (str && a.str && !strcmp(str,a.str));
+	return (!wstr && !a.wstr) || (wstr && a.wstr && !wcscmp(wstr,a.wstr));
 }
 
 bool RRString::operator ==(const char* a) const
 {
 	return (!str && (!a || !a[0])) || (str && a && a[0] && !strcmp(str,a));
+}
+
+bool RRString::operator ==(const wchar_t* a) const
+{
+	return (!wstr && (!a || !a[0])) || (wstr && a && a[0] && !wcscmp(wstr,a));
 }
 
 bool RRString::operator !=(const RRString& a) const
@@ -129,6 +197,11 @@ bool RRString::operator !=(const RRString& a) const
 }
 
 bool RRString::operator !=(const char* a) const
+{
+	return !(*this==a);
+}
+
+bool RRString::operator !=(const wchar_t* a) const
 {
 	return !(*this==a);
 }

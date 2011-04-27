@@ -208,14 +208,14 @@ RRString RRFileLocator::getLocation(const char* originalFilename) const
 	{
 		RRString location = getLocation(originalFilename,attempt);
 		if (location.empty())
-			return NULL;
+			return "";
 rr::RRReporter::report(rr::INF2," %d%c %s\n",attempt,exists(location.c_str())?'+':'-',location.c_str());
 		if (exists(location.c_str()))
 		{
 			return location;
 		}
 	}
-	return NULL;
+	return "";
 }
 
 RRFileLocator* RRFileLocator::create()
