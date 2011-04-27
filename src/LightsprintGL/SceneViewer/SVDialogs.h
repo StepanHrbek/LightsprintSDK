@@ -40,7 +40,7 @@ class ImportDlg : public wxDialog
 		wxCheckBox* objects;
 		wxCheckBox* lights;
 		
-		ImportDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select what to import"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 253,119 ), long style = wxCAPTION|wxCLOSE_BOX );
+		ImportDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select what to import"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 253,150 ), long style = wxCAPTION|wxCLOSE_BOX );
 		~ImportDlg();
 	
 };
@@ -65,7 +65,7 @@ class SmoothDlg : public wxDialog
 		wxCheckBox* stitchVertices;
 		wxCheckBox* preserveUvs;
 		
-		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,243 ), long style = wxCAPTION|wxCLOSE_BOX );
+		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,267 ), long style = wxCAPTION|wxCLOSE_BOX );
 		~SmoothDlg();
 	
 };
@@ -89,7 +89,7 @@ class MergeDlg : public wxDialog
 		wxCheckBox* animations;
 		wxCheckBox* environment;
 		
-		MergeDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select what to merge"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,205 ), long style = wxCAPTION|wxCLOSE_BOX );
+		MergeDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select what to merge"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 200,224 ), long style = wxCAPTION|wxCLOSE_BOX );
 		~MergeDlg();
 	
 };

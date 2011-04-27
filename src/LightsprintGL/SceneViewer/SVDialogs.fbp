@@ -37,7 +37,7 @@
             <property name="minimum_size"></property>
             <property name="name">ImportDlg</property>
             <property name="pos"></property>
-            <property name="size">253,119</property>
+            <property name="size">253,150</property>
             <property name="style">wxCAPTION|wxCLOSE_BOX</property>
             <property name="subclass"></property>
             <property name="title">Select what to import</property>
@@ -341,7 +341,7 @@
             <property name="minimum_size"></property>
             <property name="name">SmoothDlg</property>
             <property name="pos"></property>
-            <property name="size">215,243</property>
+            <property name="size">215,267</property>
             <property name="style">wxCAPTION|wxCLOSE_BOX</property>
             <property name="subclass"></property>
             <property name="title">Smoothing options</property>
@@ -934,7 +934,7 @@
             <property name="minimum_size"></property>
             <property name="name">MergeDlg</property>
             <property name="pos"></property>
-            <property name="size">215,205</property>
+            <property name="size">200,224</property>
             <property name="style">wxCAPTION|wxCLOSE_BOX</property>
             <property name="subclass"></property>
             <property name="title">Select what to merge</property>
