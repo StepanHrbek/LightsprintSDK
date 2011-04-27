@@ -108,6 +108,7 @@ bool TextureRenderer::renderEnvironment(const Texture* _texture0, const Texture*
 	rr::RRVec3 brightness = _brightness ? (rr::RRVec3)*_brightness : rr::RRVec3(1);
 
 	// setup render states
+	PreserveFlag p0(GL_CULL_FACE,false);
 	PreserveDepthTest p1;
 	PreserveDepthMask p2;
 	if (!_allowDepthTest) glDisable(GL_DEPTH_TEST);
