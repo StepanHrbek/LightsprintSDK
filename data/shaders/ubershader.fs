@@ -720,10 +720,11 @@ void main()
 			#if defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
 				gl_FragColor.a = opacityA;
 			#endif
-			#if (defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP)) && !defined(MATERIAL_DIFFUSE_CONST) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP)
-				// only if not defined by material, opacity is taken from lightmap/vertex colors
-				// before enabling this, UberProgramSetup::validate() would have to be changed, it disables lightmap if diffuse is not present
-				//gl_FragColor.a = lightIndirectLightmap.a;
+			#if defined(LIGHT_INDIRECT_VCOLOR) && !defined(MATERIAL_DIFFUSE_CONST) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP)
+				// only if not defined by material, opacity is taken from indirect vcolor
+				// - so we can construct simple shader with color and opacity controlled by glColor4() (e.g. in glMenu)
+				// - before doing this also for LIGHT_INDIRECT_MAP, UberProgramSetup::validate() would have to be changed, it disables lightmap if diffuse is not present
+				gl_FragColor.a = lightIndirectLightmap.a;
 			#endif
 		#endif
 	#else
