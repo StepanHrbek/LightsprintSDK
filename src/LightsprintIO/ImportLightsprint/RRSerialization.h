@@ -81,16 +81,25 @@ void load(Archive & ar, rr::RRMatrix3x4& a, const unsigned int version)
 template<class Archive>
 void save(Archive & ar, const rr::RRString& a, const unsigned int version)
 {
-	std::string s(a.c_str());
+	std::wstring s(a.w_str());
 	save(ar,s);
 }
 
 template<class Archive>
 void load(Archive & ar, rr::RRString& a, const unsigned int version)
 {
-	std::string s;
-	load(ar,s);
-	a = s.c_str();
+	if (version<1)
+	{
+		std::string s;
+		load(ar,s);
+		a = s.c_str();
+	}
+	else
+	{
+		std::wstring s;
+		load(ar,s);
+		a = s.c_str();
+	}
 }
 
 //------------------------------ RRBuffer -------------------------------------
@@ -644,6 +653,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(RRMeshProxy)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRSideBits)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRObject)
 
+BOOST_CLASS_VERSION(rr::RRString,1)
 BOOST_CLASS_VERSION(rr::RRMaterial,1)
 BOOST_CLASS_VERSION(rr::RRLight,3)
 
