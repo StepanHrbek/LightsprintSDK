@@ -290,7 +290,11 @@ struct VBUHeader
 static bool reloadVertexBuffer(RRBuffer* texture, const RRString& filename)
 {
 	// open
-	FILE* f = fopen(filename.c_str(),"rb"); // UNICODE lost
+#ifdef _WIN32
+	FILE* f = _wfopen(filename.w_str(),L"rb");
+#else
+	FILE* f = fopen(filename.c_str(),"rb");
+#endif
 	if (!f) return false;
 	// get filesize
 	fseek(f,0,SEEK_END);
@@ -463,7 +467,11 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 		if (buffer->getType()==BT_VERTEX_BUFFER)
 		{
 			VBUHeader header(buffer);
-			FILE* f = fopen(filename.c_str(),"wb"); // UNICODE lost
+#ifdef _WIN32
+			FILE* f = _wfopen(filename.w_str(),L"wb");
+#else
+			FILE* f = fopen(filename.c_str(),"wb");
+#endif
 			if (f)
 			{
 				fwrite(&header,sizeof(header),1,f);
