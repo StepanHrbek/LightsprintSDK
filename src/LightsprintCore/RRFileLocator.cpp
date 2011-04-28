@@ -65,15 +65,6 @@ public:
 protected:
 	bf::path getLocation(bf::path originalFilename, unsigned attemptNumber) const
 	{
-		// hack for renderlights
-		if (attemptNumber==123456)
-		{
-			if (relocationFilenames.size())
-				return getRelocatedFilename(originalFilename,relocationFilenames[0].first,relocationFilenames[0].second);
-			else
-				return originalFilename;
-		}
-
 		// extensions
 		if (originalFilename.extension().empty() && extensions.size())
 		{
