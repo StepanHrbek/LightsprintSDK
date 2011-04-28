@@ -168,22 +168,23 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	#define RR_RR2PATH(r)   (r).w_str()           // ok, unicode->unicode
-	#define RR_PATH2RR(p)   (p).wstring().c_str() // ok, unicode->unicode
-	#define RR_RR2STD(s)    (r).c_str()           // WRONG, unicode->local
-	#define RR_STD2RR(s)    (s).c_str()           // suspicious, local->unicode
-	#define RR_RR2STDW(s)   (r).w_str()           // ok, unicode->unicode
-	#define RR_STDW2RR(s)   (s).c_str()           // ok, unicode->unicode
-	#define RR_WX2RR(w)     ((const wchar_t*)(w)) // ok, unicode->unicode
-	#define RR_WX2PATH(w)   ((const wchar_t*)(w)) // ok, unicode->unicode
-	#define RR_RR2WX(r)     ((r).w_str())         // ok, unicode->unicode
-	#define RR_PATH2WX(p)   ((p).wstring())       // ok, unicode->unicode
+	#define RR_RR2PATH(r)   ((r).w_str())           // ok, unicode->unicode
+	#define RR_PATH2RR(p)   ((p).wstring().c_str()) // ok, unicode->unicode
+	#define RR_RR2STD(r)    ((r).c_str())           // WRONG, unicode->local
+	#define RR_STD2RR(s)    ((s).c_str())           // suspicious, local->unicode
+	#define RR_RR2STDW(r)   ((r).w_str())           // ok, unicode->unicode
+	#define RR_STDW2RR(s)   ((s).c_str())           // ok, unicode->unicode
+	#define RR_WX2RR(w)     ((const wchar_t*)(w))   // ok, unicode->unicode
+	#define RR_WX2PATH(w)   ((const wchar_t*)(w))   // ok, unicode->unicode
+	#define RR_RR2WX(r)     ((r).w_str())           // ok, unicode->unicode
+	#define RR_PATH2WX(p)   ((p).wstring())         // ok, unicode->unicode
 #ifdef _WIN32
-	#define RR_WX2STREAM(w) ((const wchar_t*)(w)) // ok, unicode->unicode
+	#define RR_WX2STREAM(w) ((const wchar_t*)(w))   // ok, unicode->unicode
 #else
-	#define RR_WX2STREAM(w) ((const char*)(w))    // WRONG, unicode->local
+	#define RR_WX2STREAM(w) ((const char*)(w))      // WRONG, unicode->local
 #endif
-	#define RR_WX2CHAR(w)   ((const char*)(w))    // WRONG, unicode->local
+	#define RR_RR2CHAR(r)   ((r).c_str())           // WRONG, unicode->local
+	#define RR_WX2CHAR(w)   ((const char*)(w))      // WRONG, unicode->local
 
 } // namespace
 

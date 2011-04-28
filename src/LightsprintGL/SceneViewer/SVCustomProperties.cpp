@@ -310,7 +310,7 @@ void ImageFileProperty::updateBufferAndIcon(rr::RRBuffer*& buffer, bool playVide
 		buffer->stop();
 		delete buffer;
 	}
-	buffer = rr::RRBuffer::load(GetValue().GetString());
+	buffer = rr::RRBuffer::load(RR_WX2RR(GetValue().GetString()));
 	if (buffer && playVideos)
 		buffer->play();
 

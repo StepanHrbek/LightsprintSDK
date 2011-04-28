@@ -31,7 +31,7 @@ class RRBufferDirectShow : public RRBuffer, public ISampleGrabberCB
 public:
 
 	//! First in buffer's lifetime (load from one location).
-	static RRBuffer* load(const char* _filename, const char* _cubeSideName[6])
+	static RRBuffer* load(const RRString& _filename, const char* _cubeSideName[6])
 	{
 		RRBufferDirectShow* video = new RRBufferDirectShow(_filename);
 		if (!video->getWidth() || !video->getHeight())
@@ -46,7 +46,7 @@ public:
 	};
 
 	//! Third in buffer's lifetime. If constructor fails, 0*0 buffer is created.
-	RRBufferDirectShow(const char* _filename)
+	RRBufferDirectShow(const RRString& _filename)
 	{
 		refCount = 1;
 		filename = _filename;
@@ -67,7 +67,7 @@ public:
 
 		HRESULT hr = CoInitialize(NULL);
 
-		if (!_filename)
+		if (_filename.empty())
 			return;
 
 		hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC, IID_IGraphBuilder, (void **)&dsGraph);
@@ -96,7 +96,7 @@ public:
 				}
 			}
 	
-			if (strstr(_filename,"c@pture"))
+			if (_filename=="c@pture")
 			{
 				// capture from video input
 				IPin*           capRnd  = NULL; hr = dsGrabberFilter->FindPin(L"In",&capRnd);
@@ -120,11 +120,7 @@ public:
 			else
 			{
 				// play file
-				unsigned len = (unsigned)(strlen(_filename)+1);
-				wchar_t* filenamew = new wchar_t[len];
-				for (unsigned i=0;i<len;i++) filenamew[i] = _filename[i];
-				hr = dsGraph->RenderFile(filenamew, NULL);
-				delete[] filenamew;
+				hr = dsGraph->RenderFile(_filename.w_str(), NULL);
 			}
 
 			// disable auto show

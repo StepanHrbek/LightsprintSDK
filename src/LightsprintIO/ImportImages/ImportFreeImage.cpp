@@ -18,6 +18,7 @@
 #include <climits>
 #include <cstdio>
 #include <cstring>
+#include <string>
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
 #include "ImportFreeImage.h"
@@ -45,7 +46,7 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 //
 // FreeImage load
 
-static unsigned char* loadFreeImage(const char* filename,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat,bool& outScaled)
+static unsigned char* loadFreeImage(const RRString& filename,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat,bool& outScaled)
 {
 	// uncomment if you wish to skip loading from network
 //	if (filename && filename[0]=='\\' && filename[1]=='\\') return NULL;
@@ -54,17 +55,29 @@ static unsigned char* loadFreeImage(const char* filename,bool flipV,bool flipH,u
 	unsigned char* pixels = NULL;
 
 	// check the file signature and deduce its format
-	fif = FreeImage_GetFileType(filename, 0);
+#ifdef _WIN32
+	fif = FreeImage_GetFileTypeU(filename.w_str(), 0);
+#else
+	fif = FreeImage_GetFileType(filename.c_str(), 0);
+#endif
 	// no signature? try to guess the file format from the file extension
 	if (fif == FIF_UNKNOWN)
 	{
-		fif = FreeImage_GetFIFFromFilename(filename);
+#ifdef _WIN32
+		fif = FreeImage_GetFIFFromFilenameU(filename.w_str());
+#else
+		fif = FreeImage_GetFIFFromFilename(filename.c_str());
+#endif
 	}
 	// check that the plugin has reading capabilities
 	if (fif!=FIF_UNKNOWN && FreeImage_FIFSupportsReading(fif))
 	{
 		// load the file
-		FIBITMAP* dib1 = FreeImage_Load(fif, filename);
+#ifdef _WIN32
+		FIBITMAP* dib1 = FreeImage_LoadU(fif, filename.w_str());
+#else
+		FIBITMAP* dib1 = FreeImage_Load(fif, filename.c_str());
+#endif
 		if (dib1)
 		{
 			unsigned bpp1 = FreeImage_GetBPP(dib1);
@@ -274,10 +287,10 @@ struct VBUHeader
 };
 
 // vertex buffer loader
-static bool reloadVertexBuffer(RRBuffer* texture, const char* filename)
+static bool reloadVertexBuffer(RRBuffer* texture, const RRString& filename)
 {
 	// open
-	FILE* f = fopen(filename,"rb");
+	FILE* f = fopen(filename.c_str(),"rb"); // UNICODE lost
 	if (!f) return false;
 	// get filesize
 	fseek(f,0,SEEK_END);
@@ -301,7 +314,7 @@ static bool reloadVertexBuffer(RRBuffer* texture, const char* filename)
 }
 
 // 2D map loader
-static bool reload2d(RRBuffer* texture, const char* filename)
+static bool reload2d(RRBuffer* texture, const RRString& filename)
 {
 	unsigned width = 0;
 	unsigned height = 0;
@@ -321,14 +334,14 @@ static bool reload2d(RRBuffer* texture, const char* filename)
 }
 
 // cube map loader
-static bool reloadCube(RRBuffer* texture, const char* filenameMask, const char *cubeSideName[6])
+static bool reloadCube(RRBuffer* texture, const RRString& filenameMask, const char* cubeSideName[6])
 {
 	unsigned width = 0;
 	unsigned height = 0;
 	RRBufferFormat format = BF_DEPTH;
 	bool scaled = true;
 	unsigned char* pixels = NULL;
-	bool sixFiles = filenameMask && strstr(filenameMask,"%s");
+	bool sixFiles = wcsstr(filenameMask.w_str(),L"%s")!=NULL;
 	if (!sixFiles)
 	{
 		// LOAD PIXELS FROM SINGLE FILE.HDR
@@ -355,14 +368,13 @@ static bool reloadCube(RRBuffer* texture, const char* filenameMask, const char *
 		unsigned char* sides[6] = {NULL,NULL,NULL,NULL,NULL,NULL};
 		for (unsigned side=0;side<6;side++)
 		{
-			char buf[1000];
-			_snprintf(buf,999,filenameMask,cubeSideName[side]);
-			buf[999] = 0;
+			std::wstring buf = RR_RR2STDW(filenameMask);
+			buf.replace(buf.find(L"%s"),2,RRString(cubeSideName[side]).w_str());
 
 			unsigned tmpWidth, tmpHeight;
 			RRBufferFormat tmpFormat;
 
-			sides[side] = loadFreeImage(buf,true,true,tmpWidth,tmpHeight,tmpFormat,scaled);
+			sides[side] = loadFreeImage(RR_STDW2RR(buf),true,true,tmpWidth,tmpHeight,tmpFormat,scaled);
 			if (!sides[side])
 				return false;
 
@@ -399,10 +411,10 @@ static bool reloadCube(RRBuffer* texture, const char* filenameMask, const char *
 	return true;
 }
 
-static RRBuffer* load(const char* filename, const char* cubeSideName[6])
+static RRBuffer* load(const RRString& filename, const char* cubeSideName[6])
 {
 	RRBuffer* buffer = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
-	bool reloaded = (strstr(filename,".vbu") || strstr(filename,".VBU"))
+	bool reloaded = (wcsstr(filename.w_str(),L".vbu") || wcsstr(filename.w_str(),L".VBU"))
 		? reloadVertexBuffer(buffer,filename)
 		: (cubeSideName
 			? reloadCube(buffer,filename,cubeSideName)
@@ -428,12 +440,16 @@ BOOL FIFSupportsExportBPP(FREE_IMAGE_FORMAT fif, int bpp)
 	}
 }
 
-bool save(RRBuffer* buffer, const char* filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
+bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
 {
 	bool result = false;
 
 	// preliminary, may change due to cubeSideName replacement
-	FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(filename);
+#ifdef _WIN32
+	FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilenameU(filename.w_str());
+#else
+	FREE_IMAGE_FORMAT fif = FreeImage_GetFIFFromFilename(filename.c_str());
+#endif
 
 	// default cube side names
 	const char* cubeSideNameBackup[6] = {"0","1","2","3","4","5"};
@@ -447,7 +463,7 @@ bool save(RRBuffer* buffer, const char* filename, const char* cubeSideName[6], c
 		if (buffer->getType()==BT_VERTEX_BUFFER)
 		{
 			VBUHeader header(buffer);
-			FILE* f = fopen(filename,"wb");
+			FILE* f = fopen(filename.c_str(),"wb"); // UNICODE lost
 			if (f)
 			{
 				fwrite(&header,sizeof(header),1,f);
@@ -487,7 +503,7 @@ bool save(RRBuffer* buffer, const char* filename, const char* cubeSideName[6], c
 		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][2]))
 		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][3]))
 		{
-			RRReporter::report(WARN,"Save not supported for %s format.\n",filename);
+			RRReporter::report(WARN,"Save not supported for %ls format.\n",filename.w_str());
 			goto ende;
 		}
 		fit = (dstbipp==128) ? FIT_RGBAF : ((dstbipp==96)?FIT_RGBF:FIT_BITMAP);
@@ -609,9 +625,10 @@ bool save(RRBuffer* buffer, const char* filename, const char* cubeSideName[6], c
 						}
 
 						// generate single side filename
-						char filenameCube[1000];
-						_snprintf(filenameCube,999,filename,cubeSideName[side]);
-						filenameCube[999] = 0;
+						std::wstring filenameCube = RR_RR2STDW(filename);
+						int ofs = (int)filenameCube.find(L"%s");
+						if (ofs>=0)
+							filenameCube.replace(ofs,2,RRString(cubeSideName[side]).w_str());
 
 						// save single side
 						int flags = 0;
@@ -623,7 +640,11 @@ bool save(RRBuffer* buffer, const char* filename, const char* cubeSideName[6], c
 							if (saveParameters->jpegQuality<=(75+100)/2) flags = JPEG_QUALITYGOOD; else
 							flags = JPEG_QUALITYSUPERB;
 						}
-						result = FreeImage_Save(fif, dib, filenameCube, flags)!=0;
+#ifdef _WIN32
+						result = FreeImage_SaveU(fif, dib, filenameCube.c_str(), flags)!=0;
+#else
+						result = FreeImage_Save(fif, dib, filenameCube.c_str(), flags)!=0;
+#endif
 						// if any one of 6 images fails, don't try other and report fail
 						if (!result) break;
 					}

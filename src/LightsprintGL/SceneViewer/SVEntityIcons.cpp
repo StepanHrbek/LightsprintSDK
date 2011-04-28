@@ -17,9 +17,9 @@ namespace rr_gl
 
 SVEntityIcons::SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram)
 {
-	icon[rr::RRLight::DIRECTIONAL] = rr::RRBuffer::load(wxString::Format("%ssv_sun.png",pathToMaps));
-	icon[rr::RRLight::POINT] = rr::RRBuffer::load(wxString::Format("%ssv_point.png",pathToMaps));
-	icon[rr::RRLight::SPOT] = rr::RRBuffer::load(wxString::Format("%ssv_spot.png",pathToMaps));
+	icon[rr::RRLight::DIRECTIONAL] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_sun.png",pathToMaps)));
+	icon[rr::RRLight::POINT] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_point.png",pathToMaps)));
+	icon[rr::RRLight::SPOT] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_spot.png",pathToMaps)));
 
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;

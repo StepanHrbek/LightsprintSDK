@@ -996,7 +996,7 @@ save_scene_as:
 				// 9. save
 				rr::RRBuffer::SaveParameters saveParameters;
 				saveParameters.jpegQuality = 100;
-				if (sshot->save(userPreferences.sshotFilename,NULL,&saveParameters))
+				if (sshot->save(RR_WX2RR(userPreferences.sshotFilename),NULL,&saveParameters))
 					rr::RRReporter::report(rr::INF2,"Saved %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
 				else
 					rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
@@ -1111,7 +1111,7 @@ save_scene_as:
 					// 9. save
 					rr::RRBuffer::SaveParameters saveParameters;
 					saveParameters.jpegQuality = 100;
-					if (sshot->save(userPreferences.sshotFilename,NULL,&saveParameters))
+					if (sshot->save(RR_WX2RR(userPreferences.sshotFilename),NULL,&saveParameters))
 						rr::RRReporter::report(rr::INF2,"Saved %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
 					else
 						rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
@@ -1191,7 +1191,7 @@ save_scene_as:
 		case ME_ENV_RELOAD: // not a menu item, just command we can call from outside
 			{
 reload_skybox:
-				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename,textureLocator);
+				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(RR_WX2RR(svs.skyboxFilename),textureLocator);
 				if (envToBeDeletedOnExit && solver->getEnvironment(0))
 				{
 					solver->getEnvironment(0)->stop();

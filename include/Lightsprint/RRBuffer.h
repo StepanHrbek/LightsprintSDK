@@ -299,7 +299,7 @@ namespace rr
 		//!  Image load/save is implemented outside LightsprintCore.
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
 		//!  or use setLoader() to assign custom code.
-		static RRBuffer* load(const char* filename, const char* cubeSideName[6] = NULL, const RRFileLocator* fileLocator = NULL);
+		static RRBuffer* load(const RRString& filename, const char* cubeSideName[6] = NULL, const RRFileLocator* fileLocator = NULL);
 		//! Loads texture from 1 or 6 files to system memory, converting it to cubemap if possible.
 		//
 		//! This is convenience function working with incomplete information,
@@ -315,12 +315,12 @@ namespace rr
 		//! \param fileLocator
 		//!  NULL = load will be attempted only from filename.
 		//!  Non-NULL = load will be attempted from paths offered by fileLocator.
-		static RRBuffer* loadCube(const char* filename, const RRFileLocator* fileLocator = NULL);
+		static RRBuffer* loadCube(const RRString& filename, const RRFileLocator* fileLocator = NULL);
 		//! Similar to load(), but loads from disk into existing buffer.
 		//
 		//! Default implementation uses buffer's load() and reset()
 		//! to load and copy single static frame, it does not work for videos.
-		virtual bool reload(const char* filename, const char* cubeSideName[6], const RRFileLocator* fileLocator);
+		virtual bool reload(const RRString& filename, const char* cubeSideName[6], const RRFileLocator* fileLocator);
 
 		//! Rarely used additional save parameters, not necessarily supported by all implementations.
 		struct SaveParameters
@@ -345,12 +345,12 @@ namespace rr
 		//!  Image load/save is implemented outside LightsprintCore.
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
 		//!  or use setLoader() to assign custom code.
-		bool save(const char* filenameMask, const char* cubeSideName[6] = NULL, const SaveParameters* saveParameters = NULL);
+		bool save(const RRString& filenameMask, const char* cubeSideName[6] = NULL, const SaveParameters* saveParameters = NULL);
 
 		//! Type of user defined function that loads content from file into new buffer.
-		typedef RRBuffer* (Loader)(const char* filename, const char* cubeSideName[6]);
+		typedef RRBuffer* (Loader)(const RRString& filename, const char* cubeSideName[6]);
 		//! Type of user defined function that saves buffer contents to file.
-		typedef bool (Saver)(RRBuffer* buffer, const char* filenameMask, const char* cubeSideName[6], const SaveParameters* parameters);
+		typedef bool (Saver)(RRBuffer* buffer, const RRString& filenameMask, const char* cubeSideName[6], const SaveParameters* parameters);
 		//! Hooks external code that handles loading content from files into new buffers.
 		//
 		//! Usually called from rr_io::registerLoaders().

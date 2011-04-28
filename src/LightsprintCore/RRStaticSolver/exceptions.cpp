@@ -82,15 +82,15 @@ RRReal RRMesh::findGroundLevel() const
 //
 // ImageCache
 
-extern RRBuffer* load_noncached(const char *filename, const char* cubeSideName[6]);
+extern RRBuffer* load_noncached(const RRString& filename, const char* cubeSideName[6]);
 
 
 class ImageCache
 {
 public:
-	RRBuffer* load_cached(const char* filename, const char* cubeSideName[6])
+	RRBuffer* load_cached(const RRString& filename, const char* cubeSideName[6])
 	{
-		Cache::iterator i = cache.find(filename);
+		Cache::iterator i = cache.find(RR_RR2STDW(filename));
 		if (i!=cache.end())
 		{
 			// image was found in cache
@@ -104,7 +104,7 @@ public:
 				bool cached2dCross = i->second.buffer->getType()==BT_2D_TEXTURE && (i->second.buffer->getWidth()*3==i->second.buffer->getHeight()*4 || i->second.buffer->getWidth()*4==i->second.buffer->getHeight()*3);
 				bool cachedCube = i->second.buffer->getType()==BT_CUBE_TEXTURE;
 				if ((cached2dCross && cubeSideName) || (cachedCube && !cubeSideName))
-					RRReporter::report(WARN,"You broke image cache by loading %s as both 2d and cube.\n",filename);
+					RRReporter::report(WARN,"You broke image cache by loading %ls as both 2d and cube.\n",filename.w_str());
 
 				// image is already in memory and it was not modified since load, use it
 				return i->second.buffer->createReference(); // add one ref for user
@@ -114,7 +114,7 @@ public:
 			cache.erase(i);
 		}
 		// load new file into cache
-		Value& value = cache[filename];
+		Value& value = cache[RR_RR2STDW(filename)];
 		value.buffer = load_noncached(filename,cubeSideName);
 		if (value.buffer)
 		{
@@ -142,7 +142,7 @@ public:
 			// If users deleted their buffers, refcount should be down at 1 and this delete is final
 			// Don't report in release, some samples knowingly leak, to make code simpler
 			if (i->second.buffer && i->second.buffer->getReferenceCount()!=1)
-				RRReporter::report(WARN,"Memory leak, image %s not deleted (%dx).\n",i->second.buffer->filename.c_str(),i->second.buffer->getReferenceCount()-1);
+				RRReporter::report(WARN,"Memory leak, image %ls not deleted (%dx).\n",i->second.buffer->filename.w_str(),i->second.buffer->getReferenceCount()-1);
 #endif
 			delete i->second.buffer;
 		}
@@ -154,7 +154,7 @@ protected:
 		unsigned bufferVersionWhenLoaded;
 		//std::time_t fileTimeWhenLoaded;
 	};
-	typedef boost::unordered_map<std::string,Value> Cache;
+	typedef boost::unordered_map<std::wstring,Value> Cache;
 	Cache cache;
 };
 
@@ -162,7 +162,7 @@ protected:
 // especially if user loads many models that share textures.
 ImageCache s_imageCache;
 
-RRBuffer* load_cached(const char* filename, const char* cubeSideName[6])
+RRBuffer* load_cached(const RRString& filename, const char* cubeSideName[6])
 {
 	return s_imageCache.load_cached(filename,cubeSideName);
 }
@@ -224,14 +224,6 @@ void RRObjects::getAllMaterials(RRVector<RRMaterial*>& materials) const
 			materials.push_back(*i);
 }
 
-static bool exists(const char* filename)
-{
-	FILE* f = fopen(filename,"rb");
-	if (!f) return false;
-	fclose(f);
-	return true;
-}
-
 
 unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext) const
 {
@@ -248,17 +240,17 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 			layerParameters.suggestedPath = path;
 			layerParameters.suggestedExt = ext;
 			object->recommendLayerParameters(layerParameters);
-			if ( !exists(layerParameters.actualFilename.c_str()) || !(buffer=RRBuffer::load(layerParameters.actualFilename.c_str(),NULL)) )
+			if ( !bf::exists(RR_RR2PATH(layerParameters.actualFilename)) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
 			{
 				// if it fails, try to load per-vertex format
 				layerParameters.suggestedMapWidth = layerParameters.suggestedMapHeight = 0;
 				object->recommendLayerParameters(layerParameters);
-				if (exists(layerParameters.actualFilename.c_str()))
+				if (bf::exists(RR_RR2PATH(layerParameters.actualFilename)))
 					buffer = RRBuffer::load(layerParameters.actualFilename.c_str());
 			}
 			if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=object->getCollider()->getMesh()->getNumVertices())
 			{
-				RR_LIMITED_TIMES(5,RRReporter::report(ERRO,"%s has wrong size.\n",layerParameters.actualFilename.c_str()));
+				RR_LIMITED_TIMES(5,RRReporter::report(ERRO,"%ls has wrong size.\n",layerParameters.actualFilename.w_str()));
 				RR_SAFE_DELETE(buffer);
 			}
 			if (buffer)
@@ -266,11 +258,11 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 				delete object->illumination.getLayer(layerNumber);
 				object->illumination.getLayer(layerNumber) = buffer;
 				result++;
-				RRReporter::report(INF3,"Loaded %s.\n",layerParameters.actualFilename.c_str());
+				RRReporter::report(INF3,"Loaded %ls.\n",layerParameters.actualFilename.w_str());
 			}
 			else
 			{
-				RRReporter::report(INF3,"Not loaded %s.\n",layerParameters.actualFilename.c_str());
+				RRReporter::report(INF3,"Not loaded %ls.\n",layerParameters.actualFilename.w_str());
 			}
 		}
 		RRReporter::report(INF2,"Loaded layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
@@ -303,11 +295,11 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 				if (buffer->save(layerParameters.actualFilename.c_str()))
 				{
 					result++;
-					RRReporter::report(INF3,"Saved %s.\n",layerParameters.actualFilename.c_str());
+					RRReporter::report(INF3,"Saved %ls.\n",layerParameters.actualFilename.w_str());
 				}
 				else
 				if (!layerParameters.actualFilename.empty())
-					RRReporter::report(WARN,"Not saved %s.\n",layerParameters.actualFilename.c_str());
+					RRReporter::report(WARN,"Not saved %ls.\n",layerParameters.actualFilename.w_str());
 			}
 		}
 		if (result)

@@ -12,7 +12,7 @@ namespace rr
 
 NEWS
 
-- improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"
+- <b>improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"</b>
   - Toolbench menu "Calculate to cache"
     \n processes huge scenes in 64bit code, not limited by tiny address space of 32bit Toolbench
     \n calculation is non-blocking, you can work in Toolbench and even close it
@@ -20,17 +20,17 @@ NEWS
   - Toolbench menu "Documentation"
   - SDK includes patch to fix GI Package
   - lightmaps are cached in temp, improves performance (asset controller slowed things down in old location)
-- improved specular reflection
+- <b>improved specular reflection</b>
   - Phong, Blinn-Phong, Torrance-Sparrow, Blinn-Torrance-Sparrow
   - RRMaterial::specularModel added
   - RRMaterial::specularShininess added, as a parameter for models above
-- improved realtime renderer
+- <b>improved realtime renderer</b>
   - supports all specular reflection models
   - supports spotlight exponent (RRLight::spotExponent)
   - more detailed sun shadows
   - advanced materials and lighting available also on low end GPUs
   - Program::sendTexture() added, dynamically allocates texture units
-- improved Scene viewer
+- <b>improved Scene viewer</b>
   - menu Global illumination/Build normals
   - menu Global illumination/Build tangents
   - Material properies/Specular/Model
@@ -42,9 +42,15 @@ NEWS
   - "mapsize=w*h" parameter
   - "outputname=" parameter
   - "nothing" parameter
-- Unicode support
-  - RRString accepts and returns both unicode (wchar_t) and local charset (char)
-  - RRString::clear() replaces string = NULL; (NULL is ambiguous)
+- <b>transparent Unicode support</b>
+  - as a user, you can use funny characters in filenames
+  - as a programmer, you can write L"foo.jpg" instead of "foo.jpg"
+  - RRString accepts and returns both unicode (wchar_t) and local charset (char) strings
+  - RRString replaces char* in
+    - RRBuffer
+    - RRFileLocator
+  - use RRString::clear() instead of string = NULL; (NULL is ambiguous)
+  - convert strings with RR_* conversion macros
 - misc helper functions
   - RRObjects::stitchAndSmooth()
   - RRMeshArrays::buildNormals()

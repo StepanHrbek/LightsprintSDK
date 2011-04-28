@@ -12,6 +12,9 @@
 #include "Lightsprint/RRLight.h"
 #include "../squish/squish.h"
 #include "../RRDynamicSolver/gather.h" // TexelFlags
+#include <boost/filesystem.hpp>
+
+namespace bf = boost::filesystem;
 
 namespace rr
 {
@@ -658,9 +661,9 @@ bool RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 // ImageCache
 // - needs exceptions, implemented in exceptions.cpp
 
-RRBuffer* load_noncached(const char* _filename, const char* _cubeSideName[6])
+RRBuffer* load_noncached(const RRString& _filename, const char* _cubeSideName[6])
 {
-	if (!_filename || !_filename[0])
+	if (_filename.empty())
 	{
 		return NULL;
 	}
@@ -673,7 +676,7 @@ RRBuffer* load_noncached(const char* _filename, const char* _cubeSideName[6])
 	return NULL;
 }
 
-extern RRBuffer* load_cached(const char* filename, const char* cubeSideName[6]);
+extern RRBuffer* load_cached(const RRString& filename, const char* cubeSideName[6]);
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -690,9 +693,9 @@ void RRBuffer::registerSaver(Saver* saver)
 	s_savers.push_back(saver);
 }
 
-bool RRBuffer::save(const char *_filename, const char* _cubeSideName[6], const SaveParameters* _parameters)
+bool RRBuffer::save(const RRString& _filename, const char* _cubeSideName[6], const SaveParameters* _parameters)
 {
-	if (!_filename || !_filename[0])
+	if (_filename.empty())
 	{
 		return false;
 	}
@@ -715,17 +718,9 @@ bool RRBuffer::save(const char *_filename, const char* _cubeSideName[6], const S
 	return false;
 }
 
-static bool exists(const char* filename)
+RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6], const RRFileLocator* _fileLocator)
 {
-	FILE* f = fopen(filename,"rb");
-	if (!f) return false;
-	fclose(f);
-	return true;
-}
-
-RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6], const RRFileLocator* _fileLocator)
-{
-	if (!_filename || !_filename[0])
+	if (_filename.empty())
 	{
 		return NULL;
 	}
@@ -739,24 +734,22 @@ RRBuffer* RRBuffer::load(const char *_filename, const char* _cubeSideName[6], co
 	{
 		for (unsigned attempt=0;attempt<UINT_MAX;attempt++)
 		{
-			RRString location = _fileLocator->getLocation(_filename,attempt);
+			std::wstring location = RR_RR2STDW(_fileLocator->getLocation(_filename,attempt));
 			if (location.empty())
 				break;
-			char location_buf[1000];
-			if (_cubeSideName && strstr(location.c_str(),"%s"))
-				_snprintf(location_buf,999,location.c_str(),_cubeSideName[0]); //!!! what if user loads "%s%s.jpg"?
-			else
-				_snprintf(location_buf,999,"%s",location.c_str());
-			location_buf[999] = 0;
-rr::RRReporter::report(rr::INF2,"%d%c %s\n",attempt,exists(location_buf)?'+':'-',location.c_str());
-			if (exists(location_buf))
+			int ofs = (int)location.find(L"%s");
+			if (ofs>=0)
+				location.replace(ofs,2,RRString(_cubeSideName[0]).w_str());
+			bool exists = bf::exists(location);
+rr::RRReporter::report(rr::INF2,"%d%c %ls\n",attempt,exists?'+':'-',location.c_str());
+			if (exists)
 			{
-				RRBuffer* result = load_cached(location.c_str(),_cubeSideName);
+				RRBuffer* result = load_cached(RR_STDW2RR(location),_cubeSideName);
 				if (result)
 					return result;
 			}
 		}
-		RRReporter::report(WARN,"Failed to load %s.\n",_filename);
+		RRReporter::report(WARN,"Failed to load %ls.\n",_filename.w_str());
 		return NULL;
 	}
 	else
@@ -765,9 +758,9 @@ rr::RRReporter::report(rr::INF2,"%d%c %s\n",attempt,exists(location_buf)?'+':'-'
 	}
 }
 
-bool RRBuffer::reload(const char *_filename, const char* _cubeSideName[6], const RRFileLocator* _fileLocator)
+bool RRBuffer::reload(const RRString& _filename, const char* _cubeSideName[6], const RRFileLocator* _fileLocator)
 {
-	if (!_filename || !_filename[0])
+	if (_filename.empty())
 	{
 		return false;
 	}
@@ -802,8 +795,8 @@ bool RRBuffer::reload(const char *_filename, const char* _cubeSideName[6], const
 	return true;
 }
 
-// sideeffect: plants %s into filename
-static const char** selectCubeSideNames(char *_filename)
+// sideeffect: plants %s into _filename
+static const char** selectCubeSideNames(std::wstring& _filename)
 {
 	const unsigned numConventions = 3;
 	static const char* cubeSideNames[numConventions][6] =
@@ -813,22 +806,16 @@ static const char** selectCubeSideNames(char *_filename)
 		{"negative_x","positive_x","positive_y","negative_y","positive_z","negative_z"} // codemonsters.de
 	};
 	// inserts %s if it is one of 6 images
-	size_t filenameLen = strlen(_filename);
+	size_t filenameLen = _filename.size();
 	for (unsigned c=0;c<numConventions;c++)
 	{
 		for (unsigned s=0;s<6;s++)
 		{
-			const char* suffix = cubeSideNames[c][s];
-			size_t suffixLen = strlen(suffix);
-			if (filenameLen>=suffixLen+4 && strncmp(_filename+filenameLen-suffixLen-4,suffix,suffixLen)==0 && _filename[filenameLen-4]=='.')
+			RRString suffix = cubeSideNames[c][s];
+			int ofs = (int)_filename.find(suffix.w_str());
+			if (ofs>=0)
 			{
-				_filename[filenameLen-suffixLen-4] = '%';
-				_filename[filenameLen-suffixLen-3] = 's';
-				_filename[filenameLen-suffixLen-2] = '.';
-				_filename[filenameLen-suffixLen-1] = _filename[filenameLen-3];
-				_filename[filenameLen-suffixLen  ] = _filename[filenameLen-2];
-				_filename[filenameLen-suffixLen+1] = _filename[filenameLen-1];
-				_filename[filenameLen-suffixLen+2] = 0;
+				_filename.replace(ofs,wcslen(suffix.w_str()),L"%s");
 				return cubeSideNames[c];
 			}
 		}
@@ -836,30 +823,15 @@ static const char** selectCubeSideNames(char *_filename)
 	return cubeSideNames[0];
 }
 
-RRBuffer* RRBuffer::loadCube(const char *_filename, const RRFileLocator* _fileLocator)
+RRBuffer* RRBuffer::loadCube(const RRString& _filename, const RRFileLocator* _fileLocator)
 {
-	if (!_filename || !_filename[0])
+	if (_filename.empty())
 	{
 		return NULL;
 	}
-	char* filename = _strdup(_filename);
+	std::wstring filename = RR_RR2STDW(_filename);
 	const char** cubeSideNames = selectCubeSideNames(filename);
-	RRBuffer* result = load(filename,cubeSideNames,_fileLocator);
-	free(filename);
-	return result;
+	return load(RR_STDW2RR(filename),cubeSideNames,_fileLocator);
 }
-/*
-bool RRBuffer::reloadCube(const char *_filename)
-{
-	if (!_filename || !_filename[0])
-	{
-		return false;
-	}
-	char* filename = _strdup(_filename);
-	const char** cubeSideNames = selectCubeSideNames(filename);
-	bool result = reload(filename,cubeSideNames,NULL);
-	free(filename);
-	return result;
-}
-*/
+
 }; // namespace
