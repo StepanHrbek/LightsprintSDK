@@ -1329,7 +1329,7 @@ public:
 		};
 
 		// fill filename
-		layerParameters.actualFilename = NULL;
+		layerParameters.actualFilename.clear();
 		LightmapFunctor lightmapFunctor;
 		lightmapFunctor.layerParameters = &layerParameters;
 		lightmapFunctor.object = this;
