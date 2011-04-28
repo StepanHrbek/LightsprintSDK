@@ -114,12 +114,13 @@ RRString::RRString(const char* a)
 	if (a&&a[0])
 	{
 		size_t bytes1 = strlen(a)+1;
-		size_t bytes2 = (mbstowcs(NULL,a,INT_MAX)+1)*sizeof(wchar_t);
+		size_t bytes2 = (mbstowcs(NULL,a,0)+1+1)*sizeof(wchar_t); // +1 compensates mbstowcs=-1 in case of invalid wstring
 		RR_ASSERT(bytes1>0);
 		RR_ASSERT(bytes2>0);
 		str = (char*)malloc(bytes1+bytes2);
 		wstr = (wchar_t*)(str+bytes1);
 		memcpy(str,a,bytes1);
+		wstr[0] = 0; // cleanup in case of invalid a / mbstowcs failure
 		mbstowcs(wstr,a,INT_MAX);
 	}
 	else
@@ -133,12 +134,13 @@ RRString::RRString(const wchar_t* a)
 {
 	if (a&&a[0])
 	{
-		size_t bytes1 = wcstombs(NULL,a,INT_MAX)+1;
+		size_t bytes1 = wcstombs(NULL,a,0)+1+1; // +1 compensates wcstombs=-1 in case of invalid wstring
 		size_t bytes2 = (wcslen(a)+1)*sizeof(wchar_t);
 		RR_ASSERT(bytes1>0);
 		RR_ASSERT(bytes2>0);
 		str = (char*)malloc(bytes1+bytes2);
 		wstr = (wchar_t*)(str+bytes1);
+		str[0] = 0; // cleanup in case of invalid a / wcstombs failure
 		wcstombs(str,a,INT_MAX);
 		memcpy(wstr,a,bytes2);
 	}
