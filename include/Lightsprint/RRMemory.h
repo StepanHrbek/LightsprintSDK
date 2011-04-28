@@ -106,8 +106,11 @@ namespace rr
 	//! to make SDK compatible with any STL implementation.
 	//!
 	//! Encoding:
-	//! - char is always interpreted as local charset
-	//! - wchar_t is always interpreted as UTF16 or UTF32
+	//! - char* is always null terminated string in local charset
+	//! - wchar_t* is always null terminated string in UTF16 (windows) or UTF32 (mac, linux)
+	//!
+	//! RRString implicitly converts from and explicitly to char* and wchar_t*.
+	//! Conversions from/to third party string types are explicit, using RR_* macros.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -143,6 +146,31 @@ namespace rr
 		char* str; ///< Never "", empty string is NULL.
 		wchar_t* wstr; ///< Never "", empty string is NULL.
 	};
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	// String conversion macros.
+	//
+	// RR   - RRString
+	// WX   - wxString
+	// STD  - std::string
+	// STDW - std::wstring
+	// PATH - boost::filesystem:path
+	//
+	// Convert strings with these macros to
+	// - keep track of all conversions, make them searchable
+	// - ensure unicode correctness
+	// - make code more readable
+	//
+	// Macros only select suitable accessor so that implicit conversion can take place,
+	// they don't return destination type.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	#define RR_RR2PATH(r) (r).w_str()
+	#define RR_PATH2RR(p) (p).wstring().c_str()
+	#define RR_STD2RR(s)  (s).c_str()
+	#define RR_STDW2RR(s) (s).c_str()
 
 } // namespace
 

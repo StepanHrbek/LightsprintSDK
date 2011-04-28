@@ -39,18 +39,18 @@ namespace rr
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! If non-NULL (e.g. "foo/bar/baz.3ds"), tells locator to look for files also in parent directory ("foo/bar/").
+		//! If non-empty (e.g. "foo/bar/baz.3ds"), tells locator to look for files also in parent directory ("foo/bar/").
 		//! Ignored by default implementation, honoured by create().
-		virtual void setParent(bool add, const char* parentFilename) {}
-		//! If both relocation filenames are non-NULL (e.g. "c:/foo/bar/baz.3ds" and "d:/bar/baz.3ds"),
+		virtual void setParent(bool add, const RRString& parentFilename) {}
+		//! If both relocation filenames are non-empty (e.g. "c:/foo/bar/baz.3ds" and "d:/bar/baz.3ds"),
 		//! locator calculates where requested file might be after such relocation.
 		//! Ignored by default implementation, honoured by create().
-		virtual void setRelocation(bool add, const char* relocationSourceFilename, const char* relocationDestinationFilename) {}
-		//! If non-NULL (e.g. "foo/bar/"), tells locator to look for files also in this directory ("foo/bar/").
+		virtual void setRelocation(bool add, const RRString& relocationSourceFilename, const RRString& relocationDestinationFilename) {}
+		//! Tells locator to look for files also in this directory (e.g. "foo/bar/").
 		//! Ignored by default implementation, honoured by create().
-		virtual void setLibrary(bool add, const char* libraryDirectory) {}
-		//! If non-NULL (e.g. ".jpg;.png;.tga"), tells locator to try these extensions for files without extension.
-		virtual void setExtensions(bool add, const char* extensions) {}
+		virtual void setLibrary(bool add, const RRString& libraryDirectory) {}
+		//! Tells locator to try these extensions (e.g. ".jpg;.png;.tga") for files without extension.
+		virtual void setExtensions(bool add, const RRString& extensions) {}
 
 		//! Returns possible file location.
 		//
@@ -62,9 +62,9 @@ namespace rr
 		//!  Attempt 0 returns the most likely location, 1 less likely etc.
 		//! \return
 		//!  Possible file location or empty string when attemptNumber is too high.
-		virtual RRString getLocation(const char* originalFilename, unsigned attemptNumber) const;
+		virtual RRString getLocation(const RRString& originalFilename, unsigned attemptNumber) const;
 		//! Returns file location or empty string if not found. Uses getLocation(,i) and fopen() for i=0,1,2...
-		virtual RRString getLocation(const char* originalFilename) const;
+		virtual RRString getLocation(const RRString& originalFilename) const;
 
 		virtual ~RRFileLocator() {}
 

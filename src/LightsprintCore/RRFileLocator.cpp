@@ -20,45 +20,46 @@ namespace rr
 class FileLocator : public RRFileLocator
 {
 public:
-	virtual void setParent(bool _add, const char* _parentFilename)
+	virtual void setParent(bool _add, const RRString& _parentFilename)
 	{
-		addOrRemove(_add,parentFilenames,fixNull(_parentFilename));
+		if (!_parentFilename.empty())
+			addOrRemove(_add,parentFilenames,bf::path(RR_RR2PATH(_parentFilename)));
 	}
-	virtual void setRelocation(bool _add, const char* _relocationSourceFilename, const char* _relocationDestinationFilename)
+	virtual void setRelocation(bool _add, const RRString& _relocationSourceFilename, const RRString& _relocationDestinationFilename)
 	{
-		addOrRemove(_add,relocationFilenames,std::pair<bf::path,bf::path>(fixNull(_relocationSourceFilename),fixNull(_relocationDestinationFilename)));
+		if (!_relocationSourceFilename.empty() && !_relocationDestinationFilename.empty())
+			addOrRemove(_add,relocationFilenames,std::pair<bf::path,bf::path>(RR_RR2PATH(_relocationSourceFilename),RR_RR2PATH(_relocationDestinationFilename)));
 	}
-	virtual void setLibrary(bool _add, const char* _libraryDirectory)
+	virtual void setLibrary(bool _add, const RRString& _libraryDirectory)
 	{
-		addOrRemove(_add,libraryDirectories,fixNull(_libraryDirectory));
+		if (!_libraryDirectory.empty())
+			addOrRemove(_add,libraryDirectories,bf::path(RR_RR2PATH(_libraryDirectory)));
 	}
-	virtual void setExtensions(bool _add, const char* _extensions)
+	virtual void setExtensions(bool _add, const RRString& _extensions)
 	{
-		if (_extensions)
+		const char* tmpExtensions2 = _extensions.c_str();
+		if (_add)
+			boost::split(extensions,tmpExtensions2,boost::is_any_of(";"));
+		else
 		{
-			if (_add)
-				boost::split(extensions,_extensions,boost::is_any_of(";"));
-			else
+			std::vector<std::string> tmpExtensions;
+			boost::split(tmpExtensions,tmpExtensions2,boost::is_any_of(";"));
+			for (size_t i=0;i<tmpExtensions.size();i++)
 			{
-				std::vector<std::string> tmpExtensions;
-				boost::split(tmpExtensions,_extensions,boost::is_any_of(";"));
-				for (size_t i=0;i<tmpExtensions.size();i++)
-				{
-					for (size_t j=0;j<extensions.size();j++)
-						if (tmpExtensions[i]==extensions[j])
-						{
-							extensions.erase(extensions.begin()+j);
-							goto erased;
-						}
-					RRReporter::report(WARN,"RRFileLocator::setExtensions(false,%s): attempt to remove %s that was not added before.\n",_extensions,tmpExtensions[i].c_str());
-					erased:;
-				}
+				for (size_t j=0;j<extensions.size();j++)
+					if (tmpExtensions[i]==extensions[j])
+					{
+						extensions.erase(extensions.begin()+j);
+						goto erased;
+					}
+				RRReporter::report(WARN,"RRFileLocator::setExtensions(false,%s): attempt to remove %s that was not added before.\n",_extensions,tmpExtensions[i].c_str());
+				erased:;
 			}
 		}
 	}
-	virtual RRString getLocation(const char* originalFilename, unsigned attemptNumber) const
+	virtual RRString getLocation(const RRString& originalFilename, unsigned attemptNumber) const
 	{
-		return getLocation(fixNull(originalFilename),attemptNumber).string().c_str();
+		return RR_PATH2RR(getLocation(bf::path(RR_RR2PATH(originalFilename)),attemptNumber));
 	}
 
 protected:
@@ -156,11 +157,6 @@ protected:
 		return result;
 	}
 
-	static bf::path fixNull(const char* p)
-	{
-		return p?p:"";
-	}
-
 	template<class C>
 	static void addOrRemove(bool _add, std::vector<C>& _paths, const C& _path)
 	{
@@ -189,28 +185,21 @@ protected:
 //
 // RRFileLocator
 
-RRString RRFileLocator::getLocation(const char* originalFilename, unsigned attemptNumber) const
+RRString RRFileLocator::getLocation(const RRString& originalFilename, unsigned attemptNumber) const
 {
-	return attemptNumber ? NULL : originalFilename;
+	return attemptNumber ? "" : originalFilename;
 }
 
-static bool exists(const char* filename)
-{
-	FILE* f = fopen(filename,"rb");
-	if (!f) return false;
-	fclose(f);
-	return true;
-}
-
-RRString RRFileLocator::getLocation(const char* originalFilename) const
+RRString RRFileLocator::getLocation(const RRString& originalFilename) const
 {
 	for (unsigned attempt=0;attempt<UINT_MAX;attempt++)
 	{
 		RRString location = getLocation(originalFilename,attempt);
 		if (location.empty())
 			return "";
-rr::RRReporter::report(rr::INF2," %d%c %s\n",attempt,exists(location.c_str())?'+':'-',location.c_str());
-		if (exists(location.c_str()))
+		bool exists = bf::exists(RR_RR2PATH(location));
+rr::RRReporter::report(rr::INF2," %d%c %s\n",attempt,exists?'+':'-',location.c_str());
+		if (exists)
 		{
 			return location;
 		}

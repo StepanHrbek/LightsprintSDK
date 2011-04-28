@@ -44,7 +44,7 @@ NEWS
   - "nothing" parameter
 - Unicode support
   - RRString accepts and returns both unicode (wchar_t) and local charset (char)
-  - string.clear() replaces string = NULL; (NULL is ambiguous)
+  - RRString::clear() replaces string = NULL; (NULL is ambiguous)
 - misc helper functions
   - RRObjects::stitchAndSmooth()
   - RRMeshArrays::buildNormals()

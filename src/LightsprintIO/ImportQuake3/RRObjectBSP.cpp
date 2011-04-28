@@ -398,7 +398,7 @@ public:
 			if (textureLocator)
 			{
 				// tweak locator for .bsp
-				textureLocator->setLibrary(true,bf::path(filename).parent_path().string().c_str());
+				textureLocator->setLibrary(true,RR_PATH2RR(bf::path(filename).parent_path()));
 				textureLocator->setExtensions(true,".jpg;.png;.tga");
 			}
 			g_lightsmark = strstr(filename,"wop_padattic")!=NULL;
@@ -407,7 +407,7 @@ public:
 			if (textureLocator)
 			{
 				// undo local changes
-				textureLocator->setLibrary(false,bf::path(filename).parent_path().string().c_str());
+				textureLocator->setLibrary(false,RR_PATH2RR(bf::path(filename).parent_path()));
 				textureLocator->setExtensions(false,".jpg;.png;.tga");
 			}
 			return scene;
