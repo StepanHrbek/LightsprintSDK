@@ -502,11 +502,11 @@ bool UserPreferences::save() const
 #else
 	try
 	{
-		bf::create_directories(WX2PATH(suggestPreferencesDirectory()));
-		std::ofstream ofs(WX2STREAM(suggestPreferencesFilename()));
+		bf::create_directories(RR_WX2PATH(suggestPreferencesDirectory()));
+		std::ofstream ofs(RR_WX2STREAM(suggestPreferencesFilename()));
 		if (!ofs || ofs.bad())
 		{
-			rr::RRReporter::report(rr::WARN,"File %s can't be created, preferences not saved.\n",WX2CHAR(suggestPreferencesFilename()));
+			rr::RRReporter::report(rr::WARN,"File %s can't be created, preferences not saved.\n",RR_WX2CHAR(suggestPreferencesFilename()));
 			return false;
 		}
 		boost::archive::xml_oarchive ar(ofs);
@@ -515,7 +515,7 @@ bool UserPreferences::save() const
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to save %S.\n",WX2CHAR(suggestPreferencesFilename()));
+		rr::RRReporter::report(rr::ERRO,"Failed to save %S.\n",RR_WX2CHAR(suggestPreferencesFilename()));
 		return false;
 	}
 
@@ -530,7 +530,7 @@ bool UserPreferences::load(const wxString& nonDefaultFilename)
 #else
 	try
 	{
-		std::ifstream ifs(WX2STREAM(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
+		std::ifstream ifs(RR_WX2STREAM(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
 		if (!ifs || ifs.bad())
 		{
 			// don't warn, we attempt to load prefs each time, without knowing the file exists
@@ -542,7 +542,7 @@ bool UserPreferences::load(const wxString& nonDefaultFilename)
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to load preferences %S.\n",WX2CHAR(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
+		rr::RRReporter::report(rr::ERRO,"Failed to load preferences %S.\n",RR_WX2CHAR(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
 		return false;
 	}
 

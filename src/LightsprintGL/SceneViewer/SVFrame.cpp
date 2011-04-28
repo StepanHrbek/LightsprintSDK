@@ -866,7 +866,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 			{
 				wxFileDialog dialog(this,_("Choose a 3d scene to open"),"","",getSupportedLoaderExtensions(svs),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 #ifdef __APPLE__
-				dialog.SetPath(PATH2WX(bf::absolute(svs.sceneFilename.IsEmpty()?L"../../data/scenes/":WX2PATH(svs.sceneFilename)))); // absolute path is necessary in wx 2.9.1 @ OSX
+				dialog.SetPath(RR_PATH2WX(bf::absolute(svs.sceneFilename.IsEmpty()?L"../../data/scenes/":RR_WX2PATH(svs.sceneFilename)))); // absolute path is necessary in wx 2.9.1 @ OSX
 #endif
 				if (dialog.ShowModal()==wxID_OK)
 				{
@@ -880,7 +880,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 			{
 				wxFileDialog dialog(this,_("Choose a 3d scene to merge with current scene"),"","",getSupportedLoaderExtensions(svs),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 #ifdef __APPLE__
-				dialog.SetPath(PATH2WX(bf::absolute(svs.sceneFilename.IsEmpty()?L"../../data/scenes/":WX2PATH(svs.sceneFilename)))); // absolute path is necessary in wx 2.9.1 @ OSX
+				dialog.SetPath(RR_PATH2WX(bf::absolute(svs.sceneFilename.IsEmpty()?L"../../data/scenes/":RR_WX2PATH(svs.sceneFilename)))); // absolute path is necessary in wx 2.9.1 @ OSX
 #endif
 				if (dialog.ShowModal()==wxID_OK)
 				{
@@ -908,7 +908,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 				goto save_scene_as;
 			// name that can't be saved?
 			{
-				wxString extension = PATH2WX(bf::path(WX2PATH(svs.sceneFilename)).extension());
+				wxString extension = RR_PATH2WX(bf::path(RR_WX2PATH(svs.sceneFilename)).extension());
 				wxString extensions = rr::RRScene::getSupportedSaverExtensions();
 				bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=-1;
 				if (!extensionSupportsSave) goto save_scene_as;
@@ -950,14 +950,14 @@ save_scene_as:
 
 					// replace extension if current one can't be saved
 					//  windows would append valid extension if we just delete bad one, wx 2.9.1 @ osx needs valid ext from us
-					bf::path presetFilename = WX2PATH(svs.sceneFilename);
-					wxString extension = PATH2WX(presetFilename.extension());
+					bf::path presetFilename = RR_WX2PATH(svs.sceneFilename);
+					wxString extension = RR_PATH2WX(presetFilename.extension());
 					wxString extensions = rr::RRScene::getSupportedSaverExtensions();
 					bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=-1;
 					if (!extensionSupportsSave) presetFilename.replace_extension(".rr3");
 
 					wxFileDialog dialog(this,_("Save as"),"","",wxextensions,wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-					dialog.SetPath(PATH2WX(presetFilename));
+					dialog.SetPath(RR_PATH2WX(presetFilename));
 					if (dialog.ShowModal()==wxID_OK)
 					{
 						svs.sceneFilename = dialog.GetPath();
@@ -997,9 +997,9 @@ save_scene_as:
 				rr::RRBuffer::SaveParameters saveParameters;
 				saveParameters.jpegQuality = 100;
 				if (sshot->save(userPreferences.sshotFilename,NULL,&saveParameters))
-					rr::RRReporter::report(rr::INF2,"Saved %s.\n",WX2CHAR(userPreferences.sshotFilename));
+					rr::RRReporter::report(rr::INF2,"Saved %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
 				else
-					rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",WX2CHAR(userPreferences.sshotFilename));
+					rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
 
 				// 10. increment filename
 				incrementFilename(userPreferences.sshotFilename);
@@ -1112,9 +1112,9 @@ save_scene_as:
 					rr::RRBuffer::SaveParameters saveParameters;
 					saveParameters.jpegQuality = 100;
 					if (sshot->save(userPreferences.sshotFilename,NULL,&saveParameters))
-						rr::RRReporter::report(rr::INF2,"Saved %s.\n",WX2CHAR(userPreferences.sshotFilename));
+						rr::RRReporter::report(rr::INF2,"Saved %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
 					else
-						rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",WX2CHAR(userPreferences.sshotFilename));
+						rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
 
 					// 10. increment filename
 					incrementFilename(userPreferences.sshotFilename);

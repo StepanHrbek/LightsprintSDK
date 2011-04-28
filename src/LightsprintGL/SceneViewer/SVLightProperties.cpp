@@ -39,7 +39,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 
 		// light name
 		{
-			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,RR2WX(light->name)));
+			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,RR_RR2WX(light->name)));
 		}
 
 		// enabled
@@ -217,7 +217,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	wxPGProperty *property = event.GetProperty();
 	if (property==propName)
 	{
-		light->name = WX2RR(property->GetValue().GetString());
+		light->name = RR_WX2RR(property->GetValue().GetString());
 		svframe->updateSceneTree();
 	}
 	else

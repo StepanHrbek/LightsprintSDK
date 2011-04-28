@@ -31,7 +31,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			rr::RRVec3 mini,maxi;
 			mesh->getAABB(&mini,&maxi,&localCenter);
 
-			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,RR2WX(object->name)));
+			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,RR_RR2WX(object->name)));
 
 			// location
 			Append(propLocation = new wxStringProperty(_("Location"),wxPG_LABEL));
@@ -59,7 +59,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 				wxPGProperty* tmp = new wxStringProperty(
 					wxString::Format("%d triangles",faceGroup.numTriangles),
 					wxPG_LABEL,
-					wxString::Format("%s 0x%x",wxString(faceGroup.material?RR2WX(faceGroup.material->name):L""),(unsigned)(intptr_t)(faceGroup.material))
+					wxString::Format("%s 0x%x",wxString(faceGroup.material?RR_RR2WX(faceGroup.material->name):L""),(unsigned)(intptr_t)(faceGroup.material))
 					);
 				AppendIn(propFacegroups, tmp);
 				EnableProperty(tmp,false);
@@ -106,7 +106,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	wxPGProperty *property = event.GetProperty();
 	if (property==propName)
 	{
-		object->name = WX2RR(property->GetValue().GetString());
+		object->name = RR_WX2RR(property->GetValue().GetString());
 		svframe->updateSceneTree();
 	}
 	else

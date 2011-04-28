@@ -172,7 +172,7 @@ void SVMaterialProperties::updateProperties()
 {
 	if (material)
 	{
-		updateString(propName,RR2WX(material->name));
+		updateString(propName,RR_RR2WX(material->name));
 
 		updateBool(propFront,material->sideBits[0].renderFrom);
 		updateBool(propBack,material->sideBits[1].renderFrom);
@@ -265,7 +265,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 
 	if (property==propName)
 	{
-		material->name = WX2RR(property->GetValue().GetString());
+		material->name = RR_WX2RR(property->GetValue().GetString());
 	}
 	else
 	if (property==propFront)

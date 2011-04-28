@@ -15,18 +15,6 @@
 #include <wx/wx.h>
 	#define SV_SUBWINDOW_BORDER wxBORDER_SUNKEN // wxBORDER_NONE // wxBORDER_SIMPLE
 
-// string conversions, RR=RRString, WX=wxString, PATH=bf::path, CHAR=const char*, STREAM=fstream constructor
-#define WX2CHAR(w)   ((const char*)(w))
-#define WX2RR(w)     ((const wchar_t*)(w))
-#define WX2PATH(w)   ((const wchar_t*)(w))
-#ifdef _WIN32
-	#define WX2STREAM(w) ((const wchar_t*)(w)) // msvc extension, opens unicode filenames
-#else
-	#define WX2STREAM(w) ((const char*)(w)) // standard, fails on unicode filenames
-#endif
-#define RR2WX(r)     ((r).w_str())
-#define PATH2WX(p)   ((p).wstring())
-
 namespace rr_gl
 {
 

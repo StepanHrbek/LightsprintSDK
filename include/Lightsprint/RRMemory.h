@@ -151,26 +151,39 @@ namespace rr
 	//
 	// String conversion macros.
 	//
-	// RR   - RRString
-	// WX   - wxString
-	// STD  - std::string
-	// STDW - std::wstring
-	// PATH - boost::filesystem:path
+	// RR     - RRString
+	// PATH   - boost::filesystem:path
+	// STD    - std::string
+	// STDW   - std::wstring
+	// WX     - wxWidgets
+	// STREAM - fstream constructor
+	// CHAR   - char*
 	//
 	// Convert strings with these macros to
-	// - keep track of all conversions, make them searchable
 	// - ensure unicode correctness
-	// - make code more readable
+	// - keep track of all suspicious conversions, make them searchable
 	//
 	// Macros only select suitable accessor so that implicit conversion can take place,
-	// they don't return destination type.
+	// they often don't return destination type.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	#define RR_RR2PATH(r) (r).w_str()
-	#define RR_PATH2RR(p) (p).wstring().c_str()
-	#define RR_STD2RR(s)  (s).c_str()
-	#define RR_STDW2RR(s) (s).c_str()
+	#define RR_RR2PATH(r)   (r).w_str()           // ok, unicode->unicode
+	#define RR_PATH2RR(p)   (p).wstring().c_str() // ok, unicode->unicode
+	#define RR_RR2STD(s)    (r).c_str()           // WRONG, unicode->local
+	#define RR_STD2RR(s)    (s).c_str()           // suspicious, local->unicode
+	#define RR_RR2STDW(s)   (r).w_str()           // ok, unicode->unicode
+	#define RR_STDW2RR(s)   (s).c_str()           // ok, unicode->unicode
+	#define RR_WX2RR(w)     ((const wchar_t*)(w)) // ok, unicode->unicode
+	#define RR_WX2PATH(w)   ((const wchar_t*)(w)) // ok, unicode->unicode
+	#define RR_RR2WX(r)     ((r).w_str())         // ok, unicode->unicode
+	#define RR_PATH2WX(p)   ((p).wstring())       // ok, unicode->unicode
+#ifdef _WIN32
+	#define RR_WX2STREAM(w) ((const wchar_t*)(w)) // ok, unicode->unicode
+#else
+	#define RR_WX2STREAM(w) ((const char*)(w))    // WRONG, unicode->local
+#endif
+	#define RR_WX2CHAR(w)   ((const char*)(w))    // WRONG, unicode->local
 
 } // namespace
 
