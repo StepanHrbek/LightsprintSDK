@@ -135,7 +135,7 @@ void Program::useIt()
 
 unsigned Program::sendTexture(const char *name, const Texture* t, int code)
 {
-	bool oldNextTextureUnit = nextTextureUnit;
+	unsigned oldNextTextureUnit = nextTextureUnit;
 	unsigned textureUnit = (code>=0 && code<16)
 		? ( (assignedTextureUnit[code]<0) ? assignedTextureUnit[code] = nextTextureUnit++ : assignedTextureUnit[code] )
 		: nextTextureUnit++;
