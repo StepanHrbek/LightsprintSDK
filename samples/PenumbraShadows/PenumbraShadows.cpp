@@ -296,7 +296,7 @@ void idle()
 //
 // main
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	// log messages to console
 	rr::RRReporter::createPrintfReporter();

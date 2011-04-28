@@ -934,7 +934,7 @@ void SVCanvas::OnEnterWindow(wxMouseEvent& event)
 	SetFocus();
 }
 
-static void textOutput(int x, int y, int h, const char *format, ...)
+static void textOutput(int x, int y, int h, const char* format, ...)
 {
 #ifdef _WIN32
 	if (y>=h) return;

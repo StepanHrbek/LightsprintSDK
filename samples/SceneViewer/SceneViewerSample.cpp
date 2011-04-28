@@ -43,7 +43,7 @@ void error(const char* message)
 	exit(0);
 }
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 #ifdef _MSC_VER
 	// check that we don't have memory leaks

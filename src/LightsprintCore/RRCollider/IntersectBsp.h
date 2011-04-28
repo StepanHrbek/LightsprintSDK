@@ -68,7 +68,7 @@ namespace rr
 			BspData bsp;
 			KdData  kd;
 		};
-		This*             getNext()        const {return (This*)((char *)this+bsp.size);}
+		This*             getNext()        const {return (This*)((char*)this+bsp.size);}
 		void*             getTrianglesEnd()const {return (char*)this+bsp.size;}
 		void              setTransition(bool t) {}
 		void              setKd(bool k)         {RR_ASSERT(allows_kd || !k);kd.kd=k;}
@@ -126,7 +126,7 @@ namespace rr
 			BspData bsp;
 			KdData  kd;
 		};
-		This*             getNext()        const {return (This*)((char *)this+bsp.size);}
+		This*             getNext()        const {return (This*)((char*)this+bsp.size);}
 		void*             getTrianglesEnd()const {return (char*)this+bsp.size;}
 		void              setTransition(bool t) {}
 		void              setKd(bool k)         {kd.kd=k;}
@@ -173,7 +173,7 @@ namespace rr
 			BspData bsp;
 			KdData  kd;
 		};
-		This*             getNext()        const {return (This*)((char *)this+bsp.size);}
+		This*             getNext()        const {return (This*)((char*)this+bsp.size);}
 		void*             getTrianglesEnd()const {return (char*)this+bsp.size;}
 		void              setTransition(bool t) {bsp.transition=t;}
 		void              setKd(bool k)         {kd.kd=k;}

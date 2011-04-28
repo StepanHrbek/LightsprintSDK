@@ -136,7 +136,7 @@ struct Parameters
 	// create parameters from commandline arguments
 	//  objectIndex=-1 -> gather global parameters
 	//  objectIndex=n -> gather parameters for object n
-	Parameters(int argc, char **argv, int objectIndex=-1)
+	Parameters(int argc, char** argv, int objectIndex=-1)
 	{
 		// set defaults
 		sceneFilename = NULL;
@@ -377,7 +377,7 @@ struct Parameters
 //
 // main
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 #ifdef _MSC_VER
 	// check that we don't leak memory

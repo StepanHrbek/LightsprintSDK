@@ -21,7 +21,7 @@ void Program::logMessages(bool enable)
 	s_showLog = enable;
 }
 
-Program::Program(const char* defines, const char *vertexShader, const char *fragmentShader)
+Program::Program(const char* defines, const char* vertexShader, const char* fragmentShader)
 {
 	handle = glCreateProgram();
 	vertex = NULL;
@@ -63,7 +63,7 @@ Program::Program(const char* defines, const char *vertexShader, const char *frag
 			rr::RRReporter::report(rr::INF2,"Link failed%c\n",(debugLength>2)?':':'.');
 		if (debugLength>2)
 		{
-			GLchar *debug = new GLchar[debugLength];
+			GLchar* debug = new GLchar[debugLength];
 			glGetProgramInfoLog(handle, debugLength, &debugLength, debug);
 			rr::RRReporter::report(rr::INF2,"%s\n",debug);
 			delete[] debug;
@@ -94,7 +94,7 @@ Program* Program::create(const char* defines, const char* vertexShader, const ch
 bool Program::logLooksSafe()
 {
 	bool result = true;
-	GLchar *debug;
+	GLchar* debug;
 	GLint debugLength;
 	glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &debugLength);
 	debug = new GLchar[debugLength];
@@ -133,7 +133,7 @@ void Program::useIt()
 	memset(assignedTextureUnit,-1,sizeof(assignedTextureUnit));
 }
 
-unsigned Program::sendTexture(const char *name, const Texture* t, int code)
+unsigned Program::sendTexture(const char* name, const Texture* t, int code)
 {
 	unsigned oldNextTextureUnit = nextTextureUnit;
 	unsigned textureUnit = (code>=0 && code<16)
@@ -146,62 +146,62 @@ unsigned Program::sendTexture(const char *name, const Texture* t, int code)
 	return textureUnit;
 }
 
-void Program::sendUniform(const char *name, float x)
+void Program::sendUniform(const char* name, float x)
 {
 	glUniform1f(getLoc(name), x);
 }
 
-void Program::sendUniform(const char *name, float x, float y)
+void Program::sendUniform(const char* name, float x, float y)
 {
 	glUniform2f(getLoc(name), x, y);
 }
 
-void Program::sendUniform(const char *name, float x, float y, float z)
+void Program::sendUniform(const char* name, float x, float y, float z)
 {
 	glUniform3f(getLoc(name), x, y, z);
 }
 
-void Program::sendUniform3fv(const char *name, const float xyz[3])
+void Program::sendUniform3fv(const char* name, const float xyz[3])
 {
 	glUniform3fv(getLoc(name), 1, xyz);
 }
 
-void Program::sendUniform(const char *name, float x, float y, float z, float w)
+void Program::sendUniform(const char* name, float x, float y, float z, float w)
 {
 	glUniform4f(getLoc(name), x, y, z, w);
 }
 
-void Program::sendUniform4fv(const char *name, const float xyzw[4])
+void Program::sendUniform4fv(const char* name, const float xyzw[4])
 {
 	glUniform4fv(getLoc(name), 1, xyzw);
 }
 
-void Program::sendUniform(const char *name, int count, const GLint* x)
+void Program::sendUniform(const char* name, int count, const GLint* x)
 {
 	glUniform1iv(getLoc(name), count, x);
 }
 
-void Program::sendUniform(const char *name, int x)
+void Program::sendUniform(const char* name, int x)
 {
 	glUniform1i(getLoc(name), x);
 }
 
-void Program::sendUniform(const char *name, int x, int y)
+void Program::sendUniform(const char* name, int x, int y)
 {
 	glUniform2i(getLoc(name), x, y);
 }
 
-void Program::sendUniform(const char *name, int x, int y, int z)
+void Program::sendUniform(const char* name, int x, int y, int z)
 {
 	glUniform3i(getLoc(name), x, y, z);
 }
 
-void Program::sendUniform(const char *name, int x, int y, int z, int w)
+void Program::sendUniform(const char* name, int x, int y, int z, int w)
 {
 	glUniform4i(getLoc(name), x, y, z, w);
 }
 
-void Program::sendUniform(const char *name, float *matrix, bool transpose, int size)
+void Program::sendUniform(const char* name, float *matrix, bool transpose, int size)
 {
 	int loc = getLoc(name);
 
@@ -219,7 +219,7 @@ void Program::sendUniform(const char *name, float *matrix, bool transpose, int s
 	}
 }
 
-int Program::getLoc(const char *name)
+int Program::getLoc(const char* name)
 {
 	int loc = glGetUniformLocation(handle, name);
 	if (loc == -1)
@@ -229,7 +229,7 @@ int Program::getLoc(const char *name)
 	return loc;
 }
 
-bool Program::uniformExists(const char *uniformName)
+bool Program::uniformExists(const char* uniformName)
 {
 	return glGetUniformLocation(handle, uniformName)!=-1;
 }

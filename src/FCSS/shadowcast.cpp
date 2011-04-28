@@ -471,7 +471,7 @@ void copySceneToAnimationFrame(AnimationFrame& frame, const LevelSetup* setup)
 	updateThumbnail(frame);
 }
 
-static void output(int x, int y, const char *string)
+static void output(int x, int y, const char* string)
 {
 	glRasterPos2i(x, y);
 	int len = (int) strlen(string);
@@ -542,7 +542,7 @@ static void drawHelpMessage(int screen)
 	glCallList(999);
 	return;*/
 
-	static const char *message[3][30] = 
+	static const char* message[3][30] = 
 	{
 		{
 		"H - help",
@@ -1947,7 +1947,7 @@ void parseOptions(int argc, const char*const*argv)
 HANDLE hIcon = 0;
 #endif
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	//_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
 	//_crtBreakAlloc = 1154356;

@@ -327,7 +327,7 @@ void idle()
 //
 // main
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 #ifdef _WIN32
 	// check that we don't have memory leaks

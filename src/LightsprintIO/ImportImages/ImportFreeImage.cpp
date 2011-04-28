@@ -45,7 +45,7 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 //
 // FreeImage load
 
-static unsigned char* loadFreeImage(const char *filename,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat,bool& outScaled)
+static unsigned char* loadFreeImage(const char* filename,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat,bool& outScaled)
 {
 	// uncomment if you wish to skip loading from network
 //	if (filename && filename[0]=='\\' && filename[1]=='\\') return NULL;
@@ -274,7 +274,7 @@ struct VBUHeader
 };
 
 // vertex buffer loader
-static bool reloadVertexBuffer(RRBuffer* texture, const char *filename)
+static bool reloadVertexBuffer(RRBuffer* texture, const char* filename)
 {
 	// open
 	FILE* f = fopen(filename,"rb");
@@ -301,7 +301,7 @@ static bool reloadVertexBuffer(RRBuffer* texture, const char *filename)
 }
 
 // 2D map loader
-static bool reload2d(RRBuffer* texture, const char *filename)
+static bool reload2d(RRBuffer* texture, const char* filename)
 {
 	unsigned width = 0;
 	unsigned height = 0;
@@ -321,7 +321,7 @@ static bool reload2d(RRBuffer* texture, const char *filename)
 }
 
 // cube map loader
-static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *cubeSideName[6])
+static bool reloadCube(RRBuffer* texture, const char* filenameMask, const char *cubeSideName[6])
 {
 	unsigned width = 0;
 	unsigned height = 0;
@@ -399,7 +399,7 @@ static bool reloadCube(RRBuffer* texture, const char *filenameMask, const char *
 	return true;
 }
 
-static RRBuffer* load(const char *filename, const char* cubeSideName[6])
+static RRBuffer* load(const char* filename, const char* cubeSideName[6])
 {
 	RRBuffer* buffer = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
 	bool reloaded = (strstr(filename,".vbu") || strstr(filename,".VBU"))
@@ -428,7 +428,7 @@ BOOL FIFSupportsExportBPP(FREE_IMAGE_FORMAT fif, int bpp)
 	}
 }
 
-bool save(RRBuffer* buffer, const char *filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
+bool save(RRBuffer* buffer, const char* filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
 {
 	bool result = false;
 

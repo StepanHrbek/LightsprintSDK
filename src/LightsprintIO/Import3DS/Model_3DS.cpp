@@ -100,7 +100,7 @@ Model_3DS::~Model_3DS()
 	delete[] Objects;
 }
 
-bool Model_3DS::Load(const char *_filename, const rr::RRFileLocator* _textureLocator, float _scale)
+bool Model_3DS::Load(const char* _filename, const rr::RRFileLocator* _textureLocator, float _scale)
 {
 	rr::RRFileLocator* localLocator = _textureLocator ? NULL : rr::RRFileLocator::create();
 	if (localLocator)

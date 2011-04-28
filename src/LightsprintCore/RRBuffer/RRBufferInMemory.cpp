@@ -364,7 +364,7 @@ RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction) const
 //
 // RRBuffer
 
-RRBuffer* RRBuffer::create(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char *_data)
+RRBuffer* RRBuffer::create(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char* _data)
 {
 	RRBuffer* buffer = new RRBufferInMemory();
 	if (!buffer->reset(_type,_width,_height,_depth,_format,_scaled,_data))

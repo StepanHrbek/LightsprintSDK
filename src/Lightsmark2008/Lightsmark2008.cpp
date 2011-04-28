@@ -12,7 +12,7 @@
 #include <sys\stat.h> 
 #include <set>
 
-__int64 FileSize64( const char * szFileName ) 
+__int64 FileSize64( const char* szFileName ) 
 { 
 	struct __stat64 fileStat;
 	fileStat.st_size = 0;

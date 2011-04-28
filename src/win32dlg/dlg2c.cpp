@@ -5,17 +5,17 @@
 #include <string.h>
 #include "../LightsprintCore/RRReporter/reporterWindow.h"
 
-void Error(char *msg)
+void Error(char* msg)
 {
     fprintf(stderr, "dlg2c error: %s, GetLastError(): %u\n", msg, (unsigned) GetLastError());
     exit(EXIT_FAILURE);
 }
 
-void ConvertDialog(const char *tableName, const char *resourceName)
+void ConvertDialog(const char* tableName, const char *resourceName)
 {
     HRSRC res;
     HGLOBAL h;
-    unsigned char *c;
+    unsigned char* c;
     unsigned length;
     unsigned n;
     HMODULE module = GetModuleHandle(NULL);        

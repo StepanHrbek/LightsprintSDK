@@ -500,7 +500,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_objectProperties = new SVObjectProperties(this);
 	m_materialProperties = new SVMaterialProperties(this);
 	m_sceneTree = new SVSceneTree(this);
-	static const char * sample_xpm[] = {
+	static const char* sample_xpm[] = {
 	// columns rows colors chars-per-pixel
 	"32 32 6 1",
 	"  c black",

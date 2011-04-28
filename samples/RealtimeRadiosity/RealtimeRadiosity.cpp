@@ -350,7 +350,7 @@ void idle()
 //
 // main
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 	// check for version mismatch
 	if (!RR_INTERFACE_OK)

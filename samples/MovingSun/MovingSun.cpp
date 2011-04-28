@@ -314,7 +314,7 @@ void idle()
 //
 // main
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
 #ifdef _MSC_VER
 	// check that we don't have memory leaks
