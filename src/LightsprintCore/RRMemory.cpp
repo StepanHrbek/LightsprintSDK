@@ -92,8 +92,6 @@ RRString::RRString()
 
 RRString::RRString(const RRString& a)
 {
-	str = a.str?_strdup(a.str):NULL;
-	wstr = a.wstr?(wchar_t*)(str+((char*)a.wstr-a.str)):NULL;
 	if (a.str)
 	{
 		size_t bytes1 = (char*)a.wstr-a.str;
@@ -114,14 +112,19 @@ RRString::RRString(const char* a)
 	if (a&&a[0])
 	{
 		size_t bytes1 = strlen(a)+1;
-		size_t bytes2 = (mbstowcs(NULL,a,0)+1+1)*sizeof(wchar_t); // +1 compensates mbstowcs=-1 in case of invalid wstring
+		size_t wchars = mbstowcs(NULL,a,0)+1; // +1 for null terminator
+		size_t bytes2 = (wchars+1)*sizeof(wchar_t); // +1 for null terminator even in case of invalid string (mbstowcs=-1)
 		RR_ASSERT(bytes1>0);
 		RR_ASSERT(bytes2>0);
 		str = (char*)malloc(bytes1+bytes2);
 		wstr = (wchar_t*)(str+bytes1);
 		memcpy(str,a,bytes1);
-		wstr[0] = 0; // cleanup in case of invalid a / mbstowcs failure
-		mbstowcs(wstr,a,INT_MAX);
+		size_t result = mbstowcs(wstr,a,wchars); // VS2008 runtime sometimes fails if third parameter is INT_MAX
+		if (result==(size_t)-1)
+		{
+			wstr[0] = 0; // cleanup in case of invalid a / mbstowcs failure
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"RRString(char*) failed, errno=%d, string=%s\n",(int)errno,a));
+		}
 	}
 	else
 	{
@@ -134,14 +137,18 @@ RRString::RRString(const wchar_t* a)
 {
 	if (a&&a[0])
 	{
-		size_t bytes1 = wcstombs(NULL,a,0)+1+1; // +1 compensates wcstombs=-1 in case of invalid wstring
+		size_t bytes1 = wcstombs(NULL,a,0)+1+1; // +1 for null terminator, +1 for null terminator even in case of invalid wstring (wcstombs=-1)
 		size_t bytes2 = (wcslen(a)+1)*sizeof(wchar_t);
 		RR_ASSERT(bytes1>0);
 		RR_ASSERT(bytes2>0);
 		str = (char*)malloc(bytes1+bytes2);
 		wstr = (wchar_t*)(str+bytes1);
-		str[0] = 0; // cleanup in case of invalid a / wcstombs failure
-		wcstombs(str,a,INT_MAX);
+		size_t result = wcstombs(str,a,bytes1); // due to VS2008 bug in mbstowcs, we better avoid INT_MAX also here
+		if (result==(size_t)-1)
+		{
+			str[0] = 0; // cleanup in case of invalid a / wcstombs failure
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"RRString(wchar_t*) failed, errno=%d, string=%ls\n",(int)errno,a));
+		}
 		memcpy(wstr,a,bytes2);
 	}
 	else
