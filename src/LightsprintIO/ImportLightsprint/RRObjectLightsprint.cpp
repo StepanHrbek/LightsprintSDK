@@ -160,13 +160,13 @@ public:
 			RRSceneLightsprint* scene = new RRSceneLightsprint;
 
 			g_textureLocator = textureLocator;
-			std::string oldReference;
+			RRString oldReference;
 			ar & boost::serialization::make_nvp("filename", oldReference);
 			if (g_textureLocator)
-				g_textureLocator->setRelocation(true,RR_STD2RR(oldReference),filename);
+				g_textureLocator->setRelocation(true,oldReference,filename);
 			ar & boost::serialization::make_nvp("scene", *(RRScene*)scene);
 			if (g_textureLocator)
-				g_textureLocator->setRelocation(false,RR_STD2RR(oldReference),filename);
+				g_textureLocator->setRelocation(false,oldReference,filename);
 			g_textureLocator = NULL;
 
 			// remember materials and meshes created by boost, so we can free them in destructor
@@ -250,7 +250,7 @@ public:
 			out.push(ofs);
 			portable_binary_oarchive ar(out);
 #endif
-			std::string filenameStr(filename);
+			RRString filenameStr(filename);
 			ar & boost::serialization::make_nvp("filename", filenameStr);
 			ar & boost::serialization::make_nvp("scene", *scene);
 
