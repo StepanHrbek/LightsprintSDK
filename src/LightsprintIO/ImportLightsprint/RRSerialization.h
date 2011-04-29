@@ -80,13 +80,13 @@ void load(Archive & ar, rr::RRMatrix3x4& a, const unsigned int version)
 
 // boost can't portably serialize wstring, here we convert it to portable utf8 string
 
-void utf32or16to8(const std::wstring& utf32, std::string& utf8)
+void utf32or16to8(const wchar_t* utf32, std::string& utf8)
 {
 	bool invalid = false;
-	for (unsigned i=0;i<utf32.size();i++)
+	for (unsigned i=0;utf32[i];i++)
 	{
 		unsigned code = utf32[i]; // read from utf32
-		if (sizeof(wchar_t)<4 && code>=0xd800 && code<0xe000) {if (utf32.size()>i+1) { // read from utf16
+		if (sizeof(wchar_t)<4 && code>=0xd800 && code<0xe000) {if (utf32[i+1]) { // read from utf16
 			if (code<0xdc00 && utf32[i+1]>=0xdc00 && utf32[i+1]<0xe000) {code = 0x10000+((code-0xd800)<<10)+(utf32[i+1]-0xdc00); i++;} else
 			if (code>=0xdc00 && utf32[i+1]>=0xd800 && utf32[i+1]<0xdc00) {code = 0x10000+((utf32[i+1]-0xd800)<<10)+(code-0xdc00); i++;} else
 			invalid = true;} else invalid = true;}
@@ -97,37 +97,37 @@ void utf32or16to8(const std::wstring& utf32, std::string& utf8)
 		else invalid = true;
 	}
 	if (invalid)
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Serializing invalid wide string: %ls\n",utf32.c_str()));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Serializing invalid wide string: %ls\n",utf32));
 }
 
-void utf8to16or32(const std::string& utf8, std::wstring& utf32)
+void utf8to16or32(const char* utf8, std::wstring& utf32)
 {
 	bool invalid = false;
-	for (unsigned i=0;i<utf8.size();i++)
+	for (unsigned i=0;utf8[i];i++)
 	{
 		unsigned char c = utf8[i];
 		if (c<0x80) {utf32 += c;}
 		else if (c<0xc2) {invalid = true;}
-		else if (c<0xe0) {if (i+1<utf8.size() && (utf8[i+1]&192)==128) {utf32 += ((c&31)<<6)+(utf8[i+1]&63); i += 1;} else invalid = true;}
-		else if (c<0xf0) {if (i+2<utf8.size() && (utf8[i+1]&192)==128 && (utf8[i+2]&192)==128) {unsigned code = ((c&15)<<12)+((utf8[i+1]&63)<<6)+(utf8[i+2]&63); i += 2;
+		else if (c<0xe0) {if ((utf8[i+1]&192)==128) {utf32 += ((c&31)<<6)+(utf8[i+1]&63); i += 1;} else invalid = true;}
+		else if (c<0xf0) {if ((utf8[i+1]&192)==128 && (utf8[i+2]&192)==128) {unsigned code = ((c&15)<<12)+((utf8[i+1]&63)<<6)+(utf8[i+2]&63); i += 2;
 			if (sizeof(wchar_t)>=4) utf32 += code; // write to utf32
 			else {if (code<0xd800 || code>0xe000) utf32 += code; else invalid = true;} // write to utf16
 			} else invalid = true;}
-		else if (c<0xf5) {if (i+3<utf8.size() && (utf8[i+1]&192)==128 && (utf8[i+2]&192)==128 && (utf8[i+3]&192)==128) {unsigned code = ((c&7)<<18)+((utf8[i+1]&63)<<12)+((utf8[i+2]&63)<<6)+(utf8[i+3]&63); i += 3;
+		else if (c<0xf5) {if ((utf8[i+1]&192)==128 && (utf8[i+2]&192)==128 && (utf8[i+3]&192)==128) {unsigned code = ((c&7)<<18)+((utf8[i+1]&63)<<12)+((utf8[i+2]&63)<<6)+(utf8[i+3]&63); i += 3;
 			if (sizeof(wchar_t)>=4) utf32 += code; // write to utf32
 			else {utf32 += 0xd800+((code-0x10000)>>10); utf32 += 0xdc00+((code-0x10000)&0x3ff);} // write to utf16
 			} else invalid = true;}
 		else invalid = true;
 	}
 	if (invalid)
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Deserializing invalid utf8 string: %s\n",utf8.c_str()));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Deserializing invalid utf8 string: %s\n",utf8));
 }
 
 template<class Archive>
 void save(Archive & ar, const rr::RRString& a, const unsigned int version)
 {
 	std::string s8;
-	utf32or16to8(RR_RR2STDW(a),s8);
+	utf32or16to8(a.w_str(),s8);
 	save(ar,s8);
 }
 
@@ -143,7 +143,7 @@ void load(Archive & ar, rr::RRString& a, const unsigned int version)
 	else
 	{
 		std::wstring s32;
-		utf8to16or32(s8,s32);
+		utf8to16or32(s8.c_str(),s32);
 		a = RR_STDW2RR(s32);
 	}
 }
