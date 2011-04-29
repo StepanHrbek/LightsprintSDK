@@ -7,6 +7,7 @@
 
 #include <cstdlib> // malloc, free
 #include <cstring> // _strdup
+#include <wchar.h>
 
 
 namespace rr
@@ -137,19 +138,27 @@ RRString::RRString(const wchar_t* a)
 {
 	if (a&&a[0])
 	{
-		size_t bytes1 = wcstombs(NULL,a,0)+1+1; // +1 for null terminator, +1 for null terminator even in case of invalid wstring (wcstombs=-1)
 		size_t bytes2 = (wcslen(a)+1)*sizeof(wchar_t);
+		size_t bytes1 = bytes2*2; // estimate worst case
 		RR_ASSERT(bytes1>0);
 		RR_ASSERT(bytes2>0);
 		str = (char*)malloc(bytes1+bytes2);
 		wstr = (wchar_t*)(str+bytes1);
-		size_t result = wcstombs(str,a,bytes1); // due to VS2008 bug in mbstowcs, we better avoid INT_MAX also here
-		if (result==(size_t)-1)
-		{
-			str[0] = 0; // cleanup in case of invalid a / wcstombs failure
-			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"RRString(wchar_t*) failed, errno=%d, string=%ls\n",(int)errno,a));
-		}
 		memcpy(wstr,a,bytes2);
+		mbstate_t mbstate;
+		memset(&mbstate,0,sizeof(mbstate));
+		char* stri = str;
+		const wchar_t* wstri = wstr;
+		while (*wstri)
+		{
+			int bytesWritten = wcrtomb(stri,*wstri,&mbstate);
+			if (bytesWritten>=0)
+				stri += bytesWritten;
+			else
+				*(stri++) = '?';
+			wstri++;
+		}
+		*stri = 0;
 	}
 	else
 	{

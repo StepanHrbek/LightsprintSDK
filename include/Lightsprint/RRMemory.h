@@ -136,8 +136,8 @@ namespace rr
 		bool operator !=(const wchar_t* a) const;
 		
 		// accessors
-		const char* c_str() const {return str?str:"";} ///< Never returns NULL, empty string is "".
-		const wchar_t* w_str() const {return wstr?wstr:L"";} ///< Never returns NULL, empty string is L"".
+		const char* c_str() const {return str?str:"";} ///< String in local charset. Unrepresentable characters are replaced by ?. Never returns NULL, empty string is "".
+		const wchar_t* w_str() const {return wstr?wstr:L"";} ///< String in utf16 or utf32. Never returns NULL, empty string is L"".
 		bool empty() const {return str==NULL;}
 
 		~RRString();
@@ -186,6 +186,7 @@ namespace rr
 	#define RR_WX2STREAM(w) ((const char*)(w))      // WRONG, unicode->local
 #endif
 	#define RR_RR2CHAR(r)   ((r).c_str())           // WRONG, unicode->local
+	#define RR_WX2WCHAR(w)  ((const wchar_t*)(w))   // ok, unicode->unicode
 	#define RR_WX2CHAR(w)   ((const char*)(w))      // WRONG, unicode->local
 
 } // namespace
