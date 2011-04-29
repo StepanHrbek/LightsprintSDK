@@ -506,7 +506,7 @@ bool UserPreferences::save() const
 		std::ofstream ofs(RR_WX2STREAM(suggestPreferencesFilename()));
 		if (!ofs || ofs.bad())
 		{
-			rr::RRReporter::report(rr::WARN,"File %s can't be created, preferences not saved.\n",RR_WX2CHAR(suggestPreferencesFilename()));
+			rr::RRReporter::report(rr::WARN,"File %ls can't be created, preferences not saved.\n",RR_WX2WCHAR(suggestPreferencesFilename()));
 			return false;
 		}
 		boost::archive::xml_oarchive ar(ofs);
@@ -515,7 +515,7 @@ bool UserPreferences::save() const
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to save %S.\n",RR_WX2CHAR(suggestPreferencesFilename()));
+		rr::RRReporter::report(rr::ERRO,"Failed to save %ls.\n",RR_WX2WCHAR(suggestPreferencesFilename()));
 		return false;
 	}
 
@@ -542,7 +542,7 @@ bool UserPreferences::load(const wxString& nonDefaultFilename)
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to load preferences %S.\n",RR_WX2CHAR(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
+		rr::RRReporter::report(rr::ERRO,"Failed to load preferences %ls.\n",RR_WX2WCHAR(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
 		return false;
 	}
 

@@ -997,9 +997,9 @@ save_scene_as:
 				rr::RRBuffer::SaveParameters saveParameters;
 				saveParameters.jpegQuality = 100;
 				if (sshot->save(RR_WX2RR(userPreferences.sshotFilename),NULL,&saveParameters))
-					rr::RRReporter::report(rr::INF2,"Saved %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
+					rr::RRReporter::report(rr::INF2,"Saved %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
 				else
-					rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
+					rr::RRReporter::report(rr::WARN,"Error: Failed to save %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
 
 				// 10. increment filename
 				incrementFilename(userPreferences.sshotFilename);
@@ -1112,9 +1112,9 @@ save_scene_as:
 					rr::RRBuffer::SaveParameters saveParameters;
 					saveParameters.jpegQuality = 100;
 					if (sshot->save(RR_WX2RR(userPreferences.sshotFilename),NULL,&saveParameters))
-						rr::RRReporter::report(rr::INF2,"Saved %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
+						rr::RRReporter::report(rr::INF2,"Saved %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
 					else
-						rr::RRReporter::report(rr::WARN,"Error: Failed to save %s.\n",RR_WX2CHAR(userPreferences.sshotFilename));
+						rr::RRReporter::report(rr::WARN,"Error: Failed to save %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
 
 					// 10. increment filename
 					incrementFilename(userPreferences.sshotFilename);
