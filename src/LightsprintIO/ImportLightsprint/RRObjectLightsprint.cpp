@@ -161,7 +161,18 @@ public:
 
 			g_textureLocator = textureLocator;
 			RRString oldReference;
-			ar & boost::serialization::make_nvp("filename", oldReference);
+			std::string filenameOrVersion;
+			ar & boost::serialization::make_nvp("filename", filenameOrVersion);
+			if (filenameOrVersion.size()>3)
+			{
+				// version 0, only local charset filename
+				oldReference = RR_STD2RR(filenameOrVersion);
+			}
+			else
+			{
+				// version 1, unicode filename added
+				ar & boost::serialization::make_nvp("filename", oldReference);
+			}
 			if (g_textureLocator)
 				g_textureLocator->setRelocation(true,oldReference,filename);
 			ar & boost::serialization::make_nvp("scene", *(RRScene*)scene);
@@ -250,8 +261,8 @@ public:
 			out.push(ofs);
 			portable_binary_oarchive ar(out);
 #endif
-			RRString filenameStr(filename);
-			ar & boost::serialization::make_nvp("filename", filenameStr);
+			ar & boost::serialization::make_nvp("filename", std::string("")); // former local charset filename, must be preserved, loader always tries to read it, we don't have any version number at this point in file
+			ar & boost::serialization::make_nvp("filename", filename);
 			ar & boost::serialization::make_nvp("scene", *scene);
 
 			return true;
