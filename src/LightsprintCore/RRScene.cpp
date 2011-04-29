@@ -9,6 +9,9 @@
 #ifdef _MSC_VER
 	#include <windows.h> // EXCEPTION_EXECUTE_HANDLER
 #endif
+#include <boost/filesystem.hpp>
+
+namespace bf = boost::filesystem;
 
 namespace rr
 {
@@ -33,9 +36,9 @@ static bool extensionMatches(const char* filename, const char* extension) // ext
 	return true;
 }
 
-static bool extensionListMatches(const char* filename, const char* extensionList) // ext="*.3ds;*.mesh.xml"
+static bool extensionListMatches(const RRString& filename, const char* extensionList) // ext="*.3ds;*.mesh.xml"
 {
-	if (!filename || !extensionList)
+	if (!extensionList)
 	{
 		RR_ASSERT(0);
 		return false;
@@ -55,7 +58,7 @@ static bool extensionListMatches(const char* filename, const char* extensionList
 		while (*src!=0 && *src!=';')
 			*dst++ = *src++;
 		*dst = 0;
-		if (*extension && extensionMatches(filename,extension))
+		if (*extension && extensionMatches(filename.c_str(),extension))
 			return true;
 	}
 	return false;
@@ -98,7 +101,7 @@ RRScene::RRScene()
 	environment = NULL;
 }
 
-static RRScene* callLoader(RRScene::Loader* loader, const char* filename, RRFileLocator* locator, bool* aborting)
+static RRScene* callLoader(RRScene::Loader* loader, const RRString& filename, RRFileLocator* locator, bool* aborting)
 {
 #ifdef _MSC_VER
 	// for example .rr3 import crashes on bogus .rr3 files, it is catched here
@@ -116,20 +119,20 @@ static RRScene* callLoader(RRScene::Loader* loader, const char* filename, RRFile
 #endif
 }
 
-RRScene::RRScene(const char* _filename, RRFileLocator* _textureLocator, bool* _aborting)
+RRScene::RRScene(const RRString& _filename, RRFileLocator* _textureLocator, bool* _aborting)
 {
 	implementation = NULL;
 	protectedObjects = NULL;
 	protectedLights = NULL;
 	environment = NULL;
-	if (!_filename || !_filename[0])
+	if (_filename.empty())
 	{
 		// don't warn, it's documented as a valid way to create empty scene
 		//RRReporter::report(WARN,"RRScene(NULL), invalid argument.\n");
 		return;
 	}
 
-	RRReportInterval report(INF1,"Loading scene %s...\n",_filename);
+	RRReportInterval report(INF1,"Loading scene %ls...\n",_filename.w_str());
 
 	// test whether loaders were registered
 	if (s_loaders.empty())
@@ -139,15 +142,10 @@ RRScene::RRScene(const char* _filename, RRFileLocator* _textureLocator, bool* _a
 	}
 
 	// test whether file exists (to properly report this common error)
-	FILE* f = fopen(_filename,"rb");
-	if (!f)
+	if (!bf::exists(RR_RR2PATH(_filename)))
 	{
-		RRReporter::report(WARN,"Scene %s does not exist.\n",_filename);
+		RRReporter::report(WARN,"Scene %ls does not exist.\n",_filename.w_str());
 		return;
-	}
-	else
-	{
-		fclose(f);
 	}
 
 	// tell texture locator scene filename
@@ -190,7 +188,7 @@ RRScene::RRScene(const char* _filename, RRFileLocator* _textureLocator, bool* _a
 	// test whether loader exists
 	if (!loaderFound)
 	{
-		RRReporter::report(WARN,"Scene not loaded, no loader registered for %s.\n",_filename);
+		RRReporter::report(WARN,"Scene not loaded, no loader registered for %ls.\n",_filename.w_str());
 		return;
 	}
 
@@ -201,14 +199,14 @@ RRScene::RRScene(const char* _filename, RRFileLocator* _textureLocator, bool* _a
 	}
 }
 
-bool RRScene::save(const char* filename)
+bool RRScene::save(const RRString& filename)
 {
-	if (!filename)
+	if (filename.empty())
 	{
 		return false;
 	}
 
-	RRReportInterval report(INF1,"Saving scene %s...\n",filename);
+	RRReportInterval report(INF1,"Saving scene %ls...\n",filename.w_str());
 
 	// test whether savers were registered
 	if (s_savers.empty())
@@ -241,7 +239,7 @@ bool RRScene::save(const char* filename)
 	// test whether saver exists
 	if (!saverFound)
 	{
-		RRReporter::report(WARN,"Scene %s not saved, no saver for this extension was registered.\n",filename);
+		RRReporter::report(WARN,"Scene %ls not saved, no saver for this extension was registered.\n",filename.w_str());
 	}
 
 	return false;

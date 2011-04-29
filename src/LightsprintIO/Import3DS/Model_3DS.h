@@ -128,7 +128,7 @@ public:
 	bool smoothAll;         // True: average normals of all vertices on the same position
 	rr::RRVec3 localCenter;
 	float localMinY;
-	bool Load(const char* filename, const rr::RRFileLocator* textureLocator, float scale); // Loads a model (good textureLocator is NULL)
+	bool Load(const rr::RRString& filename, const rr::RRFileLocator* textureLocator, float scale); // Loads a model (good textureLocator is NULL)
 	void Draw(
 		void* model,
 		bool lit, // scene is lit, feed normals

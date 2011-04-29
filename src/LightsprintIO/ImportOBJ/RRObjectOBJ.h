@@ -15,7 +15,7 @@
 //
 //! All sizes are multiplied by scale at load time, use scale to normalize
 //! unit to recommended 1 meter. OBJ doesn't specify unit length.
-rr::RRObjects* adaptObjectsFromOBJ(const char* filename);
+rr::RRObjects* adaptObjectsFromOBJ(const rr::RRString& filename);
 
 //! Makes it possible to load .obj scenes from disk via rr::RRScene::RRScene().
 void registerLoaderOBJ();

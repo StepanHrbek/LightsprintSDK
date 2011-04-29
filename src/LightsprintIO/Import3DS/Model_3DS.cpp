@@ -100,7 +100,7 @@ Model_3DS::~Model_3DS()
 	delete[] Objects;
 }
 
-bool Model_3DS::Load(const char* _filename, const rr::RRFileLocator* _textureLocator, float _scale)
+bool Model_3DS::Load(const rr::RRString& _filename, const rr::RRFileLocator* _textureLocator, float _scale)
 {
 	rr::RRFileLocator* localLocator = _textureLocator ? NULL : rr::RRFileLocator::create();
 	if (localLocator)
@@ -113,13 +113,17 @@ bool Model_3DS::Load(const char* _filename, const rr::RRFileLocator* _textureLoc
 	ChunkHeader main;
 
 	// Load the file
-	bin3ds = fopen(_filename,"rb");
+#ifdef _WIN32
+	bin3ds = _wfopen(_filename.w_str(),L"rb");
+#else
+	bin3ds = fopen(RR_RR2CHAR(_filename),"rb"); // 3ds outside windows does not support unicode filename
+#endif
 
 	if (!bin3ds)
 	{
 		textureLocator = NULL;
 		RR_SAFE_DELETE(localLocator);
-		printf("file not found: %s\n",_filename);
+		printf("file not found: %ls\n",_filename.w_str());
 		return false;
 	}
 

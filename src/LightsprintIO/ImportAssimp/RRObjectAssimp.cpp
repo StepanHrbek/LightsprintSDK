@@ -402,9 +402,9 @@ public:
 class RRSceneAssimp : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
+	static RRScene* load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 	{
-		const aiScene* aiscene = aiImportFile(filename,0
+		const aiScene* aiscene = aiImportFile(RR_RR2CHAR(filename),0 // assimp doesn't support unicode filename
 			//|aiProcess_CalcTangentSpace
 			//|aiProcess_JoinIdenticalVertices
 			//|aiProcess_MakeLeftHanded

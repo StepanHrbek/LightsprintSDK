@@ -34,14 +34,14 @@ using namespace rr;
 class RRObjectOBJ : public RRObject, RRMesh
 {
 public:
-	RRObjectOBJ(const char* filename)
+	RRObjectOBJ(const RRString& filename)
 	{
 		// .obj indices start by 1, push dummy elements indexed by 0
 		positions.push_back(RRVec3(0));
 		uvs.push_back(RRVec2(0,0));
 		normals.push_back(RRVec3(0,1,0));
 
-		FILE* f = fopen(filename,"rt");
+		FILE* f = fopen(RR_RR2CHAR(filename),"rt"); // obj does not support unicode filename
 		if (f)
 		{
 			char line[1000];
@@ -190,7 +190,7 @@ private:
 class RRObjectsOBJ : public RRObjects
 {
 public:
-	RRObjectsOBJ(const char* filename)
+	RRObjectsOBJ(const RRString& filename)
 	{
 		RRObjectOBJ* object = new RRObjectOBJ(filename);
 		if (object->getNumTriangles())
@@ -213,7 +213,7 @@ public:
 class RRSceneOBJ : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, bool* aborting)
+	static RRScene* load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		RRSceneOBJ* scene = new RRSceneOBJ;
 		scene->protectedObjects = adaptObjectsFromOBJ(filename);
@@ -226,7 +226,7 @@ public:
 //
 // main
 
-RRObjects* adaptObjectsFromOBJ(const char* filename)
+RRObjects* adaptObjectsFromOBJ(const RRString& filename)
 {
 	return new RRObjectsOBJ(filename);
 }

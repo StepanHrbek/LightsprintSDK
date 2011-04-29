@@ -306,7 +306,7 @@ void debugInformations(const TMapQ3& pMap, FILE* pFile);
  *
  * @return true if the loading successed, false otherwise.
  */
-bool readMap(const std::string& pFilename, TMapQ3& pMap);
+bool readMap(const char* pFilename, const wchar_t* wFilename, TMapQ3& pMap);
 
 /**
  * Free all the datas of the map.

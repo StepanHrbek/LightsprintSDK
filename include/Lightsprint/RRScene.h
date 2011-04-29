@@ -41,20 +41,20 @@ public:
 	//! If file contains information on units or up direction,
 	//! our importers convert units to meters and up to Y.
 	//! \param filename
-	//!  Filename of scene. If it is NULL or "", scene will be empty.
+	//!  Filename of scene. If it is empty, scene will be empty.
 	//! \param textureLocator
 	//!  Optional custom file locator, for finding texture files in unusual location.
 	//!  NULL = default locator will be used.
 	//! \param aborting
 	//!  Import may be asynchronously aborted by setting *aborting to true.
-	RRScene(const char* filename, RRFileLocator* textureLocator = NULL, bool* aborting = NULL);
+	RRScene(const RRString& filename, RRFileLocator* textureLocator = NULL, bool* aborting = NULL);
 	//! Saves 3d scene to file.
 	//
 	//! Scene save is attempted using savers registered via registerSaver().
 	//! One saver is implemented in LightsprintIO library,
 	//! rr_io::registerSavers() will register it for you.
 	//! See rr_io::registerSavers() for details on formats/features supported.
-	bool save(const char* filename);
+	bool save(const RRString& filename);
 	//! Deletes scene including all objects and lights.
 	virtual ~RRScene();
 
@@ -103,9 +103,9 @@ public:
 	//////////////////////////////////////////////////////////////////////////////
 
 	//! Template of custom scene loader.
-	typedef RRScene* Loader(const char* filename, RRFileLocator* textureLocator, bool* aborting);
+	typedef RRScene* Loader(const RRString& filename, RRFileLocator* textureLocator, bool* aborting);
 	//! Template of custom scene saver.
-	typedef bool Saver(const RRScene* scene, const char* filename);
+	typedef bool Saver(const RRScene* scene, const RRString& filename);
 	//! Registers scene loader so it can be used by RRScene constructor.
 	//
 	//! Extensions are case insensitive, in "*.dae;*.3ds;*.md5mesh" format.

@@ -179,8 +179,10 @@ namespace rr
 	#define RR_RR2WX(r)     ((r).w_str())           // ok, unicode->unicode
 	#define RR_PATH2WX(p)   ((p).wstring())         // ok, unicode->unicode
 #ifdef _WIN32
+	#define RR_RR2STREAM(w) ((w).w_str())           // ok, unicode->unicode
 	#define RR_WX2STREAM(w) ((const wchar_t*)(w))   // ok, unicode->unicode
 #else
+	#define RR_RR2STREAM(w) ((w).c_str())           // WRONG, unicode->local
 	#define RR_WX2STREAM(w) ((const char*)(w))      // WRONG, unicode->local
 #endif
 	#define RR_RR2CHAR(r)   ((r).c_str())           // WRONG, unicode->local

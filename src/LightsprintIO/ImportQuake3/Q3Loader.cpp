@@ -687,16 +687,20 @@ void debugInformations(const TMapQ3& pMap, FILE* pFile)
  *
  * @return true if the loading successed, false otherwise.
  */
-bool readMap(const std::string& pFilename, TMapQ3& pMap)
+bool readMap(const char* pFilename, const wchar_t* wFilename, TMapQ3& pMap)
 {
 	// Open the file.
-	FILE* lFile = fopen(pFilename.c_str(), "rb");
+#ifdef _WIN32
+	FILE* lFile = _wfopen(wFilename, L"rb");
+#else
+	FILE* lFile = fopen(pFilename, "rb");
+#endif
 
 	// Check if the file exists.
 	if
 		(! lFile)
 	{
-		printf("readMap :: %s not found.\n",pFilename.c_str());
+		printf("readMap :: %ls not found.\n",wFilename);
 		return false;
 	}
 

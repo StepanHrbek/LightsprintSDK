@@ -44,11 +44,14 @@ NEWS
   - "nothing" parameter
 - <b>transparent Unicode support</b>
   - as a user, you can use funny characters in filenames
+    (works for all texture, video, vertex buffer filenames, .rr3 filenames)
   - as a programmer, you can write L"foo.jpg" instead of "foo.jpg"
   - RRString accepts and returns both unicode (wchar_t) and local charset (char) strings
   - RRString replaces char* in
+    - RRScene
     - RRBuffer
     - RRFileLocator
+  - .rr3 fileformat stores unicode filenames
   - use RRString::clear() instead of string = NULL; (NULL is ambiguous)
   - convert strings with RR_* conversion macros
 - misc helper functions

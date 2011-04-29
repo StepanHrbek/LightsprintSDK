@@ -45,8 +45,6 @@
 
 #include "Lightsprint/RRScene.h"
 
-#include <boost/filesystem.hpp> // system_complete
-
 #pragma warning(disable:4267) // there are too many size_t -> unsigned conversions
 
 using namespace rr;
@@ -412,9 +410,9 @@ class RRSceneOpenCollada : public RRScene
 {
 	friend class RRWriterOpenCollada;
 public:
-	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting);
-	static bool save141(const RRScene* scene, const char* filename);
-	static bool save150(const RRScene* scene, const char* filename);
+	static RRScene* load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting);
+	static bool save141(const RRScene* scene, const RRString& filename);
+	static bool save150(const RRScene* scene, const RRString& filename);
 
 	virtual ~RRSceneOpenCollada() { }
 };
@@ -555,17 +553,11 @@ enum PARSE_RUN_TYPE
 	RUN_GEOMETRY
 };
 
-// FIXME does this work everytime? chmm ...
-inline std::string GetPathFromFilename( const std::string& filename )
-{
-	return filename.substr( 0, filename.find_last_of("/\\")+1 );
-}
-
 class RRWriterOpenCollada : public COLLADAFW::IWriter
 {
 	PARSE_RUN_TYPE                  parseStep;
 
-	const char*                     filename;
+	const RRString&                 filename;
 	const RRFileLocator*            textureLocator;
 
 	RRObjectsOpenCollada*           objects;
@@ -597,12 +589,12 @@ class RRWriterOpenCollada : public COLLADAFW::IWriter
 
 	ExtraDataCallbackHandler        extraHandler;
 public:
-	RRWriterOpenCollada(RRObjectsOpenCollada* _objects, RRLightsOpenCollada* _lights, const char* _filename, const RRFileLocator* _textureLocator)
+	RRWriterOpenCollada(RRObjectsOpenCollada* _objects, RRLightsOpenCollada* _lights, const RRString& _filename, const RRFileLocator* _textureLocator)
+		: filename(_filename)
 	{
 		parseStep = RUN_COPY_ELEMENTS;
 		objects = _objects;
 		lights = _lights;
-		filename = _filename;
 		textureLocator = _textureLocator;
 		instanceVisualScene = NULL;
 		rescaleUnit = 1;
@@ -621,8 +613,7 @@ public:
 
 		loader.registerExtraDataCallbackHandler ( &extraHandler );
 
-//		if ( !root.loadDocument(filename) )
-		if ( !root.loadDocument(boost::filesystem::system_complete(filename).string()) ) // workaround for http://code.google.com/p/opencollada/issues/detail?id=122
+		if ( !root.loadDocument(RR_RR2CHAR(filename)) ) // opencollada does not support unicode filename
 			return false;
 
 		return true;
@@ -2074,7 +2065,7 @@ private:
 //
 // RRSceneOpenCollada
 
-RRScene* RRSceneOpenCollada::load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
+RRScene* RRSceneOpenCollada::load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 {
 	//return NULL;
 	RRReportInterval report(INF2,"Importing with OpenCollada\n");
@@ -2095,13 +2086,13 @@ RRScene* RRSceneOpenCollada::load(const char* filename, RRFileLocator* textureLo
 	return scene;
 }
 
-bool RRSceneOpenCollada::save141(const RRScene* scene, const char* filename)
+bool RRSceneOpenCollada::save141(const RRScene* scene, const RRString& filename)
 {
 	RRReportInterval report(INF2,"Exporting Collada 1.4.1\n");
 	return false;
 }
 
-bool RRSceneOpenCollada::save150(const RRScene* scene, const char* filename)
+bool RRSceneOpenCollada::save150(const RRScene* scene, const RRString& filename)
 {
 	RRReportInterval report(INF2,"Exporting Collada 1.5.0\n");
 	return false;

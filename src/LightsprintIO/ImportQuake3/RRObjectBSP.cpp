@@ -384,13 +384,13 @@ public:
 class RRSceneQuake3 : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
+	static RRScene* load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		RRSceneQuake3* scene = new RRSceneQuake3;
-		if (!readMap(filename,scene->scene_bsp))
+		if (!readMap(RR_RR2CHAR(filename),filename.w_str(),scene->scene_bsp)) // bsp outside windows does not support unicode filename
 		{
 			delete scene;
-			RRReporter::report(WARN,"Failed loading scene %s.\n");
+			RRReporter::report(WARN,"Failed loading scene %ls.\n",filename.w_str());
 			return NULL;
 		}
 		else
@@ -398,16 +398,16 @@ public:
 			if (textureLocator)
 			{
 				// tweak locator for .bsp
-				textureLocator->setLibrary(true,RR_PATH2RR(bf::path(filename).parent_path()));
+				textureLocator->setLibrary(true,RR_PATH2RR(bf::path(RR_RR2PATH(filename)).parent_path()));
 				textureLocator->setExtensions(true,".jpg;.png;.tga");
 			}
-			g_lightsmark = strstr(filename,"wop_padattic")!=NULL;
+			g_lightsmark = strstr(filename.c_str(),"wop_padattic")!=NULL;
 			scene->protectedObjects = adaptObjectsFromTMapQ3(&scene->scene_bsp,textureLocator);
 			g_lightsmark = false;
 			if (textureLocator)
 			{
 				// undo local changes
-				textureLocator->setLibrary(false,RR_PATH2RR(bf::path(filename).parent_path()));
+				textureLocator->setLibrary(false,RR_PATH2RR(bf::path(RR_RR2PATH(filename)).parent_path()));
 				textureLocator->setExtensions(false,".jpg;.png;.tga");
 			}
 			return scene;

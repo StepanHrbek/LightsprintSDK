@@ -921,7 +921,7 @@ save_scene:
 				scene.objects = m_canvas->solver->getStaticObjects();
 				scene.lights = m_canvas->solver->getLights();
 				scene.environment = m_canvas->solver->getEnvironment();
-				if (!scene.save(svs.sceneFilename))
+				if (!scene.save(RR_WX2RR(svs.sceneFilename)))
 					wxMessageBox(_("Scene save failed."),_("Not saved."),wxOK|wxICON_ERROR);
 				scene.environment = NULL; // would be deleted in destructor otherwise
 			}

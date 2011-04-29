@@ -2039,7 +2039,7 @@ public:
 	//!  Import may be asynchronously aborted by setting *aborting to true.
 	//! \param emissiveMultiplier
 	//!  Multiplies emittance in all materials. Default 1 keeps original values.
-	RRSceneGamebryo(const char* filename, bool initGamebryo, bool& aborting, float emissiveMultiplier = 1);
+	RRSceneGamebryo(const RRString& filename, bool initGamebryo, bool& aborting, float emissiveMultiplier = 1);
 #if GAMEBRYO_MAJOR_VERSION==3
 	//! Imports scene from toolbench.
 	RRSceneGamebryo(efd::ServiceManager* serviceManager, bool adaptMaterials, bool onlySelected, bool& aborting);
@@ -2047,7 +2047,7 @@ public:
 	virtual ~RRSceneGamebryo();
 
 	//! Loader suitable for RRScene::registerLoader().
-	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
+	static RRScene* load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		bool not_aborting = false;
 		return new RRSceneGamebryo(filename,true,aborting ? *aborting : not_aborting,1);
@@ -2064,7 +2064,7 @@ protected:
 	NiDX9Renderer*            localRenderer; // locally created renderer
 };
 
-RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool& _aborting, float _emissiveMultiplier)
+RRSceneGamebryo::RRSceneGamebryo(const RRString& _filename, bool _initGamebryo, bool& _aborting, float _emissiveMultiplier)
 {
 	//RRReportInterval report(INF1,"Loading scene %s...\n",_filename); already reported one level up
 	initGamebryo = _initGamebryo;
@@ -2074,14 +2074,14 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
 
 	// load .gsa
 	NiEntityStreamingAscii kStream;
-	if (!kStream.Load(_filename))
+	if (!kStream.Load(RR_RR2CHAR(_filename))) // gamebryo 2.6 does not support unicode filename
 	{
-		RRReporter::report(ERRO,"Scene %s not loaded.\n",_filename);
+		RRReporter::report(ERRO,"Scene %ls not loaded.\n",_filename.w_str());
 		return;
 	}
 	if (kStream.GetSceneCount() < 1)
 	{
-		RRReporter::report(ERRO,"Scene %s empty.\n",_filename);
+		RRReporter::report(ERRO,"Scene %ls empty.\n",_filename.w_str());
 		return;
 	}
 	pkEntityScene = kStream.GetSceneAt(0);
@@ -2110,7 +2110,7 @@ RRSceneGamebryo::RRSceneGamebryo(const char* _filename, bool _initGamebryo, bool
 
 	if (!protectedObjects->size() && !protectedLights->size())
 	{
-		RRReporter::report(WARN,"Scene %s empty.\n",_filename);
+		RRReporter::report(WARN,"Scene %ls empty.\n",_filename.w_str());
 	}
 }
 

@@ -91,7 +91,7 @@ void mgf2rgb(C_COLOR *cin,FLOAT intensity,RRVec3& cout)
 class RRObjectMGF : public RRObject, RRMesh
 {
 public:
-	RRObjectMGF(const char* filename);
+	RRObjectMGF(const RRString& filename);
 	virtual ~RRObjectMGF();
 
 	// RRMesh
@@ -215,7 +215,7 @@ int my_hobject(int ac,char** av)
 //
 // RRObjectMGF load
 
-RRObjectMGF::RRObjectMGF(const char* filename)
+RRObjectMGF::RRObjectMGF(const RRString& filename)
 {
 	// set callbacks for mgflib
 	g_scene = this;
@@ -241,7 +241,7 @@ RRObjectMGF::RRObjectMGF(const char* filename)
 	mg_ehand[MG_E_NORMAL]   = c_hvertex;
 	mg_ehand[MG_E_XF]       = xf_handler;	/* they track transforms */
 	mg_init();
-	int result=mg_load(filename); // return codes are defined in mgfparser.h (success=MG_OK)
+	int result=mg_load(RR_RR2CHAR(filename)); // mgf does not support unicode filename. return codes are defined in mgfparser.h (success=MG_OK)
 	mg_clear();
 	//lu_done(&ent_tab); ent_tab is local structure inside mgflib that leaks
 
@@ -296,7 +296,7 @@ void RRObjectMGF::getTriangle(unsigned t, Triangle& out) const
 class RRObjectsMGF : public RRObjects
 {
 public:
-	RRObjectsMGF(const char* filename)
+	RRObjectsMGF(const RRString& filename)
 	{
 		RRObjectMGF* object = new RRObjectMGF(filename);
 		if (object->getNumTriangles())
@@ -319,7 +319,7 @@ public:
 class RRSceneMGF : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
+	static RRScene* load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		RRSceneMGF* scene = new RRSceneMGF;
 		scene->protectedObjects = adaptObjectsFromMGF(filename);
@@ -332,7 +332,7 @@ public:
 //
 // main
 
-RRObjects* adaptObjectsFromMGF(const char* filename)
+RRObjects* adaptObjectsFromMGF(const RRString& filename)
 {
 	return new RRObjectsMGF(filename);
 }

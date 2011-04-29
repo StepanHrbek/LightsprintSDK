@@ -98,14 +98,14 @@ class RRSceneLightsprint : public RRScene
 {
 public:
 
-	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
+	static RRScene* load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		try
 		{
-			std::ifstream ifs(filename,std::ios::in|std::ios::binary);
+			std::ifstream ifs(RR_RR2STREAM(filename),std::ios::in|std::ios::binary);
 			if (!ifs || ifs.bad())
 			{
-				rr::RRReporter::report(rr::WARN,"Scene %s can't be loaded, file does not exist.\n",filename);
+				rr::RRReporter::report(rr::WARN,"Scene %ls can't be loaded, file does not exist.\n",filename.w_str());
 				return NULL;
 			}
 
@@ -182,23 +182,23 @@ public:
 		}
 		catch(...)
 		{
-			rr::RRReporter::report(rr::ERRO,"Failed to load scene %s.\n",filename);
+			rr::RRReporter::report(rr::ERRO,"Failed to load scene %ls.\n",filename.w_str());
 			return NULL;
 		}
 	}
 
-	static bool save(const RRScene* scene, const char* filename)
+	static bool save(const RRScene* scene, const RRString& filename)
 	{
-		if (!scene || !filename)
+		if (!scene)
 		{
 			return false;
 		}
 		try
 		{
-			std::ofstream ofs(filename,std::ios::out|std::ios::binary|std::ios::trunc);
+			std::ofstream ofs(RR_RR2STREAM(filename),std::ios::out|std::ios::binary|std::ios::trunc);
 			if (!ofs || ofs.bad())
 			{
-				rr::RRReporter::report(rr::WARN,"File %s can't be created, scene not saved.\n",filename);
+				rr::RRReporter::report(rr::WARN,"File %ls can't be created, scene not saved.\n",filename.w_str());
 				return false;
 			}
 
@@ -258,7 +258,7 @@ public:
 		}
 		catch(...)
 		{
-			rr::RRReporter::report(rr::ERRO,"Failed to save %s.\n",filename);
+			rr::RRReporter::report(rr::ERRO,"Failed to save %ls.\n",filename.w_str());
 			return false;
 		}
 	}

@@ -960,20 +960,20 @@ RRLightsFCollada::~RRLightsFCollada()
 class RRSceneFCollada : public RRScene
 {
 public:
-	static RRScene* load(const char* filename, RRFileLocator* textureLocator, bool* aborting)
+	static RRScene* load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 	{
 		RRSceneFCollada* scene = new RRSceneFCollada;
 		FCollada::Initialize();
 		scene->scene_dae = FCollada::NewTopDocument();
 		FUErrorSimpleHandler errorHandler;
-		FCollada::LoadDocumentFromFile(scene->scene_dae,filename);
+		FCollada::LoadDocumentFromFile(scene->scene_dae,RR_RR2CHAR(filename)); // fcollada does not support unicode filename
 		if (!errorHandler.IsSuccessful())
 		{
 			FCDVersion version = scene->scene_dae->GetVersion();
 			FCDVersion versionWanted("1.4.1");
 			bool wrongVersion = version<versionWanted || version>versionWanted;
 			if (wrongVersion)
-				RRReporter::report(ERRO,"Collada %d.%d.%d is not fully supported, please use Collada 1.4.1. We recommend OpenCollada plugins for Max and Maya, http://opencollada.org. (%s)\n",version.major,version.minor,version.revision,filename);
+				RRReporter::report(ERRO,"Collada %d.%d.%d is not fully supported, please use Collada 1.4.1. We recommend OpenCollada plugins for Max and Maya, http://opencollada.org. (%ls)\n",version.major,version.minor,version.revision,filename.w_str());
 			RRReporter::report(wrongVersion?WARN:ERRO,"%s\n",errorHandler.GetErrorString());
 			delete scene;
 			return NULL;

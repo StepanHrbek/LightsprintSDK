@@ -16,7 +16,7 @@
 //!
 //! Known limitations:
 //! - only convex polygons are triangulated properly
-rr::RRObjects* adaptObjectsFromMGF(const char* filename);
+rr::RRObjects* adaptObjectsFromMGF(const rr::RRString& filename);
 
 //! Makes it possible to load .mgf scenes from disk via RRScene::RRScene().
 void registerLoaderMGF();
