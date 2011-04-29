@@ -812,10 +812,11 @@ static const char** selectCubeSideNames(std::wstring& _filename)
 		for (unsigned s=0;s<6;s++)
 		{
 			RRString suffix = cubeSideNames[c][s];
-			int ofs = (int)_filename.find(suffix.w_str());
-			if (ofs>=0)
+			size_t suffixLen = strlen(cubeSideNames[c][s]);
+			size_t suffixOfs = _filename.size()-4-suffixLen;
+			if (_filename.substr(suffixOfs,suffixLen)==suffix.w_str())
 			{
-				_filename.replace(ofs,wcslen(suffix.w_str()),L"%s");
+				_filename.replace(suffixOfs,suffixLen,L"%s");
 				return cubeSideNames[c];
 			}
 		}
