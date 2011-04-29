@@ -86,25 +86,25 @@ protected:
 		// relative to parent
 		for (size_t i=0;i<parentFilenames.size();i++)
 		{
-			if (!parentFilenames[i].empty() && !attemptNumber--)
+			if (!attemptNumber--)
 				return parentFilenames[i].parent_path() / originalFilename.relative_path();
-			if (!parentFilenames[i].empty() && originalFilename.relative_path().has_parent_path() && !attemptNumber--)
+			if (originalFilename.relative_path().has_parent_path() && !attemptNumber--)
 				return parentFilenames[i].parent_path() / originalFilename.filename();
 		}
 
 		// relocated
 		for (size_t i=0;i<relocationFilenames.size();i++)
 		{
-			if (!relocationFilenames[i].first.empty() && !relocationFilenames[i].second.empty() && originalFilename.has_root_path() && !attemptNumber--)
+			if (originalFilename.has_root_path() && !attemptNumber--)
 				return getRelocatedFilename(originalFilename,relocationFilenames[i].first,relocationFilenames[i].second);
 		}
 
 		// library
 		for (size_t i=0;i<libraryDirectories.size();i++)
 		{
-			if (!libraryDirectories[i].empty() && !attemptNumber--)
+			if (!attemptNumber--)
 				return libraryDirectories[i].parent_path() / originalFilename.relative_path();
-			if (!libraryDirectories[i].empty() && originalFilename.relative_path().has_parent_path() && !attemptNumber--)
+			if (originalFilename.relative_path().has_parent_path() && !attemptNumber--)
 				return libraryDirectories[i].parent_path() / originalFilename.filename();
 		}
 
