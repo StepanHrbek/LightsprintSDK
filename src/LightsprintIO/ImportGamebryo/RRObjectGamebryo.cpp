@@ -706,7 +706,7 @@ private:
 struct MaterialInputs
 {
 	NiMesh* mesh;
-	float emissiveMultiplier;
+	float emissiveMultiplier; // it comes from LsMesh, so it can't be replaced by global scene.objects.multiplyEmittance()
 
 	MaterialInputs(NiMesh* _mesh, float _emissiveMultiplier)
 	{

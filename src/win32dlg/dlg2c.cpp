@@ -11,7 +11,7 @@ void Error(char* msg)
     exit(EXIT_FAILURE);
 }
 
-void ConvertDialog(const char* tableName, const char *resourceName)
+void ConvertDialog(const char* tableName, const char* resourceName)
 {
     HRSRC res;
     HGLOBAL h;
