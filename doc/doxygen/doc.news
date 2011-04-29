@@ -51,6 +51,7 @@ NEWS
     - RRScene
     - RRBuffer
     - RRFileLocator
+    - RRObjects
   - .rr3 fileformat stores unicode filenames
   - use RRString::clear() instead of string = NULL; (NULL is ambiguous)
   - convert strings with RR_* conversion macros

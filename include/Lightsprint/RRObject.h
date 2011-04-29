@@ -424,7 +424,7 @@ namespace rr
 		//!  Vertex buffers are always loaded from .vbu, without regard to ext.
 		//! \remark
 		//!  rr_io::registerLoaders() must be called for image saves/loads to work.
-		virtual unsigned loadLayer(int layerNumber, const char* path, const char* ext) const;
+		virtual unsigned loadLayer(int layerNumber, const RRString& path, const RRString& ext) const;
 
 		//! Saves illumination layer to disk.
 		//
@@ -438,7 +438,7 @@ namespace rr
 		//!  Vertex buffers are always saved to .vbu, without regard to ext.
 		//! \remark
 		//!  rr_io::registerLoaders() must be called for image saves/loads to work.
-		virtual unsigned saveLayer(int layerNumber, const char* path, const char* ext) const;
+		virtual unsigned saveLayer(int layerNumber, const RRString& path, const RRString& ext) const;
 
 		//! Allocates buffers for realtime GI illumination.
 		//

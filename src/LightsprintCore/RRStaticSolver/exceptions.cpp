@@ -225,7 +225,7 @@ void RRObjects::getAllMaterials(RRVector<RRMaterial*>& materials) const
 }
 
 
-unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext) const
+unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRString& ext) const
 {
 	unsigned result = 0;
 	if (layerNumber>=0)
@@ -265,20 +265,22 @@ unsigned RRObjects::loadLayer(int layerNumber, const char* path, const char* ext
 				RRReporter::report(INF3,"Not loaded %ls.\n",layerParameters.actualFilename.w_str());
 			}
 		}
-		RRReporter::report(INF2,"Loaded layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
+		RRReporter::report(INF2,"Loaded layer %d, %d/%d buffers into %ls.\n",layerNumber,result,size(),path.w_str());
 	}
 	return result;
 }
 
-unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext) const
+unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRString& ext) const
 {
 	unsigned result = 0;
 	if (layerNumber>=0)
 	{
 		// create destination directories
-		bf::path prefix(path);
-		prefix.remove_filename();
-		bf::exists(prefix) || bf::create_directories(prefix);
+		{
+			bf::path prefix(RR_RR2PATH(path));
+			prefix.remove_filename();
+			bf::exists(prefix) || bf::create_directories(prefix);
+		}
 
 		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 		{
@@ -292,7 +294,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 				layerParameters.suggestedExt = ext;
 				layerParameters.suggestedMapWidth = layerParameters.suggestedMapHeight = (buffer->getType()==BT_VERTEX_BUFFER) ? 0 : 256;
 				object->recommendLayerParameters(layerParameters);
-				if (buffer->save(layerParameters.actualFilename.c_str()))
+				if (buffer->save(layerParameters.actualFilename))
 				{
 					result++;
 					RRReporter::report(INF3,"Saved %ls.\n",layerParameters.actualFilename.w_str());
@@ -303,9 +305,9 @@ unsigned RRObjects::saveLayer(int layerNumber, const char* path, const char* ext
 			}
 		}
 		if (result)
-			RRReporter::report(INF2,"Saved layer %d, %d/%d buffers into %s.\n",layerNumber,result,size(),path);
+			RRReporter::report(INF2,"Saved layer %d, %d/%d buffers into %ls.\n",layerNumber,result,size(),path.w_str());
 		else
-			RRReporter::report(WARN,"Failed to save layer %d (%d buffers) into %s.\n",layerNumber,size(),path);
+			RRReporter::report(WARN,"Failed to save layer %d (%d buffers) into %ls.\n",layerNumber,size(),path.w_str());
 	}
 	return result;
 }
