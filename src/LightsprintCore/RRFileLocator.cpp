@@ -181,13 +181,13 @@ RRString RRFileLocator::getLocation(const RRString& originalFilename, unsigned a
 	return attemptNumber ? "" : originalFilename;
 }
 
-RRString RRFileLocator::getLocation(const RRString& originalFilename) const
+RRString RRFileLocator::getLocation(const RRString& originalFilename, const RRString& fallbackFilename) const
 {
 	for (unsigned attempt=0;attempt<UINT_MAX;attempt++)
 	{
 		RRString location = getLocation(originalFilename,attempt);
 		if (location.empty())
-			return "";
+			return fallbackFilename;
 		bool exists = bf::exists(RR_RR2PATH(location));
 rr::RRReporter::report(rr::INF2," %d%c %s\n",attempt,exists?'+':'-',location.c_str());
 		if (exists)
