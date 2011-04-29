@@ -95,7 +95,7 @@ protected:
 		// relocated
 		for (size_t i=0;i<relocationFilenames.size();i++)
 		{
-			if (originalFilename.has_root_path() && !attemptNumber--)
+			if (!attemptNumber--)
 				return getRelocatedFilename(originalFilename,relocationFilenames[i].first,relocationFilenames[i].second);
 		}
 
@@ -117,13 +117,6 @@ protected:
 		if (filename.empty())
 			return "";
 
-		// relative path or bad inputs: just make it absolute
-		if (!filename.has_root_directory() || oldReference.empty() || newReference.empty())
-		{
-			return bf::system_complete(filename).normalize();
-		}
-
-		// absolute path: relocate
 		bf::path relativeFilename = relative(filename,bf::path(oldReference).parent_path());
 		bf::path relocatedFilename = bf::absolute(relativeFilename,system_complete(bf::path(newReference).parent_path())).normalize();
 		return relocatedFilename;
