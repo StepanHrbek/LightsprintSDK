@@ -51,11 +51,11 @@ bool g_alphaSplashOn = false;
 class AlphaSplashScreen
 {
 public:
-	AlphaSplashScreen(const char* filename, int dx=0, int dy=0)
+	AlphaSplashScreen(const wxString& filename, int dx=0, int dy=0)
 	{
 		// load image
 		hWnd = 0;
-		rr::RRBuffer* buffer = rr::RRBuffer::load(filename);
+		rr::RRBuffer* buffer = rr::RRBuffer::load(RR_WX2RR(filename));
 		if (!buffer)
 			return;
 
@@ -399,13 +399,13 @@ void SVFrame::UpdateEverything()
 
 }
 
-static wxImage* loadImage(const char* filename)
+static wxImage* loadImage(const wxString& filename)
 {
 	// Q: why do we read images via RRBuffer::load()?
 	// A: wx file loaders are not compiled in, to reduce size
 	//    wxIcon(fname.ico) works only in Windows, only on some icons and it reduces icon resolution
 	//    wxBitmap(fname.bmp) works only in Windows and ignores alphachannel
-	rr::RRBuffer* buffer = rr::RRBuffer::load(filename);
+	rr::RRBuffer* buffer = rr::RRBuffer::load(RR_WX2RR(filename));
 	if (!buffer)
 		return NULL;
 	buffer->flip(false,true,false);
@@ -425,7 +425,7 @@ static wxImage* loadImage(const char* filename)
 	return image;
 }
 
-static wxIcon* loadIcon(const char* filename)
+static wxIcon* loadIcon(const wxString& filename)
 {
 	wxImage* image = loadImage(filename);
 	if (!image)
@@ -1857,9 +1857,9 @@ void SVFrame::commitPropertyChanges()
 	m_materialProperties->CommitChangesFromEditor();
 }
 
-rr::RRScene* SVFrame::loadScene(const char* _filename, float _units, unsigned _upAxis) const
+rr::RRScene* SVFrame::loadScene(const wxString& _filename, float _units, unsigned _upAxis) const
 {
-	rr::RRScene* scene = new rr::RRScene(_filename,textureLocator,&m_canvas->solver->aborting);
+	rr::RRScene* scene = new rr::RRScene(RR_WX2RR(_filename),textureLocator,&m_canvas->solver->aborting);
 	scene->normalizeUnits(_units);
 	scene->normalizeUpAxis(_upAxis);
 	scene->objects.flipFrontBack(3,true);
