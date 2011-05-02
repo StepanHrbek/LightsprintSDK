@@ -2637,7 +2637,7 @@ Video formats
       - Finally, resolution is limited to be >=32 and <=2048. Let us know if you want to change these limits, we will expose them in LightsprintScene.
 
    \subsection g3_cache - lightmap cache
-    - located in <temp>/LightmapCache/<block_name>
+    - located in (temp)/LightmapCache/(block_name)
     - how does it work?
       - "Bake lighting"/"Bake selected" calculates lighting, saves raw .exr lightmaps to cache (overwriting previous cache contents) and saves postprocessed lightmaps to Gamebryo's .nif
       - "Bake from cache"/"Bake selected from cache" reads raw lightmaps from cache and saves postprocessed lightmaps to Gamebryo's .nif

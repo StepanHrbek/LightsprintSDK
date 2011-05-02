@@ -8,10 +8,23 @@ namespace rr
 
 \page main_news What's new
 
-\section news120 ------------------------------------ 2011.04.xx -------------------------------------
+\section news120 ------------------------------------ 2011.05.02 -------------------------------------
 
 NEWS
 
+- <b>transparent Unicode support</b>
+  - as a user, you can use funny characters in filenames
+    (works for all texture, video, vertex buffer filenames, .rr3 filenames)
+  - as a programmer, you can write L"foo.jpg" instead of "foo.jpg"
+  - RRString accepts and returns both unicode (wchar_t) and local charset (char) strings
+  - RRString replaces char* in
+    - RRScene
+    - RRBuffer
+    - RRFileLocator
+    - RRObjects
+  - .rr3 fileformat stores unicode filenames
+  - use RRString::clear() instead of string = NULL; (NULL is ambiguous)
+  - convert strings with RR_* macros (e.g. RR_PATH2RR) to make dangerous conversions searchable
 - <b>improved \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"</b>
   - Toolbench menu "Calculate to cache"
     \n processes huge scenes in 64bit code, not limited by tiny address space of 32bit Toolbench
@@ -42,19 +55,6 @@ NEWS
   - "mapsize=w*h" parameter
   - "outputname=" parameter
   - "nothing" parameter
-- <b>transparent Unicode support</b>
-  - as a user, you can use funny characters in filenames
-    (works for all texture, video, vertex buffer filenames, .rr3 filenames)
-  - as a programmer, you can write L"foo.jpg" instead of "foo.jpg"
-  - RRString accepts and returns both unicode (wchar_t) and local charset (char) strings
-  - RRString replaces char* in
-    - RRScene
-    - RRBuffer
-    - RRFileLocator
-    - RRObjects
-  - .rr3 fileformat stores unicode filenames
-  - use RRString::clear() instead of string = NULL; (NULL is ambiguous)
-  - convert strings with RR_* conversion macros
 - misc helper functions
   - RRObjects::stitchAndSmooth()
   - RRMeshArrays::buildNormals()
