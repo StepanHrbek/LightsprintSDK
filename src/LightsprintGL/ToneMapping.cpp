@@ -44,9 +44,9 @@ void ToneMapping::adjustOperator(TextureRenderer* textureRenderer, rr::RRReal se
 
 	if (!bigTexture) bigTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 	bigTexture->bindTexture();
-	int bwidth = 1; while (bwidth*2<=viewport[2]) bwidth *= 2;
-	int bheight = 1; while (bheight*2<=viewport[3]) bheight *= 2;
-	glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,(viewport[2]>bwidth)?rand()%(viewport[2]-bwidth):0,(viewport[3]>bheight)?rand()%(viewport[3]-bheight):0,bwidth,bheight,0);
+	int bwidth = viewport[2];
+	int bheight = viewport[3];
+	glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,0,0,bwidth,bheight,0);
 
 	const unsigned swidth = 32;
 	const unsigned sheight = 32;
