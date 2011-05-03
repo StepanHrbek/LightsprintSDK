@@ -5,6 +5,8 @@
 
 #include "Lightsprint/RRDebug.h"
 
+#include <cstdarg>
+#include <cstdio>
 #include <cstdlib> // malloc, free
 #include <cstring> // _strdup
 #include <wchar.h>
@@ -170,7 +172,43 @@ RRString::RRString(const wchar_t* a)
 void RRString::clear()
 {
 	free(str);
-	::new(this) RRString();
+	str = NULL;
+	wstr = NULL;
+}
+
+void RRString::format(const wchar_t* fmt, ...)
+{
+	va_list argptr;
+	size_t bufSize = 1000;
+	wchar_t buf[1000];
+	va_start(argptr,fmt);
+	int characters = _vsnwprintf(buf,bufSize-1,fmt,argptr);
+	if (characters>=0)
+	{
+		buf[bufSize-1] = 0;
+		*this = buf;
+	}
+	else
+	while (1)
+	{
+		bufSize *= 10;
+		wchar_t* buf = new (std::nothrow) wchar_t[bufSize];
+		if (!buf)
+		{
+			RR_ASSERT(0);
+			*this = "format() error";
+			return;
+		}
+		characters = _vsnwprintf(buf,bufSize-1,fmt,argptr);
+		if (characters>=0)
+		{
+			buf[bufSize-1] = 0;
+			*this = buf;
+			delete[] buf;
+			return;
+		}
+		delete[] buf;
+	}
 }
 
 RRString& RRString::operator =(const RRString& a)

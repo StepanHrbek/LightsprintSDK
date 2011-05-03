@@ -447,41 +447,43 @@ RRObject* RRObject::createMultiObject(const RRObjects* objects, RRCollider::Inte
 // RRObject recommends
 
 // formats filename from prefix(path), object number and postfix(ext)
-const char* formatFilename(const char* path, const char* objectName, unsigned objectIndex, const char* ext, bool isVertexBuffer)
+inline void formatFilename(const RRString& path, const RRString& objectName, unsigned objectIndex, const RRString& ext, bool isVertexBuffer, RRString& out)
 {
-	char* tmp = NULL;
-	const char* finalExt;
+	wchar_t* tmp = NULL;
+	const wchar_t* finalExt;
 	if (isVertexBuffer)
 	{
-		if (!ext)
+		if (ext.empty())
 		{
-			finalExt = "vbu";
+			finalExt = L"vbu";
 		}
 		else
 		{
 			// transforms ext "bent_normals.png" to finalExt "bent_normals.vbu"
-			tmp = new char[strlen(ext)+5];
-			strcpy(tmp,ext);
-			unsigned i = (unsigned)strlen(ext);
+			unsigned i = wcslen(ext.w_str());
+			tmp = new wchar_t[i+5];
+			memcpy(tmp,ext.w_str(),(i+1)*sizeof(wchar_t));
 			while (i && tmp[i-1]!='.') i--;
-			strcpy(tmp+i,"vbu");
+			wcscpy(tmp+i,L"vbu");
 			finalExt = tmp;
 		}
 	}
 	else
 	{
-		if (!ext)
+		if (ext.empty())
 		{
-			finalExt = "png";
+			finalExt = L"png";
 		}
 		else
 		{
-			finalExt = ext;
+			finalExt = ext.w_str();
 		}
 	}
-	const char* result = objectName ? tmpstr("%s%s.%s",path?path:"",objectName,finalExt) : tmpstr("%s%05d.%s",path?path:"",objectIndex,finalExt);
+	if (objectName.empty())
+		out.format(L"%ls%05d.%ls",path.w_str(),objectIndex,finalExt);
+	else
+		out.format(L"%ls%ls.%ls",path.w_str(),objectName.w_str(),finalExt);
 	delete[] tmp;
-	return result;
 }
 
 void RRObject::recommendLayerParameters(RRObject::LayerParameters& layerParameters) const
@@ -491,7 +493,7 @@ void RRObject::recommendLayerParameters(RRObject::LayerParameters& layerParamete
 	layerParameters.actualType   = layerParameters.suggestedMapWidth ? BT_2D_TEXTURE : BT_VERTEX_BUFFER;
 	layerParameters.actualFormat = layerParameters.suggestedMapWidth ? BF_RGB : BF_RGBF;
 	layerParameters.actualScaled = layerParameters.suggestedMapWidth ? true : false;
-	layerParameters.actualFilename = formatFilename(layerParameters.suggestedPath.c_str(),layerParameters.suggestedName.c_str(),layerParameters.objectIndex,layerParameters.suggestedExt.c_str(),layerParameters.actualType==BT_VERTEX_BUFFER);
+	formatFilename(layerParameters.suggestedPath,layerParameters.suggestedName,layerParameters.objectIndex,layerParameters.suggestedExt,layerParameters.actualType==BT_VERTEX_BUFFER,layerParameters.actualFilename);
 }
 
 // Moved to file with exceptions enabled:

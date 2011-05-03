@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news121 ------------------------------------ 2011.05.xx -------------------------------------
+
+NEWS
+
+- misc helper functions
+  - RRString::format()
+
 \section news120 ------------------------------------ 2011.05.02 -------------------------------------
 
 NEWS

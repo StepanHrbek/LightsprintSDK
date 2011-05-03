@@ -122,10 +122,11 @@ namespace rr
 		RRString(const RRString& a);
 		RRString(const char* a);
 		RRString(const wchar_t* a);
-		void clear();
 		RRString& operator =(const RRString& a);
 		RRString& operator =(const char* a);
 		RRString& operator =(const wchar_t* a);
+		void clear();
+		void format(const wchar_t* fmt, ...); ///< Sets new string value using printf() like syntax.
 
 		// comparators
 		bool operator ==(const RRString& a) const;
