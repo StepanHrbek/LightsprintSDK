@@ -237,7 +237,8 @@ void RRObjects::stitchAndSmooth(bool splitVertices, bool stitchVertices, bool re
 				if (object->getCollider()->getMesh()==*i)
 				{
 					RRObject::FaceGroups faceGroups;
-					for (unsigned postImportTriangle=0;postImportTriangle<mesh->numTriangles;postImportTriangle++)
+					unsigned mesh3_numTriangles = mesh3->getNumTriangles();
+					for (unsigned postImportTriangle=0;postImportTriangle<mesh3_numTriangles;postImportTriangle++)
 					{
 						unsigned preImportTriangle = mesh3->getPreImportTriangle(postImportTriangle).index;
 						RRMaterial* m = object->getTriangleMaterial(preImportTriangle,NULL,NULL);
