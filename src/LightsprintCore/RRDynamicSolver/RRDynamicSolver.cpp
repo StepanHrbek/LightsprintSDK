@@ -297,6 +297,13 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		getStaticObjects()[i]->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
 		getStaticObjects()[i]->illumination.envMapObjectNumber = i;
 		getStaticObjects()[i]->illumination.envMapWorldRadius = (maxi-mini).length()/2*getStaticObjects()[i]->getWorldMatrixRef().getScale().abs().avg();
+
+		// clear cached triangle numbers
+		getStaticObjects()[i]->illumination.cachedGatherSize = 0;
+	}
+	for (unsigned i=0;i<getDynamicObjects().size();i++)
+	{
+		getDynamicObjects()[i]->illumination.cachedGatherSize = 0;
 	}
 }
 
