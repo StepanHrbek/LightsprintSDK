@@ -56,7 +56,6 @@ class SmoothDlg : public wxDialog
 		wxStaticText* m_staticText1;
 		wxStaticText* m_staticText2;
 		wxButton* m_button4;
-		wxButton* m_button3;
 	
 	public:
 		wxTextCtrl* smoothAngle;
@@ -64,6 +63,7 @@ class SmoothDlg : public wxDialog
 		wxCheckBox* splitVertices;
 		wxCheckBox* stitchVertices;
 		wxCheckBox* preserveUvs;
+		wxButton* m_button3;
 		
 		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,267 ), long style = wxCAPTION|wxCLOSE_BOX );
 		~SmoothDlg();
