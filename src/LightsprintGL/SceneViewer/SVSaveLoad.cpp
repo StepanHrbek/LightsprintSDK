@@ -497,9 +497,6 @@ static wxString suggestPreferencesFilename()
 
 bool UserPreferences::save() const
 {
-#if defined(_MSC_VER) && _MSC_VER<1400
-	return false; // Visual Studio 2003 doesn't accept std::ofstream(const wchar_t*)
-#else
 	try
 	{
 		bf::create_directories(RR_WX2PATH(suggestPreferencesDirectory()));
@@ -520,14 +517,10 @@ bool UserPreferences::save() const
 	}
 
 	return true;
-#endif
 }
 
 bool UserPreferences::load(const wxString& nonDefaultFilename)
 {
-#if defined(_MSC_VER) && _MSC_VER<1400
-	return false; // Visual Studio 2003 doesn't accept std::ofstream(const wchar_t*)
-#else
 	try
 	{
 		std::ifstream ifs(RR_WX2STREAM(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
@@ -547,7 +540,6 @@ bool UserPreferences::load(const wxString& nonDefaultFilename)
 	}
 
 	return true;
-#endif
 }
 
 
