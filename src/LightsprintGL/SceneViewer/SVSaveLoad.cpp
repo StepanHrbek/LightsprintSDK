@@ -436,11 +436,15 @@ ImportParameters::ImportParameters()
 	upForce = false;
 }
 
-float ImportParameters::getUnitLength(const char* filename) const
+bool ImportParameters::knowsUnitLength(const char* filename) const
 {
 	wxString ext = wxString(filename).Right(4).Lower();
-	bool alreadyNormalized = ext==".rr3" || ext==".dae" || ext==".kmz" || ext==".skp" || ext==".fbx";
-	if (alreadyNormalized && !unitForce)
+	return ext==".rr3" || ext==".dae" || ext==".kmz" || ext==".skp" || ext==".fbx";
+}
+
+float ImportParameters::getUnitLength(const char* filename) const
+{
+	if (knowsUnitLength(filename) && !unitForce)
 		return 1;
 	switch (unitEnum)
 	{

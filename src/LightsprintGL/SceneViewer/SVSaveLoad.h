@@ -34,6 +34,7 @@ namespace rr_gl
 
 		ImportParameters();
 
+		bool knowsUnitLength(const char* filename) const;
 		float getUnitLength(const char* filename) const;
 		unsigned getUpAxis(const char* filename) const;
 	};
