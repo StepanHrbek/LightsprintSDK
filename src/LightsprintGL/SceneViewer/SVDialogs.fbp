@@ -341,7 +341,7 @@
             <property name="minimum_size"></property>
             <property name="name">SmoothDlg</property>
             <property name="pos"></property>
-            <property name="size">215,298</property>
+            <property name="size">215,318</property>
             <property name="style">wxCAPTION|wxCLOSE_BOX</property>
             <property name="subclass"></property>
             <property name="title">Smoothing options</property>

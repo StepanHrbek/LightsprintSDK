@@ -68,7 +68,7 @@ class SmoothDlg : public wxDialog
 		wxCheckBox* preserveUvs;
 		wxButton* m_button3;
 		
-		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,298 ), long style = wxCAPTION|wxCLOSE_BOX );
+		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,318 ), long style = wxCAPTION|wxCLOSE_BOX );
 		~SmoothDlg();
 	
 };
