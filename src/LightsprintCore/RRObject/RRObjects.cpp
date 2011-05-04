@@ -132,6 +132,15 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 				if (gatherEnvMapSize>=0)
 					illumination.gatherEnvMapSize = gatherEnvMapSize;
 			}
+			else
+			if (changeExistingBuffers)
+			{
+				// delete buffers in empty object
+				if (lightmapLayerNumber>=0)
+					RR_SAFE_DELETE(illumination.getLayer(lightmapLayerNumber));
+				RR_SAFE_DELETE(illumination.diffuseEnvMap);
+				RR_SAFE_DELETE(illumination.specularEnvMap);
+			}
 		}
 	}
 	return buffersTouched;
