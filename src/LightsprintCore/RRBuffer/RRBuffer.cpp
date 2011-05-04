@@ -734,14 +734,15 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 	{
 		for (unsigned attempt=0;attempt<UINT_MAX;attempt++)
 		{
-			std::wstring location = RR_RR2STDW(_fileLocator->getLocation(_filename,attempt));
+			RRString location = _fileLocator->getLocation(_filename,attempt);
 			if (location.empty())
 				break;
-			int ofs = (int)location.find(L"%s");
+			std::wstring location_buf = RR_RR2STDW(location);
+			int ofs = (int)location_buf.find(L"%s");
 			if (ofs>=0)
-				location.replace(ofs,2,RRString(_cubeSideName[0]).w_str());
-			bool exists = bf::exists(location);
-rr::RRReporter::report(rr::INF2,"%d%c %ls\n",attempt,exists?'+':'-',location.c_str());
+				location_buf.replace(ofs,2,RRString(_cubeSideName[0]).w_str());
+			bool exists = bf::exists(location_buf);
+rr::RRReporter::report(rr::INF2,"%d%c %ls\n",attempt,exists?'+':'-',location.w_str());
 			if (exists)
 			{
 				RRBuffer* result = load_cached(RR_STDW2RR(location),_cubeSideName);
