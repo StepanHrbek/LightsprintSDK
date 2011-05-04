@@ -254,7 +254,7 @@ void MeshArraysVBOs::render(
 	// render by FaceGroup or FaceGroupRange?
 	// facegroups in range differ only by material
 	if (_uberProgramSetup.MATERIAL_DIFFUSE_CONST || _uberProgramSetup.MATERIAL_DIFFUSE_MAP
-		|| _uberProgramSetup.MATERIAL_SPECULAR_CONST
+		|| _uberProgramSetup.MATERIAL_SPECULAR // even if specular color=1, setMaterial() must be called to set shininess, shininess does not have any default
 		|| _uberProgramSetup.MATERIAL_EMISSIVE_CONST || _uberProgramSetup.MATERIAL_EMISSIVE_MAP
 		|| _uberProgramSetup.MATERIAL_TRANSPARENCY_CONST || _uberProgramSetup.MATERIAL_TRANSPARENCY_MAP
 		|| _uberProgramSetup.MATERIAL_CULLING
