@@ -268,7 +268,7 @@ void RendererOfSceneImpl::render(
 				bool blendedAlreadyFoundInObject = false;
 				unsigned triangleInFgFirst = 0;
 				unsigned triangleInFgLastPlus1 = 0;
-				bool objectWillBeRendered = true; // solid 1obj won't be rendered if we mix solid from multiobj and blended from 1objs. then it does not need indirect updated
+				bool objectWillBeRendered = false; // solid 1obj won't be rendered if we mix solid from multiobj and blended from 1objs. then it does not need indirect updated
 				if (faceGroups.size()>65535) // FaceGroupRange contains 16bit shorts
 					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Object has %d facegroups, that's sick (we render only first 65535).\n",faceGroups.size()));
 				for (unsigned g=0;g<faceGroups.size();g++)
