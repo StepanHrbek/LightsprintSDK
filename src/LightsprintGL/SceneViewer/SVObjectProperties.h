@@ -31,8 +31,8 @@ namespace rr_gl
 		//! Select material in mat.props when facegroup is clicked.
 		void OnPropertySelect(wxPropertyGridEvent& event);
 
-	private:
 		rr::RRObject*     object;
+	private:
 		rr::RRVec3        localCenter;
 
 		wxPGProperty*     propName;

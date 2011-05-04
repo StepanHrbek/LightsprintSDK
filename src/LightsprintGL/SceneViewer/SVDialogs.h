@@ -20,6 +20,7 @@
 #include <wx/sizer.h>
 #include <wx/dialog.h>
 #include <wx/stattext.h>
+#include <wx/choice.h>
 #include <wx/textctrl.h>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -53,11 +54,13 @@ class SmoothDlg : public wxDialog
 	private:
 	
 	protected:
+		wxStaticText* m_staticText3;
 		wxStaticText* m_staticText1;
 		wxStaticText* m_staticText2;
 		wxButton* m_button4;
 	
 	public:
+		wxChoice* allMeshes;
 		wxTextCtrl* smoothAngle;
 		wxTextCtrl* weldDistance;
 		wxCheckBox* splitVertices;
@@ -65,7 +68,7 @@ class SmoothDlg : public wxDialog
 		wxCheckBox* preserveUvs;
 		wxButton* m_button3;
 		
-		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,267 ), long style = wxCAPTION|wxCLOSE_BOX );
+		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,298 ), long style = wxCAPTION|wxCLOSE_BOX );
 		~SmoothDlg();
 	
 };

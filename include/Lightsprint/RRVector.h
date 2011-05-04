@@ -131,8 +131,16 @@ public:
 	{
 		return c;
 	}
+	const C* begin() const
+	{
+		return c;
+	}
 	//! Returns iterator pointing beyond last element (like std::vector).
 	C* end()
+	{
+		return c+numUsed;
+	}
+	const C* end() const
 	{
 		return c+numUsed;
 	}
