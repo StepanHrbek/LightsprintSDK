@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <cstdio>
+#include <vector>
 #include "Lightsprint/RRObject.h"
 #include <boost/unordered_set.hpp>
 
@@ -193,7 +194,7 @@ void RRObjects::stitchAndSmooth(bool splitVertices, bool stitchVertices, bool re
 
 	// warn when working with non-arrays
 	if (report && numMeshesWithoutArrays)
-		RRReporter::report(WARN,"smoothNormals() supports only RRMeshArrays meshes.\n");
+		RRReporter::report(WARN,"stitchAndSmooth() supports only RRMeshArrays meshes.\n");
 
 	// stats
 	unsigned numTriangles = 0;
@@ -208,23 +209,48 @@ void RRObjects::stitchAndSmooth(bool splitVertices, bool stitchVertices, bool re
 		numFaceGroups += (*this)[i]->faceGroups.size();
 
 	// stitch
+	unsigned numMeshesDifferentScales = 0;
+	unsigned numMeshesNonUniformScale = 0;
 	for (boost::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
 	{
 		RRMeshArrays* mesh = *i;
+
+		// create temporary list of objects with this mesh
+		std::vector<RRObject*> objects;
+		for (unsigned j=0;j<size();j++)
+			if ((*this)[j]->getCollider()->getMesh()==*i)
+				objects.push_back((*this)[j]);
+
+		// convert stitch distance from world to local
+		RRReal maxLocalDistanceBetweenVerticesToSmooth = maxDistanceBetweenVerticesToSmooth / (objects[0]->getWorldMatrixRef().getScale().abs().avg()+1e-10f);
+		// gather data for warnings
+		{
+			bool differentScales = false;
+			bool nonUniformScale = false;
+			RRVec3 scale = objects[0]->getWorldMatrixRef().getScale().abs();
+			for (unsigned j=0;j<objects.size();j++)
+			{
+				RRVec3 scaleJ = objects[j]->getWorldMatrixRef().getScale().abs();
+				differentScales |= scaleJ!=scale;
+				nonUniformScale |= abs(scaleJ.x-scaleJ.y)+abs(scaleJ.x-scaleJ.z)>0.1f*scaleJ.avg(); // warn only if error gets over 10% of stitch distance
+			}
+			if (differentScales) numMeshesDifferentScales++;
+			if (nonUniformScale) numMeshesNonUniformScale++;
+		}
 
 		// create temporary meshes that don't depend on original
 		RRVector<unsigned> texcoords;
 		mesh->getUvChannels(texcoords);
 		RRMeshArrays* mesh1 = mesh->createArrays(!splitVertices,texcoords);
 		mesh1->buildNormals(); // createOptimizedVertices() uses vertex normals, we want it to use triangle normals
-		const RRMesh* mesh2 = stitchVertices ? mesh1->createOptimizedVertices(maxDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,preserveUvs?&texcoords:NULL) : mesh1; // stitch less, preserve uvs
+		const RRMesh* mesh2 = stitchVertices ? mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,preserveUvs?&texcoords:NULL) : mesh1; // stitch less, preserve uvs
 		const RRMesh* mesh3 = removeDegeneratedTriangles ? mesh2->createOptimizedTriangles() : mesh2;
 
 		// smooth when stitching
 		if (smoothNormals && stitchVertices)
 		{
 			// calc smooth normals from mesh1, write them back to mesh1
-			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,NULL); // stitch more, even if uvs differ
+			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,NULL); // stitch more, even if uvs differ
 			RRMeshArrays* mesh5 = mesh4->createArrays(true,texcoords);
 			mesh5->buildNormals();
 			for (unsigned t=0;t<mesh1->numTriangles;t++)
@@ -240,28 +266,24 @@ void RRObjects::stitchAndSmooth(bool splitVertices, bool stitchVertices, bool re
 		// fix facegroups in objects
 		if (removeDegeneratedTriangles) // facegroups should be unchanged if we did not remove triangles
 		{
-			for (unsigned j=0;j<size();j++)
+			for (unsigned j=0;j<objects.size();j++)
 			{
-				RRObject* object = (*this)[j];
-				if (object->getCollider()->getMesh()==*i)
+				RRObject::FaceGroups faceGroups;
+				unsigned mesh3_numTriangles = mesh3->getNumTriangles();
+				for (unsigned postImportTriangle=0;postImportTriangle<mesh3_numTriangles;postImportTriangle++)
 				{
-					RRObject::FaceGroups faceGroups;
-					unsigned mesh3_numTriangles = mesh3->getNumTriangles();
-					for (unsigned postImportTriangle=0;postImportTriangle<mesh3_numTriangles;postImportTriangle++)
+					unsigned preImportTriangle = mesh3->getPreImportTriangle(postImportTriangle).index;
+					RRMaterial* m = objects[j]->getTriangleMaterial(preImportTriangle,NULL,NULL);
+					if (!faceGroups.size() || faceGroups[faceGroups.size()-1].material!=m)
 					{
-						unsigned preImportTriangle = mesh3->getPreImportTriangle(postImportTriangle).index;
-						RRMaterial* m = object->getTriangleMaterial(preImportTriangle,NULL,NULL);
-						if (!faceGroups.size() || faceGroups[faceGroups.size()-1].material!=m)
-						{
-							faceGroups.push_back(RRObject::FaceGroup(m,1));
-						}
-						else
-						{
-							faceGroups[faceGroups.size()-1].numTriangles++;
-						}
+						faceGroups.push_back(RRObject::FaceGroup(m,1));
 					}
-					object->faceGroups = faceGroups;
+					else
+					{
+						faceGroups[faceGroups.size()-1].numTriangles++;
+					}
 				}
+				objects[j]->faceGroups = faceGroups;
 			}
 		}
 
@@ -290,7 +312,16 @@ void RRObjects::stitchAndSmooth(bool splitVertices, bool stitchVertices, bool re
 	for (unsigned i=0;i<size();i++)
 		numFaceGroups2 += (*this)[i]->faceGroups.size();
 	if (report)
+	{
 		RRReporter::report(INF2,"Smoothing stats: tris %+d(%d), verts %+d(%d), fgs %+d(%d)\n",numTriangles2-numTriangles,numTriangles2,numVertices2-numVertices,numVertices2,numFaceGroups2-numFaceGroups,numFaceGroups2);
+		if (stitchVertices && maxDistanceBetweenVerticesToSmooth>0)
+		{
+			if (numMeshesDifferentScales)
+				RRReporter::report(WARN,"Stitching distance approximated in %d/%d meshes: instances have different scale.\n",numMeshesDifferentScales,arrays.size());
+			if (numMeshesNonUniformScale)
+				RRReporter::report(WARN,"Stitching distance approximated in %d/%d meshes: non-uniform scale.\n",numMeshesNonUniformScale,arrays.size());
+		}
+	}
 }
 
 void RRObjects::multiplyEmittance(float emissiveMultiplier)
