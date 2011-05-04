@@ -1491,17 +1491,15 @@ reload_skybox:
 					double d = 0;
 					float weldDistance = smoothDlg.weldDistance->GetValue().ToDouble(&d) ? (float)d : 0;
 					float smoothAngle = smoothDlg.smoothAngle->GetValue().ToDouble(&d) ? (float)d : 30;
-					rr::RRObjects objects;
-					if (smoothDlg.allMeshes->GetCurrentSelection()==0)
+					rr::RRObjects smoothObjects;
+					for (unsigned pass=0;pass<2;pass++)
 					{
-						objects.insert(objects.end(),solver->getStaticObjects().begin(),solver->getStaticObjects().end());
-						objects.insert(objects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
+						const rr::RRObjects& solverObjects = pass?solver->getDynamicObjects():solver->getStaticObjects();
+						for (unsigned i=0;i<solverObjects.size();i++)
+							if (smoothDlg.allMeshes->GetCurrentSelection()==0 || solverObjects[i]->getCollider()->getMesh()==m_objectProperties->object->getCollider()->getMesh())
+								smoothObjects.push_back(solverObjects[i]);
 					}
-					else
-					{
-						objects.push_back(m_objectProperties->object);
-					}
-					objects.stitchAndSmooth(
+					smoothObjects.stitchAndSmooth(
 						smoothDlg.splitVertices->GetValue(),
 						smoothDlg.stitchVertices->GetValue(),
 						true,true,
