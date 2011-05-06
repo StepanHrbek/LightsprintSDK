@@ -117,27 +117,31 @@ public:
 	RRVec3  totalExitingFlux;
 	RRVec3  totalIncidentFlux;
 	RRVec3  directIncidentFlux;  // backup of direct incident flux in time 0. Set only by setSurface(). Read only by getSourceXxx().
+
 	// get direct light (entered by client, not calculated)
 	RRVec3  getDirectIncidentFlux()   const {return directIncidentFlux;}
-	RRVec3  getDirectEmitingFlux()    const {return surface->diffuseEmittance.color*area;} // emissivity
+	//RRVec3  getDirectEmitingFlux()    const {return surface->diffuseEmittance.color*area;} // emissivity
 	RRVec3  getDirectExitingFlux()    const {return directIncidentFlux*surface->diffuseReflectance.color + surface->diffuseEmittance.color*area;} // emissivity + reflected light
 	RRVec3  getDirectIrradiance()     const {return directIncidentFlux/area;}
-	RRVec3  getDirectEmittance()      const {return surface->diffuseEmittance.color;}
+	//RRVec3  getDirectEmittance()      const {return surface->diffuseEmittance.color;}
 	RRVec3  getDirectExitance()       const {return directIncidentFlux/area*surface->diffuseReflectance.color + surface->diffuseEmittance.color;}
+
 	// get total light
-	RRVec3  getTotalIncidentFlux()    const {return totalIncidentFlux;}
-	RRVec3  getTotalEmitingFlux()     const {return surface->diffuseEmittance.color*area;}
-	RRVec3  getTotalExitingFlux()     const {return totalExitingFlux;}
+	//RRVec3  getTotalIncidentFlux()    const {return totalIncidentFlux;}
+	//RRVec3  getTotalEmitingFlux()     const {return surface->diffuseEmittance.color*area;}
+	//RRVec3  getTotalExitingFlux()     const {return totalExitingFlux;}
 	RRVec3  getTotalIrradiance()      const {return totalIncidentFlux/area;}
-	RRVec3  getTotalEmittance()       const {return surface->diffuseEmittance.color;}
+	//RRVec3  getTotalEmittance()       const {return surface->diffuseEmittance.color;}
 	RRVec3  getTotalExitance()        const {return totalExitingFlux/area;}
+
 	// get indirect light (computed from direct light)
-	RRVec3  getIndirectIncidentFlux() const {return totalIncidentFlux-directIncidentFlux;}
-	RRVec3  getIndirectEmitingFlux()  const {return RRVec3(0);}
-	RRVec3  getIndirectExitingFlux()  const {return totalExitingFlux-getDirectExitingFlux();}
+	//RRVec3  getIndirectIncidentFlux() const {return totalIncidentFlux-directIncidentFlux;}
+	//RRVec3  getIndirectEmitingFlux()  const {return RRVec3(0);}
+	//RRVec3  getIndirectExitingFlux()  const {return totalExitingFlux-getDirectExitingFlux();}
 	RRVec3  getIndirectIrradiance()   const {return (totalIncidentFlux-directIncidentFlux)/area;}
-	RRVec3  getIndirectEmittance()    const {return RRVec3(0);}
+	//RRVec3  getIndirectEmittance()    const {return RRVec3(0);}
 	RRVec3  getIndirectExitance()     const {return totalExitingFlux/area-getDirectExitance();}
+
 	// get any combination of direc/indirect/exiting light
 	RRVec3  getMeasure(RRRadiometricMeasure measure) const;
 
