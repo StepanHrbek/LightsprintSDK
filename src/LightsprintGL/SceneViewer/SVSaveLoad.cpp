@@ -416,7 +416,7 @@ BOOST_CLASS_VERSION(rr_gl::Camera,1)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,9) // must be increased also each time panel is added/removed
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,24)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,25)
 
 //---------------------------------------------------------------------------
 
