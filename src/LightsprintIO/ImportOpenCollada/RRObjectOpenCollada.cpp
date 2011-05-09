@@ -1076,6 +1076,11 @@ public:
 				}
 			}
 
+			// opencollada hides A_ONE/RGB_ZERO/etc information
+			// so we guess that transp.textures with alpha want us to use alpha
+			if (material.specularTransmittance.texture)
+				material.specularTransmittanceInAlpha = material.specularTransmittance.texture->getFormat()==BF_RGBA || material.specularTransmittance.texture->getFormat()==BF_RGBAF;
+
 			material.name = colladaMaterial.getName().c_str();
 
 			// get average colors from textures
