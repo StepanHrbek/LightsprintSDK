@@ -560,12 +560,10 @@ Video formats
   We contribute our improvements back to original projects, however,
   recent improvements may still be present only in Lightsprint SDK.
 
-  \section as_patch_local Local patches
-  - Fix of VS2010 compilation
-
   \section as_patch_accepted Accepted patches
   - Fix of .obj crash (https://github.com/assimp/assimp/blob/master/CREDITS).
   - Fix of memory leak (https://sourceforge.net/tracker/index.php?func=detail&aid=3134561&group_id=226462&atid=1067632)
+  - Fix of VS2010 compilation (rev 993)
 
 \page tpl_freeimage FreeImage
   - www: <a href="http://freeimage.sourceforge.net/">FreeImage</a>

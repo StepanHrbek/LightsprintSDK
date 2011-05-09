@@ -478,20 +478,20 @@ void Camera::blend(const Camera& a, const Camera& b, float blend)
 
 #if defined(_MSC_VER) && _MSC_VER>=1600
 
-//static inline float abs(float a)
-//{
-//	return fabs(a);
-//}
+static inline float abs(float a)
+{
+	return fabs(a);
+}
 
 static inline rr::RRVec3 abs(rr::RRVec3 a)
 {
 	return a.abs();
 }
 
-//static inline void ifBoth0SetBoth1(float& a,float& b)
-//{
-//	if (!a && !b) a=b=1;
-//}
+static inline void ifBoth0SetBoth1(float& a,float& b)
+{
+	if (!a && !b) a=b=1;
+}
 
 static inline void ifBoth0SetBoth1(rr::RRVec3& a,rr::RRVec3& b)
 {
@@ -578,7 +578,7 @@ void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* time
 	*this = *cameras[i-1];
 
 	// interpolate
-	//#define BLEND_FLOAT(name) {name = interpolAkima<float,float>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
+	#define BLEND_FLOAT(name) {name = interpolAkima<float,float>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
 	//#define BLEND_RRVEC2(name) {name = interpolAkima<float,rr::RRVec2>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
 	#define BLEND_RRVEC3(name) {name = interpolAkima<float,rr::RRVec3>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
 	#define BLEND_3FLOATS(name1,name2,name3) {rr::RRVec3 tmp = interpolAkima<float,rr::RRVec3>(numCameras,times,[&cameras](int i){return rr::RRVec3(cameras[i]->name1,cameras[i]->name2,cameras[i]->name3);},time); name1=tmp.x; name2=tmp.y; name3=tmp.z;}
@@ -586,6 +586,7 @@ void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* time
 	BLEND_RRVEC3(pos);
 	BLEND_3FLOATS(angle,leanAngle,angleX);
 	BLEND_3FLOATS(anear,afar,fieldOfViewVerticalDeg);
+	BLEND_FLOAT(aspect);
 	BLEND_3FLOATS(screenCenter.x,screenCenter.y,orthoSize);
 	BLEND_RRVEC3(dir);
 	update();
