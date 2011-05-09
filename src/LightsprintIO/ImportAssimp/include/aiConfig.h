@@ -288,6 +288,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #	define AI_LMW_MAX_WEIGHTS	0x4
 #endif // !! AI_LMW_MAX_WEIGHTS
 
+// ---------------------------------------------------------------------------
+/** @brief Set the deboning threshold higher to remove more bones
+ *
+ * This is used by the #aiProcess_Debone PostProcess-Step.
+ * @note The default value is AI_DEBONE_THRESHOLD
+ * Property type: float.*/
+#define AI_CONFIG_PP_DB_THRESHOLD \
+	"PP_DB_THRESHOLD"
+
+// default value for AI_CONFIG_PP_LBW_MAX_WEIGHTS
+#if (!defined AI_DEBONE_THRESHOLD)
+#	define AI_DEBONE_THRESHOLD	1.0f
+#endif // !! AI_DEBONE_THRESHOLD
+
+// ---------------------------------------------------------------------------
+/** @brief Require all bones qualify for deboning before removing any
+ *
+ * This is used by the #aiProcess_Debone PostProcess-Step.
+ * @note The default value is 0
+ * Property type: bool.*/
+#define AI_CONFIG_PP_DB_ALL_OR_NONE \
+	"PP_DB_ALL_OR_NONE"
+
 /** @brief Default value for the #AI_CONFIG_PP_ICL_PTCACHE_SIZE property
  */
 #ifndef PP_ICL_PTCACHE_SIZE
@@ -642,12 +665,37 @@ enum aiComponent
 
 
 // ---------------------------------------------------------------------------
-/** Ogre Importer will try to load this Materialfile
- * Ogre Mehs contain only the MaterialName, not the MaterialFile. If there 
+/** @brief Ogre Importer will try to load this Materialfile.
+ *
+ * Ogre Meshes contain only the MaterialName, not the MaterialFile. If there 
  * is no material file with the same name as the material, Ogre Importer will 
  * try to load this file and search the material in it.
+ * <br>
+ * Property type: String. Default value: guessed.
  */
 #define AI_CONFIG_IMPORT_OGRE_MATERIAL_FILE "IMPORT_OGRE_MATERIAL_FILE"
+
+
+// ---------------------------------------------------------------------------
+/** @brief Specfies whether the IFC loader will skip over IfcSpace elements.
+ *
+ * IfcSpace elements (and their geometric representations) are used to
+ * represent, well, free space in a building storey.<br>
+ * Property type: Bool. Default value: true.
+ */
+#define AI_CONFIG_IMPORT_IFC_SKIP_SPACE_REPRESENTATIONS "IMPORT_IFC_SKIP_SPACE_REPRESENTATIONS"
+
+
+// ---------------------------------------------------------------------------
+/** @brief Specfies whether the IFC loader will skip over 
+ *    shape representations of type 'Curve2D'.
+ *
+ * A lot of files contain both a faceted mesh representation and a outline
+ * with a presentation type of 'Curve2D'. Currently Assimp doesn't convert those,
+ * so turning this option off just clutters the log with errors.<br>
+ * Property type: Bool. Default value: true.
+ */
+#define AI_CONFIG_IMPORT_IFC_SKIP_CURVE_REPRESENTATIONS "IMPORT_IFC_SKIP_CURVE_REPRESENTATIONS"
 
 
 #endif // !! AI_CONFIG_H_INC

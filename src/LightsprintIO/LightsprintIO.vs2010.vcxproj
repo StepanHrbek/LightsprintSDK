@@ -591,6 +591,7 @@
     <ClCompile Include="ImportAssimp\code\ComputeUVMappingProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\ConvertToLHProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\CSMLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\DeboneProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\DefaultIOStream.cpp" />
     <ClCompile Include="ImportAssimp\code\DefaultIOSystem.cpp" />
     <ClCompile Include="ImportAssimp\code\DefaultLogger.cpp" />
@@ -603,6 +604,8 @@
     <ClCompile Include="ImportAssimp\code\GenFaceNormalsProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\GenVertexNormalsProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\HMPLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\IFCLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\IFCReaderGen.cpp" />
     <ClCompile Include="ImportAssimp\code\Importer.cpp" />
     <ClCompile Include="ImportAssimp\code\ImproveCacheLocality.cpp" />
     <ClCompile Include="ImportAssimp\code\IRRLoader.cpp" />
@@ -638,6 +641,7 @@
     <ClCompile Include="ImportAssimp\code\PlyLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\PlyParser.cpp" />
     <ClCompile Include="ImportAssimp\code\PretransformVertices.cpp" />
+    <ClCompile Include="ImportAssimp\code\ProcessHelper.cpp" />
     <ClCompile Include="ImportAssimp\code\Q3BSPFileImporter.cpp" />
     <ClCompile Include="ImportAssimp\code\Q3BSPFileParser.cpp" />
     <ClCompile Include="ImportAssimp\code\Q3BSPZipArchive.cpp" />
@@ -656,6 +660,7 @@
     <ClCompile Include="ImportAssimp\code\SplitByBoneCountProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\SplitLargeMeshes.cpp" />
     <ClCompile Include="ImportAssimp\code\StandardShapes.cpp" />
+    <ClCompile Include="ImportAssimp\code\STEPFileReader.cpp" />
     <ClCompile Include="ImportAssimp\code\STLLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\Subdivision.cpp" />
     <ClCompile Include="ImportAssimp\code\TargetAnimation.cpp" />
@@ -931,6 +936,7 @@
     <ClInclude Include="ImportAssimp\code\ComputeUVMappingProcess.h" />
     <ClInclude Include="ImportAssimp\code\ConvertToLHProcess.h" />
     <ClInclude Include="ImportAssimp\code\CSMLoader.h" />
+    <ClInclude Include="ImportAssimp\code\DeboneProcess.h" />
     <ClInclude Include="ImportAssimp\code\DefaultIOStream.h" />
     <ClInclude Include="ImportAssimp\code\DefaultIOSystem.h" />
     <ClInclude Include="ImportAssimp\code\DefaultProgressHandler.h" />
@@ -951,6 +957,8 @@
     <ClInclude Include="ImportAssimp\code\Hash.h" />
     <ClInclude Include="ImportAssimp\code\HMPFileData.h" />
     <ClInclude Include="ImportAssimp\code\HMPLoader.h" />
+    <ClInclude Include="ImportAssimp\code\IFCLoader.h" />
+    <ClInclude Include="ImportAssimp\code\IFCReaderGen.h" />
     <ClInclude Include="ImportAssimp\code\IFF.h" />
     <ClInclude Include="ImportAssimp\code\ImproveCacheLocality.h" />
     <ClInclude Include="ImportAssimp\code\IRRLoader.h" />
@@ -1023,6 +1031,8 @@
     <ClInclude Include="ImportAssimp\code\SplitLargeMeshes.h" />
     <ClInclude Include="ImportAssimp\code\StandardShapes.h" />
     <ClInclude Include="ImportAssimp\code\StdOStreamLogStream.h" />
+    <ClInclude Include="ImportAssimp\code\STEPFile.h" />
+    <ClInclude Include="ImportAssimp\code\STEPFileReader.h" />
     <ClInclude Include="ImportAssimp\code\STLLoader.h" />
     <ClInclude Include="ImportAssimp\code\StreamReader.h" />
     <ClInclude Include="ImportAssimp\code\StringComparison.h" />

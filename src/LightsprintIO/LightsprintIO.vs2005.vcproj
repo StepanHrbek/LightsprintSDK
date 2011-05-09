@@ -1154,6 +1154,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\DeboneProcess.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\DeboneProcess.h"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\DefaultIOStream.cpp"
 					>
 				</File>
@@ -1279,6 +1287,22 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\HMPLoader.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\IFCLoader.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\IFCLoader.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\IFCReaderGen.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\IFCReaderGen.h"
 					>
 				</File>
 				<File
@@ -1610,6 +1634,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\ProcessHelper.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\ProcessHelper.h"
 					>
 				</File>
@@ -1783,6 +1811,18 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\StdOStreamLogStream.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\STEPFile.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\STEPFileReader.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\STEPFileReader.h"
 					>
 				</File>
 				<File

@@ -13,4 +13,4 @@ xcopy /y "%assimppath%\include\*.*"             "%sdkpath%\include\"
 xcopy /y "%assimppath%\include\Compiler\*.*"    "%sdkpath%\include\Compiler\"
 
 
-echo Now replace #include "../revision.h" in AssimpPCH.cpp with #define SVNRevision 826
+echo Consider updating number in revision.h

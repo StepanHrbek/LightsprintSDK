@@ -66,7 +66,7 @@ ObjFileParser::ObjFileParser(std::vector<char> &Data,const std::string &strModel
 	m_uiLine(0),
 	m_pIO( io )
 {
-	memset(m_buffer, BUFFERSIZE, 0);
+	std::fill_n(m_buffer,BUFFERSIZE,0);
 
 	// Create the model instance to store all the data
 	m_pModel = new ObjFile::Model();
@@ -388,6 +388,7 @@ void ObjFileParser::getMaterialDesc()
 	{
 		// Not found, use default material
 		m_pModel->m_pCurrentMaterial = m_pModel->m_pDefaultMaterial;
+		DefaultLogger::get()->error("OBJ: failed to locate material " + strName + ", skipping");
 	}
 	else
 	{

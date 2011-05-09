@@ -134,6 +134,11 @@ ImportAssimp/code/SplitByBoneCountProcess.cpp \
 ImportAssimp/code/Exporter.cpp \
 ImportAssimp/code/AssimpCExport.cpp \
 ImportAssimp/code/ColladaExporter.cpp \
+ImportAssimp/code/DeboneProcess.cpp \
+ImportAssimp/code/ProcessHelper.cpp \
+ImportAssimp/code/IFCLoader.cpp \
+ImportAssimp/code/IFCReaderGen.cpp \
+ImportAssimp/code/STEPFileReader.cpp \
 ImportAssimp/contrib/irrXML/irrXML.cpp \
 ImportAssimp/contrib/unzip/ioapi.c \
 ImportAssimp/contrib/unzip/unzip.c \

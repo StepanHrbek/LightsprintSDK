@@ -553,12 +553,15 @@ Video formats
   - www: <a href="http://assimp.sourceforge.net/">Assimp</a>
   - license: <a href="http://assimp.sourceforge.net/main_license.html">3-clause BSD license</a>
   - optional, remove by deleting <code>\#define SUPPORT_ASSIMP</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
-  - svn revision 943 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+  - svn revision 992 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
 
  \page assimp_patch Assimp patch
 
   We contribute our improvements back to original projects, however,
   recent improvements may still be present only in Lightsprint SDK.
+
+  \section as_patch_local Local patches
+  - Fix of VS2010 compilation
 
   \section as_patch_accepted Accepted patches
   - Fix of .obj crash (https://github.com/assimp/assimp/blob/master/CREDITS).

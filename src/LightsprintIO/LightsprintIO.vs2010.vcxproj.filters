@@ -919,6 +919,9 @@
     <ClCompile Include="ImportAssimp\code\CSMLoader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="ImportAssimp\code\DeboneProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="ImportAssimp\code\DefaultIOStream.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -953,6 +956,12 @@
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\HMPLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCReaderGen.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\Importer.cpp">
@@ -1060,6 +1069,9 @@
     <ClCompile Include="ImportAssimp\code\PretransformVertices.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ProcessHelper.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="ImportAssimp\code\Q3BSPFileImporter.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -1112,6 +1124,9 @@
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\StandardShapes.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\STEPFileReader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\STLLoader.cpp">
@@ -2405,6 +2420,9 @@
     <ClInclude Include="ImportAssimp\code\CSMLoader.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
+    <ClInclude Include="ImportAssimp\code\DeboneProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
     <ClInclude Include="ImportAssimp\code\DefaultIOStream.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
@@ -2463,6 +2481,12 @@
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\HMPLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\IFCLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\IFCReaderGen.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\IFF.h">
@@ -2679,6 +2703,12 @@
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\StdOStreamLogStream.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\STEPFile.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\STEPFileReader.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\STLLoader.h">
