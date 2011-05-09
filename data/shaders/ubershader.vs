@@ -106,24 +106,6 @@
 	varying vec4 shadowCoord9;
 #endif
 
-#if defined(LIGHT_DIRECT) && !defined(MATERIAL_NORMAL_MAP)
-	#ifdef LIGHT_DIRECTIONAL
-		uniform vec3 worldLightDir;
-	#else
-		uniform vec3 worldLightPos;
-	#endif
-	varying float lightDirectVColor;
-#endif
-
-#ifdef LIGHT_DIRECT_ATT_POLYNOMIAL
-	uniform vec4 lightDistancePolynom;
-#endif
-
-#ifdef LIGHT_DIRECT_ATT_EXPONENTIAL
-	uniform float lightDistanceRadius;
-	uniform float lightDistanceFallOffExponent;
-#endif
-
 #ifdef LIGHT_INDIRECT_VCOLOR
 	varying vec4 lightIndirectColor;
 #endif
@@ -136,14 +118,8 @@
 	varying vec2 lightIndirectCoord;
 #endif
 
-#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT) || defined(CLIP_PLANE_XA) || defined(CLIP_PLANE_XB) || defined(CLIP_PLANE_YA) || defined(CLIP_PLANE_YB) || defined(CLIP_PLANE_ZA) || defined(CLIP_PLANE_ZB)
-varying
-#endif
-	vec3 worldPos;
-#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(POSTPROCESS_NORMALS)
-varying 
-#endif
-	vec3 worldNormalSmooth;
+varying vec3 worldPos;
+varying vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_DIFFUSE_MAP
 	varying vec2 materialDiffuseCoord;
@@ -180,24 +156,6 @@ void main()
 			cosa*worldNormalSmooth.z-sina*worldNormalSmooth.y);
 	#endif
 	worldPos = worldPos4.xyz;
-
-	#if defined(LIGHT_DIRECT) && !defined(MATERIAL_NORMAL_MAP)
-		#ifdef LIGHT_DIRECTIONAL
-			lightDirectVColor = dot(worldLightDir, worldNormalSmooth);
-		#else
-			lightDirectVColor = dot(normalize(worldPos-worldLightPos), worldNormalSmooth);
-			float distance = distance(worldPos,worldLightPos);
-			#ifdef LIGHT_DIRECT_ATT_PHYSICAL
-				lightDirectVColor *= pow(distance,-0.9);
-			#endif
-			#ifdef LIGHT_DIRECT_ATT_POLYNOMIAL
-				lightDirectVColor /= max( lightDistancePolynom.x + distance*lightDistancePolynom.y + distance*distance*lightDistancePolynom.z, lightDistancePolynom.w );
-			#endif
-			#ifdef LIGHT_DIRECT_ATT_EXPONENTIAL
-				lightDirectVColor *= pow(max(0.0,1.0-sqr(distance/lightDistanceRadius)),lightDistanceFallOffExponent*0.45);
-			#endif
-		#endif
-	#endif
 
 	#ifdef LIGHT_INDIRECT_VCOLOR
 		#ifdef LIGHT_INDIRECT_VCOLOR2

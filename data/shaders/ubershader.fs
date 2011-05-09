@@ -141,13 +141,19 @@
 
 #ifdef LIGHT_DIRECT
 	uniform vec3 worldLightPos;
-	#ifndef MATERIAL_NORMAL_MAP
-		varying float lightDirectVColor;
-	#endif
 #endif
 
 #if defined(LIGHT_DIRECTIONAL) || defined(LIGHT_DIRECT_ATT_SPOT)
 	uniform vec3 worldLightDir;
+#endif
+
+#ifdef LIGHT_DIRECT_ATT_POLYNOMIAL
+	uniform vec4 lightDistancePolynom;
+#endif
+
+#ifdef LIGHT_DIRECT_ATT_EXPONENTIAL
+	uniform float lightDistanceRadius;
+	uniform float lightDistanceFallOffExponent;
 #endif
 
 #ifdef LIGHT_DIRECT_ATT_SPOT
@@ -199,9 +205,7 @@
 	varying vec2 materialDiffuseCoord;
 #endif
 
-#if defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT) || defined(CLIP_PLANE_XA) || defined(CLIP_PLANE_XB) || defined(CLIP_PLANE_YA) || defined(CLIP_PLANE_YB) || defined(CLIP_PLANE_ZA) || defined(CLIP_PLANE_ZB)
-	varying vec3 worldPos;
-#endif
+varying vec3 worldPos;
 
 #if defined(MATERIAL_SPECULAR) && defined(LIGHT_DIRECT)
 	uniform float materialSpecularShininess;
@@ -211,9 +215,7 @@
 	uniform vec4 materialSpecularConst;
 #endif
 
-#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(POSTPROCESS_NORMALS)
-	varying vec3 worldNormalSmooth;
-#endif
+varying vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_EMISSIVE_CONST
 	uniform vec4 materialEmissiveConst;
@@ -336,7 +338,7 @@ void main()
 		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
 		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
 	#endif
-	#if defined(MATERIAL_SPECULAR) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR)
+	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR)
 		#ifdef MATERIAL_NORMAL_MAP
 			vec3 worldNormal = normalize(worldNormalSmooth+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
 		#else
@@ -508,26 +510,37 @@ void main()
 	// light direct
 
 	#ifdef LIGHT_DIRECT
-		#if defined(MATERIAL_NORMAL_MAP) || defined(MATERIAL_SPECULAR) || defined(LIGHT_DIRECT_ATT_SPOT)
-			#if defined(LIGHT_DIRECTIONAL)
-				vec3 worldLightDirFromPixel = -worldLightDir;
-			#else
-				vec3 worldLightDirFromPixel = normalize(worldLightPos - worldPos);
-			#endif
-		#endif
-		#ifndef MATERIAL_NORMAL_MAP
-			// Both front and back may be lit, but only if normals go to front; none is lit if normals go to back.
-			// This is sufficient if scenes with normals going to back side (like stadium.kmz from sketchup) are fixed by scene->flipFrontBack().
-			// Earlier, we calculated this entirely in vs and scene->flipFrontBack() was not necessary,
-			// but individual vertices flipped between front/back lighting based on view angle (looked bad on lowpoly terrains).
-			float lightDirectVColorOurSide = max(0.0,gl_FrontFacing?-lightDirectVColor:lightDirectVColor);
+		#if defined(LIGHT_DIRECTIONAL)
+			vec3 worldLightDirFromPixel = -worldLightDir;
+		#else
+			vec3 worldLightDirFromPixel = normalize(worldLightPos - worldPos);
+			float distance = distance(worldPos,worldLightPos);
 		#endif
 		vec4 lightDirect =
-			#ifdef MATERIAL_NORMAL_MAP
-				max(0.0,dot(worldLightDirFromPixel, worldNormal)) // per pixel
-			#else
-				vec4(lightDirectVColorOurSide,lightDirectVColorOurSide,lightDirectVColorOurSide,lightDirectVColorOurSide) // per vertex
+			
+			// scalar
+			max(0.0,dot(worldLightDirFromPixel, worldNormal) * (gl_FrontFacing?1.0:-1.0))
+			#ifndef LIGHT_DIRECTIONAL
+				#ifdef LIGHT_DIRECT_ATT_PHYSICAL
+					* pow(distance,-0.9)
+				#endif
+				#ifdef LIGHT_DIRECT_ATT_POLYNOMIAL
+					/ max( lightDistancePolynom.x + distance*lightDistancePolynom.y + distance*distance*lightDistancePolynom.z, lightDistancePolynom.w )
+				#endif
+				#ifdef LIGHT_DIRECT_ATT_EXPONENTIAL
+					* pow(max(0.0,1.0-sqr(distance/lightDistanceRadius)),lightDistanceFallOffExponent*0.45)
+				#endif
 			#endif
+			#ifdef LIGHT_DIRECT_ATT_SPOT
+				* pow(clamp( ((lightDirectSpotOuterAngleRad-acos(dot(worldLightDir,-worldLightDirFromPixel)))/lightDirectSpotFallOffAngleRad), 0.0, 1.0 ),lightDirectSpotExponent)
+			#endif
+
+			// scalar or vector
+			#if SHADOW_SAMPLES*SHADOW_MAPS>0
+				* visibility
+			#endif
+
+			// vector
 			#ifdef LIGHT_DIRECT_COLOR
 				* lightDirectColor
 			#endif
@@ -540,11 +553,10 @@ void main()
 					* texture2DProj(lightDirectMap, shadowCoord2)
 				#endif
 			#endif
-			#ifdef LIGHT_DIRECT_ATT_SPOT
-				* pow(clamp( ((lightDirectSpotOuterAngleRad-acos(dot(worldLightDir,-worldLightDirFromPixel)))/lightDirectSpotFallOffAngleRad), 0.0, 1.0 ),lightDirectSpotExponent)
-			#endif
-			#if SHADOW_SAMPLES*SHADOW_MAPS>0
-				* visibility
+
+			// make sure that result is vector
+			#if !defined(LIGHT_DIRECT_COLOR) && !defined(LIGHT_DIRECT_MAP)
+				* vec4(1.0,1.0,1.0,1.0)
 			#endif
 			;
 	#endif
