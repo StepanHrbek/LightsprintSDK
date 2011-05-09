@@ -260,10 +260,7 @@ void passive(int x, int y)
 			realtimeLight->getParent()->angle -= mouseSensitivity*x;
 			realtimeLight->getParent()->angleX -= mouseSensitivity*y;
 			RR_CLAMP(realtimeLight->getParent()->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-			// changes also position a bit, together with rotation
-			realtimeLight->getParent()->pos += realtimeLight->getParent()->dir*0.3f;
 			realtimeLight->getParent()->update();
-			realtimeLight->getParent()->pos -= realtimeLight->getParent()->dir*0.3f;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}

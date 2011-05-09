@@ -246,11 +246,7 @@ void passive(int x, int y)
 			light->angleX -= mouseSensitivity*y;
 			RR_CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
-			// changes position a bit, together with rotation
-			// if we don't call it, solver updates light in a standard way, without position change
-			light->pos += light->dir*0.3f;
 			light->update();
-			light->pos -= light->dir*0.3f;
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 		solver->reportInteraction();

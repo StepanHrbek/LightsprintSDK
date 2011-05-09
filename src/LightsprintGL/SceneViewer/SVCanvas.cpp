@@ -787,11 +787,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					light->angle = s_ci.angle-5*dragX;
 					light->angleX = s_ci.angleX-5*dragY;
 					RR_CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-					// changes position a bit, together with rotation
-					// if we don't call it, solver updates light in a standard way, without position change
-					light->pos += light->dir*0.3f;
 					light->update();
-					light->pos -= light->dir*0.3f;
 				}
 			}
 			else
