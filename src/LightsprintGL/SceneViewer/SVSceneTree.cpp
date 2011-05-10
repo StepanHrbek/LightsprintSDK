@@ -202,6 +202,20 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			menu.Append(CM_LIGHT_DELETE, _("Delete light")+" (del)");
 			PopupMenu(&menu, event.GetPoint());
 		}
+		else
+		if (GetItemParent(temporaryContext)==staticObjects)
+		{
+			wxMenu menu;
+			menu.Append(CM_STATIC_OBJECT_DELETE, _("Delete object")+" (del)");
+			PopupMenu(&menu, event.GetPoint());
+		}
+		else
+		if (GetItemParent(temporaryContext)==dynamicObjects)
+		{
+			wxMenu menu;
+			menu.Append(CM_DYNAMIC_OBJECT_DELETE, _("Delete object")+" (del)");
+			PopupMenu(&menu, event.GetPoint());
+		}
 	}
 }
 
@@ -280,6 +294,40 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				newList.erase(contextEntityId.index);
 
 				svframe->m_canvas->solver->setLights(newList); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
+				// updateAllPanels() must follow, it deletes lightprops
+			}
+			break;
+
+		case CM_STATIC_OBJECT_DELETE:
+			if (svframe->m_canvas->solver && contextEntityId.isOk() && contextEntityId.index<svframe->m_canvas->solver->getStaticObjects().size())
+			{
+				if (svs.playVideos)
+				{
+					// stop videos
+					wxKeyEvent event;
+					event.m_keyCode = ' ';
+					svframe->m_canvas->OnKeyDown(event);
+				}
+				rr::RRObjects newList = svframe->m_canvas->solver->getStaticObjects();
+				newList.erase(contextEntityId.index);
+				svframe->m_canvas->solver->setStaticObjects(newList,NULL);
+				svframe->m_canvas->addOrRemoveScene(NULL,true); // updateAllPanels() is called from here
+				return; // skip updateAllPanels() at the end of this function to prevent SceneTree from updating twice, it's terribly slow
+			}
+			break;
+		case CM_DYNAMIC_OBJECT_DELETE:
+			if (svframe->m_canvas->solver && contextEntityId.isOk() && contextEntityId.index<svframe->m_canvas->solver->getDynamicObjects().size())
+			{
+				if (svs.playVideos)
+				{
+					// stop videos
+					wxKeyEvent event;
+					event.m_keyCode = ' ';
+					svframe->m_canvas->OnKeyDown(event);
+				}
+				rr::RRObjects newList = svframe->m_canvas->solver->getDynamicObjects();
+				newList.erase(contextEntityId.index);
+				svframe->m_canvas->solver->setDynamicObjects(newList); // RRObject in object props is deleted here, objectprops is temporarily unsafe
 				// updateAllPanels() must follow, it deletes lightprops
 			}
 			break;

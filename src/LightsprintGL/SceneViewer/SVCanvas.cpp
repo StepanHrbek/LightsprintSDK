@@ -11,6 +11,7 @@
 #include "SVSaveLoad.h"
 #include "SVFrame.h"
 #include "SVLightProperties.h"
+#include "SVSceneTree.h" // for shortcuts that manipulate animations in scene tree
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
 #include "Lightsprint/GL/Timer.h"
@@ -538,7 +539,13 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 
 		case WXK_DELETE:
 			if (selectedType==ST_LIGHT)
-				parent->OnMenuEventCore(SVFrame::ME_LIGHT_DELETE);
+				parent->m_sceneTree->runContextMenuAction(CM_LIGHT_DELETE,EntityId(ST_LIGHT,svs.selectedLightIndex));
+			else
+			if (selectedType==ST_STATIC_OBJECT)
+				parent->m_sceneTree->runContextMenuAction(CM_STATIC_OBJECT_DELETE,EntityId(ST_STATIC_OBJECT,svs.selectedObjectIndex));
+			else
+			if (selectedType==ST_DYNAMIC_OBJECT)
+				parent->m_sceneTree->runContextMenuAction(CM_DYNAMIC_OBJECT_DELETE,EntityId(ST_DYNAMIC_OBJECT,svs.selectedObjectIndex));
 			break;
 
 		case 'L': parent->OnMenuEventCore(SVFrame::ME_VIEW_LEFT); break;

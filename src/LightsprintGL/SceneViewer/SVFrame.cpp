@@ -1230,7 +1230,6 @@ reload_skybox:
 		case ME_LIGHT_POINT: m_sceneTree->runContextMenuAction(CM_LIGHT_POINT,EntityId(ST_LIGHT,0)); break;
 		case ME_LIGHT_DIR: m_sceneTree->runContextMenuAction(CM_LIGHT_DIR,EntityId(ST_LIGHT,0)); break;
 		case ME_LIGHT_FLASH: m_sceneTree->runContextMenuAction(CM_LIGHT_FLASH,EntityId(ST_LIGHT,0)); break;
-		case ME_LIGHT_DELETE: m_sceneTree->runContextMenuAction(CM_LIGHT_DELETE,EntityId(ST_LIGHT,svs.selectedLightIndex)); break;
 
 
 		//////////////////////////////// GLOBAL ILLUMINATION - DIRECT ///////////////////////////////

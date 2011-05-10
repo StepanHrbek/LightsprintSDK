@@ -24,6 +24,8 @@ namespace rr_gl
 		CM_LIGHT_DIR,
 		CM_LIGHT_FLASH,
 		CM_LIGHT_DELETE,
+		CM_STATIC_OBJECT_DELETE,
+		CM_DYNAMIC_OBJECT_DELETE,
 	};
 
 	class SVSceneTree : public wxTreeCtrl
