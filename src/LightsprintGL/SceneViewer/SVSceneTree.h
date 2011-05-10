@@ -19,7 +19,9 @@ namespace rr_gl
 
 	enum ContextMenu
 	{
-		CM_LIGHT_SPOT = 1, // OSX does not support menu item 0, so we start by 1
+		CM_ROOT_SCALE = 1, // OSX does not support menu item 0, so we start by 1
+		CM_ROOT_AXES,
+		CM_LIGHT_SPOT,
 		CM_LIGHT_POINT,
 		CM_LIGHT_DIR,
 		CM_LIGHT_FLASH,
@@ -57,6 +59,7 @@ namespace rr_gl
 		SceneViewerStateEx& svs;
 		unsigned callDepth;
 		bool needsUpdateContent;
+		wxTreeItemId root;
 		wxTreeItemId lights;
 		wxTreeItemId staticObjects;
 		wxTreeItemId dynamicObjects;

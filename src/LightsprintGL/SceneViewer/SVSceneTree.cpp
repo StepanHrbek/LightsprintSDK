@@ -36,7 +36,7 @@ SVSceneTree::SVSceneTree(SVFrame* _svframe)
 	needsUpdateContent = false;
 
 
-	wxTreeItemId root = AddRoot(_("root"));
+	root = AddRoot(_("root"));
 
 
 	lights = AppendItem(root,"");
@@ -186,6 +186,14 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 	temporaryContext = event.GetItem();
 	if (temporaryContext.IsOk())
 	{
+		if (temporaryContext==root)
+		{
+			wxMenu menu;
+			menu.Append(CM_ROOT_SCALE, _("Normalize units..."));
+			menu.Append(CM_ROOT_AXES, _("Normalize up-axis"));
+			PopupMenu(&menu, event.GetPoint());
+		}
+		else
 		if (temporaryContext==lights)
 		{
 			wxMenu menu;
@@ -225,6 +233,7 @@ void SVSceneTree::OnContextMenuRun(wxCommandEvent& event)
 	runContextMenuAction(event.GetId(),contextEntityId);
 }
 
+extern bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption);
 
 void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEntityId)
 {
@@ -234,6 +243,30 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 
 	switch (actionCode)
 	{
+		case CM_ROOT_SCALE:
+			{
+				static float currentUnitLengthInMeters = 1;
+				if (getFactor(this,currentUnitLengthInMeters,_("Enter current unit length in meters."),_("Normalize units")))
+				{
+					rr::RRScene scene;
+					scene.objects = svframe->m_canvas->solver->getStaticObjects();
+					scene.lights = svframe->m_canvas->solver->getLights();
+					scene.normalizeUnits(currentUnitLengthInMeters);
+					svframe->m_canvas->addOrRemoveScene(NULL,true);
+				}
+			}
+			break;
+		case CM_ROOT_AXES:
+			{
+				static unsigned currentUpAxis = 0;
+				rr::RRScene scene;
+				scene.objects = svframe->m_canvas->solver->getStaticObjects();
+				scene.lights = svframe->m_canvas->solver->getLights();
+				scene.normalizeUpAxis(currentUpAxis);
+				svframe->m_canvas->addOrRemoveScene(NULL,true);
+				currentUpAxis = 2-currentUpAxis;
+			}
+			break;
 		case CM_LIGHT_SPOT:
 		case CM_LIGHT_POINT:
 		case CM_LIGHT_DIR:

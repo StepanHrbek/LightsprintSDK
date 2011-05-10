@@ -734,8 +734,6 @@ void SVFrame::UpdateMenuBar()
 		wxMenu* winMenu2 = new wxMenu;
 		winMenu2->Append(ME_TOOL_MERGE,_("Merge objects"),_("Merges all static objects together."));
 		winMenu2->Append(ME_BUILD_TANGENTS,_("Build tangents"),_("Rebuild mesh to have tangents and bitangents."));
-		winMenu2->Append(ME_TOOL_SCALE,_("Scale scene..."),_("Makes everything in scene n-times bigger."));
-		winMenu2->Append(ME_TOOL_AXIS,_("Swap axes"),_("Rotates everything in scene by 90 degrees."));
 		winMenu->AppendSeparator();
 		winMenu->AppendSubMenu(winMenu2,_("Testing"));
 		menuBar->Append(winMenu, _("Mesh tools"));
@@ -1594,36 +1592,6 @@ reload_skybox:
 						arrays->buildTangents();
 				}
 				m_canvas->addOrRemoveScene(NULL,true);
-			}
-			break;
-		case ME_TOOL_SCALE:
-			{
-				static float currentUnitLengthInMeters = 1;
-				if (getFactor(this,currentUnitLengthInMeters,_("Enter current unit length in meters."),_("Scale scene")))
-				{
-					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,solver);
-
-					rr::RRScene scene;
-					scene.objects = solver->getStaticObjects();
-					scene.lights = solver->getLights();
-					scene.normalizeUnits(currentUnitLengthInMeters);
-					m_canvas->addOrRemoveScene(NULL,true);
-				}
-			}
-			break;
-		case ME_TOOL_AXIS:
-			{
-				// display log window with 'abort' while this function runs
-				LogWithAbort logWithAbort(this,solver);
-
-				static unsigned currentUpAxis = 0;
-				rr::RRScene scene;
-				scene.objects = solver->getStaticObjects();
-				scene.lights = solver->getLights();
-				scene.normalizeUpAxis(currentUpAxis);
-				m_canvas->addOrRemoveScene(NULL,true);
-				currentUpAxis = 2-currentUpAxis;
 			}
 			break;
 		case ME_TOOL_MERGE:
