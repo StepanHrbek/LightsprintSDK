@@ -402,13 +402,6 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 {
 	RR_LIMITED_TIMES(1,checkCapabilities());
 
-	if (LIGHT_DIRECT_MAP && !SHADOW_MAPS)
-	{
-		// late correction. we rarely get here, see early correction
-		LIGHT_DIRECT_MAP = 0;
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Projecting texture without shadows not supported yet.\n"));
-	}
-
 	Program* program = getProgram(uberProgram);
 	if (!program)
 	{
@@ -434,7 +427,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			program->sendTexture(name,shadowmap);
 			// set matrix
 			Camera* lightInstance = light->getShadowmapCamera(firstInstance+i,true);
-			double m1[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,2 };
+			double m1[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,2};
 			double m2[16];
 			float m3[16];
 #define MULT_MATRIX(a,b,c,ctype) { for (unsigned i=0;i<4;i++) for (unsigned j=0;j<4;j++) c[4*i+j] = (ctype)( b[4*i]*a[j] + b[4*i+1]*a[4+j] + b[4*i+2]*a[8+j] + b[4*i+3]*a[12+j] ); }
@@ -478,6 +471,15 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			return false;
 		}
 
+		if (LIGHT_DIRECT_MAP && !SHADOW_MAPS)
+		{
+			double m1[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,2};
+			double m2[16];
+			float m3[16];
+			MULT_MATRIX(m1,light->getParent()->frustumMatrix,m2,double);
+			MULT_MATRIX(m2,light->getParent()->viewMatrix,m3,float);
+			program->sendUniform("textureMatrixL",m3,false,4);
+		}
 		if (LIGHT_DIRECTIONAL || LIGHT_DIRECT_ATT_SPOT)
 		{
 			program->sendUniform("worldLightDir",light->getParent()->dir[0],light->getParent()->dir[1],light->getParent()->dir[2]);

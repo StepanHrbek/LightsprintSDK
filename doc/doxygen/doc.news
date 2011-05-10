@@ -12,6 +12,9 @@ namespace rr
 
 NEWS
 
+- improved realtime rendering
+  - more accurate realtime lighting (part of calculation moved from per-vertex to per-pixel)
+  - projecting texture or video works even with disabled shadows
 - misc helper functions
   - RRString::format()
 

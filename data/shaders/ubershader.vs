@@ -106,6 +106,11 @@
 	varying vec4 shadowCoord9;
 #endif
 
+#if defined(LIGHT_DIRECT_MAP) && SHADOW_MAPS==0
+	uniform mat4 textureMatrixL;
+	varying vec4 lightCoord;
+#endif
+
 #ifdef LIGHT_INDIRECT_VCOLOR
 	varying vec4 lightIndirectColor;
 #endif
@@ -213,6 +218,10 @@ void main()
 	#endif
 	#if SHADOW_MAPS>9
 		shadowCoord9 = textureMatrix9 * worldPos4;
+	#endif
+
+	#if defined(LIGHT_DIRECT_MAP) && SHADOW_MAPS==0
+		lightCoord = textureMatrixL * worldPos4;
 	#endif
   
 	#ifdef FORCE_2D_POSITION

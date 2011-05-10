@@ -167,6 +167,9 @@
 #endif
 
 #ifdef LIGHT_DIRECT_MAP
+	#if SHADOW_MAPS==0
+		varying vec4 lightCoord;
+	#endif
 	uniform sampler2D lightDirectMap;
 #endif
 
@@ -545,7 +548,9 @@ void main()
 				* lightDirectColor
 			#endif
 			#ifdef LIGHT_DIRECT_MAP
-				#if SHADOW_MAPS<3
+				#if SHADOW_MAPS<1
+					* texture2DProj(lightDirectMap, lightCoord)
+				#elif SHADOW_MAPS<3
 					* texture2DProj(lightDirectMap, shadowCoord0)
 				#elif SHADOW_MAPS<5
 					* texture2DProj(lightDirectMap, shadowCoord1)
