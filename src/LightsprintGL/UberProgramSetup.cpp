@@ -707,7 +707,7 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 	}
 }
 
-void UberProgramSetup::useWorldMatrix(Program* program, rr::RRObject* object)
+void UberProgramSetup::useWorldMatrix(Program* program, const rr::RRObject* object)
 {
 	if (OBJECT_SPACE && object)
 	{

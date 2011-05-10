@@ -175,7 +175,7 @@ struct RR_GL_API UberProgramSetup
 	//! You can call expensive useProgram() once and cheaper useIlluminationEnvMaps() multiple times.
 	void useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination);
 	//! Sets world matrix for given object.
-	void useWorldMatrix(Program* program, rr::RRObject* object);
+	void useWorldMatrix(Program* program, const rr::RRObject* object);
 };
 
 }; // namespace
