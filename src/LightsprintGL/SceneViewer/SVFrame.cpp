@@ -713,9 +713,6 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_("Build Fireball..."),_("(Re)builds Fireball, acceleration structure used by realtime GI."));
 		winMenu->Append(ME_REALTIME_LDM_BUILD,_("Build LDM (light detail map)..."),_("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
 		winMenu->AppendSeparator();
-		winMenu->Append(ME_BUILD_NORMALS,_("Build normals..."),_("Rebuild mesh to have smooth normals"));
-		winMenu->Append(ME_BUILD_TANGENTS,_("Build tangents..."),_("Rebuild mesh to have tangents and bitangents"));
-		winMenu->Append(ME_STATIC_BUILD_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
 		winMenu->Append(ME_STATIC_BUILD,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel is efficient only with good unwrap in scene."));
 		winMenu->Append(ME_STATIC_2D,_("Inspect unwrap+lightmaps in 2D"),_("Shows unwrap and lightmap in 2D."));
 		winMenu->Append(ME_STATIC_BILINEAR,_("Toggle lightmap bilinear interpolation"));
@@ -727,6 +724,21 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_("Build 2d lightfield"),_("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_("Build 3d lightfield"),_("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
 		menuBar->Append(winMenu, _("Global illumination"));
+	}
+
+	// Mesh tools...
+	{
+		winMenu = new wxMenu;
+		winMenu->Append(ME_BUILD_NORMALS,_("Smooth..."),_("Rebuild meshes to have smooth normals."));
+		winMenu->Append(ME_STATIC_BUILD_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
+		wxMenu* winMenu2 = new wxMenu;
+		winMenu2->Append(ME_TOOL_MERGE,_("Merge objects"),_("Merges all static objects together."));
+		winMenu2->Append(ME_BUILD_TANGENTS,_("Build tangents"),_("Rebuild mesh to have tangents and bitangents."));
+		winMenu2->Append(ME_TOOL_SCALE,_("Scale scene..."),_("Makes everything in scene n-times bigger."));
+		winMenu2->Append(ME_TOOL_AXIS,_("Swap axes"),_("Rotates everything in scene by 90 degrees."));
+		winMenu->AppendSeparator();
+		winMenu->AppendSubMenu(winMenu2,_("Testing"));
+		menuBar->Append(winMenu, _("Mesh tools"));
 	}
 
 	// Window...
@@ -1383,6 +1395,50 @@ reload_skybox:
 			}
 			break;
 
+		case ME_STATIC_BUILD:
+			{
+				unsigned res = 256; // 0=vertex buffers
+				unsigned quality = 100;
+				if (getResolution(_("Lightmap build"),this,res,true) && getQuality(_("Lightmap build"),this,quality))
+				{
+					// display log window with 'abort' while this function runs
+					LogWithAbort logWithAbort(this,solver);
+
+					// allocate buffers
+					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+					{
+						if (solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices())
+						{
+							delete solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
+							solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) = res
+								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBA,true,NULL) // A in RGBA is only for debugging
+								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+						}
+					}
+
+					// calculate all
+					solver->leaveFireball();
+					fireballLoadAttempted = false;
+					rr::RRDynamicSolver::UpdateParameters params(quality);
+					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&svs.lightmapFilteringParameters);
+					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
+					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
+					// propagate computed data from buffers to textures
+					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+					{
+						rr::RRBuffer* buf = solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
+						if (buf && buf->getType()==rr::BT_2D_TEXTURE)
+						{
+							getTexture(buf,false,false); // don't mipmap lmaps(light would leak), don't compres lmaps(ugly 4x4 blocks on HD2400)
+						}
+					}
+
+					// save calculated lightmaps
+					solver->getStaticObjects().saveLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
+				}
+			}
+			break;
+
 		case ME_STATIC_2D:
 			svs.renderLightmaps2d = 1;
 			break;
@@ -1481,6 +1537,9 @@ reload_skybox:
 			}
 			break;
 #endif
+
+		///////////////////////////////// MESH TOOLS ////////////////////////////////
+
 		case ME_BUILD_NORMALS:
 			{
 				if (smoothDlg.ShowModal()==wxID_OK)
@@ -1510,18 +1569,6 @@ reload_skybox:
 				}
 			}
 			break;
-		case ME_BUILD_TANGENTS:
-			{
-				for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-				{
-					rr::RRMeshArrays* arrays = dynamic_cast<rr::RRMeshArrays*>(const_cast<rr::RRMesh*>(solver->getStaticObjects()[i]->getCollider()->getMesh()));
-					if (arrays)
-						arrays->buildTangents();
-				}
-				m_canvas->reportObjectsChange();
-			}
-			break;
-
 		case ME_STATIC_BUILD_UNWRAP:
 			{
 				unsigned res = 256;
@@ -1534,48 +1581,57 @@ reload_skybox:
 				}
 			}
 			break;
-
-		case ME_STATIC_BUILD:
+		case ME_BUILD_TANGENTS:
 			{
-				unsigned res = 256; // 0=vertex buffers
-				unsigned quality = 100;
-				if (getResolution(_("Lightmap build"),this,res,true) && getQuality(_("Lightmap build"),this,quality))
+				for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+				{
+					rr::RRMeshArrays* arrays = dynamic_cast<rr::RRMeshArrays*>(const_cast<rr::RRMesh*>(solver->getStaticObjects()[i]->getCollider()->getMesh()));
+					if (arrays)
+						arrays->buildTangents();
+				}
+				m_canvas->reportObjectsChange();
+			}
+			break;
+		case ME_TOOL_SCALE:
+			{
+				static float currentUnitLengthInMeters = 1;
+				if (getFactor(this,currentUnitLengthInMeters,_("Enter current unit length in meters."),_("Scale scene")))
 				{
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver);
 
-					// allocate buffers
-					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-					{
-						if (solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices())
-						{
-							delete solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
-							solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) = res
-								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBA,true,NULL) // A in RGBA is only for debugging
-								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
-						}
-					}
-
-					// calculate all
-					solver->leaveFireball();
-					fireballLoadAttempted = false;
-					rr::RRDynamicSolver::UpdateParameters params(quality);
-					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&svs.lightmapFilteringParameters);
-					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
-					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
-					// propagate computed data from buffers to textures
-					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-					{
-						rr::RRBuffer* buf = solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
-						if (buf && buf->getType()==rr::BT_2D_TEXTURE)
-						{
-							getTexture(buf,false,false); // don't mipmap lmaps(light would leak), don't compres lmaps(ugly 4x4 blocks on HD2400)
-						}
-					}
-
-					// save calculated lightmaps
-					solver->getStaticObjects().saveLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
+					rr::RRScene scene;
+					scene.objects = solver->getStaticObjects();
+					scene.lights = solver->getLights();
+					scene.normalizeUnits(currentUnitLengthInMeters);
+					m_canvas->addOrRemoveScene(NULL,true);
 				}
+			}
+			break;
+		case ME_TOOL_AXIS:
+			{
+				// display log window with 'abort' while this function runs
+				LogWithAbort logWithAbort(this,solver);
+
+				static unsigned currentUpAxis = 0;
+				rr::RRScene scene;
+				scene.objects = solver->getStaticObjects();
+				scene.lights = solver->getLights();
+				scene.normalizeUpAxis(currentUpAxis);
+				m_canvas->addOrRemoveScene(NULL,true);
+				currentUpAxis = 2-currentUpAxis;
+			}
+			break;
+		case ME_TOOL_MERGE:
+			{
+				// display log window with 'abort' while this function runs
+				LogWithAbort logWithAbort(this,solver);
+
+				rr::RRObject* multiObject = rr::RRObject::createMultiObject(&solver->getStaticObjects(),rr::RRCollider::IT_LINEAR,solver->aborting,-1,-1,false,0,NULL);
+				rr::RRObjects objects;
+				objects.push_back(multiObject);
+				solver->setStaticObjects(objects,NULL); // memleak, objects is not freed
+				m_canvas->addOrRemoveScene(NULL,true);
 			}
 			break;
 

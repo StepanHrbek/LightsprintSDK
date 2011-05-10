@@ -36,7 +36,7 @@ namespace rr_gl
 		void createContextCore();
 		void createContext();
 
-		//! Adds scene to solver or removes it from solver.
+		//! Adds scene to solver or removes it from solver. If scene is NULL, just reloads current data in solver.
 		//! \param add
 		//!  True = add, false = remove.
 		void addOrRemoveScene(rr::RRScene* scene, bool add);

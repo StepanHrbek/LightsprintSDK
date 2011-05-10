@@ -271,11 +271,11 @@ void SVCanvas::createContext()
 
 void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 {
+	// add or remove scene from solver
+	rr::RRObjects objects = solver->getStaticObjects();
+	rr::RRLights lights = solver->getLights();
 	if (scene)
 	{
-		// add or remove scene from solver
-		rr::RRObjects objects = solver->getStaticObjects();
-		rr::RRLights lights = solver->getLights();
 		if (add)
 		{
 			objects.insert(objects.end(),scene->objects.begin(),scene->objects.end());
@@ -300,28 +300,28 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 						break;
 					}
 		}
-		solver->setStaticObjects(objects,NULL);
-		solver->setLights(lights);
-
-		// fix svs.renderLightIndirect, setStaticObjects() just silently switched solver to architect
-		// must be changed if setStaticObjects() behaviour changes
-		// we don't switch to architect, but rather to const ambient, because architect ignores environment, scenes without lights are black
-		if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)
-		{
-			svs.renderLightIndirect = LI_CONSTANT;
-		}
-
-		// fix dangling pointer in light properties pane
-		parent->updateAllPanels();
-
-		// fix dangling pointer in collisionHandler
-		delete collisionHandler;
-		collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
-
-		// alloc rtgi buffers, otherwise new objects would have no realtime indirect
-		if (add)
-			reallocateBuffersForRealtimeGI(true);
 	}
+	solver->setStaticObjects(objects,NULL);
+	solver->setLights(lights);
+
+	// fix svs.renderLightIndirect, setStaticObjects() just silently switched solver to architect
+	// must be changed if setStaticObjects() behaviour changes
+	// we don't switch to architect, but rather to const ambient, because architect ignores environment, scenes without lights are black
+	if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)
+	{
+		svs.renderLightIndirect = LI_CONSTANT;
+	}
+
+	// fix dangling pointer in light properties pane
+	parent->updateAllPanels();
+
+	// fix dangling pointer in collisionHandler
+	delete collisionHandler;
+	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
+
+	// alloc rtgi buffers, otherwise new objects would have no realtime indirect
+	if (add)
+		reallocateBuffersForRealtimeGI(true);
 }
 
 void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
