@@ -312,6 +312,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 	if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)
 	{
 		svs.renderLightIndirect = LI_CONSTANT;
+		parent->UpdateMenuBar(); // switches to LI_CONSTANT also in menu
 	}
 
 	// fix dangling pointer in light properties pane
@@ -1907,26 +1908,6 @@ rendered:
 		}
 	}
 
-}
-
-void SVCanvas::reportObjectsChange()
-{
-	// static objects may be modified even after abort (unwrap is not atomic)
-	// so it's better if following setStaticObjects is not aborted
-	solver->aborting = false;
-
-	// number of vertices may have changed, we have to send modified data to solver (or expect crash)
-	solver->setStaticObjects(solver->getStaticObjects(),NULL);
-
-	// fix dangling pointer in collisionHandler
-	delete collisionHandler;
-	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
-
-	// resize rtgi buffers, vertex counts may differ
-	reallocateBuffersForRealtimeGI(true);
-
-	// update shadows and GI
-	solver->reportDirectIlluminationChange(-1,true,true);
 }
 
 

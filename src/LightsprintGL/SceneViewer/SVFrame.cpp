@@ -1564,7 +1564,7 @@ reload_skybox:
 						smoothDlg.preserveUvs->GetValue(),
 						weldDistance,
 						RR_DEG2RAD(smoothAngle),true);
-					m_canvas->reportObjectsChange();
+					m_canvas->addOrRemoveScene(NULL,true);
 				}
 			}
 			break;
@@ -1576,7 +1576,12 @@ reload_skybox:
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver);
 					solver->getStaticObjects().buildUnwrap(res,true,solver->aborting);
-					m_canvas->reportObjectsChange();
+
+					// static objects may be modified even after abort (unwrap is not atomic)
+					// so it's better if following setStaticObjects is not aborted
+					solver->aborting = false;
+
+					m_canvas->addOrRemoveScene(NULL,true);
 				}
 			}
 			break;
@@ -1588,7 +1593,7 @@ reload_skybox:
 					if (arrays)
 						arrays->buildTangents();
 				}
-				m_canvas->reportObjectsChange();
+				m_canvas->addOrRemoveScene(NULL,true);
 			}
 			break;
 		case ME_TOOL_SCALE:

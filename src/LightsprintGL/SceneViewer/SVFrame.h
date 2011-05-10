@@ -28,6 +28,9 @@ namespace rr_gl
 	public:
 		static SVFrame *Create(SceneViewerStateEx& svse);
 
+		//! Updates menu according to svs (doesn't read canvas). May be called repeatedly.
+		void UpdateMenuBar();
+
 		void OnMenuEvent(wxCommandEvent& event);
 		void OnMenuEventCore(unsigned eventCode);
 		void OnMenuEventCore2(unsigned eventCode);
@@ -169,9 +172,6 @@ namespace rr_gl
 		//! Updates everything in frame according to svs (deletes and recreates everything).
 		//! May be called repeatedly.
 		void UpdateEverything();
-
-		//! Updates menu according to svs (doesn't read canvas). May be called repeatedly.
-		void UpdateMenuBar();
 
 		bool                     fullyInited; // true after constructor
 		bool                     updateMenuBarNeeded;
