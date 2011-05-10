@@ -20,6 +20,7 @@
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/Water.h"
 #include "../PreserveState.h"
+#include "../RendererOfMesh.h"
 #ifdef _WIN32
 	#include <GL/wglew.h>
 #endif
@@ -747,16 +748,25 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		else
 		{
 			// clicked scene
-			selectedType = ST_CAMERA;
 			rr::RRMesh::PreImportNumber selectedPreImportTriangle(0,0);
 			rr::RRObject* selectedObject = NULL;
 			if (s_ci.hitTriangle!=UINT_MAX)
 			{
 				selectedPreImportTriangle = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle);
 				selectedObject = solver->getStaticObjects()[selectedPreImportTriangle.object];
-			}		
+				if (selectedType!=ST_STATIC_OBJECT || svs.selectedObjectIndex!=selectedPreImportTriangle.object)
+				{
+					//svs.selectedObjectIndex = selectedPreImportTriangle.object;
+					parent->selectEntityInTreeAndUpdatePanel(EntityId(ST_STATIC_OBJECT,selectedPreImportTriangle.object),SEA_SELECT);
+				}
+				else
+					selectedType = ST_CAMERA;
+			}
+			else
+				selectedType = ST_CAMERA;
 			parent->m_objectProperties->setObject(selectedObject,svs.precision);
 			parent->m_materialProperties->setMaterial(solver,s_ci.hitTriangle,s_ci.hitPoint2d);
+				
 		}
 	}
 
@@ -1266,6 +1276,8 @@ rendered:
 					gamma);
 			}
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+			// adjust tonemapping
 			if (svs.renderTonemapping && svs.tonemappingAutomatic
 				&& !svs.renderWireframe
 				&& ((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS && solver->containsLightSource())
@@ -1281,6 +1293,26 @@ rendered:
 					toneMapping->adjustOperator(textureRenderer,secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingBrightness,svs.tonemappingGamma,svs.tonemappingAutomaticTarget);
 				}
 				oldTime = newTime;
+			}
+
+			// render selected
+			if (!_takingSshot && selectedType==ST_STATIC_OBJECT && svs.selectedObjectIndex<solver->getStaticObjects().size())
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				UberProgramSetup uberProgramSetup;
+				uberProgramSetup.OBJECT_SPACE = true;
+				uberProgramSetup.POSTPROCESS_NORMALS = true;
+				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
+				const rr::RRObject* object = solver->getStaticObjects()[svs.selectedObjectIndex];
+				if (object->faceGroups.size())
+				{
+					uberProgramSetup.useWorldMatrix(program,object);
+					const rr::RRMesh* mesh = object->getCollider()->getMesh();
+					FaceGroupRange fgRange(0,0,object->faceGroups.size()-1,0,mesh->getNumTriangles());
+					RendererOfMesh* rendererOfMesh = solver->getRendererOfScene()->getRendererOfMesh(mesh);
+					rendererOfMesh->render(program,object,&fgRange,1,uberProgramSetup,NULL,NULL);
+				}
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 		}
 

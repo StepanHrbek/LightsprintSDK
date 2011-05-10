@@ -12,6 +12,8 @@ namespace rr
 
 NEWS
 
+- improved Scene viewer
+  - object can be selected also by clicking it in 3d viewport
 - improved realtime rendering
   - more accurate realtime lighting (part of calculation moved from per-vertex to per-pixel)
   - projecting texture or video works even with disabled shadows
