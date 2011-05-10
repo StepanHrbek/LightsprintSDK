@@ -341,7 +341,7 @@ void main()
 		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
 		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
 	#endif
-	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR)
+	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(POSTPROCESS_NORMALS)
 		#ifdef MATERIAL_NORMAL_MAP
 			vec3 worldNormal = normalize(worldNormalSmooth+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
 		#else
@@ -571,7 +571,7 @@ void main()
 	//
 	// final mix
 
-	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP)
+	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(POSTPROCESS_NORMALS)
 
 		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_DIRECT))
 			vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
