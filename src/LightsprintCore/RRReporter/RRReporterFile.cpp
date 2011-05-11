@@ -26,15 +26,6 @@ public:
 	}
 	virtual void customReport(RRReportType type, int indentation, const char* message)
 	{
-		// indentation
-		char space[1000];
-		space[0] = 0;
-		indentation *= 2;
-		if (indentation>0 && indentation<999)
-		{
-			memset(space,' ',indentation);
-			space[indentation] = 0;
-		}
 		// type
 		if (type<ERRO || type>TIMI) type = INF9;
 		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ","","","","","",""};
@@ -43,7 +34,7 @@ public:
 		if (flush)
 			file = fopen(filename,"at");
 		if (file)
-			fprintf(file,"%s%s%s",space,typePrefix[type],message);
+			fprintf(file,"%*s%s%s",2*indentation,"",typePrefix[type],message);
 		if (file && flush)
 		{
 			fclose(file);
