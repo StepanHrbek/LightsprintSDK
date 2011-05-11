@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Sep  8 2010)
+// C++ code generated with wxFormBuilder (version Mar 22 2011)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -20,7 +20,6 @@
 #include <wx/sizer.h>
 #include <wx/dialog.h>
 #include <wx/stattext.h>
-#include <wx/choice.h>
 #include <wx/textctrl.h>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -41,7 +40,7 @@ class ImportDlg : public wxDialog
 		wxCheckBox* objects;
 		wxCheckBox* lights;
 		
-		ImportDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select what to import"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 253,150 ), long style = wxCAPTION|wxCLOSE_BOX );
+		ImportDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select what to import"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 253,150 ), long style = wxCAPTION|wxCLOSE_BOX ); 
 		~ImportDlg();
 	
 };
@@ -54,13 +53,11 @@ class SmoothDlg : public wxDialog
 	private:
 	
 	protected:
-		wxStaticText* m_staticText3;
 		wxStaticText* m_staticText1;
 		wxStaticText* m_staticText2;
 		wxButton* m_button4;
 	
 	public:
-		wxChoice* allMeshes;
 		wxTextCtrl* smoothAngle;
 		wxTextCtrl* weldDistance;
 		wxCheckBox* splitVertices;
@@ -68,7 +65,7 @@ class SmoothDlg : public wxDialog
 		wxCheckBox* preserveUvs;
 		wxButton* m_button3;
 		
-		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,318 ), long style = wxCAPTION|wxCLOSE_BOX );
+		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,266 ), long style = wxCAPTION|wxCLOSE_BOX ); 
 		~SmoothDlg();
 	
 };
@@ -92,7 +89,7 @@ class MergeDlg : public wxDialog
 		wxCheckBox* animations;
 		wxCheckBox* environment;
 		
-		MergeDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select what to merge"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 200,224 ), long style = wxCAPTION|wxCLOSE_BOX );
+		MergeDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select what to merge"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 200,224 ), long style = wxCAPTION|wxCLOSE_BOX ); 
 		~MergeDlg();
 	
 };

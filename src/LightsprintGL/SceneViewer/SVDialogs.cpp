@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Sep  8 2010)
+// C++ code generated with wxFormBuilder (version Mar 22 2011)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -57,16 +57,6 @@ SmoothDlg::SmoothDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	wxBoxSizer* bSizer3;
 	bSizer3 = new wxBoxSizer( wxVERTICAL );
-	
-	m_staticText3 = new wxStaticText( this, wxID_ANY, _("Apply to"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText3->Wrap( -1 );
-	bSizer3->Add( m_staticText3, 0, wxALL, 5 );
-	
-	wxString allMeshesChoices[] = { _("All meshes"), _("Selected mesh") };
-	int allMeshesNChoices = sizeof( allMeshesChoices ) / sizeof( wxString );
-	allMeshes = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, allMeshesNChoices, allMeshesChoices, 0 );
-	allMeshes->SetSelection( 0 );
-	bSizer3->Add( allMeshes, 0, wxALL, 5 );
 	
 	m_staticText1 = new wxStaticText( this, wxID_ANY, _("Smoothing angle (deg)"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText1->Wrap( -1 );

@@ -12,9 +12,23 @@ namespace rr
 
 NEWS
 
-- improved Scene viewer
+- <b>improved Scene viewer</b>
+  - scene tree context menus with new functions
+    - scene
+      - Normalize units
+      - Normalize up axis
+    - objects
+      - Unwrap
+      - Smooth
+      - Tangents
+      - Merge
+    - single object
+      - Unwrap
+      - Smooth
+      - Tangents
+      - Delete
   - object can be selected also by clicking it in 3d viewport
-  - object can be deleted
+  - object can be deleted by Del key
 - improved realtime rendering
   - more accurate realtime lighting (part of calculation moved from per-vertex to per-pixel)
   - projecting texture or video works even with disabled shadows

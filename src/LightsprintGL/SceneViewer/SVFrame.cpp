@@ -252,7 +252,7 @@ static bool getQuality(wxString title, wxWindow* parent, unsigned& quality)
 // true = valid answer
 // false = dialog was escaped
 // Incoming resolution is taken as default value.
-static bool getResolution(wxString title, wxWindow* parent, unsigned& resolution, bool offerPerVertex)
+bool getResolution(wxString title, wxWindow* parent, unsigned& resolution, bool offerPerVertex)
 {
 	wxArrayString choices;
 	if (offerPerVertex)	choices.Add(_("per-vertex"));
@@ -724,19 +724,6 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_("Build 2d lightfield"),_("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_("Build 3d lightfield"),_("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
 		menuBar->Append(winMenu, _("Global illumination"));
-	}
-
-	// Mesh tools...
-	{
-		winMenu = new wxMenu;
-		winMenu->Append(ME_BUILD_NORMALS,_("Smooth..."),_("Rebuild meshes to have smooth normals."));
-		winMenu->Append(ME_STATIC_BUILD_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
-		wxMenu* winMenu2 = new wxMenu;
-		winMenu2->Append(ME_TOOL_MERGE,_("Merge objects"),_("Merges all static objects together."));
-		winMenu2->Append(ME_BUILD_TANGENTS,_("Build tangents"),_("Rebuild mesh to have tangents and bitangents."));
-		winMenu->AppendSeparator();
-		winMenu->AppendSubMenu(winMenu2,_("Testing"));
-		menuBar->Append(winMenu, _("Mesh tools"));
 	}
 
 	// Window...
@@ -1534,79 +1521,6 @@ reload_skybox:
 			}
 			break;
 #endif
-
-		///////////////////////////////// MESH TOOLS ////////////////////////////////
-
-		case ME_BUILD_NORMALS:
-			{
-				if (smoothDlg.ShowModal()==wxID_OK)
-				{
-					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,solver);
-
-					double d = 0;
-					float weldDistance = smoothDlg.weldDistance->GetValue().ToDouble(&d) ? (float)d : 0;
-					float smoothAngle = smoothDlg.smoothAngle->GetValue().ToDouble(&d) ? (float)d : 30;
-					rr::RRObjects smoothObjects;
-					for (unsigned pass=0;pass<2;pass++)
-					{
-						const rr::RRObjects& solverObjects = pass?solver->getDynamicObjects():solver->getStaticObjects();
-						for (unsigned i=0;i<solverObjects.size();i++)
-							if (smoothDlg.allMeshes->GetCurrentSelection()==0 || solverObjects[i]->getCollider()->getMesh()==m_objectProperties->object->getCollider()->getMesh())
-								smoothObjects.push_back(solverObjects[i]);
-					}
-					smoothObjects.stitchAndSmooth(
-						smoothDlg.splitVertices->GetValue(),
-						smoothDlg.stitchVertices->GetValue(),
-						true,true,
-						smoothDlg.preserveUvs->GetValue(),
-						weldDistance,
-						RR_DEG2RAD(smoothAngle),true);
-					m_canvas->addOrRemoveScene(NULL,true);
-				}
-			}
-			break;
-		case ME_STATIC_BUILD_UNWRAP:
-			{
-				unsigned res = 256;
-				if (getResolution(_("Unwrap build"),this,res,false))
-				{
-					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,solver);
-					solver->getStaticObjects().buildUnwrap(res,true,solver->aborting);
-
-					// static objects may be modified even after abort (unwrap is not atomic)
-					// so it's better if following setStaticObjects is not aborted
-					solver->aborting = false;
-
-					m_canvas->addOrRemoveScene(NULL,true);
-				}
-			}
-			break;
-		case ME_BUILD_TANGENTS:
-			{
-				for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-				{
-					rr::RRMeshArrays* arrays = dynamic_cast<rr::RRMeshArrays*>(const_cast<rr::RRMesh*>(solver->getStaticObjects()[i]->getCollider()->getMesh()));
-					if (arrays)
-						arrays->buildTangents();
-				}
-				m_canvas->addOrRemoveScene(NULL,true);
-			}
-			break;
-		case ME_TOOL_MERGE:
-			{
-				// display log window with 'abort' while this function runs
-				LogWithAbort logWithAbort(this,solver);
-
-				rr::RRObject* multiObject = rr::RRObject::createMultiObject(&solver->getStaticObjects(),rr::RRCollider::IT_LINEAR,solver->aborting,-1,-1,false,0,NULL);
-				rr::RRObjects objects;
-				objects.push_back(multiObject);
-				solver->setStaticObjects(objects,NULL); // memleak, objects is not freed
-				m_canvas->addOrRemoveScene(NULL,true);
-			}
-			break;
-
 
 		///////////////////////////////// WINDOW ////////////////////////////////
 

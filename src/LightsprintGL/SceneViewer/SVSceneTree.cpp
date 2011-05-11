@@ -7,6 +7,7 @@
 
 #include "SVSceneTree.h"
 #include "SVFrame.h"
+#include "SVObjectProperties.h"
 
 namespace rr_gl
 {
@@ -189,8 +190,8 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 		if (temporaryContext==root)
 		{
 			wxMenu menu;
-			menu.Append(CM_ROOT_SCALE, _("Normalize units..."));
-			menu.Append(CM_ROOT_AXES, _("Normalize up-axis"));
+			menu.Append(CM_ROOT_SCALE, _("Normalize units..."),_("Makes scene n-times bigger."));
+			menu.Append(CM_ROOT_AXES, _("Normalize up-axis"),_("Rotates scene by 90 degrees."));
 			PopupMenu(&menu, event.GetPoint());
 		}
 		else
@@ -211,9 +212,22 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			PopupMenu(&menu, event.GetPoint());
 		}
 		else
+		if (temporaryContext==staticObjects)
+		{
+			wxMenu menu;
+			menu.Append(CM_STATIC_OBJECTS_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
+			menu.Append(CM_STATIC_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
+			menu.Append(CM_STATIC_OBJECTS_MERGE,_("Merge objects"),_("Merges all objects together."));
+			menu.Append(CM_STATIC_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
+			PopupMenu(&menu, event.GetPoint());
+		}
+		else
 		if (GetItemParent(temporaryContext)==staticObjects)
 		{
 			wxMenu menu;
+			menu.Append(CM_STATIC_OBJECT_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
+			menu.Append(CM_STATIC_OBJECT_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
+			menu.Append(CM_STATIC_OBJECT_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
 			menu.Append(CM_STATIC_OBJECT_DELETE, _("Delete object")+" (del)");
 			PopupMenu(&menu, event.GetPoint());
 		}
@@ -233,6 +247,7 @@ void SVSceneTree::OnContextMenuRun(wxCommandEvent& event)
 	runContextMenuAction(event.GetId(),contextEntityId);
 }
 
+extern bool getResolution(wxString title, wxWindow* parent, unsigned& resolution, bool offerPerVertex);
 extern bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption);
 
 void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEntityId)
@@ -240,6 +255,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 	callDepth++;
 	svframe->commitPropertyChanges();
 	callDepth--;
+
+	RRDynamicSolverGL* solver = svframe->m_canvas->solver;
 
 	switch (actionCode)
 	{
@@ -249,8 +266,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				if (getFactor(this,currentUnitLengthInMeters,_("Enter current unit length in meters."),_("Normalize units")))
 				{
 					rr::RRScene scene;
-					scene.objects = svframe->m_canvas->solver->getStaticObjects();
-					scene.lights = svframe->m_canvas->solver->getLights();
+					scene.objects = solver->getStaticObjects();
+					scene.lights = solver->getLights();
 					scene.normalizeUnits(currentUnitLengthInMeters);
 					svframe->m_canvas->addOrRemoveScene(NULL,true);
 				}
@@ -260,8 +277,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 			{
 				static unsigned currentUpAxis = 0;
 				rr::RRScene scene;
-				scene.objects = svframe->m_canvas->solver->getStaticObjects();
-				scene.lights = svframe->m_canvas->solver->getLights();
+				scene.objects = solver->getStaticObjects();
+				scene.lights = solver->getLights();
 				scene.normalizeUpAxis(currentUpAxis);
 				svframe->m_canvas->addOrRemoveScene(NULL,true);
 				currentUpAxis = 2-currentUpAxis;
@@ -270,9 +287,9 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 		case CM_LIGHT_SPOT:
 		case CM_LIGHT_POINT:
 		case CM_LIGHT_DIR:
-			if (svframe->m_canvas->solver)
+			if (solver)
 			{
-				rr::RRLights newList = svframe->m_canvas->solver->getLights();
+				rr::RRLights newList = solver->getLights();
 				rr::RRLight* newLight = NULL;
 				switch (actionCode)
 				{
@@ -284,17 +301,17 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				{
 					svframe->m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
 					newList.push_back(newLight);
-					svframe->m_canvas->solver->setLights(newList); // RealtimeLight in light props is deleted here
+					solver->setLights(newList); // RealtimeLight in light props is deleted here
 					if (actionCode==CM_LIGHT_DIR)
 						svframe->simulateSun(); // when inserting sun, move it to simulated direction (it would be better to simulate only when inserting first dirlight, because simulation affects only first dirlight)
 				}
 			}
 			break;
 		case CM_LIGHT_FLASH:
-			if (svframe->m_canvas->solver)
+			if (solver)
 			{
 				bool containsFlashlight[2] = {false,false};
-				rr::RRLights lights = svframe->m_canvas->solver->getLights();
+				rr::RRLights lights = solver->getLights();
 				for (unsigned i=lights.size();i--;)
 					if (lights[i] && lights[i]->type==rr::RRLight::SPOT && lights[i]->name=="Flashlight")
 						containsFlashlight[lights[i]->enabled?1:0] = true;
@@ -311,28 +328,109 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					rr::RRLight* newLight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(0),rr::RRVec3(1),rr::RRVec3(1),0.5f,0.1f);
 					newLight->name = "Flashlight";
 					lights.push_back(newLight);
-					svframe->m_canvas->solver->setLights(lights); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
+					solver->setLights(lights); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
 					// updateAllPanels() must follow, it deletes lightprops
 				}
 			}
 			break;
 		case CM_LIGHT_DELETE:
-			if (svframe->m_canvas->solver && contextEntityId.isOk() && contextEntityId.index<svframe->m_canvas->solver->realtimeLights.size())
+			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->realtimeLights.size())
 			{
-				rr::RRLights newList = svframe->m_canvas->solver->getLights();
+				rr::RRLights newList = solver->getLights();
 
 				if (newList[contextEntityId.index]->rtProjectedTexture)
 					newList[contextEntityId.index]->rtProjectedTexture->stop();
 
 				newList.erase(contextEntityId.index);
 
-				svframe->m_canvas->solver->setLights(newList); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
+				solver->setLights(newList); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
 				// updateAllPanels() must follow, it deletes lightprops
 			}
 			break;
 
+		case CM_STATIC_OBJECT_UNWRAP:
+		case CM_STATIC_OBJECTS_UNWRAP:
+			{
+				unsigned res = 256;
+				if (getResolution(_("Unwrap build"),this,res,false))
+				{
+					// display log window with 'abort' while this function runs
+//					LogWithAbort logWithAbort(this,solver);
+
+					if (actionCode==CM_STATIC_OBJECT_UNWRAP)
+					{
+						rr::RRObjects objects;
+						objects.push_back(solver->getStaticObjects()[svs.selectedObjectIndex]);
+						objects.buildUnwrap(res,true,solver->aborting);
+					}
+					else
+						solver->getStaticObjects().buildUnwrap(res,true,solver->aborting);
+
+					// static objects may be modified even after abort (unwrap is not atomic)
+					// so it's better if following setStaticObjects is not aborted
+					solver->aborting = false;
+
+					svframe->m_canvas->addOrRemoveScene(NULL,true);
+				}
+			}
+			break;
+		case CM_STATIC_OBJECT_SMOOTH:
+		case CM_STATIC_OBJECTS_SMOOTH: // right now, it smooths also dynamic objects
+			{
+				if (svframe->smoothDlg.ShowModal()==wxID_OK)
+				{
+					double d = 0;
+					float weldDistance = svframe->smoothDlg.weldDistance->GetValue().ToDouble(&d) ? (float)d : 0;
+					float smoothAngle = svframe->smoothDlg.smoothAngle->GetValue().ToDouble(&d) ? (float)d : 30;
+					rr::RRObjects smoothObjects;
+					for (unsigned pass=0;pass<2;pass++)
+					{
+						const rr::RRObjects& solverObjects = pass?solver->getDynamicObjects():solver->getStaticObjects();
+						for (unsigned i=0;i<solverObjects.size();i++)
+							if (actionCode==CM_STATIC_OBJECTS_SMOOTH || solverObjects[i]->getCollider()->getMesh()==svframe->m_objectProperties->object->getCollider()->getMesh())
+								smoothObjects.push_back(solverObjects[i]);
+					}
+					if (smoothObjects.size())
+					{
+						smoothObjects.stitchAndSmooth(
+							svframe->smoothDlg.splitVertices->GetValue(),
+							svframe->smoothDlg.stitchVertices->GetValue(),
+							true,true,
+							svframe->smoothDlg.preserveUvs->GetValue(),
+							weldDistance,
+							RR_DEG2RAD(smoothAngle),true);
+						svframe->m_canvas->addOrRemoveScene(NULL,true);
+					}
+				}
+			}
+			break;
+		case CM_STATIC_OBJECTS_MERGE:
+			{
+				rr::RRObject* multiObject = rr::RRObject::createMultiObject(&solver->getStaticObjects(),rr::RRCollider::IT_LINEAR,solver->aborting,-1,-1,false,0,NULL);
+				rr::RRObjects objects;
+				objects.push_back(multiObject);
+				solver->setStaticObjects(objects,NULL); // memleak, objects is not freed
+				svframe->m_canvas->addOrRemoveScene(NULL,true);
+			}
+			break;
+		case CM_STATIC_OBJECT_TANGENTS:
+		case CM_STATIC_OBJECTS_TANGENTS:
+			{
+				for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+				{
+					if (actionCode==CM_STATIC_OBJECTS_TANGENTS || i==contextEntityId.index)
+					{
+						rr::RRMeshArrays* arrays = dynamic_cast<rr::RRMeshArrays*>(const_cast<rr::RRMesh*>(solver->getStaticObjects()[i]->getCollider()->getMesh()));
+						if (arrays)
+							arrays->buildTangents();
+					}
+				}
+				svframe->m_canvas->addOrRemoveScene(NULL,true);
+			}
+			break;
+
 		case CM_STATIC_OBJECT_DELETE:
-			if (svframe->m_canvas->solver && contextEntityId.isOk() && contextEntityId.index<svframe->m_canvas->solver->getStaticObjects().size())
+			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getStaticObjects().size())
 			{
 				if (svs.playVideos)
 				{
@@ -341,15 +439,15 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					event.m_keyCode = ' ';
 					svframe->m_canvas->OnKeyDown(event);
 				}
-				rr::RRObjects newList = svframe->m_canvas->solver->getStaticObjects();
+				rr::RRObjects newList = solver->getStaticObjects();
 				newList.erase(contextEntityId.index);
-				svframe->m_canvas->solver->setStaticObjects(newList,NULL);
+				solver->setStaticObjects(newList,NULL);
 				svframe->m_canvas->addOrRemoveScene(NULL,true); // updateAllPanels() is called from here
 				return; // skip updateAllPanels() at the end of this function to prevent SceneTree from updating twice, it's terribly slow
 			}
 			break;
 		case CM_DYNAMIC_OBJECT_DELETE:
-			if (svframe->m_canvas->solver && contextEntityId.isOk() && contextEntityId.index<svframe->m_canvas->solver->getDynamicObjects().size())
+			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getDynamicObjects().size())
 			{
 				if (svs.playVideos)
 				{
@@ -358,9 +456,9 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					event.m_keyCode = ' ';
 					svframe->m_canvas->OnKeyDown(event);
 				}
-				rr::RRObjects newList = svframe->m_canvas->solver->getDynamicObjects();
+				rr::RRObjects newList = solver->getDynamicObjects();
 				newList.erase(contextEntityId.index);
-				svframe->m_canvas->solver->setDynamicObjects(newList); // RRObject in object props is deleted here, objectprops is temporarily unsafe
+				solver->setDynamicObjects(newList); // RRObject in object props is deleted here, objectprops is temporarily unsafe
 				// updateAllPanels() must follow, it deletes lightprops
 			}
 			break;

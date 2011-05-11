@@ -115,7 +115,6 @@ namespace rr_gl
 			ME_STATIC_3D,
 			ME_STATIC_2D,
 			ME_STATIC_BILINEAR,
-			ME_STATIC_BUILD_UNWRAP,
 			ME_STATIC_BUILD,
 			ME_STATIC_BUILD_1OBJ,
 #ifdef DEBUG_TEXEL
@@ -123,9 +122,6 @@ namespace rr_gl
 #endif
 			ME_STATIC_BUILD_LIGHTFIELD_2D,
 			ME_STATIC_BUILD_LIGHTFIELD_3D,
-			ME_TOOL_MERGE,
-			ME_BUILD_NORMALS,
-			ME_BUILD_TANGENTS,
 
 			ME_WINDOW_FULLSCREEN_META, // SV: identical to non-META. RL: toggles two predefined workspaces
 			ME_WINDOW_FULLSCREEN, // toggles fullscreen in current workspace
@@ -159,6 +155,8 @@ namespace rr_gl
 		SceneViewerStateEx&          svs; // the only svs instance used throughout whole scene viewer. public only for SVProperties
 		UserPreferences              userPreferences; // public only for SVUserProperties
 		rr::RRFileLocator*           textureLocator;
+		SmoothDlg                    smoothDlg;
+
 	private:
 		//! Creates empty frame.
 		SVFrame(wxWindow *parent, const wxString& title, const wxPoint& pos, const wxSize& size, SceneViewerStateEx& svse);
@@ -177,7 +175,6 @@ namespace rr_gl
 		class SVSceneProperties* m_sceneProperties;
 		class SVUserProperties*  m_userProperties;
 
-		SmoothDlg                smoothDlg;
 		ImportDlg                importDlg;
 
 		DECLARE_EVENT_TABLE()
