@@ -182,7 +182,7 @@ RRString RRFileLocator::getLocation(const RRString& originalFilename, const RRSt
 		if (location.empty())
 			return fallbackFilename;
 		bool exists = bf::exists(RR_RR2PATH(location));
-rr::RRReporter::report(rr::INF2," %d%c %s\n",attempt,exists?'+':'-',location.c_str());
+		rr::RRReporter::report(rr::INF3," %d%c %s\n",attempt,exists?'+':'-',location.c_str());
 		if (exists)
 		{
 			return location;

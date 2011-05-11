@@ -742,7 +742,7 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 			if (ofs>=0)
 				location_buf.replace(ofs,2,RRString(_cubeSideName[0]).w_str());
 			bool exists = bf::exists(location_buf);
-rr::RRReporter::report(rr::INF2,"%d%c %ls\n",attempt,exists?'+':'-',location.w_str());
+			rr::RRReporter::report(rr::INF3,"%d%c %ls\n",attempt,exists?'+':'-',location.w_str());
 			if (exists)
 			{
 				RRBuffer* result = load_cached(RR_STDW2RR(location),_cubeSideName);
