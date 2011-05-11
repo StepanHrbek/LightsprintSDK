@@ -861,6 +861,10 @@ namespace rr
 		//! Allocates illumination buffers for realtime GI.
 		//
 		//! This function allocates empty buffers in RRObject::illumination of all objects.
+		//!
+		//! Currently it does not allocate buffers for specular cube reflections for flat objects,
+		//! because such reflections are inaccurate, but you can always allocate such buffers yourself,
+		//! example: illumination.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,16,16,6,BF_RGBA,true,NULL);
 		//! \param lightmapLayerNumber
 		//!  Arbitrary layer number for storing per-vertex indirect illumination.
 		//!  You should pass the same layer number to renderer, so it can use buffers you just allocated.
