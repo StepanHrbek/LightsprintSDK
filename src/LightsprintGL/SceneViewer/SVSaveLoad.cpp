@@ -321,6 +321,11 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 		ar & make_nvp("raytracedCubesSpecularRes",a.raytracedCubesSpecularRes);
 		ar & make_nvp("raytracedCubesMaxObjects",a.raytracedCubesMaxObjects);
 	}
+	if (version>25)
+	{
+		ar & make_nvp("raytracedCubesSpecularTreshold",a.raytracedCubesSpecularTreshold);
+		ar & make_nvp("raytracedCubesDepthTreshold",a.raytracedCubesDepthTreshold);
+	}
 	if (version>17)
 	{
 		ar & make_nvp("lightmapFilteringParameters",a.lightmapFilteringParameters);
@@ -410,7 +415,7 @@ BOOST_CLASS_VERSION(rr_gl::Camera,1)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,9)
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,25)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,26)
 
 //---------------------------------------------------------------------------
 

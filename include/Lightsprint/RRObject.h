@@ -462,9 +462,13 @@ namespace rr
 		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
 		//! \param changeExistingBuffers
 		//!  If buffer already exists, true = it will be resized or deleted accordingly, false = no action.
+		//! \param specularTreshold
+		//!  Only objects with specular color above treshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply.
+		//! \param depthTreshold
+		//!  Only objects with depth above treshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply.
 		//! \return
 		//!  Number of buffers allocated or reallocated.
-		virtual unsigned allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers) const;
+		virtual unsigned allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularTreshold, float depthTreshold) const;
 
 		//! Reports inconsistencies found in objects.
 		//

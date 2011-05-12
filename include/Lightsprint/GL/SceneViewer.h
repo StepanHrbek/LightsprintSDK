@@ -117,6 +117,8 @@ struct SceneViewerState
 	unsigned         raytracedCubesDiffuseRes;  //! Resolution of diffuse cubes.
 	unsigned         raytracedCubesSpecularRes; //! Resolution of specular cubes.
 	unsigned         raytracedCubesMaxObjects;  //! But only if there is less than this number of objects in scene.
+	float            raytracedCubesSpecularTreshold;
+	float            raytracedCubesDepthTreshold;
 	bool             srgbCorrect;               //! Add realtime lights sRGB correctly, if OpenGL 3.0+ or sufficient extensions are found.
 	//rr::RRDynamicSolver::CalculateParameters calculateParameters;        //! Realtime GI settings.
 	//rr::RRDynamicSolver::UpdateParameters    lightmapDirectParameters;   //! Lightmap baking settings.
@@ -190,6 +192,8 @@ struct SceneViewerState
 		raytracedCubesDiffuseRes = 4;
 		raytracedCubesSpecularRes = 16;
 		raytracedCubesMaxObjects = 1000;
+		raytracedCubesSpecularTreshold = 0.2f;
+		raytracedCubesDepthTreshold = 0.1f;
 		srgbCorrect = false;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
@@ -261,6 +265,8 @@ struct SceneViewerState
 			&& a.raytracedCubesDiffuseRes==raytracedCubesDiffuseRes
 			&& a.raytracedCubesSpecularRes==raytracedCubesSpecularRes
 			&& a.raytracedCubesMaxObjects==raytracedCubesMaxObjects
+			&& a.raytracedCubesSpecularTreshold==raytracedCubesSpecularTreshold
+			&& a.raytracedCubesDepthTreshold==raytracedCubesDepthTreshold
 			&& a.srgbCorrect==srgbCorrect
 			&& a.lightmapFilteringParameters==lightmapFilteringParameters
 			&& a.cameraDynamicNear==cameraDynamicNear

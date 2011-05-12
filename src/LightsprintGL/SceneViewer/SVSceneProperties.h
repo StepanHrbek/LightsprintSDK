@@ -103,6 +103,8 @@ namespace rr_gl
 		wxPGProperty*     propGIRaytracedCubesDiffuseRes;
 		wxPGProperty*     propGIRaytracedCubesSpecularRes;
 		wxPGProperty*     propGIRaytracedCubesMaxObjects;
+		FloatProperty*    propGIRaytracedCubesSpecularTreshold;
+		FloatProperty*    propGIRaytracedCubesDepthTreshold;
 		wxPGProperty*     propGIEmisMultiplier;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;
 		wxPGProperty*     propGIEmisVideoGIQuality;

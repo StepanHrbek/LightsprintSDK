@@ -334,7 +334,8 @@ void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
 {
 	solver->allocateBuffersForRealtimeGI(
 		reallocateAlsoVbuffers?svs.realtimeLayerNumber:-1,
-		svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes,RR_MAX(svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes));
+		svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes,RR_MAX(svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes),
+		true,true,svs.raytracedCubesSpecularTreshold,svs.raytracedCubesDepthTreshold);
 	parent->m_objectProperties->updateProperties();
 }
 

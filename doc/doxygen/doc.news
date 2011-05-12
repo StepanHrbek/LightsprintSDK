@@ -30,9 +30,12 @@ NEWS
   - object can be selected also by clicking it in 3d viewport
   - object can be deleted by Del key
   - dockable Log window
+  - Scene properties/GI quality/Realtime raytraced reflections/Specular treshold
+  - Scene properties/GI quality/Realtime raytraced reflections/Depth treshold
 - improved realtime rendering
   - more accurate realtime lighting (part of calculation moved from per-vertex to per-pixel)
   - projecting texture or video works even with disabled shadows
+  - RRDynamicSolver::allocateBuffersForRealtimeGI() has new parameters that control specular cube reflection
 - misc helper functions
   - RRString::format()
 

@@ -16,7 +16,7 @@ namespace rr
 //
 // RRObjects
 
-unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers) const
+unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularTreshold, float depthTreshold) const
 {
 	unsigned buffersTouched = 0;
 	for (unsigned i=0;i<size();i++)
@@ -73,19 +73,19 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 					if ((!illumination.specularEnvMap && allocateNewBuffers) || (illumination.specularEnvMap && changeExistingBuffers))
 					{
 						// measure object's specularity
-						float maxDiffuse = 0;
+						//float maxDiffuse = 0;
 						float maxSpecular = 0;
 						for (unsigned g=0;g<object->faceGroups.size();g++)
 						{
 							const RRMaterial* material = object->faceGroups[g].material;
 							if (material)
 							{
-								maxDiffuse = RR_MAX(maxDiffuse,material->diffuseReflectance.color.avg());
+								//maxDiffuse = RR_MAX(maxDiffuse,material->diffuseReflectance.color.avg());
 								maxSpecular = RR_MAX(maxSpecular,material->specularReflectance.color.avg());
 							}
 						}
 						// continue only for highly specular objects
-						if (maxSpecular>RR_MAX(0.01f,maxDiffuse*0.5f))
+						if (maxSpecular>RR_MAX(0.01f,specularTreshold))
 						{
 							// measure object's size
 							RRVec3 mini,maxi;
@@ -94,7 +94,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 							float sizeMidi = size.sum()-size.maxi()-size.mini();
 							// continue only for non-planar objects, cubical reflection looks bad on plane
 							// (size is in object's space, so this is not precise for non-uniform scale)
-							if (size.mini()>0.1*sizeMidi)
+							if (depthTreshold<1 && size.mini()>=depthTreshold*sizeMidi) // depthTreshold=0 allows everything, depthTreshold=1 nothing
 							{
 								// allocate specular cube map
 								RRVec3 center;
