@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by c:\Users\dee\Documents\C\rr\src\win32dlg\win32dlg.rc
+// Used by C:\Users\dee\Documents\C\rr\src\win32dlg\win32dlg.rc
 //
 #define IDD_DIALOG1                     101
 #define IDD_DIALOG2                     102
@@ -13,6 +13,7 @@
 #define IDC_EDIT_QUALITY                1014
 #define IDC_COMBO1                      1016
 #define IDC_WHENDONE                    1016
+#define IDC_STATIC_WHENDONE             1018
 
 // Next default values for new objects
 // 
@@ -20,7 +21,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        103
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1018
+#define _APS_NEXT_CONTROL_VALUE         1019
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

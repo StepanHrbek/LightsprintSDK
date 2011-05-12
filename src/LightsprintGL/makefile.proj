@@ -61,6 +61,7 @@ SceneViewer/SVEntityIcons.cpp \
 SceneViewer/SVFrame.cpp \
 SceneViewer/SVLightProperties.cpp \
 SceneViewer/SVLightmapViewer.cpp \
+SceneViewer/SVLog.cpp \
 SceneViewer/SVMaterialProperties.cpp \
 SceneViewer/SVObjectProperties.cpp \
 SceneViewer/SVRayLog.cpp \

@@ -131,6 +131,7 @@ namespace rr_gl
 			ME_WINDOW_LIGHT_PROPERTIES,
 			ME_WINDOW_OBJECT_PROPERTIES,
 			ME_WINDOW_MATERIAL_PROPERTIES,
+			ME_WINDOW_LOG,
 			ME_WINDOW_LAYOUT1,
 			ME_WINDOW_LAYOUT2,
 			ME_WINDOW_LAYOUT3,
@@ -174,6 +175,7 @@ namespace rr_gl
 		wxAuiManager             m_mgr;
 		class SVSceneProperties* m_sceneProperties;
 		class SVUserProperties*  m_userProperties;
+		class SVLog*             m_log;
 
 		ImportDlg                importDlg;
 

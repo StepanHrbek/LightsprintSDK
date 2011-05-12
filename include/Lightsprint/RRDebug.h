@@ -150,7 +150,9 @@ namespace rr
 		//!  - The pointer must be NULL or point to valid solver, make sure that you NULL it when you delete the solver.
 		//! \param caption
 		//!  Optional custom window caption, NULL for default one.
-		static RRReporter* createWindowedReporter(class RRDynamicSolver*& solver, const char* caption = NULL);
+		//! \param closeWhenDone
+		//!  Closes window immediately after reporting ends, rather than asking user what to do.
+		static RRReporter* createWindowedReporter(class RRDynamicSolver*& solver, const char* caption = NULL, bool closeWhenDone = false);
 	};
 
 	//////////////////////////////////////////////////////////////////////////////

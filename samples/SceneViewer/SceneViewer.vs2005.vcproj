@@ -91,7 +91,7 @@
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sr.pdb"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -195,7 +195,7 @@
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName)_sr.pdb"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -492,7 +492,7 @@
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).pdb"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -597,7 +597,7 @@
 				IgnoreDefaultLibraryNames="libc.lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)\$(ProjectName).pdb"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="17"
 			/>
 			<Tool

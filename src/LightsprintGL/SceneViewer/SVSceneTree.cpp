@@ -8,6 +8,7 @@
 #include "SVSceneTree.h"
 #include "SVFrame.h"
 #include "SVObjectProperties.h"
+#include "SVLog.h"
 
 namespace rr_gl
 {
@@ -355,7 +356,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				if (getResolution(_("Unwrap build"),this,res,false))
 				{
 					// display log window with 'abort' while this function runs
-//					LogWithAbort logWithAbort(this,solver);
+					LogWithAbort logWithAbort(this,solver,_("Building unwrap..."));
 
 					if (actionCode==CM_STATIC_OBJECT_UNWRAP)
 					{
@@ -379,6 +380,9 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 			{
 				if (svframe->smoothDlg.ShowModal()==wxID_OK)
 				{
+					// display log window with 'abort' while this function runs
+					LogWithAbort logWithAbort(this,solver,_("Smoothing..."));
+
 					double d = 0;
 					float weldDistance = svframe->smoothDlg.weldDistance->GetValue().ToDouble(&d) ? (float)d : 0;
 					float smoothAngle = svframe->smoothDlg.smoothAngle->GetValue().ToDouble(&d) ? (float)d : 30;
@@ -406,16 +410,38 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 			break;
 		case CM_STATIC_OBJECTS_MERGE:
 			{
-				rr::RRObject* multiObject = rr::RRObject::createMultiObject(&solver->getStaticObjects(),rr::RRCollider::IT_LINEAR,solver->aborting,-1,-1,false,0,NULL);
+				// display log window with 'abort' while this function runs
+				LogWithAbort logWithAbort(this,solver,_("Merging objects..."));
+
+				rr::RRObject* oldObject = rr::RRObject::createMultiObject(&solver->getStaticObjects(),rr::RRCollider::IT_LINEAR,solver->aborting,-1,-1,false,0,NULL);
+
+				// convert oldObject with Multi* into newObject with RRMeshArrays
+				// if we don't do it
+				// - solver->getMultiObjectCustom() preimport numbers would point to many 1objects, although there is only one 1object now
+				// - attempt to smooth scene would fail, it needs arrays
+				const rr::RRCollider* oldCollider = oldObject->getCollider();
+				const rr::RRMesh* oldMesh = oldCollider->getMesh();
+				rr::RRVector<unsigned> texcoords;
+				oldMesh->getUvChannels(texcoords);
+				rr::RRMeshArrays* newMesh = oldMesh->createArrays(true,texcoords);
+				const rr::RRCollider* newCollider = rr::RRCollider::create(newMesh,rr::RRCollider::IT_LINEAR,solver->aborting);
+				rr::RRObject* newObject = new rr::RRObject;
+				newObject->faceGroups = oldObject->faceGroups;
+				newObject->setCollider(newCollider);
+				delete oldObject;
+
 				rr::RRObjects objects;
-				objects.push_back(multiObject);
-				solver->setStaticObjects(objects,NULL); // memleak, objects is not freed
-				svframe->m_canvas->addOrRemoveScene(NULL,true);
+				objects.push_back(newObject);
+				solver->setStaticObjects(objects,NULL); // memleak, newObject is never freed
+				svframe->m_canvas->addOrRemoveScene(NULL,false);
 			}
 			break;
 		case CM_STATIC_OBJECT_TANGENTS:
 		case CM_STATIC_OBJECTS_TANGENTS:
 			{
+				// display log window with 'abort' while this function runs
+				LogWithAbort logWithAbort(this,solver,_("Building tangents..."));
+
 				for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 				{
 					if (actionCode==CM_STATIC_OBJECTS_TANGENTS || i==contextEntityId.index)
@@ -432,6 +458,9 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 		case CM_STATIC_OBJECT_DELETE:
 			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getStaticObjects().size())
 			{
+				// display log window with 'abort' while this function runs
+				LogWithAbort logWithAbort(this,solver,_("Deleting..."));
+
 				if (svs.playVideos)
 				{
 					// stop videos
@@ -442,7 +471,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				rr::RRObjects newList = solver->getStaticObjects();
 				newList.erase(contextEntityId.index);
 				solver->setStaticObjects(newList,NULL);
-				svframe->m_canvas->addOrRemoveScene(NULL,true); // updateAllPanels() is called from here
+				svframe->m_canvas->addOrRemoveScene(NULL,false); // updateAllPanels() is called from here
 				return; // skip updateAllPanels() at the end of this function to prevent SceneTree from updating twice, it's terribly slow
 			}
 			break;

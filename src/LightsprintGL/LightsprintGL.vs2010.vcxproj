@@ -580,6 +580,7 @@
     <ClInclude Include="SceneViewer\SVFrame.h" />
     <ClInclude Include="SceneViewer\SVLightmapViewer.h" />
     <ClInclude Include="SceneViewer\SVLightProperties.h" />
+    <ClInclude Include="SceneViewer\SVLog.h" />
     <ClInclude Include="SceneViewer\SVMaterialProperties.h" />
     <ClInclude Include="SceneViewer\SVObjectProperties.h" />
     <ClInclude Include="SceneViewer\SVProperties.h" />
@@ -624,6 +625,7 @@
     <ClCompile Include="SceneViewer\SVFrame.cpp" />
     <ClCompile Include="SceneViewer\SVLightmapViewer.cpp" />
     <ClCompile Include="SceneViewer\SVLightProperties.cpp" />
+    <ClCompile Include="SceneViewer\SVLog.cpp" />
     <ClCompile Include="SceneViewer\SVMaterialProperties.cpp" />
     <ClCompile Include="SceneViewer\SVObjectProperties.cpp" />
     <ClCompile Include="SceneViewer\SVRayLog.cpp" />

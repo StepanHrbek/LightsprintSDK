@@ -17,6 +17,7 @@
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
 #include "SVSceneTree.h"
+#include "SVLog.h"
 #include "../Workaround.h"
 #include "wx/aboutdlg.h"
 #include "wx/regex.h"
@@ -30,7 +31,6 @@
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
-	#define LOG_CAPTION NULL
 // naming convention for lightmaps and ldm. final name is prefix+objectnumber+postfix
 #define LMAP_PREFIX  RR_WX2RR(svs.sceneFilename.BeforeLast('.')+"_precalculated/")
 #define LMAP_POSTFIX "lightmap.png"
@@ -159,45 +159,6 @@ private:
 	HWND hWnd;
 };
 #endif // _WIN32
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// LogWithAbort
-
-static bool s_logIsOn = false;
-
-class LogWithAbort
-{
-public:
-	LogWithAbort(wxWindow* _window, RRDynamicSolverGL*& _solver)
-	{
-		enabled = !s_logIsOn; // do nothing if log is already enabled
-		if (enabled)
-		{
-			// display log window with 'abort'
-			s_logIsOn = true;
-			window = _window;
-			localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&_solver,LOG_CAPTION);
-		}
-	}
-	~LogWithAbort()
-	{
-		if (enabled)
-		{
-			// restore old reporter, close log
-			s_logIsOn = false;
-			delete localReporter;
-			// When windowed reporter shuts down, z-order changes (why?), SV drops below toolbench.
-			// This bring SV back to front.
-			window->Raise();
-		}
-	}
-private:
-	bool enabled;
-	wxWindow* window;
-	rr::RRReporter* localReporter;
-};
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -345,7 +306,7 @@ void SVFrame::UpdateEverything()
 	bool firstUpdate = !m_canvas;
 
 	// display log window with 'abort' while this function runs
-	LogWithAbort logWithAbort(this,nextCanvas->solver);
+	LogWithAbort logWithAbort(this,nextCanvas->solver,_("Loading scene..."));
 
 	// stop showing properties of stuff we are going to delete
 	m_objectProperties->setObject(NULL,0);
@@ -488,7 +449,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	fullyInited = false;
 	updateMenuBarNeeded = false;
 	m_canvas = NULL;
-	s_logIsOn = !svs.openLogWindows;
+	LogWithAbort::logIsOn = !svs.openLogWindows;
 
 	// load preferences (must be done very early)
 	bool layoutLoaded = userPreferences.load("");
@@ -500,6 +461,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_objectProperties = new SVObjectProperties(this);
 	m_materialProperties = new SVMaterialProperties(this);
 	m_sceneTree = new SVSceneTree(this);
+	m_log = new SVLog(this);
 	static const char* sample_xpm[] = {
 	// columns rows colors chars-per-pixel
 	"32 32 6 1",
@@ -565,7 +527,9 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	// setup dock art (colors etc)
 	wxAuiDockArt* dockArt = new wxAuiDefaultDockArt;
 	//dockArt->SetMetric(wxAUI_DOCKART_SASH_SIZE,4);
-	//dockArt->SetColor(wxAUI_DOCKART_SASH_COLOUR,wxColour(255,255,255));
+	wxColour sash = wxColour(190,190,190);//dockArt->GetColor(wxAUI_DOCKART_SASH_COLOUR);
+	dockArt->SetColor(wxAUI_DOCKART_SASH_COLOUR,sash);//wxColour(225,225,225));
+	//dockArt->SetColor(wxAUI_DOCKART_SASH_COLOUR,wxColour(60,60,60));
 
 	//dockArt->SetMetric(wxAUI_DOCKART_GRIPPER_SIZE,0);
 	//dockArt->SetColor(wxAUI_DOCKART_GRIPPER_COLOUR,wxColour(0,0,0));
@@ -576,13 +540,13 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	//dockArt->SetMetric(wxAUI_DOCKART_PANE_BUTTON_SIZE,20);
 	//dockArt->SetColor(wxAUI_DOCKART_BACKGROUND_COLOUR,wxColour(250,0,0));
 
-	dockArt->SetColor(wxAUI_DOCKART_ACTIVE_CAPTION_COLOUR,wxColour(235,235,255));
-	dockArt->SetColor(wxAUI_DOCKART_ACTIVE_CAPTION_GRADIENT_COLOUR,wxColour(140,140,160));
-	dockArt->SetColor(wxAUI_DOCKART_ACTIVE_CAPTION_TEXT_COLOUR,wxColour(0,0,0));
-	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_COLOUR,wxColour(255,255,255));
-	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_GRADIENT_COLOUR,wxColour(150,150,150));
+	//dockArt->SetColor(wxAUI_DOCKART_ACTIVE_CAPTION_COLOUR,wxColour(235,235,255));
+	//dockArt->SetColor(wxAUI_DOCKART_ACTIVE_CAPTION_GRADIENT_COLOUR,wxColour(140,140,160));
+	//dockArt->SetColor(wxAUI_DOCKART_ACTIVE_CAPTION_TEXT_COLOUR,wxColour(0,0,0));
+	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_COLOUR,sash);//wxColour(225,225,225));
+	//dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_GRADIENT_COLOUR,wxColour(255,255,255));
 	dockArt->SetColor(wxAUI_DOCKART_INACTIVE_CAPTION_TEXT_COLOUR,wxColour(0,0,0));
-	dockArt->SetMetric(wxAUI_DOCKART_GRADIENT_TYPE,wxAUI_GRADIENT_HORIZONTAL);
+	dockArt->SetMetric(wxAUI_DOCKART_GRADIENT_TYPE,wxAUI_GRADIENT_NONE);
 
 	dockArt->SetMetric(wxAUI_DOCKART_CAPTION_SIZE,30);
 	static wxFont font(13,wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_BOLD);
@@ -593,9 +557,11 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name("scenetree").Caption(_("Scene tree")).CloseButton(true).Left());
 	m_mgr.AddPane(m_userProperties, wxAuiPaneInfo().Name("userproperties").Caption(_("User preferences")).CloseButton(true).Left());
 	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name("sceneproperties").Caption(_("Scene properties")).CloseButton(true).Left());
-	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name("lightproperties").Caption(_("Light properties")).CloseButton(true).Right());
-	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name("objectproperties").Caption(_("Object properties")).CloseButton(true).Right());
-	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name("materialproperties").Caption(_("Material properties")).CloseButton(true).Right());
+	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name("lightproperties").Caption(_("Light")).CloseButton(true).Right());
+	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name("objectproperties").Caption(_("Object")).CloseButton(true).Right());
+	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name("materialproperties").Caption(_("Material")).CloseButton(true).Right());
+	m_mgr.AddPane(m_log, wxAuiPaneInfo().Name("log").Caption(_("Log")).CloseButton(true).Bottom());
+
 	// invisibly render first GL frame (it takes ages, all shaders are compiled, textures compressed etc)
 	// here it does not work because window is minimized
 	// it would work with restored or never minimized window, but
@@ -737,12 +703,14 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_WINDOW_USER_PROPERTIES,m_userProperties->IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_SCENE_PROPERTIES,_("Scene properties"),_("Opens scene properties window."));
 		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,m_sceneProperties->IsShown());
-		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_("Light properties"),_("Opens light properties window and starts rendering light icons."));
+		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_("Light"),_("Opens light properties window and starts rendering light icons."));
 		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,m_lightProperties->IsShown());
-		winMenu->AppendCheckItem(ME_WINDOW_OBJECT_PROPERTIES,_("Object properties"),_("Opens object properties window."));
+		winMenu->AppendCheckItem(ME_WINDOW_OBJECT_PROPERTIES,_("Object"),_("Opens object properties window."));
 		winMenu->Check(ME_WINDOW_OBJECT_PROPERTIES,m_objectProperties->IsShown());
-		winMenu->AppendCheckItem(ME_WINDOW_MATERIAL_PROPERTIES,_("Material properties"),_("Opens material properties window."));
+		winMenu->AppendCheckItem(ME_WINDOW_MATERIAL_PROPERTIES,_("Material"),_("Opens material properties window."));
 		winMenu->Check(ME_WINDOW_MATERIAL_PROPERTIES,m_materialProperties->IsShown());
+		winMenu->AppendCheckItem(ME_WINDOW_LOG,_("Log"),_("Opens log window."));
+		winMenu->Check(ME_WINDOW_LOG,m_log->IsShown());
 		winMenu->AppendSeparator();
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_("Workspace")+" 1 (alt-1)",_("Your custom window layout, changes automatically saved per user."));
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_("Workspace")+" 2 (alt-2)",_("Your custom window layout, changes automatically saved per user."));
@@ -885,7 +853,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 					if (importDlg.ShowModal()==wxID_OK)
 					{
 						// display log window with 'abort' while this function runs
-						LogWithAbort logWithAbort(this,m_canvas->solver);
+						LogWithAbort logWithAbort(this,m_canvas->solver,_("Merging scene..."));
 
 						rr::RRScene* scene = loadScene(dialog.GetPath(),userPreferences.import.getUnitLength(dialog.GetPath()),userPreferences.import.getUpAxis(dialog.GetPath()));
 						if (!importDlg.objects->GetValue())
@@ -1271,7 +1239,7 @@ reload_skybox:
 			{
 				// display log window with 'abort' while this function runs
 				// don't display it if it is already displayed (we may be automatically called when scene loads and fireball is requested, log is already on)
-				LogWithAbort logWithAbort(this,solver);
+				LogWithAbort logWithAbort(this,solver,_("Building Fireball..."));
 
 				// ask no questions, it's possible scene is loading right now and it's not safe to render/idle. dialog would render/idle on background
 				solver->buildFireball(svs.fireballQuality,NULL);
@@ -1329,7 +1297,7 @@ reload_skybox:
 				if (getQuality("LDM build",this,quality) && getResolution("LDM build",this,res,false))
 				{
 					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,solver);
+					LogWithAbort logWithAbort(this,solver,_("Building LDM..."));
 
 					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
 					fireballLoadAttempted = false;
@@ -1367,7 +1335,7 @@ reload_skybox:
 				if (getQuality(_("Fireball build"),this,svs.fireballQuality))
 				{
 					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,solver);
+					LogWithAbort logWithAbort(this,solver,_("Building Fireball..."));
 
 					svs.renderLightDirect = LD_REALTIME;
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
@@ -1386,7 +1354,7 @@ reload_skybox:
 				if (getResolution(_("Lightmap build"),this,res,true) && getQuality(_("Lightmap build"),this,quality))
 				{
 					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,solver);
+					LogWithAbort logWithAbort(this,solver,_("Building lightmaps..."));
 
 					// allocate buffers
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
@@ -1565,6 +1533,10 @@ reload_skybox:
 			break;
 		case ME_WINDOW_MATERIAL_PROPERTIES:
 			m_mgr.GetPane("materialproperties").Show(!m_materialProperties->IsShown());
+			m_mgr.Update();
+			break;
+		case ME_WINDOW_LOG:
+			m_mgr.GetPane("log").Show(!m_log->IsShown());
 			m_mgr.Update();
 			break;
 		case ME_WINDOW_LAYOUT1:

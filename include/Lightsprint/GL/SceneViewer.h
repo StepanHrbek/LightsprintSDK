@@ -198,7 +198,7 @@ struct SceneViewerState
 		renderGrid = 0;
 		gridNumSegments = 100;
 		gridSegmentSize = 1;
-		openLogWindows = false;
+		openLogWindows = true;
 		autodetectCamera = 1;
 		precision = -1; // display all significant digits
 	}

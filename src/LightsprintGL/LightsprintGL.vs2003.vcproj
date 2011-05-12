@@ -346,6 +346,12 @@
 				RelativePath=".\SceneViewer\SVLightProperties.h">
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVLog.cpp">
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVLog.h">
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVMaterialProperties.cpp">
 			</File>
 			<File

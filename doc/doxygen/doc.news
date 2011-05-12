@@ -29,6 +29,7 @@ NEWS
       - Delete
   - object can be selected also by clicking it in 3d viewport
   - object can be deleted by Del key
+  - dockable Log window
 - improved realtime rendering
   - more accurate realtime lighting (part of calculation moved from per-vertex to per-pixel)
   - projecting texture or video works even with disabled shadows

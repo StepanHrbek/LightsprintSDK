@@ -37,8 +37,10 @@ namespace rr_gl
 		void createContext();
 
 		//! Adds scene to solver or removes it from solver. If scene is NULL, just reloads current data in solver.
-		//! \param add
-		//!  True = add, false = remove.
+		//! - scene,true = add scene, setStaticObjects, cleanup
+		//! - scene,false = remove scene, setStaticObjects, cleanup
+		//! - NULL,true = setStaticObjects, cleanup
+		//! - NULL,false = cleanup
 		void addOrRemoveScene(rr::RRScene* scene, bool add);
 
 		void reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers);

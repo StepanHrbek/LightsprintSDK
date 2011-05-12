@@ -41,6 +41,7 @@ class RRReporterWindow : public RRReporter
 		bool shown; // set by WM_SHOWWINDOW
 		bool abortRequested; // user attemted to close window
 		bool reporterDeleted; // code deleted reporter
+		bool closeWhenDone; // true = WD_CLOSE, false = let user configure
 		HWND* hWndInReporter; // pointer to HWND in reporter; set at window open so reporter can send us messages
 		RRCallback* abortCallback; // <deleted with reporter>
 		const char* caption;
@@ -59,7 +60,7 @@ class RRReporterWindow : public RRReporter
 	};
 
 public:
-	RRReporterWindow(RRCallback* _abortCallback, const char* _caption)
+	RRReporterWindow(RRCallback* _abortCallback, const char* _caption, bool _closeWhenDone)
 	{
 		// necessary for changing text color
 		LoadLibrary("riched20.dll");
@@ -71,6 +72,7 @@ public:
 		instanceData->hWndInReporter = &hWnd;
 		instanceData->abortCallback = _abortCallback;
 		instanceData->caption = _caption;
+		instanceData->closeWhenDone = _closeWhenDone;
 		_beginthread(windowThreadFunc,0,instanceData);
 
 		// Wait until window initializes.
@@ -183,7 +185,7 @@ public:
 			}
 			else
 			// tasks completed with WD_CLOSE -> simulate manual close
-			if ((WhenDone)SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_GETCURSEL,0,0)==WD_CLOSE)
+			if (instanceData->closeWhenDone || (WhenDone)SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_GETCURSEL,0,0)==WD_CLOSE)
 			{
 				SendMessage(hWnd,WM_COMMAND,IDC_BUTTON_ABORT_CLOSE,0);
 			}
@@ -229,7 +231,7 @@ private:
 			0,99,0,104,0,69,0,100,0,105,0,116,0,50,0,48,0,87,0,0,0,0,0,0,0,
 			0,0,0,0,0,0,0,0,3,0,33,80,132,0,0,1,64,0,99,0,248,3,0,0,255,
 			255,133,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,80,87,0,2,1,42,0,
-			10,0,255,255,255,255,255,255,130,0,87,0,104,0,101,0,110,0,32,0,100,0,111,0,110,
+			10,0,250,3,0,0,255,255,130,0,87,0,104,0,101,0,110,0,32,0,100,0,111,0,110,
 			0,101,0,44,0,0,0,0,0
 		};
 		return (LPDLGTEMPLATE)dialogResource;
@@ -266,11 +268,19 @@ private:
 
 						if (instanceData->caption)
 							SetWindowText(hWnd,instanceData->caption);
-						WhenDone whenDone = (WhenDone)(int)Preferences::getValue(LOCATION,"whendone",WD_CONTINUE);
-						SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_ADDSTRING,0,(LPARAM)"close log");
-						SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_ADDSTRING,0,(LPARAM)"wait");
-						SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_ADDSTRING,0,(LPARAM)"continue");
-						SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_SETCURSEL,whenDone,0);
+						if (instanceData->closeWhenDone)
+						{
+							ShowWindow(GetDlgItem(hWnd,IDC_WHENDONE),SW_HIDE);
+							ShowWindow(GetDlgItem(hWnd,IDC_STATIC_WHENDONE),SW_HIDE);
+						}
+						else
+						{
+							WhenDone whenDone = (WhenDone)(int)Preferences::getValue(LOCATION,"whendone",WD_CONTINUE);
+							SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_ADDSTRING,0,(LPARAM)"close log");
+							SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_ADDSTRING,0,(LPARAM)"wait");
+							SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_ADDSTRING,0,(LPARAM)"continue");
+							SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_SETCURSEL,whenDone,0);
+						}
 					}
 				}
 				return (INT_PTR)TRUE;
@@ -306,8 +316,11 @@ private:
 							// save preferences
 							bool detailed = SendDlgItemMessage(hWnd,IDC_CHECK_DETAILED,BM_GETCHECK,0,0)==BST_CHECKED;
 							Preferences::setValue(LOCATION,"detailed",detailed?1.f:0);
-							WhenDone whenDone = (WhenDone)SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_GETCURSEL,0,0);
-							Preferences::setValue(LOCATION,"whendone",(float)whenDone);
+							if (!instanceData->closeWhenDone)
+							{
+								WhenDone whenDone = (WhenDone)SendDlgItemMessage(hWnd,IDC_WHENDONE,CB_GETCURSEL,0,0);
+								Preferences::setValue(LOCATION,"whendone",(float)whenDone);
+							}
 
 							EndDialog(hWnd,0);
 						}
@@ -407,24 +420,24 @@ private:
 class RRReporterWindowAbortSolver : public RRReporterWindow
 {
 public:
-	RRReporterWindowAbortSolver(class RRDynamicSolver** _solver, const char* caption)
-		: abort(_solver), RRReporterWindow(&abort,caption)
+	RRReporterWindowAbortSolver(class RRDynamicSolver** _solver, const char* caption, bool closeWhenDone)
+		: abort(_solver), RRReporterWindow(&abort,caption,closeWhenDone)
 	{
 	}
 private:
 	Abort abort;
 };
 
-RRReporter* RRReporter::createWindowedReporter(class RRDynamicSolver*& _solver, const char* caption)
+RRReporter* RRReporter::createWindowedReporter(class RRDynamicSolver*& _solver, const char* caption, bool closeWhenDone)
 {
-	return new RRReporterWindowAbortSolver(&_solver,caption);
+	return new RRReporterWindowAbortSolver(&_solver,caption,closeWhenDone);
 }
 
 } //namespace
 
 #else // _WIN32
 
-rr::RRReporter* rr::RRReporter::createWindowedReporter(rr::RRDynamicSolver*& _solver, const char* caption)
+rr::RRReporter* rr::RRReporter::createWindowedReporter(rr::RRDynamicSolver*& _solver, const char* caption, bool closeWhenDone)
 {
 	return NULL;
 }

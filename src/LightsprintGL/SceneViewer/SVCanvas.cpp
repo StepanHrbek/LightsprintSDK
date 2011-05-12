@@ -273,38 +273,41 @@ void SVCanvas::createContext()
 
 void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 {
-	// add or remove scene from solver
-	rr::RRObjects objects = solver->getStaticObjects();
-	rr::RRLights lights = solver->getLights();
-	if (scene)
+	if (scene || add)
 	{
-		if (add)
+		// add or remove scene from solver
+		rr::RRObjects objects = solver->getStaticObjects();
+		rr::RRLights lights = solver->getLights();
+		if (scene)
 		{
-			objects.insert(objects.end(),scene->objects.begin(),scene->objects.end());
-			lights.insert(lights.end(),scene->lights.begin(),scene->lights.end());
-			if (!solver->getEnvironment() && scene->environment)
-				solver->setEnvironment(scene->environment);
+			if (add)
+			{
+				objects.insert(objects.end(),scene->objects.begin(),scene->objects.end());
+				lights.insert(lights.end(),scene->lights.begin(),scene->lights.end());
+				if (!solver->getEnvironment() && scene->environment)
+					solver->setEnvironment(scene->environment);
+			}
+			else
+			{
+				for (unsigned i=objects.size();i--;)
+					for (unsigned j=0;j<scene->objects.size();j++)
+						if (objects[i]==scene->objects[j])
+						{
+							objects.erase(i);
+							break;
+						}
+				for (unsigned i=lights.size();i--;)
+					for (unsigned j=0;j<scene->lights.size();j++)
+						if (lights[i]==scene->lights[j])
+						{
+							lights.erase(i);
+							break;
+						}
+			}
 		}
-		else
-		{
-			for (unsigned i=objects.size();i--;)
-				for (unsigned j=0;j<scene->objects.size();j++)
-					if (objects[i]==scene->objects[j])
-					{
-						objects.erase(i);
-						break;
-					}
-			for (unsigned i=lights.size();i--;)
-				for (unsigned j=0;j<scene->lights.size();j++)
-					if (lights[i]==scene->lights[j])
-					{
-						lights.erase(i);
-						break;
-					}
-		}
+		solver->setStaticObjects(objects,NULL);
+		solver->setLights(lights);
 	}
-	solver->setStaticObjects(objects,NULL);
-	solver->setLights(lights);
 
 	// fix svs.renderLightIndirect, setStaticObjects() just silently switched solver to architect
 	// must be changed if setStaticObjects() behaviour changes

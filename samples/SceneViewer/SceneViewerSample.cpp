@@ -57,8 +57,10 @@ int main(int argc, char** argv)
 		printf(RR_INTERFACE_MISMATCH_MSG);
 		error("");
 	}
+#if defined(_DEBUG) || !defined(_WIN32)
 	// Log messages to console
 	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
+#endif
 	//rr::RRReporter::setFilter(true,3,true);
 	//rr_gl::Program::logMessages(1);
 
@@ -84,7 +86,6 @@ int main(int argc, char** argv)
 	// See how adapters in src/LightsprintIO/ImportXXX/RRObjectXXX.cpp register,
 	// you can do the same for your own file format.
 	rr_gl::SceneViewerState svs;
-	svs.openLogWindows = true;
 #ifdef NDEBUG
 	// release returns quickly without freeing resources
 	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/shaders/",&svs,false);
@@ -116,7 +117,9 @@ int main(int argc, char** argv)
 	delete solver;
 #endif
 
+#if defined(_DEBUG) || !defined(_WIN32)
 	delete reporter;
+#endif
 
 	return 0;
 }

@@ -608,6 +608,8 @@ int main(int argc, char** argv)
 			svs.renderLightIndirect = rr_gl::LI_STATIC_LIGHTMAPS;
 		}
 		svs.staticLayerNumber = globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP; // switch from default layer to our layer 0
+		rr::RRReporter::report(rr::INF1,"Stopping this log, additional mesages go to log in Scene viewer.\n");
+		RR_SAFE_DELETE(reporter);
 #ifdef NDEBUG
 		// release returns quickly without freeing resources
 		rr_gl::sceneViewer(solver,globalParameters.sceneFilename,NULL,"../../data/shaders/",&svs,false);
