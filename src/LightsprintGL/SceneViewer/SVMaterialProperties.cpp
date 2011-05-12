@@ -20,6 +20,7 @@ namespace rr_gl
 SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	: SVProperties(_svframe)
 {
+	locked = false;
 	lastSolver = NULL;
 	lastTriangle = UINT_MAX;
 	lastPoint2d = rr::RRVec2(0);
@@ -199,6 +200,8 @@ void SVMaterialProperties::updateProperties()
 //! Copy material -> property (selected by clicking facegroup, honours physical flag, clears point flag).
 void SVMaterialProperties::setMaterial(rr::RRMaterial* _material)
 {
+	if (locked) return;
+
 	EnableProperty(propPoint,false);
 	EnableProperty(propPhysical,false);
 
@@ -215,6 +218,8 @@ void SVMaterialProperties::setMaterial(rr::RRMaterial* _material)
 // copy material to propertygrid
 void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d)
 {
+	if (locked) return;
+
 	EnableProperty(propPoint,true);
 	EnableProperty(propPhysical,true);
 

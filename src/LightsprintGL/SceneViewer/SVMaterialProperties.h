@@ -28,6 +28,7 @@ namespace rr_gl
 		//! Copy property -> material.
 		void OnPropertyChange(wxPropertyGridEvent& event);
 
+		bool              locked; // when locked, setMaterial() is ignored
 	private:
 		void updateProperties();
 		void updateHide();

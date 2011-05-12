@@ -768,7 +768,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				if (selectedType!=ST_STATIC_OBJECT || svs.selectedObjectIndex!=selectedPreImportTriangle.object)
 				{
 					//svs.selectedObjectIndex = selectedPreImportTriangle.object;
+					parent->m_materialProperties->locked = true; // selectEntityInTreeAndUpdatePanel calls setMaterial, material panel must ignore it (set is slow and it clears [x] point, [x] phys)
 					parent->selectEntityInTreeAndUpdatePanel(EntityId(ST_STATIC_OBJECT,selectedPreImportTriangle.object),SEA_SELECT);
+					parent->m_materialProperties->locked = false;
 				}
 				else
 					selectedType = ST_CAMERA;
