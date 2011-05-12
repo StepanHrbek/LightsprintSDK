@@ -2073,7 +2073,7 @@ private:
 RRScene* RRSceneOpenCollada::load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 {
 	//return NULL;
-	RRReportInterval report(INF2,"Importing with OpenCollada\n");
+	RRReportInterval report(INF3,"Importing with OpenCollada\n");
 
 	RRSceneOpenCollada* scene = new RRSceneOpenCollada;
 
