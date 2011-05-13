@@ -182,7 +182,7 @@ void SVCanvas::createContextCore()
 	if (!svs.sceneFilename.empty())
 	{
 		// load scene
-		rr::RRScene* scene = parent->loadScene(svs.sceneFilename,parent->userPreferences.import.getUnitLength(svs.sceneFilename),parent->userPreferences.import.getUpAxis(svs.sceneFilename));
+		rr::RRScene* scene = parent->loadScene(svs.sceneFilename,parent->userPreferences.import.getUnitLength(svs.sceneFilename),parent->userPreferences.import.getUpAxis(svs.sceneFilename),true);
 		mergedScenes.push_back(scene);
 
 		// send everything to solver

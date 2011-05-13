@@ -855,7 +855,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 						// display log window with 'abort' while this function runs
 						LogWithAbort logWithAbort(this,m_canvas->solver,_("Merging scene..."));
 
-						rr::RRScene* scene = loadScene(dialog.GetPath(),userPreferences.import.getUnitLength(dialog.GetPath()),userPreferences.import.getUpAxis(dialog.GetPath()));
+						rr::RRScene* scene = loadScene(dialog.GetPath(),userPreferences.import.getUnitLength(dialog.GetPath()),userPreferences.import.getUpAxis(dialog.GetPath()),true);
 						if (!importDlg.objects->GetValue())
 							scene->objects.clear();
 						if (!importDlg.lights->GetValue())
@@ -1779,7 +1779,7 @@ void SVFrame::commitPropertyChanges()
 	m_materialProperties->CommitChangesFromEditor();
 }
 
-rr::RRScene* SVFrame::loadScene(const wxString& _filename, float _units, unsigned _upAxis) const
+rr::RRScene* SVFrame::loadScene(const wxString& _filename, float _units, unsigned _upAxis, bool _popup)
 {
 	rr::RRScene* scene = new rr::RRScene(RR_WX2RR(_filename),textureLocator,&m_canvas->solver->aborting);
 	scene->normalizeUnits(_units);
