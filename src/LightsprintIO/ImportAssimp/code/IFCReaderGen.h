@@ -841,7 +841,7 @@ namespace IFC {
 	struct IfcFaceOuterBound;
 	struct IfcFeatureElementAddition;
 	struct IfcNamedUnit;
-	typedef NotImplemented IfcConversionBasedUnit; // (not currently used by Assimp)
+	struct IfcConversionBasedUnit;
 	typedef NotImplemented IfcStructuralLoadSingleForce; // (not currently used by Assimp)
 	struct IfcHeatExchangerType;
 	struct IfcPresentationStyleAssignment;
@@ -977,7 +977,7 @@ namespace IFC {
 	struct IfcDamperType;
 	struct IfcSIUnit;
 	typedef NotImplemented IfcSurfaceStyleLighting; // (not currently used by Assimp)
-	typedef NotImplemented IfcMeasureWithUnit; // (not currently used by Assimp)
+	struct IfcMeasureWithUnit;
 	typedef NotImplemented IfcMaterialLayerSet; // (not currently used by Assimp)
 	struct IfcDistributionElement;
 	struct IfcDistributionControlElement;
@@ -994,7 +994,7 @@ namespace IFC {
 	typedef NotImplemented IfcRelDefinesByProperties; // (not currently used by Assimp)
 	struct IfcCondition;
 	typedef NotImplemented IfcGridAxis; // (not currently used by Assimp)
-	typedef NotImplemented IfcRelVoidsElement; // (not currently used by Assimp)
+	struct IfcRelVoidsElement;
 	struct IfcWindow;
 	typedef NotImplemented IfcRelFlowControlElements; // (not currently used by Assimp)
 	typedef NotImplemented IfcRelConnectsPortToElement; // (not currently used by Assimp)
@@ -1813,6 +1813,12 @@ namespace IFC {
 		IfcUnitEnum::Out UnitType;
     };
 
+    // C++ wrapper for IfcConversionBasedUnit
+    struct IfcConversionBasedUnit : IfcNamedUnit, ObjectHelper<IfcConversionBasedUnit,2> { IfcConversionBasedUnit() : Object("IfcConversionBasedUnit") {}
+		IfcLabel::Out Name;
+		Lazy< IfcMeasureWithUnit > ConversionFactor;
+    };
+
     // C++ wrapper for IfcHeatExchangerType
     struct IfcHeatExchangerType : IfcEnergyConversionDeviceType, ObjectHelper<IfcHeatExchangerType,1> { IfcHeatExchangerType() : Object("IfcHeatExchangerType") {}
 		IfcHeatExchangerTypeEnum::Out PredefinedType;
@@ -2246,7 +2252,7 @@ namespace IFC {
 		Maybe< IfcIdentifier::Out > ResourceIdentifier;
 		Maybe< IfcLabel::Out > ResourceGroup;
 		Maybe< IfcResourceConsumptionEnum::Out > ResourceConsumption;
-		Maybe< Lazy< NotImplemented > > BaseQuantity;
+		Maybe< Lazy< IfcMeasureWithUnit > > BaseQuantity;
     };
 
     // C++ wrapper for IfcConstructionEquipmentResource
@@ -2310,6 +2316,12 @@ namespace IFC {
 		IfcSIUnitName::Out Name;
     };
 
+    // C++ wrapper for IfcMeasureWithUnit
+    struct IfcMeasureWithUnit :  ObjectHelper<IfcMeasureWithUnit,2> { IfcMeasureWithUnit() : Object("IfcMeasureWithUnit") {}
+		IfcValue::Out ValueComponent;
+		IfcUnit::Out UnitComponent;
+    };
+
     // C++ wrapper for IfcDistributionElement
     struct IfcDistributionElement : IfcElement, ObjectHelper<IfcDistributionElement,0> { IfcDistributionElement() : Object("IfcDistributionElement") {}
 
@@ -2362,6 +2374,12 @@ namespace IFC {
     // C++ wrapper for IfcCondition
     struct IfcCondition : IfcGroup, ObjectHelper<IfcCondition,0> { IfcCondition() : Object("IfcCondition") {}
 
+    };
+
+    // C++ wrapper for IfcRelVoidsElement
+    struct IfcRelVoidsElement : IfcRelConnects, ObjectHelper<IfcRelVoidsElement,2> { IfcRelVoidsElement() : Object("IfcRelVoidsElement") {}
+		Lazy< IfcElement > RelatingBuildingElement;
+		Lazy< IfcFeatureElementSubtraction > RelatedOpeningElement;
     };
 
     // C++ wrapper for IfcWindow
@@ -3095,7 +3113,7 @@ namespace IFC {
 
     // C++ wrapper for IfcRelContainedInSpatialStructure
     struct IfcRelContainedInSpatialStructure : IfcRelConnects, ObjectHelper<IfcRelContainedInSpatialStructure,2> { IfcRelContainedInSpatialStructure() : Object("IfcRelContainedInSpatialStructure") {}
-		ListOf< Lazy< IfcProduct >, 1, 0 > RelatedElements;
+		ListOf< Lazy< IfcProduct >, 0, 0 > RelatedElements;
 		Lazy< IfcSpatialStructureElement > RelatingStructure;
     };
 
@@ -3866,6 +3884,7 @@ namespace STEP {
 	DECL_CONV_STUB(IfcFaceOuterBound);
 	DECL_CONV_STUB(IfcFeatureElementAddition);
 	DECL_CONV_STUB(IfcNamedUnit);
+	DECL_CONV_STUB(IfcConversionBasedUnit);
 	DECL_CONV_STUB(IfcHeatExchangerType);
 	DECL_CONV_STUB(IfcPresentationStyleAssignment);
 	DECL_CONV_STUB(IfcFlowTreatmentDeviceType);
@@ -3957,6 +3976,7 @@ namespace STEP {
 	DECL_CONV_STUB(IfcLinearDimension);
 	DECL_CONV_STUB(IfcDamperType);
 	DECL_CONV_STUB(IfcSIUnit);
+	DECL_CONV_STUB(IfcMeasureWithUnit);
 	DECL_CONV_STUB(IfcDistributionElement);
 	DECL_CONV_STUB(IfcDistributionControlElement);
 	DECL_CONV_STUB(IfcTransformerType);
@@ -3966,6 +3986,7 @@ namespace STEP {
 	DECL_CONV_STUB(IfcWorkControl);
 	DECL_CONV_STUB(IfcWorkPlan);
 	DECL_CONV_STUB(IfcCondition);
+	DECL_CONV_STUB(IfcRelVoidsElement);
 	DECL_CONV_STUB(IfcWindow);
 	DECL_CONV_STUB(IfcProtectiveDeviceType);
 	DECL_CONV_STUB(IfcJunctionBoxType);
