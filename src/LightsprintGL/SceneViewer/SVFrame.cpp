@@ -411,14 +411,17 @@ void SVFrame::userPreferencesApplyToWx()
 		OnMenuEventCore(ME_WINDOW_FULLSCREEN);
 	if (!svs.fullscreen && userPreferences.windowLayout[userPreferences.currentWindowLayout].maximized != IsMaximized())
 		Maximize(!IsMaximized());
-
-	// remove captions from layout so that LoadPerspective does not interfere with language selection
-	// wx must be patched according to http://trac.wxwidgets.org/ticket/12528
-	wxString perspective = userPreferences.windowLayout[userPreferences.currentWindowLayout].perspective;
-	wxRegEx("caption=[^;]*;").ReplaceAll(&perspective, wxEmptyString);
-	userPreferences.windowLayout[userPreferences.currentWindowLayout].perspective = perspective;
-
 	m_mgr.LoadPerspective(userPreferences.windowLayout[userPreferences.currentWindowLayout].perspective,true);
+
+	// if language selection did change, pane captions must be updated
+	m_mgr.GetPane(m_lightProperties).Caption(_("Light"));
+	m_mgr.GetPane(m_objectProperties).Caption(_("Object"));
+	m_mgr.GetPane(m_materialProperties).Caption(_("Material"));
+	m_mgr.GetPane(m_log).Caption(_("Log"));
+	m_mgr.GetPane(m_sceneTree).Caption(_("Scene tree"));
+	m_mgr.GetPane(m_userProperties).Caption(_("User preferences"));
+	m_mgr.GetPane(m_sceneProperties).Caption(_("Scene properties"));
+
 	UpdateMenuBar();
 }
 
@@ -554,13 +557,13 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_mgr.SetArtProvider(dockArt);
 
 	// create panes
-	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name("scenetree").Caption(_("Scene tree")).CloseButton(true).Left());
-	m_mgr.AddPane(m_userProperties, wxAuiPaneInfo().Name("userproperties").Caption(_("User preferences")).CloseButton(true).Left());
-	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name("sceneproperties").Caption(_("Scene properties")).CloseButton(true).Left());
-	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name("lightproperties").Caption(_("Light")).CloseButton(true).Right());
-	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name("objectproperties").Caption(_("Object")).CloseButton(true).Right());
-	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name("materialproperties").Caption(_("Material")).CloseButton(true).Right());
-	m_mgr.AddPane(m_log, wxAuiPaneInfo().Name("log").Caption(_("Log")).CloseButton(true).Bottom());
+	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name("scenetree").CloseButton(true).Left());
+	m_mgr.AddPane(m_userProperties, wxAuiPaneInfo().Name("userproperties").CloseButton(true).Left());
+	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name("sceneproperties").CloseButton(true).Left());
+	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name("lightproperties").CloseButton(true).Right());
+	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name("objectproperties").CloseButton(true).Right());
+	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name("materialproperties").CloseButton(true).Right());
+	m_mgr.AddPane(m_log, wxAuiPaneInfo().Name("log").CloseButton(true).Bottom());
 
 	// invisibly render first GL frame (it takes ages, all shaders are compiled, textures compressed etc)
 	// here it does not work because window is minimized
