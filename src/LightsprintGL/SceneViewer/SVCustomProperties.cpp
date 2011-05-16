@@ -235,6 +235,7 @@ bool HDRColorProperty::OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, 
 		static wxColourData data;
 		data.SetColour(RRVec32wxColour(RRVec3RefFromVariant(m_value)));
 		wxColourDialog dialog(wnd_primary,&data);
+		dialog.CenterOnParent();
 		int result = dialog.ShowModal();
 		data = dialog.GetColourData();
 		if (result == wxID_OK)
