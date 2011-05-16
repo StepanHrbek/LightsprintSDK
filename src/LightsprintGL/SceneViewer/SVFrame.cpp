@@ -698,19 +698,19 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendCheckItem(ME_WINDOW_FULLSCREEN_META,_("Fullscreen")+" (F11)",_("Fullscreen mode uses full desktop resolution."));
 		winMenu->Check(ME_WINDOW_FULLSCREEN_META,svs.fullscreen);
 		winMenu->AppendCheckItem(ME_WINDOW_TREE,_("Scene tree"),_("Opens scene tree window."));
-		winMenu->Check(ME_WINDOW_TREE,m_sceneTree->IsShown());
+		winMenu->Check(ME_WINDOW_TREE,m_mgr.GetPane(m_sceneTree).IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_USER_PROPERTIES,_("User preferences"),_("Opens user preferences window."));
-		winMenu->Check(ME_WINDOW_USER_PROPERTIES,m_userProperties->IsShown());
+		winMenu->Check(ME_WINDOW_USER_PROPERTIES,m_mgr.GetPane(m_userProperties).IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_SCENE_PROPERTIES,_("Scene properties"),_("Opens scene properties window."));
-		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,m_sceneProperties->IsShown());
+		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,m_mgr.GetPane(m_sceneProperties).IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_("Light"),_("Opens light properties window and starts rendering light icons."));
-		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,m_lightProperties->IsShown());
+		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,m_mgr.GetPane(m_lightProperties).IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_OBJECT_PROPERTIES,_("Object"),_("Opens object properties window."));
-		winMenu->Check(ME_WINDOW_OBJECT_PROPERTIES,m_objectProperties->IsShown());
+		winMenu->Check(ME_WINDOW_OBJECT_PROPERTIES,m_mgr.GetPane(m_objectProperties).IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_MATERIAL_PROPERTIES,_("Material"),_("Opens material properties window."));
-		winMenu->Check(ME_WINDOW_MATERIAL_PROPERTIES,m_materialProperties->IsShown());
+		winMenu->Check(ME_WINDOW_MATERIAL_PROPERTIES,m_mgr.GetPane(m_materialProperties).IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_LOG,_("Log"),_("Opens log window."));
-		winMenu->Check(ME_WINDOW_LOG,m_log->IsShown());
+		winMenu->Check(ME_WINDOW_LOG,m_mgr.GetPane(m_log).IsShown());
 		winMenu->AppendSeparator();
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_("Workspace")+" 1 (alt-1)",_("Your custom window layout, changes automatically saved per user."));
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_("Workspace")+" 2 (alt-2)",_("Your custom window layout, changes automatically saved per user."));
@@ -788,6 +788,12 @@ static void incrementFilename(wxString& filename)
 		}
 		break;
 	}
+}
+
+void SVFrame::TogglePane(wxWindow* window)
+{
+	m_mgr.GetPane(window).Show(!m_mgr.GetPane(window).IsShown());
+	m_mgr.Update();
 }
 
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
@@ -1511,34 +1517,13 @@ reload_skybox:
 			GetPosition(windowCoord+0,windowCoord+1);
 			GetSize(windowCoord+2,windowCoord+3);
 			break;
-		case ME_WINDOW_TREE:
-			m_mgr.GetPane("scenetree").Show(!m_sceneTree->IsShown());
-			m_mgr.Update();
-			break;
-		case ME_WINDOW_USER_PROPERTIES:
-			m_mgr.GetPane("userproperties").Show(!m_userProperties->IsShown());
-			m_mgr.Update();
-			break;
-		case ME_WINDOW_SCENE_PROPERTIES:
-			m_mgr.GetPane("sceneproperties").Show(!m_sceneProperties->IsShown());
-			m_mgr.Update();
-			break;
-		case ME_WINDOW_LIGHT_PROPERTIES:
-			m_mgr.GetPane("lightproperties").Show(!m_lightProperties->IsShown());
-			m_mgr.Update();
-			break;
-		case ME_WINDOW_OBJECT_PROPERTIES:
-			m_mgr.GetPane("objectproperties").Show(!m_objectProperties->IsShown());
-			m_mgr.Update();
-			break;
-		case ME_WINDOW_MATERIAL_PROPERTIES:
-			m_mgr.GetPane("materialproperties").Show(!m_materialProperties->IsShown());
-			m_mgr.Update();
-			break;
-		case ME_WINDOW_LOG:
-			m_mgr.GetPane("log").Show(!m_log->IsShown());
-			m_mgr.Update();
-			break;
+		case ME_WINDOW_TREE:                 TogglePane(m_sceneTree); break;
+		case ME_WINDOW_USER_PROPERTIES:      TogglePane(m_userProperties); break;
+		case ME_WINDOW_SCENE_PROPERTIES:     TogglePane(m_sceneProperties); break;
+		case ME_WINDOW_LIGHT_PROPERTIES:     TogglePane(m_lightProperties); break;
+		case ME_WINDOW_OBJECT_PROPERTIES:    TogglePane(m_objectProperties); break;
+		case ME_WINDOW_MATERIAL_PROPERTIES:  TogglePane(m_materialProperties); break;
+		case ME_WINDOW_LOG:                  TogglePane(m_log); break;
 		case ME_WINDOW_LAYOUT1:
 		case ME_WINDOW_LAYOUT2:
 		case ME_WINDOW_LAYOUT3:

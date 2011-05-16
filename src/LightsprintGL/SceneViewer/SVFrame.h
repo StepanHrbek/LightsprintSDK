@@ -169,6 +169,8 @@ namespace rr_gl
 		//! Updates everything in frame according to svs (deletes and recreates everything).
 		//! May be called repeatedly.
 		void UpdateEverything();
+		
+		void TogglePane(wxWindow* window);
 
 		bool                     fullyInited; // true after constructor
 		bool                     updateMenuBarNeeded;

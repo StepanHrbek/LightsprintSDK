@@ -477,7 +477,7 @@ Video formats
    - <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
 
   \section wx_version Version
-   - Windows: wxWidgets trunk svn revision 66419 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
+   - Windows: wxWidgets trunk svn revision 67751 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
    - other platforms: not used
 
   \section wx_building Installing/building
@@ -513,13 +513,9 @@ Video formats
    you can build Lightsprint SDK without wxWidgets
    - delete <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code>
 
-  \page wxwidgets_patch wxWidgets patch
+ \page wxwidgets_patch wxWidgets patch
    We contribute our improvements back to original projects, however,
    recent improvements may still be present only in Lightsprint SDK.
-
-   \section wx_patch1 Patch1
-   We submitted patch at http://trac.wxwidgets.org/ticket/11537
-   It fixes: closed floating pane can't be reopened.
 
    \section wx_patch_accepted Accepted patches
    We fixed crash when scene viewer is opened for second time http://trac.wxwidgets.org/ticket/11787
