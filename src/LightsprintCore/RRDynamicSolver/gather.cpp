@@ -256,7 +256,7 @@ public:
 			reliabilityHemisphere = 0;
 		}
 		else
-		if (hitsInside>(hitsReliable+hitsUnreliable)*pti.context.params->insideObjectsTreshold)
+		if (hitsInside>(hitsReliable+hitsUnreliable)*pti.context.params->insideObjectsThreshold)
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
@@ -603,7 +603,7 @@ public:
 			reliabilityLights = 0;
 		}
 		else
-		if (hitsInside>rays*pti.context.params->insideObjectsTreshold)
+		if (hitsInside>rays*pti.context.params->insideObjectsThreshold)
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)

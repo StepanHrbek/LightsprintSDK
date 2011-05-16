@@ -425,7 +425,7 @@ namespace rr
 			//! seeing inside objects (or below rug, see rugDistance)
 			//! are masked away.
 			//! Default value 1 disables any correction.
-			RRReal insideObjectsTreshold;
+			RRReal insideObjectsThreshold;
 
 			//! Deprecated. Only partially supported since 2007.08.21.
 			//
@@ -469,7 +469,7 @@ namespace rr
 				applyCurrentSolution = true;
 				quality = 0;
 				qualityFactorRadiosity = 1;
-				insideObjectsTreshold = 1;
+				insideObjectsThreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;
 				lowDetailForLightDetailMap = NULL;
@@ -487,7 +487,7 @@ namespace rr
 				applyCurrentSolution = false;
 				quality = _quality;
 				qualityFactorRadiosity = 1;
-				insideObjectsTreshold = 1;
+				insideObjectsThreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;
 				lowDetailForLightDetailMap = NULL;
@@ -881,11 +881,11 @@ namespace rr
 		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
 		//! \param changeExistingBuffers
 		//!  If buffer already exists, true = it will be resized or deleted accordingly, false = no action.
-		//! \param specularTreshold
-		//!  Only objects with specular color above treshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply.
-		//! \param depthTreshold
-		//!  Only objects with depth above treshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply.
-		virtual void allocateBuffersForRealtimeGI(int lightmapLayerNumber, int diffuseCubeSize = 4, int specularCubeSize = 16, int gatherCubeSize = -1, bool allocateNewBuffers = true, bool changeExistingBuffers = true, float specularTreshold = 0.2f, float depthTreshold = 0.1f) const;
+		//! \param specularThreshold
+		//!  Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply.
+		//! \param depthThreshold
+		//!  Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply.
+		virtual void allocateBuffersForRealtimeGI(int lightmapLayerNumber, int diffuseCubeSize = 4, int specularCubeSize = 16, int gatherCubeSize = -1, bool allocateNewBuffers = true, bool changeExistingBuffers = true, float specularThreshold = 0.2f, float depthThreshold = 0.1f) const;
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
 		RRObject* getMultiObjectCustom() const;

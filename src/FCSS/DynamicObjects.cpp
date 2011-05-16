@@ -141,9 +141,9 @@ bool DynamicObjects::copyAnimationFrameToScene(const LevelSetup* setup, const An
 			rr::RRMatrix3x4 wm2 = dynaobjectj->getWorldMatrixRef();
 			float delta = 0;
 			for(unsigned i=0;i<12;i++) delta += fabs(wm1.m[0][i]-wm2.m[0][i]);
-			if (delta>0.001f) objMoved = true; // treshold is necessary, rounding errors make position slightly off
-			//!!!however, this tresholding is dangerous
-			//   make sure 10ms of slow motion is still >treshold, otherwise we just caused stuttering
+			if (delta>0.001f) objMoved = true; // threshold is necessary, rounding errors make position slightly off
+			//!!!however, this thresholding is dangerous
+			//   make sure 10ms of slow motion is still >threshold, otherwise we just caused stuttering
 		}
 	}
 	return objMoved;

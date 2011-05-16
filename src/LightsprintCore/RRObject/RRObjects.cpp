@@ -16,7 +16,7 @@ namespace rr
 //
 // RRObjects
 
-unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularTreshold, float depthTreshold) const
+unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
 {
 	unsigned buffersTouched = 0;
 	for (unsigned i=0;i<size();i++)
@@ -85,7 +85,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 							}
 						}
 						// continue only for highly specular objects
-						if (maxSpecular>RR_MAX(0.01f,specularTreshold))
+						if (maxSpecular>RR_MAX(0.01f,specularThreshold))
 						{
 							// measure object's size
 							RRVec3 mini,maxi;
@@ -94,7 +94,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 							float sizeMidi = size.sum()-size.maxi()-size.mini();
 							// continue only for non-planar objects, cubical reflection looks bad on plane
 							// (size is in object's space, so this is not precise for non-uniform scale)
-							if (depthTreshold<1 && size.mini()>=depthTreshold*sizeMidi) // depthTreshold=0 allows everything, depthTreshold=1 nothing
+							if (depthThreshold<1 && size.mini()>=depthThreshold*sizeMidi) // depthThreshold=0 allows everything, depthThreshold=1 nothing
 							{
 								// allocate specular cube map
 								RRVec3 center;

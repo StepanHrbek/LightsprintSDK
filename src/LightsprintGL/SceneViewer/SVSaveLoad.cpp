@@ -91,7 +91,7 @@ void serialize(Archive & ar, rr::RRDynamicSolver::UpdateParameters& a, const uns
 	ar & make_nvp("applyCurrentSolution",a.applyCurrentSolution);
 	ar & make_nvp("quality",a.quality);
 	ar & make_nvp("qualityFactorRadiosity",a.qualityFactorRadiosity);
-	ar & make_nvp("insideObjectsTreshold",a.insideObjectsTreshold);
+	ar & make_nvp("insideObjectsThreshold",a.insideObjectsThreshold);
 	ar & make_nvp("rugDistance",a.rugDistance);
 	ar & make_nvp("locality",a.locality);
 	ar & make_nvp("lowDetailForLightDetailMap",a.lowDetailForLightDetailMap);
@@ -323,8 +323,8 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 	}
 	if (version>25)
 	{
-		ar & make_nvp("raytracedCubesSpecularTreshold",a.raytracedCubesSpecularTreshold);
-		ar & make_nvp("raytracedCubesDepthTreshold",a.raytracedCubesDepthTreshold);
+		ar & make_nvp("raytracedCubesSpecularThreshold",a.raytracedCubesSpecularThreshold);
+		ar & make_nvp("raytracedCubesDepthThreshold",a.raytracedCubesDepthThreshold);
 	}
 	if (version>17)
 	{

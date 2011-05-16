@@ -7,7 +7,7 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define FRAMERATE_SMOOTHING        3 // 1=slow&smooth 2=fast&flickering 3=fast&smooth
-#define SECONDS_BETWEEN_DDI        0.05f // only used in FRAMERATE_SMOOTHING 2,3    btw dalsi treshold ktery muze ovlivnit plynulost je v DynamicObjects::copyAnimationFrameToScene
+#define SECONDS_BETWEEN_DDI        0.05f // only used in FRAMERATE_SMOOTHING 2,3    btw dalsi threshold ktery muze ovlivnit plynulost je v DynamicObjects::copyAnimationFrameToScene
 #define INDIRECT_QUALITY           5 // default is 3, increase to 5 fixes book in first 5 seconds
 #if defined(NDEBUG) && defined(WIN32)
 	//#define SET_ICON

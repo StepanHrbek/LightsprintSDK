@@ -331,7 +331,7 @@ void main()
 		#endif
 	#endif
 	#if (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)) && !defined(MATERIAL_TRANSPARENCY_BLEND) && !defined(MATERIAL_TRANSPARENCY_TO_RGB)
-		// Shader based alpha test with fixed treshold
+		// Shader based alpha test with fixed threshold
 		// We don't use GL_ALPHA_TEST because Radeons ignore it when rendering into shadowmap (all Radeons, last version tested: Catalyst 9-10)
 		//  MATERIAL_TRANSPARENCY_BLEND = alpha blending, not alpha keying
 		//  MATERIAL_TRANSPARENCY_TO_RGB = rendering blended material into rgb shadowmap or rgb blending, not alpha keying

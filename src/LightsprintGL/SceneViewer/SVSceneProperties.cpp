@@ -268,11 +268,11 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propGIRaytracedCubesMaxObjects = new FloatProperty(_("Max objects"),_("How many objects in scene before raytracing turns off automatically. Raytracing usually becomes bottleneck when there are more than 1000 objects."),svs.raytracedCubesMaxObjects,0,0,1000000,10,false);
 			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesMaxObjects);
 
-			propGIRaytracedCubesSpecularTreshold = new FloatProperty(_("Specular treshold"),_("Only objects with specular color above treshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply."),svs.raytracedCubesSpecularTreshold,svs.precision,0,10,0.1f,false);
-			AppendIn(propGIRaytracedCubesSpecularRes,propGIRaytracedCubesSpecularTreshold);
+			propGIRaytracedCubesSpecularThreshold = new FloatProperty(_("Specular threshold"),_("Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply."),svs.raytracedCubesSpecularThreshold,svs.precision,0,10,0.1f,false);
+			AppendIn(propGIRaytracedCubesSpecularRes,propGIRaytracedCubesSpecularThreshold);
 
-			propGIRaytracedCubesDepthTreshold = new FloatProperty(_("Depth treshold"),_("Only objects with depth above treshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply."),svs.raytracedCubesDepthTreshold,svs.precision,0,1,0.1f,false);
-			AppendIn(propGIRaytracedCubesSpecularRes,propGIRaytracedCubesDepthTreshold);
+			propGIRaytracedCubesDepthThreshold = new FloatProperty(_("Depth threshold"),_("Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply."),svs.raytracedCubesDepthThreshold,svs.precision,0,1,0.1f,false);
+			AppendIn(propGIRaytracedCubesSpecularRes,propGIRaytracedCubesDepthThreshold);
 		}
 
 		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
@@ -359,8 +359,8 @@ void SVSceneProperties::updateHide()
 	propGIRaytracedCubesDiffuseRes->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesSpecularRes->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
-	propGIRaytracedCubesSpecularTreshold->Hide(!svs.raytracedCubesEnabled,false);
-	propGIRaytracedCubesDepthTreshold->Hide(!svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesSpecularThreshold->Hide(!svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesDepthThreshold->Hide(!svs.raytracedCubesEnabled,false);
 
 	propGIEmisVideoGIQuality->Hide(!svs.videoEmittanceAffectsGI,false);
 	propGITranspVideoAffectsGIFull->Hide(!svs.videoTransmittanceAffectsGI,false);
@@ -438,8 +438,8 @@ void SVSceneProperties::updateProperties()
 		+ updateInt(propGIRaytracedCubesDiffuseRes,svs.raytracedCubesDiffuseRes)
 		+ updateInt(propGIRaytracedCubesSpecularRes,svs.raytracedCubesSpecularRes)
 		+ updateInt(propGIRaytracedCubesMaxObjects,svs.raytracedCubesMaxObjects)
-		+ updateFloat(propGIRaytracedCubesSpecularTreshold,svs.raytracedCubesSpecularTreshold)
-		+ updateFloat(propGIRaytracedCubesDepthTreshold,svs.raytracedCubesDepthTreshold)
+		+ updateFloat(propGIRaytracedCubesSpecularThreshold,svs.raytracedCubesSpecularThreshold)
+		+ updateFloat(propGIRaytracedCubesDepthThreshold,svs.raytracedCubesDepthThreshold)
 		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
 		+ updateInt(propGIEmisVideoGIQuality,svs.videoEmittanceGIQuality)
 		+ updateBoolRef(propGITranspVideoAffectsGIFull)
@@ -691,15 +691,15 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.raytracedCubesMaxObjects = property->GetValue().GetInteger();
 	}
 	else
-	if (property==propGIRaytracedCubesSpecularTreshold)
+	if (property==propGIRaytracedCubesSpecularThreshold)
 	{
-		svs.raytracedCubesSpecularTreshold = property->GetValue().GetDouble();
+		svs.raytracedCubesSpecularThreshold = property->GetValue().GetDouble();
 		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
 	}
 	else
-	if (property==propGIRaytracedCubesDepthTreshold)
+	if (property==propGIRaytracedCubesDepthThreshold)
 	{
-		svs.raytracedCubesDepthTreshold = property->GetValue().GetDouble();
+		svs.raytracedCubesDepthThreshold = property->GetValue().GetDouble();
 		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
 	}
 	else
