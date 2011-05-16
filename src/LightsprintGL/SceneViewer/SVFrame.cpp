@@ -20,7 +20,6 @@
 #include "SVLog.h"
 #include "../Workaround.h"
 #include "wx/aboutdlg.h"
-#include "wx/regex.h"
 #ifdef _WIN32
 	#include <shlobj.h> // SHGetFolderPath, SHGetSpecialFolderPath
 	#include <process.h> // _beginthread in AlphaSplashScreen
