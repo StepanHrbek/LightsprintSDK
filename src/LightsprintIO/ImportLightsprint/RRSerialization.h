@@ -443,6 +443,10 @@ void serialize(Archive & ar, rr::RRLight& a, const unsigned int version)
 	{
 		ar & make_nvp("rtShadowmapSize",a.rtShadowmapSize);
 	}
+	if (version>3)
+	{
+		ar & make_nvp("directLambertScaled",a.directLambertScaled);
+	}
 	// skip customData;
 }
 
@@ -701,6 +705,6 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRObject)
 
 BOOST_CLASS_VERSION(rr::RRString,1)
 BOOST_CLASS_VERSION(rr::RRMaterial,1)
-BOOST_CLASS_VERSION(rr::RRLight,3)
+BOOST_CLASS_VERSION(rr::RRLight,4)
 
 #endif
