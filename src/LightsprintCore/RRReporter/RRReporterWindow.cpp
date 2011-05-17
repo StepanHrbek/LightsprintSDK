@@ -116,7 +116,22 @@ public:
 		// crlf
 		space[strlen(space)-1]=0;
 		strcat(space,"\r\n");
-		
+
+		// non-proportional?
+		bool needsNonProportional = false;
+		{
+			unsigned char histo[80];
+			memset(histo,0,80);
+			int col = 0, rows = 1;
+			for (const char* s=message;*s;s++,col++)
+				if (s[0]=='\n') {col = -1; rows++;} else
+					if (s[0]==' ' && s[1]==' ' && s[2]!=' ' && s[2]!='\n' && col<80) histo[col]++;
+			if (rows>=4)
+				for (unsigned col=3;col<80;col++)
+					if (histo[col]>=2+rows/3)
+						needsNonProportional = true;
+		}
+
 		// send to short log
 		if (type!=INF2 && type!=INF3 && type!=TIMI)
 		{
@@ -128,9 +143,10 @@ public:
 			CHARFORMAT cf;
 			memset( &cf, 0, sizeof(CHARFORMAT) );
 			cf.cbSize = sizeof(CHARFORMAT);
-			cf.dwMask = (type==ERRO?CFM_BOLD:0) | CFM_COLOR;
+			cf.dwMask = (type==ERRO?CFM_BOLD:0) | CFM_COLOR | (needsNonProportional?CFM_FACE:0);
 			cf.dwEffects = effects[type];
 			cf.crTextColor = color[type];
+			strcpy(cf.szFaceName,"Courier New");
 			SendDlgItemMessageA(hWnd,dlgItem,EM_SETCHARFORMAT,(WPARAM)SCF_SELECTION,(LPARAM)&cf);
 
 			SendDlgItemMessageA(hWnd,dlgItem,EM_REPLACESEL,(WPARAM)FALSE,(LPARAM)space);
@@ -147,9 +163,10 @@ public:
 			CHARFORMAT cf;
 			memset( &cf, 0, sizeof(CHARFORMAT) );
 			cf.cbSize = sizeof(CHARFORMAT);
-			cf.dwMask = CFM_BOLD | CFM_COLOR;
+			cf.dwMask = CFM_BOLD | CFM_COLOR | (needsNonProportional?CFM_FACE:0);
 			cf.dwEffects = effects[type];
 			cf.crTextColor = color[type];
+			strcpy(cf.szFaceName,"Courier New");
 			SendDlgItemMessageA(hWnd,dlgItem,EM_SETCHARFORMAT,(WPARAM)SCF_SELECTION,(LPARAM)&cf);
 
 			SendDlgItemMessageA(hWnd,dlgItem,EM_REPLACESEL,(WPARAM)FALSE,(LPARAM)space);
