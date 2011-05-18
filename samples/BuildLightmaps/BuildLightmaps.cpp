@@ -59,6 +59,7 @@
 
 #include <cstdio>
 #include <string>
+#include <vector>
 #ifdef _WIN32
 	#include <windows.h>
 	#include <direct.h> // _chdir
@@ -119,8 +120,8 @@ struct Parameters
 	const char* skyBox;
 	float emissiveMultiplier;
 	unsigned buildQuality;
-	bool buildDirect;
-	bool buildIndirect;
+	float directLightMultiplier;
+	float indirectLightMultiplier;
 	bool runViewer;
 
 	// per object
@@ -145,8 +146,8 @@ struct Parameters
 		skyBox = NULL;
 		emissiveMultiplier = 1;
 		buildQuality = 0;
-		buildDirect = false;
-		buildIndirect = false;
+		directLightMultiplier = 1;
+		indirectLightMultiplier = 1;
 		buildDirectional = false;
 		buildOcclusion = false;
 		buildBentNormals = false;
@@ -167,6 +168,30 @@ struct Parameters
 			else
 			if (parsingObjectIndex==-1 || parsingObjectIndex==objectIndex)
 			{
+				if (sscanf(argv[i],"quality=%d",&buildQuality)==1)
+				{
+				}
+				else
+		 		if (!strcmp(argv[i],"occlusion"))
+				{
+					buildOcclusion = true;
+				}
+				else
+				if (!strcmp(argv[i],"directional"))
+				{
+					buildDirectional = true;
+				}
+				else
+				if (!strcmp(argv[i],"bentnormals"))
+				{
+					buildBentNormals = true;
+				}
+				else
+				if (!strcmp(argv[i],"nothing"))
+				{
+					buildNothing = true;
+				}
+				else
 				if (sscanf(argv[i],"skyupper=%f;%f;%f",&skyUpper.x,&skyUpper.y,&skyUpper.z)==3)
 				{
 				}
@@ -185,42 +210,16 @@ struct Parameters
 					skyBox = argv[i]+7;
 				}
 				else
+				if (sscanf(argv[i],"directmultiplier=%f",&directLightMultiplier)==1)
+				{
+				}
+				else
+				if (sscanf(argv[i],"indirectmultiplier=%f",&indirectLightMultiplier)==1)
+				{
+				}
+				else
 				if (sscanf(argv[i],"emissivemultiplier=%f",&emissiveMultiplier)==1)
 				{
-				}
-				else
-				if (sscanf(argv[i],"quality=%d",&buildQuality)==1)
-				{
-				}
-				else
-				if (!strcmp(argv[i],"direct"))
-				{
-					buildDirect = true;
-				}
-				else
-				if (!strcmp(argv[i],"indirect"))
-				{
-					buildIndirect = true;
-				}
-				else
-				if (!strcmp(argv[i],"occlusion"))
-				{
-					buildOcclusion = true;
-				}
-				else
-				if (!strcmp(argv[i],"directional"))
-				{
-					buildDirectional = true;
-				}
-				else
-				if (!strcmp(argv[i],"bentnormals"))
-				{
-					buildBentNormals = true;
-				}
-				else
-				if (!strcmp(argv[i],"nothing"))
-				{
-					buildNothing = true;
 				}
 				else
 				if (sscanf(argv[i],"mapsize=%d*%d",&layerParameters.suggestedMapWidth,&layerParameters.suggestedMapHeight)==2)
@@ -290,11 +289,6 @@ struct Parameters
 					}
 				}
 			}
-		}
-		if (!buildDirect && !buildIndirect)
-		{
-			buildDirect = true;
-			buildIndirect = true;
 		}
 		if (buildNothing)
 		{
@@ -429,16 +423,15 @@ int main(int argc, char** argv)
 			"\n"
 			"Global arguments:\n"
 			"  scene                   (filename of scene in supported format)\n"
-			"  skycolor=0.5;0.5;0.5    (color of both sky hemispheres)\n"
-			"  skyupper=1;1;1          (color of upper sky hemisphere)\n"
-			"  skylower=0;0;0          (color of lower sky hemisphere)\n"
-			"  skybox=pisa.hdr         (1 texture of skybox)\n"
-			"  skybox=quake_%s.tga     (6 textures of skybox a-la Quake)\n"
-			"  emissivemultiplier=1    (multiplies emittance in materials)\n"
 			"  quality=100             (10=low, 100=medium, 1000=high)\n"
-			"  direct                  (build direct lighting only)\n"
-			"  indirect                (build indirect lighting only)\n"
 			"  occlusion               (build ambient occlusion instead of lightmaps)\n"
+			"  skycolor=0.0;0.0;0.0    (color of both sky hemispheres)\n"
+			"  skyupper=0.0;0.0;0.0    (color of upper sky hemisphere)\n"
+			"  skylower=0.0;0.0;0.0    (color of lower sky hemisphere)\n"
+			"  skybox=texture_filename (sky texture in LDR,HDR,cube,cross,equirect..)\n"
+			"  directmultiplier=1.0    (multiplies direct effect of point/spot/dir)\n"
+			"  indirectmultiplier=1.0  (multiplies indirect effect of point/spot/dir)\n"
+			"  emissivemultiplier=1.0  (multiplies effect of emissive materials)\n"
 #ifdef SCENE_VIEWER
 			"  viewer                  (run scene viewer after build)\n"
 #endif
@@ -452,7 +445,7 @@ int main(int argc, char** argv)
 			"  outputpath=\"where/to/save/lightmaps/\"\n"
 			"  outputname=\"my_lightmap_name\"\n"
 			"  outputext=png           (format of saved maps, jpg, tga, hdr, exr, bmp...)\n"
-			"  mapsize=256*512         (map resolution, 0=build vertex buffers)\n"
+			"  mapsize=256*256         (map resolution, 0=build vertex buffers)\n"
 			"  minmapsize=32           (minimal map resolution, Gamebryo only)\n"
 			"  maxmapsize=1024         (maximal map resolution, Gamebryo only)\n"
 			"  pixelsperworldunit=1.0  (Gamebryo only)\n"
@@ -510,6 +503,8 @@ int main(int argc, char** argv)
 		if (globalParameters.skyBox)
 		{
 			environment = rr::RRBuffer::loadCube(globalParameters.skyBox);
+			if (environment && globalParameters.skyUpper+globalParameters.skyLower!=rr::RRVec4(0))
+				environment->multiplyAdd((globalParameters.skyUpper+globalParameters.skyLower)/2,rr::RRVec4(0));
 		}
 		else
 		{
@@ -517,6 +512,7 @@ int main(int argc, char** argv)
 				// load some sky when running without scene and without sky
 				environment = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_up.jpg");
 			else
+			if (globalParameters.skyUpper+globalParameters.skyLower!=rr::RRVec4(0))
 				environment = rr::RRBuffer::createSky(globalParameters.skyUpper,globalParameters.skyLower);
 		}
 		solver->setEnvironment(environment);
@@ -547,16 +543,39 @@ int main(int argc, char** argv)
 	//
 	if (globalParameters.buildQuality)
 	{
-		rr::RRReportInterval report(rr::INF1,"Building lighting...\n");
+		// apply indirect light multiplier
+		std::vector<rr::RRVec3> lightColors;
+		for (unsigned i=0;i<solver->getLights().size();i++)
+		{
+			lightColors.push_back(solver->getLights()[i]->color); // save original colors, just in case indirectLightMultiplier is 0
+			solver->getLights()[i]->color *= globalParameters.indirectLightMultiplier;
+		}
 
+		// build indirect illumination
 		rr::RRDynamicSolver::UpdateParameters params(globalParameters.buildQuality);
+		solver->updateLightmaps(-1,-1,-1,NULL,&params,NULL);
+
+		// apply direct light multiplier
+		for (unsigned i=0;i<solver->getLights().size();i++)
+		{
+			solver->getLights()[i]->color = lightColors[i]*globalParameters.directLightMultiplier;
+		}
+
+		// build direct illumination
+		params.applyCurrentSolution = true; // includes indirect illumination from previous step
 		solver->updateLightmaps(
 			globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP,
 			LAYER_DIRECTIONAL1,
 			LAYER_BENT_NORMALS,
-			globalParameters.buildDirect ? &params : NULL,
-			globalParameters.buildIndirect ? &params : NULL,
+			&params,
+			NULL,
 			NULL);
+
+		// restore light intensities, just in case we are going to run viewer
+		for (unsigned i=0;i<solver->getLights().size();i++)
+		{
+			solver->getLights()[i]->color = lightColors[i];
+		}
 	}
 
 	//
