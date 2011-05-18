@@ -97,7 +97,7 @@ public:
 			if (i->second.buffer // we try again if previous load failed, perhaps file was created on background
 				&& (i->second.buffer->getDuration() // always take videos from cache
 					|| i->second.buffer->version==i->second.bufferVersionWhenLoaded) // take static content from cache only if version did not change
-				// && i->second.fileTimeWhenLoaded==bf::last_write_time(filename)
+				&& i->second.fileTimeWhenLoaded==bf::last_write_time(filename.w_str())
 				)
 			{
 				// detect and report possible error
@@ -109,7 +109,7 @@ public:
 				// image is already in memory and it was not modified since load, use it
 				return i->second.buffer->createReference(); // add one ref for user
 			}
-			// modified after load, delete it from cache, we can't use it anymore
+			// modified (in memory or on disk) after load, delete it from cache, we can't use it anymore
 			delete i->second.buffer;
 			cache.erase(i);
 		}
@@ -120,7 +120,7 @@ public:
 		{
 			value.buffer->createReference(); // keep initial ref for us, add one ref for user
 			value.bufferVersionWhenLoaded = value.buffer->version;
-			//value.fileTimeWhenLoaded = bf::last_write_time(filename);
+			value.fileTimeWhenLoaded = bf::last_write_time(filename.w_str());
 		}
 		return value.buffer;
 	}
@@ -152,7 +152,7 @@ protected:
 	{
 		RRBuffer* buffer;
 		unsigned bufferVersionWhenLoaded;
-		//std::time_t fileTimeWhenLoaded;
+		std::time_t fileTimeWhenLoaded; // Critical for Toolbench plugin, "Bake from cache" must not load images from cache if they did change on disk.
 	};
 	typedef boost::unordered_map<std::wstring,Value> Cache;
 	Cache cache;

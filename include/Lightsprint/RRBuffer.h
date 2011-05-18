@@ -79,7 +79,7 @@ namespace rr
 	//!   b = RRBuffer::load("foo/bar.avi");  // b found in cache, b==a
 	//!   c = RRBuffer::load("foo\\bar.avi"); // c loaded from disk, because filename differs
 	//!   a->setElement(0,RRVec4(0));         // modifies content of a==b
-	//!   d = RRBuffer::load("foo/bar.avi");  // d loaded from disk, because content differs
+	//!   d = RRBuffer::load("foo/bar.avi");  // d loaded from disk, a==b removed from cache, because content differs
 	//!   delete a;                           // no memory freed, it's still in use by b
 	//!   delete b;                           // memory freed
 	//!   delete d;                           // no memory freed, d stays in cache
@@ -87,6 +87,8 @@ namespace rr
 	//!   e->play();                          // starts playing image to buffer, audio to speakers
 	//!   //e->stop();                        // here we forget to stop
 	//!   delete e;                           // no memory freed, e stays in cache, still playing to speakers
+	//!   // someone overwrites foo/bar.avi
+	//!   f = RRBuffer::load("foo/bar.avi");  // f loaded from disk, e deleted from cache, memory freed, stops playing, because file's write time did change
 	//!  \endcode
 	//!
 	//! \section buf_capture Live video capture
