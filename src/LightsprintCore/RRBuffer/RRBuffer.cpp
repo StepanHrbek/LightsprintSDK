@@ -31,6 +31,11 @@ RRBuffer::RRBuffer()
 //
 // RRBuffer interface
 
+unsigned RRBuffer::getNumElements() const
+{
+	return getWidth()*getHeight()*getDepth();
+}
+
 void RRBuffer::setElement(unsigned index, const RRVec4& element)
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::setElement() called.\n"));
@@ -153,11 +158,10 @@ void RRBuffer::setFormat(RRBufferFormat newFormat)
 	{
 		RRBuffer* copy = createCopy();
 		reset(getType(),getWidth(),getHeight(),getDepth(),newFormat,getScaled(),NULL);
-		unsigned numElements = getWidth()*getHeight()*getDepth();
+		unsigned numElements = getNumElements();
 		for (unsigned i=0;i<numElements;i++)
 		{
-			RRVec4 color = copy->getElement(i);
-			setElement(i,color);
+			setElement(i,copy->getElement(i));
 		}
 		delete copy;
 	}
@@ -182,7 +186,7 @@ void RRBuffer::setFormatFloats()
 
 void RRBuffer::clear(RRVec4 clearColor)
 {
-	unsigned numElements = getWidth()*getHeight()*getDepth();
+	unsigned numElements = getNumElements();
 	for (unsigned i=0;i<numElements;i++)
 	{
 		setElement(i,clearColor);
@@ -200,7 +204,7 @@ void RRBuffer::invert()
 		case BF_RGBAF:
 		case BF_DEPTH:
 			{
-				unsigned numElements = getWidth()*getHeight()*getDepth();
+				unsigned numElements = getNumElements();
 				for (unsigned i=0;i<numElements;i++)
 				{
 					RRVec4 color = getElement(i);
@@ -232,12 +236,10 @@ void RRBuffer::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 		case BF_RGBAF:
 		case BF_DEPTH:
 			{
-				unsigned numElements = getWidth()*getHeight()*getDepth();
+				unsigned numElements = getNumElements();
 				for (unsigned i=0;i<numElements;i++)
 				{
-					RRVec4 color = getElement(i);
-					color = color*multiplier+addend;
-					setElement(i,color);
+					setElement(i,getElement(i)*multiplier+addend);
 				}
 			}
 			break;
@@ -299,7 +301,7 @@ void RRBuffer::brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma)
 		return;
 	}
 	// slow getElement path, faster path can be written using lock and direct access
-	int numElements = getWidth()*getHeight()*getDepth();
+	int numElements = getNumElements();
 #pragma omp parallel for
 	for (int i=0;i<numElements;i++)
 	{
@@ -313,7 +315,7 @@ void RRBuffer::brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma)
 void RRBuffer::getMinMax(RRVec4* _mini, RRVec4* _maxi)
 {
 	// slow getElement path, faster path can be written using lock and direct access
-	unsigned numElements = getWidth()*getHeight()*getDepth();
+	unsigned numElements = getNumElements();
 	RRVec4 mini(1e20f);
 	RRVec4 maxi(-1e20f);
 	for (unsigned i=0;i<numElements;i++)
@@ -646,7 +648,7 @@ bool RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 	}
 	if (getType()!=BT_2D_TEXTURE)
 		return false;
-	unsigned numElements = getWidth()*getHeight()*getDepth();
+	unsigned numElements = getNumElements();
 	for (unsigned i=0;i<numElements;i++)
 	{
 		RRVec4 color = getElement(i);
@@ -788,7 +790,7 @@ bool RRBuffer::reload(const RRString& _filename, const char* _cubeSideName[6], c
 	}
 	else
 	{
-		unsigned pixels = loaded->getWidth()*loaded->getHeight()*loaded->getDepth();
+		unsigned pixels = loaded->getNumElements();
 		for (unsigned i=0;i<pixels;i++)
 			setElement(i,loaded->getElement(i));
 	}

@@ -38,6 +38,7 @@ NEWS
   - RRDynamicSolver::allocateBuffersForRealtimeGI() has new parameters that control specular cube reflection
 - misc helper functions
   - RRString::format()
+  - RRBuffer::getNumElements()
 - .ifc import
 
 \section news120 ------------------------------------ 2011.05.02 -------------------------------------

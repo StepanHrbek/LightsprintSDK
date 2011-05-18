@@ -162,6 +162,8 @@ namespace rr
 		virtual unsigned getHeight() const = 0;
 		//! \return Depth of buffer: 1 for vertex buffer, 1 for 2d texture, 6 for cube texture.
 		virtual unsigned getDepth() const = 0;
+		//! \return Width*height*depth.
+		unsigned getNumElements() const;
 		//! \return Format of buffer, e.g. BF_RGBF.
 		virtual RRBufferFormat getFormat() const = 0;
 		//! \return False when buffer data are in physical (linear) scale, true for data in custom scale (screen colors, sRGB).

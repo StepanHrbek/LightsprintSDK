@@ -256,7 +256,7 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 			if (data)
 			{
 				unsigned group[4]={0,0,0};
-				for (unsigned i=0;i<buffer->getWidth()*buffer->getHeight()*buffer->getDepth()*3;i++)
+				for (unsigned i=0;i<buffer->getNumElements()*3;i++)
 				{
 					group[(((float*)data)[i]<0)?0:((((float*)data)[i]>1)?3:(((float*)data)[i]?2:1))]++;
 				}
@@ -267,7 +267,7 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 			if (data)
 			{
 				unsigned group[4]={0,0,0,0};
-				for (unsigned i=0;i<buffer->getWidth()*buffer->getHeight()*buffer->getDepth()*4;i++)
+				for (unsigned i=0;i<buffer->getNumElements()*4;i++)
 				{
 					group[(((float*)data)[i]<0)?0:((((float*)data)[i]>1)?3:(((float*)data)[i]?2:1))]++;
 				}
