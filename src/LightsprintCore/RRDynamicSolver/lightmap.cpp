@@ -926,15 +926,41 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	paramsIndirect.applyCurrentSolution = false;
 	if (_paramsDirect) paramsDirect = *_paramsDirect;
 	if (_paramsIndirect) paramsIndirect = *_paramsIndirect;
-	
+
 	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
 	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
 
-	if (paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
+	// clear applyXxx that can be cleared
 	{
-		if (_paramsDirect) // don't report if direct is NULL, silently disable it
-			RRReporter::report(WARN,"paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
-		paramsDirect.applyCurrentSolution = false;
+		bool envFound = false;
+		RRBuffer* env = getEnvironment();
+		if (env)
+		{
+			unsigned numElements = env->getNumElements();
+			for (unsigned i=0;i<numElements;i++)
+				envFound |= env->getElement(i)!=RRVec4(0);
+		}
+		if (!envFound)
+		{
+			paramsDirect.applyEnvironment = false;
+			paramsIndirect.applyEnvironment = false;
+		}
+
+		bool lightsFound = false;
+		for (unsigned i=0;i<getLights().size();i++)
+			lightsFound |= getLights()[i]->enabled && getLights()[i]->color!=RRVec3(0);
+		if (!lightsFound)
+		{
+			paramsDirect.applyLights = false;
+			paramsIndirect.applyLights = false;
+		}
+
+		if (paramsDirect.applyCurrentSolution && (paramsIndirect.applyLights || paramsIndirect.applyEnvironment))
+		{
+			if (_paramsDirect) // don't report if direct is NULL, silently disable it
+				RRReporter::report(WARN,"paramsDirect.applyCurrentSolution ignored, can't be combined with paramsIndirect.applyLights/applyEnvironment.\n");
+			paramsDirect.applyCurrentSolution = false;
+		}
 	}
 
 	int allLayers[NUM_BUFFERS];
@@ -995,7 +1021,8 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 		}
 	}
 
-	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating lightmaps (%d,%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)) with %d objects, %d lights...\n",
+	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating %s (%d,%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)) with %d objects, %d lights...\n",
+		sizeOfAllBuffers?"lightmaps":"indirect illumination",
 		layerNumberLighting,layerNumberDirectionalLighting,layerNumberBentNormals,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
 		paramsDirect.applyCurrentSolution?"cur ":"",
