@@ -89,6 +89,7 @@ namespace rr
 	//!   delete e;                           // no memory freed, e stays in cache, still playing to speakers
 	//!   // someone overwrites foo/bar.avi
 	//!   f = RRBuffer::load("foo/bar.avi");  // f loaded from disk, e deleted from cache, memory freed, stops playing, because file's write time did change
+	//!                                       // (note that file's write time is not tracked for cubemaps stored in 6 files, they are assumed to never change on disk, let us know if it is a problem)
 	//!  \endcode
 	//!
 	//! \section buf_capture Live video capture
