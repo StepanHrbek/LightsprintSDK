@@ -391,7 +391,7 @@ void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVecto
 			const RRObjects& objects = k?getDynamicObjects():getStaticObjects();
 			for (unsigned i=0;i<objects.size();i++)
 				for (unsigned j=0;j<_layers->size();j++)
-					set.insert(objects[i]->illumination.getLayer(j));
+					set.insert(objects[i]->illumination.getLayer((*_layers)[j]));
 		}
 	}
 	// copy set back to vector
