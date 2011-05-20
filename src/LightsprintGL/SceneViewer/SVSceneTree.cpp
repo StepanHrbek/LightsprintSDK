@@ -351,6 +351,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 
 		case CM_STATIC_OBJECT_UNWRAP:
 		case CM_STATIC_OBJECTS_UNWRAP:
+			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getStaticObjects().size())
 			{
 				unsigned res = 256;
 				if (getResolution(_("Unwrap build"),this,res,false))
@@ -361,7 +362,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					if (actionCode==CM_STATIC_OBJECT_UNWRAP)
 					{
 						rr::RRObjects objects;
-						objects.push_back(solver->getStaticObjects()[svs.selectedObjectIndex]);
+						objects.push_back(solver->getStaticObjects()[contextEntityId.index]);
 						objects.buildUnwrap(res,true,solver->aborting);
 					}
 					else
