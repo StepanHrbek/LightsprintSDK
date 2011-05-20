@@ -46,8 +46,7 @@ static void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsign
 
 RRHash RRMesh::getHash() const
 {
-	sha1::sha1_context ctx;
-	sha1::sha1_starts(&ctx);
+	CSHA1 sha1;
 	unsigned numVertices = getNumVertices();
 	for (unsigned i=0;i<numVertices;i++)
 	{
@@ -57,7 +56,7 @@ RRHash RRMesh::getHash() const
 		for (unsigned j=0;j<3;j++)
 			((unsigned long*)&v)[j] = SWAP_32(((unsigned long*)&v)[j]);
 #endif
-		sha1::sha1_update(&ctx, (unsigned char*)&v, sizeof(v));
+		sha1.Update((const unsigned char*)&v, sizeof(v));
 	}
 	unsigned numTriangles = getNumTriangles();
 	for (unsigned i=0;i<numTriangles;i++)
@@ -68,17 +67,17 @@ RRHash RRMesh::getHash() const
 		for (unsigned j=0;j<3;j++)
 			((unsigned long*)&t)[j] = SWAP_32(((unsigned long*)&t)[j]);
 #endif
-		sha1::sha1_update(&ctx, (unsigned char*)&t, sizeof(t));
+		sha1.Update((const unsigned char*)&t, sizeof(t));
 	}
 	RRHash hash;
-	sha1::sha1_finish(&ctx, hash.value);
+	sha1.Final();
+	sha1.GetHash(hash.value);
 	return hash;
 }
 
 RRHash RRObject::getHash() const
 {
-	sha1::sha1_context ctx;
-	sha1::sha1_starts(&ctx);
+	CSHA1 sha1;
 	const RRMesh* mesh = getCollider()->getMesh();
 	unsigned numVertices = mesh->getNumVertices();
 	for (unsigned i=0;i<numVertices;i++)
@@ -89,7 +88,7 @@ RRHash RRObject::getHash() const
 		for (unsigned j=0;j<3;j++)
 			((unsigned long*)&v)[j] = SWAP_32(((unsigned long*)&v)[j]);
 #endif
-		sha1::sha1_update(&ctx, (unsigned char*)&v, sizeof(v));
+		sha1.Update((const unsigned char*)&v, sizeof(v));
 	}
 	unsigned numTriangles = mesh->getNumTriangles();
 	for (unsigned i=0;i<numTriangles;i++)
@@ -148,10 +147,11 @@ RRHash RRObject::getHash() const
 			}
 		};
 		TriangleData td(this,mesh,i);
-		sha1::sha1_update(&ctx, (unsigned char*)&td, sizeof(td));
+		sha1.Update((const unsigned char*)&td, sizeof(td));
 	}
 	RRHash hash;
-	sha1::sha1_finish(&ctx, hash.value);
+	sha1.Final();
+	sha1.GetHash(hash.value);
 	return hash;
 }
 
@@ -159,13 +159,13 @@ RRHash RRObject::getHash() const
 //
 //  RRHash
 
-RRHash::RRHash(unsigned char* data, unsigned size)
+RRHash::RRHash(const unsigned char* data, unsigned size)
 {
-	sha1::sha1_context ctx;
-	sha1::sha1_starts(&ctx);
+	CSHA1 sha1;
 	if (data)
-		sha1::sha1_update(&ctx, data, size);
-	sha1::sha1_finish(&ctx, value);
+		sha1.Update(data, size);
+	sha1.Final();
+	sha1.GetHash(value);
 }
 
 void RRHash::getFileName(char* buf, unsigned bufsize, unsigned version, const char* cacheLocation, const char* extension) const

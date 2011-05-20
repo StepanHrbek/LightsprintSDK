@@ -28,7 +28,7 @@ namespace rr
 		//! Default constructor keeps hash value uninitialized. For users who compute hash externally.
 		RRHash() {}
 		//! Calculates hash value from data.
-		RRHash(unsigned char* data, unsigned size);
+		RRHash(const unsigned char* data, unsigned size);
 
 		//! Creates filename from hash value.
 		//! \param outputFilename
