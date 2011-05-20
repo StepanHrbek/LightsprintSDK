@@ -423,23 +423,35 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					UINT numCharts = 0;
 					LPD3DXBUFFER partitionResultAdjacency = NULL;
 					LPD3DXBUFFER facePartitioning = NULL;
-					HRESULT err = D3DXUVAtlasPartition(
-						dxMeshIn,
-						0, // maxCharts
-						0.8f, // maxStretch
-						MAX_CHANNELS-1, // textureIndex
-						adjacency,
-						NULL, // falseEdges,
-						NULL, // metric tensor array
-						&callback,0.0001f,&aborting,
-						D3DXUVATLAS_DEFAULT,
-						&dxMeshOut,
-						&facePartitioning,
-						NULL, // vertex remap array
-						&partitionResultAdjacency,
-						&maxStretch, // max stretch
-						&numCharts // num charts
-						);
+					HRESULT err = 19191919;
+					__try
+					{
+						err = D3DXUVAtlasPartition(
+							dxMeshIn,
+							0, // maxCharts
+							0.8f, // maxStretch
+							MAX_CHANNELS-1, // textureIndex
+							adjacency,
+							NULL, // falseEdges,
+							NULL, // metric tensor array
+							&callback,0.0001f,&aborting,
+							D3DXUVATLAS_DEFAULT,
+							&dxMeshOut,
+							&facePartitioning,
+							NULL, // vertex remap array
+							&partitionResultAdjacency,
+							&maxStretch, // max stretch
+							&numCharts // num charts
+							);
+					}
+					__except(EXCEPTION_EXECUTE_HANDLER)
+					{
+					}
+					if (err==19191919)
+					{
+						rr::RRReporter::report(rr::ERRO,"D3DXUVAtlasPartition() crashed, better save your work and restart.\n");
+					}
+					else
 					if (err==D3D_OK)
 					{
 						//unsigned minimalMapSize = (unsigned)(gutter*sqrtf(numCharts)); // probably never succeeds
