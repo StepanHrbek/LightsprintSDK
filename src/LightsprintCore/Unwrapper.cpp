@@ -424,8 +424,10 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					LPD3DXBUFFER partitionResultAdjacency = NULL;
 					LPD3DXBUFFER facePartitioning = NULL;
 					HRESULT err = 19191919;
+#if _MSC_VER>=1500 // this __try fails to compile in VS2005
 					__try
 					{
+#endif
 						err = D3DXUVAtlasPartition(
 							dxMeshIn,
 							0, // maxCharts
@@ -443,10 +445,12 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 							&maxStretch, // max stretch
 							&numCharts // num charts
 							);
+#if _MSC_VER>=1500
 					}
 					__except(EXCEPTION_EXECUTE_HANDLER)
 					{
 					}
+#endif
 					if (err==19191919)
 					{
 						rr::RRReporter::report(rr::ERRO,"D3DXUVAtlasPartition() crashed, better save your work and restart.\n");
