@@ -411,21 +411,23 @@ Video formats
 
 
 
-\page main_credits Third party libraries
+\page main_credits Third party components
 
  Lightsprint integrated into game engine doesn't need any third party library.
 
- Lightsprint without game engine needs functions for scene loading and GPU access,
+ Lightsprint without game engine needs functions for file import/export and GUI,
  this is why several free open source libraries with permissive licenses are used.
  You are free to download their sources and modify them, use them in commercial applications
  without need to open your source code etc.
- All of these libraries serve as optional extensions, global illumination solver doesn't need them.
+ All of these libraries are optional and can be removed, global illumination solver doesn't need them.
  Some of them are included just in case you need them integrated, but we keep them disabled by default.
  
  Libraries used by LightsprintCore (global illumination solvers):
+ - \subpage tpl_boost
  - \subpage tpl_squish
 
  Used by LightsprintGL (optional OpenGL support and scene editor):
+ - \subpage tpl_boost
  - \subpage tpl_glew
  - \subpage tpl_wx
  - \subpage tpl_art
@@ -543,6 +545,7 @@ Video formats
    Boost is good, but if you really must build Lightsprint SDK without it, do
    - delete <code>\#define SUPPORT_ASSIMP</code> and <code>\#define SUPPORT_LIGHTSPRINT</code> in <code>src/LightsprintIO/supported_formats.h</code>
    - replace all boost/unordered_set and boost/unordered_map with similar classes supported by your compiler (e.g. hash_set and hash_map)
+   - replace boost::filesystem with C++ TR2 equivalents, or with similar functions supported by your compiler
    - few more places might need tweak
 
 \page tpl_assimp Assimp
