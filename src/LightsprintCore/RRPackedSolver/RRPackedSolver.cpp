@@ -511,6 +511,8 @@ void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, c
 	}
 	currentVersionInTriangles++;
 	currentQuality = 0;
+	minimalTopFlux = 1e10f;
+	numConsecutiveRoundsThatBeatMinimalTopFlux = 0;
 }
 
 void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned qualityStatic)
@@ -532,6 +534,19 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 		if (bests)
 		{
 			RRReal q = packedBests->getHighestFluxToDistribute();
+			if (q<minimalTopFlux)
+			{
+				minimalTopFlux = q;
+				numConsecutiveRoundsThatBeatMinimalTopFlux = 0;
+			}
+			else
+			if (numConsecutiveRoundsThatBeatMinimalTopFlux++>20)
+			{
+				RRReporter::report(WARN,"Diverging solution. Please rebuild Fireball. This could happen if materials change but Fireball is not rebuilt.\n");
+				currentQuality = qualityStatic; // don't improve next time
+				return; // don't improve now
+			}
+
 			//RRReporter::report(INF1,"%f\n",q);
 			if (currentQuality==0)
 			{

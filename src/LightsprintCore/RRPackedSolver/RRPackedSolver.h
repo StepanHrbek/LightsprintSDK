@@ -103,6 +103,8 @@ private:
 	bool     materialEmittanceUsePointMaterials;
 	unsigned numSamplePoints;
 	RRVec2*  samplePoints;
+	float minimalTopFlux;
+	unsigned numConsecutiveRoundsThatBeatMinimalTopFlux;
 };
 
 } // namespace
