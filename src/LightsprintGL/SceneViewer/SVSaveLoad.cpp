@@ -438,7 +438,7 @@ ImportParameters::ImportParameters()
 bool ImportParameters::knowsUnitLength(const char* filename) const
 {
 	wxString ext = wxString(filename).Right(4).Lower();
-	return ext==".rr3" || ext==".dae" || ext==".kmz" || ext==".skp" || ext==".fbx";
+	return ext==".rr3" || ext==".dae" || ext==".ifc" || ext==".kmz" || ext==".skp" || ext==".fbx";
 }
 
 float ImportParameters::getUnitLength(const char* filename) const
