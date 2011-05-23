@@ -1,1 +1,1 @@
-#define SVNRevision 1006
+#define SVNRevision 1007
