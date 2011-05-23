@@ -27,7 +27,7 @@ SVLog::SVLog(SVFrame* _svframe)
 	attr[rr::ERRO].SetTextColour(*wxRED);
 	attr[rr::ERRO].SetFontWeight(wxFONTWEIGHT_BOLD);
 	attr[rr::WARN].SetTextColour(*wxRED);
-	attr[rr::ASSE].SetTextColour(*wxYELLOW);
+	attr[rr::ASSE].SetTextColour(*wxRED);
 	attr[rr::INF1].SetFontWeight(wxFONTWEIGHT_BOLD);
 	attr[rr::TIMI].SetTextColour(wxColour(128,128,0));
 }
