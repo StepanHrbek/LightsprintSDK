@@ -261,7 +261,8 @@ public:
 			out.push(ofs);
 			portable_binary_oarchive ar(out);
 #endif
-			ar & boost::serialization::make_nvp("filename", std::string("")); // former local charset filename, must be preserved, loader always tries to read it, we don't have any version number at this point in file
+			std::string filenameOrVersion;
+			ar & boost::serialization::make_nvp("filename", filenameOrVersion); // former local charset filename, must be preserved, loader always tries to read it, we don't have any version number at this point in file
 			ar & boost::serialization::make_nvp("filename", filename);
 			ar & boost::serialization::make_nvp("scene", *scene);
 
