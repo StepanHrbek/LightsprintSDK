@@ -52,7 +52,7 @@ public:
 						extensions.erase(extensions.begin()+j);
 						goto erased;
 					}
-				RRReporter::report(WARN,"RRFileLocator::setExtensions(false,%s): attempt to remove %s that was not added before.\n",_extensions,tmpExtensions[i].c_str());
+				RRReporter::report(WARN,"RRFileLocator::setExtensions(false,%s): attempt to remove %s that was not added before.\n",_extensions.c_str(),tmpExtensions[i].c_str());
 				erased:;
 			}
 		}
