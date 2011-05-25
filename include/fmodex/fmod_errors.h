@@ -1,7 +1,6 @@
-/*$ preserve start $*/
 
 /* ============================================================================================== */
-/* FMOD Ex - Error string header file. Copyright (c), Firelight Technologies Pty, Ltd. 2004-2010. */
+/* FMOD Ex - Error string header file. Copyright (c), Firelight Technologies Pty, Ltd. 2004-2011. */
 /*                                                                                                */
 /* Use this header if you want to store or display a string version / english explanation of      */
 /* the FMOD error codes.                                                                          */
@@ -21,7 +20,6 @@ static const char *FMOD_ErrorString(FMOD_RESULT errcode)
 {
     switch (errcode)
     {
-/*$ preserve end $*/
         case FMOD_ERR_ALREADYLOCKED:          return "Tried to call lock a second time before unlock was called. ";
         case FMOD_ERR_BADCOMMAND:             return "Tried to call a function on a data type that does not allow this type of functionality (ie calling Sound::lock on a streaming sound). ";
         case FMOD_ERR_CDDA_DRIVERS:           return "Neither NTSCSI nor ASPI could be initialised. ";
@@ -108,7 +106,7 @@ static const char *FMOD_ErrorString(FMOD_RESULT errcode)
         case FMOD_ERR_PROGRAMMERSOUND:        return "The specified sound is still in use by the event system, wait for the event which is using it finish with it. ";
         case FMOD_ERR_RECORD:                 return "An error occured trying to initialize the recording device. ";
         case FMOD_ERR_REVERB_INSTANCE:        return "Specified Instance in FMOD_REVERB_PROPERTIES couldn't be set. Most likely because it is an invalid instance number, or another application has locked the EAX4 FX slot. ";
-        case FMOD_ERR_SUBSOUNDS:              return "The error occured because the sound referenced contains subsounds.  The operation cannot be performed on a parent sound, or a parent sound was played without setting up a sentence first. ";
+        case FMOD_ERR_SUBSOUNDS:              return "The error occured because the sound referenced contains subsounds when it shouldn't have, or it doesn't contain subsounds when it should have.  The operation may also not be able to be performed on a parent sound, or a parent sound was played without setting up a sentence first. ";
         case FMOD_ERR_SUBSOUND_ALLOCATED:     return "This subsound is already being used by another sound, you cannot have more than one parent to a sound.  Null out the other parent's entry first. ";
         case FMOD_ERR_SUBSOUND_CANTMOVE:      return "Shared subsounds cannot be replaced or moved from their parent stream, such as when the parent stream is an FSB file. ";
         case FMOD_ERR_SUBSOUND_MODE:          return "The subsound's mode bits do not match with the parent sound's mode bits.  See documentation for function that it was called with. ";
@@ -121,9 +119,7 @@ static const char *FMOD_ErrorString(FMOD_RESULT errcode)
         case FMOD_ERR_VERSION:                return "The version number of this file format is not supported. ";
         case FMOD_OK:                         return "No errors.";
         default :                             return "Unknown error.";
-/*$ preserve start $*/
     };
 }
 
 #endif
-/*$ preserve end $*/

@@ -1,5 +1,5 @@
 /* ============================================================================================= */
-/* FMOD Ex - Memory info header file. Copyright (c), Firelight Technologies Pty, Ltd. 2008-2010. */
+/* FMOD Ex - Memory info header file. Copyright (c), Firelight Technologies Pty, Ltd. 2008-2011. */
 /*                                                                                               */
 /* Use this header if you are interested in getting detailed information on FMOD's memory        */
 /* usage. See the documentation for more details.                                                */
@@ -17,10 +17,10 @@
 
     [REMARKS]
     Every public FMOD class has a getMemoryInfo function which can be used to get detailed information on what memory resources are associated with the object in question. 
-    On return from getMemoryInfo, each member of this structure will hold the amount of memory used for its type in bytes.<br>
-    <br>
-    Members marked with [in] mean the user sets the value before passing it to the function.<br>
-    Members marked with [out] mean FMOD sets the value to be used after the function exits.<br>
+    On return from getMemoryInfo, each member of this structure will hold the amount of memory used for its type in bytes.
+    
+    Members marked with [in] mean the user sets the value before passing it to the function.
+    Members marked with [out] mean FMOD sets the value to be used after the function exits.
 
 
     [PLATFORMS]

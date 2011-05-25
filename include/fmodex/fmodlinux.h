@@ -1,5 +1,5 @@
 /* =========================================================================================== */
-/* FMOD Linux Specific header file. Copyright (c), Firelight Technologies Pty, Ltd. 2005-2010. */
+/* FMOD Linux Specific header file. Copyright (c), Firelight Technologies Pty, Ltd. 2005-2011. */
 /* =========================================================================================== */
 
 #ifndef _FMODLINUX_H
