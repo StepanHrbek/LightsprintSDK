@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstdlib> // malloc, free
 #include <cstring> // _strdup
+#include <errno.h> // errno
 #include <wchar.h>
 
 
