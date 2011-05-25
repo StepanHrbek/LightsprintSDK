@@ -633,10 +633,17 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 						}
 
 						// generate single side filename
+#ifdef _WIN32
 						std::wstring filenameCube = RR_RR2STDW(filename);
 						int ofs = (int)filenameCube.find(L"%s");
 						if (ofs>=0)
 							filenameCube.replace(ofs,2,RRString(cubeSideName[side]).w_str());
+#else
+						std::string filenameCube = RR_RR2STD(filename);
+						int ofs = (int)filenameCube.find("%s");
+						if (ofs>=0)
+							filenameCube.replace(ofs,2,cubeSideName[side]);
+#endif
 
 						// save single side
 						int flags = 0;
