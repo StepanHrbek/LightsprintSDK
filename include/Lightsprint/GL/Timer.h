@@ -26,10 +26,26 @@
 		return t.tv_sec * 10000 + (t.tv_nsec + 500000) / 100000;
 	}
 
+#elif !defined(_WIN32)
+
+	// GETTIME: 1 us precision, artificially reduced to 0.1 ms
+	// in osx: correct
+	#include <sys/time.h>
+	#define TIME unsigned long long
+	#define GETTIME getTime()
+	#define PER_SEC 10000
+
+	inline unsigned long long getTime()
+	{
+		timeval t;
+		gettimeofday(&t,NULL);
+		return t.tv_sec * 10000 + (t.tv_usec + 500) / 100;
+	}
+
 #elif defined(_OPENMP)
 
 	// GETTIME: 1us precision,  Timer: low precision
-	// in linux: sometimes runs slower than real time
+	// in linux, osx: sometimes runs slower than real time
 	#include <omp.h>
 	#include <cstring> // NULL
 	#define TIME    double
@@ -52,7 +68,7 @@
 #else
 
 	// GETTIME: 1-16ms precision,  Timer: low precision
-	// in linux: sometimes runs slower than real time
+	// in linux, osx: sometimes runs slower than real time
 	#include <ctime>
 	#define TIME    clock_t
 	#define GETTIME clock()
