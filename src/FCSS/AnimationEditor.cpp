@@ -1,6 +1,11 @@
 #include "AnimationEditor.h"
-#include <GL/glut.h>
 #include <time.h>
+#ifdef __APPLE__
+	#include <GLUT/glut.h>
+	#include <ApplicationServices/ApplicationServices.h>
+#else
+	#include <GL/glut.h>
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //

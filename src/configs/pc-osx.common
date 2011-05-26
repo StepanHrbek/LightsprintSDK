@@ -43,3 +43,6 @@ IO_LIBS = \
 
 GLUT_LIB = \
 	-framework GLUT
+
+FMOD_LIB = \
+	../../bin/pc-osx/libfmodex.dylib

@@ -73,10 +73,15 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
 #include <GL/glew.h>
-#ifdef _WIN32
-	#include <GL/wglew.h>
+#ifdef __APPLE__
+	#include <GLUT/glut.h>
+	#include <ApplicationServices/ApplicationServices.h>
+#else
+	#ifdef _WIN32
+		#include <GL/wglew.h>
+	#endif
+	#include <GL/glut.h>
 #endif
-#include <GL/glut.h>
 #ifdef _WIN32
 	#include <direct.h> // _chdir
 	#include <shellapi.h> // CommandLineToArgvW
@@ -1917,10 +1922,10 @@ void parseOptions(int argc, const char*const*argv)
 		const char* caption = 
 			"Lightsmark 2008 back-end                                       (C) Stepan Hrbek";
 		const char* usage = 
-#if defined(LINUX) || defined(linux)
-			"Usage: backend [arg1] [arg2] ...\n"
-#else
+#if defined(_WIN32)
 			"Usage: backend.exe [arg1] [arg2] ...\n"
+#else
+			"Usage: backend [arg1] [arg2] ...\n"
 #endif
 			"\nArguments:\n"
 			"  window                    - run in window\n"
@@ -1934,10 +1939,10 @@ void parseOptions(int argc, const char*const*argv)
 			"  verbose                   - log also shader diagnostic messages\n"
 			"  capture=[jpg|tga]         - capture into sequence of images at 30fps\n"
 			"  opaqueshadows             - use simpler shadows\n";
-#if defined(LINUX) || defined(linux)
-		printf("\n%s\n\n%s",caption,usage);
-#else
+#if defined(_WIN32)
 		MessageBox(0,usage,caption,MB_OK);
+#else
+		printf("\n%s\n\n%s",caption,usage);
 #endif
 		exit(0);
 	}
@@ -2006,6 +2011,8 @@ int main(int argc, char** argv)
 	free(cwd);
 	if (globalOutputDirectory[1])
 		rr::RRReporter::report(rr::INF1,"Program directory not writeable, log+screenshots sent to %s\n",globalOutputDirectory);
+#elif defined(__APPLE__)
+	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [OSX %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #else
 	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Linux %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #endif
@@ -2018,6 +2025,14 @@ int main(int argc, char** argv)
 retry:
 	if (fullscreen)
 	{
+		int scrx = glutGet(GLUT_SCREEN_WIDTH);
+		int scry = glutGet(GLUT_SCREEN_HEIGHT);
+		if (!resolutionSet && (scrx<resolutionx || scry<resolutiony))
+		{
+			rr::RRReporter::report(rr::WARN,"Default 1280x1024 too high for your screen, switching to %dx%d.\n",scrx,scry);
+			resolutionx = scrx;
+			resolutiony = scry;
+		}
 		char buf[100];
 		sprintf(buf,"%dx%d:32",resolutionx,resolutiony);
 		glutGameModeString(buf);
@@ -2044,18 +2059,24 @@ retry:
 	if (glutGet(GLUT_WINDOW_WIDTH)!=resolutionx || glutGet(GLUT_WINDOW_HEIGHT)!=resolutiony
 	    || (fullscreen && (glutGet(GLUT_SCREEN_WIDTH)<resolutionx || glutGet(GLUT_SCREEN_HEIGHT)<resolutiony)))
 	{
+		/* retry nefunguje v OSX
 		if (!resolutionSet)
 		{
-			rr::RRReporter::report(rr::WARN,"Failed to set default 1280x1024 fullscreen, falling back to 1024x768 fullscreen.\n");
-			resolutionx = 1024;
-			resolutiony = 768;
+			rr::RRReporter::report(rr::WARN,"Failed to set default 1280x1024 fullscreen, falling back to 640x480 fullscreen.\n");
+			resolutionx = 640;
+			resolutiony = 480;
 			resolutionSet = true;
 			goto retry;
-		}
+		}*/
 		rr::RRReporter::report(rr::ERRO,"Sorry, unable to set %dx%d %s, try different mode.\n",resolutionx,resolutiony,fullscreen?"fullscreen":"window");
 		exiting = true;
 		exit(0);
 	};
+#ifdef __APPLE__
+	// OSX kills events ruthlessly
+	// see http://stackoverflow.com/questions/728049/glutpassivemotionfunc-and-glutwarpmousepointer
+	CGSetLocalEventsSuppressionInterval(0.0);
+#endif
 
 	// init GLEW
 	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);

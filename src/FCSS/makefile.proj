@@ -28,12 +28,7 @@ shadowcast.cpp
 
 # libraries
 
-LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) -lglut
-ifeq ($(BITS),32)
-LIBS += ../../bin/pc-linux32/libfmodex.so
-else
-LIBS += ../../bin/pc-linux64/libfmodex64.so
-endif
+LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLUT_LIB) $(FMOD_LIB)
 
 # include directories
 
@@ -48,3 +43,6 @@ LIB_DIRS = .
 # include the core part of the makefile
 
 include $(CFG_DIR)/../makefile.core
+
+$(TARGET)::
+	install_name_tool -change ./libfmodex.dylib $(FMOD_LIB) $(TARGET)
