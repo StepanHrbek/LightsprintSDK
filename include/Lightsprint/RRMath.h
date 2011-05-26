@@ -93,12 +93,13 @@
 #include <cfloat>
 #include <cmath>
 
-// fix symbols missing in gcc
 #ifdef __GNUC__
+	// fix symbols missing in gcc
 	#define _strdup strdup
 	#define _stricmp strcasecmp
 	#define _snprintf snprintf
 	#define _vsnprintf vsnprintf
+	#define _vsnwprintf vswprintf
 	#define _finite finite
 	#define _isnan isnan
 #if !(defined(__MINGW32__) || defined(__MINGW64__))
