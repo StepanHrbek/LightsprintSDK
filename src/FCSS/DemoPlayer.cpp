@@ -9,9 +9,7 @@
 
 extern void showImage(const rr_gl::Texture* tex);
 
-#define DP_GETSEC ( preciseTimer ? omp_get_wtime() : clock()/(double)CLOCKS_PER_SEC )
-
-DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusic, bool _pauseMusic, bool _preciseTimer)
+DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusic, bool _pauseMusic)
 {
 	rr::RRReportInterval report(rr::INF1,"Loading %s...\n",demoCfg);
 
@@ -22,7 +20,6 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	demoPosition = 0;
 	absTimeWhenDemoStarted = 0;
 	absTimeNow = GETSEC;
-	preciseTimer = _preciseTimer;
 	loadingMap = NULL;
 	music = NULL;
 	skyMap = NULL;

@@ -16,7 +16,6 @@ unsigned INSTANCES_PER_PASS;
 #endif
 #define SUPPORT_WATER
 //#define CORNER_LOGO
-//#define PLAY_WITH_FIXED_ADVANCE // po kazdem snimku se posune o 1/30s bez ohledu na hodiny
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
@@ -149,7 +148,6 @@ unsigned selectedObject_indexInDemo = 0;
 bool renderInfo = 1;
 const char* cfgFile = CFG_FILE;
 rr_gl::RRDynamicSolverGL::DDIQuality lightStability = rr_gl::RRDynamicSolverGL::DDI_AUTO;
-bool preciseTimer = false;
 char globalOutputDirectory[1000] = "."; // without trailing slash
 
 
@@ -1308,7 +1306,7 @@ void reshape(int w, int h)
 
 	if (!demoPlayer)
 	{
-		demoPlayer = new DemoPlayer(cfgFile,supportEditor,supportMusic,supportEditor,preciseTimer);
+		demoPlayer = new DemoPlayer(cfgFile,supportEditor,supportMusic,supportEditor);
 		demoPlayer->setBigscreen(bigscreenCompensation);
 		//demoPlayer->setPaused(supportEditor); unpaused after first display()
 		//glutSwapBuffers();
@@ -1385,13 +1383,6 @@ void display()
 	REPORT(rr::RRReportInterval report(rr::INF3,"display()\n"));
 	if (!winWidth) return; // can't work without window
 
-#ifdef PLAY_WITH_FIXED_ADVANCE
-	static double timeStart = 0;
-	if (timeStart==2) timeStart = GETSEC;
-	if (timeStart==1) timeStart = 2;
-	if (timeStart==0) timeStart = 1;
-#endif
-
 	if (!level)
 	{
 no_level:
@@ -1402,11 +1393,7 @@ no_level:
 		// end of the demo
 		if (!level)
 		{
-#ifdef PLAY_WITH_FIXED_ADVANCE
-			rr::RRReporter::report(rr::INF1,"Finished in %fs.\n",(float)(GETSEC-timeStart));
-#else
 			rr::RRReporter::report(rr::INF1,"Finished, average fps = %.2f.\n",g_fpsAvg);
-#endif
 			exiting = true;
 			exit((unsigned)(g_fpsAvg*10));
 			//keyboard(27,0,0);
@@ -1465,12 +1452,8 @@ no_level:
 		}
 		else
 		{
-#ifdef PLAY_WITH_FIXED_ADVANCE
-			demoPlayer->advanceBy(1/30.f);
-#else
 			// advance according to real time
 			demoPlayer->advance();
-#endif
 		}
 
 		// najde aktualni frame
@@ -1882,11 +1865,6 @@ void parseOptions(int argc, const char*const*argv)
 		if (!strcmp("opaqueshadows", argv[i]))
 		{
 			alphashadows = false;
-		}
-		else
-		if (!strcmp("timer_precision=high", argv[i]))
-		{
-			preciseTimer = true;
 		}
 		else
 		if (sscanf(argv[i],"penumbra%d", &tmp)==1)
