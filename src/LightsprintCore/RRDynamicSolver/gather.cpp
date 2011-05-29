@@ -832,6 +832,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	hemisphere.done();
 	gilights.done();
 
+	// physical irradiances are stored to working float buffers here, copyElementsTo will copy and scale them to user's buffer later
+
 	// convert result to light detail map
 	if (pti.context.params->lowDetailForLightDetailMap)
 	{
@@ -853,7 +855,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			}
 			irradianceIndirectLowDetail += ( irradianceIndirect[0]*wInTriangleSpace + irradianceIndirect[1]*uvInTriangleSpace[0] + irradianceIndirect[2]*uvInTriangleSpace[1] ) * i->areaInMapSpace;
 		}
-		// final transformation to highDetail_sRGB/lowDetail_sRGB/2. this is final color, it won't be scaled in scaleAndFlushToBuffer()
+		// final transformation to highDetail_sRGB/lowDetail_sRGB/2. this is final color, it won't be later scaled in copyElementsTo
 		if (pti.context.solver->getScaler()) pti.context.solver->getScaler()->getCustomScale(hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP]);
 		for (unsigned i=0;i<3;i++)
 		{

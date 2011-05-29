@@ -582,22 +582,6 @@ const char* checkUnwrapConsistency(const RRObject* object)
 	return NULL;
 }
 
-void scaleAndFlushToBuffer(RRBuffer* destBuffer, RRVec4* srcData, const RRScaler* scaler)
-{
-	if (!srcData || !destBuffer)
-	{
-		RR_ASSERT(0); // invalid inputs
-		return;
-	}
-	if (!destBuffer->getScaled()) scaler = NULL;
-	unsigned numElements = destBuffer->getWidth()*destBuffer->getHeight();
-	for (unsigned i=0;i<numElements;i++)
-	{
-		if (scaler) scaler->getCustomScale(srcData[i]);
-		destBuffer->setElement(i,srcData[i]);
-	}
-}
-
 RRBuffer* onlyVbuf(RRBuffer* buffer)
 {
 	return (buffer && buffer->getType()==BT_VERTEX_BUFFER) ? buffer : NULL;
