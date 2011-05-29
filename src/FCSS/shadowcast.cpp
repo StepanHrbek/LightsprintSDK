@@ -1996,7 +1996,6 @@ int main(int argc, char** argv)
 	// init GLUT
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_ALPHA); // | GLUT_ACCUM | GLUT_ALPHA accum na high quality soft shadows, alpha na filtrovani ambient map
-retry:
 	if (fullscreen)
 	{
 		int scrx = glutGet(GLUT_SCREEN_WIDTH);
@@ -2033,15 +2032,6 @@ retry:
 	if (glutGet(GLUT_WINDOW_WIDTH)!=resolutionx || glutGet(GLUT_WINDOW_HEIGHT)!=resolutiony
 	    || (fullscreen && (glutGet(GLUT_SCREEN_WIDTH)<resolutionx || glutGet(GLUT_SCREEN_HEIGHT)<resolutiony)))
 	{
-		/* retry nefunguje v OSX
-		if (!resolutionSet)
-		{
-			rr::RRReporter::report(rr::WARN,"Failed to set default 1280x1024 fullscreen, falling back to 640x480 fullscreen.\n");
-			resolutionx = 640;
-			resolutiony = 480;
-			resolutionSet = true;
-			goto retry;
-		}*/
 		rr::RRReporter::report(rr::ERRO,"Sorry, unable to set %dx%d %s, try different mode.\n",resolutionx,resolutiony,fullscreen?"fullscreen":"window");
 		exiting = true;
 		exit(0);
