@@ -197,11 +197,9 @@ Level* DemoPlayer::getNextPart(bool seekInMusic, bool loop)
 // cas je zde kompletni informace o pozici v demu
 // editor (kod jinde) ale musi navic vedet cislo snimku. snimek muze mit delku 0, pak nejde cislo snimku dohledat z casu
 
-float DemoPlayer::advance()
+void DemoPlayer::advance()
 {
-	double now = GETSEC;
-	float secondsSincePrevFrame = (float)(now-absTimeNow);
-	absTimeNow = now;
+	absTimeNow = GETSEC;
 	if (!paused)
 	{
 		demoPosition = (float)(absTimeNow-absTimeWhenDemoStarted); // jede podle hodin, zacal pocitat ve stejny okamzik jako hudba
@@ -211,7 +209,6 @@ float DemoPlayer::advance()
 	{
 		music->poll();
 	}
-	return secondsSincePrevFrame;
 }
 
 void DemoPlayer::advanceBy(float seconds)
