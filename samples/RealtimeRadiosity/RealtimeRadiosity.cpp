@@ -321,18 +321,16 @@ void idle()
 {
 	// smooth keyboard movement
 	static rr::RRTime time;
+	float seconds = time.secondsSinceLastQuery();
+	RR_CLAMP(seconds,0.001f,0.3f);
+	rr_gl::Camera* cam = modeMovingEye?&eye:realtimeLight->getParent();
+	if (speedForward) cam->pos += cam->dir * (speedForward*seconds);
+	if (speedBack) cam->pos -= cam->dir * (speedBack*seconds);
+	if (speedRight) cam->pos += cam->right * (speedRight*seconds);
+	if (speedLeft) cam->pos -= cam->right * (speedLeft*seconds);
+	if (speedForward || speedBack || speedRight || speedLeft)
 	{
-		float seconds = time.secondsSinceLastQuery();
-		RR_CLAMP(seconds,0.001f,0.3f);
-		rr_gl::Camera* cam = modeMovingEye?&eye:realtimeLight->getParent();
-		if (speedForward) cam->pos += cam->dir * (speedForward*seconds);
-		if (speedBack) cam->pos -= cam->dir * (speedBack*seconds);
-		if (speedRight) cam->pos += cam->right * (speedRight*seconds);
-		if (speedLeft) cam->pos -= cam->right * (speedLeft*seconds);
-		if (speedForward || speedBack || speedRight || speedLeft)
-		{
-			if (cam!=&eye) solver->reportDirectIlluminationChange(0,true,true);
-		}
+		if (cam!=&eye) solver->reportDirectIlluminationChange(0,true,true);
 	}
 
 	glutPostRedisplay();

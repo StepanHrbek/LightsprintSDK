@@ -283,25 +283,23 @@ void idle()
 
 	// smooth keyboard movement
 	static rr::RRTime time;
-	{
-		float seconds = time.secondsSinceLastQuery();
-		RR_CLAMP(seconds,0.001f,0.1f);
-		float distance = seconds * cameraSpeed;
-		rr_gl::Camera* cam = &eye;
-		if (autopilot) lightTime += seconds*SUN_SPEED;
-		if (keyPressed[GLUT_KEY_RIGHT+256]) lightTime += seconds*SUN_SPEED;
-		if (keyPressed[GLUT_KEY_LEFT+256]) lightTime -= seconds*SUN_SPEED;
-		if (keyPressed[GLUT_KEY_DOWN+256]) lightTime += seconds*5*SUN_SPEED;
-		if (keyPressed[GLUT_KEY_UP+256]) lightTime -= seconds*5*SUN_SPEED;
-		if (keyPressed['w']) cam->pos += cam->dir * distance;
-		if (keyPressed['s']) cam->pos -= cam->dir * distance;
-		if (keyPressed['a']) cam->pos -= cam->right * distance;
-		if (keyPressed['d']) cam->pos += cam->right * distance;
-		if (keyPressed['q']) cam->pos += cam->up * distance;
-		if (keyPressed['z']) cam->pos -= cam->up * distance;
-		if (autopilot) objectTime += seconds*OBJ_SPEED;
-		lightTime01 = fabs(fmod(lightTime,2.0f)-1);
-	}
+	float seconds = time.secondsSinceLastQuery();
+	RR_CLAMP(seconds,0.001f,0.1f);
+	float distance = seconds * cameraSpeed;
+	rr_gl::Camera* cam = &eye;
+	if (autopilot) lightTime += seconds*SUN_SPEED;
+	if (keyPressed[GLUT_KEY_RIGHT+256]) lightTime += seconds*SUN_SPEED;
+	if (keyPressed[GLUT_KEY_LEFT+256]) lightTime -= seconds*SUN_SPEED;
+	if (keyPressed[GLUT_KEY_DOWN+256]) lightTime += seconds*5*SUN_SPEED;
+	if (keyPressed[GLUT_KEY_UP+256]) lightTime -= seconds*5*SUN_SPEED;
+	if (keyPressed['w']) cam->pos += cam->dir * distance;
+	if (keyPressed['s']) cam->pos -= cam->dir * distance;
+	if (keyPressed['a']) cam->pos -= cam->right * distance;
+	if (keyPressed['d']) cam->pos += cam->right * distance;
+	if (keyPressed['q']) cam->pos += cam->up * distance;
+	if (keyPressed['z']) cam->pos -= cam->up * distance;
+	if (autopilot) objectTime += seconds*OBJ_SPEED;
+	lightTime01 = fabs(fmod(lightTime,2.0f)-1);
 
 	glutPostRedisplay();
 }
