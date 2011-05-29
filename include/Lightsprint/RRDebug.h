@@ -177,7 +177,7 @@ namespace rr
 		//! Returns number of seconds passed, "now - this", and updates this time, "this = now".
 		float secondsSinceLastQuery();
 	private:
-		unsigned char data[12];
+		unsigned char data[16];
 	};
 
 	//////////////////////////////////////////////////////////////////////////////
