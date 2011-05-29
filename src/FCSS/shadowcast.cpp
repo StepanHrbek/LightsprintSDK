@@ -215,8 +215,9 @@ void init_gl_resources()
 	realtimeLight->numInstancesInArea = MAX_INSTANCES;
 	realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
 
-	if (!alphashadows)
-		realtimeLight->shadowTransparencyRequested = rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS; // disables alpha keying in shadows (to stay compatible with Lightsmark 2007)
+	realtimeLight->shadowTransparencyRequested = alphashadows
+		? rr_gl::RealtimeLight::ALPHA_KEYED_SHADOWS // cweb_m01drk.tga is blended, but it is well hidden in scene, it is not worth enabling colored shadows mode
+		: rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS; // disables alpha keying in shadows (to stay compatible with Lightsmark 2007)
 
 #ifdef CORNER_LOGO
 	lightsprintMap = rr_gl::Texture::load("maps/Lightsprint230.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
@@ -1953,8 +1954,6 @@ int main(int argc, char** argv)
 
 	// do this before parseOption, options might override our defaults
 	rr::RRReporter::setFilter(true,1,false); // never mind that reporter doesn't exist yet, this is global setting
-	REPORT(rr::RRReporter::setFilter(true,3,true));
-	//rr_gl::Program::logMessages(true);
 
 	parseOptions(argc, argv);
 
