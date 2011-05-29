@@ -9,7 +9,6 @@
 #include <vector>
 #include "../RRStaticSolver/RRStaticSolver.h"
 #include "../RRPackedSolver/RRPackedSolver.h"
-#include "Lightsprint/GL/Timer.h"
 
 namespace rr
 {
@@ -60,10 +59,10 @@ namespace rr
 		bool       dirtyCustomIrradiance;
 		bool       dirtyMaterials;
 		unsigned   dirtyResults; // solution was improved in static or packed solver (this number of times), but we haven't incremented solutionVersion yet. we do this to reduce frequency of lightmap updates
-		TIME       lastInteractionTime;
-		TIME       lastCalcEndTime;
-		TIME       lastReadingResultsTime;
-		TIME       lastGIDirtyBecauseOfVideoTime;
+		RRTime     lastInteractionTime;
+		RRTime     lastCalcEndTime;
+		RRTime     lastReadingResultsTime;
+		RRTime     lastGIDirtyBecauseOfVideoTime;
 		float      userStep; // avg time spent outside calculate().
 		float      calcStep; // avg time spent in calculate().
 		float      improveStep; // time to be spent in improve in calculate()
@@ -110,10 +109,10 @@ namespace rr
 			dirtyCustomIrradiance = true;
 			dirtyMaterials = true;
 			dirtyResults = 1;
-			lastInteractionTime = 0;
-			lastCalcEndTime = 0;
-			lastReadingResultsTime = 0;
-			lastGIDirtyBecauseOfVideoTime = 0;
+			lastInteractionTime.addSeconds(-1);
+			lastCalcEndTime.addSeconds(0);
+			lastReadingResultsTime.addSeconds(-100);
+			lastGIDirtyBecauseOfVideoTime.addSeconds(-10);
 			userStep = 0;
 			calcStep = 0;
 			improveStep = 0;

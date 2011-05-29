@@ -4,7 +4,6 @@
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRDebug.h"
-#include "Lightsprint/GL/Timer.h"
 #include <cstdio>
 #include <set>
 

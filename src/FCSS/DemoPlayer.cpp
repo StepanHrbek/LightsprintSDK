@@ -18,8 +18,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	pauseMusic = false;
 	partStart = 0;
 	demoPosition = 0;
-	absTimeWhenDemoStarted = 0;
-	absTimeNow = GETSEC;
+	referencePosition = 0;
 	loadingMap = NULL;
 	music = NULL;
 	skyMap = NULL;
@@ -199,11 +198,9 @@ Level* DemoPlayer::getNextPart(bool seekInMusic, bool loop)
 
 void DemoPlayer::advance()
 {
-	absTimeNow = GETSEC;
 	if (!paused)
 	{
-		demoPosition = (float)(absTimeNow-absTimeWhenDemoStarted); // jede podle hodin, zacal pocitat ve stejny okamzik jako hudba
-		//demoPosition = getMusicPosition(); // jede podle hudby, nefunguje kdyz hudba chybi
+		demoPosition = referenceTime.secondsPassed()+referencePosition;
 	}
 	if (music)
 	{
@@ -214,8 +211,8 @@ void DemoPlayer::advance()
 void DemoPlayer::advanceBy(float seconds)
 {
 	demoPosition += seconds;
-	absTimeNow = GETSEC;
-	absTimeWhenDemoStarted = absTimeNow - demoPosition;
+	referenceTime.setNow();
+	referencePosition = demoPosition;
 	if (music) music->poll();
 }
 
@@ -240,7 +237,8 @@ void DemoPlayer::setDemoPosition(float seconds)
 {
 	if (music && pauseMusic) music->setPosition(seconds);
 	demoPosition = seconds;
-	absTimeWhenDemoStarted = GETSEC-demoPosition;
+	referenceTime.setNow();
+	referencePosition = demoPosition;
 }
 
 float DemoPlayer::getDemoPosition() const

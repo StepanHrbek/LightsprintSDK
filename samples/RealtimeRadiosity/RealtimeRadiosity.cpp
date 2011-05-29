@@ -31,7 +31,6 @@
 #else
 	#include <GL/glut.h>
 #endif
-#include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../src/LightsprintIO/Import3DS/Model_3DS.h"
@@ -321,11 +320,9 @@ void passive(int x, int y)
 void idle()
 {
 	// smooth keyboard movement
-	static TIME prev = 0;
-	TIME now = GETTIME;
-	if (prev && now!=prev)
+	static rr::RRTime time;
 	{
-		float seconds = (now-prev)/(float)PER_SEC;
+		float seconds = time.secondsSinceLastQuery();
 		RR_CLAMP(seconds,0.001f,0.3f);
 		rr_gl::Camera* cam = modeMovingEye?&eye:realtimeLight->getParent();
 		if (speedForward) cam->pos += cam->dir * (speedForward*seconds);
@@ -337,7 +334,6 @@ void idle()
 			if (cam!=&eye) solver->reportDirectIlluminationChange(0,true,true);
 		}
 	}
-	prev = now;
 
 	glutPostRedisplay();
 }

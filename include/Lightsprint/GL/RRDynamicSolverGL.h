@@ -120,7 +120,7 @@ namespace rr_gl
 		Texture* detectSmallMap;
 		Program* scaleDownProgram;
 		DDIQuality detectionQuality;
-		double lastDDITime;
+		rr::RRTime lastDDITime;
 		// for DDI of multiple lights
 		unsigned* detectedDirectSum;
 		unsigned detectedNumTriangles;

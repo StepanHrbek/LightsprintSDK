@@ -7,7 +7,6 @@
 
 #include "SVEntityIcons.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
-#include "Lightsprint/GL/Timer.h"
 #include "../PreserveState.h"
 #include "SVEntity.h"
 #include "wx/wx.h"
@@ -82,7 +81,8 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye, u
 	unsigned counter = 0;
 	for (unsigned i=0;i<entities.size();i++)
 	{
-		float brightness = (i==selectedIndex) ? 1+fabs(fmod((float)(GETSEC),1.0f)) : (entities[i].bright?1:0.3f);
+		static rr::RRTime time;
+		float brightness = (i==selectedIndex) ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
 		program->sendUniform("lightIndirectConst",brightness,brightness,brightness,1.0f);
 		renderIcon(entities[i],eye,iconSize);
 	}

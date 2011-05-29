@@ -228,6 +228,7 @@
     <ClCompile Include="RRObject\RRScaler.cpp" />
     <ClCompile Include="Unwrapper.cpp" />
     <ClCompile Include="RRFileLocator.cpp" />
+    <ClCompile Include="RRTime.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RRCollider\bsp.h">

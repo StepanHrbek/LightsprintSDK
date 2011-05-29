@@ -686,6 +686,7 @@
     <ClCompile Include="RRHash\RRHash.cpp" />
     <ClCompile Include="RRHash\sha1.cpp" />
     <ClCompile Include="RRMath.cpp" />
+    <ClCompile Include="RRTime.cpp" />
     <ClCompile Include="squish\alpha.cpp" />
     <ClCompile Include="squish\clusterfit.cpp" />
     <ClCompile Include="squish\colourblock.cpp" />

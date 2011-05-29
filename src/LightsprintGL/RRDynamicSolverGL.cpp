@@ -6,7 +6,6 @@
 #include <cstdarg>
 #include <cstdio>
 #include <GL/glew.h>
-#include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "CameraObjectDistance.h"
@@ -53,6 +52,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 		tmpstr("%sscaledown_filter.fs",pathToShaders));
 	if (!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %sscaledown_filter.*\n",pathToShaders);
 
+	lastDDITime.addSeconds(-1000000);
 	detectedDirectSum = NULL;
 	detectedNumTriangles = 0;
 
@@ -176,13 +176,13 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 		if (numLightsEnabled!=lastDDINumLightsEnabled)
 		{
 			lastDDINumLightsEnabled = numLightsEnabled;
-			lastDDITime = 0;
+			lastDDITime.addSeconds(-1000000);
 			dirtyGI = true;
 		}
 		if (dirtyGI)
 		{
-			double now = GETSEC;
-			if (fabs(now-lastDDITime)>=params.secondsBetweenDDI) // limits frequency of DDI
+			rr::RRTime now;
+			if (now.secondsSince(lastDDITime)>=params.secondsBetweenDDI) // limits frequency of DDI
 			{
 				lastDDITime = now;
 				setDirectIllumination(detectDirectIllumination());

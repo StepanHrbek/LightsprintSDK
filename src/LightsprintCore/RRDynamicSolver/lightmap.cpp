@@ -12,7 +12,6 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include "../RRMathPrivate.h"
 #include "private.h"

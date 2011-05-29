@@ -500,9 +500,6 @@
 			RelativePath="..\..\include\Lightsprint\GL\TextureRenderer.h">
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\GL\Timer.h">
-		</File>
-		<File
 			RelativePath="tmpstr.h">
 		</File>
 		<File

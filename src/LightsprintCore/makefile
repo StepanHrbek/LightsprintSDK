@@ -94,6 +94,7 @@ RRMath.cpp \
 RRMemory.cpp \
 RRObjectIllumination.cpp \
 RRScene.cpp \
+RRTime.cpp \
 Unwrapper.cpp
 
 # libraries

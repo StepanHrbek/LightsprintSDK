@@ -53,7 +53,6 @@
 	#include <GL/glut.h>
 #endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
-#include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/IO/ImportScene.h"
 #include <stdio.h>   // printf
 
@@ -375,11 +374,9 @@ void idle()
 	if (!winWidth) return; // can't work without window
 
 	// smooth keyboard movement
-	static TIME prev = 0;
-	TIME now = GETTIME;
-	if (prev && now!=prev)
+	static rr::RRTime time;
 	{
-		float seconds = (now-prev)/(float)PER_SEC;
+		float seconds = time.secondsSinceLastQuery();
 		RR_CLAMP(seconds,0.001f,0.3f);
 		rr_gl::Camera* cam = modeMovingEye?&eye:light;
 		if (speedForward) cam->pos += cam->dir * (speedForward*seconds);
@@ -391,7 +388,6 @@ void idle()
 			if (cam==light) solver->reportDirectIlluminationChange(0,true,true);
 		}
 	}
-	prev = now;
 
 	glutPostRedisplay();
 }

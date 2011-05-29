@@ -14,7 +14,6 @@
 #include "SVSceneTree.h" // for shortcuts that manipulate animations in scene tree
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
-#include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/Bloom.h"
 #include "Lightsprint/GL/LensFlare.h"
@@ -117,7 +116,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 	iconSize = 1;
 	fullyCreated = false;
 
-	timeWhenSkyboxBlendingStarted = 0;
+	skyboxBlendingInProgress = false;
 
 }
 
@@ -634,7 +633,7 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 // Filled on click, original data acquired at click time.
 struct ClickInfo
 {
-	TIME time;
+	rr::RRTime time;
 	int mouseX;
 	int mouseY;
 	bool mouseLeft;
@@ -692,7 +691,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		s_ciRelevant = true;
 		s_prevX = s_ci.mouseX = event.GetX();
 		s_prevY = s_ci.mouseY = event.GetY();
-		s_ci.time = GETTIME;
+		s_ci.time.setNow();
 		s_ci.mouseLeft = event.LeftIsDown();
 		s_ci.mouseMiddle = event.MiddleIsDown();
 		s_ci.mouseRight = event.RightIsDown();
@@ -749,7 +748,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	}
 
 	// handle clicking (mouse released in less than 0.2s in less than 20pix distance)
-	if (event.LeftUp() && (GETTIME-s_ci.time)<0.2f*PER_SEC && abs(event.GetX()-s_ci.mouseX)<20 && abs(event.GetY()-s_ci.mouseY)<20)
+	if (event.LeftUp() && s_ci.time.secondsPassed()<0.2f && abs(event.GetX()-s_ci.mouseX)<20 && abs(event.GetY()-s_ci.mouseY)<20)
 	{
 		// selection
 		if (s_ci.clickedEntity.type!=ST_CAMERA)
@@ -914,15 +913,14 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		return;
 
 	// camera/light movement
-	static TIME prevTime = 0;
-	TIME nowTime = GETTIME;
-	if (prevTime && nowTime!=prevTime)
+	static rr::RRTime prevTime;
+	float seconds = prevTime.secondsSinceLastQuery();
+	if (seconds>0)
 	{
 		// ray is used in this block
 
 
 		// camera/light keyboard move
-		float seconds = (nowTime-prevTime)/(float)PER_SEC;
 		RR_CLAMP(seconds,0.001f,0.3f);
 		float meters = seconds * svs.cameraMetersPerSecond;
 		Camera* cam = (selectedType!=ST_LIGHT)?&svs.eye:solver->realtimeLights[svs.selectedLightIndex]->getParent();
@@ -947,7 +945,6 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 			}
 		}
 	}
-	prevTime = nowTime;
 
 	Refresh(false);
 }
@@ -1044,12 +1041,10 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 	if (svs.envSimulateSun && svs.envSpeed)
 	{
-		static TIME t0 = 0;
-		TIME now = GETTIME;
-		double seconds = (now-t0)/(double)PER_SEC;
+		static rr::RRTime time;
+		float seconds = time.secondsSinceLastQuery();
 		if (seconds>0 && seconds<1)
 			svs.envDateTime.addSeconds(seconds*svs.envSpeed);
-		t0 = now;
 		parent->simulateSun();
 	}
 
@@ -1109,9 +1104,9 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		if (exitRequested || !winWidth || !winHeight) return; // can't display without window
 
 		// blend skyboxes
-		if (timeWhenSkyboxBlendingStarted)
+		if (skyboxBlendingInProgress)
 		{
-			float blend = (float)(GETSEC-timeWhenSkyboxBlendingStarted)/3;
+			float blend = skyboxBlendingStartTime.secondsPassed()/3;
 			// blending adds small CPU+GPU overhead, so don't blend if not necessary
 			// blend only if 3sec period running && second texture is present && differs from first one
 			if (blend>=0 && blend<=1 && solver->getEnvironment(1) && solver->getEnvironment(0)!=solver->getEnvironment(1))
@@ -1123,7 +1118,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			{
 				// stop blending
 				solver->setEnvironmentBlendFactor(0);
-				timeWhenSkyboxBlendingStarted = 0;
+				skyboxBlendingInProgress = false;
 			}
 		}
 
@@ -1299,14 +1294,12 @@ rendered:
 					|| svs.renderLightIndirect==LI_CONSTANT
 					))
 			{
-				static TIME oldTime = 0;
-				TIME newTime = GETTIME;
-				float secondsSinceLastFrame = (newTime-oldTime)/float(PER_SEC);
-				if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10 && oldTime)
+				static rr::RRTime time;
+				float secondsSinceLastFrame = time.secondsSinceLastQuery();
+				if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10)
 				{
 					toneMapping->adjustOperator(textureRenderer,secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingBrightness,svs.tonemappingGamma,svs.tonemappingAutomaticTarget);
 				}
-				oldTime = newTime;
 			}
 
 			// render selected
@@ -1519,7 +1512,8 @@ rendered:
 
 		// gather information about scene
 		unsigned numLights = solver->getLights().size();
-		bool displayPhysicalMaterials = fmod(GETSEC,8)>4;
+		static rr::RRTime time;
+		bool displayPhysicalMaterials = fmod(time.secondsPassed(),8)>4;
 		const rr::RRObject* multiObject = displayPhysicalMaterials ? solver->getMultiObjectPhysical() : solver->getMultiObjectCustom();
 		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;

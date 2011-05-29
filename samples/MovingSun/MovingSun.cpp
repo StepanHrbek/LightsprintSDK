@@ -41,7 +41,6 @@
 	#include <GL/glut.h>
 #endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
-#include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/IO/ImportScene.h"
 
 #if defined(LINUX) || defined(linux)
@@ -283,11 +282,9 @@ void idle()
 	if (!winWidth) return; // can't work without window
 
 	// smooth keyboard movement
-	static TIME prev = 0;
-	TIME now = GETTIME;
-	if (prev && now!=prev)
+	static rr::RRTime time;
 	{
-		float seconds = (now-prev)/(float)PER_SEC;
+		float seconds = time.secondsSinceLastQuery();
 		RR_CLAMP(seconds,0.001f,0.1f);
 		float distance = seconds * cameraSpeed;
 		rr_gl::Camera* cam = &eye;
@@ -305,7 +302,6 @@ void idle()
 		if (autopilot) objectTime += seconds*OBJ_SPEED;
 		lightTime01 = fabs(fmod(lightTime,2.0f)-1);
 	}
-	prev = now;
 
 	glutPostRedisplay();
 }

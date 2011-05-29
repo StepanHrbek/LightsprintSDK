@@ -139,7 +139,8 @@ namespace rr_gl
 		class SVEntityIcons*       entityIcons;
 
 		// skybox blending
-		double                     timeWhenSkyboxBlendingStarted;
+		bool                       skyboxBlendingInProgress;
+		rr::RRTime                 skyboxBlendingStartTime;
 
 
 		friend class SVFrame;

@@ -72,7 +72,6 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Texture.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\TextureRenderer.h" />
-    <ClInclude Include="..\..\include\Lightsprint\GL\Timer.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\ToneMapping.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgram.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgramSetup.h" />

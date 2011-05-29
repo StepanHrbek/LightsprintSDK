@@ -62,7 +62,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 	#include <limits> // nutne aby uspel build v gcc4.3
 #endif
 #include "Level.h"
-#include "Lightsprint/GL/Timer.h"
 #include <cfloat>
 #include <cmath>
 #include <cstdlib>
@@ -1425,9 +1424,8 @@ no_level:
 	// 3. display updates depthmaps again
 
 	// keyboard movements with key repeat turned off
-	static TIME previousFrameStartTime = 0;
-	TIME thisFrameStartTime = GETTIME;
-	float previousFrameDuration = previousFrameStartTime ? (thisFrameStartTime-previousFrameStartTime)/(float)PER_SEC : 0;
+	static rr::RRTime previousFrameStartTime;
+	float previousFrameDuration = previousFrameStartTime.secondsSinceLastQuery();
 	RR_CLAMP(previousFrameDuration,0.0001f,0.3f);
 	rr_gl::Camera* cam = modeMovingEye?&currentFrame.eye:&currentFrame.light;
 	if (speedForward) cam->pos += cam->dir * (speedForward*previousFrameDuration);
@@ -1471,9 +1469,9 @@ no_level:
 				for (unsigned i=0;i<level->solver->realtimeLights.size();i++)
 					if (level->solver->realtimeLights[i]->dirtyGI)
 					{
-						static double lastDDITime = 0;
-						double now = GETSEC;
-						if (!lastDDITime || fabs(now-lastDDITime)>=SECONDS_BETWEEN_DDI)
+						static rr::RRTime lastDDITime;
+						rr::RRTime now;
+						if (now.secondsSince(lastDDITime)>=SECONDS_BETWEEN_DDI)
 						{
 							lastDDITime = now;
 							needImmediateDDI = true;
@@ -1600,7 +1598,6 @@ no_frame:
 //			needRedisplay = 1;
 		}
 	}
-	previousFrameStartTime = thisFrameStartTime;
 	setShadowTechnique();
 
 	if (movingEye && !--movingEye)

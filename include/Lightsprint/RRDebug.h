@@ -157,6 +157,31 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
+	//! Accurate timer.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RR_API RRTime
+	{
+	public:
+		//! By default, constructor updates time to current time. You can pass false to keep time uninitialized, but then don't call any other time function before setNow(), results would be random.
+		explicit RRTime(bool setNow = true);
+		//! Updates this time, "this = now".
+		void setNow();
+		//! Modifies this time, "this += seconds".
+		void addSeconds(float seconds);
+		//! Returns number of seconds passed, "now - this".
+		float secondsPassed() const;
+		//! Returns number of seconds since a, "this - a".
+		float secondsSince(const RRTime& a) const;
+		//! Returns number of seconds passed, "now - this", and updates this time, "this = now".
+		float secondsSinceLastQuery();
+	private:
+		unsigned char data[12];
+	};
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
 	//! Reporting events with time taken
 	//
 	//! Helper for reporting event with automatic indented subevents, reported duration.
@@ -173,12 +198,8 @@ namespace rr
 		//! Reports time elapsed since constructor call and decreases indentation.
 		~RRReportInterval();
 	protected:
-		#ifdef _OPENMP
-			double creationTime;
-		#else
-			unsigned long creationTime;
-		#endif
 		bool enabled;
+		RRTime time;
 	};
 
 

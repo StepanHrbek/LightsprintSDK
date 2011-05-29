@@ -8,8 +8,8 @@
 #ifndef FPS_H
 #define FPS_H
 
+#include "Lightsprint/RRDebug.h" // RRTime
 #include "Lightsprint/GL/TextureRenderer.h"
-#include "Lightsprint/GL/Timer.h"
 #include <queue>
 
 namespace rr_gl
@@ -25,7 +25,7 @@ public:
 	unsigned getFps();
 
 protected:
-	std::queue<TIME> times;
+	std::queue<rr::RRTime> times;
 };
 
 

@@ -453,7 +453,7 @@ void RRDynamicSolver::reportDirectIlluminationChange(int lightIndex, bool dirtyS
 void RRDynamicSolver::reportInteraction()
 {
 	REPORT(RRReporter::report(INF1,"<Interaction>\n"));
-	priv->lastInteractionTime = GETTIME;
+	priv->lastInteractionTime.setNow();
 }
 
 void RRDynamicSolver::setDirectIllumination(const unsigned* directIllumination)
@@ -520,7 +520,7 @@ void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
 		if (materialTransmittanceQuality)
 		{
 			if (priv->materialTransmittanceVersionSum[1]!=versionSum[1] && _params->materialTransmittanceVideoQuality>1)
-				priv->lastGIDirtyBecauseOfVideoTime = GETTIME;
+				priv->lastGIDirtyBecauseOfVideoTime.setNow();
 			priv->materialTransmittanceVersionSum[0] = versionSum[0];
 			priv->materialTransmittanceVersionSum[1] = versionSum[1];
 			reportDirectIlluminationChange(-1,materialTransmittanceQuality>0,materialTransmittanceQuality>1);
@@ -533,16 +533,7 @@ class EndByTime : public RRStaticSolver::EndFunc
 public:
 	virtual bool requestsEnd()
 	{
-		#if PER_SEC==1
-			// floating point time without overflows
-			return (GETTIME>endTime) || *aborting;
-		#else
-			// fixed point time with overlaps
-			TIME now = GETTIME;
-			TIME end = endTime;
-			TIME max = (TIME)(end+ULONG_MAX/2);
-			return ( end<now && now<max ) || ( now<max && max<end ) || ( max<end && end<now ) || *aborting;
-		#endif
+		return endTime.secondsPassed()>0 || *aborting;
 	}
 	virtual bool requestsRealtimeResponse()
 	{
@@ -550,7 +541,7 @@ public:
 		return true;
 	}
 	bool* aborting;
-	TIME endTime;
+	RRTime endTime;
 };
 
 // calculates radiosity in existing times (improveStep = seconds to spend in improving),
@@ -611,7 +602,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 				// Fireball::illuminationReset() must be called to start using new emittance
 				priv->dirtyCustomIrradiance = true;
 				if (_params->materialEmittanceVideoQuality) // rarely might be dirty because of static image change. worst case scenario = additional GI improves delayed 1 sec
-					priv->lastGIDirtyBecauseOfVideoTime = GETTIME;
+					priv->lastGIDirtyBecauseOfVideoTime.setNow();
 			}
 		}
 
@@ -623,7 +614,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 			{
 				priv->solutionVersion++;
 				if (_params->environmentVideoQuality) // rarely might be dirty because of static image change. worst case scenario = additional GI improves delayed 1 sec
-					priv->lastGIDirtyBecauseOfVideoTime = GETTIME;
+					priv->lastGIDirtyBecauseOfVideoTime.setNow();
 			}
 		}
 	}
@@ -649,13 +640,13 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	}
 
 	REPORT(RRReportInterval report(INF3,"Radiosity...\n"));
-	TIME now = GETTIME;
+	rr::RRTime now;
 	if (priv->packedSolver)
 	{
 		unsigned oldVer = priv->packedSolver->getSolutionVersion();
 
 		// when video affects GI, we must avoid additional improves (video 15fps + our window 30fps = every odd frame would be more improved, brighter)
-		bool giAffectedByVideo = now<(TIME)(priv->lastGIDirtyBecauseOfVideoTime+PER_SEC);
+		bool giAffectedByVideo = now.secondsSince(priv->lastGIDirtyBecauseOfVideoTime)<1;
 
 		priv->packedSolver->illuminationImprove(_params->qualityIndirectDynamic,giAffectedByVideo?_params->qualityIndirectDynamic:_params->qualityIndirectStatic);
 		if (priv->packedSolver->getSolutionVersion()>oldVer)
@@ -669,7 +660,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	{
 		EndByTime endByTime;
 		endByTime.aborting = &aborting;
-		endByTime.endTime = (TIME)(now+improveStep*PER_SEC);
+		endByTime.endTime.addSeconds(improveStep);
 		if (priv->scene->illuminationImprove(endByTime)==RRStaticSolver::IMPROVED)
 		{
 			// dirtyResults++ -> solutionVersion will increment in a few miliseconds -> user will update lightmaps and redraw scene
@@ -678,7 +669,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	}
 	//REPORT(RRReporter::report(INF3,"imp %d det+res+read %d game %d\n",(int)(1000*improveStep),(int)(1000*calcStep-improveStep),(int)(1000*userStep)));
 
-	if (priv->dirtyResults>priv->readingResultsPeriodSteps && now>=(TIME)(priv->lastReadingResultsTime+priv->readingResultsPeriodSeconds*PER_SEC))
+	if (priv->dirtyResults>priv->readingResultsPeriodSteps && now.secondsSince(priv->lastReadingResultsTime)>=priv->readingResultsPeriodSeconds)
 	{
 		priv->lastReadingResultsTime = now;
 		if (priv->readingResultsPeriodSeconds<READING_RESULTS_PERIOD_MAX) priv->readingResultsPeriodSeconds *= READING_RESULTS_PERIOD_GROWTH;
@@ -691,16 +682,16 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
 void RRDynamicSolver::calculate(CalculateParameters* _params)
 {
-	TIME calcBeginTime = GETTIME;
+	RRTime calcBeginTime;
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);
 
 	// adjust userStep
-	float lastUserStep = (float)((calcBeginTime-priv->lastCalcEndTime)/(float)PER_SEC);
+	float lastUserStep = calcBeginTime.secondsSince(priv->lastCalcEndTime);
 	if (!lastUserStep) lastUserStep = 0.00001f; // fight with low timer precision, avoid 0, initial userStep=0 means 'unknown yet' which forces too long improve (IMPROVE_STEP_NO_INTERACTION)
-	if (priv->lastInteractionTime && priv->lastInteractionTime>=priv->lastCalcEndTime)
+	if (priv->lastInteractionTime.secondsSince(priv->lastCalcEndTime)>=0)
 	{
 		// reportInteraction was called between this and previous calculate
-		if (priv->lastCalcEndTime && lastUserStep<1.0f)
+		if (lastUserStep<1.0f)
 		{
 			priv->userStep = lastUserStep;
 		}
@@ -709,9 +700,7 @@ void RRDynamicSolver::calculate(CalculateParameters* _params)
 		// no reportInteraction was called between this and previous calculate
 		// -> increase userStep
 		//    (this slowly increases calculation time)
-		priv->userStep = priv->lastInteractionTime ?
-			(float)((priv->lastCalcEndTime-priv->lastInteractionTime)/(float)PER_SEC) // time from last interaction (if there was at least one)
-			: IMPROVE_STEP_NO_INTERACTION; // safety time for situations there was no interaction yet
+		priv->userStep = priv->lastCalcEndTime.secondsSince(priv->lastInteractionTime);
 		//REPORT(RRReporter::report(INF1,"User %d ms (accumulated to %d).\n",(int)(1000*lastUserStep),(int)(1000*priv->userStep)));
 	}
 
@@ -741,8 +730,8 @@ void RRDynamicSolver::calculate(CalculateParameters* _params)
 	calculateCore(priv->improveStep,_params);
 
 	// adjust calcStep
-	priv->lastCalcEndTime = GETTIME;
-	float lastCalcStep = (float)((priv->lastCalcEndTime-calcBeginTime)/(float)PER_SEC);
+	priv->lastCalcEndTime.setNow();
+	float lastCalcStep = priv->lastCalcEndTime.secondsSince(calcBeginTime);
 	if (!lastCalcStep) lastCalcStep = 0.00001f; // fight low timer precision, avoid 0, initial calcStep=0 means 'unknown yet'
 	if (lastCalcStep<1.0)
 	{

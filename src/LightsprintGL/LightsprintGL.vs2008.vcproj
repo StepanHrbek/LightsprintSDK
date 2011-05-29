@@ -1117,10 +1117,6 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\GL\Timer.h"
-			>
-		</File>
-		<File
 			RelativePath="tmpstr.h"
 			>
 		</File>

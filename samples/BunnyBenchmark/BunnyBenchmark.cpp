@@ -9,7 +9,6 @@
 
 #include "plymeshreader.h"
 #include "sphereunitvecpool.h"
-#include "Lightsprint/GL/Timer.h"
 #include "Lightsprint/RRCollider.h"
 #include <math.h>
 #ifdef _OPENMP
@@ -73,8 +72,7 @@ int main(int argc, char** argv)
 	const RRCollider* collider = RRCollider::create(rrMesh,RRCollider::IT_BSP_FASTEST,aborting);
 
 	// start watch
-	rr_gl::Timer* watch = new rr_gl::Timer();
-	watch->Start();
+	RRTime time;
 
 	// cast all rays
 	const int NUM_RAYS = 25000000;
@@ -122,21 +120,16 @@ int main(int argc, char** argv)
 		delete ray;
 	}
 
-	// stop watch
-	double realtime, usertime, kerneltime;
-	realtime = watch->Watch(&usertime,&kerneltime);
-
 	// report results
 	RRReporter::report(INF1,"Detected speed: %d intersections per second (hit ratio=%f)\n",
-		(int)(NUM_RAYS/realtime),
-		(double)num_hits / NUM_RAYS
+		(int)(NUM_RAYS/time.secondsPassed()),
+		(double)num_hits/NUM_RAYS
 		);
 
 	RRReporter::report(INF1,"Hit enter to close...");
 	fgetc(stdin);
 
 	// cleanup
-	delete watch;
 	delete rrMesh;
 	delete collider;
 	delete reporter;

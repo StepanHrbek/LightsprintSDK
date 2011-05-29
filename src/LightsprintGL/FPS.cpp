@@ -15,9 +15,9 @@ namespace rr_gl
 
 unsigned FpsCounter::getFps()
 {
-	TIME now = GETTIME;
-	while (times.size() && now-times.front()>PER_SEC) times.pop();
-	times.push(GETTIME);
+	rr::RRTime now;
+	while (times.size() && now.secondsSince(times.front())>1) times.pop();
+	times.push(now);
 	unsigned fpsToRender = (unsigned)times.size();
 	return fpsToRender;
 }

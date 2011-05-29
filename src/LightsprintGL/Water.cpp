@@ -6,7 +6,6 @@
 #include <GL/glew.h>
 #include <cstdio>
 #include "Lightsprint/GL/Water.h"
-#include "Lightsprint/GL/Timer.h"
 #include "PreserveState.h"
 #include "Workaround.h"
 #include "tmpstr.h"
@@ -98,7 +97,8 @@ void Water::render(float size, rr::RRVec3 center, rr::RRVec4 waterColor, rr::RRV
 	glActiveTexture(GL_TEXTURE1);
 	normalMap->bindTexture();
 	mirrorProgram->sendUniform("normalMap",1);
-	mirrorProgram->sendUniform("time",(float)(fmod(GETSEC,10000)));
+	static rr::RRTime time;
+	mirrorProgram->sendUniform("time",(float)(fmod(time.secondsPassed(),10000)));
 
 	// Ensure sRGB correctness.
 	PreserveFlag p1(GL_FRAMEBUFFER_SRGB,srgbCorrect);

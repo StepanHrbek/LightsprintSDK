@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news122 ------------------------------------ 2011.05.xx -------------------------------------
+
+CHANGES
+
+- RRTime replaces old TIME, GETTIME, PER_SEC, GETSEC, Timer
+  - simpler
+  - more accurate
+
 \section news121 ------------------------------------ 2011.05.19 -------------------------------------
 
 NEWS

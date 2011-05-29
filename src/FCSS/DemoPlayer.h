@@ -4,7 +4,6 @@
 #include <vector>
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/GL/Texture.h"
-#include "Lightsprint/GL/Timer.h"
 
 class DemoPlayer
 {
@@ -48,8 +47,8 @@ private:
 	bool pauseMusic; // true: music is synchronized/paused with demo, false: music plays all time
 	float partStart; // 0..demo duration in seconds, time when current part started
 	float demoPosition; // 0..demo duration in seconds.
-	double absTimeWhenDemoStarted;
-	double absTimeNow;
+	rr::RRTime referenceTime;
+	float referencePosition;
 
 	// loading_screen
 	rr::RRBuffer* loadingMap;

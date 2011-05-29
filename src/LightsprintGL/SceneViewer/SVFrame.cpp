@@ -518,7 +518,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 #if defined(_WIN32) && _MSC_VER>=1400
 #ifdef NDEBUG
-	double splashStartSec = GETSEC;
+	rr::RRTime splashStart;
 	AlphaSplashScreen splash(wxString::Format("%s../maps/sv_splash.png",svs.pathToShaders),230,-245);
 #endif
 #endif
@@ -1175,7 +1175,8 @@ reload_skybox:
 				{
 					solver->setEnvironment(skybox,solver->getEnvironment(0));
 					envToBeDeletedOnExit = true;
-					m_canvas->timeWhenSkyboxBlendingStarted = GETSEC; // starts 3sec smooth transition in SVCanvas::Paint()
+					m_canvas->skyboxBlendingInProgress = true;
+					m_canvas->skyboxBlendingStartTime.setNow(); // starts 3sec smooth transition in SVCanvas::Paint()
 					if (svs.playVideos)
 						skybox->play();
 				}
