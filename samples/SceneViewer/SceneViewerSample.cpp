@@ -35,14 +35,6 @@
 	#include <windows.h>
 #endif // _WIN32
 
-void error(const char* message)
-{
-	rr::RRReporter::report(rr::ERRO,message);
-	printf("\n\nHit enter to close...");
-	fgetc(stdin);
-	exit(0);
-}
-
 int main(int argc, char** argv)
 {
 #ifdef _MSC_VER
@@ -50,13 +42,6 @@ int main(int argc, char** argv)
 	_CrtSetDbgFlag( (_CrtSetDbgFlag( _CRTDBG_REPORT_FLAG )|_CRTDBG_LEAK_CHECK_DF)&~_CRTDBG_CHECK_CRT_DF );
 	//_crtBreakAlloc = 14350;
 #endif
-
-	// Check for version mismatch
-	if (!RR_INTERFACE_OK)
-	{
-		printf(RR_INTERFACE_MISMATCH_MSG);
-		error("");
-	}
 #if defined(_DEBUG) || !defined(_WIN32)
 	// Log messages to console
 	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
@@ -77,7 +62,16 @@ int main(int argc, char** argv)
 
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
-		error(licError);
+	{
+#if defined(_DEBUG) || !defined(_WIN32)
+		puts(licError);
+		printf("\n\nHit enter to close...");
+		fgetc(stdin);
+#else
+		MessageBox(NULL,licError,"SceneViewer exiting...",MB_OK);
+#endif
+		exit(0);
+	}
 
 	const char* sceneFilename = (argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae";
 #if 1
