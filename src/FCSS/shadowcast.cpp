@@ -424,7 +424,7 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
 		uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
-		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = !currentFrame.wantsConstantAmbient();
+		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP &= !currentFrame.wantsConstantAmbient();
 		uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // for robot
@@ -1178,6 +1178,9 @@ void keyboard(unsigned char c, int x, int y)
 			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;*/
+		case 'l':
+			uberProgramGlobalSetup.LIGHT_INDIRECT_DETAIL_MAP = !uberProgramGlobalSetup.LIGHT_INDIRECT_DETAIL_MAP;
+			break;
 		default:
 			return;
 	}
