@@ -86,6 +86,8 @@ int main(int argc, char** argv)
 
 	// calculate lightmaps(layer0), directional lightmaps(layer1,2,3), bent normals(layer4)
 	rr::RRDynamicSolver::UpdateParameters params(1000);
+	params.aoIntensity = 1;
+	params.aoScale = 1;
 	solver->updateLightmaps(0,1,4,&params,&params,NULL);
 
 	// save GI lightmaps, bent normals

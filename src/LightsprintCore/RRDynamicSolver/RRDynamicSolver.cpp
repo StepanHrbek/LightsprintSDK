@@ -63,7 +63,8 @@ bool RRDynamicSolver::UpdateParameters::operator ==(const RRDynamicSolver::Updat
 		&& a.insideObjectsThreshold==insideObjectsThreshold
 		&& a.rugDistance==rugDistance
 		&& a.locality==locality
-		&& a.lowDetailForLightDetailMap==lowDetailForLightDetailMap
+		&& a.aoIntensity==aoIntensity
+		&& a.aoScale==aoScale
 		&& a.measure_internal==measure_internal
 		&& a.debugObject==debugObject
 		&& a.debugTexel==debugTexel

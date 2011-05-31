@@ -63,7 +63,7 @@ void serialize(Archive & ar, rr::RRVec4& a, const unsigned int version)
 	ar & make_nvp("w",a.w);
 }
 
-//------------------------------ CalculateParameters -------------------------------------
+/*/------------------------------ CalculateParameters -------------------------------------
 
 template<class Archive>
 void serialize(Archive & ar, rr::RRDynamicSolver::CalculateParameters& a, const unsigned int version)
@@ -94,7 +94,8 @@ void serialize(Archive & ar, rr::RRDynamicSolver::UpdateParameters& a, const uns
 	ar & make_nvp("insideObjectsThreshold",a.insideObjectsThreshold);
 	ar & make_nvp("rugDistance",a.rugDistance);
 	ar & make_nvp("locality",a.locality);
-	ar & make_nvp("lowDetailForLightDetailMap",a.lowDetailForLightDetailMap);
+	ar & make_nvp("aoIntensity",a.aoIntensity);
+	ar & make_nvp("aoScale",a.aoScale);
 	ar & make_nvp("measure_internal",a.measure_internal);
 }
 
@@ -108,7 +109,7 @@ void serialize(Archive & ar, rr::RRDynamicSolver::FilteringParameters& a, const 
 	ar & make_nvp("backgroundColor",a.backgroundColor);
 	ar & make_nvp("wrap",a.wrap);
 }
-
+*/
 //------------------------------ Camera -------------------------------------
 
 template<class Archive>

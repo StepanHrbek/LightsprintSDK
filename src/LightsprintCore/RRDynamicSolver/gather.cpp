@@ -187,6 +187,7 @@ public:
 		// init counters
 		hitsReliable = 0;
 		hitsUnreliable = 0;
+		hitsDistant = 0;
 		hitsInside = 0;
 		hitsRug = 0;
 		hitsSky = 0;
@@ -208,6 +209,9 @@ public:
 		// use orthonormal basis (so that probabilities of exit directions are correct)
 		// don't use _basisSkewedNormalized, because it's not orthonormal, it's made for compatibility with UE3
 		RRVec3 dir = getRandomEnterDirNormalized(fillerDir,_basisOrthonormal);
+
+		// prepare for approximate measurement of hit distance (if it is not changed = no hit)
+		pti.rays[0].hitDistance = 1e10f;
 
 		// gather 1 ray
 		RRVec3 irrad = gatherer.gatherPhysicalExitance(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1),2);
@@ -239,6 +243,8 @@ public:
 		bentNormalHemisphere += dir * irrad.abs().avg();
 		hitsScene++;
 		hitsReliable++;
+		if (pti.rays[0].hitDistance>pti.context.params->aoScale)
+			hitsDistant++;
 	}
 
 	// once after shooting
@@ -267,8 +273,11 @@ public:
 		else
 		{
 			// get average hit, hemisphere hits don't accumulate
+			float factor = 1/(RRReal)hitsReliable;
+			if (pti.context.params->aoIntensity>0)
+				factor *= pow(hitsDistant/(float)hitsReliable,pti.context.params->aoIntensity);
 			for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
-				irradiancePhysicalHemisphere[i] /= (RRReal)hitsReliable;
+				irradiancePhysicalHemisphere[i] *= factor;
 			// compute reliability
 			reliabilityHemisphere = hitsReliable/(RRReal)rays;
 		}
@@ -281,6 +290,7 @@ public:
 	unsigned rays;
 	unsigned hitsReliable;
 	unsigned hitsUnreliable;
+	unsigned hitsDistant;
 
 protected:
 	const GatheringTools& tools;
@@ -816,7 +826,6 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 			if (shootLights)
 			{
-				RR_ASSERT(!pti.context.params->lowDetailForLightDetailMap);
 				if (!shootHemisphere // shooting only into lights
 					|| gilights.rounds>=hemisphere.rays // shoting both, always into lights
 					|| seriesNumGilightsShootersShot*(seriesNumShootersTotal-1)<gilights.rounds*seriesShooterNum) // shooting both, sometimes into lights
@@ -832,43 +841,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	hemisphere.done();
 	gilights.done();
 
-	// physical irradiances are stored to working float buffers here, copyElementsTo will copy and scale them to user's buffer later
-
-	// convert result to light detail map
-	if (pti.context.params->lowDetailForLightDetailMap)
-	{
-		RRVec3 irradianceIndirectLowDetail(0);
-		const RRMesh* multiMesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
-		for (TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();++i)
-		{
-			RR_ASSERT(_finite(i->areaInMapSpace));
-			RRVec2 uvInTriangleSpace = (i->uvInTriangleSpace[0]+i->uvInTriangleSpace[1]+i->uvInTriangleSpace[2])*0.33333333f; // uv of center of subtexel
-			RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
-			RRMesh::Triangle postImportTriangleVertex;
-			multiMesh->getTriangle(i->multiObjPostImportTriIndex,postImportTriangleVertex);
-			RRVec3 irradianceIndirect[3];
-			for (unsigned v=0;v<3;v++)
-			{
-				RRMesh::PreImportNumber preImportVertex = multiMesh->getPreImportVertex(postImportTriangleVertex[v],i->multiObjPostImportTriIndex);
-				// our caller promised that all pti.subtexels belong to object whose buffer is updated, so we may ignore preImportVertex.object
-				irradianceIndirect[v] = pti.context.params->lowDetailForLightDetailMap->getElement(preImportVertex.index);
-			}
-			irradianceIndirectLowDetail += ( irradianceIndirect[0]*wInTriangleSpace + irradianceIndirect[1]*uvInTriangleSpace[0] + irradianceIndirect[2]*uvInTriangleSpace[1] ) * i->areaInMapSpace;
-		}
-		// final transformation to highDetail_sRGB/lowDetail_sRGB/2. this is final color, it won't be later scaled in copyElementsTo
-		if (pti.context.solver->getScaler()) pti.context.solver->getScaler()->getCustomScale(hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP]);
-		for (unsigned i=0;i<3;i++)
-		{
-			RR_ASSERT(_finite(hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][i]));
-			hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][i] =
-				irradianceIndirectLowDetail[i]
-					? hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][i] / irradianceIndirectLowDetail[i] * (areaMax*0.5f)
-					: 0.5f;
-		}
-		RR_ASSERT(IS_VEC3(hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP]));
-	}
-
 	// sum and store irradiance
+	// physical irradiances are stored to working float buffers here, copyElementsTo will copy and scale them to user's buffer later
 	ProcessTexelResult result;
 	for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 	{
@@ -889,7 +863,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	{
 		result.bentNormal.RRVec3::normalize();
 	}
-	// store bent normal (no scaling)
+	// store bent normal (no scaling now or later)
 	if (pti.context.pixelBuffers[LS_BENT_NORMALS])
 	{
 		pti.context.pixelBuffers[LS_BENT_NORMALS]->setElement(pti.uv[0]+pti.uv[1]*pti.context.pixelBuffers[LS_BENT_NORMALS]->getWidth(),

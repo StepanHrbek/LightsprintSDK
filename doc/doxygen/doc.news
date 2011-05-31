@@ -10,6 +10,18 @@ namespace rr
 
 \section news122 ------------------------------------ 2011.05.xx -------------------------------------
 
+NEWS
+
+- AO can be baked into regular lightmaps to make corners darker
+  - new parameters in solver
+    - RRDynamicSolver::UpdateParameters::aoIntensity
+    - RRDynamicSolver::UpdateParameters::aoScale
+  - new parameters in BuildLightmaps tool
+    - aointensity=
+    - aoscale=
+  - recommended intensity is 1 (2 makes effect stronger), default is 0 (disabled)
+  - recommended scale depends on size of scene details, could be 1m for interior. if it is set too high, whole scene is darkened or even becomes black
+
 CHANGES
 
 - RRTime replaces old TIME, GETTIME, PER_SEC, GETSEC, Timer

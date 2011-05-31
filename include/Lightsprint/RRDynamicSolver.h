@@ -445,8 +445,12 @@ namespace rr
 			//! outer environment/sky.)
 			RRReal locality;
 
-			//! For internal use only, don't change default NULL value.
-			RRBuffer* lowDetailForLightDetailMap;
+			//! Higher value makes indirect illumination in corners darker, default 0=off, 1=normal, 2=strong.
+			RRReal aoIntensity;
+			//! Indirect illumination gets darker in this distance (in workd units, usually meters) from corners.
+			//! If it is set too high, indirect illumination becomes too dark, possibly completely black.
+			//! Has no effect if aoIntensity is 0.
+			RRReal aoScale;
 
 			//! For internal use only, don't change default RM_IRRADIANCE_CUSTOM_INDIRECT value.
 			RRRadiometricMeasure measure_internal;
@@ -472,7 +476,8 @@ namespace rr
 				insideObjectsThreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;
-				lowDetailForLightDetailMap = NULL;
+				aoIntensity = 0;
+				aoScale = 1;
 				measure_internal = RM_IRRADIANCE_CUSTOM_INDIRECT;
 				debugObject = UINT_MAX;
 				debugTexel = UINT_MAX;
@@ -490,7 +495,8 @@ namespace rr
 				insideObjectsThreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;
-				lowDetailForLightDetailMap = NULL;
+				aoIntensity = 0;
+				aoScale = 1;
 				measure_internal = RM_IRRADIANCE_CUSTOM_INDIRECT;
 				debugObject = UINT_MAX;
 				debugTexel = UINT_MAX;

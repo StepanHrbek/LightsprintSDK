@@ -1319,9 +1319,12 @@ reload_skybox:
 							rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 					rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
 					paramsDirect.applyLights = 0;
+					paramsDirect.aoIntensity = 2;
+					paramsDirect.aoScale = 1;
 					rr::RRDynamicSolver::UpdateParameters paramsIndirect(quality);
 					paramsIndirect.applyLights = 0;
-					paramsIndirect.locality = 1;
+					paramsIndirect.locality = -1;
+					paramsIndirect.qualityFactorRadiosity = 0;
 					rr::RRBuffer* oldEnv = solver->getEnvironment();
 					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials
 					solver->setEnvironment(newEnv);
@@ -1382,6 +1385,8 @@ reload_skybox:
 					solver->leaveFireball();
 					fireballLoadAttempted = false;
 					rr::RRDynamicSolver::UpdateParameters params(quality);
+					params.aoIntensity = 1;
+					params.aoScale = 1;
 					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&svs.lightmapFilteringParameters);
 					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
 					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;

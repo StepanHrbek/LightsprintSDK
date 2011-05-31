@@ -641,7 +641,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			&& !priv->packedSolver
 			) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
-			RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: Empty scene.\n");
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: Empty scene.\n"));
 			return 0;
 		}
 	}
@@ -834,7 +834,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 						numBuffersEmpty++;
 					tc.pixelBuffers[b]->lightmapGrow(_filtering->spreadForegroundColor,_filtering->wrap);
 					tc.pixelBuffers[b]->lightmapFillBackground(_filtering->backgroundColor);
-					tc.pixelBuffers[b]->copyElementsTo(allPixelBuffers[b],(b==LS_BENT_NORMALS || (b==LS_LIGHTMAP && params.lowDetailForLightDetailMap))?NULL:priv->scaler);
+					tc.pixelBuffers[b]->copyElementsTo(allPixelBuffers[b],(b==LS_BENT_NORMALS)?NULL:priv->scaler);
 					allPixelBuffers[b]->version = getSolutionVersion();
 					updatedBuffers++;
 				}
@@ -1121,22 +1121,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 
 				if (numPixelBuffers)
 				{
-					if (allPixelBuffers[LS_LIGHTMAP] && paramsDirect.locality>99999 && paramsIndirect.locality<99 && !paramsDirect.applyLights)
-					{
-						// light detail map
-						RRReportInterval report(INF2,"Creating light detail map...\n");
-						RRBuffer* lowDetail = RRBuffer::create(BT_VERTEX_BUFFER,getStaticObjects()[object]->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,true,NULL);
-						updateLightmap(object,lowDetail,NULL,NULL,&paramsDirect,_filtering);
-						paramsDirect.lowDetailForLightDetailMap = lowDetail;
-						updatedBuffers += updateLightmap(object,allPixelBuffers[LS_LIGHTMAP],allPixelBuffers+LS_DIRECTION1,allPixelBuffers[LS_BENT_NORMALS],&paramsDirect,_filtering);
-						paramsDirect.lowDetailForLightDetailMap = NULL;
-						delete lowDetail;
-					}
-					else
-					{
-						// other maps
-						updatedBuffers += updateLightmap(object,allPixelBuffers[LS_LIGHTMAP],allPixelBuffers+LS_DIRECTION1,allPixelBuffers[LS_BENT_NORMALS],&paramsDirect,_filtering);
-					}
+					updatedBuffers += updateLightmap(object,allPixelBuffers[LS_LIGHTMAP],allPixelBuffers+LS_DIRECTION1,allPixelBuffers[LS_BENT_NORMALS],&paramsDirect,_filtering);
 				}
 			}
 		}

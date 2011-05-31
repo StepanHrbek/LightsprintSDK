@@ -80,9 +80,12 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			solver->getStaticObjects()[0]->illumination.getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1024*2,1024*2,1,rr::BF_RGB,true,NULL);
 			rr::RRDynamicSolver::UpdateParameters paramsDirect(REBUILD_JPG ? 2000 : 20);
 			paramsDirect.applyLights = 0;
+			paramsDirect.aoIntensity = 2;
+			paramsDirect.aoScale = 1;
 			rr::RRDynamicSolver::UpdateParameters paramsIndirect(REBUILD_JPG ? 2000 : 20);
 			paramsIndirect.applyLights = 0;
-			paramsIndirect.locality = 1;
+			paramsIndirect.locality = -1;
+			paramsIndirect.qualityFactorRadiosity = 0;
 			rr::RRBuffer* oldEnv = solver->getEnvironment();
 			rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials on detail map
 			solver->setEnvironment(newEnv);
