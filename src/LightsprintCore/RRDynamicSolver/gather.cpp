@@ -1168,7 +1168,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 		}
 
 		// propagate
-		if (!aborting)
+		if (!aborting && paramsIndirect.qualityFactorRadiosity>0)
 		{
 			EndByQuality endByQuality;
 			endByQuality.staticSolver = priv->scene;
