@@ -23,10 +23,19 @@ namespace rr_gl
 	public:
 		SVLog(SVFrame* svframe);
 		virtual void customReport(rr::RRReportType type, int indentation, const char* message);
+		void flushQueue();
 
 	private:
 		wxCriticalSection critSec;
 		wxTextAttr attr[rr::TIMI+1];
+		void customReportImmediate(rr::RRReportType type, int indentation, const char* message);
+		struct SavedLog
+		{
+			rr::RRReportType type;
+			int indentation;
+			const char* message;
+		};
+		std::queue<SavedLog> queue;
 	};
 
 

@@ -153,6 +153,7 @@ namespace rr_gl
 		class SVLightProperties*     m_lightProperties; // public only for SVCanvas
 		class SVObjectProperties*    m_objectProperties; // public only for SVCanvas
 		class SVMaterialProperties*  m_materialProperties; // public only for SVCanvas
+		class SVLog*                 m_log; // public only for SVCanvas
 		SceneViewerStateEx&          svs; // the only svs instance used throughout whole scene viewer. public only for SVProperties
 		UserPreferences              userPreferences; // public only for SVUserProperties
 		rr::RRFileLocator*           textureLocator;
@@ -177,7 +178,6 @@ namespace rr_gl
 		wxAuiManager             m_mgr;
 		class SVSceneProperties* m_sceneProperties;
 		class SVUserProperties*  m_userProperties;
-		class SVLog*             m_log;
 
 		ImportDlg                importDlg;
 

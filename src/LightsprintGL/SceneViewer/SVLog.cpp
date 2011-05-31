@@ -32,12 +32,45 @@ SVLog::SVLog(SVFrame* _svframe)
 	attr[rr::TIMI].SetTextColour(wxColour(128,128,0));
 }
 
+void SVLog::customReportImmediate(rr::RRReportType type, int indentation, const char* message)
+{
+	// called only from main thread
+	SetDefaultStyle(attr[type]);
+	AppendText(wxString::Format("%*s%s",2*indentation,"",message));
+}
+
+void SVLog::flushQueue()
+{
+	if (!queue.empty())
+	{
+		// pop: called only from main thread
+		wxCriticalSectionLocker locker(critSec);
+		while (queue.size())
+		{
+			SavedLog& sl = queue.front();
+			customReportImmediate(sl.type,sl.indentation,sl.message);
+			free((char*)sl.message);
+			queue.pop();
+		}
+	}
+}
+
 void SVLog::customReport(rr::RRReportType type, int indentation, const char* message)
 {
 	if (type<rr::ERRO || type>rr::TIMI) type = rr::INF9;
-	wxCriticalSectionLocker locker(critSec);
-	SetDefaultStyle(attr[type]);
-	AppendText(wxString::Format("%*s%s",2*indentation,"",message));
+	if (!wxIsMainThread())
+	{
+		SavedLog sl;
+		sl.type = type;
+		sl.indentation = indentation;
+		sl.message = _strdup(message);
+		// push: may be called from multiple non-main threads at once
+		wxCriticalSectionLocker locker(critSec);
+		queue.push(sl);
+		return;
+	}
+	flushQueue();
+	customReportImmediate(type,indentation,message);
 }
 
 /////////////////////////////////////////////////////////////////////////////
