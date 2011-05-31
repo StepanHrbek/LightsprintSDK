@@ -12,6 +12,7 @@
 #include "SVFrame.h"
 #include "SVLightProperties.h"
 #include "SVSceneTree.h" // for shortcuts that manipulate animations in scene tree
+#include "SVLog.h"
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
@@ -911,6 +912,10 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 	}
 	if (!fullyCreated)
 		return;
+
+	// displays queued (asynchronous) reports
+	// otherwise they would display before next synchronous report, possibly much later
+	parent->m_log->flushQueue();
 
 	// camera/light movement
 	static rr::RRTime prevTime;
