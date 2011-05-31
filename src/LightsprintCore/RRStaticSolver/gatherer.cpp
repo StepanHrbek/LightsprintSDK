@@ -34,7 +34,7 @@ Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolv
 	russianRoulette.reset();
 }
 
-RRVec3 Gatherer::gatherPhysicalExitance(RRVec3 eye, RRVec3 direction, unsigned skipTriangleIndex, RRVec3 visibility, unsigned numBounces)
+RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, unsigned skipTriangleIndex, RRVec3 visibility, unsigned numBounces)
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
