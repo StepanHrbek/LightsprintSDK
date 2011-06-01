@@ -1326,7 +1326,7 @@ reload_skybox:
 					paramsIndirect.locality = -1;
 					paramsIndirect.qualityFactorRadiosity = 0;
 					rr::RRBuffer* oldEnv = solver->getEnvironment();
-					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials
+					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.65f),rr::RRVec4(0.65f)); // 0.65*typical materials = average color in LDM around 0.5
 					solver->setEnvironment(newEnv);
 					rr::RRDynamicSolver::FilteringParameters filtering = svs.lightmapFilteringParameters;
 					filtering.smoothingAmount = 0;

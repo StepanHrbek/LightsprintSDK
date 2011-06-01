@@ -73,11 +73,11 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	{
 		char* ldmName = _strdup(setup->filename);
 		strcpy(ldmName+strlen(ldmName)-3,"jpg");
-		rr::RRBuffer* ldm = REBUILD_JPG ? 0 : rr::RRBuffer::load(ldmName);
+		rr::RRBuffer* ldm = REBUILD_JPG ? NULL : rr::RRBuffer::load(ldmName);
 		if (!ldm)
 		{
 			// build light detail map
-			solver->getStaticObjects()[0]->illumination.getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1024*2,1024*2,1,rr::BF_RGB,true,NULL);
+			solver->getStaticObjects()[0]->illumination.getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,2048,2048,1,rr::BF_RGB,true,NULL);
 			rr::RRDynamicSolver::UpdateParameters paramsDirect(REBUILD_JPG ? 2000 : 20);
 			paramsDirect.applyLights = 0;
 			paramsDirect.aoIntensity = 2;
@@ -87,7 +87,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			paramsIndirect.locality = -1;
 			paramsIndirect.qualityFactorRadiosity = 0;
 			rr::RRBuffer* oldEnv = solver->getEnvironment();
-			rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.5f),rr::RRVec4(0.5f)); // higher sky color would decrease effect of emissive materials on detail map
+			rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.6f,0.7f,0.75f,1),rr::RRVec4(0.6f,0.7f,0.75f,1)); // kompenzuju tmave hnedy barvy padattic aby vysledna LDM obsahovala barvy kolem 0.5
 			solver->setEnvironment(newEnv);
 			rr::RRDynamicSolver::FilteringParameters filtering;
 			filtering.backgroundColor = rr::RRVec4(0.5f);
