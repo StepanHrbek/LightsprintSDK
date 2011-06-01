@@ -166,19 +166,19 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propSshotEnhanced)
 	{
 		updateHide();
-		svframe->m_canvas->OnSizeCore();
+		svframe->m_canvas->OnSizeCore(true);
 	}
 	else
 	if (property==propSshotEnhancedWidth)
 	{
 		userPreferences.sshotEnhancedWidth = property->GetValue().GetInteger();
-		svframe->m_canvas->OnSizeCore();
+		svframe->m_canvas->OnSizeCore(true);
 	}
 	else
 	if (property==propSshotEnhancedHeight)
 	{
 		userPreferences.sshotEnhancedHeight = property->GetValue().GetInteger();
-		svframe->m_canvas->OnSizeCore();
+		svframe->m_canvas->OnSizeCore(true);
 	}
 	else
 	if (property==propSshotEnhancedFSAA)

@@ -53,7 +53,7 @@ namespace rr_gl
 		void PaintCore(bool takingSshot);
 
 		void OnSize(wxSizeEvent& event);
-		void OnSizeCore();
+		void OnSizeCore(bool force);
 
 		void OnEraseBackground(wxEraseEvent& event) {} // Do nothing, to avoid flashing.
 		void OnKeyDown(wxKeyEvent& event);

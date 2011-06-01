@@ -414,10 +414,10 @@ SVCanvas::~SVCanvas()
 
 void SVCanvas::OnSize(wxSizeEvent& event)
 {
-	OnSizeCore();
+	OnSizeCore(false);
 }
 
-void SVCanvas::OnSizeCore()
+void SVCanvas::OnSizeCore(bool force)
 {
 	// set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
 	int w, h;
@@ -425,7 +425,7 @@ void SVCanvas::OnSizeCore()
 	if (context
 		// do nothing when wx calls us with unchanged size
 		// (why? when exiting SV with one panel floating and all other panels closed, partialy destroyed window calls us with unchanged size, SetCurrent would assert)
-		&& (w!=winWidth || h!=winHeight))
+		&& (force || w!=winWidth || h!=winHeight))
 	{
 		SetCurrent(*context);
 		winWidth = w;
