@@ -88,14 +88,14 @@ void RRTime::addSeconds(float seconds)
 
 float RRTime::secondsSince(const RRTime& a) const
 {
-	return SUBTRACT(time,(*(TIME*)a.data));
+	return (float)SUBTRACT(time,(*(TIME*)a.data));
 }
 
 float RRTime::secondsSinceLastQuery()
 {
 	TIME now;
 	GETTIME(now);
-	float result = SUBTRACT(now,time);
+	float result = (float)SUBTRACT(now,time);
 	time = now;
 	return result;
 }
@@ -104,7 +104,7 @@ float RRTime::secondsPassed() const
 {
 	TIME now;
 	GETTIME(now);
-	return SUBTRACT(now,time);
+	return (float)SUBTRACT(now,time);
 }
 
 } // namespace rr
