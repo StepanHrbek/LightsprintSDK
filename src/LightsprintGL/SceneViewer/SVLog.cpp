@@ -41,7 +41,7 @@ void SVLog::customReportImmediate(rr::RRReportType type, int indentation, const 
 
 void SVLog::flushQueue()
 {
-	if (!queue.empty())
+	if (!queue.empty() && IsShownOnScreen())
 	{
 		// pop: called only from main thread
 		wxCriticalSectionLocker locker(critSec);
@@ -58,7 +58,7 @@ void SVLog::flushQueue()
 void SVLog::customReport(rr::RRReportType type, int indentation, const char* message)
 {
 	if (type<rr::ERRO || type>rr::TIMI) type = rr::INF9;
-	if (!wxIsMainThread())
+	if (!wxIsMainThread() || !IsShownOnScreen())
 	{
 		SavedLog sl;
 		sl.type = type;
