@@ -45,7 +45,7 @@
 	#define TIME          DWORD
 	#define GETTIME(t)    t=timeGetTime()
 	#define SUBTRACT(a,b) (int(a-b)*1e-3f)
-	#define ADD(t,s)      t+=s*1e3f
+	#define ADD(t,s)      t+=(TIME)(s*1e3f)
 	#ifdef _MSC_VER
 		#pragma comment(lib,"winmm.lib")
 	#endif
@@ -58,6 +58,7 @@
 	#define TIME          clock_t
 	#define GETTIME(t)    t=clock()
 	#define SUBTRACT(a,b) (int(a-b)/(float)CLOCKS_PER_SEC)
+	#define ADD(t,s)      t+=(TIME)(s*CLOCKS_PER_SEC)
 
 #endif
 
