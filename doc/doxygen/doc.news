@@ -16,12 +16,15 @@ NEWS
   - new parameters in solver
     - RRDynamicSolver::UpdateParameters::aoIntensity
     - RRDynamicSolver::UpdateParameters::aoSize
-  - new parameters in BuildLightmaps tool
+  - new commandline parameters in BuildLightmaps tool
     - aointensity=
     - aosize=
+  - new parameters in SceneViewer
+    - Scene propertiess/GI quality/Lightmap baking/AO intensity
+    - Scene propertiess/GI quality/Lightmap baking/AO size
   - new parameters in <b>\ref main_gamebryo3 "Gamebryo Lightspeed integration"</b>
-    - LsAOIntensity
-    - LsAOSize
+    - LightsprintScene/LsAOIntensity
+    - LightsprintScene/LsAOSize
   - To bake AO into lightmaps, set size, default is 0 (disabled).
     Good size could be 0.5m for interior scene.
     If it is set too high, whole scene is darkened or even becomes black.

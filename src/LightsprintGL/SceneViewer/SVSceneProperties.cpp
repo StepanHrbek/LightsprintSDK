@@ -310,6 +310,12 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			wxPGProperty* propGILightmap = new wxStringProperty(_("Lightmap baking"), wxPG_LABEL);
 			AppendIn(propGI,propGILightmap);
 			SetPropertyReadOnly(propGILightmap,true,wxPG_DONT_RECURSE);
+			
+			propGILightmapAOIntensity = new FloatProperty(_("AO intensity"),_("Higher value makes indirect illumination in corners darker, 0=disabled/lighter, 1=normal, 2=darker."),svs.lightmapDirectParameters.aoIntensity,svs.precision,0,10,1,false);
+			AppendIn(propGILightmap,propGILightmapAOIntensity);
+
+			propGILightmapAOSize = new FloatProperty(_("AO size")+" (m)",_("Indirect illumination gets darker in this distance from corners, 0=disabled. If set too high, indirect illumination becomes completely black."),svs.lightmapDirectParameters.aoSize,svs.precision,0,1000,1,false);
+			AppendIn(propGILightmap,propGILightmapAOSize);
 
 			propGILightmapSmoothingAmount = new FloatProperty(_("Smoothing amount"),_("Amount of smoothing applied when baking lightmaps. Makes edges smoother, reduces noise, but washes out tiny details. Reasonable values are around 1. 0=off."),svs.lightmapFilteringParameters.smoothingAmount,svs.precision,0,10,1,false);
 			AppendIn(propGILightmap,propGILightmapSmoothingAmount);
@@ -444,6 +450,8 @@ void SVSceneProperties::updateProperties()
 		+ updateInt(propGIEmisVideoGIQuality,svs.videoEmittanceGIQuality)
 		+ updateBoolRef(propGITranspVideoAffectsGIFull)
 		+ updateInt(propGIEnvVideoGIQuality,svs.videoEnvironmentGIQuality)
+		+ updateFloat(propGILightmapAOIntensity,svs.lightmapDirectParameters.aoIntensity)
+		+ updateFloat(propGILightmapAOSize,svs.lightmapDirectParameters.aoSize)
 		+ updateFloat(propGILightmapSmoothingAmount,svs.lightmapFilteringParameters.smoothingAmount)
 		+ updateBoolRef(propGILightmapWrapping)
 		;
@@ -721,6 +729,16 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIEnvVideoGIQuality)
 	{
 		svs.videoEnvironmentGIQuality = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propGILightmapAOIntensity)
+	{
+		svs.lightmapDirectParameters.aoIntensity = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGILightmapAOSize)
+	{
+		svs.lightmapDirectParameters.aoSize = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propGILightmapSmoothingAmount)

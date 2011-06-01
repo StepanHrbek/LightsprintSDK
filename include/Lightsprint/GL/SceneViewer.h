@@ -121,7 +121,7 @@ struct SceneViewerState
 	float            raytracedCubesDepthThreshold;
 	bool             srgbCorrect;               //! Add realtime lights sRGB correctly, if OpenGL 3.0+ or sufficient extensions are found.
 	//rr::RRDynamicSolver::CalculateParameters calculateParameters;        //! Realtime GI settings.
-	//rr::RRDynamicSolver::UpdateParameters    lightmapDirectParameters;   //! Lightmap baking settings.
+	rr::RRDynamicSolver::UpdateParameters    lightmapDirectParameters;   //! Lightmap baking settings.
 	//rr::RRDynamicSolver::UpdateParameters    lightmapIndirectParameters; //! Lightmap baking settings.
 	rr::RRDynamicSolver::FilteringParameters lightmapFilteringParameters;  //! Lightmap baking settings.
 	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.

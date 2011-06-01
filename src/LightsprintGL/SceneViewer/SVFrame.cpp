@@ -1319,8 +1319,8 @@ reload_skybox:
 							rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 					rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
 					paramsDirect.applyLights = 0;
-					paramsDirect.aoIntensity = 2;
-					paramsDirect.aoSize = 1;
+					paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
+					paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
 					rr::RRDynamicSolver::UpdateParameters paramsIndirect(quality);
 					paramsIndirect.applyLights = 0;
 					paramsIndirect.locality = -1;
@@ -1385,8 +1385,8 @@ reload_skybox:
 					solver->leaveFireball();
 					fireballLoadAttempted = false;
 					rr::RRDynamicSolver::UpdateParameters params(quality);
-					params.aoIntensity = 1;
-					params.aoSize = 1;
+					params.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
+					params.aoSize = svs.lightmapDirectParameters.aoSize;
 					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&svs.lightmapFilteringParameters);
 					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
 					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
