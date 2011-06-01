@@ -129,14 +129,14 @@ STEP::DB* STEP::ReadFileHeader(boost::shared_ptr<IOStream> stream)
 		if (s.substr(0,11) == "FILE_SCHEMA") {
 			const char* sz = s.c_str()+11;
 			SkipSpaces(sz,&sz);
-			std::auto_ptr< const EXPRESS::DataType > schema = std::auto_ptr< const EXPRESS::DataType >( EXPRESS::DataType::Parse(sz) );
+			boost::shared_ptr< const EXPRESS::DataType > schema = EXPRESS::DataType::Parse(sz);
 
 			// the file schema should be a regular list entity, although it usually contains exactly one entry
 			// since the list itself is contained in a regular parameter list, we actually have
 			// two nested lists.
 			const EXPRESS::LIST* list = dynamic_cast<const EXPRESS::LIST*>(schema.get());
 			if (list && list->GetSize()) {
-				list = dynamic_cast<const EXPRESS::LIST*>( (*list)[0] );
+				list = dynamic_cast<const EXPRESS::LIST*>( (*list)[0].get() );
 				if (!list) {
 					throw STEP::SyntaxError("expected FILE_SCHEMA to be a list",line);
 				}
@@ -146,7 +146,7 @@ STEP::DB* STEP::ReadFileHeader(boost::shared_ptr<IOStream> stream)
 					DefaultLogger::get()->warn(AddLineNumber("multiple schemas currently not supported",line));
 				}
 				const EXPRESS::STRING* string;
-				if (!list->GetSize() || !(string=dynamic_cast<const EXPRESS::STRING*>( (*list)[0] ))) {
+				if (!list->GetSize() || !(string=dynamic_cast<const EXPRESS::STRING*>( (*list)[0].get() ))) {
 					throw STEP::SyntaxError("expected FILE_SCHEMA to contain a single string literal",line);
 				}
 				head.fileSchema =  *string;
@@ -161,10 +161,13 @@ STEP::DB* STEP::ReadFileHeader(boost::shared_ptr<IOStream> stream)
 
 
 // ------------------------------------------------------------------------------------------------
-void STEP::ReadFile(DB& db,const EXPRESS::ConversionSchema& scheme,const char* const* arr, size_t len)
+void STEP::ReadFile(DB& db,const EXPRESS::ConversionSchema& scheme,
+	const char* const* types_to_track, size_t len,
+	const char* const* inverse_indices_to_track, size_t len2)
 {
 	db.SetSchema(scheme);
-	db.SetTypesToTrack(arr,len);
+	db.SetTypesToTrack(types_to_track,len);
+	db.SetInverseIndicesToTrack(inverse_indices_to_track,len2);
 
 	const DB::ObjectMap& map = db.GetObjects();
 	LineSplitter& splitter = db.GetSplitter();
@@ -217,10 +220,25 @@ void STEP::ReadFile(DB& db,const EXPRESS::ConversionSchema& scheme,const char* c
 			DefaultLogger::get()->warn(AddLineNumber((Formatter::format(),"an object with the id #",id," already exists"),line));
 		}
 
-		std::string type = s.substr(n0+1,n1-n0-1);
-		trim(type);
+		std::string::size_type ns = n0;
+		do ++ns; while( IsSpace(s.at(ns)));
+
+		std::string::size_type ne = n1;
+		do --ne; while( IsSpace(s.at(ne)));
+
+		std::string type = s.substr(ns,ne-ns+1);
 		std::transform( type.begin(), type.end(), type.begin(), &Assimp::ToLower<char>  );
-		db.InternInsert(boost::shared_ptr<LazyObject>(new LazyObject(db,id,line,type,s.substr(n1,n2-n1+1))));
+
+		const char* sz = scheme.GetStaticStringForToken(type);
+		if(sz) {
+		
+			const std::string::size_type len = n2-n1+1;
+			char* const copysz = new char[len+1];
+			std::copy(s.c_str()+n1,s.c_str()+n2+1,copysz);
+			copysz[len] = '\0';
+
+			db.InternInsert(new LazyObject(db,id,line,sz,copysz));
+		}
 	}
 
 	if (!splitter) {
@@ -228,13 +246,14 @@ void STEP::ReadFile(DB& db,const EXPRESS::ConversionSchema& scheme,const char* c
 	}
 
 	if ( !DefaultLogger::isNullLogger() ){
-		DefaultLogger::get()->debug((Formatter::format(),"STEP: got ",map.size()," object records"));
+		DefaultLogger::get()->debug((Formatter::format(),"STEP: got ",map.size()," object records with ",
+			db.GetRefs().size()," inverse index entries"));
 	}
 }
 
 
 // ------------------------------------------------------------------------------------------------
-const EXPRESS::DataType* EXPRESS::DataType::Parse(const char*& inout,uint64_t line, const EXPRESS::ConversionSchema* schema /*= NULL*/)
+boost::shared_ptr<const EXPRESS::DataType> EXPRESS::DataType::Parse(const char*& inout,uint64_t line, const EXPRESS::ConversionSchema* schema /*= NULL*/)
 {
 	const char* cur = inout;
 	SkipSpaces(&cur);
@@ -256,7 +275,7 @@ const EXPRESS::DataType* EXPRESS::DataType::Parse(const char*& inout,uint64_t li
 				std::transform(s.begin(),s.end(),s.begin(),&ToLower<char> );
 				if (schema->IsKnownToken(s)) {
 					for(cur = t+1;*cur++ != '(';);
-					const EXPRESS::DataType* const dt = Parse(cur);
+					const boost::shared_ptr<const EXPRESS::DataType> dt = Parse(cur);
 					inout = *cur ? cur+1 : cur;
 					return dt;
 				}
@@ -270,11 +289,11 @@ const EXPRESS::DataType* EXPRESS::DataType::Parse(const char*& inout,uint64_t li
 
 	if (*cur == '*' ) {
 		inout = cur+1;
-		return new EXPRESS::ISDERIVED();
+		return boost::make_shared<EXPRESS::ISDERIVED>();
 	}
 	else if (*cur == '$' ) {
 		inout = cur+1;
-		return new EXPRESS::UNSET();
+		return boost::make_shared<EXPRESS::UNSET>();
 	}
 	else if (*cur == '(' ) {
 		// start of an aggregate, further parsing is done by the LIST factory constructor
@@ -290,11 +309,11 @@ const EXPRESS::DataType* EXPRESS::DataType::Parse(const char*& inout,uint64_t li
 			}
 		}
 		inout = cur+1;
-		return new EXPRESS::ENUMERATION( std::string(start, static_cast<size_t>(cur-start) ));
+		return boost::make_shared<EXPRESS::ENUMERATION>(std::string(start, static_cast<size_t>(cur-start) ));
 	}
 	else if (*cur == '#' ) {
 		// object reference
-		return new EXPRESS::ENTITY(strtoul10_64(++cur,&inout));
+		return boost::make_shared<EXPRESS::ENTITY>(strtoul10_64(++cur,&inout));
 	}
 	else if (*cur == '\'' ) {
 		// string literal
@@ -312,7 +331,7 @@ const EXPRESS::DataType* EXPRESS::DataType::Parse(const char*& inout,uint64_t li
 			}
 		}
 		inout = cur+1;
-		return new EXPRESS::STRING( std::string(start, static_cast<size_t>(cur-start) ));
+		return boost::make_shared<EXPRESS::STRING>(std::string(start, static_cast<size_t>(cur-start) ));
 	}
 	else if (*cur == '\"' ) {
 		throw STEP::SyntaxError("binary data not supported yet",line);
@@ -326,7 +345,7 @@ const EXPRESS::DataType* EXPRESS::DataType::Parse(const char*& inout,uint64_t li
 			// XXX many STEP files contain extremely accurate data, float's precision may not suffice in many cases
 			float f;
 			inout = fast_atof_move(start,f);
-			return new EXPRESS::REAL(f);
+			return boost::make_shared<EXPRESS::REAL>(f);
 		}
 	}
 
@@ -339,14 +358,14 @@ const EXPRESS::DataType* EXPRESS::DataType::Parse(const char*& inout,uint64_t li
 		++start;
 	}
 	int64_t num = static_cast<int64_t>( strtoul10_64(start,&inout) );
-	return new EXPRESS::INTEGER(neg?-num:num);
+	return boost::make_shared<EXPRESS::INTEGER>(neg?-num:num);
 }
 
 
 // ------------------------------------------------------------------------------------------------
-const EXPRESS::LIST* EXPRESS::LIST::Parse(const char*& inout,uint64_t line, const EXPRESS::ConversionSchema* schema /*= NULL*/)
+boost::shared_ptr<const EXPRESS::LIST> EXPRESS::LIST::Parse(const char*& inout,uint64_t line, const EXPRESS::ConversionSchema* schema /*= NULL*/)
 {
-	std::auto_ptr<EXPRESS::LIST> list(new EXPRESS::LIST());
+	const boost::shared_ptr<EXPRESS::LIST> list = boost::make_shared<EXPRESS::LIST>();
 	EXPRESS::LIST::MemberList& members = list->members;
 
 	const char* cur = inout;
@@ -371,7 +390,7 @@ const EXPRESS::LIST* EXPRESS::LIST::Parse(const char*& inout,uint64_t line, cons
 			break;
 		}
 		
-		members.push_back( boost::shared_ptr<const EXPRESS::DataType>(EXPRESS::DataType::Parse(cur,line,schema)));
+		members.push_back( EXPRESS::DataType::Parse(cur,line,schema));
 		SkipSpaces(cur,&cur);
 
 		if (*cur != ',') {
@@ -383,42 +402,53 @@ const EXPRESS::LIST* EXPRESS::LIST::Parse(const char*& inout,uint64_t line, cons
 	}
 
 	inout = cur+1;
-	return list.release();
+	return list;
 }
 
+
 // ------------------------------------------------------------------------------------------------
-STEP::LazyObject::LazyObject(DB& db, uint64_t id,uint64_t line,const std::string& type,const std::string& args) 
+STEP::LazyObject::LazyObject(DB& db, uint64_t id,uint64_t line, const char* const type,const char* args) 
 	: db(db)
 	, id(id)
-	, line(line)
 	, type(type)
 	, obj()
-	// need to initialize this upfront, otherwise the destructor
-	// will crash if an exception is thrown in the c'tor
-	, conv_args() 
+	, args(args)
 {
-	const char* arg = args.c_str();
-	conv_args = EXPRESS::LIST::Parse(arg,line,&db.GetSchema());
-
 	// find any external references and store them in the database.
 	// this helps us emulate STEPs INVERSE fields.
-	for (size_t i = 0; i < conv_args->GetSize(); ++i) {
-		const EXPRESS::DataType* t = conv_args->operator [](i);
-		if (const EXPRESS::ENTITY* e = t->ToPtr<EXPRESS::ENTITY>()) {
-			db.MarkRef(*e,id);
+	if (db.KeepInverseIndicesForType(type)) {
+		const char* a  = args;
+	
+		// do a quick scan through the argument tuple and watch out for entity references
+		int64_t skip_depth = 0;
+		while(*a) {
+			if (*a == '(') {
+				++skip_depth;
+			}
+			else if (*a == ')') {
+				--skip_depth;
+			}
+
+			if (skip_depth == 1 && *a=='#') {
+				const char* tmp;
+				const int64_t num = static_cast<int64_t>( strtoul10_64(a+1,&tmp) );
+				db.MarkRef(num,id);
+			}
+			++a;
 		}
+
 	}
 }
 
 // ------------------------------------------------------------------------------------------------
 STEP::LazyObject::~LazyObject() 
 {
-	// 'obj' always remains in our possession, so there is 
-	// no need for a smart pointer type.
-	delete obj;
-	delete conv_args;
+	// make sure the right dtor/operator delete get called
+	if (obj) {
+		delete obj;
+	}
+	else delete[] args;
 }
-
 
 // ------------------------------------------------------------------------------------------------
 void STEP::LazyObject::LazyInit() const
@@ -427,8 +457,13 @@ void STEP::LazyObject::LazyInit() const
 	STEP::ConvertObjectProc proc = schema.GetConverterProc(type);
 
 	if (!proc) {
-		throw STEP::TypeError("unknown object type: " + type,id,line);
+		throw STEP::TypeError("unknown object type: " + std::string(type),id);
 	}
+
+	const char* acopy = args;
+	boost::shared_ptr<const EXPRESS::LIST> conv_args = EXPRESS::LIST::Parse(acopy,STEP::SyntaxError::LINE_NOT_SPECIFIED,&db.GetSchema());
+	delete[] args;
+	args = NULL;
 
 	// if the converter fails, it should throw an exception, but it should never return NULL
 	try {
@@ -436,7 +471,7 @@ void STEP::LazyObject::LazyInit() const
 	}
 	catch(const TypeError& t) {
 		// augment line and entity information
-		throw TypeError(t.what(),id,line);
+		throw TypeError(t.what(),id);
 	}
 	++db.evaluated_count;
 	ai_assert(obj);
@@ -444,3 +479,4 @@ void STEP::LazyObject::LazyInit() const
 	// store the original id in the object instance
 	obj->SetID(id);
 }
+
