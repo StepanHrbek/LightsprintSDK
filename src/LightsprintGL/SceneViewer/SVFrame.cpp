@@ -1328,10 +1328,7 @@ reload_skybox:
 					rr::RRBuffer* oldEnv = solver->getEnvironment();
 					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.65f),rr::RRVec4(0.65f)); // 0.65*typical materials = average color in LDM around 0.5
 					solver->setEnvironment(newEnv);
-					rr::RRDynamicSolver::FilteringParameters filtering = svs.lightmapFilteringParameters;
-					filtering.smoothingAmount = 0;
-					filtering.backgroundColor = rr::RRVec4(0.5f);
-					solver->updateLightmaps(svs.ldmLayerNumber,-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
+					solver->updateLightmaps(svs.ldmLayerNumber,-1,-1,&paramsDirect,&paramsIndirect,&svs.lightmapFilteringParameters);
 					solver->setEnvironment(oldEnv);
 					delete newEnv;
 
