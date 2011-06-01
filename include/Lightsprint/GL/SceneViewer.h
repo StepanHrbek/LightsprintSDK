@@ -195,6 +195,7 @@ struct SceneViewerState
 		raytracedCubesSpecularThreshold = 0.2f;
 		raytracedCubesDepthThreshold = 0.1f;
 		srgbCorrect = false;
+		lightmapDirectParameters.aoSize = 1;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
 		waterColor = rr::RRVec3(0.1f,0.25f,0.35f);
@@ -268,6 +269,7 @@ struct SceneViewerState
 			&& a.raytracedCubesSpecularThreshold==raytracedCubesSpecularThreshold
 			&& a.raytracedCubesDepthThreshold==raytracedCubesDepthThreshold
 			&& a.srgbCorrect==srgbCorrect
+			&& a.lightmapDirectParameters==lightmapDirectParameters
 			&& a.lightmapFilteringParameters==lightmapFilteringParameters
 			&& a.cameraDynamicNear==cameraDynamicNear
 			&& a.cameraMetersPerSecond==cameraMetersPerSecond
