@@ -19,6 +19,9 @@ NEWS
   - new parameters in BuildLightmaps tool
     - aointensity=
     - aoscale=
+  - new parameters in <b>\ref main_gamebryo3 "Gamebryo Lightspeed integration"</b>
+    - LsAOIntensity
+    - LsAOScale
   - recommended intensity is 1 (2 makes effect stronger), default is 0 (disabled)
   - recommended scale depends on size of scene details, could be 1m for interior. if it is set too high, whole scene is darkened or even becomes black
 
