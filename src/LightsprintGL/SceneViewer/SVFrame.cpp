@@ -1320,7 +1320,7 @@ reload_skybox:
 					rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
 					paramsDirect.applyLights = 0;
 					paramsDirect.aoIntensity = 2;
-					paramsDirect.aoScale = 1;
+					paramsDirect.aoSize = 1;
 					rr::RRDynamicSolver::UpdateParameters paramsIndirect(quality);
 					paramsIndirect.applyLights = 0;
 					paramsIndirect.locality = -1;
@@ -1386,7 +1386,7 @@ reload_skybox:
 					fireballLoadAttempted = false;
 					rr::RRDynamicSolver::UpdateParameters params(quality);
 					params.aoIntensity = 1;
-					params.aoScale = 1;
+					params.aoSize = 1;
 					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&svs.lightmapFilteringParameters);
 					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
 					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;

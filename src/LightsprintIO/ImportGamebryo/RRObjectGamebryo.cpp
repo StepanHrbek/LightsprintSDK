@@ -11,10 +11,13 @@
 // - test LODs (implemented but not tested)
 // - support FLOAT16_n vertex attributes
 
-// This constant is used to scale geometry for Lightsprint.
-// Lightsprint recommended unit is meter.
-// Gamebryo unit depends on you. For meters, use 1, for centimeters 0.01f.
-#define SCALE_GEOMETRY 0.1f
+// This constant can be used to change units on the fly (invisibly for user).
+//  If you set it to Gamebryo unit length in meters (e.g. 0.01 if you use centimeters),
+//  Lightsprint will see geometry and lights in meters as it expects.
+// Update: Baking parameter "aoSize" is processed outside this file and it needs to be scaled too.
+//  Rather than exporting this constant and using it in another file,
+//  we disable scaling (scale=1), Lightsprint can work with arbitrary units.
+#define SCALE_GEOMETRY 1
 
 // Define to respect Gamebryo settings that disable lighting or shadowing.
 // Comment out to make everything lit and shadows-casting.

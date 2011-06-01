@@ -243,7 +243,7 @@ public:
 		bentNormalHemisphere += dir * irrad.abs().avg();
 		hitsScene++;
 		hitsReliable++;
-		if (pti.rays[0].hitDistance>pti.context.params->aoScale)
+		if (pti.rays[0].hitDistance>pti.context.params->aoSize)
 			hitsDistant++;
 	}
 
@@ -274,7 +274,7 @@ public:
 		{
 			// get average hit, hemisphere hits don't accumulate
 			float factor = 1/(RRReal)hitsReliable;
-			if (pti.context.params->aoIntensity>0)
+			if (pti.context.params->aoIntensity>0 && pti.context.params->aoSize>0)
 				factor *= pow(hitsDistant/(float)hitsReliable,pti.context.params->aoIntensity);
 			for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 				irradiancePhysicalHemisphere[i] *= factor;

@@ -95,7 +95,7 @@ void serialize(Archive & ar, rr::RRDynamicSolver::UpdateParameters& a, const uns
 	ar & make_nvp("rugDistance",a.rugDistance);
 	ar & make_nvp("locality",a.locality);
 	ar & make_nvp("aoIntensity",a.aoIntensity);
-	ar & make_nvp("aoScale",a.aoScale);
+	ar & make_nvp("aoSize",a.aoSize);
 	ar & make_nvp("measure_internal",a.measure_internal);
 }
 

@@ -188,7 +188,7 @@ void keyboard(unsigned char c, int x, int y)
 				paramsDirect.quality = 1000;
 				paramsDirect.applyCurrentSolution = false;
 				paramsDirect.aoIntensity = 1;
-				paramsDirect.aoScale = 1;
+				paramsDirect.aoSize = 1;
 				rr::RRDynamicSolver::UpdateParameters paramsIndirect;
 				paramsIndirect.applyCurrentSolution = false;
 

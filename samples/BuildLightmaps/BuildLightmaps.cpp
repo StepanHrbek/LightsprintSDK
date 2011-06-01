@@ -131,7 +131,7 @@ struct Parameters
 	bool buildNothing;
 	rr::RRObject::LayerParameters layerParameters;
 	float aoIntensity;
-	float aoScale;
+	float aoSize;
 	float ppSmoothing;
 	float ppBrightness;
 	float ppContrast;
@@ -156,8 +156,8 @@ struct Parameters
 		buildNothing = false;
 		runViewer = false;
 		layerParameters.objectIndex = objectIndex;
-		aoIntensity = 0;
-		aoScale = 1;
+		aoIntensity = 1;
+		aoSize = 0;
 		ppSmoothing = 0;
 		ppBrightness = 1;
 		ppContrast = 1;
@@ -251,7 +251,7 @@ struct Parameters
 				{
 				}
 				else
-				if (sscanf(argv[i],"aoscale=%f",&aoScale)==1)
+				if (sscanf(argv[i],"aosize=%f",&aoSize)==1)
 				{
 				}
 				else
@@ -461,8 +461,8 @@ int main(int argc, char** argv)
 			"  minmapsize=32           (minimal map resolution, Gamebryo only)\n"
 			"  maxmapsize=1024         (maximal map resolution, Gamebryo only)\n"
 			"  pixelsperworldunit=1.0  (Gamebryo only)\n"
-			"  aointensity=0.0         (intensity of darkening in corners, 1=ok, 2=high)\n"
-			"  aoscale=1.0             (distance, how far from corners to darken)\n"
+			"  aointensity=1.0         (intensity of darkening in corners, 0=off, 2=high)\n"
+			"  aosize=0.0              (how far from corners to darken, 0=off)\n"
 			"  smoothing=0.0           (postprocess: smoothing, radius in pixels)\n"
 			"  brightness=1.0          (postprocess: brightness adjustment)\n"
 			"  contrast=1.0            (postprocess: contrast adjustment)\n"
@@ -578,7 +578,7 @@ int main(int argc, char** argv)
 		// build direct illumination
 		params.applyCurrentSolution = true; // includes indirect illumination from previous step
 		params.aoIntensity = globalParameters.aoIntensity;
-		params.aoScale = globalParameters.aoScale;
+		params.aoSize = globalParameters.aoSize;
 		solver->updateLightmaps(
 			globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP,
 			LAYER_DIRECTIONAL1,

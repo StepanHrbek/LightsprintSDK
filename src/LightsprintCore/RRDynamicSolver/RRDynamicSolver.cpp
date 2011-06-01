@@ -64,7 +64,7 @@ bool RRDynamicSolver::UpdateParameters::operator ==(const RRDynamicSolver::Updat
 		&& a.rugDistance==rugDistance
 		&& a.locality==locality
 		&& a.aoIntensity==aoIntensity
-		&& a.aoScale==aoScale
+		&& a.aoSize==aoSize
 		&& a.measure_internal==measure_internal
 		&& a.debugObject==debugObject
 		&& a.debugTexel==debugTexel
