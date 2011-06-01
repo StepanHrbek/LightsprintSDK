@@ -91,6 +91,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lightsprint.Toolbench.Plugin", "Lightsprint.Toolbench.Plugin\Lightsprint.Toolbench.Plugin.vcproj", "{6369B65F-5FBC-47E9-90C5-B31E9C2E5CFD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2D2907C3-3E69-234A-306C-243C989A3411} = {2D2907C3-3E69-234A-306C-243C989A3411}
+		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A} = {161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lightsprint.Toolbench.Plugin.UI", "Lightsprint.Toolbench.Plugin.UI\Lightsprint.Toolbench.Plugin.UI.csproj", "{AD514E6E-BE90-4FF5-AF5A-DC12A27DD660}"
@@ -173,7 +174,8 @@ Global
 		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Release DLL|Win32.Build.0 = Release DLL|Win32
 		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Release DLL|x64.ActiveCfg = Release DLL|x64
 		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Release DLL|x64.Build.0 = Release DLL|x64
-		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Shipping DLL|Win32.ActiveCfg = Debug DLL|x64
+		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Shipping DLL|Win32.ActiveCfg = Release DLL|Win32
+		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Shipping DLL|Win32.Build.0 = Release DLL|Win32
 		{161A11E3-A161-61A1-EE12-2C3B1CAB2E1A}.Shipping DLL|x64.ActiveCfg = Debug DLL|x64
 		{396A4522-9173-ABCD-23AA-91827364ABEE}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
 		{396A4522-9173-ABCD-23AA-91827364ABEE}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
