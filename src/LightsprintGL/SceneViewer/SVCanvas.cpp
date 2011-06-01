@@ -915,7 +915,8 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 
 	// displays queued (asynchronous) reports
 	// otherwise they would display before next synchronous report, possibly much later
-	parent->m_log->flushQueue();
+	if (parent->m_log)
+		parent->m_log->flushQueue();
 
 	// camera/light movement
 	static rr::RRTime prevTime;

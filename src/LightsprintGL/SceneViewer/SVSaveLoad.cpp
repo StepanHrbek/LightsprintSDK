@@ -97,7 +97,7 @@ void serialize(Archive & ar, rr::RRDynamicSolver::UpdateParameters& a, const uns
 	ar & make_nvp("aoIntensity",a.aoIntensity);
 	ar & make_nvp("aoSize",a.aoSize);
 	ar & make_nvp("measure_internal",a.measure_internal);
-}
+}*/
 
 //------------------------------ FilteringParameters -------------------------------------
 
@@ -109,7 +109,7 @@ void serialize(Archive & ar, rr::RRDynamicSolver::FilteringParameters& a, const 
 	ar & make_nvp("backgroundColor",a.backgroundColor);
 	ar & make_nvp("wrap",a.wrap);
 }
-*/
+
 //------------------------------ Camera -------------------------------------
 
 template<class Archive>

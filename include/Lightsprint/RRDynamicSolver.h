@@ -253,7 +253,7 @@ namespace rr
 
 
 		//! Optional parameters of calculate(). Currently used only by Fireball.
-		struct CalculateParameters
+		struct RR_API CalculateParameters
 		{
 			//! Only for Fireball solver:
 			//! Multiplies emittance values in solver, but not emissive materials itself.
@@ -380,7 +380,7 @@ namespace rr
 		//!
 		//! If you use \ref calc_fireball, only default realtime parameters are supported,
 		//! use NULL for default parameters.
-		struct UpdateParameters
+		struct RR_API UpdateParameters
 		{
 			//! Include lights set by setLights() as a source of illumination.
 			//! True makes calculation non-realtime.
