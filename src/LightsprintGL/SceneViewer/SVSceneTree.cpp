@@ -273,7 +273,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					svframe->m_canvas->addOrRemoveScene(NULL,true);
 				}
 			}
-			break;
+			return; // skip updateAllPanels() at the end of this function, we did not change anything
 		case CM_ROOT_AXES:
 			{
 				static unsigned currentUpAxis = 0;
@@ -284,7 +284,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				svframe->m_canvas->addOrRemoveScene(NULL,true);
 				currentUpAxis = 2-currentUpAxis;
 			}
-			break;
+			return; // skip updateAllPanels() at the end of this function, we did not change anything
 		case CM_LIGHT_SPOT:
 		case CM_LIGHT_POINT:
 		case CM_LIGHT_DIR:
@@ -375,7 +375,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					svframe->m_canvas->addOrRemoveScene(NULL,true);
 				}
 			}
-			break;
+			return; // skip updateAllPanels() at the end of this function, we did not change anything
 		case CM_STATIC_OBJECT_SMOOTH:
 		case CM_STATIC_OBJECTS_SMOOTH: // right now, it smooths also dynamic objects
 			{
@@ -408,7 +408,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					}
 				}
 			}
-			break;
+			return; // skip updateAllPanels() at the end of this function, we did not change anything
 		case CM_STATIC_OBJECTS_MERGE:
 			{
 				// display log window with 'abort' while this function runs
@@ -454,7 +454,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				}
 				svframe->m_canvas->addOrRemoveScene(NULL,true);
 			}
-			break;
+			return; // skip updateAllPanels() at the end of this function, we did not change anything
 
 		case CM_STATIC_OBJECT_DELETE:
 			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getStaticObjects().size())
