@@ -416,7 +416,7 @@ BOOST_CLASS_VERSION(rr_gl::Camera,1)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,9)
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,26)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,27)
 
 //---------------------------------------------------------------------------
 
