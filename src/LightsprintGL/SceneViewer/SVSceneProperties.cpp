@@ -242,11 +242,32 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		Append(propGI);
 		SetPropertyReadOnly(propGI,true,wxPG_DONT_RECURSE);
 
-		const wxChar* tsStrings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),NULL};
-		const long tsValues[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS};
-		propGIShadowTransparency = new wxEnumProperty(_("Shadow transparency"),wxPG_LABEL,tsStrings,tsValues);
-		propGIShadowTransparency->SetHelpString(_("Changes how realistically semi-transparent shadows are rendered."));
-		AppendIn(propGI,propGIShadowTransparency);
+		{
+			const wxChar* strings[] = {_("realtime"),_("static lightmap"),_("none"),NULL};
+			const long values[] = {LD_REALTIME,LD_STATIC_LIGHTMAPS,LD_NONE};
+			propGIDirect = new wxEnumProperty(_("Direct illumination"),wxPG_LABEL,strings,values);
+			propGIDirect->SetHelpString(_("What direct illumination technique to use."));
+			AppendIn(propGI,propGIDirect);
+		}
+
+		{
+			const wxChar* strings[] = {_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("static lightmap"),_("constant ambient"),_("none"),NULL};
+			const long values[] = {LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_STATIC_LIGHTMAPS,LI_CONSTANT,LI_NONE};
+			propGIIndirect = new wxEnumProperty(_("Indirect illumination"),wxPG_LABEL,strings,values);
+			propGIIndirect->SetHelpString(_("What indirect illumination technique to use."));
+			AppendIn(propGI,propGIIndirect);
+		}
+
+		propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination."),svs.renderLDM);
+		AppendIn(propGI,propGILDM);
+
+		{
+			const wxChar* strings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),NULL};
+			const long values[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS};
+			propGIShadowTransparency = new wxEnumProperty(_("Shadow transparency"),wxPG_LABEL,strings,values);
+			propGIShadowTransparency->SetHelpString(_("Changes how realistically semi-transparent shadows are rendered."));
+			AppendIn(propGI,propGIShadowTransparency);
+		}
 
 		propGISRGBCorrect = new BoolRefProperty(_("sRGB correctness"),_("Increases realism by correctly adding realtime lights. Works only if OpenGL 3.0+ or necessary extensions are found."),svs.srgbCorrect);
 		AppendIn(propGI,propGISRGBCorrect);
@@ -362,15 +383,25 @@ void SVSceneProperties::updateHide()
 	propGridNumSegments->Hide(!svs.renderGrid,false);
 	propGridSegmentSize->Hide(!svs.renderGrid,false);
 
-	propGIRaytracedCubesDiffuseRes->Hide(!svs.raytracedCubesEnabled,false);
-	propGIRaytracedCubesSpecularRes->Hide(!svs.raytracedCubesEnabled,false);
-	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
-	propGIRaytracedCubesSpecularThreshold->Hide(!svs.raytracedCubesEnabled,false);
-	propGIRaytracedCubesDepthThreshold->Hide(!svs.raytracedCubesEnabled,false);
+	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
+	propGILDM->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS,false);
+	propGISRGBCorrect->Hide(svs.renderLightDirect!=LD_REALTIME,false);
+	propGIShadowTransparency->Hide(svs.renderLightDirect!=LD_REALTIME,false);
+	propGIFireballQuality->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
 
-	propGIEmisVideoGIQuality->Hide(!svs.videoEmittanceAffectsGI,false);
-	propGITranspVideoAffectsGIFull->Hide(!svs.videoTransmittanceAffectsGI,false);
-	propGIEnvVideoGIQuality->Hide(!svs.videoEnvironmentAffectsGI,false);
+	propGIRaytracedCubes->Hide(!realtimeGI,false);
+	propGIRaytracedCubesDiffuseRes->Hide(!realtimeGI || !svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesSpecularRes->Hide(!realtimeGI || !svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesMaxObjects->Hide(!realtimeGI || !svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesSpecularThreshold->Hide(!realtimeGI || !svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesDepthThreshold->Hide(!realtimeGI || !svs.raytracedCubesEnabled,false);
+	
+	propGIEmisMultiplier->Hide(!realtimeGI,false);
+	propGIEmisVideoAffectsGI->Hide(!realtimeGI,false);
+	propGIEmisVideoGIQuality->Hide(!realtimeGI || !svs.videoEmittanceAffectsGI,false);
+	propGITranspVideoAffectsGIFull->Hide(!realtimeGI || !svs.videoTransmittanceAffectsGI,false);
+	propGIEnvVideoAffectsGI->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
+	propGIEnvVideoGIQuality->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL || !svs.videoEnvironmentAffectsGI,false);
 
 }
 
@@ -397,6 +428,8 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propLensFlare)
 		+ updateBoolRef(propVignette)
 		+ updateBoolRef(propGrid)
+		+ updateInt(propGIDirect,svs.renderLightDirect)
+		+ updateInt(propGIIndirect,svs.renderLightIndirect)
 		+ updateBoolRef(propGIEmisVideoAffectsGI)
 		+ updateBoolRef(propGITranspVideoAffectsGI)
 		+ updateBoolRef(propGIEnvVideoAffectsGI)
@@ -437,6 +470,7 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)
 		+ updateFloat(propGridSegmentSize,svs.gridSegmentSize)
+		+ updateBoolRef(propGILDM)
 		+ updateBoolRef(propGISRGBCorrect)
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
@@ -669,6 +703,29 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGridSegmentSize)
 	{
 		svs.gridSegmentSize = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGIDirect)
+	{
+		svs.renderLightDirect = (LightingDirect)property->GetValue().GetInteger();
+		if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
+			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
+		if (svs.renderLightDirect!=LD_STATIC_LIGHTMAPS && svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)
+			svs.renderLightIndirect = LI_CONSTANT;
+	}
+	else
+	if (property==propGIIndirect)
+	{
+		svs.renderLightIndirect = (LightingIndirect)property->GetValue().GetInteger();
+		if (svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)
+			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
+		if (svs.renderLightIndirect!=LI_STATIC_LIGHTMAPS && svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
+			svs.renderLightDirect = LD_REALTIME;
+		if (svs.renderLightIndirect==LI_REALTIME_FIREBALL)
+			svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL);
+		if (svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
+			svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT);
+		updateHide();
 	}
 	else
 	if (property==propGIShadowTransparency)

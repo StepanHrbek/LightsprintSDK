@@ -185,6 +185,12 @@ namespace rr_gl
 	};
 
 
+// naming convention for lightmaps and ldm. final name is prefix+objectnumber+postfix
+#define LMAP_PREFIX  RR_WX2RR(svs.sceneFilename.BeforeLast('.')+"_precalculated/")
+#define LMAP_POSTFIX "lightmap.png"
+#define LDM_PREFIX   LMAP_PREFIX
+#define LDM_POSTFIX  "ldm.png"
+
 }; // namespace
 
 #endif // SUPPORT_SCENEVIEWER

@@ -96,6 +96,9 @@ namespace rr_gl
 		wxPGProperty*     propGridNumSegments;
 		wxPGProperty*     propGridSegmentSize;
 
+		wxPGProperty*     propGIDirect;
+		wxPGProperty*     propGIIndirect;
+		BoolRefProperty*  propGILDM;
 		BoolRefProperty*  propGISRGBCorrect;
 		wxPGProperty*     propGIShadowTransparency;
 		wxPGProperty*     propGIFireballQuality;

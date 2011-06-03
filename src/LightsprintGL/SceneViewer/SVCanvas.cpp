@@ -211,16 +211,25 @@ void SVCanvas::createContextCore()
 		switch (svs.renderLightIndirect)
 		{
 			// try to load FB. if not found, create it
-			case LI_REALTIME_FIREBALL:     parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL    ); break;
+			case LI_REALTIME_FIREBALL:     parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL); break;
 			// create architect
-			case LI_STATIC_LIGHTMAPS:      parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_STATIC      ); break;
+			case LI_STATIC_LIGHTMAPS:      parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_STATIC); break;
 		}
+
+		// try to load lightmaps
+		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber))
+				goto lightmapFoundInRam;
+		solver->getStaticObjects().loadLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
+		lightmapFoundInRam:
+
 		// try to load LDM. if not found, disable it
-		if (svs.renderLDM)
-		{
+		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.ldmLayerNumber))
+				goto ldmFoundInRam;
+		if (!solver->getStaticObjects().loadLayer(svs.ldmLayerNumber,LDM_PREFIX,LDM_POSTFIX))
 			svs.renderLDM = false;
-			parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_TOGGLE_LDM);
-		}
+		ldmFoundInRam:;
 	}
 
 	// init rest

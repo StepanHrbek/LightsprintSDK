@@ -30,12 +30,6 @@
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
-// naming convention for lightmaps and ldm. final name is prefix+objectnumber+postfix
-#define LMAP_PREFIX  RR_WX2RR(svs.sceneFilename.BeforeLast('.')+"_precalculated/")
-#define LMAP_POSTFIX "lightmap.png"
-#define LDM_PREFIX   LMAP_PREFIX
-#define LDM_POSTFIX  "ldm.png"
-
 namespace rr_gl
 {
 
@@ -1214,20 +1208,7 @@ reload_skybox:
 		//////////////////////////////// GLOBAL ILLUMINATION - INDIRECT ///////////////////////////////
 
 		case ME_LIGHTING_INDIRECT_TOGGLE_LDM:
-			if (svs.renderLDM)
-			{
-				svs.renderLDM = false;
-				break;
-			}
-			// enables ldm if in ram
-			for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-				if (solver->getStaticObjects()[i]->illumination.getLayer(svs.ldmLayerNumber))
-				{
-					svs.renderLDM = true;
-					break;
-				}
-			// if ldm not in ram, try to load it from disk
-			svs.renderLDM = solver->getStaticObjects().loadLayer(svs.ldmLayerNumber,LDM_PREFIX,LDM_POSTFIX)>0;
+			svs.renderLDM = !svs.renderLDM;
 			break;
 
 		case ME_LIGHTING_INDIRECT_FIREBALL:
@@ -1273,13 +1254,6 @@ reload_skybox:
 			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
 			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
 			svs.renderLightmaps2d = 0;
-			// checks whether lightmap exists in ram
-			for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-				if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber))
-					goto atLeastOneLightmapBufferExists;
-			// try to load lightmaps from disk
-			solver->getStaticObjects().loadLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
-			atLeastOneLightmapBufferExists:
 			break;
 
 		case ME_LIGHTING_INDIRECT_CONST:
