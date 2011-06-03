@@ -350,8 +350,10 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 			break;
 
 		case CM_STATIC_OBJECT_UNWRAP:
-		case CM_STATIC_OBJECTS_UNWRAP:
 			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getStaticObjects().size())
+			// intentionaly no break
+		case CM_STATIC_OBJECTS_UNWRAP:
+			if (solver)
 			{
 				unsigned res = 256;
 				if (getResolution(_("Unwrap build"),this,res,false))
