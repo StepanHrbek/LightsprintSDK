@@ -2516,7 +2516,7 @@ Video formats
     - select light by left clicking its icon (or click "light 0" in Scene tree, then right click viewport for focus)
     - arrows or wsadqzxc to move light (or camera)
     - in "Light properties", change light type from point to spot for stronger color bleeding effect
-    - select from menu: Global illumination / Build LDM / 1000 / 128x128, takes a minute, increases realtime GI quality
+    - select from Scene tree / Static objects / context menu / Build LDM / 1000 / 128x128, takes a minute, increases realtime GI quality
   </td><td>
   \image html Gamebryo-RT2.jpg
   </td></tr><tr><td>

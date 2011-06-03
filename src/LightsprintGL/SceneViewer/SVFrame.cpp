@@ -172,7 +172,7 @@ unsigned getUnsigned(const wxString& str)
 // true = valid answer
 // false = dialog was escaped
 // Incoming quality is taken as default value.
-static bool getQuality(wxString title, wxWindow* parent, unsigned& quality)
+bool getQuality(wxString title, wxWindow* parent, unsigned& quality)
 {
 	wxArrayString choices;
 	choices.Add("1");
@@ -648,12 +648,9 @@ void SVFrame::UpdateMenuBar()
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_("Build Fireball..."),_("(Re)builds Fireball, acceleration structure used by realtime GI."));
-		winMenu->Append(ME_REALTIME_LDM_BUILD,_("Build LDM (light detail map)..."),_("(Re)builds LDM, layer of additional per-pixel details. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
 		winMenu->AppendSeparator();
-		winMenu->Append(ME_STATIC_BUILD,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel is efficient only with good unwrap in scene."));
 		winMenu->Append(ME_STATIC_2D,_("Inspect unwrap+lightmaps in 2D"),_("Shows unwrap and lightmap in 2D."));
 		winMenu->Append(ME_STATIC_BILINEAR,_("Toggle lightmap bilinear interpolation"));
-		//winMenu->Append(ME_STATIC_BUILD_1OBJ,_("Build lightmap for selected obj, only direct..."),_("For testing only."));
 #ifdef DEBUG_TEXEL
 		winMenu->Append(ME_STATIC_DIAGNOSE,_("Diagnose texel..."),_("For debugging purposes, shows rays traced from texel in final gather step."));
 #endif
@@ -1247,45 +1244,6 @@ reload_skybox:
 
 		//////////////////////////////// GLOBAL ILLUMINATION - BUILD ///////////////////////////////
 
-		case ME_REALTIME_LDM_BUILD:
-			{
-				unsigned res = 256;
-				unsigned quality = 100;
-				if (getQuality("LDM build",this,quality) && getResolution("LDM build",this,res,false))
-				{
-					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,solver,_("Building LDM..."));
-
-					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
-					fireballLoadAttempted = false;
-					solver->leaveFireball();
-
-					// build ldm
-					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-						solver->getStaticObjects()[i]->illumination.getLayer(svs.ldmLayerNumber) =
-							rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
-					rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
-					paramsDirect.applyLights = 0;
-					paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
-					paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
-					rr::RRDynamicSolver::UpdateParameters paramsIndirect(quality);
-					paramsIndirect.applyLights = 0;
-					paramsIndirect.locality = -1;
-					paramsIndirect.qualityFactorRadiosity = 0;
-					rr::RRBuffer* oldEnv = solver->getEnvironment();
-					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.65f),rr::RRVec4(0.65f)); // 0.65*typical materials = average color in LDM around 0.5
-					solver->setEnvironment(newEnv);
-					solver->updateLightmaps(svs.ldmLayerNumber,-1,-1,&paramsDirect,&paramsIndirect,&svs.lightmapFilteringParameters);
-					solver->setEnvironment(oldEnv);
-					delete newEnv;
-
-					// save ldm to disk
-					solver->getStaticObjects().saveLayer(svs.ldmLayerNumber,LDM_PREFIX,LDM_POSTFIX);
-
-					svs.renderLDM = true;
-				}
-			}
-			break;
 		case ME_REALTIME_FIREBALL_BUILD:
 			{
 				if (getQuality(_("Fireball build"),this,svs.fireballQuality))
@@ -1299,52 +1257,6 @@ reload_skybox:
 					solver->buildFireball(svs.fireballQuality,NULL);
 					solver->reportDirectIlluminationChange(-1,true,true);
 					fireballLoadAttempted = true;
-				}
-			}
-			break;
-
-		case ME_STATIC_BUILD:
-			{
-				unsigned res = 256; // 0=vertex buffers
-				unsigned quality = 100;
-				if (getResolution(_("Lightmap build"),this,res,true) && getQuality(_("Lightmap build"),this,quality))
-				{
-					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,solver,_("Building lightmaps..."));
-
-					// allocate buffers
-					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-					{
-						if (solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices())
-						{
-							delete solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
-							solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) = res
-								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBA,true,NULL) // A in RGBA is only for debugging
-								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
-						}
-					}
-
-					// calculate all
-					solver->leaveFireball();
-					fireballLoadAttempted = false;
-					rr::RRDynamicSolver::UpdateParameters params(quality);
-					params.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
-					params.aoSize = svs.lightmapDirectParameters.aoSize;
-					solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&svs.lightmapFilteringParameters);
-					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
-					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
-					// propagate computed data from buffers to textures
-					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-					{
-						rr::RRBuffer* buf = solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
-						if (buf && buf->getType()==rr::BT_2D_TEXTURE)
-						{
-							getTexture(buf,false,false); // don't mipmap lmaps(light would leak), don't compres lmaps(ugly 4x4 blocks on HD2400)
-						}
-					}
-
-					// save calculated lightmaps
-					solver->getStaticObjects().saveLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
 				}
 			}
 			break;
@@ -1399,28 +1311,6 @@ reload_skybox:
 				lightField->captureLighting(solver,0,false);
 			}
 			break;
-		/*case ME_STATIC_BUILD_1OBJ:
-			{
-				unsigned quality = 100;
-				if (getQuality("Lightmap build",this,quality))
-				{
-					// calculate 1 object, direct lighting
-					solver->leaveFireball();
-					fireballLoadAttempted = false;
-					rr::RRDynamicSolver::UpdateParameters params(quality);
-					rr::RRDynamicSolver::FilteringParameters filtering;
-					filtering.wrap = false;
-					solver->updateLightmap(svs.selectedObjectIndex,solver->getStaticObjects()[svs.selectedObjectIndex]->illumination->getLayer(svs.staticLayerNumber),NULL,NULL,&params,&filtering);
-					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
-					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
-					// propagate computed data from buffers to textures
-					if (solver->getStaticObjects()[svs.selectedObjectIndex]->illumination->getLayer(svs.staticLayerNumber) && solver->getStaticObjects()[svs.selectedObjectIndex]->illumination->getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
-						getTexture(solver->getStaticObjects()[svs.selectedObjectIndex]->illumination->getLayer(svs.staticLayerNumber),true,false); // don't compres lmaps(ugly 4x4 blocks on HD2400)
-					// reset cache, GL texture ids constant, but somehow rendered maps are not updated without display list rebuild
-					solver->resetRenderCache();
-				}
-			}
-			break;*/
 #ifdef DEBUG_TEXEL
 		case ME_STATIC_DIAGNOSE:
 			{

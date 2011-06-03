@@ -70,6 +70,7 @@ namespace rr_gl
 		// public only for SVSceneTree::runContextMenuAction()
 		rr::RRLights               lightsToBeDeletedOnExit; // list of lights owned and deleted by us
 		std::vector<rr::RRScene*>  mergedScenes; // Inited empty, filled by user via menu File/Open|Merge, deleted when no longer needed.
+		bool                       fireballLoadAttempted; // Public only for SVSceneTree.
 
 	private:
 		class wxGLContext*         context; // context for this canvas (we have only one canvas, so there's no need to share context yet)
@@ -80,7 +81,6 @@ namespace rr_gl
 		int                        windowCoord[4]; // x,y,w,h of window when user switched to fullscreen
 		class Water*               water;
 		class ToneMapping*         toneMapping;
-		bool                       fireballLoadAttempted;
 		float                      speedForward;
 		float                      speedBack;
 		float                      speedRight;

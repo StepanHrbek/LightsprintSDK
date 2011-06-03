@@ -217,6 +217,8 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 		{
 			wxMenu menu;
 			menu.Append(CM_STATIC_OBJECTS_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
+			menu.Append(CM_STATIC_OBJECTS_BUILD_LMAPS,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel requires unwrap."));
+			menu.Append(CM_STATIC_OBJECTS_BUILD_LDMS,_("Build LDMs..."),_("(Re)builds LDMs, layer of additional per-pixel details. LDMs require unwrap."));
 			menu.Append(CM_STATIC_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
 			menu.Append(CM_STATIC_OBJECTS_MERGE,_("Merge objects"),_("Merges all objects together."));
 			menu.Append(CM_STATIC_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
@@ -227,6 +229,8 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 		{
 			wxMenu menu;
 			menu.Append(CM_STATIC_OBJECT_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
+			menu.Append(CM_STATIC_OBJECT_BUILD_LMAP,_("Build lightmap..."),_("(Re)builds per-vertex or per-pixel lightmap. Per-pixel requires unwrap."));
+			menu.Append(CM_STATIC_OBJECT_BUILD_LDM,_("Build LDM..."),_("(Re)builds LDM, layer of additional per-pixel details. LDMs require unwrap."));
 			menu.Append(CM_STATIC_OBJECT_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
 			menu.Append(CM_STATIC_OBJECT_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
 			menu.Append(CM_STATIC_OBJECT_DELETE, _("Delete object")+" (del)");
@@ -248,6 +252,7 @@ void SVSceneTree::OnContextMenuRun(wxCommandEvent& event)
 	runContextMenuAction(event.GetId(),contextEntityId);
 }
 
+extern bool getQuality(wxString title, wxWindow* parent, unsigned& quality);
 extern bool getResolution(wxString title, wxWindow* parent, unsigned& resolution, bool offerPerVertex);
 extern bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption);
 
@@ -378,6 +383,116 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				}
 			}
 			return; // skip updateAllPanels() at the end of this function, we did not change anything
+
+		case CM_STATIC_OBJECT_BUILD_LMAP:
+			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getStaticObjects().size())
+			// intentionaly no break
+		case CM_STATIC_OBJECTS_BUILD_LMAPS:
+			if (solver)
+			{
+				unsigned res = 256; // 0=vertex buffers
+				unsigned quality = 100;
+				if (getResolution(_("Lightmap build"),this,res,true) && getQuality(_("Lightmap build"),this,quality))
+				{
+					// display log window with 'abort' while this function runs
+					LogWithAbort logWithAbort(this,solver,_("Building lightmaps..."));
+
+					// allocate buffers
+					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+						if (actionCode==CM_STATIC_OBJECTS_BUILD_LDMS || i==contextEntityId.index)
+							if (solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices())
+							{
+								delete solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
+								solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) = res
+									? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBA,true,NULL) // A in RGBA is only for debugging
+									: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+							}
+
+					// calculate all
+					solver->leaveFireball();
+					svframe->m_canvas->fireballLoadAttempted = false;
+					rr::RRDynamicSolver::UpdateParameters params(quality);
+					params.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
+					params.aoSize = svs.lightmapDirectParameters.aoSize;
+					if (actionCode==CM_STATIC_OBJECTS_BUILD_LMAPS)
+						solver->updateLightmaps(svs.staticLayerNumber,-1,-1,&params,&params,&svs.lightmapFilteringParameters);
+					else
+					{
+						solver->updateLightmaps(-1,-1,-1,&params,&params,&svs.lightmapFilteringParameters);
+						params.applyCurrentSolution = true;
+						solver->updateLightmap(contextEntityId.index,solver->getStaticObjects()[contextEntityId.index]->illumination.getLayer(svs.staticLayerNumber),NULL,NULL,&params,&svs.lightmapFilteringParameters);
+					}
+
+					// save calculated lightmaps
+					solver->getStaticObjects().saveLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
+
+					// make results visible
+					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
+					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
+				}
+			}
+			return; // skip updateAllPanels() at the end of this function, we did not change anything
+
+		case CM_STATIC_OBJECT_BUILD_LDM:
+			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getStaticObjects().size())
+			// intentionaly no break
+		case CM_STATIC_OBJECTS_BUILD_LDMS:
+			if (solver)
+			{
+				unsigned res = 256;
+				unsigned quality = 100;
+				if (getQuality("LDM build",this,quality) && getResolution("LDM build",this,res,false))
+				{
+					// display log window with 'abort' while this function runs
+					LogWithAbort logWithAbort(this,solver,_("Building LDM..."));
+
+					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
+					svframe->m_canvas->fireballLoadAttempted = false;
+					solver->leaveFireball();
+
+					// build ldm
+					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+						if (actionCode==CM_STATIC_OBJECTS_BUILD_LDMS || i==contextEntityId.index)
+						{
+							delete solver->getStaticObjects()[i]->illumination.getLayer(svs.ldmLayerNumber);
+							solver->getStaticObjects()[i]->illumination.getLayer(svs.ldmLayerNumber) =
+								rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
+						}
+					rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
+					paramsDirect.applyLights = 0;
+					paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
+					paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
+					rr::RRDynamicSolver::UpdateParameters paramsIndirect(quality);
+					paramsIndirect.applyLights = 0;
+					paramsIndirect.locality = -1;
+					paramsIndirect.qualityFactorRadiosity = 0;
+					rr::RRBuffer* oldEnv = solver->getEnvironment();
+					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.65f),rr::RRVec4(0.65f)); // 0.65*typical materials = average color in LDM around 0.5
+					solver->setEnvironment(newEnv);
+					if (actionCode==CM_STATIC_OBJECTS_BUILD_LDMS)
+						solver->updateLightmaps(svs.ldmLayerNumber,-1,-1,&paramsDirect,&paramsIndirect,&svs.lightmapFilteringParameters);
+					else
+					{
+						solver->updateLightmaps(-1,-1,-1,&paramsDirect,&paramsIndirect,&svs.lightmapFilteringParameters);
+						paramsDirect.applyCurrentSolution = true;
+						solver->updateLightmap(contextEntityId.index,solver->getStaticObjects()[contextEntityId.index]->illumination.getLayer(svs.ldmLayerNumber),NULL,NULL,&paramsDirect,&svs.lightmapFilteringParameters);
+					}
+					solver->setEnvironment(oldEnv);
+					delete newEnv;
+
+					// save ldm to disk
+					solver->getStaticObjects().saveLayer(svs.ldmLayerNumber,LDM_PREFIX,LDM_POSTFIX);
+
+					// make results visible
+					if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
+						svs.renderLightDirect = LD_REALTIME;
+					if (svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)
+						svs.renderLightIndirect = LI_CONSTANT;
+					svs.renderLDM = true;
+				}
+			}
+			return; // skip updateAllPanels() at the end of this function, we did not change anything
+
 		case CM_STATIC_OBJECT_SMOOTH:
 		case CM_STATIC_OBJECTS_SMOOTH: // right now, it smooths also dynamic objects
 			{
