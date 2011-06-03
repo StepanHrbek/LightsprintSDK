@@ -236,9 +236,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		SetPropertyBackgroundColour(propRenderExtras,importantPropertyBackgroundColor,false);
 	}
 
-	// GI quality
+	// global illumination
 	{
-		wxPGProperty* propGI = new wxStringProperty(_("GI quality"), wxPG_LABEL);
+		wxPGProperty* propGI = new wxStringProperty(_("Global illumination"), wxPG_LABEL);
 		Append(propGI);
 		SetPropertyReadOnly(propGI,true,wxPG_DONT_RECURSE);
 

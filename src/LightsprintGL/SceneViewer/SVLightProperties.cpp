@@ -128,7 +128,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			const wxChar* tsStrings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),NULL};
 			const long tsValues[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS};
 			propShadowTransparency = new wxEnumProperty(_("Shadow transparency"),wxPG_LABEL,tsStrings,tsValues);
-			propShadowTransparency->SetHelpString(_("How shadows actually work. Can be controlled via Scene properties / GI quality / Shadow transparency."));
+			propShadowTransparency->SetHelpString(_("How shadows actually work. Can be controlled via Scene properties / GI / Shadow transparency."));
 //			propShadowTransparency->Enable(false); // not yet in wx 2.9.1
 			AppendIn(propCastShadows,propShadowTransparency);
 			DisableProperty(propShadowTransparency);
