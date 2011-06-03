@@ -399,6 +399,7 @@ void SVSceneProperties::updateHide()
 	propGIEmisMultiplier->Hide(!realtimeGI,false);
 	propGIEmisVideoAffectsGI->Hide(!realtimeGI,false);
 	propGIEmisVideoGIQuality->Hide(!realtimeGI || !svs.videoEmittanceAffectsGI,false);
+	propGITranspVideoAffectsGI->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 	propGITranspVideoAffectsGIFull->Hide(!realtimeGI || !svs.videoTransmittanceAffectsGI,false);
 	propGIEnvVideoAffectsGI->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
 	propGIEnvVideoGIQuality->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL || !svs.videoEnvironmentAffectsGI,false);
