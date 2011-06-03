@@ -231,6 +231,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			menu.Append(CM_STATIC_OBJECT_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
 			menu.Append(CM_STATIC_OBJECT_BUILD_LMAP,_("Build lightmap..."),_("(Re)builds per-vertex or per-pixel lightmap. Per-pixel requires unwrap."));
 			menu.Append(CM_STATIC_OBJECT_BUILD_LDM,_("Build LDM..."),_("(Re)builds LDM, layer of additional per-pixel details. LDMs require unwrap."));
+			menu.Append(CM_STATIC_OBJECT_INSPECT_UNWRAP,_("Inspect unwrap,lightmap,LDM..."),_("Shows unwrap and lightmap or LDM in 2D."));
 			menu.Append(CM_STATIC_OBJECT_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
 			menu.Append(CM_STATIC_OBJECT_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
 			menu.Append(CM_STATIC_OBJECT_DELETE, _("Delete object")+" (del)");
@@ -492,6 +493,10 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				}
 			}
 			return; // skip updateAllPanels() at the end of this function, we did not change anything
+
+		case CM_STATIC_OBJECT_INSPECT_UNWRAP:
+			svs.renderLightmaps2d = 1;
+			break;
 
 		case CM_STATIC_OBJECT_SMOOTH:
 		case CM_STATIC_OBJECTS_SMOOTH: // right now, it smooths also dynamic objects

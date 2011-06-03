@@ -649,7 +649,6 @@ void SVFrame::UpdateMenuBar()
 		winMenu = new wxMenu;
 		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_("Build Fireball..."),_("(Re)builds Fireball, acceleration structure used by realtime GI."));
 		winMenu->AppendSeparator();
-		winMenu->Append(ME_STATIC_2D,_("Inspect unwrap+lightmaps in 2D"),_("Shows unwrap and lightmap in 2D."));
 		winMenu->Append(ME_STATIC_BILINEAR,_("Toggle lightmap bilinear interpolation"));
 #ifdef DEBUG_TEXEL
 		winMenu->Append(ME_STATIC_DIAGNOSE,_("Diagnose texel..."),_("For debugging purposes, shows rays traced from texel in final gather step."));
@@ -1261,9 +1260,6 @@ reload_skybox:
 			}
 			break;
 
-		case ME_STATIC_2D:
-			svs.renderLightmaps2d = 1;
-			break;
 		case ME_STATIC_BILINEAR:
 			svs.renderLightmapsBilinear = !svs.renderLightmapsBilinear;
 			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;

@@ -1111,7 +1111,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 	{
 		if (svs.selectedObjectIndex<solver->getStaticObjects().size())
 			lv->setObject(
-				solver->getStaticObjects()[svs.selectedObjectIndex]->illumination.getLayer((svs.renderLightIndirect==LI_CONSTANT)?svs.ldmLayerNumber:svs.staticLayerNumber),
+				solver->getStaticObjects()[svs.selectedObjectIndex]->illumination.getLayer(svs.renderLDMEnabled()?svs.ldmLayerNumber:svs.staticLayerNumber),
 				solver->getStaticObjects()[svs.selectedObjectIndex],
 				svs.renderLightmapsBilinear);
 		else
