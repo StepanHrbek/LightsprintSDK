@@ -663,7 +663,8 @@ void SVFrame::UpdateMenuBar()
 			case LD_NONE: winMenu->Check(ME_LIGHTING_DIRECT_NONE,true); break;
 		}
 		winMenu->AppendSeparator();
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL_LDM,_("Indirect illumination: realtime Fireball+LDM (fast+detailed)"),_("Changes lighting technique to Fireball with LDM, fast and detailed realtime GI that supports lights, emissive materials, skylight."));
+		winMenu->AppendCheckItem(ME_LIGHTING_INDIRECT_TOGGLE_LDM,_("Indirect illumination: LDM"),_("Toggles light detail maps, additional layer of precalculated details."));
+		winMenu->Check(ME_LIGHTING_INDIRECT_TOGGLE_LDM,svs.renderLDM);
 		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL,_("Indirect illumination: realtime Fireball (fast)"),_("Changes lighting technique to Fireball, fast realtime GI that supports lights, emissive materials, skylight."));
 		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_ARCHITECT,_("Indirect illumination: realtime Architect (no precalc)"),_("Changes lighting technique to Architect, legacy realtime GI that supports lights, emissive materials."));
 		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_STATIC,_("Indirect illumination: static lightmap"),_("Changes lighting technique to precomputed lightmaps. If you haven't built lightmaps yet, everything will be dark."));
@@ -671,7 +672,6 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_NONE,_("Indirect illumination: none"));
 		switch (svs.renderLightIndirect)
 		{
-			case LI_REALTIME_FIREBALL_LDM: winMenu->Check(ME_LIGHTING_INDIRECT_FIREBALL_LDM,true); break;
 			case LI_REALTIME_FIREBALL: winMenu->Check(ME_LIGHTING_INDIRECT_FIREBALL,true); break;
 			case LI_REALTIME_ARCHITECT: winMenu->Check(ME_LIGHTING_INDIRECT_ARCHITECT,true); break;
 			case LI_STATIC_LIGHTMAPS: winMenu->Check(ME_LIGHTING_INDIRECT_STATIC,true); break;
@@ -680,7 +680,7 @@ void SVFrame::UpdateMenuBar()
 		}
 		winMenu->AppendSeparator();
 		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_("Build Fireball..."),_("(Re)builds Fireball, acceleration structure used by realtime GI."));
-		winMenu->Append(ME_REALTIME_LDM_BUILD,_("Build LDM (light detail map)..."),_("(Re)builds LDM, structure that adds per-pixel details to realtime GI. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
+		winMenu->Append(ME_REALTIME_LDM_BUILD,_("Build LDM (light detail map)..."),_("(Re)builds LDM, layer of additional per-pixel details. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
 		winMenu->AppendSeparator();
 		winMenu->Append(ME_STATIC_BUILD,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel is efficient only with good unwrap in scene."));
 		winMenu->Append(ME_STATIC_2D,_("Inspect unwrap+lightmaps in 2D"),_("Shows unwrap and lightmap in 2D."));
@@ -1213,22 +1213,21 @@ reload_skybox:
 
 		//////////////////////////////// GLOBAL ILLUMINATION - INDIRECT ///////////////////////////////
 
-		case ME_LIGHTING_INDIRECT_FIREBALL_LDM:
-			// starts fireball, sets LI_REALTIME_FIREBALL
-			OnMenuEventCore(ME_LIGHTING_INDIRECT_FIREBALL);
+		case ME_LIGHTING_INDIRECT_TOGGLE_LDM:
+			if (svs.renderLDM)
+			{
+				svs.renderLDM = false;
+				break;
+			}
 			// enables ldm if in ram
 			for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 				if (solver->getStaticObjects()[i]->illumination.getLayer(svs.ldmLayerNumber))
 				{
-					svs.renderLightIndirect = LI_REALTIME_FIREBALL_LDM;
+					svs.renderLDM = true;
 					break;
 				}
 			// if ldm not in ram, try to load it from disk
-			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL && solver->getStaticObjects().loadLayer(svs.ldmLayerNumber,LDM_PREFIX,LDM_POSTFIX))
-			{
-				svs.renderLightIndirect = LI_REALTIME_FIREBALL_LDM;
-			}
-			// if ldm not in ram and not on disk, keep it disabled
+			svs.renderLDM = solver->getStaticObjects().loadLayer(svs.ldmLayerNumber,LDM_PREFIX,LDM_POSTFIX)>0;
 			break;
 
 		case ME_LIGHTING_INDIRECT_FIREBALL:
@@ -1335,8 +1334,7 @@ reload_skybox:
 					// save ldm to disk
 					solver->getStaticObjects().saveLayer(svs.ldmLayerNumber,LDM_PREFIX,LDM_POSTFIX);
 
-					// switch to fireball+ldm
-					OnMenuEventCore(ME_LIGHTING_INDIRECT_FIREBALL_LDM);
+					svs.renderLDM = true;
 				}
 			}
 			break;

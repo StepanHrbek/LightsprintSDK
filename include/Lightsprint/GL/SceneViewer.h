@@ -42,7 +42,6 @@ enum LightingIndirect
 	LI_STATIC_LIGHTMAPS,     ///< Indirect illumination is taken from lightmaps in staticLayerNumber.
 	LI_REALTIME_ARCHITECT,   ///< Indirect illumination is realtime computed by Architect solver. No precalculations. If not sure, use Fireball.
 	LI_REALTIME_FIREBALL,    ///< Indirect illumination is realtime computed by Fireball solver. Fast.
-	LI_REALTIME_FIREBALL_LDM,///< Indirect illumination is realtime computed by Fireball solver, LDM from ldmLayerNumber adds details. Fast, but initial LDM build is slow.
 };
 
 //! Transparency modes used by realtime renderer, to trade speed/quality. Offline GI solver always works as if the highest quality mode is selected.
@@ -78,6 +77,8 @@ struct SceneViewerState
 	bool             fullscreen;                //! Ignored. Fullscreen/windowed bit is saved to and read from user preferences file. Quit sceneViewer() in fullscreen and it will start in fullscreen next time.
 	LightingDirect   renderLightDirect;         //! Render direct illumination.
 	LightingIndirect renderLightIndirect;       //! Render indirect illumination.
+	bool             renderLDM;                 //! Modulate indirect illumination by LDM.
+	bool             renderLDMEnabled() {return renderLDM && renderLightIndirect!=LI_STATIC_LIGHTMAPS && renderLightIndirect!=LI_NONE;}
 	bool             renderLightmaps2d;         //! When not rendering realtime, show static lightmaps in 2D.
 	bool             renderLightmapsBilinear;   //! Render lightmaps with bilinear interpolation rather than without it.
 	bool             renderMaterialDiffuse;     //! Render diffuse color.
@@ -153,6 +154,7 @@ struct SceneViewerState
 		fullscreen = 0;
 		renderLightDirect = LD_REALTIME;
 		renderLightIndirect = LI_REALTIME_FIREBALL;
+		renderLDM = true;
 		renderLightmaps2d = 0;
 		renderMaterialDiffuse = 1;
 		renderMaterialSpecular = 1;
@@ -227,6 +229,7 @@ struct SceneViewerState
 			&& a.fullscreen==fullscreen
 			&& a.renderLightDirect==renderLightDirect
 			&& a.renderLightIndirect==renderLightIndirect
+			&& a.renderLDM==renderLDM
 			&& a.renderLightmaps2d==renderLightmaps2d
 			&& a.renderLightmapsBilinear==renderLightmapsBilinear
 			&& a.renderMaterialDiffuse==renderMaterialDiffuse

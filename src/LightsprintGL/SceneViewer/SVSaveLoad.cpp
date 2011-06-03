@@ -243,6 +243,20 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 	}
 	ar & make_nvp("renderLightDirect",a.renderLightDirect);
 	ar & make_nvp("renderLightIndirect",a.renderLightIndirect);
+	if (version>26)
+	{
+		ar & make_nvp("renderLDM",a.renderLDM);
+	}
+	else
+	{
+		if (a.renderLightIndirect>rr_gl::LI_REALTIME_FIREBALL) // former LI_REALTIME_FIREBALL_LDM
+		{
+			a.renderLightIndirect = rr_gl::LI_REALTIME_FIREBALL;
+			a.renderLDM = true;
+		}
+		else
+			a.renderLDM = false;
+	}
 	ar & make_nvp("renderLightmaps2d",a.renderLightmaps2d);
 	ar & make_nvp("renderLightmapsBilinear",a.renderLightmapsBilinear);
 	ar & make_nvp("renderMaterialDiffuse",a.renderMaterialDiffuse);

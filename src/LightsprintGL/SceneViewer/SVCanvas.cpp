@@ -210,9 +210,16 @@ void SVCanvas::createContextCore()
 		rr::RRReportInterval report(rr::INF3,"Setting illumination type...\n");
 		switch (svs.renderLightIndirect)
 		{
-			case LI_REALTIME_FIREBALL_LDM: parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL_LDM); break;
+			// try to load FB. if not found, create it
 			case LI_REALTIME_FIREBALL:     parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL    ); break;
+			// create architect
 			case LI_STATIC_LIGHTMAPS:      parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_STATIC      ); break;
+		}
+		// try to load LDM. if not found, disable it
+		if (svs.renderLDM)
+		{
+			svs.renderLDM = false;
+			parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_TOGGLE_LDM);
 		}
 	}
 
@@ -312,7 +319,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 	// fix svs.renderLightIndirect, setStaticObjects() just silently switched solver to architect
 	// must be changed if setStaticObjects() behaviour changes
 	// we don't switch to architect, but rather to const ambient, because architect ignores environment, scenes without lights are black
-	if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)
+	if (svs.renderLightIndirect==LI_REALTIME_FIREBALL)
 	{
 		svs.renderLightIndirect = LI_CONSTANT;
 		parent->UpdateMenuBar(); // switches to LI_CONSTANT also in menu
@@ -1095,7 +1102,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 	{
 		if (svs.selectedObjectIndex<solver->getStaticObjects().size())
 			lv->setObject(
-				solver->getStaticObjects()[svs.selectedObjectIndex]->illumination.getLayer((svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:svs.staticLayerNumber),
+				solver->getStaticObjects()[svs.selectedObjectIndex]->illumination.getLayer((svs.renderLightIndirect==LI_CONSTANT)?svs.ldmLayerNumber:svs.staticLayerNumber),
 				solver->getStaticObjects()[svs.selectedObjectIndex],
 				svs.renderLightmapsBilinear);
 		else
@@ -1158,13 +1165,13 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			svs.eye.update();
 		}
 
-		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
+		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
 			for (unsigned i=0;i<solver->realtimeLights.size();i++)
 				solver->realtimeLights[i]->shadowTransparencyRequested = svs.shadowTransparency;
 			rr::RRDynamicSolver::CalculateParameters params;
-			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
+			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			{
 				// rendering indirect -> calculate will update shadowmaps, possibly resample environment and emissive maps, improve indirect
 				params.materialEmittanceMultiplier = svs.emissiveMultiplier;
@@ -1207,6 +1214,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			uberProgramSetup.LIGHT_DIRECT_MAP = svs.renderLightDirect==LD_REALTIME;
 			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderLightDirect==LD_REALTIME;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderLightIndirect==LI_CONSTANT;
+			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = svs.renderLDMEnabled();
 			uberProgramSetup.LIGHT_INDIRECT_auto = svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE =
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = svs.raytracedCubesEnabled && solver->getStaticObjects().size()<svs.raytracedCubesMaxObjects && svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
@@ -1240,9 +1248,9 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				solver->renderScene(
 					uberProgramSetup,
 					NULL,
-					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM,
+					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
-					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
+					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
@@ -1268,9 +1276,9 @@ rendered:
 				solver->renderScene(
 					uberProgramSetup,
 					NULL,
-					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM,
+					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
-					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
+					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
@@ -1282,9 +1290,9 @@ rendered:
 				solver->renderScene(
 					uberProgramSetup,
 					NULL,
-					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM,
+					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
 					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
-					(svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM)?svs.ldmLayerNumber:UINT_MAX,
+					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
@@ -1296,7 +1304,7 @@ rendered:
 			if (svs.renderTonemapping && svs.tonemappingAutomatic
 				&& !svs.renderWireframe
 				&& ((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS && solver->containsLightSource())
-					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL_LDM || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
+					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
 					|| svs.renderLightIndirect==LI_CONSTANT
 					))
 			{
@@ -1627,7 +1635,6 @@ rendered:
 				const char* strIndirect = "?";
 				switch (svs.renderLightIndirect)
 				{
-					case LI_REALTIME_FIREBALL_LDM: strIndirect = "fireball+LDM"; break;
 					case LI_REALTIME_FIREBALL: strIndirect = "fireball"; break;
 					case LI_REALTIME_ARCHITECT: strIndirect = "architect"; break;
 					case LI_STATIC_LIGHTMAPS: strIndirect = "lightmap"; break;
@@ -1655,8 +1662,8 @@ rendered:
 					case rr::RRDynamicSolver::BOTH: strSolver = "both"; break;
 				}
 				// print it
-				textOutput(x,y+=18,h,"lighting direct=%s indirect=%s lightmaps=(%dx vbuf %dx lmap %dx none) solver=%s",
-					strDirect,strIndirect,numVbufs,numLmaps,numObjects-numVbufs-numLmaps,strSolver);
+				textOutput(x,y+=18,h,"lighting direct=%s indirect=%s%s lightmaps=(%dx vbuf %dx lmap %dx none) solver=%s",
+					strDirect,strIndirect,svs.renderLDMEnabled()?"+LDM":"",numVbufs,numLmaps,numObjects-numVbufs-numLmaps,strSolver);
 			}
 			if (!svs.renderLightmaps2d || !lv)
 			{
