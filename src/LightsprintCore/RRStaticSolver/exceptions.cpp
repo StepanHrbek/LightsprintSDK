@@ -266,7 +266,7 @@ unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRStr
 				RRReporter::report(INF3,"Not loaded %ls.\n",layerParameters.actualFilename.w_str());
 			}
 		}
-		RRReporter::report(INF2,"Loaded layer %d, %d/%d buffers into %ls.\n",layerNumber,result,size(),path.w_str());
+		RRReporter::report(INF2,"Loaded layer %d, %d/%d buffers from %ls.\n",layerNumber,result,size(),path.w_str());
 	}
 	return result;
 }
