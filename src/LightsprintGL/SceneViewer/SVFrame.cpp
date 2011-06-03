@@ -647,32 +647,6 @@ void SVFrame::UpdateMenuBar()
 	// Global illumination...
 	{
 		winMenu = new wxMenu;
-		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_REALTIME,_("Direct illumination: realtime"));
-		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_STATIC,_("Direct illumination: static lightmap"));
-		winMenu->AppendRadioItem(ME_LIGHTING_DIRECT_NONE,_("Direct illumination: none"));
-		switch (svs.renderLightDirect)
-		{
-			case LD_REALTIME: winMenu->Check(ME_LIGHTING_DIRECT_REALTIME,true); break;
-			case LD_STATIC_LIGHTMAPS: winMenu->Check(ME_LIGHTING_DIRECT_STATIC,true); break;
-			case LD_NONE: winMenu->Check(ME_LIGHTING_DIRECT_NONE,true); break;
-		}
-		winMenu->AppendSeparator();
-		winMenu->AppendCheckItem(ME_LIGHTING_INDIRECT_TOGGLE_LDM,_("Indirect illumination: LDM"),_("Toggles light detail maps, additional layer of precalculated details."));
-		winMenu->Check(ME_LIGHTING_INDIRECT_TOGGLE_LDM,svs.renderLDM);
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_FIREBALL,_("Indirect illumination: realtime Fireball (fast)"),_("Changes lighting technique to Fireball, fast realtime GI that supports lights, emissive materials, skylight."));
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_ARCHITECT,_("Indirect illumination: realtime Architect (no precalc)"),_("Changes lighting technique to Architect, legacy realtime GI that supports lights, emissive materials."));
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_STATIC,_("Indirect illumination: static lightmap"),_("Changes lighting technique to precomputed lightmaps. If you haven't built lightmaps yet, everything will be dark."));
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_CONST,_("Indirect illumination: constant ambient"));
-		winMenu->AppendRadioItem(ME_LIGHTING_INDIRECT_NONE,_("Indirect illumination: none"));
-		switch (svs.renderLightIndirect)
-		{
-			case LI_REALTIME_FIREBALL: winMenu->Check(ME_LIGHTING_INDIRECT_FIREBALL,true); break;
-			case LI_REALTIME_ARCHITECT: winMenu->Check(ME_LIGHTING_INDIRECT_ARCHITECT,true); break;
-			case LI_STATIC_LIGHTMAPS: winMenu->Check(ME_LIGHTING_INDIRECT_STATIC,true); break;
-			case LI_CONSTANT: winMenu->Check(ME_LIGHTING_INDIRECT_CONST,true); break;
-			case LI_NONE: winMenu->Check(ME_LIGHTING_INDIRECT_NONE,true); break;
-		}
-		winMenu->AppendSeparator();
 		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_("Build Fireball..."),_("(Re)builds Fireball, acceleration structure used by realtime GI."));
 		winMenu->Append(ME_REALTIME_LDM_BUILD,_("Build LDM (light detail map)..."),_("(Re)builds LDM, layer of additional per-pixel details. Takes tens of minutes to build. LDM is efficient only with good unwrap in scene."));
 		winMenu->AppendSeparator();
