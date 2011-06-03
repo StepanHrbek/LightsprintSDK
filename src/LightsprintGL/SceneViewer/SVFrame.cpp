@@ -648,12 +648,9 @@ void SVFrame::UpdateMenuBar()
 	{
 		winMenu = new wxMenu;
 		winMenu->Append(ME_REALTIME_FIREBALL_BUILD,_("Build Fireball..."),_("(Re)builds Fireball, acceleration structure used by realtime GI."));
-		winMenu->AppendSeparator();
-		winMenu->Append(ME_STATIC_BILINEAR,_("Toggle lightmap bilinear interpolation"));
 #ifdef DEBUG_TEXEL
 		winMenu->Append(ME_STATIC_DIAGNOSE,_("Diagnose texel..."),_("For debugging purposes, shows rays traced from texel in final gather step."));
 #endif
-		winMenu->AppendSeparator();
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_("Build 2d lightfield"),_("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_("Build 3d lightfield"),_("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
 		menuBar->Append(winMenu, _("Global illumination"));
@@ -1260,20 +1257,6 @@ reload_skybox:
 			}
 			break;
 
-		case ME_STATIC_BILINEAR:
-			svs.renderLightmapsBilinear = !svs.renderLightmapsBilinear;
-			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
-			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
-			for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-			{	
-				if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber) && solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE)
-				{
-					getTexture(solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber))->bindTexture();
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
-				}
-			}
-			break;
 		case ME_STATIC_BUILD_LIGHTFIELD_2D:
 			{
 				// create solver if it doesn't exist yet

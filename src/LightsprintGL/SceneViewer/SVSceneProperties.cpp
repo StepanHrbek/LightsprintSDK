@@ -261,6 +261,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination."),svs.renderLDM);
 		AppendIn(propGI,propGILDM);
 
+		propGIBilinear = new BoolRefProperty(_("Bilinear"),_("Bilinear interpolation of lightmaps and LDMs, keep always on, unless you analyze pixels."),svs.renderLightmapsBilinear);
+		AppendIn(propGI,propGIBilinear);
+
 		{
 			const wxChar* strings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),NULL};
 			const long values[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS};
@@ -328,7 +331,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 		// lightmap
 		{
-			wxPGProperty* propGILightmap = new wxStringProperty(_("Lightmap baking"), wxPG_LABEL);
+			wxPGProperty* propGILightmap = new wxStringProperty(_("Lightmap+LDM baking"), wxPG_LABEL);
 			AppendIn(propGI,propGILightmap);
 			SetPropertyReadOnly(propGILightmap,true,wxPG_DONT_RECURSE);
 			
@@ -385,6 +388,7 @@ void SVSceneProperties::updateHide()
 
 	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
 	propGILDM->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS,false);
+	propGIBilinear->Hide(svs.renderLightIndirect==LI_NONE || (svs.renderLightIndirect!=LI_STATIC_LIGHTMAPS && !svs.renderLDM),false);
 	propGISRGBCorrect->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 	propGIShadowTransparency->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 	propGIFireballQuality->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
@@ -431,6 +435,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propGrid)
 		+ updateInt(propGIDirect,svs.renderLightDirect)
 		+ updateInt(propGIIndirect,svs.renderLightIndirect)
+		+ updateBoolRef(propGILDM)
 		+ updateBoolRef(propGIEmisVideoAffectsGI)
 		+ updateBoolRef(propGITranspVideoAffectsGI)
 		+ updateBoolRef(propGIEnvVideoAffectsGI)
@@ -471,7 +476,7 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)
 		+ updateFloat(propGridSegmentSize,svs.gridSegmentSize)
-		+ updateBoolRef(propGILDM)
+		+ updateBoolRef(propGIBilinear)
 		+ updateBoolRef(propGISRGBCorrect)
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
@@ -727,6 +732,28 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		if (svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT);
 		updateHide();
+	}
+	else
+	if (property==propGILDM)
+	{
+		updateHide();
+	}
+	else
+	if (property==propGIBilinear)
+	{
+		for (unsigned i=0;i<svframe->m_canvas->solver->getStaticObjects().size();i++)
+		{	
+			for (unsigned j=0;j<2;j++)
+			{
+				rr::RRBuffer* buf = svframe->m_canvas->solver->getStaticObjects()[i]->illumination.getLayer(j?svs.staticLayerNumber:svs.ldmLayerNumber);
+				if (buf && buf->getType()==rr::BT_2D_TEXTURE)
+				{
+					getTexture(buf)->bindTexture();
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
+				}
+			}
+		}
 	}
 	else
 	if (property==propGIShadowTransparency)

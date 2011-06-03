@@ -99,6 +99,7 @@ namespace rr_gl
 		wxPGProperty*     propGIDirect;
 		wxPGProperty*     propGIIndirect;
 		BoolRefProperty*  propGILDM;
+		BoolRefProperty*  propGIBilinear;
 		BoolRefProperty*  propGISRGBCorrect;
 		wxPGProperty*     propGIShadowTransparency;
 		wxPGProperty*     propGIFireballQuality;
