@@ -98,7 +98,8 @@ public:
 			if (i->second.buffer // we try again if previous load failed, perhaps file was created on background
 				&& (i->second.buffer->getDuration() // always take videos from cache
 					|| i->second.buffer->version==i->second.bufferVersionWhenLoaded) // take static content from cache only if version did not change
-				&& (sixfiles || i->second.fileTimeWhenLoaded==bf::last_write_time(filename.w_str()))
+				&& (sixfiles
+					|| (i->second.fileTimeWhenLoaded==bf::last_write_time(filename.w_str()) && i->second.fileSizeWhenLoaded==bf::file_size(filename.w_str())))
 				)
 			{
 				// detect and report possible error
@@ -122,6 +123,7 @@ public:
 			value.buffer->createReference(); // keep initial ref for us, add one ref for user
 			value.bufferVersionWhenLoaded = value.buffer->version;
 			value.fileTimeWhenLoaded = sixfiles ? 0 : bf::last_write_time(filename.w_str());
+			value.fileSizeWhenLoaded = sixfiles ? 0 : bf::file_size(filename.w_str());
 		}
 		return value.buffer;
 	}
@@ -153,7 +155,9 @@ protected:
 	{
 		RRBuffer* buffer;
 		unsigned bufferVersionWhenLoaded;
-		std::time_t fileTimeWhenLoaded; // Critical for Toolbench plugin, "Bake from cache" must not load images from cache if they did change on disk.
+		// attributes critical for Toolbench plugin, "Bake from cache" must not load images from cache if they did change on disk.
+		std::time_t fileTimeWhenLoaded;
+		boost::uintmax_t fileSizeWhenLoaded;
 	};
 	typedef boost::unordered_map<std::wstring,Value> Cache;
 	Cache cache;
