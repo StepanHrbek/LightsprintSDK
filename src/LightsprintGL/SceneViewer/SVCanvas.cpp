@@ -1373,7 +1373,7 @@ rendered:
 
 
 		// render light field, using own shader
-		if (svs.renderHelpers && lightField)
+		if (svs.renderHelpers && !_takingSshot && lightField)
 		{
 			// update cube
 			lightFieldObjectIllumination->envMapWorldCenter = rr::RRVec3(svs.eye.pos[0]+svs.eye.dir[0],svs.eye.pos[1]+svs.eye.dir[1],svs.eye.pos[2]+svs.eye.dir[2]);
@@ -1517,7 +1517,7 @@ rendered:
 		}
 	}
 
-	if (svs.renderHelpers
+	if ((svs.renderHelpers && !_takingSshot)
 		)
 	{
 		// set line shader
@@ -1570,7 +1570,7 @@ rendered:
 		}
 
 		// render debug rays, using previously set shader
-		if (svs.renderHelpers && (!svs.renderLightmaps2d || !lv) && SVRayLog::size)
+		if (svs.renderHelpers && !_takingSshot && (!svs.renderLightmaps2d || !lv) && SVRayLog::size)
 		{
 			glBegin(GL_LINES);
 			for (unsigned i=0;i<SVRayLog::size;i++)
@@ -1591,7 +1591,7 @@ rendered:
 		}
 
 		// render arrows, using previously set shader
-		if (svs.renderHelpers && !svs.renderLightmaps2d)
+		if (svs.renderHelpers && !_takingSshot && !svs.renderLightmaps2d)
 		{
 			drawTangentBasis(selectedTriangleBody.vertex0,selectedTriangleNormals.vertex[0]);
 			drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side1,selectedTriangleNormals.vertex[1]);
@@ -1602,7 +1602,7 @@ rendered:
 
 
 		// render helper text, using own shader (because text output ignores color passed to line shader)
-		if (svs.renderHelpers)
+		if (svs.renderHelpers && !_takingSshot)
 		{
 			centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
 			centerTexel = UINT_MAX;
