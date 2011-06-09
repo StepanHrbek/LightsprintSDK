@@ -60,7 +60,6 @@ namespace rr_gl
 		void OnKeyUp(wxKeyEvent& event);
 		void OnMouseEvent(wxMouseEvent& event);
 		void OnIdle(wxIdleEvent& event);
-		void OnEnterWindow(wxMouseEvent& event);
 
 
 		bool                       renderEmptyFrames;

@@ -971,11 +971,6 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 	Refresh(false);
 }
 
-void SVCanvas::OnEnterWindow(wxMouseEvent& event)
-{
-	SetFocus();
-}
-
 static void textOutput(int x, int y, int h, const char* format, ...)
 {
 #ifdef _WIN32
@@ -1941,7 +1936,6 @@ BEGIN_EVENT_TABLE(SVCanvas, wxGLCanvas)
     EVT_KEY_UP(SVCanvas::OnKeyUp)
     EVT_MOUSE_EVENTS(SVCanvas::OnMouseEvent)
     EVT_IDLE(SVCanvas::OnIdle)
-    EVT_ENTER_WINDOW(SVCanvas::OnEnterWindow)
 END_EVENT_TABLE()
 
  
