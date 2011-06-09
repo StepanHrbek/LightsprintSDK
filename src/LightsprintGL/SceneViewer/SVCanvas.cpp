@@ -777,36 +777,36 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	{
 		if (event.LeftUp())
 		{
-		// left click = select
-		if (s_ci.clickedEntity.type!=ST_CAMERA && s_ci.clickedEntity.type!=ST_STATIC_OBJECT)
-		{
-			// clicked icon
-			parent->selectEntityInTreeAndUpdatePanel(s_ci.clickedEntity,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
-		}
-		else
-		{
-			// clicked scene
-			rr::RRMesh::PreImportNumber selectedPreImportTriangle(0,0);
-			rr::RRObject* selectedObject = NULL;
-			if (s_ci.hitTriangle!=UINT_MAX)
+			// left click = select
+			if (s_ci.clickedEntity.type!=ST_CAMERA && s_ci.clickedEntity.type!=ST_STATIC_OBJECT)
 			{
-				selectedPreImportTriangle = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle);
-				selectedObject = solver->getStaticObjects()[selectedPreImportTriangle.object];
-				if (selectedType!=ST_STATIC_OBJECT || svs.selectedObjectIndex!=selectedPreImportTriangle.object)
+				// clicked icon
+				parent->selectEntityInTreeAndUpdatePanel(s_ci.clickedEntity,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
+			}
+			else
+			{
+				// clicked scene
+				rr::RRMesh::PreImportNumber selectedPreImportTriangle(0,0);
+				rr::RRObject* selectedObject = NULL;
+				if (s_ci.hitTriangle!=UINT_MAX)
 				{
-					//svs.selectedObjectIndex = selectedPreImportTriangle.object;
-					parent->m_materialProperties->locked = true; // selectEntityInTreeAndUpdatePanel calls setMaterial, material panel must ignore it (set is slow and it clears [x] point, [x] phys)
-					parent->selectEntityInTreeAndUpdatePanel(EntityId(ST_STATIC_OBJECT,selectedPreImportTriangle.object),SEA_SELECT);
-					parent->m_materialProperties->locked = false;
+					selectedPreImportTriangle = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle);
+					selectedObject = solver->getStaticObjects()[selectedPreImportTriangle.object];
+					if (selectedType!=ST_STATIC_OBJECT || svs.selectedObjectIndex!=selectedPreImportTriangle.object)
+					{
+						//svs.selectedObjectIndex = selectedPreImportTriangle.object;
+						parent->m_materialProperties->locked = true; // selectEntityInTreeAndUpdatePanel calls setMaterial, material panel must ignore it (set is slow and it clears [x] point, [x] phys)
+						parent->selectEntityInTreeAndUpdatePanel(EntityId(ST_STATIC_OBJECT,selectedPreImportTriangle.object),SEA_SELECT);
+						parent->m_materialProperties->locked = false;
+					}
+					else
+						selectedType = ST_CAMERA;
 				}
 				else
 					selectedType = ST_CAMERA;
+				parent->m_objectProperties->setObject(selectedObject,svs.precision);
+				parent->m_materialProperties->setMaterial(solver,s_ci.hitTriangle,s_ci.hitPoint2d);
 			}
-			else
-				selectedType = ST_CAMERA;
-			parent->m_objectProperties->setObject(selectedObject,svs.precision);
-			parent->m_materialProperties->setMaterial(solver,s_ci.hitTriangle,s_ci.hitPoint2d);
-		}
 		}
 		else
 		{

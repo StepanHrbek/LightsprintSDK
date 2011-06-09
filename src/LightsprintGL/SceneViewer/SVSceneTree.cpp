@@ -188,52 +188,50 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 	temporaryContext = event.GetItem();
 	bool contextIsSky = !temporaryContext.IsOk();
 	wxMenu menu;
+	if (temporaryContext==root || contextIsSky)
 	{
-		if (temporaryContext==root || contextIsSky)
-		{
-			menu.Append(CM_ENV_CUSTOM,_("Change environment..."),_("Changes environment texture."));
-			menu.Append(CM_ENV_WHITE,_("White environment"),_("Sets white environment."));
-			menu.Append(CM_ENV_BLACK,_("Black environment"),_("Sets black environment."));
+		menu.Append(CM_ENV_CUSTOM,_("Change environment..."),_("Changes environment texture."));
+		menu.Append(CM_ENV_WHITE,_("White environment"),_("Sets white environment."));
+		menu.Append(CM_ENV_BLACK,_("Black environment"),_("Sets black environment."));
+		menu.AppendSeparator();
+		menu.Append(CM_ROOT_SCALE, _("Normalize units..."),_("Makes scene n-times bigger."));
+		menu.Append(CM_ROOT_AXES, _("Normalize up-axis"),_("Rotates scene by 90 degrees."));
+		if (contextIsSky)
 			menu.AppendSeparator();
-			menu.Append(CM_ROOT_SCALE, _("Normalize units..."),_("Makes scene n-times bigger."));
-			menu.Append(CM_ROOT_AXES, _("Normalize up-axis"),_("Rotates scene by 90 degrees."));
-			if (contextIsSky)
-				menu.AppendSeparator();
-		}
-		if (temporaryContext==lights)
-		{
-			menu.Append(CM_LIGHT_DIR, _("Add Sun light"));
-			menu.Append(CM_LIGHT_SPOT, _("Add spot light")+" (alt-s)");
-			menu.Append(CM_LIGHT_POINT, _("Add point light")+" (alt-o)");
-			menu.Append(CM_LIGHT_FLASH, _("Toggle flashlight")+" (alt-f)");
-		}
-		if (temporaryContext.IsOk() && GetItemParent(temporaryContext)==lights)
-		{
-			menu.Append(CM_LIGHT_DELETE, _("Delete light")+" (del)");
-		}
-		if (temporaryContext==staticObjects || contextIsSky)
-		{
-			menu.Append(CM_STATIC_OBJECTS_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
-			menu.Append(CM_STATIC_OBJECTS_BUILD_LMAPS,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel requires unwrap."));
-			menu.Append(CM_STATIC_OBJECTS_BUILD_LDMS,_("Build LDMs..."),_("(Re)builds LDMs, layer of additional per-pixel details. LDMs require unwrap."));
-			menu.Append(CM_STATIC_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
-			menu.Append(CM_STATIC_OBJECTS_MERGE,_("Merge objects"),_("Merges all objects together."));
-			menu.Append(CM_STATIC_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
-		}
-		if (temporaryContext.IsOk() && GetItemParent(temporaryContext)==staticObjects)
-		{
-			menu.Append(CM_STATIC_OBJECT_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
-			menu.Append(CM_STATIC_OBJECT_BUILD_LMAP,_("Build lightmap..."),_("(Re)builds per-vertex or per-pixel lightmap. Per-pixel requires unwrap."));
-			menu.Append(CM_STATIC_OBJECT_BUILD_LDM,_("Build LDM..."),_("(Re)builds LDM, layer of additional per-pixel details. LDMs require unwrap."));
-			menu.Append(CM_STATIC_OBJECT_INSPECT_UNWRAP,_("Inspect unwrap,lightmap,LDM..."),_("Shows unwrap and lightmap or LDM in 2D."));
-			menu.Append(CM_STATIC_OBJECT_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
-			menu.Append(CM_STATIC_OBJECT_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
-			menu.Append(CM_STATIC_OBJECT_DELETE, _("Delete object")+" (del)");
-		}
-		if (temporaryContext.IsOk() && GetItemParent(temporaryContext)==dynamicObjects)
-		{
-			menu.Append(CM_DYNAMIC_OBJECT_DELETE, _("Delete object")+" (del)");
-		}
+	}
+	if (temporaryContext==lights)
+	{
+		menu.Append(CM_LIGHT_DIR, _("Add Sun light"));
+		menu.Append(CM_LIGHT_SPOT, _("Add spot light")+" (alt-s)");
+		menu.Append(CM_LIGHT_POINT, _("Add point light")+" (alt-o)");
+		menu.Append(CM_LIGHT_FLASH, _("Toggle flashlight")+" (alt-f)");
+	}
+	if (temporaryContext.IsOk() && GetItemParent(temporaryContext)==lights)
+	{
+		menu.Append(CM_LIGHT_DELETE, _("Delete light")+" (del)");
+	}
+	if (temporaryContext==staticObjects || contextIsSky)
+	{
+		menu.Append(CM_STATIC_OBJECTS_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
+		menu.Append(CM_STATIC_OBJECTS_BUILD_LMAPS,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel requires unwrap."));
+		menu.Append(CM_STATIC_OBJECTS_BUILD_LDMS,_("Build LDMs..."),_("(Re)builds LDMs, layer of additional per-pixel details. LDMs require unwrap."));
+		menu.Append(CM_STATIC_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
+		menu.Append(CM_STATIC_OBJECTS_MERGE,_("Merge objects"),_("Merges all objects together."));
+		menu.Append(CM_STATIC_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
+	}
+	if (temporaryContext.IsOk() && GetItemParent(temporaryContext)==staticObjects)
+	{
+		menu.Append(CM_STATIC_OBJECT_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
+		menu.Append(CM_STATIC_OBJECT_BUILD_LMAP,_("Build lightmap..."),_("(Re)builds per-vertex or per-pixel lightmap. Per-pixel requires unwrap."));
+		menu.Append(CM_STATIC_OBJECT_BUILD_LDM,_("Build LDM..."),_("(Re)builds LDM, layer of additional per-pixel details. LDMs require unwrap."));
+		menu.Append(CM_STATIC_OBJECT_INSPECT_UNWRAP,_("Inspect unwrap,lightmap,LDM..."),_("Shows unwrap and lightmap or LDM in 2D."));
+		menu.Append(CM_STATIC_OBJECT_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
+		menu.Append(CM_STATIC_OBJECT_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
+		menu.Append(CM_STATIC_OBJECT_DELETE, _("Delete object")+" (del)");
+	}
+	if (temporaryContext.IsOk() && GetItemParent(temporaryContext)==dynamicObjects)
+	{
+		menu.Append(CM_DYNAMIC_OBJECT_DELETE, _("Delete object")+" (del)");
 	}
 	PopupMenu(&menu, event.GetPoint());
 }
