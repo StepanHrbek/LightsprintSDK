@@ -672,6 +672,11 @@ struct ClickInfo
 static bool s_ciRelevant = false; // are we dragging and is s_ci describing click that started it?
 static ClickInfo s_ci;
 
+// What triggers context menu:
+// a) rightclick -> OnMouseEvent() -> creates context menu
+// b) hotkey -> OnContextMenuCreate() -> OnMouseEvent(event with ID_CONTEXT_MENU) -> creates context menu
+#define ID_CONTEXT_MENU 543210
+
 void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 {
 	if (exitRequested || !fullyCreated)
@@ -682,11 +687,13 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		// regain focus, innocent actions like clicking menu take it away
 		SetFocus();
 	}
-	{
-		wxPoint pixelPos = event.GetPosition();
-		wxSize pixelSize = GetSize();
-		mousePositionInWindow = rr::RRVec2(pixelPos.x*2.0f/pixelSize.x-1,pixelPos.y*2.0f/pixelSize.y-1);
-	}
+
+	// coords from previous frame, inherited to current frame if new coords are not available
+	static wxPoint oldPosition(-1,-1);
+	bool contextMenu = event.GetId()==ID_CONTEXT_MENU;
+	wxPoint newPosition = (event.GetPosition()==wxPoint(-1,-1)) ? oldPosition : event.GetPosition(); // use previous coords for event that does not come with its own
+	mousePositionInWindow = rr::RRVec2(newPosition.x*2.0f/GetSize().x-1,newPosition.y*2.0f/GetSize().y-1);
+
 	if (!winWidth || !winHeight || !solver)
 	{
 		return;
@@ -697,17 +704,13 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		return;
 	}
 
-	// set on every frame of dragging
-	static int s_prevX;
-	static int s_prevY;
-
 	// scene clicked: fill s_xxx
-	if (event.ButtonDown())
+	if (event.ButtonDown() || contextMenu)
 	{
 		// init static variables when dragging starts
 		s_ciRelevant = true;
-		s_prevX = s_ci.mouseX = event.GetX();
-		s_prevY = s_ci.mouseY = event.GetY();
+		s_ci.mouseX = newPosition.x;
+		s_ci.mouseY = newPosition.y;
 		s_ci.time.setNow();
 		s_ci.mouseLeft = event.LeftIsDown();
 		s_ci.mouseMiddle = event.MiddleIsDown();
@@ -760,15 +763,22 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 		else
 		{
-			s_ci.clickedEntity = EntityId(ST_CAMERA,0);
+			s_ci.clickedEntity = (s_ci.hitTriangle==UINT_MAX)
+				? EntityId(ST_CAMERA,0)
+				: EntityId(ST_STATIC_OBJECT,solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle).object);
 		}
+
+		if (contextMenu)
+			goto context_menu;
 	}
 
 	// handle clicking (mouse released in less than 0.2s in less than 20pix distance)
-	if (event.LeftUp() && s_ci.time.secondsPassed()<0.2f && abs(event.GetX()-s_ci.mouseX)<20 && abs(event.GetY()-s_ci.mouseY)<20)
+	if ((event.LeftUp() || event.RightUp()) && s_ci.time.secondsPassed()<0.2f && abs(event.GetX()-s_ci.mouseX)<20 && abs(event.GetY()-s_ci.mouseY)<20)
 	{
-		// selection
-		if (s_ci.clickedEntity.type!=ST_CAMERA)
+		if (event.LeftUp())
+		{
+		// left click = select
+		if (s_ci.clickedEntity.type!=ST_CAMERA && s_ci.clickedEntity.type!=ST_STATIC_OBJECT)
 		{
 			// clicked icon
 			parent->selectEntityInTreeAndUpdatePanel(s_ci.clickedEntity,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
@@ -796,7 +806,16 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				selectedType = ST_CAMERA;
 			parent->m_objectProperties->setObject(selectedObject,svs.precision);
 			parent->m_materialProperties->setMaterial(solver,s_ci.hitTriangle,s_ci.hitPoint2d);
-				
+		}
+		}
+		else
+		{
+			// right click = context menu
+			context_menu:
+			wxTreeEvent event2;
+			event2.SetItem(parent->m_sceneTree->entityIdToItemId(EntityId(s_ci.clickedEntity)));
+			event2.SetPoint(wxPoint(-1,-1));
+			parent->m_sceneTree->OnContextMenuCreate(event2);
 		}
 	}
 
@@ -807,12 +826,10 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	}
 
 	// handle dragging
-	if (event.Dragging() && s_ciRelevant && (event.GetX()!=s_prevX || event.GetY()!=s_prevY))
+	if (event.Dragging() && s_ciRelevant && newPosition!=oldPosition)
 	{
-		float dragX = (event.GetX()-s_ci.mouseX)/(float)winWidth;
-		float dragY = (event.GetY()-s_ci.mouseY)/(float)winHeight;
-		s_prevX = event.GetX();
-		s_prevY = event.GetY();
+		float dragX = (newPosition.x-s_ci.mouseX)/(float)winWidth;
+		float dragY = (newPosition.y-s_ci.mouseY)/(float)winHeight;
 
 		if (event.LeftIsDown())
 		{
@@ -916,6 +933,15 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		solver->realtimeLights[svs.selectedLightIndex]->updateAfterRealtimeLightChanges();
 	}
 	solver->reportInteraction();
+	oldPosition = newPosition;
+}
+
+void SVCanvas::OnContextMenuCreate(wxContextMenuEvent& _event)
+{
+	wxMouseEvent event;
+	event.SetPosition(_event.GetPosition());
+	event.SetId(ID_CONTEXT_MENU);
+	OnMouseEvent(event);
 }
 
 
@@ -1935,6 +1961,7 @@ BEGIN_EVENT_TABLE(SVCanvas, wxGLCanvas)
     EVT_KEY_DOWN(SVCanvas::OnKeyDown)
     EVT_KEY_UP(SVCanvas::OnKeyUp)
     EVT_MOUSE_EVENTS(SVCanvas::OnMouseEvent)
+	EVT_CONTEXT_MENU(SVCanvas::OnContextMenuCreate)
     EVT_IDLE(SVCanvas::OnIdle)
 END_EVENT_TABLE()
 

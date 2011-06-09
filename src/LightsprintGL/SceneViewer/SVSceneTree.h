@@ -22,6 +22,10 @@ namespace rr_gl
 		CM_ROOT_SCALE = 1, // OSX does not support menu item 0, so we start by 1
 		CM_ROOT_AXES,
 
+		CM_ENV_CUSTOM,
+		CM_ENV_WHITE,
+		CM_ENV_BLACK,
+
 		CM_LIGHT_SPOT,
 		CM_LIGHT_POINT,
 		CM_LIGHT_DIR,
@@ -67,8 +71,12 @@ namespace rr_gl
 		//! Runs context menu action, public only for SVCanvas hotkey handling.
 		void runContextMenuAction(unsigned actionCode, EntityId contextEntityId);
 
-	private:
+		// context menu, public only for canvas context menu
+		void OnContextMenuCreate(wxTreeEvent& event);
+		void OnContextMenuRun(wxCommandEvent& event);
 		wxTreeItemId entityIdToItemId(EntityId entity) const;
+
+	private:
 		EntityId itemIdToEntityId(wxTreeItemId item) const;
 
 		SVFrame* svframe;
@@ -79,10 +87,6 @@ namespace rr_gl
 		wxTreeItemId lights;
 		wxTreeItemId staticObjects;
 		wxTreeItemId dynamicObjects;
-
-		// context menu
-		void OnContextMenuCreate(wxTreeEvent& event);
-		void OnContextMenuRun(wxCommandEvent& event); // public only for SVCanvas hotkey handling
 
 		// temporary, set when creating context menu, valid only while context menu exists
 		wxTreeItemId temporaryContext;

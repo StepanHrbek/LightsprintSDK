@@ -29,6 +29,7 @@ NEWS
     Good size could be 0.5m for interior scene.
     If it is set too high, whole scene is darkened or even becomes black.
 - <b>improved Scene viewer</b>
+  - 3D viewport context menus
   - cleaned up "Global illumination" menu
     - some items moved to "Scene properties/Global illumination"
     - some items moved to "Scene tree/Static objects" context menu

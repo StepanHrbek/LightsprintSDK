@@ -59,6 +59,7 @@ namespace rr_gl
 		void OnKeyDown(wxKeyEvent& event);
 		void OnKeyUp(wxKeyEvent& event);
 		void OnMouseEvent(wxMouseEvent& event);
+		void OnContextMenuCreate(wxContextMenuEvent& event);
 		void OnIdle(wxIdleEvent& event);
 
 
