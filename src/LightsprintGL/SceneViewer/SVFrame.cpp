@@ -584,6 +584,9 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	svs.fullscreen = false;
 	userPreferencesApplyToWx();
 
+	// SetFocus in UpdateEverything() is not sufficient, adding panes changes focus, so here we set it again
+	m_canvas->SetFocus();
+
 	m_mgr.Update();
 	fullyInited = true;
 	m_canvas->renderEmptyFrames = false;
