@@ -492,7 +492,11 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 			svframe->m_canvas->selectedType = ST_STATIC_OBJECT;
 			svs.selectedObjectIndex = contextEntityId.index;
 			svs.renderLightmaps2d = 1;
-			break;
+			// a) slower, rebuilds tree, triggers wx bug: stealing focus (select obj or light, focus to canvas, select inspect from context menu (tree is rebuilt here), focus goes to tree)
+			//break;
+			// b) faster, avoids wx bug (focus in canvas stays in canvas)
+			svframe->selectEntityInTreeAndUpdatePanel(EntityId(ST_STATIC_OBJECT,svs.selectedObjectIndex),SEA_SELECT);
+			return;
 
 		case CM_STATIC_OBJECT_SMOOTH:
 		case CM_STATIC_OBJECTS_SMOOTH: // right now, it smooths also dynamic objects
