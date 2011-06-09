@@ -185,7 +185,7 @@ void keyboard(unsigned char c, int x, int y)
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
 				rr::RRDynamicSolver::UpdateParameters paramsDirect;
-				paramsDirect.quality = 1000;
+				paramsDirect.quality = 10;
 				paramsDirect.applyCurrentSolution = false;
 				paramsDirect.aoIntensity = 1;
 				paramsDirect.aoSize = 1;
@@ -496,8 +496,8 @@ int main(int argc, char** argv)
 		solver->getStaticObjects()[i]->illumination.getLayer(LAYER_OFFLINE_PIXEL) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 	}
 	// create remaining cubemaps and multiObject vertex buffers
-	solver->allocateBuffersForRealtimeGI(LAYER_REALTIME,4,16,-1,true,false);
-	solver->allocateBuffersForRealtimeGI(LAYER_OFFLINE_VERTEX,0,0,-1,true,false);
+	solver->allocateBuffersForRealtimeGI(LAYER_REALTIME);
+	solver->allocateBuffersForRealtimeGI(LAYER_OFFLINE_VERTEX);
 
 	// init light
 	rr::RRLight* rrlight = rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);
