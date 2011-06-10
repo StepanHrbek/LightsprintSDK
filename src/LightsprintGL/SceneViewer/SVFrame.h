@@ -14,6 +14,7 @@
 #include "wx/aui/aui.h"
 
 //#define DEBUG_TEXEL ...not working, will be revived later when needed
+//#define SV_LIGHTFIELD
 
 
 namespace rr_gl
@@ -114,8 +115,10 @@ namespace rr_gl
 #ifdef DEBUG_TEXEL
 			ME_STATIC_DIAGNOSE,
 #endif
+#ifdef SV_LIGHTFIELD
 			ME_STATIC_BUILD_LIGHTFIELD_2D,
 			ME_STATIC_BUILD_LIGHTFIELD_3D,
+#endif
 
 			ME_WINDOW_FULLSCREEN_META, // SV: identical to non-META. RL: toggles two predefined workspaces
 			ME_WINDOW_FULLSCREEN, // toggles fullscreen in current workspace

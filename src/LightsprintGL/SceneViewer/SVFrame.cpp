@@ -654,8 +654,10 @@ void SVFrame::UpdateMenuBar()
 #ifdef DEBUG_TEXEL
 		winMenu->Append(ME_STATIC_DIAGNOSE,_("Diagnose texel..."),_("For debugging purposes, shows rays traced from texel in final gather step."));
 #endif
+#ifdef SV_LIGHTFIELD
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_2D,_("Build 2d lightfield"),_("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
 		winMenu->Append(ME_STATIC_BUILD_LIGHTFIELD_3D,_("Build 3d lightfield"),_("Lightfield is illumination captured in 3d, lightmap for freely moving dynamic objects. Not saved to disk, for testing only."));
+#endif
 		menuBar->Append(winMenu, _("Global illumination"));
 	}
 
@@ -790,7 +792,6 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 		try
 {
 	rr_gl::RRDynamicSolverGL*& solver = m_canvas->solver;
-	rr::RRLightField*& lightField = m_canvas->lightField;
 	bool& fireballLoadAttempted = m_canvas->fireballLoadAttempted;
 	int* windowCoord = m_canvas->windowCoord;
 	bool& envToBeDeletedOnExit = m_canvas->envToBeDeletedOnExit;
@@ -1260,6 +1261,7 @@ reload_skybox:
 			}
 			break;
 
+#ifdef SV_LIGHTFIELD
 		case ME_STATIC_BUILD_LIGHTFIELD_2D:
 			{
 				// create solver if it doesn't exist yet
@@ -1272,9 +1274,9 @@ reload_skybox:
 				solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
 				aabbMin.y = aabbMax.y = svs.eye.pos.y;
 				aabbMin.w = aabbMax.w = 0;
-				delete lightField;
-				lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
-				lightField->captureLighting(solver,0,false);
+				delete m_canvas->lightField;
+				m_canvas->lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
+				m_canvas->lightField->captureLighting(solver,0,false);
 			}
 			break;
 		case ME_STATIC_BUILD_LIGHTFIELD_3D:
@@ -1288,11 +1290,12 @@ reload_skybox:
 				rr::RRVec4 aabbMin,aabbMax;
 				solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
 				aabbMin.w = aabbMax.w = 0;
-				delete lightField;
-				lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
-				lightField->captureLighting(solver,0,false);
+				delete m_canvas->lightField;
+				m_canvas->lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
+				m_canvas->lightField->captureLighting(solver,0,false);
 			}
 			break;
+#endif
 #ifdef DEBUG_TEXEL
 		case ME_STATIC_DIAGNOSE:
 			{
