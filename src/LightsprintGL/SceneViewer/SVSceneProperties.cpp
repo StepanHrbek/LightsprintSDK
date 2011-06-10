@@ -302,10 +302,16 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
 		AppendIn(propGI,propGIEmisMultiplier);
 
+		// video
+		{
+			wxPGProperty* propGIVideo = new wxStringProperty(_("Video realtime GI"), wxPG_LABEL);
+			AppendIn(propGI,propGIVideo);
+			SetPropertyReadOnly(propGIVideo,true,wxPG_DONT_RECURSE);
+
 		// emissive video
 		{
-			propGIEmisVideoAffectsGI = new BoolRefProperty(_("Emissive video realtime GI"),_("Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEmittanceAffectsGI);
-			AppendIn(propGI,propGIEmisVideoAffectsGI);
+			propGIEmisVideoAffectsGI = new BoolRefProperty(_("Emissive"),_("Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEmittanceAffectsGI);
+			AppendIn(propGIVideo,propGIEmisVideoAffectsGI);
 
 			propGIEmisVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from each triangle."),svs.videoEmittanceGIQuality,0,0,1000,10,false);
 			AppendIn(propGIEmisVideoAffectsGI,propGIEmisVideoGIQuality);
@@ -313,8 +319,8 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 		// transmittance video
 		{
-			propGITranspVideoAffectsGI = new BoolRefProperty(_("Transparency video realtime GI"),_("Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame."),svs.videoTransmittanceAffectsGI);
-			AppendIn(propGI,propGITranspVideoAffectsGI);
+			propGITranspVideoAffectsGI = new BoolRefProperty(_("Transparency"),_("Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame."),svs.videoTransmittanceAffectsGI);
+			AppendIn(propGIVideo,propGITranspVideoAffectsGI);
 
 			propGITranspVideoAffectsGIFull = new BoolRefProperty(_("Full GI"),_("Full GI is updated rather than just shadows."),svs.videoTransmittanceAffectsGIFull);
 			AppendIn(propGITranspVideoAffectsGI,propGITranspVideoAffectsGIFull);
@@ -322,11 +328,13 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 		// environment video
 		{
-			propGIEnvVideoAffectsGI = new BoolRefProperty(_("Environment video realtime GI"),_("Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEnvironmentAffectsGI);
-			AppendIn(propGI,propGIEnvVideoAffectsGI);
+			propGIEnvVideoAffectsGI = new BoolRefProperty(_("Environment"),_("Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEnvironmentAffectsGI);
+			AppendIn(propGIVideo,propGIEnvVideoAffectsGI);
 
 			propGIEnvVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from environment."),svs.videoEnvironmentGIQuality,0,1,100000,200,false);
 			AppendIn(propGIEnvVideoAffectsGI,propGIEnvVideoGIQuality);
+		}
+			Collapse(propGIVideo);
 		}
 
 		// lightmap
