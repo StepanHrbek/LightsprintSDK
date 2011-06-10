@@ -308,32 +308,33 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propGI,propGIVideo);
 			SetPropertyReadOnly(propGIVideo,true,wxPG_DONT_RECURSE);
 
-		// emissive video
-		{
-			propGIEmisVideoAffectsGI = new BoolRefProperty(_("Emissive"),_("Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEmittanceAffectsGI);
-			AppendIn(propGIVideo,propGIEmisVideoAffectsGI);
+			// emissive video
+			{
+				propGIEmisVideoAffectsGI = new BoolRefProperty(_("Emissive"),_("Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEmittanceAffectsGI);
+				AppendIn(propGIVideo,propGIEmisVideoAffectsGI);
 
-			propGIEmisVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from each triangle."),svs.videoEmittanceGIQuality,0,0,1000,10,false);
-			AppendIn(propGIEmisVideoAffectsGI,propGIEmisVideoGIQuality);
-		}
+				propGIEmisVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from each triangle."),svs.videoEmittanceGIQuality,0,0,1000,10,false);
+				AppendIn(propGIEmisVideoAffectsGI,propGIEmisVideoGIQuality);
+			}
 
-		// transmittance video
-		{
-			propGITranspVideoAffectsGI = new BoolRefProperty(_("Transparency"),_("Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame."),svs.videoTransmittanceAffectsGI);
-			AppendIn(propGIVideo,propGITranspVideoAffectsGI);
+			// transmittance video
+			{
+				propGITranspVideoAffectsGI = new BoolRefProperty(_("Transparency"),_("Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame."),svs.videoTransmittanceAffectsGI);
+				AppendIn(propGIVideo,propGITranspVideoAffectsGI);
 
-			propGITranspVideoAffectsGIFull = new BoolRefProperty(_("Full GI"),_("Full GI is updated rather than just shadows."),svs.videoTransmittanceAffectsGIFull);
-			AppendIn(propGITranspVideoAffectsGI,propGITranspVideoAffectsGIFull);
-		}
+				propGITranspVideoAffectsGIFull = new BoolRefProperty(_("Full GI"),_("Full GI is updated rather than just shadows."),svs.videoTransmittanceAffectsGIFull);
+				AppendIn(propGITranspVideoAffectsGI,propGITranspVideoAffectsGIFull);
+			}
 
-		// environment video
-		{
-			propGIEnvVideoAffectsGI = new BoolRefProperty(_("Environment"),_("Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEnvironmentAffectsGI);
-			AppendIn(propGIVideo,propGIEnvVideoAffectsGI);
+			// environment video
+			{
+				propGIEnvVideoAffectsGI = new BoolRefProperty(_("Environment"),_("Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEnvironmentAffectsGI);
+				AppendIn(propGIVideo,propGIEnvVideoAffectsGI);
 
-			propGIEnvVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from environment."),svs.videoEnvironmentGIQuality,0,1,100000,200,false);
-			AppendIn(propGIEnvVideoAffectsGI,propGIEnvVideoGIQuality);
-		}
+				propGIEnvVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from environment."),svs.videoEnvironmentGIQuality,0,1,100000,200,false);
+				AppendIn(propGIEnvVideoAffectsGI,propGIEnvVideoGIQuality);
+			}
+
 			Collapse(propGIVideo);
 		}
 
