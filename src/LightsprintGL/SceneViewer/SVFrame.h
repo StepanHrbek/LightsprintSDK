@@ -13,7 +13,7 @@
 #include "SVDialogs.h"
 #include "wx/aui/aui.h"
 
-#define DEBUG_TEXEL
+//#define DEBUG_TEXEL ...not working, will be revived later when needed
 
 
 namespace rr_gl
