@@ -394,7 +394,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 
 					// allocate buffers
 					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-						if (actionCode==CM_STATIC_OBJECTS_BUILD_LDMS || i==contextEntityId.index)
+						if (actionCode==CM_STATIC_OBJECTS_BUILD_LMAPS || i==contextEntityId.index)
 							if (solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices())
 							{
 								delete solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber);
