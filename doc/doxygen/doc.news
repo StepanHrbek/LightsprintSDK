@@ -29,10 +29,10 @@ NEWS
     Good size could be 0.5m for interior scene.
     If it is set too high, whole scene is darkened or even becomes black.
 - <b>improved Scene viewer</b>
-  - 3D viewport context menus
-  - cleaned up "Global illumination" menu
-    - some items moved to "Scene properties/Global illumination"
-    - some items moved to "Scene tree/Static objects" context menu
+  - new context menus in 3D viewport
+  - extended context menus in Scene tree
+  - extended "Scene properties/Global illumination"
+  - removed "Global illumination" from main menu
   - LDM can be enabled also in Architect and Constant ambient modes (in Scene properties)
   - lightmaps and LDMs can be baked for individual objects (in object's context menu)
 

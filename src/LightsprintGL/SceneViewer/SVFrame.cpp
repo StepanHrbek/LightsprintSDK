@@ -647,6 +647,7 @@ void SVFrame::UpdateMenuBar()
 		menuBar->Append(winMenu, _("File"));
 	}
 
+	/*
 	// Global illumination...
 	{
 		winMenu = new wxMenu;
@@ -660,6 +661,7 @@ void SVFrame::UpdateMenuBar()
 #endif
 		menuBar->Append(winMenu, _("Global illumination"));
 	}
+	*/
 
 	// Window...
 	{
@@ -1246,7 +1248,6 @@ reload_skybox:
 
 		case ME_REALTIME_FIREBALL_BUILD:
 			{
-				if (getQuality(_("Fireball build"),this,svs.fireballQuality))
 				{
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver,_("Building Fireball..."));

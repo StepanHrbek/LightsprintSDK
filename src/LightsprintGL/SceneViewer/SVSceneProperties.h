@@ -103,6 +103,7 @@ namespace rr_gl
 		BoolRefProperty*  propGISRGBCorrect;
 		wxPGProperty*     propGIShadowTransparency;
 		wxPGProperty*     propGIFireballQuality;
+		ButtonProperty*   propGIFireballBuild;
 		BoolRefProperty*  propGIRaytracedCubes;
 		wxPGProperty*     propGIRaytracedCubesDiffuseRes;
 		wxPGProperty*     propGIRaytracedCubesSpecularRes;
@@ -110,6 +111,7 @@ namespace rr_gl
 		FloatProperty*    propGIRaytracedCubesSpecularThreshold;
 		FloatProperty*    propGIRaytracedCubesDepthThreshold;
 		wxPGProperty*     propGIEmisMultiplier;
+		wxPGProperty*     propGIVideo;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;
 		wxPGProperty*     propGIEmisVideoGIQuality;
 		BoolRefProperty*  propGITranspVideoAffectsGI;
@@ -121,6 +123,8 @@ namespace rr_gl
 		wxPGProperty*     propGILightmapAOSize;
 		wxPGProperty*     propGILightmapSmoothingAmount;
 		BoolRefProperty*  propGILightmapWrapping;
+		ButtonProperty*   propGIBuildLmaps;
+		ButtonProperty*   propGIBuildLDMs;
 
 
 		/*

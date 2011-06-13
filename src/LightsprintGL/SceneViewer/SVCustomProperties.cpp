@@ -8,6 +8,8 @@
 #include "SVApp.h"
 #include "SVCustomProperties.h"
 #include "wx/colordlg.h"
+#include "SVFrame.h" // needed by ButtonProperty
+#include "SVSceneTree.h" // needed by ButtonProperty
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -250,6 +252,58 @@ bool HDRColorProperty::OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, 
 HDRColorProperty::~HDRColorProperty()
 {
 	delete bitmap;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// ButtonProperty
+
+WX_PG_IMPLEMENT_PROPERTY_CLASS(ButtonProperty,wxPGProperty,void,void,TextCtrl)
+
+ButtonProperty::ButtonProperty(const wxString& label, const wxString& help, rr_gl::SVFrame* _svframe, int _menuItem)
+	: wxStringProperty(label)
+{
+	SetHelpString(help);
+	svframe = _svframe;
+	menuItem = _menuItem;
+	imageSet = false;
+}
+
+void ButtonProperty::updateImage()
+{
+	wxSize size(48,15);
+	wxImage image(size);
+	unsigned char* data = image.GetData();
+	if (data)
+	{
+		for (int j=0;j<size.y;j++)
+		for (int i=0;i<size.x;i++)
+		{
+			data[(i+j*size.x)*3+0] =
+			data[(i+j*size.x)*3+1] =
+			data[(i+j*size.x)*3+2] =
+				(i==0||j==0||i==size.x-1||j==size.y-1) ? 0 : (
+				(i==size.x-2||j==size.y-2) ? 60 : (
+				(i==1||j==1) ? 255 : (
+				(i==size.x-3||j==size.y-3) ? 130 : (
+				200
+				))));
+		}
+	}
+	SetValueImage(wxBitmap(image));
+}
+
+bool ButtonProperty::OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event)
+{
+	if (event.GetEventType()==wxEVT_SET_FOCUS)
+	{
+		if (menuItem<rr_gl::SVFrame::ME_FILE_OPEN_SCENE)
+			svframe->m_sceneTree->runContextMenuAction(menuItem,rr_gl::EntityId());
+		else
+			svframe->OnMenuEventCore2(menuItem);
+	}
+	return wxPGProperty::OnEvent(propgrid,wnd_primary,event);
 }
 
 
