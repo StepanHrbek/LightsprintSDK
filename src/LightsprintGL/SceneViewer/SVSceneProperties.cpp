@@ -271,82 +271,82 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propGIIndirect->SetHelpString(_("What indirect illumination technique to use."));
 			AppendIn(propGI,propGIIndirect);
 
-		propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination."),svs.renderLDM);
-		AppendIn(propGIIndirect,propGILDM);
+			propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination."),svs.renderLDM);
+			AppendIn(propGIIndirect,propGILDM);
 
-		// fireball
-		{
-			wxPGProperty* propGIFireball = new wxStringProperty(_("Fireball"), wxPG_LABEL);
-			AppendIn(propGIIndirect,propGIFireball);
-			SetPropertyReadOnly(propGIFireball,true,wxPG_DONT_RECURSE);
+			// fireball
+			{
+				wxPGProperty* propGIFireball = new wxStringProperty(_("Fireball"), wxPG_LABEL);
+				AppendIn(propGIIndirect,propGIFireball);
+				SetPropertyReadOnly(propGIFireball,true,wxPG_DONT_RECURSE);
 
-			propGIFireballQuality = new FloatProperty(_("Quality"),_("More = longer precalculation, higher quality realtime GI. Rebuild Fireball for this change to take effect."),svs.fireballQuality,0,0,1000000,100,false);
-			AppendIn(propGIFireball,propGIFireballQuality);
+				propGIFireballQuality = new FloatProperty(_("Quality"),_("More = longer precalculation, higher quality realtime GI. Rebuild Fireball for this change to take effect."),svs.fireballQuality,0,0,1000000,100,false);
+				AppendIn(propGIFireball,propGIFireballQuality);
 
-			propGIFireballBuild = new ButtonProperty(_("Build"),_("Builds or rebuilds Fireball."),svframe,SVFrame::ME_REALTIME_FIREBALL_BUILD);
-			AppendIn(propGIFireball,propGIFireballBuild);
-			propGIFireballBuild->updateImage();
-		}
+				propGIFireballBuild = new ButtonProperty(_("Build"),_("Builds or rebuilds Fireball."),svframe,SVFrame::ME_REALTIME_FIREBALL_BUILD);
+				AppendIn(propGIFireball,propGIFireballBuild);
+				propGIFireballBuild->updateImage();
+			}
 
-		// cubes
-		{
-			propGIRaytracedCubes = new BoolRefProperty(_("Realtime raytraced reflections"),_("Increases realism by realtime raytracing diffuse and specular reflection cubemaps."),svs.raytracedCubesEnabled);
-			AppendIn(propGIIndirect,propGIRaytracedCubes);
+			// cubes
+			{
+				propGIRaytracedCubes = new BoolRefProperty(_("Realtime raytraced reflections"),_("Increases realism by realtime raytracing diffuse and specular reflection cubemaps."),svs.raytracedCubesEnabled);
+				AppendIn(propGIIndirect,propGIRaytracedCubes);
 		
-			propGIRaytracedCubesDiffuseRes = new FloatProperty(_("Diffuse resolution"),_("Resolution of diffuse reflection cube maps (total size is x*x*6 pixels). Applied only to dynamic objects. More = higher quality, slower. Default=4."),svs.raytracedCubesDiffuseRes,0,1,16,1,false);
-			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesDiffuseRes);
+				propGIRaytracedCubesDiffuseRes = new FloatProperty(_("Diffuse resolution"),_("Resolution of diffuse reflection cube maps (total size is x*x*6 pixels). Applied only to dynamic objects. More = higher quality, slower. Default=4."),svs.raytracedCubesDiffuseRes,0,1,16,1,false);
+				AppendIn(propGIRaytracedCubes,propGIRaytracedCubesDiffuseRes);
 
-			propGIRaytracedCubesSpecularRes = new FloatProperty(_("Specular resolution"),_("Resolution of specular reflection cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16."),svs.raytracedCubesSpecularRes,0,1,64,1,false);
-			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesSpecularRes);
+				propGIRaytracedCubesSpecularRes = new FloatProperty(_("Specular resolution"),_("Resolution of specular reflection cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16."),svs.raytracedCubesSpecularRes,0,1,64,1,false);
+				AppendIn(propGIRaytracedCubes,propGIRaytracedCubesSpecularRes);
 
-			propGIRaytracedCubesMaxObjects = new FloatProperty(_("Max objects"),_("How many objects in scene before raytracing turns off automatically. Raytracing usually becomes bottleneck when there are more than 1000 objects."),svs.raytracedCubesMaxObjects,0,0,1000000,10,false);
-			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesMaxObjects);
+				propGIRaytracedCubesMaxObjects = new FloatProperty(_("Max objects"),_("How many objects in scene before raytracing turns off automatically. Raytracing usually becomes bottleneck when there are more than 1000 objects."),svs.raytracedCubesMaxObjects,0,0,1000000,10,false);
+				AppendIn(propGIRaytracedCubes,propGIRaytracedCubesMaxObjects);
 
-			propGIRaytracedCubesSpecularThreshold = new FloatProperty(_("Specular threshold"),_("Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply."),svs.raytracedCubesSpecularThreshold,svs.precision,0,10,0.1f,false);
-			AppendIn(propGIRaytracedCubesSpecularRes,propGIRaytracedCubesSpecularThreshold);
+				propGIRaytracedCubesSpecularThreshold = new FloatProperty(_("Specular threshold"),_("Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply."),svs.raytracedCubesSpecularThreshold,svs.precision,0,10,0.1f,false);
+				AppendIn(propGIRaytracedCubesSpecularRes,propGIRaytracedCubesSpecularThreshold);
 
-			propGIRaytracedCubesDepthThreshold = new FloatProperty(_("Depth threshold"),_("Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply."),svs.raytracedCubesDepthThreshold,svs.precision,0,1,0.1f,false);
-			AppendIn(propGIRaytracedCubesSpecularRes,propGIRaytracedCubesDepthThreshold);
-		}
-
-		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
-		AppendIn(propGIIndirect,propGIEmisMultiplier);
-
-		// video
-		{
-			propGIVideo = new wxStringProperty(_("Video realtime GI"), wxPG_LABEL);
-			AppendIn(propGIIndirect,propGIVideo);
-			SetPropertyReadOnly(propGIVideo,true,wxPG_DONT_RECURSE);
-
-			// emissive video
-			{
-				propGIEmisVideoAffectsGI = new BoolRefProperty(_("Emissive"),_("Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEmittanceAffectsGI);
-				AppendIn(propGIVideo,propGIEmisVideoAffectsGI);
-
-				propGIEmisVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from each triangle."),svs.videoEmittanceGIQuality,0,0,1000,10,false);
-				AppendIn(propGIEmisVideoAffectsGI,propGIEmisVideoGIQuality);
+				propGIRaytracedCubesDepthThreshold = new FloatProperty(_("Depth threshold"),_("Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply."),svs.raytracedCubesDepthThreshold,svs.precision,0,1,0.1f,false);
+				AppendIn(propGIRaytracedCubesSpecularRes,propGIRaytracedCubesDepthThreshold);
 			}
 
-			// transmittance video
+			propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
+			AppendIn(propGIIndirect,propGIEmisMultiplier);
+
+			// video
 			{
-				propGITranspVideoAffectsGI = new BoolRefProperty(_("Transparency"),_("Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame."),svs.videoTransmittanceAffectsGI);
-				AppendIn(propGIVideo,propGITranspVideoAffectsGI);
+				propGIVideo = new wxStringProperty(_("Video realtime GI"), wxPG_LABEL);
+				AppendIn(propGIIndirect,propGIVideo);
+				SetPropertyReadOnly(propGIVideo,true,wxPG_DONT_RECURSE);
 
-				propGITranspVideoAffectsGIFull = new BoolRefProperty(_("Full GI"),_("Full GI is updated rather than just shadows."),svs.videoTransmittanceAffectsGIFull);
-				AppendIn(propGITranspVideoAffectsGI,propGITranspVideoAffectsGIFull);
+				// emissive video
+				{
+					propGIEmisVideoAffectsGI = new BoolRefProperty(_("Emissive"),_("Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEmittanceAffectsGI);
+					AppendIn(propGIVideo,propGIEmisVideoAffectsGI);
+
+					propGIEmisVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from each triangle."),svs.videoEmittanceGIQuality,0,0,1000,10,false);
+					AppendIn(propGIEmisVideoAffectsGI,propGIEmisVideoGIQuality);
+				}
+
+				// transmittance video
+				{
+					propGITranspVideoAffectsGI = new BoolRefProperty(_("Transparency"),_("Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame."),svs.videoTransmittanceAffectsGI);
+					AppendIn(propGIVideo,propGITranspVideoAffectsGI);
+
+					propGITranspVideoAffectsGIFull = new BoolRefProperty(_("Full GI"),_("Full GI is updated rather than just shadows."),svs.videoTransmittanceAffectsGIFull);
+					AppendIn(propGITranspVideoAffectsGI,propGITranspVideoAffectsGIFull);
+				}
+
+				// environment video
+				{
+					propGIEnvVideoAffectsGI = new BoolRefProperty(_("Environment"),_("Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEnvironmentAffectsGI);
+					AppendIn(propGIVideo,propGIEnvVideoAffectsGI);
+
+					propGIEnvVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from environment."),svs.videoEnvironmentGIQuality,0,1,100000,200,false);
+					AppendIn(propGIEnvVideoAffectsGI,propGIEnvVideoGIQuality);
+				}
+
+				Collapse(propGIVideo);
 			}
-
-			// environment video
-			{
-				propGIEnvVideoAffectsGI = new BoolRefProperty(_("Environment"),_("Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame."),svs.videoEnvironmentAffectsGI);
-				AppendIn(propGIVideo,propGIEnvVideoAffectsGI);
-
-				propGIEnvVideoGIQuality = new FloatProperty(_("Quality"),_("Number of samples taken from environment."),svs.videoEnvironmentGIQuality,0,1,100000,200,false);
-				AppendIn(propGIEnvVideoAffectsGI,propGIEnvVideoGIQuality);
-			}
-
-			Collapse(propGIVideo);
-		}
 		}
 
 		// lightmap
