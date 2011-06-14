@@ -951,15 +951,29 @@ namespace rr
 	//! Returns description of interface offered by library + compile date.
 	RR_API const char* RR_INTERFACE_DESC_LIB();
 	// Returns description of interface expected by app + compile date.
-	#if defined(NDEBUG) && defined(RR_STATIC)
-	#define RR_INTERFACE_DESC_APP() "release static (" __DATE__ " " __TIME__ ")"
-	#elif defined(NDEBUG) && !defined(RR_STATIC)
-	#define RR_INTERFACE_DESC_APP() "release dll (" __DATE__ " " __TIME__ ")"
-	#elif !defined(NDEBUG) && defined(RR_STATIC)
-	#define RR_INTERFACE_DESC_APP() "debug static (" __DATE__ " " __TIME__ ")"
-	#elif !defined(NDEBUG) && !defined(RR_STATIC)
-	#define RR_INTERFACE_DESC_APP() "debug dll (" __DATE__ " " __TIME__ ")"
+	#if defined(_WIN32)
+		#define RR_INTERFACE_OS "win"
+	#elif defined(__APPLE__)
+		#define RR_INTERFACE_OS "osx"
+	#else
+		#define RR_INTERFACE_OS "linux"
 	#endif
+	#if defined(_M_X64) || defined(_LP64)
+		#define RR_INTERFACE_BITS "64"
+	#else
+		#define RR_INTERFACE_BITS "32"
+	#endif
+	#if defined(NDEBUG)
+		#define RR_INTERFACE_RLSDBG "release"
+	#else
+		#define RR_INTERFACE_RLSDBG "debug"
+	#endif
+	#if defined(RR_STATIC)
+		#define RR_INTERFACE_DLLSTATIC "static"
+	#else
+		#define RR_INTERFACE_DLLSTATIC "dll"
+	#endif
+	#define RR_INTERFACE_DESC_APP() ( RR_INTERFACE_OS RR_INTERFACE_BITS " " RR_INTERFACE_RLSDBG " " RR_INTERFACE_DLLSTATIC " (" __DATE__ " " __TIME__ ")" )
 	// Returns description of version mismatch.
 	#define RR_INTERFACE_MISMATCH_MSG "LightsprintCore dll version mismatch.\nLibrary has interface: %d %s\nApplication expects  : %d %s\n",rr::RR_INTERFACE_ID_LIB(),rr::RR_INTERFACE_DESC_LIB(),RR_INTERFACE_ID_APP(),RR_INTERFACE_DESC_APP()
 
