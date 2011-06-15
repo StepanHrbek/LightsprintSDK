@@ -187,7 +187,7 @@ wxVariant HDRColorProperty::ChildChanged( wxVariant& thisValue, int childIndex, 
 
 void HDRColorProperty::updateImage()
 {
-	// update ValueImage
+	// update ValueImage. image suffers from focus problem, clicking image does not generate event
 	wxColour c = RRVec32wxColour(RRVec3RefFromVariant(m_value));
 	unsigned char* data = image.GetData();
 	data[0] = data[3] = c.Red();
@@ -196,12 +196,15 @@ void HDRColorProperty::updateImage()
 	delete bitmap;
 	bitmap = new wxBitmap(image);
 	SetValueImage(*bitmap);
+	// colored character 'square' does not suffer from focus problem, but label is colored too, white label is invisible
+	//SetTextColour(RRVec32wxColour(RRVec3RefFromVariant(m_value)),0);
 }
 
 wxString HDRColorProperty::ValueToString(wxVariant& value, int argFlags) const
 {
 	((HDRColorProperty*)this)->updateImage();
 	return "";
+	//return L"\u2588\u2588\u2588";
 }
 
 bool HDRColorProperty::StringToValue(wxVariant& variant, const wxString& text, int argFlags)
