@@ -438,8 +438,6 @@ void SVSceneProperties::updateHide()
 	propGIEnvVideoAffectsGI->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
 	propGIEnvVideoGIQuality->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL || !svs.videoEnvironmentAffectsGI,false);
 
-	propGIBilinear->Hide(svs.renderLightIndirect==LI_NONE || (svs.renderLightIndirect!=LI_STATIC_LIGHTMAPS && !svs.renderLDM),false);
-
 }
 
 void SVSceneProperties::updateAfterGLInit()
