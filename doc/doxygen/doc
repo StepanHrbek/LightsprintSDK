@@ -2561,7 +2561,7 @@ Video formats
   - no size limits, can process huge scenes in 64bit code, even in 32bit Toolbench
   - Lightsprint tools and samples (baking, realtime GI) support .gsa, old Gamebryo scene format (this may be dropped in future, depends on your feedback)
   - realtime GI in Gamebryo scenes can be displayed using Lightsprint renderer
-  - all data processed in native Gamebryo format in memory, no conversion/duplication/saving to disk
+  - all data can be processed in native Gamebryo format in memory, no conversion/duplication/saving to disk
   - full integration source code included
 
  \section g3_limits Limitations of current version
@@ -2691,12 +2691,14 @@ Video formats
     you may need to modify paths in Lightsprint.Toolbench.Plugin.vcproj.
 
  \section g3_source Source code
+  - if you are full source code licensee, open <code>src/Lightsprint.vs2010.sln</code> and build 64bit Release DLL BuildLightmaps
   - open <code>src/Lightsprint.vs2008.sln</code>
   - see <code>Lightsprint.Toolbench.Plugin</code> and <code>Lightsprint.Toolbench.Plugin.UI</code> projects,
     feel free to customize them or tell us what needs to be changed to match your needs
   - for standard VC90/Shipping Toolbench, build plugins in Shipping DLL Win32 configuration
   - if you build Debug DLL or Release DLL Win32 plugins, use them by running VC90 Debug / Release Toolbench
-  - Gamebryo does not support 64bit code, so x64 configurations have plugin build disabled
+  - Gamebryo does not support 64bit plugins, so x64 configurations have plugin build disabled
+  - compilation of plugins invokes <code>bin/install_toolbench_plugins.bat</code> that installs plugins together with 32bit and 64bit BuildLightmaps tool (plugin calls 64bit BuildLightmaps in 64bit Windows, 32bit in 32bit)
   - let us know if you need projects for different compiler version
 
  \section g3_depl Deployment
