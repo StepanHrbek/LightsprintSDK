@@ -42,7 +42,7 @@
 // It supports skylight
 // - uniform sky color
 // - upper and lower hemisphere colors
-// - 1 skybox texture (may be hdr)
+// - 1 skybox texture (may be hdr) (equirectangular or 3:4 or 4:3 cross)
 // - 6 skybox textures (may be hdr)
 // - custom: emissive sky mesh in scene
 //
@@ -376,6 +376,12 @@ struct Parameters
 		}
 		return saved;
 	}
+
+	void layersDelete(rr::RRObjectIllumination* illumination) const
+	{
+		for (unsigned layerIndex = LAYER_LIGHTMAP; layerIndex<LAYER_LAST; layerIndex++)
+			RR_SAFE_DELETE(illumination->getLayer(layerIndex));
+	}
 };
 
 
@@ -545,9 +551,12 @@ int main(int argc, char** argv)
 			solver->getLights()[i]->color *= globalParameters.indirectLightMultiplier;
 		}
 
-		// build indirect illumination
-		rr::RRDynamicSolver::UpdateParameters params(globalParameters.buildQuality);
-		solver->updateLightmaps(-1,-1,-1,NULL,&params,NULL);
+		// calculate indirect illumination in solver
+		rr::RRDynamicSolver::UpdateParameters updateParameters(globalParameters.buildQuality);
+		solver->updateLightmaps(-1,-1,-1,NULL,&updateParameters,NULL);
+		updateParameters.applyCurrentSolution = true;
+		updateParameters.aoIntensity = globalParameters.aoIntensity;
+		updateParameters.aoSize = globalParameters.aoSize;
 
 		// apply direct light multiplier
 		for (unsigned i=0;i<solver->getLights().size();i++)
@@ -555,33 +564,87 @@ int main(int argc, char** argv)
 			solver->getLights()[i]->color = lightColors[i]*globalParameters.directLightMultiplier;
 		}
 
-		// allocate layers (decide resolution, format)
-		for (unsigned objectIndex=0;objectIndex<scene.objects.size();objectIndex++)
+#ifdef _WIN32
+		// decrease priority, so that this task runs on background using only free CPU cycles
+		SetPriorityClass(GetCurrentProcess(),BELOW_NORMAL_PRIORITY_CLASS);
+#endif
+
+		// build and save vertex buffers (all at once, it's faster)
+		unsigned saved = 0;
+		if (!solver->aborting)
 		{
+			// allocate layers (decide resolution, format)
+			for (unsigned objectIndex=0;objectIndex<scene.objects.size();objectIndex++)
+			{
+				// take per-object parameters
+				Parameters objectParameters(argc,argv,objectIndex);
+				// query size, format etc
+				scene.objects[objectIndex]->recommendLayerParameters(objectParameters.layerParameters);
+				// allocate
+				if (objectParameters.layerParameters.actualType==rr::BT_VERTEX_BUFFER)
+					objectParameters.layersCreate(&scene.objects[objectIndex]->illumination);
+			}
+
+			// build direct illumination
+			solver->updateLightmaps(
+				globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP,
+				LAYER_DIRECTIONAL1,
+				LAYER_BENT_NORMALS,
+				&updateParameters,
+				NULL,
+				NULL);
+
+			for (unsigned objectIndex=0;objectIndex<scene.objects.size();objectIndex++)
+			if (!solver->aborting)
+			{
+				// take per-object parameters
+				Parameters objectParameters(argc,argv,objectIndex);
+				// query filename
+				scene.objects[objectIndex]->recommendLayerParameters(objectParameters.layerParameters);
+				// postprocess
+				objectParameters.layersPostprocess(&scene.objects[objectIndex]->illumination);
+				// save
+				saved += objectParameters.layersSave(&scene.objects[objectIndex]->illumination);
+				// free
+				if (!globalParameters.runViewer)
+					objectParameters.layersDelete(&scene.objects[objectIndex]->illumination);
+			}
+		}
+
+		// build and save pixel buffers (one by one, to limit peak memory use)
+		for (unsigned objectIndex=0;objectIndex<scene.objects.size();objectIndex++)
+		if (!solver->aborting)
+		{
+			// allocate layers (decide resolution, format)
 			// take per-object parameters
 			Parameters objectParameters(argc,argv,objectIndex);
 			// query size, format etc
 			scene.objects[objectIndex]->recommendLayerParameters(objectParameters.layerParameters);
-			// allocate
-			objectParameters.layersCreate(&scene.objects[objectIndex]->illumination);
+			if (objectParameters.layerParameters.actualType!=rr::BT_VERTEX_BUFFER)
+			{
+				rr::RRObjectIllumination& illumination = scene.objects[objectIndex]->illumination;
+				// allocate
+				objectParameters.layersCreate(&illumination);
+				rr::RRBuffer* directionalBuffers[3];
+				directionalBuffers[0] = illumination.getLayer(LAYER_DIRECTIONAL1);
+				directionalBuffers[1] = illumination.getLayer(LAYER_DIRECTIONAL2);
+				directionalBuffers[2] = illumination.getLayer(LAYER_DIRECTIONAL3);
+				// build direct illumination
+				solver->updateLightmap(objectIndex,illumination.getLayer(globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP),directionalBuffers,illumination.getLayer(LAYER_BENT_NORMALS),&updateParameters,NULL);
+				// postprocess
+				objectParameters.layersPostprocess(&scene.objects[objectIndex]->illumination);
+				// save
+				saved += objectParameters.layersSave(&scene.objects[objectIndex]->illumination);
+				// free
+				if (!globalParameters.runViewer)
+					objectParameters.layersDelete(&scene.objects[objectIndex]->illumination);
+			}
 		}
 
-		// decrease priority, so that this task runs on background using only free CPU cycles
 #ifdef _WIN32
-		SetPriorityClass(GetCurrentProcess(),BELOW_NORMAL_PRIORITY_CLASS);
+		// restore priority
+		SetPriorityClass(GetCurrentProcess(),NORMAL_PRIORITY_CLASS);
 #endif
-
-		// build direct illumination
-		params.applyCurrentSolution = true; // includes indirect illumination from previous step
-		params.aoIntensity = globalParameters.aoIntensity;
-		params.aoSize = globalParameters.aoSize;
-		solver->updateLightmaps(
-			globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP,
-			LAYER_DIRECTIONAL1,
-			LAYER_BENT_NORMALS,
-			&params,
-			NULL,
-			NULL);
 
 		// restore light intensities, just in case we are going to run viewer
 		for (unsigned i=0;i<solver->getLights().size();i++)
@@ -589,34 +652,10 @@ int main(int argc, char** argv)
 			solver->getLights()[i]->color = lightColors[i];
 		}
 
-		// postprocess and save layers
-		if (!solver->aborting)
-		{
-		rr::RRReportInterval report(rr::INF1,"Saving results...\n");
-		unsigned saved = 0;
-
-		for (unsigned objectIndex=0;objectIndex<scene.objects.size();objectIndex++)
-		{
-			// take per-object parameters
-			Parameters objectParameters(argc,argv,objectIndex);
-			// query filename
-			scene.objects[objectIndex]->recommendLayerParameters(objectParameters.layerParameters);
-			// postprocess
-			objectParameters.layersPostprocess(&scene.objects[objectIndex]->illumination);
-			// save
-			saved += objectParameters.layersSave(&scene.objects[objectIndex]->illumination);
-		}
-
 		rr::RRReporter::report(rr::INF2,"Saved %d files.\n",saved);
 		// saving 0 files is strange, force user to read log and quit
 		if (!saved)
 			error(solver->aborting,NULL);
-		}
-
-		// restore priority
-#ifdef _WIN32
-		SetPriorityClass(GetCurrentProcess(),NORMAL_PRIORITY_CLASS);
-#endif
 	}
 
 	//
