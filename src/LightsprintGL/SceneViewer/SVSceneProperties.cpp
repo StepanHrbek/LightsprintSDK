@@ -545,18 +545,7 @@ void SVSceneProperties::OnIdle(wxIdleEvent& event)
 	if (IsShown())
 	{
 		updateProperties();
-
-		// when button (image) is clicked, second click would not create any event, we have to deselect it first
-		// we can't immediately deselect it while it is being selected, wx would ignore us, so we deselect it here, one frame later
-		ButtonProperty* button = dynamic_cast<ButtonProperty*>(GetSelectedProperty());
-		if (button && this->IsEditorFocused())
-		{
-			// cursor goes from editor to label, editor is focused (and action activated) again by
-			// a) TAB
-			// b) click to the right of button   <--- not ideal
-			// c) click elsewhere, click to button
-			SelectProperty(button,false);
-		}
+		defocusButtonEditor();
 	}
 }
 

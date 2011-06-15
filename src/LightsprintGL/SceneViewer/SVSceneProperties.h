@@ -23,7 +23,7 @@ namespace rr_gl
 		//! Copy svs -> property.
 		void updateProperties();
 
-		//! Copy svs -> property.
+		//! Copy svs -> property, defocus.
 		void OnIdle(wxIdleEvent& event);
 
 		//! Copy property -> svs.

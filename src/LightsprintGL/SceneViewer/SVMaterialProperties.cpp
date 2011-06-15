@@ -250,6 +250,14 @@ void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hit
 	updateProperties();
 }
 
+void SVMaterialProperties::OnIdle(wxIdleEvent& event)
+{
+	if (IsShown())
+	{
+		defocusButtonEditor();
+	}
+}
+
 void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
 	bool diffuseChanged = false;
@@ -469,6 +477,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 
 BEGIN_EVENT_TABLE(SVMaterialProperties, wxPropertyGrid)
 	EVT_PG_CHANGED(-1,SVMaterialProperties::OnPropertyChange)
+	EVT_IDLE(SVMaterialProperties::OnIdle)
 END_EVENT_TABLE()
 
  

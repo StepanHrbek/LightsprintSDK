@@ -33,7 +33,7 @@ namespace rr_gl
 		//! They may be changed outside dialog, this must be called to update values in dialog.
 		void updatePosDir();
 
-		//! Copy light -> property (8 floats).
+		//! Copy light -> property (8 floats), defocus.
 		void OnIdle(wxIdleEvent& event);
 
 		//! Copy property -> light (all values).

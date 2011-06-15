@@ -12,6 +12,7 @@
 
 #include "Lightsprint/GL/SceneViewer.h"
 #include "SVFrame.h"
+#include "SVCustomProperties.h"
 #include "wx/propgrid/propgrid.h"
 
 #ifdef PROPERTYGRID_TABS
@@ -41,6 +42,23 @@ namespace rr_gl
 		{
 			SetWindowStyle((GetWindowStyle()&~wxPG_TOOLTIPS)|(enable?wxPG_TOOLTIPS:0));
 			SetExtraStyle(enable?wxPG_EX_HELP_AS_TOOLTIPS:0);
+		}
+
+		void defocusButtonEditor()
+		{
+			// when editor is clicked, second click would not create any event, we have to deselect it first
+			// we can't immediately deselect it while it is being selected, wx would ignore us, so we deselect it here, one frame later
+			wxPGProperty* property = GetSelectedProperty();
+			if ((dynamic_cast<HDRColorProperty*>(property) || dynamic_cast<ButtonProperty*>(property)) && IsEditorFocused())
+			{
+				// moves focus from editor to label
+				SelectProperty(property,false);
+				// user can focus editor again (and start action) by
+				// a) TAB
+				// b) click image <--- DOES NOT WORK, wx bug?, clicking image does not open editor/generate eny event
+				// b) click to the right of image
+				// c) click other property, click image
+			}
 		}
 
 	protected:
