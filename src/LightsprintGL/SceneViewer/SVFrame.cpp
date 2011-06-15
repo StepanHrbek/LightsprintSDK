@@ -686,6 +686,7 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_("Workspace")+" 1 (alt-1)",_("Your custom window layout, changes automatically saved per user."));
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_("Workspace")+" 2 (alt-2)",_("Your custom window layout, changes automatically saved per user."));
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT3,_("Workspace")+" 3 (alt-3)",_("Your custom window layout, changes automatically saved per user."));
+		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT_RESET,_("Reset workspaces"),_("Resets your custom window layouts to defaults; it's the same as deleting .prefs file."));
 		winMenu->Check(ME_WINDOW_LAYOUT1+userPreferences.currentWindowLayout,true);
 		winMenu->AppendSeparator();
 		winMenu->AppendCheckItem(ME_WINDOW_RESIZE,_("Set viewport size"),_("Lets you set exact viewport size in pixels."));
@@ -1352,6 +1353,10 @@ reload_skybox:
 		case ME_WINDOW_OBJECT_PROPERTIES:    TogglePane(m_objectProperties); break;
 		case ME_WINDOW_MATERIAL_PROPERTIES:  TogglePane(m_materialProperties); break;
 		case ME_WINDOW_LOG:                  TogglePane(m_log); break;
+		case ME_WINDOW_LAYOUT_RESET:
+			userPreferences.resetLayouts();
+			userPreferencesApplyToWx();
+			break;
 		case ME_WINDOW_LAYOUT1:
 		case ME_WINDOW_LAYOUT2:
 		case ME_WINDOW_LAYOUT3:

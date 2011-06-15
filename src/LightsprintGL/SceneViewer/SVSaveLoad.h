@@ -71,6 +71,18 @@ namespace rr_gl
 		{
 			tooltips = true;
 			currentWindowLayout = 0;
+			resetLayouts();
+			sshotFilename = "";
+			sshotEnhanced = false;
+			sshotEnhancedWidth = 1920;
+			sshotEnhancedHeight = 1080;
+			sshotEnhancedFSAA = 4;
+			sshotEnhancedShadowResolutionFactor = 2;
+			sshotEnhancedShadowSamples = 8;
+			debugging = false;
+		}
+		void resetLayouts()
+		{
 			windowLayout[0].fullscreen = false;
 			windowLayout[0].maximized = false;
 			windowLayout[0].perspective = "layout2|name=glcanvas;caption=;state=256;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=20;besth=20;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=scenetree;caption=Scene tree;state=2099196;dir=4;layer=2;row=0;pos=0;prop=100180;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=629;floaty=210;floatw=304;floath=320|name=userproperties;caption=User preferences;state=2099196;dir=3;layer=3;row=0;pos=4;prop=69403;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1280;floaty=1054;floatw=304;floath=320|name=sceneproperties;caption=Scene properties;state=2099196;dir=2;layer=4;row=0;pos=0;prop=162189;bestw=280;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1926;floaty=224;floatw=288;floath=320|name=lightproperties;caption=Light;state=2099196;dir=3;layer=3;row=0;pos=1;prop=82193;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=327;floaty=628;floatw=304;floath=320|name=objectproperties;caption=Object;state=2099196;dir=3;layer=3;row=0;pos=2;prop=88387;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=330;floaty=813;floatw=304;floath=320|name=materialproperties;caption=Material;state=2099196;dir=3;layer=3;row=0;pos=3;prop=76970;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=930;floaty=1055;floatw=304;floath=320|name=log;caption=Log;state=2099196;dir=3;layer=3;row=0;pos=0;prop=100000;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1222;floaty=1056;floatw=304;floath=320|dock_size(5,0,0)=20|dock_size(4,2,0)=296|dock_size(3,3,0)=326|dock_size(2,4,0)=300|";
@@ -80,14 +92,6 @@ namespace rr_gl
 			windowLayout[2].fullscreen = true;
 			windowLayout[2].maximized = true;
 			windowLayout[2].perspective = "layout2|name=glcanvas;caption=;state=256;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=20;besth=20;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=scenetree;caption=Scene tree;state=2099198;dir=4;layer=0;row=0;pos=0;prop=100000;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=userproperties;caption=User preferences;state=2099198;dir=2;layer=0;row=0;pos=0;prop=36442;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=341;floaty=961;floatw=304;floath=320|name=sceneproperties;caption=Scene properties;state=2099198;dir=2;layer=0;row=0;pos=0;prop=163558;bestw=280;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=341;floaty=812;floatw=288;floath=320|name=lightproperties;caption=Light;state=2099198;dir=4;layer=0;row=0;pos=0;prop=100000;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1918;floaty=677;floatw=304;floath=320|name=objectproperties;caption=Object;state=2099198;dir=4;layer=0;row=0;pos=0;prop=100000;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=334;floaty=610;floatw=304;floath=320|name=materialproperties;caption=Material;state=2099198;dir=4;layer=0;row=0;pos=0;prop=100000;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1921;floaty=998;floatw=304;floath=320|name=log;caption=Log;state=2099198;dir=3;layer=1;row=0;pos=0;prop=100000;bestw=296;besth=296;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1003;floaty=777;floatw=367;floath=244|dock_size(5,0,0)=20|";
-			sshotFilename = "";
-			sshotEnhanced = false;
-			sshotEnhancedWidth = 1920;
-			sshotEnhancedHeight = 1080;
-			sshotEnhancedFSAA = 4;
-			sshotEnhancedShadowResolutionFactor = 2;
-			sshotEnhancedShadowSamples = 8;
-			debugging = false;
 		}
 		//! Saves preferences, filename is automatic.
 		bool save() const;
