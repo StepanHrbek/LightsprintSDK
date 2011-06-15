@@ -533,27 +533,7 @@ int main(int argc, char** argv)
 	}
 
 	//
-	// allocate layers (decide resolution, format)
-	//
-	for (unsigned objectIndex=0;objectIndex<scene.objects.size();objectIndex++)
-	{
-		// take per-object parameters
-		Parameters objectParameters(argc,argv,objectIndex);
-		// query size, format etc
-		scene.objects[objectIndex]->recommendLayerParameters(objectParameters.layerParameters);
-		// allocate
-		objectParameters.layersCreate(&scene.objects[objectIndex]->illumination);
-	}
-
-	//
-	// decrease priority, so that this task runs on background using only free CPU cycles
-	//
-#ifdef _WIN32
-	SetPriorityClass(GetCurrentProcess(),BELOW_NORMAL_PRIORITY_CLASS);
-#endif
-
-	//
-	// build lighting in layers
+	// build and save lighting
 	//
 	if (globalParameters.buildQuality)
 	{
@@ -575,6 +555,22 @@ int main(int argc, char** argv)
 			solver->getLights()[i]->color = lightColors[i]*globalParameters.directLightMultiplier;
 		}
 
+		// allocate layers (decide resolution, format)
+		for (unsigned objectIndex=0;objectIndex<scene.objects.size();objectIndex++)
+		{
+			// take per-object parameters
+			Parameters objectParameters(argc,argv,objectIndex);
+			// query size, format etc
+			scene.objects[objectIndex]->recommendLayerParameters(objectParameters.layerParameters);
+			// allocate
+			objectParameters.layersCreate(&scene.objects[objectIndex]->illumination);
+		}
+
+		// decrease priority, so that this task runs on background using only free CPU cycles
+#ifdef _WIN32
+		SetPriorityClass(GetCurrentProcess(),BELOW_NORMAL_PRIORITY_CLASS);
+#endif
+
 		// build direct illumination
 		params.applyCurrentSolution = true; // includes indirect illumination from previous step
 		params.aoIntensity = globalParameters.aoIntensity;
@@ -592,20 +588,10 @@ int main(int argc, char** argv)
 		{
 			solver->getLights()[i]->color = lightColors[i];
 		}
-	}
 
-	//
-	// restore priority
-	//
-#ifdef _WIN32
-	SetPriorityClass(GetCurrentProcess(),NORMAL_PRIORITY_CLASS);
-#endif
-
-	//
-	// postprocess and save layers
-	//
-	if (globalParameters.buildQuality && !solver->aborting)
-	{
+		// postprocess and save layers
+		if (!solver->aborting)
+		{
 		rr::RRReportInterval report(rr::INF1,"Saving results...\n");
 		unsigned saved = 0;
 
@@ -625,6 +611,12 @@ int main(int argc, char** argv)
 		// saving 0 files is strange, force user to read log and quit
 		if (!saved)
 			error(solver->aborting,NULL);
+		}
+
+		// restore priority
+#ifdef _WIN32
+		SetPriorityClass(GetCurrentProcess(),NORMAL_PRIORITY_CLASS);
+#endif
 	}
 
 	//
