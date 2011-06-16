@@ -16,9 +16,9 @@ namespace rr_gl
 
 SVEntityIcons::SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram)
 {
-	icon[rr::RRLight::DIRECTIONAL] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_sun.png",pathToMaps)));
-	icon[rr::RRLight::POINT] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_point.png",pathToMaps)));
-	icon[rr::RRLight::SPOT] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_spot.png",pathToMaps)));
+	icon[IC_DIRECTIONAL] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_sun.png",pathToMaps)));
+	icon[IC_POINT] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_point.png",pathToMaps)));
+	icon[IC_SPOT] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_spot.png",pathToMaps)));
 
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
@@ -31,9 +31,8 @@ SVEntityIcons::SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram)
 
 SVEntityIcons::~SVEntityIcons()
 {
-	delete icon[rr::RRLight::DIRECTIONAL];
-	delete icon[rr::RRLight::POINT];
-	delete icon[rr::RRLight::SPOT];
+	for (unsigned i=0;i<IC_LAST;i++)
+		delete icon[i];
 }
 
 // inputs: ray->rayXxx
@@ -164,7 +163,7 @@ bool SVEntityIcons::intersectIcon(const SVEntity& entity, rr::RRRay* ray, float 
 
 void SVEntityIcons::renderIcon(const SVEntity& entity, const Camera& eye, float iconSize)
 {
-	if (icon[entity.icon])
+	if (entity.icon>=0 && entity.icon<IC_LAST && icon[entity.icon])
 	{
 		rr::RRVec3 worldVertex[4];
 		getIconWorldVertices(entity,eye.pos,worldVertex,iconSize);
@@ -186,7 +185,9 @@ void SVEntityIcons::renderIcon(const SVEntity& entity, const Camera& eye, float 
 
 bool SVEntityIcons::isOk() const
 {
-	return icon[0] && icon[1] && icon[2];
+	for (unsigned i=0;i<IC_LAST;i++)
+		if (!icon[i]) return false;
+	return true;
 }
 
 }; // namespace

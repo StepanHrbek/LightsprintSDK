@@ -30,6 +30,14 @@ namespace rr_gl
 		ST_LAST
 	};
 
+	enum IconCode
+	{
+		IC_POINT = 0,
+		IC_SPOT,
+		IC_DIRECTIONAL,
+		IC_LAST
+	};
+
 	/////////////////////////////////////////////////////////////////////////////
 	//
 	// EntityId - identifies entity in SceneViewer
@@ -78,7 +86,7 @@ namespace rr_gl
 		EntityType type;
 		unsigned index;
 		rr::RRVec3 position;
-		unsigned icon;
+		IconCode icon;
 		bool bright;
 
 		SVEntity(const rr::RRLight& _light, unsigned _index, rr::RRVec3& _dirlightPosition)
@@ -94,7 +102,13 @@ namespace rr_gl
 			{
 				position = _light.position;
 			}
-			icon = _light.type;
+			switch (_light.type)
+			{
+				case rr::RRLight::DIRECTIONAL: icon = IC_DIRECTIONAL; break;
+				case rr::RRLight::POINT: icon = IC_POINT; break;
+				case rr::RRLight::SPOT: icon = IC_SPOT; break;
+				default: RR_ASSERT(0);
+			}
 			bright = _light.enabled;
 		}
 	};

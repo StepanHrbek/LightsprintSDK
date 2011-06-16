@@ -46,7 +46,7 @@ namespace rr_gl
 
 		void renderIcon(const SVEntity& entity, const Camera& eye, float iconSize);
 
-		rr::RRBuffer* icon[5]; // indexed by Entity::icon
+		rr::RRBuffer* icon[IC_LAST]; // indexed by IconCode
 		Program* program;
 	};
  
