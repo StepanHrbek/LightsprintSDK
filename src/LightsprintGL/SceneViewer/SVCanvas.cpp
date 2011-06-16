@@ -751,12 +751,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 
 		// find icon distance
-		SVEntities entities;
-		if (parent->m_lightProperties->IsShown())
-			entities.addLights(solver->getLights(),sunIconPosition);
-		if (entityIcons->intersectIcons(entities,ray,iconSize))
+		if (entityIcons->intersectIcons(renderedIcons,ray,iconSize))
 		{
-			s_ci.clickedEntity = EntityId(entities[ray->hitTriangle].type,entities[ray->hitTriangle].index);
+			s_ci.clickedEntity = EntityId(renderedIcons[ray->hitTriangle].type,renderedIcons[ray->hitTriangle].index);
 			s_ci.hitDistance = ray->hitDistance;
 			s_ci.hitPoint2d = rr::RRVec2(0);
 			s_ci.hitPoint3d = ray->rayOrigin + rr::RRVec3(1)/ray->rayDirInv*ray->hitDistance;
@@ -1536,10 +1533,10 @@ rendered:
 		// render icons, using own shader (must go after video capture)
 		if (entityIcons->isOk() && !_takingSshot)
 		{
-			SVEntities entities;
+			renderedIcons.clear();
 			if (parent->m_lightProperties->IsShown())
-				entities.addLights(solver->getLights(),sunIconPosition);
-			entityIcons->renderIcons(entities,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
+				renderedIcons.addLights(solver->getLights(),sunIconPosition);
+			entityIcons->renderIcons(renderedIcons,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
 		}
 	}
 

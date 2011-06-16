@@ -137,6 +137,7 @@ namespace rr_gl
 		rr::RRVec3                 sunIconPosition; // for dirlight icons
 		float                      iconSize; // for icons
 		class SVEntityIcons*       entityIcons;
+		SVEntities                 renderedIcons; // updated in every frame
 
 		// skybox blending
 		bool                       skyboxBlendingInProgress;
