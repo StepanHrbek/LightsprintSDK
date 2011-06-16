@@ -57,7 +57,7 @@ bool SVEntityIcons::intersectIcons(const SVEntities& entities, rr::RRRay* ray, f
 	return hit;
 }
 
-void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye, unsigned selectedIndex, float iconSize)
+void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye, float iconSize)
 {
 	// setup for rendering icon
 	PreserveBlend p1;
@@ -81,7 +81,7 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye, u
 	for (unsigned i=0;i<entities.size();i++)
 	{
 		static rr::RRTime time;
-		float brightness = (i==selectedIndex) ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
+		float brightness = entities[i].selected ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
 		program->sendUniform("lightIndirectConst",brightness,brightness,brightness,1.0f);
 		renderIcon(entities[i],eye,iconSize);
 	}

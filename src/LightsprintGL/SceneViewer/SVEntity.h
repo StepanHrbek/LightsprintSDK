@@ -88,8 +88,9 @@ namespace rr_gl
 		rr::RRVec3 position;
 		IconCode icon;
 		bool bright;
+		bool selected;
 
-		SVEntity(const rr::RRLight& _light, unsigned _index, rr::RRVec3& _dirlightPosition)
+		SVEntity(const rr::RRLight& _light, unsigned _index, rr::RRVec3& _dirlightPosition, bool _selected)
 		{
 			type = ST_LIGHT;
 			index = _index;
@@ -110,6 +111,7 @@ namespace rr_gl
 				default: RR_ASSERT(0);
 			}
 			bright = _light.enabled;
+			selected = _selected;
 		}
 	};
 
@@ -120,13 +122,13 @@ namespace rr_gl
 	class SVEntities : public std::vector<SVEntity>
 	{
 	public:
-		void addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition)
+		void addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition, unsigned selectedIndex)
 		{
 			for (unsigned i=0;i<lights.size();i++)
 			{
 				if (lights[i])
 				{
-					SVEntity entity(*lights[i],i,dirlightPosition);
+					SVEntity entity(*lights[i],i,dirlightPosition,i==selectedIndex);
 					if (lights[i]->name=="Flashlight")
 					{
 						// makes icon invisible without deleting it

@@ -1535,8 +1535,8 @@ rendered:
 		{
 			renderedIcons.clear();
 			if (parent->m_lightProperties->IsShown())
-				renderedIcons.addLights(solver->getLights(),sunIconPosition);
-			entityIcons->renderIcons(renderedIcons,svs.eye,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX,iconSize);
+				renderedIcons.addLights(solver->getLights(),sunIconPosition,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX);
+			entityIcons->renderIcons(renderedIcons,svs.eye,iconSize);
 		}
 	}
 

@@ -29,7 +29,7 @@ namespace rr_gl
 		// sideeffects: ray->rayLengthMax is lost
 		bool intersectIcons(const SVEntities& entities, rr::RRRay* ray, float iconSize);
 
-		void renderIcons(const SVEntities& entities, const Camera& eye, unsigned selectedIndex, float iconSize);
+		void renderIcons(const SVEntities& entities, const Camera& eye, float iconSize);
 
 		bool isOk() const;
 	private:
