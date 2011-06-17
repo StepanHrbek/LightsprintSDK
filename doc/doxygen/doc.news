@@ -109,6 +109,7 @@ NEWS
     \n processes huge scenes in 64bit code, not limited by tiny address space of 32bit Toolbench
     \n calculation is non-blocking, you can work in Toolbench and even close it
     \n when calculation finishes, run "Bake from cache" to load lightmaps from cache to Gamebryo
+    \image html Toolbench-menu.png
   - Toolbench menu "Documentation"
   - SDK includes patch to fix GI Package
   - lightmaps are cached in temp, improves performance (asset controller slowed things down in old location)
