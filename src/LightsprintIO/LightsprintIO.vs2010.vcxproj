@@ -604,8 +604,12 @@
     <ClCompile Include="ImportAssimp\code\GenFaceNormalsProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\GenVertexNormalsProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\HMPLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\IFCGeometry.cpp" />
     <ClCompile Include="ImportAssimp\code\IFCLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\IFCMaterial.cpp" />
+    <ClCompile Include="ImportAssimp\code\IFCProfile.cpp" />
     <ClCompile Include="ImportAssimp\code\IFCReaderGen.cpp" />
+    <ClCompile Include="ImportAssimp\code\IFCUtil.cpp" />
     <ClCompile Include="ImportAssimp\code\Importer.cpp" />
     <ClCompile Include="ImportAssimp\code\ImproveCacheLocality.cpp" />
     <ClCompile Include="ImportAssimp\code\IRRLoader.cpp" />
@@ -959,6 +963,7 @@
     <ClInclude Include="ImportAssimp\code\HMPLoader.h" />
     <ClInclude Include="ImportAssimp\code\IFCLoader.h" />
     <ClInclude Include="ImportAssimp\code\IFCReaderGen.h" />
+    <ClInclude Include="ImportAssimp\code\IFCUtil.h" />
     <ClInclude Include="ImportAssimp\code\IFF.h" />
     <ClInclude Include="ImportAssimp\code\ImproveCacheLocality.h" />
     <ClInclude Include="ImportAssimp\code\IRRLoader.h" />
@@ -968,6 +973,7 @@
     <ClInclude Include="ImportAssimp\code\JoinVerticesProcess.h" />
     <ClInclude Include="ImportAssimp\code\LimitBoneWeightsProcess.h" />
     <ClInclude Include="ImportAssimp\code\LineSplitter.h" />
+    <ClInclude Include="ImportAssimp\code\LogAux.h" />
     <ClInclude Include="ImportAssimp\code\LWOAnimation.h" />
     <ClInclude Include="ImportAssimp\code\LWOFileData.h" />
     <ClInclude Include="ImportAssimp\code\LWOLoader.h" />
@@ -1005,6 +1011,7 @@
     <ClInclude Include="ImportAssimp\code\ParsingUtils.h" />
     <ClInclude Include="ImportAssimp\code\PlyLoader.h" />
     <ClInclude Include="ImportAssimp\code\PlyParser.h" />
+    <ClInclude Include="ImportAssimp\code\PolyTools.h" />
     <ClInclude Include="ImportAssimp\code\PretransformVertices.h" />
     <ClInclude Include="ImportAssimp\code\ProcessHelper.h" />
     <ClInclude Include="ImportAssimp\code\Profiler.h" />

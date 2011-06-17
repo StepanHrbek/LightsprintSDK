@@ -1162,6 +1162,18 @@
     <ClCompile Include="ImportAssimp\code\XFileParser.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCGeometry.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCMaterial.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCProfile.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCUtil.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Import3DS\Model_3DS.h">
@@ -2760,6 +2772,15 @@
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\XFileParser.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\LogAux.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\PolyTools.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\IFCUtil.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
   </ItemGroup>

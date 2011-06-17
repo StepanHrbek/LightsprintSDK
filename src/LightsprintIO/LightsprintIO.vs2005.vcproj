@@ -1290,6 +1290,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\IFCGeometry.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\IFCLoader.cpp"
 					>
 				</File>
@@ -1298,11 +1302,27 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\IFCMaterial.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\IFCProfile.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\IFCReaderGen.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\IFCReaderGen.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\IFCUtil.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\IFCUtil.h"
 					>
 				</File>
 				<File
@@ -1367,6 +1387,10 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\LineSplitter.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\LogAux.h"
 					>
 				</File>
 				<File
@@ -1623,6 +1647,10 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\PlyParser.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\PolyTools.h"
 					>
 				</File>
 				<File
