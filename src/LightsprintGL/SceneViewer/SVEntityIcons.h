@@ -18,23 +18,39 @@
 namespace rr_gl
 {
 
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// SVEntities - collection of entites/icons
+
+	class SVEntities : public std::vector<SVEntity>
+	{
+	public:
+		float iconSize;
+
+		void addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition, unsigned selectedIndex);
+	};
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// SVEntityIcons - can render and intersect SVEntities
+
 	class SVEntityIcons
 	{
 	public:
 		SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram);
 		~SVEntityIcons();
 
-		// inputs: entities, ray->rayXxx, iconSize
+		// inputs: entities, ray->rayXxx
 		// outputs: ray->hitXxx
 		// sideeffects: ray->rayLengthMax is lost
-		bool intersectIcons(const SVEntities& entities, rr::RRRay* ray, float iconSize);
+		bool intersectIcons(const SVEntities& entities, rr::RRRay* ray);
 
-		void renderIcons(const SVEntities& entities, const Camera& eye, float iconSize);
+		void renderIcons(const SVEntities& entities, const Camera& eye);
 
 		bool isOk() const;
 	private:
 		// icon vertices are computed in worldspace to simplify ray-icon intersections
-		void getIconWorldVertices(const SVEntity& entity, rr::RRVec3 eyePos, rr::RRVec3 vertex[4], float iconSize);
+		void getIconWorldVertices(const SVEntity& entity, rr::RRVec3 eyePos, rr::RRVec3 vertex[4]);
 
 		// inputs: t, ray->rayXxx
 		// outputs: ray->hitXxx
@@ -42,12 +58,12 @@ namespace rr_gl
 
 		// inputs: entity, ray->rayXxx
 		// outputs: ray->hitXxx
-		bool intersectIcon(const SVEntity& entity, rr::RRRay* ray, float iconSize);
+		bool intersectIcon(const SVEntity& entity, rr::RRRay* ray);
 
-		void renderIcon(const SVEntity& entity, const Camera& eye, float iconSize);
+		void renderIcon(const SVEntity& entity, const Camera& eye);
 
 		rr::RRBuffer* icon[IC_LAST]; // indexed by IconCode
-		Program* program;
+		Program* programIcons;
 	};
  
 }; // namespace

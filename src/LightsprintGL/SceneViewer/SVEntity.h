@@ -30,6 +30,10 @@ namespace rr_gl
 		ST_LAST
 	};
 
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// IconCode
+
 	enum IconCode
 	{
 		IC_POINT = 0,
@@ -75,70 +79,19 @@ namespace rr_gl
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
-	// SVEntity - entity in SceneViewer
+	// SVEntity - entity/icon in SceneViewer
 	//
 	// entity is not a base class of all classes
 	// instead, entity extracts common properties from different classes
 	// entities are created from other classes on the fly, for consumers who need them
 
-	struct SVEntity
+	struct SVEntity : public EntityId
 	{
-		EntityType type;
-		unsigned index;
 		rr::RRVec3 position;
-		IconCode icon;
+		float iconSize;
+		IconCode iconCode;
 		bool bright;
 		bool selected;
-
-		SVEntity(const rr::RRLight& _light, unsigned _index, rr::RRVec3& _dirlightPosition, bool _selected)
-		{
-			type = ST_LIGHT;
-			index = _index;
-			if (_light.type==rr::RRLight::DIRECTIONAL)
-			{
-				position = _dirlightPosition;
-				_dirlightPosition.y += 1;
-			}
-			else
-			{
-				position = _light.position;
-			}
-			switch (_light.type)
-			{
-				case rr::RRLight::DIRECTIONAL: icon = IC_DIRECTIONAL; break;
-				case rr::RRLight::POINT: icon = IC_POINT; break;
-				case rr::RRLight::SPOT: icon = IC_SPOT; break;
-				default: RR_ASSERT(0);
-			}
-			bright = _light.enabled;
-			selected = _selected;
-		}
-	};
-
-	/////////////////////////////////////////////////////////////////////////////
-	//
-	// SVEntities - all entities in SceneViewer
-
-	class SVEntities : public std::vector<SVEntity>
-	{
-	public:
-		void addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition, unsigned selectedIndex)
-		{
-			for (unsigned i=0;i<lights.size();i++)
-			{
-				if (lights[i])
-				{
-					SVEntity entity(*lights[i],i,dirlightPosition,i==selectedIndex);
-					if (lights[i]->name=="Flashlight")
-					{
-						// makes icon invisible without deleting it
-						// we need all light icons present so that they can be indexed like lights in solver
-						entity.position.x += 1e10f;
-					}
-					push_back(entity);
-				}
-			}
-		}
 	};
 
 	enum SelectEntityAction

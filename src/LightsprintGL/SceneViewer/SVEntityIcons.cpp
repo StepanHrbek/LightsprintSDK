@@ -14,6 +14,51 @@
 namespace rr_gl
 {
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// SVEntities - all entities in SceneViewer
+
+void SVEntities::addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition, unsigned selectedIndex)
+{
+	for (unsigned i=0;i<lights.size();i++)
+	{
+		if (lights[i] && lights[i]->name!="Flashlight")
+		{
+			SVEntity entity;
+			entity.type = ST_LIGHT;
+			entity.index = i;
+			switch (lights[i]->type)
+			{
+				case rr::RRLight::DIRECTIONAL:
+					entity.iconCode = IC_DIRECTIONAL;
+					entity.position = dirlightPosition;
+					dirlightPosition.y += 1;
+					break;
+				case rr::RRLight::POINT:
+					entity.iconCode = IC_POINT;
+					entity.position = lights[i]->position;
+					break;
+				case rr::RRLight::SPOT:
+					entity.iconCode = IC_SPOT;
+					entity.position = lights[i]->position;
+					break;
+				default:
+					RR_ASSERT(0);
+			}
+			entity.iconSize = iconSize;
+			entity.bright = lights[i]->enabled;
+			entity.selected = i==selectedIndex;
+			push_back(entity);
+		}
+	}
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SVEntityIcons
+
 SVEntityIcons::SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram)
 {
 	icon[IC_DIRECTIONAL] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_sun.png",pathToMaps)));
@@ -26,7 +71,7 @@ SVEntityIcons::SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 	uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = true;
-	program = uberProgramSetup.getProgram(uberProgram);
+	programIcons = uberProgramSetup.getProgram(uberProgram);
 }
 
 SVEntityIcons::~SVEntityIcons()
@@ -38,14 +83,14 @@ SVEntityIcons::~SVEntityIcons()
 // inputs: ray->rayXxx
 // outputs: ray->hitXxx, hitTriangle=entity index in entities
 // sideeffects: ray->rayLengthMax is lost
-bool SVEntityIcons::intersectIcons(const SVEntities& entities, rr::RRRay* ray, float iconSize)
+bool SVEntityIcons::intersectIcons(const SVEntities& entities, rr::RRRay* ray)
 {
 	RR_ASSERT(ray);
 	bool hit = false;
 	unsigned counter = 0;
 	for (unsigned i=0;i<entities.size();i++)
 	{
-		if (intersectIcon(entities[i],ray,iconSize))
+		if (intersectIcon(entities[i],ray))
 		{
 			// we have a hit, stop searching in greater distance
 			hit = true;
@@ -57,7 +102,7 @@ bool SVEntityIcons::intersectIcons(const SVEntities& entities, rr::RRRay* ray, f
 	return hit;
 }
 
-void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye, float iconSize)
+void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye)
 {
 	// setup for rendering icon
 	PreserveBlend p1;
@@ -72,33 +117,32 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye, f
 	// blended icons (white=transparent)
 	//glEnable(GL_BLEND); glBlendFunc(GL_ONE_MINUS_SRC_COLOR,GL_SRC_COLOR);
 
-	program->useIt();
-	program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
-	program->sendTexture("materialDiffuseMap", NULL); // renderIcon() will repeatedly bind texture
-
 	// render icons
+	programIcons->useIt();
+	programIcons->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
+	programIcons->sendTexture("materialDiffuseMap", NULL); // renderIcon() will repeatedly bind texture
 	unsigned counter = 0;
 	for (unsigned i=0;i<entities.size();i++)
 	{
 		static rr::RRTime time;
 		float brightness = entities[i].selected ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
-		program->sendUniform("lightIndirectConst",brightness,brightness,brightness,1.0f);
-		renderIcon(entities[i],eye,iconSize);
+		programIcons->sendUniform("lightIndirectConst",brightness,brightness,brightness,1.0f);
+		renderIcon(entities[i],eye);
 	}
 }
 
 // icon vertices are computed in worldspace to simplify ray-icon intersections
 //kdybych kreslil 3d objekt, prusecik je snadny, udelam z nej RRObject, jen mu zmenim matici
-void SVEntityIcons::getIconWorldVertices(const SVEntity& entity, rr::RRVec3 eyePos, rr::RRVec3 vertex[4], float iconSize)
+void SVEntityIcons::getIconWorldVertices(const SVEntity& entity, rr::RRVec3 eyePos, rr::RRVec3 vertex[4])
 {
 	rr::RRVec3 toLight = (entity.position-eyePos).normalizedSafe();
 	rr::RRVec3 toLeftFromLight = rr::RRVec3(toLight[2],0,-toLight[0]).normalizedSafe();
 	rr::RRVec3 toUpFromLight = toLight.cross(toLeftFromLight);
 	float lightDistance = (entity.position-eyePos).length();
-	vertex[0] = entity.position-(toLeftFromLight-toUpFromLight)*iconSize; // top left
-	vertex[1] = entity.position+(toLeftFromLight+toUpFromLight)*iconSize; // top right
-	vertex[2] = entity.position+(toLeftFromLight-toUpFromLight)*iconSize; // bottom right
-	vertex[3] = entity.position-(toLeftFromLight+toUpFromLight)*iconSize; // bottom left
+	vertex[0] = entity.position-(toLeftFromLight-toUpFromLight)*entity.iconSize; // top left
+	vertex[1] = entity.position+(toLeftFromLight+toUpFromLight)*entity.iconSize; // top right
+	vertex[2] = entity.position+(toLeftFromLight-toUpFromLight)*entity.iconSize; // bottom right
+	vertex[3] = entity.position-(toLeftFromLight+toUpFromLight)*entity.iconSize; // bottom left
 }
 
 // inputs: ray->rayXxx
@@ -145,11 +189,11 @@ bool SVEntityIcons::intersectTriangle(const rr::RRMesh::TriangleBody* t, rr::RRR
 
 // inputs: ray->rayXxx
 // outputs: ray->hitXxx
-bool SVEntityIcons::intersectIcon(const SVEntity& entity, rr::RRRay* ray, float iconSize)
+bool SVEntityIcons::intersectIcon(const SVEntity& entity, rr::RRRay* ray)
 {
 	RR_ASSERT(ray);
 	rr::RRVec3 worldVertex[4];
-	getIconWorldVertices(entity,ray->rayOrigin,worldVertex,iconSize);
+	getIconWorldVertices(entity,ray->rayOrigin,worldVertex);
 	rr::RRMesh::TriangleBody tb1,tb2;
 	tb1.vertex0 = worldVertex[0];
 	tb1.side1 = worldVertex[1]-worldVertex[0];
@@ -161,14 +205,14 @@ bool SVEntityIcons::intersectIcon(const SVEntity& entity, rr::RRRay* ray, float 
 	return hit;
 }
 
-void SVEntityIcons::renderIcon(const SVEntity& entity, const Camera& eye, float iconSize)
+void SVEntityIcons::renderIcon(const SVEntity& entity, const Camera& eye)
 {
-	if (entity.icon>=0 && entity.icon<IC_LAST && icon[entity.icon])
+	if (entity.iconCode>=0 && entity.iconCode<IC_LAST && icon[entity.iconCode])
 	{
 		rr::RRVec3 worldVertex[4];
-		getIconWorldVertices(entity,eye.pos,worldVertex,iconSize);
+		getIconWorldVertices(entity,eye.pos,worldVertex);
 
-		getTexture(icon[entity.icon])->bindTexture();
+		getTexture(icon[entity.iconCode])->bindTexture();
 
 		glBegin(GL_QUADS);
 		glTexCoord2f(1,1);
@@ -182,6 +226,7 @@ void SVEntityIcons::renderIcon(const SVEntity& entity, const Camera& eye, float 
 		glEnd();
 	}
 }
+
 
 bool SVEntityIcons::isOk() const
 {

@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news123 ------------------------------------ 2011.06.xx -------------------------------------
+
+NEWS
+
+- <b>improved Scene viewer</b>
+  - light movement by dragging light icon, shift/ctrl/alt for axes
+
 \section news122 ------------------------------------ 2011.06.14 -------------------------------------
 
 NEWS

@@ -14,7 +14,7 @@
 #include "wx/GLCanvas.h"
 #include "wx/joystick.h"
 #include "SVApp.h"
-#include "SVEntity.h"
+#include "SVEntityIcons.h"
 #include "SVLightmapViewer.h"
 #include "SVSaveLoad.h"
 
@@ -135,9 +135,8 @@ namespace rr_gl
 
 		// icons
 		rr::RRVec3                 sunIconPosition; // for dirlight icons
-		float                      iconSize; // for icons
-		class SVEntityIcons*       entityIcons;
-		SVEntities                 renderedIcons; // updated in every frame
+		SVEntityIcons*             entityIcons; // permanent helper, renders and intersects icons
+		SVEntities                 renderedIcons; // collection of icons, updated in every frame
 
 		// skybox blending
 		bool                       skyboxBlendingInProgress;

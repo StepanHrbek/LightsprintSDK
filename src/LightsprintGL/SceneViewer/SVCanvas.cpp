@@ -114,7 +114,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
 
 	entityIcons = NULL;
 	sunIconPosition = rr::RRVec3(0);
-	iconSize = 1;
+	renderedIcons.iconSize = 1;
 	fullyCreated = false;
 
 	skyboxBlendingInProgress = false;
@@ -249,11 +249,11 @@ void SVCanvas::createContextCore()
 		{
 			object->getCollider()->getMesh()->getAABB(&sceneMin,&sceneMax,&sunIconPosition);
 
-			//iconSize = (sceneMax-sceneMin).avg()*0.04f;
+			//renderedIcons.iconSize = (sceneMax-sceneMin).avg()*0.04f;
 			// better, insensitive to single triangle in 10km distance
-			iconSize = object->getCollider()->getMesh()->getAverageVertexDistance()*0.017f;
+			renderedIcons.iconSize = object->getCollider()->getMesh()->getAverageVertexDistance()*0.017f;
 
-			sunIconPosition.y = sceneMax.y + 5*iconSize;
+			sunIconPosition.y = sceneMax.y + 5*renderedIcons.iconSize;
 		}
 	}
 
@@ -665,11 +665,12 @@ struct ClickInfo
 	float hitDistance;
 	rr::RRVec2 hitPoint2d;
 	rr::RRVec3 hitPoint3d;
-	EntityId clickedEntity;
+	SVEntity clickedEntity;
 };
 // set by OnMouseEvent on click (but not set on click that closes menu), valid and constant during drag
 // read also by OnPaint (paints crosshair)
 static bool s_ciRelevant = false; // are we dragging and is s_ci describing click that started it?
+static bool s_ciRenderCrosshair = false;
 static ClickInfo s_ci;
 
 // What triggers context menu:
@@ -751,18 +752,18 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 
 		// find icon distance
-		if (entityIcons->intersectIcons(renderedIcons,ray,iconSize))
+		if (entityIcons->intersectIcons(renderedIcons,ray))
 		{
-			s_ci.clickedEntity = EntityId(renderedIcons[ray->hitTriangle].type,renderedIcons[ray->hitTriangle].index);
+			s_ci.clickedEntity = renderedIcons[ray->hitTriangle];
 			s_ci.hitDistance = ray->hitDistance;
 			s_ci.hitPoint2d = rr::RRVec2(0);
 			s_ci.hitPoint3d = ray->rayOrigin + rr::RRVec3(1)/ray->rayDirInv*ray->hitDistance;
 		}
 		else
 		{
-			s_ci.clickedEntity = (s_ci.hitTriangle==UINT_MAX)
-				? EntityId(ST_CAMERA,0)
-				: EntityId(ST_STATIC_OBJECT,solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle).object);
+			s_ci.clickedEntity.type = (s_ci.hitTriangle==UINT_MAX) ? ST_CAMERA : ST_STATIC_OBJECT;
+			s_ci.clickedEntity.index = (s_ci.hitTriangle==UINT_MAX) ? 0 : solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle).object;
+			s_ci.clickedEntity.iconCode = IC_LAST;
 		}
 
 		if (contextMenu)
@@ -810,7 +811,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			// right click = context menu
 			context_menu:
 			wxTreeEvent event2;
-			event2.SetItem(parent->m_sceneTree->entityIdToItemId(EntityId(s_ci.clickedEntity)));
+			event2.SetItem(parent->m_sceneTree->entityIdToItemId(s_ci.clickedEntity));
 			event2.SetPoint(wxPoint(-1,-1));
 			parent->m_sceneTree->OnContextMenuCreate(event2);
 		}
@@ -828,6 +829,34 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		float dragX = (newPosition.x-s_ci.mouseX)/(float)winWidth;
 		float dragY = (newPosition.y-s_ci.mouseY)/(float)winHeight;
 
+		if (event.LeftIsDown() && s_ci.clickedEntity.iconCode!=IC_LAST)
+		{
+			// moving entity
+			rr::RRVec3 pan;
+			if (svs.eye.orthogonal)
+			{
+				rr::RRVec2 origMousePositionInWindow = rr::RRVec2(s_ci.mouseX*2.0f/winWidth-1,s_ci.mouseY*2.0f/winHeight-1);
+				pan = svs.eye.getRayOrigin(origMousePositionInWindow)-svs.eye.getRayOrigin(mousePositionInWindow);
+			}
+			else
+			{
+				rr::RRVec3 newRayDirection = svs.eye.getRayDirection(mousePositionInWindow);
+				pan = (s_ci.rayDirection-newRayDirection)*(s_ci.hitDistance/s_ci.rayDirection.length());
+			}
+			if (event.ShiftDown() || event.ControlDown() || event.AltDown())
+			{
+				if (!event.ControlDown()) pan.x = 0;
+				if (!event.ShiftDown()) pan.y = 0;
+				if (!event.AltDown()) pan.z = 0;
+			}
+			if (s_ci.clickedEntity.type==ST_LIGHT)
+			{
+				solver->getLights()[s_ci.clickedEntity.index]->position = s_ci.clickedEntity.position - pan;
+				solver->reportDirectIlluminationChange(s_ci.clickedEntity.index,true,true);
+				solver->realtimeLights[s_ci.clickedEntity.index]->updateAfterRRLightChanges();
+			}
+		}
+		else
 		if (event.LeftIsDown())
 		{
 			// looking
@@ -852,6 +881,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			}
 			solver->reportInteraction();
 		}
+		else
 		if (event.MiddleIsDown())
 		{
 			// panning
@@ -869,7 +899,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			}
 			svs.eye.pos = s_ci.pos + pan;
 			solver->reportInteraction();
+			s_ciRenderCrosshair = true;
 		}
+		else
 		if (event.RightIsDown())
 		{
 			// inspection
@@ -882,6 +914,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			rr::RRVec3 newRayDirection = svs.eye.getRayDirection(origMousePositionInWindow);
 			svs.eye.pos = s_ci.pos + (s_ci.rayDirection-newRayDirection)*(s_ci.hitDistance/s_ci.rayDirection.length());
 			solver->reportInteraction();
+			s_ciRenderCrosshair = true;
 		}
 
 	}
@@ -889,6 +922,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	{
 		// dragging ended, all s_xxx become invalid
 		s_ciRelevant = false;
+		s_ciRenderCrosshair = false;
 	}
 
 	// handle wheel
@@ -1475,8 +1509,7 @@ rendered:
 		}
 
 
-		bool renderCrosshair = s_ciRelevant && (s_ci.mouseMiddle || s_ci.mouseRight);
-		if (svs.renderGrid || renderCrosshair)
+		if (svs.renderGrid || s_ciRenderCrosshair)
 		{
 			// set line shader
 			{
@@ -1487,7 +1520,7 @@ rendered:
 			}
 
 			// render crosshair, using previously set shader
-			if (renderCrosshair)
+			if (s_ciRenderCrosshair)
 			{
 				rr::RRVec3 pos = s_ci.hitPoint3d;
 				float size = s_ci.hitDistance/30;
@@ -1536,7 +1569,7 @@ rendered:
 			renderedIcons.clear();
 			if (parent->m_lightProperties->IsShown())
 				renderedIcons.addLights(solver->getLights(),sunIconPosition,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX);
-			entityIcons->renderIcons(renderedIcons,svs.eye,iconSize);
+			entityIcons->renderIcons(renderedIcons,svs.eye);
 		}
 	}
 
