@@ -126,7 +126,6 @@ namespace rr_gl
 		ButtonProperty*   propGIBuildLmaps;
 		ButtonProperty*   propGIBuildLDMs;
 
-
 		/*
 		wxPGProperty*     propSizes;
 		wxPGProperty*     propSizesSize;

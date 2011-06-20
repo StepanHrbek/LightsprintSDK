@@ -374,7 +374,6 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propGIBuildLDMs = new ButtonProperty(_("Build LDMs"),_("Builds or rebuilds LDMs for all static objects."),svframe,CM_STATIC_OBJECTS_BUILD_LDMS);
 			AppendIn(propGILightmap,propGIBuildLDMs);
 			propGIBuildLDMs->updateImage();
-
 			propGIBilinear = new BoolRefProperty(_("Bilinear"),_("Bilinear interpolation of lightmaps and LDMs, keep always on, unless you analyze pixels."),svs.renderLightmapsBilinear);
 			AppendIn(propGILightmap,propGIBilinear);
 		}
