@@ -75,7 +75,8 @@ namespace rr_gl
 
 		enum
 		{
-			ME_FILE_OPEN_SCENE = 10000, // avoid conflict with wxWidgets event numbers, and also with CM_XXX
+			ME_FIRST = 10000, // avoid conflict with wxWidgets event numbers, and also with CM_XXX
+			ME_FILE_OPEN_SCENE = ME_FIRST,
 			ME_FILE_MERGE_SCENE,
 			ME_FILE_SAVE_SCENE,
 			ME_FILE_SAVE_SCENE_AS,
