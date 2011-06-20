@@ -408,8 +408,8 @@ void SVFrame::userPreferencesApplyToWx()
 
 	// if language selection did change, pane captions must be updated
 	m_mgr.GetPane(m_lightProperties).Caption(_("Light"));
-	m_mgr.GetPane(m_objectProperties).Caption(_("Object"));
 	m_mgr.GetPane(m_materialProperties).Caption(_("Material"));
+	m_mgr.GetPane(m_objectProperties).Caption(_("Object"));
 	m_mgr.GetPane(m_log).Caption(_("Log"));
 	m_mgr.GetPane(m_sceneTree).Caption(_("Scene tree"));
 	m_mgr.GetPane(m_userProperties).Caption(_("User preferences"));
