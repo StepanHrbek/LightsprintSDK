@@ -96,6 +96,9 @@
     <ClInclude Include="SceneViewer\SVLog.h">
       <Filter>SceneViewer</Filter>
     </ClInclude>
+    <ClInclude Include="SceneViewer\SVGIProperties.h">
+      <Filter>SceneViewer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SceneViewer\SVApp.cpp">
@@ -173,6 +176,9 @@
       <Filter>SceneViewer</Filter>
     </ClCompile>
     <ClCompile Include="SceneViewer\SVLog.cpp">
+      <Filter>SceneViewer</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneViewer\SVGIProperties.cpp">
       <Filter>SceneViewer</Filter>
     </ClCompile>
   </ItemGroup>

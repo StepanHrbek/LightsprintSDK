@@ -13,6 +13,7 @@
 #include "SVSaveLoad.h"
 #include "SVUserProperties.h"
 #include "SVSceneProperties.h"
+#include "SVGIProperties.h"
 #include "SVLightProperties.h"
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
@@ -336,7 +337,7 @@ void SVFrame::UpdateEverything()
 	if (svs.autodetectCamera && !(svs.initialInputSolver && svs.initialInputSolver->aborting)) OnMenuEventCore(ME_VIEW_RANDOM);
 
 	UpdateTitle();
-	m_sceneProperties->updateAfterGLInit();
+	m_giProperties->updateAfterGLInit();
 	updateAllPanels();
 
 	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().Name("glcanvas").CenterPane().PaneBorder(false));
@@ -409,6 +410,7 @@ void SVFrame::userPreferencesApplyToWx()
 	// if language selection did change, pane captions must be updated
 	m_mgr.GetPane(m_lightProperties).Caption(_("Light"));
 	m_mgr.GetPane(m_materialProperties).Caption(_("Material"));
+	m_mgr.GetPane(m_giProperties).Caption(_("Global Illumination"));
 	m_mgr.GetPane(m_objectProperties).Caption(_("Object"));
 	m_mgr.GetPane(m_log).Caption(_("Log"));
 	m_mgr.GetPane(m_sceneTree).Caption(_("Scene tree"));
@@ -453,6 +455,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	// create properties (based also on data from preferences)
 	m_userProperties = new SVUserProperties(this);
 	m_sceneProperties = new SVSceneProperties(this);
+	m_giProperties = new SVGIProperties(this);
 	m_lightProperties = new SVLightProperties(this);
 	m_objectProperties = new SVObjectProperties(this);
 	m_materialProperties = new SVMaterialProperties(this);
@@ -554,6 +557,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name("scenetree").CloseButton(true).Left());
 	m_mgr.AddPane(m_userProperties, wxAuiPaneInfo().Name("userproperties").CloseButton(true).Left());
 	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name("sceneproperties").CloseButton(true).Left());
+	m_mgr.AddPane(m_giProperties, wxAuiPaneInfo().Name("giproperties").CloseButton(true).Left());
 	m_mgr.AddPane(m_lightProperties, wxAuiPaneInfo().Name("lightproperties").CloseButton(true).Right());
 	m_mgr.AddPane(m_objectProperties, wxAuiPaneInfo().Name("objectproperties").CloseButton(true).Right());
 	m_mgr.AddPane(m_materialProperties, wxAuiPaneInfo().Name("materialproperties").CloseButton(true).Right());
@@ -674,6 +678,8 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_WINDOW_USER_PROPERTIES,m_mgr.GetPane(m_userProperties).IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_SCENE_PROPERTIES,_("Scene properties"),_("Opens scene properties window."));
 		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,m_mgr.GetPane(m_sceneProperties).IsShown());
+		winMenu->AppendCheckItem(ME_WINDOW_GI_PROPERTIES,_("Global Illumination"),_("Opens global illumination properties window."));
+		winMenu->Check(ME_WINDOW_GI_PROPERTIES,m_mgr.GetPane(m_giProperties).IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_("Light"),_("Opens light properties window and starts rendering light icons."));
 		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,m_mgr.GetPane(m_lightProperties).IsShown());
 		winMenu->AppendCheckItem(ME_WINDOW_OBJECT_PROPERTIES,_("Object"),_("Opens object properties window."));
@@ -1349,6 +1355,7 @@ reload_skybox:
 		case ME_WINDOW_TREE:                 TogglePane(m_sceneTree); break;
 		case ME_WINDOW_USER_PROPERTIES:      TogglePane(m_userProperties); break;
 		case ME_WINDOW_SCENE_PROPERTIES:     TogglePane(m_sceneProperties); break;
+		case ME_WINDOW_GI_PROPERTIES:        TogglePane(m_giProperties); break;
 		case ME_WINDOW_LIGHT_PROPERTIES:     TogglePane(m_lightProperties); break;
 		case ME_WINDOW_OBJECT_PROPERTIES:    TogglePane(m_objectProperties); break;
 		case ME_WINDOW_MATERIAL_PROPERTIES:  TogglePane(m_materialProperties); break;
@@ -1386,7 +1393,7 @@ reload_skybox:
 					SetClientSize(windowSize.x+w-m_canvas->winWidth,windowSize.y+h-m_canvas->winHeight);
 					if (m_canvas->winWidth!=w || m_canvas->winHeight!=h)
 					{
-						bool panes = m_sceneTree->IsShown() || m_userProperties->IsShown() || m_sceneProperties->IsShown() || m_lightProperties->IsShown() || m_objectProperties->IsShown() || m_materialProperties->IsShown();
+						bool panes = m_sceneTree->IsShown() || m_userProperties->IsShown() || m_sceneProperties->IsShown() || m_giProperties->IsShown() || m_lightProperties->IsShown() || m_objectProperties->IsShown() || m_materialProperties->IsShown();
 						wxMessageBox(panes?_("There's not enough space. You can make more space by resizing or closing panes."):_("There's not enough space. Switch to fullscreen mode for maximal resolution."));
 					}
 				}
@@ -1593,6 +1600,7 @@ void SVFrame::commitPropertyChanges()
 {
 	m_lightProperties->CommitChangesFromEditor();
 	m_sceneProperties->CommitChangesFromEditor();
+	m_giProperties->CommitChangesFromEditor();
 	m_objectProperties->CommitChangesFromEditor();
 	m_materialProperties->CommitChangesFromEditor();
 }
@@ -1645,6 +1653,7 @@ void SVFrame::enableTooltips(bool enable)
 	m_objectProperties->enableTooltips(enable);
 	m_materialProperties->enableTooltips(enable);
 	m_sceneProperties->enableTooltips(enable);
+	m_giProperties->enableTooltips(enable);
 	m_userProperties->enableTooltips(enable);
 }
 

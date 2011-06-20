@@ -29,9 +29,6 @@ namespace rr_gl
 		//! Copy property -> svs.
 		void OnPropertyChange(wxPropertyGridEvent& event);
 
-		//! Must be called after glewInit().
-		void updateAfterGLInit();
-
 	private:
 		//! Copy svs -> hide/show property.
 		void updateHide();
@@ -96,42 +93,6 @@ namespace rr_gl
 		wxPGProperty*     propGridNumSegments;
 		wxPGProperty*     propGridSegmentSize;
 
-		wxPGProperty*     propGIDirect;
-		wxPGProperty*     propGIIndirect;
-		BoolRefProperty*  propGILDM;
-		BoolRefProperty*  propGIBilinear;
-		BoolRefProperty*  propGISRGBCorrect;
-		wxPGProperty*     propGIShadowTransparency;
-		wxPGProperty*     propGIFireballQuality;
-		ButtonProperty*   propGIFireballBuild;
-		BoolRefProperty*  propGIRaytracedCubes;
-		wxPGProperty*     propGIRaytracedCubesDiffuseRes;
-		wxPGProperty*     propGIRaytracedCubesSpecularRes;
-		wxPGProperty*     propGIRaytracedCubesMaxObjects;
-		FloatProperty*    propGIRaytracedCubesSpecularThreshold;
-		FloatProperty*    propGIRaytracedCubesDepthThreshold;
-		wxPGProperty*     propGIEmisMultiplier;
-		wxPGProperty*     propGIVideo;
-		BoolRefProperty*  propGIEmisVideoAffectsGI;
-		wxPGProperty*     propGIEmisVideoGIQuality;
-		BoolRefProperty*  propGITranspVideoAffectsGI;
-		BoolRefProperty*  propGITranspVideoAffectsGIFull;
-		BoolRefProperty*  propGIEnvVideoAffectsGI;
-		wxPGProperty*     propGIEnvVideoGIQuality;
-		wxPGProperty*     propGILightmap;
-		wxPGProperty*     propGILightmapAOIntensity;
-		wxPGProperty*     propGILightmapAOSize;
-		wxPGProperty*     propGILightmapSmoothingAmount;
-		BoolRefProperty*  propGILightmapWrapping;
-		ButtonProperty*   propGIBuildLmaps;
-		ButtonProperty*   propGIBuildLDMs;
-
-		/*
-		wxPGProperty*     propSizes;
-		wxPGProperty*     propSizesSize;
-		wxPGProperty*     propSizesMin;
-		wxPGProperty*     propSizesMax;
-		*/
 
 		DECLARE_EVENT_TABLE()
 	};

@@ -126,6 +126,7 @@ namespace rr_gl
 			ME_WINDOW_TREE,
 			ME_WINDOW_USER_PROPERTIES,
 			ME_WINDOW_SCENE_PROPERTIES,
+			ME_WINDOW_GI_PROPERTIES,
 			ME_WINDOW_LIGHT_PROPERTIES,
 			ME_WINDOW_OBJECT_PROPERTIES,
 			ME_WINDOW_MATERIAL_PROPERTIES,
@@ -176,6 +177,7 @@ namespace rr_gl
 		bool                     updateMenuBarNeeded;
 		wxAuiManager             m_mgr;
 		class SVSceneProperties* m_sceneProperties;
+		class SVGIProperties*    m_giProperties;
 		class SVUserProperties*  m_userProperties;
 
 		ImportDlg                importDlg;

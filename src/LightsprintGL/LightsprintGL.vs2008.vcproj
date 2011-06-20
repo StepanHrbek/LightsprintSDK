@@ -844,6 +844,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SceneViewer\SVGIProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SceneViewer\SVGIProperties.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SceneViewer\SVLightmapViewer.cpp"
 				>
 			</File>
