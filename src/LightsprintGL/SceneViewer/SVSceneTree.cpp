@@ -209,6 +209,8 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 	if (temporaryContext.IsOk() && GetItemParent(temporaryContext)==lights)
 	{
 		menu.Append(CM_LIGHT_DELETE, _("Delete light")+" (del)");
+		if (!svframe->m_lightProperties->IsShown())
+			menu.Append(SVFrame::ME_WINDOW_LIGHT_PROPERTIES, _("Properties..."));
 	}
 	if (temporaryContext==staticObjects || contextIsSky)
 	{
@@ -228,6 +230,8 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 		menu.Append(CM_STATIC_OBJECT_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
 		menu.Append(CM_STATIC_OBJECT_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
 		menu.Append(CM_STATIC_OBJECT_DELETE, _("Delete object")+" (del)");
+		if (!svframe->m_objectProperties->IsShown())
+			menu.Append(SVFrame::ME_WINDOW_OBJECT_PROPERTIES, _("Properties..."));
 	}
 	if (temporaryContext.IsOk() && GetItemParent(temporaryContext)==dynamicObjects)
 	{
@@ -254,6 +258,12 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 
 	RRDynamicSolverGL* solver = svframe->m_canvas->solver;
 
+	if (actionCode>=SVFrame::ME_FIRST)
+	{
+		svframe->OnMenuEventCore2(actionCode);
+		return; // skip updateAllPanels() at the end of this function
+	}
+	else
 	switch (actionCode)
 	{
 		case CM_ROOT_SCALE:
