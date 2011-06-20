@@ -213,7 +213,7 @@ void SVCanvas::createContextCore()
 			// try to load FB. if not found, create it
 			case LI_REALTIME_FIREBALL:     parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL); break;
 			// create architect
-			case LI_STATIC_LIGHTMAPS:      parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_STATIC); break;
+			case LI_REALTIME_ARCHITECT:    parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT); break;
 		}
 
 		// try to load lightmaps

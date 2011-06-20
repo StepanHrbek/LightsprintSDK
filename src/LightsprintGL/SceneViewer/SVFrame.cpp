@@ -1169,27 +1169,7 @@ reload_skybox:
 		case ME_LIGHT_FLASH: m_sceneTree->runContextMenuAction(CM_LIGHT_FLASH,EntityId(ST_LIGHT,0)); break;
 
 
-		//////////////////////////////// GLOBAL ILLUMINATION - DIRECT ///////////////////////////////
-
-		case ME_LIGHTING_DIRECT_REALTIME:
-			svs.renderLightDirect = LD_REALTIME;
-			if (svs.renderLightIndirect==LI_STATIC_LIGHTMAPS) // indirect must not stay lightmaps
-				svs.renderLightIndirect = LI_CONSTANT;
-			svs.renderLightmaps2d = 0;
-			break;
-		case ME_LIGHTING_DIRECT_NONE:
-			svs.renderLightDirect = LD_NONE;
-			if (svs.renderLightIndirect==LI_STATIC_LIGHTMAPS) // indirect must not stay lightmaps
-				svs.renderLightIndirect = LI_CONSTANT;
-			svs.renderLightmaps2d = 0;
-			break;
-
-
 		//////////////////////////////// GLOBAL ILLUMINATION - INDIRECT ///////////////////////////////
-
-		case ME_LIGHTING_INDIRECT_TOGGLE_LDM:
-			svs.renderLDM = !svs.renderLDM;
-			break;
 
 		case ME_LIGHTING_INDIRECT_FIREBALL:
 			svs.renderLightIndirect = LI_REALTIME_FIREBALL;
@@ -1227,27 +1207,6 @@ reload_skybox:
 			solver->reportDirectIlluminationChange(-1,true,true);
 			fireballLoadAttempted = false;
 			solver->leaveFireball();
-			break;
-
-		case ME_LIGHTING_DIRECT_STATIC:
-		case ME_LIGHTING_INDIRECT_STATIC:
-			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
-			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
-			svs.renderLightmaps2d = 0;
-			break;
-
-		case ME_LIGHTING_INDIRECT_CONST:
-			svs.renderLightIndirect = LI_CONSTANT;
-			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
-				svs.renderLightDirect = LD_REALTIME;
-			svs.renderLightmaps2d = 0;
-			break;
-
-		case ME_LIGHTING_INDIRECT_NONE:
-			svs.renderLightIndirect = LI_NONE;
-			if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS) // direct must not stay lightmaps
-				svs.renderLightDirect = LD_REALTIME;
-			svs.renderLightmaps2d = 0;
 			break;
 
 
