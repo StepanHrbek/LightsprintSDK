@@ -8,6 +8,7 @@
 #include "SVSceneTree.h"
 #include "SVFrame.h"
 #include "SVObjectProperties.h"
+#include "SVLightProperties.h"
 #include "SVLog.h"
 
 namespace rr_gl
