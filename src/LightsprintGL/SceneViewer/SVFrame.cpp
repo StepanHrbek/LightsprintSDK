@@ -820,6 +820,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 				{
 					svs.initialInputSolver = NULL;
 					svs.sceneFilename = dialog.GetPath();
+					svs.autodetectCamera = true;
 					UpdateEverything();
 				}
 			}

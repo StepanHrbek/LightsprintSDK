@@ -190,7 +190,6 @@ void SVCanvas::createContextCore()
 		envToBeDeletedOnExit = false;
 		solver->setStaticObjects(mergedScenes[0]->objects,NULL);
 		solver->setLights(mergedScenes[0]->lights);
-		svs.autodetectCamera = true; // new scene, camera is not set
 	}
 
 	// warning: when rendering scene from initialInputSolver, original cube buffers are lost here
