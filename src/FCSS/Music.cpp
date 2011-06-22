@@ -20,7 +20,7 @@
 
 Music* Music::load(const char* filename)
 {
-	rr::RRReportInterval report(rr::INF2,"Loading %s...\n",filename);
+	rr::RRReportInterval report(rr::INF1,"Loading %s...\n",filename);
 
 	Music* music = new Music();
 
