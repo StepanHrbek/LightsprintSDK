@@ -195,12 +195,12 @@ void setShadowTechnique()
 	// expensive changes (GL commands)
 	if (currentFrame.shadowType>=2)
 	{
-		realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
+		realtimeLight->setShadowmapSize((resolutionx<800)?SHADOW_MAP_SIZE_SOFT/2:SHADOW_MAP_SIZE_SOFT);
 		realtimeLight->setNumShadowSamples(4);
 	}
 	else
 	{
-		realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_HARD);
+		realtimeLight->setShadowmapSize((resolutionx<800)?SHADOW_MAP_SIZE_HARD/2:SHADOW_MAP_SIZE_HARD);
 		realtimeLight->setNumShadowSamples(1);
 	}
 	level->solver->reportDirectIlluminationChange(0,true,false);
@@ -213,7 +213,7 @@ void init_gl_resources()
 	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),RR_DEG2RAD(40),0.1f));
 	realtimeLight->setParent(&currentFrame.light);
 	realtimeLight->numInstancesInArea = MAX_INSTANCES;
-	realtimeLight->setShadowmapSize(SHADOW_MAP_SIZE_SOFT);
+	realtimeLight->setShadowmapSize((resolutionx<800)?SHADOW_MAP_SIZE_SOFT/2:SHADOW_MAP_SIZE_SOFT);
 
 	realtimeLight->shadowTransparencyRequested = alphashadows
 		? rr_gl::RealtimeLight::ALPHA_KEYED_SHADOWS // cweb_m01drk.tga is blended, but it is well hidden in scene, it is not worth enabling colored shadows mode
