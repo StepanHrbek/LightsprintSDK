@@ -2049,12 +2049,23 @@ int main(int argc, char** argv)
 	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
 
 	// init GL
+	rr::RRReporter::report(rr::INF1,"OpenGL %s by %s on %s.\n",glGetString(GL_VERSION),glGetString(GL_VENDOR),glGetString(GL_RENDERER));
 	int major, minor;
 	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
-		error("Graphics card driver doesn't support OpenGL 2.0.\n",true);
+	{
+		rr::RRReporter::report(rr::ERRO,"Your system does not support OpenGL 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n");
+		exiting = true;
+		exit(0);
+	}
+	int i1=0,i2=0,i3=0,i4=0,i5=0;
+	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&i1);
+	glGetIntegerv(GL_MAX_TEXTURE_UNITS,&i2);
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,&i3);
+	glGetIntegerv(GL_MAX_TEXTURE_COORDS,&i4);
+	glGetIntegerv(GL_MAX_VARYING_FLOATS,&i5);
+	rr::RRReporter::report(rr::INF1,"  %d image units, %d units, %d combined, %d coords, %d varyings.\n",i1,i2,i3,i4,i5);
+
 	init_gl_states();
-	const char* vendor = (const char*)glGetString(GL_VENDOR);
-	const char* renderer = (const char*)glGetString(GL_RENDERER);
 
 	updateMatrices(); // needed for startup without area lights (realtimeLight doesn't update matrices for 1 instance)
 
@@ -2078,6 +2089,7 @@ int main(int argc, char** argv)
 
 	// adjust INSTANCES_PER_PASS to GPU
 	INSTANCES_PER_PASS = uberProgramGlobalSetup.detectMaxShadowmaps(uberProgram,argc,argv);
+	rr::RRReporter::report(rr::INF1,"  penumbra quality: %d\n",INSTANCES_PER_PASS);
 	if (!INSTANCES_PER_PASS) error("",true);
 	realtimeLight->numInstancesInArea = startWithSoftShadows?INSTANCES_PER_PASS:1;
 
