@@ -81,15 +81,12 @@ public:
 				unsigned uvs = 0;
 				for (unsigned j=0;j<texcoords->size();j++)
 				{
-					if ((*texcoords)[j])
-					{
-						inherited->getTriangleMapping(i,tm,(*texcoords)[j]);
-						vertices[t[0]].uv[uvs] = tm.uv[0];
-						vertices[t[1]].uv[uvs] = tm.uv[1];
-						vertices[t[2]].uv[uvs] = tm.uv[2];
-						uvs++;
-						if (uvs==MAX_UVS) break;
-					}
+					inherited->getTriangleMapping(i,tm,(*texcoords)[j]);
+					vertices[t[0]].uv[uvs] = tm.uv[0];
+					vertices[t[1]].uv[uvs] = tm.uv[1];
+					vertices[t[2]].uv[uvs] = tm.uv[2];
+					uvs++;
+					if (uvs==MAX_UVS) break;
 				}
 			}
 		}
@@ -116,10 +113,10 @@ public:
 				Vertex& ufl = vertices[Unique2Dupl[u]];
 				// stop when testing too x-distant vertex (all close vertices were already tested)
 				//#define CLOSE(a,b) ((a)==(b))
-				#define CLOSE(i) (fabs((dfl.position[i])-(ufl.position[i]))<=maxDistanceBetweenVerticesToStitch)
-				if (!CLOSE(0)) break;
+				#define CLOSEPOS(i) (fabs((dfl.position[i])-(ufl.position[i]))<=maxDistanceBetweenVerticesToStitch)
+				if (!CLOSEPOS(0)) break;
 				// this is candidate for stitching, do final test
-				if (CLOSE(0) && CLOSE(1) && CLOSE(2))
+				if (CLOSEPOS(0) && CLOSEPOS(1) && CLOSEPOS(2))
 				{
 					if ( (stitchOnlyIdenticalNormals && dfl.normal==ufl.normal)
 						|| (!stitchOnlyIdenticalNormals && dfl.normal.dot(ufl.normal)>=minNormalDotNormalToStitch) ) // normals must be normalized here
@@ -136,7 +133,9 @@ public:
 						}
 					}
 				}
-				#undef CLOSE
+				#undef CLOSEUV
+				#undef CLOSEU
+				#undef CLOSEPOS
 			}
 			Unique2Dupl[UniqueVertices] = d;
 			Dupl2Unique[d] = UniqueVertices++;
