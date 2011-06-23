@@ -530,6 +530,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case WXK_UP:
 		case 'w':
 		case 'W': speedForward = speed; break;
+
 		case WXK_DOWN:
 		case 's':
 		case 'S': speedBack = speed; break;
@@ -537,6 +538,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case WXK_RIGHT:
 		case 'd':
 		case 'D': speedRight = speed; break;
+
 		case WXK_LEFT:
 		case 'a':
 		case 'A': speedLeft = speed; break;
