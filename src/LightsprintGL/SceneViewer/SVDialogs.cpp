@@ -76,6 +76,15 @@ SmoothDlg::SmoothDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	bSizer3->Add( weldDistance, 0, wxALL, 5 );
 	
+	m_staticText3 = new wxStaticText( this, wxID_ANY, _("UV distance"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText3->Wrap( -1 );
+	bSizer3->Add( m_staticText3, 0, wxALL, 5 );
+	
+	uvDistance = new wxTextCtrl( this, wxID_ANY, _("0"), wxDefaultPosition, wxDefaultSize, 0 );
+	uvDistance->SetToolTip( _("Max distance between uvs to stitch and smooth normals.") );
+	
+	bSizer3->Add( uvDistance, 0, wxALL, 5 );
+	
 	splitVertices = new wxCheckBox( this, wxID_ANY, _("Split vertices"), wxDefaultPosition, wxDefaultSize, 0 );
 	splitVertices->SetValue(true); 
 	bSizer3->Add( splitVertices, 0, wxALL, 5 );
@@ -83,10 +92,6 @@ SmoothDlg::SmoothDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	stitchVertices = new wxCheckBox( this, wxID_ANY, _("Stitch vertices"), wxDefaultPosition, wxDefaultSize, 0 );
 	stitchVertices->SetValue(true); 
 	bSizer3->Add( stitchVertices, 0, wxALL, 5 );
-	
-	preserveUvs = new wxCheckBox( this, wxID_ANY, _("Preserve texture mapping"), wxDefaultPosition, wxDefaultSize, 0 );
-	preserveUvs->SetValue(true); 
-	bSizer3->Add( preserveUvs, 0, wxALL, 5 );
 	
 	m_button4 = new wxButton( this, wxID_CANCEL, _("Cancel"), wxPoint( -1,-1 ), wxSize( 0,0 ), 0 );
 	bSizer3->Add( m_button4, 0, wxALL, 5 );

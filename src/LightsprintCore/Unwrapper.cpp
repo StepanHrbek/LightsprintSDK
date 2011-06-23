@@ -313,7 +313,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 				{
 					// generated adjacency would make all edges smooth,
 					// let's break adjacency where we want hard edge
-					const RRMesh* rrMeshStitched = rrMesh->createOptimizedVertices(0.001f,RR_DEG2RAD(3),NULL);
+					const RRMesh* rrMeshStitched = rrMesh->createOptimizedVertices(0.001f,RR_DEG2RAD(3),0,NULL);
 					for (unsigned t=0;t<numTriangles;t++)
 					{
 						RRMesh::Triangle triangleIndices;

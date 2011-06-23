@@ -520,6 +520,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					double d = 0;
 					float weldDistance = svframe->smoothDlg.weldDistance->GetValue().ToDouble(&d) ? (float)d : 0;
 					float smoothAngle = svframe->smoothDlg.smoothAngle->GetValue().ToDouble(&d) ? (float)d : 30;
+					float uvDistance = svframe->smoothDlg.uvDistance->GetValue().ToDouble(&d) ? (float)d : 0;
 					rr::RRObjects smoothObjects;
 					for (unsigned pass=0;pass<2;pass++)
 					{
@@ -530,13 +531,14 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					}
 					if (smoothObjects.size())
 					{
-						smoothObjects.stitchAndSmooth(
+						smoothObjects.smoothAndStitch(
 							svframe->smoothDlg.splitVertices->GetValue(),
 							svframe->smoothDlg.stitchVertices->GetValue(),
 							true,true,
-							svframe->smoothDlg.preserveUvs->GetValue(),
 							weldDistance,
-							RR_DEG2RAD(smoothAngle),true);
+							RR_DEG2RAD(smoothAngle),
+							uvDistance,
+							true);
 						svframe->m_canvas->addOrRemoveScene(NULL,true);
 					}
 				}

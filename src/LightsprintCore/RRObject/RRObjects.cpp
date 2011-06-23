@@ -178,7 +178,7 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 	return numFlips;
 }
 
-void RRObjects::stitchAndSmooth(bool splitVertices, bool stitchVertices, bool removeDegeneratedTriangles, bool smoothNormals, bool preserveUvs, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, bool report) const
+void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool removeDegeneratedTriangles, bool smoothNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, float maxDistanceBetweenUvsToSmooth, bool report) const
 {
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
 	unsigned numMeshesWithoutArrays = 0;
@@ -194,7 +194,7 @@ void RRObjects::stitchAndSmooth(bool splitVertices, bool stitchVertices, bool re
 
 	// warn when working with non-arrays
 	if (report && numMeshesWithoutArrays)
-		RRReporter::report(WARN,"stitchAndSmooth() supports only RRMeshArrays meshes.\n");
+		RRReporter::report(WARN,"smoothAndStitch() supports only RRMeshArrays meshes.\n");
 
 	// stats
 	unsigned numTriangles = 0;
@@ -243,14 +243,14 @@ void RRObjects::stitchAndSmooth(bool splitVertices, bool stitchVertices, bool re
 		mesh->getUvChannels(texcoords);
 		RRMeshArrays* mesh1 = mesh->createArrays(!splitVertices,texcoords);
 		mesh1->buildNormals(); // createOptimizedVertices() uses vertex normals, we want it to use triangle normals
-		const RRMesh* mesh2 = stitchVertices ? mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,preserveUvs?&texcoords:NULL) : mesh1; // stitch less, preserve uvs
+		const RRMesh* mesh2 = stitchVertices ? mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,maxDistanceBetweenUvsToSmooth,&texcoords) : mesh1; // stitch less, preserve uvs
 		const RRMesh* mesh3 = removeDegeneratedTriangles ? mesh2->createOptimizedTriangles() : mesh2;
 
 		// smooth when stitching
 		if (smoothNormals && stitchVertices)
 		{
 			// calc smooth normals from mesh1, write them back to mesh1
-			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,NULL); // stitch more, even if uvs differ
+			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,0,NULL); // stitch more, even if uvs differ
 			RRMeshArrays* mesh5 = mesh4->createArrays(true,texcoords);
 			mesh5->buildNormals();
 			for (unsigned t=0;t<mesh1->numTriangles;t++)

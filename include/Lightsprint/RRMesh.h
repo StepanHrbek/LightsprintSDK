@@ -429,17 +429,15 @@ namespace rr
 		//!  but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
 		//! If no vertex can be removed, 'this' is returned.
 		//! \param maxDistanceBetweenVerticesToStitch
-		//!  For negative value, no stitching is performed.
-		//!  For 0, vertices with identical positions may be stitched.
-		//!  For positive value, also vertices in lower or equal distance may be stitched.
+		//!  Vertices are not stitched if their positions differ more.
 		//! \param maxRadiansBetweenNormalsToStitch
-		//!  For negative value, no stitching is performed.
-		//!  For 0, vertices with identical normals may be stitched.
-		//!  For positive value, also vertices with lower or equal angle between normals may be stitched.
+		//!  Vertices are not stitched if their normals differ more.
+		//! \param maxDistanceBetweenUvsToStitch
+		//!  Vertices are not stitched if their uvs from #texcoords differ more.
 		//! \param texcoords
-		//!  Vertices are stitched only if they exactly match in selected texcoord channels.
-		//!  NULL = texcoords are ignored, vertices don't have to match to be stitched.
-		const RRMesh* createOptimizedVertices(float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, const RRVector<unsigned>* texcoords) const;
+		//!  Vertices are not stitched if their uvs from #texcoords differ more than #maxDistanceBetweenUvsToStitch.
+		//!  May be NULL. Uvs not listed in #texcoords are ignored, differences in such channels don't prevent stitching.
+		const RRMesh* createOptimizedVertices(float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, const RRVector<unsigned>* texcoords) const;
 
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
 		//

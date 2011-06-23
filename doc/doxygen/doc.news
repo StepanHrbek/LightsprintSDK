@@ -15,6 +15,12 @@ NEWS
 - <b>improved Scene viewer</b>
   - light movement by dragging light icon, shift/ctrl/alt for axes
 
+CHANGES
+
+- configurable distance between uvs when stitching vertices
+  - new parameter in RRMesh::createOptimizedVertices()
+  - RRObjects::stitchAndSmooth() renamed to RRObjects::smoothAndStitch(), extended parameters
+
 \section news122 ------------------------------------ 2011.06.14 -------------------------------------
 
 NEWS

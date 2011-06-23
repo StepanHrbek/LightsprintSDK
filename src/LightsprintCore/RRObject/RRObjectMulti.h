@@ -46,7 +46,7 @@ public:
 			if (vertexStitching && !aborting)
 			{
 				oldMesh = multiMesh;
-				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,NULL);
+				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,0,NULL);
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles
@@ -211,7 +211,7 @@ public:
 			if (vertexStitching && !aborting)
 			{
 				oldMesh = multiMesh;
-				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,NULL);
+				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,0,NULL);
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles

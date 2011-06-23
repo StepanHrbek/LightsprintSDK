@@ -27,7 +27,7 @@ template <class INDEX>
 class RRLessVerticesFilter : public RRMeshFilter
 {
 public:
-	RRLessVerticesFilter(const RRMesh* original, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, const RRVector<unsigned>* texcoords)
+	RRLessVerticesFilter(const RRMesh* original, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, const RRVector<unsigned>* texcoords)
 		: RRMeshFilter(original)
 	{
 		RR_ASSERT(maxDistanceBetweenVerticesToStitch>=0); // negative value would remove no vertices -> no improvement
@@ -124,7 +124,12 @@ public:
 					if ( (stitchOnlyIdenticalNormals && dfl.normal==ufl.normal)
 						|| (!stitchOnlyIdenticalNormals && dfl.normal.dot(ufl.normal)>=minNormalDotNormalToStitch) ) // normals must be normalized here
 					{
-						if (!preserveUvs || !memcmp(dfl.uv,ufl.uv,sizeof(ufl.uv)))
+						if (!preserveUvs
+							|| (maxDistanceBetweenUvsToStitch==0 && !memcmp(dfl.uv,ufl.uv,sizeof(ufl.uv)))
+							#define CLOSEU(i,j) (fabs((dfl.uv[i][j])-(ufl.uv[i][j]))<=maxDistanceBetweenUvsToStitch)
+							#define CLOSEUV(i) (CLOSEU(i,0) && CLOSEU(i,1))
+							//#define CLOSEUV(i) ((dfl.uv[i]-ufl.uv[i]).length2()<=maxDistanceBetweenUvsToStitch*maxDistanceBetweenUvsToStitch)
+							|| (CLOSEUV(0) && CLOSEUV(1) && CLOSEUV(2) && CLOSEUV(3))) // MAX_UVS=4
 						{
 							Dupl2Unique[d] = u;
 							goto dupl;

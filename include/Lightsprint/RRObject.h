@@ -522,15 +522,15 @@ namespace rr
 		//! \param generateNormals
 		//!  True = resets all vertex normals to averages of normals of connected faces.
 		//!  False = old normals stay.
-		//! \param preserveUvs
-		//!  Prevents stitching where uvs differ.
 		//! \param maxDistanceBetweenVerticesToStitch
 		//!  When stitchVertices==true, controls maximal distance between vertices to stitch and smooth.
 		//! \param maxRadiansBetweenNormalsToStitch
 		//!  When stitchVertices==true, controls maximal angle between face normals to stitch and smooth.
+		//! \param maxDistanceBetweenUvsToStitch
+		//!  When stitchVertices==true, controls maximal distance between uvs to stitch and smooth.
 		//! \param report
 		//!  Allows reporting warnings.
-		virtual void stitchAndSmooth(bool splitVertices, bool stitchVertices, bool removeDegeneratedTriangles, bool generateNormals, bool preserveUvs, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool report) const;
+		virtual void smoothAndStitch(bool splitVertices, bool stitchVertices, bool removeDegeneratedTriangles, bool generateNormals, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, bool report) const;
 
 		//! Multiplies emittance in all materials, both colors and textures.
 		virtual void multiplyEmittance(float emissiveMultiplier);
