@@ -36,8 +36,8 @@ public:
 		unsigned numTriangles = inherited->getNumTriangles();
 		INDEX tmp = numVertices;
 		RR_ASSERT(tmp==numVertices);
-		Dupl2Unique = new INDEX[numVertices];
-		Unique2Dupl = new INDEX[numVertices];
+		Dupl2Unique = new (std::nothrow) INDEX[numVertices]; // if it fails, allocating "vertices" will fail too, it is handled below
+		Unique2Dupl = new (std::nothrow) INDEX[numVertices];
 		UniqueVertices = 0;
 
 		bool preserveUvs = texcoords && texcoords->size();
@@ -50,9 +50,22 @@ public:
 			RRVec3 normal;
 			RRVec2 uv[MAX_UVS];
 		};
-		Vertex* vertices = new Vertex[numVertices];
+		Vertex* vertices = new (std::nothrow) Vertex[numVertices];
+		if (!vertices)
+		{
+			RR_LIMITED_TIMES(10,RRReporter::report(ERRO,"Mesh not processed, allocating %dMB failed(1).\n",sizeof(Vertex)*numVertices/1024/1024));
+			UniqueVertices = numVertices; // pretend that no vertices were removed, RRMesh::createOptimizedVertices() will delete us immediately
+			return;
+		}
 		memset(vertices,0,sizeof(Vertex)*numVertices);
-		Vertex** sortedVertices = new Vertex*[numVertices];
+		Vertex** sortedVertices = new (std::nothrow) Vertex*[numVertices];
+		if (!sortedVertices)
+		{
+			delete[] vertices;
+			RR_LIMITED_TIMES(10,RRReporter::report(ERRO,"Mesh not processed, allocating %dMB failed(2).\n",sizeof(Vertex*)*numVertices/1024/1024));
+			UniqueVertices = numVertices; // pretend that no vertices were removed, RRMesh::createOptimizedVertices() will delete us immediately
+			return;
+		}
 		for (unsigned i=0;i<numVertices;i++)
 		{
 			sortedVertices[i] = &vertices[i];
