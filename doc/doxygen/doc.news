@@ -13,7 +13,10 @@ namespace rr
 NEWS
 
 - <b>improved Scene viewer</b>
-  - light movement by dragging light icon, shift/ctrl/alt for axes
+  - light movement by dragging light icon, shift/ctrl/alt for moving in one or two axes only
+- <b>improved lightmap baking</b>
+  - lightmap smoothing works across seams in unwrap
+  - if your unwrap is bad (lots of seams), smoothing helps hide them
 
 CHANGES
 

@@ -827,7 +827,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 					&& params.debugTexel==UINT_MAX // skip texture update when debugging texel
 					&& gathered)
 				{
-					tc.pixelBuffers[b]->lightmapSmooth(_filtering->smoothingAmount,_filtering->wrap);
+					tc.pixelBuffers[b]->lightmapSmooth(_filtering->smoothingAmount,_filtering->wrap,getStaticObjects()[objectNumber]); // safe objectNumber, was already checked
 					if (tc.pixelBuffers[b]->lightmapGrowForBilinearInterpolation(_filtering->wrap))
 						numBuffersFull++;
 					else

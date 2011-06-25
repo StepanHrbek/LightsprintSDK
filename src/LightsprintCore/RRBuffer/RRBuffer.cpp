@@ -10,6 +10,7 @@
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRLight.h"
+#include "Lightsprint/RRObject.h" // UnwrapSeams
 #include "../squish/squish.h"
 #include "../RRDynamicSolver/gather.h" // TexelFlags
 #include <boost/filesystem.hpp>
@@ -336,7 +337,109 @@ void RRBuffer::getMinMax(RRVec4* _mini, RRVec4* _maxi)
 //
 // RRBuffer tools for lightmaps
 
-bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap)
+struct UnwrapSeam
+{
+	RRVec2 edge1[2]; // triangle 1 edge coordinates in texture space
+	RRVec2 edge2[2]; // triangle 2 edge coordinates in texture space
+};
+
+class UnwrapSeams : public std::vector<UnwrapSeam>
+{
+public:
+	UnwrapSeams(const RRObject* object)
+	{
+		// check that we have object, mesh, unwrap...
+		if (!object)
+			return;
+		if (!object->faceGroups.size())
+			return;
+		RRMaterial* material = object->faceGroups[0].material;
+		if (!material)
+			return;
+		const RRMesh* mesh0 = object->getCollider()->getMesh();
+		if (!mesh0)
+			return;
+		{
+			RRMesh::TriangleMapping tm;
+			if (!mesh0->getTriangleMapping(0,tm,material->lightmapTexcoord))
+				return;
+		}
+
+		// stitch vertices with the same position+normal (ignore unwrap differences)
+		// this makes looking for shared edges easier
+		const RRMesh* mesh = mesh0->createOptimizedVertices(0,0,0,NULL);
+		if (!mesh)
+		{
+			RR_LIMITED_TIMES(10,RRReporter::report(WARN,"Unwrap seams won't be filtered.\n"));
+			return;
+		}
+
+		// find triangles in vertices
+		unsigned numVertices = mesh->getNumVertices();
+		unsigned numTriangles = mesh->getNumTriangles();
+		std::vector<std::vector<unsigned> > trianglesInVertex;
+		{
+			trianglesInVertex.resize(numVertices);
+			for (unsigned t=0;t<numTriangles;t++)
+			{
+				RRMesh::Triangle tri;
+				mesh->getTriangle(t,tri);
+				for (unsigned v=0;v<3;v++)
+					trianglesInVertex[tri[v]].push_back(t);
+			}
+		}
+
+		// find v1-v2 edges shared by t1,t2 triangles, where both triangles have different unwrap
+		// t=triangle v=vertex tv=triangle_vertices tm=triangle_mapping tvi==triangle_vertices_index(0,1,2)
+		for (unsigned t1=0;t1<numTriangles;t1++)
+		{
+			RRMesh::Triangle tv1;
+			mesh->getTriangle(t1,tv1);
+			RRMesh::TriangleMapping tm1;
+			mesh->getTriangleMapping(t1,tm1,material->lightmapTexcoord);
+			// for all 3 edges of t1
+			for (unsigned e=0;e<3;e++)
+			{
+				// edge v1-v2
+				unsigned v1 = tv1[e];
+				unsigned v2 = tv1[(e+1)%3];
+				// get first edge coords in texture space
+				UnwrapSeam seam;
+				seam.edge1[0] = tm1.uv[e];
+				seam.edge1[1] = tm1.uv[(e+1)%3];
+				// is there triangle t2 sharing edge v1-v2?
+				unsigned i1=0;
+				for (unsigned i2=0;i2<trianglesInVertex[v2].size();i2++)
+					if (trianglesInVertex[v2][i2]>t1) // t2>t1 ensures that edge is not processed twice
+					{
+						while (i1+1<trianglesInVertex[v1].size() && trianglesInVertex[v1][i1]<trianglesInVertex[v2][i2]) i1++;
+						if (trianglesInVertex[v1][i1]==trianglesInVertex[v2][i2])
+						{
+							// we found t2
+							unsigned t2 = trianglesInVertex[v1][i1];
+							// get second edge coords in texture space
+							RRMesh::Triangle tv2;
+							mesh->getTriangle(t2,tv2);
+							RRMesh::TriangleMapping tm2;
+							mesh->getTriangleMapping(t2,tm2,material->lightmapTexcoord);
+							seam.edge2[0] = tm2.uv[(tv2[0]==tv1[e])?0:((tv2[1]==tv1[e])?1:2)];
+							seam.edge2[1] = tm2.uv[(tv2[0]==tv1[(e+1)%3])?0:((tv2[1]==tv1[(e+1)%3])?1:2)];
+							// do edge coords differ?
+							if (seam.edge1[0]!=seam.edge2[0] || seam.edge1[1]!=seam.edge2[1])
+							{
+								// we found a seam, save it
+								push_back(seam);
+							}
+						}
+					}
+			}
+		}
+		if (mesh!=mesh0)
+			delete mesh;
+	}
+};
+
+bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 {
 	if (!this)
 	{
@@ -358,7 +461,7 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap)
 	buf = malloc(size*(sizeof(RRVec4)*2+1));
 	if (!buf)
 	{
-		RRReporter::report(WARN,"Allocation of %dMB failed in lightmapSmooth().\n",size*(sizeof(RRVec4)*2+1)/1024/1024);
+		RR_LIMITED_TIMES(10,RRReporter::report(WARN,"Allocation of %dMB failed in lightmapSmooth().\n",size*(sizeof(RRVec4)*2+1)/1024/1024));
 		return false;
 	}
 	RRVec4* source = (RRVec4*)buf;
@@ -419,6 +522,9 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap)
 		source[i][3] = (source[i][3]>0) ? 1.f : 0.f;
 	}
 
+	// prepare for smoothing unwrap seams
+	UnwrapSeams seams(_object);
+
 	// blur temp
 	if (_sigma>10)
 		_sigma = 10;
@@ -453,6 +559,48 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap)
 				c /= c[3];
 			}
 			destination[k] = c;
+		}
+
+		// smooth seams
+		for (unsigned s=0;s<seams.size();s++)
+		{
+			const UnwrapSeam& seam = seams[s];
+			unsigned lasti1=UINT_MAX,lasti2=UINT_MAX;
+			RRVec4 accu1,accu2;
+			for (unsigned i=0;i<=1000;i++)
+			{
+				RRVec2 uv1 = seam.edge1[0]*(1-i*0.001f)+seam.edge1[1]*(i*0.001f);
+				RRVec2 uv2 = seam.edge2[0]*(1-i*0.001f)+seam.edge2[1]*(i*0.001f);
+				if (uv1[0]>=0 && uv1[0]<1 && uv1[1]>=0 && uv1[1]<1)
+				if (uv2[0]>=0 && uv2[0]<1 && uv2[1]>=0 && uv2[1]<1)
+				{
+					unsigned i1 = (unsigned)(uv1[0]*width) + (unsigned)(uv1[1]*height)*width;
+					unsigned i2 = (unsigned)(uv2[0]*width) + (unsigned)(uv2[1]*height)*width;
+					if (destination[i1][3] && destination[i2][3]) // don't touch unused texels. all edge texels should already be used, but we could fall outside due to rounding errors
+					{
+						if (i1!=lasti1)
+						{
+							if (lasti1!=UINT_MAX)
+								destination[lasti1] = accu1/accu1[3];
+							lasti1 = i1;
+							accu1 = RRVec4(0);
+						}
+						if (i2!=lasti2)
+						{
+							if (lasti2!=UINT_MAX)
+								destination[lasti2] = accu2/accu2[3];
+							lasti2 = i2;
+							accu2 = RRVec4(0);
+						}
+						accu1 += destination[i1]+destination[i2];
+						accu2 += destination[i1]+destination[i2];
+					}
+				}
+			}
+			if (lasti1!=UINT_MAX)
+				destination[lasti1] = accu1/accu1[3];
+			if (lasti2!=UINT_MAX)
+				destination[lasti2] = accu2/accu2[3];
 		}
 
 		// src=dst

@@ -336,17 +336,17 @@ struct Parameters
 	}
 
 	// postprocess layers of 1 object, returns number of successfully saved layers
-	unsigned layersPostprocess(const rr::RRObjectIllumination* illumination) const
+	unsigned layersPostprocess(const rr::RRObject* object) const
 	{
 		unsigned postprocessed = 0;
 		for (unsigned layerIndex = LAYER_LIGHTMAP; layerIndex<LAYER_LAST; layerIndex++)
 		{
-			rr::RRBuffer* buffer = illumination->getLayer(layerIndex);
+			rr::RRBuffer* buffer = object->illumination.getLayer(layerIndex);
 			if (buffer)
 			{
 				if (buffer->getType()==rr::BT_2D_TEXTURE)
 				{
-					buffer->lightmapSmooth(ppSmoothing,false);
+					buffer->lightmapSmooth(ppSmoothing,false,object);
 					buffer->lightmapGrowForBilinearInterpolation(false);
 					buffer->lightmapGrow(1024,false);
 				}
@@ -602,7 +602,7 @@ int main(int argc, char** argv)
 				// query filename
 				scene.objects[objectIndex]->recommendLayerParameters(objectParameters.layerParameters);
 				// postprocess
-				objectParameters.layersPostprocess(&scene.objects[objectIndex]->illumination);
+				objectParameters.layersPostprocess(scene.objects[objectIndex]);
 				// save
 				saved += objectParameters.layersSave(&scene.objects[objectIndex]->illumination);
 				// free
@@ -632,7 +632,7 @@ int main(int argc, char** argv)
 				// build direct illumination
 				solver->updateLightmap(objectIndex,illumination.getLayer(globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP),directionalBuffers,illumination.getLayer(LAYER_BENT_NORMALS),&updateParameters,NULL);
 				// postprocess
-				objectParameters.layersPostprocess(&scene.objects[objectIndex]->illumination);
+				objectParameters.layersPostprocess(scene.objects[objectIndex]);
 				// save
 				saved += objectParameters.layersSave(&scene.objects[objectIndex]->illumination);
 				// free

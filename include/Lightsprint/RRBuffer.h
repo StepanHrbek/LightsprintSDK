@@ -404,16 +404,19 @@ namespace rr
 		// Tools for lightmap postprocessing
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Applies gaussian blur to individual lightmap regions.
+		//! Applies gaussian blur to lightmap, even across seams in unwrap.
 		//
-		//! Reads and preserves connectivity information stored lightmap baker to alpha channel.
+		//! Reads and preserves connectivity information stored by lightmap baker to alpha channel.
 		//! \param sigma
 		//!  Amount of smoothing, reasonable values are around 1.
 		//! \param wrap
 		//!  True = smooth through lightmap boundaries.
+		//! \param object
+		//!  Object this lightmap is for, used only for smoothing across unwrap seams.
+		//!  When NULL, individual unwrap regions are smoothed separately, unwrap seams may be visible in lightmap.
 		//! \return
 		//!  True on success, may fail when allocation fails or buffer is not 2d texture.
-		virtual bool lightmapSmooth(float sigma, bool wrap);
+		virtual bool lightmapSmooth(float sigma, bool wrap, const class RRObject* object);
 		//! Fills in unused lightmap texels relevant when bilinearly interpolating lightmap.
 		//
 		//! Reads connectivity information stored by lightmap baker to alpha channel.
