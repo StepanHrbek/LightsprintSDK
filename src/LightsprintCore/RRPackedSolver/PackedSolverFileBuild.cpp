@@ -49,7 +49,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	skyPatchHitsForAllTriangles = new (std::nothrow) PackedSkyTriangleFactor::UnpackedFactor[object->triangles];
 	if (!skyPatchHitsForAllTriangles)
 	{
-		RRReporter::report(WARN,"Fireball not created, allocating %dMB failed(1).\n",sizeof(PackedSkyTriangleFactor::UnpackedFactor)*object->triangles/1024/1024);
+		RRReporter::report(WARN,"Fireball not created, allocating %s failed(1).\n",RRReporter::bytesToString(sizeof(PackedSkyTriangleFactor::UnpackedFactor)*object->triangles));
 		return NULL;
 	}
 
@@ -57,7 +57,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	unsigned* actualRaysFromTriangle = new (std::nothrow) unsigned[object->triangles];
 	if (!actualRaysFromTriangle)
 	{
-		RRReporter::report(WARN,"Fireball not created, allocating %dMB failed(2).\n",sizeof(unsigned)*object->triangles/1024/1024);
+		RRReporter::report(WARN,"Fireball not created, allocating %s failed(2).\n",RRReporter::bytesToString(sizeof(unsigned)*object->triangles));
 		RR_SAFE_DELETE_ARRAY(skyPatchHitsForAllTriangles);
 		return NULL;
 	}
@@ -183,7 +183,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	packedSolverFile->packedIvertices = new (std::nothrow) PackedIvertices(numIvertices,numWeights);
 	if (!packedSolverFile->packedSmoothTriangles || !packedSolverFile->packedIvertices)
 	{
-		RRReporter::report(WARN,"Fireball not created, allocating %dMB failed(3).\n",sizeof(PackedSmoothTriangle)*object->triangles/1024/1024);
+		RRReporter::report(WARN,"Fireball not created, allocating %s failed(3).\n",RRReporter::bytesToString(sizeof(PackedSmoothTriangle)*object->triangles));
 		RR_SAFE_DELETE(packedSolverFile);
 		RR_SAFE_DELETE_ARRAY(skyPatchHitsForAllTriangles);
 		RR_SAFE_DELETE_ARRAY(actualRaysFromTriangle);
@@ -243,7 +243,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	RRVec3* directIrradiancePhysicalRGB = new (std::nothrow) RRVec3[object->triangles];
 	if (!directIrradiancePhysicalRGB)
 	{
-		RRReporter::report(WARN,"Fireball quality reduced, allocating %dMB failed.\n",sizeof(RRVec3)*object->triangles/1024/1024);
+		RRReporter::report(WARN,"Fireball quality reduced, allocating %s failed.\n",RRReporter::bytesToString(sizeof(RRVec3)*object->triangles));
 	}
 	else
 	{

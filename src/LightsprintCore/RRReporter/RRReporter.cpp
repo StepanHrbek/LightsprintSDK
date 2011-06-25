@@ -77,4 +77,11 @@ void RRReporter::assertionFailed(const char* expression, const char* func, const
 	}
 }
 
+const char* RRReporter::bytesToString(unsigned bytes)
+{
+	static char buf[20];
+	sprintf(buf,(bytes<1024)?"%d B":((bytes<1024*1024)?"%d KB":"%d MB"),(bytes<1024)?bytes:((bytes<1024*1024)?bytes/1024:bytes/1024/1024));
+	return buf;
+}
+
 } //namespace

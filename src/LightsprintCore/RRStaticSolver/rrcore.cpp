@@ -527,7 +527,7 @@ Object* Object::create(int _vertices,int _triangles)
 	if (!o->triangle)
 	{
 		RR_SAFE_DELETE(o);
-		RRReporter::report(WARN,"Solver not created, allocating %dMB failed.\n",sizeof(Triangle)*_triangles/1024/1024);
+		RRReporter::report(WARN,"Solver not created, allocating %s failed.\n",RRReporter::bytesToString(sizeof(Triangle)*_triangles));
 	}
 	return o;
 }

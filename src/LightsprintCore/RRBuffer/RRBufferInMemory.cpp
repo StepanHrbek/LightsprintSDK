@@ -179,7 +179,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 			data = new (std::nothrow) unsigned char[bytesTotal];
 			if (!data)
 			{
-				RRReporter::report(ERRO,"Not enough memory, %dMB buffer not created.\n",bytesTotal/1024/1024);
+				RRReporter::report(ERRO,"Not enough memory, %s buffer not created.\n",RRReporter::bytesToString(bytesTotal));
 				return false;
 			}
 		}

@@ -53,7 +53,7 @@ public:
 		Vertex* vertices = new (std::nothrow) Vertex[numVertices];
 		if (!vertices)
 		{
-			RR_LIMITED_TIMES(10,RRReporter::report(ERRO,"Mesh not processed, allocating %dMB failed(1).\n",sizeof(Vertex)*numVertices/1024/1024));
+			RR_LIMITED_TIMES(10,RRReporter::report(WARN,"Mesh not processed, allocating %s failed(1).\n",RRReporter::bytesToString(sizeof(Vertex)*numVertices)));
 			UniqueVertices = numVertices; // pretend that no vertices were removed, RRMesh::createOptimizedVertices() will delete us immediately
 			return;
 		}
@@ -62,7 +62,7 @@ public:
 		if (!sortedVertices)
 		{
 			delete[] vertices;
-			RR_LIMITED_TIMES(10,RRReporter::report(ERRO,"Mesh not processed, allocating %dMB failed(2).\n",sizeof(Vertex*)*numVertices/1024/1024));
+			RR_LIMITED_TIMES(10,RRReporter::report(WARN,"Mesh not processed, allocating %s failed(2).\n",RRReporter::bytesToString(sizeof(Vertex*)*numVertices)));
 			UniqueVertices = numVertices; // pretend that no vertices were removed, RRMesh::createOptimizedVertices() will delete us immediately
 			return;
 		}

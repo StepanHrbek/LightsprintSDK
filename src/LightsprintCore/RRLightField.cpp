@@ -230,13 +230,13 @@ public:
 		rawField = new (std::nothrow) unsigned char[header.fieldSize()];
 		if (!rawField)
 		{
-			RRReporter::report(WARN,"Lightfield not created, allocating %dMB failed(1).\n",header.fieldSize()/1024/1024);
+			RRReporter::report(WARN,"Lightfield not created, allocating %s failed(1).\n",RRReporter::bytesToString(header.fieldSize()));
 			return false;
 		}
 		rawCell = new (std::nothrow) unsigned char[header.cellSize()];
 		if (!rawCell)
 		{
-			RRReporter::report(WARN,"Lightfield not created, allocating %dMB failed(2).\n",header.cellSize()/1024/1024);
+			RRReporter::report(WARN,"Lightfield not created, allocating %s failed(2).\n",RRReporter::bytesToString(header.cellSize()));
 			RR_SAFE_DELETE_ARRAY(rawField);
 			return false;
 		}

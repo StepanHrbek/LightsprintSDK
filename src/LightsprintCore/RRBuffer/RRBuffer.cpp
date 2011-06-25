@@ -461,7 +461,7 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 	buf = malloc(size*(sizeof(RRVec4)*2+1));
 	if (!buf)
 	{
-		RR_LIMITED_TIMES(10,RRReporter::report(WARN,"Allocation of %dMB failed in lightmapSmooth().\n",size*(sizeof(RRVec4)*2+1)/1024/1024));
+		RR_LIMITED_TIMES(10,RRReporter::report(WARN,"Allocation of %s failed in lightmapSmooth().\n",RRReporter::bytesToString(size*(sizeof(RRVec4)*2+1))));
 		return false;
 	}
 	RRVec4* source = (RRVec4*)buf;
@@ -713,7 +713,7 @@ bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap)
 	buf = new (std::nothrow) RRVec4[size*2];
 	if (!buf)
 	{
-		RRReporter::report(WARN,"Allocation of %dMB failed in lightmapGrow().\n",size*2*sizeof(RRVec4)/1024/1024);
+		RR_LIMITED_TIMES(10,RRReporter::report(WARN,"Allocation of %s failed in lightmapGrow().\n",RRReporter::bytesToString(size*2*sizeof(RRVec4))));
 		return false;
 	}
 	RRVec4* source = buf;

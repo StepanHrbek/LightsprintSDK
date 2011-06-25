@@ -273,9 +273,9 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 				memoryOccupiedByTextures += (*i)->getBufferBytes();
 		}
 
-		RRReporter::report(_copyFrom?INF9:INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, %dMB tex, lods %s\n",
+		RRReporter::report(_copyFrom?INF9:INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, %s tex, lods %s\n",
 			getStaticObjects().size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices(),
-			unsigned(memoryOccupiedByTextures>>20),
+			RRReporter::bytesToString(memoryOccupiedByTextures),
 			priv->staticSceneContainsLods?"yes":"no");
 	}
 
