@@ -818,7 +818,6 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 #endif
 				if (dialog.ShowModal()==wxID_OK)
 				{
-					svs.initialInputSolver = NULL;
 					svs.sceneFilename = dialog.GetPath();
 					svs.autodetectCamera = true;
 					UpdateEverything();
