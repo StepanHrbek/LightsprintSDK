@@ -25,6 +25,9 @@ namespace rr_gl
 		//! Copy material -> property (selected by clicking pixel in viewport, honours point and physical flags).
 		void setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d);
 
+		//! Copy material -> property.
+		void updateProperties();
+
 		//! Defocus.
 		void OnIdle(wxIdleEvent& event);
 
@@ -33,7 +36,6 @@ namespace rr_gl
 
 		bool              locked; // when locked, setMaterial() is ignored
 	private:
-		void updateProperties();
 		void updateHide();
 		void updateReadOnly();
 

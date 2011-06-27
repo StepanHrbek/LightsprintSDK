@@ -1546,7 +1546,8 @@ void SVFrame::updateAllPanels()
 		}
 	}
 
-
+	m_objectProperties->updateProperties();
+	m_materialProperties->updateProperties();
 	updateSceneTree();
 }
 
