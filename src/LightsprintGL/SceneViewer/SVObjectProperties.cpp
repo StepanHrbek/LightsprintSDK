@@ -21,9 +21,10 @@ SVObjectProperties::SVObjectProperties(SVFrame* _svframe)
 
 void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 {
-	if (_object!=object)
+	if (_object!=object || (_object && _object->faceGroups.size()!=numFacegroups))
 	{
 		object = _object;
+		numFacegroups = _object ? _object->faceGroups.size() : 0;
 		Clear();
 		if (object)
 		{
@@ -50,6 +51,30 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			AppendIn(propIllumination, propCubeSpecular = new FloatProperty("Specular cube size",_("Size of realtime raytraced specular reflection cubemap"),object->illumination.specularEnvMap?object->illumination.specularEnvMap->getWidth():0,_precision,0,100000,1,false));
 			EnableProperty(propCubeSpecular,false);
 
+			// mesh
+			const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(mesh);
+			Append(propMesh = new wxStringProperty(_("Mesh"), wxPG_LABEL,wxString::Format("%x",(int)(intptr_t)mesh)));
+			AppendIn(propMesh, new wxIntProperty(_("#triangles"),wxPG_LABEL,mesh->getNumTriangles()));
+			AppendIn(propMesh, new wxIntProperty(_("#vertices"),wxPG_LABEL,mesh->getNumVertices()));
+			if (arrays)
+			{
+				wxString channels;
+				for (unsigned i=0;i<arrays->texcoord.size();i++)
+					if (arrays->texcoord[i])
+						channels += wxString::Format("%d ",i);
+				AppendIn(propMesh, propMeshUvs = new wxStringProperty(_("uv channels"),wxPG_LABEL,channels));
+				AppendIn(propMesh, propMeshTangents = new wxBoolProperty(_("tangents"),wxPG_LABEL,arrays->tangent?true:false));
+				AppendIn(propMesh, new wxIntProperty(_("version"),wxPG_LABEL,arrays->version));
+			}
+			wxPGProperty* propMeshSize  = new wxStringProperty(_("Size"));
+			AppendIn(propMesh,propMeshSize);
+			AppendIn(propMeshSize, new RRVec3Property(_("Local size"),_("Mesh size in object space"),_precision,maxi-mini));
+			AppendIn(propMeshSize, new RRVec3Property(_("Local min"),_("Mesh AABB min in object space"),_precision,mini));
+			AppendIn(propMeshSize, new RRVec3Property(_("Local max"),_("Mesh AABB max in object space"),_precision,maxi));
+			AppendIn(propMeshSize, new RRVec3Property(_("Local center"),_("Mesh center in object space"),_precision,localCenter));
+			Collapse(propMeshSize);
+			EnableProperty(propMesh,false);
+
 			// facegroups
 			Append(propFacegroups = new wxIntProperty(_("Materials"),wxPG_LABEL,object->faceGroups.size()));
 			EnableProperty(propFacegroups,false);
@@ -64,27 +89,6 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 				AppendIn(propFacegroups, tmp);
 				EnableProperty(tmp,false);
 			}
-
-			// mesh
-			const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(mesh);
-			Append(propMesh = new wxStringProperty(_("Mesh"), wxPG_LABEL,wxString::Format("%x",(int)(intptr_t)mesh)));
-			AppendIn(propMesh, new wxIntProperty(_("#triangles"),wxPG_LABEL,mesh->getNumTriangles()));
-			AppendIn(propMesh, new wxIntProperty(_("#vertices"),wxPG_LABEL,mesh->getNumVertices()));
-			if (arrays)
-			{
-				wxString channels;
-				for (unsigned i=0;i<arrays->texcoord.size();i++)
-					if (arrays->texcoord[i])
-						channels += wxString::Format("%d ",i);
-				AppendIn(propMesh, new wxStringProperty(_("uv channels"),wxPG_LABEL,channels));
-				AppendIn(propMesh, new wxBoolProperty(_("tangents"),wxPG_LABEL,arrays->tangent?true:false));
-				AppendIn(propMesh, new wxIntProperty(_("version"),wxPG_LABEL,arrays->version));
-			}
-			AppendIn(propMesh, new RRVec3Property(_("Local size"),_("Mesh size in object space"),_precision,maxi-mini));
-			AppendIn(propMesh, new RRVec3Property(_("Local min"),_("Mesh AABB min in object space"),_precision,mini));
-			AppendIn(propMesh, new RRVec3Property(_("Local max"),_("Mesh AABB max in object space"),_precision,maxi));
-			AppendIn(propMesh, new RRVec3Property(_("Local center"),_("Mesh center in object space"),_precision,localCenter));
-			EnableProperty(propMesh,false);
 		}
 	}
 }
@@ -94,8 +98,28 @@ void SVObjectProperties::updateProperties()
 	if (!object)
 		return;
 
+	// if number of facegroups changes, reset everything
+	if (object->faceGroups.size()!=numFacegroups)
+	{
+		setObject(object,svs.precision);
+		return;
+	}
+
+	// otherwise update only few items that sometimes change
 	updateFloat(propCubeDiffuse,object->illumination.diffuseEnvMap?object->illumination.diffuseEnvMap->getWidth():0);
 	updateFloat(propCubeSpecular,object->illumination.specularEnvMap?object->illumination.specularEnvMap->getWidth():0);
+
+	// must be updated after "delete unwrap", "delete tangents"
+	const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(object->getCollider()->getMesh());
+	if (arrays)
+	{
+		wxString channels;
+		for (unsigned i=0;i<arrays->texcoord.size();i++)
+			if (arrays->texcoord[i])
+				channels += wxString::Format("%d ",i);
+		updateString(propMeshUvs,channels);
+		updateBool(propMeshTangents,arrays->tangent?true:false);
+	}
 }
 
 void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)

@@ -33,6 +33,7 @@ namespace rr_gl
 
 		rr::RRObject*     object;
 	private:
+		unsigned          numFacegroups;
 		rr::RRVec3        localCenter;
 
 		wxPGProperty*     propName;
@@ -45,6 +46,8 @@ namespace rr_gl
 		wxPGProperty*     propCubeSpecular;
 		wxPGProperty*     propFacegroups;
 		wxPGProperty*     propMesh;
+		wxPGProperty*     propMeshUvs;
+		wxPGProperty*     propMeshTangents;
 
 		DECLARE_EVENT_TABLE()
 	};
