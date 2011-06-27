@@ -481,7 +481,7 @@ namespace rr
 		//! - only selected texcoords
 		//! - if indexed=true, shared vertex can't have different normal/tangents/mappings in different triangles
 		//! - Pre/PostImportNumbers are lost
-		class RRMeshArrays* createArrays(bool indexed, const RRVector<unsigned>& texcoords) const;
+		class RRMeshArrays* createArrays(bool indexed, const RRVector<unsigned>& texcoords, bool tangents) const;
 
 	protected:
 		struct AABBCache* aabbCache; //! Cached results of getAABB().
@@ -539,7 +539,9 @@ namespace rr
 		//!  False splits vertices, makes numVertices=3*numTriangles.
 		//! \param texcoords
 		//!  Lets you specify what texcoord channels to copy from original mesh.
-		bool                 reload(const RRMesh* mesh, bool indexed, const RRVector<unsigned>& texcoords);
+		//! \param tangents
+		//!  True = tangents will be stored in this mesh. False = tangents will be calculated on the fly in getTriangleNormals().
+		bool                 reload(const RRMesh* mesh, bool indexed, const RRVector<unsigned>& texcoords, bool tangents);
 
 
 		//////////////////////////////////////////////////////////////////////////////

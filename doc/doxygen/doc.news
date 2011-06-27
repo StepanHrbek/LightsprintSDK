@@ -26,6 +26,9 @@ NEWS
   - deleting components
     - RRObjects::deleteComponents() added
     - RRObjects::buildUnwrap() second parameter removed, use deleteComponents()
+  - preserving/removing tangents
+    - RRMesh::createArrays() new parameter tangents
+    - RRMeshArrays::reload() new parameter tangents
 
 \section news122 ------------------------------------ 2011.06.14 -------------------------------------
 

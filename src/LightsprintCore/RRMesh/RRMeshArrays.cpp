@@ -114,14 +114,14 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 	return true;
 }
 
-bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<unsigned>& _texcoords)
+bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<unsigned>& _texcoords, bool _tangents)
 {
 	if (!_mesh) return false;
 
 	if (_indexed)
 	{
 		// alloc
-		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumVertices(),&_texcoords, true)) // tangents are always included
+		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumVertices(),&_texcoords,_tangents))
 		{
 			return false;
 		}
@@ -154,8 +154,11 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 				if (triangle[t][v]<numVertices)
 				{
 					normal[triangle[t][v]] = normals.vertex[v].normal;
-					tangent[triangle[t][v]] = normals.vertex[v].tangent;
-					bitangent[triangle[t][v]] = normals.vertex[v].bitangent;
+					if (_tangents)
+					{
+						tangent[triangle[t][v]] = normals.vertex[v].tangent;
+						bitangent[triangle[t][v]] = normals.vertex[v].bitangent;
+					}
 					filled[triangle[t][v]] = true;
 				}
 			}
@@ -186,7 +189,7 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 	else
 	{
 		// alloc
-		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumTriangles()*3,&_texcoords, true)) // tangents are always included
+		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumTriangles()*3,&_texcoords,_tangents))
 		{
 			return false;
 		}
@@ -210,8 +213,11 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 			{
 				_mesh->getVertex(triangleT[v],position[t*3+v]);
 				normal[t*3+v] = normals.vertex[v].normal;
-				tangent[t*3+v] = normals.vertex[v].tangent;
-				bitangent[t*3+v] = normals.vertex[v].bitangent;
+				if (_tangents)
+				{
+					tangent[t*3+v] = normals.vertex[v].tangent;
+					bitangent[t*3+v] = normals.vertex[v].bitangent;
+				}
 			}
 			for (unsigned i=0;i<_texcoords.size();i++)
 			{
@@ -432,9 +438,8 @@ void RRMeshArrays::buildTangents()
 	{
 		RRVector<unsigned> texcoords;
 		for (unsigned i=0;i<texcoord.size();i++) if (texcoord[i]) texcoords.push_back(i);
-		RRMeshArrays* tmp = createArrays(true,texcoords);
-		resizeMesh(numTriangles,numVertices,&texcoords,true);
-		reload(tmp,true,texcoords);
+		RRMeshArrays* tmp = createArrays(true,texcoords,true);
+		reload(tmp,true,texcoords,true);
 		delete tmp;
 	}
 	// generate tangents
@@ -453,10 +458,10 @@ void RRMeshArrays::buildTangents()
 //
 // RRMesh
 
-RRMeshArrays* RRMesh::createArrays(bool indexed, const RRVector<unsigned>& texcoords) const
+RRMeshArrays* RRMesh::createArrays(bool indexed, const RRVector<unsigned>& texcoords, bool tangents) const
 {
 	RRMeshArrays* importer = new RRMeshArrays();
-	if (importer->reload(this,indexed,texcoords)) return importer;
+	if (importer->reload(this,indexed,texcoords,tangents)) return importer;
 	delete importer;
 	return NULL;
 }

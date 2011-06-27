@@ -590,7 +590,7 @@ void save(Archive & ar, const RRMeshProxy& a, const unsigned int version)
 	{
 		rr::RRVector<unsigned> texcoords;
 		mesh->getUvChannels(texcoords);
-		meshArrays = mesh->createArrays(true,texcoords);
+		meshArrays = mesh->createArrays(true,texcoords,true);
 	}
 	save(ar,*meshArrays,version);
 	if (meshArrays!=mesh)

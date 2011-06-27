@@ -485,10 +485,10 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _index
 				_mesh->getUvChannels(s_helpers.texcoords);
 				if (s_helpers.texcoords.size()>20)
 				{
-					rr::RRReporter::report(rr::WARN,"Mesh has over 20 uv channels, please reduce number of uv channels to save memory.\n");
+					rr::RRReporter::report(rr::WARN,"Mesh has %d uv channels, consider removing some to save memory.\n",s_helpers.texcoords.size());
 				}
 				// copy data to arrays
-				s_helpers.meshArrays.reload(_mesh,_indexed,s_helpers.texcoords);
+				s_helpers.meshArrays.reload(_mesh,_indexed,s_helpers.texcoords,false);
 			}
 			updatedOk[index] = meshArraysVBOs[index].update(meshArrays?meshArrays:&s_helpers.meshArrays,_indexed);
 		}

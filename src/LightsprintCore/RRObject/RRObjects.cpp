@@ -215,6 +215,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool re
 	for (boost::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
 	{
 		RRMeshArrays* mesh = *i;
+		bool tangents = mesh->tangent!=NULL;
 
 		// create temporary list of objects with this mesh
 		std::vector<RRObject*> objects;
@@ -242,7 +243,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool re
 		// create temporary meshes that don't depend on original
 		RRVector<unsigned> texcoords;
 		mesh->getUvChannels(texcoords);
-		RRMeshArrays* mesh1 = mesh->createArrays(!splitVertices,texcoords);
+		RRMeshArrays* mesh1 = mesh->createArrays(!splitVertices,texcoords,tangents);
 		mesh1->buildNormals(); // createOptimizedVertices() uses vertex normals, we want it to use triangle normals
 		const RRMesh* mesh2 = stitchVertices ? mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,maxDistanceBetweenUvsToSmooth,&texcoords) : mesh1; // stitch less, preserve uvs
 		const RRMesh* mesh3 = removeDegeneratedTriangles ? mesh2->createOptimizedTriangles() : mesh2;
@@ -252,7 +253,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool re
 		{
 			// calc smooth normals from mesh1, write them back to mesh1
 			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,0,NULL); // stitch more, even if uvs differ
-			RRMeshArrays* mesh5 = mesh4->createArrays(true,texcoords);
+			RRMeshArrays* mesh5 = mesh4->createArrays(true,texcoords,tangents);
 			mesh5->buildNormals();
 			for (unsigned t=0;t<mesh1->numTriangles;t++)
 			{
@@ -289,7 +290,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool re
 		}
 
 		// overwrite original mesh with temporary
-		(*i)->reload(mesh3,true,texcoords);
+		(*i)->reload(mesh3,true,texcoords,tangents);
 
 		// smooth when not stitching
 		if (smoothNormals && !stitchVertices)

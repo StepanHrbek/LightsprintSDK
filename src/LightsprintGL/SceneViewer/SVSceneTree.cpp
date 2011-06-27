@@ -554,6 +554,18 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				// display log window with 'abort' while this function runs
 				LogWithAbort logWithAbort(this,solver,_("Merging objects..."));
 
+				// don't merge tangents if sources clearly have no tangents
+				bool tangents = false;
+				{
+					for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+					{
+						const rr::RRObject* object = solver->getStaticObjects()[i];
+						const rr::RRMeshArrays* meshArrays = dynamic_cast<const rr::RRMeshArrays*>(object->getCollider()->getMesh());
+						if (!meshArrays || meshArrays->tangent)
+							tangents = true;
+					}
+				}
+
 				rr::RRObject* oldObject = rr::RRObject::createMultiObject(&solver->getStaticObjects(),rr::RRCollider::IT_LINEAR,solver->aborting,-1,-1,false,0,NULL);
 
 				// convert oldObject with Multi* into newObject with RRMeshArrays
@@ -564,7 +576,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				const rr::RRMesh* oldMesh = oldCollider->getMesh();
 				rr::RRVector<unsigned> texcoords;
 				oldMesh->getUvChannels(texcoords);
-				rr::RRMeshArrays* newMesh = oldMesh->createArrays(true,texcoords);
+				rr::RRMeshArrays* newMesh = oldMesh->createArrays(true,texcoords,tangents);
 				const rr::RRCollider* newCollider = rr::RRCollider::create(newMesh,rr::RRCollider::IT_LINEAR,solver->aborting);
 				rr::RRObject* newObject = new rr::RRObject;
 				newObject->faceGroups = oldObject->faceGroups;
