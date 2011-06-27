@@ -528,7 +528,7 @@ Unwrapper::~Unwrapper()
 	DestroyWindow(hwnd);
 }
 
-unsigned RRObjects::buildUnwrap(unsigned resolution, bool removeUnusedUvChannels, bool& aborting) const
+unsigned RRObjects::buildUnwrap(unsigned resolution, bool& aborting) const
 {
 	RRReportInterval report(INF2,"Building unwrap...\n");
 
@@ -555,30 +555,10 @@ unsigned RRObjects::buildUnwrap(unsigned resolution, bool removeUnusedUvChannels
 						// inserts arrays. without this, meshes without texcoords would not be inserted and unwrap not built
 						meshes[arrays].begin();
 
-						if (removeUnusedUvChannels)
+						for (unsigned channel=0;channel<arrays->texcoord.size();channel++)
 						{
-							for (unsigned fg=0;fg<object->faceGroups.size();fg++)
-							{
-								RRMaterial* material = object->faceGroups[fg].material;
-								if (material)
-								{
-									// we must insert only existing channels, unwrapper expects valid inputs
-									#define INSERT(prop) if (material->prop.texcoord<arrays->texcoord.size() && arrays->texcoord[material->prop.texcoord]) meshes[arrays].insert(material->prop.texcoord);
-									INSERT(diffuseReflectance);
-									INSERT(specularReflectance);
-									INSERT(diffuseEmittance);
-									INSERT(specularTransmittance);
-									#undef INSERT
-								}
-							}
-						}
-						else
-						{
-							for (unsigned channel=0;channel<arrays->texcoord.size();channel++)
-							{
-								if (arrays->texcoord[channel])
-									meshes[arrays].insert(channel);
-							}
+							if (arrays->texcoord[channel])
+								meshes[arrays].insert(channel);
 						}
 					}
 					else 
@@ -600,7 +580,6 @@ try_next_channel:
 		{
 			unwrapChannel++;
 			goto try_next_channel;
-			
 		}
 	}
 	RRReporter::report(INF2,"%d meshes in %d objects, unwrapping to channel %d.\n",meshes.size(),size(),unwrapChannel);
@@ -624,7 +603,7 @@ try_next_channel:
 	{
 		unwrapper.buildUnwrap(i->first,unwrapChannel,i->second,resolution,2.5f,1,aborting);
 	}
-#else
+#else // !VS2003
 	// parallel
 	struct MeshesIterator
 	{
@@ -650,7 +629,7 @@ try_next_channel:
 	{
 		unwrapper.buildUnwrap(meshesIterators[i].iter->first,unwrapChannel,meshesIterators[i].iter->second,resolution,2.5f,1,aborting);
 	}
-#endif
+#endif // !VS2003
 
 	if (unwrapper.sumMeshesFailed)
 		RRReporter::report(WARN,"Failed to unwrap %d of %d meshes.\n",unwrapper.sumMeshesFailed,meshes.size());
@@ -668,7 +647,7 @@ try_next_channel:
 namespace rr
 {
 
-unsigned RRObjects::buildUnwrap(unsigned resolution, bool removeUnusedUvChannels, bool& aborting) const
+unsigned RRObjects::buildUnwrap(unsigned resolution, bool& aborting) const
 {
 	RRReporter::report(WARN,"buildUnwrap() not supported on this platform.\n");
 	return UINT_MAX;
@@ -676,4 +655,4 @@ unsigned RRObjects::buildUnwrap(unsigned resolution, bool removeUnusedUvChannels
 
 } // namespace
 
-#endif
+#endif // !_WIN32

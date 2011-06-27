@@ -165,3 +165,49 @@ MergeDlg::MergeDlg( wxWindow* parent, wxWindowID id, const wxString& title, cons
 MergeDlg::~MergeDlg()
 {
 }
+
+DeleteDlg::DeleteDlg( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+	
+	wxBoxSizer* bSizer7;
+	bSizer7 = new wxBoxSizer( wxVERTICAL );
+	
+	wxBoxSizer* bSizer8;
+	bSizer8 = new wxBoxSizer( wxVERTICAL );
+	
+	unusedUvChannels = new wxCheckBox( this, wxID_ANY, _("unused uv channels"), wxDefaultPosition, wxDefaultSize, 0 );
+	unusedUvChannels->SetValue(true); 
+	bSizer8->Add( unusedUvChannels, 0, wxALL, 5 );
+	
+	emptyFacegroups = new wxCheckBox( this, wxID_ANY, _("empty facegroups"), wxDefaultPosition, wxDefaultSize, 0 );
+	emptyFacegroups->SetValue(true); 
+	bSizer8->Add( emptyFacegroups, 0, wxALL, 5 );
+	
+	tangents = new wxCheckBox( this, wxID_ANY, _("tangents"), wxDefaultPosition, wxDefaultSize, 0 );
+	tangents->SetValue(true); 
+	bSizer8->Add( tangents, 0, wxALL, 5 );
+	
+	unwrap = new wxCheckBox( this, wxID_ANY, _("unwrap"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer8->Add( unwrap, 0, wxALL, 5 );
+	
+	wholeObjects = new wxCheckBox( this, wxID_ANY, _("whole object(s)"), wxDefaultPosition, wxDefaultSize, 0 );
+	wholeObjects->Hide();
+	
+	bSizer8->Add( wholeObjects, 0, wxALL, 5 );
+	
+	bSizer7->Add( bSizer8, 1, wxEXPAND, 5 );
+	
+	m_button7 = new wxButton( this, wxID_OK, _("Delete"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_button7->SetDefault(); 
+	bSizer7->Add( m_button7, 0, wxALIGN_RIGHT|wxALL, 5 );
+	
+	this->SetSizer( bSizer7 );
+	this->Layout();
+	
+	this->Centre( wxBOTH );
+}
+
+DeleteDlg::~DeleteDlg()
+{
+}

@@ -411,9 +411,17 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 		ar & make_nvp("sshotEnhancedShadowResolutionFactor",a.sshotEnhancedShadowResolutionFactor);
 		ar & make_nvp("sshotEnhancedShadowSamples",a.sshotEnhancedShadowSamples);
 	}
-	if (version>8)
+	if (version==9)
 	{
-		ar & make_nvp("debugging",a.debugging);
+		bool debugging;
+		ar & make_nvp("debugging",debugging);
+	}
+	else
+	if (version>9)
+	{
+		ar & make_nvp("testingLogShaders",a.testingLogShaders);
+		ar & make_nvp("testingLogMore",a.testingLogMore);
+		ar & make_nvp("testingBeta",a.testingBeta);
 	}
 }
 
@@ -429,7 +437,7 @@ BOOST_CLASS_VERSION(rr::RRLight,4)
 BOOST_CLASS_VERSION(rr_gl::Camera,1)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences,9)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences,10)
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,27)
 
 //---------------------------------------------------------------------------

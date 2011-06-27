@@ -111,9 +111,23 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 		SetPropertyBackgroundColour(propSshot,importantPropertyBackgroundColor,false);
 	}
 
-	// debugging
-	propDebugging = new BoolRefProperty(_("Debugging"),_("Logs more information, helps while debugging."),userPreferences.debugging);
-	Append(propDebugging);
+	// testing
+	{
+		wxPGProperty* propTesting = new wxStringProperty(_("Testing"), wxPG_LABEL);
+		Append(propTesting);
+		SetPropertyReadOnly(propTesting,true,wxPG_DONT_RECURSE);
+
+		propTestingLogShaders = new BoolRefProperty(_("Log shaders"),_("Logs more information, helps while debugging."),userPreferences.testingLogShaders);
+		AppendIn(propTesting,propTestingLogShaders);
+
+		propTestingLogMore = new BoolRefProperty(_("Log more"),_("Logs more information, helps while debugging."),userPreferences.testingLogMore);
+		AppendIn(propTesting,propTestingLogMore);
+
+		propTestingBeta = new BoolRefProperty(_("Beta"),_("Enables menu items with non-final features."),userPreferences.testingBeta);
+		AppendIn(propTesting,propTestingBeta);
+
+		SetPropertyBackgroundColour(propTesting,importantPropertyBackgroundColor,false);
+	}
 
 	updateHide();
 }
@@ -196,9 +210,14 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		userPreferences.sshotEnhancedShadowSamples = property->GetValue().GetInteger();
 	}
 	else
-	if (property==propDebugging)
+	if (property==propTestingLogShaders)
 	{
-		svframe->enableDebugging(svframe->userPreferences.debugging);
+		rr_gl::Program::logMessages(svframe->userPreferences.testingLogShaders);
+	}
+	else
+	if (property==propTestingLogMore)
+	{
+		rr::RRReporter::setFilter(true,svframe->userPreferences.testingLogMore?3:2,true);
 	}
 }
 

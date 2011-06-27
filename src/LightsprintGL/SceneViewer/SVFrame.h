@@ -65,7 +65,6 @@ namespace rr_gl
 		void simulateSun();
 
 		void enableTooltips(bool enable);
-		void enableDebugging(bool enable);
 
 		void userPreferencesGatherFromWx();
 		void userPreferencesApplyToWx();
@@ -151,6 +150,7 @@ namespace rr_gl
 		UserPreferences              userPreferences; // public only for SVUserProperties
 		rr::RRFileLocator*           textureLocator;
 		SmoothDlg                    smoothDlg;
+		DeleteDlg                    deleteDlg;
 
 	private:
 		//! Creates empty frame.

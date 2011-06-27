@@ -14,15 +14,18 @@ NEWS
 
 - <b>improved Scene viewer</b>
   - light movement by dragging light icon, shift/ctrl/alt for moving in one or two axes only
+  - "context menus/Delete components..." added
+  - "User preferences/Testing" options added
 - <b>improved lightmap baking</b>
   - lightmap smoothing works across seams in unwrap
   - if your unwrap is bad (lots of seams), smoothing helps hide them
-
-CHANGES
-
-- configurable distance between uvs when stitching vertices
-  - new parameter in RRMesh::createOptimizedVertices()
-  - RRObjects::stitchAndSmooth() renamed to RRObjects::smoothAndStitch(), extended parameters
+- improved mesh processing
+  - configurable distance between uvs when stitching vertices
+    - new parameter in RRMesh::createOptimizedVertices()
+    - RRObjects::stitchAndSmooth() renamed to RRObjects::smoothAndStitch(), extended parameters
+  - deleting components
+    - RRObjects::deleteComponents() added
+    - RRObjects::buildUnwrap() second parameter removed, use deleteComponents()
 
 \section news122 ------------------------------------ 2011.06.14 -------------------------------------
 

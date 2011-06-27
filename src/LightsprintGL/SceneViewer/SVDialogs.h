@@ -95,4 +95,26 @@ class MergeDlg : public wxDialog
 	
 };
 
+///////////////////////////////////////////////////////////////////////////////
+/// Class DeleteDlg
+///////////////////////////////////////////////////////////////////////////////
+class DeleteDlg : public wxDialog 
+{
+	private:
+	
+	protected:
+		wxButton* m_button7;
+	
+	public:
+		wxCheckBox* unusedUvChannels;
+		wxCheckBox* emptyFacegroups;
+		wxCheckBox* tangents;
+		wxCheckBox* unwrap;
+		wxCheckBox* wholeObjects;
+		
+		DeleteDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Check what to delete"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 206,184 ), long style = wxDEFAULT_DIALOG_STYLE ); 
+		~DeleteDlg();
+	
+};
+
 #endif //__SVDialogs__

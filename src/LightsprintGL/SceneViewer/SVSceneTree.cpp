@@ -220,17 +220,23 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 		menu.Append(CM_STATIC_OBJECTS_BUILD_LDMS,_("Build LDMs..."),_("(Re)builds LDMs, layer of additional per-pixel details. LDMs require unwrap."));
 		menu.Append(CM_STATIC_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
 		menu.Append(CM_STATIC_OBJECTS_MERGE,_("Merge objects"),_("Merges all objects together."));
-		menu.Append(CM_STATIC_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
+		if (svframe->userPreferences.testingBeta) // is problematic because tangents have no effect
+			menu.Append(CM_STATIC_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
+		menu.Append(CM_STATIC_OBJECTS_DELETE_DIALOG,_("Delete components..."),_("Deletes components within objects."));
+		menu.Append(CM_STATIC_OBJECTS_DELETE,_("Delete objects"),_("Deletes objects."));
 	}
 	if (temporaryContext.IsOk() && GetItemParent(temporaryContext)==staticObjects)
 	{
-		menu.Append(CM_STATIC_OBJECT_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
+		if (svframe->userPreferences.testingBeta) // is problematic because lightmapTexcoord is in material, not in RRObject, we can't easily safely change one object
+			menu.Append(CM_STATIC_OBJECT_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
 		menu.Append(CM_STATIC_OBJECT_BUILD_LMAP,_("Build lightmap..."),_("(Re)builds per-vertex or per-pixel lightmap. Per-pixel requires unwrap."));
 		menu.Append(CM_STATIC_OBJECT_BUILD_LDM,_("Build LDM..."),_("(Re)builds LDM, layer of additional per-pixel details. LDMs require unwrap."));
 		menu.Append(CM_STATIC_OBJECT_INSPECT_UNWRAP,_("Inspect unwrap,lightmap,LDM..."),_("Shows unwrap and lightmap or LDM in 2D."));
 		menu.Append(CM_STATIC_OBJECT_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
-		menu.Append(CM_STATIC_OBJECT_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
-		menu.Append(CM_STATIC_OBJECT_DELETE, _("Delete object")+" (del)");
+		if (svframe->userPreferences.testingBeta) // is problematic because tangents have no effect
+			menu.Append(CM_STATIC_OBJECT_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
+		menu.Append(CM_STATIC_OBJECT_DELETE_DIALOG,_("Delete components..."),_("Deletes components within object."));
+		menu.Append(CM_STATIC_OBJECT_DELETE, _("Delete object")+" (del)",_("Deletes object."));
 		if (!svframe->m_objectProperties->IsShown())
 			menu.Append(SVFrame::ME_WINDOW_OBJECT_PROPERTIES, _("Properties..."));
 	}
@@ -372,14 +378,13 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver,_("Building unwrap..."));
 
+					rr::RRObjects objectsTmp;
 					if (actionCode==CM_STATIC_OBJECT_UNWRAP)
-					{
-						rr::RRObjects objects;
-						objects.push_back(solver->getStaticObjects()[contextEntityId.index]);
-						objects.buildUnwrap(res,true,solver->aborting);
-					}
-					else
-						solver->getStaticObjects().buildUnwrap(res,true,solver->aborting);
+						objectsTmp.push_back(solver->getStaticObjects()[contextEntityId.index]);
+					const rr::RRObjects& objects = (actionCode==CM_STATIC_OBJECT_UNWRAP) ? objectsTmp : solver->getStaticObjects();
+
+					objects.deleteComponents(false,true,true,false);
+					objects.buildUnwrap(res,solver->aborting);
 
 					// static objects may be modified even after abort (unwrap is not atomic)
 					// so it's better if following setStaticObjects is not aborted
@@ -588,6 +593,23 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					}
 				}
 				svframe->m_canvas->addOrRemoveScene(NULL,true); // calls svframe->updateAllPanels();
+			}
+			break;
+
+		case CM_STATIC_OBJECT_DELETE_DIALOG:
+			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getStaticObjects().size())
+			// intentionaly no break
+		case CM_STATIC_OBJECTS_DELETE_DIALOG:
+			if (solver)
+			if (svframe->deleteDlg.ShowModal()==wxID_OK)
+			{
+				rr::RRObjects objectsTmp;
+				if (actionCode==CM_STATIC_OBJECT_DELETE_DIALOG)
+					objectsTmp.push_back(solver->getStaticObjects()[contextEntityId.index]);
+				const rr::RRObjects& objects = (actionCode==CM_STATIC_OBJECT_DELETE_DIALOG) ? objectsTmp : solver->getStaticObjects();
+
+				objects.deleteComponents(svframe->deleteDlg.tangents->GetValue(),svframe->deleteDlg.unwrap->GetValue(),svframe->deleteDlg.unusedUvChannels->GetValue(),svframe->deleteDlg.emptyFacegroups->GetValue());
+				svframe->m_canvas->addOrRemoveScene(NULL,true); // calls svframe->updateAllPanels(); // necessary at least after deleting empty facegroups
 			}
 			break;
 

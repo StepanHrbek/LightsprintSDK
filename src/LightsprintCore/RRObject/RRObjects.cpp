@@ -7,6 +7,7 @@
 #include <vector>
 #include "Lightsprint/RRObject.h"
 #include <boost/unordered_set.hpp>
+#include <boost/unordered_map.hpp>
 
 namespace rr
 {
@@ -346,6 +347,109 @@ void RRObjects::multiplyEmittance(float emissiveMultiplier)
 			if ((*i)->diffuseEmittance.texture)
 				(*i)->diffuseEmittance.texture->multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0));
 		}
+	}
+}
+
+void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool deleteUnusedUvChannels, bool deleteEmptyFacegroups) const
+{
+	// empty facegroups must go first, otherwise some unused uv channels might seem in use
+	if (deleteEmptyFacegroups)
+	for (unsigned i=0;i<size();i++)
+	{
+		RRObject::FaceGroups& fg = (*this)[i]->faceGroups;
+		for (unsigned i=fg.size();i--;)
+		{
+			if (!fg[i].numTriangles)
+				fg.erase(i);
+		}
+	}
+
+	// 1. gather unique meshes and used uv channels
+	typedef boost::unordered_set<unsigned> UvChannels;
+	typedef boost::unordered_map<RRMeshArrays*,UvChannels> Meshes;
+	Meshes meshes;
+	const RRObjects& objects = *this;
+	for (unsigned i=0;i<objects.size();i++)
+	{
+		const RRObject* object = objects[i];
+		if (object)
+		{
+			const RRCollider* collider = object->getCollider();
+			if (collider)
+			{
+				const RRMesh* mesh = collider->getMesh();
+				if (mesh)
+				{
+					// editing mesh without rebuilding collider is safe because we won't touch triangles,
+					// we will only add/remove uv channels and split vertices
+					RRMeshArrays* arrays = dynamic_cast<RRMeshArrays*>(const_cast<RRMesh*>(mesh));
+					if (arrays)
+					{
+						// inserts arrays. without this, meshes without texcoords would not be inserted and unwrap not built
+						meshes[arrays].begin();
+
+						if (deleteUnusedUvChannels)
+						{
+							for (unsigned fg=0;fg<object->faceGroups.size();fg++)
+							{
+								RRMaterial* material = object->faceGroups[fg].material;
+								if (material)
+								{
+									// we must insert only existing channels, unwrapper expects valid inputs
+									#define INSERT(prop) if (material->prop<arrays->texcoord.size() && arrays->texcoord[material->prop]) meshes[arrays].insert(material->prop);
+									#define INSERT_PROP(prop) if (material->prop.texture) INSERT(prop.texcoord)
+									INSERT_PROP(diffuseReflectance);
+									INSERT_PROP(specularReflectance);
+									INSERT_PROP(diffuseEmittance);
+									INSERT_PROP(specularTransmittance);
+									if (!deleteUnwrap) INSERT(lightmapTexcoord);
+									#undef INSERT
+								}
+							}
+						}
+						else
+						{
+							for (unsigned channel=0;channel<arrays->texcoord.size();channel++)
+							{
+								if (arrays->texcoord[channel])
+									meshes[arrays].insert(channel);
+							}
+						}
+					}
+					else 
+					{
+						RRReporter::report(WARN,"Texcoords not removed, scene contains non-RRMeshArrays meshes. This affects 3ds, gamebryo, mgf, try changing format.\n");
+						return;
+					}
+				}
+			}
+		}
+	}
+
+	// 2. change all lightmapTexcoord to unwrapChannel
+	if (deleteUnwrap)
+		for (unsigned i=0;i<objects.size();i++)
+			for (unsigned fg=0;fg<objects[i]->faceGroups.size();fg++)
+			{
+				RRMaterial* material = objects[i]->faceGroups[fg].material;
+				if (material)
+					material->lightmapTexcoord = UINT_MAX;
+			}
+
+	// 3. delete
+	for (Meshes::const_iterator i=meshes.begin();i!=meshes.end();++i)
+	{
+		for (unsigned j=0;j<i->first->texcoord.size();j++)
+			if (i->second.find(j)==i->second.end())
+				i->first->texcoord[j] = NULL;
+	}
+
+	// tangents
+	if (deleteTangents)
+	for (Meshes::const_iterator i=meshes.begin();i!=meshes.end();++i)
+	{
+		i->first->tangent = NULL;
+		i->first->bitangent = NULL;
 	}
 }
 

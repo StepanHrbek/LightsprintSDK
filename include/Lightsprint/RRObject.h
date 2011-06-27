@@ -480,7 +480,6 @@ namespace rr
 		//! Rebuilds unwrap in all meshes.
 		//
 		//! New unwrap is created into the lowest unused uv channel, the same channel in all meshes.
-		//! Old unwrap and other unused uv channels may be removed.
 		//! All materials are updated to use new unwrap.
 		//!
 		//! Unwrapper doesn't modify pointers to objects, colliders, materials or meshes,
@@ -490,12 +489,10 @@ namespace rr
 		//! you have to resend modified objects to solver <code>solver->setStaticObjects(solver->getStaticObjects(),...)</code>.
 		//! \param resolution
 		//!  Expected lightmap resolution.
-		//! \param removeUnusedUvChannels
-		//!  Whether to remove old unwrap and other uv channels not referenced by materials.
 		//! \param aborting
 		//!  May be set asynchronously, aborts build.
 		//! \return Number of new unwrap uv channel, it's the same for all meshes. UINT_MAX in case of failure.
-		virtual unsigned buildUnwrap(unsigned resolution, bool removeUnusedUvChannels, bool& aborting) const;
+		virtual unsigned buildUnwrap(unsigned resolution, bool& aborting) const;
 
 		//! Inserts all materials found in objects into collection.
 		//
@@ -534,6 +531,9 @@ namespace rr
 
 		//! Multiplies emittance in all materials, both colors and textures.
 		virtual void multiplyEmittance(float emissiveMultiplier);
+
+		//! Deletes selected object components: tangents, unwrap, uv channels not referenced by materials.
+		void deleteComponents(bool deleteTangents, bool deleteUnwrap, bool deleteUnusedUvChannels, bool deleteEmptyFacegroups) const;
 
 		//! Destructor does not delete objects in collection (but individual adapters may do).
 		virtual ~RRObjects() {};

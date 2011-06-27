@@ -442,7 +442,7 @@ SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 }
 
 SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos, const wxSize& _size, SceneViewerStateEx& _svs)
-	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE|wxMINIMIZE), svs(_svs), smoothDlg(this), importDlg(this)
+	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE|wxMINIMIZE), svs(_svs), smoothDlg(this), importDlg(this), deleteDlg(this)
 {
 	fullyInited = false;
 	updateMenuBarNeeded = false;
@@ -509,7 +509,8 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	CreateStatusBar();
 	enableTooltips(userPreferences.tooltips);
-	enableDebugging(userPreferences.debugging);
+	rr_gl::Program::logMessages(userPreferences.testingLogShaders);
+	rr::RRReporter::setFilter(true,userPreferences.testingLogMore?3:2,true);
 
 	textureLocator = rr::RRFileLocator::create();
 
@@ -1615,12 +1616,6 @@ void SVFrame::enableTooltips(bool enable)
 	m_sceneProperties->enableTooltips(enable);
 	m_giProperties->enableTooltips(enable);
 	m_userProperties->enableTooltips(enable);
-}
-
-void SVFrame::enableDebugging(bool enable)
-{
-	rr::RRReporter::setFilter(true,enable?3:2,true);
-	rr_gl::Program::logMessages(enable);
 }
 
 BEGIN_EVENT_TABLE(SVFrame, wxFrame)

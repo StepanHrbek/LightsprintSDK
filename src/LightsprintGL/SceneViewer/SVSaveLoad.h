@@ -65,7 +65,9 @@ namespace rr_gl
 		unsigned    sshotEnhancedFSAA;
 		float       sshotEnhancedShadowResolutionFactor;
 		unsigned    sshotEnhancedShadowSamples;
-		bool        debugging;
+		bool        testingLogShaders;
+		bool        testingLogMore;
+		bool        testingBeta;
 
 		UserPreferences()
 		{
@@ -79,7 +81,9 @@ namespace rr_gl
 			sshotEnhancedFSAA = 4;
 			sshotEnhancedShadowResolutionFactor = 2;
 			sshotEnhancedShadowSamples = 8;
-			debugging = false;
+			testingLogShaders = false;
+			testingLogMore = false;
+			testingBeta = false;
 		}
 		void resetLayouts()
 		{
