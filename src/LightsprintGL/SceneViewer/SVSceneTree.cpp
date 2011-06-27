@@ -262,7 +262,6 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 	if (actionCode>=SVFrame::ME_FIRST)
 	{
 		svframe->OnMenuEventCore2(actionCode);
-		return; // skip updateAllPanels() at the end of this function
 	}
 	else
 	switch (actionCode)
@@ -279,7 +278,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					svframe->m_canvas->addOrRemoveScene(NULL,true);
 				}
 			}
-			return; // skip updateAllPanels() at the end of this function, we did not change anything
+			break;
 		case CM_ROOT_AXES:
 			{
 				static unsigned currentUpAxis = 0;
@@ -290,7 +289,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				svframe->m_canvas->addOrRemoveScene(NULL,true);
 				currentUpAxis = 2-currentUpAxis;
 			}
-			return; // skip updateAllPanels() at the end of this function, we did not change anything
+			break;
 
 		case CM_ENV_CUSTOM: svframe->OnMenuEventCore2(SVFrame::ME_ENV_OPEN); return;
 		case CM_ENV_WHITE: svframe->OnMenuEventCore2(SVFrame::ME_ENV_WHITE); return;
@@ -316,6 +315,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					solver->setLights(newList); // RealtimeLight in light props is deleted here
 					if (actionCode==CM_LIGHT_DIR)
 						svframe->simulateSun(); // when inserting sun, move it to simulated direction (it would be better to simulate only when inserting first dirlight, because simulation affects only first dirlight)
+					svframe->updateAllPanels();
 				}
 			}
 			break;
@@ -341,7 +341,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					newLight->name = "Flashlight";
 					lights.push_back(newLight);
 					solver->setLights(lights); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
-					// updateAllPanels() must follow, it deletes lightprops
+					svframe->updateAllPanels();
 				}
 			}
 			break;
@@ -356,7 +356,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				newList.erase(contextEntityId.index);
 
 				solver->setLights(newList); // RealtimeLight in light props is deleted here, lightprops is temporarily unsafe
-				// updateAllPanels() must follow, it deletes lightprops
+				svframe->updateAllPanels();
 			}
 			break;
 
@@ -385,10 +385,10 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					// so it's better if following setStaticObjects is not aborted
 					solver->aborting = false;
 
-					svframe->m_canvas->addOrRemoveScene(NULL,true);
+					svframe->m_canvas->addOrRemoveScene(NULL,true); // calls svframe->updateAllPanels();
 				}
 			}
-			return; // skip updateAllPanels() at the end of this function, we did not change anything
+			break;
 
 		case CM_STATIC_OBJECT_BUILD_LMAP:
 			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getStaticObjects().size())
@@ -437,7 +437,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
 				}
 			}
-			return; // skip updateAllPanels() at the end of this function, we did not change anything
+			break;
 
 		case CM_STATIC_OBJECT_BUILD_LDM:
 			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getStaticObjects().size())
@@ -497,17 +497,17 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 					svs.renderLDM = true;
 				}
 			}
-			return; // skip updateAllPanels() at the end of this function, we did not change anything
+			break;
 
 		case CM_STATIC_OBJECT_INSPECT_UNWRAP:
 			svframe->m_canvas->selectedType = ST_STATIC_OBJECT;
 			svs.selectedObjectIndex = contextEntityId.index;
 			svs.renderLightmaps2d = 1;
 			// a) slower, rebuilds tree, triggers wx bug: stealing focus (select obj or light, focus to canvas, select inspect from context menu (tree is rebuilt here), focus goes to tree)
-			//break;
+			//svframe->updateAllPanels();
 			// b) faster, avoids wx bug (focus in canvas stays in canvas)
 			svframe->selectEntityInTreeAndUpdatePanel(EntityId(ST_STATIC_OBJECT,svs.selectedObjectIndex),SEA_SELECT);
-			return;
+			break;
 
 		case CM_STATIC_OBJECT_SMOOTH:
 		case CM_STATIC_OBJECTS_SMOOTH: // right now, it smooths also dynamic objects
@@ -539,11 +539,11 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 							RR_DEG2RAD(smoothAngle),
 							uvDistance,
 							true);
-						svframe->m_canvas->addOrRemoveScene(NULL,true);
+						svframe->m_canvas->addOrRemoveScene(NULL,true); // calls svframe->updateAllPanels();
 					}
 				}
 			}
-			return; // skip updateAllPanels() at the end of this function, we did not change anything
+			break;
 		case CM_STATIC_OBJECTS_MERGE:
 			{
 				// display log window with 'abort' while this function runs
@@ -569,7 +569,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				rr::RRObjects objects;
 				objects.push_back(newObject);
 				solver->setStaticObjects(objects,NULL); // memleak, newObject is never freed
-				svframe->m_canvas->addOrRemoveScene(NULL,false);
+				svframe->m_canvas->addOrRemoveScene(NULL,false); // calls svframe->updateAllPanels();
 			}
 			break;
 		case CM_STATIC_OBJECT_TANGENTS:
@@ -587,9 +587,9 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 							arrays->buildTangents();
 					}
 				}
-				svframe->m_canvas->addOrRemoveScene(NULL,true);
+				svframe->m_canvas->addOrRemoveScene(NULL,true); // calls svframe->updateAllPanels();
 			}
-			return; // skip updateAllPanels() at the end of this function, we did not change anything
+			break;
 
 		case CM_STATIC_OBJECT_DELETE:
 			if (solver && contextEntityId.isOk() && contextEntityId.index<solver->getStaticObjects().size())
@@ -607,8 +607,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				rr::RRObjects newList = solver->getStaticObjects();
 				newList.erase(contextEntityId.index);
 				solver->setStaticObjects(newList,NULL);
-				svframe->m_canvas->addOrRemoveScene(NULL,false); // updateAllPanels() is called from here
-				return; // skip updateAllPanels() at the end of this function to prevent SceneTree from updating twice, it's terribly slow
+				svframe->m_canvas->addOrRemoveScene(NULL,false); // calls svframe->updateAllPanels();
 			}
 			break;
 		case CM_DYNAMIC_OBJECT_DELETE:
@@ -624,7 +623,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				rr::RRObjects newList = solver->getDynamicObjects();
 				newList.erase(contextEntityId.index);
 				solver->setDynamicObjects(newList); // RRObject in object props is deleted here, objectprops is temporarily unsafe
-				// updateAllPanels() must follow, it deletes lightprops
+				svframe->updateAllPanels();
 			}
 			break;
 
