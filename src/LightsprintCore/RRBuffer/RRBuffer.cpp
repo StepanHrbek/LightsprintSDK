@@ -365,9 +365,9 @@ public:
 				return;
 		}
 
-		// stitch vertices with the same position+normal (ignore unwrap differences)
+		// stitch vertices with the same position + nearly the same normal (ignore unwrap differences)
 		// this makes looking for shared edges easier
-		const RRMesh* mesh = mesh0->createOptimizedVertices(0,0,0,NULL);
+		const RRMesh* mesh = mesh0->createOptimizedVertices(0,RR_DEG2RAD(1),0,NULL);
 		if (!mesh)
 		{
 			RR_LIMITED_TIMES(10,RRReporter::report(WARN,"Unwrap seams won't be filtered.\n"));
@@ -441,6 +441,7 @@ public:
 
 bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 {
+	const bool emphasizeUnwrapSeams = false;
 	if (!this)
 	{
 		RR_ASSERT(0);
@@ -581,14 +582,14 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 						if (i1!=lasti1)
 						{
 							if (lasti1!=UINT_MAX)
-								destination[lasti1] = accu1/accu1[3];
+								destination[lasti1] = emphasizeUnwrapSeams ? RRVec3(1,0,0) : accu1/accu1[3];
 							lasti1 = i1;
 							accu1 = RRVec4(0);
 						}
 						if (i2!=lasti2)
 						{
 							if (lasti2!=UINT_MAX)
-								destination[lasti2] = accu2/accu2[3];
+								destination[lasti2] = emphasizeUnwrapSeams ? RRVec3(0,0,1) :  accu2/accu2[3];
 							lasti2 = i2;
 							accu2 = RRVec4(0);
 						}
@@ -598,9 +599,9 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 				}
 			}
 			if (lasti1!=UINT_MAX)
-				destination[lasti1] = accu1/accu1[3];
+				destination[lasti1] = emphasizeUnwrapSeams ? RRVec3(1,0,0) : accu1/accu1[3];
 			if (lasti2!=UINT_MAX)
-				destination[lasti2] = accu2/accu2[3];
+				destination[lasti2] = emphasizeUnwrapSeams ? RRVec3(0,0,1) : accu2/accu2[3];
 		}
 
 		// src=dst
