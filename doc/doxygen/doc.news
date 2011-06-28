@@ -8,17 +8,17 @@ namespace rr
 
 \page main_news What's new
 
-\section news123 ------------------------------------ 2011.06.xx -------------------------------------
+\section news123 ------------------------------------ 2011.06.29 -------------------------------------
 
 NEWS
 
+- <b>improved lightmap baking</b>
+  - lightmap smoothing works across seams in unwrap, hides them
+  - default smoothing amount changed from 0 to 1, small amount of smoothing is nearly always desirable
 - <b>improved Scene viewer</b>
   - light movement by dragging light icon, shift/ctrl/alt for moving in one or two axes only
   - "context menus/Delete components..." added
   - "User preferences/Testing" options added
-- <b>improved lightmap baking</b>
-  - lightmap smoothing works across seams in unwrap
-  - if your unwrap is bad (lots of seams), smoothing helps hide them
 - improved mesh processing
   - configurable distance between uvs when stitching vertices
     - new parameter in RRMesh::createOptimizedVertices()

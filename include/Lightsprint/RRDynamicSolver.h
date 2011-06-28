@@ -510,7 +510,7 @@ namespace rr
 		struct RR_API FilteringParameters
 		{
 			//! Amount of smoothing applied when baking lightmaps.
-			//! Makes edges smoother, reduces noise, but washes out tiny details.
+			//! Hides unwrap seams, makes edges smoother, reduces noise, but washes out tiny details.
 			//! Reasonable values are around 1. 0=off.
 			float smoothingAmount;
 			//! Distance in pixels, how deep foreground (used) colors spread into background (unused) regions.
@@ -519,13 +519,12 @@ namespace rr
 			//! Color of unused background pixels.
 			RRVec4 backgroundColor;
 			//! Smooth colors between opposite borders.
-			//! Some mappings need it to prevent seams, e.g. one kind of spherical mapping.
 			//! Generally, enable wrap if lightmap is to be later applied with wrapping enabled.
 			bool wrap;
 			//! Sets default parameters.
 			FilteringParameters()
 			{
-				smoothingAmount = 0;
+				smoothingAmount = 1;
 				spreadForegroundColor = 0;
 				backgroundColor = RRVec4(0);
 				wrap = true;

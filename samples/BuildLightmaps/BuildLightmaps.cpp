@@ -158,7 +158,7 @@ struct Parameters
 		layerParameters.objectIndex = objectIndex;
 		aoIntensity = 1;
 		aoSize = 0;
-		ppSmoothing = 0;
+		ppSmoothing = 1;
 		ppBrightness = 1;
 		ppContrast = 1;
 
@@ -469,7 +469,7 @@ int main(int argc, char** argv)
 			"  pixelsperworldunit=1.0  (Gamebryo only)\n"
 			"  aointensity=1.0         (intensity of darkening in corners, 0=off, 2=high)\n"
 			"  aosize=0.0              (how far from corners to darken, 0=off)\n"
-			"  smoothing=0.0           (postprocess: smoothing, radius in pixels)\n"
+			"  smoothing=1.0           (postprocess: smoothing, radius in pixels)\n"
 			"  brightness=1.0          (postprocess: brightness adjustment)\n"
 			"  contrast=1.0            (postprocess: contrast adjustment)\n"
 			"\n"
