@@ -433,10 +433,10 @@ namespace rr
 		//! \param maxRadiansBetweenNormalsToStitch
 		//!  Vertices are not stitched if their normals differ more.
 		//! \param maxDistanceBetweenUvsToStitch
-		//!  Vertices are not stitched if their uvs from #texcoords differ more.
+		//!  Vertices are not stitched if their uvs from texcoords differ more.
 		//! \param texcoords
-		//!  Vertices are not stitched if their uvs from #texcoords differ more than #maxDistanceBetweenUvsToStitch.
-		//!  May be NULL. Uvs not listed in #texcoords are ignored, differences in such channels don't prevent stitching.
+		//!  Vertices are not stitched if their uvs from texcoords differ more than maxDistanceBetweenUvsToStitch.
+		//!  May be NULL. Uvs not listed in texcoords are ignored, differences in such channels don't prevent stitching.
 		const RRMesh* createOptimizedVertices(float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, const RRVector<unsigned>* texcoords) const;
 
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).

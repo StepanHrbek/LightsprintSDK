@@ -413,7 +413,7 @@ namespace rr
 		//!  True = smooth through lightmap boundaries.
 		//! \param object
 		//!  Object this lightmap is for, used only for smoothing across unwrap seams.
-		//!  When NULL, individual unwrap regions are smoothed separately, unwrap seams may be visible in lightmap.
+		//!  When NULL, separated unwrap regions are smoothed separately, unwrap seams stay visible in lightmap.
 		//! \return
 		//!  True on success, may fail when allocation fails or buffer is not 2d texture.
 		virtual bool lightmapSmooth(float sigma, bool wrap, const class RRObject* object);
