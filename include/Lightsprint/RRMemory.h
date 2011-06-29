@@ -126,7 +126,7 @@ namespace rr
 		RRString& operator =(const char* a);
 		RRString& operator =(const wchar_t* a);
 		void clear();
-		void format(const wchar_t* fmt, ...); ///< Sets new string value using printf() like syntax.
+		void format(const wchar_t* fmt, ...); ///< Sets new string value using wprintf() like syntax (%s for wide string, %hs for singlebyte).
 
 		// comparators
 		bool operator ==(const RRString& a) const;
