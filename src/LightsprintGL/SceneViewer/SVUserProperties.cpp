@@ -117,13 +117,14 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 		Append(propTesting);
 		SetPropertyReadOnly(propTesting,true,wxPG_DONT_RECURSE);
 
+
 		propTestingLogShaders = new BoolRefProperty(_("Log shaders"),_("Logs more information, helps while debugging."),userPreferences.testingLogShaders);
 		AppendIn(propTesting,propTestingLogShaders);
 
-		propTestingLogMore = new BoolRefProperty(_("Log more"),_("Logs more information, helps while debugging."),userPreferences.testingLogMore);
+		propTestingLogMore = new BoolRefProperty(_("Log frame times"),_("Logs more information, helps while debugging."),userPreferences.testingLogMore);
 		AppendIn(propTesting,propTestingLogMore);
 
-		propTestingBeta = new BoolRefProperty(_("Beta"),_("Enables menu items with non-final features."),userPreferences.testingBeta);
+		propTestingBeta = new BoolRefProperty(_("Beta functions"),_("Enables menu items with non-final features."),userPreferences.testingBeta);
 		AppendIn(propTesting,propTestingBeta);
 
 		SetPropertyBackgroundColour(propTesting,importantPropertyBackgroundColor,false);
