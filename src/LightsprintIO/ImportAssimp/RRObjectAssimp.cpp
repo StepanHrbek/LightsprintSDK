@@ -258,7 +258,10 @@ public:
 					object->setCollider(collider);
 					RRMatrix3x4 world = convertMatrix(_transformation);
 					object->setWorldMatrix(&world);
-					object->name = convertStr(_node->mName);
+					if (_node->mParent && _node->mParent->mParent && !_node->mParent->mNumMeshes && _node->mParent->mName.length)
+						object->name.format(L"%hs / %hs",_node->mParent->mName.data,_node->mName.data); // prepend name of empty non-root parent, helps in .ifc
+					else
+						object->name = convertStr(_node->mName);
 					object->faceGroups.push_back(RRObject::FaceGroup(&materials[_scene->mMeshes[meshIndex]->mMaterialIndex],meshes[meshIndex].numTriangles));
 					push_back(object);
 				}
