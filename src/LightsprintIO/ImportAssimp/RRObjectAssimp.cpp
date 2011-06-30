@@ -244,10 +244,13 @@ public:
 
 	void addNode(const aiScene* _scene, aiNode* _node, aiMatrix4x4 _transformation)
 	{
+		bool collapse = false; // import all meshes referenced by aiNode as one object?
+
 		if (_node)
 		{
 			_transformation *= _node->mTransformation;
 
+			RRObjects objectsInThisNode;
 			for (unsigned i=0;i<_node->mNumMeshes;i++)
 			{
 				unsigned meshIndex = _node->mMeshes[i];
@@ -263,8 +266,18 @@ public:
 					else
 						object->name = convertStr(_node->mName);
 					object->faceGroups.push_back(RRObject::FaceGroup(&materials[_scene->mMeshes[meshIndex]->mMaterialIndex],meshes[meshIndex].numTriangles));
-					push_back(object);
+					if (!collapse)
+						push_back(object);
+					else
+						objectsInThisNode.push_back(object);
 				}
+			}
+			if (collapse && objectsInThisNode.size())
+			{
+				bool aborting = false;
+				RRObject* object = RRObject::createMultiObject(&objectsInThisNode,RRCollider::IT_LINEAR,aborting,-1,-1,true,0,NULL);
+				object->name = convertStr(_node->mName);
+				push_back(object);
 			}
 
 			for (unsigned i=0;i<_node->mNumChildren;i++)
