@@ -265,6 +265,7 @@ namespace rr
 			PreImportNumber(unsigned _object, unsigned _index) {index=_index;object=_object;}
 			PreImportNumber() {}
 			bool operator ==(const PreImportNumber& a) {return index==a.index && object==a.object;}
+			bool operator !=(const PreImportNumber& a) {return index!=a.index || object!=a.object;}
 		};
 
 		//! Returns PreImport index of given vertex or UNDEFINED for invalid inputs.

@@ -77,10 +77,10 @@ void RRReporter::assertionFailed(const char* expression, const char* func, const
 	}
 }
 
-const char* RRReporter::bytesToString(unsigned bytes)
+const char* RRReporter::bytesToString(size_t bytes)
 {
 	static char buf[20];
-	sprintf(buf,(bytes<1024)?"%d B":((bytes<1024*1024)?"%d KB":"%d MB"),(bytes<1024)?bytes:((bytes<1024*1024)?bytes/1024:bytes/1024/1024));
+	sprintf(buf,(bytes<1024)?"%d B":((bytes<1024*1024)?"%d KB":"%d MB"),(unsigned)((bytes<1024)?bytes:((bytes<1024*1024)?bytes/1024:bytes/1024/1024)));
 	return buf;
 }
 
