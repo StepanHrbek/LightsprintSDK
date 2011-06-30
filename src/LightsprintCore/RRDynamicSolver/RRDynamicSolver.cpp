@@ -187,10 +187,29 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]->getCollider()=NULL.\n",i);
 			return;
 		}
-		if (!_objects[i]->getCollider()->getMesh())
+		const RRMesh* mesh = _objects[i]->getCollider()->getMesh();
+		if (!mesh)
 		{
 			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]->getCollider()->getMesh()=NULL.\n",i);
 			return;
+		}
+		unsigned numTriangles = mesh->getNumTriangles();
+		unsigned numVertices = mesh->getNumVertices();
+		if (numTriangles && numVertices)
+		{
+			RRMesh::Triangle t;
+			mesh->getTriangle(numTriangles-1,t);
+			if (mesh->getPreImportTriangle(numTriangles-1)!=RRMesh::PreImportNumber(0,numTriangles-1)
+				|| mesh->getPreImportVertex(t[0],numTriangles-1)!=RRMesh::PreImportNumber(0,t[0])
+				|| mesh->getPreImportVertex(t[1],numTriangles-1)!=RRMesh::PreImportNumber(0,t[1])
+				|| mesh->getPreImportVertex(t[1],numTriangles-1)!=RRMesh::PreImportNumber(0,t[1])
+				)
+			{
+				// we expect inputs with trivial preimport numbers
+				// without this check, we would later crash in RRDynamicSolver::updateVertexLookupTableDynamicSolver()
+				RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d] is multiobject or has e.g. vertex stitching filter applied. Fix meshes with createArrays() or createVertexBufferRuler().\n",i);
+				return;
+			}
 		}
 	}
 
