@@ -323,6 +323,11 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 		solver->setStaticObjects(objects,NULL);
 		solver->setLights(lights);
 	}
+	else
+	{
+		// add or remove object from solver
+		solver->reportDirectIlluminationChange(-1,true,true);
+	}
 
 	// fix svs.renderLightIndirect, setStaticObjects() just silently switched solver to architect
 	// must be changed if setStaticObjects() behaviour changes
