@@ -505,6 +505,16 @@ void main()
 			visibility -= VISIBILITY_T(1.0);
 		#endif
 
+		#if SHADOW_MAPS==6 && !defined(SHADOW_PENUMBRA)
+			// illuminates space from pointlight to near, otherwise shadowed by SHADOW_CLAMP()
+			//visibility += step(0.0,-shadowCoord0.z)
+			//	* step(0.0,-shadowCoord1.z)
+			//	* step(0.0,-shadowCoord2.z)
+			//	* step(0.0,-shadowCoord3.z)
+			//	* step(0.0,-shadowCoord4.z)
+			//	* step(0.0,-shadowCoord5.z);
+		#endif
+
 	#endif // SHADOW_SAMPLES*SHADOW_MAPS>0
 
 
