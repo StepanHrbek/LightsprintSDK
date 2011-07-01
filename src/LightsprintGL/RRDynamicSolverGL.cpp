@@ -132,7 +132,7 @@ void RRDynamicSolverGL::reportDirectIlluminationChange(int lightIndex, bool dirt
 	{
 		for (unsigned i=0;i<realtimeLights.size();i++)
 		{
-			reportDirectIlluminationChange(i,true,true);
+			reportDirectIlluminationChange(i,dirtyShadowmap,dirtyGI);
 		}
 		return;
 	}
