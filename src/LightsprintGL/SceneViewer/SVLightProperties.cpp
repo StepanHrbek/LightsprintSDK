@@ -346,11 +346,13 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propNear)
 	{
 		rtlight->getParent()->setNear(property->GetValue().GetDouble());
+		rtlight->dirtyShadowmap = true;
 	}
 	else
 	if (property==propFar)
 	{
 		rtlight->getParent()->setFar(property->GetValue().GetDouble());
+		rtlight->dirtyShadowmap = true;
 	}
 	//rtlight->dirtyShadowmap = true;
 	//rtlight->dirtyGI = true;

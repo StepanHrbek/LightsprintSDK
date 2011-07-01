@@ -118,17 +118,21 @@ namespace rr_gl
 			getParent()->orthogonal = false;
 			getParent()->setRange(0.1f,100);
 		}
+		// Dirty flags only if we are sure that light did change. Caller can always set dirty himself, if we don't.
+		if (getParent()->pos!=rrlight.position
+			|| getParent()->dir!=rrlight.direction
+			|| (rrlight.type==rr::RRLight::SPOT && abs(rrlight.outerAngleRad*2-getParent()->getFieldOfViewVerticalRad())>0.01f))
+		{
+			dirtyShadowmap = true;
+			dirtyGI = true;
+			dirtyRange = true;
+		}
 		// Copy position/direction.
 		getParent()->pos = rrlight.position;
 		getParent()->setDirection(rrlight.direction);
 		// Copy outerAngle to FOV
 		getParent()->setAspect(1);
 		getParent()->setFieldOfViewVerticalDeg( (rrlight.type==rr::RRLight::SPOT) ? RR_RAD2DEG(rrlight.outerAngleRad)*2 : 90 ); // aspect must be already set
-		// Nearly all changes to RRLight create need for shadowmap and GI update.
-		// At this point we don't know what was changed anyway, so let's update always.
-		dirtyShadowmap = true;
-		dirtyGI = true;
-		dirtyRange = true;
 	}
 
 	void RealtimeLight::updateAfterRealtimeLightChanges()
@@ -274,7 +278,12 @@ namespace rr_gl
 				// better keep old range if detected distance is 0 (camera in wall?)
 				&& cod.getDistanceMax()>0)
 			{
-				getParent()->setRange(cod.getDistanceMin()*0.9f,cod.getDistanceMax()*5);
+				// with *0.9f instead of 0.5*f, our shadow bias was sometimes insufficient for very close occluders,
+				//  resulting in acne or full black square in close proximity of light
+				// ways to make problem sufficiently rare:
+				// a) use 5*fixedBias
+				// b) use 0.5*near  <- implemented here
+				getParent()->setRange(cod.getDistanceMin()*0.5f,cod.getDistanceMax()*5);
 				rr::RRReporter::report(rr::INF2,"setRangeDynamically()\n");
 				dirtyShadowmap = true;
 			}
