@@ -152,7 +152,6 @@ void SVSceneTree::selectEntityInTree(EntityId entity)
 	if (item.IsOk())
 	{
 		SelectItem(item,true);
-		EnsureVisible(item);
 	}
 }
 
