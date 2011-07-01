@@ -54,7 +54,7 @@ void CameraObjectDistance::addRay(const rr::RRVec3& pos, rr::RRVec3 dir)
 
 void CameraObjectDistance::addPoint(const rr::RRVec3& pos)
 {
-	enum {RAYS=4}; // total num rays is (2*RAYS+1)^2 * 6 = 486
+	enum {RAYS=3}; // total num rays is (2*RAYS+1)^2 * 6 = 294
 	for (int i=-RAYS;i<=RAYS;i++)
 	{
 		for (int j=-RAYS;j<=RAYS;j++)
@@ -84,7 +84,7 @@ void CameraObjectDistance::addCamera(Camera* camera)
 		return;
 	if (!camera)
 		return;
-	enum {RAYS=4}; // #rays is actually (2*RAYS+1)^2
+	enum {RAYS=4}; // #rays is actually (2*RAYS+1)^2 = 81
 	for (int i=-RAYS;i<=RAYS;i++)
 	{
 		for (int j=-RAYS;j<=RAYS;j++)
