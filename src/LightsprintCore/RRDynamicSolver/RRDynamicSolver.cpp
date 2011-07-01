@@ -451,7 +451,7 @@ void RRDynamicSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 	// here we dirty shadowmaps and DDI
 	//  we dirty DDI only if shadows are dirtied too, DDI with unchanged shadows would lead to the same GI
 	if (dirtyShadows)
-		reportDirectIlluminationChange(-1,dirtyShadows,dirtyGI);
+		reportDirectIlluminationChange(-1,dirtyShadows,dirtyGI,false);
 	// here we dirty factors in solver
 	if (dirtyGI)
 	{
@@ -465,7 +465,7 @@ void RRDynamicSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 	//if (priv->multiObjectPhysical) priv->multiObjectPhysical->update(aborting);
 }
 
-void RRDynamicSolver::reportDirectIlluminationChange(int lightIndex, bool dirtyShadows, bool dirtyGI)
+void RRDynamicSolver::reportDirectIlluminationChange(int lightIndex, bool dirtyShadows, bool dirtyGI, bool dirtyRange)
 {
 	REPORT(RRReporter::report(INF1,"<IlluminationChange>\n"));
 }
@@ -543,7 +543,7 @@ void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
 				priv->lastGIDirtyBecauseOfVideoTime.setNow();
 			priv->materialTransmittanceVersionSum[0] = versionSum[0];
 			priv->materialTransmittanceVersionSum[1] = versionSum[1];
-			reportDirectIlluminationChange(-1,materialTransmittanceQuality>0,materialTransmittanceQuality>1);
+			reportDirectIlluminationChange(-1,materialTransmittanceQuality>0,materialTransmittanceQuality>1,false);
 		}
 	}
 }

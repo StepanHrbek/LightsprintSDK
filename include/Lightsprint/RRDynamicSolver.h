@@ -747,18 +747,22 @@ namespace rr
 		//! \param lightIndex
 		//!  Light number in list of lights, see setLights(). If it is -1, change is reported for all lights in solver.
 		//! \param dirtyShadows
-		//!  Tells us that direct shadows should be updated.
+		//!  Tells that direct shadows should be updated.
 		//!  Generic RRDynamicSolver ignores it, but subclasses (e.g. rr_gl::RRDynamicSolverGL)
 		//!  use it to update light's shadowmaps.
 		//! \param dirtyGI
-		//!  Tells us that global illumination should be updated.
+		//!  Tells that global illumination should be updated.
 		//!  Generic RRDynamicSolver ignores it, but subclasses (e.g. rr_gl::RRDynamicSolverGL)
 		//!  use it to redetect appropriate direct irradiances and call setDirectIllumination().
 		//!  You can save time by setting false when changes in scene were so small, that
 		//!  change in GI would be hardly visible. This is usually case when objects move,
 		//!  but lights stay static or nearly static - moving objects have much weaker global effects
 		//!  than moving lights.
-		virtual void reportDirectIlluminationChange(int lightIndex, bool dirtyShadows, bool dirtyGI);
+		//! \param dirtyRange
+		//!  Tells that shadowmapping near/far range should be updated.
+		//!  Near should be small enough to not clip objects, but not smaller
+		//!  (it would increase shadow bias). Solver recalculates it on demand from distance of nearby objects.
+		virtual void reportDirectIlluminationChange(int lightIndex, bool dirtyShadows, bool dirtyGI, bool dirtyRange);
 
 		//! Reports interaction between user and application.
 		//

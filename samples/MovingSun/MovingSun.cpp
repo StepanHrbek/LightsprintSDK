@@ -68,7 +68,7 @@ void setupLights(rr_gl::RRDynamicSolverGL* _solver, const rr_gl::Camera* _observ
 	_solver->realtimeLights[0]->configureCSM(_observer,_solver->getMultiObjectCustom());
 	_solver->realtimeLights[0]->getParent()->update();
 	_solver->realtimeLights[0]->dirtyShadowmap = 1;
-	_solver->reportDirectIlluminationChange(0,true,true);
+	_solver->reportDirectIlluminationChange(0,true,true,false);
 }
 
 

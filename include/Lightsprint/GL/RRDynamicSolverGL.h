@@ -50,9 +50,9 @@ namespace rr_gl
 		//! While renderer reads most of light properties from original lights,
 		//! 'camera' properties like position, direction, fov are taken from #realtimeLights.
 		//!
-		//! Initial near/far range for shadowmapping is set here (calculated from distance to static scene).
-		//! If you don't change range later in your code, make sure that static scene is already set (setStaticObjects)
-		//! and lights are in their typical positions when you call setLights().
+		//! By default, light's near/far range is autodetected from distance to static objects in solver (to avoid clipping),
+		//! but if you wish to set range manually, clear RealtimeLight::dirtyRange after setLights()
+		//! to prevent autodetection and set your own range.
 		virtual void setLights(const rr::RRLights& lights);
 
 		//! Renders scene in solver, with all static and dynamic objects, lights, environment.
@@ -75,7 +75,7 @@ namespace rr_gl
 
 
 		//! Sets dirty flags in given light, or in all lights if lightIndex is negative.
-		virtual void reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI);
+		virtual void reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI, bool dirtyRange);
 
 		//! Updates shadowmaps, detects direct illumination, calculates GI.
 		//

@@ -166,7 +166,7 @@ void keyboard(unsigned char c, int x, int y)
 		case ' ':
 			//printf("camera(%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f);\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*RR_PI,2*RR_PI),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
 			rotation = (clock()%10000000)*0.07f;
-			solver->reportDirectIlluminationChange(-1,true,true);
+			solver->reportDirectIlluminationChange(-1,true,true,false);
 			// move dynamic objects
 			transformObject(robot,rr::RRVec3(-1.83f,0,-3),rr::RRVec2(rotation,0));
 			transformObject(potato,rr::RRVec3(0.4f*sin(rotation*0.05f)+1,1.0f,0.2f),rr::RRVec2(rotation/2,0));
@@ -244,7 +244,7 @@ void passive(int x, int y)
 			light->angle -= mouseSensitivity*x;
 			light->angleX -= mouseSensitivity*y;
 			RR_CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-			solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
+			solver->reportDirectIlluminationChange(selectedLightIndex,true,true,false);
 			light->update();
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
@@ -305,7 +305,7 @@ void idle()
 	{
 		if (cam!=&eye) 
 		{
-			solver->reportDirectIlluminationChange(selectedLightIndex,true,true);
+			solver->reportDirectIlluminationChange(selectedLightIndex,true,true,false);
 		}
 	}
 

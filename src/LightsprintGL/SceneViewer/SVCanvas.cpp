@@ -326,7 +326,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 	else
 	{
 		// add or remove object from solver
-		solver->reportDirectIlluminationChange(-1,true,true);
+		solver->reportDirectIlluminationChange(-1,true,true,true);
 	}
 
 	// fix svs.renderLightIndirect, setStaticObjects() just silently switched solver to architect
@@ -858,7 +858,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			if (s_ci.clickedEntity.type==ST_LIGHT)
 			{
 				solver->getLights()[s_ci.clickedEntity.index]->position = s_ci.clickedEntity.position - pan;
-				solver->reportDirectIlluminationChange(s_ci.clickedEntity.index,true,true);
+				solver->reportDirectIlluminationChange(s_ci.clickedEntity.index,true,true,true);
 				solver->realtimeLights[s_ci.clickedEntity.index]->updateAfterRRLightChanges();
 			}
 		}
@@ -871,7 +871,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			{
 				if (svs.selectedLightIndex<solver->getLights().size())
 				{
-					solver->reportDirectIlluminationChange(svs.selectedLightIndex,true,true);
+					solver->reportDirectIlluminationChange(svs.selectedLightIndex,true,true,true);
 					Camera* light = solver->realtimeLights[svs.selectedLightIndex]->getParent();
 					light->angle = s_ci.angle-5*dragX;
 					light->angleX = s_ci.angleX-5*dragY;
@@ -1026,7 +1026,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 			if (cam!=&svs.eye) 
 			{
 				solver->realtimeLights[svs.selectedLightIndex]->updateAfterRealtimeLightChanges();
-				solver->reportDirectIlluminationChange(svs.selectedLightIndex,true,true);
+				solver->reportDirectIlluminationChange(svs.selectedLightIndex,true,true,true);
 			}
 		}
 	}

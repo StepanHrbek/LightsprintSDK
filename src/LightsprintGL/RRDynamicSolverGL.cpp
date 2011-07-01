@@ -8,7 +8,6 @@
 #include <GL/glew.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
-#include "CameraObjectDistance.h"
 #include "PreserveState.h"
 #include "RendererOfMesh.h" // DDI_TRIANGLES_X/Y
 #include "Workaround.h"
@@ -86,61 +85,26 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 		realtimeLights.push_back(new RealtimeLight(*getLights()[i]));
 	}
 
-	// adjust near/far to better match current scene
-#pragma omp parallel for schedule(dynamic)
-	for (int i=0;i<(int)_lights.size();i++)
-	{
-		const rr::RRLight* light = _lights[i];
-		RR_ASSERT(light);
-		RealtimeLight* realtimeLight = realtimeLights[i];
-		RR_ASSERT(realtimeLight);
-
-		if (light->type!=rr::RRLight::DIRECTIONAL)
-		{
-			CameraObjectDistance cod(getMultiObjectCustom());
-			if (light->type==rr::RRLight::POINT)
-			{
-				// POINT
-				cod.addPoint(light->position);
-			}
-			else
-			{
-				// SPOT
-				for (unsigned i=0;i<realtimeLight->getNumShadowmaps();i++)
-				{
-					Camera* camera = realtimeLight->getShadowmapCamera(i);
-					cod.addCamera(camera);
-					delete camera;
-				}
-			}
-			if (cod.getDistanceMax()>=cod.getDistanceMin()
-				// better keep old range if detected distance is 0 (camera in wall?)
-				&& cod.getDistanceMax()>0)
-			{
-				realtimeLight->getParent()->setRange(cod.getDistanceMin()*0.9f,cod.getDistanceMax()*5);
-			}
-		}
-	}
-
 	// reset detected direct lighting
 	if (detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
 }
 
-void RRDynamicSolverGL::reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI)
+void RRDynamicSolverGL::reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI, bool dirtyRange)
 {
 	if (lightIndex==-1)
 	{
 		for (unsigned i=0;i<realtimeLights.size();i++)
 		{
-			reportDirectIlluminationChange(i,dirtyShadowmap,dirtyGI);
+			reportDirectIlluminationChange(i,dirtyShadowmap,dirtyGI,dirtyRange);
 		}
 		return;
 	}
-	RRDynamicSolver::reportDirectIlluminationChange(lightIndex,dirtyShadowmap,dirtyGI);
+	RRDynamicSolver::reportDirectIlluminationChange(lightIndex,dirtyShadowmap,dirtyGI,dirtyRange);
 	if (lightIndex>=0 && lightIndex<(int)realtimeLights.size())
 	{
 		realtimeLights[lightIndex]->dirtyShadowmap |= dirtyShadowmap;
 		realtimeLights[lightIndex]->dirtyGI |= dirtyGI;
+		realtimeLights[lightIndex]->dirtyRange |= dirtyRange;
 	}
 }
 
@@ -251,7 +215,7 @@ done:
 		if (light->shadowTransparencyActual!=shadowTransparencyActual)
 		{
 			light->shadowTransparencyActual = shadowTransparencyActual;
-			reportDirectIlluminationChange(i,true,true);
+			reportDirectIlluminationChange(i,true,true,false);
 		}
 
 		// update shadowmap[s]
@@ -259,6 +223,8 @@ done:
 		if (light->dirtyShadowmap || isDirtyOnlyBecauseObserverHasMoved)
 		{
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
+			if (light->dirtyRange)
+				light->setRangeDynamically(getMultiObjectCustom());
 			light->configureCSM(observer,getMultiObjectCustom());
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			// Setup shader for rendering to SM.

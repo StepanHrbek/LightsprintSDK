@@ -97,6 +97,18 @@ public:
 	//! Returns recommended number of shadow samples for given light instance.
 	unsigned getNumShadowSamples(unsigned instance) const;
 
+	//! Sets near and far to cover scene visible by light, but not much more.
+	//
+	//! Uses raycasting (~100 rays), performance hit for one light is acceptable even if called once per frame;
+	//! but it could be too much when called for many lights in every frame.
+	//!
+	//! Instead of directly calling setRangeDynamically(), you can set #dirtyRange, solver will call
+	//! setRangeDynamically() automatically before updating shadowmaps. This way you avoid calling
+	//! setRangeDynamically() twice if different parts of code request update.
+	//! \param scene
+	//!  Multiobject with all objects in scene.
+	void setRangeDynamically(const rr::RRObject* scene);
+
 	//! Renders only shadows, no illumination. This is useful for simulating indirect shadows.
 	//! Works only in presence of indirect illumination, shadows are subtracted from indirect illumination.
 	//! When rendering with multiple lights, works only in first light.
@@ -130,9 +142,18 @@ public:
 	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange(), cleared by RRDynamicSolverGL::calculate().
 	bool dirtyShadowmap;
 	//! Whether GI needs update.
+	//
 	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange() and by getProjectedTexture()
 	//! (see #changesInProjectedTextureAffectGI), cleared by RRDynamicSolverGL::calculate().
 	bool dirtyGI;
+	//! Whether shadowmap near/far range needs update.
+	//
+	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange(), cleared by RRDynamicSolverGL::calculate()
+	//! or setRangeDynamically().
+	//! Range should be wide enough to not clip visible geometry, but not wider,
+	//! becuase it increases shadow bias and makes distant triangles z-fight.
+	//! You can set range manually or just set dirtyRange and we will recalculate range automatically.
+	bool dirtyRange;
 	//! Eye position when direct lighting was detected.
 	//! Only for directional light.
 	rr::RRVec3 positionOfLastDDI;

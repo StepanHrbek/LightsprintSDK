@@ -203,7 +203,7 @@ void setShadowTechnique()
 		realtimeLight->setShadowmapSize((resolutionx<800)?SHADOW_MAP_SIZE_HARD/2:SHADOW_MAP_SIZE_HARD);
 		realtimeLight->setNumShadowSamples(1);
 	}
-	level->solver->reportDirectIlluminationChange(0,true,false);
+	level->solver->reportDirectIlluminationChange(0,true,false,false);
 }
 
 void init_gl_resources()
@@ -754,7 +754,7 @@ void changeSpotlight()
 	currentFrame.projectorIndex = (currentFrame.projectorIndex+1)%demoPlayer->getNumProjectors();
 	//light.fieldOfView = 50+40.0*rand()/RAND_MAX;
 	if (!level) return;
-	level->solver->reportDirectIlluminationChange(0,false,true);
+	level->solver->reportDirectIlluminationChange(0,false,true,false);
 }
 
 void reportEyeMovement()
@@ -774,7 +774,7 @@ void reportEyeMovementEnd()
 void reportLightMovement()
 {
 	if (!level) return;
-	level->solver->reportDirectIlluminationChange(0,true,true);
+	level->solver->reportDirectIlluminationChange(0,true,true,false);
 	needMatrixUpdate = 1;
 	needRedisplay = 1;
 	movingLight = 3;
@@ -790,7 +790,7 @@ void reportObjectMovement()
 {
 	// shadowType 0 is static hard shadow, it doesn't need updates
 	if (currentFrame.shadowType!=0)
-		level->solver->reportDirectIlluminationChange(0,true,false);
+		level->solver->reportDirectIlluminationChange(0,true,false,false);
 }
 
 float speedForward = 0;
@@ -1049,8 +1049,8 @@ void keyboard(unsigned char c, int x, int y)
 			}
 			break;
 
-		case '[': realtimeLight->areaSize /= 1.2f; level->solver->reportDirectIlluminationChange(0,true,true); printf("%f\n",realtimeLight->areaSize); break;
-		case ']': realtimeLight->areaSize *= 1.2f; level->solver->reportDirectIlluminationChange(0,true,true); break;			
+		case '[': realtimeLight->areaSize /= 1.2f; level->solver->reportDirectIlluminationChange(0,true,true,false); printf("%f\n",realtimeLight->areaSize); break;
+		case ']': realtimeLight->areaSize *= 1.2f; level->solver->reportDirectIlluminationChange(0,true,true,false); break;
 
 		case '1':
 		case '2':
@@ -1097,7 +1097,7 @@ void keyboard(unsigned char c, int x, int y)
 							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d);//+rr::RRVec3(0,1.2f,0));
 					}
 				}
-				level->solver->reportDirectIlluminationChange(0,true,false);
+				level->solver->reportDirectIlluminationChange(0,true,false,false);
 			}
 			break;
 
@@ -1152,7 +1152,7 @@ void keyboard(unsigned char c, int x, int y)
 			needDepthMapUpdate = 1;
 			break;
 		case 'S':
-			level->solver->reportDirectIlluminationChange(0,true,true);
+			level->solver->reportDirectIlluminationChange(0,true,true,false);
 			break;
 		case 'w':
 		case 'W':

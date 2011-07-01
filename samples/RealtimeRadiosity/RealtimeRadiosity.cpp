@@ -210,7 +210,7 @@ void display(void)
 
 	// update shadowmaps, lightmaps
 	eye.update();
-	solver->reportDirectIlluminationChange(0,true,false);
+	solver->reportDirectIlluminationChange(0,true,false,false);
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	solver->calculate();
 	static unsigned solutionVersion = 0;
@@ -310,7 +310,7 @@ void passive(int x, int y)
 			realtimeLight->getParent()->angle -= mouseSensitivity*x;
 			realtimeLight->getParent()->angleX -= mouseSensitivity*y;
 			RR_CLAMP(realtimeLight->getParent()->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-			solver->reportDirectIlluminationChange(0,true,true);
+			solver->reportDirectIlluminationChange(0,true,true,false);
 			realtimeLight->getParent()->update();
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
@@ -330,7 +330,7 @@ void idle()
 	if (speedLeft) cam->pos -= cam->right * (speedLeft*seconds);
 	if (speedForward || speedBack || speedRight || speedLeft)
 	{
-		if (cam!=&eye) solver->reportDirectIlluminationChange(0,true,true);
+		if (cam!=&eye) solver->reportDirectIlluminationChange(0,true,true,false);
 	}
 
 	glutPostRedisplay();

@@ -6,6 +6,7 @@
 #include <cstring> // NULL
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDebug.h"
+	#include "CameraObjectDistance.h"
 #include "Workaround.h"
 #include <GL/glew.h>
 
@@ -26,6 +27,7 @@ namespace rr_gl
 		numTriangles = 0;
 		dirtyShadowmap = true;
 		dirtyGI = true;
+		dirtyRange = true;
 
 		csmObserverPos = rr::RRVec3(0);
 		csmObserverDir = rr::RRVec3(1,0,0);
@@ -126,6 +128,7 @@ namespace rr_gl
 		// At this point we don't know what was changed anyway, so let's update always.
 		dirtyShadowmap = true;
 		dirtyGI = true;
+		dirtyRange = true;
 	}
 
 	void RealtimeLight::updateAfterRealtimeLightChanges()
@@ -242,6 +245,41 @@ namespace rr_gl
 	unsigned RealtimeLight::getNumShadowSamples(unsigned instance) const
 	{
 		return getNumShadowSamples();
+	}
+
+	void RealtimeLight::setRangeDynamically(const rr::RRObject* object)
+	{
+		if (!object)
+			return;
+
+		if (rrlight.type!=rr::RRLight::DIRECTIONAL)
+		{
+			CameraObjectDistance cod(object);
+			if (rrlight.type==rr::RRLight::POINT)
+			{
+				// POINT
+				cod.addPoint(rrlight.position);
+			}
+			else
+			{
+				// SPOT
+				for (unsigned i=0;i<getNumShadowmaps();i++)
+				{
+					Camera* camera = getShadowmapCamera(i);
+					cod.addCamera(camera);
+					delete camera;
+				}
+			}
+			if (cod.getDistanceMax()>=cod.getDistanceMin()
+				// better keep old range if detected distance is 0 (camera in wall?)
+				&& cod.getDistanceMax()>0)
+			{
+				getParent()->setRange(cod.getDistanceMin()*0.9f,cod.getDistanceMax()*5);
+				rr::RRReporter::report(rr::INF2,"setRangeDynamically()\n");
+				dirtyShadowmap = true;
+			}
+		}
+		dirtyRange = false;
 	}
 
 	void RealtimeLight::instanceMakeup(Camera& light, unsigned instance, bool jittered) const
