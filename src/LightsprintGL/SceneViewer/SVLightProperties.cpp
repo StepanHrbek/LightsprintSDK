@@ -354,8 +354,6 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		rtlight->getParent()->setFar(property->GetValue().GetDouble());
 		rtlight->dirtyShadowmap = true;
 	}
-	//rtlight->dirtyShadowmap = true;
-	//rtlight->dirtyGI = true;
 	rtlight->updateAfterRRLightChanges();
 }
 
