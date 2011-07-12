@@ -433,7 +433,7 @@ public:
 			//|aiProcess_LimitBoneWeights
 			//|aiProcess_ValidateDataStructure
 			//|aiProcess_ImproveCacheLocality
-			//|aiProcess_RemoveRedundantMaterials
+			|aiProcess_RemoveRedundantMaterials // .ifc contains many identical materials
 			//|aiProcess_FixInfacingNormals
 			|aiProcess_SortByPType
 			//|aiProcess_FindDegenerates
