@@ -117,7 +117,6 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 		Append(propTesting);
 		SetPropertyReadOnly(propTesting,true,wxPG_DONT_RECURSE);
 
-
 		propTestingLogShaders = new BoolRefProperty(_("Log shaders"),_("Logs more information, helps while debugging."),userPreferences.testingLogShaders);
 		AppendIn(propTesting,propTestingLogShaders);
 
