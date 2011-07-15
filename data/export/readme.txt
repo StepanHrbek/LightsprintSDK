@@ -1,1 +1,0 @@
-CPULightmaps and BuildLightmaps samples store computed lightmaps to this directory.
