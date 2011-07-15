@@ -366,12 +366,16 @@ struct Parameters
 			if (illumination->getLayer(layerIndex))
 			{
 				// insert layer name before extension
-				std::string filename = layerParameters.actualFilename.c_str();
-				const char* layerName[] = {"","occlusion.","directional1.","directional2.","directional3.","bentnormals."};
+				std::wstring filename = layerParameters.actualFilename.w_str();
+				const wchar_t* layerName[] = {L"",L"occlusion.",L"directional1.",L"directional2.",L"directional3.",L"bentnormals."};
 				int ofs = (int)filename.rfind('.',-1);
 				if (ofs>=0) filename.insert(ofs+1,layerName[layerIndex]);
 				// save
-				saved += illumination->getLayer(layerIndex)->save(filename.c_str());
+				if (illumination->getLayer(layerIndex)->save(RR_STDW2RR(filename)))
+				{
+					saved++;
+					rr::RRReporter::report(rr::INF3,"Saved %ls\n",filename.c_str());
+				}
 			}
 		}
 		return saved;
@@ -407,6 +411,7 @@ int main(int argc, char** argv)
 	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
 #endif
 	rr::RRReporter::report(rr::INF2,"Using Lightsprint SDK %s\n",rr::RR_INTERFACE_DESC_LIB());
+	//rr::RRReporter::setFilter(true,3,true); // enables reporting saved filenames etc
 
 	//
 	// check for dll version mismatch
