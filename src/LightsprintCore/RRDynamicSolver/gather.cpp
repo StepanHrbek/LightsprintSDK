@@ -555,6 +555,10 @@ public:
 						float normalIncidence2 = dot( dir, lightmapDirection.normalized() );
 						if (normalIncidence2>0)
 						{
+							// darkens light perpendicular to pixel, to smooth one type of sharp edge
+							// helps a bit on sphere, but it's unclear how much it would help in general case
+							//normalIncidence2 = sqrt(normalIncidence1*normalIncidence2)*1.36f;
+
 							if (tools.scaler && _light->directLambertScaled)
 								tools.scaler->getPhysicalScale(normalIncidence2);
 							irradiancePhysicalLights[i] += irrad * normalIncidence2;
