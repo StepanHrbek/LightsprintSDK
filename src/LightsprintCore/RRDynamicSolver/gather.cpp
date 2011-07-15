@@ -25,7 +25,7 @@ namespace rr
 //
 // directional lightmaps, compatible with Unreal Engine 3
 
-static const RRVec3 g_lightmapDirections[NUM_LIGHTMAPS] =
+static const RRVec3 g_lightmapDirections[NUM_LIGHTMAPS] = // indexed by LightmapSemantic
 {
 	RRVec3(0,0,1),
 	RRVec3(0,sqrtf(6.0f)/3,1/sqrtf(3.0f)),
@@ -506,13 +506,13 @@ public:
 		RRReal dirsize = dir.length();
 		dir /= dirsize;
 		if (_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
-		float normalIncidence = dot(dir,_basisSkewedNormalized.normal);
-		if (normalIncidence<=0 || !_finite(normalIncidence))
+		float normalIncidence1 = dot(dir,_basisSkewedNormalized.normal);
+		if (normalIncidence1<=0 || !_finite(normalIncidence1))
 		{
 			// face is not oriented towards light (or wrong normal, extremely rare) -> reliable black (selfshadowed)
 			hitsScene++;
 			hitsReliable++;
-			//if (!_finite(normalIncidence)) // #IND normals in shortfuse/undead scene
+			//if (!_finite(normalIncidence1)) // #IND normals in shortfuse/undead scene
 			//	RR_LIMITED_TIMES(10,RRReporter::report(INF1,"lightdir=%f %f %f normal=%f %f %f\n",dir[0],dir[1],dir[2],_basisSkewed.normal[0],_basisSkewed.normal[1],_basisSkewed.normal[2]));
 		}
 		else
@@ -540,29 +540,29 @@ public:
 				if (!pti.context.gatherAllDirections)
 				{
 					if (tools.scaler && _light->directLambertScaled)
-						tools.scaler->getPhysicalScale(normalIncidence);
-					irradiancePhysicalLights[LS_LIGHTMAP] += irrad * normalIncidence;
+						tools.scaler->getPhysicalScale(normalIncidence1);
+					irradiancePhysicalLights[LS_LIGHTMAP] += irrad * normalIncidence1;
 					RR_ASSERT(IS_VEC3(irrad));
-					RR_ASSERT(_finite(normalIncidence));
+					RR_ASSERT(_finite(normalIncidence1));
 					RR_ASSERT(IS_VEC3(irradiancePhysicalLights[0]));
-//RRReporter::report(INF1,"%d/%d +(%f*%f=%f) avg=%f\n",hitsReliable+1,shotRounds+1,irrad[0],normalIncidence,irrad[0]*normalIncidence,irradiancePhysicalLights[LS_LIGHTMAP][0]/(shotRounds+1));
+//RRReporter::report(INF1,"%d/%d +(%f*%f=%f) avg=%f\n",hitsReliable+1,shotRounds+1,irrad[0],normalIncidence1,irrad[0]*normalIncidence1,irradiancePhysicalLights[LS_LIGHTMAP][0]/(shotRounds+1));
 				}
 				else
 				{
 					for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 					{
 						RRVec3 lightmapDirection = _basisSkewedNormalized.tangent*g_lightmapDirections[i][0] + _basisSkewedNormalized.bitangent*g_lightmapDirections[i][1] + _basisSkewedNormalized.normal*g_lightmapDirections[i][2];
-						float normalIncidence = dot( dir, lightmapDirection.normalized() );
-						if (normalIncidence>0)
+						float normalIncidence2 = dot( dir, lightmapDirection.normalized() );
+						if (normalIncidence2>0)
 						{
 							if (tools.scaler && _light->directLambertScaled)
-								tools.scaler->getPhysicalScale(normalIncidence);
-							irradiancePhysicalLights[i] += irrad * normalIncidence;
+								tools.scaler->getPhysicalScale(normalIncidence2);
+							irradiancePhysicalLights[i] += irrad * normalIncidence2;
 							RR_ASSERT(IS_VEC3(irradiancePhysicalLights[0]));
 						}
 					}
 				}
-				bentNormalLights += dir * (irrad.abs().avg()*normalIncidence);
+				bentNormalLights += dir * (irrad.abs().avg()*normalIncidence1);
 				hitsLight++;
 				hitsReliable++;
 			}
