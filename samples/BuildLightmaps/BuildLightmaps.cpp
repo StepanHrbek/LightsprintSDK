@@ -308,12 +308,28 @@ struct Parameters
 			buildDirectional = false;
 			buildBentNormals = false;
 		}
-		// outputpath is relative to currentdirectory=exedirectory
-		// TODO: make it relative to scenepath
-		//  outputpath not set -> outputpath=scenepath
-		//  outputpath= -> outputpath=scenepath
-		//  outputpath=. -> outputpath=scenepath/.
-		//  outputpath=aga -> outputpath=scenepath/aga
+
+		// if outputpath is not absolute
+		// (aaaaargh, this whole paragraph is so ugly without boost, I wish everyone installs boost so I can use it also in samples)
+		const char* tmp = layerParameters.suggestedPath.c_str();
+		if (!( tmp && tmp[0] && tmp[1] && (tmp[0]=='/' || tmp[0]=='\\' || tmp[1]==':')) && sceneFilename)
+		{
+			std::string outputPath = sceneFilename;
+			if (tmp && tmp[0])
+			{
+				// if outputpath is relative, make it relative to scenepath
+				int ofs = (int)outputPath.find_last_of("/\\");
+				if (ofs>=0) outputPath.replace(ofs+1,999,tmp);
+			}
+			else
+			{
+				// if outputpath is empty, output to the same subdir as scene viewer (filenameof3dscene_precalculated/)
+				int ofs = (int)outputPath.rfind('.',-1);
+				if (ofs>=0) outputPath.replace(ofs,999,"_precalculated/");
+			}
+			layerParameters.suggestedPath = RR_STD2RR(outputPath);
+			_mkdir(outputPath.c_str());
+		}
 	}
 
 	rr::RRBuffer* newBuffer() const
@@ -367,7 +383,7 @@ struct Parameters
 			{
 				// insert layer name before extension
 				std::wstring filename = layerParameters.actualFilename.w_str();
-				const wchar_t* layerName[] = {L"",L"occlusion.",L"directional1.",L"directional2.",L"directional3.",L"bentnormals."};
+				const wchar_t* layerName[] = {L"",L"occlusion.",L"directional1.",L"directional2.",L"directional3.",L"bentnormals."}; // first one is "" rather than "lightmap." because Gamebryo 2.6 integration wants us to build <hash>.tga, not <hash>.lightmap.tga
 				int ofs = (int)filename.rfind('.',-1);
 				if (ofs>=0) filename.insert(ofs+1,layerName[layerIndex]);
 				// save
@@ -376,6 +392,8 @@ struct Parameters
 					saved++;
 					rr::RRReporter::report(rr::INF3,"Saved %ls\n",filename.c_str());
 				}
+				else
+					rr::RRReporter::report(rr::WARN,"Failed to saved %ls\n",filename.c_str());
 			}
 		}
 		return saved;

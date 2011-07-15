@@ -17,6 +17,11 @@ NEWS
     \n Note: If you reimplemented this function, add new parameter to your implementation.
   - set RealtimeLight::dirtyRange
   - call RealtimeLight::setRangeDynamically()
+- default lightmap filenames unified across all tools and samples
+  - first lightmap of foo/bar.3ds is foo/bar_precalculated/00000.png
+  - first directional lightmap of foo/bar.3ds is foo/bar_precalculated/00000.directional1.png etc
+  - BuildLightmaps commandline arg outputpath= is relative to 3d scene directory
+  - removed data/export directory
 
 \section news123 ------------------------------------ 2011.06.29 -------------------------------------
 

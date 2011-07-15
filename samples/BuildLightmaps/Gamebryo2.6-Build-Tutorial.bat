@@ -11,6 +11,6 @@ if not exist "%GAMEBRYO_GI_PATH%Samples/Tutorial/Tutorial.gsa" (
 
 BuildLightmaps.bat ^
  "%GAMEBRYO_GI_PATH%Samples/Tutorial/Tutorial.gsa" ^
- "outputpath=%GAMEBRYO_GI_PATH%Samples/Tutorial/LightMaps/" ^
+ "outputpath=LightMaps/" ^
  "outputext=tga" ^
  "quality=1000"

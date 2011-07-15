@@ -185,7 +185,7 @@ void keyboard(unsigned char c, int x, int y)
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
 				rr::RRDynamicSolver::UpdateParameters paramsDirect;
-				paramsDirect.quality = 10;
+				paramsDirect.quality = 1000;
 				paramsDirect.applyCurrentSolution = false;
 				paramsDirect.aoIntensity = 1;
 				paramsDirect.aoSize = 1;
@@ -233,17 +233,19 @@ void keyboard(unsigned char c, int x, int y)
 
 		case 's':
 			// save current indirect illumination (static snapshot) to disk
-			solver->getStaticObjects().saveLayer(LAYER_OFFLINE_PIXEL,"../../data/export/","png");
+			solver->getStaticObjects().saveLayer(LAYER_OFFLINE_PIXEL,"../../data/scenes/koupelna/koupelna4_precalculated/","png");
+			solver->getStaticObjects().saveLayer(LAYER_OFFLINE_VERTEX,"../../data/scenes/koupelna/koupelna4_precalculated/","vbu");
 			if (lightField)
-				lightField->save("../../data/export/lightfield.lf");
+				lightField->save("../../data/scenes/koupelna/koupelna4_precalculated/lightfield.lf");
 			break;
 
 		case 'l':
 			// load static snapshot of indirect illumination from disk, stop realtime updates
 			{
-				solver->getStaticObjects().loadLayer(LAYER_OFFLINE_PIXEL,"../../data/export/","png");
+				solver->getStaticObjects().loadLayer(LAYER_OFFLINE_PIXEL,"../../data/scenes/koupelna/koupelna4_precalculated/","png");
+				solver->getStaticObjects().loadLayer(LAYER_OFFLINE_VERTEX,"../../data/scenes/koupelna/koupelna4_precalculated/","vbu");
 				delete lightField;
-				lightField = rr::RRLightField::load("../../data/export/lightfield.lf");
+				lightField = rr::RRLightField::load("../../data/scenes/koupelna/koupelna4_precalculated/lightfield.lf");
 				// start rendering loaded maps
 				renderLayer = LAYER_OFFLINE_PIXEL;
 				modeMovingEye = true;

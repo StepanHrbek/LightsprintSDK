@@ -3127,7 +3127,7 @@ rr::RRVector<*>{
 
  Following projects use LightsprintCore library for off-line rendering.
  \n They are located in samples directory in the SDK, binaries in bin.
- \n Results are usually saved to data/export directory.
+ \n When processing foo/bar.3ds scene, results are saved to foo/bar_precalculated directory by default.
 
  <hr>
  <b>LightSpeed</b>

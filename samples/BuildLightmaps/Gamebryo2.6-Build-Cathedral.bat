@@ -11,7 +11,7 @@ if not exist "%GAMEBRYO_GI_PATH%Samples/Cathedral/Cathedral.gsa" (
 
 BuildLightmaps.bat ^
  "%GAMEBRYO_GI_PATH%Samples/Cathedral/Cathedral.gsa" ^
- "outputpath=%GAMEBRYO_GI_PATH%Samples/Cathedral/LightMaps/" ^
+ "outputpath=LightMaps/" ^
  "outputext=tga" ^
  "quality=200" ^
  "emissivemultiplier=1.0" ^
