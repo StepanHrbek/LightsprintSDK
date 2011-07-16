@@ -747,18 +747,25 @@ void Scene::objInsertStatic(Object *o)
 
 RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
 {
-	if (resetFactors)
-		resetPropagation = true;
-
 	abortStaticImprovement();
 
 	if (resetFactors)
 	{
 		shotsForFactorsTotal=0;
 		shotsTotal=0;
-		// tell pool it can deallocate or mark everything as free, we promise we won't use previously allocated factors
-		// (this creates dangling pointers in Triangle::factors, we will NULL them in object->resetStaticIllumination() below)
+		// tell triangles to forget about factors
+		for (int t=0;(unsigned)t<object->triangles;t++)
+			object->triangle[t].factors.clear();
+		// deallocate all factors
 		factorAllocator.reset();
+
+		if (!resetPropagation)
+		{
+			// we get here only from updateLightmaps(), at the end of offline radiosity phase
+			// it is optimization only, we were asked only to free some memory and we did it
+			// the rest must be preserved for final gather, so get out of here
+			return RRStaticSolver::FINISHED;
+		}
 	}
 	staticSourceExitingFlux=Channels(0);
 

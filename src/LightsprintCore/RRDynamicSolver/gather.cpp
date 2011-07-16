@@ -1161,6 +1161,9 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 				case RRStaticSolver::FINISHED: RRReporter::report(WARN,"Scene is completely dark.\n");break;
 				case RRStaticSolver::INTERNAL_ERROR: RRReporter::report(ERRO,"Infinite brightness, possibly caused by wrong inputs. Try checkConsistency().\n");break;
 			}
+
+			// optimization: free memory taken by factors (we won't need them anymore), but preserve accumulators (we need them for final gather)
+			priv->scene->illuminationReset(true,false,NULL,NULL,NULL);
 		}
 	}
 	return true;
