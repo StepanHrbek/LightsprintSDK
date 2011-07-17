@@ -114,7 +114,6 @@ public:
 			SetDIBitsToDevice(hdcBackBuffer,0,0,buffer->getWidth(),buffer->getHeight(),0,0,0,buffer->getHeight(),data,&bitmapinfo,0);
 			buffer->unlock();
 		}
-		delete buffer;
 
 		// start rendering splash
 		POINT ptSrc;
@@ -133,6 +132,8 @@ public:
 		DeleteDC(hdcBackBuffer);
 		_beginthread(windowThreadFunc,0,NULL);
 		g_alphaSplashOn = true;
+
+		delete buffer;
 	}
 
 	~AlphaSplashScreen()
@@ -514,11 +515,9 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	textureLocator = rr::RRFileLocator::create();
 
-#if defined(_WIN32) && _MSC_VER>=1400
-#ifdef NDEBUG
+#if defined(_WIN32) && _MSC_VER>=1400 && defined(NDEBUG)
 	rr::RRTime splashStart;
 	AlphaSplashScreen splash(wxString::Format("%s../maps/sv_splash.png",svs.pathToShaders),230,-245);
-#endif
 #endif
 
 	m_mgr.SetManagedWindow(this);
