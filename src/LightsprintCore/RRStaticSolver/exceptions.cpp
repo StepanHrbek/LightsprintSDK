@@ -112,8 +112,7 @@ public:
 				return i->second.buffer->createReference(); // add one ref for user
 			}
 			// modified (in memory or on disk) after load, delete it from cache, we can't use it anymore
-			delete i->second.buffer;
-			cache.erase(i);
+			deleteFromCache(i);
 		}
 		// load new file into cache
 		Value& value = cache[RR_RR2STDW(filename)];
@@ -137,17 +136,23 @@ public:
 		}
 		return memoryOccupied;
 	}
+	void deleteFromCache(RRBuffer* b)
+	{
+		if (b)
+			deleteFromCache(cache.find(RR_RR2STDW(b->filename)));
+	}
 	~ImageCache()
 	{
-		for (Cache::iterator i=cache.begin();i!=cache.end();i++)
+		while (cache.begin()!=cache.end())
 		{
 #ifdef _DEBUG
 			// If users deleted their buffers, refcount should be down at 1 and this delete is final
 			// Don't report in release, some samples knowingly leak, to make code simpler
-			if (i->second.buffer && i->second.buffer->getReferenceCount()!=1)
-				RRReporter::report(WARN,"Memory leak, image %ls not deleted (%dx).\n",i->second.buffer->filename.w_str(),i->second.buffer->getReferenceCount()-1);
+			RRBuffer* b = cache.begin()->second.buffer;
+			if (b && b->getReferenceCount()!=1)
+				RRReporter::report(WARN,"Memory leak, image %ls not deleted (%dx).\n",b->filename.w_str(),b->getReferenceCount()-1);
 #endif
-			delete i->second.buffer;
+			deleteFromCache(cache.begin());
 		}
 	}
 protected:
@@ -161,6 +166,17 @@ protected:
 	};
 	typedef boost::unordered_map<std::wstring,Value> Cache;
 	Cache cache;
+
+	void deleteFromCache(Cache::iterator i)
+	{
+		if (i!=cache.end())
+		{
+			RRBuffer* b = i->second.buffer;
+			cache.erase(i);
+			// delete calls deleteFromCache(), but we have just erased it from cache, so it won't find it, it won't delete it again
+			delete b;
+		}
+	}
 };
 
 // Single cache works better than individual cache instances in scenes,
@@ -170,6 +186,11 @@ ImageCache s_imageCache;
 RRBuffer* load_cached(const RRString& filename, const char* cubeSideName[6])
 {
 	return s_imageCache.load_cached(filename,cubeSideName);
+}
+
+void RRBuffer::deleteFromCache()
+{
+	s_imageCache.deleteFromCache(this);
 }
 
 

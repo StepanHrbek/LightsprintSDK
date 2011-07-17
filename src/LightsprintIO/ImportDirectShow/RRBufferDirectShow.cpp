@@ -211,6 +211,9 @@ public:
 				// fix instance after destructor, restore first 4 or 8 bytes from backup
 				// (it's not safe to restore from local static RRBufferDirectShow)
 				memcpy(b,g_classHeader,g_classHeaderSize);
+				// however, if last reference remains, try to delete it from cache
+				if (b->refCount==1)
+					b->deleteFromCache();
 			}
 			else
 			{

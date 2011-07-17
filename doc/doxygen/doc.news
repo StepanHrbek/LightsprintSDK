@@ -22,6 +22,7 @@ NEWS
   - first directional lightmap of foo/bar.3ds is foo/bar_precalculated/00000.directional1.png etc
   - BuildLightmaps commandline arg outputpath= is relative to 3d scene directory
   - removed data/export directory
+- significantly reduced memory requirements (Gamebryo integration can process much bigger scenes)
 
 \section news123 ------------------------------------ 2011.06.29 -------------------------------------
 

@@ -445,6 +445,15 @@ namespace rr
 		//! \return
 		//!  True on success, may fail when buffer is not 2d texture.
 		virtual bool lightmapFillBackground(RRVec4 backgroundColor);
+
+	protected:
+		//! Deletes last reference to buffer from cache.
+		//
+		//! To be called from delete operator of all RRBuffer implementations when refCount is 1.
+		//! Without this function, deleted images would stay in cache and next load from the same filename
+		//! would be super fast. This is however rarely needed, freeing memory is more important,
+		//! so we explicitly delete buffer from cache.
+		void deleteFromCache();
 	};
 
 } // namespace

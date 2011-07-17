@@ -119,6 +119,9 @@ void RRBufferInMemory::operator delete(void* p, std::size_t n)
 		{
 			// fix instance after destructor (restore first 4 or 8 bytes)
 			memcpy(b,&g_classHeader,sizeof(void*));
+			// however, if last reference remains, try to delete it from cache
+			if (b->refCount==1)
+				b->deleteFromCache();
 		}
 		else
 		{
