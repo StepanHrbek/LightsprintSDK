@@ -42,7 +42,7 @@ const char* tmpstr(const char* fmt, ...)
 //
 // LayerParameters
 
-RRBuffer* RRObject::LayerParameters::createBuffer(bool forceFloats, bool forceAlpha) const
+RRBuffer* RRObject::LayerParameters::createBuffer(bool forceFloats, bool forceAlpha, const wchar_t* insertBeforeExtension) const
 {
 	RRBufferFormat f;
 	switch (actualFormat)
@@ -71,7 +71,18 @@ RRBuffer* RRObject::LayerParameters::createBuffer(bool forceFloats, bool forceAl
 	}
 	RRBuffer* buffer = RRBuffer::create(actualType,actualWidth,actualHeight,1,f,actualScaled,NULL);
 	if (buffer)
-		buffer->filename = actualFilename;
+	{
+		if (insertBeforeExtension)
+		{
+			// insert layer name before extension
+			std::wstring filename = actualFilename.w_str();
+			int ofs = (int)filename.rfind('.',-1);
+			if (ofs>=0) filename.insert(ofs,insertBeforeExtension);
+			buffer->filename = RR_STDW2RR(filename);
+		}
+		else
+			buffer->filename = actualFilename;
+	}
 	return buffer;
 }
 

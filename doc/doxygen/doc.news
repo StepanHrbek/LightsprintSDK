@@ -12,6 +12,9 @@ namespace rr
 
 NEWS
 
+- <b>optimized \ref main_gamebryo3 "Gamebryo Lightspeed 3.1.1 integration"</b>
+  - 5* faster "Bake from cache" on quadcore CPU
+  - greatly reduced memory footprint, can process much larger scenes
 - You can request automatic update of light's near/far range in 3 ways
   - RRDynamicSolver::reportDirectIlluminationChange() has new parameter dirtyRange, pass true
     \n Note: If you reimplemented this function, add new parameter to your implementation.
@@ -22,7 +25,6 @@ NEWS
   - first directional lightmap of foo/bar.3ds is foo/bar_precalculated/00000.directional1.png etc
   - BuildLightmaps commandline arg outputpath= is relative to 3d scene directory
   - removed data/export directory
-- significantly reduced memory requirements (Gamebryo integration can process much bigger scenes)
 
 \section news123 ------------------------------------ 2011.06.29 -------------------------------------
 

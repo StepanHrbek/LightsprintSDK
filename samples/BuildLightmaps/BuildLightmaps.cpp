@@ -332,22 +332,17 @@ struct Parameters
 		}
 	}
 
-	rr::RRBuffer* newBuffer() const
-	{
-		return layerParameters.createBuffer(false,true); // floats not necessary, alpha for smoothing
-	}
-
 	// allocate layers for 1 object (lightmaps etc)
 	void layersCreate(rr::RRObjectIllumination* illumination) const
 	{
 		if (!buildNothing)
 		{
-			illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? newBuffer() : NULL;
-			illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? newBuffer() : NULL;
-			illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? newBuffer() : NULL;
-			illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? newBuffer() : NULL;
-			illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? newBuffer() : NULL;
-			illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? newBuffer() : NULL;
+			illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.createBuffer(false,true,L"") : NULL; // "" rather than ".lightmap" because Gamebryo 2.6 integration wants us to build <hash>.tga, not <hash>.lightmap.tga
+			illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? layerParameters.createBuffer(false,true,L".occlusion") : NULL; // floats not necessary, alpha for smoothing
+			illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional1") : NULL;
+			illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional2") : NULL;
+			illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional3") : NULL;
+			illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? layerParameters.createBuffer(false,true,L".bentnormals") : NULL;
 		}
 	}
 
@@ -379,21 +374,17 @@ struct Parameters
 		unsigned saved = 0;
 		for (unsigned layerIndex = LAYER_LIGHTMAP; layerIndex<LAYER_LAST; layerIndex++)
 		{
-			if (illumination->getLayer(layerIndex))
+			rr::RRBuffer* buffer = illumination->getLayer(layerIndex);
+			if (buffer)
 			{
-				// insert layer name before extension
-				std::wstring filename = layerParameters.actualFilename.w_str();
-				const wchar_t* layerName[] = {L"",L"occlusion.",L"directional1.",L"directional2.",L"directional3.",L"bentnormals."}; // first one is "" rather than "lightmap." because Gamebryo 2.6 integration wants us to build <hash>.tga, not <hash>.lightmap.tga
-				int ofs = (int)filename.rfind('.',-1);
-				if (ofs>=0) filename.insert(ofs+1,layerName[layerIndex]);
 				// save
-				if (illumination->getLayer(layerIndex)->save(RR_STDW2RR(filename)))
+				if (buffer->save(buffer->filename))
 				{
 					saved++;
-					rr::RRReporter::report(rr::INF3,"Saved %ls\n",filename.c_str());
+					rr::RRReporter::report(rr::INF3,"Saved %ls\n",buffer->filename.w_str());
 				}
 				else
-					rr::RRReporter::report(rr::WARN,"Failed to saved %ls\n",filename.c_str());
+					rr::RRReporter::report(rr::WARN,"Failed to saved %ls\n",buffer->filename.w_str());
 			}
 		}
 		return saved;

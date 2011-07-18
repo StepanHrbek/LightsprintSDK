@@ -369,7 +369,9 @@ namespace rr
 			//!  Creates float buffer.
 			//! \param forceAlpha
 			//!  Creates buffer with alpha channel.
-			RRBuffer* createBuffer(bool forceFloats = false, bool forceAlpha = false) const;
+			//! \param insertBeforeExtension
+			//!  Buffer's filename is set to actualFilename with this string inserted before extension. May be NULL.
+			RRBuffer* createBuffer(bool forceFloats = false, bool forceAlpha = false, const wchar_t* insertBeforeExtension = NULL) const;
 		};
 
 		//! Recommends layer parameters (resolution, filename etc).
