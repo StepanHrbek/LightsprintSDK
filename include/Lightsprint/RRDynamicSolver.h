@@ -786,7 +786,8 @@ namespace rr
 		//! This function must be called after setStaticObjects(), because it depends on
 		//! static objects in scene. It doesn't depend on lights end environment.
 		//!
-		//! Build complexity is O( avgRaysPerTriangle * triangles * log(triangles) ).
+		//! Build complexity is O( avgRaysPerTriangle * t * log(t) )
+		//! where t is number of triangles in static objects.
 		//!
 		//! \ref calc_fireball is faster, higher quality, smaller, realtime only solver;
 		//! it is highly recommended for games.

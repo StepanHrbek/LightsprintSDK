@@ -102,6 +102,15 @@ namespace rr
 	//! Offline solver in LightsprintCore accesses #type, #position, #direction and getIrradiance().
 	//! Realtime renderer in LightsprintGL accesses all attributes.
 	//!
+	//! If you wish to control light properties for direct and indirect illumination separately,
+	//! you can do so by changing properties at the right moment during calculation.
+	//! For realtime GI, solver->calculate() accesses light to calculate indirect illumination,
+	//! while solver->renderScene() accesses light to calculate direct illumination.
+	//! For offline GI, solver->updateLightmaps(-1,-1,-1,NULL,indirectParams,) accesses light to calculate indirect illumination,
+	//! while solver->updateLightmaps(,,,directParams,NULL,) accesses light to calculate direct illumination.
+	//! There are other ways of controlling intensity of indirect illumination,
+	//! see RRDynamicSolverGL::setDirectIlluminationBoost().
+	//
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//! All custom implementations must be thread safe too.
 	//
