@@ -1287,6 +1287,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\IFCCurve.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\IFCGeometry.cpp"
 					>
 				</File>
@@ -1427,6 +1431,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\M3Importer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\M3Importer.h"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\MakeVerboseFormat.cpp"
 					>
 				</File>
@@ -1552,6 +1564,14 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\NFFLoader.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\ObjExporter.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\ObjExporter.h"
 					>
 				</File>
 				<File

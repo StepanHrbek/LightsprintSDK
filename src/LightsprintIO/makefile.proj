@@ -136,6 +136,7 @@ ImportAssimp/code/AssimpCExport.cpp \
 ImportAssimp/code/ColladaExporter.cpp \
 ImportAssimp/code/DeboneProcess.cpp \
 ImportAssimp/code/ProcessHelper.cpp \
+ImportAssimp/code/IFCCurve.cpp \
 ImportAssimp/code/IFCGeometry.cpp \
 ImportAssimp/code/IFCLoader.cpp \
 ImportAssimp/code/IFCMaterial.cpp \
@@ -143,6 +144,8 @@ ImportAssimp/code/IFCProfile.cpp \
 ImportAssimp/code/IFCReaderGen.cpp \
 ImportAssimp/code/IFCUtil.cpp \
 ImportAssimp/code/STEPFileReader.cpp \
+ImportAssimp/code/M3Importer.cpp \
+ImportAssimp/code/ObjExporter.cpp \
 ImportAssimp/contrib/irrXML/irrXML.cpp \
 ImportAssimp/contrib/unzip/ioapi.c \
 ImportAssimp/contrib/unzip/unzip.c \

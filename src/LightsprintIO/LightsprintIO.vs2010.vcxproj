@@ -604,6 +604,7 @@
     <ClCompile Include="ImportAssimp\code\GenFaceNormalsProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\GenVertexNormalsProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\HMPLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\IFCCurve.cpp" />
     <ClCompile Include="ImportAssimp\code\IFCGeometry.cpp" />
     <ClCompile Include="ImportAssimp\code\IFCLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\IFCMaterial.cpp" />
@@ -622,6 +623,7 @@
     <ClCompile Include="ImportAssimp\code\LWOLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\LWOMaterial.cpp" />
     <ClCompile Include="ImportAssimp\code\LWSLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\M3Importer.cpp" />
     <ClCompile Include="ImportAssimp\code\MakeVerboseFormat.cpp" />
     <ClCompile Include="ImportAssimp\code\MaterialSystem.cpp" />
     <ClCompile Include="ImportAssimp\code\MD2Loader.cpp" />
@@ -634,6 +636,7 @@
     <ClCompile Include="ImportAssimp\code\MS3DLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\NDOLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\NFFLoader.cpp" />
+    <ClCompile Include="ImportAssimp\code\ObjExporter.cpp" />
     <ClCompile Include="ImportAssimp\code\ObjFileImporter.cpp" />
     <ClCompile Include="ImportAssimp\code\ObjFileMtlImporter.cpp" />
     <ClCompile Include="ImportAssimp\code\ObjFileParser.cpp" />
@@ -978,6 +981,7 @@
     <ClInclude Include="ImportAssimp\code\LWOFileData.h" />
     <ClInclude Include="ImportAssimp\code\LWOLoader.h" />
     <ClInclude Include="ImportAssimp\code\LWSLoader.h" />
+    <ClInclude Include="ImportAssimp\code\M3Importer.h" />
     <ClInclude Include="ImportAssimp\code\MakeVerboseFormat.h" />
     <ClInclude Include="ImportAssimp\code\MaterialSystem.h" />
     <ClInclude Include="ImportAssimp\code\MD2FileData.h" />
@@ -998,6 +1002,7 @@
     <ClInclude Include="ImportAssimp\code\MS3DLoader.h" />
     <ClInclude Include="ImportAssimp\code\NDOLoader.h" />
     <ClInclude Include="ImportAssimp\code\NFFLoader.h" />
+    <ClInclude Include="ImportAssimp\code\ObjExporter.h" />
     <ClInclude Include="ImportAssimp\code\ObjFileData.h" />
     <ClInclude Include="ImportAssimp\code\ObjFileImporter.h" />
     <ClInclude Include="ImportAssimp\code\ObjFileMtlImporter.h" />
