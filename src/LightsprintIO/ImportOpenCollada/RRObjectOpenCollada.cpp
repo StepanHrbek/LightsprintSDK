@@ -860,7 +860,7 @@ public:
 				if( colladaBinding->getTextureCoordinateBindingArray()[textbind].getTextureMapId() == texture.getTextureMapId() )
 				{
 					size_t localSet = colladaBinding->getTextureCoordinateBindingArray()[textbind].getSetIndex();
-					MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find(  materialId );
+					MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find( materialId );
 					if( localToPhysIter != mapUV.end() )
 					{
 						MapLocalToPhysicalUVSet::iterator physIter = localToPhysIter->second.find( localSet );
@@ -879,8 +879,8 @@ public:
 		}
 
 		// use first valid uv set, otherwise return max
-		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"No input set bound with bind_vertex_input.\n"));
-		MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find(  materialId );
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"No input set bound with <bind_vertex_input>, it's not clear what uv channel to use with texture.\n"));
+		MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find( materialId );
 		if(localToPhysIter->second.size()>0)
 			return localToPhysIter->second.begin()->second;
 		else
