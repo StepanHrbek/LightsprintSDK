@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}</ProjectGuid>
-    <RootNamespace>Lightsmark2008</RootNamespace>
+    <RootNamespace>Lightsmark</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -101,14 +101,14 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="Lightsmark2008.bmp" />
-    <None Include="Lightsmark2008.ico" />
+    <None Include="Lightsmark.bmp" />
+    <None Include="Lightsmark.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Lightsmark2008.cpp" />
+    <ClCompile Include="Lightsmark.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Lightsmark2008.rc" />
+    <ResourceCompile Include="Lightsmark.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />

@@ -3,7 +3,7 @@
 "VSVersion" = "3:800"
 "ProjectType" = "8:{978C614F-708E-4E1A-B201-565925725DBA}"
 "IsWebType" = "8:FALSE"
-"ProjectName" = "8:Lightsmark2008Setup"
+"ProjectName" = "8:LightsmarkSetup"
 "LanguageId" = "3:1033"
 "CodePage" = "3:1252"
 "UILanguageId" = "3:1033"
@@ -1485,7 +1485,7 @@
         "DisplayName" = "8:Release static"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:..\\..\\Lightsmark2008.2.0.msi"
+        "OutputFilename" = "8:..\\..\\Lightsmark2011.3.0.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -1897,8 +1897,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17B34A921F9942BAB0252444D2791470"
             {
-            "SourcePath" = "8:..\\Lightsmark2008\\Lightsmark2008.rc"
-            "TargetName" = "8:Lightsmark2008.rc"
+            "SourcePath" = "8:..\\Lightsmark\\Lightsmark.rc"
+            "TargetName" = "8:Lightsmark.rc"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
             "Condition" = "8:"
@@ -2277,8 +2277,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A69C325B3F34F8995B0106009D772E6"
             {
-            "SourcePath" = "8:..\\..\\bin\\win32\\Lightsmark2008.exe"
-            "TargetName" = "8:Lightsmark2008.exe"
+            "SourcePath" = "8:..\\..\\bin\\win32\\Lightsmark.exe"
+            "TargetName" = "8:Lightsmark.exe"
             "Tag" = "8:"
             "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
             "Condition" = "8:"
@@ -3497,8 +3497,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B8B6318411A44B2BBCAFF0EC6A1BE4E"
             {
-            "SourcePath" = "8:UninstallLightsmark2008.bat"
-            "TargetName" = "8:UninstallLightsmark2008.bat"
+            "SourcePath" = "8:UninstallLightsmark2011.bat"
+            "TargetName" = "8:UninstallLightsmark2011.bat"
             "Tag" = "8:"
             "Folder" = "8:_EB60A55B498A414FA79500F96C98CA82"
             "Condition" = "8:"
@@ -3677,8 +3677,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_71830EFFF49D43BDAE3188B43F88A600"
             {
-            "SourcePath" = "8:..\\Lightsmark2008\\Lightsmark2008.bmp"
-            "TargetName" = "8:Lightsmark2008.bmp"
+            "SourcePath" = "8:..\\Lightsmark\\Lightsmark.bmp"
+            "TargetName" = "8:Lightsmark.bmp"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
             "Condition" = "8:"
@@ -3797,8 +3797,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_778D7DCB676040D0ADD18AF78C35F5C4"
             {
-            "SourcePath" = "8:..\\..\\data\\Lightsmark2008.cfg"
-            "TargetName" = "8:Lightsmark2008.cfg"
+            "SourcePath" = "8:..\\..\\data\\Lightsmark.cfg"
+            "TargetName" = "8:Lightsmark.cfg"
             "Tag" = "8:"
             "Folder" = "8:_D19C7AFAC9074198A8003F93860B1BA3"
             "Condition" = "8:"
@@ -3837,8 +3837,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7B1D065FB3E341BC84DDADBF2D16AEAD"
             {
-            "SourcePath" = "8:..\\Lightsmark2008\\Lightsmark2008.ico"
-            "TargetName" = "8:Lightsmark2008.ico"
+            "SourcePath" = "8:..\\Lightsmark\\Lightsmark.ico"
+            "TargetName" = "8:Lightsmark.ico"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
             "Condition" = "8:"
@@ -5108,7 +5108,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA72E2677BBB41C6B0778D0A09C63AB1"
             {
-            "SourcePath" = "8:..\\Lightsmark2008\\resource.h"
+            "SourcePath" = "8:..\\Lightsmark\\resource.h"
             "TargetName" = "8:resource.h"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
@@ -5628,8 +5628,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D1A1F7CFF5D648578C443398AFEC304F"
             {
-            "SourcePath" = "8:..\\Lightsmark2008\\Lightsmark2008.cpp"
-            "TargetName" = "8:Lightsmark2008.cpp"
+            "SourcePath" = "8:..\\Lightsmark\\Lightsmark.cpp"
+            "TargetName" = "8:Lightsmark.cpp"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
             "Condition" = "8:"
@@ -5788,8 +5788,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D8AC168709D245ABBD7B7BDAC9398994"
             {
-            "SourcePath" = "8:..\\Lightsmark2008\\Lightsmark2008.vcproj"
-            "TargetName" = "8:Lightsmark2008.vcproj"
+            "SourcePath" = "8:..\\Lightsmark\\Lightsmark.vcproj"
+            "TargetName" = "8:Lightsmark.vcproj"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
             "Condition" = "8:"
@@ -6028,7 +6028,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E664C994488046F1A81B09CDF5859B07"
             {
-            "SourcePath" = "8:..\\Lightsmark2008\\readme.txt"
+            "SourcePath" = "8:..\\Lightsmark\\readme.txt"
             "TargetName" = "8:readme.txt"
             "Tag" = "8:"
             "Folder" = "8:_9763831053554B918AFC705580101164"
@@ -6048,8 +6048,8 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E7339421044F44D8BCEC25D1736972DE"
             {
-            "SourcePath" = "8:..\\..\\data\\maps\\Lightsmark2008.jpg"
-            "TargetName" = "8:Lightsmark2008.jpg"
+            "SourcePath" = "8:..\\..\\data\\maps\\Lightsmark.jpg"
+            "TargetName" = "8:Lightsmark.jpg"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
             "Condition" = "8:"
@@ -6565,7 +6565,7 @@
                         {
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_BF095A5CADD740A7BFCB12A70646B929"
                             {
-                            "Name" = "8:Lightsmark2008"
+                            "Name" = "8:Lightsmark2011"
                             "AlwaysCreate" = "11:FALSE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
@@ -6600,7 +6600,7 @@
                 {
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_097D787AABE747568E8EF7F01DA61193"
                     {
-                    "Name" = "8:Lightsmark 2008"
+                    "Name" = "8:Lightsmark 2011"
                     "AlwaysCreate" = "11:FALSE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
@@ -6626,7 +6626,7 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Lightsmark 2008"
+        "ProductName" = "8:Lightsmark 2011"
         "ProductCode" = "8:{9418C162-91BF-47DC-B302-60EC1A6749E0}"
         "PackageCode" = "8:{BB57087D-6F20-49C6-A824-69ADECA61412}"
         "UpgradeCode" = "8:{4E49BA74-956E-434A-A126-4E9050FB5A0F}"
@@ -6638,7 +6638,7 @@
         "Manufacturer" = "8:Stepan Hrbek"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:Lightsmark 2008"
+        "Title" = "8:Lightsmark 2011"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Stepan Hrbek"
         "Keywords" = "8:realtime global illumination penumbra shadows"
@@ -6749,7 +6749,7 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_2F207F4FE01B4C8CAF953EA5928E0384"
             {
-            "Name" = "8:Lightsmark 2008"
+            "Name" = "8:Lightsmark 2011"
             "Arguments" = "8:"
             "Description" = "8:Next Generation Lighting Benchmark"
             "ShowCmd" = "3:1"
@@ -6777,7 +6777,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_8A181E126E364E478BBE79A36008FD1F"
             {
-            "Name" = "8:Lightsmark 2008"
+            "Name" = "8:Lightsmark 2011"
             "Arguments" = "8:"
             "Description" = "8:Next Generation Lighting Benchmark"
             "ShowCmd" = "3:1"

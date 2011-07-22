@@ -19,8 +19,8 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
-#define PRODUCT_NAME "Lightsmark 2008"
-#define CFG_FILE "Lightsmark2008.cfg"
+#define PRODUCT_NAME "Lightsmark 2011"
+#define CFG_FILE "Lightsmark.cfg"
 //#define CFG_FILE "mgf.cfg"
 //#define CFG_FILE "test.cfg"
 //#define CFG_FILE "eg-flat1.cfg"
@@ -1912,7 +1912,7 @@ void parseOptions(int argc, const char*const*argv)
 	if (badArgument)
 	{
 		const char* caption = 
-			"Lightsmark 2008 back-end                                       (C) Stepan Hrbek";
+			"Lightsmark 2011 back-end                                       (C) Stepan Hrbek";
 		const char* usage = 
 #if defined(_WIN32)
 			"Usage: backend.exe [arg1] [arg2] ...\n"
@@ -1926,7 +1926,7 @@ void parseOptions(int argc, const char*const*argv)
 			"  bigscreen                 - boost brightness\n"
 			"  stability=[low|auto|high] - set lighting stability (default is auto)\n"
 			"  penumbra[1|2|3|4|5|6|7|8] - set penumbra precision (default is auto)\n"
-			"  filename.cfg              - run custom content (default is Lightsmark2008.cfg)\n"
+			"  filename.cfg              - run custom content (default is Lightsmark.cfg)\n"
 			"  verbose                   - log also shader diagnostic messages\n"
 			"  capture=[jpg|tga]         - capture into sequence of images at 30fps\n"
 			"  opaqueshadows             - use simpler shadows\n"
@@ -1998,7 +1998,7 @@ int main(int argc, char** argv)
 	}
 #endif
 #ifdef _WIN32
-	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
+	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2011 [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 	rr::RRReporter::report(rr::INF1,"Started: %s in %s\n",GetCommandLine(),cwd);
 	free(cwd);
 	if (globalOutputDirectory[1])

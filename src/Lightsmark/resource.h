@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by Lightsmark2008.rc
+// Used by Lightsmark2011.rc
 //
 #define IDD_DIALOG1                     102
 #define IDI_MAIN_ICON                   109
