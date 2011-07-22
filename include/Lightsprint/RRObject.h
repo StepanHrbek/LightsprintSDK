@@ -233,7 +233,7 @@ namespace rr
 		//
 		//! Newly created instance allocates no additional memory, but depends on
 		//! original object, so it is not allowed to let new instance live longer than original object.
-		RRMesh* createWorldSpaceMesh();
+		RRMesh* createWorldSpaceMesh() const;
 
 		//! Creates and returns union of multiple objects (contains geometry and materials from all objects), in world space.
 		//

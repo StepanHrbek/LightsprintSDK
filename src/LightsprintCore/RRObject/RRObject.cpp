@@ -433,7 +433,7 @@ unsigned RRObjects::checkConsistency(const char* objectType) const
 //
 // RRObject instance factory
 
-RRMesh* RRObject::createWorldSpaceMesh()
+RRMesh* RRObject::createWorldSpaceMesh() const
 {
 	return this ? getCollider()->getMesh()->createTransformed(getWorldMatrix()) : NULL;
 }
@@ -471,7 +471,7 @@ inline void formatFilename(const RRString& path, const RRString& objectName, uns
 		else
 		{
 			// transforms ext "bent_normals.png" to finalExt "bent_normals.vbu"
-			unsigned i = wcslen(ext.w_str());
+			unsigned i = (unsigned)wcslen(ext.w_str());
 			tmp = new wchar_t[i+5];
 			memcpy(tmp,ext.w_str(),(i+1)*sizeof(wchar_t));
 			while (i && tmp[i-1]!='.') i--;
