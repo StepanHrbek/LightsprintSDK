@@ -104,6 +104,8 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DynamicObjects.h"
 #include "../LightsprintCore/RRDynamicSolver/report.h"
 #include "resource.h"
+#include <boost/filesystem.hpp>
+namespace bf = boost::filesystem;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -148,6 +150,7 @@ bool renderInfo = 1;
 const char* cfgFile = CFG_FILE;
 rr_gl::RRDynamicSolverGL::DDIQuality lightStability = rr_gl::RRDynamicSolverGL::DDI_AUTO;
 char globalOutputDirectory[1000] = "."; // without trailing slash
+const char* customScene = NULL;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1816,7 +1819,7 @@ void parseOptions(int argc, const char*const*argv)
 			cfgFile = argv[i];
 		}
 		else
-		if (!strcmp("editor", argv[i]))
+		if (!strcmp("editor2", argv[i]))
 		{
 			supportEditor = 1;
 			fullscreen = 0;
@@ -1891,6 +1894,16 @@ void parseOptions(int argc, const char*const*argv)
 			supportMusic = false;
 		}
 		else
+		if (!strcmp("editor1", argv[i]))
+		{
+			customScene = "";
+		}
+		else
+		if (bf::exists(argv[i]))
+		{
+			customScene = argv[i];
+		}
+		else
 		{
 			printf("Unknown commandline argument: %s\n",argv[i]);
 			badArgument = true;
@@ -1913,11 +1926,13 @@ void parseOptions(int argc, const char*const*argv)
 			"  bigscreen                 - boost brightness\n"
 			"  stability=[low|auto|high] - set lighting stability (default is auto)\n"
 			"  penumbra[1|2|3|4|5|6|7|8] - set penumbra precision (default is auto)\n"
-			"  editor                    - run editor (default is benchmark)\n"
 			"  filename.cfg              - run custom content (default is Lightsmark2008.cfg)\n"
 			"  verbose                   - log also shader diagnostic messages\n"
 			"  capture=[jpg|tga]         - capture into sequence of images at 30fps\n"
-			"  opaqueshadows             - use simpler shadows\n";
+			"  opaqueshadows             - use simpler shadows\n"
+			"  editor1                   - open scene editor\n"
+			"  filename.dae/obj/3ds/...  -  with custom 3d scene (40 fileformats)\n"
+			"  editor2                   - open animation editor\n";
 #if defined(_WIN32)
 		MessageBox(0,usage,caption,MB_OK);
 #else
@@ -1995,6 +2010,24 @@ int main(int argc, char** argv)
 #endif
 
 	rr_io::registerLoaders();
+
+	if (customScene)
+	{
+		if (customScene[0])
+			rr_gl::sceneViewer(NULL,customScene,"maps/skybox/skybox_bk.jpg","shaders/",NULL,false);
+		else
+		{
+			rr_gl::SceneViewerState svs;
+			svs.renderLDM = true;
+			svs.renderTonemapping = false;
+			svs.eye.pos = rr::RRVec3(23.554733f,-5.993851f,-3.134015f);
+			svs.eye.dir = rr::RRVec3(0.64f,-0.3f,-0.7f);
+			svs.cameraMetersPerSecond = 1;
+			svs.autodetectCamera = false;
+			rr_gl::sceneViewer(NULL,"scenes/wop_padattic/wop_padatticBB.rr3",NULL,"shaders/",&svs,false);
+		}
+		return 0;
+	}
 
 	// init GLUT
 	glutInit(&argc, argv);

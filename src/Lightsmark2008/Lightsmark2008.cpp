@@ -166,7 +166,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 				bool editor = SendDlgItemMessage(hDlg,IDC_EDITOR,BM_GETCHECK,0,0)==BST_CHECKED;
 				if (editor)
-					strcat(buf," editor");
+					strcat(buf," editor2");
 
 				bool music = SendDlgItemMessage(hDlg,IDC_MUSIC,BM_GETCHECK,0,0)==BST_CHECKED;
 				if (!music)
