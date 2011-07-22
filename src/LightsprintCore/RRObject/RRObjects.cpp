@@ -148,7 +148,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 	return buffersTouched;
 }
 
-unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool report)
+unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool report) const
 {
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
 	unsigned numMeshesWithoutArrays = 0;
@@ -326,7 +326,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool re
 	}
 }
 
-void RRObjects::multiplyEmittance(float emissiveMultiplier)
+void RRObjects::multiplyEmittance(float emissiveMultiplier) const
 {
 	if (emissiveMultiplier==1)
 		return;

@@ -194,6 +194,9 @@ namespace rr
 		//! Order of objects passed in first parameter is used for object numbering,
 		//! any further references to n-th object refer to objects[n].
 		//!
+		//! Once set, triangles and vertices in objects must not change (that's the difference from dynamic objects).
+		//! If you modify static triangles or vertices anyway, call setStaticObjects() again otherwise solver might crash.
+		//!
 		//! Scene must always contain static objects.
 		//! Major occluders (buildings, large furniture etc) should be part
 		//! of static scene.

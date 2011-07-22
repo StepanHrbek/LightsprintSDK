@@ -40,7 +40,7 @@ NEWS
 - improved mesh processing
   - configurable distance between uvs when stitching vertices
     - new parameter in RRMesh::createOptimizedVertices()
-    - RRObjects::stitchAndSmooth() renamed to RRObjects::smoothAndStitch(), extended parameters
+    - convert RRObjects::stitchAndSmooth(a,b,c,d,e,f,g,h) into RRObjects::smoothAndStitch(a,b,c,d,f,g,e?-1:1e10,h), extended parameters
   - deleting components
     - RRObjects::deleteComponents() added
     - RRObjects::buildUnwrap() second parameter removed, use deleteComponents()

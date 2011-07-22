@@ -485,7 +485,7 @@ namespace rr
 		//! All materials are updated to use new unwrap.
 		//!
 		//! Unwrapper doesn't modify pointers to objects, colliders, materials or meshes,
-		//! but it may add new vertices in mesh, if unwrap contains seams.
+		//! but it can add new vertices in mesh, if unwrap contains seams.
 		//! Therefore structures that depend on exact number of vertices may need update after unwrapping.
 		//! This is case of solver; if you build unwrap in solver <code>solver->getStaticObjects().buildUnwrap(...)</code>,
 		//! you have to resend modified objects to solver <code>solver->setStaticObjects(solver->getStaticObjects(),...)</code>.
@@ -506,12 +506,18 @@ namespace rr
 		//
 		//! So all triangles are flipped if numNormalsThatMustPointBack==0.
 		//! \return Number of triangles flipped.
-		virtual unsigned flipFrontBack(unsigned numNormalsThatMustPointBack, bool report);
+		virtual unsigned flipFrontBack(unsigned numNormalsThatMustPointBack, bool report) const;
 
 		//! Rebuilds objects to make them smooth (possibly changing numbers of triangles, vertices, facegroups).
 		//
 		//! If there are multiple objects sharing one mesh, all objects must be smoothed at once
 		//! (because smoothing can remove triangles and object facegroups must reflect that).
+		//!
+		//! Smoothing doesn't modify pointers to objects, colliders, materials or meshes,
+		//! but it can add/remove triangles/vertices in mesh, depending on parameters.
+		//! Therefore structures that depend on exact number of triangles/vertices may need update after smoothing.
+		//! This is case of solver; if you smooth in solver <code>solver->getStaticObjects().smoothAndStitch(...)</code>,
+		//! you have to resend modified objects to solver <code>solver->setStaticObjects(solver->getStaticObjects(),...)</code>.
 		//! \param splitVertices
 		//!  Allows splitting vertices to make mesh less smooth.
 		//! \param stitchVertices
@@ -532,7 +538,7 @@ namespace rr
 		virtual void smoothAndStitch(bool splitVertices, bool stitchVertices, bool removeDegeneratedTriangles, bool generateNormals, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, bool report) const;
 
 		//! Multiplies emittance in all materials, both colors and textures.
-		virtual void multiplyEmittance(float emissiveMultiplier);
+		virtual void multiplyEmittance(float emissiveMultiplier) const;
 
 		//! Deletes selected object components: tangents, unwrap, uv channels not referenced by materials.
 		void deleteComponents(bool deleteTangents, bool deleteUnwrap, bool deleteUnusedUvChannels, bool deleteEmptyFacegroups) const;
