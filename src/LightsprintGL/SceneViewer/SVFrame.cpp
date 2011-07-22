@@ -1118,18 +1118,18 @@ save_scene_as:
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////
 
 		case ME_ENV_WHITE:
-			svs.skyboxFilename = "../../data/maps/skybox/white.png";
+			svs.skyboxFilename = wxString::Format("%s../maps/skybox/white.png",svs.pathToShaders);
 			goto reload_skybox;
 		case ME_ENV_BLACK:
-			svs.skyboxFilename = "../../data/maps/skybox/black.png";
+			svs.skyboxFilename = wxString::Format("%s../maps/skybox/black.png",svs.pathToShaders);
 			goto reload_skybox;
 		case ME_ENV_WHITE_TOP:
-			svs.skyboxFilename = "../../data/maps/skybox/white_top.png";
+			svs.skyboxFilename = wxString::Format("%s../maps/skybox/white_top.png",svs.pathToShaders);
 			goto reload_skybox;
 		case ME_ENV_OPEN:
 			{
 				wxFileDialog dialog(this,_("Choose a skybox image"),"","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-				dialog.SetPath(svs.skyboxFilename.IsEmpty()?"../../data/maps/skybox/":svs.skyboxFilename);
+				dialog.SetPath(svs.skyboxFilename.IsEmpty()?wxString::Format("%s../maps/skybox/",svs.pathToShaders):svs.skyboxFilename);
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 
