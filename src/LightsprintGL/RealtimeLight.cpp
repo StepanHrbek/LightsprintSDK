@@ -284,7 +284,7 @@ namespace rr_gl
 				// a) use 5*fixedBias
 				// b) use 0.5*near  <- implemented here
 				getParent()->setRange(cod.getDistanceMin()*0.5f,cod.getDistanceMax()*5);
-				rr::RRReporter::report(rr::INF2,"setRangeDynamically()\n");
+				//rr::RRReporter::report(rr::INF2,"setRangeDynamically()\n");
 				dirtyShadowmap = true;
 			}
 		}
