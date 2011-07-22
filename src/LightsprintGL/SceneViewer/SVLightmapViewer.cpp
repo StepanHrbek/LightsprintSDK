@@ -29,6 +29,22 @@ SVLightmapViewer::~SVLightmapViewer()
 
 void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject* _object, bool _bilinear)
 {
+	if (_pixelBuffer && _object && (_pixelBuffer!=buffer || _object!=object) && _object->faceGroups.size())
+	{
+		// report median texel size
+		unsigned unwrapChannel = _object->faceGroups[0].material->lightmapTexcoord;
+		for (unsigned g=0;g<_object->faceGroups.size();g++)
+			if (_object->faceGroups[g].material->lightmapTexcoord!=unwrapChannel)
+			{
+				rr::RRReporter::report(rr::INF2,"Median texel size: not calculated, unwrap scattered across different uv channels\n");
+				return;
+			}
+		rr::RRMesh* worldSpaceMesh = _object->createWorldSpaceMesh();
+		float density = worldSpaceMesh->getMappingDensity(unwrapChannel);
+		delete worldSpaceMesh;
+		rr::RRReporter::report(rr::INF2,"Median texel size: %f * %f m\n",density/_pixelBuffer->getWidth(),density/_pixelBuffer->getHeight());
+	}
+
 	buffer = (_pixelBuffer && _pixelBuffer->getType()==rr::BT_2D_TEXTURE) ? _pixelBuffer : NULL;
 	object = _object;
 	if (buffer)
