@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news125 ------------------------------------ 2011.08.xx -------------------------------------
+
+NEWS
+
+- RRCollider::setTechnique() and RRCollider::IT_CHANGEABLE added
+
 \section news124 ------------------------------------ 2011.07.18 -------------------------------------
 
 NEWS
