@@ -91,11 +91,11 @@ int main(int argc, char** argv)
 	solver->updateLightmaps(0,1,4,&params,&params,NULL);
 
 	// save GI lightmaps, bent normals
-	solver->getStaticObjects().saveLayer(0,"../../data/scenes/koupelna/koupelna4-windows_preclaculated/","png");
-	solver->getStaticObjects().saveLayer(1,"../../data/scenes/koupelna/koupelna4-windows_preclaculated/","directional1.png");
-	solver->getStaticObjects().saveLayer(2,"../../data/scenes/koupelna/koupelna4-windows_preclaculated/","directional2.png");
-	solver->getStaticObjects().saveLayer(3,"../../data/scenes/koupelna/koupelna4-windows_preclaculated/","directional3.png");
-	solver->getStaticObjects().saveLayer(4,"../../data/scenes/koupelna/koupelna4-windows_preclaculated/","bentnormals.png");
+	solver->getStaticObjects().saveLayer(0,"../../data/scenes/koupelna/koupelna4-windows_precalculated/","png");
+	solver->getStaticObjects().saveLayer(1,"../../data/scenes/koupelna/koupelna4-windows_precalculated/","directional1.png");
+	solver->getStaticObjects().saveLayer(2,"../../data/scenes/koupelna/koupelna4-windows_precalculated/","directional2.png");
+	solver->getStaticObjects().saveLayer(3,"../../data/scenes/koupelna/koupelna4-windows_precalculated/","directional3.png");
+	solver->getStaticObjects().saveLayer(4,"../../data/scenes/koupelna/koupelna4-windows_precalculated/","bentnormals.png");
 
 	// release memory
 	delete solver;
