@@ -40,12 +40,8 @@ int main()
 
 	// create ray (contains both ray and intersection results)
 	RRRay* ray = RRRay::create();
-	ray->rayOrigin[0] = 0;
-	ray->rayOrigin[1] = -1;
-	ray->rayOrigin[2] = 0.3f;
-	ray->rayDirInv[0] = 1/ray->rayOrigin[0]; // 1/ray direction. for direction=0, this is 1/0 = inf.
-	ray->rayDirInv[1] = 1/1;
-	ray->rayDirInv[2] = 1/ray->rayOrigin[0];
+	ray->rayOrigin = RRVec3(0,-1,0.3f);
+	ray->rayDir = RRVec3(0,1,0);
 	ray->rayLengthMin = 0;
 	ray->rayLengthMax = 1000;
 
@@ -60,7 +56,7 @@ int main()
 		printf(" position in object space = %f %f %f\n",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
 		printf(" position in triangle space = %f %f\n",ray->hitPoint2d[0],ray->hitPoint2d[1]);
 		printf(" triangle index in mesh = %d\n",ray->hitTriangle);
-		printf(" triangle index in vertex buffer = %d\n",mesh->getPreImportTriangle(ray->hitTriangle).index);
+		printf(" triangle index before import = %d\n",mesh->getPreImportTriangle(ray->hitTriangle).index);
 		printf(" triangle side = %s\n",ray->hitFrontSide?"front":"back");
 		printf(" triangle plane = %f %f %f %f\n",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2],ray->hitPlane[3]);
 	}

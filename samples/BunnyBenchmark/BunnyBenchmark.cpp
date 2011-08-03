@@ -107,9 +107,9 @@ int main(int argc, char** argv)
 			ray->rayOrigin[0] = rayorigin.x*RADIUS+AABB_CENTER.x;
 			ray->rayOrigin[1] = rayorigin.y*RADIUS+AABB_CENTER.y;
 			ray->rayOrigin[2] = rayorigin.z*RADIUS+AABB_CENTER.z;
-			ray->rayDirInv[0] = size/dir.x;
-			ray->rayDirInv[1] = size/dir.y;
-			ray->rayDirInv[2] = size/dir.z;
+			ray->rayDir[0] = dir.x/size;
+			ray->rayDir[1] = dir.y/size;
+			ray->rayDir[2] = dir.z/size;
 			ray->rayLengthMax = size;
 
 			//do the trace

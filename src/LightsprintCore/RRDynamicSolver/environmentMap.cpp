@@ -303,12 +303,9 @@ bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, RRVec3* 
 				unsigned face = UINT_MAX;
 				if (multiObject)
 				{
-					RRReal dirsize = dir.length();
 					// find face
 					ray->rayOrigin = illumination->envMapWorldCenter;
-					ray->rayDirInv[0] = dirsize/dir[0];
-					ray->rayDirInv[1] = dirsize/dir[1];
-					ray->rayDirInv[2] = dirsize/dir[2];
+					ray->rayDir = dir.normalized();
 					ray->rayLengthMin = 0;
 					ray->rayLengthMax = 10000; //!!! hard limit
 					ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;

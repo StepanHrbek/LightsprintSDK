@@ -40,9 +40,7 @@ void CameraObjectDistance::addRay(const rr::RRVec3& pos, rr::RRVec3 dir)
 	float dirLength = dir.length();
 	dir.normalize();
 	ray->rayOrigin = pos;
-	ray->rayDirInv[0] = 1/dir[0];
-	ray->rayDirInv[1] = 1/dir[1];
-	ray->rayDirInv[2] = 1/dir[2];
+	ray->rayDir = dir;
 	if (pos.finite() && dir.finite() && object && object->getCollider()->intersect(ray))
 	{
 		// calculation of distanceOfPotentialNearPlane depends on dir length

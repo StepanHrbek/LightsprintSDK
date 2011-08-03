@@ -32,11 +32,12 @@ float minf(const float a, const float b) { return a < b ? a : b; }
 float maxf(const float a, const float b) { return a > b ? a : b; }
 
 bool Box::intersect(RRRay* ray) const
-// inputs: rayOrigin, rayDirInv, rayLengthMin, rayLengthMax
+// inputs: rayOrigin, rayDir[Inv], rayLengthMin, rayLengthMax
 // outputs: hitDistanceMin, hitDistanceMax
 // source: Thierry Berger-Perrin, http://ompf.org/ray/ray_box.html
 {
 	float
+#ifdef BOX_INPUT_INVDIR
 		l1	= (min[0] - ray->rayOrigin[0]) * ray->rayDirInv[0],
 		l2	= (max[0] - ray->rayOrigin[0]) * ray->rayDirInv[0],
 		lmin	= minf(l1,l2),
@@ -51,6 +52,22 @@ bool Box::intersect(RRRay* ray) const
 	l2	= (max[2] - ray->rayOrigin[2]) * ray->rayDirInv[2];
 	lmin	= maxf(minf(l1,l2), lmin);
 	lmax	= minf(maxf(l1,l2), lmax);
+#else
+		l1	= (min[0] - ray->rayOrigin[0]) / ray->rayDir[0],
+		l2	= (max[0] - ray->rayOrigin[0]) / ray->rayDir[0],
+		lmin	= minf(l1,l2),
+		lmax	= maxf(l1,l2);
+
+	l1	= (min[1] - ray->rayOrigin[1]) / ray->rayDir[1];
+	l2	= (max[1] - ray->rayOrigin[1]) / ray->rayDir[1];
+	lmin	= maxf(minf(l1,l2), lmin);
+	lmax	= minf(maxf(l1,l2), lmax);
+
+	l1	= (min[2] - ray->rayOrigin[2]) / ray->rayDir[2];
+	l2	= (max[2] - ray->rayOrigin[2]) / ray->rayDir[2];
+	lmin	= maxf(minf(l1,l2), lmin);
+	lmax	= minf(maxf(l1,l2), lmax);
+#endif
 
 #ifndef COLLIDER_INPUT_UNLIMITED_DISTANCE
 	lmin	= maxf(ray->rayLengthMin, lmin);
@@ -170,10 +187,19 @@ bool Box::intersectUnaligned(RRRay* ray) const
 		box_min	= _mm_loadu_ps(&min.x),
 		box_max	= _mm_loadu_ps(&max.x),
 		pos	= loadps(&ray->rayOrigin),
+#ifdef BOX_INPUT_INVDIR
+		// use a mul if inverted directions are available
 		inv_dir	= loadps(&ray->rayDirInv);
 
 	const __m128 l1 = mulps(subps(box_min, pos), inv_dir);
 	const __m128 l2 = mulps(subps(box_max, pos), inv_dir);
+#else
+		// use a div if inverted directions aren't available
+		dir	= loadps(&ray->rayDir);
+
+	const __m128 l1 = divps(subps(box_min, pos), dir);
+	const __m128 l2 = divps(subps(box_max, pos), dir);
+#endif
 
 	__m128 lmax = maxps(l1, l2);
 	__m128 lmin = minps(l1, l2);

@@ -46,9 +46,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		return Channels(0);
 	}
 	ray->rayOrigin = eye;
-	ray->rayDirInv[0] = 1/direction[0];
-	ray->rayDirInv[1] = 1/direction[1];
-	ray->rayDirInv[2] = 1/direction[2];
+	ray->rayDir = direction;
 	collisionHandlerGatherHemisphere.setShooterTriangle(skipTriangleIndex);
 	if (!collider->intersect(ray))
 	{

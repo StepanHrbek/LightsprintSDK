@@ -18,7 +18,7 @@ namespace rr_gl
 		if (size<MAX_RAYS)
 		{
 			log[size].begin = ray->rayOrigin;
-			log[size].end = hit ? ray->hitPoint3d : ray->rayOrigin+rr::RRVec3(1/ray->rayDirInv[0],1/ray->rayDirInv[1],1/ray->rayDirInv[2])*ray->rayLengthMax;
+			log[size].end = hit ? ray->hitPoint3d : ray->rayOrigin+ray->rayDir*ray->rayLengthMax;
 			log[size].infinite = !hit;
 			log[size].unreliable = false;
 			size++;

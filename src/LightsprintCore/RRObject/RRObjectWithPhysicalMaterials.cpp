@@ -182,11 +182,8 @@ empty_scene:
 		hitTriangles.clear();
 		for (unsigned j=0;j<100;j++)
 		{
-			RRVec3 rayDir = ( dir + RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX))-RRVec3(0.5f) ).normalized();
 			ray->rayOrigin = pos;
-			ray->rayDirInv[0] = 1/rayDir[0];
-			ray->rayDirInv[1] = 1/rayDir[1];
-			ray->rayDirInv[2] = 1/rayDir[2];
+			ray->rayDir = ( dir + RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX))-RRVec3(0.5f) ).normalized();
 			ray->rayLengthMax = _maxdist;
 			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE;
 			if (getCollider()->intersect(ray))

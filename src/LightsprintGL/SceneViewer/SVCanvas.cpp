@@ -735,7 +735,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		ray->rayOrigin = s_ci.rayOrigin;
 		rr::RRVec3 directionToMouse = s_ci.rayDirection;
 		float directionToMouseLength = directionToMouse.length();
-		ray->rayDirInv = rr::RRVec3(directionToMouseLength)/directionToMouse;
+		ray->rayDir = directionToMouse/directionToMouseLength;
 		ray->rayLengthMin = svs.eye.getNear()*directionToMouseLength;
 		ray->rayLengthMax = svs.eye.getFar()*directionToMouseLength;
 		ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D;
@@ -763,7 +763,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			s_ci.clickedEntity = renderedIcons[ray->hitTriangle];
 			s_ci.hitDistance = ray->hitDistance;
 			s_ci.hitPoint2d = rr::RRVec2(0);
-			s_ci.hitPoint3d = ray->rayOrigin + rr::RRVec3(1)/ray->rayDirInv*ray->hitDistance;
+			s_ci.hitPoint3d = ray->rayOrigin + ray->rayDir*ray->hitDistance;
 		}
 		else
 		{
@@ -1611,11 +1611,8 @@ rendered:
 		if (multiMesh && (!svs.renderLightmaps2d || !lv))
 		{
 			// ray and collisionHandler are used in this block
-			rr::RRVec3 dir = svs.eye.getRayDirection(mousePositionInWindow).normalized();
 			ray->rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
-			ray->rayDirInv[0] = 1/dir[0];
-			ray->rayDirInv[1] = 1/dir[1];
-			ray->rayDirInv[2] = 1/dir[2];
+			ray->rayDir = svs.eye.getRayDirection(mousePositionInWindow).normalized();
 			ray->rayLengthMin = svs.eye.getNear();
 			ray->rayLengthMax = svs.eye.getFar();
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;

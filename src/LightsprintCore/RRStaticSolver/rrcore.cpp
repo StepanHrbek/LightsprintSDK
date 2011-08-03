@@ -819,9 +819,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	RR_ASSERT(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
 	RRRay& ray = *shootingKernel->sceneRay;
 	ray.rayOrigin = eye;
-	ray.rayDirInv[0] = 1/direction[0];
-	ray.rayDirInv[1] = 1/direction[1];
-	ray.rayDirInv[2] = 1/direction[2];
+	ray.rayDir = direction;
 	shootingKernel->collisionHandlerLod0->setShooterTriangle((unsigned)(skip-object->triangle));
 	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
 		&& object->importer->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;

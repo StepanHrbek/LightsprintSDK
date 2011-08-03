@@ -36,12 +36,19 @@
 		#define FILL_STATISTIC(a)
 #endif
 
-#define COLLIDER_INPUT_INVDIR // partially hardcoded, must stay defined
+//#define COLLIDER_INPUT_INVDIR
 #ifdef COLLIDER_INPUT_INVDIR
-	// must be identical, box test is always first operation
+	// must be identical to collider input, box test is always first operation
 	#define BOX_INPUT_INVDIR // by default, box.intersect input is only DIR
 	// should be identical to allow use of already present invdir
 	#define TRAVERSAL_INPUT_DIR_INVDIR // by default, all traversals use only DIR
+	#define rayDir         hitPadding1
+#else
+	// must be identical to collider input, box test is always first operation
+	//#define BOX_INPUT_INVDIR
+	// full traversal uses both
+	#define TRAVERSAL_INPUT_DIR_INVDIR
+	#define rayDirInv      hitPadding1
 #endif
 
 #ifdef USE_SSE
@@ -52,7 +59,6 @@
 	#define PRIVATE
 #endif
 
-#define rayDir         hitPadding1
 #define hitDistanceMin hitPadding2[0]
 #define hitDistanceMax hitPadding2[1]
 

@@ -152,10 +152,8 @@ bool SVEntityIcons::intersectTriangle(const rr::RRMesh::TriangleBody* t, rr::RRR
 	RR_ASSERT(ray);
 	RR_ASSERT(t);
 
-	rr::RRVec3 rayDir = rr::RRVec3(1)/ray->rayDirInv;
-
 	// calculate determinant - also used to calculate U parameter
-	rr::RRVec3 pvec = rayDir.cross(t->side2);
+	rr::RRVec3 pvec = ray->rayDir.cross(t->side2);
 	float det = t->side1.dot(pvec);
 
 	// cull test
@@ -176,7 +174,7 @@ bool SVEntityIcons::intersectTriangle(const rr::RRMesh::TriangleBody* t, rr::RRR
 	rr::RRVec3 qvec = tvec.cross(t->side1);
 
 	// calculate V parameter and test bounds
-	float v = rayDir.dot(qvec)/det;
+	float v = ray->rayDir.dot(qvec)/det;
 	if (v<0 || u+v>1) return false;
 
 	// calculate distance where ray intersects triangle

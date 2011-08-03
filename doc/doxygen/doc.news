@@ -16,6 +16,10 @@ NEWS
   - RRCollider::setTechnique() and RRCollider::IT_CHANGEABLE added
   - const removed from RRObject::getCollider() and RRObject::setCollider()
 
+CHANGES
+
+- RRRay::rayDir replaces RRRay::rayDirInv, it's no longer inverted
+
 \section news124 ------------------------------------ 2011.07.18 -------------------------------------
 
 NEWS

@@ -95,7 +95,7 @@ namespace rr
 
 		// inputs
 		RRVec3p         rayOrigin;      ///< In. (-Inf,Inf), ray origin. Never modify last component, it must stay 1.
-		RRVec3p         rayDirInv;      ///< In. <-Inf,Inf>, 1/ray direction. Direction must be normalized.
+		RRVec3p         rayDir;         ///< In. <-Inf,Inf>, ray direction. Must be normalized.
 		RRReal          rayLengthMin;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		RRReal          rayLengthMax;   ///< In. <0,Inf), test intersection in distances from range <rayLengthMin,rayLengthMax>.
 		unsigned        rayFlags;       ///< InOut. Flags that specify what to find. Additional flags may be set by collision handler.

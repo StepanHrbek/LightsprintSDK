@@ -1068,9 +1068,7 @@ void keyboard(unsigned char c, int x, int y)
 				rr::RRRay* ray = rr::RRRay::create();
 				rr::RRVec3 dir = rr::RRVec3(currentFrame.eye.dir[0],currentFrame.eye.dir[1],currentFrame.eye.dir[2]).normalized();
 				ray->rayOrigin = rr::RRVec3(currentFrame.eye.pos[0],currentFrame.eye.pos[1],currentFrame.eye.pos[2]);
-				ray->rayDirInv[0] = 1/dir[0];
-				ray->rayDirInv[1] = 1/dir[1];
-				ray->rayDirInv[2] = 1/dir[2];
+				ray->rayDir = dir;
 				ray->rayLengthMin = 0;
 				ray->rayLengthMax = 1000;
 				ray->rayFlags = rr::RRRay::FILL_POINT3D;
