@@ -61,13 +61,13 @@ namespace rr
 	//!
 	//! %RRMesh operates with two types of vertex and triangle indices.
 	//! -# PostImport indices, always 0..num-1 (where num=getNumTriangles
-	//! or getNumVertices), these are used in most calls. When not stated else,
+	//! or getNumVertices), these are used in most calls. When not stated otherwise,
 	//! index is PostImport.
 	//! \n Example: with 100-triangle mesh, triangle indices are 0..99.
 	//! -# PreImport indices, optional, arbitrary numbers provided by 
 	//! importer for your convenience.
 	//! \n Example: could be offsets into your vertex buffer.
-	//! \n Pre<->Post mapping is defined by importer and is arbitrary, but constant.
+	//! \n Pre<->Post mapping is defined by RRMesh implementation and is arbitrary, but constant.
 	//!
 	//! All Pre-Post conversion functions must accept all unsigned values.
 	//! When query makes no sense, they return UNDEFINED.

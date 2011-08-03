@@ -126,8 +126,7 @@ namespace rr
 	//
 	//! Thread safe: yes, stateless, may be accessed by any number of threads simultaneously.
 	//!
-	//! Mesh is defined by importer passed to create().
-	//! All results from importer must be constant in time, 
+	//! Mesh passed to create() must stay constant for whole life of collider,
 	//! otherwise collision results are undefined.
 	//
 	//////////////////////////////////////////////////////////////////////////////
@@ -148,14 +147,14 @@ namespace rr
 
 		//! Creates and returns collider, acceleration structure for finding ray x mesh intersections.
 		//
-		//! \param importer Importer of mesh you want to collide with.
+		//! \param mesh Mesh you want to collide with.
 		//! \param intersectTechnique Technique used for accelerating collision searches. See #IntersectTechnique.
 		//! \param aborting May be set asynchronously. When set, collider creation is aborted.
 		//! \param cacheLocation Optional location of cache, path to directory where acceleration structures may be cached.
 		//!        Default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
 		//! \param buildParams Optional additional parameters, specific for each technique and not revealed for public use.
 		//! \return Created collider.
-		static const RRCollider* create(const RRMesh* importer, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation=NULL, void* buildParams=0);
+		static const RRCollider* create(const RRMesh* mesh, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation=NULL, void* buildParams=0);
 
 		//! Finds ray x mesh intersections.
 		//
