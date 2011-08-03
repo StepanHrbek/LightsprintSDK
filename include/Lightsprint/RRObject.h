@@ -91,14 +91,14 @@ namespace rr
 
 		//! Returns collider of underlying mesh. It is also access to mesh itself (via getCollider()->getMesh()).
 		//! Must always return valid collider, implementation is not allowed to return NULL.
-		virtual const RRCollider* getCollider() const {return collider;}
+		virtual RRCollider* getCollider() const {return collider;}
 		//! Sets collider and mesh.
 		//
 		//! By changing collider, you change also mesh and possibly number of triangles,
 		//! so make sure to update also faceGroups to have the same number of triangles as mesh.
 		//! Object does not adopt/delete the collider, it keeps
 		//! Caller must ensure collider stays alive until object destruction or next setCollider() call.
-		virtual void setCollider(const RRCollider* collider);
+		virtual void setCollider(RRCollider* collider);
 
 		//! Returns material description for given triangle.
 		//
@@ -395,7 +395,7 @@ namespace rr
 		virtual void recommendLayerParameters(RRObject::LayerParameters& layerParameters) const;
 
 	private:
-		const RRCollider* collider;
+		RRCollider* collider;
 		RRMatrix3x4* worldMatrix;
 	};
 

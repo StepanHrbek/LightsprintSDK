@@ -121,7 +121,7 @@ RRObject::~RRObject()
 	delete worldMatrix;
 }
 
-void RRObject::setCollider(const RRCollider* _collider)
+void RRObject::setCollider(RRCollider* _collider)
 {
 	collider = _collider;
 	if (!_collider)

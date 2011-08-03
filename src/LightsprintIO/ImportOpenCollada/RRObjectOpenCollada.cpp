@@ -358,7 +358,7 @@ public:
 	unsigned int nextMesh;
 	unsigned int numMeshes;
 
-	const RRCollider** colliders;
+	RRCollider** colliders;
 
 	RRObjectsOpenCollada():RRObjects()
 	{
@@ -1183,7 +1183,7 @@ public:
 			}
 			objects->numMeshes = numberOfMeshes;
 			objects->meshes = new RRMeshArrays[numberOfMeshes];
-			objects->colliders = new const RRCollider*[numberOfMeshes];
+			objects->colliders = new RRCollider*[numberOfMeshes];
 
 			for(int i=0; i<numberOfMeshes; i++)
 				objects->colliders[i] = NULL;

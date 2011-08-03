@@ -24,11 +24,11 @@ public:
 		faceGroups = object->faceGroups;
 	}
 
-	virtual const RRCollider* getCollider() const
+	virtual RRCollider* getCollider() const
 	{
 		return inherited->getCollider();
 	}
-	virtual void setCollider(const RRCollider* _collider)
+	virtual void setCollider(RRCollider* _collider)
 	{
 		inherited->setCollider(_collider);
 	}

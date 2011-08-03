@@ -230,7 +230,7 @@ public:
 		}
 
 		// create colliders
-		colliders = new const RRCollider*[numMeshes];
+		colliders = new RRCollider*[numMeshes];
 		for (unsigned c=0;c<numMeshes;c++)
 		{
 			bool aborting = false;
@@ -254,7 +254,7 @@ public:
 			for (unsigned i=0;i<_node->mNumMeshes;i++)
 			{
 				unsigned meshIndex = _node->mMeshes[i];
-				const RRCollider* collider = colliders[meshIndex];
+				RRCollider* collider = colliders[meshIndex];
 				if (collider)
 				{
 					RRObject* object = new RRObject;
@@ -346,7 +346,7 @@ private:
 	RRMaterial* materials;
 	unsigned numMeshes;
 	RRMeshArrays* meshes;
-	const RRCollider** colliders;
+	RRCollider** colliders;
 };
 
 

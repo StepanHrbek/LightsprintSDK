@@ -576,7 +576,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 				rr::RRVector<unsigned> texcoords;
 				oldMesh->getUvChannels(texcoords);
 				rr::RRMeshArrays* newMesh = oldMesh->createArrays(true,texcoords,tangents);
-				const rr::RRCollider* newCollider = rr::RRCollider::create(newMesh,rr::RRCollider::IT_LINEAR,solver->aborting);
+				rr::RRCollider* newCollider = rr::RRCollider::create(newMesh,rr::RRCollider::IT_LINEAR,solver->aborting);
 				rr::RRObject* newObject = new rr::RRObject;
 				newObject->faceGroups = oldObject->faceGroups;
 				newObject->setCollider(newCollider);

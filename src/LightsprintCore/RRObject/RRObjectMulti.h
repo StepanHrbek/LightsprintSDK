@@ -27,7 +27,7 @@ public:
 	{
 		if (!objects || !numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
-		const RRCollider* multiCollider = NULL;
+		RRCollider* multiCollider = NULL;
 		const RRMesh** transformedMeshes = NULL;
 		bool vertexStitching = maxDistanceBetweenVerticesToStitch>=0 && maxRadiansBetweenNormalsToStitch>=0;
 
@@ -112,7 +112,7 @@ public:
 	}
 
 private:
-	RRObjectMultiFast(RRObject* const* _objects, unsigned _numObjects, const RRCollider* _multiCollider = NULL, const RRMesh** _transformedMeshes = NULL)
+	RRObjectMultiFast(RRObject* const* _objects, unsigned _numObjects, RRCollider* _multiCollider = NULL, const RRMesh** _transformedMeshes = NULL)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -192,7 +192,7 @@ public:
 	{
 		if (!objects || !numObjects) return NULL;
 		// only in top level of hierarchy: create multicollider
-		const RRCollider* multiCollider = NULL;
+		RRCollider* multiCollider = NULL;
 		const RRMesh** transformedMeshes = NULL;
 		bool vertexStitching = maxDistanceBetweenVerticesToStitch>=0 && maxRadiansBetweenNormalsToStitch>=0;
 
@@ -324,7 +324,7 @@ public:
 	}
 
 private:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, const RRCollider* multiCollider = NULL, const RRMesh** transformedMeshes = NULL)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider* multiCollider = NULL, const RRMesh** transformedMeshes = NULL)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -366,7 +366,7 @@ private:
 
 	RRObjectMultiSmall(RRObject* _mesh1, unsigned _mesh1Objects, unsigned _mesh1Triangles, 
 		RRObject* _mesh2, unsigned _mesh2Objects, unsigned _mesh2Triangles,
-		const RRCollider* _multiCollider, const RRMesh** _transformedMeshes)
+		RRCollider* _multiCollider, const RRMesh** _transformedMeshes)
 	{
 		if (_multiCollider)
 			setCollider(_multiCollider);
