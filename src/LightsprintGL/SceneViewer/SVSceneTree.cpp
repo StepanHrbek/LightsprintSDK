@@ -661,10 +661,6 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, EntityId contextEnti
 			break;
 
 	}
-	// validate all svs.selectedXxxIndex (some may be out of range after delete)
-	// update all property panels (some may point to deleted item)
-	// update scene tree panel
-	svframe->updateAllPanels();
 }
 
 
