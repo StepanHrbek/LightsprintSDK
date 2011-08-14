@@ -732,8 +732,27 @@ namespace rr
 
 		//! Reports that appearance of one or more materials in static objects has changed.
 		//
-		//! Call this when you changed material properties of static objects
-		//! (and RRObject::getTriangleMaterial() returns new materials).
+		//! Call this when you changed material properties of static objects.
+		//! It is not necessary to report change in dynamic objects.
+		//!
+		//! Note that solver creates physically validated copy of all materials in static objects,
+		//! you can edit both original materials (in custom scale, used for realtime rendering)
+		//! and validated copies (in physical scale, used for indirect illumination),
+		//! but you are responsible for keeping them in sync.
+		//! Complete code sequence to edit original material, synchronize copy in solver and report change could look like
+		//! \code
+		//! // this is your original material
+		//! materialCustom = solver->getMultiObjectCustom()->getTriangleMaterial(t,NULL,NULL);
+		//! // this is validated copy in solver
+		//! materialPhysical = solver->getMultiObjectPhysical()->getTriangleMaterial(t,NULL,NULL);
+		//! ... here you edit materialCustom
+		//! materialPhysical->copyFrom(*materialCustom);
+		//! materialPhysical->convertToPhysicalScale(solver->getScaler());
+		//! solver->reallocateBuffersForRealtimeGI(); // allocates specular reflection cubes if you add specular
+		//! solver->reportMaterialChange();
+		//! \endcode
+		//! If you make e.g. red materialCustom and blue materialPhysical, realtime renderer will
+		//! render red material, but reflected light will be blue.
 		//! \param dirtyShadows
 		//!  Set this if you want shadows updated. Shadows may need update after change in material transparency.
 		//! \param dirtyGI
