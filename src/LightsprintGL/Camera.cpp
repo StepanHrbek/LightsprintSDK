@@ -160,10 +160,10 @@ rr::RRVec3 Camera::getRayOrigin(rr::RRVec2 posInWindow) const
 rr::RRVec3 Camera::getRayDirection(rr::RRVec2 posInWindow) const
 {
 	if (orthogonal)
-		return dir.RRVec3::normalized();
+		return dir.normalized();
 	// CameraObjectDistance uses length of our result, don't normalize
 	return
-		dir.RRVec3::normalized()
+		dir.normalized()
 		+ right * ( (posInWindow[0]+screenCenter[0]) * tan(getFieldOfViewHorizontalRad()/2) )
 		- up    * ( (posInWindow[1]-screenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
 		;
@@ -240,7 +240,7 @@ void Camera::update()
 		tmpup[2] = cos(angle)*cos(angleX+0.1f);
 	}
 	rr::RRVec3 tmpright;
-	dir.RRVec3::normalize();
+	dir.normalize();
 	#define CROSS(a,b,res) res[0]=a[1]*b[2]-a[2]*b[1];res[1]=a[2]*b[0]-a[0]*b[2];res[2]=a[0]*b[1]-a[1]*b[0]
 	CROSS(dir,tmpup,tmpright);
 	CROSS(tmpright,dir,tmpup);
