@@ -1221,7 +1221,7 @@ public:
 			delete mesh;
 			return NULL;
 		}
-		const RRCollider* collider = RRCollider::create(mesh, RRCollider::IT_LINEAR, _aborting);
+		RRCollider* collider = RRCollider::create(mesh, RRCollider::IT_LINEAR, _aborting);
 		if (!collider)
 		{
 			delete mesh;
@@ -1437,7 +1437,7 @@ public:
 	PerEntitySettings perEntitySettings;
 
 private:
-	RRObjectGamebryo(MaterialInputs _materialInputs, const RRCollider* _collider, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache)
+	RRObjectGamebryo(MaterialInputs _materialInputs, RRCollider* _collider, RRObject::LodInfo _lodInfo, MaterialCacheGamebryo& _materialCache)
 	{
 		NIASSERT(_materialInputs.mesh);
 		NIASSERT(_collider);
