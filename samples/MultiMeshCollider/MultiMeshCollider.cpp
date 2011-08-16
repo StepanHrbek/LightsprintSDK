@@ -61,12 +61,8 @@ int main()
 
 	// create ray (contains both ray and intersection results)
 	RRRay* ray = RRRay::create();
-	ray->rayOrigin[0] = 0;
-	ray->rayOrigin[1] = -1;
-	ray->rayOrigin[2] = 0.3f;
-	ray->rayDirInv[0] = 1/ray->rayOrigin[0]; // 1/ray direction. for direction=0, this is 1/0 = inf.
-	ray->rayDirInv[1] = 1/1;
-	ray->rayDirInv[2] = 1/ray->rayOrigin[0];
+	ray->rayOrigin = RRVec3(0,-1,0.3f);
+	ray->rayDir = RRVec3(0,1,0);
 	ray->rayLengthMin = 0;
 	ray->rayLengthMax = 1000;
 
