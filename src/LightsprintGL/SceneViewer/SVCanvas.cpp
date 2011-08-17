@@ -52,12 +52,12 @@ static int s_attribList[] = {
 	WX_GL_DEPTH_SIZE, 24, // default is 16, explicit 24 should reduce z-fight. 32 fails on all cards tested including 5870 (falls back to default without antialiasing)
 	0, 0};
 
-SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_parent, wxSize _size)
-	: wxGLCanvas(_parent, wxID_ANY, s_attribList, wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE, "GLCanvas"), svs(_svs)
+SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
+	: wxGLCanvas(_svframe, wxID_ANY, s_attribList, wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE, "GLCanvas"), svs(_svs)
 {
 	renderEmptyFrames = false;
 	context = NULL;
-	parent = _parent;
+	svframe = _svframe;
 	solver = NULL;
 	selectedType = ST_CAMERA;
 	winWidth = 0;
@@ -182,7 +182,7 @@ void SVCanvas::createContextCore()
 	if (!svs.sceneFilename.empty())
 	{
 		// load scene
-		rr::RRScene* scene = parent->loadScene(svs.sceneFilename,parent->userPreferences.import.getUnitLength(svs.sceneFilename),parent->userPreferences.import.getUpAxis(svs.sceneFilename),true);
+		rr::RRScene* scene = svframe->loadScene(svs.sceneFilename,svframe->userPreferences.import.getUnitLength(svs.sceneFilename),svframe->userPreferences.import.getUpAxis(svs.sceneFilename),true);
 		mergedScenes.push_back(scene);
 
 		// send everything to solver
@@ -199,7 +199,7 @@ void SVCanvas::createContextCore()
 	if (!solver->getEnvironment() && !svs.skyboxFilename.empty())
 	{
 		rr::RRReportInterval report(rr::INF3,"Loading skybox...\n");
-		parent->OnMenuEventCore(SVFrame::ME_ENV_RELOAD);
+		svframe->OnMenuEventCore(SVFrame::ME_ENV_RELOAD);
 	}
 
 
@@ -210,9 +210,9 @@ void SVCanvas::createContextCore()
 		switch (svs.renderLightIndirect)
 		{
 			// try to load FB. if not found, create it
-			case LI_REALTIME_FIREBALL:     parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL); break;
+			case LI_REALTIME_FIREBALL:     svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL); break;
 			// create architect
-			case LI_REALTIME_ARCHITECT:    parent->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT); break;
+			case LI_REALTIME_ARCHITECT:    svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT); break;
 		}
 
 		// try to load lightmaps
@@ -335,11 +335,11 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 	if (svs.renderLightIndirect==LI_REALTIME_FIREBALL)
 	{
 		svs.renderLightIndirect = LI_CONSTANT;
-		parent->UpdateMenuBar(); // switches to LI_CONSTANT also in menu
+		svframe->UpdateMenuBar(); // switches to LI_CONSTANT also in menu
 	}
 
 	// fix dangling pointer in light properties pane
-	parent->updateAllPanels();
+	svframe->updateAllPanels();
 
 	// fix dangling pointer in collisionHandler
 	delete collisionHandler;
@@ -356,7 +356,7 @@ void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
 		reallocateAlsoVbuffers?svs.realtimeLayerNumber:-1,
 		svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes,RR_MAX(svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes),
 		true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
-	parent->m_objectProperties->updateProperties();
+	svframe->m_objectProperties->updateProperties();
 }
 
 SVCanvas::~SVCanvas()
@@ -451,12 +451,12 @@ void SVCanvas::OnSizeCore(bool force)
 		winWidth = w;
 		winHeight = h;
 		// with Enhanced screenshot checked, viewport maintains the same aspect as screenshot
-		if (parent->userPreferences.sshotEnhanced)
+		if (svframe->userPreferences.sshotEnhanced)
 		{
-			if (w*parent->userPreferences.sshotEnhancedHeight > h*parent->userPreferences.sshotEnhancedWidth)
-				winWidth = h*parent->userPreferences.sshotEnhancedWidth/parent->userPreferences.sshotEnhancedHeight;
+			if (w*svframe->userPreferences.sshotEnhancedHeight > h*svframe->userPreferences.sshotEnhancedWidth)
+				winWidth = h*svframe->userPreferences.sshotEnhancedWidth/svframe->userPreferences.sshotEnhancedHeight;
 			else
-				winHeight = w*parent->userPreferences.sshotEnhancedHeight/parent->userPreferences.sshotEnhancedWidth;
+				winHeight = w*svframe->userPreferences.sshotEnhancedHeight/svframe->userPreferences.sshotEnhancedWidth;
 		}
 		glViewport((w-winWidth)/2,(h-winHeight)/2,winWidth,winHeight);
 	}
@@ -488,18 +488,18 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	else if (event.GetModifiers()==wxMOD_ALT) switch (evkey)
 	{
 		case 'S': // alt-s
-			parent->OnMenuEventCore(SVFrame::ME_LIGHT_SPOT);
+			svframe->OnMenuEventCore(SVFrame::ME_LIGHT_SPOT);
 			break;
 		case 'O': // alt-o
-			parent->OnMenuEventCore(SVFrame::ME_LIGHT_POINT);
+			svframe->OnMenuEventCore(SVFrame::ME_LIGHT_POINT);
 			break;
 		case 'F': // alt-f
-			parent->OnMenuEventCore(SVFrame::ME_LIGHT_FLASH);
+			svframe->OnMenuEventCore(SVFrame::ME_LIGHT_FLASH);
 			break;
 		case '1':
 		case '2':
 		case '3':
-			parent->OnMenuEventCore(SVFrame::ME_WINDOW_LAYOUT1+evkey-'1');
+			svframe->OnMenuEventCore(SVFrame::ME_WINDOW_LAYOUT1+evkey-'1');
 			break;
 	}
 	else switch(evkey)
@@ -519,8 +519,8 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			}
 			break;
 
-		case WXK_F8: parent->OnMenuEventCore(SVFrame::ME_FILE_SAVE_SCREENSHOT); break;
-		case WXK_F11: parent->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META); break;
+		case WXK_F8: svframe->OnMenuEventCore(SVFrame::ME_FILE_SAVE_SCREENSHOT); break;
+		case WXK_F11: svframe->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META); break;
 		case WXK_NUMPAD_ADD:
 		case '+': svs.tonemappingBrightness *= 1.2f; needsRefresh = true; break;
 		case WXK_NUMPAD_SUBTRACT:
@@ -562,15 +562,15 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case 'C': speedLean = +speed; break;
 
 		case 'h':
-		case 'H': parent->OnMenuEventCore(SVFrame::ME_HELP); break;
+		case 'H': svframe->OnMenuEventCore(SVFrame::ME_HELP); break;
 
-		case WXK_DELETE: parent->m_sceneTree->runContextMenuAction(CM_DELETE,parent->m_sceneTree->getSelectedEntityIds()); break;
+		case WXK_DELETE: svframe->m_sceneTree->runContextMenuAction(CM_DELETE,svframe->m_sceneTree->getSelectedEntityIds()); break;
 
-		case 'L': parent->OnMenuEventCore(SVFrame::ME_VIEW_LEFT); break;
-		case 'R': parent->OnMenuEventCore(SVFrame::ME_VIEW_RIGHT); break;
-		case 'F': parent->OnMenuEventCore(SVFrame::ME_VIEW_FRONT); break;
-		case 'B': parent->OnMenuEventCore(SVFrame::ME_VIEW_BACK); break;
-		case 'T': parent->OnMenuEventCore(SVFrame::ME_VIEW_TOP); break;
+		case 'L': svframe->OnMenuEventCore(SVFrame::ME_VIEW_LEFT); break;
+		case 'R': svframe->OnMenuEventCore(SVFrame::ME_VIEW_RIGHT); break;
+		case 'F': svframe->OnMenuEventCore(SVFrame::ME_VIEW_FRONT); break;
+		case 'B': svframe->OnMenuEventCore(SVFrame::ME_VIEW_BACK); break;
+		case 'T': svframe->OnMenuEventCore(SVFrame::ME_VIEW_TOP); break;
 
 
 		case 27:
@@ -586,7 +586,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			else
 			if (svs.fullscreen)
 			{
-				parent->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META);
+				svframe->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META);
 			}
 			else
 			{
@@ -704,7 +704,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		return;
 	}
 
-	const EntityIds& selectedEntities = parent->m_sceneTree->getSelectedEntityIds();
+	const EntityIds& selectedEntities = svframe->m_sceneTree->getSelectedEntityIds();
 
 	// scene clicked: fill s_xxx
 	if (event.ButtonDown() || contextMenu)
@@ -782,19 +782,19 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			if ((selectedEntities.size()==1 && s_ci.clickedEntityIsSelected) || event.ControlDown())
 			{
 				// toggle selection (clicked with ctrl)
-				wxTreeItemId item = parent->m_sceneTree->entityIdToItemId(s_ci.clickedEntity);
+				wxTreeItemId item = svframe->m_sceneTree->entityIdToItemId(s_ci.clickedEntity);
 				if (item.IsOk())
-					parent->m_sceneTree->ToggleItemSelection(item);
+					svframe->m_sceneTree->ToggleItemSelection(item);
 			}
 			else
 			{
 				// select single entity (clicked without ctrl)
-				parent->m_materialProperties->locked = true; // selectEntityInTreeAndUpdatePanel calls setMaterial, material panel must ignore it (set is slow and it clears [x] point, [x] phys)
-				parent->selectEntityInTreeAndUpdatePanel(s_ci.clickedEntity,SEA_SELECT);
-				parent->m_materialProperties->locked = false;
+				svframe->m_materialProperties->locked = true; // selectEntityInTreeAndUpdatePanel calls setMaterial, material panel must ignore it (set is slow and it clears [x] point, [x] phys)
+				svframe->selectEntityInTreeAndUpdatePanel(s_ci.clickedEntity,SEA_SELECT);
+				svframe->m_materialProperties->locked = false;
 			}
 			if (s_ci.hitTriangle!=UINT_MAX)
-				parent->m_materialProperties->setMaterial(solver,s_ci.hitTriangle,s_ci.hitPoint2d);
+				svframe->m_materialProperties->setMaterial(solver,s_ci.hitTriangle,s_ci.hitPoint2d);
 		}
 		else
 		{
@@ -804,22 +804,22 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			// when right clicking something not yet selected, select it, unselect everything else
 			if (!s_ci.clickedEntityIsSelected)
 			{
-				parent->m_sceneTree->UnselectAll();
-				wxTreeItemId itemId = parent->m_sceneTree->entityIdToItemId(s_ci.clickedEntity);
+				svframe->m_sceneTree->UnselectAll();
+				wxTreeItemId itemId = svframe->m_sceneTree->entityIdToItemId(s_ci.clickedEntity);
 				if (itemId.IsOk())
-					parent->m_sceneTree->SelectItem(itemId);
+					svframe->m_sceneTree->SelectItem(itemId);
 			}
 
 			wxTreeEvent event2;
 			event2.SetPoint(wxPoint(-1,-1));
-			parent->m_sceneTree->OnContextMenuCreate(event2);
+			svframe->m_sceneTree->OnContextMenuCreate(event2);
 		}
 	}
 
 	// handle double clicking
 	if (event.LeftDClick() && s_ci.hitTriangle==UINT_MAX)
 	{
-		parent->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META);
+		svframe->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META);
 	}
 
 	// handle dragging
@@ -843,7 +843,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				if (!event.ShiftDown()) pan.y = 0;
 				if (!event.AltDown()) pan.z = 0;
 			}
-			parent->m_sceneTree->manipulateSelectedEntities(pan,rr::RRVec3(0));
+			svframe->m_sceneTree->manipulateSelectedEntities(pan,rr::RRVec3(0));
 		}
 		else
 		if (event.LeftIsDown())
@@ -851,7 +851,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			// rotating
 			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
 			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
-			parent->m_sceneTree->manipulateSelectedEntities(rr::RRVec3(0),rr::RRVec3(dragY,dragX,0)*-5);
+			svframe->m_sceneTree->manipulateSelectedEntities(rr::RRVec3(0),rr::RRVec3(dragY,dragX,0)*-5);
 			solver->reportInteraction();
 		}
 		else
@@ -956,7 +956,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 {
 	if ((svs.initialInputSolver && svs.initialInputSolver->aborting) || (fullyCreated && !solver) || (solver && solver->aborting) || exitRequested)
 	{
-		parent->Close(true);
+		svframe->Close(true);
 		return;
 	}
 	if (!fullyCreated)
@@ -964,8 +964,8 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 
 	// displays queued (asynchronous) reports
 	// otherwise they would display before next synchronous report, possibly much later
-	if (parent->m_log)
-		parent->m_log->flushQueue();
+	if (svframe->m_log)
+		svframe->m_log->flushQueue();
 
 	// camera/light movement
 	static rr::RRTime prevTime;
@@ -983,7 +983,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		{
 			// yes -> respond to keyboard
 			Camera& reference = svs.eye;
-			parent->m_sceneTree->manipulateSelectedEntities(
+			svframe->m_sceneTree->manipulateSelectedEntities(
 				reference.dir * ((speedForward-speedBack)*meters) +
 				reference.right * ((speedRight-speedLeft)*meters) +
 				reference.up * ((speedUp-speedDown)*meters) +
@@ -1067,7 +1067,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 	if (!context) return;
 	SetCurrent(*context);
 
-	parent->AfterPaneOpenClose();
+	svframe->AfterPaneOpenClose();
 
 #ifdef _WIN32
 	// init font for text outputs
@@ -1087,7 +1087,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		float seconds = time.secondsSinceLastQuery();
 		if (seconds>0 && seconds<1)
 			svs.envDateTime.addSeconds(seconds*svs.envSpeed);
-		parent->simulateSun();
+		svframe->simulateSun();
 	}
 
 	Paint(false);
@@ -1349,7 +1349,7 @@ rendered:
 			if (!_takingSshot)
 			{
 				wxArrayTreeItemIds selections;
-				if (parent->m_sceneTree && parent->m_sceneTree->GetSelections(selections)>0)
+				if (svframe->m_sceneTree && svframe->m_sceneTree->GetSelections(selections)>0)
 				{
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 					UberProgramSetup uberProgramSetup;
@@ -1358,7 +1358,7 @@ rendered:
 					Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
 					for (unsigned i=0;i<selections.size();i++)
 					{
-						EntityId entity = parent->m_sceneTree->itemIdToEntityId(selections[i]);
+						EntityId entity = svframe->m_sceneTree->itemIdToEntityId(selections[i]);
 						if (entity.type==ST_STATIC_OBJECT && entity.index<solver->getStaticObjects().size())
 						{
 							const rr::RRObject* object = solver->getStaticObjects()[entity.index];
@@ -1546,9 +1546,9 @@ rendered:
 		if (entityIcons->isOk() && !_takingSshot)
 		{
 			renderedIcons.clear();
-			if (parent->m_lightProperties->IsShown())
+			if (svframe->m_lightProperties->IsShown())
 				renderedIcons.addLights(solver->getLights(),sunIconPosition);
-			renderedIcons.markSelected(parent->m_sceneTree->getSelectedEntityIds());
+			renderedIcons.markSelected(svframe->m_sceneTree->getSelectedEntityIds());
 			entityIcons->renderIcons(renderedIcons,svs.eye);
 		}
 	}

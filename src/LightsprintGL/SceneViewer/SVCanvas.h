@@ -28,7 +28,7 @@ namespace rr_gl
 	class SVCanvas: public wxGLCanvas
 	{
 	public:
-		SVCanvas( SceneViewerStateEx& svse, class SVFrame* parent, wxSize size);
+		SVCanvas( SceneViewerStateEx& svse, class SVFrame* svframe, wxSize size);
 		~SVCanvas();
 
 		// initializes gl context and other stuff, must be called once after canvas is created and Show()n
@@ -74,7 +74,7 @@ namespace rr_gl
 
 	private:
 		class wxGLContext*         context; // context for this canvas (we have only one canvas, so there's no need to share context yet)
-		class SVFrame*             parent;
+		class SVFrame*             svframe;
 		SceneViewerStateEx&        svs;
 		int                        winWidth; // current size
 		int                        winHeight; // current size
