@@ -52,6 +52,13 @@ void SVEntities::addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPositi
 }
 
 
+void SVEntities::markSelected(const EntityIds& selectedEntityIds)
+{
+	for (unsigned i=0;i<size();i++)
+		(*this)[i].selected = selectedEntityIds.find((*this)[i])!=selectedEntityIds.end();
+}
+
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
