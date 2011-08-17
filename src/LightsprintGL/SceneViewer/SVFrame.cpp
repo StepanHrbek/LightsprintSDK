@@ -1163,10 +1163,10 @@ reload_skybox:
 			
 		//////////////////////////////// LIGHTS ///////////////////////////////
 
-		case ME_LIGHT_SPOT: m_sceneTree->runContextMenuAction(CM_LIGHT_SPOT,EntityId(ST_LIGHT,0)); break;
-		case ME_LIGHT_POINT: m_sceneTree->runContextMenuAction(CM_LIGHT_POINT,EntityId(ST_LIGHT,0)); break;
-		case ME_LIGHT_DIR: m_sceneTree->runContextMenuAction(CM_LIGHT_DIR,EntityId(ST_LIGHT,0)); break;
-		case ME_LIGHT_FLASH: m_sceneTree->runContextMenuAction(CM_LIGHT_FLASH,EntityId(ST_LIGHT,0)); break;
+		case ME_LIGHT_SPOT: m_sceneTree->runContextMenuAction(CM_LIGHT_SPOT,EntityIds()); break;
+		case ME_LIGHT_POINT: m_sceneTree->runContextMenuAction(CM_LIGHT_POINT,EntityIds()); break;
+		case ME_LIGHT_DIR: m_sceneTree->runContextMenuAction(CM_LIGHT_DIR,EntityIds()); break;
+		case ME_LIGHT_FLASH: m_sceneTree->runContextMenuAction(CM_LIGHT_FLASH,EntityIds()); break;
 
 
 		//////////////////////////////// GLOBAL ILLUMINATION - INDIRECT ///////////////////////////////
@@ -1458,7 +1458,6 @@ EntityId SVFrame::getSelectedEntity() const
 
 void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityAction action)
 {
-	bool alreadySelected = entity==getSelectedEntity();
 	switch (entity.type)
 	{
 		case ST_LIGHT:
@@ -1495,7 +1494,7 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 			m_canvas->selectedType = entity.type;
 	}
 
-	if (m_sceneTree)
+	if (action!=SEA_NOTHING && m_sceneTree)
 	{
 		m_sceneTree->selectEntityInTree(entity);
 	}

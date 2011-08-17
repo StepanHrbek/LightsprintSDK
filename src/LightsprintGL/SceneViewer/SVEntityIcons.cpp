@@ -8,7 +8,6 @@
 #include "SVEntityIcons.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "../PreserveState.h"
-#include "SVEntity.h"
 #include "wx/wx.h"
 
 namespace rr_gl
@@ -18,7 +17,7 @@ namespace rr_gl
 //
 // SVEntities - all entities in SceneViewer
 
-void SVEntities::addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition, unsigned selectedIndex)
+void SVEntities::addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition)
 {
 	for (unsigned i=0;i<lights.size();i++)
 	{
@@ -47,7 +46,6 @@ void SVEntities::addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPositi
 			}
 			entity.iconSize = iconSize;
 			entity.bright = lights[i]->enabled;
-			entity.selected = i==selectedIndex;
 			push_back(entity);
 		}
 	}

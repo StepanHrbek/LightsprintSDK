@@ -10,7 +10,7 @@
 
 #include "Lightsprint/GL/SceneViewer.h"
 #include "SVApp.h"
-#include <vector>
+#include <set>
 
 namespace rr_gl
 {
@@ -45,8 +45,6 @@ namespace rr_gl
 	/////////////////////////////////////////////////////////////////////////////
 	//
 	// EntityId - identifies entity in SceneViewer
-	//
-	// to be removed, replaced by SVEntity
 
 	struct EntityId
 	{
@@ -71,10 +69,25 @@ namespace rr_gl
 		{
 			return !(a==*this);
 		}
+		bool operator <(const EntityId& a) const
+		{
+			return type<a.type || (type==a.type && index<a.index);
+		}
 		bool isOk()
 		{
 			return type>ST_FIRST && type<ST_LAST;
 		}
+	};
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// EntityIds
+
+	class EntityIds : public std::set<EntityId>
+	{
+	public:
+		EntityIds() {}
+		EntityIds(EntityId e) {insert(e);}
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -96,9 +109,9 @@ namespace rr_gl
 
 	enum SelectEntityAction
 	{
+		SEA_NOTHING, // SVFrame::selectEntityInTreeAndUpdatePanel() does not change selection in tree, while still updating panels
 		SEA_SELECT,
 		SEA_ACTION,
-		SEA_ACTION_IF_ALREADY_SELECTED,
 	};
 
 }; // namespace

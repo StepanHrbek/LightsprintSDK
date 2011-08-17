@@ -564,16 +564,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case 'h':
 		case 'H': parent->OnMenuEventCore(SVFrame::ME_HELP); break;
 
-		case WXK_DELETE:
-			if (selectedType==ST_LIGHT)
-				parent->m_sceneTree->runContextMenuAction(CM_LIGHT_DELETE,EntityId(ST_LIGHT,svs.selectedLightIndex));
-			else
-			if (selectedType==ST_STATIC_OBJECT)
-				parent->m_sceneTree->runContextMenuAction(CM_STATIC_OBJECT_DELETE,EntityId(ST_STATIC_OBJECT,svs.selectedObjectIndex));
-			else
-			if (selectedType==ST_DYNAMIC_OBJECT)
-				parent->m_sceneTree->runContextMenuAction(CM_DYNAMIC_OBJECT_DELETE,EntityId(ST_DYNAMIC_OBJECT,svs.selectedObjectIndex));
-			break;
+		case WXK_DELETE: parent->m_sceneTree->runContextMenuAction(CM_DELETE,parent->m_sceneTree->getSelectedEntityIds()); break;
 
 		case 'L': parent->OnMenuEventCore(SVFrame::ME_VIEW_LEFT); break;
 		case 'R': parent->OnMenuEventCore(SVFrame::ME_VIEW_RIGHT); break;
@@ -672,6 +663,7 @@ struct ClickInfo
 	rr::RRVec2 hitPoint2d;
 	rr::RRVec3 hitPoint3d;
 	SVEntity clickedEntity;
+	bool clickedEntityIsSelected;
 };
 // set by OnMouseEvent on click (but not set on click that closes menu), valid and constant during drag
 // read also by OnPaint (paints crosshair)
@@ -697,6 +689,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 
 	// coords from previous frame, inherited to current frame if new coords are not available
 	static wxPoint oldPosition(-1,-1);
+	static rr::RRVec2 oldMousePositionInWindow(0);
 	bool contextMenu = event.GetId()==ID_CONTEXT_MENU;
 	wxPoint newPosition = (event.GetPosition()==wxPoint(-1,-1)) ? oldPosition : event.GetPosition(); // use previous coords for event that does not come with its own
 	mousePositionInWindow = rr::RRVec2(newPosition.x*2.0f/GetSize().x-1,newPosition.y*2.0f/GetSize().y-1);
@@ -710,6 +703,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		lv->OnMouseEvent(event,GetSize());
 		return;
 	}
+
+	const EntityIds& selectedEntities = parent->m_sceneTree->getSelectedEntityIds();
 
 	// scene clicked: fill s_xxx
 	if (event.ButtonDown() || contextMenu)
@@ -772,6 +767,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			s_ci.clickedEntity.iconCode = IC_LAST;
 		}
 
+		s_ci.clickedEntityIsSelected = selectedEntities.find(s_ci.clickedEntity)!=selectedEntities.end();
+
 		if (contextMenu)
 			goto context_menu;
 	}
@@ -782,42 +779,38 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		if (event.LeftUp())
 		{
 			// left click = select
-			if (s_ci.clickedEntity.type!=ST_CAMERA && s_ci.clickedEntity.type!=ST_STATIC_OBJECT)
+			if ((selectedEntities.size()==1 && s_ci.clickedEntityIsSelected) || event.ControlDown())
 			{
-				// clicked icon
-				parent->selectEntityInTreeAndUpdatePanel(s_ci.clickedEntity,event.LeftDClick()?SEA_ACTION:SEA_ACTION_IF_ALREADY_SELECTED);
+				// toggle selection (clicked with ctrl)
+				wxTreeItemId item = parent->m_sceneTree->entityIdToItemId(s_ci.clickedEntity);
+				if (item.IsOk())
+					parent->m_sceneTree->ToggleItemSelection(item);
 			}
 			else
 			{
-				// clicked scene
-				rr::RRMesh::PreImportNumber selectedPreImportTriangle(0,0);
-				rr::RRObject* selectedObject = NULL;
-				if (s_ci.hitTriangle!=UINT_MAX)
-				{
-					selectedPreImportTriangle = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle);
-					selectedObject = solver->getStaticObjects()[selectedPreImportTriangle.object];
-					if (selectedType!=ST_STATIC_OBJECT || svs.selectedObjectIndex!=selectedPreImportTriangle.object)
-					{
-						//svs.selectedObjectIndex = selectedPreImportTriangle.object;
-						parent->m_materialProperties->locked = true; // selectEntityInTreeAndUpdatePanel calls setMaterial, material panel must ignore it (set is slow and it clears [x] point, [x] phys)
-						parent->selectEntityInTreeAndUpdatePanel(EntityId(ST_STATIC_OBJECT,selectedPreImportTriangle.object),SEA_SELECT);
-						parent->m_materialProperties->locked = false;
-					}
-					else
-						selectedType = ST_CAMERA;
-				}
-				else
-					selectedType = ST_CAMERA;
-				parent->m_objectProperties->setObject(selectedObject,svs.precision);
-				parent->m_materialProperties->setMaterial(solver,s_ci.hitTriangle,s_ci.hitPoint2d);
+				// select single entity (clicked without ctrl)
+				parent->m_materialProperties->locked = true; // selectEntityInTreeAndUpdatePanel calls setMaterial, material panel must ignore it (set is slow and it clears [x] point, [x] phys)
+				parent->selectEntityInTreeAndUpdatePanel(s_ci.clickedEntity,SEA_SELECT);
+				parent->m_materialProperties->locked = false;
 			}
+			if (s_ci.hitTriangle!=UINT_MAX)
+				parent->m_materialProperties->setMaterial(solver,s_ci.hitTriangle,s_ci.hitPoint2d);
 		}
 		else
 		{
 			// right click = context menu
 			context_menu:
+
+			// when right clicking something not yet selected, select it, unselect everything else
+			if (!s_ci.clickedEntityIsSelected)
+			{
+				parent->m_sceneTree->UnselectAll();
+				wxTreeItemId itemId = parent->m_sceneTree->entityIdToItemId(s_ci.clickedEntity);
+				if (itemId.IsOk())
+					parent->m_sceneTree->SelectItem(itemId);
+			}
+
 			wxTreeEvent event2;
-			event2.SetItem(parent->m_sceneTree->entityIdToItemId(s_ci.clickedEntity));
 			event2.SetPoint(wxPoint(-1,-1));
 			parent->m_sceneTree->OnContextMenuCreate(event2);
 		}
@@ -832,22 +825,17 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// handle dragging
 	if (event.Dragging() && s_ciRelevant && newPosition!=oldPosition)
 	{
-		float dragX = (newPosition.x-s_ci.mouseX)/(float)winWidth;
-		float dragY = (newPosition.y-s_ci.mouseY)/(float)winHeight;
-
-		if (event.LeftIsDown() && s_ci.clickedEntity.iconCode!=IC_LAST)
+		if (event.LeftIsDown() && s_ci.clickedEntityIsSelected)
 		{
-			// moving entity
+			// moving
 			rr::RRVec3 pan;
 			if (svs.eye.orthogonal)
 			{
-				rr::RRVec2 origMousePositionInWindow = rr::RRVec2(s_ci.mouseX*2.0f/winWidth-1,s_ci.mouseY*2.0f/winHeight-1);
-				pan = svs.eye.getRayOrigin(origMousePositionInWindow)-svs.eye.getRayOrigin(mousePositionInWindow);
+				pan = svs.eye.getRayOrigin(mousePositionInWindow)-svs.eye.getRayOrigin(oldMousePositionInWindow);
 			}
 			else
 			{
-				rr::RRVec3 newRayDirection = svs.eye.getRayDirection(mousePositionInWindow);
-				pan = (s_ci.rayDirection-newRayDirection)*(s_ci.hitDistance/s_ci.rayDirection.length());
+				pan = (svs.eye.getRayDirection(mousePositionInWindow)-svs.eye.getRayDirection(oldMousePositionInWindow))*(s_ci.hitDistance/s_ci.rayDirection.length());
 			}
 			if (event.ShiftDown() || event.ControlDown() || event.AltDown())
 			{
@@ -855,36 +843,15 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				if (!event.ShiftDown()) pan.y = 0;
 				if (!event.AltDown()) pan.z = 0;
 			}
-			if (s_ci.clickedEntity.type==ST_LIGHT)
-			{
-				solver->getLights()[s_ci.clickedEntity.index]->position = s_ci.clickedEntity.position - pan;
-				solver->reportDirectIlluminationChange(s_ci.clickedEntity.index,true,true,true);
-				solver->realtimeLights[s_ci.clickedEntity.index]->updateAfterRRLightChanges();
-			}
+			parent->m_sceneTree->manipulateSelectedEntities(pan,rr::RRVec3(0));
 		}
 		else
 		if (event.LeftIsDown())
 		{
-			// looking
-			//  rotate around [eye|light].pos
-			if (selectedType==ST_LIGHT)
-			{
-				if (svs.selectedLightIndex<solver->getLights().size())
-				{
-					solver->reportDirectIlluminationChange(svs.selectedLightIndex,true,true,true);
-					Camera* light = solver->realtimeLights[svs.selectedLightIndex]->getParent();
-					light->angle = s_ci.angle-5*dragX;
-					light->angleX = s_ci.angleX-5*dragY;
-					RR_CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-					light->update();
-				}
-			}
-			else
-			{
-				svs.eye.angle = s_ci.angle-dragX*5*svs.eye.getFieldOfViewHorizontalDeg()/90;
-				svs.eye.angleX = s_ci.angleX-dragY*5*svs.eye.getFieldOfViewVerticalDeg()/90;
-				RR_CLAMP(svs.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-			}
+			// rotating
+			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
+			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
+			parent->m_sceneTree->manipulateSelectedEntities(rr::RRVec3(0),rr::RRVec3(dragY,dragX,0)*-5);
 			solver->reportInteraction();
 		}
 		else
@@ -912,6 +879,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		{
 			// inspection
 			//  rotate around clicked point, point does not move on screen
+			float dragX = (newPosition.x-s_ci.mouseX)/(float)winWidth;
+			float dragY = (newPosition.y-s_ci.mouseY)/(float)winHeight;
 			svs.eye.angle = s_ci.angle-dragX*8;
 			svs.eye.angleX = s_ci.angleX-dragY*8;
 			RR_CLAMP(svs.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
@@ -971,6 +940,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	}
 	solver->reportInteraction();
 	oldPosition = newPosition;
+	oldMousePositionInWindow = mousePositionInWindow;
 }
 
 void SVCanvas::OnContextMenuCreate(wxContextMenuEvent& _event)
@@ -1012,22 +982,14 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 
 		{
 			// yes -> respond to keyboard
-			Camera* reference = (selectedType==ST_LIGHT && solver->getLights()[svs.selectedLightIndex]->type==rr::RRLight::SPOT)?solver->realtimeLights[svs.selectedLightIndex]->getParent():&svs.eye;
-			if (speedForward-speedBack) cam->pos += reference->dir * ((speedForward-speedBack)*meters);
-			if (speedRight-speedLeft) cam->pos += reference->right * ((speedRight-speedLeft)*meters);
-			if (speedUp-speedDown) cam->pos += reference->up * ((speedUp-speedDown)*meters);
-			if (speedY) cam->pos.y += speedY*meters;
-			if (speedLean) cam->leanAngle += speedLean*seconds*0.5f;
-		}
-
-		// light change report
-		if (speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedY || speedLean)
-		{
-			if (cam!=&svs.eye) 
-			{
-				solver->realtimeLights[svs.selectedLightIndex]->updateAfterRealtimeLightChanges();
-				solver->reportDirectIlluminationChange(svs.selectedLightIndex,true,true,true);
-			}
+			Camera& reference = svs.eye;
+			parent->m_sceneTree->manipulateSelectedEntities(
+				reference.dir * ((speedForward-speedBack)*meters) +
+				reference.right * ((speedRight-speedLeft)*meters) +
+				reference.up * ((speedUp-speedDown)*meters) +
+				rr::RRVec3(0,speedY*meters,0),
+				rr::RRVec3(0,0,speedLean*seconds*0.5f)
+				);
 		}
 	}
 
@@ -1384,23 +1346,34 @@ rendered:
 			}
 
 			// render selected
-			if (!_takingSshot && selectedType==ST_STATIC_OBJECT && svs.selectedObjectIndex<solver->getStaticObjects().size())
+			if (!_takingSshot)
 			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				UberProgramSetup uberProgramSetup;
-				uberProgramSetup.OBJECT_SPACE = true;
-				uberProgramSetup.POSTPROCESS_NORMALS = true;
-				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
-				const rr::RRObject* object = solver->getStaticObjects()[svs.selectedObjectIndex];
-				if (object->faceGroups.size())
+				wxArrayTreeItemIds selections;
+				if (parent->m_sceneTree && parent->m_sceneTree->GetSelections(selections)>0)
 				{
-					uberProgramSetup.useWorldMatrix(program,object);
-					const rr::RRMesh* mesh = object->getCollider()->getMesh();
-					FaceGroupRange fgRange(0,0,object->faceGroups.size()-1,0,mesh->getNumTriangles());
-					RendererOfMesh* rendererOfMesh = solver->getRendererOfScene()->getRendererOfMesh(mesh);
-					rendererOfMesh->render(program,object,&fgRange,1,uberProgramSetup,NULL,NULL);
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					UberProgramSetup uberProgramSetup;
+					uberProgramSetup.OBJECT_SPACE = true;
+					uberProgramSetup.POSTPROCESS_NORMALS = true;
+					Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
+					for (unsigned i=0;i<selections.size();i++)
+					{
+						EntityId entity = parent->m_sceneTree->itemIdToEntityId(selections[i]);
+						if (entity.type==ST_STATIC_OBJECT && entity.index<solver->getStaticObjects().size())
+						{
+							const rr::RRObject* object = solver->getStaticObjects()[entity.index];
+							if (object->faceGroups.size())
+							{
+								uberProgramSetup.useWorldMatrix(program,object);
+								const rr::RRMesh* mesh = object->getCollider()->getMesh();
+								FaceGroupRange fgRange(0,0,object->faceGroups.size()-1,0,mesh->getNumTriangles());
+								RendererOfMesh* rendererOfMesh = solver->getRendererOfScene()->getRendererOfMesh(mesh);
+								rendererOfMesh->render(program,object,&fgRange,1,uberProgramSetup,NULL,NULL);
+							}
+						}
+					}
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				}
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 		}
 
@@ -1574,7 +1547,8 @@ rendered:
 		{
 			renderedIcons.clear();
 			if (parent->m_lightProperties->IsShown())
-				renderedIcons.addLights(solver->getLights(),sunIconPosition,(selectedType==ST_LIGHT)?svs.selectedLightIndex:UINT_MAX);
+				renderedIcons.addLights(solver->getLights(),sunIconPosition);
+			renderedIcons.markSelected(parent->m_sceneTree->getSelectedEntityIds());
 			entityIcons->renderIcons(renderedIcons,svs.eye);
 		}
 	}

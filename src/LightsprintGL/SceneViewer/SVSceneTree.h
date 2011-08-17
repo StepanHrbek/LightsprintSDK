@@ -16,7 +16,6 @@
 
 namespace rr_gl
 {
-
 	enum ContextMenu
 	{
 		CM_ROOT_SCALE = 1, // OSX does not support menu item 0, so we start by 1
@@ -30,7 +29,8 @@ namespace rr_gl
 		CM_LIGHT_POINT,
 		CM_LIGHT_DIR,
 		CM_LIGHT_FLASH,
-		CM_LIGHT_DELETE,
+
+		CM_DELETE,
 
 		CM_STATIC_OBJECTS_UNWRAP,
 		CM_STATIC_OBJECTS_BUILD_LMAPS,
@@ -39,18 +39,8 @@ namespace rr_gl
 		CM_STATIC_OBJECTS_MERGE,
 		CM_STATIC_OBJECTS_TANGENTS,
 		CM_STATIC_OBJECTS_DELETE_DIALOG,
-		CM_STATIC_OBJECTS_DELETE,
-
-		CM_STATIC_OBJECT_UNWRAP,
-		CM_STATIC_OBJECT_BUILD_LMAP,
-		CM_STATIC_OBJECT_BUILD_LDM,
 		CM_STATIC_OBJECT_INSPECT_UNWRAP,
-		CM_STATIC_OBJECT_SMOOTH,
-		CM_STATIC_OBJECT_TANGENTS,
-		CM_STATIC_OBJECT_DELETE_DIALOG,
-		CM_STATIC_OBJECT_DELETE,
 
-		CM_DYNAMIC_OBJECT_DELETE,
 	};
 
 	class SVSceneTree : public wxTreeCtrl
@@ -71,16 +61,26 @@ namespace rr_gl
 		void OnKeyDown(wxTreeEvent& event);
 		void OnKeyUp(wxKeyEvent& event);
 
+		// what is selected
+		const EntityIds& getSelectedEntityIds();
+
 		//! Runs context menu action, public only for SVCanvas hotkey handling.
-		void runContextMenuAction(unsigned actionCode, EntityId contextEntityId);
+		//
+		//! EntityIds is not reference because selectedEntityIds may change several times from this function
+		//! and we don't want our parameter to change.
+		void runContextMenuAction(unsigned actionCode, const EntityIds contextEntityIds);
 
 		// context menu, public only for canvas context menu
 		void OnContextMenuCreate(wxTreeEvent& event);
 		void OnContextMenuRun(wxCommandEvent& event);
 		wxTreeItemId entityIdToItemId(EntityId entity) const;
+		EntityId itemIdToEntityId(wxTreeItemId item) const;
+		void manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorldUnits, const rr::RRVec3& rotateByAnglesRad);
+		void manipulateSelectedEntities(const rr::RRVec3& moveByWorldUnits, const rr::RRVec3& rotateByAnglesRad);
 
 	private:
-		EntityId itemIdToEntityId(wxTreeItemId item) const;
+		void updateSelectedEntityIds();
+		EntityIds selectedEntityIds; // always up to date, with root of lights replaced by all lights, root of objects replaced by all objects
 
 		SVFrame* svframe;
 		SceneViewerStateEx& svs;
@@ -90,9 +90,6 @@ namespace rr_gl
 		wxTreeItemId lights;
 		wxTreeItemId staticObjects;
 		wxTreeItemId dynamicObjects;
-
-		// temporary, set when creating context menu, valid only while context menu exists
-		wxTreeItemId temporaryContext;
 
 		DECLARE_EVENT_TABLE()
 	};

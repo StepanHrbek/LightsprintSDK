@@ -14,6 +14,7 @@
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/GL/UberProgram.h"
 #include "SVEntity.h"
+#include <vector>
 
 namespace rr_gl
 {
@@ -27,7 +28,8 @@ namespace rr_gl
 	public:
 		float iconSize;
 
-		void addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition, unsigned selectedIndex);
+		void addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition);
+		void markSelected(const EntityIds& selectedEntityIds);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////

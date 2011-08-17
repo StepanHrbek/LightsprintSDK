@@ -302,7 +302,7 @@ bool ButtonProperty::OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wx
 	if (event.GetEventType()==wxEVT_SET_FOCUS)
 	{
 		if (menuItem<rr_gl::SVFrame::ME_FIRST)
-			svframe->m_sceneTree->runContextMenuAction(menuItem,rr_gl::EntityId());
+			svframe->m_sceneTree->runContextMenuAction(menuItem,rr_gl::EntityIds());
 		else
 			svframe->OnMenuEventCore2(menuItem);
 	}

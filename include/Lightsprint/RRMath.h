@@ -313,11 +313,14 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRVec3 getTranslation() const;
 		//! Sets translation component of matrix.
 		void setTranslation(const RRVec3& a);
+		//! Adds to translation component of matrix.
+		void translate(const RRVec3& a);
 
 		//! Returns scale component of matrix. Negative scale is supported. Use getScale().abs().avg() for absolute uniform scale.
 		RRVec3 getScale() const;
 		//! Sets scale component of matrix. Negative scale is supported. Scale does not affect translation. Scale 0 resets rotation component of matrix.
 		void setScale(const RRVec3& a);
+
 	};
 
 } // namespace

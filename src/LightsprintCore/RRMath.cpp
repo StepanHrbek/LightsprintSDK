@@ -186,6 +186,13 @@ void RRMatrix3x4::setTranslation(const RRVec3& a)
 	m[2][3] = a[2];
 }
 
+void RRMatrix3x4::translate(const RRVec3& a)
+{
+	m[0][3] += a[0];
+	m[1][3] += a[1];
+	m[2][3] += a[2];
+}
+
 RRVec3 RRMatrix3x4::getScale() const
 {
 	RRVec3 scale;
@@ -220,6 +227,7 @@ void RRMatrix3x4::setScale(const RRVec3& newScale)
 		}
 	}
 }
+
 
 
 } // namespace
