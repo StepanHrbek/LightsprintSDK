@@ -775,7 +775,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 
 	// handle clicking (mouse released in less than 0.2s in less than 20pix distance)
 	bool clicking = s_ci.time.secondsPassed()<0.2f && abs(event.GetX()-s_ci.mouseX)<20 && abs(event.GetY()-s_ci.mouseY)<20;
-	if ((event.LeftUp() || event.RightUp()) && s_ci.time.secondsPassed()<0.2f && abs(event.GetX()-s_ci.mouseX)<20 && abs(event.GetY()-s_ci.mouseY)<20)
+	if ((event.LeftUp() || event.RightUp()) && clicking)
 	{
 		if (event.LeftUp())
 		{
