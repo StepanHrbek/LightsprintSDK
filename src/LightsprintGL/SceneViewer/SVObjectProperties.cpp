@@ -120,6 +120,10 @@ void SVObjectProperties::updateProperties()
 		updateString(propMeshUvs,channels);
 		updateBool(propMeshTangents,arrays->tangent?true:false);
 	}
+
+	// must be updated after dynamic object dragging
+	updateProperty(propTranslation,object->getWorldMatrixRef().getTranslation());
+	updateProperty(propCenter,object->getWorldMatrixRef().transformedPosition(localCenter));
 }
 
 void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
