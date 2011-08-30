@@ -46,6 +46,7 @@ namespace rr
 		const RRMesh*     importer;
 		Box               box; // aligned + vtable(4) + importer(4) + DELTA_BSP(4) + triangles(4) = aligned
 #endif
+		unsigned          numIntersects; // statistics only, we warn if user uses this slow collider too often
 	};
 
 

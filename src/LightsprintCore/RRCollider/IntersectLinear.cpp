@@ -134,6 +134,7 @@ IntersectLinear::IntersectLinear(const RRMesh* aimporter)
 	RR_ASSERT(IS_NUMBER(maxCoord));
 	if (maxCoord==0 || _isnan(maxCoord)) maxCoord = 1;
 	DELTA_BSP = maxCoord*1e-5f;
+	numIntersects = 0;
 }
 
 unsigned IntersectLinear::getMemoryOccupied() const
@@ -159,6 +160,10 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	DBG(printf("\n"));
 	FILL_STATISTIC(intersectStats.intersect_mesh++);
 	bool hit = false;
+
+	// linear is slow, warn if used too often
+	if (const_cast<IntersectLinear*>(this)->numIntersects++>1000) // cast is unsafe, multiple threads may write to numIntersects, but we don't care, it's used only for warning
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Heavy use of IT_LINEAR collider detected, consider using faster IT_BSP_XXX techniques.\n"));
 
 #ifdef COLLISION_HANDLER
 	char backup[sizeof(RRRay)];
