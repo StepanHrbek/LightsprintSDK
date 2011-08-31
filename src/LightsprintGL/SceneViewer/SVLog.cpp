@@ -73,6 +73,16 @@ void SVLog::customReport(rr::RRReportType type, int indentation, const char* mes
 	customReportImmediate(type,indentation,message);
 }
 
+SVLog::~SVLog()
+{
+	while (queue.size())
+	{
+		free((char*)queue.front().message);
+		queue.pop();
+	}
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // LogWithAbort

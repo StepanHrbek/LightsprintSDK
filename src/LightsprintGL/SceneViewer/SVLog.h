@@ -24,6 +24,7 @@ namespace rr_gl
 		SVLog(SVFrame* svframe);
 		virtual void customReport(rr::RRReportType type, int indentation, const char* message);
 		void flushQueue();
+		~SVLog();
 
 	private:
 		wxCriticalSection critSec;
