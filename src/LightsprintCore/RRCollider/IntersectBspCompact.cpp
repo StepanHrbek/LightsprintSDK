@@ -106,11 +106,9 @@ begin:
 			// size of kd leaf
 			typename BspTree::_TriInfo* trianglesBegin = t->kd.getTrianglesBegin();
 			typename BspTree::_TriInfo* trianglesEnd = (typename BspTree::_TriInfo*)t->getTrianglesEnd();
-			unsigned trianglesCount = (unsigned)(trianglesEnd-trianglesBegin);
-			RR_ASSERT(trianglesCount);
 
 			// container for all hits in kd leaf
-			RayHits rayHits(trianglesCount);
+			RayHits rayHits;
 
 			// test all triangles in kd leaf for intersection
 			for (typename BspTree::_TriInfo* triangle=trianglesBegin;triangle<trianglesEnd;triangle++)

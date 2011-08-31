@@ -96,10 +96,10 @@ namespace rr
 	class RayHits
 	{
 	public:
-		RayHits(unsigned maxNumHits);
+		RayHits();
 		// Call each time when ray collides with triangle. Order of inserts doesn't matter.
 		// It should be still the same ray, only hit may differ.
-		void insertHitUnordered(RRRay* ray);
+		void insertHitUnordered(const RRRay* ray);
 		// Call once at the end, stored hits are processed.
 		// Hits are passed to collisionHandler ordered by distance.
 		// True = nearest accepted hit is saved to ray.
@@ -111,8 +111,8 @@ namespace rr
 		RayHitBackup* backupSlotDynamic; // dynamic slots are allocated only in case of need (=rarely)
 		RayHitBackup* getSlots(); // return used slots, static or dynamic
 		unsigned backupSlotsUsed;
+		unsigned backupSlotsAllocated;
 		unsigned theBestSlot;
-		unsigned maxNumHits;
 	};
 
 } // namespace

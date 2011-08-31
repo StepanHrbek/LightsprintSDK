@@ -328,12 +328,11 @@ int RayHitBackup::compareBackupDistance(const void* elem1, const void* elem2)
 //
 // RayHits
 
-RayHits::RayHits(unsigned _maxNumHits)
+RayHits::RayHits()
 {
-	maxNumHits = _maxNumHits;
-	RR_ASSERT(maxNumHits);
 	backupSlotDynamic = NULL;
 	backupSlotsUsed = 0;
+	backupSlotsAllocated = 0;
 	theBestSlot = 0;
 }
 
@@ -342,18 +341,27 @@ RayHitBackup* RayHits::getSlots()
 	return backupSlotDynamic ? backupSlotDynamic : backupSlotStatic;
 }
 
-void RayHits::insertHitUnordered(RRRay* ray)
+void RayHits::insertHitUnordered(const RRRay* ray)
 {
 	RR_ASSERT(ray);
 	if (backupSlotsUsed==STATIC_SLOTS)
 	{
-		backupSlotDynamic = new RayHitBackup[maxNumHits];
+		backupSlotDynamic = new RayHitBackup[backupSlotsAllocated=4*STATIC_SLOTS];
 		memcpy(backupSlotDynamic,backupSlotStatic,sizeof(backupSlotStatic));
+	}
+	else
+	if (backupSlotsAllocated && backupSlotsUsed==backupSlotsAllocated)
+	{
+		RayHitBackup* tmp = backupSlotDynamic;
+		backupSlotDynamic = new RayHitBackup[backupSlotsAllocated*=2];
+		memcpy(backupSlotDynamic,tmp,backupSlotsUsed*sizeof(RayHitBackup));
+		delete[] tmp;
 	}
 	getSlots()[backupSlotsUsed++].createBackupOf(ray);
 	if (ray->hitDistance<getSlots()[theBestSlot].getHitDistance()) theBestSlot = backupSlotsUsed-1;
 }
 
+// if mesh is NULL, ray->hitObject must be set
 bool RayHits::getHitOrdered(RRRay* ray, const RRMesh* mesh)
 {
 	RR_ASSERT(ray);
