@@ -14,6 +14,7 @@ NEWS
 
 - misc tools
   - RRMatrix3x4::invertedTo() added
+  - RRVector::pop_back() added
 
 \section news125 ------------------------------------ 2011.08.16 -------------------------------------
 

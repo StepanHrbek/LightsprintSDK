@@ -93,6 +93,15 @@ public:
 		}
 		c[numUsed++] = a;
 	}
+	//! Removes last element from vector.
+	//! Destructor is not called (unlike std::vector).
+	void pop_back()
+	{
+		if (numUsed)
+		{
+			numUsed--;
+		}
+	}
 	//! Removes i-th element from vector (i is not iterator unlike std::vector).
 	//! Destructor is not called (unlike std::vector).
 	void erase(unsigned i)
