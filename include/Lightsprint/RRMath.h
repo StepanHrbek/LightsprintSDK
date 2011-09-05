@@ -303,6 +303,9 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 
 		//! Returns determinant of first 3x3 elements.
 		RRReal determinant3x3() const;
+		
+		//! Inverts matrix.
+		bool invertedTo(RRMatrix3x4& destination) const;
 
 		//! Sets matrix to identity.
 		void setIdentity();

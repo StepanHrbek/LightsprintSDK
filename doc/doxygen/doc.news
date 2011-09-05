@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news126 ------------------------------------ 2011.09.xx -------------------------------------
+
+NEWS
+
+- misc tools
+  - RRMatrix3x4::invertedTo() added
+
 \section news125 ------------------------------------ 2011.08.16 -------------------------------------
 
 NEWS
