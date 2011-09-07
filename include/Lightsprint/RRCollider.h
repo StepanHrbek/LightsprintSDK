@@ -143,7 +143,6 @@ namespace rr
 			IT_BSP_FASTER,      ///< Speed 200%, size  ~60 bytes per triangle. For PC tools.
 			IT_BSP_FASTEST,     ///< Speed 230%, size ~200 bytes per triangle. For speed benchmarks.
 			IT_VERIFICATION,    ///< Only for verification purposes, performs tests using all known techniques and compares results.
-			IT_CHANGEABLE,      ///< Can be changed with setTechnique().
 		};
 
 		//! Creates and returns collider, acceleration structure for finding ray x mesh intersections.
@@ -232,7 +231,7 @@ namespace rr
 		//! \return Technique used by collider. May differ from technique requested in create().
 		virtual IntersectTechnique getTechnique() const = 0;
 
-		//! Changes technique, but only if collider was created with IT_CHANGEABLE.
+		//! Changes technique, but only if collider was created with IT_LINEAR.
 		//
 		//! Other colliders have technique hardcoded, for tiny bit higher speed.
 		//! \param intersectTechnique Technique used for accelerating collision searches. See #IntersectTechnique.

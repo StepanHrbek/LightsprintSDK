@@ -24,7 +24,7 @@ class IntersectWrapper : public RRCollider
 public:
 	IntersectWrapper(const RRMesh* mesh, bool& aborting)
 	{
-		collider = create(mesh,IT_LINEAR,aborting);
+		collider = IntersectLinear::create(mesh);
 	}
 	virtual ~IntersectWrapper()
 	{
@@ -71,7 +71,7 @@ protected:
 
 void RRCollider::setTechnique(IntersectTechnique technique, bool& aborting)
 {
-	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"setTechnique() ignored, collider was not created with IT_CHANGEABLE.\n"));
+	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"setTechnique() ignored, collider was not created with IT_LINEAR.\n"));
 }
 
 RRCollider* RRCollider::create(const RRMesh* mesh, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
@@ -132,13 +132,12 @@ RRCollider* RRCollider::create(const RRMesh* mesh, IntersectTechnique intersectT
 			}
 		case IT_LINEAR:
 			{
-				return IntersectLinear::create(mesh);
+				return new IntersectWrapper(mesh,aborting);
 			}
-		case IT_CHANGEABLE:
 		default:
 		linear:
 			{
-				return new IntersectWrapper(mesh,aborting);
+				return IntersectLinear::create(mesh);
 			}
 	}
 

@@ -21,7 +21,7 @@ NEWS
 NEWS
 
 - colliders can change technique on the fly
-  - RRCollider::setTechnique() and RRCollider::IT_CHANGEABLE added
+  - RRCollider::setTechnique() added
   - const removed from RRObject::getCollider() and RRObject::setCollider()
 
 CHANGES
