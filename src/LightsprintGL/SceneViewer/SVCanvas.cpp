@@ -1185,7 +1185,8 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				solver->getLights()[i]->outerAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.6f;
 				solver->getLights()[i]->fallOffAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.4f;
 				solver->realtimeLights[i]->getParent()->setRange(svs.eye.getNear(),svs.eye.getFar());
-				solver->realtimeLights[i]->updateAfterRRLightChanges();
+				solver->realtimeLights[i]->updateAfterRRLightChanges(); // sets dirtyRange if pos/dir/fov did change
+				solver->realtimeLights[i]->dirtyRange = false; // clear it, range already is good (dirty range would randomly disappear flashlight, reason unknown)
 			}
 
 		if (svs.cameraDynamicNear && !svs.eye.orthogonal) // don't change range in ortho, fixed range from setView() is better
