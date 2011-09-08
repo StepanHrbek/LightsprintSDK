@@ -1818,13 +1818,13 @@ rendered:
 				if (selectedPointValid)
 				{
 					rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
-					const rr::RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
-					const rr::RRMaterial* material = triangleMaterial;
-					rr::RRPointMaterial pointMaterial;
+					const rr::RRMaterial* selectedTriangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
+					const rr::RRMaterial* material = selectedTriangleMaterial;
+					rr::RRPointMaterial selectedPointMaterial;
 					if (material && material->minimalQualityForPointMaterials<10000)
 					{
-						multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-						material = &pointMaterial;
+						multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,selectedPointMaterial);
+						material = &selectedPointMaterial;
 					}
 					rr::RRMesh::TriangleMapping triangleMapping;
 					multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping,material?material->lightmapTexcoord:0);
