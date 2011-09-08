@@ -405,9 +405,9 @@ SVCanvas::~SVCanvas()
 	if (solver)
 	{
 		// delete all lightmaps for realtime rendering
-		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+		for (unsigned i=0;i<solver->getStaticObjects().size()+solver->getDynamicObjects().size();i++)
 		{
-			RR_SAFE_DELETE(solver->getStaticObjects()[i]->illumination.getLayer(svs.realtimeLayerNumber));
+			RR_SAFE_DELETE(solver->getObject(i)->illumination.getLayer(svs.realtimeLayerNumber));
 		}
 
 		// delete env manually loaded by user
@@ -1112,10 +1112,10 @@ void SVCanvas::PaintCore(bool _takingSshot)
 	}
 	if (svs.renderLightmaps2d && lv)
 	{
-		if (svs.selectedObjectIndex<solver->getStaticObjects().size())
+		if (solver->getObject(svs.selectedObjectIndex))
 			lv->setObject(
-				solver->getStaticObjects()[svs.selectedObjectIndex]->illumination.getLayer(svs.renderLDMEnabled()?svs.ldmLayerNumber:svs.staticLayerNumber),
-				solver->getStaticObjects()[svs.selectedObjectIndex],
+				solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(svs.renderLDMEnabled()?svs.ldmLayerNumber:svs.staticLayerNumber),
+				solver->getObject(svs.selectedObjectIndex),
 				svs.renderLightmapsBilinear);
 		else
 			lv->setObject(
@@ -1345,8 +1345,8 @@ rendered:
 						EntityId entity = svframe->m_sceneTree->itemIdToEntityId(selections[i]);
 						if (entity.type==ST_STATIC_OBJECT && entity.index<solver->getStaticObjects().size())
 						{
-							const rr::RRObject* object = solver->getStaticObjects()[entity.index];
-							if (object->faceGroups.size())
+							const rr::RRObject* object = solver->getObject(entity.index);
+							if (object && object->faceGroups.size())
 							{
 								uberProgramSetup.useWorldMatrix(program,object);
 								const rr::RRMesh* mesh = object->getCollider()->getMesh();
@@ -1557,7 +1557,7 @@ rendered:
 		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
 
 		// gather information about selected object
-		rr::RRObject* singleObject = (svs.selectedObjectIndex<solver->getStaticObjects().size())?solver->getStaticObjects()[svs.selectedObjectIndex]:NULL;
+		rr::RRObject* singleObject = solver->getObject(svs.selectedObjectIndex);
 		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesSingle = singleMesh ? singleMesh->getNumTriangles() : 0;
 
@@ -1668,10 +1668,10 @@ rendered:
 				unsigned numLmaps = 0;
 				for (unsigned i=0;i<numObjects;i++)
 				{
-					if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber))
+					if (solver->getObject(i)->illumination.getLayer(svs.staticLayerNumber))
 					{
-						if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_VERTEX_BUFFER) numVbufs++; else
-						if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE) numLmaps++;
+						if (solver->getObject(i)->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_VERTEX_BUFFER) numVbufs++; else
+						if (solver->getObject(i)->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE) numLmaps++;
 					}
 				}
 				// what solver
@@ -1718,7 +1718,7 @@ rendered:
 							if (multiObject->getTriangleMaterial(t,rrlight,NULL)) numLightReceivers++;
 							for (unsigned j=0;j<numObjects;j++)
 							{
-								if (multiObject->getTriangleMaterial(t,rrlight,solver->getStaticObjects()[j])) numShadowCasters++;
+								if (multiObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowCasters++;
 							}
 						}
 					}
@@ -1758,7 +1758,7 @@ rendered:
 							if (singleObject->getTriangleMaterial(t,rrlight,NULL)) numReceivedLights++;
 							for (unsigned j=0;j<numObjects;j++)
 							{
-								if (singleObject->getTriangleMaterial(t,rrlight,solver->getStaticObjects()[j])) numShadowsCast++;
+								if (singleObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowsCast++;
 							}
 						}
 					}
@@ -1773,9 +1773,9 @@ rendered:
 					textOutput(x,y+=18,h,"received lights: %f/%d",numReceivedLights/float(numTrianglesSingle),numLights);
 					textOutput(x,y+=18,h,"shadows cast: %f/%d",numShadowsCast/float(numTrianglesSingle),numLights*numObjects);
 				}
-				if (svs.selectedObjectIndex<solver->getStaticObjects().size())
+				if (solver->getObject(svs.selectedObjectIndex))
 				{
-					rr::RRBuffer* bufferSelectedObj = solver->getStaticObjects()[svs.selectedObjectIndex]->illumination.getLayer(svs.staticLayerNumber);
+					rr::RRBuffer* bufferSelectedObj = solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(svs.staticLayerNumber);
 					if (bufferSelectedObj)
 					{
 						//if (svs.renderRealtime) glColor3f(0.5f,0.5f,0.5f);
@@ -1847,7 +1847,7 @@ rendered:
 						if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,NULL)) numReceivedLights++;
 						for (unsigned j=0;j<numObjects;j++)
 						{
-							if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,solver->getStaticObjects()[j])) numShadowsCast++;
+							if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,solver->getObject(j))) numShadowsCast++;
 						}
 					}
 					textOutput(x,y+=18,h,"received lights: %d/%d",numReceivedLights,numLights);
@@ -1860,9 +1860,9 @@ rendered:
 				rr::RRVec2 uv = lv->getCenterUv(GetSize());
 				textOutput(x,y+=18*2,h,"[pointed by mouse]");
 				textOutput(x,y+=18,h,"uv: %f %f",uv[0],uv[1]);
-				if (svs.selectedObjectIndex<solver->getStaticObjects().size())
+				if (solver->getObject(svs.selectedObjectIndex))
 				{
-					rr::RRBuffer* buffer = solver->getStaticObjects()[svs.selectedObjectIndex]->illumination.getLayer(svs.staticLayerNumber);
+					rr::RRBuffer* buffer = solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(svs.staticLayerNumber);
 					if (buffer && buffer->getType()==rr::BT_2D_TEXTURE)
 					{
 						int i = int(uv[0]*buffer->getWidth());

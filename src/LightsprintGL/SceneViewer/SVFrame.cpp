@@ -867,6 +867,7 @@ save_scene:
 			{
 				rr::RRScene scene;
 				scene.objects = m_canvas->solver->getStaticObjects();
+				scene.objects.insert(scene.objects.end(),m_canvas->solver->getDynamicObjects().begin(),m_canvas->solver->getDynamicObjects().end());
 				scene.lights = m_canvas->solver->getLights();
 				scene.environment = m_canvas->solver->getEnvironment();
 				if (!scene.save(RR_WX2RR(svs.sceneFilename)))
