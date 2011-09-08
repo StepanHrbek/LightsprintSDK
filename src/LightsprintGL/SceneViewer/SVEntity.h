@@ -25,7 +25,7 @@ namespace rr_gl
 		ST_FIRST,
 		ST_CAMERA,
 		ST_LIGHT,
-		ST_STATIC_OBJECT,
+		ST_OBJECT,
 		ST_LAST
 	};
 

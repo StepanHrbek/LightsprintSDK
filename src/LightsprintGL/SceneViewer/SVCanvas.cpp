@@ -772,7 +772,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 		else
 		{
-			s_ci.clickedEntity.type = (s_ci.hitTriangle==UINT_MAX) ? ST_CAMERA : ST_STATIC_OBJECT;
+			s_ci.clickedEntity.type = (s_ci.hitTriangle==UINT_MAX) ? ST_CAMERA : ST_OBJECT;
 			s_ci.clickedEntity.index = (s_ci.hitTriangle==UINT_MAX) ? 0 : solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle).object;
 			s_ci.clickedEntity.iconCode = IC_LAST;
 		}
@@ -1367,7 +1367,7 @@ rendered:
 					for (unsigned i=0;i<selections.size();i++)
 					{
 						EntityId entity = svframe->m_sceneTree->itemIdToEntityId(selections[i]);
-						if (entity.type==ST_STATIC_OBJECT)
+						if (entity.type==ST_OBJECT)
 						{
 							const rr::RRObject* object = solver->getObject(entity.index);
 							if (object && object->faceGroups.size())

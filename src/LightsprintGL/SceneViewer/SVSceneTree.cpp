@@ -90,7 +90,7 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		{
 			wxString name = RR_RR2WX(solver->getStaticObjects()[i]->name);
 			if (name.empty()) name = wxString::Format(_("object %d"),i);
-			AppendItem(staticObjects,name,-1,-1,new ItemData(EntityId(ST_STATIC_OBJECT,i)));
+			AppendItem(staticObjects,name,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
 		}
 	}
 
@@ -104,7 +104,7 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		{
 			wxString name = RR_RR2WX(solver->getDynamicObjects()[i]->name);
 			if (name.empty()) name = wxString::Format(_("object %d"),i);
-			AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_STATIC_OBJECT,numStaticObjects+i)));
+			AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_OBJECT,numStaticObjects+i)));
 		}
 	}
 
@@ -124,7 +124,7 @@ wxTreeItemId SVSceneTree::entityIdToItemId(EntityId entity) const
 	switch (entity.type)
 	{
 		case ST_LIGHT: searchRoot = lights; break;
-		case ST_STATIC_OBJECT:
+		case ST_OBJECT:
 			if (entity.index<svframe->m_canvas->solver->getStaticObjects().size())
 				searchRoot = staticObjects;
 			else
@@ -164,7 +164,7 @@ void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorl
 	RRDynamicSolverGL* solver = svframe->m_canvas->solver;
 	switch(entity.type)
 	{
-		case ST_STATIC_OBJECT:
+		case ST_OBJECT:
 			{
 				rr::RRObject* object = solver->getObject(entity.index);
 				rr::RRMatrix3x4 matrix = object->getWorldMatrixRef();
@@ -248,7 +248,7 @@ void SVSceneTree::updateSelectedEntityIds()
 			{
 				unsigned numStaticObjects = svframe->m_canvas->solver->getStaticObjects().size();
 				for (unsigned i=0;i<numStaticObjects;i++)
-					selectedEntityIds.insert(EntityId(ST_STATIC_OBJECT,i));
+					selectedEntityIds.insert(EntityId(ST_OBJECT,i));
 			}
 			else
 			if (selections[i]==dynamicObjects)
@@ -256,7 +256,7 @@ void SVSceneTree::updateSelectedEntityIds()
 				unsigned numStaticObjects = svframe->m_canvas->solver->getStaticObjects().size();
 				unsigned numDynamicObjects = svframe->m_canvas->solver->getDynamicObjects().size();
 				for (unsigned i=0;i<numDynamicObjects;i++)
-					selectedEntityIds.insert(EntityId(ST_STATIC_OBJECT,numStaticObjects+i));
+					selectedEntityIds.insert(EntityId(ST_OBJECT,numStaticObjects+i));
 			}
 			else
 			{
@@ -386,10 +386,10 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 	rr::RRObjects selectedObjectsAndInstances; // some tasks have to process instances of selected objects too
 	for (unsigned i=0;i<allObjects.size();i++)
 	{
-		if (contextEntityIds.find(EntityId(ST_STATIC_OBJECT,i))!=contextEntityIds.end())
+		if (contextEntityIds.find(EntityId(ST_OBJECT,i))!=contextEntityIds.end())
 			selectedObjects.push_back(allObjects[i]);
 		for (EntityIds::const_iterator j=contextEntityIds.begin();j!=contextEntityIds.end();++j)
-			if (j->type==ST_STATIC_OBJECT && allObjects[j->index]->getCollider()->getMesh()==allObjects[i]->getCollider()->getMesh())
+			if (j->type==ST_OBJECT && allObjects[j->index]->getCollider()->getMesh()==allObjects[i]->getCollider()->getMesh())
 			{
 				selectedObjectsAndInstances.push_back(allObjects[i]);
 				break;
@@ -608,13 +608,13 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			break;
 
 		case CM_STATIC_OBJECT_INSPECT_UNWRAP:
-			svframe->m_canvas->selectedType = ST_STATIC_OBJECT;
+			svframe->m_canvas->selectedType = ST_OBJECT;
 			svs.selectedObjectIndex = contextEntityIds.begin()->index;
 			svs.renderLightmaps2d = 1;
 			// a) slower, rebuilds tree, triggers wx bug: stealing focus (select obj or light, focus to canvas, select inspect from context menu (tree is rebuilt here), focus goes to tree)
 			//svframe->updateAllPanels();
 			// b) faster, avoids wx bug (focus in canvas stays in canvas)
-			svframe->selectEntityInTreeAndUpdatePanel(EntityId(ST_STATIC_OBJECT,svs.selectedObjectIndex),SEA_SELECT);
+			svframe->selectEntityInTreeAndUpdatePanel(EntityId(ST_OBJECT,svs.selectedObjectIndex),SEA_SELECT);
 			break;
 
 		case CM_STATIC_OBJECTS_SMOOTH: // right now, it smooths also dynamic objects
@@ -680,7 +680,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				rr::RRObjects newList;
 				newList.push_back(newObject); // memleak, newObject is never freed
 				for (unsigned objectIndex=0;objectIndex<allObjects.size();objectIndex++)
-					if (contextEntityIds.find(EntityId(ST_STATIC_OBJECT,objectIndex))==contextEntityIds.end())
+					if (contextEntityIds.find(EntityId(ST_OBJECT,objectIndex))==contextEntityIds.end())
 						newList.push_back(allObjects[objectIndex]);
 				solver->setStaticObjects(newList,NULL);
 				solver->setDynamicObjects(newList);
@@ -742,7 +742,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				{
 					rr::RRObjects newList;
 					for (unsigned objectIndex=0;objectIndex<allObjects.size();objectIndex++)
-						if (contextEntityIds.find(EntityId(ST_STATIC_OBJECT,objectIndex))==contextEntityIds.end())
+						if (contextEntityIds.find(EntityId(ST_OBJECT,objectIndex))==contextEntityIds.end())
 							newList.push_back(allObjects[objectIndex]);
 					if (newList.size()!=allObjects.size())
 					{
