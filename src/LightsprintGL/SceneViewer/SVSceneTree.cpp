@@ -80,12 +80,12 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		}
 	}
 
-	// update first 100000 static objects, more would be slow and difficult to control
+	// update static objects
+	unsigned numStaticObjects = solver->getStaticObjects().size();
 	if (solver)
 	{
 		SetItemText(staticObjects,wxString::Format(_("%d static objects"),solver?solver->getStaticObjects().size():0));
 		DeleteChildren(staticObjects);
-		unsigned numStaticObjects = RR_MIN(solver->getStaticObjects().size(),100000);
 		for (unsigned i=0;solver && i<numStaticObjects;i++)
 		{
 			wxString name = RR_RR2WX(solver->getStaticObjects()[i]->name);
@@ -94,12 +94,12 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		}
 	}
 
-	// update first 100000 dynamic objects
+	// update dynamic objects
 	if (solver)
 	{
 		SetItemText(dynamicObjects,wxString::Format(_("%d dynamic objects"),solver?solver->getDynamicObjects().size():0));
 		DeleteChildren(dynamicObjects);
-		unsigned numDynamicObjects = RR_MIN(solver->getDynamicObjects().size(),100000);
+		unsigned numDynamicObjects = solver->getDynamicObjects().size();
 		for (unsigned i=0;solver && i<numDynamicObjects;i++)
 		{
 			wxString name = RR_RR2WX(solver->getDynamicObjects()[i]->name);
