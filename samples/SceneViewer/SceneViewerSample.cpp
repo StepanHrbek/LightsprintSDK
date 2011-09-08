@@ -99,6 +99,7 @@ int main(int argc, char** argv)
 	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setStaticObjects(scene.objects,NULL);
+	solver->setDynamicObjects(scene.objects);
 	solver->setLights(scene.lights);
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
 

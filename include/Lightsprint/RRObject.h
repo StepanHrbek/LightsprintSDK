@@ -222,6 +222,15 @@ namespace rr
 		//! Optional name of the object.
 		RRString name;
 
+		//! Is this object dynamic = is it safe to modify it?
+		//
+		//! This flag does not enforce anything, you set it as you wish and you comply with it if you wish.
+		//! Object does not become static by clearing this flag, it is static if you treat it as static,
+		//! e.g. by passing it to setStaticObjects() and not moving it.
+		//! But it's practical to have this bit of information here, it is saved to .rr3 files,
+		//! scene viewer reads it from .rr3 files etc.
+		bool isDynamic;
+
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Tools
@@ -490,7 +499,7 @@ namespace rr
 		//! This is case of solver; if you build unwrap in solver <code>solver->getStaticObjects().buildUnwrap(...)</code>,
 		//! you have to resend modified objects to solver <code>solver->setStaticObjects(solver->getStaticObjects(),...)</code>.
 		//! \param resolution
-		//!  Expected lightmap resolution.
+		//!  Expected lightmap resolution, e.g. 1024 for 1024x1024.
 		//! \param aborting
 		//!  May be set asynchronously, aborts build.
 		//! \return Number of new unwrap uv channel, it's the same for all meshes. UINT_MAX in case of failure.

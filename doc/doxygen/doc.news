@@ -12,9 +12,15 @@ namespace rr
 
 NEWS
 
+- <b>improved dynamic object support</b>
+  - bool RRObject::isDynamic added, saved to .rr3
+  - RRDynamicSolver::setStaticObjects() picks only objects with isDynamic=false, ignores the rest
+  - RRDynamicSolver::setDynamicObjects() picks only objects with isDynamic=true, ignores the rest
+  - RRDynamicSolver::getObject() added, returns n-th object, including dynamic ones
 - <b>improved collisions</b>
+  - RRDynamicSolver::getCollider() added, returns collider for whole scene, including dynamic objects
   - RRRay::hitObject added, tells what object was hit by ray
-  - RRCollider::create() added second parameter, pass NULL for previous behaviour
+  - RRCollider::create() second parameter added, pass NULL for previous behaviour
 - misc tools
   - RRMatrix3x4::invertedTo() added
   - RRVector::pop_back() added

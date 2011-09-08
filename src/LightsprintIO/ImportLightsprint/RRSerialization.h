@@ -631,6 +631,7 @@ void save(Archive & ar, const rr::RRObject& a, const unsigned int version)
 	ar & make_nvp("name",a.name);
 	ar & make_nvp("faceGroups",a.faceGroups);
 	ar & make_nvp("worldMatrix",a.getWorldMatrixRef());
+	ar & make_nvp("isDynamic",a.isDynamic);
 	{
 		RRMeshProxy* proxy = (RRMeshProxy*)a.getCollider()->getMesh();
 		if (!proxy)
@@ -648,6 +649,10 @@ void load(Archive & ar, rr::RRObject& a, const unsigned int version)
 		rr::RRMatrix3x4 worldMatrix;
 		ar & make_nvp("worldMatrix",worldMatrix);
 		a.setWorldMatrix(&worldMatrix);
+	}
+	if (version>0)
+	{
+		ar & make_nvp("isDynamic",a.isDynamic);
 	}
 	{
 		RRMeshProxy* proxy = NULL;
@@ -706,5 +711,6 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRObject)
 BOOST_CLASS_VERSION(rr::RRString,1)
 BOOST_CLASS_VERSION(rr::RRMaterial,1)
 BOOST_CLASS_VERSION(rr::RRLight,4)
+BOOST_CLASS_VERSION(rr::RRObject,1)
 
 #endif

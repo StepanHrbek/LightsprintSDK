@@ -522,6 +522,7 @@ int main(int argc, char** argv)
 	// set solver geometry
 	//
 	solver->setStaticObjects(scene.objects, NULL);
+	solver->setDynamicObjects(scene.objects); // this is only for sceneViewer, dynamic objects are ignored when baking lightmaps
 
 	//
 	// set solver lights

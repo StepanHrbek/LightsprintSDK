@@ -41,6 +41,10 @@ namespace rr
 		RRObject*  multiObjectPhysical;
 		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
 		bool       staticSceneContainsLods;
+		RRCollider*superCollider;
+		unsigned   superColliderMeshVersion;
+		bool       superColliderDirty;
+		RRObjects  superColliderObjects; // used only temporarily inside getCollider(). stored here to avoid allocation in every getCollider
 
 		// lights: inputs
 		RRLights   lights;
@@ -91,6 +95,9 @@ namespace rr
 			forcedMultiObjectCustom = false;
 			multiObjectPhysical = NULL;
 			staticSceneContainsLods = false;
+			superCollider = NULL;
+			superColliderDirty = false;
+			superColliderMeshVersion = 0;
 			// lights
 			customIrradianceRGBA8 = NULL;
 
@@ -138,6 +145,7 @@ namespace rr
 			// 2. forced (in sceneViewer) -> don't delete custom
 			if (forcedMultiObjectCustom) multiObjectCustom = NULL;
 			// 3. both -> don't delete 
+			RR_SAFE_DELETE(superCollider);
 			RR_SAFE_DELETE(multiObjectCustom);
 			RR_SAFE_DELETE(multiObjectPhysical);
 			// clear tables that depend on scene (code that fills tables needs them empty)

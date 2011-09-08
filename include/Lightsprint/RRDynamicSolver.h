@@ -189,12 +189,15 @@ namespace rr
 			}
 		};
 
-		//! Sets static contents of scene, all static objects at once.
+		//! Sets static contents of scene, all static objects at once. Only objects with !RRObject::isDynamic are taken, the rest is ignored.
 		//
-		//! Order of objects passed in first parameter is used for object numbering,
-		//! any further references to n-th object refer to objects[n].
+		//! Solver creates internal set of static objects, by taking only those of your objects with isDynamic=false,
+		//! you can query accepted objects by getStaticObjects(). Solver preserves your order of static objects.
+		//! Any reference to n-th object in documentation refers to getStaticObjects()[n]. If you pass only static objects,
+		//! then getStaticObjects()[n]==objects[n].
+		//! Solver reads isDynamic only in this function; if you change it later, it won't have any effect.
 		//!
-		//! Once set, triangles and vertices in objects must not change (that's the difference from dynamic objects).
+		//! Once set, triangles and vertices in static objects must not change (that's the difference from dynamic objects).
 		//! If you modify static triangles or vertices anyway, call setStaticObjects() again otherwise solver might crash.
 		//!
 		//! Scene must always contain static objects.
@@ -231,16 +234,45 @@ namespace rr
 		//! Returns static contents of scene, all static objects at once.
 		const RRObjects& getStaticObjects() const;
 
-		//! Sets dynamic contents of scene, all dynamic objects at once.
+		//! Sets dynamic contents of scene, all dynamic objects at once. Only objects with RRObject::isDynamic are taken, the rest is ignored.
 		//
+		//! Solver creates internal set of dynamic objects, by taking only those of your objects with isDynamic=true,
+		//! you can query accepted objects by getDynamicObjects(). Solver preserves your order of dynamic objects.
+		//! If you pass only dynamic objects, then getDynamicObjects()[n]==objects[n].
+		//! Solver reads isDynamic only in this function; if you change it later, it won't have any effect.
+		//!
 		//! Unlike static objects, you may freely edit dynamic objects between frames.
-		//! If you add or remove objects, call setDynamicObjects() again. If you only edit objects,
+		//! If you want to add or remove objects, call setDynamicObjects() again. If you only edit object properties,
 		//! there's no need to call it again.
 		//!
 		//! Dynamic objects affect realtime lighting, they are ignored when building static lightmaps.
+		//! API does not even let you build lightmaps for dynamic objects, as it does not make big sense,
+		//! dynamic objects are better illuminated by diffuse and specular reflection maps, see updateEnvironmentMap().
+		//! If you really have to bake lightmap for dynamic object, make the object static first; if you also need the object
+		//! to have no effect on other static objects (no shadows etc), but still receive light/shadows from
+		//! other static objects, make the object transparent during lightmap baking (via material->specularTransmittance).
 		void setDynamicObjects(const RRObjects& objects);
 		//! Returns dynamic contents of scene, all dynamic objects at once.
 		const RRObjects& getDynamicObjects() const;
+
+		//! Returns given object or NULL for out of range index. Objects are indexed from 0, static objects go first, then dynamic.
+		RRObject* getObject(unsigned index) const;
+
+
+		//! Returns collider for whole scene, both static and dynamic.
+		//
+		//! Returned collider is valid until next getCollider() call. It is owned by solver, you don't delete it.
+		//!
+		//! This is slightly heavier operation as it updates acceleration structures.
+		//! Therefore recommended usage is to call it once, use returned collider many times (ideally until scene changes)
+		//! rather than getting collider for each ray.
+		//!
+		//! Thread safe: no, you must not use solver or modify objects while getCollider() executes.
+		//! Returned collider is thread safe as usual, many threads can calculate intersections at once.
+		//!
+		//! If you can afford to ignore dynamic objects, collide with static objects only, it's faster.
+		//! To collide with static objects only, use getMultiObjectCustom()->getCollider().
+		RRCollider* getCollider();
 
 
 		//! Inserts all buffers found in solver's materials, lights, environment and illumination layers into collection.
@@ -764,14 +796,14 @@ namespace rr
 
 		//! Reports that scene has changed and direct or global illumination should be updated.
 		//
-		//! Call this function when light moves, changes color etc.. or when shadow caster moves,
+		//! Call this function when light moves, changes color etc.. or when geometry changes,
 		//! so that shadows and/or GI should be updated.
 		//! \param lightIndex
-		//!  Light number in list of lights, see setLights(). If it is -1, change is reported for all lights in solver.
+		//!  Light number in list of lights, see setLights(). If geometry changes, pass -1, change will be reported to all lights in solver.
 		//! \param dirtyShadows
 		//!  Tells that direct shadows should be updated.
-		//!  Generic RRDynamicSolver ignores it, but subclasses (e.g. rr_gl::RRDynamicSolverGL)
-		//!  use it to update light's shadowmaps.
+		//!  Generic RRDynamicSolver uses it only to invalidate collider returned by getCollider() (because when shadows need update, it's most likely because geometry did change);
+		//!  subclasses (e.g. rr_gl::RRDynamicSolverGL) use it also to update light's shadowmaps.
 		//! \param dirtyGI
 		//!  Tells that global illumination should be updated.
 		//!  Generic RRDynamicSolver ignores it, but subclasses (e.g. rr_gl::RRDynamicSolverGL)

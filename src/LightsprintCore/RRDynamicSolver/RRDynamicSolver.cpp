@@ -182,6 +182,8 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]=NULL.\n",i);
 			return;
 		}
+		if (_objects[i]->isDynamic)
+			continue;
 		if (!_objects[i]->getCollider())
 		{
 			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]->getCollider()=NULL.\n",i);
@@ -213,7 +215,11 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		}
 	}
 
-	priv->staticObjects = _objects;
+	// copy only static objects
+	priv->staticObjects.clear();
+	for (unsigned i=0;i<_objects.size();i++)
+		if (!_objects[i]->isDynamic)
+			priv->staticObjects.push_back(_objects[i]);
 	priv->smoothing = _copyFrom ? _copyFrom->priv->smoothing : ( _smoothing ? *_smoothing : SmoothingParameters() );
 
 	// delete old
@@ -325,6 +331,8 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	{
 		getDynamicObjects()[i]->illumination.cachedGatherSize = 0;
 	}
+	// invalidate supercollider
+	priv->superColliderDirty = true;
 }
 
 const RRObjects& RRDynamicSolver::getStaticObjects() const
@@ -358,13 +366,68 @@ void RRDynamicSolver::setDynamicObjects(const RRObjects& _objects)
 			return;
 		}
 	}
-
-	priv->dynamicObjects = _objects;
+	// copy only dynamic objects
+	priv->dynamicObjects.clear();
+	for (unsigned i=0;i<_objects.size();i++)
+		if (_objects[i]->isDynamic)
+			priv->dynamicObjects.push_back(_objects[i]);
+	// invalidate supercollider
+	priv->superColliderDirty = true;
 }
 
 const RRObjects& RRDynamicSolver::getDynamicObjects() const
 {
 	return priv->dynamicObjects;
+}
+
+RRObject* RRDynamicSolver::getObject(unsigned index) const
+{
+	if (index<getStaticObjects().size())
+		return getStaticObjects()[index];
+	index -= getStaticObjects().size();
+	if (index<getDynamicObjects().size())
+		return getDynamicObjects()[index];
+	return NULL;
+}
+
+RRCollider* RRDynamicSolver::getCollider()
+{
+	if (!priv->dynamicObjects.size())
+		return getMultiObjectCustom()->getCollider();
+
+	// check dynamic mesh versions (static meshes are not allowed to change), invalidate supercollider if they did change
+	unsigned superColliderMeshVersion = 0;
+	for (unsigned i=0;i<getDynamicObjects().size();i++)
+	{
+		const RRMeshArrays* arrays = dynamic_cast<const RRMeshArrays*>(getDynamicObjects()[i]->getCollider()->getMesh());
+		if (arrays)
+			superColliderMeshVersion += arrays->version;
+		//const RRMatrix3x4& matrix = getDynamicObjects()[i]->getWorldMatrixRef();
+		//if (matrix)
+		//	...
+	}
+	if (priv->superColliderMeshVersion!=superColliderMeshVersion)
+	{
+		priv->superColliderMeshVersion = superColliderMeshVersion;
+		// invalidate supercollider
+		priv->superColliderDirty = true;
+	}
+
+	// build supercollider if it does not exist yet
+	if (!priv->superCollider || priv->superColliderDirty)
+	{
+		priv->superColliderObjects.clear();
+		if (getMultiObjectCustom())
+			priv->superColliderObjects.push_back(getMultiObjectCustom());
+		//priv->superColliderObjects.insert(priv->superColliderObjects.end(),priv->staticObjects.begin(),priv->staticObjects.end());
+		priv->superColliderObjects.insert(priv->superColliderObjects.end(),priv->dynamicObjects.begin(),priv->dynamicObjects.end());
+		delete priv->superCollider;
+		bool aborting = false;
+		priv->superCollider = RRCollider::create(NULL,&priv->superColliderObjects,RRCollider::IT_BSP_FAST,aborting);
+		priv->superColliderDirty = false;
+	}
+
+	return priv->superCollider;
 }
 
 void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsigned>* _layers) const
@@ -468,6 +531,9 @@ void RRDynamicSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 void RRDynamicSolver::reportDirectIlluminationChange(int lightIndex, bool dirtyShadows, bool dirtyGI, bool dirtyRange)
 {
 	REPORT(RRReporter::report(INF1,"<IlluminationChange>\n"));
+	// invalidate supercollider (-1=geometry change, supercollider has precalculated inverse matrices inside, needs rebuild)
+	if (lightIndex==-1)
+		priv->superColliderDirty = true;
 }
 
 void RRDynamicSolver::reportInteraction()
