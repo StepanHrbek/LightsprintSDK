@@ -1831,23 +1831,22 @@ rendered:
 					rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
 					textOutput(x,y+=18*2,h,"[pointed by mouse]");
 					textOutput(x,y+=18,h,"object: %d/%d",preTriangle.object,numObjects);
-					rr::RRBuffer* objectsLightmap = solver->getStaticObjects()[preTriangle.object]->illumination.getLayer(svs.staticLayerNumber);
-					textOutput(x,y+=18,h,"object's lightmap: %s %dx%d",objectsLightmap?(objectsLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",objectsLightmap?objectsLightmap->getWidth():0,objectsLightmap?objectsLightmap->getHeight():0);
+					rr::RRBuffer* selectedPointLightmap = solver->getStaticObjects()[preTriangle.object]->illumination.getLayer(svs.staticLayerNumber);
+					textOutput(x,y+=18,h,"object's lightmap: %s %dx%d",selectedPointLightmap?(selectedPointLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",selectedPointLightmap?selectedPointLightmap->getWidth():0,selectedPointLightmap?selectedPointLightmap->getHeight():0);
 					textOutput(x,y+=18,h,"triangle in object: %d/%d",preTriangle.index,solver->getStaticObjects()[preTriangle.object]->getCollider()->getMesh()->getNumTriangles());
 					textOutput(x,y+=18,h,"triangle in scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
 					textOutput(x,y+=18,h,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
 					textOutput(x,y+=18,h,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
-					rr::RRBuffer* bufferCenter = solver->getStaticObjects()[preTriangle.object]->illumination.getLayer(svs.staticLayerNumber);
-					if (bufferCenter && bufferCenter->getType()==rr::BT_2D_TEXTURE)
+					if (selectedPointLightmap && selectedPointLightmap->getType()==rr::BT_2D_TEXTURE)
 					{
-						int i = int(uvInLightmap[0]*bufferCenter->getWidth());
-						int j = int(uvInLightmap[1]*bufferCenter->getHeight());
+						int i = int(uvInLightmap[0]*selectedPointLightmap->getWidth());
+						int j = int(uvInLightmap[1]*selectedPointLightmap->getHeight());
 						textOutput(x,y+=18,h,"ij in lightmap: %d %d",i,j);
-						if (i>=0 && i<(int)bufferCenter->getWidth() && j>=0 && j<(int)bufferCenter->getHeight())
+						if (i>=0 && i<(int)selectedPointLightmap->getWidth() && j>=0 && j<(int)selectedPointLightmap->getHeight())
 						{
 							// diagnose texel
 							centerObject = preTriangle.object;
-							centerTexel = i + j*bufferCenter->getWidth();
+							centerTexel = i + j*selectedPointLightmap->getWidth();
 							centerTriangle = ray->hitTriangle;
 						}
 					}
