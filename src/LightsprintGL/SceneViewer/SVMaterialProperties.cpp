@@ -22,6 +22,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 {
 	locked = false;
 	lastSolver = NULL;
+	lastObject = NULL;
 	lastTriangle = UINT_MAX;
 	lastPoint2d = rr::RRVec2(0);
 	material = NULL;
@@ -85,7 +86,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	Append(propLightmapTexcoord = new wxIntProperty(_("Lightmap uv")));
 	Append(propQualityForPoints = new wxIntProperty(_("Quality for point materials")));
 
-	setMaterial(NULL,UINT_MAX,rr::RRVec2(0)); // hides properties, they were not filled yet
+	setMaterial(NULL,NULL,UINT_MAX,rr::RRVec2(0)); // hides properties, they were not filled yet
 }
 
 // compose root property out of child properties
@@ -197,7 +198,7 @@ void SVMaterialProperties::updateProperties()
 	updateReadOnly();
 }
 
-//! Copy material -> property (selected by clicking facegroup, honours physical flag, clears point flag).
+//! Copy material -> property (selected by clicking facegroup, clears physical flag, clears point flag).
 void SVMaterialProperties::setMaterial(rr::RRMaterial* _material)
 {
 	if (locked) return;
@@ -216,7 +217,9 @@ void SVMaterialProperties::setMaterial(rr::RRMaterial* _material)
 }
 
 // copy material to propertygrid
-void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hitTriangle, rr::RRVec2 hitPoint2d)
+// if object!=NULL, show custom data for hitTriangle in object, show no physical data
+// if object==NULL, show custom/physical data for hitTriangle in getMultiObject[Custom|Physical]()
+void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, rr::RRObject* object, unsigned hitTriangle, rr::RRVec2 hitPoint2d)
 {
 	if (locked) return;
 
@@ -224,12 +227,15 @@ void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hit
 	EnableProperty(propPhysical,true);
 
 	lastSolver = solver;
+	lastObject = object;
 	lastTriangle = hitTriangle;
 	lastPoint2d = hitPoint2d;
 
-	if (hitTriangle==UINT_MAX || !solver)
+	if (hitTriangle==UINT_MAX || !solver || (object && showPhysical))
 	{
 		material = NULL;
+		materialPhysical = NULL;
+		materialCustom = NULL;
 	}
 	else
 	if (showPoint)
@@ -237,13 +243,13 @@ void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, unsigned hit
 		if (showPhysical)
 			solver->getMultiObjectPhysical()->getPointMaterial(hitTriangle,hitPoint2d,materialPoint);
 		else
-			solver->getMultiObjectCustom()->getPointMaterial(hitTriangle,hitPoint2d,materialPoint);
+			(object?object:solver->getMultiObjectCustom())->getPointMaterial(hitTriangle,hitPoint2d,materialPoint);
 		material = &materialPoint;
 	}
 	else
 	{
-		materialPhysical = solver->getMultiObjectPhysical()->getTriangleMaterial(hitTriangle,NULL,NULL);
-		materialCustom = solver->getMultiObjectCustom()->getTriangleMaterial(hitTriangle,NULL,NULL);
+		materialPhysical = object?NULL:solver->getMultiObjectPhysical()->getTriangleMaterial(hitTriangle,NULL,NULL);
+		materialCustom = (object?object:solver->getMultiObjectCustom())->getTriangleMaterial(hitTriangle,NULL,NULL);
 		material = showPhysical ? materialPhysical : materialCustom;
 	}
 
@@ -271,7 +277,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	// propagate change from wx to material
 	if (property==propPoint || property==propPhysical)
 	{
-		setMaterial(lastSolver,lastTriangle,lastPoint2d); // load different material
+		setMaterial(lastSolver,lastObject,lastTriangle,lastPoint2d); // load different material
 	}
 	if (!material)
 		return;
@@ -441,7 +447,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 
 	// propagate change from physical material to custom and vice versa
-	if (!showPoint && materialPhysical && materialCustom && lastSolver)
+	if (!showPoint && materialPhysical && materialCustom && lastSolver && materialCustom && materialPhysical)
 	{
 		if (showPhysical)
 		{
@@ -471,6 +477,8 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 
 	if (lastSolver)
 	{
+		// only changes in static scene need to be reported
+		// for now, we report all changes, because it's possible that current material is used also by static objects
 		lastSolver->reportMaterialChange(transmittanceChanged,true);
 	}
 }

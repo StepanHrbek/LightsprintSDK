@@ -798,7 +798,24 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				svframe->m_materialProperties->locked = false;
 			}
 			if (s_ci.hitTriangle!=UINT_MAX)
-				svframe->m_materialProperties->setMaterial(solver,s_ci.hitTriangle,s_ci.hitPoint2d);
+			{
+				if (s_ci.clickedEntity.index>=solver->getStaticObjects().size())
+				{
+					// dynamic object: pass 1object + triangle in 1object, m_materialProperties will show only custom version
+					// if we do it also for static object, it won't have physical version
+					svframe->m_materialProperties->setMaterial(solver,solver->getObject(s_ci.clickedEntity.index),s_ci.hitTriangle,s_ci.hitPoint2d);
+				}
+				else
+				{
+					// static object: pass NULL + triangle in multiobject, m_materialProperties will show custom+physical versions
+					// m_materialProperties has extra 'object=NULL' path for looking up material in multiobjCustom and multiObjPhysical
+					rr::RRMesh::PreImportNumber pre;
+					pre.object = s_ci.clickedEntity.index;
+					pre.index = s_ci.hitTriangle;
+					unsigned post = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPostImportTriangle(pre);
+					svframe->m_materialProperties->setMaterial(solver,NULL,post,s_ci.hitPoint2d);
+				}
+			}
 		}
 		else
 		{

@@ -306,7 +306,7 @@ void SVFrame::UpdateEverything()
 	// stop showing properties of stuff we are going to delete
 	m_objectProperties->setObject(NULL,0);
 	m_lightProperties->setLight(NULL,0);
-	m_materialProperties->setMaterial(NULL,0,rr::RRVec2(0));
+	m_materialProperties->setMaterial(NULL,NULL,0,rr::RRVec2(0));
 
 	bool oldReleaseResources = svs.releaseResources;
 	svs.releaseResources = true; // we are not returning yet, we should shutdown
