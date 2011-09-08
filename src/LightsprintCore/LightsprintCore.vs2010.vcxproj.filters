@@ -229,6 +229,9 @@
     <ClCompile Include="Unwrapper.cpp" />
     <ClCompile Include="RRFileLocator.cpp" />
     <ClCompile Include="RRTime.cpp" />
+    <ClCompile Include="RRCollider\RRColliderMulti.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RRCollider\bsp.h">

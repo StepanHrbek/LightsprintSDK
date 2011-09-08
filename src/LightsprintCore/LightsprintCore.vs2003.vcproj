@@ -352,6 +352,9 @@
 				RelativePath="..\..\include\Lightsprint\RRCollider.h">
 			</File>
 			<File
+				RelativePath="RRCollider\RRColliderMulti.cpp">
+			</File>
+			<File
 				RelativePath="RRCollider\RRRay.cpp">
 			</File>
 			<Filter

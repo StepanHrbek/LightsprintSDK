@@ -74,11 +74,16 @@ void RRCollider::setTechnique(IntersectTechnique technique, bool& aborting)
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"setTechnique() ignored, collider was not created with IT_LINEAR.\n"));
 }
 
+RRCollider* createMultiCollider(const RRObjects& objects, RRCollider::IntersectTechnique technique, bool& aborting);
+
 RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
 {
 	try {
 
-	if (!mesh) return NULL;
+	if (!mesh)
+	{
+		return objects ? createMultiCollider(*objects,intersectTechnique,aborting) : NULL;
+	}
 	BuildParams bp(intersectTechnique);
 	if (!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
 	switch(intersectTechnique)

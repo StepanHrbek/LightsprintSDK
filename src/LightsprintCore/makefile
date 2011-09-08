@@ -50,6 +50,7 @@ RRCollider/IntersectLinear.cpp \
 RRCollider/IntersectVerification.cpp \
 RRCollider/pcube.cpp \
 RRCollider/RRCollider.cpp \
+RRCollider/RRColliderMulti.cpp \
 RRCollider/RRRay.cpp \
 RRDynamicSolver/environmentMap.cpp \
 RRDynamicSolver/gather.cpp \

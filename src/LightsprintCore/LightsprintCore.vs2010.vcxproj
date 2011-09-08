@@ -582,6 +582,7 @@
     <ClCompile Include="RRCollider\IntersectBspCompact.cpp" />
     <ClCompile Include="RRCollider\IntersectBspFast.cpp" />
     <ClCompile Include="RRCollider\IntersectLinear.cpp" />
+    <ClCompile Include="RRCollider\RRColliderMulti.cpp" />
     <ClCompile Include="RRCollider\IntersectVerification.cpp" />
     <ClCompile Include="RRCollider\RRCollider.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
