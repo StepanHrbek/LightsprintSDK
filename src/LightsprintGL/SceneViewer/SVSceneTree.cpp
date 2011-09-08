@@ -667,6 +667,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					if (contextEntityIds.find(EntityId(ST_STATIC_OBJECT,objectIndex))==contextEntityIds.end())
 						newList.push_back(allObjects[objectIndex]);
 				solver->setStaticObjects(newList,NULL);
+				solver->setDynamicObjects(newList);
 				svframe->m_canvas->addOrRemoveScene(NULL,false); // calls svframe->updateAllPanels();
 			}
 			break;
@@ -737,6 +738,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 							svframe->m_canvas->OnKeyDown(event);
 						}
 						solver->setStaticObjects(newList,NULL);
+						solver->setDynamicObjects(newList);
 						svframe->m_canvas->addOrRemoveScene(NULL,false); // calls svframe->updateAllPanels();
 					}
 				}

@@ -189,6 +189,7 @@ void SVCanvas::createContextCore()
 		solver->setEnvironment(mergedScenes[0]->environment);
 		envToBeDeletedOnExit = false;
 		solver->setStaticObjects(mergedScenes[0]->objects,NULL);
+		solver->setDynamicObjects(mergedScenes[0]->objects);
 		solver->setLights(mergedScenes[0]->lights);
 	}
 
@@ -321,6 +322,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 			}
 		}
 		solver->setStaticObjects(objects,NULL);
+		solver->setDynamicObjects(objects);
 		solver->setLights(lights);
 	}
 	else
