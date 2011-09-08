@@ -34,9 +34,27 @@ namespace bf = boost::filesystem;
     #error "OpenGL required: set wxUSE_GLCANVAS to 1 and rebuild the library"
 #endif
 
+#if defined(_MSC_VER) && defined(_DEBUG)
+	#define REPORT_HEAP_STATISTICS // reports num allocations per frame
+#endif
+
 namespace rr_gl
 {
 
+
+#ifdef REPORT_HEAP_STATISTICS
+	_CRT_ALLOC_HOOK s_oldAllocHook;
+	unsigned s_numAllocs = 0;
+	unsigned s_numAllocs2 = 0;
+	size_t s_bytesAllocated = 0;
+	int newAllocHook( int allocType, void *userData, size_t size, int blockType, long requestNumber, const unsigned char *filename, int lineNumber)
+	{
+		s_numAllocs++;
+		s_numAllocs2 = requestNumber;
+		s_bytesAllocated += size;
+		return s_oldAllocHook(allocType,userData,size,blockType,requestNumber,filename,lineNumber);
+	}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -125,6 +143,10 @@ void SVCanvas::createContextCore()
 {
 	context = new wxGLContext(this);
 	SetCurrent(*context);
+
+#ifdef REPORT_HEAP_STATISTICS
+	s_oldAllocHook = _CrtSetAllocHook(newAllocHook);
+#endif
 
 	// init GLEW
 	if (glewInit()!=GLEW_OK)
@@ -370,6 +392,9 @@ void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
 
 SVCanvas::~SVCanvas()
 {
+#ifdef REPORT_HEAP_STATISTICS
+	_CrtSetAllocHook(s_oldAllocHook);
+#endif
 	if (!svs.releaseResources)
 	{
 		// user requested fast exit without releasing resources
@@ -1110,6 +1135,21 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		wglUseFontBitmaps(wglGetCurrentDC(),0,127,1000);
 		glListBase(1000);
 	}
+#endif
+
+#ifdef REPORT_HEAP_STATISTICS
+	// report num allocation per frame
+	static _CrtMemState state;
+	_CrtMemCheckpoint(&state);
+	static unsigned oldNumAllocs = 0;
+	static unsigned oldNumAllocs2 = 0;
+	static size_t oldBytesAllocated = 0;
+	static size_t oldBytesAllocated2 = 0;
+	rr::RRReporter::report(rr::INF3,"Num allocations +%d +%d, bytes allocated: +%llu +%llu\n",s_numAllocs-oldNumAllocs,s_numAllocs2-oldNumAllocs2,(long long)s_bytesAllocated-oldBytesAllocated,(long long)state.lTotalCount-oldBytesAllocated2);
+	oldNumAllocs = s_numAllocs;
+	oldNumAllocs2 = s_numAllocs2;
+	oldBytesAllocated = s_bytesAllocated;
+	oldBytesAllocated2 = state.lTotalCount;
 #endif
 
 	if (svs.envSimulateSun && svs.envSpeed)
