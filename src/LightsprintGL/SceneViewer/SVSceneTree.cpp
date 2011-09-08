@@ -288,8 +288,8 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 	// add menu items that need uniform context
 	const EntityIds& entityIds = getSelectedEntityIds();
 	bool entityIdsUniform = true;
-	for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
-		if (i->type!=selectedEntityIds.begin()->type)
+	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
+		if (i->type!=entityIds.begin()->type)
 			entityIdsUniform = false;
 	if (entityIdsUniform)
 	{
