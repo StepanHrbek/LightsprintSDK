@@ -31,7 +31,7 @@ public:
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
 
 		RRPointMaterial pointMaterial;
-		object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
+		(ray->hitObject?ray->hitObject:object)->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
 		return result = pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom
 			// This makes selecting in sceneviewer see through transparent pixels, they don't have renderFrom cleared.
 			&& pointMaterial.specularTransmittance.color!=RRVec3(1);

@@ -1072,8 +1072,9 @@ void keyboard(unsigned char c, int x, int y)
 				ray->rayLengthMin = 0;
 				ray->rayLengthMax = 1000;
 				ray->rayFlags = rr::RRRay::FILL_POINT3D;
+				ray->hitObject = level->solver->getMultiObjectCustom();
 				// kdyz neni kolize se scenou, najit kolizi s vodou
-				if (!level->solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+				if (!ray->hitObject->getCollider()->intersect(ray))
 				{
 					float cameraLevel = currentFrame.eye.pos[1];
 					float waterLevel = level->setup->waterLevel;

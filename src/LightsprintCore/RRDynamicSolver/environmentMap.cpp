@@ -309,7 +309,8 @@ bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, RRVec3* 
 					ray->rayLengthMin = 0;
 					ray->rayLengthMax = 10000; //!!! hard limit
 					ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
-					if (multiObject->getCollider()->intersect(ray))
+					ray->hitObject = multiObject;
+					if (ray->hitObject->getCollider()->intersect(ray))
 						face = kit->handler6[side].gethHitTriangle(); //ray->hitTriangle;
 				}
 				if (illumination->cachedTriangleNumbers)

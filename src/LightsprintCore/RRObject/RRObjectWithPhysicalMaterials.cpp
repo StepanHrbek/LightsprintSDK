@@ -186,6 +186,7 @@ empty_scene:
 			ray->rayDir = ( dir + RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX))-RRVec3(0.5f) ).normalized();
 			ray->rayLengthMax = _maxdist;
 			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE;
+			ray->hitObject = this;
 			if (getCollider()->intersect(ray))
 			{
 				const RRMaterial* material = getTriangleMaterial(ray->hitTriangle,NULL,NULL);

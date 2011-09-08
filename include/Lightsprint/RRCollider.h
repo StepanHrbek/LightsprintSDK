@@ -102,18 +102,18 @@ namespace rr
 
 		// outputs (valid after positive test, undefined otherwise)
 		RRReal          hitDistance;    ///< Out. Hit distance in object space.
-		unsigned        hitTriangle;    ///< Out. Index of triangle (postImport) that was hit.
+		unsigned        hitTriangle;    ///< Out. Index of triangle (postImport) within object that was hit.
 		RRVec2          hitPoint2d;     ///< Out. Hit coordinate in triangle space defined so that vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1. Barycentric/areal coordinates of hit point are 1-hitPoint2d[0]-hitPoint2d[1],hitPoint2d[0],hitPoint2d[1].
 		RRVec4          hitPlane;       ///< Out. Plane of hitTriangle in object space. RRVec3 part is normal, normalized. Result is based on vertex positions rather than normals provided by mesh, so plane is constant for whole triangle.
 		RRVec3          hitPoint3d;     ///< Out. Hit coordinate in object space.
 		bool            hitFrontSide;   ///< Out. True = face was hit from the front side.
-		RRVec3p         hitPadding1;    ///< Out. Undefined, never modify.
-#if defined(_M_X64) || defined(_LP64)
-		RRVec3          hitPadding2;    ///< Out. Undefined, never modify.
-#else
-		RRVec3p         hitPadding2;    ///< Out. Undefined, never modify.
+		RRVec3          hitPadding1;    ///< Out. Undefined, never modify.
+		RRVec2          hitPadding2;    ///< Out. Undefined, never modify.
+#if !defined(_M_X64) && !defined(_LP64)
+		RRVec2          hitPadding3;    ///< Out. Undefined, never modify.
 #endif
-		RRCollisionHandler*    collisionHandler;///< In. Optional collision handler for user-defined surface behaviour.
+		const class RRObject* hitObject;///< (In/)Out. If collider was created from RRObjects, intersected object is stored here. If collider was created from RRMesh, hitObject is not modified (but it's good practise to set it before calling intersect(), so that your collision handlers and other code can rely on hitObject being always set).
+		RRCollisionHandler*   collisionHandler;///< In. Optional collision handler for user-defined surface behaviour.
 	private:
 		RRRay(); // intentionally private so one can't accidentally create unaligned instance
 	};

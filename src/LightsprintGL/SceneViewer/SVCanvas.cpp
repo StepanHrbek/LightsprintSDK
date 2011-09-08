@@ -734,6 +734,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		ray->rayLengthMin = svs.eye.getNear()*directionToMouseLength;
 		ray->rayLengthMax = svs.eye.getFar()*directionToMouseLength;
 		ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D;
+		ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 		ray->collisionHandler = collisionHandler;
 		if (solver->getMultiObjectCustom() && solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 		{
@@ -1592,6 +1593,7 @@ rendered:
 			ray->rayLengthMin = svs.eye.getNear();
 			ray->rayLengthMax = svs.eye.getFar();
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
+			ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 			ray->collisionHandler = collisionHandler;
 			if (solver->getMultiObjectCustom()->getCollider()->intersect(ray))
 			{

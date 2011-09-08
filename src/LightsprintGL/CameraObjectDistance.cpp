@@ -15,7 +15,6 @@ namespace rr_gl
 
 CameraObjectDistance::CameraObjectDistance(const rr::RRObject* _object, bool _water, float _waterLevel)
 {
-	object = _object;
 	water = _water;
 	waterLevel = _waterLevel;
 	distMin = 1e10f;
@@ -24,9 +23,10 @@ CameraObjectDistance::CameraObjectDistance(const rr::RRObject* _object, bool _wa
 	ray->rayLengthMin = 0;
 	ray->rayLengthMax = 1e12f;
 	ray->rayFlags = rr::RRRay::FILL_DISTANCE;
+	ray->hitObject = _object;
 	ray->collisionHandler = NULL;
-	if (object)
-		ray->collisionHandler = object->createCollisionHandlerFirstVisible();
+	if (_object)
+		ray->collisionHandler = _object->createCollisionHandlerFirstVisible();
 }
 
 CameraObjectDistance::~CameraObjectDistance()
@@ -41,7 +41,7 @@ void CameraObjectDistance::addRay(const rr::RRVec3& pos, rr::RRVec3 dir)
 	dir.normalize();
 	ray->rayOrigin = pos;
 	ray->rayDir = dir;
-	if (pos.finite() && dir.finite() && object && object->getCollider()->intersect(ray))
+	if (pos.finite() && dir.finite() && ray->hitObject && ray->hitObject->getCollider()->intersect(ray))
 	{
 		// calculation of distanceOfPotentialNearPlane depends on dir length
 		float distanceOfPotentialNearPlane = ray->hitDistance/dirLength;
@@ -78,7 +78,7 @@ void CameraObjectDistance::addPoint(const rr::RRVec3& pos)
 
 void CameraObjectDistance::addCamera(Camera* camera)
 {
-	if (!object)
+	if (!ray->hitObject)
 		return;
 	if (!camera)
 		return;

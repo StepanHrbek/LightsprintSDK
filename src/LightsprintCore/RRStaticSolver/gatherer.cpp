@@ -27,6 +27,7 @@ Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolv
 	collider = object->getCollider();
 	triangle = _object->triangle;
 	triangles = _object->triangles;
+	ray->hitObject = object;
 
 	// final gather in lightmap does this per-pixel, rather than per-thread
 	//  so at very low quality, lightmaps are biased smooth rather than unbiased noisy
@@ -47,6 +48,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 	}
 	ray->rayOrigin = eye;
 	ray->rayDir = direction;
+	//ray->hitObject = already set in ctor
 	collisionHandlerGatherHemisphere.setShooterTriangle(skipTriangleIndex);
 	if (!collider->intersect(ray))
 	{

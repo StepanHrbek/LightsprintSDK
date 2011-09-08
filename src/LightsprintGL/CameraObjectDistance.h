@@ -33,7 +33,6 @@ public:
 	}
 
 private:
-	const rr::RRObject* object;
 	bool water;
 	float waterLevel;
 	float distMin;

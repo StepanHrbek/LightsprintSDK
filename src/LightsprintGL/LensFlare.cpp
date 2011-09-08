@@ -141,6 +141,7 @@ void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRen
 						for (unsigned i=0;i<_quality;i++)
 						{
 							ray->rayDir = ( rr::RRVec3(rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f)*0.02f - light->direction.normalized() ).normalized();
+							ray->hitObject = _scene; // we set hitObject for colliders that don't set it
 							_scene->getCollider()->intersect(ray);
 							transparencySum += collisionHandlerTransparency->transparency;
 							dirSum -= ray->rayDir*collisionHandlerTransparency->transparency.sum();

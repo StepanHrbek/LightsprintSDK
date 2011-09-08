@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include "IntersectLinear.h"
+#include "Lightsprint/RRObject.h"
 #include <cmath>
 #include <cstring>
 #include <cstdio>
@@ -281,6 +282,7 @@ IntersectLinear::~IntersectLinear()
 void RayHitBackup::createBackupOf(const RRRay* ray)
 {
 	hitTriangle = ray->hitTriangle;
+	hitObject = ray->hitObject;
 	hitDistance = ray->hitDistance;
 	#ifdef FILL_HITPOINT2D
 		hitPoint2d = ray->hitPoint2d;
@@ -290,10 +292,12 @@ void RayHitBackup::createBackupOf(const RRRay* ray)
 	#endif
 }
 
+// if mesh is NULL, ray->hitObject must be set
 void RayHitBackup::restoreBackupTo(RRRay* ray, const RRMesh* mesh)
 {
 	// some data are copied
 	ray->hitTriangle = hitTriangle;
+	ray->hitObject = hitObject;
 	ray->hitDistance = hitDistance;
 	#ifdef FILL_HITPOINT2D
 		ray->hitPoint2d = hitPoint2d;
@@ -311,7 +315,7 @@ void RayHitBackup::restoreBackupTo(RRRay* ray, const RRMesh* mesh)
 	#ifdef FILL_HITPLANE
 		if (ray->rayFlags&RRRay::FILL_PLANE)
 		{
-			update_hitPlane(ray,mesh);
+			update_hitPlane(ray,mesh?mesh:ray->hitObject->getCollider()->getMesh());
 		}
 	#endif
 }

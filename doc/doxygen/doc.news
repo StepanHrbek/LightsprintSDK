@@ -12,6 +12,9 @@ namespace rr
 
 NEWS
 
+- <b>improved collisions</b>
+  - RRRay::hitObject added, tells what object was hit by ray
+  - RRCollider::create() added second parameter, pass NULL for previous behaviour
 - misc tools
   - RRMatrix3x4::invertedTo() added
   - RRVector::pop_back() added

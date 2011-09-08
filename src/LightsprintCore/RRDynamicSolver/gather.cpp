@@ -478,6 +478,8 @@ public:
 		reliabilityLights = 0;
 		rounds = (pti.context.params->applyLights && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
 		rays = numRelevantLights*rounds;
+		pti.rays[0].hitObject = pti.context.solver->getMultiObjectPhysical();
+		pti.rays[1].hitObject = pti.context.solver->getMultiObjectPhysical();
 	}
 
 	// before shooting
@@ -521,6 +523,7 @@ public:
 			ray->rayDir = dir;
 			ray->rayLengthMax = dirsize;
 			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // triangle+2d is only for point materials
+			//ray->hitObject = already set in ctor
 			ray->collisionHandler = &collisionHandlerGatherLight;
 			collisionHandlerGatherLight.light = _light;
 			if (!_light->castShadows || !tools.collider->intersect(ray))

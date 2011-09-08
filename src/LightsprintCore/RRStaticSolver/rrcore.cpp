@@ -820,9 +820,10 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	RRRay& ray = *shootingKernel->sceneRay;
 	ray.rayOrigin = eye;
 	ray.rayDir = direction;
+	ray.hitObject = object->importer;
 	shootingKernel->collisionHandlerLod0->setShooterTriangle((unsigned)(skip-object->triangle));
 	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
-		&& object->importer->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
+		&& ray.hitObject->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
 	if (!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
 	{
 		if (!hitTriangle && skyPatchHitsForCurrentTriangle)
