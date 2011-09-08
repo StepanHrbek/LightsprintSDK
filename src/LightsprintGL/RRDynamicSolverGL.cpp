@@ -91,21 +91,16 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 
 void RRDynamicSolverGL::reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI, bool dirtyRange)
 {
-	if (lightIndex==-1)
-	{
-		for (unsigned i=0;i<realtimeLights.size();i++)
-		{
-			reportDirectIlluminationChange(i,dirtyShadowmap,dirtyGI,dirtyRange);
-		}
-		return;
-	}
+	// do core work (call once with lightIndex=-1, it tells core that geometry did change, do not call many times with lightIndex=0,1,2...)
 	RRDynamicSolver::reportDirectIlluminationChange(lightIndex,dirtyShadowmap,dirtyGI,dirtyRange);
-	if (lightIndex>=0 && lightIndex<(int)realtimeLights.size())
-	{
-		realtimeLights[lightIndex]->dirtyShadowmap |= dirtyShadowmap;
-		realtimeLights[lightIndex]->dirtyGI |= dirtyGI;
-		realtimeLights[lightIndex]->dirtyRange |= dirtyRange;
-	}
+	// do rr_gl work
+	for (unsigned i=0;i<realtimeLights.size();i++)
+		if (lightIndex==i || lightIndex==-1) // -1=geometry change, affects all lights
+		{
+			realtimeLights[i]->dirtyShadowmap |= dirtyShadowmap;
+			realtimeLights[i]->dirtyGI |= dirtyGI;
+			realtimeLights[i]->dirtyRange |= dirtyRange;
+		}
 }
 
 void RRDynamicSolverGL::calculate(CalculateParameters* _params)
