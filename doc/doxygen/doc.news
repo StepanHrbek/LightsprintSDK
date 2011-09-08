@@ -17,6 +17,15 @@ NEWS
   - RRDynamicSolver::setStaticObjects() picks only objects with isDynamic=false, ignores the rest
   - RRDynamicSolver::setDynamicObjects() picks only objects with isDynamic=true, ignores the rest
   - RRDynamicSolver::getObject() added, returns n-th object, including dynamic ones
+- <b>improved scene viewer</b>
+  - multiselection
+    - click item in Scene tree or in 3d viewport to select one
+    - use 'shift' to select range in Scene tree
+    - use 'ctrl' to toggle items in Scene tree or in 3d viewport
+    - use left dragging or wsadqzxc/arrows/pgup/pgdown keys to manipulate whole selection
+    - open context menu (e.g. by right click) in Scene tree or in 3d viewport to see actions available for your multiselection
+      (merging, deleting etc)
+  - shift/ctrl/alt while dragging locks movement to one or two axes, only while modifier key is pressed
 - <b>improved collisions</b>
   - RRDynamicSolver::getCollider() added, returns collider for whole scene, including dynamic objects
   - RRRay::hitObject added, tells what object was hit by ray
