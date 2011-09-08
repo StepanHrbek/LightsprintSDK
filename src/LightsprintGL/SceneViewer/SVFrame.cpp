@@ -1448,8 +1448,6 @@ EntityId SVFrame::getSelectedEntity() const
 			return EntityId(m_canvas->selectedType,svs.selectedLightIndex);
 		case ST_STATIC_OBJECT:
 			return EntityId(m_canvas->selectedType,svs.selectedObjectIndex);
-		case ST_DYNAMIC_OBJECT:
-			return EntityId(m_canvas->selectedType,svs.selectedObjectIndex);
 		case ST_CAMERA:
 			return EntityId(m_canvas->selectedType,0);
 		default:
@@ -1470,7 +1468,6 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 			break;
 
 		case ST_STATIC_OBJECT:
-		case ST_DYNAMIC_OBJECT:
 			// update object+material properties
 			{
 				rr::RRObject* object = m_canvas->solver->getObject(entity.index);

@@ -104,7 +104,7 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		{
 			wxString name = RR_RR2WX(solver->getDynamicObjects()[i]->name);
 			if (name.empty()) name = wxString::Format(_("object %d"),i);
-			AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_DYNAMIC_OBJECT,i)));
+			AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_STATIC_OBJECT,numStaticObjects+i)));
 		}
 	}
 
@@ -124,8 +124,15 @@ wxTreeItemId SVSceneTree::entityIdToItemId(EntityId entity) const
 	switch (entity.type)
 	{
 		case ST_LIGHT: searchRoot = lights; break;
-		case ST_STATIC_OBJECT: searchRoot = staticObjects; break;
-		case ST_DYNAMIC_OBJECT: searchRoot = dynamicObjects; break;
+		case ST_STATIC_OBJECT:
+			if (entity.index<svframe->m_canvas->solver->getStaticObjects().size())
+				searchRoot = staticObjects;
+			else
+			{
+				searchRoot = dynamicObjects;
+				entity.index -= svframe->m_canvas->solver->getStaticObjects().size();
+			}
+			break;
 		case ST_CAMERA: return wxTreeItemId();
 	}
 	if (!searchRoot.IsOk())
@@ -239,9 +246,17 @@ void SVSceneTree::updateSelectedEntityIds()
 			else
 			if (selections[i]==staticObjects)
 			{
-				unsigned numObjects = svframe->m_canvas->solver->getStaticObjects().size();
-				for (unsigned i=0;i<numObjects;i++)
+				unsigned numStaticObjects = svframe->m_canvas->solver->getStaticObjects().size();
+				for (unsigned i=0;i<numStaticObjects;i++)
 					selectedEntityIds.insert(EntityId(ST_STATIC_OBJECT,i));
+			}
+			else
+			if (selections[i]==dynamicObjects)
+			{
+				unsigned numStaticObjects = svframe->m_canvas->solver->getStaticObjects().size();
+				unsigned numDynamicObjects = svframe->m_canvas->solver->getDynamicObjects().size();
+				for (unsigned i=0;i<numDynamicObjects;i++)
+					selectedEntityIds.insert(EntityId(ST_STATIC_OBJECT,numStaticObjects+i));
 			}
 			else
 			{

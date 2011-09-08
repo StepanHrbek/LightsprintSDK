@@ -340,6 +340,13 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 		svs.renderLightIndirect = LI_CONSTANT;
 	}
 
+	// object numbers did change, change also svs.selectedObjectIndex so that it points to object in objprops
+	// and following updateAllPanels() does not change objprops
+	svs.selectedObjectIndex = 0;
+	for (unsigned i=solver->getStaticObjects().size()+solver->getDynamicObjects().size();i--;)
+		if (solver->getObject(i)==svframe->m_objectProperties->object)
+			svs.selectedObjectIndex = i;
+
 	// fix dangling pointer in light properties pane
 	svframe->updateAllPanels();
 
@@ -1360,7 +1367,7 @@ rendered:
 					for (unsigned i=0;i<selections.size();i++)
 					{
 						EntityId entity = svframe->m_sceneTree->itemIdToEntityId(selections[i]);
-						if (entity.type==ST_STATIC_OBJECT && entity.index<solver->getStaticObjects().size())
+						if (entity.type==ST_STATIC_OBJECT)
 						{
 							const rr::RRObject* object = solver->getObject(entity.index);
 							if (object && object->faceGroups.size())
@@ -1745,7 +1752,7 @@ rendered:
 					textOutput(x,y+=18,h,"triangles casting shadow: %f/%d",numShadowCasters/float(numObjects),numTrianglesMulti);
 				}
 			}
-			if (singleMesh && svs.selectedObjectIndex<solver->getStaticObjects().size())
+			if (singleMesh)
 			{
 				textOutput(x,y+=18*2,h,"[object %d/%d]",svs.selectedObjectIndex,numObjects);
 				textOutput(x,y+=18,h,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
