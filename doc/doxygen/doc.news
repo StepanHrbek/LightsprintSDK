@@ -25,6 +25,9 @@ NEWS
     - use left dragging or wsadqzxc/arrows/pgup/pgdown keys to manipulate whole selection
     - open context menu (e.g. by right click) in Scene tree or in 3d viewport to see actions available for your multiselection
       (merging, deleting etc)
+  - full dynamic object support
+    - "Dynamic" checkbox added to Object properties
+    - dynamic objects can be selected, manipulated etc
   - shift/ctrl/alt while dragging locks movement to one or two axes, only while modifier key is pressed
 - <b>improved collisions</b>
   - RRDynamicSolver::getCollider() added, returns collider for whole scene, including dynamic objects

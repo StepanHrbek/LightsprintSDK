@@ -22,6 +22,9 @@ namespace rr_gl
 		//! Copy object -> property (all values, show/hide).
 		void setObject(rr::RRObject* object, int precision);
 
+		// Copy object -> 
+		void updateHide();
+
 		//! Copy object -> property (cube sizes).
 		void updateProperties();
 
@@ -37,6 +40,7 @@ namespace rr_gl
 		rr::RRVec3        localCenter;
 
 		wxPGProperty*     propName;
+		wxPGProperty*     propDynamic;
 		wxPGProperty*     propLocation;
 		wxPGProperty*     propCenter;
 		wxPGProperty*     propTranslation;

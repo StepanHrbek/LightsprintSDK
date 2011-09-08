@@ -167,10 +167,20 @@ void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorl
 		case ST_OBJECT:
 			{
 				rr::RRObject* object = solver->getObject(entity.index);
-				rr::RRMatrix3x4 matrix = object->getWorldMatrixRef();
-				matrix.translate(moveByWorldUnits);
-				//matrix.rotate(rotateByAnglesRad);
-				object->setWorldMatrix(&matrix);
+				if (object->isDynamic)
+				{
+					rr::RRMatrix3x4 matrix = object->getWorldMatrixRef();
+					matrix.translate(moveByWorldUnits);
+					//matrix.rotate(rotateByAnglesRad);
+					object->setWorldMatrix(&matrix);
+					RRVec3 center;
+					object->getCollider()->getMesh()->getAABB(NULL,NULL,&center);
+					matrix.transformPosition(center);
+					object->illumination.envMapWorldCenter = center;
+					solver->reportDirectIlluminationChange(-1,true,false,false);
+					if (svframe->m_objectProperties->object==object)
+						svframe->m_objectProperties->updateProperties();
+				}
 			}
 			break;
 		case ST_LIGHT:
@@ -279,8 +289,11 @@ void SVSceneTree::OnSelChanged(wxTreeEvent& event)
 
 	updateSelectedEntityIds();
 
-	EntityId entityId = itemIdToEntityId(event.GetItem());
-	svframe->selectEntityInTreeAndUpdatePanel(entityId,SEA_NOTHING); // it's already selected, don't change selection, just update panels
+	if (event.GetItem().IsOk() && IsSelected(event.GetItem())) // don't update panels when deselecting (we especially don't want to update material props, because it would uncheck [x]physical, [x]point)
+	{
+		EntityId entityId = itemIdToEntityId(event.GetItem());
+		svframe->selectEntityInTreeAndUpdatePanel(entityId,SEA_NOTHING); // it's already selected, don't change selection, just update panels
+	}
 
 	callDepth--;	
 	if (needsUpdateContent)
@@ -336,12 +349,21 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			if (!svframe->m_lightProperties->IsShown())
 				menu.Append(SVFrame::ME_WINDOW_LIGHT_PROPERTIES, _("Properties..."));
 		}
-		if (temporaryContext==staticObjects || (temporaryContext.IsOk() && GetItemParent(temporaryContext)==staticObjects))
+		if (entityIds.size()) // prevents assert when right clicking empty objects
+		if (temporaryContext==staticObjects
+			|| temporaryContext==dynamicObjects
+			|| (temporaryContext.IsOk() && GetItemParent(temporaryContext)==staticObjects)
+			|| (temporaryContext.IsOk() && GetItemParent(temporaryContext)==dynamicObjects))
 		{
-			if (temporaryContext==staticObjects || svframe->userPreferences.testingBeta) // is safe only for all objects at once because lightmapTexcoord is in material, not in RRObject, we can't change only selected objects without duplicating materials
+			bool selectedExactlyAllStaticObjects = entityIds.rbegin()->index+1==svframe->m_canvas->solver->getStaticObjects().size();
+			bool selectedOnlyStaticObjects = entityIds.rbegin()->index<svframe->m_canvas->solver->getStaticObjects().size();
+			if (selectedExactlyAllStaticObjects || svframe->userPreferences.testingBeta) // is safe only for all objects at once because lightmapTexcoord is in material, not in RRObject, we can't change only selected objects without duplicating materials
 				menu.Append(CM_STATIC_OBJECTS_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
-			menu.Append(CM_STATIC_OBJECTS_BUILD_LMAPS,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel requires unwrap."));
-			menu.Append(CM_STATIC_OBJECTS_BUILD_LDMS,_("Build LDMs..."),_("(Re)builds LDMs, layer of additional per-pixel details. LDMs require unwrap."));
+			if (selectedOnlyStaticObjects)
+			{
+				menu.Append(CM_STATIC_OBJECTS_BUILD_LMAPS,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel requires unwrap."));
+				menu.Append(CM_STATIC_OBJECTS_BUILD_LDMS,_("Build LDMs..."),_("(Re)builds LDMs, layer of additional per-pixel details. LDMs require unwrap."));
+			}
 			if (temporaryContext!=staticObjects && temporaryContextItems.size()==1)
 				menu.Append(CM_STATIC_OBJECT_INSPECT_UNWRAP,_("Inspect unwrap,lightmap,LDM..."),_("Shows unwrap and lightmap or LDM in 2D."));
 			if (temporaryContextItems.size()>1)

@@ -745,7 +745,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D;
 		ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 		ray->collisionHandler = collisionHandler;
-		if (solver->getMultiObjectCustom() && solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+		if (solver->getCollider()->intersect(ray))
 		{
 			// in next step, look only for closer lights
 			ray->rayLengthMax = ray->hitDistance;
@@ -773,7 +773,31 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		else
 		{
 			s_ci.clickedEntity.type = (s_ci.hitTriangle==UINT_MAX) ? ST_CAMERA : ST_OBJECT;
-			s_ci.clickedEntity.index = (s_ci.hitTriangle==UINT_MAX) ? 0 : solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle).object;
+			if (ray->hitObject==NULL || ray->hitObject==solver->getMultiObjectCustom())
+			{
+				if (s_ci.hitTriangle==UINT_MAX)
+				{
+					s_ci.clickedEntity.index = 0;
+				}
+				else
+				{
+					rr::RRMesh::PreImportNumber pre = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle);
+					s_ci.clickedEntity.index =  pre.object;
+					s_ci.hitTriangle = pre.index;
+				}
+			}
+			else
+			{
+				s_ci.clickedEntity.index = 0;
+				unsigned numStaticObjects = solver->getStaticObjects().size();
+				unsigned numDynamicObjects = solver->getDynamicObjects().size();
+				for (unsigned i=0;i<numStaticObjects;i++)
+					if (solver->getStaticObjects()[i]==ray->hitObject)
+						s_ci.clickedEntity.index = i;
+				for (unsigned i=0;i<numDynamicObjects;i++)
+					if (solver->getDynamicObjects()[i]==ray->hitObject)
+						s_ci.clickedEntity.index = numStaticObjects+i;
+			}
 			s_ci.clickedEntity.iconCode = IC_LAST;
 		}
 
@@ -1586,9 +1610,11 @@ rendered:
 		unsigned numTrianglesSingle = singleMesh ? singleMesh->getNumTriangles() : 0;
 
 		// gather information about selected point and triangle (pointed by mouse)
-		bool selectedPointValid = false; // true = all selectedXxx below are valid
-		rr::RRMesh::TangentBasis selectedPointBasis;
-		rr::RRMesh::TriangleBody selectedTriangleBody;
+		bool                        selectedPointValid = false; // true = all selectedXxx below are valid
+		const rr::RRObject*         selectedPointObject = NULL;
+		const rr::RRMesh*           selectedPointMesh = NULL;
+		rr::RRMesh::TangentBasis    selectedPointBasis;
+		rr::RRMesh::TriangleBody    selectedTriangleBody;
 		rr::RRMesh::TriangleNormals selectedTriangleNormals;
 		if (multiMesh && (!svs.renderLightmaps2d || !lv))
 		{
@@ -1600,11 +1626,23 @@ rendered:
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
 			ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 			ray->collisionHandler = collisionHandler;
-			if (solver->getMultiObjectCustom()->getCollider()->intersect(ray))
+			if (solver->getCollider()->intersect(ray))
 			{
 				selectedPointValid = true;
-				multiMesh->getTriangleBody(ray->hitTriangle,selectedTriangleBody);
-				multiMesh->getTriangleNormals(ray->hitTriangle,selectedTriangleNormals);
+				selectedPointObject = ray->hitObject;
+				selectedPointMesh = selectedPointObject->getCollider()->getMesh();
+				const rr::RRMatrix3x4& hitMatrix = selectedPointObject->getWorldMatrixRef();
+				selectedPointMesh->getTriangleBody(ray->hitTriangle,selectedTriangleBody);
+				selectedPointMesh->getTriangleNormals(ray->hitTriangle,selectedTriangleNormals);
+				hitMatrix.transformPosition(selectedTriangleBody.vertex0);
+				hitMatrix.transformDirection(selectedTriangleBody.side1);
+				hitMatrix.transformDirection(selectedTriangleBody.side2);
+				for (unsigned i=0;i<3;i++)
+				{
+					hitMatrix.transformDirection(selectedTriangleNormals.vertex[i].normal);
+					hitMatrix.transformDirection(selectedTriangleNormals.vertex[i].tangent);
+					hitMatrix.transformDirection(selectedTriangleNormals.vertex[i].bitangent);
+				}
 				selectedPointBasis.normal = selectedTriangleNormals.vertex[0].normal + (selectedTriangleNormals.vertex[1].normal-selectedTriangleNormals.vertex[0].normal)*ray->hitPoint2d[0] + (selectedTriangleNormals.vertex[2].normal-selectedTriangleNormals.vertex[0].normal)*ray->hitPoint2d[1];
 				selectedPointBasis.tangent = selectedTriangleNormals.vertex[0].tangent + (selectedTriangleNormals.vertex[1].tangent-selectedTriangleNormals.vertex[0].tangent)*ray->hitPoint2d[0] + (selectedTriangleNormals.vertex[2].tangent-selectedTriangleNormals.vertex[0].tangent)*ray->hitPoint2d[1];
 				selectedPointBasis.bitangent = selectedTriangleNormals.vertex[0].bitangent + (selectedTriangleNormals.vertex[1].bitangent-selectedTriangleNormals.vertex[0].bitangent)*ray->hitPoint2d[0] + (selectedTriangleNormals.vertex[2].bitangent-selectedTriangleNormals.vertex[0].bitangent)*ray->hitPoint2d[1];
@@ -1817,24 +1855,35 @@ rendered:
 			{
 				if (selectedPointValid)
 				{
-					rr::RRMesh::PreImportNumber preTriangle = multiMesh->getPreImportTriangle(ray->hitTriangle);
-					const rr::RRMaterial* selectedTriangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
+					rr::RRMesh::PreImportNumber preTriangle = selectedPointMesh->getPreImportTriangle(ray->hitTriangle);
+					const rr::RRMaterial* selectedTriangleMaterial = selectedPointObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
 					const rr::RRMaterial* material = selectedTriangleMaterial;
 					rr::RRPointMaterial selectedPointMaterial;
 					if (material && material->minimalQualityForPointMaterials<10000)
 					{
-						multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,selectedPointMaterial);
+						selectedPointObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,selectedPointMaterial);
 						material = &selectedPointMaterial;
 					}
 					rr::RRMesh::TriangleMapping triangleMapping;
-					multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping,material?material->lightmapTexcoord:0);
+					selectedPointMesh->getTriangleMapping(ray->hitTriangle,triangleMapping,material?material->lightmapTexcoord:0);
 					rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
 					textOutput(x,y+=18*2,h,"[pointed by mouse]");
-					textOutput(x,y+=18,h,"object: %d/%d",preTriangle.object,numObjects);
-					rr::RRBuffer* selectedPointLightmap = solver->getStaticObjects()[preTriangle.object]->illumination.getLayer(svs.staticLayerNumber);
-					textOutput(x,y+=18,h,"object's lightmap: %s %dx%d",selectedPointLightmap?(selectedPointLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",selectedPointLightmap?selectedPointLightmap->getWidth():0,selectedPointLightmap?selectedPointLightmap->getHeight():0);
-					textOutput(x,y+=18,h,"triangle in object: %d/%d",preTriangle.index,solver->getStaticObjects()[preTriangle.object]->getCollider()->getMesh()->getNumTriangles());
-					textOutput(x,y+=18,h,"triangle in scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
+					if (selectedPointObject->isDynamic)
+						textOutput(x,y+=18,h,"dynamic object: %ls",selectedPointObject->name.w_str());
+					else
+						textOutput(x,y+=18,h,"static object: %d/%d",preTriangle.object,solver->getStaticObjects().size());
+					rr::RRBuffer* selectedPointLightmap = selectedPointObject->illumination.getLayer(svs.staticLayerNumber);
+					textOutput(x,y+=18,h,"offline lightmap: %s %dx%d",selectedPointLightmap?(selectedPointLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",selectedPointLightmap?selectedPointLightmap->getWidth():0,selectedPointLightmap?selectedPointLightmap->getHeight():0);
+					if (selectedPointObject->isDynamic)
+					{
+						textOutput(x,y+=18,h,"triangle in object: %d/%d",ray->hitTriangle,selectedPointMesh->getNumTriangles());
+						textOutput(x,y+=18,h,"triangle in static scene:");
+					}
+					else
+					{
+						textOutput(x,y+=18,h,"triangle in object: %d/%d",preTriangle.index,solver->getObject(preTriangle.object)->getCollider()->getMesh()->getNumTriangles());
+						textOutput(x,y+=18,h,"triangle in static scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
+					}
 					textOutput(x,y+=18,h,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
 					textOutput(x,y+=18,h,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
 					if (selectedPointLightmap && selectedPointLightmap->getType()==rr::BT_2D_TEXTURE)

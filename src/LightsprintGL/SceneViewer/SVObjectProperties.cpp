@@ -33,6 +33,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			mesh->getAABB(&mini,&maxi,&localCenter);
 
 			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,RR_RR2WX(object->name)));
+			Append(propDynamic = new BoolRefProperty(_("Dynamic"),_("Can we move/scale/rotate it?"),object->isDynamic));
 
 			// location
 			Append(propLocation = new wxStringProperty(_("Location"),wxPG_LABEL));
@@ -91,6 +92,18 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			}
 		}
 	}
+	updateHide();
+}
+
+//! Copy object -> enable/disable property.
+//! Must not be called in every frame, float property that is unhid in every frame loses focus immediately after click, can't be edited.
+void SVObjectProperties::updateHide()
+{
+	if (object)
+	{
+		EnableProperty(propTranslation,object->isDynamic);
+		EnableProperty(propScale,object->isDynamic);
+	}
 }
 
 void SVObjectProperties::updateProperties()
@@ -136,6 +149,12 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		object->name = RR_WX2RR(property->GetValue().GetString());
 		svframe->updateSceneTree();
+	}
+	else
+	if (property==propDynamic)
+	{
+		svframe->m_canvas->addOrRemoveScene(NULL,true);
+		updateHide();
 	}
 	else
 	if (property==propTranslation)
