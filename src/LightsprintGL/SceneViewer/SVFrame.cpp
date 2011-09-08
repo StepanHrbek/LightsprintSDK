@@ -1473,8 +1473,7 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 		case ST_DYNAMIC_OBJECT:
 			// update object+material properties
 			{
-				const rr::RRObjects& objects = (entity.type==ST_STATIC_OBJECT)?m_canvas->solver->getStaticObjects():m_canvas->solver->getDynamicObjects();
-				rr::RRObject* object = objects[entity.index];
+				rr::RRObject* object = m_canvas->solver->getObject(entity.index);
 				m_objectProperties->setObject(object,svs.precision);
 				if (object && object->faceGroups.size())
 					m_materialProperties->setMaterial(object->faceGroups[0].material);
@@ -1536,13 +1535,13 @@ void SVFrame::updateAllPanels()
 		}
 
 		// update selected object
-		if (!validateIndex(svs.selectedObjectIndex,m_canvas->solver->getStaticObjects().size()))
+		if (!validateIndex(svs.selectedObjectIndex,m_canvas->solver->getStaticObjects().size()+m_canvas->solver->getDynamicObjects().size()))
 		{
 			m_objectProperties->setObject(NULL,svs.precision);
 		}
 		else
 		{
-			m_objectProperties->setObject(m_canvas->solver->getStaticObjects()[svs.selectedObjectIndex],svs.precision);
+			m_objectProperties->setObject(m_canvas->solver->getObject(svs.selectedObjectIndex),svs.precision);
 		}
 	}
 

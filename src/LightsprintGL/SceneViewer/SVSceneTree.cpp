@@ -159,7 +159,7 @@ void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorl
 	{
 		case ST_STATIC_OBJECT:
 			{
-				rr::RRObject* object = solver->getStaticObjects()[entity.index];
+				rr::RRObject* object = solver->getObject(entity.index);
 				rr::RRMatrix3x4 matrix = object->getWorldMatrixRef();
 				matrix.translate(moveByWorldUnits);
 				//matrix.rotate(rotateByAnglesRad);
@@ -332,7 +332,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			if (temporaryContextItems.size()>1)
 				menu.Append(CM_STATIC_OBJECTS_MERGE,_("Merge objects"),_("Merges objects together."));
 			menu.Append(CM_STATIC_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
-			if (svframe->userPreferences.testingBeta) // is problematic because tangents have no effect
+			if (svframe->userPreferences.testingBeta) // is in beta because tangents have no effect
 				menu.Append(CM_STATIC_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
 			menu.Append(CM_STATIC_OBJECTS_DELETE_DIALOG,_("Delete components..."),_("Deletes components within objects."));
 			if (temporaryContext!=staticObjects && !svframe->m_objectProperties->IsShown() && temporaryContextItems.size()==1)
@@ -365,7 +365,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 	RRDynamicSolverGL* solver = svframe->m_canvas->solver;
 
 	// what objects to process, code shared by many actions
-	const rr::RRObjects& allObjects = solver->getStaticObjects();
+	rr::RRObjects allObjects = solver->getStaticObjects();
+	allObjects.insert(allObjects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
 	rr::RRObjects selectedObjects;
 	rr::RRObjects selectedObjectsAndInstances; // some tasks have to process instances of selected objects too
 	for (unsigned i=0;i<allObjects.size();i++)
@@ -728,7 +729,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					for (unsigned objectIndex=0;objectIndex<allObjects.size();objectIndex++)
 						if (contextEntityIds.find(EntityId(ST_STATIC_OBJECT,objectIndex))==contextEntityIds.end())
 							newList.push_back(allObjects[objectIndex]);
-					if (newList.size()!=solver->getStaticObjects().size())
+					if (newList.size()!=allObjects.size())
 					{
 						if (svs.playVideos)
 						{

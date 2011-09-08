@@ -293,6 +293,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 	{
 		// add or remove scene from solver
 		rr::RRObjects objects = solver->getStaticObjects();
+		objects.insert(objects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
 		rr::RRLights lights = solver->getLights();
 		if (scene)
 		{
@@ -1229,7 +1230,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = svs.renderLDMEnabled();
 			uberProgramSetup.LIGHT_INDIRECT_auto = svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE =
-			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = svs.raytracedCubesEnabled && solver->getStaticObjects().size()<svs.raytracedCubesMaxObjects && svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = svs.raytracedCubesEnabled && solver->getStaticObjects().size()+solver->getDynamicObjects().size()<svs.raytracedCubesMaxObjects && svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
 			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures;
@@ -1642,7 +1643,7 @@ rendered:
 			int x = 10;
 			int y = 10;
 			int h = GetSize().y;
-			unsigned numObjects = solver->getStaticObjects().size();
+			unsigned numObjects = solver->getStaticObjects().size()+solver->getDynamicObjects().size();
 			{
 				// what direct
 				const char* strDirect = "?";
@@ -1700,6 +1701,7 @@ rendered:
 			}
 			if (!svs.renderLightmaps2d || !lv) if (svs.selectedLightIndex<solver->realtimeLights.size())
 			{
+				// analyzes data from rarely used feature: lighting and shadowing only selected objects/combinations of objects
 				if (numTrianglesMulti<100000) // skip this expensive step for big scenes
 				{
 					RealtimeLight* rtlight = solver->realtimeLights[svs.selectedLightIndex];
@@ -1728,7 +1730,7 @@ rendered:
 			}
 			if (singleMesh && svs.selectedObjectIndex<solver->getStaticObjects().size())
 			{
-				textOutput(x,y+=18*2,h,"[static object %d/%d]",svs.selectedObjectIndex,numObjects);
+				textOutput(x,y+=18*2,h,"[object %d/%d]",svs.selectedObjectIndex,numObjects);
 				textOutput(x,y+=18,h,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
 				textOutput(x,y+=18,h,"vertices: %d/%d",singleMesh->getNumVertices(),multiMesh?multiMesh->getNumVertices():0);
 				static const rr::RRObject* lastObject = NULL;
