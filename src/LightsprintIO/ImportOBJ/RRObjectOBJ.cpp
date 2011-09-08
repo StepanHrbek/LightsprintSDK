@@ -95,7 +95,7 @@ public:
 		material.reset(false);
 		faceGroups.push_back(FaceGroup(&material,(unsigned)triangles.size()));
 		bool aborting = false;
-		setCollider(RRCollider::create(this,RRCollider::IT_LINEAR,aborting));
+		setCollider(RRCollider::create(this,NULL,RRCollider::IT_LINEAR,aborting));
 	}
 	virtual ~RRObjectOBJ()
 	{

@@ -67,7 +67,7 @@ public:
 
 
 			// create multicollider
-			multiCollider = RRCollider::create(multiMesh,intersectTechnique,aborting,cacheLocation);
+			multiCollider = RRCollider::create(multiMesh,NULL,intersectTechnique,aborting,cacheLocation);
 
 			if (!multiCollider)
 			{
@@ -232,7 +232,7 @@ public:
 
 
 			// create multicollider
-			multiCollider = RRCollider::create(multiMesh,intersectTechnique,aborting,cacheLocation);
+			multiCollider = RRCollider::create(multiMesh,NULL,intersectTechnique,aborting,cacheLocation);
 
 			if (!multiCollider)
 			{

@@ -46,7 +46,7 @@ public:
 	{
 		if (technique!=collider->getTechnique())
 		{
-			RRCollider* newCollider = create(getMesh(),technique,aborting);
+			RRCollider* newCollider = create(getMesh(),NULL,technique,aborting);
 			if (aborting)
 				delete newCollider;
 			else
@@ -74,7 +74,7 @@ void RRCollider::setTechnique(IntersectTechnique technique, bool& aborting)
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"setTechnique() ignored, collider was not created with IT_LINEAR.\n"));
 }
 
-RRCollider* RRCollider::create(const RRMesh* mesh, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
+RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
 {
 	try {
 

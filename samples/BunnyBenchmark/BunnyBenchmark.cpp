@@ -69,7 +69,7 @@ int main(int argc, char** argv)
 
 	// create collider
 	bool aborting = false;
-	const RRCollider* collider = RRCollider::create(rrMesh,RRCollider::IT_BSP_FASTEST,aborting);
+	const RRCollider* collider = RRCollider::create(rrMesh,NULL,RRCollider::IT_BSP_FASTEST,aborting);
 
 	// start watch
 	RRTime time;

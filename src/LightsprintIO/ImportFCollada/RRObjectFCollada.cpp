@@ -731,7 +731,7 @@ triangle_found:
 	else
 	{
 		bool aborting = false;
-		return colliderCache[mesh] = RRCollider::create(new RRMeshFCollada(mesh),RRCollider::IT_LINEAR,aborting);
+		return colliderCache[mesh] = RRCollider::create(new RRMeshFCollada(mesh),NULL,RRCollider::IT_LINEAR,aborting);
 	}
 }
 

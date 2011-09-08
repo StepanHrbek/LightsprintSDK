@@ -655,7 +655,7 @@ void load(Archive & ar, rr::RRObject& a, const unsigned int version)
 		if (proxy && proxy->mesh)
 		{
 			bool aborting = false;
-			a.setCollider(rr::RRCollider::create(proxy->mesh,rr::RRCollider::IT_LINEAR,aborting));
+			a.setCollider(rr::RRCollider::create(proxy->mesh,NULL,rr::RRCollider::IT_LINEAR,aborting));
 		}
 		else
 		{

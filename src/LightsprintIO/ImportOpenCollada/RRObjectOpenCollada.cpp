@@ -1900,7 +1900,7 @@ public:
 
 			// create collider
 			bool aborting = false;
-			objects->colliders[ objects->nextMesh ] = RRCollider::create(mesh,RRCollider::IT_LINEAR,aborting);
+			objects->colliders[ objects->nextMesh ] = RRCollider::create(mesh,NULL,RRCollider::IT_LINEAR,aborting);
 
 			// set all assigned instances
 			for(VectorRRObjectOpenCollada::iterator iter = meshPlaceholder.objectsWithMesh.begin(); iter != meshPlaceholder.objectsWithMesh.end(); iter++)

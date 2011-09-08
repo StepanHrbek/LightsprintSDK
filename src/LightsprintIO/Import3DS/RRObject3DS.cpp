@@ -96,7 +96,7 @@ RRObject3DS::RRObject3DS(Model_3DS* _model, unsigned _objectIdx)
 
 	// create collider
 	bool aborting = false;
-	setCollider(RRCollider::create(this,RRCollider::IT_LINEAR,aborting));
+	setCollider(RRCollider::create(this,NULL,RRCollider::IT_LINEAR,aborting));
 }
 
 RRObject3DS::~RRObject3DS()

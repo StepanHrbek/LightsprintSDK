@@ -234,7 +234,7 @@ public:
 		for (unsigned c=0;c<numMeshes;c++)
 		{
 			bool aborting = false;
-			colliders[c] = RRCollider::create(meshes+c,RRCollider::IT_LINEAR,aborting);
+			colliders[c] = RRCollider::create(meshes+c,NULL,RRCollider::IT_LINEAR,aborting);
 		}
 
 		// adapt objects

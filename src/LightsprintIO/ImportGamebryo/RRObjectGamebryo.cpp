@@ -1221,7 +1221,7 @@ public:
 			delete mesh;
 			return NULL;
 		}
-		RRCollider* collider = RRCollider::create(mesh, RRCollider::IT_LINEAR, _aborting);
+		RRCollider* collider = RRCollider::create(mesh, NULL, RRCollider::IT_LINEAR, _aborting);
 		if (!collider)
 		{
 			delete mesh;
