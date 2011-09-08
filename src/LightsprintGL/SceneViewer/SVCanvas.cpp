@@ -337,7 +337,6 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 	if (svs.renderLightIndirect==LI_REALTIME_FIREBALL)
 	{
 		svs.renderLightIndirect = LI_CONSTANT;
-		svframe->UpdateMenuBar(); // switches to LI_CONSTANT also in menu
 	}
 
 	// fix dangling pointer in light properties pane
