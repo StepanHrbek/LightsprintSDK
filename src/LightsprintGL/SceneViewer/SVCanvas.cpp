@@ -1013,27 +1013,6 @@ static void textOutput(int x, int y, int h, const char* format, ...)
 #endif
 }
 
-static void textOutputMaterialProperty(int x, int y, int h, const char* name, const rr::RRMaterial::Property& triangle, const rr::RRMaterial::Property& point, const rr::RRRay* ray, const rr::RRMesh* multiMesh)
-{
-	if (&triangle==&point || !triangle.texture)
-	{
-		// triangle equals point, no need to print it
-		textOutput(x,y,h,"%s tri=%f %f %f",name,triangle.color[0],triangle.color[1],triangle.color[2]);
-	}
-	else
-	{
-		// point differs from triangle, print it
-		rr::RRMesh::TriangleMapping triangleMapping;
-		multiMesh->getTriangleMapping(ray->hitTriangle,triangleMapping,triangle.texcoord);
-		rr::RRVec2 uvInMap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
-		textOutput(x,y,h,"%s tri=%f %f %f point=%f %f %f uv[%d]=%f %f",name,
-			triangle.color[0],triangle.color[1],triangle.color[2],
-			point.color[0],point.color[1],point.color[2],
-			triangle.texcoord,uvInMap[0],uvInMap[1]
-		);
-	}
-}
-
 static void drawTangentBasis(rr::RRVec3 point, rr::RRMesh::TangentBasis basis)
 {
 	glBegin(GL_LINES);
