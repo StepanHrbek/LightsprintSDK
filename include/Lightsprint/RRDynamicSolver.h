@@ -853,7 +853,6 @@ namespace rr
 		//! \param avgRaysPerTriangle
 		//!  Average number of rays per triangle used to compute form factors.
 		//!  Higher number = longer calculation, higher quality results, bigger file.
-		//!  If zero, current factors are used, without recalculating.
 		//! \param filename
 		//!  Data precomputed for current static scene will be saved to this file.
 		//!  Set NULL for automatically generated name in temp directory.
