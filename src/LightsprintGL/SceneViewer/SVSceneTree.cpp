@@ -216,9 +216,13 @@ void SVSceneTree::manipulateSelectedEntities(const rr::RRVec3& moveByWorldUnits,
 		return;
 	const EntityIds& entityIds = getSelectedEntityIds();
 	bool nonLightSelected = false;
+	bool atLeastOneMovableSelected = false;
 	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
+	{
 		nonLightSelected |= i->type!=ST_LIGHT;
-	if (entityIds.empty()
+		atLeastOneMovableSelected |= i->type==ST_LIGHT || (i->type==ST_OBJECT && i->index>=svframe->m_canvas->solver->getStaticObjects().size());
+	}
+	if (!atLeastOneMovableSelected
 		// rotating anything outside lights needs more intuitive UI, rotate camera for now
 		|| (nonLightSelected && rotateByAnglesRad!=RRVec3(0)))
 	{
