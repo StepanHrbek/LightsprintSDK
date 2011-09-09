@@ -514,6 +514,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver,_("Building unwrap..."));
 
+					selectedObjectsAndInstances.smoothAndStitch(false,false,true,false,0,0,0,false); // remove degens, unwrapper crashes on them
 					selectedObjectsAndInstances.deleteComponents(false,true,true,false);
 					selectedObjectsAndInstances.buildUnwrap(res,solver->aborting);
 
