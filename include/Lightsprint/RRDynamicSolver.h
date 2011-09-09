@@ -261,6 +261,7 @@ namespace rr
 
 		//! Returns collider for whole scene, both static and dynamic.
 		//
+		//! Never returns NULL, even if scene is empty.
 		//! Returned collider is valid until next getCollider() call. It is owned by solver, you don't delete it.
 		//!
 		//! This is slightly heavier operation as it updates acceleration structures.
