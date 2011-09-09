@@ -392,7 +392,7 @@ RRObject* RRDynamicSolver::getObject(unsigned index) const
 
 RRCollider* RRDynamicSolver::getCollider()
 {
-	if (!priv->dynamicObjects.size())
+	if (!priv->dynamicObjects.size() && getMultiObjectCustom())
 		return getMultiObjectCustom()->getCollider();
 
 	// check dynamic mesh versions (static meshes are not allowed to change), invalidate supercollider if they did change
