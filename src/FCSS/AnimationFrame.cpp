@@ -27,8 +27,8 @@ AnimationFrame::AnimationFrame(AnimationFrame& copy) :
 }
 
 AnimationFrame::AnimationFrame(unsigned _layerNumber) :
-	eye(0,1,4, 2.935000f,0,-0.7500f, 1,100,0.3f,900),
-	light(-1.233688f,3.022499f,-0.542255f, 1.239998f,0,6.649996f, 1,70,1,1000)
+	eye(rr::RRVec3(0,1,4), rr::RRVec3(2.935000f,-0.7500f,0), 1,100,0.3f,900),
+	light(rr::RRVec3(-1.233688f,3.022499f,-0.542255f), rr::RRVec3(1.239998f,6.649996f,0), 1,70,1,1000)
 {
 	brightness = rr::RRVec4(1);
 	gamma = 1;
@@ -97,12 +97,12 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 		float alpha = (i<sizeof(eye)/sizeof(float)) ? alphaSmooth : alphaRounded;
 		c[i] = blendNormal(a[i],b[i],alpha);
 	}
-	blended.eye.angle = blendModulo(this->eye.angle,that.eye.angle,alphaSmooth,(float)(2*RR_PI));
+	blended.eye.yawPitchRollRad[0] = blendModulo(this->eye.yawPitchRollRad[0],that.eye.yawPitchRollRad[0],alphaSmooth,(float)(2*RR_PI));
 	blended.eye.orthogonal = eye.orthogonal;
 	blended.eye.updateDirFromAngles = eye.updateDirFromAngles;
 	blended.eye.origin = NULL;
 	blended.eye.update();
-	blended.light.angle = blendModulo(this->light.angle,that.light.angle,alphaRounded,(float)(2*RR_PI));
+	blended.light.yawPitchRollRad[0] = blendModulo(this->light.yawPitchRollRad[0],that.light.yawPitchRollRad[0],alphaRounded,(float)(2*RR_PI));
 	blended.light.orthogonal = light.orthogonal;
 	blended.light.updateDirFromAngles = light.updateDirFromAngles;
 	blended.light.origin = NULL;
@@ -153,14 +153,14 @@ bool AnimationFrame::loadOver(FILE* f)
 	//	return false;
 	// load eye+light
 	float aspect, fov, anear, afar;
-	if (fscanf(f,"camera = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&eye.pos[0],&eye.pos[1],&eye.pos[2],&eye.angle,&eye.leanAngle,&eye.angleX,&aspect,&fov,&anear,&afar)==10)
+	if (fscanf(f,"camera = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&eye.pos[0],&eye.pos[1],&eye.pos[2],&eye.yawPitchRollRad[0],&eye.yawPitchRollRad[2],&eye.yawPitchRollRad[1],&aspect,&fov,&anear,&afar)==10)
 	{
 		eye.setAspect(aspect);
 		eye.setFieldOfViewVerticalDeg(fov);
 		eye.setRange(anear,afar);
 		loaded = true;
 	}
-	if (fscanf(f,"light = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&light.pos[0],&light.pos[1],&light.pos[2],&light.angle,&light.leanAngle,&light.angleX,&aspect,&fov,&anear,&afar)==10)
+	if (fscanf(f,"light = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&light.pos[0],&light.pos[1],&light.pos[2],&light.yawPitchRollRad[0],&light.yawPitchRollRad[2],&light.yawPitchRollRad[1],&aspect,&fov,&anear,&afar)==10)
 	{
 		light.setAspect(aspect);
 		light.setFieldOfViewVerticalDeg(fov);
@@ -215,9 +215,9 @@ bool AnimationFrame::save(FILE* f, const AnimationFrame& prev) const
 	fprintf(f,"layer_number = %d\n",layerNumber);
 	// save eye+light
 	if (!(eye==prev.eye))
-		fprintf(f,"camera = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*RR_PI,2*RR_PI),eye.leanAngle,eye.angleX,eye.getAspect(),eye.getFieldOfViewVerticalDeg(),eye.getNear(),eye.getFar());
+		fprintf(f,"camera = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.yawPitchRollRad[0]+100*RR_PI,2*RR_PI),eye.yawPitchRollRad[2],eye.yawPitchRollRad[1],eye.getAspect(),eye.getFieldOfViewVerticalDeg(),eye.getNear(),eye.getFar());
 	if (!(light==prev.light))
-		fprintf(f, "light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",light.pos[0],light.pos[1],light.pos[2],fmodf(light.angle+100*RR_PI,2*RR_PI),light.leanAngle,light.angleX,light.getAspect(),light.getFieldOfViewVerticalDeg(),light.getNear(),light.getFar());
+		fprintf(f, "light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",light.pos[0],light.pos[1],light.pos[2],fmodf(light.yawPitchRollRad[0]+100*RR_PI,2*RR_PI),light.yawPitchRollRad[2],light.yawPitchRollRad[1],light.getAspect(),light.getFieldOfViewVerticalDeg(),light.getNear(),light.getFar());
 	if (brightness!=prev.brightness)//brightness[0]!=1 || brightness[1]!=1 || brightness[2]!=1 || brightness[3]!=1)
 		fprintf(f,"brightness = {%f,%f,%f,%f}\n",brightness[0],brightness[1],brightness[2],brightness[3]);
 	if (gamma!=prev.gamma)//gamma!=1)

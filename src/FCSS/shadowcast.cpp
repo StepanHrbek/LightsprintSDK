@@ -1357,16 +1357,16 @@ void passive(int x, int y)
 #endif
 		if (modeMovingEye)
 		{
-			currentFrame.eye.angle -= mouseSensitivity*x;
-			currentFrame.eye.angleX -= mouseSensitivity*y;
-			RR_CLAMP(currentFrame.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			currentFrame.eye.yawPitchRollRad[0] -= mouseSensitivity*x;
+			currentFrame.eye.yawPitchRollRad[1] -= mouseSensitivity*y;
+			RR_CLAMP(currentFrame.eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			reportEyeMovement();
 		}
 		else
 		{
-			currentFrame.light.angle -= mouseSensitivity*x;
-			currentFrame.light.angleX -= mouseSensitivity*y;
-			RR_CLAMP(currentFrame.light.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			currentFrame.light.yawPitchRollRad[0] -= mouseSensitivity*x;
+			currentFrame.light.yawPitchRollRad[1] -= mouseSensitivity*y;
+			RR_CLAMP(currentFrame.light.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			// changes also position a bit, together with rotation
 			currentFrame.light.pos += currentFrame.light.dir*0.3f;
 			currentFrame.light.update();
@@ -1440,7 +1440,7 @@ no_level:
 	if (speedLeft) cam->pos -= cam->right * (speedLeft*previousFrameDuration);
 	if (speedUp) cam->pos += cam->up * (speedUp*previousFrameDuration);
 	if (speedDown) cam->pos -= cam->up * (speedDown*previousFrameDuration);
-	if (speedLean) cam->leanAngle += speedLean*previousFrameDuration;
+	if (speedLean) cam->yawPitchRollRad[2] += speedLean*previousFrameDuration;
 	if (speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
 	{
 		//printf(" %f ",seconds);

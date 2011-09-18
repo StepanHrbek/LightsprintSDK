@@ -87,8 +87,8 @@ void keyboard(unsigned char c, int x, int y)
 	{
 		case 'q': eye.pos.y += 0.1f; break;
 		case 'z': eye.pos.y -= 0.1f; break;
-		case 'x': eye.leanAngle -= 0.01f; break;
-		case 'c': eye.leanAngle += 0.01f; break;
+		case 'x': eye.yawPitchRollRad[2] -= 0.01f; break;
+		case 'c': eye.yawPitchRollRad[2] += 0.01f; break;
 		case ' ': editLight = !editLight; break;
 		case 27:
 			// immediate exit without freeing memory, leaks may be reported
@@ -115,20 +115,20 @@ void passive(int x, int y)
 	{
 		if (editLight)
 		{
-			static float angle = 0;
-			static float angleX = 0;
-			angle -= 0.005*x;
-			angleX -= 0.005*y;
-			RR_CLAMP(angleX,-RR_PI*0.49f,-RR_PI*0.09f);
-			lightDirection.x = sin(angle);
-			lightDirection.z = cos(angle);
-			lightDirection.y = angleX;
+			static float yaw = 0;
+			static float pitch = 0;
+			yaw -= 0.005*x;
+			pitch -= 0.005*y;
+			RR_CLAMP(pitch,-RR_PI*0.49f,-RR_PI*0.09f);
+			lightDirection.x = sin(yaw);
+			lightDirection.z = cos(yaw);
+			lightDirection.y = pitch;
 		}
 		else
 		{
-			eye.angle -= 0.005*x;
-			eye.angleX -= 0.005*y;
-			RR_CLAMP(eye.angleX,-RR_PI*0.49f,RR_PI*0.49f);
+			eye.yawPitchRollRad[0] -= 0.005*x;
+			eye.yawPitchRollRad[1] -= 0.005*y;
+			RR_CLAMP(eye.yawPitchRollRad[1],-RR_PI*0.49f,RR_PI*0.49f);
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}

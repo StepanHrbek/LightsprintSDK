@@ -155,11 +155,11 @@ EntityId SVSceneTree::itemIdToEntityId(wxTreeItemId item) const
 	return data ? data->entityId : EntityId();
 }
 
-void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorldUnits, const rr::RRVec3& rotateByAnglesRad)
+void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorldUnits, const rr::RRVec3& rotateByYawPitchRollRad)
 {
 	if (!svframe->m_canvas)
 		return;
-	if (moveByWorldUnits==RRVec3(0) && rotateByAnglesRad==RRVec3(0))
+	if (moveByWorldUnits==RRVec3(0) && rotateByYawPitchRollRad==RRVec3(0))
 		return;
 	RRDynamicSolverGL* solver = svframe->m_canvas->solver;
 	switch(entity.type)
@@ -188,9 +188,7 @@ void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorl
 				RealtimeLight* rtlight = solver->realtimeLights[entity.index];
 				Camera* light = rtlight->getParent();
 				light->pos += moveByWorldUnits;
-				light->angleX += rotateByAnglesRad[0];
-				light->angle += rotateByAnglesRad[1];
-				light->leanAngle += rotateByAnglesRad[2];
+				light->yawPitchRollRad += rotateByYawPitchRollRad;
 				light->update();
 				rtlight->updateAfterRealtimeLightChanges();
 				solver->reportDirectIlluminationChange(entity.index,true,true,true);
@@ -199,20 +197,20 @@ void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorl
 		case ST_CAMERA:
 			{
 				svs.eye.pos += moveByWorldUnits;
-				svs.eye.angleX += rotateByAnglesRad[0]*svs.eye.getFieldOfViewHorizontalDeg()/90;
-				svs.eye.angle += rotateByAnglesRad[1]*svs.eye.getFieldOfViewHorizontalDeg()/90;
-				svs.eye.leanAngle += rotateByAnglesRad[2];
-				RR_CLAMP(svs.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+				svs.eye.yawPitchRollRad[0] += rotateByYawPitchRollRad[0]*svs.eye.getFieldOfViewHorizontalDeg()/90;
+				svs.eye.yawPitchRollRad[1] += rotateByYawPitchRollRad[1]*svs.eye.getFieldOfViewHorizontalDeg()/90;
+				svs.eye.yawPitchRollRad[2] += rotateByYawPitchRollRad[2];
+				RR_CLAMP(svs.eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			}
 			break;
 	}
 }
 
-void SVSceneTree::manipulateSelectedEntities(const rr::RRVec3& moveByWorldUnits, const rr::RRVec3& rotateByAnglesRad)
+void SVSceneTree::manipulateSelectedEntities(const rr::RRVec3& moveByWorldUnits, const rr::RRVec3& rotateByYawPitchRollRad)
 {
 	if (!svframe->m_canvas)
 		return;
-	if (moveByWorldUnits==RRVec3(0) && rotateByAnglesRad==RRVec3(0))
+	if (moveByWorldUnits==RRVec3(0) && rotateByYawPitchRollRad==RRVec3(0))
 		return;
 	const EntityIds& entityIds = getSelectedEntityIds();
 	bool nonLightSelected = false;
@@ -224,14 +222,14 @@ void SVSceneTree::manipulateSelectedEntities(const rr::RRVec3& moveByWorldUnits,
 	}
 	if (!atLeastOneMovableSelected
 		// rotating anything outside lights needs more intuitive UI, rotate camera for now
-		|| (nonLightSelected && rotateByAnglesRad!=RRVec3(0)))
+		|| (nonLightSelected && rotateByYawPitchRollRad!=RRVec3(0)))
 	{
-		manipulateEntity(EntityId(ST_CAMERA,0),moveByWorldUnits,rotateByAnglesRad);
+		manipulateEntity(EntityId(ST_CAMERA,0),moveByWorldUnits,rotateByYawPitchRollRad);
 	}
 	else
 	{
 		for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
-			manipulateEntity(*i,moveByWorldUnits,rotateByAnglesRad);
+			manipulateEntity(*i,moveByWorldUnits,rotateByYawPitchRollRad);
 	}
 }
 

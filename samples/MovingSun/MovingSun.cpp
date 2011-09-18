@@ -218,9 +218,9 @@ void passive(int x, int y)
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		eye.angle -= mouseSensitivity*x;
-		eye.angleX -= mouseSensitivity*y;
-		RR_CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+		eye.yawPitchRollRad[0] -= mouseSensitivity*x;
+		eye.yawPitchRollRad[1] -= mouseSensitivity*y;
+		RR_CLAMP(eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		glutWarpPointer(winWidth/2,winHeight/2);
 		solver->reportInteraction();
 	}

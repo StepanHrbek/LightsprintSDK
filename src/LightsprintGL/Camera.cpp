@@ -21,9 +21,7 @@ namespace rr_gl
 Camera::Camera()
 {
 	pos = rr::RRVec3(0);
-	angle = 0;
-	leanAngle = 0;
-	angleX = 0;
+	yawPitchRollRad = rr::RRVec3(0);
 	aspect = 1; // ctor must set it directly, setAspect() may fail if old aspect is NaN
 	setFieldOfViewVerticalDeg(90);
 	setRange(0.1f,100);
@@ -35,14 +33,10 @@ Camera::Camera()
 	update();
 }
 
-Camera::Camera(float _posx, float _posy, float _posz, float _angle, float _leanAngle, float _angleX, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar)
+Camera::Camera(const rr::RRVec3& _pos, const rr::RRVec3& _yawPitchRoll, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar)
 {
-	pos[0] = _posx;
-	pos[1] = _posy;
-	pos[2] = _posz;
-	angle = _angle;
-	leanAngle = _leanAngle;
-	angleX = _angleX;
+	pos = _pos;
+	yawPitchRollRad = _yawPitchRoll;
 	aspect = _aspect; // ctor must set it directly, setAspect() may fail if old aspect is NaN
 	setFieldOfViewVerticalDeg(_fieldOfViewVerticalDeg); // aspect must be already set
 	setRange(_anear,_afar);
@@ -60,9 +54,7 @@ Camera::Camera(rr::RRLight& light)
 	RR_ASSERT(light.type!=rr::RRLight::DIRECTIONAL || fabs(light.direction.length2()-1)<0.01f); // direction must be normalized (only for directional light)
 	if (light.type==rr::RRLight::POINT)
 	{
-		angleX = 0;
-		angle = 0;
-		leanAngle = 0;
+		yawPitchRollRad = rr::RRVec3(0);
 	}
 	else
 	{
@@ -82,19 +74,19 @@ Camera::Camera(rr::RRLight& light)
 void Camera::setDirection(const rr::RRVec3& _dir)
 {
 	dir = _dir.normalized();
-	angleX = asin(dir.y);
+	yawPitchRollRad[1] = asin(dir.y);
 	float d = _dir.x*_dir.x+_dir.z*_dir.z;
 	if (d)
 	{
 		float sin_angle = _dir.x/sqrt(d);
-		angle = asin(RR_CLAMPED(sin_angle,-1,1));
-		if (_dir.z<0) angle = (rr::RRReal)(RR_PI-angle);
+		yawPitchRollRad[0] = asin(RR_CLAMPED(sin_angle,-1,1));
+		if (_dir.z<0) yawPitchRollRad[0] = (rr::RRReal)(RR_PI-yawPitchRollRad[0]);
 	}
 	else
 	{
 		// We are looking straight up or down. Keep old angle, don't reset it.
 	}
-	leanAngle = 0;
+	yawPitchRollRad[2] = 0;
 }
 
 void Camera::setAspect(float _aspect, float _effectOnFOV)
@@ -202,12 +194,8 @@ void Camera::setRangeDynamically(const rr::RRObject* object, bool water, float w
 
 bool Camera::operator==(const Camera& a) const
 {
-	return pos[0]==a.pos[0]
-		&& pos[1]==a.pos[1]
-		&& pos[2]==a.pos[2]
-		&& angle==a.angle
-		&& leanAngle==a.leanAngle
-		&& angleX==a.angleX
+	return pos==a.pos
+		&& yawPitchRollRad==a.yawPitchRollRad
 		//&& aspect==a.aspect ... aspect is usually just byproduct of window size, users don't want "scene was modified" just because window size changed
 		&& fieldOfViewVerticalDeg==a.fieldOfViewVerticalDeg
 		&& anear==a.anear
@@ -224,9 +212,9 @@ void Camera::update()
 	// update dir
 	if (updateDirFromAngles)
 	{
-		dir[0] = cos(angleX)*sin(angle);
-		dir[1] = sin(angleX);
-		dir[2] = cos(angleX)*cos(angle);
+		dir[0] = cos(yawPitchRollRad[1])*sin(yawPitchRollRad[0]);
+		dir[1] = sin(yawPitchRollRad[1]);
+		dir[2] = cos(yawPitchRollRad[1])*cos(yawPitchRollRad[0]);
 	}
 
 	// - leaning
@@ -235,17 +223,17 @@ void Camera::update()
 	{
 		// choose better start for camera up vector when looking straight up or down
 		// without this code, straight up/down views would ignore angle
-		tmpup[0] = sin(angle)*cos(angleX+0.1f);
-		tmpup[1] = sin(angleX);
-		tmpup[2] = cos(angle)*cos(angleX+0.1f);
+		tmpup[0] = sin(yawPitchRollRad[0])*cos(yawPitchRollRad[1]+0.1f);
+		tmpup[1] = sin(yawPitchRollRad[1]);
+		tmpup[2] = cos(yawPitchRollRad[0])*cos(yawPitchRollRad[1]+0.1f);
 	}
 	rr::RRVec3 tmpright;
 	dir.normalize();
 	#define CROSS(a,b,res) res[0]=a[1]*b[2]-a[2]*b[1];res[1]=a[2]*b[0]-a[0]*b[2];res[2]=a[0]*b[1]-a[1]*b[0]
 	CROSS(dir,tmpup,tmpright);
 	CROSS(tmpright,dir,tmpup);
-	float s = sin(leanAngle);
-	float c = cos(leanAngle);
+	float s = sin(yawPitchRollRad[2]);
+	float c = cos(yawPitchRollRad[2]);
 	up = (tmpup*c+tmpright*s).normalized();
 	right = (tmpright*c-tmpup*s).normalized();
 
@@ -331,9 +319,9 @@ void Camera::setupForRender() const
 void Camera::mirror(float altitude)
 {
 	pos[1] = 2*altitude-pos[1];
-	angleX = angleX*-1;
+	yawPitchRollRad[1] = -yawPitchRollRad[1];
 	screenCenter.y = -screenCenter.y;
-	leanAngle = -leanAngle;
+	yawPitchRollRad[2] = -yawPitchRollRad[2];
 	// it is not completely mirrored, up stays {0,1,0} in update()
 }
 
@@ -342,7 +330,7 @@ void Camera::mirror(float altitude)
 //
 // views
 
-static float s_viewAngles[6][3] = // angle, angleX, leanAngle
+static float s_viewAngles[6][3] = // 6x yawPitchRollRad
 {
 	{RR_PI,-RR_PI/2,0}, // TOP
 	{RR_PI,RR_PI/2,0}, // BOTTOM
@@ -380,9 +368,9 @@ void Camera::setView(Camera::View view, const rr::RRObject* scene)
 
 	// process TOP, BOTTOM, FRONT, BACK, LEFT, RIGHT
 	orthogonal = true;
-	angle = s_viewAngles[view][0];
-	angleX = s_viewAngles[view][1];
-	leanAngle = s_viewAngles[view][2];
+	yawPitchRollRad[0] = s_viewAngles[view][0];
+	yawPitchRollRad[1] = s_viewAngles[view][1];
+	yawPitchRollRad[2] = s_viewAngles[view][2];
 	if (scene)
 	{
 		rr::RRVec3 mini,maxi;
@@ -426,7 +414,7 @@ Camera::View Camera::getView() const
 {
 	if (orthogonal)
 		for (View view=TOP;view<=RIGHT;view=(View)(view+1))
-			if (angle==s_viewAngles[view][0] && angleX==s_viewAngles[view][1] && leanAngle==s_viewAngles[view][2])
+			if (yawPitchRollRad[0]==s_viewAngles[view][0] && yawPitchRollRad[1]==s_viewAngles[view][1] && yawPitchRollRad[2]==s_viewAngles[view][2])
 				return view;
 	return OTHER;
 }
@@ -461,9 +449,9 @@ rr::RRReal blendModulo(rr::RRReal a,rr::RRReal b,rr::RRReal alpha,rr::RRReal mod
 void Camera::blend(const Camera& a, const Camera& b, float blend)
 {
 	pos = blendNormal(a.pos,b.pos,blend);
-	angle = blendModulo(a.angle,b.angle,blend,(float)(2*RR_PI));
-	leanAngle = blendNormal(a.leanAngle,b.leanAngle,blend);
-	angleX = blendNormal(a.angleX,b.angleX,blend);
+	yawPitchRollRad[0] = blendModulo(a.yawPitchRollRad[0],b.yawPitchRollRad[0],blend,(float)(2*RR_PI));
+	yawPitchRollRad[1] = blendNormal(a.yawPitchRollRad[1],b.yawPitchRollRad[1],blend);
+	yawPitchRollRad[2] = blendNormal(a.yawPitchRollRad[2],b.yawPitchRollRad[2],blend);
 	aspect = blendNormal(a.aspect,b.aspect,blend);
 	fieldOfViewVerticalDeg = blendNormal(a.fieldOfViewVerticalDeg,b.fieldOfViewVerticalDeg,blend);
 	anear = blendNormal(a.anear,b.anear,blend);
@@ -584,7 +572,7 @@ void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* time
 	#define BLEND_3FLOATS(name1,name2,name3) {rr::RRVec3 tmp = interpolAkima<float,rr::RRVec3>(numCameras,times,[&cameras](int i){return rr::RRVec3(cameras[i]->name1,cameras[i]->name2,cameras[i]->name3);},time); name1=tmp.x; name2=tmp.y; name3=tmp.z;}
 
 	BLEND_RRVEC3(pos);
-	BLEND_3FLOATS(angle,leanAngle,angleX);
+	BLEND_RRVEC3(yawPitchRollRad);
 	BLEND_3FLOATS(anear,afar,fieldOfViewVerticalDeg);
 	BLEND_FLOAT(aspect);
 	BLEND_3FLOATS(screenCenter.x,screenCenter.y,orthoSize);
@@ -638,9 +626,9 @@ unsigned Camera::fixInvalidValues()
 		;
 	if (updateDirFromAngles)
 		return numFixes
-			+ makeFinite(angle,0)
-			+ makeFinite(leanAngle,0)
-			+ makeFinite(angleX,0);
+			+ makeFinite(yawPitchRollRad[0],0)
+			+ makeFinite(yawPitchRollRad[1],0)
+			+ makeFinite(yawPitchRollRad[2],0);
 	else
 		return numFixes
 			+ makeFinite(dir,rr::RRVec3(1));

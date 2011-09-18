@@ -383,8 +383,8 @@ namespace rr_gl
 		if (jittered)
 		{
 			static signed char jitterSample[10][2] = {{0,0},{3,-2},{-2,3},{1,2},{-2,-1},{3,4},{-4,-3},{2,-1},{-1,1},{-3,0}};
-			light.angle += light.getFieldOfViewHorizontalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][0]*0.22f;
-			light.angleX += light.getFieldOfViewVerticalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][1]*0.22f;
+			light.yawPitchRollRad[0] += light.getFieldOfViewHorizontalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][0]*0.22f;
+			light.yawPitchRollRad[1] += light.getFieldOfViewVerticalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][1]*0.22f;
 		}
 		light.update();
 	}

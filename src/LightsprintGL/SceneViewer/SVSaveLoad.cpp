@@ -116,9 +116,9 @@ template<class Archive>
 void save(Archive & ar, const rr_gl::Camera& a, const unsigned int version)
 {
 	ar & make_nvp("pos",a.pos);
-	ar & make_nvp("angle",a.angle);
-	ar & make_nvp("leanAngle",a.leanAngle);
-	ar & make_nvp("angleX",a.angleX);
+	ar & make_nvp("angle",a.yawPitchRollRad[0]);
+	ar & make_nvp("leanAngle",a.yawPitchRollRad[2]);
+	ar & make_nvp("angleX",a.yawPitchRollRad[1]);
 	{
 		float aspect = a.getAspect();
 		ar & make_nvp("aspect",aspect);
@@ -146,9 +146,9 @@ template<class Archive>
 void load(Archive & ar, rr_gl::Camera& a, const unsigned int version)
 {
 	ar & make_nvp("pos",a.pos);
-	ar & make_nvp("angle",a.angle);
-	ar & make_nvp("leanAngle",a.leanAngle);
-	ar & make_nvp("angleX",a.angleX);
+	ar & make_nvp("angle",a.yawPitchRollRad[0]);
+	ar & make_nvp("leanAngle",a.yawPitchRollRad[2]);
+	ar & make_nvp("angleX",a.yawPitchRollRad[1]);
 	{
 		float aspect;
 		ar & make_nvp("aspect",aspect);

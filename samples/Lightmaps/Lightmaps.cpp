@@ -304,15 +304,15 @@ void passive(int x, int y)
 #endif
 		if (modeMovingEye)
 		{
-			eye.angle -= mouseSensitivity*x;
-			eye.angleX -= mouseSensitivity*y;
-			RR_CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			eye.yawPitchRollRad[0] -= mouseSensitivity*x;
+			eye.yawPitchRollRad[1] -= mouseSensitivity*y;
+			RR_CLAMP(eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		}
 		else
 		{
-			light->angle -= mouseSensitivity*x;
-			light->angleX -= mouseSensitivity*y;
-			RR_CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			light->yawPitchRollRad[0] -= mouseSensitivity*x;
+			light->yawPitchRollRad[1] -= mouseSensitivity*y;
+			RR_CLAMP(light->yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			solver->reportDirectIlluminationChange(0,true,true,false);
 			light->update();
 		}

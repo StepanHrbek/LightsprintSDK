@@ -20,8 +20,8 @@ namespace rr_gl
 
 //! Frustum with publicly visible parameters, suitable for cameras and spotlights.
 //
-//! With all angles reset to 0, camera direction is (0,0,1), Z+,
-//! and up vector is (0,1,0), Y+.
+//! With yawPitchRollRad reset to 0, camera view direction is Z+ (0,0,1),
+//! up vector is Y+ (0,1,0) and right vector is X- (-1,0,0).
 class RR_GL_API Camera : public rr::RRUniformlyAllocated
 {
 public:
@@ -29,12 +29,8 @@ public:
 
 	//! Position of camera (imaginary frustum apex).
 	rr::RRVec3 pos;
-	//! Rotation around Y axis, radians. For characters standing in Y axis, it controls their look to the left/right. Ignored if !updateDirFromAngles.
-	float    angle;
-	//! Rotation around Z axis, radians. For characters looking into Z+ axis, it controls leaning. Used for up vector even if !updateDirFromAngles.
-	float    leanAngle;
-	//! Rotation around X axis, radians, controls looking up/down. Ignored if !updateDirFromAngles.
-	float    angleX;
+	//! Rotation of camera in radians. Rotations are applied in this order: yaw (around Y axis), pitch (around Z axis), roll (around X axis).
+	rr::RRVec3 yawPitchRollRad;
 private:
 	//! Camera's aspect, horizontal field of view / vertical field of view.
 	float    aspect;
@@ -55,7 +51,7 @@ public:
 	rr::RRVec2 screenCenter;
 	//! Only if orthogonal: World space distance between top and bottom of viewport.
 	float    orthoSize;
-	//! True(default): you set angle+leanAngle+angleX, update() computes direction from angles. False: you set direction, update() doesn't touch it.
+	//! True(default): you set yawPitchRollRad, update() computes direction from angles. False: you set direction, update() doesn't touch it.
 	union
 	{
 		bool     updateDirFromAngles;
@@ -89,10 +85,10 @@ public:
 	//! Default constructor.
 	Camera();
 	//! Initializes all inputs at once.
-	Camera(float posx, float posy, float posz, float angle, float leanAngle, float angleX, float aspect, float fieldOfView, float anear, float afar);
+	Camera(const rr::RRVec3& pos, const rr::RRVec3& yawPitchRollRad, float aspect, float fieldOfView, float anear, float afar);
 	//! Initializes all inputs from RRLight. If you move light, each update() will copy new position and direction to light.
 	Camera(rr::RRLight& light);
-	//! Sets camera direction. Doesn't have to be normalized. Alternatively, you can write directly to angles or dir, depending on updateDirFromAngles flag.
+	//! Sets camera direction. Doesn't have to be normalized. Alternatively, you can write directly to yawPitchRollRad or dir, depending on updateDirFromAngles flag.
 	void setDirection(const rr::RRVec3& dir);
 	//! Converts world space position (3d) to position in window (2d).
 	//! positionInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
@@ -180,7 +176,7 @@ public:
 	//! Setting orthogonal view is fast, RANDOM uses raycasting (~1000 rays).
 	void setView(View view, const rr::RRObject* scene);
 	//! Returns whether camera is in one of predefined orthogonal views, or OTHER if it is not.
-	//! View is detected from direction angles, position and range are ignored.
+	//! View is detected from direction or yawPitchRollRad, position and range are ignored.
 	View getView() const;
 
 	//! Fixes NaN and INF values found in camera inputs (pos, dir etc).

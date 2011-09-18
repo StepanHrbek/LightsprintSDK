@@ -37,6 +37,12 @@ NEWS
   - RRMatrix3x4::invertedTo() added
   - RRVector::pop_back() added
 
+CHANGES
+
+- renamed Euler angles in rr_gl:Camera, for better understanding
+  - rr_gl:Camera::yawPitchRollRad replaces angle, angleX, leanAngle
+  - rr_gl:Camera::Camera(pos,yawPitchRollRad,...) replaces Camera(pos[0],pos[1],pos[2],yawPitchRollRad[0],yawPitchRollRad[2],yawPitchRollRad[1],...)
+
 \section news125 ------------------------------------ 2011.08.16 -------------------------------------
 
 NEWS

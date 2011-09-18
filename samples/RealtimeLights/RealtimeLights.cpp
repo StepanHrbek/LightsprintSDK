@@ -164,7 +164,6 @@ void keyboard(unsigned char c, int x, int y)
 			contrast /= 1.2f;
 			break;
 		case ' ':
-			//printf("camera(%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f);\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.angle+100*RR_PI,2*RR_PI),eye.leanAngle,eye.angleX,eye.aspect,eye.fieldOfView,eye.anear,eye.afar);
 			rotation = (clock()%10000000)*0.07f;
 			solver->reportDirectIlluminationChange(-1,true,true,false);
 			// move dynamic objects
@@ -234,16 +233,16 @@ void passive(int x, int y)
 #endif
 		if (modeMovingEye)
 		{
-			eye.angle -= mouseSensitivity*x;
-			eye.angleX -= mouseSensitivity*y;
-			RR_CLAMP(eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			eye.yawPitchRollRad[0] -= mouseSensitivity*x;
+			eye.yawPitchRollRad[1] -= mouseSensitivity*y;
+			RR_CLAMP(eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		}
 		else
 		{
 			rr_gl::Camera* light = solver->realtimeLights[selectedLightIndex]->getParent();
-			light->angle -= mouseSensitivity*x;
-			light->angleX -= mouseSensitivity*y;
-			RR_CLAMP(light->angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			light->yawPitchRollRad[0] -= mouseSensitivity*x;
+			light->yawPitchRollRad[1] -= mouseSensitivity*y;
+			RR_CLAMP(light->yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			solver->reportDirectIlluminationChange(selectedLightIndex,true,true,false);
 			light->update();
 		}

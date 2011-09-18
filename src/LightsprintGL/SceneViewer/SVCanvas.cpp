@@ -687,9 +687,8 @@ struct ClickInfo
 	bool mouseLeft;
 	bool mouseRight;
 	bool mouseMiddle;
-	float angle;
-	float angleX;
 	rr::RRVec3 pos;
+	rr::RRVec3 yawPitchRollRad;
 	rr::RRVec3 rayOrigin;
 	rr::RRVec3 rayDirection;
 	unsigned hitTriangle;
@@ -753,9 +752,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		s_ci.mouseRight = event.RightIsDown();
 		Camera* cam = (event.LeftIsDown()
 			 && selectedType==ST_LIGHT && svs.selectedLightIndex<solver->getLights().size()) ? solver->realtimeLights[svs.selectedLightIndex]->getParent() : &svs.eye;
-		s_ci.angle = cam->angle; // when rotating light, init with light angles rather than camera angles
-		s_ci.angleX = cam->angleX;
 		s_ci.pos = svs.eye.pos;
+		s_ci.yawPitchRollRad = cam->yawPitchRollRad; // when rotating light, init with light angles rather than camera angles
 		s_ci.rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
 		s_ci.rayDirection = svs.eye.getRayDirection(mousePositionInWindow);
 
@@ -928,7 +926,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			// rotating
 			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
 			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
-			svframe->m_sceneTree->manipulateSelectedEntities(rr::RRVec3(0),rr::RRVec3(dragY,dragX,0)*-5);
+			svframe->m_sceneTree->manipulateSelectedEntities(rr::RRVec3(0),rr::RRVec3(dragX,dragY,0)*-5);
 			solver->reportInteraction();
 		}
 		else
@@ -958,9 +956,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			//  rotate around clicked point, point does not move on screen
 			float dragX = (newPosition.x-s_ci.mouseX)/(float)winWidth;
 			float dragY = (newPosition.y-s_ci.mouseY)/(float)winHeight;
-			svs.eye.angle = s_ci.angle-dragX*8;
-			svs.eye.angleX = s_ci.angleX-dragY*8;
-			RR_CLAMP(svs.eye.angleX,(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+			svs.eye.yawPitchRollRad[0] = s_ci.yawPitchRollRad[0]-dragX*8;
+			svs.eye.yawPitchRollRad[1] = s_ci.yawPitchRollRad[1]-dragY*8;
+			RR_CLAMP(svs.eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			svs.eye.update();
 			rr::RRVec2 origMousePositionInWindow = rr::RRVec2(s_ci.mouseX*2.0f/winWidth-1,s_ci.mouseY*2.0f/winHeight-1);
 			rr::RRVec3 newRayDirection = svs.eye.getRayDirection(origMousePositionInWindow);

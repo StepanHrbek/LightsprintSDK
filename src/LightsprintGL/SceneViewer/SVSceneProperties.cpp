@@ -51,7 +51,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		AppendIn(propCamera,propCameraDirection);
 		EnableProperty(propCameraDirection,false);
 
-		propCameraAngles = new RRVec3Property(_("Angles")+L" (\u00b0)",_("Camera direction in angles: azimuth, elevation, leaning"),svs.precision,RR_RAD2DEG(RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle)),10);
+		propCameraAngles = new RRVec3Property(_("Angles")+L" (\u00b0)",_("Camera direction in angles: yaw, pitch, roll (or azimuth, elevation, leaning)"),svs.precision,RR_RAD2DEG(svs.eye.yawPitchRollRad),10);
 		AppendIn(propCamera,propCameraAngles);
 
 		propCameraOrtho = new BoolRefProperty(_("Orthogonal"),_("Switches between orthogonal and perspective camera."),svs.eye.orthogonal);
@@ -293,7 +293,7 @@ void SVSceneProperties::updateProperties()
 	unsigned numChangesOther =
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
 		+ updateProperty(propCameraPosition,svs.eye.pos)
-		+ updateProperty(propCameraAngles,RR_RAD2DEG(RRVec3(svs.eye.angle,svs.eye.angleX,svs.eye.leanAngle)))
+		+ updateProperty(propCameraAngles,RR_RAD2DEG(svs.eye.yawPitchRollRad))
 		+ updateInt(propCameraView,view2ME_VIEW(svs.eye.getView()))
 		+ updateFloat(propCameraOrthoSize,svs.eye.orthoSize)
 		+ updateFloat(propCameraFov,svs.eye.getFieldOfViewVerticalDeg())
@@ -370,9 +370,9 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraAngles)
 	{
-		svs.eye.angle = RR_DEG2RAD(property->GetPropertyByName("x")->GetValue().GetDouble());
-		svs.eye.angleX = RR_DEG2RAD(property->GetPropertyByName("y")->GetValue().GetDouble());
-		svs.eye.leanAngle = RR_DEG2RAD(property->GetPropertyByName("z")->GetValue().GetDouble());
+		svs.eye.yawPitchRollRad[0] = RR_DEG2RAD(property->GetPropertyByName("x")->GetValue().GetDouble());
+		svs.eye.yawPitchRollRad[1] = RR_DEG2RAD(property->GetPropertyByName("y")->GetValue().GetDouble());
+		svs.eye.yawPitchRollRad[2] = RR_DEG2RAD(property->GetPropertyByName("z")->GetValue().GetDouble());
 	}
 	else
 	if (property==propCameraOrtho)
