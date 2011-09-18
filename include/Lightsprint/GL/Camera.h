@@ -29,7 +29,7 @@ public:
 
 	//! Position of camera (imaginary frustum apex).
 	rr::RRVec3 pos;
-	//! Rotation of camera in radians. Rotations are applied in this order: yaw (around Y axis), pitch (around Z axis), roll (around X axis).
+	//! Rotation of camera in radians. Rotations are applied in this order: yaw (around Y axis), pitch (around X axis), roll (around Z axis).
 	rr::RRVec3 yawPitchRollRad;
 private:
 	//! Camera's aspect, horizontal field of view / vertical field of view.
