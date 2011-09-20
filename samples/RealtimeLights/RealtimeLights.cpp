@@ -72,7 +72,7 @@ void error(const char* message, bool gfxRelated)
 rr_gl::RRDynamicSolverGL*  solver = NULL;
 rr::RRObject*              robot = NULL;
 rr::RRObject*              potato = NULL;
-rr_gl::Camera              eye(-1.856f,1.440f,2.097f,2.404f,0,0.02f,1.3f,110,0.1f,1000);
+rr_gl::Camera              eye(rr::RRVec3(-1.856f,1.440f,2.097f), rr::RRVec3(2.404f,0.02f,0), 1.3f,110,0.1f,1000);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
 int                        winHeight = 0;
