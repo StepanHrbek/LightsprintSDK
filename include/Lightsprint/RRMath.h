@@ -151,6 +151,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRVec2(RRReal ax,RRReal ay)                 {x=ax;y=ay;}
 		RRVec2 operator + (const RRVec2& a)   const {return RRVec2(x+a.x,y+a.y);}
 		RRVec2 operator - (const RRVec2& a)   const {return RRVec2(x-a.x,y-a.y);}
+		RRVec2 operator - ()                  const {return RRVec2(-x,-y);}
 		RRVec2 operator * (RRReal f)          const {return RRVec2(x*f,y*f);}
 		RRVec2 operator * (const RRVec2& a)   const {return RRVec2(x*a.x,y*a.y);}
 		RRVec2 operator / (RRReal f)          const {return RRVec2(x/f,y/f);}
@@ -190,6 +191,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRVec3(RRReal ax,RRReal ay,RRReal az)       {x=ax;y=ay;z=az;}
 		RRVec3 operator + (const RRVec3& a)   const {return RRVec3(x+a.x,y+a.y,z+a.z);}
 		RRVec3 operator - (const RRVec3& a)   const {return RRVec3(x-a.x,y-a.y,z-a.z);}
+		RRVec3 operator - ()                  const {return RRVec3(-x,-y,-z);}
 		RRVec3 operator * (RRReal f)          const {return RRVec3(x*f,y*f,z*f);}
 		RRVec3 operator * (const RRVec3& a)   const {return RRVec3(x*a.x,y*a.y,z*a.z);}
 		RRVec3 operator / (RRReal f)          const {return RRVec3(x/f,y/f,z/f);}
@@ -247,6 +249,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 
 		RRVec4 operator + (const RRVec4& a)   const {return RRVec4(x+a.x,y+a.y,z+a.z,w+a.w);}
 		RRVec4 operator - (const RRVec4& a)   const {return RRVec4(x-a.x,y-a.y,z-a.z,w-a.w);}
+		RRVec4 operator - ()                  const {return RRVec4(-x,-y,-z,-w);}
 		RRVec4 operator * (RRReal f)          const {return RRVec4(x*f,y*f,z*f,w*f);}
 		RRVec4 operator * (const RRVec4& a)   const {return RRVec4(x*a.x,y*a.y,z*a.z,w*a.w);}
 		RRVec4 operator / (RRReal f)          const {return RRVec4(x/f,y/f,z/f,w/f);}

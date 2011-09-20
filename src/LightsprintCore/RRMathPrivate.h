@@ -20,11 +20,6 @@ namespace rr
 	#define IS_VEC4(v)   (IS_NUMBER(v[0]) && IS_NUMBER(v[1]) && IS_NUMBER(v[2]) && IS_NUMBER(v[3]))
 	#define IS_NORMALIZED(v) (fabs((v).length2()-1)<0.01f)
 
-	inline RRVec3 operator -(const RRVec3& a)
-	{
-		return RRVec3(-a.x,-a.y,-a.z);
-	}
-
 	inline RRReal size(const RRVec3& a)
 	{
 		return sqrt(a.x*a.x+a.y*a.y+a.z*a.z);
