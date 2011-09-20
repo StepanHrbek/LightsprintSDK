@@ -362,22 +362,16 @@ namespace rr_gl
 		{
 			case LINE:
 				// edit inputs, update outputs
-				light.pos[0] += light.right[0]*(areaSize*(instance/(numInstances-1.f)*2-1));
-				light.pos[1] += light.right[1]*(areaSize*(instance/(numInstances-1.f)*2-1));
-				light.pos[2] += light.right[2]*(areaSize*(instance/(numInstances-1.f)*2-1));
+				light.pos += light.right*(areaSize*(instance/(numInstances-1.f)*2-1));
 				break;
 			case RECTANGLE:
 				// edit inputs, update outputs
 				{int q=(int)sqrtf((float)(numInstances-1))+1;
-				light.pos[0] += light.right[0]*areaSize*(instance/q/(q-1.f)-0.5f) + light.up[0]*areaSize*(instance%q/(q-1.f)-0.5f);
-				light.pos[1] += light.right[1]*areaSize*(instance/q/(q-1.f)-0.5f) + light.up[1]*areaSize*(instance%q/(q-1.f)-0.5f);
-				light.pos[2] += light.right[2]*areaSize*(instance/q/(q-1.f)-0.5f) + light.up[2]*areaSize*(instance%q/(q-1.f)-0.5f);
+				light.pos += light.right*(areaSize*(instance/q/(q-1.f)-0.5f)) + light.up*(areaSize*(instance%q/(q-1.f)-0.5f));
 				break;}
 			case CIRCLE:
 				// edit inputs, update outputs
-				light.pos[0] += light.right[0]*areaSize*sin(instance*2*RR_PI/numInstances) + light.up[0]*areaSize*cos(instance*2*RR_PI/numInstances);
-				light.pos[1] += light.right[1]*areaSize*sin(instance*2*RR_PI/numInstances) + light.up[1]*areaSize*cos(instance*2*RR_PI/numInstances);
-				light.pos[2] += light.right[2]*areaSize*sin(instance*2*RR_PI/numInstances) + light.up[2]*areaSize*cos(instance*2*RR_PI/numInstances);
+				light.pos += light.right*(areaSize*sin(instance*2*RR_PI/numInstances)) + light.up*(areaSize*cos(instance*2*RR_PI/numInstances));
 				break;
 		}
 		if (jittered)
