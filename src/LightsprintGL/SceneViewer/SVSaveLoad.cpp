@@ -138,7 +138,6 @@ void save(Archive & ar, const rr_gl::Camera& a, const unsigned int version)
 	ar & make_nvp("orthogonal",a.orthogonal);
 	ar & make_nvp("orthoSize",a.orthoSize);
 	ar & make_nvp("screenCenter",a.screenCenter);
-	ar & make_nvp("updateDirFromAngles",a.updateDirFromAngles);
 	ar & make_nvp("dir",a.dir);
 }
 
@@ -175,7 +174,11 @@ void load(Archive & ar, rr_gl::Camera& a, const unsigned int version)
 		a.orthoSize = 100; // cameras used to be initialized with orthoSize=0, fix it
 	if (version>0)
 		ar & make_nvp("screenCenter",a.screenCenter);
-	ar & make_nvp("updateDirFromAngles",a.updateDirFromAngles);
+	if (version<2)
+	{
+		bool updateDirFromAngles;
+		ar & make_nvp("updateDirFromAngles",updateDirFromAngles);
+	}
 	ar & make_nvp("dir",a.dir);
 }
 
@@ -434,7 +437,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRLights)
 BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
 
 BOOST_CLASS_VERSION(rr::RRLight,4)
-BOOST_CLASS_VERSION(rr_gl::Camera,1)
+BOOST_CLASS_VERSION(rr_gl::Camera,2)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,11)

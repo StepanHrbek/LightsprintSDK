@@ -51,20 +51,11 @@ public:
 	rr::RRVec2 screenCenter;
 	//! Only if orthogonal: World space distance between top and bottom of viewport.
 	float    orthoSize;
-	//! True(default): you set yawPitchRollRad, update() computes direction from angles. False: you set direction, update() doesn't touch it.
-	union
-	{
-		bool     updateDirFromAngles;
-		float    dummy2; // AnimationFrame needs everything float sized
-	};
-
-	// inputs or outputs
-
-	//! Normalized view direction. Input if !updateDirFromAngles, output if updateDirFromAngles.
-	rr::RRVec3 dir;
 
 	// outputs, to be calculated by update() and possibly read by user
 
+	//! Normalized view direction.
+	rr::RRVec3 dir;
 	//! Normalized up vector.
 	rr::RRVec3 up;
 	//! Normalized right vector.
@@ -88,7 +79,7 @@ public:
 	Camera(const rr::RRVec3& pos, const rr::RRVec3& yawPitchRollRad, float aspect, float fieldOfView, float anear, float afar);
 	//! Initializes all inputs from RRLight. If you move light, each update() will copy new position and direction to light.
 	Camera(rr::RRLight& light);
-	//! Sets camera direction. Doesn't have to be normalized. Alternatively, you can write directly to yawPitchRollRad or dir, depending on updateDirFromAngles flag.
+	//! Sets camera direction. Doesn't have to be normalized. Alternatively, you can write directly to yawPitchRollRad.
 	void setDirection(const rr::RRVec3& dir);
 	//! Converts world space position (3d) to position in window (2d).
 	//! positionInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.

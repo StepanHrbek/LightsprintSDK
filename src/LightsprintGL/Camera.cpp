@@ -28,7 +28,6 @@ Camera::Camera()
 	orthogonal = 0;
 	orthoSize = 100;
 	screenCenter = rr::RRVec2(0);
-	updateDirFromAngles = true;
 	origin = NULL;
 	update();
 }
@@ -43,7 +42,6 @@ Camera::Camera(const rr::RRVec3& _pos, const rr::RRVec3& _yawPitchRoll, float _a
 	orthogonal = 0;
 	orthoSize = 100;
 	screenCenter = rr::RRVec2(0);
-	updateDirFromAngles = true;
 	origin = NULL;
 	update();
 }
@@ -66,7 +64,6 @@ Camera::Camera(rr::RRLight& light)
 	orthogonal = (light.type==rr::RRLight::DIRECTIONAL) ? 1 : 0;
 	orthoSize = 100;
 	screenCenter = rr::RRVec2(0);
-	updateDirFromAngles = true;
 	origin = &light;
 	update();
 }
@@ -210,14 +207,11 @@ bool Camera::operator!=(const Camera& a) const
 void Camera::update()
 {
 	// update dir
-	if (updateDirFromAngles)
-	{
-		dir[0] = cos(yawPitchRollRad[1])*sin(yawPitchRollRad[0]);
-		dir[1] = sin(yawPitchRollRad[1]);
-		dir[2] = cos(yawPitchRollRad[1])*cos(yawPitchRollRad[0]);
-	}
+	dir[0] = cos(yawPitchRollRad[1])*sin(yawPitchRollRad[0]);
+	dir[1] = sin(yawPitchRollRad[1]);
+	dir[2] = cos(yawPitchRollRad[1])*cos(yawPitchRollRad[0]);
 
-	// - leaning
+	// leaning
 	rr::RRVec3 tmpup(0,1,0);
 	if (fabs(fabs(dir[1])-1)<1e-7f)
 	{
@@ -459,7 +453,6 @@ void Camera::blend(const Camera& a, const Camera& b, float blend)
 	orthogonal = a.orthogonal;
 	orthoSize = blendNormal(a.orthoSize,b.orthoSize,blend);
 	screenCenter = blendNormal(a.screenCenter,b.screenCenter,blend);
-	updateDirFromAngles = a.updateDirFromAngles;
 	dir = blendNormal(a.dir,b.dir,blend);
 	update();
 }
@@ -614,7 +607,7 @@ static unsigned makeFinite(rr::RRVec3& v, const rr::RRVec3& def)
 
 unsigned Camera::fixInvalidValues()
 {
-	unsigned numFixes =
+	return
 		+ makeFinite(pos,rr::RRVec3(0))
 		+ makeFinite(aspect,1)
 		+ makeFinite(fieldOfViewVerticalDeg,90)
@@ -623,15 +616,9 @@ unsigned Camera::fixInvalidValues()
 		+ makeFinite(screenCenter,rr::RRVec2(0))
 		+ makeFinite(orthoSize,100)
 		+ makeFinite(orthoSize,100)
-		;
-	if (updateDirFromAngles)
-		return numFixes
-			+ makeFinite(yawPitchRollRad[0],0)
-			+ makeFinite(yawPitchRollRad[1],0)
-			+ makeFinite(yawPitchRollRad[2],0);
-	else
-		return numFixes
-			+ makeFinite(dir,rr::RRVec3(1));
+		+ makeFinite(yawPitchRollRad[0],0)
+		+ makeFinite(yawPitchRollRad[1],0)
+		+ makeFinite(yawPitchRollRad[2],0);
 }
 
 }; // namespace

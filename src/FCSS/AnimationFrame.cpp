@@ -99,12 +99,10 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	}
 	blended.eye.yawPitchRollRad[0] = blendModulo(this->eye.yawPitchRollRad[0],that.eye.yawPitchRollRad[0],alphaSmooth,(float)(2*RR_PI));
 	blended.eye.orthogonal = eye.orthogonal;
-	blended.eye.updateDirFromAngles = eye.updateDirFromAngles;
 	blended.eye.origin = NULL;
 	blended.eye.update();
 	blended.light.yawPitchRollRad[0] = blendModulo(this->light.yawPitchRollRad[0],that.light.yawPitchRollRad[0],alphaRounded,(float)(2*RR_PI));
 	blended.light.orthogonal = light.orthogonal;
-	blended.light.updateDirFromAngles = light.updateDirFromAngles;
 	blended.light.origin = NULL;
 	blended.light.update();
 	// blend dynaPosRot

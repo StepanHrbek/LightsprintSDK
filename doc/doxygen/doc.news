@@ -39,7 +39,8 @@ NEWS
 
 CHANGES
 
-- renamed Euler angles in rr_gl:Camera, for better understanding
+- rr_gl:Camera cleanup
+  - removed rr_gl:Camera::updateDirFromAngles, rarely used option
   - rr_gl:Camera::yawPitchRollRad replaces angle, angleX, leanAngle
   - rr_gl:Camera::Camera(pos,yawPitchRollRad,...) replaces Camera(pos[0],pos[1],pos[2],yawPitchRollRad[0],yawPitchRollRad[2],yawPitchRollRad[1],...)
 
