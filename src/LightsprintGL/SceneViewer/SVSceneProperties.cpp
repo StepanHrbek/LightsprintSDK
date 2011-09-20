@@ -293,6 +293,7 @@ void SVSceneProperties::updateProperties()
 	unsigned numChangesOther =
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
 		+ updateProperty(propCameraPosition,svs.eye.pos)
+		+ updateProperty(propCameraDirection,svs.eye.dir)
 		+ updateProperty(propCameraAngles,RR_RAD2DEG(svs.eye.yawPitchRollRad))
 		+ updateInt(propCameraView,view2ME_VIEW(svs.eye.getView()))
 		+ updateFloat(propCameraOrthoSize,svs.eye.orthoSize)
