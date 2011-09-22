@@ -137,6 +137,7 @@ void SVObjectProperties::updateProperties()
 	// must be updated after dynamic object dragging
 	updateProperty(propTranslation,object->getWorldMatrixRef().getTranslation());
 	updateProperty(propCenter,object->getWorldMatrixRef().getTransformedPosition(localCenter));
+	updateProperty(propScale,object->getWorldMatrixRef().getScale());
 }
 
 void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
