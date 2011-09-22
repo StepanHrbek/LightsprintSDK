@@ -1024,6 +1024,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				svs.eye.setFieldOfViewVerticalDeg(fov);
 			}
 		}
+		svs.eye.update(); // without this, some eye changes are ignored
 	}
 
 	if (svs.selectedLightIndex<solver->realtimeLights.size())
