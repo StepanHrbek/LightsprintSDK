@@ -34,7 +34,7 @@ NEWS
   - RRRay::hitObject added, tells what object was hit by ray
   - RRCollider::create() second parameter added, pass NULL for previous behaviour
 - misc tools
-  - RRMatrix3x4::invertedTo() added
+  - unary operator - for RRVec2,3,4
   - RRVector::pop_back() added
 
 CHANGES
