@@ -900,8 +900,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	{
 		const EntityIds& manipulatedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
 		rr::RRVec3 manipulatedCenter = svframe->m_sceneTree->getCenterOf(manipulatedEntities);
+		bool manipulatingSelection = s_ci.clickedEntityIsSelected && manipulatedEntities!=svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_CAMERA);
 
-		if (event.LeftIsDown() && s_ci.clickedEntityIsSelected)
+		if (event.LeftIsDown() && manipulatingSelection)
 		{
 			// moving selection
 			rr::RRVec3 pan;
@@ -922,7 +923,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,rr::RRMatrix3x4::translation(pan));
 		}
 		else
-		if (event.RightIsDown() && s_ci.clickedEntityIsSelected)
+		if (event.RightIsDown() && manipulatingSelection)
 		{
 			// rotating selection
 			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
@@ -964,7 +965,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			s_ciRenderCrosshair = true;
 		}
 		else
-		if (event.RightIsDown())
+		if (event.RightIsDown() && s_ci.hitPoint3d!=rr::RRVec3(0))
 		{
 			// inspection
 			//  rotate around clicked point, point does not move on screen
@@ -986,7 +987,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// handle wheel
 	if (event.GetWheelRotation())
 	{
-		if (svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED).size())
+		if (!manipulatingCamera)
 		{
 			const EntityIds& manipulatedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
 			rr::RRVec3 manipulatedCenter = svframe->m_sceneTree->getCenterOf(manipulatedEntities);
@@ -1024,9 +1025,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				svs.eye.setFieldOfViewVerticalDeg(fov);
 			}
 		}
-		svs.eye.update(); // without this, some eye changes are ignored
 	}
 
+	svs.eye.update(); // without this, some eye changes are ignored
 	if (svs.selectedLightIndex<solver->realtimeLights.size())
 	{
 		solver->realtimeLights[svs.selectedLightIndex]->updateAfterRealtimeLightChanges();
