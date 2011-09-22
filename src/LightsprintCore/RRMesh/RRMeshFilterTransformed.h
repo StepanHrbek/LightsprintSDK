@@ -44,9 +44,9 @@ public:
 			for (unsigned v=0;v<3;v++)
 			{
 				// nonuniform scale breaks orthogonality
-				out.vertex[v].normal = m->transformedDirection(out.vertex[v].normal).normalized();
-				out.vertex[v].tangent = m->transformedDirection(out.vertex[v].tangent).normalized();
-				out.vertex[v].bitangent = m->transformedDirection(out.vertex[v].bitangent).normalized();
+				out.vertex[v].normal = m->getTransformedDirection(out.vertex[v].normal).normalized();
+				out.vertex[v].tangent = m->getTransformedDirection(out.vertex[v].tangent).normalized();
+				out.vertex[v].bitangent = m->getTransformedDirection(out.vertex[v].bitangent).normalized();
 			}
 		}
 	}

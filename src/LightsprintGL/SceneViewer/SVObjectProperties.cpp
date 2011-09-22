@@ -39,7 +39,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			Append(propLocation = new wxStringProperty(_("Location"),wxPG_LABEL));
 			EnableProperty(propLocation,false);
 			const rr::RRMatrix3x4 worldMatrix = object->getWorldMatrixRef();
-			AppendIn(propLocation, propCenter = new RRVec3Property(_("World center"),_("Center of object in world space"),_precision,worldMatrix.transformedPosition(localCenter)));
+			AppendIn(propLocation, propCenter = new RRVec3Property(_("World center"),_("Center of object in world space"),_precision,worldMatrix.getTransformedPosition(localCenter)));
 			EnableProperty(propCenter,false);
 			AppendIn(propLocation, propTranslation = new RRVec3Property(_("World translation"),_("Translation of object in world space"),_precision,worldMatrix.getTranslation()));
 			AppendIn(propLocation, propScale = new RRVec3Property(_("Scale"),_("How many times object is bigger than mesh"),_precision,worldMatrix.getScale()));
@@ -136,7 +136,7 @@ void SVObjectProperties::updateProperties()
 
 	// must be updated after dynamic object dragging
 	updateProperty(propTranslation,object->getWorldMatrixRef().getTranslation());
-	updateProperty(propCenter,object->getWorldMatrixRef().transformedPosition(localCenter));
+	updateProperty(propCenter,object->getWorldMatrixRef().getTransformedPosition(localCenter));
 }
 
 void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
@@ -164,7 +164,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		newTranslation << property->GetValue();
 		worldMatrix.setTranslation(newTranslation);
 		object->setWorldMatrix(&worldMatrix);
-		object->illumination.envMapWorldCenter = worldMatrix.transformedPosition(localCenter);
+		object->illumination.envMapWorldCenter = worldMatrix.getTransformedPosition(localCenter);
 	}
 	else
 	if (property==propScale)

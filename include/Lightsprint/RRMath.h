@@ -293,13 +293,13 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRReal m[3][4];
 
 		//! Returns position in 3d space transformed by matrix.
-		RRVec3 transformedPosition(const RRVec3& a) const;
+		RRVec3 getTransformedPosition(const RRVec3& a) const;
 		//! Transforms position in 3d space by matrix.
-		RRVec3& transformPosition(RRVec3& a) const;
+		void transformPosition(RRVec3& a) const;
 		//! Returns direction in 3d space transformed by matrix.
-		RRVec3 transformedDirection(const RRVec3& a) const;
+		RRVec3 getTransformedDirection(const RRVec3& a) const;
 		//! Transforms direction in 3d space by matrix.
-		RRVec3& transformDirection(RRVec3& a) const;
+		void transformDirection(RRVec3& a) const;
 
 		RRMatrix3x4 operator *(const RRMatrix3x4& a) const;
 		RRMatrix3x4& operator *=(const RRMatrix3x4& a);

@@ -907,8 +907,8 @@ void RRLightsFCollada::addNode(const FCDSceneNode* node)
 				// get position and direction
 				RRMatrix3x4 invWorldMatrix;
 				getNodeMatrices(node,NULL,&invWorldMatrix);
-				RRVec3 position = invWorldMatrix.transformedPosition(RRVec3(0));
-				RRVec3 direction = invWorldMatrix.transformedDirection(RRVec3(0,0,-1));
+				RRVec3 position = invWorldMatrix.getTransformedPosition(RRVec3(0));
+				RRVec3 direction = invWorldMatrix.getTransformedDirection(RRVec3(0,0,-1));
 
 				// create RRLight
 				RRVec3 color = RRVec3(light->GetColor()->x,light->GetColor()->y,light->GetColor()->z)*light->GetIntensity();

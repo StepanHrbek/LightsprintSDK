@@ -657,8 +657,8 @@ public:
 			COLLADAFW::Light& light = iter->second;
 
 			rr::RRMatrix3x4 worldMatrix = convertMatrix(matrix);
-			RRVec3 position = worldMatrix.transformedPosition(RRVec3(0));
-			RRVec3 direction = worldMatrix.transformedDirection(RRVec3(0,0,-1));
+			RRVec3 position = worldMatrix.getTransformedPosition(RRVec3(0));
+			RRVec3 direction = worldMatrix.getTransformedDirection(RRVec3(0,0,-1));
 
 			ExtraDataLight* extraLight = (ExtraDataLight*)extraHandler.getData( light.getUniqueId() );
 

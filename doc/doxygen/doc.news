@@ -33,6 +33,8 @@ NEWS
   - RRDynamicSolver::getCollider() added, returns collider for whole scene, including dynamic objects
   - RRRay::hitObject added, tells what object was hit by ray
   - RRCollider::create() second parameter added, pass NULL for previous behaviour
+- extended RRMatrix3x4
+  - 3 renamed functions: transformedPosition() -> getTransformedPosition(), transformedDirection() -> getTransformedDirection(), translate() -> postTranslate()
 - misc tools
   - unary operator - for RRVec2,3,4
   - RRVector::pop_back() added

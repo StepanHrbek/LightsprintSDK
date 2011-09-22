@@ -263,7 +263,7 @@ void RRScene::transform(const RRMatrix3x4& transformation)
 		if (light)
 		{
 			transformation.transformPosition(light->position);
-			light->direction = transformation.transformedDirection(light->direction).normalized();
+			light->direction = transformation.getTransformedDirection(light->direction).normalized();
 			light->polynom[1] /= scale;
 			light->polynom[2] /= scale*scale;
 			light->radius *= scale;
