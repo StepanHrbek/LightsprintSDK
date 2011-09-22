@@ -34,6 +34,9 @@ NEWS
   - RRRay::hitObject added, tells what object was hit by ray
   - RRCollider::create() second parameter added, pass NULL for previous behaviour
 - extended RRMatrix3x4
+  - 10 new constructors
+  - 1 new operator: ==
+  - 3 new functions: getYawPitchRoll(), invertedTo(), postScale()
   - 3 renamed functions: transformedPosition() -> getTransformedPosition(), transformedDirection() -> getTransformedDirection(), translate() -> postTranslate()
 - misc tools
   - unary operator - for RRVec2,3,4

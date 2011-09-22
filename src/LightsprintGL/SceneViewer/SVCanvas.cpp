@@ -688,7 +688,6 @@ struct ClickInfo
 	bool mouseRight;
 	bool mouseMiddle;
 	rr::RRVec3 pos;
-	rr::RRVec3 yawPitchRollRad;
 	rr::RRVec3 rayOrigin;
 	rr::RRVec3 rayDirection;
 	unsigned hitTriangle;
@@ -753,7 +752,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		Camera* cam = (event.LeftIsDown()
 			 && selectedType==ST_LIGHT && svs.selectedLightIndex<solver->getLights().size()) ? solver->realtimeLights[svs.selectedLightIndex]->getParent() : &svs.eye;
 		s_ci.pos = svs.eye.pos;
-		s_ci.yawPitchRollRad = cam->yawPitchRollRad; // when rotating light, init with light angles rather than camera angles
 		s_ci.rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
 		s_ci.rayDirection = svs.eye.getRayDirection(mousePositionInWindow);
 
@@ -765,7 +763,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		ray->rayDir = directionToMouse/directionToMouseLength;
 		ray->rayLengthMin = svs.eye.getNear()*directionToMouseLength;
 		ray->rayLengthMax = svs.eye.getFar()*directionToMouseLength;
-		ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D;
+		ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D;
 		ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 		ray->collisionHandler = collisionHandler;
 		if (solver->getCollider()->intersect(ray))
@@ -900,9 +898,12 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// handle dragging
 	if (event.Dragging() && s_ciRelevant && newPosition!=oldPosition && !clicking)
 	{
+		const EntityIds& manipulatedEntities = svframe->m_sceneTree->getManipulatedEntityIds();
+		rr::RRVec3 manipulatedCenter = svframe->m_sceneTree->getCenterOf(manipulatedEntities);
+
 		if (event.LeftIsDown() && s_ci.clickedEntityIsSelected)
 		{
-			// moving
+			// moving selection
 			rr::RRVec3 pan;
 			if (svs.eye.orthogonal)
 			{
@@ -918,15 +919,28 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				if (!event.ShiftDown()) pan.y = 0;
 				if (!event.AltDown()) pan.z = 0;
 			}
-			svframe->m_sceneTree->manipulateSelectedEntities(pan,rr::RRVec3(0));
+			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,rr::RRMatrix3x4::translation(pan));
+		}
+		else
+		if (event.RightIsDown() && s_ci.clickedEntityIsSelected)
+		{
+			// rotating selection
+			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
+			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
+			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5)).centeredAround(manipulatedCenter));
+			solver->reportInteraction();
+
+			s_ci.hitPoint3d = manipulatedCenter;
+			s_ci.hitDistance = (s_ci.hitPoint3d-svs.eye.pos).length();
+			s_ciRenderCrosshair = true;
 		}
 		else
 		if (event.LeftIsDown())
 		{
-			// rotating
+			// rotating camera
 			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
 			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
-			svframe->m_sceneTree->manipulateSelectedEntities(rr::RRVec3(0),rr::RRVec3(dragX,dragY,0)*-5);
+			svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5*svs.eye.getFieldOfViewHorizontalDeg()/90)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5*svs.eye.getFieldOfViewHorizontalDeg()/90)).centeredAround(svs.eye.pos));
 			solver->reportInteraction();
 		}
 		else
@@ -954,15 +968,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		{
 			// inspection
 			//  rotate around clicked point, point does not move on screen
-			float dragX = (newPosition.x-s_ci.mouseX)/(float)winWidth;
-			float dragY = (newPosition.y-s_ci.mouseY)/(float)winHeight;
-			svs.eye.yawPitchRollRad[0] = s_ci.yawPitchRollRad[0]-dragX*8;
-			svs.eye.yawPitchRollRad[1] = s_ci.yawPitchRollRad[1]-dragY*8;
-			RR_CLAMP(svs.eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-			svs.eye.update();
-			rr::RRVec2 origMousePositionInWindow = rr::RRVec2(s_ci.mouseX*2.0f/winWidth-1,s_ci.mouseY*2.0f/winHeight-1);
-			rr::RRVec3 newRayDirection = svs.eye.getRayDirection(origMousePositionInWindow);
-			svs.eye.pos = s_ci.pos + (s_ci.rayDirection-newRayDirection)*(s_ci.hitDistance/s_ci.rayDirection.length());
+			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
+			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
+			svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5)).centeredAround(s_ci.hitPoint3d));
 			solver->reportInteraction();
 			s_ciRenderCrosshair = true;
 		}
@@ -978,6 +986,15 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// handle wheel
 	if (event.GetWheelRotation())
 	{
+		if (svframe->m_sceneTree->getSelectedEntityIds().size())
+		{
+			const EntityIds& manipulatedEntities = svframe->m_sceneTree->getManipulatedEntityIds();
+			rr::RRVec3 manipulatedCenter = svframe->m_sceneTree->getCenterOf(manipulatedEntities);
+
+			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,rr::RRMatrix3x4::scale(rr::RRVec3(expf(event.GetWheelRotation()*0.1f/event.GetWheelDelta()))).centeredAround(manipulatedCenter));
+			solver->reportInteraction();
+		}
+		else
 		if (event.ControlDown())
 		{
 			// move forward/backward
@@ -1057,13 +1074,15 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 
 		{
 			// yes -> respond to keyboard
-			Camera& reference = svs.eye;
-			svframe->m_sceneTree->manipulateSelectedEntities(
-				reference.dir * ((speedForward-speedBack)*meters) +
-				reference.right * ((speedRight-speedLeft)*meters) +
-				reference.up * ((speedUp-speedDown)*meters) +
-				rr::RRVec3(0,speedY*meters,0),
-				rr::RRVec3(0,0,speedLean*seconds*0.5f)
+			const EntityIds& entities = svframe->m_sceneTree->getManipulatedEntityIds();
+			rr::RRVec3 center = svframe->m_sceneTree->getCenterOf(entities);
+			svframe->m_sceneTree->manipulateEntities(entities,
+				rr::RRMatrix3x4::translation(
+					svs.eye.dir * ((speedForward-speedBack)*meters) +
+					svs.eye.right * ((speedRight-speedLeft)*meters) +
+					svs.eye.up * ((speedUp-speedDown)*meters) +
+					rr::RRVec3(0,speedY*meters,0))
+				* rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.dir,speedLean*seconds*0.5f).centeredAround(center)
 				);
 		}
 	}

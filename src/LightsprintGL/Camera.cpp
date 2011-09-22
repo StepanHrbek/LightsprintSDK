@@ -206,38 +206,18 @@ bool Camera::operator!=(const Camera& a) const
 
 void Camera::update()
 {
-	// update dir
-	dir[0] = cos(yawPitchRollRad[1])*sin(yawPitchRollRad[0]);
-	dir[1] = sin(yawPitchRollRad[1]);
-	dir[2] = cos(yawPitchRollRad[1])*cos(yawPitchRollRad[0]);
+	// pos, yawPitchRollRad -> dir, right, up, viewMatrix, inverseViewMatrix
+	rr::RRMatrix3x4 inverseView = rr::RRMatrix3x4::rotationByYawPitchRoll(yawPitchRollRad);
+	inverseView.postTranslate(pos);
+	for (unsigned i=0;i<4;i++)
+		for (unsigned j=0;j<4;j++)
+			inverseViewMatrix[4*j+i] = (i<3)?inverseView.m[i][j]:((j<3)?0:1);
+	invertMatrix(viewMatrix, inverseViewMatrix);
+	right = rr::RRVec3((rr::RRReal)viewMatrix[0],(rr::RRReal)viewMatrix[4],(rr::RRReal)viewMatrix[8]);
+	up = rr::RRVec3((rr::RRReal)viewMatrix[1],(rr::RRReal)viewMatrix[5],(rr::RRReal)viewMatrix[9]);
+	dir = -rr::RRVec3((rr::RRReal)viewMatrix[2],(rr::RRReal)viewMatrix[6],(rr::RRReal)viewMatrix[10]);
 
-	// leaning
-	rr::RRVec3 tmpup(0,1,0);
-	if (fabs(fabs(dir[1])-1)<1e-7f)
-	{
-		// choose better start for camera up vector when looking straight up or down
-		// without this code, straight up/down views would ignore angle
-		tmpup[0] = sin(yawPitchRollRad[0])*cos(yawPitchRollRad[1]+0.1f);
-		tmpup[1] = sin(yawPitchRollRad[1]);
-		tmpup[2] = cos(yawPitchRollRad[0])*cos(yawPitchRollRad[1]+0.1f);
-	}
-	rr::RRVec3 tmpright;
-	dir.normalize();
-	#define CROSS(a,b,res) res[0]=a[1]*b[2]-a[2]*b[1];res[1]=a[2]*b[0]-a[0]*b[2];res[2]=a[0]*b[1]-a[1]*b[0]
-	CROSS(dir,tmpup,tmpright);
-	CROSS(tmpright,dir,tmpup);
-	float s = sin(yawPitchRollRad[2]);
-	float c = cos(yawPitchRollRad[2]);
-	up = (tmpup*c+tmpright*s).normalized();
-	right = (tmpright*c-tmpup*s).normalized();
-
-	// update viewMatrix
-	buildLookAtMatrix(viewMatrix,
-		pos[0],pos[1],pos[2],
-		pos[0]+dir[0],pos[1]+dir[1],pos[2]+dir[2],
-		up[0], up[1], up[2]);
-
-	// update frustumMatrix
+	// orthoSize, aspect, screenCenter, anear, afar, fieldOfViewVerticalDeg -> frustumMatrix, inverseFrustumMatrix
 	for (unsigned i=0;i<16;i++) frustumMatrix[i] = 0;
 	if (orthogonal)
 	{
@@ -259,9 +239,6 @@ void Camera::update()
 		frustumMatrix[11] = -1;
 		frustumMatrix[14] = -2*anear*afar/(afar-anear);
 	}
-
-	// update inverse matrices
-	invertMatrix(inverseViewMatrix, viewMatrix);
 	invertMatrix(inverseFrustumMatrix, frustumMatrix);
 
 	// copy pos/dir to RRLight

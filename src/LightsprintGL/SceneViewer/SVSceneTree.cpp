@@ -155,11 +155,19 @@ EntityId SVSceneTree::itemIdToEntityId(wxTreeItemId item) const
 	return data ? data->entityId : EntityId();
 }
 
-void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorldUnits, const rr::RRVec3& rotateByYawPitchRollRad)
+static void manipulateCamera(Camera& camera, const rr::RRMatrix3x4& transformation)
+{
+	rr::RRMatrix3x4 matrix(camera.inverseViewMatrix,true);
+	matrix = transformation * matrix;
+	camera.pos = matrix.getTranslation();
+	camera.yawPitchRollRad = matrix.getYawPitchRoll();
+	RR_CLAMP(camera.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+	camera.update();
+}
+
+void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation)
 {
 	if (!svframe->m_canvas)
-		return;
-	if (moveByWorldUnits==RRVec3(0) && rotateByYawPitchRollRad==RRVec3(0))
 		return;
 	RRDynamicSolverGL* solver = svframe->m_canvas->solver;
 	switch(entity.type)
@@ -169,11 +177,9 @@ void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorl
 				rr::RRObject* object = solver->getObject(entity.index);
 				if (object->isDynamic)
 				{
-					rr::RRMatrix3x4 matrix = object->getWorldMatrixRef();
-					matrix.translate(moveByWorldUnits);
-					//matrix.rotate(rotateByAnglesRad);
+					rr::RRMatrix3x4 matrix = transformation * object->getWorldMatrixRef();
 					object->setWorldMatrix(&matrix);
-					RRVec3 center;
+					rr::RRVec3 center;
 					object->getCollider()->getMesh()->getAABB(NULL,NULL,&center);
 					matrix.transformPosition(center);
 					object->illumination.envMapWorldCenter = center;
@@ -186,51 +192,23 @@ void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorl
 		case ST_LIGHT:
 			{
 				RealtimeLight* rtlight = solver->realtimeLights[entity.index];
-				Camera* light = rtlight->getParent();
-				light->pos += moveByWorldUnits;
-				light->yawPitchRollRad += rotateByYawPitchRollRad;
-				light->update();
+				manipulateCamera(*rtlight->getParent(),transformation);
 				rtlight->updateAfterRealtimeLightChanges();
 				solver->reportDirectIlluminationChange(entity.index,true,true,true);
 			}
 			break;
 		case ST_CAMERA:
 			{
-				svs.eye.pos += moveByWorldUnits;
-				svs.eye.yawPitchRollRad[0] += rotateByYawPitchRollRad[0]*svs.eye.getFieldOfViewHorizontalDeg()/90;
-				svs.eye.yawPitchRollRad[1] += rotateByYawPitchRollRad[1]*svs.eye.getFieldOfViewHorizontalDeg()/90;
-				svs.eye.yawPitchRollRad[2] += rotateByYawPitchRollRad[2];
-				RR_CLAMP(svs.eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+				manipulateCamera(svs.eye,transformation);
 			}
 			break;
 	}
 }
 
-void SVSceneTree::manipulateSelectedEntities(const rr::RRVec3& moveByWorldUnits, const rr::RRVec3& rotateByYawPitchRollRad)
+void SVSceneTree::manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation)
 {
-	if (!svframe->m_canvas)
-		return;
-	if (moveByWorldUnits==RRVec3(0) && rotateByYawPitchRollRad==RRVec3(0))
-		return;
-	const EntityIds& entityIds = getSelectedEntityIds();
-	bool nonLightSelected = false;
-	bool atLeastOneMovableSelected = false;
 	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
-	{
-		nonLightSelected |= i->type!=ST_LIGHT;
-		atLeastOneMovableSelected |= i->type==ST_LIGHT || (i->type==ST_OBJECT && i->index>=svframe->m_canvas->solver->getStaticObjects().size());
-	}
-	if (!atLeastOneMovableSelected
-		// rotating anything outside lights needs more intuitive UI, rotate camera for now
-		|| (nonLightSelected && rotateByYawPitchRollRad!=RRVec3(0)))
-	{
-		manipulateEntity(EntityId(ST_CAMERA,0),moveByWorldUnits,rotateByYawPitchRollRad);
-	}
-	else
-	{
-		for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
-			manipulateEntity(*i,moveByWorldUnits,rotateByYawPitchRollRad);
-	}
+		manipulateEntity(*i,transformation);
 }
 
 void SVSceneTree::selectEntityInTree(EntityId entity)
@@ -278,9 +256,52 @@ void SVSceneTree::updateSelectedEntityIds()
 		}
 }
 
-const EntityIds& SVSceneTree::getSelectedEntityIds()
+const EntityIds& SVSceneTree::getSelectedEntityIds() const
 {
 	return selectedEntityIds;
+}
+
+const EntityIds& SVSceneTree::getManipulatedEntityIds() const
+{
+	bool atLeastOneMovableSelected = false;
+	for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
+	{
+		atLeastOneMovableSelected |= i->type==ST_LIGHT || (i->type==ST_OBJECT && i->index>=svframe->m_canvas->solver->getStaticObjects().size());
+	}
+	static EntityIds cameraEntityIds = EntityId(ST_CAMERA,0);
+	return atLeastOneMovableSelected ? selectedEntityIds : cameraEntityIds;
+}
+
+rr::RRVec3 SVSceneTree::getCenterOf(const EntityIds& entityIds) const
+{
+	rr::RRVec3 selectedEntitiesCenter(0);
+	unsigned numCenters = 0;
+	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
+	{
+		switch (i->type)
+		{
+			case ST_LIGHT:
+				selectedEntitiesCenter += svframe->m_canvas->solver->getLights()[i->index]->position;
+				numCenters++;
+				break;
+			case ST_OBJECT:
+				{
+					rr::RRObject* object = svframe->m_canvas->solver->getObject(i->index);
+					rr::RRVec3 center;
+					object->getCollider()->getMesh()->getAABB(NULL,NULL,&center);
+					selectedEntitiesCenter += object->getWorldMatrixRef().getTransformedPosition(center);
+					numCenters++;
+				}
+				break;
+			case ST_CAMERA:
+				selectedEntitiesCenter += svs.eye.pos;
+				numCenters++;
+				break;
+		}
+	}
+	if (numCenters)
+		selectedEntitiesCenter /= numCenters;
+	return selectedEntitiesCenter;
 }
 
 void SVSceneTree::OnSelChanged(wxTreeEvent& event)

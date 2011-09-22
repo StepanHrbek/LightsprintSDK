@@ -292,6 +292,17 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 	{
 		RRReal m[3][4];
 
+		RRMatrix3x4(); // uninitialized
+		RRMatrix3x4(float* m3x4, bool transposed);
+		RRMatrix3x4(double* m3x4, bool transposed);
+		RRMatrix3x4(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23);
+		RRMatrix3x4(double m00, double m01, double m02, double m03, double m10, double m11, double m12, double m13, double m20, double m21, double m22, double m23);
+		static RRMatrix3x4 identity();
+		static RRMatrix3x4 scale(const RRVec3& scale);
+		static RRMatrix3x4 translation(const RRVec3& translation);
+		static RRMatrix3x4 rotationByYawPitchRoll(const RRVec3& yawPitchRollRad); ///< Yaw + Pitch + Roll = YXZ Euler angles as defined at http://en.wikipedia.org/wiki/Euler_angles
+		static RRMatrix3x4 rotationByAxisAngle(const RRVec3& rotationAxis, RRReal rotationAngleRad);
+
 		//! Returns position in 3d space transformed by matrix.
 		RRVec3 getTransformedPosition(const RRVec3& a) const;
 		//! Transforms position in 3d space by matrix.
@@ -301,17 +312,12 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		//! Transforms direction in 3d space by matrix.
 		void transformDirection(RRVec3& a) const;
 
+		bool operator ==(const RRMatrix3x4& a) const;
+		//! A*B returns matrix that performs transformation B, then A.
 		RRMatrix3x4 operator *(const RRMatrix3x4& a) const;
+		//! A*=B adds transformation B at the beginning of transformations defined by A. If you want B at the end, do A=B*A;
 		RRMatrix3x4& operator *=(const RRMatrix3x4& a);
 
-		//! Returns determinant of first 3x3 elements.
-		RRReal determinant3x3() const;
-		
-		//! Inverts matrix.
-		bool invertedTo(RRMatrix3x4& destination) const;
-
-		//! Sets matrix to identity.
-		void setIdentity();
 		//! Tests whether matrix is identity.
 		bool isIdentity() const;
 
@@ -319,14 +325,28 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRVec3 getTranslation() const;
 		//! Sets translation component of matrix.
 		void setTranslation(const RRVec3& a);
-		//! Adds to translation component of matrix.
-		void translate(const RRVec3& a);
+		//! Applies translation on top of transformations defined by this matrix, optimized *this=translation(a)**this;
+		void postTranslate(const RRVec3& a);
+		//! Returns the same transformation with pretranslation -center and posttranslation +center.
+		RRMatrix3x4 centeredAround(const RRVec3& center) const;
 
 		//! Returns scale component of matrix. Negative scale is supported. Use getScale().abs().avg() for absolute uniform scale.
 		RRVec3 getScale() const;
 		//! Sets scale component of matrix. Negative scale is supported. Scale does not affect translation. Scale 0 resets rotation component of matrix.
 		void setScale(const RRVec3& a);
+		//! Applies scale on top of transformations defined by this matrix, optimized *this=scale(a)**this;
+		void postScale(const RRVec3& a);
 
+		//! Returns Yaw + Pitch + Roll = YXZ Euler angles as defined at http://en.wikipedia.org/wiki/Euler_angles
+		//
+		//! Works only for matrices that represent rotation and/or translation of rigid body,
+		//! is undefined for other matrices (e.g. with scaling).
+		RRVec3 getYawPitchRoll() const;
+
+		//! Returns determinant of first 3x3 elements.
+		RRReal determinant3x3() const;
+		//! Inverts matrix. Returns false in case of failure, not changing destination.
+		bool invertedTo(RRMatrix3x4& destination) const;
 	};
 
 } // namespace

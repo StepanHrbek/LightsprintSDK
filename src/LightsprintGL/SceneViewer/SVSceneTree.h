@@ -62,7 +62,9 @@ namespace rr_gl
 		void OnKeyUp(wxKeyEvent& event);
 
 		// what is selected
-		const EntityIds& getSelectedEntityIds();
+		const EntityIds& getSelectedEntityIds() const;
+		const EntityIds& getManipulatedEntityIds() const;
+		rr::RRVec3 getCenterOf(const EntityIds& entityIds) const;
 
 		//! Runs context menu action, public only for SVCanvas hotkey handling.
 		//
@@ -75,8 +77,8 @@ namespace rr_gl
 		void OnContextMenuRun(wxCommandEvent& event);
 		wxTreeItemId entityIdToItemId(EntityId entity) const;
 		EntityId itemIdToEntityId(wxTreeItemId item) const;
-		void manipulateEntity(EntityId entity, const rr::RRVec3& moveByWorldUnits, const rr::RRVec3& rotateByAnglesRad);
-		void manipulateSelectedEntities(const rr::RRVec3& moveByWorldUnits, const rr::RRVec3& rotateByAnglesRad);
+		void manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation);
+		void manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation);
 
 	private:
 		void updateSelectedEntityIds();

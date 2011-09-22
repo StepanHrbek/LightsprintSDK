@@ -273,8 +273,7 @@ void RRScene::transform(const RRMatrix3x4& transformation)
 
 void RRScene::normalizeUnits(float currentUnitLengthInMeters)
 {
-	RRMatrix3x4 m = {currentUnitLengthInMeters,0,0,0, 0,currentUnitLengthInMeters,0,0, 0,0,currentUnitLengthInMeters,0};
-	transform(m);
+	transform(RRMatrix3x4::scale(RRVec3(currentUnitLengthInMeters)));
 }
 
 void RRScene::normalizeUpAxis(unsigned currentUpAxis)
@@ -282,12 +281,12 @@ void RRScene::normalizeUpAxis(unsigned currentUpAxis)
 	switch (currentUpAxis)
 	{
 		case 0:
-			{RRMatrix3x4 m = {0,-1,0,0, 1,0,0,0, 0,0,1,0}; transform(m);}
+			transform(RRMatrix3x4(0.0f,-1,0,0, 1,0,0,0, 0,0,1,0));
 			return;
 		case 1:
 			return;
 		case 2:
-			{RRMatrix3x4 m = {1,0,0,0, 0,0,1,0, 0,-1,0,0}; transform(m);}
+			transform(RRMatrix3x4(1.0f,0,0,0, 0,0,1,0, 0,-1,0,0));
 			return;
 		default:
 			RR_ASSERT(0);

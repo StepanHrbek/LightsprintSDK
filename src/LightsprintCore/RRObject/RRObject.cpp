@@ -296,7 +296,7 @@ const RRMatrix3x4* RRObject::getWorldMatrix() const
 const RRMatrix3x4& RRObject::getWorldMatrixRef() const
 {
 	const rr::RRMatrix3x4* wm = getWorldMatrix();
-	static RRMatrix3x4 identity = {1,0,0,0, 0,1,0,0, 0,0,1,0};
+	static RRMatrix3x4 identity = RRMatrix3x4::identity();
 	return wm?*wm:identity;
 }
 
