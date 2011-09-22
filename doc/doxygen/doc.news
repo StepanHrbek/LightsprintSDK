@@ -28,7 +28,11 @@ NEWS
   - full dynamic object support
     - "Dynamic" checkbox added to Object properties
     - dynamic objects can be selected, manipulated etc
-  - shift/ctrl/alt while dragging locks movement to one or two axes, only while modifier key is pressed
+  - shift/ctrl/alt while left dragging locks movement to one or two axes only while modifier key is pressed
+  - right dragging = rotation
+    - with ctrl: swaps direction of rotation
+    - with alt: rotates in view axis
+    - with shift: scales instead of rotating
 - <b>improved collisions</b>
   - RRDynamicSolver::getCollider() added, returns collider for whole scene, including dynamic objects
   - RRRay::hitObject added, tells what object was hit by ray

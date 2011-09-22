@@ -928,7 +928,12 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			// rotating selection
 			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
 			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
-			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5)).centeredAround(manipulatedCenter));
+			rr::RRMatrix3x4 rotation;
+			if (event.ShiftDown()) rotation = rr::RRMatrix3x4::scale(rr::RRVec3(expf(dragX))); else
+			if (event.AltDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.dir,dragX*5); else
+			if (event.ControlDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.up,dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5); else
+				rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.up,-dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,-dragY*5);
+			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,rotation.centeredAround(manipulatedCenter));
 			solver->reportInteraction();
 
 			s_ci.hitPoint3d = manipulatedCenter;
@@ -987,15 +992,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// handle wheel
 	if (event.GetWheelRotation())
 	{
-		if (!manipulatingCamera)
-		{
-			const EntityIds& manipulatedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
-			rr::RRVec3 manipulatedCenter = svframe->m_sceneTree->getCenterOf(manipulatedEntities);
-
-			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,rr::RRMatrix3x4::scale(rr::RRVec3(expf(event.GetWheelRotation()*0.1f/event.GetWheelDelta()))).centeredAround(manipulatedCenter));
-			solver->reportInteraction();
-		}
-		else
 		if (event.ControlDown())
 		{
 			// move forward/backward
