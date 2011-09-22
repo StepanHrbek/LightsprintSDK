@@ -62,8 +62,13 @@ namespace rr_gl
 		void OnKeyUp(wxKeyEvent& event);
 
 		// what is selected
-		const EntityIds& getSelectedEntityIds() const;
-		const EntityIds& getManipulatedEntityIds() const;
+		enum ManipulatedEntityIds
+		{
+			MEI_CAMERA,
+			MEI_SELECTED,
+			MEI_AUTO,
+		};
+		const EntityIds& getEntityIds(SVSceneTree::ManipulatedEntityIds preference) const;
 		rr::RRVec3 getCenterOf(const EntityIds& entityIds) const;
 
 		//! Runs context menu action, public only for SVCanvas hotkey handling.

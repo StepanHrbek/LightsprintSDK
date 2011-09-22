@@ -256,19 +256,21 @@ void SVSceneTree::updateSelectedEntityIds()
 		}
 }
 
-const EntityIds& SVSceneTree::getSelectedEntityIds() const
+const EntityIds& SVSceneTree::getEntityIds(SVSceneTree::ManipulatedEntityIds preference) const
 {
-	return selectedEntityIds;
-}
-
-const EntityIds& SVSceneTree::getManipulatedEntityIds() const
-{
+	static EntityIds cameraEntityIds = EntityId(ST_CAMERA,0);
+	switch (preference)
+	{
+		case MEI_CAMERA:
+			return cameraEntityIds;
+		case MEI_SELECTED:
+			return selectedEntityIds;
+	}
 	bool atLeastOneMovableSelected = false;
 	for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
 	{
 		atLeastOneMovableSelected |= i->type==ST_LIGHT || (i->type==ST_OBJECT && i->index>=svframe->m_canvas->solver->getStaticObjects().size());
 	}
-	static EntityIds cameraEntityIds = EntityId(ST_CAMERA,0);
 	return atLeastOneMovableSelected ? selectedEntityIds : cameraEntityIds;
 }
 
@@ -337,7 +339,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 	wxMenu menu;
 
 	// add menu items that need uniform context
-	const EntityIds& entityIds = getSelectedEntityIds();
+	const EntityIds& entityIds = getEntityIds(SVSceneTree::MEI_SELECTED);
 	bool entityIdsUniform = true;
 	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
 		if (i->type!=entityIds.begin()->type)
@@ -409,7 +411,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 
 void SVSceneTree::OnContextMenuRun(wxCommandEvent& event)
 {
-	runContextMenuAction(event.GetId(),getSelectedEntityIds());
+	runContextMenuAction(event.GetId(),getEntityIds(SVSceneTree::MEI_SELECTED));
 }
 
 extern bool getQuality(wxString title, wxWindow* parent, unsigned& quality);

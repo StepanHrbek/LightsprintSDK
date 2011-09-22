@@ -598,7 +598,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case 'h':
 		case 'H': svframe->OnMenuEventCore(SVFrame::ME_HELP); break;
 
-		case WXK_DELETE: svframe->m_sceneTree->runContextMenuAction(CM_DELETE,svframe->m_sceneTree->getSelectedEntityIds()); break;
+		case WXK_DELETE: svframe->m_sceneTree->runContextMenuAction(CM_DELETE,svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED)); break;
 
 		case 'L': svframe->OnMenuEventCore(SVFrame::ME_VIEW_LEFT); break;
 		case 'R': svframe->OnMenuEventCore(SVFrame::ME_VIEW_RIGHT); break;
@@ -736,7 +736,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		return;
 	}
 
-	const EntityIds& selectedEntities = svframe->m_sceneTree->getSelectedEntityIds();
+	const EntityIds& selectedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
 
 	// scene clicked: fill s_xxx
 	if (event.ButtonDown() || contextMenu)
@@ -898,7 +898,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// handle dragging
 	if (event.Dragging() && s_ciRelevant && newPosition!=oldPosition && !clicking)
 	{
-		const EntityIds& manipulatedEntities = svframe->m_sceneTree->getManipulatedEntityIds();
+		const EntityIds& manipulatedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
 		rr::RRVec3 manipulatedCenter = svframe->m_sceneTree->getCenterOf(manipulatedEntities);
 
 		if (event.LeftIsDown() && s_ci.clickedEntityIsSelected)
@@ -986,9 +986,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// handle wheel
 	if (event.GetWheelRotation())
 	{
-		if (svframe->m_sceneTree->getSelectedEntityIds().size())
+		if (svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED).size())
 		{
-			const EntityIds& manipulatedEntities = svframe->m_sceneTree->getManipulatedEntityIds();
+			const EntityIds& manipulatedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
 			rr::RRVec3 manipulatedCenter = svframe->m_sceneTree->getCenterOf(manipulatedEntities);
 
 			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,rr::RRMatrix3x4::scale(rr::RRVec3(expf(event.GetWheelRotation()*0.1f/event.GetWheelDelta()))).centeredAround(manipulatedCenter));
@@ -1074,7 +1074,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 
 		{
 			// yes -> respond to keyboard
-			const EntityIds& entities = svframe->m_sceneTree->getManipulatedEntityIds();
+			const EntityIds& entities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
 			rr::RRVec3 center = svframe->m_sceneTree->getCenterOf(entities);
 			svframe->m_sceneTree->manipulateEntities(entities,
 				rr::RRMatrix3x4::translation(
@@ -1637,7 +1637,7 @@ rendered:
 			renderedIcons.clear();
 			if (svframe->m_lightProperties->IsShown())
 				renderedIcons.addLights(solver->getLights(),sunIconPosition);
-			renderedIcons.markSelected(svframe->m_sceneTree->getSelectedEntityIds());
+			renderedIcons.markSelected(svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED));
 			entityIcons->renderIcons(renderedIcons,svs.eye);
 		}
 	}
