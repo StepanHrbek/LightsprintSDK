@@ -467,6 +467,8 @@ int main(int argc, char** argv)
 	bool aborting = false;
 	robot = rr::RRObject::createMultiObject(&robotScene.objects,rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
 	potato = rr::RRObject::createMultiObject(&potatoScene.objects,rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
+	robot->isDynamic = true;
+	potato->isDynamic = true;
 	rr::RRObjects dynamicObjects;
 	dynamicObjects.push_back(robot);
 	dynamicObjects.push_back(potato);
