@@ -872,8 +872,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		else
 		{
 			// right click = context menu
-			context_menu:
-
+			context_menu:;
 			// when right clicking something not yet selected, select it, unselect everything else
 			if (!s_ci.clickedEntityIsSelected)
 			{
