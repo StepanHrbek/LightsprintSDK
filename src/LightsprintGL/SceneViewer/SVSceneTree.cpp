@@ -169,6 +169,8 @@ void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& trans
 {
 	if (!svframe->m_canvas)
 		return;
+	if (transformation.isIdentity()) // without this, we would transform camera by identity in every frame. such transformation converts euler angles to matrix and back = float errors accumulate over time, "front" view stops being exactly front etc
+		return;
 	RRDynamicSolverGL* solver = svframe->m_canvas->solver;
 	switch(entity.type)
 	{
