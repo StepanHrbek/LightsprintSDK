@@ -50,8 +50,11 @@ CHANGES
 
 - rr_gl:Camera cleanup
   - removed rr_gl:Camera::updateDirFromAngles, rarely used option
-  - rr_gl:Camera::yawPitchRollRad replaces angle, angleX, leanAngle
-  - rr_gl:Camera::Camera(pos,yawPitchRollRad,...) replaces Camera(pos[0],pos[1],pos[2],yawPitchRollRad[0],yawPitchRollRad[2],yawPitchRollRad[1],...)
+  - camera rotation is defined by YXZ Euler angles in radians, see rr_gl::Camera::yawPitchRollRad
+  - change rr_gl::angle into rr_gl::yawPitchRollRad[0]+RR_PI
+  - change rr_gl::angleX into rr_gl::yawPitchRollRad[1]
+  - change rr_gl::leanAngle into rr_gl::yawPitchRollRad[2]
+  - change rr_gl::Camera(pos[0],pos[1],pos[2],a,b,c,...) into rr_gl::Camera(pos,RRVec3(a+RR_PI,c,b),...)
 
 \section news125 ------------------------------------ 2011.08.16 -------------------------------------
 

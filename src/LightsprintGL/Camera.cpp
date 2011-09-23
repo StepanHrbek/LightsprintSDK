@@ -78,6 +78,7 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 		float sin_angle = _dir.x/sqrt(d);
 		yawPitchRollRad[0] = asin(RR_CLAMPED(sin_angle,-1,1));
 		if (_dir.z<0) yawPitchRollRad[0] = (rr::RRReal)(RR_PI-yawPitchRollRad[0]);
+		yawPitchRollRad[0] += RR_PI;
 	}
 	else
 	{
@@ -303,12 +304,12 @@ void Camera::mirror(float altitude)
 
 static float s_viewAngles[6][3] = // 6x yawPitchRollRad
 {
-	{RR_PI,-RR_PI/2,0}, // TOP
-	{RR_PI,RR_PI/2,0}, // BOTTOM
-	{RR_PI,0,0}, // FRONT
-	{0,0,0}, // BACK
-	{RR_PI/2,0,0}, // LEFT
-	{-RR_PI/2,0,0}, // RIGHT
+	{0,-RR_PI/2,0}, // TOP
+	{0,RR_PI/2,0}, // BOTTOM
+	{0,0,0}, // FRONT
+	{RR_PI,0,0}, // BACK
+	{-RR_PI/2,0,0}, // LEFT
+	{RR_PI/2,0,0}, // RIGHT
 };
 
 void Camera::setView(Camera::View view, const rr::RRObject* scene)

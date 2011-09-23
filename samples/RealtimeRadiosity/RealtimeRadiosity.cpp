@@ -58,7 +58,7 @@ void error(const char* message, bool gfxRelated)
 // globals are ugly, but required by GLUT design with callbacks
 
 Model_3DS                  m3ds;
-rr_gl::Camera              eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(12.23f,0.05f,0),1.3f,70,0.3f,60);
+rr_gl::Camera              eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0),1.3f,70,0.3f,60);
 rr_gl::RealtimeLight*      realtimeLight = NULL;
 rr::RRBuffer*              environmentMap = NULL;
 rr_gl::TextureRenderer*    textureRenderer = NULL;

@@ -83,7 +83,7 @@ enum Layer// arbitrary layer numbers
 	LAYER_OFFLINE_PIXEL
 };
 Layer                      renderLayer = LAYER_REALTIME;
-rr_gl::Camera              eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(12.230f,0.05f,0), 1.3f,70,0.1f,100);
+rr_gl::Camera              eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0), 1.3f,70,0.1f,100);
 rr_gl::Camera*             light;
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;

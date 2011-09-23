@@ -48,7 +48,7 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::Camera           eye(rr::RRVec3(-1,1.8,-3), rr::RRVec3(12.330,-0.250,0),1.3,70.0,0.3,600.0);
+rr_gl::Camera           eye(rr::RRVec3(-1,1.8,-3), rr::RRVec3(9.09,-0.250,0),1.3,70.0,0.3,600.0);
 rr_gl::Texture*         environmentMap = NULL;
 rr_gl::TextureRenderer* textureRenderer = NULL;
 rr_gl::Water*           water = NULL;

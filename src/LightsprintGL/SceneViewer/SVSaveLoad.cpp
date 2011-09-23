@@ -146,6 +146,8 @@ void load(Archive & ar, rr_gl::Camera& a, const unsigned int version)
 {
 	ar & make_nvp("pos",a.pos);
 	ar & make_nvp("angle",a.yawPitchRollRad[0]);
+	if (version<2)
+		a.yawPitchRollRad[0] += RR_PI;
 	ar & make_nvp("leanAngle",a.yawPitchRollRad[2]);
 	ar & make_nvp("angleX",a.yawPitchRollRad[1]);
 	{
