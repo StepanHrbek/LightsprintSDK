@@ -634,7 +634,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					delete newEnv;
 
 					// save temp layer
-					allObjects.saveLayer(tmpLayer,LMAP_PREFIX,LMAP_POSTFIX);
+					allObjects.saveLayer(tmpLayer,LDM_PREFIX,LDM_POSTFIX);
 
 					// move buffers from temp to final layer
 					for (unsigned i=0;i<selectedObjects.size();i++)
