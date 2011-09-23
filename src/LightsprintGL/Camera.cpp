@@ -379,6 +379,7 @@ void Camera::setView(Camera::View view, const rr::RRObject* scene)
 		anear = -(mini-maxi).length()/2;
 		afar = -1.5f*anear;
 	}
+	update();
 }
 
 Camera::View Camera::getView() const
