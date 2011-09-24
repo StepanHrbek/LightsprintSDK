@@ -371,9 +371,8 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraAngles)
 	{
-		svs.eye.yawPitchRollRad[0] = RR_DEG2RAD(property->GetPropertyByName("x")->GetValue().GetDouble());
-		svs.eye.yawPitchRollRad[1] = RR_DEG2RAD(property->GetPropertyByName("y")->GetValue().GetDouble());
-		svs.eye.yawPitchRollRad[2] = RR_DEG2RAD(property->GetPropertyByName("z")->GetValue().GetDouble());
+		svs.eye.yawPitchRollRad << property->GetValue();
+		svs.eye.yawPitchRollRad = RR_DEG2RAD(svs.eye.yawPitchRollRad);
 	}
 	else
 	if (property==propCameraOrtho)
