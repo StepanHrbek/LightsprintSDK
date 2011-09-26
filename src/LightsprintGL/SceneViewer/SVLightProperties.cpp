@@ -10,10 +10,10 @@
 #include "SVFrame.h" // updateSceneTree()
 
 // for direction presented as altitude+azimuth
-#define ANGLEX2ALT(pitch) RR_RAD2DEG(-pitch)
+#define ANGLEX2ALT(pitch) RR_RAD2DEG(-(pitch))
 #define ANGLE2AZI(yaw) fmod(fmod(-RR_RAD2DEG(yaw),360)+360,360)
-#define ALT2ANGLEX(alt) RR_DEG2RAD(-alt)
-#define AZI2ANGLE(azi) RR_DEG2RAD(360-azi)
+#define ALT2ANGLEX(alt) RR_DEG2RAD(-(alt))
+#define AZI2ANGLE(azi) RR_DEG2RAD(360-(azi))
 
 namespace rr_gl
 {
@@ -249,11 +249,11 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propAltitude || property==propAzimuth)
 	{
-		float pitch = ALT2ANGLEX(propAltitude->GetValue().GetDouble());
-		float yaw = AZI2ANGLE(propAzimuth->GetValue().GetDouble());
-		light->direction[0] = sin(yaw)*cos(pitch);
-		light->direction[1] = sin(pitch);
-		light->direction[2] = cos(yaw)*cos(pitch);
+		rtlight->getParent()->yawPitchRollRad[0] = AZI2ANGLE(propAzimuth->GetValue().GetDouble());
+		rtlight->getParent()->yawPitchRollRad[1] = ALT2ANGLEX(propAltitude->GetValue().GetDouble());
+		rtlight->getParent()->update();
+		rtlight->updateAfterRealtimeLightChanges();
+		rtlight->dirtyShadowmap = true;
 	}
 	else
 	if (property==propOuterAngle)
