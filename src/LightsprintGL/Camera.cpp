@@ -438,20 +438,25 @@ void Camera::blend(const Camera& a, const Camera& b, float blend)
 
 #if defined(_MSC_VER) && _MSC_VER>=1600
 
-static inline float abs(float a)
-{
-	return fabs(a);
-}
+//static inline float abs(float a)
+//{
+//	return fabs(a);
+//}
 
 static inline rr::RRVec3 abs(rr::RRVec3 a)
 {
 	return a.abs();
 }
 
-static inline void ifBoth0SetBoth1(float& a,float& b)
+static inline rr::RRVec4 abs(rr::RRVec4 a)
 {
-	if (!a && !b) a=b=1;
+	return a.abs();
 }
+
+//static inline void ifBoth0SetBoth1(float& a,float& b)
+//{
+//	if (!a && !b) a=b=1;
+//}
 
 static inline void ifBoth0SetBoth1(rr::RRVec3& a,rr::RRVec3& b)
 {
@@ -460,8 +465,23 @@ static inline void ifBoth0SetBoth1(rr::RRVec3& a,rr::RRVec3& b)
 	if (!a[2] && !b[2]) a[2]=b[2]=1;
 }
 
+static inline void ifBoth0SetBoth1(rr::RRVec4& a,rr::RRVec4& b)
+{
+	if (!a[0] && !b[0]) a[0]=b[0]=1;
+	if (!a[1] && !b[1]) a[1]=b[1]=1;
+	if (!a[2] && !b[2]) a[2]=b[2]=1;
+	if (!a[3] && !b[3]) a[3]=b[3]=1;
+}
+
+static inline void minimizeDistanceModulo2PI(const rr::RRVec3& a,rr::RRVec3& b)
+{
+	b[0] += floor((a[0]-b[0])/(2*RR_PI)+0.5f)*(2*RR_PI);
+	b[1] += floor((a[1]-b[1])/(2*RR_PI)+0.5f)*(2*RR_PI);
+	b[2] += floor((a[2]-b[2])/(2*RR_PI)+0.5f)*(2*RR_PI);
+}
+
 template <class X, class Y>
-static Y interpolAkima(unsigned numPoints, const X* x, std::function<Y (int)> y, X xx)
+static Y interpolAkima(unsigned numPoints, const X* x, std::function<Y (int)> y, X xx, bool minimizeRotations = false)
 {
 	// handle patological cases that can't be supported otherwise
 	if (numPoints==0 || !x) return Y(0);
@@ -495,6 +515,15 @@ static Y interpolAkima(unsigned numPoints, const X* x, std::function<Y (int)> y,
 	if (numPointsAfterXx < 1 || x3<=x2) { x3 = x2*2-x1; y3 = y2*2-y1; }
 	if (numPointsAfterXx < 2 || x4<=x3) { x4 = x3*2-x2; y4 = y3*2-y2; }
 	if (numPointsAfterXx < 3 || x5<=x4) { x5 = x4*2-x3; y5 = y4*2-y3; }
+	// - understand values as angles in radians, move from 0.1*PI to 1.9*PI like from 0.1*PI to -0.1*PI
+	if (minimizeRotations)
+	{
+		minimizeDistanceModulo2PI(y0,y1);
+		minimizeDistanceModulo2PI(y1,y2);
+		minimizeDistanceModulo2PI(y2,y3);
+		minimizeDistanceModulo2PI(y3,y4);
+		minimizeDistanceModulo2PI(y4,y5);
+	}
 
 	// perform Akima interpolation
 	Y m0 = (y1-y0)/(x1-x0);
@@ -538,16 +567,17 @@ void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* time
 	*this = *cameras[i-1];
 
 	// interpolate
-	#define BLEND_FLOAT(name) {name = interpolAkima<float,float>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
+	//#define BLEND_FLOAT(name) {name = interpolAkima<float,float>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
 	//#define BLEND_RRVEC2(name) {name = interpolAkima<float,rr::RRVec2>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
 	#define BLEND_RRVEC3(name) {name = interpolAkima<float,rr::RRVec3>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
+	#define BLEND_RRVEC3_ANGLES(name) {name = interpolAkima<float,rr::RRVec3>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time,true);}
 	#define BLEND_3FLOATS(name1,name2,name3) {rr::RRVec3 tmp = interpolAkima<float,rr::RRVec3>(numCameras,times,[&cameras](int i){return rr::RRVec3(cameras[i]->name1,cameras[i]->name2,cameras[i]->name3);},time); name1=tmp.x; name2=tmp.y; name3=tmp.z;}
+	#define BLEND_4FLOATS(name1,name2,name3,name4) {rr::RRVec4 tmp = interpolAkima<float,rr::RRVec4>(numCameras,times,[&cameras](int i){return rr::RRVec4(cameras[i]->name1,cameras[i]->name2,cameras[i]->name3,cameras[i]->name4);},time); name1=tmp.x; name2=tmp.y; name3=tmp.z; name4=tmp.w;}
 
 	BLEND_RRVEC3(pos);
-	BLEND_RRVEC3(yawPitchRollRad);
+	BLEND_RRVEC3_ANGLES(yawPitchRollRad);
 	BLEND_3FLOATS(anear,afar,fieldOfViewVerticalDeg);
-	BLEND_FLOAT(aspect);
-	BLEND_3FLOATS(screenCenter.x,screenCenter.y,orthoSize);
+	BLEND_4FLOATS(screenCenter.x,screenCenter.y,orthoSize,aspect);
 	update();
 }
 
