@@ -548,7 +548,6 @@ void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* time
 	BLEND_3FLOATS(anear,afar,fieldOfViewVerticalDeg);
 	BLEND_FLOAT(aspect);
 	BLEND_3FLOATS(screenCenter.x,screenCenter.y,orthoSize);
-	BLEND_RRVEC3(dir);
 	update();
 }
 
