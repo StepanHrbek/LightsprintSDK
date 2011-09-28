@@ -73,8 +73,11 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 	dir = _dir.normalized();
 	yawPitchRollRad[1] = asin(dir.y);
 	float d = _dir.x*_dir.x+_dir.z*_dir.z;
-	if (d)
+	if (d>1e-7f)
 	{
+		// simpler "if (d)" would make yawPitchRollRad[0] jump randomly in situations when _dir points _nearly_ up.
+		// _dir often points _nearly_ up because it can be represented by angles that are clamped by RR_PI, which is not exact PI, i.e. not straight up.
+		// 1e-7f epsilon does not feel like proper solution, perhaps it would be better to avoid calling us with _dir extremely close to up, but it's difficult to explain such requirement to callers.
 		float sin_angle = _dir.x/sqrt(d);
 		yawPitchRollRad[0] = asin(RR_CLAMPED(sin_angle,-1,1));
 		if (_dir.z<0) yawPitchRollRad[0] = (rr::RRReal)(RR_PI-yawPitchRollRad[0]);
