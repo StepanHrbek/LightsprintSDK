@@ -254,6 +254,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		rtlight->getParent()->update();
 		rtlight->updateAfterRealtimeLightChanges();
 		rtlight->dirtyShadowmap = true;
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propOuterAngle)
