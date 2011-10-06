@@ -340,7 +340,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		//! Returns Yaw + Pitch + Roll = YXZ Euler angles as defined at http://en.wikipedia.org/wiki/Euler_angles
 		//
 		//! Works only for matrices that represent rotation and/or translation of rigid body,
-		//! is undefined for other matrices (e.g. with scaling).
+		//! is undefined for other matrices (e.g. rotation with scaling).
 		RRVec3 getYawPitchRoll() const;
 
 		//! Returns determinant of first 3x3 elements.
