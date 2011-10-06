@@ -22,6 +22,41 @@ namespace bf = boost::filesystem;
 using namespace rr;
 
 
+////////////////////////////////////////////////////////////////////////////
+//
+// utility functions
+
+static RRVec2 convertUv(const float* a)
+{
+	return RRVec2(a[0],a[1]);
+}
+
+static RRVec3 convertPos(const float* a)
+{
+	// To become compatible with our conventions, positions are transformed:
+	// - Y / Z components swapped to get correct up vector
+	// - one component negated to swap front/back
+	// - *0.015f to convert to meters
+	return RRVec3(a[0],a[2],-a[1])*0.015f;
+}
+
+TVertex TVertex::operator+(const TVertex& a) const
+{
+	TVertex result;
+	for (unsigned i=0;i<10;i++) result.mPosition[i] = (RRReal)(mPosition[i]+a.mPosition[i]);
+	for (unsigned i=0;i<4;i++) result.mColor[i] = (unsigned char)RR_CLAMPED(mColor[i]+a.mColor[i],0,255);
+	return result;
+}
+
+TVertex TVertex::operator*(double a) const
+{
+	TVertex result;
+	for (unsigned i=0;i<10;i++) result.mPosition[i] = (RRReal)(mPosition[i]*a);
+	for (unsigned i=0;i<4;i++) result.mColor[i] = (unsigned char)RR_CLAMPED(mColor[i]*a,0,255);
+	return result;
+}
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRObjectQuake3
@@ -47,17 +82,30 @@ private:
 	TMapQ3* model;
 
 	// copy of object's geometry
-	struct TriangleInfo
-	{
-		RRMesh::Triangle t;
-	};
-	std::vector<TriangleInfo> triangles;
+	std::vector<RRMesh::Triangle> triangles;
 #ifdef PACK_VERTICES
 	struct VertexInfo
 	{
 		RRVec3 position;
 		RRVec2 texCoordDiffuse;
 		RRVec2 texCoordLightmap;
+		VertexInfo()
+		{
+		}
+		VertexInfo(const TVertex& a, unsigned lightmapIndex, unsigned numLightmaps)
+		{
+			position = convertPos(a.mPosition);
+			texCoordDiffuse = convertUv(a.mTexCoord[0]);
+			texCoordLightmap = convertUv(a.mTexCoord[1]);
+
+			// as we merge all objects, we must merge also lightmaps
+			unsigned w = (unsigned)(sqrt((float)numLightmaps)+0.99999f);
+			unsigned h = (numLightmaps+w-1)/w;
+			unsigned x = lightmapIndex % w;
+			unsigned y = lightmapIndex / w;
+			texCoordLightmap[0] = ( texCoordLightmap[0] + x)/w;
+			texCoordLightmap[1] = ( texCoordLightmap[1] + y)/h;
+		}
 	};
 	std::vector<VertexInfo> vertices;
 #endif
@@ -152,100 +200,135 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 
 	for (unsigned s=0;s<(unsigned)model->mTextures.size();s++)
 	{
-		unsigned numTrianglesInFacegroup = 0;
+		unsigned numTrianglesBeforeFacegroup = triangles.size();
 		RRMaterial* material = new RRMaterial;
-		bool triedLoadTexture = false;
+		fillMaterial(*material,&model->mTextures[s],textureLocator);
+		if (material->diffuseReflectance.texture)
 		for (unsigned mdl=0;mdl<(unsigned)(model->mModels.size());mdl++)
 		for (unsigned f=model->mModels[mdl].mFace;f<(unsigned)(model->mModels[mdl].mFace+model->mModels[mdl].mNbFaces);f++)
+		if (model->mFaces[f].mTextureIndex==s)
 		{
-			if (model->mFaces[f].mTextureIndex==s)
-			//if (materials[model->mFaces[i].mTextureIndex].texture)
+			if (model->mFaces[f].mType==1) // 1=polygon
 			{
-				if (model->mFaces[f].mType==1)
+				for (unsigned j=(unsigned)model->mFaces[f].mMeshVertex;j<(unsigned)(model->mFaces[f].mMeshVertex+model->mFaces[f].mNbMeshVertices);j+=3)
 				{
-					for (unsigned j=(unsigned)model->mFaces[f].mMeshVertex;j<(unsigned)(model->mFaces[f].mMeshVertex+model->mFaces[f].mNbMeshVertices);j+=3)
-					{
-						// try load texture when it is mapped on at least 1 triangle
-						if (!triedLoadTexture)
-						{
-							fillMaterial(*material,&model->mTextures[s],textureLocator);
-							triedLoadTexture = true;
-						}
-						// if texture was loaded, accept triangles, otherwise ignore them
-						if (material->diffuseReflectance.texture)
-						{
-							TriangleInfo ti;
-							ti.t[0] = model->mFaces[f].mVertex + model->mMeshVertices[j  ].mMeshVert;
-							ti.t[1] = model->mFaces[f].mVertex + model->mMeshVertices[j+2].mMeshVert;
-							ti.t[2] = model->mFaces[f].mVertex + model->mMeshVertices[j+1].mMeshVert;
+					RRMesh::Triangle ti;
+					ti[0] = model->mFaces[f].mVertex + model->mMeshVertices[j  ].mMeshVert;
+					ti[1] = model->mFaces[f].mVertex + model->mMeshVertices[j+2].mMeshVert;
+					ti[2] = model->mFaces[f].mVertex + model->mMeshVertices[j+1].mMeshVert;
 
-							// clip parts of scene never visible in Lightsmark 2008
-							if (g_lightsmark)
-							{
-								unsigned clipped = 0;
-								for (unsigned v=0;v<3;v++)
-								{
-									//float x = model->mVertices[ti.t[v]].mPosition[0]*0.015f;
-									float y = model->mVertices[ti.t[v]].mPosition[2]*0.015f;
-									float z = -model->mVertices[ti.t[v]].mPosition[1]*0.015f;
-									if (y<-18.2f || z>11.5f) clipped++;
-									//if (x<23||x>24||y<-6||y>-4||z<-5||z>-3) clipped++; // zoom on geometry errors
-								}
-								if (clipped==3) continue;
-							}
+					// clip parts of scene never visible in Lightsmark 2008
+					if (g_lightsmark)
+					{
+						unsigned clipped = 0;
+						for (unsigned v=0;v<3;v++)
+						{
+							RRVec3 pos = convertPos(model->mVertices[ti[v]].mPosition);
+							if (pos.y<-18.2f || pos.z>11.5f) clipped++;
+							//if (x<23||x>24||y<-6||y>-4||z<-5||z>-3) clipped++; // zoom on geometry errors
+						}
+						if (clipped==3) continue;
+					}
 
 #ifdef PACK_VERTICES
-							// pack vertices, remove unused
-							for (unsigned v=0;v<3;v++)
-							{
-								if (xlat[ti.t[v]]==UINT_MAX)
-								{
-									xlat[ti.t[v]] = (unsigned)vertices.size();
-									VertexInfo vi;
-									vi.position[0] = model->mVertices[ti.t[v]].mPosition[0]*0.015f;
-									vi.position[1] = model->mVertices[ti.t[v]].mPosition[2]*0.015f;
-									vi.position[2] = -model->mVertices[ti.t[v]].mPosition[1]*0.015f;
-									vi.texCoordDiffuse[0] = model->mVertices[ti.t[v]].mTexCoord[0][0];
-									vi.texCoordDiffuse[1] = model->mVertices[ti.t[v]].mTexCoord[0][1];
-
-									// as we merge all objects, we must merge also lightmaps
-									unsigned numLightmaps = (unsigned)model->mLightMaps.size();
-									unsigned w = (unsigned)(sqrt((float)numLightmaps)+0.99999f);
-									unsigned h = (numLightmaps+w-1)/w;
-									unsigned x = model->mFaces[f].mLightmapIndex % w;
-									unsigned y = model->mFaces[f].mLightmapIndex / w;
-									vi.texCoordLightmap[0] = ( model->mVertices[ti.t[v]].mTexCoord[1][0] + x)/w;
-									vi.texCoordLightmap[1] = ( model->mVertices[ti.t[v]].mTexCoord[1][1] + y)/h;
-
-									vertices.push_back(vi);
-								}
-								ti.t[v] = xlat[ti.t[v]];
-							}
+					// pack vertices, remove unused
+					for (unsigned v=0;v<3;v++)
+					{
+						if (xlat[ti[v]]==UINT_MAX)
+						{
+							xlat[ti[v]] = (unsigned)vertices.size();
+							vertices.push_back(VertexInfo(model->mVertices[ti[v]],model->mFaces[f].mLightmapIndex,model->mLightMaps.size()));
+						}
+						ti[v] = xlat[ti[v]];
+					}
 #endif
 
+					triangles.push_back(ti);
+				}
+			}
+			else
+			if (model->mFaces[f].mType==2) // 2=patch
+			{
+				int L = 4;
+				int L1 = L+1;
+
+				for (int y=0;y<(model->mFaces[f].mPatchSize[1]-1)/2;y++)
+				for (int x=0;x<(model->mFaces[f].mPatchSize[0]-1)/2;x++)
+				{
+					TVertex controls[9];
+					for (unsigned c=0;c<9;c++)
+						controls[c] = model->mVertices[model->mFaces[f].mVertex+model->mFaces[f].mPatchSize[0]*(2*y+c/3)+2*x+(c%3)];
+
+					// vertices
+					size_t vertexBase = vertices.size() -(x?L1:0);// -(x?L1*L1*((model->mFaces[f].mPatchSize[1]-1)/2):0);
+					vertices.resize(vertexBase+L1*L1);
+					for (int i = 0; i < L1; ++i)
+					{
+						double a = (double)i / L;
+						double b = 1 - a;
+						vertices[vertexBase+i] = VertexInfo(
+							controls[0] * (b * b) + 
+							controls[3] * (2 * b * a) +
+							controls[6] * (a * a),
+							model->mFaces[f].mLightmapIndex,model->mLightMaps.size());
+					}
+					for (int i = 1; i < L1; ++i)
+					{
+						double a = (double)i / L;
+						double b = 1.0 - a;
+						TVertex temp[3];
+						for (int j = 0; j < 3; ++j)
+						{
+							int k = 3 * j;
+							temp[j] =
+								controls[k + 0] * (b * b) + 
+								controls[k + 1] * (2 * b * a) +
+								controls[k + 2] * (a * a);
+						}
+						for(int j = 0; j < L1; ++j)
+						{
+							double a = (double)j / L;
+							double b = 1.0 - a;
+							vertices[vertexBase+i*L1+j] = VertexInfo(
+								temp[0] * (b * b) + 
+								temp[1] * (2 * b * a) +
+								temp[2] * (a * a),
+								model->mFaces[f].mLightmapIndex,model->mLightMaps.size());
+						}
+					}
+
+				
+					// indices
+					for (int row = 0; row < L; ++row) {
+						for(int col = 0; col < L; ++col)	{
+							RRMesh::Triangle ti;
+							ti[0] = vertexBase+row*L1+col;
+							ti[1] = vertexBase+row*L1+col+1+L1;
+							ti[2] = vertexBase+row*L1+col+1;
 							triangles.push_back(ti);
-							numTrianglesInFacegroup++;
+							ti[1] = vertexBase+row*L1+col+L1;
+							ti[2] = vertexBase+row*L1+col+L1+1;
+							triangles.push_back(ti);
 						}
 					}
 				}
+			}
 			//else
-			//if (model->mFaces[i].mType==3)
+			//if (model->mFaces[i].mType==3) // 3=mesh
 			//{
 			//	for (unsigned j=0;j<(unsigned)model->mFaces[i].mNbVertices;j+=3)
 			//	{
-			//		TriangleInfo ti;
-			//		ti.t[0] = model->mFaces[i].mVertex+j;
-			//		ti.t[1] = model->mFaces[i].mVertex+j+1;
-			//		ti.t[2] = model->mFaces[i].mVertex+j+2;
-			//		ti.s = model->mFaces[i].mTextureIndex;
+			//		RRMesh::Triangle ti;
+			//		ti[0] = model->mFaces[i].mVertex+j;
+			//		ti[1] = model->mFaces[i].mVertex+j+1;
+			//		ti[2] = model->mFaces[i].mVertex+j+2;
 			//		triangles.push_back(ti);
 			//	}
 			//}
-			}
 		}
 		// push all materials to preserve material numbering
 		materials.push_back(material);
-		faceGroups.push_back(FaceGroup(material,numTrianglesInFacegroup));
+		faceGroups.push_back(FaceGroup(material,triangles.size()-numTrianglesBeforeFacegroup));
 	}
 
 #ifdef PACK_VERTICES
@@ -286,13 +369,7 @@ void RRObjectQuake3::getVertex(unsigned v, Vertex& out) const
 #ifdef PACK_VERTICES
 	out = vertices[v].position;
 #else
-	// To become compatible with our conventions, positions are transformed:
-	// - Y / Z components swapped to get correct up vector
-	// - one component negated to swap front/back
-	// - *0.015f to convert to meters
-	out[0] = model->mVertices[v].mPosition[0]*0.015f;
-	out[1] = model->mVertices[v].mPosition[2]*0.015f;
-	out[2] = -model->mVertices[v].mPosition[1]*0.015f;
+	out = convertPos(model->mVertices[v].mPosition);
 #endif
 }
 
@@ -308,7 +385,7 @@ void RRObjectQuake3::getTriangle(unsigned t, Triangle& out) const
 		RR_ASSERT(0);
 		return;
 	}
-	out = triangles[t].t;
+	out = triangles[t];
 }
 
 /*

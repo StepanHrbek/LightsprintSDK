@@ -156,6 +156,8 @@ struct TVertex
 	float				mTexCoord[2][2];	// Vertex texture coordinates. 0 = Surface, 1 = Lightmap.  
 	float				mNormal[3];			// Vertex normal.  
 	unsigned char		mColor[4];			// Vertex color (RGBA).  
+	TVertex operator+(const TVertex& a) const;
+	TVertex operator*(double a) const;
 };
 
 /**
