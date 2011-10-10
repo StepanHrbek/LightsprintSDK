@@ -393,8 +393,8 @@
     <ClCompile Include="MultiMeshCollider.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\LightsprintIO\LightsprintIO.vs2010.vcxproj">
-      <Project>{98765432-1234-11d0-8d11-00a0c91bc942}</Project>
+    <ProjectReference Include="..\..\src\LightsprintCore\LightsprintCore.vs2010.vcxproj">
+      <Project>{a93c8c21-6c34-4bb2-46b3-7c8d93ed3a4a}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
