@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news126 ------------------------------------ 2011.09.xx -------------------------------------
+\section news126 ------------------------------------ 2011.09.06 -------------------------------------
 
 NEWS
 
@@ -29,7 +29,7 @@ NEWS
     - "Dynamic" checkbox added to Object properties
     - dynamic objects can be selected, manipulated etc
   - shift/ctrl/alt while left dragging locks movement to one or two axes only while modifier key is pressed
-  - right dragging = rotation
+  - right dragging selection = rotation
     - with ctrl: swaps direction of rotation
     - with alt: rotates in view axis
     - with shift: scales instead of rotating
@@ -42,6 +42,7 @@ NEWS
   - 1 new operator: ==
   - 3 new functions: getYawPitchRoll(), invertedTo(), postScale()
   - 3 renamed functions: transformedPosition() -> getTransformedPosition(), transformedDirection() -> getTransformedDirection(), translate() -> postTranslate()
+  - change RRMatrix3x4 m={1,0,0,0, 0,1,0,0, 0,0,1,0}; to RRMatrix3x4 m(1,0,0,0, 0,1,0,0, 0,0,1,0);
 - misc tools
   - unary operator - for RRVec2,3,4
   - RRVector::pop_back() added

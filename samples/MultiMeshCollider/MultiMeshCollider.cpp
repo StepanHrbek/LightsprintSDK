@@ -39,10 +39,10 @@ int main()
 	meshes[0] = RRMesh::create(RRMesh::TRI_LIST,RRMesh::FLOAT32,vertexArray,6,3*sizeof(float));
 
 	// create mesh[1] as another instance of mesh[0], but slightly translated. data are not duplicated
-	RRMatrix3x4 matrix = {
+	RRMatrix3x4 matrix(
 		1,0,0,0,
 		0,1,0,-0.1f,
-		0,0,1,0};
+		0,0,1,0);
 	meshes[1] = meshes[0]->createTransformed(&matrix);
 
 	// create multimesh, glue array of meshes together without duplicating data
