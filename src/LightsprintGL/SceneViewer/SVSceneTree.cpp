@@ -155,17 +155,20 @@ EntityId SVSceneTree::itemIdToEntityId(wxTreeItemId item) const
 	return data ? data->entityId : EntityId();
 }
 
-static void manipulateCamera(Camera& camera, const rr::RRMatrix3x4& transformation)
+static void manipulateCamera(Camera& camera, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
 {
+	float oldRoll = camera.yawPitchRollRad[2];
 	rr::RRMatrix3x4 matrix(camera.inverseViewMatrix,true);
 	matrix = transformation * matrix;
 	camera.pos = matrix.getTranslation();
 	camera.yawPitchRollRad = matrix.getYawPitchRoll();
+	if (!rollChangeAllowed) // prevent unwanted roll distortion (yawpitch changes would accumulate rounding errors in roll)
+		camera.yawPitchRollRad[2] = oldRoll;
 	RR_CLAMP(camera.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 	camera.update();
 }
 
-void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation)
+void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
 {
 	if (!svframe->m_canvas)
 		return;
@@ -194,23 +197,23 @@ void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& trans
 		case ST_LIGHT:
 			{
 				RealtimeLight* rtlight = solver->realtimeLights[entity.index];
-				manipulateCamera(*rtlight->getParent(),transformation);
+				manipulateCamera(*rtlight->getParent(),transformation,rollChangeAllowed);
 				rtlight->updateAfterRealtimeLightChanges();
 				solver->reportDirectIlluminationChange(entity.index,true,true,true);
 			}
 			break;
 		case ST_CAMERA:
 			{
-				manipulateCamera(svs.eye,transformation);
+				manipulateCamera(svs.eye,transformation,rollChangeAllowed);
 			}
 			break;
 	}
 }
 
-void SVSceneTree::manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation)
+void SVSceneTree::manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
 {
 	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
-		manipulateEntity(*i,transformation);
+		manipulateEntity(*i,transformation,rollChangeAllowed);
 }
 
 void SVSceneTree::selectEntityInTree(EntityId entity)
