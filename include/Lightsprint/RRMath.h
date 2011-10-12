@@ -286,8 +286,13 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 	//
 	//! Translation is stored in m[x][3].
 	//! Rotation and scale in the rest.
-	//! \n We have chosen this format because it contains only what we need, is smaller than 4x4
+	//!
+	//! We have chosen this format because it contains only what we need, is smaller than 4x4
 	//! and its shape makes no room for row or column major ambiguity.
+	//!
+	//! Decomposition functions assume that matrix was composed from (in this order): scale, rotation and translation;
+	//! so when composing matrices for later decomposition, use either <code>m = translation() * rotationByYawPitchRoll() * scale();</code>
+	//! or slightly faster but otherwise identical <code>m = rotationByYawPitchRoll(); m.preScale(); m.postTranslate();</code>
 	struct RR_API RRMatrix3x4
 	{
 		RRReal m[3][4];
@@ -325,22 +330,20 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRVec3 getTranslation() const;
 		//! Sets translation component of matrix.
 		void setTranslation(const RRVec3& a);
-		//! Applies translation on top of transformations defined by this matrix, optimized *this=translation(a)**this;
+		//! Applies translation on top of other transformations defined by this matrix, optimized *this=translation(a)**this;
 		void postTranslate(const RRVec3& a);
 		//! Returns the same transformation with pretranslation -center and posttranslation +center.
 		RRMatrix3x4 centeredAround(const RRVec3& center) const;
 
 		//! Returns scale component of matrix. Negative scale is supported. Use getScale().abs().avg() for absolute uniform scale.
 		RRVec3 getScale() const;
-		//! Sets scale component of matrix. Negative scale is supported. Scale does not affect translation. Scale 0 resets rotation component of matrix.
-		void setScale(const RRVec3& a);
-		//! Applies scale on top of transformations defined by this matrix, optimized *this=scale(a)**this;
-		void postScale(const RRVec3& a);
+		//! Applies scale before other transformations defined by this matrix; optimized *this*=scale(a);
+		void preScale(const RRVec3& a);
 
 		//! Returns Yaw + Pitch + Roll = YXZ Euler angles as defined at http://en.wikipedia.org/wiki/Euler_angles
 		//
-		//! Works only for matrices that represent rotation and/or translation of rigid body,
-		//! is undefined for other matrices (e.g. rotation with scaling).
+		//! Works for matrices that represent scale, rotation and translation (in this order) of rigid body,
+		//! is undefined for non-orthogonal matrices.
 		RRVec3 getYawPitchRoll() const;
 
 		//! Returns determinant of first 3x3 elements.

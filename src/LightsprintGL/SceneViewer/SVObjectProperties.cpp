@@ -36,13 +36,14 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			Append(propDynamic = new BoolRefProperty(_("Dynamic"),_("Can we move/scale/rotate it?"),object->isDynamic));
 
 			// location
-			Append(propLocation = new wxStringProperty(_("Location"),wxPG_LABEL));
+			Append(propLocation = new wxStringProperty(_("Placement"),wxPG_LABEL));
 			EnableProperty(propLocation,false);
 			const rr::RRMatrix3x4 worldMatrix = object->getWorldMatrixRef();
 			AppendIn(propLocation, propCenter = new RRVec3Property(_("World center"),_("Center of object in world space"),_precision,worldMatrix.getTransformedPosition(localCenter)));
 			EnableProperty(propCenter,false);
-			AppendIn(propLocation, propTranslation = new RRVec3Property(_("World translation"),_("Translation of object in world space"),_precision,worldMatrix.getTranslation()));
-			AppendIn(propLocation, propScale = new RRVec3Property(_("Scale"),_("How many times object is bigger than mesh"),_precision,worldMatrix.getScale()));
+			AppendIn(propLocation, propTranslation = new RRVec3Property(_("Translation")+" (m)",_("Translation of object in world space"),_precision,worldMatrix.getTranslation(),10));
+			AppendIn(propLocation, propRotation = new RRVec3Property(_("Rotation")+L" (\u00b0)",_("Yaw/pitch/roll rotation angles"),_precision,RR_RAD2DEG(worldMatrix.getYawPitchRoll()),10));
+			AppendIn(propLocation, propScale = new RRVec3Property(_("Scale"),_("How many times object is bigger than mesh"),_precision,worldMatrix.getScale(),10));
 
 			// illumination
 			Append(propIllumination = new wxStringProperty(_("Illumination"),wxPG_LABEL));
@@ -102,6 +103,7 @@ void SVObjectProperties::updateHide()
 	if (object)
 	{
 		EnableProperty(propTranslation,object->isDynamic);
+		EnableProperty(propRotation,object->isDynamic);
 		EnableProperty(propScale,object->isDynamic);
 	}
 }
@@ -135,8 +137,9 @@ void SVObjectProperties::updateProperties()
 	}
 
 	// must be updated after dynamic object dragging
-	updateProperty(propTranslation,object->getWorldMatrixRef().getTranslation());
 	updateProperty(propCenter,object->getWorldMatrixRef().getTransformedPosition(localCenter));
+	updateProperty(propTranslation,object->getWorldMatrixRef().getTranslation());
+	updateProperty(propRotation,RR_RAD2DEG(object->getWorldMatrixRef().getYawPitchRoll()));
 	updateProperty(propScale,object->getWorldMatrixRef().getScale());
 }
 
@@ -168,16 +171,22 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		object->illumination.envMapWorldCenter = worldMatrix.getTransformedPosition(localCenter);
 	}
 	else
-	if (property==propScale)
+	if (property==propScale || property==propRotation)
 	{
-		rr::RRMatrix3x4 worldMatrix = object->getWorldMatrixRef();
-		RRVec3 newScale;
-		newScale << property->GetValue();
-		RRVec3 oldScale = worldMatrix.getScale();
-		for (unsigned i=0;i<3;i++)
-			if (newScale[i]==0) newScale[i] = oldScale[i];
-		worldMatrix.setScale(newScale);
+		RRVec3 scale;
+		scale << propScale->GetValue();
+		RRVec3 rotation;
+		rotation << propRotation->GetValue();
+		RRVec3 translation = object->getWorldMatrixRef().getTranslation();
+		rr::RRMatrix3x4 worldMatrix = rr::RRMatrix3x4::rotationByYawPitchRoll(RR_DEG2RAD(rotation));
+		worldMatrix.preScale(scale);
+		worldMatrix.postTranslate(translation);
 		object->setWorldMatrix(&worldMatrix);
+
+		// when user enters negative scale, part of information is lost in matrix, decomposition may return different angles and scale signs
+		// better update panel now (otherwise it would update after reselecting object)
+		// (alternatively we can keep user entered values, not update, but user would be surprised when he returns back to this object later)
+		updateProperties();
 	}
 }
 

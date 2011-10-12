@@ -341,41 +341,18 @@ RRVec3 RRMatrix3x4::getScale() const
 	RRVec3 scale;
 	for (unsigned i=0;i<3;i++)
 	{
-		RRReal sign = m[i][0]+m[i][1]+m[i][2];
-		RRReal value = fabs(m[i][0])+fabs(m[i][1])+fabs(m[i][2]);
-		scale[i] = sign>=0?value:-value;
+		scale[i] = RRVec3(m[0][i],m[1][i],m[2][i]).length();
+		if (!_finite(scale[i])) scale[i] = 1;
 	}
+	if (determinant3x3()<0) scale[0] *= -1;
 	return scale;
 }
 
-void RRMatrix3x4::setScale(const RRVec3& newScale)
-{
-	RRVec3 oldScale = getScale();
-	for (unsigned i=0;i<3;i++)
-	{
-		if (_finite(newScale[i])) // work only if inputs are valid
-		{
-			if (_finite(newScale[i]/oldScale[i]))
-			{
-				// standard scaling
-				for (unsigned j=0;j<4;j++)
-					m[i][j] = m[i][j]/oldScale[i]*newScale[i];
-			}
-			else
-			{
-				// matrix reconstruction after previous setScale(0)
-				for (unsigned j=0;j<3;j++)
-					m[i][j] = (i==j)?newScale[i]:0;
-			}
-		}
-	}
-}
-
-void RRMatrix3x4::postScale(const RRVec3& scale)
+void RRMatrix3x4::preScale(const RRVec3& scale)
 {
 	for (unsigned i=0;i<3;i++)
-		for (unsigned j=0;j<4;j++)
-			m[i][j] *= scale[i];
+		for (unsigned j=0;j<3;j++)
+			m[i][j] *= scale[j];
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -413,16 +390,24 @@ RRMatrix3x4 RRMatrix3x4::rotationByYawPitchRoll(const RRVec3& yawPitchRoll)
 
 RRVec3 RRMatrix3x4::getYawPitchRoll() const
 {
-	if (abs(m[1][2])<1)
+	RRVec3 scale = getScale();
+	RRVec3 yawPitchRoll;
+	if (abs(m[1][2])<scale[2])
 	{
-		RRReal pitch = asin(-m[1][2]); // or RR_PI-pitch
-		RRReal a = 1/cos(pitch);
-		RRReal yaw = atan2(m[0][2]*a,m[2][2]*a);
-		RRReal roll = atan2(m[1][0]*a,m[1][1]*a);
-		return RRVec3(yaw,pitch,roll);
+		RRReal pitch = asin(-m[1][2]/scale[2]); // or RR_PI-pitch
+		RRReal a = cos(pitch);
+		RRReal yaw = atan2(m[0][2]/(scale[2]*a),m[2][2]/(scale[2]*a));
+		RRReal roll = atan2(m[1][0]/(scale[0]*a),m[1][1]/(scale[1]*a));
+		yawPitchRoll = RRVec3(yaw,pitch,roll);
 	}
 	else
-		return RRVec3(atan2(-m[2][0],m[0][0]),-RR_PI/2*m[1][2],0);
+	{
+		yawPitchRoll = RRVec3(atan2(-m[2][0]/scale[0],m[0][0]/scale[0]),-RR_PI/2*m[1][2]/scale[2],0);
+	}
+	for (unsigned i=0;i<3;i++)
+		if (!_finite(yawPitchRoll[i]))
+			yawPitchRoll[i] = 0;
+	return yawPitchRoll;
 }
 
 //////////////////////////////////////////////////////////////////////////////

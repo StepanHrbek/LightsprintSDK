@@ -44,6 +44,7 @@ namespace rr_gl
 		wxPGProperty*     propLocation;
 		wxPGProperty*     propCenter;
 		wxPGProperty*     propTranslation;
+		wxPGProperty*     propRotation;
 		wxPGProperty*     propScale;
 		wxPGProperty*     propIllumination;
 		wxPGProperty*     propCubeDiffuse;
