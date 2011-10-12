@@ -1087,7 +1087,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 					svs.eye.right * ((speedRight-speedLeft)*meters) +
 					svs.eye.up * ((speedUp-speedDown)*meters) +
 					rr::RRVec3(0,speedY*meters,0))
-				* rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.dir,speedLean*seconds*0.5f).centeredAround(center),
+				* rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.dir,-speedLean*seconds*0.5f).centeredAround(center),
 				speedLean?true:false
 				);
 		}
