@@ -249,35 +249,40 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 			else
 			if (model->mFaces[f].mType==2) // 2=patch
 			{
+				// patch consists of segments LxL squares big, L1*L1 vertices big
+				const TFace& patch = model->mFaces[f];
 				int L = 4;
 				int L1 = L+1;
 
-				for (int y=0;y<(model->mFaces[f].mPatchSize[1]-1)/2;y++)
-				for (int x=0;x<(model->mFaces[f].mPatchSize[0]-1)/2;x++)
+				// add vertices
+				unsigned vertexBase = (unsigned)vertices.size();
+				unsigned vertexW = (patch.mPatchSize[0]-1)/2*L+1;
+				unsigned vertexH = (patch.mPatchSize[1]-1)/2*L+1;
+				vertices.resize(vertexBase+vertexW*vertexH);
+				for (int y=0;y<(patch.mPatchSize[1]-1)/2;y++)
+				for (int x=0;x<(patch.mPatchSize[0]-1)/2;x++)
 				{
 					TVertex controls[9];
 					for (unsigned c=0;c<9;c++)
-						controls[c] = model->mVertices[model->mFaces[f].mVertex+model->mFaces[f].mPatchSize[0]*(2*y+c/3)+2*x+(c%3)];
+						controls[c] = model->mVertices[patch.mVertex+patch.mPatchSize[0]*(2*y+c/3)+2*x+(c%3)];
 
-					// vertices
-					size_t vertexBase = vertices.size() -(x?L1:0);// -(x?L1*L1*((model->mFaces[f].mPatchSize[1]-1)/2):0);
-					vertices.resize(vertexBase+L1*L1);
-					for (int i = 0; i < L1; ++i)
+					unsigned vertexBase2 = vertexBase + vertexW*L*y + L*x;
+					for (int j=0;j<L1;j++)
 					{
-						double a = (double)i / L;
-						double b = 1 - a;
-						vertices[vertexBase+i] = VertexInfo(
+						double a = (double)j/L;
+						double b = 1-a;
+						vertices[vertexBase2+j*vertexW] = VertexInfo(
 							controls[0] * (b * b) + 
 							controls[3] * (2 * b * a) +
 							controls[6] * (a * a),
-							model->mFaces[f].mLightmapIndex,model->mLightMaps.size());
+							patch.mLightmapIndex,model->mLightMaps.size());
 					}
-					for (int i = 1; i < L1; ++i)
+					for (int i=1;i<L1;i++)
 					{
-						double a = (double)i / L;
+						double a = (double)i/L;
 						double b = 1.0 - a;
 						TVertex temp[3];
-						for (int j = 0; j < 3; ++j)
+						for (int j=0;j<3;j++)
 						{
 							int k = 3 * j;
 							temp[j] =
@@ -285,32 +290,31 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 								controls[k + 1] * (2 * b * a) +
 								controls[k + 2] * (a * a);
 						}
-						for(int j = 0; j < L1; ++j)
+						for(int j=0;j<L1;j++)
 						{
-							double a = (double)j / L;
+							double a = (double)j/L;
 							double b = 1.0 - a;
-							vertices[vertexBase+i*L1+j] = VertexInfo(
+							vertices[vertexBase2+j*vertexW+i] = VertexInfo(
 								temp[0] * (b * b) + 
 								temp[1] * (2 * b * a) +
 								temp[2] * (a * a),
-								model->mFaces[f].mLightmapIndex,model->mLightMaps.size());
+								patch.mLightmapIndex,model->mLightMaps.size());
 						}
 					}
+				}
 
-				
-					// indices
-					for (int row = 0; row < L; ++row) {
-						for(int col = 0; col < L; ++col)	{
-							RRMesh::Triangle ti;
-							ti[0] = vertexBase+row*L1+col;
-							ti[1] = vertexBase+row*L1+col+1+L1;
-							ti[2] = vertexBase+row*L1+col+1;
-							triangles.push_back(ti);
-							ti[1] = vertexBase+row*L1+col+L1;
-							ti[2] = vertexBase+row*L1+col+L1+1;
-							triangles.push_back(ti);
-						}
-					}
+				// add indices
+				for (unsigned x=0;x+1<vertexW;x++)
+				for (unsigned y=0;y+1<vertexH;y++)
+				{
+					RRMesh::Triangle ti;
+					ti[0] = vertexBase+vertexW*(y  )+(x  );
+					ti[1] = vertexBase+vertexW*(y  )+(x+1);
+					ti[2] = vertexBase+vertexW*(y+1)+(x+1);
+					triangles.push_back(ti);
+					ti[1] = vertexBase+vertexW*(y+1)+(x+1);
+					ti[2] = vertexBase+vertexW*(y+1)+(x  );
+					triangles.push_back(ti);
 				}
 			}
 			//else
