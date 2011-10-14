@@ -1762,8 +1762,8 @@ Video formats
    - RRBuffer
 
  \section d14 Instances
-   - stored in: RRDynamicSolver::getIllumination()->getLayer()
-   - created by: you
+   - stored in: RRObjectIllumination::getLayer()
+   - created by: RRDynamicSolver::allocateBuffersForRealtimeGI() or allocate and assign buffers yourself
    - updated by: RRDynamicSolver::updateLightmaps()
      or RRDynamicSolver::updateLightmap().
 
@@ -1786,8 +1786,7 @@ Video formats
 	// set program created from shaders below
 	glUseProgram(program);
 	// get vertex buffer with indirect illumination
-	rr::RRBuffer* vertexBuffer = dynamicSolver->
-		getIllumination(numberOfObject)->getLayer(0);
+	rr::RRBuffer* vertexBuffer = object->illumination.getLayer(0);
 	// enable stream with color values
 	glEnableClientState(GL_COLOR_ARRAY);
 	// set pointer to color data for first vertex
@@ -1828,8 +1827,7 @@ Video formats
 	device->CreateVertexDeclaration(description, &vertexDeclaration);
 	...
 	// create d3d vertex buffer and fill it with vertexBuffer->lock() data
-	rr::RRBuffer* vertexBuffer = dynamicSolver->
-		getIllumination(numberOfObject)->getLayer(0);
+	rr::RRBuffer* vertexBuffer = object->illumination.getLayer(0);
 	IDirect3DVertexBuffer9* d3dBuffer = ...;
 	// to prevent data duplication and copying, implement RRBuffer
 	//  that stores vertex data directly into d3d vertex buffer
@@ -1911,7 +1909,7 @@ Video formats
    - RRBuffer
 
  \section d24 Instances
-   - stored in: RRDynamicSolver::getIllumination()->getLayer()
+   - stored in: RRObjectIllumination::getLayer()
      or your arbitrary location.
    - created by: you
    - updated by: RRDynamicSolver::updateLightmaps()
@@ -1938,8 +1936,7 @@ Video formats
 	glUseProgram(program);
 	// bind lightmap to texture0
 	glActiveTexture(GL_TEXTURE0);
-	getTexture(dynamicSolver->getIllumination(numberOfObject)->
-		getLayer(0))->bindTexture();
+	getTexture(object->illumination.getLayer(0))->bindTexture();
 	// set sampler to use texture0
 	glUniform1i(glGetUniformLocation(program,"lightmap"),0);
 	// enable stream with texture coordinates
@@ -1986,8 +1983,7 @@ Video formats
 	device->SetPixelShader(vertexShader);
 	device->SetPixelShader(pixelShader);
 	// set sampler to use lightmap
-	rr::RRBuffer* lightmap = dynamicSolver->
-		getIllumination(numberOfObject)->getLayer(0);
+	rr::RRBuffer* lightmap = object->illumination.getLayer(0);
 	...
 	// set vertex declaration for your mesh data,
 	//  including uv channel with unwrap
@@ -2054,8 +2050,8 @@ Video formats
 
  \section d34 Instances
    - stored in: RRObjectIllumination::diffuseEnvMap and RRObjectIllumination::specularEnvMap or your arbitrary location
-   - created by: you
-   - updated by: RRDynamicSolver::updateEnvironmentMap()
+   - created by: RRDynamicSolver::allocateBuffersForRealtimeGI() or allocate and assign buffers yourself
+   - updated by: RRDynamicSolver::updateEnvironmentMap() or RRLightField::updateEnvironmentMap()
 
  \section d36 Rendering
    - Many rendering techniques are based on faked precomputed environment maps.

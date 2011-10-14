@@ -14,10 +14,11 @@ NEWS
 
 - improved scene viewer
   - Object properties / Rotation
+- improved Quake3 .bsp import, reads curved surfaces too
 
 CHANGES
 
-- removed RRMatrix3x4::setScale(s)
+- removed RRMatrix3x4::setScale(s), other scaling functions in RRMatrix3x4 seem sufficient
 
 \section news126 ------------------------------------ 2011.09.06 -------------------------------------
 
