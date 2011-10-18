@@ -139,11 +139,11 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGILightmapWrapping = new BoolRefProperty(_("Wrapping"),_("Checked = smoothing works across lightmap boundaries."),svs.lightmapFilteringParameters.wrap);
 		AppendIn(propGILightmap,propGILightmapWrapping);
 
-		propGIBuildLmaps = new ButtonProperty(_("Build lightmaps"),_("Builds or rebuilds lightmaps for all static objects."),svframe,CM_STATIC_OBJECTS_BUILD_LMAPS);
+		propGIBuildLmaps = new ButtonProperty(_("Build lightmaps"),_("Builds or rebuilds lightmaps for all static objects."),svframe,CM_OBJECTS_BUILD_LMAPS);
 		AppendIn(propGILightmap,propGIBuildLmaps);
 		propGIBuildLmaps->updateImage();
 
-		propGIBuildLDMs = new ButtonProperty(_("Build LDMs"),_("Builds or rebuilds LDMs for all static objects."),svframe,CM_STATIC_OBJECTS_BUILD_LDMS);
+		propGIBuildLDMs = new ButtonProperty(_("Build LDMs"),_("Builds or rebuilds LDMs for all static objects."),svframe,CM_OBJECTS_BUILD_LDMS);
 		AppendIn(propGILightmap,propGIBuildLDMs);
 		propGIBuildLDMs->updateImage();
 		propGIBilinear = new BoolRefProperty(_("Bilinear"),_("Bilinear interpolation of lightmaps and LDMs, keep always on, unless you analyze pixels."),svs.renderLightmapsBilinear);

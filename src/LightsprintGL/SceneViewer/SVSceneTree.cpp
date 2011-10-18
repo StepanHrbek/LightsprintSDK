@@ -388,20 +388,20 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			bool selectedExactlyAllStaticObjects = entityIds.rbegin()->index+1==svframe->m_canvas->solver->getStaticObjects().size();
 			bool selectedOnlyStaticObjects = entityIds.rbegin()->index<svframe->m_canvas->solver->getStaticObjects().size();
 			if (selectedExactlyAllStaticObjects || svframe->userPreferences.testingBeta) // is safe only for all objects at once because lightmapTexcoord is in material, not in RRObject, we can't change only selected objects without duplicating materials
-				menu.Append(CM_STATIC_OBJECTS_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
+				menu.Append(CM_OBJECTS_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
 			if (selectedOnlyStaticObjects)
 			{
-				menu.Append(CM_STATIC_OBJECTS_BUILD_LMAPS,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel requires unwrap."));
-				menu.Append(CM_STATIC_OBJECTS_BUILD_LDMS,_("Build LDMs..."),_("(Re)builds LDMs, layer of additional per-pixel details. LDMs require unwrap."));
+				menu.Append(CM_OBJECTS_BUILD_LMAPS,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel requires unwrap."));
+				menu.Append(CM_OBJECTS_BUILD_LDMS,_("Build LDMs..."),_("(Re)builds LDMs, layer of additional per-pixel details. LDMs require unwrap."));
 			}
 			if (temporaryContext!=staticObjects && temporaryContextItems.size()==1)
-				menu.Append(CM_STATIC_OBJECT_INSPECT_UNWRAP,_("Inspect unwrap,lightmap,LDM..."),_("Shows unwrap and lightmap or LDM in 2D."));
+				menu.Append(CM_OBJECT_INSPECT_UNWRAP,_("Inspect unwrap,lightmap,LDM..."),_("Shows unwrap and lightmap or LDM in 2D."));
 			if (temporaryContextItems.size()>1)
-				menu.Append(CM_STATIC_OBJECTS_MERGE,_("Merge objects"),_("Merges objects together."));
-			menu.Append(CM_STATIC_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
+				menu.Append(CM_OBJECTS_MERGE,_("Merge objects"),_("Merges objects together."));
+			menu.Append(CM_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
 			if (svframe->userPreferences.testingBeta) // is in beta because tangents have no effect
-				menu.Append(CM_STATIC_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
-			menu.Append(CM_STATIC_OBJECTS_DELETE_DIALOG,_("Delete components..."),_("Deletes components within objects."));
+				menu.Append(CM_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
+			menu.Append(CM_OBJECTS_DELETE_DIALOG,_("Delete components..."),_("Deletes components within objects."));
 			if (temporaryContext!=staticObjects && !svframe->m_objectProperties->IsShown() && temporaryContextItems.size()==1)
 				menu.Append(SVFrame::ME_WINDOW_OBJECT_PROPERTIES, _("Properties..."));
 		}
@@ -535,7 +535,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			}
 			break;
 
-		case CM_STATIC_OBJECTS_UNWRAP:
+		case CM_OBJECTS_UNWRAP:
 			if (solver)
 			{
 				unsigned res = 256;
@@ -557,7 +557,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			}
 			break;
 
-		case CM_STATIC_OBJECTS_BUILD_LMAPS:
+		case CM_OBJECTS_BUILD_LMAPS:
 			if (solver)
 			{
 				unsigned res = 256; // 0=vertex buffers
@@ -602,7 +602,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			}
 			break;
 
-		case CM_STATIC_OBJECTS_BUILD_LDMS:
+		case CM_OBJECTS_BUILD_LDMS:
 			if (solver)
 			{
 				unsigned res = 256;
@@ -660,7 +660,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			}
 			break;
 
-		case CM_STATIC_OBJECT_INSPECT_UNWRAP:
+		case CM_OBJECT_INSPECT_UNWRAP:
 			svframe->m_canvas->selectedType = ST_OBJECT;
 			svs.selectedObjectIndex = contextEntityIds.begin()->index;
 			svs.renderLightmaps2d = 1;
@@ -670,7 +670,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			svframe->selectEntityInTreeAndUpdatePanel(EntityId(ST_OBJECT,svs.selectedObjectIndex),SEA_SELECT);
 			break;
 
-		case CM_STATIC_OBJECTS_SMOOTH: // right now, it smooths also dynamic objects
+		case CM_OBJECTS_SMOOTH: // right now, it smooths also dynamic objects
 			{
 				if (svframe->smoothDlg.ShowModal()==wxID_OK)
 				{
@@ -696,7 +696,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				}
 			}
 			break;
-		case CM_STATIC_OBJECTS_MERGE:
+		case CM_OBJECTS_MERGE:
 			{
 				// display log window with 'abort' while this function runs
 				LogWithAbort logWithAbort(this,solver,_("Merging objects..."));
@@ -740,7 +740,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				svframe->m_canvas->addOrRemoveScene(NULL,false); // calls svframe->updateAllPanels();
 			}
 			break;
-		case CM_STATIC_OBJECTS_TANGENTS:
+		case CM_OBJECTS_TANGENTS:
 			{
 				// display log window with 'abort' while this function runs
 				LogWithAbort logWithAbort(this,solver,_("Building tangents..."));
@@ -755,7 +755,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			}
 			break;
 
-		case CM_STATIC_OBJECTS_DELETE_DIALOG:
+		case CM_OBJECTS_DELETE_DIALOG:
 			if (solver)
 			if (svframe->deleteDlg.ShowModal()==wxID_OK)
 			{
