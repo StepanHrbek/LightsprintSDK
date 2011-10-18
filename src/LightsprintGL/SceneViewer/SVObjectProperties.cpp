@@ -169,6 +169,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		worldMatrix.setTranslation(newTranslation);
 		object->setWorldMatrix(&worldMatrix);
 		object->illumination.envMapWorldCenter = worldMatrix.getTransformedPosition(localCenter);
+		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
 	}
 	else
 	if (property==propScale || property==propRotation)
@@ -182,9 +183,10 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		worldMatrix.preScale(scale);
 		worldMatrix.postTranslate(translation);
 		object->setWorldMatrix(&worldMatrix);
+		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
 
 		// when user enters negative scale, part of information is lost in matrix, decomposition may return different angles and scale signs
-		// better update panel now (otherwise it would update after reselecting object)
+		// let's decompose and update panel now
 		// (alternatively we can keep user entered values, not update, but user would be surprised when he returns back to this object later)
 		updateProperties();
 	}
