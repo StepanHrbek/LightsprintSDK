@@ -151,6 +151,7 @@ void SVMaterialProperties::updateReadOnly()
 {
 	if (material)
 	{
+		EnableProperty(propName,!showPoint);
 		EnableProperty(propFront,!showPoint);
 		EnableProperty(propBack,!showPoint);
 		EnableProperty(propDiffuse,!showPoint);
@@ -447,7 +448,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 
 	// propagate change from physical material to custom and vice versa
-	if (!showPoint && materialPhysical && materialCustom && lastSolver && materialCustom && materialPhysical)
+	if (!showPoint && materialPhysical && materialCustom && lastSolver)
 	{
 		if (showPhysical)
 		{
