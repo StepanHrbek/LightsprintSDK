@@ -636,13 +636,13 @@ public:
 		if (!triangle[ray->hitTriangle].isLod0)
 			return false;
 
-		// don't collide when object has NULL material (illegal input)
-		//triangleMaterial = triangle[ray->hitTriangle].surface;
-		//if (!triangleMaterial)
-		//	return false;
-
-		//if (!triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
-		//	return false
+		// Don't collide when object has NULL material (illegal input), or catchFrom=false.
+		// For a very long time, we did not use any !catchFrom materials, and this was commented out as unnecessary.
+		// Then we started using !catchFrom (when both front and back are disabled in SV), here we respond to !catchFrom.
+		if (!triangle[ray->hitTriangle].surface)
+			return false;
+		if (!triangle[ray->hitTriangle].surface->sideBits[ray->hitFrontSide?0:1].catchFrom)
+			return false;
 
 		return result = true;
 	}
