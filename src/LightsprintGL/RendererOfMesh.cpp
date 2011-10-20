@@ -182,6 +182,7 @@ void MeshArraysVBOs::render(
 	const FaceGroupRange* _faceGroupRange,
 	unsigned _numFaceGroupRanges,
 	const UberProgramSetup& _uberProgramSetup,
+	bool _renderingFromLight,
 	rr::RRBuffer* _lightIndirectBuffer,
 	const rr::RRBuffer* _lightDetailMap)
 {
@@ -314,8 +315,8 @@ void MeshArraysVBOs::render(
 							// set face culling
 							if (_uberProgramSetup.MATERIAL_CULLING)
 							{
-								bool renderFront = material->sideBits[0].renderFrom;
-								bool renderBack = material->sideBits[1].renderFrom;
+								bool renderFront = material->sideBits[0].renderFrom || (_renderingFromLight && material->sideBits[0].catchFrom);
+								bool renderBack = material->sideBits[1].renderFrom || (_renderingFromLight && material->sideBits[1].catchFrom);
 								if (renderFront && renderBack)
 								{
 									glDisable(GL_CULL_FACE);
@@ -516,6 +517,7 @@ void RendererOfMesh::render(
 	const FaceGroupRange* _faceGroupRange,
 	unsigned _numFaceGroupRanges,
 	const UberProgramSetup& _uberProgramSetup,
+	bool _renderingFromLight,
 	rr::RRBuffer* _lightIndirectBuffer,
 	const rr::RRBuffer* _lightDetailMap)
 {
@@ -569,6 +571,7 @@ void RendererOfMesh::render(
 			_faceGroupRange,
 			_numFaceGroupRanges,
 			_uberProgramSetup,
+			_renderingFromLight,
 			_lightIndirectBuffer,
 			_lightDetailMap);
 	}

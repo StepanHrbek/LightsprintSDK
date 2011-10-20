@@ -493,6 +493,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 			&fgRange,
 			1,
 			uberProgramSetup,
+			false,
 			NULL,
 			NULL);
 

@@ -399,6 +399,7 @@ void RendererOfSceneImpl::render(
 						object,
 						&(*nonBlendedFaceGroups)[j],numRanges,
 						passUberProgramSetup,
+						_renderingFromThisLight?true:false,
 						objectBuffers.lightIndirectBuffer,
 						objectBuffers.lightIndirectDetailMap);
 
@@ -466,6 +467,7 @@ void RendererOfSceneImpl::render(
 					object,
 					&blendedFaceGroups[i],1,
 					passUberProgramSetup,
+					_renderingFromThisLight?true:false,
 					objectBuffers.lightIndirectBuffer,
 					objectBuffers.lightIndirectDetailMap);
 			}

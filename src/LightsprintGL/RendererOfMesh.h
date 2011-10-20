@@ -85,6 +85,7 @@ public:
 		const FaceGroupRange* faceGroupRange,
 		unsigned numFaceGroupRanges,
 		const UberProgramSetup& uberProgramSetup,
+		bool renderingFromLight, // true = renders also invisible backfaces (!renderFrom) that block photons (catchFrom)
 		rr::RRBuffer* lightIndirectBuffer,
 		const rr::RRBuffer* lightDetailMap);
 
@@ -146,6 +147,7 @@ public:
 		const FaceGroupRange* faceGroupRange,
 		unsigned numFaceGroupRanges,
 		const UberProgramSetup& uberProgramSetup,
+		bool _renderingFromLight, // true = renders also invisible backfaces (!renderFrom) that block photons (catchFrom)
 		rr::RRBuffer* lightIndirectBuffer,
 		const rr::RRBuffer* lightDetailMap);
 };
