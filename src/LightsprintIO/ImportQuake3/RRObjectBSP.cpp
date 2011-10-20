@@ -92,6 +92,12 @@ private:
 		VertexInfo()
 		{
 		}
+		VertexInfo(RRVec3 _position)
+		{
+			position = _position;
+			texCoordDiffuse = RRVec2(0);
+			texCoordLightmap = RRVec2(0);
+		}
 		VertexInfo(const TVertex& a, unsigned lightmapIndex, unsigned numLightmaps)
 		{
 			position = convertPos(a.mPosition);
@@ -127,7 +133,8 @@ enum
 // RRObjectQuake3 load
 
 // enables Lightsmark 2008 specific code. it affects only wop_padattic scene, you can safely delete it
-bool g_lightsmark = false;
+bool g_lightsmarkAttic = false;
+bool g_lightsmarkCloister = false;
 
 // Inputs: m
 // Outputs: t, s
@@ -138,7 +145,8 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 	// load texture
 	const char* strippedName = m->mName;
 	while (strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
-	bool knownMissingTexture = g_lightsmark && !(strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble")); // temporary: don't report known missing textures in Lightsmark
+	bool knownMissingTexture = (g_lightsmarkAttic && !(strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble"))) // temporary: don't report known missing textures in Lightsmark
+		|| (g_lightsmarkCloister && !(strcmp(strippedName,"utopiaatoll")));
 	RRBuffer* t = knownMissingTexture ? NULL : RRBuffer::load(m->mName,NULL,textureLocator);
 	if (t)
 		t->flip(false,true,false);
@@ -218,7 +226,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 					ti[2] = model->mFaces[f].mVertex + model->mMeshVertices[j+1].mMeshVert;
 
 					// clip parts of scene never visible in Lightsmark 2008
-					if (g_lightsmark)
+					if (g_lightsmarkAttic)
 					{
 						unsigned clipped = 0;
 						for (unsigned v=0;v<3;v++)
@@ -330,9 +338,49 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 			//	}
 			//}
 		}
-		// push all materials to preserve material numbering
+		// create facegroup for used material / delete unused material
+		if (triangles.size()-numTrianglesBeforeFacegroup)
+		{
+			materials.push_back(material);
+			faceGroups.push_back(FaceGroup(material,triangles.size()-numTrianglesBeforeFacegroup));
+		}
+		else
+			delete material;
+	}
+
+	// Lightsmark: add outer side of walls (fixes strips of sunlight leaking inside through thin 1-sided walls)
+	if (g_lightsmarkCloister)
+	{
+		RRVec3 mini,maxi;
+		getAABB(&mini,&maxi,NULL);
+		mini -= (maxi-mini)*0.01f;
+		maxi += (maxi-mini)*0.01f;
+		RR_SAFE_DELETE(aabbCache);
+		unsigned vertexBase = (unsigned)vertices.size();
+		vertices.push_back(VertexInfo(RRVec3(mini.x,mini.y,mini.z)));
+		vertices.push_back(VertexInfo(RRVec3(mini.x,maxi.y,mini.z)));
+		vertices.push_back(VertexInfo(RRVec3(mini.x,mini.y,maxi.z)));
+		vertices.push_back(VertexInfo(RRVec3(mini.x,maxi.y,maxi.z)));
+		vertices.push_back(VertexInfo(RRVec3(maxi.x,mini.y,maxi.z)));
+		vertices.push_back(VertexInfo(RRVec3(maxi.x,maxi.y,maxi.z)));
+		vertices.push_back(VertexInfo(RRVec3(maxi.x,mini.y,mini.z)));
+		vertices.push_back(VertexInfo(RRVec3(maxi.x,maxi.y,mini.z)));
+		unsigned triangleBase = (unsigned)triangles.size();
+		for (unsigned i=0;i<4;i++)
+		{
+			RRMesh::Triangle ti;
+			ti[0] = vertexBase+i*2;
+			ti[1] = vertexBase+(i*2+3)%8;
+			ti[2] = vertexBase+i*2+1;
+			triangles.push_back(ti);
+			ti[1] = vertexBase+(i*2+2)%8;
+			ti[2] = vertexBase+(i*2+3)%8;
+			triangles.push_back(ti);
+		}
+		RRMaterial* material = new RRMaterial;
+		material->reset(false);
 		materials.push_back(material);
-		faceGroups.push_back(FaceGroup(material,triangles.size()-numTrianglesBeforeFacegroup));
+		faceGroups.push_back(RRObject::FaceGroup(material,8));
 	}
 
 #ifdef PACK_VERTICES
@@ -482,9 +530,11 @@ public:
 				textureLocator->setLibrary(true,RR_PATH2RR(bf::path(RR_RR2PATH(filename)).parent_path()));
 				textureLocator->setExtensions(true,".jpg;.png;.tga");
 			}
-			g_lightsmark = strstr(filename.c_str(),"wop_padattic")!=NULL;
+			g_lightsmarkAttic = strstr(filename.c_str(),"wop_padattic")!=NULL;
+			g_lightsmarkCloister = strstr(filename.c_str(),"wop_padcloister")!=NULL;
 			scene->protectedObjects = adaptObjectsFromTMapQ3(&scene->scene_bsp,textureLocator);
-			g_lightsmark = false;
+			g_lightsmarkCloister = false;
+			g_lightsmarkAttic = false;
 			if (textureLocator)
 			{
 				// undo local changes
