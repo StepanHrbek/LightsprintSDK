@@ -155,25 +155,32 @@ EntityId SVSceneTree::itemIdToEntityId(wxTreeItemId item) const
 	return data ? data->entityId : EntityId();
 }
 
-static void manipulateCamera(Camera& camera, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
+// returns number of transformed entities
+static unsigned manipulateCamera(Camera& camera, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
 {
 	float oldRoll = camera.yawPitchRollRad[2];
 	rr::RRMatrix3x4 matrix(camera.inverseViewMatrix,true);
 	matrix = transformation * matrix;
+	RRVec3 newRot = matrix.getYawPitchRoll();
+	if (abs(abs(camera.yawPitchRollRad.x-newRot.x)-RR_PI)<RR_PI/2) // rot.x change is closer to -180 or 180 than to 0 or 360. this happens when rot.y overflows 90 or -90
+		return 0;
 	camera.pos = matrix.getTranslation();
-	camera.yawPitchRollRad = matrix.getYawPitchRoll();
+	camera.yawPitchRollRad = newRot;
 	if (!rollChangeAllowed) // prevent unwanted roll distortion (yawpitch changes would accumulate rounding errors in roll)
 		camera.yawPitchRollRad[2] = oldRoll;
-	RR_CLAMP(camera.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 	camera.update();
+	return 1;
 }
 
-void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
+// returns number of modified entities
+// - nothing is modified by identity matrix
+// - camera is not modified if it would overflow pitch from -90,90 range
+unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
 {
 	if (!svframe->m_canvas)
-		return;
+		return 0;
 	if (transformation.isIdentity()) // without this, we would transform camera by identity in every frame. such transformation converts euler angles to matrix and back = float errors accumulate over time, "front" view stops being exactly front etc
-		return;
+		return 0;
 	RRDynamicSolverGL* solver = svframe->m_canvas->solver;
 	switch(entity.type)
 	{
@@ -192,6 +199,7 @@ void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& trans
 					if (svframe->m_objectProperties->object==object)
 						svframe->m_objectProperties->updateProperties();
 				}
+				return 1;
 			}
 			break;
 		case ST_LIGHT:
@@ -200,20 +208,24 @@ void SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& trans
 				manipulateCamera(*rtlight->getParent(),transformation,rollChangeAllowed);
 				rtlight->updateAfterRealtimeLightChanges();
 				solver->reportDirectIlluminationChange(entity.index,true,true,true);
+				return 1;
 			}
 			break;
 		case ST_CAMERA:
 			{
-				manipulateCamera(svs.eye,transformation,rollChangeAllowed);
+				return manipulateCamera(svs.eye,transformation,rollChangeAllowed);
 			}
 			break;
 	}
+	return 0;
 }
 
-void SVSceneTree::manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
+unsigned SVSceneTree::manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
 {
+	unsigned result = 0;
 	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
-		manipulateEntity(*i,transformation,rollChangeAllowed);
+		result += manipulateEntity(*i,transformation,rollChangeAllowed);
+	return result;
 }
 
 void SVSceneTree::selectEntityInTree(EntityId entity)

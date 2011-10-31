@@ -82,8 +82,8 @@ namespace rr_gl
 		void OnContextMenuRun(wxCommandEvent& event);
 		wxTreeItemId entityIdToItemId(EntityId entity) const;
 		EntityId itemIdToEntityId(wxTreeItemId item) const;
-		void manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed);
-		void manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed);
+		unsigned manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed);
+		unsigned manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed);
 
 	private:
 		void updateSelectedEntityIds();

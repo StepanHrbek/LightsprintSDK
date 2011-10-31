@@ -947,7 +947,12 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			// rotating camera
 			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
 			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
-			svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5*svs.eye.getFieldOfViewHorizontalDeg()/90)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5*svs.eye.getFieldOfViewHorizontalDeg()/90)).centeredAround(svs.eye.pos),false);
+			while (!svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5*svs.eye.getFieldOfViewHorizontalDeg()/90)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5*svs.eye.getFieldOfViewHorizontalDeg()/90)).centeredAround(svs.eye.pos),false) && dragY)
+			{
+				// disable Y component and try rotation again, maybe this time pitch won't overflow 90/-90
+				// this makes rotation smoother when looking straight up/down
+				dragY = 0;
+			}
 		}
 		else
 		if (event.MiddleIsDown())
@@ -975,7 +980,10 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			//  rotate around clicked point, point does not move on screen
 			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
 			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
-			svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5)).centeredAround(s_ci.hitPoint3d),false);
+			while (!svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5)).centeredAround(s_ci.hitPoint3d),false) && dragY)
+			{
+				dragY = 0;
+			}
 			s_ciRenderCrosshair = true;
 		}
 
