@@ -377,8 +377,7 @@ void main()
 
 		#if SHADOW_SAMPLES==1
 			// hard shadows with 1 lookup
-			#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) \
-				visibility += shadow2DProj(shadowMap, shadowCoord).z
+			#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) visibility += shadow2DProj(shadowMap, shadowCoord).z
 		#else
 			// soft shadows with 2, 4 or 8 lookups in rotating kernel
 			#ifdef SHADOW_BILINEAR
@@ -390,31 +389,11 @@ void main()
 			vec3 shift1 = sc*shadowBlurWidth.w;
 			vec3 shift2 = sc.yxz*shadowBlurWidth.xyz;
 			#if SHADOW_SAMPLES==2
-				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) \
-				center = shadowCoord.xyz/shadowCoord.w; \
-				visibility += ( \
-					shadow2D(shadowMap, center+shift1).z \
-					+shadow2D(shadowMap, center-shift1).z )
+				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( shadow2D(shadowMap, center+shift1).z +shadow2D(shadowMap, center-shift1).z )
 			#elif SHADOW_SAMPLES==4
-				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) \
-				center = shadowCoord.xyz/shadowCoord.w; \
-				visibility += ( \
-					shadow2D(shadowMap, center+shift1).z \
-					+shadow2D(shadowMap, center-shift1).z \
-					+shadow2D(shadowMap, center+shift2).z \
-					+shadow2D(shadowMap, center-shift2).z )
+				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( shadow2D(shadowMap, center+shift1).z +shadow2D(shadowMap, center-shift1).z +shadow2D(shadowMap, center+shift2).z +shadow2D(shadowMap, center-shift2).z )
 			#elif SHADOW_SAMPLES==8
-				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) \
-				center = shadowCoord.xyz/shadowCoord.w; \
-				visibility += ( \
-					shadow2D(shadowMap, center+shift1).z \
-					+shadow2D(shadowMap, center-shift1).z \
-					+shadow2D(shadowMap, center+0.3*shift1).z \
-					+shadow2D(shadowMap, center-0.6*shift1).z \
-					+shadow2D(shadowMap, center+shift2).z \
-					+shadow2D(shadowMap, center-0.9*shift2).z \
-					+shadow2D(shadowMap, center+0.8*shift2).z \
-					+shadow2D(shadowMap, center-0.7*shift2).z )
+				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( shadow2D(shadowMap, center+shift1).z +shadow2D(shadowMap, center-shift1).z +shadow2D(shadowMap, center+0.3*shift1).z +shadow2D(shadowMap, center-0.6*shift1).z +shadow2D(shadowMap, center+shift2).z +shadow2D(shadowMap, center-0.9*shift2).z +shadow2D(shadowMap, center+0.8*shift2).z +shadow2D(shadowMap, center-0.7*shift2).z )
 			#endif
 		#endif // SHADOW_SAMPLES!=1
 
