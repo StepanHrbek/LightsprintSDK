@@ -900,6 +900,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		const EntityIds& manipulatedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
 		rr::RRVec3 manipulatedCenter = svframe->m_sceneTree->getCenterOf(manipulatedEntities);
 		bool manipulatingSelection = s_ci.clickedEntityIsSelected && manipulatedEntities!=svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_CAMERA);
+		bool manipulatingSingleLight = manipulatingSelection && selectedEntities.size()==1 && selectedEntities.begin()->type==ST_LIGHT;
 
 		if (event.LeftIsDown() && manipulatingSelection)
 		{
@@ -934,7 +935,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			if (event.ControlDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(1,0,0),-dragX*5); else
 			if (event.ShiftDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),-dragX*5); else
 			if (event.AltDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,0,1),-dragX*5); else
-				rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.up,-dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,-dragY*5);
+				rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.up,(manipulatingSingleLight?5:-5)*dragX)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,(manipulatingSingleLight?5:-5)*dragY);
 			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,rotation.centeredAround(manipulatedCenter),true);
 
 			s_ci.hitPoint3d = manipulatedCenter;
