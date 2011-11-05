@@ -67,7 +67,7 @@ public:
 	double   frustumMatrix[16];
 	//! Inverse projection matrix in format suitable for OpenGL.
 	double   inverseFrustumMatrix[16];
-	//! When set, it's position/direction is updated in update().
+	//! When set, its position/direction is updated in update().
 	rr::RRLight* origin;
 
 	// tools, to be called by user
@@ -147,8 +147,6 @@ public:
 
 	//! Updates all outputs, recalculates them from inputs.
 	void update();
-	//! Rotates viewMatrix into one of 6 directions of point light. To be called after update().
-	void rotateViewMatrix(unsigned instance);
 	//! Sends our outputs to OpenGL pipeline, so that following primitives are
 	//! transformed as if viewed by this camera.
 	void setupForRender() const;

@@ -352,8 +352,10 @@ namespace rr_gl
 		{
 			// edit output (view matrix) to avoid rounding errors, inputs stay unmodified
 			RR_ASSERT(instance<6);
+			Camera::View views[6] = {Camera::TOP,Camera::BOTTOM,Camera::FRONT,Camera::BACK,Camera::LEFT,Camera::RIGHT};
+			light.setView(views[instance],NULL);
+			light.orthogonal = false;
 			light.update();
-			light.rotateViewMatrix(instance%6);
 			return;
 		}
 		//light.update(0.3f);
