@@ -38,7 +38,6 @@ Camera.cpp \
 CameraObjectDistance.cpp \
 FPS.cpp \
 LensFlare.cpp \
-matrix.cpp \
 MultiPass.cpp \
 Program.cpp \
 RealtimeLight.cpp \

@@ -443,12 +443,6 @@
 			RelativePath="..\..\include\Lightsprint\GL\LensFlare.h">
 		</File>
 		<File
-			RelativePath="matrix.cpp">
-		</File>
-		<File
-			RelativePath="matrix.h">
-		</File>
-		<File
 			RelativePath="MultiPass.cpp">
 		</File>
 		<File

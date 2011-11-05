@@ -9,7 +9,7 @@
 #endif
 #include "Lightsprint/GL/Camera.h"
 #include "CameraObjectDistance.h"
-#include "matrix.h"
+#include <GL/glew.h> // gluProject(), setupForRender()
 
 namespace rr_gl
 {
@@ -208,6 +208,70 @@ bool Camera::operator!=(const Camera& a) const
 	return !(*this==a);
 }
 
+bool invertMatrix4x4(double* inverse, const double* src)
+{
+	double temp[4][4];
+	 
+	for (int i=0;i<4;i++)
+	for (int j=0;j<4;j++)
+	{
+		temp[i][j] = src[i*4+j];
+		inverse[i*4+j] = (i==j)?1:0;
+	}
+	
+	for (int i=0;i<4;i++)
+	{
+		if (!temp[i][i])
+		{
+			// Look for non-zero element in column
+			int j;
+			for (j=i+1;j<4;j++)
+				if (temp[j][i])
+					break;
+		
+			if (j!=4)
+			{
+				// Swap rows.
+				for (int k=0;k<4;k++)
+				{
+					double t = temp[i][k];
+					temp[i][k] = temp[j][k];
+					temp[j][k] = t;
+			
+					t = inverse[i*4+k];
+					inverse[i*4+k] = inverse[j*4+k];
+					inverse[j*4+k] = t;
+				}
+			}
+			else
+			{
+				// Singular matrix.
+				return false;
+			}
+		}
+		
+		double t = 1/temp[i][i];
+		for (int k=0;k<4;k++)
+		{
+			temp[i][k] *= t;
+			inverse[i*4+k] *= t;
+		}
+		for (int j=0;j<4;j++)
+		{
+			if (j!=i)
+			{
+				t = temp[j][i];
+				for (int k=0;k<4;k++)
+				{
+					temp[j][k] -= temp[i][k]*t;
+					inverse[j*4+k] -= inverse[i*4+k]*t;
+				}
+			}
+		}
+	}
+	return true;
+}
+
 void Camera::update()
 {
 	// pos, yawPitchRollRad -> dir, right, up, viewMatrix, inverseViewMatrix
@@ -216,7 +280,7 @@ void Camera::update()
 	for (unsigned i=0;i<4;i++)
 		for (unsigned j=0;j<4;j++)
 			inverseViewMatrix[4*j+i] = (i<3)?inverseView.m[i][j]:((j<3)?0:1);
-	invertMatrix(viewMatrix, inverseViewMatrix);
+	invertMatrix4x4(viewMatrix, inverseViewMatrix);
 	right = rr::RRVec3((rr::RRReal)viewMatrix[0],(rr::RRReal)viewMatrix[4],(rr::RRReal)viewMatrix[8]);
 	up = rr::RRVec3((rr::RRReal)viewMatrix[1],(rr::RRReal)viewMatrix[5],(rr::RRReal)viewMatrix[9]);
 	dir = -rr::RRVec3((rr::RRReal)viewMatrix[2],(rr::RRReal)viewMatrix[6],(rr::RRReal)viewMatrix[10]);
@@ -243,7 +307,7 @@ void Camera::update()
 		frustumMatrix[11] = -1;
 		frustumMatrix[14] = -2*anear*afar/(afar-anear);
 	}
-	invertMatrix(inverseFrustumMatrix, frustumMatrix);
+	invertMatrix4x4(inverseFrustumMatrix, frustumMatrix);
 
 	// copy pos/dir to RRLight
 	if (origin)

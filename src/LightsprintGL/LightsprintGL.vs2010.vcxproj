@@ -593,7 +593,6 @@
     <ClInclude Include="CameraObjectDistance.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\DemoEngine.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\FPS.h" />
-    <ClInclude Include="matrix.h" />
     <ClInclude Include="MultiPass.h" />
     <ClInclude Include="PreserveState.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Program.h" />
@@ -637,7 +636,6 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraObjectDistance.cpp" />
     <ClCompile Include="FPS.cpp" />
-    <ClCompile Include="matrix.cpp" />
     <ClCompile Include="MultiPass.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="RealtimeLight.cpp" />
