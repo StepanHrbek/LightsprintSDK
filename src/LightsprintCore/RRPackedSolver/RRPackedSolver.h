@@ -20,7 +20,7 @@ public:
 	//! Creates packed solver (fireball).
 	//
 	//! Initial state is: no light sources.
-	//! To enable GI from emissive materials, call setEmittance().
+	//! To enable GI from emissive materials, call setMaterialEmittance().
 	//! To enable GI from environment, call setEnvironment().
 	static RRPackedSolver* create(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);
 

@@ -88,7 +88,7 @@ public:
 	RRVec3 incidentFluxToDiffuse; // reset to direct illum, modified by improve
 	PackedColor emissiveFluxToDiffuse; // reset to direct emissive flux, cleared by improve
 	RRVec3 incidentFluxDiffused;  // reset to 0, modified by improve
-	PackedColor diffuseEmittance; // set by setEmittance
+	PackedColor diffuseEmittance; // set by setMaterialEmittance
 	RRVec3 incidentFluxDirect;    // reset to direct illum
 	RRReal area;
 	RRVec3 incidentFluxSky;       // constructed to 0, modified by setEnvironment
@@ -395,7 +395,7 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 		&& materialEmittanceUsePointMaterials==_materialEmittanceUsePointMaterials)
 		return false;
 
-	//RRReportInterval report(INF2,"setEmittance(%d)\n",quality);
+	//RRReportInterval report(INF2,"setMaterialEmittance(%d)\n",quality);
 	// deterministically generate points in triangle space 0,0 1,0 0,1
 	if (numSamplePoints<RR_MAX(_materialEmittanceStaticQuality,_materialEmittanceVideoQuality))
 	{
