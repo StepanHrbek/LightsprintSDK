@@ -45,11 +45,7 @@ private:
 	float    afar;
 public:
 	//! Is camera orthogonal or perspective?
-	union
-	{
-		bool     orthogonal;
-		float    dummy1; // AnimationFrame needs everything float sized
-	};
+	bool     orthogonal;
 	//! Only if perspective: maps view direction into screen position, default 0,0 maps view direction to screen center.
 	rr::RRVec2 screenCenter;
 	//! Only if orthogonal: World space distance between top and bottom of viewport.

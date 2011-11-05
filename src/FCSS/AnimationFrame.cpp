@@ -89,21 +89,11 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 {
 	static AnimationFrame blended(0);
 	// blend eye+light
-	float* a = (float*)(&this->eye);
-	float* b = (float*)(&that.eye);
-	float* c = (float*)(&blended.eye);
-	for (unsigned i=0;i<(sizeof(eye)+sizeof(light)+sizeof(brightness)+sizeof(gamma))/sizeof(float);i++)
-	{
-		float alpha = (i<sizeof(eye)/sizeof(float)) ? alphaSmooth : alphaRounded;
-		c[i] = blendNormal(a[i],b[i],alpha);
-	}
-	blended.eye.yawPitchRollRad[0] = blendModulo(this->eye.yawPitchRollRad[0],that.eye.yawPitchRollRad[0],alphaSmooth,(float)(2*RR_PI));
-	blended.eye.orthogonal = eye.orthogonal;
-	blended.eye.origin = NULL;
+	blended.eye.blend(this->eye,that.eye,alphaSmooth);
+	blended.light.blend(this->light,that.light,alphaRounded);
+	blended.brightness = blendNormal(this->brightness,that.brightness,alphaRounded);
+	blended.gamma = blendNormal(this->gamma,that.gamma,alphaRounded);
 	blended.eye.update();
-	blended.light.yawPitchRollRad[0] = blendModulo(this->light.yawPitchRollRad[0],that.light.yawPitchRollRad[0],alphaRounded,(float)(2*RR_PI));
-	blended.light.orthogonal = light.orthogonal;
-	blended.light.origin = NULL;
 	blended.light.update();
 	// blend dynaPosRot
 	blended.dynaPosRot.clear();
