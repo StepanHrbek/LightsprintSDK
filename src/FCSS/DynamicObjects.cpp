@@ -58,7 +58,9 @@ bool DynamicObjects::addObject(const char* filename, float scale)
 	}
 	scene->normalizeUnits(scale);
 	bool aborting = false;
-	push_back(rr::RRObject::createMultiObject(&scene->objects,rr::RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL));
+	rr::RRObject* dynobj = rr::RRObject::createMultiObject(&scene->objects,rr::RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL);
+	dynobj->isDynamic = true;
+	push_back(dynobj);
 	scenesToBeDeleted.push_back(scene);
 	return true;
 }
