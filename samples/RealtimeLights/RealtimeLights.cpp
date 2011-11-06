@@ -266,7 +266,7 @@ void display(void)
 	solver->calculate();
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-	eye.setupForRender();
+	setupForRender(eye);
 	// configure renderer
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.enableAllMaterials();

@@ -260,7 +260,7 @@ void display(void)
 
 	//rr::RRReportInterval report2(rr::INF1,"final...\n");
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-	eye.setupForRender();
+	setupForRender(eye);
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.enableAllMaterials();
 	uberProgramSetup.SHADOW_MAPS = 1;

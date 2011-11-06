@@ -70,7 +70,7 @@ void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Came
 	{
 		eye->mirror(altitude);
 		eye->update();
-		eye->setupForRender();
+		setupForRender(*eye);
 	}
 }
 
@@ -83,7 +83,7 @@ void Water::updateReflectionDone()
 	{
 		eye->mirror(altitude);
 		eye->update();
-		eye->setupForRender();
+		setupForRender(*eye);
 	}
 }
 

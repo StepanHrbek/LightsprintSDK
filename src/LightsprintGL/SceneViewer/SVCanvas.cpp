@@ -1335,7 +1335,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		{
 			rr::RRReportInterval report(rr::INF3,"render scene...\n");
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-			svs.eye.setupForRender();
+			setupForRender(svs.eye);
 
 			rr::RRVec4 brightness = svs.renderTonemapping ? svs.tonemappingBrightness * pow(svs.tonemappingGamma,0.45f) : rr::RRVec4(1);
 			float gamma = svs.renderTonemapping ?svs.tonemappingGamma : 1;
@@ -1392,7 +1392,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				float oldFar = svs.eye.getFar();
 				svs.eye.setFar(oldFar*5); // far is set to end right behind scene. water polygon continues behind scene, we need it visible -> increase far
 				svs.eye.update();
-				svs.eye.setupForRender();
+				setupForRender(svs.eye);
 				
 				// find sun
 				for (unsigned i=0;i<solver->getLights().size();i++)

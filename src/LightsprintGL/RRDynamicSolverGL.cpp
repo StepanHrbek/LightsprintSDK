@@ -251,7 +251,8 @@ done:
 			     ;i<light->getNumShadowmaps();i++)
 			{
 				Camera* lightInstance = light->getShadowmapCamera(i);
-				lightInstance->setupForRender();
+				if (lightInstance)
+					setupForRender(*lightInstance);
 				delete lightInstance;
 				Texture* shadowmap = light->getShadowmap(i);
 				if (!shadowmap)

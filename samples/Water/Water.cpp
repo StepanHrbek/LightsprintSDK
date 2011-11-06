@@ -72,7 +72,7 @@ void display(void)
 	water->updateReflectionDone();
 
 	// render everything except water
-	eye.setupForRender();
+	setupForRender(eye);
 	textureRenderer->renderEnvironment(environmentMap,NULL,0,NULL,1,false);
 
 	// render water

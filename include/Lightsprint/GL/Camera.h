@@ -147,11 +147,6 @@ public:
 
 	//! Updates all outputs, recalculates them from inputs.
 	void update();
-	//! Sends our outputs to OpenGL pipeline, so that following primitives are
-	//! transformed as if viewed by this camera.
-	void setupForRender() const;
-	//! Returns last camera that executed setupForRender().
-	static const Camera* getRenderCamera();
 
 	//! Predefined camera views.
 	enum View
@@ -174,6 +169,16 @@ public:
 	//! \return Number of changes made.
 	unsigned fixInvalidValues();
 };
+
+//! Copies matrices from camera to OpenGL pipeline, so that following primitives are transformed as if viewed by this camera.
+//
+//! Changes glMatrixMode to GL_MODELVIEW.
+//! Note that if you modify camera inputs, changes are propagated to OpenGL only after update() and setupForRender().
+void RR_API setupForRender(const Camera& camera);
+
+//! Returns last camera that executed setupForRender().
+const Camera* RR_API getRenderCamera();
+
 
 }; // namespace
 

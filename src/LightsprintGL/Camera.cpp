@@ -283,23 +283,6 @@ void Camera::update()
 	}
 }
 
-static const Camera* s_renderCamera = NULL;
-
-const Camera* Camera::getRenderCamera()
-{
-	return s_renderCamera;
-}
-
-void Camera::setupForRender() const
-{
-	s_renderCamera = this;
-	// set matrices in GL pipeline
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixd(frustumMatrix);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixd(viewMatrix);
-}
-
 void Camera::mirror(float altitude)
 {
 	pos[1] = 2*altitude-pos[1];
@@ -639,6 +622,23 @@ unsigned Camera::fixInvalidValues()
 		+ makeFinite(yawPitchRollRad[0],0)
 		+ makeFinite(yawPitchRollRad[1],0)
 		+ makeFinite(yawPitchRollRad[2],0);
+}
+
+static const Camera* s_renderCamera = NULL;
+
+const Camera* getRenderCamera()
+{
+	return s_renderCamera;
+}
+
+void setupForRender(const Camera& camera)
+{
+	s_renderCamera = &camera;
+	// set matrices in GL pipeline
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixd(camera.frustumMatrix);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadMatrixd(camera.viewMatrix);
 }
 
 }; // namespace

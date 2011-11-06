@@ -114,14 +114,14 @@ bool TextureRenderer::renderEnvironment(const Texture* _texture0, const Texture*
 	if (!_allowDepthTest) glDisable(GL_DEPTH_TEST);
 	glDepthMask(0);
 	glActiveTexture(GL_TEXTURE0);
-	oldCamera = Camera::getRenderCamera();
+	oldCamera = getRenderCamera();
 	if (oldCamera)
 	{
 		// temporarily loads camera matrix with position 0
 		Camera tmp = *oldCamera;
 		tmp.pos = rr::RRVec3(0);
 		tmp.update();
-		tmp.setupForRender();
+		setupForRender(tmp);
 	}
 
 	// render
@@ -142,7 +142,7 @@ bool TextureRenderer::renderEnvironment(const Texture* _texture0, const Texture*
 	// restore render states
 	if (oldCamera)
 	{
-		oldCamera->setupForRender();
+		setupForRender(*oldCamera);
 	}
 	return result;
 };

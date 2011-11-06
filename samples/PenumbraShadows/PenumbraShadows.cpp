@@ -135,7 +135,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 void updateShadowmap(unsigned mapIndex)
 {
 	rr_gl::Camera* lightInstance = realtimeLight->getShadowmapCamera(mapIndex);
-	lightInstance->setupForRender();
+	if (lightInstance)
+		setupForRender(*lightInstance);
 	delete lightInstance;
 	glColorMask(0,0,0,0);
 	rr_gl::Texture* shadowmap = realtimeLight->getShadowmap(mapIndex);
@@ -178,7 +179,7 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	eye.setupForRender();
+	setupForRender(eye);
 	renderScene(uberProgramSetup);
 
 	glutSwapBuffers();

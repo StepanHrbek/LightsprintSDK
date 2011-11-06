@@ -344,7 +344,7 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
-	currentFrame.eye.setupForRender();
+	setupForRender(currentFrame.eye);
 
 	renderScene(uberProgramSetup,firstInstance,&currentFrame.eye,NULL);
 
@@ -415,7 +415,7 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
 
-			currentFrame.eye.setupForRender();
+			setupForRender(currentFrame.eye);
 			renderScene(uberProgramSetup,0,&currentFrame.eye,NULL);
 		}
 
@@ -459,7 +459,7 @@ void updateThumbnail(AnimationFrame& frame)
 	if (!frame.thumbnail)
 		frame.thumbnail = rr::RRBuffer::create(rr::BT_2D_TEXTURE,160,120,1,rr::BF_RGB,true,NULL);
 	glViewport(0,0,160,120);
-	frame.eye.update(); currentFrame.eye = frame.eye; // while rendering, we call currentFrame.eye.setupForRender();
+	frame.eye.update(); currentFrame.eye = frame.eye; // while rendering, we call setupForRender(currentFrame.eye);
 	drawEyeViewSoftShadowed();
 	unsigned char* pixels = frame.thumbnail->lock(rr::BL_DISCARD_AND_WRITE);
 	glReadPixels(0,0,160,120,GL_RGB,GL_UNSIGNED_BYTE,pixels);

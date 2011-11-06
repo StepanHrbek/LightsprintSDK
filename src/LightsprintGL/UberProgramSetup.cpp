@@ -567,7 +567,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 
 	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR))
 	{
-		const Camera* camera = Camera::getRenderCamera();
+		const Camera* camera = getRenderCamera();
 		if (camera)
 		{
 			program->sendUniform("worldEyePos",camera->pos[0],camera->pos[1],camera->pos[2]);
