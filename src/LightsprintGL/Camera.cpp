@@ -208,67 +208,33 @@ bool Camera::operator!=(const Camera& a) const
 	return !(*this==a);
 }
 
-bool invertMatrix4x4(double* inverse, const double* src)
+static bool invertMatrix4x4(const double m[16], double inverse[16])
 {
-	double temp[4][4];
-	 
-	for (int i=0;i<4;i++)
-	for (int j=0;j<4;j++)
+	double inv[16] =
 	{
-		temp[i][j] = src[i*4+j];
-		inverse[i*4+j] = (i==j)?1:0;
-	}
-	
-	for (int i=0;i<4;i++)
-	{
-		if (!temp[i][i])
-		{
-			// Look for non-zero element in column
-			int j;
-			for (j=i+1;j<4;j++)
-				if (temp[j][i])
-					break;
-		
-			if (j!=4)
-			{
-				// Swap rows.
-				for (int k=0;k<4;k++)
-				{
-					double t = temp[i][k];
-					temp[i][k] = temp[j][k];
-					temp[j][k] = t;
-			
-					t = inverse[i*4+k];
-					inverse[i*4+k] = inverse[j*4+k];
-					inverse[j*4+k] = t;
-				}
-			}
-			else
-			{
-				// Singular matrix.
-				return false;
-			}
-		}
-		
-		double t = 1/temp[i][i];
-		for (int k=0;k<4;k++)
-		{
-			temp[i][k] *= t;
-			inverse[i*4+k] *= t;
-		}
-		for (int j=0;j<4;j++)
-		{
-			if (j!=i)
-			{
-				t = temp[j][i];
-				for (int k=0;k<4;k++)
-				{
-					temp[j][k] -= temp[i][k]*t;
-					inverse[j*4+k] -= inverse[i*4+k]*t;
-				}
-			}
-		}
-	}
+		m[5]*m[10]*m[15] - m[5]*m[11]*m[14] - m[9]*m[6]*m[15] + m[9]*m[7]*m[14] + m[13]*m[6]*m[11] - m[13]*m[7]*m[10],
+		-m[1]*m[10]*m[15] + m[1]*m[11]*m[14] + m[9]*m[2]*m[15] - m[9]*m[3]*m[14] - m[13]*m[2]*m[11] + m[13]*m[3]*m[10],
+		m[1]*m[6]*m[15] - m[1]*m[7]*m[14] - m[5]*m[2]*m[15] + m[5]*m[3]*m[14] + m[13]*m[2]*m[7] - m[13]*m[3]*m[6],
+		-m[1]*m[6]*m[11] + m[1]*m[7]*m[10] + m[5]*m[2]*m[11] - m[5]*m[3]*m[10] - m[9]*m[2]*m[7] + m[9]*m[3]*m[6],
+		-m[4]*m[10]*m[15] + m[4]*m[11]*m[14] + m[8]*m[6]*m[15] - m[8]*m[7]*m[14] - m[12]*m[6]*m[11] + m[12]*m[7]*m[10],
+		m[0]*m[10]*m[15] - m[0]*m[11]*m[14] - m[8]*m[2]*m[15] + m[8]*m[3]*m[14] + m[12]*m[2]*m[11] - m[12]*m[3]*m[10],
+		-m[0]*m[6]*m[15] + m[0]*m[7]*m[14] + m[4]*m[2]*m[15] - m[4]*m[3]*m[14] - m[12]*m[2]*m[7] + m[12]*m[3]*m[6],
+		m[0]*m[6]*m[11] - m[0]*m[7]*m[10] - m[4]*m[2]*m[11] + m[4]*m[3]*m[10] + m[8]*m[2]*m[7] - m[8]*m[3]*m[6],
+		m[4]*m[9]*m[15] - m[4]*m[11]*m[13] - m[8]*m[5]*m[15] + m[8]*m[7]*m[13] + m[12]*m[5]*m[11] - m[12]*m[7]*m[9],
+		-m[0]*m[9]*m[15] + m[0]*m[11]*m[13] + m[8]*m[1]*m[15] - m[8]*m[3]*m[13] - m[12]*m[1]*m[11] + m[12]*m[3]*m[9],
+		m[0]*m[5]*m[15] - m[0]*m[7]*m[13] - m[4]*m[1]*m[15] + m[4]*m[3]*m[13] + m[12]*m[1]*m[7] - m[12]*m[3]*m[5],
+		-m[0]*m[5]*m[11] + m[0]*m[7]*m[9] + m[4]*m[1]*m[11] - m[4]*m[3]*m[9] - m[8]*m[1]*m[7] + m[8]*m[3]*m[5],
+		-m[4]*m[9]*m[14] + m[4]*m[10]*m[13] + m[8]*m[5]*m[14] - m[8]*m[6]*m[13] - m[12]*m[5]*m[10] + m[12]*m[6]*m[9],
+		m[0]*m[9]*m[14] - m[0]*m[10]*m[13] - m[8]*m[1]*m[14] + m[8]*m[2]*m[13] + m[12]*m[1]*m[10] - m[12]*m[2]*m[9],
+		-m[0]*m[5]*m[14] + m[0]*m[6]*m[13] + m[4]*m[1]*m[14] - m[4]*m[2]*m[13] - m[12]*m[1]*m[6] + m[12]*m[2]*m[5],
+		m[0]*m[5]*m[10] - m[0]*m[6]*m[9] - m[4]*m[1]*m[10] + m[4]*m[2]*m[9] + m[8]*m[1]*m[6] - m[8]*m[2]*m[5]
+	};
+	double det = m[0]*inv[0] + m[1]*inv[4] + m[2]*inv[8] + m[3]*inv[12];
+	if (!det)
+		return false;
+	det = 1/det;
+	for (unsigned i=0;i<16;i++)
+		inverse[i] = inv[i] * det;
 	return true;
 }
 
@@ -280,7 +246,7 @@ void Camera::update()
 	for (unsigned i=0;i<4;i++)
 		for (unsigned j=0;j<4;j++)
 			inverseViewMatrix[4*j+i] = (i<3)?inverseView.m[i][j]:((j<3)?0:1);
-	invertMatrix4x4(viewMatrix, inverseViewMatrix);
+	invertMatrix4x4(inverseViewMatrix, viewMatrix);
 	right = rr::RRVec3((rr::RRReal)viewMatrix[0],(rr::RRReal)viewMatrix[4],(rr::RRReal)viewMatrix[8]);
 	up = rr::RRVec3((rr::RRReal)viewMatrix[1],(rr::RRReal)viewMatrix[5],(rr::RRReal)viewMatrix[9]);
 	dir = -rr::RRVec3((rr::RRReal)viewMatrix[2],(rr::RRReal)viewMatrix[6],(rr::RRReal)viewMatrix[10]);
@@ -307,7 +273,7 @@ void Camera::update()
 		frustumMatrix[11] = -1;
 		frustumMatrix[14] = -2*anear*afar/(afar-anear);
 	}
-	invertMatrix4x4(inverseFrustumMatrix, frustumMatrix);
+	invertMatrix4x4(frustumMatrix, inverseFrustumMatrix);
 
 	// copy pos/dir to RRLight
 	if (origin)
