@@ -18,6 +18,9 @@ NEWS
 
 CHANGES
 
+- camera cleanup
+  - change camera.setupForRender() to rr_gl::setupForRender(camera)
+  - change rr_gl::Camera::getRenderCamera() to rr_gl::getRenderCamera()
 - removed RRMatrix3x4::setScale(s), other scaling functions in RRMatrix3x4 seem sufficient
 
 \section news126 ------------------------------------ 2011.09.06 -------------------------------------
