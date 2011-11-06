@@ -9,7 +9,7 @@
 #endif
 #include "Lightsprint/GL/Camera.h"
 #include "CameraObjectDistance.h"
-#include <GL/glew.h> // gluProject(), setupForRender()
+#include <GL/glew.h> // setupForRender()
 
 namespace rr_gl
 {
@@ -133,10 +133,10 @@ void Camera::setRange(float _near, float _far)
 
 rr::RRVec2 Camera::getPositionInWindow(rr::RRVec3 worldPosition) const
 {
-	int viewport[4] = {-1,-1,2,2};
-	double positionInWindow[3];
-	gluProject(worldPosition[0],worldPosition[1],worldPosition[2],viewMatrix,frustumMatrix,viewport,positionInWindow,positionInWindow+1,positionInWindow+2);
-	return rr::RRVec2((rr::RRReal)positionInWindow[0],(rr::RRReal)positionInWindow[1]);
+	double tmp[4],out[4];
+	for (int i=0; i<4; i++) tmp[i] = worldPosition[0] * viewMatrix[0*4+i] + worldPosition[1] * viewMatrix[1*4+i] + worldPosition[2] * viewMatrix[2*4+i] + viewMatrix[3*4+i];
+	for (int i=0; i<4; i++) out[i] = tmp[0] * frustumMatrix[0*4+i] + tmp[1] * frustumMatrix[1*4+i] + tmp[2] * frustumMatrix[2*4+i] + tmp[3] * frustumMatrix[3*4+i];
+	return rr::RRVec2(out[0]/out[3],out[1]/out[3]);
 }
 
 rr::RRVec3 Camera::getRayOrigin(rr::RRVec2 posInWindow) const
