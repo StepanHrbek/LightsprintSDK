@@ -174,10 +174,10 @@ public:
 //
 //! Changes glMatrixMode to GL_MODELVIEW.
 //! Note that if you modify camera inputs, changes are propagated to OpenGL only after update() and setupForRender().
-void RR_API setupForRender(const Camera& camera);
+RR_GL_API void setupForRender(const Camera& camera);
 
 //! Returns last camera that executed setupForRender().
-const Camera* RR_API getRenderCamera();
+RR_GL_API const Camera* getRenderCamera();
 
 
 }; // namespace
