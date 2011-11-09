@@ -113,16 +113,16 @@ void Water::render(float size, rr::RRVec3 center, rr::RRVec4 waterColor, rr::RRV
 		}
 	}
 
-	mirrorProgram->sendUniform("waterColor",waterColor[0],waterColor[1],waterColor[2],waterColor[3]);
+	mirrorProgram->sendUniform("waterColor",waterColor);
 	if (dirlight || fresnel)
 	{
-		mirrorProgram->sendUniform("worldEyePos",eye->pos[0],eye->pos[1],eye->pos[2]);
+		mirrorProgram->sendUniform("worldEyePos",eye->pos);
 	}
 	if (dirlight)
 	{
 		if (lightDirection!=rr::RRVec3(0)) lightDirection.normalize();
-		mirrorProgram->sendUniform("worldLightDir",lightDirection[0],lightDirection[1],lightDirection[2]);
-		mirrorProgram->sendUniform("lightColor",lightColor[0],lightColor[1],lightColor[2]);
+		mirrorProgram->sendUniform("worldLightDir",lightDirection);
+		mirrorProgram->sendUniform("lightColor",lightColor);
 	}
 	//GLboolean blend = glIsEnabled(GL_BLEND);
 	//glEnable(GL_BLEND);

@@ -135,7 +135,7 @@ void SVLightmapViewer::OnPaint(wxSize windowSize)
 			glActiveTexture(GL_TEXTURE0);
 			getTexture(buffer)->bindTexture();
 			prg->sendUniform("map",0);
-			prg->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
+			prg->sendUniform("color",rr::RRVec4(1));
 			if (alpha)
 				prg->sendUniform("resolution",(float)buffer->getWidth(),(float)buffer->getHeight());
 			glBegin(GL_POLYGON);
@@ -162,7 +162,7 @@ void SVLightmapViewer::OnPaint(wxSize windowSize)
 			lineProgram->useIt();
 			
 			// 0,0..1,1 frame
-			lineProgram->sendUniform("color",0.0f,1.0f,0.0f,1.0f);
+			lineProgram->sendUniform("color",rr::RRVec4(0.0f,1.0f,0.0f,1.0f));
 			glBegin(GL_LINE_LOOP);
 			glVertex2f(quad[0][0],quad[0][1]);
 			glVertex2f(quad[1][0],quad[1][1]);
@@ -171,7 +171,7 @@ void SVLightmapViewer::OnPaint(wxSize windowSize)
 			glEnd();
 			
 			// mapping
-			lineProgram->sendUniform("color",1.0f,1.0f,1.0f,1.0f);
+			lineProgram->sendUniform("color",rr::RRVec4(1));
 			glBegin(GL_LINES);
 			for (unsigned i=0;i<numTriangles;i++)
 			{

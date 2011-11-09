@@ -1772,7 +1772,7 @@ rendered:
 				uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
 				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
-				program->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
+				program->sendUniform("lightIndirectConst",rr::RRVec4(1));
 			}
 			int x = 10;
 			int y = 10;

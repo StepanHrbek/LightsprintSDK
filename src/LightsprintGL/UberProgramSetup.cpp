@@ -456,7 +456,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	if (SHADOW_SAMPLES>1)
 	{
 		unsigned shadowmapSize = light->getRRLight().rtShadowmapSize;
-		program->sendUniform("shadowBlurWidth",2.5f/shadowmapSize,-2.5f/shadowmapSize,0.0f,1.5f/shadowmapSize);
+		program->sendUniform("shadowBlurWidth",rr::RRVec4(2.5f,-2.5f,0.0f,1.5f)/shadowmapSize);
 	}
 
 	if (LIGHT_DIRECT)
@@ -483,11 +483,11 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		}
 		if (LIGHT_DIRECTIONAL || LIGHT_DIRECT_ATT_SPOT)
 		{
-			program->sendUniform("worldLightDir",light->getParent()->dir[0],light->getParent()->dir[1],light->getParent()->dir[2]);
+			program->sendUniform("worldLightDir",light->getParent()->dir);
 		}
 		if (!LIGHT_DIRECTIONAL)
 		{
-			program->sendUniform("worldLightPos",light->getParent()->pos[0],light->getParent()->pos[1],light->getParent()->pos[2]);
+			program->sendUniform("worldLightPos",light->getParent()->pos);
 		}
 	}
 
@@ -505,7 +505,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			color[1] = color[1]<0?-pow(-color[1],0.45f):pow(color[1],0.45f);
 			color[2] = color[2]<0?-pow(-color[2],0.45f):pow(color[2],0.45f);
 		}
-		program->sendUniform("lightDirectColor",color[0],color[1],color[2],1.0f);
+		program->sendUniform("lightDirectColor",rr::RRVec4(color,1.0f));
 	}
 
 	if (LIGHT_DIRECT_MAP)
@@ -533,7 +533,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	if (LIGHT_DIRECT_ATT_POLYNOMIAL)
 	{
 		RR_ASSERT(light->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL);
-		program->sendUniform("lightDistancePolynom",light->getRRLight().polynom.x,light->getRRLight().polynom.y,light->getRRLight().polynom.z,light->getRRLight().polynom.w);
+		program->sendUniform("lightDistancePolynom",light->getRRLight().polynom);
 	}
 
 	if (LIGHT_DIRECT_ATT_EXPONENTIAL)
@@ -545,7 +545,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 
 	if (LIGHT_INDIRECT_CONST)
 	{
-		program->sendUniform("lightIndirectConst",0.2f,0.2f,0.2f,1.0f);
+		program->sendUniform("lightIndirectConst",rr::RRVec4(0.2f,0.2f,0.2f,1.0f));
 	}
 
 	if (POSTPROCESS_BRIGHTNESS
@@ -553,8 +553,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		// uniform is unused (and usually removed by shader compiler) when there is no light
 		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP))
 	{
-		rr::RRVec4 correctedBrightness(brightness?*brightness:rr::RRVec4(1.0f));
-		program->sendUniform4fv("postprocessBrightness", &correctedBrightness.x);
+		program->sendUniform("postprocessBrightness", brightness?*brightness:rr::RRVec4(1.0f));
 	}
 
 	if (POSTPROCESS_GAMMA
@@ -570,7 +569,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		const Camera* camera = getRenderCamera();
 		if (camera)
 		{
-			program->sendUniform("worldEyePos",camera->pos[0],camera->pos[1],camera->pos[2]);
+			program->sendUniform("worldEyePos",camera->pos);
 		}
 		else
 		{
@@ -622,7 +621,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	}
 	if (MATERIAL_DIFFUSE_CONST)
 	{
-		program->sendUniform("materialDiffuseConst",material->diffuseReflectance.color[0],material->diffuseReflectance.color[1],material->diffuseReflectance.color[2],1.0f);
+		program->sendUniform("materialDiffuseConst",rr::RRVec4(material->diffuseReflectance.color,1.0f));
 	}
 
 	if (MATERIAL_SPECULAR && LIGHT_DIRECT)
@@ -646,17 +645,17 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 
 	if (MATERIAL_SPECULAR_CONST)
 	{
-		program->sendUniform("materialSpecularConst",material->specularReflectance.color[0],material->specularReflectance.color[1],material->specularReflectance.color[2],1.0f);
+		program->sendUniform("materialSpecularConst",rr::RRVec4(material->specularReflectance.color,1.0f));
 	}
 
 	if (MATERIAL_EMISSIVE_CONST)
 	{
-		program->sendUniform("materialEmissiveConst",material->diffuseEmittance.color[0],material->diffuseEmittance.color[1],material->diffuseEmittance.color[2],0.0f);
+		program->sendUniform("materialEmissiveConst",rr::RRVec4(material->diffuseEmittance.color,0.0f));
 	}
 
 	if (MATERIAL_TRANSPARENCY_CONST)
 	{
-		program->sendUniform("materialTransparencyConst",material->specularTransmittance.color[0],material->specularTransmittance.color[1],material->specularTransmittance.color[2],1-material->specularTransmittance.color.avg());
+		program->sendUniform("materialTransparencyConst",rr::RRVec4(material->specularTransmittance.color,1-material->specularTransmittance.color.avg()));
 	}
 
 	if (MATERIAL_DIFFUSE_MAP)

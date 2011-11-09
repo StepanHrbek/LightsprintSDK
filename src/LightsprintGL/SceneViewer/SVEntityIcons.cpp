@@ -124,14 +124,14 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye)
 
 	// render icons
 	programIcons->useIt();
-	programIcons->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
+	programIcons->sendUniform("lightIndirectConst",rr::RRVec4(1));
 	programIcons->sendTexture("materialDiffuseMap", NULL); // renderIcon() will repeatedly bind texture
 	unsigned counter = 0;
 	for (unsigned i=0;i<entities.size();i++)
 	{
 		static rr::RRTime time;
 		float brightness = entities[i].selected ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
-		programIcons->sendUniform("lightIndirectConst",brightness,brightness,brightness,1.0f);
+		programIcons->sendUniform("lightIndirectConst",rr::RRVec4(brightness,brightness,brightness,1.0f));
 		renderIcon(entities[i],eye);
 	}
 }

@@ -156,24 +156,14 @@ void Program::sendUniform(const char* name, float x, float y)
 	glUniform2f(getLoc(name), x, y);
 }
 
-void Program::sendUniform(const char* name, float x, float y, float z)
+void Program::sendUniform(const char* name, const rr::RRVec3& xyz)
 {
-	glUniform3f(getLoc(name), x, y, z);
+	glUniform3fv(getLoc(name), 1, &xyz[0]);
 }
 
-void Program::sendUniform3fv(const char* name, const float xyz[3])
+void Program::sendUniform(const char* name, const rr::RRVec4& xyzw)
 {
-	glUniform3fv(getLoc(name), 1, xyz);
-}
-
-void Program::sendUniform(const char* name, float x, float y, float z, float w)
-{
-	glUniform4f(getLoc(name), x, y, z, w);
-}
-
-void Program::sendUniform4fv(const char* name, const float xyzw[4])
-{
-	glUniform4fv(getLoc(name), 1, xyzw);
+	glUniform4fv(getLoc(name), 1, &xyzw[0]);
 }
 
 void Program::sendUniform(const char* name, int count, const GLint* x)
@@ -189,16 +179,6 @@ void Program::sendUniform(const char* name, int x)
 void Program::sendUniform(const char* name, int x, int y)
 {
 	glUniform2i(getLoc(name), x, y);
-}
-
-void Program::sendUniform(const char* name, int x, int y, int z)
-{
-	glUniform3i(getLoc(name), x, y, z);
-}
-
-void Program::sendUniform(const char* name, int x, int y, int z, int w)
-{
-	glUniform4i(getLoc(name), x, y, z, w);
 }
 
 void Program::sendUniform(const char* name, float *matrix, bool transpose, int size)

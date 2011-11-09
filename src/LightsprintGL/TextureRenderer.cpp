@@ -53,7 +53,7 @@ TextureRenderer::~TextureRenderer()
 	delete twodProgram;
 }
 
-bool TextureRenderer::renderEnvironment(const Texture* _texture, rr::RRVec3 _brightness, float _gamma)
+bool TextureRenderer::renderEnvironment(const Texture* _texture, const rr::RRVec3& _brightness, float _gamma)
 {
 	if (!_texture || !_texture->getBuffer())
 	{
@@ -78,14 +78,11 @@ bool TextureRenderer::renderEnvironment(const Texture* _texture, rr::RRVec3 _bri
 	program->useIt();
 	_texture->bindTexture();
 	program->sendUniform("map",0);
-	program->sendUniform3fv("postprocessBrightness",&_brightness.x);
+	program->sendUniform("postprocessBrightness",_brightness);
 	if (scaled)
 		program->sendUniform("postprocessGamma",_gamma);
 	if (projection==1)
-	{
-		float m[4] = {-0.5f/RR_PI,1.0f/RR_PI,0.75f,0.5f};
-		program->sendUniform("shape",m[0],m[1],m[2],m[3]);
-	}
+		program->sendUniform("shape",rr::RRVec4(-0.5f/RR_PI,1.0f/RR_PI,0.75f,0.5f));
 
 	// render
 	glBegin(GL_POLYGON);
@@ -147,7 +144,7 @@ bool TextureRenderer::renderEnvironment(const Texture* _texture0, const Texture*
 	return result;
 };
 
-bool TextureRenderer::render2dBegin(float color[4])
+bool TextureRenderer::render2dBegin(const rr::RRVec4* color)
 {
 	// backup render states
 	culling = glIsEnabled(GL_CULL_FACE);
@@ -165,7 +162,7 @@ bool TextureRenderer::render2dBegin(float color[4])
 	twodProgram->useIt();
 	glActiveTexture(GL_TEXTURE0);
 	twodProgram->sendUniform("map",0);
-	twodProgram->sendUniform("color",color?color[0]:1,color?color[1]:1,color?color[2]:1,color?color[3]:1);
+	twodProgram->sendUniform("color",color?*color:rr::RRVec4(1));
 	return true;
 }
 
@@ -196,7 +193,7 @@ void TextureRenderer::render2dEnd()
 	if (culling) glEnable(GL_CULL_FACE);
 }
 
-void TextureRenderer::render2D(const Texture* texture,float color[4], float x,float y,float w,float h)
+void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, float x,float y,float w,float h)
 {
 	if (render2dBegin(color))
 	{
