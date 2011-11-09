@@ -283,7 +283,6 @@ void idle()
 	// smooth keyboard movement
 	static rr::RRTime time;
 	float seconds = time.secondsSinceLastQuery();
-	RR_CLAMP(seconds,0.001f,0.1f);
 	float distance = seconds * cameraSpeed;
 	rr_gl::Camera* cam = &eye;
 	if (autopilot) lightTime += seconds*SUN_SPEED;
