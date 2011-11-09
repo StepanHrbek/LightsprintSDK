@@ -214,7 +214,7 @@ done:
 		}
 
 		// update shadowmap[s]
-		bool isDirtyOnlyBecauseObserverHasMoved = !light->dirtyShadowmap && observer && observer->pos!=light->getObserverPos() && light->getParent()->orthogonal && light->getNumShadowmaps();
+		bool isDirtyOnlyBecauseObserverHasMoved = !light->dirtyShadowmap && observer && observer->getPosition()!=light->getObserverPos() && light->getParent()->isOrthogonal() && light->getNumShadowmaps();
 		if (light->dirtyShadowmap || isDirtyOnlyBecauseObserverHasMoved)
 		{
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
@@ -354,7 +354,7 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 			light->dirtyGI = false;
 			if (!light->shadowOnly)
 			{
-				if (observer) light->positionOfLastDDI = observer->pos;
+				if (observer) light->positionOfLastDDI = observer->getPosition();
 				updatedSmallMaps += detectDirectIlluminationTo(light,light->smallMapCPU,light->numTriangles);
 			}
 		}
@@ -471,7 +471,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		uberProgramSetup.LIGHT_DIRECT = true;
 		uberProgramSetup.LIGHT_DIRECT_COLOR = ddiLight->getRRLight().color!=rr::RRVec3(1);
 		uberProgramSetup.LIGHT_DIRECT_MAP = uberProgramSetup.SHADOW_MAPS && ddiLight->getProjectedTexture();
-		uberProgramSetup.LIGHT_DIRECTIONAL = ddiLight->getParent()->orthogonal;
+		uberProgramSetup.LIGHT_DIRECTIONAL = ddiLight->getParent()->isOrthogonal();
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = ddiLight->getRRLight().type==rr::RRLight::SPOT && !ddiLight->getProjectedTexture();
 		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = ddiLight->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = ddiLight->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
@@ -528,13 +528,47 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 	return 1;
 }
 
-void drawCamera(Camera* camera)
+static bool invertMatrix4x4(const double m[16], double inverse[16])
+{
+	double inv[16] =
+	{
+		m[5]*m[10]*m[15] - m[5]*m[11]*m[14] - m[9]*m[6]*m[15] + m[9]*m[7]*m[14] + m[13]*m[6]*m[11] - m[13]*m[7]*m[10],
+		-m[1]*m[10]*m[15] + m[1]*m[11]*m[14] + m[9]*m[2]*m[15] - m[9]*m[3]*m[14] - m[13]*m[2]*m[11] + m[13]*m[3]*m[10],
+		m[1]*m[6]*m[15] - m[1]*m[7]*m[14] - m[5]*m[2]*m[15] + m[5]*m[3]*m[14] + m[13]*m[2]*m[7] - m[13]*m[3]*m[6],
+		-m[1]*m[6]*m[11] + m[1]*m[7]*m[10] + m[5]*m[2]*m[11] - m[5]*m[3]*m[10] - m[9]*m[2]*m[7] + m[9]*m[3]*m[6],
+		-m[4]*m[10]*m[15] + m[4]*m[11]*m[14] + m[8]*m[6]*m[15] - m[8]*m[7]*m[14] - m[12]*m[6]*m[11] + m[12]*m[7]*m[10],
+		m[0]*m[10]*m[15] - m[0]*m[11]*m[14] - m[8]*m[2]*m[15] + m[8]*m[3]*m[14] + m[12]*m[2]*m[11] - m[12]*m[3]*m[10],
+		-m[0]*m[6]*m[15] + m[0]*m[7]*m[14] + m[4]*m[2]*m[15] - m[4]*m[3]*m[14] - m[12]*m[2]*m[7] + m[12]*m[3]*m[6],
+		m[0]*m[6]*m[11] - m[0]*m[7]*m[10] - m[4]*m[2]*m[11] + m[4]*m[3]*m[10] + m[8]*m[2]*m[7] - m[8]*m[3]*m[6],
+		m[4]*m[9]*m[15] - m[4]*m[11]*m[13] - m[8]*m[5]*m[15] + m[8]*m[7]*m[13] + m[12]*m[5]*m[11] - m[12]*m[7]*m[9],
+		-m[0]*m[9]*m[15] + m[0]*m[11]*m[13] + m[8]*m[1]*m[15] - m[8]*m[3]*m[13] - m[12]*m[1]*m[11] + m[12]*m[3]*m[9],
+		m[0]*m[5]*m[15] - m[0]*m[7]*m[13] - m[4]*m[1]*m[15] + m[4]*m[3]*m[13] + m[12]*m[1]*m[7] - m[12]*m[3]*m[5],
+		-m[0]*m[5]*m[11] + m[0]*m[7]*m[9] + m[4]*m[1]*m[11] - m[4]*m[3]*m[9] - m[8]*m[1]*m[7] + m[8]*m[3]*m[5],
+		-m[4]*m[9]*m[14] + m[4]*m[10]*m[13] + m[8]*m[5]*m[14] - m[8]*m[6]*m[13] - m[12]*m[5]*m[10] + m[12]*m[6]*m[9],
+		m[0]*m[9]*m[14] - m[0]*m[10]*m[13] - m[8]*m[1]*m[14] + m[8]*m[2]*m[13] + m[12]*m[1]*m[10] - m[12]*m[2]*m[9],
+		-m[0]*m[5]*m[14] + m[0]*m[6]*m[13] + m[4]*m[1]*m[14] - m[4]*m[2]*m[13] - m[12]*m[1]*m[6] + m[12]*m[2]*m[5],
+		m[0]*m[5]*m[10] - m[0]*m[6]*m[9] - m[4]*m[1]*m[10] + m[4]*m[2]*m[9] + m[8]*m[1]*m[6] - m[8]*m[2]*m[5]
+	};
+	double det = m[0]*inv[0] + m[1]*inv[4] + m[2]*inv[8] + m[3]*inv[12];
+	if (!det)
+		return false;
+	det = 1/det;
+	for (unsigned i=0;i<16;i++)
+		inverse[i] = inv[i] * det;
+	return true;
+}
+
+static void drawCamera(Camera* camera)
 {
 	if (camera)
 	{
+		double inverseViewMatrix[16];
+		double inverseProjectionMatrix[16];
+		invertMatrix4x4(camera->getViewMatrix(), inverseViewMatrix);
+		invertMatrix4x4(camera->getProjectionMatrix(), inverseProjectionMatrix);
 		glPushMatrix();
-		glMultMatrixd(camera->inverseViewMatrix);
-		glMultMatrixd(camera->inverseFrustumMatrix);
+		glMultMatrixd(inverseViewMatrix);
+		glMultMatrixd(inverseProjectionMatrix);
 		glBegin(GL_LINE_STRIP);
 		glColor3f(0,0,0);
 		glVertex3f(1,1,1);

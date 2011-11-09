@@ -44,20 +44,22 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propCameraView = new wxEnumProperty(_("View"), wxPG_LABEL, viewStrings, viewValues);
 		AppendIn(propCamera,propCameraView);
 
-		propCameraPosition = new RRVec3Property(_("Position")+" (m)",_("Camera position in world space"),svs.precision,svs.eye.pos,1);
+		propCameraPosition = new RRVec3Property(_("Position")+" (m)",_("Camera position in world space"),svs.precision,svs.eye.getPosition(),1);
 		AppendIn(propCamera,propCameraPosition);
 
-		propCameraDirection = new RRVec3Property(_("Direction"),_("Camera direction in world space, normalized"),svs.precision,svs.eye.dir,0.2f);
+		propCameraDirection = new RRVec3Property(_("Direction"),_("Camera direction in world space, normalized"),svs.precision,svs.eye.getDirection(),0.2f);
 		AppendIn(propCamera,propCameraDirection);
 		EnableProperty(propCameraDirection,false);
 
-		propCameraAngles = new RRVec3Property(_("Angles")+L" (\u00b0)",_("Camera direction in angles: yaw, pitch, roll (or azimuth, elevation, leaning)"),svs.precision,RR_RAD2DEG(svs.eye.yawPitchRollRad),10);
+		propCameraAngles = new RRVec3Property(_("Angles")+L" (\u00b0)",_("Camera direction in angles: yaw, pitch, roll (or azimuth, elevation, leaning)"),svs.precision,RR_RAD2DEG(svs.eye.getYawPitchRollRad()),10);
 		AppendIn(propCamera,propCameraAngles);
 
-		propCameraOrtho = new BoolRefProperty(_("Orthogonal"),_("Switches between orthogonal and perspective camera."),svs.eye.orthogonal);
+		propCameraOrtho = new wxBoolProperty(_("Orthogonal"));
+		propCameraOrtho->SetHelpString(_("Switches between orthogonal and perspective camera."));
+		SetPropertyEditor(propCameraOrtho,wxPGEditor_CheckBox);
 		AppendIn(propCamera,propCameraOrtho);
 
-		propCameraOrthoSize = new FloatProperty(_("Size")+" (m)",_("World space distance between top and bottom of viewport."),svs.eye.orthoSize,svs.precision,0,1000000,10,false);
+		propCameraOrthoSize = new FloatProperty(_("Size")+" (m)",_("World space distance between top and bottom of viewport."),svs.eye.getOrthoSize(),svs.precision,0,1000000,10,false);
 		AppendIn(propCameraOrtho,propCameraOrthoSize);
 
 		propCameraFov = new FloatProperty(_("FOV vertical")+L" (\u00b0)",_("Vertical field of view angle, angle between top and bottom of viewport"),svs.eye.getFieldOfViewVerticalDeg(),svs.precision,0,180,10,false);
@@ -74,7 +76,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propCameraRangeAutomatic = new BoolRefProperty(_("Automatic near/far"),_("Near/far is set automatically based on distance of objects in viewport."),svs.cameraDynamicNear);
 		AppendIn(propCamera,propCameraRangeAutomatic);
 
-		propCameraCenter = new RRVec2Property(_("Center of screen"),_("Shifts look up/down/left/right without distorting image. E.g. in architecture, 0,0.3 moves horizon down without skewing vertical lines."),svs.precision,svs.eye.screenCenter,1);
+		propCameraCenter = new RRVec2Property(_("Center of screen"),_("Shifts look up/down/left/right without distorting image. E.g. in architecture, 0,0.3 moves horizon down without skewing vertical lines."),svs.precision,svs.eye.getScreenCenter(),1);
 		AppendIn(propCamera,propCameraCenter);
 
 		SetPropertyBackgroundColour(propCamera,importantPropertyBackgroundColor,false);
@@ -241,8 +243,8 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 //! Must not be called in every frame, float property that is unhid in every frame loses focus immediately after click, can't be edited.
 void SVSceneProperties::updateHide()
 {
-	propCameraFov->Hide(svs.eye.orthogonal,false);
-	propCameraOrthoSize->Hide(!svs.eye.orthogonal,false);
+	propCameraFov->Hide(svs.eye.isOrthogonal(),false);
+	propCameraOrthoSize->Hide(!svs.eye.isOrthogonal(),false);
 	EnableProperty(propCameraNear,!svs.cameraDynamicNear);
 	EnableProperty(propCameraFar,!svs.cameraDynamicNear);
 
@@ -278,7 +280,7 @@ void SVSceneProperties::updateProperties()
 	// Other approach would be to create all properties again, however,
 	// this function would still have to support at least properties that user can change by hotkeys or mouse navigation.
 	unsigned numChangesRelevantForHiding =
-		+ updateBoolRef(propCameraOrtho)
+		+ updateBool(propCameraOrtho,svs.eye.isOrthogonal())
 		+ updateBoolRef(propCameraRangeAutomatic)
 		//+ updateBoolRef(propEnvSimulateSky)
 		+ updateBoolRef(propEnvSimulateSun)
@@ -292,15 +294,15 @@ void SVSceneProperties::updateProperties()
 		;
 	unsigned numChangesOther =
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
-		+ updateProperty(propCameraPosition,svs.eye.pos)
-		+ updateProperty(propCameraDirection,svs.eye.dir)
-		+ updateProperty(propCameraAngles,RR_RAD2DEG(svs.eye.yawPitchRollRad))
+		+ updateProperty(propCameraPosition,svs.eye.getPosition())
+		+ updateProperty(propCameraDirection,svs.eye.getDirection())
+		+ updateProperty(propCameraAngles,RR_RAD2DEG(svs.eye.getYawPitchRollRad()))
 		+ updateInt(propCameraView,view2ME_VIEW(svs.eye.getView()))
-		+ updateFloat(propCameraOrthoSize,svs.eye.orthoSize)
+		+ updateFloat(propCameraOrthoSize,svs.eye.getOrthoSize())
 		+ updateFloat(propCameraFov,svs.eye.getFieldOfViewVerticalDeg())
 		+ updateFloat(propCameraNear,svs.eye.getNear())
 		+ updateFloat(propCameraFar,svs.eye.getFar())
-		+ updateProperty(propCameraCenter,svs.eye.screenCenter)
+		+ updateProperty(propCameraCenter,svs.eye.getScreenCenter())
 		//+ updateBoolRef(propEnvSimulateSky)
 		+ updateBoolRef(propEnvSimulateSun)
 		+ updateString(propEnvMap,(svframe->m_canvas&&svframe->m_canvas->solver&&svframe->m_canvas->solver->getEnvironment())?RR_RR2WX(svframe->m_canvas->solver->getEnvironment()->filename):L"(no texture)")
@@ -366,23 +368,27 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraPosition)
 	{
-		svs.eye.pos << property->GetValue();
+		RRVec3 pos;
+		pos << property->GetValue();
+		svs.eye.setPosition(pos);
 	}
 	else
 	if (property==propCameraAngles)
 	{
-		svs.eye.yawPitchRollRad << property->GetValue();
-		svs.eye.yawPitchRollRad = RR_DEG2RAD(svs.eye.yawPitchRollRad);
+		RRVec3 yawPitchRollRad;
+		yawPitchRollRad << property->GetValue();
+		svs.eye.setYawPitchRollRad(RR_DEG2RAD(yawPitchRollRad));
 	}
 	else
 	if (property==propCameraOrtho)
 	{
+		svs.eye.setOrthogonal(property->GetValue().GetBool());
 		updateHide();
 	}
 	else
 	if (property==propCameraOrthoSize)
 	{
-		svs.eye.orthoSize = property->GetValue().GetDouble();
+		svs.eye.setOrthoSize(property->GetValue().GetDouble());
 	}
 	else
 	if (property==propCameraFov)
@@ -407,7 +413,9 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraCenter)
 	{
-		svs.eye.screenCenter << property->GetValue();
+		RRVec2 tmp;
+		tmp << property->GetValue();
+		svs.eye.setScreenCenter(tmp);
 	}
 	else
 	//if (property==propEnvSimulateSky)

@@ -41,8 +41,7 @@ void AnimationEditor::renderThumbnails(rr_gl::TextureRenderer* renderer) const
 		if (i!=setup->frames.end())
 		{
 			float intensity = 1;//(index==frameA || (index==frameB && secondsSinceFrameA>TIME_OF_STAY_STILL))?0.1f:1;
-			float color[4] = {intensity,intensity,1,1};
-			renderer->render2D(rr_gl::getTexture(movieClipMap),color,x,y,w,h);
+			renderer->render2D(rr_gl::getTexture(movieClipMap),&rr::RRVec4(intensity,intensity,1,1),x,y,w,h);
 			if ((*i)->thumbnail)
 				renderer->render2D(rr_gl::getTexture((*i)->thumbnail),NULL,x+w*0.05f,y+h*0.15f,w*0.9f,h*0.8f);
 		}

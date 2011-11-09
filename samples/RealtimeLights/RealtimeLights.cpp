@@ -231,21 +231,12 @@ void passive(int x, int y)
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		if (modeMovingEye)
-		{
-			eye.yawPitchRollRad[0] -= mouseSensitivity*x;
-			eye.yawPitchRollRad[1] -= mouseSensitivity*y;
-			RR_CLAMP(eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-		}
-		else
-		{
-			rr_gl::Camera* light = solver->realtimeLights[selectedLightIndex]->getParent();
-			light->yawPitchRollRad[0] -= mouseSensitivity*x;
-			light->yawPitchRollRad[1] -= mouseSensitivity*y;
-			RR_CLAMP(light->yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+		rr_gl::Camera& cam = modeMovingEye ? eye : *solver->realtimeLights[selectedLightIndex]->getParent();
+		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
+		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+		cam.setYawPitchRollRad(yawPitchRollRad);
+		if (!modeMovingEye)
 			solver->reportDirectIlluminationChange(selectedLightIndex,true,true,false);
-			light->update();
-		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 		solver->reportInteraction();
 	}
@@ -260,8 +251,6 @@ void display(void)
 		if (!winWidth || !winHeight) return; // can't display without window
 		reshape(winWidth,winHeight);
 	}
-
-	eye.update();
 
 	solver->calculate();
 
@@ -296,12 +285,12 @@ void idle()
 	float seconds = time.secondsSinceLastQuery();
 	RR_CLAMP(seconds,0.001f,0.3f);
 	rr_gl::Camera* cam = modeMovingEye?&eye:solver->realtimeLights[selectedLightIndex]->getParent();
-	if (speedForward) cam->pos += cam->dir * (speedForward*seconds);
-	if (speedBack) cam->pos -= cam->dir * (speedBack*seconds);
-	if (speedRight) cam->pos += cam->right * (speedRight*seconds);
-	if (speedLeft) cam->pos -= cam->right * (speedLeft*seconds);
 	if (speedForward || speedBack || speedRight || speedLeft)
 	{
+		cam->setPosition(cam->getPosition()
+			+ cam->getDirection() * ((speedForward-speedBack)*seconds)
+			+ cam->getRight() * ((speedRight-speedLeft)*seconds)
+			);
 		if (cam!=&eye) 
 		{
 			solver->reportDirectIlluminationChange(selectedLightIndex,true,true,false);

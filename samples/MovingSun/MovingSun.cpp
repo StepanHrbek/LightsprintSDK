@@ -63,9 +63,8 @@ void setupLights(rr_gl::RRDynamicSolverGL* _solver, const rr_gl::Camera* _observ
 {
 	RR_ASSERT(_solver);
 	RR_ASSERT(_solver->getLights().size()==1);
-	_solver->realtimeLights[0]->getParent()->yawPitchRollRad = rr::RRVec3(0.3f,-RR_PI*sin(_lightTime01*RR_PI),0);
+	_solver->realtimeLights[0]->getParent()->setYawPitchRollRad(rr::RRVec3(0.3f,-RR_PI*sin(_lightTime01*RR_PI),0));
 	_solver->realtimeLights[0]->configureCSM(_observer,_solver->getMultiObjectCustom());
-	_solver->realtimeLights[0]->getParent()->update();
 	_solver->realtimeLights[0]->dirtyShadowmap = 1;
 	_solver->reportDirectIlluminationChange(0,true,true,false);
 }
@@ -87,7 +86,7 @@ float                      lightTime = 0; // arbitrary
 float                      lightTime01 = 0; // lightTime doing pingpong in 0..1 range
 rr::RRVec4                 brightness(2);
 float                      contrast = 1;
-bool                       keyPressed[512];
+char                       keyPressed[512];
 rr::RRReal                 groundLevel = 0;
 
 
@@ -146,17 +145,17 @@ static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVe
 
 void special(int c, int x, int y)
 {
-	keyPressed[(c&255)+256] = true;
+	keyPressed[(c&255)+256] = 1;
 }
 
 void specialUp(int c, int x, int y)
 {
-	keyPressed[(c&255)+256] = false;
+	keyPressed[(c&255)+256] = 0;
 }
 
 void keyboard(unsigned char c, int x, int y)
 {
-	keyPressed[c&255] = true;
+	keyPressed[c&255] = 1;
 	switch (c)
 	{
 		case '+': brightness *= 1.2f; break;
@@ -176,7 +175,7 @@ void keyboard(unsigned char c, int x, int y)
 
 void keyboardUp(unsigned char c, int x, int y)
 {
-	keyPressed[c&255] = false;
+	keyPressed[c&255] = 0;
 }
 
 void reshape(int w, int h)
@@ -217,9 +216,9 @@ void passive(int x, int y)
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		eye.yawPitchRollRad[0] -= mouseSensitivity*x;
-		eye.yawPitchRollRad[1] -= mouseSensitivity*y;
-		RR_CLAMP(eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+		rr::RRVec3 yawPitchRollRad = eye.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
+		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+		eye.setYawPitchRollRad(yawPitchRollRad);
 		glutWarpPointer(winWidth/2,winHeight/2);
 		solver->reportInteraction();
 	}
@@ -255,7 +254,6 @@ void display(void)
 	}
 
 	setupLights(solver,&eye,lightTime01);
-	eye.update();
 	solver->calculate();
 
 	//rr::RRReportInterval report2(rr::INF1,"final...\n");
@@ -290,12 +288,11 @@ void idle()
 	if (keyPressed[GLUT_KEY_LEFT+256]) lightTime -= seconds*SUN_SPEED;
 	if (keyPressed[GLUT_KEY_DOWN+256]) lightTime += seconds*5*SUN_SPEED;
 	if (keyPressed[GLUT_KEY_UP+256]) lightTime -= seconds*5*SUN_SPEED;
-	if (keyPressed['w']) cam->pos += cam->dir * distance;
-	if (keyPressed['s']) cam->pos -= cam->dir * distance;
-	if (keyPressed['a']) cam->pos -= cam->right * distance;
-	if (keyPressed['d']) cam->pos += cam->right * distance;
-	if (keyPressed['q']) cam->pos += cam->up * distance;
-	if (keyPressed['z']) cam->pos -= cam->up * distance;
+	cam->setPosition(cam->getPosition()
+		+ cam->getDirection()*(keyPressed['w']-keyPressed['s'])*distance
+		+ cam->getRight()*(keyPressed['d']-keyPressed['a'])*distance
+		+ cam->getUp()*(keyPressed['q']-keyPressed['z'])*distance
+		);
 	if (autopilot) objectTime += seconds*OBJ_SPEED;
 	lightTime01 = fabs(fmod(lightTime,2.0f)-1);
 

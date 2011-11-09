@@ -155,23 +155,6 @@ EntityId SVSceneTree::itemIdToEntityId(wxTreeItemId item) const
 	return data ? data->entityId : EntityId();
 }
 
-// returns number of transformed entities
-static unsigned manipulateCamera(Camera& camera, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
-{
-	float oldRoll = camera.yawPitchRollRad[2];
-	rr::RRMatrix3x4 matrix(camera.inverseViewMatrix,true);
-	matrix = transformation * matrix;
-	RRVec3 newRot = matrix.getYawPitchRoll();
-	if (abs(abs(camera.yawPitchRollRad.x-newRot.x)-RR_PI)<RR_PI/2) // rot.x change is closer to -180 or 180 than to 0 or 360. this happens when rot.y overflows 90 or -90
-		return 0;
-	camera.pos = matrix.getTranslation();
-	camera.yawPitchRollRad = newRot;
-	if (!rollChangeAllowed) // prevent unwanted roll distortion (yawpitch changes would accumulate rounding errors in roll)
-		camera.yawPitchRollRad[2] = oldRoll;
-	camera.update();
-	return 1;
-}
-
 // returns number of modified entities
 // - nothing is modified by identity matrix
 // - camera is not modified if it would overflow pitch from -90,90 range
@@ -205,15 +188,14 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 		case ST_LIGHT:
 			{
 				RealtimeLight* rtlight = solver->realtimeLights[entity.index];
-				manipulateCamera(*rtlight->getParent(),transformation,rollChangeAllowed);
-				rtlight->updateAfterRealtimeLightChanges();
+				unsigned result = rtlight->getParent()->manipulateViewBy(transformation,rollChangeAllowed)?1:0;
 				solver->reportDirectIlluminationChange(entity.index,true,true,true);
-				return 1;
+				return result;
 			}
 			break;
 		case ST_CAMERA:
 			{
-				return manipulateCamera(svs.eye,transformation,rollChangeAllowed);
+				return svs.eye.manipulateViewBy(transformation,rollChangeAllowed)?1:0;
 			}
 			break;
 	}
@@ -313,7 +295,7 @@ rr::RRVec3 SVSceneTree::getCenterOf(const EntityIds& entityIds) const
 				}
 				break;
 			case ST_CAMERA:
-				selectedEntitiesCenter += svs.eye.pos;
+				selectedEntitiesCenter += svs.eye.getPosition();
 				numCenters++;
 				break;
 		}
@@ -506,8 +488,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				switch (actionCode)
 				{
 					case CM_LIGHT_DIR: newLight = rr::RRLight::createDirectionalLight(rr::RRVec3(-1),rr::RRVec3(1),true); newLight->name = "Sun"; break;
-					case CM_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.pos,rr::RRVec3(1),svs.eye.dir,svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4); break;
-					case CM_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.pos,rr::RRVec3(1)); break;
+					case CM_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.getPosition(),rr::RRVec3(1),svs.eye.getDirection(),svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4); break;
+					case CM_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.getPosition(),rr::RRVec3(1)); break;
 				}
 				if (newLight)
 				{

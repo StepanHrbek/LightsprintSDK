@@ -209,7 +209,6 @@ void display(void)
 	//solver->checkConsistency();
 
 	// update shadowmaps, lightmaps
-	eye.update();
 	solver->reportDirectIlluminationChange(0,true,false,false);
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	solver->calculate();
@@ -299,20 +298,12 @@ void passive(int x, int y)
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		if (modeMovingEye)
-		{
-			eye.yawPitchRollRad[0] -= mouseSensitivity*x;
-			eye.yawPitchRollRad[1] -= mouseSensitivity*y;
-			RR_CLAMP(eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-		}
-		else
-		{
-			realtimeLight->getParent()->yawPitchRollRad[0] -= mouseSensitivity*x;
-			realtimeLight->getParent()->yawPitchRollRad[1] -= mouseSensitivity*y;
-			RR_CLAMP(realtimeLight->getParent()->yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+		rr_gl::Camera& cam = modeMovingEye ? eye : *realtimeLight->getParent();
+		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
+		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+		cam.setYawPitchRollRad(yawPitchRollRad);
+		if (!modeMovingEye)
 			solver->reportDirectIlluminationChange(0,true,true,false);
-			realtimeLight->getParent()->update();
-		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
 }
@@ -324,12 +315,12 @@ void idle()
 	float seconds = time.secondsSinceLastQuery();
 	RR_CLAMP(seconds,0.001f,0.3f);
 	rr_gl::Camera* cam = modeMovingEye?&eye:realtimeLight->getParent();
-	if (speedForward) cam->pos += cam->dir * (speedForward*seconds);
-	if (speedBack) cam->pos -= cam->dir * (speedBack*seconds);
-	if (speedRight) cam->pos += cam->right * (speedRight*seconds);
-	if (speedLeft) cam->pos -= cam->right * (speedLeft*seconds);
 	if (speedForward || speedBack || speedRight || speedLeft)
 	{
+		cam->setPosition(cam->getPosition()
+			+ cam->getDirection() * ((speedForward-speedBack)*seconds)
+			+ cam->getRight() * ((speedRight-speedLeft)*seconds)
+			);
 		if (cam!=&eye) solver->reportDirectIlluminationChange(0,true,true,false);
 	}
 

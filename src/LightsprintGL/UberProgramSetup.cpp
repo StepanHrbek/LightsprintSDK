@@ -431,9 +431,9 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			double m1[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,2};
 			double m2[16];
 			float m3[16];
-#define MULT_MATRIX(a,b,c,ctype) { for (unsigned i=0;i<4;i++) for (unsigned j=0;j<4;j++) c[4*i+j] = (ctype)( b[4*i]*a[j] + b[4*i+1]*a[4+j] + b[4*i+2]*a[8+j] + b[4*i+3]*a[12+j] ); }
-			MULT_MATRIX(m1,lightInstance->frustumMatrix,m2,double);
-			MULT_MATRIX(m2,lightInstance->viewMatrix,m3,float);
+#define MULT_MATRIX(a,_b,c,ctype) { const double* b = _b; for (unsigned i=0;i<4;i++) for (unsigned j=0;j<4;j++) c[4*i+j] = (ctype)( b[4*i]*a[j] + b[4*i+1]*a[4+j] + b[4*i+2]*a[8+j] + b[4*i+3]*a[12+j] ); }
+			MULT_MATRIX(m1,lightInstance->getProjectionMatrix(),m2,double);
+			MULT_MATRIX(m2,lightInstance->getViewMatrix(),m3,float);
 			delete lightInstance;
 			char name2[] = "textureMatrix0";
 			name2[13] = '0'+i;
@@ -477,17 +477,17 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			double m1[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,2};
 			double m2[16];
 			float m3[16];
-			MULT_MATRIX(m1,light->getParent()->frustumMatrix,m2,double);
-			MULT_MATRIX(m2,light->getParent()->viewMatrix,m3,float);
+			MULT_MATRIX(m1,light->getParent()->getProjectionMatrix(),m2,double);
+			MULT_MATRIX(m2,light->getParent()->getViewMatrix(),m3,float);
 			program->sendUniform("textureMatrixL",m3,false,4);
 		}
 		if (LIGHT_DIRECTIONAL || LIGHT_DIRECT_ATT_SPOT)
 		{
-			program->sendUniform("worldLightDir",light->getParent()->dir);
+			program->sendUniform("worldLightDir",light->getParent()->getDirection());
 		}
 		if (!LIGHT_DIRECTIONAL)
 		{
-			program->sendUniform("worldLightPos",light->getParent()->pos);
+			program->sendUniform("worldLightPos",light->getParent()->getPosition());
 		}
 	}
 
@@ -498,14 +498,14 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (LIGHT_DIRECT_COLOR set).\n");
 			return false;
 		}
-		rr::RRVec3 color = light->getRRLight().color;
+		rr::RRVec4 color(light->getRRLight().color,1);
 		if (light->getRRLight().distanceAttenuationType!=rr::RRLight::POLYNOMIAL)
 		{
 			color[0] = color[0]<0?-pow(-color[0],0.45f):pow(color[0],0.45f);
 			color[1] = color[1]<0?-pow(-color[1],0.45f):pow(color[1],0.45f);
 			color[2] = color[2]<0?-pow(-color[2],0.45f):pow(color[2],0.45f);
 		}
-		program->sendUniform("lightDirectColor",rr::RRVec4(color,1.0f));
+		program->sendUniform("lightDirectColor",color);
 	}
 
 	if (LIGHT_DIRECT_MAP)
@@ -569,7 +569,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		const Camera* camera = getRenderCamera();
 		if (camera)
 		{
-			program->sendUniform("worldEyePos",camera->pos);
+			program->sendUniform("worldEyePos",camera->getPosition());
 		}
 		else
 		{

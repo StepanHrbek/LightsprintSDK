@@ -134,7 +134,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	if (lights)
 		for (unsigned i=0;i<lights->size();i++)
 		{
-			if (!light || ((*lights)[i]->getParent()->pos-worldFoot).length2()<(light->getParent()->pos-worldFoot).length2())
+			if (!light || ((*lights)[i]->getParent()->getPosition()-worldFoot).length2()<(light->getParent()->getPosition()-worldFoot).length2())
 				light = (*lights)[i];
 		}
 	if (!light || (!light->getRRLight().castShadows))
@@ -144,7 +144,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	}
 	else
 	{
-		uberProgramSetup.SHADOW_CASCADE = light->getParent()->orthogonal && light->getNumShadowmaps()>1;
+		uberProgramSetup.SHADOW_CASCADE = light->getParent()->isOrthogonal() && light->getNumShadowmaps()>1;
 		uberProgramSetup.SHADOW_SAMPLES = light->getNumShadowSamples(); // for 3ds draw, not reset by MultiPass
 		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI (even cascade)
 	}

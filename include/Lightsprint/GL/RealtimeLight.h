@@ -55,10 +55,9 @@ public:
 	rr::RRLight& getRRLight() {return rrlight;}
 	//! Returns our RRLight with standard light properties like color.
 	const rr::RRLight& getRRLight() const {return rrlight;}
-	//! Updates RealtimeLight after changes made to RRLight.
+	//! Propagates changes from RRLight (position,direction etc) to RealtimeLight and its camera.
+	//! Note that changes in the opposite direction (from camera to RRLight) are propagated automatically.
 	void updateAfterRRLightChanges();
-	//! Updates RRLight after changes made to RealtimeLight (after changes made to getParent()->pos/dir).
-	void updateAfterRealtimeLightChanges();
 
 	//! Returns parent instance. Instances inherit parent's properties, so by editing parent, you edit all instances.
 	Camera* getParent() const;

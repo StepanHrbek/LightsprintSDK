@@ -346,6 +346,9 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		//! is undefined for non-orthogonal matrices.
 		RRVec3 getYawPitchRoll() const;
 
+		RRVec3 getColumn(unsigned i) const;
+		RRVec4 getRow(unsigned i) const;
+
 		//! Returns determinant of first 3x3 elements.
 		RRReal determinant3x3() const;
 		//! Inverts matrix. Returns false in case of failure, not changing destination.

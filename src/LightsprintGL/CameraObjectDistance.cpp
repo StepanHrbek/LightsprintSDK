@@ -95,7 +95,7 @@ void CameraObjectDistance::addCamera(Camera* camera)
 	// simplification: works as if camera always points to water
 	if (water)
 	{
-		float distanceOfPotentialNearPlane = fabs(camera->pos.y-waterLevel);
+		float distanceOfPotentialNearPlane = fabs(camera->getPosition().y-waterLevel);
 		distMin = RR_MIN(distMin,distanceOfPotentialNearPlane);
 		distMax = RR_MAX(distMax,distanceOfPotentialNearPlane);
 	}

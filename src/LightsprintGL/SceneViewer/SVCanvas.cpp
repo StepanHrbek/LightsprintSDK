@@ -751,7 +751,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		s_ci.mouseRight = event.RightIsDown();
 		Camera* cam = (event.LeftIsDown()
 			 && selectedType==ST_LIGHT && svs.selectedLightIndex<solver->getLights().size()) ? solver->realtimeLights[svs.selectedLightIndex]->getParent() : &svs.eye;
-		s_ci.pos = svs.eye.pos;
+		s_ci.pos = svs.eye.getPosition();
 		s_ci.rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
 		s_ci.rayDirection = svs.eye.getRayDirection(mousePositionInWindow);
 
@@ -906,7 +906,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		{
 			// moving selection
 			rr::RRVec3 pan;
-			if (svs.eye.orthogonal)
+			if (svs.eye.isOrthogonal())
 			{
 				pan = svs.eye.getRayOrigin(mousePositionInWindow)-svs.eye.getRayOrigin(oldMousePositionInWindow);
 			}
@@ -935,11 +935,12 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			if (event.ControlDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(1,0,0),-dragX*5); else
 			if (event.ShiftDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),-dragX*5); else
 			if (event.AltDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,0,1),-dragX*5); else
-				rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.up,(manipulatingSingleLight?5:-5)*dragX)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,(manipulatingSingleLight?5:-5)*dragY);
+				rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getUp(),(manipulatingSingleLight?5:-5)*dragX)
+					*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),(manipulatingSingleLight?5:-5)*dragY);
 			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,rotation.centeredAround(manipulatedCenter),true);
 
 			s_ci.hitPoint3d = manipulatedCenter;
-			s_ci.hitDistance = (s_ci.hitPoint3d-svs.eye.pos).length();
+			s_ci.hitDistance = (s_ci.hitPoint3d-svs.eye.getPosition()).length();
 			s_ciRenderCrosshair = true;
 		}
 		else
@@ -948,7 +949,11 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			// rotating camera
 			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
 			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
-			while (!svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5*svs.eye.getFieldOfViewHorizontalDeg()/90)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5*svs.eye.getFieldOfViewHorizontalDeg()/90)).centeredAround(svs.eye.pos),false) && dragY)
+			while (!svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),
+				(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5*svs.eye.getFieldOfViewHorizontalDeg()/90)
+				*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),dragY*5*svs.eye.getFieldOfViewHorizontalDeg()/90))
+				.centeredAround(svs.eye.getPosition()),
+				false) && dragY)
 			{
 				// disable Y component and try rotation again, maybe this time pitch won't overflow 90/-90
 				// this makes rotation smoother when looking straight up/down
@@ -961,7 +966,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			// panning
 			//  drag clicked pixel so that it stays under mouse
 			rr::RRVec3 pan;
-			if (svs.eye.orthogonal)
+			if (svs.eye.isOrthogonal())
 			{
 				rr::RRVec2 origMousePositionInWindow = rr::RRVec2(s_ci.mouseX*2.0f/winWidth-1,s_ci.mouseY*2.0f/winHeight-1);
 				pan = svs.eye.getRayOrigin(origMousePositionInWindow)-svs.eye.getRayOrigin(mousePositionInWindow);
@@ -971,7 +976,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				rr::RRVec3 newRayDirection = svs.eye.getRayDirection(mousePositionInWindow);
 				pan = (s_ci.rayDirection-newRayDirection)*(s_ci.hitDistance/s_ci.rayDirection.length());
 			}
-			svs.eye.pos = s_ci.pos + pan;
+			svs.eye.setPosition(s_ci.pos + pan);
 			s_ciRenderCrosshair = true;
 		}
 		else
@@ -981,7 +986,10 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			//  rotate around clicked point, point does not move on screen
 			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
 			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
-			while (!svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5)).centeredAround(s_ci.hitPoint3d),false) && dragY)
+			while (!svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),
+				(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5)
+				*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),dragY*5))
+				.centeredAround(s_ci.hitPoint3d),false) && dragY)
 			{
 				dragY = 0;
 			}
@@ -1011,17 +1019,17 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		if (event.ControlDown())
 		{
 			// move camera forward/backward
-			svs.eye.pos -= svs.eye.dir * (event.GetWheelRotation()*svs.cameraMetersPerSecond/event.GetWheelDelta()/3);
+			svs.eye.setPosition(svs.eye.getPosition() - svs.eye.getDirection() * (event.GetWheelRotation()*svs.cameraMetersPerSecond/event.GetWheelDelta()/3));
 		}
 		else
 		{
 			// zoom camera
-			if (svs.eye.orthogonal)
+			if (svs.eye.isOrthogonal())
 			{
 				if (event.GetWheelRotation()<0)
-					svs.eye.orthoSize /= 1.4f;
+					svs.eye.setOrthoSize(svs.eye.getOrthoSize()/1.4f);
 				if (event.GetWheelRotation()>0)
-					svs.eye.orthoSize *= 1.4f;
+					svs.eye.setOrthoSize(svs.eye.getOrthoSize()*1.4f);
 			}
 			else
 			{
@@ -1039,11 +1047,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 	}
 
-	svs.eye.update(); // without this, some eye changes are ignored
-	if (svs.selectedLightIndex<solver->realtimeLights.size())
-	{
-		solver->realtimeLights[svs.selectedLightIndex]->updateAfterRealtimeLightChanges();
-	}
 	solver->reportInteraction();
 	oldPosition = newPosition;
 	oldMousePositionInWindow = mousePositionInWindow;
@@ -1092,11 +1095,11 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 			rr::RRVec3 center = svframe->m_sceneTree->getCenterOf(entities);
 			svframe->m_sceneTree->manipulateEntities(entities,
 				rr::RRMatrix3x4::translation(
-					svs.eye.dir * ((speedForward-speedBack)*meters) +
-					svs.eye.right * ((speedRight-speedLeft)*meters) +
-					svs.eye.up * ((speedUp-speedDown)*meters) +
+					svs.eye.getDirection() * ((speedForward-speedBack)*meters) +
+					svs.eye.getRight() * ((speedRight-speedLeft)*meters) +
+					svs.eye.getUp() * ((speedUp-speedDown)*meters) +
 					rr::RRVec3(0,speedY*meters,0))
-				* rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.dir,-speedLean*seconds*0.5f).centeredAround(center),
+				* rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getDirection(),-speedLean*seconds*0.5f).centeredAround(center),
 				speedLean?true:false
 				);
 		}
@@ -1274,15 +1277,14 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		// - RL: restored previously saved camera and window size differs
 		// - RL: calculated camera from previously saved keyframes and window size differs
 		svs.eye.setAspect(winWidth/(float)winHeight,0.5f);
-		svs.eye.update();
 
 		// move flashlight
 		for (unsigned i=solver->getLights().size();i--;)
 			if (solver->getLights()[i] && solver->getLights()[i]->enabled && solver->getLights()[i]->type==rr::RRLight::SPOT && solver->getLights()[i]->name=="Flashlight")
 			{
 				// eye must already be updated otherwise flashlight will lag one frame
-				solver->getLights()[i]->position = svs.eye.pos + svs.eye.up*svs.cameraMetersPerSecond*0.03f+svs.eye.right*svs.cameraMetersPerSecond*0.03f;
-				solver->getLights()[i]->direction = svs.eye.dir;
+				solver->getLights()[i]->position = svs.eye.getPosition() + svs.eye.getUp()*svs.cameraMetersPerSecond*0.03f+svs.eye.getRight()*svs.cameraMetersPerSecond*0.03f;
+				solver->getLights()[i]->direction = svs.eye.getDirection();
 				float viewportWidthCovered = 0.9f;
 				solver->getLights()[i]->outerAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.6f;
 				solver->getLights()[i]->fallOffAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.4f;
@@ -1291,11 +1293,10 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				solver->realtimeLights[i]->dirtyRange = false; // clear it, range already is good (dirty range would randomly disappear flashlight, reason unknown)
 			}
 
-		if (svs.cameraDynamicNear && !svs.eye.orthogonal) // don't change range in ortho, fixed range from setView() is better
+		if (svs.cameraDynamicNear && !svs.eye.isOrthogonal()) // don't change range in ortho, fixed range from setView() is better
 		{
 			// eye must already be updated here because next line depends on up, right
 			svs.eye.setRangeDynamically(solver->getMultiObjectCustom(),svs.renderWater,svs.waterLevel);
-			svs.eye.update();
 		}
 
 		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
@@ -1391,7 +1392,6 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				water->updateReflectionDone();
 				float oldFar = svs.eye.getFar();
 				svs.eye.setFar(oldFar*5); // far is set to end right behind scene. water polygon continues behind scene, we need it visible -> increase far
-				svs.eye.update();
 				setupForRender(svs.eye);
 				
 				// find sun
@@ -1400,11 +1400,11 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					const rr::RRLight* light = solver->getLights()[i];
 					if (light->type==rr::RRLight::DIRECTIONAL)
 					{
-						water->render(svs.eye.getFar()*2,svs.eye.pos,rr::RRVec4(svs.waterColor,0.5f),light->direction,light->color);
+						water->render(svs.eye.getFar()*2,svs.eye.getPosition(),rr::RRVec4(svs.waterColor,0.5f),light->direction,light->color);
 						goto rendered;
 					}
 				}
-				water->render(svs.eye.getFar()*4,svs.eye.pos,rr::RRVec4(svs.waterColor,0.5f),rr::RRVec3(0),rr::RRVec3(0)); // far*4 makes triangle end before far only in unusually wide aspects, error is nearly invisible. higher constant would increase float errors in shader
+				water->render(svs.eye.getFar()*4,svs.eye.getPosition(),rr::RRVec4(svs.waterColor,0.5f),rr::RRVec3(0),rr::RRVec3(0)); // far*4 makes triangle end before far only in unusually wide aspects, error is nearly invisible. higher constant would increase float errors in shader
 rendered:
 				solver->renderScene(
 					uberProgramSetup,
@@ -1497,7 +1497,7 @@ rendered:
 		}
 
 		// render lens flare, using own shader
-		if (svs.renderLensFlare && !svs.eye.orthogonal)
+		if (svs.renderLensFlare && !svs.eye.isOrthogonal())
 		{
 			if (!lensFlareLoadAttempted)
 			{
@@ -1516,8 +1516,8 @@ rendered:
 		if (svs.renderHelpers && !_takingSshot && lightField)
 		{
 			// update cube
-			lightFieldObjectIllumination->envMapWorldCenter = rr::RRVec3(svs.eye.pos[0]+svs.eye.dir[0],svs.eye.pos[1]+svs.eye.dir[1],svs.eye.pos[2]+svs.eye.dir[2]);
-			rr::RRVec2 sphereShift = rr::RRVec2(svs.eye.dir[2],-svs.eye.dir[0]).normalized()*0.05f;
+			lightFieldObjectIllumination->envMapWorldCenter = svs.eye.getPosition()+svs.eye.getDirection();
+			rr::RRVec2 sphereShift = rr::RRVec2(svs.eye.getDirection()[2],-svs.eye.getDirection()[0]).normalized()*0.05f;
 			lightField->updateEnvironmentMap(lightFieldObjectIllumination,0);
 
 			// diffuse

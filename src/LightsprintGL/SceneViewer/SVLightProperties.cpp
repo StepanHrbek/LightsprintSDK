@@ -61,10 +61,10 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propDirection = new RRVec3Property(_("Direction"),_("Major light direction in world space, normalized"),_precision,light->direction,0.1f);
 			AppendIn(propType,propDirection);
 
-			propAltitude = new FloatProperty(_("Elevation")+L" (\u00b0)",_("Solar elevation angle, 90 for sun in zenith, 0 for sun on horizon, negative for sun below horizon."),ANGLEX2ALT(rtlight->getParent()->yawPitchRollRad[1]),_precision,-90,90,10,false);
+			propAltitude = new FloatProperty(_("Elevation")+L" (\u00b0)",_("Solar elevation angle, 90 for sun in zenith, 0 for sun on horizon, negative for sun below horizon."),ANGLEX2ALT(rtlight->getParent()->getYawPitchRollRad()[1]),_precision,-90,90,10,false);
 			AppendIn(propType,propAltitude);
 
-			propAzimuth = new FloatProperty(_("Azimuth")+L" (\u00b0)",_("Solar azimuth angle, 90 for east, 180 for south, 270 for west."),ANGLE2AZI(rtlight->getParent()->yawPitchRollRad[0]),_precision,0,360,10,true);
+			propAzimuth = new FloatProperty(_("Azimuth")+L" (\u00b0)",_("Solar azimuth angle, 90 for east, 180 for south, 270 for west."),ANGLE2AZI(rtlight->getParent()->getYawPitchRollRad()[0]),_precision,0,360,10,true);
 			AppendIn(propType,propAzimuth);
 
 			propOuterAngle = new FloatProperty(_("Outer angle")+L" (\u00b0)",_("Outer cone angle, angle between major direction and border direction."),RR_RAD2DEG(light->outerAngleRad),_precision,0,180,10,false);
@@ -188,10 +188,10 @@ void SVLightProperties::updatePosDir()
 		unsigned numChanges =
 			updateFloat(propNear,rtlight->getParent()->getNear()) +
 			updateFloat(propFar,rtlight->getParent()->getFar()) +
-			updateProperty(propPosition,rtlight->getParent()->pos) +
-			updateProperty(propDirection,rtlight->getParent()->dir) +
-			updateFloat(propAltitude,ANGLEX2ALT(rtlight->getParent()->yawPitchRollRad[1])) +
-			updateFloat(propAzimuth,ANGLE2AZI(rtlight->getParent()->yawPitchRollRad[0])) +
+			updateProperty(propPosition,rtlight->getParent()->getPosition()) +
+			updateProperty(propDirection,rtlight->getParent()->getDirection()) +
+			updateFloat(propAltitude,ANGLEX2ALT(rtlight->getParent()->getYawPitchRollRad()[1])) +
+			updateFloat(propAzimuth,ANGLE2AZI(rtlight->getParent()->getYawPitchRollRad()[0])) +
 			updateInt(propShadowTransparency,rtlight->shadowTransparencyActual)
 			;
 		if (numChanges)
@@ -249,10 +249,11 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propAltitude || property==propAzimuth)
 	{
-		rtlight->getParent()->yawPitchRollRad[0] = AZI2ANGLE(propAzimuth->GetValue().GetDouble());
-		rtlight->getParent()->yawPitchRollRad[1] = ALT2ANGLEX(propAltitude->GetValue().GetDouble());
-		rtlight->getParent()->update();
-		rtlight->updateAfterRealtimeLightChanges();
+		rtlight->getParent()->setYawPitchRollRad(RRVec3(
+			AZI2ANGLE(propAzimuth->GetValue().GetDouble()),
+			ALT2ANGLEX(propAltitude->GetValue().GetDouble()),
+			rtlight->getParent()->getYawPitchRollRad()[2]
+			));
 		rtlight->dirtyShadowmap = true;
 		rtlight->dirtyGI = true;
 	}

@@ -16,61 +16,99 @@ namespace rr_gl
 
 ////////////////////////////////////////////////////////////////////////
 //
-// Camera
+// constructors
 
 Camera::Camera()
 {
+	light = NULL;
+
+	// view
 	pos = rr::RRVec3(0);
 	yawPitchRollRad = rr::RRVec3(0);
+	updateView();
+
+	// projection
 	aspect = 1; // ctor must set it directly, setAspect() may fail if old aspect is NaN
-	setFieldOfViewVerticalDeg(90);
-	setRange(0.1f,100);
-	orthogonal = 0;
+	fieldOfViewVerticalDeg = 90;
+	anear = 0.1f;
+	afar = 100;
+	orthogonal = false;
 	orthoSize = 100;
 	screenCenter = rr::RRVec2(0);
-	origin = NULL;
-	update();
+	updateProjection();
 }
 
 Camera::Camera(const rr::RRVec3& _pos, const rr::RRVec3& _yawPitchRoll, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar)
 {
+	light = NULL;
+
+	// view
 	pos = _pos;
 	yawPitchRollRad = _yawPitchRoll;
-	aspect = _aspect; // ctor must set it directly, setAspect() may fail if old aspect is NaN
-	setFieldOfViewVerticalDeg(_fieldOfViewVerticalDeg); // aspect must be already set
-	setRange(_anear,_afar);
-	orthogonal = 0;
+	updateView();
+
+	// projection
+	aspect = _aspect;
+	fieldOfViewVerticalDeg = RR_CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f);
+	anear = (_anear<_afar) ? _anear : 0.1f;
+	afar = (_anear<_afar) ? _afar : 100;
+	orthogonal = false;
 	orthoSize = 100;
 	screenCenter = rr::RRVec2(0);
-	origin = NULL;
-	update();
+	updateProjection();
 }
 
-Camera::Camera(rr::RRLight& light)
+Camera::Camera(rr::RRLight& _light)
 {
-	pos = light.position;
-	RR_ASSERT(light.type!=rr::RRLight::DIRECTIONAL || fabs(light.direction.length2()-1)<0.01f); // direction must be normalized (only for directional light)
-	if (light.type==rr::RRLight::POINT)
+	light = &_light;
+
+	// view
+	pos = _light.position;
+	yawPitchRollRad = rr::RRVec3(0);
+	if (_light.type!=rr::RRLight::POINT)
 	{
-		yawPitchRollRad = rr::RRVec3(0);
+		RR_ASSERT(_light.type!=rr::RRLight::DIRECTIONAL || fabs(_light.direction.length2()-1)<0.01f); // direction must be normalized (only for directional light)
+		setDirection(_light.direction);
 	}
 	else
-	{
-		setDirection(light.direction);
-	}
+		updateView();
+
+	// projection
 	aspect = 1; // ctor must set it directly, setAspect() may fail if old aspect is NaN
-	setFieldOfViewVerticalDeg( (light.type==rr::RRLight::SPOT) ? RR_RAD2DEG(light.outerAngleRad)*2 : 90 ); // aspect must be already set
-	setRange( (light.type==rr::RRLight::DIRECTIONAL) ? 10.f : .1f, (light.type==rr::RRLight::DIRECTIONAL) ? 200.f : 100.f );
-	orthogonal = (light.type==rr::RRLight::DIRECTIONAL) ? 1 : 0;
+	fieldOfViewVerticalDeg = (_light.type==rr::RRLight::SPOT) ? RR_CLAMPED(RR_RAD2DEG(_light.outerAngleRad)*2,0.0000001f,179.9f) : 90;
+	anear = (_light.type==rr::RRLight::DIRECTIONAL) ? 10.f : .1f;
+	afar = (_light.type==rr::RRLight::DIRECTIONAL) ? 200.f : 100.f;
+	orthogonal = _light.type==rr::RRLight::DIRECTIONAL;
 	orthoSize = 100;
 	screenCenter = rr::RRVec2(0);
-	origin = &light;
-	update();
+	updateProjection();
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// view get/setters
+
+void Camera::setPosition(const rr::RRVec3& _pos)
+{
+	if (pos!=_pos)
+	{
+		pos = _pos;
+		updateView();
+	}
+}
+
+void Camera::setYawPitchRollRad(const rr::RRVec3& _yawPitchRollRad)
+{
+	if (yawPitchRollRad!=_yawPitchRollRad)
+	{
+		yawPitchRollRad = _yawPitchRollRad;
+		updateView();
+	}
 }
 
 void Camera::setDirection(const rr::RRVec3& _dir)
 {
-	dir = _dir.normalized();
+	rr::RRVec3 dir = _dir.normalized();
 	yawPitchRollRad[1] = asin(dir.y);
 	float d = _dir.x*_dir.x+_dir.z*_dir.z;
 	if (d>1e-7f)
@@ -88,214 +126,23 @@ void Camera::setDirection(const rr::RRVec3& _dir)
 		// We are looking straight up or down. Keep old angle, don't reset it.
 	}
 	yawPitchRollRad[2] = 0;
+	updateView();
 }
 
-void Camera::setAspect(float _aspect, float _effectOnFOV)
+bool Camera::manipulateViewBy(const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
 {
-	if (_finite(_aspect) && _aspect!=aspect) // never set NaN, != would never succeed and NaN would stay set forever (at least in 2011-01 release static x64 configuration)
-	{
-		float oldAspect = aspect;
-		aspect = RR_CLAMPED(_aspect,0.001f,1000);
-		if (_effectOnFOV)
-		{
-			double v0 = RR_DEG2RAD(fieldOfViewVerticalDeg);
-			double v1 = atan(tan(v0*0.5)*oldAspect/aspect)*2;
-			setFieldOfViewVerticalDeg((float)RR_RAD2DEG(v0+_effectOnFOV*(v1-v0)));
-		}
-	}
-}
-
-void Camera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
-{
-	fieldOfViewVerticalDeg = RR_CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f);
-}
-
-void Camera::setNear(float _near)
-{
-	anear = _near;
-	if (afar<=anear) afar = anear+100;
-}
-
-void Camera::setFar(float _far)
-{
-	afar = _far;
-	if (anear>=afar) anear = (afar>0)?afar/10:afar-1;
-}
-
-void Camera::setRange(float _near, float _far)
-{
-	if (_near<_far)
-	{
-		anear = _near;
-		afar = _far;
-	}
-}
-
-rr::RRVec2 Camera::getPositionInWindow(rr::RRVec3 worldPosition) const
-{
-	double tmp[4],out[4];
-	for (int i=0; i<4; i++) tmp[i] = worldPosition[0] * viewMatrix[0*4+i] + worldPosition[1] * viewMatrix[1*4+i] + worldPosition[2] * viewMatrix[2*4+i] + viewMatrix[3*4+i];
-	for (int i=0; i<4; i++) out[i] = tmp[0] * frustumMatrix[0*4+i] + tmp[1] * frustumMatrix[1*4+i] + tmp[2] * frustumMatrix[2*4+i] + tmp[3] * frustumMatrix[3*4+i];
-	return rr::RRVec2(out[0]/out[3],out[1]/out[3]);
-}
-
-rr::RRVec3 Camera::getRayOrigin(rr::RRVec2 posInWindow) const
-{
-	if (!orthogonal)
-		return pos;
-	return
-		pos
-		+ right * (posInWindow[0]+screenCenter[0]) * orthoSize * aspect
-		- up    * (posInWindow[1]-screenCenter[1]) * orthoSize
-		;
-}
-
-rr::RRVec3 Camera::getRayDirection(rr::RRVec2 posInWindow) const
-{
-	if (orthogonal)
-		return dir.normalized();
-	// CameraObjectDistance uses length of our result, don't normalize
-	return
-		dir.normalized()
-		+ right * ( (posInWindow[0]+screenCenter[0]) * tan(getFieldOfViewHorizontalRad()/2) )
-		- up    * ( (posInWindow[1]-screenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
-		;
-}
-
-void Camera::setRangeDynamically(const rr::RRObject* object, bool water, float waterLevel)
-{
-	if (!object)
-		return;
-
-	// get scene size
-	rr::RRVec3 aabbMini,aabbMaxi;
-	object->getCollider()->getMesh()->getAABB(&aabbMini,&aabbMaxi,NULL);
-	float objectSize = (aabbMaxi-aabbMini).length();
-
-	// get scene distance
-	CameraObjectDistance cod(object,water,waterLevel);
-	cod.addCamera(this);
-
-	// set range
-	if (cod.getDistanceMax()>=cod.getDistanceMin())
-	{
-		// some rays intersected scene, use scene size and distance
-		float newFar = 2 * RR_MAX(objectSize,cod.getDistanceMax());
-		float min = cod.getDistanceMin()/2;
-		float relativeSceneProximity = RR_CLAMPED(newFar/min,10,100)*10; // 100..1000, 100=looking from distance, 1000=closeup
-		float newNear = RR_CLAMPED(min,0.0001f,newFar/relativeSceneProximity);
-		setRange( newNear, newFar );
-	}
-	else
-	{
-		// rays did not intersect scene, use scene size
-		// or even better, don't change range at all
-	}
-}
-
-bool Camera::operator==(const Camera& a) const
-{
-	return pos==a.pos
-		&& yawPitchRollRad==a.yawPitchRollRad
-		//&& aspect==a.aspect ... aspect is usually just byproduct of window size, users don't want "scene was modified" just because window size changed
-		&& fieldOfViewVerticalDeg==a.fieldOfViewVerticalDeg
-		&& anear==a.anear
-		&& afar==a.afar;
-}
-
-bool Camera::operator!=(const Camera& a) const
-{
-	return !(*this==a);
-}
-
-static bool invertMatrix4x4(const double m[16], double inverse[16])
-{
-	double inv[16] =
-	{
-		m[5]*m[10]*m[15] - m[5]*m[11]*m[14] - m[9]*m[6]*m[15] + m[9]*m[7]*m[14] + m[13]*m[6]*m[11] - m[13]*m[7]*m[10],
-		-m[1]*m[10]*m[15] + m[1]*m[11]*m[14] + m[9]*m[2]*m[15] - m[9]*m[3]*m[14] - m[13]*m[2]*m[11] + m[13]*m[3]*m[10],
-		m[1]*m[6]*m[15] - m[1]*m[7]*m[14] - m[5]*m[2]*m[15] + m[5]*m[3]*m[14] + m[13]*m[2]*m[7] - m[13]*m[3]*m[6],
-		-m[1]*m[6]*m[11] + m[1]*m[7]*m[10] + m[5]*m[2]*m[11] - m[5]*m[3]*m[10] - m[9]*m[2]*m[7] + m[9]*m[3]*m[6],
-		-m[4]*m[10]*m[15] + m[4]*m[11]*m[14] + m[8]*m[6]*m[15] - m[8]*m[7]*m[14] - m[12]*m[6]*m[11] + m[12]*m[7]*m[10],
-		m[0]*m[10]*m[15] - m[0]*m[11]*m[14] - m[8]*m[2]*m[15] + m[8]*m[3]*m[14] + m[12]*m[2]*m[11] - m[12]*m[3]*m[10],
-		-m[0]*m[6]*m[15] + m[0]*m[7]*m[14] + m[4]*m[2]*m[15] - m[4]*m[3]*m[14] - m[12]*m[2]*m[7] + m[12]*m[3]*m[6],
-		m[0]*m[6]*m[11] - m[0]*m[7]*m[10] - m[4]*m[2]*m[11] + m[4]*m[3]*m[10] + m[8]*m[2]*m[7] - m[8]*m[3]*m[6],
-		m[4]*m[9]*m[15] - m[4]*m[11]*m[13] - m[8]*m[5]*m[15] + m[8]*m[7]*m[13] + m[12]*m[5]*m[11] - m[12]*m[7]*m[9],
-		-m[0]*m[9]*m[15] + m[0]*m[11]*m[13] + m[8]*m[1]*m[15] - m[8]*m[3]*m[13] - m[12]*m[1]*m[11] + m[12]*m[3]*m[9],
-		m[0]*m[5]*m[15] - m[0]*m[7]*m[13] - m[4]*m[1]*m[15] + m[4]*m[3]*m[13] + m[12]*m[1]*m[7] - m[12]*m[3]*m[5],
-		-m[0]*m[5]*m[11] + m[0]*m[7]*m[9] + m[4]*m[1]*m[11] - m[4]*m[3]*m[9] - m[8]*m[1]*m[7] + m[8]*m[3]*m[5],
-		-m[4]*m[9]*m[14] + m[4]*m[10]*m[13] + m[8]*m[5]*m[14] - m[8]*m[6]*m[13] - m[12]*m[5]*m[10] + m[12]*m[6]*m[9],
-		m[0]*m[9]*m[14] - m[0]*m[10]*m[13] - m[8]*m[1]*m[14] + m[8]*m[2]*m[13] + m[12]*m[1]*m[10] - m[12]*m[2]*m[9],
-		-m[0]*m[5]*m[14] + m[0]*m[6]*m[13] + m[4]*m[1]*m[14] - m[4]*m[2]*m[13] - m[12]*m[1]*m[6] + m[12]*m[2]*m[5],
-		m[0]*m[5]*m[10] - m[0]*m[6]*m[9] - m[4]*m[1]*m[10] + m[4]*m[2]*m[9] + m[8]*m[1]*m[6] - m[8]*m[2]*m[5]
-	};
-	double det = m[0]*inv[0] + m[1]*inv[4] + m[2]*inv[8] + m[3]*inv[12];
-	if (!det)
+	float oldRoll = yawPitchRollRad[2];
+	rr::RRMatrix3x4 matrix(viewMatrix,false);
+	matrix.setTranslation(pos);
+	matrix = transformation * matrix;
+	rr::RRVec3 newRot = matrix.getYawPitchRoll();
+	if (abs(abs(yawPitchRollRad.x-newRot.x)-RR_PI)<RR_PI/2) // rot.x change is closer to -180 or 180 than to 0 or 360. this happens when rot.y overflows 90 or -90
 		return false;
-	det = 1/det;
-	for (unsigned i=0;i<16;i++)
-		inverse[i] = inv[i] * det;
+	pos = matrix.getTranslation();
+	yawPitchRollRad = rr::RRVec3(newRot.x,newRot.y,rollChangeAllowed?newRot.z:oldRoll); // prevent unwanted roll distortion (yawpitch changes would accumulate rounding errors in roll)
+	updateView();
 	return true;
 }
-
-void Camera::update()
-{
-	// pos, yawPitchRollRad -> dir, right, up, viewMatrix, inverseViewMatrix
-	rr::RRMatrix3x4 inverseView = rr::RRMatrix3x4::rotationByYawPitchRoll(yawPitchRollRad);
-	inverseView.postTranslate(pos);
-	for (unsigned i=0;i<4;i++)
-		for (unsigned j=0;j<4;j++)
-			inverseViewMatrix[4*j+i] = (i<3)?inverseView.m[i][j]:((j<3)?0:1);
-	invertMatrix4x4(inverseViewMatrix, viewMatrix);
-	right = rr::RRVec3((rr::RRReal)viewMatrix[0],(rr::RRReal)viewMatrix[4],(rr::RRReal)viewMatrix[8]);
-	up = rr::RRVec3((rr::RRReal)viewMatrix[1],(rr::RRReal)viewMatrix[5],(rr::RRReal)viewMatrix[9]);
-	dir = -rr::RRVec3((rr::RRReal)viewMatrix[2],(rr::RRReal)viewMatrix[6],(rr::RRReal)viewMatrix[10]);
-
-	// orthoSize, aspect, screenCenter, anear, afar, fieldOfViewVerticalDeg -> frustumMatrix, inverseFrustumMatrix
-	for (unsigned i=0;i<16;i++) frustumMatrix[i] = 0;
-	if (orthogonal)
-	{
-		frustumMatrix[0] = 1/(orthoSize*aspect);
-		frustumMatrix[5] = 1/orthoSize;
-		frustumMatrix[10] = -1/(afar-anear);
-		frustumMatrix[12] = -screenCenter.x;
-		frustumMatrix[13] = -screenCenter.y;
-		frustumMatrix[14] = -(anear+afar)/(afar-anear);
-		frustumMatrix[15] = 1;
-	}
-	else
-	{
-		frustumMatrix[0] = 1/(tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2)*aspect);
-		frustumMatrix[5] = 1/tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2);
-		frustumMatrix[8] = screenCenter.x;
-		frustumMatrix[9] = screenCenter.y;
-		frustumMatrix[10] = -(afar+anear)/(afar-anear);
-		frustumMatrix[11] = -1;
-		frustumMatrix[14] = -2*anear*afar/(afar-anear);
-	}
-	invertMatrix4x4(frustumMatrix, inverseFrustumMatrix);
-
-	// copy pos/dir to RRLight
-	if (origin)
-	{
-		origin->position = pos;
-		origin->direction = dir;
-	}
-}
-
-void Camera::mirror(float altitude)
-{
-	pos[1] = 2*altitude-pos[1];
-	yawPitchRollRad[1] = -yawPitchRollRad[1];
-	screenCenter.y = -screenCenter.y;
-	yawPitchRollRad[2] = -yawPitchRollRad[2];
-	// it is not completely mirrored, up stays {0,1,0} in update()
-}
-
-
-////////////////////////////////////////////////////////////////////////
-//
-// views
 
 static float s_viewAngles[6][3] = // 6x yawPitchRollRad
 {
@@ -375,7 +222,8 @@ void Camera::setView(Camera::View view, const rr::RRObject* scene)
 		anear = -(mini-maxi).length()/2;
 		afar = -1.5f*anear;
 	}
-	update();
+	updateView();
+	updateProjection();
 }
 
 Camera::View Camera::getView() const
@@ -390,7 +238,125 @@ Camera::View Camera::getView() const
 
 ////////////////////////////////////////////////////////////////////////
 //
-// blend
+// projection get/setters
+
+void Camera::setOrthogonal(bool _orthogonal)
+{
+	if (orthogonal!=_orthogonal)
+	{
+		orthogonal = _orthogonal;
+		updateProjection();
+	}
+}
+
+void Camera::setAspect(float _aspect, float _effectOnFOV)
+{
+	if (_finite(_aspect) && _aspect!=aspect) // never set NaN, != would never succeed and NaN would stay set forever (at least in 2011-01 release static x64 configuration)
+	{
+		float oldAspect = aspect;
+		aspect = RR_CLAMPED(_aspect,0.001f,1000);
+		if (_effectOnFOV)
+		{
+			double v0 = RR_DEG2RAD(fieldOfViewVerticalDeg);
+			double v1 = atan(tan(v0*0.5)*oldAspect/aspect)*2;
+			setFieldOfViewVerticalDeg((float)RR_RAD2DEG(v0+_effectOnFOV*(v1-v0)));
+		}
+		updateProjection();
+	}
+}
+
+void Camera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
+{
+	if (_finite(_fieldOfViewVerticalDeg) && fieldOfViewVerticalDeg!=_fieldOfViewVerticalDeg)
+	{
+		fieldOfViewVerticalDeg = RR_CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f);
+		updateProjection();
+	}
+}
+
+void Camera::setNear(float _near)
+{
+	if (_finite(_near) && _near!=anear)
+	{
+		anear = _near;
+		if (afar<=anear) afar = anear+100;
+		updateProjection();
+	}
+}
+
+void Camera::setFar(float _far)
+{
+	if (_finite(_far) && _far!=afar)
+	{
+		afar = _far;
+		if (anear>=afar) anear = (afar>0)?afar/10:afar-1;
+		updateProjection();
+	}
+}
+
+void Camera::setRange(float _near, float _far)
+{
+	if (_finite(_near) && _finite(_far) && (_near!=anear || _far!=afar) && _near<_far)
+	{
+		anear = _near;
+		afar = _far;
+		updateProjection();
+	}
+}
+
+void Camera::setRangeDynamically(const rr::RRObject* object, bool water, float waterLevel)
+{
+	if (!object)
+		return;
+
+	// get scene size
+	rr::RRVec3 aabbMini,aabbMaxi;
+	object->getCollider()->getMesh()->getAABB(&aabbMini,&aabbMaxi,NULL);
+	float objectSize = (aabbMaxi-aabbMini).length();
+
+	// get scene distance
+	CameraObjectDistance cod(object,water,waterLevel);
+	cod.addCamera(this);
+
+	// set range
+	if (cod.getDistanceMax()>=cod.getDistanceMin())
+	{
+		// some rays intersected scene, use scene size and distance
+		float newFar = 2 * RR_MAX(objectSize,cod.getDistanceMax());
+		float min = cod.getDistanceMin()/2;
+		float relativeSceneProximity = RR_CLAMPED(newFar/min,10,100)*10; // 100..1000, 100=looking from distance, 1000=closeup
+		float newNear = RR_CLAMPED(min,0.0001f,newFar/relativeSceneProximity);
+		setRange( newNear, newFar );
+	}
+	else
+	{
+		// rays did not intersect scene, use scene size
+		// or even better, don't change range at all
+	}
+}
+
+void Camera::setOrthoSize(float _orthoSize)
+{
+	if (_finite(_orthoSize) && orthoSize!=_orthoSize && orthoSize>0)
+	{
+		orthoSize = _orthoSize;
+		updateProjection();
+	}
+}
+
+void Camera::setScreenCenter(rr::RRVec2 _screenCenter)
+{
+	if (_screenCenter.finite() && screenCenter!=_screenCenter)
+	{
+		screenCenter = _screenCenter;
+		updateProjection();
+	}
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// blending
 
 // returns a*(1-alpha) + b*alpha;
 template<class C>
@@ -427,8 +393,9 @@ void Camera::blend(const Camera& a, const Camera& b, float blend)
 	orthogonal = a.orthogonal;
 	orthoSize = blendNormal(a.orthoSize,b.orthoSize,blend);
 	screenCenter = blendNormal(a.screenCenter,b.screenCenter,blend);
-	dir = blendNormal(a.dir,b.dir,blend);
-	update();
+	getDirection() = blendNormal(a.getDirection(),b.getDirection(),blend);
+	updateView();
+	updateProjection();
 }
 
 #if defined(_MSC_VER) && _MSC_VER>=1600
@@ -573,7 +540,8 @@ void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* time
 	BLEND_RRVEC3_ANGLES(yawPitchRollRad);
 	BLEND_3FLOATS(anear,afar,fieldOfViewVerticalDeg);
 	BLEND_4FLOATS(screenCenter.x,screenCenter.y,orthoSize,aspect);
-	update();
+	updateView();
+	updateProjection();
 }
 
 #else
@@ -588,7 +556,64 @@ void Camera::blendAkima(unsigned numCameras, const Camera** cameras, float* time
 
 ////////////////////////////////////////////////////////////////////////
 //
-// fix
+// other tools
+
+rr::RRVec2 Camera::getPositionInWindow(rr::RRVec3 worldPosition) const
+{
+	double tmp[4],out[4];
+	for (int i=0; i<4; i++) tmp[i] = worldPosition[0] * viewMatrix[0*4+i] + worldPosition[1] * viewMatrix[1*4+i] + worldPosition[2] * viewMatrix[2*4+i] + viewMatrix[3*4+i];
+	for (int i=0; i<4; i++) out[i] = tmp[0] * projectionMatrix[0*4+i] + tmp[1] * projectionMatrix[1*4+i] + tmp[2] * projectionMatrix[2*4+i] + tmp[3] * projectionMatrix[3*4+i];
+	return rr::RRVec2((rr::RRReal)(out[0]/out[3]),(rr::RRReal)(out[1]/out[3]));
+}
+
+rr::RRVec3 Camera::getRayOrigin(rr::RRVec2 posInWindow) const
+{
+	if (!orthogonal)
+		return pos;
+	return
+		pos
+		+ getRight() * (posInWindow[0]+screenCenter[0]) * orthoSize * aspect
+		- getUp()    * (posInWindow[1]-screenCenter[1]) * orthoSize
+		;
+}
+
+rr::RRVec3 Camera::getRayDirection(rr::RRVec2 posInWindow) const
+{
+	if (orthogonal)
+		return getDirection();
+	// CameraObjectDistance uses length of our result, don't normalize
+	return
+		getDirection()
+		+ getRight() * ( (posInWindow[0]+screenCenter[0]) * tan(getFieldOfViewHorizontalRad()/2) )
+		- getUp()    * ( (posInWindow[1]-screenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
+		;
+}
+
+bool Camera::operator==(const Camera& a) const
+{
+	return pos==a.pos
+		&& yawPitchRollRad==a.yawPitchRollRad
+		//&& aspect==a.aspect ... aspect is usually just byproduct of window size, users don't want "scene was modified" just because window size changed
+		&& fieldOfViewVerticalDeg==a.fieldOfViewVerticalDeg
+		&& anear==a.anear
+		&& afar==a.afar;
+}
+
+bool Camera::operator!=(const Camera& a) const
+{
+	return !(*this==a);
+}
+
+void Camera::mirror(float altitude)
+{
+	pos[1] = 2*altitude-pos[1];
+	yawPitchRollRad[1] = -yawPitchRollRad[1];
+	screenCenter.y = -screenCenter.y;
+	yawPitchRollRad[2] = -yawPitchRollRad[2];
+	// it is not completely mirrored, up stays {0,1,0} in update()
+	updateView();
+	updateProjection();
+}
 
 static unsigned makeFinite(float& f, float def)
 {
@@ -610,7 +635,7 @@ static unsigned makeFinite(rr::RRVec3& v, const rr::RRVec3& def)
 
 unsigned Camera::fixInvalidValues()
 {
-	return
+	unsigned numFixes =
 		+ makeFinite(pos,rr::RRVec3(0))
 		+ makeFinite(aspect,1)
 		+ makeFinite(fieldOfViewVerticalDeg,90)
@@ -622,7 +647,76 @@ unsigned Camera::fixInvalidValues()
 		+ makeFinite(yawPitchRollRad[0],0)
 		+ makeFinite(yawPitchRollRad[1],0)
 		+ makeFinite(yawPitchRollRad[2],0);
+	if (numFixes)
+	{
+		updateView();
+		updateProjection();
+	}
+	return numFixes;
 }
+
+////////////////////////////////////////////////////////////////////////
+//
+// update
+
+void Camera::updateView()
+{
+	// pos, yawPitchRollRad -> viewMatrix, rrlight
+	rr::RRMatrix3x4 view = rr::RRMatrix3x4::rotationByYawPitchRoll(yawPitchRollRad);
+	for (unsigned i=0;i<4;i++)
+		for (unsigned j=0;j<4;j++)
+			viewMatrix[4*i+j] = (i<3) ? ((j<3)?view.m[i][j]:0) : ((j<3)?-pos.dot(view.getColumn(j)):1);
+	if (light)
+	{
+		light->position = getPosition();
+		light->direction = getDirection();
+	}
+}
+
+void Camera::updateProjection()
+{
+	// orthoSize, aspect, screenCenter, anear, afar, fieldOfViewVerticalDeg -> projectionMatrix
+	if (orthogonal)
+	{
+		projectionMatrix[0] = 1/(orthoSize*aspect);
+		projectionMatrix[1] = 0;
+		projectionMatrix[2] = 0;
+		projectionMatrix[3] = 0;
+		projectionMatrix[4] = 0;
+		projectionMatrix[5] = 1/orthoSize;
+		projectionMatrix[6] = 0;
+		projectionMatrix[7] = 0;
+		projectionMatrix[8] = 0;
+		projectionMatrix[9] = 0;
+		projectionMatrix[10] = -1/(afar-anear);
+		projectionMatrix[11] = 0;
+		projectionMatrix[12] = -screenCenter.x;
+		projectionMatrix[13] = -screenCenter.y;
+		projectionMatrix[14] = -(anear+afar)/(afar-anear);
+		projectionMatrix[15] = 1;
+	}
+	else
+	{
+		projectionMatrix[0] = 1/(tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2)*aspect);
+		projectionMatrix[1] = 0;
+		projectionMatrix[2] = 0;
+		projectionMatrix[3] = 0;
+		projectionMatrix[4] = 0;
+		projectionMatrix[5] = 1/tan(RR_DEG2RAD(fieldOfViewVerticalDeg)/2);
+		projectionMatrix[6] = 0;
+		projectionMatrix[7] = 0;
+		projectionMatrix[8] = screenCenter.x;
+		projectionMatrix[9] = screenCenter.y;
+		projectionMatrix[10] = -(afar+anear)/(afar-anear);
+		projectionMatrix[11] = -1;
+		projectionMatrix[12] = 0;
+		projectionMatrix[13] = 0;
+		projectionMatrix[14] = -2*anear*afar/(afar-anear);
+		projectionMatrix[15] = 0;
+	}
+}
+
+
 
 static const Camera* s_renderCamera = NULL;
 
@@ -636,9 +730,9 @@ void setupForRender(const Camera& camera)
 	s_renderCamera = &camera;
 	// set matrices in GL pipeline
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixd(camera.frustumMatrix);
+	glLoadMatrixd(camera.getProjectionMatrix());
 	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixd(camera.viewMatrix);
+	glLoadMatrixd(camera.getViewMatrix());
 }
 
 }; // namespace

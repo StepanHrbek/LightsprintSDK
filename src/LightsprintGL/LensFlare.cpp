@@ -116,8 +116,8 @@ void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRen
 			if (light && light->enabled && light->type==rr::RRLight::DIRECTIONAL && light->direction.y<=0)
 			{
 				// is it on screen?
-				rr::RRVec2 lightPositionInWindow = _eye.getPositionInWindow(_eye.pos-light->direction*1e10f);
-				if (_eye.dir.dot(light->direction)<0 && lightPositionInWindow.x>-1 && lightPositionInWindow.x<1 && lightPositionInWindow.y>-1 && lightPositionInWindow.y<1)
+				rr::RRVec2 lightPositionInWindow = _eye.getPositionInWindow(_eye.getPosition()-light->direction*1e10f);
+				if (_eye.getDirection().dot(light->direction)<0 && lightPositionInWindow.x>-1 && lightPositionInWindow.x<1 && lightPositionInWindow.y>-1 && lightPositionInWindow.y<1)
 				{
 					if (!_scene)
 					{
@@ -128,7 +128,7 @@ void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRen
 						// is it visible, not occluded?
 						rr::RRVec3 transparencySum(0);
 						rr::RRVec3 dirSum(0);
-						ray->rayOrigin = _eye.getRayOrigin(_eye.pos);
+						ray->rayOrigin = _eye.getRayOrigin(_eye.getPosition());
 						ray->rayLengthMin = 0;
 						ray->rayLengthMax = 1e10f;
 						ray->rayFlags = 0;
@@ -152,7 +152,7 @@ void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRen
 						if (transparency>0.15f) // hide tiny flares, they jump randomly when looking through tree
 						{
 							// move flare a bit if light is half occluded
-							lightPositionInWindow = _eye.getPositionInWindow(_eye.pos-dirSum*1e10f);
+							lightPositionInWindow = _eye.getPositionInWindow(_eye.getPosition()-dirSum*1e10f);
 
 							renderLensFlare(_flareSize*transparency,_flareId,_textureRenderer,_eye.getAspect(),lightPositionInWindow);
 						}

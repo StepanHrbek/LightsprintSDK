@@ -412,6 +412,20 @@ RRVec3 RRMatrix3x4::getYawPitchRoll() const
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRMatrix3x4 column/row access
+
+RRVec3 RRMatrix3x4::getColumn(unsigned i) const
+{
+	return RRVec3(m[0][i],m[1][i],m[2][i]);
+}
+
+RRVec4 RRMatrix3x4::getRow(unsigned i) const
+{
+	return RRVec4(m[i][0],m[i][1],m[i][2],m[i][3]);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRMatrix3x4 inversion
 
 RRReal RRMatrix3x4::determinant3x3() const

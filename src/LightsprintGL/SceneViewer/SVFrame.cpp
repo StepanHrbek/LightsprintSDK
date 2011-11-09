@@ -1012,8 +1012,10 @@ save_scene_as:
 					wxSize oldSize(m_canvas->winWidth,m_canvas->winHeight);
 					Camera oldEye = svs.eye;
 					svs.eye.setAspect(bigSize.x/(float)bigSize.y,(bigSize.x*m_canvas->winHeight>m_canvas->winWidth*bigSize.y)?1:0);
-					svs.eye.screenCenter.x *= tan(oldEye.getFieldOfViewHorizontalRad()/2)/tan(svs.eye.getFieldOfViewHorizontalRad()/2);
-					svs.eye.screenCenter.y *= tan(oldEye.getFieldOfViewVerticalRad()/2)/tan(svs.eye.getFieldOfViewVerticalRad()/2);
+					svs.eye.setScreenCenter(RRVec2(
+						svs.eye.getScreenCenter().x * tan(oldEye.getFieldOfViewHorizontalRad()/2)/tan(svs.eye.getFieldOfViewHorizontalRad()/2),
+						svs.eye.getScreenCenter().y * tan(oldEye.getFieldOfViewVerticalRad()/2)/tan(svs.eye.getFieldOfViewVerticalRad()/2)
+						));
 					m_canvas->winWidth = bigSize.x;
 					m_canvas->winHeight = bigSize.y;
 					glViewport(0,0,bigSize.x,bigSize.y);

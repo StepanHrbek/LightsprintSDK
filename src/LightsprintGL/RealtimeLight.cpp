@@ -61,17 +61,17 @@ namespace rr_gl
 		{
 			if (observer)
 			{
-				csmObserverPos = observer->pos;
-				csmObserverDir = observer->dir;
+				csmObserverPos = observer->getPosition();
+				csmObserverDir = observer->getDirection();
 				csmObserverNear = observer->getNear();
 			}
 			if (scene)
 			{
 				rr::RRVec3 mini,maxi;
 				scene->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
-				getParent()->pos = (maxi+mini)/2;
+				getParent()->setPosition((maxi+mini)/2);
 				getParent()->setRange(-0.5f*(mini-maxi).length(),0.5f*(mini-maxi).length());
-				getParent()->orthoSize = (maxi-mini).maxi();
+				getParent()->setOrthoSize((maxi-mini).maxi());
 				csmSceneSize = maxi-mini;
 			}
 		}
@@ -105,22 +105,22 @@ namespace rr_gl
 
 	void RealtimeLight::updateAfterRRLightChanges()
 	{
-		if (!getParent()->orthogonal && rrlight.type==rr::RRLight::DIRECTIONAL)
+		if (!getParent()->isOrthogonal() && rrlight.type==rr::RRLight::DIRECTIONAL)
 		{
 			// when setting directional, set orthogonal and disable distance attenuation
-			getParent()->orthogonal = true;
+			getParent()->setOrthogonal(true);
 			rrlight.distanceAttenuationType = rr::RRLight::NONE;
 		}
 		else
-		if (getParent()->orthogonal && rrlight.type!=rr::RRLight::DIRECTIONAL)
+		if (getParent()->isOrthogonal() && rrlight.type!=rr::RRLight::DIRECTIONAL)
 		{
 			// when leaving directional, clear orthogonal and reasonable near/far
-			getParent()->orthogonal = false;
+			getParent()->setOrthogonal(false);
 			getParent()->setRange(0.1f,100);
 		}
 		// Dirty flags only if we are sure that light did change. Caller can always set dirty himself, if we don't.
-		if (getParent()->pos!=rrlight.position
-			|| getParent()->dir!=rrlight.direction
+		if (getParent()->getPosition()!=rrlight.position
+			|| getParent()->getDirection()!=rrlight.direction
 			|| (rrlight.type==rr::RRLight::SPOT && abs(rrlight.outerAngleRad*2-getParent()->getFieldOfViewVerticalRad())>0.01f))
 		{
 			dirtyShadowmap = true;
@@ -128,18 +128,11 @@ namespace rr_gl
 			dirtyRange = true;
 		}
 		// Copy position/direction.
-		getParent()->pos = rrlight.position;
+		getParent()->setPosition(rrlight.position);
 		getParent()->setDirection(rrlight.direction);
 		// Copy outerAngle to FOV
 		getParent()->setAspect(1);
 		getParent()->setFieldOfViewVerticalDeg( (rrlight.type==rr::RRLight::SPOT) ? RR_RAD2DEG(rrlight.outerAngleRad)*2 : 90 ); // aspect must be already set
-	}
-
-	void RealtimeLight::updateAfterRealtimeLightChanges()
-	{
-		// Copy position/direction.
-		rrlight.position = getParent()->pos;
-		rrlight.direction = getParent()->dir;
 	}
 
 	Camera* RealtimeLight::getParent() const
@@ -301,7 +294,6 @@ namespace rr_gl
 		}
 		if (numInstances==1)
 		{
-			light.update();
 			return; // only 1 instance -> use unmodified parent
 		}
 		if (getRRLight().type==rr::RRLight::DIRECTIONAL)
@@ -316,7 +308,7 @@ namespace rr_gl
 			{
 				// keep constant pixel size in 3-level CSM in 1-15km scenes
 				// base is 0.2 for ortho up to 1km, drops to 0.05 above 15km
-				float base = sqrt(40/light.orthoSize);
+				float base = sqrt(40/light.getOrthoSize());
 				RR_CLAMP(base,0.05f,0.2f);
 				// increase pixel size when looking from distance
 				if (csmObserverNear>0) // may be negative for ortho observer
@@ -326,26 +318,26 @@ namespace rr_gl
 					//         base^(numInstances-1) > csmObserverNear*10/light.orthoSize
 					//         base > pow(csmObserverNear*10/light.orthoSize,1/(numInstances-1))
 					// 10 works well in ex5.dae and sponza.dae
-					float minBase = pow(csmObserverNear*10/light.orthoSize,1.0f/(numInstances-1));
+					float minBase = pow(csmObserverNear*10/light.getOrthoSize(),1.0f/(numInstances-1));
 					if (_finite(minBase) && base<minBase)
 						base = RR_MIN(minBase,0.5f);
 				}
 				float visibleArea = powf(base,(float)instance);
-				light.orthoSize *= visibleArea;
-				light.pos = csmObserverPos
+				light.setOrthoSize(light.getOrthoSize()*visibleArea);
+				rr::RRVec3 lightPos = csmObserverPos
 					// move SM center in view direction -> improves quality in front of camera, reduces quality behind camera (visible if camera turns back)
-					+csmObserverDir*(light.orthoSize*0.5f);
+					+csmObserverDir*(light.getOrthoSize()*0.5f);
 				if (Workaround::supportsDepthClamp())
 					light.setRange(light.getNear()*visibleArea,light.getFar()*visibleArea);
-				double r = light.pos[0]*light.inverseViewMatrix[0]+light.pos[1]*light.inverseViewMatrix[1]+light.pos[2]*light.inverseViewMatrix[2];
-				double u = light.pos[0]*light.inverseViewMatrix[4]+light.pos[1]*light.inverseViewMatrix[5]+light.pos[2]*light.inverseViewMatrix[6];
+				// prevent subpixel jitter, probably no longer working
+				double r = lightPos.dot(light.getRight());
+				double u = lightPos.dot(light.getUp());
 				double tmp;
-				double pixelSize = light.orthoSize/rrlight.rtShadowmapSize*2;
+				double pixelSize = light.getOrthoSize()/rrlight.rtShadowmapSize*2;
 				r = modf(r/pixelSize,&tmp)*pixelSize;
 				u = modf(u/pixelSize,&tmp)*pixelSize;
-				light.pos -= light.right*(float)r+light.up*(float)u;
+				light.setPosition(lightPos - light.getRight()*(float)r+light.getUp()*(float)u);
 			}
-			light.update();
 			return;
 		}
 		if (getRRLight().type==rr::RRLight::POINT)
@@ -354,8 +346,7 @@ namespace rr_gl
 			RR_ASSERT(instance<6);
 			Camera::View views[6] = {Camera::TOP,Camera::BOTTOM,Camera::FRONT,Camera::BACK,Camera::LEFT,Camera::RIGHT};
 			light.setView(views[instance],NULL);
-			light.orthogonal = false;
-			light.update();
+			light.setOrthogonal(false);
 			return;
 		}
 		//light.update(0.3f);
@@ -364,25 +355,26 @@ namespace rr_gl
 		{
 			case LINE:
 				// edit inputs, update outputs
-				light.pos += light.right*(areaSize*(instance/(numInstances-1.f)*2-1));
+				light.setPosition(light.getPosition() + light.getRight()*(areaSize*(instance/(numInstances-1.f)*2-1)));
 				break;
 			case RECTANGLE:
 				// edit inputs, update outputs
 				{int q=(int)sqrtf((float)(numInstances-1))+1;
-				light.pos += light.right*(areaSize*(instance/q/(q-1.f)-0.5f)) + light.up*(areaSize*(instance%q/(q-1.f)-0.5f));
+				light.setPosition(light.getPosition() + light.getRight()*(areaSize*(instance/q/(q-1.f)-0.5f)) + light.getUp()*(areaSize*(instance%q/(q-1.f)-0.5f)));
 				break;}
 			case CIRCLE:
 				// edit inputs, update outputs
-				light.pos += light.right*(areaSize*sin(instance*2*RR_PI/numInstances)) + light.up*(areaSize*cos(instance*2*RR_PI/numInstances));
+				light.setPosition(light.getPosition() + light.getRight()*(areaSize*sin(instance*2*RR_PI/numInstances)) + light.getUp()*(areaSize*cos(instance*2*RR_PI/numInstances)));
 				break;
 		}
 		if (jittered)
 		{
 			static signed char jitterSample[10][2] = {{0,0},{3,-2},{-2,3},{1,2},{-2,-1},{3,4},{-4,-3},{2,-1},{-1,1},{-3,0}};
-			light.yawPitchRollRad[0] += light.getFieldOfViewHorizontalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][0]*0.22f;
-			light.yawPitchRollRad[1] += light.getFieldOfViewVerticalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][1]*0.22f;
+			light.setYawPitchRollRad(light.getYawPitchRollRad()+rr::RRVec3(
+				light.getFieldOfViewHorizontalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][0]*0.22f,
+				light.getFieldOfViewVerticalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][1]*0.22f,
+				0));
 		}
-		light.update();
 	}
 
 }; // namespace

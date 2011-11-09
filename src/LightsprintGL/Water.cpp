@@ -69,7 +69,6 @@ void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Came
 	if (eye)
 	{
 		eye->mirror(altitude);
-		eye->update();
 		setupForRender(*eye);
 	}
 }
@@ -82,7 +81,6 @@ void Water::updateReflectionDone()
 	if (eye)
 	{
 		eye->mirror(altitude);
-		eye->update();
 		setupForRender(*eye);
 	}
 }
@@ -116,7 +114,7 @@ void Water::render(float size, rr::RRVec3 center, rr::RRVec4 waterColor, rr::RRV
 	mirrorProgram->sendUniform("waterColor",waterColor);
 	if (dirlight || fresnel)
 	{
-		mirrorProgram->sendUniform("worldEyePos",eye->pos);
+		mirrorProgram->sendUniform("worldEyePos",eye->getPosition());
 	}
 	if (dirlight)
 	{

@@ -213,7 +213,7 @@ void SVEntityIcons::renderIcon(const SVEntity& entity, const Camera& eye)
 	if (entity.iconCode>=0 && entity.iconCode<IC_LAST && icon[entity.iconCode])
 	{
 		rr::RRVec3 worldVertex[4];
-		getIconWorldVertices(entity,eye.pos,worldVertex);
+		getIconWorldVertices(entity,eye.getPosition(),worldVertex);
 
 		getTexture(icon[entity.iconCode])->bindTexture();
 

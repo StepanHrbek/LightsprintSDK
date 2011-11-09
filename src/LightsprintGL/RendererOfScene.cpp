@@ -293,7 +293,7 @@ void RendererOfSceneImpl::render(
 									const rr::RRMatrix3x4* worldMatrix = object->getWorldMatrix();
 									if (worldMatrix)
 										worldMatrix->transformPosition(center);
-									objectBuffers.eyeDistance = (eye->pos-center).length();
+									objectBuffers.eyeDistance = (eye->getPosition()-center).length();
 								}
 							}
 						}

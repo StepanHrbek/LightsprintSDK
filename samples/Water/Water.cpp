@@ -85,10 +85,10 @@ void keyboard(unsigned char c, int x, int y)
 {
 	switch (c)
 	{
-		case 'q': eye.pos.y += 0.1f; break;
-		case 'z': eye.pos.y -= 0.1f; break;
-		case 'x': eye.yawPitchRollRad[2] -= 0.01f; break;
-		case 'c': eye.yawPitchRollRad[2] += 0.01f; break;
+		case 'q': eye.setPosition(eye.getPosition()+rr::RRVec3(0,0.1f,0)); break;
+		case 'z': eye.setPosition(eye.getPosition()-rr::RRVec3(0,0.1f,0)); break;
+		case 'x': eye.setYawPitchRollRad(eye.getYawPitchRollRad()-rr::RRVec3(0,0,0.01f)); break;
+		case 'c': eye.setYawPitchRollRad(eye.getYawPitchRollRad()+rr::RRVec3(0,0,0.01f)); break;
 		case ' ': editLight = !editLight; break;
 		case 27:
 			// immediate exit without freeing memory, leaks may be reported
@@ -126,9 +126,7 @@ void passive(int x, int y)
 		}
 		else
 		{
-			eye.yawPitchRollRad[0] -= 0.005*x;
-			eye.yawPitchRollRad[1] -= 0.005*y;
-			RR_CLAMP(eye.yawPitchRollRad[1],-RR_PI*0.49f,RR_PI*0.49f);
+			eye.setYawPitchRollRad(eye.getYawPitchRollRad()-rr::RRVec3(0.005*x,0.005*y,0));
 		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}

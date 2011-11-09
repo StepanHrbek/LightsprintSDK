@@ -116,8 +116,7 @@ bool TextureRenderer::renderEnvironment(const Texture* _texture0, const Texture*
 	{
 		// temporarily loads camera matrix with position 0
 		Camera tmp = *oldCamera;
-		tmp.pos = rr::RRVec3(0);
-		tmp.update();
+		tmp.setPosition(rr::RRVec3(0));
 		setupForRender(tmp);
 	}
 

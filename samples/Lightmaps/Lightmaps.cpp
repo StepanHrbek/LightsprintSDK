@@ -302,20 +302,12 @@ void passive(int x, int y)
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		if (modeMovingEye)
-		{
-			eye.yawPitchRollRad[0] -= mouseSensitivity*x;
-			eye.yawPitchRollRad[1] -= mouseSensitivity*y;
-			RR_CLAMP(eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-		}
-		else
-		{
-			light->yawPitchRollRad[0] -= mouseSensitivity*x;
-			light->yawPitchRollRad[1] -= mouseSensitivity*y;
-			RR_CLAMP(light->yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+		rr_gl::Camera& cam = modeMovingEye ? eye : *light;
+		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
+		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+		cam.setYawPitchRollRad(yawPitchRollRad);
+		if (!modeMovingEye)
 			solver->reportDirectIlluminationChange(0,true,true,false);
-			light->update();
-		}
 		glutWarpPointer(winWidth/2,winHeight/2);
 	}
 }
@@ -335,8 +327,6 @@ void display(void)
 		lightField->updateEnvironmentMap(&robot->illumination,0);
 		lightField->updateEnvironmentMap(&potato->illumination,0);
 	}
-
-	eye.update();
 
 	solver->reportDirectIlluminationChange(0,true,false,false); // scene is animated -> direct illum changes
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
@@ -382,12 +372,12 @@ void idle()
 	float seconds = time.secondsSinceLastQuery();
 	RR_CLAMP(seconds,0.001f,0.3f);
 	rr_gl::Camera* cam = modeMovingEye?&eye:light;
-	if (speedForward) cam->pos += cam->dir * (speedForward*seconds);
-	if (speedBack) cam->pos -= cam->dir * (speedBack*seconds);
-	if (speedRight) cam->pos += cam->right * (speedRight*seconds);
-	if (speedLeft) cam->pos -= cam->right * (speedLeft*seconds);
 	if (speedForward || speedBack || speedRight || speedLeft)
 	{
+		cam->setPosition(cam->getPosition()
+			+ cam->getDirection() * ((speedForward-speedBack)*seconds)
+			+ cam->getRight() * ((speedRight-speedLeft)*seconds)
+			);
 		if (cam==light) solver->reportDirectIlluminationChange(0,true,true,false);
 	}
 

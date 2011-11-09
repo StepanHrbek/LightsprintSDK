@@ -129,7 +129,6 @@ int winWidth = 0;
 int winHeight = 0;
 bool needLightmapCacheUpdate = false;
 int wireFrame = 0;
-int needMatrixUpdate = 1;
 int showHelp = 0; // 0=none, 1=help
 int showLightViewFrustum = 0;
 bool modeMovingEye = 0;
@@ -246,7 +245,7 @@ void init_gl_resources()
 	else
 	{
 		ambientProgram->useIt();
-		ambientProgram->sendUniform("lightIndirectConst",1.0f,1.0f,1.0f,1.0f);
+		ambientProgram->sendUniform("lightIndirectConst",rr::RRVec4(1));
 	}
 }
 
@@ -261,10 +260,6 @@ void done_gl_resources()
 //!!! uvolnuje se vickrat RR_SAFE_DELETE(realtimeLight);
 	gluDeleteQuadric(quadric);
 }
-
-
-
-void updateMatrices();
 
 
 
@@ -288,27 +283,21 @@ void drawLight(void)
 {
 	ambientProgram->useIt();
 	glPushMatrix();
-	glTranslatef(currentFrame.light.pos[0]-0.3f*currentFrame.light.dir[0], currentFrame.light.pos[1]-0.3f*currentFrame.light.dir[1], currentFrame.light.pos[2]-0.3f*currentFrame.light.dir[2]);
-	ambientProgram->sendUniform("materialDiffuseConst",1.0f,1.0f,0.0f,1.0f);
+	glTranslatef(currentFrame.light.getPosition()[0],currentFrame.light.getPosition()[1],currentFrame.light.getPosition()[2]);
+	ambientProgram->sendUniform("materialDiffuseConst",rr::RRVec4(1.0f,1.0f,0.0f,1.0f));
 	gluSphere(quadric, 0.05f, 10, 10);
 	glPopMatrix();
 }
 
-void updateMatrices(void)
-{
-	currentFrame.eye.setAspect( winHeight ? (float) winWidth / (float) winHeight : 1 );
-	currentFrame.eye.update();
-	currentFrame.light.update();
-	needMatrixUpdate = false;
-}
-
-// camera must be already set in OpenGL, this one is passed only for frustum culling
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera* camera, const rr::RRLight* renderingFromThisLight)
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera& camera, const rr::RRLight* renderingFromThisLight)
 {
 	if (!level) return;
 
 	RR_ASSERT(!uberProgramSetup.OBJECT_SPACE); 
 	RR_ASSERT(demoPlayer);
+
+	camera.setAspect( winHeight ? (float) winWidth / (float) winHeight : 1 );
+	setupForRender(camera);
 
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
@@ -344,9 +333,7 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
-	setupForRender(currentFrame.eye);
-
-	renderScene(uberProgramSetup,firstInstance,&currentFrame.eye,NULL);
+	renderScene(uberProgramSetup,firstInstance,currentFrame.eye,NULL);
 
 	if (supportEditor)
 		drawLight();
@@ -415,8 +402,7 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
 
-			setupForRender(currentFrame.eye);
-			renderScene(uberProgramSetup,0,&currentFrame.eye,NULL);
+			renderScene(uberProgramSetup,0,currentFrame.eye,NULL);
 		}
 
 		// render everything except water
@@ -459,7 +445,7 @@ void updateThumbnail(AnimationFrame& frame)
 	if (!frame.thumbnail)
 		frame.thumbnail = rr::RRBuffer::create(rr::BT_2D_TEXTURE,160,120,1,rr::BF_RGB,true,NULL);
 	glViewport(0,0,160,120);
-	frame.eye.update(); currentFrame.eye = frame.eye; // while rendering, we call setupForRender(currentFrame.eye);
+	currentFrame.eye = frame.eye; // while rendering, we call setupForRender(currentFrame.eye);
 	drawEyeViewSoftShadowed();
 	unsigned char* pixels = frame.thumbnail->lock(rr::BL_DISCARD_AND_WRITE);
 	glReadPixels(0,0,160,120,GL_RGB,GL_UNSIGNED_BYTE,pixels);
@@ -630,17 +616,17 @@ static void drawHelpMessage(int screen)
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
-	ambientProgram->sendUniform("materialDiffuseConst",0.0f,0.0f,0.0f,0.6f);
+	ambientProgram->sendUniform("materialDiffuseConst",rr::RRVec4(0.0f,0.0f,0.0f,0.6f));
 
 	// Drawn clockwise because the flipped Y axis flips CCW and CW.
 	if (screen /*|| demoPlayer->getPaused()*/)
 	{
 		unsigned rectWidth = 530;
 		unsigned rectHeight = 360;
-		ambientProgram->sendUniform("materialDiffuseConst",0.0f,0.1f,0.3f,0.6f);
+		ambientProgram->sendUniform("materialDiffuseConst",rr::RRVec4(0.0f,0.1f,0.3f,0.6f));
 		glRecti((winWidth+rectWidth)/2, (winHeight-rectHeight)/2, (winWidth-rectWidth)/2, (winHeight+rectHeight)/2);
 		glDisable(GL_BLEND);
-		ambientProgram->sendUniform("materialDiffuseConst",1.0f,1.0f,1.0f,1.0f);
+		ambientProgram->sendUniform("materialDiffuseConst",rr::RRVec4(1.0f,1.0f,1.0f,1.0f));
 		int x = (winWidth-rectWidth)/2+20;
 		int y = (winHeight-rectHeight)/2+30;
 		for (i=0; message[screen][i] != NULL; i++) 
@@ -658,7 +644,7 @@ static void drawHelpMessage(int screen)
 		int x = 40, y = 50;
 		glRecti(RR_MIN(winWidth-30,500), 30, 30, RR_MIN(winHeight-30,100));
 		glDisable(GL_BLEND);
-		ambientProgram->sendUniform("materialDiffuseConst",1.0f,1.0f,1.0f,1.0f);
+		ambientProgram->sendUniform("materialDiffuseConst",rr::RRVec4(1.0f,1.0f,1.0f,1.0f));
 		char buf[200];
 		float demoLength = demoPlayer->getDemoLength();
 		float musicLength = demoPlayer->getMusicLength();
@@ -718,8 +704,7 @@ void showOverlay(const rr::RRBuffer* tex)
 	glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-	float color[4] = {currentFrame.brightness[0],currentFrame.brightness[1],currentFrame.brightness[2],1};
-	skyRenderer->render2D(rr_gl::getTexture(tex,false,false),color,0,0,1,1);
+	skyRenderer->render2D(rr_gl::getTexture(tex,false,false),&rr::RRVec4(currentFrame.brightness,1),0,0,1,1);
 	glDisable(GL_BLEND);
 }
 
@@ -728,8 +713,7 @@ void showOverlay(const rr::RRBuffer* logo,float intensity,float x,float y,float 
 	if (!logo) return;
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	float color[4] = {intensity,intensity,intensity,intensity};
-	skyRenderer->render2D(rr_gl::getTexture(logo,true,false),color,x,y,w,h);
+	skyRenderer->render2D(rr_gl::getTexture(logo,true,false),&rr::RRVec4(intensity),x,y,w,h);
 	glDisable(GL_BLEND);
 }
 
@@ -763,7 +747,6 @@ void changeSpotlight()
 void reportEyeMovement()
 {
 	if (!level) return;
-	needMatrixUpdate = 1;
 	needRedisplay = 1;
 	movingEye = 4;
 }
@@ -778,7 +761,6 @@ void reportLightMovement()
 {
 	if (!level) return;
 	level->solver->reportDirectIlluminationChange(0,true,true,false);
-	needMatrixUpdate = 1;
 	needRedisplay = 1;
 	movingLight = 3;
 }
@@ -1066,8 +1048,8 @@ void keyboard(unsigned char c, int x, int y)
 		case '9':
 			{
 				rr::RRRay* ray = rr::RRRay::create();
-				rr::RRVec3 dir = rr::RRVec3(currentFrame.eye.dir[0],currentFrame.eye.dir[1],currentFrame.eye.dir[2]).normalized();
-				ray->rayOrigin = rr::RRVec3(currentFrame.eye.pos[0],currentFrame.eye.pos[1],currentFrame.eye.pos[2]);
+				rr::RRVec3 dir = currentFrame.eye.getDirection();
+				ray->rayOrigin = currentFrame.eye.getPosition();
 				ray->rayDir = dir;
 				ray->rayLengthMin = 0;
 				ray->rayLengthMax = 1000;
@@ -1076,7 +1058,7 @@ void keyboard(unsigned char c, int x, int y)
 				// kdyz neni kolize se scenou, najit kolizi s vodou
 				if (!ray->hitObject->getCollider()->intersect(ray))
 				{
-					float cameraLevel = currentFrame.eye.pos[1];
+					float cameraLevel = currentFrame.eye.getPosition()[1];
 					float waterLevel = level->setup->waterLevel;
 					float levelChangeIn1mDistance = dir[1];
 					float distance = levelChangeIn1mDistance ? (waterLevel-cameraLevel)/levelChangeIn1mDistance : 10;
@@ -1147,7 +1129,6 @@ void keyboard(unsigned char c, int x, int y)
 		case 'f':
 		case 'F':
 			showLightViewFrustum = !showLightViewFrustum;
-			if (showLightViewFrustum) needMatrixUpdate = 1;
 			break;
 		case 'a':
 			++realtimeLight->areaType%=3;
@@ -1162,22 +1143,18 @@ void keyboard(unsigned char c, int x, int y)
 			return;
 		case 'n':
 			light.anear *= 0.8;
-			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;
 		case 'N':
 			light.anear /= 0.8;
-			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;
 		case 'c':
 			light.afar *= 1.2;
-			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;
 		case 'C':
 			light.afar /= 1.2;
-			needMatrixUpdate = 1;
 			needDepthMapUpdate = 1;
 			break;*/
 		case 'l':
@@ -1307,7 +1284,6 @@ void reshape(int w, int h)
 	winWidth = w;
 	winHeight = h;
 	glViewport(0, 0, w, h);
-	needMatrixUpdate = 1;
 
 	if (!demoPlayer)
 	{
@@ -1329,13 +1305,11 @@ void mouse(int button, int state, int x, int y)
 	if (button == GLUT_WHEEL_UP && state == GLUT_UP)
 	{
 		if (fov>13) fov -= 10; else fov /= 1.4f;
-		needMatrixUpdate = 1;
 		needRedisplay = 1;
 	}
 	if (button == GLUT_WHEEL_DOWN && state == GLUT_UP)
 	{
 		if (fov*1.4f<=3) fov *= 1.4f; else if (fov<130) fov += 10;
-		needMatrixUpdate = 1;
 		needRedisplay = 1;
 	}
 	currentFrame.eye.setFieldOfViewVerticalDeg(fov);
@@ -1355,22 +1329,14 @@ void passive(int x, int y)
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
+		rr_gl::Camera& cam = modeMovingEye ? currentFrame.eye : currentFrame.light;
+		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
+		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
+		cam.setYawPitchRollRad(yawPitchRollRad);
 		if (modeMovingEye)
-		{
-			currentFrame.eye.yawPitchRollRad[0] -= mouseSensitivity*x;
-			currentFrame.eye.yawPitchRollRad[1] -= mouseSensitivity*y;
-			RR_CLAMP(currentFrame.eye.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 			reportEyeMovement();
-		}
 		else
 		{
-			currentFrame.light.yawPitchRollRad[0] -= mouseSensitivity*x;
-			currentFrame.light.yawPitchRollRad[1] -= mouseSensitivity*y;
-			RR_CLAMP(currentFrame.light.yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
-			// changes also position a bit, together with rotation
-			currentFrame.light.pos += currentFrame.light.dir*0.3f;
-			currentFrame.light.update();
-			currentFrame.light.pos -= currentFrame.light.dir*0.3f;
 			reportLightMovement();
 			needImmediateDDI = true; // chceme okamzitou odezvu pri rucnim hybani svetlem
 		}
@@ -1392,7 +1358,6 @@ void display()
 	{
 no_level:
 		level = demoPlayer->getNextPart(seekInMusicAtSceneSwap,supportEditor);
-		needMatrixUpdate = 1;
 		needRedisplay = 1;
 
 		// end of the demo
@@ -1434,16 +1399,15 @@ no_level:
 	float previousFrameDuration = previousFrameStartTime.secondsSinceLastQuery();
 	RR_CLAMP(previousFrameDuration,0.0001f,0.3f);
 	rr_gl::Camera* cam = modeMovingEye?&currentFrame.eye:&currentFrame.light;
-	if (speedForward) cam->pos += cam->dir * (speedForward*previousFrameDuration);
-	if (speedBack) cam->pos -= cam->dir * (speedBack*previousFrameDuration);
-	if (speedRight) cam->pos += cam->right * (speedRight*previousFrameDuration);
-	if (speedLeft) cam->pos -= cam->right * (speedLeft*previousFrameDuration);
-	if (speedUp) cam->pos += cam->up * (speedUp*previousFrameDuration);
-	if (speedDown) cam->pos -= cam->up * (speedDown*previousFrameDuration);
-	if (speedLean) cam->yawPitchRollRad[2] += speedLean*previousFrameDuration;
 	if (speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
 	{
 		//printf(" %f ",seconds);
+		cam->setPosition(cam->getPosition()
+			+ cam->getDirection() * ((speedForward-speedBack)*previousFrameDuration)
+			+ cam->getRight() * ((speedRight-speedLeft)*previousFrameDuration)
+			+ cam->getUp() * ((speedUp-speedDown)*previousFrameDuration)
+			);
+		cam->setYawPitchRollRad(cam->getYawPitchRollRad()+rr::RRVec3(0,0,speedLean*previousFrameDuration));
 		if (cam==&currentFrame.light) reportLightMovement(); else reportEyeMovement();
 	}
 	if (!demoPlayer->getPaused())
@@ -1624,9 +1588,6 @@ no_frame:
 	//  nevolalo by se to zbytecne v situaci kdy redisplay vyvola calculate() hlaskou ze zlepsil osvetleni
 	// zisk by ale byl miniaturni
 	level->solver->reportInteraction();
-
-	if (needMatrixUpdate)
-		updateMatrices();
 
 	rr::RRDynamicSolver::CalculateParameters calculateParams = level->setup->calculateParams;
 
@@ -2019,8 +1980,8 @@ int main(int argc, char** argv)
 			rr_gl::SceneViewerState svs;
 			svs.renderLDM = true;
 			svs.renderTonemapping = false;
-			svs.eye.pos = rr::RRVec3(23.554733f,-5.993851f,-3.134015f);
-			svs.eye.dir = rr::RRVec3(0.64f,-0.3f,-0.7f);
+			svs.eye.setPosition(rr::RRVec3(23.554733f,-5.993851f,-3.134015f));
+			svs.eye.setDirection(rr::RRVec3(0.64f,-0.3f,-0.7f));
 			svs.cameraMetersPerSecond = 1;
 			svs.autodetectCamera = false;
 			rr_gl::sceneViewer(NULL,"scenes/wop_padattic/wop_padatticBB.rr3",NULL,"shaders/",&svs,false);
@@ -2098,8 +2059,6 @@ int main(int argc, char** argv)
 	rr::RRReporter::report(rr::INF1,"  %d image units, %d units, %d combined, %d coords, %d varyings.\n",i1,i2,i3,i4,i5);
 
 	init_gl_states();
-
-	updateMatrices(); // needed for startup without area lights (realtimeLight doesn't update matrices for 1 instance)
 
 	uberProgramGlobalSetup.SHADOW_MAPS = 1;
 	uberProgramGlobalSetup.SHADOW_SAMPLES = 4;

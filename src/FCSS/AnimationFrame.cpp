@@ -93,8 +93,6 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	blended.light.blend(this->light,that.light,alphaRounded);
 	blended.brightness = blendNormal(this->brightness,that.brightness,alphaRounded);
 	blended.gamma = blendNormal(this->gamma,that.gamma,alphaRounded);
-	blended.eye.update();
-	blended.light.update();
 	// blend dynaPosRot
 	blended.dynaPosRot.clear();
 	for (unsigned i=0;i<this->dynaPosRot.size() && i<that.dynaPosRot.size();i++)
@@ -141,17 +139,22 @@ bool AnimationFrame::loadOver(FILE* f)
 	//	return false;
 	// load eye+light
 	float aspect, fov, anear, afar;
-	if (fscanf(f,"camera = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&eye.pos[0],&eye.pos[1],&eye.pos[2],&eye.yawPitchRollRad[0],&eye.yawPitchRollRad[2],&eye.yawPitchRollRad[1],&aspect,&fov,&anear,&afar)==10)
+	rr::RRVec3 pos,yawPitchRollRad;
+	if (fscanf(f,"camera = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&pos[0],&pos[1],&pos[2],&yawPitchRollRad[0],&yawPitchRollRad[2],&yawPitchRollRad[1],&aspect,&fov,&anear,&afar)==10)
 	{
-		eye.yawPitchRollRad[0] += RR_PI;
+		yawPitchRollRad[0] += RR_PI;
+		eye.setPosition(pos);
+		eye.setYawPitchRollRad(yawPitchRollRad);
 		eye.setAspect(aspect);
 		eye.setFieldOfViewVerticalDeg(fov);
 		eye.setRange(anear,afar);
 		loaded = true;
 	}
-	if (fscanf(f,"light = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&light.pos[0],&light.pos[1],&light.pos[2],&light.yawPitchRollRad[0],&light.yawPitchRollRad[2],&light.yawPitchRollRad[1],&aspect,&fov,&anear,&afar)==10)
+	if (fscanf(f,"light = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&pos[0],&pos[1],&pos[2],&yawPitchRollRad[0],&yawPitchRollRad[2],&yawPitchRollRad[1],&aspect,&fov,&anear,&afar)==10)
 	{
-		light.yawPitchRollRad[0] += RR_PI;
+		yawPitchRollRad[0] += RR_PI;
+		light.setPosition(pos);
+		light.setYawPitchRollRad(yawPitchRollRad);
 		light.setAspect(aspect);
 		light.setFieldOfViewVerticalDeg(fov);
 		light.setRange(anear,afar);
@@ -205,9 +208,9 @@ bool AnimationFrame::save(FILE* f, const AnimationFrame& prev) const
 	fprintf(f,"layer_number = %d\n",layerNumber);
 	// save eye+light
 	if (!(eye==prev.eye))
-		fprintf(f,"camera = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eye.pos[0],eye.pos[1],eye.pos[2],fmodf(eye.yawPitchRollRad[0]+101*RR_PI,2*RR_PI),eye.yawPitchRollRad[2],eye.yawPitchRollRad[1],eye.getAspect(),eye.getFieldOfViewVerticalDeg(),eye.getNear(),eye.getFar());
+		fprintf(f,"camera = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",eye.getPosition()[0],eye.getPosition()[1],eye.getPosition()[2],fmodf(eye.getYawPitchRollRad()[0]+101*RR_PI,2*RR_PI),eye.getYawPitchRollRad()[2],eye.getYawPitchRollRad()[1],eye.getAspect(),eye.getFieldOfViewVerticalDeg(),eye.getNear(),eye.getFar());
 	if (!(light==prev.light))
-		fprintf(f, "light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",light.pos[0],light.pos[1],light.pos[2],fmodf(light.yawPitchRollRad[0]+101*RR_PI,2*RR_PI),light.yawPitchRollRad[2],light.yawPitchRollRad[1],light.getAspect(),light.getFieldOfViewVerticalDeg(),light.getNear(),light.getFar());
+		fprintf(f, "light = {{%.3f,%.3f,%.3f},%.3f,%.3f,%.3f,%.1f,%.1f,%.1f,%.1f}\n",light.getPosition()[0],light.getPosition()[1],light.getPosition()[2],fmodf(light.getYawPitchRollRad()[0]+101*RR_PI,2*RR_PI),light.getYawPitchRollRad()[2],light.getYawPitchRollRad()[1],light.getAspect(),light.getFieldOfViewVerticalDeg(),light.getNear(),light.getFar());
 	if (brightness!=prev.brightness)//brightness[0]!=1 || brightness[1]!=1 || brightness[2]!=1 || brightness[3]!=1)
 		fprintf(f,"brightness = {%f,%f,%f,%f}\n",brightness[0],brightness[1],brightness[2],brightness[3]);
 	if (gamma!=prev.gamma)//gamma!=1)
