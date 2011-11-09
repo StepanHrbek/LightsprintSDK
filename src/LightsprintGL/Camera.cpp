@@ -380,7 +380,7 @@ rr::RRReal blendModulo(rr::RRReal a,rr::RRReal b,rr::RRReal alpha,rr::RRReal mod
 }
 
 // linear interpolation
-void Camera::blend(const Camera& a, const Camera& b, float blend)
+void Camera::blendLinear(const Camera& a, const Camera& b, float blend)
 {
 	pos = blendNormal(a.pos,b.pos,blend);
 	yawPitchRollRad[0] = blendModulo(a.yawPitchRollRad[0],b.yawPitchRollRad[0],blend,(float)(2*RR_PI));

@@ -163,7 +163,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////
 
 	//! Fills this with linear interpolation of a and b; a if blend=0, b if blend=1.
-	void blend(const Camera& a, const Camera& b, float blend);
+	void blendLinear(const Camera& a, const Camera& b, float blend);
 	//! Fills this with Akima interpolation of cameras, non uniformly scattered on time scale.
 	//
 	//! \param numCameras

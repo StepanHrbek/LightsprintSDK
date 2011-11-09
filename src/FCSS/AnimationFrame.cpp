@@ -89,8 +89,8 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 {
 	static AnimationFrame blended(0);
 	// blend eye+light
-	blended.eye.blend(this->eye,that.eye,alphaSmooth);
-	blended.light.blend(this->light,that.light,alphaRounded);
+	blended.eye.blendLinear(this->eye,that.eye,alphaSmooth);
+	blended.light.blendLinear(this->light,that.light,alphaRounded);
 	blended.brightness = blendNormal(this->brightness,that.brightness,alphaRounded);
 	blended.gamma = blendNormal(this->gamma,that.gamma,alphaRounded);
 	// blend dynaPosRot
