@@ -33,8 +33,8 @@ namespace rr_gl
 		csmObserverDir = rr::RRVec3(1,0,0);
 		csmObserverNear = 0;
 		csmSceneSize = rr::RRVec3(1);
-		parent = new Camera(_rrlight);
-		deleteParent = true;
+		camera = new Camera(_rrlight);
+		deleteCamera = true;
 		shadowOnly = false;
 		areaType = LINE;
 		areaSize = 0.2f;
@@ -49,7 +49,7 @@ namespace rr_gl
 	RealtimeLight::~RealtimeLight()
 	{
 		delete[] smallMapCPU;
-		if (deleteParent) delete getParent();
+		if (deleteCamera) delete getCamera();
 		for (unsigned c=0;c<2;c++)
 			for (unsigned i=0;i<shadowmaps[c].size();i++)
 				delete shadowmaps[c][i];
@@ -69,9 +69,9 @@ namespace rr_gl
 			{
 				rr::RRVec3 mini,maxi;
 				scene->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
-				getParent()->setPosition((maxi+mini)/2);
-				getParent()->setRange(-0.5f*(mini-maxi).length(),0.5f*(mini-maxi).length());
-				getParent()->setOrthoSize((maxi-mini).maxi());
+				getCamera()->setPosition((maxi+mini)/2);
+				getCamera()->setRange(-0.5f*(mini-maxi).length(),0.5f*(mini-maxi).length());
+				getCamera()->setOrthoSize((maxi-mini).maxi());
 				csmSceneSize = maxi-mini;
 			}
 		}
@@ -105,47 +105,47 @@ namespace rr_gl
 
 	void RealtimeLight::updateAfterRRLightChanges()
 	{
-		if (!getParent()->isOrthogonal() && rrlight.type==rr::RRLight::DIRECTIONAL)
+		if (!getCamera()->isOrthogonal() && rrlight.type==rr::RRLight::DIRECTIONAL)
 		{
 			// when setting directional, set orthogonal and disable distance attenuation
-			getParent()->setOrthogonal(true);
+			getCamera()->setOrthogonal(true);
 			rrlight.distanceAttenuationType = rr::RRLight::NONE;
 		}
 		else
-		if (getParent()->isOrthogonal() && rrlight.type!=rr::RRLight::DIRECTIONAL)
+		if (getCamera()->isOrthogonal() && rrlight.type!=rr::RRLight::DIRECTIONAL)
 		{
 			// when leaving directional, clear orthogonal and reasonable near/far
-			getParent()->setOrthogonal(false);
-			getParent()->setRange(0.1f,100);
+			getCamera()->setOrthogonal(false);
+			getCamera()->setRange(0.1f,100);
 		}
 		// Dirty flags only if we are sure that light did change. Caller can always set dirty himself, if we don't.
-		if (getParent()->getPosition()!=rrlight.position
-			|| getParent()->getDirection()!=rrlight.direction
-			|| (rrlight.type==rr::RRLight::SPOT && abs(rrlight.outerAngleRad*2-getParent()->getFieldOfViewVerticalRad())>0.01f))
+		if (getCamera()->getPosition()!=rrlight.position
+			|| getCamera()->getDirection()!=rrlight.direction
+			|| (rrlight.type==rr::RRLight::SPOT && abs(rrlight.outerAngleRad*2-getCamera()->getFieldOfViewVerticalRad())>0.01f))
 		{
 			dirtyShadowmap = true;
 			dirtyGI = true;
 			dirtyRange = true;
 		}
 		// Copy position/direction.
-		getParent()->setPosition(rrlight.position);
-		getParent()->setDirection(rrlight.direction);
+		getCamera()->setPosition(rrlight.position);
+		getCamera()->setDirection(rrlight.direction);
 		// Copy outerAngle to FOV
-		getParent()->setAspect(1);
-		getParent()->setFieldOfViewVerticalDeg( (rrlight.type==rr::RRLight::SPOT) ? RR_RAD2DEG(rrlight.outerAngleRad)*2 : 90 ); // aspect must be already set
+		getCamera()->setAspect(1);
+		getCamera()->setFieldOfViewVerticalDeg( (rrlight.type==rr::RRLight::SPOT) ? RR_RAD2DEG(rrlight.outerAngleRad)*2 : 90 ); // aspect must be already set
 	}
 
-	Camera* RealtimeLight::getParent() const
+	Camera* RealtimeLight::getCamera() const
 	{
-		return parent;
+		return camera;
 	}
 
-	Camera* RealtimeLight::setParent(Camera* _parent)
+	Camera* RealtimeLight::setCamera(Camera* _camera)
 	{
-		Camera* oldParent = parent;
-		parent = _parent;
-		deleteParent = false;
-		return oldParent;
+		Camera* oldCamera = camera;
+		camera = _camera;
+		deleteCamera = false;
+		return oldCamera;
 	}
 
 	unsigned RealtimeLight::getNumShadowmaps(bool color) const
@@ -163,9 +163,9 @@ namespace rr_gl
 
 	Camera* RealtimeLight::getShadowmapCamera(unsigned instance, bool jittered) const
 	{
-		if (!parent || instance>=getNumShadowmaps())
+		if (!camera || instance>=getNumShadowmaps())
 			return NULL;
-		Camera* c = new Camera(*parent); // default copy constructor. c might need update, because parent was not necessarily update()d
+		Camera* c = new Camera(*camera); // default copy constructor
 		if (!c)
 			return NULL;
 		instanceMakeup(*c,instance,jittered);
@@ -262,9 +262,9 @@ namespace rr_gl
 				// SPOT
 				for (unsigned i=0;i<getNumShadowmaps();i++)
 				{
-					Camera* camera = getShadowmapCamera(i);
-					cod.addCamera(camera);
-					delete camera;
+					Camera* shadowmapCamera = getShadowmapCamera(i);
+					cod.addCamera(shadowmapCamera);
+					delete shadowmapCamera;
 				}
 			}
 			if (cod.getDistanceMax()>=cod.getDistanceMin()
@@ -276,7 +276,7 @@ namespace rr_gl
 				// ways to make problem sufficiently rare:
 				// a) use 5*fixedBias
 				// b) use 0.5*near  <- implemented here
-				getParent()->setRange(cod.getDistanceMin()*0.5f,cod.getDistanceMax()*5);
+				getCamera()->setRange(cod.getDistanceMin()*0.5f,cod.getDistanceMax()*5);
 				//rr::RRReporter::report(rr::INF2,"setRangeDynamically()\n");
 				dirtyShadowmap = true;
 			}
@@ -294,7 +294,7 @@ namespace rr_gl
 		}
 		if (numInstances==1)
 		{
-			return; // only 1 instance -> use unmodified parent
+			return; // only 1 instance -> use unmodified camera
 		}
 		if (getRRLight().type==rr::RRLight::DIRECTIONAL)
 		{

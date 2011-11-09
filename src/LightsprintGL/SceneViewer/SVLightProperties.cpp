@@ -61,10 +61,10 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propDirection = new RRVec3Property(_("Direction"),_("Major light direction in world space, normalized"),_precision,light->direction,0.1f);
 			AppendIn(propType,propDirection);
 
-			propAltitude = new FloatProperty(_("Elevation")+L" (\u00b0)",_("Solar elevation angle, 90 for sun in zenith, 0 for sun on horizon, negative for sun below horizon."),ANGLEX2ALT(rtlight->getParent()->getYawPitchRollRad()[1]),_precision,-90,90,10,false);
+			propAltitude = new FloatProperty(_("Elevation")+L" (\u00b0)",_("Solar elevation angle, 90 for sun in zenith, 0 for sun on horizon, negative for sun below horizon."),ANGLEX2ALT(rtlight->getCamera()->getYawPitchRollRad()[1]),_precision,-90,90,10,false);
 			AppendIn(propType,propAltitude);
 
-			propAzimuth = new FloatProperty(_("Azimuth")+L" (\u00b0)",_("Solar azimuth angle, 90 for east, 180 for south, 270 for west."),ANGLE2AZI(rtlight->getParent()->getYawPitchRollRad()[0]),_precision,0,360,10,true);
+			propAzimuth = new FloatProperty(_("Azimuth")+L" (\u00b0)",_("Solar azimuth angle, 90 for east, 180 for south, 270 for west."),ANGLE2AZI(rtlight->getCamera()->getYawPitchRollRad()[0]),_precision,0,360,10,true);
 			AppendIn(propType,propAzimuth);
 
 			propOuterAngle = new FloatProperty(_("Outer angle")+L" (\u00b0)",_("Outer cone angle, angle between major direction and border direction."),RR_RAD2DEG(light->outerAngleRad),_precision,0,180,10,false);
@@ -142,10 +142,10 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propShadowSamples = new wxIntProperty(_("Shadow Samples"),wxPG_LABEL,rtlight->getNumShadowSamples());
 			AppendIn(propCastShadows,propShadowSamples);
 
-			propNear = new FloatProperty(_("Near")+" (m)",_("Near plane distance for generating shadowmaps. Greater value reduces shadow bias."),rtlight->getParent()->getNear(),_precision,0,1e10f,0.1f,false);
+			propNear = new FloatProperty(_("Near")+" (m)",_("Near plane distance for generating shadowmaps. Greater value reduces shadow bias."),rtlight->getCamera()->getNear(),_precision,0,1e10f,0.1f,false);
 			AppendIn(propCastShadows,propNear);
 
-			propFar = new FloatProperty(_("Far")+" (m)",_("Far plane distance for generating shadowmaps."),rtlight->getParent()->getFar(),_precision,0,1e10f,1,false);
+			propFar = new FloatProperty(_("Far")+" (m)",_("Far plane distance for generating shadowmaps."),rtlight->getCamera()->getFar(),_precision,0,1e10f,1,false);
 			AppendIn(propCastShadows,propFar);
 		}
 
@@ -186,12 +186,12 @@ void SVLightProperties::updatePosDir()
 	if (rtlight)
 	{
 		unsigned numChanges =
-			updateFloat(propNear,rtlight->getParent()->getNear()) +
-			updateFloat(propFar,rtlight->getParent()->getFar()) +
-			updateProperty(propPosition,rtlight->getParent()->getPosition()) +
-			updateProperty(propDirection,rtlight->getParent()->getDirection()) +
-			updateFloat(propAltitude,ANGLEX2ALT(rtlight->getParent()->getYawPitchRollRad()[1])) +
-			updateFloat(propAzimuth,ANGLE2AZI(rtlight->getParent()->getYawPitchRollRad()[0])) +
+			updateFloat(propNear,rtlight->getCamera()->getNear()) +
+			updateFloat(propFar,rtlight->getCamera()->getFar()) +
+			updateProperty(propPosition,rtlight->getCamera()->getPosition()) +
+			updateProperty(propDirection,rtlight->getCamera()->getDirection()) +
+			updateFloat(propAltitude,ANGLEX2ALT(rtlight->getCamera()->getYawPitchRollRad()[1])) +
+			updateFloat(propAzimuth,ANGLE2AZI(rtlight->getCamera()->getYawPitchRollRad()[0])) +
 			updateInt(propShadowTransparency,rtlight->shadowTransparencyActual)
 			;
 		if (numChanges)
@@ -249,10 +249,10 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propAltitude || property==propAzimuth)
 	{
-		rtlight->getParent()->setYawPitchRollRad(RRVec3(
+		rtlight->getCamera()->setYawPitchRollRad(RRVec3(
 			AZI2ANGLE(propAzimuth->GetValue().GetDouble()),
 			ALT2ANGLEX(propAltitude->GetValue().GetDouble()),
-			rtlight->getParent()->getYawPitchRollRad()[2]
+			rtlight->getCamera()->getYawPitchRollRad()[2]
 			));
 		rtlight->dirtyShadowmap = true;
 		rtlight->dirtyGI = true;
@@ -347,13 +347,13 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propNear)
 	{
-		rtlight->getParent()->setNear(property->GetValue().GetDouble());
+		rtlight->getCamera()->setNear(property->GetValue().GetDouble());
 		rtlight->dirtyShadowmap = true;
 	}
 	else
 	if (property==propFar)
 	{
-		rtlight->getParent()->setFar(property->GetValue().GetDouble());
+		rtlight->getCamera()->setFar(property->GetValue().GetDouble());
 		rtlight->dirtyShadowmap = true;
 	}
 	rtlight->updateAfterRRLightChanges();

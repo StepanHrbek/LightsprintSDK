@@ -750,7 +750,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		s_ci.mouseMiddle = event.MiddleIsDown();
 		s_ci.mouseRight = event.RightIsDown();
 		Camera* cam = (event.LeftIsDown()
-			 && selectedType==ST_LIGHT && svs.selectedLightIndex<solver->getLights().size()) ? solver->realtimeLights[svs.selectedLightIndex]->getParent() : &svs.eye;
+			 && selectedType==ST_LIGHT && svs.selectedLightIndex<solver->getLights().size()) ? solver->realtimeLights[svs.selectedLightIndex]->getCamera() : &svs.eye;
 		s_ci.pos = svs.eye.getPosition();
 		s_ci.rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
 		s_ci.rayDirection = svs.eye.getRayDirection(mousePositionInWindow);
@@ -1087,7 +1087,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		// camera/light keyboard move
 		RR_CLAMP(seconds,0.001f,0.3f);
 		float meters = seconds * svs.cameraMetersPerSecond;
-		Camera* cam = (selectedType!=ST_LIGHT)?&svs.eye:solver->realtimeLights[svs.selectedLightIndex]->getParent();
+		Camera* cam = (selectedType!=ST_LIGHT)?&svs.eye:solver->realtimeLights[svs.selectedLightIndex]->getCamera();
 
 		{
 			// yes -> respond to keyboard
@@ -1288,7 +1288,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				float viewportWidthCovered = 0.9f;
 				solver->getLights()[i]->outerAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.6f;
 				solver->getLights()[i]->fallOffAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.4f;
-				solver->realtimeLights[i]->getParent()->setRange(svs.eye.getNear(),svs.eye.getFar());
+				solver->realtimeLights[i]->getCamera()->setRange(svs.eye.getNear(),svs.eye.getFar());
 				solver->realtimeLights[i]->updateAfterRRLightChanges(); // sets dirtyRange if pos/dir/fov did change
 				solver->realtimeLights[i]->dirtyRange = false; // clear it, range already is good (dirty range would randomly disappear flashlight, reason unknown)
 			}

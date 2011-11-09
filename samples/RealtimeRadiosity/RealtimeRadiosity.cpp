@@ -298,7 +298,7 @@ void passive(int x, int y)
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		rr_gl::Camera& cam = modeMovingEye ? eye : *realtimeLight->getParent();
+		rr_gl::Camera& cam = modeMovingEye ? eye : *realtimeLight->getCamera();
 		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
 		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		cam.setYawPitchRollRad(yawPitchRollRad);
@@ -314,7 +314,7 @@ void idle()
 	static rr::RRTime time;
 	float seconds = time.secondsSinceLastQuery();
 	RR_CLAMP(seconds,0.001f,0.3f);
-	rr_gl::Camera* cam = modeMovingEye?&eye:realtimeLight->getParent();
+	rr_gl::Camera* cam = modeMovingEye?&eye:realtimeLight->getCamera();
 	if (speedForward || speedBack || speedRight || speedLeft)
 	{
 		cam->setPosition(cam->getPosition()
@@ -444,7 +444,7 @@ int main(int argc, char** argv)
 	solver->setLights(rrlights);
 	realtimeLight = solver->realtimeLights[0];
 	realtimeLight->numInstancesInArea = shadowmapsPerPass;
-	realtimeLight->getParent()->setNear(0.5f); // adjusts shadowmapping near plane
+	realtimeLight->getCamera()->setNear(0.5f); // adjusts shadowmapping near plane
 
 	// Enable Fireball - faster, higher quality, smaller realtime global illumination solver for games.
 	// You can safely skip it to stay with fully dynamic solver that doesn't need any precalculations.

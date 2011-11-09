@@ -466,9 +466,9 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (LIGHT_DIRECT set).\n");
 			return false;
 		}
-		if (!light->getParent())
+		if (!light->getCamera())
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: light->getParent()==NULL.\n");
+			rr::RRReporter::report(rr::ERRO,"useProgram: light->getCamera()==NULL.\n");
 			return false;
 		}
 
@@ -477,17 +477,17 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			double m1[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,2};
 			double m2[16];
 			float m3[16];
-			MULT_MATRIX(m1,light->getParent()->getProjectionMatrix(),m2,double);
-			MULT_MATRIX(m2,light->getParent()->getViewMatrix(),m3,float);
+			MULT_MATRIX(m1,light->getCamera()->getProjectionMatrix(),m2,double);
+			MULT_MATRIX(m2,light->getCamera()->getViewMatrix(),m3,float);
 			program->sendUniform("textureMatrixL",m3,false,4);
 		}
 		if (LIGHT_DIRECTIONAL || LIGHT_DIRECT_ATT_SPOT)
 		{
-			program->sendUniform("worldLightDir",light->getParent()->getDirection());
+			program->sendUniform("worldLightDir",light->getCamera()->getDirection());
 		}
 		if (!LIGHT_DIRECTIONAL)
 		{
-			program->sendUniform("worldLightPos",light->getParent()->getPosition());
+			program->sendUniform("worldLightPos",light->getCamera()->getPosition());
 		}
 	}
 

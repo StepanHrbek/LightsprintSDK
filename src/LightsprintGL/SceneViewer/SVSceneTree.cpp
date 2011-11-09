@@ -188,7 +188,7 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 		case ST_LIGHT:
 			{
 				RealtimeLight* rtlight = solver->realtimeLights[entity.index];
-				unsigned result = rtlight->getParent()->manipulateViewBy(transformation,rollChangeAllowed)?1:0;
+				unsigned result = rtlight->getCamera()->manipulateViewBy(transformation,rollChangeAllowed)?1:0;
 				solver->reportDirectIlluminationChange(entity.index,true,true,true);
 				return result;
 			}

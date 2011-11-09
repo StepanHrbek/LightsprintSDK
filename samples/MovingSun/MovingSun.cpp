@@ -63,7 +63,7 @@ void setupLights(rr_gl::RRDynamicSolverGL* _solver, const rr_gl::Camera* _observ
 {
 	RR_ASSERT(_solver);
 	RR_ASSERT(_solver->getLights().size()==1);
-	_solver->realtimeLights[0]->getParent()->setYawPitchRollRad(rr::RRVec3(0.3f,-RR_PI*sin(_lightTime01*RR_PI),0));
+	_solver->realtimeLights[0]->getCamera()->setYawPitchRollRad(rr::RRVec3(0.3f,-RR_PI*sin(_lightTime01*RR_PI),0));
 	_solver->realtimeLights[0]->configureCSM(_observer,_solver->getMultiObjectCustom());
 	_solver->realtimeLights[0]->dirtyShadowmap = 1;
 	_solver->reportDirectIlluminationChange(0,true,true,false);

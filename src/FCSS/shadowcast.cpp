@@ -213,7 +213,7 @@ void init_gl_resources()
 	quadric = gluNewQuadric();
 
 	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),RR_DEG2RAD(40),0.1f));
-	realtimeLight->setParent(&currentFrame.light);
+	realtimeLight->setCamera(&currentFrame.light);
 	realtimeLight->numInstancesInArea = MAX_INSTANCES;
 	realtimeLight->setShadowmapSize((resolutionx<800)?SHADOW_MAP_SIZE_SOFT/2:SHADOW_MAP_SIZE_SOFT);
 

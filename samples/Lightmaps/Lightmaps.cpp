@@ -499,7 +499,7 @@ int main(int argc, char** argv)
 	rr::RRLights rrlights;
 	rrlights.push_back(rrlight);
 	solver->setLights(rrlights);
-	light = solver->realtimeLights[0]->getParent();
+	light = solver->realtimeLights[0]->getCamera();
 
 	glutMainLoop();
 	return 0;

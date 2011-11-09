@@ -214,7 +214,7 @@ done:
 		}
 
 		// update shadowmap[s]
-		bool isDirtyOnlyBecauseObserverHasMoved = !light->dirtyShadowmap && observer && observer->getPosition()!=light->getObserverPos() && light->getParent()->isOrthogonal() && light->getNumShadowmaps();
+		bool isDirtyOnlyBecauseObserverHasMoved = !light->dirtyShadowmap && observer && observer->getPosition()!=light->getObserverPos() && light->getCamera()->isOrthogonal() && light->getNumShadowmaps();
 		if (light->dirtyShadowmap || isDirtyOnlyBecauseObserverHasMoved)
 		{
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
@@ -471,7 +471,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		uberProgramSetup.LIGHT_DIRECT = true;
 		uberProgramSetup.LIGHT_DIRECT_COLOR = ddiLight->getRRLight().color!=rr::RRVec3(1);
 		uberProgramSetup.LIGHT_DIRECT_MAP = uberProgramSetup.SHADOW_MAPS && ddiLight->getProjectedTexture();
-		uberProgramSetup.LIGHT_DIRECTIONAL = ddiLight->getParent()->isOrthogonal();
+		uberProgramSetup.LIGHT_DIRECTIONAL = ddiLight->getCamera()->isOrthogonal();
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = ddiLight->getRRLight().type==rr::RRLight::SPOT && !ddiLight->getProjectedTexture();
 		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = ddiLight->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = ddiLight->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
@@ -617,7 +617,7 @@ void drawRealtimeLight(RealtimeLight* light)
 		else
 		{
 			// light without shadows has parent rendered
-			drawCamera(light->getParent());
+			drawCamera(light->getCamera());
 		}
 	}
 }

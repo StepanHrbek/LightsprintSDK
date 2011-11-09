@@ -46,7 +46,7 @@ public:
 	//! Extends RRLight, adding properties and functions for realtime rendering.
 	//
 	//! RRLight must exist at least as long as realtime light.
-	//! RRLight position/direction is updated each time this->getParent()->update() is called.
+	//! RRLight position/direction is updated each time this->getCamera()->update() is called.
 	RealtimeLight(rr::RRLight& rrlight);
 	virtual ~RealtimeLight();
 
@@ -59,12 +59,13 @@ public:
 	//! Note that changes in the opposite direction (from camera to RRLight) are propagated automatically.
 	void updateAfterRRLightChanges();
 
-	//! Returns parent instance. Instances inherit parent's properties, so by editing parent, you edit all instances.
-	Camera* getParent() const;
-	//! Sets parent instance, returns old parent.
-	//! You are responsible for deleting both parents when they are no longer needed.
+	//! Returns camera you can use to control light's position, direction etc. Changes made to this camera are automatically propagated to original RRLight.
+	Camera* getCamera() const;
+	//! Assigns new camera to this light, returns previously assigned camera.
+	//
+	//! You are responsible for deleting both cameras when they are no longer needed.
 	//! Should not be used in new programs.
-	Camera* setParent(Camera* parent);
+	Camera* setCamera(Camera* camera);
 
 	//! Returns number of shadowmaps (depth maps or color maps).
 	virtual unsigned getNumShadowmaps(bool color = false) const;
@@ -176,7 +177,7 @@ protected:
 	//! Inputs are not update()d, outputs are update()d.
 	//! \param light
 	//!  This is in/out parameter.
-	//!  On input, it is copy of parent spotlight.
+	//!  On input, it is copy of camera returned by getCamera().
 	//!  On output, it is expected to be given instance.
 	//!  Instances may differ in any property.
 	//!  Typically, they slightly differ in light position and direction,
@@ -195,8 +196,8 @@ protected:
 	rr::RRVec3 csmObserverDir;
 	float csmObserverNear;
 	rr::RRVec3 csmSceneSize;
-	Camera* parent;
-	bool deleteParent;
+	Camera* camera;
+	bool deleteCamera;
 	rr::RRVector<Texture*> shadowmaps[2]; //! Vectors of depth and color shadow maps. Sizes of vectors are updated lazily, only when map is requested and actual number of maps doesn't match.
 	//! Number of samples in soft shadows, defaults to 4, you may change it to 1,2,8.
 	unsigned numSoftShadowSamples;

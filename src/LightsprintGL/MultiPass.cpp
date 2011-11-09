@@ -184,11 +184,11 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.SHADOW_SAMPLES = mainUberProgramSetup.SHADOW_MAPS ? light->getNumShadowSamples() : 0;
 		uberProgramSetup.SHADOW_COLOR = mainUberProgramSetup.SHADOW_MAPS && light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS;
 		uberProgramSetup.SHADOW_PENUMBRA = mainUberProgramSetup.SHADOW_MAPS && light->getRRLight().type==rr::RRLight::SPOT;
-		uberProgramSetup.SHADOW_CASCADE = mainUberProgramSetup.SHADOW_MAPS && light->getParent()->isOrthogonal() && light->getNumShadowmaps()>1;
+		uberProgramSetup.SHADOW_CASCADE = mainUberProgramSetup.SHADOW_MAPS && light->getCamera()->isOrthogonal() && light->getNumShadowmaps()>1;
 		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI
 		uberProgramSetup.LIGHT_DIRECT_COLOR = mainUberProgramSetup.LIGHT_DIRECT_COLOR && light->getRRLight().color!=rr::RRVec3(1);
 		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && light->getProjectedTexture();
-		uberProgramSetup.LIGHT_DIRECTIONAL = light->getParent()->isOrthogonal();
+		uberProgramSetup.LIGHT_DIRECTIONAL = light->getCamera()->isOrthogonal();
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = mainUberProgramSetup.LIGHT_DIRECT_ATT_SPOT && light->getRRLight().type==rr::RRLight::SPOT && !uberProgramSetup.LIGHT_DIRECT_MAP; // disables spot attenuation in presence of projected texture
 		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = light->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = light->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
