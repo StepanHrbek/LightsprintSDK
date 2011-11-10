@@ -17,7 +17,7 @@
 #define RR_SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
 #define RR_SAFE_RELEASE(a)      {if(a){(a)->Release();a=NULL;}}
 #if defined(__BIG_ENDIAN__) || defined(__PPC__) // || defined(XBOX)
-#define RR_BIG_ENDIAN
+	#define RR_BIG_ENDIAN
 #endif
 
 namespace rr
@@ -36,13 +36,13 @@ namespace rr
 	class RR_API RRUniformlyAllocated
 	{
 	public:
-		//! Allocates aligned space for instance of any derived class.
+		//! Allocates space for instance of any derived class.
 		void* operator new(std::size_t n);
-		//! Allocates aligned space for array of instances of any derived class.
+		//! Allocates space for array of instances of any derived class.
 		void* operator new[](std::size_t n);
-		//! Frees aligned space allocated by new.
+		//! Frees space allocated by new.
 		void operator delete(void* p, std::size_t n);
-		//! Frees aligned space allocated by new[].
+		//! Frees space allocated by new[].
 		void operator delete[](void* p, std::size_t n);
 	};
 
@@ -50,7 +50,8 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	//  RRAligned
-	//! When used as base class, objects are 16byte aligned for SIMD instructions.
+	//! When used as base class, instances on heap are 16byte aligned for SIMD instructions.
+	//! Note that this does not align static and stack instances.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
@@ -66,6 +67,7 @@ namespace rr
 		//! Frees aligned space allocated by new[].
 		void operator delete[](void* p, std::size_t n);
 	};
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
