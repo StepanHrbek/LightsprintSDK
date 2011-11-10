@@ -67,14 +67,19 @@ namespace rr
 	//
 	//! Contains all inputs and outputs for RRCollider::intersect().
 	//! All fields of at least 3 floats are aligned for SIMD.
+	//! (Static and local instances on stack are aligned thanks to RR_ALIGNED,
+	//!  instances on heap are aligned thanks to RRAligned.)
 	//!
 	//! Thread safe: no, holds state, may be accessed by one thread at moment.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRRay : public RRAligned
+	class RR_API RR_ALIGNED RRRay : public RRAligned
 	{
 	public:
+		//! Initializes 1 RRRay. All is zeroed, all FILL flags on.
+		RRRay();
+
 		//! Creates 1 RRRay. All is zeroed, all FILL flags on. You may destroy it by delete.
 		static RRRay* create();
 
@@ -114,8 +119,6 @@ namespace rr
 #endif
 		const class RRObject* hitObject;///< (In/)Out. If collider was created from RRObjects, intersected object is stored here. If collider was created from RRMesh, hitObject is not modified (but it's good practise to set it before calling intersect(), so that your collision handlers and other code can rely on hitObject being always set).
 		RRCollisionHandler*   collisionHandler;///< In. Optional collision handler for user-defined surface behaviour.
-	private:
-		RRRay(); // intentionally private so one can't accidentally create unaligned instance
 	};
 
 

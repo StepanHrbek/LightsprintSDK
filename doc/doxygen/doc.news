@@ -15,6 +15,7 @@ NEWS
 - improved scene viewer
   - Object properties / Rotation
 - improved Quake3 .bsp import, reads curved surfaces too
+- "RRRay ray;" is now accepted code, using RRRay::create() is no longer mandatory
 
 CHANGES
 

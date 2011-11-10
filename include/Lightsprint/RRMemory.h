@@ -19,6 +19,12 @@
 #if defined(__BIG_ENDIAN__) || defined(__PPC__) // || defined(XBOX)
 	#define RR_BIG_ENDIAN
 #endif
+#if defined(_MSC_VER)
+	// Aligns static and local(stack) instances, does not align heap instances and parameters.
+	#define RR_ALIGNED __declspec(align(16))
+#else
+	#define RR_ALIGNED __attribute__((aligned(16)))
+#endif
 
 namespace rr
 {
