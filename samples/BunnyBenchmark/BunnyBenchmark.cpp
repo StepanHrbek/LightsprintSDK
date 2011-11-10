@@ -87,10 +87,10 @@ int main(int argc, char** argv)
 	{
 		int num_threads = 1;
 #endif
-		// create ray for intersection testing
-		RRRay* ray = RRRay::create();
-		ray->rayFlags = RRRay::FILL_TRIANGLE | RRRay::FILL_DISTANCE;
-		ray->rayLengthMin = 0;
+		// prepare ray for intersection testing
+		RRRay ray;
+		ray.rayFlags = RRRay::FILL_TRIANGLE | RRRay::FILL_DISTANCE;
+		ray.rayLengthMin = 0;
 		// perform intersection tests
 		for (int i=0; i<NUM_RAYS/num_threads; ++i)
 		{
@@ -104,20 +104,18 @@ int main(int argc, char** argv)
 			if (size==0) continue;
 
 			//form the ray object
-			ray->rayOrigin[0] = rayorigin.x*RADIUS+AABB_CENTER.x;
-			ray->rayOrigin[1] = rayorigin.y*RADIUS+AABB_CENTER.y;
-			ray->rayOrigin[2] = rayorigin.z*RADIUS+AABB_CENTER.z;
-			ray->rayDir[0] = dir.x/size;
-			ray->rayDir[1] = dir.y/size;
-			ray->rayDir[2] = dir.z/size;
-			ray->rayLengthMax = size;
+			ray.rayOrigin[0] = rayorigin.x*RADIUS+AABB_CENTER.x;
+			ray.rayOrigin[1] = rayorigin.y*RADIUS+AABB_CENTER.y;
+			ray.rayOrigin[2] = rayorigin.z*RADIUS+AABB_CENTER.z;
+			ray.rayDir[0] = dir.x/size;
+			ray.rayDir[1] = dir.y/size;
+			ray.rayDir[2] = dir.z/size;
+			ray.rayLengthMax = size;
 
 			//do the trace
-			if (collider->intersect(ray))
+			if (collider->intersect(&ray))
 				num_hits++;//count the hit.
 		}
-		// cleanup
-		delete ray;
 	}
 
 	// report results
