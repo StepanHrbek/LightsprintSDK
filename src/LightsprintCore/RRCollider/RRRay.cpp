@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRCollider.h"
+#include "config.h" // USE_SSE
 
 #include <cstring>
 
