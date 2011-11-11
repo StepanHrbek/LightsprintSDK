@@ -101,7 +101,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL,0,NULL,1,false);
 
 	// render static scene
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,realtimeLight,0,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&rr::RRVec4(2):NULL,1,NULL);
+	rr::RRVec4 brightness(2);// render static scene
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,realtimeLight,0,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&brightness:NULL,1,NULL);
 	if (!program)
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
