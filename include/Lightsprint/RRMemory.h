@@ -9,6 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <new> // operators new/delete
+#include <cstddef> // NULL
 #include "RRMath.h"
 
 // Common memory macros.
