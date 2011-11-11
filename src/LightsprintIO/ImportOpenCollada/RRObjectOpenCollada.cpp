@@ -773,7 +773,8 @@ public:
 				materialBindingMap.insert( std::make_pair( object->instanceId, mbp ) );
 			}
 
-			object->setWorldMatrix( &convertMatrix(matrix) );
+			RRMatrix3x4 wm = convertMatrix(matrix);
+			object->setWorldMatrix( &wm );
 			object->name = name.c_str();
 
 			(*iter).second.instanced = true;
