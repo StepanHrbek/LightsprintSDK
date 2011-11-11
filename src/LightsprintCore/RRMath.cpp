@@ -392,7 +392,7 @@ RRVec3 RRMatrix3x4::getYawPitchRoll() const
 {
 	RRVec3 scale = getScale();
 	RRVec3 yawPitchRoll;
-	if (abs(m[1][2])<scale[2])
+	if (fabs(m[1][2])<scale[2])
 	{
 		RRReal pitch = asin(-m[1][2]/scale[2]); // or RR_PI-pitch
 		RRReal a = cos(pitch);
