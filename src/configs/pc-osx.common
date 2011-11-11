@@ -1,3 +1,4 @@
+OS = OSX
 BITS = 64
 
 CPP_FLAGS += -I/opt/local/include

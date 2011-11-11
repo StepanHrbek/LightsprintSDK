@@ -24,11 +24,13 @@ OBJ_DIR = ../../tmp/$(PROJECT)/$(CONFIG)
 # project-dependent compiler/preprocessor flags
 
 CPP_FLAGS += -DRR_GL_BUILD
-CPP_FLAGS += -DSUPPORT_SCENEVIEWER
 CPP_FLAGS += -DSUPPORT_OFFLINE
 CPP_FLAGS += -DSUPPORT_FIREBALL
 CPP_FLAGS += -DSUPPORT_ARCHITECT
 CPP_FLAGS += -DSUPPORT_LIGHTFIELD
+ifeq ($(OS),OSX)
+    CPP_FLAGS += -DSUPPORT_SCENEVIEWER
+endif
 
 # source files
 
@@ -52,6 +54,10 @@ UberProgram.cpp \
 UberProgramSetup.cpp \
 Water.cpp \
 Workaround.cpp \
+SceneViewer/SVStub.cpp
+
+ifeq ($(OS),OSX)
+SOURCES += \
 SceneViewer/SVApp.cpp \
 SceneViewer/SVCanvas.cpp \
 SceneViewer/SVCustomProperties.cpp \
@@ -68,8 +74,8 @@ SceneViewer/SVRayLog.cpp \
 SceneViewer/SVSaveLoad.cpp \
 SceneViewer/SVSceneProperties.cpp \
 SceneViewer/SVSceneTree.cpp \
-SceneViewer/SVStub.cpp \
 SceneViewer/SVUserProperties.cpp
+endif
 
 # libraries
 

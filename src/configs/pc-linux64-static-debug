@@ -9,20 +9,22 @@ CPP_FLAGS += -DRR_STATIC -DRR_GL_STATIC -DRR_IO_STATIC
 
 CORE_LIBS = \
 	-lstdc++ \
-	../../lib/$(CONFIG)/libLightsprintCore.a
-#	-lgomp \
+	../../lib/$(CONFIG)/libLightsprintCore.a \
+	-lrt \
+	-lboost_filesystem \
+	-lboost_system
 
 GL_LIBS = \
+	../../lib/$(CONFIG)/libLightsprintGL.a \
 	-lGL \
-	-lGLEW \
-	../../lib/$(CONFIG)/libLightsprintGL.a
+	-lGLU \
+	-lGLEW
 
 IO_LIBS = \
+	../../lib/$(CONFIG)/libLightsprintIO.a \
 	-lfreeimage \
 	-lboost_serialization \
-	-lboost_iostreams \
-	-lboost_filesystem \
-	../../lib/$(CONFIG)/libLightsprintIO.a
+	-lboost_iostreams
 #	-lxml2 \
 #	/../../lib/pc-linux64/libfcollada.a \
 
