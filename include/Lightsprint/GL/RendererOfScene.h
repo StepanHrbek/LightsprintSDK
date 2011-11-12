@@ -36,7 +36,7 @@ public:
 	//! Renders scene from solver.
 	//!
 	//! Use standard OpenGL way of setting camera projection and view matrices before calling render(),
-	//! they are respected by render(). You can also use rr_gl::Camera::setupBeforeRender() to do it.
+	//! they are respected by render(). You can also use rr_gl::setupForRender(camera) to do it.
 	//!
 	//! To render to texture, set render target with FBO::setRenderTarget().
 	//! When rendering sRGB correctly, target texture must be sRGB,

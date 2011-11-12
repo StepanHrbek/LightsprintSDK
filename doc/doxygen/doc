@@ -692,7 +692,7 @@ Video formats
   - www: <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
   - Windows: precompiled version 3.7.6 <a href="http://dee.cz/glut">patched</a> is a part of SDK
   - Linux (including PS3): install using
-    - Ubuntu: <code>sudo apt-get install libglut3-dev</code>
+    - Ubuntu: <code>sudo apt-get install freeglut3-dev</code>
     - Fedora: <code>pkcon install freeglut-devel</code>
     - Note that we <code>\#include <GL/glut.h></code>, but SDK contains <code>include/gl/glut.h</code>.
       This ensures that version we bundle for Windows won't be used on Linux.
@@ -970,7 +970,7 @@ Video formats
  \section building_linux Linux
 
   Setting up third party libraries:
-  - Ubuntu: <code>sudo apt-get install g++ libboost-dev libboost-serialization-dev libboost-filesystem-dev libboost-iostreams-dev libglew-dev libfreeimage-dev libglut3-dev</code>
+  - Ubuntu: <code>sudo apt-get install g++ libboost-dev libboost-serialization-dev libboost-filesystem-dev libboost-iostreams-dev libglew-dev libfreeimage-dev freeglut3-dev</code>
   - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code> (no longer tested, may be incomplete)
 
   Lightsprint SDK includes makefiles for Linux on all supported architectures.
