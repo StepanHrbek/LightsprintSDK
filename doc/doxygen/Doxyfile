@@ -82,6 +82,7 @@ WARN_LOGFILE           =
 # configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
+                         "../../include/Lightsprint/RRCamera.h" \
                          "../../include/Lightsprint/RRCollider.h" \
                          "../../include/Lightsprint/RRDebug.h" \
                          "../../include/Lightsprint/RRDynamicSolver.h" \

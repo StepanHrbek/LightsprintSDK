@@ -59,7 +59,7 @@ jmp_buf jmp;
 
 // Sets lights in scene (positions, directions, intensities, whole skybox etc) for given animation phase in 0..1 range.
 // Sample uses only 1 directional light that moves (code below) and single static skybox (not touched here).
-void setupLights(rr_gl::RRDynamicSolverGL* _solver, const rr_gl::Camera* _observer, float _lightTime01)
+void setupLights(rr_gl::RRDynamicSolverGL* _solver, const rr::RRCamera* _observer, float _lightTime01)
 {
 	RR_ASSERT(_solver);
 	RR_ASSERT(_solver->getLights().size()==1);
@@ -75,7 +75,7 @@ void setupLights(rr_gl::RRDynamicSolverGL* _solver, const rr_gl::Camera* _observ
 // globals are ugly, but required by GLUT design with callbacks
 
 rr_gl::RRDynamicSolverGL*  solver = NULL;
-rr_gl::Camera              eye(rr::RRVec3(-1.856f,1.440f,2.097f), rr::RRVec3(2.404f,0.02f,0), 1.3f,90,0.1f,1000);
+rr::RRCamera               eye(rr::RRVec3(-1.856f,1.440f,2.097f), rr::RRVec3(2.404f,0.02f,0), 1.3f,90,0.1f,1000);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
 int                        winHeight = 0;
@@ -282,7 +282,7 @@ void idle()
 	static rr::RRTime time;
 	float seconds = time.secondsSinceLastQuery();
 	float distance = seconds * cameraSpeed;
-	rr_gl::Camera* cam = &eye;
+	rr::RRCamera* cam = &eye;
 	if (autopilot) lightTime += seconds*SUN_SPEED;
 	if (keyPressed[GLUT_KEY_RIGHT+256]) lightTime += seconds*SUN_SPEED;
 	if (keyPressed[GLUT_KEY_LEFT+256]) lightTime -= seconds*SUN_SPEED;
@@ -390,7 +390,7 @@ int main(int argc, char** argv)
 
 	// auto-set camera, speed
 	//srand((unsigned)time(NULL));
-	eye.setView(rr_gl::Camera::RANDOM,solver->getMultiObjectCustom());
+	eye.setView(rr::RRCamera::RANDOM,solver->getMultiObjectCustom());
 	cameraSpeed = eye.getFar()*CAM_SPEED;
 
 	// init dynamic objects

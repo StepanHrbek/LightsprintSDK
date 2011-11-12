@@ -72,7 +72,7 @@ void error(const char* message, bool gfxRelated)
 rr_gl::RRDynamicSolverGL*  solver = NULL;
 rr::RRObject*              robot = NULL;
 rr::RRObject*              potato = NULL;
-rr_gl::Camera              eye(rr::RRVec3(-1.856f,1.440f,2.097f), rr::RRVec3(5.544f,0.02f,0), 1.3f,110,0.1f,1000);
+rr::RRCamera               eye(rr::RRVec3(-1.856f,1.440f,2.097f), rr::RRVec3(5.544f,0.02f,0), 1.3f,110,0.1f,1000);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
 int                        winHeight = 0;
@@ -231,7 +231,7 @@ void passive(int x, int y)
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		rr_gl::Camera& cam = modeMovingEye ? eye : *solver->realtimeLights[selectedLightIndex]->getCamera();
+		rr::RRCamera& cam = modeMovingEye ? eye : *solver->realtimeLights[selectedLightIndex]->getCamera();
 		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
 		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		cam.setYawPitchRollRad(yawPitchRollRad);
@@ -284,7 +284,7 @@ void idle()
 	static rr::RRTime time;
 	float seconds = time.secondsSinceLastQuery();
 	RR_CLAMP(seconds,0.001f,0.3f);
-	rr_gl::Camera* cam = modeMovingEye?&eye:solver->realtimeLights[selectedLightIndex]->getCamera();
+	rr::RRCamera* cam = modeMovingEye?&eye:solver->realtimeLights[selectedLightIndex]->getCamera();
 	if (speedForward || speedBack || speedRight || speedLeft)
 	{
 		cam->setPosition(cam->getPosition()

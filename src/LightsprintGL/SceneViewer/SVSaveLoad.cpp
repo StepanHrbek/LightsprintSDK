@@ -110,15 +110,15 @@ void serialize(Archive & ar, rr::RRDynamicSolver::FilteringParameters& a, const 
 	ar & make_nvp("wrap",a.wrap);
 }
 
-//------------------------------ Camera -------------------------------------
+//------------------------------ RRCamera -------------------------------------
 
 template<class Archive>
-void save(Archive & ar, const rr_gl::Camera& a, const unsigned int version)
+void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
 {
-	ar & make_nvp("pos",a.pos);
-	ar & make_nvp("angle",a.yawPitchRollRad[0]);
-	ar & make_nvp("leanAngle",a.yawPitchRollRad[2]);
-	ar & make_nvp("angleX",a.yawPitchRollRad[1]);
+	ar & make_nvp("pos",a.getPosition());
+	ar & make_nvp("angle",a.getYawPitchRollRad()[0]);
+	ar & make_nvp("leanAngle",a.getYawPitchRollRad()[2]);
+	ar & make_nvp("angleX",a.getYawPitchRollRad()[1]);
 	{
 		float aspect = a.getAspect();
 		ar & make_nvp("aspect",aspect);
@@ -142,7 +142,7 @@ void save(Archive & ar, const rr_gl::Camera& a, const unsigned int version)
 }
 
 template<class Archive>
-void load(Archive & ar, rr_gl::Camera& a, const unsigned int version)
+void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 {
 	ar & make_nvp("pos",a.pos);
 	ar & make_nvp("angle",a.yawPitchRollRad[0]);
@@ -436,10 +436,10 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 } // namespace
 
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRLights)
-BOOST_SERIALIZATION_SPLIT_FREE(rr_gl::Camera)
+BOOST_SERIALIZATION_SPLIT_FREE(rr::RRCamera)
 
 BOOST_CLASS_VERSION(rr::RRLight,4)
-BOOST_CLASS_VERSION(rr_gl::Camera,2)
+BOOST_CLASS_VERSION(rr::RRCamera,2)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,11)

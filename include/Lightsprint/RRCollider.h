@@ -9,6 +9,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "RRMesh.h"
+#include "RRCamera.h"
 
 namespace rr
 {
@@ -226,6 +227,21 @@ namespace rr
 		//! \param numRays
 		//!  Number of rays in array.
 		void intersectBatch(RRRay* ray, unsigned numRays) const;
+
+
+		//! Shoots rays from point, measures distance to first collision, updates distanceMinMax. It can be used for automatic near/far adjustment.
+		//
+		//! \param point
+		//!  Point to shoot from.
+		//! \param object
+		//!  Optional, enables testing materials, rays don't stop when they go through transparent pixels.
+		//! \param distanceMinMax
+		//!  Has to be initialized. distanceMinMax[0] is decreased whenever closer collision is found,
+		//!  distanceMinMax[1] is increased whenever farther collision is found.
+		//!  Stays unchanged when ray doesn't collide at all.
+		void getDistancesFromPoint(const RRVec3& point, const RRObject* object, RRVec2& distanceMinMax);
+		//! Similar to getDistancesFromPoint, but shoots from camera.
+		void getDistancesFromCamera(const RRCamera& camera, const RRObject* object, RRVec2& distanceMinMax);
 
 
 		//! \return Mesh that was passed to create().

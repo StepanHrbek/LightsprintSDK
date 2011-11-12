@@ -83,8 +83,8 @@ enum Layer// arbitrary layer numbers
 	LAYER_OFFLINE_PIXEL
 };
 Layer                      renderLayer = LAYER_REALTIME;
-rr_gl::Camera              eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0), 1.3f,70,0.1f,100);
-rr_gl::Camera*             light;
+rr::RRCamera               eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0), 1.3f,70,0.1f,100);
+rr::RRCamera*              light;
 rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;
 rr::RRLightField*          lightField = NULL;
@@ -253,7 +253,7 @@ void keyboard(unsigned char c, int x, int y)
 			}
 
 		case 'r':
-			eye.setView(rr_gl::Camera::FRONT,solver->getMultiObjectCustom());
+			eye.setView(rr::RRCamera::FRONT,solver->getMultiObjectCustom());
 			break;
 
 		case 27:
@@ -302,7 +302,7 @@ void passive(int x, int y)
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		rr_gl::Camera& cam = modeMovingEye ? eye : *light;
+		rr::RRCamera& cam = modeMovingEye ? eye : *light;
 		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
 		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		cam.setYawPitchRollRad(yawPitchRollRad);
@@ -371,7 +371,7 @@ void idle()
 	static rr::RRTime time;
 	float seconds = time.secondsSinceLastQuery();
 	RR_CLAMP(seconds,0.001f,0.3f);
-	rr_gl::Camera* cam = modeMovingEye?&eye:light;
+	rr::RRCamera* cam = modeMovingEye?&eye:light;
 	if (speedForward || speedBack || speedRight || speedLeft)
 	{
 		cam->setPosition(cam->getPosition()

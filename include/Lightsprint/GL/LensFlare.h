@@ -66,7 +66,7 @@ public:
 	//!  Object with all scene geometry, used for occlusion testing.
 	//! \param quality
 	//!  Number of rays shot. Higher quality makes effect of gradual occlusion smoother.
-	void renderLensFlares(float flareSize, unsigned flareId, class TextureRenderer* textureRenderer, const Camera& eye, const rr::RRLights& lights, const rr::RRObject* scene, unsigned quality);
+	void renderLensFlares(float flareSize, unsigned flareId, class TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRLights& lights, const rr::RRObject* scene, unsigned quality);
 
 protected:
 	TextureRenderer* textureRenderer;

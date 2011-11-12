@@ -51,7 +51,7 @@ public:
 	//!  Altitude of water surface in world.
 	//! \param srgbCorrect
 	//!  Following render() will be sRGB correct.
-	void updateReflectionInit(unsigned reflWidth, unsigned reflHeight, Camera* eye, float altitude, bool srgbCorrect);
+	void updateReflectionInit(unsigned reflWidth, unsigned reflHeight, rr::RRCamera* eye, float altitude, bool srgbCorrect);
 
 	//! Finishes rendering into reflection map, restores camera settings.
 	void updateReflectionDone();
@@ -80,7 +80,7 @@ protected:
 	Texture* mirrorMap;
 	Texture* mirrorDepth;
 	Program* mirrorProgram;
-	Camera*  eye;
+	rr::RRCamera* eye;
 	float    altitude;
 	bool     srgbCorrect;
 	FBO      oldFBOState;

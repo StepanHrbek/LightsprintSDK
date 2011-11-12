@@ -162,7 +162,7 @@ void RendererOfSceneImpl::render(
 	}
 
 	// Get current camera for culling and distance-sorting.
-	const Camera* eye = getRenderCamera();
+	const rr::RRCamera* eye = getRenderCamera();
 	if (!eye)
 	{
 		RR_ASSERT(0); // eye not set

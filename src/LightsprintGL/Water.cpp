@@ -39,7 +39,7 @@ Water::~Water()
 	delete normalMap;
 }
 
-void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, Camera* _eye, float _altitude, bool _srgbCorrect)
+void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, rr::RRCamera* _eye, float _altitude, bool _srgbCorrect)
 {
 	if (!mirrorMap || !mirrorDepth || !mirrorProgram) return;
 

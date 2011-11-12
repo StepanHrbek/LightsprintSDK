@@ -11,7 +11,7 @@
 #include <cmath>
 #include "Camera.h"
 #include "Texture.h"
-#include "Lightsprint/RRVector.h"
+#include "Lightsprint/RRObject.h"
 
 namespace rr_gl
 {
@@ -60,23 +60,23 @@ public:
 	void updateAfterRRLightChanges();
 
 	//! Returns camera you can use to control light's position, direction etc. Changes made to this camera are automatically propagated to original RRLight.
-	Camera* getCamera() const;
+	rr::RRCamera* getCamera() const;
 	//! Assigns new camera to this light, returns previously assigned camera.
 	//
 	//! You are responsible for deleting both cameras when they are no longer needed.
 	//! Should not be used in new programs.
-	Camera* setCamera(Camera* camera);
+	rr::RRCamera* setCamera(rr::RRCamera* camera);
 
 	//! Returns number of shadowmaps (depth maps or color maps).
 	virtual unsigned getNumShadowmaps(bool color = false) const;
 
 	//! Provides light with data necessary for CSM calculations in getShadowmapCamera().
-	void configureCSM(const Camera* observer, const rr::RRObject* scene);
+	void configureCSM(const rr::RRCamera* observer, const rr::RRObject* scene);
 	//! Returns position of observer from previous configureCSM() call.
 	rr::RRVec3 getObserverPos() const;
 	//! Creates and returns requested instance (element of area light).
 	//! To be deleted by caller.
-	virtual Camera* getShadowmapCamera(unsigned instance, bool jittered = false) const;
+	virtual rr::RRCamera* getShadowmapCamera(unsigned instance, bool jittered = false) const;
 
 	//! Sets shadowmap resolution.
 	//
@@ -105,9 +105,11 @@ public:
 	//! Instead of directly calling setRangeDynamically(), you can set #dirtyRange, solver will call
 	//! setRangeDynamically() automatically before updating shadowmaps. This way you avoid calling
 	//! setRangeDynamically() twice if different parts of code request update.
-	//! \param scene
-	//!  Multiobject with all objects in scene.
-	void setRangeDynamically(const rr::RRObject* scene);
+	//! \param collider
+	//!  Collider to be used for distance testing.
+	//! \param object
+	//!  Object to be used for material testing, may be NULL.
+	void setRangeDynamically(const rr::RRCollider* collider, const rr::RRObject* object);
 
 	//! Renders only shadows, no illumination. This is useful for simulating indirect shadows.
 	//! Works only in presence of indirect illumination, shadows are subtracted from indirect illumination.
@@ -191,12 +193,12 @@ protected:
 	//!  Jitter is deterministic.
 	//!  \n For full effect, it should be enabled only when generating OR using shadowmap, not in both cases.
 	//!  It is enabled in UberProgramSetup::useProgram(), so set it false when generating shadowmaps.
-	virtual void instanceMakeup(Camera& light, unsigned instance, bool jittered) const;
+	virtual void instanceMakeup(rr::RRCamera& light, unsigned instance, bool jittered) const;
 	rr::RRVec3 csmObserverPos;
 	rr::RRVec3 csmObserverDir;
 	float csmObserverNear;
 	rr::RRVec3 csmSceneSize;
-	Camera* camera;
+	rr::RRCamera* camera;
 	bool deleteCamera;
 	rr::RRVector<Texture*> shadowmaps[2]; //! Vectors of depth and color shadow maps. Sizes of vectors are updated lazily, only when map is requested and actual number of maps doesn't match.
 	//! Number of samples in soft shadows, defaults to 4, you may change it to 1,2,8.

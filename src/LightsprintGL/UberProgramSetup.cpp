@@ -427,7 +427,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			name[9] = '0'+i;
 			program->sendTexture(name,shadowmap);
 			// set matrix
-			Camera* lightInstance = light->getShadowmapCamera(firstInstance+i,true);
+			rr::RRCamera* lightInstance = light->getShadowmapCamera(firstInstance+i,true);
 			double m1[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 1,1,1,2};
 			double m2[16];
 			float m3[16];
@@ -566,7 +566,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 
 	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR))
 	{
-		const Camera* camera = getRenderCamera();
+		const rr::RRCamera* camera = getRenderCamera();
 		if (camera)
 		{
 			program->sendUniform("worldEyePos",camera->getPosition());

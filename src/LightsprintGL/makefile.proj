@@ -37,7 +37,6 @@ endif
 SOURCES = \
 Bloom.cpp \
 Camera.cpp \
-CameraObjectDistance.cpp \
 FPS.cpp \
 LensFlare.cpp \
 MultiPass.cpp \

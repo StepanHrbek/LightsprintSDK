@@ -104,7 +104,7 @@ void LensFlare::renderLensFlare(float _flareSize, unsigned _flareId, TextureRend
 	srand(oldSeed);
 }
 
-void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRenderer* _textureRenderer, const Camera& _eye, const rr::RRLights& _lights, const rr::RRObject* _scene, unsigned _quality)
+void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRenderer* _textureRenderer, const rr::RRCamera& _eye, const rr::RRLights& _lights, const rr::RRObject* _scene, unsigned _quality)
 {
 	if (_textureRenderer)
 	{

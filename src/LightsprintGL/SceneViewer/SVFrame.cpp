@@ -1010,7 +1010,7 @@ save_scene_as:
 				{
 					// 3b. propagate new size/aspect to renderer, correct screenCenter so that camera still points to the same area
 					wxSize oldSize(m_canvas->winWidth,m_canvas->winHeight);
-					Camera oldEye = svs.eye;
+					rr::RRCamera oldEye = svs.eye;
 					svs.eye.setAspect(bigSize.x/(float)bigSize.y,(bigSize.x*m_canvas->winHeight>m_canvas->winWidth*bigSize.y)?1:0);
 					svs.eye.setScreenCenter(RRVec2(
 						svs.eye.getScreenCenter().x * tan(oldEye.getFieldOfViewHorizontalRad()/2)/tan(svs.eye.getFieldOfViewHorizontalRad()/2),
@@ -1109,13 +1109,13 @@ save_scene_as:
 
 		//////////////////////////////// VIEW ///////////////////////////////
 
-		case ME_VIEW_TOP:    svs.eye.setView(Camera::TOP   ,solver?solver->getMultiObjectCustom():NULL); break;
-		case ME_VIEW_BOTTOM: svs.eye.setView(Camera::BOTTOM,solver?solver->getMultiObjectCustom():NULL); break;
-		case ME_VIEW_LEFT:   svs.eye.setView(Camera::LEFT  ,solver?solver->getMultiObjectCustom():NULL); break;
-		case ME_VIEW_RIGHT:  svs.eye.setView(Camera::RIGHT ,solver?solver->getMultiObjectCustom():NULL); break;
-		case ME_VIEW_FRONT:  svs.eye.setView(Camera::FRONT ,solver?solver->getMultiObjectCustom():NULL); break;
-		case ME_VIEW_BACK:   svs.eye.setView(Camera::BACK  ,solver?solver->getMultiObjectCustom():NULL); break;
-		case ME_VIEW_RANDOM: svs.eye.setView(Camera::RANDOM,solver?solver->getMultiObjectCustom():NULL); svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f; break;
+		case ME_VIEW_TOP:    svs.eye.setView(rr::RRCamera::TOP   ,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_BOTTOM: svs.eye.setView(rr::RRCamera::BOTTOM,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_LEFT:   svs.eye.setView(rr::RRCamera::LEFT  ,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_RIGHT:  svs.eye.setView(rr::RRCamera::RIGHT ,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_FRONT:  svs.eye.setView(rr::RRCamera::FRONT ,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_BACK:   svs.eye.setView(rr::RRCamera::BACK  ,solver?solver->getMultiObjectCustom():NULL); break;
+		case ME_VIEW_RANDOM: svs.eye.setView(rr::RRCamera::RANDOM,solver?solver->getMultiObjectCustom():NULL); svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f; break;
 
 
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////

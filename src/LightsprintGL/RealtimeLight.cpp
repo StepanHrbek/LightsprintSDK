@@ -6,7 +6,6 @@
 #include <cstring> // NULL
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDebug.h"
-	#include "CameraObjectDistance.h"
 #include "Workaround.h"
 #include <GL/glew.h>
 
@@ -33,7 +32,7 @@ namespace rr_gl
 		csmObserverDir = rr::RRVec3(1,0,0);
 		csmObserverNear = 0;
 		csmSceneSize = rr::RRVec3(1);
-		camera = new Camera(_rrlight);
+		camera = new rr::RRCamera(_rrlight);
 		deleteCamera = true;
 		shadowOnly = false;
 		areaType = LINE;
@@ -55,7 +54,7 @@ namespace rr_gl
 				delete shadowmaps[c][i];
 	}
 
-	void RealtimeLight::configureCSM(const Camera* observer, const rr::RRObject* scene)
+	void RealtimeLight::configureCSM(const rr::RRCamera* observer, const rr::RRObject* scene)
 	{
 		if (rrlight.type==rr::RRLight::DIRECTIONAL)
 		{
@@ -135,14 +134,14 @@ namespace rr_gl
 		getCamera()->setFieldOfViewVerticalDeg( (rrlight.type==rr::RRLight::SPOT) ? RR_RAD2DEG(rrlight.outerAngleRad)*2 : 90 ); // aspect must be already set
 	}
 
-	Camera* RealtimeLight::getCamera() const
+	rr::RRCamera* RealtimeLight::getCamera() const
 	{
 		return camera;
 	}
 
-	Camera* RealtimeLight::setCamera(Camera* _camera)
+	rr::RRCamera* RealtimeLight::setCamera(rr::RRCamera* _camera)
 	{
-		Camera* oldCamera = camera;
+		rr::RRCamera* oldCamera = camera;
 		camera = _camera;
 		deleteCamera = false;
 		return oldCamera;
@@ -161,11 +160,11 @@ namespace rr_gl
 		}
 	}
 
-	Camera* RealtimeLight::getShadowmapCamera(unsigned instance, bool jittered) const
+	rr::RRCamera* RealtimeLight::getShadowmapCamera(unsigned instance, bool jittered) const
 	{
 		if (!camera || instance>=getNumShadowmaps())
 			return NULL;
-		Camera* c = new Camera(*camera); // default copy constructor
+		rr::RRCamera* c = new rr::RRCamera(*camera); // default copy constructor
 		if (!c)
 			return NULL;
 		instanceMakeup(*c,instance,jittered);
@@ -244,39 +243,39 @@ namespace rr_gl
 		return getNumShadowSamples();
 	}
 
-	void RealtimeLight::setRangeDynamically(const rr::RRObject* object)
+	void RealtimeLight::setRangeDynamically(const rr::RRCollider* collider, const rr::RRObject* object)
 	{
 		if (!object)
 			return;
 
 		if (rrlight.type!=rr::RRLight::DIRECTIONAL)
 		{
-			CameraObjectDistance cod(object);
+			rr::RRVec2 distanceMinMax(1e10f,0);
 			if (rrlight.type==rr::RRLight::POINT)
 			{
 				// POINT
-				cod.addPoint(rrlight.position);
+				object->getCollider()->getDistancesFromPoint(rrlight.position,object,distanceMinMax);
 			}
 			else
 			{
 				// SPOT
 				for (unsigned i=0;i<getNumShadowmaps();i++)
 				{
-					Camera* shadowmapCamera = getShadowmapCamera(i);
-					cod.addCamera(shadowmapCamera);
+					rr::RRCamera* shadowmapCamera = getShadowmapCamera(i);
+					object->getCollider()->getDistancesFromCamera(*shadowmapCamera,object,distanceMinMax);
 					delete shadowmapCamera;
 				}
 			}
-			if (cod.getDistanceMax()>=cod.getDistanceMin()
+			if (distanceMinMax[1]>=distanceMinMax[0]
 				// better keep old range if detected distance is 0 (camera in wall?)
-				&& cod.getDistanceMax()>0)
+				&& distanceMinMax[1]>0)
 			{
 				// with *0.9f instead of 0.5*f, our shadow bias was sometimes insufficient for very close occluders,
 				//  resulting in acne or full black square in close proximity of light
 				// ways to make problem sufficiently rare:
 				// a) use 5*fixedBias
 				// b) use 0.5*near  <- implemented here
-				getCamera()->setRange(cod.getDistanceMin()*0.5f,cod.getDistanceMax()*5);
+				getCamera()->setRange(distanceMinMax[0]*0.5f,distanceMinMax[1]*5);
 				//rr::RRReporter::report(rr::INF2,"setRangeDynamically()\n");
 				dirtyShadowmap = true;
 			}
@@ -284,7 +283,7 @@ namespace rr_gl
 		dirtyRange = false;
 	}
 
-	void RealtimeLight::instanceMakeup(Camera& light, unsigned instance, bool jittered) const
+	void RealtimeLight::instanceMakeup(rr::RRCamera& light, unsigned instance, bool jittered) const
 	{
 		unsigned numInstances = getNumShadowmaps();
 		if (instance>=numInstances) 
@@ -344,7 +343,7 @@ namespace rr_gl
 		{
 			// edit output (view matrix) to avoid rounding errors, inputs stay unmodified
 			RR_ASSERT(instance<6);
-			Camera::View views[6] = {Camera::TOP,Camera::BOTTOM,Camera::FRONT,Camera::BACK,Camera::LEFT,Camera::RIGHT};
+			rr::RRCamera::View views[6] = {rr::RRCamera::TOP,rr::RRCamera::BOTTOM,rr::RRCamera::FRONT,rr::RRCamera::BACK,rr::RRCamera::LEFT,rr::RRCamera::RIGHT};
 			light.setView(views[instance],NULL);
 			light.setOrthogonal(false);
 			return;

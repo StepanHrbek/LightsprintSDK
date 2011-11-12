@@ -90,7 +90,7 @@ namespace rr_gl
 		//! Realtime lights, set by setLights(). You may modify them freely.
 		rr::RRVector<RealtimeLight*> realtimeLights;
 		//! Scene observer, inited to NULL. You may modify it freely. Shadow quality is optimized for observer.
-		Camera* observer;
+		rr::RRCamera* observer;
 		//! Users can reuse our uberprogram for their own rendering.
 		UberProgram* getUberProgram() {return uberProgram1;}
 		//! Users can reuse our renderer for their own rendering.

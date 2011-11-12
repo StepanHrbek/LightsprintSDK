@@ -289,7 +289,7 @@ void drawLight(void)
 	glPopMatrix();
 }
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr_gl::Camera& camera, const rr::RRLight* renderingFromThisLight)
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr::RRCamera& camera, const rr::RRLight* renderingFromThisLight)
 {
 	if (!level) return;
 
@@ -1329,7 +1329,7 @@ void passive(int x, int y)
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		rr_gl::Camera& cam = modeMovingEye ? currentFrame.eye : currentFrame.light;
+		rr::RRCamera& cam = modeMovingEye ? currentFrame.eye : currentFrame.light;
 		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
 		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		cam.setYawPitchRollRad(yawPitchRollRad);
@@ -1398,7 +1398,7 @@ no_level:
 	static rr::RRTime previousFrameStartTime;
 	float previousFrameDuration = previousFrameStartTime.secondsSinceLastQuery();
 	RR_CLAMP(previousFrameDuration,0.0001f,0.3f);
-	rr_gl::Camera* cam = modeMovingEye?&currentFrame.eye:&currentFrame.light;
+	rr::RRCamera* cam = modeMovingEye?&currentFrame.eye:&currentFrame.light;
 	if (speedForward || speedBack || speedRight || speedLeft || speedUp || speedDown || speedLean)
 	{
 		//printf(" %f ",seconds);
@@ -1517,7 +1517,7 @@ no_level:
 //previousDDIGuess = ddiTime;
 #endif // FRAMERATE_SMOOTHING
 			demoPlayer->setVolume(frame->volume);
-			bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr_gl::Camera))!=0;
+			bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr::RRCamera))!=0;
 			bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->setup,*frame,lightChanged);
 			if (objMoved)
 				reportObjectMovement();

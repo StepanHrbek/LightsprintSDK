@@ -47,7 +47,7 @@ namespace rr_gl
 		// sideeffects: ray->rayLengthMax is lost
 		bool intersectIcons(const SVEntities& entities, rr::RRRay* ray);
 
-		void renderIcons(const SVEntities& entities, const Camera& eye);
+		void renderIcons(const SVEntities& entities, const rr::RRCamera& eye);
 
 		bool isOk() const;
 	private:
@@ -62,7 +62,7 @@ namespace rr_gl
 		// outputs: ray->hitXxx
 		bool intersectIcon(const SVEntity& entity, rr::RRRay* ray);
 
-		void renderIcon(const SVEntity& entity, const Camera& eye);
+		void renderIcon(const SVEntity& entity, const rr::RRCamera& eye);
 
 		rr::RRBuffer* icon[IC_LAST]; // indexed by IconCode
 		Program* programIcons;

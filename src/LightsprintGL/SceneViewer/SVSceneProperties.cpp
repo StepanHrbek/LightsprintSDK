@@ -12,16 +12,16 @@
 namespace rr_gl
 {
 
-int view2ME_VIEW(Camera::View view)
+int view2ME_VIEW(rr::RRCamera::View view)
 {
 	switch (view)
 	{
-		case Camera::TOP: return SVFrame::ME_VIEW_TOP;
-		case Camera::BOTTOM: return SVFrame::ME_VIEW_BOTTOM;
-		case Camera::FRONT: return SVFrame::ME_VIEW_FRONT;
-		case Camera::BACK: return SVFrame::ME_VIEW_BACK;
-		case Camera::LEFT: return SVFrame::ME_VIEW_LEFT;
-		case Camera::RIGHT: return SVFrame::ME_VIEW_RIGHT;
+		case rr::RRCamera::TOP: return SVFrame::ME_VIEW_TOP;
+		case rr::RRCamera::BOTTOM: return SVFrame::ME_VIEW_BOTTOM;
+		case rr::RRCamera::FRONT: return SVFrame::ME_VIEW_FRONT;
+		case rr::RRCamera::BACK: return SVFrame::ME_VIEW_BACK;
+		case rr::RRCamera::LEFT: return SVFrame::ME_VIEW_LEFT;
+		case rr::RRCamera::RIGHT: return SVFrame::ME_VIEW_RIGHT;
 	};
 	return SVFrame::ME_VIEW_RANDOM;
 }

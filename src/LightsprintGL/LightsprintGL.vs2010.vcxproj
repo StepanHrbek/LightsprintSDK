@@ -590,7 +590,6 @@
     <ClInclude Include="SceneViewer\SVSceneProperties.h" />
     <ClInclude Include="SceneViewer\SVSceneTree.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Camera.h" />
-    <ClInclude Include="CameraObjectDistance.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\DemoEngine.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\FPS.h" />
     <ClInclude Include="MultiPass.h" />
@@ -634,7 +633,6 @@
     <ClCompile Include="SceneViewer\SVSceneTree.cpp" />
     <ClCompile Include="SceneViewer\SVStub.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CameraObjectDistance.cpp" />
     <ClCompile Include="FPS.cpp" />
     <ClCompile Include="MultiPass.cpp" />
     <ClCompile Include="Program.cpp" />

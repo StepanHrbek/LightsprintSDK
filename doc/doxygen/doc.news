@@ -15,11 +15,13 @@ NEWS
 - improved scene viewer
   - Object properties / Rotation
 - improved Quake3 .bsp import, reads curved surfaces too
-- "RRRay ray;" is now accepted code, using RRRay::create() is no longer mandatory
+- "RRRay ray;" is now accepted code, previously you had to allocate all rays from heap
+- RRCollider::getDistancesFromPoint() and RRCollider::getDistancesFromCamera() added
 
 CHANGES
 
-- Camera cleanup
+- big Camera cleanup
+  - RRCamera from Lightsprint/RRCamera.h replaces rr_gl::Camera from Lightsprint/GL/Camera.h
   - direct access changed to setXxx() and getXxx() accessors
   - camera.update() removed, simply stop calling it, it's all automatic now
   - change camera.setupForRender() to rr_gl::setupForRender(camera)
@@ -30,7 +32,7 @@ CHANGES
   - setParent() renamed to setCamera()
   - updateAfterRealtimeLightChanges() removed, simply stop calling it, it's all automatic now
 - rr_gl::TextureRenderer and rr_gl::Program use RRVec3/4 instead of float arrays
-- RRMatrix3x4 cleanup
+- RRMatrix3x4 tweaks
   - added RRMatrix3x4::getColumn() and RRMatrix3x4::getRow()
   - removed RRMatrix3x4::setScale(s), other scaling functions are sufficient
 

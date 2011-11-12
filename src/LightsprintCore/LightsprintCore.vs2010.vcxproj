@@ -577,6 +577,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="RRCamera.cpp" />
     <ClCompile Include="RRCollider\bsp.cpp" />
     <ClCompile Include="RRCollider\geometry.cpp" />
     <ClCompile Include="RRCollider\IntersectBspCompact.cpp" />
@@ -709,6 +710,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\Lightsprint\RRCamera.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRFileLocator.h" />
     <ClInclude Include="NumReports.h" />
     <ClInclude Include="RRCollider\bsp.h" />

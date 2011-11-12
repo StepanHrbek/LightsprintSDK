@@ -419,12 +419,6 @@
 			RelativePath="..\..\include\Lightsprint\GL\Camera.h">
 		</File>
 		<File
-			RelativePath="CameraObjectDistance.cpp">
-		</File>
-		<File
-			RelativePath="CameraObjectDistance.h">
-		</File>
-		<File
 			RelativePath="..\..\include\Lightsprint\GL\DemoEngine.h">
 		</File>
 		<File

@@ -836,6 +836,12 @@
 			RelativePath="Preferences.h">
 		</File>
 		<File
+			RelativePath=".\RRCamera.cpp">
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\RRCamera.h">
+		</File>
+		<File
 			RelativePath="..\..\include\Lightsprint\RRDebug.h">
 		</File>
 		<File

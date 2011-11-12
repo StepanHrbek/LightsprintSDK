@@ -9,6 +9,7 @@
 #define TEXTURERENDERER_H
 
 #include "Texture.h"
+#include "Lightsprint/RRCamera.h"
 
 namespace rr_gl
 {
@@ -65,7 +66,7 @@ private:
 	unsigned char culling;
 	unsigned char depthTest;
 	unsigned char depthMask;
-	const class Camera* oldCamera;
+	const rr::RRCamera* oldCamera;
 };
 
 }; // namespace

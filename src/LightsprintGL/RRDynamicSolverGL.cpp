@@ -219,7 +219,7 @@ done:
 		{
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
 			if (light->dirtyRange)
-				light->setRangeDynamically(getMultiObjectCustom());
+				light->setRangeDynamically(getMultiObjectCustom()->getCollider(),getMultiObjectCustom());
 			light->configureCSM(observer,getMultiObjectCustom());
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			// Setup shader for rendering to SM.
@@ -250,7 +250,7 @@ done:
 			for (unsigned i=isDirtyOnlyBecauseObserverHasMoved?1:0 // don't update instance 0 just because of observer movement
 			     ;i<light->getNumShadowmaps();i++)
 			{
-				Camera* lightInstance = light->getShadowmapCamera(i);
+				rr::RRCamera* lightInstance = light->getShadowmapCamera(i);
 				if (lightInstance)
 					setupForRender(*lightInstance);
 				delete lightInstance;
@@ -558,7 +558,7 @@ static bool invertMatrix4x4(const double m[16], double inverse[16])
 	return true;
 }
 
-static void drawCamera(Camera* camera)
+static void drawCamera(rr::RRCamera* camera)
 {
 	if (camera)
 	{
@@ -609,7 +609,7 @@ void drawRealtimeLight(RealtimeLight* light)
 			// light with shadows has all instances rendered
 			for (unsigned i=0;i<light->getNumShadowmaps();i++)
 			{
-				Camera* camera = light->getShadowmapCamera(i);
+				rr::RRCamera* camera = light->getShadowmapCamera(i);
 				drawCamera(camera);
 				delete camera;
 			}

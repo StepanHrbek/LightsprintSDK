@@ -61,7 +61,7 @@ enum Transparency
 //! Optional parameters of sceneViewer()
 struct SceneViewerState
 {
-	Camera           eye;                       //! Current camera.
+	rr::RRCamera     eye;                       //! Current camera.
 
 	bool             envSimulateSky;            //! Should we simulate sky according to location and datetime?
 	bool             envSimulateSun;            //! Should we simulate Sun according to location and datetime?

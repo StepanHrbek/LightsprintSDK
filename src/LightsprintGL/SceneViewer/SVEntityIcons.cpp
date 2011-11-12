@@ -107,7 +107,7 @@ bool SVEntityIcons::intersectIcons(const SVEntities& entities, rr::RRRay* ray)
 	return hit;
 }
 
-void SVEntityIcons::renderIcons(const SVEntities& entities, const Camera& eye)
+void SVEntityIcons::renderIcons(const SVEntities& entities, const rr::RRCamera& eye)
 {
 	// setup for rendering icon
 	PreserveBlend p1;
@@ -208,7 +208,7 @@ bool SVEntityIcons::intersectIcon(const SVEntity& entity, rr::RRRay* ray)
 	return hit;
 }
 
-void SVEntityIcons::renderIcon(const SVEntity& entity, const Camera& eye)
+void SVEntityIcons::renderIcon(const SVEntity& entity, const rr::RRCamera& eye)
 {
 	if (entity.iconCode>=0 && entity.iconCode<IC_LAST && icon[entity.iconCode])
 	{

@@ -232,6 +232,7 @@
     <ClCompile Include="RRCollider\RRColliderMulti.cpp">
       <Filter>RRCollider</Filter>
     </ClCompile>
+    <ClCompile Include="RRCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RRCollider\bsp.h">
@@ -430,6 +431,7 @@
     <ClInclude Include="..\..\include\Lightsprint\RRVector.h" />
     <ClInclude Include="NumReports.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRFileLocator.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="squish\singlecolourlookup.inl">

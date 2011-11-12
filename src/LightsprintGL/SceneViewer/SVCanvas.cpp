@@ -749,7 +749,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		s_ci.mouseLeft = event.LeftIsDown();
 		s_ci.mouseMiddle = event.MiddleIsDown();
 		s_ci.mouseRight = event.RightIsDown();
-		Camera* cam = (event.LeftIsDown()
+		rr::RRCamera* cam = (event.LeftIsDown()
 			 && selectedType==ST_LIGHT && svs.selectedLightIndex<solver->getLights().size()) ? solver->realtimeLights[svs.selectedLightIndex]->getCamera() : &svs.eye;
 		s_ci.pos = svs.eye.getPosition();
 		s_ci.rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
@@ -1086,7 +1086,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		// camera/light keyboard move
 		RR_CLAMP(seconds,0.001f,0.3f);
 		float meters = seconds * svs.cameraMetersPerSecond;
-		Camera* cam = (selectedType!=ST_LIGHT)?&svs.eye:solver->realtimeLights[svs.selectedLightIndex]->getCamera();
+		rr::RRCamera* cam = (selectedType!=ST_LIGHT)?&svs.eye:solver->realtimeLights[svs.selectedLightIndex]->getCamera();
 
 		{
 			// yes -> respond to keyboard
@@ -1292,10 +1292,10 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				solver->realtimeLights[i]->dirtyRange = false; // clear it, range already is good (dirty range would randomly disappear flashlight, reason unknown)
 			}
 
-		if (svs.cameraDynamicNear && !svs.eye.isOrthogonal()) // don't change range in ortho, fixed range from setView() is better
+		if (svs.cameraDynamicNear && solver->getMultiObjectCustom() && !svs.eye.isOrthogonal()) // don't change range in ortho, fixed range from setView() is better
 		{
 			// eye must already be updated here because next line depends on up, right
-			svs.eye.setRangeDynamically(solver->getMultiObjectCustom(),svs.renderWater,svs.waterLevel);
+			svs.eye.setRangeDynamically(solver->getMultiObjectCustom()->getCollider(),solver->getMultiObjectCustom(),svs.renderWater,svs.waterLevel);
 		}
 
 		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)

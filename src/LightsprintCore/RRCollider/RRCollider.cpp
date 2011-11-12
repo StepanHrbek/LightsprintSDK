@@ -3,7 +3,7 @@
 // Copyright (c) 2000-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "Lightsprint/RRCollider.h"
+#include "Lightsprint/RRObject.h"
 #include "IntersectBspCompact.h"
 #include "IntersectBspFast.h"
 #include "IntersectVerification.h"
@@ -162,7 +162,6 @@ void RRCollider::intersectBatch(RRRay* ray, unsigned numRays) const
 		if (!intersect(ray+i)) ray[i].hitDistance = -1;
 	}
 }
-
 
 
 

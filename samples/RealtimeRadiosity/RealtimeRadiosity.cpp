@@ -58,7 +58,7 @@ void error(const char* message, bool gfxRelated)
 // globals are ugly, but required by GLUT design with callbacks
 
 Model_3DS                  m3ds;
-rr_gl::Camera              eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0),1.3f,70,0.3f,60);
+rr::RRCamera               eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0),1.3f,70,0.3f,60);
 rr_gl::RealtimeLight*      realtimeLight = NULL;
 rr::RRBuffer*              environmentMap = NULL;
 rr_gl::TextureRenderer*    textureRenderer = NULL;
@@ -299,7 +299,7 @@ void passive(int x, int y)
 #else
 		const float mouseSensitivity = 0.005f;
 #endif
-		rr_gl::Camera& cam = modeMovingEye ? eye : *realtimeLight->getCamera();
+		rr::RRCamera& cam = modeMovingEye ? eye : *realtimeLight->getCamera();
 		rr::RRVec3 yawPitchRollRad = cam.getYawPitchRollRad()-rr::RRVec3(x,y,0)*mouseSensitivity;
 		RR_CLAMP(yawPitchRollRad[1],(float)(-RR_PI*0.49),(float)(RR_PI*0.49));
 		cam.setYawPitchRollRad(yawPitchRollRad);
@@ -315,7 +315,7 @@ void idle()
 	static rr::RRTime time;
 	float seconds = time.secondsSinceLastQuery();
 	RR_CLAMP(seconds,0.001f,0.3f);
-	rr_gl::Camera* cam = modeMovingEye?&eye:realtimeLight->getCamera();
+	rr::RRCamera* cam = modeMovingEye?&eye:realtimeLight->getCamera();
 	if (speedForward || speedBack || speedRight || speedLeft)
 	{
 		cam->setPosition(cam->getPosition()
