@@ -232,7 +232,7 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	glClear(GL_DEPTH_BUFFER_BIT);
-	setupForRender(eye);
+	rr_gl::setupForRender(eye);
 	renderScene(uberProgramSetup);
 
 	glutSwapBuffers();
