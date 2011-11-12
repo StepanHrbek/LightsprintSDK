@@ -294,7 +294,8 @@ void ButtonProperty::updateImage()
 				))));
 		}
 	}
-	SetValueImage(wxBitmap(image));
+	wxBitmap bitmap(image);
+	SetValueImage(bitmap);
 }
 
 bool ButtonProperty::OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event)
