@@ -250,10 +250,8 @@ done:
 			for (unsigned i=isDirtyOnlyBecauseObserverHasMoved?1:0 // don't update instance 0 just because of observer movement
 			     ;i<light->getNumShadowmaps();i++)
 			{
-				rr::RRCamera* lightInstance = light->getShadowmapCamera(i);
-				if (lightInstance)
-					setupForRender(*lightInstance);
-				delete lightInstance;
+				rr::RRCamera lightInstance;
+				setupForRender(light->getShadowmapCamera(i,lightInstance));
 				Texture* shadowmap = light->getShadowmap(i);
 				if (!shadowmap)
 				{
@@ -609,9 +607,8 @@ void drawRealtimeLight(RealtimeLight* light)
 			// light with shadows has all instances rendered
 			for (unsigned i=0;i<light->getNumShadowmaps();i++)
 			{
-				rr::RRCamera* camera = light->getShadowmapCamera(i);
-				drawCamera(camera);
-				delete camera;
+				rr::RRCamera camera;
+				drawCamera(&light->getShadowmapCamera(i,camera));
 			}
 		}
 		else

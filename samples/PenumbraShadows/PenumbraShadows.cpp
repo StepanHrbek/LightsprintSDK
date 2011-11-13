@@ -134,10 +134,9 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 
 void updateShadowmap(unsigned mapIndex)
 {
-	rr::RRCamera* lightInstance = realtimeLight->getShadowmapCamera(mapIndex);
-	if (lightInstance)
-		rr_gl::setupForRender(*lightInstance);
-	delete lightInstance;
+	rr::RRCamera lightInstance;
+	realtimeLight->getShadowmapCamera(mapIndex,lightInstance);
+	rr_gl::setupForRender(lightInstance);
 	glColorMask(0,0,0,0);
 	rr_gl::Texture* shadowmap = realtimeLight->getShadowmap(mapIndex);
 	glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());

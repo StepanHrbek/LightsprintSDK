@@ -66,10 +66,12 @@ namespace rr
 	//  RRRay
 	//! Ray to intersect with object.
 	//
-	//! Contains all inputs and outputs for RRCollider::intersect().
-	//! All fields of at least 3 floats are aligned for SIMD.
-	//! (Static and local instances on stack are aligned thanks to RR_ALIGNED,
-	//!  instances on heap are aligned thanks to RRAligned.)
+	//! Contains all inputs and outputs for RRCollider::intersect(), with
+	//! all RRVec3/4 aligned for SIMD instructions.
+	//! Alignment is automatic for all static and local instances on stack (thanks to RR_ALIGNED)
+	//! and for instances on heap (thanks to RRAligned). If you add ray into your class as a member variable,
+	//! either dynamically allocate ray (with create()) or statically allocate instances of your class
+	//! or derive your class from RRAligned, otherwise program might crash due to unaligned data access.
 	//!
 	//! Thread safe: no, holds state, may be accessed by one thread at moment.
 	//

@@ -74,9 +74,8 @@ public:
 	void configureCSM(const rr::RRCamera* observer, const rr::RRObject* scene);
 	//! Returns position of observer from previous configureCSM() call.
 	rr::RRVec3 getObserverPos() const;
-	//! Creates and returns requested instance (element of area light).
-	//! To be deleted by caller.
-	virtual rr::RRCamera* getShadowmapCamera(unsigned instance, bool jittered = false) const;
+	//! Copies camera for n-th shadowmap into out and returns it.
+	virtual rr::RRCamera& getShadowmapCamera(unsigned instance, rr::RRCamera& out) const;
 
 	//! Sets shadowmap resolution.
 	//
@@ -119,10 +118,7 @@ public:
 	//! Shape of light source area.
 	//
 	//! Area light is simulated by multiple spot lights.
-	//! Types of area are implemented in virtual instanceMakeup().
-	//! If you are interested in better control over area type,
-	//! let us know, we can quickly add new types or example
-	//! of custom areaType, using custom instanceMakeup().
+	//! Types of area are implemented in virtual getShadowmapCamera().
 	AreaType areaType;
 	//! Size factor, light source size scales linearly with areaSize.
 	float areaSize;
@@ -173,27 +169,6 @@ public:
 protected:
 	//! RRLight used at our creation, contains standard light properties like color.
 	rr::RRLight& rrlight;
-
-	//! Modifies light to become given instance.
-	//
-	//! Inputs are not update()d, outputs are update()d.
-	//! \param light
-	//!  This is in/out parameter.
-	//!  On input, it is copy of camera returned by getCamera().
-	//!  On output, it is expected to be given instance.
-	//!  Instances may differ in any property.
-	//!  Typically, they slightly differ in light position and direction,
-	//!  which creates affect of area light.
-	//!  You can tweak this code to support set of completely different spotlights,
-	//!  with arbitrary positions/directions.
-	//! \param instance
-	//!  Number of instance to be create, 0..numInstances-1.
-	//! \param jittered
-	//!  Makes instances slightly jittered (in subpixel scale) to improve penumbra quality.
-	//!  Jitter is deterministic.
-	//!  \n For full effect, it should be enabled only when generating OR using shadowmap, not in both cases.
-	//!  It is enabled in UberProgramSetup::useProgram(), so set it false when generating shadowmaps.
-	virtual void instanceMakeup(rr::RRCamera& light, unsigned instance, bool jittered) const;
 	rr::RRVec3 csmObserverPos;
 	rr::RRVec3 csmObserverDir;
 	float csmObserverNear;

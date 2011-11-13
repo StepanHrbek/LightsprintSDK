@@ -160,17 +160,6 @@ namespace rr_gl
 		}
 	}
 
-	rr::RRCamera* RealtimeLight::getShadowmapCamera(unsigned instance, bool jittered) const
-	{
-		if (!camera || instance>=getNumShadowmaps())
-			return NULL;
-		rr::RRCamera* c = new rr::RRCamera(*camera); // default copy constructor
-		if (!c)
-			return NULL;
-		instanceMakeup(*c,instance,jittered);
-		return c;
-	}
-
 	void RealtimeLight::setShadowmapSize(unsigned newSize)
 	{
 		if (newSize!=rrlight.rtShadowmapSize)
@@ -259,11 +248,10 @@ namespace rr_gl
 			else
 			{
 				// SPOT
+				rr::RRCamera shadowmapCamera;
 				for (unsigned i=0;i<getNumShadowmaps();i++)
 				{
-					rr::RRCamera* shadowmapCamera = getShadowmapCamera(i);
-					object->getCollider()->getDistancesFromCamera(*shadowmapCamera,object,distanceMinMax);
-					delete shadowmapCamera;
+					object->getCollider()->getDistancesFromCamera(getShadowmapCamera(i,shadowmapCamera),object,distanceMinMax);
 				}
 			}
 			if (distanceMinMax[1]>=distanceMinMax[0]
@@ -283,97 +271,98 @@ namespace rr_gl
 		dirtyRange = false;
 	}
 
-	void RealtimeLight::instanceMakeup(rr::RRCamera& light, unsigned instance, bool jittered) const
+	rr::RRCamera& RealtimeLight::getShadowmapCamera(unsigned instance, rr::RRCamera& light) const
 	{
+		light = *camera;
 		unsigned numInstances = getNumShadowmaps();
 		if (instance>=numInstances) 
 		{
 			rr::RRReporter::report(rr::WARN,"RealtimeLight: instance %d requested, but light has only %d instances.\n",instance,numInstances);
-			return;
 		}
+		else
 		if (numInstances==1)
 		{
-			return; // only 1 instance -> use unmodified camera
+			// only 1 instance -> use unmodified camera
 		}
-		if (getRRLight().type==rr::RRLight::DIRECTIONAL)
+		else
+		switch (getRRLight().type)
 		{
-			// setup second map in cascade
-			// DDI needs map0 big, so map0 is big, map1 is smaller
-			if (instance==0)
-			{
-				// already set by configureCSM()
-			}
-			else
-			{
-				// keep constant pixel size in 3-level CSM in 1-15km scenes
-				// base is 0.2 for ortho up to 1km, drops to 0.05 above 15km
-				float base = sqrt(40/light.getOrthoSize());
-				RR_CLAMP(base,0.05f,0.2f);
-				// increase pixel size when looking from distance
-				if (csmObserverNear>0) // may be negative for ortho observer
+			case rr::RRLight::DIRECTIONAL:
 				{
-					// if near is big, increase SM sizes, don't boosting waste SM space on tiny fraction of screen (or even in area cropped by near)
-					// satisfy light.orthoSize * base^(numInstances-1) > csmObserverNear*10
-					//         base^(numInstances-1) > csmObserverNear*10/light.orthoSize
-					//         base > pow(csmObserverNear*10/light.orthoSize,1/(numInstances-1))
-					// 10 works well in ex5.dae and sponza.dae
-					float minBase = pow(csmObserverNear*10/light.getOrthoSize(),1.0f/(numInstances-1));
-					if (_finite(minBase) && base<minBase)
-						base = RR_MIN(minBase,0.5f);
+					// setup second map in cascade
+					// DDI needs map0 big, so map0 is big, map1 is smaller
+					if (instance==0)
+					{
+						// already set by configureCSM()
+					}
+					else
+					{
+						// keep constant pixel size in 3-level CSM in 1-15km scenes
+						// base is 0.2 for ortho up to 1km, drops to 0.05 above 15km
+						float base = sqrt(40/light.getOrthoSize());
+						RR_CLAMP(base,0.05f,0.2f);
+						// increase pixel size when looking from distance
+						if (csmObserverNear>0) // may be negative for ortho observer
+						{
+							// if near is big, increase SM sizes, don't boosting waste SM space on tiny fraction of screen (or even in area cropped by near)
+							// satisfy light.orthoSize * base^(numInstances-1) > csmObserverNear*10
+							//         base^(numInstances-1) > csmObserverNear*10/light.orthoSize
+							//         base > pow(csmObserverNear*10/light.orthoSize,1/(numInstances-1))
+							// 10 works well in ex5.dae and sponza.dae
+							float minBase = pow(csmObserverNear*10/light.getOrthoSize(),1.0f/(numInstances-1));
+							if (_finite(minBase) && base<minBase)
+								base = RR_MIN(minBase,0.5f);
+						}
+						float visibleArea = powf(base,(float)instance);
+						light.setOrthoSize(light.getOrthoSize()*visibleArea);
+						rr::RRVec3 lightPos = csmObserverPos
+							// move SM center in view direction -> improves quality in front of camera, reduces quality behind camera (visible if camera turns back)
+							+csmObserverDir*(light.getOrthoSize()*0.5f);
+						if (Workaround::supportsDepthClamp())
+							light.setRange(light.getNear()*visibleArea,light.getFar()*visibleArea);
+						// prevent subpixel jitter, probably no longer working
+						double r = lightPos.dot(light.getRight());
+						double u = lightPos.dot(light.getUp());
+						double tmp;
+						double pixelSize = light.getOrthoSize()/rrlight.rtShadowmapSize*2;
+						r = modf(r/pixelSize,&tmp)*pixelSize;
+						u = modf(u/pixelSize,&tmp)*pixelSize;
+						light.setPosition(lightPos - light.getRight()*(float)r+light.getUp()*(float)u);
+					}
 				}
-				float visibleArea = powf(base,(float)instance);
-				light.setOrthoSize(light.getOrthoSize()*visibleArea);
-				rr::RRVec3 lightPos = csmObserverPos
-					// move SM center in view direction -> improves quality in front of camera, reduces quality behind camera (visible if camera turns back)
-					+csmObserverDir*(light.getOrthoSize()*0.5f);
-				if (Workaround::supportsDepthClamp())
-					light.setRange(light.getNear()*visibleArea,light.getFar()*visibleArea);
-				// prevent subpixel jitter, probably no longer working
-				double r = lightPos.dot(light.getRight());
-				double u = lightPos.dot(light.getUp());
-				double tmp;
-				double pixelSize = light.getOrthoSize()/rrlight.rtShadowmapSize*2;
-				r = modf(r/pixelSize,&tmp)*pixelSize;
-				u = modf(u/pixelSize,&tmp)*pixelSize;
-				light.setPosition(lightPos - light.getRight()*(float)r+light.getUp()*(float)u);
-			}
-			return;
+				break;
+			case rr::RRLight::POINT:
+				{
+					// edit output (view matrix) to avoid rounding errors, inputs stay unmodified
+					RR_ASSERT(instance<6);
+					rr::RRCamera::View views[6] = {rr::RRCamera::TOP,rr::RRCamera::BOTTOM,rr::RRCamera::FRONT,rr::RRCamera::BACK,rr::RRCamera::LEFT,rr::RRCamera::RIGHT};
+					light.setView(views[instance],NULL);
+					light.setOrthogonal(false);
+				}
+				break;
+			case rr::RRLight::SPOT:
+				{
+					switch(areaType)
+					{
+						case LINE:
+							// edit inputs, update outputs
+							light.setPosition(light.getPosition() + light.getRight()*(areaSize*(instance/(numInstances-1.f)*2-1)));
+							break;
+						case RECTANGLE:
+							// edit inputs, update outputs
+							{int q=(int)sqrtf((float)(numInstances-1))+1;
+							light.setPosition(light.getPosition() + light.getRight()*(areaSize*(instance/q/(q-1.f)-0.5f)) + light.getUp()*(areaSize*(instance%q/(q-1.f)-0.5f)));
+							break;}
+						case CIRCLE:
+							// edit inputs, update outputs
+							light.setPosition(light.getPosition() + light.getRight()*(areaSize*sin(instance*2*RR_PI/numInstances)) + light.getUp()*(areaSize*cos(instance*2*RR_PI/numInstances)));
+							break;
+					}
+				}
+				break;
 		}
-		if (getRRLight().type==rr::RRLight::POINT)
-		{
-			// edit output (view matrix) to avoid rounding errors, inputs stay unmodified
-			RR_ASSERT(instance<6);
-			rr::RRCamera::View views[6] = {rr::RRCamera::TOP,rr::RRCamera::BOTTOM,rr::RRCamera::FRONT,rr::RRCamera::BACK,rr::RRCamera::LEFT,rr::RRCamera::RIGHT};
-			light.setView(views[instance],NULL);
-			light.setOrthogonal(false);
-			return;
-		}
-		//light.update(0.3f);
 
-		switch(areaType)
-		{
-			case LINE:
-				// edit inputs, update outputs
-				light.setPosition(light.getPosition() + light.getRight()*(areaSize*(instance/(numInstances-1.f)*2-1)));
-				break;
-			case RECTANGLE:
-				// edit inputs, update outputs
-				{int q=(int)sqrtf((float)(numInstances-1))+1;
-				light.setPosition(light.getPosition() + light.getRight()*(areaSize*(instance/q/(q-1.f)-0.5f)) + light.getUp()*(areaSize*(instance%q/(q-1.f)-0.5f)));
-				break;}
-			case CIRCLE:
-				// edit inputs, update outputs
-				light.setPosition(light.getPosition() + light.getRight()*(areaSize*sin(instance*2*RR_PI/numInstances)) + light.getUp()*(areaSize*cos(instance*2*RR_PI/numInstances)));
-				break;
-		}
-		if (jittered)
-		{
-			static signed char jitterSample[10][2] = {{0,0},{3,-2},{-2,3},{1,2},{-2,-1},{3,4},{-4,-3},{2,-1},{-1,1},{-3,0}};
-			light.setYawPitchRollRad(light.getYawPitchRollRad()+rr::RRVec3(
-				light.getFieldOfViewHorizontalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][0]*0.22f,
-				light.getFieldOfViewVerticalRad()/rrlight.rtShadowmapSize*jitterSample[instance%10][1]*0.22f,
-				0));
-		}
+		return light;
 	}
 
 }; // namespace

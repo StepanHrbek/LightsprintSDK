@@ -27,10 +27,12 @@ CHANGES
   - change camera.setupForRender() to rr_gl::setupForRender(camera)
   - change rr_gl::Camera::getRenderCamera() to rr_gl::getRenderCamera()
   - blend() renamed to blendLinear()
-- RealtimeLight cleanup
+  - inverse matrices removed, camera is roughly 2x smaller now
+- RealtimeLight tweaks
   - getParent() renamed to getCamera()
   - setParent() renamed to setCamera()
   - updateAfterRealtimeLightChanges() removed, simply stop calling it, it's all automatic now
+  - getShadowmapCamera() outputs into camera provided by you, rather than allocating new camera
 - rr_gl::TextureRenderer and rr_gl::Program use RRVec3/4 instead of float arrays
 - RRMatrix3x4 tweaks
   - added RRMatrix3x4::getColumn() and RRMatrix3x4::getRow()
