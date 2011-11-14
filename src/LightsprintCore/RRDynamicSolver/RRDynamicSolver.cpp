@@ -521,7 +521,7 @@ void RRDynamicSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 		//if (priv->packedSolver)
 		//{
 		//	// don't set dirtyMaterials, it would switch to architect solver and probably confuse user
-		//	RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::INF2,"To make material change affect indirect light, switch to Architect solver or rebuild Fireball.\n"));
+		//	RR_LIMITED_TIMES(1,RRReporter::report(INF2,"To make material change affect indirect light, switch to Architect solver or rebuild Fireball.\n"));
 		//}
 		priv->dirtyMaterials = true;
 	}
@@ -570,7 +570,7 @@ void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
 
 	if (_params->materialTransmittanceStaticQuality || _params->materialTransmittanceVideoQuality)
 	{
-		//rr::RRReportInterval report(rr::INF3,"Updating illumination passing through transparent materials...\n");
+		//RRReportInterval report(INF3,"Updating illumination passing through transparent materials...\n");
 		unsigned versionSum[2] = {0,0}; // 0=static, 1=video
 #if 1
 		// detect texture changes only in static objects
@@ -579,7 +579,7 @@ void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
 		{
 			for (unsigned g=0;g<object->faceGroups.size();g++)
 			{
-				const rr::RRMaterial* material = object->faceGroups[g].material;
+				const RRMaterial* material = object->faceGroups[g].material;
 				if (material && material->specularTransmittance.texture)
 					versionSum[material->specularTransmittance.texture->getDuration()?1:0] += material->specularTransmittance.texture->version;
 			}
@@ -595,7 +595,7 @@ void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
 			{
 				for (unsigned g=0;g<object->faceGroups.size();g++)
 				{
-					const rr::RRMaterial* material = object->faceGroups[g].material;
+					const RRMaterial* material = object->faceGroups[g].material;
 					if (material && material->specularTransmittance.texture)
 							versionSum[material->specularTransmittance.texture->getDuration()?1:0] += material->specularTransmittance.texture->version;
 				}
@@ -680,7 +680,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	if (priv->packedSolver)
 	{
 		{
-			rr::RRReportInterval report(rr::INF3,"Updating illumination from emissive materials...\n");
+			RRReportInterval report(INF3,"Updating illumination from emissive materials...\n");
 			// loads emittance from materials to fireball
 			//!!! videa nejsou updatnuta, sampluju minuly snimek
 			if (priv->packedSolver->setMaterialEmittance(forceEmittanceReload,_params->materialEmittanceMultiplier,_params->materialEmittanceStaticQuality,_params->materialEmittanceVideoQuality,_params->materialEmittanceUsePointMaterials,getScaler()))
@@ -693,7 +693,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		}
 
 		{
-			rr::RRReportInterval report(rr::INF3,"Updating illumination from environment...\n");
+			RRReportInterval report(INF3,"Updating illumination from environment...\n");
 			// loads environment to fireball
 			//!!! videa nejsou updatnuta, sampluju minuly snimek
 			if (priv->packedSolver->setEnvironment(priv->environment0,priv->environment1,_params->environmentStaticQuality,_params->environmentVideoQuality,priv->environmentBlendFactor,getScaler()))
@@ -726,7 +726,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 	}
 
 	REPORT(RRReportInterval report(INF3,"Radiosity...\n"));
-	rr::RRTime now;
+	RRTime now;
 	if (priv->packedSolver)
 	{
 		unsigned oldVer = priv->packedSolver->getSolutionVersion();
@@ -949,7 +949,7 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int lightmapLayerNumber, int 
 		RRObjectIllumination& multiIllumination = getMultiObjectCustom()->illumination;
 		if (!multiIllumination.getLayer(lightmapLayerNumber))
 			multiIllumination.getLayer(lightmapLayerNumber) =
-				RRBuffer::create(rr::BT_VERTEX_BUFFER,getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,false,NULL); // [multiobj indir is indexed]
+				RRBuffer::create(BT_VERTEX_BUFFER,getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,false,NULL); // [multiobj indir is indexed]
 	}
 	// allocate cube maps
 	if (diffuseCubeSize>=0 || specularCubeSize>=0)

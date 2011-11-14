@@ -349,7 +349,7 @@ RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction) const
 				{
 					float sin_angle = direction.x/sqrt(d);
 					float angle = asin(sin_angle);
-					if (direction.z<0) angle = (rr::RRReal)(RR_PI-angle);
+					if (direction.z<0) angle = (RRReal)(RR_PI-angle);
 					coord[0] = (unsigned)( (angle*(-0.5f/RR_PI)+0.75f) * width) % width;
 				}
 				else

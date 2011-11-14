@@ -130,7 +130,7 @@ public:
 		return singles[preImport.object].numTrianglesBefore+midImportTriangle;
 	}
 
-	virtual void getUvChannels(rr::RRVector<unsigned>& out) const
+	virtual void getUvChannels(RRVector<unsigned>& out) const
 	{
 		out.clear();
 		TriangleMapping mapping;
@@ -377,10 +377,10 @@ public:
 		}
 	}
 
-	virtual void getUvChannels(rr::RRVector<unsigned>& out) const
+	virtual void getUvChannels(RRVector<unsigned>& out) const
 	{
 		// get channels from 2 sons
-		rr::RRVector<unsigned> a,b;
+		RRVector<unsigned> a,b;
 		pack[0].getMesh()->getUvChannels(a);
 		pack[1].getMesh()->getUvChannels(b);
 		// merge lists, remove duplicates

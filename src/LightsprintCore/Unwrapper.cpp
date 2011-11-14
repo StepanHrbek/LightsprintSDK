@@ -453,7 +453,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 #endif
 					if (err==19191919)
 					{
-						rr::RRReporter::report(rr::ERRO,"D3DXUVAtlasPartition() crashed, better save your work and restart.\n");
+						RRReporter::report(ERRO,"D3DXUVAtlasPartition() crashed, better save your work and restart.\n");
 					}
 					else
 					if (err==D3D_OK)

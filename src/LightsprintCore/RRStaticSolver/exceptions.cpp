@@ -203,7 +203,7 @@ void RRObject::FaceGroups::getTexcoords(RRVector<unsigned>& _texcoords, bool _fo
 	std::set<unsigned> texcoords;
 	for (unsigned fg=0; fg<size(); fg++)
 	{
-		rr::RRMaterial* material = (*this)[fg].material;
+		RRMaterial* material = (*this)[fg].material;
 		if (material)
 		{
 			if (_forUnwrap)

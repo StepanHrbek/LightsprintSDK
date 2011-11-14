@@ -36,7 +36,7 @@ RRMeshArrays::~RRMeshArrays()
 }
 
 // false = complete deallocate, mesh resized to 0,0
-bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, const rr::RRVector<unsigned>* _texcoords, bool _tangents)
+bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, const RRVector<unsigned>* _texcoords, bool _tangents)
 {
 	// calculate new size in bytes
 	unsigned newSize = _numTriangles*sizeof(Triangle) + _numVertices*((_tangents?4:2)*sizeof(RRVec3)+(_texcoords?_texcoords->size()*sizeof(RRVec2)+16:0))+100;
@@ -318,10 +318,10 @@ bool RRMeshArrays::getTriangleMapping(unsigned t, TriangleMapping& out, unsigned
 	return true;
 }
 
-void RRMeshArrays::getUvChannels(rr::RRVector<unsigned>& out) const
+void RRMeshArrays::getUvChannels(RRVector<unsigned>& out) const
 {
 	out.clear();
-	rr::RRMesh::TriangleMapping mapping;
+	RRMesh::TriangleMapping mapping;
 	for (unsigned i=0;i<texcoord.size();i++)
 		if (texcoord[i])
 			out.push_back(i);

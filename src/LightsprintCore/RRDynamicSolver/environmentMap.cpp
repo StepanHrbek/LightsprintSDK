@@ -608,7 +608,7 @@ static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, unsig
 			buffer->setElement(i,RRVec4(exitance,0));
 		}
 		// faster but works only for specularEnvMap BF_RGBF,!scaled
-		//illumination->specularEnvMap->reset(rr::BT_CUBE_TEXTURE,specularSize,specularSize,6,illumination->specularEnvMap->getFormat(),false,(unsigned char*)gatheredExitance);
+		//illumination->specularEnvMap->reset(BT_CUBE_TEXTURE,specularSize,specularSize,6,illumination->specularEnvMap->getFormat(),false,(unsigned char*)gatheredExitance);
 	}
 	else
 	{

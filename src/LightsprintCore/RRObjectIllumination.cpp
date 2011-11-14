@@ -10,7 +10,7 @@
 namespace rr
 {
 
-class LayersMap : public boost::unordered_map<unsigned,rr::RRBuffer*>
+class LayersMap : public boost::unordered_map<unsigned,RRBuffer*>
 {
 };
 

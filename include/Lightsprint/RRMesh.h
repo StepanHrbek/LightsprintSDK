@@ -298,7 +298,7 @@ namespace rr
 
 		//! Fills out with uv channels provided by mesh, in ascending order.
 		//! Default implementation queries presence of channels 0 to 100, ignores higher channels.
-		virtual void         getUvChannels(rr::RRVector<unsigned>& out) const;
+		virtual void         getUvChannels(RRVector<unsigned>& out) const;
 
 		//! Returns axis aligned bounding box and center of mesh. Fast (cached).
 		//
@@ -530,7 +530,7 @@ namespace rr
 		//
 		//! If you resize often, it's safe to resize once to max size and then change only numTriangles/numVertices.
 		//! If allocation fails, mesh is resized to 0 and false is returned.
-		bool                 resizeMesh(unsigned numTriangles,unsigned numVertices, const rr::RRVector<unsigned>* texcoords, bool tangents);
+		bool                 resizeMesh(unsigned numTriangles,unsigned numVertices, const RRVector<unsigned>* texcoords, bool tangents);
 
 		//! Overwrites content of this RRMeshArrays, copies data from given RRMesh.
 		//
@@ -558,7 +558,7 @@ namespace rr
 		virtual void         getTriangleBody(unsigned i, TriangleBody& out) const;
 		virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
 		virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
-		virtual void         getUvChannels(rr::RRVector<unsigned>& out) const;
+		virtual void         getUvChannels(RRVector<unsigned>& out) const;
 		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
 
 

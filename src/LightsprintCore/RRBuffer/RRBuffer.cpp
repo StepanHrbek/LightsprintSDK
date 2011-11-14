@@ -295,7 +295,7 @@ void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 	}
 }
 
-void RRBuffer::brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma)
+void RRBuffer::brightnessGamma(RRVec4 brightness, RRVec4 gamma)
 {
 	if (brightness==RRVec4(1) && gamma==RRVec4(1))
 	{
@@ -306,7 +306,7 @@ void RRBuffer::brightnessGamma(rr::RRVec4 brightness, rr::RRVec4 gamma)
 #pragma omp parallel for
 	for (int i=0;i<numElements;i++)
 	{
-		rr::RRVec4 element = getElement(i);
+		RRVec4 element = getElement(i);
 		for (unsigned j=0;j<4;j++)
 			element[j] = pow(element[j]*brightness[j],gamma[j]);
 		setElement(i,element);
@@ -893,7 +893,7 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 			if (ofs>=0)
 				location_buf.replace(ofs,2,RRString(_cubeSideName[0]).w_str());
 			bool exists = bf::exists(location_buf);
-			rr::RRReporter::report(rr::INF3,"%d%c %ls\n",attempt,exists?'+':'-',location.w_str());
+			RRReporter::report(INF3,"%d%c %ls\n",attempt,exists?'+':'-',location.w_str());
 			if (exists)
 			{
 				RRBuffer* result = load_cached(RR_STDW2RR(location),_cubeSideName);

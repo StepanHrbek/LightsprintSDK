@@ -113,7 +113,7 @@ static RRScene* callLoader(RRScene::Loader* loader, const RRString& filename, RR
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Scene import crashed.\n"));
+		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"Scene import crashed.\n"));
 		return NULL;
 	}
 #endif

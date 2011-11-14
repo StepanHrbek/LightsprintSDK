@@ -147,7 +147,7 @@ RRMesh::~RRMesh()
 	delete aabbCache;
 }
 
-void RRMesh::getUvChannels(rr::RRVector<unsigned>& out) const
+void RRMesh::getUvChannels(RRVector<unsigned>& out) const
 {
 	out.clear();
 	TriangleMapping mapping;

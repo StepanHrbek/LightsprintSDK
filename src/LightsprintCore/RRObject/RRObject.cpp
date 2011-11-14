@@ -95,7 +95,7 @@ bool RRObject::FaceGroups::containsEmittance() const
 {
 	for (unsigned g=0;g<size();g++)
 	{
-		rr::RRMaterial* material = (*this)[g].material;
+		RRMaterial* material = (*this)[g].material;
 		if (material)
 		{
 			if (material->diffuseEmittance.color!=RRVec3(0) || material->diffuseEmittance.texture)
@@ -295,7 +295,7 @@ const RRMatrix3x4* RRObject::getWorldMatrix() const
 
 const RRMatrix3x4& RRObject::getWorldMatrixRef() const
 {
-	const rr::RRMatrix3x4* wm = getWorldMatrix();
+	const RRMatrix3x4* wm = getWorldMatrix();
 	static RRMatrix3x4 identity = RRMatrix3x4::identity();
 	return wm?*wm:identity;
 }

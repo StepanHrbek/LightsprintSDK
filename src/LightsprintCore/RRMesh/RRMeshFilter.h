@@ -77,7 +77,7 @@ public:
 	}
 
 	// tools
-	virtual void         getUvChannels(rr::RRVector<unsigned>& out) const
+	virtual void         getUvChannels(RRVector<unsigned>& out) const
 	{
 		inherited->getUvChannels(out);
 	}

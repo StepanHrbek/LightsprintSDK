@@ -382,7 +382,7 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 	unsigned versionSum[2] = {0,0}; // 0=static, 1=video
 	for (unsigned g=0;object && g<object->faceGroups.size();g++)
 	{
-		const rr::RRMaterial* material = object->faceGroups[g].material;
+		const RRMaterial* material = object->faceGroups[g].material;
 		if (material && material->diffuseEmittance.texture)
 			versionSum[material->diffuseEmittance.texture->getDuration()?1:0] += material->diffuseEmittance.texture->version;
 	}
