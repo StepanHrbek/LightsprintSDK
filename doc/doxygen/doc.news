@@ -14,7 +14,10 @@ NEWS
 
 - improved scene viewer
   - Object properties / Rotation
-- improved Quake3 .bsp import, reads curved surfaces too
+  - imports/exports camera
+- improved import/export
+  - camera support in many formats, including .rr3
+  - improved Quake3 .bsp import, reads curved surfaces too
 - "RRRay ray;" is now accepted code, previously you had to allocate all rays from heap
 - RRCollider::getDistancesFromPoint() and RRCollider::getDistancesFromCamera() added
 

@@ -207,6 +207,12 @@ void SVCanvas::createContextCore()
 		rr::RRScene* scene = svframe->loadScene(svs.sceneFilename,svframe->userPreferences.import.getUnitLength(svs.sceneFilename),svframe->userPreferences.import.getUpAxis(svs.sceneFilename),true);
 		mergedScenes.push_back(scene);
 
+		if (scene->cameras.size())
+		{
+			svs.eye = scene->cameras[0];
+			svs.autodetectCamera = false; // camera was taken from scene
+		}
+
 		// send everything to solver
 		solver->setEnvironment(mergedScenes[0]->environment);
 		envToBeDeletedOnExit = false;

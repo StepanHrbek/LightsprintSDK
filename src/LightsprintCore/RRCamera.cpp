@@ -47,11 +47,11 @@ RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspec
 	updateView();
 
 	// projection
+	orthogonal = false;
 	aspect = _aspect;
 	fieldOfViewVerticalDeg = RR_CLAMPED(_fieldOfViewVerticalDeg,0.0000001f,179.9f);
 	anear = (_anear<_afar) ? _anear : 0.1f;
 	afar = (_anear<_afar) ? _afar : 100;
-	orthogonal = false;
 	orthoSize = 100;
 	screenCenter = RRVec2(0);
 	updateProjection();

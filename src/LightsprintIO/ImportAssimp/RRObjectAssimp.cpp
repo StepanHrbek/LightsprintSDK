@@ -64,6 +64,13 @@ RRMatrix3x4 convertMatrix(const aiMatrix4x4& transform)
 	return wm;
 }
 
+RRCamera convertCamera(const aiCamera& c)
+{
+	RRCamera camera(convertPos(c.mPosition),RRVec3(0),c.mAspect?c.mAspect:1,90,c.mClipPlaneNear,c.mClipPlaneFar);
+	camera.setDirection(convertDir(c.mLookAt));
+	return camera;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -455,6 +462,9 @@ public:
 		RRReportInterval report(INF3,"Adapting scene...\n");
 		scene->protectedObjects = new RRObjectsAssimp(aiscene,textureLocator);
 		scene->protectedLights = new RRLightsAssimp(aiscene);
+		for (unsigned i=0;i<aiscene->mNumCameras;i++)
+			if (aiscene->mCameras[i])
+				scene->cameras.push_back(convertCamera(*aiscene->mCameras[i]));
 		aiReleaseImport(aiscene);
 		return scene;
 	}

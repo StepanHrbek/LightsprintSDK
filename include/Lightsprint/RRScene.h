@@ -69,6 +69,8 @@ public:
 	RRLights lights;
 	//! Scene environment, skybox. May be modified, but carefully, scene owns environment and deletes it in destructor, so delete old environment before setting new one.
 	RRBuffer* environment;
+	//! Collection of cameras in scene. May be freely modified.
+	RRCameras cameras;
 
 
 	//////////////////////////////////////////////////////////////////////////////

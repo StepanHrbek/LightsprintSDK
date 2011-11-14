@@ -678,6 +678,61 @@ void serialize(Archive & ar, rr::RRObjects& a, const unsigned int version)
 	serialize(ar,aa,version);
 }
 
+//----------------------------- RRCamera ------------------------------------
+
+template<class Archive>
+void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
+{
+	RRVec3 position = a.getPosition();
+	RRVec3 yawPitchRollRad = a.getYawPitchRollRad();
+	bool orthogonal = a.isOrthogonal();
+	float aspect = a.getAspect();
+	float fieldOfViewVerticalDeg = a.getFieldOfViewVerticalDeg();
+	float anear = a.getNear();
+	float afar = a.getFar();
+	float orthoSize = a.getOrthoSize();
+	RRVec2 screenCenter = a.getScreenCenter();
+
+	ar & make_nvp("position",position);
+	ar & make_nvp("yawPitchRollRad",yawPitchRollRad);
+	ar & make_nvp("orthogonal",orthogonal);
+	ar & make_nvp("aspect",aspect);
+	ar & make_nvp("fieldOfViewVerticalDeg",fieldOfViewVerticalDeg);
+	ar & make_nvp("near",anear);
+	ar & make_nvp("far",afar);
+	ar & make_nvp("orthoSize",orthoSize);
+	ar & make_nvp("screenCenter",screenCenter);
+}
+
+template<class Archive>
+void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
+{
+	RRVec3 position;
+	RRVec3 yawPitchRollRad;
+	bool orthogonal;
+	float aspect;
+	float fieldOfViewVerticalDeg;
+	float anear;
+	float afar;
+	float orthoSize;
+	RRVec2 screenCenter;
+
+	ar & make_nvp("position",position);
+	ar & make_nvp("yawPitchRollRad",yawPitchRollRad);
+	ar & make_nvp("orthogonal",orthogonal);
+	ar & make_nvp("aspect",aspect);
+	ar & make_nvp("fieldOfViewVerticalDeg",fieldOfViewVerticalDeg);
+	ar & make_nvp("near",anear);
+	ar & make_nvp("far",afar);
+	ar & make_nvp("orthoSize",orthoSize);
+	ar & make_nvp("screenCenter",screenCenter);
+
+	new(&a) RRCamera(position,yawPitchRollRad,aspect,fieldOfViewVerticalDeg,anear,afar);
+	a.setOrthogonal(orthogonal);
+	a.setOrthoSize(orthoSize);
+	a.setScreenCenter(screenCenter);
+}
+
 //------------------------------ RRScene ------------------------------------
 
 template<class Archive>
@@ -689,6 +744,10 @@ void serialize(Archive & ar, rr::RRScene& a, const unsigned int version)
 	g_nextBufferIsCube = true; // global is not thread safe, don't load two .rr3 at once
 	ar & make_nvp("environment",prefix_buffer(a.environment)); postfix_buffer(Archive,a.environment);
 	g_nextBufferIsCube = false;
+	if (version>0)
+	{
+		ar & make_nvp("cameras",a.cameras);
+	}
 	// must be called after load. there's nothing to free after save
 	RRBufferProxy::freeMemory();
 	RRMeshProxy::freeMemory();
@@ -707,10 +766,12 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRMeshArrays)
 BOOST_SERIALIZATION_SPLIT_FREE(RRMeshProxy)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRSideBits)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRObject)
+BOOST_SERIALIZATION_SPLIT_FREE(rr::RRCamera)
 
 BOOST_CLASS_VERSION(rr::RRString,1)
 BOOST_CLASS_VERSION(rr::RRMaterial,1)
 BOOST_CLASS_VERSION(rr::RRLight,4)
 BOOST_CLASS_VERSION(rr::RRObject,1)
+BOOST_CLASS_VERSION(rr::RRScene,1)
 
 #endif

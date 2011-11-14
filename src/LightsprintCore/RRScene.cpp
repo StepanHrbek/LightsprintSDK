@@ -174,6 +174,7 @@ RRScene::RRScene(const RRString& _filename, RRFileLocator* _textureLocator, bool
 				objects = implementation->protectedObjects ? *implementation->protectedObjects : implementation->objects;
 				if (implementation->environment)
 					environment = implementation->environment->createReference();
+				cameras = implementation->cameras;
 				break; // loaded, success
 			}
 			// load failed, but don't give up for cycle yet,

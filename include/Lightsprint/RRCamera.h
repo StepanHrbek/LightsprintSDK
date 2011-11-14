@@ -21,7 +21,7 @@ namespace rr
 //
 //! With yawPitchRollRad reset to 0, camera view direction is Z+ (0,0,1),
 //! up vector is Y+ (0,1,0) and right vector is X- (-1,0,0).
-class RR_API RRCamera : public RRUniformlyAllocated
+class RR_API RRCamera
 {
 public:
 	//////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ public:
 	//! Initializes camera in world center.
 	RRCamera();
 	//! Initializes everything at once.
-	RRCamera(const RRVec3& pos, const RRVec3& yawPitchRollRad, float aspect, float fieldOfView, float anear, float afar);
+	RRCamera(const RRVec3& pos, const RRVec3& yawPitchRollRad, float aspect, float fieldOfViewVerticalDeg, float anear, float afar);
 	//! Initializes camera from RRLight. Changes made to camera will be propagated back to light, so you must not delete light before camera.
 	RRCamera(RRLight& light);
 
@@ -152,7 +152,7 @@ public:
 	void setOrthoSize(float orthoSize);
 
 	//! View direction is projected into given screen position, default 0,0 for screen center, -1,-1 for top left corner, 1,1 for bottom right corner.
-	RRVec2 getScreenCenter() {return screenCenter;}
+	RRVec2 getScreenCenter() const {return screenCenter;}
 	void setScreenCenter(RRVec2 screenCenter);
 
 	//! Returns 4x4 projection matrix.
@@ -254,6 +254,8 @@ private:
 	//! When we are constructed from light, we synchronize light's position/direction with us.
 	RRLight* light;
 };
+
+typedef RRVector<RRCamera> RRCameras;
 
 }; // namespace
 

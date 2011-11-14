@@ -35,6 +35,7 @@
 #include "COLLADAFWInstanceGeometry.h"
 #include "COLLADAFWEffectCommon.h"
 #include "COLLADAFWLight.h"
+#include "COLLADAFWCamera.h"
 #include "COLLADAFWTexture.h"
 #include "COLLADASaxFWLIExtraDataCallbackHandler.h"
 #include "COLLADASaxFWLLoader.h"
@@ -535,6 +536,7 @@ typedef std::map<COLLADAFW::UniqueId, COLLADAFW::Effect>          MapUniqueEffec
 typedef std::map<COLLADAFW::UniqueId, COLLADAFW::Image>           MapUniqueImage;
 typedef std::map<COLLADAFW::UniqueId, COLLADAFW::Node>            MapUniqueNode;
 typedef std::map<COLLADAFW::UniqueId, COLLADAFW::Light>           MapUniqueLight;
+typedef std::map<COLLADAFW::UniqueId, COLLADAFW::Camera>          MapUniqueCamera;
 typedef std::map<COLLADAFW::UniqueId, MeshPlaceholder>            MapUniqueMesh;
 
 typedef std::map<COLLADAFW::UniqueId, MaterialBindingPlaceholder> MapUniqueMaterialBinding;
@@ -562,6 +564,7 @@ class RRWriterOpenCollada : public COLLADAFW::IWriter
 
 	RRObjectsOpenCollada*           objects;
 	RRLightsOpenCollada*            lights;
+	RRCameras&                      cameras;
 
 	COLLADAFW::InstanceVisualScene* instanceVisualScene;
 
@@ -580,6 +583,7 @@ class RRWriterOpenCollada : public COLLADAFW::IWriter
 	MapUniqueNode                   nodeMap;
 	MapUniqueMesh                   meshMap;
 	MapUniqueLight                  lightMap;
+	MapUniqueCamera                 cameraMap;
 
 	MapStringUnique					materialStringMap;
 
@@ -589,8 +593,8 @@ class RRWriterOpenCollada : public COLLADAFW::IWriter
 
 	ExtraDataCallbackHandler        extraHandler;
 public:
-	RRWriterOpenCollada(RRObjectsOpenCollada* _objects, RRLightsOpenCollada* _lights, const RRString& _filename, const RRFileLocator* _textureLocator)
-		: filename(_filename)
+	RRWriterOpenCollada(RRObjectsOpenCollada* _objects, RRLightsOpenCollada* _lights, RRCameras& _cameras, const RRString& _filename, const RRFileLocator* _textureLocator)
+		: cameras(_cameras), filename(_filename)
 	{
 		parseStep = RUN_COPY_ELEMENTS;
 		objects = _objects;
@@ -782,6 +786,43 @@ public:
 		}
 	}
 
+	void handleInstanceCameras( const COLLADAFW::Node* node, const COLLADABU::Math::Matrix4& matrix )
+	{
+		const COLLADAFW::InstanceCameraPointerArray& instanceCameras = node->getInstanceCameras();
+
+		for ( size_t i = 0, count = instanceCameras.getCount(); i < count; ++i)
+		{
+			COLLADAFW::InstanceCamera* instanceCamera = instanceCameras[i];
+			COLLADAFW::UniqueId cameraId = instanceCamera->getInstanciatedObjectId();
+
+			// find source light
+			MapUniqueCamera::iterator iter = cameraMap.find(cameraId);
+
+			if(iter == cameraMap.end())
+			{
+				RRReporter::report(WARN,"Camera instance without parent camera.\n");
+				continue;
+			}
+
+			COLLADAFW::Camera& camera = iter->second;
+
+			rr::RRMatrix3x4 worldMatrix = convertMatrix(matrix);
+
+			// create RRCamera
+			RRCamera rrCamera;
+			rrCamera.setPosition(worldMatrix.getTransformedPosition(RRVec3(0)));
+			rrCamera.setYawPitchRollRad(worldMatrix.getYawPitchRoll());
+			rrCamera.setOrthogonal(camera.getCameraType()==COLLADAFW::Camera::ORTHOGRAPHIC);
+			rrCamera.setFieldOfViewVerticalDeg(RR_RAD2DEG(camera.getYFov()));
+			rrCamera.setAspect(camera.getAspectRatio().getValue());
+			rrCamera.setNear(camera.getNearClippingPlane().getValue());
+			rrCamera.setFar(camera.getFarClippingPlane().getValue());
+			rrCamera.setOrthoSize(camera.getXMag());
+
+			cameras.push_back(rrCamera);
+		}
+	}
+
 	void handleInstanceNodes( const COLLADAFW::InstanceNodePointerArray& instanceNodes)
 	{
 		for ( size_t i = 0, count = instanceNodes.getCount(); i < count; ++i)
@@ -812,6 +853,7 @@ public:
 
 		handleInstanceGeometries( node, worldMatrix );
 		handleInstanceLights( node, worldMatrix );
+		handleInstanceCameras( node, worldMatrix );
 		handleNodes( node->getChildNodes() );
 		handleInstanceNodes( node->getInstanceNodes() );
 
@@ -1991,6 +2033,10 @@ public:
 	@return True on succeeded, false otherwise.*/
 	virtual bool writeCamera( const COLLADAFW::Camera* camera )
 	{
+		if(parseStep != RUN_COPY_ELEMENTS)
+			return true;
+
+		cameraMap.insert( std::make_pair( camera->getUniqueId(), *camera ) );
 		return true;
 	}
 
@@ -2081,7 +2127,7 @@ RRScene* RRSceneOpenCollada::load(const RRString& filename, RRFileLocator* textu
 	RRObjectsOpenCollada* objects = new RRObjectsOpenCollada;
 	RRLightsOpenCollada* lights = new RRLightsOpenCollada;
 
-	RRWriterOpenCollada writer(objects, lights, filename, textureLocator);
+	RRWriterOpenCollada writer(objects, lights, scene->cameras, filename, textureLocator);
 
 	if( !writer.parseDocument() )
 		return false;
