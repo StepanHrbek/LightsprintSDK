@@ -331,15 +331,12 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 		return false;
 	}
 
-	// 3. preallocate rays
+	// 4. preallocate and populate relevantLights
 #ifdef _OPENMP
 	int numThreads = omp_get_max_threads();
 #else
 	int numThreads = 1;
 #endif
-	RRRay* rays = RRRay::create(2*numThreads);
-
-	// 4. preallocate and populate relevantLights
 	unsigned numAllLights = tc.solver ? tc.solver->getLights().size() : 0;
 	unsigned numRelevantLights = 0;
 	const RRLight** relevantLightsForObject = new const RRLight*[numAllLights*numThreads];
@@ -375,9 +372,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 					ptp.uv[0] = i;
 					ptp.uv[1] = j;
 					ptp.subTexels = texelsRect+indexInRect;
-					ptp.rays = rays+2*threadNum;
-					ptp.rays[0].rayLengthMin = minimalSafeDistance;
-					ptp.rays[1].rayLengthMin = minimalSafeDistance;
+					ptp.rayLengthMin = minimalSafeDistance;
 					ptp.relevantLights = relevantLightsForObject+numAllLights*threadNum;
 					ptp.numRelevantLights = numRelevantLights;
 					ptp.relevantLightsFilled = true;
@@ -392,7 +387,6 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	// 6. cleanup
 	delete[] relevantLightsForObject;
 	delete[] texelsRect;
-	delete[] rays;
 
 	return true;
 }

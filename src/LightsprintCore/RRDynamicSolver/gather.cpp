@@ -675,6 +675,11 @@ protected:
 //   if tc->pixelBuffer is not set, physical scale irradiance is returned
 ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 {
+	RRRay rays[2];
+	rays[0].rayLengthMin = pti.rayLengthMin;
+	rays[1].rayLengthMin = pti.rayLengthMin;
+	const_cast<ProcessTexelParams*>(&pti)->rays = rays;
+
 	if (!pti.context.solver || !pti.context.solver->getMultiObjectCustom() || !pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		RRReporter::report(WARN,"processTexel: Empty scene.\n");
@@ -933,15 +938,12 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 	tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
 
-	// preallocates rays
+	// preallocates texels
 #ifdef _OPENMP
 	int numThreads = omp_get_max_threads();
 #else
 	int numThreads = 1;
 #endif
-	RRRay* rays = RRRay::create(2*numThreads);
-
-	// preallocates texels
 	TexelSubTexels* subTexels = new TexelSubTexels[numThreads];
 	SubTexel subTexel;
 	subTexel.areaInMapSpace = 1; // absolute value of area is not important because subtexel is only one
@@ -995,9 +997,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 			ProcessTexelParams ptp(tc);
 			ptp.subTexels = subTexels+threadNum;
 			ptp.subTexels->begin()->multiObjPostImportTriIndex = t;
-			ptp.rays = rays+2*threadNum;
-			ptp.rays[0].rayLengthMin = priv->minimalSafeDistance;
-			ptp.rays[1].rayLengthMin = priv->minimalSafeDistance;
+			ptp.rayLengthMin = priv->minimalSafeDistance;
 
 			// pass empty array (is filled by processTexel for each triangle separately)
 			//ptp.relevantLights = emptyRelevantLights+numAllLights*threadNum;
@@ -1015,7 +1015,6 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 	//delete[] emptyRelevantLights;
 	delete[] relevantLightsPerObject;
 	delete[] subTexels;
-	delete[] rays;
 	return !aborting;
 }
 

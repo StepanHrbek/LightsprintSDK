@@ -84,7 +84,8 @@ struct ProcessTexelParams
 	TexelSubTexels* subTexels;
 	unsigned uv[2]; // texel coord in lightmap in 0..width-1,0..height-1
 	unsigned resetFiller;
-	RRRay* rays; // pointer to TWO rays. rayLengthMin should be initialized
+	RRRay* rays; // pointer to TWO rays
+	float rayLengthMin; // will be copied to rays
 	const RRLight** relevantLights; // pointer to sufficiently big array of RRLight*
 	unsigned numRelevantLights; // number of valid relevant lights in array
 	bool relevantLightsFilled; // true when relevantLights are already filled, false when array is uninitialized
