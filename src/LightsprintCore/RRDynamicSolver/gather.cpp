@@ -478,7 +478,6 @@ public:
 		reliabilityLights = 0;
 		rounds = (pti.context.params->applyLights && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
 		rays = numRelevantLights*rounds;
-		pti.rays[0].hitObject = pti.context.solver->getMultiObjectPhysical();
 		pti.rays[1].hitObject = pti.context.solver->getMultiObjectPhysical();
 	}
 
