@@ -813,11 +813,11 @@ public:
 			rrCamera.setPosition(worldMatrix.getTransformedPosition(RRVec3(0)));
 			rrCamera.setYawPitchRollRad(worldMatrix.getYawPitchRoll());
 			rrCamera.setOrthogonal(camera.getCameraType()==COLLADAFW::Camera::ORTHOGRAPHIC);
-			rrCamera.setFieldOfViewVerticalDeg(RR_RAD2DEG(camera.getYFov()));
-			rrCamera.setAspect(camera.getAspectRatio().getValue());
-			rrCamera.setNear(camera.getNearClippingPlane().getValue());
-			rrCamera.setFar(camera.getFarClippingPlane().getValue());
-			rrCamera.setOrthoSize(camera.getXMag());
+			rrCamera.setFieldOfViewVerticalDeg((RRReal)RR_RAD2DEG(camera.getYFov()));
+			rrCamera.setAspect((RRReal)camera.getAspectRatio().getValue());
+			rrCamera.setNear((RRReal)camera.getNearClippingPlane().getValue());
+			rrCamera.setFar((RRReal)camera.getFarClippingPlane().getValue());
+			rrCamera.setOrthoSize((RRReal)camera.getXMag());
 
 			cameras.push_back(rrCamera);
 		}
