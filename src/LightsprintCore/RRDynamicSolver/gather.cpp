@@ -157,7 +157,7 @@ public:
 		tools(_tools),
 		pti(_pti),
 		gatherer(
-			&_pti.rays[0],
+			&ray,
 			_pti.context.solver->getMultiObjectPhysical(), // multiObjectPhysical is used because collisionHandler reads point details and gatherer reuses them
 			_pti.context.solver->priv->scene,
 			_tools.environment,
@@ -174,6 +174,7 @@ public:
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
 		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.gatherDirectEmitors) ? RR_MAX(1,pti.context.params->quality) : 0;
+		ray.rayLengthMin = pti.rayLengthMin;
 	}
 
 	// once before shooting (full init)
@@ -196,25 +197,27 @@ public:
 		maxSingleRayContribution = 0; // max sum of all irradiance components in physical scale
 		// init ray
 		//pti.rays[0].rayLengthMin = 0; // Our caller already set rayLengthMin to nice small value, keep it. Small bias is important for UE3 terrain segments that overlap. 0 would be better only if triangles don't overlap.
-		pti.rays[0].rayLengthMax = pti.context.params->locality;
+		ray.rayLengthMax = pti.context.params->locality;
 	}
 
 	// 1 ray
 	// inputs:
 	//  - pti.rays[0].rayOrigin
 	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
-	void shotRay(const RRMesh::TangentBasis& _basisSkewedNormalized, const RRMesh::TangentBasis& _basisOrthonormal, unsigned _skipTriangleIndex)
+	void shotRay(const RRVec3& _rayOrigin, const RRMesh::TangentBasis& _basisSkewedNormalized, const RRMesh::TangentBasis& _basisOrthonormal, unsigned _skipTriangleIndex)
 	{
+		ray.rayOrigin = _rayOrigin;
+
 		// random exit dir
 		// use orthonormal basis (so that probabilities of exit directions are correct)
 		// don't use _basisSkewedNormalized, because it's not orthonormal, it's made for compatibility with UE3
 		RRVec3 dir = getRandomEnterDirNormalized(fillerDir,_basisOrthonormal);
 
 		// prepare for approximate measurement of hit distance (if it is not changed = no hit)
-		pti.rays[0].hitDistance = 1e10f;
+		ray.hitDistance = 1e10f;
 
 		// gather 1 ray
-		RRVec3 irrad = gatherer.gatherPhysicalExitance(pti.rays[0].rayOrigin,dir,_skipTriangleIndex,RRVec3(1),2);
+		RRVec3 irrad = gatherer.gatherPhysicalExitance(ray.rayOrigin,dir,_skipTriangleIndex,RRVec3(1),2);
 		//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
 		if (!pti.context.gatherAllDirections)
 		{
@@ -243,7 +246,7 @@ public:
 		bentNormalHemisphere += dir * irrad.abs().avg();
 		hitsScene++;
 		hitsReliable++;
-		if (pti.rays[0].hitDistance>pti.context.params->aoSize)
+		if (ray.hitDistance>pti.context.params->aoSize)
 			hitsDistant++;
 	}
 
@@ -284,6 +287,7 @@ public:
 		//RR_ASSERT(irradiancePhysicalHemisphere[0]>=0 && irradiancePhysicalHemisphere[1]>=0 && irradiancePhysicalHemisphere[2]>=0); may be negative by rounding error
 	}
 
+	RRRay ray; // aligned, better keep it first in structure
 	RRVec3 irradiancePhysicalHemisphere[NUM_LIGHTMAPS];
 	RRVec3 bentNormalHemisphere;
 	RRReal reliabilityHemisphere;
@@ -478,7 +482,8 @@ public:
 		reliabilityLights = 0;
 		rounds = (pti.context.params->applyLights && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
 		rays = numRelevantLights*rounds;
-		pti.rays[1].hitObject = pti.context.solver->getMultiObjectPhysical();
+		ray.hitObject = pti.context.solver->getMultiObjectPhysical();
+		ray.rayLengthMin = pti.rayLengthMin;
 	}
 
 	// before shooting
@@ -501,9 +506,8 @@ public:
 	void shotRay(const RRLight* _light, const RRMesh::TangentBasis& _basisSkewedNormalized)
 	{
 		if (!_light) return;
-		RRRay* ray = &pti.rays[1];
 		// set dir to light
-		RRVec3 dir = (_light->type==RRLight::DIRECTIONAL)?-_light->direction:(_light->position-ray->rayOrigin);
+		RRVec3 dir = (_light->type==RRLight::DIRECTIONAL)?-_light->direction:(_light->position-ray.rayOrigin);
 		RRReal dirsize = dir.length();
 		dir /= dirsize;
 		if (_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
@@ -519,17 +523,17 @@ public:
 		else
 		{
 			// intesect scene
-			ray->rayDir = dir;
-			ray->rayLengthMax = dirsize;
-			ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // triangle+2d is only for point materials
-			//ray->hitObject = already set in ctor
-			ray->collisionHandler = &collisionHandlerGatherLight;
+			ray.rayDir = dir;
+			ray.rayLengthMax = dirsize;
+			ray.rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // triangle+2d is only for point materials
+			//ray.hitObject = already set in ctor
+			ray.collisionHandler = &collisionHandlerGatherLight;
 			collisionHandlerGatherLight.light = _light;
-			if (!_light->castShadows || !tools.collider->intersect(ray))
+			if (!_light->castShadows || !tools.collider->intersect(&ray))
 			{
 				// direct visibility found (at least partial), add irradiance from light
 				// !_light->castShadows -> direct visibility guaranteed even without raycast
-				RRVec3 irrad = _light->getIrradiance(ray->rayOrigin,tools.scaler);
+				RRVec3 irrad = _light->getIrradiance(ray.rayOrigin,tools.scaler);
 				RR_ASSERT(IS_VEC3(irrad)); // getIrradiance() must return finite number
 				if (_light->castShadows)
 				{
@@ -578,7 +582,7 @@ public:
 				hitsUnreliable++;
 			}
 			else
-			if (ray->hitDistance<pti.context.params->rugDistance)
+			if (ray.hitDistance<pti.context.params->rugDistance)
 			{
 				// no visibility, ray hit rug, very close object -> unreliable
 				hitsRug++;
@@ -595,8 +599,9 @@ public:
 
 	// 1 ray per light
 	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
-	void shotRayPerLight(const RRMesh::TangentBasis& _basisSkewedNormalized, unsigned _skipTriangleIndex)
+	void shotRayPerLight(const RRVec3& _rayOrigin, const RRMesh::TangentBasis& _basisSkewedNormalized, unsigned _skipTriangleIndex)
 	{
+		ray.rayOrigin = _rayOrigin;
 		collisionHandlerGatherLight.setShooterTriangle(_skipTriangleIndex);
 		for (unsigned i=0;i<numRelevantLights;i++)
 			shotRay(pti.relevantLights[i],_basisSkewedNormalized);
@@ -643,6 +648,7 @@ public:
 		return numRelevantLights;
 	}
 
+	RRRay ray; // aligned, better keep it first in structure
 	RRVec3 irradiancePhysicalLights[NUM_LIGHTMAPS];
 	RRVec3 bentNormalLights;
 	RRReal reliabilityLights;
@@ -675,11 +681,6 @@ protected:
 //   if tc->pixelBuffer is not set, physical scale irradiance is returned
 ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 {
-	RRRay rays[2];
-	rays[0].rayLengthMin = pti.rayLengthMin;
-	rays[1].rayLengthMin = pti.rayLengthMin;
-	const_cast<ProcessTexelParams*>(&pti)->rays = rays;
-
 	if (!pti.context.solver || !pti.context.solver->getMultiObjectCustom() || !pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		RRReporter::report(WARN,"processTexel: Empty scene.\n");
@@ -810,7 +811,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			RRVec2 uvInTriangleSpace = subTexel->uvInTriangleSpace[0] + (subTexel->uvInTriangleSpace[1]-subTexel->uvInTriangleSpace[0])*(u/(RRReal)RAND_MAX) + (subTexel->uvInTriangleSpace[2]-subTexel->uvInTriangleSpace[0])*(v/(RRReal)RAND_MAX);
 
 			// shooter 3d pos, norm
-			pti.rays[1].rayOrigin = pti.rays[0].rayOrigin = cache_tb.vertex0 + cache_tb.side1*uvInTriangleSpace[0] + cache_tb.side2*uvInTriangleSpace[1];
+			RRVec3 rayOrigin = cache_tb.vertex0 + cache_tb.side1*uvInTriangleSpace[0] + cache_tb.side2*uvInTriangleSpace[1];
 
 
 			/////////////////////////////////////////////////////////////////
@@ -824,7 +825,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 					|| seriesNumHemisphereShootersShot*(seriesNumShootersTotal-1)<hemisphere.rays*seriesShooterNum) // shooting both, sometimes hemisphere
 				{
 					seriesNumHemisphereShootersShot++;
-					hemisphere.shotRay(cache_basis_skewed_normalized,cache_basis_orthonormal,subTexel->multiObjPostImportTriIndex);
+					hemisphere.shotRay(rayOrigin,cache_basis_skewed_normalized,cache_basis_orthonormal,subTexel->multiObjPostImportTriIndex);
 				}
 			}
 			
@@ -840,7 +841,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 					|| seriesNumGilightsShootersShot*(seriesNumShootersTotal-1)<gilights.rounds*seriesShooterNum) // shooting both, sometimes into lights
 				{
 					seriesNumGilightsShootersShot++;
-					gilights.shotRayPerLight(cache_basis_skewed_normalized,subTexel->multiObjPostImportTriIndex);
+					gilights.shotRayPerLight(rayOrigin,cache_basis_skewed_normalized,subTexel->multiObjPostImportTriIndex);
 				}
 			}
 		}
