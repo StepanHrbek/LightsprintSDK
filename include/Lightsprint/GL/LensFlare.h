@@ -73,6 +73,7 @@ protected:
 	enum {NUM_PRIMARY_MAPS=3,NUM_SECONDARY_MAPS=3};
 	rr::RRBuffer* primaryMap[NUM_PRIMARY_MAPS];
 	rr::RRBuffer* secondaryMap[NUM_SECONDARY_MAPS];
+	bool colorizeSecondaryMap[NUM_SECONDARY_MAPS];
 	rr::RRRay* ray;
 	class CollisionHandlerTransparency* collisionHandlerTransparency;
 };
