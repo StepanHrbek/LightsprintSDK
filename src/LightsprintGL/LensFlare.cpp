@@ -55,7 +55,21 @@ LensFlare::LensFlare(const char* pathToShaders, const char* prefix)
 	for (unsigned i=0;i<NUM_PRIMARY_MAPS;i++)
 		primaryMap[i] = rr::RRBuffer::load(tmpstr("%s../maps/%sflare_prim%d.png",pathToShaders,prefix?prefix:"",i+1));
 	for (unsigned i=0;i<NUM_SECONDARY_MAPS;i++)
+	{
 		secondaryMap[i] = rr::RRBuffer::load(tmpstr("%s../maps/%sflare_sec%d.png",pathToShaders,prefix?prefix:"",i+1));
+		// is it mostly grayscale? we will colorize it in renderLensFlare() only if it is mostly gray
+		if (secondaryMap[i])
+		{
+			float sum = 0;
+			unsigned numElements = secondaryMap[i]->getNumElements();
+			for (unsigned j=0;j<numElements;j++)
+			{
+				rr::RRVec3 color = secondaryMap[i]->getElement(j);
+				sum += abs(color[0]-color[1])+abs(color[1]-color[2])+abs(color[2]-color[0]);
+			}
+			colorizeSecondaryMap[i] = sum/numElements>0.01f;
+		}
+	}
 	ray = rr::RRRay::create();
 	collisionHandlerTransparency = new CollisionHandlerTransparency;
 	ray->collisionHandler = collisionHandlerTransparency;
@@ -97,7 +111,8 @@ void LensFlare::renderLensFlare(float _flareSize, unsigned _flareId, TextureRend
 		size = baseSize * (float)(1+(rand()%5));
 		center -= _lightPositionInWindow*(rand()*2.0f/RAND_MAX);
 		topleft = center-size/2;
-		_textureRenderer->render2D(getTexture(secondaryMap[rand()%NUM_SECONDARY_MAPS]),&color,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
+		unsigned mapIndex = rand()%NUM_SECONDARY_MAPS;
+		_textureRenderer->render2D(getTexture(secondaryMap[mapIndex]),colorizeSecondaryMap[mapIndex]?&color:NULL,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
 	}
 
 	// cleanup
