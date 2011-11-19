@@ -115,73 +115,73 @@ void serialize(Archive & ar, rr::RRDynamicSolver::FilteringParameters& a, const 
 template<class Archive>
 void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
 {
-	ar & make_nvp("pos",a.getPosition());
-	ar & make_nvp("angle",a.getYawPitchRollRad()[0]);
-	ar & make_nvp("leanAngle",a.getYawPitchRollRad()[2]);
-	ar & make_nvp("angleX",a.getYawPitchRollRad()[1]);
-	{
-		float aspect = a.getAspect();
-		ar & make_nvp("aspect",aspect);
-	}
-	{
-		float fieldOfViewVerticalDeg = a.getFieldOfViewVerticalDeg();
-		ar & make_nvp("fieldOfViewVerticalDeg",fieldOfViewVerticalDeg);
-	}
-	{
-		float anear = a.getNear();
-		ar & make_nvp("near",anear);
-	}
-	{
-		float afar = a.getFar();
-		ar & make_nvp("far",afar);
-	}
-	ar & make_nvp("orthogonal",a.orthogonal);
-	ar & make_nvp("orthoSize",a.orthoSize);
-	ar & make_nvp("screenCenter",a.screenCenter);
-	ar & make_nvp("dir",a.dir);
+	rr::RRVec3 position = a.getPosition();
+	rr::RRVec3 yawPitchRollRad = a.getYawPitchRollRad();
+	bool orthogonal = a.isOrthogonal();
+	float aspect = a.getAspect();
+	float fieldOfViewVerticalDeg = a.getFieldOfViewVerticalDeg();
+	float anear = a.getNear();
+	float afar = a.getFar();
+	float orthoSize = a.getOrthoSize();
+	rr::RRVec2 screenCenter = a.getScreenCenter();
+	rr::RRVec3 direction = a.getDirection();
+
+	ar & make_nvp("pos",position);
+	ar & make_nvp("angle",yawPitchRollRad[0]);
+	ar & make_nvp("leanAngle",yawPitchRollRad[2]);
+	ar & make_nvp("angleX",yawPitchRollRad[1]);
+	ar & make_nvp("aspect",aspect);
+	ar & make_nvp("fieldOfViewVerticalDeg",fieldOfViewVerticalDeg);
+	ar & make_nvp("near",anear);
+	ar & make_nvp("far",afar);
+	ar & make_nvp("orthogonal",orthogonal);
+	ar & make_nvp("orthoSize",orthoSize);
+	ar & make_nvp("screenCenter",screenCenter);
+	ar & make_nvp("dir",direction);
 }
 
 template<class Archive>
 void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 {
-	ar & make_nvp("pos",a.pos);
-	ar & make_nvp("angle",a.yawPitchRollRad[0]);
-	if (version<2)
-		a.yawPitchRollRad[0] += RR_PI;
-	ar & make_nvp("leanAngle",a.yawPitchRollRad[2]);
-	ar & make_nvp("angleX",a.yawPitchRollRad[1]);
-	{
-		float aspect;
-		ar & make_nvp("aspect",aspect);
-		a.setAspect(aspect);
-	}
-	{
-		float fieldOfViewVerticalDeg;
-		ar & make_nvp("fieldOfViewVerticalDeg",fieldOfViewVerticalDeg);
-		a.setFieldOfViewVerticalDeg(fieldOfViewVerticalDeg);
-	}
-	{
-		float anear;
-		ar & make_nvp("near",anear);
-		a.setNear(anear);
-	}
-	{
-		float afar;
-		ar & make_nvp("far",afar);
-		a.setFar(afar);
-	}
-	ar & make_nvp("orthogonal",a.orthogonal);
-	ar & make_nvp("orthoSize",a.orthoSize);
-	if (a.orthoSize<=0)
-		a.orthoSize = 100; // cameras used to be initialized with orthoSize=0, fix it
+	rr::RRVec3 position;
+	rr::RRVec3 yawPitchRollRad;
+	bool orthogonal;
+	float aspect;
+	float fieldOfViewVerticalDeg;
+	float anear;
+	float afar;
+	float orthoSize;
+	rr::RRVec2 screenCenter(0);
+	bool updateDirFromAngles = true;
+	rr::RRVec3 direction;
+
+	ar & make_nvp("pos",position);
+	ar & make_nvp("angle",yawPitchRollRad[0]);
+	ar & make_nvp("leanAngle",yawPitchRollRad[2]);
+	ar & make_nvp("angleX",yawPitchRollRad[1]);
+	ar & make_nvp("aspect",aspect);
+	ar & make_nvp("fieldOfViewVerticalDeg",fieldOfViewVerticalDeg);
+	ar & make_nvp("near",anear);
+	ar & make_nvp("far",afar);
+	ar & make_nvp("orthogonal",orthogonal);
+	ar & make_nvp("orthoSize",orthoSize);
 	if (version>0)
-		ar & make_nvp("screenCenter",a.screenCenter);
+		ar & make_nvp("screenCenter",screenCenter);
 	if (version<2)
-	{
-		bool updateDirFromAngles;
 		ar & make_nvp("updateDirFromAngles",updateDirFromAngles);
-	}
-	ar & make_nvp("dir",a.dir);
+	ar & make_nvp("dir",direction);
+
+	if (version<2)
+		yawPitchRollRad[0] += RR_PI;
+	if (orthoSize<=0)
+		orthoSize = 100; // cameras used to be initialized with orthoSize=0, fix it
+
+	new(&a) rr::RRCamera(position,yawPitchRollRad,aspect,fieldOfViewVerticalDeg,anear,afar);
+	a.setOrthogonal(orthogonal);
+	a.setOrthoSize(orthoSize);
+	a.setScreenCenter(screenCenter);
+	if (!updateDirFromAngles)
+		a.setDirection(direction);
 }
 
 //------------------------------ wxString -----------------------------------

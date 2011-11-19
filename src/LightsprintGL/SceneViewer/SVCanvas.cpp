@@ -935,8 +935,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
 			rr::RRMatrix3x4 rotation;
 			//if (event.ShiftDown()) rotation = rr::RRMatrix3x4::scale(rr::RRVec3(expf(dragX))); else
-			//if (event.AltDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.dir,dragX*5); else
-			//if (event.ControlDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.up,dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.right,dragY*5); else
+			//if (event.AltDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getDirection(),dragX*5); else
+			//if (event.ControlDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getUp(),dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),dragY*5); else
 			if (event.ControlDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(1,0,0),-dragX*5); else
 			if (event.ShiftDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),-dragX*5); else
 			if (event.AltDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,0,1),-dragX*5); else
