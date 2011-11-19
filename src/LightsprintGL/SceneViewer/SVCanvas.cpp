@@ -1568,7 +1568,7 @@ rendered:
 			{
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				textureRenderer->render2D(getTexture(vignetteImage,false,false),NULL,0,0,1,1);
+				textureRenderer->render2D(getTexture(vignetteImage,false,false),NULL,1,0,0,1,1);
 				glDisable(GL_BLEND);
 			}
 		}
@@ -1590,7 +1590,7 @@ rendered:
 					float h = logoImage->getHeight()/(float)winHeight;
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					textureRenderer->render2D(getTexture(logoImage,false,false),NULL,1-w,1-h,w,h);
+					textureRenderer->render2D(getTexture(logoImage,false,false),NULL,1,1-w,1-h,w,h);
 					glDisable(GL_BLEND);
 				}
 			}
@@ -2071,7 +2071,7 @@ rendered:
 			}
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			textureRenderer->render2D(getTexture(helpImage,false,false),NULL,(1-w)*0.5f,(1-h)*0.5f,w,h);
+			textureRenderer->render2D(getTexture(helpImage,false,false),NULL,1,(1-w)*0.5f,(1-h)*0.5f,w,h);
 			glDisable(GL_BLEND);
 		}
 	}

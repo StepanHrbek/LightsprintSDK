@@ -3,9 +3,11 @@
 //
 // Options:
 // #define TEXTURE
+// #define GAMMA
 // #define SHOW_ALPHA0
 
 uniform vec4 color;
+uniform float gamma;
 
 #ifdef TEXTURE
 	uniform sampler2D map;
@@ -53,9 +55,16 @@ void main()
 #endif
 #endif
 
-	gl_FragColor = color
+	gl_FragColor =
+#ifdef GAMMA
+		pow(
+#endif
+		color
 #ifdef TEXTURE
 		* tex
+#endif
+#ifdef GAMMA
+		,vec4(gamma,gamma,gamma,1))
 #endif
 		;
 }

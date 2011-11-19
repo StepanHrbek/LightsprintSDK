@@ -101,7 +101,7 @@ void LensFlare::renderLensFlare(float _flareSize, unsigned _flareId, TextureRend
 	rr::RRVec2 size = baseSize * 6;
 	rr::RRVec2 center = _lightPositionInWindow;
 	rr::RRVec2 topleft = center-size/2;
-	_textureRenderer->render2D(getTexture(primaryMap[rand()%NUM_PRIMARY_MAPS]),NULL,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
+	_textureRenderer->render2D(getTexture(primaryMap[rand()%NUM_PRIMARY_MAPS]),NULL,1,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
 
 	unsigned numSecondaryFlares = rand()%10;
 	for (unsigned i=0;i<numSecondaryFlares;i++)
@@ -112,7 +112,7 @@ void LensFlare::renderLensFlare(float _flareSize, unsigned _flareId, TextureRend
 		center -= _lightPositionInWindow*(rand()*2.0f/RAND_MAX);
 		topleft = center-size/2;
 		unsigned mapIndex = rand()%NUM_SECONDARY_MAPS;
-		_textureRenderer->render2D(getTexture(secondaryMap[mapIndex]),colorizeSecondaryMap[mapIndex]?&color:NULL,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
+		_textureRenderer->render2D(getTexture(secondaryMap[mapIndex]),colorizeSecondaryMap[mapIndex]?&color:NULL,1,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
 	}
 
 	// cleanup

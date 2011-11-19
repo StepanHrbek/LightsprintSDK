@@ -60,7 +60,7 @@ void ToneMapping::adjustOperator(TextureRenderer* textureRenderer, rr::RRReal se
 	FBO oldFBOState = FBO::getState();
 	FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallTexture);
 	glViewport(0,0,swidth,sheight);
-	textureRenderer->render2D(bigTexture,NULL,0,0,1,1);
+	textureRenderer->render2D(bigTexture,NULL,1,0,0,1,1);
 	glReadPixels(0,0,swidth,sheight,GL_RGB,GL_UNSIGNED_BYTE,buf);
 	oldFBOState.restore();
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);

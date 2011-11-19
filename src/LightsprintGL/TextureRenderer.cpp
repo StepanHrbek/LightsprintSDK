@@ -38,10 +38,15 @@ TextureRenderer::TextureRenderer(const char* pathToShaders)
 			if (!skyProgram[projection][scaled])
 				rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %ssky.*\n",pathToShaders);
 		}
-	twodProgram = Program::create("#define TEXTURE\n",
-		tmpstr("%stexture.vs",pathToShaders),
-		tmpstr("%stexture.fs",pathToShaders));
-	if (!twodProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %stexture.*\n",pathToShaders);
+	for (unsigned gamma=0;gamma<2;gamma++)
+	{
+		twodProgram[gamma] = Program::create(
+			tmpstr("#define TEXTURE\n%s",gamma?"#define GAMMA\n":""),
+			tmpstr("%stexture.vs",pathToShaders),
+			tmpstr("%stexture.fs",pathToShaders));
+		if (!twodProgram[gamma])
+			rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %stexture.*\n",pathToShaders);
+	}
 	oldCamera = NULL;
 }
 
@@ -50,7 +55,8 @@ TextureRenderer::~TextureRenderer()
 	for (unsigned projection=0;projection<2;projection++)
 		for (unsigned scaled=0;scaled<2;scaled++)
 			delete skyProgram[projection][scaled];
-	delete twodProgram;
+	for (unsigned gamma=0;gamma<2;gamma++)
+		delete twodProgram[gamma];
 }
 
 bool TextureRenderer::renderEnvironment(const Texture* _texture, const rr::RRVec3& _brightness, float _gamma)
@@ -143,13 +149,14 @@ bool TextureRenderer::renderEnvironment(const Texture* _texture0, const Texture*
 	return result;
 };
 
-bool TextureRenderer::render2dBegin(const rr::RRVec4* color)
+bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma)
 {
 	// backup render states
 	culling = glIsEnabled(GL_CULL_FACE);
 	depthTest = glIsEnabled(GL_DEPTH_TEST);
 	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
-	if (!twodProgram)
+	Program* program = twodProgram[gamma!=1];
+	if (!program)
 	{
 		RR_ASSERT(0);
 		return false;
@@ -158,10 +165,12 @@ bool TextureRenderer::render2dBegin(const rr::RRVec4* color)
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(0);
 	// render 2d
-	twodProgram->useIt();
+	program->useIt();
 	glActiveTexture(GL_TEXTURE0);
-	twodProgram->sendUniform("map",0);
-	twodProgram->sendUniform("color",color?*color:rr::RRVec4(1));
+	program->sendUniform("map",0);
+	program->sendUniform("color",color?*color:rr::RRVec4(1));
+	if (gamma!=1)
+		program->sendUniform("gamma",gamma);
 	return true;
 }
 
@@ -192,9 +201,9 @@ void TextureRenderer::render2dEnd()
 	if (culling) glEnable(GL_CULL_FACE);
 }
 
-void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, float x,float y,float w,float h)
+void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h)
 {
-	if (render2dBegin(color))
+	if (render2dBegin(color,gamma))
 	{
 		render2dQuad(texture,x,y,w,h);
 		render2dEnd();

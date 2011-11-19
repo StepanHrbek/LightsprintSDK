@@ -52,7 +52,7 @@ FpsDisplay::FpsDisplay(const char* pathToMaps)
 
 void FpsDisplay::render(rr_gl::TextureRenderer* textureRenderer, unsigned fpsToRender, int winWidth, int winHeight)
 {
-	if (textureRenderer && textureRenderer->render2dBegin(NULL))
+	if (textureRenderer && textureRenderer->render2dBegin(NULL,1))
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

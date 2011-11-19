@@ -20,6 +20,7 @@ NEWS
   - improved Quake3 .bsp import, reads curved surfaces too
 - "RRRay ray;" is now accepted code, previously you had to allocate all rays from heap
 - RRCollider::getDistancesFromPoint() and RRCollider::getDistancesFromCamera() added
+- rr_gl::TextureRenderer supports user defined gamma, one parameter added
 
 CHANGES
 

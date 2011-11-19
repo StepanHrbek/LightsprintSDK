@@ -49,10 +49,10 @@ public:
 	//! \n render2D() internally calls render2dBegin() + render2dQuad() + render2dEnd().
 	//! For rendering N textures, it's possible to simply call render2D() N times,
 	//! but render2dBegin() + N*render2dQuad() + render2dEnd() is slightly faster.
-	void render2D(const Texture* texture, const rr::RRVec4* color, float x,float y,float w,float h);
+	void render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h);
 
 	//! Component of render2D(), initializes pipeline.
-	bool render2dBegin(const rr::RRVec4* color);
+	bool render2dBegin(const rr::RRVec4* color, float gamma);
 	//! Component of render2D(), renders textured quad. May be called multiple times between render2dBegin() and render2dEnd().
 	void render2dQuad(const Texture* texture, float x,float y,float w,float h);
 	//! Component of render2D(), restores pipeline.
@@ -62,7 +62,7 @@ private:
 	bool renderEnvironment(const Texture* texture, const rr::RRVec3& brightness, float gamma);
 
 	class Program* skyProgram[2][2]; // [projection][scaled]
-	class Program *twodProgram;
+	class Program *twodProgram[2]; // [gamma]
 	unsigned char culling;
 	unsigned char depthTest;
 	unsigned char depthMask;
