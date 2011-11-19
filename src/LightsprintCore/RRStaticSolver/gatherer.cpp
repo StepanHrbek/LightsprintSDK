@@ -12,12 +12,11 @@ namespace rr
 
 extern RRVec3 refract(RRVec3 N,RRVec3 I,real r);
 
-Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, bool _gatherDirectEmitors, bool _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
+Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, bool _gatherDirectEmitors, bool _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
 	: collisionHandlerGatherHemisphere(_multiObject,_staticSolver,_quality,_staticSceneContainsLods)
 {
-	ray = _ray;
-	ray->collisionHandler = &collisionHandlerGatherHemisphere;
-	ray->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
+	ray.collisionHandler = &collisionHandlerGatherHemisphere;
+	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	environment = _environment;
 	scaler = _scaler;
 	gatherDirectEmitors = _gatherDirectEmitors;
@@ -27,7 +26,7 @@ Gatherer::Gatherer(RRRay* _ray, const RRObject* _multiObject, const RRStaticSolv
 	collider = object->getCollider();
 	triangle = _object->triangle;
 	triangles = _object->triangles;
-	ray->hitObject = object;
+	ray.hitObject = object;
 
 	// final gather in lightmap does this per-pixel, rather than per-thread
 	//  so at very low quality, lightmaps are biased smooth rather than unbiased noisy
@@ -46,11 +45,11 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		RR_ASSERT(0);
 		return Channels(0);
 	}
-	ray->rayOrigin = eye;
-	ray->rayDir = direction;
-	//ray->hitObject = already set in ctor
+	ray.rayOrigin = eye;
+	ray.rayDir = direction;
+	//ray.hitObject = already set in ctor
 	collisionHandlerGatherHemisphere.setShooterTriangle(skipTriangleIndex);
-	if (!collider->intersect(ray))
+	if (!collider->intersect(&ray))
 	{
 		// ray left scene
 		if (environment)
@@ -63,10 +62,10 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 	}
 
 	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
-	RR_ASSERT(IS_NUMBER(ray->hitDistance));
-	Triangle* hitTriangle = &triangle[ray->hitTriangle];
+	RR_ASSERT(IS_NUMBER(ray.hitDistance));
+	Triangle* hitTriangle = &triangle[ray.hitTriangle];
 	const RRMaterial* material = collisionHandlerGatherHemisphere.getContactMaterial(); // could be point detail, unlike hitTriangle->surface 
-	RRSideBits side=material->sideBits[ray->hitFrontSide?0:1];
+	RRSideBits side=material->sideBits[ray.hitFrontSide?0:1];
 	Channels exitance = Channels(0);
 	if (side.legal && (side.catchFrom || side.emitTo))
 	{
@@ -87,7 +86,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			if (specularReflect)
 			{
 				// calculate new direction after ideal mirror reflection
-				specularReflectDir = RRVec3(ray->hitPlane)*(-2*dot(direction,RRVec3(ray->hitPlane))/size2(RRVec3(ray->hitPlane)))+direction;
+				specularReflectDir = RRVec3(ray.hitPlane)*(-2*dot(direction,RRVec3(ray.hitPlane))/size2(RRVec3(ray.hitPlane)))+direction;
 			}
 		}
 		if (side.transmitFrom)
@@ -98,20 +97,20 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			if (specularTransmit)
 			{
 				// calculate new direction after refraction
-				specularTransmitDir = -refract(ray->hitPlane,direction,material->refractionIndex);
+				specularTransmitDir = -refract(ray.hitPlane,direction,material->refractionIndex);
 			}
 		}
-		RRVec3 hitPoint3d=eye+direction*ray->hitDistance;
+		RRVec3 hitPoint3d=eye+direction*ray.hitDistance;
 
 		// copy remaining ray+material data to local stack
-		unsigned rayHitTriangle = ray->hitTriangle;
+		unsigned rayHitTriangle = ray.hitTriangle;
 
 		// diffuse reflection + emission
 		if (side.emitTo)
 		{
 			// we emit everything to both sides of 2sided face, thus doubling energy
 			// this may be changed later
-			//float splitToTwoSides = material->sideBits[ray->hitFrontSide?1:0].emitTo ? 0.5f : 1;
+			//float splitToTwoSides = material->sideBits[ray.hitFrontSide?1:0].emitTo ? 0.5f : 1;
 
 			// diffuse emission
 			if (gatherDirectEmitors)

@@ -145,15 +145,13 @@ class Gatherer
 {
 public:
 	// Initializes helper structures for gather().
-	//! \param ray
-	//!  rayLengthMin and rayLengthMax are inputs, other attributes are changed.
 	//! \param gatherDirectEmitors
 	//!  Gather direct exitance from emitors (stored in material).
 	//! \param gatherIndirectLight
 	//!  Gather indirect exitance (stored in static solver). May include indirect light computed from direct realtime lights, direct emitors, rrlights, env.
 	//! \param quality
 	//!  Desired illumination quality, used to enable/disable point materials.
-	Gatherer(RRRay* ray, const RRObject* multiObject, const RRStaticSolver* staticSolver, const RRBuffer* environment, const RRScaler* scaler, bool gatherDirectEmitors, bool gatherIndirectLight, bool staticSceneContainsLods, unsigned quality);
+	Gatherer(const RRObject* multiObject, const RRStaticSolver* staticSolver, const RRBuffer* environment, const RRScaler* scaler, bool gatherDirectEmitors, bool gatherIndirectLight, bool staticSceneContainsLods, unsigned quality);
 
 	//! Returns color visible in given direction, in physical scale, multiplied by visibility.
 	//
@@ -165,9 +163,9 @@ public:
 	//!  Unused.
 	RRVec3 gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, unsigned skipTriangleNumber, RRVec3 visibility, unsigned numBounces);
 
-protected:
 	// helper structures
-	RRRay* ray;
+	RRRay ray; // aligned, better keep it first
+protected:
 	RRCollisionHandlerGatherHemisphere collisionHandlerGatherHemisphere;
 	RRObject* object;
 	const RRCollider* collider;

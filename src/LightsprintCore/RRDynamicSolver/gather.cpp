@@ -157,7 +157,6 @@ public:
 		tools(_tools),
 		pti(_pti),
 		gatherer(
-			&ray,
 			_pti.context.solver->getMultiObjectPhysical(), // multiObjectPhysical is used because collisionHandler reads point details and gatherer reuses them
 			_pti.context.solver->priv->scene,
 			_tools.environment,
@@ -174,7 +173,7 @@ public:
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
 		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.gatherDirectEmitors) ? RR_MAX(1,pti.context.params->quality) : 0;
-		ray.rayLengthMin = pti.rayLengthMin;
+		gatherer.ray.rayLengthMin = pti.rayLengthMin;
 	}
 
 	// once before shooting (full init)
@@ -197,7 +196,7 @@ public:
 		maxSingleRayContribution = 0; // max sum of all irradiance components in physical scale
 		// init ray
 		//pti.rays[0].rayLengthMin = 0; // Our caller already set rayLengthMin to nice small value, keep it. Small bias is important for UE3 terrain segments that overlap. 0 would be better only if triangles don't overlap.
-		ray.rayLengthMax = pti.context.params->locality;
+		gatherer.ray.rayLengthMax = pti.context.params->locality;
 	}
 
 	// 1 ray
@@ -206,7 +205,7 @@ public:
 	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
 	void shotRay(const RRVec3& _rayOrigin, const RRMesh::TangentBasis& _basisSkewedNormalized, const RRMesh::TangentBasis& _basisOrthonormal, unsigned _skipTriangleIndex)
 	{
-		ray.rayOrigin = _rayOrigin;
+		gatherer.ray.rayOrigin = _rayOrigin;
 
 		// random exit dir
 		// use orthonormal basis (so that probabilities of exit directions are correct)
@@ -214,10 +213,10 @@ public:
 		RRVec3 dir = getRandomEnterDirNormalized(fillerDir,_basisOrthonormal);
 
 		// prepare for approximate measurement of hit distance (if it is not changed = no hit)
-		ray.hitDistance = 1e10f;
+		gatherer.ray.hitDistance = 1e10f;
 
 		// gather 1 ray
-		RRVec3 irrad = gatherer.gatherPhysicalExitance(ray.rayOrigin,dir,_skipTriangleIndex,RRVec3(1),2);
+		RRVec3 irrad = gatherer.gatherPhysicalExitance(gatherer.ray.rayOrigin,dir,_skipTriangleIndex,RRVec3(1),2);
 		//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
 		if (!pti.context.gatherAllDirections)
 		{
@@ -246,7 +245,7 @@ public:
 		bentNormalHemisphere += dir * irrad.abs().avg();
 		hitsScene++;
 		hitsReliable++;
-		if (ray.hitDistance>pti.context.params->aoSize)
+		if (gatherer.ray.hitDistance>pti.context.params->aoSize)
 			hitsDistant++;
 	}
 
@@ -287,7 +286,6 @@ public:
 		//RR_ASSERT(irradiancePhysicalHemisphere[0]>=0 && irradiancePhysicalHemisphere[1]>=0 && irradiancePhysicalHemisphere[2]>=0); may be negative by rounding error
 	}
 
-	RRRay ray; // aligned, better keep it first in structure
 	RRVec3 irradiancePhysicalHemisphere[NUM_LIGHTMAPS];
 	RRVec3 bentNormalHemisphere;
 	RRReal reliabilityHemisphere;
@@ -445,7 +443,7 @@ class GatheredIrradianceLights
 public:
 	// once before shooting
 	// inputs:
-	//  - pti.ray[1]
+	//  - pti.rayLengthMin
 	//  - ...
 	GatheredIrradianceLights(const GatheringTools& _tools, const ProcessTexelParams& _pti)
 		: tools(_tools),
