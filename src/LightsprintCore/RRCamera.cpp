@@ -456,7 +456,14 @@ static Y interpolAkima(unsigned numPoints, const X* x, std::function<Y (int)> y,
 	if (numPoints==1) return y(0);
 	
 	// optimization: handle simple cases for speedup
-	if (numPoints==2) return y(0)+(y(1)-y(0))*(xx-x[0])/(x[1]-x[0]);
+	if (numPoints==2)
+	{
+		Y y0 = y(0);
+		Y y1 = y(1);
+		if (minimizeRotations)
+			minimizeDistanceModulo2PI(y0,y1);
+		return y0+(y1-y0)*(xx-x[0])/(x[1]-x[0]);
+	}
 
 	// find how many points we have before/after
 	unsigned numPointsBeforeXx = 0;
