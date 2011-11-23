@@ -79,6 +79,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 			propGIRaytracedCubesDepthThreshold = new FloatProperty(_("Depth threshold"),_("Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply."),svs.raytracedCubesDepthThreshold,svs.precision,0,1,0.1f,false);
 			AppendIn(propGIRaytracedCubesSpecularRes,propGIRaytracedCubesDepthThreshold);
+
 		}
 
 		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
