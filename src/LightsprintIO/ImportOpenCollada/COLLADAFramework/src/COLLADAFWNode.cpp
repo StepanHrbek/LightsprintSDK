@@ -13,6 +13,7 @@
 #include "COLLADAFWRotate.h"
 #include "COLLADAFWTranslate.h"
 #include "COLLADAFWScale.h"
+#include "COLLADAFWLookat.h"
 #include "COLLADAFWMatrix.h"
 
 #include "Math/COLLADABUMathMatrix4.h"
@@ -79,7 +80,21 @@ namespace COLLADAFW
 					break;
 				}
 			case Transformation::LOOKAT:
-				break; /** @TODO unhandled case */
+				{
+					Lookat* lookat = (Lookat*)transform;
+					COLLADABU::Math::Vector3 eye = lookat->getEyePosition();
+					COLLADABU::Math::Vector3 up = lookat->getUpAxisDirection().normalisedCopy();
+					COLLADABU::Math::Vector3 forward = (lookat->getInterestPointPosition()-eye).normalisedCopy();
+					COLLADABU::Math::Vector3 side = forward.crossProduct(up);
+					up = side.crossProduct(forward);
+					COLLADABU::Math::Matrix4 lookatMatrix(
+						side[0],up[0],-forward[0],eye[0],
+						side[1],up[1],-forward[1],eye[1],
+						side[2],up[2],-forward[2],eye[2],
+						0,0,0,1);
+					transformationMatrix = transformationMatrix * lookatMatrix;
+					break;
+				}
 			case Transformation::SKEW:
 				break; /** @TODO unhandled case */
 			}
