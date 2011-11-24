@@ -237,8 +237,9 @@ void MeshArraysVBOs::render(
 	// set indirect illumination texcoords + map (lightmap or light detail map)
 	if ((_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) || (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
 	{
+		// mipmapping would cause leaks when looking from distance, keep it disabled for both lightmaps and LDMs (leak is visible especially in LDM that is built without spreading colors into unused pixels)
 		// compression would cause 'rainbow noise' typical for 16bit displays, keep it disabled for both lightmaps and LDMs
-		_program->sendTexture("lightIndirectMap",(_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) ? getTexture(_lightIndirectBuffer,true,false) : getTexture(_lightDetailMap,true,false), TEX_CODE_2D_LIGHT_INDIRECT);
+		_program->sendTexture("lightIndirectMap",(_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) ? getTexture(_lightIndirectBuffer,false,false) : getTexture(_lightDetailMap,false,false), TEX_CODE_2D_LIGHT_INDIRECT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
