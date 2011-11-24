@@ -1288,14 +1288,17 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			if (solver->getLights()[i] && solver->getLights()[i]->enabled && solver->getLights()[i]->type==rr::RRLight::SPOT && solver->getLights()[i]->name=="Flashlight")
 			{
 				// eye must already be updated otherwise flashlight will lag one frame
-				solver->getLights()[i]->position = svs.eye.getPosition() + svs.eye.getUp()*svs.cameraMetersPerSecond*0.03f+svs.eye.getRight()*svs.cameraMetersPerSecond*0.03f;
-				solver->getLights()[i]->direction = svs.eye.getDirection();
 				float viewportWidthCovered = 0.9f;
+				rr::RRVec3 newPos = svs.eye.getPosition() + svs.eye.getUp()*svs.cameraMetersPerSecond*0.03f+svs.eye.getRight()*svs.cameraMetersPerSecond*0.03f;
+				rr::RRVec3 newDir = svs.eye.getDirection();
+				solver->realtimeLights[i]->getCamera()->setPosition(newPos);
+				solver->realtimeLights[i]->getCamera()->setDirection(newDir);
 				solver->getLights()[i]->outerAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.6f;
 				solver->getLights()[i]->fallOffAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.4f;
 				solver->realtimeLights[i]->getCamera()->setRange(svs.eye.getNear(),svs.eye.getFar());
 				solver->realtimeLights[i]->updateAfterRRLightChanges(); // sets dirtyRange if pos/dir/fov did change
 				solver->realtimeLights[i]->dirtyRange = false; // clear it, range already is good (dirty range would randomly disappear flashlight, reason unknown)
+				solver->realtimeLights[i]->dirtyShadowmap = true;
 			}
 
 		if (svs.cameraDynamicNear && solver->getMultiObjectCustom() && !svs.eye.isOrthogonal()) // don't change range in ortho, fixed range from setView() is better
