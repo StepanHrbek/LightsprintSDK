@@ -208,6 +208,8 @@ namespace rr_gl
 			case 2:
 			case 4:
 			case 8:
+				if ((numSoftShadowSamples>1) != (_numSamples>1))
+					dirtyShadowmap = true; // SM needs rebuild with different polygon offset
 				numSoftShadowSamples = _numSamples;
 		}
 	}
