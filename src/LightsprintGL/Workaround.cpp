@@ -77,13 +77,6 @@ bool Workaround::needsOneSampleShadowmaps(const rr::RRLight& light)
 
 void Workaround::needsIncreasedBias(float& slopeBias,float& fixedBias,const rr::RRLight& light)
 {
-	// single bias value thet works everywhere would create unnecessarily high bias on modern GPUs
-	// therefore we adjust bias differently for different GPU families
-	init();
-	if (light.type==rr::RRLight::POINT && (s_isFire || s_isRadeon)) // fixes all radeons (with 24 or 32bit depth, not necessary for 16bit), firegl not tested
-		fixedBias *= 15;
-	if (s_isQuadro || (s_isGeforce && (s_modelNumber>=5000 && s_modelNumber<=7999))) // fixes 7100
-		fixedBias *= 256;
 }
 
 bool Workaround::needsDDI4x4()

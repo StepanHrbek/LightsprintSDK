@@ -259,8 +259,10 @@ done:
 				}
 				else
 				{
-					float slopeBias = (light->getNumShadowSamples(i)==1)?1.3f:4.f; // GF220+258.96: 1.2f = shadow acne in 1-sample SM0 in MovingSun, 1.3f = ok
-					float fixedBias = (light->getRRLight().type==rr::RRLight::POINT)?slopeBias*4:slopeBias;
+					// these settings hide all cases of shadow acne at cost of large shadow bias
+					// decrease to reduce bias, while allowing occassional acne
+					float slopeBias = (light->getNumShadowSamples(i)==1)?2.6f:8.f;
+					float fixedBias = slopeBias*500;
 					Workaround::needsIncreasedBias(slopeBias,fixedBias,light->getRRLight());
 					glPolygonOffset(slopeBias,fixedBias);
 					glViewport(0, 0, light->getRRLight().rtShadowmapSize, light->getRRLight().rtShadowmapSize);
