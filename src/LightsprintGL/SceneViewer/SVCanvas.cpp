@@ -1460,17 +1460,17 @@ rendered:
 			// render selected
 			if (!_takingSshot)
 			{
-				wxArrayTreeItemIds selections;
-				if (svframe->m_sceneTree && svframe->m_sceneTree->GetSelections(selections)>0)
+				const EntityIds& selectedEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
+				if (selectedEntityIds.size())
 				{
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 					UberProgramSetup uberProgramSetup;
 					uberProgramSetup.OBJECT_SPACE = true;
 					uberProgramSetup.POSTPROCESS_NORMALS = true;
 					Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
-					for (unsigned i=0;i<selections.size();i++)
+					for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
 					{
-						EntityId entity = svframe->m_sceneTree->itemIdToEntityId(selections[i]);
+						EntityId entity = *i;
 						if (entity.type==ST_OBJECT)
 						{
 							const rr::RRObject* object = solver->getObject(entity.index);
