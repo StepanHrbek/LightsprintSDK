@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news127 ------------------------------------ 2011.10.xx -------------------------------------
+\section news127 ------------------------------------ 2011.11.29 -------------------------------------
 
 NEWS
 
@@ -16,7 +16,7 @@ NEWS
   - Object properties / Rotation
   - imports/exports camera
 - improved import/export
-  - camera support in many formats, including .rr3
+  - camera support in many formats, including .rr3, .dae
   - improved Quake3 .bsp import, reads curved surfaces too
 - "RRRay ray;" is now accepted code, previously you had to allocate all rays from heap
 - RRCollider::getDistancesFromPoint() and RRCollider::getDistancesFromCamera() added
@@ -41,6 +41,7 @@ CHANGES
 - RRMatrix3x4 tweaks
   - added RRMatrix3x4::getColumn() and RRMatrix3x4::getRow()
   - removed RRMatrix3x4::setScale(s), other scaling functions are sufficient
+- increased realtime shadow offset (to solve all known cases of shadow acne)
 
 \section news126 ------------------------------------ 2011.09.06 -------------------------------------
 
