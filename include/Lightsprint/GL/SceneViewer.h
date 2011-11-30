@@ -170,7 +170,7 @@ struct SceneViewerState
 		renderBloom = 0;
 		renderLensFlare = 1;
 		lensFlareSize = 5;
-		lensFlareId = 342;
+		lensFlareId = 225;
 		renderVignette = 0;
 		renderHelp = 0;
 		renderLogo = 0;
