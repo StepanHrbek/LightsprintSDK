@@ -9,7 +9,7 @@
 #include "SVCustomProperties.h"
 #include "SVFrame.h" // updateSceneTree()
 
-// for direction presented as altitude+azimuth
+// for sun direction presented as altitude+azimuth
 #define ANGLEX2ALT(pitch) RR_RAD2DEG(-(pitch))
 #define ANGLE2AZI(yaw) fmod(fmod(180-RR_RAD2DEG(yaw),360)+360,360)
 #define ALT2ANGLEX(alt) RR_DEG2RAD(-(alt))
