@@ -24,7 +24,6 @@
 //  mouse = look around
 //  arrows = move around
 //  left button = switch between camera and light
-//  spacebar = toggle realtime vertex ambient and static ambient maps
 //  p = Precompute higher quality static maps + lightfield
 //      alt-tab to console to see progress (takes seconds to minutes)
 //  1/2/3 = toggle realtime / precomputed per-vertex / precomputed per-pixel illumination
@@ -253,7 +252,7 @@ void keyboard(unsigned char c, int x, int y)
 			}
 
 		case 'r':
-			eye.setView(rr::RRCamera::FRONT,solver->getMultiObjectCustom());
+			eye.setView(rr::RRCamera::RANDOM,solver->getMultiObjectCustom());
 			break;
 
 		case 27:
@@ -500,6 +499,25 @@ int main(int argc, char** argv)
 	rrlights.push_back(rrlight);
 	solver->setLights(rrlights);
 	light = solver->realtimeLights[0]->getCamera();
+
+	rr::RRReporter::report(rr::INF2,
+		"\n"
+		"For complete description, see comment at the beginning of sample source code.\n"
+		"\n"
+		"Controls:\n"
+		"  mouse = look around\n"
+		"  arrows = move around\n"
+		"  left button = switch between camera and light\n"
+		"  p = Precompute higher quality static maps + lightfield\n"
+		"  1/2/3 = toggle realtime / precomputed per-vertex / precomputed per-pixel GI\n"
+		"  s = Save maps to disk (alt-tab to console to see filenames)\n"
+		"  l = Load maps from disk, stop realtime global illumination\n"
+		"  +-= change brightness\n"
+		"  */= change contrast\n"
+		"  r = randomize camera\n"
+		"\n"
+		"Realtime GI active, you can press 'p' to precalculate GI, then 1/2/3 to compare modes.\n"
+		"\n");
 
 	glutMainLoop();
 	return 0;

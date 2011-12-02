@@ -8,9 +8,9 @@
 // (use drag&drop or commandline parameter).
 //
 // mouse  = look
-// wsadqz = move
-// arrows = move sun
+// wsadqz = move camera
 // space  = toggle automatic movement of sun and objects
+// arrows = move sun
 //
 // Copyright (C) 2008-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // Sponza atrium model by Marko Dabrovic
@@ -437,6 +437,17 @@ int main(int argc, char** argv)
 #endif
 
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
+
+	rr::RRReporter::report(rr::INF2,
+		"\n"
+		"For complete description, see comment at the beginning of sample source code.\n"
+		"\n"
+		"Controls:\n"
+		" mouse  = look\n"
+		" wsadqz = move camera\n"
+		" space  = toggle automatic movement of sun and objects\n"
+		" arrows = move sun\n"
+		"\n");
 
 	// only longjmp can break us from glut mainloop
 	if (!setjmp(jmp))

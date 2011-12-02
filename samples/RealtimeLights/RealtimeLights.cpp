@@ -15,7 +15,7 @@
 //  left button = switch between camera and light
 //  + - = change brightness
 //  * / = change contrast
-//	wheel = change camera FOV
+//  wheel = change camera FOV
 //  space = randomly move dynamic objects
 //
 // Hint: hold space to see dynamic object occluding light
@@ -407,6 +407,21 @@ int main(int argc, char** argv)
 #endif
 
 	solver->observer = &eye; // solver automatically updates lights that depend on camera
+
+	rr::RRReporter::report(rr::INF2,
+		"\n"
+		"For complete description, see comment at the beginning of sample source code.\n"
+		"\n"
+		"Controls:\n"
+		"  1..9 = switch to n-th light\n"
+		"  arrows = move camera or light\n"
+		"  mouse = rotate camera or light\n"
+		"  left button = switch between camera and light\n"
+		"  + - = change brightness\n"
+		"  * / = change contrast\n"
+		"  wheel = change camera FOV\n"
+		"  space = randomly move dynamic objects\n"
+		"\n");
 
 	// only longjmp can break us from glut mainloop
 	if (!setjmp(jmp))

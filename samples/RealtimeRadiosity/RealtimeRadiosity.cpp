@@ -455,6 +455,16 @@ int main(int argc, char** argv)
 	if (rrlight->rtProjectedTexture)
 		rrlight->rtProjectedTexture->play();
 
+	rr::RRReporter::report(rr::INF2,
+		"\n"
+		"For complete description, see comment at the beginning of sample source code.\n"
+		"\n"
+		"Controls:\n"
+		"  mouse = look around\n"
+		"  arrows = move around\n"
+		"  left button = switch between camera and light\n"
+		"\n");
+
 	glutMainLoop();
 	return 0;
 }
