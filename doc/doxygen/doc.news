@@ -18,8 +18,8 @@ NEWS
 
 CHANGES
 
-- renamed LD_STATIC_LIGHTMAPS -> LD_BAKED
-- renamed LI_STATIC_LIGHTMAPS -> LI_BAKED
+- renamed rr_gl::LD_STATIC_LIGHTMAPS -> rr_gl::LD_BAKED
+- renamed rr_gl::LI_STATIC_LIGHTMAPS -> rr_gl::LI_BAKED
 
 \section news127 ------------------------------------ 2011.11.29 -------------------------------------
 
