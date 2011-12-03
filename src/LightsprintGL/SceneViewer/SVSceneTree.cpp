@@ -386,8 +386,8 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 				menu.Append(CM_OBJECTS_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
 			if (selectedOnlyStaticObjects)
 			{
-				menu.Append(CM_OBJECTS_BUILD_LMAPS,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel requires unwrap."));
-				menu.Append(CM_OBJECTS_BUILD_AMBIENT_MAPS,_("Build ambient maps..."),_("(Re)builds per-vertex or per-pixel ambient maps. Per-pixel requires unwrap."));
+				menu.Append(CM_OBJECTS_BUILD_LMAPS,_("Bake lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel requires unwrap."));
+				menu.Append(CM_OBJECTS_BUILD_AMBIENT_MAPS,_("Bake ambient maps..."),_("(Re)builds per-vertex or per-pixel ambient maps. Per-pixel requires unwrap."));
 				menu.Append(CM_OBJECTS_BUILD_LDMS,_("Build LDMs..."),_("(Re)builds LDMs, layer of additional per-pixel details. LDMs require unwrap."));
 			}
 			if (temporaryContext!=staticObjects && temporaryContextItems.size()==1)
@@ -621,8 +621,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						}
 
 					// make results visible
-					svs.renderLightDirect = ambient?LD_REALTIME:LD_STATIC_LIGHTMAPS;
-					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
+					svs.renderLightDirect = ambient?LD_REALTIME:LD_BAKED;
+					svs.renderLightIndirect = LI_BAKED;
 				}
 			}
 			break;
@@ -676,9 +676,9 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						}
 
 					// make results visible
-					if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
+					if (svs.renderLightDirect==LD_BAKED)
 						svs.renderLightDirect = LD_REALTIME;
-					if (svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)
+					if (svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_BAKED)
 						svs.renderLightIndirect = LI_CONSTANT;
 					svs.renderLDM = true;
 				}

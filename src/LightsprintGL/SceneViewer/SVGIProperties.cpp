@@ -17,8 +17,8 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 {
 	// direct
 	{
-		const wxChar* strings[] = {_("realtime"),_("static lightmap"),_("none"),NULL};
-		const long values[] = {LD_REALTIME,LD_STATIC_LIGHTMAPS,LD_NONE};
+		const wxChar* strings[] = {_("realtime"),_("baked"),_("none"),NULL};
+		const long values[] = {LD_REALTIME,LD_BAKED,LD_NONE};
 		propGIDirect = new wxEnumProperty(_("Direct illumination"),wxPG_LABEL,strings,values);
 		propGIDirect->SetHelpString(_("What direct illumination technique to use."));
 		Append(propGIDirect);
@@ -37,8 +37,8 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 	// indirect
 	{
-		const wxChar* strings[] = {_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("static lightmap"),_("constant ambient"),_("none"),NULL};
-		const long values[] = {LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_STATIC_LIGHTMAPS,LI_CONSTANT,LI_NONE};
+		const wxChar* strings[] = {_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("baked"),_("constant ambient"),_("none"),NULL};
+		const long values[] = {LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_BAKED,LI_CONSTANT,LI_NONE};
 		propGIIndirect = new wxEnumProperty(_("Indirect illumination"),wxPG_LABEL,strings,values);
 		propGIIndirect->SetHelpString(_("What indirect illumination technique to use."));
 		Append(propGIIndirect);
@@ -140,11 +140,11 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGILightmapWrapping = new BoolRefProperty(_("Wrapping"),_("Checked = smoothing works across lightmap boundaries."),svs.lightmapFilteringParameters.wrap);
 		AppendIn(propGILightmap,propGILightmapWrapping);
 
-		propGIBuildLmaps = new ButtonProperty(_("Build lightmaps"),_("Builds or rebuilds lightmaps (global illumination) for selected static objects."),svframe,CM_OBJECTS_BUILD_LMAPS);
+		propGIBuildLmaps = new ButtonProperty(_("Bake lightmaps"),_("Builds or rebuilds lightmaps (global illumination) for selected static objects."),svframe,CM_OBJECTS_BUILD_LMAPS);
 		AppendIn(propGILightmap,propGIBuildLmaps);
 		propGIBuildLmaps->updateImage();
 
-		propGIBuildAmbientMaps = new ButtonProperty(_("Build ambient maps"),_("Builds or rebuilds ambient maps (indirect illumination) for selected static objects."),svframe,CM_OBJECTS_BUILD_AMBIENT_MAPS);
+		propGIBuildAmbientMaps = new ButtonProperty(_("Bake ambient maps"),_("Builds or rebuilds ambient maps (indirect illumination) for selected static objects."),svframe,CM_OBJECTS_BUILD_AMBIENT_MAPS);
 		AppendIn(propGILightmap,propGIBuildAmbientMaps);
 		propGIBuildAmbientMaps->updateImage();
 
@@ -163,7 +163,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 void SVGIProperties::updateHide()
 {
 	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
-	propGILDM->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS,false);
+	propGILDM->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_BAKED,false);
 	propGISRGBCorrect->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 	propGIShadowTransparency->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 
@@ -252,15 +252,15 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIDirect)
 	{
 		svs.renderLightDirect = (LightingDirect)property->GetValue().GetInteger();
-		if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
-			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
+		if (svs.renderLightDirect==LD_BAKED)
+			svs.renderLightIndirect = LI_BAKED;
 		updateHide();
 	}
 	else
 	if (property==propGIIndirect)
 	{
 		svs.renderLightIndirect = (LightingIndirect)property->GetValue().GetInteger();
-		if (svs.renderLightIndirect!=LI_STATIC_LIGHTMAPS && svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
+		if (svs.renderLightIndirect!=LI_BAKED && svs.renderLightDirect==LD_BAKED)
 			svs.renderLightDirect = LD_REALTIME;
 		if (svs.renderLightIndirect==LI_REALTIME_FIREBALL)
 			svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL);

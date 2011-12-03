@@ -16,6 +16,11 @@ NEWS
   - "Bake indirect" bakes indirect illumination only, saves with .indirect.png extension
   - new rendering mode: Direct illumination=realtime, Indirect illumination=baked
 
+CHANGES
+
+- renamed LD_STATIC_LIGHTMAPS -> LD_BAKED
+- renamed LI_STATIC_LIGHTMAPS -> LI_BAKED
+
 \section news127 ------------------------------------ 2011.11.29 -------------------------------------
 
 NEWS

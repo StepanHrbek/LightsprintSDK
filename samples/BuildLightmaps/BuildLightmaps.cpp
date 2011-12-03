@@ -685,8 +685,8 @@ int main(int argc, char** argv)
 		if (globalParameters.buildQuality)
 		{
 			// switch from default realtime GI to static GI
-			svs.renderLightDirect =  globalParameters.directLightMultiplier ? rr_gl::LD_STATIC_LIGHTMAPS : rr_gl::LD_REALTIME;
-			svs.renderLightIndirect = rr_gl::LI_STATIC_LIGHTMAPS;
+			svs.renderLightDirect =  globalParameters.directLightMultiplier ? rr_gl::LD_BAKED : rr_gl::LD_REALTIME;
+			svs.renderLightIndirect = rr_gl::LI_BAKED;
 		}
 		if (globalParameters.directLightMultiplier)
 			svs.bakedGlobalLayerNumber = globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP; // switch from default layer to our layer 0

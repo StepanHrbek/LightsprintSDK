@@ -31,7 +31,7 @@ namespace rr_gl
 enum LightingDirect
 {
 	LD_NONE,                 ///< No direct illumination, for testing only.
-	LD_STATIC_LIGHTMAPS,     ///< Direct illumination is taken from lightmaps in bakedGlobalLayerNumber.
+	LD_BAKED,                ///< Direct illumination is taken from lightmaps in bakedGlobalLayerNumber.
 	LD_REALTIME,             ///< Direct illumination is realtime computed.
 };
 
@@ -39,7 +39,7 @@ enum LightingIndirect
 {
 	LI_NONE,                 ///< No indirect illumination, Doom-3 look with shadows completely black.
 	LI_CONSTANT,             ///< Constant ambient, widely used poor man's approach.
-	LI_STATIC_LIGHTMAPS,     ///< Indirect illumination is taken from lightmaps in bakedGlobalLayerNumber or bakedIndirectLayerNumber.
+	LI_BAKED,                ///< Indirect illumination is taken from lightmaps in bakedGlobalLayerNumber or bakedIndirectLayerNumber.
 	LI_REALTIME_ARCHITECT,   ///< Indirect illumination is realtime computed by Architect solver. No precalculations. If not sure, use Fireball.
 	LI_REALTIME_FIREBALL,    ///< Indirect illumination is realtime computed by Fireball solver. Fast.
 };
@@ -79,7 +79,7 @@ struct SceneViewerState
 	LightingDirect   renderLightDirect;         //! Render direct illumination.
 	LightingIndirect renderLightIndirect;       //! Render indirect illumination.
 	bool             renderLDM;                 //! Modulate indirect illumination by LDM.
-	bool             renderLDMEnabled() {return renderLDM && renderLightIndirect!=LI_STATIC_LIGHTMAPS && renderLightIndirect!=LI_NONE;}
+	bool             renderLDMEnabled() {return renderLDM && renderLightIndirect!=LI_BAKED && renderLightIndirect!=LI_NONE;}
 	bool             renderLightmaps2d;         //! When not rendering realtime, show static lightmaps in 2D.
 	bool             renderLightmapsBilinear;   //! Render lightmaps with bilinear interpolation rather than without it.
 	bool             renderMaterialDiffuse;     //! Render diffuse color.

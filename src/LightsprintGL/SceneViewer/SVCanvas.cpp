@@ -1250,7 +1250,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		if (solver->getObject(svs.selectedObjectIndex))
 			lv->setObject(
 				solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(
-					svs.renderLDMEnabled() ? svs.ldmLayerNumber : ((svs.renderLightIndirect!=LI_STATIC_LIGHTMAPS || svs.renderLightDirect==LD_STATIC_LIGHTMAPS)?svs.bakedGlobalLayerNumber:svs.bakedIndirectLayerNumber)),
+					svs.renderLDMEnabled() ? svs.ldmLayerNumber : ((svs.renderLightIndirect!=LI_BAKED || svs.renderLightDirect==LD_BAKED)?svs.bakedGlobalLayerNumber:svs.bakedIndirectLayerNumber)),
 				solver->getObject(svs.selectedObjectIndex),
 				svs.renderLightmapsBilinear);
 		else
@@ -1399,7 +1399,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					uberProgramSetup,
 					NULL,
 					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
+					(svs.renderLightDirect==LD_BAKED)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_BAKED)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
 					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
 					svs.srgbCorrect,
@@ -1426,7 +1426,7 @@ rendered:
 					uberProgramSetup,
 					NULL,
 					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
+					(svs.renderLightDirect==LD_BAKED)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_BAKED)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
 					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
 					svs.srgbCorrect,
@@ -1440,7 +1440,7 @@ rendered:
 					uberProgramSetup,
 					NULL,
 					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
+					(svs.renderLightDirect==LD_BAKED)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_BAKED)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
 					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
 					svs.srgbCorrect,
@@ -1452,7 +1452,7 @@ rendered:
 			// adjust tonemapping
 			if (svs.renderTonemapping && svs.tonemappingAutomatic
 				&& !svs.renderWireframe
-				&& ((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS && solver->containsLightSource())
+				&& ((svs.renderLightIndirect==LI_BAKED && solver->containsLightSource())
 					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
 					|| svs.renderLightIndirect==LI_CONSTANT
 					))
@@ -1800,7 +1800,7 @@ rendered:
 				switch (svs.renderLightDirect)
 				{
 					case LD_REALTIME: strDirect = "realtime"; break;
-					case LD_STATIC_LIGHTMAPS: strDirect = "lightmap"; break;
+					case LD_BAKED: strDirect = "baked"; break;
 					case LD_NONE: strDirect = "off"; break;
 				}
 				// what indirect
@@ -1809,7 +1809,7 @@ rendered:
 				{
 					case LI_REALTIME_FIREBALL: strIndirect = "fireball"; break;
 					case LI_REALTIME_ARCHITECT: strIndirect = "architect"; break;
-					case LI_STATIC_LIGHTMAPS: strIndirect = "lightmap"; break;
+					case LI_BAKED: strIndirect = "baked"; break;
 					case LI_CONSTANT: strIndirect = "constant"; break;
 					case LI_NONE: strIndirect = "off"; break;
 				}
