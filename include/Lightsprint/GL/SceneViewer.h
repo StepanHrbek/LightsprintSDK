@@ -31,7 +31,7 @@ namespace rr_gl
 enum LightingDirect
 {
 	LD_NONE,                 ///< No direct illumination, for testing only.
-	LD_STATIC_LIGHTMAPS,     ///< Direct illumination is taken from lightmaps in staticLayerNumber.
+	LD_STATIC_LIGHTMAPS,     ///< Direct illumination is taken from lightmaps in bakedGlobalLayerNumber.
 	LD_REALTIME,             ///< Direct illumination is realtime computed.
 };
 
@@ -39,7 +39,7 @@ enum LightingIndirect
 {
 	LI_NONE,                 ///< No indirect illumination, Doom-3 look with shadows completely black.
 	LI_CONSTANT,             ///< Constant ambient, widely used poor man's approach.
-	LI_STATIC_LIGHTMAPS,     ///< Indirect illumination is taken from lightmaps in staticLayerNumber.
+	LI_STATIC_LIGHTMAPS,     ///< Indirect illumination is taken from lightmaps in bakedGlobalLayerNumber or bakedIndirectLayerNumber.
 	LI_REALTIME_ARCHITECT,   ///< Indirect illumination is realtime computed by Architect solver. No precalculations. If not sure, use Fireball.
 	LI_REALTIME_FIREBALL,    ///< Indirect illumination is realtime computed by Fireball solver. Fast.
 };
@@ -69,8 +69,9 @@ struct SceneViewerState
 	float            envLatitudeDeg;            //! Latitude for sky/sun simulation, -90..90, north is positive, south is negative.
 	float            envSpeed;                  //! How qualicky simulation runs, 0=stopped, 1=realtime, 3600=day in 24sec.
 
-	unsigned         staticLayerNumber;         //! Layer used for all static lighting operations. Set it to precomputed layer you want to display.
-	unsigned         realtimeLayerNumber;       //! Layer used for all realtime lighting operations.
+	unsigned         bakedGlobalLayerNumber;    //! Layer used for static global illumination.
+	unsigned         bakedIndirectLayerNumber;  //! Layer used for static indirect illumination.
+	unsigned         realtimeLayerNumber;       //! Layer used for realtime lighting.
 	unsigned         ldmLayerNumber;            //! Layer used for light indirect maps, precomputed maps that modulate realtime indirect per-vertex.
 	unsigned         selectedLightIndex;        //! Index into lights array, light controlled by mouse/arrows.
 	unsigned         selectedObjectIndex;       //! Index into static objects array.
@@ -146,7 +147,8 @@ struct SceneViewerState
 		envLatitudeDeg = 50+5/60.f;
 		envSpeed = 0;
 
-		staticLayerNumber = 192837464; // any numbers unlikely to collide with user's layer numbers, better than 0 that nearly always collides
+		bakedGlobalLayerNumber = 192837463; // any numbers unlikely to collide with user's layer numbers, better than 0 that nearly always collides
+		bakedIndirectLayerNumber = 192837464;
 		realtimeLayerNumber = 192837465;
 		ldmLayerNumber = 192837466;
 		selectedLightIndex = 0;
@@ -221,7 +223,8 @@ struct SceneViewerState
 			&& a.envLatitudeDeg==envLatitudeDeg
 			&& a.envSpeed==envSpeed
 
-			&& a.staticLayerNumber==staticLayerNumber
+			&& a.bakedGlobalLayerNumber==bakedGlobalLayerNumber
+			&& a.bakedIndirectLayerNumber==bakedIndirectLayerNumber
 			&& a.realtimeLayerNumber==realtimeLayerNumber
 			&& a.ldmLayerNumber==ldmLayerNumber
 			//&& a.selectedLightIndex==selectedLightIndex // differs after click to scene tree

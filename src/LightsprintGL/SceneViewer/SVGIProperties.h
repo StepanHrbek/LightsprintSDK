@@ -64,6 +64,7 @@ namespace rr_gl
 		wxPGProperty*     propGILightmapSmoothingAmount;
 		BoolRefProperty*  propGILightmapWrapping;
 		ButtonProperty*   propGIBuildLmaps;
+		ButtonProperty*   propGIBuildAmbientMaps;
 		ButtonProperty*   propGIBuildLDMs;
 
 		DECLARE_EVENT_TABLE()

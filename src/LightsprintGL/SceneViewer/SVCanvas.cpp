@@ -246,10 +246,17 @@ void SVCanvas::createContextCore()
 
 		// try to load lightmaps
 		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.staticLayerNumber))
+			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.bakedGlobalLayerNumber))
 				goto lightmapFoundInRam;
-		solver->getStaticObjects().loadLayer(svs.staticLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
+		solver->getStaticObjects().loadLayer(svs.bakedGlobalLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
 		lightmapFoundInRam:
+
+		// try to load ambient maps
+		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.bakedIndirectLayerNumber))
+				goto ambientFoundInRam;
+		solver->getStaticObjects().loadLayer(svs.bakedIndirectLayerNumber,AMBIENT_PREFIX,AMBIENT_POSTFIX);
+		ambientFoundInRam:
 
 		// try to load LDM. if not found, disable it
 		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
@@ -1242,7 +1249,8 @@ void SVCanvas::PaintCore(bool _takingSshot)
 	{
 		if (solver->getObject(svs.selectedObjectIndex))
 			lv->setObject(
-				solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(svs.renderLDMEnabled()?svs.ldmLayerNumber:svs.staticLayerNumber),
+				solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(
+					svs.renderLDMEnabled() ? svs.ldmLayerNumber : ((svs.renderLightIndirect!=LI_STATIC_LIGHTMAPS || svs.renderLightDirect==LD_STATIC_LIGHTMAPS)?svs.bakedGlobalLayerNumber:svs.bakedIndirectLayerNumber)),
 				solver->getObject(svs.selectedObjectIndex),
 				svs.renderLightmapsBilinear);
 		else
@@ -1391,7 +1399,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					uberProgramSetup,
 					NULL,
 					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
+					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
 					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
 					svs.srgbCorrect,
@@ -1418,7 +1426,7 @@ rendered:
 					uberProgramSetup,
 					NULL,
 					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
+					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
 					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
 					svs.srgbCorrect,
@@ -1432,7 +1440,7 @@ rendered:
 					uberProgramSetup,
 					NULL,
 					svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS || svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.staticLayerNumber:svs.realtimeLayerNumber,
+					(svs.renderLightDirect==LD_STATIC_LIGHTMAPS)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
 					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
 					clipPlanes,
 					svs.srgbCorrect,
@@ -1810,10 +1818,10 @@ rendered:
 				unsigned numLmaps = 0;
 				for (unsigned i=0;i<numObjects;i++)
 				{
-					if (solver->getObject(i)->illumination.getLayer(svs.staticLayerNumber))
+					if (solver->getObject(i)->illumination.getLayer(svs.bakedGlobalLayerNumber))
 					{
-						if (solver->getObject(i)->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_VERTEX_BUFFER) numVbufs++; else
-						if (solver->getObject(i)->illumination.getLayer(svs.staticLayerNumber)->getType()==rr::BT_2D_TEXTURE) numLmaps++;
+						if (solver->getObject(i)->illumination.getLayer(svs.bakedGlobalLayerNumber)->getType()==rr::BT_VERTEX_BUFFER) numVbufs++; else
+						if (solver->getObject(i)->illumination.getLayer(svs.bakedGlobalLayerNumber)->getType()==rr::BT_2D_TEXTURE) numLmaps++;
 					}
 				}
 				// what solver
@@ -1918,16 +1926,21 @@ rendered:
 				}
 				if (solver->getObject(svs.selectedObjectIndex))
 				{
-					rr::RRBuffer* bufferSelectedObj = solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(svs.staticLayerNumber);
-					if (bufferSelectedObj)
+					unsigned layerNumber[3] = {svs.bakedGlobalLayerNumber,svs.bakedIndirectLayerNumber,svs.ldmLayerNumber};
+					const char* layerName[3] = {"[lightmap]","[ambient map]","[ldm]"};
+					for (unsigned i=0;i<3;i++)
 					{
-						//if (svs.renderRealtime) glColor3f(0.5f,0.5f,0.5f);
-						textOutput(x,y+=18,h,"[lightmap]");
-						textOutput(x,y+=18,h,"type: %s",(bufferSelectedObj->getType()==rr::BT_VERTEX_BUFFER)?"PER VERTEX":((bufferSelectedObj->getType()==rr::BT_2D_TEXTURE)?"PER PIXEL":"INVALID!"));
-						textOutput(x,y+=18,h,"size: %d*%d*%d",bufferSelectedObj->getWidth(),bufferSelectedObj->getHeight(),bufferSelectedObj->getDepth());
-						textOutput(x,y+=18,h,"format: %s",(bufferSelectedObj->getFormat()==rr::BF_RGB)?"RGB":((bufferSelectedObj->getFormat()==rr::BF_RGBA)?"RGBA":((bufferSelectedObj->getFormat()==rr::BF_RGBF)?"RGBF":((bufferSelectedObj->getFormat()==rr::BF_RGBAF)?"RGBAF":"INVALID!"))));
-						textOutput(x,y+=18,h,"scale: %s",bufferSelectedObj->getScaled()?"custom(usually sRGB)":"physical(linear)");
-						//glColor3f(1,1,1);
+						rr::RRBuffer* bufferSelectedObj = solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(layerNumber[i]);
+						if (bufferSelectedObj)
+						{
+							//if (svs.renderRealtime) glColor3f(0.5f,0.5f,0.5f);
+							textOutput(x,y+=18,h,layerName[i]);
+							textOutput(x,y+=18,h,"type: %s",(bufferSelectedObj->getType()==rr::BT_VERTEX_BUFFER)?"PER VERTEX":((bufferSelectedObj->getType()==rr::BT_2D_TEXTURE)?"PER PIXEL":"INVALID!"));
+							textOutput(x,y+=18,h,"size: %d*%d*%d",bufferSelectedObj->getWidth(),bufferSelectedObj->getHeight(),bufferSelectedObj->getDepth());
+							textOutput(x,y+=18,h,"format: %s",(bufferSelectedObj->getFormat()==rr::BF_RGB)?"RGB":((bufferSelectedObj->getFormat()==rr::BF_RGBA)?"RGBA":((bufferSelectedObj->getFormat()==rr::BF_RGBF)?"RGBF":((bufferSelectedObj->getFormat()==rr::BF_RGBAF)?"RGBAF":"INVALID!"))));
+							textOutput(x,y+=18,h,"scale: %s",bufferSelectedObj->getScaled()?"custom(usually sRGB)":"physical(linear)");
+							//glColor3f(1,1,1);
+						}
 					}
 				}
 			}
@@ -1952,7 +1965,7 @@ rendered:
 						textOutput(x,y+=18,h,"dynamic object: %ls",selectedPointObject->name.w_str());
 					else
 						textOutput(x,y+=18,h,"static object: %d/%d",preTriangle.object,solver->getStaticObjects().size());
-					rr::RRBuffer* selectedPointLightmap = selectedPointObject->illumination.getLayer(svs.staticLayerNumber);
+					rr::RRBuffer* selectedPointLightmap = selectedPointObject->illumination.getLayer(svs.bakedGlobalLayerNumber);
 					textOutput(x,y+=18,h,"offline lightmap: %s %dx%d",selectedPointLightmap?(selectedPointLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",selectedPointLightmap?selectedPointLightmap->getWidth():0,selectedPointLightmap?selectedPointLightmap->getHeight():0);
 					if (selectedPointObject->isDynamic)
 					{
@@ -2015,7 +2028,7 @@ rendered:
 				textOutput(x,y+=18,h,"uv: %f %f",uv[0],uv[1]);
 				if (solver->getObject(svs.selectedObjectIndex))
 				{
-					rr::RRBuffer* buffer = solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(svs.staticLayerNumber);
+					rr::RRBuffer* buffer = solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(svs.bakedGlobalLayerNumber);
 					if (buffer && buffer->getType()==rr::BT_2D_TEXTURE)
 					{
 						int i = int(uv[0]*buffer->getWidth());

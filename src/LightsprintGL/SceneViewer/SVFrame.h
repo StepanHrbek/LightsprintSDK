@@ -182,6 +182,8 @@ namespace rr_gl
 // naming convention for lightmaps and ldm. final name is prefix+objectnumber+postfix
 #define LMAP_PREFIX  RR_WX2RR(svs.sceneFilename.BeforeLast('.')+"_precalculated/")
 	#define LMAP_POSTFIX "png" // not lightmap.png, because BuildLightmaps tool also does not insert "lightmap."
+#define AMBIENT_PREFIX   LMAP_PREFIX
+#define AMBIENT_POSTFIX  "indirect.png"
 #define LDM_PREFIX   LMAP_PREFIX
 #define LDM_POSTFIX  "ldm.png"
 

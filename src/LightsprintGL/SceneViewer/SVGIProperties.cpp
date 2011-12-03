@@ -140,11 +140,15 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGILightmapWrapping = new BoolRefProperty(_("Wrapping"),_("Checked = smoothing works across lightmap boundaries."),svs.lightmapFilteringParameters.wrap);
 		AppendIn(propGILightmap,propGILightmapWrapping);
 
-		propGIBuildLmaps = new ButtonProperty(_("Build lightmaps"),_("Builds or rebuilds lightmaps for all static objects."),svframe,CM_OBJECTS_BUILD_LMAPS);
+		propGIBuildLmaps = new ButtonProperty(_("Build lightmaps"),_("Builds or rebuilds lightmaps (global illumination) for selected static objects."),svframe,CM_OBJECTS_BUILD_LMAPS);
 		AppendIn(propGILightmap,propGIBuildLmaps);
 		propGIBuildLmaps->updateImage();
 
-		propGIBuildLDMs = new ButtonProperty(_("Build LDMs"),_("Builds or rebuilds LDMs for all static objects."),svframe,CM_OBJECTS_BUILD_LDMS);
+		propGIBuildAmbientMaps = new ButtonProperty(_("Build ambient maps"),_("Builds or rebuilds ambient maps (indirect illumination) for selected static objects."),svframe,CM_OBJECTS_BUILD_AMBIENT_MAPS);
+		AppendIn(propGILightmap,propGIBuildAmbientMaps);
+		propGIBuildAmbientMaps->updateImage();
+
+		propGIBuildLDMs = new ButtonProperty(_("Build LDMs"),_("Builds or rebuilds LDMs for all selected static objects."),svframe,CM_OBJECTS_BUILD_LDMS);
 		AppendIn(propGILightmap,propGIBuildLDMs);
 		propGIBuildLDMs->updateImage();
 		propGIBilinear = new BoolRefProperty(_("Bilinear"),_("Bilinear interpolation of lightmaps and LDMs, keep always on, unless you analyze pixels."),svs.renderLightmapsBilinear);
@@ -250,16 +254,12 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.renderLightDirect = (LightingDirect)property->GetValue().GetInteger();
 		if (svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
 			svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
-		if (svs.renderLightDirect!=LD_STATIC_LIGHTMAPS && svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)
-			svs.renderLightIndirect = LI_CONSTANT;
 		updateHide();
 	}
 	else
 	if (property==propGIIndirect)
 	{
 		svs.renderLightIndirect = (LightingIndirect)property->GetValue().GetInteger();
-		if (svs.renderLightIndirect==LI_STATIC_LIGHTMAPS)
-			svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
 		if (svs.renderLightIndirect!=LI_STATIC_LIGHTMAPS && svs.renderLightDirect==LD_STATIC_LIGHTMAPS)
 			svs.renderLightDirect = LD_REALTIME;
 		if (svs.renderLightIndirect==LI_REALTIME_FIREBALL)
@@ -353,9 +353,10 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		for (unsigned i=0;i<svframe->m_canvas->solver->getStaticObjects().size();i++)
 		{	
-			for (unsigned j=0;j<2;j++)
+			unsigned layer[3] = {svs.bakedGlobalLayerNumber,svs.bakedIndirectLayerNumber,svs.ldmLayerNumber};
+			for (unsigned j=0;j<3;j++)
 			{
-				rr::RRBuffer* buf = svframe->m_canvas->solver->getStaticObjects()[i]->illumination.getLayer(j?svs.staticLayerNumber:svs.ldmLayerNumber);
+				rr::RRBuffer* buf = svframe->m_canvas->solver->getStaticObjects()[i]->illumination.getLayer(layer[j]);
 				if (buf && buf->getType()==rr::BT_2D_TEXTURE)
 				{
 					getTexture(buf)->bindTexture();

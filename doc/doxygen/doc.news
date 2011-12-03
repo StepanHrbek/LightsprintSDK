@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news128 ------------------------------------ 2011.12.xx -------------------------------------
+
+NEWS
+
+- improved scene viewer
+  - "Bake indirect" bakes indirect illumination only, saves with .indirect.png extension
+  - new rendering mode: Direct illumination=realtime, Indirect illumination=baked
+
 \section news127 ------------------------------------ 2011.11.29 -------------------------------------
 
 NEWS

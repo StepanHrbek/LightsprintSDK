@@ -236,7 +236,7 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 	{
 		ar & make_nvp("envSpeed",a.envSpeed);
 	}
-	ar & make_nvp("staticLayerNumber",a.staticLayerNumber);
+	ar & make_nvp("staticLayerNumber",a.bakedIndirectLayerNumber);
 	ar & make_nvp("realtimeLayerNumber",a.realtimeLayerNumber);
 	ar & make_nvp("ldmLayerNumber",a.ldmLayerNumber);
 	ar & make_nvp("selectedLightIndex",a.selectedLightIndex);

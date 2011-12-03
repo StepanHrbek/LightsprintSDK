@@ -387,6 +387,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			if (selectedOnlyStaticObjects)
 			{
 				menu.Append(CM_OBJECTS_BUILD_LMAPS,_("Build lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel requires unwrap."));
+				menu.Append(CM_OBJECTS_BUILD_AMBIENT_MAPS,_("Build ambient maps..."),_("(Re)builds per-vertex or per-pixel ambient maps. Per-pixel requires unwrap."));
 				menu.Append(CM_OBJECTS_BUILD_LDMS,_("Build LDMs..."),_("(Re)builds LDMs, layer of additional per-pixel details. LDMs require unwrap."));
 			}
 			if (temporaryContext!=staticObjects && temporaryContextItems.size()==1)
@@ -553,14 +554,16 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			break;
 
 		case CM_OBJECTS_BUILD_LMAPS:
+		case CM_OBJECTS_BUILD_AMBIENT_MAPS:
 			if (solver)
 			{
-				unsigned res = 256; // 0=vertex buffers
+				bool ambient = actionCode==CM_OBJECTS_BUILD_AMBIENT_MAPS;
+				unsigned res = ambient?0:256; // 0=vertex buffers
 				unsigned quality = 100;
-				if (getResolution(_("Lightmap build"),this,res,true) && getQuality(_("Lightmap build"),this,quality))
+				if (getResolution(ambient?_("Ambient map build"):_("Lightmap build"),this,res,true) && getQuality(ambient?_("Ambient map build"):_("Lightmap build"),this,quality))
 				{
 					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,solver,_("Building lightmaps..."));
+					LogWithAbort logWithAbort(this,solver,ambient?_("Building ambient maps..."):_("Building lightmaps..."));
 
 					// allocate buffers in temp layer
 					unsigned tmpLayer = 74529457;
@@ -573,25 +576,52 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					// update everything in temp layer
 					solver->leaveFireball();
 					svframe->m_canvas->fireballLoadAttempted = false;
-					rr::RRDynamicSolver::UpdateParameters params(quality);
-					params.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
-					params.aoSize = svs.lightmapDirectParameters.aoSize;
-					solver->updateLightmaps(tmpLayer,-1,-1,&params,&params,&svs.lightmapFilteringParameters);
+					rr::RRDynamicSolver::UpdateParameters updateParameters(quality);
+					updateParameters.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
+					updateParameters.aoSize = svs.lightmapDirectParameters.aoSize;
+#ifdef OLD_SIMPLE_GI
+					solver->updateLightmaps(tmpLayer,-1,-1,&updateParameters,&updateParameters,&svs.lightmapFilteringParameters);
+#else
+					float directLightMultiplier = ambient ? 0 : 1;
+					float indirectLightMultiplier = 1;
 
+					// apply indirect light multiplier
+					std::vector<rr::RRVec3> lightColors;
+					for (unsigned i=0;i<solver->getLights().size();i++)
+					{
+						lightColors.push_back(solver->getLights()[i]->color); // save original colors, just in case indirectLightMultiplier is 0
+						solver->getLights()[i]->color *= indirectLightMultiplier;
+					}
+
+					// calculate indirect illumination in solver
+					solver->updateLightmaps(-1,-1,-1,NULL,&updateParameters,NULL);
+
+					// apply direct light multiplier
+					for (unsigned i=0;i<solver->getLights().size();i++)
+						solver->getLights()[i]->color = lightColors[i]*directLightMultiplier;
+
+					// build direct illumination
+					updateParameters.applyCurrentSolution = true;
+					solver->updateLightmaps(tmpLayer,-1,-1,&updateParameters,NULL,&svs.lightmapFilteringParameters);
+
+					// restore light intensities, just in case we are going to run viewer
+					for (unsigned i=0;i<solver->getLights().size();i++)
+						solver->getLights()[i]->color = lightColors[i];
+#endif
 					// save temp layer
-					allObjects.saveLayer(tmpLayer,LMAP_PREFIX,LMAP_POSTFIX);
+					allObjects.saveLayer(tmpLayer,ambient?AMBIENT_PREFIX:LMAP_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
 
 					// move buffers from temp to final layer
 					for (unsigned i=0;i<selectedObjects.size();i++)
 						if (selectedObjects[i]->getCollider()->getMesh()->getNumVertices())
 						{
-							delete selectedObjects[i]->illumination.getLayer(svs.staticLayerNumber);
-							selectedObjects[i]->illumination.getLayer(svs.staticLayerNumber) = selectedObjects[i]->illumination.getLayer(tmpLayer);
+							delete selectedObjects[i]->illumination.getLayer(ambient?svs.bakedIndirectLayerNumber:svs.bakedGlobalLayerNumber);
+							selectedObjects[i]->illumination.getLayer(ambient?svs.bakedIndirectLayerNumber:svs.bakedGlobalLayerNumber) = selectedObjects[i]->illumination.getLayer(tmpLayer);
 							selectedObjects[i]->illumination.getLayer(tmpLayer) = NULL;
 						}
 
 					// make results visible
-					svs.renderLightDirect = LD_STATIC_LIGHTMAPS;
+					svs.renderLightDirect = ambient?LD_REALTIME:LD_STATIC_LIGHTMAPS;
 					svs.renderLightIndirect = LI_STATIC_LIGHTMAPS;
 				}
 			}
