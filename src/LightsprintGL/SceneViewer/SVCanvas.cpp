@@ -2113,14 +2113,14 @@ rendered:
 
 
 BEGIN_EVENT_TABLE(SVCanvas, wxGLCanvas)
-    EVT_SIZE(SVCanvas::OnSize)
-    EVT_PAINT(SVCanvas::OnPaint)
-    EVT_ERASE_BACKGROUND(SVCanvas::OnEraseBackground)
-    EVT_KEY_DOWN(SVCanvas::OnKeyDown)
-    EVT_KEY_UP(SVCanvas::OnKeyUp)
-    EVT_MOUSE_EVENTS(SVCanvas::OnMouseEvent)
+	EVT_SIZE(SVCanvas::OnSize)
+	EVT_PAINT(SVCanvas::OnPaint)
+	EVT_ERASE_BACKGROUND(SVCanvas::OnEraseBackground)
+	EVT_KEY_DOWN(SVCanvas::OnKeyDown)
+	EVT_KEY_UP(SVCanvas::OnKeyUp)
+	EVT_MOUSE_EVENTS(SVCanvas::OnMouseEvent)
 	EVT_CONTEXT_MENU(SVCanvas::OnContextMenuCreate)
-    EVT_IDLE(SVCanvas::OnIdle)
+	EVT_IDLE(SVCanvas::OnIdle)
 END_EVENT_TABLE()
 
  
