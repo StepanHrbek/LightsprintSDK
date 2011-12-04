@@ -13,7 +13,7 @@ namespace rr
 NEWS
 
 - improved scene viewer
-  - "Bake indirect" bakes indirect illumination only, saves with .indirect.png extension
+  - "Bake ambient maps" bakes indirect illumination only, saves with .indirect.png extension
   - new rendering mode: Direct illumination=realtime, Indirect illumination=baked
 
 CHANGES
