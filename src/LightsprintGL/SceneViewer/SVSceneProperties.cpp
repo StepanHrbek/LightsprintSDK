@@ -105,6 +105,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propEnvDate->SetHelpString(_("Date used for Sun and sky simulation."));
 		AppendIn(propEnv,propEnvDate);
 
+		// hours will use wxTimePickerCtrl when wx2.9.3 is released
 		propEnvTime = new FloatProperty(_("Local time (hour)"),_("Hour, 0..24, local time used for Sun and sky simulation."),svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f,svs.precision,0,24,1,true);
 		AppendIn(propEnv,propEnvTime);
 
@@ -308,7 +309,7 @@ void SVSceneProperties::updateProperties()
 		+ updateString(propEnvMap,(svframe->m_canvas&&svframe->m_canvas->solver&&svframe->m_canvas->solver->getEnvironment())?RR_RR2WX(svframe->m_canvas->solver->getEnvironment()->filename):L"(no texture)")
 		+ updateProperty(propEnvLocation,rr::RRVec2(svs.envLatitudeDeg,svs.envLongitudeDeg))
 		+ updateDate(propEnvDate,wxDateTime(svs.envDateTime))
-		+ updateFloat(propEnvTime,svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f)
+		+ updateFloat(propEnvTime,svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f+svs.envDateTime.tm_sec/3600.f)
 		+ updateFloat(propEnvSpeed,svs.envSpeed)
 		+ updateFloat(propToneMappingAutomaticTarget,svs.tonemappingAutomaticTarget)
 		+ updateFloat(propToneMappingAutomaticSpeed,svs.tonemappingAutomaticSpeed)
