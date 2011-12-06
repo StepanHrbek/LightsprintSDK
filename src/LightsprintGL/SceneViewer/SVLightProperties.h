@@ -43,7 +43,7 @@ namespace rr_gl
 		RealtimeLight*    rtlight;
 
 		wxPGProperty*     propName;
-		wxPGProperty*     propEnabled;
+		BoolRefProperty*  propEnabled;
 		wxPGProperty*     propType;
 		wxPGProperty*     propPosition;
 		wxPGProperty*     propDirection;

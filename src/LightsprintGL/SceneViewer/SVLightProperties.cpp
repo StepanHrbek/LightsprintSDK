@@ -186,6 +186,7 @@ void SVLightProperties::updatePosDir()
 	if (rtlight)
 	{
 		unsigned numChanges =
+			updateBoolRef(propEnabled) +
 			updateFloat(propNear,rtlight->getCamera()->getNear()) +
 			updateFloat(propFar,rtlight->getCamera()->getFar()) +
 			updateProperty(propPosition,rtlight->getCamera()->getPosition()) +
