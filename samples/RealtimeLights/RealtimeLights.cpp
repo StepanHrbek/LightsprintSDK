@@ -28,6 +28,8 @@
 // Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
+//#define FBO_EXAMPLE // renders scene into texture, copies texture to screen. unlike scene on screen, scene in texture can be postprocessed
+
 #ifdef _WIN32
 	#include <windows.h>    // SetCurrentDirectory
 #endif
@@ -45,6 +47,10 @@
 #endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/IO/ImportScene.h"
+#ifdef FBO_EXAMPLE
+	#include "Lightsprint/GL/FBO.h"
+	#include "Lightsprint/GL/TextureRenderer.h"
+#endif
 
 // only longjmp can break us from glut mainloop
 #include <setjmp.h>
@@ -254,6 +260,15 @@ void display(void)
 
 	solver->calculate();
 
+#ifdef FBO_EXAMPLE
+	// set our texture as a render target
+	static rr_gl::Texture* colorTexture = rr_gl::getTexture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false);
+	static rr_gl::Texture* depthTexture = rr_gl::getTexture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false);
+	rr_gl::FBO oldFBOState = rr_gl::FBO::getState();
+	rr_gl::FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,colorTexture);
+	rr_gl::FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,depthTexture);
+#endif
+
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	rr_gl::setupForRender(eye);
 	// configure renderer
@@ -270,8 +285,17 @@ void display(void)
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	// render scene
 	solver->renderScene(uberProgramSetup,NULL,true,0,-1,0,false,&brightness,contrast);
-
+	// render light frustum
 	solver->renderLights();
+
+#ifdef FBO_EXAMPLE
+	// restore previous render target
+	oldFBOState.restore();
+	// here you can postprocess texture
+	// copy texture to render target
+	solver->getRendererOfScene()->getTextureRenderer()->render2D(colorTexture,NULL,1,0,0,1,1);
+	solver->getRendererOfScene()->getTextureRenderer()->render2D(colorTexture,&rr::RRVec4(2),0.8f,0.7f,0.7f,0.3f,0.3f);
+#endif
 
 	glutSwapBuffers();
 }
