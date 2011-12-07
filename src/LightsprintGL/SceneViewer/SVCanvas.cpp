@@ -1295,7 +1295,6 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		for (unsigned i=solver->getLights().size();i--;)
 			if (solver->getLights()[i] && solver->getLights()[i]->enabled && solver->getLights()[i]->type==rr::RRLight::SPOT && solver->getLights()[i]->name=="Flashlight")
 			{
-				// eye must already be updated otherwise flashlight will lag one frame
 				float viewportWidthCovered = 0.9f;
 				rr::RRVec3 newPos = svs.eye.getPosition() + svs.eye.getUp()*svs.cameraMetersPerSecond*0.03f+svs.eye.getRight()*svs.cameraMetersPerSecond*0.03f;
 				rr::RRVec3 newDir = svs.eye.getDirection();
