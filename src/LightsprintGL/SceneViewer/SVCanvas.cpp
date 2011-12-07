@@ -276,21 +276,8 @@ void SVCanvas::createContextCore()
 	lightFieldObjectIllumination = new rr::RRObjectIllumination;
 	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
 	lightFieldObjectIllumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
-	{
-		entityIcons = new SVEntityIcons(wxString::Format("%s../maps/",svs.pathToShaders),solver->getUberProgram());
-		rr::RRVec3 sceneMin,sceneMax;
-		rr::RRObject* object = solver->getMultiObjectCustom();
-		if (object)
-		{
-			object->getCollider()->getMesh()->getAABB(&sceneMin,&sceneMax,&sunIconPosition);
-
-			//renderedIcons.iconSize = (sceneMax-sceneMin).avg()*0.04f;
-			// better, insensitive to single triangle in 10km distance
-			renderedIcons.iconSize = object->getCollider()->getMesh()->getAverageVertexDistance()*0.017f;
-
-			sunIconPosition.y = sceneMax.y + 5*renderedIcons.iconSize;
-		}
-	}
+	entityIcons = new SVEntityIcons(wxString::Format("%s../maps/",svs.pathToShaders),solver->getUberProgram());
+	recalculateIconSizeAndPosition();
 
 #if defined(_WIN32)
 	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
@@ -320,6 +307,22 @@ void SVCanvas::createContext()
 #else
 	createContextCore();
 #endif
+}
+
+void SVCanvas::recalculateIconSizeAndPosition()
+{
+	rr::RRVec3 sceneMin,sceneMax;
+	rr::RRObject* object = solver->getMultiObjectCustom();
+	if (object)
+	{
+		object->getCollider()->getMesh()->getAABB(&sceneMin,&sceneMax,&sunIconPosition);
+
+		//renderedIcons.iconSize = (sceneMax-sceneMin).avg()*0.04f;
+		// better, insensitive to single triangle in 10km distance
+		renderedIcons.iconSize = object->getCollider()->getMesh()->getAverageVertexDistance()*0.017f;
+
+		sunIconPosition.y = sceneMax.y + 5*renderedIcons.iconSize;
+	}
 }
 
 void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
@@ -392,6 +395,8 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 	// alloc rtgi buffers, otherwise new objects would have no realtime indirect
 	if (add)
 		reallocateBuffersForRealtimeGI(true);
+
+	recalculateIconSizeAndPosition();
 }
 
 void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)

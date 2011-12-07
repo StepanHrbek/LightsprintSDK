@@ -36,6 +36,8 @@ namespace rr_gl
 		void createContextCore();
 		void createContext();
 
+		void recalculateIconSizeAndPosition();
+
 		//! Adds scene to solver or removes it from solver. If scene is NULL, just reloads current data in solver.
 		//! - scene,true = add scene, setStaticObjects, cleanup
 		//! - scene,false = remove scene, setStaticObjects, cleanup
