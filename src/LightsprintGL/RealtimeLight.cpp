@@ -221,7 +221,7 @@ namespace rr_gl
 			return 1;
 		switch(getRRLight().type)
 		{
-			case rr::RRLight::POINT: return 1;
+			case rr::RRLight::POINT: return Workaround::needsHardPointShadows() ? 1 : numSoftShadowSamples;
 			case rr::RRLight::SPOT: return numSoftShadowSamples;
 			case rr::RRLight::DIRECTIONAL: return numSoftShadowSamples;
 			default: RR_ASSERT(0);

@@ -93,6 +93,13 @@ bool Workaround::needsDDI4x4()
 	return false;
 }
 
+bool Workaround::needsHardPointShadows()
+{
+	init();
+	// I vaguely remember X300 crashing with smooth point shadows few years ago, it needs retesting
+	return s_isRadeon && (s_modelNumber>=9500 || s_modelNumber<=1299);
+}
+
 unsigned Workaround::needsReducedQualityPenumbra(unsigned SHADOW_MAPS)
 {
 	init();
