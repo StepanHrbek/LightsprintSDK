@@ -335,7 +335,7 @@ namespace rr
 			//! Only for Fireball solver:
 			//! Specifies what to do when environment changes.
 			//! Quality of lighting from environment, number of samples.
-			//! 0 disables updates, existing lighting stays unchanged.
+			//! 0 disables updates, existing lighting stays unchanged; so if you always pass 0, environment will not illuminate scene.
 			unsigned environmentStaticQuality;
 			//! Only for Fireball solver:
 			//! Like environmentStaticQuality, applied when there is video in environment texture.
