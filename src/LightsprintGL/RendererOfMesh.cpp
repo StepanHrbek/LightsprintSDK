@@ -38,10 +38,12 @@ MeshArraysVBOs::~MeshArraysVBOs()
 
 bool MeshArraysVBOs::update(const rr::RRMeshArrays* _mesh, bool _indexed)
 {
-	if (!_mesh)
+	// fast path for no data
+	// !_mesh->numTriangles happens when meshArrays.reload() before this update() runs out of address space and degrades to empty mesh
+	if (!_mesh || !_mesh->numTriangles || !_mesh->numVertices)
 	{
-		// should we also delete VBOs?
-		return true;
+		createdOk = false; // we have no data, disable render()
+		return true; // but everything's ok, updating works
 	}
 
 	if (_mesh==createdFromMesh && _mesh->version==createdFromMeshVersion)
@@ -120,9 +122,9 @@ bool MeshArraysVBOs::update(const rr::RRMeshArrays* _mesh, bool _indexed)
 	catch(...)
 	{
 		rr::RRReporter::report(rr::ERRO,"MeshArraysVBOs::update() failed.\n");
-		return false;
+		return createdOk = false;
 	}
-	return true;
+	return createdOk = true;
 }
 
 static GLint getBufferNumComponents(const rr::RRBuffer* buffer)
@@ -186,7 +188,8 @@ void MeshArraysVBOs::render(
 	rr::RRBuffer* _lightIndirectBuffer,
 	const rr::RRBuffer* _lightDetailMap)
 {
-	if (!_object)
+	// fast path for no data
+	if (!_object || !createdOk)
 	{
 		return;
 	}
