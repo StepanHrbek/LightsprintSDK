@@ -392,7 +392,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			}
 			if (temporaryContext!=staticObjects && temporaryContextItems.size()==1)
 				menu.Append(CM_OBJECT_INSPECT_UNWRAP,_("Inspect unwrap,lightmap,LDM..."),_("Shows unwrap and lightmap or LDM in 2D."));
-			if (temporaryContextItems.size()>1)
+			if (entityIds.size()>1)
 				menu.Append(CM_OBJECTS_MERGE,_("Merge objects"),_("Merges objects together."));
 			menu.Append(CM_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
 			if (svframe->userPreferences.testingBeta) // is in beta because tangents have no effect
