@@ -346,6 +346,10 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 		ar & make_nvp("raytracedCubesSpecularThreshold",a.raytracedCubesSpecularThreshold);
 		ar & make_nvp("raytracedCubesDepthThreshold",a.raytracedCubesDepthThreshold);
 	}
+	if (version>27)
+	{
+		ar & make_nvp("mirrorsEnabled",a.mirrorsEnabled);
+	}
 	if (version>17)
 	{
 		ar & make_nvp("lightmapFilteringParameters",a.lightmapFilteringParameters);
@@ -443,7 +447,7 @@ BOOST_CLASS_VERSION(rr::RRCamera,2)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,11)
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,27)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,28)
 
 //---------------------------------------------------------------------------
 
