@@ -278,6 +278,7 @@ void display(void)
 	uberProgramSetup.LIGHT_INDIRECT_auto = true; // enable indirect illumination
 	uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
 	uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
+	uberProgramSetup.LIGHT_INDIRECT_MIRROR = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	// render scene
