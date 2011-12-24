@@ -11,6 +11,10 @@
 #include <cstdlib>
 #include "RRDebug.h"
 
+#if _MSC_VER>=1600 || __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=3)
+	#define RR_SUPPORTS_RVALUE_REFERENCES
+#endif
+
 namespace rr
 {
 
@@ -33,7 +37,7 @@ public:
 		numAllocated = 0;
 		c = NULL;
 	}
-	//! Creates copy of vector.
+	//! Creates vector by copying.
 	//! Uses memcpy to copy elements (unlike std::vector).
 	RRVector(const RRVector& a)
 	{
@@ -66,6 +70,31 @@ public:
 		}
 		return *this;
 	}
+#ifdef RR_SUPPORTS_RVALUE_REFERENCES
+	//! Local replacement for std::swap
+	template <class T> void swap(T& a, T& b)
+	{
+		T c(a); a=b; b=c;
+	}
+	//! Creates vector by moving.
+	RRVector(RRVector&& a)
+	{
+		c = a.c;
+		numAllocated = a.numAllocated;
+		numUsed = a.numUsed;
+		a.c = NULL;
+		a.numAllocated = 0;
+		a.numUsed = 0;
+	}
+	//! Moves vector.
+	RRVector& operator=(RRVector&& a)
+	{
+		swap(c,a.c);
+		swap(numAllocated,a.numAllocated);
+		swap(numUsed,a.numUsed);
+		return *this;
+	}
+#endif
 	//! Resizes vector, adding or removing elements at the end.
 	//! Does not destruct removed elements (unlike std::vector).
 	void resize(unsigned newSize, C initial=C())
