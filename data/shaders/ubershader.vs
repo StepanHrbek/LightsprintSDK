@@ -26,6 +26,7 @@
 //  #define LIGHT_INDIRECT_DETAIL_MAP
 //  #define LIGHT_INDIRECT_ENV_DIFFUSE
 //  #define LIGHT_INDIRECT_ENV_SPECULAR
+//  #define LIGHT_INDIRECT_MIRROR
 //  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_X2
 //  #define MATERIAL_DIFFUSE_CONST
@@ -121,6 +122,10 @@
 
 #if defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_DETAIL_MAP)
 	varying vec2 lightIndirectCoord;
+#endif
+
+#if defined(LIGHT_INDIRECT_MIRROR)
+	varying vec4 lightIndirectMirrorCoord;
 #endif
 
 varying vec3 worldPos;
@@ -228,5 +233,9 @@ void main()
 		gl_Position = vec4(gl_MultiTexCoord2.x,gl_MultiTexCoord2.y,0.5,1.0);
 	#else
 		gl_Position = gl_ModelViewProjectionMatrix * worldPos4;
+	#endif
+
+	#if defined(LIGHT_INDIRECT_MIRROR)
+		lightIndirectMirrorCoord = gl_Position;
 	#endif
 }

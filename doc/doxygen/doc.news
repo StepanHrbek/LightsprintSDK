@@ -12,9 +12,21 @@ namespace rr
 
 NEWS
 
+- realtime mirror reflections
+  - automatically applied to absolutely flat horizontal objects (floor, ground...) that don't have specular reflection cube allocated
+  - greatly improves accuracy of specular reflection (more accurate and faster than highres specular reflection cubes)
+  - rendering enabled by rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR
   - example of flat horizontal object (floor) is in koupelna4.dae
   - demonstrated in samples: SceneViewer, Lightmaps, RealtimeLights
+
+  <table border=0><tr align=top><td>
+  \image html samples/RealtimeLights_1.jpg RealtimeLights sample
+  </td><td>
+  \image html samples/Lightmaps_1.jpg Lightmaps sample
+  </td></tr></table>
+
 - improved scene viewer
+  - Global illumination/Realtime mirror reflections checkbox
   - "Bake ambient maps" bakes indirect illumination only, saves with .indirect.png extension
   - new rendering mode: Direct illumination=realtime, Indirect illumination=baked
 - sample RealtimeLights modified so that dynamic objects move automatically, without holding spacebar

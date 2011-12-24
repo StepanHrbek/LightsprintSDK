@@ -3,7 +3,12 @@
 // Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
+#define MIRRORS // enables implementation of mirrors, marks mirror source code
+
 #include <algorithm> // sort
+#ifdef MIRRORS
+	#include <map>
+#endif
 #include <cstdio>
 #include <boost/unordered_map.hpp>
 #include <GL/glew.h>
@@ -60,6 +65,10 @@ struct PerObjectBuffers
 	RendererOfMesh* meshRenderer;
 	rr::RRBuffer* diffuseEnvironment;
 	rr::RRBuffer* specularEnvironment;
+#ifdef MIRRORS
+	float mirrorY;
+	rr::RRBuffer* mirrorMap;
+#endif
 	rr::RRBuffer* lightIndirectBuffer;
 	rr::RRBuffer* lightIndirectDetailMap;
 	UberProgramSetup objectUberProgramSetup; // only for blended facegroups. everything is set except for MATERIAL_XXX, use enableUsedMaterials()
@@ -93,17 +102,22 @@ private:
 	TextureRenderer* textureRenderer;
 	UberProgram* uberProgram;
 	RendererOfMeshCache rendererOfMeshCache;
+#ifdef MIRRORS
+	rr::RRBuffer* depthMap;
+#endif
 	bool prefilterSeams;
 
-	// PERMANENT ALLOCATION, TEMPORARY CONTENT
-	rr::RRObjects multiObjects;
+	// PERMANENT ALLOCATION, TEMPORARY CONTENT (used only inside render(), placing it here saves alloc/free in every render(), but makes render() nonreentrant)
+	rr::RRObjects multiObjects; // used in first half of render()
 	//! Gathered per-object information.
-	rr::RRVector<PerObjectBuffers> perObjectBuffers;
+	rr::RRVector<PerObjectBuffers> perObjectBuffers[2]; // used in whole render(), indexed by [recursionDepth]
 	typedef boost::unordered_map<UberProgramSetup,rr::RRVector<FaceGroupRange>*> ShaderFaceGroups;
 	//! Gathered non-blended object information.
-	ShaderFaceGroups nonBlendedFaceGroupsMap;
+	ShaderFaceGroups nonBlendedFaceGroupsMap[2]; // used in whole render(), indexed by [recursionDepth]
 	//! Gathered blended object information.
-	rr::RRVector<FaceGroupRange> blendedFaceGroups;
+	rr::RRVector<FaceGroupRange> blendedFaceGroups[2]; // used in whole render(), indexed by [recursionDepth]
+	//! usually 0, 1 only when render() calls render() because of mirror
+	unsigned recursionDepth;
 };
 
 static rr::RRVector<PerObjectBuffers>* s_perObjectBuffers = NULL; // used by sort()
@@ -119,6 +133,10 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 	uberProgram = UberProgram::create(
 		tmpstr("%subershader.vs",pathToShaders),
 		tmpstr("%subershader.fs",pathToShaders));
+#ifdef MIRRORS
+	depthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,512,512,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
+#endif
+	recursionDepth = 0;
 
 	// init "seamless cube maps" feature
 	prefilterSeams = true;//!GLEW_ARB_seamless_cube_map;
@@ -127,12 +145,14 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 
 RendererOfSceneImpl::~RendererOfSceneImpl()
 {
+#ifdef MIRRORS
+	delete depthMap;
+#endif
 	delete uberProgram;
 	delete textureRenderer;
-	for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap.begin();i!=nonBlendedFaceGroupsMap.end();++i)
-	{
-		delete i->second;
-	}
+	for (recursionDepth=0;recursionDepth<2;recursionDepth++)
+		for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap[recursionDepth].begin();i!=nonBlendedFaceGroupsMap[recursionDepth].end();++i)
+			delete i->second;
 }
 
 rr::RRBuffer* onlyVbuf(rr::RRBuffer* buffer)
@@ -179,6 +199,15 @@ void RendererOfSceneImpl::render(
 		_uberProgramSetup.POSTPROCESS_GAMMA = true;
 	}
 
+#ifdef MIRRORS
+	// get viewport size, so we know how large mirror textures to use
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT,viewport);
+	// here we map planes to mirrors, so that two objects with the same plane share mirror
+	typedef std::map<float,rr::RRBuffer*> Mirrors;
+	Mirrors mirrors;
+#endif
+
 	// Will we render multiobject or individual objects?
 	//unsigned lightIndirectVersion = _solver?_solver->getSolutionVersion():0;
 	bool needsIndividualStaticObjectsForEverything =
@@ -195,8 +224,12 @@ void RendererOfSceneImpl::render(
 			// if we are to use provided indirect, take it always from 1objects
 			// (if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
 			|| ((_uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_uberProgramSetup.LIGHT_INDIRECT_MAP||_uberProgramSetup.LIGHT_INDIRECT_auto) && !_updateLightIndirect && _lightIndirectLayer!=UINT_MAX)
-			// optimized render looks bad with single specular cube per-scene
+			// optimized render would look bad with single specular cube per-scene
 			|| (_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+#ifdef MIRRORS
+			// optimized render would look bad without mirrors in static parts
+			|| (_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_MIRROR)
+#endif
 		);
 
 	// Will we render opaque parts from multiobject and blended parts from 1objects?
@@ -211,11 +244,11 @@ void RendererOfSceneImpl::render(
 
 	rr::RRReportInterval report(rr::INF3,"Rendering %s%s scene...\n",needsIndividualStaticObjectsForEverything?"1obj":"multiobj",needsIndividualStaticObjectsOnlyForBlending?"+1objblend":"");
 
-	// Preprocess scene, gather information about shader classes.
-	perObjectBuffers.clear();
-	for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap.begin();i!=nonBlendedFaceGroupsMap.end();++i)
+	// Preprocess scene, gather information about shader classes. Update cubemaps. Gather mirrors that need update.
+	perObjectBuffers[recursionDepth].clear();
+	for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap[recursionDepth].begin();i!=nonBlendedFaceGroupsMap[recursionDepth].end();++i)
 		i->second->clear();
-	blendedFaceGroups.clear();
+	blendedFaceGroups[recursionDepth].clear();
 	multiObjects.clear();
 	multiObjects.push_back(_solver->getMultiObjectCustom());
 	for (unsigned pass=0;pass<3;pass++)
@@ -249,6 +282,46 @@ void RendererOfSceneImpl::render(
 				objectBuffers.meshRenderer = rendererOfMeshCache.getRendererOfMesh(mesh);
 				objectBuffers.diffuseEnvironment = _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE ? illumination.diffuseEnvMap : NULL;
 				objectBuffers.specularEnvironment = _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR ? illumination.specularEnvMap : NULL;
+#ifdef MIRRORS
+				objectBuffers.mirrorMap = NULL;
+				objectBuffers.mirrorY = 0;
+				if (_uberProgramSetup.LIGHT_INDIRECT_MIRROR && !illumination.specularEnvMap)
+				{
+					rr::RRVec3 mini,maxi;
+					mesh->getAABB(&mini,&maxi,NULL);
+					rr::RRVec3 size = maxi-mini;
+
+					// is it planar?
+					if (!size.mini() && size.sum()>size.maxi())
+					{
+						rr::RRVec4 plane = size.x ? ( size.y ? rr::RRVec4(0,0,1,-mini.z) : rr::RRVec4(0,1,0,-mini.y) ) : rr::RRVec4(1,0,0,-mini.x);
+						rr::RRVec4 mirrorPlane = object->getWorldMatrixRef().getTransformedPlane(plane);
+						if (!mirrorPlane.x && !mirrorPlane.z) // for now, create mirror only for floor planes
+						{
+							// is it specular?
+							const rr::RRObject::FaceGroups& faceGroups = object->faceGroups;
+							for (unsigned g=0;g<faceGroups.size();g++)
+							{
+								const rr::RRMaterial* material = faceGroups[g].material;
+								if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom) && material->specularReflectance.color.sum()>0.1)
+								{
+									// allocate mirror
+									objectBuffers.mirrorY = -mirrorPlane.w/mirrorPlane.y;
+									Mirrors::const_iterator i = mirrors.find(objectBuffers.mirrorY);
+									if (i!=mirrors.end())
+										objectBuffers.mirrorMap = i->second;
+									else
+									{
+										objectBuffers.mirrorMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,(viewport[2]+1)/2,(viewport[3]+1)/2,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+										mirrors.insert(std::pair<float,rr::RRBuffer*>(objectBuffers.mirrorY,objectBuffers.mirrorMap));
+									}
+									break;
+								}
+							}
+						}
+					}
+				}
+#endif
 				rr::RRBuffer* lightIndirectVcolor = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_VCOLOR) ? onlyVbuf(illumination.getLayer(_lightIndirectLayer)) : NULL;
 				rr::RRBuffer* lightIndirectMap = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_MAP) ? onlyLmap(illumination.getLayer(_lightIndirectLayer)) : NULL;
 				objectBuffers.lightIndirectBuffer = lightIndirectVcolor?lightIndirectVcolor:lightIndirectMap;
@@ -259,6 +332,11 @@ void RendererOfSceneImpl::render(
 					objectBuffers.objectUberProgramSetup.SHADOW_MAPS = 1; // decrease shadow quality on dynamic objects
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = objectBuffers.diffuseEnvironment!=NULL;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = objectBuffers.specularEnvironment!=NULL;
+#ifdef MIRRORS
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR = objectBuffers.mirrorMap!=NULL;
+#else
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR = false;
+#endif
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR = lightIndirectVcolor!=NULL;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP = lightIndirectMap!=NULL;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = objectBuffers.lightIndirectDetailMap!=NULL;
@@ -284,7 +362,7 @@ void RendererOfSceneImpl::render(
 							if (!needsIndividualStaticObjectsOnlyForBlending || pass!=0)
 							{
 								objectWillBeRendered = true;
-								blendedFaceGroups.push_back(FaceGroupRange(perObjectBuffers.size(),g,triangleInFgFirst,triangleInFgLastPlus1));
+								blendedFaceGroups[recursionDepth].push_back(FaceGroupRange(perObjectBuffers[recursionDepth].size(),g,triangleInFgFirst,triangleInFgLastPlus1));
 								if (!blendedAlreadyFoundInObject)
 								{
 									blendedAlreadyFoundInObject = true;
@@ -305,21 +383,21 @@ void RendererOfSceneImpl::render(
 							fgUberProgramSetup.enableUsedMaterials(material);
 							fgUberProgramSetup.reduceMaterials(_uberProgramSetup);
 							fgUberProgramSetup.validate();
-							rr::RRVector<FaceGroupRange>*& nonBlended = nonBlendedFaceGroupsMap[fgUberProgramSetup];
+							rr::RRVector<FaceGroupRange>*& nonBlended = nonBlendedFaceGroupsMap[recursionDepth][fgUberProgramSetup];
 							if (!nonBlended)
 								nonBlended = new rr::RRVector<FaceGroupRange>;
-							if (nonBlended->size() && (*nonBlended)[nonBlended->size()-1].object==perObjectBuffers.size() && (*nonBlended)[nonBlended->size()-1].faceGroupLast==g-1)
+							if (nonBlended->size() && (*nonBlended)[nonBlended->size()-1].object==perObjectBuffers[recursionDepth].size() && (*nonBlended)[nonBlended->size()-1].faceGroupLast==g-1)
 							{
 								(*nonBlended)[nonBlended->size()-1].faceGroupLast++;
 								(*nonBlended)[nonBlended->size()-1].triangleLastPlus1 = triangleInFgLastPlus1;
 							}
 							else
-								nonBlended->push_back(FaceGroupRange(perObjectBuffers.size(),g,triangleInFgFirst,triangleInFgLastPlus1));
+								nonBlended->push_back(FaceGroupRange(perObjectBuffers[recursionDepth].size(),g,triangleInFgFirst,triangleInFgLastPlus1));
 						}
 					}
 					triangleInFgFirst = triangleInFgLastPlus1;
 				}
-				perObjectBuffers.push_back(objectBuffers);
+				perObjectBuffers[recursionDepth].push_back(objectBuffers);
 
 				if (_updateLightIndirect && objectWillBeRendered)
 				{
@@ -351,6 +429,39 @@ void RendererOfSceneImpl::render(
 		}
 	}
 
+#ifdef MIRRORS
+	// Update mirrors.
+	if (mirrors.size() && getRenderCamera())
+	{
+		recursionDepth = 1;
+		UberProgramSetup mirrorUberProgramSetup = _uberProgramSetup;
+		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
+		rr::RRCamera mainCamera = *getRenderCamera();
+		FBO oldState = FBO::getState();
+		for (Mirrors::const_iterator i=mirrors.begin();i!=mirrors.end();++i)
+		{
+			float mirrorY = i->first;
+			rr::RRBuffer* mirrorMap = i->second;
+			rr::RRCamera mirrorCamera = mainCamera;
+			mirrorCamera.mirror(mirrorY);
+			setupForRender(mirrorCamera);
+			float clipPlanes[6] = {0,0,0,0,0,0};
+			clipPlanes[3] = mirrorY;
+			mirrorUberProgramSetup.CLIP_PLANE_YB = true;
+			depthMap->reset(rr::BT_2D_TEXTURE,mirrorMap->getWidth(),mirrorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
+			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(depthMap,false,false));
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,new Texture(mirrorMap,false,false)); // new Texture instead of getTexture makes our texture deletable at the end of render()
+			glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
+			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+			render(_solver,mirrorUberProgramSetup,_lights,NULL,_updateLightIndirect,_lightIndirectLayer,_lightDetailMapLayer,clipPlanes,_srgbCorrect,NULL,1);
+		}
+		oldState.restore();
+		setupForRender(mainCamera);
+		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+		recursionDepth = 0;
+	}
+#endif
+
 	PreserveCullFace p1;
 	PreserveCullMode p2;
 	PreserveBlend p3;     // changed by RendererOfMesh (in MultiPass)
@@ -359,7 +470,7 @@ void RendererOfSceneImpl::render(
 
 	// Render non-sorted facegroups.
 	for (unsigned transparencyToRGB=0;transparencyToRGB<2;transparencyToRGB++) // 2 passes, MATERIAL_TRANSPARENCY_TO_RGB(e.g. window) must go _after_ !MATERIAL_TRANSPARENCY_TO_RGB(e.g. wall), otherwise in "light - wall - window" scene, window would paint to rgb shadowmap (wall does not write to rgb) and cast rgb shadow on wall
-	for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap.begin();i!=nonBlendedFaceGroupsMap.end();++i)
+	for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap[recursionDepth].begin();i!=nonBlendedFaceGroupsMap[recursionDepth].end();++i)
 	if (i->first.MATERIAL_TRANSPARENCY_TO_RGB == (transparencyToRGB!=0))
 	{
 		rr::RRVector<FaceGroupRange>*& nonBlendedFaceGroups = i->second;
@@ -380,7 +491,7 @@ void RendererOfSceneImpl::render(
 			{
 				for (unsigned j=0;j<nonBlendedFaceGroups->size();)
 				{
-					PerObjectBuffers& objectBuffers = perObjectBuffers[(*nonBlendedFaceGroups)[j].object];
+					PerObjectBuffers& objectBuffers = perObjectBuffers[recursionDepth][(*nonBlendedFaceGroups)[j].object];
 					rr::RRObject* object = objectBuffers.object;
 
 					// set transformation
@@ -388,7 +499,10 @@ void RendererOfSceneImpl::render(
 
 					// set envmaps
 					passUberProgramSetup.useIlluminationEnvMaps(program,&object->illumination);
-
+#ifdef MIRRORS
+					// set mirror
+					passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorMap);
+#endif
 					// how many ranges can we render at once (the same mesh)?
 					unsigned numRanges = 1;
 					while (j+numRanges<nonBlendedFaceGroups->size() && (*nonBlendedFaceGroups)[j+numRanges].object==(*nonBlendedFaceGroups)[j].object) numRanges++;
@@ -433,18 +547,18 @@ void RendererOfSceneImpl::render(
 	//...
 
 	// Render sorted facegroups.
-	if (blendedFaceGroups.size())
+	if (blendedFaceGroups[recursionDepth].size())
 	{
 		// Sort blended objects.
-		s_perObjectBuffers = &perObjectBuffers;
-		std::sort(&blendedFaceGroups[0],&blendedFaceGroups[0]+blendedFaceGroups.size());
+		s_perObjectBuffers = &perObjectBuffers[recursionDepth];
+		std::sort(&blendedFaceGroups[recursionDepth][0],&blendedFaceGroups[recursionDepth][0]+blendedFaceGroups[recursionDepth].size());
 
 		// Render them by facegroup, it's usually small number.
-		for (unsigned i=0;i<blendedFaceGroups.size();i++)
+		for (unsigned i=0;i<blendedFaceGroups[recursionDepth].size();i++)
 		{
-			const PerObjectBuffers& objectBuffers = perObjectBuffers[blendedFaceGroups[i].object];
+			const PerObjectBuffers& objectBuffers = perObjectBuffers[recursionDepth][blendedFaceGroups[recursionDepth][i].object];
 			rr::RRObject* object = objectBuffers.object;
-			rr::RRMaterial* material = object->faceGroups[blendedFaceGroups[i].faceGroupFirst].material;
+			rr::RRMaterial* material = object->faceGroups[blendedFaceGroups[recursionDepth][i].faceGroupFirst].material;
 			UberProgramSetup fgUberProgramSetup = objectBuffers.objectUberProgramSetup;
 			fgUberProgramSetup.enableUsedMaterials(material);
 			fgUberProgramSetup.reduceMaterials(_uberProgramSetup);
@@ -460,12 +574,15 @@ void RendererOfSceneImpl::render(
 
 				// set envmaps
 				passUberProgramSetup.useIlluminationEnvMaps(program,&object->illumination);
-
+#ifdef MIRRORS
+				// set mirror
+				passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorMap);
+#endif
 				// render
 				objectBuffers.meshRenderer->render(
 					program,
 					object,
-					&blendedFaceGroups[i],1,
+					&blendedFaceGroups[recursionDepth][i],1,
 					passUberProgramSetup,
 					_renderingFromThisLight?true:false,
 					objectBuffers.lightIndirectBuffer,
@@ -473,6 +590,15 @@ void RendererOfSceneImpl::render(
 			}
 		}
 	}
+
+#ifdef MIRRORS
+	// Delete mirrors.
+	for (Mirrors::const_iterator i=mirrors.begin();i!=mirrors.end();++i)
+	{
+		delete getTexture(i->second,false,false);
+		delete i->second;
+	}
+#endif
 }
 
 

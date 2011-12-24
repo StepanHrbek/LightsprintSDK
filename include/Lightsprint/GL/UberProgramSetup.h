@@ -26,6 +26,7 @@ enum
 	TEX_CODE_2D_MATERIAL_EMISSIVE         = 4, ///< Program::sendTexture() code used by our uberprogram for emissive map.
 	TEX_CODE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 5, ///< Program::sendTexture() code used by our uberprogram for diffuse cube map.
 	TEX_CODE_CUBE_LIGHT_INDIRECT_SPECULAR = 6, ///< Program::sendTexture() code used by our uberprogram for specular cube map.
+	TEX_CODE_2D_LIGHT_INDIRECT_MIRROR     = 7, ///< Program::sendTexture() code used by our uberprogram for mirror map.
 
 	// texcoords assigned to UberProgram, sent to OpenGL
 	// these constants are hardcoded in shaders
@@ -77,6 +78,7 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_INDIRECT_DETAIL_MAP     :1; ///< Enables modulation of indirect light by light detail map.
 	bool     LIGHT_INDIRECT_ENV_DIFFUSE    :1; ///< Enables indirect light, set by diffuse reflection environment map.
 	bool     LIGHT_INDIRECT_ENV_SPECULAR   :1; ///< Enables indirect light, set by specular reflection environment map.
+	bool     LIGHT_INDIRECT_MIRROR         :1; ///< Enables indirect light, set by mirror map.
 	bool     LIGHT_INDIRECT_auto           :1; ///< Extension. Makes renderer set LIGHT_INDIRECT_[VCOLOR*|MAP*|DETAIL_MAP] flags automatically according to available data.
 
 	bool     MATERIAL_DIFFUSE              :1; ///< Enables material's diffuse reflection. All enabled MATERIAL_DIFFUSE_XXX are multiplied. When only MATERIAL_DIFFUSE is enabled, diffuse color is 1 (white).
@@ -166,7 +168,7 @@ struct RR_GL_API UberProgramSetup
 	void validate();
 	//! Sets rendering pipeline so that following primitives are rendered by our program.
 	//! setupForRender() should precede this call.
-	//! Some shader parameters are left uninitialized, useIlluminationEnvMaps() and useMaterial() should follow to set them.
+	//! Some shader parameters are left uninitialized, useIlluminationEnvMaps(), useIlluminationMirror() and useMaterial() should follow to set them.
 	Program* useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, float* clipPlanes);
 	//! Sets shader uniform parameters to match given material, should be called after useProgram() or getNextPass().
 	//! You can call expensive useProgram() once and cheaper useMaterial() multiple times.
@@ -174,6 +176,9 @@ struct RR_GL_API UberProgramSetup
 	//! Sets shader illumination environment maps, should be called after useProgram() or getNextPass().
 	//! You can call expensive useProgram() once and cheaper useIlluminationEnvMaps() multiple times.
 	void useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination);
+	//! Sets shader illumination mirror map, should be called after useProgram() or getNextPass().
+	//! You can call expensive useProgram() once and cheaper useIlluminationMirror() multiple times.
+	void useIlluminationMirror(Program* program, rr::RRBuffer* mirrorMap);
 	//! Sets world matrix for given object.
 	void useWorldMatrix(Program* program, const rr::RRObject* object);
 };

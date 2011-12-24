@@ -129,7 +129,7 @@ const char* UberProgramSetup::getSetupString()
 	RR_ASSERT(!MATERIAL_TRANSPARENCY_CONST || !MATERIAL_TRANSPARENCY_MAP); // engine does not support both together
 
 	static char setup[2000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s"
+	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s"
 		"#define MATERIAL_SPECULAR_MODEL %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
@@ -155,6 +155,7 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_INDIRECT_DETAIL_MAP?"#define LIGHT_INDIRECT_DETAIL_MAP\n":"",
 		LIGHT_INDIRECT_ENV_DIFFUSE?"#define LIGHT_INDIRECT_ENV_DIFFUSE\n":"",
 		LIGHT_INDIRECT_ENV_SPECULAR?"#define LIGHT_INDIRECT_ENV_SPECULAR\n":"",
+		LIGHT_INDIRECT_MIRROR?"#define LIGHT_INDIRECT_MIRROR\n":"",
 		MATERIAL_DIFFUSE?"#define MATERIAL_DIFFUSE\n":"",
 		MATERIAL_DIFFUSE_X2?"#define MATERIAL_DIFFUSE_X2\n":"",
 		MATERIAL_DIFFUSE_CONST?"#define MATERIAL_DIFFUSE_CONST\n":"",
@@ -325,7 +326,8 @@ void UberProgramSetup::validate()
 	if (!LIGHT_DIRECT
 		//&& !LIGHT_INDIRECT_CONST ...why was it here, bug? constant indirect does not affect specular
 		//&& !LIGHT_INDIRECT_ENV_DIFFUSE // env diffuse needs normals, but it doesn't affect specular
-		&& !LIGHT_INDIRECT_ENV_SPECULAR)
+		&& !LIGHT_INDIRECT_ENV_SPECULAR
+		&& !LIGHT_INDIRECT_MIRROR)
 	{
 		MATERIAL_SPECULAR = 0; // specular reflection requested, but there's no suitable light
 	}
@@ -343,6 +345,7 @@ void UberProgramSetup::validate()
 		MATERIAL_SPECULAR_CONST = 0;
 		MATERIAL_SPECULAR_MAP = 0;
 		LIGHT_INDIRECT_ENV_SPECULAR = 0;
+		LIGHT_INDIRECT_MIRROR = 0;
 	}
 	if (MATERIAL_TRANSPARENCY_BLEND)
 	{
@@ -353,7 +356,7 @@ void UberProgramSetup::validate()
 		// both is wrong, but first evil is smaller
 		SHADOW_COLOR = 0;
 	}
-	bool incomingLight = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR;
+	bool incomingLight = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR;
 	bool reflectsLight = MATERIAL_DIFFUSE || MATERIAL_SPECULAR;
 	if (!incomingLight || !reflectsLight)
 	{
@@ -382,6 +385,7 @@ void UberProgramSetup::validate()
 		LIGHT_INDIRECT_DETAIL_MAP = 0;
 		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 		LIGHT_INDIRECT_ENV_SPECULAR = 0;
+		LIGHT_INDIRECT_MIRROR = 0;
 		LIGHT_INDIRECT_auto = 0;
 		MATERIAL_DIFFUSE = 0;
 		MATERIAL_DIFFUSE_X2 = 0;
@@ -543,7 +547,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		program->sendUniform("lightDistanceFallOffExponent",light->getRRLight().fallOffExponent);
 	}
 
-	if (LIGHT_INDIRECT_CONST)
+	if (LIGHT_INDIRECT_CONST && (MATERIAL_DIFFUSE || (MATERIAL_SPECULAR && !LIGHT_INDIRECT_MIRROR))) // shader ignores LIGHT_INDIRECT_CONST when rendering mirror
 	{
 		program->sendUniform("lightIndirectConst",rr::RRVec4(0.2f,0.2f,0.2f,1.0f));
 	}
@@ -551,7 +555,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	if (POSTPROCESS_BRIGHTNESS
 		// sendUniform is crybaby, don't call it if uniform doesn't exist
 		// uniform is unused (and usually removed by shader compiler) when there is no light
-		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP))
+		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP))
 	{
 		program->sendUniform("postprocessBrightness", brightness?*brightness:rr::RRVec4(1.0f));
 	}
@@ -559,7 +563,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	if (POSTPROCESS_GAMMA
 		// sendUniform is crybaby, don't call it if uniform doesn't exist
 		// uniform is unused (and usually removed by shader compiler) when there is no light
-		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP))
+		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP))
 	{
 		program->sendUniform("postprocessGamma", gamma);
 	}
@@ -704,6 +708,24 @@ void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllu
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: specularEnvMap==NULL.\n"));
 		}
 		program->sendTexture("lightIndirectSpecularEnvMap",getTexture(illumination->specularEnvMap,false,false),TEX_CODE_CUBE_LIGHT_INDIRECT_SPECULAR);
+	}
+}
+
+void UberProgramSetup::useIlluminationMirror(Program* program, rr::RRBuffer* mirrorMap)
+{
+	if (!program)
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationMirror(program=NULL).\n"));
+		return;
+	}
+	if (LIGHT_INDIRECT_MIRROR && MATERIAL_SPECULAR)
+	{
+		if (!mirrorMap)
+		{
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationMirror: mirrorMap==NULL.\n"));
+		}
+		program->sendTexture("lightIndirectMirrorMap",getTexture(mirrorMap,false,false),TEX_CODE_2D_LIGHT_INDIRECT_MIRROR);
+		program->sendUniform("lightIndirectMirrorBlurWidth",rr::RRVec4(1.7f/mirrorMap->getWidth(),1.7f/mirrorMap->getHeight(),1.7f,1.7f));
 	}
 }
 

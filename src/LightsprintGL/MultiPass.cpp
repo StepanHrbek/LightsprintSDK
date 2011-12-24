@@ -34,7 +34,7 @@ MultiPass::MultiPass(const RealtimeLights* _lights, const rr::RRLight* _renderin
 
 	separatedAmbientPass = _srgbCorrect
 		// separate ambient from direct light
-		? (!numLights || mainUberProgramSetup.LIGHT_INDIRECT_CONST || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL || mainUberProgramSetup.LIGHT_INDIRECT_MAP || mainUberProgramSetup.LIGHT_INDIRECT_MAP2 || mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || mainUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || mainUberProgramSetup.LIGHT_INDIRECT_auto)
+		? (!numLights || mainUberProgramSetup.LIGHT_INDIRECT_CONST || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL || mainUberProgramSetup.LIGHT_INDIRECT_MAP || mainUberProgramSetup.LIGHT_INDIRECT_MAP2 || mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || mainUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || mainUberProgramSetup.LIGHT_INDIRECT_MIRROR || mainUberProgramSetup.LIGHT_INDIRECT_auto)
 		// do ambient together with first direct light
 		: ((!numLights)?1:0);
 
@@ -133,6 +133,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.LIGHT_INDIRECT_auto = 0;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
+		uberProgramSetup.LIGHT_INDIRECT_MIRROR = 0;
 		uberProgramSetup.MATERIAL_DIFFUSE = 0;
 		uberProgramSetup.MATERIAL_SPECULAR = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
@@ -209,6 +210,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
+			uberProgramSetup.LIGHT_INDIRECT_MIRROR = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
 			//printf(" %d: direct\n",_lightIndex);
@@ -241,6 +243,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		{
 			uberProgramSetup.MATERIAL_SPECULAR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
+			uberProgramSetup.LIGHT_INDIRECT_MIRROR = 0;
 			uberProgramSetup.validate(); // is useful (zeroes MATERIAL_SPECULAR_CONST, might do more)
 			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlanes);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with specular disabled.\n"));

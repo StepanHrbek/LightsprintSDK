@@ -26,6 +26,7 @@
 //  #define LIGHT_INDIRECT_DETAIL_MAP
 //  #define LIGHT_INDIRECT_ENV_DIFFUSE
 //  #define LIGHT_INDIRECT_ENV_SPECULAR
+//  #define LIGHT_INDIRECT_MIRROR
 //  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_X2
 //  #define MATERIAL_DIFFUSE_CONST
@@ -197,6 +198,12 @@
 
 #ifdef LIGHT_INDIRECT_ENV_SPECULAR
 	uniform samplerCube lightIndirectSpecularEnvMap;
+#endif
+
+#if defined(LIGHT_INDIRECT_MIRROR)
+	varying vec4 lightIndirectMirrorCoord;
+	uniform sampler2D lightIndirectMirrorMap;
+	uniform vec4 lightIndirectMirrorBlurWidth;
 #endif
 
 #ifdef MATERIAL_DIFFUSE_CONST
@@ -560,7 +567,7 @@ void main()
 	//
 	// final mix
 
-	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(POSTPROCESS_NORMALS)
+	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_INDIRECT_MIRROR) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(POSTPROCESS_NORMALS)
 
 		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_DIRECT))
 			vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
@@ -584,6 +591,13 @@ void main()
 						* lightIndirectBlend
 					#endif
 					;
+		#endif
+
+		#if defined(MATERIAL_SPECULAR) && defined(LIGHT_INDIRECT_MIRROR)
+			float mirrorNoise = 16.2*gl_FragCoord.x+11.4*gl_FragCoord.y;
+			vec2 mirrorCenter = vec2(0.5,0.5)+vec2(0.5,-0.5)*lightIndirectMirrorCoord.xy/lightIndirectMirrorCoord.w;
+			vec2 mirrorShift1 = vec2(sin(mirrorNoise),cos(mirrorNoise)) * lightIndirectMirrorBlurWidth.xy;
+			vec2 mirrorShift2 = mirrorShift1.yx * lightIndirectMirrorBlurWidth.zw;
 		#endif
 
 		gl_FragColor =
@@ -674,7 +688,8 @@ void main()
 						#endif
 						* lightDirect
 					#endif
-					#ifdef LIGHT_INDIRECT_CONST
+					#if defined(LIGHT_INDIRECT_CONST) && !defined(LIGHT_INDIRECT_MIRROR)
+						// const is ignored when rendering mirror, because users sometimes want cost enabled for diffuse reflection, but they never want it for mirror specular
 						+ lightIndirectConst
 					#endif
 					#ifdef LIGHT_INDIRECT_ENV_SPECULAR
@@ -685,6 +700,12 @@ void main()
 							// however, it negatively affects simple objects where reflection map is accurate
 							//* lightIndirectLightmap
 						#endif
+					#endif
+					#ifdef LIGHT_INDIRECT_MIRROR
+						+ ( texture2D(lightIndirectMirrorMap, mirrorCenter+mirrorShift1)
+						+ texture2D(lightIndirectMirrorMap, mirrorCenter-mirrorShift1)
+						+ texture2D(lightIndirectMirrorMap, mirrorCenter+mirrorShift2)
+						+ texture2D(lightIndirectMirrorMap, mirrorCenter-mirrorShift2) ) * 0.25
 					#endif
 				).rgb,1.0)
 			#endif
