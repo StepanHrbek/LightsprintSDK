@@ -4,7 +4,7 @@
 // This is a viewer of Collada/Gamebryo/3ds/etc scenes with
 // - realtime GI from lights, emissive materials, skybox
 // - lights can be moved
-// - dynamic objects can be moved
+// - dynamic objects move
 //
 // Use commandline argument or drag&drop to open custom scene.
 //
@@ -16,9 +16,7 @@
 //  + - = change brightness
 //  * / = change contrast
 //  wheel = change camera FOV
-//  space = randomly move dynamic objects
 //
-// Hint: hold space to see dynamic object occluding light
 // Hint: press 1 or 2 and left/right arrows to move lights
 //
 // In comparison to SceneViewer sample, this one lacks features,
@@ -78,7 +76,7 @@ void error(const char* message, bool gfxRelated)
 rr_gl::RRDynamicSolverGL*  solver = NULL;
 rr::RRObject*              robot = NULL;
 rr::RRObject*              potato = NULL;
-rr::RRCamera               eye(rr::RRVec3(-1.856f,1.440f,2.097f), rr::RRVec3(5.544f,0.02f,0), 1.3f,110,0.1f,1000);
+rr::RRCamera               eye(rr::RRVec3(-0.856f,1.440f,2.097f), rr::RRVec3(5.744f,0.02f,0), 1.3f,110,0.1f,1000);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
 int                        winHeight = 0;
@@ -169,13 +167,6 @@ void keyboard(unsigned char c, int x, int y)
 		case '/':
 			contrast /= 1.2f;
 			break;
-		case ' ':
-			rotation = (clock()%10000000)*0.07f;
-			solver->reportDirectIlluminationChange(-1,true,true,false);
-			// move dynamic objects
-			transformObject(robot,rr::RRVec3(-1.83f,0,-3),rr::RRVec2(rotation,0));
-			transformObject(potato,rr::RRVec3(0.4f*sin(rotation*0.05f)+1,1.0f,0.2f),rr::RRVec2(rotation/2,0));
-			break;
 		case '1':
 		case '2':
 		case '3':
@@ -257,6 +248,12 @@ void display(void)
 		if (!winWidth || !winHeight) return; // can't display without window
 		reshape(winWidth,winHeight);
 	}
+
+	// move dynamic objects
+	rotation = (clock()%10000000)*0.07f;
+	transformObject(robot,rr::RRVec3(-1.83f,0,-3),rr::RRVec2(rotation,0));
+	transformObject(potato,rr::RRVec3(0.4f*sin(rotation*0.05f)+1,1.0f,0.2f),rr::RRVec2(rotation/2,0));
+	solver->reportDirectIlluminationChange(-1,true,true,false);
 
 	solver->calculate();
 

@@ -17,6 +17,7 @@ NEWS
 - improved scene viewer
   - "Bake ambient maps" bakes indirect illumination only, saves with .indirect.png extension
   - new rendering mode: Direct illumination=realtime, Indirect illumination=baked
+- sample RealtimeLights modified so that dynamic objects move automatically, without holding spacebar
 - RRMatrix3x4::transformPlane(), RRMatrix3x4::getTransformedPlane()
 
 CHANGES
