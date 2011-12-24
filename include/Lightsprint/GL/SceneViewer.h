@@ -121,6 +121,7 @@ struct SceneViewerState
 	unsigned         raytracedCubesMaxObjects;  //! But only if there is less than this number of objects in scene.
 	float            raytracedCubesSpecularThreshold;
 	float            raytracedCubesDepthThreshold;
+	bool             mirrorsEnabled;            //! Enables rendering of flat reflections using mirror maps (rather than less accurate raytraced cubes).
 	bool             srgbCorrect;               //! Add realtime lights sRGB correctly, if OpenGL 3.0+ or sufficient extensions are found.
 	//rr::RRDynamicSolver::CalculateParameters calculateParameters;        //! Realtime GI settings.
 	rr::RRDynamicSolver::UpdateParameters    lightmapDirectParameters;   //! Lightmap baking settings.
@@ -198,6 +199,7 @@ struct SceneViewerState
 		raytracedCubesMaxObjects = 1000;
 		raytracedCubesSpecularThreshold = 0.2f;
 		raytracedCubesDepthThreshold = 0.1f;
+		mirrorsEnabled = true;
 		srgbCorrect = false;
 		lightmapDirectParameters.aoSize = 1;
 		cameraDynamicNear = 1;
@@ -274,6 +276,7 @@ struct SceneViewerState
 			&& a.raytracedCubesMaxObjects==raytracedCubesMaxObjects
 			&& a.raytracedCubesSpecularThreshold==raytracedCubesSpecularThreshold
 			&& a.raytracedCubesDepthThreshold==raytracedCubesDepthThreshold
+			&& a.mirrorsEnabled==mirrorsEnabled
 			&& a.srgbCorrect==srgbCorrect
 			&& a.lightmapDirectParameters==lightmapDirectParameters
 			&& a.lightmapFilteringParameters==lightmapFilteringParameters

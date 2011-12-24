@@ -50,6 +50,7 @@ namespace rr_gl
 		wxPGProperty*     propGIRaytracedCubesMaxObjects;
 		FloatProperty*    propGIRaytracedCubesSpecularThreshold;
 		FloatProperty*    propGIRaytracedCubesDepthThreshold;
+		BoolRefProperty*  propGIMirrors;
 		wxPGProperty*     propGIEmisMultiplier;
 		wxPGProperty*     propGIVideo;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;

@@ -82,6 +82,12 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 		}
 
+		// mirrors
+		{
+			propGIMirrors = new BoolRefProperty(_("Mirror reflections"),_("Increases realism by realtime rendering mirror reflections."),svs.mirrorsEnabled);
+			AppendIn(propGIIndirect,propGIMirrors);
+		}
+
 		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
 		AppendIn(propGIIndirect,propGIEmisMultiplier);
 
