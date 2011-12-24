@@ -12,6 +12,8 @@ namespace rr
 
 NEWS
 
+  - example of flat horizontal object (floor) is in koupelna4.dae
+  - demonstrated in samples: SceneViewer, Lightmaps, RealtimeLights
 - improved scene viewer
   - "Bake ambient maps" bakes indirect illumination only, saves with .indirect.png extension
   - new rendering mode: Direct illumination=realtime, Indirect illumination=baked
