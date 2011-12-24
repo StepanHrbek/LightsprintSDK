@@ -62,18 +62,28 @@ namespace rr
 
 		//! Diffuse reflection cube map.
 		//
-		//! Created by you, updated by updateEnvironmentMap(), deleted automatically in destructor. May stay NULL.
+		//! Created by allocateBuffersForRealtimeGI() or by you - reasonable initialization is
+		//! RRBuffer::create(BT_CUBE_TEXTURE,4,4,6,BF_RGBA,true,NULL).
 		//! Size doesn't have to be power of two.
-		//! Reasonable initialization is RRBuffer::create(BT_CUBE_TEXTURE,4,4,6,BF_RGBA,true,NULL).
+		//! May stay NULL.
+		//!
+		//! Updated by updateEnvironmentMap() or by renderer called with updateLightIndirect=true.
+		//!
+		//! Deleted automatically in destructor.
 		RRBuffer* diffuseEnvMap;
 		//! Specular reflection cube map.
 		//
-		//! Created by you, updated by updateEnvironmentMap(), deleted automatically in destructor. May stay NULL.
+		//! Created by allocateBuffersForRealtimeGI() or by you - reasonable initialization is
+		//! RRBuffer::create(BT_CUBE_TEXTURE,16,16,6,BF_RGBA,true,NULL).
+		//! Note that BF_RGBF would preserves intensities above 1 better, but very old GPUs don't support float filtering
+		//! and GF7100 even switches to sw render (extremely slow).
+		//! BF_RGBA usually looks ok and it doesn't have any compatibility problems.
 		//! Size doesn't have to be power of two.
-		//! Reasonable initialization is RRBuffer::create(BT_CUBE_TEXTURE,16,16,6,BF_RGBA,true,NULL).
-		//! Note: BF_RGBF would preserves intensities above 1 better, but some old cards don't support float filtering
-		//!  and GF7100 even switches to sw render (extremely slow).
-		//!  BF_RGBA usually looks ok and it doesn't have any compatibility problems.
+		//! May stay NULL.
+		//!
+		//! Updated by updateEnvironmentMap() or by renderer called with updateLightIndirect=true.
+		//!
+		//! Deleted automatically in destructor.
 		RRBuffer* specularEnvMap;
 
 		// parameters set by you and read by updateEnvironmentMap():
