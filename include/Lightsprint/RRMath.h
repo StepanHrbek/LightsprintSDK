@@ -316,6 +316,10 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRVec3 getTransformedDirection(const RRVec3& a) const;
 		//! Transforms direction in 3d space by matrix.
 		void transformDirection(RRVec3& a) const;
+		//! Returns plane in 3d space transformed by matrix.
+		RRVec4 getTransformedPlane(const RRVec4& a) const;
+		//! Transforms plane in 3d space by matrix.
+		void transformPlane(RRVec4& a) const;
 
 		bool operator ==(const RRMatrix3x4& a) const;
 		//! A*B returns matrix that performs transformation B, then A.
