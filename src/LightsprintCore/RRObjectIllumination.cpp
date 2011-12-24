@@ -5,7 +5,6 @@
 
 #include <boost/unordered_map.hpp>
 #include "Lightsprint/RRIllumination.h"
-#include "Lightsprint/RRCollider.h" // ray6
 
 namespace rr
 {
