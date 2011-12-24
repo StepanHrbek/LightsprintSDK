@@ -155,7 +155,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 		RRReporter::report(WARN,"Invalid parameters in RRBuffer::create(,%d,%d,%d,,,)%s\n",_width,_height,_depth,(_type==BT_VERTEX_BUFFER && !_width)?", object with 0 vertices?":".");
 		return false;
 	}
-	if (!_data && data && _type==type && _width==width && _height==height && _depth==depth && _format==format)
+	if (((!_data && data) || (_data==RR_GHOST_BUFFER && !data)) && _type==type && _width==width && _height==height && _depth==depth && _format==format)
 	{
 		// optimalization: quit if buffer already has requested properties
 		scaled = _scaled;
@@ -172,8 +172,8 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 
 	unsigned bytesTotal = getBufferSize(_format,_width,_height,_depth);
 
-	// copy data
-	if (!data || !_data || width!=_width || height!=_height || depth!=_depth || format!=_format)
+	// alloc/free data
+	if (!data || !_data || _data==RR_GHOST_BUFFER || width!=_width || height!=_height || depth!=_depth || format!=_format)
 	{
 		RR_SAFE_DELETE_ARRAY(data);
 		// pointer value 1 = don't allocate buffer, caller promises he will never use it
@@ -187,6 +187,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 			}
 		}
 	}
+	// copy data
 	if (data && data!=_data)
 	{
 		if (_data)
