@@ -172,8 +172,8 @@ struct SceneViewerState
 		renderLightmapsBilinear = 1;
 		renderBloom = 0;
 		renderLensFlare = 1;
-		lensFlareSize = 5;
-		lensFlareId = 225;
+		lensFlareSize = 8;
+		lensFlareId = 204;
 		renderVignette = 0;
 		renderHelp = 0;
 		renderLogo = 0;
