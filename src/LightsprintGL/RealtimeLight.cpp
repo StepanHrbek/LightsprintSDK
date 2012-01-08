@@ -322,15 +322,14 @@ namespace rr_gl
 							+csmObserverDir*(light.getOrthoSize()*0.5f);
 						if (Workaround::supportsDepthClamp())
 							light.setRange(light.getNear()*visibleArea,light.getFar()*visibleArea);
-						/*/ intended to prevent subpixel jitter. actually creates jitter on hd4850, needs more testing
+						// prevent subpixel jitter
 						double r = lightPos.dot(light.getRight());
 						double u = lightPos.dot(light.getUp());
 						double tmp;
 						double pixelSize = light.getOrthoSize()/rrlight.rtShadowmapSize*2;
 						r = modf(r/pixelSize,&tmp)*pixelSize;
 						u = modf(u/pixelSize,&tmp)*pixelSize;
-						light.setPosition(lightPos - light.getRight()*(float)r+light.getUp()*(float)u);
-						*/
+						light.setPosition(lightPos - light.getRight()*(float)r - light.getUp()*(float)u);
 					}
 				}
 				break;
