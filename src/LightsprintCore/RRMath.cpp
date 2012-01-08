@@ -207,11 +207,11 @@ RRVec3 RRMatrix3x4::getTransformedDirection(const RRVec3& a) const
 
 RRVec4 RRMatrix3x4::getTransformedPlane(const RRVec4& a) const
 {
-	RR_ASSERT(m);
-	RRReal x = a[0]*m[0][0] + a[1]*m[0][1] + a[2]*m[0][2];
-	RRReal y = a[0]*m[1][0] + a[1]*m[1][1] + a[2]*m[1][2];
-	RRReal z = a[0]*m[2][0] + a[1]*m[2][1] + a[2]*m[2][2];
-	return RRVec4(x,y,z,a[3] - m[0][3]*x - m[1][3]*y - m[2][3]*z);
+	//RRVec3 pointInPlane(a[0]?RRVec3(-a[3]/a[0],0,0):(a[1]?RRVec3(0,-a[3]/a[1],0):RRVec3(0,0,-a[3]/a[2]))); // less robust
+	RRVec3 pointInPlane((fabs(a[0])>=fabs(a[1]) && fabs(a[0])>=fabs(a[2])) ? RRVec3(-a[3]/a[0],0,0) : ((fabs(a[1])>=fabs(a[2])) ? RRVec3(0,-a[3]/a[1],0) : RRVec3(0,0,-a[3]/a[2])));
+	RRVec3 transformedPoint = getTransformedPosition(pointInPlane);
+	RRVec3 transformedNormal = getTransformedDirection(a);
+	return RRVec4(transformedNormal,-transformedNormal.dot(transformedPoint));
 }
 
 void RRMatrix3x4::transformPosition(RRVec3& a) const
