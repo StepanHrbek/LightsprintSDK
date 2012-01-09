@@ -8,7 +8,7 @@
 // Comment out formats you don't need.
 
 #define SUPPORT_LIGHTSPRINT // Lightsprint .rr3
-#define SUPPORT_GAMEBRYO    // Gamebryo .gsa
+//#define SUPPORT_GAMEBRYO    // Gamebryo .gsa
 #define SUPPORT_OPENCOLLADA // OpenCollada .dae (better than Fcollada and Assimp)
 //#define SUPPORT_FCOLLADA  // FCollada .dae (better than Assimp, but obsoleted by OpenCollada)
 #define SUPPORT_3DS         // 3D Studio .3ds (sometimes better, sometimes worse than Assimp)
