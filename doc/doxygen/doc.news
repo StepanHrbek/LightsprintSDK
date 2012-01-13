@@ -8,6 +8,16 @@ namespace rr
 
 \page main_news What's new
 
+\section news129 ------------------------------------ 2012.01.xx -------------------------------------
+
+NEWS
+
+- math helpers
+  - RRVec4::pointInPlane()
+  - RRMatrix3x4::mirror()
+  - RRMatrix3x4::setColumn()
+  - RRMatrix3x4::setRow()
+
 \section news128 ------------------------------------ 2011.12.24 -------------------------------------
 
 NEWS
