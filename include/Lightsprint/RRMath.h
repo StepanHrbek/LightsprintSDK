@@ -279,7 +279,11 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRVec4   normalizedSafe()             const {RRReal len=length(); return len?*this/len:RRVec4(1,0,0,0);}
 		bool     finite()                     const {return ::_finite(x) && ::_finite(y) && ::_finite(z) && ::_finite(w);}
 		RRReal   dot(const RRVec4& a)         const {return x*a.x+y*a.y+z*a.z+w*a.w;}
+
+		// planes
+		static RRVec4 plane(const RRVec3& normal,const RRVec3& point) {return RRVec4(normal,-normal.dot(point));}
 		RRReal   planePointDistance(const RRVec3& a)const {return x*a.x+y*a.y+z*a.z+w;}
+		RRVec3   pointInPlane()               const {return RRVec3(x,y,z)*(-w/(x*x+y*y+z*z));} // returns the most close point to 0
 	};
 
 	//! Matrix of 3x4 real numbers in row-major order.
@@ -295,8 +299,10 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 	//! or slightly faster but otherwise identical <code>m = rotationByYawPitchRoll(); m.preScale(); m.postTranslate();</code>
 	struct RR_API RRMatrix3x4
 	{
+		//! Direct access to matrix data.
 		RRReal m[3][4];
 
+		// Constructors
 		RRMatrix3x4(); // uninitialized
 		RRMatrix3x4(float* m3x4, bool transposed);
 		RRMatrix3x4(double* m3x4, bool transposed);
@@ -307,6 +313,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		static RRMatrix3x4 translation(const RRVec3& translation);
 		static RRMatrix3x4 rotationByYawPitchRoll(const RRVec3& yawPitchRollRad); ///< Yaw + Pitch + Roll = YXZ Euler angles as defined at http://en.wikipedia.org/wiki/Euler_angles
 		static RRMatrix3x4 rotationByAxisAngle(const RRVec3& rotationAxis, RRReal rotationAngleRad);
+		static RRMatrix3x4 mirror(const RRVec4& plane);
 
 		//! Returns position in 3d space transformed by matrix.
 		RRVec3 getTransformedPosition(const RRVec3& a) const;
@@ -350,8 +357,14 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		//! is undefined for non-orthogonal matrices.
 		RRVec3 getYawPitchRoll() const;
 
+		//! Returns i-th matrix column.
 		RRVec3 getColumn(unsigned i) const;
+		//! Returns i-th matrix row.
 		RRVec4 getRow(unsigned i) const;
+		//! Sets i-th matrix column.
+		void setColumn(unsigned i, const RRVec3& column);
+		//! Sets i-th matrix row.
+		void setRow(unsigned i, const RRVec4& row);
 
 		//! Returns determinant of first 3x3 elements.
 		RRReal determinant3x3() const;

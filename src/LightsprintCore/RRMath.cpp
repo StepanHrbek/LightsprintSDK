@@ -207,11 +207,7 @@ RRVec3 RRMatrix3x4::getTransformedDirection(const RRVec3& a) const
 
 RRVec4 RRMatrix3x4::getTransformedPlane(const RRVec4& a) const
 {
-	//RRVec3 pointInPlane(a[0]?RRVec3(-a[3]/a[0],0,0):(a[1]?RRVec3(0,-a[3]/a[1],0):RRVec3(0,0,-a[3]/a[2]))); // less robust
-	RRVec3 pointInPlane((fabs(a[0])>=fabs(a[1]) && fabs(a[0])>=fabs(a[2])) ? RRVec3(-a[3]/a[0],0,0) : ((fabs(a[1])>=fabs(a[2])) ? RRVec3(0,-a[3]/a[1],0) : RRVec3(0,0,-a[3]/a[2])));
-	RRVec3 transformedPoint = getTransformedPosition(pointInPlane);
-	RRVec3 transformedNormal = getTransformedDirection(a);
-	return RRVec4(transformedNormal,-transformedNormal.dot(transformedPoint));
+	return RRVec4::plane(getTransformedDirection(a),getTransformedPosition(a.pointInPlane()));
 }
 
 void RRMatrix3x4::transformPosition(RRVec3& a) const
@@ -234,8 +230,7 @@ void RRMatrix3x4::transformDirection(RRVec3& a) const
 
 void RRMatrix3x4::transformPlane(RRVec4& a) const
 {
-	transformDirection(a);
-	a.w -= m[0][3]*a.x + m[1][3]*a.y + m[2][3]*a.z;
+	a = getTransformedPlane(a);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -426,16 +421,68 @@ RRVec3 RRMatrix3x4::getYawPitchRoll() const
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRMatrix3x4 mirroring
+
+RRMatrix3x4 RRMatrix3x4::mirror(const RRVec4& plane)
+{
+	float length = plane.RRVec3::length();
+	double a = plane.x/length;
+	double b = plane.y/length;
+	double c = plane.z/length;
+	return RRMatrix3x4(
+		1-2*a*a, -2*a*b, -2*a*c, 0,
+		-2*a*b, 1-2*b*b, -2*b*c, 0,
+		-2*a*c, -2*b*c, 1-2*c*c, 0
+		).centeredAround(plane.pointInPlane());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRMatrix3x4 column/row access
 
 RRVec3 RRMatrix3x4::getColumn(unsigned i) const
 {
+	if (i>3)
+	{
+		RR_ASSERT(0);
+		return RRVec3(0);
+	}
 	return RRVec3(m[0][i],m[1][i],m[2][i]);
 }
 
 RRVec4 RRMatrix3x4::getRow(unsigned i) const
 {
+	if (i>2)
+	{
+		RR_ASSERT(0);
+		return RRVec4(0);
+	}
 	return RRVec4(m[i][0],m[i][1],m[i][2],m[i][3]);
+}
+
+void RRMatrix3x4::setColumn(unsigned i, const RRVec3& column)
+{
+	if (i>3)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	m[0][i] = column[0];
+	m[1][i] = column[1];
+	m[2][i] = column[2];
+}
+
+void RRMatrix3x4::setRow(unsigned i, const RRVec4& row)
+{
+	if (i>2)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	m[i][0] = row[0];
+	m[i][1] = row[1];
+	m[i][2] = row[2];
+	m[i][3] = row[3];
 }
 
 //////////////////////////////////////////////////////////////////////////////
