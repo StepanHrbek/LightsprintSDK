@@ -36,7 +36,7 @@ uniform vec4 waterColor; // a = reflectivity
 
 void main()
 {
-	vec2 uv = vec2(0.5,0.5)+vec2(0.5,-0.5)*mirrorCoord.xy/mirrorCoord.w;
+	vec2 uv = vec2(0.5,0.5)+vec2(-0.5,0.5)*mirrorCoord.xy/mirrorCoord.w;
 
 	vec2 worldNormal2 = (
 		+ texture2D(normalMap,worldPos.zx*0.09+time*0.5*vec2(cos(time*0.05)*-0.0006-0.0049,0.0),-1.0).xz
