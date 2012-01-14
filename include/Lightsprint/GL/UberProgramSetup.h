@@ -87,9 +87,9 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_INDIRECT_MAP            :1; ///< Enables indirect light, set by ambient map.
 	bool     LIGHT_INDIRECT_MAP2           :1; ///< Enables blend between two ambient maps.
 	bool     LIGHT_INDIRECT_DETAIL_MAP     :1; ///< Enables modulation of indirect light by light detail map.
-	bool     LIGHT_INDIRECT_ENV_DIFFUSE    :1; ///< Enables indirect light, set by diffuse reflection environment map.
-	bool     LIGHT_INDIRECT_ENV_SPECULAR   :1; ///< Enables indirect light, set by specular reflection environment map.
-	bool     LIGHT_INDIRECT_MIRROR         :1; ///< Enables indirect light, set by mirror map.
+	bool     LIGHT_INDIRECT_ENV_DIFFUSE    :1; ///< Enables indirect light, realtime raytraced diffuse reflection on objects with diffuseEnvMap.
+	bool     LIGHT_INDIRECT_ENV_SPECULAR   :1; ///< Enables indirect light, realtime raytraced specular reflection on objects with specularEnvMap. Faster but less accurate for flat objects than LIGHT_INDIRECT_MIRROR.
+	bool     LIGHT_INDIRECT_MIRROR         :1; ///< Enables indirect light, realtime rasterized specular reflection on flat objects without specularEnvMap. More accurate for flat objects but slower than LIGHT_INDIRECT_ENV_SPECULAR. (If you don't see mirroring, is specularEnvMap NULL? Is volume of mesh AABB zero? Object can be arbitrarily rotated, but original mesh before rotation must be axis aligned.)
 	bool     LIGHT_INDIRECT_auto           :1; ///< Extension. Makes renderer set LIGHT_INDIRECT_[VCOLOR*|MAP*|DETAIL_MAP] flags automatically according to available data.
 
 	bool     MATERIAL_DIFFUSE              :1; ///< Enables material's diffuse reflection. All enabled MATERIAL_DIFFUSE_XXX are multiplied. When only MATERIAL_DIFFUSE is enabled, diffuse color is 1 (white).
