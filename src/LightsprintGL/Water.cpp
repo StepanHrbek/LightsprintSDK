@@ -68,7 +68,7 @@ void Water::updateReflectionInit(unsigned _reflWidth, unsigned _reflHeight, rr::
 
 	if (eye)
 	{
-		eye->mirror(altitude);
+		eye->mirror(rr::RRVec4(0,-1,0,altitude));
 		setupForRender(*eye);
 	}
 }
@@ -80,7 +80,7 @@ void Water::updateReflectionDone()
 	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 	if (eye)
 	{
-		eye->mirror(altitude);
+		eye->mirror(rr::RRVec4(0,-1,0,altitude));
 		setupForRender(*eye);
 	}
 }

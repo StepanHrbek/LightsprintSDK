@@ -27,6 +27,9 @@ namespace rr_gl
 //! - call updateReflectionDone()
 //! - render whole scene
 //! - call render()
+//!
+//! Note that simpler (no waves and fresnel) but fully automatic reflection rendering is provided by
+//! rr_gl::RendererOfScene, just add flat object with specularReflection to scene.
 class RR_GL_API Water
 {
 public:

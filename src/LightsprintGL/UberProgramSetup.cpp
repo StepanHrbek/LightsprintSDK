@@ -130,7 +130,7 @@ const char* UberProgramSetup::getSetupString()
 
 	static char setup[2000];
 	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s"
-		"#define MATERIAL_SPECULAR_MODEL %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+		"#define MATERIAL_SPECULAR_MODEL %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		SHADOW_COLOR?"#define SHADOW_COLOR\n":"",
@@ -178,6 +178,7 @@ const char* UberProgramSetup::getSetupString()
 		POSTPROCESS_GAMMA?"#define POSTPROCESS_GAMMA\n":"",
 		POSTPROCESS_BIGSCREEN?"#define POSTPROCESS_BIGSCREEN\n":"",
 		OBJECT_SPACE?"#define OBJECT_SPACE\n":"",
+		CLIP_PLANE?"#define CLIP_PLANE\n":"",
 		CLIP_PLANE_XA?"#define CLIP_PLANE_XA\n":"",
 		CLIP_PLANE_XB?"#define CLIP_PLANE_XB\n":"",
 		CLIP_PLANE_YA?"#define CLIP_PLANE_YA\n":"",
@@ -403,7 +404,7 @@ void UberProgramSetup::validate()
 	}
 }
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, float* clipPlanes)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, ClipPlanes* clipPlanes)
 {
 	RR_LIMITED_TIMES(1,checkCapabilities());
 
@@ -581,29 +582,33 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		}
 	}
 
+	if (CLIP_PLANE)
+	{
+		program->sendUniform("clipPlane",clipPlanes?clipPlanes->clipPlane:rr::RRVec4(1));
+	}
 	if (CLIP_PLANE_XA)
 	{
-		program->sendUniform("clipPlaneXA",clipPlanes?clipPlanes[0]:0);
+		program->sendUniform("clipPlaneXA",clipPlanes?clipPlanes->clipPlaneXA:0);
 	}
 	if (CLIP_PLANE_XB)
 	{
-		program->sendUniform("clipPlaneXB",clipPlanes?clipPlanes[1]:0);
+		program->sendUniform("clipPlaneXB",clipPlanes?clipPlanes->clipPlaneXB:0);
 	}
 	if (CLIP_PLANE_YA)
 	{
-		program->sendUniform("clipPlaneYA",clipPlanes?clipPlanes[2]:0);
+		program->sendUniform("clipPlaneYA",clipPlanes?clipPlanes->clipPlaneYA:0);
 	}
 	if (CLIP_PLANE_YB)
 	{
-		program->sendUniform("clipPlaneYB",clipPlanes?clipPlanes[3]:0);
+		program->sendUniform("clipPlaneYB",clipPlanes?clipPlanes->clipPlaneYB:0);
 	}
 	if (CLIP_PLANE_ZA)
 	{
-		program->sendUniform("clipPlaneZA",clipPlanes?clipPlanes[4]:0);
+		program->sendUniform("clipPlaneZA",clipPlanes?clipPlanes->clipPlaneZA:0);
 	}
 	if (CLIP_PLANE_ZB)
 	{
-		program->sendUniform("clipPlaneZB",clipPlanes?clipPlanes[5]:0);
+		program->sendUniform("clipPlaneZB",clipPlanes?clipPlanes->clipPlaneZB:0);
 	}
 
 	return program;

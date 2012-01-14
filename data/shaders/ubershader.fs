@@ -48,6 +48,7 @@
 //  #define POSTPROCESS_GAMMA
 //  #define POSTPROCESS_BIGSCREEN
 //  #define OBJECT_SPACE
+//  #define CLIP_PLANE
 //  #define CLIP_PLANE_[X|Y|Z][A|B]
 //  #define FORCE_2D_POSITION
 //
@@ -253,6 +254,9 @@ varying vec3 worldNormalSmooth;
 	uniform float postprocessGamma;
 #endif
 
+#ifdef CLIP_PLANE
+	uniform vec4 clipPlane;
+#endif
 #ifdef CLIP_PLANE_XA
 	uniform float clipPlaneXA;
 #endif
@@ -279,6 +283,9 @@ void main()
 	//
 	// clipping
 
+	#ifdef CLIP_PLANE
+		if(dot(worldPos.xyz,clipPlane.xyz)+clipPlane.w<=0) discard;
+	#endif
 	#ifdef CLIP_PLANE_XA
 		if(worldPos.x>clipPlaneXA) discard;
 	#endif
@@ -595,7 +602,7 @@ void main()
 
 		#if defined(MATERIAL_SPECULAR) && defined(LIGHT_INDIRECT_MIRROR)
 			float mirrorNoise = 16.2*gl_FragCoord.x+11.4*gl_FragCoord.y;
-			vec2 mirrorCenter = vec2(0.5,0.5)+vec2(0.5,-0.5)*lightIndirectMirrorCoord.xy/lightIndirectMirrorCoord.w;
+			vec2 mirrorCenter = vec2(0.5,0.5)+vec2(-0.5,0.5)*lightIndirectMirrorCoord.xy/lightIndirectMirrorCoord.w;
 			vec2 mirrorShift1 = vec2(sin(mirrorNoise),cos(mirrorNoise)) * lightIndirectMirrorBlurWidth.xy;
 			vec2 mirrorShift2 = mirrorShift1.yx * lightIndirectMirrorBlurWidth.zw;
 		#endif

@@ -12,6 +12,13 @@ namespace rr
 
 NEWS
 
+- enhanced realtime renderer
+  - automatic realtime mirror reflections extended to work for all flat meshes, not just horizontal ones
+  - RRCamera::mirror() parameter extended from altitude to general plane
+    \n pass rr::RRVec4(0,-1,0,altitude) to keep the old behaviour
+  - rr_gl::UberProgramSetup::CLIP_PLANE added, enables clipping by general plane
+  - parameter float* clipPlanes changed to rr_gl::ClipPlanes* clipPlanes,
+    \n includes general plane, in addition to old axis aligned planes
 - math helpers
   - RRVec4::pointInPlane()
   - RRMatrix3x4::mirror()

@@ -80,7 +80,7 @@ public:
 		bool _updateLightIndirect,
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
-		float* _clipPlanes,
+		ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
 		float _gamma);

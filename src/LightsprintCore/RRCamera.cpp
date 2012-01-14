@@ -128,14 +128,14 @@ void RRCamera::setDirection(const RRVec3& _dir)
 	updateView();
 }
 
-bool RRCamera::manipulateViewBy(const RRMatrix3x4& transformation, bool rollChangeAllowed)
+bool RRCamera::manipulateViewBy(const RRMatrix3x4& transformation, bool rollChangeAllowed, bool yawInversionAllowed)
 {
 	float oldRoll = yawPitchRollRad[2];
 	RRMatrix3x4 matrix(viewMatrix,false);
 	matrix.setTranslation(pos);
 	matrix = transformation * matrix;
 	RRVec3 newRot = matrix.getYawPitchRoll();
-	if (abs(abs(yawPitchRollRad.x-newRot.x)-RR_PI)<RR_PI/2) // rot.x change is closer to -180 or 180 than to 0 or 360. this happens when rot.y overflows 90 or -90
+	if (!yawInversionAllowed && abs(abs(yawPitchRollRad.x-newRot.x)-RR_PI)<RR_PI/2) // rot.x change is closer to -180 or 180 than to 0 or 360. this happens when rot.y overflows 90 or -90
 		return false;
 	pos = matrix.getTranslation();
 	yawPitchRollRad = RRVec3(newRot.x,newRot.y,rollChangeAllowed?newRot.z:oldRoll); // prevent unwanted roll distortion (yawpitch changes would accumulate rounding errors in roll)
@@ -617,15 +617,9 @@ bool RRCamera::operator!=(const RRCamera& a) const
 	return !(*this==a);
 }
 
-void RRCamera::mirror(float altitude)
+void RRCamera::mirror(const rr::RRVec4& plane)
 {
-	pos[1] = 2*altitude-pos[1];
-	yawPitchRollRad[1] = -yawPitchRollRad[1];
-	screenCenter.y = -screenCenter.y;
-	yawPitchRollRad[2] = -yawPitchRollRad[2];
-	// it is not completely mirrored, up stays {0,1,0} in update()
-	updateView();
-	updateProjection();
+	manipulateViewBy(RRMatrix3x4::mirror(plane));
 }
 
 static unsigned makeFinite(float& f, float def)

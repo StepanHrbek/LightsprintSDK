@@ -66,7 +66,7 @@ struct PerObjectBuffers
 	rr::RRBuffer* diffuseEnvironment;
 	rr::RRBuffer* specularEnvironment;
 #ifdef MIRRORS
-	float mirrorY;
+	rr::RRVec4 mirrorPlane;
 	rr::RRBuffer* mirrorMap;
 #endif
 	rr::RRBuffer* lightIndirectBuffer;
@@ -84,7 +84,7 @@ public:
 		UberProgramSetup _uberProgramSetup,
 		const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight,
 		bool _updateLightIndirect, unsigned _lightIndirectLayer, int _lightDetailMapLayer,
-		float* _clipPlanes, bool _srgbCorrect,
+		ClipPlanes* _clipPlanes, bool _srgbCorrect,
 		const rr::RRVec4* _brightness, float _gamma);
 
 	RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
@@ -172,7 +172,7 @@ void RendererOfSceneImpl::render(
 		bool _updateLightIndirect,
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
-		float* _clipPlanes, bool _srgbCorrect,
+		ClipPlanes* _clipPlanes, bool _srgbCorrect,
 		const rr::RRVec4* _brightness, float _gamma)
 {
 	if (!_solver)
@@ -204,7 +204,14 @@ void RendererOfSceneImpl::render(
 	GLint viewport[4];
 	glGetIntegerv(GL_VIEWPORT,viewport);
 	// here we map planes to mirrors, so that two objects with the same plane share mirror
-	typedef std::map<float,rr::RRBuffer*> Mirrors;
+	struct PlaneCompare // comparing RRVec4 looks strange, so we do it in private PlaneCompare rather than in public RRVec4 operator<
+	{
+		bool operator()(const rr::RRVec4& a, const rr::RRVec4& b)
+		{
+			return a.x<b.x || (a.x==b.x && (a.y<b.y || (a.y==b.y && (a.z<b.z || (a.z==b.z && a.w<b.w)))));
+		}
+	};
+	typedef std::map<rr::RRVec4,rr::RRBuffer*,PlaneCompare> Mirrors;
 	Mirrors mirrors;
 #endif
 
@@ -284,7 +291,7 @@ void RendererOfSceneImpl::render(
 				objectBuffers.specularEnvironment = _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR ? illumination.specularEnvMap : NULL;
 #ifdef MIRRORS
 				objectBuffers.mirrorMap = NULL;
-				objectBuffers.mirrorY = 0;
+				objectBuffers.mirrorPlane = rr::RRVec4(0);
 				if (_uberProgramSetup.LIGHT_INDIRECT_MIRROR && !illumination.specularEnvMap)
 				{
 					rr::RRVec3 mini,maxi;
@@ -296,7 +303,6 @@ void RendererOfSceneImpl::render(
 					{
 						rr::RRVec4 plane = size.x ? ( size.y ? rr::RRVec4(0,0,1,-mini.z) : rr::RRVec4(0,1,0,-mini.y) ) : rr::RRVec4(1,0,0,-mini.x);
 						rr::RRVec4 mirrorPlane = object->getWorldMatrixRef().getTransformedPlane(plane);
-						if (!mirrorPlane.x && !mirrorPlane.z) // for now, create mirror only for floor planes
 						{
 							// is it specular?
 							const rr::RRObject::FaceGroups& faceGroups = object->faceGroups;
@@ -306,14 +312,14 @@ void RendererOfSceneImpl::render(
 								if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom) && material->specularReflectance.color.sum()>0.1)
 								{
 									// allocate mirror
-									objectBuffers.mirrorY = -mirrorPlane.w/mirrorPlane.y;
-									Mirrors::const_iterator i = mirrors.find(objectBuffers.mirrorY);
+									objectBuffers.mirrorPlane = mirrorPlane;
+									Mirrors::const_iterator i = mirrors.find(mirrorPlane);
 									if (i!=mirrors.end())
 										objectBuffers.mirrorMap = i->second;
 									else
 									{
 										objectBuffers.mirrorMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,(viewport[2]+1)/2,(viewport[3]+1)/2,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-										mirrors.insert(std::pair<float,rr::RRBuffer*>(objectBuffers.mirrorY,objectBuffers.mirrorMap));
+										mirrors.insert(std::pair<rr::RRVec4,rr::RRBuffer*>(objectBuffers.mirrorPlane,objectBuffers.mirrorMap));
 									}
 									break;
 								}
@@ -436,24 +442,26 @@ void RendererOfSceneImpl::render(
 		recursionDepth = 1;
 		UberProgramSetup mirrorUberProgramSetup = _uberProgramSetup;
 		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
+		mirrorUberProgramSetup.CLIP_PLANE = true;
 		rr::RRCamera mainCamera = *getRenderCamera();
 		FBO oldState = FBO::getState();
 		for (Mirrors::const_iterator i=mirrors.begin();i!=mirrors.end();++i)
 		{
-			float mirrorY = i->first;
+			rr::RRVec4 mirrorPlane = i->first;
+			bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(mainCamera.getPosition())>0;
+			if (!cameraInFrontOfMirror) mirrorPlane = -mirrorPlane;
+			mirrorPlane.w -= mirrorPlane.RRVec3::length()*mainCamera.getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
 			rr::RRBuffer* mirrorMap = i->second;
 			rr::RRCamera mirrorCamera = mainCamera;
-			mirrorCamera.mirror(mirrorY);
+			mirrorCamera.mirror(mirrorPlane);
 			setupForRender(mirrorCamera);
-			float clipPlanes[6] = {0,0,0,0,0,0};
-			clipPlanes[3] = mirrorY;
-			mirrorUberProgramSetup.CLIP_PLANE_YB = true;
+			ClipPlanes clipPlanes = {mirrorPlane,0,0,0,0,0,0};
 			depthMap->reset(rr::BT_2D_TEXTURE,mirrorMap->getWidth(),mirrorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
 			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(depthMap,false,false));
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,new Texture(mirrorMap,false,false)); // new Texture instead of getTexture makes our texture deletable at the end of render()
 			glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-			render(_solver,mirrorUberProgramSetup,_lights,NULL,_updateLightIndirect,_lightIndirectLayer,_lightDetailMapLayer,clipPlanes,_srgbCorrect,NULL,1);
+			render(_solver,mirrorUberProgramSetup,_lights,NULL,_updateLightIndirect,_lightIndirectLayer,_lightDetailMapLayer,&clipPlanes,_srgbCorrect,NULL,1);
 		}
 		oldState.restore();
 		setupForRender(mainCamera);
@@ -518,6 +526,10 @@ void RendererOfSceneImpl::render(
 						objectBuffers.lightIndirectDetailMap);
 
 					j += numRanges;
+#ifdef MIRRORS
+					//if (objectBuffers.mirrorMap)
+					//	textureRenderer->render2D(getTexture(objectBuffers.mirrorMap,false,false),NULL,1,0,0,0.5f,0.5f);
+#endif
 				}
 			}
 		}
@@ -620,7 +632,7 @@ void RendererOfScene::render(rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
 		const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight,
 		bool _updateLightIndirect, unsigned _lightIndirectLayer, int _lightDetailMapLayer,
-		float* _clipPlanes, bool _srgbCorrect,
+		ClipPlanes* _clipPlanes, bool _srgbCorrect,
 		const rr::RRVec4* _brightness, float _gamma)
 {
 	renderer->render(

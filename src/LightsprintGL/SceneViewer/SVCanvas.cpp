@@ -1387,15 +1387,15 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = svs.renderMaterialTransparency==T_RGB_BLEND;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = brightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = gamma!=1;
-			float clipPlanes[6] = {0,0,0,0,0,0};
+			ClipPlanes clipPlanes = {rr::RRVec4(0),0,0,0,0,0,0};
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			if (svs.renderWater && water && !svs.renderWireframe)
 			{
 				if (uberProgramSetup.CLIP_PLANE_YB)
-					clipPlanes[3] = RR_MAX(clipPlanes[3],svs.waterLevel);
+					clipPlanes.clipPlaneYB = RR_MAX(clipPlanes.clipPlaneYB,svs.waterLevel);
 				else
 				{
-					clipPlanes[3] = svs.waterLevel;
+					clipPlanes.clipPlaneYB = svs.waterLevel;
 					uberProgramSetup.CLIP_PLANE_YB = true;
 				}
 				water->updateReflectionInit(winWidth/2,winHeight/2,&svs.eye,svs.waterLevel,svs.srgbCorrect);
@@ -1406,7 +1406,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					true,//svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
 					(svs.renderLightDirect==LD_BAKED)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_BAKED)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
 					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
-					clipPlanes,
+					&clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
 					gamma);
@@ -1433,7 +1433,7 @@ rendered:
 					true,//svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
 					(svs.renderLightDirect==LD_BAKED)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_BAKED)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
 					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
-					clipPlanes,
+					&clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
 					gamma);
@@ -1447,7 +1447,7 @@ rendered:
 					true,//svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
 					(svs.renderLightDirect==LD_BAKED)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_BAKED)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
 					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
-					clipPlanes,
+					&clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
 					gamma);

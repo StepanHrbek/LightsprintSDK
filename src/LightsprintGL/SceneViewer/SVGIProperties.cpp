@@ -84,7 +84,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 		// mirrors
 		{
-			propGIMirrors = new BoolRefProperty(_("Mirror reflections"),_("Increases realism by realtime rendering mirror reflections."),svs.mirrorsEnabled);
+			propGIMirrors = new BoolRefProperty(_("Mirror reflections"),_("Increases realism by realtime rendering mirror reflections. Applied to flat meshes without cube reflections."),svs.mirrorsEnabled);
 			AppendIn(propGIIndirect,propGIMirrors);
 		}
 

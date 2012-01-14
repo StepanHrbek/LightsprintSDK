@@ -72,8 +72,12 @@ public:
 	RRVec3 getRight() const {return RRVec3((RRReal)viewMatrix[0],(RRReal)viewMatrix[4],(RRReal)viewMatrix[8]);}
 
 	//! Applies transformation on top of transformations already set in view matrix. Only rotation and translation components are used, scale is ignored.
-	//! If transformation would make pitch overflow 90 or -90, function does nothing and returns false.
-	bool manipulateViewBy(const RRMatrix3x4& transformation, bool rollChangeAllowed=true);
+	//
+	//! \param transformation Transformation to apply.
+	//! \param rollChangeAllowed False makes roll constant, it won't be transformed.
+	//! \param yawInversionAllowed False makes function return false and do no transformation if it would
+	//!  change yaw by more than 90 and less than 270 degrees. This happens for example when pitch overflows 90 or -90 degrees.
+	bool manipulateViewBy(const RRMatrix3x4& transformation, bool rollChangeAllowed=true, bool yawInversionAllowed=true);
 
 	//! Predefined camera views.
 	enum View
@@ -200,9 +204,8 @@ public:
 	//! != operator, true when inputs differ.
 	bool operator!=(const RRCamera& a) const;
 
-	//! Mirrors camera for water reflection rendering. Second call takes changes back.
-	//! \param altitude Altitude of mirroring plane.
-	void mirror(float altitude);
+	//! Mirrors camera around general plane. Second call mirrors camera back, sometimes with small rounding errors.
+	void mirror(const rr::RRVec4& plane);
 
 	//! Fixes NaN and INF values found in camera inputs (pos, dir etc).
 	//
