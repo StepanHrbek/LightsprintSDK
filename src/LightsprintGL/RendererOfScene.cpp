@@ -206,7 +206,7 @@ void RendererOfSceneImpl::render(
 	// here we map planes to mirrors, so that two objects with the same plane share mirror
 	struct PlaneCompare // comparing RRVec4 looks strange, so we do it in private PlaneCompare rather than in public RRVec4 operator<
 	{
-		bool operator()(const rr::RRVec4& a, const rr::RRVec4& b)
+		bool operator()(const rr::RRVec4& a, const rr::RRVec4& b) const
 		{
 			return a.x<b.x || (a.x==b.x && (a.y<b.y || (a.y==b.y && (a.z<b.z || (a.z==b.z && a.w<b.w)))));
 		}
