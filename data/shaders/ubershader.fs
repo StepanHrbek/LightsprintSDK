@@ -284,7 +284,7 @@ void main()
 	// clipping
 
 	#ifdef CLIP_PLANE
-		if(dot(worldPos.xyz,clipPlane.xyz)+clipPlane.w<=0) discard;
+		if(dot(worldPos.xyz,clipPlane.xyz)+clipPlane.w<=0.0) discard;
 	#endif
 	#ifdef CLIP_PLANE_XA
 		if(worldPos.x>clipPlaneXA) discard;
