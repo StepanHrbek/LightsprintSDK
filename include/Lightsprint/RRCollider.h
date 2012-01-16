@@ -120,7 +120,7 @@ namespace rr
 #if !defined(_M_X64) && !defined(_LP64)
 		RRVec2          hitPadding3;    ///< Out. Undefined, never modify.
 #endif
-		const class RRObject* hitObject;///< (In/)Out. If collider was created from RRObjects, intersected object is stored here. If collider was created from RRMesh, hitObject is not modified (but it's good practise to set it before calling intersect(), so that your collision handlers and other code can rely on hitObject being always set).
+		const class RRObject* hitObject;///< (In/)Out. If collider was created from RRObjects, intersected object is stored here. If collider was created from RRMesh, hitObject is not modified (but it's good practise to set it before calling intersect(), so that your collision handlers and other code can rely on hitObject being always set). If pointer to multiObject is returned, hitTriangle also points to triangle within multiObject; you can translate it to singleObject using instructions from RRDynamicSolver::getCollider().
 		RRCollisionHandler*   collisionHandler;///< In. Optional collision handler for user-defined surface behaviour.
 	};
 

@@ -116,15 +116,15 @@ public:
 	//!  Default 0 is absolutely numerically stable, other values add tiny error to FOV each time setAspect is called.
 	void  setAspect(float aspect, float effectOnFOV = 0);
 
-	//! Returns vertical FOV in degrees.
+	//! Returns vertical FOV in degrees, from 0 to 180.
 	float getFieldOfViewVerticalDeg()   const {return fieldOfViewVerticalDeg;}
-	//! Returns horizontal FOV in degrees.
+	//! Returns horizontal FOV in degrees, from 0 to 180.
 	float getFieldOfViewHorizontalDeg() const {return RR_RAD2DEG(getFieldOfViewHorizontalRad());}
-	//! Returns vertical FOV in radians.
+	//! Returns vertical FOV in radians, from 0 to PI.
 	float getFieldOfViewVerticalRad()   const {return RR_DEG2RAD(fieldOfViewVerticalDeg);}
-	//! Returns horizontal FOV in radians.
+	//! Returns horizontal FOV in radians, from 0 to PI.
 	float getFieldOfViewHorizontalRad() const {return atan(tan(getFieldOfViewVerticalRad()*0.5f)*aspect)*2;}
-	//! Sets vertical FOV in degrees.
+	//! Sets vertical FOV in degrees, from 0 to 180.
 	void  setFieldOfViewVerticalDeg(float fieldOfViewVerticalDeg);
 
 	//! Returns near clipping plane distance from camera.

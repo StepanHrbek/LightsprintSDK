@@ -271,6 +271,16 @@ namespace rr
 		//! Thread safe: no, you must not use solver or modify objects while getCollider() executes.
 		//! Returned collider is thread safe as usual, many threads can calculate intersections at once.
 		//!
+		//! Returned collider does not necessarily know about objects, so ray.hitObjects is not necessarily set after intersection.
+		//! If you need to know what single object was intersected, follow instructions
+		//! - before calling intersect() on this collider, make sure ray.hitObject is NULL or solver->getMultiObjectCustom()
+		//! - when intersect() on this collider returns true and ray.hitObject is not NULL or solver->getMultiObjectCustom(),
+		//!   you are done, it is your single object
+		//! - when intersect() on this collider returns true and ray.hitObject is NULL or solver->getMultiObjectCustom(),
+		//!   single object that was hit is
+		//!   solver->getStaticObjects()[solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(ray.hitTriangle).object].
+		//!   Let us know when you need this, so far it was rarely needed, so we save some CPU cycles by not doing it automatically.
+		//!
 		//! If you can afford to ignore dynamic objects, collide with static objects only, it's faster.
 		//! To collide with static objects only, use getMultiObjectCustom()->getCollider().
 		RRCollider* getCollider();
