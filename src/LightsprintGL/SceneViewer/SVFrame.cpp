@@ -335,7 +335,13 @@ void SVFrame::UpdateEverything()
 	// without SetFocus, keyboard events may be sent to frame instead of canvas
 	m_canvas->SetFocus();
 
-	if (svs.autodetectCamera && !(svs.initialInputSolver && svs.initialInputSolver->aborting)) OnMenuEventCore(ME_VIEW_RANDOM);
+	if (!(svs.initialInputSolver && svs.initialInputSolver->aborting))
+	{
+		rr::RRCamera temp = svs.eye;
+		OnMenuEventCore(ME_VIEW_RANDOM);
+		if (!svs.autodetectCamera) // restore camera, keep only recalculated cameraMetersPerSecond
+			svs.eye = temp;
+	}
 
 	UpdateTitle();
 	m_giProperties->updateAfterGLInit();
