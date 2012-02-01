@@ -41,9 +41,9 @@ void AnimationEditor::renderThumbnails(rr_gl::TextureRenderer* renderer) const
 		if (i!=setup->frames.end())
 		{
 			float intensity = 1;//(index==frameA || (index==frameB && secondsSinceFrameA>TIME_OF_STAY_STILL))?0.1f:1;
-			renderer->render2D(rr_gl::getTexture(movieClipMap),&rr::RRVec4(intensity,intensity,1,1),x,y,w,h);
+			renderer->render2D(rr_gl::getTexture(movieClipMap),&rr::RRVec4(intensity,intensity,1,1),1,x,y,w,h);
 			if ((*i)->thumbnail)
-				renderer->render2D(rr_gl::getTexture((*i)->thumbnail),NULL,x+w*0.05f,y+h*0.15f,w*0.9f,h*0.8f);
+				renderer->render2D(rr_gl::getTexture((*i)->thumbnail),NULL,1,x+w*0.05f,y+h*0.15f,w*0.9f,h*0.8f);
 		}
 		// cursor
 		if (index==frameCursor)
@@ -52,7 +52,7 @@ void AnimationEditor::renderThumbnails(rr_gl::TextureRenderer* renderer) const
 			glEnable(GL_BLEND);
 			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			float move = fabs((clock()%CLOCKS_PER_SEC)/(float)CLOCKS_PER_SEC-0.5f);
-			renderer->render2D(rr_gl::getTexture(cursorMap),NULL,x,y+h*(0.1f+move),w*0.3f,h*0.4f);
+			renderer->render2D(rr_gl::getTexture(cursorMap),NULL,1,x,y+h*(0.1f+move),w*0.3f,h*0.4f);
 			if (!blend)
 				glDisable(GL_BLEND);
 		}

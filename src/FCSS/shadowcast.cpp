@@ -16,6 +16,7 @@ unsigned INSTANCES_PER_PASS;
 #endif
 #define SUPPORT_WATER
 //#define CORNER_LOGO
+//#define PRODUCT_NAME "3+1"
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
@@ -694,7 +695,7 @@ static void drawHelpMessage(int screen)
 void showImage(const rr_gl::Texture* tex)
 {
 	if (!tex) return;
-	skyRenderer->render2D(tex,NULL,0,0,1,1);
+	skyRenderer->render2D(tex,NULL,1,0,0,1,1);
 	glutSwapBuffers();
 }
 
@@ -704,7 +705,7 @@ void showOverlay(const rr::RRBuffer* tex)
 	glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-	skyRenderer->render2D(rr_gl::getTexture(tex,false,false),&rr::RRVec4(currentFrame.brightness,1),0,0,1,1);
+	skyRenderer->render2D(rr_gl::getTexture(tex,false,false),&rr::RRVec4(currentFrame.brightness,1),1,0,0,1,1);
 	glDisable(GL_BLEND);
 }
 
@@ -713,7 +714,7 @@ void showOverlay(const rr::RRBuffer* logo,float intensity,float x,float y,float 
 	if (!logo) return;
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	skyRenderer->render2D(rr_gl::getTexture(logo,true,false),&rr::RRVec4(intensity),x,y,w,h);
+	skyRenderer->render2D(rr_gl::getTexture(logo,true,false),&rr::RRVec4(intensity),1,x,y,w,h);
 	glDisable(GL_BLEND);
 }
 
