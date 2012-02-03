@@ -67,7 +67,7 @@ namespace rr_gl
 		{
 			MEI_CAMERA,
 			MEI_SELECTED,
-			MEI_AUTO,
+			MEI_AUTO, // selected or camera, see SVSceneTree::getEntityIds()
 		};
 		const EntityIds& getEntityIds(SVSceneTree::ManipulatedEntityIds preference) const;
 		rr::RRVec3 getCenterOf(const EntityIds& entityIds) const;
