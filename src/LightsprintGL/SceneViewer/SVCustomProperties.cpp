@@ -303,9 +303,19 @@ bool ButtonProperty::OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wx
 	if (event.GetEventType()==wxEVT_SET_FOCUS)
 	{
 		if (menuItem<rr_gl::SVFrame::ME_FIRST)
-			svframe->m_sceneTree->runContextMenuAction(menuItem,rr_gl::EntityIds());
+		{
+			// for SVFrame::ME_XXX actions
+			rr_gl::EntityIds entityIdsObjects; // for now, all actions we call work on objects. let's gather all objects
+			unsigned numObjects = svframe->m_canvas->solver->getStaticObjects().size()+svframe->m_canvas->solver->getDynamicObjects().size();
+			for (unsigned i=0;i<numObjects;i++)
+				entityIdsObjects.insert(rr_gl::EntityId(rr_gl::ST_OBJECT,i));
+			svframe->m_sceneTree->runContextMenuAction(menuItem,entityIdsObjects);
+		}
 		else
+		{
+			// for ContextMenu CM_XXX actions
 			svframe->OnMenuEventCore2(menuItem);
+		}
 	}
 	return wxPGProperty::OnEvent(propgrid,wnd_primary,event);
 }
