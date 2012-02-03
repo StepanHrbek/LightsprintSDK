@@ -632,7 +632,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			{
 				unsigned res = 256;
 				unsigned quality = 100;
-				if (getQuality("LDM build",this,quality) && getResolution("LDM build",this,res,false))
+				if (getResolution("LDM build",this,res,false) && getQuality("LDM build",this,quality))
 				{
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver,_("Building LDM..."));
