@@ -814,7 +814,11 @@ public:
 			rrCamera.setPosition(worldMatrix.getTransformedPosition(RRVec3(0)));
 			rrCamera.setYawPitchRollRad(worldMatrix.getYawPitchRoll());
 			rrCamera.setOrthogonal(camera.getCameraType()==COLLADAFW::Camera::ORTHOGRAPHIC);
-			rrCamera.setFieldOfViewVerticalDeg((RRReal)camera.getYFov());
+			if (camera.getYFov()>0) // it seems that OpenCollada returns 0 if <yfov> is not present (there is no default value defined by spec)
+				rrCamera.setFieldOfViewVerticalDeg((RRReal)camera.getYFov());
+			else
+			if (camera.getXFov()>0) // it seems that OpenCollada returns 0 if <xfov> is not present (there is no default value defined by spec)
+				rrCamera.setFieldOfViewVerticalDeg((RRReal)camera.getXFov()); // we don't have a setter for horizontal FOV, use vertical for approximation
 			rrCamera.setAspect((RRReal)camera.getAspectRatio().getValue());
 			rrCamera.setNear((RRReal)camera.getNearClippingPlane().getValue());
 			rrCamera.setFar((RRReal)camera.getFarClippingPlane().getValue());
