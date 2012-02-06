@@ -95,14 +95,14 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			}
 			else
 			{
-			// save light detail map
-			ldm->save(ldmName);
-			// save copy to .png
-			if (REBUILD_JPG)
-			{
-				strcpy(ldmName+strlen(ldmName)-3,"png");
+				// save light detail map
 				ldm->save(ldmName);
-			}
+				// save copy to .png
+				if (REBUILD_JPG)
+				{
+					strcpy(ldmName+strlen(ldmName)-3,"png");
+					ldm->save(ldmName);
+				}
 			}
 		}
 		free(ldmName);
