@@ -89,11 +89,11 @@ namespace rr
 		// parameters set by you and read by updateEnvironmentMap():
 
 		//! Size of virtual cube for gathering samples, 16 by default. More = higher precision, slower.
-		unsigned gatherEnvMapSize;
+		unsigned short gatherEnvMapSize;
+		unsigned short envMapObjectNumber;
 		//! World coordinate of object center. To be updated by you when object moves.
 		RRVec3 envMapWorldCenter;
 		RRReal envMapWorldRadius;
-		unsigned envMapObjectNumber;
 
 	protected:
 		//
@@ -107,7 +107,7 @@ namespace rr
 		//
 		friend class RRDynamicSolver;
 		RRVec3 cachedCenter;
-		unsigned cachedGatherSize;
+		unsigned short cachedGatherSize;
 		unsigned* cachedTriangleNumbers;
 	};
 
