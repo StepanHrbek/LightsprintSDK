@@ -155,6 +155,11 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 		setDirectIllumination(NULL);
 	}
 
+	if (getLights().size()!=realtimeLights.size())
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Inconsistency: getLights().size=%d realtimeLights.size()=%d. Don't insert/delete realtimeLights directly, use setLights().\n",getLights().size(),realtimeLights.size()));
+	}
+
 	RRDynamicSolver::calculate(_params);
 }
 
