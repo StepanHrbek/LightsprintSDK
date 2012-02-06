@@ -108,6 +108,7 @@ namespace rr
 		friend class RRDynamicSolver;
 		RRVec3 cachedCenter;
 		unsigned short cachedGatherSize;
+		unsigned short cachedNumTriangles; // number of triangles in multiobject, invalidates cache when multiobject changes
 		unsigned* cachedTriangleNumbers;
 	};
 

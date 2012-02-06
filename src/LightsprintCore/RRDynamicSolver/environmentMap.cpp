@@ -246,7 +246,9 @@ bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, RRVec3* 
 	const RRScaler* scalerForReadingEnv = getScaler();
 	unsigned gatherSize = illumination->gatherEnvMapSize;
 
-	if (gatherSize==illumination->cachedGatherSize && (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()<=CENTER_GRANULARITY)
+	if (gatherSize==illumination->cachedGatherSize
+		&& (unsigned short)(getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0)==illumination->cachedNumTriangles
+		&& (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()<=CENTER_GRANULARITY)
 		return false;
 
 	if (illumination->cachedGatherSize!=gatherSize)
@@ -362,6 +364,7 @@ bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, RRVec3* 
 	}
 	kit->inUse = false;
 	illumination->cachedGatherSize = gatherSize;
+	illumination->cachedNumTriangles = getMultiObjectCustom() ? getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles() : 0;
 	illumination->cachedCenter = illumination->envMapWorldCenter;
 	return true;
 }

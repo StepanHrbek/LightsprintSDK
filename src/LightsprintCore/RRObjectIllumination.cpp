@@ -24,9 +24,10 @@ RRObjectIllumination::RRObjectIllumination()
 	gatherEnvMapSize = 16;
 	envMapWorldCenter = RRVec3(0);
 	envMapWorldRadius = 0;
-	envMapObjectNumber = UINT_MAX;
+	envMapObjectNumber = UINT_MAX; // truncation is ok, number is used only to penetrate object's own faces when shooting from center, so worst error is bad reflection on object 66000
 	cachedCenter = RRVec3(0);
 	cachedGatherSize = 0;
+	cachedNumTriangles = 0;
 	cachedTriangleNumbers = NULL;
 }
 
