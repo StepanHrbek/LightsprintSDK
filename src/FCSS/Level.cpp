@@ -86,6 +86,15 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			solver->updateLightmaps(getLDMLayer(),-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
 			solver->setEnvironment(oldEnv);
 			delete newEnv;
+			rr::RRVec4 mini(1),maxi(0);
+			ldm->getMinMax(&mini,&maxi);
+			if (mini==rr::RRVec4(0,0,0,1) && maxi==rr::RRVec4(0,0,0,1))
+			{
+				// LDM completely black, something went wrong (e.g. missing unwrap), don't save it, don't use it (it would black indirect)
+				RR_SAFE_DELETE(ldm);
+			}
+			else
+			{
 			// save light detail map
 			ldm->save(ldmName);
 			// save copy to .png
@@ -93,6 +102,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			{
 				strcpy(ldmName+strlen(ldmName)-3,"png");
 				ldm->save(ldmName);
+			}
 			}
 		}
 		free(ldmName);
