@@ -114,7 +114,8 @@ namespace bf = boost::filesystem;
 rr::RRReporter* reporter;
 AnimationFrame currentFrame(0);
 GLUquadricObj *quadric;
-rr_gl::RealtimeLight* realtimeLight = NULL;
+rr::RRLight* rrLight = NULL; // allocated/deleted once per program run, used by all levels
+rr_gl::RealtimeLight* realtimeLight = NULL; // never allocated/deleted, just shortcut for level->solver->realtimeLights[0]
 #ifdef SUPPORT_WATER
 	rr_gl::Water* water = NULL;
 #endif
@@ -212,14 +213,7 @@ void init_gl_resources()
 {
 	quadric = gluNewQuadric();
 
-	realtimeLight = new rr_gl::RealtimeLight(*rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),RR_DEG2RAD(40),0.1f));
-	realtimeLight->setCamera(&currentFrame.light);
-	realtimeLight->numInstancesInArea = MAX_INSTANCES;
-	realtimeLight->setShadowmapSize((resolutionx<800)?SHADOW_MAP_SIZE_SOFT/2:SHADOW_MAP_SIZE_SOFT);
-
-	realtimeLight->shadowTransparencyRequested = alphashadows
-		? rr_gl::RealtimeLight::ALPHA_KEYED_SHADOWS // cweb_m01drk.tga is blended, but it is well hidden in scene, it is not worth enabling colored shadows mode
-		: rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS; // disables alpha keying in shadows (to stay compatible with Lightsmark 2007)
+	rrLight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),RR_DEG2RAD(40),0.1f);
 
 #ifdef CORNER_LOGO
 	lightsprintMap = rr_gl::Texture::load("maps/Lightsprint230.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
@@ -257,6 +251,7 @@ void done_gl_resources()
 #ifdef CORNER_LOGO
 	RR_SAFE_DELETE(lightsprintMap);
 #endif
+	RR_SAFE_DELETE(rrLight);
 	gluDeleteQuadric(quadric);
 }
 
@@ -302,7 +297,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 
-	realtimeLight->getRRLight().rtProjectedTexture = demoPlayer->getProjector(currentFrame.projectorIndex);
+	rrLight->rtProjectedTexture = demoPlayer->getProjector(currentFrame.projectorIndex);
 
 	level->solver->renderScene(
 		uberProgramSetup,
@@ -1367,7 +1362,16 @@ no_level:
 		}
 
 		// implant our light into solver
-		level->solver->realtimeLights.push_back(realtimeLight);
+		rr::RRLights lights;
+		lights.push_back(rrLight);
+		level->solver->setLights(lights);
+		realtimeLight = level->solver->realtimeLights[0];
+		realtimeLight->setCamera(&currentFrame.light);
+		realtimeLight->numInstancesInArea = 1;
+		realtimeLight->setShadowmapSize((resolutionx<800)?SHADOW_MAP_SIZE_SOFT/2:SHADOW_MAP_SIZE_SOFT);
+		realtimeLight->shadowTransparencyRequested = alphashadows
+			? rr_gl::RealtimeLight::ALPHA_KEYED_SHADOWS // cweb_m01drk.tga is blended, but it is well hidden in scene, it is not worth enabling colored shadows mode
+			: rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS; // disables alpha keying in shadows (to stay compatible with Lightsmark 2007)
 
 		//for (unsigned i=0;i<6;i++)
 		//	level->solver->calculate();
@@ -2079,7 +2083,6 @@ int main(int argc, char** argv)
 	INSTANCES_PER_PASS = uberProgramGlobalSetup.detectMaxShadowmaps(uberProgram,argc,argv);
 	rr::RRReporter::report(rr::INF1,"  penumbra quality: %d\n",INSTANCES_PER_PASS);
 	if (!INSTANCES_PER_PASS) error("",true);
-	realtimeLight->numInstancesInArea = 1;
 
 	const char* licError = rr::loadLicense("licence_number");
 	if (licError)
