@@ -683,7 +683,7 @@ public:
 				{
 					// collada does not have outerangle, it has exponent. luckily, Lightsprint supports both
 					// although this is not clearly specified, experience shows that collada falloff_angle should be in 0..90, i.e it's half angle
-					rrLight = RRLight::createSpotLightPoly(position,color,polynom,direction,RR_DEG2RAD(light.getFallOffAngle()),RR_DEG2RAD(light.getFallOffAngle()),(rr::RRReal)light.getFallOffExponent());
+					rrLight = RRLight::createSpotLightPoly(position,color,polynom,direction,(rr::RRReal)RR_DEG2RAD(light.getFallOffAngle()),(rr::RRReal)RR_DEG2RAD(light.getFallOffAngle()),(rr::RRReal)light.getFallOffExponent());
 					rrLight->spotExponent = (rr::RRReal)light.getFallOffExponent();
 				}
 				break;
