@@ -30,7 +30,6 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "eg-sponza-sun.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 int fullscreen = 1;
-bool startWithSoftShadows = 0;
 int resolutionx = 1280;
 int resolutiony = 1024;
 bool resolutionSet = false; // false = not set from cmdline, use default 1280x1024 and fallback to 1024x768
@@ -258,7 +257,6 @@ void done_gl_resources()
 #ifdef CORNER_LOGO
 	RR_SAFE_DELETE(lightsprintMap);
 #endif
-//!!! uvolnuje se vickrat RR_SAFE_DELETE(realtimeLight);
 	gluDeleteQuadric(quadric);
 }
 
@@ -304,8 +302,6 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
 	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
 
-//	rr::RRVector<rr_gl::RealtimeLight*> lights;
-//	lights.push_back(realtimeLight);
 	realtimeLight->getRRLight().rtProjectedTexture = demoPlayer->getProjector(currentFrame.projectorIndex);
 
 	level->solver->renderScene(
@@ -2083,7 +2079,7 @@ int main(int argc, char** argv)
 	INSTANCES_PER_PASS = uberProgramGlobalSetup.detectMaxShadowmaps(uberProgram,argc,argv);
 	rr::RRReporter::report(rr::INF1,"  penumbra quality: %d\n",INSTANCES_PER_PASS);
 	if (!INSTANCES_PER_PASS) error("",true);
-	realtimeLight->numInstancesInArea = startWithSoftShadows?INSTANCES_PER_PASS:1;
+	realtimeLight->numInstancesInArea = 1;
 
 	const char* licError = rr::loadLicense("licence_number");
 	if (licError)
