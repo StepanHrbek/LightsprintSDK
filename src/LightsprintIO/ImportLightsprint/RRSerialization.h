@@ -341,6 +341,10 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	ar & make_nvp("specularTransmittanceInAlpha",a.specularTransmittanceInAlpha);
 	ar & make_nvp("specularTransmittanceKeyed",a.specularTransmittanceKeyed);
 	ar & make_nvp("refractionIndex",a.refractionIndex);
+	if (version>1)
+	{
+		ar & make_nvp("normalMap",a.normalMap);
+	}
 	ar & make_nvp("lightmapTexcoord",a.lightmapTexcoord);
 	ar & make_nvp("minimalQualityForPointMaterials",a.minimalQualityForPointMaterials);
 }
@@ -769,7 +773,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRObject)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRCamera)
 
 BOOST_CLASS_VERSION(rr::RRString,1)
-BOOST_CLASS_VERSION(rr::RRMaterial,1)
+BOOST_CLASS_VERSION(rr::RRMaterial,2)
 BOOST_CLASS_VERSION(rr::RRLight,4)
 BOOST_CLASS_VERSION(rr::RRObject,1)
 BOOST_CLASS_VERSION(rr::RRScene,1)

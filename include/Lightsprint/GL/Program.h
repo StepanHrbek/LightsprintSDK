@@ -14,6 +14,16 @@
 namespace rr_gl
 {
 
+// vertex attrib array indices
+// Note: Nvidia is broken, small indices alias with fixed attributes like gl_Vertex (although spec explicitly states they don't alias).
+// Therefore we use the highest indices possible (MAX_VERTEX_ATTRIBS must be at least 16),
+// it is equally correct, and it works around Nvidia bug.
+enum
+{
+	VAA_TANGENT = 14,
+	VAA_BITANGENT = 15,
+};
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Program

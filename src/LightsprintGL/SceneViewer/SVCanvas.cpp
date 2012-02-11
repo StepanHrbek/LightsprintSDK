@@ -1385,6 +1385,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency!=T_OPAQUE;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency==T_ALPHA_BLEND || svs.renderMaterialTransparency==T_RGB_BLEND;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = svs.renderMaterialTransparency==T_RGB_BLEND;
+			uberProgramSetup.MATERIAL_NORMAL_MAP = svs.renderMaterialNormalMaps && svs.renderMaterialTextures;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = brightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = gamma!=1;
 			ClipPlanes clipPlanes = {rr::RRVec4(0),0,0,0,0,0,0};

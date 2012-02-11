@@ -24,9 +24,10 @@ enum
 	TEX_CODE_2D_LIGHT_INDIRECT            = 2, ///< Program::sendTexture() code used by our uberprogram for lightmap/ambient map/light detail map.
 	TEX_CODE_2D_MATERIAL_TRANSPARENCY     = 3, ///< Program::sendTexture() code used by our uberprogram for rgb transparency map.
 	TEX_CODE_2D_MATERIAL_EMISSIVE         = 4, ///< Program::sendTexture() code used by our uberprogram for emissive map.
-	TEX_CODE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 5, ///< Program::sendTexture() code used by our uberprogram for diffuse cube map.
-	TEX_CODE_CUBE_LIGHT_INDIRECT_SPECULAR = 6, ///< Program::sendTexture() code used by our uberprogram for specular cube map.
-	TEX_CODE_2D_LIGHT_INDIRECT_MIRROR     = 7, ///< Program::sendTexture() code used by our uberprogram for mirror map.
+	TEX_CODE_2D_MATERIAL_NORMAL           = 5, ///< Program::sendTexture() code used by our uberprogram for normal map.
+	TEX_CODE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 6, ///< Program::sendTexture() code used by our uberprogram for diffuse cube map.
+	TEX_CODE_CUBE_LIGHT_INDIRECT_SPECULAR = 7, ///< Program::sendTexture() code used by our uberprogram for specular cube map.
+	TEX_CODE_2D_LIGHT_INDIRECT_MIRROR     = 8, ///< Program::sendTexture() code used by our uberprogram for mirror map.
 
 	// texcoords assigned to UberProgram, sent to OpenGL
 	// these constants are hardcoded in shaders
@@ -35,6 +36,8 @@ enum
 	MULTITEXCOORD_FORCED_2D              = 2, ///< Texcoord channel used by our uberprogram for forced projection space vertex coordinates.
 	MULTITEXCOORD_MATERIAL_EMISSIVE      = 3, ///< Texcoord channel used by our uberprogram for emissive map uv.
 	MULTITEXCOORD_MATERIAL_TRANSPARENCY  = 4, ///< Texcoord channel used by our uberprogram for rgb transparency map uv.
+	MULTITEXCOORD_MATERIAL_NORMAL_MAP    = 5, ///< Texcoord channel used by our uberprogram for normal map uv.
+	MULTITEXCOORD_COUNT                  = 6,
 };
 
 //! Clipping plane values.
@@ -147,7 +150,11 @@ struct RR_GL_API UberProgramSetup
 	void enableAllMaterials();
 
 	//! Enables only MATERIAL_XXX required by given material, disables unused MATERIAL_XXX.
-	void enableUsedMaterials(const rr::RRMaterial* material);
+	//
+	//! With meshArrays provided, enables only features supported by mesh,
+	//! e.g. MATERIAL_NORMAL_MAP only if tangents, bitangents and selected uv channel are present.
+	//! With meshArrays NULL, works as if mesh contains all uv channels necessary, but no tangents (so normal maps will be disabled).
+	void enableUsedMaterials(const rr::RRMaterial* material, const rr::RRMeshArrays* meshArrays);
 
 	//! Reduces material setup, removes properties not present in fullMaterial.
 	//

@@ -225,6 +225,8 @@ namespace rr
 		bool          specularTransmittanceKeyed;
 		//! Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 		RRReal        refractionIndex;
+		//! Optional normal map modulates surface normals. Only texture and texcoord are used, color is ignored.
+		Property      normalMap;
 		//! Texcoord channel with unwrap for lightmaps. To be used in RRMesh::getTriangleMapping().
 		//
 		//! Note that for proper lighting, unwrap must have all coordinates in <0..1> range and triangles must not overlap.

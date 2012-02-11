@@ -246,6 +246,13 @@ varying vec3 worldNormalSmooth;
 	varying vec2 materialTransparencyCoord;
 #endif
 
+#ifdef MATERIAL_NORMAL_MAP
+	varying vec3 worldTangent;
+	varying vec3 worldBitangent;
+	uniform sampler2D materialNormalMap;
+	varying vec2 materialNormalMapCoord;
+#endif
+
 #ifdef POSTPROCESS_BRIGHTNESS
 	uniform vec4 postprocessBrightness;
 #endif
@@ -357,7 +364,8 @@ void main()
 	#endif
 	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(POSTPROCESS_NORMALS)
 		#ifdef MATERIAL_NORMAL_MAP
-			vec3 worldNormal = normalize(worldNormalSmooth+materialDiffuseMapColor.rgb-vec3(0.3,0.3,0.3));
+			vec3 localNormal = normalize(texture2D(materialNormalMap,materialNormalMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
+			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*worldNormalSmooth);
 		#else
 			vec3 worldNormal = worldNormalSmooth; // normalize would slightly improve quality
 		#endif

@@ -143,6 +143,14 @@ varying vec3 worldNormalSmooth;
 	varying vec2 materialTransparencyCoord;
 #endif
 
+#ifdef MATERIAL_NORMAL_MAP
+	attribute vec3 tangent;
+	attribute vec3 bitangent;
+	varying vec3 worldTangent;
+	varying vec3 worldBitangent;
+	varying vec2 materialNormalMapCoord;
+#endif
+
 #ifdef ANIMATION_WAVE
 	uniform float animationTime;
 #endif
@@ -179,19 +187,30 @@ void main()
 	#endif
 
 	#if defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_DETAIL_MAP)
-		lightIndirectCoord = gl_MultiTexCoord1.xy;
+		lightIndirectCoord = gl_MultiTexCoord1.xy; // 1 = MULTITEXCOORD_LIGHT_INDIRECT
 	#endif
 
 	#ifdef MATERIAL_DIFFUSE_MAP
-		materialDiffuseCoord = gl_MultiTexCoord0.xy;
+		materialDiffuseCoord = gl_MultiTexCoord0.xy; // 0 = MULTITEXCOORD_MATERIAL_DIFFUSE
 	#endif
 
 	#ifdef MATERIAL_EMISSIVE_MAP
-		materialEmissiveCoord = gl_MultiTexCoord3.xy;
+		materialEmissiveCoord = gl_MultiTexCoord3.xy; // 3 = MULTITEXCOORD_MATERIAL_EMISSIVE
 	#endif
 
 	#ifdef MATERIAL_TRANSPARENCY_MAP
-		materialTransparencyCoord = gl_MultiTexCoord4.xy;
+		materialTransparencyCoord = gl_MultiTexCoord4.xy; // 4 = MULTITEXCOORD_MATERIAL_TRANSPARENCY
+	#endif
+
+	#ifdef MATERIAL_NORMAL_MAP
+		materialNormalMapCoord = gl_MultiTexCoord5.xy; // 5 = MULTITEXCOORD_MATERIAL_NORMAL_MAP
+		#ifdef OBJECT_SPACE
+			worldTangent = normalize( ( worldMatrix * vec4(tangent,0.0) ).xyz );
+			worldBitangent = normalize( ( worldMatrix * vec4(bitangent,0.0) ).xyz );
+		#else
+			worldTangent = normalize(tangent);
+			worldBitangent = normalize(bitangent);
+		#endif
 	#endif
 
 	#if SHADOW_MAPS>0
@@ -230,7 +249,7 @@ void main()
 	#endif
   
 	#ifdef FORCE_2D_POSITION
-		gl_Position = vec4(gl_MultiTexCoord2.x,gl_MultiTexCoord2.y,0.5,1.0);
+		gl_Position = vec4(gl_MultiTexCoord2.x,gl_MultiTexCoord2.y,0.5,1.0); // 2 = MULTITEXCOORD_FORCED_2D
 	#else
 		gl_Position = gl_ModelViewProjectionMatrix * worldPos4;
 	#endif

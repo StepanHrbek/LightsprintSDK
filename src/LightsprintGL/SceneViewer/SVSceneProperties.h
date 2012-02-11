@@ -68,6 +68,7 @@ namespace rr_gl
 		BoolRefProperty*  propRenderMaterialSpecular;
 		BoolRefProperty*  propRenderMaterialEmittance;
 		wxPGProperty*     propRenderMaterialTransparency;
+		BoolRefProperty*  propRenderMaterialNormalMaps;
 		BoolRefProperty*  propRenderMaterialTextures;
 
 		wxPGProperty*     propRenderExtras;

@@ -139,6 +139,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
 		uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = 0;
+		uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
 	}
 	else
 	if (colorPassIndex==0 && separatedMultiplyPass)
@@ -150,6 +151,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.MATERIAL_SPECULAR = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
+		uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
 	}
 	else
 	if (separatedAmbientPass && _lightIndex==-separatedAmbientPass)
@@ -229,6 +231,13 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	Program* program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlanes);
 	if (!program)
 	{
+		// try disable normal map
+		if (uberProgramSetup.MATERIAL_NORMAL_MAP)
+		{
+			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
+			program = uberProgramSetup.useProgram(uberProgram,light,0,brightness,gamma,clipPlanes);
+			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with normal map disabled.\n"));
+		}
 		// try disable transparency map
 		if (!program && uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
 		{

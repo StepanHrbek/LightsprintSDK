@@ -83,6 +83,11 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	SetPropertyBackgroundColour(propTransparent,importantPropertyBackgroundColor,false);
 	Collapse(propTransparent);
 
+	Append(propNormalMap = new wxStringProperty(_("Normal map")));
+	AppendIn(propNormalMap,new wxIntProperty(_("uv")));
+	AppendIn(propNormalMap,new ImageFileProperty(_("texture or video"),_("Normal map texture or video. Type in c@pture to use live video input.")));
+	Collapse(propNormalMap);
+
 	Append(propLightmapTexcoord = new wxIntProperty(_("Lightmap uv")));
 	Append(propQualityForPoints = new wxIntProperty(_("Quality for point materials")));
 
@@ -121,7 +126,8 @@ static void setMaterialProperty(wxPGProperty* prop, rr::RRMaterial::Property& ma
 	ImageFileProperty* propTexture = (ImageFileProperty*)prop->GetPropertyByName(_("texture or video"));
 
 	// update children
-	updateProperty(propColor,material.color);
+	if (propColor) // it does not have to exist (propNormalMap)
+		updateProperty(propColor,material.color);
 	updateInt(propUv,material.texcoord);
 	updateString(propTexture,getTextureDescription(material.texture));
 	propTexture->updateIcon(material.texture);
@@ -142,6 +148,7 @@ void SVMaterialProperties::updateHide()
 		HideProperty(propSpecularRoughness,!material || material->specularModel==rr::RRMaterial::PHONG || material->specularModel==rr::RRMaterial::BLINN_PHONG);
 		HideProperty(propEmissive,!material);
 		HideProperty(propTransparent,!material);
+		HideProperty(propNormalMap,!material);
 		HideProperty(propLightmapTexcoord,!material);
 		HideProperty(propQualityForPoints,!material);
 	}
@@ -166,6 +173,8 @@ void SVMaterialProperties::updateReadOnly()
 		EnableProperty(propTransparent,!showPoint);
 		SetPropertyReadOnly(propTransparent,true,0);
 		EnableProperty(propTransparent->GetPropertyByName(_("color")),!(showPoint||material->specularTransmittance.texture));
+		EnableProperty(propNormalMap,!showPoint);
+		SetPropertyReadOnly(propNormalMap,true,0);
 		EnableProperty(propLightmapTexcoord,!showPoint);
 		EnableProperty(propQualityForPoints,!showPoint);
 	}
@@ -184,6 +193,7 @@ void SVMaterialProperties::updateProperties()
 		setMaterialProperty(propSpecular,material->specularReflectance);
 		setMaterialProperty(propEmissive,material->diffuseEmittance);
 		setMaterialProperty(propTransparent,material->specularTransmittance);
+		setMaterialProperty(propNormalMap,material->normalMap);
 
 		updateInt(propSpecularModel,material->specularModel);
 		updateFloat(propSpecularShininess,material->specularShininess);
@@ -422,6 +432,20 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		composeMaterialPropertyRoot(propTransparent,material->specularTransmittance);
 		propTransparency1bit->SetValue(material->specularTransmittanceKeyed = material->specularTransmittance.color==rr::RRVec3(0) || material->specularTransmittance.color==rr::RRVec3(1));
 		transmittanceChanged = true;
+	}
+	else
+
+	// - normalMap
+	if (property==propNormalMap->GetPropertyByName(_("uv")))
+	{
+		material->normalMap.texcoord = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propNormalMap->GetPropertyByName(_("texture or video")))
+	{
+		((ImageFileProperty*)property)->updateBufferAndIcon(material->normalMap.texture,svs.playVideos);
+		composeMaterialPropertyRoot(propNormalMap,material->normalMap);
+		textureChanged = true;
 	}
 	else
 

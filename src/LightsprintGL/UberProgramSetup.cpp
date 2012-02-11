@@ -85,11 +85,18 @@ void UberProgramSetup::enableAllMaterials()
 	MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 	MATERIAL_TRANSPARENCY_BLEND = true;
 	MATERIAL_TRANSPARENCY_TO_RGB = true;
-	MATERIAL_NORMAL_MAP = false;
+	MATERIAL_NORMAL_MAP = true;
 	MATERIAL_CULLING = true;
 }
 
-void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material)
+// true if both material and mesh have everything necessary for mapping
+// NULL mesh is trusted to have everything necessary
+static bool hasMap(const rr::RRMaterial::Property& property, const rr::RRMeshArrays* meshArrays)
+{
+	return property.texture && (!meshArrays || (meshArrays->texcoord.size()>property.texcoord && meshArrays->texcoord[property.texcoord]));
+}
+
+void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material, const rr::RRMeshArrays* meshArrays)
 {
 	if (!material)
 		return;
@@ -97,28 +104,34 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material)
 	// dif
 	MATERIAL_DIFFUSE_X2 = false;
 	MATERIAL_DIFFUSE = material->diffuseReflectance.color!=rr::RRVec3(0);
-	MATERIAL_DIFFUSE_CONST = !material->diffuseReflectance.texture && material->diffuseReflectance.color!=rr::RRVec3(1);
-	MATERIAL_DIFFUSE_MAP = material->diffuseReflectance.texture!=NULL;
+	MATERIAL_DIFFUSE_MAP = hasMap(material->diffuseReflectance, meshArrays);
+	MATERIAL_DIFFUSE_CONST = !MATERIAL_DIFFUSE_MAP && material->diffuseReflectance.color!=rr::RRVec3(1);
 
 	// spec
 	MATERIAL_SPECULAR = material->specularReflectance.color!=rr::RRVec3(0);
-	MATERIAL_SPECULAR_CONST = !material->specularReflectance.texture && material->specularReflectance.color!=rr::RRVec3(1);
-	MATERIAL_SPECULAR_MAP = material->specularReflectance.texture!=NULL;
+	MATERIAL_SPECULAR_MAP = hasMap(material->specularReflectance,meshArrays);
+	MATERIAL_SPECULAR_CONST = !MATERIAL_SPECULAR_MAP && material->specularReflectance.color!=rr::RRVec3(1);
 	MATERIAL_SPECULAR_MODEL = material->specularModel;
 
 	// emi
-	MATERIAL_EMISSIVE_CONST = material->diffuseEmittance.color!=rr::RRVec3(0) && !material->diffuseEmittance.texture;
-	MATERIAL_EMISSIVE_MAP = material->diffuseEmittance.texture!=NULL;
+	MATERIAL_EMISSIVE_MAP = hasMap(material->diffuseEmittance,meshArrays);
+	MATERIAL_EMISSIVE_CONST = !MATERIAL_EMISSIVE_MAP && material->diffuseEmittance.color!=rr::RRVec3(0);
 
 	// transp
-	MATERIAL_TRANSPARENCY_CONST = !material->specularTransmittance.texture && material->specularTransmittance.color!=rr::RRVec3(0);
-	MATERIAL_TRANSPARENCY_MAP = material->specularTransmittance.texture!=NULL;
+	MATERIAL_TRANSPARENCY_MAP = hasMap(material->specularTransmittance,meshArrays);
+	MATERIAL_TRANSPARENCY_CONST = !MATERIAL_TRANSPARENCY_MAP && material->specularTransmittance.color!=rr::RRVec3(0);
 	MATERIAL_TRANSPARENCY_IN_ALPHA = material->specularTransmittance.color!=rr::RRVec3(0) && material->specularTransmittanceInAlpha;
 	MATERIAL_TRANSPARENCY_BLEND = material->specularTransmittance.color!=rr::RRVec3(0) && !material->specularTransmittanceKeyed;
 	MATERIAL_TRANSPARENCY_TO_RGB = MATERIAL_TRANSPARENCY_BLEND;
 
+	// normal map
+	MATERIAL_NORMAL_MAP = hasMap(material->normalMap,meshArrays) && meshArrays && meshArrays->tangent && meshArrays->bitangent; // [#11] we require arrays for normal maps, !arrays don't expose presence of tangents, we don't want to always copy tangents to GPU even if they are not present (waste memory in 99% of cases)
+#ifdef _DEBUG
+	if (hasMap(material->normalMap,meshArrays) && meshArrays && (!meshArrays->tangent || !meshArrays->bitangent))
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Can't render normal map, mesh does not have tangentspace.\n"));
+#endif
+
 	// misc
-	MATERIAL_NORMAL_MAP = false;
 	MATERIAL_CULLING = material->sideBits[0].renderFrom != material->sideBits[1].renderFrom;
 }
 
@@ -331,6 +344,8 @@ void UberProgramSetup::validate()
 		&& !LIGHT_INDIRECT_MIRROR)
 	{
 		MATERIAL_SPECULAR = 0; // specular reflection requested, but there's no suitable light
+		if (!LIGHT_INDIRECT_ENV_DIFFUSE) // env diffuse can use normal maps, even if specular is disabled
+			MATERIAL_NORMAL_MAP = 0; // normal map requested, but there's no suitable light
 	}
 	if (!MATERIAL_DIFFUSE)
 	{
@@ -683,6 +698,12 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	{
 		program->sendTexture("materialTransparencyMap",NULL,TEX_CODE_2D_MATERIAL_TRANSPARENCY);
 		s_buffers1x1.bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
+	}
+
+	if (MATERIAL_NORMAL_MAP)
+	{
+		program->sendTexture("materialNormalMap",NULL,TEX_CODE_2D_MATERIAL_NORMAL);
+		s_buffers1x1.bindPropertyTexture(material->normalMap,1);
 	}
 }
 

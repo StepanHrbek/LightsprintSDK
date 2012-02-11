@@ -161,6 +161,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderMaterialTransparency->SetHelpString(_("Changes how realistically semi-transparent surfaces are rendered."));
 		AppendIn(propRenderMaterials,propRenderMaterialTransparency);
 
+		propRenderMaterialNormalMaps = new BoolRefProperty(_("Normal maps"),_("Toggles rendering normal maps."),svs.renderMaterialNormalMaps);
+		AppendIn(propRenderMaterials,propRenderMaterialNormalMaps);
+
 		propRenderMaterialTextures = new BoolRefProperty(_("Textures"),_("Toggles between material textures and flat colors. Disabling textures could make rendering faster.")+" (ctrl-t)",svs.renderMaterialTextures);
 		AppendIn(propRenderMaterials,propRenderMaterialTextures);
 
@@ -319,6 +322,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderMaterialSpecular)
 		+ updateBoolRef(propRenderMaterialEmittance)
 		+ updateInt(propRenderMaterialTransparency,svs.renderMaterialTransparency)
+		+ updateBoolRef(propRenderMaterialNormalMaps)
 		+ updateBoolRef(propRenderMaterialTextures)
 		+ updateBoolRef(propRenderWireframe)
 		+ updateBoolRef(propRenderHelpers)

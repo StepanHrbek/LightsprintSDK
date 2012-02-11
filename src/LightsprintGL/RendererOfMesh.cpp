@@ -63,6 +63,10 @@ bool MeshArraysVBOs::update(const rr::RRMeshArrays* _mesh, bool _indexed)
 			} }
 		COPY_ARRAY_TO_VBO(_mesh->position,VBO[VBO_position]);
 		COPY_ARRAY_TO_VBO(_mesh->normal,VBO[VBO_normal]);
+		if (_mesh->tangent)
+			COPY_ARRAY_TO_VBO(_mesh->tangent,VBO[VBO_tangent]);
+		if (_mesh->bitangent)
+			COPY_ARRAY_TO_VBO(_mesh->bitangent,VBO[VBO_bitangent]);
 		if (texcoordVBO.size()<_mesh->texcoord.size())
 		{
 			texcoordVBO.resize(_mesh->texcoord.size(),0);
@@ -197,6 +201,7 @@ void MeshArraysVBOs::render(
 	#define DRAW_ELEMENTS(a,b,c,d)                                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[VBO_index]); glDrawElements(a,b,c,(const GLvoid*)(sizeof(unsigned)*d));
 	#define BIND_VBO2(glName,myName)           RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(           GL_FLOAT, 0, 0);
 	#define BIND_VBO3(glName,numFloats,myName) RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(numFloats, GL_FLOAT, 0, 0);
+	#define BIND_VBO4(index,myName)            RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	#define BIND_BUFFER(glName,buffer,myName)  RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0);
 
 	// set vertices
@@ -208,6 +213,15 @@ void MeshArraysVBOs::render(
 	{
 		BIND_VBO2(Normal,VBO[VBO_normal]);
 		glEnableClientState(GL_NORMAL_ARRAY);
+	}
+	// set tangents
+	bool setTangents = (_uberProgramSetup.LIGHT_DIRECT || _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _uberProgramSetup.MATERIAL_NORMAL_MAP;
+	if (setTangents)
+	{
+		BIND_VBO4(VAA_TANGENT,VBO[VBO_tangent]);
+		glEnableVertexAttribArray(VAA_TANGENT);
+		BIND_VBO4(VAA_BITANGENT,VBO[VBO_bitangent]);
+		glEnableVertexAttribArray(VAA_BITANGENT);
 	}
 	// set indirect illumination vertices
 	if (_uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
@@ -263,6 +277,7 @@ void MeshArraysVBOs::render(
 		|| _uberProgramSetup.MATERIAL_SPECULAR // even if specular color=1, setMaterial() must be called to set shininess, shininess does not have any default
 		|| _uberProgramSetup.MATERIAL_EMISSIVE_CONST || _uberProgramSetup.MATERIAL_EMISSIVE_MAP
 		|| _uberProgramSetup.MATERIAL_TRANSPARENCY_CONST || _uberProgramSetup.MATERIAL_TRANSPARENCY_MAP
+		|| _uberProgramSetup.MATERIAL_NORMAL_MAP
 		|| _uberProgramSetup.MATERIAL_CULLING
 		|| (_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer)
 		|| (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
@@ -272,10 +287,10 @@ void MeshArraysVBOs::render(
 		// cache uv channel binding
 		struct UvChannelBinding
 		{
-			unsigned boundUvChannel[5]; // indexed by MULTITEXCOORD_XXX
+			unsigned boundUvChannel[MULTITEXCOORD_COUNT];
 			void bindUvChannel(const rr::RRVector<unsigned>& _texcoordVBO, unsigned _shaderChannel, unsigned _uvChannel, const rr::RRBuffer* _buffer, const rr::RRString& _objectName, const rr::RRString& _materialName)
 			{
-				RR_ASSERT(_shaderChannel<5);
+				RR_ASSERT(_shaderChannel<MULTITEXCOORD_COUNT);
 				if (boundUvChannel[_shaderChannel]==_uvChannel)
 				{
 					// already set
@@ -289,7 +304,7 @@ void MeshArraysVBOs::render(
 				boundUvChannel[_shaderChannel] = _uvChannel;
 				if (_uvChannel>=_texcoordVBO.size() || _texcoordVBO[_uvChannel]==0)
 				{
-					RR_LIMITED_TIMES(20,rr::RRReporter::report(rr::WARN,"Material '%s' in object '%s' needs non existing uv channel %d (texcoord.size=%d).\n",_materialName.c_str(),_objectName.c_str(),_uvChannel,_texcoordVBO.size()));
+					RR_LIMITED_TIMES(10,rr::RRReporter::report(rr::WARN,"Material '%s' in object '%s' needs non existing uv channel %d (texcoord.size=%d).\n",_materialName.c_str(),_objectName.c_str(),_uvChannel,_texcoordVBO.size()));
 					return;
 				}
 				glClientActiveTexture(GL_TEXTURE0+_shaderChannel);
@@ -297,7 +312,7 @@ void MeshArraysVBOs::render(
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			}
 		};
-		UvChannelBinding uvChannelBinding = {UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX};
+		UvChannelBinding uvChannelBinding = {UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX}; // must have all MULTITEXCOORD_COUNT items initialized to UINT_MAX
 
 		for (unsigned r=0;r<_numFaceGroupRanges;r++)
 		{
@@ -345,6 +360,8 @@ void MeshArraysVBOs::render(
 								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_EMISSIVE,material->diffuseEmittance.texcoord,material->diffuseEmittance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
 								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_TRANSPARENCY,material->specularTransmittance.texcoord,material->specularTransmittance.texture,_object->name,material->name);
+							if (_uberProgramSetup.MATERIAL_NORMAL_MAP)
+								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_NORMAL_MAP,material->normalMap.texcoord,material->normalMap.texture,_object->name,material->name);
 							if ((_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) || (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
 								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_LIGHT_INDIRECT,material->lightmapTexcoord,(const rr::RRBuffer*)1,_object->name,material->name);
 
@@ -402,6 +419,13 @@ void MeshArraysVBOs::render(
 		glBindTexture(GL_TEXTURE_2D,0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
+	// unset material normal map texcoords
+	if (_uberProgramSetup.MATERIAL_NORMAL_MAP)
+	{
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_NORMAL_MAP);
+		glBindTexture(GL_TEXTURE_2D,0);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
 	// unset 2d_position texcoords
 	if (_uberProgramSetup.FORCE_2D_POSITION)
 	{
@@ -420,6 +444,12 @@ void MeshArraysVBOs::render(
 	if (_uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
 	{
 		glDisableClientState(GL_COLOR_ARRAY);
+	}
+	// unset tangents
+	if (setTangents)
+	{
+		glDisableVertexAttribArray(VAA_BITANGENT);
+		glDisableVertexAttribArray(VAA_TANGENT);
 	}
 	// unset normals
 	if (setNormals)
@@ -494,7 +524,7 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _index
 					rr::RRReporter::report(rr::WARN,"Mesh has %d uv channels, consider removing some to save memory.\n",s_helpers.texcoords.size());
 				}
 				// copy data to arrays
-				s_helpers.meshArrays.reload(_mesh,_indexed,s_helpers.texcoords,false);
+				s_helpers.meshArrays.reload(_mesh,_indexed,s_helpers.texcoords,false); // [#11] !arrays don't expose presence of tangents, don't copy tangents to VBO because !arrays usually don't have them, we would waste VRAM in 99% of cases
 			}
 			updatedOk[index] = meshArraysVBOs[index].update(meshArrays?meshArrays:&s_helpers.meshArrays,_indexed);
 		}

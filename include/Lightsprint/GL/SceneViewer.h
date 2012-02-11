@@ -86,6 +86,7 @@ struct SceneViewerState
 	bool             renderMaterialSpecular;    //! Render specular reflections.
 	bool             renderMaterialEmission;    //! Render emissivity.
 	Transparency     renderMaterialTransparency;//! Render transparency. Allows realtime renderer to use modes up to this one. Offline GI always uses the highest one.
+	bool             renderMaterialNormalMaps;  //! Render normal maps.
 	bool             renderMaterialTextures;    //! Render textures (diffuse, emissive) rather than constant colors.
 	bool             renderWater;               //! Render water surface as a plane at y=waterLevel.
 	bool             renderWireframe;           //! Render all in wireframe.
@@ -163,6 +164,7 @@ struct SceneViewerState
 		renderMaterialSpecular = 1;
 		renderMaterialEmission = 1;
 		renderMaterialTransparency = T_RGB_BLEND;
+		renderMaterialNormalMaps = 1;
 		renderMaterialTextures = 1;
 		renderWater = 0;
 		renderWireframe = 0;
@@ -241,6 +243,7 @@ struct SceneViewerState
 			&& a.renderMaterialSpecular==renderMaterialSpecular
 			&& a.renderMaterialEmission==renderMaterialEmission
 			&& a.renderMaterialTransparency==renderMaterialTransparency
+			&& a.renderMaterialNormalMaps==renderMaterialNormalMaps
 			&& a.renderMaterialTextures==renderMaterialTextures
 			&& a.renderWater==renderWater
 			&& a.renderWireframe==renderWireframe

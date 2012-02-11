@@ -277,6 +277,10 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 	{
 		ar & make_nvp("renderMaterialTransparency",a.renderMaterialTransparency);
 	}
+	if (version>28)
+	{
+		ar & make_nvp("renderMaterialNormalMaps",a.renderMaterialNormalMaps);
+	}
 	ar & make_nvp("renderMaterialTextures",a.renderMaterialTextures);
 	ar & make_nvp("renderWater",a.renderWater);
 	ar & make_nvp("renderWireframe",a.renderWireframe);
@@ -447,7 +451,7 @@ BOOST_CLASS_VERSION(rr::RRCamera,2)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,11)
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,28)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,29)
 
 //---------------------------------------------------------------------------
 

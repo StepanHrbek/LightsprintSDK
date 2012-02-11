@@ -102,6 +102,8 @@ private:
 		VBO_index, // used only if indexed
 		VBO_position,
 		VBO_normal,
+		VBO_tangent,
+		VBO_bitangent,
 		VBO_lightIndirectVcolor,
 		VBO_texcoordForced2D,
 		VBO_COUNT

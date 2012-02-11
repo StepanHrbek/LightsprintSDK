@@ -8,6 +8,16 @@ namespace rr
 
 \page main_news What's new
 
+\section news130 ------------------------------------ 2012.02.xx -------------------------------------
+
+NEWS
+
+- normal maps
+  - RRMaterial::normalMap lets you specify normal mapping
+  - rr_gl::UberProgramSetup::MATERIAL_NORMAL_MAP enables normal maps in realtime renderer
+  - import/export from .rr3
+  - rr_gl::UberProgramSetup::enableUsedMaterials() has second parameter added
+
 \section news129 ------------------------------------ 2012.01.16 -------------------------------------
 
 NEWS
