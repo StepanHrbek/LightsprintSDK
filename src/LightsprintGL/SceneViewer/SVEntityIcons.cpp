@@ -123,16 +123,19 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, const rr::RRCamera& 
 	//glEnable(GL_BLEND); glBlendFunc(GL_ONE_MINUS_SRC_COLOR,GL_SRC_COLOR);
 
 	// render icons
-	programIcons->useIt();
-	programIcons->sendUniform("lightIndirectConst",rr::RRVec4(1));
-	programIcons->sendTexture("materialDiffuseMap", NULL); // renderIcon() will repeatedly bind texture
-	unsigned counter = 0;
-	for (unsigned i=0;i<entities.size();i++)
+	if (programIcons)
 	{
-		static rr::RRTime time;
-		float brightness = entities[i].selected ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
-		programIcons->sendUniform("lightIndirectConst",rr::RRVec4(brightness,brightness,brightness,1.0f));
-		renderIcon(entities[i],eye);
+		programIcons->useIt();
+		programIcons->sendUniform("lightIndirectConst",rr::RRVec4(1));
+		programIcons->sendTexture("materialDiffuseMap", NULL); // renderIcon() will repeatedly bind texture
+		unsigned counter = 0;
+		for (unsigned i=0;i<entities.size();i++)
+		{
+			static rr::RRTime time;
+			float brightness = entities[i].selected ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
+			programIcons->sendUniform("lightIndirectConst",rr::RRVec4(brightness,brightness,brightness,1.0f));
+			renderIcon(entities[i],eye);
+		}
 	}
 }
 
