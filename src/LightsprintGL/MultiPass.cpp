@@ -230,7 +230,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	if (!program)
 	{
 		// try disable transparency map
-		if (uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
+		if (!program && uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
 		{
 			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 0;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = 1;
@@ -257,7 +257,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with LDM disabled.\n"));
 		}
 		// try disable emissive map
-		if (uberProgramSetup.MATERIAL_EMISSIVE_MAP)
+		if (!program && uberProgramSetup.MATERIAL_EMISSIVE_MAP)
 		{
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = 1;
@@ -266,7 +266,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with emissive map disabled.\n"));
 		}
 		// try disable diffuse map (saves SceneViewer+X300,X1650)
-		if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
+		if (!program && uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 		{
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
 			uberProgramSetup.MATERIAL_DIFFUSE_CONST = 1;
