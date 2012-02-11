@@ -395,8 +395,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			if (entityIds.size()>1)
 				menu.Append(CM_OBJECTS_MERGE,_("Merge objects"),_("Merges objects together."));
 			menu.Append(CM_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
-			if (svframe->userPreferences.testingBeta) // is in beta because tangents have no effect
-				menu.Append(CM_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
+			menu.Append(CM_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
 			menu.Append(CM_OBJECTS_DELETE_DIALOG,_("Delete components..."),_("Deletes components within objects."));
 			if (temporaryContext!=staticObjects && !svframe->m_objectProperties->IsShown() && temporaryContextItems.size()==1)
 				menu.Append(SVFrame::ME_WINDOW_OBJECT_PROPERTIES, _("Properties..."));
