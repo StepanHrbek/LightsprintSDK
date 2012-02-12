@@ -582,7 +582,7 @@ Video formats
   - www: <a href="http://opencollada.org/">OpenCollada</a>
   - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
   - optional, remove by deleting <code>\#define SUPPORT_OPENCOLLADA</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
-  - OpenCollada rev 836 (\subpage opencollada_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+  - OpenCollada rev 867 (\subpage opencollada_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
 
  \page opencollada_patch OpenCollada patch
 
@@ -601,12 +601,15 @@ Video formats
   We submitted patch at http://code.google.com/p/opencollada/issues/detail?id=94
 
   \section oc_patch4 Patch4
+  We submitted patch at http://code.google.com/p/opencollada/issues/detail?id=119
+  It fixes crashes.
+
+  \section oc_patch5 Patch5
   We submitted patch at http://code.google.com/p/opencollada/issues/detail?id=120
   It fixes Visual Studio 2010 compilation.
 
-  \section oc_patch5 Patch5
-  We submitted patch at http://code.google.com/p/opencollada/issues/detail?id=119
-  It fixes crashes.
+  \section oc_patch5 Patch6
+  SDK supports import of additional camera types, patch not created yet.
 
 
 \page tpl_fcollada FCollada
