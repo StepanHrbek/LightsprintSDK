@@ -139,7 +139,7 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 	recursionDepth = 0;
 
 	// init "seamless cube maps" feature
-	prefilterSeams = true;//!GLEW_ARB_seamless_cube_map;
+	prefilterSeams = true;//!GLEW_ARB_seamless_cube_map; // in OSX 10.7, supported from Radeon HD2400, GeForce 9400(but not 9600,1xx), HD graphics 3000
 	if(!prefilterSeams) glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
