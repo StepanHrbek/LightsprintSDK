@@ -246,23 +246,23 @@ void SVCanvas::createContextCore()
 
 		// try to load lightmaps
 		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.bakedGlobalLayerNumber))
+			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedLightmap))
 				goto lightmapFoundInRam;
-		solver->getStaticObjects().loadLayer(svs.bakedGlobalLayerNumber,LMAP_PREFIX,LMAP_POSTFIX);
+		solver->getStaticObjects().loadLayer(svs.layerBakedLightmap,LMAP_PREFIX,LMAP_POSTFIX);
 		lightmapFoundInRam:
 
 		// try to load ambient maps
 		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.bakedIndirectLayerNumber))
+			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedAmbient))
 				goto ambientFoundInRam;
-		solver->getStaticObjects().loadLayer(svs.bakedIndirectLayerNumber,AMBIENT_PREFIX,AMBIENT_POSTFIX);
+		solver->getStaticObjects().loadLayer(svs.layerBakedAmbient,AMBIENT_PREFIX,AMBIENT_POSTFIX);
 		ambientFoundInRam:
 
 		// try to load LDM. if not found, disable it
 		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.ldmLayerNumber))
+			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedLDM))
 				goto ldmFoundInRam;
-		if (!solver->getStaticObjects().loadLayer(svs.ldmLayerNumber,LDM_PREFIX,LDM_POSTFIX))
+		if (!solver->getStaticObjects().loadLayer(svs.layerBakedLDM,LDM_PREFIX,LDM_POSTFIX))
 			svs.renderLDM = false;
 		ldmFoundInRam:;
 	}
@@ -402,7 +402,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
 {
 	solver->allocateBuffersForRealtimeGI(
-		reallocateAlsoVbuffers?svs.realtimeLayerNumber:-1,
+		reallocateAlsoVbuffers?svs.layerRealtimeAmbient:-1,
 		svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes,RR_MAX(svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes),
 		true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
 	svframe->m_objectProperties->updateProperties();
@@ -457,7 +457,7 @@ SVCanvas::~SVCanvas()
 		// delete all lightmaps for realtime rendering
 		for (unsigned i=0;i<solver->getStaticObjects().size()+solver->getDynamicObjects().size();i++)
 		{
-			RR_SAFE_DELETE(solver->getObject(i)->illumination.getLayer(svs.realtimeLayerNumber));
+			RR_SAFE_DELETE(solver->getObject(i)->illumination.getLayer(svs.layerRealtimeAmbient));
 		}
 
 		// delete env manually loaded by user
@@ -1255,7 +1255,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		if (solver->getObject(svs.selectedObjectIndex))
 			lv->setObject(
 				solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(
-					svs.renderLDMEnabled() ? svs.ldmLayerNumber : ((svs.renderLightIndirect!=LI_BAKED || svs.renderLightDirect==LD_BAKED)?svs.bakedGlobalLayerNumber:svs.bakedIndirectLayerNumber)),
+					svs.renderLDMEnabled() ? svs.layerBakedLDM : ((svs.renderLightIndirect!=LI_BAKED || svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:svs.layerBakedAmbient)),
 				solver->getObject(svs.selectedObjectIndex),
 				svs.renderLightmapsBilinear);
 		else
@@ -1405,8 +1405,8 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					uberProgramSetup,
 					NULL,
 					true,//svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_BAKED)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_BAKED)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
-					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
+					(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient),
+					svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX,
 					&clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
@@ -1432,8 +1432,8 @@ rendered:
 					uberProgramSetup,
 					NULL,
 					true,//svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_BAKED)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_BAKED)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
-					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
+					(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient),
+					svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX,
 					&clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
@@ -1446,8 +1446,8 @@ rendered:
 					uberProgramSetup,
 					NULL,
 					true,//svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_BAKED)?svs.bakedGlobalLayerNumber:((svs.renderLightIndirect==LI_BAKED)?svs.bakedIndirectLayerNumber:svs.realtimeLayerNumber),
-					svs.renderLDMEnabled()?svs.ldmLayerNumber:UINT_MAX,
+					(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient),
+					svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX,
 					&clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
@@ -1824,10 +1824,10 @@ rendered:
 				unsigned numLmaps = 0;
 				for (unsigned i=0;i<numObjects;i++)
 				{
-					if (solver->getObject(i)->illumination.getLayer(svs.bakedGlobalLayerNumber))
+					if (solver->getObject(i)->illumination.getLayer(svs.layerBakedLightmap))
 					{
-						if (solver->getObject(i)->illumination.getLayer(svs.bakedGlobalLayerNumber)->getType()==rr::BT_VERTEX_BUFFER) numVbufs++; else
-						if (solver->getObject(i)->illumination.getLayer(svs.bakedGlobalLayerNumber)->getType()==rr::BT_2D_TEXTURE) numLmaps++;
+						if (solver->getObject(i)->illumination.getLayer(svs.layerBakedLightmap)->getType()==rr::BT_VERTEX_BUFFER) numVbufs++; else
+						if (solver->getObject(i)->illumination.getLayer(svs.layerBakedLightmap)->getType()==rr::BT_2D_TEXTURE) numLmaps++;
 					}
 				}
 				// what solver
@@ -1932,7 +1932,7 @@ rendered:
 				}
 				if (solver->getObject(svs.selectedObjectIndex))
 				{
-					unsigned layerNumber[3] = {svs.bakedGlobalLayerNumber,svs.bakedIndirectLayerNumber,svs.ldmLayerNumber};
+					unsigned layerNumber[3] = {svs.layerBakedLightmap,svs.layerBakedAmbient,svs.layerBakedLDM};
 					const char* layerName[3] = {"[lightmap]","[ambient map]","[ldm]"};
 					for (unsigned i=0;i<3;i++)
 					{
@@ -1971,7 +1971,7 @@ rendered:
 						textOutput(x,y+=18,h,"dynamic object: %ls",selectedPointObject->name.w_str());
 					else
 						textOutput(x,y+=18,h,"static object: %d/%d",preTriangle.object,solver->getStaticObjects().size());
-					rr::RRBuffer* selectedPointLightmap = selectedPointObject->illumination.getLayer(svs.bakedGlobalLayerNumber);
+					rr::RRBuffer* selectedPointLightmap = selectedPointObject->illumination.getLayer(svs.layerBakedLightmap);
 					textOutput(x,y+=18,h,"offline lightmap: %s %dx%d",selectedPointLightmap?(selectedPointLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",selectedPointLightmap?selectedPointLightmap->getWidth():0,selectedPointLightmap?selectedPointLightmap->getHeight():0);
 					if (selectedPointObject->isDynamic)
 					{
@@ -2034,7 +2034,7 @@ rendered:
 				textOutput(x,y+=18,h,"uv: %f %f",uv[0],uv[1]);
 				if (solver->getObject(svs.selectedObjectIndex))
 				{
-					rr::RRBuffer* buffer = solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(svs.bakedGlobalLayerNumber);
+					rr::RRBuffer* buffer = solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(svs.layerBakedLightmap);
 					if (buffer && buffer->getType()==rr::BT_2D_TEXTURE)
 					{
 						int i = int(uv[0]*buffer->getWidth());

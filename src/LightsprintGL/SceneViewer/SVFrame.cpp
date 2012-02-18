@@ -1289,7 +1289,7 @@ reload_skybox:
 						params.debugTriangle = (m_canvas->centerTexel==UINT_MAX)?m_canvas->centerTriangle:UINT_MAX;
 						params.debugRay = SVRayLog::push_back;
 						SVRayLog::size = 0;
-						solver->updateLightmaps(svs.bakedGlobalLayerNumber,-1,-1,&params,&params,NULL);
+						solver->updateLightmaps(svs.layerBakedLightmap,-1,-1,&params,&params,NULL);
 					}
 				}
 				else

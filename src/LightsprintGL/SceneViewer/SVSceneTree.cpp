@@ -614,8 +614,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					for (unsigned i=0;i<selectedObjects.size();i++)
 						if (selectedObjects[i]->getCollider()->getMesh()->getNumVertices())
 						{
-							delete selectedObjects[i]->illumination.getLayer(ambient?svs.bakedIndirectLayerNumber:svs.bakedGlobalLayerNumber);
-							selectedObjects[i]->illumination.getLayer(ambient?svs.bakedIndirectLayerNumber:svs.bakedGlobalLayerNumber) = selectedObjects[i]->illumination.getLayer(tmpLayer);
+							delete selectedObjects[i]->illumination.getLayer(ambient?svs.layerBakedAmbient:svs.layerBakedLightmap);
+							selectedObjects[i]->illumination.getLayer(ambient?svs.layerBakedAmbient:svs.layerBakedLightmap) = selectedObjects[i]->illumination.getLayer(tmpLayer);
 							selectedObjects[i]->illumination.getLayer(tmpLayer) = NULL;
 						}
 
@@ -669,8 +669,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					for (unsigned i=0;i<selectedObjects.size();i++)
 						if (selectedObjects[i]->getCollider()->getMesh()->getNumVertices())
 						{
-							delete selectedObjects[i]->illumination.getLayer(svs.ldmLayerNumber);
-							selectedObjects[i]->illumination.getLayer(svs.ldmLayerNumber) = selectedObjects[i]->illumination.getLayer(tmpLayer);
+							delete selectedObjects[i]->illumination.getLayer(svs.layerBakedLDM);
+							selectedObjects[i]->illumination.getLayer(svs.layerBakedLDM) = selectedObjects[i]->illumination.getLayer(tmpLayer);
 							selectedObjects[i]->illumination.getLayer(tmpLayer) = NULL;
 						}
 
