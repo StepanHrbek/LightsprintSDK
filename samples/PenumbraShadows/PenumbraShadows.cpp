@@ -305,17 +305,10 @@ int main(int argc, char** argv)
 //	CGEventSourceSetLocalEventsSuppressionInterval(eventSource, 0.0);
 #endif
 
-	// init GLEW
-	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
-
 	// init GL
-	int major, minor;
-	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
-		error("OpenGL 2.0 capable graphics card is required.\n",true);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_DEPTH_TEST);
+	const char* err = rr_gl::initializeGL();
+	if (err)
+		error(err,true);
 
 	// init shaders
 	uberProgram = rr_gl::UberProgram::create("../../data/shaders/ubershader.vs", "../../data/shaders/ubershader.fs");

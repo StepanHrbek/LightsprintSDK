@@ -148,23 +148,14 @@ void SVCanvas::createContextCore()
 	s_oldAllocHook = _CrtSetAllocHook(newAllocHook);
 #endif
 
-	// init GLEW
-	if (glewInit()!=GLEW_OK)
+	const char* error = initializeGL();
+	if (error)
 	{
-		rr::RRReporter::report(rr::ERRO,"GLEW init failed (OpenGL 2.0 capable graphics card is required).\n");
+		rr::RRReporter::report(rr::ERRO,error);
 		exitRequested = true;
 		return;
 	}
 
-	// init GL
-	rr::RRReporter::report(rr::INF2,"OpenGL %s by %s on %s.\n",glGetString(GL_VERSION),glGetString(GL_VENDOR),glGetString(GL_RENDERER));
-	int major, minor;
-	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
-	{
-		rr::RRReporter::report(rr::ERRO,"Your system does not support OpenGL 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n");
-		exitRequested = true;
-		return;
-	}
 	int i1=0,i2=0,i3=0,i4=0,i5=0;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&i1);
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS,&i2);
@@ -172,10 +163,6 @@ void SVCanvas::createContextCore()
 	glGetIntegerv(GL_MAX_TEXTURE_COORDS,&i4);
 	glGetIntegerv(GL_MAX_VARYING_FLOATS,&i5);
 	rr::RRReporter::report(rr::INF2,"  %d image units, %d units, %d combined, %d coords, %d varyings.\n",i1,i2,i3,i4,i5);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_DEPTH_TEST);
 
 
 	{

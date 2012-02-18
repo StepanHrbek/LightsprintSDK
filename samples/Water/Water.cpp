@@ -161,15 +161,10 @@ int main(int argc, char** argv)
 	glutPassiveMotionFunc(passive);
 	glutIdleFunc(idle);
 
-	// init GLEW
-	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
-
 	// init GL
-	int major, minor;
-	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
-		error("OpenGL 2.0 capable graphics card is required.\n",true);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	const char* err = rr_gl::initializeGL();
+	if (err)
+		error(err,true);
 	glDisable(GL_DEPTH_TEST);
 #if defined(_WIN32)
 	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);

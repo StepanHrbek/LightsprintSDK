@@ -1747,14 +1747,9 @@ void init_gl_states()
 
 	glClearColor(0,0,0,0);
 
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-
 	/* GL_LEQUAL ensures that when fragments with equal depth are
 	generated within a single rendering pass, the last fragment
 	results. */
-	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_DEPTH_TEST);
 
 	glLineStipple(1, 0xf0f0);
 
@@ -2039,18 +2034,15 @@ int main(int argc, char** argv)
 	CGSetLocalEventsSuppressionInterval(0.0);
 #endif
 
-	// init GLEW
-	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
-
 	// init GL
-	rr::RRReporter::report(rr::INF1,"OpenGL %s by %s on %s.\n",glGetString(GL_VERSION),glGetString(GL_VENDOR),glGetString(GL_RENDERER));
-	int major, minor;
-	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+	const char* err = initializeGL();
+	if (err)
 	{
-		rr::RRReporter::report(rr::ERRO,"Your system does not support OpenGL 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n");
+		rr::RRReporter::report(rr::ERRO,err);
 		exiting = true;
 		exit(0);
 	}
+
 	int i1=0,i2=0,i3=0,i4=0,i5=0;
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&i1);
 	glGetIntegerv(GL_MAX_TEXTURE_UNITS,&i2);

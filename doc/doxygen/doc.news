@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news131 ------------------------------------ 2012.02.xx -------------------------------------
+
+CHANGES
+
+- rr_gl::initializeGL() replaces approx 10 lines of code previously repeated in all samples
+  (calling glewInit(), checking GL version, setting some GL states)
+
+
 \section news130 ------------------------------------ 2012.02.13 -------------------------------------
 
 NEWS

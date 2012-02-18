@@ -354,17 +354,10 @@ int main(int argc, char** argv)
 	//glutGameModeString("800x600:32"); glutEnterGameMode(); // for fullscreen mode
 	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint RealtimeLights"); // for windowed mode
 
-	// init GLEW
-	if (glewInit()!=GLEW_OK) error("GLEW init failed.\n",true);
-
 	// init GL
-	int major, minor;
-	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
-		error("OpenGL 2.0 capable graphics card is required.\n",true);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_DEPTH_TEST);
+	const char* err = rr_gl::initializeGL();
+	if (err)
+		error(err,true);
 	
 #ifdef _WIN32
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop

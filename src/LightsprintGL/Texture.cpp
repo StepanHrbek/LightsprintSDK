@@ -15,6 +15,36 @@ namespace rr_gl
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// init GL
+
+const char* initializeGL()
+{
+	// init GLEW
+	if (glewInit()!=GLEW_OK)
+	{
+		return "GLEW init failed (OpenGL 2.0 capable graphics card is required).\n";
+	}
+
+	// check gl version
+	rr::RRReporter::report(rr::INF2,"OpenGL %s by %s on %s.\n",glGetString(GL_VERSION),glGetString(GL_VENDOR),glGetString(GL_RENDERER));
+	int major, minor;
+	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+	{
+		return "Your system does not support OpenGL 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n";
+	}
+
+	// init misc GL states
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_DEPTH_TEST);
+
+	return NULL;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // FBO
 
 static FBO      s_fboState;
