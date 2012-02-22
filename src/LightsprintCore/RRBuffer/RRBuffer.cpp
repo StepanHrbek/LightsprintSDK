@@ -866,6 +866,7 @@ bool RRBuffer::save(const RRString& _filename, const char* _cubeSideName[6], con
 			filename = _filename;
 			return true;
 		}
+	RRReporter::report(WARN,"Failed to save %ls.\n",_filename.w_str());
 	return false;
 }
 

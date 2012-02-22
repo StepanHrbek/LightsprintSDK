@@ -511,7 +511,8 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][2]))
 		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][3]))
 		{
-			RRReporter::report(WARN,"Save not supported for %ls format.\n",filename.w_str());
+			// Don't warn, there's still chance other saver will work (.rrbuffer)
+			//RRReporter::report(WARN,"Save not supported for %ls format.\n",filename.w_str());
 			goto ende;
 		}
 		fit = (dstbipp==128) ? FIT_RGBAF : ((dstbipp==96)?FIT_RGBF:FIT_BITMAP);
