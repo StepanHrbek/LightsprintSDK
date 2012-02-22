@@ -279,7 +279,7 @@ namespace rr
 		//
 		//! Examples:
 		//! - load("path/lightmap.png") - loads 2d texture (jpg, gif, dds etc)
-		//! - load("path/lightmap.vbu") - loads vertex buffer
+		//! - load("path/lightmap.rrbuffer") - loads e.g. vertex buffer
 		//! - load("path/cube_%%s.png", {"bk","ft","dn","up","rt","lf"}) - loads cubemap from 6 files
 		//! - load("path/cube.hdr", non-NULL) - loads cubemap from 1 file, expects cross-shaped image with aspect 3:4 or 4:3
 		//! - load("path/cube.hdr", NULL) - loads the same file as 2d texture

@@ -233,7 +233,7 @@ void keyboard(unsigned char c, int x, int y)
 		case 's':
 			// save current indirect illumination (static snapshot) to disk
 			solver->getStaticObjects().saveLayer(LAYER_OFFLINE_PIXEL,"../../data/scenes/koupelna/koupelna4_precalculated/","png");
-			solver->getStaticObjects().saveLayer(LAYER_OFFLINE_VERTEX,"../../data/scenes/koupelna/koupelna4_precalculated/","vbu");
+			solver->getStaticObjects().saveLayer(LAYER_OFFLINE_VERTEX,"../../data/scenes/koupelna/koupelna4_precalculated/","rrbuffer");
 			if (lightField)
 				lightField->save("../../data/scenes/koupelna/koupelna4_precalculated/lightfield.lf");
 			break;
@@ -242,7 +242,7 @@ void keyboard(unsigned char c, int x, int y)
 			// load static snapshot of indirect illumination from disk, stop realtime updates
 			{
 				solver->getStaticObjects().loadLayer(LAYER_OFFLINE_PIXEL,"../../data/scenes/koupelna/koupelna4_precalculated/","png");
-				solver->getStaticObjects().loadLayer(LAYER_OFFLINE_VERTEX,"../../data/scenes/koupelna/koupelna4_precalculated/","vbu");
+				solver->getStaticObjects().loadLayer(LAYER_OFFLINE_VERTEX,"../../data/scenes/koupelna/koupelna4_precalculated/","rrbuffer");
 				delete lightField;
 				lightField = rr::RRLightField::load("../../data/scenes/koupelna/koupelna4_precalculated/lightfield.lf");
 				// start rendering loaded maps

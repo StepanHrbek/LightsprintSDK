@@ -1357,7 +1357,7 @@ public:
 			*(__int64*)(meshProperties.m_pEntity->GetDataFileID().m_value+8),
 			meshProperties.m_meshTraversalNumber).c_str();
 		if (perEntitySettings.lsBakeTarget==PE_VERTICES)
-			layerParameters.suggestedExt = "vbu";
+			layerParameters.suggestedExt = "rrbuffer";
 		RRObject::recommendLayerParameters(layerParameters);
 
 		if (perEntitySettings.lsBakeTarget==PE_TARGET_NONE)

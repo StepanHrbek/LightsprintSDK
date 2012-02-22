@@ -467,16 +467,16 @@ inline void formatFilename(const RRString& path, const RRString& objectName, uns
 	{
 		if (ext.empty())
 		{
-			finalExt = L"vbu";
+			finalExt = L"rrbuffer";
 		}
 		else
 		{
-			// transforms ext "bent_normals.png" to finalExt "bent_normals.vbu"
+			// transforms ext "bent_normals.png" to finalExt "bent_normals.rrbuffer"
 			unsigned i = (unsigned)wcslen(ext.w_str());
-			tmp = new wchar_t[i+5];
+			tmp = new wchar_t[i+10];
 			memcpy(tmp,ext.w_str(),(i+1)*sizeof(wchar_t));
 			while (i && tmp[i-1]!='.') i--;
-			wcscpy(tmp+i,L"vbu");
+			wcscpy(tmp+i,L"rrbuffer");
 			finalExt = tmp;
 		}
 	}
