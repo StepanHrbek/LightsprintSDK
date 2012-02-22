@@ -30,8 +30,8 @@ public:
 	//! \param pathToShaders
 	//!  Path to directory with shaders.
 	//!  Must be terminated with slash (or be empty for current dir).
-	RendererOfScene(const char* pathToShaders);
-	~RendererOfScene();
+	static RendererOfScene* create(const char* pathToShaders);
+	virtual ~RendererOfScene() {};
 
 	//! Renders scene from solver.
 	//!
@@ -72,7 +72,7 @@ public:
 	//!  Specifies global brightness. Default is 1.
 	//! \param _gamma
 	//!  Specifies global gamma (contrast) factor. Default is 1 for standard pipeline, 2.2 for sRGB correct pipeline.
-	void render(
+	virtual void render(
 		rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
 		const RealtimeLights* _lights,
@@ -83,12 +83,10 @@ public:
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
-		float _gamma);
+		float _gamma) = 0;
 
-	class RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh);
-	class TextureRenderer* getTextureRenderer();
-private:
-	class RendererOfSceneImpl* renderer;
+	virtual class RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh) = 0;
+	virtual class TextureRenderer* getTextureRenderer() = 0;
 };
 
 }; // namespace

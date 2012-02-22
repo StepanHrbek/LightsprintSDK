@@ -56,7 +56,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	detectedNumTriangles = 0;
 
 	observer = NULL;
-	rendererOfScene = new rr_gl::RendererOfScene(_pathToShaders);
+	rendererOfScene = rr_gl::RendererOfScene::create(_pathToShaders);
 	uberProgram1 = UberProgram::create(tmpstr("%subershader.vs",pathToShaders),tmpstr("%subershader.fs",pathToShaders));
 }
 

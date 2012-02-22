@@ -56,7 +56,7 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RendererOfSceneImpl
+// PerObjectBuffers
 
 struct PerObjectBuffers
 {
@@ -74,25 +74,36 @@ struct PerObjectBuffers
 	UberProgramSetup objectUberProgramSetup; // only for blended facegroups. everything is set except for MATERIAL_XXX, use enableUsedMaterials()
 };
 
-class RendererOfSceneImpl
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RendererOfSceneImpl
+
+class RendererOfSceneImpl : public RendererOfScene
 {
 public:
 	RendererOfSceneImpl(const char* pathToShaders);
-	~RendererOfSceneImpl();
+	virtual ~RendererOfSceneImpl();
 
-	virtual void render(rr::RRDynamicSolver* _solver,
-		UberProgramSetup _uberProgramSetup,
-		const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight,
-		bool _updateLightIndirect, unsigned _lightIndirectLayer, int _lightDetailMapLayer,
-		const ClipPlanes* _clipPlanes, bool _srgbCorrect,
-		const rr::RRVec4* _brightness, float _gamma);
+	virtual void render(
+		rr::RRDynamicSolver* _solver,
+		const UberProgramSetup& _uberProgramSetup,
+		const RealtimeLights* _lights,
+		const rr::RRLight* _renderingFromThisLight,
+		bool _updateLightIndirect,
+		unsigned _lightIndirectLayer,
+		int _lightDetailMapLayer,
+		const ClipPlanes* _clipPlanes,
+		bool _srgbCorrect,
+		const rr::RRVec4* _brightness,
+		float _gamma);
 
-	RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
+	virtual RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
 	{
 		return rendererOfMeshCache.getRendererOfMesh(mesh);
 	}
 
-	TextureRenderer* getTextureRenderer()
+	virtual TextureRenderer* getTextureRenderer()
 	{
 		return textureRenderer;
 	}
@@ -166,14 +177,16 @@ rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
 
 void RendererOfSceneImpl::render(
 		rr::RRDynamicSolver* _solver,
-		UberProgramSetup _uberProgramSetup,
+		const UberProgramSetup& _uberProgramSetup,
 		const RealtimeLights* _lights,
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLightIndirect,
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
-		const ClipPlanes* _clipPlanes, bool _srgbCorrect,
-		const rr::RRVec4* _brightness, float _gamma)
+		const ClipPlanes* _clipPlanes,
+		bool _srgbCorrect,
+		const rr::RRVec4* _brightness,
+		float _gamma)
 {
 	if (!_solver)
 	{
@@ -196,7 +209,6 @@ void RendererOfSceneImpl::render(
 	if (_srgbCorrect)
 	{
 		_gamma *= 2.2f;
-		_uberProgramSetup.POSTPROCESS_GAMMA = true;
 	}
 
 #ifdef MIRRORS
@@ -359,6 +371,8 @@ void RendererOfSceneImpl::render(
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP = lightIndirectMap!=NULL;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = objectBuffers.lightIndirectDetailMap!=NULL;
 				objectBuffers.objectUberProgramSetup.OBJECT_SPACE = object->getWorldMatrix()!=NULL;
+				if (_srgbCorrect) // we changed gamma value, it has to be enabled in shader to have effect
+					objectBuffers.objectUberProgramSetup.POSTPROCESS_GAMMA = true;
 
 				const rr::RRObject::FaceGroups& faceGroups = object->faceGroups;
 				bool blendedAlreadyFoundInObject = false;
@@ -630,45 +644,9 @@ void RendererOfSceneImpl::render(
 //
 // RendererOfScene
 
-RendererOfScene::RendererOfScene(const char* pathToShaders)
+RendererOfScene* RendererOfScene::create(const char* pathToShaders)
 {
-	renderer = new RendererOfSceneImpl(pathToShaders);
-}
-
-RendererOfScene::~RendererOfScene()
-{
-	delete renderer;
-}
-
-void RendererOfScene::render(rr::RRDynamicSolver* _solver,
-		const UberProgramSetup& _uberProgramSetup,
-		const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight,
-		bool _updateLightIndirect, unsigned _lightIndirectLayer, int _lightDetailMapLayer,
-		const ClipPlanes* _clipPlanes, bool _srgbCorrect,
-		const rr::RRVec4* _brightness, float _gamma)
-{
-	renderer->render(
-		_solver,
-		_uberProgramSetup,
-		_lights,
-		_renderingFromThisLight,
-		_updateLightIndirect,
-		_lightIndirectLayer,
-		_lightDetailMapLayer,
-		_clipPlanes,
-		_srgbCorrect,
-		_brightness,
-		_gamma);
-}
-
-RendererOfMesh* RendererOfScene::getRendererOfMesh(const rr::RRMesh* _mesh)
-{
-	return renderer->getRendererOfMesh(_mesh);
-}
-
-TextureRenderer* RendererOfScene::getTextureRenderer()
-{
-	return renderer->getTextureRenderer();
+	return new RendererOfSceneImpl(pathToShaders);
 }
 
 }; // namespace
