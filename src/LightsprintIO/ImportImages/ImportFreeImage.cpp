@@ -464,8 +464,13 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 	if (rawData)
 	{
 		// save vertex buffer
-		if (buffer->getType()==BT_VERTEX_BUFFER)
+		if (wcsstr(filename.w_str(),L".vbu") || wcsstr(filename.w_str(),L".VBU"))
 		{
+			if (buffer->getType()!=BT_VERTEX_BUFFER)
+			{
+				rr::RRReporter::report(rr::WARN,"Attempt to save non-vertex-buffer to .vbu format (vertex buffers only).\n");
+				goto ende;
+			}
 			VBUHeader header(buffer);
 #ifdef _WIN32
 			FILE* f = _wfopen(filename.w_str(),L"wb");
