@@ -10,10 +10,15 @@ namespace rr
 
 \section news131 ------------------------------------ 2012.02.xx -------------------------------------
 
+NEWS
+
+- Lightsprint's \ref rr3_specification ".rrbuffer" fileformat introduced, with save and load support,
+  \n for all static types of RRBuffer (2d textures, cube maps, vertex buffers, not video)
+
 CHANGES
 
 - rr_gl::initializeGL() replaces approx 10 lines of code previously repeated in all samples
-  (calling glewInit(), checking GL version, setting some GL states)
+  (calling glewInit(), checking that GL version is at least 2.0, setting some GL states)
 
 
 \section news130 ------------------------------------ 2012.02.13 -------------------------------------

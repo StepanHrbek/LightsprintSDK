@@ -150,6 +150,49 @@ void load(Archive & ar, rr::RRString& a, const unsigned int version)
 
 //------------------------------ RRBuffer -------------------------------------
 
+// saves buffer contents, shared by .rr3 and .rrbuffer
+template<class Archive>
+void saveBufferContents(Archive & ar, rr::RRBuffer& a, const unsigned int version)
+{
+	rr::RRBufferType type = a.getType();
+	ar & make_nvp("type",type);
+	unsigned width = a.getWidth();
+	ar & make_nvp("width",width);
+	unsigned height = a.getHeight();
+	ar & make_nvp("height",height);
+	unsigned depth = a.getDepth();
+	ar & make_nvp("depth",depth);
+	rr::RRBufferFormat format = a.getFormat();
+	ar & make_nvp("format",format);
+	bool scaled = a.getScaled();
+	ar & make_nvp("scaled",scaled);
+	unsigned char* data = a.lock(rr::BL_READ); // if you call saves in parallel (why?), they may lock in parallel. locking is thread safe in our buffer implementations, but is allowed to be unsafe in other people's implementations.
+	binary_object bo(data,a.getBufferBytes());
+	ar & make_nvp("data",bo);
+	a.unlock();
+}
+
+// loads buffer contents, shared by .rr3 and .rrbuffer
+template<class Archive>
+rr::RRBuffer* loadBufferContents(Archive & ar, const unsigned int version)
+{
+	rr::RRBufferType type;
+	ar & make_nvp("type",type);
+	unsigned width,height,depth;
+	ar & make_nvp("width",width);
+	ar & make_nvp("height",height);
+	ar & make_nvp("depth",depth);
+	rr::RRBufferFormat format;
+	ar & make_nvp("format",format);
+	bool scaled;
+	ar & make_nvp("scaled",scaled);
+	rr::RRBuffer* buffer = rr::RRBuffer::create(type,width,height,depth,format,scaled,NULL);
+	binary_object bo(buffer->lock(rr::BL_DISCARD_AND_WRITE),buffer->getBufferBytes());
+	ar & make_nvp("data",bo);
+	buffer->unlock();
+	return buffer;
+}
+
 // Instead of RRBuffer, we serialize dynamically created proxy object.
 // It's necessary to circumvent boost limitations:
 //  - no custom allocation (http://lists.boost.org/boost-users/2005/05/11773.php)
@@ -198,22 +241,7 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 	if (a.filename.empty())
 	{
 		ar & make_nvp("filename",a.filename);
-		rr::RRBufferType type = a.getType();
-		ar & make_nvp("type",type);
-		unsigned width = a.getWidth();
-		ar & make_nvp("width",width);
-		unsigned height = a.getHeight();
-		ar & make_nvp("height",height);
-		unsigned depth = a.getDepth();
-		ar & make_nvp("depth",depth);
-		rr::RRBufferFormat format = a.getFormat();
-		ar & make_nvp("format",format);
-		bool scaled = a.getScaled();
-		ar & make_nvp("scaled",scaled);
-		unsigned char* data = a.lock(rr::BL_READ); // if you call saves in parallel (why?), they may lock in parallel. locking is thread safe in our buffer implementations, but is allowed to be unsafe in other people's implementations.
-		binary_object bo(data,a.getBufferBytes());
-		ar & make_nvp("data",bo);
-		a.unlock();
+		saveBufferContents(ar,a,version);
 	}
 	else
 	{
@@ -232,20 +260,7 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 	ar & make_nvp("filename",filename);
 	if (filename.empty())
 	{
-		rr::RRBufferType type;
-		ar & make_nvp("type",type);
-		unsigned width,height,depth;
-		ar & make_nvp("width",width);
-		ar & make_nvp("height",height);
-		ar & make_nvp("depth",depth);
-		rr::RRBufferFormat format;
-		ar & make_nvp("format",format);
-		bool scaled;
-		ar & make_nvp("scaled",scaled);
-		a.buffer = rr::RRBuffer::create(type,width,height,depth,format,scaled,NULL);
-		binary_object bo(binary_object(a.buffer->lock(rr::BL_DISCARD_AND_WRITE),a.buffer->getBufferBytes()));
-		ar & make_nvp("data",bo);
-		a.buffer->unlock();
+		a.buffer = loadBufferContents(ar,version);
 	}
 	else
 	{

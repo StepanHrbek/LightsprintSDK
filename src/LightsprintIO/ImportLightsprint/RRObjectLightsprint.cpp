@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Lightsprint adapters for Lightsprint RR3 format.
+// Lightsprint adapters for Lightsprint .rr3 and .rrbuffer formats.
 // Copyright (C) 2010-2011 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
@@ -298,6 +298,76 @@ private:
 };
 
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// .rrbuffer load
+
+static RRBuffer* load(const RRString& filename, const char* cubeSideName[6])
+{
+	try
+	{
+		std::ifstream ifs(RR_RR2STREAM(filename),std::ios::in|std::ios::binary);
+		if (!ifs || ifs.bad())
+		{
+			//rr::RRReporter::report(rr::WARN,"Buffer %ls can't be loaded, file does not exist.\n",filename.w_str());
+			return NULL;
+		}
+
+		boost::iostreams::filtering_stream<boost::iostreams::input> in;
+		in.push(boost::iostreams::zlib_decompressor());
+		in.push(ifs);
+		portable_binary_iarchive ar(in);
+
+		unsigned version;
+		ar & boost::serialization::make_nvp("version", version);
+		return boost::serialization::loadBufferContents<portable_binary_iarchive>(ar,version);
+	}
+	catch(...)
+	{
+		rr::RRReporter::report(rr::ERRO,"Failed to load buffer %ls.\n",filename.w_str());
+		return NULL;
+	}
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// .rrbuffer save
+
+static bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
+{
+	if (!buffer || filename.empty())
+	{
+		return false;
+	}
+	try
+	{
+		std::ofstream ofs(RR_RR2STREAM(filename),std::ios::out|std::ios::binary|std::ios::trunc);
+		if (!ofs || ofs.bad())
+		{
+			//rr::RRReporter::report(rr::WARN,"File %ls can't be created, buffer not saved.\n",filename.w_str());
+			return false;
+		}
+
+		boost::iostreams::filtering_stream<boost::iostreams::output> out;
+		out.push(boost::iostreams::zlib_compressor());
+		out.push(ofs);
+		portable_binary_oarchive ar(out);
+
+		unsigned version = 0;
+		ar & boost::serialization::make_nvp("version", version);
+		boost::serialization::saveBufferContents<portable_binary_oarchive>(ar,*buffer,version);
+
+		return true;
+	}
+	catch(...)
+	{
+		rr::RRReporter::report(rr::ERRO,"Failed to save buffer %ls.\n",filename.w_str());
+		return false;
+	}
+}
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // main
@@ -306,6 +376,8 @@ void registerLoaderLightsprint()
 {
 	RRScene::registerLoader("*.rr3",RRSceneLightsprint::load);
 	RRScene::registerSaver("*.rr3",RRSceneLightsprint::save);
+	RRBuffer::registerLoader(load);
+	RRBuffer::registerSaver(save);
 }
 
 #endif // SUPPORT_LIGHTSPRINT

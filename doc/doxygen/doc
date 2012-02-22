@@ -258,6 +258,7 @@ Scene formats
 - complete source code
 
 Texture formats
+- \subpage rr3_specification "Lightsprint .rrbuffer" [reading, writing]
 - BMP files [reading, writing]
 - Dr. Halo CUT files [reading]
 - DDS files [reading]
@@ -374,15 +375,19 @@ Video formats
   To test correctness of your Collada documents, use <a href="http://sourceforge.net/projects/colladarefinery/files/COLLADA%20Coherency%20Test/">Collada Coherency Test</a>.
 
 
-\page rr3_specification .rr3 format
+\page rr3_specification .rr3 and .rrbuffer fileformats
 
- .rr3 is 3d scene format created by Lightsprint.
+ .rr3 is a serialization of RRScene (3d scene), fileformat created by Lightsprint.
+
+ .rrbuffer is a serialization of RRBuffer (2d texture / cubemap / vertex buffer), fileformat created by Lightsprint.
 
  Lightsprint stands against common business practise of creating truckloads of new formats and locking customers' data in these formats; we work for customers, not against them.
- In the end, after 4 years and supporting over 70 standard formats, we created .rr3 as an option and we don't force you to use it.
+ We created these two new fileformats after 5 years of supporting over 70 standard fileformats. We offer them as an option, not forcing you to use them.
+
+ <hr>
 
  \section rr3_benefits .rr3 benefits
- - loads 50-200x faster than other formats (not counting time to load textures)
+ - loads 50-200x faster than other scene formats (not counting time to load textures)
  - files are 2-6x smaller than in other formats
  - supports saving
  - supports instances
@@ -390,7 +395,7 @@ Video formats
 
  \section rr3_data .rr3 contents
  .rr3 contains all data present in RRScene with these exceptions:
- - RRObject::illumination is not saved
+ - RRObject::illumination is not saved, RRObjects::saveLayer() gives you more flexibility
  - void* customData is not saved
  - if you subclass our classes, your customization won't be saved, only base classes like RRObject, RRMeshArrays, RRLight are saved
 
@@ -407,6 +412,19 @@ Video formats
  rather than recreating .rr3 structure in your own code. It is much easier and it ensures 100% compatibility.
 
  If you import data, do the opposite, <code>RRScene scene("foo.rr3");</code> and then read data from scene.
+
+ <hr>
+
+ \section rrbuffer_benefits .rrbuffer benefits
+ - supports all types of static RRBuffer data (2d textures, cubemaps, vertex buffers)
+   (note that there is lack of standard fileformats for cubemaps and vertex buffers)
+ - supports both fixed point and floating point precisions
+ - loads 1-10x faster than other formats
+ - file sizes are comparable to other formats with losless compression (i.e. smaller than formats without compression, bigger than formats with lossy compression)
+ - full import/export source code included with commercial license
+
+ \section rrbuffer_data .rrbuffer contents
+ .rrbuffer contains all static data present in standard RRBuffer (i.e. 2d textures, cubemaps, vertex buffers, but not video)
 
 
 
