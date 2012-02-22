@@ -22,7 +22,7 @@ namespace rr_gl
 //
 //! Renders scene from solver.
 //! Takes live illumination from solver or computed illumination from layer.
-class RR_GL_API RendererOfScene
+class RR_GL_API RendererOfScene : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:
 	//! Creates renderer.
