@@ -188,7 +188,7 @@ struct RR_GL_API UberProgramSetup
 	//! Sets rendering pipeline so that following primitives are rendered by our program.
 	//! setupForRender() should precede this call.
 	//! Some shader parameters are left uninitialized, useIlluminationEnvMaps(), useIlluminationMirror() and useMaterial() should follow to set them.
-	Program* useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, ClipPlanes* clipPlanes);
+	Program* useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, const ClipPlanes* clipPlanes);
 	//! Sets shader uniform parameters to match given material, should be called after useProgram() or getNextPass().
 	//! You can call expensive useProgram() once and cheaper useMaterial() multiple times.
 	void useMaterial(Program* program, const rr::RRMaterial* material) const;

@@ -84,7 +84,7 @@ public:
 		UberProgramSetup _uberProgramSetup,
 		const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight,
 		bool _updateLightIndirect, unsigned _lightIndirectLayer, int _lightDetailMapLayer,
-		ClipPlanes* _clipPlanes, bool _srgbCorrect,
+		const ClipPlanes* _clipPlanes, bool _srgbCorrect,
 		const rr::RRVec4* _brightness, float _gamma);
 
 	RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
@@ -172,7 +172,7 @@ void RendererOfSceneImpl::render(
 		bool _updateLightIndirect,
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
-		ClipPlanes* _clipPlanes, bool _srgbCorrect,
+		const ClipPlanes* _clipPlanes, bool _srgbCorrect,
 		const rr::RRVec4* _brightness, float _gamma)
 {
 	if (!_solver)
@@ -644,7 +644,7 @@ void RendererOfScene::render(rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
 		const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight,
 		bool _updateLightIndirect, unsigned _lightIndirectLayer, int _lightDetailMapLayer,
-		ClipPlanes* _clipPlanes, bool _srgbCorrect,
+		const ClipPlanes* _clipPlanes, bool _srgbCorrect,
 		const rr::RRVec4* _brightness, float _gamma)
 {
 	renderer->render(

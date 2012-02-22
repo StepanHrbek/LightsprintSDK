@@ -169,7 +169,7 @@ protected:
 		bool _updateLightIndirect,
 		unsigned _lightIndirectLayer,
 		int _lightDetailMapLayer,
-		rr_gl::ClipPlanes* _clipPlanes,
+		const rr_gl::ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
 		float _gamma)

@@ -419,7 +419,7 @@ void UberProgramSetup::validate()
 	}
 }
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, ClipPlanes* clipPlanes)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, const ClipPlanes* clipPlanes)
 {
 	RR_LIMITED_TIMES(1,checkCapabilities());
 

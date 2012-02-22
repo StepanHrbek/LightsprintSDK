@@ -10,7 +10,7 @@
 namespace rr_gl
 {
 
-MultiPass::MultiPass(const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight, UberProgramSetup _mainUberProgramSetup, UberProgram* _uberProgram, ClipPlanes* _clipPlanes, bool _srgbCorrect, const rr::RRVec4* _brightness, float _gamma)
+MultiPass::MultiPass(const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight, UberProgramSetup _mainUberProgramSetup, UberProgram* _uberProgram, const ClipPlanes* _clipPlanes, bool _srgbCorrect, const rr::RRVec4* _brightness, float _gamma)
 {
 	// inputs
 	lights = _lights;
