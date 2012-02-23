@@ -67,7 +67,7 @@ namespace rr
 		//! Size doesn't have to be power of two.
 		//! May stay NULL.
 		//!
-		//! Updated by updateEnvironmentMap() or by renderer called with updateLightIndirect=true.
+		//! Updated by updateEnvironmentMap() or by renderer called with updateRealtimeLayers=true.
 		//!
 		//! Deleted automatically in destructor.
 		RRBuffer* diffuseEnvMap;
@@ -81,7 +81,7 @@ namespace rr
 		//! Size doesn't have to be power of two.
 		//! May stay NULL.
 		//!
-		//! Updated by updateEnvironmentMap() or by renderer called with updateLightIndirect=true.
+		//! Updated by updateEnvironmentMap() or by renderer called with updateRealtimeLayers=true.
 		//!
 		//! Deleted automatically in destructor.
 		RRBuffer* specularEnvMap;

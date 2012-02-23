@@ -55,21 +55,21 @@ public:
 	//!  Set of lights, source of direct illumination in rendered scene.
 	//! \param _renderingFromThisLight
 	//!  When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
-	//! \param _updateLightIndirect
-	//!  When rendering with LIGHT_INDIRECT_VCOLOR, updates vertex buffers with version different from getSolutionVersion().
+	//! \param _updateLayers
+	//!  When rendering with LIGHT_INDIRECT_VCOLOR, updates vertex buffers in _layerLightmap with version different from getSolutionVersion().
 	//!  Function touches only existing buffers, does not allocate new ones.
 	//!  You can allocate buffers in advance by calling RRDynamicSolver::allocateBuffersForRealtimeGI() once.
-	//! \param _lightIndirectLayer
+	//! \param _layerLightmap
 	//!  Indirect illumination is taken from and possibly updated to given layer.
 	//!  Function touches only existing buffers, does not allocate new ones.
-	//! \param _lightDetailMapLayer
-	//!  Specifies source of light detail maps.
+	//! \param _layerLDM
+	//!  Specifies source of light detail maps. Function only reads them.
 	//! \param _clipPlanes
-	//!  NULL or array of six floats specifying max x, min x, max y, min y, max z, min z coordinates of rendered geometry.
+	//!  Specifies clipping of rendered geometry, pass NULL for no clipping.
 	//! \param _srgbCorrect
-	//!  Calculates illumination in slower but more accurate sRGB correct way. Has no effect on very old GPUs.
+	//!  True = calculates illumination in slower but more accurate sRGB correct way. Has no effect on very old GPUs.
 	//! \param _brightness
-	//!  Specifies global brightness. Default is 1.
+	//!  Specifies global brightness. NULL for default brightness 1.
 	//! \param _gamma
 	//!  Specifies global gamma (contrast) factor. Default is 1 for standard pipeline, 2.2 for sRGB correct pipeline.
 	virtual void render(
@@ -77,9 +77,9 @@ public:
 		const UberProgramSetup& _uberProgramSetup,
 		const RealtimeLights* _lights,
 		const rr::RRLight* _renderingFromThisLight,
-		bool _updateLightIndirect,
-		unsigned _lightIndirectLayer,
-		int _lightDetailMapLayer,
+		bool _updateLayers,
+		unsigned _layerLightmap,
+		int _layerLDM,
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,

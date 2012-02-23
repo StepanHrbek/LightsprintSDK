@@ -90,9 +90,9 @@ public:
 		const UberProgramSetup& _uberProgramSetup,
 		const RealtimeLights* _lights,
 		const rr::RRLight* _renderingFromThisLight,
-		bool _updateLightIndirect,
-		unsigned _lightIndirectLayer,
-		int _lightDetailMapLayer,
+		bool _updateLayers,
+		unsigned _layerLightmap,
+		int _layerLDM,
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
@@ -180,9 +180,9 @@ void RendererOfSceneImpl::render(
 		const UberProgramSetup& _uberProgramSetup,
 		const RealtimeLights* _lights,
 		const rr::RRLight* _renderingFromThisLight,
-		bool _updateLightIndirect,
-		unsigned _lightIndirectLayer,
-		int _lightDetailMapLayer,
+		bool _updateLayers,
+		unsigned _layerLightmap,
+		int _layerLDM,
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
@@ -239,10 +239,10 @@ void RendererOfSceneImpl::render(
 
 		&& (
 			// optimized render can't render LDM for more than 1 object
-			((_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || _uberProgramSetup.LIGHT_INDIRECT_auto) && _lightDetailMapLayer!=-1)
+			((_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || _uberProgramSetup.LIGHT_INDIRECT_auto) && _layerLDM!=-1)
 			// if we are to use provided indirect, take it always from 1objects
 			// (if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
-			|| ((_uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_uberProgramSetup.LIGHT_INDIRECT_MAP||_uberProgramSetup.LIGHT_INDIRECT_auto) && !_updateLightIndirect && _lightIndirectLayer!=UINT_MAX)
+			|| ((_uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_uberProgramSetup.LIGHT_INDIRECT_MAP||_uberProgramSetup.LIGHT_INDIRECT_auto) && !_updateLayers && _layerLightmap!=UINT_MAX)
 			// optimized render would look bad with single specular cube per-scene
 			|| (_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 #ifdef MIRRORS
@@ -352,10 +352,10 @@ void RendererOfSceneImpl::render(
 					}
 				}
 #endif
-				rr::RRBuffer* lightIndirectVcolor = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_VCOLOR) ? onlyVbuf(illumination.getLayer(_lightIndirectLayer)) : NULL;
-				rr::RRBuffer* lightIndirectMap = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_MAP) ? onlyLmap(illumination.getLayer(_lightIndirectLayer)) : NULL;
+				rr::RRBuffer* lightIndirectVcolor = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_VCOLOR) ? onlyVbuf(illumination.getLayer(_layerLightmap)) : NULL;
+				rr::RRBuffer* lightIndirectMap = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_MAP) ? onlyLmap(illumination.getLayer(_layerLightmap)) : NULL;
 				objectBuffers.lightIndirectBuffer = lightIndirectVcolor?lightIndirectVcolor:lightIndirectMap;
-				objectBuffers.lightIndirectDetailMap = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP) ? onlyLmap(illumination.getLayer(_lightDetailMapLayer)) : NULL;
+				objectBuffers.lightIndirectDetailMap = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP) ? onlyLmap(illumination.getLayer(_layerLDM)) : NULL;
 
 				objectBuffers.objectUberProgramSetup = _uberProgramSetup;
 				if (pass==2 && objectBuffers.objectUberProgramSetup.SHADOW_MAPS>1)
@@ -431,7 +431,7 @@ void RendererOfSceneImpl::render(
 				}
 				perObjectBuffers[recursionDepth].push_back(objectBuffers);
 
-				if (_updateLightIndirect && objectWillBeRendered)
+				if (_updateLayers && objectWillBeRendered)
 				{
 					// update vertex buffers
 					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR
@@ -487,7 +487,7 @@ void RendererOfSceneImpl::render(
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,new Texture(mirrorMap,false,false)); // new Texture instead of getTexture makes our texture deletable at the end of render()
 			glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-			render(_solver,mirrorUberProgramSetup,_lights,NULL,_updateLightIndirect,_lightIndirectLayer,_lightDetailMapLayer,&clipPlanes,_srgbCorrect,NULL,1);
+			render(_solver,mirrorUberProgramSetup,_lights,NULL,_updateLayers,_layerLightmap,_layerLDM,&clipPlanes,_srgbCorrect,NULL,1);
 		}
 		oldState.restore();
 		setupForRender(mainCamera);

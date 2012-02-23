@@ -62,9 +62,9 @@ namespace rr_gl
 		virtual void renderScene(
 			const UberProgramSetup& _uberProgramSetup,
 			const rr::RRLight* _renderingFromThisLight,
-			bool _updateLightIndirect,
-			unsigned _lightIndirectLayer,
-			int _lightDetailMapLayer,
+			bool _updateLayers,
+			unsigned _layerLightmap,
+			int _layerLDM,
 			const ClipPlanes* _clipPlanes,
 			bool _srgbCorrect,
 			const rr::RRVec4* _brightness,
