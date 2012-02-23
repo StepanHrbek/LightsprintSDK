@@ -26,6 +26,7 @@ MeshArraysVBOs::MeshArraysVBOs()
 	createdFromLightIndirectVersion = UINT_MAX;
 	createdIndexed = false;
 	createdOk = false;
+	hasTangents = false;
 	glGenBuffers(VBO_COUNT,VBO);
 }
 
@@ -67,6 +68,7 @@ bool MeshArraysVBOs::update(const rr::RRMeshArrays* _mesh, bool _indexed)
 			COPY_ARRAY_TO_VBO(_mesh->tangent,VBO[VBO_tangent]);
 		if (_mesh->bitangent)
 			COPY_ARRAY_TO_VBO(_mesh->bitangent,VBO[VBO_bitangent]);
+		hasTangents = _mesh->tangent && _mesh->bitangent;
 		if (texcoordVBO.size()<_mesh->texcoord.size())
 		{
 			texcoordVBO.resize(_mesh->texcoord.size(),0);
@@ -215,7 +217,7 @@ void MeshArraysVBOs::render(
 		glEnableClientState(GL_NORMAL_ARRAY);
 	}
 	// set tangents
-	bool setTangents = (_uberProgramSetup.LIGHT_DIRECT || _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _uberProgramSetup.MATERIAL_NORMAL_MAP;
+	bool setTangents = (_uberProgramSetup.LIGHT_DIRECT || _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _uberProgramSetup.MATERIAL_NORMAL_MAP && hasTangents;
 	if (setTangents)
 	{
 		BIND_VBO4(VAA_TANGENT,VBO[VBO_tangent]);

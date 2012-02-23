@@ -96,6 +96,7 @@ private:
 	unsigned      createdFromLightIndirectVersion;
 	bool          createdIndexed;
 	bool          createdOk;
+	bool          hasTangents;
 
 	enum VBOIndex
 	{

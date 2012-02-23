@@ -125,11 +125,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material, const
 	MATERIAL_TRANSPARENCY_TO_RGB = MATERIAL_TRANSPARENCY_BLEND;
 
 	// normal map
-	MATERIAL_NORMAL_MAP = hasMap(material->normalMap,meshArrays) && meshArrays && meshArrays->tangent && meshArrays->bitangent; // [#11] we require arrays for normal maps, !arrays don't expose presence of tangents, we don't want to always copy tangents to GPU even if they are not present (waste memory in 99% of cases)
-#ifdef _DEBUG
-	if (hasMap(material->normalMap,meshArrays) && meshArrays && (!meshArrays->tangent || !meshArrays->bitangent))
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Can't render normal map, mesh does not have tangentspace.\n"));
-#endif
+	MATERIAL_NORMAL_MAP = hasMap(material->normalMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
 
 	// misc
 	MATERIAL_CULLING = material->sideBits[0].renderFrom != material->sideBits[1].renderFrom;

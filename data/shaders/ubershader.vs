@@ -204,6 +204,13 @@ void main()
 
 	#ifdef MATERIAL_NORMAL_MAP
 		materialNormalMapCoord = gl_MultiTexCoord5.xy; // 5 = MULTITEXCOORD_MATERIAL_NORMAL_MAP
+		if (tangent==vec3(0.0,0.0,0.0))
+		{
+			// when mesh lacks tangent space, generate something
+			vec3 a = worldNormalSmooth;
+			vec3 b = tangent = (a.x==0.0 && a.y==0.0) ? vec3(0.0,1.0,0.0) : vec3(-a.y,a.x,0.0);
+			bitangent = vec3(a.y*b.z-a.z*b.y,-a.x*b.z+a.z*b.x,a.x*b.y-a.y*b.x);
+		}
 		#ifdef OBJECT_SPACE
 			worldTangent = normalize( ( worldMatrix * vec4(tangent,0.0) ).xyz );
 			worldBitangent = normalize( ( worldMatrix * vec4(bitangent,0.0) ).xyz );
