@@ -2035,7 +2035,7 @@ int main(int argc, char** argv)
 #endif
 
 	// init GL
-	const char* err = initializeGL();
+	const char* err = rr_gl::initializeGL();
 	if (err)
 	{
 		rr::RRReporter::report(rr::ERRO,err);
