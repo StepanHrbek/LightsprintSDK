@@ -70,7 +70,7 @@ public:
 		delete[] rawCell;
 	}
 
-	virtual void captureLighting(class RRDynamicSolver* solver, unsigned timeSlot, bool prefilterSeams)
+	virtual void captureLighting(class RRDynamicSolver* solver, unsigned timeSlot)
 	{
 		if (!solver) return;
 		RRReportInterval report(INF2,"Filling lightfield %d*%d*%d res=%d size=%d.%dM...\n",header.gridSize[0],header.gridSize[1],header.gridSize[2],header.envMapSize,header.fieldSize()/1024/1024,(header.fieldSize()*10/1024/1024)%10);
@@ -92,7 +92,7 @@ public:
 			// update single cell in objectIllum
 			objectIllum.envMapWorldCenter = RRVec3(header.aabbMin) + RRVec3(header.aabbSize) *
 				RRVec3((i+0.5f)/header.gridSize[0],(j+0.5f)/header.gridSize[1],(k+0.5f)/header.gridSize[2]);
-			solver->updateEnvironmentMap(&objectIllum,LAYER_CUBE,prefilterSeams);
+			solver->updateEnvironmentMap(&objectIllum,LAYER_CUBE);
 			// copy single cell to grid
 			unsigned cellIndex = i+header.gridSize[0]*(j+header.gridSize[1]*(k+timeSlot*header.gridSize[2]));
 			if (reflectionEnvMap)

@@ -734,12 +734,9 @@ namespace rr
 		//!  (It's not necessary to have RRObject adapter for dynamic object, but its RRObjectIllumination must exist.)
 		//! \param environmentLayer
 		//!  Number of layer with environment maps, they are addressed by illumination->getLayer(environmentLayer).
-		//! \param prefilterSeams
-		//!  True = prefilters cube map edges, reducing effective resolution from n*n*6 to (n-1)*(n-1)*6.
-		//!  False = creates full resolution unfiltered maps, good for GPU with "seamless cube maps" filtering enabled.
 		//! \return
 		//!  Number of environment maps updated, 0 or 1.
-		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination, unsigned environmentLayer, bool prefilterSeams);
+		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination, unsigned environmentLayer);
 
 
 		//! Reads illumination of triangle's vertex in units given by measure.

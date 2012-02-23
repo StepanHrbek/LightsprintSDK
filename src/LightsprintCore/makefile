@@ -54,7 +54,6 @@ RRCollider/RRColliderMulti.cpp \
 RRCollider/RRRay.cpp \
 RRDynamicSolver/environmentMap.cpp \
 RRDynamicSolver/gather.cpp \
-RRDynamicSolver/Interpolator.cpp \
 RRDynamicSolver/lightmap.cpp \
 RRDynamicSolver/RRDynamicSolver.cpp \
 RRDynamicSolver/vertexBuffer.cpp \

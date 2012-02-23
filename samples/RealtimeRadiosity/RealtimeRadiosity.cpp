@@ -131,7 +131,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		robot->rotYZ = rr::RRVec2(55,0); robot->animationTime = rotation*0.01f; // wave
 		robot->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
-			solver->updateEnvironmentMap(robot->illumination,LAYER_ENVIRONMENT,false);
+			solver->updateEnvironmentMap(robot->illumination,LAYER_ENVIRONMENT);
 		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}
 	if (potato)
@@ -140,7 +140,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		potato->rotYZ = rr::RRVec2(rotation/2,0);
 		potato->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
-			solver->updateEnvironmentMap(potato->illumination,LAYER_ENVIRONMENT,false);
+			solver->updateEnvironmentMap(potato->illumination,LAYER_ENVIRONMENT);
 		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}
 }

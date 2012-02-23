@@ -28,7 +28,7 @@ CHANGES
   - allocateBuffersForRealtimeGI() did change parameters (4th removed, 2nd added), you must fix your code
   - rr_gl::UberProgramSetup::useIlluminationEnvMap() replaces useIlluminationEnvMaps(), you must change second parameter
   - render() and renderScene() functions have one more parameter
-  - updateEnvironmentMap() has one more parameter
+  - updateEnvironmentMap() did change second parameter, you must fix your code
   - RRObjectIllumination::getLayer(...) replaces specularEnvMap
     \n pass the same layer number to getLayer() or allocateBuffersForRealtimeGI() and to renderer
   - RRObjectIllumination::diffuseEnvMap was removed, no longer needed

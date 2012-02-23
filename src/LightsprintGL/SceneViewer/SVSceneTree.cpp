@@ -618,7 +618,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					{
 						allObjects.allocateBuffersForRealtimeGI(-1,svs.layerBakedEnvironment,4,2*svs.raytracedCubesRes,true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
 						for (unsigned i=0;i<allObjects.size();i++)
-							solver->updateEnvironmentMap(&allObjects[i]->illumination,svs.layerBakedEnvironment,false);
+							solver->updateEnvironmentMap(&allObjects[i]->illumination,svs.layerBakedEnvironment);
 						allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
 					}
 

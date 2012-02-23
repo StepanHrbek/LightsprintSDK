@@ -135,9 +135,6 @@
     <ClCompile Include="RRDynamicSolver\gather.cpp">
       <Filter>RRDynamicSolver</Filter>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\Interpolator.cpp">
-      <Filter>RRDynamicSolver</Filter>
-    </ClCompile>
     <ClCompile Include="RRDynamicSolver\lightmap.cpp">
       <Filter>RRDynamicSolver</Filter>
     </ClCompile>
@@ -332,9 +329,6 @@
       <Filter>RRStaticSolver</Filter>
     </ClInclude>
     <ClInclude Include="RRDynamicSolver\gather.h">
-      <Filter>RRDynamicSolver</Filter>
-    </ClInclude>
-    <ClInclude Include="RRDynamicSolver\Interpolator.h">
       <Filter>RRDynamicSolver</Filter>
     </ClInclude>
     <ClInclude Include="RRDynamicSolver\private.h">

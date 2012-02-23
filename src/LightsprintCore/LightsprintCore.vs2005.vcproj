@@ -1263,46 +1263,6 @@
 				>
 			</File>
 			<File
-				RelativePath="RRDynamicSolver\Interpolator.cpp"
-				>
-				<FileConfiguration
-					Name="Release static|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release static|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release DLL|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ExceptionHandling="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="RRDynamicSolver\Interpolator.h"
-				>
-			</File>
-			<File
 				RelativePath="RRDynamicSolver\lightmap.cpp"
 				>
 				<FileConfiguration

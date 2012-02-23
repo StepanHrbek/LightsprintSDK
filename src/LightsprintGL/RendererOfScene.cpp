@@ -453,7 +453,7 @@ void RendererOfSceneImpl::render(
 					// built-in version check
 					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE||objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 					{
-						_solver->updateEnvironmentMap(&illumination,_layerEnvironment,false);//!GLEW_ARB_seamless_cube_map);
+						_solver->updateEnvironmentMap(&illumination,_layerEnvironment);
 					}
 				}
 			}
