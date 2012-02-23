@@ -344,8 +344,18 @@ void UberProgramSetup::validate()
 		&& !LIGHT_INDIRECT_MIRROR)
 	{
 		MATERIAL_SPECULAR = 0; // specular reflection requested, but there's no suitable light
-		if (!LIGHT_INDIRECT_ENV_DIFFUSE) // env diffuse can use normal maps, even if specular is disabled
-			MATERIAL_NORMAL_MAP = 0; // normal map requested, but there's no suitable light
+	}
+	if ((LIGHT_INDIRECT_VCOLOR && !MATERIAL_NORMAL_MAP) || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_MAP2)
+	{
+		// when there are two sources of indirect illumination, disable one of them
+		//  (unless it is LIGHT_INDIRECT_VCOLOR with normal maps enabled, then we render average of both sources, VCOLOR does not respond to normal)
+		// this must be done before "if (!LIGHT_INDIRECT_ENV_DIFFUSE) MATERIAL_NORMAL_MAP = 0"
+		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
+	}
+	if (!MATERIAL_SPECULAR
+		&& !LIGHT_INDIRECT_ENV_DIFFUSE) // env diffuse can use normal maps, even if specular is disabled
+	{
+		MATERIAL_NORMAL_MAP = 0; // no use for normal map
 	}
 	if (!MATERIAL_DIFFUSE)
 	{

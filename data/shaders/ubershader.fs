@@ -661,11 +661,21 @@ void main()
 						#ifdef LIGHT_INDIRECT_CONST
 							+ lightIndirectConst
 						#endif
+						#if defined(LIGHT_INDIRECT_VCOLOR) && defined(LIGHT_INDIRECT_ENV_DIFFUSE)
+							// here we have two sources of indirect illumination data, render average of both
+							// application should send only one of them down the pipeline
+							// the only case when it makes sense to send both is: when rendering static object with normal maps,
+							//   LIGHT_INDIRECT_VCOLOR provides accurate baseline, LIGHT_INDIRECT_ENV_DIFFUSE adds per pixel details
+							+ (
+						#endif
 						#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
 							+ lightIndirectLightmap
 						#endif
 						#ifdef LIGHT_INDIRECT_ENV_DIFFUSE
 							+ textureCube(lightIndirectDiffuseEnvMap, worldNormal)
+						#endif
+						#if defined(LIGHT_INDIRECT_VCOLOR) && defined(LIGHT_INDIRECT_ENV_DIFFUSE)
+							) * 0.5
 						#endif
 					#ifdef LIGHT_INDIRECT_DETAIL_MAP
 						) * texture2D(lightIndirectMap, lightIndirectCoord) * 2.0
