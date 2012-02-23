@@ -362,10 +362,10 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		for (unsigned i=0;i<svframe->m_canvas->solver->getStaticObjects().size();i++)
 		{	
-			unsigned layer[3] = {svs.layerBakedLightmap,svs.layerBakedAmbient,svs.layerBakedLDM};
+			unsigned layers[3] = {svs.layerBakedLightmap,svs.layerBakedAmbient,svs.layerBakedLDM};
 			for (unsigned j=0;j<3;j++)
 			{
-				rr::RRBuffer* buf = svframe->m_canvas->solver->getStaticObjects()[i]->illumination.getLayer(layer[j]);
+				rr::RRBuffer* buf = svframe->m_canvas->solver->getStaticObjects()[i]->illumination.getLayer(layers[j]);
 				if (buf && buf->getType()==rr::BT_2D_TEXTURE)
 				{
 					getTexture(buf)->bindTexture();
