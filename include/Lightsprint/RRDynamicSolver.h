@@ -939,7 +939,7 @@ namespace rr
 		//! Currently it does not allocate buffers for specular cube reflections for flat objects,
 		//! because such reflections are inaccurate, but you can always allocate such buffers yourself,
 		//! example: illumination.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,16,16,6,BF_RGBA,true,NULL);
-		//! \param lightmapLayerNumber
+		//! \param layerLightmap
 		//!  Arbitrary layer number for storing per-vertex indirect illumination.
 		//!  You should pass the same layer number to renderer, so it can use buffers you just allocated.
 		//!  Use any negative number for no allocation.
@@ -959,7 +959,7 @@ namespace rr
 		//!  Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply.
 		//! \param depthThreshold
 		//!  Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply.
-		virtual void allocateBuffersForRealtimeGI(int lightmapLayerNumber, int diffuseCubeSize = 4, int specularCubeSize = 16, int gatherCubeSize = -1, bool allocateNewBuffers = true, bool changeExistingBuffers = true, float specularThreshold = 0.2f, float depthThreshold = 0.1f) const;
+		virtual void allocateBuffersForRealtimeGI(int layerLightmap, int diffuseCubeSize = 4, int specularCubeSize = 16, int gatherCubeSize = -1, bool allocateNewBuffers = true, bool changeExistingBuffers = true, float specularThreshold = 0.2f, float depthThreshold = 0.1f) const;
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
 		RRObject* getMultiObjectCustom() const;

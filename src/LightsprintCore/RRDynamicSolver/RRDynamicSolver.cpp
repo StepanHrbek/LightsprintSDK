@@ -940,15 +940,15 @@ bool RRDynamicSolver::containsRealtimeGILightSource() const
 		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance());
 }
 
-void RRDynamicSolver::allocateBuffersForRealtimeGI(int lightmapLayerNumber, int diffuseCubeSize, int specularCubeSize, int gatherCubeSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
+void RRDynamicSolver::allocateBuffersForRealtimeGI(int layerLightmap, int diffuseCubeSize, int specularCubeSize, int gatherCubeSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
 {
 	// allocate vertex buffers
-	if (lightmapLayerNumber>=0 && getMultiObjectCustom())
+	if (layerLightmap>=0 && getMultiObjectCustom())
 	{
-		getStaticObjects().allocateBuffersForRealtimeGI(lightmapLayerNumber,0,0,-1,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
+		getStaticObjects().allocateBuffersForRealtimeGI(layerLightmap,0,0,-1,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
 		RRObjectIllumination& multiIllumination = getMultiObjectCustom()->illumination;
-		if (!multiIllumination.getLayer(lightmapLayerNumber))
-			multiIllumination.getLayer(lightmapLayerNumber) =
+		if (!multiIllumination.getLayer(layerLightmap))
+			multiIllumination.getLayer(layerLightmap) =
 				RRBuffer::create(BT_VERTEX_BUFFER,getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,false,NULL); // [multiobj indir is indexed]
 	}
 	// allocate cube maps

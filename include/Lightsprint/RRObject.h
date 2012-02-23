@@ -456,8 +456,8 @@ namespace rr
 		//! This is helper function, RRDynamicSolver::allocateBuffersForRealtimeGI() calls it for
 		//! objects in solver. You can call it directly for finer control over buffers allocated,
 		//! but most likely you don't need to.
-		//! \param lightmapLayerNumber
-		//!  If >=0, vertex buffers in illumination->getLayer(lightmapLayerNumber) are allocated.
+		//! \param layerLightmap
+		//!  If >=0, vertex buffers in illumination->getLayer(layerLightmap) are allocated.
 		//!  Vertex buffers are suitable (=we can realtime update them) only for static objects.
 		//! \param diffuseEnvMapSize
 		//!  If >0, diffuse reflection maps in illumination->diffuseEnvMap are allocated.
@@ -479,7 +479,7 @@ namespace rr
 		//!  Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply.
 		//! \return
 		//!  Number of buffers allocated or reallocated.
-		virtual unsigned allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const;
+		virtual unsigned allocateBuffersForRealtimeGI(int layerLightmap, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const;
 
 		//! Reports inconsistencies found in objects.
 		//

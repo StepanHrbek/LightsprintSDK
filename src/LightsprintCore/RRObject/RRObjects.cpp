@@ -17,7 +17,7 @@ namespace rr
 //
 // RRObjects
 
-unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
+unsigned RRObjects::allocateBuffersForRealtimeGI(int layerLightmap, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
 {
 	unsigned buffersTouched = 0;
 	for (unsigned i=0;i<size();i++)
@@ -31,10 +31,10 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 			if (numVertices)
 			{
 				// allocate vertex buffers for LIGHT_INDIRECT_VCOLOR
-				// (this should be called also if lightmapLayerNumber changes... for now it never changes during solver existence)
-				if (lightmapLayerNumber>=0)
+				// (this should be called also if layerLightmap changes... for now it never changes during solver existence)
+				if (layerLightmap>=0)
 				{
-					RRBuffer*& buffer = illumination.getLayer(lightmapLayerNumber);
+					RRBuffer*& buffer = illumination.getLayer(layerLightmap);
 					if (!buffer && allocateNewBuffers)
 					{
 						buffer = RRBuffer::create(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,NULL);
@@ -138,8 +138,8 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int lightmapLayerNumber, unsign
 			if (changeExistingBuffers)
 			{
 				// delete buffers in empty object
-				if (lightmapLayerNumber>=0)
-					RR_SAFE_DELETE(illumination.getLayer(lightmapLayerNumber));
+				if (layerLightmap>=0)
+					RR_SAFE_DELETE(illumination.getLayer(layerLightmap));
 				RR_SAFE_DELETE(illumination.diffuseEnvMap);
 				RR_SAFE_DELETE(illumination.specularEnvMap);
 			}
