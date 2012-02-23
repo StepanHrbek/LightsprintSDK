@@ -308,48 +308,33 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 	bindTexture();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	if (glformat==GL_DEPTH_COMPONENT)
-	{
-		// depthmap -> init with no data
-		glTexImage2D(GL_TEXTURE_2D,0,glinternal,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,data);
-	}
-	else
+	glTexParameteri(cubeOr2d,GL_GENERATE_MIPMAP,_buildMipmaps?GL_TRUE:GL_FALSE);
+
 	if (cubeOr2d==GL_TEXTURE_CUBE_MAP)
 	{
-		// cube -> init with data
+		// cube
 		for (unsigned side=0;side<6;side++)
 		{
 			const unsigned char* sideData = data?data+side*buffer->getWidth()*buffer->getHeight()*(buffer->getElementBits()/8):NULL;
-			RR_ASSERT(!_buildMipmaps || sideData);
-			if (_buildMipmaps && sideData)
-				gluBuild2DMipmaps(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,glinternal,buffer->getWidth(),buffer->getHeight(),glformat,gltype,sideData);
-			else
-			{
-				glGetError();
-				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,glinternal,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,sideData);
-				if (glGetError())
-					glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGBA8,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,sideData);
-			}
+			glGetError();
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,glinternal,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,sideData);
+			if (glGetError())
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGBA8,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,sideData);
 		}
 	}
 	else
 	{
-		// 2d -> init with data
-		RR_ASSERT(!_buildMipmaps || data);
-		if (_buildMipmaps && data)
-			gluBuild2DMipmaps(GL_TEXTURE_2D,glinternal,buffer->getWidth(),buffer->getHeight(),glformat,gltype,data);
-		else
-		{
-			glGetError();
-			glTexImage2D(GL_TEXTURE_2D,0,glinternal,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,data);
-			if (glGetError())
-				glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,data);
-		}
+		// 2d
+		glGetError();
+		glTexImage2D(GL_TEXTURE_2D,0,glinternal,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,data);
+		if (glGetError())
+			glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,data);
 	}
 
 	// for shadow2D() instead of texture2D()
 	if (buffer->getFormat()==rr::BF_DEPTH)
 	{
+		RR_ASSERT(!_buildMipmaps);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 	}
