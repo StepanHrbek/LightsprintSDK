@@ -73,6 +73,9 @@ struct SceneViewerState
 	unsigned         layerBakedAmbient;         //! Layer used for static indirect illumination.
 	unsigned         layerRealtimeAmbient;      //! Layer used for realtime lighting.
 	unsigned         layerBakedLDM;             //! Layer used for light indirect maps, precomputed maps that modulate realtime indirect per-vertex.
+	unsigned         layerBakedEnvironment;     //! Layer used for realtime environment, cubemaps.
+	unsigned         layerRealtimeEnvironment;  //! Layer used for static environment, cubemaps.
+
 	unsigned         selectedLightIndex;        //! Index into lights array, light controlled by mouse/arrows.
 	unsigned         selectedObjectIndex;       //! Index into static objects array.
 	bool             fullscreen;                //! Ignored. Fullscreen/windowed bit is saved to and read from user preferences file. Quit sceneViewer() in fullscreen and it will start in fullscreen next time.
@@ -117,8 +120,7 @@ struct SceneViewerState
 	unsigned         videoEnvironmentGIQuality; //! Quality if videoEnvironmentAffectsGI is true.
 	unsigned         fireballQuality;           //! Quality used each time Fireball needs rebuild.
 	bool             raytracedCubesEnabled;     //! Enables realtime raytraced diffuse and specular cubemap reflections.
-	unsigned         raytracedCubesDiffuseRes;  //! Resolution of diffuse cubes.
-	unsigned         raytracedCubesSpecularRes; //! Resolution of specular cubes.
+	unsigned         raytracedCubesRes;         //! Resolution of reflection env maps.
 	unsigned         raytracedCubesMaxObjects;  //! But only if there is less than this number of objects in scene.
 	float            raytracedCubesSpecularThreshold;
 	float            raytracedCubesDepthThreshold;
@@ -153,6 +155,8 @@ struct SceneViewerState
 		layerBakedAmbient = 192837464;
 		layerRealtimeAmbient = 192837465;
 		layerBakedLDM = 192837466;
+		layerBakedEnvironment = 192837467;
+		layerRealtimeEnvironment = 192837468;
 		selectedLightIndex = 0;
 		selectedObjectIndex = 0;
 		fullscreen = 0;
@@ -196,8 +200,7 @@ struct SceneViewerState
 		videoEnvironmentGIQuality = 300;
 		fireballQuality = 350;
 		raytracedCubesEnabled = true;
-		raytracedCubesDiffuseRes = 4;
-		raytracedCubesSpecularRes = 16;
+		raytracedCubesRes = 16;
 		raytracedCubesMaxObjects = 1000;
 		raytracedCubesSpecularThreshold = 0.2f;
 		raytracedCubesDepthThreshold = 0.1f;
@@ -231,6 +234,8 @@ struct SceneViewerState
 			&& a.layerBakedAmbient==layerBakedAmbient
 			&& a.layerRealtimeAmbient==layerRealtimeAmbient
 			&& a.layerBakedLDM==layerBakedLDM
+			&& a.layerBakedEnvironment==layerBakedEnvironment
+			&& a.layerRealtimeEnvironment==layerRealtimeEnvironment
 			//&& a.selectedLightIndex==selectedLightIndex // differs after click to scene tree
 			//&& a.selectedObjectIndex==selectedObjectIndex
 			&& a.fullscreen==fullscreen
@@ -274,8 +279,7 @@ struct SceneViewerState
 			&& a.videoEnvironmentGIQuality==videoEnvironmentGIQuality
 			&& a.fireballQuality==fireballQuality
 			&& a.raytracedCubesEnabled==raytracedCubesEnabled
-			&& a.raytracedCubesDiffuseRes==raytracedCubesDiffuseRes
-			&& a.raytracedCubesSpecularRes==raytracedCubesSpecularRes
+			&& a.raytracedCubesRes==raytracedCubesRes
 			&& a.raytracedCubesMaxObjects==raytracedCubesMaxObjects
 			&& a.raytracedCubesSpecularThreshold==raytracedCubesSpecularThreshold
 			&& a.raytracedCubesDepthThreshold==raytracedCubesDepthThreshold

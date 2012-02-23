@@ -20,7 +20,7 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
-#define PRODUCT_NAME "Lightsmark 2011"
+#define PRODUCT_NAME "Lightsmark 2012"
 #define CFG_FILE "Lightsmark.cfg"
 //#define CFG_FILE "mgf.cfg"
 //#define CFG_FILE "test.cfg"
@@ -303,7 +303,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 		uberProgramSetup,
 		renderingFromThisLight,
 		true,
-		0,
+		LAYER_LIGHTMAPS,
+		LAYER_ENVIRONMENT,
 		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX,
 		NULL,false,//level->setup->waterLevel,
 		&globalBrightnessBoosted,

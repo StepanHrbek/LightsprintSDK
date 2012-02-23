@@ -658,23 +658,33 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendUniform("materialDiffuseConst",rr::RRVec4(material->diffuseReflectance.color,1.0f));
 	}
 
-	if (MATERIAL_SPECULAR && LIGHT_DIRECT)
+	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR))
 	{
 		float shininess = material->specularShininess;
+		float spreadAngle; // how far from reflection angle reflection intensity is 0.5 (with intensity averaged over hemisphere 1)
+		float miplevel; // miplevel 0=sample from 1x1x6, miplevel 1=2x2x6, miplevel 2=4x4x6...
 		switch (MATERIAL_SPECULAR_MODEL)
 		{
 			case rr::RRMaterial::PHONG:
+				shininess = RR_CLAMPED(material->specularShininess,1,1e10f);
+				spreadAngle = acos(pow(0.5f/(shininess+1),1/shininess));
+				miplevel = (spreadAngle<=0) ? 15.f : 1-4.5f*log(spreadAngle/RR_DEG2RAD(45)); // looks better, shininess from 0..255 range covers miplevels up to 64x64
+				break;
 			case rr::RRMaterial::BLINN_PHONG:
 				shininess = RR_CLAMPED(material->specularShininess,1,1e10f);
+				spreadAngle = acos(pow(1/(shininess+1),1/shininess));
+				miplevel = (spreadAngle<=0) ? 15.f : 1-4.5f*log(spreadAngle/RR_DEG2RAD(45));
 				break;
 			case rr::RRMaterial::TORRANCE_SPARROW:
 				shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,0.001f,1);
+				miplevel = (1-shininess)*6;
 				break;
 			case rr::RRMaterial::BLINN_TORRANCE_SPARROW:
 				shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,0,1);
+				miplevel = (1-shininess)*6;
 				break;
 		}
-		program->sendUniform("materialSpecularShininess",shininess);
+		program->sendUniform("materialSpecularShininess",shininess,miplevel);
 	}
 
 	if (MATERIAL_SPECULAR_CONST)
@@ -717,37 +727,28 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	}
 }
 
-void UberProgramSetup::useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination)
+void UberProgramSetup::useIlluminationEnvMap(Program* program, const rr::RRBuffer* reflectionEnvMap)
 {
 	if (!program)
 	{
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationEnvMaps(program=NULL).\n"));
 		return;
 	}
-	if (!illumination)
+	if ((LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE) || (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR))
 	{
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationEnvMaps(illumination=NULL).\n"));
-		return;
-	}
-	if (LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE)
-	{
-		if (!illumination->diffuseEnvMap)
+		if (!reflectionEnvMap)
 		{
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: diffuseEnvMap==NULL.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: reflectionEnvMap==NULL.\n"));
 		}
-		program->sendTexture("lightIndirectDiffuseEnvMap",getTexture(illumination->diffuseEnvMap,false,false),TEX_CODE_CUBE_LIGHT_INDIRECT_DIFFUSE);
-	}
-	if (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)
-	{
-		if (!illumination->specularEnvMap)
-		{
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: specularEnvMap==NULL.\n"));
-		}
-		program->sendTexture("lightIndirectSpecularEnvMap",getTexture(illumination->specularEnvMap,false,false),TEX_CODE_CUBE_LIGHT_INDIRECT_SPECULAR);
+		program->sendTexture("lightIndirectEnvMap",getTexture(reflectionEnvMap,true,false),TEX_CODE_CUBE_LIGHT_INDIRECT);
+		unsigned w = reflectionEnvMap->getWidth();
+		unsigned numLevels = 1;
+		while (w>1) {w = w/2; numLevels++;}
+		program->sendUniform("lightIndirectEnvMapNumLods",(float)numLevels);
 	}
 }
 
-void UberProgramSetup::useIlluminationMirror(Program* program, rr::RRBuffer* mirrorMap)
+void UberProgramSetup::useIlluminationMirror(Program* program, const rr::RRBuffer* mirrorMap)
 {
 	if (!program)
 	{

@@ -20,8 +20,7 @@ struct LightFieldParameters
 {
 	unsigned version;
 	unsigned gridSize[4];
-	unsigned diffuseSize;
-	unsigned specularSize;
+	unsigned envMapSize;
 	RRVec4 aabbMin;
 	RRVec4 aabbSize; // all must be >=0, at least one must be >0
 
@@ -32,8 +31,7 @@ struct LightFieldParameters
 		gridSize[1] = 1;
 		gridSize[2] = 1;
 		gridSize[3] = 1;
-		diffuseSize = 4;
-		specularSize = 16;
+		envMapSize = 16;
 		aabbMin = RRVec4(0);
 		aabbSize = RRVec4(1);
 	}
@@ -43,7 +41,7 @@ struct LightFieldParameters
 	}
 	unsigned cellSize() const
 	{
-		return (diffuseSize*diffuseSize*6+specularSize*specularSize*6)*3;
+		return (envMapSize*envMapSize*6)*3;
 	}
 	unsigned fieldSize() const
 	{
@@ -75,16 +73,18 @@ public:
 	virtual void captureLighting(class RRDynamicSolver* solver, unsigned timeSlot, bool prefilterSeams)
 	{
 		if (!solver) return;
-		RRReportInterval report(INF2,"Filling lightfield %d*%d*%d dif=%d spec=%d size=%d.%dM...\n",header.gridSize[0],header.gridSize[1],header.gridSize[2],header.diffuseSize,header.specularSize,header.fieldSize()/1024/1024,(header.fieldSize()*10/1024/1024)%10);
+		RRReportInterval report(INF2,"Filling lightfield %d*%d*%d res=%d size=%d.%dM...\n",header.gridSize[0],header.gridSize[1],header.gridSize[2],header.envMapSize,header.fieldSize()/1024/1024,(header.fieldSize()*10/1024/1024)%10);
 		if (timeSlot>=header.gridSize[3])
 		{
 			RRReporter::report(WARN,"timeSlot %d is out of valid range 0..%d\n",timeSlot,header.gridSize[3]);
 			return;
 		}
+		RRBuffer* reflectionEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.envMapSize,header.envMapSize,6,BF_RGB,true,NULL);
+		if (!header.envMapSize || !reflectionEnvMap)
+			return;
+		enum {LAYER_CUBE};
 		RRObjectIllumination objectIllum;
-		//objectIllum.gatherEnvMapSize = 32; // default 16 is usually good enough
-		if (header.diffuseSize) objectIllum.diffuseEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.diffuseSize,header.diffuseSize,6,BF_RGB,true,NULL);
-		if (header.specularSize) objectIllum.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.specularSize,header.specularSize,6,BF_RGB,true,NULL);
+		objectIllum.getLayer(LAYER_CUBE) = reflectionEnvMap; // objectIllum adpts map here, it is deleted when objectIllum dies
 		for (unsigned k=0;k<header.gridSize[2];k++)
 		for (unsigned j=0;j<header.gridSize[1];j++)
 		for (unsigned i=0;i<header.gridSize[0];i++)
@@ -92,20 +92,14 @@ public:
 			// update single cell in objectIllum
 			objectIllum.envMapWorldCenter = RRVec3(header.aabbMin) + RRVec3(header.aabbSize) *
 				RRVec3((i+0.5f)/header.gridSize[0],(j+0.5f)/header.gridSize[1],(k+0.5f)/header.gridSize[2]);
-			solver->updateEnvironmentMap(&objectIllum,prefilterSeams);
+			solver->updateEnvironmentMap(&objectIllum,LAYER_CUBE,prefilterSeams);
 			// copy single cell to grid
 			unsigned cellIndex = i+header.gridSize[0]*(j+header.gridSize[1]*(k+timeSlot*header.gridSize[2]));
-			if (objectIllum.diffuseEnvMap)
+			if (reflectionEnvMap)
 			{
-				memcpy(rawField+cellIndex*header.diffuseSize*header.diffuseSize*6*3+cellIndex*header.specularSize*header.specularSize*6*3,
-					objectIllum.diffuseEnvMap->lock(BL_READ),header.diffuseSize*header.diffuseSize*6*3);
-				objectIllum.diffuseEnvMap->unlock();
-			}
-			if (objectIllum.specularEnvMap)
-			{
-				memcpy(rawField+(cellIndex+1)*header.diffuseSize*header.diffuseSize*6*3+cellIndex*header.specularSize*header.specularSize*6*3,
-					objectIllum.specularEnvMap->lock(BL_READ),header.specularSize*header.specularSize*6*3);
-				objectIllum.specularEnvMap->unlock();
+				memcpy(rawField+cellIndex*header.envMapSize*header.envMapSize*6*3,
+					reflectionEnvMap->lock(BL_READ),header.envMapSize*header.envMapSize*6*3);
+				reflectionEnvMap->unlock();
 			}
 			// report progress
 			enum {STEP=10000};
@@ -113,7 +107,7 @@ public:
 		}
 	}
 
-	virtual unsigned updateEnvironmentMap(RRObjectIllumination* object, RRReal time) const
+	virtual unsigned updateEnvironmentMap(RRObjectIllumination* object, unsigned environmentLayer, RRReal time) const
 	{
 		if (!header.isOk() || !rawField || !rawCell || !object) return 0;
 
@@ -209,14 +203,10 @@ public:
 
 		// copy into buffers
 		unsigned numUpdates = 0;
-		if (object->diffuseEnvMap && header.diffuseSize)
+		RRBuffer* reflectionEnvMap = object->getLayer(environmentLayer);
+		if (reflectionEnvMap && header.envMapSize)
 		{
-			object->diffuseEnvMap->reset(BT_CUBE_TEXTURE,header.diffuseSize,header.diffuseSize,6,BF_RGB,true,rawCell);
-			numUpdates++;
-		}
-		if (object->specularEnvMap && header.specularSize)
-		{
-			object->specularEnvMap->reset(BT_CUBE_TEXTURE,header.specularSize,header.specularSize,6,BF_RGB,true,rawCell+header.diffuseSize*header.diffuseSize*6*3);
+			reflectionEnvMap->reset(BT_CUBE_TEXTURE,header.envMapSize,header.envMapSize,6,BF_RGB,true,rawCell);
 			numUpdates++;
 		}
 		return numUpdates;
@@ -284,7 +274,7 @@ public:
 //
 // RRLightField
 
-RRLightField* RRLightField::create(RRVec4 aabbMin, RRVec4 aabbSize, RRReal spacing, unsigned diffuseSize, unsigned specularSize, unsigned numTimeSlots)
+RRLightField* RRLightField::create(RRVec4 aabbMin, RRVec4 aabbSize, RRReal spacing, unsigned envMapSize, unsigned numTimeSlots)
 {
 	LightField* lightField = new LightField();
 	lightField->header.aabbMin = aabbMin;
@@ -293,8 +283,7 @@ RRLightField* RRLightField::create(RRVec4 aabbMin, RRVec4 aabbSize, RRReal spaci
 	lightField->header.gridSize[1] = unsigned(RR_MAX(1,(aabbSize[1]+spacing*0.5f)/spacing));
 	lightField->header.gridSize[2] = unsigned(RR_MAX(1,(aabbSize[2]+spacing*0.5f)/spacing));
 	lightField->header.gridSize[3] = numTimeSlots;
-	lightField->header.diffuseSize = diffuseSize;
-	lightField->header.specularSize = specularSize;
+	lightField->header.envMapSize = envMapSize;
 	if (!lightField->reallocData())
 	{
 		delete lightField;

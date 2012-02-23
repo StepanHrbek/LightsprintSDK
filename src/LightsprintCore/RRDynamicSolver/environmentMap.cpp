@@ -237,14 +237,25 @@ CubeGatheringKit::~CubeGatheringKit()
 //  - triangleNumbers, multiobj postImport numbers, UINT_MAX for skybox, may be NULL
 //  - exitanceHdr, float exitance in physical scale, may be NULL
 //  - false=exitanceHdr not filled, true=exitanceHdr filled
-bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, RRVec3* exitanceHdr)
+bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned environmentLayer, RRVec3* exitanceHdr)
 {
+	if (!illumination)
+	{
+		RR_ASSERT(0);
+		return false;
+	}
+	RRBuffer* reflectionEnvMap = illumination->getLayer(environmentLayer);
+	if (!reflectionEnvMap)
+	{
+		RR_ASSERT(0);
+		return false;
+	}
 	const RRObject* multiObject = getMultiObjectCustom();
 	const RRBuffer* environment0 = getEnvironment(0);
 	const RRBuffer* environment1 = getEnvironment(1);
 	float blendFactor = getEnvironmentBlendFactor();
 	const RRScaler* scalerForReadingEnv = getScaler();
-	unsigned gatherSize = illumination->gatherEnvMapSize;
+	unsigned gatherSize = reflectionEnvMap->getWidth();
 
 	if (gatherSize==illumination->cachedGatherSize
 		&& (unsigned short)(getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0)==illumination->cachedNumTriangles
@@ -271,7 +282,6 @@ bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, RRVec3* 
 	// simplify tests for scaling from if(env0 && env0->getScaled() && scalerForReadingEnv0) to if(scalerForReadingEnv0)
 	const RRScaler* scalerForReadingEnv0 = (environment0 && environment0->getScaled()) ? scalerForReadingEnv : NULL;
 	const RRScaler* scalerForReadingEnv1 = (environment1 && environment1->getScaled()) ? scalerForReadingEnv : NULL;
-	unsigned size = illumination->gatherEnvMapSize;
 
 	// rather than adding 1 kit to every RRObjectIllumination, we added 10 to solver and pick one of them
 	// if user doesn't call updateEnvironmentMap() in parallel, we always use the same first kit
@@ -297,11 +307,11 @@ bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, RRVec3* 
 	{
 		kit->handler6[side].setup(multiObject,illumination->envMapObjectNumber,illumination->envMapWorldRadius);
 		RRRay* ray = kit->ray6+side;
-		for (unsigned j=0;j<size;j++)
-			for (unsigned i=0;i<size;i++)
+		for (unsigned j=0;j<gatherSize;j++)
+			for (unsigned i=0;i<gatherSize;i++)
 			{
-				unsigned ofs = i+(j+side*size)*size;
-				RRVec3 dir = cubeSide[side].getTexelDir(size,i,j);
+				unsigned ofs = i+(j+side*gatherSize)*gatherSize;
+				RRVec3 dir = cubeSide[side].getTexelDir(gatherSize,i,j);
 				unsigned face = UINT_MAX;
 				if (multiObject)
 				{
@@ -374,8 +384,9 @@ bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, RRVec3* 
 // converts triangle numbers to float exitance in physical scale
 static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 {
-	if (!scene && !packedSolver)
+	if (!scene && !packedSolver && !environment0)
 	{
+		// BTW environment without solver is nothing unusual, called from RendererOfRRDynamicSolver::initSpecularReflection()
 		RR_ASSERT(0);
 		return;
 	}
@@ -591,14 +602,13 @@ static void filterEdges(unsigned iSize, CubeColor* iExitance)
 // main
 
 // returns number of buffers updated
-static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, unsigned gatherSize, const RRScaler* scaler, RRReal filterRadius, bool prefilterSeams, RRBuffer* buffer)
+static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const RRScaler* scaler, RRReal filterRadius, bool prefilterSeams, RRBuffer* buffer)
 {
 	RR_ASSERT(gatheredExitance);
-	RR_ASSERT(gatherSize);
 	RR_ASSERT(filterRadius);
 	if (!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
-	unsigned bufferSize = buffer->getWidth();
-	if (gatherSize==bufferSize && gatherSize>16 && filterRadius<0.1f)
+	unsigned gatherSize = buffer->getWidth();
+	if (!prefilterSeams || (gatherSize>16 && filterRadius<0.1f))
 	{
 		// optimized specular, copy without filtering
 		// not entirely correct if prefilterSeams==true, but likelihood of such setting is acceptably low (dude with stone-age GPU wants hires cube?)
@@ -626,25 +636,8 @@ static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, unsig
 	return 1;
 }
 
-void RRDynamicSolver::updateEnvironmentMapCache(RRObjectIllumination* illumination)
-{
-	if (!illumination || !illumination->gatherEnvMapSize || (!illumination->diffuseEnvMap && !illumination->specularEnvMap))
-	{
-		RR_ASSERT(0);
-		return;
-	}
-	unsigned specularSize = illumination->specularEnvMap ? illumination->specularEnvMap->getWidth() : 0;
-	unsigned diffuseSize = illumination->diffuseEnvMap ? illumination->diffuseEnvMap->getWidth() : 0;
-	unsigned gatherSize = (specularSize+diffuseSize) ? illumination->gatherEnvMapSize : 0;
-	if (!gatherSize)
-	{
-		RR_ASSERT(0);
-		return;
-	}
-	cubeMapGather(illumination,NULL);
-}
 
-unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illumination, bool prefilterSeams)
+unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsigned environmentLayer, bool prefilterSeams)
 {
 	if (!illumination)
 	{
@@ -653,9 +646,8 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	}
 	unsigned solutionVersion = getSolutionVersion();
 	bool centerMoved = (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY;
-	unsigned diffuseSize = (illumination->diffuseEnvMap && (centerMoved || (illumination->diffuseEnvMap->version>>16)!=(solutionVersion&65535))) ? illumination->diffuseEnvMap->getWidth() : 0;
-	unsigned specularSize = (illumination->specularEnvMap && (centerMoved || (illumination->specularEnvMap->version>>16)!=(solutionVersion&65535))) ? illumination->specularEnvMap->getWidth() : 0;
-	unsigned gatherSize = (specularSize+diffuseSize) ? illumination->gatherEnvMapSize : 0;
+	RRBuffer* reflectionEnvMap = illumination->getLayer(environmentLayer);
+	unsigned gatherSize = (reflectionEnvMap && (centerMoved || (reflectionEnvMap->version>>16)!=(solutionVersion&65535))) ? reflectionEnvMap->getWidth() : 0;
 	if (!gatherSize)
 	{
 		return 0;
@@ -675,7 +667,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	// alloc temp space
 	RRVec3* gatheredExitance = new RRVec3[6*gatherSize*gatherSize];
 
-	if (!cubeMapGather(illumination,gatheredExitance))
+	if (!cubeMapGather(illumination,environmentLayer,gatheredExitance))
 	{
 		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
 	}
@@ -683,16 +675,8 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	unsigned updatedMaps = 0;
 	if (illumination->cachedGatherSize)
 	{
-		// fill envmaps
-		if (diffuseSize)
-			updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,0.9f,prefilterSeams,illumination->diffuseEnvMap);
-		if (specularSize)
-		{
-			unsigned minSize = RR_MIN(gatherSize,specularSize);
-			RRReal filterRadius = 1-minSize*sqrtf(1.0f/(3+minSize*minSize));
-			//RRReal filterRadius = 0.25f/minSize;
-			updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,gatherSize,priv->scaler,filterRadius,prefilterSeams,illumination->specularEnvMap);
-		}
+		// fill envmap
+		updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,priv->scaler,1-gatherSize*sqrtf(1.0f/(3+gatherSize*gatherSize)),prefilterSeams,reflectionEnvMap);
 	}
 
 	// cleanup

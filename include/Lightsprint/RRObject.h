@@ -457,18 +457,19 @@ namespace rr
 		//! objects in solver. You can call it directly for finer control over buffers allocated,
 		//! but most likely you don't need to.
 		//! \param layerLightmap
-		//!  If >=0, vertex buffers in illumination->getLayer(layerLightmap) are allocated.
+		//!  If >=0, vertex buffers in illumination->getLayer(layerLightmap) are allocated, resized or deleted according to other parameters.
+		//!  Pass <0 if you don't want to touch vertex buffers.
 		//!  Vertex buffers are suitable (=we can realtime update them) only for static objects.
+		//! \param layerEnvironment
+		//!  If >=0, cubemaps in illumination->getLayer(layerEnvironment) are allocated, resized or deleted according to other parameters.
+		//!  Pass <0 if you don't want to touch cubemaps.
+		//!  Cubemaps are suitable (=we can realtime update them) for both static and dynamic objects.
 		//! \param diffuseEnvMapSize
-		//!  If >0, diffuse reflection maps in illumination->diffuseEnvMap are allocated.
-		//!  Size 4 is good compromise between speed and quality.
-		//!  Good for dynamic objects, usually unsuitable for static objects.
+		//!  If materials have diffuse reflection, reflection map of at least this size will be allocated in illumination.
+		//!  Size 4 is usually good enough.
 		//! \param specularEnvMapSize
-		//!  If >0, specular reflection maps in illumination->specularEnvMap are allocated for objects that benefit from them.
-		//!  Size 16 is good compromise between speed and quality.
-		//!  Good for both static and dynamic objects.
-		//! \param gatherEnvMapSize
-		//!  If it is not negative, value is copied into RRObjectIllumination::gatherEnvMapSize of all objects.
+		//!  If materials have specular reflection, reflection map of at least this size will be allocated in illumination.
+		//!  Size 16 is usually sufficient, not very sharp, but makes rendering fast.
 		//! \param allocateNewBuffers
 		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
 		//! \param changeExistingBuffers
@@ -479,7 +480,7 @@ namespace rr
 		//!  Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply.
 		//! \return
 		//!  Number of buffers allocated or reallocated.
-		virtual unsigned allocateBuffersForRealtimeGI(int layerLightmap, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const;
+		virtual unsigned allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const;
 
 		//! Reports inconsistencies found in objects.
 		//

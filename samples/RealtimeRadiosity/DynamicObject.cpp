@@ -13,7 +13,7 @@
 //
 // Dynamic object
 
-DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::UberProgramSetup _material,unsigned _gatherCubeSize,unsigned _specularCubeSize)
+DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::UberProgramSetup _material,unsigned _reflectionCubeSize)
 {
 	DynamicObject* d = new DynamicObject();
 	d->model = new Model_3DS;
@@ -22,11 +22,8 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 	{
 		d->material = _material;
 		// create envmaps
-		if (d->material.MATERIAL_DIFFUSE)
-			d->illumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGBA,true,NULL);
-		if (d->material.MATERIAL_SPECULAR)
-			d->illumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,_specularCubeSize,_specularCubeSize,6,rr::BF_RGBA,true,NULL);
-		d->illumination->gatherEnvMapSize = _gatherCubeSize;
+		if (d->material.MATERIAL_DIFFUSE || d->material.MATERIAL_SPECULAR)
+			d->illumination->getLayer(LAYER_ENVIRONMENT) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,_reflectionCubeSize,_reflectionCubeSize,6,rr::BF_RGBA,true,NULL);
 		d->updatePosition();
 
 		// simple renderer, one draw call, display list of many arrays
@@ -170,7 +167,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		program->sendUniform("worldMatrix",worldMatrix,false,4);
 	}
 	// set envmap
-	uberProgramSetup.useIlluminationEnvMaps(program,illumination);
+	uberProgramSetup.useIlluminationEnvMap(program,illumination->getLayer(LAYER_ENVIRONMENT));
 	// set animation
 	if (uberProgramSetup.ANIMATION_WAVE)
 	{

@@ -33,6 +33,8 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 		propGISRGBCorrect = new BoolRefProperty(_("sRGB correctness"),_("Increases realism by correctly adding realtime lights. Works only if OpenGL 3.0+ or necessary extensions are found."),svs.srgbCorrect);
 		AppendIn(propGIDirect,propGISRGBCorrect);
+
+		SetPropertyBackgroundColour(propGIDirect,importantPropertyBackgroundColor,false);
 	}
 
 	// indirect
@@ -58,34 +60,6 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			propGIFireballBuild = new ButtonProperty(_("Build"),_("Builds or rebuilds Fireball."),svframe,SVFrame::ME_REALTIME_FIREBALL_BUILD);
 			AppendIn(propGIFireball,propGIFireballBuild);
 			propGIFireballBuild->updateImage();
-		}
-
-		// cubes
-		{
-			propGIRaytracedCubes = new BoolRefProperty(_("Realtime raytraced reflections"),_("Increases realism by realtime raytracing diffuse and specular reflection cubemaps."),svs.raytracedCubesEnabled);
-			AppendIn(propGIIndirect,propGIRaytracedCubes);
-		
-			propGIRaytracedCubesDiffuseRes = new FloatProperty(_("Diffuse resolution"),_("Resolution of diffuse reflection cube maps (total size is x*x*6 pixels). Applied only to dynamic objects. More = higher quality, slower. Default=4."),svs.raytracedCubesDiffuseRes,0,1,16,1,false);
-			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesDiffuseRes);
-
-			propGIRaytracedCubesSpecularRes = new FloatProperty(_("Specular resolution"),_("Resolution of specular reflection cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16."),svs.raytracedCubesSpecularRes,0,1,64,1,false);
-			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesSpecularRes);
-
-			propGIRaytracedCubesMaxObjects = new FloatProperty(_("Max objects"),_("How many objects in scene before raytracing turns off automatically. Raytracing usually becomes bottleneck when there are more than 1000 objects."),svs.raytracedCubesMaxObjects,0,0,1000000,10,false);
-			AppendIn(propGIRaytracedCubes,propGIRaytracedCubesMaxObjects);
-
-			propGIRaytracedCubesSpecularThreshold = new FloatProperty(_("Specular threshold"),_("Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply."),svs.raytracedCubesSpecularThreshold,svs.precision,0,10,0.1f,false);
-			AppendIn(propGIRaytracedCubesSpecularRes,propGIRaytracedCubesSpecularThreshold);
-
-			propGIRaytracedCubesDepthThreshold = new FloatProperty(_("Depth threshold"),_("Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply."),svs.raytracedCubesDepthThreshold,svs.precision,0,1,0.1f,false);
-			AppendIn(propGIRaytracedCubesSpecularRes,propGIRaytracedCubesDepthThreshold);
-
-		}
-
-		// mirrors
-		{
-			propGIMirrors = new BoolRefProperty(_("Mirror reflections"),_("Increases realism by realtime rendering mirror reflections. Applied to flat meshes without cube reflections."),svs.mirrorsEnabled);
-			AppendIn(propGIIndirect,propGIMirrors);
 		}
 
 		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
@@ -126,6 +100,37 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 			Collapse(propGIVideo);
 		}
+
+		SetPropertyBackgroundColour(propGIIndirect,importantPropertyBackgroundColor,false);
+	}
+
+	// cubes
+	{
+		propGIRaytracedCubes = new BoolRefProperty(_("Raytraced reflections"),_("Increases realism by realtime raytracing diffuse and specular reflection cubemaps."),svs.raytracedCubesEnabled);
+		Append(propGIRaytracedCubes);
+		
+		propGIRaytracedCubesRes = new FloatProperty(_("Cube resolution"),_("Resolution of reflection cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16."),svs.raytracedCubesRes,0,1,64,1,false);
+		AppendIn(propGIRaytracedCubes,propGIRaytracedCubesRes);
+
+		propGIRaytracedCubesMaxObjects = new FloatProperty(_("Max objects"),_("How many objects in scene before raytracing turns off automatically. Raytracing usually becomes bottleneck when there are more than 1000 objects."),svs.raytracedCubesMaxObjects,0,0,1000000,10,false);
+		AppendIn(propGIRaytracedCubes,propGIRaytracedCubesMaxObjects);
+
+		propGIRaytracedCubesSpecularThreshold = new FloatProperty(_("Specular threshold"),_("Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply."),svs.raytracedCubesSpecularThreshold,svs.precision,0,10,0.1f,false);
+		AppendIn(propGIRaytracedCubesRes,propGIRaytracedCubesSpecularThreshold);
+
+		propGIRaytracedCubesDepthThreshold = new FloatProperty(_("Depth threshold"),_("Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply."),svs.raytracedCubesDepthThreshold,svs.precision,0,1,0.1f,false);
+		AppendIn(propGIRaytracedCubesRes,propGIRaytracedCubesDepthThreshold);
+
+
+		SetPropertyBackgroundColour(propGIRaytracedCubes,importantPropertyBackgroundColor,false);
+	}
+
+	// mirrors
+	{
+		propGIMirrors = new BoolRefProperty(_("Mirror reflections"),_("Increases realism by realtime rendering mirror reflections. Applied to flat meshes without cube reflections."),svs.mirrorsEnabled);
+		Append(propGIMirrors);
+
+		SetPropertyBackgroundColour(propGIMirrors,importantPropertyBackgroundColor,false);
 	}
 
 	// lightmap
@@ -159,6 +164,8 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIBuildLDMs->updateImage();
 		propGIBilinear = new BoolRefProperty(_("Bilinear"),_("Bilinear interpolation of lightmaps and LDMs, keep always on, unless you analyze pixels."),svs.renderLightmapsBilinear);
 		AppendIn(propGILightmap,propGIBilinear);
+
+		SetPropertyBackgroundColour(propGILightmap,importantPropertyBackgroundColor,false);
 	}
 
 	updateHide();
@@ -173,12 +180,10 @@ void SVGIProperties::updateHide()
 	propGISRGBCorrect->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 	propGIShadowTransparency->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 
-	propGIRaytracedCubes->Hide(!realtimeGI,false);
-	propGIRaytracedCubesDiffuseRes->Hide(!realtimeGI || !svs.raytracedCubesEnabled,false);
-	propGIRaytracedCubesSpecularRes->Hide(!realtimeGI || !svs.raytracedCubesEnabled,false);
-	propGIRaytracedCubesMaxObjects->Hide(!realtimeGI || !svs.raytracedCubesEnabled,false);
-	propGIRaytracedCubesSpecularThreshold->Hide(!realtimeGI || !svs.raytracedCubesEnabled,false);
-	propGIRaytracedCubesDepthThreshold->Hide(!realtimeGI || !svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesRes->Hide(!svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesSpecularThreshold->Hide(!svs.raytracedCubesEnabled,false);
+	propGIRaytracedCubesDepthThreshold->Hide(!svs.raytracedCubesEnabled,false);
 	
 	propGIEmisMultiplier->Hide(!realtimeGI,false);
 	propGIVideo->Hide(!realtimeGI,false);
@@ -214,8 +219,7 @@ void SVGIProperties::updateProperties()
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
 		+ updateBoolRef(propGIRaytracedCubes)
-		+ updateInt(propGIRaytracedCubesDiffuseRes,svs.raytracedCubesDiffuseRes)
-		+ updateInt(propGIRaytracedCubesSpecularRes,svs.raytracedCubesSpecularRes)
+		+ updateInt(propGIRaytracedCubesRes,svs.raytracedCubesRes)
 		+ updateInt(propGIRaytracedCubesMaxObjects,svs.raytracedCubesMaxObjects)
 		+ updateFloat(propGIRaytracedCubesSpecularThreshold,svs.raytracedCubesSpecularThreshold)
 		+ updateFloat(propGIRaytracedCubesDepthThreshold,svs.raytracedCubesDepthThreshold)
@@ -296,10 +300,9 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
 	}
 	else
-	if (property==propGIRaytracedCubesDiffuseRes || property==propGIRaytracedCubesSpecularRes)
+	if (property==propGIRaytracedCubesRes)
 	{
-		svs.raytracedCubesDiffuseRes = propGIRaytracedCubesDiffuseRes->GetValue().GetInteger();
-		svs.raytracedCubesSpecularRes = propGIRaytracedCubesSpecularRes->GetValue().GetInteger();
+		svs.raytracedCubesRes = propGIRaytracedCubesRes->GetValue().GetInteger();
 		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
 	}
 	else

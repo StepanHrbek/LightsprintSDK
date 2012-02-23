@@ -27,4 +27,11 @@ public:
 	unsigned getLDMLayer() {return 1;}
 };
 
+// arbitrary unique numbers
+enum
+{
+	LAYER_LIGHTMAPS,
+	LAYER_ENVIRONMENT,
+};
+
 #endif

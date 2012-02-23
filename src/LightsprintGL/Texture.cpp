@@ -39,6 +39,11 @@ const char* initializeGL()
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
 
+	// init "seamless cube maps" feature
+	// in OSX 10.7, supported from Radeon HD2400, GeForce 9400(but not 9600,1xx), HD graphics 3000
+	if (GLEW_ARB_seamless_cube_map)
+		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 	return NULL;
 }
 

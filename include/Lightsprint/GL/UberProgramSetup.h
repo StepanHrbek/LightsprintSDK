@@ -25,9 +25,8 @@ enum
 	TEX_CODE_2D_MATERIAL_TRANSPARENCY     = 3, ///< Program::sendTexture() code used by our uberprogram for rgb transparency map.
 	TEX_CODE_2D_MATERIAL_EMISSIVE         = 4, ///< Program::sendTexture() code used by our uberprogram for emissive map.
 	TEX_CODE_2D_MATERIAL_NORMAL           = 5, ///< Program::sendTexture() code used by our uberprogram for normal map.
-	TEX_CODE_CUBE_LIGHT_INDIRECT_DIFFUSE  = 6, ///< Program::sendTexture() code used by our uberprogram for diffuse cube map.
-	TEX_CODE_CUBE_LIGHT_INDIRECT_SPECULAR = 7, ///< Program::sendTexture() code used by our uberprogram for specular cube map.
-	TEX_CODE_2D_LIGHT_INDIRECT_MIRROR     = 8, ///< Program::sendTexture() code used by our uberprogram for mirror map.
+	TEX_CODE_CUBE_LIGHT_INDIRECT          = 6, ///< Program::sendTexture() code used by our uberprogram for environment map.
+	TEX_CODE_2D_LIGHT_INDIRECT_MIRROR     = 7, ///< Program::sendTexture() code used by our uberprogram for mirror map.
 
 	// texcoords assigned to UberProgram, sent to OpenGL
 	// these constants are hardcoded in shaders
@@ -192,12 +191,12 @@ struct RR_GL_API UberProgramSetup
 	//! Sets shader uniform parameters to match given material, should be called after useProgram() or getNextPass().
 	//! You can call expensive useProgram() once and cheaper useMaterial() multiple times.
 	void useMaterial(Program* program, const rr::RRMaterial* material) const;
-	//! Sets shader illumination environment maps, should be called after useProgram() or getNextPass().
-	//! You can call expensive useProgram() once and cheaper useIlluminationEnvMaps() multiple times.
-	void useIlluminationEnvMaps(Program* program, rr::RRObjectIllumination* illumination);
+	//! Sets shader illumination environment map, should be called after useProgram() or getNextPass().
+	//! You can call expensive useProgram() once and cheaper useIlluminationEnvMap() multiple times.
+	void useIlluminationEnvMap(Program* program, const rr::RRBuffer* environment);
 	//! Sets shader illumination mirror map, should be called after useProgram() or getNextPass().
 	//! You can call expensive useProgram() once and cheaper useIlluminationMirror() multiple times.
-	void useIlluminationMirror(Program* program, rr::RRBuffer* mirrorMap);
+	void useIlluminationMirror(Program* program, const rr::RRBuffer* mirrorMap);
 	//! Sets world matrix for given object.
 	void useWorldMatrix(Program* program, const rr::RRObject* object);
 };

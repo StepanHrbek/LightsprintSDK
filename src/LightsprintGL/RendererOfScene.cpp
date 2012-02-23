@@ -63,8 +63,7 @@ struct PerObjectBuffers
 	float eyeDistance;
 	rr::RRObject* object;
 	RendererOfMesh* meshRenderer;
-	rr::RRBuffer* diffuseEnvironment;
-	rr::RRBuffer* specularEnvironment;
+	rr::RRBuffer* reflectionEnvMap;
 #ifdef MIRRORS
 	rr::RRVec4 mirrorPlane;
 	rr::RRBuffer* mirrorMap;
@@ -92,7 +91,8 @@ public:
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
 		unsigned _layerLightmap,
-		int _layerLDM,
+		unsigned _layerEnvironment,
+		unsigned _layerLDM,
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
@@ -116,7 +116,6 @@ private:
 #ifdef MIRRORS
 	rr::RRBuffer* depthMap;
 #endif
-	bool prefilterSeams;
 
 	// PERMANENT ALLOCATION, TEMPORARY CONTENT (used only inside render(), placing it here saves alloc/free in every render(), but makes render() nonreentrant)
 	rr::RRObjects multiObjects; // used in first half of render()
@@ -148,10 +147,6 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 	depthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,512,512,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 #endif
 	recursionDepth = 0;
-
-	// init "seamless cube maps" feature
-	prefilterSeams = true;//!GLEW_ARB_seamless_cube_map; // in OSX 10.7, supported from Radeon HD2400, GeForce 9400(but not 9600,1xx), HD graphics 3000
-	if(!prefilterSeams) glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 }
 
 RendererOfSceneImpl::~RendererOfSceneImpl()
@@ -174,6 +169,10 @@ rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
 {
 	return (buffer && buffer->getType()==rr::BT_2D_TEXTURE) ? buffer : NULL;
 }
+rr::RRBuffer* onlyCube(rr::RRBuffer* buffer)
+{
+	return (buffer && buffer->getType()==rr::BT_CUBE_TEXTURE) ? buffer : NULL;
+}
 
 void RendererOfSceneImpl::render(
 		rr::RRDynamicSolver* _solver,
@@ -182,7 +181,8 @@ void RendererOfSceneImpl::render(
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
 		unsigned _layerLightmap,
-		int _layerLDM,
+		unsigned _layerEnvironment,
+		unsigned _layerLDM,
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
@@ -239,12 +239,12 @@ void RendererOfSceneImpl::render(
 
 		&& (
 			// optimized render can't render LDM for more than 1 object
-			((_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || _uberProgramSetup.LIGHT_INDIRECT_auto) && _layerLDM!=-1)
+			((_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || _uberProgramSetup.LIGHT_INDIRECT_auto) && _layerLDM!=UINT_MAX)
 			// if we are to use provided indirect, take it always from 1objects
 			// (if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
 			|| ((_uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_uberProgramSetup.LIGHT_INDIRECT_MAP||_uberProgramSetup.LIGHT_INDIRECT_auto) && !_updateLayers && _layerLightmap!=UINT_MAX)
 			// optimized render would look bad with single specular cube per-scene
-			|| (_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+			|| ((_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _layerEnvironment!=UINT_MAX)
 #ifdef MIRRORS
 			// optimized render would look bad without mirrors in static parts
 			|| (_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_MIRROR)
@@ -311,12 +311,11 @@ void RendererOfSceneImpl::render(
 				PerObjectBuffers objectBuffers;
 				objectBuffers.object = object;
 				objectBuffers.meshRenderer = rendererOfMeshCache.getRendererOfMesh(mesh);
-				objectBuffers.diffuseEnvironment = _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE ? illumination.diffuseEnvMap : NULL;
-				objectBuffers.specularEnvironment = _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR ? illumination.specularEnvMap : NULL;
+				objectBuffers.reflectionEnvMap = (_uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) ? onlyCube(illumination.getLayer(_layerEnvironment)) : NULL;
 #ifdef MIRRORS
 				objectBuffers.mirrorMap = NULL;
 				objectBuffers.mirrorPlane = rr::RRVec4(0);
-				if (_uberProgramSetup.LIGHT_INDIRECT_MIRROR && !illumination.specularEnvMap)
+				if (_uberProgramSetup.LIGHT_INDIRECT_MIRROR && !onlyCube(illumination.getLayer(_layerEnvironment)))
 				{
 					rr::RRVec3 mini,maxi;
 					mesh->getAABB(&mini,&maxi,NULL);
@@ -360,8 +359,8 @@ void RendererOfSceneImpl::render(
 				objectBuffers.objectUberProgramSetup = _uberProgramSetup;
 				if (pass==2 && objectBuffers.objectUberProgramSetup.SHADOW_MAPS>1)
 					objectBuffers.objectUberProgramSetup.SHADOW_MAPS = 1; // decrease shadow quality on dynamic objects
-				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = objectBuffers.diffuseEnvironment!=NULL;
-				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = objectBuffers.specularEnvironment!=NULL;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && objectBuffers.reflectionEnvMap;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && objectBuffers.reflectionEnvMap;
 #ifdef MIRRORS
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR = objectBuffers.mirrorMap!=NULL;
 #else
@@ -454,7 +453,7 @@ void RendererOfSceneImpl::render(
 					// built-in version check
 					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE||objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 					{
-						_solver->updateEnvironmentMap(&illumination,prefilterSeams);
+						_solver->updateEnvironmentMap(&illumination,_layerEnvironment,false);//!GLEW_ARB_seamless_cube_map);
 					}
 				}
 			}
@@ -487,7 +486,7 @@ void RendererOfSceneImpl::render(
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,new Texture(mirrorMap,false,false)); // new Texture instead of getTexture makes our texture deletable at the end of render()
 			glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-			render(_solver,mirrorUberProgramSetup,_lights,NULL,_updateLayers,_layerLightmap,_layerLDM,&clipPlanes,_srgbCorrect,NULL,1);
+			render(_solver,mirrorUberProgramSetup,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,_srgbCorrect,NULL,1);
 		}
 		oldState.restore();
 		setupForRender(mainCamera);
@@ -532,7 +531,7 @@ void RendererOfSceneImpl::render(
 					passUberProgramSetup.useWorldMatrix(program,object);
 
 					// set envmaps
-					passUberProgramSetup.useIlluminationEnvMaps(program,&object->illumination);
+					passUberProgramSetup.useIlluminationEnvMap(program,object->illumination.getLayer(_layerEnvironment));
 #ifdef MIRRORS
 					// set mirror
 					passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorMap);
@@ -611,7 +610,7 @@ void RendererOfSceneImpl::render(
 				passUberProgramSetup.useWorldMatrix(program,object);
 
 				// set envmaps
-				passUberProgramSetup.useIlluminationEnvMaps(program,&object->illumination);
+				passUberProgramSetup.useIlluminationEnvMap(program,object->illumination.getLayer(_layerEnvironment));
 #ifdef MIRRORS
 				// set mirror
 				passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorMap);

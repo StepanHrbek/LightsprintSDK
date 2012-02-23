@@ -221,6 +221,7 @@ void SVSceneTree::selectEntityInTree(EntityId entity)
 void SVSceneTree::updateSelectedEntityIds()
 {
 	selectedEntityIds.clear();
+	selectedObjectRoot = false;
 	wxArrayTreeItemIds selections;
 	GetSelections(selections);
 	for (unsigned i=0;i<selections.size();i++)
@@ -235,6 +236,7 @@ void SVSceneTree::updateSelectedEntityIds()
 			else
 			if (selections[i]==staticObjects)
 			{
+				selectedObjectRoot = true;
 				unsigned numStaticObjects = svframe->m_canvas->solver->getStaticObjects().size();
 				for (unsigned i=0;i<numStaticObjects;i++)
 					selectedEntityIds.insert(EntityId(ST_OBJECT,i));
@@ -242,6 +244,7 @@ void SVSceneTree::updateSelectedEntityIds()
 			else
 			if (selections[i]==dynamicObjects)
 			{
+				selectedObjectRoot = true;
 				unsigned numStaticObjects = svframe->m_canvas->solver->getStaticObjects().size();
 				unsigned numDynamicObjects = svframe->m_canvas->solver->getDynamicObjects().size();
 				for (unsigned i=0;i<numDynamicObjects;i++)
@@ -603,12 +606,21 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					updateParameters.applyCurrentSolution = true;
 					solver->updateLightmaps(tmpLayer,-1,-1,&updateParameters,NULL,&svs.lightmapFilteringParameters);
 
-					// restore light intensities, just in case we are going to run viewer
+					// restore light intensities
 					for (unsigned i=0;i<solver->getLights().size();i++)
 						solver->getLights()[i]->color = lightColors[i];
 #endif
 					// save temp layer
 					allObjects.saveLayer(tmpLayer,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
+
+					// update and save cubemaps
+					if (selectedObjectRoot || selectedObjects.size()==allObjects.size())
+					{
+						allObjects.allocateBuffersForRealtimeGI(-1,svs.layerBakedEnvironment,4,2*svs.raytracedCubesRes,true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
+						for (unsigned i=0;i<allObjects.size();i++)
+							solver->updateEnvironmentMap(&allObjects[i]->illumination,svs.layerBakedEnvironment,false);
+						allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
+					}
 
 					// move buffers from temp to final layer
 					for (unsigned i=0;i<selectedObjects.size();i++)

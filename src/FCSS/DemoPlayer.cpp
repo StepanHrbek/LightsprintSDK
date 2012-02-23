@@ -67,11 +67,11 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	dynamicObjects = new DynamicObjects();
 	float diffuse,specular;
 	unsigned specularMap,normalMap,emissiveMap;
-	unsigned gatherDiffuseCubeSize;
+	unsigned diffuseCubeSize;
 	unsigned specularCubeSize;
 	float scale;
 	while (9==fscanf(f,"object = %f,%f,%d,%d,%d,%d,%d,%f,%s\n",
-		&diffuse,&specular,&specularMap,&normalMap,&emissiveMap,&gatherDiffuseCubeSize,&specularCubeSize,&scale,buf))
+		&diffuse,&specular,&specularMap,&normalMap,&emissiveMap,&diffuseCubeSize,&specularCubeSize,&scale,buf))
 	{
 		/*
 		rr_gl::UberProgramSetup material;
@@ -85,7 +85,6 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 		material.MATERIAL_NORMAL_MAP = normalMap?1:0;
 		material.MATERIAL_EMISSIVE_MAP = emissiveMap?1:0;
 		*/
-		rr::RRReporter::report(rr::INF1,"Loading %s...\n",buf);
 		if (dynamicObjects->addObject(buf,scale))
 		{
 			// adjust material
@@ -98,11 +97,8 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 				material->updateSideBitsFromColors();
 			}
 			// alloc cubes
-			object->illumination.gatherEnvMapSize = gatherDiffuseCubeSize;
-			if (diffuse && gatherDiffuseCubeSize)
-				object->illumination.diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,gatherDiffuseCubeSize,gatherDiffuseCubeSize,6,rr::BF_RGBA,true,NULL);
-			if (specular && specularCubeSize)
-				object->illumination.specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,specularCubeSize,specularCubeSize,6,rr::BF_RGBA,true,NULL);
+			if ((specular && specularCubeSize) || (diffuse && diffuseCubeSize))
+				object->illumination.getLayer(LAYER_ENVIRONMENT) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,RR_MAX(diffuseCubeSize,specularCubeSize),RR_MAX(diffuseCubeSize,specularCubeSize),6,rr::BF_RGBA,true,NULL);
 		}
 		else
 		{

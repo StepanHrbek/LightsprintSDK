@@ -711,36 +711,20 @@ namespace rr
 		//! Solver only reads it, never modifies it, so don't forget to clear it after abort.
 		bool aborting;
 
-
-		//! Optional update of illumination cache, makes updateEnvironmentMap() faster.
+		//! Calculates and updates object's environment map, stored in given layer of given object.
 		//
-		//! Depends on geometry but not on lighting, may be executed before static scene lighting is computed.
-		//! Call it when CPU is not fully loaded (on background or while waiting) to use otherwise wasted cycles.
-		//! If you don't have such cycles, don't call it at all.
+		//! Function updates existing buffer, it does nothing if buffer does not exist.
+		//! You can allocate buffers
+		//! - automatically, by allocateBuffersForRealtimeGI()
+		//! - or manually by illumination->getLayer() = RRBuffer::create()
 		//!
-		//! Reads RRObjectIllumination variables with 'envMap' in name. If you modify them on the fly
-		//! (e.g. sizes of buffers), modify them before calling this function.
+		//! Generated environment can be used for illumination of both static and dynamic objects.
 		//!
-		//! Thread safe: yes
-		void updateEnvironmentMapCache(RRObjectIllumination* illumination);
-		//! Calculates and updates diffuse and/or specular environment map in object's illumination.
-		//
-		//! Generates specular and diffuse environment/reflection maps with object's indirect illumination
-		//! \n- diffuse map is to be sampled (by surface normal) in object's rough pixels
-		//! \n- specular map is to be sampled (by reflected view direction) in object's glossy pixels
-		//!
-		//! This function generates indirect illumination for dynamic object.
-		//! It is called automatically for all objects passed to setDynamicObjects().
-		//! If you render dynamic objects manually, without passing them to solver,
-		//! call at least this solver function to update their illumination.
+		//! Function is fast, suitable for use in realtime applications.
 		//! It is safe to call it often, it returns quickly if it detects that illumination is already up to date.
 		//!
-		//! It reads static scene illumination, so don't call it before calculate(), otherwise
+		//! Function reads static scene illumination, so don't call it before calculate(), otherwise
 		//! dynamic objects will reflect light from previous frame.
-		//!
-		//! It reads RRObjectIllumination variables with 'envMap' in name,
-		//! update them (e.g. buffer sizes) before calling this function.
-		//! allocateBuffersForRealtimeGI() can do part of this work for you.
 		//!
 		//! Thread safe: yes, may be called from multiple threads at the same time
 		//!  (but there's no need as it uses all cores internally)
@@ -748,14 +732,14 @@ namespace rr
 		//! \param illumination
 		//!  Object's illumination to be updated.
 		//!  (It's not necessary to have RRObject adapter for dynamic object, but its RRObjectIllumination must exist.)
-		//!  RRObjectIllumination variables with 'envMap' in name are used, update them before calling
-		//!  this function, e.g. create illumination->diffuseEnvMap if you want it to be updated here.
+		//! \param environmentLayer
+		//!  Number of layer with environment maps, they are addressed by illumination->getLayer(environmentLayer).
 		//! \param prefilterSeams
 		//!  True = prefilters cube map edges, reducing effective resolution from n*n*6 to (n-1)*(n-1)*6.
 		//!  False = creates full resolution unfiltered maps, good for GPU with "seamless cube maps" filtering enabled.
 		//! \return
-		//!  Number of environment maps updated. May be 0, 1 or 2 (optional diffuse and specular reflection map).
-		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination, bool prefilterSeams);
+		//!  Number of environment maps updated, 0 or 1.
+		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination, unsigned environmentLayer, bool prefilterSeams);
 
 
 		//! Reads illumination of triangle's vertex in units given by measure.
@@ -940,17 +924,21 @@ namespace rr
 		//! because such reflections are inaccurate, but you can always allocate such buffers yourself,
 		//! example: illumination.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,16,16,6,BF_RGBA,true,NULL);
 		//! \param layerLightmap
-		//!  Arbitrary layer number for storing per-vertex indirect illumination.
+		//!  Arbitrary layer number for storing realtime calculated per-vertex indirect illumination.
 		//!  You should pass the same layer number to renderer, so it can use buffers you just allocated.
 		//!  Use any negative number for no allocation.
-		//! \param diffuseCubeSize
-		//!  Size of diffuse cube maps used for indirect illumination of dynamic objects.
-		//!  Warning: GI calculation time is O(cubeSize^2)
-		//! \param specularCubeSize
-		//!  Size of specular cube maps used for indirect illumination of shiny objects.
-		//!  Warning: GI calculation time is O(cubeSize^2)
-		//! \param gatherCubeSize
-		//!  If it is not negative, value is copied into RRObjectIllumination::gatherEnvMapSize of all objects.
+		//! \param layerEnvironment
+		//!  Arbitrary layer number for storing realtime calculated environment maps.
+		//!  You should pass the same layer number to renderer, so it can use buffers you just allocated.
+		//!  Use any negative number for no allocation.
+		//! \param diffuseEnvMapSize
+		//!  If >0, and materials have diffuse reflection, reflection map of at least this size will be allocated in illumination.
+		//!  Default size 4 is usually good enough.
+		//!  Pass -1 to keep existing map.
+		//! \param specularEnvMapSize
+		//!  If >0, and materials have specular reflection, reflection map of at least this size will be allocated in illumination.
+		//!  Default size 16 is usually sufficient, not very sharp, but makes rendering fast.
+		//!  Pass -1 to keep existing map.
 		//! \param allocateNewBuffers
 		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
 		//! \param changeExistingBuffers
@@ -959,7 +947,7 @@ namespace rr
 		//!  Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply.
 		//! \param depthThreshold
 		//!  Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply.
-		virtual void allocateBuffersForRealtimeGI(int layerLightmap, int diffuseCubeSize = 4, int specularCubeSize = 16, int gatherCubeSize = -1, bool allocateNewBuffers = true, bool changeExistingBuffers = true, float specularThreshold = 0.2f, float depthThreshold = 0.1f) const;
+		virtual void allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize = 4, unsigned specularEnvMapSize = 16, bool allocateNewBuffers = true, bool changeExistingBuffers = true, float specularThreshold = 0.2f, float depthThreshold = 0.1f) const;
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
 		RRObject* getMultiObjectCustom() const;
@@ -995,7 +983,7 @@ namespace rr
 		unsigned updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 		void updateVertexLookupTableDynamicSolver();
 		void updateVertexLookupTablePackedSolver();
-		bool cubeMapGather(RRObjectIllumination* illumination, RRVec3* exitanceHdr);
+		bool cubeMapGather(RRObjectIllumination* illumination, unsigned environmentLayer, RRVec3* exitanceHdr);
 		struct Private;
 		Private* priv;
 		friend class GatheredIrradianceHemisphere;

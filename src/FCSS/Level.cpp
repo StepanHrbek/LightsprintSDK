@@ -53,7 +53,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 
 	// create buffers for computed GI
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	solver->allocateBuffersForRealtimeGI(0,0,0);
+	solver->allocateBuffersForRealtimeGI(LAYER_LIGHTMAPS,LAYER_ENVIRONMENT);
 
 	// init light
 	//rr::RRLights lights;

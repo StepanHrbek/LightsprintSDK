@@ -27,7 +27,7 @@ class DynamicObject
 {
 public:
 	//! Creates dynamic object from .3ds file.
-	static DynamicObject* create(const char* filename,float scale,rr_gl::UberProgramSetup material,unsigned gatherCubeSize,unsigned specularCubeSize);
+	static DynamicObject* create(const char* filename,float scale,rr_gl::UberProgramSetup material,unsigned reflectionCubeSize);
 
 	//! Updates object's worldMatrix and some illumination properties according to worldFoot position and rotYZ rotation.
 	//! To be called each time object moves/rotates. At least once at the beginning.
@@ -61,6 +61,13 @@ protected:
 
 	// updated by updatePosition
 	float worldMatrix[16];
+};
+
+// arbitrary unique non-negative numbers
+enum
+{
+	LAYER_LIGHTMAP,
+	LAYER_ENVIRONMENT,
 };
 
 #endif

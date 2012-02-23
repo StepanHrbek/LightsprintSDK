@@ -54,6 +54,13 @@
 #include <setjmp.h>
 jmp_buf jmp;
 
+// arbitrary unique non-negative numbers
+enum
+{
+	LAYER_LIGHTMAPS,
+	LAYER_ENVIRONMENT,
+};
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // termination with error message
@@ -282,7 +289,7 @@ void display(void)
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	// render scene
-	solver->renderScene(uberProgramSetup,NULL,true,0,-1,0,false,&brightness,contrast);
+	solver->renderScene(uberProgramSetup,NULL,true,LAYER_LIGHTMAPS,LAYER_ENVIRONMENT,UINT_MAX,NULL,false,&brightness,contrast);
 	// render light frustum
 	solver->renderLights();
 
@@ -400,7 +407,7 @@ int main(int argc, char** argv)
 	solver->setLights(staticScene.lights);
 
 	// init buffers for calculated illumination
-	solver->allocateBuffersForRealtimeGI(0);
+	solver->allocateBuffersForRealtimeGI(LAYER_LIGHTMAPS,LAYER_ENVIRONMENT);
 
 	// enable Fireball - faster, higher quality, smaller realtime global illumination solver
 	solver->loadFireball(NULL,true) || solver->buildFireball(350,NULL);

@@ -17,7 +17,7 @@ namespace rr
 //
 // RRObjects
 
-unsigned RRObjects::allocateBuffersForRealtimeGI(int layerLightmap, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, int gatherEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
+unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerEnvironment, unsigned _diffuseEnvMapSize, unsigned _specularEnvMapSize, bool _allocateNewBuffers, bool _changeExistingBuffers, float _specularThreshold, float _depthThreshold) const
 {
 	unsigned buffersTouched = 0;
 	for (unsigned i=0;i<size();i++)
@@ -28,120 +28,116 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int layerLightmap, unsigned dif
 			RRObjectIllumination& illumination = object->illumination;
 			const RRMesh* mesh = object->getCollider()->getMesh();
 			unsigned numVertices = mesh->getNumVertices();
-			if (numVertices)
+
+			// process vertex buffers for LIGHT_INDIRECT_VCOLOR
+			if (_layerLightmap>=0)
 			{
-				// allocate vertex buffers for LIGHT_INDIRECT_VCOLOR
-				// (this should be called also if layerLightmap changes... for now it never changes during solver existence)
-				if (layerLightmap>=0)
+				RRBuffer*& buffer = illumination.getLayer(_layerLightmap);
+				if (!numVertices)
+					RR_SAFE_DELETE(buffer)
+				else
+				if (!buffer && _allocateNewBuffers)
 				{
-					RRBuffer*& buffer = illumination.getLayer(layerLightmap);
-					if (!buffer && allocateNewBuffers)
-					{
-						buffer = RRBuffer::create(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,NULL);
-						buffersTouched++;
-					}
-					else
-					if (buffer && changeExistingBuffers)
-					{
-						buffer->reset(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,NULL);
-						buffersTouched++;
-					}
-				}
-				// allocate diffuse cubes for LIGHT_INDIRECT_CUBE_DIFFUSE
-				if (diffuseEnvMapSize)
-				{
-					if (!illumination.diffuseEnvMap && allocateNewBuffers)
-					{
-						illumination.diffuseEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,diffuseEnvMapSize,diffuseEnvMapSize,6,BF_RGBA,true,NULL);
-						buffersTouched++;
-					}
-					else
-					if (illumination.diffuseEnvMap && changeExistingBuffers)
-					{
-						illumination.diffuseEnvMap->reset(BT_CUBE_TEXTURE,diffuseEnvMapSize,diffuseEnvMapSize,6,BF_RGBA,true,NULL);
-						illumination.diffuseEnvMap->version = rand()*11111; // updateEnvironmentMap() considers version++ from reset() too small change to update, upper 16bits must change
-						buffersTouched++;
-					}
+					buffer = RRBuffer::create(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,NULL);
+					buffersTouched++;
 				}
 				else
+				if (buffer && _changeExistingBuffers)
 				{
-					if (changeExistingBuffers)
-						RR_SAFE_DELETE(illumination.diffuseEnvMap);
+					buffer->reset(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,NULL);
+					buffersTouched++;
 				}
-				// allocate specular cubes for LIGHT_INDIRECT_CUBE_SPECULAR
-				if (specularEnvMapSize)
+			}
+
+			// process cube maps for LIGHT_INDIRECT_CUBE
+			if (_layerEnvironment>=0)
+			{
+				// calculate desired cube size for LIGHT_INDIRECT_CUBE
+				RRBuffer*& buffer = illumination.getLayer(_layerEnvironment);
+				unsigned currentEnvMapSize = buffer ? buffer->getWidth() : 0;
+				unsigned desiredDiffuseSize = currentEnvMapSize;
+				unsigned desiredSpecularSize = currentEnvMapSize;
+
+				// calculate diffuse size
+				if (!numVertices)
 				{
-					if ((!illumination.specularEnvMap && allocateNewBuffers) || (illumination.specularEnvMap && changeExistingBuffers))
+					desiredDiffuseSize = 0;
+				}
+				else
+				if ((!currentEnvMapSize && _allocateNewBuffers) || (currentEnvMapSize && _changeExistingBuffers))
+				{
+					desiredDiffuseSize = _diffuseEnvMapSize ? RR_MAX(_diffuseEnvMapSize,8) : 0;
+				}
+
+				// calculate specular size
+				if (!numVertices || (_changeExistingBuffers && !_specularEnvMapSize))
+				{
+					desiredSpecularSize = 0;
+				}
+				else
+				if ((!currentEnvMapSize && _allocateNewBuffers) || (currentEnvMapSize && _changeExistingBuffers))
+				{
+					// measure object's specularity
+					//float maxDiffuse = 0;
+					float maxSpecular = 0;
+					for (unsigned g=0;g<object->faceGroups.size();g++)
 					{
-						// measure object's specularity
-						//float maxDiffuse = 0;
-						float maxSpecular = 0;
-						for (unsigned g=0;g<object->faceGroups.size();g++)
+						const RRMaterial* material = object->faceGroups[g].material;
+						if (material)
 						{
-							const RRMaterial* material = object->faceGroups[g].material;
-							if (material)
-							{
-								//maxDiffuse = RR_MAX(maxDiffuse,material->diffuseReflectance.color.avg());
-								maxSpecular = RR_MAX(maxSpecular,material->specularReflectance.color.avg());
-							}
+							//maxDiffuse = RR_MAX(maxDiffuse,material->diffuseReflectance.color.avg());
+							maxSpecular = RR_MAX(maxSpecular,material->specularReflectance.color.avg());
 						}
-						// continue only for highly specular objects
-						if (maxSpecular>RR_MAX(0.01f,specularThreshold))
+					}
+					// continue only for highly specular objects
+					if (maxSpecular>RR_MAX(0.01f,_specularThreshold))
+					{
+						// measure object's size
+						RRVec3 mini,maxi;
+						mesh->getAABB(&mini,&maxi,NULL);
+						RRVec3 size = maxi-mini;
+						float sizeMidi = size.sum()-size.maxi()-size.mini();
+						// continue only for non-planar objects, cubical reflection looks bad on plane
+						// (size is in object's space, so this is not precise for non-uniform scale)
+						if (_depthThreshold<1 && size.mini()>=_depthThreshold*sizeMidi) // depthThreshold=0 allows everything, depthThreshold=1 nothing
 						{
-							// measure object's size
-							RRVec3 mini,maxi;
-							mesh->getAABB(&mini,&maxi,NULL);
-							RRVec3 size = maxi-mini;
-							float sizeMidi = size.sum()-size.maxi()-size.mini();
-							// continue only for non-planar objects, cubical reflection looks bad on plane
-							// (size is in object's space, so this is not precise for non-uniform scale)
-							if (depthThreshold<1 && size.mini()>=depthThreshold*sizeMidi) // depthThreshold=0 allows everything, depthThreshold=1 nothing
-							{
-								// allocate specular cube map
-								RRVec3 center;
-								mesh->getAABB(NULL,NULL,&center);
-								const RRMatrix3x4* matrix = object->getWorldMatrix();
-								if (matrix) matrix->transformPosition(center);
-								illumination.envMapWorldCenter = center;
-								if (!illumination.specularEnvMap && allocateNewBuffers)
-								{
-									illumination.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,specularEnvMapSize,specularEnvMapSize,6,BF_RGBA,true,NULL);
-									buffersTouched++;
-								}
-								else
-								if (illumination.specularEnvMap && changeExistingBuffers)
-								{
-									illumination.specularEnvMap->reset(BT_CUBE_TEXTURE,specularEnvMapSize,specularEnvMapSize,6,BF_RGBA,true,NULL);
-									illumination.specularEnvMap->version = rand()*11111; // updateEnvironmentMap() considers version++ from reset() too small change to update, upper 16bits must change
-									buffersTouched++;
-								}
-								//updateEnvironmentMapCache(illumination);
-							}
-							else
-							{
-								if (changeExistingBuffers)
-									RR_SAFE_DELETE(illumination.specularEnvMap);
-							}
+							// allocate specular cube map
+							RRVec3 center;
+							mesh->getAABB(NULL,NULL,&center);
+							const RRMatrix3x4* matrix = object->getWorldMatrix();
+							if (matrix) matrix->transformPosition(center);
+							illumination.envMapWorldCenter = center;
+							desiredSpecularSize = _specularEnvMapSize;
+							//updateEnvironmentMapCache(illumination);
 						}
 						else
 						{
-							if (changeExistingBuffers)
-								RR_SAFE_DELETE(illumination.specularEnvMap);
+							if (_changeExistingBuffers)
+								desiredSpecularSize = 0;
 						}
 					}
+					else
+					{
+						if (_changeExistingBuffers)
+							desiredSpecularSize = 0;
+					}
 				}
-				// change gatherEnvMapSize
-				if (gatherEnvMapSize>=0)
-					illumination.gatherEnvMapSize = gatherEnvMapSize;
-			}
-			else
-			if (changeExistingBuffers)
-			{
-				// delete buffers in empty object
-				if (layerLightmap>=0)
-					RR_SAFE_DELETE(illumination.getLayer(layerLightmap));
-				RR_SAFE_DELETE(illumination.diffuseEnvMap);
-				RR_SAFE_DELETE(illumination.specularEnvMap);
+
+				// allocate cube for LIGHT_INDIRECT_CUBE
+				unsigned desiredEnvMapSize = RR_MAX(desiredDiffuseSize,desiredSpecularSize);
+				if (desiredEnvMapSize!=currentEnvMapSize)
+				{
+					if (!currentEnvMapSize)
+						buffer = RRBuffer::create(BT_CUBE_TEXTURE,desiredEnvMapSize,desiredEnvMapSize,6,BF_RGBA,true,NULL);
+					else if (desiredEnvMapSize)
+					{
+						buffer->reset(BT_CUBE_TEXTURE,desiredEnvMapSize,desiredEnvMapSize,6,BF_RGBA,true,NULL);
+						buffer->version = rand()*11111; // updateEnvironmentMap() considers version++ from reset() too small change to update, upper 16bits must change
+					}
+					else
+						RR_SAFE_DELETE(buffer);
+					buffersTouched++;
+				}
 			}
 		}
 	}

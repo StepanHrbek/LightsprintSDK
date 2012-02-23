@@ -341,8 +341,8 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 	{
 		ar & make_nvp("fireballQuality",a.fireballQuality);
 		ar & make_nvp("raytracedCubesEnabled",a.raytracedCubesEnabled);
-		ar & make_nvp("raytracedCubesDiffuseRes",a.raytracedCubesDiffuseRes);
-		ar & make_nvp("raytracedCubesSpecularRes",a.raytracedCubesSpecularRes);
+		ar & make_nvp("raytracedCubesDiffuseRes",a.raytracedCubesRes);
+		ar & make_nvp("raytracedCubesSpecularRes",a.raytracedCubesRes);
 		ar & make_nvp("raytracedCubesMaxObjects",a.raytracedCubesMaxObjects);
 	}
 	if (version>25)

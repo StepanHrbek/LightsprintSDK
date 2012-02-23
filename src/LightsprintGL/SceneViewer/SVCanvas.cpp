@@ -252,6 +252,13 @@ void SVCanvas::createContextCore()
 		if (!solver->getStaticObjects().loadLayer(svs.layerBakedLDM,LAYER_PREFIX,LDM_POSTFIX))
 			svs.renderLDM = false;
 		ldmFoundInRam:;
+
+		// try to load cubemaps
+		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
+			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedEnvironment))
+				goto cubeFoundInRam;
+		solver->getStaticObjects().loadLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
+		cubeFoundInRam:;
 	}
 
 	// init rest
@@ -261,8 +268,7 @@ void SVCanvas::createContextCore()
 	if (svs.selectedObjectIndex>=solver->getStaticObjects().size()) svs.selectedObjectIndex = 0;
 	lightFieldQuadric = gluNewQuadric();
 	lightFieldObjectIllumination = new rr::RRObjectIllumination;
-	lightFieldObjectIllumination->diffuseEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,4,4,6,rr::BF_RGB,true,NULL);
-	lightFieldObjectIllumination->specularEnvMap = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
+	lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
 	entityIcons = new SVEntityIcons(wxString::Format("%s../maps/",svs.pathToShaders),solver->getUberProgram());
 	recalculateIconSizeAndPosition();
 
@@ -390,7 +396,8 @@ void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
 {
 	solver->allocateBuffersForRealtimeGI(
 		reallocateAlsoVbuffers?svs.layerRealtimeAmbient:-1,
-		svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes,RR_MAX(svs.raytracedCubesDiffuseRes,svs.raytracedCubesSpecularRes),
+		svs.layerRealtimeEnvironment,
+		4,svs.raytracedCubesRes,
 		true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
 	svframe->m_objectProperties->updateProperties();
 }
@@ -1358,7 +1365,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = svs.renderLDMEnabled();
 			uberProgramSetup.LIGHT_INDIRECT_auto = svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE =
-			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = svs.raytracedCubesEnabled && solver->getStaticObjects().size()+solver->getDynamicObjects().size()<svs.raytracedCubesMaxObjects && (svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL);
+			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = svs.raytracedCubesEnabled && solver->getStaticObjects().size()+solver->getDynamicObjects().size()<svs.raytracedCubesMaxObjects;
 			uberProgramSetup.LIGHT_INDIRECT_MIRROR = svs.mirrorsEnabled;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
 			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse;
@@ -1376,6 +1383,12 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = brightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = gamma!=1;
 			ClipPlanes clipPlanes = {rr::RRVec4(0),0,0,0,0,0,0};
+			unsigned layers[3] =
+			{
+				(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient),
+				svs.raytracedCubesEnabled?((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeEnvironment:svs.layerBakedEnvironment):UINT_MAX,
+				svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX
+			};
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			if (svs.renderWater && water && !svs.renderWireframe)
 			{
@@ -1391,9 +1404,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				solver->renderScene(
 					uberProgramSetup,
 					NULL,
-					true,//svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient),
-					svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX,
+					true,layers[0],layers[1],layers[2],
 					&clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
@@ -1418,9 +1429,7 @@ rendered:
 				solver->renderScene(
 					uberProgramSetup,
 					NULL,
-					true,//svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient),
-					svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX,
+					true,layers[0],layers[1],layers[2],
 					&clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
@@ -1432,9 +1441,7 @@ rendered:
 				solver->renderScene(
 					uberProgramSetup,
 					NULL,
-					true,//svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_REALTIME_FIREBALL,
-					(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient),
-					svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX,
+					true,layers[0],layers[1],layers[2],
 					&clipPlanes,
 					svs.srgbCorrect,
 					&brightness,
@@ -1527,7 +1534,7 @@ rendered:
 			// update cube
 			lightFieldObjectIllumination->envMapWorldCenter = svs.eye.getPosition()+svs.eye.getDirection();
 			rr::RRVec2 sphereShift = rr::RRVec2(svs.eye.getDirection()[2],-svs.eye.getDirection()[0]).normalized()*0.05f;
-			lightField->updateEnvironmentMap(lightFieldObjectIllumination,0);
+			lightField->updateEnvironmentMap(lightFieldObjectIllumination,svs.layerBakedEnvironment,0);
 
 			// diffuse
 			// set shader (no direct light)
@@ -1537,7 +1544,7 @@ rendered:
 			uberProgramSetup.POSTPROCESS_GAMMA = svs.tonemappingGamma!=1;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
 			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
-			uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
+			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			glPushMatrix();
 			glTranslatef(lightFieldObjectIllumination->envMapWorldCenter[0]-sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]-sphereShift[1]);
@@ -1552,7 +1559,7 @@ rendered:
 			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.OBJECT_SPACE = true;
 			program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
-			uberProgramSetup.useIlluminationEnvMaps(program,lightFieldObjectIllumination);
+			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
 			program->sendUniform("worldMatrix",worldMatrix,false,4);

@@ -45,7 +45,7 @@ public:
 	//! Render target is not cleared automatically, so you may want to clear both color and depth before calling render().
 	//!
 	//! \param _solver
-	//!  Source of static and dynamic objects and environment. Direct lights from solver are ignored.
+	//!  Source of static and dynamic objects, environment and illumination. Direct lights from solver are ignored.
 	//! \param _uberProgramSetup
 	//!  Specifies shader properties, including light and material types supported.
 	//!  For render with all direct lighting/shadowing features according to light properties,
@@ -56,11 +56,15 @@ public:
 	//! \param _renderingFromThisLight
 	//!  When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
 	//! \param _updateLayers
-	//!  When rendering with LIGHT_INDIRECT_VCOLOR, updates vertex buffers in _layerLightmap with version different from getSolutionVersion().
-	//!  Function touches only existing buffers, does not allocate new ones.
+	//!  False = renders illumination as it is stored in buffers, without updating it.
+	//!  True = updates illumination in _layerLightmap and _layerEnvironment layers before rendering it. Updates only outdated buffers, only buffers being rendered.
+	//!  Note that buffers are not allocated or deleted here.
 	//!  You can allocate buffers in advance by calling RRDynamicSolver::allocateBuffersForRealtimeGI() once.
 	//! \param _layerLightmap
 	//!  Indirect illumination is taken from and possibly updated to given layer.
+	//!  Function touches only existing buffers, does not allocate new ones.
+	//! \param _layerEnvironment
+	//!  Environment is taken from and possibly updated to given layer.
 	//!  Function touches only existing buffers, does not allocate new ones.
 	//! \param _layerLDM
 	//!  Specifies source of light detail maps. Function only reads them.
@@ -79,7 +83,8 @@ public:
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
 		unsigned _layerLightmap,
-		int _layerLDM,
+		unsigned _layerEnvironment,
+		unsigned _layerLDM,
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,

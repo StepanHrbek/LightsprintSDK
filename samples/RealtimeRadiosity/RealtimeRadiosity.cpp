@@ -82,14 +82,14 @@ float                      speedLeft = 0;
 // callback that feeds 3ds renderer with our vertex illumination in RGBF format
 const float* lockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getStaticObjects()[object]->illumination.getLayer(0);
+	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getStaticObjects()[object]->illumination.getLayer(LAYER_LIGHTMAP);
 	return vertexBuffer && (vertexBuffer->getFormat()==rr::BF_RGBF) ? (float*)(vertexBuffer->lock(rr::BL_READ)) : NULL;
 }
 
 // callback that cleans vertex illumination
 void unlockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getStaticObjects()[object]->illumination.getLayer(0);
+	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getStaticObjects()[object]->illumination.getLayer(LAYER_LIGHTMAP);
 	if (vertexBuffer) vertexBuffer->unlock();
 }
 
@@ -131,7 +131,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		robot->rotYZ = rr::RRVec2(55,0); robot->animationTime = rotation*0.01f; // wave
 		robot->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
-			solver->updateEnvironmentMap(robot->illumination,false);
+			solver->updateEnvironmentMap(robot->illumination,LAYER_ENVIRONMENT,false);
 		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}
 	if (potato)
@@ -140,7 +140,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		potato->rotYZ = rr::RRVec2(rotation/2,0);
 		potato->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
-			solver->updateEnvironmentMap(potato->illumination,false);
+			solver->updateEnvironmentMap(potato->illumination,LAYER_ENVIRONMENT,false);
 		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
 	}
 }
@@ -168,7 +168,8 @@ protected:
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
 		unsigned _layerLightmap,
-		int _layerLDM,
+		unsigned _layerEnvironment,
+		unsigned _layerLDM,
 		const rr_gl::ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
@@ -217,7 +218,7 @@ void display(void)
 	if (solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = solver->getSolutionVersion();
-		solver->updateLightmaps(0,-1,-1,NULL,NULL,NULL);
+		solver->updateLightmaps(LAYER_LIGHTMAP,-1,-1,NULL,NULL,NULL);
 	}
 
 	// render
@@ -400,12 +401,12 @@ int main(int argc, char** argv)
 	rr_gl::UberProgramSetup material;
 	material.MATERIAL_SPECULAR = true;
 	material.ANIMATION_WAVE = true;
-	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f,material,16,16);
+	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f,material,16);
 	material.ANIMATION_WAVE = false;
 	material.MATERIAL_DIFFUSE = true;
 	material.MATERIAL_DIFFUSE_MAP = true;
 	material.MATERIAL_SPECULAR_MAP = true;
-	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f,material,16,16);
+	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f,material,16);
 
 	// init realtime radiosity solver
 	const char* licError = rr::loadLicense("../../data/licence_number");
@@ -423,7 +424,7 @@ int main(int argc, char** argv)
 	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
 	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 		if (solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices())
-			solver->getStaticObjects()[i]->illumination.getLayer(0) =
+			solver->getStaticObjects()[i]->illumination.getLayer(LAYER_LIGHTMAP) =
 				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 
 	// init light

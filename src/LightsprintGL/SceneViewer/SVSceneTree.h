@@ -89,6 +89,7 @@ namespace rr_gl
 	private:
 		void updateSelectedEntityIds();
 		EntityIds selectedEntityIds; // always up to date, with root of lights replaced by all lights, root of objects replaced by all objects
+		bool selectedObjectRoot; // always up to date, true if staticObjects or dynamicObjects root is selected
 
 		SVFrame* svframe;
 		SceneViewerStateEx& svs;

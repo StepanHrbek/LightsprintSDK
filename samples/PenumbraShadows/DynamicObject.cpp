@@ -35,9 +35,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	// use material
 	uberProgramSetup.useMaterial(program,model.Materials);
 	// use environment map
-	illumination.specularEnvMap = lightIndirectEnvSpecular;
-	uberProgramSetup.useIlluminationEnvMaps(program,&illumination);
-	illumination.specularEnvMap = NULL;
+	uberProgramSetup.useIlluminationEnvMap(program,lightIndirectEnvSpecular);
 	// set matrices
 	if (uberProgramSetup.OBJECT_SPACE)
 	{

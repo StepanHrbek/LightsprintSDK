@@ -12,14 +12,31 @@ namespace rr
 
 NEWS
 
-- Lightsprint's \ref rr3_specification ".rrbuffer" fileformat introduced, with save and load support,
-  \n for all static types of RRBuffer (2d textures, cube maps, vertex buffers, not video)
+- rendering of shininess and environment maps
+  - environment reflected by objects is blurred according to material shininess
+  - environments are stored in layers, you can have multiple layers (access by illumination.getLayer() instead of illumination.specularEnvMap)
+  - environments can be saved/loaded by good old RRObjects::saveLayer()/loadLayer()
+  - scene viewer bakes and saves environment reflections together with lightmaps, supports rendering both at once
+- Lightsprint's \ref rr3_specification ".rrbuffer" fileformat introduced
+  - with save and load support
+  - for all static types of RRBuffer (2d textures, cube maps, vertex buffers, not video)
+  - replaces old vertex buffer format .vbu (.vbu still works, but we are no longer using it in samples/tools)
 
 CHANGES
 
+- rendering of shininess and environment maps
+  - allocateBuffersForRealtimeGI() did change parameters (4th removed, 2nd added), you must fix your code
+  - rr_gl::UberProgramSetup::useIlluminationEnvMap() replaces useIlluminationEnvMaps(), you must change second parameter
+  - render() and renderScene() functions have one more parameter
+  - updateEnvironmentMap() has one more parameter
+  - RRObjectIllumination::getLayer(...) replaces specularEnvMap
+    \n pass the same layer number to getLayer() or allocateBuffersForRealtimeGI() and to renderer
+  - RRObjectIllumination::diffuseEnvMap was removed, no longer needed
+  - ARB_seamless_cube_map OpenGL extension is used, seams in reflection can show up on legacy GPUs that don't support it
+- lightfield fileformat did change, without backwards compatibility, resave your lightfields
 - rr_gl::initializeGL() replaces approx 10 lines of code previously repeated in all samples
   (calling glewInit(), checking that GL version is at least 2.0, setting some GL states)
-
+- updateEnvironmentMapCache() removed, very rarely used
 
 \section news130 ------------------------------------ 2012.02.13 -------------------------------------
 

@@ -79,7 +79,8 @@ enum Layer// arbitrary layer numbers
 {
 	LAYER_REALTIME = 0,
 	LAYER_OFFLINE_VERTEX,
-	LAYER_OFFLINE_PIXEL
+	LAYER_OFFLINE_PIXEL,
+	LAYER_ENVIRONMENT,
 };
 Layer                      renderLayer = LAYER_REALTIME;
 rr::RRCamera               eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0), 1.3f,70,0.1f,100);
@@ -323,8 +324,8 @@ void display(void)
 	// update dynamic objects from precomputed lightfield
 	if (renderLayer!=LAYER_REALTIME && lightField)
 	{
-		lightField->updateEnvironmentMap(&robot->illumination,0);
-		lightField->updateEnvironmentMap(&potato->illumination,0);
+		lightField->updateEnvironmentMap(&robot->illumination,LAYER_ENVIRONMENT,0);
+		lightField->updateEnvironmentMap(&potato->illumination,LAYER_ENVIRONMENT,0);
 	}
 
 	solver->reportDirectIlluminationChange(0,true,false,false); // scene is animated -> direct illum changes
@@ -347,7 +348,7 @@ void display(void)
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	// render scene
-	solver->renderScene(uberProgramSetup,NULL,renderLayer==LAYER_REALTIME,renderLayer,-1,NULL,false,&brightness,contrast);
+	solver->renderScene(uberProgramSetup,NULL,renderLayer==LAYER_REALTIME,renderLayer,LAYER_ENVIRONMENT,UINT_MAX,NULL,false,&brightness,contrast);
 
 	solver->renderLights();
 
@@ -474,8 +475,8 @@ int main(int argc, char** argv)
 		solver->getStaticObjects()[i]->illumination.getLayer(LAYER_OFFLINE_PIXEL) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
 	}
 	// create remaining cubemaps and multiObject vertex buffers
-	solver->allocateBuffersForRealtimeGI(LAYER_REALTIME);
-	solver->allocateBuffersForRealtimeGI(LAYER_OFFLINE_VERTEX);
+	solver->allocateBuffersForRealtimeGI(LAYER_REALTIME,LAYER_ENVIRONMENT);
+	solver->allocateBuffersForRealtimeGI(LAYER_OFFLINE_VERTEX,-1);
 
 	// init light
 	rr::RRLight* rrlight = rr::RRLight::createSpotLight(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);

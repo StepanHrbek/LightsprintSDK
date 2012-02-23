@@ -19,9 +19,6 @@ RRObjectIllumination::RRObjectIllumination()
 	layersMap = new LayersMap;
 
 	// dynamic
-	diffuseEnvMap = NULL;
-	specularEnvMap = NULL;
-	gatherEnvMapSize = 16;
 	envMapWorldCenter = RRVec3(0);
 	envMapWorldRadius = 0;
 	envMapObjectNumber = UINT_MAX; // truncation is ok, number is used only to penetrate object's own faces when shooting from center, so worst error is bad reflection on object 66000
@@ -49,8 +46,6 @@ RRObjectIllumination::~RRObjectIllumination()
 {
 	// dynamic
 	delete[] cachedTriangleNumbers;
-	delete specularEnvMap;
-	delete diffuseEnvMap;
 
 	// static
 	for (LayersMap::iterator i=layersMap->begin();i!=layersMap->end();i++)

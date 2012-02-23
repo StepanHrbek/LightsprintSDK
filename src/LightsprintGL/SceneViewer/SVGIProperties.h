@@ -45,8 +45,7 @@ namespace rr_gl
 		wxPGProperty*     propGIFireballQuality;
 		ButtonProperty*   propGIFireballBuild;
 		BoolRefProperty*  propGIRaytracedCubes;
-		wxPGProperty*     propGIRaytracedCubesDiffuseRes;
-		wxPGProperty*     propGIRaytracedCubesSpecularRes;
+		wxPGProperty*     propGIRaytracedCubesRes;
 		wxPGProperty*     propGIRaytracedCubesMaxObjects;
 		FloatProperty*    propGIRaytracedCubesSpecularThreshold;
 		FloatProperty*    propGIRaytracedCubesDepthThreshold;

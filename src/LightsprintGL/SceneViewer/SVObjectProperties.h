@@ -47,8 +47,8 @@ namespace rr_gl
 		wxPGProperty*     propRotation;
 		wxPGProperty*     propScale;
 		wxPGProperty*     propIllumination;
-		wxPGProperty*     propCubeDiffuse;
-		wxPGProperty*     propCubeSpecular;
+		wxPGProperty*     propRealtimeEnvRes;
+		wxPGProperty*     propBakedEnvRes;
 		wxPGProperty*     propFacegroups;
 		wxPGProperty*     propMesh;
 		wxPGProperty*     propMeshUvs;

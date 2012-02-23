@@ -940,22 +940,32 @@ bool RRDynamicSolver::containsRealtimeGILightSource() const
 		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance());
 }
 
-void RRDynamicSolver::allocateBuffersForRealtimeGI(int layerLightmap, int diffuseCubeSize, int specularCubeSize, int gatherCubeSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
+void RRDynamicSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
 {
-	// allocate vertex buffers
-	if (layerLightmap>=0 && getMultiObjectCustom())
+	// allocate vertex buffers (don't touch cubes)
+	if (layerLightmap>=0)
 	{
-		getStaticObjects().allocateBuffersForRealtimeGI(layerLightmap,0,0,-1,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
-		RRObjectIllumination& multiIllumination = getMultiObjectCustom()->illumination;
-		if (!multiIllumination.getLayer(layerLightmap))
-			multiIllumination.getLayer(layerLightmap) =
-				RRBuffer::create(BT_VERTEX_BUFFER,getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,false,NULL); // [multiobj indir is indexed]
+		if (getMultiObjectCustom())
+		{
+			getStaticObjects().allocateBuffersForRealtimeGI(layerLightmap,-1,0,0,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold); // -1=don't touch cubes (0 would delete them, next allocateBuffersForRealtimeGI would recreate them)
+			RRObjectIllumination& multiIllumination = getMultiObjectCustom()->illumination;
+			if (!multiIllumination.getLayer(layerLightmap))
+				multiIllumination.getLayer(layerLightmap) =
+					RRBuffer::create(BT_VERTEX_BUFFER,getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,false,NULL); // [multiobj indir is indexed]
+		}
+		for (unsigned i=0;i<getDynamicObjects().size();i++)
+		{
+			// delete unwanted vertex buffers sometimes hanging around, e.g. after changing object from static to dynamic
+			// if we don't (and user doesn't), dynamic object would use old vertex colors for diffuse reflections
+			RRBuffer*& buffer = getDynamicObjects()[i]->illumination.getLayer(layerLightmap);
+			RR_SAFE_DELETE(buffer);
+		}
 	}
-	// allocate cube maps
-	if (diffuseCubeSize>=0 || specularCubeSize>=0)
+	// allocate cube maps (don't touch vertex buffers)
+	if (layerEnvironment>=0)
 	{
-		getStaticObjects().allocateBuffersForRealtimeGI(-1,0,specularCubeSize,gatherCubeSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
-		getDynamicObjects().allocateBuffersForRealtimeGI(-1,diffuseCubeSize,specularCubeSize,gatherCubeSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
+		getStaticObjects().allocateBuffersForRealtimeGI(-1,layerEnvironment,0,specularEnvMapSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
+		getDynamicObjects().allocateBuffersForRealtimeGI(-1,layerEnvironment,diffuseEnvMapSize,specularEnvMapSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
 	}
 }
 

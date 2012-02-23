@@ -193,12 +193,9 @@
 	uniform float lightIndirectBlend;
 #endif
 
-#ifdef LIGHT_INDIRECT_ENV_DIFFUSE
-	uniform samplerCube lightIndirectDiffuseEnvMap;
-#endif
-
-#ifdef LIGHT_INDIRECT_ENV_SPECULAR
-	uniform samplerCube lightIndirectSpecularEnvMap;
+#if defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR)
+	uniform samplerCube lightIndirectEnvMap;
+	uniform float lightIndirectEnvMapNumLods;
 #endif
 
 #if defined(LIGHT_INDIRECT_MIRROR)
@@ -218,8 +215,8 @@
 
 varying vec3 worldPos;
 
-#if defined(MATERIAL_SPECULAR) && defined(LIGHT_DIRECT)
-	uniform float materialSpecularShininess;
+#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))
+	uniform vec2 materialSpecularShininess;
 #endif
 
 #ifdef MATERIAL_SPECULAR_CONST
@@ -672,7 +669,7 @@ void main()
 							+ lightIndirectLightmap
 						#endif
 						#ifdef LIGHT_INDIRECT_ENV_DIFFUSE
-							+ textureCube(lightIndirectDiffuseEnvMap, worldNormal)
+							+ textureCubeLod(lightIndirectEnvMap, worldNormal, lightIndirectEnvMapNumLods-2.0)
 						#endif
 						#if defined(LIGHT_INDIRECT_VCOLOR) && defined(LIGHT_INDIRECT_ENV_DIFFUSE)
 							) * 0.5
@@ -700,16 +697,16 @@ void main()
 					#ifdef LIGHT_DIRECT
 						#if MATERIAL_SPECULAR_MODEL==0
 							// Phong, materialSpecularShininess in 1..inf
-							+ pow( max(0.0,dot(worldLightDirFromPixel,normalize(worldViewReflected))) ,materialSpecularShininess) * (materialSpecularShininess+1.0)
+							+ pow( max(0.0,dot(worldLightDirFromPixel,normalize(worldViewReflected))) ,materialSpecularShininess.x) * (materialSpecularShininess.x+1.0)
 						#elif MATERIAL_SPECULAR_MODEL==1
 							// Blinn-Phong, materialSpecularShininess in 1..inf
-							+ pow(NH,materialSpecularShininess) * (materialSpecularShininess+1.0)
+							+ pow(NH,materialSpecularShininess.x) * (materialSpecularShininess.x+1.0)
 						#elif MATERIAL_SPECULAR_MODEL==2
 							// Torrance-Sparrow (Gaussian), materialSpecularShininess=m^2=0..1
-							+ exp((1.0-1.0/(NH*NH))/materialSpecularShininess) / (4.0*materialSpecularShininess*((NH*NH)*(NH*NH))+0.0000000000001)
+							+ exp((1.0-1.0/(NH*NH))/materialSpecularShininess.x) / (4.0*materialSpecularShininess.x*((NH*NH)*(NH*NH))+0.0000000000001)
 						#else
 							// Blinn-Torrance-Sparrow, materialSpecularShininess=c3^2=0..1
-							+ sqr(materialSpecularShininess/(NH*NH*(materialSpecularShininess-1.0)+1.0))
+							+ sqr(materialSpecularShininess.x/(NH*NH*(materialSpecularShininess.x-1.0)+1.0))
 						#endif
 						* lightDirect
 					#endif
@@ -718,7 +715,7 @@ void main()
 						+ lightIndirectConst
 					#endif
 					#ifdef LIGHT_INDIRECT_ENV_SPECULAR
-						+ textureCube(lightIndirectSpecularEnvMap, worldViewReflected)
+						+ textureCubeLod(lightIndirectEnvMap, worldViewReflected, lightIndirectEnvMapNumLods-materialSpecularShininess.y)
 						#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
 							// reflection maps for big complex objects like whole building tend to be very inaccurate,
 							// modulating reflection by indirect irradiance makes them look better

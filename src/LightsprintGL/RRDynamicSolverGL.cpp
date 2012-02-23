@@ -303,7 +303,7 @@ done:
 						}
 						bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
 						if (depthClamp) glEnable(GL_DEPTH_CLAMP);
-						renderScene(uberProgramSetup,&light->getRRLight(),false,-1,-1,0,false,NULL,1);
+						renderScene(uberProgramSetup,&light->getRRLight(),false,UINT_MAX,UINT_MAX,UINT_MAX,NULL,false,NULL,1);
 						if (depthClamp) glDisable(GL_DEPTH_CLAMP);
 					}
 				}
@@ -631,7 +631,8 @@ void RRDynamicSolverGL::renderScene(
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
 		unsigned _layerLightmap,
-		int _layerLDM,
+		unsigned _layerEnvironment,
+		unsigned _layerLDM,
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
@@ -644,6 +645,7 @@ void RRDynamicSolverGL::renderScene(
 		_renderingFromThisLight,
 		_updateLayers,
 		_layerLightmap,
+		_layerEnvironment,
 		_layerLDM,
 		_clipPlanes,
 		_srgbCorrect,
