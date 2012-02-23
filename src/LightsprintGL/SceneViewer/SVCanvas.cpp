@@ -235,21 +235,21 @@ void SVCanvas::createContextCore()
 		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedLightmap))
 				goto lightmapFoundInRam;
-		solver->getStaticObjects().loadLayer(svs.layerBakedLightmap,LMAP_PREFIX,LMAP_POSTFIX);
+		solver->getStaticObjects().loadLayer(svs.layerBakedLightmap,LAYER_PREFIX,LMAP_POSTFIX);
 		lightmapFoundInRam:
 
 		// try to load ambient maps
 		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedAmbient))
 				goto ambientFoundInRam;
-		solver->getStaticObjects().loadLayer(svs.layerBakedAmbient,AMBIENT_PREFIX,AMBIENT_POSTFIX);
+		solver->getStaticObjects().loadLayer(svs.layerBakedAmbient,LAYER_PREFIX,AMBIENT_POSTFIX);
 		ambientFoundInRam:
 
 		// try to load LDM. if not found, disable it
 		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedLDM))
 				goto ldmFoundInRam;
-		if (!solver->getStaticObjects().loadLayer(svs.layerBakedLDM,LDM_PREFIX,LDM_POSTFIX))
+		if (!solver->getStaticObjects().loadLayer(svs.layerBakedLDM,LAYER_PREFIX,LDM_POSTFIX))
 			svs.renderLDM = false;
 		ldmFoundInRam:;
 	}

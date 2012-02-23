@@ -608,7 +608,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						solver->getLights()[i]->color = lightColors[i];
 #endif
 					// save temp layer
-					allObjects.saveLayer(tmpLayer,ambient?AMBIENT_PREFIX:LMAP_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
+					allObjects.saveLayer(tmpLayer,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
 
 					// move buffers from temp to final layer
 					for (unsigned i=0;i<selectedObjects.size();i++)
@@ -663,7 +663,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					delete newEnv;
 
 					// save temp layer
-					allObjects.saveLayer(tmpLayer,LDM_PREFIX,LDM_POSTFIX);
+					allObjects.saveLayer(tmpLayer,LAYER_PREFIX,LDM_POSTFIX);
 
 					// move buffers from temp to final layer
 					for (unsigned i=0;i<selectedObjects.size();i++)
