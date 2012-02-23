@@ -392,7 +392,6 @@ int main(int argc, char** argv)
 	dynamicObjects.push_back(robot);
 	dynamicObjects.push_back(potato);
 	solver->setDynamicObjects(dynamicObjects);
-	keyboard(' ',0,0); // set initial positions
 
 	// init environment
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
@@ -435,7 +434,6 @@ int main(int argc, char** argv)
 		"  + - = change brightness\n"
 		"  * / = change contrast\n"
 		"  wheel = change camera FOV\n"
-		"  space = randomly move dynamic objects\n"
 		"\n");
 
 	// only longjmp can break us from glut mainloop
