@@ -653,17 +653,17 @@ namespace rr
 		//! Thread safe: no, but there's no need to run it from multiple threads at the same time,
 		//!   all cores are used automatically.
 		//!
-		//! \param layerNumberLighting
+		//! \param layerLightmap
 		//!  1 lightmap per object will be computed into existing buffers in this layer,
 		//!  getStaticObjects()[objectNumber]->illumination->getLayer(layerNumber).
 		//!  \n Negative number disables update of lightmaps.
-		//! \param layerNumberDirectionalLighting
+		//! \param layerDirectionalLightmap
 		//!  3 directional lightmaps per object will be computed into existing buffers in this layer and two successive layers,
 		//!  getStaticObjects()[objectNumber]->illumination->getLayer(layerNumber).
 		//!  \n Negative number disables update of directional lightmaps.
-		//! \param layerNumberBentNormals
+		//! \param layerBentNormals
 		//!  Bent normals will be computed into existing buffers in this layer,
-		//!  getStaticObjects()[objectNumber]->illumination->getLayer(layerNumberBentNormals).
+		//!  getStaticObjects()[objectNumber]->illumination->getLayer(layerBentNormals).
 		//!  \n Negative number disables update of bent normals.
 		//! \param paramsDirect
 		//!  Parameters of the update process specific for direct illumination component of final color.
@@ -703,7 +703,7 @@ namespace rr
 		//!    call updateLightmap(params with applyCurrentSolution=true and measure_internal=RM_IRRADIANCE_CUSTOM) for all selected objects
 		//! \remarks
 		//!  Sharing one lightmap by multiple objects is not supported out of the box. Please consult us for possible solutions.
-		virtual unsigned updateLightmaps(int layerNumberLighting, int layerNumberDirectionalLighting, int layerNumberBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
+		virtual unsigned updateLightmaps(int layerLightmap, int layerDirectionalLightmap, int layerBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
 		
 		//! Makes other solver functions abort, returning quickly with bogus results.
 		//
@@ -732,11 +732,11 @@ namespace rr
 		//! \param illumination
 		//!  Object's illumination to be updated.
 		//!  (It's not necessary to have RRObject adapter for dynamic object, but its RRObjectIllumination must exist.)
-		//! \param environmentLayer
-		//!  Number of layer with environment maps, they are addressed by illumination->getLayer(environmentLayer).
+		//! \param layerEnvironment
+		//!  Number of layer with environment maps, they are addressed by illumination->getLayer(layerEnvironment).
 		//! \return
 		//!  Number of environment maps updated, 0 or 1.
-		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination, unsigned environmentLayer);
+		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination, unsigned layerEnvironment);
 
 
 		//! Reads illumination of triangle's vertex in units given by measure.
@@ -980,7 +980,7 @@ namespace rr
 		unsigned updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 		void updateVertexLookupTableDynamicSolver();
 		void updateVertexLookupTablePackedSolver();
-		bool cubeMapGather(RRObjectIllumination* illumination, unsigned environmentLayer, RRVec3* exitanceHdr);
+		bool cubeMapGather(RRObjectIllumination* illumination, unsigned layerEnvironment, RRVec3* exitanceHdr);
 		struct Private;
 		Private* priv;
 		friend class GatheredIrradianceHemisphere;

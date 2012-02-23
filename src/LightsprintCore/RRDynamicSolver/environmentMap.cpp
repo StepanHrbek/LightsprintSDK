@@ -163,14 +163,14 @@ CubeGatheringKit::~CubeGatheringKit()
 //  - triangleNumbers, multiobj postImport numbers, UINT_MAX for skybox, may be NULL
 //  - exitanceHdr, float exitance in physical scale, may be NULL
 //  - false=exitanceHdr not filled, true=exitanceHdr filled
-bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned environmentLayer, RRVec3* exitanceHdr)
+bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerEnvironment, RRVec3* exitanceHdr)
 {
 	if (!illumination)
 	{
 		RR_ASSERT(0);
 		return false;
 	}
-	RRBuffer* reflectionEnvMap = illumination->getLayer(environmentLayer);
+	RRBuffer* reflectionEnvMap = illumination->getLayer(layerEnvironment);
 	if (!reflectionEnvMap)
 	{
 		RR_ASSERT(0);
@@ -409,7 +409,7 @@ static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const
 }
 
 
-unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsigned environmentLayer)
+unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsigned layerEnvironment)
 {
 	if (!illumination)
 	{
@@ -418,7 +418,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	}
 	unsigned solutionVersion = getSolutionVersion();
 	bool centerMoved = (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY;
-	RRBuffer* reflectionEnvMap = illumination->getLayer(environmentLayer);
+	RRBuffer* reflectionEnvMap = illumination->getLayer(layerEnvironment);
 	unsigned gatherSize = (reflectionEnvMap && (centerMoved || (reflectionEnvMap->version>>16)!=(solutionVersion&65535))) ? reflectionEnvMap->getWidth() : 0;
 	if (!gatherSize)
 	{
@@ -439,7 +439,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 	// alloc temp space
 	RRVec3* gatheredExitance = new RRVec3[6*gatherSize*gatherSize];
 
-	if (!cubeMapGather(illumination,environmentLayer,gatheredExitance))
+	if (!cubeMapGather(illumination,layerEnvironment,gatheredExitance))
 	{
 		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
 	}

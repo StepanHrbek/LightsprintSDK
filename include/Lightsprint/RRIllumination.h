@@ -156,14 +156,14 @@ namespace rr
 		//! to RRDynamicSolver::buildLightField()).
 		//! \param illumination
 		//!  Illumination you want to update.
-		//! \param environmentLayer
-		//!  Number of layer with environment map, it is addressed by illumination->getLayer(environmentLayer).
+		//! \param layerEnvironment
+		//!  Number of layer with environment map, it is addressed by illumination->getLayer(layerEnvironment).
 		//! \param time
 		//!  Illumination at given time is computed. (Lightfield may store dynamic lighting
 		//!  for time period specified at lightfield build.)
 		//!  Use the same time units you used in create().
 		//! \return Number of maps updated, 0, 1 or 2.
-		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination, unsigned environmentLayer, RRReal time) const = 0;
+		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination, unsigned layerEnvironment, RRReal time) const = 0;
 		virtual ~RRLightField() {}
 
 		//! Saves instance to disk.

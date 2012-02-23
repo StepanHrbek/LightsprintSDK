@@ -107,7 +107,7 @@ public:
 		}
 	}
 
-	virtual unsigned updateEnvironmentMap(RRObjectIllumination* object, unsigned environmentLayer, RRReal time) const
+	virtual unsigned updateEnvironmentMap(RRObjectIllumination* object, unsigned layerEnvironment, RRReal time) const
 	{
 		if (!header.isOk() || !rawField || !rawCell || !object) return 0;
 
@@ -203,7 +203,7 @@ public:
 
 		// copy into buffers
 		unsigned numUpdates = 0;
-		RRBuffer* reflectionEnvMap = object->getLayer(environmentLayer);
+		RRBuffer* reflectionEnvMap = object->getLayer(layerEnvironment);
 		if (reflectionEnvMap && header.envMapSize)
 		{
 			reflectionEnvMap->reset(BT_CUBE_TEXTURE,header.envMapSize,header.envMapSize,6,BF_RGB,true,rawCell);

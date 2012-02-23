@@ -896,7 +896,7 @@ struct SortedBuffer
 };
 
 
-unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumberDirectionalLighting, int layerNumberBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
+unsigned RRDynamicSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightmap, int layerBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
 {
 	UpdateParameters paramsDirect;
 	UpdateParameters paramsIndirect;
@@ -941,11 +941,11 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 	}
 
 	int allLayers[NUM_BUFFERS];
-	allLayers[LS_LIGHTMAP] = layerNumberLighting;
-	allLayers[LS_DIRECTION1] = layerNumberDirectionalLighting;
-	allLayers[LS_DIRECTION2] = layerNumberDirectionalLighting+((layerNumberDirectionalLighting>=0)?1:0);
-	allLayers[LS_DIRECTION3] = layerNumberDirectionalLighting+((layerNumberDirectionalLighting>=0)?2:0);
-	allLayers[LS_BENT_NORMALS] = layerNumberBentNormals;
+	allLayers[LS_LIGHTMAP] = layerLightmap;
+	allLayers[LS_DIRECTION1] = layerDirectionalLightmap;
+	allLayers[LS_DIRECTION2] = layerDirectionalLightmap+((layerDirectionalLightmap>=0)?1:0);
+	allLayers[LS_DIRECTION3] = layerDirectionalLightmap+((layerDirectionalLightmap>=0)?2:0);
+	allLayers[LS_BENT_NORMALS] = layerBentNormals;
 
 	std::vector<SortedBuffer> bufferSharing;
 
@@ -1000,7 +1000,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerNumberLighting, int layerNumb
 
 	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating %s (%d,%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)) with %d objects, %d lights...\n",
 		sizeOfAllBuffers?"lightmaps":"indirect illumination",
-		layerNumberLighting,layerNumberDirectionalLighting,layerNumberBentNormals,
+		layerLightmap,layerDirectionalLightmap,layerBentNormals,
 		paramsDirect.applyLights?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
 		paramsDirect.applyCurrentSolution?"cur ":"",
 		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
