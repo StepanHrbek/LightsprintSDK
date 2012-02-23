@@ -318,6 +318,8 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 	if (cubeOr2d==GL_TEXTURE_CUBE_MAP)
 	{
 		// cube
+		// we rely on GL_TEXTURE_CUBE_MAP_SEAMLESS doing its job. if it is not available, seams are visible
+		// in case of need, we can paste here CPU cubemap filtering code removed in revision 5296 from environmentMap.cpp
 		for (unsigned side=0;side<6;side++)
 		{
 			const unsigned char* sideData = data?data+side*buffer->getWidth()*buffer->getHeight()*(buffer->getElementBits()/8):NULL;
