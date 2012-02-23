@@ -25,15 +25,15 @@ NEWS
 CHANGES
 
 - rendering of shininess and environment maps
-  - allocateBuffersForRealtimeGI() did change parameters (4th removed, 2nd added), you must fix your code
-  - rr_gl::UberProgramSetup::useIlluminationEnvMap() replaces useIlluminationEnvMaps(), you must change second parameter
+  - allocateBuffersForRealtimeGI() has 4th parameter removed, 2nd added. If you call it, modify parameters your pass <b>(!)</b>
+  - rr_gl::UberProgramSetup::useIlluminationEnvMap() replaces useIlluminationEnvMaps(). If you call it, rename and modify parameters you pass <b>(!)</b>
   - render() and renderScene() functions have one more parameter
-  - updateEnvironmentMap() did change second parameter, you must fix your code
+  - updateEnvironmentMap() has second parameter changed. If you call it, modify parameters you pass <b>(!)</b>
   - RRObjectIllumination::getLayer(...) replaces specularEnvMap
     \n pass the same layer number to getLayer() or allocateBuffersForRealtimeGI() and to renderer
   - RRObjectIllumination::diffuseEnvMap was removed, no longer needed
   - ARB_seamless_cube_map OpenGL extension is used, seams in reflection can show up on legacy GPUs that don't support it
-- lightfield fileformat did change, without backwards compatibility, resave your lightfields
+- RRLightField fileformat did change, without backwards compatibility, resave your lightfields
 - rr_gl::initializeGL() replaces approx 10 lines of code previously repeated in all samples
   (calling glewInit(), checking that GL version is at least 2.0, setting some GL states)
 - updateEnvironmentMapCache() removed, very rarely used
