@@ -35,6 +35,10 @@ RRCamera::RRCamera()
 	orthoSize = 100;
 	screenCenter = RRVec2(0);
 	updateProjection();
+
+	// stereo
+	eyeSeparation = 0.08f;
+	focalLength = 0.5f;
 }
 
 RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar)
@@ -55,6 +59,10 @@ RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspec
 	orthoSize = 100;
 	screenCenter = RRVec2(0);
 	updateProjection();
+
+	// stereo
+	eyeSeparation = 0.08f;
+	focalLength = 0.5f;
 }
 
 RRCamera::RRCamera(RRLight& _light)
@@ -81,6 +89,10 @@ RRCamera::RRCamera(RRLight& _light)
 	orthoSize = 100;
 	screenCenter = RRVec2(0);
 	updateProjection();
+
+	// stereo
+	eyeSeparation = 0.08f;
+	focalLength = 0.5f;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -357,6 +369,25 @@ void RRCamera::setRangeDynamically(const RRCollider* collider, const RRObject* o
 		// rays did not intersect scene, use scene size
 		// or even better, don't change range at all
 	}
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// stereo
+
+void RRCamera::getStereoCameras(RRCamera& leftEye, RRCamera& rightEye) const
+{
+	leftEye = *this;
+	rightEye = *this;
+	leftEye.pos -= getRight()*(eyeSeparation/2);
+	rightEye.pos += getRight()*(eyeSeparation/2);
+	leftEye.screenCenter.x += eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*focalLength);
+	rightEye.screenCenter.x -= eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*focalLength);
+	leftEye.updateView();
+	rightEye.updateView();
+	leftEye.updateProjection();
+	rightEye.updateProjection();
 }
 
 

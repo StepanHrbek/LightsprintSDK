@@ -721,6 +721,8 @@ void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
 	ar & make_nvp("far",afar);
 	ar & make_nvp("orthoSize",orthoSize);
 	ar & make_nvp("screenCenter",screenCenter);
+	ar & make_nvp("eyeSeparation",a.eyeSeparation);
+	ar & make_nvp("focalLength",a.focalLength);
 }
 
 template<class Archive>
@@ -750,6 +752,12 @@ void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 	a.setOrthogonal(orthogonal);
 	a.setOrthoSize(orthoSize);
 	a.setScreenCenter(screenCenter);
+
+	if (version>0)
+	{
+		ar & make_nvp("eyeSeparation",a.eyeSeparation);
+		ar & make_nvp("focalLength",a.focalLength);
+	}
 }
 
 //------------------------------ RRScene ------------------------------------
@@ -791,6 +799,7 @@ BOOST_CLASS_VERSION(rr::RRString,1)
 BOOST_CLASS_VERSION(rr::RRMaterial,2)
 BOOST_CLASS_VERSION(rr::RRLight,4)
 BOOST_CLASS_VERSION(rr::RRObject,1)
+BOOST_CLASS_VERSION(rr::RRCamera,1)
 BOOST_CLASS_VERSION(rr::RRScene,1)
 
 #endif

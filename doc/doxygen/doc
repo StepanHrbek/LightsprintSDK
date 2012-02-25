@@ -175,11 +175,15 @@ Lighting computed (outputs)
 
 Renderers
 - integrates with external renderers
-- includes OpenGL 2.0 shader based renderer
+- includes OpenGL shader based renderer
+
+Stereo rendering
+- integrates with external stereo compositors
+- includes interlaced stereo rendering, works with any GPU
 
 Materials
 - supports all types of materials
-- diffuse/specular/emissive/opacity slots
+- diffuse/specular/emissive/opacity/normalmap slots
 - video files and live video capture can be used in all slots
 - water with waves and reflection
 
