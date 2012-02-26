@@ -35,6 +35,18 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		Append(propCamera);
 		SetPropertyReadOnly(propCamera,true,wxPG_DONT_RECURSE);
 
+		// stereo
+		{
+			propCameraStereo = new BoolRefProperty(_("Stereo (interlaced)"),_("Enables interlaced stereo rendering. Requires passive (polarized) display working in its native resolution."),svs.renderStereo);
+			AppendIn(propCamera,propCameraStereo);
+
+			propCameraEyeSeparation = new FloatProperty(_("Eye separation")+" (m)",_("Distance from left to right eye. Negative value swaps left and right eye."),svs.eye.eyeSeparation,svs.precision,-1000,1000,0.01f,false);
+			AppendIn(propCameraStereo,propCameraEyeSeparation);
+
+			propCameraFocalLength = new FloatProperty(_("Focal length")+" (m)",_("How distant objects should appear in display plane."),svs.eye.focalLength,svs.precision,0,1e10,1,false);
+			AppendIn(propCameraStereo,propCameraFocalLength);
+		}
+
 
 		propCameraSpeed = new FloatProperty(_("Speed")+" (m/s)",_("Controls how quickly camera moves when controlled by arrows/wsad."),svs.cameraMetersPerSecond,svs.precision,0,1e10f,1,false);
 		AppendIn(propCamera,propCameraSpeed);
@@ -247,6 +259,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 //! Must not be called in every frame, float property that is unhid in every frame loses focus immediately after click, can't be edited.
 void SVSceneProperties::updateHide()
 {
+	propCameraEyeSeparation->Hide(!svs.renderStereo,false);
+	propCameraFocalLength->Hide(!svs.renderStereo,false);
+
 	propCameraFov->Hide(svs.eye.isOrthogonal(),false);
 	propCameraOrthoSize->Hide(!svs.eye.isOrthogonal(),false);
 	EnableProperty(propCameraNear,!svs.cameraDynamicNear);
@@ -284,6 +299,7 @@ void SVSceneProperties::updateProperties()
 	// Other approach would be to create all properties again, however,
 	// this function would still have to support at least properties that user can change by hotkeys or mouse navigation.
 	unsigned numChangesRelevantForHiding =
+		+ updateBoolRef(propCameraStereo)
 		+ updateBool(propCameraOrtho,svs.eye.isOrthogonal())
 		+ updateBoolRef(propCameraRangeAutomatic)
 		//+ updateBoolRef(propEnvSimulateSky)
@@ -297,6 +313,8 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propGrid)
 		;
 	unsigned numChangesOther =
+		+ updateFloat(propCameraEyeSeparation,svs.eye.eyeSeparation)
+		+ updateFloat(propCameraFocalLength,svs.eye.focalLength)
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
 		+ updateProperty(propCameraPosition,svs.eye.getPosition())
 		+ updateProperty(propCameraDirection,svs.eye.getDirection())
@@ -360,6 +378,21 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
 	wxPGProperty *property = event.GetProperty();
 
+	if (property==propCameraStereo)
+	{
+		updateHide();
+	}
+	else
+	if (property==propCameraEyeSeparation)
+	{
+		svs.eye.eyeSeparation = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propCameraFocalLength)
+	{
+		svs.eye.focalLength = property->GetValue().GetDouble();
+	}
+	else
 	if (property==propCameraView)
 	{
 		int menuCode = property->GetValue().GetInteger();

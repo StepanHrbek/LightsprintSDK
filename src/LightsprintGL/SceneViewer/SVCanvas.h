@@ -145,6 +145,10 @@ namespace rr_gl
 		rr::RRTime                 skyboxBlendingStartTime;
 
 
+		// stereo
+		Texture*                   stereoTexture;
+		UberProgram*               stereoUberProgram;
+
 		friend class SVFrame;
 
 		DECLARE_EVENT_TABLE()

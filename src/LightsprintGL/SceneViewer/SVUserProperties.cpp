@@ -20,6 +20,10 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 	propTooltips = new BoolRefProperty(_("Tooltips"),_("Enables tooltips."),userPreferences.tooltips);
 	Append(propTooltips);
 
+	// stereo
+	propStereoTopLineSeenByLeftEye = new BoolRefProperty(_("Stereo swap"),_("Swaps left and right eye. Should be checked if you see (with polarized glasses) the topmost line by left eye."),userPreferences.stereoTopLineSeenByLeftEye);
+	Append(propStereoTopLineSeenByLeftEye);
+
 	// import
 	{
 		propImport = new wxStringProperty(_("Import"), wxPG_LABEL);

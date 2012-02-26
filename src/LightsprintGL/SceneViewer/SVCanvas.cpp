@@ -137,6 +137,9 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 
 	skyboxBlendingInProgress = false;
 
+	stereoTexture = NULL;
+	stereoUberProgram = NULL;
+
 }
 
 void SVCanvas::createContextCore()
@@ -280,6 +283,10 @@ void SVCanvas::createContextCore()
 	toneMapping = new ToneMapping(svs.pathToShaders);
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
+
+	stereoTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST);
+	stereoUberProgram = UberProgram::create(wxString::Format("%sstereo.vs",svs.pathToShaders),wxString::Format("%sstereo.fs",svs.pathToShaders));
+
 	exitRequested = false;
 	fullyCreated = true;
 }
@@ -418,6 +425,12 @@ SVCanvas::~SVCanvas()
 			return;
 		}
 	}
+
+	// stereo
+	RR_SAFE_DELETE(stereoUberProgram);
+	if (stereoTexture)
+		delete stereoTexture->getBuffer();
+	RR_SAFE_DELETE(stereoTexture);
 
 	// fps
 	RR_SAFE_DELETE(fpsDisplay);
@@ -1390,6 +1403,49 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX
 			};
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
+			if (svs.renderStereo && stereoUberProgram && stereoTexture)
+			{
+				rr::RRCamera leftEye, rightEye;
+				svs.eye.getStereoCameras(leftEye,rightEye);
+				bool stereoStartsByOddLine = GetScreenPosition().y%2;
+
+				// render left
+				//  renders to multisampled screen rather than 1-sampled texture (we prefer quality)
+				//  quad buffered rendering would work only with quadro/firegl, this is GPU independent
+				glViewport(0,0,winWidth,winHeight/2);
+				setupForRender(svframe->userPreferences.stereoTopLineSeenByLeftEye==stereoStartsByOddLine ? leftEye : rightEye);
+				solver->renderScene(uberProgramSetup,NULL,true,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
+
+				// render right
+				glViewport(0,winHeight/2,winWidth,winHeight/2);
+				setupForRender(svframe->userPreferences.stereoTopLineSeenByLeftEye==stereoStartsByOddLine ? rightEye : leftEye);
+				solver->renderScene(uberProgramSetup,NULL,false,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
+
+				// composite
+				//  turns top-down images to intelaced
+				glViewport(0,winHeight%2,winWidth,winHeight/2*2);
+				stereoTexture->bindTexture();
+				glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,0,0,winWidth,winHeight/2*2,0);
+				Program* stereoProgram = stereoUberProgram->getProgram("");
+				if (stereoProgram)
+				{
+					stereoProgram->useIt();
+					stereoProgram->sendTexture("map",stereoTexture);
+					stereoProgram->sendUniform("mapHalfHeight",float(winHeight/2));
+					glDisable(GL_CULL_FACE);
+					glBegin(GL_POLYGON);
+						glMultiTexCoord2f(GL_TEXTURE0,0,0);
+						glVertex2f(-1,-1);
+						glMultiTexCoord2f(GL_TEXTURE0,0,1);
+						glVertex2f(-1,1);
+						glMultiTexCoord2f(GL_TEXTURE0,1,1);
+						glVertex2f(1,1);
+						glMultiTexCoord2f(GL_TEXTURE0,1,0);
+						glVertex2f(1,-1);
+					glEnd();
+				}
+			}
+			else
 			if (svs.renderWater && water && !svs.renderWireframe)
 			{
 				if (uberProgramSetup.CLIP_PLANE_YB)

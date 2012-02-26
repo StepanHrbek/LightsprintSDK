@@ -42,6 +42,7 @@ namespace rr_gl
 	struct UserPreferences
 	{
 		bool        tooltips;
+		bool        stereoTopLineSeenByLeftEye;
 		unsigned    currentWindowLayout;
 		struct WindowLayout
 		{
@@ -72,6 +73,7 @@ namespace rr_gl
 		UserPreferences()
 		{
 			tooltips = true;
+			stereoTopLineSeenByLeftEye = false; // correct for LG D2342P-PN
 			currentWindowLayout = 0;
 			resetLayouts();
 			sshotFilename = "";

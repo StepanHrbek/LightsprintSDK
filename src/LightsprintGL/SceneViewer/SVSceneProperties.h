@@ -34,6 +34,9 @@ namespace rr_gl
 		void updateHide();
 
 		wxPGProperty*     propCamera;
+		BoolRefProperty*  propCameraStereo;
+		wxPGProperty*     propCameraEyeSeparation;
+		wxPGProperty*     propCameraFocalLength;
 		wxPGProperty*     propCameraView;
 		wxPGProperty*     propCameraSpeed;
 		wxPGProperty*     propCameraPosition;

@@ -408,6 +408,10 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 	{
 		ar & make_nvp("tooltips",a.tooltips);
 	}
+	if (version>11)
+	{
+		ar & make_nvp("stereoTopLineSeenByLeftEye",a.stereoTopLineSeenByLeftEye);
+	}
 	ar & make_nvp("currentWindowLayout",a.currentWindowLayout);
 	ar & make_nvp("windowLayout",a.windowLayout);
 	if (version>3)
@@ -450,7 +454,7 @@ BOOST_CLASS_VERSION(rr::RRLight,4)
 BOOST_CLASS_VERSION(rr::RRCamera,2)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences,11)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences,12)
 BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,29)
 
 //---------------------------------------------------------------------------

@@ -16,6 +16,7 @@ NEWS
   - RRCamera::eyeSeparation
   - RRCamera::focalLength
   - RRCamera::getStereoCameras()
+  - in scene viewer, check Scene properties / Camera / [ ] Stereo (interlaced)
 - <b>rendering of shininess and environment maps</b>
   - environment reflected by objects is blurred according to material shininess
   - environments are stored in layers, you can have multiple layers (access by illumination.getLayer() instead of illumination.specularEnvMap)

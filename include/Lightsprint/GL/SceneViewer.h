@@ -79,6 +79,7 @@ struct SceneViewerState
 	unsigned         selectedLightIndex;        //! Index into lights array, light controlled by mouse/arrows.
 	unsigned         selectedObjectIndex;       //! Index into static objects array.
 	bool             fullscreen;                //! Ignored. Fullscreen/windowed bit is saved to and read from user preferences file. Quit sceneViewer() in fullscreen and it will start in fullscreen next time.
+	bool             renderStereo;              //! Enables interlaced stereo rendering.
 	LightingDirect   renderLightDirect;         //! Render direct illumination.
 	LightingIndirect renderLightIndirect;       //! Render indirect illumination.
 	bool             renderLDM;                 //! Modulate indirect illumination by LDM.
@@ -160,6 +161,7 @@ struct SceneViewerState
 		selectedLightIndex = 0;
 		selectedObjectIndex = 0;
 		fullscreen = 0;
+		renderStereo = false;
 		renderLightDirect = LD_REALTIME;
 		renderLightIndirect = LI_REALTIME_FIREBALL;
 		renderLDM = true;
@@ -239,6 +241,7 @@ struct SceneViewerState
 			//&& a.selectedLightIndex==selectedLightIndex // differs after click to scene tree
 			//&& a.selectedObjectIndex==selectedObjectIndex
 			&& a.fullscreen==fullscreen
+			&& a.renderStereo==renderStereo
 			&& a.renderLightDirect==renderLightDirect
 			&& a.renderLightIndirect==renderLightIndirect
 			&& a.renderLDM==renderLDM

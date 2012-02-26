@@ -33,6 +33,8 @@ namespace rr_gl
 
 		wxPGProperty*     propTooltips;
 
+		BoolRefProperty*  propStereoTopLineSeenByLeftEye;
+
 		wxPGProperty*     propImport;
 		wxPGProperty*     propImportUnitsEnum;
 		wxPGProperty*     propImportUnitsFloat;
