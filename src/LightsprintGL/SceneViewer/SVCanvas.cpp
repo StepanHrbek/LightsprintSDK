@@ -1405,13 +1405,19 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			if (svs.renderStereo && stereoUberProgram && stereoTexture)
 			{
+				// why rendering to multisampled screen rather than 1-sampled texture?
+				//  we prefer quality over minor speedup
+				// why not rendering to multisampled texture?
+				//  it needs extension, possible minor speedup is not worth adding extra renderpath
+				// why not quad buffered rendering?
+				//  because it works only with quadro/firegl, this is GPU independent
+				// why not stencil buffer masked rendering to odd/even lines?
+				//  because lines blur with multisampled screen (even if multisampling is disabled)
 				rr::RRCamera leftEye, rightEye;
 				svs.eye.getStereoCameras(leftEye,rightEye);
 				bool stereoStartsByOddLine = GetScreenPosition().y%2;
 
 				// render left
-				//  renders to multisampled screen rather than 1-sampled texture (we prefer quality)
-				//  quad buffered rendering would work only with quadro/firegl, this is GPU independent
 				glViewport(0,0,winWidth,winHeight/2);
 				setupForRender(svframe->userPreferences.stereoTopLineSeenByLeftEye==stereoStartsByOddLine ? leftEye : rightEye);
 				solver->renderScene(uberProgramSetup,NULL,true,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
