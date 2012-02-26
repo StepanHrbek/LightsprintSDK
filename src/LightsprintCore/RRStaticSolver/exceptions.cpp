@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // LightsprintCore fragments that need exceptions enabled.
-// Copyright (c) 2000-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2000-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 // RRMesh

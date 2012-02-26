@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Non-intrusive serialization of Lightsprint structures.
-// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RRSERIALIZATION_H

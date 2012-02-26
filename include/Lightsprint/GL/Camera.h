@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file Camera.h
 //! \brief LightsprintGL | OpenGL specific camera code.
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2011
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2012
 //! All rights reserved
 //----------------------------------------------------------------------------
 

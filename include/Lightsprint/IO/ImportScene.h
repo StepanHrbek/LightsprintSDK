@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file ImportScene.h
 //! \brief LightsprintIO | scene import
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2011
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2012
 //! All rights reserved
 //----------------------------------------------------------------------------
 

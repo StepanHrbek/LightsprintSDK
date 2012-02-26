@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // RRCamera with adjustable pos, dir, aspect, fov, near, far.
-// Copyright (C) 2005-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2005-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cmath>

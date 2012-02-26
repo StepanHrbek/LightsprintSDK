@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Lightsprint adapters for Assimp formats.
-// Copyright (C) 2009-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2009-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECTASSIMP_H

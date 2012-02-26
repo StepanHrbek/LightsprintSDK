@@ -1869,7 +1869,7 @@ void parseOptions(int argc, const char*const*argv)
 	if (badArgument)
 	{
 		const char* caption = 
-			"Lightsmark 2011 back-end                                       (C) Stepan Hrbek";
+			"Lightsmark 2012 back-end                                       (C) Stepan Hrbek";
 		const char* usage = 
 #if defined(_WIN32)
 			"Usage: backend.exe [arg1] [arg2] ...\n"
@@ -1955,15 +1955,15 @@ int main(int argc, char** argv)
 	}
 #endif
 #ifdef _WIN32
-	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2011 [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
+	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2012 [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 	rr::RRReporter::report(rr::INF1,"Started: %s in %s\n",GetCommandLine(),cwd);
 	free(cwd);
 	if (globalOutputDirectory[1])
 		rr::RRReporter::report(rr::INF1,"Program directory not writeable, log+screenshots sent to %s\n",globalOutputDirectory);
 #elif defined(__APPLE__)
-	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [OSX %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
+	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2012 [OSX %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #else
-	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2008 [Linux %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
+	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2012 [Linux %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #endif
 
 	rr_io::registerLoaders();

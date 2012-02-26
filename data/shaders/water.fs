@@ -1,5 +1,5 @@
 // Water with planar reflection, fresnel and animated waves
-// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint
+// Copyright (C) 2007-2012 Stepan Hrbek, Lightsprint
 //
 // Options:
 // #define FRESNEL - calculates refraction intensity according to fresnel term, 30% slowdown

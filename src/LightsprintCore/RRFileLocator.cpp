@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Helper for locating files.
-// Copyright (c) 2006-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2006-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRFileLocator.h"

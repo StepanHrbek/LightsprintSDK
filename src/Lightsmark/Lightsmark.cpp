@@ -1,4 +1,4 @@
-// Lightsmark 2011 front-end, (C) Stepan Hrbek
+// Lightsmark 2012 front-end, (C) Stepan Hrbek
 
 #include <windows.h>
 #include <stdio.h>
@@ -239,7 +239,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 					if (appdata)
 					{
 						char log2[1000];
-						sprintf(log2,"%s\\Lightsmark 2011\\log.txt",appdata);
+						sprintf(log2,"%s\\Lightsmark 2012\\log.txt",appdata);
 						if (FileSize64(log2))
 							ShellExecuteA( NULL, "open", log2, NULL, NULL, SW_SHOWNORMAL );
 					}

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Water with planar reflection, fresnel, animated waves.
-// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <GL/glew.h>

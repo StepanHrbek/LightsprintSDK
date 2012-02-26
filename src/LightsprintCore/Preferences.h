@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Persistent set of <string, float> pairs.
-// Copyright (c) 2008-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2008-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef PREFERENCES_H

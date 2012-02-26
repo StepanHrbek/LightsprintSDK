@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Building unwrap.
-// Copyright (c) 2010-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2010-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifdef _WIN32

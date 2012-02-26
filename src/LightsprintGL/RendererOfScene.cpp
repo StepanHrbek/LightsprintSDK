@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Renderer implementation that renders contents of RRDynamicSolver instance.
-// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #define MIRRORS // enables implementation of mirrors, marks mirror source code

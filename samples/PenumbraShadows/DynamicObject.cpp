@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // DynamicObject, 3d object without dynamic global illumination.
-// Copyright (C) 2005-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2005-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "GL/glew.h"

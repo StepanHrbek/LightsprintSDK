@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file Program.h
 //! \brief LightsprintGL | OpenGL 2.0 object with optional vertex and fragment shaders
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2011
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2012
 //! All rights reserved
 //----------------------------------------------------------------------------
 

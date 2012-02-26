@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Scene viewer - stub for platforms where it is disabled.
-// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef SUPPORT_SCENEVIEWER

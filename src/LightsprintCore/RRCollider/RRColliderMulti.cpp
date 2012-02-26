@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Ray-mesh intersection traversal - with multiple objects.
-// Copyright (c) 2000-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2000-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "IntersectLinear.h"

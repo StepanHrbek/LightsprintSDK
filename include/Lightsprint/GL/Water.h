@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file Water.h
 //! \brief LightsprintGL | water with planar reflection, fresnel, waves
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2011
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2012
 //! All rights reserved
 //----------------------------------------------------------------------------
 

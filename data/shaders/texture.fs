@@ -1,5 +1,5 @@
 // Plain texturing
-// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint
+// Copyright (C) 2007-2012 Stepan Hrbek, Lightsprint
 //
 // Options:
 // #define TEXTURE

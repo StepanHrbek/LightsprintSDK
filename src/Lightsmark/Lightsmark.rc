@@ -61,7 +61,7 @@ IDB_BITMAP2             BITMAP                  "Lightsmark.bmp"
 
 IDD_DIALOG1 DIALOGEX 0, 0, 327, 162
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Lightsmark 2011 - Next Generation Lighting Benchmark"
+CAPTION "Lightsmark 2012 - Next Generation Lighting Benchmark"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "START BENCHMARK",IDC_START,230,122,90,14

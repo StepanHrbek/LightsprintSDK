@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Temporary formatted string, for internal use.
-// Copyright (C) 2008-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2008-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef TMPSTR_H

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // List of LightsprintIO supported file formats.
-// Copyright (C) 2006-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2006-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 

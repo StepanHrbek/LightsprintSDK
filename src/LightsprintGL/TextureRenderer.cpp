@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // TextureRenderer, helper for rendering 2D or cube texture in OpenGL 2.0.
-// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cstdio>

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Scene viewer - custom properties for property grid.
-// Copyright (C) 2007-2011 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2012 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef SVCUSTOMPROPERTIES_H

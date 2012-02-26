@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file Bloom.h
 //! \brief LightsprintGL | bloom postprocess
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2011
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2011-2012
 //! All rights reserved
 //----------------------------------------------------------------------------
 

@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file UberProgramSetup.h
 //! \brief LightsprintGL | parameter management for our UberProgram in UberShader.vs/fs
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2011
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2012
 //! All rights reserved
 //----------------------------------------------------------------------------
 
