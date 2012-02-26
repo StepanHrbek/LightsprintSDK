@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news131 ------------------------------------ 2012.02.xx -------------------------------------
+\section news131 ------------------------------------ 2012.02.26 -------------------------------------
 
 NEWS
 
@@ -17,6 +17,12 @@ NEWS
   - RRCamera::focalLength
   - RRCamera::getStereoCameras()
   - in scene viewer, check Scene properties / Camera / [ ] Stereo (interlaced)
+  <table border=0><tr align=top><td>
+  \image html stereo1.png
+  </td><td>
+  \image html stereo2.png
+  </td></tr></table>
+  (screenshots must start on even line of your polarized display to display correctly, scroll a bit up or down if stereo looks wrong)
 - <b>rendering of shininess and environment maps</b>
   - environment reflected by objects is blurred according to material shininess
   - environments are stored in layers, you can have multiple layers (access by illumination.getLayer() instead of illumination.specularEnvMap)
@@ -52,7 +58,12 @@ NEWS
   - rr_gl::UberProgramSetup::MATERIAL_NORMAL_MAP enables normal maps in realtime renderer
   - import/export from .rr3
   - rr_gl::UberProgramSetup::enableUsedMaterials() has second parameter added
-
+  <table border=0><tr align=top><td>
+  \image html normalmap2.jpg
+  </td><td>
+  \image html normalmap1.jpg
+  </td></tr></table>
+  (with and without normal map)
 \section news129 ------------------------------------ 2012.01.16 -------------------------------------
 
 NEWS
