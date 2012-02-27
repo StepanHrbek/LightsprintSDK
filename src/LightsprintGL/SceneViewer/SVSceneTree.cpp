@@ -398,7 +398,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			if (entityIds.size()>1)
 				menu.Append(CM_OBJECTS_MERGE,_("Merge objects"),_("Merges objects together."));
 			menu.Append(CM_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
-			if (svframe->userPreferences.testingBeta)
+			//if (svframe->userPreferences.testingBeta)
 				menu.Append(CM_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
 			menu.Append(CM_OBJECTS_DELETE_DIALOG,_("Delete components..."),_("Deletes components within objects."));
 			if (temporaryContext!=staticObjects && !svframe->m_objectProperties->IsShown() && temporaryContextItems.size()==1)
@@ -784,9 +784,18 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 
 				for (unsigned i=0;i<selectedObjects.size();i++)
 				{
+					unsigned uvChannel = 0;
+					const rr::RRObject::FaceGroups& fgs = selectedObjects[i]->faceGroups;
+					for (unsigned fg=0;fg<fgs.size();fg++)
+						if (fgs[fg].material)
+						{
+							uvChannel = fgs[fg].material->normalMap.texcoord;
+							if (fgs[fg].material->normalMap.texture)
+								break;
+						}
 					rr::RRMeshArrays* arrays = dynamic_cast<rr::RRMeshArrays*>(const_cast<rr::RRMesh*>(selectedObjects[i]->getCollider()->getMesh()));
 					if (arrays)
-						arrays->buildTangents();
+						arrays->buildTangents(uvChannel);
 				}
 				svframe->m_canvas->addOrRemoveScene(NULL,true); // calls svframe->updateAllPanels();
 			}

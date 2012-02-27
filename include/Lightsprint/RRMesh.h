@@ -574,7 +574,11 @@ namespace rr
 		//! Builds new smooth vertex normals from angles between faces.
 		void                 buildNormals();
 		//! Builds new tangents and bitangents from normals.
-		void                 buildTangents();
+		//
+		//! \param uvChannel
+		//!  If such channel exists, tangents will point in u+ direction, bitangents in v+ direction.
+		//!  When building tangentspace for normal maps, pass uv channel used for mapping normal map.
+		void                 buildTangents(unsigned uvChannel);
 	private:
 		unsigned poolSize; ///< All arrays in mesh are allocated from one pool of this size.
 	};

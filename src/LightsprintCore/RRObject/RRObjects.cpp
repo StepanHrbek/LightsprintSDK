@@ -423,7 +423,7 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 		}
 	}
 
-	// 2. change all lightmapTexcoord to unwrapChannel
+	// 2. clear lightmapTexcoord
 	if (deleteUnwrap)
 		for (unsigned i=0;i<objects.size();i++)
 			for (unsigned fg=0;fg<objects[i]->faceGroups.size();fg++)
@@ -433,20 +433,27 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 					material->lightmapTexcoord = UINT_MAX;
 			}
 
-	// 3. delete
+	// 3. delete unused uvs
 	for (Meshes::const_iterator i=meshes.begin();i!=meshes.end();++i)
 	{
 		for (unsigned j=0;j<i->first->texcoord.size();j++)
-			if (i->second.find(j)==i->second.end())
+			if (i->second.find(j)==i->second.end() && i->first->texcoord[j])
+			{
 				i->first->texcoord[j] = NULL;
+				i->first->version++;
+			}
 	}
 
 	// tangents
 	if (deleteTangents)
 	for (Meshes::const_iterator i=meshes.begin();i!=meshes.end();++i)
 	{
-		i->first->tangent = NULL;
-		i->first->bitangent = NULL;
+		if (i->first->tangent || i->first->bitangent)
+		{
+			i->first->tangent = NULL;
+			i->first->bitangent = NULL;
+			i->first->version++;
+		}
 	}
 }
 

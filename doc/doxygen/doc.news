@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news132 ------------------------------------ 2012.02.xx -------------------------------------
+
+NEWS
+
+- RRMeshArrays::buildTangents() has one parameter, created tangent space is better for normal mapping
+
 \section news131 ------------------------------------ 2012.02.26 -------------------------------------
 
 NEWS
@@ -43,7 +49,7 @@ CHANGES
   - RRObjectIllumination::getLayer(...) replaces specularEnvMap
     \n pass the same layer number to getLayer() or allocateBuffersForRealtimeGI() and to renderer
   - RRObjectIllumination::diffuseEnvMap was removed, no longer needed
-  - ARB_seamless_cube_map OpenGL extension is used, seams in reflection can show up on legacy GPUs that don't support it
+  - OpenGL 3.2 or ARB_seamless_cube_map extension is used when available, seams in reflection can show up on legacy GPUs that don't support it
 - RRLightField fileformat did change, without backwards compatibility, resave your lightfields
 - rr_gl::initializeGL() replaces approx 10 lines of code previously repeated in all samples
   (calling glewInit(), checking that GL version is at least 2.0, setting some GL states)
