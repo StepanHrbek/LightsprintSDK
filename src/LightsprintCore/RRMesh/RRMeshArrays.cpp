@@ -511,7 +511,7 @@ void RRMeshArrays::buildTangents(unsigned uvChannel)
 			const RRVec3& n = normal[v];
 			RRVec3 t = tangent[v];
 			tangent[v] = (t-n*n.dot(t)).normalized();
-			bitangent[v] = n.cross(tangent[v])*(n.cross(t).dot(bitangent[v])<0?-1:1);
+			bitangent[v] = n.cross(tangent[v])*(n.cross(t).dot(bitangent[v])<0?-1.0f:1.0f);
 		}
 	}
 	version++;
