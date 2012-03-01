@@ -204,6 +204,8 @@ ID3DXMesh* Unwrapper::createID3DXMesh(const RRMeshArrays* rrMesh, const UvChanne
 	}
 	unsigned numTriangles = rrMesh->getNumTriangles();
 	unsigned numVertices = rrMesh->getNumVertices();
+	if (!numTriangles || !numVertices)
+		return NULL; // fail now or D3DXCreateMesh fails few lines below
 	// allocate mesh
 	Vertex* vertexData = NULL;
 	D3DVERTEXELEMENT9 dxMeshDeclaration[MAX_FVF_DECL_SIZE] = {
@@ -301,11 +303,16 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 
 	if (!wrongInputs && D3DXUVAtlasCreate)
 	{
+		unsigned numTriangles = rrMesh->getNumTriangles();
+		unsigned numVertices = rrMesh->getNumVertices();
+		// technically, unwrap creation has failed, uv channel was not added, but let's not warn about it
+		//  because it would confuse users, main problem is not in unwrapper but in caller who works with empty mesh
+		// no, keep warning about it, we would like to get rid of empty meshes
+		//if (!numTriangles || !numVertices)
+		//	return true;
 		ID3DXMesh* dxMeshIn = createID3DXMesh(rrMesh,keepChannels);
 		if (dxMeshIn)
 		{
-			unsigned numTriangles = rrMesh->getNumTriangles();
-			unsigned numVertices = rrMesh->getNumVertices();
 			DWORD* adjacency = new DWORD[3*numTriangles];
 			if (adjacency)
 			{
