@@ -1415,7 +1415,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				//  because lines blur with multisampled screen (even if multisampling is disabled)
 				rr::RRCamera leftEye, rightEye;
 				svs.eye.getStereoCameras(leftEye,rightEye);
-				bool stereoStartsByOddLine = GetScreenPosition().y%2;
+				bool stereoStartsByOddLine = (GetScreenPosition().y%2)==1;
 
 				// render left
 				glViewport(0,0,winWidth,winHeight/2);
