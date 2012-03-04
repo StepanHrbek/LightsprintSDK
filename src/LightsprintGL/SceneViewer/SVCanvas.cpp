@@ -360,6 +360,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 						}
 			}
 		}
+		objects.removeEmptyObjects();
 		solver->setStaticObjects(objects,NULL);
 		solver->setDynamicObjects(objects);
 		solver->setLights(lights);

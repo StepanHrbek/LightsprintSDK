@@ -1573,6 +1573,7 @@ void SVFrame::commitPropertyChanges()
 rr::RRScene* SVFrame::loadScene(const wxString& _filename, float _units, unsigned _upAxis, bool _popup)
 {
 	rr::RRScene* scene = new rr::RRScene(RR_WX2RR(_filename),textureLocator,&m_canvas->solver->aborting);
+	scene->objects.removeEmptyObjects();
 	scene->normalizeUnits(_units);
 	scene->normalizeUpAxis(_upAxis);
 	scene->objects.flipFrontBack(3,true);
