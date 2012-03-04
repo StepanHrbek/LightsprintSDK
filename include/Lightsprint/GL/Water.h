@@ -21,15 +21,18 @@ namespace rr_gl
 
 //! Water effect with waves, reflection, fresnel.
 //
-//! To render water
+//! This is an old approach to water; to render water
 //! - call updateReflectionInit()
 //! - render whole scene while culling pixels below water (when using uber shader, enable CLIP_PLANE_YB. this removes everything below 0 in world space)
 //! - call updateReflectionDone()
 //! - render whole scene
 //! - call render()
+//! It is faster (no need to decode video) and it reflects sky with Fresnel term (but this will be ported to new approach soon).
 //!
-//! Note that simpler (no waves and fresnel) but fully automatic reflection rendering is provided by
-//! rr_gl::RendererOfScene, just add flat object with specularReflection to scene.
+//! New approach is to use automatic features of standard renderer, add water surface as a flat object with video of waves in material's normal map channel.
+//! It is simpler (no special class, no need to call renderer twice),
+//! it has more realistic waves (you can use static waves or high quality video)
+//! and it keeps objects under the water visible.
 class RR_GL_API Water
 {
 public:
