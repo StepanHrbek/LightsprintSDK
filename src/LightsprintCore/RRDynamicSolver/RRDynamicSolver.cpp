@@ -216,10 +216,13 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	}
 
 	// copy only static objects
+	// don't exclude empty ones, old users may depend on object numbers, removing empties would break their numbers
+	// call x.removeEmptyObjects() before setStaticObjects(x) to remove them manually
 	priv->staticObjects.clear();
 	for (unsigned i=0;i<_objects.size();i++)
 		if (!_objects[i]->isDynamic)
 			priv->staticObjects.push_back(_objects[i]);
+
 	priv->smoothing = _copyFrom ? _copyFrom->priv->smoothing : ( _smoothing ? *_smoothing : SmoothingParameters() );
 
 	// delete old
@@ -304,7 +307,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 			priv->staticSceneContainsLods?"yes":"no");
 	}
 
-	// update illumination.envMapXxx
+	// update illumination environment
 	for (unsigned i=0;i<getStaticObjects().size();i++)
 	{
 		// slower, precise even with non-uniform scale (would make updateEnvironmentMap() faster)
@@ -367,6 +370,7 @@ void RRDynamicSolver::setDynamicObjects(const RRObjects& _objects)
 		}
 	}
 	// copy only dynamic objects
+	// don't exclude empty ones, they can arbitrarily change in future, user can send empty one to solver and fill it later
 	priv->dynamicObjects.clear();
 	for (unsigned i=0;i<_objects.size();i++)
 		if (_objects[i]->isDynamic)
