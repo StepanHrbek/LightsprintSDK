@@ -457,4 +457,13 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 	}
 }
 
+void RRObjects::removeEmptyObjects()
+{
+	unsigned numNonEmpty = 0;
+	for (unsigned i=0;i<size();i++)
+		if ((*this)[i]->getCollider()->getMesh()->getNumTriangles() && (*this)[i]->getCollider()->getMesh()->getNumVertices())
+			(*this)[numNonEmpty++] = (*this)[i];
+	numUsed = numNonEmpty;
+}
+
 } // namespace

@@ -534,6 +534,8 @@ namespace rr
 		//!  Allows stitching vertices to make mesh more smooth.
 		//! \param removeDegeneratedTriangles
 		//!  Removes degenerated triangles (already present or created by stitching).
+		//!  Note that number of triangles may drop to zero (while number of vertices may still be positive),
+		//!  you can use removeEmptyObjects() to remove such objects.
 		//! \param generateNormals
 		//!  True = resets all vertex normals to averages of normals of connected faces.
 		//!  False = old normals stay.
@@ -552,6 +554,9 @@ namespace rr
 
 		//! Deletes selected object components: tangents, unwrap, uv channels not referenced by materials.
 		void deleteComponents(bool deleteTangents, bool deleteUnwrap, bool deleteUnusedUvChannels, bool deleteEmptyFacegroups) const;
+
+		//! Removes objects with zero triangles or vertices. Does not delete them.
+		void removeEmptyObjects();
 
 		//! Destructor does not delete objects in collection (but individual adapters may do).
 		virtual ~RRObjects() {};
