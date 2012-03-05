@@ -472,6 +472,7 @@ inline void formatFilename(const RRString& path, const RRString& objectName, uns
 		else
 		{
 			// transforms ext "bent_normals.png" to finalExt "bent_normals.rrbuffer"
+			// ("bent_normals.vbu" is transformed too, although .vbu is vertex buffer format)
 			unsigned i = (unsigned)wcslen(ext.w_str());
 			tmp = new wchar_t[i+10];
 			memcpy(tmp,ext.w_str(),(i+1)*sizeof(wchar_t));
