@@ -105,7 +105,8 @@ public:
 				// detect and report possible error
 				bool cached2dCross = i->second.buffer->getType()==BT_2D_TEXTURE && (i->second.buffer->getWidth()*3==i->second.buffer->getHeight()*4 || i->second.buffer->getWidth()*4==i->second.buffer->getHeight()*3);
 				bool cachedCube = i->second.buffer->getType()==BT_CUBE_TEXTURE;
-				if ((cached2dCross && cubeSideName) || (cachedCube && !cubeSideName))
+				if ((cached2dCross && cubeSideName)
+					|| (cachedCube && !cubeSideName && bf::path(RR_RR2PATH(filename)).extension()!=".rrbuffer")) // .rrbuffer is the only format that can produce cube even with cubeSideName=NULL, exclude it from test here
 					RRReporter::report(WARN,"You broke image cache by loading %ls as both 2d and cube.\n",filename.w_str());
 
 				// image is already in memory and it was not modified since load, use it
