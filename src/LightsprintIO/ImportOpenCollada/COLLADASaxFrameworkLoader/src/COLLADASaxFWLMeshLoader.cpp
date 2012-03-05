@@ -152,9 +152,18 @@ namespace COLLADASaxFWL
         case InputSemantic::TEXCOORD:
             retValue = loadTexCoordsSourceElement ( input );
             break;
+		case InputSemantic::TEXTANGENT:
+			// NOTE Added by Mikee
+			retValue = loadTexDataSourceElement( input, InputSemantic::TEXTANGENT, "textangent", mMesh->getTexTangents () );
+			break;
+		case InputSemantic::TEXBINORMAL:
+			// NOTE Added by Mikee
+			retValue = loadTexDataSourceElement( input, InputSemantic::TEXBINORMAL, "texbinormal", mMesh->getTexBinormals () );
+			break;
         default:
             // Not implemented source
 //            std::cerr << "Source with semantic " << semantic << "not implemented!" << std::endl;
+			std::cout << "Source with semantic " << semantic << "not implemented!" << std::endl;
             retValue = false;
         }
 
@@ -485,6 +494,49 @@ namespace COLLADASaxFWL
         return retValue;
     }
 
+	//------------------------------
+	// NOTE Added by Mikee
+	bool MeshLoader::loadTexDataSourceElement ( const InputShared& input, InputSemantic::Semantic inputSemantic, char* inputName, COLLADAFW::MeshVertexData& inputData )
+	{
+		bool retValue = true;
+
+		// Get the semantic of the current input element.
+		InputSemantic::Semantic semantic = input.getSemantic ();
+		if ( semantic != inputSemantic )
+		{
+			std::cerr << "The current input element is not a " << inputName << " element!" << std::endl;
+			return false;
+		}
+
+		// Get the source element with the uri of the input element.
+		COLLADABU::URI inputUrl = input.getSource ();
+		String sourceId = inputUrl.getFragment ();
+		SourceBase* sourceBase = getSourceById ( sourceId );
+		if ( sourceBase == 0 ) return false;
+
+		// Check if the source element is already loaded.
+		if ( sourceBase->isLoadedInputElement ( semantic ) ) return false;
+
+		// In depend on the dimension, we store the coordinates in the mesh.
+		unsigned long long stride = sourceBase->getStride ();
+		if ( stride < 3 || stride > 4 )
+		{
+			std::cerr << "The " << inputName << " source " <<  input.getSource().getURIString () 
+				<< " has a wrong dimension of " << stride 
+				<< ". Dimensions between 2 and 4 are allowed. " << std::endl;
+			retValue = false;
+		}
+		else
+		{
+			retValue = appendVertexValues ( sourceBase, inputData );
+		}
+
+		// Set the source base as loaded element.
+		sourceBase->addLoadedInputElement ( semantic );
+
+		return retValue;
+	}
+
     //------------------------------
 	bool MeshLoader::writePrimitiveIndices ( const unsigned long long* data, size_t length )
 	{
@@ -546,7 +598,7 @@ namespace COLLADASaxFWL
                 }
             }
 
-            // Look if the current offset is a texcoord offset.
+            // Look if the current offset is a color offset.
             size_t numColors = mColorList.size ();
             for ( size_t j=0; j<numColors; ++j )
             {
@@ -579,6 +631,74 @@ namespace COLLADASaxFWL
                     colorIndices->getIndices().append ( index + (unsigned int)color.mInitialIndex );
                 }
             }
+
+			// Look if the current offset is a textangent offset.
+			size_t numTexTangents = mTexTangentList.size();
+			for ( size_t j=0; j<numTexTangents; ++j )
+			{
+				PrimitiveInput& texTangent = mTexTangentList[j];
+				if ( mCurrentOffset == texTangent.mOffset )
+				{
+					COLLADAFW::ArrayPrimitiveType<COLLADAFW::IndexList*>& texTangentIndicesArray = 
+						mCurrentMeshPrimitive->getTexTangentsIndicesArray();
+
+					// Resize the array if necessary
+					if ( texTangentIndicesArray.getCount () != numTexTangents ) 
+					{
+						// Be careful: no constructor is called!
+						texTangentIndicesArray.reallocMemory ( numTexTangents );
+						for ( size_t k=0; k<numTexTangents; ++k )
+						{
+							COLLADAFW::IndexList* texTangentIndices = new COLLADAFW::IndexList ();
+							PrimitiveInput& tangent = mTexTangentList [k];
+							texTangentIndices->setSetIndex ( tangent.mSetIndex );
+							texTangentIndices->setName ( tangent.mName );
+							texTangentIndices->setStride ( tangent.mStride );
+							texTangentIndices->setInitialIndex ( tangent.mInitialIndex );
+
+							texTangentIndicesArray.append( texTangentIndices );
+						}
+					}
+
+					// Write the values.
+					COLLADAFW::IndexList* texTangentIndices = mCurrentMeshPrimitive->getTexTangentsIndices ( j );
+					texTangentIndices->getIndices().append ( index + (unsigned int)texTangent.mInitialIndex );
+				}
+			}
+
+			// Look if the current offset is a binormal offset.
+			size_t numTexBinormals = mTexBinormalList.size();
+			for ( size_t j=0; j<numTexBinormals; ++j )
+			{
+				PrimitiveInput& texBinormal = mTexBinormalList[j];
+				if ( mCurrentOffset == texBinormal.mOffset )
+				{
+					COLLADAFW::ArrayPrimitiveType<COLLADAFW::IndexList*>& texBinormalIndicesArray = 
+						mCurrentMeshPrimitive->getTexBinormalsIndicesArray();
+
+					// Resize the array if necessary
+					if ( texBinormalIndicesArray.getCount () != numTexBinormals ) 
+					{
+						// Be careful: no constructor is called!
+						texBinormalIndicesArray.reallocMemory ( numTexBinormals );
+						for ( size_t k=0; k<numTexBinormals; ++k )
+						{
+							COLLADAFW::IndexList* texBinormalIndices = new COLLADAFW::IndexList ();
+							PrimitiveInput& Binormal = mTexBinormalList [k];
+							texBinormalIndices->setSetIndex ( Binormal.mSetIndex );
+							texBinormalIndices->setName ( Binormal.mName );
+							texBinormalIndices->setStride ( Binormal.mStride );
+							texBinormalIndices->setInitialIndex ( Binormal.mInitialIndex );
+
+							texBinormalIndicesArray.append( texBinormalIndices );
+						}
+					}
+
+					// Write the values.
+					COLLADAFW::IndexList* texBinormalIndices = mCurrentMeshPrimitive->getTexBinormalsIndices ( j );
+					texBinormalIndices->getIndices().append ( index + (unsigned int)texBinormal.mInitialIndex );
+				}
+			}
 
 			// Reset the offset if we went through all offset values
 			if ( mCurrentOffset == mCurrentMaxOffset )
@@ -620,6 +740,8 @@ namespace COLLADASaxFWL
         initializeNormalsOffset();
         initializeColorsOffset();
         initializeTexCoordsOffset();
+		initializeTexDataOffset(InputSemantic::TEXTANGENT, mTexTangentList);
+		initializeTexDataOffset(InputSemantic::TEXBINORMAL, mTexBinormalList);
 	}
 
     //------------------------------
@@ -765,6 +887,45 @@ namespace COLLADASaxFWL
         }
     }
 
+	//------------------------------
+	void MeshLoader::initializeTexDataOffset (InputSemantic::Semantic inputSemantic, std::vector<PrimitiveInput>& inputList)
+	{
+		// Check for using tex coordinates 
+		const InputSharedArray& inputArray = mMeshPrimitiveInputs.getInputArray ();
+		size_t numInputs = inputArray.getCount ();
+
+		for ( size_t i=0; i<numInputs; ++i )
+		{
+			const InputShared* input = inputArray [i];
+			if ( input->getSemantic () == inputSemantic )
+			{
+				// TODO Id management!
+				String sourceId = input->getSource ().getFragment ();
+				SourceBase* sourceBase = getSourceById ( sourceId );
+				if ( sourceBase == 0 ) 
+				{
+					handleFWLError ( SaxFWLError::ERROR_DATA_NOT_VALID, "SourceBase of tex data not valid!" );
+					return;
+				}
+
+				// only stride 1, 2, 3 or 4 makes sense for uv coords
+				size_t stride = ( size_t ) sourceBase->getStride();
+				COLLADABU_ASSERT ( (stride >= 1) || (stride <= 4) ); 
+
+				size_t intitialIndex = sourceBase->getInitialIndex ();
+				size_t indexOffset = intitialIndex / stride;
+
+				PrimitiveInput texData;
+				texData.mOffset = ( size_t ) input->getOffset ();
+				texData.mInitialIndex = indexOffset;
+				texData.mStride = stride;
+				texData.mSetIndex = ( size_t ) input->getSet ();
+				texData.mName = sourceId;
+
+				inputList.push_back ( texData );
+			}
+		}
+	}
 
 	//------------------------------
 	void MeshLoader::initCurrentValues()
@@ -1235,6 +1396,14 @@ namespace COLLADASaxFWL
 						const COLLADAFW::IndexListArray& uvCoordIndicesArray = trifans->getUVCoordIndicesArray ();
 						for ( size_t i=0; i<uvCoordIndicesArray.getCount (); ++i )
 							trifans->getUVCoordIndices(i)->getIndices ().erase(currentTrifanVertexCount);
+
+						const COLLADAFW::IndexListArray& texTangentsIndicesArray = trifans->getTexTangentsIndicesArray ();
+						for ( size_t i=0; i<texTangentsIndicesArray.getCount (); ++i )
+							trifans->getTexTangentsIndices(i)->getIndices ().erase(currentTrifanVertexCount);
+
+						const COLLADAFW::IndexListArray& texBinormalsIndicesArray = trifans->getTexBinormalsIndicesArray ();
+						for ( size_t i=0; i<texBinormalsIndicesArray.getCount (); ++i )
+							trifans->getTexBinormalsIndices(i)->getIndices ().erase(currentTrifanVertexCount);
 					}
 					mCurrentLastPrimitiveVertexCount = mCurrentVertexCount;
 				}
@@ -1309,6 +1478,14 @@ namespace COLLADASaxFWL
 						const COLLADAFW::IndexListArray& uvCoordIndicesArray = trifans->getUVCoordIndicesArray ();
 						for ( size_t i=0; i<uvCoordIndicesArray.getCount (); ++i )
 							trifans->getUVCoordIndices(i)->getIndices ().erase(currentTrifanVertexCount);
+
+						const COLLADAFW::IndexListArray& texTangentsIndicesArray = trifans->getTexTangentsIndicesArray ();
+						for ( size_t i=0; i<texTangentsIndicesArray.getCount (); ++i )
+							trifans->getTexTangentsIndices(i)->getIndices ().erase(currentTrifanVertexCount);
+
+						const COLLADAFW::IndexListArray& texBinormalsIndicesArray = trifans->getTexBinormalsIndicesArray ();
+						for ( size_t i=0; i<texBinormalsIndicesArray.getCount (); ++i )
+							trifans->getTexBinormalsIndices(i)->getIndices ().erase(currentTrifanVertexCount);
 					}
 					mCurrentLastPrimitiveVertexCount = mCurrentVertexCount;
 				}
@@ -1339,6 +1516,14 @@ namespace COLLADASaxFWL
 						const COLLADAFW::IndexListArray& uvCoordIndicesArray = tristrips->getUVCoordIndicesArray ();
 						for ( size_t i=0; i<uvCoordIndicesArray.getCount (); ++i )
 							tristrips->getUVCoordIndices(i)->getIndices ().erase(currentTristripVertexCount);
+
+						const COLLADAFW::IndexListArray& texTangentsIndicesArray = tristrips->getTexTangentsIndicesArray ();
+						for ( size_t i=0; i<texTangentsIndicesArray.getCount (); ++i )
+							tristrips->getTexTangentsIndices(i)->getIndices ().erase(currentTristripVertexCount);
+
+						const COLLADAFW::IndexListArray& texBinormalsIndicesArray = tristrips->getTexBinormalsIndicesArray ();
+						for ( size_t i=0; i<texBinormalsIndicesArray.getCount (); ++i )
+							tristrips->getTexBinormalsIndices(i)->getIndices ().erase(currentTristripVertexCount);
 					}
 					mCurrentLastPrimitiveVertexCount = mCurrentVertexCount;
 				}
@@ -1369,6 +1554,14 @@ namespace COLLADASaxFWL
 						const COLLADAFW::IndexListArray& uvCoordIndicesArray = linestrips->getUVCoordIndicesArray ();
 						for ( size_t i=0; i<uvCoordIndicesArray.getCount (); ++i )
 							linestrips->getUVCoordIndices(i)->getIndices ().erase(currentLinestripVertexCount);
+
+						const COLLADAFW::IndexListArray& texTangentsIndicesArray = linestrips->getTexTangentsIndicesArray ();
+						for ( size_t i=0; i<texTangentsIndicesArray.getCount (); ++i )
+							linestrips->getTexTangentsIndices(i)->getIndices ().erase(currentLinestripVertexCount);
+
+						const COLLADAFW::IndexListArray& texBinormalsIndicesArray = linestrips->getTexBinormalsIndicesArray ();
+						for ( size_t i=0; i<texBinormalsIndicesArray.getCount (); ++i )
+							linestrips->getTexBinormalsIndices(i)->getIndices ().erase(currentLinestripVertexCount);
 					}
 					mCurrentLastPrimitiveVertexCount = mCurrentVertexCount;
 				}

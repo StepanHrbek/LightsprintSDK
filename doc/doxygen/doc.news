@@ -12,7 +12,8 @@ namespace rr
 
 NEWS
 
-- RRMeshArrays::buildTangents() has one parameter, created tangent space is better for normal mapping
+- import of normal maps and tangent space from Collada .dae
+- RRMeshArrays::buildTangents() has one more parameter, generated tangent space is better for normal mapping
 
 \section news131 ------------------------------------ 2012.02.26 -------------------------------------
 

@@ -17,9 +17,11 @@
 #include "COLLADAFWSampler.h"
 #include "COLLADAFWFloatOrParam.h"
 
-
 namespace COLLADAFW
 {
+	// NOTE Added by Mikee
+	typedef std::map<String, COLLADAFW::Sampler> StringSamplerMap;
+
 	/** Once we implement referencing of floats, this might become a class.*/
 //	typedef double FloatOrParam;
 
@@ -147,6 +149,10 @@ namespace COLLADAFW
 
 		/** All the samplers used as texture in the CommonEffect.*/
 		SamplerPointerArray mSamplers;
+
+		// NOTE Added by Mikee
+		/** All samplers (even unused). */
+		StringSamplerMap mAllSamplers;
 
 	public:
 
@@ -412,6 +418,10 @@ namespace COLLADAFW
 
 		/** Returns the samplers used by the common effect.*/
 		const SamplerPointerArray& getSamplerPointerArray() const { return mSamplers; }
+
+		// NOTE Added by Mikee
+		StringSamplerMap& getAllSamplersArray() { return mAllSamplers; }
+		const StringSamplerMap& getAllSamplersArray() const { return mAllSamplers; }
 
 
 		/** clones the effect*/

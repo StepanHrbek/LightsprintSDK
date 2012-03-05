@@ -117,6 +117,14 @@ namespace COLLADAFW
         * The index list of the uv coordinates array (support of multiple uv sets). 
         */
         IndexListArray mUVCoordIndicesArray;
+
+
+		// NOTE Added by Mikee
+		/** 
+        * The index list of the tex data arrays (support of multiple sets). 
+        */
+		IndexListArray mTexTangentIndicesArray;
+		IndexListArray mTexBinormalIndicesArray;
         
     public:	
 
@@ -271,6 +279,23 @@ namespace COLLADAFW
 
 		/**Returns true if the mesh primitive has at least one set of uv coordinates.*/
 		bool hasUVCoordIndices() const { return !mUVCoordIndicesArray.empty(); }
+
+		/** 
+        * The tex data arrays 
+        */
+        IndexListArray& getTexTangentsIndicesArray () { return mTexTangentIndicesArray; }
+        const IndexListArray& getTexTangentsIndicesArray () const { return mTexTangentIndicesArray; }
+        IndexList* getTexTangentsIndices ( size_t index ) { if ( index >= mTexTangentIndicesArray.getCount () ) return 0; return mTexTangentIndicesArray [ index ]; }
+        const IndexList* getTexTangentsIndices ( size_t index ) const { if ( index >= mTexTangentIndicesArray.getCount () ) return 0; return mTexTangentIndicesArray [ index ]; }
+        void appendTexTangentsIndices ( IndexList* texTangentsIndices ) { mTexTangentIndicesArray.append ( texTangentsIndices ); }
+		bool hasTexTangentsIndices() const { return !mTexTangentIndicesArray.empty(); }
+
+		IndexListArray& getTexBinormalsIndicesArray () { return mTexBinormalIndicesArray; }
+		const IndexListArray& getTexBinormalsIndicesArray () const { return mTexBinormalIndicesArray; }
+		IndexList* getTexBinormalsIndices ( size_t index ) { if ( index >= mTexBinormalIndicesArray.getCount () ) return 0; return mTexBinormalIndicesArray [ index ]; }
+		const IndexList* getTexBinormalsIndices ( size_t index ) const { if ( index >= mTexBinormalIndicesArray.getCount () ) return 0; return mTexBinormalIndicesArray [ index ]; }
+		void appendTexBinormalsIndices ( IndexList* texBinormalIndices ) { mTexBinormalIndicesArray.append ( texBinormalIndices ); }
+		bool hasTexBinormalsIndices() const { return !mTexBinormalIndicesArray.empty(); }
 
 		/** @return The material id of the sub mesh. This material id is used to assign material 
 		to submeshes when the mesh gets instantiated.*/

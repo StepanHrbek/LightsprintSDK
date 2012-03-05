@@ -91,12 +91,17 @@ protected:
 	float* defferedValue;
 	bool   error;
 public:
-	virtual void elementBegin(const char* name, const char* currentProfile)=0;
+	virtual void elementBegin(const char* name, const char* currentProfile, const GeneratedSaxParser::xmlChar** attributes)=0;
 
 	ExtraData()
 	{
 		currValue = NULL;
 		defferedValue = NULL;
+	}
+
+	virtual ~ExtraData()
+	{
+
 	}
 
 	void elementData(const char* text, unsigned int length)
@@ -126,7 +131,7 @@ public:
 		intensity = 1.f;
 	}
 
-	virtual void elementBegin(const char* name, const char* currentProfile)
+	virtual void elementBegin(const char* name, const char* currentProfile, const GeneratedSaxParser::xmlChar** attributes)
 	{
 		currValue = NULL;
 
@@ -145,7 +150,7 @@ public:
 		double_sided = 0.f;
 	}
 
-	virtual void elementBegin(const char* name, const char* currentProfile)
+	virtual void elementBegin(const char* name, const char* currentProfile, const GeneratedSaxParser::xmlChar** attributes)
 	{
 		currValue = NULL;
 
@@ -153,7 +158,6 @@ public:
 		if(strcmp(name,"double_sided")==0)
 			currValue = &double_sided;
 	}
-
 };
 
 class ExtraDataEffect : public ExtraData
@@ -166,14 +170,25 @@ public:
 	float spec_level;                // fcollada
 	float emission_level;            // fcollada
 
+	// from technique
+	bool nextIsNormal;
+	std::string normalTexture;
+	std::string normalTextureSemantic;
+
 	ExtraDataEffect()
 	{
 		double_sided = 0.f;
 		spec_level = 1.f;
 		emission_level = 1.f;
+		nextIsNormal = false;
 	}
 
-	virtual void elementBegin(const char* name, const char* currentProfile)
+	virtual ~ExtraDataEffect()
+	{
+
+	}
+
+	virtual void elementBegin(const char* name, const char* currentProfile, const GeneratedSaxParser::xmlChar** attributes)
 	{
 		currValue = NULL;
 
@@ -185,6 +200,15 @@ public:
 			if(defferedValue != NULL)
 				currValue = defferedValue;
 			defferedValue = NULL;
+		}
+		else if(strcmp(name,"bump")==0)
+		{
+			nextIsNormal = true;
+		}
+		else if(nextIsNormal && strcmp(name,"texture")==0)
+		{
+			normalTexture = attributes[1];
+			normalTextureSemantic = attributes[3];
 		}
 		// fcollada
 		else if(strcmp(currentProfile,"FCOLLADA")==0)
@@ -289,7 +313,7 @@ public:
 	virtual bool elementBegin( const GeneratedSaxParser::ParserChar* elementName, const GeneratedSaxParser::xmlChar** attributes)
 	{
 		if (!currExtraData) return false;
-		currExtraData->elementBegin(elementName, currProfile);
+		currExtraData->elementBegin(elementName, currProfile, attributes);
 		return true;
 	}
 
@@ -503,16 +527,18 @@ struct CachedMaterial
 	unsigned int srC;
 	unsigned int stC;
 	unsigned int lmC;
+	unsigned int nmC;
 
 	unsigned int localId;
 
-	CachedMaterial(cuint& dr, cuint& de, cuint& sr, cuint& st, cuint& lm, cuint locid)
+	CachedMaterial(cuint& dr, cuint& de, cuint& sr, cuint& st, cuint& lm, cuint& nm, cuint locid)
 	{
 		drC = dr;
 		deC = de;
 		srC = sr;
 		stC = st;
 		lmC = lm;
+		nmC = nm;
 
 		localId = locid;
 	}
@@ -894,6 +920,42 @@ public:
 		return;
 	}
 
+	unsigned int findTextureChannelIndex(COLLADAFW::String semanticName, const COLLADAFW::MaterialBinding* colladaBinding, COLLADAFW::MaterialId materialId, MapMaterialIdToUVSet& mapUV)
+	{
+		if(colladaBinding != NULL && semanticName != "")
+		{
+			for(unsigned textbind = 0; textbind < colladaBinding->getTextureCoordinateBindingArray().getCount(); textbind++)
+			{
+				if( colladaBinding->getTextureCoordinateBindingArray()[textbind].getSemantic() == semanticName )
+				{
+					size_t localSet = colladaBinding->getTextureCoordinateBindingArray()[textbind].getSetIndex();
+					MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find( materialId );
+					if( localToPhysIter != mapUV.end() )
+					{
+						MapLocalToPhysicalUVSet::iterator physIter = localToPhysIter->second.find( localSet );
+						if( physIter != localToPhysIter->second.end() )
+						{
+							// got it!
+							return physIter->second;
+						}
+						else
+							return UINT_MAX;
+					}
+					else
+						return UINT_MAX;
+				}
+			}
+		}
+
+		// use first valid uv set, otherwise return max
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"No input set bound with <bind_vertex_input>, it's not clear what uv channel to use with texture.\n"));
+		MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find( materialId );
+		if(localToPhysIter->second.size()>0)
+			return localToPhysIter->second.begin()->second;
+		else
+			return UINT_MAX;
+	}
+
 	unsigned int findTextureChannelIndex(COLLADAFW::ColorOrTexture& cot, const COLLADAFW::MaterialBinding* colladaBinding, COLLADAFW::MaterialId materialId, MapMaterialIdToUVSet& mapUV)
 	{
 		if(!cot.isTexture())
@@ -999,6 +1061,7 @@ public:
 		{
 			COLLADAFW::Effect& effect = effectIter->second;
 			COLLADAFW::EffectCommon* common = effect.getCommonEffects()[0]; // NOTE all sample importers takes only the first one, is that ok?
+			ExtraDataEffect* extraEffect = (ExtraDataEffect*)extraHandler.getData( effect.getUniqueId() );
 
 			// get all uv set indices first (saves -1 for color only or no binding found)
 			MapMaterialIdToUVSet& mapUV = bindingPlaceholder.sourceMesh->mapUV;
@@ -1008,6 +1071,7 @@ public:
 			unsigned int srC = findTextureChannelIndex(common->getSpecular(),colladaBinding,materialId,mapUV);
 			unsigned int stC = findTextureChannelIndex(common->getOpacity(),colladaBinding,materialId,mapUV);
 			unsigned int lmC = findTextureChannelIndex(common->getAmbient(),colladaBinding,materialId,mapUV);
+			unsigned int nmC = findTextureChannelIndex(extraEffect->normalTextureSemantic,colladaBinding,materialId,mapUV);
 
 			// see if we can find this material in cache with the same textcoord parameters
 			bool identicalCached = false, changedCached = false;
@@ -1020,7 +1084,7 @@ public:
 				MapUniqueCached::iterator nextIter = cachedIter; nextIter++;
 
 				if( cache.drC == drC && cache.deC == deC && cache.srC == srC &&
-					cache.stC == stC && cache.lmC == lmC
+					cache.stC == stC && cache.lmC == lmC && cache.nmC == nmC
 					)
 				{
 					// indices are the same
@@ -1049,6 +1113,7 @@ public:
 						material.specularReflectance.texcoord   = srC;
 						material.specularTransmittance.texcoord = stC;
 						material.lightmapTexcoord               = lmC;
+						material.normalMap.texcoord             = nmC;
 
 						RRReporter::report(INF3,"Found cached material with different indices.\n");
 						changedCached = true;
@@ -1063,7 +1128,7 @@ public:
 			}
 
 			bindingPlaceholder.mapLocal.insert( std::make_pair( materialId, nextMaterial ) );
-			CachedMaterial cm(drC,deC,srC,stC,lmC,nextMaterial);
+			CachedMaterial cm(drC,deC,srC,stC,lmC,nmC, nextMaterial);
 			cachedMap.insert( std::make_pair( materialUniqueId, cm ) );
 			if(!changedCached) objects->materials[ nextMaterial ] = new RRMaterial();
 			RRMaterial& material = *objects->materials[ nextMaterial ];
@@ -1075,7 +1140,6 @@ public:
 			}
 
 			// material was not cached, let's create it from scratch from the connected effect (only COMMON) and extras
-			ExtraDataEffect* extraEffect = (ExtraDataEffect*)extraHandler.getData( effect.getUniqueId() );
 			ExtraDataGeometry* extraGeometry = (ExtraDataGeometry*)extraHandler.getData( bindingPlaceholder.sourceMesh->uniqueId );
 
 			// init material
@@ -1128,6 +1192,27 @@ public:
 			// so we guess that transp.textures with alpha want us to use alpha
 			if (material.specularTransmittance.texture)
 				material.specularTransmittanceInAlpha = material.specularTransmittance.texture->getFormat()==BF_RGBA || material.specularTransmittance.texture->getFormat()==BF_RGBAF;
+
+			// bump/normal texture from extra data
+			if(extraEffect->normalTexture != "")
+			{
+				COLLADAFW::StringSamplerMap::iterator iter = common->getAllSamplersArray().find( extraEffect->normalTexture );
+				if( iter != common->getAllSamplersArray().end() )
+				{
+					COLLADAFW::Sampler& sampler = iter->second;
+					COLLADAFW::UniqueId imageId = sampler.getSourceImage();
+					MapUniqueImage::iterator imageIter = imageMap.find( imageId );
+
+					if(imageIter != imageMap.end())
+					{
+						COLLADAFW::Image& image = imageIter->second;
+						const COLLADABU::URI& uri = image.getImageURI();
+						COLLADABU::String imagePath = COLLADABU::URI::uriDecode( uri.toNativePath() );
+						material.normalMap.texture = rr::RRBuffer::load(imagePath.c_str(),NULL,textureLocator);
+						material.normalMap.texcoord = nmC;
+					}
+				}
+			}
 
 			material.name = colladaMaterial.getName().c_str();
 
@@ -1410,6 +1495,62 @@ public:
 		}
 	}
 
+	void processTexData(rr::RRVec3* data, rr::RRVec3* other, bool generateOther, unsigned int remappedIndex, size_t vert, COLLADAFW::MeshVertexData& texData, COLLADAFW::IndexListArray& texDataIndices)
+	{
+		const size_t texDataCount = texData.getValuesCount();
+		COLLADAFW::IndexList* texDataChannel = texDataIndices[0]; 
+		unsigned int texDataIndex = texDataChannel->getInitialIndex() + (texDataChannel->getIndex(vert) * texDataChannel->getStride());
+
+		switch(texData.getType())
+		{
+		case COLLADAFW::MeshVertexData::DATA_TYPE_FLOAT:
+			{
+				const COLLADAFW::ArrayPrimitiveType<float>* values = texData.getFloatValues();
+				assignWithCheck<float>(data[remappedIndex].x,values,texDataIndex,texDataCount);
+				assignWithCheck<float>(data[remappedIndex].y,values,texDataIndex+1,texDataCount);
+				assignWithCheck<float>(data[remappedIndex].z,values,texDataIndex+2,texDataCount);
+				if(generateOther)
+					if(texDataChannel->getStride() >= 4)
+					{
+						rr::RRReal val;
+						assignWithCheck<float>(val,values,texDataIndex+3,texDataCount);
+						if(val == -1)
+							other[remappedIndex].x = -1.f;
+						else
+							other[remappedIndex].x = 1.f;
+					}
+					else
+						other[remappedIndex].x = 1.f;
+				break;
+			}
+
+		case COLLADAFW::MeshVertexData::DATA_TYPE_DOUBLE:
+			{
+				const COLLADAFW::ArrayPrimitiveType<double>* values = texData.getDoubleValues();
+				assignWithCheck<double>(data[remappedIndex].x,values,texDataIndex,texDataCount);
+				assignWithCheck<double>(data[remappedIndex].y,values,texDataIndex+1,texDataCount);
+				assignWithCheck<double>(data[remappedIndex].z,values,texDataIndex+2,texDataCount);
+				if(generateOther)
+					if(texDataChannel->getStride() >= 4)
+					{
+						rr::RRReal val;
+						assignWithCheck<double>(val,values,texDataIndex+3,texDataCount);
+						if(val == -1)
+							other[remappedIndex].x = -1.f;
+						else
+							other[remappedIndex].x = 1.f;
+					}
+					else
+						other[remappedIndex].x = 1.f;
+				break;
+			}
+
+		default:
+			RR_ASSERT(false);
+			break;
+		}
+	}
+
 	/** Writes the geometry.
 	@return True on succeeded, false otherwise.*/
 	virtual bool writeGeometry ( const COLLADAFW::Geometry* geometry )
@@ -1522,8 +1663,52 @@ public:
 			size_t currIndexInMesh = 0;
 
 			unsigned int meshNumUvChannels = colladaMesh->getUVCoords().getNumInputInfos();
+			unsigned int meshNumTexTangentChannels = colladaMesh->getTexTangents().getNumInputInfos();
+			unsigned int meshNumTexBinormalChannels = colladaMesh->getTexBinormals().getNumInputInfos();
 			unsigned int meshPosNormChannels = 1 + colladaMesh->hasNormals();
-			unsigned int meshNumChannels = meshPosNormChannels + meshNumUvChannels;
+
+			bool generateTangents = false;
+			bool generateBinormals = false;
+
+			// tex data sanity check
+			// there should be at most one tangent and one binormal channel
+			// ignoring the rest and informing about it
+			if(meshNumTexTangentChannels > 1)
+			{
+				RRReporter::report(INF3,"There is more than one tangent channel. Ignoring all except the first one\n");
+				meshNumTexTangentChannels = 1;
+			}
+
+			if(meshNumTexBinormalChannels > 1)
+			{
+				RRReporter::report(INF3,"There is more than one binormal channel. Ignoring all except the first one\n");
+				meshNumTexBinormalChannels = 1;
+			}
+
+			if(meshNumTexTangentChannels != meshNumTexBinormalChannels)
+			{
+				if(meshNumTexTangentChannels == 0)
+				{
+					generateTangents = true;
+					RRReporter::report(INF3,"There is no tangent channel, tangents will be generated.\n");
+					if(colladaMesh->getTexBinormals().getStride(0) != 4)
+						RRReporter::report(INF3,"Binormal channel has a stride different than 4, handedness of generated tangents may be wrong.\n");
+				}
+
+				if(meshNumTexBinormalChannels == 0)
+				{
+					generateBinormals = true;
+					RRReporter::report(INF3,"There is no binormal channel, binormals will be generated.\n");
+					if(colladaMesh->getTexTangents().getStride(0) != 4)
+						RRReporter::report(INF3,"Tangent channel has a stride different than 4, handedness of generated binormals may be wrong.\n");
+				}
+			}
+
+			RR_ASSERT(!(generateTangents && generateBinormals));
+
+			/////////////////////////
+
+			unsigned int meshNumChannels = meshPosNormChannels + meshNumUvChannels + meshNumTexTangentChannels + meshNumTexTangentChannels;
 
 			MapIntToUniqueData uniqueMap;
 			size_t currUniqueIndex = 0;
@@ -1543,8 +1728,12 @@ public:
 					)
 					continue;
 
-				// get primitive number of channels = positions + normals + uvsets
-				int primitiveNumChannels = 1 + primitiveElement->hasNormalIndices() + primitiveElement->getUVCoordIndicesArray().getCount();
+				// get primitive number of channels = positions + normals + uvsets + texdata
+				int primitiveNumChannels = 
+					1 + primitiveElement->hasNormalIndices()
+					+ primitiveElement->getUVCoordIndicesArray().getCount()
+					+ (primitiveElement->getTexTangentsIndicesArray().getCount() > 0)
+					+ (primitiveElement->getTexBinormalsIndicesArray().getCount() > 0);
 
 				unsigned int* indexArray = new unsigned int[meshNumChannels];
 
@@ -1570,6 +1759,22 @@ public:
 							int set = colladaMesh->getUVSetIndexByName( uvChannel->getName() );
 							RR_ASSERT(set >= 0);
 							indexArray[meshPosNormChannels + set] = uvChannel->getIndex(vert);
+						}
+
+						if(meshNumTexTangentChannels > 0)
+						{
+							COLLADAFW::IndexList* texData = primitiveElement->getTexTangentsIndices(0);
+							int set = colladaMesh->getTexTangentsSetIndexByName( texData->getName() );
+							RR_ASSERT(set >= 0);
+							indexArray[meshPosNormChannels + meshNumUvChannels + set] = texData->getIndex(vert);
+						}
+
+						if(meshNumTexBinormalChannels > 0)
+						{
+							COLLADAFW::IndexList* texData = primitiveElement->getTexBinormalsIndices(0);
+							int set = colladaMesh->getTexBinormalsSetIndexByName( texData->getName() );
+							RR_ASSERT(set >= 0);
+							indexArray[meshPosNormChannels + meshNumUvChannels + meshNumTexTangentChannels + set] = texData->getIndex(vert);
 						}
 
 						// hash to get ~uniqueness of each set of indices
@@ -1668,7 +1873,7 @@ public:
 			}
 
 			RRMeshArrays* mesh = &objects->meshes[ objects->nextMesh ];
-			mesh->resizeMesh(numTriangles,numVertices,&texcoords,false);
+			mesh->resizeMesh(numTriangles,numVertices,&texcoords,meshNumTexTangentChannels || meshNumTexBinormalChannels);
 
 			size_t currTriangle = 0;
 			currIndexInMesh = 0;
@@ -1790,17 +1995,12 @@ public:
 
 							for(size_t uv=0; uv<primitiveElement->getUVCoordIndicesArray().getCount(); ++uv)
 							{
-								//continue;
 								COLLADAFW::IndexList* uvChannel = primitiveElement->getUVCoordIndices(uv);
 
-								unsigned int uvIndex	= uvChannel->getIndex(vert);
-								unsigned int uvStride	= uvChannel->getStride();
-								unsigned int uvStart	= uvChannel->getInitialIndex();
+								unsigned int uvIndex = uvChannel->getInitialIndex() + (uvChannel->getIndex(vert) * uvChannel->getStride());
 
 								// physical set index for the whole mesh
 								size_t uvSet = colladaMesh->getUVSetIndexByName(uvChannel->getName());
-
-								uvIndex	= uvStride * uvIndex;
 
 								switch(colladaMesh->getUVCoords().getType())
 								{
@@ -1837,6 +2037,42 @@ public:
 									break;
 								}
 							}
+						}
+
+						if(meshNumTexTangentChannels != 0 && primitiveElement->hasTexTangentsIndices())
+						{
+							processTexData(
+								mesh->tangent,
+								mesh->bitangent,
+								generateBinormals,
+								remappedIndex,
+								vert,
+								colladaMesh->getTexTangents(),
+								primitiveElement->getTexTangentsIndicesArray()
+								);
+						}
+
+						if(meshNumTexBinormalChannels != 0 && primitiveElement->hasTexBinormalsIndices())
+						{
+							processTexData(
+								mesh->bitangent,
+								mesh->tangent,
+								generateTangents,
+								remappedIndex,
+								vert,
+								colladaMesh->getTexBinormals(),
+								primitiveElement->getTexBinormalsIndicesArray()
+								);
+						}
+
+						// if we have normals, we can generate here (if needed)
+						if(colladaMesh->hasNormals())
+						{
+							if(generateTangents)
+								mesh->tangent[ remappedIndex ] = mesh->normal[ remappedIndex ].cross( mesh->bitangent[ remappedIndex ] ) * mesh->tangent[ remappedIndex ].x;
+
+							if(generateBinormals)
+								mesh->bitangent[ remappedIndex ] = mesh->normal[ remappedIndex ].cross( mesh->tangent[ remappedIndex ] ) * mesh->bitangent[ remappedIndex ].x;
 						}
 					}
 
@@ -1917,6 +2153,18 @@ public:
 
 							for(int i=0;i<3;i++)
 								mesh->normal[ mesh->triangle[currTriangle][i] ] = normal;
+
+							// generate tangents or binormals
+							for(int i=0;i<3;i++)
+							{
+								unsigned int pos = mesh->triangle[currTriangle][i];
+
+								if(generateTangents)
+									mesh->tangent[ pos ] = mesh->normal[ pos ].cross( mesh->bitangent[ pos ] ) * mesh->tangent[ pos ].x;
+
+								if(generateBinormals)
+									mesh->bitangent[ pos ] = mesh->normal[ pos ].cross( mesh->tangent[ pos ] ) * mesh->bitangent[ pos ].x;
+							}
 						}
 
 						// jump to next triangle; don't add if just restarted

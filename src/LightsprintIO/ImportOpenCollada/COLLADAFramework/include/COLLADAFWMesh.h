@@ -71,6 +71,14 @@ namespace COLLADAFW
         */
         MeshVertexData mUVCoords;
 
+		
+		// NOTE Added by Mikee
+		/** 
+        * The tex data arrays
+        */
+		MeshVertexData mTexTangents;
+		MeshVertexData mTexBinormals;
+
         /**
         * Geometric primitives, which assemble values from the inputs into vertex attribute data. 
         * Each primitive element holds the index arrays of the used input elements
@@ -214,6 +222,40 @@ namespace COLLADAFW
 
             return 0;
         }
+
+		// NOTE Added by Mikee
+		/** 
+        * The tex data arrays
+        */
+        const MeshVertexData& getTexTangents () const { return mTexTangents; }
+        MeshVertexData& getTexTangents() { return mTexTangents; }
+        size_t getTexTangentsSetIndexByName ( const String& name ) const
+        {
+            for ( size_t index=0; index<mTexTangents.getValuesCount (); ++index )
+            {
+                if ( COLLADABU::Utils::equals ( name, mTexTangents.getName ( index ) ) )
+                    return index;
+            }
+			std::cerr << "No textangents set with name \"" << name << "\"!" << std::endl; 
+            COLLADABU_ASSERT ( true );
+
+            return 0;
+        }
+
+		const MeshVertexData& getTexBinormals () const { return mTexBinormals; }
+		MeshVertexData& getTexBinormals() { return mTexBinormals; }
+		size_t getTexBinormalsSetIndexByName ( const String& name ) const
+		{
+			for ( size_t index=0; index<mTexBinormals.getValuesCount (); ++index )
+			{
+				if ( COLLADABU::Utils::equals ( name, mTexBinormals.getName ( index ) ) )
+					return index;
+			}
+			std::cerr << "No texbinormals set with name \"" << name << "\"!" << std::endl; 
+			COLLADABU_ASSERT ( true );
+
+			return 0;
+		}
 
         /**
         * Geometric primitives, which assemble values from the inputs into vertex attribute data. 

@@ -881,6 +881,35 @@ namespace COLLADASaxFWL
         COLLADAFW::EffectCommon& commonEffect =  *mCurrentEffect->getCommonEffects().back();
         COLLADAFW::SamplerPointerArray& samplerArray = commonEffect.getSamplerPointerArray();
 
+		// NOTE Added by Mikee
+		// Separate from the rest we will save us all samplers with valid surfaces, needed for extra data
+		// Also, we need to deep-copy this, unused sampler according to opencollada gets deleted along the way
+		for(SidSamplerInfoMap::iterator samplerIt = mEffectProfileSidSamplerInfoMap.begin(); samplerIt != mEffectProfileSidSamplerInfoMap.end(); samplerIt++)
+		{
+			SamplerInfo& samplerInfo = samplerIt->second;
+			COLLADAFW::Sampler sampler = *samplerInfo.sampler;
+
+			if ( !sampler.getSourceImage().isValid() )
+			{
+				bool validSurface = false;
+				SidSurfaceMap::const_iterator surfaceIt = mEffectProfileSidSurfaceMap.find( samplerInfo.surfaceSid );
+				if ( surfaceIt == mEffectProfileSidSurfaceMap.end() )
+				{
+					surfaceIt = mEffectSidSurfaceMap.find( samplerInfo.surfaceSid );
+					if ( surfaceIt != mEffectSidSurfaceMap.end() ) validSurface = true;
+				}
+				else validSurface = true;
+				if ( validSurface )
+				{
+					const Surface& surface = surfaceIt->second;
+					sampler.setSource(surface.imageUniqueId);
+				}
+			}
+
+			commonEffect.getAllSamplersArray().insert( std::pair<String, COLLADAFW::Sampler>( samplerIt->first, sampler ) );
+		}
+		//////////////////////
+
         // Iterate over the list of used samplers in the current effect profile 
         // and push them in the sampler array.
 		size_t samplerCount = mEffectProfileSamplersMap.size();

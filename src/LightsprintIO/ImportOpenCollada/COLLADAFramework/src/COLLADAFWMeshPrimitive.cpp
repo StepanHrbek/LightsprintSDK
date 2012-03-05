@@ -32,6 +32,8 @@ namespace COLLADAFW
 		, mNormalIndices(UIntValuesArray::OWNER)
 		, mColorIndicesArray(UIntValuesArray::OWNER)
 		, mUVCoordIndicesArray(UIntValuesArray::OWNER)
+		, mTexTangentIndicesArray(UIntValuesArray::OWNER)
+		, mTexBinormalIndicesArray(UIntValuesArray::OWNER)
 	{
 	}
 
@@ -45,6 +47,8 @@ namespace COLLADAFW
 		, mNormalIndices(UIntValuesArray::OWNER)
 		, mColorIndicesArray(UIntValuesArray::OWNER)
 		, mUVCoordIndicesArray(UIntValuesArray::OWNER)
+		, mTexTangentIndicesArray(UIntValuesArray::OWNER)
+		, mTexBinormalIndicesArray(UIntValuesArray::OWNER)
 	{
 	}
 
@@ -59,6 +63,16 @@ namespace COLLADAFW
 		for ( size_t i = 0, count = mColorIndicesArray.getCount(); i< count; ++i)
 		{
 			FW_DELETE mColorIndicesArray[i];
+		}
+
+		for ( size_t i = 0, count = mTexTangentIndicesArray.getCount(); i< count; ++i)
+		{
+			FW_DELETE mTexTangentIndicesArray[i];
+		}
+
+		for ( size_t i = 0, count = mTexBinormalIndicesArray.getCount(); i< count; ++i)
+		{
+			FW_DELETE mTexBinormalIndicesArray[i];
 		}
 	}
 

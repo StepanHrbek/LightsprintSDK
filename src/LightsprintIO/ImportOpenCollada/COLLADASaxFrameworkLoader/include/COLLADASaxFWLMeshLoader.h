@@ -147,6 +147,10 @@ namespace COLLADASaxFWL
         /** Multiple texcoordinates. */
         std::vector<PrimitiveInput> mTexCoordList;
 
+		/** Multiple tex data. */
+		std::vector<PrimitiveInput> mTexTangentList;
+		std::vector<PrimitiveInput> mTexBinormalList;
+
         /** The type of the current primitive element. */
 		PrimitiveType mCurrentPrimitiveType;
 
@@ -360,6 +364,7 @@ namespace COLLADASaxFWL
         void initializeColorsOffset ();
         void initializeNormalsOffset ();
         void initializePositionsOffset ();
+		void initializeTexDataOffset (InputSemantic::Semantic inputSemantic, std::vector<PrimitiveInput>& inputList);
 
 		/** Writes all the indices in data into the indices array of the current mesh primitive.*/
 		bool writePrimitiveIndices ( const unsigned long long* data, size_t length );
@@ -401,6 +406,9 @@ namespace COLLADASaxFWL
         * Load the uv coordinates source element of the current input element into the framework mesh.
         */
         bool loadTexCoordsSourceElement ( const InputShared& input );
+
+		// NOTE Added by Mikee
+		bool loadTexDataSourceElement ( const InputShared& input, InputSemantic::Semantic inputSemantic, char* inputName, COLLADAFW::MeshVertexData& inputData );
 
         /**
         * Appends the values of the source in the list with the dimension of source's stride.
