@@ -234,6 +234,11 @@ void SVCanvas::createContextCore()
 			case LI_REALTIME_ARCHITECT:    svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT); break;
 		}
 
+		// make unique object names, so that lightmaps are loaded from different files
+		rr::RRObjects objects = solver->getStaticObjects();
+		objects.insert(objects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
+		objects.makeNamesUnique();
+
 		// try to load lightmaps
 		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedLightmap))
@@ -378,6 +383,11 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 	{
 		svs.renderLightIndirect = LI_CONSTANT;
 	}
+
+	// make unique object names, so that lightmaps are saved to different files
+	rr::RRObjects objects = solver->getStaticObjects();
+	objects.insert(objects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
+	objects.makeNamesUnique(); // updateAllPanels() must follow, to refresh names in scene tree
 
 	// object numbers did change, change also svs.selectedObjectIndex so that it points to object in objprops
 	// and following updateAllPanels() does not change objprops

@@ -251,6 +251,49 @@ void RRObjects::getAllMaterials(RRVector<RRMaterial*>& materials) const
 			materials.push_back(*i);
 }
 
+void RRObjects::makeNamesUnique() const
+{
+again:
+	bool modified = false;
+	typedef boost::unordered_multimap<std::wstring,RRObject*> Map;
+	Map map;
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+	{
+		RRObject* object = (*this)[objectIndex];
+		std::wstring filename;
+		filename = object->name.w_str();
+		for (unsigned i=0;i<filename.size();i++)
+			if (wcschr(L"<>:\"/\\|?*",filename[i]))
+				filename[i] = '_';
+		map.insert(Map::value_type(filename,object));
+	}
+	for (Map::iterator i=map.begin();i!=map.end();)
+	{
+		Map::iterator j = i;
+		unsigned numEquals = 0;
+		while (j!=map.end() && i->first==j->first)
+		{
+			numEquals++;
+			j++;
+		}
+		if (numEquals>1)
+		{
+			unsigned numDigits = 0;
+			while (numEquals) {numDigits++; numEquals/=10;}
+			modified = true;
+			unsigned index = 1;
+			for (j=i;j!=map.end() && i->first==j->first;++j)
+				j->second->name.format(L"%s%s%0*d",j->second->name.w_str(),j->second->name.empty()?"":".",numDigits,index++);
+		}
+		i = j;
+	}
+	if (modified)
+	{
+		// "name" was changed to "name.1", but we did not yet check that "name.1" is free, let's run all checks again
+		goto again;
+	}
+}
+
 
 unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRString& ext) const
 {
@@ -263,7 +306,6 @@ unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRStr
 			// first try to load per-pixel format
 			RRBuffer* buffer = NULL;
 			RRObject::LayerParameters layerParameters;
-			layerParameters.objectIndex = objectIndex;
 			layerParameters.suggestedPath = path;
 			layerParameters.suggestedExt = ext;
 			object->recommendLayerParameters(layerParameters);
@@ -316,7 +358,6 @@ unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRStr
 			if (buffer)
 			{
 				RRObject::LayerParameters layerParameters;
-				layerParameters.objectIndex = objectIndex;
 				layerParameters.suggestedPath = path;
 				layerParameters.suggestedExt = ext;
 				layerParameters.suggestedMapWidth = layerParameters.suggestedMapHeight = (buffer->getType()==BT_VERTEX_BUFFER) ? 0 : 256;

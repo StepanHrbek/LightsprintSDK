@@ -15,6 +15,15 @@ NEWS
 - import of normal maps and tangent space from Collada .dae
 - RRMeshArrays::buildTangents() has one more parameter, generated tangent space is better for normal mapping
 
+CHANGES
+
+- RRObjects::loadLayer()/saveLayer() construct lightmap filenames from object names, not from object numbers
+  - RRObject::LayerParameters::objectIndex removed, not needed in new scheme
+  - RRObjects::makeNamesUnique() added, call it to automatically differentiate objects with identical names.
+    Objects with identical names would store lightmaps in the same file, overwriting each other.
+  - if you need to access lightmaps with old names (constructed from object numbers),
+    stop using loadLayer(), use for cycle over all objects and load individual lightmaps with old filenames
+
 \section news131 ------------------------------------ 2012.02.26 -------------------------------------
 
 NEWS

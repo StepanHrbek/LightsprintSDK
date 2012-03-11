@@ -338,14 +338,13 @@ namespace rr
 		struct RR_API LayerParameters
 		{
 			// inputs to RRObject::recommendLayerParameters()
-			int            objectIndex; ///< default implementation uses it only when formatting recommended filename
 			unsigned       suggestedMapWidth;
 			unsigned       suggestedMapHeight;
 			unsigned       suggestedMinMapSize;
 			unsigned       suggestedMaxMapSize;
 			float          suggestedPixelsPerWorldUnit;
 			RRString       suggestedPath; ///< If not set, default directory is used.
-			RRString       suggestedName; ///< If not set, 5-digit object number is used.
+			RRString       suggestedName; ///< If not set, object's name is used.
 			RRString       suggestedExt; ///< If not set, "png" is used for textures, "rrbuffer" for vertex buffers.
 
 			// outputs of RRObject::recommendLayerParameters()
@@ -362,7 +361,6 @@ namespace rr
 			// tools
 			LayerParameters()
 			{
-				objectIndex = -1;
 				suggestedMapWidth = 256;
 				suggestedMapHeight = 256;
 				suggestedMinMapSize = 32;
@@ -423,6 +421,13 @@ namespace rr
 	class RR_API RRObjects : public RRVector<RRObject*>
 	{
 	public:
+		//! Modifies non-unique object names to make them unique.
+		//
+		//! When multiple objects with the same name "name" are found, names are changed to "name.1", "name.2" etc.
+		//! When similar object names are found, names are changed to "name.1", "name.2" etc.
+		//! Uniqueness is necessary when loading/saving layers, because e.g. lightmap filenames are constructed from object names.
+		//! If you don't ensure uniqueness, multiple lightmaps may end up with the same filename and with incorrect illumination.
+		void makeNamesUnique() const;
 		//! Loads illumination layer from disk.
 		//
 		//! It is shortcut for calling illumination->getLayer() = RRBuffer::load() on all elements in this container.
@@ -432,7 +437,7 @@ namespace rr
 		//!  Where to read files, should have trailing slash.
 		//! \param ext
 		//!  File format of maps to load, e.g. "png".
-		//!  Vertex buffers are always loaded from .vbu, without regard to ext.
+		//!  Vertex buffers are always loaded from .rrbuffer, without regard to ext.
 		//! \remark
 		//!  rr_io::registerLoaders() must be called for image saves/loads to work.
 		virtual unsigned loadLayer(int layerNumber, const RRString& path, const RRString& ext) const;
@@ -446,7 +451,7 @@ namespace rr
 		//!  Where to store files, should have trailing slash. Subdirectories are not created.
 		//! \param ext
 		//!  File format of maps to save, e.g. "png".
-		//!  Vertex buffers are always saved to .vbu, without regard to ext.
+		//!  Vertex buffers are always saved to .rrbuffer, without regard to ext.
 		//! \remark
 		//!  rr_io::registerLoaders() must be called for image saves/loads to work.
 		virtual unsigned saveLayer(int layerNumber, const RRString& path, const RRString& ext) const;

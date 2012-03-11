@@ -459,7 +459,7 @@ RRObject* RRObject::createMultiObject(const RRObjects* objects, RRCollider::Inte
 // RRObject recommends
 
 // formats filename from prefix(path), object number and postfix(ext)
-inline void formatFilename(const RRString& path, const RRString& objectName, unsigned objectIndex, const RRString& ext, bool isVertexBuffer, RRString& out)
+inline void formatFilename(const RRString& path, const RRString& suggestedName, const RRString& objectName, const RRString& ext, bool isVertexBuffer, RRString& out)
 {
 	wchar_t* tmp = NULL;
 	const wchar_t* finalExt;
@@ -492,10 +492,16 @@ inline void formatFilename(const RRString& path, const RRString& objectName, uns
 			finalExt = ext.w_str();
 		}
 	}
-	if (objectName.empty())
-		out.format(L"%ls%05d.%ls",path.w_str(),objectIndex,finalExt);
+	if (!suggestedName.empty())
+		out.format(L"%ls%ls.%ls",path.w_str(),suggestedName.w_str(),finalExt);
 	else
-		out.format(L"%ls%ls.%ls",path.w_str(),objectName.w_str(),finalExt);
+	{
+		std::wstring name = RR_RR2STDW(objectName);
+		for (unsigned i=0;i<name.size();i++)
+			if (wcschr(L"<>:\"/\\|?*",name[i]))
+				name[i] = '_';
+		out.format(L"%ls%ls.%ls",path.w_str(),name.c_str(),finalExt);
+	}
 	delete[] tmp;
 }
 
@@ -506,7 +512,7 @@ void RRObject::recommendLayerParameters(RRObject::LayerParameters& layerParamete
 	layerParameters.actualType   = layerParameters.suggestedMapWidth ? BT_2D_TEXTURE : BT_VERTEX_BUFFER;
 	layerParameters.actualFormat = layerParameters.suggestedMapWidth ? BF_RGB : BF_RGBF;
 	layerParameters.actualScaled = layerParameters.suggestedMapWidth ? true : false;
-	formatFilename(layerParameters.suggestedPath,layerParameters.suggestedName,layerParameters.objectIndex,layerParameters.suggestedExt,layerParameters.actualType==BT_VERTEX_BUFFER,layerParameters.actualFilename);
+	formatFilename(layerParameters.suggestedPath,layerParameters.suggestedName,name,layerParameters.suggestedExt,layerParameters.actualType==BT_VERTEX_BUFFER,layerParameters.actualFilename);
 }
 
 // Moved to file with exceptions enabled:
