@@ -22,12 +22,13 @@ namespace rr
 	//!
 	//! Locator supports multiple libraries, parents etc,
 	//! call setLibrary(true,lib1); setLibrary(true,lib2); to add two libraries.
-	//! Call setLibrary(false,lib1); to remove one of libraries.
+	//! Call setLibrary(false,lib1); to remove one of previously added libraries.
 	//!
 	//! Default implementation ignores all setXxx() functions,
 	//! use create() for advanced locator.
 	//!
-	//! Thread safe: yes.
+	//! Thread safe: yes (you can use multiple instances in parallel, multiple getXxx() in parallel,
+	//!  just don't call setXxx() when some function already runs on the same instance)
 	//
 	/////////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +51,7 @@ namespace rr
 		//! Ignored by default implementation, honoured by create().
 		virtual void setLibrary(bool add, const RRString& libraryDirectory) {}
 		//! Tells locator to try these extensions (e.g. ".jpg;.png;.tga") for files without extension.
+		//! Ignored by default implementation, honoured by create().
 		virtual void setExtensions(bool add, const RRString& extensions) {}
 
 		//! Returns possible file location.
