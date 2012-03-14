@@ -922,7 +922,10 @@ public:
 
 	unsigned int findTextureChannelIndex(COLLADAFW::String semanticName, const COLLADAFW::MaterialBinding* colladaBinding, COLLADAFW::MaterialId materialId, MapMaterialIdToUVSet& mapUV)
 	{
-		if(colladaBinding != NULL && semanticName != "")
+		if (semanticName == "")
+			return UINT_MAX;
+
+		if(colladaBinding != NULL)
 		{
 			for(unsigned textbind = 0; textbind < colladaBinding->getTextureCoordinateBindingArray().getCount(); textbind++)
 			{
@@ -950,7 +953,7 @@ public:
 		// use first valid uv set, otherwise return max
 		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"No input set bound with <bind_vertex_input>, it's not clear what uv channel to use with texture.\n"));
 		MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find( materialId );
-		if(localToPhysIter->second.size()>0)
+		if(localToPhysIter!=mapUV.end() && localToPhysIter->second.size()>0)
 			return localToPhysIter->second.begin()->second;
 		else
 			return UINT_MAX;
@@ -961,13 +964,11 @@ public:
 		if(!cot.isTexture())
 			return UINT_MAX;
 
-		COLLADAFW::Texture& texture = cot.getTexture();
-
 		if(colladaBinding != NULL)
 		{
 			for(unsigned textbind = 0; textbind < colladaBinding->getTextureCoordinateBindingArray().getCount(); textbind++)
 			{
-				if( colladaBinding->getTextureCoordinateBindingArray()[textbind].getTextureMapId() == texture.getTextureMapId() )
+				if( colladaBinding->getTextureCoordinateBindingArray()[textbind].getTextureMapId() == cot.getTexture().getTextureMapId() )
 				{
 					size_t localSet = colladaBinding->getTextureCoordinateBindingArray()[textbind].getSetIndex();
 					MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find( materialId );
@@ -991,7 +992,7 @@ public:
 		// use first valid uv set, otherwise return max
 		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"No input set bound with <bind_vertex_input>, it's not clear what uv channel to use with texture.\n"));
 		MapMaterialIdToUVSet::iterator localToPhysIter = mapUV.find( materialId );
-		if(localToPhysIter->second.size()>0)
+		if(localToPhysIter!=mapUV.end() && localToPhysIter->second.size()>0)
 			return localToPhysIter->second.begin()->second;
 		else
 			return UINT_MAX;
