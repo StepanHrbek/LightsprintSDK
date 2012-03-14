@@ -586,7 +586,7 @@ void main()
 		#endif
 
 		#if defined(MATERIAL_SPECULAR) && defined(LIGHT_DIRECT)
-			float NH = max(0.0,dot(worldNormal,(worldLightDirFromPixel+normalize(worldEyePos-worldPos))/2.0));
+			float NH = max(0.0,dot(worldNormal,normalize(worldLightDirFromPixel+normalize(worldEyePos-worldPos))));
 		#endif
 
 		#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
