@@ -11,7 +11,7 @@
 #include "memory.h"
 #include <climits> // UINT_MAX
 
-#define DEFAULT_SHININESS 100
+#define DEFAULT_SHININESS 10000
 
 namespace rr
 {

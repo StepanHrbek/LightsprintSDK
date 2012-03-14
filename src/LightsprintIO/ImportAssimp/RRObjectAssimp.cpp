@@ -153,7 +153,7 @@ public:
 				{
 					// mirroring
 					material.specularModel = RRMaterial::PHONG;
-					material.specularShininess = 10000;
+					material.specularShininess = 100000;
 				}
 			}
 
