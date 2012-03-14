@@ -33,6 +33,12 @@ const char* initializeGL()
 		return "Your system does not support OpenGL 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n";
 	}
 
+	// check FBO
+	if (!GLEW_EXT_framebuffer_object) // added in GL 3.0
+	{
+		return "GL_EXT_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n";
+	}
+
 	// init misc GL states
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
@@ -58,12 +64,6 @@ static GLuint   s_fb_id = 0;
 
 void FBO::init()
 {
-	if (!GLEW_EXT_framebuffer_object) // added in GL 3.0
-	{
-		rr::RRReporter::report(rr::ERRO,"GL_EXT_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n");
-		exit(0);
-	}
-
 	glGenFramebuffersEXT(1, &s_fb_id);
 
 	// necessary for "new FBO; setRenderTargetDepth; render..."
@@ -313,8 +313,6 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 	bindTexture();
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	glTexParameteri(cubeOr2d,GL_GENERATE_MIPMAP,_buildMipmaps?GL_TRUE:GL_FALSE);
-
 	if (cubeOr2d==GL_TEXTURE_CUBE_MAP)
 	{
 		// cube
@@ -347,6 +345,8 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 	}
 	else
 	{
+		if (_buildMipmaps)
+			glGenerateMipmapEXT(cubeOr2d); // part of EXT_framebuffer_object
 		//!!!
 	}
 
