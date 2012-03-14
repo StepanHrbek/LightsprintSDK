@@ -664,12 +664,12 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 			case rr::RRMaterial::PHONG:
 				shininess = RR_CLAMPED(material->specularShininess,1,1e10f);
 				spreadAngle = acos(pow(0.5f/(shininess+1),1/shininess));
-				miplevel = (spreadAngle<=0) ? 15.f : 1-4.5f*log(spreadAngle/RR_DEG2RAD(45)); // looks better, shininess from 0..255 range covers miplevels up to 64x64
+				miplevel = (spreadAngle<=0) ? 15.f : log(spreadAngle/RR_DEG2RAD(45))/log(0.5f); // theoretically correct for 45->0, 22->1, 11->2 ...
 				break;
 			case rr::RRMaterial::BLINN_PHONG:
 				shininess = RR_CLAMPED(material->specularShininess,1,1e10f);
-				spreadAngle = acos(pow(1/(shininess+1),1/shininess));
-				miplevel = (spreadAngle<=0) ? 15.f : 1-4.5f*log(spreadAngle/RR_DEG2RAD(45));
+				spreadAngle = acos(pow(1/(shininess+1),1/shininess))*2; // estimate: 2x higher than PHONG
+				miplevel = (spreadAngle<=0) ? 15.f : log(spreadAngle/RR_DEG2RAD(45))/log(0.5f);
 				break;
 			case rr::RRMaterial::TORRANCE_SPARROW:
 				shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,0.001f,1);
