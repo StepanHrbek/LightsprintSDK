@@ -216,7 +216,7 @@
 varying vec3 worldPos;
 
 #if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))
-	uniform vec2 materialSpecularShininess;
+	uniform vec2 materialSpecularShininessData; // shininess, miplevel
 #endif
 
 #ifdef MATERIAL_SPECULAR_CONST
@@ -703,16 +703,16 @@ void main()
 					#ifdef LIGHT_DIRECT
 						#if MATERIAL_SPECULAR_MODEL==0
 							// Phong, materialSpecularShininess in 1..inf
-							+ pow( max(0.0,dot(worldLightDirFromPixel,normalize(worldViewReflected))) ,materialSpecularShininess.x) * (materialSpecularShininess.x+1.0)
+							+ pow( max(0.0,dot(worldLightDirFromPixel,normalize(worldViewReflected))) ,materialSpecularShininessData.x) * (materialSpecularShininessData.x+1.0)
 						#elif MATERIAL_SPECULAR_MODEL==1
 							// Blinn-Phong, materialSpecularShininess in 1..inf
-							+ pow(NH,materialSpecularShininess.x) * (materialSpecularShininess.x+1.0)
+							+ pow(NH,materialSpecularShininessData.x) * (materialSpecularShininessData.x+1.0)
 						#elif MATERIAL_SPECULAR_MODEL==2
 							// Torrance-Sparrow (Gaussian), materialSpecularShininess=m^2=0..1
-							+ exp((1.0-1.0/(NH*NH))/materialSpecularShininess.x) / (4.0*materialSpecularShininess.x*((NH*NH)*(NH*NH))+0.0000000000001)
+							+ exp((1.0-1.0/(NH*NH))/materialSpecularShininessData.x) / (4.0*materialSpecularShininessData.x*((NH*NH)*(NH*NH))+0.0000000000001)
 						#else
 							// Blinn-Torrance-Sparrow, materialSpecularShininess=c3^2=0..1
-							+ sqr(materialSpecularShininess.x/(NH*NH*(materialSpecularShininess.x-1.0)+1.0))
+							+ sqr(materialSpecularShininessData.x/(NH*NH*(materialSpecularShininessData.x-1.0)+1.0))
 						#endif
 						* lightDirect
 					#endif
@@ -721,7 +721,7 @@ void main()
 						+ lightIndirectConst
 					#endif
 					#ifdef LIGHT_INDIRECT_ENV_SPECULAR
-						+ textureCubeLod(lightIndirectEnvMap, worldViewReflected, lightIndirectEnvMapNumLods-materialSpecularShininess.y)
+						+ textureCubeLod(lightIndirectEnvMap, worldViewReflected, lightIndirectEnvMapNumLods-materialSpecularShininessData.y)
 						#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
 							// reflection maps for big complex objects like whole building tend to be very inaccurate,
 							// modulating reflection by indirect irradiance makes them look better
