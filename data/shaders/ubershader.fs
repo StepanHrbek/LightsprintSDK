@@ -364,7 +364,7 @@ void main()
 			vec3 localNormal = normalize(texture2D(materialNormalMap,materialNormalMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
 			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*worldNormalSmooth);
 		#else
-			vec3 worldNormal = worldNormalSmooth; // normalize would slightly improve quality
+			vec3 worldNormal = normalize(worldNormalSmooth); // normalize improves quality of Blinn-Phong
 		#endif
 	#endif
 	#ifdef MATERIAL_EMISSIVE_MAP
