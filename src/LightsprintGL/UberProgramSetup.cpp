@@ -482,7 +482,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	if (SHADOW_SAMPLES>1)
 	{
 		unsigned shadowmapSize = light->getRRLight().rtShadowmapSize;
-		program->sendUniform("shadowBlurWidth",rr::RRVec4(2.5f,-2.5f,0.0f,1.5f)/shadowmapSize);
+		program->sendUniform("shadowBlurWidth",rr::RRVec4(1.5f,1.5f,2.5f,-2.5f)/shadowmapSize);
 	}
 
 	if (LIGHT_DIRECT)

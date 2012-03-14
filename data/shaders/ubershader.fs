@@ -374,6 +374,16 @@ void main()
 
 	/////////////////////////////////////////////////////////////////////
 	//
+	// noise
+
+	#if SHADOW_SAMPLES*SHADOW_MAPS>0 || (defined(MATERIAL_SPECULAR) && defined(LIGHT_INDIRECT_MIRROR))
+		float noise = sin(dot(worldPos,vec3(52.714,112.9898,78.233))) * 43758.5453;
+		vec2 noiseSinCos = vec2(sin(noise),cos(noise));
+	#endif
+
+
+	/////////////////////////////////////////////////////////////////////
+	//
 	// shadowing
 
 	#if SHADOW_SAMPLES*SHADOW_MAPS>0
@@ -399,20 +409,17 @@ void main()
 			#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) visibility += shadow2DProj(shadowMap, shadowCoord).z
 		#else
 			// soft shadows with 2, 4 or 8 lookups in rotating kernel
-			#ifdef SHADOW_BILINEAR
-				float noise = 8.1*gl_FragCoord.x+5.7*gl_FragCoord.y;
-			#else
-				float noise = 16.2*gl_FragCoord.x+11.4*gl_FragCoord.y;
-			#endif
-			vec3 sc = vec3(sin(noise),cos(noise),0.0);
-			vec3 shift1 = sc*shadowBlurWidth.w;
-			vec3 shift2 = sc.yxz*shadowBlurWidth.xyz;
+			vec4 shift = vec4(noiseSinCos.xyyx*shadowBlurWidth);
+			vec3 shift1 = vec3(shift.xy,0.0);
+			vec3 shift2 = vec3(shift.zw,0.0);
+			vec3 shift3 = vec3((shift.xy+shift.zw)*0.5,0.0);
+			vec3 shift4 = vec3((shift.xy-shift.zw)*0.5,0.0);
 			#if SHADOW_SAMPLES==2
 				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( shadow2D(shadowMap, center+shift1).z +shadow2D(shadowMap, center-shift1).z )
 			#elif SHADOW_SAMPLES==4
 				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( shadow2D(shadowMap, center+shift1).z +shadow2D(shadowMap, center-shift1).z +shadow2D(shadowMap, center+shift2).z +shadow2D(shadowMap, center-shift2).z )
 			#elif SHADOW_SAMPLES==8
-				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( shadow2D(shadowMap, center+shift1).z +shadow2D(shadowMap, center-shift1).z +shadow2D(shadowMap, center+0.3*shift1).z +shadow2D(shadowMap, center-0.6*shift1).z +shadow2D(shadowMap, center+shift2).z +shadow2D(shadowMap, center-0.9*shift2).z +shadow2D(shadowMap, center+0.8*shift2).z +shadow2D(shadowMap, center-0.7*shift2).z )
+				#define SHADOWMAP_LOOKUP(shadowMap,shadowCoord) center = shadowCoord.xyz/shadowCoord.w; visibility += ( shadow2D(shadowMap, center+shift1).z +shadow2D(shadowMap, center-shift1).z +shadow2D(shadowMap, center+shift2).z +shadow2D(shadowMap, center-shift2).z +shadow2D(shadowMap, center+shift3).z +shadow2D(shadowMap, center-shift3).z +shadow2D(shadowMap, center+shift4).z +shadow2D(shadowMap, center-shift4).z )
 			#endif
 		#endif // SHADOW_SAMPLES!=1
 
@@ -606,9 +613,8 @@ void main()
 		#endif
 
 		#if defined(MATERIAL_SPECULAR) && defined(LIGHT_INDIRECT_MIRROR)
-			float mirrorNoise = 16.2*gl_FragCoord.x+11.4*gl_FragCoord.y;
 			vec2 mirrorCenter = vec2(0.5,0.5)+vec2(-0.5,0.5)*lightIndirectMirrorCoord.xy/lightIndirectMirrorCoord.w;
-			vec2 mirrorShift1 = vec2(sin(mirrorNoise),cos(mirrorNoise)) * lightIndirectMirrorBlurWidth.xy;
+			vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorBlurWidth.xy;
 			vec2 mirrorShift2 = mirrorShift1.yx * lightIndirectMirrorBlurWidth.zw;
 		#endif
 
