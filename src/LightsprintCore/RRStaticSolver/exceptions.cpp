@@ -341,7 +341,8 @@ unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRStr
 
 unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRString& ext) const
 {
-	unsigned result = 0;
+	unsigned numBuffers = 0;
+	unsigned numSaved = 0;
 	if (layerNumber>=0)
 	{
 		// create destination directories
@@ -357,6 +358,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRStr
 			RRBuffer* buffer = object->illumination.getLayer(layerNumber);
 			if (buffer)
 			{
+				numBuffers++;
 				RRObject::LayerParameters layerParameters;
 				layerParameters.suggestedPath = path;
 				layerParameters.suggestedExt = ext;
@@ -364,7 +366,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRStr
 				object->recommendLayerParameters(layerParameters);
 				if (buffer->save(layerParameters.actualFilename))
 				{
-					result++;
+					numSaved++;
 					RRReporter::report(INF3,"Saved %ls.\n",layerParameters.actualFilename.w_str());
 				}
 				else
@@ -372,12 +374,15 @@ unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRStr
 					RRReporter::report(WARN,"Not saved %ls.\n",layerParameters.actualFilename.w_str());
 			}
 		}
-		if (result)
-			RRReporter::report(INF2,"Saved layer %d, %d/%d buffers into %ls.\n",layerNumber,result,size(),path.w_str());
+		if (!numBuffers)
+			; // don't report saving empty layer
 		else
-			RRReporter::report(WARN,"Failed to save layer %d (%d buffers) into %ls.\n",layerNumber,size(),path.w_str());
+		if (numSaved)
+			RRReporter::report(INF2,"Saved layer %d, %d/%d buffers into %ls.\n",layerNumber,numSaved,numBuffers,path.w_str());
+		else
+			RRReporter::report(WARN,"Failed to save layer %d (%d buffers) into %ls.\n",layerNumber,numBuffers,path.w_str());
 	}
-	return result;
+	return numSaved;
 }
 
 } // namespace
