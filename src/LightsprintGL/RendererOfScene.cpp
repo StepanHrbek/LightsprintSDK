@@ -483,10 +483,16 @@ void RendererOfSceneImpl::render(
 			ClipPlanes clipPlanes = {mirrorPlane,0,0,0,0,0,0};
 			depthMap->reset(rr::BT_2D_TEXTURE,mirrorMap->getWidth(),mirrorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
 			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(depthMap,false,false));
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,new Texture(mirrorMap,false,false)); // new Texture instead of getTexture makes our texture deletable at the end of render()
+			Texture* mirrorTex = new Texture(mirrorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorTex);
 			glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			render(_solver,mirrorUberProgramSetup,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,_srgbCorrect,NULL,1);
+
+			// build mirror mipmaps
+			mirrorTex->bindTexture();
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glGenerateMipmapEXT(GL_TEXTURE_2D); // part of EXT_framebuffer_object
 		}
 		oldState.restore();
 		setupForRender(mainCamera);

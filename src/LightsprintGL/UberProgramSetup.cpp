@@ -654,7 +654,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendUniform("materialDiffuseConst",rr::RRVec4(material->diffuseReflectance.color,1.0f));
 	}
 
-	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR))
+	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR))
 	{
 		float shininess = material->specularShininess;
 		float spreadAngle; // how far from reflection angle reflection intensity is 0.5 (with intensity averaged over hemisphere 1)
@@ -680,7 +680,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 				miplevel = (1-shininess)*6;
 				break;
 		}
-		program->sendUniform("materialSpecularShininessData",shininess,miplevel);
+		program->sendUniform("materialSpecularShininessData",rr::RRVec3(shininess,miplevel,powf(1.5,miplevel)));
 	}
 
 	if (MATERIAL_SPECULAR_CONST)
@@ -757,8 +757,11 @@ void UberProgramSetup::useIlluminationMirror(Program* program, const rr::RRBuffe
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationMirror: mirrorMap==NULL.\n"));
 		}
+		unsigned w = mirrorMap->getWidth();
+		unsigned numLevels = 1;
+		while (w>32) {w = w/2; numLevels++;}
 		program->sendTexture("lightIndirectMirrorMap",getTexture(mirrorMap,false,false),TEX_CODE_2D_LIGHT_INDIRECT_MIRROR);
-		program->sendUniform("lightIndirectMirrorBlurWidth",rr::RRVec4(1.7f/mirrorMap->getWidth(),1.7f/mirrorMap->getHeight(),1.7f,1.7f));
+		program->sendUniform("lightIndirectMirrorData",rr::RRVec3(powf(1.5f,(float)numLevels)/mirrorMap->getWidth(),powf(1.5f,(float)numLevels)/mirrorMap->getHeight(),(float)numLevels));
 	}
 }
 

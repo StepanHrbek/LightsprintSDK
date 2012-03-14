@@ -12,8 +12,13 @@ namespace rr
 
 NEWS
 
-- import of normal maps and tangent space from Collada .dae
-- RRMeshArrays::buildTangents() has one more parameter, generated tangent space is better for normal mapping
+- <b>improved shininess</b> (RRMaterial::specularShininess)
+  - shininess in automatic mirror reflections honoured
+  - shininess in environment reflections adjusted, it was too sharp
+  - default shininess changed from 100 to 10000 (Phong shininess 100 makes reflections extremely blurry, 10000 blurry, 100000 sharp)
+- <b>improved normal maps</b> (RRMaterial::normalMap)
+  - import of normal maps and tangent space from Collada .dae
+  - RRMeshArrays::buildTangents() has one more parameter, generated tangent space is better for normal mapping
 
 CHANGES
 
@@ -69,7 +74,7 @@ CHANGES
 
 NEWS
 
-- normal maps
+- <b>normal maps</b>
   - RRMaterial::normalMap lets you specify normal mapping
   - rr_gl::UberProgramSetup::MATERIAL_NORMAL_MAP enables normal maps in realtime renderer
   - import/export from .rr3
@@ -80,6 +85,7 @@ NEWS
   \image html normalmap1.jpg
   </td></tr></table>
   (with and without normal map)
+
 \section news129 ------------------------------------ 2012.01.16 -------------------------------------
 
 NEWS

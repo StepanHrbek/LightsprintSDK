@@ -201,7 +201,7 @@
 #if defined(LIGHT_INDIRECT_MIRROR)
 	varying vec4 lightIndirectMirrorCoord;
 	uniform sampler2D lightIndirectMirrorMap;
-	uniform vec4 lightIndirectMirrorBlurWidth;
+	uniform vec3 lightIndirectMirrorData; // (1.5^numLevels)/width,(1.5^numLevels)/height,numLevels
 #endif
 
 #ifdef MATERIAL_DIFFUSE_CONST
@@ -215,8 +215,8 @@
 
 varying vec3 worldPos;
 
-#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))
-	uniform vec2 materialSpecularShininessData; // shininess, miplevel
+#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_INDIRECT_MIRROR))
+	uniform vec3 materialSpecularShininessData; // shininess,cube miplevel(0=1x1x6,2=2x2x6,3=4x4x6...),1.5^miplevel
 #endif
 
 #ifdef MATERIAL_SPECULAR_CONST
@@ -613,9 +613,10 @@ void main()
 		#endif
 
 		#if defined(MATERIAL_SPECULAR) && defined(LIGHT_INDIRECT_MIRROR)
+			float mirrorLod = lightIndirectMirrorData.z-materialSpecularShininessData.y;
 			vec2 mirrorCenter = vec2(0.5,0.5)+vec2(-0.5,0.5)*lightIndirectMirrorCoord.xy/lightIndirectMirrorCoord.w;
-			vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorBlurWidth.xy;
-			vec2 mirrorShift2 = mirrorShift1.yx * lightIndirectMirrorBlurWidth.zw;
+			vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorData.xy / materialSpecularShininessData.z;
+			vec2 mirrorShift2 = mirrorShift1.yx * vec2(1.5,-1.5);
 		#endif
 
 		gl_FragColor =
@@ -730,10 +731,10 @@ void main()
 						#endif
 					#endif
 					#ifdef LIGHT_INDIRECT_MIRROR
-						+ ( texture2D(lightIndirectMirrorMap, mirrorCenter+mirrorShift1)
-						+ texture2D(lightIndirectMirrorMap, mirrorCenter-mirrorShift1)
-						+ texture2D(lightIndirectMirrorMap, mirrorCenter+mirrorShift2)
-						+ texture2D(lightIndirectMirrorMap, mirrorCenter-mirrorShift2) ) * 0.25
+						+ ( texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift1, mirrorLod)
+						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift1, mirrorLod)
+						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift2, mirrorLod)
+						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift2, mirrorLod) ) * 0.25
 					#endif
 				).rgb,1.0)
 			#endif
