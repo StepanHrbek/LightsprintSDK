@@ -407,7 +407,9 @@ namespace COLLADASaxFWL
         */
         bool loadTexCoordsSourceElement ( const InputShared& input );
 
-		// NOTE Added by Mikee
+		/**
+		* Load the tex data (textangent or texbinormals) source elements
+		*/
 		bool loadTexDataSourceElement ( const InputShared& input, InputSemantic::Semantic inputSemantic, char* inputName, COLLADAFW::MeshVertexData& inputData );
 
         /**

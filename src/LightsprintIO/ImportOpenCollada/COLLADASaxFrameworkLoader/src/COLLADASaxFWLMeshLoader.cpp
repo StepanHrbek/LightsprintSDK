@@ -153,11 +153,9 @@ namespace COLLADASaxFWL
             retValue = loadTexCoordsSourceElement ( input );
             break;
 		case InputSemantic::TEXTANGENT:
-			// NOTE Added by Mikee
 			retValue = loadTexDataSourceElement( input, InputSemantic::TEXTANGENT, "textangent", mMesh->getTexTangents () );
 			break;
 		case InputSemantic::TEXBINORMAL:
-			// NOTE Added by Mikee
 			retValue = loadTexDataSourceElement( input, InputSemantic::TEXBINORMAL, "texbinormal", mMesh->getTexBinormals () );
 			break;
         default:
@@ -495,7 +493,6 @@ namespace COLLADASaxFWL
     }
 
 	//------------------------------
-	// NOTE Added by Mikee
 	bool MeshLoader::loadTexDataSourceElement ( const InputShared& input, InputSemantic::Semantic inputSemantic, char* inputName, COLLADAFW::MeshVertexData& inputData )
 	{
 		bool retValue = true;

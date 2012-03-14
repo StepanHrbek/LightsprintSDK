@@ -881,9 +881,10 @@ namespace COLLADASaxFWL
         COLLADAFW::EffectCommon& commonEffect =  *mCurrentEffect->getCommonEffects().back();
         COLLADAFW::SamplerPointerArray& samplerArray = commonEffect.getSamplerPointerArray();
 
-		// NOTE Added by Mikee
-		// Separate from the rest we will save us all samplers with valid surfaces, needed for extra data
-		// Also, we need to deep-copy this, unused sampler according to opencollada gets deleted along the way
+		/* Separate from the rest we will save us all samplers with valid surfaces, this is needed for processing of textures
+		 * in extra data, since we don't know about at this time. Also, we need to deep-copy this, unused samplers gets deleted along the way
+		 * This is a quick hack and a potential FIXME and should basically replace the used samplers code in the second part of this function
+		 */
 		for(SidSamplerInfoMap::iterator samplerIt = mEffectProfileSidSamplerInfoMap.begin(); samplerIt != mEffectProfileSidSamplerInfoMap.end(); samplerIt++)
 		{
 			SamplerInfo& samplerInfo = samplerIt->second;

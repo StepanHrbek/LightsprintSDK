@@ -72,9 +72,8 @@ namespace COLLADAFW
         MeshVertexData mUVCoords;
 
 		
-		// NOTE Added by Mikee
 		/** 
-        * The tex data arrays
+        * The tex data arrays.
         */
 		MeshVertexData mTexTangents;
 		MeshVertexData mTexBinormals;
@@ -223,7 +222,6 @@ namespace COLLADAFW
             return 0;
         }
 
-		// NOTE Added by Mikee
 		/** 
         * The tex data arrays
         */

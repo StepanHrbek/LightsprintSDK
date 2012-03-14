@@ -118,8 +118,6 @@ namespace COLLADAFW
         */
         IndexListArray mUVCoordIndicesArray;
 
-
-		// NOTE Added by Mikee
 		/** 
         * The index list of the tex data arrays (support of multiple sets). 
         */
