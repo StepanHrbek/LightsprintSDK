@@ -140,6 +140,8 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 	stereoTexture = NULL;
 	stereoUberProgram = NULL;
 
+	previousLightIndirect = LI_NONE;
+
 }
 
 void SVCanvas::createContextCore()
@@ -1304,6 +1306,23 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				solver->setEnvironmentBlendFactor(0);
 				skyboxBlendingInProgress = false;
 			}
+		}
+
+		// attempt to render empty baked layer? fill it with data from realtime layer
+		if (previousLightIndirect!=svs.renderLightIndirect)
+		{
+			rr::RRObjects allObjects = solver->getStaticObjects();
+			allObjects.insert(allObjects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
+			for (unsigned i=0;i<allObjects.size();i++)
+			{
+				if (svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED)
+					if (!allObjects[i]->illumination.getLayer(svs.layerBakedEnvironment) && allObjects[i]->illumination.getLayer(svs.layerRealtimeEnvironment))
+						allObjects[i]->illumination.getLayer(svs.layerBakedEnvironment) = allObjects[i]->illumination.getLayer(svs.layerRealtimeEnvironment)->createReference();
+				if (svs.renderLightIndirect==LI_BAKED)
+					if (!allObjects[i]->illumination.getLayer(svs.layerBakedAmbient) && allObjects[i]->illumination.getLayer(svs.layerRealtimeAmbient))
+						allObjects[i]->illumination.getLayer(svs.layerBakedAmbient) = allObjects[i]->illumination.getLayer(svs.layerRealtimeAmbient)->createReference();
+			}
+			previousLightIndirect = svs.renderLightIndirect;
 		}
 
 

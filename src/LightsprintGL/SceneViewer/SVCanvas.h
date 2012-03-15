@@ -149,6 +149,8 @@ namespace rr_gl
 		Texture*                   stereoTexture;
 		UberProgram*               stereoUberProgram;
 
+		LightingIndirect           previousLightIndirect;
+
 		friend class SVFrame;
 
 		DECLARE_EVENT_TABLE()
