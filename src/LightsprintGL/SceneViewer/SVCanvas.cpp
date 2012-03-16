@@ -1470,13 +1470,9 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					stereoProgram->sendUniform("mapHalfHeight",float(winHeight/2));
 					glDisable(GL_CULL_FACE);
 					glBegin(GL_POLYGON);
-						glMultiTexCoord2f(GL_TEXTURE0,0,0);
 						glVertex2f(-1,-1);
-						glMultiTexCoord2f(GL_TEXTURE0,0,1);
 						glVertex2f(-1,1);
-						glMultiTexCoord2f(GL_TEXTURE0,1,1);
 						glVertex2f(1,1);
-						glMultiTexCoord2f(GL_TEXTURE0,1,0);
 						glVertex2f(1,-1);
 					glEnd();
 				}
