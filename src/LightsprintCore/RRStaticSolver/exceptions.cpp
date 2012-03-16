@@ -12,6 +12,9 @@
 #include "Lightsprint/RRBuffer.h"
 #include <string>
 //#include <boost/unordered_map.hpp>
+#ifdef _MSC_VER
+	#include <windows.h> // EXCEPTION_EXECUTE_HANDLER
+#endif
 
 // FaceGroups
 #include "Lightsprint/RRObject.h"
@@ -91,6 +94,8 @@ public:
 	RRBuffer* load_cached(const RRString& filename, const char* cubeSideName[6])
 	{
 		bool sixfiles = wcsstr(filename.w_str(),L"%s")!=NULL;
+		bool exists = !sixfiles && bf::exists(RR_RR2PATH(filename));
+
 		Cache::iterator i = cache.find(RR_RR2STDW(filename));
 		if (i!=cache.end())
 		{
@@ -99,6 +104,7 @@ public:
 				&& (i->second.buffer->getDuration() // always take videos from cache
 					|| i->second.buffer->version==i->second.bufferVersionWhenLoaded) // take static content from cache only if version did not change
 				&& (sixfiles
+					|| !exists // for example c@pture is virtual file, it does not exist on disk, but still we cache it
 					|| (i->second.fileTimeWhenLoaded==bf::last_write_time(filename.w_str()) && i->second.fileSizeWhenLoaded==bf::file_size(filename.w_str())))
 				)
 			{
@@ -122,8 +128,8 @@ public:
 		{
 			value.buffer->createReference(); // keep initial ref for us, add one ref for user
 			value.bufferVersionWhenLoaded = value.buffer->version;
-			value.fileTimeWhenLoaded = sixfiles ? 0 : bf::last_write_time(filename.w_str());
-			value.fileSizeWhenLoaded = sixfiles ? 0 : bf::file_size(filename.w_str());
+			value.fileTimeWhenLoaded = exists ? bf::last_write_time(filename.w_str()) : 0;
+			value.fileSizeWhenLoaded = exists ? bf::file_size(filename.w_str()) : 0;
 		}
 		return value.buffer;
 	}
@@ -186,7 +192,19 @@ ImageCache s_imageCache;
 
 RRBuffer* load_cached(const RRString& filename, const char* cubeSideName[6])
 {
-	return s_imageCache.load_cached(filename,cubeSideName);
+#ifdef _MSC_VER
+	__try
+	{
+#endif
+		return s_imageCache.load_cached(filename,cubeSideName);
+#ifdef _MSC_VER
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRBuffer import crashed.\n"));
+		return NULL;
+	}
+#endif
 }
 
 void RRBuffer::deleteFromCache()
