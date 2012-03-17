@@ -75,7 +75,8 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		for (unsigned i=0;solver && i<solver->getLights().size();i++)
 		{
 			wxString name = RR_RR2WX(solver->getLights()[i]->name);
-			if (name.empty()) name = wxString::Format(_("light %d"),i);
+			rr::RRLight::Type type = solver->getLights()[i]->type;
+			if (name.empty()) name = ((type==rr::RRLight::SPOT)?_("spot light"):((type==rr::RRLight::POINT)?_("point light"):_("sun light"))) + wxString::Format(" %d",i);
 			AppendItem(lights,name,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
 		}
 	}
