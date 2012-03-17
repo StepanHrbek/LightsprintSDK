@@ -45,6 +45,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 			propCameraFocalLength = new FloatProperty(_("Focal length")+" (m)",_("How distant objects should appear in display plane."),svs.eye.focalLength,svs.precision,0,1e10,1,false);
 			AppendIn(propCameraStereo,propCameraFocalLength);
+
 		}
 
 
