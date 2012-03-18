@@ -476,7 +476,7 @@ Video formats
 \page tpl_glew GLEW
   - www: <a href="http://glew.sourceforge.net/">GLEW</a>
   - license: <a href="http://glew.sourceforge.net/glew.txt">modified BSD license</a>
-  - Windows: precompiled version 1.5.5 is a part of SDK
+  - Windows: precompiled version 1.7.0 is a part of SDK
   - Linux: install using
     - Ubuntu: <code>sudo apt-get install libglew1.5-dev</code>
     - Fedora: <code>pkcon install glew-devel</code>
