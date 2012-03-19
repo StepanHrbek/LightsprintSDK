@@ -228,10 +228,17 @@ bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned
 		return false;
 	}
 
+	// find out our object number
+	unsigned objectNumber;
+	{
+		const RRObjects& staticObjects = getStaticObjects();
+		for (objectNumber=0;objectNumber<staticObjects.size() && &staticObjects[objectNumber]->illumination!=illumination;objectNumber++) ;
+	}
+
 	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static
 	for (int side=0;side<6;side++)
 	{
-		kit->handler6[side].setup(multiObject,illumination->envMapObjectNumber,illumination->envMapWorldRadius);
+		kit->handler6[side].setup(multiObject,objectNumber,illumination->envMapWorldRadius);
 		RRRay* ray = kit->ray6+side;
 		for (unsigned j=0;j<gatherSize;j++)
 			for (unsigned i=0;i<gatherSize;i++)

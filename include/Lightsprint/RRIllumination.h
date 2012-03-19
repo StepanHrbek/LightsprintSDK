@@ -76,8 +76,6 @@ namespace rr
 		RRBuffer*& getLayer(unsigned layerNumber);
 		RRBuffer* getLayer(unsigned layerNumber) const;
 
-		//! Set automatically, don't modify.
-		unsigned short envMapObjectNumber;
 		//! World coordinate of object center. To be updated by you when object moves.
 		RRVec3 envMapWorldCenter;
 		RRReal envMapWorldRadius;

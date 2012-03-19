@@ -316,7 +316,6 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		//{
 		//	RRVec3 mini,maxi;
 		//	worldMesh->getAABB(&mini,&maxi,NULL);
-		//	getStaticObjects()[i]->illumination.envMapObjectNumber = i;
 		//	getStaticObjects()[i]->illumination.envMapWorldRadius = (maxi-mini).length()/2;
 		//	delete worldMesh;
 		//}
@@ -324,7 +323,6 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 		// faster, less precise with non-uniform scale (would make updateEnvironmentMap() slower)
 		RRVec3 mini,maxi;
 		getStaticObjects()[i]->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
-		getStaticObjects()[i]->illumination.envMapObjectNumber = i;
 		getStaticObjects()[i]->illumination.envMapWorldRadius = (maxi-mini).length()/2*getStaticObjects()[i]->getWorldMatrixRef().getScale().abs().avg();
 
 		// clear cached triangle numbers
