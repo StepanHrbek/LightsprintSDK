@@ -90,11 +90,11 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 						}
 					}
 					// continue only for highly specular objects
-					if (maxSpecular>RR_MAX(0.01f,_specularThreshold))
+					if (maxSpecular>RR_MAX(0,_specularThreshold))
 					{
 						// measure object's size
-						RRVec3 mini,maxi;
-						mesh->getAABB(&mini,&maxi,NULL);
+						RRVec3 mini,maxi,center;
+						mesh->getAABB(&mini,&maxi,&center);
 						RRVec3 size = maxi-mini;
 						float sizeMidi = size.sum()-size.maxi()-size.mini();
 						// continue only for non-planar objects, cubical reflection looks bad on plane
@@ -102,8 +102,6 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 						if (_depthThreshold<1 && size.mini()>=_depthThreshold*sizeMidi) // depthThreshold=0 allows everything, depthThreshold=1 nothing
 						{
 							// allocate specular cube map
-							RRVec3 center;
-							mesh->getAABB(NULL,NULL,&center);
 							const RRMatrix3x4* matrix = object->getWorldMatrix();
 							if (matrix) matrix->transformPosition(center);
 							illumination.envMapWorldCenter = center;
