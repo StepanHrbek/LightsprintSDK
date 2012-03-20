@@ -458,31 +458,48 @@ namespace rr
 
 		//! Allocates buffers for realtime GI illumination.
 		//
-		//! This is helper function, RRDynamicSolver::allocateBuffersForRealtimeGI() calls it for
-		//! objects in solver. You can call it directly for finer control over buffers allocated,
-		//! but most likely you don't need to.
+		//! Before rendering realtime GI, you need buffers for illumination to be calculated into.
+		//!
+		//! For the best control, you can allocate these buffers manually, using code like
+		//! <code>
+		//! for (all static objects)
+		//!		illumination.getLayer(layerLightmap) = RRBuffer::create(BT_VERTEX_BUFFER,getNumVertices(),1,1,BF_RGBF,false,NULL);
+		//! for (all objects that need environment map)
+		//!		illumination.getLayer(layerEnvironment) = RRBuffer::create(BT_CUBE_TEXTURE,16,16,6,BF_RGBA,true,NULL);
+		//! </code>
+		//! 
+		//! However, you can save time by calling this helper function, once for solver's static objects, once for dynamic ones.
+		//!
+		//! Well, you can save even more by calling RRDynamicSolver::allocateBuffersForRealtimeGI(), it handles both static ond dynamic objects at once.
 		//! \param layerLightmap
+		//!  Arbitrary layer number for storing realtime calculated per-vertex indirect illumination.
 		//!  If >=0, vertex buffers in illumination->getLayer(layerLightmap) are allocated, resized or deleted according to other parameters.
+		//!  You should pass the same layer number to renderer, so it can use buffers you just allocated.
 		//!  Pass <0 if you don't want to touch vertex buffers.
 		//!  Vertex buffers are suitable (=we can realtime update them) only for static objects.
 		//! \param layerEnvironment
+		//!  Arbitrary layer number for storing realtime calculated environment maps.
 		//!  If >=0, cubemaps in illumination->getLayer(layerEnvironment) are allocated, resized or deleted according to other parameters.
-		//!  Pass <0 if you don't want to touch cubemaps.
-		//!  Cubemaps are suitable (=we can realtime update them) for both static and dynamic objects.
+		//!  You should pass the same layer number to renderer, so it can use buffers you just allocated.
+		//!  Pass <0 if you don't want to touch environment maps.
+		//!  Environment maps are suitable (=we can realtime update them) for both static and dynamic objects.
 		//! \param diffuseEnvMapSize
 		//!  If materials have diffuse reflection, reflection map of at least this size will be allocated in illumination.
 		//!  Size 4 is usually good enough.
 		//! \param specularEnvMapSize
 		//!  If materials have specular reflection, reflection map of at least this size will be allocated in illumination.
-		//!  Size 16 is usually sufficient, not very sharp, but makes rendering fast.
+		//!  Size 16 is usually sufficient, not very sharp, but makes GI calculation fast.
 		//! \param allocateNewBuffers
 		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
 		//! \param changeExistingBuffers
 		//!  If buffer already exists, true = it will be resized or deleted accordingly, false = no action.
 		//! \param specularThreshold
-		//!  Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply.
+		//!  Only objects with specular color above threshold apply for specular cube reflection, -1=all objects apply, 0=all objects with specular apply, 0.2=only objects with spec color above 0.2 apply.
 		//! \param depthThreshold
 		//!  Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply.
+		//!  Depth is number between 0 and 1, calculated as ratio between min and mid size of axis aligned bounding box.
+		//!  Purpose of depthThreshold is to exclude very flat objects from processing, environment reflections produce visible inaccuracies on such objects.
+		//!  For absolutely flat objects, see rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR, it produces reflections of high quality and accuracy.
 		//! \return
 		//!  Number of buffers allocated or reallocated.
 		virtual unsigned allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const;

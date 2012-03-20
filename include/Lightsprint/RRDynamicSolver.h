@@ -913,37 +913,10 @@ namespace rr
 		//! the only light source ignored by Architect solver is environment/skybox.
 		virtual bool containsRealtimeGILightSource() const;
 
-		//! Allocates illumination buffers for realtime GI.
+		//! Allocates buffers for realtime GI illumination of objects in solver.
 		//
-		//! This function allocates empty buffers in RRObject::illumination of all objects.
-		//!
-		//! Currently it does not allocate buffers for specular cube reflections for flat objects,
-		//! because such reflections are inaccurate, but you can always allocate such buffers yourself,
-		//! example: illumination.specularEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,16,16,6,BF_RGBA,true,NULL);
-		//! \param layerLightmap
-		//!  Arbitrary layer number for storing realtime calculated per-vertex indirect illumination.
-		//!  You should pass the same layer number to renderer, so it can use buffers you just allocated.
-		//!  Use any negative number for no allocation.
-		//! \param layerEnvironment
-		//!  Arbitrary layer number for storing realtime calculated environment maps.
-		//!  You should pass the same layer number to renderer, so it can use buffers you just allocated.
-		//!  Use any negative number for no allocation.
-		//! \param diffuseEnvMapSize
-		//!  If >0, and materials have diffuse reflection, reflection map of at least this size will be allocated in illumination.
-		//!  Default size 4 is usually good enough.
-		//!  Pass -1 to keep existing map.
-		//! \param specularEnvMapSize
-		//!  If >0, and materials have specular reflection, reflection map of at least this size will be allocated in illumination.
-		//!  Default size 16 is usually sufficient, not very sharp, but makes rendering fast.
-		//!  Pass -1 to keep existing map.
-		//! \param allocateNewBuffers
-		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
-		//! \param changeExistingBuffers
-		//!  If buffer already exists, true = it will be resized or deleted accordingly, false = no action.
-		//! \param specularThreshold
-		//!  Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply.
-		//! \param depthThreshold
-		//!  Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply.
+		//! See RRObjects::allocateBuffersForRealtimeGI() for parameters
+		//! and additional information.
 		virtual void allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize = 4, unsigned specularEnvMapSize = 16, bool allocateNewBuffers = true, bool changeExistingBuffers = true, float specularThreshold = 0.2f, float depthThreshold = 0.1f) const;
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
