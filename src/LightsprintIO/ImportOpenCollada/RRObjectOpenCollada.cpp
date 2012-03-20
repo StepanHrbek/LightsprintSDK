@@ -1998,7 +1998,7 @@ public:
 							{
 								COLLADAFW::IndexList* uvChannel = primitiveElement->getUVCoordIndices(uv);
 
-								unsigned int uvIndex = uvChannel->getInitialIndex() + (uvChannel->getIndex(vert) * uvChannel->getStride());
+								unsigned int uvIndex = uvChannel->getIndex(vert) * uvChannel->getStride();
 
 								// physical set index for the whole mesh
 								size_t uvSet = colladaMesh->getUVSetIndexByName(uvChannel->getName());
