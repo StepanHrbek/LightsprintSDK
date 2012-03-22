@@ -138,7 +138,6 @@ struct RR_GL_API UberProgramSetup
 	UberProgramSetup()
 	{
 		memset(this,0,sizeof(*this));
-		MATERIAL_CULLING = true;
 	}
 
 	//! Enables all MATERIAL_XXX except for MATERIAL_NORMAL_MAP.

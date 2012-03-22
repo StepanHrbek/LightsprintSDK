@@ -239,18 +239,20 @@ done:
 					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = true;
+					uberProgramSetup.MATERIAL_CULLING = true; // when rendering glass sphere to RGB shadowmap, it is important to render only 1 side (otherwise front and back pixels mix randomly, depends on GPU)
 					break;
 				case RealtimeLight::ALPHA_KEYED_SHADOWS:
 					uberProgramSetup.comment = "// alpha keyed shadowmap pass\n";
 					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
-					uberProgramSetup.MATERIAL_DIFFUSE = 1;
+					uberProgramSetup.MATERIAL_DIFFUSE = true;
+					uberProgramSetup.MATERIAL_CULLING = true;
 					uberProgramSetup.LIGHT_INDIRECT_CONST = 1; // without light, diffuse texture would be optimized away
 					break;
 				case RealtimeLight::FULLY_OPAQUE_SHADOWS:
 					uberProgramSetup.comment = "// opaque shadowmap pass\n";
-					uberProgramSetup.MATERIAL_CULLING = 0;
+					uberProgramSetup.MATERIAL_CULLING = false; // rendering both sides reduces shadow bias problem
 					break;
 				default:
 					RR_ASSERT(0);
