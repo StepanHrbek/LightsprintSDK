@@ -2,8 +2,8 @@
 // Copyright (C) 2006-2012 Stepan Hrbek, Lightsprint
 //
 // Options:
-//  #define SHADOW_MAPS [0..10]
-//  #define SHADOW_SAMPLES [0|1|2|4|8]
+//  #define SHADOW_MAPS [1..10]
+//  #define SHADOW_SAMPLES [1|2|4|8]
 //  #define SHADOW_COLOR
 //  #define SHADOW_PENUMBRA
 //  #define SHADOW_CASCADE
@@ -56,57 +56,50 @@
 	uniform mat4 worldMatrix;
 #endif
 
+#if defined(SHADOW_MAPS)
 #if SHADOW_MAPS>0
 	uniform mat4 textureMatrix0;
 	varying vec4 shadowCoord0;
 #endif
-
 #if SHADOW_MAPS>1
 	uniform mat4 textureMatrix1;
 	varying vec4 shadowCoord1;
 #endif
-
 #if SHADOW_MAPS>2
 	uniform mat4 textureMatrix2;
 	varying vec4 shadowCoord2;
 #endif
-
 #if SHADOW_MAPS>3
 	uniform mat4 textureMatrix3;
 	varying vec4 shadowCoord3;
 #endif
-
 #if SHADOW_MAPS>4
 	uniform mat4 textureMatrix4;
 	varying vec4 shadowCoord4;
 #endif
-
 #if SHADOW_MAPS>5
 	uniform mat4 textureMatrix5;
 	varying vec4 shadowCoord5;
 #endif
-
 #if SHADOW_MAPS>6
 	uniform mat4 textureMatrix6;
 	varying vec4 shadowCoord6;
 #endif
-
 #if SHADOW_MAPS>7
 	uniform mat4 textureMatrix7;
 	varying vec4 shadowCoord7;
 #endif
-
 #if SHADOW_MAPS>8
 	uniform mat4 textureMatrix8;
 	varying vec4 shadowCoord8;
 #endif
-
 #if SHADOW_MAPS>9
 	uniform mat4 textureMatrix9;
 	varying vec4 shadowCoord9;
 #endif
+#endif
 
-#if defined(LIGHT_DIRECT_MAP) && SHADOW_MAPS==0
+#if defined(LIGHT_DIRECT_MAP) && !defined(SHADOW_MAPS)
 	uniform mat4 textureMatrixL;
 	varying vec4 lightCoord;
 #endif
@@ -225,6 +218,7 @@ void main()
 		#endif
 	#endif
 
+	#if defined(SHADOW_MAPS)
 	#if SHADOW_MAPS>0
 		shadowCoord0 = textureMatrix0 * worldPos4;
 	#endif
@@ -255,8 +249,9 @@ void main()
 	#if SHADOW_MAPS>9
 		shadowCoord9 = textureMatrix9 * worldPos4;
 	#endif
+	#endif
 
-	#if defined(LIGHT_DIRECT_MAP) && SHADOW_MAPS==0
+	#if defined(LIGHT_DIRECT_MAP) && !defined(SHADOW_MAPS)
 		lightCoord = textureMatrixL * worldPos4;
 	#endif
   

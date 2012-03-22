@@ -2,8 +2,8 @@
 // Copyright (C) 2006-2012 Stepan Hrbek, Lightsprint
 //
 // Options:
-//  #define SHADOW_MAPS [0..10]
-//  #define SHADOW_SAMPLES [0|1|2|4|8]
+//  #define SHADOW_MAPS [1..10]
+//  #define SHADOW_SAMPLES [1|2|4|8]
 //  #define SHADOW_COLOR
 //  #define SHADOW_PENUMBRA
 //  #define SHADOW_CASCADE
@@ -59,7 +59,7 @@
 
 #define sqr(a) ((a)*(a))
 
-#if SHADOW_SAMPLES>0
+#if defined(SHADOW_MAPS)
 #if SHADOW_MAPS>0
 	varying vec4 shadowCoord0;
 	uniform sampler2DShadow shadowMap0;
@@ -132,8 +132,10 @@
 #endif
 #endif
 
+#if defined(SHADOW_SAMPLES)
 #if SHADOW_SAMPLES>1
 	uniform vec4 shadowBlurWidth;
+#endif
 #endif
 
 #if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))
@@ -168,7 +170,7 @@
 #endif
 
 #ifdef LIGHT_DIRECT_MAP
-	#if SHADOW_MAPS==0
+	#if !defined(SHADOW_MAPS)
 		varying vec4 lightCoord;
 	#endif
 	uniform sampler2D lightDirectMap;
@@ -375,7 +377,7 @@ void main()
 	//
 	// noise
 
-	#if SHADOW_SAMPLES*SHADOW_MAPS>0 || (defined(MATERIAL_SPECULAR) && defined(LIGHT_INDIRECT_MIRROR))
+	#if (defined(SHADOW_MAPS) && defined(SHADOW_SAMPLES)) || (defined(MATERIAL_SPECULAR) && defined(LIGHT_INDIRECT_MIRROR))
 		float noise = sin(dot(worldPos,vec3(52.714,112.9898,78.233))) * 43758.5453;
 		vec2 noiseSinCos = vec2(sin(noise),cos(noise));
 	#endif
@@ -385,7 +387,7 @@ void main()
 	//
 	// shadowing
 
-	#if SHADOW_SAMPLES*SHADOW_MAPS>0
+	#if defined(SHADOW_MAPS) && defined(SHADOW_SAMPLES)
 
 		#ifdef SHADOW_COLOR
 			// colored shadow
@@ -553,7 +555,7 @@ void main()
 			#endif
 
 			// scalar or vector
-			#if SHADOW_SAMPLES*SHADOW_MAPS>0
+			#if defined(SHADOW_MAPS) && defined(SHADOW_SAMPLES)
 				* visibility
 			#endif
 
@@ -562,7 +564,7 @@ void main()
 				* lightDirectColor
 			#endif
 			#ifdef LIGHT_DIRECT_MAP
-				#if SHADOW_MAPS<1
+				#if !defined(SHADOW_MAPS)
 					* texture2DProj(lightDirectMap, lightCoord)
 				#elif SHADOW_MAPS<3
 					* texture2DProj(lightDirectMap, shadowCoord0)

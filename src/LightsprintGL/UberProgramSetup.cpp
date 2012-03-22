@@ -135,12 +135,18 @@ const char* UberProgramSetup::getSetupString()
 {
 	RR_ASSERT(!MATERIAL_TRANSPARENCY_CONST || !MATERIAL_TRANSPARENCY_MAP); // engine does not support both together
 
+	char shadowMaps[50];
+	char shadowSamples[50];
+	char specularModel[50];
+	sprintf(shadowMaps,"#define SHADOW_MAPS %d\n",(int)SHADOW_MAPS);
+	sprintf(shadowSamples,"#define SHADOW_SAMPLES %d\n",(int)SHADOW_SAMPLES);
+	sprintf(specularModel,"#define MATERIAL_SPECULAR_MODEL %d\n",(int)MATERIAL_SPECULAR_MODEL);
+
 	static char setup[2000];
-	sprintf(setup,"%s#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s"
-		"#define MATERIAL_SPECULAR_MODEL %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		comment?comment:"",
-		SHADOW_MAPS,
-		SHADOW_SAMPLES,
+		SHADOW_MAPS?shadowMaps:"",
+		SHADOW_SAMPLES?shadowSamples:"",
 		SHADOW_COLOR?"#define SHADOW_COLOR\n":"",
 		SHADOW_PENUMBRA?"#define SHADOW_PENUMBRA\n":"",
 		SHADOW_CASCADE?"#define SHADOW_CASCADE\n":"",
@@ -170,7 +176,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_SPECULAR?"#define MATERIAL_SPECULAR\n":"",
 		MATERIAL_SPECULAR_CONST?"#define MATERIAL_SPECULAR_CONST\n":"",
 		MATERIAL_SPECULAR_MAP?"#define MATERIAL_SPECULAR_MAP\n":"",
-		MATERIAL_SPECULAR_MODEL,
+		MATERIAL_SPECULAR?specularModel:"",
 		MATERIAL_EMISSIVE_CONST?"#define MATERIAL_EMISSIVE_CONST\n":"",
 		MATERIAL_EMISSIVE_MAP?"#define MATERIAL_EMISSIVE_MAP\n":"",
 		MATERIAL_TRANSPARENCY_CONST?"#define MATERIAL_TRANSPARENCY_CONST\n":"",
