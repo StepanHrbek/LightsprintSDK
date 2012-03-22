@@ -130,7 +130,6 @@ struct RR_GL_API UberProgramSetup
 	bool     CLIP_PLANE_ZA                 :1; ///< Discards geometry with z>clipPlaneZA.
 	bool     CLIP_PLANE_ZB                 :1; ///< Discards geometry with z<clipPlaneZB.
 	bool     FORCE_2D_POSITION             :1; ///< Overrides projection space vertex coordinates with coordinates read from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
-	bool     SKYBOX                        :1; ///< Enables rendering of skybox. This is unrelated to lighting by skybox.
 
 	//! Creates UberProgramSetup with everything turned off by default.
 	//! It is suitable for rendering into shadowmap, no color is produced, only depth.
