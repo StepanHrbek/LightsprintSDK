@@ -629,6 +629,9 @@
             <transparency>
               <float>0</float>
             </transparency>
+            <index_of_refraction>
+              <float>1.5</float>
+            </index_of_refraction>
           </phong>
         </technique>
       </profile_COMMON>
