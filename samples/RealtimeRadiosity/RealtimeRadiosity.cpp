@@ -118,7 +118,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	if (uberProgramSetup.LIGHT_DIRECT)
 	{
 		uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = false; // stop using vertex illumination
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = false; // stop using vertex illumination
 		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true; // use indirect illumination from envmap
 		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // use indirect illumination from envmap
 	}
@@ -228,7 +229,8 @@ void display(void)
 	uberProgramSetup.SHADOW_PENUMBRA = true;
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = realtimeLight->getProjectedTexture()?true:false;
-	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
@@ -384,7 +386,8 @@ int main(int argc, char** argv)
 	uberProgramSetup.SHADOW_SAMPLES = 4; // for detectMaxShadowmaps, won't be reset by MultiPass
 	uberProgramSetup.LIGHT_DIRECT = true;
 	uberProgramSetup.LIGHT_DIRECT_MAP = true;
-	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
+	uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	shadowmapsPerPass = uberProgramSetup.detectMaxShadowmaps(uberProgram,argc,argv);

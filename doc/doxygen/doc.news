@@ -28,6 +28,8 @@ CHANGES
     Objects with identical names would store lightmaps in the same file, overwriting each other.
   - if you need to access lightmaps with old names (constructed from object numbers),
     stop using loadLayer(), use for cycle over all objects and load individual lightmaps with old filenames
+- rr_gl::UberProgramSetup::LIGHT_INDIRECT_VCOLOR_PHYSICAL is not enabled by default
+  \n it affects you only if you set LIGHT_INDIRECT_VCOLOR in your code; fix it by setting also LIGHT_INDIRECT_VCOLOR_PHYSICAL
 
 \section news131 ------------------------------------ 2012.02.26 -------------------------------------
 

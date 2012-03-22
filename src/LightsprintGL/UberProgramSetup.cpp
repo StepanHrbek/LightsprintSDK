@@ -427,6 +427,8 @@ void UberProgramSetup::validate()
 			POSTPROCESS_GAMMA = 0;
 		}
 	}
+	if (!LIGHT_INDIRECT_VCOLOR)
+		LIGHT_INDIRECT_VCOLOR_PHYSICAL = false;
 }
 
 Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, const ClipPlanes* clipPlanes)

@@ -129,6 +129,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = 0;
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MAP2 = 0;
 		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;

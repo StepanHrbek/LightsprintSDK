@@ -138,7 +138,6 @@ struct RR_GL_API UberProgramSetup
 	UberProgramSetup()
 	{
 		memset(this,0,sizeof(*this));
-		LIGHT_INDIRECT_VCOLOR_PHYSICAL = true; // this doesn't turn on LIGHT_INDIRECT_VCOLOR, but if YOU turn it on, it will be in physical scale rather than custom
 		MATERIAL_CULLING = true;
 	}
 

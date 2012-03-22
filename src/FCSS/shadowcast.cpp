@@ -354,7 +354,8 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.LIGHT_DIRECT = true;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = currentFrame.wantsVertexColors();
 			uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
 			uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
@@ -373,7 +374,8 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.LIGHT_DIRECT = true;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
+			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
 			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
@@ -404,7 +406,8 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.SHADOW_PENUMBRA = true;
 		uberProgramSetup.LIGHT_DIRECT = true;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
-		uberProgramSetup.LIGHT_INDIRECT_VCOLOR = currentFrame.wantsVertexColors();
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
+		uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = currentFrame.wantsVertexColors();
 		uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
 		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP &= !currentFrame.wantsConstantAmbient();
 		uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
@@ -2059,7 +2062,8 @@ int main(int argc, char** argv)
 	uberProgramGlobalSetup.SHADOW_PENUMBRA = 1;
 	uberProgramGlobalSetup.LIGHT_DIRECT = 1;
 	uberProgramGlobalSetup.LIGHT_DIRECT_MAP = 1;
-	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR = 1;
+	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR =
+	uberProgramGlobalSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 1;
 	uberProgramGlobalSetup.LIGHT_INDIRECT_DETAIL_MAP = 1;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE = 1;
 	uberProgramGlobalSetup.MATERIAL_DIFFUSE_MAP = 1;
