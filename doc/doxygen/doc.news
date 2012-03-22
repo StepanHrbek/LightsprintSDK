@@ -32,6 +32,7 @@ CHANGES
   - rr_gl::UberProgramSetup::LIGHT_INDIRECT_VCOLOR_PHYSICAL is not enabled by default
     \n it affects you only if you set LIGHT_INDIRECT_VCOLOR in your code; fix it by setting also LIGHT_INDIRECT_VCOLOR_PHYSICAL
   - rr_gl::UberProgramSetup::MATERIAL_CULLING is not enabled by default
+    \n if you don't enable it now, your 1-sided faces will be rendered as 2-sided
 
 \section news131 ------------------------------------ 2012.02.26 -------------------------------------
 

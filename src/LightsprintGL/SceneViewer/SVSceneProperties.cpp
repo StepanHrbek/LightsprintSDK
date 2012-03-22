@@ -180,6 +180,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderMaterialTextures = new BoolRefProperty(_("Textures"),_("Toggles between material textures and flat colors. Disabling textures could make rendering faster.")+" (ctrl-t)",svs.renderMaterialTextures);
 		AppendIn(propRenderMaterials,propRenderMaterialTextures);
 
+		propRenderMaterialSidedness = new BoolRefProperty(_("Sidedness"),_("Check to honour front/back visibility flags in material, uncheck to render all faces as 2-sided."),svs.renderMaterialSidedness);
+		AppendIn(propRenderMaterials,propRenderMaterialSidedness);
+
 		SetPropertyBackgroundColour(propRenderMaterials,importantPropertyBackgroundColor,false);
 	}
 
@@ -343,6 +346,7 @@ void SVSceneProperties::updateProperties()
 		+ updateInt(propRenderMaterialTransparency,svs.renderMaterialTransparency)
 		+ updateBoolRef(propRenderMaterialNormalMaps)
 		+ updateBoolRef(propRenderMaterialTextures)
+		+ updateBoolRef(propRenderMaterialSidedness)
 		+ updateBoolRef(propRenderWireframe)
 		+ updateBoolRef(propRenderHelpers)
 		+ updateBoolRef(propRenderFPS)
@@ -543,6 +547,12 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propRenderMaterialTransparency)
 	{
 		svs.renderMaterialTransparency = (Transparency)(property->GetValue().GetInteger());
+	}
+	else
+	if (property==propRenderMaterialSidedness)
+	{
+		// update shadowmaps
+		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
 	}
 	else
 	if (property==propWater)

@@ -92,6 +92,7 @@ struct SceneViewerState
 	Transparency     renderMaterialTransparency;//! Render transparency. Allows realtime renderer to use modes up to this one. Offline GI always uses the highest one.
 	bool             renderMaterialNormalMaps;  //! Render normal maps.
 	bool             renderMaterialTextures;    //! Render textures (diffuse, emissive) rather than constant colors.
+	bool             renderMaterialSidedness;   //! Render 1-sided materials as 1-sided, rather than everything 2-sided.
 	bool             renderWater;               //! Render water surface as a plane at y=waterLevel.
 	bool             renderWireframe;           //! Render all in wireframe.
 	bool             renderFPS;                 //! Render FPS counter.
@@ -172,6 +173,7 @@ struct SceneViewerState
 		renderMaterialTransparency = T_RGB_BLEND;
 		renderMaterialNormalMaps = 1;
 		renderMaterialTextures = 1;
+		renderMaterialSidedness = true;
 		renderWater = 0;
 		renderWireframe = 0;
 		renderFPS = 0;
@@ -253,6 +255,7 @@ struct SceneViewerState
 			&& a.renderMaterialTransparency==renderMaterialTransparency
 			&& a.renderMaterialNormalMaps==renderMaterialNormalMaps
 			&& a.renderMaterialTextures==renderMaterialTextures
+			&& a.renderMaterialSidedness==renderMaterialSidedness
 			&& a.renderWater==renderWater
 			&& a.renderWireframe==renderWireframe
 			&& a.renderFPS==renderFPS
