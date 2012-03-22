@@ -34,7 +34,7 @@ MultiPass::MultiPass(const RealtimeLights* _lights, const rr::RRLight* _renderin
 
 	separatedAmbientPass = _srgbCorrect
 		// separate ambient from direct light
-		? (!numLights || mainUberProgramSetup.LIGHT_INDIRECT_CONST || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL || mainUberProgramSetup.LIGHT_INDIRECT_MAP || mainUberProgramSetup.LIGHT_INDIRECT_MAP2 || mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || mainUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || mainUberProgramSetup.LIGHT_INDIRECT_MIRROR || mainUberProgramSetup.LIGHT_INDIRECT_auto)
+		? (!numLights || mainUberProgramSetup.LIGHT_INDIRECT_CONST || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || mainUberProgramSetup.LIGHT_INDIRECT_MAP || mainUberProgramSetup.LIGHT_INDIRECT_MAP2 || mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || mainUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || mainUberProgramSetup.LIGHT_INDIRECT_MIRROR || mainUberProgramSetup.LIGHT_INDIRECT_auto)
 		// do ambient together with first direct light
 		: ((!numLights)?1:0);
 
