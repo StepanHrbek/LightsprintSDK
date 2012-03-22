@@ -234,12 +234,14 @@ done:
 			switch(light->shadowTransparencyActual)
 			{
 				case RealtimeLight::RGB_SHADOWS:
+					uberProgramSetup.comment = "// RGB shadowmap pass\n";
 					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = true;
 					break;
 				case RealtimeLight::ALPHA_KEYED_SHADOWS:
+					uberProgramSetup.comment = "// alpha keyed shadowmap pass\n";
 					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
@@ -247,6 +249,7 @@ done:
 					uberProgramSetup.LIGHT_INDIRECT_CONST = 1; // without light, diffuse texture would be optimized away
 					break;
 				case RealtimeLight::FULLY_OPAQUE_SHADOWS:
+					uberProgramSetup.comment = "// opaque shadowmap pass\n";
 					uberProgramSetup.MATERIAL_CULLING = 0;
 					break;
 				default:
@@ -470,6 +473,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 
 		// setup shader
 		UberProgramSetup uberProgramSetup;
+		uberProgramSetup.comment = "// DDI pass\n";
 		uberProgramSetup.SHADOW_MAPS = (ddiLight->getRRLight().type==rr::RRLight::POINT)?ddiLight->getNumShadowmaps():(ddiLight->getNumShadowmaps()?1:0);
 		uberProgramSetup.SHADOW_SAMPLES = uberProgramSetup.SHADOW_MAPS?1:0; // for 1-light render, won't be reset by MultiPass
 		uberProgramSetup.SHADOW_COLOR = uberProgramSetup.SHADOW_MAPS && ddiLight->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS;

@@ -112,6 +112,8 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	if (colorPassIndex==-1)
 	{
 		// before Z pass
+		if(!uberProgramSetup.comment)
+			uberProgramSetup.comment = "// Z pass\n";
 		light = NULL;
 		uberProgramSetup.SHADOW_MAPS = 0;
 		uberProgramSetup.SHADOW_SAMPLES = 0;
@@ -146,6 +148,8 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	{
 		// before multiply pass
 		// disable dif/spec/emi, they write to RGB too
+		if(!uberProgramSetup.comment)
+			uberProgramSetup.comment = "// multiply pass\n";
 		light = NULL;
 		uberProgramSetup.MATERIAL_DIFFUSE = 0;
 		uberProgramSetup.MATERIAL_SPECULAR = 0;
@@ -159,6 +163,8 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		// before ambient pass
 		// adjust program for render without lights
 		//uberProgramSetup.setLightDirect(NULL,NULL);
+		if(!uberProgramSetup.comment)
+			uberProgramSetup.comment = "// ambient pass\n";
 		light = NULL;
 		uberProgramSetup.SHADOW_MAPS = 0;
 		uberProgramSetup.SHADOW_SAMPLES = 0;
@@ -171,7 +177,6 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
-		//if (uberProgramSetup.LIGHT_INDIRECT_VCOLOR) printf(" %d: indirect\n",_lightIndex); else printf(" %d: nothing\n",_lightIndex);
 		if (mainUberProgramSetup.MATERIAL_TRANSPARENCY_BLEND) // final render: stop rgb blend
 			uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = 0; // render to shadowmap: keep writing to rgb
 	}
@@ -202,6 +207,8 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		if (colorPassIndex>separatedMultiplyPass)
 		{
 			// additional passes don't include indirect
+			if(!uberProgramSetup.comment)
+				uberProgramSetup.comment = "// light pass\n";
 			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
@@ -217,7 +224,11 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
 			//printf(" %d: direct\n",_lightIndex);
 		}
-		//else printf(" %d: direct+indirect\n",_lightIndex);
+		else
+		{
+			if(!uberProgramSetup.comment)
+				uberProgramSetup.comment = "// ambient+light pass\n";
+		}
 
 		uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = 0;
 	}

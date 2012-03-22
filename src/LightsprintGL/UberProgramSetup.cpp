@@ -138,8 +138,9 @@ const char* UberProgramSetup::getSetupString()
 	RR_ASSERT(!MATERIAL_TRANSPARENCY_CONST || !MATERIAL_TRANSPARENCY_MAP); // engine does not support both together
 
 	static char setup[2000];
-	sprintf(setup,"#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s"
+	sprintf(setup,"%s#define SHADOW_MAPS %d\n#define SHADOW_SAMPLES %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s"
 		"#define MATERIAL_SPECULAR_MODEL %d\n%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+		comment?comment:"",
 		SHADOW_MAPS,
 		SHADOW_SAMPLES,
 		SHADOW_COLOR?"#define SHADOW_COLOR\n":"",
