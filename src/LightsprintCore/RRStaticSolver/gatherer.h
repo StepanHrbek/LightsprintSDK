@@ -161,7 +161,7 @@ public:
 	//!  Importance for final exitance, result in physical scale is multiplied by visibility.
 	//! \param numBounces
 	//!  Unused.
-	RRVec3 gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, unsigned skipTriangleNumber, RRVec3 visibility, unsigned numBounces);
+	RRVec3 gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, unsigned skipTriangleNumber, RRVec3 visibility, int numBounces);
 
 	// helper structures
 	RRRay ray; // aligned, better keep it first

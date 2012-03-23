@@ -34,7 +34,7 @@ Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSo
 	russianRoulette.reset();
 }
 
-RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, unsigned skipTriangleIndex, RRVec3 visibility, unsigned numBounces)
+RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, unsigned skipTriangleIndex, RRVec3 visibility, int numBounces)
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
@@ -133,18 +133,21 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 		}
 
-		if (specularReflect)
+		if (numBounces>0)
 		{
-			// recursively call this function
-			exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,rayHitTriangle,specularReflectPower/specularReflectMax,numBounces-1);
-			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
-		}
+			if (specularReflect)
+			{
+				// recursively call this function
+				exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,rayHitTriangle,specularReflectPower/specularReflectMax,numBounces-1);
+				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+			}
 
-		if (specularTransmit)
-		{
-			// recursively call this function
-			exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,rayHitTriangle,specularTransmitPower/specularTransmitMax,numBounces-1);
-			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+			if (specularTransmit)
+			{
+				// recursively call this function
+				exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,rayHitTriangle,specularTransmitPower/specularTransmitMax,numBounces-1);
+				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+			}
 		}
 	}
 	//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error

@@ -216,7 +216,7 @@ public:
 		gatherer.ray.hitDistance = 1e10f;
 
 		// gather 1 ray
-		RRVec3 irrad = gatherer.gatherPhysicalExitance(gatherer.ray.rayOrigin,dir,_skipTriangleIndex,RRVec3(1),2);
+		RRVec3 irrad = gatherer.gatherPhysicalExitance(gatherer.ray.rayOrigin,dir,_skipTriangleIndex,RRVec3(1),20); // without numBounces limit, Lightmaps sample with refractive sphere runs forever, single ray bounces inside sphere. it hits only pixels with r=1, so it does not fade away. material clamping does not help here, point materials are used for quality>=18. in this case, numBounces 20 is not visibly slower than 2
 		//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
 		if (!pti.context.gatherAllDirections)
 		{
