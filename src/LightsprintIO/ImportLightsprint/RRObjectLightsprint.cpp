@@ -85,6 +85,12 @@
 	#include "portable_binary_oarchive.hpp"
 #endif
 
+// case insensitive comparison of extension (tolower)
+#include <algorithm>
+#include <string>
+#include <boost/filesystem.hpp>
+namespace bf = boost::filesystem;
+
 using namespace std;
 using namespace rr;
 
@@ -338,6 +344,13 @@ static bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSid
 {
 	if (!buffer || filename.empty())
 	{
+		return false;
+	}
+	std::wstring ext = bf::path(RR_RR2PATH(filename)).extension().wstring();
+	std::transform(ext.begin(),ext.end(),ext.begin(),::tolower);
+	if (ext!=L".rrbuffer")
+	{
+		// don't warn if extension is wrong, maybe next saver will succeed (our system of savers does not know what extensions saver supports)
 		return false;
 	}
 	try
