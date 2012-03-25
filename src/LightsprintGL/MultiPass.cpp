@@ -34,7 +34,7 @@ MultiPass::MultiPass(const RealtimeLights* _lights, const rr::RRLight* _renderin
 
 	separatedAmbientPass = _srgbCorrect
 		// separate ambient from direct light
-		? (!numLights || mainUberProgramSetup.LIGHT_INDIRECT_CONST || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || mainUberProgramSetup.LIGHT_INDIRECT_MAP || mainUberProgramSetup.LIGHT_INDIRECT_MAP2 || mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || mainUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || mainUberProgramSetup.LIGHT_INDIRECT_MIRROR || mainUberProgramSetup.LIGHT_INDIRECT_auto)
+		? (!numLights || mainUberProgramSetup.LIGHT_INDIRECT_CONST || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || mainUberProgramSetup.LIGHT_INDIRECT_MAP || mainUberProgramSetup.LIGHT_INDIRECT_MAP2 || mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || mainUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || mainUberProgramSetup.LIGHT_INDIRECT_MIRROR)
 		// do ambient together with first direct light
 		: ((!numLights)?1:0);
 
@@ -133,7 +133,6 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MAP2 = 0;
 		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
-		uberProgramSetup.LIGHT_INDIRECT_auto = 0;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MIRROR = 0;
@@ -210,7 +209,6 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			// additional passes don't include indirect
 			if(!uberProgramSetup.comment)
 				uberProgramSetup.comment = "// light pass\n";
-			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
 			uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = 0;

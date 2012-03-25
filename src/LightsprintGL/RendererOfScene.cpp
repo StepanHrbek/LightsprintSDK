@@ -239,10 +239,10 @@ void RendererOfSceneImpl::render(
 
 		&& (
 			// optimized render can't render LDM for more than 1 object
-			((_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || _uberProgramSetup.LIGHT_INDIRECT_auto) && _layerLDM!=UINT_MAX)
+			(_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _layerLDM!=UINT_MAX)
 			// if we are to use provided indirect, take it always from 1objects
 			// (if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
-			|| ((_uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_uberProgramSetup.LIGHT_INDIRECT_MAP||_uberProgramSetup.LIGHT_INDIRECT_auto) && !_updateLayers && _layerLightmap!=UINT_MAX)
+			|| ((_uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_uberProgramSetup.LIGHT_INDIRECT_MAP) && !_updateLayers && _layerLightmap!=UINT_MAX)
 			// optimized render would look bad with single specular cube per-scene
 			|| ((_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _layerEnvironment!=UINT_MAX)
 #ifdef MIRRORS
@@ -351,10 +351,10 @@ void RendererOfSceneImpl::render(
 					}
 				}
 #endif
-				rr::RRBuffer* lightIndirectVcolor = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_VCOLOR) ? onlyVbuf(illumination.getLayer(_layerLightmap)) : NULL;
-				rr::RRBuffer* lightIndirectMap = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_MAP) ? onlyLmap(illumination.getLayer(_layerLightmap)) : NULL;
+				rr::RRBuffer* lightIndirectVcolor = _uberProgramSetup.LIGHT_INDIRECT_VCOLOR ? onlyVbuf(illumination.getLayer(_layerLightmap)) : NULL;
+				rr::RRBuffer* lightIndirectMap = _uberProgramSetup.LIGHT_INDIRECT_MAP ? onlyLmap(illumination.getLayer(_layerLightmap)) : NULL;
 				objectBuffers.lightIndirectBuffer = lightIndirectVcolor?lightIndirectVcolor:lightIndirectMap;
-				objectBuffers.lightIndirectDetailMap = (_uberProgramSetup.LIGHT_INDIRECT_auto||_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP) ? onlyLmap(illumination.getLayer(_layerLDM)) : NULL;
+				objectBuffers.lightIndirectDetailMap = _uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? onlyLmap(illumination.getLayer(_layerLDM)) : NULL;
 
 				objectBuffers.objectUberProgramSetup = _uberProgramSetup;
 				if (pass==2 && objectBuffers.objectUberProgramSetup.SHADOW_MAPS>1)
@@ -366,9 +366,12 @@ void RendererOfSceneImpl::render(
 #else
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR = false;
 #endif
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_CONST = false;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR = lightIndirectVcolor!=NULL;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = false;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = lightIndirectVcolor!=NULL && !lightIndirectVcolor->getScaled();
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP = lightIndirectMap!=NULL;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = objectBuffers.lightIndirectDetailMap!=NULL;
 				objectBuffers.objectUberProgramSetup.OBJECT_SPACE = object->getWorldMatrix()!=NULL;
 				if (_srgbCorrect) // we changed gamma value, it has to be enabled in shader to have effect

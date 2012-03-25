@@ -47,10 +47,9 @@ public:
 	//! \param _solver
 	//!  Source of static and dynamic objects, environment and illumination. Direct lights from solver are ignored.
 	//! \param _uberProgramSetup
-	//!  Specifies shader properties, including light and material types supported.
-	//!  For render with all direct lighting/shadowing features according to light properties,
-	//!  enable at least SHADOW_MAPS,LIGHT_DIRECT,LIGHT_DIRECT_COLOR,LIGHT_DIRECT_MAP,LIGHT_DIRECT_ATT_SPOT;
-	//!  if you disabled one of them, it will stay disabled for all lights.
+	//!  Specifies shader properties to be allowed during render.
+	//!  For rendering with all light and material features,
+	//!  use UberProgramSetup::enableAllLights() and UberProgramSetup::enableAllMaterials().
 	//! \param _lights
 	//!  Set of lights, source of direct illumination in rendered scene.
 	//! \param _renderingFromThisLight

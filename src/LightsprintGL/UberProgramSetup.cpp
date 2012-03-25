@@ -71,6 +71,25 @@ void releaseAllBuffers1x1()
 //
 // UberProgramSetup - options for UberShader.vs/fs
 
+void UberProgramSetup::enableAllLights()
+{
+	// necessary minimum, the rest is enabled automatically according to RRLight processed
+	SHADOW_MAPS = 1;
+	LIGHT_DIRECT = true;
+	LIGHT_DIRECT_COLOR = true;
+	LIGHT_DIRECT_MAP = true;
+	LIGHT_DIRECT_ATT_SPOT = true;
+
+	// necessary minimum, the rest is enabled automatically according to illumination buffers available
+	LIGHT_INDIRECT_CONST = true;
+	LIGHT_INDIRECT_VCOLOR = true;
+	LIGHT_INDIRECT_MAP = true;
+	LIGHT_INDIRECT_DETAIL_MAP = true;
+	LIGHT_INDIRECT_ENV_DIFFUSE = true;
+	LIGHT_INDIRECT_ENV_SPECULAR = true;
+	LIGHT_INDIRECT_MIRROR = true;
+}
+
 void UberProgramSetup::enableAllMaterials()
 {
 	MATERIAL_DIFFUSE = true;
@@ -412,7 +431,6 @@ void UberProgramSetup::validate()
 		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 		LIGHT_INDIRECT_ENV_SPECULAR = 0;
 		LIGHT_INDIRECT_MIRROR = 0;
-		LIGHT_INDIRECT_auto = 0;
 		MATERIAL_DIFFUSE = 0;
 		MATERIAL_DIFFUSE_X2 = 0;
 		MATERIAL_DIFFUSE_CONST = 0;

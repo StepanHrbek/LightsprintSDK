@@ -92,7 +92,6 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_INDIRECT_ENV_DIFFUSE    :1; ///< Enables indirect light, realtime raytraced diffuse reflection on objects with diffuseEnvMap.
 	bool     LIGHT_INDIRECT_ENV_SPECULAR   :1; ///< Enables indirect light, realtime raytraced specular reflection on objects with specularEnvMap. Faster but less accurate for flat objects than LIGHT_INDIRECT_MIRROR.
 	bool     LIGHT_INDIRECT_MIRROR         :1; ///< Enables indirect light, realtime rasterized specular reflection on flat objects without specularEnvMap. More accurate for flat objects but slower than LIGHT_INDIRECT_ENV_SPECULAR. (If you don't see mirroring, is specularEnvMap NULL? Is volume of mesh AABB zero? Object can be arbitrarily rotated, but original mesh before rotation must be axis aligned.)
-	bool     LIGHT_INDIRECT_auto           :1; ///< Extension. Makes renderer set LIGHT_INDIRECT_[VCOLOR*|MAP*|DETAIL_MAP] flags automatically according to available data.
 
 	bool     MATERIAL_DIFFUSE              :1; ///< Enables material's diffuse reflection. All enabled MATERIAL_DIFFUSE_XXX are multiplied. When only MATERIAL_DIFFUSE is enabled, diffuse color is 1 (white).
 	bool     MATERIAL_DIFFUSE_X2           :1; ///< Enables material's diffuse reflectance multiplied by 2. (used by Quake3 engine scenes)
@@ -134,17 +133,22 @@ struct RR_GL_API UberProgramSetup
 	const char* comment;                       ///< Comment added to shader. Must start with //. Not freed.
 
 	//! Creates UberProgramSetup with everything turned off by default.
-	//! It is suitable for rendering into shadowmap, no color is produced, only depth.
+	//! It is suitable for rendering opaque faces into shadowmap, no color is produced, only depth.
 	UberProgramSetup()
 	{
 		memset(this,0,sizeof(*this));
 	}
 
-	//! Enables all MATERIAL_XXX except for MATERIAL_NORMAL_MAP.
+	//! Prepares for rendering with all lighting features, enables all SHADOW_XXX and LIGHT_XXX relevant for RendererOfScene.
 	//
-	//! You can freely enable and disable MATERIAL_XXX features to get desired render,
-	//! this is helper for those who want everything, all material features enabled.
-	//! It is usually used before final render of scene.
+	//! Certain shadow and light flags are enabled, you can disable individual flags to prevent renderer from using given features.
+	//! Some flags are not touched, they depend on light properties and RendererOfScene sets them automatically.
+	void enableAllLights();
+
+	//! Prepares for rendering with all material features, enables all MATERIAL_XXX relevant for RendererOfScene.
+	//
+	//! Nearly all material flags are enabled,
+	//! you can disable individual flags to prevent renderer from using given features.
 	void enableAllMaterials();
 
 	//! Enables only MATERIAL_XXX required by given material, disables unused MATERIAL_XXX.

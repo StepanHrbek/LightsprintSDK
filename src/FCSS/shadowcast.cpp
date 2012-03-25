@@ -357,7 +357,6 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = currentFrame.wantsVertexColors();
 			uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
-			uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = false;
 			uberProgramSetup.CLIP_PLANE_YB = true;
@@ -377,7 +376,6 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MAP = 0;
-			uberProgramSetup.LIGHT_INDIRECT_auto = 0;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = false;
 			uberProgramSetup.FORCE_2D_POSITION = false;
@@ -410,7 +408,6 @@ void drawEyeViewSoftShadowed(void)
 		uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = currentFrame.wantsVertexColors();
 		uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
 		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP &= !currentFrame.wantsConstantAmbient();
-		uberProgramSetup.LIGHT_INDIRECT_auto = currentFrame.wantsLightmaps();
 		uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
 		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true; // for robot
 
