@@ -728,7 +728,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 
 	if (MATERIAL_TRANSPARENCY_FRESNEL)
 	{
-		program->sendUniform("materialRefractionIndex",material->refractionIndex+0.1f);
+		program->sendUniform("materialRefractionIndex",material->refractionIndex);
 	}
 
 	if (MATERIAL_DIFFUSE_MAP)
