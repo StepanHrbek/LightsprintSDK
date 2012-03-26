@@ -229,7 +229,10 @@ done:
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			// Setup shader for rendering to SM.
 			// Default constructor sets nearly all off, perfect for shadowmap.
-			// Note that MATERIAL_TRANSPARENCY_BLEND must stay off, it would trigger multipass rendering.
+			// MATERIAL_TRANSPARENCY_BLEND is off because it would trigger distance sorting which we don't need,
+			//  not even for rgb shadows (they multiply each other, order doesn't matter).
+			// MATERIAL_CULLING is off because rendering both sides reduces shadow bias problem. And 1-sided faces are often expected to cast shadow in both directions.
+			//  Even if we put it on, honourOfflineFlags in RendererOfMesh will turn it off for virtually all materials.
 			UberProgramSetup uberProgramSetup;
 			switch(light->shadowTransparencyActual)
 			{
@@ -239,7 +242,6 @@ done:
 					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = true;
-					uberProgramSetup.MATERIAL_CULLING = true; // when rendering glass sphere to RGB shadowmap, it is important to render only 1 side (otherwise front and back pixels mix randomly, depends on GPU)
 					break;
 				case RealtimeLight::ALPHA_KEYED_SHADOWS:
 					uberProgramSetup.comment = "// alpha keyed shadowmap pass\n";
@@ -247,12 +249,10 @@ done:
 					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 					uberProgramSetup.MATERIAL_DIFFUSE = true;
-					uberProgramSetup.MATERIAL_CULLING = true;
 					uberProgramSetup.LIGHT_INDIRECT_CONST = 1; // without light, diffuse texture would be optimized away
 					break;
 				case RealtimeLight::FULLY_OPAQUE_SHADOWS:
 					uberProgramSetup.comment = "// opaque shadowmap pass\n";
-					uberProgramSetup.MATERIAL_CULLING = false; // rendering both sides reduces shadow bias problem
 					break;
 				default:
 					RR_ASSERT(0);

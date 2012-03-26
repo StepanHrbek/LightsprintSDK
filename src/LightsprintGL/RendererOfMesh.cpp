@@ -340,7 +340,8 @@ void MeshArraysVBOs::render(
 								// honourOfflineFlags
 								//  +if flags for offline solver say catch light from both directions, we should render shadow 2-sided to create the same image in realtime
 								//  -makes overdraw rgb shadow darker than object itself (rgb sm=frontcolor*backcolor)
-								//  .note: shadows without MATERIAL_CULLING already are 2-sided, this affects only shadows with MATERIAL_CULLING
+								//  .note: RRDynamicSolverGL::updateShadowmaps() already renders shadows without MATERIAL_CULLING,
+								//         this would affect only shadows with MATERIAL_CULLING
 								bool honourOfflineFlags = true;
 								bool renderFront = material->sideBits[0].renderFrom || (honourOfflineFlags && _renderingFromLight && material->sideBits[0].catchFrom);
 								bool renderBack = material->sideBits[1].renderFrom || (honourOfflineFlags && _renderingFromLight && material->sideBits[1].catchFrom);
