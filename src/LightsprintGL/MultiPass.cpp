@@ -32,13 +32,13 @@ MultiPass::MultiPass(const RealtimeLights* _lights, const rr::RRLight* _renderin
 	// GL3.3 ARB_blend_func_extended can do it without separated pass, we do extra pass to be compatible with GL2
 	separatedMultiplyPass = (separatedZPass && mainUberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB)?1:0; // needs MATERIAL_TRANSPARENCY_BLEND, not triggered by rendering to SM
 
-	separatedAmbientPass = _srgbCorrect
+	separatedAmbiEmiPass = _srgbCorrect
 		// separate ambient from direct light
 		? (!numLights || mainUberProgramSetup.LIGHT_INDIRECT_CONST || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || mainUberProgramSetup.LIGHT_INDIRECT_MAP || mainUberProgramSetup.LIGHT_INDIRECT_MAP2 || mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || mainUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || mainUberProgramSetup.LIGHT_INDIRECT_MIRROR)
 		// do ambient together with first direct light
 		: ((!numLights)?1:0);
 
-	lightIndex = -separatedZPass-separatedMultiplyPass-separatedAmbientPass;
+	lightIndex = -separatedZPass-separatedMultiplyPass-separatedAmbiEmiPass;
 	colorPassIndex = -separatedZPass;
 }
 
@@ -158,13 +158,13 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
 	}
 	else
-	if (separatedAmbientPass && _lightIndex==-separatedAmbientPass)
+	if (separatedAmbiEmiPass && _lightIndex==-separatedAmbiEmiPass)
 	{
-		// before ambient pass
+		// before ambi+emi pass
 		// adjust program for render without lights
 		//uberProgramSetup.setLightDirect(NULL,NULL);
 		if(!uberProgramSetup.comment)
-			uberProgramSetup.comment = "// ambient pass\n";
+			uberProgramSetup.comment = "// ambi+emi pass\n";
 		light = NULL;
 		uberProgramSetup.SHADOW_MAPS = 0;
 		uberProgramSetup.SHADOW_SAMPLES = 0;
@@ -226,7 +226,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		else
 		{
 			if(!uberProgramSetup.comment)
-				uberProgramSetup.comment = "// ambient+light pass\n";
+				uberProgramSetup.comment = "// ambi+emi+light pass\n";
 		}
 
 		uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = 0;
@@ -294,9 +294,9 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with diffuse map disabled.\n"));
 		}
 		// try split blending shader in two
-		if (!program && (uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2) && _lightIndex==0 && !separatedAmbientPass)
+		if (!program && (uberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || uberProgramSetup.LIGHT_INDIRECT_MAP2) && _lightIndex==0 && !separatedAmbiEmiPass)
 		{
-			separatedAmbientPass = 1;
+			separatedAmbiEmiPass = 1;
 			lightIndex = -1;
 			program = getNextPass(_outUberProgramSetup,_outLight);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok when split in two passes.\n"));
