@@ -172,6 +172,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = 0;
 		}
+		uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL = 0;
 		uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
 	}
 	else
@@ -186,7 +187,8 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.MATERIAL_SPECULAR = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
-		uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
+		if (!uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL)
+			uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
 	}
 	else
 	if (separatedAmbiEmiPass && _lightIndex==-separatedAmbiEmiPass)
@@ -221,7 +223,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		RR_ASSERT(light->getRRLight().enabled);
 		uberProgramSetup.SHADOW_MAPS = mainUberProgramSetup.SHADOW_MAPS ? light->getNumShadowmaps() : 0;
 		uberProgramSetup.SHADOW_SAMPLES = mainUberProgramSetup.SHADOW_MAPS ? light->getNumShadowSamples() : 0;
-		uberProgramSetup.SHADOW_COLOR = mainUberProgramSetup.SHADOW_MAPS && light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS;
+		uberProgramSetup.SHADOW_COLOR = mainUberProgramSetup.SHADOW_MAPS && (light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS || light->shadowTransparencyActual==RealtimeLight::FRESNEL_SHADOWS);
 		uberProgramSetup.SHADOW_PENUMBRA = mainUberProgramSetup.SHADOW_MAPS && light->getRRLight().type==rr::RRLight::SPOT;
 		uberProgramSetup.SHADOW_CASCADE = mainUberProgramSetup.SHADOW_MAPS && light->getCamera()->isOrthogonal() && light->getNumShadowmaps()>1;
 		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI

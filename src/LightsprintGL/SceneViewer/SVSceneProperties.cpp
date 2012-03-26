@@ -174,6 +174,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderMaterialTransparency->SetHelpString(_("Changes how realistically semi-transparent surfaces are rendered."));
 		AppendIn(propRenderMaterials,propRenderMaterialTransparency);
 
+		propRenderMaterialTransparencyFresnel = new BoolRefProperty(_("Fresnel"),_("Toggles using fresnel term."),svs.renderMaterialTransparencyFresnel);
+		AppendIn(propRenderMaterialTransparency,propRenderMaterialTransparencyFresnel);
+
 		propRenderMaterialNormalMaps = new BoolRefProperty(_("Normal maps"),_("Toggles rendering normal maps."),svs.renderMaterialNormalMaps);
 		AppendIn(propRenderMaterials,propRenderMaterialNormalMaps);
 
@@ -283,6 +286,8 @@ void SVSceneProperties::updateHide()
 	propToneMappingBrightness->Hide(!svs.renderTonemapping,false);
 	propToneMappingContrast->Hide(!svs.renderTonemapping,false);
 
+	propRenderMaterialTransparencyFresnel->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
+
 	propWaterColor->Hide(!svs.renderWater,false);
 	propWaterLevel->Hide(!svs.renderWater,false);
 
@@ -344,6 +349,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderMaterialSpecular)
 		+ updateBoolRef(propRenderMaterialEmittance)
 		+ updateInt(propRenderMaterialTransparency,svs.renderMaterialTransparency)
+		+ updateBoolRef(propRenderMaterialTransparencyFresnel)
 		+ updateBoolRef(propRenderMaterialNormalMaps)
 		+ updateBoolRef(propRenderMaterialTextures)
 		+ updateBoolRef(propRenderMaterialSidedness)
@@ -547,6 +553,13 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propRenderMaterialTransparency)
 	{
 		svs.renderMaterialTransparency = (Transparency)(property->GetValue().GetInteger());
+		updateHide();
+	}
+	else
+	if (property==propRenderMaterialTransparencyFresnel)
+	{
+		// update rgb shadowmaps
+		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
 	}
 	else
 	if (property==propRenderMaterialSidedness)

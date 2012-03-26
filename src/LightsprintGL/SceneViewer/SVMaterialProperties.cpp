@@ -465,6 +465,8 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propRefraction)
 	{
 		material->refractionIndex = property->GetValue().GetDouble();
+		// update rgb shadowmaps
+		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
 	}
 	else
 	if (property==propLightmapTexcoord)

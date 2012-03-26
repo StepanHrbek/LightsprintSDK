@@ -37,8 +37,8 @@ namespace rr_gl
 		shadowOnly = false;
 		areaType = LINE;
 		areaSize = 0.2f;
-		shadowTransparencyRequested = RGB_SHADOWS;
-		shadowTransparencyActual = RGB_SHADOWS;
+		shadowTransparencyRequested = FRESNEL_SHADOWS;
+		shadowTransparencyActual = FRESNEL_SHADOWS;
 		numInstancesInArea = 1;
 		positionOfLastDDI = rr::RRVec3(1e6);
 		numSoftShadowSamples = 4;
@@ -150,7 +150,7 @@ namespace rr_gl
 	unsigned RealtimeLight::getNumShadowmaps(bool color) const
 	{
 		if (!rrlight.castShadows) return 0;
-		if (color && shadowTransparencyActual!=RGB_SHADOWS) return 0;
+		if (color && shadowTransparencyActual!=RGB_SHADOWS && shadowTransparencyActual!=FRESNEL_SHADOWS) return 0;
 		switch (rrlight.type)
 		{
 			case rr::RRLight::POINT: return 6;

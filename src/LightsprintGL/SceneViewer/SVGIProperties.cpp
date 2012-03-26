@@ -24,8 +24,8 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		Append(propGIDirect);
 
 		{
-			const wxChar* strings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),NULL};
-			const long values[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS};
+			const wxChar* strings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),_("24-bit (fresnel shadows)"),NULL};
+			const long values[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS,RealtimeLight::FRESNEL_SHADOWS};
 			propGIShadowTransparency = new wxEnumProperty(_("Shadow transparency"),wxPG_LABEL,strings,values);
 			propGIShadowTransparency->SetHelpString(_("Changes how realistically semi-transparent shadows are rendered."));
 			AppendIn(propGIDirect,propGIShadowTransparency);

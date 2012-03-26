@@ -39,8 +39,10 @@ public:
 		FULLY_OPAQUE_SHADOWS,
 		//! Fast alpha keyed shadows, light goes through or is stopped according to material, this is evaluated per-pixel.
 		ALPHA_KEYED_SHADOWS,
-		//! The highest quality, colored shadows from semi-translucent materials (if specularTransmittance is red, only red light goes through), this is evaluated per-pixel.
+		//! Realistic colored shadows from semi-translucent materials (if specularTransmittance is red, only red light goes through), this is evaluated per-pixel.
 		RGB_SHADOWS,
+		//! The most realistic shadows, with Fresnel term applied to increase occlusion depending on index of refraction. It goes half way towards caustics, as light intensity is modulated, but light direction is not.
+		FRESNEL_SHADOWS,
 	};
 
 	//! Extends RRLight, adding properties and functions for realtime rendering.

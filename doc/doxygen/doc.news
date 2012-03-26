@@ -19,6 +19,10 @@ NEWS
 - <b>improved normal maps</b> (RRMaterial::normalMap)
   - import of normal maps and tangent space from Collada .dae
   - RRMeshArrays::buildTangents() has one more parameter, generated tangent space is better for normal mapping
+- <b>improved index of refraction</b>
+  - rr_gl::UberProgramSetup::MATERIAL_TRANSPARENCY_FRESNEL renders specular transmittance and reflectance adjusted according to index of refraction
+  - rr_gl::RealtimeLight::FRESNEL_SHADOW renders shadows adjusted according to index of refraction
+  - note that RRMaterial::refractionIndex must be set properly, there is no effect with default index 1
 
 CHANGES
 

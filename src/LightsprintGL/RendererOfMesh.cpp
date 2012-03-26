@@ -210,7 +210,7 @@ void MeshArraysVBOs::render(
 	BIND_VBO3(Vertex,3,VBO[VBO_position]);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	// set normals
-	bool setNormals = _uberProgramSetup.LIGHT_DIRECT || _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || _uberProgramSetup.POSTPROCESS_NORMALS;
+	bool setNormals = _uberProgramSetup.LIGHT_DIRECT || _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || _uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL || _uberProgramSetup.POSTPROCESS_NORMALS;
 	if (setNormals)
 	{
 		BIND_VBO2(Normal,VBO[VBO_normal]);

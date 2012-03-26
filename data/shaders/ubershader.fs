@@ -40,6 +40,7 @@
 //  #define MATERIAL_TRANSPARENCY_IN_ALPHA
 //  #define MATERIAL_TRANSPARENCY_BLEND
 //  #define MATERIAL_TRANSPARENCY_TO_RGB
+//  #define MATERIAL_TRANSPARENCY_FRESNEL
 //  #define MATERIAL_NORMAL_MAP
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
@@ -138,7 +139,7 @@
 #endif
 #endif
 
-#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))
+#if (defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))) || defined(MATERIAL_TRANSPARENCY_FRESNEL)
 	uniform vec3 worldEyePos;
 #endif
 
@@ -242,6 +243,20 @@ varying vec3 worldNormalSmooth;
 #ifdef MATERIAL_TRANSPARENCY_MAP
 	uniform sampler2D materialTransparencyMap;
 	varying vec2 materialTransparencyCoord;
+#endif
+
+#ifdef MATERIAL_TRANSPARENCY_FRESNEL
+	uniform float materialRefractionIndex;
+	float fresnelReflectance(float cos_theta1)
+	{
+		float index = gl_FrontFacing?materialRefractionIndex:1.0/materialRefractionIndex;
+		float cos_theta2 = sqrt( 1.0 - (1.0-cos_theta1*cos_theta1)/(index*index) );
+		float fresnel_rs = (cos_theta1-index*cos_theta2) / (cos_theta1+index*cos_theta2);
+		float fresnel_rp = (index*cos_theta1-cos_theta2) / (index*cos_theta1+cos_theta2);
+		return (fresnel_rs*fresnel_rs + fresnel_rp*fresnel_rp)*0.5;
+	}
+	// for cos_theta1=1, reflectance is ((1.0-materialRefractionIndex)/(1.0+materialRefractionIndex))^2
+	// for materialRefractionIndex=1, reflectance is 0
 #endif
 
 #ifdef MATERIAL_NORMAL_MAP
@@ -360,7 +375,7 @@ void main()
 		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
 		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
 	#endif
-	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(POSTPROCESS_NORMALS)
+	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(MATERIAL_TRANSPARENCY_FRESNEL) || defined(POSTPROCESS_NORMALS)
 		#ifdef MATERIAL_NORMAL_MAP
 			vec3 localNormal = normalize(texture2D(materialNormalMap,materialNormalMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
 			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*worldNormalSmooth);
@@ -370,6 +385,15 @@ void main()
 	#endif
 	#ifdef MATERIAL_EMISSIVE_MAP
 		vec4 materialEmissiveMapColor = texture2D(materialEmissiveMap, materialEmissiveCoord);
+	#endif
+	#if (defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))) || defined(MATERIAL_TRANSPARENCY_FRESNEL)
+		vec3 worldEyeDir = normalize(worldEyePos-worldPos);
+	#endif
+	#ifdef MATERIAL_TRANSPARENCY_FRESNEL
+		float materialFresnelReflectance = clamp(fresnelReflectance(abs(dot(worldEyeDir,worldNormal))),0.0,0.999); // clamping to 1.0 produces strange artifact
+		float preFresnelOpacityA = opacityA;
+		opacityA = 1.0-(1.0-opacityA)*(1.0-materialFresnelReflectance);
+		transparencyRGB *= 1.0-materialFresnelReflectance;
 	#endif
 
 
@@ -590,11 +614,11 @@ void main()
 	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_INDIRECT_MIRROR) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(POSTPROCESS_NORMALS)
 
 		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_DIRECT))
-			vec3 worldViewReflected = reflect(worldPos-worldEyePos,worldNormal);
+			vec3 worldViewReflected = reflect(-worldEyeDir,worldNormal);
 		#endif
 
 		#if defined(MATERIAL_SPECULAR) && defined(LIGHT_DIRECT)
-			float NH = max(0.0,dot(worldNormal,normalize(worldLightDirFromPixel+normalize(worldEyePos-worldPos))));
+			float NH = max(0.0,dot(worldNormal,normalize(worldLightDirFromPixel+worldEyeDir)));
 		#endif
 
 		#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
@@ -695,11 +719,21 @@ void main()
 
 			#ifdef MATERIAL_SPECULAR
 				+
+				#ifdef MATERIAL_TRANSPARENCY_FRESNEL
+					(
+				#endif
 				#ifdef MATERIAL_SPECULAR_CONST
 					materialSpecularConst *
 				#endif
 				#ifdef MATERIAL_SPECULAR_MAP
 					materialSpecularReflectance *
+				#endif
+				#ifdef MATERIAL_TRANSPARENCY_FRESNEL
+					// Fresnel did subtract fraction (materialFresnelReflectance) of transmittance (1.0-preFresnelOpacityA)
+					// add it back here to reflectance
+					1.0
+					+ (1.0-preFresnelOpacityA)*materialFresnelReflectance
+					) *
 				#endif
 				vec4((
 					#ifdef LIGHT_DIRECT

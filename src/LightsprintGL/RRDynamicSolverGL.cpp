@@ -188,7 +188,11 @@ void RRDynamicSolverGL::updateShadowmaps()
 				{
 					if (!material->specularTransmittanceKeyed)
 					{
-						shadowTransparencyRequestedByMaterials = RealtimeLight::RGB_SHADOWS;
+						if (material->refractionIndex!=1)
+							shadowTransparencyRequestedByMaterials = RealtimeLight::FRESNEL_SHADOWS;
+						else
+						if (shadowTransparencyRequestedByMaterials!=RealtimeLight::FRESNEL_SHADOWS)
+							shadowTransparencyRequestedByMaterials = RealtimeLight::RGB_SHADOWS;
 						goto done;
 					}
 					if (shadowTransparencyRequestedByMaterials==RealtimeLight::FULLY_OPAQUE_SHADOWS)
@@ -236,6 +240,18 @@ done:
 			UberProgramSetup uberProgramSetup;
 			switch(light->shadowTransparencyActual)
 			{
+				case RealtimeLight::FRESNEL_SHADOWS:
+					// + waves from normalmapped water slightly visible in shadows (but still far prom proper caustic, in both intensity and shape)
+					// + shadow of glass sphere slightly darker around border (but still far prom proper caustic, in both intensity and shape)
+					// - reduced fps
+					uberProgramSetup.comment = "// fresnel shadowmap pass\n";
+					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = true;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = true;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = true;
+					uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL = true;
+					uberProgramSetup.MATERIAL_NORMAL_MAP = true; // adds details to Fresnel
+					break;
 				case RealtimeLight::RGB_SHADOWS:
 					uberProgramSetup.comment = "// RGB shadowmap pass\n";
 					uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = true;
@@ -277,7 +293,7 @@ done:
 					glPolygonOffset(slopeBias,fixedBias);
 					glViewport(0, 0, light->getRRLight().rtShadowmapSize, light->getRRLight().rtShadowmapSize);
 					FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,shadowmap);
-					if (light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS)
+					if (light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS || light->shadowTransparencyActual==RealtimeLight::FRESNEL_SHADOWS)
 					{
 						Texture* colormap = light->getShadowmap(i,true);
 						if (!colormap)
@@ -296,7 +312,7 @@ done:
 					}
 					else
 					{
-						if (light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS)
+						if (light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS || light->shadowTransparencyActual==RealtimeLight::FRESNEL_SHADOWS)
 						{
 							// we assert that color mask is 1, clear would be masked otherwise
 							glClearColor(1,1,1,1);
@@ -478,7 +494,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		uberProgramSetup.comment = "// DDI pass\n";
 		uberProgramSetup.SHADOW_MAPS = (ddiLight->getRRLight().type==rr::RRLight::POINT)?ddiLight->getNumShadowmaps():(ddiLight->getNumShadowmaps()?1:0);
 		uberProgramSetup.SHADOW_SAMPLES = uberProgramSetup.SHADOW_MAPS?1:0; // for 1-light render, won't be reset by MultiPass
-		uberProgramSetup.SHADOW_COLOR = uberProgramSetup.SHADOW_MAPS && ddiLight->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS;
+		uberProgramSetup.SHADOW_COLOR = uberProgramSetup.SHADOW_MAPS && (ddiLight->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS || ddiLight->shadowTransparencyActual==RealtimeLight::FRESNEL_SHADOWS);
 		uberProgramSetup.LIGHT_DIRECT = true;
 		uberProgramSetup.LIGHT_DIRECT_COLOR = ddiLight->getRRLight().color!=rr::RRVec3(1);
 		uberProgramSetup.LIGHT_DIRECT_MAP = uberProgramSetup.SHADOW_MAPS && ddiLight->getProjectedTexture();

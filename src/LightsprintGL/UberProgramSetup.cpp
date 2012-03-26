@@ -104,6 +104,7 @@ void UberProgramSetup::enableAllMaterials()
 	MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 	MATERIAL_TRANSPARENCY_BLEND = true;
 	MATERIAL_TRANSPARENCY_TO_RGB = true;
+	MATERIAL_TRANSPARENCY_FRESNEL = true;
 	MATERIAL_NORMAL_MAP = true;
 	MATERIAL_CULLING = true;
 }
@@ -142,6 +143,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material, const
 	MATERIAL_TRANSPARENCY_IN_ALPHA = material->specularTransmittance.color!=rr::RRVec3(0) && material->specularTransmittanceInAlpha;
 	MATERIAL_TRANSPARENCY_BLEND = material->specularTransmittance.color!=rr::RRVec3(0) && !material->specularTransmittanceKeyed;
 	MATERIAL_TRANSPARENCY_TO_RGB = MATERIAL_TRANSPARENCY_BLEND;
+	MATERIAL_TRANSPARENCY_FRESNEL = MATERIAL_TRANSPARENCY_BLEND && material->refractionIndex!=1;
 
 	// normal map
 	MATERIAL_NORMAL_MAP = hasMap(material->normalMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
@@ -162,7 +164,7 @@ const char* UberProgramSetup::getSetupString()
 	sprintf(specularModel,"#define MATERIAL_SPECULAR_MODEL %d\n",(int)MATERIAL_SPECULAR_MODEL);
 
 	static char setup[2000];
-	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		comment?comment:"",
 		SHADOW_MAPS?shadowMaps:"",
 		SHADOW_SAMPLES?shadowSamples:"",
@@ -203,6 +205,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_TRANSPARENCY_IN_ALPHA?"#define MATERIAL_TRANSPARENCY_IN_ALPHA\n":"",
 		MATERIAL_TRANSPARENCY_BLEND?"#define MATERIAL_TRANSPARENCY_BLEND\n":"",
 		MATERIAL_TRANSPARENCY_TO_RGB?"#define MATERIAL_TRANSPARENCY_TO_RGB\n":"",
+		MATERIAL_TRANSPARENCY_FRESNEL?"#define MATERIAL_TRANSPARENCY_FRESNEL\n":"",
 		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
 		ANIMATION_WAVE?"#define ANIMATION_WAVE\n":"",
 		POSTPROCESS_NORMALS?"#define POSTPROCESS_NORMALS\n":"",
@@ -311,6 +314,7 @@ void UberProgramSetup::reduceMaterials(const UberProgramSetup& fullMaterial)
 	MATERIAL_TRANSPARENCY_IN_ALPHA &= fullMaterial.MATERIAL_TRANSPARENCY_IN_ALPHA;
 	MATERIAL_TRANSPARENCY_BLEND    &= fullMaterial.MATERIAL_TRANSPARENCY_BLEND;
 	MATERIAL_TRANSPARENCY_TO_RGB   &= fullMaterial.MATERIAL_TRANSPARENCY_TO_RGB;
+	MATERIAL_TRANSPARENCY_FRESNEL  &= fullMaterial.MATERIAL_TRANSPARENCY_FRESNEL;
 	MATERIAL_NORMAL_MAP            &= fullMaterial.MATERIAL_NORMAL_MAP;
 	MATERIAL_CULLING               &= fullMaterial.MATERIAL_CULLING;
 }
@@ -614,7 +618,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		program->sendUniform("postprocessGamma", gamma);
 	}
 
-	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR))
+	if ((MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR)) || MATERIAL_TRANSPARENCY_FRESNEL)
 	{
 		const rr::RRCamera* camera = getRenderCamera();
 		if (camera)
@@ -720,6 +724,11 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	if (MATERIAL_TRANSPARENCY_CONST)
 	{
 		program->sendUniform("materialTransparencyConst",rr::RRVec4(material->specularTransmittance.color,1-material->specularTransmittance.color.avg()));
+	}
+
+	if (MATERIAL_TRANSPARENCY_FRESNEL)
+	{
+		program->sendUniform("materialRefractionIndex",material->refractionIndex+0.1f);
 	}
 
 	if (MATERIAL_DIFFUSE_MAP)
