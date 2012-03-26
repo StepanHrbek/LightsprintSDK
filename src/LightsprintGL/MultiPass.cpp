@@ -30,13 +30,37 @@ MultiPass::MultiPass(const RealtimeLights* _lights, const rr::RRLight* _renderin
 	separatedZPass = (mainUberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && (mainUberProgramSetup.MATERIAL_TRANSPARENCY_CONST || mainUberProgramSetup.MATERIAL_TRANSPARENCY_MAP || mainUberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA) && !mainUberProgramSetup.FORCE_2D_POSITION)?1:0; // needs MATERIAL_TRANSPARENCY_BLEND, not triggered by rendering to SM
 
 	// GL3.3 ARB_blend_func_extended can do it without separated pass, we do extra pass to be compatible with GL2
-	separatedMultiplyPass = (separatedZPass && mainUberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB)?1:0; // needs MATERIAL_TRANSPARENCY_BLEND, not triggered by rendering to SM
+	separatedMultiplyPass = mainUberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB;
 
-	separatedAmbiEmiPass = _srgbCorrect
-		// separate ambient from direct light
-		? (!numLights || mainUberProgramSetup.LIGHT_INDIRECT_CONST || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || mainUberProgramSetup.LIGHT_INDIRECT_MAP || mainUberProgramSetup.LIGHT_INDIRECT_MAP2 || mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || mainUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || mainUberProgramSetup.LIGHT_INDIRECT_MIRROR)
-		// do ambient together with first direct light
-		: ((!numLights)?1:0);
+	// Do we need separated pass for ambient light and emittance?
+	//
+	// render  ambiEmi  lights _srgbCorrect _renderingFromThisLight separatedMultiplyPass separatedAmbiEmiPass
+	// sm         -        -         .                 +                    -                      +
+	// rgb sm     -        -         .                 +                    +                      -
+	// rgb sm     -        +         .                 +                    +                      -
+	// rgb sm     +        -         .                 +                    +                      -
+	// rgb sm     +        +         .                 +                    +                      -
+
+	// final      -        -         -                 -                    -                      +
+	// final      -        -         -                 -                    +                      + // adds black (diffuse component) to background already darkened by rgb blending
+	// final      -        -         +                 -                    -                      +
+	// final      -        -         +                 -                    +                      + // adds black (diffuse component) to background already darkened by rgb blending
+	// final      +        -         -                 -                    -                      +
+	// final      +        -         -                 -                    +                      +
+	// final      +        -         +                 -                    -                      +
+	// final      +        -         +                 -                    +                      +
+
+	// final      -        +         -                 -                    -                      -
+	// final      -        +         -                 -                    +                      -
+	// final      -        +         +                 -                    -                      -
+	// final      -        +         +                 -                    +                      -
+	// final      +        +         -                 -                    -                      -
+	// final      +        +         -                 -                    +                      -
+	// final      +        +         +                 -                    -                      +
+	// final      +        +         +                 -                    +                      +
+	bool ambiEmiPresent = mainUberProgramSetup.LIGHT_INDIRECT_CONST || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR || mainUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 || mainUberProgramSetup.LIGHT_INDIRECT_MAP || mainUberProgramSetup.LIGHT_INDIRECT_MAP2 || mainUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP || mainUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || mainUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || mainUberProgramSetup.LIGHT_INDIRECT_MIRROR
+		|| mainUberProgramSetup.MATERIAL_EMISSIVE_CONST || mainUberProgramSetup.MATERIAL_EMISSIVE_MAP;
+	separatedAmbiEmiPass = _renderingFromThisLight ? !separatedMultiplyPass : (!numLights || (ambiEmiPresent && _srgbCorrect));
 
 	lightIndex = -separatedZPass-separatedMultiplyPass-separatedAmbiEmiPass;
 	colorPassIndex = -separatedZPass;
@@ -141,6 +165,13 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
 		uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = 0;
+		if (uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND)
+		{
+			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = 0;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 0;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 0;
+			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = 0;
+		}
 		uberProgramSetup.MATERIAL_NORMAL_MAP = 0;
 	}
 	else
