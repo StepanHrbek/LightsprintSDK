@@ -87,6 +87,9 @@ namespace rr_gl
 	public:
 		EntityIds() {}
 		EntityIds(EntityId e) {insert(e);}
+		// why not put RRVec3 center here?
+		// because we would have to recalculate it each time something moves
+		// it's easier if all who need center calculate it themselves
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
