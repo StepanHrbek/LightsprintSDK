@@ -1509,6 +1509,7 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 			m_canvas->selectedType = entity.type;
 	}
 
+
 	if (action!=SEA_NOTHING && m_sceneTree)
 	{
 		m_sceneTree->selectEntityInTree(entity);
