@@ -41,7 +41,7 @@ public:
 		ALPHA_KEYED_SHADOWS,
 		//! Realistic colored shadows from semi-translucent materials (if specularTransmittance is red, only red light goes through), this is evaluated per-pixel.
 		RGB_SHADOWS,
-		//! The most realistic shadows, with Fresnel term applied to increase occlusion depending on index of refraction. It goes half way towards caustics, as light intensity is modulated, but light direction is not.
+		//! The most realistic shadows, with normal maps and Fresnel term applied to increase occlusion depending on index of refraction. It goes half way towards caustics, as light intensity is modulated, but light direction is not. For refractionIndex 1, result is identical to RGB_SHADOWS.
 		FRESNEL_SHADOWS,
 	};
 
