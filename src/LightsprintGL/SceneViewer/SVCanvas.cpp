@@ -748,6 +748,17 @@ static ClickInfo s_ci;
 
 void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 {
+	// when clicking faster than 5Hz, wxWidgets drops some ButtonDown events
+	// let's keep an eye on unexpected ButtonUps and generate missing ButtonDowns 
+	#define EYE_ON(button,BUTTON) \
+		static bool button##Down = false; \
+		if (event.button##Down()) button##Down = true; \
+		if (event.button##Up() && !button##Down) {wxMouseEvent e(event);e.SetEventType(wxEVT_##BUTTON##_DOWN);OnMouseEvent(e);} \
+		if (event.button##Up()) button##Down = false;
+	EYE_ON(Left,LEFT);
+	EYE_ON(Middle,MIDDLE);
+	EYE_ON(Right,RIGHT);
+
 	if (exitRequested || !fullyCreated)
 		return;
 
