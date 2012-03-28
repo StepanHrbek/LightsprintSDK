@@ -1770,7 +1770,8 @@ rendered:
 			renderedIcons.clear();
 			if (svframe->m_lightProperties->IsShown())
 				renderedIcons.addLights(solver->getLights(),sunIconPosition);
-			renderedIcons.markSelected(svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED));
+			const EntityIds& selectedEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
+			renderedIcons.markSelected(selectedEntityIds);
 			entityIcons->renderIcons(renderedIcons,svs.eye);
 		}
 	}

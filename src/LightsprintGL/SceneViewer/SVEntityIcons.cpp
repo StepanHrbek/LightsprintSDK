@@ -66,9 +66,9 @@ void SVEntities::markSelected(const EntityIds& selectedEntityIds)
 
 SVEntityIcons::SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram)
 {
-	icon[IC_DIRECTIONAL] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_sun.png",pathToMaps)));
 	icon[IC_POINT] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_point.png",pathToMaps)));
 	icon[IC_SPOT] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_spot.png",pathToMaps)));
+	icon[IC_DIRECTIONAL] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_sun.png",pathToMaps)));
 
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
@@ -188,7 +188,6 @@ bool SVEntityIcons::intersectTriangle(const rr::RRMesh::TriangleBody* t, rr::RRR
 	// calculate distance where ray intersects triangle
 	float dist = t->side2.dot(qvec)/det;
 	if (dist<ray->rayLengthMin || dist>ray->rayLengthMax) return false;
-
 	ray->hitDistance = dist;
 	return true;
 }
