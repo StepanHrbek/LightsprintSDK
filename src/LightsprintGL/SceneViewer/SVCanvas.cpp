@@ -947,7 +947,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	{
 		const EntityIds& manipulatedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
 		rr::RRVec3 manipulatedCenter = svframe->m_sceneTree->getCenterOf(manipulatedEntities);
-		bool manipulatingSelection = s_ci.clickedEntityIsSelected && manipulatedEntities!=svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_CAMERA);
+		bool manipulatingCamera = manipulatedEntities==svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_CAMERA);
+		bool manipulatingSelection = s_ci.clickedEntityIsSelected && !manipulatingCamera;
 		bool manipulatingSingleLight = manipulatingSelection && selectedEntities.size()==1 && selectedEntities.begin()->type==ST_LIGHT;
 
 		if (event.LeftIsDown() && manipulatingSelection)
