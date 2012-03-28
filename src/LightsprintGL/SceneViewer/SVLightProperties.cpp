@@ -217,6 +217,11 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	rr::RRLight* light = &rtlight->getRRLight();
 
 	wxPGProperty *property = event.GetProperty();
+	if (property==propEnabled)
+	{
+		svframe->updateSceneTree();
+	}
+	else
 	if (property==propName)
 	{
 		light->name = RR_WX2RR(property->GetValue().GetString());

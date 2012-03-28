@@ -74,9 +74,12 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 		DeleteChildren(lights);
 		for (unsigned i=0;solver && i<solver->getLights().size();i++)
 		{
-			wxString name = RR_RR2WX(solver->getLights()[i]->name);
-			rr::RRLight::Type type = solver->getLights()[i]->type;
-			if (name.empty()) name = ((type==rr::RRLight::SPOT)?_("spot light"):((type==rr::RRLight::POINT)?_("point light"):_("sun light"))) + wxString::Format(" %d",i);
+			rr::RRLight* light = solver->getLights()[i];
+			wxString name = RR_RR2WX(light->name);
+			if (name.empty())
+				name = ((light->type==rr::RRLight::SPOT)?_("spot light"):((light->type==rr::RRLight::POINT)?_("point light"):_("sun light"))) + wxString::Format(" %d",i);
+			if (!light->enabled)
+				name += " [" + _("off") + "]";
 			AppendItem(lights,name,-1,-1,new ItemData(EntityId(ST_LIGHT,i)));
 		}
 	}
