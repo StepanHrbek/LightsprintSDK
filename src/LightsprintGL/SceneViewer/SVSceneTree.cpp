@@ -815,7 +815,13 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			if (solver)
 			{
 				// display log window with 'abort' while this function runs
+				bool containsObjects = false;
+				for (EntityIds::const_iterator i=contextEntityIds.begin();i!=contextEntityIds.end();++i)
+					containsObjects |= i->type==ST_OBJECT;
+				bool skipLog = !LogWithAbort::logIsOn && !containsObjects;
+				if (skipLog) LogWithAbort::logIsOn = true;
 				LogWithAbort logWithAbort(this,solver,_("Deleting..."));
+				if (skipLog) LogWithAbort::logIsOn = false;
 
 				// delete lights
 				{
