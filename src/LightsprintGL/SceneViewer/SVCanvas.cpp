@@ -1798,9 +1798,10 @@ rendered:
 			if (svframe->m_lightProperties->IsShown())
 				renderedIcons.addLights(solver->getLights(),sunIconPosition);
 			const EntityIds& selectedEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
+			const EntityIds& autoEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
 			renderedIcons.markSelected(selectedEntityIds);
 			if (selectedEntityIds.size())
-				renderedIcons.addXYZ(svframe->m_sceneTree->getCenterOf(selectedEntityIds),selectedTransformation);
+				renderedIcons.addXYZ(svframe->m_sceneTree->getCenterOf(selectedEntityIds),(&selectedEntityIds==&autoEntityIds)?selectedTransformation:IC_STATIC);
 			entityIcons->renderIcons(renderedIcons,svs.eye);
 		}
 	}
