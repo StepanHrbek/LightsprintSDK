@@ -159,6 +159,11 @@ RRHash RRObject::getHash() const
 //
 //  RRHash
 
+RRHash::RRHash()
+{
+	memset(value,0,sizeof(value));
+}
+
 RRHash::RRHash(const unsigned char* data, unsigned size)
 {
 	CSHA1 sha1;
@@ -218,6 +223,12 @@ void RRHash::getFileName(char* buf, unsigned bufsize, unsigned version, const ch
 bool RRHash::operator !=(const RRHash& a) const
 {
 	return memcmp(value,a.value,sizeof(value))!=0;
+}
+
+void RRHash::operator +=(const RRHash& a)
+{
+	for (unsigned i=0;i<20;i++)
+		value[i] += a.value[i];
 }
 
 }

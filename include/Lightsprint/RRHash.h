@@ -25,8 +25,8 @@ namespace rr
 		//! Hash value.
 		unsigned char value[20];
 
-		//! Default constructor keeps hash value uninitialized. For users who compute hash externally.
-		RRHash() {}
+		//! Resets value to 0.
+		RRHash();
 		//! Calculates hash value from data.
 		RRHash(const unsigned char* data, unsigned size);
 
@@ -44,6 +44,7 @@ namespace rr
 		void getFileName(char* outputFilename, unsigned bufferSize, unsigned version, const char* prefix, const char* postfix) const;
 
 		bool operator !=(const RRHash& a) const;
+		void operator +=(const RRHash& a);
 	};
 
 } // namespace
