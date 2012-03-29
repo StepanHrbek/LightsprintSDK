@@ -334,9 +334,15 @@ void SVCanvas::recalculateIconSizeAndPosition()
 
 void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 {
+	bool staticObjectsModified = !scene && add; // (NULL,true) means that something was already modified
+	if (scene)
+		for (unsigned i=0;i<scene->objects.size();i++)
+			if (!scene->objects[i]->isDynamic)
+				staticObjectsModified = true;
+
 	if (scene || add)
 	{
-		// add or remove scene from solver
+		// add or remove scene from solver, or update after objects in solver change
 		rr::RRObjects objects = solver->getStaticObjects();
 		objects.insert(objects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
 		rr::RRLights lights = solver->getLights();
@@ -368,20 +374,20 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
 			}
 		}
 		objects.removeEmptyObjects();
-		solver->setStaticObjects(objects,NULL);
+		if (staticObjectsModified)
+			solver->setStaticObjects(objects,NULL);
 		solver->setDynamicObjects(objects);
 		solver->setLights(lights);
 	}
 	else
 	{
-		// add or remove object from solver
 		solver->reportDirectIlluminationChange(-1,true,true,true);
 	}
 
 	// fix svs.renderLightIndirect, setStaticObjects() just silently switched solver to architect
 	// must be changed if setStaticObjects() behaviour changes
 	// we don't switch to architect, but rather to const ambient, because architect ignores environment, scenes without lights are black
-	if (svs.renderLightIndirect==LI_REALTIME_FIREBALL)
+	if (staticObjectsModified && svs.renderLightIndirect==LI_REALTIME_FIREBALL)
 	{
 		svs.renderLightIndirect = LI_CONSTANT;
 	}
