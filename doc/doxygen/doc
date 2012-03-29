@@ -546,7 +546,7 @@ Video formats
 
 \page tpl_art 2d art
   - scene viewer uses icons from <a href="http://www.fatcow.com/free-icons/index.bml">Fat Cow</a>, under <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>
-  - optional, remove by replacing <code>data/maps/sv_[point|spot|sun].png</code> images
+  - optional, remove by replacing <code>data/maps/sv_*.png</code> icons
 
 \page tpl_boost Boost
   \section boost_www Web
