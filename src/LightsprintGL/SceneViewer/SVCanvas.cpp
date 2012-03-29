@@ -136,6 +136,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 	fullyCreated = false;
 
 	skyboxBlendingInProgress = false;
+	selectedTransformation = IC_MOVEMENT;
 
 	stereoTexture = NULL;
 	stereoUberProgram = NULL;
@@ -754,7 +755,7 @@ static ClickInfo s_ci;
 
 void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 {
-	// when clicking faster than 5Hz, wxWidgets drops some ButtonDown events
+	// when clicking faster than 5Hz, wxWidgets 2.9.1 drops some ButtonDown events
 	// let's keep an eye on unexpected ButtonUps and generate missing ButtonDowns 
 	#define EYE_ON(button,BUTTON) \
 		static bool button##Down = false; \
@@ -841,7 +842,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		// find icon distance
 		if (entityIcons->intersectIcons(renderedIcons,ray))
 		{
-			s_ci.clickedEntity = renderedIcons[ray->hitTriangle];
+			s_ci.clickedEntity = renderedIcons[ray->hitTriangle]; // ST_FIRST for gizmo icons
+			s_ci.hitTriangle = UINT_MAX; // must be cleared, otherwise we use it to look up point material
 			s_ci.hitDistance = ray->hitDistance;
 			s_ci.hitPoint2d = rr::RRVec2(0);
 			s_ci.hitPoint3d = ray->rayOrigin + ray->rayDir*ray->hitDistance;
@@ -877,7 +879,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			s_ci.clickedEntity.iconCode = IC_LAST;
 		}
 
-		s_ci.clickedEntityIsSelected = selectedEntities.find(s_ci.clickedEntity)!=selectedEntities.end();
+		s_ci.clickedEntityIsSelected = selectedEntities.find(s_ci.clickedEntity)!=selectedEntities.end(); // false for gizmo
 	}
 
 	// handle clicking (mouse released in less than 0.2s in less than 20pix distance)
@@ -889,6 +891,21 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		if (event.LeftUp())
 		{
 			// left click = select
+			if (s_ci.clickedEntity.iconCode==IC_MOVEMENT)
+			{
+				selectedTransformation = IC_ROTATION;
+			}
+			else
+			if (s_ci.clickedEntity.iconCode==IC_ROTATION)
+			{
+				selectedTransformation = IC_SCALE;
+			}
+			else
+			if (s_ci.clickedEntity.iconCode==IC_SCALE)
+			{
+				selectedTransformation = IC_MOVEMENT;
+			}
+			else
 			if ((selectedEntities.size()==1 && s_ci.clickedEntityIsSelected) || event.ControlDown())
 			{
 				// toggle selection (clicked with ctrl)
@@ -957,46 +974,49 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		bool manipulatingSelection = s_ci.clickedEntityIsSelected && !manipulatingCamera;
 		bool manipulatingSingleLight = manipulatingSelection && selectedEntities.size()==1 && selectedEntities.begin()->type==ST_LIGHT;
 
-		if (event.LeftIsDown() && manipulatingSelection)
+		bool manipulatingGizmo = s_ci.clickedEntity.iconCode>=IC_MOVEMENT && s_ci.clickedEntity.iconCode<=IC_Z;
+		if (event.LeftIsDown() && !manipulatingCamera && (manipulatingSelection || manipulatingGizmo))
 		{
-			// moving selection
-			rr::RRVec3 pan;
-			if (svs.eye.isOrthogonal())
+			// moving/rotating/scaling selection (gizmo)
+			rr::RRMatrix3x4 transformation;
+			rr::RRVec3 pan = svs.eye.isOrthogonal()
+				? svs.eye.getRayOrigin(mousePositionInWindow)-svs.eye.getRayOrigin(oldMousePositionInWindow)
+				: (svs.eye.getRayDirection(mousePositionInWindow)-svs.eye.getRayDirection(oldMousePositionInWindow))*(s_ci.hitDistance/s_ci.rayDirection.length());
+			rr::RRVec2 drag = RRVec2((newPosition.x-oldPosition.x)/(float)winWidth,(newPosition.y-oldPosition.y)/(float)winHeight);
+			switch (selectedTransformation)
 			{
-				pan = svs.eye.getRayOrigin(mousePositionInWindow)-svs.eye.getRayOrigin(oldMousePositionInWindow);
+				case IC_MOVEMENT:
+					switch (s_ci.clickedEntity.iconCode)
+					{
+						case IC_X: pan.y = pan.z = 0; break;
+						case IC_Y: pan.x = pan.z = 0; break;
+						case IC_Z: pan.x = pan.y = 0; break;
+					}
+					transformation = rr::RRMatrix3x4::translation(pan);
+					break;
+				case IC_ROTATION:
+					switch (s_ci.clickedEntity.iconCode)
+					{
+						case IC_X: transformation = rr::RRMatrix3x4::rotationByAxisAngle(RRVec3(1,0,0),-drag.x*5); break;
+						case IC_Y: transformation = rr::RRMatrix3x4::rotationByAxisAngle(RRVec3(0,1,0),-drag.x*5); break;
+						case IC_Z: transformation = rr::RRMatrix3x4::rotationByAxisAngle(RRVec3(0,0,1),-drag.x*5); break;
+						default:   transformation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getUp(),(manipulatingSingleLight?5:-5)*drag.x)
+							*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),(manipulatingSingleLight?5:-5)*drag.y); break;
+					}
+					break;
+				case IC_SCALE:
+					switch (s_ci.clickedEntity.iconCode)
+					{
+						case IC_X: pan.y = pan.z = 0; break;
+						case IC_Y: pan.x = pan.z = 0; break;
+						case IC_Z: pan.x = pan.y = 0; break;
+						default: pan = RRVec3(pan.sum()); break;
+					}
+					for (unsigned i=0;i<3;i++) pan[i] = powf(1.6f,pan[i]);
+					transformation = rr::RRMatrix3x4::scale(pan);
+					break;
 			}
-			else
-			{
-				pan = (svs.eye.getRayDirection(mousePositionInWindow)-svs.eye.getRayDirection(oldMousePositionInWindow))*(s_ci.hitDistance/s_ci.rayDirection.length());
-			}
-			if (event.ShiftDown() || event.ControlDown() || event.AltDown())
-			{
-				if (!event.ControlDown()) pan.x = 0;
-				if (!event.ShiftDown()) pan.y = 0;
-				if (!event.AltDown()) pan.z = 0;
-			}
-			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,rr::RRMatrix3x4::translation(pan),false);
-		}
-		else
-		if (event.RightIsDown() && manipulatingSelection)
-		{
-			// rotating selection
-			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
-			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
-			rr::RRMatrix3x4 rotation;
-			//if (event.ShiftDown()) rotation = rr::RRMatrix3x4::scale(rr::RRVec3(expf(dragX))); else
-			//if (event.AltDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getDirection(),dragX*5); else
-			//if (event.ControlDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getUp(),dragX*5)*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),dragY*5); else
-			if (event.ControlDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(1,0,0),-dragX*5); else
-			if (event.ShiftDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),-dragX*5); else
-			if (event.AltDown()) rotation = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,0,1),-dragX*5); else
-				rotation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getUp(),(manipulatingSingleLight?5:-5)*dragX)
-					*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),(manipulatingSingleLight?5:-5)*dragY);
-			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,rotation.centeredAround(manipulatedCenter),true);
-
-			s_ci.hitPoint3d = manipulatedCenter;
-			s_ci.hitDistance = (s_ci.hitPoint3d-svs.eye.getPosition()).length();
-			s_ciRenderCrosshair = true;
+			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,transformation.centeredAround(manipulatedCenter),false);
 		}
 		else
 		if (event.LeftIsDown())
@@ -1779,6 +1799,8 @@ rendered:
 				renderedIcons.addLights(solver->getLights(),sunIconPosition);
 			const EntityIds& selectedEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
 			renderedIcons.markSelected(selectedEntityIds);
+			if (selectedEntityIds.size())
+				renderedIcons.addXYZ(svframe->m_sceneTree->getCenterOf(selectedEntityIds),selectedTransformation);
 			entityIcons->renderIcons(renderedIcons,svs.eye);
 		}
 	}

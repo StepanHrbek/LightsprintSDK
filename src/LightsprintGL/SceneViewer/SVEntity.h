@@ -38,6 +38,13 @@ namespace rr_gl
 		IC_POINT = 0,
 		IC_SPOT,
 		IC_DIRECTIONAL,
+		IC_MOVEMENT,
+		IC_ROTATION,
+		IC_SCALE,
+		IC_STATIC,
+		IC_X,
+		IC_Y,
+		IC_Z,
 		IC_LAST
 	};
 
@@ -103,6 +110,7 @@ namespace rr_gl
 	struct SVEntity : public EntityId
 	{
 		rr::RRVec3 position;
+		rr::RRVec3 parentPosition; // if different from position, arrow is rendered from parentPosition
 		float iconSize;
 		IconCode iconCode;
 		bool bright;

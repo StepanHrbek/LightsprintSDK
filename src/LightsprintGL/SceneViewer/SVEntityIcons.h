@@ -30,6 +30,7 @@ namespace rr_gl
 
 		void addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition);
 		void markSelected(const EntityIds& selectedEntityIds);
+		void addXYZ(rr::RRVec3 center, IconCode transformation);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -63,9 +64,11 @@ namespace rr_gl
 		bool intersectIcon(const SVEntity& entity, rr::RRRay* ray);
 
 		void renderIcon(const SVEntity& entity, const rr::RRCamera& eye);
+		void renderArrow(const SVEntity& entity, const rr::RRCamera& eye);
 
 		rr::RRBuffer* icon[IC_LAST]; // indexed by IconCode
 		Program* programIcons;
+		Program* programArrows;
 	};
  
 }; // namespace

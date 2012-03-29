@@ -10,6 +10,8 @@
 #include "../PreserveState.h"
 #include "wx/wx.h"
 
+#define ICONS_ON_TOP // icons not occluded by geometry
+
 namespace rr_gl
 {
 
@@ -46,6 +48,7 @@ void SVEntities::addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPositi
 			}
 			entity.iconSize = iconSize;
 			entity.bright = lights[i]->enabled;
+			entity.parentPosition = entity.position;
 			push_back(entity);
 		}
 	}
@@ -58,6 +61,30 @@ void SVEntities::markSelected(const EntityIds& selectedEntityIds)
 		(*this)[i].selected = selectedEntityIds.find((*this)[i])!=selectedEntityIds.end();
 }
 
+void SVEntities::addXYZ(rr::RRVec3 center, IconCode transformation)
+{
+	float dist = 2*iconSize*5.5f;
+	SVEntity e;
+	e.position = center;
+	e.parentPosition = center;
+	e.iconSize = 2*iconSize;
+	e.iconCode = transformation;
+	e.bright = true;
+	e.selected = false;
+	push_back(e);
+	e.iconSize *= 0.6f;
+	e.position.x += dist;
+	e.iconCode = IC_X;
+	push_back(e);
+	e.position.x -= dist;
+	e.position.y += dist;
+	e.iconCode = IC_Y;
+	push_back(e);
+	e.position.y -= dist;
+	e.position.z += dist;
+	e.iconCode = IC_Z;
+	push_back(e);
+}
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -66,13 +93,14 @@ void SVEntities::markSelected(const EntityIds& selectedEntityIds)
 
 SVEntityIcons::SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram)
 {
-	icon[IC_POINT] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_point.png",pathToMaps)));
-	icon[IC_SPOT] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_spot.png",pathToMaps)));
-	icon[IC_DIRECTIONAL] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_sun.png",pathToMaps)));
+	const char* filename[] = {"sv_point","sv_spot","sv_sun","sv_movement","sv_rotation","sv_scale","sv_static","sv_x","sv_y","sv_z"};
+	for (IconCode i=IC_POINT;i!=IC_LAST;i=(IconCode)(i+1))
+		icon[i] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%s%s.png",pathToMaps,filename[i])));
 
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
+	programArrows = uberProgramSetup.getProgram(uberProgram);
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 	uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = true;
@@ -114,6 +142,9 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, const rr::RRCamera& 
 	PreserveBlendFunc p2;
 	PreserveAlphaTest p3;
 	PreserveAlphaFunc p4;
+#ifdef ICONS_ON_TOP
+	PreserveDepthTest p5;
+#endif
 
 	// keyed icons (alpha0=transparent)
 	glEnable(GL_ALPHA_TEST); glAlphaFunc(GL_GREATER,0.03f);
@@ -121,6 +152,9 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, const rr::RRCamera& 
 	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// blended icons (white=transparent)
 	//glEnable(GL_BLEND); glBlendFunc(GL_ONE_MINUS_SRC_COLOR,GL_SRC_COLOR);
+#ifdef ICONS_ON_TOP
+	glDisable(GL_DEPTH_TEST);
+#endif
 
 	// render icons
 	if (programIcons)
@@ -137,6 +171,15 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, const rr::RRCamera& 
 			renderIcon(entities[i],eye);
 		}
 	}
+
+	// render arrows
+	programArrows->useIt();
+	glLineWidth(5);
+	for (unsigned i=0;i<entities.size();i++)
+	{
+		renderArrow(entities[i],eye);
+	}
+	glLineWidth(1);
 }
 
 // icon vertices are computed in worldspace to simplify ray-icon intersections
@@ -187,7 +230,12 @@ bool SVEntityIcons::intersectTriangle(const rr::RRMesh::TriangleBody* t, rr::RRR
 
 	// calculate distance where ray intersects triangle
 	float dist = t->side2.dot(qvec)/det;
+#ifdef ICONS_ON_TOP
+	if (dist<ray->rayLengthMin || (dist>ray->rayLengthMax && ray->hitTriangle==UINT_MAX)) return false; // ignore rayLengthMax if hitTriangle is set, RL has icons on top of meshes
+	ray->hitTriangle = UINT_MAX; // clear hitTriangle, from now on icon distance will be compared properly
+#else
 	if (dist<ray->rayLengthMin || dist>ray->rayLengthMax) return false;
+#endif
 	ray->hitDistance = dist;
 	return true;
 }
@@ -232,6 +280,27 @@ void SVEntityIcons::renderIcon(const SVEntity& entity, const rr::RRCamera& eye)
 	}
 }
 
+void SVEntityIcons::renderArrow(const SVEntity& entity, const rr::RRCamera& eye)
+{
+	if (entity.parentPosition!=entity.position)
+	{
+		rr::RRVec3 a(entity.parentPosition);
+		rr::RRVec3 b(entity.position);
+		b = a*0.15f+b*0.85f; // make arrow little bit shorter
+		rr::RRVec3 c = eye.getDirection().cross(b-a)*0.1f;
+		rr::RRVec3 tmp1(a*0.1f+b*0.9f+c);
+		rr::RRVec3 tmp2(a*0.1f+b*0.9f-c);
+		programArrows->sendUniform("lightIndirectConst",rr::RRVec4((b-a).abs().normalized(),1.0f));
+		glBegin(GL_LINES);
+		glVertex3fv(&b.x);
+		glVertex3fv(&a.x);
+		glVertex3fv(&b.x);
+		glVertex3fv(&tmp1.x);
+		glVertex3fv(&b.x);
+		glVertex3fv(&tmp2.x);
+		glEnd();
+	}
+}
 
 bool SVEntityIcons::isOk() const
 {

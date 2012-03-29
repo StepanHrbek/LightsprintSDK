@@ -139,6 +139,7 @@ namespace rr_gl
 		rr::RRVec3                 sunIconPosition; // for dirlight icons
 		SVEntityIcons*             entityIcons; // permanent helper, renders and intersects icons
 		SVEntities                 renderedIcons; // collection of icons, updated in every frame
+		IconCode                   selectedTransformation;
 
 		// skybox blending
 		bool                       skyboxBlendingInProgress;
