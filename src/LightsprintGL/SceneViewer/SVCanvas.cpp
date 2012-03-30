@@ -1082,15 +1082,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// handle wheel
 	if (event.GetWheelRotation())
 	{
-		if (!selectedEntities.empty() && event.ShiftDown())
-		{
-			// scale selection
-			const EntityIds& manipulatedEntities = selectedEntities;
-			rr::RRVec3 manipulatedCenter = svframe->m_sceneTree->getCenterOf(manipulatedEntities);
-			rr::RRMatrix3x4 scale = rr::RRMatrix3x4::scale(rr::RRVec3(expf(event.GetWheelRotation()/event.GetWheelDelta()*0.2f)));
-			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,scale.centeredAround(manipulatedCenter),false);
-		}
-		else
 		if (event.ControlDown())
 		{
 			// move camera forward/backward

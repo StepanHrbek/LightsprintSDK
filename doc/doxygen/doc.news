@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news132 ------------------------------------ 2012.02.xx -------------------------------------
+\section news132 ------------------------------------ 2012.04.xx -------------------------------------
 
 NEWS
 
@@ -23,6 +23,9 @@ NEWS
   - rr_gl::UberProgramSetup::MATERIAL_TRANSPARENCY_FRESNEL renders specular transmittance and reflectance adjusted according to index of refraction
   - rr_gl::RealtimeLight::FRESNEL_SHADOW renders shadows adjusted according to index of refraction
   - note that RRMaterial::refractionIndex must be set properly, there is no effect with default index 1
+- <b>improved scene viewer</b>
+  - move/rotate/scale gizmo, replaces various hotkeys
+  - everything can be edited for years.. but now that it comes with user friendly gizmo, is it finally time to call it "editor"?
 
 CHANGES
 
