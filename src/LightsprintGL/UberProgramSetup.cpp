@@ -625,7 +625,9 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		const rr::RRCamera* camera = getRenderCamera();
 		if (camera)
 		{
-			program->sendUniform("worldEyePos",camera->getPosition());
+			// for othogonal camera, move position way back, so that view directions are roughly the same
+			// it is not worth creating another ubershader option
+			program->sendUniform("worldEyePos",camera->isOrthogonal()?camera->getPosition()-camera->getDirection()*camera->getFar()*1000:camera->getPosition());
 		}
 		else
 		{
