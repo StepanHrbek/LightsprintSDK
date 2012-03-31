@@ -902,6 +902,30 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 					return result;
 			}
 		}
+		// load with fileLocator failed, return stub if specified in getLocation("",0)
+		RRString stubname = _fileLocator->getLocation(_filename,RRFileLocator::ATTEMPT_STUB);
+		if (!stubname.empty())
+		{
+			RRBuffer* stub = load_cached(stubname,NULL);
+			RRBuffer* result;
+			if (stub)
+			{
+				// by returning copy, we preserve stub intact in cache, next time we won't have to load it from disk
+				result = stub->createCopy();
+				delete stub;
+			}
+			else
+			{
+				unsigned data[4*16*16];
+				for (unsigned i=0;i<16;i++)
+				for (unsigned j=0;j<16;j++)
+					data[i+16*j] = (((i/2^j/2)%2)?0xff000000:0xffffffff);
+				result = RRBuffer::create(BT_2D_TEXTURE,16,16,1,BF_RGBA,true,(unsigned char*)data);
+			}
+			result->filename = _filename;
+			return result;
+		}
+		// load with fileLocator failed, and there's no stub, warn
 		RRReporter::report(WARN,"Failed to load %ls.\n",_filename.w_str());
 		return NULL;
 	}

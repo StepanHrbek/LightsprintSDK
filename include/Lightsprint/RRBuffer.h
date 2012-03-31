@@ -297,6 +297,8 @@ namespace rr
 		//! \param fileLocator
 		//!  NULL = load will be attempted only from filename.
 		//!  Non-NULL = load will be attempted from paths offered by fileLocator.
+		//!  When load fails, fileLocator is asked whether stub buffer with original filename should be created,
+		//!  see RRFileLocator::setAttempt(ATTEMPT_STUB).
 		//! \return
 		//!  Returns newly created buffer.
 		//!  In case of failure, NULL is returned and details logged via RRReporter.

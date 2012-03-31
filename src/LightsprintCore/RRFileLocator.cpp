@@ -6,6 +6,8 @@
 #include "Lightsprint/RRFileLocator.h"
 #include "Lightsprint/RRDebug.h"
 
+#include <vector>
+#include <map>
 #include <boost/algorithm/string.hpp> // split, is_any_of
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
@@ -57,8 +59,16 @@ public:
 			}
 		}
 	}
+	virtual void setAttempt(unsigned attemptNumber, const RRString& location)
+	{
+		specialAttempts[attemptNumber] = location;
+	}
 	virtual RRString getLocation(const RRString& originalFilename, unsigned attemptNumber) const
 	{
+		// special attempts
+		if (specialAttempts.find(attemptNumber)!=specialAttempts.end())
+			return specialAttempts.find(attemptNumber)->second;
+
 		return RR_PATH2RR(getLocation(bf::path(RR_RR2PATH(originalFilename)),attemptNumber));
 	}
 
@@ -162,6 +172,7 @@ protected:
 	std::vector<std::pair<bf::path,bf::path> > relocationFilenames;
 	std::vector<bf::path> libraryDirectories;
 	std::vector<std::string> extensions;
+	std::map<unsigned,RRString> specialAttempts;
 };
 
 

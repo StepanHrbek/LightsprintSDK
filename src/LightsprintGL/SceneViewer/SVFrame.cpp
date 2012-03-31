@@ -520,6 +520,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	rr::RRReporter::setFilter(true,userPreferences.testingLogMore?3:2,true);
 
 	textureLocator = rr::RRFileLocator::create();
+	textureLocator->setAttempt(rr::RRFileLocator::ATTEMPT_STUB,RR_WX2RR(wxString::Format("%s../maps/sv_missing.png",svs.pathToShaders)));
 
 #if defined(_WIN32) && _MSC_VER>=1400 && defined(NDEBUG)
 	rr::RRTime splashStart;

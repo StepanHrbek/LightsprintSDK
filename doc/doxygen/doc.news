@@ -26,6 +26,9 @@ NEWS
 - <b>improved scene viewer</b>
   - move/rotate/scale gizmo, replaces various hotkeys
   - everything can be edited for years.. but now that it comes with user friendly gizmo, is it finally time to call it "editor"?
+- better handling of missing textures
+  - option to preserve links to missing textures, see new RRFileLocator::setAttempt(ATTEMPT_STUB)
+  - scene viewer preserves links, displays stub texture sv_missing.png instead
 
 CHANGES
 

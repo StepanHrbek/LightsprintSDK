@@ -53,6 +53,10 @@ namespace rr
 		//! Tells locator to try these extensions (e.g. ".jpg;.png;.tga") for files without extension.
 		//! Ignored by default implementation, honoured by create().
 		virtual void setExtensions(bool add, const RRString& extensions) {}
+		//! Sets result of getLocation(,attemptNumber)=location.
+		//! See AttemptNumber for reasons behind setting it.
+		//! Ignored by default implementation, honoured by create().
+		virtual void setAttempt(unsigned attemptNumber, const RRString& location) {}
 
 		//! Returns possible file location.
 		//
@@ -77,6 +81,18 @@ namespace rr
 
 		//! Creates advanced file locator that honours all setXxx() functions.
 		static RRFileLocator* create();
+
+		enum AttemptNumber
+		{
+			//! When RRBuffer::load() fails and non-empty location was specified by setAttempt(ATTEMPT_STUB),
+			//! RRBuffer::load() creates stub buffer with original filename and stub content.
+			//! This is important when processing and saving scene without textures
+			//! (either intentionally, e.g. to speed up scene conversion, or unintentionally, e.g. when disk with textures is unmapped),
+			//! stubs preserve paths to textures, even if those textures are not loaded.
+			//! Stub content is loaded from location specified by setAttempt(ATTEMPT_STUB).
+			//! If load fails, small 2d texture is generated in memory.
+			ATTEMPT_STUB = 10000
+		};
 	};
 
 } // namespace
