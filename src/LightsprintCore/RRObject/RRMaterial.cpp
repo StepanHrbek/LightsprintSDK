@@ -118,6 +118,7 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 		numElementsTested++;
 		// texel selection must stay deterministic so that colors distilled from textures are always the same,
 		// hash is always the same and fireball does not ask for rebuild
+		// (still, accumulating floats results in different colors on different CPUs, so hash s preserved only on one CPU)
 		r = (r * 1103515245) + 12345;
 		i+=1+((r>>8)%step);
 	}
