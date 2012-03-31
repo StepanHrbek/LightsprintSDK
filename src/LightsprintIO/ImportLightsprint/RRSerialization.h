@@ -248,7 +248,7 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 		// saved paths must be absolute, necessary for proper relocation at load time
 		// saved type must be RRString (saving std::string and loading RRString works if scene has at least 1 light or material, fails in empty scene)
 		rr::RRString absolute = RR_PATH2RR(bf::system_complete(RR_RR2PATH(a.filename)));
-		ar & make_nvp("filename",absolute);
+		ar & make_nvp("filename",a.isStub()?a.filename:absolute);
 	}
 }
 
@@ -377,7 +377,7 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	if (Archive::is_loading::value)
 	{
 		RRScaler* scaler = RRScaler::createRgbScaler();
-		a.updateColorsFromTextures(scaler,rr::RRMaterial::UTA_KEEP);
+		a.updateColorsFromTextures(scaler,rr::RRMaterial::UTA_KEEP,false); // but don't update from stubs, we have valid colors (unlike all other scene formats)
 		delete scaler;
 	}
 }

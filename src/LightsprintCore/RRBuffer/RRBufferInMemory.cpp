@@ -79,6 +79,7 @@ RRBufferInMemory::RRBufferInMemory()
 	depth = 0;
 	format = BF_RGB;
 	scaled = false;
+	stub = false;
 	data = NULL;
 	version = rand();
 }

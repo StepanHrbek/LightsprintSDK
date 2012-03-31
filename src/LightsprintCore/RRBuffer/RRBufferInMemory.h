@@ -35,6 +35,7 @@ public:
 	virtual RRVec4 getElementAtDirection(const RRVec3& direction) const;
 	virtual unsigned char* lock(RRBufferLock lock) {if (lock!=BL_READ)version++;return data;}
 	virtual void unlock() {}
+	virtual bool isStub() {return stub;}
 
 	// reference counting
 	void* operator new(std::size_t n);
@@ -55,6 +56,9 @@ protected:
 	unsigned depth;
 	RRBufferFormat format;
 	bool scaled;
+public: // for RRBuffer::load()
+	bool stub;
+protected:
 	unsigned char* data;
 };
 

@@ -580,7 +580,7 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 
 	// get average colors from textures
 	rr::RRScaler* scaler = rr::RRScaler::createFastRgbScaler();
-	Materials[matindex].updateColorsFromTextures(scaler,rr::RRMaterial::UTA_DELETE);
+	Materials[matindex].updateColorsFromTextures(scaler,rr::RRMaterial::UTA_DELETE,true);
 	delete scaler;
 
 	/*/ build 1x1 colored texture for the material w/o texture, Draw() expects it exists
@@ -786,7 +786,7 @@ char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial:
 	if (materialProperty.texture)
 	{
 		rr::RRScaler* scaler = rr::RRScaler::createFastRgbScaler();
-		materialProperty.updateColorFromTexture(scaler,false,rr::RRMaterial::UTA_DELETE);
+		materialProperty.updateColorFromTexture(scaler,false,rr::RRMaterial::UTA_DELETE,true);
 		delete scaler;
 	}
 

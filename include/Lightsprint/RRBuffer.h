@@ -225,6 +225,9 @@ namespace rr
 		RRBuffer();
 		virtual ~RRBuffer() {};
 
+		//! Returns true if buffer is a stub. When asked to, RRBuffer::load() creates stubs for missing textures, to preserve their filenames.
+		virtual bool isStub() {return false;}
+
 		//! Optional filename, automatically set when load/save succeeds.
 		RRString filename;
 

@@ -1219,7 +1219,7 @@ public:
 
 			// get average colors from textures
 			RRScaler* scaler = RRScaler::createRgbScaler();
-			material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
+			material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE,true);
 			delete scaler;
 
 			// autodetect keying

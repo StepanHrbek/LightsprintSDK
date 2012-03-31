@@ -112,7 +112,7 @@ namespace rr
 			//! Both color and texture are changed. 8bit texture may be changed to floats to avoid clamping.
 			void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
 			//! If texture exists, updates color to average color in texture and returns standard deviation of color in texture.
-			RRReal updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction);
+			RRReal updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub);
 			//! If texture does not exist, creates 1x1 stub texture from color. Returns number of textures created, 0 or 1.
 			unsigned createTextureFromColor(bool isTransmittance);
 		};
@@ -152,7 +152,10 @@ namespace rr
 		//!  Without scaler, computed averages may slightly differ from physically correct averages.
 		//! \param uniformTextureAction
 		//!  What to do with textures of constant color. Removing them may make rendering/calculations faster.
-		void          updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction);
+		//! \param updateEvenFromStubs
+		//!  True=updates color even if texture is a stub. Pass true if you don't know color; stub texture is also wrong, but at least they will match.
+		//!  Pass false if you know color and don't want it to be overwritten by stub.
+		void          updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs);
 		//! Creates stub 1x1 textures for properties without texture.
 		//
 		//! LightsprintCore fully supports materials without textures, and working with flat colors instead of textures is faster.
@@ -263,7 +266,7 @@ namespace rr
 	private:
 		// Ensures that respective RRMaterial functions are not called.
 		void copyFrom(const RRMaterial& from) {}
-		void updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction) {}
+		void updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs) {}
 		unsigned createTexturesFromColors() {return 0;}
 	};
 

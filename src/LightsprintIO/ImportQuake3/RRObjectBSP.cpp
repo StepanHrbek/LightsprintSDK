@@ -182,7 +182,7 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 
 	// get average colors from textures. we already set them, but this will be slightly more precise thanks to scaler
 	RRScaler* scaler = RRScaler::createFastRgbScaler();
-	s.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
+	s.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE,true);
 	delete scaler;
 	// apply quake map boost again, updateColorsFromTextures removed it
 	s.diffuseReflectance.color *= 2;

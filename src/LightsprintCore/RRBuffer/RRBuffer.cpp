@@ -14,6 +14,7 @@
 #include "../squish/squish.h"
 #include "../RRDynamicSolver/gather.h" // TexelFlags
 #include <boost/filesystem.hpp>
+#include "RRBufferInMemory.h"
 
 namespace bf = boost::filesystem;
 
@@ -923,6 +924,9 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 				result = RRBuffer::create(BT_2D_TEXTURE,16,16,1,BF_RGB,true,(unsigned char*)data);
 			}
 			result->filename = _filename;
+			RRBufferInMemory* bufferInMemory = dynamic_cast<RRBufferInMemory*>(result);
+			if (bufferInMemory)
+				bufferInMemory->stub = true;
 			return result;
 		}
 		// load with fileLocator failed, and there's no stub, warn

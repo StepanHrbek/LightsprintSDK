@@ -329,7 +329,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propDiffuse->GetPropertyByName(_("texture or video")))
 	{
 		((ImageFileProperty*)property)->updateBufferAndIcon(material->diffuseReflectance.texture,svs.playVideos);
-		material->diffuseReflectance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP);
+		material->diffuseReflectance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP,false);
 		updateProperty(propDiffuse->GetPropertyByName(_("color")),material->diffuseReflectance.color);
 		composeMaterialPropertyRoot(propDiffuse,material->diffuseReflectance);
 		diffuseChanged = true;
@@ -354,7 +354,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propSpecular->GetPropertyByName(_("texture or video")))
 	{
 		((ImageFileProperty*)property)->updateBufferAndIcon(material->specularReflectance.texture,svs.playVideos);
-		material->specularReflectance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP);
+		material->specularReflectance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP,false);
 		updateProperty(propSpecular->GetPropertyByName(_("color")),material->specularReflectance.color);
 		composeMaterialPropertyRoot(propSpecular,material->specularReflectance);
 		specularChanged = true;
@@ -390,7 +390,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propEmissive->GetPropertyByName(_("texture or video")))
 	{
 		((ImageFileProperty*)property)->updateBufferAndIcon(material->diffuseEmittance.texture,svs.playVideos);
-		material->diffuseEmittance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP);
+		material->diffuseEmittance.updateColorFromTexture(NULL,false,rr::RRMaterial::UTA_KEEP,false);
 		updateProperty(propEmissive->GetPropertyByName(_("color")),material->diffuseEmittance.color);
 		composeMaterialPropertyRoot(propEmissive,material->diffuseEmittance);
 		emittanceChanged = true;
@@ -417,7 +417,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		((ImageFileProperty*)property)->updateBufferAndIcon(material->specularTransmittance.texture,svs.playVideos);
 		if (material->specularTransmittance.texture && material->specularTransmittance.texture->getFormat()!=rr::BF_RGBA && material->specularTransmittance.texture->getFormat()!=rr::BF_RGBAF)
 			material->specularTransmittanceInAlpha = false;
-		material->specularTransmittance.updateColorFromTexture(NULL,material->specularTransmittanceInAlpha,rr::RRMaterial::UTA_KEEP);
+		material->specularTransmittance.updateColorFromTexture(NULL,material->specularTransmittanceInAlpha,rr::RRMaterial::UTA_KEEP,false);
 		updateProperty(propTransparent->GetPropertyByName(_("color")),material->specularTransmittance.color);
 		composeMaterialPropertyRoot(propTransparent,material->specularTransmittance);
 		material->updateKeyingFromTransmittance();

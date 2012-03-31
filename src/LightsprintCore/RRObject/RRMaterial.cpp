@@ -173,12 +173,12 @@ void RRMaterial::Property::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 	}
 }
 
-RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction)
+RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub)
 {
-	if (texture)
+	if (texture && (updateEvenFromStub || !texture->isStub()))
 	{
 		RRReal variance = getVariance(texture,scaler,color,isTransmittanceInAlpha);
-		if (!variance)
+		if (!variance && !texture->isStub()) // don't remove stubs
 		{
 			switch (uniformTextureAction)
 			{
@@ -193,13 +193,13 @@ RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool
 	return 0;
 }
 
-void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction)
+void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs)
 {
 	float variance = 0.000001f;
-	variance += 5 * specularTransmittance.updateColorFromTexture(scaler,specularTransmittanceInAlpha,uniformTextureAction);
-	variance += 3 * diffuseEmittance.updateColorFromTexture(scaler,0,uniformTextureAction);
-	variance += 2 * diffuseReflectance.updateColorFromTexture(scaler,0,uniformTextureAction);
-	variance += 1 * specularReflectance.updateColorFromTexture(scaler,0,uniformTextureAction);
+	variance += 5 * specularTransmittance.updateColorFromTexture(scaler,specularTransmittanceInAlpha,uniformTextureAction,updateEvenFromStubs);
+	variance += 3 * diffuseEmittance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs);
+	variance += 2 * diffuseReflectance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs);
+	variance += 1 * specularReflectance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs);
 	minimalQualityForPointMaterials = unsigned(40/(variance*variance));
 	//RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);
 }

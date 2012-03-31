@@ -771,7 +771,7 @@ static RRMaterial* detectMaterial(MaterialInputs _materialInputs)
 
 		// get average colors from textures
 		RRScaler* scaler = RRScaler::createFastRgbScaler();
-		material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE);
+		material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE,true);
 		delete scaler;
 
 		// autodetect keying
