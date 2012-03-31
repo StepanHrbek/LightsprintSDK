@@ -362,6 +362,24 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	}
 	ar & make_nvp("lightmapTexcoord",a.lightmapTexcoord);
 	ar & make_nvp("minimalQualityForPointMaterials",a.minimalQualityForPointMaterials);
+
+	// sometimes texture changes when material sits serialized on disk
+	// should we update colors from textures after deserialization?
+	// a) YES, don't trust serialized colors, update them
+	//    - always slower
+	//    + sometimes more accurate (when textures did change)
+	// b) update colors on request
+	//    - not automatic, users prefer if everything works automatically
+	// c) update colors when texture hash changes
+	//    - equally slow
+	// d) update color only after texture reappears
+	//    - only partial solution, and it needs flag added to rr3
+	if (Archive::is_loading::value)
+	{
+		RRScaler* scaler = RRScaler::createRgbScaler();
+		a.updateColorsFromTextures(scaler,rr::RRMaterial::UTA_KEEP);
+		delete scaler;
+	}
 }
 
 //----------------------------- RRVector<C> ------------------------------------
