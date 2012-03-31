@@ -79,14 +79,14 @@ struct SaverExtensions
 };
 
 // static collection of registered loaders
-std::vector<LoaderExtensions> s_loaders;
+static std::vector<LoaderExtensions> s_loaders;
 
 // static collection of registered savers
-std::vector<SaverExtensions> s_savers;
+static std::vector<SaverExtensions> s_savers;
 
 #define S_EXTENSIONS_LEN 1000
-char s_loaderExtensions[S_EXTENSIONS_LEN]; // "*.dae;*.3ds;*.md5mesh"
-char s_saverExtensions[S_EXTENSIONS_LEN]; // "*.dae;*.3ds;*.md5mesh"
+static char s_loaderExtensions[S_EXTENSIONS_LEN]; // "*.dae;*.3ds;*.md5mesh"
+static char s_saverExtensions[S_EXTENSIONS_LEN]; // "*.dae;*.3ds;*.md5mesh"
 
 
 /////////////////////////////////////////////////////////////////////////////
