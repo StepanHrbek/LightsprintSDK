@@ -916,11 +916,11 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 			}
 			else
 			{
-				unsigned data[4*16*16];
+				unsigned char data[3*16*16];
 				for (unsigned i=0;i<16;i++)
 				for (unsigned j=0;j<16;j++)
-					data[i+16*j] = (((i/2^j/2)%2)?0xff000000:0xffffffff);
-				result = RRBuffer::create(BT_2D_TEXTURE,16,16,1,BF_RGBA,true,(unsigned char*)data);
+					data[3*(i+16*j)+2] = data[3*(i+16*j)+1] = data[3*(i+16*j)] = (((i/2^j/2)%2)?0:255);
+				result = RRBuffer::create(BT_2D_TEXTURE,16,16,1,BF_RGB,true,(unsigned char*)data);
 			}
 			result->filename = _filename;
 			return result;
