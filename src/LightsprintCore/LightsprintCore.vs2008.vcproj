@@ -1645,10 +1645,6 @@
 			>
 		</File>
 		<File
-			RelativePath="OfflineSetup.cpp"
-			>
-		</File>
-		<File
 			RelativePath="Preferences.cpp"
 			>
 		</File>

@@ -205,11 +205,6 @@ namespace rr
 		RRTime time;
 	};
 
-
-	//! Will be described later.
-	RR_API bool offlineSetup(bool& enabled, unsigned& quality, bool finalQuality);
-
-
 } // namespace
 
 #endif

@@ -695,7 +695,6 @@
     <ClCompile Include="squish\rangefit.cpp" />
     <ClCompile Include="squish\singlecolourfit.cpp" />
     <ClCompile Include="squish\squish.cpp" />
-    <ClCompile Include="OfflineSetup.cpp" />
     <ClCompile Include="Preferences.cpp" />
     <ClCompile Include="RRMemory.cpp" />
     <ClCompile Include="RRObject\RRScaler.cpp" />

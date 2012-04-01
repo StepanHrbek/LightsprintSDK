@@ -219,7 +219,6 @@
     <ClCompile Include="squish\squish.cpp">
       <Filter>squish</Filter>
     </ClCompile>
-    <ClCompile Include="OfflineSetup.cpp" />
     <ClCompile Include="Preferences.cpp" />
     <ClCompile Include="RRMemory.cpp" />
     <ClCompile Include="RRObject\RRScaler.cpp" />

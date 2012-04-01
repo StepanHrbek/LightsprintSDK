@@ -809,9 +809,6 @@
 			RelativePath="NumReports.h">
 		</File>
 		<File
-			RelativePath="OfflineSetup.cpp">
-		</File>
-		<File
 			RelativePath="Preferences.cpp">
 		</File>
 		<File
