@@ -36,7 +36,9 @@ public:
 	//! rr_io::registerLoaders() will register all of them for you.
 	//!
 	//! Our loaders try to load all textures from proper paths specified by scene file,
-	//! but if it fails, second attempts are made in the same directory where scene file is.
+	//! but if it fails, additional attempts are made as specified by textureLocator.
+	//! textureLocator tells also what to do when texture is not found at all
+	//! (create stub texture or create material without texture?)
 	//!
 	//! If file contains information on units or up direction,
 	//! our importers convert units to meters and up to Y.

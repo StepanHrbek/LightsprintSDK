@@ -21,13 +21,13 @@ NEWS
   - RRMeshArrays::buildTangents() has one more parameter, generated tangent space is better for normal mapping
 - <b>improved index of refraction</b>
   - rr_gl::UberProgramSetup::MATERIAL_TRANSPARENCY_FRESNEL renders specular transmittance and reflectance adjusted according to index of refraction
-  - rr_gl::RealtimeLight::FRESNEL_SHADOW renders shadows adjusted according to index of refraction
+  - rr_gl::RealtimeLight::FRESNEL_SHADOWS renders shadows adjusted according to index of refraction
   - note that RRMaterial::refractionIndex must be set properly, there is no effect with default index 1
 - <b>improved scene viewer</b>
   - move/rotate/scale gizmo, replaces various hotkeys
-  - everything can be edited for years.. but now that it comes with user friendly gizmo, is it finally time to call it "editor"?
-- better handling of missing textures
-  - when load fails, RRBuffer::load() optionally returns stub buffer instead of NULL; see new RRFileLocator::setAttempt(ATTEMPT_STUB)
+  - editing capabilities were added years ago.. but now that we ship user friendly gizmo, is it finally time to call the thing "editor"?
+- <b>improved handling of missing textures</b>
+  - when load fails, RRBuffer::load() optionally returns stub buffer instead of NULL; see new RRFileLocator::setAttempt(RRFileLocator::ATTEMPT_STUB,...)
   - stub buffer contains original path to missing texture
   - scene viewer preserves paths to missing textures, displays stub texture sv_missing.png instead
   - RRBuffer::isStub() returns true for stub textures

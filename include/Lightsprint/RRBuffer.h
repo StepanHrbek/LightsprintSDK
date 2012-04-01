@@ -50,9 +50,9 @@ namespace rr
 	//! Buffer, array of elements.
 	//
 	//! \section buf_types Buffer types
-	//!  - 1d buffers are used for vertex buffers.
-	//!  - 2d buffers are used for 2d textures and videos.
-	//!  - 3d buffers are used for cube textures.
+	//!  - 1-dimensional buffers are used for vertex buffers.
+	//!  - 2-dimensional buffers are used for 2d textures and videos.
+	//!  - 3-dimensional buffers are used for cube textures.
 	//!
 	//! \section buf_dx_gl Using buffers in OpenGL/DirectX
 	//!  Two approaches exist for using buffers in DirectX/OpenGL renderer
@@ -225,7 +225,12 @@ namespace rr
 		RRBuffer();
 		virtual ~RRBuffer() {};
 
-		//! Returns true if buffer is a stub. When asked to, RRBuffer::load() creates stubs for missing textures, to preserve their filenames.
+		//! Returns true if buffer is a stub. When asked to, RRBuffer::load() returns stubs instead of NULL for missing textures.
+		//
+		//! Stubs are designed to work like other buffers, ideally you won't need this function.
+		//! We need it only
+		//! - to not overwrite valid material color by stub color (in RRMaterial::updateColorsFromTextures())
+		//! - to not expand stub filename to full path (in RRScene::save("foo.rr3"))
 		virtual bool isStub() {return false;}
 
 		//! Optional filename, automatically set when load/save succeeds.
@@ -301,14 +306,14 @@ namespace rr
 		//!  NULL = load will be attempted only from filename.
 		//!  Non-NULL = load will be attempted from paths offered by fileLocator.
 		//!  When load fails, fileLocator is asked whether stub buffer with original filename should be created,
-		//!  see RRFileLocator::setAttempt(ATTEMPT_STUB).
+		//!  see RRFileLocator::setAttempt(RRFileLocator::ATTEMPT_STUB,...).
 		//! \return
 		//!  Returns newly created buffer.
 		//!  In case of failure, NULL is returned and details logged via RRReporter.
 		//! \remark
 		//!  Image load/save is implemented outside LightsprintCore.
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
-		//!  or use setLoader() to assign custom code.
+		//!  or use registerLoader() to assign custom code.
 		static RRBuffer* load(const RRString& filename, const char* cubeSideName[6] = NULL, const RRFileLocator* fileLocator = NULL);
 		//! Loads texture from 1 or 6 files to system memory, converting it to cubemap if possible.
 		//
@@ -354,7 +359,7 @@ namespace rr
 		//! \remark
 		//!  Image load/save is implemented outside LightsprintCore.
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
-		//!  or use setLoader() to assign custom code.
+		//!  or use registerLoader() to assign custom code.
 		bool save(const RRString& filenameMask, const char* cubeSideName[6] = NULL, const SaveParameters* saveParameters = NULL);
 
 		//! Type of user defined function that loads content from file into new buffer.

@@ -226,7 +226,7 @@ namespace rr
 		bool          specularTransmittanceInAlpha;
 		//! Whether 1-bit alpha keying is used instead of smooth alpha blending in realtime render. 1-bit alpha keying is faster but removes semi-translucency. Smooth alpha blend renders semi-translucency, but artifacts appear on meshes where semi-translucent faces overlap.
 		bool          specularTransmittanceKeyed;
-		//! Refractive index of matter in front of surface divided by refractive index of matter behind surface. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
+		//! Refractive index of matter in front of surface divided by refractive index of matter behind surface. Real world surfaces have it from 0.25 to 4. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 		RRReal        refractionIndex;
 		//! Optional normal map modulates surface normals. Only texture and texcoord are used, color is ignored.
 		Property      normalMap;
