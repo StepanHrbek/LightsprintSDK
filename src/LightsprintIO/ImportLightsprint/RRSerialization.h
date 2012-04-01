@@ -365,20 +365,35 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 
 	// sometimes texture changes when material sits serialized on disk
 	// should we update colors from textures after deserialization?
-	// a) YES, don't trust serialized colors, update them
-	//    - always slower
+	// a) don't trust serialized colors, update color+keying always on load
+	//    - slow
+	//    ! user disables alpha keying, saves rr3, loads rr3 and keying is back
 	//    + sometimes more accurate (when textures did change)
-	// b) update colors on request
+	// b) update color+keying on request
 	//    - not automatic, users prefer if everything works automatically
-	// c) update colors when texture hash changes
-	//    - equally slow
-	// d) update color only after texture reappears
-	//    - only partial solution, and it needs flag added to rr3
+	// c) update color+keying when texture changes
+	//    . serialize hash (jen vedle filename, neni nutny pri embedu), compare on load: bool needsUpdate=loaded_hash!=calculated_hash;
+	//    - slow
+	// d) update color+keying only when texture starts/stops being stub
+	//    - does not update after texture change
+	//    - needs isStub to be saved with filename
+	//
+	// what we implement here is a)
+	// we can always change it to c) later, if users have problem with it
 	if (Archive::is_loading::value)
 	{
-		RRScaler* scaler = RRScaler::createRgbScaler();
-		a.updateColorsFromTextures(scaler,rr::RRMaterial::UTA_KEEP,false); // but don't update from stubs, we have valid colors (unlike all other scene formats)
-		delete scaler;
+		// get average colors from textures
+		{
+			RRScaler* scaler = RRScaler::createRgbScaler();
+			a.updateColorsFromTextures(scaler,RRMaterial::UTA_KEEP,false); // but don't update from stubs, we have valid colors (unlike all other scene formats)
+			delete scaler;
+		}
+
+		// autodetect keying
+		a.updateKeyingFromTransmittance();
+
+		// optimize material flags
+		a.updateSideBitsFromColors();
 	}
 }
 
