@@ -79,7 +79,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	AppendIn(propTransparent,propTransparencyInAlpha = new wxBoolProperty(_("in alpha")));
 	SetPropertyEditor(propTransparencyInAlpha,wxPGEditor_CheckBox);
 	propTransparencyInAlpha->SetHelpString(_("Reads opacity from alpha rather than from rgb."));
-	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index",_("Index of refraction when light hits surface from front side."),1,svs.precision,0,2,0.1f,false));
+	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index",_("Index of refraction when light hits surface from front side."),1,svs.precision,0.25f,4,0.1f,false));
 	SetPropertyBackgroundColour(propTransparent,importantPropertyBackgroundColor,false);
 	Collapse(propTransparent);
 
