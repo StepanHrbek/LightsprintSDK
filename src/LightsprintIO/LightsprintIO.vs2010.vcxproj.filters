@@ -151,6 +151,9 @@
     <Filter Include="Assimp\contrib\unzip">
       <UniqueIdentifier>{8b89d82f-a32c-45ee-afc9-b86421fb3884}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Isolation">
+      <UniqueIdentifier>{1222b9f4-7ba2-4c6b-b318-7c54bf82964a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Import3DS\Model_3DS.cpp">
@@ -1182,6 +1185,9 @@
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\ObjExporter.cpp">
       <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportIsolation\RRSceneIsolation.cpp">
+      <Filter>Isolation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2797,6 +2803,9 @@
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\ObjExporter.h">
       <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportIsolation\RRSceneIsolation.h">
+      <Filter>Isolation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

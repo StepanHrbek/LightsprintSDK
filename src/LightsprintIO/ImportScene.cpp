@@ -12,6 +12,7 @@
 #include "Import3DS/RRObject3DS.h"
 #include "ImportAssimp/RRObjectAssimp.h"
 #include "ImportGamebryo/RRObjectGamebryo.h"
+#include "ImportIsolation/RRSceneIsolation.h"
 #include "ImportOpenCollada/RRObjectOpenCollada.h"
 #include "ImportFCollada/RRObjectFCollada.h"
 #include "ImportQuake3/RRObjectBSP.h"
@@ -39,6 +40,18 @@ void rr_io::registerLoaders()
 	registerLoaderGamebryo();
 #endif
 
+#ifdef SUPPORT_QUAKE3
+	// not isolated (goes before isolation) because quake's links to textures are .bsp specific, .rr3 loader would not understand them
+	// (can be fixed by completing links inside quake loader, before they are passed to file locator)
+	registerLoaderQuake3();
+#endif
+
+#ifdef SUPPORT_ISOLATION
+	// anything registered before stays as is
+	// anything registred later becomes isolated
+	registerLoaderIsolationStep1();
+#endif
+
 #ifdef SUPPORT_OPENCOLLADA
 	// is better than FCollada
 	registerLoaderOpenCollada();
@@ -47,10 +60,6 @@ void rr_io::registerLoaders()
 #ifdef SUPPORT_FCOLLADA
 	// is better than Assimp
 	registerLoaderFCollada();
-#endif
-
-#ifdef SUPPORT_QUAKE3
-	registerLoaderQuake3();
 #endif
 
 #ifdef SUPPORT_3DS
@@ -69,6 +78,14 @@ void rr_io::registerLoaders()
 
 #ifdef SUPPORT_OBJ
 	registerLoaderOBJ();
+#endif
+}
+
+void rr_io::isolateSceneLoaders()
+{
+#ifdef SUPPORT_ISOLATION
+	// note that when we are called to do isolated conversion, step 2 converts scene and then exits program
+	registerLoaderIsolationStep2();
 #endif
 }
 

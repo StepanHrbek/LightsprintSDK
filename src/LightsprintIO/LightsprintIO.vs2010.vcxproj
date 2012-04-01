@@ -682,6 +682,7 @@
     <ClCompile Include="ImportAssimp\contrib\unzip\ioapi.c" />
     <ClCompile Include="ImportAssimp\contrib\unzip\unzip.c" />
     <ClCompile Include="ImportFCollada\RRObjectFCollada.cpp" />
+    <ClCompile Include="ImportIsolation\RRSceneIsolation.cpp" />
     <ClCompile Include="ImportMGF\badarg.c" />
     <ClCompile Include="ImportMGF\context.c" />
     <ClCompile Include="ImportMGF\fvect.c" />
@@ -1066,6 +1067,7 @@
     <ClInclude Include="ImportAssimp\contrib\unzip\ioapi.h" />
     <ClInclude Include="ImportAssimp\contrib\unzip\unzip.h" />
     <ClInclude Include="ImportFCollada\RRObjectFCollada.h" />
+    <ClInclude Include="ImportIsolation\RRSceneIsolation.h" />
     <ClInclude Include="ImportMGF\lookup.h" />
     <ClInclude Include="ImportMGF\messages.h" />
     <ClInclude Include="ImportMGF\mgfparser.h" />

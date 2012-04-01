@@ -95,12 +95,37 @@ namespace rr_io /// LightsprintIO - access to scenes and images on disk
 //! Registers callbacks for loading and saving scenes, textures and videos in ~75 fileformats (\ref supported_formats).
 //
 //! After registering loaders and savers, use
-//! - RRScene::RRScene(filename) to load 3d scenes
-//! - RRScene::save(filename) to save 3d scenes
-//! - RRBuffer::load(filename) to load 2d images, cube maps, vertex buffers, videos
-//! - RRBuffer::save(filename) to save 2d images, vertex buffers
-//! - RRBuffer::load("c@pture") to capture live video
+//! - rr::RRScene::RRScene("filename.ext") to load 3d scenes
+//! - rr::RRScene::save("filename.ext") to save 3d scenes
+//! - rr::RRBuffer::load("filename.ext") to load 2d images, cube maps, vertex buffers, videos
+//! - rr::RRBuffer::save("filename.ext") to save 2d images, vertex buffers
+//! - rr::RRBuffer::load("c@pture") to capture live video
 void RR_IO_API registerLoaders();
+
+//! Isolates scene loaders, makes them run in separated processes.
+//
+//! Isolation increases robustness of main application, by protecting it
+//! against various ill effects of low quality importers.
+//! Although no problems are known within Lightsprint's importers, imagine that one day in future,
+//! you run e.g. into memory corruption problem. Without isolated importers,
+//! any part of codebase can be responsible for corruption, it's tough problem to debug. With isolation,
+//! importers are ruled out as a source of problem (importers make around 50% of lines of code in Lightsprint SDK).
+//!
+//! When isolating loaders, your program startup should look like \code
+//! register_your_non_isolated_loaders();
+//! rr_io::registerLoaders();
+//! register_your_isolated_loaders();
+//! rr_io::isolateSceneLoaders();
+//! \endcode
+//!
+//! Isolation works by rerunning our own executable as a separated process with special arguments each time scene needs to be imported.
+//! This function checks for special arguments and if found, it converts the scene to .rr3 and exits.
+//! Therefore you should run this function as soon in your application as possible (before all slow steps), and you should let it exit, if it needs to.
+//! Caller then imports newly created .rr3, and deletes it.
+//! If isolated process fails to import the scene or write it back as .rr3, caller tries to import the scene without isolation.
+//!
+//! .rr3 fileformat is never isolated, it is used for transferring data between processes.
+void RR_IO_API isolateSceneLoaders();
 
 
 } // namespace rr_io

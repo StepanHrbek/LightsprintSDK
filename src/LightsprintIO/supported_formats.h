@@ -18,6 +18,7 @@
 #define SUPPORT_IMAGES      // jpg, png, dds, hdr, exr, tga, tif, pcx, bmp, gif, ico etc
 #define SUPPORT_DIRECTSHOW  // avi, wmv, mpg etc
 //#define SUPPORT_OBJ       // Wavefront .obj (obsoleted by Assimp)
+#define SUPPORT_ISOLATION   // makes scene import run in isolated process
 
 
 // Actual support depends on your operating system, compiler etc.
@@ -41,4 +42,9 @@
 // DirectShow exists only in Windows.
 #if defined(SUPPORT_DIRECTSHOW) && !defined(_WIN32)
 	#undef SUPPORT_DIRECTSHOW
+#endif
+
+// Isolation is implemented only for Windows, and it requires .rr3 support
+#if defined(SUPPORT_ISOLATION) && (!defined(_WIN32) || !defined(SUPPORT_LIGHTSPRINT))
+	#undef SUPPORT_ISOLATION
 #endif

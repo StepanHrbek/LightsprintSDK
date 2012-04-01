@@ -32,6 +32,8 @@ NEWS
   - scene viewer preserves paths to missing textures, displays stub texture sv_missing.png instead
   - RRBuffer::isStub() returns true for stub textures
   - RRMaterial::updateColorsFromTextures() has additional stub related parameter
+- <b>improved robustness</b>
+  - isolation of scene import into separated processes, see rr_io::isolateSceneLoaders()
 
 CHANGES
 

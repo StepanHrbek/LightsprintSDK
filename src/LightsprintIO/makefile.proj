@@ -160,6 +160,7 @@ ImportAssimp/contrib/zlib/inftrees.c \
 ImportAssimp/contrib/zlib/inflate.c \
 ImportAssimp/contrib/ConvertUTF/ConvertUTF.c \
 ImportImages/ImportFreeImage.cpp \
+ImportIsolation/RRSceneIsolation.cpp \
 ImportLightsprint/RRObjectLightsprint.cpp \
 ImportLightsprint/portable_binary_iarchive.cpp \
 ImportLightsprint/portable_binary_oarchive.cpp \

@@ -51,6 +51,8 @@ int main(int argc, char** argv)
 
 	// Necessary for sceneViewer to use our file loaders.
 	rr_io::registerLoaders();
+	// Improves robustness by sandboxing scene loaders.
+	rr_io::isolateSceneLoaders();
 
 #ifdef _WIN32
 	// change current directory to exe directory, necessary when opening custom scene using drag&drop

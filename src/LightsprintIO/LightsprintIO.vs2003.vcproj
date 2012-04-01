@@ -2604,6 +2604,16 @@
 				RelativePath=".\ImportLightsprint\RRSerialization.h">
 			</File>
 		</Filter>
+		<Filter
+			Name="Isolation"
+			>
+			<File
+				RelativePath=".\ImportIsolation\RRSceneIsolation.cpp">
+			</File>
+			<File
+				RelativePath=".\ImportIsolation\RRSceneIsolation.h">
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ImportScene.cpp">
 		</File>
