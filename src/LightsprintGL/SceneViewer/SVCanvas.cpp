@@ -431,6 +431,9 @@ void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
 
 SVCanvas::~SVCanvas()
 {
+	// don't process events, if they are still coming
+	fullyCreated = false;
+
 #ifdef REPORT_HEAP_STATISTICS
 	_CrtSetAllocHook(s_oldAllocHook);
 #endif
@@ -755,6 +758,9 @@ static ClickInfo s_ci;
 
 void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 {
+	if (exitRequested || !fullyCreated)
+		return;
+
 	// when clicking faster than 5Hz, wxWidgets 2.9.1 drops some ButtonDown events
 	// let's keep an eye on unexpected ButtonUps and generate missing ButtonDowns 
 	#define EYE_ON(button,BUTTON) \
@@ -765,9 +771,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	EYE_ON(Left,LEFT);
 	EYE_ON(Middle,MIDDLE);
 	EYE_ON(Right,RIGHT);
-
-	if (exitRequested || !fullyCreated)
-		return;
 
 	if (event.IsButton())
 	{

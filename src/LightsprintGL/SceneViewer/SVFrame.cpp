@@ -297,6 +297,10 @@ void SVFrame::UpdateTitle()
 
 void SVFrame::UpdateEverything()
 {
+	// stop processing events, if any come. probably not necessary, just being cautious
+	if (m_canvas)
+		m_canvas->fullyCreated = false;
+
 	SVCanvas* nextCanvas = new SVCanvas( svs, this, wxDefaultSize);
 	bool firstUpdate = !m_canvas;
 
@@ -330,7 +334,7 @@ void SVFrame::UpdateEverything()
 
 	// must go after Show() otherwise SetCurrent() in createContext() fails
 	// loads scene if it is specified by filename
-	m_canvas->createContext();
+	m_canvas->createContext(); // contains fullyCreated = true; from now on, events are processed
 
 	// without SetFocus, keyboard events may be sent to frame instead of canvas
 	m_canvas->SetFocus();
