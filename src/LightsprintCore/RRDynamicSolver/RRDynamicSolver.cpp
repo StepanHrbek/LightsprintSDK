@@ -462,6 +462,7 @@ void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVecto
 					set.insert(m->specularReflectance.texture);
 					set.insert(m->diffuseEmittance.texture);
 					set.insert(m->specularTransmittance.texture);
+					set.insert(m->normalMap.texture);
 				}
 			}
 		}
