@@ -161,7 +161,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propDynamic)
 	{
-		svframe->m_canvas->addOrRemoveScene(NULL,true);
+		svframe->m_canvas->addOrRemoveScene(NULL,true,true);
 		updateHide();
 	}
 	else

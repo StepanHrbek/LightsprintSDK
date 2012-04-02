@@ -43,7 +43,7 @@ namespace rr_gl
 		//! - scene,false = remove scene, setStaticObjects, cleanup
 		//! - NULL,true = setStaticObjects, cleanup
 		//! - NULL,false = cleanup
-		void addOrRemoveScene(rr::RRScene* scene, bool add);
+		void addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjectsAlreadyModified);
 
 		void reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers);
 

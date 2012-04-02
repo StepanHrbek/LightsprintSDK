@@ -333,9 +333,8 @@ void SVCanvas::recalculateIconSizeAndPosition()
 	}
 }
 
-void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add)
+void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjectsModified)
 {
-	bool staticObjectsModified = !scene && add; // (NULL,true) means that something was already modified
 	if (scene)
 		for (unsigned i=0;i<scene->objects.size();i++)
 			if (!scene->objects[i]->isDynamic)

@@ -855,7 +855,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 						if (!importDlg.lights->GetValue())
 							scene->lights.clear();
 
-						m_canvas->addOrRemoveScene(scene,true);
+						m_canvas->addOrRemoveScene(scene,true,false);
 						m_canvas->mergedScenes.push_back(scene);
 					}
 				}
