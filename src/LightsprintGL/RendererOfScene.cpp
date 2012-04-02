@@ -366,7 +366,7 @@ void RendererOfSceneImpl::render(
 #else
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR = false;
 #endif
-				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_CONST = false;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_CONST = _uberProgramSetup.LIGHT_INDIRECT_CONST && !lightIndirectVcolor && !lightIndirectMap;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR = lightIndirectVcolor!=NULL;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = false;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = lightIndirectVcolor!=NULL && !lightIndirectVcolor->getScaled();
