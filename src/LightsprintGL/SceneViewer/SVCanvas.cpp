@@ -1785,9 +1785,9 @@ rendered:
 
 
 		// render icons, using own shader (must go after video capture)
+		renderedIcons.clear();
 		if (entityIcons->isOk() && !_takingSshot)
 		{
-			renderedIcons.clear();
 			if (svframe->m_lightProperties->IsShown())
 				renderedIcons.addLights(solver->getLights(),sunIconPosition);
 			const EntityIds& selectedEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
