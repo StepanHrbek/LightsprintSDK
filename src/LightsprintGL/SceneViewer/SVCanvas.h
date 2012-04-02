@@ -136,7 +136,9 @@ namespace rr_gl
 		FpsDisplay*                fpsDisplay;
 
 		// icons
-		rr::RRVec3                 sunIconPosition; // for dirlight icons
+	public:
+		rr::RRVec3                 sunIconPosition; // for dirlight icons, public only for SVSceneTree
+	private:
 		SVEntityIcons*             entityIcons; // permanent helper, renders and intersects icons
 		SVEntities                 renderedIcons; // collection of icons, updated in every frame
 		IconCode                   selectedTransformation;
