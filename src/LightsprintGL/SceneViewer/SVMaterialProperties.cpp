@@ -86,6 +86,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	Append(propNormalMap = new wxStringProperty(_("Normal map")));
 	AppendIn(propNormalMap,new wxIntProperty(_("uv")));
 	AppendIn(propNormalMap,new ImageFileProperty(_("texture or video"),_("Normal map texture or video. Type in c@pture to use live video input.")));
+	SetPropertyBackgroundColour(propNormalMap,importantPropertyBackgroundColor,false);
 	Collapse(propNormalMap);
 
 	Append(propLightmapTexcoord = new wxIntProperty(_("Lightmap uv")));
