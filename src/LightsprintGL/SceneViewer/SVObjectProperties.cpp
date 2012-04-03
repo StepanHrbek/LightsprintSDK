@@ -172,7 +172,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		newTranslation << property->GetValue();
 		worldMatrix.setTranslation(newTranslation);
 		object->setWorldMatrix(&worldMatrix);
-		object->illumination.envMapWorldCenter = worldMatrix.getTransformedPosition(localCenter);
+		object->updateIlluminationEnvMapCenter();
 		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
 	}
 	else
@@ -187,6 +187,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		worldMatrix.preScale(scale);
 		worldMatrix.postTranslate(translation);
 		object->setWorldMatrix(&worldMatrix);
+		object->updateIlluminationEnvMapCenter();
 		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
 
 		// when user enters negative scale, part of information is lost in matrix, decomposition may return different angles and scale signs

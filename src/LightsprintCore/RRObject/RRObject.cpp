@@ -432,6 +432,19 @@ unsigned RRObjects::checkConsistency(const char* objectType) const
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRObject illumination
+
+void RRObject::updateIlluminationEnvMapCenter()
+{
+	RRVec3 mini,maxi,center;
+	getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
+	illumination.envMapWorldCenter = getWorldMatrixRef().getTransformedPosition(center);
+	illumination.envMapWorldRadius = (maxi-mini).length()/2*getWorldMatrixRef().getScale().abs().avg();
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRObject instance factory
 
 RRMesh* RRObject::createWorldSpaceMesh() const

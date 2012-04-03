@@ -178,10 +178,7 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 				{
 					rr::RRMatrix3x4 matrix = transformation * object->getWorldMatrixRef();
 					object->setWorldMatrix(&matrix);
-					rr::RRVec3 center;
-					object->getCollider()->getMesh()->getAABB(NULL,NULL,&center);
-					matrix.transformPosition(center);
-					object->illumination.envMapWorldCenter = center;
+					object->updateIlluminationEnvMapCenter();
 					solver->reportDirectIlluminationChange(-1,true,false,false);
 					if (svframe->m_objectProperties->object==object)
 						svframe->m_objectProperties->updateProperties();

@@ -236,6 +236,15 @@ namespace rr
 		// Tools
 		//////////////////////////////////////////////////////////////////////////////
 
+		//! Updates illumination.envMapWorldCenter and illumination.envMapWorldRadius.
+		//
+		//! Relevant for realtime GI lighting only.
+		//! It is called automatically from setStaticObjects() and allocateBuffersForRealtimeGI(),
+		//! but you should update the values whenever you move or scale object later,
+		//! otherwise object's illumination environment map used for realtime GI lighting
+		//! will be inaccurate.
+		void updateIlluminationEnvMapCenter();
+
 		// instance factory
 
 		//! Creates and returns RRMesh that describes mesh after transformation to world space.
