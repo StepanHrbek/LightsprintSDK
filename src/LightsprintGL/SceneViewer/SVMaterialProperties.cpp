@@ -440,6 +440,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propNormalMap->GetPropertyByName(_("uv")))
 	{
 		material->normalMap.texcoord = property->GetValue().GetInteger();
+		transmittanceChanged = true; // update fresnel shadows
 	}
 	else
 	if (property==propNormalMap->GetPropertyByName(_("texture or video")))
@@ -447,6 +448,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		((ImageFileProperty*)property)->updateBufferAndIcon(material->normalMap.texture,svs.playVideos);
 		composeMaterialPropertyRoot(propNormalMap,material->normalMap);
 		textureChanged = true;
+		transmittanceChanged = true; // update fresnel shadows
 	}
 	else
 
@@ -466,8 +468,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propRefraction)
 	{
 		material->refractionIndex = property->GetValue().GetDouble();
-		// update rgb shadowmaps
-		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
+		transmittanceChanged = true; // update fresnel shadows
 	}
 	else
 	if (property==propLightmapTexcoord)
