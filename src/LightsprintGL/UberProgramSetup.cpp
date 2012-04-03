@@ -756,7 +756,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	if (MATERIAL_NORMAL_MAP)
 	{
 		program->sendTexture("materialNormalMap",NULL,TEX_CODE_2D_MATERIAL_NORMAL);
-		getTexture(material->normalMap.texture,false,false);
+		getTexture(material->normalMap.texture,true,false);
 		s_buffers1x1.bindPropertyTexture(material->normalMap,1);
 	}
 }
