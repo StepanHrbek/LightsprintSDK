@@ -182,6 +182,9 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 		return;
 	}
 	texture->bindTexture();
+	if (texture->getBuffer()->getFormat()==rr::BF_DEPTH)
+		// must be GL_NONE for sampler2D, otherwise result is undefined
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 	glBegin(GL_POLYGON);
 		glMultiTexCoord2f(GL_TEXTURE0,0,0);
 		glVertex2f(2*x-1,2*y-1);
@@ -192,6 +195,10 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 		glMultiTexCoord2f(GL_TEXTURE0,0,1);
 		glVertex2f(2*x-1,2*(y+h)-1);
 	glEnd();
+	if (texture->getBuffer()->getFormat()==rr::BF_DEPTH)
+		// must be GL_COMPARE_REF_TO_TEXTURE for sampler2DShadow, otherwise result is undefined
+		// we keep all depth textures ready for sampler2DShadow
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 }
 
 void TextureRenderer::render2dEnd()

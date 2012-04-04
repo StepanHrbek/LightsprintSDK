@@ -340,7 +340,10 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 	if (buffer->getFormat()==rr::BF_DEPTH)
 	{
 		RR_ASSERT(!_buildMipmaps);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+		// GL_NONE for sampler2D, GL_COMPARE_REF_TO_TEXTURE for sampler2DShadow, otherwise results are undefined
+		// we keep all depth textures ready for sampler2DShadow
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+		// GL_LEQUAL is default, but let's set it anyway, we don't do it often
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
 	}
 	else
