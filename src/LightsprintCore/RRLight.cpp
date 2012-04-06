@@ -338,7 +338,7 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* sc
 					float angleRad = acos(RR_CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 					RR_ASSERT(_finite(angleRad));
 					float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
-					RR_ASSERT(_finite(angleAttenuation));
+					//RR_ASSERT(_finite(angleAttenuation)); // may be +/-1.#INF after division by zero, but next line clamps it back to 0,1 range
 					float attenuation = RR_CLAMPED(angleAttenuation,0,1);
 					RRVec3 result = color * attenuation;
 					RR_ASSERT(IS_VEC3(result));
@@ -355,7 +355,7 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* sc
 					float angleRad = acos(RR_CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 					RR_ASSERT(_finite(angleRad));
 					float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
-					RR_ASSERT(_finite(angleAttenuation));
+					//RR_ASSERT(_finite(angleAttenuation)); // may be +/-1.#INF after division by zero, but next line clamps it back to 0,1 range
 					float attenuation = distanceAttenuation * RR_CLAMPED(angleAttenuation,0,1);
 					RRVec3 result = color * attenuation;
 					RR_ASSERT(IS_VEC3(result));
@@ -372,7 +372,7 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* sc
 					float angleRad = acos(RR_CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 					RR_ASSERT(_finite(angleRad));
 					float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
-					RR_ASSERT(_finite(angleAttenuation));
+					//RR_ASSERT(_finite(angleAttenuation)); // may be +/-1.#INF after division by zero, but next line clamps it back to 0,1 range
 					angleAttenuation = pow(RR_CLAMPED(angleAttenuation,0.00001f,1),spotExponent);
 					RRVec3 irradiance = color * distanceAttenuation * angleAttenuation;
 					if (scaler) scaler->getPhysicalScale(irradiance);
@@ -392,7 +392,7 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* sc
 					float angleRad = acos(RR_CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
 					RR_ASSERT(_finite(angleRad));
 					float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
-					RR_ASSERT(_finite(angleAttenuation));
+					//RR_ASSERT(_finite(angleAttenuation)); // may be +/-1.#INF after division by zero, but next line clamps it back to 0,1 range
 					float attenuation = distanceAttenuation * RR_CLAMPED(angleAttenuation,0,1);
 					RRVec3 result = color * attenuation;
 					RR_ASSERT(IS_VEC3(result));
