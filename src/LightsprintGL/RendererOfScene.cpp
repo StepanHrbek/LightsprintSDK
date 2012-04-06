@@ -491,7 +491,15 @@ void RendererOfSceneImpl::render(
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorTex);
 			glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-			render(_solver,mirrorUberProgramSetup,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,_srgbCorrect,NULL,1);
+			// Q: how to make mirrors srgb correct?
+			// A: current mirror is always srgb incorrect, srgb correct render works only into real backbuffer, not into texture.
+			//    result is not affected by using GL_RGB vs GL_SRGB
+			//    even if we render srgb correctly into texture(=writes encode), reads in final render will decode(=we get what we wrote in, conversion is lost)
+			//    for srgb correct mirror, we would have to
+			//    a) add LIGHT_INDIRECT_MIRROR_SRGB, and convert manually in shader (would increase already large number of shaders)
+			//    b) make ubershader work with linear light (number of differences between correct and incorrect path would grow too much, difficult to maintain)
+			//       (srgb incorrect path must remain because of OpenGL ES)
+			render(_solver,mirrorUberProgramSetup,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
 
 			// build mirror mipmaps
 			mirrorTex->bindTexture();
