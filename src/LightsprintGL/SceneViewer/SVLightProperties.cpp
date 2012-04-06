@@ -241,6 +241,8 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		}
 		// show/hide properties
 		updateHide();
+		rtlight->dirtyShadowmap = true;
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propPosition)
