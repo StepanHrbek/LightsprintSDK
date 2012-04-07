@@ -23,6 +23,10 @@ NEWS
   - rr_gl::UberProgramSetup::MATERIAL_TRANSPARENCY_FRESNEL renders specular transmittance and reflectance adjusted according to index of refraction
   - rr_gl::RealtimeLight::FRESNEL_SHADOWS renders shadows adjusted according to index of refraction
   - note that RRMaterial::refractionIndex must be set properly, there is no effect with default index 1
+- <b>improved mirroring</b>
+  - works with normal maps
+  - LIGHT_INDIRECT_MIRROR renamed to rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_SPECULAR
+  - new rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_DIFFUSE offers higher quality lighting for large dynamic planes
 - <b>improved scene viewer</b>
   - move/rotate/scale gizmo, replaces various hotkeys
   - editing capabilities were added years ago.. but now that we ship user friendly gizmo, is it finally time to call the thing "editor"?

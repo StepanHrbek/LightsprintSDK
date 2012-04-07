@@ -87,7 +87,8 @@ void UberProgramSetup::enableAllLights()
 	LIGHT_INDIRECT_DETAIL_MAP = true;
 	LIGHT_INDIRECT_ENV_DIFFUSE = true;
 	LIGHT_INDIRECT_ENV_SPECULAR = true;
-	LIGHT_INDIRECT_MIRROR = true;
+	LIGHT_INDIRECT_MIRROR_DIFFUSE = true;
+	LIGHT_INDIRECT_MIRROR_SPECULAR = true;
 }
 
 void UberProgramSetup::enableAllMaterials()
@@ -164,7 +165,7 @@ const char* UberProgramSetup::getSetupString()
 	sprintf(specularModel,"#define MATERIAL_SPECULAR_MODEL %d\n",(int)MATERIAL_SPECULAR_MODEL);
 
 	static char setup[2000];
-	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		comment?comment:"",
 		SHADOW_MAPS?shadowMaps:"",
 		SHADOW_SAMPLES?shadowSamples:"",
@@ -189,7 +190,8 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_INDIRECT_DETAIL_MAP?"#define LIGHT_INDIRECT_DETAIL_MAP\n":"",
 		LIGHT_INDIRECT_ENV_DIFFUSE?"#define LIGHT_INDIRECT_ENV_DIFFUSE\n":"",
 		LIGHT_INDIRECT_ENV_SPECULAR?"#define LIGHT_INDIRECT_ENV_SPECULAR\n":"",
-		LIGHT_INDIRECT_MIRROR?"#define LIGHT_INDIRECT_MIRROR\n":"",
+		LIGHT_INDIRECT_MIRROR_DIFFUSE?"#define LIGHT_INDIRECT_MIRROR_DIFFUSE\n":"",
+		LIGHT_INDIRECT_MIRROR_SPECULAR?"#define LIGHT_INDIRECT_MIRROR_SPECULAR\n":"",
 		MATERIAL_DIFFUSE?"#define MATERIAL_DIFFUSE\n":"",
 		MATERIAL_DIFFUSE_X2?"#define MATERIAL_DIFFUSE_X2\n":"",
 		MATERIAL_DIFFUSE_CONST?"#define MATERIAL_DIFFUSE_CONST\n":"",
@@ -355,7 +357,7 @@ void UberProgramSetup::validate()
 	{
 		LIGHT_INDIRECT_DETAIL_MAP = 0; // LIGHT_INDIRECT_DETAIL_MAP information is already baked in LIGHT_INDIRECT_MAP
 	}
-	if (!LIGHT_DIRECT && !LIGHT_INDIRECT_CONST && !LIGHT_INDIRECT_VCOLOR && !LIGHT_INDIRECT_MAP && !LIGHT_INDIRECT_MAP2 && !LIGHT_INDIRECT_ENV_DIFFUSE)
+	if (!LIGHT_DIRECT && !LIGHT_INDIRECT_CONST && !LIGHT_INDIRECT_VCOLOR && !LIGHT_INDIRECT_MAP && !LIGHT_INDIRECT_MAP2 && !LIGHT_INDIRECT_ENV_DIFFUSE && !LIGHT_INDIRECT_MIRROR_DIFFUSE)
 	{
 		LIGHT_INDIRECT_DETAIL_MAP = 0;
 		MATERIAL_DIFFUSE = 0; // diffuse reflection requested, but there's no suitable light
@@ -364,7 +366,7 @@ void UberProgramSetup::validate()
 		//&& !LIGHT_INDIRECT_CONST ...why was it here, bug? constant indirect does not affect specular
 		//&& !LIGHT_INDIRECT_ENV_DIFFUSE // env diffuse needs normals, but it doesn't affect specular
 		&& !LIGHT_INDIRECT_ENV_SPECULAR
-		&& !LIGHT_INDIRECT_MIRROR)
+		&& !LIGHT_INDIRECT_MIRROR_SPECULAR)
 	{
 		MATERIAL_SPECULAR = 0; // specular reflection requested, but there's no suitable light
 	}
@@ -384,6 +386,7 @@ void UberProgramSetup::validate()
 	}
 	if (!MATERIAL_SPECULAR
 		&& !LIGHT_INDIRECT_ENV_DIFFUSE // env diffuse can use normal maps, even if specular is disabled
+		&& !LIGHT_INDIRECT_MIRROR_DIFFUSE // mirror diffuse can use normal maps, even if specular is disabled
 		&& !MATERIAL_TRANSPARENCY_FRESNEL) // fresnel can use normal maps, even if specular is disabled
 	{
 		MATERIAL_NORMAL_MAP = 0; // no use for normal map
@@ -396,13 +399,14 @@ void UberProgramSetup::validate()
 		LIGHT_INDIRECT_MAP = 0; // lightmap is used only for diffuse reflection, alpha is ignored
 		LIGHT_INDIRECT_DETAIL_MAP = 0; // LDM is used only for diffuse reflection, alpha is ignored
 		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
+		LIGHT_INDIRECT_MIRROR_DIFFUSE = 0;
 	}
 	if (!MATERIAL_SPECULAR)
 	{
 		MATERIAL_SPECULAR_CONST = 0;
 		MATERIAL_SPECULAR_MAP = 0;
 		LIGHT_INDIRECT_ENV_SPECULAR = 0;
-		LIGHT_INDIRECT_MIRROR = 0;
+		LIGHT_INDIRECT_MIRROR_SPECULAR = 0;
 	}
 	if (MATERIAL_TRANSPARENCY_BLEND)
 	{
@@ -413,7 +417,7 @@ void UberProgramSetup::validate()
 		// both is wrong, but first evil is smaller
 		SHADOW_COLOR = 0;
 	}
-	bool incomingLight = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR;
+	bool incomingLight = LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR_DIFFUSE || LIGHT_INDIRECT_MIRROR_SPECULAR;
 	bool reflectsLight = MATERIAL_DIFFUSE || MATERIAL_SPECULAR;
 	if (!incomingLight || !reflectsLight)
 	{
@@ -442,7 +446,8 @@ void UberProgramSetup::validate()
 		LIGHT_INDIRECT_DETAIL_MAP = 0;
 		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 		LIGHT_INDIRECT_ENV_SPECULAR = 0;
-		LIGHT_INDIRECT_MIRROR = 0;
+		LIGHT_INDIRECT_MIRROR_DIFFUSE = 0;
+		LIGHT_INDIRECT_MIRROR_SPECULAR = 0;
 		MATERIAL_DIFFUSE = 0;
 		MATERIAL_DIFFUSE_X2 = 0;
 		MATERIAL_DIFFUSE_CONST = 0;
@@ -606,7 +611,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		program->sendUniform("lightDistanceFallOffExponent",light->getRRLight().fallOffExponent);
 	}
 
-	if (LIGHT_INDIRECT_CONST && (MATERIAL_DIFFUSE || (MATERIAL_SPECULAR && !LIGHT_INDIRECT_MIRROR))) // shader ignores LIGHT_INDIRECT_CONST when rendering mirror
+	if (LIGHT_INDIRECT_CONST && (MATERIAL_DIFFUSE || (MATERIAL_SPECULAR && !LIGHT_INDIRECT_MIRROR_SPECULAR))) // shader ignores LIGHT_INDIRECT_CONST when rendering LIGHT_INDIRECT_MIRROR_SPECULAR
 	{
 		program->sendUniform("lightIndirectConst",rr::RRVec4(0.2f,0.2f,0.2f,1.0f));
 	}
@@ -614,7 +619,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	if (POSTPROCESS_BRIGHTNESS
 		// sendUniform is crybaby, don't call it if uniform doesn't exist
 		// uniform is unused (and usually removed by shader compiler) when there is no light
-		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP))
+		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR_DIFFUSE || LIGHT_INDIRECT_MIRROR_SPECULAR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP))
 	{
 		program->sendUniform("postprocessBrightness", brightness?*brightness:rr::RRVec4(1.0f));
 	}
@@ -622,7 +627,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 	if (POSTPROCESS_GAMMA
 		// sendUniform is crybaby, don't call it if uniform doesn't exist
 		// uniform is unused (and usually removed by shader compiler) when there is no light
-		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP))
+		&& (LIGHT_DIRECT || LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR_DIFFUSE || LIGHT_INDIRECT_MIRROR_SPECULAR || MATERIAL_EMISSIVE_CONST || MATERIAL_EMISSIVE_MAP))
 	{
 		program->sendUniform("postprocessGamma", gamma);
 	}
@@ -693,7 +698,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendUniform("materialDiffuseConst",rr::RRVec4(material->diffuseReflectance.color,1.0f));
 	}
 
-	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR))
+	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR_SPECULAR))
 	{
 		float shininess = material->specularShininess;
 		float spreadAngle; // how far from reflection angle reflection intensity is 0.5 (with intensity averaged over hemisphere 1)
@@ -796,16 +801,19 @@ void UberProgramSetup::useIlluminationMirror(Program* program, const rr::RRBuffe
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationMirror(program=NULL).\n"));
 		return;
 	}
-	if (LIGHT_INDIRECT_MIRROR && MATERIAL_SPECULAR)
+	if ((MATERIAL_DIFFUSE && LIGHT_INDIRECT_MIRROR_DIFFUSE) || (MATERIAL_SPECULAR && LIGHT_INDIRECT_MIRROR_SPECULAR))
 	{
 		if (!mirrorMap)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationMirror: mirrorMap==NULL.\n"));
 		}
+		program->sendTexture("lightIndirectMirrorMap",getTexture(mirrorMap,false,false),TEX_CODE_2D_LIGHT_INDIRECT_MIRROR);
+	}
+	if (MATERIAL_SPECULAR && LIGHT_INDIRECT_MIRROR_SPECULAR)
+	{
 		unsigned w = mirrorMap->getWidth();
 		unsigned numLevels = 1;
 		while (w>32) {w = w/2; numLevels++;}
-		program->sendTexture("lightIndirectMirrorMap",getTexture(mirrorMap,false,false),TEX_CODE_2D_LIGHT_INDIRECT_MIRROR);
 		program->sendUniform("lightIndirectMirrorData",rr::RRVec3(powf(1.5f,(float)numLevels)/mirrorMap->getWidth(),powf(1.5f,(float)numLevels)/mirrorMap->getHeight(),(float)numLevels));
 	}
 }

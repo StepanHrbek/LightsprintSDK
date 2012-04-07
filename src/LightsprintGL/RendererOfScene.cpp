@@ -247,7 +247,8 @@ void RendererOfSceneImpl::render(
 			|| ((_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _layerEnvironment!=UINT_MAX)
 #ifdef MIRRORS
 			// optimized render would look bad without mirrors in static parts
-			|| (_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_MIRROR)
+			|| (_uberProgramSetup.MATERIAL_DIFFUSE && _uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE)
+			|| (_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR)
 #endif
 		);
 
@@ -315,7 +316,7 @@ void RendererOfSceneImpl::render(
 #ifdef MIRRORS
 				objectBuffers.mirrorMap = NULL;
 				objectBuffers.mirrorPlane = rr::RRVec4(0);
-				if (_uberProgramSetup.LIGHT_INDIRECT_MIRROR && !onlyCube(illumination.getLayer(_layerEnvironment)))
+				if ((_uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR) && !onlyCube(illumination.getLayer(_layerEnvironment)))
 				{
 					rr::RRVec3 mini,maxi;
 					mesh->getAABB(&mini,&maxi,NULL);
@@ -327,12 +328,12 @@ void RendererOfSceneImpl::render(
 						rr::RRVec4 plane = size.x ? ( size.y ? rr::RRVec4(0,0,1,-mini.z) : rr::RRVec4(0,1,0,-mini.y) ) : rr::RRVec4(1,0,0,-mini.x);
 						rr::RRVec4 mirrorPlane = object->getWorldMatrixRef().getTransformedPlane(plane);
 						{
-							// is it specular?
+							// is it reflective?
 							const rr::RRObject::FaceGroups& faceGroups = object->faceGroups;
 							for (unsigned g=0;g<faceGroups.size();g++)
 							{
 								const rr::RRMaterial* material = faceGroups[g].material;
-								if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom) && material->specularReflectance.color.sum()>0.1)
+								if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom) && material->specularReflectance.color.sum()+material->diffuseReflectance.color.sum()>0.1)
 								{
 									// allocate mirror
 									objectBuffers.mirrorPlane = mirrorPlane;
@@ -362,9 +363,11 @@ void RendererOfSceneImpl::render(
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && objectBuffers.reflectionEnvMap;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && objectBuffers.reflectionEnvMap;
 #ifdef MIRRORS
-				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR = objectBuffers.mirrorMap!=NULL;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = objectBuffers.mirrorMap && !objectBuffers.lightIndirectBuffer && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = objectBuffers.mirrorMap!=NULL;
 #else
-				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR = false;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
 #endif
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_CONST = _uberProgramSetup.LIGHT_INDIRECT_CONST && !lightIndirectVcolor && !lightIndirectMap;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR = lightIndirectVcolor!=NULL;
@@ -470,7 +473,8 @@ void RendererOfSceneImpl::render(
 	{
 		recursionDepth = 1;
 		UberProgramSetup mirrorUberProgramSetup = _uberProgramSetup;
-		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
+		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
+		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
 		mirrorUberProgramSetup.CLIP_PLANE = true;
 		rr::RRCamera mainCamera = *getRenderCamera();
 		FBO oldState = FBO::getState();

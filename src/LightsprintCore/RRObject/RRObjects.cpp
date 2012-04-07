@@ -49,19 +49,31 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 				}
 			}
 
-			// process cube maps for LIGHT_INDIRECT_CUBE
+			// process cube maps for LIGHT_INDIRECT_ENV_
 			if (_layerEnvironment>=0)
 			{
 				object->updateIlluminationEnvMapCenter();
 
-				// calculate desired cube size for LIGHT_INDIRECT_CUBE
+				// calculate desired cube size for LIGHT_INDIRECT_ENV_
 				RRBuffer*& buffer = illumination.getLayer(_layerEnvironment);
 				unsigned currentEnvMapSize = buffer ? buffer->getWidth() : 0;
 				unsigned desiredDiffuseSize = currentEnvMapSize;
 				unsigned desiredSpecularSize = currentEnvMapSize;
 
+				// is it suitable for mirror rather than cube?
+				bool useMirror;
+				{
+					RRVec3 mini,maxi;
+					mesh->getAABB(&mini,&maxi,NULL);
+					RRVec3 size = maxi-mini;
+					float sizeMidi = size.sum()-size.maxi()-size.mini();
+					// continue only for non-planar objects, cubical reflection looks bad on plane
+					// (size is in object's space, so this is not precise for non-uniform scale)
+					useMirror = !(_depthThreshold<1 && size.mini()>=_depthThreshold*sizeMidi); // depthThreshold=0 allows everything, depthThreshold=1 nothing
+				}
+
 				// calculate diffuse size
-				if (!numVertices)
+				if (!numVertices || useMirror)
 				{
 					desiredDiffuseSize = 0;
 				}
@@ -72,7 +84,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 				}
 
 				// calculate specular size
-				if (!numVertices || (_changeExistingBuffers && !_specularEnvMapSize))
+				if (!numVertices || useMirror || (_changeExistingBuffers && !_specularEnvMapSize))
 				{
 					desiredSpecularSize = 0;
 				}
@@ -80,38 +92,20 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 				if ((!currentEnvMapSize && _allocateNewBuffers) || (currentEnvMapSize && _changeExistingBuffers))
 				{
 					// measure object's specularity
-					//float maxDiffuse = 0;
 					float maxSpecular = 0;
 					for (unsigned g=0;g<object->faceGroups.size();g++)
 					{
 						const RRMaterial* material = object->faceGroups[g].material;
 						if (material)
 						{
-							//maxDiffuse = RR_MAX(maxDiffuse,material->diffuseReflectance.color.avg());
 							maxSpecular = RR_MAX(maxSpecular,material->specularReflectance.color.avg());
 						}
 					}
 					// continue only for highly specular objects
 					if (maxSpecular>RR_MAX(0,_specularThreshold))
 					{
-						// measure object's size
-						RRVec3 mini,maxi;
-						mesh->getAABB(&mini,&maxi,NULL);
-						RRVec3 size = maxi-mini;
-						float sizeMidi = size.sum()-size.maxi()-size.mini();
-						// continue only for non-planar objects, cubical reflection looks bad on plane
-						// (size is in object's space, so this is not precise for non-uniform scale)
-						if (_depthThreshold<1 && size.mini()>=_depthThreshold*sizeMidi) // depthThreshold=0 allows everything, depthThreshold=1 nothing
-						{
-							// allocate specular cube map
-							desiredSpecularSize = _specularEnvMapSize;
-							//updateEnvironmentMapCache(illumination);
-						}
-						else
-						{
-							if (_changeExistingBuffers)
-								desiredSpecularSize = 0;
-						}
+						// allocate specular cube map
+						desiredSpecularSize = _specularEnvMapSize;
 					}
 					else
 					{
@@ -120,7 +114,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 					}
 				}
 
-				// allocate cube for LIGHT_INDIRECT_CUBE
+				// allocate cube for LIGHT_INDIRECT_ENV_
 				unsigned desiredEnvMapSize = RR_MAX(desiredDiffuseSize,desiredSpecularSize);
 				if (desiredEnvMapSize!=currentEnvMapSize)
 				{

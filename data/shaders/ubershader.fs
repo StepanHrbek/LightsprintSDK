@@ -25,7 +25,8 @@
 //  #define LIGHT_INDIRECT_DETAIL_MAP
 //  #define LIGHT_INDIRECT_ENV_DIFFUSE
 //  #define LIGHT_INDIRECT_ENV_SPECULAR
-//  #define LIGHT_INDIRECT_MIRROR
+//  #define LIGHT_INDIRECT_MIRROR_DIFFUSE
+//  #define LIGHT_INDIRECT_MIRROR_SPECULAR
 //  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_X2
 //  #define MATERIAL_DIFFUSE_CONST
@@ -200,9 +201,11 @@
 	uniform float lightIndirectEnvMapNumLods;
 #endif
 
-#if defined(LIGHT_INDIRECT_MIRROR)
+#if defined(LIGHT_INDIRECT_MIRROR_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 	varying vec4 lightIndirectMirrorCoord;
 	uniform sampler2D lightIndirectMirrorMap;
+#endif
+#if defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 	uniform vec3 lightIndirectMirrorData; // (1.5^numLevels)/width,(1.5^numLevels)/height,numLevels
 #endif
 
@@ -217,7 +220,7 @@
 
 varying vec3 worldPos;
 
-#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_INDIRECT_MIRROR))
+#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR))
 	uniform vec3 materialSpecularShininessData; // shininess,cube miplevel(0=1x1x6,2=2x2x6,3=4x4x6...),1.5^miplevel
 #endif
 
@@ -401,7 +404,7 @@ void main()
 	//
 	// noise
 
-	#if (defined(SHADOW_MAPS) && defined(SHADOW_SAMPLES)) || (defined(MATERIAL_SPECULAR) && defined(LIGHT_INDIRECT_MIRROR))
+	#if (defined(SHADOW_MAPS) && defined(SHADOW_SAMPLES)) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 		float noise = sin(dot(worldPos,vec3(52.714,112.9898,78.233))) * 43758.5453;
 		vec2 noiseSinCos = vec2(sin(noise),cos(noise));
 	#endif
@@ -611,7 +614,7 @@ void main()
 	//
 	// final mix
 
-	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_INDIRECT_MIRROR) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(POSTPROCESS_NORMALS)
+	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_INDIRECT_MIRROR_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(POSTPROCESS_NORMALS)
 
 		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_DIRECT))
 			vec3 worldViewReflected = reflect(-worldEyeDir,worldNormal);
@@ -637,9 +640,14 @@ void main()
 					;
 		#endif
 
-		#if defined(MATERIAL_SPECULAR) && defined(LIGHT_INDIRECT_MIRROR)
-			float mirrorLod = lightIndirectMirrorData.z-materialSpecularShininessData.y;
+		#if defined(LIGHT_INDIRECT_MIRROR_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 			vec2 mirrorCenter = vec2(0.5,0.5)+vec2(-0.5,0.5)*lightIndirectMirrorCoord.xy/lightIndirectMirrorCoord.w;
+			#ifdef MATERIAL_NORMAL_MAP
+				mirrorCenter += localNormal.xy*0.1;
+			#endif
+		#endif
+		#if defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
+			float mirrorLod = lightIndirectMirrorData.z-materialSpecularShininessData.y;
 			vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorData.xy / materialSpecularShininessData.z;
 			vec2 mirrorShift2 = mirrorShift1.yx * vec2(1.5,-1.5);
 		#endif
@@ -650,7 +658,7 @@ void main()
 			// diffuse reflection
 			//
 
-			#if defined(MATERIAL_DIFFUSE) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2) || defined(LIGHT_INDIRECT_ENV_DIFFUSE))
+			#if defined(MATERIAL_DIFFUSE) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_DIFFUSE))
 				#ifdef MATERIAL_DIFFUSE_X2
 					vec4(2.0,2.0,2.0,1.0) *
 				#endif
@@ -706,6 +714,9 @@ void main()
 						#if defined(LIGHT_INDIRECT_VCOLOR) && defined(LIGHT_INDIRECT_ENV_DIFFUSE)
 							) * 0.5
 						#endif
+						#ifdef LIGHT_INDIRECT_MIRROR_DIFFUSE
+							+ texture2DLod(lightIndirectMirrorMap, mirrorCenter, 6.0)
+						#endif
 					#ifdef LIGHT_INDIRECT_DETAIL_MAP
 						) * texture2D(lightIndirectMap, lightIndirectCoord) * 2.0
 					#endif
@@ -752,7 +763,7 @@ void main()
 						#endif
 						* lightDirect
 					#endif
-					#if defined(LIGHT_INDIRECT_CONST) && !defined(LIGHT_INDIRECT_MIRROR)
+					#if defined(LIGHT_INDIRECT_CONST) && !defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 						// const is ignored when rendering mirror, because users sometimes want cost enabled for diffuse reflection, but they never want it for mirror specular
 						+ lightIndirectConst
 					#endif
@@ -765,7 +776,7 @@ void main()
 							//* lightIndirectLightmap
 						#endif
 					#endif
-					#ifdef LIGHT_INDIRECT_MIRROR
+					#ifdef LIGHT_INDIRECT_MIRROR_SPECULAR
 						+ ( texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift1, mirrorLod)
 						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift1, mirrorLod)
 						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift2, mirrorLod)

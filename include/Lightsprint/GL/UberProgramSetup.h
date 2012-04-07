@@ -63,9 +63,15 @@ struct ClipPlanes
 //! and inserted at the beginning of ubershader.
 //!
 //! Some combinations of attributes are not supported and getProgram will return NULL.
-//! Call validate() to get nearest supported combination.
+//! Call validate() to get the nearest supported combination.
+//!
+//! LIGHT_INDIRECT_ offers various techniques of indirect illumination.
+//! When directly building shader,
+//! you should enable at most one technique for material's diffuse component, one for specular.
+//! If you enable more techniuqes, light from multiple techniques is accumulated.
 struct RR_GL_API UberProgramSetup
 {
+	// Various direct shadowing options.
 	unsigned char SHADOW_MAPS              :4; ///< Number of shadow maps processed in one pass. 0=no shadows, 1=hard shadows, more=soft shadows. Valid values: 0..detectMaxShadowmaps().
 	unsigned char SHADOW_SAMPLES           :4; ///< Number of samples read from each shadowmap. 0=no shadows, 1=hard shadows, 2,4,8=soft shadows. Valid values: 0,1,2,4,8.
 	bool     SHADOW_COLOR                  :1; ///< Enables colored semitransparent shadows.
@@ -73,6 +79,7 @@ struct RR_GL_API UberProgramSetup
 	bool     SHADOW_CASCADE                :1; ///< Enables cascading of all shadowmaps, used by cascaded shadowmapping.
 	bool     SHADOW_ONLY                   :1; ///< Renders only direct shadows without direct illumination. Must be combined with indirect illumination, shadows are subtracted from indirect light. Has no visible effect if there's no indirect light.
 
+	// Various direct illumination options.
 	bool     LIGHT_DIRECT                  :1; ///< Enables direct light. All enabled LIGHT_DIRECT_XXX are multiplied.
 	bool     LIGHT_DIRECT_COLOR            :1; ///< Enables modulation of direct light by constant color.
 	bool     LIGHT_DIRECT_MAP              :1; ///< Enables modulation of direct light by color map. Projects texture.
@@ -82,17 +89,20 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_DIRECT_ATT_POLYNOMIAL   :1; ///< Enables direct light polynomial distance attenuation.
 	bool     LIGHT_DIRECT_ATT_EXPONENTIAL  :1; ///< Enables direct light exponential distance attenuation.
 
-	bool     LIGHT_INDIRECT_CONST          :1; ///< Enables indirect light, constant. All enabled LIGHT_INDIRECT_XXX are accumulated.
-	bool     LIGHT_INDIRECT_VCOLOR         :1; ///< Enables indirect light, set per vertex.
-	bool     LIGHT_INDIRECT_VCOLOR2        :1; ///< Enables blend between two ambient vertex colors.
-	bool     LIGHT_INDIRECT_VCOLOR_PHYSICAL:1; ///< If indirect light per vertex is used, it is expected in physical/linear scale, converted to sRGB in shader.
-	bool     LIGHT_INDIRECT_MAP            :1; ///< Enables indirect light, set by ambient map.
-	bool     LIGHT_INDIRECT_MAP2           :1; ///< Enables blend between two ambient maps.
-	bool     LIGHT_INDIRECT_DETAIL_MAP     :1; ///< Enables modulation of indirect light by light detail map.
-	bool     LIGHT_INDIRECT_ENV_DIFFUSE    :1; ///< Enables indirect light, realtime raytraced diffuse reflection on objects with diffuseEnvMap.
-	bool     LIGHT_INDIRECT_ENV_SPECULAR   :1; ///< Enables indirect light, realtime raytraced specular reflection on objects with specularEnvMap. Faster but less accurate for flat objects than LIGHT_INDIRECT_MIRROR.
-	bool     LIGHT_INDIRECT_MIRROR         :1; ///< Enables indirect light, realtime rasterized specular reflection on flat objects without specularEnvMap. More accurate for flat objects but slower than LIGHT_INDIRECT_ENV_SPECULAR. (If you don't see mirroring, is specularEnvMap NULL? Is volume of mesh AABB zero? Object can be arbitrarily rotated, but original mesh before rotation must be axis aligned.)
+	// Various indirect illumination techniques.
+	bool     LIGHT_INDIRECT_CONST          :1; ///< Illuminates material (both diffuse and specular components) by constant ambient light. Non-directional. Always available (does not need any data buffers), but the least realistic out of all LIGHT_INDIRECT_ options.
+	bool     LIGHT_INDIRECT_VCOLOR         :1; ///< Illuminates material's diffuse component by vertex colors (any vertex buffer you provide, or realtime radiosity calculated one). Non-directional.
+	bool     LIGHT_INDIRECT_VCOLOR2        :1; ///< Enables blend between two ambient vertex colors. Non-directional.
+	bool     LIGHT_INDIRECT_VCOLOR_PHYSICAL:1; ///< If indirect illumination by vertex colors is used, it is expected in physical/linear scale, converted to sRGB in shader.
+	bool     LIGHT_INDIRECT_MAP            :1; ///< Illuminates material's diffuse component by ambient map (any map you provide). Non-directional.
+	bool     LIGHT_INDIRECT_MAP2           :1; ///< Enables blend between two ambient maps. Non-directional.
+	bool     LIGHT_INDIRECT_DETAIL_MAP     :1; ///< Enables modulation of indirect light by light detail map. Non-directional.
+	bool     LIGHT_INDIRECT_ENV_DIFFUSE    :1; ///< Illuminates material's diffuse component by environment map (any map you provide, or realtime raytraced one-lowres). Affects only flat objects with environment map preallocated. Directional, works with normal maps. Recommended for all dynamic objects except for large planes, where LIGHT_INDIRECT_MIRROR_DIFFUSE produces better (but slower) results.
+	bool     LIGHT_INDIRECT_ENV_SPECULAR   :1; ///< Illuminates material's specular component by environment map (any map you provide, or realtime raytraced one-lowres). Affects only flat objects with environment map preallocated. Directional, works with normal maps. Recommended for all objects without LIGHT_INDIRECT_MIRROR_SPECULAR.
+	bool     LIGHT_INDIRECT_MIRROR_DIFFUSE :1; ///< Illuminates material's diffuse component by realtime rasterized highres mirror reflection. Affects only flat objects without environment map. Directional, works with normal maps. Recommended for all large dynamic planes (as a slower but higher quality option). Small dynamic planes look better with LIGHT_INDIRECT_ENV_DIFFUSE, static planes look better with LIGHT_INDIRECT_VCOLOR(unless number of vertices is very low) or LIGHT_INDIRECT_MAP.
+	bool     LIGHT_INDIRECT_MIRROR_SPECULAR:1; ///< Illuminates material's specular component by realtime rasterized highres mirror reflection. Affects only flat objects without environment map. Directional, works with normal maps. Recommended for all planes (as a slower but higher quality option), except for very small ones, where much faster LIGHT_INDIRECT_ENV_SPECULAR might be good enough. (If you don't see mirroring, is specularEnvMap NULL? Is volume of mesh AABB zero? Object can be arbitrarily rotated, but original mesh before rotation must be axis aligned.)
 
+	// Various material features.
 	bool     MATERIAL_DIFFUSE              :1; ///< Enables material's diffuse reflection. All enabled MATERIAL_DIFFUSE_XXX are multiplied. When only MATERIAL_DIFFUSE is enabled, diffuse color is 1 (white).
 	bool     MATERIAL_DIFFUSE_X2           :1; ///< Enables material's diffuse reflectance multiplied by 2. (used by Quake3 engine scenes)
 	bool     MATERIAL_DIFFUSE_CONST        :1; ///< Enables material's diffuse reflectance modulated by constant color.
@@ -111,11 +121,12 @@ struct RR_GL_API UberProgramSetup
 	bool     MATERIAL_TRANSPARENCY_IN_ALPHA:1; ///< If(!MATERIAL_TRANSPARENCY_CONST && !MATERIAL_TRANSPARENCY_MAP), enables materials's specular transmittance modulated by diffuse alpha (0=transparent), otherwise makes transparency read from alpha (0=transparent) rather than from rgb (1=transparent). 
 	bool     MATERIAL_TRANSPARENCY_BLEND   :1; ///< When rendering transparency, uses blending (for semitransparency) rather than alpha keying (0% or 100%).
 	bool     MATERIAL_TRANSPARENCY_TO_RGB  :1; ///< When blending, uses more realistic RGB blending rather than usual alpha blending. When not blending, transparency color is just sent to RGB instead of A (this mode must not be combined with diffuse/specular/emis because they also write to RGB).
-	bool     MATERIAL_TRANSPARENCY_FRESNEL :1; ///< Turns small fraction of specular transmittance into specular reflectance, decreasing transmittance, increasing reflectance. If you don't see effects in realtime, check: 1) RRMaterial::refractionIndex!=1 (for refractionIndex converging to 1, images with Fresnel converge to images without Fresnel, this is correctly simulated). 2) MATERIAL_TRANSPARENCY_BLEND enabled (Fresnel would be pointless without). 3) For increase in reflectance to be visible, MATERIAL_SPECULAR should be enabled (otherwise you see only reduced transmittance). 4) Also for reflectance to be visible, LIGHT_INDIRECT_ENV_SPECULAR is recommended. Then environment map for LIGHT_INDIRECT_ENV_SPECULAR must be available. If you allocate it with allocateBuffersForRealtimeGI() (rather than manually), make sure that allocation does not fails because of thresholds.
+	bool     MATERIAL_TRANSPARENCY_FRESNEL :1; ///< Turns small fraction of specular transmittance into specular reflectance, decreasing transmittance, increasing reflectance. If you don't see effects in realtime, check: 1) RRMaterial::refractionIndex!=1 (for refractionIndex converging to 1, images with Fresnel converge to images without Fresnel, this is correctly simulated). 2) MATERIAL_TRANSPARENCY_BLEND enabled (small transparency change would be hardly visible with 1-bit keying). 3) For increase in reflectance to be visible, MATERIAL_SPECULAR should be enabled (otherwise you see only reduced transmittance). 4) Also for reflectance to be visible, LIGHT_INDIRECT_ENV_SPECULAR is recommended. Then environment map for LIGHT_INDIRECT_ENV_SPECULAR must be available. If you allocate it with allocateBuffersForRealtimeGI() (rather than manually), make sure that allocation does not fails because of thresholds.
 
 	bool     MATERIAL_NORMAL_MAP           :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
 	bool     MATERIAL_CULLING              :1; ///< Enables materials's n-sided property (culling is enabled/disabled according to material, no change in shader).
 
+	// Misc other options.
 	bool     ANIMATION_WAVE                :1; ///< Enables simple procedural deformation, only to demonstrate that lighting supports animations.
 	bool     POSTPROCESS_NORMALS           :1; ///< Renders normal values instead of colors.
 	bool     POSTPROCESS_BRIGHTNESS        :1; ///< Enables brightness correction of final color (before gamma).

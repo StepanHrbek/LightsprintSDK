@@ -1441,7 +1441,8 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = svs.renderLDMEnabled();
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE =
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = svs.raytracedCubesEnabled && solver->getStaticObjects().size()+solver->getDynamicObjects().size()<svs.raytracedCubesMaxObjects;
-			uberProgramSetup.LIGHT_INDIRECT_MIRROR = svs.mirrorsEnabled;
+			uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = svs.mirrorsEnabled;
+			uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = svs.mirrorsEnabled;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
 			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures;

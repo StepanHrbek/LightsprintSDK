@@ -508,7 +508,7 @@ namespace rr
 		//!  Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply.
 		//!  Depth is number between 0 and 1, calculated as ratio between min and mid size of axis aligned bounding box.
 		//!  Purpose of depthThreshold is to exclude very flat objects from processing, environment reflections produce visible inaccuracies on such objects.
-		//!  For absolutely flat objects, see rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR, it produces reflections of high quality and accuracy.
+		//!  For absolutely flat objects, see rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_SPECULAR, it produces reflections of high quality and accuracy.
 		//! \return
 		//!  Number of buffers allocated or reallocated.
 		virtual unsigned allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const;
