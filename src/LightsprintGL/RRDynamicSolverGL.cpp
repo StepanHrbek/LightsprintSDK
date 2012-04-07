@@ -526,6 +526,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 			NULL,
 			NULL);
 
+
 		// downscale 10pixel triangles in 4x4 squares to single pixel values
 		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,detectSmallMap);
 		scaleDownProgram->useIt();
