@@ -333,7 +333,7 @@ void RendererOfSceneImpl::render(
 							for (unsigned g=0;g<faceGroups.size();g++)
 							{
 								const rr::RRMaterial* material = faceGroups[g].material;
-								if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom) && material->specularReflectance.color.sum()+material->diffuseReflectance.color.sum()>0.1)
+								if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom) && material->specularReflectance.color.sum()+material->diffuseReflectance.color.sum()>0)
 								{
 									// allocate mirror
 									objectBuffers.mirrorPlane = mirrorPlane;
