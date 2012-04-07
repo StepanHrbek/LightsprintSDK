@@ -30,6 +30,7 @@ NEWS
 - <b>improved scene viewer</b>
   - move/rotate/scale gizmo, replaces various hotkeys
   - editing capabilities were added years ago.. but now that we ship user friendly gizmo, is it finally time to call the thing "editor"?
+  - "Add sphere, box, plane, rectangle" added to "Scene tree/Dynamic objects/context menu"
 - <b>improved handling of missing textures</b>
   - when load fails, RRBuffer::load() optionally returns stub buffer instead of NULL; see new RRFileLocator::setAttempt(RRFileLocator::ATTEMPT_STUB,...)
   - stub buffer contains original path to missing texture

@@ -42,6 +42,11 @@ namespace rr_gl
 		CM_OBJECTS_DELETE_DIALOG,
 		CM_OBJECT_INSPECT_UNWRAP,
 
+		CM_OBJECTS_ADD_PLANE,
+		CM_OBJECTS_ADD_RECTANGLE,
+		CM_OBJECTS_ADD_BOX,
+		CM_OBJECTS_ADD_SPHERE,
+
 	};
 
 	class SVSceneTree : public wxTreeCtrl
@@ -87,6 +92,8 @@ namespace rr_gl
 		unsigned manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed);
 
 	private:
+		void addMesh(rr::RRMesh* mesh, const char* name);
+
 		void updateSelectedEntityIds();
 		EntityIds selectedEntityIds; // always up to date, with root of lights replaced by all lights, root of objects replaced by all objects
 		bool selectedObjectRoot; // always up to date, true if staticObjects or dynamicObjects root is selected

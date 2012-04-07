@@ -380,6 +380,15 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			if (!svframe->m_lightProperties->IsShown())
 				menu.Append(SVFrame::ME_WINDOW_LIGHT_PROPERTIES, _("Properties..."));
 		}
+		if (temporaryContext==dynamicObjects)
+		{
+			wxMenu* submenu = new wxMenu; // not PopupMenu, must be allocated on heap
+			submenu->Append(CM_OBJECTS_ADD_PLANE,_("Plane"),_("Adds very large plane to scene. You can turn it into water surface by changing material. Keep it dynamic object to preserve GI accuracy in smaller static objects."));
+			submenu->Append(CM_OBJECTS_ADD_RECTANGLE,_("Rectangle"),_("Adds rectangle to scene."));
+			submenu->Append(CM_OBJECTS_ADD_BOX,_("Box"),_("Adds box to scene."));
+			submenu->Append(CM_OBJECTS_ADD_SPHERE,_("Sphere"),_("Adds sphere to scene."));
+			menu.AppendSubMenu(submenu,_("Add..."),_("Adds newly created dynamic object to scene."));
+		}
 		if (entityIds.size()) // prevents assert when right clicking empty objects
 		if (temporaryContext==staticObjects
 			|| temporaryContext==dynamicObjects
@@ -419,6 +428,28 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 void SVSceneTree::OnContextMenuRun(wxCommandEvent& event)
 {
 	runContextMenuAction(event.GetId(),getEntityIds(SVSceneTree::MEI_SELECTED));
+}
+
+void SVSceneTree::addMesh(rr::RRMesh* mesh, const char* name)
+{
+	// this leaks memory, but it is not called often = not serious
+	bool aborting = false;
+	rr::RRCollider* collider = rr::RRCollider::create(mesh,NULL,rr::RRCollider::IT_LINEAR,aborting);
+	rr::RRObject* object = new rr::RRObject;
+	object->setCollider(collider);
+	rr::RRMaterial* material = new rr::RRMaterial;
+	material->reset(false);
+	rr::RRObject::FaceGroup fg;
+	fg.numTriangles = mesh->getNumTriangles();
+	fg.material = material;
+	object->faceGroups.push_back(fg);
+	object->setWorldMatrix(&rr::RRMatrix3x4::translation(svs.eye.getPosition()+svs.eye.getDirection()*3-svs.eye.getUp()*0.5f));
+	object->isDynamic = true;
+	object->name = name;
+	object->updateIlluminationEnvMapCenter();
+	rr::RRScene scene;
+	scene.objects.push_back(object);
+	svframe->m_canvas->addOrRemoveScene(&scene,true,false); // calls svframe->updateAllPanels();
 }
 
 extern bool getQuality(wxString title, wxWindow* parent, unsigned& quality);
@@ -821,6 +852,108 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					staticObjectsAlreadyModified |= !selectedObjects[i]->isDynamic;
 
 				svframe->m_canvas->addOrRemoveScene(NULL,true,staticObjectsAlreadyModified); // calls svframe->updateAllPanels();
+			}
+			break;
+
+		case CM_OBJECTS_ADD_PLANE:
+			{
+				enum {H=6,TRIANGLES=1+6*H,VERTICES=3+3*H};
+				rr::RRMeshArrays* arrays = new rr::RRMeshArrays;
+				rr::RRVector<unsigned> texcoords;
+				texcoords.push_back(0);
+				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false);
+				arrays->triangle[0][0] = 0;
+				arrays->triangle[0][1] = 1;
+				arrays->triangle[0][2] = 2;
+				for (unsigned i=0;i<TRIANGLES-1;i+=2)
+				{
+					arrays->triangle[i+1][0] = i/6*3+((2+((i/2)%3))%3);
+					arrays->triangle[i+1][1] = i/6*3+((1+((i/2)%3))%3);
+					arrays->triangle[i+1][2] = i/6*3+((0+((i/2)%3))%3)+3;
+					arrays->triangle[i+2][0] = i/6*3+((2+((i/2)%3))%3);
+					arrays->triangle[i+2][1] = i/6*3+((0+((i/2)%3))%3)+3;
+					arrays->triangle[i+2][2] = i/6*3+((1+((i/2)%3))%3)+3;
+				}
+				float v[] = {1.732f,-1, -1.732f,-1, 0,2};
+				for (unsigned i=0;i<VERTICES;i++)
+				{
+					arrays->position[i] = rr::RRVec3(v[(i%3)*2],0,v[(i%3)*2+1])*powf(4,i/3)*((i/3)%2?1:-1);
+					arrays->normal[i] = rr::RRVec3(0,1,0);
+					arrays->texcoord[0][i] = rr::RRVec2(arrays->position[i].x,arrays->position[i].z);
+				}
+				addMesh(arrays,"plane");
+			}
+			break;
+		case CM_OBJECTS_ADD_RECTANGLE:
+			{
+				enum {W=10,H=10,TRIANGLES=W*H*2,VERTICES=(W+1)*(H+1)};
+				rr::RRMeshArrays* arrays = new rr::RRMeshArrays;
+				rr::RRVector<unsigned> texcoords;
+				texcoords.push_back(0);
+				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false);
+				for (unsigned j=0;j<H;j++)
+				for (unsigned i=0;i<W;i++)
+				{
+					arrays->triangle[2*(i+W*j)  ][0] = i  + j   *(W+1);
+					arrays->triangle[2*(i+W*j)  ][1] = i  +(j+1)*(W+1);
+					arrays->triangle[2*(i+W*j)  ][2] = i+1+(j+1)*(W+1);
+					arrays->triangle[2*(i+W*j)+1][0] = i  + j   *(W+1);
+					arrays->triangle[2*(i+W*j)+1][1] = i+1+(j+1)*(W+1);
+					arrays->triangle[2*(i+W*j)+1][2] = i+1+ j   *(W+1);
+				}
+				for (unsigned i=0;i<VERTICES;i++)
+				{
+					arrays->position[i] = rr::RRVec3((i%(W+1))/(float)W-0.5f,0,i/(W+1)/(float)H-0.5f);
+					arrays->normal[i] = rr::RRVec3(0,1,0);
+					arrays->texcoord[0][i] = rr::RRVec2((i%(W+1))/(float)W,i/(W+1)/(float)H);
+				}
+				addMesh(arrays,"rectangle");
+			}
+			break;
+		case CM_OBJECTS_ADD_BOX:
+			{
+				enum {TRIANGLES=12,VERTICES=24};
+				rr::RRMeshArrays* arrays = new rr::RRMeshArrays;
+				rr::RRVector<unsigned> texcoords;
+				texcoords.push_back(0);
+				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false);
+				for (unsigned i=0;i<TRIANGLES;i++)
+					for (unsigned j=0;j<3;j++)
+						arrays->triangle[i][j] = i*2+((i%2)?1-(((i/2)%2)?2-j:j):(((i/2)%2)?2-j:j));
+				for (unsigned i=0;i<VERTICES;i++)
+				{
+					for (unsigned j=0;j<3;j++)
+						arrays->position[i][j] = ((j==((i/8)%3)) ? ((i/4)%2) : ((j==((1+i/8)%3)) ? ((i/2)%2) : (i%2))) - 0.5f;
+					arrays->texcoord[0][i] = rr::RRVec2((i/2)%2,i%2);
+				}
+				arrays->buildNormals();
+				addMesh(arrays,"box");
+			}
+			break;
+		case CM_OBJECTS_ADD_SPHERE:
+			{
+				enum {W=30,H=15,TRIANGLES=W*H*2,VERTICES=(W+1)*(H+1)};
+				rr::RRMeshArrays* arrays = new rr::RRMeshArrays;
+				rr::RRVector<unsigned> texcoords;
+				texcoords.push_back(0);
+				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false);
+				for (unsigned j=0;j<H;j++)
+				for (unsigned i=0;i<W;i++)
+				{
+					arrays->triangle[2*(i+W*j)  ][0] = i  + j   *(W+1);
+					arrays->triangle[2*(i+W*j)  ][1] = i+1+(j+1)*(W+1);
+					arrays->triangle[2*(i+W*j)  ][2] = i  +(j+1)*(W+1);
+					arrays->triangle[2*(i+W*j)+1][0] = i  + j   *(W+1);
+					arrays->triangle[2*(i+W*j)+1][1] = i+1+ j   *(W+1);
+					arrays->triangle[2*(i+W*j)+1][2] = i+1+(j+1)*(W+1);
+				}
+				for (unsigned i=0;i<VERTICES;i++)
+				{
+					arrays->normal[i] = rr::RRVec3(cos(2*RR_PI*(i%(W+1))/W)*sin(i/(W+1)*RR_PI/H),cos(i/(W+1)*RR_PI/H),sin(2*RR_PI*(i%(W+1))/W)*sin(i/(W+1)*RR_PI/H));
+					arrays->position[i] = arrays->normal[i]/2;
+					arrays->texcoord[0][i] = rr::RRVec2((i%(W+1))/(float)W,i/(W+1)/(float)H);
+				}
+				addMesh(arrays,"sphere");
 			}
 			break;
 
