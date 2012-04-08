@@ -279,12 +279,15 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propColor)
 	{
 		light->color << property->GetValue();
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propTexture)
 	{
 		propTexture->updateBufferAndIcon(light->rtProjectedTexture,svs.playVideos);
 		updateHide();
+		rtlight->dirtyShadowmap = true;
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propTextureChangeAffectsGI)
