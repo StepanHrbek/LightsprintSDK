@@ -246,6 +246,9 @@ namespace rr
 		//! Not used by realtime solver; you don't have to update it each time your realtime app changes texture.
 		unsigned      minimalQualityForPointMaterials;
 		//! Optional name of material.
+		//
+		//! If name contains "water" and static normal map is set, realtime renderer animates mapping
+		//! to simulate flow of waves.
 		RRString      name;
 
 		//! Deletes textures (yes, textures are owned by RRMaterial).
