@@ -29,6 +29,8 @@ NEWS
   - new rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_DIFFUSE offers higher quality lighting for large dynamic planes
 - <b>improved water</b>
   - rr_gl::UberProgramSetup::MATERIAL_NORMAL_MAP_FLOW added, helps simulate animated water using normal maps. rr_gl::UberProgramSetup::enableUsedMaterials() enables it when material name contains "water"
+  - deep water recipe: add plane, give it normal map, index of refraction 1.4, little bit of specular reflectance, little bit of blueish emittance, no transmittance, no diffuse reflectance
+  - shallow water recipe: unlike deep water, add lots of transmittance, don't add emittance
 - <b>improved scene viewer</b>
   - move/rotate/scale gizmo, replaces various hotkeys
   - editing capabilities were added years ago.. but now that we ship user friendly gizmo, is it finally time to call the thing "editor"?

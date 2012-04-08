@@ -764,9 +764,18 @@ void main()
 				#endif
 				#ifdef MATERIAL_TRANSPARENCY_FRESNEL
 					// Fresnel did subtract fraction (materialFresnelReflectance) of transmittance (1.0-preFresnelOpacityA)
-					// add it back here to reflectance
+					// add it back to reflectance here
 					1.0
-					+ (1.0-preFresnelOpacityA)*materialFresnelReflectance
+					+ ((1.0-preFresnelOpacityA)
+					#if defined(MATERIAL_EMISSIVE_CONST) && defined(MATERIAL_SPECULAR_CONST)
+						// MATERIAL_EMISSIVE_CONST && MATERIAL_SPECULAR_CONST enables water subsurface scattering hack:
+						//  Fresnel will subtract fraction of emittance, increase specular reflectance here.
+						//  As small emittance simulates very high transmittance+subsurface scattering, it is appropriate to
+						//  understand little bit of emittance as a big chunk of transmittance and convert it to big chunk of specular reflectance.
+						//  Scaling is set up so that distant water is fully reflecting.
+						+ 1.0-(materialSpecularConst.x+materialSpecularConst.y+materialSpecularConst.z)*0.333
+					#endif
+						) * materialFresnelReflectance
 					) *
 				#endif
 				vec4((
@@ -815,6 +824,9 @@ void main()
 
 			#ifdef MATERIAL_EMISSIVE_CONST
 				+ materialEmissiveConst
+				#ifdef MATERIAL_TRANSPARENCY_FRESNEL
+					* (1.0-materialFresnelReflectance)
+				#endif
 			#endif
 			#ifdef MATERIAL_EMISSIVE_MAP
 				+ materialEmissiveMapColor

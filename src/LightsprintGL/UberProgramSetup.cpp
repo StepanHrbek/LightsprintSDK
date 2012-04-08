@@ -145,7 +145,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material, const
 	MATERIAL_TRANSPARENCY_IN_ALPHA = material->specularTransmittance.color!=rr::RRVec3(0) && material->specularTransmittanceInAlpha;
 	MATERIAL_TRANSPARENCY_BLEND = material->specularTransmittance.color!=rr::RRVec3(0) && !material->specularTransmittanceKeyed;
 	MATERIAL_TRANSPARENCY_TO_RGB = MATERIAL_TRANSPARENCY_BLEND;
-	MATERIAL_TRANSPARENCY_FRESNEL = MATERIAL_TRANSPARENCY_BLEND && material->refractionIndex!=1;
+	MATERIAL_TRANSPARENCY_FRESNEL = (MATERIAL_EMISSIVE_CONST || MATERIAL_TRANSPARENCY_BLEND) && material->refractionIndex!=1;
 
 	// normal map
 	MATERIAL_NORMAL_MAP = hasMap(material->normalMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
@@ -382,6 +382,7 @@ void UberProgramSetup::validate()
 		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 	}
 	if (!MATERIAL_TRANSPARENCY_BLEND // keeps Fresnel in final renders with blending
+		&& !MATERIAL_EMISSIVE_CONST // keeps Fresnel on deep water surface
 		&& !MATERIAL_TRANSPARENCY_TO_RGB) // keeps Fresnel in Fresnel shadows
 	//if (!MATERIAL_TRANSPARENCY_CONST && !MATERIAL_TRANSPARENCY_MAP && !MATERIAL_TRANSPARENCY_IN_ALPHA) // fresnel would work with keyed transparency, but difference would be hardly visible
 	{
