@@ -377,6 +377,12 @@ void UberProgramSetup::validate()
 		// this must be done before "if (!LIGHT_INDIRECT_ENV_DIFFUSE) MATERIAL_NORMAL_MAP = 0"
 		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 	}
+	if (!MATERIAL_TRANSPARENCY_BLEND)
+	{
+		// _FRESNEL turns a bit of transparency into specular
+		// it would work with keyed transparency (although with hardly any difference visible), but it can't work without transparency at all
+		MATERIAL_TRANSPARENCY_FRESNEL = 0;
+	}
 	if (!MATERIAL_SPECULAR
 		&& !MATERIAL_TRANSPARENCY_CONST
 		&& !MATERIAL_TRANSPARENCY_MAP
