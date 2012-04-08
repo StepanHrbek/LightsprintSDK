@@ -451,10 +451,11 @@ void main()
 			#endif
 		#endif // SHADOW_SAMPLES!=1
 
-		#if defined(LIGHT_DIRECT_ATT_SPOT)
+		#if defined(LIGHT_DIRECT_ATT_SPOT) || defined(LIGHT_DIRECTIONAL)
 			// optimized path, step() not necessary
 			// previosuly used also if defined(LIGHT_DIRECT_MAP), with projected texture set to clamp to black border,
 			//  but it projected also backwards in areas where Z was never written to SM after clear (e.g. spotlight looking into the sky), at least on 4870 cat811-901
+			// clamp-free path was enabled also for LIGHT_DIRECTIONAL so that Sun can overshoot
 			#define SHADOW_CLAMP(shadowCoord)
 		#else
 			// standard path

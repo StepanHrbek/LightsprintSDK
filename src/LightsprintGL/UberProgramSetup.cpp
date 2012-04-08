@@ -494,6 +494,10 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 			char name[] = "shadowMap0";
 			name[9] = '0'+i;
 			program->sendTexture(name,shadowmap);
+			// set depth border
+			// this makes Sun overshoot, illuminate geometry outside its shadowmap range
+			rr::RRVec4 depthBorder((LIGHT_DIRECTIONAL && i==0)?1:0);
+			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &depthBorder.x);
 			// set matrix
 			rr::RRCamera lightInstance;
 			light->getShadowmapCamera(firstInstance+i,lightInstance);
