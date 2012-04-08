@@ -377,7 +377,8 @@ void UberProgramSetup::validate()
 		// this must be done before "if (!LIGHT_INDIRECT_ENV_DIFFUSE) MATERIAL_NORMAL_MAP = 0"
 		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 	}
-	if (!MATERIAL_TRANSPARENCY_BLEND) // fresnel is well visible with blending
+	if (!MATERIAL_TRANSPARENCY_BLEND // keeps Fresnel in final renders with blending
+		&& !MATERIAL_TRANSPARENCY_TO_RGB) // keeps Fresnel in Fresnel shadows
 	//if (!MATERIAL_TRANSPARENCY_CONST && !MATERIAL_TRANSPARENCY_MAP && !MATERIAL_TRANSPARENCY_IN_ALPHA) // fresnel would work with keyed transparency, but difference would be hardly visible
 	{
 		// _FRESNEL turns a bit of transparency into specular
