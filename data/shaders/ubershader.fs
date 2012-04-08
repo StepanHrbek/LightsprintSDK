@@ -43,6 +43,7 @@
 //  #define MATERIAL_TRANSPARENCY_TO_RGB
 //  #define MATERIAL_TRANSPARENCY_FRESNEL
 //  #define MATERIAL_NORMAL_MAP
+//  #define MATERIAL_NORMAL_MAP_FLOW
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
 //  #define POSTPROCESS_BRIGHTNESS
@@ -267,6 +268,9 @@ varying vec3 worldNormalSmooth;
 	varying vec3 worldBitangent;
 	uniform sampler2D materialNormalMap;
 	varying vec2 materialNormalMapCoord;
+	#ifdef MATERIAL_NORMAL_MAP_FLOW
+		uniform float seconds;
+	#endif
 #endif
 
 #ifdef POSTPROCESS_BRIGHTNESS
@@ -380,7 +384,13 @@ void main()
 	#endif
 	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(MATERIAL_TRANSPARENCY_FRESNEL) || defined(POSTPROCESS_NORMALS)
 		#ifdef MATERIAL_NORMAL_MAP
-			vec3 localNormal = normalize(texture2D(materialNormalMap,materialNormalMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
+			#ifdef MATERIAL_NORMAL_MAP_FLOW
+				vec3 localNormal = normalize(
+					texture2D(materialNormalMap,0.2*materialNormalMapCoord   +seconds*0.5*vec2(0.051,0.019                         )).xyz+
+					texture2D(materialNormalMap,0.2*materialNormalMapCoord.yx+seconds*0.5*vec2(cos(seconds*0.05)*-0.0006-0.0049,0.0)).xyz-vec3(1.0,1.0,1.0) );
+			#else
+				vec3 localNormal = normalize(texture2D(materialNormalMap,materialNormalMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
+			#endif
 			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*worldNormalSmooth);
 		#else
 			vec3 worldNormal = normalize(worldNormalSmooth); // normalize improves quality of Blinn-Phong

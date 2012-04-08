@@ -107,6 +107,7 @@ void UberProgramSetup::enableAllMaterials()
 	MATERIAL_TRANSPARENCY_TO_RGB = true;
 	MATERIAL_TRANSPARENCY_FRESNEL = true;
 	MATERIAL_NORMAL_MAP = true;
+	MATERIAL_NORMAL_MAP_FLOW = true;
 	MATERIAL_CULLING = true;
 }
 
@@ -148,6 +149,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material, const
 
 	// normal map
 	MATERIAL_NORMAL_MAP = hasMap(material->normalMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
+	MATERIAL_NORMAL_MAP_FLOW = strstr(material->name.c_str(),"water")!=NULL;
 
 	// misc
 	MATERIAL_CULLING = material->sideBits[0].renderFrom != material->sideBits[1].renderFrom;
@@ -165,7 +167,7 @@ const char* UberProgramSetup::getSetupString()
 	sprintf(specularModel,"#define MATERIAL_SPECULAR_MODEL %d\n",(int)MATERIAL_SPECULAR_MODEL);
 
 	static char setup[2000];
-	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		comment?comment:"",
 		SHADOW_MAPS?shadowMaps:"",
 		SHADOW_SAMPLES?shadowSamples:"",
@@ -209,6 +211,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_TRANSPARENCY_TO_RGB?"#define MATERIAL_TRANSPARENCY_TO_RGB\n":"",
 		MATERIAL_TRANSPARENCY_FRESNEL?"#define MATERIAL_TRANSPARENCY_FRESNEL\n":"",
 		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
+		MATERIAL_NORMAL_MAP_FLOW?"#define MATERIAL_NORMAL_MAP_FLOW\n":"",
 		ANIMATION_WAVE?"#define ANIMATION_WAVE\n":"",
 		POSTPROCESS_NORMALS?"#define POSTPROCESS_NORMALS\n":"",
 		POSTPROCESS_BRIGHTNESS?"#define POSTPROCESS_BRIGHTNESS\n":"",
@@ -318,6 +321,7 @@ void UberProgramSetup::reduceMaterials(const UberProgramSetup& fullMaterial)
 	MATERIAL_TRANSPARENCY_TO_RGB   &= fullMaterial.MATERIAL_TRANSPARENCY_TO_RGB;
 	MATERIAL_TRANSPARENCY_FRESNEL  &= fullMaterial.MATERIAL_TRANSPARENCY_FRESNEL;
 	MATERIAL_NORMAL_MAP            &= fullMaterial.MATERIAL_NORMAL_MAP;
+	MATERIAL_NORMAL_MAP_FLOW       &= fullMaterial.MATERIAL_NORMAL_MAP_FLOW;
 	MATERIAL_CULLING               &= fullMaterial.MATERIAL_CULLING;
 }
 
@@ -464,6 +468,8 @@ void UberProgramSetup::validate()
 			POSTPROCESS_GAMMA = 0;
 		}
 	}
+	if (!MATERIAL_NORMAL_MAP)
+		MATERIAL_NORMAL_MAP_FLOW = false;
 	if (!LIGHT_INDIRECT_VCOLOR)
 		LIGHT_INDIRECT_VCOLOR_PHYSICAL = false;
 }
@@ -775,6 +781,14 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendTexture("materialNormalMap",NULL,TEX_CODE_2D_MATERIAL_NORMAL);
 		getTexture(material->normalMap.texture,true,false);
 		s_buffers1x1.bindPropertyTexture(material->normalMap,1);
+		if (MATERIAL_NORMAL_MAP_FLOW)
+		{
+			static rr::RRTime time;
+			float secondsPassed = time.secondsPassed();
+			if (secondsPassed>1000)
+				time.addSeconds(1000);
+			program->sendUniform("seconds",secondsPassed);
+		}
 	}
 }
 

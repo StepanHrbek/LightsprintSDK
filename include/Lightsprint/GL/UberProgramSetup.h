@@ -124,6 +124,7 @@ struct RR_GL_API UberProgramSetup
 	bool     MATERIAL_TRANSPARENCY_FRESNEL :1; ///< Turns small fraction of specular transmittance into specular reflectance, decreasing transmittance, increasing reflectance. If you don't see effects in realtime, check: 1) RRMaterial::refractionIndex!=1 (for refractionIndex converging to 1, images with Fresnel converge to images without Fresnel, this is correctly simulated). 2) MATERIAL_TRANSPARENCY_BLEND enabled (small transparency change would be hardly visible with 1-bit keying). 3) For increase in reflectance to be visible, MATERIAL_SPECULAR should be enabled (otherwise you see only reduced transmittance). 4) Also for reflectance to be visible, LIGHT_INDIRECT_ENV_SPECULAR is recommended. Then environment map for LIGHT_INDIRECT_ENV_SPECULAR must be available. If you allocate it with allocateBuffersForRealtimeGI() (rather than manually), make sure that allocation does not fails because of thresholds.
 
 	bool     MATERIAL_NORMAL_MAP           :1; ///< Enables normal map, each pixel's normal is modulated by contents of diffuse map.
+	bool     MATERIAL_NORMAL_MAP_FLOW      :1; ///< Enables flow of normal map over geometry, simulating flow of waves on large water surface.
 	bool     MATERIAL_CULLING              :1; ///< Enables materials's n-sided property (culling is enabled/disabled according to material, no change in shader).
 
 	// Misc other options.
