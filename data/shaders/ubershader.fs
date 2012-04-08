@@ -419,11 +419,22 @@ void main()
 		#ifdef SHADOW_COLOR
 			// colored shadow
 			#define VISIBILITY_T vec4
-			#if SHADOW_SAMPLES==1
-				#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * texture2DProj(shadowColorMap,shadowCoord.xyw)
-			#else
-				#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * texture2D(shadowColorMap,center.xy)
-			#endif
+			//#ifdef LIGHT_DIRECTIONAL
+			// makes dynamic geometry in front of CSM uncolored by rgb shadow
+			// it's not perfect, sometimes we want it, sometimes we don't, it depends on geometry
+			// let's not do it, to keep shader short
+			//	#if SHADOW_SAMPLES==1
+			//		#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * (shadowCoord.z<0.0?vec4(1.0):texture2DProj(shadowColorMap,shadowCoord.xyw))
+			//	#else
+			//		#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * (shadowCoord.z<0.0?vec4(1.0):texture2D(shadowColorMap,center.xy))
+			//	#endif
+			//#else
+				#if SHADOW_SAMPLES==1
+					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * texture2DProj(shadowColorMap,shadowCoord.xyw)
+				#else
+					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * texture2D(shadowColorMap,center.xy)
+				#endif
+			//#endif
 		#else
 			// standard shadow
 			#define VISIBILITY_T float
