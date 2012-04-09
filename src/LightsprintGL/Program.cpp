@@ -50,8 +50,11 @@ Program::Program(const char* defines, const char* vertexShader, const char* frag
 
 	// hardcoded locations for attributes used by ubershader
 	// this logically belongs to UberShaderSetup class, other shaders don't need it, but it reduces complexity to do it here. no animals are harmed
-	glBindAttribLocation(handle, VAA_TANGENT, "tangent");
-	glBindAttribLocation(handle, VAA_BITANGENT, "bitangent");
+	glBindAttribLocation(handle, VAA_POSITION, "vertexPosition");
+	glBindAttribLocation(handle, VAA_DIRECTION, "vertexDirection");
+	glBindAttribLocation(handle, VAA_UV0, "vertexUv0");
+	glBindAttribLocation(handle, VAA_TANGENT, "vertexTangent");
+	glBindAttribLocation(handle, VAA_BITANGENT, "vertexBitangent");
 
 	// link
 	glLinkProgram(handle);

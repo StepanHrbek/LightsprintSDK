@@ -139,8 +139,8 @@ varying vec3 worldNormalSmooth;
 #endif
 
 #ifdef MATERIAL_NORMAL_MAP
-	attribute vec3 tangent;
-	attribute vec3 bitangent;
+	attribute vec3 vertexTangent;
+	attribute vec3 vertexBitangent;
 	varying vec3 worldTangent;
 	varying vec3 worldBitangent;
 	varying vec2 materialNormalMapCoord;
@@ -200,7 +200,7 @@ void main()
 	#ifdef MATERIAL_NORMAL_MAP
 		materialNormalMapCoord = gl_MultiTexCoord5.xy; // 5 = MULTITEXCOORD_MATERIAL_NORMAL_MAP
 		vec3 tangent2, bitangent2;
-		if (tangent==vec3(0.0,0.0,0.0))
+		if (vertexTangent==vec3(0.0,0.0,0.0))
 		{
 			// when mesh lacks tangent space, generate something
 			vec3 a = worldNormalSmooth;
@@ -209,8 +209,8 @@ void main()
 		}
 		else
 		{
-			tangent2 = tangent;
-			bitangent2 = bitangent;
+			tangent2 = vertexTangent;
+			bitangent2 = vertexBitangent;
 		}
 		#ifdef OBJECT_SPACE
 			worldTangent = normalize( ( worldMatrix * vec4(tangent2,0.0) ).xyz );

@@ -7,10 +7,12 @@
 //  #define POSTPROCESS_BRIGHTNESS
 //  #define POSTPROCESS_GAMMA
 
+attribute vec2 vertexPosition;
+attribute vec3 vertexDirection;
 varying vec3 dir;
 
 void main()
 {
-	gl_Position = gl_Vertex;
-	dir = (gl_ModelViewProjectionMatrixInverse * gl_Vertex).xyz;
+	gl_Position = vec4(vertexPosition,1.0,1.0);
+	dir = vertexDirection;
 }

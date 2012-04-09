@@ -20,6 +20,9 @@ namespace rr_gl
 // it is equally correct, and it works around Nvidia bug.
 enum
 {
+	VAA_POSITION = 0,
+	VAA_DIRECTION = 1,
+	VAA_UV0 = 2,
 	VAA_TANGENT = 14,
 	VAA_BITANGENT = 15,
 };

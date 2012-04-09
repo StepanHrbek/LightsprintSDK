@@ -91,12 +91,17 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 		program->sendUniform("shape",rr::RRVec4(-0.5f/RR_PI,1.0f/RR_PI,0.75f,0.5f));
 
 	// render
-	glBegin(GL_POLYGON);
-		glVertex3f(-1,-1,1);
-		glVertex3f(1,-1,1);
-		glVertex3f(1,1,1);
-		glVertex3f(-1,1,1);
-	glEnd();
+	rr::RRVec2 position[4] = {rr::RRVec2(-1,-1),rr::RRVec2(1,-1),rr::RRVec2(1,1),rr::RRVec2(-1,1)};
+	rr::RRVec3 direction[4];
+	for (unsigned i=0;i<4;i++)
+		direction[i] = _camera.getRayDirection(rr::RRVec2(position[i].x,-position[i].y));
+	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
+	glEnableVertexAttribArray(VAA_POSITION);
+	glVertexAttribPointer(VAA_DIRECTION, 3, GL_FLOAT, 0, 0, direction);
+	glEnableVertexAttribArray(VAA_DIRECTION);
+	glDrawArrays(GL_POLYGON, 0, 4);
+	glDisableVertexAttribArray(VAA_DIRECTION);
+	glDisableVertexAttribArray(VAA_POSITION);
 
 	return true;
 }
@@ -177,19 +182,21 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 		return;
 	}
 	texture->bindTexture();
+
 	if (texture->getBuffer()->getFormat()==rr::BF_DEPTH)
 		// must be GL_NONE for sampler2D, otherwise result is undefined
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-	glBegin(GL_POLYGON);
-		glMultiTexCoord2f(GL_TEXTURE0,0,0);
-		glVertex2f(2*x-1,2*y-1);
-		glMultiTexCoord2f(GL_TEXTURE0,1,0);
-		glVertex2f(2*(x+w)-1,2*y-1);
-		glMultiTexCoord2f(GL_TEXTURE0,1,1);
-		glVertex2f(2*(x+w)-1,2*(y+h)-1);
-		glMultiTexCoord2f(GL_TEXTURE0,0,1);
-		glVertex2f(2*x-1,2*(y+h)-1);
-	glEnd();
+
+	rr::RRVec2 position[4] = {rr::RRVec2(2*x-1,2*y-1),rr::RRVec2(2*(x+w)-1,2*y-1),rr::RRVec2(2*(x+w)-1,2*(y+h)-1),rr::RRVec2(2*x-1,2*(y+h)-1)};
+	rr::RRVec2 uv[4] = {rr::RRVec2(0,0),rr::RRVec2(1,0),rr::RRVec2(1,1),rr::RRVec2(0,1)};
+	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
+	glEnableVertexAttribArray(VAA_POSITION);
+	glVertexAttribPointer(VAA_UV0, 2, GL_FLOAT, 0, 0, uv);
+	glEnableVertexAttribArray(VAA_UV0);
+	glDrawArrays(GL_POLYGON, 0, 4);
+	glDisableVertexAttribArray(VAA_UV0);
+	glDisableVertexAttribArray(VAA_POSITION);
+
 	if (texture->getBuffer()->getFormat()==rr::BF_DEPTH)
 		// must be GL_COMPARE_REF_TO_TEXTURE for sampler2DShadow, otherwise result is undefined
 		// we keep all depth textures ready for sampler2DShadow
@@ -210,39 +217,6 @@ void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, 
 		render2dQuad(texture,x,y,w,h);
 		render2dEnd();
 	}
-	/*
-	if (!texture || !twodProgram)
-	{
-		RR_ASSERT(0);
-		return;
-	}
-	// backup render states
-	culling = glIsEnabled(GL_CULL_FACE);
-	depthTest = glIsEnabled(GL_DEPTH_TEST);
-	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
-	// setup render states
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(0);
-	// render 2d
-	twodProgram->useIt();
-	glActiveTexture(GL_TEXTURE0);
-	texture->bindTexture();
-	twodProgram->sendUniform("map",0);
-	twodProgram->sendUniform("color",color?color[0]:1,color?color[1]:1,color?color[2]:1,color?color[3]:1);
-	glBegin(GL_POLYGON);
-		glTexCoord2f(0,0);
-		glVertex2f(2*x-1,2*y-1);
-		glTexCoord2f(1,0);
-		glVertex2f(2*(x+w)-1,2*y-1);
-		glTexCoord2f(1,1);
-		glVertex2f(2*(x+w)-1,2*(y+h)-1);
-		glTexCoord2f(0,1);
-		glVertex2f(2*x-1,2*(y+h)-1);
-	glEnd();
-	// restore render states
-	if (depthTest) glEnable(GL_DEPTH_TEST);
-	if (depthMask) glDepthMask(GL_TRUE);
-	if (culling) glEnable(GL_CULL_FACE);*/
 }
 
 }; // namespace

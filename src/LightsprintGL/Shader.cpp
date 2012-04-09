@@ -28,6 +28,8 @@ char* readShader(const char* filename)
 	return buf;
 }
 
+#define NUM_LINES 4
+
 Shader* Shader::create(const char* defines, const char* filename, GLenum shaderType)
 {
 
@@ -90,24 +92,26 @@ Shader* Shader::create(const char* defines, const char* filename, GLenum shaderT
 
 	// C parser doesn't recognize "#version" tag
 
-	const char* source[3];
+	const char* source[NUM_LINES];
 	source[0] = "#version 110\n"; // this is just for clarity, 110 is default so it's not necessary to specify it
 	source[1] = "";
-	source[2] = readShader(parsedSrcName);
+	source[2] = "";
+	source[3] = readShader(parsedSrcName);
 
 	sprintf(shellCmd, "rm %s", parsedSrcName);
 	system(shellCmd);
 
 #else // MESA_VERSION
 
-	const char* source[3];
+	const char* source[NUM_LINES];
 	source[0] = "#version 110\n";
-	source[1] = defines?defines:"";
-	source[2] = readShader(filename);
+	source[1] = s_es ? "precision highp float;\n" : "";
+	source[2] = defines?defines:"";
+	source[3] = readShader(filename);
 
 #endif // MESA_VERSION
 
-	if (!source[2])
+	if (!source[NUM_LINES-1])
 	{
 		rr::RRReporter::report(rr::ERRO,"Shader %s not found.\n",filename);
 		return NULL;
@@ -118,9 +122,9 @@ Shader* Shader::create(const char* defines, const char* filename, GLenum shaderT
 Shader::Shader(const char* filenameDiagnosticOnly, const GLchar** source, GLenum shaderType)
 {
 	handle = glCreateShader(shaderType);
-	glShaderSource(handle, 3, (const GLchar**)source, NULL);
+	glShaderSource(handle, NUM_LINES, (const GLchar**)source, NULL);
 	compile(filenameDiagnosticOnly);
-	delete[] source[2];
+	delete[] source[NUM_LINES-1];
 }
 
 void Shader::compile(const char* filenameDiagnosticOnly)

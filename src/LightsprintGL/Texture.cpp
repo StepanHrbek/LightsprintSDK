@@ -17,6 +17,8 @@ namespace rr_gl
 //
 // init GL
 
+bool s_es = false; // is this OpenGL ES?
+
 const char* initializeGL()
 {
 	// init GLEW
@@ -28,7 +30,8 @@ const char* initializeGL()
 	// check gl version
 	rr::RRReporter::report(rr::INF2,"OpenGL %s by %s on %s.\n",glGetString(GL_VERSION),glGetString(GL_VENDOR),glGetString(GL_RENDERER));
 	int major, minor;
-	if (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2)
+	s_es = sscanf((char*)glGetString(GL_VERSION),"OpenGL ES %d.%d",&major,&minor)==2 && major>=2;
+	if (!s_es && (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2))
 	{
 		return "Your system does not support OpenGL 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n";
 	}
@@ -262,6 +265,8 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 		case rr::BF_DEPTH: glinternal = GL_DEPTH_COMPONENT24; glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; break;
 		default: rr::RRReporter::report(rr::ERRO,"Texture of unknown format created.\n"); break;
 	}
+	if (s_es)
+		glinternal = glformat;
 	if (buffer->version==version && glinternal==internalFormat)
 	{
 		// buffer did not change since last reset

@@ -44,6 +44,8 @@ private:
 	GLuint handle;
 };
 
+extern bool s_es;
+
 }; // namespace
 
 #endif
