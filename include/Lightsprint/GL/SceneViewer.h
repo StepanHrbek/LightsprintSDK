@@ -94,7 +94,6 @@ struct SceneViewerState
 	bool             renderMaterialNormalMaps;  //! Render normal maps.
 	bool             renderMaterialTextures;    //! Render textures (diffuse, emissive) rather than constant colors.
 	bool             renderMaterialSidedness;   //! Render 1-sided materials as 1-sided, rather than everything 2-sided.
-	bool             renderWater;               //! Render water surface as a plane at y=waterLevel.
 	bool             renderWireframe;           //! Render all in wireframe.
 	bool             renderFPS;                 //! Render FPS counter.
 	bool             renderIcons;               //! Unused.
@@ -135,8 +134,6 @@ struct SceneViewerState
 	rr::RRDynamicSolver::FilteringParameters lightmapFilteringParameters;  //! Lightmap baking settings.
 	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
-	float            waterLevel;                //! Water level in meters(scene units). Has effect only if renderWater.
-	rr::RRVec3       waterColor;                //! Water color in sRGB. Has effect only if renderWater.
 	bool             renderGrid;                //! Show grid.
 	unsigned         gridNumSegments;           //! Number of grid segments per line, e.g. 10 makes grid with 10x10 squares.
 	float            gridSegmentSize;           //! Distance of grid lines in meters (scene units).
@@ -176,7 +173,6 @@ struct SceneViewerState
 		renderMaterialNormalMaps = 1;
 		renderMaterialTextures = 1;
 		renderMaterialSidedness = true;
-		renderWater = 0;
 		renderWireframe = 0;
 		renderFPS = 0;
 		renderIcons = 1;
@@ -215,8 +211,6 @@ struct SceneViewerState
 		lightmapDirectParameters.aoSize = 1;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
-		waterColor = rr::RRVec3(0.1f,0.25f,0.35f);
-		waterLevel = -0.05f; // scenes often contain surfaces at y=0, place water slightly below to avoid/reduce artifacts
 		renderGrid = 0;
 		gridNumSegments = 100;
 		gridSegmentSize = 1;
@@ -259,7 +253,6 @@ struct SceneViewerState
 			&& a.renderMaterialNormalMaps==renderMaterialNormalMaps
 			&& a.renderMaterialTextures==renderMaterialTextures
 			&& a.renderMaterialSidedness==renderMaterialSidedness
-			&& a.renderWater==renderWater
 			&& a.renderWireframe==renderWireframe
 			&& a.renderFPS==renderFPS
 			&& a.renderIcons==renderIcons
@@ -298,8 +291,6 @@ struct SceneViewerState
 			&& a.lightmapFilteringParameters==lightmapFilteringParameters
 			&& a.cameraDynamicNear==cameraDynamicNear
 			&& a.cameraMetersPerSecond==cameraMetersPerSecond
-			&& a.waterLevel==waterLevel
-			&& a.waterColor==waterColor
 			&& a.renderGrid==renderGrid
 			&& a.gridNumSegments==gridNumSegments
 			&& a.gridSegmentSize==gridSegmentSize

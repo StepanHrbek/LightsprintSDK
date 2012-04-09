@@ -195,18 +195,6 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		Append(propRenderExtras);
 		SetPropertyReadOnly(propRenderExtras,true,wxPG_DONT_RECURSE);
 
-		// water
-		{
-			propWater = new BoolRefProperty(_("Water"),_("Enables rendering of water layer, with reflection and waves."),svs.renderWater);
-			AppendIn(propRenderExtras,propWater);
-
-			propWaterColor = new HDRColorProperty(_("Color"),_("Color of scattered light coming out of water."),svs.precision,svs.waterColor);
-			AppendIn(propWater,propWaterColor);
-
-			propWaterLevel = new FloatProperty(_("Level"),_("Altitude of water surface, Y coordinate in world space."),svs.waterLevel,svs.precision,-1e10f,1e10f,1,false);
-			AppendIn(propWater,propWaterLevel);
-		}
-
 		propRenderWireframe = new BoolRefProperty(_("Wireframe"),_("Toggles between solid and wireframe rendering modes.")+" (ctrl-w)",svs.renderWireframe);
 		AppendIn(propRenderExtras,propRenderWireframe);
 
@@ -288,9 +276,6 @@ void SVSceneProperties::updateHide()
 
 	propRenderMaterialTransparencyFresnel->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
 
-	propWaterColor->Hide(!svs.renderWater,false);
-	propWaterLevel->Hide(!svs.renderWater,false);
-
 
 	propLensFlareSize->Hide(!svs.renderLensFlare,false);
 	propLensFlareId->Hide(!svs.renderLensFlare,false);
@@ -315,7 +300,6 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propEnvSimulateSun)
 		+ updateBoolRef(propToneMapping)
 		+ updateBool(propToneMappingAutomatic,svs.tonemappingAutomatic)
-		+ updateBoolRef(propWater)
 		+ updateBoolRef(propLogo)
 		+ updateBoolRef(propLensFlare)
 		+ updateBoolRef(propVignette)
@@ -359,8 +343,6 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderBloom)
 		+ updateFloat(propLensFlareSize,svs.lensFlareSize)
 		+ updateFloat(propLensFlareId,svs.lensFlareId)
-		+ updateProperty(propWaterColor,svs.waterColor)
-		+ updateFloat(propWaterLevel,svs.waterLevel)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)
 		+ updateFloat(propGridSegmentSize,svs.gridSegmentSize)
 		;
@@ -566,21 +548,6 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		// update shadowmaps
 		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
-	}
-	else
-	if (property==propWater)
-	{
-		updateHide();
-	}
-	else
-	if (property==propWaterColor)
-	{
-		svs.waterColor << property->GetValue();
-	}
-	else
-	if (property==propWaterLevel)
-	{
-		svs.waterLevel = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propLensFlare)

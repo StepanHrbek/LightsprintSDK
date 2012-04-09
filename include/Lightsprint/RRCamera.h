@@ -144,11 +144,7 @@ public:
 	//!  Collider to be used for distance testing.
 	//! \param object
 	//!  Object to be used for material testing, may be NULL.
-	//! \param water
-	//!  Whether to test distance and prevent near/far clipping also for virtual water plane.
-	//! \param waterLevel
-	//!  y coordinate of water plane.
-	void  setRangeDynamically(const class RRCollider* collider, const class RRObject* object, bool water=false, float waterLevel=-1e10f);
+	void  setRangeDynamically(const class RRCollider* collider, const class RRObject* object);
 
 	//! Only if orthogonal: Returns world space distance between top and bottom of viewport.
 	float getOrthoSize() const {return orthoSize;}

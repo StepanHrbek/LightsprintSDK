@@ -282,7 +282,11 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 		ar & make_nvp("renderMaterialNormalMaps",a.renderMaterialNormalMaps);
 	}
 	ar & make_nvp("renderMaterialTextures",a.renderMaterialTextures);
-	ar & make_nvp("renderWater",a.renderWater);
+	if (version<30)
+	{
+		bool renderWater;
+		ar & make_nvp("renderWater",renderWater);
+	}
 	ar & make_nvp("renderWireframe",a.renderWireframe);
 	ar & make_nvp("renderFPS",a.renderFPS);
 	ar & make_nvp("renderIcons",a.renderIcons);
@@ -362,10 +366,15 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 	ar & make_nvp("cameraMetersPerSecond",a.cameraMetersPerSecond);
 	ar & make_nvp("brightness",a.tonemappingBrightness);
 	ar & make_nvp("gamma",a.tonemappingGamma);
-	ar & make_nvp("waterLevel",a.waterLevel);
-	if (version>0)
+	if (version<30)
 	{
-		ar & make_nvp("waterColor",a.waterColor);
+		float waterLevel;
+		ar & make_nvp("waterLevel",waterLevel);
+		if (version>0)
+		{
+			rr::RRVec3 waterColor;
+			ar & make_nvp("waterColor",waterColor);
+		}
 	}
 	if (version>3)
 	{
@@ -455,7 +464,7 @@ BOOST_CLASS_VERSION(rr::RRCamera,2)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,12)
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,29)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,30)
 
 //---------------------------------------------------------------------------
 

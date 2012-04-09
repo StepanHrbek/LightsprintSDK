@@ -28,13 +28,24 @@ NEWS
   - LIGHT_INDIRECT_MIRROR renamed to rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_SPECULAR
   - new rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_DIFFUSE offers higher quality lighting for large dynamic planes
 - <b>improved water</b>
-  - rr_gl::UberProgramSetup::MATERIAL_NORMAL_MAP_FLOW added, helps simulate animated water using normal maps. rr_gl::UberProgramSetup::enableUsedMaterials() enables it when material name contains "water"
-  - deep water recipe: add plane, give it normal map, index of refraction 1.4, little bit of specular reflectance, little bit of blueish emittance, no transmittance, no diffuse reflectance
+  - removed rr_gl::Water, instead create large quad (dynamic object) and give it transparent normal mapped material. This leads to following advantages:
+  - water has easier API, no special class needed (previously class Water, whole scene render had to be called twice)
+  - water can have any planar shape (previously only infinite plane, without holes)
+  - water can be imported from 3d scene formats that support normal maps, e.g. Collada (previously no import)
+  - water look can be tweaked using much more options (previously only color)
+  - water receives shadows (previously did not)
+  - water reflects multiple lights (previously only one was reflected)
+  - water can be transparent, with geometry under the water visible (previously opaque)
+  - water can cast fresnel shadows, similar to caustics (previously opaque shadows)
+  - water can have arbitary waves, defined by normal map video (previously single hardcded wave animation)
+  - rr_gl::UberProgramSetup::MATERIAL_NORMAL_MAP_FLOW added, animates water when static normal map is set. rr_gl::UberProgramSetup::enableUsedMaterials() enables it when material name contains "water"
+  - deep water recipe: add plane, give it normal map, index of refraction 1.4, little bit of specular reflectance, little bit of blueish emittance, no transmittance, no diffuse reflectance, call material "water"
   - shallow water recipe: unlike deep water, add lots of transmittance, don't add emittance
 - <b>improved scene viewer</b>
   - move/rotate/scale gizmo, replaces various hotkeys
   - editing capabilities were added years ago.. but now that we ship user friendly gizmo, is it finally time to call the thing "editor"?
   - "Add sphere, box, plane, rectangle" added to "Scene tree/Dynamic objects/context menu"
+  - removed checkbox "Water", instead use new "Add plane", and give it transparent normal mapped material
 - <b>improved handling of missing textures</b>
   - when load fails, RRBuffer::load() optionally returns stub buffer instead of NULL; see new RRFileLocator::setAttempt(RRFileLocator::ATTEMPT_STUB,...)
   - stub buffer contains original path to missing texture

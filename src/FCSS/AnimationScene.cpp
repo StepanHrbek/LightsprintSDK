@@ -14,8 +14,6 @@ LevelSetup::LevelSetup(const char* afilename)
 {
 	filename = NULL;
 	scale = 1;
-	renderWater = 0;
-	waterLevel = 0;
 	load(afilename);
 };
 
@@ -44,10 +42,9 @@ bool LevelSetup::load(const char* afilename)
 	// load scale
 	scale = 1;
 	fscanf(f,"scale = %f\n",&scale);
-	// load water
-	renderWater = 0;
-	waterLevel = 0.1f;
-	renderWater = fscanf(f,"water = %f\n",&waterLevel)==1;
+	// skip water
+	float waterLevel = 0.1f;
+	fscanf(f,"water = %f\n",&waterLevel);
 	// skip min feature size in old files
 	float minFeatureSize;
 	fscanf(f,"min_feature = %f\n",&minFeatureSize);
@@ -89,9 +86,6 @@ bool LevelSetup::save() const
 	free(aniname);
 	// save scale
 	fprintf(f,"scale = %f\n",scale);
-	// save water
-	if (renderWater)
-		fprintf(f,"water = %f\n",waterLevel);
 	// save quality
 	if ((calculateParams.qualityIndirectDynamic!=rr::RRDynamicSolver::CalculateParameters().qualityIndirectDynamic) ||
 		(calculateParams.qualityIndirectStatic!=rr::RRDynamicSolver::CalculateParameters().qualityIndirectStatic))

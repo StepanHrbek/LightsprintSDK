@@ -51,7 +51,6 @@ TextureRenderer.cpp \
 ToneMapping.cpp \
 UberProgram.cpp \
 UberProgramSetup.cpp \
-Water.cpp \
 Workaround.cpp \
 SceneViewer/SVStub.cpp
 

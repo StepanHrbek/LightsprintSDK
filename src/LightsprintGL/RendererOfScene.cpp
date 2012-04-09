@@ -602,9 +602,6 @@ void RendererOfSceneImpl::render(
 		}
 	}
 
-	// Render water.
-	//...
-
 	// Render sorted facegroups.
 	if (blendedFaceGroups[recursionDepth].size())
 	{

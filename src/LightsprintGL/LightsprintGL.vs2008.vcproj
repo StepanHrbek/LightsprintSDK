@@ -983,14 +983,6 @@
 				RelativePath="..\..\data\shaders\ubershader.vs"
 				>
 			</File>
-			<File
-				RelativePath="..\..\data\shaders\water.fs"
-				>
-			</File>
-			<File
-				RelativePath="..\..\data\shaders\water.vs"
-				>
-			</File>
 		</Filter>
 		<File
 			RelativePath="Bloom.cpp"
@@ -1134,14 +1126,6 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\GL\UberProgramSetup.h"
-			>
-		</File>
-		<File
-			RelativePath="Water.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\Water.h"
 			>
 		</File>
 		<File

@@ -91,10 +91,6 @@ namespace rr_gl
 
 		BoolRefProperty*  propVignette;
 
-		BoolRefProperty*  propWater;
-		wxPGProperty*     propWaterColor;
-		wxPGProperty*     propWaterLevel;
-
 		BoolRefProperty*  propGrid;
 		wxPGProperty*     propGridNumSegments;
 		wxPGProperty*     propGridSegmentSize;

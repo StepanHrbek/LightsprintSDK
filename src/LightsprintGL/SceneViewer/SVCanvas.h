@@ -81,7 +81,6 @@ namespace rr_gl
 		int                        winWidth; // current size
 		int                        winHeight; // current size
 		int                        windowCoord[4]; // x,y,w,h of window when user switched to fullscreen
-		class Water*               water;
 		class ToneMapping*         toneMapping;
 		float                      speedForward;
 		float                      speedBack;

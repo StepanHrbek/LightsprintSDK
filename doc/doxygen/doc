@@ -185,7 +185,7 @@ Materials
 - supports all types of materials
 - diffuse/specular/emissive/opacity/normalmap slots
 - video files and live video capture can be used in all slots
-- water with waves and reflection
+- index of refraction, shininess/roughness
 
 Unwrap
 - imports your unwrap

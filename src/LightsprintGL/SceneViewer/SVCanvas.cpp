@@ -19,7 +19,6 @@
 #include "Lightsprint/GL/Bloom.h"
 #include "Lightsprint/GL/LensFlare.h"
 #include "Lightsprint/GL/ToneMapping.h"
-#include "Lightsprint/GL/Water.h"
 #include "../PreserveState.h"
 #include "../RendererOfMesh.h"
 #ifdef _WIN32
@@ -84,7 +83,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 	windowCoord[1] = 0;
 	windowCoord[2] = 800;
 	windowCoord[3] = 600;
-	water = NULL;
 	toneMapping = NULL;
 	fireballLoadAttempted = 0;
 	speedForward = 0;
@@ -287,7 +285,6 @@ void SVCanvas::createContextCore()
 	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
 #endif
 
-	water = new Water(svs.pathToShaders,true,true);
 	toneMapping = new ToneMapping(svs.pathToShaders);
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
@@ -477,7 +474,6 @@ SVCanvas::~SVCanvas()
 	RR_SAFE_DELETE(collisionHandler);
 	RR_SAFE_DELETE(ray);
 	RR_SAFE_DELETE(toneMapping);
-	RR_SAFE_DELETE(water);
 
 	deleteAllTextures();
 	// delete objects referenced by solver
@@ -1384,7 +1380,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		if (svs.cameraDynamicNear && solver->getMultiObjectCustom() && !svs.eye.isOrthogonal()) // don't change range in ortho, fixed range from setView() is better
 		{
 			// eye must already be updated here because next line depends on up, right
-			svs.eye.setRangeDynamically(solver->getMultiObjectCustom()->getCollider(),solver->getMultiObjectCustom(),svs.renderWater,svs.waterLevel);
+			svs.eye.setRangeDynamically(solver->getMultiObjectCustom()->getCollider(),solver->getMultiObjectCustom());
 		}
 
 		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
@@ -1512,53 +1508,6 @@ void SVCanvas::PaintCore(bool _takingSshot)
 						glVertex2f(1,-1);
 					glEnd();
 				}
-			}
-			else
-			if (svs.renderWater && water && !svs.renderWireframe)
-			{
-				if (uberProgramSetup.CLIP_PLANE_YB)
-					clipPlanes.clipPlaneYB = RR_MAX(clipPlanes.clipPlaneYB,svs.waterLevel);
-				else
-				{
-					clipPlanes.clipPlaneYB = svs.waterLevel;
-					uberProgramSetup.CLIP_PLANE_YB = true;
-				}
-				water->updateReflectionInit(winWidth/2,winHeight/2,&svs.eye,svs.waterLevel,svs.srgbCorrect);
-				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-				solver->renderScene(
-					uberProgramSetup,
-					NULL,
-					true,layers[0],layers[1],layers[2],
-					&clipPlanes,
-					svs.srgbCorrect,
-					&brightness,
-					gamma);
-				water->updateReflectionDone();
-				float oldFar = svs.eye.getFar();
-				svs.eye.setFar(oldFar*5); // far is set to end right behind scene. water polygon continues behind scene, we need it visible -> increase far
-				setupForRender(svs.eye);
-				
-				// find sun
-				for (unsigned i=0;i<solver->getLights().size();i++)
-				{
-					const rr::RRLight* light = solver->getLights()[i];
-					if (light->type==rr::RRLight::DIRECTIONAL)
-					{
-						water->render(svs.eye.getFar()*2,svs.eye.getPosition(),rr::RRVec4(svs.waterColor,0.5f),light->direction,light->color);
-						goto rendered;
-					}
-				}
-				water->render(svs.eye.getFar()*4,svs.eye.getPosition(),rr::RRVec4(svs.waterColor,0.5f),rr::RRVec3(0),rr::RRVec3(0)); // far*4 makes triangle end before far only in unusually wide aspects, error is nearly invisible. higher constant would increase float errors in shader
-rendered:
-				solver->renderScene(
-					uberProgramSetup,
-					NULL,
-					true,layers[0],layers[1],layers[2],
-					&clipPlanes,
-					svs.srgbCorrect,
-					&brightness,
-					gamma);
-				svs.eye.setFar(oldFar);
 			}
 			else
 			{

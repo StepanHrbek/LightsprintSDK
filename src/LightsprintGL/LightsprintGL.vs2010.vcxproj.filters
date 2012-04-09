@@ -73,7 +73,6 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\ToneMapping.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgram.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgramSetup.h" />
-    <ClInclude Include="..\..\include\Lightsprint\GL\Water.h" />
     <ClInclude Include="Workaround.h" />
     <ClInclude Include="tmpstr.h" />
     <ClInclude Include="SceneViewer\SVAnimationProperties.h">
@@ -158,7 +157,6 @@
     <ClCompile Include="ToneMapping.cpp" />
     <ClCompile Include="UberProgram.cpp" />
     <ClCompile Include="UberProgramSetup.cpp" />
-    <ClCompile Include="Water.cpp" />
     <ClCompile Include="Workaround.cpp" />
     <ClCompile Include="SceneViewer\SVAnimationProperties.cpp">
       <Filter>SceneViewer</Filter>
@@ -201,12 +199,6 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\..\data\shaders\ubershader.vs">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\data\shaders\water.fs">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\data\shaders\water.vs">
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\..\data\shaders\bloom.fs">

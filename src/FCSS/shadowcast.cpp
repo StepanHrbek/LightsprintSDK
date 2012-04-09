@@ -14,7 +14,6 @@ unsigned INSTANCES_PER_PASS;
 #else
 	#define CONSOLE
 #endif
-#define SUPPORT_WATER
 //#define CORNER_LOGO
 //#define PRODUCT_NAME "3+1"
 //#define CFG_FILE "3+1.cfg"
@@ -96,9 +95,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/GL/FPS.h"
 #include "Lightsprint/IO/ImportScene.h"
-#ifdef SUPPORT_WATER
-	#include "Lightsprint/GL/Water.h"
-#endif
 #include "AnimationEditor.h"
 #include "DemoPlayer.h"
 #include "DynamicObjects.h"
@@ -116,9 +112,6 @@ AnimationFrame currentFrame(0);
 GLUquadricObj *quadric;
 rr::RRLight* rrLight = NULL; // allocated/deleted once per program run, used by all levels
 rr_gl::RealtimeLight* realtimeLight = NULL; // never allocated/deleted, just shortcut for level->solver->realtimeLights[0]
-#ifdef SUPPORT_WATER
-	rr_gl::Water* water = NULL;
-#endif
 #ifdef CORNER_LOGO
 	rr_gl::Texture* lightsprintMap = NULL; // small logo in the corner
 #endif
@@ -229,9 +222,6 @@ void init_gl_resources()
 	uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
-#ifdef SUPPORT_WATER
-	water = new rr_gl::Water("shaders/",true,false);
-#endif
 	skyRenderer = new rr_gl::TextureRenderer("shaders/");
 
 	if (!ambientProgram)
@@ -306,7 +296,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 		LAYER_LIGHTMAPS,
 		LAYER_ENVIRONMENT,
 		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX,
-		NULL,false,//level->setup->waterLevel,
+		NULL,false,
 		&globalBrightnessBoosted,
 		globalGammaBoosted);
 }
@@ -344,26 +334,6 @@ void drawEyeViewSoftShadowed(void)
 	}
 	RR_ASSERT(numInstances<=INSTANCES_PER_PASS);
 
-#ifdef SUPPORT_WATER
-		// update water reflection
-		if (water && level->setup->renderWater)
-		{
-			water->updateReflectionInit(winWidth/4,winHeight/4,&currentFrame.eye,level->setup->waterLevel,false);
-			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-			rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
-			uberProgramSetup.SHADOW_MAPS = 1;
-			uberProgramSetup.LIGHT_DIRECT = true;
-			uberProgramSetup.LIGHT_INDIRECT_CONST = currentFrame.wantsConstantAmbient();
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = currentFrame.wantsVertexColors();
-			uberProgramSetup.LIGHT_INDIRECT_MAP = currentFrame.wantsLightmaps();
-			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = false;
-			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = false;
-			uberProgramSetup.CLIP_PLANE_YB = true;
-			drawEyeViewShadowed(uberProgramSetup,0);
-			water->updateReflectionDone();
-		}
-#endif
 		glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 		if (splitscreen)
 		{
@@ -398,7 +368,7 @@ void drawEyeViewSoftShadowed(void)
 			renderScene(uberProgramSetup,0,currentFrame.eye,NULL);
 		}
 
-		// render everything except water
+		// render everything
 		rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 		uberProgramSetup.SHADOW_MAPS = numInstances;
 		uberProgramSetup.SHADOW_PENUMBRA = true;
@@ -416,14 +386,6 @@ void drawEyeViewSoftShadowed(void)
 
 		if (splitscreen)
 			glDisable(GL_SCISSOR_TEST);
-
-#ifdef SUPPORT_WATER
-		// render water
-		if (water && level->setup->renderWater)
-		{
-			water->render(100,rr::RRVec3(0),rr::RRVec4(0.1f,0.25f,0.35f,0.5f),rr::RRVec3(0),rr::RRVec3(0));
-		}
-#endif
 }
 
 // captures current scene into thumbnail
@@ -1048,15 +1010,10 @@ void keyboard(unsigned char c, int x, int y)
 				ray->rayLengthMax = 1000;
 				ray->rayFlags = rr::RRRay::FILL_POINT3D;
 				ray->hitObject = level->solver->getMultiObjectCustom();
-				// kdyz neni kolize se scenou, najit kolizi s vodou
+				// kdyz neni kolize se scenou, umistit 10m daleko
 				if (!ray->hitObject->getCollider()->intersect(ray))
 				{
-					float cameraLevel = currentFrame.eye.getPosition()[1];
-					float waterLevel = level->setup->waterLevel;
-					float levelChangeIn1mDistance = dir[1];
-					float distance = levelChangeIn1mDistance ? (waterLevel-cameraLevel)/levelChangeIn1mDistance : 10;
-					if (distance<0) distance=10;
-					ray->hitPoint3d = ray->rayOrigin+dir*distance;
+					ray->hitPoint3d = ray->rayOrigin+dir*10;
 				}
 				// keys 1/2/3... index one of few sceneobjects
 				unsigned selectedObject_indexInScene = c-'1';
@@ -1200,7 +1157,6 @@ enum
 {
 	ME_SCENE_VIEWER,
 	ME_TOGGLE_VIDEO,
-	ME_TOGGLE_WATER,
 	ME_TOGGLE_INFO,
 	ME_UPDATE_LIGHTMAPS_0,
 	ME_UPDATE_LIGHTMAPS_0_ENV,
@@ -1224,12 +1180,6 @@ void mainMenu(int item)
 		case ME_TOGGLE_VIDEO:
 			captureVideo = captureVideo ? NULL : "jpg";
 			break;
-#ifdef SUPPORT_WATER
-		case ME_TOGGLE_WATER:
-			level->setup->renderWater = !level->setup->renderWater;
-			level->setup->waterLevel = 0;//currentFrame.eye.pos.y-1;
-			break;
-#endif
 		case ME_TOGGLE_INFO:
 			renderInfo = !renderInfo;
 			break;
@@ -1257,9 +1207,6 @@ void mainMenu(int item)
 void initMenu()
 {
 	int menu = glutCreateMenu(mainMenu);
-#ifdef SUPPORT_WATER
-	glutAddMenuEntry("Toggle water",ME_TOGGLE_WATER);
-#endif
 	glutAddMenuEntry("Toggle info panel",ME_TOGGLE_INFO);
 	glutAddMenuEntry("Debugger",ME_SCENE_VIEWER);
 	glutAddMenuEntry("Scene previous", ME_PREVIOUS_SCENE);

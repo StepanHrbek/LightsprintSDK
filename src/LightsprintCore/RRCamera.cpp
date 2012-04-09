@@ -333,7 +333,7 @@ void RRCamera::setScreenCenter(RRVec2 _screenCenter)
 	}
 }
 
-void RRCamera::setRangeDynamically(const RRCollider* collider, const RRObject* object, bool water, float waterLevel)
+void RRCamera::setRangeDynamically(const RRCollider* collider, const RRObject* object)
 {
 	if (!object)
 		return;
@@ -346,13 +346,6 @@ void RRCamera::setRangeDynamically(const RRCollider* collider, const RRObject* o
 	// get scene distance
 	RRVec2 distanceMinMax(1e10f,0);
 	object->getCollider()->getDistancesFromCamera(*this,object,distanceMinMax);
-	// get water distance
-	if (water)
-	{
-		float distanceOfPotentialNearPlane = fabs(pos.y-waterLevel);
-		distanceMinMax[0] = RR_MIN(distanceMinMax[0],distanceOfPotentialNearPlane);
-		distanceMinMax[1] = RR_MAX(distanceMinMax[1],distanceOfPotentialNearPlane);
-	}
 
 	// set range
 	if (distanceMinMax[1]>=distanceMinMax[0])
