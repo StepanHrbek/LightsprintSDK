@@ -155,7 +155,6 @@ struct Parameters
 		buildBentNormals = false;
 		buildNothing = false;
 		runViewer = false;
-		layerParameters.objectIndex = objectIndex;
 		aoIntensity = 1;
 		aoSize = 0;
 		ppSmoothing = 1;
