@@ -795,8 +795,9 @@ void main()
 						#endif
 						* lightDirect
 					#endif
-					#if defined(LIGHT_INDIRECT_CONST) && !defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
-						// const is ignored when rendering mirror, because users sometimes want cost enabled for diffuse reflection, but they never want it for mirror specular
+					#if defined(LIGHT_INDIRECT_CONST) && !defined(LIGHT_INDIRECT_ENV_SPECULAR) && !defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
+						// const is ignored by specular component when better indirect (env or mirror) is available
+						// (still, const is always applied to diffuse component)
 						+ lightIndirectConst
 					#endif
 					#ifdef LIGHT_INDIRECT_ENV_SPECULAR
