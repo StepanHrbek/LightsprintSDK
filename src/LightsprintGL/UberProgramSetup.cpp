@@ -349,6 +349,11 @@ void UberProgramSetup::validate()
 		LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
 		LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
 	}
+	if (LIGHT_INDIRECT_CONST && !(MATERIAL_DIFFUSE || (MATERIAL_SPECULAR && !LIGHT_INDIRECT_ENV_SPECULAR && !LIGHT_INDIRECT_MIRROR_SPECULAR)))
+	{
+		// diffuse component always applies LIGHT_INDIRECT_CONST, specular component ignores it when rendering LIGHT_INDIRECT_ENV/MIRROR_SPECULAR
+		LIGHT_INDIRECT_CONST = false;
+	}
 	if (!LIGHT_INDIRECT_VCOLOR)
 	{
 		LIGHT_INDIRECT_VCOLOR2 = 0;
@@ -623,7 +628,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 		program->sendUniform("lightDistanceFallOffExponent",light->getRRLight().fallOffExponent);
 	}
 
-	if (LIGHT_INDIRECT_CONST && (MATERIAL_DIFFUSE || (MATERIAL_SPECULAR && !LIGHT_INDIRECT_MIRROR_SPECULAR))) // shader ignores LIGHT_INDIRECT_CONST when rendering LIGHT_INDIRECT_MIRROR_SPECULAR
+	if (LIGHT_INDIRECT_CONST && (MATERIAL_DIFFUSE || (MATERIAL_SPECULAR && !LIGHT_INDIRECT_ENV_SPECULAR && !LIGHT_INDIRECT_MIRROR_SPECULAR))) // shader ignores LIGHT_INDIRECT_CONST when rendering LIGHT_INDIRECT_ENV/MIRROR_SPECULAR
 	{
 		program->sendUniform("lightIndirectConst",rr::RRVec4(0.2f,0.2f,0.2f,1.0f));
 	}
