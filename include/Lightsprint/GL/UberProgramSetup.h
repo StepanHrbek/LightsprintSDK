@@ -65,10 +65,12 @@ struct ClipPlanes
 //! Some combinations of attributes are not supported and getProgram will return NULL.
 //! Call validate() to get the nearest supported combination.
 //!
-//! LIGHT_INDIRECT_ offers various techniques of indirect illumination.
-//! When directly building shader,
-//! you should enable at most one technique for material's diffuse component, one for specular.
-//! If you enable more techniuqes, light from multiple techniques is accumulated.
+//! LIGHT_INDIRECT_XXX flags enable rendering of indirect illumination in various situations, using various techniques.
+//! Shader accumulates illumination from all enabled techniques, so if you build it with multiple techniques enabled,
+//! you can end up with higher than expected indirect illumination.
+//! On the other hand, higher level functions like RendererOfScene::render() are designed to be called with multiple techniques enabled;
+//! they automatically select optimal technique out of enabled ones and disable the rest before building shader
+//! (selection is based on material and illumination buffers available in object).
 struct RR_GL_API UberProgramSetup
 {
 	// Various direct shadowing options.
@@ -97,8 +99,8 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_INDIRECT_MAP            :1; ///< Illuminates material's diffuse component by ambient map (any map you provide). Non-directional.
 	bool     LIGHT_INDIRECT_MAP2           :1; ///< Enables blend between two ambient maps. Non-directional.
 	bool     LIGHT_INDIRECT_DETAIL_MAP     :1; ///< Enables modulation of indirect light by light detail map. Non-directional.
-	bool     LIGHT_INDIRECT_ENV_DIFFUSE    :1; ///< Illuminates material's diffuse component by environment map (any map you provide, or realtime raytraced one-lowres). Affects only flat objects with environment map preallocated. Directional, works with normal maps. Recommended for all dynamic objects except for large planes, where LIGHT_INDIRECT_MIRROR_DIFFUSE produces better (but slower) results.
-	bool     LIGHT_INDIRECT_ENV_SPECULAR   :1; ///< Illuminates material's specular component by environment map (any map you provide, or realtime raytraced one-lowres). Affects only flat objects with environment map preallocated. Directional, works with normal maps. Recommended for all objects without LIGHT_INDIRECT_MIRROR_SPECULAR.
+	bool     LIGHT_INDIRECT_ENV_DIFFUSE    :1; ///< Illuminates material's diffuse component by environment map (any map you provide, or lowres realtime raytraced one). Affects only flat objects with environment map preallocated. Directional, works with normal maps. Recommended for all dynamic objects except for large planes, where LIGHT_INDIRECT_MIRROR_DIFFUSE produces better (but slower) results.
+	bool     LIGHT_INDIRECT_ENV_SPECULAR   :1; ///< Illuminates material's specular component by environment map (any map you provide, or lowres realtime raytraced one). Affects only flat objects with environment map preallocated. Directional, works with normal maps. Recommended for all objects without LIGHT_INDIRECT_MIRROR_SPECULAR.
 	bool     LIGHT_INDIRECT_MIRROR_DIFFUSE :1; ///< Illuminates material's diffuse component by realtime rasterized highres mirror reflection. Affects only flat objects without environment map. Directional, works with normal maps. Recommended for all large dynamic planes (as a slower but higher quality option). Small dynamic planes look better with LIGHT_INDIRECT_ENV_DIFFUSE, static planes look better with LIGHT_INDIRECT_VCOLOR(unless number of vertices is very low) or LIGHT_INDIRECT_MAP.
 	bool     LIGHT_INDIRECT_MIRROR_SPECULAR:1; ///< Illuminates material's specular component by realtime rasterized highres mirror reflection. Affects only flat objects without environment map. Directional, works with normal maps. Recommended for all planes (as a slower but higher quality option), except for very small ones, where much faster LIGHT_INDIRECT_ENV_SPECULAR might be good enough. (If you don't see mirroring, is specularEnvMap NULL? Is volume of mesh AABB zero? Object can be arbitrarily rotated, but original mesh before rotation must be axis aligned.)
 
