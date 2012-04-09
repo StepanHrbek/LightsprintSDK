@@ -40,7 +40,7 @@ public:
 	//! Current OpenGL transformation matrices are used.
 	//! For non-NULL color, texture color is multiplied by color.
 	//! Color is finally gamma corrected by gamma, 1 = no correction.
-	bool renderEnvironment(const Texture* texture0, const Texture* texture1, float blendFactor, const rr::RRVec4* brightness, float gamma, bool allowDepthTest);
+	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture0, const Texture* texture1, float blendFactor, const rr::RRVec4* brightness, float gamma, bool allowDepthTest);
 
 	//! Renders 2d texture into rectangle.
 	//
@@ -59,7 +59,7 @@ public:
 	void render2dEnd();
 
 private:
-	bool renderEnvironment(const Texture* texture, const rr::RRVec3& brightness, float gamma);
+	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture, const rr::RRVec3& brightness, float gamma);
 
 	class Program* skyProgram[2][2]; // [projection][scaled]
 	class Program *twodProgram[2]; // [gamma]

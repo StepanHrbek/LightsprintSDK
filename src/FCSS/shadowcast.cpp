@@ -281,7 +281,6 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	RR_ASSERT(demoPlayer);
 
 	camera.setAspect( winHeight ? (float) winWidth / (float) winHeight : 1 );
-	rr_gl::setupForRender(camera);
 
 	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
 	rr::RRReal globalGammaBoosted = currentFrame.gamma;
@@ -291,6 +290,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 
 	level->solver->renderScene(
 		uberProgramSetup,
+		camera,
 		renderingFromThisLight,
 		true,
 		LAYER_LIGHTMAPS,
@@ -322,7 +322,7 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 		drawLight();
 	if (showLightViewFrustum)
 	{
-		level->solver->renderLights();
+		level->solver->renderLights(currentFrame.eye);
 	}
 }
 

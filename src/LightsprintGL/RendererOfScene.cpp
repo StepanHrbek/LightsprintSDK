@@ -87,6 +87,7 @@ public:
 	virtual void render(
 		rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
+		const rr::RRCamera& _camera,
 		const RealtimeLights* _lights,
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
@@ -177,6 +178,7 @@ rr::RRBuffer* onlyCube(rr::RRBuffer* buffer)
 void RendererOfSceneImpl::render(
 		rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
+		const rr::RRCamera& _camera,
 		const RealtimeLights* _lights,
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
@@ -191,14 +193,6 @@ void RendererOfSceneImpl::render(
 	if (!_solver)
 	{
 		RR_ASSERT(0);
-		return;
-	}
-
-	// Get current camera for culling and distance-sorting.
-	const rr::RRCamera* eye = getRenderCamera();
-	if (!eye)
-	{
-		RR_ASSERT(0); // eye not set
 		return;
 	}
 
@@ -304,7 +298,7 @@ void RendererOfSceneImpl::render(
 		for (unsigned i=0;i<objects->size();i++)
 		{
 			rr::RRObject* object = (*objects)[i];
-			if (object)// && !eye->frustumCull(object))
+			if (object)// && !_camera->frustumCull(object))
 			{
 				const rr::RRMesh* mesh = object->getCollider()->getMesh();
 				rr::RRObjectIllumination& illumination = object->illumination;
@@ -409,7 +403,7 @@ void RendererOfSceneImpl::render(
 									const rr::RRMatrix3x4* worldMatrix = object->getWorldMatrix();
 									if (worldMatrix)
 										worldMatrix->transformPosition(center);
-									objectBuffers.eyeDistance = (eye->getPosition()-center).length();
+									objectBuffers.eyeDistance = (_camera.getPosition()-center).length();
 								}
 							}
 						}
@@ -469,25 +463,23 @@ void RendererOfSceneImpl::render(
 
 #ifdef MIRRORS
 	// Update mirrors.
-	if (mirrors.size() && getRenderCamera())
+	if (mirrors.size())
 	{
 		recursionDepth = 1;
 		UberProgramSetup mirrorUberProgramSetup = _uberProgramSetup;
 		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
 		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
 		mirrorUberProgramSetup.CLIP_PLANE = true;
-		rr::RRCamera mainCamera = *getRenderCamera();
 		FBO oldState = FBO::getState();
 		for (Mirrors::const_iterator i=mirrors.begin();i!=mirrors.end();++i)
 		{
 			rr::RRVec4 mirrorPlane = i->first;
-			bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(mainCamera.getPosition())>0;
+			bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(_camera.getPosition())>0;
 			if (!cameraInFrontOfMirror) mirrorPlane = -mirrorPlane;
-			mirrorPlane.w -= mirrorPlane.RRVec3::length()*mainCamera.getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
+			mirrorPlane.w -= mirrorPlane.RRVec3::length()*_camera.getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
 			rr::RRBuffer* mirrorMap = i->second;
-			rr::RRCamera mirrorCamera = mainCamera;
+			rr::RRCamera mirrorCamera = _camera;
 			mirrorCamera.mirror(mirrorPlane);
-			setupForRender(mirrorCamera);
 			ClipPlanes clipPlanes = {mirrorPlane,0,0,0,0,0,0};
 			depthMap->reset(rr::BT_2D_TEXTURE,mirrorMap->getWidth(),mirrorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
 			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(depthMap,false,false));
@@ -503,7 +495,7 @@ void RendererOfSceneImpl::render(
 			//    a) add LIGHT_INDIRECT_MIRROR_SRGB, and convert manually in shader (would increase already large number of shaders)
 			//    b) make ubershader work with linear light (number of differences between correct and incorrect path would grow too much, difficult to maintain)
 			//       (srgb incorrect path must remain because of OpenGL ES)
-			render(_solver,mirrorUberProgramSetup,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
+			render(_solver,mirrorUberProgramSetup,mirrorCamera,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
 
 			// build mirror mipmaps
 			mirrorTex->bindTexture();
@@ -511,11 +503,13 @@ void RendererOfSceneImpl::render(
 			glGenerateMipmapEXT(GL_TEXTURE_2D); // part of EXT_framebuffer_object
 		}
 		oldState.restore();
-		setupForRender(mainCamera);
 		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 		recursionDepth = 0;
 	}
 #endif
+
+	// copy camera to OpenGL fixed pipeline (to be removed)
+	setupForRender(_camera);
 
 	PreserveCullFace p1;
 	PreserveCullMode p2;
@@ -538,7 +532,7 @@ void RendererOfSceneImpl::render(
 				// setup culling at the beginning
 				glDisable(GL_CULL_FACE);
 			}
-			MultiPass multiPass(_lights,_renderingFromThisLight,classUberProgramSetup,uberProgram,_clipPlanes,_srgbCorrect,_brightness,_gamma);
+			MultiPass multiPass(_camera,_lights,_renderingFromThisLight,classUberProgramSetup,uberProgram,_clipPlanes,_srgbCorrect,_brightness,_gamma);
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
 			Program* program;
@@ -598,7 +592,7 @@ void RendererOfSceneImpl::render(
 				? getTexture(env1,false,false) // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
 				: getTexture(env1,false,false,GL_NEAREST,GL_NEAREST) // used by 2x2 sky
 				) : NULL;
-			textureRenderer->renderEnvironment(texture0,texture1,blendFactor,_brightness,_gamma,true);
+			textureRenderer->renderEnvironment(_camera,texture0,texture1,blendFactor,_brightness,_gamma,true);
 		}
 	}
 
@@ -619,7 +613,7 @@ void RendererOfSceneImpl::render(
 			fgUberProgramSetup.enableUsedMaterials(material,dynamic_cast<const rr::RRMeshArrays*>(object->getCollider()->getMesh()));
 			fgUberProgramSetup.reduceMaterials(_uberProgramSetup);
 			fgUberProgramSetup.validate();
-			MultiPass multiPass(_lights,_renderingFromThisLight,fgUberProgramSetup,uberProgram,_clipPlanes,_srgbCorrect,_brightness,_gamma);
+			MultiPass multiPass(_camera,_lights,_renderingFromThisLight,fgUberProgramSetup,uberProgram,_clipPlanes,_srgbCorrect,_brightness,_gamma);
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
 			Program* program;

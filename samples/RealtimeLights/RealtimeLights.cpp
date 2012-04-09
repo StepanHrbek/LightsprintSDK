@@ -274,7 +274,6 @@ void display(void)
 #endif
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-	rr_gl::setupForRender(eye);
 	// configure renderer
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.enableAllLights();
@@ -282,9 +281,9 @@ void display(void)
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	// render scene
-	solver->renderScene(uberProgramSetup,NULL,true,LAYER_LIGHTMAPS,LAYER_ENVIRONMENT,UINT_MAX,NULL,false,&brightness,contrast);
+	solver->renderScene(uberProgramSetup,eye,NULL,true,LAYER_LIGHTMAPS,LAYER_ENVIRONMENT,UINT_MAX,NULL,false,&brightness,contrast);
 	// render light frustum
-	solver->renderLights();
+	solver->renderLights(eye);
 
 #ifdef FBO_EXAMPLE
 	// restore previous render target

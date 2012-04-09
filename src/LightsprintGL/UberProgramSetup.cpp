@@ -480,7 +480,7 @@ void UberProgramSetup::validate()
 		LIGHT_INDIRECT_VCOLOR_PHYSICAL = false;
 }
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, const ClipPlanes* clipPlanes)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCamera* camera, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, const ClipPlanes* clipPlanes)
 {
 	RR_LIMITED_TIMES(1,checkCapabilities());
 
@@ -651,7 +651,6 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, RealtimeLight* l
 
 	if ((MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR)) || MATERIAL_TRANSPARENCY_FRESNEL)
 	{
-		const rr::RRCamera* camera = getRenderCamera();
 		if (camera)
 		{
 			// for othogonal camera, move position way back, so that view directions are roughly the same

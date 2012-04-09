@@ -1420,7 +1420,6 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		{
 			rr::RRReportInterval report(rr::INF3,"render scene...\n");
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-			setupForRender(svs.eye);
 
 			rr::RRVec4 brightness = svs.renderTonemapping ? svs.tonemappingBrightness * pow(svs.tonemappingGamma,0.45f) : rr::RRVec4(1);
 			float gamma = svs.renderTonemapping ?svs.tonemappingGamma : 1;
@@ -1481,13 +1480,15 @@ void SVCanvas::PaintCore(bool _takingSshot)
 
 				// render left
 				glViewport(0,0,winWidth,winHeight/2);
-				setupForRender(svframe->userPreferences.stereoTopLineSeenByLeftEye==stereoStartsByOddLine ? leftEye : rightEye);
-				solver->renderScene(uberProgramSetup,NULL,true,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
+				solver->renderScene(
+					uberProgramSetup,svframe->userPreferences.stereoTopLineSeenByLeftEye==stereoStartsByOddLine ? leftEye : rightEye,
+					NULL,true,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
 
 				// render right
 				glViewport(0,winHeight/2,winWidth,winHeight/2);
-				setupForRender(svframe->userPreferences.stereoTopLineSeenByLeftEye==stereoStartsByOddLine ? rightEye : leftEye);
-				solver->renderScene(uberProgramSetup,NULL,false,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
+				solver->renderScene(
+					uberProgramSetup,svframe->userPreferences.stereoTopLineSeenByLeftEye==stereoStartsByOddLine ? rightEye : leftEye,
+					NULL,false,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
 
 				// composite
 				//  turns top-down images to intelaced
@@ -1513,6 +1514,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			{
 				solver->renderScene(
 					uberProgramSetup,
+					svs.eye,
 					NULL,
 					true,layers[0],layers[1],layers[2],
 					&clipPlanes,
@@ -1548,7 +1550,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					UberProgramSetup uberProgramSetup;
 					uberProgramSetup.OBJECT_SPACE = true;
 					uberProgramSetup.POSTPROCESS_NORMALS = true;
-					Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
+					Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
 					for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
 					{
 						EntityId entity = *i;
@@ -1616,7 +1618,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.tonemappingBrightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = svs.tonemappingGamma!=1;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
-			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
+			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.eye,NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			glPushMatrix();
@@ -1631,7 +1633,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			uberProgramSetup.MATERIAL_DIFFUSE = false;
 			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.OBJECT_SPACE = true;
-			program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
+			program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.eye,NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
@@ -1688,7 +1690,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
-				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
+				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
 			}
 
 			// render crosshair, using previously set shader
@@ -1758,7 +1760,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
-			uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
+			uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
 		}
 
 		// gather information about scene
@@ -1864,7 +1866,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
-				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,0,NULL,1,NULL);
+				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
 				program->sendUniform("lightIndirectConst",rr::RRVec4(1));
 			}
 			int x = 10;

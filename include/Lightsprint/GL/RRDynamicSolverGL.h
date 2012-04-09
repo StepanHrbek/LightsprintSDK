@@ -56,11 +56,12 @@ namespace rr_gl
 		virtual void setLights(const rr::RRLights& lights);
 
 		//! Renders scene in solver, with all static and dynamic objects, lights, environment.
-		//!
+		//
 		//! Parameters are identical to RendererOfScene::render(),
 		//! this is just shortcut for solver->getRendererOfScene()->render(solver,...).
 		virtual void renderScene(
 			const UberProgramSetup& _uberProgramSetup,
+			const rr::RRCamera& _camera,
 			const rr::RRLight* _renderingFromThisLight,
 			bool _updateLayers,
 			unsigned _layerLightmap,
@@ -72,7 +73,7 @@ namespace rr_gl
 			float _gamma);
 
 		//! Renders wireframe frustums or boxes of lights.
-		virtual void renderLights();
+		virtual void renderLights(const rr::RRCamera& _camera);
 
 
 		//! Sets dirty flags in given light, or in all lights if lightIndex is negative.

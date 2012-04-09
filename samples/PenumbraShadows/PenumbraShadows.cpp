@@ -79,10 +79,10 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
 	if (uberProgramSetup.LIGHT_DIRECT)
-		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL,0,NULL,1,false);
+		textureRenderer->renderEnvironment(eye,rr_gl::getTexture(environmentMap),NULL,0,NULL,1,false);
 
 	// render static scene
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,realtimeLight,0,NULL,1,NULL);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&eye,realtimeLight,0,NULL,1,NULL);
 	if (!program)
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
@@ -107,12 +107,9 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		{
 			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = true;
-			// LIGHT_INDIRECT_CONST = specular surface reflects constant ambient
-			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
-			// LIGHT_INDIRECT_ENV = specular surface reflects constant envmap
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 		}
-		potato->render(uberProgram,uberProgramSetup,realtimeLight,0,environmentMap,eye,rotation/2);
+		potato->render(uberProgram,uberProgramSetup,eye,realtimeLight,0,environmentMap,eye,rotation/2);
 	}
 	if (robot)
 	{
@@ -125,10 +122,9 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = false;
 			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
-			uberProgramSetup.LIGHT_INDIRECT_CONST = false;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 		}
-		robot->render(uberProgram,uberProgramSetup,realtimeLight,0,environmentMap,eye,rotation);
+		robot->render(uberProgram,uberProgramSetup,eye,realtimeLight,0,environmentMap,eye,rotation);
 	}
 }
 
@@ -176,7 +172,6 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	rr_gl::setupForRender(eye);
 	renderScene(uberProgramSetup);
 
 	glutSwapBuffers();

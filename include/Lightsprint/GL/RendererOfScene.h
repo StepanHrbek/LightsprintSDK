@@ -34,10 +34,7 @@ public:
 	virtual ~RendererOfScene() {};
 
 	//! Renders scene from solver.
-	//!
-	//! Use standard OpenGL way of setting camera projection and view matrices before calling render(),
-	//! they are respected by render(). You can also use rr_gl::setupForRender(camera) to do it.
-	//!
+	//
 	//! To render to texture, set render target with FBO::setRenderTarget().
 	//! When rendering sRGB correctly, target texture must be sRGB,
 	//! make it sRGB with Texture::reset(,,true) before FBO::setRenderTarget().
@@ -50,6 +47,8 @@ public:
 	//!  Specifies shader properties to be allowed during render.
 	//!  For rendering with all light and material features,
 	//!  use UberProgramSetup::enableAllLights() and UberProgramSetup::enableAllMaterials().
+	//! \param _camera
+	//!  Camera scene is rendered from.
 	//! \param _lights
 	//!  Set of lights, source of direct illumination in rendered scene.
 	//! \param _renderingFromThisLight
@@ -78,6 +77,7 @@ public:
 	virtual void render(
 		rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
+		const rr::RRCamera& _camera,
 		const RealtimeLights* _lights,
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,

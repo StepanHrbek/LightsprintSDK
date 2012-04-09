@@ -59,7 +59,7 @@ TextureRenderer::~TextureRenderer()
 		delete twodProgram[gamma];
 }
 
-bool TextureRenderer::renderEnvironment(const Texture* _texture, const rr::RRVec3& _brightness, float _gamma)
+bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Texture* _texture, const rr::RRVec3& _brightness, float _gamma)
 {
 	if (!_texture || !_texture->getBuffer())
 	{
@@ -101,7 +101,7 @@ bool TextureRenderer::renderEnvironment(const Texture* _texture, const rr::RRVec
 	return true;
 }
 
-bool TextureRenderer::renderEnvironment(const Texture* _texture0, const Texture* _texture1, float _blendFactor, const rr::RRVec4* _brightness, float _gamma, bool _allowDepthTest)
+bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Texture* _texture0, const Texture* _texture1, float _blendFactor, const rr::RRVec4* _brightness, float _gamma, bool _allowDepthTest)
 {
 	if (!_texture0 || !_texture0->getBuffer())
 	{
@@ -117,17 +117,14 @@ bool TextureRenderer::renderEnvironment(const Texture* _texture0, const Texture*
 	if (!_allowDepthTest) glDisable(GL_DEPTH_TEST);
 	glDepthMask(0);
 	glActiveTexture(GL_TEXTURE0);
-	oldCamera = getRenderCamera();
-	if (oldCamera)
-	{
-		// temporarily loads camera matrix with position 0
-		rr::RRCamera tmp = *oldCamera;
-		tmp.setPosition(rr::RRVec3(0));
-		setupForRender(tmp);
-	}
+
+	// temporarily loads camera matrix with position 0
+	rr::RRCamera camera = _camera;
+	camera.setPosition(rr::RRVec3(0));
+	setupForRender(camera);
 
 	// render
-	bool result = renderEnvironment(_texture0,brightness*(1-_blendFactor),_gamma);
+	bool result = renderEnvironment(camera,_texture0,brightness*(1-_blendFactor),_gamma);
 	if (result && _blendFactor)
 	{
 		// setup render states
@@ -138,14 +135,12 @@ bool TextureRenderer::renderEnvironment(const Texture* _texture0, const Texture*
 		_texture1->bindTexture();
 
 		// render
-		result = renderEnvironment(_texture1,brightness*_blendFactor,_gamma);
+		result = renderEnvironment(camera,_texture1,brightness*_blendFactor,_gamma);
 	}
 
 	// restore render states
-	if (oldCamera)
-	{
-		setupForRender(*oldCamera);
-	}
+	setupForRender(_camera);
+
 	return result;
 };
 

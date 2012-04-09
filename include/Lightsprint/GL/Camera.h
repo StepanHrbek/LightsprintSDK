@@ -20,9 +20,6 @@ namespace rr_gl
 //! Note that if you modify camera inputs, changes are propagated to OpenGL only after update() and setupForRender().
 RR_GL_API void setupForRender(const rr::RRCamera& camera);
 
-//! Returns last camera that executed setupForRender().
-RR_GL_API const rr::RRCamera* getRenderCamera();
-
 }; // namespace
 
 #endif //CAMERA_H

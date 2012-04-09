@@ -333,7 +333,6 @@ void display(void)
 	solver->calculate();
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-	rr_gl::setupForRender(eye);
 	// configure renderer
 	rr_gl::UberProgramSetup uberProgramSetup;
 	uberProgramSetup.enableAllLights();
@@ -341,9 +340,9 @@ void display(void)
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	// render scene
-	solver->renderScene(uberProgramSetup,NULL,renderLayer==LAYER_REALTIME,renderLayer,LAYER_ENVIRONMENT,UINT_MAX,NULL,false,&brightness,contrast);
+	solver->renderScene(uberProgramSetup,eye,NULL,renderLayer==LAYER_REALTIME,renderLayer,LAYER_ENVIRONMENT,UINT_MAX,NULL,false,&brightness,contrast);
 
-	solver->renderLights();
+	solver->renderLights(eye);
 
 	glutSwapBuffers();
 }

@@ -278,7 +278,6 @@ done:
 			     ;i<light->getNumShadowmaps();i++)
 			{
 				rr::RRCamera lightInstance;
-				setupForRender(light->getShadowmapCamera(i,lightInstance));
 				Texture* shadowmap = light->getShadowmap(i);
 				if (!shadowmap)
 				{
@@ -325,7 +324,7 @@ done:
 						}
 						bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
 						if (depthClamp) glEnable(GL_DEPTH_CLAMP);
-						renderScene(uberProgramSetup,&light->getRRLight(),false,UINT_MAX,UINT_MAX,UINT_MAX,NULL,false,NULL,1);
+						renderScene(uberProgramSetup,light->getShadowmapCamera(i,lightInstance),&light->getRRLight(),false,UINT_MAX,UINT_MAX,UINT_MAX,NULL,false,NULL,1);
 						if (depthClamp) glDisable(GL_DEPTH_CLAMP);
 					}
 				}
@@ -507,7 +506,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.MATERIAL_CULLING = false;
 		uberProgramSetup.FORCE_2D_POSITION = true;
-		Program* program = uberProgramSetup.useProgram(uberProgram1,ddiLight,0,NULL,1,NULL);
+		Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,ddiLight,0,NULL,1,NULL);
 		if (!program)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n"));
@@ -652,6 +651,7 @@ void drawRealtimeLight(RealtimeLight* light)
 
 void RRDynamicSolverGL::renderScene(
 		const UberProgramSetup& _uberProgramSetup,
+		const rr::RRCamera& _camera,
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
 		unsigned _layerLightmap,
@@ -665,6 +665,7 @@ void RRDynamicSolverGL::renderScene(
 	rendererOfScene->render(
 		this,
 		_uberProgramSetup,
+		_camera,
 		_uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL,
 		_renderingFromThisLight,
 		_updateLayers,
@@ -677,12 +678,13 @@ void RRDynamicSolverGL::renderScene(
 		_gamma);
 }
 
-void RRDynamicSolverGL::renderLights()
+void RRDynamicSolverGL::renderLights(const rr::RRCamera& _camera)
 {
+	setupForRender(_camera);
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 	uberProgramSetup.MATERIAL_DIFFUSE = 1;
-	Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,0,NULL,1,NULL);
+	Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,NULL,0,NULL,1,NULL);
 	for (unsigned i=0;i<getLights().size();i++)
 	{
 		drawRealtimeLight(realtimeLights[i]);

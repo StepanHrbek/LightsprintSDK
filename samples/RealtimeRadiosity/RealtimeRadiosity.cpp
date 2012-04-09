@@ -98,11 +98,11 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
 	if (uberProgramSetup.LIGHT_DIRECT && environmentMap)
-		textureRenderer->renderEnvironment(rr_gl::getTexture(environmentMap),NULL,0,NULL,1,false);
+		textureRenderer->renderEnvironment(eye,rr_gl::getTexture(environmentMap),NULL,0,NULL,1,false);
 
 	// render static scene
 	rr::RRVec4 brightness(2);// render static scene
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,realtimeLight,0,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&brightness:NULL,1,NULL);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&eye,realtimeLight,0,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&brightness:NULL,1,NULL);
 	if (!program)
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
@@ -133,7 +133,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		robot->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->updateEnvironmentMap(robot->illumination,LAYER_ENVIRONMENT);
-		robot->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
+		robot->render(uberProgram,uberProgramSetup,eye,&solver->realtimeLights,0,eye,NULL,1);
 	}
 	if (potato)
 	{
@@ -142,7 +142,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		potato->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->updateEnvironmentMap(potato->illumination,LAYER_ENVIRONMENT);
-		potato->render(uberProgram,uberProgramSetup,&solver->realtimeLights,0,eye,NULL,1);
+		potato->render(uberProgram,uberProgramSetup,eye,&solver->realtimeLights,0,eye,NULL,1);
 	}
 }
 
