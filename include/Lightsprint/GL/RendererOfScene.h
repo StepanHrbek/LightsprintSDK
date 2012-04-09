@@ -42,7 +42,7 @@ public:
 	//! When rendering sRGB correctly, target texture must be sRGB,
 	//! make it sRGB with Texture::reset(,,true) before FBO::setRenderTarget().
 	//!
-	//! Render target is not cleared automatically, so you may want to clear both color and depth before calling render().
+	//! Render target is not cleared automatically, so you may want to glClear() both color and depth before calling render().
 	//!
 	//! \param _solver
 	//!  Source of static and dynamic objects, environment and illumination. Direct lights from solver are ignored.
