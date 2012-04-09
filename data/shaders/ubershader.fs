@@ -798,6 +798,7 @@ void main()
 					#if defined(LIGHT_INDIRECT_CONST) && !defined(LIGHT_INDIRECT_ENV_SPECULAR) && !defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 						// const is ignored by specular component when better indirect (env or mirror) is available
 						// (still, const is always applied to diffuse component)
+						//  other more complicated option would be to split LIGHT_INDIRECT_CONST into _DIFFUSE and _SPECULAR
 						+ lightIndirectConst
 					#endif
 					#ifdef LIGHT_INDIRECT_ENV_SPECULAR
