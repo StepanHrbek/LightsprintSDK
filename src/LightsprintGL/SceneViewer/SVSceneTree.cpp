@@ -343,7 +343,6 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 {
 	wxMenu menu; // is PopupMenu, does not have to be allocated on heap
 
-
 	// add menu items that need uniform context
 	const EntityIds& entityIds = getEntityIds(SVSceneTree::MEI_SELECTED);
 	bool entityIdsUniform = true;
