@@ -113,7 +113,7 @@ bool SVEntityIcons::isOk() const
 	return true;
 }
 
-void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* textureRenderer, const rr::RRCamera& eye)
+void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRRay* ray)
 {
 	// render arrows
 	PreserveFlag p0(GL_DEPTH_TEST,false);
@@ -158,8 +158,20 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* tex
 		{
 			rr::RRVec2 piwCenter = eye.getPositionInWindow(entities[i].position); // in -1..1 range
 			rr::RRVec3 rayVisibleOrigin = eye.getRayOrigin(piwCenter) + eye.getRayDirection(piwCenter)*eye.getNear();
-			if (eye.getDirection().dot( (entities[i].position-rayVisibleOrigin).normalized() )>0) // is in front of camera?
+			rr::RRVec3 rayDir = entities[i].position-rayVisibleOrigin;
+			if (eye.getDirection().dot( rayDir.normalized() )>0) // is in front of camera?
 			{
+				// test visibility
+				bool visible = true;
+				if (supercollider && ray)
+				{
+					ray->rayOrigin = rayVisibleOrigin;
+					ray->rayDir = rayDir.normalized();
+					ray->rayLengthMin = 0;
+					ray->rayLengthMax = rayDir.length();
+					visible = !supercollider->intersect(ray);
+				}
+
 				static rr::RRTime time;
 				float brightness = entities[i].selected ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
 				float size1 = (eye.getPositionInWindow(entities[i].position+eye.getRight()*entities[i].iconSize)-piwCenter).length()*2;
@@ -167,7 +179,7 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* tex
 				rr::RRVec2 piwSize = rr::RRVec2(1,eye.getAspect()) * size2;
 				rr::RRVec4 piwRectangle(piwCenter.x-piwSize.x/2,piwCenter.y-piwSize.y/2,piwSize.x,piwSize.y); // in -1..1 range
 				piwIconRectangles.push_back(std::pair<const SVEntity*,rr::RRVec4>(&entities[i],piwRectangle));
-				textureRenderer->render2D(getTexture(icon[entities[i].iconCode],true,false),&rr::RRVec4(brightness,brightness,brightness,1.0f),1,piwRectangle[0]*.5f+.5f,piwRectangle[1]*.5f+.5f,piwRectangle[2]*.5f,piwRectangle[3]*.5f);
+				textureRenderer->render2D(getTexture(icon[entities[i].iconCode],true,false),&rr::RRVec4(brightness,brightness,brightness,visible?1.0f:0.5f),1,piwRectangle[0]*.5f+.5f,piwRectangle[1]*.5f+.5f,piwRectangle[2]*.5f,piwRectangle[3]*.5f);
 			}
 		}
 	}
