@@ -286,10 +286,19 @@ rr::RRVec3 SVSceneTree::getCenterOf(const EntityIds& entityIds) const
 		switch (i->type)
 		{
 			case ST_LIGHT:
-				selectedEntitiesCenter += (svframe->m_canvas->solver->getLights()[i->index]->type==rr::RRLight::DIRECTIONAL)
-					? svframe->m_canvas->sunIconPosition
-					: svframe->m_canvas->solver->getLights()[i->index]->position;
-				numCenters++;
+				{
+					const rr::RRLights& lights = svframe->m_canvas->solver->getLights();
+					rr::RRVec3 lightPos = lights[i->index]->position;
+					if (lights[i->index]->type==rr::RRLight::DIRECTIONAL)
+					{
+						lightPos = svframe->m_canvas->sunIconPosition;
+						for (unsigned j=0;j<i->index;j++)
+							if (lights[j]->type==rr::RRLight::DIRECTIONAL)
+								lightPos.y += 4*svframe->m_canvas->renderedIcons.iconSize; // the same constant is in addLights()
+					}
+					selectedEntitiesCenter += lightPos;
+					numCenters++;
+				}
 				break;
 			case ST_OBJECT:
 				{
