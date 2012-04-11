@@ -10,8 +10,6 @@
 #include "../PreserveState.h"
 #include "wx/wx.h"
 
-#define ICONS_ON_TOP // icons not occluded by geometry
-
 namespace rr_gl
 {
 
@@ -33,7 +31,7 @@ void SVEntities::addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPositi
 				case rr::RRLight::DIRECTIONAL:
 					entity.iconCode = IC_DIRECTIONAL;
 					entity.position = dirlightPosition;
-					dirlightPosition.y += 1;
+					dirlightPosition.y += 4*iconSize; // the same constant is in getCenterOf()
 					break;
 				case rr::RRLight::POINT:
 					entity.iconCode = IC_POINT;
@@ -61,17 +59,19 @@ void SVEntities::markSelected(const EntityIds& selectedEntityIds)
 		(*this)[i].selected = selectedEntityIds.find((*this)[i])!=selectedEntityIds.end();
 }
 
-void SVEntities::addXYZ(rr::RRVec3 center, IconCode transformation)
+void SVEntities::addXYZ(rr::RRVec3 center, IconCode transformation, const rr::RRCamera& eye)
 {
-	float dist = 2*iconSize*5.5f;
+	float size1 = (eye.getPositionInWindow(center+eye.getRight()*iconSize)-eye.getPositionInWindow(center)).length()*2;
+	float size2 = RR_CLAMPED(size1,0.02f,0.2f);
+	float adjustedIconSize = iconSize*size2/size1;
+
+	float dist = adjustedIconSize*5.5f;
 	SVEntity e;
 	e.position = center;
 	e.parentPosition = center;
-	e.iconSize = 2*iconSize;
-	e.iconCode = transformation;
+	e.iconSize = adjustedIconSize;
 	e.bright = true;
 	e.selected = false;
-	push_back(e);
 	e.iconSize *= 0.6f;
 	e.position.x += dist;
 	e.iconCode = IC_X;
@@ -83,6 +83,9 @@ void SVEntities::addXYZ(rr::RRVec3 center, IconCode transformation)
 	e.position.y -= dist;
 	e.position.z += dist;
 	e.iconCode = IC_Z;
+	push_back(e);
+	e.position.z -= dist;
+	e.iconCode = transformation;
 	push_back(e);
 }
 
@@ -101,205 +104,6 @@ SVEntityIcons::SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram)
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	programArrows = uberProgramSetup.getProgram(uberProgram);
-	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
-	uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
-	uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = true;
-	programIcons = uberProgramSetup.getProgram(uberProgram);
-}
-
-SVEntityIcons::~SVEntityIcons()
-{
-	for (unsigned i=0;i<IC_LAST;i++)
-		delete icon[i];
-}
-
-// inputs: ray->rayXxx
-// outputs: ray->hitXxx, hitTriangle=entity index in entities
-// sideeffects: ray->rayLengthMax is lost
-bool SVEntityIcons::intersectIcons(const SVEntities& entities, rr::RRRay* ray)
-{
-	RR_ASSERT(ray);
-	bool hit = false;
-	unsigned counter = 0;
-	for (unsigned i=0;i<entities.size();i++)
-	{
-		if (intersectIcon(entities[i],ray))
-		{
-			// we have a hit, stop searching in greater distance
-			hit = true;
-			ray->rayLengthMax = ray->hitDistance;
-			// return entity index in hitTriangle
-			ray->hitTriangle = i;
-		}
-	}
-	return hit;
-}
-
-void SVEntityIcons::renderIcons(const SVEntities& entities, const rr::RRCamera& eye)
-{
-	// setup for rendering icon
-	PreserveBlend p1;
-	PreserveBlendFunc p2;
-	PreserveAlphaTest p3;
-	PreserveAlphaFunc p4;
-#ifdef ICONS_ON_TOP
-	PreserveDepthTest p5;
-#endif
-
-	// keyed icons (alpha0=transparent)
-	glEnable(GL_ALPHA_TEST); glAlphaFunc(GL_GREATER,0.03f);
-	// blended icons (alpha0=transparent)
-	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// blended icons (white=transparent)
-	//glEnable(GL_BLEND); glBlendFunc(GL_ONE_MINUS_SRC_COLOR,GL_SRC_COLOR);
-#ifdef ICONS_ON_TOP
-	glDisable(GL_DEPTH_TEST);
-#endif
-
-	// render icons
-	if (programIcons)
-	{
-		programIcons->useIt();
-		programIcons->sendUniform("lightIndirectConst",rr::RRVec4(1));
-		programIcons->sendTexture("materialDiffuseMap", NULL); // renderIcon() will repeatedly bind texture
-		unsigned counter = 0;
-		for (unsigned i=0;i<entities.size();i++)
-		{
-			static rr::RRTime time;
-			float brightness = entities[i].selected ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
-			programIcons->sendUniform("lightIndirectConst",rr::RRVec4(brightness,brightness,brightness,1.0f));
-			renderIcon(entities[i],eye);
-		}
-	}
-
-	// render arrows
-	programArrows->useIt();
-	glLineWidth(5);
-	for (unsigned i=0;i<entities.size();i++)
-	{
-		renderArrow(entities[i],eye);
-	}
-	glLineWidth(1);
-}
-
-// icon vertices are computed in worldspace to simplify ray-icon intersections
-//kdybych kreslil 3d objekt, prusecik je snadny, udelam z nej RRObject, jen mu zmenim matici
-void SVEntityIcons::getIconWorldVertices(const SVEntity& entity, rr::RRVec3 eyePos, rr::RRVec3 vertex[4])
-{
-	rr::RRVec3 toLight = (entity.position-eyePos).normalizedSafe();
-	rr::RRVec3 toLeftFromLight = rr::RRVec3(toLight[2],0,-toLight[0]).normalizedSafe();
-	rr::RRVec3 toUpFromLight = toLight.cross(toLeftFromLight);
-	float lightDistance = (entity.position-eyePos).length();
-	vertex[0] = entity.position-(toLeftFromLight-toUpFromLight)*entity.iconSize; // top left
-	vertex[1] = entity.position+(toLeftFromLight+toUpFromLight)*entity.iconSize; // top right
-	vertex[2] = entity.position+(toLeftFromLight-toUpFromLight)*entity.iconSize; // bottom right
-	vertex[3] = entity.position-(toLeftFromLight+toUpFromLight)*entity.iconSize; // bottom left
-}
-
-// inputs: ray->rayXxx
-// outputs: ray->hitXxx
-bool SVEntityIcons::intersectTriangle(const rr::RRMesh::TriangleBody* t, rr::RRRay* ray)
-{
-	RR_ASSERT(ray);
-	RR_ASSERT(t);
-
-	// calculate determinant - also used to calculate U parameter
-	rr::RRVec3 pvec = ray->rayDir.cross(t->side2);
-	float det = t->side1.dot(pvec);
-
-	// cull test
-	bool hitFrontSide = det>0;
-	if (!hitFrontSide && (ray->rayFlags&rr::RRRay::TEST_SINGLESIDED)) return false;
-
-	// if determinant is near zero, ray lies in plane of triangle
-	if (det==0) return false;
-
-	// calculate distance from vert0 to ray origin
-	rr::RRVec3 tvec = ray->rayOrigin-t->vertex0;
-
-	// calculate U parameter and test bounds
-	float u = tvec.dot(pvec)/det;
-	if (u<0 || u>1) return false;
-
-	// prepare to test V parameter
-	rr::RRVec3 qvec = tvec.cross(t->side1);
-
-	// calculate V parameter and test bounds
-	float v = ray->rayDir.dot(qvec)/det;
-	if (v<0 || u+v>1) return false;
-
-	// calculate distance where ray intersects triangle
-	float dist = t->side2.dot(qvec)/det;
-#ifdef ICONS_ON_TOP
-	if (dist<ray->rayLengthMin || (dist>ray->rayLengthMax && ray->hitTriangle==UINT_MAX)) return false; // ignore rayLengthMax if hitTriangle is set, RL has icons on top of meshes
-	ray->hitTriangle = UINT_MAX; // clear hitTriangle, from now on icon distance will be compared properly
-#else
-	if (dist<ray->rayLengthMin || dist>ray->rayLengthMax) return false;
-#endif
-	ray->hitDistance = dist;
-	return true;
-}
-
-// inputs: ray->rayXxx
-// outputs: ray->hitXxx
-bool SVEntityIcons::intersectIcon(const SVEntity& entity, rr::RRRay* ray)
-{
-	RR_ASSERT(ray);
-	rr::RRVec3 worldVertex[4];
-	getIconWorldVertices(entity,ray->rayOrigin,worldVertex);
-	rr::RRMesh::TriangleBody tb1,tb2;
-	tb1.vertex0 = worldVertex[0];
-	tb1.side1 = worldVertex[1]-worldVertex[0];
-	tb1.side2 = worldVertex[2]-worldVertex[0];
-	tb2.vertex0 = worldVertex[0];
-	tb2.side1 = worldVertex[2]-worldVertex[0];
-	tb2.side2 = worldVertex[3]-worldVertex[0];
-	bool hit = intersectTriangle(&tb1,ray) || intersectTriangle(&tb2,ray);
-	return hit;
-}
-
-void SVEntityIcons::renderIcon(const SVEntity& entity, const rr::RRCamera& eye)
-{
-	if (entity.iconCode>=0 && entity.iconCode<IC_LAST && icon[entity.iconCode])
-	{
-		rr::RRVec3 worldVertex[4];
-		getIconWorldVertices(entity,eye.getPosition(),worldVertex);
-
-		getTexture(icon[entity.iconCode])->bindTexture();
-
-		glBegin(GL_QUADS);
-		glTexCoord2f(1,1);
-		glVertex3fv(&worldVertex[0][0]);
-		glTexCoord2f(0,1);
-		glVertex3fv(&worldVertex[1][0]);
-		glTexCoord2f(0,0);
-		glVertex3fv(&worldVertex[2][0]);
-		glTexCoord2f(1,0);
-		glVertex3fv(&worldVertex[3][0]);
-		glEnd();
-	}
-}
-
-void SVEntityIcons::renderArrow(const SVEntity& entity, const rr::RRCamera& eye)
-{
-	if (entity.parentPosition!=entity.position)
-	{
-		rr::RRVec3 a(entity.parentPosition);
-		rr::RRVec3 b(entity.position);
-		b = a*0.15f+b*0.85f; // make arrow little bit shorter
-		rr::RRVec3 c = eye.getDirection().cross(b-a)*0.1f;
-		rr::RRVec3 tmp1(a*0.1f+b*0.9f+c);
-		rr::RRVec3 tmp2(a*0.1f+b*0.9f-c);
-		programArrows->sendUniform("lightIndirectConst",rr::RRVec4((b-a).abs().normalized(),1.0f));
-		glBegin(GL_LINES);
-		glVertex3fv(&b.x);
-		glVertex3fv(&a.x);
-		glVertex3fv(&b.x);
-		glVertex3fv(&tmp1.x);
-		glVertex3fv(&b.x);
-		glVertex3fv(&tmp2.x);
-		glEnd();
-	}
 }
 
 bool SVEntityIcons::isOk() const
@@ -307,6 +111,84 @@ bool SVEntityIcons::isOk() const
 	for (unsigned i=0;i<IC_LAST;i++)
 		if (!icon[i]) return false;
 	return true;
+}
+
+void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* textureRenderer, const rr::RRCamera& eye)
+{
+	// render arrows
+	PreserveFlag p0(GL_DEPTH_TEST,false);
+	programArrows->useIt();
+	glLineWidth(5);
+	for (unsigned i=0;i<entities.size();i++)
+	{
+		const SVEntity& entity = entities[i];
+		if (entity.parentPosition!=entity.position)
+		{
+			rr::RRVec3 a(entity.parentPosition);
+			rr::RRVec3 b(entity.position);
+			b = a*0.15f+b*0.85f; // make arrow little bit shorter
+			rr::RRVec3 c = eye.getDirection().cross(b-a)*0.1f;
+			rr::RRVec3 tmp1(a*0.1f+b*0.9f+c);
+			rr::RRVec3 tmp2(a*0.1f+b*0.9f-c);
+			programArrows->sendUniform("lightIndirectConst",rr::RRVec4((b-a).abs().normalized(),1.0f));
+			glBegin(GL_LINES);
+			glVertex3fv(&b.x);
+			glVertex3fv(&a.x);
+			glVertex3fv(&b.x);
+			glVertex3fv(&tmp1.x);
+			glVertex3fv(&b.x);
+			glVertex3fv(&tmp2.x);
+			glEnd();
+		}
+	}
+	glLineWidth(1);
+
+	// render icons
+	PreserveBlend p1;
+	PreserveBlendFunc p2;
+	PreserveAlphaTest p3;
+	PreserveAlphaFunc p4;
+	glEnable(GL_ALPHA_TEST); glAlphaFunc(GL_GREATER,0.03f); // keyed icons (alpha0=transparent)
+	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // blended icons (alpha0=transparent)
+	piwIconRectangles.clear();
+	if (textureRenderer)
+	{
+		unsigned counter = 0;
+		for (unsigned i=0;i<entities.size();i++)
+		{
+			rr::RRVec2 piwCenter = eye.getPositionInWindow(entities[i].position); // in -1..1 range
+			rr::RRVec3 rayVisibleOrigin = eye.getRayOrigin(piwCenter) + eye.getRayDirection(piwCenter)*eye.getNear();
+			if (eye.getDirection().dot( (entities[i].position-rayVisibleOrigin).normalized() )>0) // is in front of camera?
+			{
+				static rr::RRTime time;
+				float brightness = entities[i].selected ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
+				float size1 = (eye.getPositionInWindow(entities[i].position+eye.getRight()*entities[i].iconSize)-piwCenter).length()*2;
+				float size2 = RR_CLAMPED(size1,0.02f,0.2f);
+				rr::RRVec2 piwSize = rr::RRVec2(1,eye.getAspect()) * size2;
+				rr::RRVec4 piwRectangle(piwCenter.x-piwSize.x/2,piwCenter.y-piwSize.y/2,piwSize.x,piwSize.y); // in -1..1 range
+				piwIconRectangles.push_back(std::pair<const SVEntity*,rr::RRVec4>(&entities[i],piwRectangle));
+				textureRenderer->render2D(getTexture(icon[entities[i].iconCode],true,false),&rr::RRVec4(brightness,brightness,brightness,1.0f),1,piwRectangle[0]*.5f+.5f,piwRectangle[1]*.5f+.5f,piwRectangle[2]*.5f,piwRectangle[3]*.5f);
+			}
+		}
+	}
+}
+
+const SVEntity* SVEntityIcons::intersectIcons(const SVEntities& entities, rr::RRVec2 mousePositionInWindow)
+{
+	mousePositionInWindow.y = -mousePositionInWindow.y; // y gets inverted somewhere
+	for (unsigned i=piwIconRectangles.size();i--;)
+	{
+		if (mousePositionInWindow.x>=piwIconRectangles[i].second.x && mousePositionInWindow.x<piwIconRectangles[i].second.x+piwIconRectangles[i].second.z &&
+			mousePositionInWindow.y>=piwIconRectangles[i].second.y && mousePositionInWindow.y<piwIconRectangles[i].second.y+piwIconRectangles[i].second.w )
+			return piwIconRectangles[i].first;
+	}
+	return NULL;
+}
+
+SVEntityIcons::~SVEntityIcons()
+{
+	for (unsigned i=0;i<IC_LAST;i++)
+		delete icon[i];
 }
 
 }; // namespace

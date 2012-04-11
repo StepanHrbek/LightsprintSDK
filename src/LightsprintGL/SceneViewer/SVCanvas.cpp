@@ -792,6 +792,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 
 	const EntityIds& selectedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
 
+	const SVEntity* intersectedEntity = entityIcons->intersectIcons(renderedIcons,mousePositionInWindow);
+	SetCursor(wxCursor(intersectedEntity?wxCursor(wxCURSOR_HAND):wxNullCursor));
+
 	// scene clicked: fill s_xxx
 	if (event.ButtonDown() || contextMenu)
 	{
@@ -838,13 +841,13 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 
 		// find icon distance
-		if (entityIcons->intersectIcons(renderedIcons,ray))
+		if (intersectedEntity)
 		{
-			s_ci.clickedEntity = renderedIcons[ray->hitTriangle]; // ST_FIRST for gizmo icons
+			s_ci.clickedEntity = *intersectedEntity; // ST_FIRST for gizmo icons
 			s_ci.hitTriangle = UINT_MAX; // must be cleared, otherwise we use it to look up point material
-			s_ci.hitDistance = ray->hitDistance;
+			s_ci.hitDistance = (intersectedEntity->position-svs.eye.getPosition()).length();
 			s_ci.hitPoint2d = rr::RRVec2(0);
-			s_ci.hitPoint3d = ray->rayOrigin + ray->rayDir*ray->hitDistance;
+			s_ci.hitPoint3d = intersectedEntity->position;
 		}
 		else
 		{
@@ -1747,8 +1750,8 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			const EntityIds& autoEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
 			renderedIcons.markSelected(selectedEntityIds);
 			if (selectedEntityIds.size())
-				renderedIcons.addXYZ(svframe->m_sceneTree->getCenterOf(selectedEntityIds),(&selectedEntityIds==&autoEntityIds)?selectedTransformation:IC_STATIC);
-			entityIcons->renderIcons(renderedIcons,svs.eye);
+				renderedIcons.addXYZ(svframe->m_sceneTree->getCenterOf(selectedEntityIds),(&selectedEntityIds==&autoEntityIds)?selectedTransformation:IC_STATIC,svs.eye);
+			entityIcons->renderIcons(renderedIcons,solver->getRendererOfScene()->getTextureRenderer(),svs.eye);
 		}
 	}
 
