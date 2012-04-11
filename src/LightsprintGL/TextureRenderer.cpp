@@ -171,6 +171,8 @@ bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma)
 	program->sendUniform("color",color?*color:rr::RRVec4(1));
 	if (gamma!=1)
 		program->sendUniform("gamma",gamma);
+	glEnableVertexAttribArray(VAA_POSITION);
+	glEnableVertexAttribArray(VAA_UV0);
 	return true;
 }
 
@@ -190,12 +192,8 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 	rr::RRVec2 position[4] = {rr::RRVec2(2*x-1,2*y-1),rr::RRVec2(2*(x+w)-1,2*y-1),rr::RRVec2(2*(x+w)-1,2*(y+h)-1),rr::RRVec2(2*x-1,2*(y+h)-1)};
 	rr::RRVec2 uv[4] = {rr::RRVec2(0,0),rr::RRVec2(1,0),rr::RRVec2(1,1),rr::RRVec2(0,1)};
 	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
-	glEnableVertexAttribArray(VAA_POSITION);
 	glVertexAttribPointer(VAA_UV0, 2, GL_FLOAT, 0, 0, uv);
-	glEnableVertexAttribArray(VAA_UV0);
 	glDrawArrays(GL_POLYGON, 0, 4);
-	glDisableVertexAttribArray(VAA_UV0);
-	glDisableVertexAttribArray(VAA_POSITION);
 
 	if (texture->getBuffer()->getFormat()==rr::BF_DEPTH)
 		// must be GL_COMPARE_REF_TO_TEXTURE for sampler2DShadow, otherwise result is undefined
@@ -205,6 +203,8 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 
 void TextureRenderer::render2dEnd()
 {
+	glDisableVertexAttribArray(VAA_UV0);
+	glDisableVertexAttribArray(VAA_POSITION);
 	if (depthTest) glEnable(GL_DEPTH_TEST);
 	if (depthMask) glDepthMask(GL_TRUE);
 	if (culling) glEnable(GL_CULL_FACE);
