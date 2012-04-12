@@ -116,6 +116,7 @@ private:
 	RendererOfMeshCache rendererOfMeshCache;
 #ifdef MIRRORS
 	rr::RRBuffer* depthMap;
+	rr::RRBuffer* mirrorMaskMap;
 #endif
 
 	// PERMANENT ALLOCATION, TEMPORARY CONTENT (used only inside render(), placing it here saves alloc/free in every render(), but makes render() nonreentrant)
@@ -146,6 +147,7 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 		tmpstr("%subershader.fs",pathToShaders));
 #ifdef MIRRORS
 	depthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,512,512,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
+	mirrorMaskMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,512,512,1,rr::BF_RGB,true,RR_GHOST_BUFFER);
 #endif
 	recursionDepth = 0;
 }
@@ -153,6 +155,7 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 RendererOfSceneImpl::~RendererOfSceneImpl()
 {
 #ifdef MIRRORS
+	delete mirrorMaskMap;
 	delete depthMap;
 #endif
 	delete uberProgram;
@@ -461,53 +464,6 @@ void RendererOfSceneImpl::render(
 		}
 	}
 
-#ifdef MIRRORS
-	// Update mirrors.
-	if (mirrors.size())
-	{
-		recursionDepth = 1;
-		UberProgramSetup mirrorUberProgramSetup = _uberProgramSetup;
-		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
-		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
-		mirrorUberProgramSetup.CLIP_PLANE = true;
-		FBO oldState = FBO::getState();
-		for (Mirrors::const_iterator i=mirrors.begin();i!=mirrors.end();++i)
-		{
-			rr::RRVec4 mirrorPlane = i->first;
-			bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(_camera.getPosition())>0;
-			if (!cameraInFrontOfMirror) mirrorPlane = -mirrorPlane;
-			mirrorPlane.w -= mirrorPlane.RRVec3::length()*_camera.getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
-			rr::RRBuffer* mirrorMap = i->second;
-			rr::RRCamera mirrorCamera = _camera;
-			mirrorCamera.mirror(mirrorPlane);
-			ClipPlanes clipPlanes = {mirrorPlane,0,0,0,0,0,0};
-			depthMap->reset(rr::BT_2D_TEXTURE,mirrorMap->getWidth(),mirrorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
-			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(depthMap,false,false));
-			Texture* mirrorTex = new Texture(mirrorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorTex);
-			glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
-			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-			// Q: how to make mirrors srgb correct?
-			// A: current mirror is always srgb incorrect, srgb correct render works only into real backbuffer, not into texture.
-			//    result is not affected by using GL_RGB vs GL_SRGB
-			//    even if we render srgb correctly into texture(=writes encode), reads in final render will decode(=we get what we wrote in, conversion is lost)
-			//    for srgb correct mirror, we would have to
-			//    a) add LIGHT_INDIRECT_MIRROR_SRGB, and convert manually in shader (would increase already large number of shaders)
-			//    b) make ubershader work with linear light (number of differences between correct and incorrect path would grow too much, difficult to maintain)
-			//       (srgb incorrect path must remain because of OpenGL ES)
-			render(_solver,mirrorUberProgramSetup,mirrorCamera,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
-
-			// build mirror mipmaps
-			mirrorTex->bindTexture();
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glGenerateMipmapEXT(GL_TEXTURE_2D); // part of EXT_framebuffer_object
-		}
-		oldState.restore();
-		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
-		recursionDepth = 0;
-	}
-#endif
-
 	// copy camera to OpenGL fixed pipeline (to be removed)
 	setupForRender(_camera);
 
@@ -518,9 +474,12 @@ void RendererOfSceneImpl::render(
 	PreserveDepthMask p5; // changed by RendererOfMesh
 
 	// Render non-sorted facegroups.
+	for (unsigned applyingMirrors=0;applyingMirrors<2;applyingMirrors++) // 2 passes, LIGHT_INDIRECT_MIRROR should go _after_ !LIGHT_INDIRECT_MIRROR to increase speed and reduce light leaking under walls
+	{
 	for (unsigned transparencyToRGB=0;transparencyToRGB<2;transparencyToRGB++) // 2 passes, MATERIAL_TRANSPARENCY_TO_RGB(e.g. window) must go _after_ !MATERIAL_TRANSPARENCY_TO_RGB(e.g. wall), otherwise in "light - wall - window" scene, window would paint to rgb shadowmap (wall does not write to rgb) and cast rgb shadow on wall
 	for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap[recursionDepth].begin();i!=nonBlendedFaceGroupsMap[recursionDepth].end();++i)
 	if (i->first.MATERIAL_TRANSPARENCY_TO_RGB == (transparencyToRGB!=0))
+	if ((i->first.LIGHT_INDIRECT_MIRROR_DIFFUSE||i->first.LIGHT_INDIRECT_MIRROR_SPECULAR) == (applyingMirrors!=0))
 	{
 		rr::RRVector<FaceGroupRange>*& nonBlendedFaceGroups = i->second;
 		if (nonBlendedFaceGroups && nonBlendedFaceGroups->size())
@@ -574,6 +533,55 @@ void RendererOfSceneImpl::render(
 				}
 			}
 		}
+	}
+#ifdef MIRRORS
+	// Update mirrors (after rendering all non-mirrors).
+	if (!applyingMirrors && mirrors.size())
+	{
+		RR_ASSERT(!recursionDepth);
+		recursionDepth = 1;
+		UberProgramSetup mirrorUberProgramSetup = _uberProgramSetup;
+		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
+		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
+		mirrorUberProgramSetup.CLIP_PLANE = true;
+		FBO oldState = FBO::getState();
+		for (Mirrors::const_iterator i=mirrors.begin();i!=mirrors.end();++i)
+		{
+			rr::RRVec4 mirrorPlane = i->first;
+			bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(_camera.getPosition())>0;
+			if (!cameraInFrontOfMirror) mirrorPlane = -mirrorPlane;
+			mirrorPlane.w -= mirrorPlane.RRVec3::length()*_camera.getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
+			rr::RRBuffer* mirrorMap = i->second;
+			rr::RRCamera mirrorCamera = _camera;
+			mirrorCamera.mirror(mirrorPlane);
+			ClipPlanes clipPlanes = {mirrorPlane,0,0,0,0,0,0};
+			depthMap->reset(rr::BT_2D_TEXTURE,mirrorMap->getWidth(),mirrorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
+			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(depthMap,false,false));
+			Texture* mirrorTex = new Texture(mirrorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorTex);
+			glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
+			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+			// Q: how to make mirrors srgb correct?
+			// A: current mirror is always srgb incorrect, srgb correct render works only into real backbuffer, not into texture.
+			//    result is not affected by using GL_RGB vs GL_SRGB
+			//    even if we render srgb correctly into texture(=writes encode), reads in final render will decode(=we get what we wrote in, conversion is lost)
+			//    for srgb correct mirror, we would have to
+			//    a) add LIGHT_INDIRECT_MIRROR_SRGB, and convert manually in shader (would increase already large number of shaders)
+			//    b) make ubershader work with linear light (number of differences between correct and incorrect path would grow too much, difficult to maintain)
+			//       (srgb incorrect path must remain because of OpenGL ES)
+			render(_solver,mirrorUberProgramSetup,mirrorCamera,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
+
+			// build mirror mipmaps
+			mirrorTex->bindTexture();
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			glGenerateMipmapEXT(GL_TEXTURE_2D); // part of EXT_framebuffer_object
+		}
+		oldState.restore();
+		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+		setupForRender(_camera);
+		recursionDepth = 0;
+	}
+#endif
 	}
 
 	// Render skybox.
