@@ -476,111 +476,111 @@ void RendererOfSceneImpl::render(
 	// Render non-sorted facegroups.
 	for (unsigned applyingMirrors=0;applyingMirrors<2;applyingMirrors++) // 2 passes, LIGHT_INDIRECT_MIRROR should go _after_ !LIGHT_INDIRECT_MIRROR to increase speed and reduce light leaking under walls
 	{
-	for (unsigned transparencyToRGB=0;transparencyToRGB<2;transparencyToRGB++) // 2 passes, MATERIAL_TRANSPARENCY_TO_RGB(e.g. window) must go _after_ !MATERIAL_TRANSPARENCY_TO_RGB(e.g. wall), otherwise in "light - wall - window" scene, window would paint to rgb shadowmap (wall does not write to rgb) and cast rgb shadow on wall
-	for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap[recursionDepth].begin();i!=nonBlendedFaceGroupsMap[recursionDepth].end();++i)
-	if (i->first.MATERIAL_TRANSPARENCY_TO_RGB == (transparencyToRGB!=0))
-	if ((i->first.LIGHT_INDIRECT_MIRROR_DIFFUSE||i->first.LIGHT_INDIRECT_MIRROR_SPECULAR) == (applyingMirrors!=0))
-	{
-		rr::RRVector<FaceGroupRange>*& nonBlendedFaceGroups = i->second;
-		if (nonBlendedFaceGroups && nonBlendedFaceGroups->size())
+		for (unsigned transparencyToRGB=0;transparencyToRGB<2;transparencyToRGB++) // 2 passes, MATERIAL_TRANSPARENCY_TO_RGB(e.g. window) must go _after_ !MATERIAL_TRANSPARENCY_TO_RGB(e.g. wall), otherwise in "light - wall - window" scene, window would paint to rgb shadowmap (wall does not write to rgb) and cast rgb shadow on wall
+		for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap[recursionDepth].begin();i!=nonBlendedFaceGroupsMap[recursionDepth].end();++i)
+		if (i->first.MATERIAL_TRANSPARENCY_TO_RGB == (transparencyToRGB!=0))
+		if ((i->first.LIGHT_INDIRECT_MIRROR_DIFFUSE||i->first.LIGHT_INDIRECT_MIRROR_SPECULAR) == (applyingMirrors!=0))
 		{
-			const UberProgramSetup& classUberProgramSetup = i->first;
-			if (_uberProgramSetup.MATERIAL_CULLING && !classUberProgramSetup.MATERIAL_CULLING)
+			rr::RRVector<FaceGroupRange>*& nonBlendedFaceGroups = i->second;
+			if (nonBlendedFaceGroups && nonBlendedFaceGroups->size())
 			{
-				// we are rendering with culling, but it was disabled in this class because front=back
-				// setup culling at the beginning
-				glDisable(GL_CULL_FACE);
-			}
-			MultiPass multiPass(_camera,_lights,_renderingFromThisLight,classUberProgramSetup,uberProgram,_clipPlanes,_srgbCorrect,_brightness,_gamma);
-			UberProgramSetup passUberProgramSetup;
-			RealtimeLight* light;
-			Program* program;
-			while (program = multiPass.getNextPass(passUberProgramSetup,light))
-			{
-				for (unsigned j=0;j<nonBlendedFaceGroups->size();)
+				const UberProgramSetup& classUberProgramSetup = i->first;
+				if (_uberProgramSetup.MATERIAL_CULLING && !classUberProgramSetup.MATERIAL_CULLING)
 				{
-					PerObjectBuffers& objectBuffers = perObjectBuffers[recursionDepth][(*nonBlendedFaceGroups)[j].object];
-					rr::RRObject* object = objectBuffers.object;
+					// we are rendering with culling, but it was disabled in this class because front=back
+					// setup culling at the beginning
+					glDisable(GL_CULL_FACE);
+				}
+				MultiPass multiPass(_camera,_lights,_renderingFromThisLight,classUberProgramSetup,uberProgram,_clipPlanes,_srgbCorrect,_brightness,_gamma);
+				UberProgramSetup passUberProgramSetup;
+				RealtimeLight* light;
+				Program* program;
+				while (program = multiPass.getNextPass(passUberProgramSetup,light))
+				{
+					for (unsigned j=0;j<nonBlendedFaceGroups->size();)
+					{
+						PerObjectBuffers& objectBuffers = perObjectBuffers[recursionDepth][(*nonBlendedFaceGroups)[j].object];
+						rr::RRObject* object = objectBuffers.object;
 
-					// set transformation
-					passUberProgramSetup.useWorldMatrix(program,object);
+						// set transformation
+						passUberProgramSetup.useWorldMatrix(program,object);
 
-					// set envmaps
-					passUberProgramSetup.useIlluminationEnvMap(program,object->illumination.getLayer(_layerEnvironment));
+						// set envmaps
+						passUberProgramSetup.useIlluminationEnvMap(program,object->illumination.getLayer(_layerEnvironment));
 #ifdef MIRRORS
-					// set mirror
-					passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorMap);
+						// set mirror
+						passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorMap);
 #endif
-					// how many ranges can we render at once (the same mesh)?
-					unsigned numRanges = 1;
-					while (j+numRanges<nonBlendedFaceGroups->size() && (*nonBlendedFaceGroups)[j+numRanges].object==(*nonBlendedFaceGroups)[j].object) numRanges++;
+						// how many ranges can we render at once (the same mesh)?
+						unsigned numRanges = 1;
+						while (j+numRanges<nonBlendedFaceGroups->size() && (*nonBlendedFaceGroups)[j+numRanges].object==(*nonBlendedFaceGroups)[j].object) numRanges++;
 
-					// render
-					objectBuffers.meshRenderer->render(
-						program,
-						object,
-						&(*nonBlendedFaceGroups)[j],numRanges,
-						passUberProgramSetup,
-						_renderingFromThisLight?true:false,
-						objectBuffers.lightIndirectBuffer,
-						objectBuffers.lightIndirectDetailMap);
+						// render
+						objectBuffers.meshRenderer->render(
+							program,
+							object,
+							&(*nonBlendedFaceGroups)[j],numRanges,
+							passUberProgramSetup,
+							_renderingFromThisLight?true:false,
+							objectBuffers.lightIndirectBuffer,
+							objectBuffers.lightIndirectDetailMap);
 
-					j += numRanges;
+						j += numRanges;
 #ifdef MIRRORS
-					//if (objectBuffers.mirrorMap)
-					//	textureRenderer->render2D(getTexture(objectBuffers.mirrorMap,false,false),NULL,1,0,0,0.5f,0.5f);
+						//if (objectBuffers.mirrorMap)
+						//	textureRenderer->render2D(getTexture(objectBuffers.mirrorMap,false,false),NULL,1,0,0,0.5f,0.5f);
 #endif
+					}
 				}
 			}
 		}
-	}
 #ifdef MIRRORS
-	// Update mirrors (after rendering all non-mirrors).
-	if (!applyingMirrors && mirrors.size())
-	{
-		RR_ASSERT(!recursionDepth);
-		recursionDepth = 1;
-		UberProgramSetup mirrorUberProgramSetup = _uberProgramSetup;
-		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
-		mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
-		mirrorUberProgramSetup.CLIP_PLANE = true;
-		FBO oldState = FBO::getState();
-		for (Mirrors::const_iterator i=mirrors.begin();i!=mirrors.end();++i)
+		// Update mirrors (after rendering all non-mirrors).
+		if (!applyingMirrors && mirrors.size())
 		{
-			rr::RRVec4 mirrorPlane = i->first;
-			bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(_camera.getPosition())>0;
-			if (!cameraInFrontOfMirror) mirrorPlane = -mirrorPlane;
-			mirrorPlane.w -= mirrorPlane.RRVec3::length()*_camera.getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
-			rr::RRBuffer* mirrorMap = i->second;
-			rr::RRCamera mirrorCamera = _camera;
-			mirrorCamera.mirror(mirrorPlane);
-			ClipPlanes clipPlanes = {mirrorPlane,0,0,0,0,0,0};
-			depthMap->reset(rr::BT_2D_TEXTURE,mirrorMap->getWidth(),mirrorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
-			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(depthMap,false,false));
-			Texture* mirrorTex = new Texture(mirrorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorTex);
-			glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
-			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-			// Q: how to make mirrors srgb correct?
-			// A: current mirror is always srgb incorrect, srgb correct render works only into real backbuffer, not into texture.
-			//    result is not affected by using GL_RGB vs GL_SRGB
-			//    even if we render srgb correctly into texture(=writes encode), reads in final render will decode(=we get what we wrote in, conversion is lost)
-			//    for srgb correct mirror, we would have to
-			//    a) add LIGHT_INDIRECT_MIRROR_SRGB, and convert manually in shader (would increase already large number of shaders)
-			//    b) make ubershader work with linear light (number of differences between correct and incorrect path would grow too much, difficult to maintain)
-			//       (srgb incorrect path must remain because of OpenGL ES)
-			render(_solver,mirrorUberProgramSetup,mirrorCamera,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
+			RR_ASSERT(!recursionDepth);
+			recursionDepth = 1;
+			UberProgramSetup mirrorUberProgramSetup = _uberProgramSetup;
+			mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
+			mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
+			mirrorUberProgramSetup.CLIP_PLANE = true;
+			FBO oldState = FBO::getState();
+			for (Mirrors::const_iterator i=mirrors.begin();i!=mirrors.end();++i)
+			{
+				rr::RRVec4 mirrorPlane = i->first;
+				bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(_camera.getPosition())>0;
+				if (!cameraInFrontOfMirror) mirrorPlane = -mirrorPlane;
+				mirrorPlane.w -= mirrorPlane.RRVec3::length()*_camera.getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
+				rr::RRBuffer* mirrorMap = i->second;
+				rr::RRCamera mirrorCamera = _camera;
+				mirrorCamera.mirror(mirrorPlane);
+				ClipPlanes clipPlanes = {mirrorPlane,0,0,0,0,0,0};
+				depthMap->reset(rr::BT_2D_TEXTURE,mirrorMap->getWidth(),mirrorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
+				FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(depthMap,false,false));
+				Texture* mirrorTex = new Texture(mirrorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
+				FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorTex);
+				glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
+				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+				// Q: how to make mirrors srgb correct?
+				// A: current mirror is always srgb incorrect, srgb correct render works only into real backbuffer, not into texture.
+				//    result is not affected by using GL_RGB vs GL_SRGB
+				//    even if we render srgb correctly into texture(=writes encode), reads in final render will decode(=we get what we wrote in, conversion is lost)
+				//    for srgb correct mirror, we would have to
+				//    a) add LIGHT_INDIRECT_MIRROR_SRGB, and convert manually in shader (would increase already large number of shaders)
+				//    b) make ubershader work with linear light (number of differences between correct and incorrect path would grow too much, difficult to maintain)
+				//       (srgb incorrect path must remain because of OpenGL ES)
+				render(_solver,mirrorUberProgramSetup,mirrorCamera,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
 
-			// build mirror mipmaps
-			mirrorTex->bindTexture();
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			glGenerateMipmapEXT(GL_TEXTURE_2D); // part of EXT_framebuffer_object
+				// build mirror mipmaps
+				mirrorTex->bindTexture();
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				glGenerateMipmapEXT(GL_TEXTURE_2D); // part of EXT_framebuffer_object
+			}
+			oldState.restore();
+			glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+			setupForRender(_camera);
+			recursionDepth = 0;
 		}
-		oldState.restore();
-		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
-		setupForRender(_camera);
-		recursionDepth = 0;
-	}
 #endif
 	}
 
