@@ -243,6 +243,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		updateHide();
 		rtlight->dirtyShadowmap = true;
 		rtlight->dirtyGI = true;
+		svframe->updateSceneTree(); // name-less lights have name in tree generated from type
 	}
 	else
 	if (property==propPosition)
