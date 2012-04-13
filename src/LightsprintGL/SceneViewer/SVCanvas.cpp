@@ -407,6 +407,8 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 	// fix dangling pointer in collisionHandler
 	delete collisionHandler;
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
+	// now that we have new collisionHandler, fix dangling pointer in ray
+	ray->collisionHandler = collisionHandler;
 
 	// alloc rtgi buffers, otherwise new objects would have no realtime indirect
 	if (add)
