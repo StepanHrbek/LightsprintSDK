@@ -540,6 +540,7 @@ void RendererOfSceneImpl::render(
 		{
 			RR_ASSERT(!recursionDepth);
 			recursionDepth = 1;
+			glDepthMask(GL_TRUE); // may be disabled after second light pass
 			UberProgramSetup mirrorUberProgramSetup = _uberProgramSetup;
 			mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
 			mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
