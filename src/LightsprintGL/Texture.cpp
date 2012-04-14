@@ -316,7 +316,6 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 			break;
 	}/**/
 	bindTexture();
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	if (cubeOr2d==GL_TEXTURE_CUBE_MAP)
 	{
