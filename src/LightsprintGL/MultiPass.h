@@ -37,6 +37,8 @@ public:
 
 	//! Returns true and all outXxx are set, do render.
 	//! Or returns false and outXxx stay unchanged, rendering is done.
+	//! Note that functions sets OpenGL blending and masking states (glBlendFunc, GL_BLEND, glDepthMask, glColorMask) for given pass,
+	//! and does not restore them at the end of rendering, caller is responsible.
 	Program* getNextPass(UberProgramSetup& outUberProgramSetup, RealtimeLight*& outLight);
 
 protected:
