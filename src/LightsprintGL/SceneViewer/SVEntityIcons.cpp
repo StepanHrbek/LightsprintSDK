@@ -169,6 +169,9 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* tex
 					ray->rayDir = rayDir.normalized();
 					ray->rayLengthMin = 0;
 					ray->rayLengthMax = rayDir.length();
+					ray->rayFlags = 0;
+					ray->hitObject = NULL;
+					//ray->collisionHandler = collisionHandlerFirstVisible from SVCanvas, already set
 					visible = !supercollider->intersect(ray);
 				}
 
