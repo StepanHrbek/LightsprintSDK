@@ -6,7 +6,7 @@
 #include <cstdio>
 #include <GL/glew.h>
 #include "Lightsprint/GL/TextureRenderer.h"
-#include "Lightsprint/GL/Program.h"
+#include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDebug.h"
 #include "PreserveState.h"
@@ -24,39 +24,19 @@ namespace rr_gl
 
 TextureRenderer::TextureRenderer(const char* pathToShaders)
 {
-	for (unsigned projection=0;projection<2;projection++)
-		for (unsigned scaled=0;scaled<2;scaled++)
-		{
-			skyProgram[projection][scaled] = Program::create(
-				tmpstr("%s%s%s",
-					(projection==0)?"#define PROJECTION_CUBE\n":(
-					(projection==1)?"#define PROJECTION_EQUIRECTANGULAR\n":""),					
-					"#define POSTPROCESS_BRIGHTNESS\n",
-					scaled?"#define POSTPROCESS_GAMMA\n":""),
-				tmpstr("%ssky.vs",pathToShaders),
-				tmpstr("%ssky.fs",pathToShaders));
-			if (!skyProgram[projection][scaled])
-				rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %ssky.*\n",pathToShaders);
-		}
-	for (unsigned gamma=0;gamma<2;gamma++)
-	{
-		twodProgram[gamma] = Program::create(
-			tmpstr("#define TEXTURE\n%s",gamma?"#define GAMMA\n":""),
-			tmpstr("%stexture.vs",pathToShaders),
-			tmpstr("%stexture.fs",pathToShaders));
-		if (!twodProgram[gamma])
-			rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %stexture.*\n",pathToShaders);
-	}
+	skyProgram = UberProgram::create(tmpstr("%ssky.vs",pathToShaders),tmpstr("%ssky.fs",pathToShaders));
+	twodProgram = UberProgram::create(tmpstr("%stexture.vs",pathToShaders),tmpstr("%stexture.fs",pathToShaders));
+	if (!skyProgram)
+		rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %ssky.*\n",pathToShaders);
+	if (!twodProgram)
+		rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %stexture.*\n",pathToShaders);
 	oldCamera = NULL;
 }
 
 TextureRenderer::~TextureRenderer()
 {
-	for (unsigned projection=0;projection<2;projection++)
-		for (unsigned scaled=0;scaled<2;scaled++)
-			delete skyProgram[projection][scaled];
-	for (unsigned gamma=0;gamma<2;gamma++)
-		delete twodProgram[gamma];
+	delete skyProgram;
+	delete twodProgram;
 }
 
 bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Texture* _texture, const rr::RRVec3& _brightness, float _gamma)
@@ -73,9 +53,10 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 		_brightness[2] = pow(_brightness[2],SRGB2PHYS);
 		_gamma *= PHYS2SRGB;
 	}
-	unsigned projection = (_texture->getBuffer()->getType()==rr::BT_2D_TEXTURE)?1:0;
-	unsigned scaled = (_gamma!=1)?1:0;
-	Program* program = skyProgram[projection][scaled];
+	Program* program = skyProgram ? skyProgram->getProgram(tmpstr("#define POSTPROCESS_BRIGHTNESS\n%s%s",
+		(_texture->getBuffer()->getType()==rr::BT_2D_TEXTURE)?"#define PROJECTION_EQUIRECTANGULAR\n":"#define PROJECTION_CUBE\n",
+		(_gamma!=1)?"#define POSTPROCESS_GAMMA\n":""
+		)) : NULL;
 	if (!program)
 	{
 		RR_ASSERT(0);
@@ -85,9 +66,9 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	_texture->bindTexture();
 	program->sendUniform("map",0);
 	program->sendUniform("postprocessBrightness",_brightness);
-	if (scaled)
+	if (_gamma!=1)
 		program->sendUniform("postprocessGamma",_gamma);
-	if (projection==1)
+	if (_texture->getBuffer()->getType()==rr::BT_2D_TEXTURE)
 		program->sendUniform("shape",rr::RRVec4(-0.5f/RR_PI,1.0f/RR_PI,0.75f,0.5f));
 
 	// render
@@ -155,7 +136,7 @@ bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma)
 	culling = glIsEnabled(GL_CULL_FACE);
 	depthTest = glIsEnabled(GL_DEPTH_TEST);
 	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
-	Program* program = twodProgram[gamma!=1];
+	Program* program = twodProgram ? twodProgram->getProgram(tmpstr("#define TEXTURE\n%s",(gamma!=1)?"#define GAMMA\n":"")) : NULL;
 	if (!program)
 	{
 		RR_ASSERT(0);

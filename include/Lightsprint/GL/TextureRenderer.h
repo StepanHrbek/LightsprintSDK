@@ -61,8 +61,8 @@ public:
 private:
 	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture, const rr::RRVec3& brightness, float gamma);
 
-	class Program* skyProgram[2][2]; // [projection][scaled]
-	class Program *twodProgram[2]; // [gamma]
+	class UberProgram* skyProgram;
+	class UberProgram* twodProgram;
 	unsigned char culling;
 	unsigned char depthTest;
 	unsigned char depthMask;
