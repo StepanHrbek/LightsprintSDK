@@ -66,7 +66,7 @@ struct PerObjectBuffers
 	rr::RRBuffer* reflectionEnvMap;
 #ifdef MIRRORS
 	rr::RRVec4 mirrorPlane;
-	rr::RRBuffer* mirrorMap;
+	rr::RRBuffer* mirrorColorMap;
 #endif
 	rr::RRBuffer* lightIndirectBuffer;
 	rr::RRBuffer* lightIndirectDetailMap;
@@ -115,7 +115,7 @@ private:
 	UberProgram* uberProgram;
 	RendererOfMeshCache rendererOfMeshCache;
 #ifdef MIRRORS
-	rr::RRBuffer* depthMap;
+	rr::RRBuffer* mirrorDepthMap;
 	rr::RRBuffer* mirrorMaskMap;
 #endif
 
@@ -146,7 +146,7 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 		tmpstr("%subershader.vs",pathToShaders),
 		tmpstr("%subershader.fs",pathToShaders));
 #ifdef MIRRORS
-	depthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,512,512,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
+	mirrorDepthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,512,512,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 	mirrorMaskMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,512,512,1,rr::BF_RGB,true,RR_GHOST_BUFFER);
 #endif
 	recursionDepth = 0;
@@ -156,7 +156,7 @@ RendererOfSceneImpl::~RendererOfSceneImpl()
 {
 #ifdef MIRRORS
 	delete mirrorMaskMap;
-	delete depthMap;
+	delete mirrorDepthMap;
 #endif
 	delete uberProgram;
 	delete textureRenderer;
@@ -311,7 +311,7 @@ void RendererOfSceneImpl::render(
 				objectBuffers.meshRenderer = rendererOfMeshCache.getRendererOfMesh(mesh);
 				objectBuffers.reflectionEnvMap = (_uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) ? onlyCube(illumination.getLayer(_layerEnvironment)) : NULL;
 #ifdef MIRRORS
-				objectBuffers.mirrorMap = NULL;
+				objectBuffers.mirrorColorMap = NULL;
 				objectBuffers.mirrorPlane = rr::RRVec4(0);
 				if ((_uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR) && !onlyCube(illumination.getLayer(_layerEnvironment)))
 				{
@@ -336,11 +336,11 @@ void RendererOfSceneImpl::render(
 									objectBuffers.mirrorPlane = mirrorPlane;
 									Mirrors::const_iterator i = mirrors.find(mirrorPlane);
 									if (i!=mirrors.end())
-										objectBuffers.mirrorMap = i->second;
+										objectBuffers.mirrorColorMap = i->second;
 									else
 									{
-										objectBuffers.mirrorMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,(viewport[2]+1)/2,(viewport[3]+1)/2,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-										mirrors.insert(std::pair<rr::RRVec4,rr::RRBuffer*>(objectBuffers.mirrorPlane,objectBuffers.mirrorMap));
+										objectBuffers.mirrorColorMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,(viewport[2]+1)/2,(viewport[3]+1)/2,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+										mirrors.insert(std::pair<rr::RRVec4,rr::RRBuffer*>(objectBuffers.mirrorPlane,objectBuffers.mirrorColorMap));
 									}
 									break;
 								}
@@ -360,8 +360,8 @@ void RendererOfSceneImpl::render(
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && objectBuffers.reflectionEnvMap;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && objectBuffers.reflectionEnvMap;
 #ifdef MIRRORS
-				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = objectBuffers.mirrorMap && !objectBuffers.lightIndirectBuffer && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE;
-				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = objectBuffers.mirrorMap!=NULL;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = objectBuffers.mirrorColorMap && !objectBuffers.lightIndirectBuffer && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = objectBuffers.mirrorColorMap!=NULL;
 #else
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
@@ -509,7 +509,7 @@ void RendererOfSceneImpl::render(
 						passUberProgramSetup.useIlluminationEnvMap(program,object->illumination.getLayer(_layerEnvironment));
 #ifdef MIRRORS
 						// set mirror
-						passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorMap);
+						passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorColorMap);
 #endif
 						// how many ranges can we render at once (the same mesh)?
 						unsigned numRanges = 1;
@@ -527,8 +527,8 @@ void RendererOfSceneImpl::render(
 
 						j += numRanges;
 #ifdef MIRRORS
-						//if (objectBuffers.mirrorMap)
-						//	textureRenderer->render2D(getTexture(objectBuffers.mirrorMap,false,false),NULL,1,0,0,0.5f,0.5f);
+						//if (objectBuffers.mirrorColorMap)
+						//	textureRenderer->render2D(getTexture(objectBuffers.mirrorColorMap,false,false),NULL,1,0,0,0.5f,0.5f);
 #endif
 					}
 				}
@@ -552,15 +552,15 @@ void RendererOfSceneImpl::render(
 				bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(_camera.getPosition())>0;
 				if (!cameraInFrontOfMirror) mirrorPlane = -mirrorPlane;
 				mirrorPlane.w -= mirrorPlane.RRVec3::length()*_camera.getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
-				rr::RRBuffer* mirrorMap = i->second;
+				rr::RRBuffer* mirrorColorMap = i->second;
 				rr::RRCamera mirrorCamera = _camera;
 				mirrorCamera.mirror(mirrorPlane);
 				ClipPlanes clipPlanes = {mirrorPlane,0,0,0,0,0,0};
-				depthMap->reset(rr::BT_2D_TEXTURE,mirrorMap->getWidth(),mirrorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
-				FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(depthMap,false,false));
-				Texture* mirrorTex = new Texture(mirrorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
-				FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorTex);
-				glViewport(0,0,mirrorMap->getWidth(),mirrorMap->getHeight());
+				mirrorDepthMap->reset(rr::BT_2D_TEXTURE,mirrorColorMap->getWidth(),mirrorColorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
+				FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(mirrorDepthMap,false,false));
+				Texture* mirrorColorTex = new Texture(mirrorColorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
+				FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorColorTex);
+				glViewport(0,0,mirrorColorMap->getWidth(),mirrorColorMap->getHeight());
 				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 				// Q: how to make mirrors srgb correct?
 				// A: current mirror is always srgb incorrect, srgb correct render works only into real backbuffer, not into texture.
@@ -573,7 +573,7 @@ void RendererOfSceneImpl::render(
 				render(_solver,mirrorUberProgramSetup,mirrorCamera,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
 
 				// build mirror mipmaps
-				mirrorTex->bindTexture();
+				mirrorColorTex->bindTexture();
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				glGenerateMipmapEXT(GL_TEXTURE_2D); // part of EXT_framebuffer_object
 			}
@@ -635,7 +635,7 @@ void RendererOfSceneImpl::render(
 				passUberProgramSetup.useIlluminationEnvMap(program,object->illumination.getLayer(_layerEnvironment));
 #ifdef MIRRORS
 				// set mirror
-				passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorMap);
+				passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorColorMap);
 #endif
 				// render
 				objectBuffers.meshRenderer->render(
