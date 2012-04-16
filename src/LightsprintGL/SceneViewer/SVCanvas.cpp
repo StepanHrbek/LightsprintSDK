@@ -143,9 +143,78 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 
 }
 
+class SVContext : public wxGLContext
+{
+public:
+    SVContext(wxGLCanvas* win, bool core, bool debug, bool es)
+		: wxGLContext(win)
+	{
+		SetCurrent(*win);
+
+#ifdef _WIN32
+		// now that we have default context, we can try to modify it
+		if (es || debug || core)
+		if (glewInit()==GLEW_OK && WGL_ARB_create_context)
+		{
+			std::vector<int> attribList;
+			if (core)
+			{
+				attribList.push_back(WGL_CONTEXT_MAJOR_VERSION_ARB);
+				attribList.push_back(3);
+				attribList.push_back(WGL_CONTEXT_MINOR_VERSION_ARB);
+				attribList.push_back(3);
+				attribList.push_back(WGL_CONTEXT_FLAGS_ARB);
+				attribList.push_back(WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB);
+				attribList.push_back(WGL_CONTEXT_PROFILE_MASK_ARB);
+				attribList.push_back(WGL_CONTEXT_CORE_PROFILE_BIT_ARB);
+			}
+			if (debug)
+			{
+				attribList.push_back(WGL_CONTEXT_FLAGS_ARB);
+				attribList.push_back(WGL_CONTEXT_DEBUG_BIT_ARB);
+			}
+			if (es && WGL_EXT_create_context_es2_profile)
+			{
+				attribList.push_back(WGL_CONTEXT_MAJOR_VERSION_ARB);
+				attribList.push_back(2);
+				attribList.push_back(WGL_CONTEXT_MINOR_VERSION_ARB);
+				attribList.push_back(0);
+				attribList.push_back(WGL_CONTEXT_PROFILE_MASK_ARB);
+				attribList.push_back(WGL_CONTEXT_ES2_PROFILE_BIT_EXT); // overwrites 'core' request, can't be combined with ES
+			}
+			attribList.push_back(0);
+			HGLRC betterContext = wglCreateContextAttribsARB(win->GetHDC(),m_glContext,&attribList[0]);
+			if (betterContext)
+			{
+				wglMakeCurrent(win->GetHDC(),betterContext);
+				wglDeleteContext(m_glContext);
+				m_glContext = betterContext;
+				if (debug && glewInit()==GLEW_OK)
+				{
+					glDebugMessageCallbackARB(debugCallback, NULL);
+					glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+					glDebugMessageControlARB(GL_DONT_CARE,GL_DEBUG_TYPE_PERFORMANCE_ARB,GL_DONT_CARE,0,NULL,GL_FALSE);
+				}
+			}
+		}
+#endif
+	}
+	static void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam)
+	{
+		rr::RRReporter::report(
+			//(type==GL_DEBUG_TYPE_ERROR_ARB || type==GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB)?rr::ERRO:((type==GL_DEBUG_TYPE_PERFORMANCE_ARB||type==GL_DEBUG_TYPE_PORTABILITY_ARB)?rr::WARN:rr::INF2),
+			(severity==GL_DEBUG_SEVERITY_HIGH_ARB)?rr::ERRO:((severity==GL_DEBUG_SEVERITY_MEDIUM_ARB)?rr::WARN:rr::INF2),
+			"%s\n",message);
+		if (severity==GL_DEBUG_SEVERITY_HIGH_ARB)
+		{
+			int i=1;
+		}
+	}
+};
+
 void SVCanvas::createContextCore()
 {
-	context = new wxGLContext(this);
+	context = new SVContext(this,false,false,false);
 	SetCurrent(*context);
 
 #ifdef REPORT_HEAP_STATISTICS
