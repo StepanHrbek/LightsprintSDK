@@ -178,7 +178,7 @@ FBO::FBO()
 	depth_id = 0;
 }
 
-FBO FBO::getState()
+const FBO& FBO::getState()
 {
 	return s_fboState;
 }

@@ -39,7 +39,7 @@ public:
 	static bool isOk();
 
 	//! Return currect state, what textures are set as render target.
-	static FBO getState();
+	static const FBO& getState();
 	//! Restore saved state.
 	void restore();
 
