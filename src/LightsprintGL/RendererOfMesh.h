@@ -26,7 +26,7 @@ namespace rr_gl
 
 struct FaceGroupRange
 {
-	unsigned short object;
+	unsigned short object; // for internal use by RendererOfScene, ignored by RendererOfMesh
 	unsigned short faceGroupFirst;
 	unsigned short faceGroupLast;
 	unsigned triangleFirst;
