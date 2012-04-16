@@ -169,6 +169,7 @@ bool FBO::isOk()
 	return false;
 }
 
+
 FBO::FBO()
 {
 	fb_id = 0;

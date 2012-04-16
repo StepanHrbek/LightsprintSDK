@@ -21,7 +21,13 @@ namespace rr_gl
 class RR_GL_API FBO
 {
 public:
-	//! Set render target.
+	//! Sets render target.
+	//
+	//! Default (provided by windowing system) and non-default (texture) targets are never mixed,
+	//! so by setting texture, any previous default render target is automatically unset.
+	//! To render to custom color and depth textures, call setRenderTarget twice, once for each texture.
+	//! To return back to default render target, call restore() on previously backed up state,
+	//! or on newly constructed FBO.
 	//! \param attachment
 	//!  GL_DEPTH_ATTACHMENT_EXT or GL_COLOR_ATTACHMENT0_EXT.
 	//! \param target
@@ -37,6 +43,7 @@ public:
 	//! Restore saved state.
 	void restore();
 
+	//! Initializes new instance of default framebuffer, without modifying OpenGL state. Calling restore() would restore default framebuffer.
 	FBO();
 private:
 	static void setRenderTargetGL(GLenum attachment, GLenum target, GLuint texture);
