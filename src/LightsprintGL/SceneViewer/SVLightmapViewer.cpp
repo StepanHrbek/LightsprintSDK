@@ -29,7 +29,7 @@ SVLightmapViewer::~SVLightmapViewer()
 
 void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject* _object, bool _bilinear)
 {
-	if (_pixelBuffer && _object && (_pixelBuffer!=buffer || _object!=object) && _object->faceGroups.size())
+	if (_pixelBuffer && _pixelBuffer->getType()==rr::BT_2D_TEXTURE && _object && (_pixelBuffer!=buffer || _object!=object) && _object->faceGroups.size())
 	{
 		// report median texel size
 		unsigned unwrapChannel = _object->faceGroups[0].material->lightmapTexcoord;
