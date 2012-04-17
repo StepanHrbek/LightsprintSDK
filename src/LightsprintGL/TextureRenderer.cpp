@@ -6,7 +6,6 @@
 #include <cstdio>
 #include <GL/glew.h>
 #include "Lightsprint/GL/TextureRenderer.h"
-#include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDebug.h"
 #include "PreserveState.h"
@@ -30,7 +29,6 @@ TextureRenderer::TextureRenderer(const char* pathToShaders)
 		rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %ssky.*\n",pathToShaders);
 	if (!twodProgram)
 		rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %stexture.*\n",pathToShaders);
-	oldCamera = NULL;
 }
 
 TextureRenderer::~TextureRenderer()
@@ -130,21 +128,14 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	return result;
 };
 
-bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma)
+bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines)
 {
-	// backup render states
-	culling = glIsEnabled(GL_CULL_FACE);
-	depthTest = glIsEnabled(GL_DEPTH_TEST);
-	glGetBooleanv(GL_DEPTH_WRITEMASK,&depthMask);
-	Program* program = twodProgram ? twodProgram->getProgram(tmpstr("#define TEXTURE\n%s",(gamma!=1)?"#define GAMMA\n":"")) : NULL;
+	Program* program = twodProgram ? twodProgram->getProgram(tmpstr("#define TEXTURE\n%s%s",(gamma!=1)?"#define GAMMA\n":"",extraDefines?extraDefines:"")) : NULL;
 	if (!program)
 	{
 		RR_ASSERT(0);
 		return false;
 	}
-	// setup render states
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(0);
 	// render 2d
 	program->useIt();
 	glActiveTexture(GL_TEXTURE0);
@@ -157,7 +148,7 @@ bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma)
 	return true;
 }
 
-void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float w,float h)
+void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float w,float h,float z)
 {
 	if (!texture)
 	{
@@ -170,9 +161,9 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 		// must be GL_NONE for sampler2D, otherwise result is undefined
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 
-	rr::RRVec2 position[4] = {rr::RRVec2(2*x-1,2*y-1),rr::RRVec2(2*(x+w)-1,2*y-1),rr::RRVec2(2*(x+w)-1,2*(y+h)-1),rr::RRVec2(2*x-1,2*(y+h)-1)};
+	rr::RRVec3 position[4] = {rr::RRVec3(2*x-1,2*y-1,RR_MAX(z,0)),rr::RRVec3(2*(x+w)-1,2*y-1,RR_MAX(z,0)),rr::RRVec3(2*(x+w)-1,2*(y+h)-1,RR_MAX(z,0)),rr::RRVec3(2*x-1,2*(y+h)-1,RR_MAX(z,0))};
 	rr::RRVec2 uv[4] = {rr::RRVec2(0,0),rr::RRVec2(1,0),rr::RRVec2(1,1),rr::RRVec2(0,1)};
-	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
+	glVertexAttribPointer(VAA_POSITION, 3, GL_FLOAT, 0, 0, position);
 	glVertexAttribPointer(VAA_UV0, 2, GL_FLOAT, 0, 0, uv);
 	glDrawArrays(GL_POLYGON, 0, 4);
 
@@ -186,17 +177,24 @@ void TextureRenderer::render2dEnd()
 {
 	glDisableVertexAttribArray(VAA_UV0);
 	glDisableVertexAttribArray(VAA_POSITION);
-	if (depthTest) glEnable(GL_DEPTH_TEST);
-	if (depthMask) glDepthMask(GL_TRUE);
-	if (culling) glEnable(GL_CULL_FACE);
 }
 
-void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h)
+void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z, const char* extraDefines)
 {
-	if (render2dBegin(color,gamma))
+	bool depthTest;
+	if (z<0)
 	{
-		render2dQuad(texture,x,y,w,h);
+		depthTest = glIsEnabled(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
+	}
+	if (render2dBegin(color,gamma,extraDefines))
+	{
+		render2dQuad(texture,x,y,w,h,z);
 		render2dEnd();
+	}
+	if (z<0)
+	{
+		if (depthTest) glEnable(GL_DEPTH_TEST);
 	}
 }
 

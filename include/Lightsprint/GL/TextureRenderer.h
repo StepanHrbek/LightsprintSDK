@@ -8,8 +8,9 @@
 #ifndef TEXTURERENDERER_H
 #define TEXTURERENDERER_H
 
-#include "Texture.h"
 #include "Lightsprint/RRCamera.h"
+#include "Texture.h"
+#include "UberProgram.h"
 
 namespace rr_gl
 {
@@ -35,14 +36,15 @@ public:
 	//! Shutdowns renderer, freeing shaders.
 	~TextureRenderer();
 
-	//! Renders cubemap or blend of two cubemaps as if camera is inside the cube.
+	//! Renders cubemap, equirectangular 2d texture or blend of two such maps as if camera is in center.
+	//
 	//! Use blendFactor=0 to render only texture0, texture1 then may be NULL.
 	//! Current OpenGL transformation matrices are used.
 	//! For non-NULL color, texture color is multiplied by color.
 	//! Color is finally gamma corrected by gamma, 1 = no correction.
 	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture0, const Texture* texture1, float blendFactor, const rr::RRVec4* brightness, float gamma, bool allowDepthTest);
 
-	//! Renders 2d texture into rectangle, using current blending and alpha testing modes.
+	//! Renders 2d texture into rectangle, using current blending/alpha testing/depth testing/masking etc modes.
 	//
 	//! render2D() internally calls render2dBegin() + render2dQuad() + render2dEnd().
 	//! For rendering N textures, it's possible to simply call render2D() N times,
@@ -61,24 +63,27 @@ public:
 	//!  x+w is position of texture's right side in render target, 0=leftmost, 1=rightmost. Negative w is supported.
 	//! \param h
 	//!  y+h is position of texture's top side in render target, 0=bottom, 1=top. Negative h is supported.
-	void render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h);
+	//! \param z
+	//!  Depth in 0..1 range to be assigned to all rendered fragments.
+	//!  Additional effect of z in render2D() (not in render2dQuad()) is: "if (z<0) temporarily disable GL_DEPTH_TEST"
+	//! \param extraDefines
+	//!  Usually NULL, may be additional glsl code inserted at the beginning of shader, to enable special rendering paths.
+	void render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z=-1, const char* extraDefines=NULL);
 
 	//! Component of render2D(), initializes pipeline.
-	bool render2dBegin(const rr::RRVec4* color, float gamma);
+	bool render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines=NULL);
 	//! Component of render2D(), renders textured quad. May be called multiple times between render2dBegin() and render2dEnd().
-	void render2dQuad(const Texture* texture, float x,float y,float w,float h);
+	void render2dQuad(const Texture* texture, float x,float y,float w,float h,float z=-1);
 	//! Component of render2D(), restores pipeline.
 	void render2dEnd();
 
+	//! sky.* uberprogram, only for reading, feel free to render with it directly.
+	UberProgram* skyProgram;
+	//! texture.* uberprogram, only for reading, feel free to render with it directly.
+	UberProgram* twodProgram;
+
 private:
 	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture, const rr::RRVec3& brightness, float gamma);
-
-	class UberProgram* skyProgram;
-	class UberProgram* twodProgram;
-	unsigned char culling;
-	unsigned char depthTest;
-	unsigned char depthMask;
-	const rr::RRCamera* oldCamera;
 };
 
 }; // namespace

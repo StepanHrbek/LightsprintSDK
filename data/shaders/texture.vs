@@ -3,9 +3,10 @@
 //
 // Options:
 // #define TEXTURE
+// #define GAMMA
 // #define SHOW_ALPHA0
 
-attribute vec2 vertexPosition;
+attribute vec3 vertexPosition;
 
 #ifdef TEXTURE
 	attribute vec2 vertexUv0;
@@ -14,7 +15,7 @@ attribute vec2 vertexPosition;
 
 void main()
 {
-	gl_Position = vec4(vertexPosition,1.0,1.0);
+	gl_Position = vec4(vertexPosition,1.0);
 #ifdef TEXTURE
 	uv = vertexUv0;
 #endif
