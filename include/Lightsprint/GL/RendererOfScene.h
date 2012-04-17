@@ -41,6 +41,10 @@ public:
 	//!
 	//! Render target is not cleared automatically, so you may want to glClear() both color and depth before calling render().
 	//!
+	//! For correct results, render target must contain at least depth and RGB channels.
+	//! When rendering with mirror reflections, render target must contain also alpha channel.
+	//! Stencil buffer is not used.
+	//!
 	//! \param _solver
 	//!  Source of static and dynamic objects, environment and illumination. Direct lights from solver are ignored.
 	//! \param _uberProgramSetup

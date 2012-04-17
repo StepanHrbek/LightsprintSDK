@@ -25,8 +25,10 @@ NEWS
   - note that RRMaterial::refractionIndex must be set properly, there is no effect with default index 1
 - <b>improved mirroring</b>
   - works with normal maps
+  - higher quality, no artifacts for objects intersecting mirror
+  - faster
   - LIGHT_INDIRECT_MIRROR renamed to rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_SPECULAR
-  - new rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_DIFFUSE offers higher quality lighting for large dynamic planes
+  - rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_DIFFUSE added, offers higher quality lighting for medium/large dynamic planes
 - <b>improved water</b>
   - removed rr_gl::Water, instead create large quad (dynamic object) and give it transparent normal mapped material. This leads to following advantages:
   - water has easier API, no special class needed (previously class Water, whole scene render had to be called twice)

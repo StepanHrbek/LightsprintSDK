@@ -5,6 +5,7 @@
 // #define TEXTURE
 // #define GAMMA
 // #define SHOW_ALPHA0
+// #define MIRROR_MASK
 
 uniform vec4 color;
 uniform float gamma;
@@ -67,4 +68,10 @@ void main()
 		,vec4(gamma,gamma,gamma,1))
 #endif
 		;
+
+#ifdef MIRROR_MASK
+	float tmp = step(0.51,color.a*tex.a); // 0.51 to not reflect pixels behind wall (excludes some pixels inside too)
+	gl_FragColor = vec4(0.0,0.0,0.0,tmp);
+	gl_FragDepth = tmp;
+#endif
 }

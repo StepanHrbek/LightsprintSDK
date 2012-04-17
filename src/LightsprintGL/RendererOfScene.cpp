@@ -146,8 +146,8 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 		tmpstr("%subershader.vs",pathToShaders),
 		tmpstr("%subershader.fs",pathToShaders));
 #ifdef MIRRORS
-	mirrorDepthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,512,512,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
-	mirrorMaskMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,512,512,1,rr::BF_RGB,true,RR_GHOST_BUFFER);
+	mirrorDepthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
+	mirrorMaskMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGB,true,RR_GHOST_BUFFER);
 #endif
 	recursionDepth = 0;
 }
@@ -276,7 +276,7 @@ void RendererOfSceneImpl::render(
 	// Preprocess scene, gather information about shader classes. Update cubemaps. Gather mirrors that need update.
 	perObjectBuffers[recursionDepth].clear();
 	for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap[recursionDepth].begin();i!=nonBlendedFaceGroupsMap[recursionDepth].end();++i)
-		i->second->clear();
+		i->second->clear(); // saves lots of new/delete, but makes cycling over map slower, empty fields make cycle longer. needs benchmarking to make sure it's faster than plain nonBlendedFaceGroupsMap[recursionDepth].clear();
 	blendedFaceGroups[recursionDepth].clear();
 	multiObjects.clear();
 	multiObjects.push_back(_solver->getMultiObjectCustom());
@@ -332,17 +332,27 @@ void RendererOfSceneImpl::render(
 								const rr::RRMaterial* material = faceGroups[g].material;
 								if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom) && material->specularReflectance.color.sum()+material->diffuseReflectance.color.sum()>0)
 								{
-									// allocate mirror
-									objectBuffers.mirrorPlane = mirrorPlane;
-									Mirrors::const_iterator i = mirrors.find(mirrorPlane);
-									if (i!=mirrors.end())
-										objectBuffers.mirrorColorMap = i->second;
+									// does current framebuffer have A?
+									GLint alphaBits = 0;
+									glGetIntegerv(GL_ALPHA_BITS,&alphaBits);
+									if (!alphaBits)
+									{
+										RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Mirror reflections disabled, current framebuffer lacks alpha channel.\n"));
+									}
 									else
 									{
-										objectBuffers.mirrorColorMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,(viewport[2]+1)/2,(viewport[3]+1)/2,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-										mirrors.insert(std::pair<rr::RRVec4,rr::RRBuffer*>(objectBuffers.mirrorPlane,objectBuffers.mirrorColorMap));
+										// allocate mirror
+										objectBuffers.mirrorPlane = mirrorPlane;
+										Mirrors::const_iterator i = mirrors.find(mirrorPlane);
+										if (i!=mirrors.end())
+											objectBuffers.mirrorColorMap = i->second;
+										else
+										{
+											objectBuffers.mirrorColorMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,(viewport[2]+1)/2,(viewport[3]+1)/2,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+											mirrors.insert(std::pair<rr::RRVec4,rr::RRBuffer*>(objectBuffers.mirrorPlane,objectBuffers.mirrorColorMap));
+										}
+										break;
 									}
-									break;
 								}
 							}
 						}
@@ -528,7 +538,11 @@ void RendererOfSceneImpl::render(
 						j += numRanges;
 #ifdef MIRRORS
 						//if (objectBuffers.mirrorColorMap)
+						//{
+						//	glDisable(GL_BLEND);
+						//	glDisable(GL_ALPHA_TEST);
 						//	textureRenderer->render2D(getTexture(objectBuffers.mirrorColorMap,false,false),NULL,1,0,0,0.5f,0.5f);
+						//}
 #endif
 					}
 				}
@@ -540,28 +554,94 @@ void RendererOfSceneImpl::render(
 		{
 			RR_ASSERT(!recursionDepth);
 			recursionDepth = 1;
-			glDepthMask(GL_TRUE); // may be disabled after second light pass
+
 			UberProgramSetup mirrorUberProgramSetup = _uberProgramSetup;
 			mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
 			mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
 			mirrorUberProgramSetup.CLIP_PLANE = true;
 			FBO oldState = FBO::getState();
-			for (Mirrors::const_iterator i=mirrors.begin();i!=mirrors.end();++i)
+			for (Mirrors::iterator i=mirrors.begin();i!=mirrors.end();++i)
 			{
+				glDisable(GL_BLEND);
+				glDisable(GL_ALPHA_TEST);
+				glEnable(GL_DEPTH_TEST);
+
+				// clear A
+				glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);
+				glClear(GL_COLOR_BUFFER_BIT);
+
+				// occlusion query optimization: phase 1
+				glBeginQuery(GL_SAMPLES_PASSED,1);
+
+				// render shape of visible mirror pixels into A
+				glDepthMask(GL_FALSE);
+				UberProgramSetup mirrorMaskUberProgramSetup;
+				mirrorMaskUberProgramSetup.MATERIAL_DIFFUSE = true;
+				mirrorMaskUberProgramSetup.MATERIAL_CULLING = true;
+				mirrorMaskUberProgramSetup.OBJECT_SPACE = true;
+				Program* mirrorMaskProgram = mirrorMaskUberProgramSetup.getProgram(uberProgram);
+				mirrorMaskProgram->useIt();
+				for (unsigned j=0;j<perObjectBuffers[0].size();j++)
+				{
+					PerObjectBuffers& objectBuffers = perObjectBuffers[0][j];
+					if (objectBuffers.mirrorPlane==i->first)
+					{
+						mirrorMaskUberProgramSetup.useWorldMatrix(mirrorMaskProgram,objectBuffers.object);
+						FaceGroupRange fgrange(0, // does not have to be filled for RendererOfMesh
+							0,objectBuffers.object->faceGroups.size()-1,0,objectBuffers.object->getCollider()->getMesh()->getNumTriangles());
+						objectBuffers.meshRenderer->render(
+							mirrorMaskProgram,
+							objectBuffers.object,
+							&fgrange,1,
+							mirrorMaskUberProgramSetup,
+							false,
+							NULL,
+							NULL);
+					}
+				}
+
+				// occlusion query optimization: phase 2
+				GLuint mirrorVisible = 0;
+				glEndQuery(GL_SAMPLES_PASSED);
+				glGetQueryObjectuiv(1,GL_QUERY_RESULT,&mirrorVisible);
+				if (!mirrorVisible)
+				{
+					// mirror is completely occluded, don't render mirrorColorMap, delete it
+					// mirror might still be rendered later in final render, but mirrorColorMap will be NULL
+					for (unsigned j=0;j<perObjectBuffers[0].size();j++)
+						if (perObjectBuffers[0][j].mirrorColorMap==i->second)
+							perObjectBuffers[0][j].mirrorColorMap = NULL;
+					RR_SAFE_DELETE(i->second);
+					continue;
+				}
+
+				// copy A to mirrorMaskMap.A
+				getTexture(mirrorMaskMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE)->bindTexture();
+				glCopyTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,0,0,viewport[2],viewport[3],0);
+
+				// downscale and saturate mirrorMaskMap into mirrorDepthMap, mirrorColorMap
+				glDepthMask(GL_TRUE);
+				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+				glDepthFunc(GL_ALWAYS);
+				glDisable(GL_CULL_FACE);
+				rr::RRBuffer* mirrorColorMap = i->second;
+				mirrorDepthMap->reset(rr::BT_2D_TEXTURE,mirrorColorMap->getWidth(),mirrorColorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
+				FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(mirrorDepthMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE));
+				Texture* mirrorColorTex = new Texture(mirrorColorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
+				FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorColorTex);
+				glViewport(0,0,mirrorColorMap->getWidth(),mirrorColorMap->getHeight());
+				getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,0,"#define MIRROR_MASK\n");
+				glDepthFunc(GL_LEQUAL);
+
+				// render scene into mirrorDepthMap, mirrorColorMap.rgb
+				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
 				rr::RRVec4 mirrorPlane = i->first;
 				bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(_camera.getPosition())>0;
 				if (!cameraInFrontOfMirror) mirrorPlane = -mirrorPlane;
 				mirrorPlane.w -= mirrorPlane.RRVec3::length()*_camera.getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
-				rr::RRBuffer* mirrorColorMap = i->second;
 				rr::RRCamera mirrorCamera = _camera;
 				mirrorCamera.mirror(mirrorPlane);
 				ClipPlanes clipPlanes = {mirrorPlane,0,0,0,0,0,0};
-				mirrorDepthMap->reset(rr::BT_2D_TEXTURE,mirrorColorMap->getWidth(),mirrorColorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
-				FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(mirrorDepthMap,false,false));
-				Texture* mirrorColorTex = new Texture(mirrorColorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
-				FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorColorTex);
-				glViewport(0,0,mirrorColorMap->getWidth(),mirrorColorMap->getHeight());
-				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 				// Q: how to make mirrors srgb correct?
 				// A: current mirror is always srgb incorrect, srgb correct render works only into real backbuffer, not into texture.
 				//    result is not affected by using GL_RGB vs GL_SRGB
@@ -572,14 +652,28 @@ void RendererOfSceneImpl::render(
 				//       (srgb incorrect path must remain because of OpenGL ES)
 				render(_solver,mirrorUberProgramSetup,mirrorCamera,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
 
+				// downscale and saturate mirrorMaskMap into mirrorColorMap.A (again, because previous render() destroyed it)
+				// it would help to modify render() to preserve alpha mask and delete this, however, more than 1% speedup can't be expected
+				glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);
+				glDisable(GL_DEPTH_TEST); // disables depth write too
+				getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,0,"#define MIRROR_MASK\n");
+				glEnable(GL_DEPTH_TEST);
+
 				// build mirror mipmaps
+				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 				mirrorColorTex->bindTexture();
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				glGenerateMipmapEXT(GL_TEXTURE_2D); // part of EXT_framebuffer_object
+
+				oldState.restore();
+				setupForRender(_camera);
+				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+
+				//textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,1,0.7f,-0.3f,0.3f,0,"#define MIRROR_MASK\n");
+				textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.3f,-0.3f,0.3f,0);
 			}
-			oldState.restore();
-			glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
-			setupForRender(_camera);
+			glDepthMask(GL_TRUE);
+			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 			recursionDepth = 0;
 		}
 #endif

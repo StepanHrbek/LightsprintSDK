@@ -830,7 +830,8 @@ void UberProgramSetup::useIlluminationMirror(Program* program, const rr::RRBuffe
 	{
 		if (!mirrorMap)
 		{
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationMirror: mirrorMap==NULL.\n"));
+			// don't warn, this happens when we skip occluded mirror (but it already has mirroring enabled in material)
+			//RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationMirror: mirrorMap==NULL.\n"));
 			return;
 		}
 		program->sendTexture("lightIndirectMirrorMap",getTexture(mirrorMap,false,false),TEX_CODE_2D_LIGHT_INDIRECT_MIRROR);

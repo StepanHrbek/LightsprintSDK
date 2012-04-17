@@ -303,6 +303,11 @@ varying vec3 worldNormalSmooth;
 	uniform float clipPlaneZB;
 #endif
 
+vec4 dividedByAlpha(vec4 color)
+{
+	return color/color.a;
+}
+
 void main()
 {
 
@@ -664,7 +669,8 @@ void main()
 		#endif
 
 		#if defined(LIGHT_INDIRECT_MIRROR_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
-			vec2 mirrorCenter = vec2(0.5,0.5)+vec2(-0.5,0.5)*lightIndirectMirrorCoord.xy/lightIndirectMirrorCoord.w;
+			vec2 mirrorCenterSmooth = vec2(0.5,0.5)+vec2(-0.5,0.5)*lightIndirectMirrorCoord.xy/lightIndirectMirrorCoord.w;
+			vec2 mirrorCenter = mirrorCenterSmooth;
 			#ifdef MATERIAL_NORMAL_MAP
 				mirrorCenter += localNormal.xy*0.1;
 			#endif
@@ -738,7 +744,7 @@ void main()
 							) * 0.5
 						#endif
 						#ifdef LIGHT_INDIRECT_MIRROR_DIFFUSE
-							+ texture2DLod(lightIndirectMirrorMap, mirrorCenter, 6.0)
+							+ dividedByAlpha(texture2DLod(lightIndirectMirrorMap, mirrorCenter, 6.0))
 						#endif
 					#ifdef LIGHT_INDIRECT_DETAIL_MAP
 						) * texture2D(lightIndirectMap, lightIndirectCoord) * 2.0
@@ -811,10 +817,16 @@ void main()
 						#endif
 					#endif
 					#ifdef LIGHT_INDIRECT_MIRROR_SPECULAR
-						+ ( texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift1, mirrorLod)
+						+ dividedByAlpha(
+						#ifdef MATERIAL_NORMAL_MAP
+							// when normal map moves mirrorCenter deep in non-mirrored area of mirrorMap, and all 4 rotated lookups read 0 in total, division by 0 looms.
+							// this lookup should always go into mirrored area, makes sum non-zero
+							+ texture2D(lightIndirectMirrorMap, mirrorCenterSmooth)*0.01
+						#endif
+						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift1, mirrorLod)
 						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift1, mirrorLod)
 						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift2, mirrorLod)
-						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift2, mirrorLod) ) * 0.25
+						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift2, mirrorLod) )
 					#endif
 				).rgb,1.0)
 			#endif

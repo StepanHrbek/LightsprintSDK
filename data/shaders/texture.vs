@@ -5,6 +5,7 @@
 // #define TEXTURE
 // #define GAMMA
 // #define SHOW_ALPHA0
+// #define MIRROR_MASK
 
 attribute vec3 vertexPosition;
 
