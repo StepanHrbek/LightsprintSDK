@@ -11,9 +11,8 @@
 #include "Lightsprint/GL/SceneViewer.h"
 #include "wx/wx.h"
 #include "Lightsprint/RRIllumination.h"
-#include "Lightsprint/GL/Texture.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
-#include "Lightsprint/GL/UberProgram.h"
+#include "Lightsprint/GL/TextureRenderer.h"
 
 namespace rr_gl
 {
@@ -30,8 +29,7 @@ namespace rr_gl
 class SVLightmapViewer : public rr::RRUniformlyAllocated
 {
 public:
-	SVLightmapViewer(const char* pathToShaders);
-	~SVLightmapViewer();
+	SVLightmapViewer();
 
 	//! Sets object presented in viewer.
 	void setObject(rr::RRBuffer* pixelBuffer, const rr::RRObject* object, bool bilinear);
@@ -40,14 +38,13 @@ public:
 	rr::RRVec2 getCenterUv(wxSize windowSize);
 
 	void OnMouseEvent(wxMouseEvent& event, wxSize windowSize);
-	void OnPaint(wxSize windowSize);
+	void OnPaint(TextureRenderer* textureRenderer, wxSize windowSize);
 
 private:
 	bool nearest;
 	bool alpha;
 	rr::RRReal zoom; // 1: 1 lmap pixel has 1 screen pixel, 2: 1 lmap pixel has 0.5x0.5 screen pixels
 	rr::RRVec2 center; // coord in pixels from center of lmap. texel with this coord is in center of screen
-	UberProgram* uberProgram;
 	rr::RRBuffer* buffer;
 	const rr::RRObject* object;
 	wxPoint previousPosition;

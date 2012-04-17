@@ -96,7 +96,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 	exitRequested = 0;
 	menuHandle = 0;
 	envToBeDeletedOnExit = false;
-	lv = NULL;
 	mousePositionInWindow = rr::RRVec2(0);
 	centerObject = UINT_MAX;
 	centerTexel = UINT_MAX;
@@ -341,7 +340,6 @@ void SVCanvas::createContextCore()
 
 	// init rest
 	rr::RRReportInterval report(rr::INF3,"Initializing the rest...\n");
-	lv = new SVLightmapViewer(svs.pathToShaders);
 	if (svs.selectedLightIndex>=solver->getLights().size()) svs.selectedLightIndex = 0;
 	if (svs.selectedObjectIndex>=solver->getStaticObjects().size()) svs.selectedObjectIndex = 0;
 	lightFieldQuadric = gluNewQuadric();
@@ -570,7 +568,6 @@ SVCanvas::~SVCanvas()
 	}
 	RR_SAFE_DELETE(solver);
 	for (unsigned i=0;i<mergedScenes.size();i++) delete mergedScenes[i];
-	RR_SAFE_DELETE(lv);
 	RR_SAFE_DELETE(lightField);
 	RR_SAFE_DELETE(lightFieldObjectIllumination);
 	for (unsigned i=0;i<lightsToBeDeletedOnExit.size();i++) delete lightsToBeDeletedOnExit[i];
@@ -855,9 +852,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	{
 		return;
 	}
-	if (svs.renderLightmaps2d && lv)
+	if (svs.renderLightmaps2d)
 	{
-		lv->OnMouseEvent(event,GetSize());
+		lv.OnMouseEvent(event,GetSize());
 		return;
 	}
 
@@ -1371,20 +1368,20 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		SwapBuffers();
 		return;
 	}
-	if (svs.renderLightmaps2d && lv)
+	if (svs.renderLightmaps2d)
 	{
 		if (solver->getObject(svs.selectedObjectIndex))
-			lv->setObject(
+			lv.setObject(
 				solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(
 					svs.renderLDMEnabled() ? svs.layerBakedLDM : ((svs.renderLightIndirect!=LI_BAKED || svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:svs.layerBakedAmbient)),
 				solver->getObject(svs.selectedObjectIndex),
 				svs.renderLightmapsBilinear);
 		else
-			lv->setObject(
+			lv.setObject(
 				NULL,
 				NULL,
 				svs.renderLightmapsBilinear);
-		lv->OnPaint(GetSize());
+		lv.OnPaint(textureRenderer,GetSize());
 	}
 	else
 	{
@@ -1857,7 +1854,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		rr::RRMesh::TangentBasis    selectedPointBasis;
 		rr::RRMesh::TriangleBody    selectedTriangleBody;
 		rr::RRMesh::TriangleNormals selectedTriangleNormals;
-		if (multiMesh && (!svs.renderLightmaps2d || !lv))
+		if (multiMesh && !svs.renderLightmaps2d)
 		{
 			// ray and collisionHandler are used in this block
 			ray->rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
@@ -1891,7 +1888,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		}
 
 		// render debug rays, using previously set shader
-		if (svs.renderHelpers && !_takingSshot && (!svs.renderLightmaps2d || !lv) && SVRayLog::size)
+		if (svs.renderHelpers && !_takingSshot && !svs.renderLightmaps2d && SVRayLog::size)
 		{
 			glBegin(GL_LINES);
 			for (unsigned i=0;i<SVRayLog::size;i++)
@@ -1990,7 +1987,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				textOutput(x,y+=18,h,"lighting direct=%s indirect=%s%s lightmaps=(%dx vbuf %dx lmap %dx none) solver=%s",
 					strDirect,strIndirect,svs.renderLDMEnabled()?"+LDM":"",numVbufs,numLmaps,numObjects-numVbufs-numLmaps,strSolver);
 			}
-			if (!svs.renderLightmaps2d || !lv)
+			if (!svs.renderLightmaps2d)
 			{
 				textOutput(x,y+=18*2,h,"[viewport]");
 				textOutput(x,y+=18,h,"size: %d*%d",winWidth,winHeight);
@@ -2002,7 +1999,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				glGetIntegerv(GL_DEPTH_BITS, &depthBits);
 				textOutput(x,y+=18,h,"r+g+b+a+z: %d+%d+%d+%d+%d",(int)redBits,(int)greenBits,(int)blueBits,(int)alphaBits,(int)depthBits);
 			}
-			if (!svs.renderLightmaps2d || !lv) if (svs.selectedLightIndex<solver->realtimeLights.size())
+			if (!svs.renderLightmaps2d) if (svs.selectedLightIndex<solver->realtimeLights.size())
 			{
 				// analyzes data from rarely used feature: lighting and shadowing only selected objects/combinations of objects
 				if (numTrianglesMulti<100000) // skip this expensive step for big scenes
@@ -2097,7 +2094,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					}
 				}
 			}
-			if (multiMesh && (!svs.renderLightmaps2d || !lv))
+			if (multiMesh && !svs.renderLightmaps2d)
 			{
 				if (selectedPointValid)
 				{
@@ -2174,9 +2171,9 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				}
 				textOutput(x,y+=18*2,h,"numbers of casters/lights show potential, what is allowed");
 			}
-			if (multiMesh && svs.renderLightmaps2d && lv)
+			if (multiMesh && svs.renderLightmaps2d)
 			{
-				rr::RRVec2 uv = lv->getCenterUv(GetSize());
+				rr::RRVec2 uv = lv.getCenterUv(GetSize());
 				textOutput(x,y+=18*2,h,"[pointed by mouse]");
 				textOutput(x,y+=18,h,"uv: %f %f",uv[0],uv[1]);
 				if (solver->getObject(svs.selectedObjectIndex))

@@ -11,20 +11,14 @@ namespace rr_gl
 {
 
 
-SVLightmapViewer::SVLightmapViewer(const char* _pathToShaders)
+SVLightmapViewer::SVLightmapViewer()
 {
 	nearest = false;
 	alpha = false;
 	zoom = 1;
 	center = rr::RRVec2(0);
-	uberProgram = UberProgram::create(wxString::Format("%stexture.vs",_pathToShaders),wxString::Format("%stexture.fs",_pathToShaders));
 	buffer = NULL;
 	object = NULL;
-}
-
-SVLightmapViewer::~SVLightmapViewer()
-{
-	delete uberProgram;
 }
 
 void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject* _object, bool _bilinear)
@@ -104,9 +98,9 @@ void SVLightmapViewer::OnMouseEvent(wxMouseEvent& event, wxSize windowSize)
 	previousPosition = event.GetPosition();
 }
 
-void SVLightmapViewer::OnPaint(wxSize windowSize)
+void SVLightmapViewer::OnPaint(TextureRenderer* textureRenderer, wxSize windowSize)
 {
-	if (!uberProgram)
+	if (!textureRenderer)
 	{
 		RR_ASSERT(0);
 		return;
@@ -127,36 +121,14 @@ void SVLightmapViewer::OnPaint(wxSize windowSize)
 
 	// render lightmap
 	if (buffer)
-	{
-		Program* prg = uberProgram->getProgram(alpha?"#define TEXTURE\n#define SHOW_ALPHA0\n":"#define TEXTURE\n");
-		if (prg)
-		{
-			prg->useIt();
-			glActiveTexture(GL_TEXTURE0);
-			getTexture(buffer)->bindTexture();
-			prg->sendUniform("map",0);
-			prg->sendUniform("color",rr::RRVec4(1));
-			if (alpha)
-				prg->sendUniform("resolution",(float)buffer->getWidth(),(float)buffer->getHeight());
-			glBegin(GL_POLYGON);
-			glTexCoord2f(0,0);
-			glVertex2f(quad[0][0],quad[0][1]);
-			glTexCoord2f(1,0);
-			glVertex2f(quad[1][0],quad[1][1]);
-			glTexCoord2f(1,1);
-			glVertex2f(quad[2][0],quad[2][1]);
-			glTexCoord2f(0,1);
-			glVertex2f(quad[3][0],quad[3][1]);
-			glEnd();
-		}
-	}
+		textureRenderer->render2D(getTexture(buffer),NULL,1,t_x,t_y,t_w,t_h,-1,alpha?"#define SHOW_ALPHA0\n":NULL);
 
 	// render mapping edges
 	const rr::RRMesh* mesh = object ? object->getCollider()->getMesh() : NULL;
 	unsigned numTriangles = mesh ? mesh->getNumTriangles() : 0;
 	if (numTriangles)
 	{
-		Program* lineProgram = uberProgram->getProgram(NULL);
+		Program* lineProgram = textureRenderer->twodProgram->getProgram(NULL);
 		if (lineProgram)
 		{
 			lineProgram->useIt();
