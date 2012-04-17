@@ -809,6 +809,7 @@ void UberProgramSetup::useIlluminationEnvMap(Program* program, const rr::RRBuffe
 		if (!reflectionEnvMap)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: reflectionEnvMap==NULL.\n"));
+			return;
 		}
 		program->sendTexture("lightIndirectEnvMap",getTexture(reflectionEnvMap,true,false),TEX_CODE_CUBE_LIGHT_INDIRECT);
 		unsigned w = reflectionEnvMap->getWidth();
@@ -830,6 +831,7 @@ void UberProgramSetup::useIlluminationMirror(Program* program, const rr::RRBuffe
 		if (!mirrorMap)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationMirror: mirrorMap==NULL.\n"));
+			return;
 		}
 		program->sendTexture("lightIndirectMirrorMap",getTexture(mirrorMap,false,false),TEX_CODE_2D_LIGHT_INDIRECT_MIRROR);
 	}
