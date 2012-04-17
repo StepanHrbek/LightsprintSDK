@@ -61,7 +61,7 @@ public:
 	//!  x+w is position of texture's right side in render target, 0=leftmost, 1=rightmost. Negative w is supported.
 	//! \param h
 	//!  y+h is position of texture's top side in render target, 0=bottom, 1=top. Negative h is supported.
-	void render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z=-1);
+	void render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h);
 
 	//! Component of render2D(), initializes pipeline.
 	bool render2dBegin(const rr::RRVec4* color, float gamma);
