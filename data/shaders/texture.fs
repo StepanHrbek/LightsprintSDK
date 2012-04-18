@@ -69,9 +69,10 @@ void main()
 #endif
 		;
 
-#ifdef MIRROR_MASK
-	float tmp = step(0.51,color.a*tex.a); // 0.51 to not reflect pixels behind wall (excludes some pixels inside too)
-	gl_FragColor = vec4(0.0,0.0,0.0,tmp);
-	gl_FragDepth = tmp;
+#ifdef MIRROR_MASK_DEPTH
+	if (color.a*tex.a<0.51) discard; // 0.51 to not reflect pixels behind wall (excludes some pixels inside too)
+#endif
+#ifdef MIRROR_MASK_ALPHA
+	gl_FragColor = vec4(0.0,0.0,0.0,step(0.51,color.a*tex.a)); // 0.51 to not reflect pixels behind wall (excludes some pixels inside too)
 #endif
 }

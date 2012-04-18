@@ -619,19 +619,29 @@ void RendererOfSceneImpl::render(
 				getTexture(mirrorMaskMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE)->bindTexture();
 				glCopyTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,0,0,viewport[2],viewport[3],0);
 
-				// downscale and saturate mirrorMaskMap into mirrorDepthMap, mirrorColorMap
-				glDepthMask(GL_TRUE);
-				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-				glDepthFunc(GL_ALWAYS);
-				glDisable(GL_CULL_FACE);
+				// clear mirrorDepthMap=0, mirrorColorMap=0
 				rr::RRBuffer* mirrorColorMap = i->second;
 				mirrorDepthMap->reset(rr::BT_2D_TEXTURE,mirrorColorMap->getWidth(),mirrorColorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
 				FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(mirrorDepthMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE));
 				Texture* mirrorColorTex = new Texture(mirrorColorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
 				FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorColorTex);
 				glViewport(0,0,mirrorColorMap->getWidth(),mirrorColorMap->getHeight());
-				getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,0,"#define MIRROR_MASK\n");
+				glDepthMask(GL_TRUE);
+				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+				glClearDepth(0);
+				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+				glClearDepth(1);
+
+				// write mirrorDepthMap=1 for pixels with mirrorMaskMap>0
+				// we clear to 0 and then overwrite some pixels to 1 (rather than writing both in one pass) because vanilla OpenGL ES 2.0 does not have gl_FragDepth
+				glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
+				glEnable(GL_ALPHA_TEST);
+				glAlphaFunc(GL_GREATER,0.51f);
+				glDepthFunc(GL_ALWAYS); // depth test must stay enabled, otherwise depth would not be written
+				glDisable(GL_CULL_FACE);
+				getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,1,"#define MIRROR_MASK_DEPTH\n"); // keeps depth test enabled
 				glDepthFunc(GL_LEQUAL);
+				glDisable(GL_ALPHA_TEST);
 
 				// render scene into mirrorDepthMap, mirrorColorMap.rgb
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
@@ -652,12 +662,9 @@ void RendererOfSceneImpl::render(
 				//       (srgb incorrect path must remain because of OpenGL ES)
 				render(_solver,mirrorUberProgramSetup,mirrorCamera,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
 
-				// downscale and saturate mirrorMaskMap into mirrorColorMap.A (again, because previous render() destroyed it)
-				// it would help to modify render() to preserve alpha mask and delete this, however, more than 1% speedup can't be expected
+				// copy mirrorMaskMap to mirrorColorMap.A
 				glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);
-				glDisable(GL_DEPTH_TEST); // disables depth write too
-				getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,0,"#define MIRROR_MASK\n");
-				glEnable(GL_DEPTH_TEST);
+				getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,-1,"#define MIRROR_MASK_ALPHA\n"); // disables depth test
 
 				// build mirror mipmaps
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
@@ -669,8 +676,10 @@ void RendererOfSceneImpl::render(
 				setupForRender(_camera);
 				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 
-				//textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,1,0.7f,-0.3f,0.3f,0,"#define MIRROR_MASK\n");
-				textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.3f,-0.3f,0.3f,0);
+				glDisable(GL_BLEND);
+				glDisable(GL_ALPHA_TEST);
+				//textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,1,0.7f,-0.3f,0.3f,0);
+				//textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.3f,-0.3f,0.3f,0);
 			}
 			glDepthMask(GL_TRUE);
 			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
