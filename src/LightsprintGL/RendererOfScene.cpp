@@ -540,7 +540,6 @@ void RendererOfSceneImpl::render(
 						//if (objectBuffers.mirrorColorMap)
 						//{
 						//	glDisable(GL_BLEND);
-						//	glDisable(GL_ALPHA_TEST);
 						//	textureRenderer->render2D(getTexture(objectBuffers.mirrorColorMap,false,false),NULL,1,0,0,0.5f,0.5f);
 						//}
 #endif
@@ -563,7 +562,6 @@ void RendererOfSceneImpl::render(
 			for (Mirrors::iterator i=mirrors.begin();i!=mirrors.end();++i)
 			{
 				glDisable(GL_BLEND);
-				glDisable(GL_ALPHA_TEST);
 				glEnable(GL_DEPTH_TEST);
 
 				// clear A
@@ -648,13 +646,10 @@ void RendererOfSceneImpl::render(
 				// write mirrorDepthMap=1 for pixels with mirrorMaskMap>0
 				// we clear to 0 and then overwrite some pixels to 1 (rather than writing both in one pass) because vanilla OpenGL ES 2.0 does not have gl_FragDepth
 				glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
-				glEnable(GL_ALPHA_TEST);
-				glAlphaFunc(GL_GREATER,0.51f);
 				glDepthFunc(GL_ALWAYS); // depth test must stay enabled, otherwise depth would not be written
 				glDisable(GL_CULL_FACE);
 				getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,1,"#define MIRROR_MASK_DEPTH\n"); // keeps depth test enabled
 				glDepthFunc(GL_LEQUAL);
-				glDisable(GL_ALPHA_TEST);
 
 				// render scene into mirrorDepthMap, mirrorColorMap.rgb
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
@@ -680,6 +675,8 @@ void RendererOfSceneImpl::render(
 				getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,-1,"#define MIRROR_MASK_ALPHA\n"); // disables depth test
 
 				// build mirror mipmaps
+				// mipmaps generated on GF220 are ugly, but GL_NICEST does not help
+				//glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 				mirrorColorTex->bindTexture();
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -690,7 +687,6 @@ void RendererOfSceneImpl::render(
 				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 
 				glDisable(GL_BLEND);
-				glDisable(GL_ALPHA_TEST);
 				//textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,1,0.7f,-0.3f,0.3f,0);
 				//textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.3f,-0.3f,0.3f,0);
 			}
