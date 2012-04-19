@@ -139,7 +139,9 @@ public:
 	unsigned numTriangles;
 
 	//! Whether shadowmap needs update.
-	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange(), cleared by RRDynamicSolverGL::calculate().
+	//
+	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange() or manually, cleared by RRDynamicSolverGL::calculate()
+	//! (unless light or shadow casting is disabled).
 	bool dirtyShadowmap;
 	//! Whether GI needs update.
 	//

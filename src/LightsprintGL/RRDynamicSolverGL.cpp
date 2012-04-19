@@ -211,6 +211,10 @@ done:
 		}
 		if (!light->getRRLight().enabled)
 			continue;
+		
+		// this optimization keeps dirtyShadowmap on in lights without shadows
+		if (!light->getRRLight().castShadows)
+			continue;
 
 		// adjust shadow transparency
 		RealtimeLight::ShadowTransparency shadowTransparencyActual = RR_MIN(shadowTransparencyRequestedByMaterials,light->shadowTransparencyRequested);
