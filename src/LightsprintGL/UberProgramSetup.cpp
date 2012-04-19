@@ -478,6 +478,15 @@ void UberProgramSetup::validate()
 		MATERIAL_NORMAL_MAP_FLOW = false;
 	if (!LIGHT_INDIRECT_VCOLOR)
 		LIGHT_INDIRECT_VCOLOR_PHYSICAL = false;
+	if (!SHADOW_MAPS || !SHADOW_SAMPLES)
+	{
+		SHADOW_MAPS = 0;
+		SHADOW_SAMPLES = 0;
+		SHADOW_COLOR = 0;
+		SHADOW_PENUMBRA = 0;
+		SHADOW_CASCADE = 0;
+		SHADOW_ONLY = 0;
+	}
 }
 
 Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCamera* camera, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, const ClipPlanes* clipPlanes)
