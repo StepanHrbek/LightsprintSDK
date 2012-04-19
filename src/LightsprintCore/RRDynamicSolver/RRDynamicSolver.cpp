@@ -561,6 +561,10 @@ void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
 	if (_params->materialTransmittanceStaticQuality || _params->materialTransmittanceVideoQuality)
 	{
 		//RRReportInterval report(INF3,"Updating illumination passing through transparent materials...\n");
+
+		// potential optimization: quit if there is zero lights with castShadows && !dirtySM && !dirtyGI
+		// there tends to be much fewer lights than materials, but the condition is rarely true, speedup is unclear
+
 		unsigned versionSum[2] = {0,0}; // 0=static, 1=video
 #if 1
 		// detect texture changes only in static objects
