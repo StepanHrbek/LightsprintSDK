@@ -207,7 +207,7 @@
 	uniform sampler2D lightIndirectMirrorMap;
 #endif
 #if defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
-	uniform vec3 lightIndirectMirrorData; // (1.5^numLevels)/width,(1.5^numLevels)/height,numLevels
+	uniform vec3 lightIndirectMirrorData; // 1/width,1/height,numLevels
 #endif
 
 #ifdef MATERIAL_DIFFUSE_CONST
