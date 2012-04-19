@@ -628,6 +628,19 @@ void RendererOfSceneImpl::render(
 				glViewport(0,0,mirrorColorMap->getWidth(),mirrorColorMap->getHeight());
 				glDepthMask(GL_TRUE);
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
+				// there seems to be precision problem in GF220, 285.62
+				// steps to reproduce:
+				//   run "sceneviewer.exe koupelna4-spectest.rr3" in window with all SV panels closed
+				// what's wrong:
+				//   some regions of mirror reflection (rendered in render() 20 lines below) don't receive light from second pass
+				//   in other words, depth test GL_LEQUAL sometimes fails on equal Z
+				//   error disappears when at least one SV panel is open
+				// workaround 1:
+				//   glClearDepth(0.5) (or more, not less) instead of 0
+				//   -risk of culling fragments very close to near
+				// workaround 2:
+				//   use "gl_FragDepth = step(0.51,tex.a);" directly on uncleared buffer. this code was removed in revision 5498 to get ES compatibility
+				//   -incompatible with vanilla OpenGL ES 2.0
 				glClearDepth(0);
 				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 				glClearDepth(1);
