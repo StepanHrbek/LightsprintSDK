@@ -850,7 +850,7 @@ void UberProgramSetup::useIlluminationMirror(Program* program, const rr::RRBuffe
 		unsigned w = mirrorMap->getWidth();
 		unsigned numLevels = 1;
 		while (w>32) {w = w/2; numLevels++;}
-		program->sendUniform("lightIndirectMirrorData",rr::RRVec3(powf(1.5f,(float)numLevels)/mirrorMap->getWidth(),powf(1.5f,(float)numLevels)/mirrorMap->getHeight(),(float)numLevels));
+		program->sendUniform("lightIndirectMirrorData",rr::RRVec3(1.f/mirrorMap->getWidth(),1.f/mirrorMap->getHeight(),(float)numLevels));
 	}
 }
 

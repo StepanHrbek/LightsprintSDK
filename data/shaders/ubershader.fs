@@ -677,7 +677,7 @@ void main()
 		#endif
 		#if defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 			float mirrorLod = lightIndirectMirrorData.z-materialSpecularShininessData.y;
-			vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorData.xy / materialSpecularShininessData.z;
+			vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorData.xy * pow(1.5,mirrorLod);
 			vec2 mirrorShift2 = mirrorShift1.yx * vec2(1.5,-1.5);
 		#endif
 
