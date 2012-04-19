@@ -749,7 +749,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 				miplevel = (1-shininess)*6;
 				break;
 		}
-		program->sendUniform("materialSpecularShininessData",rr::RRVec3(shininess,miplevel,powf(1.5,miplevel)));
+		program->sendUniform("materialSpecularShininessData",shininess,miplevel);
 	}
 
 	if (MATERIAL_SPECULAR_CONST)

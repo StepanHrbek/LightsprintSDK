@@ -222,7 +222,7 @@
 varying vec3 worldPos;
 
 #if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR))
-	uniform vec3 materialSpecularShininessData; // shininess,cube miplevel(0=1x1x6,2=2x2x6,3=4x4x6...),1.5^miplevel
+	uniform vec2 materialSpecularShininessData; // shininess,cube miplevel(0=1x1x6,2=2x2x6,3=4x4x6...)
 #endif
 
 #ifdef MATERIAL_SPECULAR_CONST
