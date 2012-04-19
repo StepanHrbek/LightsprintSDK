@@ -843,7 +843,7 @@ void UberProgramSetup::useIlluminationMirror(Program* program, const rr::RRBuffe
 			//RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationMirror: mirrorMap==NULL.\n"));
 			return;
 		}
-		program->sendTexture("lightIndirectMirrorMap",getTexture(mirrorMap,false,false),TEX_CODE_2D_LIGHT_INDIRECT_MIRROR);
+		program->sendTexture("lightIndirectMirrorMap",getTexture(mirrorMap,true,false),TEX_CODE_2D_LIGHT_INDIRECT_MIRROR);
 	}
 	if (MATERIAL_SPECULAR && LIGHT_INDIRECT_MIRROR_SPECULAR)
 	{
