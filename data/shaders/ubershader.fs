@@ -676,7 +676,10 @@ void main()
 			#endif
 		#endif
 		#if defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
-			float mirrorLod = lightIndirectMirrorData.z-materialSpecularShininessData.y;
+			float mirrorLod = lightIndirectMirrorData.z-materialSpecularShininessData.y
+				// makes reflection sharper closer to reflected object (rough appriximation)
+				// but does not sharpen very blurry reflections, it would look bad, partially because of low quality generated mipmaps
+				+ max(materialSpecularShininessData.y,0.0)*(texture2DLod(lightIndirectMirrorMap, mirrorCenterSmooth, lightIndirectMirrorData.z).a*4.0-4.0);
 			vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorData.xy * pow(1.5,mirrorLod);
 			vec2 mirrorShift2 = mirrorShift1.yx * vec2(1.5,-1.5);
 		#endif
