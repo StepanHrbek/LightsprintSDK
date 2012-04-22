@@ -478,7 +478,7 @@ void UberProgramSetup::validate()
 		MATERIAL_NORMAL_MAP_FLOW = false;
 	if (!LIGHT_INDIRECT_VCOLOR)
 		LIGHT_INDIRECT_VCOLOR_PHYSICAL = false;
-	if (!SHADOW_MAPS || !SHADOW_SAMPLES)
+	if (!SHADOW_MAPS) // SHADOW_SAMPLES does not have to be set, sometimes we call validate() after enableAllLights() (so SHADOW_MAPS is set), but before getNextPass() (so SHADOW_SAMPLES is not yet set)
 	{
 		SHADOW_MAPS = 0;
 		SHADOW_SAMPLES = 0;
