@@ -181,7 +181,7 @@ void TextureRenderer::render2dEnd()
 
 void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z, const char* extraDefines)
 {
-	bool depthTest;
+	GLboolean depthTest;
 	if (z<0)
 	{
 		depthTest = glIsEnabled(GL_DEPTH_TEST);
