@@ -40,7 +40,13 @@ RRScene* loadIsolated(const RRString& filename, RRFileLocator* textureLocator, b
 
 	{
 		RRReportInterval report(INF2,"Isolated process converts it to .rr3...\n");
-		int exitCode = _wspawnl(_P_WAIT,thisProgramFilename,thisProgramFilename,L"-isolated-conversion",input.wstring().c_str(),output.wstring().c_str(),NULL);
+		int exitCode = _wspawnl(_P_WAIT,
+			thisProgramFilename,
+			(std::wstring(L"\"")+thisProgramFilename+L"\"").c_str(),
+			L"-isolated-conversion",
+			(std::wstring(L"\"")+input.wstring()+L"\"").c_str(),
+			(std::wstring(L"\"")+output.wstring()+L"\"").c_str(),
+			NULL);
 		if (exitCode!=0) // 0=success
 		{
 			RRReporter::report(WARN,"Isolated conversion failed with exit code %d.\n",exitCode);
