@@ -375,11 +375,16 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 			exitanceHdr[ofs] = packedSolver->getTriangleExitance(face);
 			RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 		}
-		else
+		else if (scene)
 		{
 			// read face exitance
 			scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,exitanceHdr[ofs]);
 			RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
+		}
+		else
+		{
+			// no solver, return darkness
+			exitanceHdr[ofs] = RRVec3(0);
 		}
 	}
 }
