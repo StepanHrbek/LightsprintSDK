@@ -846,8 +846,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					for (unsigned fg=0;fg<fgs.size();fg++)
 						if (fgs[fg].material)
 						{
-							uvChannel = fgs[fg].material->normalMap.texcoord;
-							if (fgs[fg].material->normalMap.texture)
+							uvChannel = fgs[fg].material->bumpMap.texcoord;
+							if (fgs[fg].material->bumpMap.texture)
 								break;
 						}
 					rr::RRMeshArrays* arrays = dynamic_cast<rr::RRMeshArrays*>(const_cast<rr::RRMesh*>(selectedObjects[i]->getCollider()->getMesh()));

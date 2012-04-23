@@ -1114,7 +1114,7 @@ public:
 						material.specularReflectance.texcoord   = srC;
 						material.specularTransmittance.texcoord = stC;
 						material.lightmapTexcoord               = lmC;
-						material.normalMap.texcoord             = nmC;
+						material.bumpMap.texcoord               = nmC;
 
 						RRReporter::report(INF3,"Found cached material with different indices.\n");
 						changedCached = true;
@@ -1209,8 +1209,8 @@ public:
 						COLLADAFW::Image& image = imageIter->second;
 						const COLLADABU::URI& uri = image.getImageURI();
 						COLLADABU::String imagePath = COLLADABU::URI::uriDecode( uri.toNativePath() );
-						material.normalMap.texture = rr::RRBuffer::load(imagePath.c_str(),NULL,textureLocator);
-						material.normalMap.texcoord = nmC;
+						material.bumpMap.texture = rr::RRBuffer::load(imagePath.c_str(),NULL,textureLocator);
+						material.bumpMap.texcoord = nmC;
 					}
 				}
 			}

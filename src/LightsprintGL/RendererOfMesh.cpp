@@ -369,7 +369,7 @@ void MeshArraysVBOs::render(
 							if (_uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
 								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_TRANSPARENCY,material->specularTransmittance.texcoord,material->specularTransmittance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_NORMAL_MAP)
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_NORMAL_MAP,material->normalMap.texcoord,material->normalMap.texture,_object->name,material->name);
+								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_NORMAL_MAP,material->bumpMap.texcoord,material->bumpMap.texture,_object->name,material->name);
 							if ((_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) || (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
 								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_LIGHT_INDIRECT,material->lightmapTexcoord,(const rr::RRBuffer*)1,_object->name,material->name);
 

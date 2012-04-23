@@ -183,10 +183,10 @@ public:
 			// refractionIndex
 			aimaterial->Get(AI_MATKEY_REFRACTI,material.refractionIndex);
 
-			// normalMap
-			convertMaterialProperty(aimaterial,aiTextureType_NORMALS,NULL,0,0,material.normalMap);
-			if (!material.normalMap.texture)
-				convertMaterialProperty(aimaterial,aiTextureType_HEIGHT,NULL,0,0,material.normalMap);
+			// bumpMap
+			convertMaterialProperty(aimaterial,aiTextureType_NORMALS,NULL,0,0,material.bumpMap);
+			if (!material.bumpMap.texture)
+				convertMaterialProperty(aimaterial,aiTextureType_HEIGHT,NULL,0,0,material.bumpMap);
 
 			// lightmapTexcoord
 			if (aimaterial->Get(_AI_MATKEY_UVWSRC_BASE,aiTextureType_LIGHTMAP,0,(int&)material.lightmapTexcoord)!=AI_SUCCESS)

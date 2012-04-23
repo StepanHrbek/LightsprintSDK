@@ -358,7 +358,7 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	ar & make_nvp("refractionIndex",a.refractionIndex);
 	if (version>1)
 	{
-		ar & make_nvp("normalMap",a.normalMap);
+		ar & make_nvp("normalMap",a.bumpMap);
 	}
 	ar & make_nvp("lightmapTexcoord",a.lightmapTexcoord);
 	ar & make_nvp("minimalQualityForPointMaterials",a.minimalQualityForPointMaterials);

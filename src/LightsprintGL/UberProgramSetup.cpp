@@ -148,7 +148,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material, const
 	MATERIAL_TRANSPARENCY_FRESNEL = (MATERIAL_EMISSIVE_CONST || MATERIAL_TRANSPARENCY_BLEND) && material->refractionIndex!=1;
 
 	// normal map
-	MATERIAL_NORMAL_MAP = hasMap(material->normalMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
+	MATERIAL_NORMAL_MAP = hasMap(material->bumpMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
 	MATERIAL_NORMAL_MAP_FLOW = strstr(material->name.c_str(),"water")!=NULL;
 
 	// misc
@@ -793,8 +793,8 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	if (MATERIAL_NORMAL_MAP)
 	{
 		program->sendTexture("materialNormalMap",NULL,TEX_CODE_2D_MATERIAL_NORMAL);
-		getTexture(material->normalMap.texture,true,false);
-		s_buffers1x1.bindPropertyTexture(material->normalMap,1);
+		getTexture(material->bumpMap.texture,true,false);
+		s_buffers1x1.bindPropertyTexture(material->bumpMap,1);
 		if (MATERIAL_NORMAL_MAP_FLOW)
 		{
 			static rr::RRTime time;

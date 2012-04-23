@@ -58,7 +58,7 @@ void RRMaterial::copyFrom(const RRMaterial& a)
 	copyProperty(diffuseEmittance,a.diffuseEmittance);
 	copyProperty(specularReflectance,a.specularReflectance);
 	copyProperty(specularTransmittance,a.specularTransmittance);
-	copyProperty(normalMap,a.normalMap);
+	copyProperty(bumpMap,a.bumpMap);
 	specularModel = a.specularModel;
 	specularShininess = a.specularShininess;
 	specularTransmittanceInAlpha = a.specularTransmittanceInAlpha;
@@ -395,7 +395,7 @@ RRMaterial::~RRMaterial()
 	delete diffuseEmittance.texture;
 	delete specularReflectance.texture;
 	delete specularTransmittance.texture;
-	delete normalMap.texture;
+	delete bumpMap.texture;
 }
 
 
@@ -417,7 +417,7 @@ RRPointMaterial::~RRPointMaterial()
 	specularReflectance.texture = NULL;
 	diffuseEmittance.texture = NULL;
 	specularTransmittance.texture = NULL;
-	normalMap.texture = NULL;
+	bumpMap.texture = NULL;
 }
 
 } // namespace
