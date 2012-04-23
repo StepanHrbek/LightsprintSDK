@@ -106,7 +106,7 @@ void UberProgramSetup::enableAllMaterials()
 	MATERIAL_TRANSPARENCY_BLEND = true;
 	MATERIAL_TRANSPARENCY_TO_RGB = true;
 	MATERIAL_TRANSPARENCY_FRESNEL = true;
-	MATERIAL_NORMAL_MAP = true;
+	MATERIAL_BUMP_MAP = true;
 	MATERIAL_NORMAL_MAP_FLOW = true;
 	MATERIAL_CULLING = true;
 }
@@ -148,7 +148,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material, const
 	MATERIAL_TRANSPARENCY_FRESNEL = (MATERIAL_EMISSIVE_CONST || MATERIAL_TRANSPARENCY_BLEND) && material->refractionIndex!=1;
 
 	// normal map
-	MATERIAL_NORMAL_MAP = hasMap(material->bumpMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
+	MATERIAL_BUMP_MAP = hasMap(material->bumpMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
 	MATERIAL_NORMAL_MAP_FLOW = strstr(material->name.c_str(),"water")!=NULL;
 
 	// misc
@@ -210,7 +210,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_TRANSPARENCY_BLEND?"#define MATERIAL_TRANSPARENCY_BLEND\n":"",
 		MATERIAL_TRANSPARENCY_TO_RGB?"#define MATERIAL_TRANSPARENCY_TO_RGB\n":"",
 		MATERIAL_TRANSPARENCY_FRESNEL?"#define MATERIAL_TRANSPARENCY_FRESNEL\n":"",
-		MATERIAL_NORMAL_MAP?"#define MATERIAL_NORMAL_MAP\n":"",
+		MATERIAL_BUMP_MAP?"#define MATERIAL_BUMP_MAP\n":"",
 		MATERIAL_NORMAL_MAP_FLOW?"#define MATERIAL_NORMAL_MAP_FLOW\n":"",
 		ANIMATION_WAVE?"#define ANIMATION_WAVE\n":"",
 		POSTPROCESS_NORMALS?"#define POSTPROCESS_NORMALS\n":"",
@@ -320,7 +320,7 @@ void UberProgramSetup::reduceMaterials(const UberProgramSetup& fullMaterial)
 	MATERIAL_TRANSPARENCY_BLEND    &= fullMaterial.MATERIAL_TRANSPARENCY_BLEND;
 	MATERIAL_TRANSPARENCY_TO_RGB   &= fullMaterial.MATERIAL_TRANSPARENCY_TO_RGB;
 	MATERIAL_TRANSPARENCY_FRESNEL  &= fullMaterial.MATERIAL_TRANSPARENCY_FRESNEL;
-	MATERIAL_NORMAL_MAP            &= fullMaterial.MATERIAL_NORMAL_MAP;
+	MATERIAL_BUMP_MAP              &= fullMaterial.MATERIAL_BUMP_MAP;
 	MATERIAL_NORMAL_MAP_FLOW       &= fullMaterial.MATERIAL_NORMAL_MAP_FLOW;
 	MATERIAL_CULLING               &= fullMaterial.MATERIAL_CULLING;
 }
@@ -379,11 +379,11 @@ void UberProgramSetup::validate()
 	{
 		MATERIAL_SPECULAR = 0; // specular reflection requested, but there's no suitable light
 	}
-	if ((LIGHT_INDIRECT_VCOLOR && !MATERIAL_NORMAL_MAP) || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_MAP2)
+	if ((LIGHT_INDIRECT_VCOLOR && !MATERIAL_BUMP_MAP) || LIGHT_INDIRECT_MAP || LIGHT_INDIRECT_MAP2)
 	{
 		// when there are two sources of indirect illumination, disable one of them
 		//  (unless it is LIGHT_INDIRECT_VCOLOR with normal maps enabled, then we render average of both sources, VCOLOR does not respond to normal)
-		// this must be done before "if (!LIGHT_INDIRECT_ENV_DIFFUSE) MATERIAL_NORMAL_MAP = 0"
+		// this must be done before "if (!LIGHT_INDIRECT_ENV_DIFFUSE) MATERIAL_BUMP_MAP = 0"
 		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 	}
 	if (!MATERIAL_TRANSPARENCY_BLEND // keeps Fresnel in final renders with blending
@@ -400,7 +400,7 @@ void UberProgramSetup::validate()
 		&& !LIGHT_INDIRECT_MIRROR_DIFFUSE // mirror diffuse can use normal maps, even if specular is disabled
 		&& !MATERIAL_TRANSPARENCY_FRESNEL) // fresnel can use normal maps, even if specular is disabled
 	{
-		MATERIAL_NORMAL_MAP = 0; // no use for normal map
+		MATERIAL_BUMP_MAP = 0; // no use for normal map
 	}
 	if (!MATERIAL_DIFFUSE)
 	{
@@ -467,14 +467,14 @@ void UberProgramSetup::validate()
 		MATERIAL_SPECULAR_CONST = 0;
 		MATERIAL_SPECULAR_MAP = 0;
 		if (!MATERIAL_TRANSPARENCY_FRESNEL)
-			MATERIAL_NORMAL_MAP = 0;
+			MATERIAL_BUMP_MAP = 0;
 		if (!MATERIAL_EMISSIVE_CONST && !MATERIAL_EMISSIVE_MAP)
 		{
 			POSTPROCESS_BRIGHTNESS = 0;
 			POSTPROCESS_GAMMA = 0;
 		}
 	}
-	if (!MATERIAL_NORMAL_MAP)
+	if (!MATERIAL_BUMP_MAP)
 		MATERIAL_NORMAL_MAP_FLOW = false;
 	if (!LIGHT_INDIRECT_VCOLOR)
 		LIGHT_INDIRECT_VCOLOR_PHYSICAL = false;
@@ -790,7 +790,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		s_buffers1x1.bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
 	}
 
-	if (MATERIAL_NORMAL_MAP)
+	if (MATERIAL_BUMP_MAP)
 	{
 		program->sendTexture("materialNormalMap",NULL,TEX_CODE_2D_MATERIAL_NORMAL);
 		getTexture(material->bumpMap.texture,true,false);

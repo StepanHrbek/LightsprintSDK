@@ -255,7 +255,7 @@ done:
 					uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = true;
 					uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL = true;
-					uberProgramSetup.MATERIAL_NORMAL_MAP = true; // adds details to Fresnel
+					uberProgramSetup.MATERIAL_BUMP_MAP = true; // adds details to Fresnel
 					break;
 				case RealtimeLight::RGB_SHADOWS:
 					uberProgramSetup.comment = "// RGB shadowmap pass\n";

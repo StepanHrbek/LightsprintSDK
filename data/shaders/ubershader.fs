@@ -42,7 +42,7 @@
 //  #define MATERIAL_TRANSPARENCY_BLEND
 //  #define MATERIAL_TRANSPARENCY_TO_RGB
 //  #define MATERIAL_TRANSPARENCY_FRESNEL
-//  #define MATERIAL_NORMAL_MAP
+//  #define MATERIAL_BUMP_MAP
 //  #define MATERIAL_NORMAL_MAP_FLOW
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
@@ -263,7 +263,7 @@ varying vec3 worldNormalSmooth;
 	// for materialRefractionIndex=1, reflectance is 0
 #endif
 
-#ifdef MATERIAL_NORMAL_MAP
+#ifdef MATERIAL_BUMP_MAP
 	varying vec3 worldTangent;
 	varying vec3 worldBitangent;
 	uniform sampler2D materialNormalMap;
@@ -388,7 +388,7 @@ void main()
 		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
 	#endif
 	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(MATERIAL_TRANSPARENCY_FRESNEL) || defined(POSTPROCESS_NORMALS)
-		#ifdef MATERIAL_NORMAL_MAP
+		#ifdef MATERIAL_BUMP_MAP
 			#ifdef MATERIAL_NORMAL_MAP_FLOW
 				vec3 localNormal = normalize(
 					texture2D(materialNormalMap,0.2*materialNormalMapCoord   +seconds*0.5*vec2(0.051,0.019                         )).xyz+
@@ -671,7 +671,7 @@ void main()
 		#if defined(LIGHT_INDIRECT_MIRROR_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 			vec2 mirrorCenterSmooth = vec2(0.5,0.5)+vec2(-0.5,0.5)*lightIndirectMirrorCoord.xy/lightIndirectMirrorCoord.w;
 			vec2 mirrorCenter = mirrorCenterSmooth;
-			#ifdef MATERIAL_NORMAL_MAP
+			#ifdef MATERIAL_BUMP_MAP
 				mirrorCenter += localNormal.xy*0.1;
 			#endif
 		#endif
@@ -821,7 +821,7 @@ void main()
 					#endif
 					#ifdef LIGHT_INDIRECT_MIRROR_SPECULAR
 						+ dividedByAlpha(
-						#ifdef MATERIAL_NORMAL_MAP
+						#ifdef MATERIAL_BUMP_MAP
 							// when normal map moves mirrorCenter deep in non-mirrored area of mirrorMap, and all 4 rotated lookups read 0 in total, division by 0 looms.
 							// this lookup should always go into mirrored area, makes sum non-zero
 							+ texture2D(lightIndirectMirrorMap, mirrorCenterSmooth)*0.01

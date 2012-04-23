@@ -191,7 +191,7 @@ protected:
 		uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = false;
 		uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = false;
 		uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = false;
-		uberProgramSetup.MATERIAL_NORMAL_MAP = false;
+		uberProgramSetup.MATERIAL_BUMP_MAP = false;
 		uberProgramSetup.MATERIAL_CULLING = false;
 
 		// call custom 3ds renderer

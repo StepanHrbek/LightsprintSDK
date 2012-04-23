@@ -250,7 +250,7 @@ void RendererOfSceneImpl::render(
 		);
 
 	// Rendering multiobj with normal maps enabled, check if normal maps are really present (rare), they would need switch to 1obj rendering.
-	if (_uberProgramSetup.MATERIAL_NORMAL_MAP && !needsIndividualStaticObjectsForEverything)
+	if (_uberProgramSetup.MATERIAL_BUMP_MAP && !needsIndividualStaticObjectsForEverything)
 	{
 		const rr::RRObjects& objects = _solver->getStaticObjects();
 		for (unsigned i=0;i<objects.size();i++)

@@ -42,7 +42,7 @@
 //  #define MATERIAL_TRANSPARENCY_BLEND
 //  #define MATERIAL_TRANSPARENCY_TO_RGB
 //  #define MATERIAL_TRANSPARENCY_FRESNEL
-//  #define MATERIAL_NORMAL_MAP
+//  #define MATERIAL_BUMP_MAP
 //  #define MATERIAL_NORMAL_MAP_FLOW
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
@@ -138,7 +138,7 @@ varying vec3 worldNormalSmooth;
 	varying vec2 materialTransparencyCoord;
 #endif
 
-#ifdef MATERIAL_NORMAL_MAP
+#ifdef MATERIAL_BUMP_MAP
 	attribute vec3 vertexTangent;
 	attribute vec3 vertexBitangent;
 	varying vec3 worldTangent;
@@ -197,8 +197,8 @@ void main()
 		materialTransparencyCoord = gl_MultiTexCoord4.xy; // 4 = MULTITEXCOORD_MATERIAL_TRANSPARENCY
 	#endif
 
-	#ifdef MATERIAL_NORMAL_MAP
-		materialNormalMapCoord = gl_MultiTexCoord5.xy; // 5 = MULTITEXCOORD_MATERIAL_NORMAL_MAP
+	#ifdef MATERIAL_BUMP_MAP
+		materialNormalMapCoord = gl_MultiTexCoord5.xy; // 5 = MULTITEXCOORD_MATERIAL_BUMP_MAP
 		vec3 tangent2, bitangent2;
 		if (vertexTangent==vec3(0.0,0.0,0.0))
 		{

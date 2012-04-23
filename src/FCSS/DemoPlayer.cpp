@@ -82,7 +82,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 		material.MATERIAL_SPECULAR = specular?1:0;
 		material.MATERIAL_SPECULAR_CONST = (specular && specular!=1)?1:0;
 		material.MATERIAL_SPECULAR_MAP = specularMap?1:0;
-		material.MATERIAL_NORMAL_MAP = normalMap?1:0;
+		material.MATERIAL_BUMP_MAP = normalMap?1:0;
 		material.MATERIAL_EMISSIVE_MAP = emissiveMap?1:0;
 		*/
 		if (dynamicObjects->addObject(buf,scale))

@@ -20,6 +20,8 @@ NEWS
   - import of normal maps and tangent space from Collada .dae
   - RRMeshArrays::buildTangents() has one more parameter, generated tangent space is better for normal mapping
   - RRMaterial::normalMap renamed to RRMaterial::bumpMap
+  - MATERIAL_NORMAL_MAP renamed to MATERIAL_BUMP_MAP (serves both normal and height maps)
+  - MULTITEXCOORD_MATERIAL_NORMAL_MAP renamed to MULTITEXCOORD_MATERIAL_BUMP_MAP (serves both normal and height maps)
 - <b>improved index of refraction</b>
   - rr_gl::UberProgramSetup::MATERIAL_TRANSPARENCY_FRESNEL renders specular transmittance and reflectance adjusted according to index of refraction
   - rr_gl::RealtimeLight::FRESNEL_SHADOWS renders shadows adjusted according to index of refraction

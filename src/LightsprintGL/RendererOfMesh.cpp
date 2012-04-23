@@ -217,7 +217,7 @@ void MeshArraysVBOs::render(
 		glEnableClientState(GL_NORMAL_ARRAY);
 	}
 	// set tangents
-	bool setTangents = (_uberProgramSetup.LIGHT_DIRECT || _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _uberProgramSetup.MATERIAL_NORMAL_MAP && hasTangents;
+	bool setTangents = (_uberProgramSetup.LIGHT_DIRECT || _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _uberProgramSetup.MATERIAL_BUMP_MAP && hasTangents;
 	if (setTangents)
 	{
 		BIND_VBO4(VAA_TANGENT,VBO[VBO_tangent]);
@@ -279,7 +279,7 @@ void MeshArraysVBOs::render(
 		|| _uberProgramSetup.MATERIAL_SPECULAR // even if specular color=1, setMaterial() must be called to set shininess, shininess does not have any default
 		|| _uberProgramSetup.MATERIAL_EMISSIVE_CONST || _uberProgramSetup.MATERIAL_EMISSIVE_MAP
 		|| _uberProgramSetup.MATERIAL_TRANSPARENCY_CONST || _uberProgramSetup.MATERIAL_TRANSPARENCY_MAP
-		|| _uberProgramSetup.MATERIAL_NORMAL_MAP
+		|| _uberProgramSetup.MATERIAL_BUMP_MAP
 		|| _uberProgramSetup.MATERIAL_CULLING
 		|| (_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer)
 		|| (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
@@ -368,8 +368,8 @@ void MeshArraysVBOs::render(
 								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_EMISSIVE,material->diffuseEmittance.texcoord,material->diffuseEmittance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
 								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_TRANSPARENCY,material->specularTransmittance.texcoord,material->specularTransmittance.texture,_object->name,material->name);
-							if (_uberProgramSetup.MATERIAL_NORMAL_MAP)
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_NORMAL_MAP,material->bumpMap.texcoord,material->bumpMap.texture,_object->name,material->name);
+							if (_uberProgramSetup.MATERIAL_BUMP_MAP)
+								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_BUMP_MAP,material->bumpMap.texcoord,material->bumpMap.texture,_object->name,material->name);
 							if ((_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) || (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
 								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_LIGHT_INDIRECT,material->lightmapTexcoord,(const rr::RRBuffer*)1,_object->name,material->name);
 
@@ -428,9 +428,9 @@ void MeshArraysVBOs::render(
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 	// unset material normal map texcoords
-	if (_uberProgramSetup.MATERIAL_NORMAL_MAP)
+	if (_uberProgramSetup.MATERIAL_BUMP_MAP)
 	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_NORMAL_MAP);
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_BUMP_MAP);
 		glBindTexture(GL_TEXTURE_2D,0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
