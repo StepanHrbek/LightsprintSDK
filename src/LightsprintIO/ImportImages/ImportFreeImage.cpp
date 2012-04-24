@@ -476,8 +476,8 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 		}
 
 		// get src format
-		unsigned srcbypp = getBytesPerPixel(buffer->getFormat());
-		unsigned srcbipp = 8*srcbypp;
+		rr::RRBufferFormat srcFormat = buffer->getFormat();
+		unsigned srcbypp = (buffer->getElementBits()+7)/8;
 		FREE_IMAGE_TYPE fit;
 		switch(buffer->getFormat())
 		{
@@ -499,10 +499,10 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 			};
 		unsigned dstbipp;
 		RR_ASSERT(BF_RGB==0 && BF_BGR==1 && BF_RGBA==2 && BF_RGBF==3 && BF_RGBAF==4);
-		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][0]))
-		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][1]))
-		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][2]))
-		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[buffer->getFormat()][3]))
+		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][0]))
+		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][1]))
+		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][2]))
+		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][3]))
 		{
 			// Don't warn, there's still chance other saver will work (.rrbuffer)
 			//RRReporter::report(WARN,"Save not supported for %ls format.\n",filename.w_str());
@@ -538,54 +538,44 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 							unsigned char* dst = (unsigned char*)fipixels;
 							unsigned width = buffer->getWidth();
 							unsigned numPixels = width*buffer->getHeight();
-							bool swaprb = dstbipp<=32;//(srcbipp>32) != (dstbipp>32);
-							if (buffer->getFormat()==BF_BGR)
+							bool swaprb = dstbipp<=32;
+							if (srcFormat==BF_BGR)
 								swaprb = !swaprb;
+#ifdef RR_BIG_ENDIAN
+							if (srcFormat==BF_RGB || srcFormat==BF_BGR || srcFormat==BF_RGBA)
+								swaprb = !swaprb;
+#endif
 							for (unsigned i=0;i<numPixels;i++)
 							{
 								// read src pixel
 								float pixel[4];
-								switch(srcbipp)
+								switch(srcFormat)
 								{
-									case 128:
+									case BF_RGBAF:
 										pixel[0] = ((float*)src)[0];
 										pixel[1] = ((float*)src)[1];
 										pixel[2] = ((float*)src)[2];
 										pixel[3] = ((float*)src)[3];
 										break;
-									case 96:
+									case BF_RGBF:
 										pixel[0] = ((float*)src)[0];
 										pixel[1] = ((float*)src)[1];
 										pixel[2] = ((float*)src)[2];
 										pixel[3] = 1;
 										break;
-#ifdef RR_BIG_ENDIAN
-									case 32:
-										pixel[0] = RR_BYTE2FLOAT(src[2]);
-										pixel[1] = RR_BYTE2FLOAT(src[1]);
-										pixel[2] = RR_BYTE2FLOAT(src[0]);
-										pixel[3] = RR_BYTE2FLOAT(src[3]);
-										break;
-									case 24:
-										pixel[0] = RR_BYTE2FLOAT(src[2]);
-										pixel[1] = RR_BYTE2FLOAT(src[1]);
-										pixel[2] = RR_BYTE2FLOAT(src[0]);
-										pixel[3] = 1;
-										break;
-#else // RR_BIG_ENDIAN
-									case 32:
+									case BF_RGBA:
 										pixel[0] = RR_BYTE2FLOAT(src[0]);
 										pixel[1] = RR_BYTE2FLOAT(src[1]);
 										pixel[2] = RR_BYTE2FLOAT(src[2]);
 										pixel[3] = RR_BYTE2FLOAT(src[3]);
 										break;
-									case 24:
+									case BF_RGB:
+									case BF_BGR:
 										pixel[0] = RR_BYTE2FLOAT(src[0]);
 										pixel[1] = RR_BYTE2FLOAT(src[1]);
 										pixel[2] = RR_BYTE2FLOAT(src[2]);
 										pixel[3] = 1;
 										break;
-#endif // RR_BIG_ENDIAN
 								}
 								src += srcbypp;
 								// swap r<->b
