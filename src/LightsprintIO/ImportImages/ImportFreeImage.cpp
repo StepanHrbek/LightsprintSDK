@@ -80,15 +80,15 @@ static unsigned char* loadFreeImage(const RRString& filename,bool flipV,bool fli
 #endif
 		if (dib1)
 		{
+			if (flipV)
+				FreeImage_FlipVertical(dib1);
+			if (flipH)
+				FreeImage_FlipHorizontal(dib1);
 			unsigned bpp1 = FreeImage_GetBPP(dib1);
 			outScaled = bpp1<64; // high bpp images are usually in physical scale
 			if (bpp1==128)
 			{
 				// RGBAF
-				if (flipV)
-					FreeImage_FlipVertical(dib1);
-				if (flipH)
-					FreeImage_FlipHorizontal(dib1);
 				// read size
 				width = FreeImage_GetWidth(dib1);
 				height = FreeImage_GetHeight(dib1);
@@ -101,10 +101,6 @@ static unsigned char* loadFreeImage(const RRString& filename,bool flipV,bool fli
 			if (bpp1==96)
 			{
 				// RGBF, conversion to 32bit doesn't work
-				if (flipV)
-					FreeImage_FlipVertical(dib1);
-				if (flipH)
-					FreeImage_FlipHorizontal(dib1);
 				// read size
 				width = FreeImage_GetWidth(dib1);
 				height = FreeImage_GetHeight(dib1);
@@ -120,10 +116,6 @@ static unsigned char* loadFreeImage(const RRString& filename,bool flipV,bool fli
 				FIBITMAP* dib2 = FreeImage_ConvertTo32Bits(dib1);
 				if (dib2)
 				{
-					if (flipV)
-						FreeImage_FlipVertical(dib2);
-					if (flipH)
-						FreeImage_FlipHorizontal(dib2);
 					// read size
 					width = FreeImage_GetWidth(dib2);
 					height = FreeImage_GetHeight(dib2);
@@ -159,10 +151,6 @@ static unsigned char* loadFreeImage(const RRString& filename,bool flipV,bool fli
 				FIBITMAP* dib2 = FreeImage_ConvertTo24Bits(dib1);
 				if (dib2)
 				{
-					if (flipV)
-						FreeImage_FlipVertical(dib2);
-					if (flipH)
-						FreeImage_FlipHorizontal(dib2);
 					// read size
 					width = FreeImage_GetWidth(dib2);
 					height = FreeImage_GetHeight(dib2);
