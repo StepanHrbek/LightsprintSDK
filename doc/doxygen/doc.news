@@ -21,6 +21,7 @@ NEWS
   - RRMeshArrays::buildTangents() has one more parameter, generated tangent space is better for normal mapping
 - <b>height maps</b> (RRMaterial::bumpMap)
   - system automatically works with either normal map or height map assigned to bump map slot
+  - rendered with parallax mapping
   - several identifiers with "normal" in name renamed to "bump", to make it clear that both normal maps and height maps are supported
   - rr_gl::UberProgramSetup::MATERIAL_BUMP_TYPE_HEIGHT added, rr_gl::RendererOfScene sets it automatically when height map is used
 - <b>improved index of refraction</b>

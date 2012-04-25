@@ -349,6 +349,7 @@ void main()
 	#if (defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))) || defined(MATERIAL_TRANSPARENCY_FRESNEL)
 		vec3 worldEyeDir = normalize(worldEyePos-worldPos);
 	#endif
+	vec2 parallaxOffset = vec2(0);
 	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(MATERIAL_TRANSPARENCY_FRESNEL) || defined(POSTPROCESS_NORMALS)
 		#ifdef MATERIAL_BUMP_MAP
 			#ifdef MATERIAL_NORMAL_MAP_FLOW
@@ -358,8 +359,10 @@ void main()
 			#else
 				#ifdef MATERIAL_BUMP_TYPE_HEIGHT
 					float height = texture2D(materialBumpMap,materialBumpMapCoord).x;
-					float hx = texture2D(materialBumpMap,materialBumpMapCoord+vec2(materialBumpMapData.x,0.0)).x;
-					float hy = texture2D(materialBumpMap,materialBumpMapCoord+vec2(0.0,materialBumpMapData.y)).x;
+					parallaxOffset = (height-0.5) * 0.01 * normalize(vec3(dot(worldEyeDir,worldTangent),dot(worldEyeDir,worldBitangent),dot(worldEyeDir,worldNormalSmooth))).xy;
+					height = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset).x;
+					float hx = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(materialBumpMapData.x,0.0)).x;
+					float hy = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(0.0,materialBumpMapData.y)).x;
 					vec3 localNormal = normalize(vec3(height-hx,height-hy,0.1));
 				#else
 					vec3 localNormal = normalize(texture2D(materialBumpMap,materialBumpMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
@@ -401,7 +404,7 @@ void main()
 		#endif
 	#endif
 	#ifdef MATERIAL_DIFFUSE_MAP
-		vec4 materialDiffuseMapColor = texture2D(materialDiffuseMap, materialDiffuseCoord);
+		vec4 materialDiffuseMapColor = texture2D(materialDiffuseMap, materialDiffuseCoord+parallaxOffset);
 		#if !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP) && defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
 			opacityA = materialDiffuseMapColor.a;
 			transparencyRGB = vec3(1.0-materialDiffuseMapColor.a);

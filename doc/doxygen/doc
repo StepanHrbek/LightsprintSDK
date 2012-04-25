@@ -3067,7 +3067,7 @@ rr::RRVector<*>{
        - specular reflection: none, constant, per vertex, per pixel
        - emission: none, constant, per pixel
        - transparency: none, constant, per pixel / blend or 1bit alpha keying
-       - bump: normal map, height map
+       - bump: normal map, height map with parallax mapping
      - minimal requirements: OpenGL 2.0
      - supported GPUs: GeForce 5xxx and higher, Radeon 9500 and higher etc
    -# scene viewer and editor
