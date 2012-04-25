@@ -114,11 +114,17 @@ static void composeMaterialPropertyRoot(wxPGProperty* prop, rr::RRMaterial::Prop
 		{
 			wxVariant v;
 			wxPGProperty* propColor = prop->GetPropertyByName(_("color"));
-			propColor->ValueToString(v); // updates value image
-			bitmap = propColor->GetValueImage();
+			if (propColor) // it does not have to exist (propBumpMap)
+			{
+				propColor->ValueToString(v); // updates value image
+				bitmap = propColor->GetValueImage();
+			}
 		}
-		prop->SetValueImage(*bitmap);
-		prop->SetValueFromString("");
+		if (bitmap)
+		{
+			prop->SetValueImage(*bitmap);
+			prop->SetValueFromString("");
+		}
 	}
 }
 
