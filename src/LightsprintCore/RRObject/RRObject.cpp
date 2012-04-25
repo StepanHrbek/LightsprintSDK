@@ -65,6 +65,11 @@ RRBuffer* RRObject::LayerParameters::createBuffer(bool forceFloats, bool forceAl
 		case BF_DXT5:
 			f = forceFloats ? BF_RGBAF : BF_RGBA;
 			break;
+		case BF_LUMINANCE:
+			f = forceFloats ? BF_LUMINANCEF : actualFormat;
+			break;
+		case BF_DEPTH:
+		case BF_LUMINANCEF:
 		default:
 			f = actualFormat;
 			break;

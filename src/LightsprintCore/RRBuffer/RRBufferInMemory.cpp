@@ -31,6 +31,8 @@ static unsigned getBitsPerPixel(RRBufferFormat format)
 		case BF_DXT1: return 4;
 		case BF_DXT3: return 8;
 		case BF_DXT5: return 8;
+		case BF_LUMINANCE: return 8;
+		case BF_LUMINANCEF: return 32;
 	}
 	return 0;
 }
@@ -141,7 +143,7 @@ unsigned RRBufferInMemory::getBufferBytes() const
 bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char* _data)
 {
 	// check params
-	if ((_format==BF_RGB || _format==BF_BGR || _format==BF_RGBA || _format==BF_RGBF || _format==BF_RGBAF || _format==BF_DEPTH || _format==BF_DXT1 || _format==BF_DXT3 || _format==BF_DXT5) && (
+	if ((_format==BF_RGB || _format==BF_BGR || _format==BF_RGBA || _format==BF_RGBF || _format==BF_RGBAF || _format==BF_DEPTH || _format==BF_DXT1 || _format==BF_DXT3 || _format==BF_DXT5 || _format==BF_LUMINANCE || _format==BF_LUMINANCEF) && (
 		(_type==BT_VERTEX_BUFFER && (_width && _height==1 && _depth==1)) ||
 		//(_type==BT_1D_TEXTURE && (_width && _height==1 && _depth==1)) ||
 		(_type==BT_2D_TEXTURE && (_width && _height && _depth==1)) ||
@@ -162,7 +164,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 		scaled = _scaled;
 		return true;
 	}
-	if ((_format==BF_RGB || _format==BF_BGR || _format==BF_RGBA) && !_scaled)
+	if ((_format==BF_RGB || _format==BF_BGR || _format==BF_RGBA || _format==BF_LUMINANCE) && !_scaled)
 	{
 //		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"If it's not for bent normals, integer buffer won't be precise enough for physical (linear) scale data. Switch to floats or custom scale.\n"));
 	}
@@ -250,6 +252,12 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 		case BF_DXT5:
 			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"setElement() not supported for compressed formats.\n"));
 			break;
+		case BF_LUMINANCE:
+			data[index] = RR_FLOAT2BYTE(element.RRVec3::avg());
+			break;
+		case BF_LUMINANCEF:
+			((float*)data)[index] = element.RRVec3::avg();
+			break;
 		default:
 			RRReporter::report(WARN,"Unexpected buffer format.\n");
 			break;
@@ -302,6 +310,18 @@ RRVec4 RRBufferInMemory::getElement(unsigned index) const
 		case BF_DXT3:
 		case BF_DXT5:
 			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"getElement() not supported for compressed formats.\n"));
+			break;
+		case BF_LUMINANCE:
+			result[0] =
+			result[1] =
+			result[2] = RR_BYTE2FLOAT(data[ofs]);
+			result[3] = 1;
+			break;
+		case BF_LUMINANCEF:
+			result[0] =
+			result[1] =
+			result[2] = *((float*)(data+ofs));
+			result[3] = 1;
 			break;
 		default:
 			RRReporter::report(WARN,"Unexpected buffer format.\n");

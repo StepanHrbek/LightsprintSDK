@@ -36,7 +36,7 @@ NEWS
 - <b>improved water</b>
   - removed rr_gl::Water, instead create large quad (dynamic object) and give it transparent normal mapped material. This leads to following advantages:
   - water has easier API, no special class needed (previously class Water, whole scene render had to be called twice)
-  - water can have any planar shape (previously only infinite plane, without holes)
+  - water can have any planar shape (previously only infinite plane without holes)
   - water can be imported from 3d scene formats that support normal maps, e.g. Collada (previously no import)
   - water look can be tweaked using much more options (previously only color)
   - water receives shadows (previously did not)
@@ -60,6 +60,10 @@ NEWS
   - RRMaterial::updateColorsFromTextures() has additional stub related parameter
 - <b>improved robustness</b>
   - isolation of scene import into separated processes, see rr_io::isolateSceneLoaders()
+- grayscale support
+  - grayscale data are created/imported/exported as real grayscale with single channel (rather than RGB with identical data in all channels)
+  - BF_LUMINANCE added for 8bit grayscale
+  - BF_LUMINANCEF added for 32bit floating point grayscale
 
 CHANGES
 

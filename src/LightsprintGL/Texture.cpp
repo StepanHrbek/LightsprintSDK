@@ -264,6 +264,8 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 		// GL_DEPTH_COMPONENT32 does not reduce shadow bias (compared to GL_DEPTH_COMPONENT24)
 		// Workaround::needsIncreasedBias() is tweaked for GL_DEPTH_COMPONENT24
 		case rr::BF_DEPTH: glinternal = GL_DEPTH_COMPONENT24; glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_LUMINANCE: glinternal = srgb?(_compress?GL_COMPRESSED_SLUMINANCE:GL_SLUMINANCE8):(_compress?GL_COMPRESSED_LUMINANCE:GL_LUMINANCE8); glformat = GL_LUMINANCE; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_LUMINANCEF: glinternal = srgb?(_compress?GL_COMPRESSED_SLUMINANCE:GL_SLUMINANCE):(_compress?GL_COMPRESSED_LUMINANCE:GL_LUMINANCE16); glformat = GL_LUMINANCE; gltype = GL_FLOAT; break;
 		default: rr::RRReporter::report(rr::ERRO,"Texture of unknown format created.\n"); break;
 	}
 	if (s_es)

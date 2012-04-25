@@ -38,6 +38,8 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 		case BF_RGBF: return 12;
 		case BF_RGBAF: return 16;
 		case BF_DEPTH: return 4;
+		case BF_LUMINANCE: return 1;
+		case BF_LUMINANCEF: return 4;
 	}
 	return 0;
 }
@@ -85,6 +87,7 @@ static unsigned char* loadFreeImage(const RRString& filename,bool flipV,bool fli
 			if (flipH)
 				FreeImage_FlipHorizontal(dib1);
 			unsigned bpp1 = FreeImage_GetBPP(dib1);
+			unsigned colorType = FreeImage_GetColorType(dib1);
 			outScaled = bpp1<64; // high bpp images are usually in physical scale
 			if (bpp1==128)
 			{
@@ -108,6 +111,40 @@ static unsigned char* loadFreeImage(const RRString& filename,bool flipV,bool fli
 				pixels = new unsigned char[12*width*height];
 				float* fipixels = (float*)FreeImage_GetBits(dib1);
 				memcpy(pixels,fipixels,width*height*12);
+			}
+			else
+			if (colorType==FIC_MINISBLACK || colorType==FIC_MINISWHITE)
+			{
+				// try conversion to LUMINANCE
+				FIBITMAP* dib2 = (bpp1>8) ? FreeImage_ConvertToType(dib1,FIT_FLOAT) : FreeImage_ConvertToGreyscale(dib1);
+				if (dib2)
+				{
+					// read size
+					width = FreeImage_GetWidth(dib2);
+					height = FreeImage_GetHeight(dib2);
+					// convert
+					if (bpp1>8)
+					{
+						outFormat = BF_LUMINANCEF;
+						pixels = new unsigned char[4*width*height];
+						float* fipixels = (float*)FreeImage_GetBits(dib2);
+						memcpy(pixels,fipixels,width*height*4);
+					}
+					else
+					{
+						outFormat = BF_LUMINANCE;
+						pixels = new unsigned char[width*height];
+						BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib2);
+						unsigned pitch = FreeImage_GetPitch(dib2);
+						for (unsigned j=0;j<height;j++)
+						{
+							for (unsigned i=0;i<width;i++)
+								pixels[j*width+i] = (colorType==FIC_MINISBLACK) ? fipixels[j*pitch+i] : 255-fipixels[j*pitch+i];
+						}
+					}
+					// cleanup
+					FreeImage_Unload(dib2);
+				}
 			}
 			else
 			if (FreeImage_IsTransparent(dib1))
@@ -426,6 +463,7 @@ BOOL FIFSupportsExportBPP(FREE_IMAGE_FORMAT fif, int bpp)
 {
 	switch(bpp)
 	{
+		case 33: return FreeImage_FIFSupportsExportType(fif, FIT_FLOAT);
 		case 96: return FreeImage_FIFSupportsExportType(fif, FIT_RGBF);
 		case 128: return FreeImage_FIFSupportsExportType(fif, FIT_RGBAF);
 		default: return FreeImage_FIFSupportsExportBPP(fif, bpp);
@@ -456,10 +494,10 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 			rr::RRReporter::report(rr::WARN,"Attempt to save non-vertex-buffer to .vbu format (vertex buffers only).\n");
 			goto ende;
 		}
-		VBUHeader header(buffer);
 		const unsigned char* rawData = buffer->lock(BL_READ);
 		if (rawData)
 		{
+			VBUHeader header(buffer);
 #ifdef _WIN32
 			FILE* f = _wfopen(filename.w_str(),L"wb");
 #else
@@ -480,27 +518,25 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 	// get src format
 	rr::RRBufferFormat srcFormat = buffer->getFormat();
 	unsigned srcbypp = (buffer->getElementBits()+7)/8;
-	FREE_IMAGE_TYPE fit;
-	switch(buffer->getFormat())
-	{
-		case BF_RGB: fit = FIT_BITMAP; break;
-		case BF_BGR: fit = FIT_BITMAP; break;
-		case BF_RGBA: fit = FIT_BITMAP; break;
-		case BF_RGBF: fit = FIT_RGBF; break;
-		case BF_RGBAF: fit = FIT_RGBAF; break;
-		default: RR_ASSERT(0); goto ende;
-	}
+	if (srcFormat<BF_RGB || srcFormat>BF_LUMINANCEF)
+		goto ende;
 
 	// select dst format
-	unsigned tryTable[5][4] = {
+	unsigned tryTable[][4] =
+	{
 		{24,32,96,128}, // RGB   what dst to try for src=24
 		{24,32,96,128}, // BGR   -"-
 		{32,24,128,96}, // RGBA  what dst to try for src=32
 		{96,128,24,32}, // RGBF  what dst to try for src=96
 		{128,96,32,24}, // RGBAF what dst to try for src=128
-		};
-	unsigned dstbipp;
-	RR_ASSERT(BF_RGB==0 && BF_BGR==1 && BF_RGBA==2 && BF_RGBF==3 && BF_RGBAF==4);
+		{33,8,24,32}, // DEPTH
+		{0,0,0,0}, // DXT1
+		{0,0,0,0}, // DXT3
+		{0,0,0,0}, // DXT5
+		{8,33,24,32}, // LUMINANCE
+		{33,96,128,8}, // LUMINANCEF
+	};
+	unsigned dstbipp; // 33 means 32bit float, while 32 means 32bit rgba
 	if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][0]))
 	if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][1]))
 	if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][2]))
@@ -510,7 +546,8 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 		//RRReporter::report(WARN,"Save not supported for %ls format.\n",filename.w_str());
 		goto ende;
 	}
-	fit = (dstbipp==128) ? FIT_RGBAF : ((dstbipp==96)?FIT_RGBF:FIT_BITMAP);
+	FREE_IMAGE_TYPE fit = (dstbipp==128)?FIT_RGBAF:( (dstbipp==96)?FIT_RGBF:( (dstbipp==33)?FIT_FLOAT: FIT_BITMAP));
+	dstbipp &= 0xfe; // 33->32, remove flag
 	unsigned dstbypp = (dstbipp+7)/8;
 
 	FIBITMAP* dib = FreeImage_AllocateT(fit,buffer->getWidth(),buffer->getHeight(),dstbipp);
@@ -567,15 +604,25 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 								((float*)dst)[2] = pixel[2];
 								break;
 							case 32:
-								dst[0] = RR_FLOAT2BYTE(pixel[0]);
-								dst[1] = RR_FLOAT2BYTE(pixel[1]);
-								dst[2] = RR_FLOAT2BYTE(pixel[2]);
-								dst[3] = RR_FLOAT2BYTE(pixel[3]);
+								if (fit==FIT_BITMAP)
+								{
+									dst[0] = RR_FLOAT2BYTE(pixel[0]);
+									dst[1] = RR_FLOAT2BYTE(pixel[1]);
+									dst[2] = RR_FLOAT2BYTE(pixel[2]);
+									dst[3] = RR_FLOAT2BYTE(pixel[3]);
+								}
+								else
+								{
+									((float*)dst)[0] = (pixel[0]+pixel[1]+pixel[2])*0.333333333f;
+								}
 								break;
 							case 24:
 								dst[0] = RR_FLOAT2BYTE(pixel[0]);
 								dst[1] = RR_FLOAT2BYTE(pixel[1]);
 								dst[2] = RR_FLOAT2BYTE(pixel[2]);
+								break;
+							case 8:
+								dst[0] = RR_FLOAT2BYTE((pixel[0]+pixel[1]+pixel[2])*0.333333333f);
 								break;
 						}
 						dst += dstbypp;

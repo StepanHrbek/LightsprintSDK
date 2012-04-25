@@ -183,6 +183,11 @@ void RRBuffer::setFormatFloats()
 		case BF_RGBA:
 			setFormat(BF_RGBAF);
 			break;
+		case BF_LUMINANCE:
+			setFormat(BF_LUMINANCEF);
+			break;
+		case BF_DEPTH:
+			break;
 	}
 }
 
@@ -205,6 +210,8 @@ void RRBuffer::invert()
 		case BF_RGBF:
 		case BF_RGBAF:
 		case BF_DEPTH:
+		case BF_LUMINANCE:
+		case BF_LUMINANCEF:
 			{
 				unsigned numElements = getNumElements();
 				for (unsigned i=0;i<numElements;i++)
@@ -237,6 +244,8 @@ void RRBuffer::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 		case BF_RGBF:
 		case BF_RGBAF:
 		case BF_DEPTH:
+		case BF_LUMINANCE:
+		case BF_LUMINANCEF:
 			{
 				unsigned numElements = getNumElements();
 				for (unsigned i=0;i<numElements;i++)
@@ -267,6 +276,8 @@ void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 		case BF_RGBF:
 		case BF_RGBAF:
 		case BF_DEPTH:
+		case BF_LUMINANCE:
+		case BF_LUMINANCEF:
 			{
 				// slow getElement path, faster path can be written using lock and direct access
 				unsigned xmax = getWidth();

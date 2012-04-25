@@ -34,6 +34,8 @@ namespace rr
 		BF_DXT1,  ///< DXT1 compressed, can't be accessed per-pixel.
 		BF_DXT3,  ///< DXT3 compressed, can't be accessed per-pixel.
 		BF_DXT5,  ///< DXT5 compressed, can't be accessed per-pixel.
+		BF_LUMINANCE,  ///< Integer luminance/grayscale, 8bits per pixel.
+		BF_LUMINANCEF, ///< Floating point luminance/grayscale, 32bits per pixel.
 	};
 
 	//! Buffer lock. Implementation is not required to support all of them.

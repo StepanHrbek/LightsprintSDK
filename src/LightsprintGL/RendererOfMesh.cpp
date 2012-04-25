@@ -144,6 +144,9 @@ static GLint getBufferNumComponents(const rr::RRBuffer* buffer)
 		case rr::BF_RGBA:
 		case rr::BF_RGBAF:
 			return 4;
+		case rr::BF_DEPTH:
+		case rr::BF_LUMINANCE:
+		case rr::BF_LUMINANCEF:
 		default:
 			return 1;
 	}
@@ -153,13 +156,15 @@ static GLenum getBufferComponentType(const rr::RRBuffer* buffer)
 {
 	switch(buffer->getFormat())
 	{
+		case rr::BF_RGBF:
+		case rr::BF_RGBAF:
+		case rr::BF_DEPTH:
+		case rr::BF_LUMINANCEF:
+			return GL_FLOAT;
 		case rr::BF_RGB:
 		case rr::BF_BGR:
 		case rr::BF_RGBA:
-			return GL_UNSIGNED_BYTE;
-		case rr::BF_RGBF:
-		case rr::BF_RGBAF:
-			return GL_FLOAT;
+		case rr::BF_LUMINANCE:
 		default:
 			return GL_UNSIGNED_BYTE;
 	}
