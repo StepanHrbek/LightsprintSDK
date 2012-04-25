@@ -792,7 +792,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 
 	if (MATERIAL_BUMP_MAP)
 	{
-		program->sendTexture("materialBumpMap",NULL,TEX_CODE_2D_MATERIAL_NORMAL);
+		program->sendTexture("materialBumpMap",NULL,TEX_CODE_2D_MATERIAL_BUMP);
 		getTexture(material->bumpMap.texture,true,false);
 		s_buffers1x1.bindPropertyTexture(material->bumpMap,1);
 		if (MATERIAL_NORMAL_MAP_FLOW)

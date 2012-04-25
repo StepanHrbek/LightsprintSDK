@@ -24,7 +24,7 @@ enum
 	TEX_CODE_2D_LIGHT_INDIRECT            = 2, ///< Program::sendTexture() code used by our uberprogram for lightmap/ambient map/light detail map.
 	TEX_CODE_2D_MATERIAL_TRANSPARENCY     = 3, ///< Program::sendTexture() code used by our uberprogram for rgb transparency map.
 	TEX_CODE_2D_MATERIAL_EMISSIVE         = 4, ///< Program::sendTexture() code used by our uberprogram for emissive map.
-	TEX_CODE_2D_MATERIAL_NORMAL           = 5, ///< Program::sendTexture() code used by our uberprogram for normal map.
+	TEX_CODE_2D_MATERIAL_BUMP             = 5, ///< Program::sendTexture() code used by our uberprogram for normal map.
 	TEX_CODE_CUBE_LIGHT_INDIRECT          = 6, ///< Program::sendTexture() code used by our uberprogram for environment map.
 	TEX_CODE_2D_LIGHT_INDIRECT_MIRROR     = 7, ///< Program::sendTexture() code used by our uberprogram for mirror map.
 
