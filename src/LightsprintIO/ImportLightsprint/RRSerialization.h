@@ -363,6 +363,12 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	ar & make_nvp("lightmapTexcoord",a.lightmapTexcoord);
 	ar & make_nvp("minimalQualityForPointMaterials",a.minimalQualityForPointMaterials);
 
+	if (version<3 && Archive::is_loading::value)
+	{
+		// older versions had default 0, now we want default 1
+		a.bumpMap.color = RRVec3(1);
+	}
+
 	// sometimes texture changes when material sits serialized on disk
 	// should we update colors from textures after deserialization?
 	// a) don't trust serialized colors, update color+keying always on load
@@ -829,7 +835,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRObject)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRCamera)
 
 BOOST_CLASS_VERSION(rr::RRString,1)
-BOOST_CLASS_VERSION(rr::RRMaterial,2)
+BOOST_CLASS_VERSION(rr::RRMaterial,3)
 BOOST_CLASS_VERSION(rr::RRLight,4)
 BOOST_CLASS_VERSION(rr::RRObject,1)
 BOOST_CLASS_VERSION(rr::RRCamera,1)

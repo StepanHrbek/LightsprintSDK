@@ -801,11 +801,10 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendTexture("materialBumpMap",NULL,TEX_CODE_2D_MATERIAL_BUMP);
 		getTexture(material->bumpMap.texture,true,false);
 		s_buffers1x1.bindPropertyTexture(material->bumpMap,1);
-		if (MATERIAL_BUMP_TYPE_HEIGHT)
+		program->sendUniform("materialBumpMapData",rr::RRVec4(1.f/material->bumpMap.texture->getWidth(),1.f/material->bumpMap.texture->getHeight(),1/material->bumpMap.color.x,0.01f*material->bumpMap.color.y));
+		if (MATERIAL_BUMP_TYPE_HEIGHT && MATERIAL_DIFFUSE_MAP && material->diffuseReflectance.texcoord!=material->bumpMap.texcoord)
 		{
-			program->sendUniform("materialBumpMapData",1.f/material->bumpMap.texture->getWidth(),1.f/material->bumpMap.texture->getHeight());
-			if (MATERIAL_DIFFUSE_MAP && material->diffuseReflectance.texcoord!=material->bumpMap.texcoord)
-				RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Parallax mapping might look wrong because height map and diffuse map use different mapping.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Parallax mapping might look wrong because height map and diffuse map use different mapping.\n"));
 		}
 		if (MATERIAL_NORMAL_MAP_FLOW)
 		{

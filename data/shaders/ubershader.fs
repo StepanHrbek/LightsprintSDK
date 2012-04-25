@@ -269,7 +269,7 @@ varying vec3 worldNormalSmooth;
 	varying vec3 worldBitangent;
 	uniform sampler2D materialBumpMap;
 	varying vec2 materialBumpMapCoord;
-	uniform vec2 materialBumpMapData; // 1/w,1/h
+	uniform vec4 materialBumpMapData; // 1/w,1/h,normal steepness multiplier,parallax offset multiplier
 	#ifdef MATERIAL_NORMAL_MAP_FLOW
 		uniform float seconds;
 	#endif
@@ -359,7 +359,7 @@ void main()
 			#else
 				#ifdef MATERIAL_BUMP_TYPE_HEIGHT
 					float height = texture2D(materialBumpMap,materialBumpMapCoord).x;
-					parallaxOffset = (height-0.5) * 0.01 * normalize(vec3(dot(worldEyeDir,worldTangent),dot(worldEyeDir,worldBitangent),dot(worldEyeDir,worldNormalSmooth))).xy;
+					parallaxOffset = (height-0.5) * materialBumpMapData.w * normalize(vec3(dot(worldEyeDir,worldTangent),dot(worldEyeDir,worldBitangent),dot(worldEyeDir,worldNormalSmooth))).xy;
 					height = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset).x;
 					float hx = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(materialBumpMapData.x,0.0)).x;
 					float hy = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(0.0,materialBumpMapData.y)).x;
@@ -368,7 +368,7 @@ void main()
 					vec3 localNormal = normalize(texture2D(materialBumpMap,materialBumpMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
 				#endif
 			#endif
-			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*worldNormalSmooth);
+			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*materialBumpMapData.z*worldNormalSmooth);
 		#else
 			vec3 worldNormal = normalize(worldNormalSmooth); // normalize improves quality of Blinn-Phong
 		#endif

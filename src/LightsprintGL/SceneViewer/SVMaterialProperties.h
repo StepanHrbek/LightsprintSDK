@@ -68,6 +68,8 @@ namespace rr_gl
 		wxPGProperty*     propTransparencyInAlpha;
 		wxPGProperty*     propRefraction;
 		wxPGProperty*     propBumpMap;
+		wxPGProperty*     propBumpMultiplier1;
+		wxPGProperty*     propBumpMultiplier2;
 		wxPGProperty*     propLightmapTexcoord;
 		wxPGProperty*     propQualityForPoints;
 
