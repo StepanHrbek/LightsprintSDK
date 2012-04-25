@@ -525,95 +525,87 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 						// every one image must succeed
 						result = false;
 						// fill it with texture data
-						/*if (dstbypp==srcbypp)
-						{
-							// use native format
-							memcpy(fipixels,rawData+side*getWidth()*getHeight()*dstbypp,getWidth()*getHeight()*dstbypp);
-						}
-						else*/
-						{
-							// convert format
-							// FreeImage doesn't support all necessary conversions
-							unsigned char* src = (unsigned char*)(rawData+side*buffer->getWidth()*buffer->getHeight()*srcbypp);
-							unsigned char* dst = (unsigned char*)fipixels;
-							unsigned width = buffer->getWidth();
-							unsigned numPixels = width*buffer->getHeight();
-							bool swaprb = dstbipp<=32;
-							if (srcFormat==BF_BGR)
-								swaprb = !swaprb;
+						// convert format
+						// FreeImage doesn't support all necessary conversions
+						unsigned char* src = (unsigned char*)(rawData+side*buffer->getWidth()*buffer->getHeight()*srcbypp);
+						unsigned char* dst = (unsigned char*)fipixels;
+						unsigned width = buffer->getWidth();
+						unsigned numPixels = width*buffer->getHeight();
+						bool swaprb = dstbipp<=32;
+						if (srcFormat==BF_BGR)
+							swaprb = !swaprb;
 #ifdef RR_BIG_ENDIAN
-							if (srcFormat==BF_RGB || srcFormat==BF_BGR || srcFormat==BF_RGBA)
-								swaprb = !swaprb;
+						if (srcFormat==BF_RGB || srcFormat==BF_BGR || srcFormat==BF_RGBA)
+							swaprb = !swaprb;
 #endif
-							for (unsigned i=0;i<numPixels;i++)
+						for (unsigned i=0;i<numPixels;i++)
+						{
+							// read src pixel
+							float pixel[4];
+							switch(srcFormat)
 							{
-								// read src pixel
-								float pixel[4];
-								switch(srcFormat)
-								{
-									case BF_RGBAF:
-										pixel[0] = ((float*)src)[0];
-										pixel[1] = ((float*)src)[1];
-										pixel[2] = ((float*)src)[2];
-										pixel[3] = ((float*)src)[3];
-										break;
-									case BF_RGBF:
-										pixel[0] = ((float*)src)[0];
-										pixel[1] = ((float*)src)[1];
-										pixel[2] = ((float*)src)[2];
-										pixel[3] = 1;
-										break;
-									case BF_RGBA:
-										pixel[0] = RR_BYTE2FLOAT(src[0]);
-										pixel[1] = RR_BYTE2FLOAT(src[1]);
-										pixel[2] = RR_BYTE2FLOAT(src[2]);
-										pixel[3] = RR_BYTE2FLOAT(src[3]);
-										break;
-									case BF_RGB:
-									case BF_BGR:
-										pixel[0] = RR_BYTE2FLOAT(src[0]);
-										pixel[1] = RR_BYTE2FLOAT(src[1]);
-										pixel[2] = RR_BYTE2FLOAT(src[2]);
-										pixel[3] = 1;
-										break;
-								}
-								src += srcbypp;
-								// swap r<->b
-								if (swaprb)
-								{
-									float tmp = pixel[0];
-									pixel[0] = pixel[2];
-									pixel[2] = tmp;
-								}
-								// write dst pixel
-								if ((i%width)==0) dst += 3-(((unsigned long)dst+3)&3); // compensate for freeimage's scanline padding
-								switch(dstbipp)
-								{
-									case 128:
-										((float*)dst)[0] = pixel[0];
-										((float*)dst)[1] = pixel[1];
-										((float*)dst)[2] = pixel[2];
-										((float*)dst)[3] = pixel[3];
-										break;
-									case 96:
-										((float*)dst)[0] = pixel[0];
-										((float*)dst)[1] = pixel[1];
-										((float*)dst)[2] = pixel[2];
-										break;
-									case 32:
-										dst[0] = RR_FLOAT2BYTE(pixel[0]);
-										dst[1] = RR_FLOAT2BYTE(pixel[1]);
-										dst[2] = RR_FLOAT2BYTE(pixel[2]);
-										dst[3] = RR_FLOAT2BYTE(pixel[3]);
-										break;
-									case 24:
-										dst[0] = RR_FLOAT2BYTE(pixel[0]);
-										dst[1] = RR_FLOAT2BYTE(pixel[1]);
-										dst[2] = RR_FLOAT2BYTE(pixel[2]);
-										break;
-								}
-								dst += dstbypp;
+								case BF_RGBAF:
+									pixel[0] = ((float*)src)[0];
+									pixel[1] = ((float*)src)[1];
+									pixel[2] = ((float*)src)[2];
+									pixel[3] = ((float*)src)[3];
+									break;
+								case BF_RGBF:
+									pixel[0] = ((float*)src)[0];
+									pixel[1] = ((float*)src)[1];
+									pixel[2] = ((float*)src)[2];
+									pixel[3] = 1;
+									break;
+								case BF_RGBA:
+									pixel[0] = RR_BYTE2FLOAT(src[0]);
+									pixel[1] = RR_BYTE2FLOAT(src[1]);
+									pixel[2] = RR_BYTE2FLOAT(src[2]);
+									pixel[3] = RR_BYTE2FLOAT(src[3]);
+									break;
+								case BF_RGB:
+								case BF_BGR:
+									pixel[0] = RR_BYTE2FLOAT(src[0]);
+									pixel[1] = RR_BYTE2FLOAT(src[1]);
+									pixel[2] = RR_BYTE2FLOAT(src[2]);
+									pixel[3] = 1;
+									break;
 							}
+							src += srcbypp;
+							// swap r<->b
+							if (swaprb)
+							{
+								float tmp = pixel[0];
+								pixel[0] = pixel[2];
+								pixel[2] = tmp;
+							}
+							// write dst pixel
+							if ((i%width)==0) dst += 3-(((unsigned long)dst+3)&3); // compensate for freeimage's scanline padding
+							switch(dstbipp)
+							{
+								case 128:
+									((float*)dst)[0] = pixel[0];
+									((float*)dst)[1] = pixel[1];
+									((float*)dst)[2] = pixel[2];
+									((float*)dst)[3] = pixel[3];
+									break;
+								case 96:
+									((float*)dst)[0] = pixel[0];
+									((float*)dst)[1] = pixel[1];
+									((float*)dst)[2] = pixel[2];
+									break;
+								case 32:
+									dst[0] = RR_FLOAT2BYTE(pixel[0]);
+									dst[1] = RR_FLOAT2BYTE(pixel[1]);
+									dst[2] = RR_FLOAT2BYTE(pixel[2]);
+									dst[3] = RR_FLOAT2BYTE(pixel[3]);
+									break;
+								case 24:
+									dst[0] = RR_FLOAT2BYTE(pixel[0]);
+									dst[1] = RR_FLOAT2BYTE(pixel[1]);
+									dst[2] = RR_FLOAT2BYTE(pixel[2]);
+									break;
+							}
+							dst += dstbypp;
 						}
 
 						// generate single side filename
