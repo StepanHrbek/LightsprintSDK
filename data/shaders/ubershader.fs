@@ -342,6 +342,28 @@ void main()
 	//
 	// material
 
+	// bump
+
+	#if (defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))) || defined(MATERIAL_TRANSPARENCY_FRESNEL)
+		vec3 worldEyeDir = normalize(worldEyePos-worldPos);
+	#endif
+	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(MATERIAL_TRANSPARENCY_FRESNEL) || defined(POSTPROCESS_NORMALS)
+		#ifdef MATERIAL_BUMP_MAP
+			#ifdef MATERIAL_NORMAL_MAP_FLOW
+				vec3 localNormal = normalize(
+					texture2D(materialNormalMap,0.2*materialNormalMapCoord   +seconds*0.5*vec2(0.051,0.019                         )).xyz+
+					texture2D(materialNormalMap,0.2*materialNormalMapCoord.yx+seconds*0.5*vec2(cos(seconds*0.05)*-0.0006-0.0049,0.0)).xyz-vec3(1.0,1.0,1.0) );
+			#else
+				vec3 localNormal = normalize(texture2D(materialNormalMap,materialNormalMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
+			#endif
+			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*worldNormalSmooth);
+		#else
+			vec3 worldNormal = normalize(worldNormalSmooth); // normalize improves quality of Blinn-Phong
+		#endif
+	#endif
+
+	// transmittance + diffuse
+
 	float opacityA = 1.0;
 	vec3 transparencyRGB = vec3(0.0);
 	#ifdef MATERIAL_DIFFUSE_CONST
@@ -383,35 +405,24 @@ void main()
 		//  MATERIAL_TRANSPARENCY_TO_RGB = rendering blended material into rgb shadowmap or rgb blending, not alpha keying
 		if (opacityA<0.5) discard;
 	#endif
-	#ifdef MATERIAL_SPECULAR_MAP
-		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
-		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
-	#endif
-	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(MATERIAL_TRANSPARENCY_FRESNEL) || defined(POSTPROCESS_NORMALS)
-		#ifdef MATERIAL_BUMP_MAP
-			#ifdef MATERIAL_NORMAL_MAP_FLOW
-				vec3 localNormal = normalize(
-					texture2D(materialNormalMap,0.2*materialNormalMapCoord   +seconds*0.5*vec2(0.051,0.019                         )).xyz+
-					texture2D(materialNormalMap,0.2*materialNormalMapCoord.yx+seconds*0.5*vec2(cos(seconds*0.05)*-0.0006-0.0049,0.0)).xyz-vec3(1.0,1.0,1.0) );
-			#else
-				vec3 localNormal = normalize(texture2D(materialNormalMap,materialNormalMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
-			#endif
-			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*worldNormalSmooth);
-		#else
-			vec3 worldNormal = normalize(worldNormalSmooth); // normalize improves quality of Blinn-Phong
-		#endif
-	#endif
-	#ifdef MATERIAL_EMISSIVE_MAP
-		vec4 materialEmissiveMapColor = texture2D(materialEmissiveMap, materialEmissiveCoord);
-	#endif
-	#if (defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))) || defined(MATERIAL_TRANSPARENCY_FRESNEL)
-		vec3 worldEyeDir = normalize(worldEyePos-worldPos);
-	#endif
 	#ifdef MATERIAL_TRANSPARENCY_FRESNEL
 		float materialFresnelReflectance = clamp(fresnelReflectance(abs(dot(worldEyeDir,worldNormal))),0.0,0.999); // clamping to 1.0 produces strange artifact
 		float preFresnelOpacityA = opacityA;
 		opacityA = 1.0-(1.0-opacityA)*(1.0-materialFresnelReflectance);
 		transparencyRGB *= 1.0-materialFresnelReflectance;
+	#endif
+
+	// specular
+
+	#ifdef MATERIAL_SPECULAR_MAP
+		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
+		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
+	#endif
+
+	// emittance
+
+	#ifdef MATERIAL_EMISSIVE_MAP
+		vec4 materialEmissiveMapColor = texture2D(materialEmissiveMap, materialEmissiveCoord);
 	#endif
 
 
