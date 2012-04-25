@@ -91,7 +91,7 @@ struct SceneViewerState
 	bool             renderMaterialEmission;    //! Render emissivity.
 	Transparency     renderMaterialTransparency;//! Render transparency. Allows realtime renderer to use modes up to this one. Offline GI always uses the highest one.
 	bool             renderMaterialTransparencyFresnel; //! When rendering transparency, modulate result by fresnel term.
-	bool             renderMaterialNormalMaps;  //! Render normal maps.
+	bool             renderMaterialBumpMaps;  //! Render normal maps.
 	bool             renderMaterialTextures;    //! Render textures (diffuse, emissive) rather than constant colors.
 	bool             renderMaterialSidedness;   //! Render 1-sided materials as 1-sided, rather than everything 2-sided.
 	bool             renderWireframe;           //! Render all in wireframe.
@@ -170,7 +170,7 @@ struct SceneViewerState
 		renderMaterialEmission = 1;
 		renderMaterialTransparency = T_RGB_BLEND;
 		renderMaterialTransparencyFresnel = true;
-		renderMaterialNormalMaps = 1;
+		renderMaterialBumpMaps = 1;
 		renderMaterialTextures = 1;
 		renderMaterialSidedness = true;
 		renderWireframe = 0;
@@ -250,7 +250,7 @@ struct SceneViewerState
 			&& a.renderMaterialEmission==renderMaterialEmission
 			&& a.renderMaterialTransparency==renderMaterialTransparency
 			&& a.renderMaterialTransparencyFresnel==renderMaterialTransparencyFresnel
-			&& a.renderMaterialNormalMaps==renderMaterialNormalMaps
+			&& a.renderMaterialBumpMaps==renderMaterialBumpMaps
 			&& a.renderMaterialTextures==renderMaterialTextures
 			&& a.renderMaterialSidedness==renderMaterialSidedness
 			&& a.renderWireframe==renderWireframe
