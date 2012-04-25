@@ -448,19 +448,18 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 	if (!cubeSideName)
 		cubeSideName = cubeSideNameBackup;
 
+	// save vertex buffer
+	if (wcsstr(filename.w_str(),L".vbu") || wcsstr(filename.w_str(),L".VBU"))
 	{
-		// save vertex buffer
-		if (wcsstr(filename.w_str(),L".vbu") || wcsstr(filename.w_str(),L".VBU"))
+		if (buffer->getType()!=BT_VERTEX_BUFFER)
 		{
-			if (buffer->getType()!=BT_VERTEX_BUFFER)
-			{
-				rr::RRReporter::report(rr::WARN,"Attempt to save non-vertex-buffer to .vbu format (vertex buffers only).\n");
-				goto ende;
-			}
-			VBUHeader header(buffer);
-			const unsigned char* rawData = buffer->lock(BL_READ);
-			if (rawData)
-			{
+			rr::RRReporter::report(rr::WARN,"Attempt to save non-vertex-buffer to .vbu format (vertex buffers only).\n");
+			goto ende;
+		}
+		VBUHeader header(buffer);
+		const unsigned char* rawData = buffer->lock(BL_READ);
+		if (rawData)
+		{
 #ifdef _WIN32
 			FILE* f = _wfopen(filename.w_str(),L"wb");
 #else
@@ -474,149 +473,148 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 				result = written == buffer->getWidth();
 			}
 			buffer->unlock();
-			}
-			goto ende;
 		}
+		goto ende;
+	}
 
-		// get src format
-		rr::RRBufferFormat srcFormat = buffer->getFormat();
-		unsigned srcbypp = (buffer->getElementBits()+7)/8;
-		FREE_IMAGE_TYPE fit;
-		switch(buffer->getFormat())
-		{
-			case BF_RGB: fit = FIT_BITMAP; break;
-			case BF_BGR: fit = FIT_BITMAP; break;
-			case BF_RGBA: fit = FIT_BITMAP; break;
-			case BF_RGBF: fit = FIT_RGBF; break;
-			case BF_RGBAF: fit = FIT_RGBAF; break;
-			default: RR_ASSERT(0); goto ende;
-		}
+	// get src format
+	rr::RRBufferFormat srcFormat = buffer->getFormat();
+	unsigned srcbypp = (buffer->getElementBits()+7)/8;
+	FREE_IMAGE_TYPE fit;
+	switch(buffer->getFormat())
+	{
+		case BF_RGB: fit = FIT_BITMAP; break;
+		case BF_BGR: fit = FIT_BITMAP; break;
+		case BF_RGBA: fit = FIT_BITMAP; break;
+		case BF_RGBF: fit = FIT_RGBF; break;
+		case BF_RGBAF: fit = FIT_RGBAF; break;
+		default: RR_ASSERT(0); goto ende;
+	}
 
-		// select dst format
-		unsigned tryTable[5][4] = {
-			{24,32,96,128}, // RGB   what dst to try for src=24
-			{24,32,96,128}, // BGR   -"-
-			{32,24,128,96}, // RGBA  what dst to try for src=32
-			{96,128,24,32}, // RGBF  what dst to try for src=96
-			{128,96,32,24}, // RGBAF what dst to try for src=128
-			};
-		unsigned dstbipp;
-		RR_ASSERT(BF_RGB==0 && BF_BGR==1 && BF_RGBA==2 && BF_RGBF==3 && BF_RGBAF==4);
-		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][0]))
-		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][1]))
-		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][2]))
-		if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][3]))
-		{
-			// Don't warn, there's still chance other saver will work (.rrbuffer)
-			//RRReporter::report(WARN,"Save not supported for %ls format.\n",filename.w_str());
-			goto ende;
-		}
-		fit = (dstbipp==128) ? FIT_RGBAF : ((dstbipp==96)?FIT_RGBF:FIT_BITMAP);
-		unsigned dstbypp = (dstbipp+7)/8;
+	// select dst format
+	unsigned tryTable[5][4] = {
+		{24,32,96,128}, // RGB   what dst to try for src=24
+		{24,32,96,128}, // BGR   -"-
+		{32,24,128,96}, // RGBA  what dst to try for src=32
+		{96,128,24,32}, // RGBF  what dst to try for src=96
+		{128,96,32,24}, // RGBAF what dst to try for src=128
+		};
+	unsigned dstbipp;
+	RR_ASSERT(BF_RGB==0 && BF_BGR==1 && BF_RGBA==2 && BF_RGBF==3 && BF_RGBAF==4);
+	if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][0]))
+	if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][1]))
+	if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][2]))
+	if (!FIFSupportsExportBPP(fif, dstbipp=tryTable[srcFormat][3]))
+	{
+		// Don't warn, there's still chance other saver will work (.rrbuffer)
+		//RRReporter::report(WARN,"Save not supported for %ls format.\n",filename.w_str());
+		goto ende;
+	}
+	fit = (dstbipp==128) ? FIT_RGBAF : ((dstbipp==96)?FIT_RGBF:FIT_BITMAP);
+	unsigned dstbypp = (dstbipp+7)/8;
 
-		FIBITMAP* dib = FreeImage_AllocateT(fit,buffer->getWidth(),buffer->getHeight(),dstbipp);
-		if (dib)
+	FIBITMAP* dib = FreeImage_AllocateT(fit,buffer->getWidth(),buffer->getHeight(),dstbipp);
+	if (dib)
+	{
+		BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib);
+		if (fipixels)
 		{
-			BYTE* fipixels = (BYTE*)FreeImage_GetBits(dib);
-			if (fipixels)
+			// process all sides
+			unsigned elementIndex = 0;
+			for (unsigned side=0;side<6;side++)
 			{
-				// process all sides
-				unsigned elementIndex = 0;
-				for (unsigned side=0;side<6;side++)
+				if (!side || buffer->getType()==BT_CUBE_TEXTURE)
 				{
-					if (!side || buffer->getType()==BT_CUBE_TEXTURE)
-					{
-						// every one image must succeed
-						result = false;
-						// fill it with texture data
-						// convert format
-						// FreeImage doesn't support all necessary conversions
-						unsigned char* dst = (unsigned char*)fipixels;
-						unsigned width = buffer->getWidth();
-						unsigned numPixels = width*buffer->getHeight();
-						bool swaprb = dstbipp<=32;
-						if (srcFormat==BF_BGR)
-							swaprb = !swaprb;
+					// every one image must succeed
+					result = false;
+					// fill it with texture data
+					// convert format
+					// FreeImage doesn't support all necessary conversions
+					unsigned char* dst = (unsigned char*)fipixels;
+					unsigned width = buffer->getWidth();
+					unsigned numPixels = width*buffer->getHeight();
+					bool swaprb = dstbipp<=32;
+					if (srcFormat==BF_BGR)
+						swaprb = !swaprb;
 #ifdef RR_BIG_ENDIAN
-						if (srcFormat==BF_RGB || srcFormat==BF_BGR || srcFormat==BF_RGBA)
-							swaprb = !swaprb;
+					if (srcFormat==BF_RGB || srcFormat==BF_BGR || srcFormat==BF_RGBA)
+						swaprb = !swaprb;
 #endif
-						for (unsigned i=0;i<numPixels;i++)
+					for (unsigned i=0;i<numPixels;i++)
+					{
+						// read src pixel
+						rr::RRVec4 pixel = buffer->getElement(elementIndex++);
+						// swap r<->b
+						if (swaprb)
 						{
-							// read src pixel
-							rr::RRVec4 pixel = buffer->getElement(elementIndex++);
-							// swap r<->b
-							if (swaprb)
-							{
-								float tmp = pixel[0];
-								pixel[0] = pixel[2];
-								pixel[2] = tmp;
-							}
-							// write dst pixel
-							if ((i%width)==0) dst += 3-(((unsigned long)dst+3)&3); // compensate for freeimage's scanline padding
-							switch(dstbipp)
-							{
-								case 128:
-									((float*)dst)[0] = pixel[0];
-									((float*)dst)[1] = pixel[1];
-									((float*)dst)[2] = pixel[2];
-									((float*)dst)[3] = pixel[3];
-									break;
-								case 96:
-									((float*)dst)[0] = pixel[0];
-									((float*)dst)[1] = pixel[1];
-									((float*)dst)[2] = pixel[2];
-									break;
-								case 32:
-									dst[0] = RR_FLOAT2BYTE(pixel[0]);
-									dst[1] = RR_FLOAT2BYTE(pixel[1]);
-									dst[2] = RR_FLOAT2BYTE(pixel[2]);
-									dst[3] = RR_FLOAT2BYTE(pixel[3]);
-									break;
-								case 24:
-									dst[0] = RR_FLOAT2BYTE(pixel[0]);
-									dst[1] = RR_FLOAT2BYTE(pixel[1]);
-									dst[2] = RR_FLOAT2BYTE(pixel[2]);
-									break;
-							}
-							dst += dstbypp;
+							float tmp = pixel[0];
+							pixel[0] = pixel[2];
+							pixel[2] = tmp;
 						}
-
-						// generate single side filename
-#ifdef _WIN32
-						std::wstring filenameCube = RR_RR2STDW(filename);
-						int ofs = (int)filenameCube.find(L"%s");
-						if (ofs>=0)
-							filenameCube.replace(ofs,2,RRString(cubeSideName[side]).w_str());
-#else
-						std::string filenameCube = RR_RR2STD(filename);
-						int ofs = (int)filenameCube.find("%s");
-						if (ofs>=0)
-							filenameCube.replace(ofs,2,cubeSideName[side]);
-#endif
-
-						// save single side
-						int flags = 0;
-						if (saveParameters)
+						// write dst pixel
+						if ((i%width)==0) dst += 3-(((unsigned long)dst+3)&3); // compensate for freeimage's scanline padding
+						switch(dstbipp)
 						{
-							if (saveParameters->jpegQuality<=(10+25)/2) flags = JPEG_QUALITYBAD; else
-							if (saveParameters->jpegQuality<=(25+50)/2) flags = JPEG_QUALITYAVERAGE; else
-							if (saveParameters->jpegQuality<=(50+75)/2) flags = JPEG_QUALITYNORMAL; else
-							if (saveParameters->jpegQuality<=(75+100)/2) flags = JPEG_QUALITYGOOD; else
-							flags = JPEG_QUALITYSUPERB;
+							case 128:
+								((float*)dst)[0] = pixel[0];
+								((float*)dst)[1] = pixel[1];
+								((float*)dst)[2] = pixel[2];
+								((float*)dst)[3] = pixel[3];
+								break;
+							case 96:
+								((float*)dst)[0] = pixel[0];
+								((float*)dst)[1] = pixel[1];
+								((float*)dst)[2] = pixel[2];
+								break;
+							case 32:
+								dst[0] = RR_FLOAT2BYTE(pixel[0]);
+								dst[1] = RR_FLOAT2BYTE(pixel[1]);
+								dst[2] = RR_FLOAT2BYTE(pixel[2]);
+								dst[3] = RR_FLOAT2BYTE(pixel[3]);
+								break;
+							case 24:
+								dst[0] = RR_FLOAT2BYTE(pixel[0]);
+								dst[1] = RR_FLOAT2BYTE(pixel[1]);
+								dst[2] = RR_FLOAT2BYTE(pixel[2]);
+								break;
 						}
-#ifdef _WIN32
-						result = FreeImage_SaveU(fif, dib, filenameCube.c_str(), flags)!=0;
-#else
-						result = FreeImage_Save(fif, dib, filenameCube.c_str(), flags)!=0;
-#endif
-						// if any one of 6 images fails, don't try other and report fail
-						if (!result) break;
+						dst += dstbypp;
 					}
+
+					// generate single side filename
+#ifdef _WIN32
+					std::wstring filenameCube = RR_RR2STDW(filename);
+					int ofs = (int)filenameCube.find(L"%s");
+					if (ofs>=0)
+						filenameCube.replace(ofs,2,RRString(cubeSideName[side]).w_str());
+#else
+					std::string filenameCube = RR_RR2STD(filename);
+					int ofs = (int)filenameCube.find("%s");
+					if (ofs>=0)
+						filenameCube.replace(ofs,2,cubeSideName[side]);
+#endif
+
+					// save single side
+					int flags = 0;
+					if (saveParameters)
+					{
+						if (saveParameters->jpegQuality<=(10+25)/2) flags = JPEG_QUALITYBAD; else
+						if (saveParameters->jpegQuality<=(25+50)/2) flags = JPEG_QUALITYAVERAGE; else
+						if (saveParameters->jpegQuality<=(50+75)/2) flags = JPEG_QUALITYNORMAL; else
+						if (saveParameters->jpegQuality<=(75+100)/2) flags = JPEG_QUALITYGOOD; else
+						flags = JPEG_QUALITYSUPERB;
+					}
+#ifdef _WIN32
+					result = FreeImage_SaveU(fif, dib, filenameCube.c_str(), flags)!=0;
+#else
+					result = FreeImage_Save(fif, dib, filenameCube.c_str(), flags)!=0;
+#endif
+					// if any one of 6 images fails, don't try other and report fail
+					if (!result) break;
 				}
 			}
-			FreeImage_Unload(dib);
 		}
+		FreeImage_Unload(dib);
 	}
 
 ende:
