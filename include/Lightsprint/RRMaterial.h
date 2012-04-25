@@ -228,7 +228,7 @@ namespace rr
 		bool          specularTransmittanceKeyed;
 		//! Refractive index of matter in front of surface divided by refractive index of matter behind surface. Real world surfaces have it from 0.25 to 4. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 		RRReal        refractionIndex;
-		//! Optional normal map modulates surface normals. Only texture and texcoord are used, color is ignored.
+		//! Optional bump map modulates surface normals. RGB maps are interpreted as normal maps, grayscale maps (or the same map as diffuseReflectance.texture, or c@pture) as heightmaps. Color is unused.
 		Property      bumpMap;
 		//! Texcoord channel with unwrap for lightmaps. To be used in RRMesh::getTriangleMapping().
 		//

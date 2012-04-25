@@ -281,6 +281,8 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		if (uberProgramSetup.MATERIAL_BUMP_MAP)
 		{
 			uberProgramSetup.MATERIAL_BUMP_MAP = 0;
+			uberProgramSetup.MATERIAL_BUMP_TYPE_HEIGHT = 0;
+			uberProgramSetup.MATERIAL_NORMAL_MAP_FLOW = 0;
 			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,brightness,gamma,clipPlanes);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with normal map disabled.\n"));
 		}

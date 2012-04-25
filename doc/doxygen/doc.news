@@ -16,12 +16,13 @@ NEWS
   - shininess in automatic mirror reflections honoured
   - shininess in environment reflections adjusted, it was too sharp
   - default shininess changed from 100 to 10000 (Phong shininess 100 makes reflections extremely blurry, 10000 blurry, 100000 sharp)
-- <b>improved normal maps</b> (RRMaterial::normalMap)
+- <b>improved normal maps</b> (RRMaterial::bumpMap)
   - import of normal maps and tangent space from Collada .dae
   - RRMeshArrays::buildTangents() has one more parameter, generated tangent space is better for normal mapping
-  - RRMaterial::normalMap renamed to RRMaterial::bumpMap
-  - MATERIAL_NORMAL_MAP renamed to MATERIAL_BUMP_MAP (serves both normal and height maps)
-  - MULTITEXCOORD_MATERIAL_NORMAL_MAP renamed to MULTITEXCOORD_MATERIAL_BUMP_MAP (serves both normal and height maps)
+- <b>height maps</b> (RRMaterial::bumpMap)
+  - system automatically works with either normal map or height map assigned to bump map slot
+  - several identifiers with "normal" in name renamed to "bump", to make it clear that both normal maps and height maps are supported
+  - rr_gl::UberProgramSetup::MATERIAL_BUMP_TYPE_HEIGHT added, rr_gl::RendererOfScene sets it automatically when height map is used
 - <b>improved index of refraction</b>
   - rr_gl::UberProgramSetup::MATERIAL_TRANSPARENCY_FRESNEL renders specular transmittance and reflectance adjusted according to index of refraction
   - rr_gl::RealtimeLight::FRESNEL_SHADOWS renders shadows adjusted according to index of refraction

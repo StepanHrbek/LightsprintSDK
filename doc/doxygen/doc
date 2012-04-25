@@ -183,7 +183,7 @@ Stereo rendering
 
 Materials
 - supports all types of materials
-- diffuse/specular/emissive/opacity/normalmap slots
+- diffuse/specular/emissive/opacity/normalmap/heightmap slots
 - video files and live video capture can be used in all slots
 - index of refraction, shininess/roughness
 
@@ -911,7 +911,7 @@ Video formats
   Static scene is a scene skeleton, big objects that never move, e.g. walls.
   Number of triangles in static scene is the most important performance and memory footprint factor,
   so we recommend creating as lowpoly walls as possible, with eventual details
-  baked into normal maps or parallax occlusion maps.
+  baked into normal maps or height maps.
 
   Huge unnecessary polygons (e.g. box around scene) reduce speed and quality, remove them.
 
@@ -2088,25 +2088,22 @@ Video formats
    - We propose you several techniques:
      \n
      For rough surface with mostly <b>diffuse</b> reflection,
-     read value from diffuse environment map, using 'surface normal' as a coordinate.
-     This single instruction gives you global illumination of pixel.
+     read value from environment map's small mip level, using 'surface normal' as a coordinate.
+     This single texture lookup gives you global illumination of pixel.
      Multiply it by material diffuse color to get final color.
-     Size 4 of environment map is sufficient for close objects and 2 for distant ones.
      \n
      For smooth surface with <b>specular</b> reflection,
-     read value from specular environment map, using
+     read value from environment map, using
      'eye direction reflected by surface' as a coordinate.
-     These few instructions give you global illumination of pixel.
+     Use smaller or larger mip level based on material <b>shininess</b>.
+     This single texture lookup gives you global illumination of pixel.
      Don't modulate it by material color unless you want to render
      exotic materials, you already have final color.
-     Size 16 of environment map simulates smooth surfaces, size 4 simulates rough
-     surface.
+     Size 16 of environment map is often good compromise between environment update speed
+     and reflection sharpness.
      \n
-     You can use <b>specular map</b> to select per pixel which one
-     of two techniques to use or how to mix both together.
-     \n
-     You can use <b>normal map</b> to modulate surface normal.
-     Both diffuse and specular surfaces respond well to normal maps.
+     You can use <b>normal map</b> or <b>height map</b> to modulate surface normal.
+     Both diffuse and specular surfaces respond well to bump maps.
      \n
      LightsprintGL implements all of these techniques.
    - Global illumination can be further improved if you use <b>ambient occlusion map</b>
@@ -3070,7 +3067,7 @@ rr::RRVector<*>{
        - specular reflection: none, constant, per vertex, per pixel
        - emission: none, constant, per pixel
        - transparency: none, constant, per pixel / blend or 1bit alpha keying
-       - normal map
+       - bump: normal map, height map
      - minimal requirements: OpenGL 2.0
      - supported GPUs: GeForce 5xxx and higher, Radeon 9500 and higher etc
    -# scene viewer and editor

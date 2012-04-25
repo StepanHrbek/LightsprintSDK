@@ -86,7 +86,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 
 	Append(propBumpMap = new wxStringProperty(_("Bump map")));
 	AppendIn(propBumpMap,new wxIntProperty(_("uv")));
-	AppendIn(propBumpMap,new ImageFileProperty(_("texture or video"),_("Normal map texture or video. Type in c@pture to use live video input.")));
+	AppendIn(propBumpMap,new ImageFileProperty(_("texture or video"),_("Normal map (rgb) or height map (grayscale), texture or video. Type in c@pture to use live video input.")));
 	SetPropertyBackgroundColour(propBumpMap,importantPropertyBackgroundColor,false);
 	Collapse(propBumpMap);
 

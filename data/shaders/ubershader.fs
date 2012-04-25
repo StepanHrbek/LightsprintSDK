@@ -43,6 +43,7 @@
 //  #define MATERIAL_TRANSPARENCY_TO_RGB
 //  #define MATERIAL_TRANSPARENCY_FRESNEL
 //  #define MATERIAL_BUMP_MAP
+//  #define MATERIAL_BUMP_TYPE_HEIGHT
 //  #define MATERIAL_NORMAL_MAP_FLOW
 //  #define ANIMATION_WAVE
 //  #define POSTPROCESS_NORMALS
@@ -268,6 +269,7 @@ varying vec3 worldNormalSmooth;
 	varying vec3 worldBitangent;
 	uniform sampler2D materialBumpMap;
 	varying vec2 materialBumpMapCoord;
+	uniform vec2 materialBumpMapData; // 1/w,1/h
 	#ifdef MATERIAL_NORMAL_MAP_FLOW
 		uniform float seconds;
 	#endif
@@ -354,7 +356,14 @@ void main()
 					texture2D(materialBumpMap,0.2*materialBumpMapCoord   +seconds*0.5*vec2(0.051,0.019                         )).xyz+
 					texture2D(materialBumpMap,0.2*materialBumpMapCoord.yx+seconds*0.5*vec2(cos(seconds*0.05)*-0.0006-0.0049,0.0)).xyz-vec3(1.0,1.0,1.0) );
 			#else
-				vec3 localNormal = normalize(texture2D(materialBumpMap,materialBumpMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
+				#ifdef MATERIAL_BUMP_TYPE_HEIGHT
+					float height = texture2D(materialBumpMap,materialBumpMapCoord).x;
+					float hx = texture2D(materialBumpMap,materialBumpMapCoord+vec2(materialBumpMapData.x,0.0)).x;
+					float hy = texture2D(materialBumpMap,materialBumpMapCoord+vec2(0.0,materialBumpMapData.y)).x;
+					vec3 localNormal = normalize(vec3(height-hx,height-hy,0.1));
+				#else
+					vec3 localNormal = normalize(texture2D(materialBumpMap,materialBumpMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
+				#endif
 			#endif
 			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*worldNormalSmooth);
 		#else

@@ -149,7 +149,8 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material, const
 
 	// normal map
 	MATERIAL_BUMP_MAP = hasMap(material->bumpMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
-	MATERIAL_NORMAL_MAP_FLOW = strstr(material->name.c_str(),"water")!=NULL;
+	MATERIAL_BUMP_TYPE_HEIGHT = MATERIAL_BUMP_MAP && (material->bumpMap.texture==material->diffuseReflectance.texture || material->bumpMap.texture->getFormat()==rr::BF_LUMINANCE || material->bumpMap.texture->getFormat()==rr::BF_LUMINANCEF || material->bumpMap.texture->filename=="c@pture");
+	MATERIAL_NORMAL_MAP_FLOW = MATERIAL_BUMP_MAP && strstr(material->name.c_str(),"water")!=NULL;
 
 	// misc
 	MATERIAL_CULLING = material->sideBits[0].renderFrom != material->sideBits[1].renderFrom;
@@ -167,7 +168,7 @@ const char* UberProgramSetup::getSetupString()
 	sprintf(specularModel,"#define MATERIAL_SPECULAR_MODEL %d\n",(int)MATERIAL_SPECULAR_MODEL);
 
 	static char setup[2000];
-	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		comment?comment:"",
 		SHADOW_MAPS?shadowMaps:"",
 		SHADOW_SAMPLES?shadowSamples:"",
@@ -211,6 +212,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_TRANSPARENCY_TO_RGB?"#define MATERIAL_TRANSPARENCY_TO_RGB\n":"",
 		MATERIAL_TRANSPARENCY_FRESNEL?"#define MATERIAL_TRANSPARENCY_FRESNEL\n":"",
 		MATERIAL_BUMP_MAP?"#define MATERIAL_BUMP_MAP\n":"",
+		MATERIAL_BUMP_TYPE_HEIGHT?"#define MATERIAL_BUMP_TYPE_HEIGHT\n":"",
 		MATERIAL_NORMAL_MAP_FLOW?"#define MATERIAL_NORMAL_MAP_FLOW\n":"",
 		ANIMATION_WAVE?"#define ANIMATION_WAVE\n":"",
 		POSTPROCESS_NORMALS?"#define POSTPROCESS_NORMALS\n":"",
@@ -321,6 +323,7 @@ void UberProgramSetup::reduceMaterials(const UberProgramSetup& fullMaterial)
 	MATERIAL_TRANSPARENCY_TO_RGB   &= fullMaterial.MATERIAL_TRANSPARENCY_TO_RGB;
 	MATERIAL_TRANSPARENCY_FRESNEL  &= fullMaterial.MATERIAL_TRANSPARENCY_FRESNEL;
 	MATERIAL_BUMP_MAP              &= fullMaterial.MATERIAL_BUMP_MAP;
+	//MATERIAL_BUMP_TYPE_HEIGHT      &= fullMaterial.MATERIAL_BUMP_TYPE_HEIGHT;
 	MATERIAL_NORMAL_MAP_FLOW       &= fullMaterial.MATERIAL_NORMAL_MAP_FLOW;
 	MATERIAL_CULLING               &= fullMaterial.MATERIAL_CULLING;
 }
@@ -475,9 +478,12 @@ void UberProgramSetup::validate()
 		}
 	}
 	if (!MATERIAL_BUMP_MAP)
-		MATERIAL_NORMAL_MAP_FLOW = false;
+	{
+		MATERIAL_BUMP_TYPE_HEIGHT = 0;
+		MATERIAL_NORMAL_MAP_FLOW = 0;
+	}
 	if (!LIGHT_INDIRECT_VCOLOR)
-		LIGHT_INDIRECT_VCOLOR_PHYSICAL = false;
+		LIGHT_INDIRECT_VCOLOR_PHYSICAL = 0;
 	if (!SHADOW_MAPS) // SHADOW_SAMPLES does not have to be set, sometimes we call validate() after enableAllLights() (so SHADOW_MAPS is set), but before getNextPass() (so SHADOW_SAMPLES is not yet set)
 	{
 		SHADOW_MAPS = 0;
@@ -795,6 +801,12 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendTexture("materialBumpMap",NULL,TEX_CODE_2D_MATERIAL_BUMP);
 		getTexture(material->bumpMap.texture,true,false);
 		s_buffers1x1.bindPropertyTexture(material->bumpMap,1);
+		if (MATERIAL_BUMP_TYPE_HEIGHT)
+		{
+			program->sendUniform("materialBumpMapData",1.f/material->bumpMap.texture->getWidth(),1.f/material->bumpMap.texture->getHeight());
+			if (MATERIAL_DIFFUSE_MAP && material->diffuseReflectance.texcoord!=material->bumpMap.texcoord)
+				RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Parallax mapping might look wrong because height map and diffuse map use different mapping.\n"));
+		}
 		if (MATERIAL_NORMAL_MAP_FLOW)
 		{
 			static rr::RRTime time;
