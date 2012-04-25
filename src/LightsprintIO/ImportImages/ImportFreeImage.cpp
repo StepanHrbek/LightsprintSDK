@@ -448,8 +448,6 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 	if (!cubeSideName)
 		cubeSideName = cubeSideNameBackup;
 
-	const unsigned char* rawData = buffer->lock(BL_READ);
-	if (rawData)
 	{
 		// save vertex buffer
 		if (wcsstr(filename.w_str(),L".vbu") || wcsstr(filename.w_str(),L".VBU"))
@@ -460,6 +458,9 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 				goto ende;
 			}
 			VBUHeader header(buffer);
+			const unsigned char* rawData = buffer->lock(BL_READ);
+			if (rawData)
+			{
 #ifdef _WIN32
 			FILE* f = _wfopen(filename.w_str(),L"wb");
 #else
@@ -471,6 +472,8 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 				unsigned written = (unsigned)fwrite(rawData,buffer->getElementBits()/8,buffer->getWidth(),f);
 				fclose(f);
 				result = written == buffer->getWidth();
+			}
+			buffer->unlock();
 			}
 			goto ende;
 		}
@@ -617,11 +620,6 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 	}
 
 ende:
-	if (rawData)
-	{
-		buffer->unlock();
-	}
-
 	return result;
 }
 
