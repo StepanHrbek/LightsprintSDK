@@ -177,8 +177,8 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderMaterialTransparencyFresnel = new BoolRefProperty(_("Fresnel"),_("Toggles using fresnel term."),svs.renderMaterialTransparencyFresnel);
 		AppendIn(propRenderMaterialTransparency,propRenderMaterialTransparencyFresnel);
 
-		propRenderMaterialNormalMaps = new BoolRefProperty(_("Normal maps"),_("Toggles rendering normal maps."),svs.renderMaterialNormalMaps);
-		AppendIn(propRenderMaterials,propRenderMaterialNormalMaps);
+		propRenderMaterialBumpMaps = new BoolRefProperty(_("Bump maps"),_("Toggles rendering bump maps."),svs.renderMaterialBumpMaps);
+		AppendIn(propRenderMaterials,propRenderMaterialBumpMaps);
 
 		propRenderMaterialTextures = new BoolRefProperty(_("Textures"),_("Toggles between material textures and flat colors. Disabling textures could make rendering faster.")+" (ctrl-t)",svs.renderMaterialTextures);
 		AppendIn(propRenderMaterials,propRenderMaterialTextures);
@@ -334,7 +334,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderMaterialEmittance)
 		+ updateInt(propRenderMaterialTransparency,svs.renderMaterialTransparency)
 		+ updateBoolRef(propRenderMaterialTransparencyFresnel)
-		+ updateBoolRef(propRenderMaterialNormalMaps)
+		+ updateBoolRef(propRenderMaterialBumpMaps)
 		+ updateBoolRef(propRenderMaterialTextures)
 		+ updateBoolRef(propRenderMaterialSidedness)
 		+ updateBoolRef(propRenderWireframe)

@@ -1522,8 +1522,8 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency==T_ALPHA_BLEND || svs.renderMaterialTransparency==T_RGB_BLEND;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = svs.renderMaterialTransparency==T_RGB_BLEND;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL = svs.renderMaterialTransparencyFresnel;
-			uberProgramSetup.MATERIAL_BUMP_MAP = svs.renderMaterialNormalMaps && svs.renderMaterialTextures;
-			uberProgramSetup.MATERIAL_NORMAL_MAP_FLOW = svs.renderMaterialNormalMaps && svs.renderMaterialTextures;
+			uberProgramSetup.MATERIAL_BUMP_MAP = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
+			uberProgramSetup.MATERIAL_NORMAL_MAP_FLOW = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
 			uberProgramSetup.MATERIAL_CULLING = svs.renderMaterialSidedness;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = brightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = gamma!=1;

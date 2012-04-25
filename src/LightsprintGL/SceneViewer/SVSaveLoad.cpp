@@ -279,7 +279,7 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 	}
 	if (version>28)
 	{
-		ar & make_nvp("renderMaterialNormalMaps",a.renderMaterialNormalMaps);
+		ar & make_nvp("renderMaterialNormalMaps",a.renderMaterialBumpMaps);
 	}
 	ar & make_nvp("renderMaterialTextures",a.renderMaterialTextures);
 	if (version<30)
