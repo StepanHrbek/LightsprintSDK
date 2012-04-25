@@ -518,6 +518,7 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 			if (fipixels)
 			{
 				// process all sides
+				unsigned elementIndex = 0;
 				for (unsigned side=0;side<6;side++)
 				{
 					if (!side || buffer->getType()==BT_CUBE_TEXTURE)
@@ -527,7 +528,6 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 						// fill it with texture data
 						// convert format
 						// FreeImage doesn't support all necessary conversions
-						unsigned char* src = (unsigned char*)(rawData+side*buffer->getWidth()*buffer->getHeight()*srcbypp);
 						unsigned char* dst = (unsigned char*)fipixels;
 						unsigned width = buffer->getWidth();
 						unsigned numPixels = width*buffer->getHeight();
@@ -541,36 +541,7 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 						for (unsigned i=0;i<numPixels;i++)
 						{
 							// read src pixel
-							float pixel[4];
-							switch(srcFormat)
-							{
-								case BF_RGBAF:
-									pixel[0] = ((float*)src)[0];
-									pixel[1] = ((float*)src)[1];
-									pixel[2] = ((float*)src)[2];
-									pixel[3] = ((float*)src)[3];
-									break;
-								case BF_RGBF:
-									pixel[0] = ((float*)src)[0];
-									pixel[1] = ((float*)src)[1];
-									pixel[2] = ((float*)src)[2];
-									pixel[3] = 1;
-									break;
-								case BF_RGBA:
-									pixel[0] = RR_BYTE2FLOAT(src[0]);
-									pixel[1] = RR_BYTE2FLOAT(src[1]);
-									pixel[2] = RR_BYTE2FLOAT(src[2]);
-									pixel[3] = RR_BYTE2FLOAT(src[3]);
-									break;
-								case BF_RGB:
-								case BF_BGR:
-									pixel[0] = RR_BYTE2FLOAT(src[0]);
-									pixel[1] = RR_BYTE2FLOAT(src[1]);
-									pixel[2] = RR_BYTE2FLOAT(src[2]);
-									pixel[3] = 1;
-									break;
-							}
-							src += srcbypp;
+							rr::RRVec4 pixel = buffer->getElement(elementIndex++);
 							// swap r<->b
 							if (swaprb)
 							{
