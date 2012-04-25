@@ -143,7 +143,7 @@ varying vec3 worldNormalSmooth;
 	attribute vec3 vertexBitangent;
 	varying vec3 worldTangent;
 	varying vec3 worldBitangent;
-	varying vec2 materialNormalMapCoord;
+	varying vec2 materialBumpMapCoord;
 #endif
 
 #ifdef ANIMATION_WAVE
@@ -198,7 +198,7 @@ void main()
 	#endif
 
 	#ifdef MATERIAL_BUMP_MAP
-		materialNormalMapCoord = gl_MultiTexCoord5.xy; // 5 = MULTITEXCOORD_MATERIAL_BUMP_MAP
+		materialBumpMapCoord = gl_MultiTexCoord5.xy; // 5 = MULTITEXCOORD_MATERIAL_BUMP_MAP
 		vec3 tangent2, bitangent2;
 		if (vertexTangent==vec3(0.0,0.0,0.0))
 		{

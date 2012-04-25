@@ -266,8 +266,8 @@ varying vec3 worldNormalSmooth;
 #ifdef MATERIAL_BUMP_MAP
 	varying vec3 worldTangent;
 	varying vec3 worldBitangent;
-	uniform sampler2D materialNormalMap;
-	varying vec2 materialNormalMapCoord;
+	uniform sampler2D materialBumpMap;
+	varying vec2 materialBumpMapCoord;
 	#ifdef MATERIAL_NORMAL_MAP_FLOW
 		uniform float seconds;
 	#endif
@@ -351,10 +351,10 @@ void main()
 		#ifdef MATERIAL_BUMP_MAP
 			#ifdef MATERIAL_NORMAL_MAP_FLOW
 				vec3 localNormal = normalize(
-					texture2D(materialNormalMap,0.2*materialNormalMapCoord   +seconds*0.5*vec2(0.051,0.019                         )).xyz+
-					texture2D(materialNormalMap,0.2*materialNormalMapCoord.yx+seconds*0.5*vec2(cos(seconds*0.05)*-0.0006-0.0049,0.0)).xyz-vec3(1.0,1.0,1.0) );
+					texture2D(materialBumpMap,0.2*materialBumpMapCoord   +seconds*0.5*vec2(0.051,0.019                         )).xyz+
+					texture2D(materialBumpMap,0.2*materialBumpMapCoord.yx+seconds*0.5*vec2(cos(seconds*0.05)*-0.0006-0.0049,0.0)).xyz-vec3(1.0,1.0,1.0) );
 			#else
-				vec3 localNormal = normalize(texture2D(materialNormalMap,materialNormalMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
+				vec3 localNormal = normalize(texture2D(materialBumpMap,materialBumpMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
 			#endif
 			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*worldNormalSmooth);
 		#else
