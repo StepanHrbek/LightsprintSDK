@@ -359,23 +359,26 @@ unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRStr
 
 unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRString& ext) const
 {
+	bool directoryCreated = false;
 	unsigned numBuffers = 0;
 	unsigned numSaved = 0;
 	if (layerNumber>=0)
 	{
-		// create destination directories
-		{
-			bf::path prefix(RR_RR2PATH(path));
-			prefix.remove_filename();
-			bf::exists(prefix) || bf::create_directories(prefix);
-		}
-
 		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 		{
 			RRObject* object = (*this)[objectIndex];
 			RRBuffer* buffer = object->illumination.getLayer(layerNumber);
 			if (buffer)
 			{
+				// create destination directories
+				if (!directoryCreated)
+				{
+					bf::path prefix(RR_RR2PATH(path));
+					prefix.remove_filename();
+					bf::exists(prefix) || bf::create_directories(prefix);
+					directoryCreated = true;
+				}
+
 				numBuffers++;
 				RRObject::LayerParameters layerParameters;
 				layerParameters.suggestedPath = path;
