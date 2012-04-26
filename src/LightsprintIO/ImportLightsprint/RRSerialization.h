@@ -396,7 +396,11 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 		}
 
 		// autodetect keying
-		a.updateKeyingFromTransmittance();
+		// a) always autodetect
+		//    - user can't manually change keying, it always returns back after load
+		// b) YES do nothing, keep flag from last time
+		//    - when texture changes on disk, user has to manually fix keying
+		//a.updateKeyingFromTransmittance();
 
 		// optimize material flags
 		a.updateSideBitsFromColors();
