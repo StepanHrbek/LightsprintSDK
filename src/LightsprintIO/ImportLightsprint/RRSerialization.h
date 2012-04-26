@@ -349,7 +349,7 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 		if (Archive::is_loading::value)
 		{
 			a.specularModel = rr::RRMaterial::PHONG;
-			a.specularShininess = 10000; // DEFAULT_SHININESS
+			a.specularShininess = 1000; // DEFAULT_SHININESS
 		}
 	}
 	ar & make_nvp("specularTransmittance",a.specularTransmittance);
