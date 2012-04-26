@@ -282,6 +282,10 @@ void serialize(Archive& ar, rr_gl::SceneViewerStateEx& a, const unsigned int ver
 		ar & make_nvp("renderMaterialNormalMaps",a.renderMaterialBumpMaps);
 	}
 	ar & make_nvp("renderMaterialTextures",a.renderMaterialTextures);
+	if (version>30)
+	{
+		ar & make_nvp("renderMaterialSidedness",a.renderMaterialSidedness);
+	}
 	if (version<30)
 	{
 		bool renderWater;
@@ -464,7 +468,7 @@ BOOST_CLASS_VERSION(rr::RRCamera,2)
 BOOST_CLASS_VERSION(rr_gl::DateTime,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,12)
-BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,30)
+BOOST_CLASS_VERSION(rr_gl::SceneViewerStateEx,31)
 
 //---------------------------------------------------------------------------
 
