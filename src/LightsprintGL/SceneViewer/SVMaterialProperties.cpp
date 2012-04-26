@@ -87,8 +87,8 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	Append(propBumpMap = new wxStringProperty(_("Bump map")));
 	AppendIn(propBumpMap,new wxIntProperty(_("uv")));
 	AppendIn(propBumpMap,new ImageFileProperty(_("texture or video"),_("Normal map (rgb) or height map (grayscale), texture or video. Type in c@pture to use live video input.")));
-	AppendIn(propBumpMap,propBumpMultiplier1 = new FloatProperty("normal multiplier",_("Multiplies bump effect on normals."),1,svs.precision,0,100,0.1f,false));
-	AppendIn(propBumpMap,propBumpMultiplier2 = new FloatProperty("parallax multiplier",_("Multiplies parallax mapping effect."),1,svs.precision,0,100,0.1f,false));
+	AppendIn(propBumpMap,propBumpMultiplier1 = new FloatProperty("normal multiplier",_("Multiplies bump effect on normals."),1,svs.precision,0,1000,0.1f,false));
+	AppendIn(propBumpMap,propBumpMultiplier2 = new FloatProperty("parallax multiplier",_("Multiplies parallax mapping effect."),1,svs.precision,0,1000,0.1f,false));
 	SetPropertyBackgroundColour(propBumpMap,importantPropertyBackgroundColor,false);
 	Collapse(propBumpMap);
 
