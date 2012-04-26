@@ -309,6 +309,10 @@ void RendererOfSceneImpl::render(
 				PerObjectBuffers objectBuffers;
 				objectBuffers.object = object;
 				objectBuffers.meshRenderer = rendererOfMeshCache.getRendererOfMesh(mesh);
+				rr::RRBuffer* lightIndirectVcolor = _uberProgramSetup.LIGHT_INDIRECT_VCOLOR ? onlyVbuf(illumination.getLayer(_layerLightmap)) : NULL;
+				rr::RRBuffer* lightIndirectMap = _uberProgramSetup.LIGHT_INDIRECT_MAP ? onlyLmap(illumination.getLayer(_layerLightmap)) : NULL;
+				objectBuffers.lightIndirectBuffer = lightIndirectVcolor?lightIndirectVcolor:lightIndirectMap;
+				objectBuffers.lightIndirectDetailMap = _uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? onlyLmap(illumination.getLayer(_layerLDM)) : NULL;
 				objectBuffers.reflectionEnvMap = (_uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) ? onlyCube(illumination.getLayer(_layerEnvironment)) : NULL;
 #ifdef MIRRORS
 				objectBuffers.mirrorColorMap = NULL;
@@ -330,7 +334,16 @@ void RendererOfSceneImpl::render(
 							for (unsigned g=0;g<faceGroups.size();g++)
 							{
 								const rr::RRMaterial* material = faceGroups[g].material;
-								if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom) && material->specularReflectance.color.sum()+material->diffuseReflectance.color.sum()>0)
+								if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom)
+									&& ((_uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR && material->specularReflectance.color.sum()>0)
+										// allocate mirror only because of diffuse reflection?
+										// yes, but only if...
+										|| (_uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE && material->diffuseReflectance.color.sum()>0
+											// ...we don't have better data,
+											&& !objectBuffers.lightIndirectBuffer
+											// ...and plane is not small
+											&& size.maxi()>=100
+										)))
 								{
 									// does current framebuffer have A?
 									GLint alphaBits = 0;
@@ -359,10 +372,6 @@ void RendererOfSceneImpl::render(
 					}
 				}
 #endif
-				rr::RRBuffer* lightIndirectVcolor = _uberProgramSetup.LIGHT_INDIRECT_VCOLOR ? onlyVbuf(illumination.getLayer(_layerLightmap)) : NULL;
-				rr::RRBuffer* lightIndirectMap = _uberProgramSetup.LIGHT_INDIRECT_MAP ? onlyLmap(illumination.getLayer(_layerLightmap)) : NULL;
-				objectBuffers.lightIndirectBuffer = lightIndirectVcolor?lightIndirectVcolor:lightIndirectMap;
-				objectBuffers.lightIndirectDetailMap = _uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? onlyLmap(illumination.getLayer(_layerLDM)) : NULL;
 
 				objectBuffers.objectUberProgramSetup = _uberProgramSetup;
 				if (pass==2 && objectBuffers.objectUberProgramSetup.SHADOW_MAPS>1)
