@@ -398,7 +398,8 @@ void UberProgramSetup::validate()
 		// it can't work without transparency (e.g. with specular only)
 		MATERIAL_TRANSPARENCY_FRESNEL = 0;
 	}
-	if (!MATERIAL_SPECULAR
+	if (!(MATERIAL_DIFFUSE_MAP && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_MIRROR_DIFFUSE))
+		&& !MATERIAL_SPECULAR
 		&& !LIGHT_INDIRECT_ENV_DIFFUSE // env diffuse can use normal maps, even if specular is disabled
 		&& !LIGHT_INDIRECT_MIRROR_DIFFUSE // mirror diffuse can use normal maps, even if specular is disabled
 		&& !MATERIAL_TRANSPARENCY_FRESNEL) // fresnel can use normal maps, even if specular is disabled
