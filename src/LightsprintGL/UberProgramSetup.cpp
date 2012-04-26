@@ -664,17 +664,14 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		program->sendUniform("postprocessGamma", gamma);
 	}
 
-	if ((MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR)) || MATERIAL_TRANSPARENCY_FRESNEL)
+	if ((MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR)) || MATERIAL_BUMP_TYPE_HEIGHT || MATERIAL_TRANSPARENCY_FRESNEL)
 	{
-		if (camera)
+		// it is difficult to tell exactly when "worldEyePos" is in use, condition above is only simple superset, uniformExists() test is necessary
+		if (camera && program->uniformExists("worldEyePos"))
 		{
 			// for othogonal camera, move position way back, so that view directions are roughly the same
 			// it is not worth creating another ubershader option
 			program->sendUniform("worldEyePos",camera->isOrthogonal()?camera->getPosition()-camera->getDirection()*camera->getFar()*1000:camera->getPosition());
-		}
-		else
-		{
-			RR_ASSERT(0);
 		}
 	}
 
@@ -801,7 +798,11 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendTexture("materialBumpMap",NULL,TEX_CODE_2D_MATERIAL_BUMP);
 		getTexture(material->bumpMap.texture,true,false);
 		s_buffers1x1.bindPropertyTexture(material->bumpMap,1);
-		program->sendUniform("materialBumpMapData",rr::RRVec4(1.f/material->bumpMap.texture->getWidth(),1.f/material->bumpMap.texture->getHeight(),1/material->bumpMap.color.x,0.01f*material->bumpMap.color.y));
+		// it is difficult to tell exactly when "materialBumpMapData" is in use, condition above is only simple superset, uniformExists() test is necessary
+		if (program->uniformExists("materialBumpMapData"))
+		{
+			program->sendUniform("materialBumpMapData",rr::RRVec4(1.f/material->bumpMap.texture->getWidth(),1.f/material->bumpMap.texture->getHeight(),1/material->bumpMap.color.x,0.01f*material->bumpMap.color.y));
+		}
 		if (MATERIAL_BUMP_TYPE_HEIGHT && MATERIAL_DIFFUSE_MAP && material->diffuseReflectance.texcoord!=material->bumpMap.texcoord)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Parallax mapping might look wrong because height map and diffuse map use different mapping.\n"));

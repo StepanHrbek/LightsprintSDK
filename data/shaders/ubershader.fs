@@ -142,9 +142,7 @@
 #endif
 #endif
 
-#if (defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))) || defined(MATERIAL_TRANSPARENCY_FRESNEL)
-	uniform vec3 worldEyePos;
-#endif
+uniform vec3 worldEyePos; // is it in use? it's complicated and error prone to tell. so we declare it and then rely on compiler to eliminate dead code
 
 #ifdef LIGHT_DIRECT
 	uniform vec3 worldLightPos;
@@ -346,9 +344,7 @@ void main()
 
 	// bump
 
-	#if (defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR))) || defined(MATERIAL_TRANSPARENCY_FRESNEL)
-		vec3 worldEyeDir = normalize(worldEyePos-worldPos);
-	#endif
+	vec3 worldEyeDir = normalize(worldEyePos-worldPos);
 	vec2 parallaxOffset = vec2(0);
 	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(MATERIAL_TRANSPARENCY_FRESNEL) || defined(POSTPROCESS_NORMALS)
 		#ifdef MATERIAL_BUMP_MAP
@@ -359,16 +355,20 @@ void main()
 			#else
 				#ifdef MATERIAL_BUMP_TYPE_HEIGHT
 					float height = texture2D(materialBumpMap,materialBumpMapCoord).x;
-					parallaxOffset = (height-0.5) * materialBumpMapData.w * normalize(vec3(dot(worldEyeDir,worldTangent),dot(worldEyeDir,worldBitangent),dot(worldEyeDir,worldNormalSmooth))).xy;
-					height = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset).x;
+					#ifdef MATERIAL_DIFFUSE_MAP // effect is hardly visible without diffuse map, not worth two more lookups
+						parallaxOffset = (height-0.5) * materialBumpMapData.w * normalize(vec3(dot(worldEyeDir,worldTangent),dot(worldEyeDir,worldBitangent),dot(worldEyeDir,worldNormalSmooth))).xy;
+						height = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset).x;
+					#endif
 					float hx = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(materialBumpMapData.x,0.0)).x;
 					float hy = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(0.0,materialBumpMapData.y)).x;
-					vec3 localNormal = normalize(vec3(height-hx,height-hy,0.1));
+					vec3 localNormal = vec3(height-hx,height-hy,0.1);
 				#else
-					vec3 localNormal = normalize(texture2D(materialBumpMap,materialBumpMapCoord).xyz*2.0-vec3(1.0,1.0,1.0));
+					vec3 localNormal = texture2D(materialBumpMap,materialBumpMapCoord).xyz*2.0-vec3(1.0,1.0,1.0);
 				#endif
 			#endif
-			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*materialBumpMapData.z*worldNormalSmooth);
+			localNormal.z = localNormal.z * materialBumpMapData.z;
+			localNormal = normalize(localNormal);
+			vec3 worldNormal = normalize(localNormal.x*worldTangent+localNormal.y*worldBitangent+localNormal.z*worldNormalSmooth);
 		#else
 			vec3 worldNormal = normalize(worldNormalSmooth); // normalize improves quality of Blinn-Phong
 		#endif
