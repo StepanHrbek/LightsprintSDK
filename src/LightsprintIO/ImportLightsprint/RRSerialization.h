@@ -371,9 +371,8 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 
 	// sometimes texture changes when material sits serialized on disk
 	// should we update colors from textures after deserialization?
-	// a) don't trust serialized colors, update color+keying always on load
+	// a) YES don't trust serialized colors, update color always on load, update keying if color did change
 	//    - slow
-	//    ! user disables alpha keying, saves rr3, loads rr3 and keying is back
 	//    + sometimes more accurate (when textures did change)
 	// b) update color+keying on request
 	//    - not automatic, users prefer if everything works automatically
@@ -383,11 +382,11 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	// d) update color+keying only when texture starts/stops being stub
 	//    - does not update after texture change
 	//    - needs isStub to be saved with filename
-	//
-	// what we implement here is a)
-	// we can always change it to c) later, if users have problem with it
 	if (Archive::is_loading::value)
 	{
+		// remember average transmittance
+		rr::RRVec3 specularTransmittanceColor = a.specularTransmittance.color;
+
 		// get average colors from textures
 		{
 			RRScaler* scaler = RRScaler::createRgbScaler();
@@ -395,12 +394,21 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 			delete scaler;
 		}
 
+		// autodetect InAlpha
+		// isolated load without textures never sets InAlpha, we have to do it when we detect that texture has changed
+		// must be done before detecting keying
+		if (a.specularTransmittance.texture && specularTransmittanceColor!=a.specularTransmittance.color)
+			a.specularTransmittanceInAlpha = a.specularTransmittance.texture->getFormat()==rr::BF_RGBA || a.specularTransmittance.texture->getFormat()==rr::BF_RGBAF;
+
 		// autodetect keying
 		// a) always autodetect
 		//    - user can't manually change keying, it always returns back after load
-		// b) YES do nothing, keep flag from last time
+		// b) do nothing, keep flag from last time
 		//    - when texture changes on disk, user has to manually fix keying
-		//a.updateKeyingFromTransmittance();
+		//    - when isolated load loads scene without textures and saves rr3 
+		// c) YES autodetect only if average color did change
+		if (specularTransmittanceColor!=a.specularTransmittance.color)
+			a.updateKeyingFromTransmittance();
 
 		// optimize material flags
 		a.updateSideBitsFromColors();
@@ -729,6 +737,7 @@ void load(Archive & ar, rr::RRObject& a, const unsigned int version)
 			rr::RRReporter::report(rr::ERRO,"Loaded NULL mesh.\n");
 		}
 	}
+	a.isDynamic = true;
 }
 
 //----------------------------- RRObjects ------------------------------------
