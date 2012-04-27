@@ -96,9 +96,10 @@ public:
 			RRMaterial& material = materials[m];
 
 			// sideBits
+			bool unknownNumberOfSides;
 			{
 				int twoSided = 0;
-				aimaterial->Get(AI_MATKEY_TWOSIDED,twoSided);
+				unknownNumberOfSides = aimaterial->Get(AI_MATKEY_TWOSIDED,twoSided)!=aiReturn_SUCCESS;
 				material.reset(twoSided!=0);
 			}
 
@@ -197,6 +198,15 @@ public:
 				RRScaler* scaler = RRScaler::createRgbScaler();
 				material.updateColorsFromTextures(scaler,RRMaterial::UTA_NULL,true);
 				delete scaler;
+			}
+
+			// final decision on number of sides
+			if (unknownNumberOfSides && material.specularTransmittance.color!=rr::RRVec3(0))
+			{
+				// turn transparent 1-sided into 2-sided, it could be closer to what user expects (e.g. sanmiguel.obj leaves clearly need 2-sided, while walls are fine with any setting, but 1-sided walls need less fillrate)
+				material.sideBits[1].renderFrom = 1;
+				material.sideBits[1].receiveFrom = 1;
+				material.sideBits[1].reflect = 1;
 			}
 
 			// autodetect keying
