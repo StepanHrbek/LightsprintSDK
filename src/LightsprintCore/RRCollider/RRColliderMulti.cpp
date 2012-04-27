@@ -45,14 +45,32 @@ public:
 		objects = _objects;
 		inverseMatrix = new RRMatrix3x4[_objects.size()];
 
+		bool disabledReporting = false;
+		bool b1,b3;
+		unsigned b2;
+
 #pragma omp parallel for schedule(dynamic)
 		for (int i=0;i<(int)objects.size();i++)
 		{
 			if (objects[i]->getCollider()->getTechnique()==RRCollider::IT_LINEAR)
 			{
+				// disable reporting when working with thousands of small colliders, especially windowed reporter is too slow
+				if (!disabledReporting && objects.size()>100)
+				{
+					disabledReporting = true;
+					RRReporter::report(INF2,"Updating multicollider for %d objects...\n",objects.size());
+					RRReporter::getFilter(b1,b2,b3);
+					RRReporter::setFilter(true,1,false);
+				}
 				objects[i]->getCollider()->setTechnique(_technique,_aborting);//,cacheLocation,buildParams);
 			}
 			objects[i]->getWorldMatrixRef().invertedTo(inverseMatrix[i]);
+		}
+
+		// restore reporting
+		if (disabledReporting)
+		{
+			RRReporter::setFilter(b1,b2,b3);
 		}
 	}
 
