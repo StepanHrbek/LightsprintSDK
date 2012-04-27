@@ -39,6 +39,13 @@ void RRReporter::setFilter(bool warnings, unsigned infLevel, bool timing)
 	g_typeEnabled[TIMI] = timing;
 }
 
+void RRReporter::getFilter(bool& warnings, unsigned& infLevel, bool& timing)
+{
+	warnings = g_typeEnabled[WARN];
+	infLevel = g_typeEnabled[INF3]?3:(g_typeEnabled[INF2]?2:1);
+	timing = g_typeEnabled[TIMI];
+}
+
 void RRReporter::indent(int delta)
 {
 	g_indentation += delta;

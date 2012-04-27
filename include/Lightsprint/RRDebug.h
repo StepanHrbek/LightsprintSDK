@@ -114,6 +114,8 @@ namespace rr
 		//! \param timing
 		//!  Enables processing of timing messages (TIMI).
 		static void setFilter(bool warnings = true, unsigned infLevel = 2, bool timing = true);
+		//! Returns parameters passed to setFilter().
+		static void getFilter(bool& warnings, unsigned& infLevel, bool& timing);
 
 		//! Creates reporter that logs all messages to plain text file.
 		//! Optional caching makes writes faster but last messages may be lost when program crashes.
