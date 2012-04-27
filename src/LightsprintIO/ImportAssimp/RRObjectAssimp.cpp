@@ -177,7 +177,7 @@ public:
 					material.specularTransmittance.texture = material.diffuseReflectance.texture->createReference();
 					material.specularTransmittance.texcoord = material.diffuseReflectance.texcoord;
 				}
-				material.specularTransmittanceInAlpha = material.specularTransmittance.texture && material.specularTransmittance.texture->getFormat()==BF_RGBA;
+				material.specularTransmittanceInAlpha = material.specularTransmittance.texture && (material.specularTransmittance.texture->getFormat()==BF_RGBA || material.specularTransmittance.texture->getFormat()==BF_RGBAF);
 			}
 
 			// refractionIndex
