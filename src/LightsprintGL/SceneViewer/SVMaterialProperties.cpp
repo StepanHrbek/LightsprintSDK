@@ -102,7 +102,8 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 static void composeMaterialPropertyRoot(wxPGProperty* prop, rr::RRMaterial::Property& material)
 {
 	// update self
-	if (material.color==rr::RRVec3(0) && !material.texture)
+	wxPGProperty* propColor = prop->GetPropertyByName(_("color"));
+	if ((!propColor || material.color==rr::RRVec3(0)) && !material.texture) // !propColor catches bumpMap, it does not have color, needs either texture or none
 	{
 		prop->SetValueImage(*(wxBitmap*)NULL);
 		prop->SetValueFromString(_("none"));
@@ -113,7 +114,6 @@ static void composeMaterialPropertyRoot(wxPGProperty* prop, rr::RRMaterial::Prop
 		if (!bitmap)
 		{
 			wxVariant v;
-			wxPGProperty* propColor = prop->GetPropertyByName(_("color"));
 			if (propColor) // it does not have to exist (propBumpMap)
 			{
 				propColor->ValueToString(v); // updates value image
