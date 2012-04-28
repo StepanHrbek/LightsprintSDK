@@ -747,7 +747,6 @@ void load(Archive & ar, rr::RRObject& a, const unsigned int version)
 			rr::RRReporter::report(rr::ERRO,"Loaded NULL mesh.\n");
 		}
 	}
-	a.isDynamic = true;
 }
 
 //----------------------------- RRObjects ------------------------------------
