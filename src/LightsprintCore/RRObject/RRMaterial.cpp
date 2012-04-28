@@ -64,6 +64,7 @@ void RRMaterial::copyFrom(const RRMaterial& a)
 	specularTransmittanceInAlpha = a.specularTransmittanceInAlpha;
 	specularTransmittanceKeyed = a.specularTransmittanceKeyed;
 	refractionIndex = a.refractionIndex;
+	bumpMapTypeHeight = a.bumpMapTypeHeight;
 	lightmapTexcoord = a.lightmapTexcoord;
 	minimalQualityForPointMaterials = a.minimalQualityForPointMaterials;
 	if (name!=a.name) name = a.name;
@@ -83,6 +84,7 @@ void RRMaterial::reset(bool twoSided)
 	specularShininess            = DEFAULT_SHININESS;
 	specularTransmittanceInAlpha = false;
 	specularTransmittanceKeyed   = false;
+	bumpMapTypeHeight            = true;
 	refractionIndex              = 1;
 	bumpMap.color                = RRVec3(1);
 	lightmapTexcoord             = UINT_MAX; // no unwrap by default
@@ -201,6 +203,10 @@ void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTexture
 	variance += 3 * diffuseEmittance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs);
 	variance += 2 * diffuseReflectance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs);
 	variance += 1 * specularReflectance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs);
+	RRVec2 bumpMultipliers = bumpMap.color; // backup bumpMap.color.xy, those are multipliers
+	bumpMap.updateColorFromTexture(NULL,0,uniformTextureAction,updateEvenFromStubs);
+	bumpMap.color.x = bumpMultipliers.x;
+	bumpMap.color.y = bumpMultipliers.y;
 	minimalQualityForPointMaterials = unsigned(40/(variance*variance));
 	//RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);
 }
@@ -314,6 +320,42 @@ void RRMaterial::updateSideBitsFromColors()
 	sideBits[1].reflect = sideBits[1].catchFrom && specularReflectance.color!=RRVec3(0);
 	sideBits[0].transmitFrom = sideBits[0].catchFrom && specularTransmittance.color!=RRVec3(0);
 	sideBits[1].transmitFrom = sideBits[1].catchFrom && specularTransmittance.color!=RRVec3(0);
+}
+
+void RRMaterial::updateBumpMapType()
+{
+	if (!bumpMap.texture)
+	{
+		// no action needed
+	}
+	else
+	if (bumpMap.texture==diffuseReflectance.texture)
+	{
+		bumpMapTypeHeight = true;
+	}
+	else
+	if (bumpMap.texture->getFormat()==BF_LUMINANCE || bumpMap.texture->getFormat()==BF_LUMINANCEF || bumpMap.texture->getFormat()==BF_DEPTH)
+	{
+		bumpMapTypeHeight = true;
+	}
+	else
+	if (bumpMap.texture->filename=="c@pture")
+	{
+		bumpMapTypeHeight = true;
+	}
+	else
+	{
+		unsigned numElements = bumpMap.texture->getNumElements();
+		enum {LOOKUPS=23};
+		RRVec3 sum(0);
+		for (unsigned i=0;i<LOOKUPS;i++)
+		{
+			RRVec3 color = bumpMap.texture->getElement(numElements*i/LOOKUPS);
+			sum += color;
+		}
+		float blueness = sum.z-RR_MAX(sum.x,sum.y); // normal map should have it highly positive, gray height map zero, rgb used as height map can be anything (with average in zero)
+		bumpMapTypeHeight = blueness<0.1f*LOOKUPS;
+	}
 }
 
 bool clamp1(RRReal& a, RRReal min, RRReal max)

@@ -166,10 +166,12 @@ namespace rr
 		//! Updates specularTransmittanceKeyed.
 		//
 		//! Looks at specularTransmittance and tries to guess what user expects when realtime rendering, 1-bit keying or smooth blending.
-		//! If you know what user prefers, set it instead of calling this function.
+		//! If you know what user prefers, set or clear specularTransmittanceKeyed yourself instead of calling this function.
 		void          updateKeyingFromTransmittance();
 		//! Updates sideBits, clears bits with relevant color black. This may make rendering faster.
 		void          updateSideBitsFromColors();
+		//! Updates bumpMapTypeHeight, tries to guess what type it is by looking at contents of bumpMap.texture.
+		void          updateBumpMapType();
 
 		//! Changes material to closest physically valid values. Returns whether changes were made.
 		//
@@ -231,8 +233,10 @@ namespace rr
 		//! Optional bump map modulates surface normals.
 		//
 		//! RGB maps are interpreted as normal maps, grayscale maps (or the same map as diffuseReflectance.texture, or c@pture) as heightmaps.
-		//! Property::color is used as a multiplier, where x multiplies normal steepness, y multiplies height in parallax mapping, defaults are 1.
+		//! Property::color.x is used as a multiplier of normal steepness, y multiplies height in parallax mapping, defaults are 1.
 		Property      bumpMap;
+		//! True = bump map is height/displacement map, false = bump map is normal map.
+		bool          bumpMapTypeHeight;
 		//! Texcoord channel with unwrap for lightmaps. To be used in RRMesh::getTriangleMapping().
 		//
 		//! Note that for proper lighting, unwrap must have all coordinates in <0..1> range and triangles must not overlap.

@@ -214,6 +214,9 @@ public:
 
 			// optimize material flags
 			material.updateSideBitsFromColors();
+
+			// autodetect bump map type
+			material.updateBumpMapType();
 		}
 
 		// adapt meshes

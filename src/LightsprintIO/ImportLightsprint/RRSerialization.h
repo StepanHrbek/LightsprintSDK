@@ -368,6 +368,10 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 		// older versions had default 0, now we want default 1
 		a.bumpMap.color = RRVec3(1);
 	}
+	if (version>2)
+	{
+		ar & make_nvp("bumpType",a.bumpMapTypeHeight);
+	}
 
 	// sometimes texture changes when material sits serialized on disk
 	// should we update colors from textures after deserialization?
@@ -384,8 +388,10 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	//    - needs isStub to be saved with filename
 	if (Archive::is_loading::value)
 	{
-		// remember average transmittance
+		// backup average colors
+		// if they differ after updateColorsFromTextures, we know that texture has changed
 		rr::RRVec3 specularTransmittanceColor = a.specularTransmittance.color;
+		rr::RRVec3 bumpMapColor = a.bumpMap.color;
 
 		// get average colors from textures
 		{
@@ -412,6 +418,10 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 
 		// optimize material flags
 		a.updateSideBitsFromColors();
+
+		// autodetect bump map type
+		if (bumpMapColor!=a.bumpMap.color)
+			a.updateBumpMapType();
 	}
 }
 

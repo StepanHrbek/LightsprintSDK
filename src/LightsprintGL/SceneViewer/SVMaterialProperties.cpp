@@ -87,6 +87,9 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	Append(propBumpMap = new wxStringProperty(_("Bump map")));
 	AppendIn(propBumpMap,new wxIntProperty(_("uv")));
 	AppendIn(propBumpMap,new ImageFileProperty(_("texture or video"),_("Normal map (rgb) or height map (grayscale), texture or video. Type in c@pture to use live video input.")));
+	AppendIn(propBumpMap,propBumpType = new wxBoolProperty(_("height map")));
+	SetPropertyEditor(propBumpType,wxPGEditor_CheckBox);
+	propBumpType->SetHelpString(_("Use the map as a height map rather than normal map."));
 	AppendIn(propBumpMap,propBumpMultiplier1 = new FloatProperty("normal multiplier",_("Multiplies bump effect on normals."),1,svs.precision,0,1000,0.1f,false));
 	AppendIn(propBumpMap,propBumpMultiplier2 = new FloatProperty("parallax multiplier",_("Multiplies parallax mapping effect."),1,svs.precision,0,1000,0.1f,false));
 	SetPropertyBackgroundColour(propBumpMap,importantPropertyBackgroundColor,false);
@@ -159,8 +162,9 @@ void SVMaterialProperties::updateHide()
 		HideProperty(propEmissive,!material);
 		HideProperty(propTransparent,!material);
 		HideProperty(propBumpMap,!material);
+		HideProperty(propBumpType,!material || !material->bumpMap.texture);
 		HideProperty(propBumpMultiplier1,!material || !material->bumpMap.texture);
-		HideProperty(propBumpMultiplier2,!material || !material->bumpMap.texture);
+		HideProperty(propBumpMultiplier2,!material || !material->bumpMap.texture || !material->bumpMapTypeHeight);
 		HideProperty(propLightmapTexcoord,!material);
 		HideProperty(propQualityForPoints,!material);
 	}
@@ -213,6 +217,7 @@ void SVMaterialProperties::updateProperties()
 		updateBool(propTransparency1bit,material->specularTransmittanceKeyed);
 		updateBool(propTransparencyInAlpha,material->specularTransmittanceInAlpha);
 		updateFloat(propRefraction,material->refractionIndex);
+		updateBool(propBumpType,material->bumpMapTypeHeight);
 		updateFloat(propBumpMultiplier1,material->bumpMap.color.x);
 		updateFloat(propBumpMultiplier2,material->bumpMap.color.y);
 
@@ -460,13 +465,24 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		((ImageFileProperty*)property)->updateBufferAndIcon(material->bumpMap.texture,svs.playVideos);
 		composeMaterialPropertyRoot(propBumpMap,material->bumpMap);
+		material->updateBumpMapType();
+		updateBool(propBumpType,material->bumpMapTypeHeight);
 		textureChanged = true;
 		transmittanceChanged = true; // update fresnel shadows
+		updateHide();
+	}
+	else
+	if (property==propBumpType)
+	{
+		material->bumpMapTypeHeight = property->GetValue().GetBool();
+		transmittanceChanged = true; // update fresnel shadows
+		updateHide();
 	}
 	else
 	if (property==propBumpMultiplier1)
 	{
 		material->bumpMap.color.x = property->GetValue().GetDouble();
+		transmittanceChanged = true; // update fresnel shadows
 	}
 	else
 	if (property==propBumpMultiplier2)

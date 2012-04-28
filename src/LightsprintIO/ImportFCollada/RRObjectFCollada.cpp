@@ -552,6 +552,9 @@ private:
 		// optimize material flags
 		material.updateSideBitsFromColors();
 
+		// autodetect bump map type
+		material.updateBumpMapType();
+
 		return materialPtr;
 	}
 
