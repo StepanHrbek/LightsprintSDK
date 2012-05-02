@@ -745,12 +745,12 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 				miplevel = (spreadAngle<=0) ? 15.f : log(spreadAngle/RR_DEG2RAD(45))/log(0.5f);
 				break;
 			case rr::RRMaterial::TORRANCE_SPARROW:
-				shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,0.001f,1);
-				miplevel = (1-shininess)*6;
+				shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,0.000001f,1);
+				miplevel = -log(shininess)*0.4f;
 				break;
 			case rr::RRMaterial::BLINN_TORRANCE_SPARROW:
 				shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,0,1);
-				miplevel = (1-shininess)*6;
+				miplevel = -log(shininess)*0.4f;
 				break;
 		}
 		program->sendUniform("materialSpecularShininessData",shininess,miplevel);
