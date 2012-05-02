@@ -1069,8 +1069,10 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 						case IC_X: transformation = rr::RRMatrix3x4::rotationByAxisAngle(RRVec3(1,0,0),-drag.x*5); break;
 						case IC_Y: transformation = rr::RRMatrix3x4::rotationByAxisAngle(RRVec3(0,1,0),-drag.x*5); break;
 						case IC_Z: transformation = rr::RRMatrix3x4::rotationByAxisAngle(RRVec3(0,0,1),-drag.x*5); break;
-						default:   transformation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getUp(),(manipulatingSingleLight?5:-5)*drag.x)
-							*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),(manipulatingSingleLight?5:-5)*drag.y); break;
+						default:
+							transformation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getUp(),(manipulatingSingleLight?5:-5)*drag.x)
+								*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),(manipulatingSingleLight?5:-5)*drag.y);
+							break;
 					}
 					break;
 				case IC_SCALE:
