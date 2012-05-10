@@ -93,6 +93,9 @@ public:
 	//! Setting orthogonal view is fast, RANDOM uses raycasting (~1000 rays).
 	void setView(View view, const class RRObject* scene);
 
+	//! Sets all parameters used to construct view matrix at once. It is slightly faster than setting all parameters one by one.
+	void setView(const RRVec3& pos, const RRVec3& yawPitchRollRad);
+
 	//! Returns 4x4 view matrix.
 	const double* getViewMatrix() const {return viewMatrix;}
 
@@ -154,6 +157,9 @@ public:
 	//! View direction is projected into given screen position, default 0,0 for screen center, -1,-1 for top left corner, 1,1 for bottom right corner.
 	RRVec2 getScreenCenter() const {return screenCenter;}
 	void setScreenCenter(RRVec2 screenCenter);
+
+	//! Sets all parameters used to construct projection matrix at once. It is slightly faster than setting all parameters one by one.
+	void setProjection(bool orthogonal, float aspect, float fieldOfViewVerticalDeg, float anear, float afar, float orthoSize, RRVec2 screenCenter);
 
 	//! Returns 4x4 projection matrix.
 	const double* getProjectionMatrix() const {return projectionMatrix;}

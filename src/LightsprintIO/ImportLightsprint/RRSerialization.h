@@ -809,10 +809,8 @@ void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 	ar & make_nvp("orthoSize",orthoSize);
 	ar & make_nvp("screenCenter",screenCenter);
 
-	new(&a) RRCamera(position,yawPitchRollRad,aspect,fieldOfViewVerticalDeg,anear,afar);
-	a.setOrthogonal(orthogonal);
-	a.setOrthoSize(orthoSize);
-	a.setScreenCenter(screenCenter);
+	a.setView(position,yawPitchRollRad);
+	a.setProjection(orthogonal,aspect,fieldOfViewVerticalDeg,anear,afar,orthoSize,screenCenter);
 
 	if (version>0)
 	{

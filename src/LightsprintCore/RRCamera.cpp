@@ -246,6 +246,13 @@ RRCamera::View RRCamera::getView() const
 	return OTHER;
 }
 
+void RRCamera::setView(const RRVec3& _pos, const RRVec3& _yawPitchRollRad)
+{
+	pos = _pos;
+	yawPitchRollRad = _yawPitchRollRad;
+	updateView();
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -362,6 +369,18 @@ void RRCamera::setRangeDynamically(const RRCollider* collider, const RRObject* o
 		// rays did not intersect scene, use scene size
 		// or even better, don't change range at all
 	}
+}
+
+void RRCamera::setProjection(bool _orthogonal, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar, float _orthoSize, RRVec2 _screenCenter)
+{
+	orthogonal = _orthogonal;
+	aspect = _aspect;
+	fieldOfViewVerticalDeg = _fieldOfViewVerticalDeg;
+	anear = _anear;
+	afar = _afar;
+	orthoSize = _orthoSize;
+	screenCenter = _screenCenter;
+	updateProjection();
 }
 
 
