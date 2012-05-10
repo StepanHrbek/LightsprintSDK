@@ -176,7 +176,7 @@ void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 	if (orthoSize<=0)
 		orthoSize = 100; // cameras used to be initialized with orthoSize=0, fix it
 
-	a.setView(position,angle);
+	a.setView(position,yawPitchRollRad);
 	a.setProjection(orthogonal,aspect,fieldOfViewVerticalDeg,anear,afar,orthoSize,screenCenter);
 	if (!updateDirFromAngles)
 		a.setDirection(direction);
