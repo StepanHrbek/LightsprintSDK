@@ -423,7 +423,6 @@ void RRCamera::blendLinear(const RRCamera& a, const RRCamera& b, float blend)
 	orthogonal = a.orthogonal;
 	orthoSize = blendNormal(a.orthoSize,b.orthoSize,blend);
 	screenCenter = blendNormal(a.screenCenter,b.screenCenter,blend);
-	getDirection() = blendNormal(a.getDirection(),b.getDirection(),blend);
 	updateView();
 	updateProjection();
 }
