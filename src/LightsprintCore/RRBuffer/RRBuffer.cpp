@@ -909,7 +909,7 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 			RRReporter::report(INF3,"%d%c %ls\n",attempt,exists?'+':'-',location.w_str());
 			if (exists)
 			{
-				RRBuffer* result = load_cached(RR_STDW2RR(location),_cubeSideName);
+				RRBuffer* result = load_cached(location,_cubeSideName);
 				if (result)
 					return result;
 			}
