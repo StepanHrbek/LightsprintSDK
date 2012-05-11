@@ -166,13 +166,13 @@ ImportParameters::ImportParameters()
 	upForce = false;
 }
 
-bool ImportParameters::knowsUnitLength(const char* filename) const
+bool ImportParameters::knowsUnitLength(const wxString& filename) const
 {
-	wxString ext = wxString(filename).Right(4).Lower();
+	wxString ext = filename.Right(4).Lower();
 	return ext==".rr3" || ext==".dae" || ext==".ifc" || ext==".kmz" || ext==".skp" || ext==".fbx";
 }
 
-float ImportParameters::getUnitLength(const char* filename) const
+float ImportParameters::getUnitLength(const wxString& filename) const
 {
 	if (knowsUnitLength(filename) && !unitForce)
 		return 1;
@@ -187,9 +187,9 @@ float ImportParameters::getUnitLength(const char* filename) const
 	}
 }
 
-unsigned ImportParameters::getUpAxis(const char* filename) const
+unsigned ImportParameters::getUpAxis(const wxString& filename) const
 {
-	wxString ext = wxString(filename).Right(4).Lower();
+	wxString ext = filename.Right(4).Lower();
 	bool alreadyNormalized = ext!=".obj" && ext!=".stl";
 	if (alreadyNormalized && !upForce)
 		return 1;
