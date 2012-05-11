@@ -148,6 +148,17 @@ void load(Archive & ar, rr::RRString& a, const unsigned int version)
 	}
 }
 
+/*/------------------------------ wxString -------------------------------------
+
+#define SERIALIZE_WXSTRING(name,wxstring,utf8) \
+	{ \
+		std::string s; \
+		if (Archive::is_saving::value) s = wxstring.ToUTF8(); \
+		ar & make_nvp(name,s); \
+		if (Archive::is_loading::value) wxstring = utf8 ? wxString::FromUTF8(s.c_str()) : s; \
+	}
+*/
+
 //------------------------------ RRBuffer -------------------------------------
 
 // saves buffer contents, shared by .rr3 and .rrbuffer
@@ -818,6 +829,75 @@ void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 		ar & make_nvp("focalLength",a.focalLength);
 	}
 }
+
+/*/------------------------------ CalculateParameters -------------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, rr::RRDynamicSolver::CalculateParameters& a, const unsigned int version)
+{
+	ar & make_nvp("materialEmittanceMultiplier",a.materialEmittanceMultiplier);
+	ar & make_nvp("materialEmittanceStaticQuality",a.materialEmittanceStaticQuality);
+	ar & make_nvp("materialEmittanceVideoQuality",a.materialEmittanceVideoQuality);
+	ar & make_nvp("materialEmittanceUsePointMaterials",a.materialEmittanceUsePointMaterials);
+	ar & make_nvp("materialTransmittanceStaticQuality",a.materialTransmittanceStaticQuality);
+	ar & make_nvp("materialTransmittanceVideoQuality",a.materialTransmittanceVideoQuality);
+	ar & make_nvp("environmentStaticQuality",a.environmentStaticQuality);
+	ar & make_nvp("environmentVideoQuality",a.environmentVideoQuality);
+	ar & make_nvp("qualityIndirectDynamic",a.qualityIndirectDynamic);
+	ar & make_nvp("qualityIndirectStatic",a.qualityIndirectStatic);
+	ar & make_nvp("secondsBetweenDDI",a.secondsBetweenDDI);
+}
+
+//------------------------------ UpdateParameters -------------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, rr::RRDynamicSolver::UpdateParameters& a, const unsigned int version)
+{
+	ar & make_nvp("applyLights",a.applyLights);
+	ar & make_nvp("applyEnvironment",a.applyEnvironment);
+	ar & make_nvp("applyCurrentSolution",a.applyCurrentSolution);
+	ar & make_nvp("quality",a.quality);
+	ar & make_nvp("qualityFactorRadiosity",a.qualityFactorRadiosity);
+	ar & make_nvp("insideObjectsThreshold",a.insideObjectsThreshold);
+	ar & make_nvp("rugDistance",a.rugDistance);
+	ar & make_nvp("locality",a.locality);
+	ar & make_nvp("aoIntensity",a.aoIntensity);
+	ar & make_nvp("aoSize",a.aoSize);
+	ar & make_nvp("measure_internal",a.measure_internal);
+}
+
+//------------------------------ FilteringParameters -------------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, rr::RRDynamicSolver::FilteringParameters& a, const unsigned int version)
+{
+	ar & make_nvp("smoothingAmount",a.smoothingAmount);
+	ar & make_nvp("spreadForegroundColor",a.spreadForegroundColor);
+	ar & make_nvp("backgroundColor",a.backgroundColor);
+	ar & make_nvp("wrap",a.wrap);
+}
+
+//------------------------------ DateTime -----------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, rr_gl::DateTime& a, const unsigned int version)
+{
+	a.tm_year += 1900;
+	a.tm_mon += 1;
+	ar & make_nvp("year",a.tm_year);
+	ar & make_nvp("month",a.tm_mon); // 1..12
+	ar & make_nvp("day",a.tm_mday); // 1..31
+	ar & make_nvp("hour",a.tm_hour);
+	ar & make_nvp("minute",a.tm_min);
+	ar & make_nvp("second",a.tm_sec);
+	if (version>0)
+	{
+		ar & make_nvp("nanosecond",a.tm_nsec);
+	}
+	a.tm_mon -= 1;
+	a.tm_year -= 1900;
+}
+*/
 
 //------------------------------ RRScene ------------------------------------
 
