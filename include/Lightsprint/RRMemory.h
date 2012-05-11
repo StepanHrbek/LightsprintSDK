@@ -189,7 +189,7 @@ namespace rr
 	#define RR_WX2PATH(w)   ((const wchar_t*)(w))   // ok, unicode->unicode
 	#define RR_RR2WX(r)     ((r).w_str())           // ok, unicode->unicode
 	#define RR_PATH2WX(p)   ((p).wstring())         // ok, unicode->unicode
-#if defined(_MSC_VER) && _MSC_VER<1400 // Visual Studio 2005+ accepts std::fstream(const wchar_t*)
+#if defined(_MSC_VER) && _MSC_VER>=1400 // Visual Studio 2005+ accepts std::fstream(const wchar_t*)
 	#define RR_RR2STREAM(w) ((w).w_str())           // ok, unicode->unicode
 	#define RR_WX2STREAM(w) ((const wchar_t*)(w))   // ok, unicode->unicode
 #else
