@@ -24,7 +24,7 @@ RRCamera::RRCamera()
 	// view
 	pos = RRVec3(0);
 	yawPitchRollRad = RRVec3(0);
-	updateView();
+	updateView(false,false);
 
 	// projection
 	aspect = 1; // ctor must set it directly, setAspect() may fail if old aspect is NaN
@@ -48,7 +48,7 @@ RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspec
 	// view
 	pos = _pos;
 	yawPitchRollRad = _yawPitchRoll;
-	updateView();
+	updateView(false,false);
 
 	// projection
 	orthogonal = false;
@@ -78,7 +78,7 @@ RRCamera::RRCamera(RRLight& _light)
 		setDirection(_light.direction);
 	}
 	else
-		updateView();
+		updateView(false,false);
 
 	// projection
 	aspect = 1; // ctor must set it directly, setAspect() may fail if old aspect is NaN
@@ -104,7 +104,7 @@ void RRCamera::setPosition(const RRVec3& _pos)
 	if (pos!=_pos)
 	{
 		pos = _pos;
-		updateView();
+		updateView(true,false);
 	}
 }
 
@@ -113,7 +113,7 @@ void RRCamera::setYawPitchRollRad(const RRVec3& _yawPitchRollRad)
 	if (yawPitchRollRad!=_yawPitchRollRad)
 	{
 		yawPitchRollRad = _yawPitchRollRad;
-		updateView();
+		updateView(false,true);
 	}
 }
 
@@ -137,7 +137,7 @@ void RRCamera::setDirection(const RRVec3& _dir)
 		// We are looking straight up or down. Keep old angle, don't reset it.
 	}
 	yawPitchRollRad[2] = 0;
-	updateView();
+	updateView(false,true);
 }
 
 bool RRCamera::manipulateViewBy(const RRMatrix3x4& transformation, bool rollChangeAllowed, bool yawInversionAllowed)
@@ -151,7 +151,7 @@ bool RRCamera::manipulateViewBy(const RRMatrix3x4& transformation, bool rollChan
 		return false;
 	pos = matrix.getTranslation();
 	yawPitchRollRad = RRVec3(newRot.x,newRot.y,rollChangeAllowed?newRot.z:oldRoll); // prevent unwanted roll distortion (yawpitch changes would accumulate rounding errors in roll)
-	updateView();
+	updateView(true,true);
 	return true;
 }
 
@@ -233,7 +233,7 @@ void RRCamera::setView(RRCamera::View view, const RRObject* scene)
 		anear = -(mini-maxi).length()/2;
 		afar = -1.5f*anear;
 	}
-	updateView();
+	updateView(true,true);
 	updateProjection();
 }
 
@@ -250,7 +250,7 @@ void RRCamera::setView(const RRVec3& _pos, const RRVec3& _yawPitchRollRad)
 {
 	pos = _pos;
 	yawPitchRollRad = _yawPitchRollRad;
-	updateView();
+	updateView(true,true);
 }
 
 
@@ -396,8 +396,8 @@ void RRCamera::getStereoCameras(RRCamera& leftEye, RRCamera& rightEye) const
 	rightEye.pos += getRight()*(eyeSeparation/2);
 	leftEye.screenCenter.x += eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*focalLength);
 	rightEye.screenCenter.x -= eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*focalLength);
-	leftEye.updateView();
-	rightEye.updateView();
+	leftEye.updateView(true,true);
+	rightEye.updateView(true,true);
 	leftEye.updateProjection();
 	rightEye.updateProjection();
 }
@@ -442,7 +442,7 @@ void RRCamera::blendLinear(const RRCamera& a, const RRCamera& b, float blend)
 	orthogonal = a.orthogonal;
 	orthoSize = blendNormal(a.orthoSize,b.orthoSize,blend);
 	screenCenter = blendNormal(a.screenCenter,b.screenCenter,blend);
-	updateView();
+	updateView(true,true);
 	updateProjection();
 }
 
@@ -595,7 +595,7 @@ void RRCamera::blendAkima(unsigned numCameras, const RRCamera** cameras, float* 
 	BLEND_RRVEC3_ANGLES(yawPitchRollRad);
 	BLEND_3FLOATS(anear,afar,fieldOfViewVerticalDeg);
 	BLEND_4FLOATS(screenCenter.x,screenCenter.y,orthoSize,aspect);
-	updateView();
+	updateView(true,true);
 	updateProjection();
 }
 
@@ -702,7 +702,7 @@ unsigned RRCamera::fixInvalidValues()
 		+ makeFinite(yawPitchRollRad[2],0);
 	if (numFixes)
 	{
-		updateView();
+		updateView(true,true);
 		updateProjection();
 	}
 	return numFixes;
@@ -712,18 +712,22 @@ unsigned RRCamera::fixInvalidValues()
 //
 // update
 
-void RRCamera::updateView()
+void RRCamera::updateView(bool updateLightPos, bool updateLightDir)
 {
 	// pos, yawPitchRollRad -> viewMatrix, rrlight
+	// parameters are necessary because of following situation:
+	//	RRLight did change, we call updateAfterRRLightChanges()
+	//	in first step, updateAfterRRLightChanges() calls setPosition()
+	//	setPosition() calls updateView()
+	//	updateView() must not copy direction, because it would overwrite new value in RRLight by old value from RRCamera
 	RRMatrix3x4 view = RRMatrix3x4::rotationByYawPitchRoll(yawPitchRollRad);
 	for (unsigned i=0;i<4;i++)
 		for (unsigned j=0;j<4;j++)
 			viewMatrix[4*i+j] = (i<3) ? ((j<3)?view.m[i][j]:0) : ((j<3)?-pos.dot(view.getColumn(j)):1);
-	if (light)
-	{
+	if (light && updateLightPos)
 		light->position = getPosition();
+	if (light && updateLightDir)
 		light->direction = getDirection();
-	}
 }
 
 void RRCamera::updateProjection()

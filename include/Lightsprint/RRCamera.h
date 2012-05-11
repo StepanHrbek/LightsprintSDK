@@ -229,7 +229,7 @@ public:
 	unsigned fixInvalidValues();
 
 private:
-	void updateView();
+	void updateView(bool updateLightPos, bool updateLightDir);
 	void updateProjection();
 
 	//////////////////////////////////////////////////////////////////////////////
