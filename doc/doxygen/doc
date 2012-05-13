@@ -501,7 +501,7 @@ Video formats
    - <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
 
   \section wx_version Version
-   - Windows: wxWidgets trunk svn revision 67751 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
+   - Windows: wxWidgets trunk svn revision 71424 from 2012-05-13 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
    - other platforms: not used
 
   \section wx_building Installing/building
