@@ -271,7 +271,59 @@ RRLight::RRLight()
 	rtProjectedTexture = NULL;
 	rtNumShadowmaps = 6;
 	rtShadowmapSize = 1024;
+	//name = "";
 	customData = NULL;
+}
+
+RRLight::RRLight(const RRLight& a)
+{
+	type = a.type;
+	position = a.position;
+	direction = a.direction;
+	outerAngleRad = a.outerAngleRad;
+	radius = a.radius;
+	color = a.color;
+	distanceAttenuationType = a.distanceAttenuationType;
+	polynom = a.polynom;
+	fallOffExponent = a.fallOffExponent;
+	fallOffAngleRad = a.fallOffAngleRad;
+	spotExponent = a.spotExponent;
+	enabled	= a.enabled;
+	castShadows = a.castShadows;
+	directLambertScaled = a.directLambertScaled;
+	rtProjectedTexture = a.rtProjectedTexture ? a.rtProjectedTexture->createReference() : NULL;
+	rtNumShadowmaps = a.rtNumShadowmaps;
+	rtShadowmapSize = a.rtShadowmapSize;
+	name = a.name;
+	customData = a.customData;
+}
+
+const RRLight& RRLight::operator=(const RRLight& a)
+{
+	type = a.type;
+	position = a.position;
+	direction = a.direction;
+	outerAngleRad = a.outerAngleRad;
+	radius = a.radius;
+	color = a.color;
+	distanceAttenuationType = a.distanceAttenuationType;
+	polynom = a.polynom;
+	fallOffExponent = a.fallOffExponent;
+	fallOffAngleRad = a.fallOffAngleRad;
+	spotExponent = a.spotExponent;
+	enabled	= a.enabled;
+	castShadows = a.castShadows;
+	directLambertScaled = a.directLambertScaled;
+	if (rtProjectedTexture!=a.rtProjectedTexture)
+	{
+		delete rtProjectedTexture;
+		rtProjectedTexture = a.rtProjectedTexture ? a.rtProjectedTexture->createReference() : NULL;
+	}
+	rtNumShadowmaps = a.rtNumShadowmaps;
+	rtShadowmapSize = a.rtShadowmapSize;
+	name = a.name;
+	customData = a.customData;
+	return *this;
 }
 
 RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const

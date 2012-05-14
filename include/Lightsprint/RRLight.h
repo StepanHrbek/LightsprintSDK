@@ -116,7 +116,7 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRLight : public RRUniformlyAllocatedNonCopyable
+	class RR_API RRLight : public RRUniformlyAllocated
 	{
 	public:
 		//////////////////////////////////////////////////////////////////////////////
@@ -270,6 +270,10 @@ namespace rr
 
 		//! Initialize light to defaults.
 		RRLight();
+		//! Copy ctor (default one would not increase projected texture refcount).
+		RRLight(const RRLight&);
+		//! Assignment (default one would not increase projected texture refcount).
+		const RRLight& operator=(const RRLight&);
 		//! Destruct light.
 		virtual ~RRLight() {delete rtProjectedTexture;}
 
