@@ -67,6 +67,11 @@ NEWS
   - grayscale data are created/imported/exported as real grayscale with single channel (rather than RGB with identical data in all channels)
   - BF_LUMINANCE added for 8bit grayscale
   - BF_LUMINANCEF added for 32bit floating point grayscale
+- interpolation of matrices and lights (with API identical to interpolation of cameras)
+  - RRMatrix3x4::blendLinear()
+  - RRMatrix3x4::blendAkima()
+  - RRLight::blendLinear()
+  - RRLight::blendAkima()
 
 CHANGES
 

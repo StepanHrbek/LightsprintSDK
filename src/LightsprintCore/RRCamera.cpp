@@ -428,20 +428,56 @@ RRReal blendModulo(RRReal a,RRReal b,RRReal alpha,RRReal modulo)
 	return blendNormal(a,b,alpha);
 }
 
-// linear interpolation
-void RRCamera::blendLinear(const RRCamera& a, const RRCamera& b, float blend)
+void RRMatrix3x4::blendLinear(const RRMatrix3x4& sample0, const RRMatrix3x4& sample1, RRReal blend)
 {
-	pos = blendNormal(a.pos,b.pos,blend);
-	yawPitchRollRad[0] = blendModulo(a.yawPitchRollRad[0],b.yawPitchRollRad[0],blend,(float)(2*RR_PI));
-	yawPitchRollRad[1] = blendNormal(a.yawPitchRollRad[1],b.yawPitchRollRad[1],blend);
-	yawPitchRollRad[2] = blendNormal(a.yawPitchRollRad[2],b.yawPitchRollRad[2],blend);
-	aspect = blendNormal(a.aspect,b.aspect,blend);
-	fieldOfViewVerticalDeg = blendNormal(a.fieldOfViewVerticalDeg,b.fieldOfViewVerticalDeg,blend);
-	anear = blendNormal(a.anear,b.anear,blend);
-	afar = blendNormal(a.afar,b.afar,blend);
-	orthogonal = a.orthogonal;
-	orthoSize = blendNormal(a.orthoSize,b.orthoSize,blend);
-	screenCenter = blendNormal(a.screenCenter,b.screenCenter,blend);
+	RRVec3 rot1 = sample0.getYawPitchRoll();
+	RRVec3 rot2 = sample1.getYawPitchRoll();
+	*this = translation(blendNormal(sample0.getTranslation(),sample1.getTranslation(),blend))
+		* rotationByYawPitchRoll(RRVec3(
+			blendModulo(rot1[0],rot2[0],blend,(float)(2*RR_PI)),
+			blendNormal(rot1[1],rot2[1],blend),
+			blendNormal(rot1[2],rot2[2],blend)
+			))
+		* scale(blendNormal(sample0.getScale(),sample1.getScale(),blend));
+}
+
+void RRLight::blendLinear(const RRLight& sample0, const RRLight& sample1, RRReal blend)
+{
+	type = sample0.type;
+	position = blendNormal(sample0.position,sample1.position,blend);
+	direction = blendNormal(sample0.direction,sample1.direction,blend);
+	outerAngleRad = blendNormal(sample0.outerAngleRad,sample1.outerAngleRad,blend);
+	radius = blendNormal(sample0.radius,sample1.radius,blend);
+	color = blendNormal(sample0.color,sample1.color,blend);
+	distanceAttenuationType = sample0.distanceAttenuationType;
+	polynom = blendNormal(sample0.polynom,sample1.polynom,blend);
+	fallOffExponent = blendNormal(sample0.fallOffExponent,sample1.fallOffExponent,blend);
+	spotExponent = blendNormal(sample0.spotExponent,sample1.spotExponent,blend);
+	fallOffAngleRad = blendNormal(sample0.fallOffAngleRad,sample1.fallOffAngleRad,blend);
+	enabled = sample0.enabled;
+	castShadows = sample0.castShadows;
+	directLambertScaled = sample0.directLambertScaled;
+	//rtProjectedTexture = sample0.rtProjectedTexture ? a.rtProjectedTexture->createReference() : NULL;
+	rtNumShadowmaps = sample0.rtNumShadowmaps;
+	rtShadowmapSize = sample0.rtShadowmapSize;
+	name = sample0.name;
+	customData = sample0.customData;
+}
+
+// linear interpolation
+void RRCamera::blendLinear(const RRCamera& sample0, const RRCamera& sample1, float blend)
+{
+	pos = blendNormal(sample0.pos,sample1.pos,blend);
+	yawPitchRollRad[0] = blendModulo(sample0.yawPitchRollRad[0],sample1.yawPitchRollRad[0],blend,(float)(2*RR_PI));
+	yawPitchRollRad[1] = blendNormal(sample0.yawPitchRollRad[1],sample1.yawPitchRollRad[1],blend);
+	yawPitchRollRad[2] = blendNormal(sample0.yawPitchRollRad[2],sample1.yawPitchRollRad[2],blend);
+	aspect = blendNormal(sample0.aspect,sample1.aspect,blend);
+	fieldOfViewVerticalDeg = blendNormal(sample0.fieldOfViewVerticalDeg,sample1.fieldOfViewVerticalDeg,blend);
+	anear = blendNormal(sample0.anear,sample1.anear,blend);
+	afar = blendNormal(sample0.afar,sample1.afar,blend);
+	orthogonal = sample0.orthogonal;
+	orthoSize = blendNormal(sample0.orthoSize,sample1.orthoSize,blend);
+	screenCenter = blendNormal(sample0.screenCenter,sample1.screenCenter,blend);
 	updateView(true,true);
 	updateProjection();
 }
@@ -563,34 +599,80 @@ static Y interpolAkima(unsigned numPoints, const X* x, std::function<Y (int)> y,
 	return y2+z0*a+(m2*3-z0*2-z1)*(a*a/b) + (z0+z1-m2*2)*(a*a*a/(b*b));
 }
 
-// Akima interpolation
-void RRCamera::blendAkima(unsigned numCameras, const RRCamera** cameras, float* times, float time)
+//#define BLEND_FLOAT(name) {name = interpolAkima<float,float>(numSamples,times,[&samples](int i){return samples[i]->name;},time);}
+//#define BLEND_RRVEC2(name) {name = interpolAkima<float,RRVec2>(numSamples,times,[&samples](int i){return samples[i]->name;},time);}
+#define BLEND_RRVEC3(name) {name = interpolAkima<float,RRVec3>(numSamples,times,[&samples](int i){return samples[i]->name;},time);}
+#define BLEND_RRVEC3_ANGLES(name) {name = interpolAkima<float,RRVec3>(numSamples,times,[&samples](int i){return samples[i]->name;},time,true);}
+#define BLEND_3FLOATS(name1,name2,name3) {RRVec3 tmp = interpolAkima<float,RRVec3>(numSamples,times,[&samples](int i){return RRVec3(samples[i]->name1,samples[i]->name2,samples[i]->name3);},time); name1=tmp.x; name2=tmp.y; name3=tmp.z;}
+#define BLEND_4FLOATS(name1,name2,name3,name4) {RRVec4 tmp = interpolAkima<float,RRVec4>(numSamples,times,[&samples](int i){return RRVec4(samples[i]->name1,samples[i]->name2,samples[i]->name3,samples[i]->name4);},time); name1=tmp.x; name2=tmp.y; name3=tmp.z; name4=tmp.w;}
+
+void RRMatrix3x4::blendAkima(unsigned numSamples, const RRMatrix3x4** samples, const RRReal* times, RRReal time)
 {
-	// handle corner cases
-	if (!numCameras || !cameras || !times)
+	if (!numSamples || !samples|| !times)
 	{
 		RR_ASSERT(0);
 		return;
 	}
-	if (numCameras==1)
+	if (numSamples==1)
 	{
-		*this = *cameras[0];
+		*this = *samples[0];
 		return;
 	}
 
-	// init this with the most closely preceding camera (or first one if none is preceding)
+	// interpolate
+	RRVec3 tra = interpolAkima<float,RRVec3>(numSamples,times,[&samples](int i){return samples[i]->getTranslation();},time);
+	RRVec3 rot = interpolAkima<float,RRVec3>(numSamples,times,[&samples](int i){return samples[i]->getYawPitchRoll();},time);
+	RRVec3 sca = interpolAkima<float,RRVec3>(numSamples,times,[&samples](int i){return samples[i]->getScale();},time);
+	*this = translation(tra) * rotationByYawPitchRoll(rot) * scale(sca);
+}
+
+void RRLight::blendAkima(unsigned numSamples, const RRLight** samples, const RRReal* times, RRReal time)
+{
+	// handle corner cases
+	if (!numSamples || !samples || !times)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	if (numSamples==1)
+	{
+		*this = *samples[0];
+		return;
+	}
+
+	// init this with the most closely preceding source (or first one if none is preceding)
 	unsigned i = 1;
-	while (i<numCameras && times[i]<time) i++;
-	*this = *cameras[i-1];
+	while (i<numSamples && times[i]<time) i++;
+	*this = *samples[i-1];
 
 	// interpolate
-	//#define BLEND_FLOAT(name) {name = interpolAkima<float,float>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
-	//#define BLEND_RRVEC2(name) {name = interpolAkima<float,RRVec2>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
-	#define BLEND_RRVEC3(name) {name = interpolAkima<float,RRVec3>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time);}
-	#define BLEND_RRVEC3_ANGLES(name) {name = interpolAkima<float,RRVec3>(numCameras,times,[&cameras](int i){return cameras[i]->name;},time,true);}
-	#define BLEND_3FLOATS(name1,name2,name3) {RRVec3 tmp = interpolAkima<float,RRVec3>(numCameras,times,[&cameras](int i){return RRVec3(cameras[i]->name1,cameras[i]->name2,cameras[i]->name3);},time); name1=tmp.x; name2=tmp.y; name3=tmp.z;}
-	#define BLEND_4FLOATS(name1,name2,name3,name4) {RRVec4 tmp = interpolAkima<float,RRVec4>(numCameras,times,[&cameras](int i){return RRVec4(cameras[i]->name1,cameras[i]->name2,cameras[i]->name3,cameras[i]->name4);},time); name1=tmp.x; name2=tmp.y; name3=tmp.z; name4=tmp.w;}
+	BLEND_RRVEC3(position);
+	BLEND_RRVEC3(direction); direction.normalize();
+	BLEND_RRVEC3(color);
+	BLEND_4FLOATS(polynom.x,polynom.y,polynom.z,outerAngleRad);
+	BLEND_4FLOATS(radius,fallOffExponent,spotExponent,fallOffAngleRad);
+}
 
+void RRCamera::blendAkima(unsigned numSamples, const RRCamera** samples, float* times, float time)
+{
+	// handle corner cases
+	if (!numSamples || !samples || !times)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	if (numSamples==1)
+	{
+		*this = *samples[0];
+		return;
+	}
+
+	// init this with the most closely preceding source (or first one if none is preceding)
+	unsigned i = 1;
+	while (i<numSamples && times[i]<time) i++;
+	*this = *samples[i-1];
+
+	// interpolate
 	BLEND_RRVEC3(pos);
 	BLEND_RRVEC3_ANGLES(yawPitchRollRad);
 	BLEND_3FLOATS(anear,afar,fieldOfViewVerticalDeg);
@@ -601,7 +683,15 @@ void RRCamera::blendAkima(unsigned numCameras, const RRCamera** cameras, float* 
 
 #else
 
-void RRCamera::blendAkima(unsigned numCameras, const RRCamera** cameras, float* times, float time)
+void RRMatrix3x4::blendAkima(unsigned numSamples, const RRMatrix3x4** samples, const RRReal* times, RRReal time)
+{
+	RRReporter::report(WARN,"blendAkima() not yet implemented for this compiler, use VS 2010.\n");
+}
+void RRLight::blendAkima(unsigned numSamples, const RRLight** samples, const RRReal* times, RRReal time)
+{
+	RRReporter::report(WARN,"blendAkima() not yet implemented for this compiler, use VS 2010.\n");
+}
+void RRCamera::blendAkima(unsigned numSamples, const RRCamera** samples, float* times, float time)
 {
 	RRReporter::report(WARN,"blendAkima() not yet implemented for this compiler, use VS 2010.\n");
 }
