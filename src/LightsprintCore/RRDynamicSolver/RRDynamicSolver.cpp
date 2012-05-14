@@ -394,6 +394,7 @@ RRCollider* RRDynamicSolver::getCollider()
 		//const RRMatrix3x4& matrix = getDynamicObjects()[i]->getWorldMatrixRef();
 		//if (matrix)
 		//	...
+		// instead of detecting matrix change, we require users to reportDirectIlluminationChange(-1,...) when they change matrix
 	}
 	if (priv->superColliderMeshVersion!=superColliderMeshVersion)
 	{

@@ -37,6 +37,10 @@ private:
 	RayHits& rayHits;
 };
 
+// Stores inverse matrices, needs rebuild each time object moves (only to update inverse matrices).
+// Q: How about storing inverse matrices in objects?
+// A: + supercollider would work without rebuild even if objects move (simplification, most likely small speedup)
+//    - by not rebuilding supercollider, we would close path to more clever collider with kd
 class RRColliderMulti : public RRCollider
 {
 public:

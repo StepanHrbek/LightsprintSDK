@@ -268,6 +268,10 @@ namespace rr
 		//! Therefore recommended usage is to call it once, use returned collider many times (ideally until scene changes)
 		//! rather than getting collider for each ray.
 		//!
+		//! When a dynamic object moves, call reportDirectIlluminationChange(-1,...) to update illumination.
+		//! As a sideeffect, solver marks collider dirty and builds new one next time you call getCollider().
+		//! If you don't get correct intersections, verify that reportDirectIlluminationChange(-1,...) is called after object movement.
+		//!
 		//! Thread safe: no, you must not use solver or modify objects while getCollider() executes.
 		//! Returned collider is thread safe as usual, many threads can calculate intersections at once.
 		//!
@@ -790,6 +794,8 @@ namespace rr
 		//
 		//! Call this function when light moves, changes color etc.. or when geometry changes,
 		//! so that shadows and/or GI should be updated.
+		//! Note that direct illumination changes also when dynamic objects move,
+		//! call it with lightIndex -1 in such case.
 		//! \param lightIndex
 		//!  Light number in list of lights, see setLights(). If geometry changes, pass -1, change will be reported to all lights in solver.
 		//! \param dirtyShadows

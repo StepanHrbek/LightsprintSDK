@@ -76,7 +76,7 @@ namespace rr_gl
 		virtual void renderLights(const rr::RRCamera& _camera);
 
 
-		//! Sets dirty flags in given light, or in all lights if lightIndex is negative.
+		//! Sets dirty flags in given light, or in all lights if lightIndex is -1.
 		virtual void reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI, bool dirtyRange);
 
 		//! Updates shadowmaps, detects direct illumination, calculates GI.
