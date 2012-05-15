@@ -683,17 +683,18 @@ void RendererOfSceneImpl::render(
 				glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);
 				getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,-1,"#define MIRROR_MASK_ALPHA\n"); // disables depth test
 
+				oldState.restore();
+				setupForRender(_camera);
+				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+
 				// build mirror mipmaps
+				// must go after oldState.restore();, HD2400+Catalyst 12.1 sometimes (in RealtimeLights, not in SceneViewer) crashes when generating mipmaps for render target
 				// mipmaps generated on GF220 are ugly, but GL_NICEST does not help
 				//glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 				mirrorColorTex->bindTexture();
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				glGenerateMipmapEXT(GL_TEXTURE_2D); // part of EXT_framebuffer_object
-
-				oldState.restore();
-				setupForRender(_camera);
-				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 
 				glDisable(GL_BLEND);
 				//textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,1,0.7f,-0.3f,0.3f,0);
