@@ -2198,6 +2198,13 @@ public:
 			RR_ASSERT(mesh->numTriangles == currTriangle);
 			mesh->numTriangles = currTriangle;
 
+			// negate bitangents
+			// our test scenes exported from Max by OpenCollada (with normals+tangents+bitangents present) have bitangents negated, we correct them here
+			// please let us know whether your data need bitangents negated or not
+			// this needs further research and testing to get proper results with all Collada exporters
+			for (unsigned i=0;i<mesh->numVertices;i++)
+				mesh->bitangent[i] = -mesh->bitangent[i];
+
 			// create collider
 			bool aborting = false;
 			objects->colliders[ objects->nextMesh ] = RRCollider::create(mesh,NULL,RRCollider::IT_LINEAR,aborting);
