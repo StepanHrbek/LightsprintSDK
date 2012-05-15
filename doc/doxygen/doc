@@ -179,7 +179,7 @@ Renderers
 
 Stereo rendering
 - integrates with external stereo compositors
-- includes interlaced stereo rendering, works with any GPU
+- includes interlaced stereo renderer, works with any GPU
 
 Materials
 - supports all types of materials
@@ -190,6 +190,10 @@ Materials
 Unwrap
 - imports your unwrap
 - automatically builds new unwrap
+
+Tangent space
+- imports your tangent space
+- automatically builds new tangent space
 
 Realtime/precomputed
 - supports realtime illumination
@@ -3229,13 +3233,14 @@ rr::RRVector<*>{
   <table border=0 width=95%><tr align=top><td>
   \image html samples/SceneViewer_2.jpg move lights, compare realtime/offline GI
   </td><td>
-  \image html samples/SceneViewer_3.jpg made for testing, debugging
+  \image html samples/SceneViewer_4.jpg edit objects/lights/materials
   </td></tr></table>
  - single function call: sceneViewer(), you can run it from your code to visualize data
  - realtime GI: freely move all lights, no precalculations
  - precomputed GI: test build/load/save lightmaps
- - debugging: add/remove lights, see rays shot from individual triangles or texels
- - loads 30+ scene formats
+ - edit materials, manipulate objects
+ - import/export 70+ fileformats
+ - debugging: visualize tangents, see rays shot from individual triangles or texels etc
 
  <hr>
  <b>MovingSun</b>

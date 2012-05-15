@@ -12,30 +12,6 @@ namespace rr
 
 NEWS
 
-- <b>improved shininess</b> (RRMaterial::specularShininess)
-  - shininess in automatic mirror reflections honoured
-  - shininess in environment reflections adjusted, it was too sharp
-  - default shininess changed from 100 to 1000 (Phong shininess 100 makes reflections very blurry, mirroring effect lost)
-- <b>improved normal maps</b> (RRMaterial::bumpMap)
-  - import of normal maps and tangent space from Collada .dae
-  - RRMeshArrays::buildTangents() has one more parameter, generated tangent space is better for normal mapping
-- <b>height maps</b> (RRMaterial::bumpMap)
-  - system automatically works with either normal map or height map assigned to bump map slot
-  - RRMaterial::bumpMapTypeHeight added, importers call RRMaterial::updateBumpMapType() to fill it automatically
-  - rendered with parallax mapping
-  - several identifiers with "normal" in name renamed to "bump", to make it clear that both normal maps and height maps are supported
-  - rr_gl::UberProgramSetup::MATERIAL_BUMP_TYPE_HEIGHT added, rr_gl::RendererOfScene sets it automatically when height map is used
-- <b>improved index of refraction</b>
-  - rr_gl::UberProgramSetup::MATERIAL_TRANSPARENCY_FRESNEL renders specular transmittance and reflectance adjusted according to index of refraction
-  - rr_gl::RealtimeLight::FRESNEL_SHADOWS renders shadows adjusted according to index of refraction
-  - note that RRMaterial::refractionIndex must be set properly, there is no effect with default index 1
-- <b>improved mirroring</b>
-  - reflection is sharper closer to reflected objects
-  - works with normal maps
-  - does not leak light through walls
-  - faster
-  - LIGHT_INDIRECT_MIRROR renamed to rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_SPECULAR
-  - rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_DIFFUSE added, offers higher quality lighting for medium/large dynamic planes
 - <b>improved water</b>
   - removed rr_gl::Water, instead create large quad (dynamic object) and give it transparent normal mapped material. This leads to following advantages:
   - water has easier API, no special class needed (previously class Water, whole scene render had to be called twice)
@@ -50,17 +26,71 @@ NEWS
   - rr_gl::UberProgramSetup::MATERIAL_NORMAL_MAP_FLOW added, animates water when static normal map is set. rr_gl::UberProgramSetup::enableUsedMaterials() enables it when material name contains "water"
   - deep water recipe: add plane, give it normal map, index of refraction 1.4, little bit of specular reflectance, little bit of blueish emittance, no transmittance, no diffuse reflectance, call material "water"
   - shallow water recipe: unlike deep water, add lots of transmittance, don't add emittance
+    <table border=0><tr align=top><td>
+    \image html water_deep.jpg Deep water
+    </td><td>
+    \image html water_shallow.jpg Shallow water
+    </td></tr></table>
+- <b>Fresnel blending + Fresnel shadows</b>
+  - rr_gl::UberProgramSetup::MATERIAL_TRANSPARENCY_FRESNEL renders specular transmittance and reflectance adjusted according to index of refraction
+  - rr_gl::RealtimeLight::FRESNEL_SHADOWS renders shadows adjusted according to index of refraction
+  - note that RRMaterial::refractionIndex must be set properly, there is no effect with default index 1
+    <table border=0><tr align=top><td>
+    \image html shadow8bit.jpg Legacy: alpha blending, solid shadows
+    </td><td>
+    \image html shadow24bit.jpg RGB blending and RGB shadows
+    </td><td>
+    \image html shadow24bit+fresnel.jpg Fresnel blending and Fresnel shadows
+    </td></tr></table>
+- <b>improved shininess</b> (RRMaterial::specularShininess)
+  - shininess in automatic mirror reflections honoured
+  - shininess in environment reflections adjusted, it was too sharp
+  - default shininess changed from 100 to 1000 (Phong shininess 100 makes reflections very blurry, mirroring effect lost)
+    <table border=0><tr align=top><td>
+    \image html mirror10.jpg Phong shininess 10
+    </td><td>
+    \image html mirror100.jpg 100
+    </td><td>
+    \image html mirror1000.jpg 1000
+    </td><td>
+    \image html mirror10000.jpg 10000
+    </td></tr></table>
+- <b>improved normal maps</b> (RRMaterial::bumpMap)
+  - import of normal maps and tangent space from Collada .dae (example: koupelna4.dae, exported from Max with OpenCollada plugin)
+  - RRMeshArrays::buildTangents() has one more parameter, generated tangent space is better for normal mapping
+- <b>height maps</b> (RRMaterial::bumpMap)
+  - system automatically works with either normal map or height map assigned to bump map slot
+  - RRMaterial::bumpMapTypeHeight added, importers call RRMaterial::updateBumpMapType() to fill it automatically
+  - rendered with <b>parallax mapping</b>
+  - several identifiers with "normal" in name renamed to "bump", to make it clear that both normal maps and height maps are supported
+  - rr_gl::UberProgramSetup::MATERIAL_BUMP_TYPE_HEIGHT added, rr_gl::RendererOfScene sets it automatically when height map is used
+- <b>improved mirroring</b>
+  - reflection is sharper closer to reflected objects
+  - works with normal maps
+  - does not leak light through walls
+  - faster
+  - LIGHT_INDIRECT_MIRROR renamed to rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_SPECULAR
+  - rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_DIFFUSE added, offers higher quality lighting for medium/large dynamic planes
+    <table border=0><tr align=top><td>
+    \image html mirror.jpg See how reflection gets sharpner closer to reflected object
+    </td></tr></table>
 - <b>improved scene viewer</b>
   - move/rotate/scale gizmo, replaces various hotkeys
   - editing capabilities were added years ago.. but now that we ship user friendly gizmo, is it finally time to call the thing "editor"?
   - "Add sphere, box, plane, rectangle" added to "Scene tree/Dynamic objects/context menu"
   - removed checkbox "Water", instead use new "Add plane", and give it transparent normal mapped material
+    <table border=0><tr align=top><td>
+    \image html SceneViewer_4.jpg
+    </td></tr></table>
 - <b>improved handling of missing textures</b>
   - when load fails, RRBuffer::load() optionally returns stub buffer instead of NULL; see new RRFileLocator::setAttempt(RRFileLocator::ATTEMPT_STUB,...)
   - stub buffer contains original path to missing texture
   - scene viewer preserves paths to missing textures, displays stub texture sv_missing.png instead
   - RRBuffer::isStub() returns true for stub textures
   - RRMaterial::updateColorsFromTextures() has additional stub related parameter
+    <table border=0><tr align=top><td>
+    \image html missing.jpg
+    </td></tr></table>
 - <b>improved robustness</b>
   - isolation of scene import into separated processes, see rr_io::isolateSceneLoaders()
 - grayscale support
