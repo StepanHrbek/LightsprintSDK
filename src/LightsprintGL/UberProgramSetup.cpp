@@ -773,7 +773,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 
 	if (MATERIAL_TRANSPARENCY_FRESNEL)
 	{
-		program->sendUniform("materialRefractionIndex",material->refractionIndex);
+		program->sendUniform("materialRefractionIndex",RR_CLAMPED(material->refractionIndex,0.001f,1000.f)); // 0 would produce division by zero in shader
 	}
 
 	if (MATERIAL_DIFFUSE_MAP)

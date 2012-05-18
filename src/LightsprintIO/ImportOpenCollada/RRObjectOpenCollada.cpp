@@ -1173,6 +1173,9 @@ public:
 			// opencollada have default -1 for refraction
 			if(material.refractionIndex == -1.f)
 				material.refractionIndex = 1.f;
+			// workaround: some exporters export 0 for all materials
+			if(material.refractionIndex == 0)
+				material.refractionIndex = 1.f;
 
 			if( lmC != UINT_MAX )
 				material.lightmapTexcoord = lmC;
