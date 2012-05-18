@@ -97,7 +97,7 @@ namespace rr
 	//! \section buf_capture Live video capture
 	//!  LightsprintIO implements support for live video capture into 2d buffer.
 	//!  With LightsprintIO callbacks registered, live video capture is started by
-	//!  opening imaginary file "c@pture".
+	//!  opening imaginary file "c\@pture".
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
