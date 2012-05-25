@@ -305,6 +305,8 @@ varying vec3 worldNormalSmooth;
 
 vec4 dividedByAlpha(vec4 color)
 {
+	// this would make certain error in mirroring less visible, but it is probably not worth the effort
+	//return (color.a==0.0) ? color : color/color.a;
 	return color/color.a;
 }
 
@@ -697,6 +699,7 @@ void main()
 			#ifdef MATERIAL_BUMP_MAP
 				mirrorCenter += localNormal.xy*0.1;
 			#endif
+			vec4 mirrorFallback = texture2D(lightIndirectMirrorMap, mirrorCenterSmooth)*0.01;
 		#endif
 		#if defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 			float mirrorLod = lightIndirectMirrorData.z-materialSpecularShininessData.y
@@ -770,7 +773,7 @@ void main()
 							) * 0.5
 						#endif
 						#ifdef LIGHT_INDIRECT_MIRROR_DIFFUSE
-							+ dividedByAlpha(texture2DLod(lightIndirectMirrorMap, mirrorCenter, 6.0))
+							+ dividedByAlpha(texture2DLod(lightIndirectMirrorMap, mirrorCenter, 6.0)+mirrorFallback)
 						#endif
 					#ifdef LIGHT_INDIRECT_DETAIL_MAP
 						) * texture2D(lightIndirectMap, lightIndirectCoord) * 2.0
@@ -847,7 +850,7 @@ void main()
 						#ifdef MATERIAL_BUMP_MAP
 							// when normal map moves mirrorCenter deep in non-mirrored area of mirrorMap, and all 4 rotated lookups read 0 in total, division by 0 looms.
 							// this lookup should always go into mirrored area, makes sum non-zero
-							+ texture2D(lightIndirectMirrorMap, mirrorCenterSmooth)*0.01
+							+ mirrorFallback
 						#endif
 						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift1, mirrorLod)
 						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift1, mirrorLod)
