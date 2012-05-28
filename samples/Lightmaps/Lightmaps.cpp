@@ -388,7 +388,7 @@ int main(int argc, char** argv)
 
 	// init GLUT
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_ALPHA | GLUT_DEPTH);
 	//glutGameModeString("800x600:32"); glutEnterGameMode(); // for fullscreen mode
 	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint Lightmaps"); // for windowed mode
 	glutSetCursor(GLUT_CURSOR_NONE);
