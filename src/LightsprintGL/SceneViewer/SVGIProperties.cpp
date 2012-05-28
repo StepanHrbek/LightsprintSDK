@@ -130,6 +130,12 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIMirrors = new BoolRefProperty(_("Mirror reflections"),_("Increases realism by realtime rendering mirror reflections. Applied to flat meshes without cube reflections."),svs.mirrorsEnabled);
 		Append(propGIMirrors);
 
+		propGIMirrorsDiffuse = new BoolRefProperty(_("Diffuse"),_("Enables mirroring when rendering diffuse reflection."),svs.mirrorsDiffuse);
+		AppendIn(propGIMirrors,propGIMirrorsDiffuse);
+
+		propGIMirrorsSpecular = new BoolRefProperty(_("Specular"),_("Enables mirroring when rendering specular reflection."),svs.mirrorsSpecular);
+		AppendIn(propGIMirrors,propGIMirrorsSpecular);
+
 		SetPropertyBackgroundColour(propGIMirrors,importantPropertyBackgroundColor,false);
 	}
 

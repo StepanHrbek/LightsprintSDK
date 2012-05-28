@@ -50,6 +50,8 @@ namespace rr_gl
 		FloatProperty*    propGIRaytracedCubesSpecularThreshold;
 		FloatProperty*    propGIRaytracedCubesDepthThreshold;
 		BoolRefProperty*  propGIMirrors;
+		BoolRefProperty*  propGIMirrorsDiffuse;
+		BoolRefProperty*  propGIMirrorsSpecular;
 		wxPGProperty*     propGIEmisMultiplier;
 		wxPGProperty*     propGIVideo;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;

@@ -127,6 +127,8 @@ struct SceneViewerState
 	float            raytracedCubesSpecularThreshold;
 	float            raytracedCubesDepthThreshold;
 	bool             mirrorsEnabled;            //! Enables rendering of flat reflections using mirror maps (rather than less accurate raytraced cubes).
+	bool             mirrorsDiffuse;            //! Enables using mirrors when rendering diffuse reflection.
+	bool             mirrorsSpecular;           //! Enables using mirrors when rendering specular reflection.
 	bool             srgbCorrect;               //! Add realtime lights sRGB correctly, if OpenGL 3.0+ or sufficient extensions are found.
 	//rr::RRDynamicSolver::CalculateParameters calculateParameters;        //! Realtime GI settings.
 	rr::RRDynamicSolver::UpdateParameters    lightmapDirectParameters;   //! Lightmap baking settings.
@@ -207,6 +209,8 @@ struct SceneViewerState
 		raytracedCubesSpecularThreshold = 0.2f;
 		raytracedCubesDepthThreshold = 0.1f;
 		mirrorsEnabled = true;
+		mirrorsDiffuse = true;
+		mirrorsSpecular = true;
 		srgbCorrect = false;
 		lightmapDirectParameters.aoSize = 1;
 		cameraDynamicNear = 1;
@@ -286,6 +290,8 @@ struct SceneViewerState
 			&& a.raytracedCubesSpecularThreshold==raytracedCubesSpecularThreshold
 			&& a.raytracedCubesDepthThreshold==raytracedCubesDepthThreshold
 			&& a.mirrorsEnabled==mirrorsEnabled
+			&& a.mirrorsDiffuse==mirrorsDiffuse
+			&& a.mirrorsSpecular==mirrorsSpecular
 			&& a.srgbCorrect==srgbCorrect
 			&& a.lightmapDirectParameters==lightmapDirectParameters
 			&& a.lightmapFilteringParameters==lightmapFilteringParameters
