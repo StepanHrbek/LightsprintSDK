@@ -228,7 +228,11 @@ namespace rr
 		bool          specularTransmittanceInAlpha;
 		//! Whether 1-bit alpha keying is used instead of smooth alpha blending in realtime render. 1-bit alpha keying is faster but removes semi-translucency. Smooth alpha blend renders semi-translucency, but artifacts appear on meshes where semi-translucent faces overlap.
 		bool          specularTransmittanceKeyed;
-		//! Refractive index of matter in front of surface divided by refractive index of matter behind surface. Real world surfaces have it from 0.25 to 4. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
+		//! For 1-sided faces, it is refractive index of matter behind surface divided by refractive index of matter in front of surface
+		//! (1-sided surfaces are treated as volume boundaries, this index tells what happens when light leaves matter in front of boundary and enters matter behind).
+		//! For 2-sided faces, it is refractive index of matter inside thin layer divided by refractive index of matter around
+		//! (2-sided surfaces are treated as thin layers made of different matter, renderer accounts for multiple front/back interreflection).
+		//! Real world surfaces have index from 0.25 to 4. <a href="http://en.wikipedia.org/wiki/List_of_indices_of_refraction">Examples.</a>
 		RRReal        refractionIndex;
 		//! Optional bump map modulates surface normals.
 		//

@@ -170,7 +170,7 @@ const char* UberProgramSetup::getSetupString()
 	sprintf(specularModel,"#define MATERIAL_SPECULAR_MODEL %d\n",(int)MATERIAL_SPECULAR_MODEL);
 
 	static char setup[2000];
-	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		comment?comment:"",
 		SHADOW_MAPS?shadowMaps:"",
 		SHADOW_SAMPLES?shadowSamples:"",
@@ -216,6 +216,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_BUMP_MAP?"#define MATERIAL_BUMP_MAP\n":"",
 		MATERIAL_BUMP_TYPE_HEIGHT?"#define MATERIAL_BUMP_TYPE_HEIGHT\n":"",
 		MATERIAL_NORMAL_MAP_FLOW?"#define MATERIAL_NORMAL_MAP_FLOW\n":"",
+		(MATERIAL_CULLING && MATERIAL_TRANSPARENCY_FRESNEL)?"#define MATERIAL_CULLING\n":"", // "&& MATERIAL_TRANSPARENCY_FRESNEL" is optimization, not necessary. So far the only part of shader affected by culling is fresnel, don't add culling in other cases to reduce number of different setups. We can't simply "if(!fresnel) MATERIAL_CULLING=0;" in validate() because GL_CULL_FACE/glCullFace stuff is done only if MATERIAL_CULLING, it must stay enabled for renderer. We disable it here only for shader and uberprogram cache.
 		ANIMATION_WAVE?"#define ANIMATION_WAVE\n":"",
 		POSTPROCESS_NORMALS?"#define POSTPROCESS_NORMALS\n":"",
 		POSTPROCESS_BRIGHTNESS?"#define POSTPROCESS_BRIGHTNESS\n":"",

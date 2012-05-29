@@ -129,7 +129,7 @@ struct RR_GL_API UberProgramSetup
 	bool     MATERIAL_BUMP_TYPE_HEIGHT     :1; ///< Switches bump mapping code from default normal maps to height maps (height maps need additional code to calculate normals).
 	bool     MATERIAL_NORMAL_MAP_FLOW      :1; ///< When using normal map, enables flow of normal map over geometry, simulating flow of waves on large water surface.
 
-	bool     MATERIAL_CULLING              :1; ///< Enables materials's n-sided property (culling is enabled/disabled according to material, no change in shader).
+	bool     MATERIAL_CULLING              :1; ///< Enables materials's n-sided property (culling is enabled/disabled according to material). false = treat everything as 2sided.
 
 	// Misc other options.
 	bool     ANIMATION_WAVE                :1; ///< Enables simple procedural deformation, only to demonstrate that lighting supports animations.

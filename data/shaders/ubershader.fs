@@ -252,14 +252,25 @@ varying vec3 worldNormalSmooth;
 	uniform float materialRefractionIndex;
 	float fresnelReflectance(float cos_theta1)
 	{
+	#ifdef MATERIAL_CULLING
 		float index = gl_FrontFacing?materialRefractionIndex:1.0/materialRefractionIndex;
+	#else
+		// treat 2sided face as thin layer: always start by hitting front side
+		float index = materialRefractionIndex;
+	#endif
 		float cos_theta2 = sqrt( 1.0 - (1.0-cos_theta1*cos_theta1)/(index*index) );
 		float fresnel_rs = (cos_theta1-index*cos_theta2) / (cos_theta1+index*cos_theta2);
 		float fresnel_rp = (index*cos_theta1-cos_theta2) / (index*cos_theta1+cos_theta2);
-		return (fresnel_rs*fresnel_rs + fresnel_rp*fresnel_rp)*0.5;
+		float r = (fresnel_rs*fresnel_rs + fresnel_rp*fresnel_rp)*0.5;
+	#ifdef MATERIAL_CULLING
+		return r;
+		// for cos_theta1=1, reflectance is ((1.0-materialRefractionIndex)/(1.0+materialRefractionIndex))^2
+		// for materialRefractionIndex=1, reflectance is 0
+	#else
+		// treat 2sided face as thin layer: take multiple interreflections between front and back into account
+		return 2.0*r/(1.0+r);
+	#endif
 	}
-	// for cos_theta1=1, reflectance is ((1.0-materialRefractionIndex)/(1.0+materialRefractionIndex))^2
-	// for materialRefractionIndex=1, reflectance is 0
 #endif
 
 #ifdef MATERIAL_BUMP_MAP
