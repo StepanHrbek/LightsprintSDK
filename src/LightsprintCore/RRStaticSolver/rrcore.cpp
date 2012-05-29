@@ -793,21 +793,16 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 // trace ray, reflect from triangles and mark hitpoints
 // return amount of power added to scene
 
-RRVec3 refract(RRVec3 N,RRVec3 I,real r)
+RRVec3 refract(RRVec3 n, RRVec3 i, const RRMaterial* m)
 {
-	real ndoti=dot(N,I);
-	if (ndoti<0) r=1/r;
-	real D2=1-r*r*(1-ndoti*ndoti);
+	RR_ASSERT(m);
+	RRReal ndoti = dot(n,i);
+	RRReal r = (ndoti>=0) ? m->refractionIndex : 1/m->refractionIndex;
+	RRReal D2 = 1-r*r*(1-ndoti*ndoti);
 	if (D2>=0)
-	{
-		real a;
-		if (ndoti>=0) a=r*ndoti-sqrt(D2);
-		else a=r*ndoti+sqrt(D2);
-		return N*a-I*r;
-	} else {
-		// total internal reflection
-		return N*(2*ndoti)-I;
-	}
+		return i*r-n*((ndoti>=0)?r*ndoti-sqrt(D2):r*ndoti+sqrt(D2));
+	// total internal reflection
+	return i-n*(2*ndoti);
 }
 
 HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& eye, const RRVec3& direction, const Triangle *skip, HitChannels power)
@@ -898,7 +893,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 		if (specularTransmit)
 		{
 			// calculate new direction after refraction
-			newDirectionTransmit = -refract(ray.hitPlane,direction,hitTriangle->surface->refractionIndex);
+			newDirectionTransmit = refract(ray.hitPlane,direction,hitTriangle->surface);
 		}
 
 		// mirror reflection
