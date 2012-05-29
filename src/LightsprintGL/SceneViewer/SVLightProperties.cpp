@@ -270,11 +270,14 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propOuterAngle)
 	{
 		light->outerAngleRad = RR_DEG2RAD(property->GetValue().GetDouble());
+		rtlight->dirtyShadowmap = true;
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propRadius)
 	{
 		light->radius = property->GetValue().GetDouble();
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propColor)
@@ -300,36 +303,43 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		light->distanceAttenuationType = (rr::RRLight::DistanceAttenuationType)property->GetValue().GetInteger();
 		updateHide();
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propConstant)
 	{
 		light->polynom[0] = property->GetValue().GetDouble();
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propLinear)
 	{
 		light->polynom[1] = property->GetValue().GetDouble();
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propQuadratic)
 	{
 		light->polynom[2] = property->GetValue().GetDouble();
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propClamp)
 	{
 		light->polynom[3] = property->GetValue().GetDouble();
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propFallOffExponent)
 	{
 		light->fallOffExponent = property->GetValue().GetDouble();
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propFallOffAngle)
 	{
 		light->fallOffAngleRad = RR_DEG2RAD(property->GetValue().GetDouble());
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propCastShadows)
@@ -340,6 +350,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propSpotExponent)
 	{
 		light->spotExponent = property->GetValue().GetDouble();
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propShadowmaps)
