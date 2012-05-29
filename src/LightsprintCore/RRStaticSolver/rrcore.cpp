@@ -796,6 +796,11 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 RRVec3 refract(RRVec3 n, RRVec3 i, const RRMaterial* m)
 {
 	RR_ASSERT(m);
+	if (m->sideBits[0].reflect && m->sideBits[1].reflect)
+	{
+		// 2sided faces simulate thin layer, don't change light direction
+		return i;
+	}
 	RRReal ndoti = dot(n,i);
 	RRReal r = (ndoti>=0) ? m->refractionIndex : 1/m->refractionIndex;
 	RRReal D2 = 1-r*r*(1-ndoti*ndoti);
