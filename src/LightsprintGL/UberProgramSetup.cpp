@@ -139,18 +139,20 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material, const
 	MATERIAL_EMISSIVE_MAP = hasMap(material->diffuseEmittance,meshArrays);
 	MATERIAL_EMISSIVE_CONST = !MATERIAL_EMISSIVE_MAP && material->diffuseEmittance.color!=rr::RRVec3(0);
 
+	// bump map
+	MATERIAL_BUMP_MAP = hasMap(material->bumpMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
+	MATERIAL_BUMP_TYPE_HEIGHT = MATERIAL_BUMP_MAP && material->bumpMapTypeHeight;
+	MATERIAL_NORMAL_MAP_FLOW = MATERIAL_BUMP_MAP && strstr(material->name.c_str(),"water")!=NULL;
+
 	// transp
 	MATERIAL_TRANSPARENCY_MAP = hasMap(material->specularTransmittance,meshArrays);
 	MATERIAL_TRANSPARENCY_CONST = !MATERIAL_TRANSPARENCY_MAP && material->specularTransmittance.color!=rr::RRVec3(0);
 	MATERIAL_TRANSPARENCY_IN_ALPHA = material->specularTransmittance.color!=rr::RRVec3(0) && material->specularTransmittanceInAlpha;
 	MATERIAL_TRANSPARENCY_BLEND = material->specularTransmittance.color!=rr::RRVec3(0) && !material->specularTransmittanceKeyed;
 	MATERIAL_TRANSPARENCY_TO_RGB = MATERIAL_TRANSPARENCY_BLEND;
-	MATERIAL_TRANSPARENCY_FRESNEL = (MATERIAL_EMISSIVE_CONST || MATERIAL_TRANSPARENCY_BLEND) && material->refractionIndex!=1;
-
-	// normal map
-	MATERIAL_BUMP_MAP = hasMap(material->bumpMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
-	MATERIAL_BUMP_TYPE_HEIGHT = MATERIAL_BUMP_MAP && material->bumpMapTypeHeight;
-	MATERIAL_NORMAL_MAP_FLOW = MATERIAL_BUMP_MAP && strstr(material->name.c_str(),"water")!=NULL;
+	MATERIAL_TRANSPARENCY_FRESNEL = material->refractionIndex!=1 && (MATERIAL_TRANSPARENCY_BLEND
+		|| (MATERIAL_EMISSIVE_CONST && MATERIAL_BUMP_MAP) // keeps Fresnel on deep water surface (deep water has emittance instead of transmittance)
+		);
 
 	// misc
 	MATERIAL_CULLING = material->sideBits[0].renderFrom != material->sideBits[1].renderFrom;
@@ -390,7 +392,7 @@ void UberProgramSetup::validate()
 		LIGHT_INDIRECT_ENV_DIFFUSE = 0;
 	}
 	if (!MATERIAL_TRANSPARENCY_BLEND // keeps Fresnel in final renders with blending
-		&& !MATERIAL_EMISSIVE_CONST // keeps Fresnel on deep water surface
+		&& !(MATERIAL_EMISSIVE_CONST && MATERIAL_BUMP_MAP) // keeps Fresnel on deep water surface (deep water has emittance instead of transmittance)
 		&& !MATERIAL_TRANSPARENCY_TO_RGB) // keeps Fresnel in Fresnel shadows
 	//if (!MATERIAL_TRANSPARENCY_CONST && !MATERIAL_TRANSPARENCY_MAP && !MATERIAL_TRANSPARENCY_IN_ALPHA) // fresnel would work with keyed transparency, but difference would be hardly visible
 	{
