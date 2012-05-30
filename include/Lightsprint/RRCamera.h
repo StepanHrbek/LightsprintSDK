@@ -221,10 +221,9 @@ public:
 	//! Mirrors camera around general plane. Second call mirrors camera back, sometimes with small rounding errors.
 	void mirror(const rr::RRVec4& plane);
 
-	//! Fixes NaN and INF values found in camera inputs (pos, dir etc).
+	//! Fixes NaN/INF/IND values found in camera (pos, dir etc).
 	//
 	//! It is important before serializing camera into text stream that can't handle infinite numbers.
-	//! It does not change outputs (up, right, matrices etc), use update() to update outputs from inputs.
 	//! \return Number of changes made.
 	unsigned fixInvalidValues();
 
