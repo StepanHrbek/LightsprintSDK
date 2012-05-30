@@ -30,7 +30,7 @@ void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject*
 		for (unsigned g=0;g<_object->faceGroups.size();g++)
 			if (_object->faceGroups[g].material->lightmapTexcoord!=unwrapChannel)
 			{
-				rr::RRReporter::report(rr::INF2,"Median texel size: not calculated, unwrap scattered across different uv channels\n");
+				RR_LIMITED_TIMES(10,rr::RRReporter::report(rr::INF2,"Median texel size: not calculated, unwrap scattered across different uv channels\n"));
 				return;
 			}
 		rr::RRMesh* worldSpaceMesh = _object->createWorldSpaceMesh();
