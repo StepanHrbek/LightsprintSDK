@@ -473,6 +473,12 @@ namespace rr
 		//!  Exponent in (0,inf) range. \n
 		//!  Changes attenuaton from linear with 0 in outerAngle and 1 in innerAngle to exponential: linearAttenuation^spotExponent.
 		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec4 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent);
+
+		//! Fixes NaN/INF/IND and out of range values found in light.
+		//
+		//! It is important before serializing light into text stream
+		//! that can't handle infinite numbers.
+		void fixInvalidValues();
 	};
 
 

@@ -172,7 +172,7 @@ public:
 		direction = warnIfZero(_direction,"direction").normalized();
 		#define DELTA 0.0001f
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
-		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,0,outerAngleRad);
 		rtNumShadowmaps = 1;
 	}
 };
@@ -194,7 +194,7 @@ public:
 		color = warnIfNegative(_color,"color");
 		direction = warnIfZero(_direction,"direction").normalized();
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
-		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,0,outerAngleRad);
 		rtNumShadowmaps = 1;
 	}
 };
@@ -218,7 +218,7 @@ public:
 		fallOffExponent = warnIfNegative(_fallOffExponent,"fallOffExponent");
 		direction = warnIfZero(_direction,"direction").normalized();
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
-		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,0,outerAngleRad);
 		rtNumShadowmaps = 1;
 	}
 };
@@ -241,7 +241,7 @@ public:
 		polynom = warnIfNegative(_polynom,"polynom");
 		direction = warnIfZero(_direction,"direction").normalized();
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
-		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,DELTA,outerAngleRad);
+		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,0,outerAngleRad);
 		spotExponent = RR_CLAMPED(_spotExponent,0,1e10f);
 		rtNumShadowmaps = 1;
 	}
@@ -533,6 +533,46 @@ RRLight* RRLight::createSpotLightRadiusExp(const RRVec3& position, const RRVec3&
 RRLight* RRLight::createSpotLightPoly(const RRVec3& position, const RRVec3& color, RRVec4 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent)
 {
 	return new SpotLightPoly(position,color,polynom,majorDirection,outerAngleRad,fallOffAngleRad,spotExponent);
+}
+
+static void makeFinite(float& f, float def)
+{
+	if (!_finite(f)) f = def;
+}
+
+static void makeFinite(RRVec3& v, const RRVec3& def)
+{
+	makeFinite(v[0],def[0]);
+	makeFinite(v[1],def[1]);
+	makeFinite(v[2],def[2]);
+}
+
+static void makeFinite(RRVec4& v, const RRVec4& def)
+{
+	makeFinite(v[0],def[0]);
+	makeFinite(v[1],def[1]);
+	makeFinite(v[2],def[2]);
+	makeFinite(v[3],def[3]);
+}
+
+void RRLight::fixInvalidValues()
+{
+	// light enevelope
+	RR_CLAMP(type,DIRECTIONAL,SPOT);
+	makeFinite(position,RRVec3(0));
+	//makeFinite(direction,RRVec3(1,0,0));
+	direction.normalizeSafe();
+	#define DELTA 0.0001f
+	RR_CLAMP(outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
+	RR_CLAMP(radius,0,1e20f);
+
+	// color
+	makeFinite(color,RRVec3(0));
+	RR_CLAMP(distanceAttenuationType,NONE,EXPONENTIAL);
+	makeFinite(polynom,RRVec4(0));
+	makeFinite(fallOffExponent,1);
+	makeFinite(spotExponent,1);
+	RR_CLAMP(fallOffAngleRad,0,outerAngleRad);
 }
 
 } // namespace
