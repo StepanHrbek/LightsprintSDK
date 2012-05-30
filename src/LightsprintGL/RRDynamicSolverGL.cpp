@@ -519,7 +519,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		// render scene
 		glDisable(GL_CULL_FACE);
 		FaceGroupRange fgRange(0,0,0,firstCapturedTriangle,lastCapturedTrianglePlus1);
-		rendererOfScene->getRendererOfMesh(getMultiObjectCustom()->getCollider()->getMesh())->render(
+		rendererOfScene->getRendererOfMesh(getMultiObjectCustom()->getCollider()->getMesh())->renderMesh(
 			program,
 			getMultiObjectCustom(),
 			&fgRange,

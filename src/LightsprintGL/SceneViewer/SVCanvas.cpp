@@ -1636,7 +1636,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 								const rr::RRMesh* mesh = object->getCollider()->getMesh();
 								FaceGroupRange fgRange(0,0,object->faceGroups.size()-1,0,mesh->getNumTriangles());
 								RendererOfMesh* rendererOfMesh = solver->getRendererOfScene()->getRendererOfMesh(mesh);
-								rendererOfMesh->render(program,object,&fgRange,1,uberProgramSetup,false,NULL,NULL);
+								rendererOfMesh->renderMesh(program,object,&fgRange,1,uberProgramSetup,false,NULL,NULL);
 							}
 						}
 					}

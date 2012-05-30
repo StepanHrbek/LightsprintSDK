@@ -545,7 +545,7 @@ void RendererOfSceneImpl::render(
 						while (j+numRanges<nonBlendedFaceGroups->size() && (*nonBlendedFaceGroups)[j+numRanges].object==(*nonBlendedFaceGroups)[j].object) numRanges++;
 
 						// render
-						objectBuffers.meshRenderer->render(
+						objectBuffers.meshRenderer->renderMesh(
 							program,
 							object,
 							&(*nonBlendedFaceGroups)[j],numRanges,
@@ -606,7 +606,7 @@ void RendererOfSceneImpl::render(
 						mirrorMaskUberProgramSetup.useWorldMatrix(mirrorMaskProgram,objectBuffers.object);
 						FaceGroupRange fgrange(0, // does not have to be filled for RendererOfMesh
 							0,objectBuffers.object->faceGroups.size()-1,0,objectBuffers.object->getCollider()->getMesh()->getNumTriangles());
-						objectBuffers.meshRenderer->render(
+						objectBuffers.meshRenderer->renderMesh(
 							mirrorMaskProgram,
 							objectBuffers.object,
 							&fgrange,1,
@@ -770,7 +770,7 @@ void RendererOfSceneImpl::render(
 				passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorColorMap);
 #endif
 				// render
-				objectBuffers.meshRenderer->render(
+				objectBuffers.meshRenderer->renderMesh(
 					program,
 					object,
 					&blendedFaceGroups[recursionDepth][i],1,

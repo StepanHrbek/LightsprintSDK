@@ -189,7 +189,7 @@ static void copyBufferToVBO(rr::RRBuffer* buffer, unsigned VBO)
 	}
 }
 
-void MeshArraysVBOs::render(
+void MeshArraysVBOs::renderMesh(
 	Program* _program,
 	const rr::RRObject* _object,
 	const FaceGroupRange* _faceGroupRange,
@@ -559,7 +559,7 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _index
 //
 // RendererOfMesh
 
-void RendererOfMesh::render(
+void RendererOfMesh::renderMesh(
 	Program* _program,
 	const rr::RRObject* _object,
 	const FaceGroupRange* _faceGroupRange,
@@ -613,7 +613,7 @@ void RendererOfMesh::render(
 	}
 	if (meshArraysVBOs)
 	{
-		meshArraysVBOs->render(
+		meshArraysVBOs->renderMesh(
 			_program,
 			_object,
 			_faceGroupRange,

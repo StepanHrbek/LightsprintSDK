@@ -79,7 +79,7 @@ public:
 
 	//! Renders mesh.
 	//! Must not be called inside display list (may create textures).
-	void render(
+	void renderMesh(
 		Program* program,
 		const rr::RRObject* object,
 		const FaceGroupRange* faceGroupRange,
@@ -144,7 +144,7 @@ class RendererOfMesh : public MeshVBOs
 public:
 	//! Renders mesh.
 	//! Must not be called inside display list (may create VBOs, textures).
-	void render(
+	void renderMesh(
 		Program* program,
 		const rr::RRObject* object,
 		const FaceGroupRange* faceGroupRange,
