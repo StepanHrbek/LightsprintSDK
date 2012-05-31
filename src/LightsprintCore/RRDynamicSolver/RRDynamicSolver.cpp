@@ -112,6 +112,8 @@ void RRDynamicSolver::setScaler(const RRScaler* _scaler)
 		if (_scaler) _scaler->getPhysicalScale(c);
 		priv->customToPhysical[i] = c[0];
 	}
+	// tell realtime solver to update GI (=re-run DDI with new scaler)
+	reportDirectIlluminationChange(-1,false,true,false);
 }
 
 const RRScaler* RRDynamicSolver::getScaler() const
