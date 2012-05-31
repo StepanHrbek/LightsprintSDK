@@ -249,17 +249,6 @@ void RendererOfSceneImpl::render(
 #endif
 		);
 
-	// Rendering multiobj with normal maps enabled, check if normal maps are really present (rare), they would need switch to 1obj rendering.
-	if (_uberProgramSetup.MATERIAL_BUMP_MAP && !needsIndividualStaticObjectsForEverything)
-	{
-		const rr::RRObjects& objects = _solver->getStaticObjects();
-		for (unsigned i=0;i<objects.size();i++)
-		{
-			const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(objects[i]->getCollider()->getMesh());
-			if (arrays && arrays->tangent && arrays->bitangent)
-				needsIndividualStaticObjectsForEverything = true;
-		}
-	}
 
 	// Will we render opaque parts from multiobject and blended parts from 1objects?
 	// It's optimizations, makes render 10x faster in diacor (25k 1objects), compared to rendering everything from 1objects.

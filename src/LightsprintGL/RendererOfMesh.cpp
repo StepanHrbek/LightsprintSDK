@@ -537,7 +537,7 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _index
 					rr::RRReporter::report(rr::WARN,"Mesh has %d uv channels, consider removing some to save memory.\n",s_helpers.texcoords.size());
 				}
 				// copy data to arrays
-				s_helpers.meshArrays.reload(_mesh,_indexed,s_helpers.texcoords,false); // [#11] !arrays don't expose presence of tangents, don't copy tangents to VBO because !arrays usually don't have them, we would waste VRAM in 99% of cases
+				s_helpers.meshArrays.reload(_mesh,_indexed,s_helpers.texcoords,true); // [#11] !arrays don't expose presence of tangents. always copy tangents to VBO even though some memory is wasted when there are no tangents; this allows RendererOfScene to render multiobj instead of many 1objs
 			}
 			updatedOk[index] = meshArraysVBOs[index].update(meshArrays?meshArrays:&s_helpers.meshArrays,_indexed);
 		}
