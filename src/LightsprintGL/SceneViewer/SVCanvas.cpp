@@ -1530,6 +1530,10 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = brightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = gamma!=1;
 			ClipPlanes clipPlanes = {rr::RRVec4(0),0,0,0,0,0,0};
+			// There was updateLayers=true by accident since rev 5221 (I think development version of mirrors needed it to update mirrors, and I forgot to revert it).
+			// It was error, because "true" when rendering static lmap allows RendererOfScene [#12] to use multiobj.
+			// And as lmap is always stored in 1obj, RendererOfScene can't find it in multiobj. Error was visible only with specular cubes disabled (they also enforce 1obj).
+			bool updateLayers = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
 			unsigned layers[3] =
 			{
 				(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient),
@@ -1555,9 +1559,10 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				glViewport(0,0,winWidth,winHeight/2);
 				solver->renderScene(
 					uberProgramSetup,svframe->userPreferences.stereoTopLineSeenByLeftEye==stereoStartsByOddLine ? leftEye : rightEye,
-					NULL,true,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
+					NULL,updateLayers,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
 
 				// render right
+				// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
 				glViewport(0,winHeight/2,winWidth,winHeight/2);
 				solver->renderScene(
 					uberProgramSetup,svframe->userPreferences.stereoTopLineSeenByLeftEye==stereoStartsByOddLine ? rightEye : leftEye,
@@ -1589,7 +1594,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					uberProgramSetup,
 					svs.eye,
 					NULL,
-					true,layers[0],layers[1],layers[2],
+					updateLayers,layers[0],layers[1],layers[2],
 					&clipPlanes,
 					svs.srgbCorrect,
 					&brightness,

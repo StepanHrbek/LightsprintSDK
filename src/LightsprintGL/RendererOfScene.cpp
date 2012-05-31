@@ -238,7 +238,7 @@ void RendererOfSceneImpl::render(
 			// optimized render can't render LDM for more than 1 object
 			(_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _layerLDM!=UINT_MAX)
 			// if we are to use provided indirect, take it always from 1objects
-			// (if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
+			// ([#12] if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
 			|| ((_uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_uberProgramSetup.LIGHT_INDIRECT_MAP) && !_updateLayers && _layerLightmap!=UINT_MAX)
 			// optimized render would look bad with single specular cube per-scene
 			|| ((_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _layerEnvironment!=UINT_MAX)
