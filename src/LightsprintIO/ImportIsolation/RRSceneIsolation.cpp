@@ -78,7 +78,10 @@ void registerLoaderIsolationStep1()
 	// we still don't know whether user wants isolation
 	// but we must register it now (after .rr3, before the rest)
 	// it won't work until someone sets s_isolationEnabled
-	RRScene::registerLoader("*.*",loadIsolated); // *.* overrides all scene loaders registered later
+	// [#14] : is our symbol that matches all files, it overrides all scene loaders registered later
+	// *.* would work too, but fileselector with "All fileformats|*.rr3;*.*;*.dae...." would show all files,
+	// we had to replace *.* with something readable for us, unreadable for fileselector
+	RRScene::registerLoader(":",loadIsolated);
 }
 
 // to be called after isolated loaders
