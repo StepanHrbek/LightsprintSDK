@@ -579,7 +579,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 		case CM_OBJECTS_UNWRAP:
 			if (solver)
 			{
-				unsigned res = 256;
+				static unsigned res = 256;
 				if (getResolution(_("Unwrap build"),this,res,false))
 				{
 					// display log window with 'abort' while this function runs
@@ -607,8 +607,10 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			if (solver)
 			{
 				bool ambient = actionCode==CM_OBJECTS_BUILD_AMBIENT_MAPS;
-				unsigned res = ambient?0:256; // 0=vertex buffers
-				unsigned quality = 100;
+				static unsigned resLmap = 256;
+				static unsigned resAmb = 0; // 0=vertex buffers
+				unsigned& res = ambient?resAmb:resLmap;
+				static unsigned quality = 100;
 				if (getResolution(ambient?_("Ambient map build"):_("Lightmap build"),this,res,true) && getQuality(ambient?_("Ambient map build"):_("Lightmap build"),this,quality))
 				{
 					// display log window with 'abort' while this function runs
@@ -688,8 +690,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 		case CM_OBJECTS_BUILD_LDMS:
 			if (solver)
 			{
-				unsigned res = 256;
-				unsigned quality = 100;
+				static unsigned res = 256;
+				static unsigned quality = 100;
 				if (getResolution("LDM build",this,res,false) && getQuality("LDM build",this,quality))
 				{
 					// display log window with 'abort' while this function runs
