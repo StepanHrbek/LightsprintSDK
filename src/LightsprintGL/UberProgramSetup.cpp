@@ -626,7 +626,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 	{
 		program->sendUniform("lightDirectSpotOuterAngleRad",light->getRRLight().outerAngleRad);
 		program->sendUniform("lightDirectSpotFallOffAngleRad",light->getRRLight().fallOffAngleRad);
-		program->sendUniform("lightDirectSpotExponent",RR_MAX(light->getRRLight().spotExponent,0.00000001f));
+		program->sendUniform("lightDirectSpotExponent",RR_MAX(light->getRRLight().spotExponent,0.00000001f)); // GLSL has pow(0,0) undefined, we clamp exponent to small positive value to make result 0 (like offline solver)
 	}
 
 	if (LIGHT_DIRECT_ATT_PHYSICAL)

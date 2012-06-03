@@ -187,8 +187,10 @@ namespace rr
 		//! Distance attenuation in custom scale is computed as colorCustom*pow(MAX(0,1-(distance/radius)^2),fallOffExponent).
 		RRReal fallOffExponent;
 
-		//! Relevant only for type=SPOT.
 		//! Exponent that controls attenuation from innerAngle to outerAngle in spotlight.
+		//
+		//! Relevant only for type=SPOT.
+		//! Default exponent 1 makes attenuation linear in custom/sRGB scale.
 		RRReal spotExponent;
 
 		//! Outer-inner cone angle in radians. Relevant only for SPOT light.
@@ -469,7 +471,7 @@ namespace rr
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
 		//! \param spotExponent
-		//!  Insight: This is how intensity changes in blurry part. Default 1 makes it linear. \n
+		//!  Insight: This is how intensity changes in blurry part. Default 1 makes it linear in custom/sRGB scale. \n
 		//!  Exponent in (0,inf) range. \n
 		//!  Changes attenuaton from linear with 0 in outerAngle and 1 in innerAngle to exponential: linearAttenuation^spotExponent.
 		static RRLight* createSpotLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec4 polynom, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad, RRReal spotExponent);

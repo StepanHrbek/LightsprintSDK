@@ -7,6 +7,9 @@
 #include "Lightsprint/RRDebug.h"
 #include "RRMathPrivate.h"
 
+#define PHYS2SRGB 0.45f
+#define SRGB2PHYS 2.22222222f
+
 namespace rr
 {
 
@@ -70,9 +73,9 @@ public:
 		color = warnIfNegative(_color,"color");
 		if (!_physicalScale)
 		{
-			color[0] = pow(color[0],2.2222f);
-			color[1] = pow(color[1],2.2222f);
-			color[2] = pow(color[2],2.2222f);
+			color[0] = pow(color[0],SRGB2PHYS);
+			color[1] = pow(color[1],SRGB2PHYS);
+			color[2] = pow(color[2],SRGB2PHYS);
 		}
 		rtNumShadowmaps = 3;
 		rtShadowmapSize = 2048;
@@ -372,7 +375,8 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* sc
 		RR_ASSERT(_finite(angleRad));
 		angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
 		//RR_ASSERT(_finite(angleAttenuation)); // may be +/-1.#INF after division by zero, but next line clamps it back to 0,1 range
-		angleAttenuation = pow(RR_CLAMPED(angleAttenuation,0.00001f,1),spotExponent);
+		// c++ defines pow(0,0)=1. we want 0, therefore we have to clamp exponent to small positive value
+		angleAttenuation = pow(RR_CLAMPED(angleAttenuation,0,1),((distanceAttenuationType!=POLYNOMIAL)?SRGB2PHYS:1)*RR_MAX(spotExponent,1e-10f));
 	}
 
 	RRVec3 result = color * (distanceAttenuation * angleAttenuation);
