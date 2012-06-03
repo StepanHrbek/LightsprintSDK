@@ -191,6 +191,9 @@ void SVGIProperties::updateHide()
 	propGIRaytracedCubesSpecularThreshold->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesDepthThreshold->Hide(!svs.raytracedCubesEnabled,false);
 	
+	propGIMirrorsDiffuse->Hide(!svs.mirrorsEnabled,false);
+	propGIMirrorsSpecular->Hide(!svs.mirrorsEnabled,false);
+
 	propGIEmisMultiplier->Hide(!realtimeGI,false);
 	propGIVideo->Hide(!realtimeGI,false);
 	propGIEmisVideoAffectsGI->Hide(!realtimeGI,false);
@@ -327,6 +330,11 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		svs.raytracedCubesDepthThreshold = property->GetValue().GetDouble();
 		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
+	}
+	else
+	if (property==propGIMirrors)
+	{
+		updateHide();
 	}
 	else
 	if (property==propGIEmisMultiplier)
