@@ -80,8 +80,9 @@ struct SceneViewerState
 	unsigned         selectedObjectIndex;       //! Index into static objects array.
 	bool             fullscreen;                //! Ignored. Fullscreen/windowed bit is saved to and read from user preferences file. Quit sceneViewer() in fullscreen and it will start in fullscreen next time.
 	bool             renderStereo;              //! Enables interlaced stereo rendering.
-	LightingDirect   renderLightDirect;         //! Render direct illumination.
-	LightingIndirect renderLightIndirect;       //! Render indirect illumination.
+	LightingDirect   renderLightDirect;         //! Direct illumination mode.
+	LightingIndirect renderLightIndirect;       //! Indirect illumination mode.
+	float            renderLightIndirectMultiplier; //! Makes indirect illumination this times brighter.
 	bool             renderLDM;                 //! Modulate indirect illumination by LDM.
 	bool             renderLDMEnabled() {return renderLDM && renderLightIndirect!=LI_BAKED && renderLightIndirect!=LI_NONE;}
 	bool             renderLightmaps2d;         //! When not rendering realtime, show static lightmaps in 2D.
@@ -165,6 +166,7 @@ struct SceneViewerState
 		renderStereo = false;
 		renderLightDirect = LD_REALTIME;
 		renderLightIndirect = LI_REALTIME_FIREBALL;
+		renderLightIndirectMultiplier = 1;
 		renderLDM = true;
 		renderLightmaps2d = 0;
 		renderMaterialDiffuse = 1;
@@ -246,6 +248,7 @@ struct SceneViewerState
 			&& a.renderStereo==renderStereo
 			&& a.renderLightDirect==renderLightDirect
 			&& a.renderLightIndirect==renderLightIndirect
+			&& a.renderLightIndirectMultiplier==renderLightIndirectMultiplier
 			&& a.renderLDM==renderLDM
 			&& a.renderLightmaps2d==renderLightmaps2d
 			&& a.renderLightmapsBilinear==renderLightmapsBilinear

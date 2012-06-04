@@ -634,7 +634,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					solver->updateLightmaps(tmpLayer,-1,-1,&updateParameters,&updateParameters,&svs.lightmapFilteringParameters);
 #else
 					float directLightMultiplier = ambient ? 0 : 1;
-					float indirectLightMultiplier = 1;
+					float indirectLightMultiplier = svs.renderLightIndirectMultiplier; // affects baked solution only
 
 					// apply indirect light multiplier
 					std::vector<rr::RRVec3> lightColors;

@@ -38,6 +38,7 @@ namespace rr_gl
 
 		wxPGProperty*     propGIDirect;
 		wxPGProperty*     propGIIndirect;
+		wxPGProperty*     propGIIndirectMultiplier;
 		BoolRefProperty*  propGILDM;
 		BoolRefProperty*  propGIBilinear;
 		BoolRefProperty*  propGISRGBCorrect;

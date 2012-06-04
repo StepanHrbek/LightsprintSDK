@@ -45,6 +45,9 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIIndirect->SetHelpString(_("What indirect illumination technique to use."));
 		Append(propGIIndirect);
 
+		propGIIndirectMultiplier = new FloatProperty(_("Intensity"),_("Makes indirect illumination this times brighter, 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
+		AppendIn(propGIIndirect,propGIIndirectMultiplier);
+
 		propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination."),svs.renderLDM);
 		AppendIn(propGIIndirect,propGILDM);
 
@@ -185,6 +188,7 @@ void SVGIProperties::updateHide()
 	propGILDM->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_BAKED,false);
 	propGISRGBCorrect->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 	propGIShadowTransparency->Hide(svs.renderLightDirect!=LD_REALTIME,false);
+	//propGIIndirectMultiplier->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED,false);
 
 	propGIRaytracedCubesRes->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
@@ -226,6 +230,7 @@ void SVGIProperties::updateProperties()
 	unsigned numChangesOther =
 		+ updateBoolRef(propGISRGBCorrect)
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
+		+ updateFloat(propGIIndirectMultiplier,svs.renderLightIndirectMultiplier)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
 		+ updateBoolRef(propGIRaytracedCubes)
 		+ updateInt(propGIRaytracedCubesRes,svs.raytracedCubesRes)
@@ -286,6 +291,16 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		if (svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT);
 		updateHide();
+	}
+	else
+	if (property==propGIIndirectMultiplier)
+	{
+		svs.renderLightIndirectMultiplier = property->GetValue().GetDouble();
+		if (svframe->m_canvas->solver)
+		{
+			// affects realtime solution only
+			svframe->m_canvas->solver->setDirectIlluminationBoost(svs.renderLightIndirectMultiplier);
+		}
 	}
 	else
 	if (property==propGILDM)
