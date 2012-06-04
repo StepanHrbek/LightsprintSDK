@@ -1153,29 +1153,30 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// handle wheel
 	if (event.GetWheelRotation())
 	{
+		int spin = -1;
 		if (event.ControlDown())
 		{
 			// move camera forward/backward
-			svs.eye.setPosition(svs.eye.getPosition() - svs.eye.getDirection() * (event.GetWheelRotation()*svs.cameraMetersPerSecond/event.GetWheelDelta()/3));
+			svs.eye.setPosition(svs.eye.getPosition() - svs.eye.getDirection() * (event.GetWheelRotation()*spin*svs.cameraMetersPerSecond/event.GetWheelDelta()/3));
 		}
 		else
 		{
 			// zoom camera
 			if (svs.eye.isOrthogonal())
 			{
-				if (event.GetWheelRotation()<0)
+				if (event.GetWheelRotation()*spin<0)
 					svs.eye.setOrthoSize(svs.eye.getOrthoSize()/1.4f);
-				if (event.GetWheelRotation()>0)
+				if (event.GetWheelRotation()*spin>0)
 					svs.eye.setOrthoSize(svs.eye.getOrthoSize()*1.4f);
 			}
 			else
 			{
 				float fov = svs.eye.getFieldOfViewVerticalDeg();
-				if (event.GetWheelRotation()<0)
+				if (event.GetWheelRotation()*spin<0)
 				{
 					if (fov>13) fov -= 10; else fov /= 1.4f;
 				}
-				if (event.GetWheelRotation()>0)
+				if (event.GetWheelRotation()*spin>0)
 				{
 					if (fov*1.4f<=3) fov *= 1.4f; else if (fov<170) fov += 10;
 				}

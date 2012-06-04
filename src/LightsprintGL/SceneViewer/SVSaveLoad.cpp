@@ -101,7 +101,6 @@ void serialize(Archive & ar, rr_gl::UserPreferences::WindowLayout& a, const unsi
 template<class Archive>
 void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int version)
 {
-
 	if (version>7)
 	{
 		ar & make_nvp("tooltips",a.tooltips);
@@ -146,7 +145,7 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 } // namespace
 
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences,12)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences,13)
 
 //---------------------------------------------------------------------------
 
