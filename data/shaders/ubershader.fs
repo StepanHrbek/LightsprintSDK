@@ -629,7 +629,8 @@ void main()
 		vec4 lightDirect =
 			
 			// scalar
-			max(0.0,dot(worldLightDirFromPixel, worldNormal) * (gl_FrontFacing?1.0:-1.0))
+			// pow(,0.45) because Lambert's cosine law works in linear space, we work in sRGB
+			max(0.0,pow(dot(worldLightDirFromPixel, worldNormal),0.45) * (gl_FrontFacing?1.0:-1.0))
 			#ifndef LIGHT_DIRECTIONAL
 				#ifdef LIGHT_DIRECT_ATT_PHYSICAL
 					* pow(distance,-0.9)
