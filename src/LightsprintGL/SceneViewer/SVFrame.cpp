@@ -1221,6 +1221,8 @@ reload_skybox:
 				// this would ask questions
 				//OnMenuEventCore(ME_REALTIME_FIREBALL_BUILD);
 			}
+			// affects realtime solution only
+			m_canvas->solver->setDirectIlluminationBoost(svs.renderLightIndirectMultiplier);
 			break;
 
 		case ME_LIGHTING_INDIRECT_ARCHITECT:
@@ -1231,6 +1233,8 @@ reload_skybox:
 			solver->reportDirectIlluminationChange(-1,true,true,false);
 			fireballLoadAttempted = false;
 			solver->leaveFireball();
+			// affects realtime solution only
+			m_canvas->solver->setDirectIlluminationBoost(svs.renderLightIndirectMultiplier);
 			break;
 
 
@@ -1248,6 +1252,8 @@ reload_skybox:
 					solver->buildFireball(svs.fireballQuality,NULL);
 					solver->reportDirectIlluminationChange(-1,true,true,false);
 					fireballLoadAttempted = true;
+					// affects realtime solution only
+					m_canvas->solver->setDirectIlluminationBoost(svs.renderLightIndirectMultiplier);
 				}
 			}
 			break;
