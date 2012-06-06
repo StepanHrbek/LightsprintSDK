@@ -166,6 +166,8 @@ namespace rr_gl
 		
 		void TogglePane(wxWindow* window);
 
+		void saveBakedLayers();
+
 		bool                     fullyInited; // true after constructor
 		bool                     updateMenuBarNeeded;
 		wxAuiManager             m_mgr;

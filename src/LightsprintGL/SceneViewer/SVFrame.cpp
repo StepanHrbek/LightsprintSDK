@@ -785,6 +785,17 @@ void SVFrame::TogglePane(wxWindow* window)
 	m_mgr.Update();
 }
 
+void SVFrame::saveBakedLayers()
+{
+	// resave baked layers under new name's directory
+	rr::RRObjects allObjects = m_canvas->solver->getStaticObjects();
+	allObjects.insert(allObjects.end(),m_canvas->solver->getDynamicObjects().begin(),m_canvas->solver->getDynamicObjects().end());
+	allObjects.saveLayer(svs.layerBakedLightmap,LAYER_PREFIX,LMAP_POSTFIX);
+	allObjects.saveLayer(svs.layerBakedAmbient,LAYER_PREFIX,AMBIENT_POSTFIX);
+	allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
+	allObjects.saveLayer(svs.layerBakedLDM,LAYER_PREFIX,LDM_POSTFIX);
+}
+
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
 {
 	OnMenuEventCore(event.GetId());
@@ -924,15 +935,7 @@ save_scene_as:
 						svs.sceneFilename = dialog.GetPath();
 						UpdateTitle();
 						updateSceneTree();
-
-						// resave baked layers under new name's directory
-						rr::RRObjects allObjects = solver->getStaticObjects();
-						allObjects.insert(allObjects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
-						allObjects.saveLayer(svs.layerBakedLightmap,LAYER_PREFIX,LMAP_POSTFIX);
-						allObjects.saveLayer(svs.layerBakedAmbient,LAYER_PREFIX,AMBIENT_POSTFIX);
-						allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
-						allObjects.saveLayer(svs.layerBakedLDM,LAYER_PREFIX,LDM_POSTFIX);
-
+						saveBakedLayers();
 						goto save_scene;
 					}
 				}
