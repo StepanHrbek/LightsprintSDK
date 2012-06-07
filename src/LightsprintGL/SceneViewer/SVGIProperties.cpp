@@ -262,7 +262,7 @@ void SVGIProperties::updateProperties()
 
 void SVGIProperties::OnIdle(wxIdleEvent& event)
 {
-	if (IsShown())
+	if (IS_SHOWN(this))
 	{
 		updateProperties();
 		defocusButtonEditor();

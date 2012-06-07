@@ -684,21 +684,21 @@ void SVFrame::UpdateMenuBar()
 		winMenu->AppendCheckItem(ME_WINDOW_FULLSCREEN_META,_("Fullscreen")+" (F11)",_("Fullscreen mode uses full desktop resolution."));
 		winMenu->Check(ME_WINDOW_FULLSCREEN_META,svs.fullscreen);
 		winMenu->AppendCheckItem(ME_WINDOW_TREE,_("Scene tree"),_("Opens scene tree window."));
-		winMenu->Check(ME_WINDOW_TREE,m_mgr.GetPane(m_sceneTree).IsShown());
+		winMenu->Check(ME_WINDOW_TREE,IS_SHOWN(m_sceneTree));
 		winMenu->AppendCheckItem(ME_WINDOW_USER_PROPERTIES,_("User preferences"),_("Opens user preferences window."));
-		winMenu->Check(ME_WINDOW_USER_PROPERTIES,m_mgr.GetPane(m_userProperties).IsShown());
+		winMenu->Check(ME_WINDOW_USER_PROPERTIES,IS_SHOWN(m_userProperties));
 		winMenu->AppendCheckItem(ME_WINDOW_SCENE_PROPERTIES,_("Scene properties"),_("Opens scene properties window."));
-		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,m_mgr.GetPane(m_sceneProperties).IsShown());
+		winMenu->Check(ME_WINDOW_SCENE_PROPERTIES,IS_SHOWN(m_sceneProperties));
 		winMenu->AppendCheckItem(ME_WINDOW_GI_PROPERTIES,_("Global Illumination"),_("Opens global illumination properties window."));
-		winMenu->Check(ME_WINDOW_GI_PROPERTIES,m_mgr.GetPane(m_giProperties).IsShown());
+		winMenu->Check(ME_WINDOW_GI_PROPERTIES,IS_SHOWN(m_giProperties));
 		winMenu->AppendCheckItem(ME_WINDOW_LIGHT_PROPERTIES,_("Light"),_("Opens light properties window and starts rendering light icons."));
-		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,m_mgr.GetPane(m_lightProperties).IsShown());
+		winMenu->Check(ME_WINDOW_LIGHT_PROPERTIES,IS_SHOWN(m_lightProperties));
 		winMenu->AppendCheckItem(ME_WINDOW_OBJECT_PROPERTIES,_("Object"),_("Opens object properties window."));
-		winMenu->Check(ME_WINDOW_OBJECT_PROPERTIES,m_mgr.GetPane(m_objectProperties).IsShown());
+		winMenu->Check(ME_WINDOW_OBJECT_PROPERTIES,IS_SHOWN(m_objectProperties));
 		winMenu->AppendCheckItem(ME_WINDOW_MATERIAL_PROPERTIES,_("Material"),_("Opens material properties window."));
-		winMenu->Check(ME_WINDOW_MATERIAL_PROPERTIES,m_mgr.GetPane(m_materialProperties).IsShown());
+		winMenu->Check(ME_WINDOW_MATERIAL_PROPERTIES,IS_SHOWN(m_materialProperties));
 		winMenu->AppendCheckItem(ME_WINDOW_LOG,_("Log"),_("Opens log window."));
-		winMenu->Check(ME_WINDOW_LOG,m_mgr.GetPane(m_log).IsShown());
+		winMenu->Check(ME_WINDOW_LOG,IS_SHOWN(m_log));
 		winMenu->AppendSeparator();
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT1,_("Workspace")+" 1 (alt-1)",_("Your custom window layout, changes automatically saved per user."));
 		winMenu->AppendRadioItem(ME_WINDOW_LAYOUT2,_("Workspace")+" 2 (alt-2)",_("Your custom window layout, changes automatically saved per user."));
@@ -1385,7 +1385,7 @@ reload_skybox:
 					SetClientSize(windowSize.x+w-m_canvas->winWidth,windowSize.y+h-m_canvas->winHeight);
 					if (m_canvas->winWidth!=w || m_canvas->winHeight!=h)
 					{
-						bool panes = m_sceneTree->IsShown() || m_userProperties->IsShown() || m_sceneProperties->IsShown() || m_giProperties->IsShown() || m_lightProperties->IsShown() || m_objectProperties->IsShown() || m_materialProperties->IsShown();
+						bool panes = IS_SHOWN(m_sceneTree) || IS_SHOWN(m_userProperties) || IS_SHOWN(m_sceneProperties) || IS_SHOWN(m_giProperties) || IS_SHOWN(m_lightProperties) || IS_SHOWN(m_objectProperties) || IS_SHOWN(m_materialProperties);
 						wxMessageBox(panes?_("There's not enough space. You can make more space by resizing or closing panes."):_("There's not enough space. Switch to fullscreen mode for maximal resolution."));
 					}
 				}

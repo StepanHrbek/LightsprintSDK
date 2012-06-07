@@ -16,6 +16,10 @@
 //#define DEBUG_TEXEL ...not working, will be revived later when needed
 //#define SV_LIGHTFIELD
 
+// both should return the same correct value
+// pane->IsShown() would be wrong, as explained in http://trac.wxwidgets.org/ticket/11537
+//#define IS_SHOWN(pane) m_mgr.GetPane(pane).IsShown()
+#define IS_SHOWN(pane) pane->IsShownOnScreen()
 
 namespace rr_gl
 {

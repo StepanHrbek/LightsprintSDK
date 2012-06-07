@@ -288,7 +288,7 @@ void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, rr::RRObject
 
 void SVMaterialProperties::OnIdle(wxIdleEvent& event)
 {
-	if (IsShown())
+	if (IS_SHOWN(this))
 	{
 		defocusButtonEditor();
 	}

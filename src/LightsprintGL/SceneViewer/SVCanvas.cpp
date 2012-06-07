@@ -1820,7 +1820,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		renderedIcons.clear();
 		if (entityIcons->isOk() && !_takingSshot)
 		{
-			if (svframe->m_lightProperties->IsShown())
+			if (IS_SHOWN(svframe->m_lightProperties))
 				renderedIcons.addLights(solver->getLights(),sunIconPosition);
 			const EntityIds& selectedEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
 			const EntityIds& autoEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);

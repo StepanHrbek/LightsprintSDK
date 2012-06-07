@@ -385,7 +385,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 		}
 		if (temporaryContext.IsOk() && GetItemParent(temporaryContext)==lights)
 		{
-			if (!svframe->m_lightProperties->IsShown())
+			if (!IS_SHOWN(svframe->m_lightProperties))
 				menu.Append(SVFrame::ME_WINDOW_LIGHT_PROPERTIES, _("Properties..."));
 		}
 		if (temporaryContext==dynamicObjects)
@@ -421,7 +421,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			//if (svframe->userPreferences.testingBeta)
 				menu.Append(CM_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
 			menu.Append(CM_OBJECTS_DELETE_DIALOG,_("Delete components..."),_("Deletes components within objects."));
-			if (temporaryContext!=staticObjects && !svframe->m_objectProperties->IsShown() && temporaryContextItems.size()==1)
+			if (temporaryContext!=staticObjects && !IS_SHOWN(svframe->m_objectProperties) && temporaryContextItems.size()==1)
 				menu.Append(SVFrame::ME_WINDOW_OBJECT_PROPERTIES, _("Properties..."));
 		}
 	}

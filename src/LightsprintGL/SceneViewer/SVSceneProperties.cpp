@@ -361,7 +361,7 @@ void SVSceneProperties::updateProperties()
 
 void SVSceneProperties::OnIdle(wxIdleEvent& event)
 {
-	if (IsShown())
+	if (IS_SHOWN(this))
 	{
 		updateProperties();
 	}

@@ -205,7 +205,7 @@ void SVLightProperties::updatePosDir()
 void SVLightProperties::OnIdle(wxIdleEvent& event)
 {
 	// update light properties dialog
-	if (IsShown())
+	if (IS_SHOWN(this))
 	{
 		updatePosDir();
 		defocusButtonEditor();
