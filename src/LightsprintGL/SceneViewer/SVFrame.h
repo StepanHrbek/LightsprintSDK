@@ -76,6 +76,9 @@ namespace rr_gl
 		//! Loads and returns scene with normalized units and up axis.
 		rr::RRScene* loadScene(const wxString& filename, float units, unsigned upAxis, bool popup);
 
+		//! Asks for saveable scene filename, modifies it only on success.
+		bool chooseSceneFilename(wxString fileSelectorCaption, wxString& selectedFilename);
+
 		enum
 		{
 			ME_FIRST = 10000, // avoid conflict with wxWidgets event numbers, and also with CM_XXX

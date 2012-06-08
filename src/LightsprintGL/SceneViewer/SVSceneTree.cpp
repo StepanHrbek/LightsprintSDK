@@ -355,9 +355,16 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 	// add menu items that need uniform context
 	const EntityIds& entityIds = getEntityIds(SVSceneTree::MEI_SELECTED);
 	bool entityIdsUniform = true;
+	unsigned numObjects = 0;
+	unsigned numLights = 0;
+	unsigned numOthers = 0;
 	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
+	{
 		if (i->type!=entityIds.begin()->type)
 			entityIdsUniform = false;
+		if (i->type==ST_OBJECT) numObjects++; else
+		if (i->type==ST_LIGHT) numLights++; else numOthers++;
+	}
 	if (entityIdsUniform)
 	{
 		wxArrayTreeItemIds temporaryContextItems;
@@ -428,7 +435,11 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 
 	// add menu items that work with non uniform context
 	if (entityIds.size())
+	{
+		if (numObjects+numLights && !numOthers)
+			menu.Append(CM_EXPORT, _("Export..."));
 		menu.Append(CM_DELETE, _("Delete")+" (del)");
+	}
 
 	PopupMenu(&menu, event.GetPoint());
 }
@@ -981,6 +992,24 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			}
 			break;
 
+		case CM_EXPORT:
+			if (solver)
+			{
+				wxString selectedFilename = svs.sceneFilename;
+				if (svframe->chooseSceneFilename(_("Export as"),selectedFilename))
+				{
+					rr::RRScene scene;
+					scene.objects = selectedObjects;
+					for (unsigned lightIndex=0;lightIndex<solver->getLights().size();lightIndex++)
+						if (contextEntityIds.find(EntityId(ST_LIGHT,lightIndex))!=contextEntityIds.end())
+							scene.lights.push_back(solver->getLights()[lightIndex]);
+					scene.cameras.push_back(svs.eye);
+					scene.environment = solver->getEnvironment();
+					scene.save(RR_WX2RR(selectedFilename));
+					scene.environment = NULL; // would be deleted in destructor otherwise
+				}
+			}
+			break;
 		case CM_DELETE:
 			if (solver)
 			{

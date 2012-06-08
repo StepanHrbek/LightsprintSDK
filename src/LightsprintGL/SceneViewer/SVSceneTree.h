@@ -30,6 +30,7 @@ namespace rr_gl
 		CM_LIGHT_DIR,
 		CM_LIGHT_FLASH,
 
+		CM_EXPORT,
 		CM_DELETE,
 
 		CM_OBJECTS_UNWRAP,

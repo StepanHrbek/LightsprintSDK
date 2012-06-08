@@ -796,6 +796,47 @@ void SVFrame::saveBakedLayers()
 	allObjects.saveLayer(svs.layerBakedLDM,LAYER_PREFIX,LDM_POSTFIX);
 }
 
+bool SVFrame::chooseSceneFilename(wxString fileSelectorCaption, wxString& selectedFilename)
+{
+	// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
+	wxString wxextensions;
+	{
+		wxString extensions = rr::RRScene::getSupportedSaverExtensions();
+		if (extensions.empty())
+		{
+			wxMessageBox(_("Program built without saving."),_("No savers registered."),wxOK);
+			return false;
+		}
+		while (!extensions.empty())
+		{
+			size_t i = extensions.find(';');
+			wxString ext = (i==-1) ? extensions : extensions.substr(0,i);
+			if (!wxextensions.empty())
+				wxextensions += "|";
+			wxextensions += ext+'|'+ext;
+			extensions.erase(0,ext.size()+1);
+		}
+	}
+
+	// replace extension if current one can't be saved
+	//  windows would append valid extension if we just delete bad one, wx 2.9.1 @ osx needs valid ext from us
+	bf::path presetFilename = RR_WX2PATH(selectedFilename);
+	{
+		wxString extension = RR_PATH2WX(presetFilename.extension());
+		wxString extensions = rr::RRScene::getSupportedSaverExtensions();
+		bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=-1;
+		if (!extensionSupportsSave) presetFilename.replace_extension(".rr3");
+	}
+
+	// dialog
+	wxFileDialog dialog(this,fileSelectorCaption,"","",wxextensions,wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+	dialog.SetPath(RR_PATH2WX(presetFilename));
+	if (dialog.ShowModal()!=wxID_OK)
+		return false;
+	selectedFilename = dialog.GetPath();
+	return true;
+}
+
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
 {
 	OnMenuEventCore(event.GetId());
@@ -899,46 +940,13 @@ save_scene:
 			}
 			break;
 		case ME_FILE_SAVE_SCENE_AS:
-			{
 save_scene_as:
-				// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
-				wxString extensions = rr::RRScene::getSupportedSaverExtensions();
-				if (extensions.empty())
-				{
-					wxMessageBox(_("Program built without saving."),_("No savers registered."),wxOK);
-				}
-				else
-				{
-					wxString wxextensions;
-					while (!extensions.empty())
-					{
-						size_t i = extensions.find(';');
-						wxString ext = (i==-1) ? extensions : extensions.substr(0,i);
-						if (!wxextensions.empty())
-							wxextensions += "|";
-						wxextensions += ext+'|'+ext;
-						extensions.erase(0,ext.size()+1);
-					}
-
-					// replace extension if current one can't be saved
-					//  windows would append valid extension if we just delete bad one, wx 2.9.1 @ osx needs valid ext from us
-					bf::path presetFilename = RR_WX2PATH(svs.sceneFilename);
-					wxString extension = RR_PATH2WX(presetFilename.extension());
-					wxString extensions = rr::RRScene::getSupportedSaverExtensions();
-					bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=-1;
-					if (!extensionSupportsSave) presetFilename.replace_extension(".rr3");
-
-					wxFileDialog dialog(this,_("Save as"),"","",wxextensions,wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-					dialog.SetPath(RR_PATH2WX(presetFilename));
-					if (dialog.ShowModal()==wxID_OK)
-					{
-						svs.sceneFilename = dialog.GetPath();
-						UpdateTitle();
-						updateSceneTree();
-						saveBakedLayers();
-						goto save_scene;
-					}
-				}
+			if (chooseSceneFilename(_("Save as"),svs.sceneFilename))
+			{
+				UpdateTitle();
+				updateSceneTree();
+				saveBakedLayers();
+				goto save_scene;
 			}
 			break;
 		case ME_FILE_SAVE_SCREENSHOT:
