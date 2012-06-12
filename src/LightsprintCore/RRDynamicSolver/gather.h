@@ -76,7 +76,11 @@ struct ProcessTexelParams
 {
 	ProcessTexelParams(const TexelContext& _context) : context(_context) 
 	{
-		resetFiller = 0;
+		// [#15] rand() randomizes HOMOGENOUS_FILL, so that every texel shoots into different directions (but still homogenously)
+		// &0xffff reduces randomness on systems with huge RAND_MAX, it saves calculation time (filler speed depends on number of bits in this number)
+		// warning: for very high quality, we could end up with neighbouring texels shooting nearly the same rays, e.g. 0..100000 and 1000..101000
+		//          ideally we should set higher random numbers when higher quality is set
+		resetFiller = rand()&0xffff;
 		rayLengthMin = 0;
 		relevantLights = NULL;
 	}

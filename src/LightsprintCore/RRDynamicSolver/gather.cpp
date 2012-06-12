@@ -14,7 +14,7 @@
 #include "gather.h"
 #include "../RRStaticSolver/gatherer.h" //!!! vola neverejny interface static solveru
 
-#define HOMOGENOUS_FILL // enables homogenous rather than random(noisy) shooting
+#define HOMOGENOUS_FILL // enables homogenous rather than random(noisy) shooting, improves baking quality as long as randomnes is provided via [#15]
 //#define BLUR 4 // enables full lightmap blur, higher=stronger
 //#define UNWRAP_DIAGNOSTIC // kazdy triangl dostane vlastni nahodnou barvu, tam kde bude videt prechod je spatny unwrap nebo rasterizace
 
@@ -111,10 +111,10 @@ static RRVec3 getRandomEnterDirNormalized(HomogenousFiller2& filler, const RRMes
 	return basisOrthonormal.normal*cosa + basisOrthonormal.tangent*x + basisOrthonormal.bitangent*y;
 #else
 	// select random vector from srcPoint3 to one halfspace
-	RRReal tmp=(RRReal)rand()/RAND_MAX*1;
+	RRReal tmp=rand()*(1.f/RAND_MAX);
 	RRReal cosa=sqrt(1-tmp);
 	RRReal sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
-	RRReal b=rand()*2*RR_PI/RAND_MAX;         // b = rotation angle around normal
+	RRReal b=rand()*(2*RR_PI/RAND_MAX);       // b = rotation angle around normal
 	return basisOrthonormal.normal*cosa + basisOrthonormal.tangent*(sina*cos(b)) + basisOrthonormal.bitangent*(sina*sin(b));
 #endif
 }
