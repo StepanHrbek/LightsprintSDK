@@ -138,6 +138,10 @@ namespace rr
 		//! - Back side of 1-sided material does not emit or reflect light.
 		//! - Sides of 2-sided material behave nearly identically, only back side doesn't have diffuse reflection.
 		//!
+		//! Sidedness of the most common materials:
+		//!  - glass sphere or any other closed object should be 1-sided, light refracts differently when front and back sides are hit
+		//!  - glass window should be made of single 2-sided face, we simulate multiple bounces between virtual front and back sides, light refracts identically from both sides
+		//!
 		//! Illumination produced by updateLightmap[s]() for faces with 2-sided material depends on solver.
 		//! Realtime solvers sum illumination of both sides, offline solver outputs front side illumination.
 		//! (Changing offline solver to work like realtime one would probably create more
