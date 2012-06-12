@@ -356,14 +356,23 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 	const EntityIds& entityIds = getEntityIds(SVSceneTree::MEI_SELECTED);
 	bool entityIdsUniform = true;
 	unsigned numObjects = 0;
+	unsigned numObjectsStatic = 0;
 	unsigned numLights = 0;
 	unsigned numOthers = 0;
 	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
 	{
 		if (i->type!=entityIds.begin()->type)
 			entityIdsUniform = false;
-		if (i->type==ST_OBJECT) numObjects++; else
-		if (i->type==ST_LIGHT) numLights++; else numOthers++;
+		if (i->type==ST_OBJECT)
+		{
+			numObjects++;
+			if (!svframe->m_canvas->solver->getObject(i->index)->isDynamic) numObjectsStatic++;
+		}
+		else
+		if (i->type==ST_LIGHT)
+			numLights++;
+		else
+			numOthers++;
 	}
 	if (entityIdsUniform)
 	{
@@ -427,7 +436,6 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			menu.Append(CM_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
 			//if (svframe->userPreferences.testingBeta)
 				menu.Append(CM_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
-			menu.Append(CM_OBJECTS_DELETE_DIALOG,_("Delete components..."),_("Deletes components within objects."));
 			if (temporaryContext!=staticObjects && !IS_SHOWN(svframe->m_objectProperties) && temporaryContextItems.size()==1)
 				menu.Append(SVFrame::ME_WINDOW_OBJECT_PROPERTIES, _("Properties..."));
 		}
@@ -436,8 +444,14 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 	// add menu items that work with non uniform context
 	if (entityIds.size())
 	{
+		if (numObjects && numObjects>numObjectsStatic && !numLights && !numOthers)
+			menu.Append(CM_OBJECTS_STATIC, _("Make static"));
+		if (numObjectsStatic && !numLights && !numOthers)
+			menu.Append(CM_OBJECTS_DYNAMIC, _("Make dynamic"));
 		if (numObjects+numLights && !numOthers)
 			menu.Append(CM_EXPORT, _("Export..."));
+		if (numObjects && !numLights && !numOthers)
+			menu.Append(CM_OBJECTS_DELETE_DIALOG,_("Delete components..."),_("Deletes components within objects."));
 		menu.Append(CM_DELETE, _("Delete")+" (del)");
 	}
 
@@ -873,6 +887,15 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					staticObjectsAlreadyModified |= !selectedObjects[i]->isDynamic;
 
 				svframe->m_canvas->addOrRemoveScene(NULL,true,staticObjectsAlreadyModified); // calls svframe->updateAllPanels();
+			}
+			break;
+
+		case CM_OBJECTS_STATIC:
+		case CM_OBJECTS_DYNAMIC:
+			{
+				for (unsigned i=0;i<selectedObjects.size();i++)
+					selectedObjects[i]->isDynamic = actionCode==CM_OBJECTS_DYNAMIC;
+				svframe->m_canvas->addOrRemoveScene(NULL,true,true);
 			}
 			break;
 
