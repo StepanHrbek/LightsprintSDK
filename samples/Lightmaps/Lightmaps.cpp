@@ -185,7 +185,7 @@ void keyboard(unsigned char c, int x, int y)
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
 				rr::RRDynamicSolver::UpdateParameters paramsDirect;
-				paramsDirect.quality = 1000;
+				paramsDirect.quality = 600;
 				paramsDirect.applyCurrentSolution = false;
 				paramsDirect.aoIntensity = 1;
 				paramsDirect.aoSize = 1;
