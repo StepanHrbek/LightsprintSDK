@@ -115,7 +115,7 @@ static RRVec3 getRandomEnterDirNormalized(HomogenousFiller2& filler, const RRMes
 	RRReal cosa=sqrt(1-tmp);
 	RRReal sina=sqrt( tmp );                  // a = rotation angle from normal to side, sin(a) = distance from center of circle
 	RRReal b=rand()*2*RR_PI/RAND_MAX;         // b = rotation angle around normal
-	return basis.normal*cosa + basis.tangent*(sina*cos(b)) + basis.bitangent*(sina*sin(b));
+	return basisOrthonormal.normal*cosa + basisOrthonormal.tangent*(sina*cos(b)) + basisOrthonormal.bitangent*(sina*sin(b));
 #endif
 }
 
