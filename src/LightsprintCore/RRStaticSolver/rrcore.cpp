@@ -796,7 +796,7 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 RRVec3 refract(RRVec3 n, RRVec3 i, const RRMaterial* m)
 {
 	RR_ASSERT(m);
-	if (m->sideBits[0].reflect && m->sideBits[1].reflect)
+	if (m->sideBits[0].receiveFrom && m->sideBits[1].receiveFrom) // testing .reflect instead of .receiveFrom broke caustic under glass sphere in scene5.mgf because updateSideBitsFromColors() sets .reflect even for back of 1sided face, sphere was treated as bubble
 	{
 		// 2sided faces simulate thin layer, don't change light direction
 		return i;
