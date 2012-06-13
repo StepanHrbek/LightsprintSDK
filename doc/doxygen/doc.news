@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news133 ------------------------------------ 2012.06.xx -------------------------------------
+
+NEWS
+
+- improved Scene Viewer
+  - supports side by side stereo, top down stereo
+
 \section news132 ------------------------------------ 2012.05.16 -------------------------------------
 
 NEWS

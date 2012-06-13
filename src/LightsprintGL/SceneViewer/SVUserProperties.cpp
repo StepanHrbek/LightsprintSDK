@@ -22,8 +22,19 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 
 
 	// stereo
-	propStereoTopLineSeenByLeftEye = new BoolRefProperty(_("Stereo swap"),_("Swaps left and right eye. Should be checked if you see (with polarized glasses) the topmost line by left eye."),userPreferences.stereoTopLineSeenByLeftEye);
-	Append(propStereoTopLineSeenByLeftEye);
+	{
+		{
+			const wxChar* stereoStrings[] = {_("interlaced"),wxT("side by side"),wxT("top down"),NULL};
+			const long stereoValues[] = {UserPreferences::SM_INTERLACED,UserPreferences::SM_SIDE_BY_SIDE,UserPreferences::SM_TOP_DOWN};
+			propStereoMode = new wxEnumProperty(_("Stereo mode"), wxPG_LABEL, stereoStrings, stereoValues);
+			propStereoMode->SetValueFromInt(userPreferences.stereoMode,wxPG_FULL_VALUE);
+			propStereoMode->SetHelpString(_("How images for left and right eye are composited."));
+			Append(propStereoMode);
+		}
+
+		propStereoSwap = new BoolRefProperty(_("Swap"),_("Swaps left and right eye. Should be checked if you see (with polarized glasses) the topmost line by left eye."),userPreferences.stereoSwap);
+		AppendIn(propStereoMode,propStereoSwap);
+	}
 
 	// import
 	{
@@ -159,6 +170,12 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propTooltips)
 	{
 		svframe->enableTooltips(svframe->userPreferences.tooltips);
+	}
+	else
+	if (property==propStereoMode)
+	{
+		userPreferences.stereoMode = (UserPreferences::StereoMode)(property->GetValue().GetInteger());
+		updateHide();
 	}
 	else
 	if (property==propImportUnitsEnum)

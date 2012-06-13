@@ -42,7 +42,15 @@ namespace rr_gl
 	struct UserPreferences
 	{
 		bool        tooltips;
-		bool        stereoTopLineSeenByLeftEye;
+		enum StereoMode
+		{
+			SM_INTERLACED, // top scanline is visible by right eye, correct at least for LG D2342P-PN
+			SM_SIDE_BY_SIDE, // left hals is left eye
+			SM_TOP_DOWN, // top half is left eye
+		};
+		StereoMode  stereoMode;
+		bool        stereoSwap;
+
 		unsigned    currentWindowLayout;
 		struct WindowLayout
 		{
@@ -73,7 +81,8 @@ namespace rr_gl
 		UserPreferences()
 		{
 			tooltips = true;
-			stereoTopLineSeenByLeftEye = false; // correct for LG D2342P-PN
+			stereoMode = SM_SIDE_BY_SIDE;
+			stereoSwap = false;
 			currentWindowLayout = 0;
 			resetLayouts();
 			sshotFilename = "";

@@ -1555,38 +1555,50 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				rr::RRCamera leftEye, rightEye;
 				svs.eye.getStereoCameras(leftEye,rightEye);
 				bool stereoStartsByOddLine = (GetScreenPosition().y%2)==1;
+				bool swapEyes = (svframe->userPreferences.stereoMode==UserPreferences::SM_INTERLACED && svframe->userPreferences.stereoSwap!=stereoStartsByOddLine)
+					|| (svframe->userPreferences.stereoMode==UserPreferences::SM_TOP_DOWN && !svframe->userPreferences.stereoSwap)
+					|| (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE && svframe->userPreferences.stereoSwap);
 
 				// render left
-				glViewport(0,0,winWidth,winHeight/2);
+				if (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE)
+					glViewport(0,0,winWidth/2,winHeight);
+				else
+					glViewport(0,0,winWidth,winHeight/2);
 				solver->renderScene(
-					uberProgramSetup,svframe->userPreferences.stereoTopLineSeenByLeftEye==stereoStartsByOddLine ? leftEye : rightEye,
+					uberProgramSetup,swapEyes?rightEye:leftEye,
 					NULL,updateLayers,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
 
 				// render right
 				// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
-				glViewport(0,winHeight/2,winWidth,winHeight/2);
+				if (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE)
+					glViewport(winWidth/2,0,winWidth/2,winHeight);
+				else
+					glViewport(0,winHeight/2,winWidth,winHeight/2);
 				solver->renderScene(
-					uberProgramSetup,svframe->userPreferences.stereoTopLineSeenByLeftEye==stereoStartsByOddLine ? rightEye : leftEye,
+					uberProgramSetup,swapEyes?leftEye:rightEye,
 					NULL,false,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
 
 				// composite
-				//  turns top-down images to intelaced
-				glViewport(0,winHeight%2,winWidth,winHeight/2*2);
-				stereoTexture->bindTexture();
-				glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,0,0,winWidth,winHeight/2*2,0);
-				Program* stereoProgram = stereoUberProgram->getProgram("");
-				if (stereoProgram)
+				if (svframe->userPreferences.stereoMode==UserPreferences::SM_INTERLACED)
 				{
-					stereoProgram->useIt();
-					stereoProgram->sendTexture("map",stereoTexture);
-					stereoProgram->sendUniform("mapHalfHeight",float(winHeight/2));
-					glDisable(GL_CULL_FACE);
-					glBegin(GL_POLYGON);
-						glVertex2f(-1,-1);
-						glVertex2f(-1,1);
-						glVertex2f(1,1);
-						glVertex2f(1,-1);
-					glEnd();
+					//  turns top-down images to intelaced
+					glViewport(0,winHeight%2,winWidth,winHeight/2*2);
+					stereoTexture->bindTexture();
+					glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,0,0,winWidth,winHeight/2*2,0);
+					Program* stereoProgram = stereoUberProgram->getProgram("");
+					if (stereoProgram)
+					{
+						stereoProgram->useIt();
+						stereoProgram->sendTexture("map",stereoTexture);
+						stereoProgram->sendUniform("mapHalfHeight",float(winHeight/2));
+						glDisable(GL_CULL_FACE);
+						glBegin(GL_POLYGON);
+							glVertex2f(-1,-1);
+							glVertex2f(-1,1);
+							glVertex2f(1,1);
+							glVertex2f(1,-1);
+						glEnd();
+					}
 				}
 			}
 			else

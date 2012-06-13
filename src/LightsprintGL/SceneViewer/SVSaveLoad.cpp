@@ -105,9 +105,15 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 	{
 		ar & make_nvp("tooltips",a.tooltips);
 	}
+	if (version>13)
+	{
+		ar & make_nvp("stereoMode",a.stereoMode);
+		ar & make_nvp("stereoSwap",a.stereoSwap);
+	}
+	else
 	if (version>11)
 	{
-		ar & make_nvp("stereoTopLineSeenByLeftEye",a.stereoTopLineSeenByLeftEye);
+		ar & make_nvp("stereoTopLineSeenByLeftEye",a.stereoSwap);
 	}
 	ar & make_nvp("currentWindowLayout",a.currentWindowLayout);
 	ar & make_nvp("windowLayout",a.windowLayout);
@@ -145,7 +151,7 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 } // namespace
 
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences,13)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences,14)
 
 //---------------------------------------------------------------------------
 
