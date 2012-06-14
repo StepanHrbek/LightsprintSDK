@@ -1581,7 +1581,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				// composite
 				if (svframe->userPreferences.stereoMode==UserPreferences::SM_INTERLACED)
 				{
-					//  turns top-down images to intelaced
+					// turns top-down images to interlaced
 					glViewport(0,winHeight%2,winWidth,winHeight/2*2);
 					stereoTexture->bindTexture();
 					glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,0,0,winWidth,winHeight/2*2,0);
@@ -1600,6 +1600,9 @@ void SVCanvas::PaintCore(bool _takingSshot)
 						glEnd();
 					}
 				}
+
+				// restore viewport (if we don't, user could disable stereo, mono render would continue using our half-viewport)
+				glViewport(0,0,winWidth,winHeight);
 			}
 			else
 			{
