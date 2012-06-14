@@ -456,10 +456,6 @@ int main(int argc, char** argv)
 	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 	{
 		unsigned numVertices = solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices();
-		// realtime per-vertex
-		solver->getStaticObjects()[i]->illumination.getLayer(LAYER_REALTIME) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
-		// offline per-vertex
-		solver->getStaticObjects()[i]->illumination.getLayer(LAYER_OFFLINE_VERTEX) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,numVertices,1,1,rr::BF_RGBF,false,NULL);
 		// offline per-pixel
 		unsigned res = 16;
 		float sizeFactor = 5;
