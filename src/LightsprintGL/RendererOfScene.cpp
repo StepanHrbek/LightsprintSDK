@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #define MIRRORS // enables implementation of mirrors, marks mirror source code
+#define OCCLUSION_QUERY // enables mirror optimization; usually helps, but makes CPU wait for GPU, kills all chances for speedup on dual GPU
 
 #include <algorithm> // sort
 #ifdef MIRRORS
@@ -576,9 +577,10 @@ void RendererOfSceneImpl::render(
 				glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);
 				glClear(GL_COLOR_BUFFER_BIT);
 
+#ifdef OCCLUSION_QUERY
 				// occlusion query optimization: phase 1
 				glBeginQuery(GL_SAMPLES_PASSED,1);
-
+#endif
 				// render shape of visible mirror pixels into A
 				glDepthMask(GL_FALSE);
 				UberProgramSetup mirrorMaskUberProgramSetup;
@@ -606,6 +608,7 @@ void RendererOfSceneImpl::render(
 					}
 				}
 
+#ifdef OCCLUSION_QUERY
 				// occlusion query optimization: phase 2
 				GLuint mirrorVisible = 0;
 				glEndQuery(GL_SAMPLES_PASSED);
@@ -620,7 +623,7 @@ void RendererOfSceneImpl::render(
 					RR_SAFE_DELETE(i->second);
 					continue;
 				}
-
+#endif
 				// copy A to mirrorMaskMap.A
 				getTexture(mirrorMaskMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE)->bindTexture();
 				glCopyTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,0,0,viewport[2],viewport[3],0);
