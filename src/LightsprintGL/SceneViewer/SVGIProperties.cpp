@@ -112,7 +112,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIRaytracedCubes = new BoolRefProperty(_("Raytraced reflections"),_("Increases realism by realtime raytracing diffuse and specular reflection cubemaps."),svs.raytracedCubesEnabled);
 		Append(propGIRaytracedCubes);
 		
-		propGIRaytracedCubesRes = new FloatProperty(_("Cube resolution"),_("Resolution of reflection cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16."),svs.raytracedCubesRes,0,1,64,1,false);
+		propGIRaytracedCubesRes = new FloatProperty(_("Cube resolution"),_("Resolution of reflection cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16."),svs.raytracedCubesRes,0,1,128,1,false);
 		AppendIn(propGIRaytracedCubes,propGIRaytracedCubesRes);
 
 		propGIRaytracedCubesMaxObjects = new FloatProperty(_("Max objects"),_("How many objects in scene before raytracing turns off automatically. Raytracing usually becomes bottleneck when there are more than 1000 objects."),svs.raytracedCubesMaxObjects,0,0,1000000,10,false);
