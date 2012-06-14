@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/FPS.h"
+#include "PreserveState.h"
 #include "tmpstr.h"
 
 namespace rr_gl
@@ -52,6 +53,7 @@ FpsDisplay::FpsDisplay(const char* pathToMaps)
 
 void FpsDisplay::render(rr_gl::TextureRenderer* textureRenderer, unsigned fpsToRender, int winWidth, int winHeight)
 {
+	PreserveFlag p0(GL_DEPTH_TEST,false);
 	if (textureRenderer && textureRenderer->render2dBegin(NULL,1))
 	{
 		glEnable(GL_BLEND);
