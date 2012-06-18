@@ -10,6 +10,8 @@
 #include "SVObjectProperties.h"
 #include "SVLightProperties.h"
 #include "SVLog.h"
+#include <boost/filesystem.hpp>
+namespace bf = boost::filesystem;
 
 namespace rr_gl
 {
@@ -693,6 +695,22 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						allObjects.allocateBuffersForRealtimeGI(-1,svs.layerBakedEnvironment,4,2*svs.raytracedCubesRes,true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
 						for (unsigned i=0;i<allObjects.size();i++)
 							solver->updateEnvironmentMap(&allObjects[i]->illumination,svs.layerBakedEnvironment);
+
+						// if we always keep all files, it won't be possible to get rid of once baked cube
+						//  (e.g. when cube treshold is increased to have fewer cubes and more mirrors, we will continue using old cube baked before change)
+						// if we always delete older files, it won't be possible to bake objects incrementally, one by one
+						// so let's delete older files only when baking whole scene
+						// we already bake cubes only when baking lmaps for whole scene, so let's delete old files now
+						for (unsigned objectIndex=0;objectIndex<allObjects.size();objectIndex++)
+						{
+							rr::RRObject::LayerParameters layerParameters;
+							layerParameters.suggestedPath = LAYER_PREFIX;
+							layerParameters.suggestedExt = ENV_POSTFIX;
+							allObjects[objectIndex]->recommendLayerParameters(layerParameters);
+							bf::path path(RR_RR2PATH(layerParameters.actualFilename));
+							path.remove_filename();
+						}
+
 						allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
 					}
 
