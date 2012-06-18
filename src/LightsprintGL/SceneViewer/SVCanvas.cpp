@@ -145,6 +145,8 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 class SVContext : public wxGLContext
 {
 public:
+	// Es works only with WGL_EXT_create_context_es2_profile, i.e. Nvidia only.
+	// For AMD, one has to link with AMD OpenGL ES SDK, not supported here.
     SVContext(wxGLCanvas* win, bool core, bool debug, bool es)
 		: wxGLContext(win)
 	{
