@@ -699,8 +699,8 @@ void RendererOfSceneImpl::render(
 				glGenerateMipmapEXT(GL_TEXTURE_2D); // part of EXT_framebuffer_object
 
 				glDisable(GL_BLEND);
-				textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,1,0.7f,-0.3f,0.3f,0); // rendered up
-				textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.3f,-0.3f,0.3f,0); // rendered down
+//				textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,1,0.7f,-0.3f,0.3f,0,"#define MIRROR_MASK_DEBUG\n"); // rendered up, MIRROR_MASK_DEBUG is necessary to show alpha as rgb
+//				textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.3f,-0.3f,0.3f,0); // rendered down
 			}
 			glDepthMask(GL_TRUE);
 			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);

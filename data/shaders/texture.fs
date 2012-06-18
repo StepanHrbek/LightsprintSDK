@@ -75,4 +75,7 @@ void main()
 #ifdef MIRROR_MASK_ALPHA
 	gl_FragColor = vec4(0.0,0.0,0.0,step(0.51,color.a*tex.a)); // 0.51 to not reflect pixels behind wall (excludes some pixels inside too)
 #endif
+#ifdef MIRROR_MASK_DEBUG
+	gl_FragColor = vec4(color.a*tex.a);
+#endif
 }
