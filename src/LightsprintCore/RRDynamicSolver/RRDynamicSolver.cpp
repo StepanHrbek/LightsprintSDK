@@ -169,6 +169,7 @@ const RRLights& RRDynamicSolver::getLights() const
 	return priv->lights;
 }
 
+
 void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing, const char* _cacheLocation, RRCollider::IntersectTechnique _intersectTechnique, RRDynamicSolver* _copyFrom)
 {
 	// check inputs
@@ -224,6 +225,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	for (unsigned i=0;i<_objects.size();i++)
 		if (!_objects[i]->isDynamic)
 			priv->staticObjects.push_back(_objects[i]);
+
 
 	priv->smoothing = _copyFrom ? _copyFrom->priv->smoothing : ( _smoothing ? *_smoothing : SmoothingParameters() );
 
