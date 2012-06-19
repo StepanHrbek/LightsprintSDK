@@ -148,7 +148,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		Append(propGILightmap);
 		SetPropertyReadOnly(propGILightmap,true,wxPG_DONT_RECURSE);
 
-		propGILightmapFloats = new BoolRefProperty(_("HDR"),_("Stores lightmaps in floating point/high dynamic range format (.exr). Off = baked illumination is clamped to 0..1 range (.png). Two independent sets of lightmaps exist; what you bake in HDR is visible only when HDR is checked; what you bake in LDR is visible only when HDR is unchecked. HDR takes more memory, use only when LDR can't capture lighting well."),svs.lightmapFloats);
+		propGILightmapFloats = new BoolRefProperty(_("HDR"),_("Renders lightmaps in floating point/high dynamic range format. Off = baked illumination is clamped to 0..1 range. HDR takes more memory, save it for scenes where LDR can't capture lighting well."),svs.lightmapFloats);
 		AppendIn(propGILightmap,propGILightmapFloats);
 
 		propGILightmapAOIntensity = new FloatProperty(_("AO intensity"),_("Higher value makes indirect illumination in corners darker, 0=disabled/lighter, 1=normal, 2=darker."),svs.lightmapDirectParameters.aoIntensity,svs.precision,0,10,1,false);
@@ -378,7 +378,7 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propGILightmapFloats)
 	{
-		// load selected set of maps from disk
+		// load selected set of maps from disk [#16]
 		// (when user starts SV in LDR mode, only LDR maps are loaded if found, HDR are loaded after checking HDR here)
 		rr::RRObjects allObjects = svframe->m_canvas->solver->getObjects();
 		allObjects.layerDeleteFromMemory(svs.layerBakedLightmap);

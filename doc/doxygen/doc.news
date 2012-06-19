@@ -13,8 +13,8 @@ namespace rr
 NEWS
 
 - improved Scene Viewer
-  - supports side by side stereo, top down stereo
-  - supports HDR lightmaps (GI/HDR
+  - supports side by side stereo, top down stereo (User preferences/Stereo)
+  - supports HDR lightmaps (Global Illumination/Baking/HDR)
 - misc helper functions added
   - RRDynamicSolver::getObjects()
   - RRObjects::layerExistsInMemory()

@@ -647,7 +647,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					for (unsigned i=0;i<selectedObjects.size();i++)
 						if (selectedObjects[i]->getCollider()->getMesh()->getNumVertices())
 							selectedObjects[i]->illumination.getLayer(tmpLayer) = res
-								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,svs.lightmapFloats?rr::BF_RGBF:rr::BF_RGB,true,NULL) // A is only for debugging, F prevents clamping to 1 in very bright regions
+								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,true,NULL) // A is only for debugging, F prevents clamping to 1 in very bright regions
 								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,selectedObjects[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 
 					// update everything in temp layer
@@ -685,8 +685,24 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					for (unsigned i=0;i<solver->getLights().size();i++)
 						solver->getLights()[i]->color = lightColors[i];
 #endif
-					// save temp layer
-					allObjects.saveLayer(tmpLayer,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
+					// save temp layer to .exr
+					bool hdr = svs.lightmapFloats;
+					svs.lightmapFloats = true;
+					selectedObjects.saveLayer(tmpLayer,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
+					// save temp layer to .png
+					for (unsigned i=0;i<selectedObjects.size();i++)
+						if (selectedObjects[i]->illumination.getLayer(tmpLayer))
+							selectedObjects[i]->illumination.getLayer(tmpLayer)->setFormat(rr::BF_RGB);
+					svs.lightmapFloats = false;
+					selectedObjects.saveLayer(tmpLayer,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
+					svs.lightmapFloats = hdr;
+
+					// delete temp layer
+					selectedObjects.layerDeleteFromMemory(tmpLayer);
+
+					// load final layer from disk
+					// (this can be optimized away if we create copy of HDR)
+					selectedObjects.loadLayer(ambient?svs.layerBakedAmbient:svs.layerBakedLightmap,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
 
 					// update and save cubemaps
 					if (selectedObjectRoot || selectedObjects.size()==allObjects.size())
@@ -704,15 +720,6 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 
 						allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
 					}
-
-					// move buffers from temp to final layer
-					for (unsigned i=0;i<selectedObjects.size();i++)
-						if (selectedObjects[i]->getCollider()->getMesh()->getNumVertices())
-						{
-							delete selectedObjects[i]->illumination.getLayer(ambient?svs.layerBakedAmbient:svs.layerBakedLightmap);
-							selectedObjects[i]->illumination.getLayer(ambient?svs.layerBakedAmbient:svs.layerBakedLightmap) = selectedObjects[i]->illumination.getLayer(tmpLayer);
-							selectedObjects[i]->illumination.getLayer(tmpLayer) = NULL;
-						}
 
 					// make results visible
 					svs.renderLightDirect = ambient?LD_REALTIME:LD_BAKED;
