@@ -352,7 +352,7 @@ unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRStr
 				RRReporter::report(INF3,"Not loaded %ls.\n",layerParameters.actualFilename.w_str());
 			}
 		}
-		RRReporter::report(INF2,"Loaded layer %d, %d/%d buffers from %ls.\n",layerNumber,result,size(),path.w_str());
+		RRReporter::report(INF2,"Loaded %d/%d buffers from %ls<object name>%ls to layer %d.\n",result,size(),path.w_str(),ext.w_str(),layerNumber);
 	}
 	return result;
 }
@@ -399,7 +399,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRStr
 			; // don't report saving empty layer
 		else
 		if (numSaved)
-			RRReporter::report(INF2,"Saved layer %d, %d/%d buffers into %ls.\n",layerNumber,numSaved,numBuffers,path.w_str());
+			RRReporter::report(INF2,"Saved %d/%d buffers into %ls<object name>%ls from layer %d.\n",numSaved,numBuffers,path.w_str(),ext.w_str(),layerNumber);
 		else
 			RRReporter::report(WARN,"Failed to save layer %d (%d buffers) into %ls.\n",layerNumber,numBuffers,path.w_str());
 	}
