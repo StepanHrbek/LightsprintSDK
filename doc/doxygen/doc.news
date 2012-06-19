@@ -14,6 +14,12 @@ NEWS
 
 - improved Scene Viewer
   - supports side by side stereo, top down stereo
+  - supports HDR lightmaps (GI/HDR
+- misc helper functions added
+  - RRDynamicSolver::getObjects()
+  - RRObjects::layerExistsInMemory()
+  - RRObjects::layerDeleteFromMemory()
+  - RRObjects::layerDeleteFromDisk()
 
 \section news132 ------------------------------------ 2012.05.16 -------------------------------------
 

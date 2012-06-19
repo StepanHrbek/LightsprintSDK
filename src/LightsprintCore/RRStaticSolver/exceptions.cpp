@@ -406,4 +406,44 @@ unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRStr
 	return numSaved;
 }
 
+unsigned RRObjects::layerExistsInMemory(int layerNumber) const
+{
+	unsigned result = 0;
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+		if ((*this)[objectIndex]->illumination.getLayer(layerNumber))
+			result++;
+	return result;
+}
+
+unsigned RRObjects::layerDeleteFromMemory(int layerNumber) const
+{
+	unsigned result = 0;
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+		if ((*this)[objectIndex]->illumination.getLayer(layerNumber))
+		{
+			delete (*this)[objectIndex]->illumination.getLayer(layerNumber);
+			result++;
+		}
+	return result;
+}
+
+unsigned RRObjects::layerDeleteFromDisk(const RRString& path, const RRString& ext) const
+{
+	unsigned result = 0;
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+	{
+		rr::RRObject::LayerParameters layerParameters;
+		layerParameters.suggestedPath = path;
+		layerParameters.suggestedExt = ext;
+		(*this)[objectIndex]->recommendLayerParameters(layerParameters);
+		bf::path path(RR_RR2PATH(layerParameters.actualFilename));
+		if (bf::exists(path))
+		{
+			path.remove_filename();
+			result++;
+		}
+	}
+	return result;
+}
+
 } // namespace

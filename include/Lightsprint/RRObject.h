@@ -465,6 +465,15 @@ namespace rr
 		//!  rr_io::registerLoaders() must be called for image saves/loads to work.
 		virtual unsigned saveLayer(int layerNumber, const RRString& path, const RRString& ext) const;
 
+		//! Returns number of buffers in memory.
+		virtual unsigned layerExistsInMemory(int layerNumber) const;
+
+		//! Deletes buffers from memory.
+		virtual unsigned layerDeleteFromMemory(int layerNumber) const;
+
+		//! Deletes buffers from disk.
+		virtual unsigned layerDeleteFromDisk(const RRString& path, const RRString& ext) const;
+
 		//! Allocates buffers for realtime GI illumination.
 		//
 		//! Before rendering realtime GI, you need buffers for illumination to be calculated into.

@@ -700,15 +700,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						// if we always delete older files, it won't be possible to bake objects incrementally, one by one
 						// so let's delete older files only when baking whole scene
 						// we already bake cubes only when baking lmaps for whole scene, so let's delete old files now
-						for (unsigned objectIndex=0;objectIndex<allObjects.size();objectIndex++)
-						{
-							rr::RRObject::LayerParameters layerParameters;
-							layerParameters.suggestedPath = LAYER_PREFIX;
-							layerParameters.suggestedExt = ENV_POSTFIX;
-							allObjects[objectIndex]->recommendLayerParameters(layerParameters);
-							bf::path path(RR_RR2PATH(layerParameters.actualFilename));
-							path.remove_filename();
-						}
+						allObjects.layerDeleteFromDisk(LAYER_PREFIX,ENV_POSTFIX);
 
 						allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
 					}

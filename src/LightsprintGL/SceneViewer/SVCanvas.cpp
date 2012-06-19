@@ -310,33 +310,21 @@ void SVCanvas::createContextCore()
 		allObjects.makeNamesUnique();
 
 		// try to load lightmaps
-		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedLightmap))
-				goto lightmapFoundInRam;
-		solver->getStaticObjects().loadLayer(svs.layerBakedLightmap,LAYER_PREFIX,LMAP_POSTFIX);
-		lightmapFoundInRam:
+		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedLightmap))
+			solver->getStaticObjects().loadLayer(svs.layerBakedLightmap,LAYER_PREFIX,LMAP_POSTFIX);
 
 		// try to load ambient maps
-		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedAmbient))
-				goto ambientFoundInRam;
-		solver->getStaticObjects().loadLayer(svs.layerBakedAmbient,LAYER_PREFIX,AMBIENT_POSTFIX);
-		ambientFoundInRam:
+		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedAmbient))
+			solver->getStaticObjects().loadLayer(svs.layerBakedAmbient,LAYER_PREFIX,AMBIENT_POSTFIX);
 
 		// try to load LDM. if not found, disable it
-		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedLDM))
-				goto ldmFoundInRam;
-		if (!solver->getStaticObjects().loadLayer(svs.layerBakedLDM,LAYER_PREFIX,LDM_POSTFIX))
-			svs.renderLDM = false;
-		ldmFoundInRam:;
+		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedLDM))
+			if (!solver->getStaticObjects().loadLayer(svs.layerBakedLDM,LAYER_PREFIX,LDM_POSTFIX))
+				svs.renderLDM = false;
 
 		// try to load cubemaps
-		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
-			if (solver->getStaticObjects()[i]->illumination.getLayer(svs.layerBakedEnvironment))
-				goto cubeFoundInRam;
-		solver->getStaticObjects().loadLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
-		cubeFoundInRam:;
+		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedEnvironment))
+			solver->getStaticObjects().loadLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
 	}
 
 	// init rest
