@@ -306,8 +306,7 @@ void SVCanvas::createContextCore()
 		}
 
 		// make unique object names, so that lightmaps are loaded from different files
-		rr::RRObjects allObjects = solver->getObjects();
-		allObjects.makeNamesUnique();
+		solver->getObjects().makeNamesUnique();
 
 		// try to load lightmaps
 		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedLightmap))
@@ -445,8 +444,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 	}
 
 	// make unique object names, so that lightmaps are saved to different files
-	rr::RRObjects allObjects = solver->getObjects();
-	allObjects.makeNamesUnique(); // updateAllPanels() must follow, to refresh names in scene tree
+	solver->getObjects().makeNamesUnique(); // updateAllPanels() must follow, to refresh names in scene tree
 
 	// object numbers did change, change also svs.selectedObjectIndex so that it points to object in objprops
 	// and following updateAllPanels() does not change objprops
