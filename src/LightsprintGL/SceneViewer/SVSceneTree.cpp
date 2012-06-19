@@ -647,7 +647,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					for (unsigned i=0;i<selectedObjects.size();i++)
 						if (selectedObjects[i]->getCollider()->getMesh()->getNumVertices())
 							selectedObjects[i]->illumination.getLayer(tmpLayer) = res
-								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBA,true,NULL) // A in RGBA is only for debugging
+								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,svs.lightmapFloats?rr::BF_RGBF:rr::BF_RGB,true,NULL) // A is only for debugging, F prevents clamping to 1 in very bright regions
 								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,selectedObjects[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
 
 					// update everything in temp layer

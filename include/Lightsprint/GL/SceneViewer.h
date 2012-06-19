@@ -131,6 +131,7 @@ struct SceneViewerState
 	bool             mirrorsDiffuse;            //! Enables using mirrors when rendering diffuse reflection.
 	bool             mirrorsSpecular;           //! Enables using mirrors when rendering specular reflection.
 	bool             srgbCorrect;               //! Add realtime lights sRGB correctly, if OpenGL 3.0+ or sufficient extensions are found.
+	bool             lightmapFloats;
 	//rr::RRDynamicSolver::CalculateParameters calculateParameters;        //! Realtime GI settings.
 	rr::RRDynamicSolver::UpdateParameters    lightmapDirectParameters;   //! Lightmap baking settings.
 	//rr::RRDynamicSolver::UpdateParameters    lightmapIndirectParameters; //! Lightmap baking settings.
@@ -214,6 +215,7 @@ struct SceneViewerState
 		mirrorsDiffuse = true;
 		mirrorsSpecular = true;
 		srgbCorrect = false;
+		lightmapFloats = false;
 		lightmapDirectParameters.aoSize = 1;
 		cameraDynamicNear = 1;
 		cameraMetersPerSecond = 2;
@@ -296,6 +298,7 @@ struct SceneViewerState
 			&& a.mirrorsDiffuse==mirrorsDiffuse
 			&& a.mirrorsSpecular==mirrorsSpecular
 			&& a.srgbCorrect==srgbCorrect
+			&& a.lightmapFloats==lightmapFloats
 			&& a.lightmapDirectParameters==lightmapDirectParameters
 			&& a.lightmapFilteringParameters==lightmapFilteringParameters
 			&& a.cameraDynamicNear==cameraDynamicNear

@@ -62,6 +62,7 @@ namespace rr_gl
 		BoolRefProperty*  propGIEnvVideoAffectsGI;
 		wxPGProperty*     propGIEnvVideoGIQuality;
 		wxPGProperty*     propGILightmap;
+		BoolRefProperty*  propGILightmapFloats;
 		wxPGProperty*     propGILightmapAOIntensity;
 		wxPGProperty*     propGILightmapAOSize;
 		wxPGProperty*     propGILightmapSmoothingAmount;

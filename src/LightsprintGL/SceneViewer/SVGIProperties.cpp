@@ -144,10 +144,13 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 	// lightmap
 	{
-		wxPGProperty* propGILightmap = new wxStringProperty(_("Lightmap/LDM baking"), wxPG_LABEL);
+		wxPGProperty* propGILightmap = new wxStringProperty(_("Baking"), wxPG_LABEL);
 		Append(propGILightmap);
 		SetPropertyReadOnly(propGILightmap,true,wxPG_DONT_RECURSE);
-			
+
+		propGILightmapFloats = new BoolRefProperty(_("HDR"),_("Stores lightmaps in floating point/high dynamic range format (.exr). Off = baked illumination is clamped to 0..1 range (.png). Two independent sets of lightmaps exist; what you bake in HDR is visible only when HDR is checked; what you bake in LDR is visible only when HDR is unchecked. HDR takes more memory, use only when LDR can't capture lighting well."),svs.lightmapFloats);
+		AppendIn(propGILightmap,propGILightmapFloats);
+
 		propGILightmapAOIntensity = new FloatProperty(_("AO intensity"),_("Higher value makes indirect illumination in corners darker, 0=disabled/lighter, 1=normal, 2=darker."),svs.lightmapDirectParameters.aoIntensity,svs.precision,0,10,1,false);
 		AppendIn(propGILightmap,propGILightmapAOIntensity);
 
@@ -241,6 +244,7 @@ void SVGIProperties::updateProperties()
 		+ updateInt(propGIEmisVideoGIQuality,svs.videoEmittanceGIQuality)
 		+ updateBoolRef(propGITranspVideoAffectsGIFull)
 		+ updateInt(propGIEnvVideoGIQuality,svs.videoEnvironmentGIQuality)
+		+ updateBoolRef(propGILightmapFloats)
 		+ updateFloat(propGILightmapAOIntensity,svs.lightmapDirectParameters.aoIntensity)
 		+ updateFloat(propGILightmapAOSize,svs.lightmapDirectParameters.aoSize)
 		+ updateFloat(propGILightmapSmoothingAmount,svs.lightmapFilteringParameters.smoothingAmount)
@@ -370,6 +374,17 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIEnvVideoGIQuality)
 	{
 		svs.videoEnvironmentGIQuality = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propGILightmapFloats)
+	{
+		// load selected set of maps from disk
+		// (when user starts SV in LDR mode, only LDR maps are loaded if found, HDR are loaded after checking HDR here)
+		rr::RRObjects allObjects = svframe->m_canvas->solver->getObjects();
+		allObjects.layerDeleteFromMemory(svs.layerBakedLightmap);
+		allObjects.loadLayer(svs.layerBakedLightmap,LAYER_PREFIX,LMAP_POSTFIX);
+		allObjects.layerDeleteFromMemory(svs.layerBakedAmbient);
+		allObjects.loadLayer(svs.layerBakedAmbient,LAYER_PREFIX,AMBIENT_POSTFIX);
 	}
 	else
 	if (property==propGILightmapAOIntensity)
