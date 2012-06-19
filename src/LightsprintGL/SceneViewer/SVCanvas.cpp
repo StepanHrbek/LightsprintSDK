@@ -306,9 +306,8 @@ void SVCanvas::createContextCore()
 		}
 
 		// make unique object names, so that lightmaps are loaded from different files
-		rr::RRObjects objects = solver->getStaticObjects();
-		objects.insert(objects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
-		objects.makeNamesUnique();
+		rr::RRObjects allObjects = solver->getObjects();
+		allObjects.makeNamesUnique();
 
 		// try to load lightmaps
 		for (unsigned i=0;i<solver->getStaticObjects().size();i++)
@@ -409,8 +408,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 	if (scene || add)
 	{
 		// add or remove scene from solver, or update after objects in solver change
-		rr::RRObjects objects = solver->getStaticObjects();
-		objects.insert(objects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
+		rr::RRObjects objects = solver->getObjects();
 		rr::RRLights lights = solver->getLights();
 		if (scene)
 		{
@@ -459,9 +457,8 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 	}
 
 	// make unique object names, so that lightmaps are saved to different files
-	rr::RRObjects objects = solver->getStaticObjects();
-	objects.insert(objects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
-	objects.makeNamesUnique(); // updateAllPanels() must follow, to refresh names in scene tree
+	rr::RRObjects allObjects = solver->getObjects();
+	allObjects.makeNamesUnique(); // updateAllPanels() must follow, to refresh names in scene tree
 
 	// object numbers did change, change also svs.selectedObjectIndex so that it points to object in objprops
 	// and following updateAllPanels() does not change objprops
@@ -1414,8 +1411,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		// attempt to render empty baked layer? fill it with data from realtime layer
 		if (previousLightIndirect!=svs.renderLightIndirect)
 		{
-			rr::RRObjects allObjects = solver->getStaticObjects();
-			allObjects.insert(allObjects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
+			rr::RRObjects allObjects = solver->getObjects();
 			for (unsigned i=0;i<allObjects.size();i++)
 			{
 				if (svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED)

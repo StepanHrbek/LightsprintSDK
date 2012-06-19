@@ -374,6 +374,13 @@ const RRObjects& RRDynamicSolver::getDynamicObjects() const
 	return priv->dynamicObjects;
 }
 
+RRObjects RRDynamicSolver::getObjects() const
+{
+	rr::RRObjects allObjects = getStaticObjects();
+	allObjects.insert(allObjects.end(),getDynamicObjects().begin(),getDynamicObjects().end());
+	return allObjects;
+}
+
 RRObject* RRDynamicSolver::getObject(unsigned index) const
 {
 	if (index<getStaticObjects().size())

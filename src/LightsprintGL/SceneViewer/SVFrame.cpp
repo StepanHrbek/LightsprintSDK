@@ -788,8 +788,7 @@ void SVFrame::TogglePane(wxWindow* window)
 void SVFrame::saveBakedLayers()
 {
 	// resave baked layers under new name's directory
-	rr::RRObjects allObjects = m_canvas->solver->getStaticObjects();
-	allObjects.insert(allObjects.end(),m_canvas->solver->getDynamicObjects().begin(),m_canvas->solver->getDynamicObjects().end());
+	rr::RRObjects allObjects = m_canvas->solver->getObjects();
 	allObjects.saveLayer(svs.layerBakedLightmap,LAYER_PREFIX,LMAP_POSTFIX);
 	allObjects.saveLayer(svs.layerBakedAmbient,LAYER_PREFIX,AMBIENT_POSTFIX);
 	allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
@@ -929,8 +928,7 @@ save_scene:
 			if (m_canvas->solver)
 			{
 				rr::RRScene scene;
-				scene.objects = m_canvas->solver->getStaticObjects();
-				scene.objects.insert(scene.objects.end(),m_canvas->solver->getDynamicObjects().begin(),m_canvas->solver->getDynamicObjects().end());
+				scene.objects = m_canvas->solver->getObjects();
 				scene.lights = m_canvas->solver->getLights();
 				scene.environment = m_canvas->solver->getEnvironment();
 				scene.cameras.push_back(svs.eye);

@@ -231,7 +231,7 @@ namespace rr
 		//! \param copyFrom
 		//!  Should stay NULL (used by sceneViewer to reuse multiObjectCustom and smoothing from old solver).
 		virtual void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BSP_FASTER, RRDynamicSolver* copyFrom = NULL);
-		//! Returns static contents of scene, all static objects at once.
+		//! Returns static contents of scene, all static objects at once. It is very fast, returning reference to existing collection.
 		const RRObjects& getStaticObjects() const;
 
 		//! Sets dynamic contents of scene, all dynamic objects at once. Only objects with RRObject::isDynamic are taken, the rest is ignored.
@@ -252,8 +252,11 @@ namespace rr
 		//! to have no effect on other static objects (no shadows etc), but still receive light/shadows from
 		//! other static objects, make the object transparent during lightmap baking (via material->specularTransmittance).
 		void setDynamicObjects(const RRObjects& objects);
-		//! Returns dynamic contents of scene, all dynamic objects at once.
+		//! Returns dynamic contents of scene, all dynamic objects at once. It is very fast, returning reference to existing collection.
 		const RRObjects& getDynamicObjects() const;
+
+		//! Returns collection of all objects in scene. It is slower than getStaticObjects() and getDynamicObjects(), returning newly allocated collection.
+		RRObjects getObjects() const;
 
 		//! Returns given object or NULL for out of range index. Objects are indexed from 0, static objects go first, then dynamic.
 		RRObject* getObject(unsigned index) const;

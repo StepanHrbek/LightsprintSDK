@@ -500,8 +500,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 	RRDynamicSolverGL* solver = svframe->m_canvas->solver;
 
 	// what objects to process, code shared by many actions
-	rr::RRObjects allObjects = solver->getStaticObjects();
-	allObjects.insert(allObjects.end(),solver->getDynamicObjects().begin(),solver->getDynamicObjects().end());
+	rr::RRObjects allObjects = solver->getObjects();
 	rr::RRObjects selectedObjects;
 	rr::RRObjects selectedObjectsAndInstances; // some tasks have to process instances of selected objects too
 	for (unsigned i=0;i<allObjects.size();i++)
