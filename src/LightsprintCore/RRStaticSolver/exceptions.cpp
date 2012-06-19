@@ -421,7 +421,7 @@ unsigned RRObjects::layerDeleteFromMemory(int layerNumber) const
 	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 		if ((*this)[objectIndex]->illumination.getLayer(layerNumber))
 		{
-			delete (*this)[objectIndex]->illumination.getLayer(layerNumber);
+			RR_SAFE_DELETE((*this)[objectIndex]->illumination.getLayer(layerNumber));
 			result++;
 		}
 	return result;
