@@ -13,7 +13,7 @@
 #include <vector>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
-#include "D3DX9Mesh.h"
+#include "Windows/d3dx9/D3DX9Mesh.h" // here we include our copy of Direct3DX9 headers, so that installing legacy packages (DirectX SDK) is not necessary
 #include "Lightsprint/RRObject.h"
 
 #ifndef DYNAMIC_LOAD
