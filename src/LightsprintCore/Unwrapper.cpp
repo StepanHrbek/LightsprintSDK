@@ -5,6 +5,9 @@
 
 #ifdef _WIN32
 
+// with settings below, Lightsprint SDK builds and runs without DirectX SDK or DirectX runtime, we only attempt to locate DirectX runtime at runtime
+// we can even unwrap without DirectX runtime installed, it is sufficient to copy d3dx9_43.dll files to bin/win32 and bin/x64 dirs
+// (they are not included in SDK to simplify testing, nearly everyone has DirectX runtime installed, better not add redundant dll)
 #define DYNAMIC_LOAD // tries to load d3d[x]9.dll only when building unwrap, fails gracefully
 //#define ERROR_STRINGS // makes code depend on dx lib, don't use
 
@@ -123,7 +126,7 @@ Unwrapper::Unwrapper()
 	if (!inited)
 	{
 		inited = true;
-		for (unsigned version=42;!s_hModD3DX9 && version>=31;version--)
+		for (unsigned version=43;!s_hModD3DX9 && version>=31;version--)
 		{
 			char d3dxFilename[] = "d3dx9_??.dll";
 			d3dxFilename[6] = '0'+version/10;
@@ -143,7 +146,7 @@ Unwrapper::Unwrapper()
 	d3d = Direct3DCreate9 ? Direct3DCreate9(D3D_SDK_VERSION) : NULL;
 	if (!d3d || !D3DXCreateMesh || !D3DXUVAtlasPartition || !D3DXUVAtlasPack)
 		RRReporter::report(WARN,"Unwrap not built, please install DirectX runtime%s.\n",
-			(!s_hModD3D9)?" (d3d9.dll not found)":((!s_hModD3DX9)?" (d3dx9_nn.dll not found, 43>nn>30)":""));
+			(!s_hModD3D9)?" (d3d9.dll not found)":((!s_hModD3DX9)?" (d3dx9_nn.dll not found, 44>nn>30)":""));
 #else
 	d3d = Direct3DCreate9(D3D_SDK_VERSION);
 #endif
