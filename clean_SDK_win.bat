@@ -1,6 +1,5 @@
 @echo off
 
-start build_SDK_win_platform.bat Clean vs2003 -     "%VS71COMNTOOLS%\vsvars32.bat"
 start build_SDK_win_platform.bat Clean vs2005 win32 "%VS80COMNTOOLS%\vsvars32.bat"
 start build_SDK_win_platform.bat Clean vs2005 x64   "%vs80comntools%..\..\vc\bin\amd64\vcvarsamd64.bat"
 start build_SDK_win_platform.bat Clean vs2008 win32 "%VS90COMNTOOLS%\vsvars32.bat"

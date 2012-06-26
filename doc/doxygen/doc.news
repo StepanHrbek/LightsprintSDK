@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news133 ------------------------------------ 2012.06.xx -------------------------------------
+\section news133 ------------------------------------ 2012.06.26 -------------------------------------
 
 NEWS
 
@@ -20,6 +20,10 @@ NEWS
   - RRObjects::layerExistsInMemory()
   - RRObjects::layerDeleteFromMemory()
   - RRObjects::layerDeleteFromDisk()
+
+CHANGES
+
+- support for 9 years old Visual Studio 2003 removed
 
 \section news132 ------------------------------------ 2012.05.16 -------------------------------------
 
