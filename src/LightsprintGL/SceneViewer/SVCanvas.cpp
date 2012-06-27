@@ -1543,24 +1543,35 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					|| (svframe->userPreferences.stereoMode==UserPreferences::SM_TOP_DOWN && !svframe->userPreferences.stereoSwap)
 					|| (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE && svframe->userPreferences.stereoSwap);
 
-				// render left
-				if (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE)
-					glViewport(0,0,winWidth/2,winHeight);
-				else
-					glViewport(0,0,winWidth,winHeight/2);
-				solver->renderScene(
-					uberProgramSetup,swapEyes?rightEye:leftEye,
-					NULL,updateLayers,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
+				{
+					// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
+					// it could be faster, althout I did not see any speedup
+					PreserveFlag p0(GL_SCISSOR_TEST,true);
 
-				// render right
-				// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
-				if (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE)
-					glViewport(winWidth/2,0,winWidth/2,winHeight);
-				else
-					glViewport(0,winHeight/2,winWidth,winHeight/2);
-				solver->renderScene(
-					uberProgramSetup,swapEyes?leftEye:rightEye,
-					NULL,false,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
+					// render left
+					unsigned viewport[4] = {0,0,winWidth,winHeight};
+					if (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE)
+						viewport[2] /= 2;
+					else
+						viewport[3] /= 2;
+					glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+					glScissor(viewport[0],viewport[1],viewport[2],viewport[3]);
+					solver->renderScene(
+						uberProgramSetup,swapEyes?rightEye:leftEye,
+						NULL,updateLayers,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
+
+					// render right
+					// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
+					if (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE)
+						viewport[0] = viewport[2];
+					else
+						viewport[1] = viewport[3];
+					glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+					glScissor(viewport[0],viewport[1],viewport[2],viewport[3]);
+					solver->renderScene(
+						uberProgramSetup,swapEyes?leftEye:rightEye,
+						NULL,false,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
+				}
 
 				// composite
 				if (svframe->userPreferences.stereoMode==UserPreferences::SM_INTERLACED)

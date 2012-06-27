@@ -626,7 +626,7 @@ void RendererOfSceneImpl::render(
 #endif
 				// copy A to mirrorMaskMap.A
 				getTexture(mirrorMaskMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE)->bindTexture();
-				glCopyTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,0,0,viewport[2],viewport[3],0);
+				glCopyTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,viewport[0],viewport[1],viewport[2],viewport[3],0);
 
 				// clear mirrorDepthMap=0, mirrorColorMap=0
 				rr::RRBuffer* mirrorColorMap = i->second;
@@ -634,6 +634,7 @@ void RendererOfSceneImpl::render(
 				FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,getTexture(mirrorDepthMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE));
 				Texture* mirrorColorTex = new Texture(mirrorColorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
 				FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,mirrorColorTex);
+				PreserveFlag p0(GL_SCISSOR_TEST,false);
 				glViewport(0,0,mirrorColorMap->getWidth(),mirrorColorMap->getHeight());
 				glDepthMask(GL_TRUE);
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);

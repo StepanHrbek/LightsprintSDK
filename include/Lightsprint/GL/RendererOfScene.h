@@ -41,6 +41,9 @@ public:
 	//!
 	//! Render target is not cleared automatically, so you may want to glClear() both color and depth before calling render().
 	//!
+	//! When rendering with mirrors and nondefault viewport, render target's alpha channel is cleared by glClear().
+	//! If you don't want it to be cleared outside viewport, enabled scissor test with scissor area identical to viewport.
+	//!
 	//! For correct results, render target must contain at least depth and RGB channels.
 	//! When rendering with mirror reflections, render target must contain also alpha channel.
 	//! Stencil buffer is not used.
