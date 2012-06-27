@@ -28,7 +28,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 			const long stereoValues[] = {UserPreferences::SM_INTERLACED,UserPreferences::SM_SIDE_BY_SIDE,UserPreferences::SM_TOP_DOWN};
 			propStereoMode = new wxEnumProperty(_("Stereo mode"), wxPG_LABEL, stereoStrings, stereoValues);
 			propStereoMode->SetValueFromInt(userPreferences.stereoMode,wxPG_FULL_VALUE);
-			propStereoMode->SetHelpString(_("How images for left and right eye are composited."));
+			propStereoMode->SetHelpString(_("How images for left and right eye are composited. Interlaced requires passive (polarized) display working in its native resolution."));
 			Append(propStereoMode);
 		}
 

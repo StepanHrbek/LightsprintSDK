@@ -37,7 +37,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 		// stereo
 		{
-			propCameraStereo = new BoolRefProperty(_("Stereo (interlaced)"),_("Enables interlaced stereo rendering. Requires passive (polarized) display working in its native resolution."),svs.renderStereo);
+			propCameraStereo = new BoolRefProperty(_("Stereo"),_("Enables stereo rendering. See User preferences/Stereo for stereo modes and options."),svs.renderStereo);
 			AppendIn(propCamera,propCameraStereo);
 
 			propCameraEyeSeparation = new FloatProperty(_("Eye separation")+" (m)",_("Distance from left to right eye. Negative value swaps left and right eye."),svs.eye.eyeSeparation,svs.precision,-1000,1000,0.01f,false);
