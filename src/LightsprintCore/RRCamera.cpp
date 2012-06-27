@@ -754,8 +754,12 @@ void RRCamera::mirror(const rr::RRVec4& plane)
 	// RRMatrix3x4::mirror flips left-right, but manipulateViewBy reverts it
 	//   because such flip can't be represented by pos+yawPitchRollRad
 	//   also, it would probably require CW-CCW swap while rendering, which is unwanted complication
-	//   workaround is simple and it costs nothing, we flip left-right later when applying mirror texture
+	//   workaround is simple and it costs nothing,
+	//    1) we flip screenCenter.x now
+	//    2) we flip left-right later when applying mirror texture
 	manipulateViewBy(RRMatrix3x4::mirror(plane));
+	screenCenter.x = -screenCenter.x;
+	updateProjection();
 }
 
 static unsigned makeFinite(float& f, float def)
