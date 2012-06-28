@@ -1528,6 +1528,9 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 			if (svs.renderStereo && stereoUberProgram && stereoTexture)
 			{
+				GLint viewport[4];
+				glGetIntegerv(GL_VIEWPORT,viewport);
+
 				// why rendering to multisampled screen rather than 1-sampled texture?
 				//  we prefer quality over minor speedup
 				// why not rendering to multisampled texture?
@@ -1538,7 +1541,9 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				//  because lines blur with multisampled screen (even if multisampling is disabled)
 				rr::RRCamera leftEye, rightEye;
 				svs.eye.getStereoCameras(leftEye,rightEye);
-				bool stereoStartsByOddLine = (GetScreenPosition().y%2)==1;
+				int trueWinWidth, trueWinHeight;
+				GetClientSize(&trueWinWidth, &trueWinHeight);
+				bool stereoStartsByOddLine = (GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1;
 				bool swapEyes = (svframe->userPreferences.stereoMode==UserPreferences::SM_INTERLACED && svframe->userPreferences.stereoSwap!=stereoStartsByOddLine)
 					|| (svframe->userPreferences.stereoMode==UserPreferences::SM_TOP_DOWN && !svframe->userPreferences.stereoSwap)
 					|| (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE && svframe->userPreferences.stereoSwap);
@@ -1549,13 +1554,13 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					PreserveFlag p0(GL_SCISSOR_TEST,true);
 
 					// render left
-					unsigned viewport[4] = {0,0,winWidth,winHeight};
+					GLint viewport1eye[4] = {viewport[0],viewport[1],viewport[2],viewport[3]};
 					if (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE)
-						viewport[2] /= 2;
+						viewport1eye[2] /= 2;
 					else
-						viewport[3] /= 2;
-					glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
-					glScissor(viewport[0],viewport[1],viewport[2],viewport[3]);
+						viewport1eye[3] /= 2;
+					glViewport(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
+					glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
 					solver->renderScene(
 						uberProgramSetup,swapEyes?rightEye:leftEye,
 						NULL,updateLayers,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
@@ -1563,11 +1568,11 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					// render right
 					// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
 					if (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE)
-						viewport[0] = viewport[2];
+						viewport1eye[0] += viewport1eye[2];
 					else
-						viewport[1] = viewport[3];
-					glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
-					glScissor(viewport[0],viewport[1],viewport[2],viewport[3]);
+						viewport1eye[1] += viewport1eye[3];
+					glViewport(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
+					glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
 					solver->renderScene(
 						uberProgramSetup,swapEyes?leftEye:rightEye,
 						NULL,false,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
@@ -1577,15 +1582,15 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				if (svframe->userPreferences.stereoMode==UserPreferences::SM_INTERLACED)
 				{
 					// turns top-down images to interlaced
-					glViewport(0,winHeight%2,winWidth,winHeight/2*2);
+					glViewport(viewport[0],viewport[1]+(viewport[3]%2),viewport[2],viewport[3]/2*2);
 					stereoTexture->bindTexture();
-					glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,0,0,winWidth,winHeight/2*2,0);
+					glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,viewport[0],viewport[1],viewport[2],viewport[3]/2*2,0);
 					Program* stereoProgram = stereoUberProgram->getProgram("");
 					if (stereoProgram)
 					{
 						stereoProgram->useIt();
 						stereoProgram->sendTexture("map",stereoTexture);
-						stereoProgram->sendUniform("mapHalfHeight",float(winHeight/2));
+						stereoProgram->sendUniform("mapHalfHeight",float(viewport[3]/2));
 						glDisable(GL_CULL_FACE);
 						glBegin(GL_POLYGON);
 							glVertex2f(-1,-1);
@@ -1596,8 +1601,8 @@ void SVCanvas::PaintCore(bool _takingSshot)
 					}
 				}
 
-				// restore viewport (if we don't, user could disable stereo, mono render would continue using our half-viewport)
-				glViewport(0,0,winWidth,winHeight);
+				// restore viewport after rendering stereo (it could be non-default, e.g. when enhanced sshot is enabled)
+				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 			}
 			else
 			{
