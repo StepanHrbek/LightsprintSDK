@@ -135,9 +135,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 	skyboxBlendingInProgress = false;
 	selectedTransformation = IC_MOVEMENT;
 
-	stereoTexture = NULL;
-	stereoUberProgram = NULL;
-
 	previousLightIndirect = LI_NONE;
 
 }
@@ -344,9 +341,6 @@ void SVCanvas::createContextCore()
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
 
-	stereoTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST);
-	stereoUberProgram = UberProgram::create(wxString::Format("%sstereo.vs",svs.pathToShaders),wxString::Format("%sstereo.fs",svs.pathToShaders));
-
 	exitRequested = false;
 	fullyCreated = true;
 }
@@ -498,12 +492,6 @@ SVCanvas::~SVCanvas()
 			return;
 		}
 	}
-
-	// stereo
-	RR_SAFE_DELETE(stereoUberProgram);
-	if (stereoTexture)
-		delete stereoTexture->getBuffer();
-	RR_SAFE_DELETE(stereoTexture);
 
 	// fps
 	RR_SAFE_DELETE(fpsDisplay);
@@ -1525,97 +1513,30 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				svs.raytracedCubesEnabled?((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeEnvironment:svs.layerBakedEnvironment):UINT_MAX,
 				svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX
 			};
-			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
-			if (svs.renderStereo && stereoUberProgram && stereoTexture)
+			
+			// in interlaced mode, check whether image starts on odd or even scanline
+			StereoMode sm = svframe->userPreferences.stereoMode;
+			if (sm==SM_INTERLACED || sm==SM_INTERLACED_SWAP)
 			{
 				GLint viewport[4];
 				glGetIntegerv(GL_VIEWPORT,viewport);
-
-				// why rendering to multisampled screen rather than 1-sampled texture?
-				//  we prefer quality over minor speedup
-				// why not rendering to multisampled texture?
-				//  it needs extension, possible minor speedup is not worth adding extra renderpath
-				// why not quad buffered rendering?
-				//  because it works only with quadro/firegl, this is GPU independent
-				// why not stencil buffer masked rendering to odd/even lines?
-				//  because lines blur with multisampled screen (even if multisampling is disabled)
-				rr::RRCamera leftEye, rightEye;
-				svs.eye.getStereoCameras(leftEye,rightEye);
 				int trueWinWidth, trueWinHeight;
 				GetClientSize(&trueWinWidth, &trueWinHeight);
-				bool stereoStartsByOddLine = (GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1;
-				bool swapEyes = (svframe->userPreferences.stereoMode==UserPreferences::SM_INTERLACED && svframe->userPreferences.stereoSwap!=stereoStartsByOddLine)
-					|| (svframe->userPreferences.stereoMode==UserPreferences::SM_TOP_DOWN && !svframe->userPreferences.stereoSwap)
-					|| (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE && svframe->userPreferences.stereoSwap);
-
-				{
-					// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
-					// it could be faster, althout I did not see any speedup
-					PreserveFlag p0(GL_SCISSOR_TEST,true);
-
-					// render left
-					GLint viewport1eye[4] = {viewport[0],viewport[1],viewport[2],viewport[3]};
-					if (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE)
-						viewport1eye[2] /= 2;
-					else
-						viewport1eye[3] /= 2;
-					glViewport(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
-					glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
-					solver->renderScene(
-						uberProgramSetup,swapEyes?rightEye:leftEye,
-						NULL,updateLayers,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
-
-					// render right
-					// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
-					if (svframe->userPreferences.stereoMode==UserPreferences::SM_SIDE_BY_SIDE)
-						viewport1eye[0] += viewport1eye[2];
-					else
-						viewport1eye[1] += viewport1eye[3];
-					glViewport(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
-					glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
-					solver->renderScene(
-						uberProgramSetup,swapEyes?leftEye:rightEye,
-						NULL,false,layers[0],layers[1],layers[2],&clipPlanes,svs.srgbCorrect,&brightness,gamma);
-				}
-
-				// composite
-				if (svframe->userPreferences.stereoMode==UserPreferences::SM_INTERLACED)
-				{
-					// turns top-down images to interlaced
-					glViewport(viewport[0],viewport[1]+(viewport[3]%2),viewport[2],viewport[3]/2*2);
-					stereoTexture->bindTexture();
-					glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,viewport[0],viewport[1],viewport[2],viewport[3]/2*2,0);
-					Program* stereoProgram = stereoUberProgram->getProgram("");
-					if (stereoProgram)
-					{
-						stereoProgram->useIt();
-						stereoProgram->sendTexture("map",stereoTexture);
-						stereoProgram->sendUniform("mapHalfHeight",float(viewport[3]/2));
-						glDisable(GL_CULL_FACE);
-						glBegin(GL_POLYGON);
-							glVertex2f(-1,-1);
-							glVertex2f(-1,1);
-							glVertex2f(1,1);
-							glVertex2f(1,-1);
-						glEnd();
-					}
-				}
-
-				// restore viewport after rendering stereo (it could be non-default, e.g. when enhanced sshot is enabled)
-				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+				if ((GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
+					sm = (sm==SM_INTERLACED)?SM_INTERLACED_SWAP:SM_INTERLACED;
 			}
-			else
-			{
-				solver->renderScene(
-					uberProgramSetup,
-					svs.eye,
-					NULL,
-					updateLayers,layers[0],layers[1],layers[2],
-					&clipPlanes,
-					svs.srgbCorrect,
-					&brightness,
-					gamma);
-			}
+
+			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
+			solver->renderScene(
+				uberProgramSetup,
+				svs.eye,
+				svs.renderStereo?sm:SM_MONO,
+				NULL,
+				updateLayers,layers[0],layers[1],layers[2],
+				&clipPlanes,
+				svs.srgbCorrect,
+				&brightness,
+				gamma);
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 			// adjust tonemapping

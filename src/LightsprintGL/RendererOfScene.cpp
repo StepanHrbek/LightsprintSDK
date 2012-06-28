@@ -89,6 +89,7 @@ public:
 		rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
 		const rr::RRCamera& _camera,
+		StereoMode _stereoMode,
 		const RealtimeLights* _lights,
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
@@ -115,6 +116,8 @@ private:
 	TextureRenderer* textureRenderer;
 	UberProgram* uberProgram;
 	RendererOfMeshCache rendererOfMeshCache;
+	Texture* stereoTexture;
+	UberProgram* stereoUberProgram;
 #ifdef MIRRORS
 	rr::RRBuffer* mirrorDepthMap;
 	rr::RRBuffer* mirrorMaskMap;
@@ -143,9 +146,11 @@ bool FaceGroupRange::operator <(const FaceGroupRange& a) const // for sort()
 RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 {
 	textureRenderer = new TextureRenderer(pathToShaders);
-	uberProgram = UberProgram::create(
-		tmpstr("%subershader.vs",pathToShaders),
-		tmpstr("%subershader.fs",pathToShaders));
+	uberProgram = UberProgram::create(tmpstr("%subershader.vs",pathToShaders),tmpstr("%subershader.fs",pathToShaders));
+
+	stereoTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST);
+	stereoUberProgram = UberProgram::create(tmpstr("%sstereo.vs",pathToShaders),tmpstr("%sstereo.fs",pathToShaders));
+
 #ifdef MIRRORS
 	mirrorDepthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 	mirrorMaskMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGB,true,RR_GHOST_BUFFER);
@@ -159,6 +164,12 @@ RendererOfSceneImpl::~RendererOfSceneImpl()
 	delete mirrorMaskMap;
 	delete mirrorDepthMap;
 #endif
+	// stereo
+	RR_SAFE_DELETE(stereoUberProgram);
+	if (stereoTexture)
+		delete stereoTexture->getBuffer();
+	RR_SAFE_DELETE(stereoTexture);
+
 	delete uberProgram;
 	delete textureRenderer;
 	for (recursionDepth=0;recursionDepth<2;recursionDepth++)
@@ -183,6 +194,7 @@ void RendererOfSceneImpl::render(
 		rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
 		const rr::RRCamera& _camera,
+		StereoMode _stereoMode,
 		const RealtimeLights* _lights,
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
@@ -197,6 +209,83 @@ void RendererOfSceneImpl::render(
 	if (!_solver)
 	{
 		RR_ASSERT(0);
+		return;
+	}
+
+	// handle stereo modes by calling render() twice
+	if (_stereoMode!=SM_MONO && stereoUberProgram && stereoTexture)
+	{
+		GLint viewport[4];
+		glGetIntegerv(GL_VIEWPORT,viewport);
+
+		// why rendering to multisampled screen rather than 1-sampled texture?
+		//  we prefer quality over minor speedup
+		// why not rendering to multisampled texture?
+		//  it needs extension, possible minor speedup is not worth adding extra renderpath
+		// why not quad buffered rendering?
+		//  because it works only with quadro/firegl, this is GPU independent
+		// why not stencil buffer masked rendering to odd/even lines?
+		//  because lines blur with multisampled screen (even if multisampling is disabled)
+		rr::RRCamera leftEye, rightEye;
+		_camera.getStereoCameras(leftEye,rightEye);
+		bool swapEyes = _stereoMode==SM_INTERLACED_SWAP || _stereoMode==SM_TOP_DOWN || _stereoMode==SM_SIDE_BY_SIDE_SWAP;
+
+		{
+			// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
+			// it could be faster, althout I did not see any speedup
+			PreserveFlag p0(GL_SCISSOR_TEST,true);
+
+			// render left
+			GLint viewport1eye[4] = {viewport[0],viewport[1],viewport[2],viewport[3]};
+			if (_stereoMode==SM_SIDE_BY_SIDE || _stereoMode==SM_SIDE_BY_SIDE_SWAP)
+				viewport1eye[2] /= 2;
+			else
+				viewport1eye[3] /= 2;
+			glViewport(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
+			glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
+			render(
+				_solver,_uberProgramSetup,swapEyes?rightEye:leftEye,SM_MONO,_lights,_renderingFromThisLight,
+				_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,_clipPlanes,_srgbCorrect,_brightness,_gamma);
+
+			// render right
+			// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
+			if (_stereoMode==SM_SIDE_BY_SIDE || _stereoMode==SM_SIDE_BY_SIDE_SWAP)
+				viewport1eye[0] += viewport1eye[2];
+			else
+				viewport1eye[1] += viewport1eye[3];
+			glViewport(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
+			glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
+			render(
+				_solver,_uberProgramSetup,swapEyes?leftEye:rightEye,SM_MONO,_lights,_renderingFromThisLight,
+				false,_layerLightmap,_layerEnvironment,_layerLDM,_clipPlanes,_srgbCorrect,_brightness,_gamma);
+		}
+
+		// composite
+		if (_stereoMode==SM_INTERLACED || _stereoMode==SM_INTERLACED_SWAP)
+		{
+			// turns top-down images to interlaced
+			glViewport(viewport[0],viewport[1]+(viewport[3]%2),viewport[2],viewport[3]/2*2);
+			stereoTexture->bindTexture();
+			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,viewport[0],viewport[1],viewport[2],viewport[3]/2*2,0);
+			Program* stereoProgram = stereoUberProgram->getProgram("");
+			if (stereoProgram)
+			{
+				stereoProgram->useIt();
+				stereoProgram->sendTexture("map",stereoTexture);
+				stereoProgram->sendUniform("mapHalfHeight",float(viewport[3]/2));
+				glDisable(GL_CULL_FACE);
+				glBegin(GL_POLYGON);
+					glVertex2f(-1,-1);
+					glVertex2f(-1,1);
+					glVertex2f(1,1);
+					glVertex2f(1,-1);
+				glEnd();
+			}
+		}
+
+		// restore viewport after rendering stereo (it could be non-default, e.g. when enhanced sshot is enabled)
+		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+
 		return;
 	}
 
@@ -680,7 +769,7 @@ void RendererOfSceneImpl::render(
 				//    a) add LIGHT_INDIRECT_MIRROR_SRGB, and convert manually in shader (would increase already large number of shaders)
 				//    b) make ubershader work with linear light (number of differences between correct and incorrect path would grow too much, difficult to maintain)
 				//       (srgb incorrect path must remain because of OpenGL ES)
-				render(_solver,mirrorUberProgramSetup,mirrorCamera,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
+				render(_solver,mirrorUberProgramSetup,mirrorCamera,SM_MONO,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
 
 				// copy mirrorMaskMap to mirrorColorMap.A
 				glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);

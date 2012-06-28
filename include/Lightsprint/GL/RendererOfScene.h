@@ -18,6 +18,18 @@ namespace rr_gl
 //
 // RendererOfScene
 
+
+enum StereoMode
+{
+	SM_MONO             =0, // common non-stereo mode
+	SM_INTERLACED       =2, // interlaced, with top scanline visible by right eye
+	SM_INTERLACED_SWAP  =3, // interlaced, with top scanline visible by left eye
+	SM_SIDE_BY_SIDE     =4, // left half is left eye
+	SM_SIDE_BY_SIDE_SWAP=5, // left half is right eye
+	SM_TOP_DOWN         =6, // top half is left eye
+	SM_TOP_DOWN_SWAP    =7, // top half is right eye
+};
+
 //! OpenGL renderer of scene in RRDynamicSolver.
 //
 //! Renders scene from solver.
@@ -33,7 +45,7 @@ public:
 	static RendererOfScene* create(const char* pathToShaders);
 	virtual ~RendererOfScene() {};
 
-	//! Renders scene from solver.
+	//! Renders scene from solver into current render target and current viewport.
 	//
 	//! To render to texture, set render target with FBO::setRenderTarget().
 	//! When rendering sRGB correctly, target texture must be sRGB,
@@ -41,12 +53,13 @@ public:
 	//!
 	//! Render target is not cleared automatically, so you may want to glClear() both color and depth before calling render().
 	//!
-	//! When rendering with mirrors and nondefault viewport, render target's alpha channel is cleared by glClear().
-	//! If you don't want it to be cleared outside viewport, enabled scissor test with scissor area identical to viewport.
-	//!
 	//! For correct results, render target must contain at least depth and RGB channels.
 	//! When rendering with mirror reflections, render target must contain also alpha channel.
 	//! Stencil buffer is not used.
+	//!
+	//! To render to rectangle within render target, use glViewport().
+	//! (Note that when rendering with nondefault viewport, mirrors and mono camera, render target's alpha channel is cleared by glClear().
+	//! If you don't want it to be cleared outside viewport, enabled scissor test with scissor area identical to viewport.)
 	//!
 	//! \param _solver
 	//!  Source of static and dynamic objects, environment and illumination. Direct lights from solver are ignored.
@@ -56,6 +69,8 @@ public:
 	//!  use UberProgramSetup::enableAllLights() and UberProgramSetup::enableAllMaterials().
 	//! \param _camera
 	//!  Camera scene is rendered from.
+	//! \param _stereoMode
+	//!  One of camera stereo modes, or SM_MONO for common non-stereo render.
 	//! \param _lights
 	//!  Set of lights, source of direct illumination in rendered scene.
 	//! \param _renderingFromThisLight
@@ -85,6 +100,7 @@ public:
 		rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
 		const rr::RRCamera& _camera,
+		StereoMode _stereoMode,
 		const RealtimeLights* _lights,
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,

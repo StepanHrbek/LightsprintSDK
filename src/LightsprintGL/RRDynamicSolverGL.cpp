@@ -328,7 +328,7 @@ done:
 						}
 						bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
 						if (depthClamp) glEnable(GL_DEPTH_CLAMP);
-						renderScene(uberProgramSetup,light->getShadowmapCamera(i,lightInstance),&light->getRRLight(),false,UINT_MAX,UINT_MAX,UINT_MAX,NULL,false,NULL,1);
+						renderScene(uberProgramSetup,light->getShadowmapCamera(i,lightInstance),SM_MONO,&light->getRRLight(),false,UINT_MAX,UINT_MAX,UINT_MAX,NULL,false,NULL,1);
 						if (depthClamp) glDisable(GL_DEPTH_CLAMP);
 					}
 				}
@@ -656,6 +656,7 @@ void drawRealtimeLight(RealtimeLight* light)
 void RRDynamicSolverGL::renderScene(
 		const UberProgramSetup& _uberProgramSetup,
 		const rr::RRCamera& _camera,
+		StereoMode _stereoMode,
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
 		unsigned _layerLightmap,
@@ -670,6 +671,7 @@ void RRDynamicSolverGL::renderScene(
 		this,
 		_uberProgramSetup,
 		_camera,
+		_stereoMode,
 		_uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL,
 		_renderingFromThisLight,
 		_updateLayers,

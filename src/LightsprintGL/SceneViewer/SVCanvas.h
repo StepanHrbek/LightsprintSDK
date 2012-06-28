@@ -147,10 +147,6 @@ namespace rr_gl
 		rr::RRTime                 skyboxBlendingStartTime;
 
 
-		// stereo
-		Texture*                   stereoTexture;
-		UberProgram*               stereoUberProgram;
-
 		LightingIndirect           previousLightIndirect;
 
 		friend class SVFrame;

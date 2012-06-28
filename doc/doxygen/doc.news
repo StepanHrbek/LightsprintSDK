@@ -12,9 +12,13 @@ namespace rr
 
 NEWS
 
+- improved stereo
+  - interlaced, side by side and top down stereo modes
+  - mode is selected by single additional parameter sent to renderer
 - improved Scene Viewer
-  - supports side by side stereo, top down stereo (User preferences/Stereo)
+  - supports new stereo modes (User preferences/Stereo)
   - supports HDR lightmaps (Global Illumination/Baking/HDR)
+  - fixed mirroring in stereo mode and in enhanced screenshots
 - misc helper functions added
   - RRDynamicSolver::getObjects()
   - RRObjects::layerExistsInMemory()

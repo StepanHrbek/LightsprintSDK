@@ -34,7 +34,7 @@ namespace rr_gl
 		wxPGProperty*     propTooltips;
 
 		wxPGProperty*     propStereoMode;
-		BoolRefProperty*  propStereoSwap;
+		wxPGProperty*     propStereoSwap;
 
 		wxPGProperty*     propImport;
 		wxPGProperty*     propImportUnitsEnum;

@@ -269,7 +269,7 @@ void display(void)
 	uberProgramSetup.enableAllMaterials();
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
-	solver->renderScene(uberProgramSetup,eye,NULL,true,LAYER_LIGHTMAPS,LAYER_ENVIRONMENT,UINT_MAX,NULL,false,&brightness,contrast);
+	solver->renderScene(uberProgramSetup,eye,rr_gl::SM_MONO,NULL,true,LAYER_LIGHTMAPS,LAYER_ENVIRONMENT,UINT_MAX,NULL,false,&brightness,contrast);
 
 	glutSwapBuffers();
 }

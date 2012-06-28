@@ -62,6 +62,7 @@ namespace rr_gl
 		virtual void renderScene(
 			const UberProgramSetup& _uberProgramSetup,
 			const rr::RRCamera& _camera,
+			StereoMode _stereoMode,
 			const rr::RRLight* _renderingFromThisLight,
 			bool _updateLayers,
 			unsigned _layerLightmap,

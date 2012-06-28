@@ -340,7 +340,7 @@ void display(void)
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
 	uberProgramSetup.POSTPROCESS_GAMMA = true;
 	// render scene
-	solver->renderScene(uberProgramSetup,eye,NULL,renderLayer==LAYER_REALTIME,renderLayer,LAYER_ENVIRONMENT,UINT_MAX,NULL,false,&brightness,contrast);
+	solver->renderScene(uberProgramSetup,eye,rr_gl::SM_MONO,NULL,renderLayer==LAYER_REALTIME,renderLayer,LAYER_ENVIRONMENT,UINT_MAX,NULL,false,&brightness,contrast);
 
 	solver->renderLights(eye);
 

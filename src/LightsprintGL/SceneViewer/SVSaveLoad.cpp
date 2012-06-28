@@ -105,15 +105,30 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 	{
 		ar & make_nvp("tooltips",a.tooltips);
 	}
-	if (version>13)
+	if (version>14)
 	{
 		ar & make_nvp("stereoMode",a.stereoMode);
-		ar & make_nvp("stereoSwap",a.stereoSwap);
+	}
+	else
+	if (version>13)
+	{
+		enum LegacyStereoMode
+		{
+			LSM_INTERLACED  =0, // top scanline is visible by right eye, correct at least for LG D2342P-PN
+			LSM_SIDE_BY_SIDE=1, // left hals is left eye
+			LSM_TOP_DOWN    =2, // top half is left eye
+		};
+		LegacyStereoMode legacyStereoMode;
+		bool legacyStereoSwap;
+		ar & make_nvp("stereoMode",legacyStereoMode);
+		ar & make_nvp("stereoSwap",legacyStereoSwap);
+		a.stereoMode = (rr_gl::StereoMode)(legacyStereoMode*2+(legacyStereoSwap?3:2));
 	}
 	else
 	if (version>11)
 	{
-		ar & make_nvp("stereoTopLineSeenByLeftEye",a.stereoSwap);
+		bool legacyStereoSwap;
+		ar & make_nvp("stereoTopLineSeenByLeftEye",legacyStereoSwap);
 	}
 	ar & make_nvp("currentWindowLayout",a.currentWindowLayout);
 	ar & make_nvp("windowLayout",a.windowLayout);
@@ -151,7 +166,7 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 } // namespace
 
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences,14)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences,15)
 
 //---------------------------------------------------------------------------
 
