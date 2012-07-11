@@ -36,8 +36,6 @@ namespace rr_gl
 
 			importantPropertyBackgroundColor = wxColour(230,230,230);
 			SetMarginColour(wxColour(220,220,220));
-			Append(propHidden = new wxPGProperty());
-			propHidden->Hide(true);
 		}
 
 		void enableTooltips(bool enable)
@@ -53,15 +51,8 @@ namespace rr_gl
 			wxPGProperty* property = GetSelectedProperty();
 			if ((dynamic_cast<HDRColorProperty*>(property) || dynamic_cast<ButtonProperty*>(property)) && IsEditorFocused())
 			{
-				// [A] moves focus from editor to label
-				//SelectProperty(property,false);
-				// user can focus editor again (and start action) by
-				// a) TAB
-				// b) click image <--- DOES NOT WORK, wx bug?, clicking image does not open editor/generate eny event
-				// b) click to the right of image
-				// c) click other property, click image
-				// [B] moves focus from editor to hidden property
-				SelectProperty(propHidden,false);
+				// Move focus away from editor, so it can receive focus event again.
+				ClearSelection();
 			}
 		}
 
@@ -69,7 +60,6 @@ namespace rr_gl
 		SVFrame* svframe; // we must remember our main frame, reading it from parent is not reliable, wxAUI may reparent us
 		SceneViewerStateEx& svs; // shortcut for svframe->svs
 		wxColour importantPropertyBackgroundColor;
-		wxPGProperty* propHidden; // hack, takes focus away from buttons
 	};
 
 #ifdef PROPERTYGRID_TABS
