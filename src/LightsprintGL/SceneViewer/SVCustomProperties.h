@@ -108,9 +108,6 @@ public:
 private:
 	int menuItem;
 	rr_gl::SVFrame* svframe;
-	bool imageSet;
-	wxImage* image;
-	wxBitmap* bitmap;
 };
 
 

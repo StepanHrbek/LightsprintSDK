@@ -270,7 +270,6 @@ ButtonProperty::ButtonProperty(const wxString& label, const wxString& help, rr_g
 	SetHelpString(help);
 	svframe = _svframe;
 	menuItem = _menuItem;
-	imageSet = false;
 }
 
 void ButtonProperty::updateImage()
