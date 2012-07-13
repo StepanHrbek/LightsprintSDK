@@ -56,7 +56,7 @@ public:
 	//! One saver is implemented in LightsprintIO library,
 	//! rr_io::registerSavers() will register it for you.
 	//! See rr_io::registerSavers() for details on formats/features supported.
-	bool save(const RRString& filename);
+	bool save(const RRString& filename) const;
 	//! Deletes scene including all objects and lights.
 	virtual ~RRScene();
 
