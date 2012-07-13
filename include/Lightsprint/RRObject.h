@@ -550,7 +550,7 @@ namespace rr
 		//
 		//! May shuffle elements that were already present in collection.
 		//! Removes duplicates, the same material is never listed twice.
-		void getAllMaterials(RRVector<RRMaterial*>& materials) const;
+		void getAllMaterials(RRMaterials& materials) const;
 
 		//! Flips front/back if at least this number of normals in triangle points to back side.
 		//

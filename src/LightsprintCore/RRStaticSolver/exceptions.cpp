@@ -247,7 +247,7 @@ void RRObject::FaceGroups::getTexcoords(RRVector<unsigned>& _texcoords, bool _fo
 //
 // RRObjects
 
-void RRObjects::getAllMaterials(RRVector<RRMaterial*>& materials) const
+void RRObjects::getAllMaterials(RRMaterials& materials) const
 {
 	typedef boost::unordered_set<RRMaterial*> Set;
 	Set set;
