@@ -346,6 +346,7 @@ namespace rr
 		};
 		//! Saves buffer to disk.
 		//
+		//! It is not "const" function because it changes RRBuffer::filename to given filename.
 		//! Save parameters are similar to load, see load() for examples.
 		//! \param filenameMask
 		//!  Filename of 1 image/vertexbuffer or mask of 6 images (sides of cubemap) to be saved to disk.
