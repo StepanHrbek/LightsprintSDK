@@ -8,6 +8,17 @@ namespace rr
 
 \page main_news What's new
 
+\section news134 ------------------------------------ 2012.07.xx -------------------------------------
+
+NEWS
+
+- material saving/loading
+  - RRMaterial::load()
+  - RRMaterial::save()
+  - RRMaterials, collection of materials, with support for loading/saving
+  - .rrmaterial fileformat introduced
+  - any other material fileformat can be supported by registering its load/save callbacks
+
 \section news133 ------------------------------------ 2012.06.28 -------------------------------------
 
 NEWS

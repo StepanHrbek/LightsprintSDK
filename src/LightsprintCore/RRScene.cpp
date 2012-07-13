@@ -358,6 +358,66 @@ bool RRScene::save(const RRString& filename) const
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// RRMaterials loaders/savers
+
+static LoadersAndSavers<RRMaterials> s_materialLoadersAndSavers;
+
+void RRMaterials::registerLoader(const char* extensions, Loader* loader)
+{
+	s_materialLoadersAndSavers.registerLoader(extensions,loader);
+}
+
+void RRMaterials::registerSaver(const char* extensions, Saver* saver)
+{
+	s_materialLoadersAndSavers.registerSaver(extensions,saver);
+}
+
+const char* RRMaterials::getSupportedLoaderExtensions()
+{
+	return s_materialLoadersAndSavers.getSupportedLoaderExtensions();
+}
+
+const char* RRMaterials::getSupportedSaverExtensions()
+{
+	return s_materialLoadersAndSavers.getSupportedSaverExtensions();
+}
+
+bool RRMaterial::load(const RRString& _filename, RRFileLocator* _textureLocator)
+{
+	RRMaterials* loaded = s_materialLoadersAndSavers.load(_filename,_textureLocator,NULL,"Material");
+	if (loaded && loaded->size())
+	{
+		copyFrom(*(*loaded)[0]);
+		delete loaded;
+		return true;
+	}
+	else
+	{
+		delete loaded;
+		return false;
+	}
+}
+
+bool RRMaterial::save(const RRString& filename) const
+{
+	RRMaterials materials;
+	materials.push_back(const_cast<RRMaterial*>(this)); // we just need to pass const parameters through container of non-const materials
+	return s_materialLoadersAndSavers.save(&materials,filename,"Material");
+}
+
+RRMaterials* RRMaterials::load(const RRString& _filename, RRFileLocator* _textureLocator)
+{
+	return s_materialLoadersAndSavers.load(_filename,_textureLocator,NULL,"Material");
+}
+
+bool RRMaterials::save(const RRString& filename) const
+{
+	return s_materialLoadersAndSavers.save(this,filename,"Material");
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // RRScene
 
 RRScene::RRScene()

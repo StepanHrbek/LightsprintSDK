@@ -308,7 +308,7 @@ private:
 //
 // .rrbuffer load
 
-static RRBuffer* load(const RRString& filename, const char* cubeSideName[6])
+static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6])
 {
 	try
 	{
@@ -340,7 +340,7 @@ static RRBuffer* load(const RRString& filename, const char* cubeSideName[6])
 //
 // .rrbuffer save
 
-static bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
+static bool saveBuffer(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
 {
 	if (!buffer || filename.empty())
 	{
@@ -381,6 +381,85 @@ static bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSid
 }
 
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// .rrmaterial load
+
+static RRMaterials* loadMaterial(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
+{
+	RRMaterials* materials = new RRMaterials;
+	try
+	{
+		std::ifstream ifs(RR_RR2STREAM(filename),std::ios::in|std::ios::binary);
+		if (!ifs || ifs.bad())
+		{
+			//rr::RRReporter::report(rr::WARN,"Buffer %ls can't be loaded, file does not exist.\n",filename.w_str());
+			return NULL;
+		}
+
+		boost::iostreams::filtering_stream<boost::iostreams::input> in;
+		in.push(boost::iostreams::zlib_decompressor());
+		in.push(ifs);
+		portable_binary_iarchive ar(in);
+
+		g_textureLocator = textureLocator;
+		RRString oldReference;
+		ar & boost::serialization::make_nvp("filename", oldReference);
+		if (g_textureLocator)
+			g_textureLocator->setRelocation(true,oldReference,filename);
+		ar & boost::serialization::make_nvp("materials",*materials);
+		if (g_textureLocator)
+			g_textureLocator->setRelocation(false,oldReference,filename);
+		g_textureLocator = NULL;
+
+		return materials;
+	}
+	catch(...)
+	{
+		rr::RRReporter::report(rr::ERRO,"Failed to load material %ls.\n",filename.w_str());
+		delete materials;
+		return NULL;
+	}
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// .rrmaterial save
+
+static bool saveMaterial(const RRMaterials* materials, const RRString& filename)
+{
+	if (!materials || filename.empty())
+	{
+		return false;
+	}
+	try
+	{
+		std::ofstream ofs(RR_RR2STREAM(filename),std::ios::out|std::ios::binary|std::ios::trunc);
+		if (!ofs || ofs.bad())
+		{
+			//rr::RRReporter::report(rr::WARN,"File %ls can't be created, buffer not saved.\n",filename.w_str());
+			return false;
+		}
+
+		boost::iostreams::filtering_stream<boost::iostreams::output> out;
+		out.push(boost::iostreams::zlib_compressor());
+		out.push(ofs);
+		portable_binary_oarchive ar(out);
+
+		ar & boost::serialization::make_nvp("filename", filename);
+		ar & boost::serialization::make_nvp("materials",*materials);
+
+		return true;
+	}
+	catch(...)
+	{
+		rr::RRReporter::report(rr::ERRO,"Failed to save material %ls.\n",filename.w_str());
+		return false;
+	}
+}
+
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // main
@@ -389,8 +468,10 @@ void registerLoaderLightsprint()
 {
 	RRScene::registerLoader("*.rr3",RRSceneLightsprint::load);
 	RRScene::registerSaver("*.rr3",RRSceneLightsprint::save);
-	RRBuffer::registerLoader(load);
-	RRBuffer::registerSaver(save);
+	RRBuffer::registerLoader(loadBuffer);
+	RRBuffer::registerSaver(saveBuffer);
+	RRMaterials::registerLoader("*.rrmaterial",loadMaterial);
+	RRMaterials::registerSaver("*.rrmaterial",saveMaterial);
 }
 
 #endif // SUPPORT_LIGHTSPRINT

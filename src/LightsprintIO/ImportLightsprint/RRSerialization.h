@@ -498,6 +498,19 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	}
 }
 
+//----------------------------- RRMaterials ------------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, rr::RRMaterials& a, const unsigned int version)
+{
+	rr::RRVector<rr::RRMaterial*>& aa = a;
+	serialize(ar,aa,version);
+	// must be called after load. there's nothing to free after save
+	// we do it here because we know that RRMaterials are serialized at the end of file
+	RRBufferProxy::freeMemory();
+	RRMeshProxy::freeMemory();
+}
+
 //------------------------------ RRLight ------------------------------------
 
 template<class Archive>
