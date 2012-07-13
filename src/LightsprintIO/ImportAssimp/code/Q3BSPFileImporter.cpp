@@ -1,8 +1,8 @@
 /*
-Open Asset Import Library (ASSIMP)
+Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------------------------------
 
-Copyright (c) 2006-2008, ASSIMP Development Team
+Copyright (c) 2006-2008, assimp team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -18,10 +18,10 @@ following conditions are met:
   following disclaimer in the documentation and/or other
   materials provided with the distribution.
 
-* Neither the name of the ASSIMP team, nor the names of its
+* Neither the name of the assimp team, nor the names of its
   contributors may be used to endorse or promote products
   derived from this software without specific prior
-  written permission of the ASSIMP Development Team.
+  written permission of the assimp team.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
@@ -53,16 +53,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #	include "../contrib/zlib/zlib.h"
 #endif
 
-#include "../include/aiTypes.h"
-#include "../include/aiMesh.h"
+#include "../include/assimp/types.h"
+#include "../include/assimp/mesh.h"
 #include <vector>
+
+
+static const aiImporterDesc desc = {
+	"Quake III BSP Importer",
+	"",
+	"",
+	"",
+	aiImporterFlags_SupportBinaryFlavour,
+	0,
+	0,
+	0,
+	0,
+	"pk3"
+};
 
 namespace Assimp
 {
 
 using namespace Q3BSP;
-
-static const std::string Q3BSPExtension = "pk3";
 
 // ------------------------------------------------------------------------------------------------
 //	Local function to create a material key name.
@@ -161,7 +173,7 @@ Q3BSPFileImporter::~Q3BSPFileImporter()
 bool Q3BSPFileImporter::CanRead( const std::string& rFile, IOSystem* /*pIOHandler*/, bool checkSig ) const
 {
 	if(!checkSig) {
-		return SimpleExtensionCheck( rFile, Q3BSPExtension.c_str() );
+		return SimpleExtensionCheck( rFile, "pk3" );
 	}
 	// TODO perhaps add keyword based detection
 	return false;
@@ -169,9 +181,9 @@ bool Q3BSPFileImporter::CanRead( const std::string& rFile, IOSystem* /*pIOHandle
 
 // ------------------------------------------------------------------------------------------------
 //	Adds extensions.
-void Q3BSPFileImporter::GetExtensionList( std::set<std::string>& extensions )
+const aiImporterDesc* Q3BSPFileImporter::GetInfo () const
 {
-	extensions.insert( Q3BSPExtension  );
+	return &desc;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -481,7 +493,7 @@ void Q3BSPFileImporter::createMaterials( const Q3BSP::Q3BSPModel *pModel, aiScen
 		}
 
 		aiMatName.Set( matName );
-		Assimp::MaterialHelper *pMatHelper = new Assimp::MaterialHelper;
+		aiMaterial *pMatHelper = new aiMaterial;
 		pMatHelper->AddProperty( &aiMatName, AI_MATKEY_NAME );
 
 		extractIds( matName, textureId, lightmapId );
@@ -623,7 +635,7 @@ aiFace *Q3BSPFileImporter::getNextFace( aiMesh *pMesh, unsigned int &rFaceIdx )
 //	Imports a texture file.
 bool Q3BSPFileImporter::importTextureFromArchive( const Q3BSP::Q3BSPModel *pModel,
 												 Q3BSP::Q3BSPZipArchive *pArchive, aiScene* /*pScene*/,
-												 Assimp::MaterialHelper *pMatHelper, int textureId )
+												 aiMaterial *pMatHelper, int textureId )
 {
 	std::vector<std::string> supportedExtensions;
 	supportedExtensions.push_back( ".jpg" );
@@ -690,7 +702,7 @@ bool Q3BSPFileImporter::importTextureFromArchive( const Q3BSP::Q3BSPModel *pMode
 // ------------------------------------------------------------------------------------------------
 //	Imports a light map file.
 bool Q3BSPFileImporter::importLightmap( const Q3BSP::Q3BSPModel *pModel, aiScene* pScene, 
-									   Assimp::MaterialHelper *pMatHelper, int lightmapId )
+									   aiMaterial *pMatHelper, int lightmapId )
 {
 	if ( NULL == pModel || NULL == pScene || NULL == pMatHelper )
 	{

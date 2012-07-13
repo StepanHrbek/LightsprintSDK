@@ -1,9 +1,9 @@
 /*
 ---------------------------------------------------------------------------
-Open Asset Import Library (ASSIMP)
+Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2010, ASSIMP Development Team
+Copyright (c) 2006-2012, assimp team
 
 All rights reserved.
 
@@ -20,10 +20,10 @@ conditions are met:
   following disclaimer in the documentation and/or other
   materials provided with the distribution.
 
-* Neither the name of the ASSIMP team, nor the names of its
+* Neither the name of the assimp team, nor the names of its
   contributors may be used to endorse or promote products
   derived from this software without specific prior
-  written permission of the ASSIMP Development Team.
+  written permission of the assimp team.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
@@ -44,7 +44,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /** @file Implementation of the MD2 importer class */
 #include "MD2Loader.h"
-#include "MaterialSystem.h"
 #include "ByteSwap.h"
 #include "MD2NormalTable.h" // shouldn't be included by other units
 
@@ -56,6 +55,19 @@ using namespace Assimp::MD2;
 #if (!defined ARRAYSIZE)
 #	define ARRAYSIZE(_array) (int(sizeof(_array) / sizeof(_array[0])))
 #endif 
+
+static const aiImporterDesc desc = {
+	"Quake II Mesh Importer",
+	"",
+	"",
+	"",
+	aiImporterFlags_SupportBinaryFlavour,
+	0,
+	0,
+	0,
+	0,
+	"md2" 
+};
 
 // ------------------------------------------------------------------------------------------------
 // Helper function to lookup a normal in Quake 2's precalculated table
@@ -99,9 +111,9 @@ bool MD2Importer::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool 
 
 // ------------------------------------------------------------------------------------------------
 // Get a list of all extensions supported by this loader
-void MD2Importer::GetExtensionList(std::set<std::string>& extensions)
+const aiImporterDesc* MD2Importer::GetInfo () const
 {
-	extensions.insert("md2");
+	return &desc;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -221,7 +233,7 @@ void MD2Importer::InternReadFile( const std::string& pFile,
 	pScene->mRootNode->mMeshes = new unsigned int[1];
 	pScene->mRootNode->mMeshes[0] = 0;
 	pScene->mMaterials = new aiMaterial*[1];
-	pScene->mMaterials[0] = new MaterialHelper();
+	pScene->mMaterials[0] = new aiMaterial();
 	pScene->mNumMeshes = 1;
 	pScene->mMeshes = new aiMesh*[1];
 
@@ -278,7 +290,7 @@ void MD2Importer::InternReadFile( const std::string& pFile,
 	// Not sure whether there are MD2 files without texture coordinates
 	// NOTE: texture coordinates can be there without a texture,
 	// but a texture can't be there without a valid UV channel
-	MaterialHelper* pcHelper = (MaterialHelper*)pScene->mMaterials[0];
+	aiMaterial* pcHelper = (aiMaterial*)pScene->mMaterials[0];
 	const int iMode = (int)aiShadingMode_Gouraud;
 	pcHelper->AddProperty<int>(&iMode, 1, AI_MATKEY_SHADING_MODEL);
 
@@ -321,7 +333,7 @@ void MD2Importer::InternReadFile( const std::string& pFile,
 		pcHelper->AddProperty<aiColor3D>(&clr, 1,AI_MATKEY_COLOR_AMBIENT);
 
 		aiString szName;
-		szName.Set(AI_DEFAULT_TEXTURED_MATERIAL_NAME);
+		szName.Set(AI_DEFAULT_MATERIAL_NAME);
 		pcHelper->AddProperty(&szName,AI_MATKEY_NAME);
 
 		aiString sz;

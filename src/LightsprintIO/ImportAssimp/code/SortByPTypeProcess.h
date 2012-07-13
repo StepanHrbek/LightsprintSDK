@@ -1,8 +1,8 @@
 /*
-Open Asset Import Library (ASSIMP)
+Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2010, ASSIMP Development Team
+Copyright (c) 2006-2012, assimp team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -18,10 +18,10 @@ following conditions are met:
   following disclaimer in the documentation and/or other
   materials provided with the distribution.
 
-* Neither the name of the ASSIMP team, nor the names of its
+* Neither the name of the assimp team, nor the names of its
   contributors may be used to endorse or promote products
   derived from this software without specific prior
-  written permission of the ASSIMP Development Team.
+  written permission of the assimp team.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
@@ -44,7 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define AI_SORTBYPTYPEPROCESS_H_INC
 
 #include "BaseProcess.h"
-#include "../include/aiMesh.h"
+#include "../include/assimp/mesh.h"
 
 class SortByPTypeProcessTest;
 namespace Assimp	{
@@ -55,16 +55,11 @@ namespace Assimp	{
  *  A mesh with 5 lines, 3 points and 145 triangles would be split in 3 
  * submeshes.
 */
-class ASSIMP_API SortByPTypeProcess : public BaseProcess
+class SortByPTypeProcess : public BaseProcess
 {
-	friend class Importer;
-	friend class ::SortByPTypeProcessTest; // grant the unit test full access to us
+public:
 
-protected:
-	/** Constructor to be privately used by Importer */
 	SortByPTypeProcess();
-
-	/** Destructor, private as well */
 	~SortByPTypeProcess();
 
 public:

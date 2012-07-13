@@ -1,8 +1,8 @@
 /*
-Open Asset Import Library (ASSIMP)
+Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2010, ASSIMP Development Team
+Copyright (c) 2006-2012, assimp team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -18,10 +18,10 @@ following conditions are met:
   following disclaimer in the documentation and/or other
   materials provided with the distribution.
 
-* Neither the name of the ASSIMP team, nor the names of its
+* Neither the name of the assimp team, nor the names of its
   contributors may be used to endorse or promote products
   derived from this software without specific prior
-  written permission of the ASSIMP Development Team.
+  written permission of the assimp team.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
@@ -72,6 +72,20 @@ static const float units[] = {
 	1.f/1609.344f
 };	
 
+static const aiImporterDesc desc = {
+	"TrueSpace Object Importer",
+	"",
+	"",
+	"little-endian files only",
+	aiImporterFlags_SupportTextFlavour | aiImporterFlags_SupportBinaryFlavour,
+	0,
+	0,
+	0,
+	0,
+	"cob scn"
+};
+
+
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
 COBImporter::COBImporter()
@@ -99,11 +113,10 @@ bool COBImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool 
 }
 
 // ------------------------------------------------------------------------------------------------
-// List all extensions handled by this loader
-void COBImporter::GetExtensionList(std::set<std::string>& app)
+// Loader meta information
+const aiImporterDesc* COBImporter::GetInfo () const
 {
-	app.insert("cob");
-	app.insert("scn");
+	return &desc;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -207,7 +220,7 @@ void COBImporter::InternReadFile( const std::string& pFile,
 }
 
 // ------------------------------------------------------------------------------------------------
-void ConvertTexture(boost::shared_ptr< Texture > tex, MaterialHelper* out, aiTextureType type)
+void ConvertTexture(boost::shared_ptr< Texture > tex, aiMaterial* out, aiTextureType type)
 {
 	const aiString path( tex->path );
 	out->AddProperty(&path,AI_MATKEY_TEXTURE(type,0));
@@ -286,7 +299,7 @@ aiNode* COBImporter::BuildNodes(const Node& root,const Scene& scin,aiScene* fill
 						defmat.reset(min=new Material());
 					}
 
-					MaterialHelper* mat = new MaterialHelper();
+					aiMaterial* mat = new aiMaterial();
 					fill->mMaterials[fill->mNumMaterials++] = mat;
 
 					const aiString s(format("#mat_")<<fill->mNumMeshes<<"_"<<min->matnum);
@@ -387,7 +400,7 @@ void COBImporter::ReadAsciiFile(Scene& out, StreamReaderLE* stream)
 	ChunkInfo ci;
 	for(LineSplitter splitter(*stream);splitter;++splitter) {
 
-		// add all chunks to be recognized here. /else ../ ommitted intentionally.
+		// add all chunks to be recognized here. /else ../ omitted intentionally.
 		if (splitter.match_start("PolH ")) {
 			ReadChunkInfo_Ascii(ci,splitter);
 			ReadPolH_Ascii(out,splitter,ci);

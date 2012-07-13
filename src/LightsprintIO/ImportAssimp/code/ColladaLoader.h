@@ -1,10 +1,10 @@
 /** Defines the collada loader class */
 
 /*
-Open Asset Import Library (ASSIMP)
+Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2010, ASSIMP Development Team
+Copyright (c) 2006-2012, assimp team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -20,10 +20,10 @@ copyright notice, this list of conditions and the
 following disclaimer in the documentation and/or other
 materials provided with the distribution.
 
-* Neither the name of the ASSIMP team, nor the names of its
+* Neither the name of the assimp team, nor the names of its
 contributors may be used to endorse or promote products
 derived from this software without specific prior
-written permission of the ASSIMP Development Team.
+written permission of the assimp team.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
@@ -78,14 +78,10 @@ struct ColladaMeshIndex
 */
 class ColladaLoader : public BaseImporter
 {
-	friend class Importer;
-
-protected:
-	/** Constructor to be privately used by Importer */
+public:
 	ColladaLoader();
-
-	/** Destructor, private as well */
 	~ColladaLoader();
+
 
 public:
 	/** Returns whether the class can handle the format of the given file. 
@@ -93,10 +89,10 @@ public:
 	bool CanRead( const std::string& pFile, IOSystem* pIOHandler, bool checkSig) const;
 
 protected:
-	/** Called by Importer::GetExtensionList() for each loaded importer.
-	 * See BaseImporter::GetExtensionList() for details
+	/** Return importer meta information.
+	 * See #BaseImporter::GetInfo for the details
 	 */
-	void GetExtensionList( std::set<std::string>& extensions);
+	const aiImporterDesc* GetInfo () const;
 
 	/** Imports the given file into the given scene structure. 
 	 * See BaseImporter::InternReadFile() for details
@@ -157,7 +153,7 @@ protected:
 	void CreateAnimation( aiScene* pScene, const ColladaParser& pParser, const Collada::Animation* pSrcAnim, const std::string& pName);
 	
 	/** Constructs materials from the collada material definitions */
-	void BuildMaterials( const ColladaParser& pParser, aiScene* pScene);
+	void BuildMaterials( ColladaParser& pParser, aiScene* pScene);
 
 	/** Fill materials from the collada material definitions */
 	void FillMaterials( const ColladaParser& pParser, aiScene* pScene);
@@ -167,7 +163,7 @@ protected:
 		const Collada::SemanticMappingTable& table);
 
 	/** Add a texture and all of its sampling properties to a material*/
-	void AddTexture ( Assimp::MaterialHelper& mat, const ColladaParser& pParser,
+	void AddTexture ( aiMaterial& mat, const ColladaParser& pParser,
 		const Collada::Effect& effect,
 		const Collada::Sampler& sampler,
 		aiTextureType type, unsigned int idx = 0);

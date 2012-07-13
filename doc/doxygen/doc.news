@@ -20,6 +20,21 @@ NEWS
   - any other material fileformat can be supported by registering its load/save callbacks
 - improved Scene Viewer
   - Material properties / Load, Save, Save library
+- improved import, new fileformats:
+  - .ifczip (Industry Foundation Classes)
+  - .blend (Blender)
+  - .lws (LightWave)
+  - .raw (PovRAY)
+  - .ms3d (Milkshape 3D)
+  - .b3d (BlitzBasic)
+  - .vta (Valve)
+  - .xgl
+  - .zgl
+  - .acc
+  - .ask
+  - .enff
+  - .mot
+  - .prj
 
 \section news133 ------------------------------------ 2012.06.28 -------------------------------------
 

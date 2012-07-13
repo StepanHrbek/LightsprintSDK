@@ -8,11 +8,11 @@
 
 #include "RRObjectAssimp.h"
 #include "Lightsprint/RRScene.h"
-#include "include/assimp.h"
-#include "include/aiConfig.h"
-#include "include/aiPostProcess.h"
-#include "include/aiScene.h"
-#include "include/aiMaterial.inl"
+#include "include/assimp/cimport.h"
+#include "include/assimp/config.h"
+#include "include/assimp/postprocess.h"
+#include "include/assimp/scene.h"
+#include "include/assimp/material.inl"
 
 using namespace rr;
 
@@ -446,7 +446,12 @@ class RRSceneAssimp : public RRScene
 public:
 	static RRScene* load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 	{
-		const aiScene* aiscene = aiImportFile(RR_RR2CHAR(filename),0 // assimp doesn't support unicode filename
+		aiPropertyStore* propertyStore = aiCreatePropertyStore();
+		aiSetImportPropertyInteger(propertyStore,AI_CONFIG_PP_SBP_REMOVE,aiPrimitiveType_LINE|aiPrimitiveType_POINT);
+		aiSetImportPropertyInteger(propertyStore,AI_CONFIG_PP_RVC_FLAGS,aiComponent_COLORS|aiComponent_BONEWEIGHTS|aiComponent_ANIMATIONS);
+		aiSetImportPropertyFloat(propertyStore,AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE,30.f);
+
+		const aiScene* aiscene = aiImportFileExWithProperties(RR_RR2CHAR(filename),0 // assimp doesn't support unicode filename
 			//|aiProcess_CalcTangentSpace
 			//|aiProcess_JoinIdenticalVertices
 			//|aiProcess_MakeLeftHanded
@@ -471,7 +476,8 @@ public:
 			//|aiProcess_OptimizeGraph
 			//|aiProcess_FlipUVs
 			//|aiProcess_FlipWindingOrder
-			);
+			,NULL,propertyStore);
+		aiReleasePropertyStore(propertyStore);
 		if (!aiscene)
 		{
 			RRReporter::report(ERRO,aiGetErrorString());
@@ -496,9 +502,6 @@ public:
 
 void registerLoaderAssimp()
 {
-	aiSetImportPropertyInteger(AI_CONFIG_PP_SBP_REMOVE,aiPrimitiveType_LINE|aiPrimitiveType_POINT);
-	aiSetImportPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,aiComponent_COLORS|aiComponent_BONEWEIGHTS|aiComponent_ANIMATIONS|aiComponent_CAMERAS);
-	aiSetImportPropertyFloat(AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE,30.f);
 	aiString extensions;
 	aiGetExtensionList(&extensions);
 	std::string str(convertStr(extensions));

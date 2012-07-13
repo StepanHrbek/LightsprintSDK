@@ -137,7 +137,7 @@ Platforms, compilers etc.
 - \subpage supported_platforms
 
 Data input / output
-- reads 70+ standard file formats, writes 15+ file formats
+- reads 95+ standard file formats, writes 20+ file formats
 - \subpage supported_formats
 
 Global illumination
@@ -222,50 +222,55 @@ Ray-Mesh collisions
 
 \page supported_formats Supported formats
 
-Scene formats
+Scene formats (57+)
 - Gamebryo LightSpeed 3.1.1
 - Gamebryo 2.6 ( *.gsa )
 - Unreal Engine 3
 - \subpage rr3_specification "Lightsprint ( .rr3 )"
+- 3D GameStudio ( *.mdl;*.hmp )
+- 3D Studio Max ( *.3ds;*.ase )
+- AC3D ( *.ac )
+- AutoCAD ( *.dxf )
+- Biovision ( *.bvh )
+- Blender ( *.blend )
+- BlitzBasic ( *.b3d )
+- CharacterStudio ( *.csm )
 - Collada ( *.dae )    <------ if not sure, use Collada, see \subpage collada_plugins
-- Biovision BVH ( *.bvh )
-- 3D Studio Max 3DS ( *.3ds )
-- 3D Studio Max ASE ( *.ase )
-- Wavefront Object ( *.obj )
-- Stanford Polygon Library ( *.ply )
-- AutoCAD DXF ( *.dxf )
-- Neutral File Format ( *.nff )
-- Sense8 WorldToolkit ( *.nff )
-- LightWave Model ( *.lwo )
-- MODO model ( *.lxo )
-- Valve Model ( *.smd,*.vta )
-- Quake I ( *.mdl )
-- Quake II ( *.md2 )
-- Quake III ( *.md3,*.bsp,*.pk3 )
-- RtCW ( *.mdc )
-- Doom 3 ( *.md5mesh )
-- DirectX X ( *.x )
+- DirectX ( *.x )
+- iD software
+  - Quake I ( *.mdl )
+  - Quake II ( *.md2 )
+  - Quake III ( *.md3,*.bsp,*.pk3 )
+  - Doom 3 ( *.md5mesh )
+  - Return to Castle Wolfenstein ( *.mdc )
+- Industry Foundation Classes ( *.ifc;*.ifczip )
+- Irrlicht ( *.irr;*.irrmesh;*.xml )
+- Izware Nendo ( *.ndo )
+- LightWave ( *.lwo;*.lws )
+- MODO ( *.lxo )
+- Neutral File Format ( *.nff;*.enff )
+- Material and Geometry Format ( *.mgf )
+- Milkshape 3D ( *.ms3d )
+- Object File Format ( *.off )
+- Ogre 3D ( *.mesh.xml;*.material )
+- PovRAY ( *.raw )
 - Quick3D ( *.q3o;*q3s )
 - Raw Triangles ( *.raw )
-- AC3D ( *.ac )
+- Sense8 WorldToolkit ( *.nff )
+- Stanford Polygon Library ( *.ply )
+- Starcraft 2 ( *.m3 )
 - Stereolithography ( *.stl )
-- Irrlicht Mesh ( *.irrmesh;*.xml )
-- Irrlicht Scene ( *.irr;*.xml )
-- Object File Format ( *.off )
 - Terragen Terrain ( *.ter )
-- 3D GameStudio Model ( *.mdl )
-- 3D GameStudio Terrain ( *.hmp )
-- Ogre ( *.mesh.xml;*.material )
-- TrueSpace ( *.cob )
-- Unreal ( *.3d,*.uc )
-- Blender ( *.blend )
-- Nendo ( *.ndo )
-- Material and Geometry Format ( *.mgf )
-- Industry Foundation Classes ( *.ifc )
+- TrueSpace ( *.cob;*.scn )
+- Unreal ( *.3d;*.uc )
+- Valve ( *.smd,*.vta )
+- Wavefront ( *.obj )
+- XGL ( *.xgl;*.zgl )
+- others ( *.acc;*.ask;*.mot;*.prj )
 - framework for custom formats
 - complete source code
 
-Texture formats
+Texture formats (32+)
 - \subpage rr3_specification "Lightsprint .rrbuffer" [reading, writing]
 - BMP files [reading, writing]
 - Dr. Halo CUT files [reading]
@@ -300,13 +305,15 @@ Texture formats
 - cube textures
 - 96bit and 128bit float textures
 
-Video formats
+Video formats (5+)
 - .avi
 - .wmv
 - .asf
 - .mpg, .mpeg
 - any other format with codec installed in Windows (.mov, .mkv etc)
 
+Material formats (1)
+- \subpage rr3_specification "Lightsprint .rrmaterial" [reading, writing]
 
 \page supported_platforms Supported platforms
 
@@ -383,14 +390,16 @@ Video formats
   To test correctness of your Collada documents, use <a href="http://sourceforge.net/projects/colladarefinery/files/COLLADA%20Coherency%20Test/">Collada Coherency Test</a>.
 
 
-\page rr3_specification .rr3 and .rrbuffer fileformats
+\page rr3_specification .rr3 / .rrbuffer / .rrmaterial fileformats
 
  .rr3 is a serialization of RRScene (3d scene), fileformat created by Lightsprint.
 
  .rrbuffer is a serialization of RRBuffer (2d texture / cubemap / vertex buffer), fileformat created by Lightsprint.
 
+ .rrmaterial is a serialization of RRMaterials (1 or more materials), fileformat created by Lightsprint.
+
  Lightsprint stands against common business practise of creating truckloads of new formats and locking customers' data in these formats; we work for customers, not against them.
- We created these two new fileformats after 5 years of supporting over 70 standard fileformats. We offer them as an option, not forcing you to use them.
+ We created these new fileformats after 5 years of supporting 95+ standard fileformats. We offer them as an option, not forcing you to use them.
 
  <hr>
 
@@ -433,6 +442,16 @@ Video formats
 
  \section rrbuffer_data .rrbuffer contents
  .rrbuffer contains all static data present in standard RRBuffer (i.e. 2d textures, cubemaps, vertex buffers, but not video)
+
+ <hr>
+
+ \section rrmaterial_benefits .rrmaterial benefits
+ - supports all material features supported by Lightsprint solvers
+ - smaller filesizes, and faster loads/saves
+ - full import/export source code included with commercial license
+
+ \section rrmaterial_data .rrmaterial contents
+ .rrmaterial contains all data present in RRMaterials, i.e. description of materials, with links to textures, or embedded textures
 
 
 
@@ -579,7 +598,7 @@ Video formats
   - www: <a href="http://assimp.sourceforge.net/">Assimp</a>
   - license: <a href="http://assimp.sourceforge.net/main_license.html">3-clause BSD license</a>
   - optional, remove by deleting <code>\#define SUPPORT_ASSIMP</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
-  - svn revision 1057 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+  - svn revision 1289 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
 
  \page assimp_patch Assimp patch
 
@@ -862,7 +881,7 @@ Video formats
 
  \section artist_offline_formats File formats
   Lightsprint SDK does not lock your data in properietary formats.
-  Instead, it supports \ref supported_formats "over 70 standard file formats".
+  Instead, it supports \ref supported_formats "95+ standard file formats".
   In case you pick Collada, here's list of available \ref collada_plugins.
 
  \section artist_offline_night Night scenes
@@ -966,7 +985,7 @@ Video formats
 
  \section artist_offline_formats File formats
   Lightsprint SDK does not lock your data in properietary formats.
-  Instead, it supports \ref supported_formats "over 70 standard file formats".
+  Instead, it supports \ref supported_formats "95+ standard file formats".
   In case you pick Collada, here's list of available \ref collada_plugins.
 
  \section artist_offline_night Night scenes
@@ -2916,7 +2935,7 @@ rr::RRVector<*>{
   (includes also high performance renderer and scene editor)
 
  - <b> \subpage api_io "LIGHTSPRINT IO" </b> -
-  provides support for 70+ fileformats
+  provides support for 95+ fileformats
 
  structured into core layer and extensions:
 
@@ -3119,7 +3138,7 @@ rr::RRVector<*>{
 
  \section io_overview Overview
 
-  LightsprintIO provides support for \subpage supported_formats "70+ fileformats", by registering import/export callbacks
+  LightsprintIO provides support for \subpage supported_formats "95+ fileformats", by registering import/export callbacks
   for textures and 3d scenes.
 
   It has simple and friendly user interface, one function without parameters.
@@ -3239,7 +3258,7 @@ rr::RRVector<*>{
  - realtime GI: freely move all lights, no precalculations
  - precomputed GI: test build/load/save lightmaps
  - edit materials, manipulate objects
- - import/export 70+ fileformats
+ - import/export 95+ fileformats
  - debugging: visualize tangents, see rays shot from individual triangles or texels etc
 
  <hr>

@@ -154,6 +154,12 @@
     <Filter Include="Isolation">
       <UniqueIdentifier>{1222b9f4-7ba2-4c6b-b318-7c54bf82964a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assimp\contrib\clipper">
+      <UniqueIdentifier>{5e1a9350-2b7e-4660-81f1-cd3fc68c02cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp\contrib\poly2tri">
+      <UniqueIdentifier>{aec9e359-664b-4df6-88de-968a74ca8992}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Import3DS\Model_3DS.cpp">
@@ -850,6 +856,9 @@
     <ClCompile Include="ImportAssimp\contrib\unzip\unzip.c">
       <Filter>Assimp\contrib\unzip</Filter>
     </ClCompile>
+    <ClCompile Include="ImportIsolation\RRSceneIsolation.cpp">
+      <Filter>Isolation</Filter>
+    </ClCompile>
     <ClCompile Include="ImportAssimp\code\3DSConverter.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -961,13 +970,31 @@
     <ClCompile Include="ImportAssimp\code\HMPLoader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCCurve.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCGeometry.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="ImportAssimp\code\IFCLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCMaterial.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCProfile.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\IFCReaderGen.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCUtil.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="ImportAssimp\code\Importer.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ImporterRegistry.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\ImproveCacheLocality.cpp">
@@ -1001,6 +1028,9 @@
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\LWSLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\M3Importer.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\MakeVerboseFormat.cpp">
@@ -1039,6 +1069,9 @@
     <ClCompile Include="ImportAssimp\code\NFFLoader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ObjExporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="ImportAssimp\code\ObjFileImporter.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -1054,7 +1087,13 @@
     <ClCompile Include="ImportAssimp\code\OgreImporter.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
-    <ClCompile Include="ImportAssimp\code\OgreImporterMaterial.cpp">
+    <ClCompile Include="ImportAssimp\code\OgreMaterial.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\OgreMesh.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\OgreSkeleton.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\OptimizeGraph.cpp">
@@ -1063,10 +1102,16 @@
     <ClCompile Include="ImportAssimp\code\OptimizeMeshes.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="ImportAssimp\code\PlyExporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="ImportAssimp\code\PlyLoader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\PlyParser.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\PostStepRegistry.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\PretransformVertices.cpp">
@@ -1132,6 +1177,9 @@
     <ClCompile Include="ImportAssimp\code\STEPFileReader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="ImportAssimp\code\STLExporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="ImportAssimp\code\STLLoader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -1165,29 +1213,26 @@
     <ClCompile Include="ImportAssimp\code\XFileParser.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
-    <ClCompile Include="ImportAssimp\code\IFCGeometry.cpp">
+    <ClCompile Include="ImportAssimp\code\XGLLoader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
-    <ClCompile Include="ImportAssimp\code\IFCMaterial.cpp">
-      <Filter>Assimp\code</Filter>
+    <ClCompile Include="ImportAssimp\contrib\clipper\clipper.cpp">
+      <Filter>Assimp\contrib\clipper</Filter>
     </ClCompile>
-    <ClCompile Include="ImportAssimp\code\IFCProfile.cpp">
-      <Filter>Assimp\code</Filter>
+    <ClCompile Include="ImportAssimp\contrib\poly2tri\poly2tri\common\shapes.cc">
+      <Filter>Assimp\contrib\poly2tri</Filter>
     </ClCompile>
-    <ClCompile Include="ImportAssimp\code\IFCUtil.cpp">
-      <Filter>Assimp\code</Filter>
+    <ClCompile Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\advancing_front.cc">
+      <Filter>Assimp\contrib\poly2tri</Filter>
     </ClCompile>
-    <ClCompile Include="ImportAssimp\code\IFCCurve.cpp">
-      <Filter>Assimp\code</Filter>
+    <ClCompile Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\cdt.cc">
+      <Filter>Assimp\contrib\poly2tri</Filter>
     </ClCompile>
-    <ClCompile Include="ImportAssimp\code\M3Importer.cpp">
-      <Filter>Assimp\code</Filter>
+    <ClCompile Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep.cc">
+      <Filter>Assimp\contrib\poly2tri</Filter>
     </ClCompile>
-    <ClCompile Include="ImportAssimp\code\ObjExporter.cpp">
-      <Filter>Assimp\code</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportIsolation\RRSceneIsolation.cpp">
-      <Filter>Isolation</Filter>
+    <ClCompile Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep_context.cc">
+      <Filter>Assimp\contrib\poly2tri</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1232,93 +1277,6 @@
     </ClInclude>
     <ClInclude Include="ImportAssimp\RRObjectAssimp.h">
       <Filter>Assimp</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiAnim.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiAssert.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiCamera.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiConfig.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiDefines.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiFileIO.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiLight.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiMaterial.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiMatrix3x3.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiMatrix4x4.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiMesh.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiPostProcess.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiQuaternion.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiScene.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiTexture.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiTypes.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiVector2D.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiVector3D.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\aiVersion.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\assimp.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\assimp.hpp">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\DefaultLogger.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\IOStream.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\IOSystem.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\Logger.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\LogStream.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\NullLogger.h">
-      <Filter>Assimp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\Compiler\poppack1.h">
-      <Filter>Assimp\include\compiler</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportAssimp\include\Compiler\pushpack1.h">
-      <Filter>Assimp\include\compiler</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\contrib\zlib\crc32.h">
       <Filter>Assimp\contrib\zlib</Filter>
@@ -2357,6 +2315,9 @@
     <ClInclude Include="ImportAssimp\contrib\unzip\unzip.h">
       <Filter>Assimp\contrib\unzip</Filter>
     </ClInclude>
+    <ClInclude Include="ImportIsolation\RRSceneIsolation.h">
+      <Filter>Isolation</Filter>
+    </ClInclude>
     <ClInclude Include="ImportAssimp\code\3DSHelper.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
@@ -2516,7 +2477,13 @@
     <ClInclude Include="ImportAssimp\code\IFCReaderGen.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
+    <ClInclude Include="ImportAssimp\code\IFCUtil.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
     <ClInclude Include="ImportAssimp\code\IFF.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Importer.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\ImproveCacheLocality.h">
@@ -2543,6 +2510,9 @@
     <ClInclude Include="ImportAssimp\code\LineSplitter.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
+    <ClInclude Include="ImportAssimp\code\LogAux.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
     <ClInclude Include="ImportAssimp\code\LWOAnimation.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
@@ -2553,6 +2523,9 @@
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\LWSLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\M3Importer.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\MakeVerboseFormat.h">
@@ -2615,6 +2588,9 @@
     <ClInclude Include="ImportAssimp\code\NFFLoader.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ObjExporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
     <ClInclude Include="ImportAssimp\code\ObjFileData.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
@@ -2633,10 +2609,10 @@
     <ClInclude Include="ImportAssimp\code\OFFLoader.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
-    <ClInclude Include="ImportAssimp\code\OgreImporter.h">
+    <ClInclude Include="ImportAssimp\code\OgreImporter.hpp">
       <Filter>Assimp\code</Filter>
     </ClInclude>
-    <ClInclude Include="ImportAssimp\code\OgreXmlHelper.h">
+    <ClInclude Include="ImportAssimp\code\OgreXmlHelper.hpp">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\OptimizeGraph.h">
@@ -2648,10 +2624,16 @@
     <ClInclude Include="ImportAssimp\code\ParsingUtils.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
+    <ClInclude Include="ImportAssimp\code\PlyExporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
     <ClInclude Include="ImportAssimp\code\PlyLoader.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\PlyParser.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\PolyTools.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\PretransformVertices.h">
@@ -2702,6 +2684,9 @@
     <ClInclude Include="ImportAssimp\code\ScenePreprocessor.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ScenePrivate.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
     <ClInclude Include="ImportAssimp\code\SGSpatialSort.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
@@ -2736,6 +2721,9 @@
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\STEPFileReader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\STLExporter.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\STLLoader.h">
@@ -2789,43 +2777,163 @@
     <ClInclude Include="ImportAssimp\code\XFileParser.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
-    <ClInclude Include="ImportAssimp\code\LogAux.h">
+    <ClInclude Include="ImportAssimp\code\XGLLoader.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
-    <ClInclude Include="ImportAssimp\code\PolyTools.h">
-      <Filter>Assimp\code</Filter>
+    <ClInclude Include="ImportAssimp\include\assimp\ai_assert.h">
+      <Filter>Assimp\include</Filter>
     </ClInclude>
-    <ClInclude Include="ImportAssimp\code\IFCUtil.h">
-      <Filter>Assimp\code</Filter>
+    <ClInclude Include="ImportAssimp\include\assimp\anim.h">
+      <Filter>Assimp\include</Filter>
     </ClInclude>
-    <ClInclude Include="ImportAssimp\code\M3Importer.h">
-      <Filter>Assimp\code</Filter>
+    <ClInclude Include="ImportAssimp\include\assimp\camera.h">
+      <Filter>Assimp\include</Filter>
     </ClInclude>
-    <ClInclude Include="ImportAssimp\code\ObjExporter.h">
-      <Filter>Assimp\code</Filter>
+    <ClInclude Include="ImportAssimp\include\assimp\cexport.h">
+      <Filter>Assimp\include</Filter>
     </ClInclude>
-    <ClInclude Include="ImportIsolation\RRSceneIsolation.h">
-      <Filter>Isolation</Filter>
+    <ClInclude Include="ImportAssimp\include\assimp\cfileio.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\cimport.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\color4.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\config.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\DefaultLogger.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\defs.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\Exporter.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\Importer.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\importerdesc.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\IOStream.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\IOSystem.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\light.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\Logger.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\LogStream.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\material.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\matrix3x3.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\matrix4x4.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\mesh.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\NullLogger.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\postprocess.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\ProgressHandler.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\quaternion.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\scene.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\texture.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\types.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\vector2.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\vector3.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\version.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\Compiler\poppack1.h">
+      <Filter>Assimp\include\compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\Compiler\pushpack1.h">
+      <Filter>Assimp\include\compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\clipper\clipper.hpp">
+      <Filter>Assimp\contrib\clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\poly2tri.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\common\shapes.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\common\utils.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\advancing_front.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\cdt.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep_context.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ImportAssimp\include\aiMaterial.inl">
-      <Filter>Assimp\include</Filter>
-    </None>
-    <None Include="ImportAssimp\include\aiMatrix3x3.inl">
-      <Filter>Assimp\include</Filter>
-    </None>
-    <None Include="ImportAssimp\include\aiMatrix4x4.inl">
-      <Filter>Assimp\include</Filter>
-    </None>
-    <None Include="ImportAssimp\include\aiVector3D.inl">
-      <Filter>Assimp\include</Filter>
-    </None>
     <None Include="ImportAssimp\code\BlenderDNA.inl">
       <Filter>Assimp\code</Filter>
     </None>
     <None Include="ImportAssimp\code\SmoothingGroups.inl">
       <Filter>Assimp\code</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\color4.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\material.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\matrix3x3.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\matrix4x4.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\quaternion.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\vector2.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\vector3.inl">
+      <Filter>Assimp\include</Filter>
     </None>
   </ItemGroup>
 </Project>

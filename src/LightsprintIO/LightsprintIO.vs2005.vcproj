@@ -1338,6 +1338,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\Importer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\ImporterRegistry.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\ImproveCacheLocality.cpp"
 					>
 				</File>
@@ -1622,15 +1630,23 @@
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\code\OgreImporter.h"
+					RelativePath=".\ImportAssimp\code\OgreImporter.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\code\OgreImporterMaterial.cpp"
+					RelativePath=".\ImportAssimp\code\OgreMaterial.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\code\OgreXmlHelper.h"
+					RelativePath=".\ImportAssimp\code\OgreMesh.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\OgreSkeleton.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\OgreXmlHelper.hpp"
 					>
 				</File>
 				<File
@@ -1654,6 +1670,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\PlyExporter.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\PlyExporter.h"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\PlyLoader.cpp"
 					>
 				</File>
@@ -1671,6 +1695,10 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\PolyTools.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\PostStepRegistry.cpp"
 					>
 				</File>
 				<File
@@ -1786,6 +1814,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\ScenePrivate.h"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\SGSpatialSort.cpp"
 					>
 				</File>
@@ -1871,6 +1903,14 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\STEPFileReader.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\STLExporter.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\STLExporter.h"
 					>
 				</File>
 				<File
@@ -1985,143 +2025,183 @@
 					RelativePath=".\ImportAssimp\code\XFileParser.h"
 					>
 				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\XGLLoader.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\XGLLoader.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="include"
 				>
 				<File
-					RelativePath=".\ImportAssimp\include\aiAnim.h"
+					RelativePath=".\ImportAssimp\include\assimp\ai_assert.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiAssert.h"
+					RelativePath=".\ImportAssimp\include\assimp\anim.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiCamera.h"
+					RelativePath=".\ImportAssimp\include\assimp\camera.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiConfig.h"
+					RelativePath=".\ImportAssimp\include\assimp\cexport.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiDefines.h"
+					RelativePath=".\ImportAssimp\include\assimp\cfileio.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiFileIO.h"
+					RelativePath=".\ImportAssimp\include\assimp\cimport.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiLight.h"
+					RelativePath=".\ImportAssimp\include\assimp\color4.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiMaterial.h"
+					RelativePath=".\ImportAssimp\include\assimp\color4.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiMaterial.inl"
+					RelativePath=".\ImportAssimp\include\assimp\config.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiMatrix3x3.h"
+					RelativePath=".\ImportAssimp\include\assimp\DefaultLogger.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiMatrix3x3.inl"
+					RelativePath=".\ImportAssimp\include\assimp\defs.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiMatrix4x4.h"
+					RelativePath=".\ImportAssimp\include\assimp\Exporter.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiMatrix4x4.inl"
+					RelativePath=".\ImportAssimp\include\assimp\Importer.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiMesh.h"
+					RelativePath=".\ImportAssimp\include\assimp\importerdesc.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiPostProcess.h"
+					RelativePath=".\ImportAssimp\include\assimp\IOStream.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiQuaternion.h"
+					RelativePath=".\ImportAssimp\include\assimp\IOSystem.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiScene.h"
+					RelativePath=".\ImportAssimp\include\assimp\light.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiTexture.h"
+					RelativePath=".\ImportAssimp\include\assimp\Logger.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiTypes.h"
+					RelativePath=".\ImportAssimp\include\assimp\LogStream.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiVector2D.h"
+					RelativePath=".\ImportAssimp\include\assimp\material.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiVector3D.h"
+					RelativePath=".\ImportAssimp\include\assimp\material.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiVector3D.inl"
+					RelativePath=".\ImportAssimp\include\assimp\matrix3x3.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\aiVersion.h"
+					RelativePath=".\ImportAssimp\include\assimp\matrix3x3.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\assimp.h"
+					RelativePath=".\ImportAssimp\include\assimp\matrix4x4.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\assimp.hpp"
+					RelativePath=".\ImportAssimp\include\assimp\matrix4x4.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\DefaultLogger.h"
+					RelativePath=".\ImportAssimp\include\assimp\mesh.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\IOStream.h"
+					RelativePath=".\ImportAssimp\include\assimp\NullLogger.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\IOSystem.h"
+					RelativePath=".\ImportAssimp\include\assimp\postprocess.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\Logger.h"
+					RelativePath=".\ImportAssimp\include\assimp\ProgressHandler.hpp"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\LogStream.h"
+					RelativePath=".\ImportAssimp\include\assimp\quaternion.h"
 					>
 				</File>
 				<File
-					RelativePath=".\ImportAssimp\include\NullLogger.h"
+					RelativePath=".\ImportAssimp\include\assimp\quaternion.inl"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\include\assimp\scene.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\include\assimp\texture.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\include\assimp\types.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\include\assimp\vector2.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\include\assimp\vector2.inl"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\include\assimp\vector3.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\include\assimp\vector3.inl"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\include\assimp\version.h"
 					>
 				</File>
 				<Filter
 					Name="compiler"
 					>
 					<File
-						RelativePath=".\ImportAssimp\include\Compiler\poppack1.h"
+						RelativePath=".\ImportAssimp\include\assimp\Compiler\poppack1.h"
 						>
 					</File>
 					<File
-						RelativePath=".\ImportAssimp\include\Compiler\pushpack1.h"
+						RelativePath=".\ImportAssimp\include\assimp\Compiler\pushpack1.h"
 						>
 					</File>
 				</Filter>
@@ -2278,6 +2358,70 @@
 					</File>
 					<File
 						RelativePath=".\ImportAssimp\contrib\unzip\unzip.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="clipper"
+					>
+					<File
+						RelativePath=".\ImportAssimp\contrib\clipper\clipper.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\clipper\clipper.hpp"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="poly2tri"
+					>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\sweep\advancing_front.cc"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\sweep\advancing_front.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\sweep\cdt.cc"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\sweep\cdt.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\poly2tri.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\common\shapes.cc"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\common\shapes.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep.cc"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep_context.cc"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep_context.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportAssimp\contrib\poly2tri\poly2tri\common\utils.h"
 						>
 					</File>
 				</Filter>

@@ -1,9 +1,9 @@
 /*
 ---------------------------------------------------------------------------
-Open Asset Import Library (ASSIMP)
+Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2010, ASSIMP Development Team
+Copyright (c) 2006-2012, assimp team
 
 All rights reserved.
 
@@ -20,10 +20,10 @@ conditions are met:
   following disclaimer in the documentation and/or other
   materials provided with the distribution.
 
-* Neither the name of the ASSIMP team, nor the names of its
+* Neither the name of the assimp team, nor the names of its
   contributors may be used to endorse or promote products
   derived from this software without specific prior
-  written permission of the ASSIMP Development Team.
+  written permission of the assimp team.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT 
@@ -52,7 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "SceneCombiner.h"
 #include "StandardShapes.h"
-
+#include "Importer.h"
 
 // We need boost::common_factor to compute the lcm/gcd of a number
 #include <boost/math/common_factor_rt.hpp>
@@ -61,6 +61,18 @@ using namespace Assimp;
 using namespace irr;
 using namespace irr::io;
 
+static const aiImporterDesc desc = {
+	"Irrlicht Scene Reader",
+	"",
+	"",
+	"http://irrlicht.sourceforge.net/",
+	aiImporterFlags_SupportTextFlavour,
+	0,
+	0,
+	0,
+	0,
+	"irr xml" 
+};
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
@@ -98,10 +110,9 @@ bool IRRImporter::CanRead( const std::string& pFile, IOSystem* pIOHandler, bool 
 }
 
 // ------------------------------------------------------------------------------------------------
-void IRRImporter::GetExtensionList(std::set<std::string>& extensions)
+const aiImporterDesc* IRRImporter::GetInfo () const
 {
-	extensions.insert("irr");
-	extensions.insert("xml");
+	return &desc;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -170,7 +181,7 @@ void IRRImporter::BuildSkybox(std::vector<aiMesh*>& meshes, std::vector<aiMateri
 {
 	// Update the material of the skybox - replace the name and disable shading for skyboxes.
 	for (unsigned int i = 0; i < 6;++i)	{
-		MaterialHelper* out = ( MaterialHelper* ) (*(materials.end()-(6-i)));
+		aiMaterial* out = ( aiMaterial* ) (*(materials.end()-(6-i)));
 
 		aiString s;
 		s.length = ::sprintf( s.data, "SkyboxSide_%i",i );
@@ -246,7 +257,7 @@ void IRRImporter::CopyMaterial(std::vector<aiMaterial*>& materials,
 		if (UINT_MAX == defMatIdx)
 		{
 			defMatIdx = (unsigned int)materials.size();
-			MaterialHelper* mat = new MaterialHelper();
+			aiMaterial* mat = new aiMaterial();
 
 			aiString s;
 			s.Set(AI_DEFAULT_MATERIAL_NAME);
@@ -457,7 +468,7 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
 					key.mTime = i * tdelta;
 
 					const float t = (float) ( in.speed * key.mTime );
-					key.mValue = in.circleCenter  + in.circleRadius * ((vecU*::cos(t)) + (vecV*::sin(t)));
+					key.mValue = in.circleCenter  + in.circleRadius * ((vecU*::cosf(t)) + (vecV*::sinf(t)));
 				}
 
 				// This animation is repeated and repeated ...
@@ -546,7 +557,7 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
 					t2 = (h1 * p1 + p2 * h2 + t1 * h3 + h4 * t2);
 
 					// build a simple translation matrix from it
-					key.mValue = t2.x;
+					key.mValue = t2;
 					key.mTime  = (double) i;
 				}
 			}
@@ -564,7 +575,7 @@ void IRRImporter::ComputeAnimations(Node* root, aiNode* real, std::vector<aiNode
 
 // ------------------------------------------------------------------------------------------------
 // This function is maybe more generic than we'd need it here
-void SetupMapping (MaterialHelper* mat, aiTextureMapping mode, const aiVector3D& axis = aiVector3D(0.f,0.f,-1.f))
+void SetupMapping (aiMaterial* mat, aiTextureMapping mode, const aiVector3D& axis = aiVector3D(0.f,0.f,-1.f))
 {
 	// Check whether there are texture properties defined - setup
 	// the desired texture mapping mode for all of them and ignore
@@ -687,7 +698,7 @@ void IRRImporter::GenerateGraph(Node* root,aiNode* rootOut ,aiScene* scene,
 				// often the case so we can simply extract it to a shared oacity
 				// value.
 				std::pair<aiMaterial*, unsigned int>& src = root->materials[mesh->mMaterialIndex];
-				MaterialHelper* mat = (MaterialHelper*)src.first;
+				aiMaterial* mat = (aiMaterial*)src.first;
 
 				if (mesh->HasVertexColors(0) && src.second & AI_IRRMESH_MAT_trans_vertex_alpha)
 				{
@@ -757,7 +768,7 @@ void IRRImporter::GenerateGraph(Node* root,aiNode* rootOut ,aiScene* scene,
 
 			// Now adjust this output material - if there is a first texture
 			// set, setup spherical UV mapping around the Y axis.
-			SetupMapping ( (MaterialHelper*) materials.back(), aiTextureMapping_SPHERE);
+			SetupMapping ( (aiMaterial*) materials.back(), aiTextureMapping_SPHERE);
 		}
 		break;
 
@@ -775,7 +786,7 @@ void IRRImporter::GenerateGraph(Node* root,aiNode* rootOut ,aiScene* scene,
 
 			// Now adjust this output material - if there is a first texture
 			// set, setup cubic UV mapping 
-			SetupMapping ( (MaterialHelper*) materials.back(), aiTextureMapping_BOX );
+			SetupMapping ( (aiMaterial*) materials.back(), aiTextureMapping_BOX );
 		}
 		break;
 
