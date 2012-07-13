@@ -282,6 +282,68 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 	}
 }
 
+//----------------------------- RRVector<C> ------------------------------------
+
+template<class Archive, class C>
+void save(Archive & ar, const rr::RRVector<C>& a, const unsigned int version)
+{
+	unsigned count = a.size();
+	ar & make_nvp("count",count);
+	for (unsigned i=0;i<count;i++)
+	{
+		ar & make_nvp("item",a[i]);
+	}
+}
+
+template<class Archive, class C>
+void load(Archive & ar, rr::RRVector<C>& a, const unsigned int version)
+{
+	RR_ASSERT(!a.size());
+	a.clear();
+	unsigned count;
+	ar & make_nvp("count",count);
+	while (count--)
+	{
+		C item;
+		ar & make_nvp("item", item);
+		a.push_back(item);
+	}
+}
+
+template<class Archive, class C>
+void save(Archive & ar, const rr::RRVector<C*>& a, const unsigned int version)
+{
+	unsigned count = 0;
+	for (unsigned i=0;i<a.size();i++)
+		if (a[i])
+			count++;
+	ar & make_nvp("count",count);
+	for (unsigned i=0;i<a.size();i++)
+		if (a[i]) // skip NULL items
+			ar & make_nvp("item",*a[i]);
+}
+
+template<class Archive, class C>
+void load(Archive & ar, rr::RRVector<C*>& a, const unsigned int version)
+{
+	RR_ASSERT(!a.size());
+	a.clear();
+	unsigned count;
+	ar & make_nvp("count",count);
+	while (count--)
+	{
+		C* item = new C;
+		ar & make_nvp("item", *item);
+		a.push_back(item);
+	}
+}
+
+template<class Archive, class C>
+void serialize(Archive & ar, rr::RRVector<C>& a, const unsigned int file_version)
+{
+	boost::serialization::split_free(ar, a, file_version);
+}
+
 //------------------------------ RRSideBits -------------------------------------
 
 template<class Archive>
@@ -434,68 +496,6 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 		if (bumpMapColor!=a.bumpMap.color)
 			a.updateBumpMapType();
 	}
-}
-
-//----------------------------- RRVector<C> ------------------------------------
-
-template<class Archive, class C>
-void save(Archive & ar, const rr::RRVector<C>& a, const unsigned int version)
-{
-	unsigned count = a.size();
-	ar & make_nvp("count",count);
-	for (unsigned i=0;i<count;i++)
-	{
-		ar & make_nvp("item",a[i]);
-	}
-}
-
-template<class Archive, class C>
-void load(Archive & ar, rr::RRVector<C>& a, const unsigned int version)
-{
-	RR_ASSERT(!a.size());
-	a.clear();
-	unsigned count;
-	ar & make_nvp("count",count);
-	while (count--)
-	{
-		C item;
-		ar & make_nvp("item", item);
-		a.push_back(item);
-	}
-}
-
-template<class Archive, class C>
-void save(Archive & ar, const rr::RRVector<C*>& a, const unsigned int version)
-{
-	unsigned count = 0;
-	for (unsigned i=0;i<a.size();i++)
-		if (a[i])
-			count++;
-	ar & make_nvp("count",count);
-	for (unsigned i=0;i<a.size();i++)
-		if (a[i]) // skip NULL items
-			ar & make_nvp("item",*a[i]);
-}
-
-template<class Archive, class C>
-void load(Archive & ar, rr::RRVector<C*>& a, const unsigned int version)
-{
-	RR_ASSERT(!a.size());
-	a.clear();
-	unsigned count;
-	ar & make_nvp("count",count);
-	while (count--)
-	{
-		C* item = new C;
-		ar & make_nvp("item", *item);
-		a.push_back(item);
-	}
-}
-
-template<class Archive, class C>
-void serialize(Archive & ar, rr::RRVector<C>& a, const unsigned int file_version)
-{
-	boost::serialization::split_free(ar, a, file_version);
 }
 
 //------------------------------ RRLight ------------------------------------
@@ -915,6 +915,7 @@ void serialize(Archive & ar, rr::RRScene& a, const unsigned int version)
 		ar & make_nvp("cameras",a.cameras);
 	}
 	// must be called after load. there's nothing to free after save
+	// we do it here because we know that RRScene is serialized at the end of file
 	RRBufferProxy::freeMemory();
 	RRMeshProxy::freeMemory();
 }

@@ -268,6 +268,16 @@ namespace rr
 
 		//! Deletes textures (yes, textures are owned by RRMaterial).
 		~RRMaterial();
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Loaders/Savers
+		//////////////////////////////////////////////////////////////////////////////
+
+		//! Loads first material from file, returns true on success.
+		bool load(const RRString& filename, RRFileLocator* textureLocator);
+		//! Saves material to file, returns true on success.
+		bool save(const RRString& filename) const;
 	};
 
 	//! RRMaterial optimized for use in RRObject::getPointMaterial().
@@ -286,6 +296,58 @@ namespace rr
 		void copyFrom(const RRMaterial& from) {}
 		void updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs) {}
 		unsigned createTexturesFromColors() {return 0;}
+	};
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//! Material library, collection of materials.
+	//
+	//! Material collection that can be loaded or saved to disk.
+	//! Individual materials are not owned by collection, they are not deleted in destructor.
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RR_API RRMaterials : public RRVector<RRMaterial*>
+	{
+	public:
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Loaders/Savers
+		//////////////////////////////////////////////////////////////////////////////
+
+		//! Loads materials from file, returns true on success.
+		static RRMaterials* load(const RRString& filename, RRFileLocator* textureLocator);
+		//! Saves materials to file, returns true on success.
+		bool save(const RRString& filename) const;
+
+		//! Template of custom material loader.
+		typedef RRMaterials* Loader(const RRString& filename, RRFileLocator* textureLocator, bool* aborting);
+		//! Template of custom material saver.
+		typedef bool Saver(const RRMaterials* materials, const RRString& filename);
+
+		//! Registers material loader so it can be used by RRMaterial::load().
+		//
+		//! Extensions are case insensitive, in "*.rrmaterial;*.mtl" format.
+		//!
+		//! Several loaders are implemented in LightsprintIO library,
+		//! rr_io::registerLoaders() will register all of them for you (by calling this function several times).
+		//!
+		//! Multiple loaders may be registered, even for the same extension.
+		//! If first loader fails to load scene, second one is tried etc.
+		static void registerLoader(const char* extensions, Loader* loader);
+		//! Similar to registerLoader().
+		static void registerSaver(const char* extensions, Saver* saver);
+		//! Returns list of supported loader extensions in "*.rrmaterial;*.mtl" format.
+		//
+		//! All extensions of registered loaders are returned in one static string, don't free() it.
+		//! NULL is returned if no loaders were registered.
+		static const char* getSupportedLoaderExtensions();
+		//! Returns list of supported saver extensions in "*.rrmaterial;*.mtl" format.
+		//
+		//! All extensions of registered savers are returned in one static string, don't free() it.
+		//! NULL is returned if no savers were registered.
+		static const char* getSupportedSaverExtensions();
 	};
 
 } // namespace
