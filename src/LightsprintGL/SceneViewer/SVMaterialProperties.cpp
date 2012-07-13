@@ -29,6 +29,16 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	showPoint = false;
 	showPhysical = false;
 
+	propLoad = new ButtonProperty(_("Load"),_("Loads material from file."),svframe,SVFrame::ME_MATERIAL_LOAD);
+	Append(propLoad);
+	propLoad->updateImage();
+	propSave = new ButtonProperty(_("Save"),_("Saves current material to file."),svframe,SVFrame::ME_MATERIAL_SAVE);
+	Append(propSave);
+	propSave->updateImage();
+	propSaveAll = new ButtonProperty(_("Save library"),_("Saves all materials in scene to file."),svframe,SVFrame::ME_MATERIAL_SAVE_ALL);
+	Append(propSaveAll);
+	propSaveAll->updateImage();
+
 	Append(propPoint = new BoolRefProperty(_("Pixel details"),_("Clicking scene shows material properties of pixel rather than face."),showPoint));
 	Append(propPhysical = new BoolRefProperty(_("In physical scale"),_("Displays values in linear physical scale, rather than in sRGB."),showPhysical));
 
@@ -152,6 +162,8 @@ static void setMaterialProperty(wxPGProperty* prop, rr::RRMaterial::Property& ma
 void SVMaterialProperties::updateHide()
 {
 	{
+		HideProperty(propLoad,!material);
+		HideProperty(propSave,!material);
 		HideProperty(propName,!material);
 		HideProperty(propFront,!material);
 		HideProperty(propBack,!material);

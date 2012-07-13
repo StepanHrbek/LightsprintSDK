@@ -18,6 +18,8 @@ NEWS
   - RRMaterials, collection of materials, with support for loading/saving
   - .rrmaterial fileformat introduced
   - any other material fileformat can be supported by registering its load/save callbacks
+- improved Scene Viewer
+  - Material properties / Load, Save, Save library
 
 \section news133 ------------------------------------ 2012.06.28 -------------------------------------
 

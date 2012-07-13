@@ -45,13 +45,18 @@ namespace rr_gl
 		rr::RRVec2        lastPoint2d;
 
 		rr::RRMaterial*   material; // materialCustom or materialPhysical or &materialPoint
-		rr::RRMaterial*   materialCustom;
+	public:
+		rr::RRMaterial*   materialCustom; // public only for SVFrame's ME_MATERIAL_SAVE/LOAD
+	private:
 		rr::RRMaterial*   materialPhysical;
 		rr::RRPointMaterial materialPoint;
 
 		bool              showPoint;
 		bool              showPhysical;
 
+		ButtonProperty*   propLoad;
+		ButtonProperty*   propSave;
+		ButtonProperty*   propSaveAll;
 		wxPGProperty*     propPoint;
 		wxPGProperty*     propPhysical;
 		wxPGProperty*     propName;

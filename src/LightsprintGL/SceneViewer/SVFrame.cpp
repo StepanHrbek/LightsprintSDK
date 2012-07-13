@@ -279,6 +279,21 @@ bool getFactor(wxWindow* parent, float& factor, const wxString& message, const w
 	return false;
 }
 
+bool getMaterial(wxString title, wxWindow* parent, const rr::RRMaterials& materials, unsigned& materialIndex)
+{
+	wxArrayString choices;
+	for (unsigned i=0;i<materials.size();i++)
+		choices.Add(RR_RR2WX(materials[i]->name));
+	wxSingleChoiceDialog dialog(parent,title,_("Please select material"),choices);
+	dialog.SetSelection(materialIndex);
+	if (dialog.ShowModal()==wxID_OK)
+	{
+		materialIndex = dialog.GetSelection();
+		return true;
+	}
+	return false;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1134,6 +1149,55 @@ save_scene_as:
 			break;
 		case ME_EXIT:
 			Close();
+			break;
+
+		///////////////////////////////// MATERIAL ////////////////////////////////
+
+		case ME_MATERIAL_LOAD:
+			{
+				wxFileDialog dialog(this,_("Enter material filename"),"","",rr::RRMaterials::getSupportedLoaderExtensions(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				if (dialog.ShowModal()!=wxID_OK)
+					break;
+				if (dialog.GetPath().empty())
+					break;
+				rr::RRMaterials* materials = rr::RRMaterials::load(RR_WX2RR(dialog.GetPath()),NULL);
+				if (materials)
+				{
+					if (materials->size())
+					{
+						unsigned selectedMaterialIndex = 0;
+						if (materials->size()==1 || getMaterial("Available materials:",this,*materials,selectedMaterialIndex))
+							m_materialProperties->materialCustom->copyFrom(*(*materials)[selectedMaterialIndex]);
+						for (unsigned i=0;i<materials->size();i++)
+							delete (*materials)[i];
+					}
+					delete materials;
+				}
+			}
+			break;
+
+		case ME_MATERIAL_SAVE:
+			{
+				wxFileDialog dialog(this,_("Enter material filename"),"","",rr::RRMaterials::getSupportedSaverExtensions(),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+				if (dialog.ShowModal()!=wxID_OK)
+					break;
+				if (dialog.GetPath().empty())
+					break;
+				m_materialProperties->materialCustom->save(RR_WX2RR(dialog.GetPath()));
+			}
+			break;
+
+		case ME_MATERIAL_SAVE_ALL:
+			{
+				wxFileDialog dialog(this,_("Enter material library filename"),"","",rr::RRMaterials::getSupportedSaverExtensions(),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+				if (dialog.ShowModal()!=wxID_OK)
+					break;
+				if (dialog.GetPath().empty())
+					break;
+				rr::RRMaterials materials;
+				m_canvas->solver->getObjects().getAllMaterials(materials);
+				materials.save(RR_WX2RR(dialog.GetPath()));
+			}
 			break;
 
 

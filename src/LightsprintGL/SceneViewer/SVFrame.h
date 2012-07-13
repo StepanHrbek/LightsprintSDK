@@ -120,6 +120,10 @@ namespace rr_gl
 			ME_STATIC_BUILD_LIGHTFIELD_3D,
 #endif
 
+			ME_MATERIAL_LOAD,
+			ME_MATERIAL_SAVE,
+			ME_MATERIAL_SAVE_ALL,
+
 			ME_WINDOW_FULLSCREEN_META, // SV: identical to non-META. RL: toggles two predefined workspaces
 			ME_WINDOW_FULLSCREEN, // toggles fullscreen in current workspace
 			ME_WINDOW_TREE,
