@@ -87,11 +87,11 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	}
 
 	// update static objects
-	unsigned numStaticObjects = solver->getStaticObjects().size();
 	if (solver)
 	{
 		SetItemText(staticObjects,wxString::Format(_("%d static objects"),solver?solver->getStaticObjects().size():0));
 		DeleteChildren(staticObjects);
+		unsigned numStaticObjects = solver->getStaticObjects().size();
 		for (unsigned i=0;solver && i<numStaticObjects;i++)
 		{
 			wxString name = RR_RR2WX(solver->getStaticObjects()[i]->name);
@@ -105,6 +105,7 @@ void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
 	{
 		SetItemText(dynamicObjects,wxString::Format(_("%d dynamic objects"),solver?solver->getDynamicObjects().size():0));
 		DeleteChildren(dynamicObjects);
+		unsigned numStaticObjects = solver->getStaticObjects().size();
 		unsigned numDynamicObjects = solver->getDynamicObjects().size();
 		for (unsigned i=0;solver && i<numDynamicObjects;i++)
 		{
