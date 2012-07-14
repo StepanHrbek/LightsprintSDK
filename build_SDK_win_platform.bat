@@ -26,7 +26,7 @@ if %COMPILER%==vs2008 if %TARGET%==win32 (
 
 del %ERR%
 echo OK, done.
-exit
+goto:eof
 
 :error
 echo !!!!!!!!!!!!!!!!!!!!!!! ERROR (see %ERR%) !!!!!!!!!!!!!!!!!!!!!!!!!!!!
