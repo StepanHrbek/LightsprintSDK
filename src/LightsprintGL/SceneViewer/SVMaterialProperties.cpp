@@ -29,10 +29,10 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	showPoint = false;
 	showPhysical = false;
 
-	propLoad = new ButtonProperty(_("Load"),_("Loads material from file."),svframe,SVFrame::ME_MATERIAL_LOAD);
+	propLoad = new ButtonProperty(_("Load"),_("Loads this material from file."),svframe,SVFrame::ME_MATERIAL_LOAD);
 	Append(propLoad);
 	propLoad->updateImage();
-	propSave = new ButtonProperty(_("Save"),_("Saves current material to file."),svframe,SVFrame::ME_MATERIAL_SAVE);
+	propSave = new ButtonProperty(_("Save"),_("Saves this material to file."),svframe,SVFrame::ME_MATERIAL_SAVE);
 	Append(propSave);
 	propSave->updateImage();
 	propSaveAll = new ButtonProperty(_("Save library"),_("Saves all materials in scene to file."),svframe,SVFrame::ME_MATERIAL_SAVE_ALL);
