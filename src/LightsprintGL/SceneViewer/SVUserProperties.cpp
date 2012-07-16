@@ -73,6 +73,16 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 			AppendIn(propImport,propImportUpForce);
 		}
 
+		// flipFrontBack
+		{
+			const wxChar* flipStrings[] = {_("never"),wxT("when 3 normals point back"),_("when 2 or 3 normals point back"),NULL};
+			const long flipValues[] = {4,3,2};
+			propImportFlipFrontBack = new wxEnumProperty(_("Flip front/back"), wxPG_LABEL, flipStrings, flipValues);
+			propImportFlipFrontBack->SetValueFromInt(userPreferences.import.flipFrontBack,wxPG_FULL_VALUE);
+			propImportFlipFrontBack->SetHelpString(_("Changes order of vertices in some triangles (flips front/back). The idea is to make normals point to front side, it is important for correct illumination."));
+			AppendIn(propImport,propImportFlipFrontBack);
+		}
+
 		SetPropertyBackgroundColour(propImport,importantPropertyBackgroundColor,false);
 	}
 
@@ -193,6 +203,11 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propImportUp)
 	{
 		userPreferences.import.up = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propImportFlipFrontBack)
+	{
+		userPreferences.import.flipFrontBack = property->GetValue().GetInteger();
 	}
 	else
 	if (property==propSshotFilename)

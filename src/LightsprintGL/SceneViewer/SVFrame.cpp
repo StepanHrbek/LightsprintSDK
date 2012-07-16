@@ -1670,7 +1670,7 @@ rr::RRScene* SVFrame::loadScene(const wxString& _filename, float _units, unsigne
 	scene->objects.removeEmptyObjects();
 	scene->normalizeUnits(_units);
 	scene->normalizeUpAxis(_upAxis);
-	scene->objects.flipFrontBack(3,true);
+	scene->objects.flipFrontBack(userPreferences.import.flipFrontBack,true);
 	return scene;
 }
 

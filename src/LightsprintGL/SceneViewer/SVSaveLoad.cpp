@@ -86,6 +86,10 @@ void serialize(Archive & ar, rr_gl::ImportParameters& a, const unsigned int vers
 	ar & make_nvp("unitForce",a.unitForce);
 	ar & make_nvp("up",a.up);
 	ar & make_nvp("upForce",a.upForce);
+	if (version>0)
+	{
+		ar & make_nvp("flipFrontBack",a.flipFrontBack);
+	}
 }
 
 //------------------------- UserPreferences ------------------------------
@@ -165,6 +169,7 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 } // namespace
 } // namespace
 
+BOOST_CLASS_VERSION(rr_gl::ImportParameters,1);
 BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,15)
 
@@ -184,6 +189,7 @@ ImportParameters::ImportParameters()
 	unitForce = false;
 	up = 0;
 	upForce = false;
+	flipFrontBack = 3;
 }
 
 bool ImportParameters::knowsUnitLength(const wxString& filename) const

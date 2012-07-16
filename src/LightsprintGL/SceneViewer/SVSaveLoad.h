@@ -33,6 +33,8 @@ namespace rr_gl
 		unsigned    up; // 0=x,1=y,2=z
 		bool        upForce; // false=use selected up only if file does not know, true=use selected up even if file knows its up
 
+		unsigned flipFrontBack; // 2, 3 or 4; passed to flipFrontBack() as numNormalsThatMustPointBack parameter
+
 		ImportParameters();
 
 		bool knowsUnitLength(const wxString& filename) const;
