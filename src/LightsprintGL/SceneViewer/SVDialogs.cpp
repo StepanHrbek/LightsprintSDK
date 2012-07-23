@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////
-// C++ code generated with wxFormBuilder (version Mar 22 2011)
+// C++ code generated with wxFormBuilder (version Apr 10 2012)
 // http://www.wxformbuilder.org/
 //
 // PLEASE DO "NOT" EDIT THIS FILE!
@@ -32,11 +32,13 @@ ImportDlg::ImportDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_button4 = new wxButton( this, wxID_CANCEL, _("Cancel"), wxPoint( -1,-1 ), wxSize( 0,0 ), 0 );
 	bSizer3->Add( m_button4, 0, wxALL, 5 );
 	
+	
 	bSizer1->Add( bSizer3, 1, wxEXPAND, 5 );
 	
 	m_button3 = new wxButton( this, wxID_OK, _("Import"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_button3->SetDefault(); 
 	bSizer1->Add( m_button3, 0, wxALIGN_RIGHT|wxALL, 5 );
+	
 	
 	this->SetSizer( bSizer1 );
 	this->Layout();
@@ -96,11 +98,13 @@ SmoothDlg::SmoothDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_button4 = new wxButton( this, wxID_CANCEL, _("Cancel"), wxPoint( -1,-1 ), wxSize( 0,0 ), 0 );
 	bSizer3->Add( m_button4, 0, wxALL, 5 );
 	
+	
 	bSizer1->Add( bSizer3, 1, wxEXPAND, 5 );
 	
 	m_button3 = new wxButton( this, wxID_OK, _("Smooth"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_button3->SetDefault(); 
 	bSizer1->Add( m_button3, 0, wxALIGN_RIGHT|wxALL, 5 );
+	
 	
 	this->SetSizer( bSizer1 );
 	this->Layout();
@@ -150,11 +154,13 @@ MergeDlg::MergeDlg( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_button4 = new wxButton( this, wxID_CANCEL, _("Cancel"), wxPoint( -1,-1 ), wxSize( 0,0 ), 0 );
 	bSizer3->Add( m_button4, 0, wxALL, 5 );
 	
+	
 	bSizer1->Add( bSizer3, 1, wxEXPAND, 5 );
 	
 	m_button3 = new wxButton( this, wxID_OK, _("Merge"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_button3->SetDefault(); 
 	bSizer1->Add( m_button3, 0, wxALIGN_RIGHT|wxALL, 5 );
+	
 	
 	this->SetSizer( bSizer1 );
 	this->Layout();
@@ -196,11 +202,13 @@ DeleteDlg::DeleteDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	bSizer8->Add( wholeObjects, 0, wxALL, 5 );
 	
+	
 	bSizer7->Add( bSizer8, 1, wxEXPAND, 5 );
 	
 	m_button7 = new wxButton( this, wxID_OK, _("Delete"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_button7->SetDefault(); 
 	bSizer7->Add( m_button7, 0, wxALIGN_RIGHT|wxALL, 5 );
+	
 	
 	this->SetSizer( bSizer7 );
 	this->Layout();
