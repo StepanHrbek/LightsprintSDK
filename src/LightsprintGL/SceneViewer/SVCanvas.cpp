@@ -1128,8 +1128,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		if (s_accumulatedPanning!=rr::RRVec3(0))
 		{
 			rr::RRVec3 accumulatedPanning = s_accumulatedPanning;
-			s_accumulatedPanning = rr::RRVec3(0);
-			if (event.ShiftDown())
+			s_accumulatedPanning = rr::RRVec3(0); // must be zeroed early, otherwise this block is reentered before it is left
+			if (event.ShiftDown() || event.ControlDown())
 			{
 				const EntityIds& manipulatedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
 				bool manipulatingCamera = manipulatedEntities==svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_CAMERA);
@@ -1141,10 +1141,10 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				if ((manipulatingSelection || manipulatingGizmo) && selectionContainsObjectOrLight)
 				{
 					// ask for number N
-					static float numCopies = 10;
-					if (getFactor(svframe,numCopies,_("How many times to multiply selected objects and lights?"),_("Selection multiplier")))
+					static float numCopies = 5;
+					if (event.ShiftDown() || getFactor(svframe,numCopies,_("How many times to multiply selected objects and lights?"),_("Selection multiplier")))
 					{
-						numCopies = RR_MAX(1,(int)numCopies);
+						numCopies = event.ShiftDown() ? 2 : RR_MAX(1,(int)numCopies);
 						// multiply selection N times
 						rr::RRLights lights = solver->getLights();
 						rr::RRObjects objects = solver->getObjects();

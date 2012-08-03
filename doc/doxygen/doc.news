@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news134 ------------------------------------ 2012.07.xx -------------------------------------
+\section news134 ------------------------------------ 2012.08.xx -------------------------------------
 
 NEWS
 
@@ -19,6 +19,8 @@ NEWS
   - .rrmaterial fileformat introduced
   - any other material fileformat can be supported by registering its load/save callbacks
 - improved Scene Viewer
+  - drag with shift to duplicate
+  - drag with control to multiply
   - Material properties / Load, Save, Save library
 - improved import, new fileformats:
   - .ifczip (Industry Foundation Classes)
