@@ -265,7 +265,7 @@ static bool getResolution(wxString title, wxWindow* parent, unsigned& width, uns
 bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption)
 {
 	char value[30];
-	sprintf(value,"%f",factor);
+	sprintf(value,"%g",factor);
 	wxTextEntryDialog dialog(parent,message,caption,value);
 	if (dialog.ShowModal()==wxID_OK)
 	{
