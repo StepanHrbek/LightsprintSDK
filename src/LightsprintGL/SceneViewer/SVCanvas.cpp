@@ -762,6 +762,8 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 	event.Skip();
 }
 
+extern bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption);
+
 // Filled on click, original data acquired at click time.
 struct ClickInfo
 {
@@ -786,6 +788,7 @@ struct ClickInfo
 static bool s_ciRelevant = false; // are we dragging and is s_ci describing click that started it?
 static bool s_ciRenderCrosshair = false;
 static ClickInfo s_ci;
+static rr::RRVec3 s_accumulatedPanning(0); // accumulated worldspace movement in 'dragging' path, cleared at the end of dragging
 
 // What triggers context menu:
 // a) rightclick -> OnMouseEvent() -> creates context menu
@@ -1015,7 +1018,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		bool manipulatingCamera = manipulatedEntities==svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_CAMERA);
 		bool manipulatingSelection = s_ci.clickedEntityIsSelected && !manipulatingCamera;
 		bool manipulatingSingleLight = selectedEntities.size()==1 && selectedEntities.begin()->type==ST_LIGHT;
-
 		bool manipulatingGizmo = s_ci.clickedEntity.iconCode>=IC_MOVEMENT && s_ci.clickedEntity.iconCode<=IC_Z;
 		if (event.LeftIsDown() && !manipulatingCamera && (manipulatingSelection || manipulatingGizmo))
 		{
@@ -1034,6 +1036,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 						case IC_Y: pan.x = pan.z = 0; break;
 						case IC_Z: pan.x = pan.y = 0; break;
 					}
+					s_accumulatedPanning += pan;
 					transformation = rr::RRMatrix3x4::translation(pan);
 					break;
 				case IC_ROTATION:
@@ -1121,6 +1124,67 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		// dragging ended, all s_xxx become invalid
 		s_ciRelevant = false;
 		s_ciRenderCrosshair = false;
+		// handle special combos
+		if (s_accumulatedPanning!=rr::RRVec3(0))
+		{
+			rr::RRVec3 accumulatedPanning = s_accumulatedPanning;
+			s_accumulatedPanning = rr::RRVec3(0);
+			if (event.ShiftDown())
+			{
+				const EntityIds& manipulatedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
+				bool manipulatingCamera = manipulatedEntities==svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_CAMERA);
+				bool manipulatingSelection = s_ci.clickedEntityIsSelected && !manipulatingCamera;
+				bool manipulatingGizmo = s_ci.clickedEntity.iconCode>=IC_MOVEMENT && s_ci.clickedEntity.iconCode<=IC_Z;
+				bool selectionContainsObjectOrLight = false;
+				for (EntityIds::const_iterator i=manipulatedEntities.begin();i!=manipulatedEntities.end();++i)
+					selectionContainsObjectOrLight |= i->type==ST_OBJECT || i->type==ST_LIGHT;
+				if ((manipulatingSelection || manipulatingGizmo) && selectionContainsObjectOrLight)
+				{
+					// ask for number N
+					static float numCopies = 10;
+					if (getFactor(svframe,numCopies,_("How many times to multiply selected objects and lights?"),_("Selection multiplier")))
+					{
+						numCopies = RR_MAX(1,(int)numCopies);
+						// multiply selection N times
+						rr::RRLights lights = solver->getLights();
+						rr::RRObjects objects = solver->getObjects();
+						for (EntityIds::const_iterator i=manipulatedEntities.begin();i!=manipulatedEntities.end();++i)
+						{
+							if (i->type==ST_LIGHT)
+							{
+								for (unsigned j=1;j<numCopies;j++)
+								{
+									rr::RRLight* newLight = new rr::RRLight(*lights[i->index]);
+									newLight->position -= accumulatedPanning*(j/(numCopies-1.0f));
+									svframe->m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
+									lights.push_back(newLight);
+								}
+							}
+							else
+							if (i->type==ST_OBJECT)
+							{
+								for (unsigned j=1;j<numCopies;j++)
+								{
+									rr::RRObject* newObject = new rr::RRObject;
+									newObject->setCollider(objects[i->index]->getCollider());
+									newObject->name = objects[i->index]->name;
+									newObject->faceGroups = objects[i->index]->faceGroups;
+									newObject->isDynamic = true;
+									rr::RRMatrix3x4 matrix = rr::RRMatrix3x4::translation(accumulatedPanning*(j/(1.0f-numCopies))) * objects[i->index]->getWorldMatrixRef();
+									newObject->setWorldMatrix(&matrix);
+									// memleak, newObject is not deleted on exit
+									objects.push_back(newObject);
+								}
+							}
+						}
+						solver->setLights(lights); // RealtimeLight in light props is deleted here
+						objects.makeNamesUnique();
+						solver->setDynamicObjects(objects);
+						svframe->updateAllPanels();
+					}
+				}
+			}
+		}
 	}
 
 	// handle wheel
