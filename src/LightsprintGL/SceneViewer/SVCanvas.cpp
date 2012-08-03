@@ -1135,16 +1135,22 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				bool manipulatingCamera = manipulatedEntities==svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_CAMERA);
 				bool manipulatingSelection = s_ci.clickedEntityIsSelected && !manipulatingCamera;
 				bool manipulatingGizmo = s_ci.clickedEntity.iconCode>=IC_MOVEMENT && s_ci.clickedEntity.iconCode<=IC_Z;
+				unsigned manipulatingLights = 0;
+				unsigned manipulatingObjects = 0;
 				bool selectionContainsObjectOrLight = false;
 				for (EntityIds::const_iterator i=manipulatedEntities.begin();i!=manipulatedEntities.end();++i)
-					selectionContainsObjectOrLight |= i->type==ST_OBJECT || i->type==ST_LIGHT;
-				if ((manipulatingSelection || manipulatingGizmo) && selectionContainsObjectOrLight)
+				{
+					if (i->type==ST_LIGHT) manipulatingLights++;
+					if (i->type==ST_OBJECT) manipulatingObjects++;
+				}
+				if ((manipulatingSelection || manipulatingGizmo) && manipulatingLights+manipulatingObjects)
 				{
 					// ask for number N
 					static float numCopies = 5;
-					if (event.ShiftDown() || getFactor(svframe,numCopies,_("How many times to multiply selected objects and lights?"),_("Selection multiplier")))
+					if (event.ShiftDown() || getFactor(svframe,numCopies,_("How many times to multiply selected objects and lights?\n(You can unshare materials by minus sign.)"),_("Selection multiplier")))
 					{
-						numCopies = event.ShiftDown() ? 2 : RR_MAX(1,(int)numCopies);
+						bool explodeMaterials = numCopies<0;
+						numCopies = event.ShiftDown() ? 2 : RR_MAX(1,(int)abs(numCopies));
 						// multiply selection N times
 						rr::RRLights lights = solver->getLights();
 						rr::RRObjects objects = solver->getObjects();
@@ -1165,14 +1171,23 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 							{
 								for (unsigned j=1;j<numCopies;j++)
 								{
-									rr::RRObject* newObject = new rr::RRObject;
+									rr::RRObject* newObject = new rr::RRObject; // memleak, never deleted
 									newObject->setCollider(objects[i->index]->getCollider());
 									newObject->name = objects[i->index]->name;
 									newObject->faceGroups = objects[i->index]->faceGroups;
+									if (explodeMaterials)
+									{
+										for (unsigned g=0;g<newObject->faceGroups.size();g++)
+											if (newObject->faceGroups[g].material)
+											{
+												rr::RRMaterial* newMaterial = new rr::RRMaterial; // memleak, never deleted
+												newMaterial->copyFrom(*newObject->faceGroups[g].material);
+												newObject->faceGroups[g].material = newMaterial;
+											}
+									}
 									newObject->isDynamic = true;
 									rr::RRMatrix3x4 matrix = rr::RRMatrix3x4::translation(accumulatedPanning*(j/(1.0f-numCopies))) * objects[i->index]->getWorldMatrixRef();
 									newObject->setWorldMatrix(&matrix);
-									// memleak, newObject is not deleted on exit
 									objects.push_back(newObject);
 								}
 							}
