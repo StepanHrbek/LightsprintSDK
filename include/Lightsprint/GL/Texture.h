@@ -87,6 +87,15 @@ RR_GL_API Texture* getTexture(const rr::RRBuffer* buffer, bool buildMipMaps = tr
 //! Deletes all textures created by getTexture(). (But you can delete textures one by one as well.)
 RR_GL_API void deleteAllTextures();
 
+//! Fills entire buffer by reading data from OpenGL memory. Most often this is used to capture screenshot.
+//
+//! This is shortcut for glReadPixels(x,y,...), with parameters set to fill entire buffer.
+//! See glReadPixels() for details on what is read, you might need to call glReadBuffer() to select data source.
+//! Buffer type must be BT_2D_TEXTURE.
+//! Buffer's size and format don't change, data are converted if format differs.
+//! Optional x and y parameters let you read rectangle from given offset.
+RR_GL_API void readPixelsToBuffer(rr::RRBuffer* buffer, unsigned x=0, unsigned y=0);
+
 }
 
 #endif // TEXTURE_H

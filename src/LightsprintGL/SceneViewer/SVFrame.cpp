@@ -970,10 +970,11 @@ save_scene_as:
 				// Grab content of backbuffer to sshot.
 				wxSize size = m_canvas->GetSize();
 				rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
-				unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
 				glReadBuffer(GL_BACK);
-				glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
-				sshot->unlock();
+				rr_gl::readPixelsToBuffer(sshot);
+					//unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+					//glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+					//sshot->unlock();
 
 				// 8. fix empty filename
 				if (userPreferences.sshotFilename.empty())

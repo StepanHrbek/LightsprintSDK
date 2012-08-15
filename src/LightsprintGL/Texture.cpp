@@ -487,4 +487,34 @@ void deleteAllTextures()
 	releaseAllBuffers1x1();
 }
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// render target -> RRBuffer
+
+void readPixelsToBuffer(rr::RRBuffer* buffer, unsigned x, unsigned y)
+{
+	GLenum glformat; // GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT
+	GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
+	if (!buffer || buffer->getType()!=rr::BT_2D_TEXTURE)
+	{
+		rr::RRReporter::report(rr::ERRO,"readBackbufferToBuffer() failed, buffer type is not 2d.\n");
+		return;
+	}
+	switch(buffer->getFormat())
+	{
+		case rr::BF_RGB: glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_BGR: glformat = GL_BGR; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_RGBA: glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_RGBF: glformat = GL_RGB; gltype = GL_FLOAT; break;
+		case rr::BF_RGBAF: glformat = GL_RGBA; gltype = GL_FLOAT; break;
+		case rr::BF_DEPTH: glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_LUMINANCE: glformat = GL_LUMINANCE; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_LUMINANCEF: glformat = GL_LUMINANCE; gltype = GL_FLOAT; break;
+		default: rr::RRReporter::report(rr::ERRO,"readBackbufferToBuffer() failed, buffer format not supported.\n"); return;
+	}
+	unsigned char* pixels = buffer->lock(rr::BL_DISCARD_AND_WRITE);
+	glReadPixels(x,y,buffer->getWidth(),buffer->getHeight(),glformat,gltype,pixels);
+	buffer->unlock();
+}
+
 }; // namespace

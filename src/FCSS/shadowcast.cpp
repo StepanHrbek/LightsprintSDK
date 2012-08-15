@@ -402,9 +402,10 @@ void updateThumbnail(AnimationFrame& frame)
 	glViewport(0,0,160,120);
 	currentFrame.eye = frame.eye; // while rendering, we call setupForRender(currentFrame.eye);
 	drawEyeViewSoftShadowed();
-	unsigned char* pixels = frame.thumbnail->lock(rr::BL_DISCARD_AND_WRITE);
-	glReadPixels(0,0,160,120,GL_RGB,GL_UNSIGNED_BYTE,pixels);
-	frame.thumbnail->unlock();
+	rr_gl::readPixelsToBuffer(frame.thumbnail);
+		//unsigned char* pixels = frame.thumbnail->lock(rr::BL_DISCARD_AND_WRITE);
+		//glReadPixels(0,0,160,120,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+		//frame.thumbnail->unlock();
 	rr_gl::getTexture(frame.thumbnail,true,true); // false,true made render of thumbnails terribly slow on X300
 	glViewport(0,0,winWidth,winHeight);
 }
@@ -1633,10 +1634,11 @@ no_frame:
 		else
 			sprintf(buf,"%s/Lightsmark_%02d.png",globalOutputDirectory,++manualShots);
 		rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,NULL);
-		unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
 		glReadBuffer(GL_BACK);
-		glReadPixels(0,0,winWidth,winHeight,GL_RGB,GL_UNSIGNED_BYTE,pixels);
-		sshot->unlock();
+		rr_gl::readPixelsToBuffer(sshot);
+			//unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
+			//glReadPixels(0,0,winWidth,winHeight,GL_RGB,GL_UNSIGNED_BYTE,pixels);
+			//sshot->unlock();
 		if (sshot->save(buf))
 			rr::RRReporter::report(rr::INF1,"Saved %s.\n",buf);
 		else
