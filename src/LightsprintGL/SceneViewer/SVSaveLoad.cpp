@@ -33,36 +33,6 @@ namespace boost
 namespace serialization
 {
 
-//------------------------------ RRVec2 -------------------------------------
-
-template<class Archive>
-void serialize(Archive & ar, rr::RRVec2& a, const unsigned int version)
-{
-	ar & make_nvp("x",a.x);
-	ar & make_nvp("y",a.y);
-}
-
-//------------------------------ RRVec3 -------------------------------------
-
-template<class Archive>
-void serialize(Archive & ar, rr::RRVec3& a, const unsigned int version)
-{
-	ar & make_nvp("x",a.x);
-	ar & make_nvp("y",a.y);
-	ar & make_nvp("z",a.z);
-}
-
-//------------------------------ RRVec4 -------------------------------------
-
-template<class Archive>
-void serialize(Archive & ar, rr::RRVec4& a, const unsigned int version)
-{
-	ar & make_nvp("x",a.x);
-	ar & make_nvp("y",a.y);
-	ar & make_nvp("z",a.z);
-	ar & make_nvp("w",a.w);
-}
-
 //------------------------------ wxString -----------------------------------
 
 #define SERIALIZE_WXSTRING(name,wxstring,utf8) \
