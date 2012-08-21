@@ -439,7 +439,7 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	if (version<3 && Archive::is_loading::value)
 	{
 		// older versions had default 0, now we want default 1
-		a.bumpMap.color = RRVec3(1);
+		a.bumpMap.color = rr::RRVec3(1);
 	}
 	if (version>2)
 	{
@@ -468,8 +468,8 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 
 		// get average colors from textures
 		{
-			RRScaler* scaler = RRScaler::createRgbScaler();
-			a.updateColorsFromTextures(scaler,RRMaterial::UTA_KEEP,false); // but don't update from stubs, we have valid colors (unlike all other scene formats)
+			rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();
+			a.updateColorsFromTextures(scaler,rr::RRMaterial::UTA_KEEP,false); // but don't update from stubs, we have valid colors (unlike all other scene formats)
 			delete scaler;
 		}
 
@@ -513,6 +513,7 @@ void serialize(Archive & ar, rr::RRMaterials& a, const unsigned int version)
 
 //------------------------------ RRLight ------------------------------------
 
+#ifndef DONT_SERIALIZE_RRLIGHT
 template<class Archive>
 void serialize(Archive & ar, rr::RRLight& a, const unsigned int version)
 {
@@ -562,6 +563,7 @@ void serialize(Archive & ar, rr::RRLights& a, const unsigned int version)
 	rr::RRVector<rr::RRLight*>& aa = a;
 	serialize(ar,aa,version);
 }
+#endif // !DONT_SERIALIZE_RRLIGHT
 
 //------------------------------ RRMesh::Triangle -------------------------------------
 
@@ -784,6 +786,7 @@ void serialize(Archive & ar, rr::RRObjects& a, const unsigned int version)
 
 //----------------------------- RRCamera ------------------------------------
 
+#ifndef DONT_SERIALIZE_RRCAMERA
 template<class Archive>
 void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
 {
@@ -842,6 +845,7 @@ void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 		ar & make_nvp("focalLength",a.focalLength);
 	}
 }
+#endif // !DONT_SERIALIZE_RRCAMERA
 
 /*/------------------------------ CalculateParameters -------------------------------------
 
@@ -946,13 +950,19 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRMeshArrays)
 BOOST_SERIALIZATION_SPLIT_FREE(RRMeshProxy)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRSideBits)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRObject)
+#ifndef DONT_SERIALIZE_RRCAMERA
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRCamera)
+#endif
 
 BOOST_CLASS_VERSION(rr::RRString,1)
 BOOST_CLASS_VERSION(rr::RRMaterial,3)
+#ifndef DONT_SERIALIZE_RRLIGHT
 BOOST_CLASS_VERSION(rr::RRLight,4)
+#endif
 BOOST_CLASS_VERSION(rr::RRObject,1)
+#ifndef DONT_SERIALIZE_RRCAMERA
 BOOST_CLASS_VERSION(rr::RRCamera,1)
+#endif
 BOOST_CLASS_VERSION(rr::RRScene,1)
 
 #endif
