@@ -298,7 +298,7 @@ namespace rr
 		//! Can be used to gather all texture filenames, to pause all videos etc.
 		//! \param buffers
 		//!  In-out collection of buffers.
-		//!  Unique inout buffers are preserved, new buffers from solver are added.
+		//!  Unique input buffers are preserved, new buffers from solver are added to collection.
 		//!  Ordering of input buffers may change and duplicates and NULL buffers are removed.
 		//! \param layers
 		//!  Illumination from given layers will be gathered too.
