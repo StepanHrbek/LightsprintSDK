@@ -34,7 +34,40 @@ bool RRRadiometricMeasure::operator ==(const RRRadiometricMeasure& a) const
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRSideBits
+
+bool RRSideBits::operator ==(const RRSideBits& a) const
+{
+	return a.renderFrom==renderFrom
+		&& a.emitTo==emitTo
+		&& a.catchFrom==catchFrom
+		&& a.legal==legal
+		&& a.receiveFrom==receiveFrom
+		&& a.reflect==reflect
+		&& a.transmitFrom==transmitFrom
+		;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRMaterial::Property
+
+bool RRMaterial::Property::operator ==(const RRMaterial::Property& a) const
+{
+	return a.color==color
+		&& a.texcoord==texcoord
+		&& a.texture==texture
+		;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRMaterial
+
+RRMaterial::RRMaterial()
+{
+	preview = NULL;
+}
 
 
 static void copyProperty(RRMaterial::Property& to, const RRMaterial::Property& from)
@@ -68,6 +101,28 @@ void RRMaterial::copyFrom(const RRMaterial& a)
 	lightmapTexcoord = a.lightmapTexcoord;
 	minimalQualityForPointMaterials = a.minimalQualityForPointMaterials;
 	if (name!=a.name) name = a.name;
+	RR_SAFE_DELETE(preview);
+}
+
+bool RRMaterial::operator ==(const RRMaterial& a) const
+{
+	return a.sideBits[0]==sideBits[0]
+		&& a.sideBits[1]==sideBits[1]
+		&& a.diffuseReflectance==diffuseReflectance
+		&& a.diffuseEmittance==diffuseEmittance
+		&& a.specularReflectance==specularReflectance
+		&& a.specularTransmittance==specularTransmittance
+		&& a.bumpMap==bumpMap
+		&& a.specularModel==specularModel
+		&& a.specularShininess==specularShininess
+		&& a.specularTransmittanceInAlpha==specularTransmittanceInAlpha
+		&& a.specularTransmittanceKeyed==specularTransmittanceKeyed
+		&& a.refractionIndex==refractionIndex
+		&& a.bumpMapTypeHeight==bumpMapTypeHeight
+		&& a.lightmapTexcoord==lightmapTexcoord
+		&& a.minimalQualityForPointMaterials==minimalQualityForPointMaterials
+		&& a.name==name
+		;
 }
 
 
@@ -90,6 +145,7 @@ void RRMaterial::reset(bool twoSided)
 	lightmapTexcoord             = UINT_MAX; // no unwrap by default
 	minimalQualityForPointMaterials = UINT_MAX; // Keep point materials disabled, adapter must explicitly want them.
 	name.clear();
+	RR_SAFE_DELETE(preview);
 }
 
 // Extract mean and variance from buffer.
@@ -439,6 +495,7 @@ RRMaterial::~RRMaterial()
 	delete specularReflectance.texture;
 	delete specularTransmittance.texture;
 	delete bumpMap.texture;
+	delete preview;
 }
 
 
@@ -461,6 +518,7 @@ RRPointMaterial::~RRPointMaterial()
 	diffuseEmittance.texture = NULL;
 	specularTransmittance.texture = NULL;
 	bumpMap.texture = NULL;
+	preview = NULL;
 }
 
 } // namespace

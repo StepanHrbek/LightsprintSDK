@@ -58,6 +58,7 @@ namespace rr
 		unsigned char receiveFrom:1; ///< 1=catched photons are reflected according to diffuseReflectance. Reflected photon splits and leaves to all sides with emitTo.
 		unsigned char reflect:1;     ///< 1=catched photons are reflected according to specularReflectance. Reflected photon leaves to the same side.
 		unsigned char transmitFrom:1;///< 1=catched photons are transmitted according to specularTransmittance and refractionIndex. Transmitted photon leaves to other side.
+		bool operator ==(const RRSideBits& a) const;
 	};
 
 	//! Description of material properties of a surface.
@@ -115,14 +116,21 @@ namespace rr
 			RRReal updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub);
 			//! If texture does not exist, creates 1x1 stub texture from color. Returns number of textures created, 0 or 1.
 			unsigned createTextureFromColor(bool isTransmittance);
+			//! Returns true if both properties are identical (including using the same texture).
+			bool operator ==(const RRMaterial::Property& a) const;
 		};
 
+		//! Default constructor, initializes only pointers in material, call reset() to initialize the rest of data.
+		RRMaterial();
 		//! Copies given material to this material.
 		//
 		//! Don't call it from multiple threads at the same time,
 		//! it is thread unsafe under very rare circumstances
 		//! (that's why we didn't make it "operator =", people expect safety in assignment).
 		void copyFrom(const RRMaterial& from);
+
+		//! Returns true if both materials look the same (and use the same textures).
+		bool operator ==(const RRMaterial& a) const;
 
 		//! Resets material to fully diffuse gray (50% reflected, 50% absorbed).
 		//
@@ -265,6 +273,8 @@ namespace rr
 		//! If name contains "water" and static normal map is set, realtime renderer animates mapping
 		//! to simulate flow of waves.
 		RRString      name;
+		//! Optional image of material, for use e.g. by material library. It is owned by material, deleted in dtor. Not saved to .rrmaterial.
+		RRBuffer*     preview;
 
 		//! Deletes textures (yes, textures are owned by RRMaterial).
 		~RRMaterial();

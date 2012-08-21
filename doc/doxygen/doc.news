@@ -12,12 +12,15 @@ namespace rr
 
 NEWS
 
-- material saving/loading
-  - RRMaterial::load()
-  - RRMaterial::save()
+- improved materials
+  - material saving/loading
+    - RRMaterial::load()
+    - RRMaterial::save()
+    - .rrmaterial fileformat introduced
+    - any other material fileformat can be supported by registering its load/save callbacks
   - RRMaterials, collection of materials, with support for loading/saving
-  - .rrmaterial fileformat introduced
-  - any other material fileformat can be supported by registering its load/save callbacks
+  - RRMaterial::preview, optional image of material
+  - RRMaterial::operator ==
 - improved Scene Viewer
   - drag with shift to duplicate
   - drag with control to multiply
