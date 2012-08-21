@@ -449,7 +449,7 @@ Texture* Texture::createShadowmap(unsigned width, unsigned height, bool color)
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Buffer -> Texture
+// RRBuffer -> Texture
 
 static std::vector<Texture*> s_textures;
 
@@ -513,6 +513,11 @@ void readPixelsToBuffer(rr::RRBuffer* buffer, unsigned x, unsigned y)
 		default: rr::RRReporter::report(rr::ERRO,"readBackbufferToBuffer() failed, buffer format not supported.\n"); return;
 	}
 	unsigned char* pixels = buffer->lock(rr::BL_DISCARD_AND_WRITE);
+	if (!pixels)
+	{
+		rr::RRReporter::report(rr::ERRO,"readBackbufferToBuffer() failed, buffer can't be locked.\n");
+		return;
+	}
 	glReadPixels(x,y,buffer->getWidth(),buffer->getHeight(),glformat,gltype,pixels);
 	buffer->unlock();
 }
