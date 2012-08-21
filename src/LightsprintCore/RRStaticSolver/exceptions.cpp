@@ -252,7 +252,7 @@ void RRObjects::getAllMaterials(RRMaterials& materials) const
 	typedef boost::unordered_set<RRMaterial*> Set;
 	Set set;
 	// fill set
-	for (unsigned i=0;i<materials.size();i++)
+	for (unsigned i=materials.size();i--;) // iteration from 0 would flip order of materials in RRMaterials. we don't promise to preserve order, but at least we try to, this mostly works (although it probably depends on implementation of unordered_set)
 		set.insert(materials[i]);
 	for (unsigned i=0;i<size();i++)
 	{
