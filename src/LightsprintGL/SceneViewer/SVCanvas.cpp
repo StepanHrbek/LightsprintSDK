@@ -210,6 +210,7 @@ public:
 	}
 };
 
+
 void SVCanvas::createContextCore()
 {
 	context = new SVContext(this,false,false,false);
@@ -461,6 +462,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 		reallocateBuffersForRealtimeGI(true);
 
 	recalculateIconSizeAndPosition();
+
 }
 
 void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
@@ -1349,6 +1351,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 	svframe->AfterPaneOpenClose();
 
+
 #ifdef _WIN32
 	// init font for text outputs
 	if (!fontInited)
@@ -1939,6 +1942,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			drawTangentBasis(ray->hitPoint3d,selectedPointBasis);
 			drawTriangle(selectedTriangleBody);
 		}
+
 
 
 		// render helper text, using own shader (because text output ignores color passed to line shader)

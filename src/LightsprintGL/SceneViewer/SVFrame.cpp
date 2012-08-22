@@ -548,7 +548,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	m_mgr.SetManagedWindow(this);
 
-	UpdateEverything(); // slow. if specified by filename, loads scene from disk
+	UpdateEverything(); // slow. if specified by filename, loads scene from disk. creates context
 
 	// setup dock art (colors etc)
 	wxAuiDockArt* dockArt = new wxAuiDefaultDockArt;
@@ -599,7 +599,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	// render first visible frame, with good panels, disabled glcanvas
 	m_canvas->renderEmptyFrames = true;
-	Restore();
+	Restore(); // window was created with wxMINIMIZE, this makes it visible
 
 	// synchronize fullscreen state between 3 places
 	// - userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen

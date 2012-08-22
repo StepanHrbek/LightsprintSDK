@@ -574,7 +574,8 @@ BEGIN_EVENT_TABLE(SVMaterialProperties, wxPropertyGrid)
 	EVT_IDLE(SVMaterialProperties::OnIdle)
 END_EVENT_TABLE()
 
- 
+
+
 }; // namespace
 
 #endif // SUPPORT_SCENEVIEWER

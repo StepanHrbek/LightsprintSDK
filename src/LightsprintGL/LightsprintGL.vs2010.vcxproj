@@ -600,6 +600,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\RendererOfScene.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h" />
     <ClInclude Include="SceneViewer\SVUserProperties.h" />
+    <ClInclude Include="SceneViewer\SVThumbnailCtrl.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Texture.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\TextureRenderer.h" />
@@ -640,6 +641,7 @@
     <ClCompile Include="RendererOfScene.cpp" />
     <ClCompile Include="RRDynamicSolverGL.cpp" />
     <ClCompile Include="SceneViewer\SVUserProperties.cpp" />
+    <ClCompile Include="SceneViewer\SVThumbnailCtrl.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureRenderer.cpp" />
