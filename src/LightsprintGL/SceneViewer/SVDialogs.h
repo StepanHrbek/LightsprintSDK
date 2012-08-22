@@ -22,6 +22,7 @@
 #include <wx/dialog.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/combobox.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -86,8 +87,9 @@ class MergeDlg : public wxDialog
 	
 	public:
 		wxCheckBox* geometry;
-		wxCheckBox* cameras;
+		wxCheckBox* materials;
 		wxCheckBox* lights;
+		wxCheckBox* cameras;
 		wxCheckBox* animations;
 		wxCheckBox* environment;
 		

@@ -135,13 +135,17 @@ MergeDlg::MergeDlg( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	
 	bSizer3->Add( xrefs, 0, wxALL, 5 );
 	
-	cameras = new wxCheckBox( this, wxID_ANY, _("cameras"), wxDefaultPosition, wxDefaultSize, 0 );
-	cameras->SetValue(true); 
-	bSizer3->Add( cameras, 0, wxALL, 5 );
+	materials = new wxCheckBox( this, wxID_ANY, _("materials"), wxDefaultPosition, wxDefaultSize, 0 );
+	materials->SetValue(true); 
+	bSizer3->Add( materials, 0, wxALL, 5 );
 	
 	lights = new wxCheckBox( this, wxID_ANY, _("lights"), wxDefaultPosition, wxDefaultSize, 0 );
 	lights->SetValue(true); 
 	bSizer3->Add( lights, 0, wxALL, 5 );
+	
+	cameras = new wxCheckBox( this, wxID_ANY, _("cameras"), wxDefaultPosition, wxDefaultSize, 0 );
+	cameras->SetValue(true); 
+	bSizer3->Add( cameras, 0, wxALL, 5 );
 	
 	animations = new wxCheckBox( this, wxID_ANY, _("animations"), wxDefaultPosition, wxDefaultSize, 0 );
 	animations->SetValue(true); 
