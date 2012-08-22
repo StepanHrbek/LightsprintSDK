@@ -1177,6 +1177,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 										for (unsigned g=0;g<newObject->faceGroups.size();g++)
 											if (newObject->faceGroups[g].material)
 											{
+												// new material instance is created here because we need it for matlib template right now,
+												// it might be better to not create new material in future, or make it optional
 												rr::RRMaterial* newMaterial = new rr::RRMaterial; // memleak, never deleted
 												newMaterial->copyFrom(*newObject->faceGroups[g].material);
 												newObject->faceGroups[g].material = newMaterial;
