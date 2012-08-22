@@ -1154,22 +1154,19 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 						// multiply selection N times
 						rr::RRLights lights = solver->getLights();
 						rr::RRObjects objects = solver->getObjects();
-						for (EntityIds::const_iterator i=manipulatedEntities.begin();i!=manipulatedEntities.end();++i)
+						for (unsigned j=1;j<numCopies;j++)
 						{
-							if (i->type==ST_LIGHT)
+							for (EntityIds::const_iterator i=manipulatedEntities.begin();i!=manipulatedEntities.end();++i)
 							{
-								for (unsigned j=1;j<numCopies;j++)
+								if (i->type==ST_LIGHT)
 								{
 									rr::RRLight* newLight = new rr::RRLight(*lights[i->index]);
 									newLight->position -= accumulatedPanning*(j/(numCopies-1.0f));
 									svframe->m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
 									lights.push_back(newLight);
 								}
-							}
-							else
-							if (i->type==ST_OBJECT)
-							{
-								for (unsigned j=1;j<numCopies;j++)
+								else
+								if (i->type==ST_OBJECT)
 								{
 									rr::RRObject* newObject = new rr::RRObject; // memleak, never deleted
 									newObject->setCollider(objects[i->index]->getCollider());
