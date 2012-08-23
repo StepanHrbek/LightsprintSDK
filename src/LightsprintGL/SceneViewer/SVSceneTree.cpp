@@ -940,7 +940,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				{
 					arrays->position[i] = rr::RRVec3(v[(i%3)*2],0,v[(i%3)*2+1])*powf(4,i/3)*((i/3)%2?1:-1);
 					arrays->normal[i] = rr::RRVec3(0,1,0);
-					arrays->texcoord[0][i] = rr::RRVec2(arrays->position[i].x,arrays->position[i].z);
+					arrays->texcoord[0][i] = rr::RRVec2(arrays->position[i].z,arrays->position[i].x);
 				}
 				addMesh(arrays,"plane");
 			}
@@ -966,7 +966,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				{
 					arrays->position[i] = rr::RRVec3((i%(W+1))/(float)W-0.5f,0,i/(W+1)/(float)H-0.5f);
 					arrays->normal[i] = rr::RRVec3(0,1,0);
-					arrays->texcoord[0][i] = rr::RRVec2((i%(W+1))/(float)W,i/(W+1)/(float)H);
+					arrays->texcoord[0][i] = rr::RRVec2(i/(W+1)/(float)H,(i%(W+1))/(float)W);
 				}
 				addMesh(arrays,"rectangle");
 			}
@@ -974,18 +974,32 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 		case CM_OBJECTS_ADD_BOX:
 			{
 				enum {TRIANGLES=12,VERTICES=24};
+				const unsigned char triangles[3*TRIANGLES] = {0,1,2,2,3,0, 4,5,6,6,7,4, 8,9,10,10,11,8, 12,13,14,14,15,12, 16,17,18,18,19,16, 20,21,22,22,23,20};
+				const unsigned char positions[3*VERTICES] = {
+					0,1,0, 0,1,1, 1,1,1, 1,1,0,
+					0,1,1, 0,0,1, 1,0,1, 1,1,1,
+					1,1,1, 1,0,1, 1,0,0, 1,1,0,
+					1,1,0, 1,0,0, 0,0,0, 0,1,0,
+					0,1,0, 0,0,0, 0,0,1, 0,1,1,
+					1,0,0, 1,0,1, 0,0,1, 0,0,0};
+				const unsigned char uvs[2*VERTICES] = {0,1, 0,0, 1,0, 1,1};
 				rr::RRMeshArrays* arrays = new rr::RRMeshArrays;
 				rr::RRVector<unsigned> texcoords;
 				texcoords.push_back(0);
 				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false);
 				for (unsigned i=0;i<TRIANGLES;i++)
 					for (unsigned j=0;j<3;j++)
-						arrays->triangle[i][j] = i*2+((i%2)?1-(((i/2)%2)?2-j:j):(((i/2)%2)?2-j:j));
+						// commented out code can replace constant arrays, but 2 cube sides have mapping rotated
+						//arrays->triangle[i][j] = i*2+((i%2)?1-(((i/2)%2)?2-j:j):(((i/2)%2)?2-j:j));
+						arrays->triangle[i][j] = triangles[3*i+j];
 				for (unsigned i=0;i<VERTICES;i++)
 				{
 					for (unsigned j=0;j<3;j++)
-						arrays->position[i][j] = ((j==((i/8)%3)) ? ((i/4)%2) : ((j==((1+i/8)%3)) ? ((i/2)%2) : (i%2))) - 0.5f;
-					arrays->texcoord[0][i] = rr::RRVec2((i/2)%2,i%2);
+						//arrays->position[i][j] = ((j==((i/8)%3)) ? ((i/4)%2) : ((j==((1+i/8)%3)) ? ((i/2)%2) : (i%2))) - 0.5f;
+						arrays->position[i][j] = positions[3*i+j]-0.5f;
+					//arrays->texcoord[0][i] = ((i/4)%2) ? rr::RRVec2((i/2)%2,i%2) : rr::RRVec2(1-(i/2)%2,(i%2));
+					for (unsigned j=0;j<2;j++)
+						arrays->texcoord[0][i][j] = uvs[2*(i%4)+j];
 				}
 				arrays->buildNormals();
 				addMesh(arrays,"box");
@@ -1012,7 +1026,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				{
 					arrays->normal[i] = rr::RRVec3(cos(2*RR_PI*(i%(W+1))/W)*sin(i/(W+1)*RR_PI/H),cos(i/(W+1)*RR_PI/H),sin(2*RR_PI*(i%(W+1))/W)*sin(i/(W+1)*RR_PI/H));
 					arrays->position[i] = arrays->normal[i]/2;
-					arrays->texcoord[0][i] = rr::RRVec2((i%(W+1))/(float)W,i/(W+1)/(float)H);
+					arrays->texcoord[0][i] = rr::RRVec2(1-(i%(W+1))/(float)W,1-i/(W+1)/(float)H);
 				}
 				addMesh(arrays,"sphere");
 			}
