@@ -1844,7 +1844,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			renderedIcons.markSelected(selectedEntityIds);
 			if (selectedEntityIds.size())
 				renderedIcons.addXYZ(svframe->m_sceneTree->getCenterOf(selectedEntityIds),(&selectedEntityIds==&autoEntityIds)?selectedTransformation:IC_STATIC,svs.eye);
-			entityIcons->renderIcons(renderedIcons,solver->getRendererOfScene()->getTextureRenderer(),svs.eye,solver->getCollider(),ray);
+			entityIcons->renderIcons(renderedIcons,solver->getRendererOfScene()->getTextureRenderer(),svs.eye,solver->getCollider(),ray,svs);
 		}
 	}
 

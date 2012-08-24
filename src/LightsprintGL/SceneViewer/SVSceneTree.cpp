@@ -214,6 +214,7 @@ unsigned SVSceneTree::manipulateEntities(const EntityIds& entityIds, const rr::R
 	return result;
 }
 
+
 void SVSceneTree::selectEntityInTree(EntityId entity)
 {
 	wxTreeItemId item = entityIdToItemId(entity);

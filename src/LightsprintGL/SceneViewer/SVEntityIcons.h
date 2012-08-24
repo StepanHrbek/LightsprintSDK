@@ -43,7 +43,7 @@ namespace rr_gl
 	public:
 		SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram);
 		bool isOk() const;
-		void renderIcons(const SVEntities& entities, TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRRay* ray);
+		void renderIcons(const SVEntities& entities, TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRRay* ray, const SceneViewerStateEx& svs);
 		const SVEntity* intersectIcons(const SVEntities& entities, rr::RRVec2 mousePositionInWindow);
 		~SVEntityIcons();
 

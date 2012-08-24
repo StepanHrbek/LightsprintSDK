@@ -113,7 +113,7 @@ bool SVEntityIcons::isOk() const
 	return true;
 }
 
-void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRRay* ray)
+void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRRay* ray, const SceneViewerStateEx& svs)
 {
 	// render arrows
 	PreserveFlag p0(GL_DEPTH_TEST,false);
@@ -177,12 +177,13 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* tex
 
 				static rr::RRTime time;
 				float brightness = entities[i].selected ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
+				rr::RRVec4 color(brightness,brightness,brightness,visible?1.0f:0.5f);
 				float size1 = (eye.getPositionInWindow(entities[i].position+eye.getRight()*entities[i].iconSize)-piwCenter).length()*2;
 				float size2 = RR_CLAMPED(size1,0.02f,0.2f);
 				rr::RRVec2 piwSize = rr::RRVec2(1,eye.getAspect()) * size2;
 				rr::RRVec4 piwRectangle(piwCenter.x-piwSize.x/2,piwCenter.y-piwSize.y/2,piwSize.x,piwSize.y); // in -1..1 range
 				piwIconRectangles.push_back(std::pair<const SVEntity*,rr::RRVec4>(&entities[i],piwRectangle));
-				textureRenderer->render2D(getTexture(icon[entities[i].iconCode],true,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),&rr::RRVec4(brightness,brightness,brightness,visible?1.0f:0.5f),1,piwRectangle[0]*.5f+.5f,piwRectangle[1]*.5f+.5f,piwRectangle[2]*.5f,piwRectangle[3]*.5f);
+				textureRenderer->render2D(getTexture(icon[entities[i].iconCode],true,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),&color,1,piwRectangle[0]*.5f+.5f,piwRectangle[1]*.5f+.5f,piwRectangle[2]*.5f,piwRectangle[3]*.5f);
 			}
 		}
 	}

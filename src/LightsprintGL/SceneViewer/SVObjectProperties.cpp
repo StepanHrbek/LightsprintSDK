@@ -26,6 +26,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 		object = _object;
 		numFacegroups = _object ? _object->faceGroups.size() : 0;
 		Clear();
+
 		if (object)
 		{
 			const rr::RRMesh* mesh = object->getCollider()->getMesh();
@@ -149,10 +150,11 @@ void SVObjectProperties::updateProperties()
 
 void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
+	wxPGProperty *property = event.GetProperty();
+
 	if (!object)
 		return;
 
-	wxPGProperty *property = event.GetProperty();
 	if (property==propName)
 	{
 		object->name = RR_WX2RR(property->GetValue().GetString());
