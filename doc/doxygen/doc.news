@@ -40,6 +40,9 @@ NEWS
   - .enff
   - .mot
   - .prj
+- misc helpers
+  - RRMeshArrays::manipulateMapping()
+  - rr_gl::readPixelsToBuffer()
 
 \section news133 ------------------------------------ 2012.06.28 -------------------------------------
 

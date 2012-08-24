@@ -579,6 +579,12 @@ namespace rr
 		//!  If such channel exists, tangents will point in u+ direction, bitangents in v+ direction.
 		//!  When building tangentspace for normal maps, pass uv channel used for mapping normal map.
 		void                 buildTangents(unsigned uvChannel);
+
+		//! Manipulates mapping by 2x3 matrix. Returns 1 on success, 0 when mapping was not modified.
+		//
+		//! As this is the only function working with 2x3 matrix, we pass just pointer to 6 floats instead of creating new class.
+		//! Uvs are transformed as in uv=RRVec2(u*matrix[0]+v*matrix[1]+matrix[2],u*matrix[3]+v*matrix[4]+matrix[5]);
+		unsigned             manipulateMapping(unsigned uvChannel, const float* matrix2x3);
 	private:
 		unsigned poolSize; ///< All arrays in mesh are allocated from one pool of this size.
 	};

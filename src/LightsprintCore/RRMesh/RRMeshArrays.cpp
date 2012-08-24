@@ -477,23 +477,23 @@ void RRMeshArrays::buildTangents(unsigned uvChannel)
 			const RRVec3& v1 = position[i1];
 			const RRVec3& v2 = position[i2];
 			const RRVec3& v3 = position[i3];
-        
+
 			const RRVec2& w1 = uv[i1];
 			const RRVec2& w2 = uv[i2];
 			const RRVec2& w3 = uv[i3];
-        
+
 			float x1 = v2.x - v1.x;
 			float x2 = v3.x - v1.x;
 			float y1 = v2.y - v1.y;
 			float y2 = v3.y - v1.y;
 			float z1 = v2.z - v1.z;
 			float z2 = v3.z - v1.z;
-        
+
 			float s1 = w2.x - w1.x;
 			float s2 = w3.x - w1.x;
 			float t1 = w2.y - w1.y;
 			float t2 = w3.y - w1.y;
-        
+
 			float r = 1 / (s1 * t2 - s2 * t1);
 			RRVec3 udir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
 			RRVec3 vdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
@@ -515,6 +515,18 @@ void RRMeshArrays::buildTangents(unsigned uvChannel)
 		}
 	}
 	version++;
+}
+
+unsigned RRMeshArrays::manipulateMapping(unsigned uvChannel, const float* matrix2x3)
+{
+	if (uvChannel>=texcoord.size() || !texcoord[uvChannel] || !matrix2x3)
+		return 0;
+	for (unsigned i=0;i<numVertices;i++)
+		texcoord[uvChannel][i] = RRVec2(
+			texcoord[uvChannel][i].x*matrix2x3[0]+texcoord[uvChannel][i].y*matrix2x3[1]+matrix2x3[2],
+			texcoord[uvChannel][i].x*matrix2x3[3]+texcoord[uvChannel][i].y*matrix2x3[4]+matrix2x3[5]);
+	version++;
+	return 1;
 }
 
 
