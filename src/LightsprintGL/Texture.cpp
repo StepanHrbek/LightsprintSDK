@@ -9,6 +9,9 @@
 #include "Lightsprint/RRDebug.h"
 #include "Workaround.h"
 #include <vector>
+#ifdef _MSC_VER
+	#include <windows.h> // EXCEPTION_EXECUTE_HANDLER
+#endif
 
 namespace rr_gl
 {
@@ -356,7 +359,21 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 	else
 	{
 		if (_buildMipmaps)
-			glGenerateMipmapEXT(cubeOr2d); // part of EXT_framebuffer_object
+		{
+#ifdef _MSC_VER
+			__try
+			{
+#endif
+				glGenerateMipmapEXT(cubeOr2d); // part of EXT_framebuffer_object
+#ifdef _MSC_VER
+			}
+			__except(EXCEPTION_EXECUTE_HANDLER)
+			{
+				// This happens in carat-bsp1.dae/carat-bsp2.dae, not sure why.
+				RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"GPU driver crashed in glGenerateMipmapEXT().\n"));
+			}
+#endif
+		}
 		//!!!
 	}
 
@@ -459,7 +476,12 @@ Texture* getTexture(const rr::RRBuffer* _buffer, bool _buildMipMaps, bool _compr
 		return NULL;
 	rr::RRBuffer* buffer = const_cast<rr::RRBuffer*>(_buffer); //!!! new Texture() may modify customData in const object
 	Texture* texture = (Texture*)(buffer->customData);
-	if (!texture)
+	if (texture)
+	{
+		// verify that texture and buffer are linked in both directions
+		RR_ASSERT(texture->getBuffer()==_buffer);
+	}
+	else
 	{
 		texture = new Texture(buffer,_buildMipMaps,_compress,_magn,_mini,_wrapS,_wrapT);
 		s_textures.push_back(texture);
