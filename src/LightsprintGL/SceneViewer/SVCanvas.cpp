@@ -824,7 +824,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	static rr::RRVec2 oldMousePositionInWindow(0);
 	bool contextMenu = event.GetId()==ID_CONTEXT_MENU;
 	wxPoint newPosition = (event.GetPosition()==wxPoint(-1,-1)) ? oldPosition : event.GetPosition(); // use previous coords for event that does not come with its own
-	mousePositionInWindow = rr::RRVec2(newPosition.x*2.0f/GetSize().x-1,newPosition.y*2.0f/GetSize().y-1);
+	mousePositionInWindow = rr::RRVec2((newPosition.x*2.0f+winWidth-GetSize().x)/winWidth-1,(newPosition.y*2.0f+winHeight-GetSize().y)/winHeight-1); // in fact, it is mouse position in _viewport_ where viewport winWidth*winHeight is in center of window GetSize()
 
 	if (!winWidth || !winHeight || !solver)
 	{
@@ -1092,7 +1092,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			rr::RRVec3 pan;
 			if (svs.eye.isOrthogonal())
 			{
-				rr::RRVec2 origMousePositionInWindow = rr::RRVec2(s_ci.mouseX*2.0f/winWidth-1,s_ci.mouseY*2.0f/winHeight-1);
+				rr::RRVec2 origMousePositionInWindow = rr::RRVec2((s_ci.mouseX*2.0f+winWidth-GetSize().x)/winWidth-1,(s_ci.mouseY*2.0f+winHeight-GetSize().y)/winHeight-1); // in fact, it is mouse position in _viewport_ where viewport winWidth*winHeight is in center of window GetSize()
 				pan = svs.eye.getRayOrigin(origMousePositionInWindow)-svs.eye.getRayOrigin(mousePositionInWindow);
 			}
 			else
