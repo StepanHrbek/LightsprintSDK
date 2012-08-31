@@ -53,7 +53,7 @@ public:
 	{
 		for (Buffer1x1Cache::const_iterator i=buffers1x1.begin();i!=buffers1x1.end();++i)
 			delete i->second;
-		// this was missing until rev 5722, dangling pointers were left in unordered_map. still, it did work without crashes, but I don't know why
+		// this was missing until rev 5722, dangling pointers were left in unordered_map. it did work without crashes probably because we create 1x1 buffers so rarely/never
 		buffers1x1.clear();
 	}
 private:
