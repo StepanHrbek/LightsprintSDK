@@ -326,7 +326,8 @@ namespace rr
 		//! Reports inconsistencies found in mesh.
 		//
 		//! \param lightmapTexcoord
-		//!  Optional lightmap texcoord channel. UINT_MAX disables unwrap check.
+		//!  Optional lightmap texcoord channel (it is stored in RRMaterial::lightmapTexcoord).
+		//!  UINT_MAX disables unwrap check.
 		//! \param meshName
 		//!  Optional mesh name included in report if inconsistency is found. May be NULL.
 		//! \param numReports
@@ -505,7 +506,7 @@ namespace rr
 	//!   In this case, we need also write access and RRMeshArrays provides it.
 	//!   There are no third party structures in memory, all data are stored in RRMeshArrays.
 	//!
-	//! If you need direct read-write access to data in RRMesh, try RTTI first, you may already have RRMeshArrays.
+	//! If you need direct read-write access to data in RRMesh, try dynamic_cast<RRMeshArrays*> first, your RRMesh might already be RRMeshArrays.
 	//! If you don't have RRMeshArrays, create it via RRMesh::createArrays().
 	class RR_API RRMeshArrays : public RRMesh
 	{
