@@ -53,6 +53,7 @@ namespace rr_gl
 		BoolRefProperty*  propGIMirrors;
 		BoolRefProperty*  propGIMirrorsDiffuse;
 		BoolRefProperty*  propGIMirrorsSpecular;
+		BoolRefProperty*  propGIMirrorsQuality;
 		wxPGProperty*     propGIEmisMultiplier;
 		wxPGProperty*     propGIVideo;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;

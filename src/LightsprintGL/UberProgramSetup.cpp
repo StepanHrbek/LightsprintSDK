@@ -91,6 +91,7 @@ void UberProgramSetup::enableAllLights()
 	LIGHT_INDIRECT_ENV_SPECULAR = true;
 	LIGHT_INDIRECT_MIRROR_DIFFUSE = true;
 	LIGHT_INDIRECT_MIRROR_SPECULAR = true;
+	LIGHT_INDIRECT_MIRROR_MIPMAPS = true;
 }
 
 void UberProgramSetup::enableAllMaterials()
@@ -172,7 +173,7 @@ const char* UberProgramSetup::getSetupString()
 	sprintf(specularModel,"#define MATERIAL_SPECULAR_MODEL %d\n",(int)MATERIAL_SPECULAR_MODEL);
 
 	static char setup[2000];
-	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		comment?comment:"",
 		SHADOW_MAPS?shadowMaps:"",
 		SHADOW_SAMPLES?shadowSamples:"",
@@ -199,6 +200,7 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_INDIRECT_ENV_SPECULAR?"#define LIGHT_INDIRECT_ENV_SPECULAR\n":"",
 		LIGHT_INDIRECT_MIRROR_DIFFUSE?"#define LIGHT_INDIRECT_MIRROR_DIFFUSE\n":"",
 		LIGHT_INDIRECT_MIRROR_SPECULAR?"#define LIGHT_INDIRECT_MIRROR_SPECULAR\n":"",
+		LIGHT_INDIRECT_MIRROR_MIPMAPS?"#define LIGHT_INDIRECT_MIRROR_MIPMAPS\n":"",
 		MATERIAL_DIFFUSE?"#define MATERIAL_DIFFUSE\n":"",
 		MATERIAL_DIFFUSE_X2?"#define MATERIAL_DIFFUSE_X2\n":"",
 		MATERIAL_DIFFUSE_CONST?"#define MATERIAL_DIFFUSE_CONST\n":"",
@@ -499,6 +501,10 @@ void UberProgramSetup::validate()
 		SHADOW_CASCADE = 0;
 		SHADOW_ONLY = 0;
 	}
+	if (!LIGHT_INDIRECT_MIRROR_DIFFUSE && !LIGHT_INDIRECT_MIRROR_SPECULAR)
+	{
+		LIGHT_INDIRECT_MIRROR_MIPMAPS = 0;
+	}
 }
 
 Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCamera* camera, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, const ClipPlanes* clipPlanes)
@@ -713,6 +719,37 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 	return program;
 }
 
+// miplevel 0=sample from 1x1x6, miplevel 1=2x2x6, miplevel 2=4x4x6...
+float getMipLevel(const rr::RRMaterial* material)
+{
+	switch (material->specularModel)
+	{
+		case rr::RRMaterial::PHONG:
+			{
+				float shininess = RR_CLAMPED(material->specularShininess,1,1e10f);
+				float spreadAngle = acos(pow(0.5f/(shininess+1),1/shininess)); // how far from reflection angle reflection intensity is 0.5 (with intensity averaged over hemisphere 1)
+				return (spreadAngle<=0) ? 15.f : log(spreadAngle/RR_DEG2RAD(45))/log(0.5f); // theoretically correct for 45->0, 22->1, 11->2 ...
+			}
+		case rr::RRMaterial::BLINN_PHONG:
+			{
+				float shininess = RR_CLAMPED(material->specularShininess,1,1e10f);
+				float spreadAngle = acos(pow(1/(shininess+1),1/shininess))*2; // estimate: 2x higher than PHONG
+				return (spreadAngle<=0) ? 15.f : log(spreadAngle/RR_DEG2RAD(45))/log(0.5f);
+			}
+		case rr::RRMaterial::TORRANCE_SPARROW:
+			{
+				float shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,1e-10f,1);
+				return -log(shininess)*0.4f;
+			}
+		case rr::RRMaterial::BLINN_TORRANCE_SPARROW:
+			{
+				float shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,1e-10f,1);
+				return -log(shininess)*0.4f;
+			}
+	}
+	return 0;
+}
+
 void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* material) const
 {
 	if (!program)
@@ -735,29 +772,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR_SPECULAR))
 	{
 		float shininess = material->specularShininess;
-		float spreadAngle; // how far from reflection angle reflection intensity is 0.5 (with intensity averaged over hemisphere 1)
-		float miplevel; // miplevel 0=sample from 1x1x6, miplevel 1=2x2x6, miplevel 2=4x4x6...
-		switch (MATERIAL_SPECULAR_MODEL)
-		{
-			case rr::RRMaterial::PHONG:
-				shininess = RR_CLAMPED(material->specularShininess,1,1e10f);
-				spreadAngle = acos(pow(0.5f/(shininess+1),1/shininess));
-				miplevel = (spreadAngle<=0) ? 15.f : log(spreadAngle/RR_DEG2RAD(45))/log(0.5f); // theoretically correct for 45->0, 22->1, 11->2 ...
-				break;
-			case rr::RRMaterial::BLINN_PHONG:
-				shininess = RR_CLAMPED(material->specularShininess,1,1e10f);
-				spreadAngle = acos(pow(1/(shininess+1),1/shininess))*2; // estimate: 2x higher than PHONG
-				miplevel = (spreadAngle<=0) ? 15.f : log(spreadAngle/RR_DEG2RAD(45))/log(0.5f);
-				break;
-			case rr::RRMaterial::TORRANCE_SPARROW:
-				shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,1e-10f,1);
-				miplevel = -log(shininess)*0.4f;
-				break;
-			case rr::RRMaterial::BLINN_TORRANCE_SPARROW:
-				shininess = RR_CLAMPED(material->specularShininess*material->specularShininess,1e-10f,1);
-				miplevel = -log(shininess)*0.4f;
-				break;
-		}
+		float miplevel = getMipLevel(material); // miplevel 0=sample from 1x1x6, miplevel 1=2x2x6, miplevel 2=4x4x6...
 		program->sendUniform("materialSpecularShininessData",shininess,miplevel);
 	}
 

@@ -40,6 +40,10 @@ NEWS
   - .enff
   - .mot
   - .prj
+- improved mirroring
+  - faster at the same quality, option to make it even faster at reduced quality
+  - setting LIGHT_INDIRECT_MIRROR_MIPMAPS keeps old high quality mode
+  - not setting LIGHT_INDIRECT_MIRROR_MIPMAPS enables new high speed mode
 - misc helpers
   - RRMeshArrays::manipulateMapping()
   - rr_gl::readPixelsToBuffer()

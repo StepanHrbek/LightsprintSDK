@@ -162,6 +162,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = 0;
 		uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = 0;
+		uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = 0;
 		uberProgramSetup.MATERIAL_DIFFUSE = 0;
 		uberProgramSetup.MATERIAL_SPECULAR = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
@@ -255,6 +256,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = 0;
+			uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
 			//printf(" %d: direct\n",_lightIndex);
@@ -302,6 +304,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = 0;
+			uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = 0;
 			uberProgramSetup.validate(); // is useful (zeroes MATERIAL_SPECULAR_CONST, might do more)
 			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,brightness,gamma,clipPlanes);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with specular disabled.\n"));

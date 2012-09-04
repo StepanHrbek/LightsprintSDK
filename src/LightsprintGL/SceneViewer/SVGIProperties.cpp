@@ -139,6 +139,9 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIMirrorsSpecular = new BoolRefProperty(_("Specular"),_("Enables mirroring when rendering specular reflection."),svs.mirrorsSpecular);
 		AppendIn(propGIMirrors,propGIMirrorsSpecular);
 
+		propGIMirrorsQuality = new BoolRefProperty(_("Higher quality"),_("Improves quality by making reflection of close objects sharper."),svs.mirrorsMipmaps);
+		AppendIn(propGIMirrors,propGIMirrorsQuality);
+
 		SetPropertyBackgroundColour(propGIMirrors,importantPropertyBackgroundColor,false);
 	}
 
@@ -200,6 +203,7 @@ void SVGIProperties::updateHide()
 	
 	propGIMirrorsDiffuse->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsSpecular->Hide(!svs.mirrorsEnabled,false);
+	propGIMirrorsQuality->Hide(!svs.mirrorsEnabled,false);
 
 	propGIEmisMultiplier->Hide(!realtimeGI,false);
 	propGIVideo->Hide(!realtimeGI,false);

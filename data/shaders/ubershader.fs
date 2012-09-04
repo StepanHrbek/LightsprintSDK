@@ -27,6 +27,7 @@
 //  #define LIGHT_INDIRECT_ENV_SPECULAR
 //  #define LIGHT_INDIRECT_MIRROR_DIFFUSE
 //  #define LIGHT_INDIRECT_MIRROR_SPECULAR
+//  #define LIGHT_INDIRECT_MIRROR_MIPMAPS
 //  #define MATERIAL_DIFFUSE
 //  #define MATERIAL_DIFFUSE_X2
 //  #define MATERIAL_DIFFUSE_CONST
@@ -203,7 +204,7 @@ uniform vec3 worldEyePos; // is it in use? it's complicated and error prone to t
 
 #if defined(LIGHT_INDIRECT_MIRROR_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 	varying vec4 lightIndirectMirrorCoord;
-	uniform sampler2D lightIndirectMirrorMap;
+	uniform sampler2D lightIndirectMirrorMap; // must have mipmaps if LIGHT_INDIRECT_MIRROR_MIPMAPS
 #endif
 #if defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 	uniform vec3 lightIndirectMirrorData; // 1/width,1/height,numLevels
@@ -713,11 +714,16 @@ void main()
 			#endif
 		#endif
 		#if defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
-			float mirrorLod = lightIndirectMirrorData.z-materialSpecularShininessData.y
-				// makes reflection sharper closer to reflected object (rough appriximation)
-				// but does not sharpen very blurry reflections, it would look bad, partially because of low quality generated mipmaps
-				+ max(materialSpecularShininessData.y,0.0)*(texture2DLod(lightIndirectMirrorMap, mirrorCenterSmooth, lightIndirectMirrorData.z).a*4.0-4.0);
-			vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorData.xy * pow(1.5,mirrorLod);
+			#ifdef LIGHT_INDIRECT_MIRROR_MIPMAPS
+				float mirrorLod = lightIndirectMirrorData.z-materialSpecularShininessData.y
+					// makes reflection sharper closer to reflected object (rough appriximation)
+					// but does not sharpen very blurry reflections, it would look bad, partially because of low quality generated mipmaps
+					+ max(materialSpecularShininessData.y,0.0)*(texture2DLod(lightIndirectMirrorMap, mirrorCenterSmooth, lightIndirectMirrorData.z).a*4.0-4.0);
+					// BTW, texture2DLod() in fragment shader requires GLSL 1.30+ or GL_EXT_gpu_shader4 and we don't check it, it is virtually always present
+				vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorData.xy * pow(1.5,mirrorLod);
+			#else
+				vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorData.xy * 0.6;
+			#endif
 			vec2 mirrorShift2 = mirrorShift1.yx * vec2(1.5,-1.5);
 		#endif
 
@@ -784,7 +790,11 @@ void main()
 							) * 0.5
 						#endif
 						#ifdef LIGHT_INDIRECT_MIRROR_DIFFUSE
-							+ dividedByAlpha(texture2DLod(lightIndirectMirrorMap, mirrorCenter, 6.0))
+							#ifdef LIGHT_INDIRECT_MIRROR_MIPMAPS
+								+ dividedByAlpha(texture2DLod(lightIndirectMirrorMap, mirrorCenter, 6.0))
+							#else
+								+ dividedByAlpha(texture2D(lightIndirectMirrorMap, mirrorCenter))
+							#endif
 						#endif
 					#ifdef LIGHT_INDIRECT_DETAIL_MAP
 						) * texture2D(lightIndirectMap, lightIndirectCoord) * 2.0
@@ -863,10 +873,18 @@ void main()
 							// this lookup should always go into mirrored area, makes sum non-zero
 							+ texture2D(lightIndirectMirrorMap, mirrorCenterSmooth)*0.01
 						#endif
-						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift1, mirrorLod)
-						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift1, mirrorLod)
-						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift2, mirrorLod)
-						+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift2, mirrorLod) )
+						#ifdef LIGHT_INDIRECT_MIRROR_MIPMAPS
+							+ texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift1, mirrorLod)
+							+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift1, mirrorLod)
+							+ texture2DLod(lightIndirectMirrorMap, mirrorCenter+mirrorShift2, mirrorLod)
+							+ texture2DLod(lightIndirectMirrorMap, mirrorCenter-mirrorShift2, mirrorLod)
+						#else
+							+ texture2D(lightIndirectMirrorMap, mirrorCenter+mirrorShift1)
+							+ texture2D(lightIndirectMirrorMap, mirrorCenter-mirrorShift1)
+							+ texture2D(lightIndirectMirrorMap, mirrorCenter+mirrorShift2)
+							+ texture2D(lightIndirectMirrorMap, mirrorCenter-mirrorShift2)
+						#endif
+							)
 					#endif
 				).rgb,1.0)
 			#endif
