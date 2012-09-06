@@ -120,4 +120,38 @@ class DeleteDlg : public wxDialog
 	
 };
 
+///////////////////////////////////////////////////////////////////////////////
+/// Class MappingDialog
+///////////////////////////////////////////////////////////////////////////////
+class MappingDialog : public wxDialog 
+{
+	private:
+	
+	protected:
+		wxStaticText* m_staticText9;
+		wxStaticText* m_staticText7;
+		wxStaticText* m_staticText8;
+		wxStaticText* m_staticText10;
+		wxStaticText* m_staticText11;
+		wxStaticText* m_staticText12;
+		wxStaticText* m_staticText13;
+		wxStaticText* m_staticText14;
+		wxStaticText* m_staticText15;
+		wxStaticText* m_staticText16;
+	
+	public:
+		wxStaticText* m_staticText6;
+		wxComboBox* source;
+		wxTextCtrl* scale;
+		wxTextCtrl* offsetX;
+		wxTextCtrl* offsetY;
+		wxTextCtrl* angle;
+		wxTextCtrl* destination;
+		wxButton* button;
+		
+		MappingDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Generate or modify uv mapping"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 340,226 ), long style = wxDEFAULT_DIALOG_STYLE ); 
+		~MappingDialog();
+	
+};
+
 #endif //__SVDIALOGS_H__

@@ -223,3 +223,108 @@ DeleteDlg::DeleteDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 DeleteDlg::~DeleteDlg()
 {
 }
+
+MappingDialog::MappingDialog( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+	
+	wxBoxSizer* bSizer9;
+	bSizer9 = new wxBoxSizer( wxVERTICAL );
+	
+	wxGridSizer* gSizer1;
+	gSizer1 = new wxGridSizer( 6, 3, 0, 0 );
+	
+	m_staticText6 = new wxStaticText( this, wxID_ANY, _("Take mapping from"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText6->Wrap( -1 );
+	gSizer1->Add( m_staticText6, 0, wxALL, 5 );
+	
+	source = new wxComboBox( this, wxID_ANY, _("uv channel 0"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	source->Append( _("uv channel 0") );
+	source->Append( _("uv channel 1") );
+	source->Append( _("uv channel 2") );
+	source->Append( _("uv channel 3") );
+	source->Append( _("uv channel 4") );
+	source->Append( _("uv channel 5") );
+	source->Append( _("uv channel 6") );
+	source->Append( _("uv channel 7") );
+	source->Append( _("planar X") );
+	source->Append( _("planar Y") );
+	source->Append( _("planar Z") );
+	source->Append( _("box") );
+	source->Append( _("spherical") );
+	source->Append( _("cylindrical") );
+	source->SetSelection( 0 );
+	gSizer1->Add( source, 0, wxALL, 5 );
+	
+	m_staticText9 = new wxStaticText( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText9->Wrap( -1 );
+	gSizer1->Add( m_staticText9, 0, wxALL, 5 );
+	
+	m_staticText7 = new wxStaticText( this, wxID_ANY, _("Transform it"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText7->Wrap( -1 );
+	gSizer1->Add( m_staticText7, 0, wxALL, 5 );
+	
+	m_staticText8 = new wxStaticText( this, wxID_ANY, _("scale"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText8->Wrap( -1 );
+	gSizer1->Add( m_staticText8, 0, wxALL, 5 );
+	
+	scale = new wxTextCtrl( this, wxID_ANY, _("1"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer1->Add( scale, 0, wxALL, 5 );
+	
+	m_staticText10 = new wxStaticText( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText10->Wrap( -1 );
+	gSizer1->Add( m_staticText10, 0, wxALL, 5 );
+	
+	m_staticText11 = new wxStaticText( this, wxID_ANY, _("offset X"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText11->Wrap( -1 );
+	gSizer1->Add( m_staticText11, 0, wxALL, 5 );
+	
+	offsetX = new wxTextCtrl( this, wxID_ANY, _("0"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer1->Add( offsetX, 0, wxALL, 5 );
+	
+	m_staticText12 = new wxStaticText( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText12->Wrap( -1 );
+	gSizer1->Add( m_staticText12, 0, wxALL, 5 );
+	
+	m_staticText13 = new wxStaticText( this, wxID_ANY, _("offset Y"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText13->Wrap( -1 );
+	gSizer1->Add( m_staticText13, 0, wxALL, 5 );
+	
+	offsetY = new wxTextCtrl( this, wxID_ANY, _("0"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer1->Add( offsetY, 0, wxALL, 5 );
+	
+	m_staticText14 = new wxStaticText( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText14->Wrap( -1 );
+	gSizer1->Add( m_staticText14, 0, wxALL, 5 );
+	
+	m_staticText15 = new wxStaticText( this, wxID_ANY, _("angle (degrees)"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText15->Wrap( -1 );
+	gSizer1->Add( m_staticText15, 0, wxALL, 5 );
+	
+	angle = new wxTextCtrl( this, wxID_ANY, _("0"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer1->Add( angle, 0, wxALL, 5 );
+	
+	m_staticText16 = new wxStaticText( this, wxID_ANY, _("Save it to uv channel"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText16->Wrap( -1 );
+	gSizer1->Add( m_staticText16, 0, wxALL, 5 );
+	
+	destination = new wxTextCtrl( this, wxID_ANY, _("0"), wxDefaultPosition, wxDefaultSize, 0 );
+	gSizer1->Add( destination, 0, wxALL, 5 );
+	
+	
+	bSizer9->Add( gSizer1, 1, wxEXPAND, 5 );
+	
+	button = new wxButton( this, wxID_OK, _("Generate mapping"), wxDefaultPosition, wxDefaultSize, 0 );
+	button->SetDefault(); 
+	bSizer9->Add( button, 0, wxALIGN_RIGHT|wxALL, 5 );
+	
+	
+	this->SetSizer( bSizer9 );
+	this->Layout();
+	
+	this->Centre( wxBOTH );
+}
+
+MappingDialog::~MappingDialog()
+{
+}
