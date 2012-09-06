@@ -923,7 +923,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				rr::RRMeshArrays* arrays = new rr::RRMeshArrays;
 				rr::RRVector<unsigned> texcoords;
 				texcoords.push_back(0);
-				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false);
+				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
 				arrays->triangle[0][0] = 0;
 				arrays->triangle[0][1] = 1;
 				arrays->triangle[0][2] = 2;
@@ -952,7 +952,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				rr::RRMeshArrays* arrays = new rr::RRMeshArrays;
 				rr::RRVector<unsigned> texcoords;
 				texcoords.push_back(0);
-				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false);
+				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
 				for (unsigned j=0;j<H;j++)
 				for (unsigned i=0;i<W;i++)
 				{
@@ -987,7 +987,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				rr::RRMeshArrays* arrays = new rr::RRMeshArrays;
 				rr::RRVector<unsigned> texcoords;
 				texcoords.push_back(0);
-				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false);
+				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
 				for (unsigned i=0;i<TRIANGLES;i++)
 					for (unsigned j=0;j<3;j++)
 						// commented out code can replace constant arrays, but 2 cube sides have mapping rotated
@@ -1012,7 +1012,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				rr::RRMeshArrays* arrays = new rr::RRMeshArrays;
 				rr::RRVector<unsigned> texcoords;
 				texcoords.push_back(0);
-				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false);
+				arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
 				for (unsigned j=0;j<H;j++)
 				for (unsigned i=0;i<W;i++)
 				{

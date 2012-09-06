@@ -261,7 +261,7 @@ void Unwrapper::copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvCh
 	texcoords.push_back(unwrapChannel);
 	for (UvChannels::const_iterator i=keepChannels.begin();i!=keepChannels.end();++i)
 		texcoords.push_back(*i);
-	rrMesh->resizeMesh(numTriangles,numVertices,&texcoords,rrMesh->tangent?true:false);
+	rrMesh->resizeMesh(numTriangles,numVertices,&texcoords,rrMesh->tangent?true:false,false);
 	// copy indices
 	DWORD* indexData = NULL;
 	HRESULT hr = dxMesh->LockIndexBuffer(D3DLOCK_READONLY,(LPVOID*)&indexData);

@@ -36,10 +36,14 @@ RRMeshArrays::~RRMeshArrays()
 }
 
 // false = complete deallocate, mesh resized to 0,0
-bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, const RRVector<unsigned>* _texcoords, bool _tangents)
+bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, const RRVector<unsigned>* _texcoords, bool _tangents, bool _preserveContents)
 {
 	// calculate new size in bytes
 	unsigned newSize = _numTriangles*sizeof(Triangle) + _numVertices*((_tangents?4:2)*sizeof(RRVec3)+(_texcoords?_texcoords->size()*sizeof(RRVec2)+16:0))+100;
+
+	// preserve contents 1.
+	RRVector<unsigned> tmp;
+	RRMeshArrays* backup = _preserveContents ? createArrays(true,_texcoords?*_texcoords:tmp,_tangents) : NULL;
 
 	// free/alloc
 	char* pool = (char*)triangle;
@@ -50,7 +54,7 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 		if (newSize && !pool)
 		{
 			RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d triangles, %d vertices.\n",_numTriangles,_numVertices);
-			resizeMesh(0,0,NULL,false);
+			resizeMesh(0,0,NULL,false,false);
 			return false;
 		}
 	}
@@ -110,6 +114,13 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 		}
 	}
 
+	// preserve contents 2.
+	if (backup)
+	{
+		reload(backup,true,_texcoords?*_texcoords:tmp,_tangents);
+		delete backup;
+	}
+
 	version++;
 	return true;
 }
@@ -121,7 +132,7 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 	if (_indexed)
 	{
 		// alloc
-		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumVertices(),&_texcoords,_tangents))
+		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumVertices(),&_texcoords,_tangents,false))
 		{
 			return false;
 		}
@@ -189,7 +200,7 @@ bool RRMeshArrays::reload(const RRMesh* _mesh, bool _indexed, const RRVector<uns
 	else
 	{
 		// alloc
-		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumTriangles()*3,&_texcoords,_tangents))
+		if (!resizeMesh(_mesh->getNumTriangles(),_mesh->getNumTriangles()*3,&_texcoords,_tangents,false))
 		{
 			return false;
 		}
@@ -517,14 +528,29 @@ void RRMeshArrays::buildTangents(unsigned uvChannel)
 	version++;
 }
 
-unsigned RRMeshArrays::manipulateMapping(unsigned uvChannel, const float* matrix2x3)
+unsigned RRMeshArrays::manipulateMapping(unsigned sourceChannel, const float* matrix2x3, unsigned destinationChannel)
 {
-	if (uvChannel>=texcoord.size() || !texcoord[uvChannel] || !matrix2x3)
+	if (!matrix2x3)
 		return 0;
-	for (unsigned i=0;i<numVertices;i++)
-		texcoord[uvChannel][i] = RRVec2(
-			texcoord[uvChannel][i].x*matrix2x3[0]+texcoord[uvChannel][i].y*matrix2x3[1]+matrix2x3[2],
-			texcoord[uvChannel][i].x*matrix2x3[3]+texcoord[uvChannel][i].y*matrix2x3[4]+matrix2x3[5]);
+	if (destinationChannel>=texcoord.size() || !texcoord[destinationChannel])
+	{
+		RRVector<unsigned> channels;
+		getUvChannels(channels);
+		channels.push_back(destinationChannel);
+		resizeMesh(numTriangles,numVertices,&channels,tangent?true:false,true);
+	}
+	if (sourceChannel>=texcoord.size() || !texcoord[sourceChannel])
+	{
+		for (unsigned i=0;i<numVertices;i++)
+			texcoord[destinationChannel][i] = RRVec2(matrix2x3[2],matrix2x3[5]);
+	}
+	else
+	{
+		for (unsigned i=0;i<numVertices;i++)
+			texcoord[destinationChannel][i] = RRVec2(
+				texcoord[sourceChannel][i].x*matrix2x3[0]+texcoord[sourceChannel][i].y*matrix2x3[1]+matrix2x3[2],
+				texcoord[sourceChannel][i].x*matrix2x3[3]+texcoord[sourceChannel][i].y*matrix2x3[4]+matrix2x3[5]);
+	}
 	version++;
 	return 1;
 }

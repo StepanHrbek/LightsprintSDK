@@ -1880,7 +1880,7 @@ public:
 			}
 
 			RRMeshArrays* mesh = &objects->meshes[ objects->nextMesh ];
-			mesh->resizeMesh(numTriangles,numVertices,&texcoords,meshNumTexTangentChannels || meshNumTexBinormalChannels);
+			mesh->resizeMesh(numTriangles,numVertices,&texcoords,meshNumTexTangentChannels || meshNumTexBinormalChannels,false);
 
 			size_t currTriangle = 0;
 			currIndexInMesh = 0;

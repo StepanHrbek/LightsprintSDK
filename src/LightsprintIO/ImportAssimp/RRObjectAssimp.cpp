@@ -236,7 +236,7 @@ public:
 				bool tangents = aimesh->mTangents && aimesh->mBitangents;
 				for (unsigned i=0;i<numTexcoords;i++)
 					texcoords.push_back(i);
-				if (mesh->resizeMesh(numTriangles,numVertices,&texcoords,tangents))
+				if (mesh->resizeMesh(numTriangles,numVertices,&texcoords,tangents,false))
 				{	
 					for (unsigned t=0;t<numTriangles;t++)
 						memcpy(&mesh->triangle[t][0],&aimesh->mFaces[t].mIndices[0],sizeof(RRMesh::Triangle));

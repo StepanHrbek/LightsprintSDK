@@ -527,11 +527,25 @@ namespace rr
 		//! Increase version each time you modify arrays, to let renderer know data in GPU are outdated.
 		unsigned version;
 
-		//! Memory management. Resizing doesn't preserve old data.
+		//! Memory management.
 		//
 		//! If you resize often, it's safe to resize once to max size and then change only numTriangles/numVertices.
-		//! If allocation fails, mesh is resized to 0 and false is returned.
-		bool                 resizeMesh(unsigned numTriangles,unsigned numVertices, const RRVector<unsigned>* texcoords, bool tangents);
+		//! \param numTriangles
+		//!  Number of triangles you wish to have after resize.
+		//! \param numVertices
+		//!  Number of vertices you wish to have after resize.
+		//! \param texcoords
+		//!  Set of uv channels you wish to have after resize.
+		//! \param tangents
+		//!  Whether you wish to have tangents and bitangents after resize.
+		//! \param preserveContents
+		//!  Whether you wish to preserve data stored in mesh through resizing process.
+		//!  False =  triangle and vertex data are uninitialized after resize.
+		//!  True = all triangle and vertex data existing both before and after resize are preserved,
+		//!  while newly allocated data are left uninitialized.
+		//! \return
+		//!  If allocation fails, mesh is resized to 0 and false is returned.
+		bool                 resizeMesh(unsigned numTriangles,unsigned numVertices, const RRVector<unsigned>* texcoords, bool tangents, bool preserveContents);
 
 		//! Overwrites content of this RRMeshArrays, copies data from given RRMesh.
 		//
@@ -581,11 +595,19 @@ namespace rr
 		//!  When building tangentspace for normal maps, pass uv channel used for mapping normal map.
 		void                 buildTangents(unsigned uvChannel);
 
-		//! Manipulates mapping by 2x3 matrix. Returns 1 on success, 0 when mapping was not modified.
+		//! Manipulates mapping by 2x3 matrix.
 		//
-		//! As this is the only function working with 2x3 matrix, we pass just pointer to 6 floats instead of creating new class.
-		//! Uvs are transformed as in uv=RRVec2(u*matrix[0]+v*matrix[1]+matrix[2],u*matrix[3]+v*matrix[4]+matrix[5]);
-		unsigned             manipulateMapping(unsigned uvChannel, const float* matrix2x3);
+		//! \param sourceChannel
+		//!  Channel data are taken from. If there is no such channel, we continue as if it was full of zeroes.
+		//! \param matrix2x3
+		//!  Matrix to transform data with.
+		//!  As this is the only function working with 2x3 matrix, we pass just pointer to 6 floats instead of creating new class.
+		//!  Uvs are transformed as in uv=RRVec2(u*matrix[0]+v*matrix[1]+matrix[2],u*matrix[3]+v*matrix[4]+matrix[5]);
+		//! \param destinationChannel
+		//!  Channel results are saved to. Created if necessary.
+		//! \return
+		//!  Returns 1 on success, 0 on failure (mesh was not modified).
+		unsigned             manipulateMapping(unsigned sourceChannel, const float* matrix2x3, unsigned destinationChannel);
 	private:
 		unsigned poolSize; ///< All arrays in mesh are allocated from one pool of this size.
 	};

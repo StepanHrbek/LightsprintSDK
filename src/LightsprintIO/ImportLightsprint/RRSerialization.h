@@ -628,7 +628,7 @@ void load(Archive & ar, rr::RRMeshArrays& a, const unsigned int version)
 	ar & make_nvp("texcoords",texcoords);
 	bool tangents;
 	ar & make_nvp("tangents",tangents);
-	a.resizeMesh(numTriangles,numVertices,&texcoords,tangents);
+	a.resizeMesh(numTriangles,numVertices,&texcoords,tangents,false);
 
 	// we save/load mesh arrays in binary form (faster), platform differences must be compensated here
 	RR_STATIC_ASSERT(sizeof(a.triangle[0])==12,"TODO: change unsigned in Triangle to uint32_t.");
