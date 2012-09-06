@@ -446,6 +446,7 @@ void SVFrame::userPreferencesApplyToWx()
 	UpdateMenuBar();
 }
 
+
 SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 {
 	// workaround for http://trac.wxwidgets.org/ticket/11787
