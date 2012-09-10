@@ -1880,7 +1880,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		rr::RRMesh::TangentBasis    selectedPointBasis;
 		rr::RRMesh::TriangleBody    selectedTriangleBody;
 		rr::RRMesh::TriangleNormals selectedTriangleNormals;
-		if (multiMesh && !svs.renderLightmaps2d)
+		if (!svs.renderLightmaps2d)
 		{
 			// ray and collisionHandler are used in this block
 			ray->rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
