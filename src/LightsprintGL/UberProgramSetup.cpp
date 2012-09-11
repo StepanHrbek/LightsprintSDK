@@ -145,7 +145,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material, const
 	// bump map
 	MATERIAL_BUMP_MAP = hasMap(material->bumpMap,meshArrays); // [#11] we keep normal map enabled even without tangentspace. missing tangents are generated in vertex shader
 	MATERIAL_BUMP_TYPE_HEIGHT = MATERIAL_BUMP_MAP && material->bumpMapTypeHeight;
-	MATERIAL_NORMAL_MAP_FLOW = MATERIAL_BUMP_MAP && strstr(material->name.c_str(),"water")!=NULL;
+	MATERIAL_NORMAL_MAP_FLOW = MATERIAL_BUMP_MAP && ( !strncmp(material->name.c_str(),"water",5) || !strncmp(material->name.c_str(),"Water",5) );
 
 	// transp
 	MATERIAL_TRANSPARENCY_MAP = hasMap(material->specularTransmittance,meshArrays);
