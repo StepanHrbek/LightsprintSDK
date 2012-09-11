@@ -581,6 +581,8 @@ void ProcessSweptDiskSolid(const IfcSweptDiskSolid solid, TempMesh& result, Conv
 	startvec.y = 1.0f;
 	startvec.z = 1.0f;
 
+	unsigned int last_dir = 0;
+
 	// generate circles at the sweep positions
 	for(size_t i = 0; i < samples; ++i) {
 
@@ -596,24 +598,34 @@ void ProcessSweptDiskSolid(const IfcSweptDiskSolid solid, TempMesh& result, Conv
 		// figure out an arbitrary point q so that (p-q) * d = 0,
 		// try to maximize ||(p-q)|| * ||(p_last-q_last)|| 
 		IfcVector3 q;
-		if (abs(d.x) > 1e-6) {
-			q.y = startvec.y;
-			q.z = startvec.z;
-			q.x = -(d.y * q.y + d.z * q.z) / d.x;
-		}
-		else if (abs(d.y) > 1e-6) {
-			q.x = startvec.x;
-			q.z = startvec.z;
-			q.y = -(d.x * q.x + d.z * q.z) / d.y;
-		}
-		else { // if (abs(d.z) > 1e-6) 
-			q.y = startvec.y;
-			q.x = startvec.x;
-			q.z = -(d.y * q.y + d.x * q.x) / d.z;
+		bool take_any = false;
+
+		for (unsigned int i = 0; i < 2; ++i, take_any = true) {
+			if ((last_dir == 0 || take_any) && abs(d.x) > 1e-6) {
+				q.y = startvec.y;
+				q.z = startvec.z;
+				q.x = -(d.y * q.y + d.z * q.z) / d.x;
+				last_dir = 0;
+				break;
+			}
+			else if ((last_dir == 1 || take_any) && abs(d.y) > 1e-6) {
+				q.x = startvec.x;
+				q.z = startvec.z;
+				q.y = -(d.x * q.x + d.z * q.z) / d.y;
+				last_dir = 1;
+				break;
+			}
+			else if ((last_dir == 2 && abs(d.z) > 1e-6) || take_any) { 
+				q.y = startvec.y;
+				q.x = startvec.x;
+				q.z = -(d.y * q.y + d.x * q.x) / d.z;
+				last_dir = 2;
+				break;
+			}
 		}
 
-		startvec = q;
 		q *= solid.Radius / q.Length();
+		startvec = q;
 
 		// generate a rotation matrix to rotate q around d
 		IfcMatrix4 rot;
@@ -630,12 +642,37 @@ void ProcessSweptDiskSolid(const IfcSweptDiskSolid solid, TempMesh& result, Conv
 	// make quads
 	for(size_t i = 0; i < samples - 1; ++i) {
 
-		for (unsigned int seg = 0; seg < cnt_segments - 1; ++seg) {
+		const aiVector3D& this_start = points[ i * cnt_segments ];
 
-			result.verts.push_back(points[ i * cnt_segments + seg]);
-			result.verts.push_back(points[ i * cnt_segments + seg + 1]);
-			result.verts.push_back(points[ (i+1) * cnt_segments + seg + 1]);
-			result.verts.push_back(points[ (i+1) * cnt_segments + seg]);
+		// locate corresponding point on next sample ring
+		unsigned int best_pair_offset = 0;
+		float best_distance_squared = 1e10f;
+		for (unsigned int seg = 0; seg < cnt_segments; ++seg) {
+			const aiVector3D& p = points[ (i+1) * cnt_segments + seg];
+			const float l = (p-this_start).SquareLength();
+
+			if(l < best_distance_squared) {
+				best_pair_offset = seg;
+				best_distance_squared = l;
+			}
+		}
+
+		for (unsigned int seg = 0; seg < cnt_segments; ++seg) {
+
+			result.verts.push_back(points[ i * cnt_segments + (seg % cnt_segments)]);
+			result.verts.push_back(points[ i * cnt_segments + (seg + 1) % cnt_segments]);
+			result.verts.push_back(points[ (i+1) * cnt_segments + ((seg + 1 + best_pair_offset) % cnt_segments)]);
+			result.verts.push_back(points[ (i+1) * cnt_segments + ((seg + best_pair_offset) % cnt_segments)]);
+
+			IfcVector3& v1 = *(result.verts.end()-1);
+			IfcVector3& v2 = *(result.verts.end()-2);
+			IfcVector3& v3 = *(result.verts.end()-3);
+			IfcVector3& v4 = *(result.verts.end()-4);
+
+			if (((v4-v3) ^ (v4-v1)) * (v4 - curve_points[i]) < 0.0f) {			
+				std::swap(v4, v1);
+				std::swap(v3, v2);
+			} 
 
 			result.vertcnt.push_back(4);
 		}
@@ -1808,6 +1845,7 @@ void ProcessBoolean(const IfcBooleanResult& boolean, TempMesh& result, Conversio
 // ------------------------------------------------------------------------------------------------
 bool ProcessGeometricItem(const IfcRepresentationItem& geo, std::vector<unsigned int>& mesh_indices, ConversionData& conv)
 {
+	bool fix_orientation = true;
 	TempMesh meshtmp; 
 	if(const IfcShellBasedSurfaceModel* shellmod = geo.ToPtr<IfcShellBasedSurfaceModel>()) {
 		BOOST_FOREACH(boost::shared_ptr<const IfcShell> shell,shellmod->SbsmBoundary) {
@@ -1830,6 +1868,7 @@ bool ProcessGeometricItem(const IfcRepresentationItem& geo, std::vector<unsigned
 	}   
 	else  if(const IfcSweptDiskSolid* disk = geo.ToPtr<IfcSweptDiskSolid>()) {
 		ProcessSweptDiskSolid(*disk,meshtmp,conv);
+		fix_orientation = false;
 	}   
 	else if(const IfcManifoldSolidBrep* brep = geo.ToPtr<IfcManifoldSolidBrep>()) {
 		ProcessConnectedFaceSet(brep->Outer,meshtmp,conv);
@@ -1852,7 +1891,10 @@ bool ProcessGeometricItem(const IfcRepresentationItem& geo, std::vector<unsigned
 	}
 
 	meshtmp.RemoveAdjacentDuplicates();
-	FixupFaceOrientation(meshtmp);
+
+	if(fix_orientation) {
+		FixupFaceOrientation(meshtmp);
+	}
 
 	aiMesh* const mesh = meshtmp.ToMesh();
 	if(mesh) {
