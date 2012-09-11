@@ -48,6 +48,7 @@ public:
 		{
 			RRVec3 position;
 			RRVec3 normal;
+			RRReal area;  // if (area<0) {found different n: normal=sum(n*area);} else {all n identical: normal=n; area=sum of areas;}
 			RRVec2 uv[MAX_UVS];
 		};
 		Vertex* vertices = new (std::nothrow) Vertex[numVertices];
@@ -83,9 +84,36 @@ public:
 			// Simply using one of them fails in wop_padattic where tiny triangle has opposite normal, stitching fails if we pick the wrong normal.
 			// Therefore we weight normals by triangle area.
 			RRReal area = inherited->getTriangleArea(i);
-			vertices[t[0]].normal += tn.vertex[0].normal*area; // accumulate normals
-			vertices[t[1]].normal += tn.vertex[1].normal*area;
-			vertices[t[2]].normal += tn.vertex[2].normal*area;
+			for (unsigned j=0;j<3;j++)
+			{
+				// old code: accumulate normal*area
+				//vertices[t[j]].normal += tn.vertex[0].normal*area;
+				// new code: prevent the most common rounding error by storing unmodified normal and accumulating area
+				//           when different normals are encountered, revert to original less accurate approach
+				//           this fixes error where some vertices are not stitched because of false difference in normals
+				Vertex& v = vertices[t[j]];
+				const RRVec3& normal = tn.vertex[j].normal;
+				if (v.area>=0)
+				{
+					if (!v.area || normal==v.normal)
+					{
+						// all normals still the same
+						v.normal = normal;
+						v.area += area;
+					}
+					else
+					{
+						// just found first different normal
+						v.normal = v.normal*v.area + normal*area;
+						v.area = -1;
+					}
+				}
+				else
+				{
+					// we already had different normal before
+					v.normal += normal*area;
+				}
+			}
 			
 			// load uvs
 			if (preserveUvs)
