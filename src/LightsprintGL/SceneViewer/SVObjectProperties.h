@@ -51,6 +51,8 @@ namespace rr_gl
 		wxPGProperty*     propBakedEnvRes;
 		wxPGProperty*     propFacegroups;
 		wxPGProperty*     propMesh;
+		wxPGProperty*     propMeshTris;
+		wxPGProperty*     propMeshVerts;
 		wxPGProperty*     propMeshUvs;
 		wxPGProperty*     propMeshTangents;
 

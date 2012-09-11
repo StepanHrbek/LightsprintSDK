@@ -59,8 +59,8 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			// mesh
 			const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(mesh);
 			Append(propMesh = new wxStringProperty(_("Mesh"), wxPG_LABEL,wxString::Format("%x",(int)(intptr_t)mesh)));
-			AppendIn(propMesh, new wxIntProperty(_("#triangles"),wxPG_LABEL,mesh->getNumTriangles()));
-			AppendIn(propMesh, new wxIntProperty(_("#vertices"),wxPG_LABEL,mesh->getNumVertices()));
+			AppendIn(propMesh, propMeshTris = new wxIntProperty(_("#triangles"),wxPG_LABEL,mesh->getNumTriangles()));
+			AppendIn(propMesh, propMeshVerts = new wxIntProperty(_("#vertices"),wxPG_LABEL,mesh->getNumVertices()));
 			if (arrays)
 			{
 				wxString channels;
@@ -133,6 +133,8 @@ void SVObjectProperties::updateProperties()
 	const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(object->getCollider()->getMesh());
 	if (arrays)
 	{
+		updateInt(propMeshTris,arrays->getNumTriangles());
+		updateInt(propMeshVerts,arrays->getNumVertices());
 		wxString channels;
 		for (unsigned i=0;i<arrays->texcoord.size();i++)
 			if (arrays->texcoord[i])
