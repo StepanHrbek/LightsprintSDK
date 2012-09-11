@@ -1028,6 +1028,13 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				for (unsigned i=0;i<VERTICES;i++)
 				{
 					arrays->normal[i] = rr::RRVec3(cos(2*RR_PI*(i%(W+1))/W)*sin(i/(W+1)*RR_PI/H),cos(i/(W+1)*RR_PI/H),sin(2*RR_PI*(i%(W+1))/W)*sin(i/(W+1)*RR_PI/H));
+					if (i/(W+1)==H)
+					{
+						// sin(0)==0 so north pole is centered; sin(RR_PI)!=0 so south pole is slightly off; also center from getAABB() is slightly off zero
+						// this centers south pole
+						// with uncentered south pole, RL's spherical mapping would look bad around pole (all south pole vertices would stitched)
+						arrays->normal[i] = rr::RRVec3(0,-1,0);
+					}
 					arrays->position[i] = arrays->normal[i]/2;
 					arrays->texcoord[0][i] = rr::RRVec2(1-(i%(W+1))/(float)W,1-i/(W+1)/(float)H);
 				}
