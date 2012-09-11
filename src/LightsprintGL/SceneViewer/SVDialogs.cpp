@@ -308,7 +308,7 @@ MappingDialog::MappingDialog( wxWindow* parent, wxWindowID id, const wxString& t
 	m_staticText16->Wrap( -1 );
 	gSizer1->Add( m_staticText16, 0, wxALL, 5 );
 	
-	destination = new wxTextCtrl( this, wxID_ANY, _("0"), wxDefaultPosition, wxDefaultSize, 0 );
+	destination = new wxSpinCtrl( this, wxID_ANY, wxT("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxSP_WRAP, 0, 7, 0 );
 	gSizer1->Add( destination, 0, wxALL, 5 );
 	
 	

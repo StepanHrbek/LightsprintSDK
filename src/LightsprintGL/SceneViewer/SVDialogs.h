@@ -23,6 +23,7 @@
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 #include <wx/combobox.h>
+#include <wx/spinctrl.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -146,7 +147,7 @@ class MappingDialog : public wxDialog
 		wxTextCtrl* offsetX;
 		wxTextCtrl* offsetY;
 		wxTextCtrl* angle;
-		wxTextCtrl* destination;
+		wxSpinCtrl* destination;
 		wxButton* button;
 		
 		MappingDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Generate or modify uv mapping"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 340,226 ), long style = wxDEFAULT_DIALOG_STYLE ); 
