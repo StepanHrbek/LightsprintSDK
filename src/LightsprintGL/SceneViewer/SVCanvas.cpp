@@ -780,7 +780,7 @@ struct ClickInfo
 	rr::RRVec3 rayDirection;
 	unsigned hitTriangle;
 	float hitDistance;
-	rr::RRVec2 hitPoint2d;
+	rr::RRVec2 hitPoint2d; // Click coordinate in triangle space defined so that vertex[0]=0,0 vertex[1]=1,0 vertex[2]=0,1.
 	rr::RRVec3 hitPoint3d;
 	SVEntity clickedEntity;
 	bool clickedEntityIsSelected;
