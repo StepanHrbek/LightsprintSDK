@@ -567,6 +567,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		// for now, we report all changes, because it's possible that current material is used also by static objects
 		lastSolver->reportMaterialChange(transmittanceChanged,true);
 	}
+
 }
 
 BEGIN_EVENT_TABLE(SVMaterialProperties, wxPropertyGrid)
