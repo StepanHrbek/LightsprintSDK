@@ -598,13 +598,13 @@ namespace rr
 		//! Manipulates mapping by 2x3 matrix.
 		//
 		//! \param sourceChannel
-		//!  Channel data are taken from. If there is no such channel, we continue as if it was full of zeroes.
+		//!  Channel data are taken from. If there is no such channel, function fails.
 		//! \param matrix2x3
 		//!  Matrix to transform data with.
 		//!  As this is the only function working with 2x3 matrix, we pass just pointer to 6 floats instead of creating new class.
 		//!  Uvs are transformed as in uv=RRVec2(u*matrix[0]+v*matrix[1]+matrix[2],u*matrix[3]+v*matrix[4]+matrix[5]);
 		//! \param destinationChannel
-		//!  Channel results are saved to. Created if necessary.
+		//!  Channel results are saved to. If there is no such channel, it is created.
 		//! \return
 		//!  Returns 1 on success, 0 on failure (mesh was not modified).
 		unsigned             manipulateMapping(unsigned sourceChannel, const float* matrix2x3, unsigned destinationChannel);

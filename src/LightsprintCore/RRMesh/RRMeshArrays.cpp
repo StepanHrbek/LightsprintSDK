@@ -532,6 +532,10 @@ unsigned RRMeshArrays::manipulateMapping(unsigned sourceChannel, const float* ma
 {
 	if (!matrix2x3)
 		return 0;
+	if (sourceChannel>=texcoord.size() || !texcoord[sourceChannel])
+	{
+		return 0;
+	}
 	if (destinationChannel>=texcoord.size() || !texcoord[destinationChannel])
 	{
 		RRVector<unsigned> channels;
@@ -539,12 +543,12 @@ unsigned RRMeshArrays::manipulateMapping(unsigned sourceChannel, const float* ma
 		channels.push_back(destinationChannel);
 		resizeMesh(numTriangles,numVertices,&channels,tangent?true:false,true);
 	}
-	if (sourceChannel>=texcoord.size() || !texcoord[sourceChannel])
-	{
-		for (unsigned i=0;i<numVertices;i++)
-			texcoord[destinationChannel][i] = RRVec2(matrix2x3[2],matrix2x3[5]);
-	}
-	else
+	//if (sourceChannel>=texcoord.size() || !texcoord[sourceChannel])
+	//{
+	//	for (unsigned i=0;i<numVertices;i++)
+	//		texcoord[destinationChannel][i] = RRVec2(matrix2x3[2],matrix2x3[5]);
+	//}
+	//else
 	{
 		for (unsigned i=0;i<numVertices;i++)
 			texcoord[destinationChannel][i] = RRVec2(
