@@ -232,35 +232,40 @@ MappingDialog::MappingDialog( wxWindow* parent, wxWindowID id, const wxString& t
 	bSizer9 = new wxBoxSizer( wxVERTICAL );
 	
 	wxGridSizer* gSizer1;
-	gSizer1 = new wxGridSizer( 6, 3, 0, 0 );
+	gSizer1 = new wxGridSizer( 7, 3, 0, 0 );
 	
-	m_staticText6 = new wxStaticText( this, wxID_ANY, _("Take mapping from"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText6->Wrap( -1 );
-	gSizer1->Add( m_staticText6, 0, wxALL, 5 );
+	radio_generate = new wxRadioButton( this, wxID_ANY, _("Generate mapping"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP );
+	radio_generate->SetValue( true ); 
+	radio_generate->SetToolTip( _("Generates new mapping, instead of using existing mapping.") );
 	
-	source = new wxComboBox( this, wxID_ANY, _("uv channel 0"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
-	source->Append( _("uv channel 0") );
-	source->Append( _("uv channel 1") );
-	source->Append( _("uv channel 2") );
-	source->Append( _("uv channel 3") );
-	source->Append( _("uv channel 4") );
-	source->Append( _("uv channel 5") );
-	source->Append( _("uv channel 6") );
-	source->Append( _("uv channel 7") );
-	source->Append( _("planar X") );
-	source->Append( _("planar Y") );
-	source->Append( _("planar Z") );
-	source->Append( _("box") );
-	source->Append( _("spherical") );
-	source->Append( _("cylindrical") );
-	source->SetSelection( 0 );
+	gSizer1->Add( radio_generate, 0, wxALL, 5 );
+	
+	generate = new wxComboBox( this, wxID_ANY, _("box"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
+	generate->Append( _("box") );
+	generate->Append( _("spherical") );
+	generate->Append( _("cylindrical") );
+	generate->Append( _("planar X") );
+	generate->Append( _("planar Y") );
+	generate->Append( _("planar Z") );
+	gSizer1->Add( generate, 0, wxALL, 5 );
+	
+	m_staticText23 = new wxStaticText( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText23->Wrap( -1 );
+	gSizer1->Add( m_staticText23, 0, wxALL, 5 );
+	
+	radio_source = new wxRadioButton( this, wxID_ANY, _("Uv channel"), wxDefaultPosition, wxDefaultSize, 0 );
+	radio_source->SetToolTip( _("Takes mapping from existing uv channel, rather than generating it.") );
+	
+	gSizer1->Add( radio_source, 0, wxALL, 5 );
+	
+	source = new wxSpinCtrl( this, wxID_ANY, wxT("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxSP_WRAP, 0, 7, 0 );
 	gSizer1->Add( source, 0, wxALL, 5 );
 	
-	m_staticText9 = new wxStaticText( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText9->Wrap( -1 );
-	gSizer1->Add( m_staticText9, 0, wxALL, 5 );
+	m_staticText24 = new wxStaticText( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText24->Wrap( -1 );
+	gSizer1->Add( m_staticText24, 0, wxALL, 5 );
 	
-	m_staticText7 = new wxStaticText( this, wxID_ANY, _("Transform it"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText7 = new wxStaticText( this, wxID_ANY, _("Transform"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText7->Wrap( -1 );
 	gSizer1->Add( m_staticText7, 0, wxALL, 5 );
 	
@@ -304,7 +309,7 @@ MappingDialog::MappingDialog( wxWindow* parent, wxWindowID id, const wxString& t
 	angle = new wxTextCtrl( this, wxID_ANY, _("0"), wxDefaultPosition, wxDefaultSize, 0 );
 	gSizer1->Add( angle, 0, wxALL, 5 );
 	
-	m_staticText16 = new wxStaticText( this, wxID_ANY, _("Save it to uv channel"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText16 = new wxStaticText( this, wxID_ANY, _("Save uv channel"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText16->Wrap( -1 );
 	gSizer1->Add( m_staticText16, 0, wxALL, 5 );
 	
@@ -314,7 +319,7 @@ MappingDialog::MappingDialog( wxWindow* parent, wxWindowID id, const wxString& t
 	
 	bSizer9->Add( gSizer1, 1, wxEXPAND, 5 );
 	
-	button = new wxButton( this, wxID_OK, _("Generate mapping"), wxDefaultPosition, wxDefaultSize, 0 );
+	button = new wxButton( this, wxID_OK, _("Apply"), wxDefaultPosition, wxDefaultSize, 0 );
 	button->SetDefault(); 
 	bSizer9->Add( button, 0, wxALIGN_RIGHT|wxALL, 5 );
 	

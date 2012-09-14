@@ -22,6 +22,7 @@
 #include <wx/dialog.h>
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
+#include <wx/radiobut.h>
 #include <wx/combobox.h>
 #include <wx/spinctrl.h>
 
@@ -129,7 +130,8 @@ class MappingDialog : public wxDialog
 	private:
 	
 	protected:
-		wxStaticText* m_staticText9;
+		wxStaticText* m_staticText23;
+		wxStaticText* m_staticText24;
 		wxStaticText* m_staticText7;
 		wxStaticText* m_staticText8;
 		wxStaticText* m_staticText10;
@@ -141,8 +143,10 @@ class MappingDialog : public wxDialog
 		wxStaticText* m_staticText16;
 	
 	public:
-		wxStaticText* m_staticText6;
-		wxComboBox* source;
+		wxRadioButton* radio_generate;
+		wxComboBox* generate;
+		wxRadioButton* radio_source;
+		wxSpinCtrl* source;
 		wxTextCtrl* scale;
 		wxTextCtrl* offsetX;
 		wxTextCtrl* offsetY;
@@ -150,7 +154,7 @@ class MappingDialog : public wxDialog
 		wxSpinCtrl* destination;
 		wxButton* button;
 		
-		MappingDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Generate or modify uv mapping"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 340,226 ), long style = wxDEFAULT_DIALOG_STYLE ); 
+		MappingDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Generate or modify uv mapping"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 366,237 ), long style = wxDEFAULT_DIALOG_STYLE ); 
 		~MappingDialog();
 	
 };
