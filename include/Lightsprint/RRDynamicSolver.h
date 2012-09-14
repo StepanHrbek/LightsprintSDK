@@ -580,7 +580,7 @@ namespace rr
 				smoothingAmount = 1;
 				spreadForegroundColor = 0;
 				backgroundColor = RRVec4(0);
-				wrap = true;
+				wrap = false;
 			}
 			bool operator ==(const FilteringParameters& a) const;
 		};
