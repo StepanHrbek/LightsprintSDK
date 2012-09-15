@@ -142,13 +142,16 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 class SVContext : public wxGLContext
 {
 public:
+#ifdef SUPPORT_GL_ES
 	// Es works only with WGL_EXT_create_context_es2_profile, i.e. Nvidia only.
 	// For AMD, one has to link with AMD OpenGL ES SDK, not supported here.
-    SVContext(wxGLCanvas* win, bool core, bool debug, bool es)
+#endif
+	SVContext(wxGLCanvas* win, bool core, bool debug, bool es)
 		: wxGLContext(win)
 	{
 		SetCurrent(*win);
 
+#ifdef SUPPORT_GL_ES
 #ifdef _WIN32
 		// now that we have default context, we can try to modify it
 		if (es || debug || core)
@@ -196,6 +199,7 @@ public:
 			}
 		}
 #endif
+#endif // SUPPORT_GL_ES
 	}
 	static void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam)
 	{

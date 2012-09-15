@@ -295,32 +295,6 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 	}
 
 	const unsigned char* data = buffer->lock(rr::BL_READ);
-	/* print histogram
-	switch(buffer->getFormat())
-	{
-		case rr::BF_RGBF:
-			if (data)
-			{
-				unsigned group[4]={0,0,0};
-				for (unsigned i=0;i<buffer->getNumElements()*3;i++)
-				{
-					group[(((float*)data)[i]<0)?0:((((float*)data)[i]>1)?3:(((float*)data)[i]?2:1))]++;
-				}
-				rr::RRReporter::report(rr::INF1,"Texture::reset RGBF (-inf..0)=%d <0>=%d (0..1>=%d (1..inf)=%d\n",group[0],group[1],group[2],group[3]);
-			}
-			break;
-		case rr::BF_RGBAF:
-			if (data)
-			{
-				unsigned group[4]={0,0,0,0};
-				for (unsigned i=0;i<buffer->getNumElements()*4;i++)
-				{
-					group[(((float*)data)[i]<0)?0:((((float*)data)[i]>1)?3:(((float*)data)[i]?2:1))]++;
-				}
-				rr::RRReporter::report(rr::INF1,"Texture::reset RGBAF (-inf..0)=%d <0>=%d (0..1>=%d (1..inf)=%d\n",group[0],group[1],group[2],group[3]);
-			}
-			break;
-	}/**/
 	bindTexture();
 
 	if (cubeOr2d==GL_TEXTURE_CUBE_MAP)
