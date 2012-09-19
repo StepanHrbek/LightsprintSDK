@@ -397,8 +397,10 @@ namespace rr
 
 		//! Calculates and improves indirect illumination on static objects.
 		//
-		//! To be called once per frame while rendering. To be called even when
-		//! rendering is paused, calculation runs on background.
+		//! Call this function once per frame while rendering realtime GI. You can call it even when
+		//! not rendering, to improve GI solution inside solver (so that you have it ready when you render scene later).
+		//! On the other hand, don't call it when you don't need realtime GI,
+		//! for example when rendering offline baked lightmaps, it would still spend time calculating realtime GI even if you don't need it.
 		//!
 		//! It helps to improve performance if
 		//! you don't repeatedly render scene that doesn't change, for example in game editor.

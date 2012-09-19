@@ -82,7 +82,12 @@ namespace rr_gl
 
 		//! Updates shadowmaps, detects direct illumination, calculates GI.
 		//
-		//! Updates only dirty lights, call reportDirectIlluminationChange() to mark light dirty.
+		//! Call this function once per frame while rendering realtime shadows or realtime GI. You can call it even when
+		//! not rendering, to improve GI solution inside solver (so that you have it ready when you render scene later).
+		//! On the other hand, don't call it when you don't need realtime shadows and realtime GI,
+		//! for example when rendering offline baked lightmaps, it would still spend time calculating realtime GI even if you don't need it.
+		//!
+		//! It updates illumination from dirty lights only, call reportDirectIlluminationChange() to mark light dirty.
 		//! \n You can update only shadowmaps by setting params->qualityIndirectDynamic=0.
 		//!
 		//! Note that RRDynamicSolverGL::calculate() calls setDirectIllumination() automatically.
