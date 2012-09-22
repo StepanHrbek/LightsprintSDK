@@ -476,6 +476,15 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_canvas = NULL;
 	LogWithAbort::logIsOn = !svs.openLogWindows;
 
+	// zero at least the most important variables, before starting dangerous work
+	m_userProperties = NULL;
+	m_sceneProperties = NULL;
+	m_giProperties = NULL;
+	m_lightProperties = NULL;
+	m_objectProperties = NULL;
+	m_materialProperties = NULL;
+	m_sceneTree = NULL;
+
 	// load preferences (must be done very early)
 	bool layoutLoaded = userPreferences.load("");
 
