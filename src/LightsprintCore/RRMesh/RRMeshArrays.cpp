@@ -530,8 +530,6 @@ void RRMeshArrays::buildTangents(unsigned uvChannel)
 
 unsigned RRMeshArrays::manipulateMapping(unsigned sourceChannel, const float* matrix2x3, unsigned destinationChannel)
 {
-	if (!matrix2x3)
-		return 0;
 	if (sourceChannel>=texcoord.size() || !texcoord[sourceChannel])
 	{
 		return 0;
@@ -549,11 +547,17 @@ unsigned RRMeshArrays::manipulateMapping(unsigned sourceChannel, const float* ma
 	//		texcoord[destinationChannel][i] = RRVec2(matrix2x3[2],matrix2x3[5]);
 	//}
 	//else
+	if (matrix2x3)
 	{
 		for (unsigned i=0;i<numVertices;i++)
 			texcoord[destinationChannel][i] = RRVec2(
 				texcoord[sourceChannel][i].x*matrix2x3[0]+texcoord[sourceChannel][i].y*matrix2x3[1]+matrix2x3[2],
 				texcoord[sourceChannel][i].x*matrix2x3[3]+texcoord[sourceChannel][i].y*matrix2x3[4]+matrix2x3[5]);
+	}
+	else
+	{
+		for (unsigned i=0;i<numVertices;i++)
+			texcoord[destinationChannel][i] = texcoord[sourceChannel][i];
 	}
 	version++;
 	return 1;

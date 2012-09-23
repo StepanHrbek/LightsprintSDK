@@ -603,6 +603,7 @@ namespace rr
 		//!  Matrix to transform data with.
 		//!  As this is the only function working with 2x3 matrix, we pass just pointer to 6 floats instead of creating new class.
 		//!  Uvs are transformed as in uv=RRVec2(u*matrix[0]+v*matrix[1]+matrix[2],u*matrix[3]+v*matrix[4]+matrix[5]);
+		//!  NULL works as identity, i.e. no transformation.
 		//! \param destinationChannel
 		//!  Channel results are saved to. If there is no such channel, it is created.
 		//! \return
