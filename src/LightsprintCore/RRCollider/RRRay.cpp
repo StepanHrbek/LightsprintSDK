@@ -5,6 +5,7 @@
 
 #include "Lightsprint/RRCollider.h"
 #include "config.h" // USE_SSE
+#include "Lightsprint/RRDynamicSolver.h"
 
 #include <cstring>
 
@@ -30,6 +31,26 @@ RRRay* RRRay::create(unsigned n)
 	RR_ASSERT(!(sizeof(RRRay)%16));
 #endif
 	return new RRRay[n]();
+}
+
+bool RRRay::convertHitFromMultiToSingleObject(RRDynamicSolver* solver)
+{
+	if (!solver || !hitObject || hitObject!=solver->getMultiObjectCustom() || hitTriangle==UINT_MAX)
+		return false;
+	if (!(rayFlags&FILL_TRIANGLE))
+	{
+		RRReporter::report(WARN,"convertHitFromMultiToSingleObject: FILL_TRAINGLE in rayFlags missing.\n");
+		return false;
+	}
+	RRMesh::PreImportNumber preImport = hitObject->getCollider()->getMesh()->getPreImportTriangle(hitTriangle);
+	if (preImport.object>=solver->getStaticObjects().size())
+	{
+		RRReporter::report(ERRO,"convertHitFromMultiToSingleObject: invalid inputs.\n");
+		return false;
+	}
+	hitTriangle = preImport.index;
+	hitObject = solver->getStaticObjects()[preImport.object];
+	return true;
 }
 
 } //namespace

@@ -1896,6 +1896,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 			ray->collisionHandler = collisionHandler;
 			if (solver->getCollider()->intersect(ray))
 			{
+				ray->convertHitFromMultiToSingleObject(solver);
 				selectedPointValid = true;
 				selectedPointObject = ray->hitObject;
 				selectedPointMesh = selectedPointObject->getCollider()->getMesh();

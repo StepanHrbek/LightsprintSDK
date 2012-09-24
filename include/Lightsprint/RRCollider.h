@@ -120,8 +120,16 @@ namespace rr
 #if !defined(_M_X64) && !defined(_LP64)
 		RRVec2          hitPadding3;    ///< Out. Undefined, never modify.
 #endif
-		const class RRObject* hitObject;///< (In/)Out. If collider was created from RRObjects, intersected object is stored here. If collider was created from RRMesh, hitObject is not modified (but it's good practise to set it before calling intersect(), so that your collision handlers and other code can rely on hitObject being always set). If pointer to multiObject is returned, hitTriangle also points to triangle within multiObject; you can translate it to singleObject using instructions from RRDynamicSolver::getCollider().
+		const class RRObject* hitObject;///< (In/)Out. If collider was created from RRObjects, intersected object is stored here. If collider was created from RRMesh, hitObject is not modified (but it's good practise to set it before calling intersect(), so that your collision handlers and other code can rely on hitObject being always set). If pointer to multiObject is returned, hitTriangle also points to triangle within multiObject; you can translate both to singleObject using convertHitFromMultiToSingleObject().
 		RRCollisionHandler*   collisionHandler;///< In. Optional collision handler for user-defined surface behaviour.
+
+		//! If hitObject points to solver's multiobject, this function changes it to individual object. hitTriangle is modified accordingly.
+		//
+		//! After successful solver->getCollider()->intersect(this), hitObject might point to solver's multiobject.
+		//! This function checks if it is the case, and modifies hitObject and hitTriangle to point to singleobject, using code similar to
+		//! hitObject = solver->getStaticObjects()[hitObject->getCollider()->getMesh()->getPreImportTriangle(hitTriangle).object]
+		//! It is not done automatically, because it is often unnecessary, not doing it makes collider faster.
+		bool convertHitFromMultiToSingleObject(class RRDynamicSolver* solver);
 	};
 
 

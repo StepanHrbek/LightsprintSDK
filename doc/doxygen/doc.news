@@ -8,6 +8,13 @@ namespace rr
 
 \page main_news What's new
 
+\section news135 ------------------------------------ 2012.1x.xx -------------------------------------
+
+NEWS
+
+- misc helpers
+  - RRRay::convertHitFromMultiToSingleObject()
+
 \section news134 ------------------------------------ 2012.09.17 -------------------------------------
 
 NEWS
