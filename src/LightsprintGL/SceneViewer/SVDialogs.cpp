@@ -247,6 +247,7 @@ MappingDialog::MappingDialog( wxWindow* parent, wxWindowID id, const wxString& t
 	generate->Append( _("planar X") );
 	generate->Append( _("planar Y") );
 	generate->Append( _("planar Z") );
+	generate->SetSelection( 0 );
 	gSizer1->Add( generate, 0, wxALL, 5 );
 	
 	m_staticText23 = new wxStaticText( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
