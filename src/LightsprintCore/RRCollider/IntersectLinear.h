@@ -76,10 +76,10 @@ namespace rr
 		{
 			return hitDistance;
 		}
+		RRReal hitDistance; // public only for getHitOrdered()
 	private:
 		unsigned hitTriangle;
 		const RRObject* hitObject;
-		RRReal hitDistance;
 		#ifdef FILL_HITPOINT2D
 			RRVec2 hitPoint2d;
 		#endif

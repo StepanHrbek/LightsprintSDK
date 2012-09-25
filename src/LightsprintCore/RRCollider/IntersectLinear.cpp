@@ -385,6 +385,8 @@ bool RayHits::getHitOrdered(RRRay* ray, const RRMesh* mesh)
 			}
 			else
 			{
+				// when there are multiple slots with the same distance, make sure that theBestSlot gets sorted first
+				getSlots()[theBestSlot].hitDistance -= 1;
 				// theBestSlot was rejected, sort hits by distance
 				qsort(getSlots(),backupSlotsUsed,sizeof(RayHitBackup),RayHitBackup::compareBackupDistance);
 
