@@ -468,7 +468,7 @@ void SVSceneTree::OnContextMenuRun(wxCommandEvent& event)
 	runContextMenuAction(event.GetId(),getEntityIds(SVSceneTree::MEI_SELECTED));
 }
 
-void SVSceneTree::addMesh(rr::RRMesh* mesh, const char* name)
+void SVSceneTree::addMesh(rr::RRMesh* mesh, const char* name, bool inFrontOfCamera)
 {
 	// this leaks memory, but it is not called often = not serious
 	bool aborting = false;
@@ -481,7 +481,8 @@ void SVSceneTree::addMesh(rr::RRMesh* mesh, const char* name)
 	fg.numTriangles = mesh->getNumTriangles();
 	fg.material = material;
 	object->faceGroups.push_back(fg);
-	object->setWorldMatrix(&rr::RRMatrix3x4::translation(svs.eye.getPosition()+svs.eye.getDirection()*3-svs.eye.getUp()*0.5f));
+	if (inFrontOfCamera)
+		object->setWorldMatrix(&rr::RRMatrix3x4::translation(svs.eye.getPosition()+svs.eye.getDirection()*3-svs.eye.getUp()*0.5f));
 	object->isDynamic = true;
 	object->name = name;
 	object->updateIlluminationEnvMapCenter();
