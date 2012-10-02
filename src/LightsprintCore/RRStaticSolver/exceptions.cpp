@@ -269,8 +269,19 @@ void RRObjects::getAllMaterials(RRMaterials& materials) const
 			materials.push_back(*i);
 }
 
+static std::wstring filenamized(RRString& name)
+{
+	std::wstring filename;
+	filename = name.w_str();
+	for (unsigned i=0;i<filename.size();i++)
+		if (wcschr(L"<>:\"/\\|?*",filename[i]))
+			filename[i] = '_';
+	return filename;
+}
+
 void RRObjects::makeNamesUnique() const
 {
+	// turns names xxx,xxx,xxx,xxx.3,xxx.3 into xxx,xxx.2,xxx.4,xxx.3,xxx.3.2
 again:
 	bool modified = false;
 	typedef boost::unordered_multimap<std::wstring,RRObject*> Map;
@@ -278,12 +289,7 @@ again:
 	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 	{
 		RRObject* object = (*this)[objectIndex];
-		std::wstring filename;
-		filename = object->name.w_str();
-		for (unsigned i=0;i<filename.size();i++)
-			if (wcschr(L"<>:\"/\\|?*",filename[i]))
-				filename[i] = '_';
-		map.insert(Map::value_type(filename,object));
+		map.insert(Map::value_type(filenamized(object->name),object));
 	}
 	for (Map::iterator i=map.begin();i!=map.end();)
 	{
@@ -301,7 +307,23 @@ again:
 			modified = true;
 			unsigned index = 1;
 			for (j=i;j!=map.end() && i->first==j->first;++j)
-				j->second->name.format(L"%s%s%0*d",j->second->name.w_str(),j->second->name.empty()?"":".",numDigits,index++);
+			{
+				if (index>1)
+				{
+					// 1: try to format new name
+					// if it is already taken, increase index and goto 1
+					try_index:
+					RRString newNameCandidate;
+					newNameCandidate.format(L"%s%s%0*d",j->second->name.w_str(),j->second->name.empty()?"":".",numDigits,index);
+					if (map.find(filenamized(newNameCandidate))!=map.end())
+					{
+						index++;
+						goto try_index;
+					}
+					j->second->name = newNameCandidate;
+				}
+				index++;
+			}
 		}
 		i = j;
 	}
