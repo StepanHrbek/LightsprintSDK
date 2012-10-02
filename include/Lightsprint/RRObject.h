@@ -432,9 +432,10 @@ namespace rr
 	public:
 		//! Modifies non-unique object names to make them unique.
 		//
-		//! When multiple objects with the same name "name" are found, names are changed to "name.1", "name.2" etc.
-		//! When similar object names are found, names are changed to "name.1", "name.2" etc.
-		//! Uniqueness is necessary when loading/saving layers, because e.g. lightmap filenames are constructed from object names.
+		//! When multiple objects with the same name "name" are found, they are renamed to "name", "name.2", "name.3" etc.
+		//! Function ensures that filenames derived from object names are also unique
+		//!  (when comparing names, function thinks of all non-filename characters as '_').
+		//! Such extended uniqueness is necessary when loading/saving layers, because e.g. default lightmap filenames are constructed from object names.
 		//! If you don't ensure uniqueness, multiple lightmaps may end up with the same filename and with incorrect illumination.
 		void makeNamesUnique() const;
 		//! Loads illumination layer from disk.
