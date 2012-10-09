@@ -78,7 +78,7 @@ static void addRay(const RRCollider* collider, RRRay& ray, RRVec3 dir, RRVec2& d
 	}
 }
 
-void RRCollider::getDistancesFromPoint(const RRVec3& point, const RRObject* object, RRVec2& distanceMinMax)
+void RRCollider::getDistancesFromPoint(const RRVec3& point, const RRObject* object, RRVec2& distanceMinMax) const
 {
 	RRRay ray;
 	RRCollisionHandlerFirstVisible collisionHandler(object);
@@ -104,7 +104,7 @@ void RRCollider::getDistancesFromPoint(const RRVec3& point, const RRObject* obje
 	}
 }
 
-void RRCollider::getDistancesFromCamera(const RRCamera& camera, const RRObject* object, RRVec2& distanceMinMax)
+void RRCollider::getDistancesFromCamera(const RRCamera& camera, const RRObject* object, RRVec2& distanceMinMax) const
 {
 	RRRay ray;
 	RRCollisionHandlerFirstVisible collisionHandler(object);
