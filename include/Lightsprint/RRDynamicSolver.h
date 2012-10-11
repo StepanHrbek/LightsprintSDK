@@ -285,7 +285,7 @@ namespace rr
 		//!
 		//! If you can afford to ignore dynamic objects, collide with static objects only, it's faster.
 		//! To collide with static objects only, use getMultiObjectCustom()->getCollider().
-		RRCollider* getCollider();
+		RRCollider* getCollider() const;
 
 
 		//! Inserts all buffers found in solver's materials, lights, environment and illumination layers into collection.

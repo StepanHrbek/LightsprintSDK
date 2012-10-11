@@ -391,7 +391,7 @@ RRObject* RRDynamicSolver::getObject(unsigned index) const
 	return NULL;
 }
 
-RRCollider* RRDynamicSolver::getCollider()
+RRCollider* RRDynamicSolver::getCollider() const
 {
 	if (!priv->dynamicObjects.size() && getMultiObjectCustom())
 		return getMultiObjectCustom()->getCollider();
