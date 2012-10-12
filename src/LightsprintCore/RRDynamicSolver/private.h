@@ -45,6 +45,10 @@ namespace rr
 		unsigned   superColliderMeshVersion;
 		bool       superColliderDirty;
 		RRObjects  superColliderObjects; // used only temporarily inside getCollider(). stored here to avoid allocation in every getCollider
+		RRVec3     superColliderMin;
+		RRVec3     superColliderMax;
+		RRVec3     superColliderCenter;
+		const RRObject* superColliderPlane;
 
 		// lights: inputs
 		RRLights   lights;
