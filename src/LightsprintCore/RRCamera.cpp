@@ -324,7 +324,7 @@ void RRCamera::setRange(float _near, float _far)
 
 void RRCamera::setOrthoSize(float _orthoSize)
 {
-	if (_finite(_orthoSize) && orthoSize!=_orthoSize && orthoSize>0)
+	if (_finite(_orthoSize) && orthoSize!=_orthoSize && _orthoSize>0)
 	{
 		orthoSize = _orthoSize;
 		updateProjection();
