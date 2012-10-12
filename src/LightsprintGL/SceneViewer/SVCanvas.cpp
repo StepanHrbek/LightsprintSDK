@@ -1508,10 +1508,10 @@ void SVCanvas::PaintCore(bool _takingSshot)
 				solver->realtimeLights[i]->dirtyShadowmap = true;
 			}
 
-		if (svs.cameraDynamicNear && solver->getMultiObjectCustom() && !svs.eye.isOrthogonal()) // don't change range in ortho, fixed range from setView() is better
+		if (svs.cameraDynamicNear && !svs.eye.isOrthogonal()) // don't change range in ortho, fixed range from setView() is better
 		{
-			// eye must already be updated here because next line depends on up, right
-			svs.eye.setRangeDynamically(solver->getMultiObjectCustom()->getCollider(),solver->getMultiObjectCustom());
+			// eye must already be updated here because next line depends on pos, up, right
+			svs.eye.setRangeDynamically(solver);
 		}
 
 		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)

@@ -253,7 +253,7 @@ void keyboard(unsigned char c, int x, int y)
 			}
 
 		case 'r':
-			eye.setView(rr::RRCamera::RANDOM,solver->getMultiObjectCustom());
+			eye.setView(rr::RRCamera::RANDOM,solver);
 			break;
 
 		case 27:

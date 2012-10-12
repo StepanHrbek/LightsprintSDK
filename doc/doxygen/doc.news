@@ -12,9 +12,19 @@ namespace rr
 
 NEWS
 
+- better support for scenes without static objects (fully dynamic)
+  - automatic camera views work
+  - automatic camera near/far works
+  - Sun shadows work
 - misc helpers
   - RRDynamicSolver::getAABB()
   - RRRay::convertHitFromMultiToSingleObject()
+
+CHANGES
+- RRCamera::setRangeDynamically() has different parameters (so that it can take dynamic objects into account)
+- RRCamera::setView() has different parameters (so that it can take dynamic objects into account)
+- RealtimeLight::configureCSM() has different parameters (so that it can take dynamic objects into account)
+- RRObject::generateRandomCamera() removed, use RRCamera::setView(RRCamera::RANDOM)
 
 \section news134 ------------------------------------ 2012.09.17 -------------------------------------
 

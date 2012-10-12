@@ -4,11 +4,14 @@
 // --------------------------------------------------------------------------
 
 #include <cmath>
+#include <set> // generateRandomCamera
+#include <cfloat> // _finite in generateRandomCamera
 #if defined(_MSC_VER) && _MSC_VER>=1600
 	#include <functional> // blendAkima
 #endif
 #include "Lightsprint/RRCamera.h"
 #include "Lightsprint/RRObject.h"
+	#include "Lightsprint/RRDynamicSolver.h"
 
 namespace rr
 {
@@ -165,18 +168,77 @@ static float s_viewAngles[6][3] = // 6x yawPitchRollRad
 	{RR_PI/2,0,0}, // RIGHT
 };
 
-void RRCamera::setView(RRCamera::View view, const RRObject* scene)
+// Generates position and direction suitable for automatically placed camera.
+static void generateRandomCamera(const RRDynamicSolver* _solver, RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist)
+{
+	if (!_solver)
+	{
+		_pos = RRVec3(0);
+		_dir = RRVec3(1,0,0);
+		_maxdist = 10;
+		return;
+	}
+	bool aborting = false;
+	RRObject* superObject = RRObject::createMultiObject(&_solver->getObjects(),RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL);
+	const RRMesh* superMesh = superObject->getCollider()->getMesh();
+	unsigned numVertices = superMesh->getNumVertices();
+	RRVec3 mini,maxi,center;
+	_solver->getAABB(&mini,&maxi,&center);
+	_maxdist = (maxi-mini).length();
+	if (!_maxdist) _maxdist = 10;
+	unsigned bestNumFaces = 0;
+	RRRay ray;
+	const RRCollider* collider = _solver->getCollider();
+	std::set<unsigned> hitTriangles;
+	for (unsigned i=0;i<20;i++)
+	{
+		// generate random pos+dir
+		RRVec3 pos;
+		superMesh->getVertex(rand()%numVertices,pos);
+		for (unsigned j=0;j<3;j++)
+			if (!_finite(pos[j]))
+				pos[j] = mini[j] + (maxi[j]-mini[j])*(rand()/float(RAND_MAX));
+		RRVec3 dir = (center-pos).normalizedSafe();
+		pos += dir*_maxdist* ((rand()-RAND_MAX/2)/(RAND_MAX*1.f)); // -0.5 .. 0.5
+
+		// measure quality (=number of unique triangles hit by 100 rays)
+		hitTriangles.clear();
+		for (unsigned j=0;j<100;j++)
+		{
+			ray.rayOrigin = pos;
+			ray.rayDir = ( dir + RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX))-RRVec3(0.5f) ).normalized();
+			ray.rayLengthMax = _maxdist;
+			ray.rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE;
+			ray.hitObject = _solver->getMultiObjectCustom();
+			if (collider->intersect(&ray))
+			{
+				const RRMaterial* material = ray.hitObject->getTriangleMaterial(ray.hitTriangle,NULL,NULL);
+				if ((material && material->sideBits[ray.hitFrontSide?0:1].renderFrom) || (!material && ray.hitFrontSide))
+					hitTriangles.insert(ray.hitTriangle);
+			}
+		}
+		if (hitTriangles.size()>=bestNumFaces)
+		{
+			bestNumFaces = (unsigned)hitTriangles.size();
+			_pos = pos;
+			_dir = dir;
+		}
+	}
+	delete superObject;
+}
+
+void RRCamera::setView(RRCamera::View view, const RRDynamicSolver* solver)
 {
 	// process RANDOM
 	if (view==RANDOM)
 	{
 		orthogonal = false;
-		if (scene)
+		if (solver)
 		{
 			// generate new values
 			RRVec3 newPos, newDir;
 			float maxDistance;
-			scene->generateRandomCamera(newPos,newDir,maxDistance);
+			generateRandomCamera(solver,newPos,newDir,maxDistance);
 			// set them
 			pos = newPos;
 			setDirection(newDir);
@@ -196,10 +258,10 @@ void RRCamera::setView(RRCamera::View view, const RRObject* scene)
 	yawPitchRollRad[0] = s_viewAngles[view][0];
 	yawPitchRollRad[1] = s_viewAngles[view][1];
 	yawPitchRollRad[2] = s_viewAngles[view][2];
-	if (scene)
+	if (solver)
 	{
 		RRVec3 mini,maxi;
-		scene->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+		solver->getAABB(&mini,&maxi,NULL);
 		switch (view)
 		{
 			case TOP:
@@ -340,25 +402,50 @@ void RRCamera::setScreenCenter(RRVec2 _screenCenter)
 	}
 }
 
-void RRCamera::setRangeDynamically(const RRCollider* collider, const RRObject* object)
+void RRCamera::setRangeDynamically(const RRDynamicSolver* solver)
 {
-	if (!object)
+	if (!solver)
 		return;
 
-	// get scene size
-	RRVec3 aabbMini,aabbMaxi;
-	object->getCollider()->getMesh()->getAABB(&aabbMini,&aabbMaxi,NULL);
-	float objectSize = (aabbMaxi-aabbMini).length();
+	// get scene bbox, taking large dynamic planes into account (large static planes are not allowed, they break collider)
+	RRVec3 sceneMin(0), sceneMax(0);
+	const RRObject* planeObject = solver->getAABB(&sceneMin,&sceneMax,NULL);
 
-	// get scene distance
+	// calculate far as a distance to bbox
+	RRReal maxDist = 0;
+	for (unsigned j=0;j<8;j++)
+	{
+		RRVec3 bbPoint((j&1)?sceneMax.x:sceneMin.x,(j&2)?sceneMax.y:sceneMin.y,(j&4)?sceneMax.z:sceneMin.z);
+		maxDist = RR_MAX(maxDist,(bbPoint-pos).length());
+	}
+	if (sceneMin==sceneMax)
+		maxDist = 100; // empty scene (possibly with planes), set arbitrary far
+
+	// increase far in presence of plane
+	if (planeObject)
+	{
+		RRVec3 mini,maxi;
+		planeObject->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+		RRVec3 size(maxi-mini);
+		rr::RRVec4 plane = size.x ? ( size.y ? rr::RRVec4(0,0,1,-mini.z) : rr::RRVec4(0,1,0,-mini.y) ) : rr::RRVec4(1,0,0,-mini.x);
+		planeObject->getWorldMatrixRef().transformPlane(plane);
+		RRReal planeDistance = plane.planePointDistance(pos);
+		RRReal sceneSize = (sceneMax-sceneMin).length();
+		maxDist = RR_MAX(maxDist,100*planeDistance);
+		maxDist = RR_MAX(maxDist,10*sceneSize);
+	}
+
+	// calculate distance to visible geometry (raycasting)
 	RRVec2 distanceMinMax(1e10f,0);
-	object->getCollider()->getDistancesFromCamera(*this,object,distanceMinMax);
+	solver->getCollider()->getDistancesFromCamera(*this,solver->getMultiObjectCustom(),distanceMinMax);
 
 	// set range
 	if (distanceMinMax[1]>=distanceMinMax[0])
 	{
 		// some rays intersected scene, use scene size and distance
-		float newFar = 2 * RR_MAX(objectSize,distanceMinMax[1]);
+		// but don't increase far when raycasting hits more distant part of plane, it would make far depend on view dir, horizon would jump up/down as camera looks up/down
+		//float newFar = RR_MAX(maxDist,2*distanceMinMax[1]);
+		float newFar = maxDist; // instead, keep far calculated from scene bbox and plane
 		float min = distanceMinMax[0]/2;
 		float relativeSceneProximity = RR_CLAMPED(newFar/min,10,100)*10; // 100..1000, 100=looking from distance, 1000=closeup
 		float newNear = RR_CLAMPED(min,0.0001f,newFar/relativeSceneProximity);
@@ -366,8 +453,9 @@ void RRCamera::setRangeDynamically(const RRCollider* collider, const RRObject* o
 	}
 	else
 	{
-		// rays did not intersect scene, use scene size
-		// or even better, don't change range at all
+		// rays did not intersect scene, increase far if necessary, otherwise keep range unchanged
+		if (maxDist>getFar())
+			setFar(maxDist);
 	}
 }
 

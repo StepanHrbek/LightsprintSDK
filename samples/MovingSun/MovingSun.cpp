@@ -70,7 +70,7 @@ void setupLights(rr_gl::RRDynamicSolverGL* _solver, const rr::RRCamera* _observe
 	RR_ASSERT(_solver);
 	RR_ASSERT(_solver->getLights().size()==1);
 	_solver->realtimeLights[0]->getCamera()->setYawPitchRollRad(rr::RRVec3(0.3f,-RR_PI*sin(_lightTime01*RR_PI),0));
-	_solver->realtimeLights[0]->configureCSM(_observer,_solver->getMultiObjectCustom());
+	_solver->realtimeLights[0]->configureCSM(_observer,_solver);
 	_solver->realtimeLights[0]->dirtyShadowmap = 1;
 	_solver->reportDirectIlluminationChange(0,true,true,false);
 }
@@ -383,7 +383,7 @@ int main(int argc, char** argv)
 
 	// auto-set camera, speed
 	//srand((unsigned)time(NULL));
-	eye.setView(rr::RRCamera::RANDOM,solver->getMultiObjectCustom());
+	eye.setView(rr::RRCamera::RANDOM,solver);
 	cameraSpeed = eye.getFar()*CAM_SPEED;
 
 	// init dynamic objects

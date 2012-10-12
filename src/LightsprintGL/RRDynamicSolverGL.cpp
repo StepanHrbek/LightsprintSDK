@@ -229,12 +229,9 @@ done:
 		if (light->dirtyShadowmap || isDirtyOnlyBecauseObserverHasMoved)
 		{
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
-			if (getMultiObjectCustom())
-			{
-				if (light->dirtyRange)
-					light->setRangeDynamically(getMultiObjectCustom()->getCollider(),getMultiObjectCustom());
-				light->configureCSM(observer,getMultiObjectCustom());
-			}
+			if (light->dirtyRange && getMultiObjectCustom())
+				light->setRangeDynamically(getCollider(),getMultiObjectCustom()); // getMultiObjectCustom()->getCollider() would makes it test static objects only
+			light->configureCSM(observer,this);
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			// Setup shader for rendering to SM.
 			// Default constructor sets nearly all off, perfect for shadowmap.

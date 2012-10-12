@@ -6,6 +6,7 @@
 #include <cstring> // NULL
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDebug.h"
+#include "Lightsprint/RRDynamicSolver.h"
 #include "Workaround.h"
 #include <GL/glew.h>
 
@@ -54,7 +55,7 @@ namespace rr_gl
 				delete shadowmaps[c][i];
 	}
 
-	void RealtimeLight::configureCSM(const rr::RRCamera* observer, const rr::RRObject* scene)
+	void RealtimeLight::configureCSM(const rr::RRCamera* observer, const rr::RRDynamicSolver* solver)
 	{
 		if (rrlight.type==rr::RRLight::DIRECTIONAL)
 		{
@@ -64,14 +65,14 @@ namespace rr_gl
 				csmObserverDir = observer->getDirection();
 				csmObserverNear = observer->getNear();
 			}
-			if (scene)
+			if (solver)
 			{
-				rr::RRVec3 mini,maxi;
-				scene->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
-				getCamera()->setPosition((maxi+mini)/2);
-				getCamera()->setRange(-0.5f*(mini-maxi).length(),0.5f*(mini-maxi).length());
-				getCamera()->setOrthoSize((maxi-mini).maxi());
-				csmSceneSize = maxi-mini;
+				rr::RRVec3 sceneMin, sceneMax;
+				solver->getAABB(&sceneMin,&sceneMax,NULL);
+				csmSceneSize = sceneMax-sceneMin;
+				getCamera()->setPosition((sceneMax+sceneMin)/2);
+				getCamera()->setRange(-0.5f*csmSceneSize.length(),0.5f*csmSceneSize.length());
+				getCamera()->setOrthoSize(csmSceneSize.maxi());
 			}
 		}
 	}

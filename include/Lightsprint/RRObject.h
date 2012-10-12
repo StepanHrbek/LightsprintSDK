@@ -323,13 +323,6 @@ namespace rr
 		//! (typical use case: for n threads, use 1 collider, n rays and n handlers.)
 		RRCollisionHandler* createCollisionHandlerFirstVisible() const;
 
-		//! Generates position and direction suitable for automatically placed camera.
-		//
-		//! All parameters are filled by function.
-		//! outMaxdist is upper bound for distance between two points in scene,
-		//! it could be used for setting camera far.
-		void generateRandomCamera(RRVec3& outPos, RRVec3& outDir, RRReal& outMaxdist) const;
-
 		//! Returns hash of object data. Slow (not cached).
 		//
 		//! Hashing covers object properties that affect realtime global illumination:

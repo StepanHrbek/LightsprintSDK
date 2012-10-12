@@ -533,7 +533,4 @@ void RRObject::recommendLayerParameters(RRObject::LayerParameters& layerParamete
 	formatFilename(layerParameters.suggestedPath,layerParameters.suggestedName,name,layerParameters.suggestedExt,layerParameters.actualType==BT_VERTEX_BUFFER,layerParameters.actualFilename);
 }
 
-// Moved to file with exceptions enabled:
-// void RRObject::generateRandomCamera(RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist)
-
 } // namespace

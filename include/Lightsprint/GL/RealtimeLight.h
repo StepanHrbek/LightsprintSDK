@@ -73,7 +73,7 @@ public:
 	virtual unsigned getNumShadowmaps(bool color = false) const;
 
 	//! Provides light with data necessary for CSM calculations in getShadowmapCamera().
-	void configureCSM(const rr::RRCamera* observer, const rr::RRObject* scene);
+	void configureCSM(const rr::RRCamera* observer, const class rr::RRDynamicSolver* solver);
 	//! Returns position of observer from previous configureCSM() call.
 	rr::RRVec3 getObserverPos() const;
 	//! Copies camera for n-th shadowmap into out and returns it.
