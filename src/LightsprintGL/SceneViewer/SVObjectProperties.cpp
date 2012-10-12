@@ -29,12 +29,15 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 
 		if (object)
 		{
+			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,RR_RR2WX(object->name)));
+			Append(propDynamic = new BoolRefProperty(_("Dynamic"),_("Can we move/scale/rotate it?"),object->isDynamic));
+		}
+
+		if (object)
+		{
 			const rr::RRMesh* mesh = object->getCollider()->getMesh();
 			rr::RRVec3 mini,maxi;
 			mesh->getAABB(&mini,&maxi,&localCenter);
-
-			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,RR_RR2WX(object->name)));
-			Append(propDynamic = new BoolRefProperty(_("Dynamic"),_("Can we move/scale/rotate it?"),object->isDynamic));
 
 			// location
 			Append(propLocation = new wxStringProperty(_("Placement"),wxPG_LABEL));
