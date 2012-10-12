@@ -806,8 +806,11 @@ static void incrementFilename(wxString& filename)
 
 void SVFrame::TogglePane(wxWindow* window)
 {
-	m_mgr.GetPane(window).Show(!m_mgr.GetPane(window).IsShown());
-	m_mgr.Update();
+	if (window)
+	{
+		m_mgr.GetPane(window).Show(!m_mgr.GetPane(window).IsShown());
+		m_mgr.Update();
+	}
 }
 
 void SVFrame::saveBakedLayers()

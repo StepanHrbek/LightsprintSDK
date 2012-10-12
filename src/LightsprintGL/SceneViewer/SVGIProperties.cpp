@@ -143,6 +143,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		AppendIn(propGIMirrors,propGIMirrorsQuality);
 
 		SetPropertyBackgroundColour(propGIMirrors,importantPropertyBackgroundColor,false);
+
 	}
 
 	// lightmap
