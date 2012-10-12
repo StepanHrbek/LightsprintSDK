@@ -282,7 +282,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 
 		// planes
 		static RRVec4 plane(const RRVec3& normal,const RRVec3& point) {return RRVec4(normal,-normal.dot(point));}
-		RRReal   planePointDistance(const RRVec3& a)const {return x*a.x+y*a.y+z*a.z+w;}
+		RRReal   planePointDistance(const RRVec3& a)const {return (x*a.x+y*a.y+z*a.z+w)/sqrt(x*x+y*y+z*z);}
 		RRVec3   pointInPlane()               const {return RRVec3(x,y,z)*(-w/(x*x+y*y+z*z));} // returns the most close point to 0
 	};
 
