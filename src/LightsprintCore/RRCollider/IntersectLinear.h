@@ -40,11 +40,11 @@ namespace rr
 		real              DELTA_BSP; // tolerance to numeric errors (absolute distance in scenespace)
 		unsigned          triangles;
 #if defined(_M_X64) || defined(_LP64)
-		Box               box; // aligned + vtable(8) + DELTA_BSP(4) + triangles(4) = aligned
+		Box               box; // aligned + vtable(8) + DELTA_BSP(4) + triangles(4) = aligned. for kd/bsp, not used by linear
 		const RRMesh*     importer;
 #else
 		const RRMesh*     importer;
-		Box               box; // aligned + vtable(4) + importer(4) + DELTA_BSP(4) + triangles(4) = aligned
+		Box               box; // aligned + vtable(4) + importer(4) + DELTA_BSP(4) + triangles(4) = aligned. for kd/bsp, not used by linear
 #endif
 		unsigned          numIntersects; // statistics only, we warn if user uses this slow collider too often
 	};
