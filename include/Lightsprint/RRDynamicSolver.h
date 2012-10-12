@@ -287,6 +287,12 @@ namespace rr
 		//! To collide with static objects only, use getMultiObjectCustom()->getCollider().
 		RRCollider* getCollider() const;
 
+		//! Fills bounding box of all objects in solver.
+		//
+		//! \return Some planar dynamic objects (like ocean surface) would make box very large, so we exclude them from calculation.
+		//!  In such case, pointer to one of excluded planes is returned.
+		const RRObject* getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const;
+
 
 		//! Inserts all buffers found in solver's materials, lights, environment and illumination layers into collection.
 		//

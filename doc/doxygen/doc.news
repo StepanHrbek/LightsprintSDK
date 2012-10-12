@@ -13,6 +13,7 @@ namespace rr
 NEWS
 
 - misc helpers
+  - RRDynamicSolver::getAABB()
   - RRRay::convertHitFromMultiToSingleObject()
 
 \section news134 ------------------------------------ 2012.09.17 -------------------------------------

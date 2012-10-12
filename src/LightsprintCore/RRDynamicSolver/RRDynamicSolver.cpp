@@ -427,9 +427,94 @@ RRCollider* RRDynamicSolver::getCollider() const
 		bool aborting = false;
 		priv->superCollider = RRCollider::create(NULL,&priv->superColliderObjects,RRCollider::IT_BSP_FAST,aborting);
 		priv->superColliderDirty = false;
+		
+		// update superColliderMin/Max/Center
+		unsigned numVerticesSum = 0;
+		unsigned numPlanesSkipped = 0;
+		priv->superColliderMin = RRVec3(1e37f);
+		priv->superColliderMax = RRVec3(-1e37f);
+		priv->superColliderCenter = RRVec3(0);
+		priv->superColliderPlane = NULL;
+		if (getMultiObjectCustom())
+		{
+			getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&priv->superColliderMin,&priv->superColliderMax,&priv->superColliderCenter);
+			numVerticesSum = getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices();
+			priv->superColliderCenter *= (RRReal)numVerticesSum;
+		}
+		for (unsigned testPlanes=0;testPlanes<2;testPlanes++) // first pass=all but planes, second pass=only planes
+		{
+			for (unsigned i=0;i<priv->dynamicObjects.size();i++)
+			{
+				const RRObject* object = priv->dynamicObjects[i];
+				const RRMesh* mesh = object->getCollider()->getMesh();
+				RRVec3 mini,maxi,center;
+				mesh->getAABB(&mini,&maxi,&center);
+				RRVec3 size(maxi-mini);
+				if (testPlanes && size.mini())
+				{
+					// do nothing (non-plane that was already processed in first pass)
+				}
+				else
+				if (testPlanes || size.mini())
+				{
+					// process bbox (non-planes in first pass, planes in second pass)
+					for (unsigned j=0;j<8;j++)
+					{
+						RRVec3 bbPoint((j&1)?maxi.x:mini.x,(j&2)?maxi.y:mini.y,(j&4)?maxi.z:mini.z);
+						object->getWorldMatrixRef().transformPosition(bbPoint);
+						for (unsigned a=0;a<3;a++)
+						{
+							priv->superColliderMin[a] = RR_MIN(priv->superColliderMin[a],bbPoint[a]);
+							priv->superColliderMax[a] = RR_MAX(priv->superColliderMax[a],bbPoint[a]);
+						}
+					}
+					object->getWorldMatrixRef().transformPosition(center);
+					unsigned numVertices = mesh->getNumVertices();
+					numVerticesSum += numVertices;
+					priv->superColliderCenter += center*(RRReal)numVertices;
+				}
+				else
+				{
+					// (planes in first pass)
+					priv->superColliderPlane = object;
+					numPlanesSkipped++;
+				}
+			}
+			// skip second pass if we already found non-plane geometry
+			if (getMultiObjectCustom() || numPlanesSkipped<priv->dynamicObjects.size())
+				break;
+		}
+		priv->superColliderCenter /= (RRReal)numVerticesSum;
 	}
 
 	return priv->superCollider;
+}
+
+const RRObject* RRDynamicSolver::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
+{
+	if (!priv->dynamicObjects.size())
+	{
+		if (getMultiObjectCustom())
+		{
+			getMultiObjectCustom()->getCollider()->getMesh()->getAABB(_mini,_maxi,_center);
+		}
+		else
+		{
+			if (_mini) *_mini = RRVec3(0);
+			if (_maxi) *_maxi = RRVec3(0);
+			if (_center) *_center = RRVec3(0);
+		}
+		return 0;
+	}
+	else
+	{
+		// values precalculated in getCollider()
+		getCollider();
+		if (_mini) *_mini = priv->superColliderMin;
+		if (_maxi) *_maxi = priv->superColliderMax;
+		if (_center) *_center = priv->superColliderCenter;
+		return priv->superColliderPlane;
+	}
 }
 
 void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsigned>* _layers) const
