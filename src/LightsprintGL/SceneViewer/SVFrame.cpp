@@ -1051,7 +1051,8 @@ save_scene_as:
 				}
 
 				// 2. alloc temporary textures
-				rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_RGB,true,NULL);
+				//    (it must have alpha, because mirror needs render target with alpha. radeons work even without alpha, geforces need it)
+				rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_RGBA,true,NULL);
 				rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 				Texture texColor(bufColor,false,false);
 				Texture texDepth(bufDepth,false,false);
@@ -1097,7 +1098,7 @@ save_scene_as:
 					rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,smallSize.x,smallSize.y,1,rr::BF_RGB,true,NULL);
 					unsigned char* pixelsBig = bufColor->lock(rr::BL_DISCARD_AND_WRITE);
 					glPixelStorei(GL_PACK_ALIGNMENT,1);
-					glReadPixels(0,0,bigSize.x,bigSize.y,GL_RGB,GL_UNSIGNED_BYTE,pixelsBig);
+					glReadPixels(0,0,bigSize.x,bigSize.y,GL_RGBA,GL_UNSIGNED_BYTE,pixelsBig);
 					unsigned char* pixelsSmall = sshot->lock(rr::BL_DISCARD_AND_WRITE);
 					for (int j=0;j<smallSize.y;j++)
 						for (int i=0;i<smallSize.x;i++)
@@ -1106,7 +1107,7 @@ save_scene_as:
 								unsigned a = 0;
 								for (int y=0;y<AA;y++)
 									for (int x=0;x<AA;x++)
-										a += pixelsBig[k+3*(AA*i+x+AA*smallSize.x*(AA*j+y))];
+										a += pixelsBig[k+4*(AA*i+x+AA*smallSize.x*(AA*j+y))];
 								pixelsSmall[k+3*(i+smallSize.x*j)] = (a+AA*AA/2)/(AA*AA);
 							}
 					sshot->unlock();
