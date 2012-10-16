@@ -25,6 +25,7 @@ namespace rr_gl
 		//! Copy property -> userPreferences.
 		void OnPropertyChange(wxPropertyGridEvent& event);
 
+
 	private:
 		//! Copy userPreferences -> hide/show property.
 		void updateHide();

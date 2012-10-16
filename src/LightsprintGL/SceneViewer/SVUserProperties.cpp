@@ -176,6 +176,7 @@ void SVUserProperties::updateHide()
 	propSshotEnhancedShadowSamples->Hide(!userPreferences.sshotEnhanced,false);
 }
 
+
 void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
 	wxPGProperty *property = event.GetProperty();
