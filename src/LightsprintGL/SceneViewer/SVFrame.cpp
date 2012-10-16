@@ -773,6 +773,7 @@ static wxString getSupportedLoaderExtensions(SceneViewerStateEx& svs)
 static void incrementFilename(wxString& filename)
 {
 	size_t i = filename.find_last_of('.');
+	if (i!=std::string::npos) // filenames without '.' are skipped, they should not exist
 	while (i>0)
 	{
 		i--;
