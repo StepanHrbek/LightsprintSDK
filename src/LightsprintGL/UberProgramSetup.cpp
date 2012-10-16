@@ -769,7 +769,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendUniform("materialDiffuseConst",rr::RRVec4(material->diffuseReflectance.color,1.0f));
 	}
 
-	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR || LIGHT_INDIRECT_MIRROR_SPECULAR))
+	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR || (LIGHT_INDIRECT_MIRROR_SPECULAR && LIGHT_INDIRECT_MIRROR_MIPMAPS)))
 	{
 		float shininess = material->specularShininess;
 		float miplevel = getMipLevel(material); // miplevel 0=sample from 1x1x6, miplevel 1=2x2x6, miplevel 2=4x4x6...
