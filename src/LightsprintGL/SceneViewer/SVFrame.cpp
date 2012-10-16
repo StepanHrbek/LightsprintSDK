@@ -804,6 +804,33 @@ static void incrementFilename(wxString& filename)
 	}
 }
 
+void SVFrame::saveScreenshot(rr::RRBuffer* sshot)
+{
+	// fix empty filename
+	if (userPreferences.sshotFilename.empty())
+	{
+		char screenshotFilename[1000]=".";
+#ifdef _WIN32
+		SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
+#endif
+		userPreferences.sshotFilename = screenshotFilename;
+		time_t t = time(NULL);
+		userPreferences.sshotFilename += wxString::Format("/screenshot%04d.jpg",(int)(t%10000));
+	}
+
+	// save
+	rr::RRBuffer::SaveParameters saveParameters;
+	saveParameters.jpegQuality = 100;
+	if (sshot->save(RR_WX2RR(userPreferences.sshotFilename),NULL,&saveParameters))
+		rr::RRReporter::report(rr::INF2,"Saved %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
+	else
+		rr::RRReporter::report(rr::WARN,"Error: Failed to save %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
+
+	// increment filename
+	incrementFilename(userPreferences.sshotFilename);
+	m_userProperties->updateProperties();
+}
+
 void SVFrame::TogglePane(wxWindow* window)
 {
 	if (window)
@@ -989,29 +1016,8 @@ save_scene_as:
 					//glReadPixels(0,0,size.x,size.y,GL_RGB,GL_UNSIGNED_BYTE,pixels);
 					//sshot->unlock();
 
-				// 8. fix empty filename
-				if (userPreferences.sshotFilename.empty())
-				{
-					char screenshotFilename[1000]=".";
-#ifdef _WIN32
-					SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
-#endif
-					userPreferences.sshotFilename = screenshotFilename;
-					time_t t = time(NULL);
-					userPreferences.sshotFilename += wxString::Format("/screenshot%04d.jpg",(int)(t%10000));
-				}
-
-				// 9. save
-				rr::RRBuffer::SaveParameters saveParameters;
-				saveParameters.jpegQuality = 100;
-				if (sshot->save(RR_WX2RR(userPreferences.sshotFilename),NULL,&saveParameters))
-					rr::RRReporter::report(rr::INF2,"Saved %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
-				else
-					rr::RRReporter::report(rr::WARN,"Error: Failed to save %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
-
-				// 10. increment filename
-				incrementFilename(userPreferences.sshotFilename);
-				m_userProperties->updateProperties();
+				// save sshot
+				saveScreenshot(sshot);
 
 				// cleanup
 				delete sshot;
@@ -1106,29 +1112,8 @@ save_scene_as:
 					sshot->unlock();
 					bufColor->unlock();
 
-					// 8. fix empty filename
-					if (userPreferences.sshotFilename.empty())
-					{
-						char screenshotFilename[1000]=".";
-#ifdef _WIN32
-						SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
-#endif
-						userPreferences.sshotFilename = screenshotFilename;
-						time_t t = time(NULL);
-						userPreferences.sshotFilename += wxString::Format("/screenshot%04d.jpg",(int)(t%10000));
-					}
-
-					// 9. save
-					rr::RRBuffer::SaveParameters saveParameters;
-					saveParameters.jpegQuality = 100;
-					if (sshot->save(RR_WX2RR(userPreferences.sshotFilename),NULL,&saveParameters))
-						rr::RRReporter::report(rr::INF2,"Saved %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
-					else
-						rr::RRReporter::report(rr::WARN,"Error: Failed to save %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
-
-					// 10. increment filename
-					incrementFilename(userPreferences.sshotFilename);
-					m_userProperties->updateProperties();
+					// 8. save sshot
+					saveScreenshot(sshot);
 
 					// 7. cleanup
 					delete sshot;

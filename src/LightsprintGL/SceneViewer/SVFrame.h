@@ -178,6 +178,7 @@ namespace rr_gl
 		void TogglePane(wxWindow* window);
 
 		void saveBakedLayers();
+		void saveScreenshot(rr::RRBuffer* sshot);
 
 		bool                     fullyInited; // true after constructor
 		bool                     updateMenuBarNeeded;
