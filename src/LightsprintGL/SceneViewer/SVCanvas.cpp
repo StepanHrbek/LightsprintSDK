@@ -1484,7 +1484,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 						needsSave = true;
 					}
 				if (needsSave)
-					allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,LMAP_POSTFIX);
+					allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
 			}
 			if (svs.renderLightIndirect==LI_BAKED)
 			{
