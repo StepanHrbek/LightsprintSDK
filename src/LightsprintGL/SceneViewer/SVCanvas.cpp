@@ -308,7 +308,8 @@ void SVCanvas::createContextCore()
 		}
 
 		// make unique object names, so that lightmaps are loaded from different files
-		solver->getObjects().makeNamesUnique();
+		rr::RRObjects allObjects = solver->getObjects();
+		allObjects.makeNamesUnique();
 
 		// try to load lightmaps
 		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedLightmap))
@@ -324,8 +325,8 @@ void SVCanvas::createContextCore()
 				svs.renderLDM = false;
 
 		// try to load cubemaps
-		if (!solver->getObjects().layerExistsInMemory(svs.layerBakedEnvironment))
-			solver->getObjects().loadLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
+		if (!allObjects.layerExistsInMemory(svs.layerBakedEnvironment))
+			allObjects.loadLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
 	}
 
 	// init rest
