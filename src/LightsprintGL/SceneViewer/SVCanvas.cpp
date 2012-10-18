@@ -296,6 +296,11 @@ void SVCanvas::createContextCore()
 
 
 	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
+
+	// make unique object names, so that lightmaps are loaded from different files
+	rr::RRObjects allObjects = solver->getObjects();
+	allObjects.makeNamesUnique();
+
 	if (solver->getStaticObjects().size())
 	{
 		rr::RRReportInterval report(rr::INF3,"Setting illumination type...\n");
@@ -306,10 +311,6 @@ void SVCanvas::createContextCore()
 			// create architect
 			case LI_REALTIME_ARCHITECT:    svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT); break;
 		}
-
-		// make unique object names, so that lightmaps are loaded from different files
-		rr::RRObjects allObjects = solver->getObjects();
-		allObjects.makeNamesUnique();
 
 		// try to load lightmaps
 		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedLightmap))
@@ -323,11 +324,11 @@ void SVCanvas::createContextCore()
 		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedLDM))
 			if (!solver->getStaticObjects().loadLayer(svs.layerBakedLDM,LAYER_PREFIX,LDM_POSTFIX))
 				svs.renderLDM = false;
-
-		// try to load cubemaps
-		if (!allObjects.layerExistsInMemory(svs.layerBakedEnvironment))
-			allObjects.loadLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
 	}
+
+	// try to load cubemaps
+	if (!allObjects.layerExistsInMemory(svs.layerBakedEnvironment))
+		allObjects.loadLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
 
 	// init rest
 	rr::RRReportInterval report(rr::INF3,"Initializing the rest...\n");
