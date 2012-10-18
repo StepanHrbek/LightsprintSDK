@@ -324,8 +324,8 @@ void SVCanvas::createContextCore()
 				svs.renderLDM = false;
 
 		// try to load cubemaps
-		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedEnvironment))
-			solver->getStaticObjects().loadLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
+		if (!solver->getObjects().layerExistsInMemory(svs.layerBakedEnvironment))
+			solver->getObjects().loadLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
 	}
 
 	// init rest
