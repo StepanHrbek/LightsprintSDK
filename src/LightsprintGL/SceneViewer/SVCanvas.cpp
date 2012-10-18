@@ -1470,6 +1470,7 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		}
 
 		// attempt to render empty baked layer? fill it with data from realtime layer
+		// (and save it to disk, users expect that what they see in "baked" mode is saved)
 		if (previousLightIndirect!=svs.renderLightIndirect)
 		{
 			rr::RRObjects allObjects = solver->getObjects();
