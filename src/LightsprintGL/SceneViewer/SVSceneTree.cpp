@@ -709,27 +709,41 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					// (this can be optimized away if we create copy of HDR)
 					selectedObjects.loadLayer(ambient?svs.layerBakedAmbient:svs.layerBakedLightmap,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
 
-					// update and save cubemaps
-					if (selectedObjectRoot || selectedObjects.size()==allObjects.size())
-					{
-						allObjects.allocateBuffersForRealtimeGI(-1,svs.layerBakedEnvironment,4,2*svs.raytracedCubesRes,true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
-						for (unsigned i=0;i<allObjects.size();i++)
-							solver->updateEnvironmentMap(&allObjects[i]->illumination,svs.layerBakedEnvironment);
-
-						// if we always keep all files, it won't be possible to get rid of once baked cube
-						//  (e.g. when cube treshold is increased to have fewer cubes and more mirrors, we will continue using old cube baked before change)
-						// if we always delete older files, it won't be possible to bake objects incrementally, one by one
-						// so let's delete older files only when baking whole scene
-						// we already bake cubes only when baking lmaps for whole scene, so let's delete old files now
-						allObjects.layerDeleteFromDisk(LAYER_PREFIX,ENV_POSTFIX);
-
-						allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
-					}
-
 					// make results visible
 					svs.renderLightDirect = ambient?LD_REALTIME:LD_BAKED;
 					svs.renderLightIndirect = LI_BAKED;
+
+					// bake also cubemaps
+					goto bake_cubemaps;
 				}
+			}
+			break;
+
+		case CM_OBJECTS_BUILD_CUBES:
+			bake_cubemaps:
+			if (solver)
+			{
+				// when baking all static objects, bake also dynamic objects
+				// (alternative approach would be to expose baking in context menu also for dynamic objects, user would have to explicitly bake also dynamic)
+				if (selectedObjectRoot || selectedObjects.size()==solver->getStaticObjects().size())
+					selectedObjects = allObjects;
+
+				// allocate cubes
+				selectedObjects.allocateBuffersForRealtimeGI(-1,svs.layerBakedEnvironment,4,2*svs.raytracedCubesRes,true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
+
+				// delete cubes from disk
+				// if we always keep all files, it won't be possible to get rid of once baked cube
+				//  (e.g. when cube treshold is increased to have fewer cubes and more mirrors, we will continue using old cube baked before change)
+				// if we always delete older files, it won't be possible to bake objects incrementally, one by one
+				// so let's delete older files only when user requests baking them, and they have no buffer
+				selectedObjects.layerDeleteFromDisk(LAYER_PREFIX,ENV_POSTFIX);
+
+				// update cubes
+				for (unsigned i=0;i<selectedObjects.size();i++)
+					solver->updateEnvironmentMap(&selectedObjects[i]->illumination,svs.layerBakedEnvironment);
+
+				// save cubes
+				selectedObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
 			}
 			break;
 
