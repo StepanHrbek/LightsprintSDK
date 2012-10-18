@@ -1473,14 +1473,29 @@ void SVCanvas::PaintCore(bool _takingSshot)
 		if (previousLightIndirect!=svs.renderLightIndirect)
 		{
 			rr::RRObjects allObjects = solver->getObjects();
-			for (unsigned i=0;i<allObjects.size();i++)
+			if (svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED)
 			{
-				if (svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED)
+				bool needsSave = false;
+				for (unsigned i=0;i<allObjects.size();i++)
 					if (!allObjects[i]->illumination.getLayer(svs.layerBakedEnvironment) && allObjects[i]->illumination.getLayer(svs.layerRealtimeEnvironment))
+					{
 						allObjects[i]->illumination.getLayer(svs.layerBakedEnvironment) = allObjects[i]->illumination.getLayer(svs.layerRealtimeEnvironment)->createReference();
-				if (svs.renderLightIndirect==LI_BAKED)
+						needsSave = true;
+					}
+				if (needsSave)
+					allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,LMAP_POSTFIX);
+			}
+			if (svs.renderLightIndirect==LI_BAKED)
+			{
+				bool needsSave = false;
+				for (unsigned i=0;i<allObjects.size();i++)
 					if (!allObjects[i]->illumination.getLayer(svs.layerBakedAmbient) && allObjects[i]->illumination.getLayer(svs.layerRealtimeAmbient))
+					{
 						allObjects[i]->illumination.getLayer(svs.layerBakedAmbient) = allObjects[i]->illumination.getLayer(svs.layerRealtimeAmbient)->createReference();
+						needsSave = true;
+					}
+				if (needsSave)
+					allObjects.saveLayer(svs.layerBakedAmbient,LAYER_PREFIX,AMBIENT_POSTFIX);
 			}
 			previousLightIndirect = svs.renderLightIndirect;
 		}
