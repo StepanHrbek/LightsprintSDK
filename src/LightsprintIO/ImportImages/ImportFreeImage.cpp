@@ -249,8 +249,14 @@ static void shuffleBlock(unsigned char*& dst, const unsigned char* pixelsOld, un
 // Returns true on success.
 static bool shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, unsigned& heightOld, unsigned bytesPerPixel)
 {
-	// expected input is cross-shaped 3:4 or 4:3 image
+	// quit when input is not 3:4 or 4:3 image (cross shape)
 	if (widthOld*3!=heightOld*4 && widthOld*4!=heightOld*3)
+	{
+		return false;
+	}
+
+	// quit when unused area in cross shape is not black
+	if (pixelsOld[0] || pixelsOld[widthOld*bytesPerPixel-bytesPerPixel] || pixelsOld[widthOld*(heightOld-1)*bytesPerPixel] || pixelsOld[widthOld*heightOld*bytesPerPixel-bytesPerPixel])
 	{
 		return false;
 	}
