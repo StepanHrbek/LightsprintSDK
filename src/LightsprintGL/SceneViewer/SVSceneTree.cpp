@@ -456,7 +456,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 		if (numObjects+numLights && !numOthers)
 			menu.Append(CM_EXPORT, _("Export..."));
 		if (numObjects && !numLights && !numOthers)
-			menu.Append(CM_OBJECTS_DELETE_DIALOG,_("Delete components..."),_("Deletes components within objects."));
+			menu.Append(CM_OBJECTS_DELETE_DIALOG,_("Purge..."),_("Deletes components within objects."));
 		menu.Append(CM_DELETE, _("Delete")+" (del)");
 	}
 
@@ -1062,6 +1062,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			if (svframe->deleteDlg.ShowModal()==wxID_OK)
 			{
 				selectedObjectsAndInstances.deleteComponents(svframe->deleteDlg.tangents->GetValue(),svframe->deleteDlg.unwrap->GetValue(),svframe->deleteDlg.unusedUvChannels->GetValue(),svframe->deleteDlg.emptyFacegroups->GetValue());
+
 
 				bool staticObjectsAlreadyModified = false;
 				for (unsigned i=0;i<selectedObjectsAndInstances.size();i++)

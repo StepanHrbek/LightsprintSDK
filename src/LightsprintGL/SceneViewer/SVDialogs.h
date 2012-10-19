@@ -115,7 +115,7 @@ class DeleteDlg : public wxDialog
 		wxCheckBox* emptyFacegroups;
 		wxCheckBox* tangents;
 		wxCheckBox* unwrap;
-		wxCheckBox* wholeObjects;
+		wxCheckBox* animations;
 		
 		DeleteDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Check what to delete"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 206,184 ), long style = wxDEFAULT_DIALOG_STYLE ); 
 		~DeleteDlg();
