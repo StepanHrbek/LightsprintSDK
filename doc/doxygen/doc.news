@@ -17,6 +17,7 @@ NEWS
   - automatic camera near/far works
   - Sun shadows work
 - misc helpers
+  - RRMatrix3x4::getAxisAngle()
   - RRDynamicSolver::getAABB()
   - RRRay::convertHitFromMultiToSingleObject()
 

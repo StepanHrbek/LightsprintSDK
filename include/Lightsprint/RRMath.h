@@ -351,19 +351,24 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		//! Applies scale before other transformations defined by this matrix; optimized *this*=scale(a);
 		void preScale(const RRVec3& a);
 
-		//! Returns Yaw + Pitch + Roll = YXZ Euler angles as defined at http://en.wikipedia.org/wiki/Euler_angles
+		//! Returns Yaw, Pitch and Roll = YXZ Euler angles as defined at http://en.wikipedia.org/wiki/Euler_angles
 		//
 		//! Works for matrices that represent scale, rotation and translation (in this order) of rigid body,
-		//! is undefined for non-orthogonal matrices.
+		//! result is undefined for non-orthogonal matrices.
+		//!
+		//! Yaw and roll are in -pi..pi range, pitch is in -pi/2..pi/2 range.
 		RRVec3 getYawPitchRoll() const;
 
-		//! Returns i-th matrix column.
+		//! Returns rotation axis (xyz) and rotation angle in radians (w) .
+		RRVec4 getAxisAngle() const;
+
+		//! Returns i-th matrix column, for i=0,1,2,3.
 		RRVec3 getColumn(unsigned i) const;
-		//! Returns i-th matrix row.
+		//! Returns i-th matrix row, for i=0,1,2.
 		RRVec4 getRow(unsigned i) const;
-		//! Sets i-th matrix column.
+		//! Sets i-th matrix column, for i=0,1,2,3.
 		void setColumn(unsigned i, const RRVec3& column);
-		//! Sets i-th matrix row.
+		//! Sets i-th matrix row, for i=0,1,2.
 		void setRow(unsigned i, const RRVec4& row);
 
 		//! Returns determinant of first 3x3 elements.

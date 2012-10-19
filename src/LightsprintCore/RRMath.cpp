@@ -370,7 +370,7 @@ void RRMatrix3x4::preScale(const RRVec3& scale)
 
 RRMatrix3x4 RRMatrix3x4::rotationByAxisAngle(const RRVec3& rotationAxis, RRReal rotationAngleRad)
 {
-	double s = sin(rotationAngleRad);
+	double s = sin(-rotationAngleRad);
 	double c = cos(rotationAngleRad);
 	double x = rotationAxis.x;
 	double y = rotationAxis.y;
@@ -380,6 +380,34 @@ RRMatrix3x4 RRMatrix3x4::rotationByAxisAngle(const RRVec3& rotationAxis, RRReal 
 		(RRReal)(c+x*x*(1-c)), (RRReal)(x*y*(1-c)+z*s), (RRReal)(x*z*(1-c)-y*s), 0,
 		(RRReal)(x*y*(1-c)-z*s), (RRReal)(c+y*y*(1-c)), (RRReal)(y*z*(1-c)+x*s), 0,
 		(RRReal)(x*z*(1-c)+y*s), (RRReal)(y*z*(1-c)-x*s), (RRReal)(c+z*z*(1-c)), 0);
+}
+
+RRVec4 RRMatrix3x4::getAxisAngle() const
+{
+	// remove scale
+	RRVec3 scale = getScale();
+	RRReal m[3][3];
+	for (unsigned i=0;i<3;i++)
+		for (unsigned j=0;j<3;j++)
+			m[i][j] = this->m[i][j]/scale[j];
+
+	// main path
+	#define SQR(a) ((a)*(a))
+	RRReal angle = acos((m[0][0]+m[1][1]+m[2][2]-1)/2);
+	RRReal x = (m[2][1]-m[1][2]) / sqrt(SQR(m[2][1]-m[1][2])+SQR(m[0][2]-m[2][0])+SQR(m[1][0]-m[0][1]));
+	RRReal y = (m[0][2]-m[2][0]) / sqrt(SQR(m[2][1]-m[1][2])+SQR(m[0][2]-m[2][0])+SQR(m[1][0]-m[0][1]));
+	RRReal z = (m[1][0]-m[0][1]) / sqrt(SQR(m[2][1]-m[1][2])+SQR(m[0][2]-m[2][0])+SQR(m[1][0]-m[0][1]));
+
+	// corner case angle=0
+	RRVec4 axisAngle = angle ? RRVec4(x,y,z,angle) : RRVec4(0,1,0,angle);
+
+	// corner case angle=pi ... not handled here (see http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/index.htm for details)
+	
+	// sanity check
+	for (unsigned i=0;i<4;i++)
+		if (!_finite(axisAngle[i]))
+			axisAngle[i] = 0;
+	return axisAngle;
 }
 
 RRMatrix3x4 RRMatrix3x4::rotationByYawPitchRoll(const RRVec3& yawPitchRoll)
@@ -403,15 +431,23 @@ RRVec3 RRMatrix3x4::getYawPitchRoll() const
 	RRVec3 yawPitchRoll;
 	if (fabs(m[1][2])<scale[2])
 	{
+		// main path
 		RRReal pitch = asin(-m[1][2]/scale[2]); // or RR_PI-pitch
 		RRReal a = cos(pitch);
 		RRReal yaw = atan2(m[0][2]/(scale[2]*a),m[2][2]/(scale[2]*a));
 		RRReal roll = atan2(m[1][0]/(scale[0]*a),m[1][1]/(scale[1]*a));
 		yawPitchRoll = RRVec3(yaw,pitch,roll);
+		// yaw   is in -pi..pi
+		// pitch is in -pi/2..pi/2
+		// roll  is in -pi..pi
 	}
 	else
 	{
+		// rarely entered path
 		yawPitchRoll = RRVec3(atan2(-m[2][0]/scale[0],m[0][0]/scale[0]),-RR_PI/2*m[1][2]/scale[2],0);
+		// yaw   is in -pi..pi
+		// pitch is outside -pi/2..pi/2 (this goes against documentation, testing needed)
+		// roll  is 0
 	}
 	for (unsigned i=0;i<3;i++)
 		if (!_finite(yawPitchRoll[i]))

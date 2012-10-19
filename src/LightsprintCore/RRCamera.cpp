@@ -518,15 +518,15 @@ RRReal blendModulo(RRReal a,RRReal b,RRReal alpha,RRReal modulo)
 
 void RRMatrix3x4::blendLinear(const RRMatrix3x4& sample0, const RRMatrix3x4& sample1, RRReal blend)
 {
-	RRVec3 rot1 = sample0.getYawPitchRoll();
-	RRVec3 rot2 = sample1.getYawPitchRoll();
-	*this = translation(blendNormal(sample0.getTranslation(),sample1.getTranslation(),blend))
-		* rotationByYawPitchRoll(RRVec3(
-			blendModulo(rot1[0],rot2[0],blend,(float)(2*RR_PI)),
-			blendNormal(rot1[1],rot2[1],blend),
-			blendNormal(rot1[2],rot2[2],blend)
-			))
-		* scale(blendNormal(sample0.getScale(),sample1.getScale(),blend));
+	// blend with axis-angle representation.
+	RRMatrix3x4 sample0inv;
+	sample0.invertedTo(sample0inv);
+	RRMatrix3x4 sample1x = sample0inv*sample1;
+	RRVec4 axisAngle = sample1x.getAxisAngle();
+	RRMatrix3x4 blendx = translation(sample1x.getTranslation()*blend)
+		* rotationByAxisAngle(RRVec3(axisAngle),axisAngle.w*blend)
+		* scale(blendNormal(RRVec3(1),sample1x.getScale(),blend));
+	*this = sample0*blendx;
 }
 
 void RRLight::blendLinear(const RRLight& sample0, const RRLight& sample1, RRReal blend)
