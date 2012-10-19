@@ -7,6 +7,7 @@
 
 #include "SVApp.h"
 #include "SVFrame.h"
+#include "SVObjectProperties.h"
 
 namespace rr_gl
 {
