@@ -105,6 +105,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		// string is updated from OnIdle
 		AppendIn(propEnv,propEnvMap);
 
+		propEnvMapAngleDeg = new FloatProperty(_("Rotation")+L" (\u00b0)",_("Rotates environment around up-down axis by this number of degrees."),0,svs.precision,0,360,10,true);
+		AppendIn(propEnvMap,propEnvMapAngleDeg);
+
 		//propEnvSimulateSky = new BoolRefProperty(_("Simulate sky"),_("Work in progress, has no effect."),svs.envSimulateSky);
 		//AppendIn(propEnv,propEnvSimulateSky);
 
@@ -263,6 +266,7 @@ void SVSceneProperties::updateHide()
 	EnableProperty(propCameraFar,!svs.cameraDynamicNear);
 
 	propEnvMap->Hide(svs.envSimulateSky,false);
+	propEnvMapAngleDeg->Hide(svs.envSimulateSky||!svframe->m_canvas||!svframe->m_canvas->solver||!svframe->m_canvas->solver->getEnvironment(),false);
 	propEnvLocation->Hide(!svs.envSimulateSky&&!svs.envSimulateSun);
 	propEnvDate->Hide(!svs.envSimulateSky&&!svs.envSimulateSun,false);
 	propEnvTime->Hide(!svs.envSimulateSky&&!svs.envSimulateSun,false);
@@ -297,6 +301,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBool(propCameraOrtho,svs.eye.isOrthogonal())
 		+ updateBoolRef(propCameraRangeAutomatic)
 		//+ updateBoolRef(propEnvSimulateSky)
+		+ updateString(propEnvMap,(svframe->m_canvas&&svframe->m_canvas->solver&&svframe->m_canvas->solver->getEnvironment())?RR_RR2WX(svframe->m_canvas->solver->getEnvironment()->filename):L"(no texture)")
 		+ updateBoolRef(propEnvSimulateSun)
 		+ updateBoolRef(propToneMapping)
 		+ updateBool(propToneMappingAutomatic,svs.tonemappingAutomatic)
@@ -305,6 +310,10 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propVignette)
 		+ updateBoolRef(propGrid)
 		;
+
+	rr::RRReal envAngleRad = 0;
+	svframe->m_canvas->solver->getEnvironment(0,&envAngleRad);
+
 	unsigned numChangesOther =
 		+ updateFloat(propCameraEyeSeparation,svs.eye.eyeSeparation)
 		+ updateFloat(propCameraFocalLength,svs.eye.focalLength)
@@ -320,7 +329,7 @@ void SVSceneProperties::updateProperties()
 		+ updateProperty(propCameraCenter,svs.eye.getScreenCenter())
 		//+ updateBoolRef(propEnvSimulateSky)
 		+ updateBoolRef(propEnvSimulateSun)
-		+ updateString(propEnvMap,(svframe->m_canvas&&svframe->m_canvas->solver&&svframe->m_canvas->solver->getEnvironment())?RR_RR2WX(svframe->m_canvas->solver->getEnvironment()->filename):L"(no texture)")
+		+ updateFloat(propEnvMapAngleDeg,RR_RAD2DEG(envAngleRad))
 		+ updateProperty(propEnvLocation,rr::RRVec2(svs.envLatitudeDeg,svs.envLongitudeDeg))
 		+ updateDate(propEnvDate,wxDateTime(svs.envDateTime))
 		+ updateFloat(propEnvTime,svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f+svs.envDateTime.tm_sec/3600.f)
@@ -464,6 +473,13 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		svs.skyboxFilename = RR_WX2RR(propEnvMap->GetValue().GetString());
 		svframe->OnMenuEventCore(SVFrame::ME_ENV_RELOAD);
+		updateHide();
+	}
+	else
+	if (property==propEnvMapAngleDeg)
+	{
+		rr::RRReal angleRad = RR_DEG2RAD(propEnvMapAngleDeg->GetValue().GetDouble());
+		svframe->m_canvas->solver->setEnvironment(svframe->m_canvas->solver->getEnvironment(0),svframe->m_canvas->solver->getEnvironment(1),angleRad,angleRad);
 	}
 	else
 	if (property==propEnvLocation)

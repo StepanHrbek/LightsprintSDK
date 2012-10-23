@@ -54,6 +54,7 @@ namespace rr_gl
 		//BoolRefProperty*  propEnvSimulateSky;
 		BoolRefProperty*  propEnvSimulateSun;
 		ImageFileProperty*propEnvMap;
+		FloatProperty*    propEnvMapAngleDeg;
 		LocationProperty* propEnvLocation;
 		wxDateProperty*   propEnvDate;
 		FloatProperty*    propEnvTime;
