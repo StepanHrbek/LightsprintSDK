@@ -79,7 +79,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
 	if (uberProgramSetup.LIGHT_DIRECT)
-		textureRenderer->renderEnvironment(eye,rr_gl::getTexture(environmentMap),NULL,0,NULL,1,false);
+		textureRenderer->renderEnvironment(eye,rr_gl::getTexture(environmentMap),0,NULL,0,NULL,1,false);
 
 	// render static scene
 	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&eye,realtimeLight,0,NULL,1,NULL);

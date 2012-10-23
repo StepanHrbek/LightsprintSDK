@@ -89,9 +89,11 @@ namespace rr
 		//!  Optional second environment map, solver is able to work with blend of two environments, see setEnvironmentBlendFactor().
 		//!  It's ok to mix LDR and HDR maps, 2d and cube maps, all combinations work.
 		//!  Buffer is not adopted, you are still responsible for deleting it when it's no longer needed.
-		void setEnvironment(RRBuffer* environment0, RRBuffer* environment1=NULL);
+		//! \param angleRad0
+		//! \param angleRad1
+		void setEnvironment(RRBuffer* environment0, RRBuffer* environment1=NULL, RRReal angleRad0=0, RRReal angleRad1=0);
 		//! Returns scene environment set by setEnvironment().
-		RRBuffer* getEnvironment(unsigned environmentIndex=0) const;
+		RRBuffer* getEnvironment(unsigned environmentIndex=0, RRReal* angleRad=NULL) const;
 
 		//! Sets environment blend factor, specifies how two environments are blended together.
 		//

@@ -839,10 +839,12 @@ void RendererOfSceneImpl::render(
 	// Render skybox.
  	if (!_renderingFromThisLight && !_uberProgramSetup.FORCE_2D_POSITION)
 	{
-		const rr::RRBuffer* env0 = _solver->getEnvironment(0);
+		rr::RRReal envAngleRad0 = 0;
+		const rr::RRBuffer* env0 = _solver->getEnvironment(0,&envAngleRad0);
 		if (textureRenderer && env0)
 		{
-			const rr::RRBuffer* env1 = _solver->getEnvironment(1);
+			rr::RRReal envAngleRad1 = 0;
+			const rr::RRBuffer* env1 = _solver->getEnvironment(1,&envAngleRad1);
 			float blendFactor = _solver->getEnvironmentBlendFactor();
 			Texture* texture0 = (env0->getWidth()>2)
 				? getTexture(env0,false,false) // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
@@ -852,7 +854,7 @@ void RendererOfSceneImpl::render(
 				? getTexture(env1,false,false) // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
 				: getTexture(env1,false,false,GL_NEAREST,GL_NEAREST) // used by 2x2 sky
 				) : NULL;
-			textureRenderer->renderEnvironment(_camera,texture0,texture1,blendFactor,_brightness,_gamma,true);
+			textureRenderer->renderEnvironment(_camera,texture0,envAngleRad0,texture1,envAngleRad1,blendFactor,_brightness,_gamma,true);
 		}
 	}
 

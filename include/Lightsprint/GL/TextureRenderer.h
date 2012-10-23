@@ -39,10 +39,10 @@ public:
 	//! Renders cubemap, equirectangular 2d texture or blend of two such maps as if camera is in center.
 	//
 	//! Use blendFactor=0 to render only texture0, texture1 then may be NULL.
-	//! Current OpenGL transformation matrices are used.
 	//! For non-NULL color, texture color is multiplied by color.
 	//! Color is finally gamma corrected by gamma, 1 = no correction.
-	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture0, const Texture* texture1, float blendFactor, const rr::RRVec4* brightness, float gamma, bool allowDepthTest);
+	//! Angles rotate environments around top/down axis.
+	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture0, float angleRad0, const Texture* texture1, float angleRad1, float blendFactor, const rr::RRVec4* brightness, float gamma, bool allowDepthTest);
 
 	//! Renders 2d texture into rectangle, using current blending/alpha testing/depth testing/masking etc modes.
 	//
@@ -83,7 +83,7 @@ public:
 	UberProgram* twodProgram;
 
 private:
-	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture, const rr::RRVec3& brightness, float gamma);
+	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture, float angleRad, const rr::RRVec3& brightness, float gamma);
 };
 
 }; // namespace

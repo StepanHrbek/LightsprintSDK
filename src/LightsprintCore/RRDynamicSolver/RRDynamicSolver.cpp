@@ -121,16 +121,20 @@ const RRScaler* RRDynamicSolver::getScaler() const
 	return priv->scaler;
 }
 
-void RRDynamicSolver::setEnvironment(RRBuffer* _environment0, RRBuffer* _environment1)
+void RRDynamicSolver::setEnvironment(RRBuffer* _environment0, RRBuffer* _environment1, RRReal _environmentAngleRad0, RRReal _environmentAngleRad1)
 {
 	priv->environment0 = _environment0;
 	priv->environment1 = _environment1;
+	priv->environmentAngleRad0 = _environmentAngleRad0;
+	priv->environmentAngleRad1 = _environmentAngleRad1;
 	// affects specular cubemaps
 	priv->solutionVersion++;
 }
 
-RRBuffer* RRDynamicSolver::getEnvironment(unsigned _environmentIndex) const
+RRBuffer* RRDynamicSolver::getEnvironment(unsigned _environmentIndex, RRReal* _environmentAngleRad) const
 {
+	if (_environmentAngleRad)
+		*_environmentAngleRad = _environmentIndex ? priv->environmentAngleRad1 : priv->environmentAngleRad0;
 	return _environmentIndex ? priv->environment1 : priv->environment0;
 }
 

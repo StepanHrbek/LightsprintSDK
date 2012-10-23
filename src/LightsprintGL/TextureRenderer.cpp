@@ -37,7 +37,7 @@ TextureRenderer::~TextureRenderer()
 	delete twodProgram;
 }
 
-bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Texture* _texture, const rr::RRVec3& _brightness, float _gamma)
+bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Texture* _texture, float _angleRad, const rr::RRVec3& _brightness, float _gamma)
 {
 	if (!_texture || !_texture->getBuffer())
 	{
@@ -51,8 +51,9 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 		_brightness[2] = pow(_brightness[2],SRGB2PHYS);
 		_gamma *= PHYS2SRGB;
 	}
+	bool equirectangular = _texture->getBuffer()->getType()==rr::BT_2D_TEXTURE;
 	Program* program = skyProgram ? skyProgram->getProgram(tmpstr("#define POSTPROCESS_BRIGHTNESS\n%s%s",
-		(_texture->getBuffer()->getType()==rr::BT_2D_TEXTURE)?"#define PROJECTION_EQUIRECTANGULAR\n":"#define PROJECTION_CUBE\n",
+		equirectangular?"#define PROJECTION_EQUIRECTANGULAR\n":"#define PROJECTION_CUBE\n",
 		(_gamma!=1)?"#define POSTPROCESS_GAMMA\n":""
 		)) : NULL;
 	if (!program)
@@ -67,13 +68,16 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	if (_gamma!=1)
 		program->sendUniform("postprocessGamma",_gamma);
 	if (_texture->getBuffer()->getType()==rr::BT_2D_TEXTURE)
-		program->sendUniform("shape",rr::RRVec4(-0.5f/RR_PI,1.0f/RR_PI,0.75f,0.5f));
+		program->sendUniform("shape",rr::RRVec4(-0.5f/RR_PI,1.0f/RR_PI,0.75f-_angleRad/(2*RR_PI),0.5f));
 
 	// render
 	rr::RRVec2 position[4] = {rr::RRVec2(-1,-1),rr::RRVec2(1,-1),rr::RRVec2(1,1),rr::RRVec2(-1,1)};
 	rr::RRVec3 direction[4];
+	rr::RRCamera camera = _camera;
+	if (!equirectangular)
+		camera.setYawPitchRollRad(camera.getYawPitchRollRad()+rr::RRVec3(_angleRad,0,0));
 	for (unsigned i=0;i<4;i++)
-		direction[i] = _camera.getRayDirection(rr::RRVec2(position[i].x,-position[i].y));
+		direction[i] = camera.getRayDirection(rr::RRVec2(position[i].x,-position[i].y));
 	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
 	glEnableVertexAttribArray(VAA_POSITION);
 	glVertexAttribPointer(VAA_DIRECTION, 3, GL_FLOAT, 0, 0, direction);
@@ -85,7 +89,7 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	return true;
 }
 
-bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Texture* _texture0, const Texture* _texture1, float _blendFactor, const rr::RRVec4* _brightness, float _gamma, bool _allowDepthTest)
+bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Texture* _texture0, float _angleRad0, const Texture* _texture1, float _angleRad1, float _blendFactor, const rr::RRVec4* _brightness, float _gamma, bool _allowDepthTest)
 {
 	if (!_texture0 || !_texture0->getBuffer())
 	{
@@ -108,7 +112,7 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	setupForRender(camera);
 
 	// render
-	bool result = renderEnvironment(camera,_texture0,brightness*(1-_blendFactor),_gamma);
+	bool result = renderEnvironment(camera,_texture0,_angleRad0,brightness*(1-_blendFactor),_gamma);
 	if (result && _blendFactor)
 	{
 		// setup render states
@@ -119,7 +123,7 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 		_texture1->bindTexture();
 
 		// render
-		result = renderEnvironment(camera,_texture1,brightness*_blendFactor,_gamma);
+		result = renderEnvironment(camera,_texture1,_angleRad1,brightness*_blendFactor,_gamma);
 	}
 
 	// restore render states

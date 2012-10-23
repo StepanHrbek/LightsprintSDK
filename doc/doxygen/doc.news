@@ -12,6 +12,8 @@ namespace rr
 
 NEWS
 
+- environment/skybox can be rotated by parameter, without modifying texture
+  - extra paremeters in RRDynamicSolver::setEnvironment(), RRDynamicSolver::getEnvironment(), TextureRenderer::renderEnvironment()
 - better support for scenes without static objects (fully dynamic)
   - automatic camera views work
   - automatic camera near/far works

@@ -54,6 +54,8 @@ namespace rr
 		RRLights   lights;
 		RRBuffer*  environment0;
 		RRBuffer*  environment1;
+		float      environmentAngleRad0;
+		float      environmentAngleRad1;
 		float      environmentBlendFactor;
 		const unsigned* customIrradianceRGBA8;
 
@@ -93,6 +95,8 @@ namespace rr
 			// scene: inputs
 			environment0 = NULL;
 			environment1 = NULL;
+			environmentAngleRad0 = 0;
+			environmentAngleRad1 = 0;
 			environmentBlendFactor = 0;
 			// scene: function of inputs
 			multiObjectCustom = NULL;
