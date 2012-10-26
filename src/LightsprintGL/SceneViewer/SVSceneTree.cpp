@@ -780,7 +780,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.65f),rr::RRVec4(0.65f)); // 0.65*typical materials = average color in LDM around 0.5
 					solver->setEnvironment(newEnv);
 					solver->updateLightmaps(tmpLayer,-1,-1,&paramsDirect,&paramsIndirect,&svs.lightmapFilteringParameters);
-					solver->setEnvironment(oldEnv);
+					solver->setEnvironment(oldEnv,NULL,svs.skyboxRotationRad);
 					delete newEnv;
 
 					// save temp layer

@@ -257,7 +257,7 @@ void SVCanvas::createContextCore()
 	{
 		delete solver->getScaler();
 		solver->setScaler(svs.initialInputSolver->getScaler());
-		solver->setEnvironment(svs.initialInputSolver->getEnvironment());
+		solver->setEnvironment(svs.initialInputSolver->getEnvironment(0),svs.initialInputSolver->getEnvironment(1),svs.skyboxRotationRad,svs.skyboxRotationRad);
 		envToBeDeletedOnExit = false;
 		solver->setStaticObjects(svs.initialInputSolver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,svs.initialInputSolver); // smoothing and multiobject are taken from _solver
 		solver->setDynamicObjects(svs.initialInputSolver->getDynamicObjects());
@@ -277,7 +277,7 @@ void SVCanvas::createContextCore()
 		}
 
 		// send everything to solver
-		solver->setEnvironment(mergedScenes[0]->environment);
+		solver->setEnvironment(mergedScenes[0]->environment,NULL,svs.skyboxRotationRad,svs.skyboxRotationRad);
 		envToBeDeletedOnExit = false;
 		solver->setStaticObjects(mergedScenes[0]->objects,NULL);
 		solver->setDynamicObjects(mergedScenes[0]->objects);
@@ -405,7 +405,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 				objects.insert(objects.end(),scene->objects.begin(),scene->objects.end());
 				lights.insert(lights.end(),scene->lights.begin(),scene->lights.end());
 				if (!solver->getEnvironment() && scene->environment)
-					solver->setEnvironment(scene->environment);
+					solver->setEnvironment(scene->environment,NULL,svs.skyboxRotationRad);
 			}
 			else
 			{

@@ -105,7 +105,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		// string is updated from OnIdle
 		AppendIn(propEnv,propEnvMap);
 
-		propEnvMapAngleDeg = new FloatProperty(_("Rotation")+L" (\u00b0)",_("Rotates environment around up-down axis by this number of degrees."),0,svs.precision,0,360,10,true);
+		propEnvMapAngleDeg = new FloatProperty(_("Rotation")+L" (\u00b0)",_("Rotates environment around up-down axis by this number of degrees."),svs.skyboxRotationRad,svs.precision,0,360,10,true);
 		AppendIn(propEnvMap,propEnvMapAngleDeg);
 
 		//propEnvSimulateSky = new BoolRefProperty(_("Simulate sky"),_("Work in progress, has no effect."),svs.envSimulateSky);
@@ -311,9 +311,6 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propGrid)
 		;
 
-	rr::RRReal envAngleRad = 0;
-	svframe->m_canvas->solver->getEnvironment(0,&envAngleRad);
-
 	unsigned numChangesOther =
 		+ updateFloat(propCameraEyeSeparation,svs.eye.eyeSeparation)
 		+ updateFloat(propCameraFocalLength,svs.eye.focalLength)
@@ -329,7 +326,7 @@ void SVSceneProperties::updateProperties()
 		+ updateProperty(propCameraCenter,svs.eye.getScreenCenter())
 		//+ updateBoolRef(propEnvSimulateSky)
 		+ updateBoolRef(propEnvSimulateSun)
-		+ updateFloat(propEnvMapAngleDeg,RR_RAD2DEG(envAngleRad))
+		+ updateFloat(propEnvMapAngleDeg,RR_RAD2DEG(svs.skyboxRotationRad))
 		+ updateProperty(propEnvLocation,rr::RRVec2(svs.envLatitudeDeg,svs.envLongitudeDeg))
 		+ updateDate(propEnvDate,wxDateTime(svs.envDateTime))
 		+ updateFloat(propEnvTime,svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f+svs.envDateTime.tm_sec/3600.f)
@@ -478,8 +475,8 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propEnvMapAngleDeg)
 	{
-		rr::RRReal angleRad = RR_DEG2RAD(propEnvMapAngleDeg->GetValue().GetDouble());
-		svframe->m_canvas->solver->setEnvironment(svframe->m_canvas->solver->getEnvironment(0),svframe->m_canvas->solver->getEnvironment(1),angleRad,angleRad);
+		svs.skyboxRotationRad = RR_DEG2RAD(propEnvMapAngleDeg->GetValue().GetDouble());
+		svframe->m_canvas->solver->setEnvironment(svframe->m_canvas->solver->getEnvironment(0),svframe->m_canvas->solver->getEnvironment(1),svs.skyboxRotationRad,svs.skyboxRotationRad);
 	}
 	else
 	if (property==propEnvLocation)

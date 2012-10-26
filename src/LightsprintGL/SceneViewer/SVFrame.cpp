@@ -1245,7 +1245,7 @@ reload_skybox:
 				}
 				if (skybox)
 				{
-					solver->setEnvironment(skybox,solver->getEnvironment(0));
+					solver->setEnvironment(skybox,solver->getEnvironment(0),svs.skyboxRotationRad,svs.skyboxRotationRad);
 					envToBeDeletedOnExit = true;
 					m_canvas->skyboxBlendingInProgress = true;
 					m_canvas->skyboxBlendingStartTime.setNow(); // starts 3sec smooth transition in SVCanvas::Paint()
