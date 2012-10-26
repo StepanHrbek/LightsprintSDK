@@ -69,7 +69,6 @@ public:
 	void renderLensFlares(float flareSize, unsigned flareId, class TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRLights& lights, const rr::RRObject* scene, unsigned quality);
 
 protected:
-	TextureRenderer* textureRenderer;
 	enum {NUM_PRIMARY_MAPS=3,NUM_SECONDARY_MAPS=3};
 	rr::RRBuffer* primaryMap[NUM_PRIMARY_MAPS];
 	rr::RRBuffer* secondaryMap[NUM_SECONDARY_MAPS];
