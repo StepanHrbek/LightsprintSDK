@@ -24,7 +24,7 @@ namespace rr_gl
 
 RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _detectionQuality)
 {
-	strncpy(pathToShaders,_pathToShaders,299);
+	strncpy(pathToShaders,_pathToShaders?_pathToShaders:"",299);
 	pathToShaders[299]=0;
 
 	switch(_detectionQuality)
