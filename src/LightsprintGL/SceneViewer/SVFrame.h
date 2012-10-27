@@ -21,6 +21,7 @@
 //#define IS_SHOWN(pane) m_mgr.GetPane(pane).IsShown()
 #define IS_SHOWN(pane) ((pane) && (pane)->IsShownOnScreen())
 
+
 namespace rr_gl
 {
 
