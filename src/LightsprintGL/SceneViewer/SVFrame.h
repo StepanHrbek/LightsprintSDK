@@ -19,7 +19,7 @@
 // both should return the same correct value
 // pane->IsShown() would be wrong, as explained in http://trac.wxwidgets.org/ticket/11537
 //#define IS_SHOWN(pane) m_mgr.GetPane(pane).IsShown()
-#define IS_SHOWN(pane) pane->IsShownOnScreen()
+#define IS_SHOWN(pane) ((pane) && (pane)->IsShownOnScreen())
 
 namespace rr_gl
 {
