@@ -64,6 +64,13 @@ namespace Assimp {
 		//#define to_int64(p)  (static_cast<ulong64>( std::max( 0., std::min( static_cast<IfcFloat>((p)), 1.) ) * max_ulong64 ))
 #define to_int64(p)  (static_cast<ulong64>(static_cast<IfcFloat>((p) ) * max_ulong64 ))
 #define from_int64(p) (static_cast<IfcFloat>((p)) / max_ulong64)
+#define one_vec (IfcVector2(static_cast<IfcFloat>(1.0),static_cast<IfcFloat>(1.0)))
+
+
+		bool TryAddOpenings_Quadrulate(std::vector<TempOpening>& openings,
+			const std::vector<IfcVector3>& nors, 
+			TempMesh& curmesh);
+
 
 // ------------------------------------------------------------------------------------------------
 bool ProcessPolyloop(const IfcPolyLoop& loop, TempMesh& meshout, ConversionData& /*conv*/)
@@ -92,337 +99,122 @@ bool ProcessPolyloop(const IfcPolyLoop& loop, TempMesh& meshout, ConversionData&
 }
 
 // ------------------------------------------------------------------------------------------------
-void ComputePolygonNormals(const TempMesh& meshout, std::vector<IfcVector3>& normals, bool normalize = true, size_t ofs = 0) 
+void ProcessPolygonBoundaries(TempMesh& result, const TempMesh& inmesh, size_t master_bounds = (size_t)-1) 
 {
-	size_t max_vcount = 0;
-	std::vector<unsigned int>::const_iterator begin=meshout.vertcnt.begin()+ofs, end=meshout.vertcnt.end(),  iit;
-	for(iit = begin; iit != end; ++iit) {
-		max_vcount = std::max(max_vcount,static_cast<size_t>(*iit));
+	// handle all trivial cases
+	if(inmesh.vertcnt.empty()) {
+		return;
 	}
-
-	std::vector<IfcFloat> temp((max_vcount+2)*4);
-	normals.reserve( normals.size() + meshout.vertcnt.size()-ofs );
-
-	// `NewellNormal()` currently has a relatively strange interface and need to 
-	// re-structure things a bit to meet them.
-	size_t vidx = std::accumulate(meshout.vertcnt.begin(),begin,0);
-	for(iit = begin; iit != end; vidx += *iit++) {
-		if (!*iit) {
-			normals.push_back(IfcVector3());
-			continue;
-		}
-		for(size_t vofs = 0, cnt = 0; vofs < *iit; ++vofs) {
-			const IfcVector3& v = meshout.verts[vidx+vofs];
-			temp[cnt++] = v.x;
-			temp[cnt++] = v.y;
-			temp[cnt++] = v.z;
-#ifdef _DEBUG
-			temp[cnt] = std::numeric_limits<IfcFloat>::quiet_NaN();
-#endif
-			++cnt;
-		}
-
-		normals.push_back(IfcVector3());
-		NewellNormal<4,4,4>(normals.back(),*iit,&temp[0],&temp[1],&temp[2]);
-	}
-
-	if(normalize) {
-		BOOST_FOREACH(IfcVector3& n, normals) {
-			n.Normalize();
-		}
-	}
-}
-
-// ------------------------------------------------------------------------------------------------
-// Compute the normal of the last polygon in the given mesh
-IfcVector3 ComputePolygonNormal(const TempMesh& inmesh, bool normalize = true) 
-{
-	size_t total = inmesh.vertcnt.back(), vidx = inmesh.verts.size() - total;
-	std::vector<IfcFloat> temp((total+2)*3);
-	for(size_t vofs = 0, cnt = 0; vofs < total; ++vofs) {
-		const IfcVector3& v = inmesh.verts[vidx+vofs];
-		temp[cnt++] = v.x;
-		temp[cnt++] = v.y;
-		temp[cnt++] = v.z;
-	}
-	IfcVector3 nor;
-	NewellNormal<3,3,3>(nor,total,&temp[0],&temp[1],&temp[2]);
-	return normalize ? nor.Normalize() : nor;
-}
-
-// ------------------------------------------------------------------------------------------------
-void FixupFaceOrientation(TempMesh& result)
-{
-	const IfcVector3 vavg = result.Center();
-
-	std::vector<IfcVector3> normals;
-	ComputePolygonNormals(result,normals);
-
-	size_t c = 0, ofs = 0;
-	BOOST_FOREACH(unsigned int cnt, result.vertcnt) {
-		if (cnt>2){
-			const IfcVector3& thisvert = result.verts[c];
-			if (normals[ofs]*(thisvert-vavg) < 0) {
-				std::reverse(result.verts.begin()+c,result.verts.begin()+cnt+c);
-			}
-		}
-		c += cnt;
-		++ofs;
-	}
-}
-
-// ------------------------------------------------------------------------------------------------
-void RecursiveMergeBoundaries(TempMesh& final_result, const TempMesh& in, const TempMesh& boundary, std::vector<IfcVector3>& normals, const IfcVector3& nor_boundary)
-{
-	ai_assert(in.vertcnt.size() >= 1);
-	ai_assert(boundary.vertcnt.size() == 1);
-	std::vector<unsigned int>::const_iterator end = in.vertcnt.end(), begin=in.vertcnt.begin(), iit, best_iit;
-
-	TempMesh out;
-
-	// iterate through all other bounds and find the one for which the shortest connection
-	// to the outer boundary is actually the shortest possible.
-	size_t vidx = 0, best_vidx_start = 0;
-	size_t best_ofs, best_outer = boundary.verts.size();
-	IfcFloat best_dist = 1e10;
-	for(std::vector<unsigned int>::const_iterator iit = begin; iit != end; vidx += *iit++) {
-		
-		for(size_t vofs = 0; vofs < *iit; ++vofs) {
-			const IfcVector3& v = in.verts[vidx+vofs];
-
-			for(size_t outer = 0; outer < boundary.verts.size(); ++outer) {
-				const IfcVector3& o = boundary.verts[outer];
-				const IfcFloat d = (o-v).SquareLength();
-
-				if (d < best_dist) {
-					best_dist = d;
-					best_ofs = vofs;
-					best_outer = outer;
-					best_iit = iit;
-					best_vidx_start = vidx;
-				}
-			}		
-		}
-	}
-
-	ai_assert(best_outer != boundary.verts.size());
-
-
-	// now that we collected all vertex connections to be added, build the output polygon
-	const size_t cnt = boundary.verts.size() + *best_iit+2;
-	out.verts.reserve(cnt);
-
-	for(size_t outer = 0; outer < boundary.verts.size(); ++outer) {
-		const IfcVector3& o = boundary.verts[outer];
-		out.verts.push_back(o);
-
-		if (outer == best_outer) {
-			for(size_t i = best_ofs; i < *best_iit; ++i) {
-				out.verts.push_back(in.verts[best_vidx_start + i]);
-			}
-
-			// we need the first vertex of the inner polygon twice as we return to the
-			// outer loop through the very same connection through which we got there.
-			for(size_t i = 0; i <= best_ofs; ++i) {
-				out.verts.push_back(in.verts[best_vidx_start + i]);
-			}
-
-			// reverse face winding if the normal of the sub-polygon points in the
-			// same direction as the normal of the outer polygonal boundary
-			if (normals[std::distance(begin,best_iit)] * nor_boundary > 0) {
-				std::reverse(out.verts.rbegin(),out.verts.rbegin()+*best_iit+1);
-			}
-
-			// also append a copy of the initial insertion point to be able to continue the outer polygon
-			out.verts.push_back(o);
-		}
-	}
-	out.vertcnt.push_back(cnt);
-	ai_assert(out.verts.size() == cnt);
-
-	if (in.vertcnt.size()-std::count(begin,end,0) > 1) {
-		// Recursively apply the same algorithm if there are more boundaries to merge. The
-		// current implementation is relatively inefficient, though.
-		
-		TempMesh temp;
-		
-		// drop the boundary that we just processed
-		const size_t dist = std::distance(begin, best_iit);
-		TempMesh remaining = in;
-		remaining.vertcnt.erase(remaining.vertcnt.begin() + dist);
-		remaining.verts.erase(remaining.verts.begin()+best_vidx_start,remaining.verts.begin()+best_vidx_start+*best_iit);
-
-		normals.erase(normals.begin() + dist);
-		RecursiveMergeBoundaries(temp,remaining,out,normals,nor_boundary);
-
-		final_result.Append(temp);
-	}
-	else final_result.Append(out);
-}
-
-// ------------------------------------------------------------------------------------------------
-void MergePolygonBoundaries(TempMesh& result, const TempMesh& inmesh, size_t master_bounds = -1) 
-{
-	// standard case - only one boundary, just copy it to the result vector
-	if (inmesh.vertcnt.size() <= 1) {
+	if(inmesh.vertcnt.size() == 1) {
 		result.Append(inmesh);
 		return;
 	}
 
-	result.vertcnt.reserve(inmesh.vertcnt.size()+result.vertcnt.size());
+	ai_assert(std::count(inmesh.vertcnt.begin(), inmesh.vertcnt.end(), 0) == 0);
 
-	// XXX get rid of the extra copy if possible
-	TempMesh meshout = inmesh;
+	typedef std::vector<unsigned int>::const_iterator face_iter;
 
-	// handle polygons with holes. Our built in triangulation won't handle them as is, but
-	// the ear cutting algorithm is solid enough to deal with them if we join the inner
-	// holes with the outer boundaries by dummy connections.
-	IFCImporter::LogDebug("fixing polygon with holes for triangulation via ear-cutting");
-	std::vector<unsigned int>::iterator outer_polygon = meshout.vertcnt.end(), begin=meshout.vertcnt.begin(), end=outer_polygon,  iit;
+	face_iter begin = inmesh.vertcnt.begin(), end = inmesh.vertcnt.end(), iit;
+	std::vector<unsigned int>::const_iterator outer_polygon_it = end;
 
-	// each hole results in two extra vertices
-	result.verts.reserve(meshout.verts.size()+meshout.vertcnt.size()*2+result.verts.size());
-	size_t outer_polygon_start = 0;
+	// major task here: given a list of nested polygon boundaries (one of which
+	// is the outer contour), reduce the triangulation task arising here to
+	// one that can be solved using the "quadrulation" algorithm which we use
+	// for pouring windows out of walls. The algorithm does not handle all
+	// cases but at least it is numerically stable and gives "nice" triangles.
 
+	// first compute normals for all polygons using Newell's algorithm
 	// do not normalize 'normals', we need the original length for computing the polygon area
 	std::vector<IfcVector3> normals;
-	ComputePolygonNormals(meshout,normals,false);
+	inmesh.ComputePolygonNormals(normals,false);
 
-	// see if one of the polygons is a IfcFaceOuterBound (in which case `master_bounds` is its index).
-	// sadly we can't rely on it, the docs say 'At most one of the bounds shall be of the type IfcFaceOuterBound' 
+	// One of the polygons might be a IfcFaceOuterBound (in which case `master_bounds` 
+	// is its index). Sadly we can't rely on it, the docs say 'At most one of the bounds 
+	// shall be of the type IfcFaceOuterBound' 
 	IfcFloat area_outer_polygon = 1e-10f;
 	if (master_bounds != (size_t)-1) {
-		outer_polygon = begin + master_bounds;
-		outer_polygon_start = std::accumulate(begin,outer_polygon,0);
-		area_outer_polygon = normals[master_bounds].SquareLength();
+		ai_assert(master_bounds < inmesh.vertcnt.size());
+		outer_polygon_it = begin + master_bounds;
 	}
 	else {
-		size_t vidx = 0;
-		for(iit = begin; iit != meshout.vertcnt.end(); vidx += *iit++) {
-			// find the polygon with the largest area, it must be the outer bound. 
+		for(iit = begin; iit != end; iit++) {
+			// find the polygon with the largest area and take it as the outer bound. 
 			IfcVector3& n = normals[std::distance(begin,iit)];
 			const IfcFloat area = n.SquareLength();
 			if (area > area_outer_polygon) {
 				area_outer_polygon = area;
-				outer_polygon = iit;
-				outer_polygon_start = vidx;
+				outer_polygon_it = iit;
 			}
 		}
 	}
 
-	ai_assert(outer_polygon != meshout.vertcnt.end());	
-	std::vector<IfcVector3>& in = meshout.verts;
+	ai_assert(outer_polygon_it != end);
 
-	// skip over extremely small boundaries - this is a workaround to fix cases
-	// in which the number of holes is so extremely large that the
-	// triangulation code fails.
-#define IFC_VERTICAL_HOLE_SIZE_THRESHOLD 0.000001f
-	size_t vidx = 0, removed = 0, index = 0;
-	const IfcFloat threshold = area_outer_polygon * IFC_VERTICAL_HOLE_SIZE_THRESHOLD;
-	for(iit = begin; iit != end ;++index) {
-		const IfcFloat sqlen = normals[index].SquareLength();
-		if (sqlen < threshold) {
-			std::vector<IfcVector3>::iterator inbase = in.begin()+vidx;
-			in.erase(inbase,inbase+*iit);
-			
-			outer_polygon_start -= outer_polygon_start>vidx ? *iit : 0;
-			*iit++ = 0;
-			++removed;
+	const size_t outer_polygon_size = *outer_polygon_it;
+	const IfcVector3& master_normal = normals[std::distance(begin, outer_polygon_it)];
 
-			IFCImporter::LogDebug("skip small hole below threshold");
-		}
-		else {
-			normals[index] /= sqrt(sqlen);
-			vidx += *iit++;
-		}
-	}
+	// Generate fake openings to meet the interface for the quadrulate
+	// algorithm. It boils down to generating small boxes given the
+	// inner polygon and the surface normal of the outer contour.
+	// It is important that we use the outer contour's normal because
+	// this is the plane onto which the quadrulate algorithm will
+	// project the entire mesh.
+	std::vector<TempOpening> fake_openings;
+	fake_openings.reserve(inmesh.vertcnt.size()-1);
 
-	// see if one or more of the hole has a face that lies directly on an outer bound.
-	// this happens for doors, for example.
-	vidx = 0;
-	for(iit = begin; ; vidx += *iit++) {
-next_loop:
-		if (iit == end) {
-			break;
-		}
-		if (iit == outer_polygon) {
+	std::vector<IfcVector3>::const_iterator vit = inmesh.verts.begin(), outer_vit;
+
+	for(iit = begin; iit != end; vit += *iit++) {
+		if (iit == outer_polygon_it) {
+			outer_vit = vit;
 			continue;
 		}
 
-		for(size_t vofs = 0; vofs < *iit; ++vofs) {
-			if (!*iit) {
-				continue;
-			}
-			const size_t next = (vofs+1)%*iit;
-			const IfcVector3& v = in[vidx+vofs], &vnext = in[vidx+next],&vd = (vnext-v).Normalize();
-
-			for(size_t outer = 0; outer < *outer_polygon; ++outer) {
-				const IfcVector3& o = in[outer_polygon_start+outer], &onext = in[outer_polygon_start+(outer+1)%*outer_polygon], &od = (onext-o).Normalize();
-
-				if (fabs(vd * od) > 1.f-1e-6f && (onext-v).Normalize() * vd > 1.f-1e-6f && (onext-v)*(o-v) < 0) {
-					IFCImporter::LogDebug("got an inner hole that lies partly on the outer polygonal boundary, merging them to a single contour");
-
-					// in between outer and outer+1 insert all vertices of this loop, then drop the original altogether.
-					std::vector<IfcVector3> tmp(*iit);
-
-					const size_t start = (v-o).SquareLength() > (vnext-o).SquareLength() ? vofs :  next;
-					std::vector<IfcVector3>::iterator inbase = in.begin()+vidx, it = std::copy(inbase+start, inbase+*iit,tmp.begin());
-					std::copy(inbase, inbase+start,it);
-					std::reverse(tmp.begin(),tmp.end());
-
-					in.insert(in.begin()+outer_polygon_start+(outer+1)%*outer_polygon,tmp.begin(),tmp.end());
-					vidx += outer_polygon_start<vidx ? *iit : 0;
-
-					inbase = in.begin()+vidx;
-					in.erase(inbase,inbase+*iit);
-
-					outer_polygon_start -= outer_polygon_start>vidx ? *iit : 0;
-					
-					*outer_polygon += tmp.size();
-					*iit++ = 0;
-					++removed;
-					goto next_loop;
-				}
-			}
+		// Filter degenerate polygons to keep them from causing trouble later on
+		IfcVector3& n = normals[std::distance(begin,iit)];
+		const IfcFloat area = n.SquareLength();
+		if (area < 1e-5f) {
+			IFCImporter::LogWarn("skipping degenerate polygon (ProcessPolygonBoundaries)");
+			continue;
 		}
+
+		fake_openings.push_back(TempOpening());
+		TempOpening& opening = fake_openings.back();
+
+		opening.extrusionDir = master_normal;
+		opening.solid = NULL;
+
+		opening.profileMesh = boost::make_shared<TempMesh>();
+		opening.profileMesh->verts.reserve(*iit);
+		opening.profileMesh->vertcnt.push_back(*iit);
+
+		std::copy(vit, vit + *iit, std::back_inserter(opening.profileMesh->verts));
 	}
 
-	if ( meshout.vertcnt.size() - removed <= 1) {
-		result.Append(meshout);
-		return;
-	}
+	// fill a mesh with ONLY the main polygon 
+	TempMesh temp;
+	temp.verts.reserve(outer_polygon_size);
+	temp.vertcnt.push_back(outer_polygon_size);
+	std::copy(outer_vit, outer_vit+outer_polygon_size,
+		std::back_inserter(temp.verts));
 
-	// extract the outer boundary and move it to a separate mesh
-	TempMesh boundary;
-	boundary.vertcnt.resize(1,*outer_polygon);
-	boundary.verts.resize(*outer_polygon);
-
-	std::vector<IfcVector3>::iterator b = in.begin()+outer_polygon_start;
-	std::copy(b,b+*outer_polygon,boundary.verts.begin());
-	in.erase(b,b+*outer_polygon);
-
-	std::vector<IfcVector3>::iterator norit = normals.begin()+std::distance(meshout.vertcnt.begin(),outer_polygon);
-	const IfcVector3 nor_boundary = *norit;
-	normals.erase(norit);
-	meshout.vertcnt.erase(outer_polygon);
-
-	// keep merging the closest inner boundary with the outer boundary until no more boundaries are left
-	RecursiveMergeBoundaries(result,meshout,boundary,normals,nor_boundary);
+	TryAddOpenings_Quadrulate(fake_openings, normals, temp);
+	result.Append(temp);
 }
-
 
 // ------------------------------------------------------------------------------------------------
 void ProcessConnectedFaceSet(const IfcConnectedFaceSet& fset, TempMesh& result, ConversionData& conv)
 {
 	BOOST_FOREACH(const IfcFace& face, fset.CfsFaces) {
-
 		// size_t ob = -1, cnt = 0;
 		TempMesh meshout;
 		BOOST_FOREACH(const IfcFaceBound& bound, face.Bounds) {
 			
-			// XXX implement proper merging for polygonal loops
 			if(const IfcPolyLoop* const polyloop = bound.Bound->ToPtr<IfcPolyLoop>()) {
 				if(ProcessPolyloop(*polyloop, meshout,conv)) {
+
+					// The outer boundary is better determined by checking which
+					// polygon covers the largest area.
 
 					//if(bound.ToPtr<IfcFaceOuterBound>()) {
 					//	ob = cnt;
@@ -436,6 +228,9 @@ void ProcessConnectedFaceSet(const IfcConnectedFaceSet& fset, TempMesh& result, 
 				continue;
 			}
 
+			// And this, even though it is sometimes TRUE and sometimes FALSE,
+			// does not really improve results.
+
 			/*if(!IsTrue(bound.Orientation)) {
 				size_t c = 0;
 				BOOST_FOREACH(unsigned int& c, meshout.vertcnt) {
@@ -443,13 +238,10 @@ void ProcessConnectedFaceSet(const IfcConnectedFaceSet& fset, TempMesh& result, 
 					cnt += c;
 				}
 			}*/
-
 		}
-		MergePolygonBoundaries(result,meshout);
+		ProcessPolygonBoundaries(result, meshout);
 	}
 }
-
-
 
 // ------------------------------------------------------------------------------------------------
 void ProcessRevolvedAreaSolid(const IfcRevolvedAreaSolid& solid, TempMesh& result, ConversionData& conv)
@@ -682,10 +474,12 @@ void ProcessSweptDiskSolid(const IfcSweptDiskSolid solid, TempMesh& result, Conv
 }
 
 // ------------------------------------------------------------------------------------------------
-IfcMatrix3 DerivePlaneCoordinateSpace(const TempMesh& curmesh) {
-
+IfcMatrix3 DerivePlaneCoordinateSpace(const TempMesh& curmesh, bool& ok) 
+{
 	const std::vector<IfcVector3>& out = curmesh.verts;
 	IfcMatrix3 m;
+
+	ok = true;
 
 	const size_t s = out.size();
 	assert(curmesh.vertcnt.size() == 1 && curmesh.vertcnt.back() == s);
@@ -693,29 +487,35 @@ IfcMatrix3 DerivePlaneCoordinateSpace(const TempMesh& curmesh) {
 	const IfcVector3 any_point = out[s-1];
 	IfcVector3 nor; 
 
-	// The input polygon is arbitrarily shaped, so we might need some tries
-	// until we find a suitable normal (and it does not even need to be
-	// right in all cases, Newell's algorithm would be the correct one ... ).
+	// The input polygon is arbitrarily shaped, therefore we might need some tries
+	// until we find a suitable normal. Note that Newells algorithm would give
+	// a more robust result, but this variant also gives us a suitable first
+	// axis for the 2D coordinate space on the polygon plane, exploiting the
+	// fact that the input polygon is nearly always a quad.
+	bool done = false;
 	size_t base = s-curmesh.vertcnt.back(), i, j;
-	for (i = base; i < s-1; ++i) {
+	for (i = base; !done && i < s-1; !done && ++i) {
 		for (j = i+1; j < s; ++j) {
 			nor = -((out[i]-any_point)^(out[j]-any_point));
 			if(fabs(nor.Length()) > 1e-8f) {
-				goto out;
+				done = true;
+				break;
 			}
 		}
 	}
 
-	assert(0);
-
-out:
+	if(!done) {
+		ok = false;
+		return m;
+	}
 
 	nor.Normalize();
 
 	IfcVector3 r = (out[i]-any_point);
 	r.Normalize();
 
-	// reconstruct orthonormal basis
+	// Reconstruct orthonormal basis
+	// XXX use Gram Schmidt for increased robustness
 	IfcVector3 u = r ^ nor;
 	u.Normalize();
 
@@ -735,7 +535,8 @@ out:
 }
 
 // ------------------------------------------------------------------------------------------------
-bool TryAddOpenings_Poly2Tri(const std::vector<TempOpening>& openings,const std::vector<IfcVector3>& nors, TempMesh& curmesh)
+bool TryAddOpenings_Poly2Tri(const std::vector<TempOpening>& openings,const std::vector<IfcVector3>& nors, 
+	TempMesh& curmesh)
 {
 	std::vector<IfcVector3>& out = curmesh.verts;
 
@@ -743,7 +544,12 @@ bool TryAddOpenings_Poly2Tri(const std::vector<TempOpening>& openings,const std:
 
 	// Try to derive a solid base plane within the current surface for use as 
 	// working coordinate system. 
-	const IfcMatrix3& m = DerivePlaneCoordinateSpace(curmesh);
+	bool ok;
+	const IfcMatrix3& m = DerivePlaneCoordinateSpace(curmesh, ok);
+	if (!ok) {
+		return false;
+	}
+
 	const IfcMatrix3 minv = IfcMatrix3(m).Inverse();
 	const IfcVector3& nor = IfcVector3(m.c1, m.c2, m.c3);
 
@@ -1049,7 +855,8 @@ typedef std::map<IfcVector2,size_t,XYSorter> XYSortedField;
 
 
 // ------------------------------------------------------------------------------------------------
-void QuadrifyPart(const IfcVector2& pmin, const IfcVector2& pmax, XYSortedField& field, const std::vector< BoundingBox >& bbs, 
+void QuadrifyPart(const IfcVector2& pmin, const IfcVector2& pmax, XYSortedField& field, 
+	const std::vector< BoundingBox >& bbs, 
 	std::vector<IfcVector2>& out)
 {
 	if (!(pmin.x-pmax.x) || !(pmin.y-pmax.y)) {
@@ -1108,7 +915,7 @@ void QuadrifyPart(const IfcVector2& pmin, const IfcVector2& pmax, XYSortedField&
 
 			found = true;
 			const IfcFloat ys = std::max(bb.first.y,pmin.y), ye = std::min(bb.second.y,pmax.y);
-			if (ys - ylast) {
+			if (ys - ylast > 0.0f) {
 				QuadrifyPart( IfcVector2(xs,ylast), IfcVector2(xe,ys) ,field,bbs,out);
 			}
 
@@ -1139,15 +946,13 @@ void QuadrifyPart(const IfcVector2& pmin, const IfcVector2& pmax, XYSortedField&
 	}
 }
 
+typedef std::vector< std::vector<IfcVector2> > ContourVector;
+
 // ------------------------------------------------------------------------------------------------
 void InsertWindowContours(const std::vector< BoundingBox >& bbs,
-	const std::vector< std::vector<IfcVector2> >& contours,
+	const ContourVector& contours,
 	const std::vector<TempOpening>& openings,
-	const std::vector<IfcVector3>& nors, 
-	const IfcMatrix3& minv,
-	const IfcVector2& scale,
-	const IfcVector2& offset,
-	IfcFloat coord,
+	const IfcMatrix4& minv,
 	TempMesh& curmesh)
 {
 	ai_assert(contours.size() == bbs.size());
@@ -1156,6 +961,9 @@ void InsertWindowContours(const std::vector< BoundingBox >& bbs,
 	for(size_t i = 0; i < contours.size();++i) {
 		const BoundingBox& bb = bbs[i];
 		const std::vector<IfcVector2>& contour = contours[i];
+		if(contour.empty()) {
+			continue;
+		}
 
 		// check if we need to do it at all - many windows just fit perfectly into their quadratic holes,
 		// i.e. their contours *are* already their bounding boxes.
@@ -1223,7 +1031,7 @@ void InsertWindowContours(const std::vector< BoundingBox >& bbs,
 						if ((contour[a] - edge).SquareLength() > diag*diag*0.7) {
 							continue;
 						}
-						const IfcVector3 v3 = minv * IfcVector3(offset.x + contour[a].x * scale.x, offset.y + contour[a].y * scale.y,coord);
+						const IfcVector3 v3 = minv * IfcVector3(contour[a].x, contour[a].y, 0.0f);
 						curmesh.verts.push_back(v3);
 					}
 
@@ -1245,7 +1053,7 @@ void InsertWindowContours(const std::vector< BoundingBox >& bbs,
 							corner.y = bb.second.y;
 						}
 
-						const IfcVector3 v3 = minv * IfcVector3(offset.x + corner.x * scale.x, offset.y + corner.y * scale.y,coord);
+						const IfcVector3 v3 = minv * IfcVector3(corner.x, corner.y, 0.0f);
 						curmesh.verts.push_back(v3);
 					}
 					else if (cnt == 1) {
@@ -1272,7 +1080,9 @@ void InsertWindowContours(const std::vector< BoundingBox >& bbs,
 }
 
 // ------------------------------------------------------------------------------------------------
-void MergeContours (const std::vector<IfcVector2>& a, const std::vector<IfcVector2>& b, ClipperLib::ExPolygons& out) 
+void MergeWindowContours (const std::vector<IfcVector2>& a, 
+	const std::vector<IfcVector2>& b, 
+	ClipperLib::ExPolygons& out) 
 {
 	ClipperLib::Clipper clipper;
 	ClipperLib::Polygon clip;
@@ -1301,164 +1111,59 @@ void MergeContours (const std::vector<IfcVector2>& a, const std::vector<IfcVecto
 }
 
 // ------------------------------------------------------------------------------------------------
-bool TryAddOpenings_Quadrulate(const std::vector<TempOpening>& openings,const std::vector<IfcVector3>& nors, TempMesh& curmesh)
+void CleanupWindowContours(ContourVector& contours)
 {
-	std::vector<IfcVector3>& out = curmesh.verts;
+	std::vector<IfcVector2> scratch;
 
-	// Try to derive a solid base plane within the current surface for use as 
-	// working coordinate system. 
-	const IfcMatrix3& m = DerivePlaneCoordinateSpace(curmesh);
-	const IfcMatrix3 minv = IfcMatrix3(m).Inverse();
-	const IfcVector3& nor = IfcVector3(m.c1, m.c2, m.c3);
+	// use polyclipper to clean up window contours as well
+	try {
+		BOOST_FOREACH(std::vector<IfcVector2>& contour, contours) {
+			ClipperLib::Polygon subject;
+			ClipperLib::Clipper clipper;
+			ClipperLib::ExPolygons clipped;
 
-	IfcFloat coord = -1;
+			BOOST_FOREACH(const IfcVector2& pip, contour) {
+				subject.push_back(ClipperLib::IntPoint(  to_int64(pip.x), to_int64(pip.y) ));
+			}
 
-	std::vector<IfcVector2> contour_flat;
-	contour_flat.reserve(out.size());
+			clipper.AddPolygon(subject,ClipperLib::ptSubject);
+			clipper.Execute(ClipperLib::ctUnion,clipped,ClipperLib::pftNonZero,ClipperLib::pftNonZero);
 
-	IfcVector2 vmin, vmax;
-	MinMaxChooser<IfcVector2>()(vmin, vmax);
+			// this should yield only one polygon or something went wrong 
+			if (clipped.size() != 1) {
 
-	// Move all points into the new coordinate system, collecting min/max verts on the way
-	BOOST_FOREACH(IfcVector3& x, out) {
-		const IfcVector3 vv = m * x;
-
-		// keep Z offset in the plane coordinate system. Ignoring precision issues
-		// (which  are present, of course), this should be the same value for
-		// all polygon vertices (assuming the polygon is planar).
-
-
-		// XXX this should be guarded, but we somehow need to pick a suitable
-		// epsilon
-		// if(coord != -1.0f) {
-		//	assert(fabs(coord - vv.z) < 1e-3f);
-		// }
-
-		coord = vv.z;
-		vmin = std::min(IfcVector2(vv.x, vv.y), vmin);
-		vmax = std::max(IfcVector2(vv.x, vv.y), vmax);
-
-		contour_flat.push_back(IfcVector2(vv.x,vv.y));
-	}
-
-	// With the current code in DerivePlaneCoordinateSpace, 
-	// vmin,vmax should always be the 0...1 rectangle (+- numeric inaccuracies) 
-	// but here we won't rely on this.
-
-	vmax -= vmin;
-	BOOST_FOREACH(IfcVector2& vv, contour_flat) {
-		vv.x  = (vv.x - vmin.x) / vmax.x;
-		vv.y  = (vv.y - vmin.y) / vmax.y;
-	}
-
-	// project all points into the coordinate system defined by the p+sv*tu plane
-	// and compute bounding boxes for them
-	std::vector< BoundingBox > bbs;
-	std::vector< std::vector<IfcVector2> > contours;
-
-	size_t c = 0;
-	BOOST_FOREACH(const TempOpening& t,openings) {
-		const IfcVector3& outernor = nors[c++];
-		const IfcFloat dot = nor * outernor;
-		if (fabs(dot)<1.f-1e-6f) {
-			continue;
-		}
-
-		const std::vector<IfcVector3>& va = t.profileMesh->verts;
-		if(va.size() <= 2) {
-			continue;	
-		}
-
-		IfcVector2 vpmin,vpmax;
-		MinMaxChooser<IfcVector2>()(vpmin,vpmax);
-
-		std::vector<IfcVector2> contour;
-
-		BOOST_FOREACH(const IfcVector3& x, t.profileMesh->verts) {
-			const IfcVector3 v = m * x;
-			
-			IfcVector2 vv(v.x, v.y);
-
-			// rescale
-			vv.x  = (vv.x - vmin.x) / vmax.x;
-			vv.y  = (vv.y - vmin.y) / vmax.y;
-
-			vpmin = std::min(vpmin,vv);
-			vpmax = std::max(vpmax,vv);
-
-			contour.push_back(vv);
-		}
-	
-		BoundingBox bb = BoundingBox(vpmin,vpmax);
-
-		// see if this BB intersects any other, in which case we could not use the Quadrify()
-		// algorithm and would revert to Poly2Tri only.
-		for (std::vector<BoundingBox>::iterator it = bbs.begin(); it != bbs.end();) {
-			const BoundingBox& ibb = *it;
-
-			if (ibb.first.x < bb.second.x && ibb.second.x > bb.first.x &&
-				ibb.first.y < bb.second.y && ibb.second.y > bb.second.x) {
-
-				// take these two contours and try to merge them. If they overlap (which 
-				// should not happen, but in fact happens-in-the-real-world [tm] ),
-				// resume using a single contour and a single bounding box.
-				const std::vector<IfcVector2>& other = contours[std::distance(bbs.begin(),it)];
-
-				ClipperLib::ExPolygons poly;
-				MergeContours(contour, other, poly);
-
-				if (poly.size() > 1) {
-					IFCImporter::LogWarn("cannot use quadrify algorithm to generate wall openings due to "  
-						"bounding box overlaps, using poly2tri fallback");
-					return TryAddOpenings_Poly2Tri(openings, nors, curmesh);
-				}
-				else if (poly.size() == 0) {
-					IFCImporter::LogWarn("ignoring duplicate opening");
+				// empty polygon? drop the contour altogether
+				if(clipped.empty()) {
+					IFCImporter::LogError("error during polygon clipping, window contour is degenerate");
 					contour.clear();
-					break;
-				}
-				else {
-					IFCImporter::LogDebug("merging oberlapping openings, this should not happen");
-
-					contour.clear();
-					BOOST_FOREACH(const ClipperLib::IntPoint& point, poly[0].outer) {
-						contour.push_back( IfcVector2( from_int64(point.X), from_int64(point.Y)));
-					}
-
-					bb.first = std::min(bb.first, ibb.first);
-					bb.second = std::max(bb.second, ibb.second);
-
-					contours.erase(contours.begin() + std::distance(bbs.begin(),it));
-					it = bbs.erase(it);
 					continue;
 				}
+
+				// else: take only the first ...
+				IFCImporter::LogError("error during polygon clipping, window contour is not convex");
 			}
-			++it;
-		}
 
-		if(contour.size()) {
-			contours.push_back(contour);
-			bbs.push_back(bb);
+			scratch.clear();
+			BOOST_FOREACH(const ClipperLib::IntPoint& point, clipped[0].outer) {
+				IfcVector2 vv = IfcVector2(from_int64(point.X), from_int64(point.Y));
+				vv = std::max(vv,IfcVector2());
+				vv = std::min(vv,one_vec);
+				scratch.push_back( vv );
+			}
+			contour.swap(scratch);
 		}
 	}
-
-	if (bbs.empty()) {
-		return false;
+	catch (const char* sx) {
+		IFCImporter::LogError("error during polygon clipping, window shape may be wrong: (Clipper: " 
+			+ std::string(sx) + ")");
 	}
+}
 
-	XYSortedField field;
-	for (std::vector<BoundingBox>::iterator it = bbs.begin(); it != bbs.end(); ++it) {
-		if (field.find((*it).first) != field.end()) {
-			IFCImporter::LogWarn("constraint failure during generation of wall openings, results may be faulty");
-		}
-		field[(*it).first] = std::distance(bbs.begin(),it);
-	}
-
-	std::vector<IfcVector2> outflat;
-	outflat.reserve(openings.size()*4);
-	QuadrifyPart(IfcVector2(0.f,0.f),IfcVector2(1.f,1.f),field,bbs,outflat);
-	ai_assert(!(outflat.size() % 4));
-
+// ------------------------------------------------------------------------------------------------
+void CleanupOuterContour(const std::vector<IfcVector2>& contour_flat, TempMesh& curmesh, 
+	const IfcMatrix4& minv,
+	const std::vector<IfcVector2>& outflat)
+{
 	std::vector<IfcVector3> vold;
 	std::vector<unsigned int> iold;
 
@@ -1467,7 +1172,7 @@ bool TryAddOpenings_Quadrulate(const std::vector<TempOpening>& openings,const st
 
 	// Fix the outer contour using polyclipper
 	try {
-		
+
 		ClipperLib::Polygon subject;
 		ClipperLib::Clipper clipper;
 		ClipperLib::ExPolygons clipped;
@@ -1493,7 +1198,7 @@ bool TryAddOpenings_Quadrulate(const std::vector<TempOpening>& openings,const st
 				if (!ClipperLib::Orientation(subject)) {
 					std::reverse(subject.begin(), subject.end());
 				}
-				
+
 				clipper.AddPolygon(subject,ClipperLib::ptSubject);
 				clipper.AddPolygon(clip,ClipperLib::ptClip);
 
@@ -1503,9 +1208,9 @@ bool TryAddOpenings_Quadrulate(const std::vector<TempOpening>& openings,const st
 					iold.push_back(ex.outer.size());
 					BOOST_FOREACH(const ClipperLib::IntPoint& point, ex.outer) {
 						vold.push_back( minv * IfcVector3(
-							vmin.x + from_int64(point.X) * vmax.x, 
-							vmin.y + from_int64(point.Y) * vmax.y,
-							coord));
+							from_int64(point.X), 
+							from_int64(point.Y),
+							0.0f));
 					}
 				}
 
@@ -1518,28 +1223,336 @@ bool TryAddOpenings_Quadrulate(const std::vector<TempOpening>& openings,const st
 		assert(!(cnt % 4));
 	}
 	catch (const char* sx) {
-		IFCImporter::LogError("Ifc: error during polygon clipping, contour line may be wrong: (Clipper: " 
+		IFCImporter::LogError("Ifc: error during polygon clipping, wall contour line may be wrong: (Clipper: " 
 			+ std::string(sx) + ")");
 
 		iold.resize(outflat.size()/4,4);
 
 		BOOST_FOREACH(const IfcVector2& vproj, outflat) {
-			const IfcVector3 v3 = minv * IfcVector3(vmin.x + vproj.x * vmax.x, vmin.y + vproj.y * vmax.y,coord);
+			const IfcVector3 v3 = minv * IfcVector3(vproj.x, vproj.y, static_cast<IfcFloat>(0.0));
 			vold.push_back(v3);
 		}
 	}
 
-	// undo the projection, generate output quads
+	// swap data arrays
 	std::swap(vold,curmesh.verts);
 	std::swap(iold,curmesh.vertcnt);
+}
 
-	InsertWindowContours(bbs,contours,openings, nors,minv,vmax, vmin, coord, curmesh);
+typedef std::vector<TempOpening*> OpeningRefs;
+typedef std::vector<OpeningRefs > OpeningRefVector;
+
+// ------------------------------------------------------------------------------------------------
+void CloseWindows(const ContourVector& contours, const IfcMatrix4& minv, 
+	OpeningRefVector contours_to_openings, 
+	TempMesh& curmesh)
+{
+	// For all contour points, check if one of the assigned openings does
+	// already have points assigned to it. In this case, assume this is
+	// the second side of the wall and generate connections between
+	// the two holes in order to close the window margin. 
+
+	// All this gets complicated by the fact that contours may pertain to
+	// multiple openings. The code is based on the assumption that this
+	// relationship is identical on both sides of the wall. If this is
+	// not the case, wrong geometry may be generated.
+	for (ContourVector::const_iterator it = contours.begin(), end = contours.end(); it != end; ++it) {
+		if ((*it).empty()) {
+			continue;
+		}
+		OpeningRefs& refs = contours_to_openings[std::distance(contours.begin(), it)];
+
+		bool has_other_side = false;
+		BOOST_FOREACH(const TempOpening* opening, refs) {
+			if(!opening->wallPoints.empty()) {
+				has_other_side = true;
+				break;
+			}
+		}
+
+		const ContourVector::value_type::const_iterator cbegin = (*it).begin(), cend = (*it).end();
+
+		if (has_other_side) {
+			// XXX this algorithm is really a bit inefficient - both in terms
+			// of constant factor and of asymptotic runtime.
+			std::vector<IfcVector3>::const_iterator vstart;
+			for (ContourVector::value_type::const_iterator cit = cbegin; cit != cend; ++cit) {
+
+				const IfcVector2& proj_point = *cit;
+				const IfcVector3& world_point = minv * IfcVector3(proj_point.x,proj_point.y,0.0f);
+
+				unsigned int i = 0;
+				IfcFloat best = static_cast<IfcFloat>(1e10);
+				IfcVector3 bestv;
+
+				BOOST_FOREACH(const TempOpening* opening, refs) {
+					BOOST_FOREACH(const IfcVector3& other, opening->wallPoints) {
+						const IfcFloat sqdist = (world_point - other).SquareLength();
+						if (sqdist < best) {
+							bestv = other;
+							best = sqdist;
+						}
+						++i;
+					}
+				}
+
+				curmesh.verts.push_back(world_point);
+				curmesh.verts.push_back(bestv);
+
+				curmesh.vertcnt.push_back(4);
+
+				if (cit != cbegin) {
+
+					curmesh.verts.push_back(world_point);
+					curmesh.verts.push_back(bestv);
+
+					if (cit == cend - 1) {
+						curmesh.verts.push_back(*(vstart));
+						curmesh.verts.push_back(*(vstart+1));
+					}
+				}
+				else {
+					vstart = curmesh.verts.end() - 2;
+				}
+			}
+		}
+		else {
+			BOOST_FOREACH(TempOpening* opening, refs) {
+				opening->wallPoints.reserve(opening->wallPoints.capacity() + (*it).size());
+				for (ContourVector::value_type::const_iterator cit = cbegin; cit != cend; ++cit) {
+
+					const IfcVector2& proj_point = *cit;
+					opening->wallPoints.push_back(minv * IfcVector3(proj_point.x,proj_point.y,0.0f));
+				}
+			}
+		}
+	}
+}
+
+// ------------------------------------------------------------------------------------------------
+bool TryAddOpenings_Quadrulate(std::vector<TempOpening>& openings,
+	const std::vector<IfcVector3>& nors, 
+	TempMesh& curmesh)
+{
+	std::vector<IfcVector3>& out = curmesh.verts;
+	OpeningRefVector contours_to_openings;
+
+	// Try to derive a solid base plane within the current surface for use as 
+	// working coordinate system. 
+	bool ok;
+	IfcMatrix4 m = IfcMatrix4(DerivePlaneCoordinateSpace(curmesh,ok));
+	if(!ok) {
+		return false;
+	}
+	const IfcVector3& nor = IfcVector3(m.c1, m.c2, m.c3);
+
+	IfcFloat coord = -1;
+
+	std::vector<IfcVector2> contour_flat;
+	contour_flat.reserve(out.size());
+
+	IfcVector2 vmin, vmax;
+	MinMaxChooser<IfcVector2>()(vmin, vmax);
+
+	// Move all points into the new coordinate system, collecting min/max verts on the way
+	BOOST_FOREACH(IfcVector3& x, out) {
+		const IfcVector3& vv = m * x;
+		// keep Z offset in the plane coordinate system. Ignoring precision issues
+		// (which  are present, of course), this should be the same value for
+		// all polygon vertices (assuming the polygon is planar).
+
+		// XXX this should be guarded, but we somehow need to pick a suitable
+		// epsilon
+		// if(coord != -1.0f) {
+		//	assert(fabs(coord - vv.z) < 1e-3f);
+		// }
+		coord = vv.z;
+		vmin = std::min(IfcVector2(vv.x, vv.y), vmin);
+		vmax = std::max(IfcVector2(vv.x, vv.y), vmax);
+
+		contour_flat.push_back(IfcVector2(vv.x,vv.y));
+	}
+
+	// Further improve the projection by mapping the entire working set into
+	// [0,1] range
+	vmax -= vmin;
+	BOOST_FOREACH(IfcVector2& vv, contour_flat) {
+		vv.x  = (vv.x - vmin.x) / vmax.x;
+		vv.y  = (vv.y - vmin.y) / vmax.y;
+
+		// sanity rounding
+		vv = std::max(vv,IfcVector2());
+		vv = std::min(vv,one_vec);
+	}
+
+	IfcMatrix4 mult;
+	mult.a1 = static_cast<IfcFloat>(1.0) / vmax.x;
+	mult.b2 = static_cast<IfcFloat>(1.0) / vmax.y;
+
+	mult.a4 = -vmin.x * mult.a1;
+	mult.b4 = -vmin.y * mult.b2;
+	mult.c4 = -coord;
+	m = mult * m;
+
+	// Obtain inverse transform for getting back
+	const IfcMatrix4& minv = IfcMatrix4(m).Inverse();
+
+	// Compute bounding boxes for the projections of all openings
+	std::vector< BoundingBox > bbs;
+	ContourVector contours;
+
+	size_t c = 0;
+	BOOST_FOREACH(TempOpening& opening,openings) {
+		std::vector<IfcVector3> profile_verts = opening.profileMesh->verts;
+		std::vector<unsigned int> profile_vertcnts = opening.profileMesh->vertcnt;
+		if(profile_verts.size() <= 2) {
+			continue;	
+		}
+
+		IfcVector2 vpmin,vpmax;
+		MinMaxChooser<IfcVector2>()(vpmin,vpmax);
+
+		// The opening meshes are real 3D meshes so skip over all faces
+		// clearly facing into the wrong direction.
+		std::vector<IfcVector2> contour;
+		for (size_t f = 0, vi_total = 0, fend = profile_vertcnts.size(); f < fend; ++f) {
+
+			const IfcVector3& face_nor = ((profile_verts[vi_total+2] - profile_verts[vi_total]) ^
+				(profile_verts[vi_total+1] - profile_verts[vi_total])).Normalize();
+
+			const IfcFloat abs_dot_face_nor = abs(nor * face_nor);
+			if (abs_dot_face_nor < 0.5) {
+				vi_total += profile_vertcnts[f];
+				continue;
+			}
+
+			for (unsigned int vi = 0, vend = profile_vertcnts[f]; vi < vend; ++vi, ++vi_total) {
+				const IfcVector3& x = profile_verts[vi_total];
+
+				const IfcVector3& v = m * x;
+				IfcVector2 vv(v.x, v.y);
+
+				// sanity rounding
+				vv = std::max(vv,IfcVector2());
+				vv = std::min(vv,one_vec);
+
+				vpmin = std::min(vpmin,vv);
+				vpmax = std::max(vpmax,vv);
+
+				contour.push_back(vv);
+			}
+		}
+
+		if(contour.size() <= 2) {
+			continue;
+		}
+
+		BoundingBox bb = BoundingBox(vpmin,vpmax);
+
+		// Skip over very small openings - these are likely projection errors
+		// (i.e. they don't belong to this side of the wall)
+		if(fabs(vpmax.x - vpmin.x) * fabs(vpmax.y - vpmin.y) < static_cast<IfcFloat>(1e-5)) {
+			continue;
+		}
+		std::vector<TempOpening*> joined_openings(1, &opening);
+
+		// See if this BB intersects any other, in which case we could not use the Quadrify()
+		// algorithm and would revert to Poly2Tri only.
+		for (std::vector<BoundingBox>::iterator it = bbs.begin(); it != bbs.end();) {
+			const BoundingBox& ibb = *it;
+
+			if (ibb.first.x <= bb.second.x && ibb.second.x >= bb.first.x &&
+				ibb.first.y <= bb.second.y && ibb.second.y >= bb.second.x) {
+
+				// Take these two contours and try to merge them. If they overlap (which 
+				// should not happen, but in fact happens-in-the-real-world [tm] ),
+				// resume using a single contour and a single bounding box.
+				const std::vector<IfcVector2>& other = contours[std::distance(bbs.begin(),it)];
+
+				ClipperLib::ExPolygons poly;
+				MergeWindowContours(contour, other, poly);
+
+				if (poly.size() > 1) {
+					IFCImporter::LogWarn("cannot use quadrify algorithm to generate wall openings due to "  
+						"bounding box overlaps, using poly2tri fallback method");
+					return TryAddOpenings_Poly2Tri(openings, nors, curmesh);
+				}
+				else if (poly.size() == 0) {
+					IFCImporter::LogWarn("ignoring duplicate opening");
+					contour.clear();
+					break;
+				}
+				else {
+					IFCImporter::LogDebug("merging overlapping openings");
+
+					contour.clear();
+					BOOST_FOREACH(const ClipperLib::IntPoint& point, poly[0].outer) {
+						IfcVector2 vv = IfcVector2( from_int64(point.X), from_int64(point.Y));
+						vv = std::max(vv,IfcVector2());
+						vv = std::min(vv,one_vec);
+
+						contour.push_back( vv );
+					}
+
+					bb.first = std::min(bb.first, ibb.first);
+					bb.second = std::max(bb.second, ibb.second);
+
+					std::vector<TempOpening*>& t = contours_to_openings[std::distance(bbs.begin(),it)]; 
+					joined_openings.insert(joined_openings.end(), t.begin(), t.end());
+
+					contours_to_openings.erase(contours_to_openings.begin() + std::distance(bbs.begin(),it));
+					contours.erase(contours.begin() + std::distance(bbs.begin(),it));
+					it = bbs.erase(it);
+					continue;
+				}
+			}
+			++it;
+		}
+
+		if(!contour.empty()) {
+			contours_to_openings.push_back(std::vector<TempOpening*>(
+				joined_openings.begin(),
+				joined_openings.end()));
+
+			contours.push_back(contour);
+			bbs.push_back(bb);
+		}
+	}
+
+	if (bbs.empty()) {
+		return false;
+	}
+
+	XYSortedField field;
+	for (std::vector<BoundingBox>::iterator it = bbs.begin(); it != bbs.end(); ++it) {
+		if (field.find((*it).first) != field.end()) {
+			IFCImporter::LogWarn("constraint failure during generation of wall openings, results may be faulty");
+		}
+		field[(*it).first] = std::distance(bbs.begin(),it);
+	}
+
+	std::vector<IfcVector2> outflat;
+	outflat.reserve(openings.size()*4);
+	QuadrifyPart(IfcVector2(0.f,0.f),IfcVector2(1.f,1.f),field,bbs,outflat);
+	ai_assert(!(outflat.size() % 4));
+
+	CleanupOuterContour(contour_flat, curmesh, minv,outflat);
+	CleanupWindowContours(contours);
+	InsertWindowContours(bbs,contours,openings, minv,curmesh);
+	
+	// This should connect the window openings on both sides of the wall,
+	// but it produces lots of artifacts which are not resolved yet.
+	// Most of all, it makes all cases in which adjacent openings are
+	// not correctly merged together glaringly obvious.
+
+	// CloseWindows(contours, minv, contours_to_openings, curmesh);
 	return true;
 }
 
 
 // ------------------------------------------------------------------------------------------------
-void ProcessExtrudedAreaSolid(const IfcExtrudedAreaSolid& solid, TempMesh& result, ConversionData& conv)
+void ProcessExtrudedAreaSolid(const IfcExtrudedAreaSolid& solid, TempMesh& result, 
+	ConversionData& conv)
 {
 	TempMesh meshout;
 	
@@ -1581,11 +1594,13 @@ void ProcessExtrudedAreaSolid(const IfcExtrudedAreaSolid& solid, TempMesh& resul
 	IfcVector3 min = in[0];
 	dir *= IfcMatrix3(trafo);
 
+
 	std::vector<IfcVector3> nors;
 	const bool openings = !!conv.apply_openings && conv.apply_openings->size();
 	
 	// Compute the normal vectors for all opening polygons as a prerequisite
 	// to TryAddOpenings_Poly2Tri()
+	// XXX this belongs into the aforementioned function
 	if (openings) {
 
 		if (!conv.settings.useCustomTriangulation) {	         
@@ -1654,7 +1669,6 @@ void ProcessExtrudedAreaSolid(const IfcExtrudedAreaSolid& solid, TempMesh& resul
 		}
 	}
 
-
 	if(openings && ((sides_with_openings != 2 && sides_with_openings) || (sides_with_v_openings != 2 && sides_with_v_openings))) {
 		IFCImporter::LogWarn("failed to resolve all openings, presumably their topology is not supported by Assimp");
 	}
@@ -1662,25 +1676,20 @@ void ProcessExtrudedAreaSolid(const IfcExtrudedAreaSolid& solid, TempMesh& resul
 	IFCImporter::LogDebug("generate mesh procedurally by extrusion (IfcExtrudedAreaSolid)");
 }
 
-
-
 // ------------------------------------------------------------------------------------------------
-void ProcessSweptAreaSolid(const IfcSweptAreaSolid& swept, TempMesh& meshout, ConversionData& conv)
+void ProcessSweptAreaSolid(const IfcSweptAreaSolid& swept, TempMesh& meshout, 
+	ConversionData& conv)
 {
 	if(const IfcExtrudedAreaSolid* const solid = swept.ToPtr<IfcExtrudedAreaSolid>()) {
 		// Do we just collect openings for a parent element (i.e. a wall)? 
-		// In this case we don't extrude the surface yet, just keep the profile and transform it correctly
+		// In such a case, we generate the polygonal extrusion mesh as usual,
+		// but attach it to a TempOpening instance which will later be applied
+		// to the wall it pertains to.
 		if(conv.collect_openings) {
 			boost::shared_ptr<TempMesh> meshtmp(new TempMesh());
-			ProcessProfile(swept.SweptArea,*meshtmp,conv);
+			ProcessExtrudedAreaSolid(*solid,*meshtmp,conv);
 
-			IfcMatrix4 m;
-			ConvertAxisPlacement(m,solid->Position);
-			meshtmp->Transform(m);
-
-			IfcVector3 dir;
-			ConvertDirection(dir,solid->ExtrudedDirection);
-			conv.collect_openings->push_back(TempOpening(solid, IfcMatrix3(m) * (dir*static_cast<IfcFloat>(solid->Depth)),meshtmp));
+			conv.collect_openings->push_back(TempOpening(solid,IfcVector3(0,0,0),meshtmp));
 			return;
 		}
 
@@ -1694,7 +1703,6 @@ void ProcessSweptAreaSolid(const IfcSweptAreaSolid& swept, TempMesh& meshout, Co
 	}
 }
 
-
 // ------------------------------------------------------------------------------------------------
 enum Intersect {
 	Intersect_No,
@@ -1703,7 +1711,9 @@ enum Intersect {
 };
 
 // ------------------------------------------------------------------------------------------------
-Intersect IntersectSegmentPlane(const IfcVector3& p,const IfcVector3& n, const IfcVector3& e0, const IfcVector3& e1, IfcVector3& out) 
+Intersect IntersectSegmentPlane(const IfcVector3& p,const IfcVector3& n, const IfcVector3& e0, 
+	const IfcVector3& e1, 
+	IfcVector3& out) 
 {
 	const IfcVector3 pdelta = e0 - p, seg = e1-e0;
 	const IfcFloat dotOne = n*seg, dotTwo = -(n*pdelta);
@@ -1722,128 +1732,208 @@ Intersect IntersectSegmentPlane(const IfcVector3& p,const IfcVector3& n, const I
 }
 
 // ------------------------------------------------------------------------------------------------
+void ProcessBooleanHalfSpaceDifference(const IfcHalfSpaceSolid* hs, TempMesh& result, 
+	const TempMesh& first_operand, 
+	ConversionData& conv)
+{
+	ai_assert(hs != NULL);
+
+	const IfcPlane* const plane = hs->BaseSurface->ToPtr<IfcPlane>();
+	if(!plane) {
+		IFCImporter::LogError("expected IfcPlane as base surface for the IfcHalfSpaceSolid");
+		return;
+	}
+
+	// extract plane base position vector and normal vector
+	IfcVector3 p,n(0.f,0.f,1.f);
+	if (plane->Position->Axis) {
+		ConvertDirection(n,plane->Position->Axis.Get());
+	}
+	ConvertCartesianPoint(p,plane->Position->Location);
+
+	if(!IsTrue(hs->AgreementFlag)) {
+		n *= -1.f;
+	}
+
+	// clip the current contents of `meshout` against the plane we obtained from the second operand
+	const std::vector<IfcVector3>& in = first_operand.verts;
+	std::vector<IfcVector3>& outvert = result.verts;
+
+	std::vector<unsigned int>::const_iterator begin = first_operand.vertcnt.begin(), 
+		end = first_operand.vertcnt.end(), iit;
+
+	outvert.reserve(in.size());
+	result.vertcnt.reserve(first_operand.vertcnt.size());
+
+	unsigned int vidx = 0;
+	for(iit = begin; iit != end; vidx += *iit++) {
+
+		unsigned int newcount = 0;
+		for(unsigned int i = 0; i < *iit; ++i) {
+			const IfcVector3& e0 = in[vidx+i], e1 = in[vidx+(i+1)%*iit];
+
+			// does the next segment intersect the plane?
+			IfcVector3 isectpos;
+			const Intersect isect = IntersectSegmentPlane(p,n,e0,e1,isectpos);
+			if (isect == Intersect_No || isect == Intersect_LiesOnPlane) {
+				if ( (e0-p).Normalize()*n > 0 ) {
+					outvert.push_back(e0);
+					++newcount;
+				}
+			}
+			else if (isect == Intersect_Yes) {
+				if ( (e0-p).Normalize()*n > 0 ) {
+					// e0 is on the right side, so keep it 
+					outvert.push_back(e0);
+					outvert.push_back(isectpos);
+					newcount += 2;
+				}
+				else {
+					// e0 is on the wrong side, so drop it and keep e1 instead
+					outvert.push_back(isectpos);
+					++newcount;
+				}
+			}
+		}	
+
+		if (!newcount) {
+			continue;
+		}
+
+		IfcVector3 vmin,vmax;
+		ArrayBounds(&*(outvert.end()-newcount),newcount,vmin,vmax);
+
+		// filter our IfcFloat points - those may happen if a point lies
+		// directly on the intersection line. However, due to IfcFloat
+		// precision a bitwise comparison is not feasible to detect
+		// this case.
+		const IfcFloat epsilon = (vmax-vmin).SquareLength() / 1e6f;
+		FuzzyVectorCompare fz(epsilon);
+
+		std::vector<IfcVector3>::iterator e = std::unique( outvert.end()-newcount, outvert.end(), fz );
+
+		if (e != outvert.end()) {
+			newcount -= static_cast<unsigned int>(std::distance(e,outvert.end()));
+			outvert.erase(e,outvert.end());
+		}
+		if (fz(*( outvert.end()-newcount),outvert.back())) {
+			outvert.pop_back();
+			--newcount;
+		}
+		if(newcount > 2) {
+			result.vertcnt.push_back(newcount);
+		}
+		else while(newcount-->0) {
+			result.verts.pop_back();
+		}
+
+	}
+	IFCImporter::LogDebug("generating CSG geometry by plane clipping (IfcBooleanClippingResult)");
+}
+
+// ------------------------------------------------------------------------------------------------
+void ProcessBooleanExtrudedAreaSolidDifference(const IfcExtrudedAreaSolid* as, TempMesh& result, 
+   const TempMesh& first_operand, 
+   ConversionData& conv)
+{
+	ai_assert(as != NULL);
+
+	// This case is handled by reduction to an instance of the quadrify() algorithm.
+	// Obviously, this won't work for arbitrarily complex cases. In fact, the first
+	// operand should be near-planar. Luckily, this is usually the case in Ifc 
+	// buildings.
+
+	boost::shared_ptr<TempMesh> meshtmp(new TempMesh());
+	ProcessExtrudedAreaSolid(*as,*meshtmp,conv);
+
+	std::vector<TempOpening> openings(1, TempOpening(as,IfcVector3(0,0,0),meshtmp));
+
+	result = first_operand;
+
+	TempMesh temp;
+
+	std::vector<IfcVector3>::const_iterator vit = first_operand.verts.begin();
+	BOOST_FOREACH(unsigned int pcount, first_operand.vertcnt) {
+		temp.Clear();
+
+		temp.verts.insert(temp.verts.end(), vit, vit + pcount);
+		temp.vertcnt.push_back(pcount);
+
+		// The algorithms used to generate mesh geometry sometimes
+		// spit out lines or other degenerates which must be
+		// filtered to avoid running into assertions later on.
+
+		// ComputePolygonNormal returns the Newell normal, so the
+		// length of the normal is the area of the polygon.
+		const IfcVector3& normal = temp.ComputeLastPolygonNormal(false);
+		if (normal.SquareLength() < static_cast<IfcFloat>(1e-5)) {
+			IFCImporter::LogWarn("skipping degenerate polygon (ProcessBooleanExtrudedAreaSolidDifference)");
+			continue;
+		}
+
+		TryAddOpenings_Quadrulate(openings, std::vector<IfcVector3>(1,IfcVector3(1,0,0)), temp);
+		result.Append(temp);
+
+		vit += pcount;
+	}
+
+	IFCImporter::LogDebug("generating CSG geometry by geometric difference to a solid (IfcExtrudedAreaSolid)");
+}
+
+// ------------------------------------------------------------------------------------------------
 void ProcessBoolean(const IfcBooleanResult& boolean, TempMesh& result, ConversionData& conv)
 {
+	// supported CSG operations:
+	//   DIFFERENCE
 	if(const IfcBooleanResult* const clip = boolean.ToPtr<IfcBooleanResult>()) {
 		if(clip->Operator != "DIFFERENCE") {
 			IFCImporter::LogWarn("encountered unsupported boolean operator: " + (std::string)clip->Operator);
 			return;
 		}
 
-		TempMesh meshout;
+		// supported cases (1st operand):
+		//  IfcBooleanResult -- call ProcessBoolean recursively
+		//  IfcSweptAreaSolid -- obtain polygonal geometry first
+
+		// supported cases (2nd operand):
+		//  IfcHalfSpaceSolid -- easy, clip against plane
+		//  IfcExtrudedAreaSolid -- reduce to an instance of the quadrify() algorithm
+
+		
 		const IfcHalfSpaceSolid* const hs = clip->SecondOperand->ResolveSelectPtr<IfcHalfSpaceSolid>(conv.db);
-		if(!hs) {
-			IFCImporter::LogError("expected IfcHalfSpaceSolid as second clipping operand");
+		const IfcExtrudedAreaSolid* const as = clip->SecondOperand->ResolveSelectPtr<IfcExtrudedAreaSolid>(conv.db);
+		if(!hs && !as) {
+			IFCImporter::LogError("expected IfcHalfSpaceSolid or IfcExtrudedAreaSolid as second clipping operand");
 			return;
 		}
 
-		const IfcPlane* const plane = hs->BaseSurface->ToPtr<IfcPlane>();
-		if(!plane) {
-			IFCImporter::LogError("expected IfcPlane as base surface for the IfcHalfSpaceSolid");
-			return;
-		}
-
+		TempMesh first_operand;
 		if(const IfcBooleanResult* const op0 = clip->FirstOperand->ResolveSelectPtr<IfcBooleanResult>(conv.db)) {
-			ProcessBoolean(*op0,meshout,conv);
+			ProcessBoolean(*op0,first_operand,conv);
 		}
 		else if (const IfcSweptAreaSolid* const swept = clip->FirstOperand->ResolveSelectPtr<IfcSweptAreaSolid>(conv.db)) {
-			ProcessSweptAreaSolid(*swept,meshout,conv);
+			ProcessSweptAreaSolid(*swept,first_operand,conv);
 		}
 		else {
 			IFCImporter::LogError("expected IfcSweptAreaSolid or IfcBooleanResult as first clipping operand");
 			return;
 		}
 
-		// extract plane base position vector and normal vector
-		IfcVector3 p,n(0.f,0.f,1.f);
-		if (plane->Position->Axis) {
-			ConvertDirection(n,plane->Position->Axis.Get());
+		if(hs) {
+			ProcessBooleanHalfSpaceDifference(hs, result, first_operand, conv);
 		}
-		ConvertCartesianPoint(p,plane->Position->Location);
-
-		if(!IsTrue(hs->AgreementFlag)) {
-			n *= -1.f;
+		else {
+			ProcessBooleanExtrudedAreaSolidDifference(as, result, first_operand, conv);
 		}
-
-		// clip the current contents of `meshout` against the plane we obtained from the second operand
-		const std::vector<IfcVector3>& in = meshout.verts;
-		std::vector<IfcVector3>& outvert = result.verts;
-		std::vector<unsigned int>::const_iterator begin=meshout.vertcnt.begin(), end=meshout.vertcnt.end(), iit;
-
-		outvert.reserve(in.size());
-		result.vertcnt.reserve(meshout.vertcnt.size());
-
-		unsigned int vidx = 0;
-		for(iit = begin; iit != end; vidx += *iit++) {
-
-			unsigned int newcount = 0;
-			for(unsigned int i = 0; i < *iit; ++i) {
-				const IfcVector3& e0 = in[vidx+i], e1 = in[vidx+(i+1)%*iit];
-
-				// does the next segment intersect the plane?
-				IfcVector3 isectpos;
-				const Intersect isect = IntersectSegmentPlane(p,n,e0,e1,isectpos);
-				if (isect == Intersect_No || isect == Intersect_LiesOnPlane) {
-					if ( (e0-p).Normalize()*n > 0 ) {
-						outvert.push_back(e0);
-						++newcount;
-					}
-				}
-				else if (isect == Intersect_Yes) {
-					if ( (e0-p).Normalize()*n > 0 ) {
-						// e0 is on the right side, so keep it 
-						outvert.push_back(e0);
-						outvert.push_back(isectpos);
-						newcount += 2;
-					}
-					else {
-						// e0 is on the wrong side, so drop it and keep e1 instead
-						outvert.push_back(isectpos);
-						++newcount;
-					}
-				}
-			}	
-
-			if (!newcount) {
-				continue;
-			}
-
-			IfcVector3 vmin,vmax;
-			ArrayBounds(&*(outvert.end()-newcount),newcount,vmin,vmax);
-
-			// filter our IfcFloat points - those may happen if a point lies
-			// directly on the intersection line. However, due to IfcFloat
-			// precision a bitwise comparison is not feasible to detect
-			// this case.
-			const IfcFloat epsilon = (vmax-vmin).SquareLength() / 1e6f;
-			FuzzyVectorCompare fz(epsilon);
-
-			std::vector<IfcVector3>::iterator e = std::unique( outvert.end()-newcount, outvert.end(), fz );
-			if (e != outvert.end()) {
-				newcount -= static_cast<unsigned int>(std::distance(e,outvert.end()));
-				outvert.erase(e,outvert.end());
-			}
-			if (fz(*( outvert.end()-newcount),outvert.back())) {
-				outvert.pop_back();
-				--newcount;
-			}
-			if(newcount > 2) {
-				result.vertcnt.push_back(newcount);
-			}
-			else while(newcount-->0)result.verts.pop_back();
-
-		}
-		IFCImporter::LogDebug("generating CSG geometry by plane clipping (IfcBooleanClippingResult)");
 	}
 	else {
 		IFCImporter::LogWarn("skipping unknown IfcBooleanResult entity, type is " + boolean.GetClassName());
 	}
 }
 
-
-
 // ------------------------------------------------------------------------------------------------
-bool ProcessGeometricItem(const IfcRepresentationItem& geo, std::vector<unsigned int>& mesh_indices, ConversionData& conv)
+bool ProcessGeometricItem(const IfcRepresentationItem& geo, std::vector<unsigned int>& mesh_indices, 
+	ConversionData& conv)
 {
 	bool fix_orientation = true;
 	TempMesh meshtmp; 
@@ -1891,9 +1981,10 @@ bool ProcessGeometricItem(const IfcRepresentationItem& geo, std::vector<unsigned
 	}
 
 	meshtmp.RemoveAdjacentDuplicates();
+	meshtmp.RemoveDegenerates();
 
 	if(fix_orientation) {
-		FixupFaceOrientation(meshtmp);
+		meshtmp.FixupFaceOrientation();
 	}
 
 	aiMesh* const mesh = meshtmp.ToMesh();
@@ -1907,7 +1998,8 @@ bool ProcessGeometricItem(const IfcRepresentationItem& geo, std::vector<unsigned
 }
 
 // ------------------------------------------------------------------------------------------------
-void AssignAddedMeshes(std::vector<unsigned int>& mesh_indices,aiNode* nd,ConversionData& /*conv*/)
+void AssignAddedMeshes(std::vector<unsigned int>& mesh_indices,aiNode* nd,
+	ConversionData& /*conv*/)
 {
 	if (!mesh_indices.empty()) {
 
@@ -1926,7 +2018,9 @@ void AssignAddedMeshes(std::vector<unsigned int>& mesh_indices,aiNode* nd,Conver
 }
 
 // ------------------------------------------------------------------------------------------------
-bool TryQueryMeshCache(const IfcRepresentationItem& item, std::vector<unsigned int>& mesh_indices, ConversionData& conv) 
+bool TryQueryMeshCache(const IfcRepresentationItem& item, 
+	std::vector<unsigned int>& mesh_indices, 
+	ConversionData& conv) 
 {
 	ConversionData::MeshCache::const_iterator it = conv.cached_meshes.find(&item);
 	if (it != conv.cached_meshes.end()) {
@@ -1937,13 +2031,17 @@ bool TryQueryMeshCache(const IfcRepresentationItem& item, std::vector<unsigned i
 }
 
 // ------------------------------------------------------------------------------------------------
-void PopulateMeshCache(const IfcRepresentationItem& item, const std::vector<unsigned int>& mesh_indices, ConversionData& conv)
+void PopulateMeshCache(const IfcRepresentationItem& item, 
+	const std::vector<unsigned int>& mesh_indices, 
+	ConversionData& conv)
 {
 	conv.cached_meshes[&item] = mesh_indices;
 }
 
 // ------------------------------------------------------------------------------------------------
-bool ProcessRepresentationItem(const IfcRepresentationItem& item, std::vector<unsigned int>& mesh_indices, ConversionData& conv)
+bool ProcessRepresentationItem(const IfcRepresentationItem& item, 
+	std::vector<unsigned int>& mesh_indices, 
+	ConversionData& conv)
 {
 	if (!TryQueryMeshCache(item,mesh_indices,conv)) {
 		if(ProcessGeometricItem(item,mesh_indices,conv)) {
@@ -1958,7 +2056,7 @@ bool ProcessRepresentationItem(const IfcRepresentationItem& item, std::vector<un
 
 #undef to_int64
 #undef from_int64
-#undef from_int64_f
+#undef one_vec
 
 } // ! IFC
 } // ! Assimp
