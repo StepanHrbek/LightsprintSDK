@@ -319,6 +319,7 @@ Material formats (1)
 
  Platforms
  - Windows (XP, Vista, 7, 32bit, 64bit)
+ - OSX (10.8.2, 64bit)
  - Linux (32bit, 64bit)
  - Playstation 3
  - Xbox 360
@@ -500,12 +501,9 @@ Material formats (1)
   - www: <a href="http://glew.sourceforge.net/">GLEW</a>
   - license: <a href="http://glew.sourceforge.net/glew.txt">modified BSD license</a>
   - Windows: precompiled version 1.7.0 is a part of SDK
-  - Linux: install using
-    - Ubuntu: <code>sudo apt-get install libglew1.5-dev</code>
-    - Fedora: <code>pkcon install glew-devel</code>
-    - Note that we <code>\#include <GL/glew.h></code>, but SDK contains <code>include/gl/glew.h</code>.
-      This ensures that version we bundle for Windows won't be used on Linux.
-      You can safely install and use different version in your Linux system.
+  - OSX: install with <code>sudo port install glew</code>
+  - Ubuntu: install with <code>sudo apt-get install libglew1.5-dev</code>
+  - Fedora: install with <code>pkcon install glew-devel</code>
   - PS3 Linux:
     - download and unpack the latest source code package
     - type <code>make</code>
@@ -514,7 +512,6 @@ Material formats (1)
       macro <code>GLAPIENTRY</code> which leads to compile errors. As a workaround, open the file
       "/usr/include/GL/glew.h" and comment-out the statement <code>\#undef GLAPIENTRY</code> at line 10767
       (valid for version 1.5.0)
-  - XBox360, PS3 System Software: not used
 
 \page tpl_wx wxWidgets
   \section wx_www Web
@@ -547,12 +544,8 @@ Material formats (1)
 	- \$(WXWIDGETS_DIR)\\lib\\vc80_amd64_lib for vc2005 x64 target
 	- \$(WXWIDGETS_DIR)\\lib\\vc100_lib for vc2010 win32 target
 	- etc
-   - Linux
-    - For now, wxWidgets is not used by Linux port.
-    - When we start using it, obtaining it will be as simple as [example for Ubuntu]:
-      \code
-	sudo apt-get install libwxgtk2.9-dev
-      \endcode
+   - OSX: install with <code>sudo port install wxWidgets-devel</code>
+   - Ubuntu: install with <code>sudo apt-get install libwxgtk2.9-dev</code>
 
   \section wx_removing Removing
    Only for LightsprintGL source code licensees:
@@ -580,12 +573,13 @@ Material formats (1)
 
   \section boost_version Version
    - version 1.49 is used internally by Lightsprint libraries, it's not visible from outside (no headers or dll files)
-   - version known to work without modifications: 1.46 - 1.49
+   - version known to work without modifications: 1.46 - 1.51
 
   \section boost_build Installing/building boost
    You need boost when building Ligtsprint libraries from source code,
    - Windows: <a href="http://www.boost.org/doc/libs/release/more/getting_started/windows.html">installation instructions</a>
-   - Ubuntu: <code>sudo apt-get install libboost-dev libboost-serialization-dev libboost-filesystem-dev</code>
+   - OSX: install with <code>sudo port install boost</code>
+   - Ubuntu: install with <code>sudo apt-get install libboost-dev libboost-serialization-dev libboost-filesystem-dev</code>
 
   \section boost_remove Removing boost
    Boost is good, but if you really must build Lightsprint SDK without it, do
@@ -615,13 +609,9 @@ Material formats (1)
   - license: <a href="http://freeimage.sourceforge.net/freeimage-license.txt">FIPL, version 1.0</a>
   - optional, remove by deleting <code>\#define SUPPORT_IMAGES</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
   - Windows: precompiled version 3.15.3 is a part of SDK
-  - Linux (including PS3 Linux): install using
-    - Ubuntu: <code>sudo apt-get install libfreeimage-dev</code>
-    - Fedora: <code>pkcon install freeimage-devel</code>
-    - Note that we <code>\#include <FreeImage.h></code>, but SDK contains <code>include/freeimage.h</code>.
-      This ensures that version we bundle for Windows won't be used on Linux.
-      You can safely install and use different version in your Linux system.
-  - XBox360, PS3 with system software: not used
+  - OSX: install with <code>sudo port install freeimage</code>
+  - Ubuntu: install with <code>sudo apt-get install libfreeimage-dev</code>
+  - Fedora: install with <code>pkcon install freeimage-devel</code>
 
 \page tpl_opencollada OpenCollada
   - www: <a href="http://opencollada.org/">OpenCollada</a>
@@ -739,13 +729,9 @@ Material formats (1)
 \page tpl_glut glut
   - www: <a href="http://www.opengl.org/resources/libraries/glut/">GLUT</a>
   - Windows: precompiled version 3.7.6 <a href="http://dee.cz/glut">patched</a> is a part of SDK
-  - Linux (including PS3): install using
-    - Ubuntu: <code>sudo apt-get install freeglut3-dev</code>
-    - Fedora: <code>pkcon install freeglut-devel</code>
-    - Note that we <code>\#include <GL/glut.h></code>, but SDK contains <code>include/gl/glut.h</code>.
-      This ensures that version we bundle for Windows won't be used on Linux.
-      You can safely install and use different version in your Linux system.
-  - XBox360, PS3 with system software: not used
+  - OSX: install with <code>sudo port install freeglut</code>
+  - Ubuntu: install with <code>sudo apt-get install freeglut3-dev</code>
+  - Fedora: install with <code>pkcon install freeglut-devel</code>
 
 \page tpl_bunny Bunny Benchmark framework
   - Bunny Benchmark sample contains framework code and data provided by benchmark author
@@ -1015,15 +1001,16 @@ Material formats (1)
   Lightsprint SDK includes solutions for all supported Visual C++ compilers,
   simply open solution and build.
 
- \section building_linux Linux
+ \section building_linux Others
 
   Setting up third party libraries:
+  - OSX: <code>sudo port install boost freeimage glew wxWidgets-devel freeglut</code>
   - Ubuntu: <code>sudo apt-get install g++ libboost-dev libboost-serialization-dev libboost-filesystem-dev libboost-iostreams-dev libglew-dev libfreeimage-dev freeglut3-dev</code>
   - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code> (no longer tested, may be incomplete)
 
-  Lightsprint SDK includes makefiles for Linux on all supported architectures.
+  Lightsprint SDK includes makefiles for OSX/Linux on all supported architectures.
   Simply run make in directory you want to make.
-  (Linux support is included on request)
+  (OSX and Linux support is included on request)
 
 
 
