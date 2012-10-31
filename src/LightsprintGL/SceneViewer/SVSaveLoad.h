@@ -63,6 +63,7 @@ namespace rr_gl
 
 		ImportParameters import;
 
+
 		wxString    sshotFilename;
 		bool        sshotEnhanced;
 		unsigned    sshotEnhancedWidth;

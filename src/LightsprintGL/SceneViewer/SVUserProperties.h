@@ -45,6 +45,7 @@ namespace rr_gl
 		wxPGProperty*     propImportUpForce;
 		wxPGProperty*     propImportFlipFrontBack;
 
+
 		wxPGProperty*     propSshot;
 		wxPGProperty*     propSshotFilename;
 		wxPGProperty*     propSshotEnhanced;

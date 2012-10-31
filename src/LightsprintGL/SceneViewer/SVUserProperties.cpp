@@ -87,6 +87,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 		SetPropertyBackgroundColour(propImport,importantPropertyBackgroundColor,false);
 	}
 
+
 	// sshot
 	{
 		propSshot = new wxStringProperty(_("Screenshots"), wxPG_LABEL);
