@@ -65,7 +65,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			propGIFireballBuild->updateImage();
 		}
 
-		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
+		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Fireball only: Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
 		AppendIn(propGIIndirect,propGIEmisMultiplier);
 
 		// video
