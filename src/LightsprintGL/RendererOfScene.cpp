@@ -77,6 +77,17 @@ struct PerObjectBuffers
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// for unordered_map<UberProgramSetup,>
+//
+
+std::size_t hash_value(const UberProgramSetup& b)
+{
+	unsigned* p = (unsigned*)&b;
+	return p[0]+p[1];
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RendererOfSceneImpl
 
 class RendererOfSceneImpl : public RendererOfScene

@@ -189,9 +189,6 @@ struct RR_GL_API UberProgramSetup
 
 	// Operators for unordered_map in renderer.
 	bool operator ==(const UberProgramSetup& a) const;
-	bool operator !=(const UberProgramSetup& a) const;
-	bool operator <(const UberProgramSetup& a) const;
-	operator size_t() const {return *(unsigned*)(((char*)this)+3);}
 
 	//! Returns uberProgram with parameter values defined by our attributes.
 	//! UberProgram with parameter values defined is Program.
