@@ -518,6 +518,11 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				break;
 			}
 	}
+	// what lights to process, code shared by many actions
+	rr::RRLights selectedLights;
+	for (unsigned lightIndex=0;lightIndex<solver->getLights().size();lightIndex++)
+		if (contextEntityIds.find(EntityId(ST_LIGHT,lightIndex))!=contextEntityIds.end())
+				selectedLights.push_back(solver->getLights()[lightIndex]);
 
 	if (actionCode>=SVFrame::ME_FIRST)
 	{
@@ -1080,9 +1085,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				{
 					rr::RRScene scene;
 					scene.objects = selectedObjects;
-					for (unsigned lightIndex=0;lightIndex<solver->getLights().size();lightIndex++)
-						if (contextEntityIds.find(EntityId(ST_LIGHT,lightIndex))!=contextEntityIds.end())
-							scene.lights.push_back(solver->getLights()[lightIndex]);
+					scene.lights = selectedLights;
 					scene.cameras.push_back(svs.eye);
 					scene.environment = solver->getEnvironment();
 					scene.save(RR_WX2RR(selectedFilename));
