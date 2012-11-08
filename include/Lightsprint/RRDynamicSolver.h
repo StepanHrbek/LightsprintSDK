@@ -769,7 +769,7 @@ namespace rr
 		//! Reports that appearance of one or more materials in static objects has changed.
 		//
 		//! Call this when you changed material properties of static objects.
-		//! It is not necessary to report change in dynamic objects.
+		//! It is not necessary to report change in dynamic objects (it would only cost time, without affecting GI).
 		//!
 		//! Note that solver creates physically validated copy of all materials in static objects,
 		//! you can edit both original materials (in custom scale, used for realtime rendering)
