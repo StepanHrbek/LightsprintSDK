@@ -243,14 +243,6 @@ bool UberProgramSetup::operator ==(const UberProgramSetup& a) const
 {
 	return memcmp(this,&a,sizeof(*this))==0;
 }
-bool UberProgramSetup::operator !=(const UberProgramSetup& a) const
-{
-	return memcmp(this,&a,sizeof(*this))!=0;
-}
-bool UberProgramSetup::operator <(const UberProgramSetup& a) const
-{
-	return memcmp(this,&a,sizeof(*this))<0;
-}
 
 Program* UberProgramSetup::getProgram(UberProgram* uberProgram)
 {
