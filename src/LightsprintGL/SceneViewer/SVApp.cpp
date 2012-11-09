@@ -84,6 +84,9 @@ static wxAppConsole *wxCreateApp()
 
 void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, const char* _skyboxFilename, const char* _pathToShaders, SceneViewerState* _svs, bool _releaseResources)
 {
+	// randomize all rand()s
+	srand (time(NULL));
+
 	// immediately abort if requested
 	if (_inputSolver && _inputSolver->aborting) return;
 
