@@ -26,6 +26,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	lastTriangle = UINT_MAX;
 	lastPoint2d = rr::RRVec2(0);
 	material = NULL;
+	materialIsInStaticScene = true;
 	showPoint = false;
 	showPhysical = false;
 
@@ -240,6 +241,19 @@ void SVMaterialProperties::updateProperties()
 	updateReadOnly();
 }
 
+void SVMaterialProperties::updateIsInStaticScene()
+{
+	materialIsInStaticScene = false;
+	if (svframe && svframe->m_canvas && svframe->m_canvas->solver)
+	{
+		const rr::RRObject* multiobject = svframe->m_canvas->solver->getMultiObjectCustom();
+		if (multiobject)
+			for (unsigned fg=0;fg<multiobject->faceGroups.size();fg++)
+				if (multiobject->faceGroups[fg].material==materialCustom)
+					materialIsInStaticScene = true;
+	}
+}
+
 //! Copy material -> property (selected by clicking facegroup, clears physical flag, clears point flag).
 void SVMaterialProperties::setMaterial(rr::RRMaterial* _material)
 {
@@ -256,6 +270,8 @@ void SVMaterialProperties::setMaterial(rr::RRMaterial* _material)
 	material = _material;
 
 	updateProperties();
+
+	updateIsInStaticScene();
 }
 
 // copy material to propertygrid
@@ -296,6 +312,8 @@ void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, rr::RRObject
 	}
 
 	updateProperties();
+
+	updateIsInStaticScene();
 }
 
 void SVMaterialProperties::OnIdle(wxIdleEvent& event)
@@ -564,8 +582,8 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (lastSolver)
 	{
 		// only changes in static scene need to be reported
-		// for now, we report all changes, because it's possible that current material is used also by static objects
-		lastSolver->reportMaterialChange(transmittanceChanged,true);
+		if (materialIsInStaticScene)
+			lastSolver->reportMaterialChange(transmittanceChanged,true);
 	}
 
 }

@@ -38,6 +38,7 @@ namespace rr_gl
 	private:
 		void updateHide();
 		void updateReadOnly();
+		void updateIsInStaticScene(); // updates materialIsInStaticScene, called from setMaterial()
 
 		rr::RRDynamicSolver* lastSolver;
 		rr::RRObject*     lastObject;
@@ -50,6 +51,7 @@ namespace rr_gl
 	private:
 		rr::RRMaterial*   materialPhysical;
 		rr::RRPointMaterial materialPoint;
+		bool              materialIsInStaticScene; // optimization: we don't report material change if material is not used in static scene (GI does not need update)
 
 		bool              showPoint;
 		bool              showPhysical;
