@@ -134,6 +134,7 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 	}
 }
 
+
 //---------------------------------------------------------------------------
 
 } // namespace

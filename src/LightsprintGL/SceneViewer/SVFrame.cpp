@@ -892,6 +892,23 @@ bool SVFrame::chooseSceneFilename(wxString fileSelectorCaption, wxString& select
 	return true;
 }
 
+bool SVFrame::saveScene(wxString sceneFilename)
+{
+	bool result = false;
+	if (m_canvas->solver)
+	{
+		rr::RRScene scene;
+		scene.objects = m_canvas->solver->getObjects();
+		scene.lights = m_canvas->solver->getLights();
+		scene.environment = m_canvas->solver->getEnvironment();
+		scene.cameras.push_back(svs.eye);
+		result = scene.save(RR_WX2RR(sceneFilename));
+		scene.environment = NULL; // would be deleted in destructor otherwise
+	}
+	return result;
+}
+
+
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
 {
 	OnMenuEventCore(event.GetId());
@@ -981,17 +998,8 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 			}
 			// valid name, save it
 save_scene:
-			if (m_canvas->solver)
-			{
-				rr::RRScene scene;
-				scene.objects = m_canvas->solver->getObjects();
-				scene.lights = m_canvas->solver->getLights();
-				scene.environment = m_canvas->solver->getEnvironment();
-				scene.cameras.push_back(svs.eye);
-				if (!scene.save(RR_WX2RR(svs.sceneFilename)))
-					wxMessageBox(_("Scene save failed."),_("Not saved."),wxOK|wxICON_ERROR);
-				scene.environment = NULL; // would be deleted in destructor otherwise
-			}
+			if (!saveScene(svs.sceneFilename))
+				wxMessageBox(_("Scene save failed."),_("Not saved."),wxOK|wxICON_ERROR);
 			break;
 		case ME_FILE_SAVE_SCENE_AS:
 save_scene_as:
