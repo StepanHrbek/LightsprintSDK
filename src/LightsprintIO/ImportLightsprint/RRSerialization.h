@@ -406,6 +406,12 @@ void serialize(Archive & ar, rr::RRMaterial::Property& a, const unsigned int ver
 template<class Archive>
 void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 {
+	if (Archive::is_loading::value)
+	{
+		// if we don't call reset(), reading old rr3 would not initialize new attributes
+		// for example bumpMapTypeHeight would be random, boost serialization asserts when it is not 0 or 1
+		a.reset(false);
+	}
 	ar & make_nvp("name",a.name);
 	ar & make_nvp("sideBits",a.sideBits);
 	ar & make_nvp("diffuseReflectance",a.diffuseReflectance);
@@ -415,15 +421,6 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	{
 		ar & make_nvp("specularModel",a.specularModel);
 		ar & make_nvp("specularShininess",a.specularShininess);
-	}
-	else
-	{
-		// reset() was not called, we must initialize variables not loaded from rr3
-		if (Archive::is_loading::value)
-		{
-			a.specularModel = rr::RRMaterial::PHONG;
-			a.specularShininess = 1000; // DEFAULT_SHININESS
-		}
 	}
 	ar & make_nvp("specularTransmittance",a.specularTransmittance);
 	ar & make_nvp("specularTransmittanceInAlpha",a.specularTransmittanceInAlpha);
