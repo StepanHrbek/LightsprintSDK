@@ -438,6 +438,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 				menu.Append(CM_OBJECT_INSPECT_UNWRAP,_("Inspect unwrap,lightmap,LDM..."),_("Shows unwrap and lightmap or LDM in 2D."));
 			if (entityIds.size()>1)
 				menu.Append(CM_OBJECTS_MERGE,_("Merge objects"),_("Merges objects together."));
+			menu.Append(CM_OBJECTS_MERGE_BY_MATERIALS,_("Merge/split by material"),_("Merge selected objects and then split them by material, so that for each material one object is created."));
 			menu.Append(CM_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
 			//if (svframe->userPreferences.testingBeta)
 				menu.Append(CM_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
@@ -853,6 +854,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			}
 			break;
 		case CM_OBJECTS_MERGE:
+		case CM_OBJECTS_MERGE_BY_MATERIALS:
 			{
 				// display log window with 'abort' while this function runs
 				LogWithAbort logWithAbort(this,solver,_("Merging objects..."));
@@ -893,6 +895,42 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				// ensure that there is one facegroup per material
 				rr::RRReporter::report(rr::INF2,"Optimizing...\n");
 				newList.optimizeFaceGroups(newObject); // we know there are no other instances of newObject's mesh
+
+				if (actionCode==CM_OBJECTS_MERGE_BY_MATERIALS)
+				{
+					rr::RRReporter::report(rr::INF2,"Splitting...\n");
+					// split by facegroups=materials
+					newList.clear();
+					unsigned firstTriangleIndex = 0;
+					for (unsigned f=0;f<newObject->faceGroups.size();f++)
+					{
+						// create splitObject from newObject->faceGroups[f]
+						rr::RRMeshArrays* splitMesh = NULL;
+						{
+							// temporarily hide triangles with other materials
+							unsigned tmpNumTriangles = newMesh->numTriangles;
+							newMesh->numTriangles = newObject->faceGroups[f].numTriangles;
+							newMesh->triangle += firstTriangleIndex;
+							// filter out unused vertices
+							const rr::RRMesh* optimizedMesh = newMesh->createOptimizedVertices(0,0,0,&texcoords);
+							// read result into new mesh
+							splitMesh = optimizedMesh->createArrays(true,texcoords,tangents);
+							// delete temporaries
+							delete optimizedMesh;
+							// unhide triangles
+							newMesh->triangle -= firstTriangleIndex;
+							newMesh->numTriangles = tmpNumTriangles;
+						}
+						rr::RRCollider* splitCollider = rr::RRCollider::create(splitMesh,NULL,rr::RRCollider::IT_LINEAR,solver->aborting);
+						rr::RRObject* splitObject = new rr::RRObject;
+						splitObject->faceGroups.push_back(newObject->faceGroups[f]);
+						splitObject->setCollider(splitCollider);
+						splitObject->isDynamic = newObject->isDynamic;
+						splitObject->name = splitObject->faceGroups[0].material->name; // name object by material
+						newList.push_back(splitObject); // memleak, splitObject is never freed
+						firstTriangleIndex += newObject->faceGroups[f].numTriangles;
+					}
+				}
 
 				rr::RRReporter::report(rr::INF2,"Updating objects in solver...\n");
 				for (unsigned objectIndex=0;objectIndex<allObjects.size();objectIndex++)
