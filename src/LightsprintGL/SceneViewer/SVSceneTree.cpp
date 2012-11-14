@@ -869,6 +869,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					}
 				}
 
+				rr::RRReporter::report(rr::INF2,"Merging...\n");
 				rr::RRObject* oldObject = rr::RRObject::createMultiObject(&selectedObjects,rr::RRCollider::IT_LINEAR,solver->aborting,-1,-1,false,0,NULL);
 
 				// convert oldObject with Multi* into newObject with RRMeshArrays
@@ -890,8 +891,10 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				rr::RRObjects newList;
 				newList.push_back(newObject); // memleak, newObject is never freed
 				// ensure that there is one facegroup per material
+				rr::RRReporter::report(rr::INF2,"Optimizing...\n");
 				newList.optimizeFaceGroups(newObject); // we know there are no other instances of newObject's mesh
 
+				rr::RRReporter::report(rr::INF2,"Updating objects in solver...\n");
 				for (unsigned objectIndex=0;objectIndex<allObjects.size();objectIndex++)
 					if (contextEntityIds.find(EntityId(ST_OBJECT,objectIndex))==contextEntityIds.end())
 						newList.push_back(allObjects[objectIndex]);
