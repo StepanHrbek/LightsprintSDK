@@ -495,6 +495,14 @@ extern bool getQuality(wxString title, wxWindow* parent, unsigned& quality);
 extern bool getResolution(wxString title, wxWindow* parent, unsigned& resolution, bool offerPerVertex);
 extern bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption);
 
+static bool containsStaticObject(rr::RRObjects& objects)
+{
+	for (unsigned i=0;i<objects.size();i++)
+		if (!objects[i]->isDynamic)
+			return true;
+	return false;
+}
+
 void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds contextEntityIds)
 {
 	callDepth++;
@@ -518,6 +526,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				break;
 			}
 	}
+
 	// what lights to process, code shared by many actions
 	rr::RRLights selectedLights;
 	for (unsigned lightIndex=0;lightIndex<solver->getLights().size();lightIndex++)
@@ -624,15 +633,11 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					selectedObjectsAndInstances.deleteComponents(false,true,true,false);
 					selectedObjectsAndInstances.buildUnwrap(res,solver->aborting);
 
-					bool staticObjectsAlreadyModified = false;
-					for (unsigned i=0;i<selectedObjectsAndInstances.size();i++)
-						staticObjectsAlreadyModified |= !selectedObjectsAndInstances[i]->isDynamic;
-
 					// static objects may be modified even after abort (unwrap is not atomic)
 					// so it's better if following setStaticObjects is not aborted
 					solver->aborting = false;
 
-					svframe->m_canvas->addOrRemoveScene(NULL,true,staticObjectsAlreadyModified); // calls svframe->updateAllPanels();
+					svframe->m_canvas->addOrRemoveScene(NULL,true,containsStaticObject(selectedObjectsAndInstances)); // calls svframe->updateAllPanels();
 				}
 			}
 			break;
@@ -842,11 +847,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 							uvDistance,
 							true);
 
-						bool staticObjectsAlreadyModified = false;
-						for (unsigned i=0;i<selectedObjectsAndInstances.size();i++)
-							staticObjectsAlreadyModified |= !selectedObjectsAndInstances[i]->isDynamic;
-
-						svframe->m_canvas->addOrRemoveScene(NULL,true,staticObjectsAlreadyModified); // calls svframe->updateAllPanels();
+						svframe->m_canvas->addOrRemoveScene(NULL,true,containsStaticObject(selectedObjectsAndInstances)); // calls svframe->updateAllPanels();
 					}
 				}
 			}
@@ -883,6 +884,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				rr::RRObject* newObject = new rr::RRObject;
 				newObject->faceGroups = oldObject->faceGroups;
 				newObject->setCollider(newCollider);
+				newObject->isDynamic = !containsStaticObject(selectedObjects);
 				delete oldObject;
 
 				rr::RRObjects newList;
@@ -893,12 +895,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				solver->setStaticObjects(newList,NULL);
 				solver->setDynamicObjects(newList);
 
-				bool staticObjectsAlreadyModified = false;
-				for (unsigned i=0;i<selectedObjects.size();i++)
-					staticObjectsAlreadyModified |= !selectedObjects[i]->isDynamic;
-				newObject->isDynamic = !staticObjectsAlreadyModified;
-
-				svframe->m_canvas->addOrRemoveScene(NULL,false,staticObjectsAlreadyModified); // calls svframe->updateAllPanels();
+				svframe->m_canvas->addOrRemoveScene(NULL,false,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
 			}
 			break;
 		case CM_OBJECTS_TANGENTS:
@@ -922,11 +919,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						arrays->buildTangents(uvChannel);
 				}
 
-				bool staticObjectsAlreadyModified = false;
-				for (unsigned i=0;i<selectedObjects.size();i++)
-					staticObjectsAlreadyModified |= !selectedObjects[i]->isDynamic;
-
-				svframe->m_canvas->addOrRemoveScene(NULL,true,staticObjectsAlreadyModified); // calls svframe->updateAllPanels();
+				svframe->m_canvas->addOrRemoveScene(NULL,true,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
 			}
 			break;
 
@@ -1068,12 +1061,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			{
 				selectedObjectsAndInstances.deleteComponents(svframe->deleteDlg.tangents->GetValue(),svframe->deleteDlg.unwrap->GetValue(),svframe->deleteDlg.unusedUvChannels->GetValue(),svframe->deleteDlg.emptyFacegroups->GetValue());
 
-
-				bool staticObjectsAlreadyModified = false;
-				for (unsigned i=0;i<selectedObjectsAndInstances.size();i++)
-					staticObjectsAlreadyModified |= !selectedObjectsAndInstances[i]->isDynamic;
-
-				svframe->m_canvas->addOrRemoveScene(NULL,true,staticObjectsAlreadyModified); // calls svframe->updateAllPanels(); // necessary at least after deleting empty facegroups
+				svframe->m_canvas->addOrRemoveScene(NULL,true,containsStaticObject(selectedObjectsAndInstances)); // calls svframe->updateAllPanels(); // necessary at least after deleting empty facegroups
 			}
 			break;
 
@@ -1144,11 +1132,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						solver->setStaticObjects(newList,NULL);
 						solver->setDynamicObjects(newList);
 
-						bool staticObjectsAlreadyModified = false;
-						for (unsigned i=0;i<selectedObjects.size();i++)
-							staticObjectsAlreadyModified |= !selectedObjects[i]->isDynamic;
-
-						svframe->m_canvas->addOrRemoveScene(NULL,false,staticObjectsAlreadyModified); // calls svframe->updateAllPanels();
+						svframe->m_canvas->addOrRemoveScene(NULL,false,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
 					}
 				}
 
