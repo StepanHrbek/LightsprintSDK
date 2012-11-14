@@ -166,6 +166,66 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 	return numFlips;
 }
 
+unsigned RRObjects::optimizeFaceGroups(RRObject* object) const
+{
+	unsigned result = 0;
+	if (!object)
+	{
+		for (unsigned i=0;i<size();i++)
+		{
+			result += optimizeFaceGroups((*this)[i]);
+		}
+	}
+	else
+	{
+		const RRMeshArrays* mesh = dynamic_cast<const RRMeshArrays*>(object->getCollider()->getMesh());
+		if (mesh)
+		{
+			unsigned numOtherInstances = 0;
+			for (unsigned i=0;i<size();i++)
+				if ((*this)[i]!=object && (*this)[i]->getCollider()->getMesh()==mesh)
+					numOtherInstances++;
+			if (!numOtherInstances) // our limitation, we don't support fixing multiple instances at once
+			{
+				if (object->faceGroups.size()>1) // optimization, trivial objects are optimal already
+				{
+					// alloc tmp
+					RRMesh::Triangle* tmpTriangles = new RRMesh::Triangle[mesh->numTriangles];
+					RRObject::FaceGroups tmpFaceGroups;
+					// fill tmp (by reordered data from object)
+					unsigned dstTriangleIndex = 0;
+					for (unsigned f=0;f<object->faceGroups.size();f++)
+					{
+						unsigned srcTriangleIndex = 0;
+						for (unsigned g=0;g<object->faceGroups.size();g++)
+						{
+							if (object->faceGroups[f].material==object->faceGroups[g].material)
+							{
+								if (g<f)
+									break; // facegroup f is already in tmp
+								if (g==f)
+									tmpFaceGroups.push_back(RRObject::FaceGroup(object->faceGroups[f].material,0));
+								else
+									result = 1; // f!=g, order of data is changing
+								memcpy(tmpTriangles+dstTriangleIndex,mesh->triangle+srcTriangleIndex,object->faceGroups[g].numTriangles*sizeof(RRMesh::Triangle));
+								dstTriangleIndex += object->faceGroups[g].numTriangles;
+								tmpFaceGroups[tmpFaceGroups.size()-1].numTriangles += object->faceGroups[g].numTriangles;
+							}
+							srcTriangleIndex += object->faceGroups[g].numTriangles;
+						}
+					}
+					// copy tmp to object
+					memcpy(mesh->triangle,tmpTriangles,mesh->numTriangles*sizeof(RRMesh::Triangle));
+					object->faceGroups = tmpFaceGroups;
+					// delete tmp
+					delete[] tmpTriangles;
+				}
+			}
+		}
+	}
+	return result;
+}
+
 void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool removeDegeneratedTriangles, bool smoothNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, float maxDistanceBetweenUvsToSmooth, bool report) const
 {
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)

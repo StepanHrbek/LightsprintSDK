@@ -22,6 +22,7 @@ NEWS
   - RRMatrix3x4::getAxisAngle()
   - RRDynamicSolver::getAABB()
   - RRRay::convertHitFromMultiToSingleObject()
+  - RRObjects::optimizeFaceGroups()
 
 CHANGES
 - RRCamera::setRangeDynamically() has different parameters (so that it can take dynamic objects into account)

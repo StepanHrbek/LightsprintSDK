@@ -552,6 +552,22 @@ namespace rr
 		//! \return Number of triangles flipped.
 		virtual unsigned flipFrontBack(unsigned numNormalsThatMustPointBack, bool report) const;
 
+		//! Merges facegroups with the same material. Reorders triangles in mesh if necessary.
+		//
+		//! Object is silently skipped in two special cases: if either its mesh is not of RRMeshArrays type
+		//! or the mesh appears multiple times in this collection.
+		//! 
+		//! Note that objects alone don't have a way to find out what other objects use the same mesh, therefore
+		//! you should call this function on collection of all objects (or at least all potential instances
+		//! of the same mesh). Collection is scanned for instances of the same mesh, and if found, optimization
+		//! is skipped to avoid breaking materials in other object. If you know that no other instance with the same mesh
+		//! exists, you can safely use any collection, even empty.
+		//! \param object
+		//!  Object to be optimized. If it is NULL, all objects in this collection are optimized.
+		//! \return
+		//!  Number of objects modified.
+		virtual unsigned optimizeFaceGroups(RRObject* object = NULL) const;
+
 		//! Rebuilds objects to make them smooth (possibly changing numbers of triangles, vertices, facegroups).
 		//
 		//! If there are multiple objects sharing one mesh, all objects must be smoothed at once
