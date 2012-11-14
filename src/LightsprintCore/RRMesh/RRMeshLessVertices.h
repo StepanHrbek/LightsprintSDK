@@ -16,10 +16,10 @@ namespace rr
 //
 // Importer filters
 //
-// RRLessVerticesFilter<INDEX> - importer slow-filter that removes duplicate vertices
+// RRLessVerticesFilter<INDEX> - importer slow-filter that removes unused and duplicated vertices
 //
-// Differences in positions and normals are limited by parameters.
-// Uvs must exactly match in selected channels, may differ in other channels.
+// Differences in positions, normals and selected uv channels are limited by parameters.
+// Uvs in not selected channels may differ arbitrarily.
 
 int __cdecl compareXyz(const void* elem1, const void* elem2);
 
@@ -50,6 +50,7 @@ public:
 			RRVec3 normal;
 			RRReal area;  // if (area<0) {found different n: normal=sum(n*area);} else {all n identical: normal=n; area=sum of areas;}
 			RRVec2 uv[MAX_UVS];
+			bool used;
 		};
 		Vertex* vertices = new (std::nothrow) Vertex[numVertices];
 		if (!vertices)
@@ -72,6 +73,8 @@ public:
 			sortedVertices[i] = &vertices[i];
 			// load position
 			inherited->getVertex(i,vertices[i].position);
+			// mark vertex as unused
+			vertices[i].used = false;
 		}
 		for (unsigned i=0;i<numTriangles;i++)
 		{
@@ -113,6 +116,8 @@ public:
 					// we already had different normal before
 					v.normal += normal*area;
 				}
+				// mark vertex as used
+				v.used = true;
 			}
 			
 			// load uvs
@@ -148,10 +153,19 @@ public:
 			unsigned d = (unsigned)(sortedVertices[ds]-vertices); // d=prefiltered/importer vertex, index into Dupl2Unique
 			RR_ASSERT(d<numVertices);
 			Vertex& dfl = vertices[d];
+			// skip unused vertices
+			if (!dfl.used)
+			{
+				Dupl2Unique[d] = UINT_MAX; // probably can be left uninitialized, should never be accessed
+				goto dupl;
+			}
 			// test his distance against all already found unique vertices
 			for (unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
 			{
 				Vertex& ufl = vertices[Unique2Dupl[u]];
+				// skip unused vertices
+				if (!ufl.used)
+					continue;
 				// stop when testing too x-distant vertex (all close vertices were already tested)
 				//#define CLOSE(a,b) ((a)==(b))
 				#define CLOSEPOS(i) (fabs((dfl.position[i])-(ufl.position[i]))<=maxDistanceBetweenVerticesToStitch)

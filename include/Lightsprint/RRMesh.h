@@ -421,7 +421,7 @@ namespace rr
 		//!  especially in scenes made of hundreds of small meshes.
 		static const RRMesh* createMultiMesh(const RRMesh* const* meshes, unsigned numMeshes, bool fast);
 
-		//! Creates and returns nearly identical mesh with optimized set of vertices (removes duplicates).
+		//! Creates and returns nearly identical mesh with optimized set of vertices (removes unused and redundant ones).
 		//
 		//! Stitches identical or similar vertices so that number of vertices in returned mesh decreases.
 		//! Only vertex positions, normals and uvs are tested, so vertices with completely
