@@ -889,6 +889,9 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 
 				rr::RRObjects newList;
 				newList.push_back(newObject); // memleak, newObject is never freed
+				// ensure that there is one facegroup per material
+				newList.optimizeFaceGroups(newObject); // we know there are no other instances of newObject's mesh
+
 				for (unsigned objectIndex=0;objectIndex<allObjects.size();objectIndex++)
 					if (contextEntityIds.find(EntityId(ST_OBJECT,objectIndex))==contextEntityIds.end())
 						newList.push_back(allObjects[objectIndex]);
