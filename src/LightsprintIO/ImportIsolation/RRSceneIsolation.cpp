@@ -96,10 +96,20 @@ void registerLoaderIsolationStep2()
 		// other loaders are already registered
 		RRDynamicSolver* solver = new RRDynamicSolver;
 		RRReporter::createWindowedReporter(solver,"Importing scene...");
-		RRFileLocator* textureLocator = RRFileLocator::create();
-		textureLocator->setAttempt(0,""); // load without textures, to make it faster
-		textureLocator->setAttempt(RRFileLocator::ATTEMPT_STUB,"yes"); // but with stubs, so that links to textures are not lost
-		RRScene scene(argvw[2], textureLocator, &solver->aborting);
+		
+		// a) load without textures - faster
+		//  texture paths are stored in stub buffers and forwarded into rr3, so in most cases everything works
+		//  problem is "transparency in diffuse texture". we can't decide whether to copy diffuse channel into transparency channel
+		//  without loading diffuse texture first. all major scene formats do it, so we need nearly all textures loaded.
+		//  copying to transparency in .rr3 loader would make it impossible to delete such transparency texture, it would return back at next load.
+		//RRFileLocator* textureLocator = RRFileLocator::create();
+		//textureLocator->setAttempt(0,""); // load without textures, to make it faster
+		//textureLocator->setAttempt(RRFileLocator::ATTEMPT_STUB,"yes"); // but with stubs, so that links to textures are not lost
+		//RRScene scene(argvw[2], textureLocator, &solver->aborting);
+
+		// b) load with textures - slower
+		RRScene scene(argvw[2], NULL, &solver->aborting);
+
 		bool saved = scene.save(argvw[3]);
 		exit(saved?0:1); // 0=success
 	}
