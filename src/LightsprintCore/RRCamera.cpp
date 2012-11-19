@@ -173,6 +173,7 @@ static void generateRandomCamera(const RRDynamicSolver* _solver, RRVec3& _pos, R
 {
 	if (!_solver)
 	{
+	empty:
 		_pos = RRVec3(0);
 		_dir = RRVec3(1,0,0);
 		_maxdist = 10;
@@ -180,6 +181,8 @@ static void generateRandomCamera(const RRDynamicSolver* _solver, RRVec3& _pos, R
 	}
 	bool aborting = false;
 	RRObject* superObject = RRObject::createMultiObject(&_solver->getObjects(),RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL);
+	if (!superObject)
+		goto empty;
 	const RRMesh* superMesh = superObject->getCollider()->getMesh();
 	unsigned numVertices = superMesh->getNumVertices();
 	RRVec3 mini,maxi,center;
