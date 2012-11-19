@@ -55,7 +55,7 @@ static bool extensionListMatches(const RRString& filename, const char* extension
 			if (*src=='*')
 				return true; // *.* match
 		}
-		if (src[0]==':' && src[1]==';') // [#14] : is our symbol that matches everything, but unlike *.*, fileselector does not understand it
+		if (src[0]==':' && (src[1]==';' || src[1]==0)) // [#14] : is our symbol that matches everything, but unlike *.*, fileselector does not understand it
 		{
 			src += 1;
 			return true; // : matches all, like *.*
