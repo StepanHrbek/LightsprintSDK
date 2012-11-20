@@ -938,6 +938,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						newList.push_back(allObjects[objectIndex]);
 				solver->setStaticObjects(newList,NULL);
 				solver->setDynamicObjects(newList);
+				svframe->m_canvas->reallocateBuffersForRealtimeGI(true); // addOrRemoveScene(,false,) does not call it
 
 				svframe->m_canvas->addOrRemoveScene(NULL,false,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
 			}
