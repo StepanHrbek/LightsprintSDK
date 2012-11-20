@@ -39,9 +39,9 @@ namespace rr_gl
 		void recalculateIconSizeAndPosition();
 
 		//! Adds scene to solver or removes it from solver. If scene is NULL, just reloads current data in solver.
-		//! - scene,true = add scene, setStaticObjects, cleanup
+		//! - scene,true = add scene, setStaticObjects, reallocateBuffersForRealtimeGI, cleanup
 		//! - scene,false = remove scene, setStaticObjects, cleanup
-		//! - NULL,true = setStaticObjects, cleanup
+		//! - NULL,true = setStaticObjects, reallocateBuffersForRealtimeGI, cleanup
 		//! - NULL,false = cleanup
 		void addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjectsAlreadyModified);
 

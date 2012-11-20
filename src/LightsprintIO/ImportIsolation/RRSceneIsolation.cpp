@@ -95,7 +95,7 @@ void registerLoaderIsolationStep2()
 		// we are isolated process, converting scene to rr3
 		// other loaders are already registered
 		RRDynamicSolver* solver = new RRDynamicSolver;
-		RRReporter::createWindowedReporter(solver,"Importing scene...");
+		RRReporter::createWindowedReporter(solver,"Isolated scene import...");
 		
 		// a) load without textures - faster
 		//  texture paths are stored in stub buffers and forwarded into rr3, so in most cases everything works
