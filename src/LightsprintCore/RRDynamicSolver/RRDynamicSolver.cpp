@@ -668,7 +668,7 @@ void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
 		// there tends to be much fewer lights than materials, but the condition is rarely true, speedup is unclear
 
 		unsigned versionSum[2] = {0,0}; // 0=static, 1=video
-#if 1
+#if 0
 		// detect texture changes only in static objects
 		RRObject* object = getMultiObjectCustom();
 		if (object)
