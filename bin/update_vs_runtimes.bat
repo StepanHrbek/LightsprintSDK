@@ -18,3 +18,9 @@ xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x8
 
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x64\Microsoft.VC100.CRT"    x64
 xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\redist\x64\Microsoft.VC100.OpenMP" x64
+
+xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\redist\x86\Microsoft.VC110.CRT"    win32
+xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\redist\x86\Microsoft.VC110.OpenMP" win32
+
+xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\redist\x64\Microsoft.VC110.CRT"    x64
+xcopy /D /S /Y "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\redist\x64\Microsoft.VC110.OpenMP" x64

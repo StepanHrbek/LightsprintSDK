@@ -49,11 +49,17 @@
 				#else
 					#pragma comment(lib,"LightsprintIO.vs2008_sd.lib")
 				#endif
-			#else
+			#elif _MSC_VER<1700
 				#ifdef NDEBUG
 					#pragma comment(lib,"LightsprintIO.vs2010_sr.lib")
 				#else
 					#pragma comment(lib,"LightsprintIO.vs2010_sd.lib")
+				#endif
+			#else
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintIO.vs2012_sr.lib")
+				#else
+					#pragma comment(lib,"LightsprintIO.vs2012_sd.lib")
 				#endif
 			#endif
 		#else
@@ -76,11 +82,17 @@
 				#else
 					#pragma comment(lib,"LightsprintIO.vs2008_dd.lib")
 				#endif
-			#else
+			#elif _MSC_VER<1700
 				#ifdef NDEBUG
 					#pragma comment(lib,"LightsprintIO.vs2010.lib")
 				#else
 					#pragma comment(lib,"LightsprintIO.vs2010_dd.lib")
+				#endif
+			#else
+				#ifdef NDEBUG
+					#pragma comment(lib,"LightsprintIO.vs2012.lib")
+				#else
+					#pragma comment(lib,"LightsprintIO.vs2012_dd.lib")
 				#endif
 			#endif
 		#endif

@@ -337,6 +337,7 @@ Material formats (1)
  - for offline rendering, 3D API is not needed
 
  Compilers
+ - Visual C++ 2012 with all security updates (32bit, 64bit)
  - Visual C++ 2010 SP1 with all security updates (32bit, 64bit)
  - Visual C++ 2008 SP1 with all security updates (32bit, 64bit)
  - Visual C++ 2005 SP1 with all security updates (32bit, 64bit)
@@ -520,7 +521,7 @@ Material formats (1)
    - <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
 
   \section wx_version Version
-   - Windows: wxWidgets trunk svn revision 71424 from 2012-05-13 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
+   - Windows: wxWidgets trunk svn revision 73001 from 2012-11-24 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
    - other platforms: not used
 
   \section wx_building Installing/building

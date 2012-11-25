@@ -1,0 +1,434 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="RRCollider">
+      <UniqueIdentifier>{9f89bb69-0185-4874-aa9c-67636dd2d330}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRCollider\fpcube">
+      <UniqueIdentifier>{718093a5-0061-4ac9-a21a-d3394fe40e0a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRMesh">
+      <UniqueIdentifier>{66f87223-8d1d-4451-b7db-cdae36b0857d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRObject">
+      <UniqueIdentifier>{b05dc64a-16d9-4475-bb13-7655c0698228}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRIllumination">
+      <UniqueIdentifier>{eabcba4e-f4bf-40f3-a121-7ede7d5888e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRStaticSolver">
+      <UniqueIdentifier>{d48944a0-8225-43a7-ad9b-94f85469736f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRDynamicSolver">
+      <UniqueIdentifier>{7110a52b-adee-42d1-be12-844ea51995c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRPackedSolver">
+      <UniqueIdentifier>{4d9ebfee-e5bd-41cd-b52c-4c0848a20f31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRLight">
+      <UniqueIdentifier>{27421270-6ac8-48e8-83e4-cef0dd3d29ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRBuffer">
+      <UniqueIdentifier>{795b17cc-3d13-41bf-b78f-abd99952b6ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRReporter">
+      <UniqueIdentifier>{cfb8abbd-0d03-40f5-9614-f10703a58343}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRScene">
+      <UniqueIdentifier>{fbcef62a-c4cf-4584-9b10-419ef132fec9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRMaterial">
+      <UniqueIdentifier>{3a39e922-6eca-48b2-b9a0-4b230778e7ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRHash">
+      <UniqueIdentifier>{3e1a10bc-f60c-472c-bbcb-22dc3dde42ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RRMath">
+      <UniqueIdentifier>{cdf85d31-ec8f-43d8-af64-7867eb882416}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="squish">
+      <UniqueIdentifier>{643e4900-ba9e-45ec-ab63-8affb7b385b4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="RRCollider\bsp.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="RRCollider\geometry.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="RRCollider\IntersectBspCompact.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="RRCollider\IntersectBspFast.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="RRCollider\IntersectLinear.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="RRCollider\IntersectVerification.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="RRCollider\RRCollider.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="RRCollider\RRRay.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="RRCollider\fpcube.cpp">
+      <Filter>RRCollider\fpcube</Filter>
+    </ClCompile>
+    <ClCompile Include="RRCollider\pcube.cpp">
+      <Filter>RRCollider\fpcube</Filter>
+    </ClCompile>
+    <ClCompile Include="RRMesh\RRMesh.cpp">
+      <Filter>RRMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="RRMesh\RRMeshAccelerated.cpp">
+      <Filter>RRMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="RRMesh\RRMeshArrays.cpp">
+      <Filter>RRMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="RRMesh\RRMeshLessVertices.cpp">
+      <Filter>RRMesh</Filter>
+    </ClCompile>
+    <ClCompile Include="RRObject\RRCollisionHandler.cpp">
+      <Filter>RRObject</Filter>
+    </ClCompile>
+    <ClCompile Include="RRObject\RRObject.cpp">
+      <Filter>RRObject</Filter>
+    </ClCompile>
+    <ClCompile Include="RRObject\RRObjects.cpp">
+      <Filter>RRObject</Filter>
+    </ClCompile>
+    <ClCompile Include="RRObject\RRObjectWithPhysicalMaterials.cpp">
+      <Filter>RRObject</Filter>
+    </ClCompile>
+    <ClCompile Include="RRLightField.cpp">
+      <Filter>RRIllumination</Filter>
+    </ClCompile>
+    <ClCompile Include="RRObjectIllumination.cpp">
+      <Filter>RRIllumination</Filter>
+    </ClCompile>
+    <ClCompile Include="RRStaticSolver\exceptions.cpp">
+      <Filter>RRStaticSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRStaticSolver\gatherer.cpp">
+      <Filter>RRStaticSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRStaticSolver\geometry_v.cpp">
+      <Filter>RRStaticSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRStaticSolver\interpol.cpp">
+      <Filter>RRStaticSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRStaticSolver\rrcore.cpp">
+      <Filter>RRStaticSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRStaticSolver\RRStaticSolver.cpp">
+      <Filter>RRStaticSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRDynamicSolver\environmentMap.cpp">
+      <Filter>RRDynamicSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRDynamicSolver\gather.cpp">
+      <Filter>RRDynamicSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRDynamicSolver\lightmap.cpp">
+      <Filter>RRDynamicSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRDynamicSolver\RRDynamicSolver.cpp">
+      <Filter>RRDynamicSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRDynamicSolver\vertexBuffer.cpp">
+      <Filter>RRDynamicSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRPackedSolver\PackedSolverFileBuild.cpp">
+      <Filter>RRPackedSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRPackedSolver\RRPackedSolver.cpp">
+      <Filter>RRPackedSolver</Filter>
+    </ClCompile>
+    <ClCompile Include="RRLight.cpp">
+      <Filter>RRLight</Filter>
+    </ClCompile>
+    <ClCompile Include="RRBuffer\RRBuffer.cpp">
+      <Filter>RRBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="RRBuffer\RRBufferInMemory.cpp">
+      <Filter>RRBuffer</Filter>
+    </ClCompile>
+    <ClCompile Include="RRReporter\RRReporter.cpp">
+      <Filter>RRReporter</Filter>
+    </ClCompile>
+    <ClCompile Include="RRReporter\RRReporterFile.cpp">
+      <Filter>RRReporter</Filter>
+    </ClCompile>
+    <ClCompile Include="RRReporter\RRReporterOutputDebugString.cpp">
+      <Filter>RRReporter</Filter>
+    </ClCompile>
+    <ClCompile Include="RRReporter\RRReporterPrintf.cpp">
+      <Filter>RRReporter</Filter>
+    </ClCompile>
+    <ClCompile Include="RRReporter\RRReporterWindow.cpp">
+      <Filter>RRReporter</Filter>
+    </ClCompile>
+    <ClCompile Include="RRReporter\RRReportInterval.cpp">
+      <Filter>RRReporter</Filter>
+    </ClCompile>
+    <ClCompile Include="RRScene.cpp">
+      <Filter>RRScene</Filter>
+    </ClCompile>
+    <ClCompile Include="RRObject\RRMaterial.cpp">
+      <Filter>RRMaterial</Filter>
+    </ClCompile>
+    <ClCompile Include="RRHash\RRHash.cpp">
+      <Filter>RRHash</Filter>
+    </ClCompile>
+    <ClCompile Include="RRHash\sha1.cpp">
+      <Filter>RRHash</Filter>
+    </ClCompile>
+    <ClCompile Include="RRMath.cpp">
+      <Filter>RRMath</Filter>
+    </ClCompile>
+    <ClCompile Include="squish\alpha.cpp">
+      <Filter>squish</Filter>
+    </ClCompile>
+    <ClCompile Include="squish\clusterfit.cpp">
+      <Filter>squish</Filter>
+    </ClCompile>
+    <ClCompile Include="squish\colourblock.cpp">
+      <Filter>squish</Filter>
+    </ClCompile>
+    <ClCompile Include="squish\colourfit.cpp">
+      <Filter>squish</Filter>
+    </ClCompile>
+    <ClCompile Include="squish\colourset.cpp">
+      <Filter>squish</Filter>
+    </ClCompile>
+    <ClCompile Include="squish\maths.cpp">
+      <Filter>squish</Filter>
+    </ClCompile>
+    <ClCompile Include="squish\rangefit.cpp">
+      <Filter>squish</Filter>
+    </ClCompile>
+    <ClCompile Include="squish\singlecolourfit.cpp">
+      <Filter>squish</Filter>
+    </ClCompile>
+    <ClCompile Include="squish\squish.cpp">
+      <Filter>squish</Filter>
+    </ClCompile>
+    <ClCompile Include="Preferences.cpp" />
+    <ClCompile Include="RRMemory.cpp" />
+    <ClCompile Include="RRObject\RRScaler.cpp" />
+    <ClCompile Include="Unwrapper.cpp" />
+    <ClCompile Include="RRFileLocator.cpp" />
+    <ClCompile Include="RRTime.cpp" />
+    <ClCompile Include="RRCollider\RRColliderMulti.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
+    <ClCompile Include="RRCamera.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="RRCollider\bsp.h">
+      <Filter>RRCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCollider\config.h">
+      <Filter>RRCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCollider\geometry.h">
+      <Filter>RRCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCollider\IntersectBsp.h">
+      <Filter>RRCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCollider\IntersectBspCompact.h">
+      <Filter>RRCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCollider\IntersectBspFast.h">
+      <Filter>RRCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCollider\IntersectLinear.h">
+      <Filter>RRCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCollider\IntersectVerification.h">
+      <Filter>RRCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\RRCollider.h">
+      <Filter>RRCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCollider\pcube.h">
+      <Filter>RRCollider\fpcube</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCollider\vec.h">
+      <Filter>RRCollider\fpcube</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\RRMesh.h">
+      <Filter>RRMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="RRMesh\RRMeshFilter.h">
+      <Filter>RRMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="RRMesh\RRMeshFilterTransformed.h">
+      <Filter>RRMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="RRMesh\RRMeshIndexedTriList.h">
+      <Filter>RRMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="RRMesh\RRMeshIndexedTriStrip.h">
+      <Filter>RRMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="RRMesh\RRMeshLessTriangles.h">
+      <Filter>RRMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="RRMesh\RRMeshLessVertices.h">
+      <Filter>RRMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="RRMesh\RRMeshMulti.h">
+      <Filter>RRMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="RRMesh\RRMeshTriList.h">
+      <Filter>RRMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="RRMesh\RRMeshTriStrip.h">
+      <Filter>RRMesh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\RRObject.h">
+      <Filter>RRObject</Filter>
+    </ClInclude>
+    <ClInclude Include="RRObject\RRObjectFilter.h">
+      <Filter>RRObject</Filter>
+    </ClInclude>
+    <ClInclude Include="RRObject\RRObjectFilterTransformed.h">
+      <Filter>RRObject</Filter>
+    </ClInclude>
+    <ClInclude Include="RRObject\RRObjectMulti.h">
+      <Filter>RRObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\RRIllumination.h">
+      <Filter>RRIllumination</Filter>
+    </ClInclude>
+    <ClInclude Include="RRStaticSolver\ChunkList.h">
+      <Filter>RRStaticSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="RRStaticSolver\gatherer.h">
+      <Filter>RRStaticSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="RRStaticSolver\geometry_v.h">
+      <Filter>RRStaticSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="RRStaticSolver\interpol.h">
+      <Filter>RRStaticSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="RRStaticSolver\rrcore.h">
+      <Filter>RRStaticSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="RRStaticSolver\RRStaticSolver.h">
+      <Filter>RRStaticSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="RRDynamicSolver\gather.h">
+      <Filter>RRDynamicSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="RRDynamicSolver\private.h">
+      <Filter>RRDynamicSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="RRDynamicSolver\report.h">
+      <Filter>RRDynamicSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\RRDynamicSolver.h">
+      <Filter>RRDynamicSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="RRPackedSolver\PackedSolverFile.h">
+      <Filter>RRPackedSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="RRPackedSolver\RRPackedSolver.h">
+      <Filter>RRPackedSolver</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\RRLight.h">
+      <Filter>RRLight</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\RRBuffer.h">
+      <Filter>RRBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="RRBuffer\RRBufferInMemory.h">
+      <Filter>RRBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="RRReporter\reporterWindow.h">
+      <Filter>RRReporter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\RRScene.h">
+      <Filter>RRScene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\RRMaterial.h">
+      <Filter>RRMaterial</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\RRHash.h">
+      <Filter>RRHash</Filter>
+    </ClInclude>
+    <ClInclude Include="RRHash\sha1.h">
+      <Filter>RRHash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\RRMath.h">
+      <Filter>RRMath</Filter>
+    </ClInclude>
+    <ClInclude Include="RRMathPrivate.h">
+      <Filter>RRMath</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\alpha.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\clusterfit.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\colourblock.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\colourfit.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\colourset.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\config.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\maths.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\rangefit.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\simd.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\simd_float.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\simd_sse.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\simd_ve.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\singlecolourfit.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="squish\squish.h">
+      <Filter>squish</Filter>
+    </ClInclude>
+    <ClInclude Include="LicGen.h" />
+    <ClInclude Include="Preferences.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRDebug.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRMemory.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRVector.h" />
+    <ClInclude Include="NumReports.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRFileLocator.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRCamera.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="squish\singlecolourlookup.inl">
+      <Filter>squish</Filter>
+    </None>
+  </ItemGroup>
+</Project>

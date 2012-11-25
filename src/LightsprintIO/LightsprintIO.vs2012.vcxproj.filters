@@ -1,0 +1,2939 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="3DS">
+      <UniqueIdentifier>{401b9330-c179-44ab-8b72-8d585c31a1e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FCollada">
+      <UniqueIdentifier>{87e77220-f618-4b1a-aafe-1820eaee5977}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MGF">
+      <UniqueIdentifier>{05986f02-e6d2-40ca-bd9d-4701e37a8d47}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OBJ">
+      <UniqueIdentifier>{052ee20c-1926-4125-8616-3de0fed8aec0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quake3">
+      <UniqueIdentifier>{f3d6a34a-2808-4651-94e4-6a456af1d8dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gamebryo">
+      <UniqueIdentifier>{33703d82-902c-400b-bfc6-a0ed8a949fee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Images">
+      <UniqueIdentifier>{ed2d0185-279b-4968-87cb-21072429f572}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp">
+      <UniqueIdentifier>{98dc74f4-9f6d-410d-a662-e0ec02345d0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectShow">
+      <UniqueIdentifier>{7b5ad75b-0c5b-47c3-a546-aedb44c5c176}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada">
+      <UniqueIdentifier>{ef786f31-9abc-49a0-bf86-4a1a587614c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADAFramework">
+      <UniqueIdentifier>{a78d9474-651a-487c-946d-041509414f73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADAFramework\src">
+      <UniqueIdentifier>{db7441bf-0066-4e6e-9522-78241afded55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADAFramework\include">
+      <UniqueIdentifier>{8f5fcedf-dc0f-437d-b5f2-35ff259f6771}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADASaxFrameworkLoader">
+      <UniqueIdentifier>{145b4207-2947-4548-98c8-2cef30d0297e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADASaxFrameworkLoader\src">
+      <UniqueIdentifier>{99d76d28-1b2e-45c7-a7d3-79c3a3e51005}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADASaxFrameworkLoader\src\generated14">
+      <UniqueIdentifier>{ec3b3195-2cb3-44a2-9979-dfaa8040ab6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADASaxFrameworkLoader\src\generated15">
+      <UniqueIdentifier>{74de7934-67e1-4807-8828-13bf0980a55e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADASaxFrameworkLoader\include">
+      <UniqueIdentifier>{03de367e-5c77-410b-807c-fd33c5fd7d87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADASaxFrameworkLoader\include\generated14">
+      <UniqueIdentifier>{34418b30-fd3c-4dc4-a515-c1f8ef66d9af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADASaxFrameworkLoader\include\generated15">
+      <UniqueIdentifier>{95a10189-0a7f-4c82-ab16-e93e36fde6cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADABaseUtils">
+      <UniqueIdentifier>{b6efad99-2c5b-4660-8de1-9c3b563f5958}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADABaseUtils\src">
+      <UniqueIdentifier>{ff36dcba-6a48-46ed-a806-6372a6442925}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADABaseUtils\src\Math">
+      <UniqueIdentifier>{0a3a47ef-de99-484a-8a24-7e6e8fceff14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADABaseUtils\include">
+      <UniqueIdentifier>{cd3cf18c-77f7-4413-b46e-8abf98326f3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\COLLADABaseUtils\include\Math">
+      <UniqueIdentifier>{786aa8e0-bba5-4760-ae97-51737202ef54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals">
+      <UniqueIdentifier>{83cab5ac-2d06-475d-bb05-2c61568bdd29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\pcre">
+      <UniqueIdentifier>{a51caf23-c012-4d68-906d-092d201a5211}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\pcre\src">
+      <UniqueIdentifier>{642cd4a4-7812-4fea-96c0-c913bd4bfa7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\pcre\include">
+      <UniqueIdentifier>{af27322c-5b58-442a-80b4-41e3e0baf207}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\UTF">
+      <UniqueIdentifier>{a47b4666-13b1-4c4c-a49e-18071017263d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\UTF\src">
+      <UniqueIdentifier>{19a86b01-61e3-4c1d-a3b9-d8da4e19c149}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\UTF\include">
+      <UniqueIdentifier>{880a4061-50dc-4abc-94cd-72baee01f958}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\MathMLSolver">
+      <UniqueIdentifier>{489fd541-6157-486c-8d62-d34e35ab46e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\MathMLSolver\include">
+      <UniqueIdentifier>{b8c76c3b-3644-4466-9d98-5b8d96de00cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\MathMLSolver\include\AST">
+      <UniqueIdentifier>{26ecb941-5ac7-4b94-ac32-4a5c5b559744}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\MathMLSolver\src">
+      <UniqueIdentifier>{1a6c7d14-b243-482e-998a-228702124a6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\MathMLSolver\src\AST">
+      <UniqueIdentifier>{41da3f92-f14d-4440-bc93-1d6d9f689ad9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\Externals\expat">
+      <UniqueIdentifier>{42b0452e-268f-476f-9356-2f241e7180a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\GeneratedSaxParser">
+      <UniqueIdentifier>{548398d8-68a1-45d3-bdb9-b433854dc699}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\GeneratedSaxParser\include">
+      <UniqueIdentifier>{da79a7b2-eb29-4367-94ef-91b158720d70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenCollada\GeneratedSaxParser\src">
+      <UniqueIdentifier>{a33b47d0-74cf-45da-9b1f-af6908b6ab15}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lightsprint">
+      <UniqueIdentifier>{becf5260-283e-4759-b334-be8c04fe6767}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp\code">
+      <UniqueIdentifier>{2017431b-f0a2-4b80-91d7-e93ca40855ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp\include">
+      <UniqueIdentifier>{6abf47ba-b164-4290-9bbc-aad0f9195c25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp\include\compiler">
+      <UniqueIdentifier>{4641fabf-7712-4d9a-bebb-5322dd5f6070}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp\contrib">
+      <UniqueIdentifier>{9d796192-6a7d-423d-8206-3119f98c9d4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp\contrib\zlib">
+      <UniqueIdentifier>{c53842ba-7984-49c9-8d37-697439c6ff60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp\contrib\irrXml">
+      <UniqueIdentifier>{8bf8b094-5d50-4f4d-8939-1bd709515fc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp\contrib\convertUTF">
+      <UniqueIdentifier>{210cba4e-04c1-4376-b312-66fe46fe8805}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp\contrib\unzip">
+      <UniqueIdentifier>{8b89d82f-a32c-45ee-afc9-b86421fb3884}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Isolation">
+      <UniqueIdentifier>{1222b9f4-7ba2-4c6b-b318-7c54bf82964a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp\contrib\clipper">
+      <UniqueIdentifier>{5e1a9350-2b7e-4660-81f1-cd3fc68c02cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assimp\contrib\poly2tri">
+      <UniqueIdentifier>{aec9e359-664b-4df6-88de-968a74ca8992}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Import3DS\Model_3DS.cpp">
+      <Filter>3DS</Filter>
+    </ClCompile>
+    <ClCompile Include="Import3DS\RRObject3DS.cpp">
+      <Filter>3DS</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportFCollada\RRObjectFCollada.cpp">
+      <Filter>FCollada</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportMGF\badarg.c">
+      <Filter>MGF</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportMGF\context.c">
+      <Filter>MGF</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportMGF\fvect.c">
+      <Filter>MGF</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportMGF\lookup.c">
+      <Filter>MGF</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportMGF\object.c">
+      <Filter>MGF</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportMGF\parser.c">
+      <Filter>MGF</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportMGF\RRObjectMGF.cpp">
+      <Filter>MGF</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportMGF\words.c">
+      <Filter>MGF</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportMGF\xf.c">
+      <Filter>MGF</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOBJ\RRObjectOBJ.cpp">
+      <Filter>OBJ</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportQuake3\Q3Loader.cpp">
+      <Filter>Quake3</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportQuake3\RRObjectBSP.cpp">
+      <Filter>Quake3</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportGamebryo\NiMaterialDetector.cpp">
+      <Filter>Gamebryo</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportGamebryo\RRObjectGamebryo.cpp">
+      <Filter>Gamebryo</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportImages\ImportFreeImage.cpp">
+      <Filter>Images</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\RRObjectAssimp.cpp">
+      <Filter>Assimp</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\zlib\adler32.c">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\zlib\compress.c">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\zlib\crc32.c">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\zlib\deflate.c">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\zlib\inffast.c">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\zlib\inflate.c">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\zlib\inftrees.c">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\zlib\trees.c">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\zlib\zutil.c">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\irrXML\irrXML.cpp">
+      <Filter>Assimp\contrib\irrXml</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\ConvertUTF\ConvertUTF.c">
+      <Filter>Assimp\contrib\convertUTF</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportDirectShow\RRBufferDirectShow.cpp">
+      <Filter>DirectShow</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\RRObjectOpenCollada.cpp">
+      <Filter>OpenCollada</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWAxisInfo.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWCamera.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWColor.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWConstants.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWEffect.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWEffectCommon.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWFileInfo.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWFloatOrDoubleArray.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWFormula.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWFormulas.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWGeometry.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWImage.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWKinematicsController.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWKinematicsModel.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWKinematicsScene.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWLight.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWLoaderUtils.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWMaterial.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWMatrix.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWMesh.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWMeshPrimitive.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWMorphController.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWNode.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWPrecompiledHeaders.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWRenderState.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWRoot.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWRotate.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWSampler.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWScale.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWSkinController.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWSkinControllerData.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWTexture.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWTransformation.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWTranslate.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWUniqueId.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWValidate.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWVisualScene.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWInstanceKinematicsScene.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLAssetLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLCOLLADACsymbol.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLDocumentProcessor.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLExtraDataElementHandler.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLExtraDataLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFileLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFilePartLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFormulasLinker.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFormulasLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLGeometryLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLGeometryMaterialIdInfo.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIError.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIErrorHandler.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIExtraDataCallbackHandler.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIFilePartLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLInputUnshared.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIParserImpl14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIParserImpl15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLJointsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLKinematicsIntermediateData.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLKinematicsSceneCreator.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryAnimationsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryArticulatedSystemsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryCamerasLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryControllersLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryEffectsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryFormulasLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryImagesLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryJointsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryKinematicsModelsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryLightsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryMaterialsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryNodesLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLMeshLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLMeshPrimitiveInputList.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLNodeLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLPostProcessor.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLPrecompiledHeaders.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLRootParser14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLRootParser15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxFWLError.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxParserError.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxParserErrorHandler.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSceneLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSidAddress.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSidTreeNode.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSourceArrayLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLTransformationLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLTypes.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLVersionParser.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLVisualSceneLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLAssetLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14Private.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14PrivateEnums.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14PrivateFindElementHash.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14PrivateFunctionMap.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14PrivateFunctionMapFactory.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLColladaParserAutoGen14PrivateNameMap.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLGeometryLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryAnimationsLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryCamerasLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryControllersLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryEffectsLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryImagesLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryLightsLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryMaterialsLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLLibraryNodesLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLMeshLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLNodeLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLSceneLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLSourceArrayLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLVisualSceneLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLAssetLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15Private.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15PrivateEnums.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15PrivateFindElementHash.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15PrivateFunctionMap.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15PrivateFunctionMapFactory.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLColladaParserAutoGen15PrivateNameMap.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLFormulasLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLGeometryLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLInstanceArticulatedSystemLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLInstanceKinematicsModelLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryAnimationsLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryArticulatedSystemsLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryCamerasLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryControllersLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryEffectsLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryFormulasLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryImagesLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryJointsLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryKinematicsModelsLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryKinematicsScenesLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryKinematicsScenesLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryLightsLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryMaterialsLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLLibraryNodesLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLMeshLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLNodeLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLSceneLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLSourceArrayLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated15\COLLADASaxFWLVisualSceneLoader15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated15</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUHashFunctions.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUIDList.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUNativeString.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUPcreCompiledPattern.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUPrecompiledHeaders.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUStringUtils.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUURI.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\COLLADABUUtils.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\Math\COLLADABUMathMatrix3.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\Math\COLLADABUMathMatrix4.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\Math\COLLADABUMathQuaternion.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\Math\COLLADABUMathUtils.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADABaseUtils\src\Math\COLLADABUMathVector3.cpp">
+      <Filter>OpenCollada\COLLADABaseUtils\src\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_chartables.c">
+      <Filter>OpenCollada\Externals\pcre\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_compile.c">
+      <Filter>OpenCollada\Externals\pcre\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_exec.c">
+      <Filter>OpenCollada\Externals\pcre\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_globals.c">
+      <Filter>OpenCollada\Externals\pcre\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_newline.c">
+      <Filter>OpenCollada\Externals\pcre\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_tables.c">
+      <Filter>OpenCollada\Externals\pcre\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\pcre\src\pcre_try_flipped.c">
+      <Filter>OpenCollada\Externals\pcre\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\UTF\src\ConvertUTF.c">
+      <Filter>OpenCollada\Externals\UTF\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLEvaluatorVisitor.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLSerializationUtil.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLSerializationVisitor.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLSolverFunctionExtensions.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLSolverPrecompiled.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLString.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\MathMLSymbolTable.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTArithmeticExpression.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTBinaryComparisionExpression.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTConstantExpression.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTFragmentExpression.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTFunctionExpression.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTLogicExpression.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTStringVisitor.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTUnaryArithmeticExpression.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\MathMLSolver\src\AST\MathMLASTVariableExpression.cpp">
+      <Filter>OpenCollada\Externals\MathMLSolver\src\AST</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\expat\lib\xmlparse.c">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\expat\lib\xmlrole.c">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\expat\lib\xmltok.c">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\expat\lib\xmltok_impl.c">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\Externals\expat\lib\xmltok_ns.c">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserCoutErrorHandler.cpp">
+      <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserExpatSaxParser.cpp">
+      <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserNamespaceStack.cpp">
+      <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserParser.cpp">
+      <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserParserError.cpp">
+      <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserParserTemplate.cpp">
+      <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserParserTemplateBase.cpp">
+      <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserRawUnknownElementHandler.cpp">
+      <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserSaxParser.cpp">
+      <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserStackMemoryManager.cpp">
+      <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\GeneratedSaxParser\src\GeneratedSaxParserUtils.cpp">
+      <Filter>OpenCollada\GeneratedSaxParser\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportLightsprint\portable_binary_iarchive.cpp">
+      <Filter>Lightsprint</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportLightsprint\portable_binary_oarchive.cpp">
+      <Filter>Lightsprint</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportLightsprint\RRObjectLightsprint.cpp">
+      <Filter>Lightsprint</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportScene.cpp" />
+    <ClCompile Include="ImportAssimp\contrib\unzip\ioapi.c">
+      <Filter>Assimp\contrib\unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\unzip\unzip.c">
+      <Filter>Assimp\contrib\unzip</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportIsolation\RRSceneIsolation.cpp">
+      <Filter>Isolation</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\3DSConverter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\3DSLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ACLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ASELoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ASEParser.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\Assimp.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\AssimpCExport.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\AssimpPCH.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\B3DImporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\BaseImporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\BaseProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\BlenderDNA.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\BlenderLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\BlenderModifier.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\BlenderScene.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\BVHLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\CalcTangentsProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\COBLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ColladaExporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ColladaLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ColladaParser.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ComputeUVMappingProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ConvertToLHProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\CSMLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\DeboneProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\DefaultIOStream.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\DefaultIOSystem.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\DefaultLogger.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\DXFLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\Exporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\FindDegenerates.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\FindInstancesProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\FindInvalidDataProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\FixNormalsStep.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\GenFaceNormalsProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\GenVertexNormalsProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\HMPLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCCurve.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCGeometry.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCMaterial.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCProfile.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCReaderGen.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IFCUtil.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\Importer.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ImporterRegistry.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ImproveCacheLocality.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IRRLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IRRMeshLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\IRRShared.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\JoinVerticesProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\LimitBoneWeightsProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\LWOAnimation.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\LWOBLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\LWOLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\LWOMaterial.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\LWSLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\M3Importer.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\MakeVerboseFormat.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\MaterialSystem.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\MD2Loader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\MD3Loader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\MD5Loader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\MD5Parser.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\MDCLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\MDLLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\MDLMaterialLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\MS3DLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\NDOLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\NFFLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ObjExporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ObjFileImporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ObjFileMtlImporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ObjFileParser.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\OFFLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\OgreImporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\OgreMaterial.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\OgreMesh.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\OgreSkeleton.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\OptimizeGraph.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\OptimizeMeshes.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\PlyExporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\PlyLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\PlyParser.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\PostStepRegistry.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\PretransformVertices.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ProcessHelper.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\Q3BSPFileImporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\Q3BSPFileParser.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\Q3BSPZipArchive.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\Q3DLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\RawLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\RemoveComments.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\RemoveRedundantMaterials.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\RemoveVCProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\SceneCombiner.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ScenePreprocessor.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\SGSpatialSort.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\SkeletonMeshBuilder.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\SMDLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\SortByPTypeProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\SpatialSort.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\SplitByBoneCountProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\SplitLargeMeshes.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\StandardShapes.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\STEPFileReader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\STLExporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\STLLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\Subdivision.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\TargetAnimation.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\TerragenLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\TextureTransform.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\TriangulateProcess.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\UnrealLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\ValidateDataStructure.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\VertexTriangleAdjacency.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\XFileImporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\XFileParser.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\XGLLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\clipper\clipper.cpp">
+      <Filter>Assimp\contrib\clipper</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\poly2tri\poly2tri\common\shapes.cc">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\advancing_front.cc">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\cdt.cc">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep.cc">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep_context.cc">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Import3DS\Model_3DS.h">
+      <Filter>3DS</Filter>
+    </ClInclude>
+    <ClInclude Include="Import3DS\RRObject3DS.h">
+      <Filter>3DS</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportFCollada\RRObjectFCollada.h">
+      <Filter>FCollada</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportMGF\lookup.h">
+      <Filter>MGF</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportMGF\messages.h">
+      <Filter>MGF</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportMGF\mgfparser.h">
+      <Filter>MGF</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportMGF\RRObjectMGF.h">
+      <Filter>MGF</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOBJ\RRObjectOBJ.h">
+      <Filter>OBJ</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportQuake3\Q3Loader.h">
+      <Filter>Quake3</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportQuake3\RRObjectBSP.h">
+      <Filter>Quake3</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportGamebryo\NiMaterialDetector.h">
+      <Filter>Gamebryo</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportGamebryo\RRObjectGamebryo.h">
+      <Filter>Gamebryo</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportImages\ImportFreeImage.h">
+      <Filter>Images</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\RRObjectAssimp.h">
+      <Filter>Assimp</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\zlib\crc32.h">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\zlib\deflate.h">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\zlib\inffast.h">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\zlib\inffixed.h">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\zlib\inflate.h">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\zlib\inftrees.h">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\zlib\trees.h">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\zlib\zconf.h">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\zlib\zconf.in.h">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\zlib\zlib.h">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\zlib\zutil.h">
+      <Filter>Assimp\contrib\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\irrXML\CXMLReaderImpl.h">
+      <Filter>Assimp\contrib\irrXml</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\irrXML\heapsort.h">
+      <Filter>Assimp\contrib\irrXml</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\irrXML\irrArray.h">
+      <Filter>Assimp\contrib\irrXml</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\irrXML\irrString.h">
+      <Filter>Assimp\contrib\irrXml</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\irrXML\irrTypes.h">
+      <Filter>Assimp\contrib\irrXml</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\irrXML\irrXML.h">
+      <Filter>Assimp\contrib\irrXml</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\ConvertUTF\ConvertUTF.h">
+      <Filter>Assimp\contrib\convertUTF</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportDirectShow\dxtrans.h">
+      <Filter>DirectShow</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportDirectShow\RRBufferDirectShow.h">
+      <Filter>DirectShow</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\RRObjectOpenCollada.h">
+      <Filter>OpenCollada</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFW.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnimatable.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnimatableFloat.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnimation.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnimationCurve.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnimationList.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAnnotate.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWArray.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWArrayPrimitiveType.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWAxisInfo.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWCamera.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWCode.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWColor.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWColorOrTexture.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWConstants.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWController.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWEdge.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWEffect.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWEffectCommon.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWException.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFileInfo.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFloatOrDoubleArray.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFloatOrParam.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFormula.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFormulaNewParam.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWFormulas.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWGeometry.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWHashFunctions.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWILoader.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWImage.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWImageSource.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInclude.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWIndexList.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceBase.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceBindingBase.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceCamera.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceController.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceGeometry.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceKinematicsScene.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceLight.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceNode.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceSceneGraph.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWInstanceVisualScene.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWIWriter.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWJoint.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWJointPrimitive.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWKinematicsController.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWKinematicsModel.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWKinematicsScene.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLibraryNodes.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLight.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLines.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLinestrips.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLoaderUtils.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWLookat.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMaterial.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMaterialBinding.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMatrix.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMesh.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMeshPrimitive.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMeshPrimitiveWithFaceVertexCount.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMeshVertexData.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWModifier.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMorphController.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWMotionProfile.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWNewParam.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWNode.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWObject.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWParam.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPass.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPassClear.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPassOutput.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPassTarget.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPointerArray.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPolygons.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPrerequisites.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWRenderDraw.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWRenderState.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWRenderStateStatic.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWRoot.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWRotate.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSampler.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWScale.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWScene.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSemantic.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSetParam.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShader.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShaderBlinn.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShaderConstantFX.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShaderElement.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShaderLambert.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShaderPhong.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWShear.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSkew.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSkinController.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSkinControllerData.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWStableHeaders.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTarget.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTargetableValue.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTechnique.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTexture.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTextureCoordinateBinding.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTransformation.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTranslate.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTriangles.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTrifans.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTristrips.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWTypes.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWUniqueId.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWValidate.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWValueType.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWVisualScene.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLAccessor.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLArrayElement.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLAssetLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLCOLLADACsymbol.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLDocumentProcessor.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLException.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLExtraDataElementHandler.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLExtraDataLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLFileLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLFilePartLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLFormulasLinker.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLFormulasLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLGeometryLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLGeometryMaterialIdInfo.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLHelperLoaderBase.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIError.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIErrorHandler.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIExtraDataCallbackHandler.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIFilePartLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInputShared.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInputUnshared.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInstanceArticulatedSystemLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInstanceKinematicsModelLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIntermediateTargetable.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLInterpolationTypeSource.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIParserImpl.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIParserImpl14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLIParserImpl15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLJointsLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLKinematicsIntermediateData.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLKinematicsSceneCreator.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryAnimationsLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryArticulatedSystemsLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryCamerasLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryControllersLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryEffectsLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryFormulasLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryImagesLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryJointsLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryKinematicsModelsLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryKinematicsScenesLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryLightsLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryMaterialsLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLibraryNodesLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLMeshLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLMeshPrimitiveInputList.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLNodeLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLPHElement.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLPolygons.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLPostProcessor.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLPrerequisites.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLPrimitiveBase.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLRootParser14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLRootParser15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSaxFWLError.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSaxParserError.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSaxParserErrorHandler.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSceneLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSidAddress.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSidTreeNode.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSource.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSourceArrayLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLStableHeaders.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLTechniqueCommon.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLTransformationLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLTypes.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLUtils.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLVersionParser.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLVertices.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLVisualSceneLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLXmlTypes.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLAssetLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14Attributes.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14Enums.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14FunctionMapFactory.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14Private.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLColladaParserAutoGen14ValidationData.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLGeometryLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryAnimationsLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryCamerasLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryControllersLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryEffectsLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryImagesLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryLightsLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryMaterialsLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLLibraryNodesLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLMeshLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLNodeLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSceneLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSourceArrayLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLVisualSceneLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLAssetLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15Attributes.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15Enums.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15FunctionMapFactory.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15Private.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLColladaParserAutoGen15ValidationData.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLFormulasLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLGeometryLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryAnimationsLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryArticulatedSystemsLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryCamerasLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryControllersLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryEffectsLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryFormulasLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryImagesLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryJointsLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryKinematicsModelsLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryKinematicsScenesLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryLightsLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryMaterialsLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLLibraryNodesLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLMeshLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLNodeLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLSceneLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLSourceArrayLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15\COLLADASaxFWLVisualSceneLoader15.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated15</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABU.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUException.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUhash_map.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUHashFunctions.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUIDList.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUNativeString.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUPcreCompiledPattern.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUPlatform.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUPrerequisites.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUStableHeaders.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUStringUtils.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUURI.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\COLLADABUUtils.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathMatrix3.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathMatrix4.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathPrerequisites.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathQuaternion.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathUtils.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADABaseUtils\include\Math\COLLADABUMathVector3.h">
+      <Filter>OpenCollada\COLLADABaseUtils\include\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\config_linux.h">
+      <Filter>OpenCollada\Externals\pcre\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\config_mac.h">
+      <Filter>OpenCollada\Externals\pcre\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\config_win.h">
+      <Filter>OpenCollada\Externals\pcre\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\pcre.h">
+      <Filter>OpenCollada\Externals\pcre\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\pcre_internal.h">
+      <Filter>OpenCollada\Externals\pcre\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\pcre\include\ucp.h">
+      <Filter>OpenCollada\Externals\pcre\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\UTF\include\ConvertUTF.h">
+      <Filter>OpenCollada\Externals\UTF\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLError.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLEvaluatorVisitor.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLParser.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLParserConstants.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLPlatform.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSerializationUtil.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSerializationVisitor.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSingleton.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSolverFunctionExtensions.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSolverPrerequisites.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSolverStableHeaders.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLStreamParser.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLStreamParserHandler.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLString.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\MathMLSymbolTable.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTArithmeticExpression.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include\AST</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTBinaryComparisionExpression.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include\AST</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTConstantExpression.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include\AST</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTFragmentExpression.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include\AST</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTFunctionExpression.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include\AST</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTLogicExpression.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include\AST</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTNode.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include\AST</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTStringVisitor.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include\AST</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTUnaryArithmeticExpression.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include\AST</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTVariableExpression.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include\AST</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\MathMLSolver\include\AST\MathMLASTVisitor.h">
+      <Filter>OpenCollada\Externals\MathMLSolver\include\AST</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\amigaconfig.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\ascii.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\asciitab.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\expat.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\expat_external.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\iasciitab.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\internal.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\latin1tab.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\macconfig.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\nametab.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\utf8tab.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\winconfig.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\xmlrole.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\xmltok.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\Externals\expat\lib\xmltok_impl.h">
+      <Filter>OpenCollada\Externals\expat</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParser.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserCoutErrorHandler.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserExpatSaxParser.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserIErrorHandler.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserINamespaceHandler.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserIUnknownElementHandler.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserNamespaceStack.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserParser.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserParserError.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserParserTemplate.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserParserTemplateBase.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserPrerequisites.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserRawUnknownElementHandler.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserSaxParser.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserStackMemoryManager.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserTypes.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\GeneratedSaxParser\include\GeneratedSaxParserUtils.h">
+      <Filter>OpenCollada\GeneratedSaxParser\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportLightsprint\portable_binary_archive.hpp">
+      <Filter>Lightsprint</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportLightsprint\portable_binary_iarchive.hpp">
+      <Filter>Lightsprint</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportLightsprint\portable_binary_oarchive.hpp">
+      <Filter>Lightsprint</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportLightsprint\RRObjectLightsprint.h">
+      <Filter>Lightsprint</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportLightsprint\RRSerialization.h">
+      <Filter>Lightsprint</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\IO\ImportScene.h" />
+    <ClInclude Include="supported_formats.h" />
+    <ClInclude Include="ImportAssimp\contrib\unzip\crypt.h">
+      <Filter>Assimp\contrib\unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\unzip\ioapi.h">
+      <Filter>Assimp\contrib\unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\unzip\unzip.h">
+      <Filter>Assimp\contrib\unzip</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportIsolation\RRSceneIsolation.h">
+      <Filter>Isolation</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\3DSHelper.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\3DSLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ACLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ASELoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ASEParser.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\assbin_chunks.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\AssimpPCH.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\B3DImporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BaseImporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BaseProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BlenderDNA.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BlenderIntermediate.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BlenderLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BlenderModifier.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BlenderScene.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BlenderSceneGen.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BlobIOSystem.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BVHLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ByteSwap.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\CalcTangentsProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\CInterfaceIOWrapper.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\COBLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\COBScene.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ColladaExporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ColladaHelper.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ColladaLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ColladaParser.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ComputeUVMappingProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ConvertToLHProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\CSMLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\DeboneProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\DefaultIOStream.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\DefaultIOSystem.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\DefaultProgressHandler.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\DXFHelper.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\DXFLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Exceptional.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\fast_atof.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\FileLogStream.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\FileSystemFilter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\FindDegenerates.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\FindInstancesProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\FindInvalidDataProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\FixNormalsStep.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\GenericProperty.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\GenFaceNormalsProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\GenVertexNormalsProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\HalfLifeFileData.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Hash.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\HMPFileData.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\HMPLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\IFCLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\IFCReaderGen.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\IFCUtil.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\IFF.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Importer.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ImproveCacheLocality.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\IRRLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\IRRMeshLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\IRRShared.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\irrXMLWrapper.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\JoinVerticesProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\LimitBoneWeightsProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\LineSplitter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\LogAux.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\LWOAnimation.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\LWOFileData.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\LWOLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\LWSLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\M3Importer.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MakeVerboseFormat.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MaterialSystem.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MD2FileData.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MD2Loader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MD2NormalTable.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MD3FileData.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MD3Loader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MD4FileData.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MD5Loader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MD5Parser.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MDCFileData.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MDCLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MDCNormalTable.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MDLDefaultColorMap.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MDLFileData.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MDLLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MemoryIOWrapper.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\MS3DLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\NDOLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\NFFLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ObjExporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ObjFileData.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ObjFileImporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ObjFileMtlImporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ObjFileParser.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ObjTools.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\OFFLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\OgreImporter.hpp">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\OgreXmlHelper.hpp">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\OptimizeGraph.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\OptimizeMeshes.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ParsingUtils.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\PlyExporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\PlyLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\PlyParser.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\PolyTools.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\PretransformVertices.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ProcessHelper.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Profiler.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\pstdint.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Q3BSPFileData.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Q3BSPFileImporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Q3BSPFileParser.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Q3BSPZipArchive.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Q3DLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\qnan.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\RawLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\RemoveComments.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\RemoveRedundantMaterials.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\RemoveVCProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\SceneCombiner.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ScenePreprocessor.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ScenePrivate.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\SGSpatialSort.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\SkeletonMeshBuilder.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\SMDLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\SmoothingGroups.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\SortByPTypeProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\SpatialSort.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\SplitByBoneCountProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\SplitLargeMeshes.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\StandardShapes.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\StdOStreamLogStream.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\STEPFile.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\STEPFileReader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\STLExporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\STLLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\StreamReader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\StringComparison.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Subdivision.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\TargetAnimation.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\TerragenLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\TextureTransform.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\TinyFormatter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\TriangulateProcess.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\UnrealLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\ValidateDataStructure.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Vertex.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\VertexTriangleAdjacency.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\Win32DebugLogStream.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\XFileHelper.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\XFileImporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\XFileParser.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\XGLLoader.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\ai_assert.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\anim.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\camera.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\cexport.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\cfileio.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\cimport.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\color4.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\config.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\DefaultLogger.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\defs.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\Exporter.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\Importer.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\importerdesc.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\IOStream.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\IOSystem.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\light.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\Logger.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\LogStream.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\material.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\matrix3x3.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\matrix4x4.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\mesh.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\NullLogger.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\postprocess.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\ProgressHandler.hpp">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\quaternion.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\scene.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\texture.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\types.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\vector2.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\vector3.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\version.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\Compiler\poppack1.h">
+      <Filter>Assimp\include\compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\include\assimp\Compiler\pushpack1.h">
+      <Filter>Assimp\include\compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\clipper\clipper.hpp">
+      <Filter>Assimp\contrib\clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\poly2tri.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\common\shapes.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\common\utils.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\advancing_front.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\cdt.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep_context.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ImportAssimp\code\BlenderDNA.inl">
+      <Filter>Assimp\code</Filter>
+    </None>
+    <None Include="ImportAssimp\code\SmoothingGroups.inl">
+      <Filter>Assimp\code</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\color4.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\material.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\matrix3x3.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\matrix4x4.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\quaternion.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\vector2.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="ImportAssimp\include\assimp\vector3.inl">
+      <Filter>Assimp\include</Filter>
+    </None>
+  </ItemGroup>
+</Project>

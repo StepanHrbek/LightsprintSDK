@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Import">
+      <UniqueIdentifier>{ca3f99aa-0e65-4cd7-a5c9-2059fc72b518}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Import\3DS">
+      <UniqueIdentifier>{c8a5c552-a965-4fd2-a5cb-dd71b86098c3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\LightsprintIO\Import3DS\Model_3DS.cpp">
+      <Filter>Import\3DS</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicObject.cpp" />
+    <ClCompile Include="PenumbraShadows.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\LightsprintIO\Import3DS\Model_3DS.h">
+      <Filter>Import\3DS</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicObject.h" />
+  </ItemGroup>
+</Project>
