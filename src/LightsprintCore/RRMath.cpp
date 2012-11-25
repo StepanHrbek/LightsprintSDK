@@ -53,7 +53,7 @@ RRVec3 RRVec3::getRgbFromHsv() const
 	float h = hsv[0];
 	float s = RR_CLAMPED(hsv[1],0,1);
 	float v = hsv[2];
-	h = fmod(h,360);
+	h = fmodf(h,360);
 	if (h<0) h+= 360;
 	h /= 60;
 	float i = floor(h);
