@@ -519,17 +519,33 @@ RRReal blendModulo(RRReal a,RRReal b,RRReal alpha,RRReal modulo)
 	return blendNormal(a,b,alpha);
 }
 
+RRVec4 quaternion_slerp(RRVec4 q0, RRVec4 q1, float t)
+{
+	float dp = q0.dot(q1);
+	dp = RR_MIN(dp,1);
+	if (dp<0) // switch from long path to short path
+	{
+		q0 = -q0;
+		dp = -dp;
+	}
+	RRVec4 n = q1-q0*dp;
+	float nm = n.length();
+	if (nm>0)
+	{
+		float theta = acos(dp)*t;
+		return q0*cos(theta) + (n/nm)*sin(theta);
+	}
+	return (q0+(q1-q0)*t).normalized();
+}
+
 void RRMatrix3x4::blendLinear(const RRMatrix3x4& sample0, const RRMatrix3x4& sample1, RRReal blend)
 {
-	// blend with axis-angle representation.
-	RRMatrix3x4 sample0inv;
-	sample0.invertedTo(sample0inv);
-	RRMatrix3x4 sample1x = sample0inv*sample1;
-	RRVec4 axisAngle = sample1x.getAxisAngle();
-	RRMatrix3x4 blendx = translation(sample1x.getTranslation()*blend)
-		* rotationByAxisAngle(RRVec3(axisAngle),axisAngle.w*blend)
-		* scale(blendNormal(RRVec3(1),sample1x.getScale(),blend));
-	*this = sample0*blendx;
+	// blend using quaternion slerp
+	RRVec4 q0 = sample0.getQuaternion();
+	RRVec4 q1 = sample1.getQuaternion();
+	*this = translation(blendNormal(sample0.getTranslation(),sample1.getTranslation(),blend))
+		* rotationByQuaternion(quaternion_slerp(q0,q1,blend))
+		* scale(blendNormal(sample0.getScale(),sample1.getScale(),blend));
 }
 
 void RRLight::blendLinear(const RRLight& sample0, const RRLight& sample1, RRReal blend)

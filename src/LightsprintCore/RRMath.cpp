@@ -455,6 +455,45 @@ RRVec3 RRMatrix3x4::getYawPitchRoll() const
 	return yawPitchRoll;
 }
 
+RRMatrix3x4 RRMatrix3x4::rotationByQuaternion(const RRVec4& q)
+{
+	RRReal xx = q.x * q.x;
+	RRReal xy = q.x * q.y;
+	RRReal xz = q.x * q.z;
+	RRReal xw = q.x * q.w;
+	RRReal yy = q.y * q.y;
+	RRReal yz = q.y * q.z;
+	RRReal yw = q.y * q.w;
+	RRReal zz = q.z * q.z;
+	RRReal zw = q.z * q.w;
+
+	return RRMatrix3x4(
+		1-2*(yy+zz), 2*(xy-zw), 2*(xz+yw), 0,
+		2*(xy+zw), 1-2*(xx+zz), 2*(yz-xw), 0,
+		2*(xz-yw), 2*(yz+xw), 1-2*(xx+yy), 0);
+}
+
+RRVec4 RRMatrix3x4::getQuaternion() const
+{
+	// remove scale
+	RRVec3 scale = getScale();
+	RRReal mr[12];
+	for (unsigned i=0;i<3;i++)
+		for (unsigned j=0;j<3;j++)
+			mr[4*i+j] = m[i][j]/scale[j];
+
+	// expects unscaled matrix
+	RRReal t = mr[0]+mr[5]+mr[10]+1;
+	if (t>0)
+		return RRVec4(mr[9]-mr[6],mr[2]-mr[8],mr[4]-mr[1],t) / (2*sqrt(t));
+	if (mr[0]>=mr[5] && mr[0]>=mr[10])
+		return RRVec4(0.5f,mr[1]+mr[4],mr[2]+mr[8],mr[6]+mr[9]) / (2*sqrt(1+mr[0]-mr[5]-mr[10]));
+	if (mr[5]>=mr[10])
+		return RRVec4(mr[1]+mr[4],0.5f,mr[6]+mr[9],mr[2]+mr[8]) / (2*sqrt(1+mr[5]-mr[0]-mr[10]));
+	else
+		return RRVec4(mr[2]+mr[8],mr[6]+mr[9],0.5f,mr[1]+mr[4]) / (2*sqrt(1+mr[10]-mr[0]-mr[5]));
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRMatrix3x4 mirroring

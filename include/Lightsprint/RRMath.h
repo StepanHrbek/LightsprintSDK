@@ -325,6 +325,8 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		static RRMatrix3x4 translation(const RRVec3& translation);
 		static RRMatrix3x4 rotationByYawPitchRoll(const RRVec3& yawPitchRollRad); ///< Yaw + Pitch + Roll = YXZ Euler angles as defined at http://en.wikipedia.org/wiki/Euler_angles
 		static RRMatrix3x4 rotationByAxisAngle(const RRVec3& rotationAxis, RRReal rotationAngleRad);
+		static RRMatrix3x4 rotationByQuaternion(const RRVec4& quaternion);
+
 		static RRMatrix3x4 mirror(const RRVec4& plane);
 
 		//! Returns position in 3d space transformed by matrix.
@@ -363,7 +365,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		//! Applies scale before other transformations defined by this matrix; optimized *this*=scale(a);
 		void preScale(const RRVec3& a);
 
-		//! Returns Yaw, Pitch and Roll = YXZ Euler angles as defined at http://en.wikipedia.org/wiki/Euler_angles
+		//! Returns rotation component of matrix as Yaw, Pitch and Roll = YXZ Euler angles as defined at http://en.wikipedia.org/wiki/Euler_angles
 		//
 		//! Works for matrices that represent scale, rotation and translation (in this order) of rigid body,
 		//! result is undefined for non-orthogonal matrices.
@@ -371,8 +373,11 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		//! Yaw and roll are in -pi..pi range, pitch is in -pi/2..pi/2 range.
 		RRVec3 getYawPitchRoll() const;
 
-		//! Returns rotation axis (xyz) and rotation angle in radians (w) .
+		//! Returns rotation component of matrix as rotation axis (xyz) and rotation angle in radians (w) .
 		RRVec4 getAxisAngle() const;
+
+		//! Returns rotation component of matrix as quaternion.
+		RRVec4 getQuaternion() const;
 
 		//! Returns i-th matrix column, for i=0,1,2,3.
 		RRVec3 getColumn(unsigned i) const;

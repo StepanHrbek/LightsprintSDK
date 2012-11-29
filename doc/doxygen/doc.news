@@ -13,6 +13,9 @@ namespace rr
 NEWS
 
 - Visual C++ 2012 support
+- misc helpers
+  - RRMatrix3x4::rotationByQuaternion()
+  - RRMatrix3x4::getQuaternion()
 
 \section news135 ------------------------------------ 2012.11.22 -------------------------------------
 
