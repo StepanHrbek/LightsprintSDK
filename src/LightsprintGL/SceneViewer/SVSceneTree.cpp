@@ -469,7 +469,7 @@ void SVSceneTree::OnContextMenuRun(wxCommandEvent& event)
 	runContextMenuAction(event.GetId(),getEntityIds(SVSceneTree::MEI_SELECTED));
 }
 
-void SVSceneTree::addMesh(rr::RRMesh* mesh, const char* name, bool inFrontOfCamera)
+void SVSceneTree::addMesh(rr::RRMesh* mesh, wxString name, bool inFrontOfCamera)
 {
 	// this leaks memory, but it is not called often = not serious
 	bool aborting = false;
@@ -485,7 +485,7 @@ void SVSceneTree::addMesh(rr::RRMesh* mesh, const char* name, bool inFrontOfCame
 	if (inFrontOfCamera)
 		object->setWorldMatrix(&rr::RRMatrix3x4::translation(svs.eye.getPosition()+svs.eye.getDirection()*3-svs.eye.getUp()*0.5f));
 	object->isDynamic = true;
-	object->name = name;
+	object->name = RR_WX2RR(name);
 	object->updateIlluminationEnvMapCenter();
 	rr::RRScene scene;
 	scene.objects.push_back(object);
@@ -1003,7 +1003,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					arrays->normal[i] = rr::RRVec3(0,1,0);
 					arrays->texcoord[0][i] = rr::RRVec2(arrays->position[i].z,arrays->position[i].x);
 				}
-				addMesh(arrays,"plane");
+				addMesh(arrays,_("plane"));
 			}
 			break;
 		case CM_OBJECTS_ADD_RECTANGLE:
@@ -1029,7 +1029,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					arrays->normal[i] = rr::RRVec3(0,1,0);
 					arrays->texcoord[0][i] = rr::RRVec2(i/(W+1)/(float)H,(i%(W+1))/(float)W);
 				}
-				addMesh(arrays,"rectangle");
+				addMesh(arrays,_("rectangle"));
 			}
 			break;
 		case CM_OBJECTS_ADD_BOX:
@@ -1063,7 +1063,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						arrays->texcoord[0][i][j] = uvs[2*(i%4)+j];
 				}
 				arrays->buildNormals();
-				addMesh(arrays,"box");
+				addMesh(arrays,_("box"));
 			}
 			break;
 		case CM_OBJECTS_ADD_SPHERE:
@@ -1096,7 +1096,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					arrays->position[i] = arrays->normal[i]/2;
 					arrays->texcoord[0][i] = rr::RRVec2(1-(i%(W+1))/(float)W,1-i/(W+1)/(float)H);
 				}
-				addMesh(arrays,"sphere");
+				addMesh(arrays,_("sphere"));
 			}
 			break;
 

@@ -97,7 +97,7 @@ namespace rr_gl
 		unsigned manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation, bool preTransform, bool rollChangeAllowed);
 
 	private:
-		void addMesh(rr::RRMesh* mesh, const char* name, bool inFrontOfCamera=true);
+		void addMesh(rr::RRMesh* mesh, wxString name, bool inFrontOfCamera=true);
 
 		void updateSelectedEntityIds();
 		EntityIds selectedEntityIds; // always up to date, with root of lights replaced by all lights, root of objects replaced by all objects
