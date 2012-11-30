@@ -93,8 +93,8 @@ namespace rr_gl
 		void OnContextMenuRun(wxCommandEvent& event);
 		wxTreeItemId entityIdToItemId(EntityId entity) const;
 		EntityId itemIdToEntityId(wxTreeItemId item) const;
-		unsigned manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed);
-		unsigned manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed);
+		unsigned manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation, bool preTransform, bool rollChangeAllowed);
+		unsigned manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation, bool preTransform, bool rollChangeAllowed);
 
 	private:
 		void addMesh(rr::RRMesh* mesh, const char* name, bool inFrontOfCamera=true);

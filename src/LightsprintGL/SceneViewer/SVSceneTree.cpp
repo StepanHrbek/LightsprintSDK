@@ -165,7 +165,7 @@ EntityId SVSceneTree::itemIdToEntityId(wxTreeItemId item) const
 // returns number of modified entities
 // - nothing is modified by identity matrix
 // - camera is not modified if it would overflow pitch from -90,90 range
-unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
+unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& transformation, bool preTransform, bool rollChangeAllowed)
 {
 	if (!svframe->m_canvas)
 		return 0;
@@ -179,7 +179,7 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 				rr::RRObject* object = solver->getObject(entity.index);
 				if (object->isDynamic)
 				{
-					rr::RRMatrix3x4 matrix = transformation * object->getWorldMatrixRef();
+					rr::RRMatrix3x4 matrix = preTransform ? object->getWorldMatrixRef() * transformation : transformation * object->getWorldMatrixRef();
 					object->setWorldMatrix(&matrix);
 					object->updateIlluminationEnvMapCenter();
 					solver->reportDirectIlluminationChange(-1,true,false,false);
@@ -206,11 +206,11 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 	return 0;
 }
 
-unsigned SVSceneTree::manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation, bool rollChangeAllowed)
+unsigned SVSceneTree::manipulateEntities(const EntityIds& entityIds, const rr::RRMatrix3x4& transformation, bool preTransform, bool rollChangeAllowed)
 {
 	unsigned result = 0;
 	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
-		result += manipulateEntity(*i,transformation,rollChangeAllowed);
+		result += manipulateEntity(*i,transformation,preTransform,rollChangeAllowed);
 	return result;
 }
 

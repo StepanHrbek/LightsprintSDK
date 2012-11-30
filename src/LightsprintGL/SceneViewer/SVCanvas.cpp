@@ -1031,6 +1031,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		{
 			// moving/rotating/scaling selection (gizmo)
 			rr::RRMatrix3x4 transformation;
+			bool preTransform = false;
 			rr::RRVec3 pan = svs.eye.isOrthogonal()
 				? svs.eye.getRayOrigin(mousePositionInWindow)-svs.eye.getRayOrigin(oldMousePositionInWindow)
 				: (svs.eye.getRayDirection(mousePositionInWindow)-svs.eye.getRayDirection(oldMousePositionInWindow))*(s_ci.hitDistance/s_ci.rayDirection.length());
@@ -1069,9 +1070,10 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					}
 					for (unsigned i=0;i<3;i++) pan[i] = powf(1.6f,pan[i]);
 					transformation = rr::RRMatrix3x4::scale(pan);
+					preTransform = true;
 					break;
 			}
-			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,transformation.centeredAround(manipulatedCenter),false);
+			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,transformation.centeredAround(manipulatedCenter),preTransform,false);
 		}
 		else
 		if (event.LeftIsDown())
@@ -1083,7 +1085,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5*svs.eye.getFieldOfViewHorizontalDeg()/90)
 				*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),dragY*5*svs.eye.getFieldOfViewHorizontalDeg()/90))
 				.centeredAround(svs.eye.getPosition()),
-				false) && dragY)
+				false,false) && dragY)
 			{
 				// disable Y component and try rotation again, maybe this time pitch won't overflow 90/-90
 				// this makes rotation smoother when looking straight up/down
@@ -1119,7 +1121,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			while (!svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),
 				(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5)
 				*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),dragY*5))
-				.centeredAround(s_ci.hitPoint3d),false) && dragY)
+				.centeredAround(s_ci.hitPoint3d),false,false) && dragY)
 			{
 				dragY = 0;
 			}
@@ -1298,7 +1300,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 					svs.eye.getUp() * ((speedUp-speedDown)*meters) +
 					rr::RRVec3(0,speedY*meters,0))
 				* rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getDirection(),-speedLean*seconds*0.5f).centeredAround(center),
-				speedLean?true:false
+				false, speedLean?true:false
 				);
 		}
 	}
