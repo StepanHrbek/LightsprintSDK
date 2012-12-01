@@ -485,6 +485,11 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_materialProperties = NULL;
 	m_sceneTree = NULL;
 
+#if defined(_WIN32) && _MSC_VER>=1400 && defined(NDEBUG)
+	rr::RRTime splashStart;
+	AlphaSplashScreen splash(wxString::Format("%s../maps/sv_splash.png",svs.pathToShaders),230,-245);
+#endif
+
 	// load preferences (must be done very early)
 	bool layoutLoaded = userPreferences.load("");
 
@@ -550,11 +555,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	textureLocator = rr::RRFileLocator::create();
 	textureLocator->setAttempt(rr::RRFileLocator::ATTEMPT_STUB,RR_WX2RR(wxString::Format("%s../maps/sv_missing.png",svs.pathToShaders)));
-
-#if defined(_WIN32) && _MSC_VER>=1400 && defined(NDEBUG)
-	rr::RRTime splashStart;
-	AlphaSplashScreen splash(wxString::Format("%s../maps/sv_splash.png",svs.pathToShaders),230,-245);
-#endif
 
 	m_mgr.SetManagedWindow(this);
 
