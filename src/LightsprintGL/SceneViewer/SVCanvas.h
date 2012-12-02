@@ -47,6 +47,8 @@ namespace rr_gl
 
 		void reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers);
 
+		void dropMaterialAt(rr::RRMaterial* droppedMaterial, const rr::RRObject* destinationObject, unsigned destinationTriangle);
+
 		// set context, paint, swap, catch exceptions
 		void OnPaint(wxPaintEvent& event);
 		// paints to current buffer, may be called from outside to paint hires screenshot to texture
