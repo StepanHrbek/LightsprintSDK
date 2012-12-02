@@ -1073,7 +1073,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					preTransform = true;
 					break;
 			}
-			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,transformation.centeredAround(manipulatedCenter),preTransform,false);
+			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,preTransform?transformation:transformation.centeredAround(manipulatedCenter),preTransform,false);
 		}
 		else
 		if (event.LeftIsDown())
