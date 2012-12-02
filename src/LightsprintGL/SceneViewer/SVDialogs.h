@@ -130,7 +130,9 @@ class MappingDialog : public wxDialog
 	private:
 	
 	protected:
+		wxStaticText* m_staticText151;
 		wxStaticText* m_staticText23;
+		wxStaticText* m_staticText161;
 		wxStaticText* m_staticText24;
 		wxStaticText* m_staticText7;
 		wxStaticText* m_staticText8;

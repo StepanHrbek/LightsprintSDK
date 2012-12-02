@@ -232,11 +232,21 @@ MappingDialog::MappingDialog( wxWindow* parent, wxWindowID id, const wxString& t
 	wxGridSizer* gSizer1;
 	gSizer1 = new wxGridSizer( 7, 3, 0, 0 );
 	
-	radio_generate = new wxRadioButton( this, wxID_ANY, _("Generate mapping"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP );
+	wxBoxSizer* bSizer10;
+	bSizer10 = new wxBoxSizer( wxHORIZONTAL );
+	
+	radio_generate = new wxRadioButton( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxRB_GROUP );
 	radio_generate->SetValue( true ); 
 	radio_generate->SetToolTip( _("Generates new mapping, instead of using existing mapping.") );
 	
-	gSizer1->Add( radio_generate, 0, wxALL, 5 );
+	bSizer10->Add( radio_generate, 0, wxALL, 5 );
+	
+	m_staticText151 = new wxStaticText( this, wxID_ANY, _("Generate mapping"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText151->Wrap( -1 );
+	bSizer10->Add( m_staticText151, 0, wxALL, 5 );
+	
+	
+	gSizer1->Add( bSizer10, 1, wxEXPAND, 5 );
 	
 	generate = new wxComboBox( this, wxID_ANY, _("box"), wxDefaultPosition, wxDefaultSize, 0, NULL, 0 );
 	generate->Append( _("box") );
@@ -252,10 +262,20 @@ MappingDialog::MappingDialog( wxWindow* parent, wxWindowID id, const wxString& t
 	m_staticText23->Wrap( -1 );
 	gSizer1->Add( m_staticText23, 0, wxALL, 5 );
 	
-	radio_source = new wxRadioButton( this, wxID_ANY, _("Uv channel"), wxDefaultPosition, wxDefaultSize, 0 );
+	wxBoxSizer* bSizer11;
+	bSizer11 = new wxBoxSizer( wxHORIZONTAL );
+	
+	radio_source = new wxRadioButton( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
 	radio_source->SetToolTip( _("Takes mapping from existing uv channel, rather than generating it.") );
 	
-	gSizer1->Add( radio_source, 0, wxALL, 5 );
+	bSizer11->Add( radio_source, 0, wxALL, 5 );
+	
+	m_staticText161 = new wxStaticText( this, wxID_ANY, _("Uv channel"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText161->Wrap( -1 );
+	bSizer11->Add( m_staticText161, 0, wxALL, 5 );
+	
+	
+	gSizer1->Add( bSizer11, 1, wxEXPAND, 5 );
 	
 	source = new wxSpinCtrl( this, wxID_ANY, wxT("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxSP_WRAP, 0, 7, 0 );
 	gSizer1->Add( source, 0, wxALL, 5 );
