@@ -469,7 +469,7 @@ void SVSceneTree::OnContextMenuRun(wxCommandEvent& event)
 	runContextMenuAction(event.GetId(),getEntityIds(SVSceneTree::MEI_SELECTED));
 }
 
-void SVSceneTree::addMesh(rr::RRMesh* mesh, wxString name, bool inFrontOfCamera)
+rr::RRObject* SVSceneTree::addMesh(rr::RRMesh* mesh, wxString name, bool inFrontOfCamera)
 {
 	// this leaks memory, but it is not called often = not serious
 	bool aborting = false;
@@ -490,6 +490,7 @@ void SVSceneTree::addMesh(rr::RRMesh* mesh, wxString name, bool inFrontOfCamera)
 	rr::RRScene scene;
 	scene.objects.push_back(object);
 	svframe->m_canvas->addOrRemoveScene(&scene,true,false); // calls svframe->updateAllPanels();
+	return object;
 }
 
 extern bool getQuality(wxString title, wxWindow* parent, unsigned& quality);
