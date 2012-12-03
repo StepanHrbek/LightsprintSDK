@@ -179,7 +179,14 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 				rr::RRObject* object = solver->getObject(entity.index);
 				if (object->isDynamic)
 				{
-					rr::RRMatrix3x4 matrix = preTransform ? object->getWorldMatrixRef() * transformation : transformation * object->getWorldMatrixRef();
+					rr::RRMatrix3x4 matrix = transformation * object->getWorldMatrixRef();
+					if (preTransform)
+					{
+						// preTransform = contains scale only, apply scale before worldMatrix, but preserve world center
+						rr::RRVec3 localCenter(0);
+						object->getCollider()->getMesh()->getAABB(NULL,NULL,&localCenter);
+						matrix = object->getWorldMatrixRef() * transformation.centeredAround(localCenter);
+					}
 					object->setWorldMatrix(&matrix);
 					object->updateIlluminationEnvMapCenter();
 					solver->reportDirectIlluminationChange(-1,true,false,false);

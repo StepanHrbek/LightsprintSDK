@@ -1070,7 +1070,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					}
 					for (unsigned i=0;i<3;i++) pan[i] = powf(1.6f,pan[i]);
 					transformation = rr::RRMatrix3x4::scale(pan);
-					preTransform = true;
+					if (manipulatedEntities.size()==1)
+						preTransform = true;
 					break;
 			}
 			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,preTransform?transformation:transformation.centeredAround(manipulatedCenter),preTransform,false);
