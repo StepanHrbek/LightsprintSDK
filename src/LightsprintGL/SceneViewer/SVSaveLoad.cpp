@@ -141,7 +141,7 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 } // namespace
 
 BOOST_CLASS_VERSION(rr_gl::ImportParameters,1);
-BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,1)
+BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,2)
 BOOST_CLASS_VERSION(rr_gl::UserPreferences,16)
 
 //---------------------------------------------------------------------------
