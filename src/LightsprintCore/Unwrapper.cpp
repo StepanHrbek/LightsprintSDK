@@ -538,7 +538,7 @@ Unwrapper::~Unwrapper()
 	DestroyWindow(hwnd);
 }
 
-unsigned RRObjects::buildUnwrap(unsigned resolution, bool& aborting) const
+unsigned RRObjects::buildUnwrap(unsigned resolution, unsigned minimalUvChannel, bool& aborting) const
 {
 	RRReportInterval report(INF2,"Building unwrap...\n");
 
@@ -582,7 +582,7 @@ unsigned RRObjects::buildUnwrap(unsigned resolution, bool& aborting) const
 	}
 
 	// 2. find first free uv channel for unwrap
-	unsigned unwrapChannel = 0;
+	unsigned unwrapChannel = minimalUvChannel;
 try_next_channel:
 	for (Meshes::const_iterator i=meshes.begin();i!=meshes.end();++i)
 	{
@@ -657,7 +657,7 @@ try_next_channel:
 namespace rr
 {
 
-unsigned RRObjects::buildUnwrap(unsigned resolution, bool& aborting) const
+unsigned RRObjects::buildUnwrap(unsigned resolution, unsigned minimalUvChannel, bool& aborting) const
 {
 	RRReporter::report(WARN,"buildUnwrap() not supported on this platform.\n");
 	return UINT_MAX;

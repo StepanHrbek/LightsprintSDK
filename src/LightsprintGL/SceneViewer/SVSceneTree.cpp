@@ -633,7 +633,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 
 					selectedObjectsAndInstances.smoothAndStitch(false,false,true,false,0,0,0,false); // remove degens, unwrapper crashes on them
 					selectedObjectsAndInstances.deleteComponents(false,true,true,false);
-					selectedObjectsAndInstances.buildUnwrap(res,solver->aborting);
+					selectedObjectsAndInstances.buildUnwrap(res,0,solver->aborting);
 
 					// static objects may be modified even after abort (unwrap is not atomic)
 					// so it's better if following setStaticObjects is not aborted

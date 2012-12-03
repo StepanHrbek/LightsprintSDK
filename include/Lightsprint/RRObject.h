@@ -535,10 +535,13 @@ namespace rr
 		//! you have to resend modified objects to solver <code>solver->setStaticObjects(solver->getStaticObjects(),...)</code>.
 		//! \param resolution
 		//!  Expected lightmap resolution, e.g. 1024 for 1024x1024.
+		//! \param minimalUvChannel
+		//!  New unwrap is created into the lowest unused uv channel, but at least minimalUvChannel.
+		//!  So if minimalUvChannel=2, unwrap is never created to channel 0 or 1.
 		//! \param aborting
 		//!  May be set asynchronously, aborts build.
 		//! \return Number of new unwrap uv channel, it's the same for all meshes. UINT_MAX in case of failure.
-		virtual unsigned buildUnwrap(unsigned resolution, bool& aborting) const;
+		virtual unsigned buildUnwrap(unsigned resolution, unsigned minimalUvChannel, bool& aborting) const;
 
 		//! Inserts all materials found in objects into collection.
 		//

@@ -16,6 +16,7 @@ NEWS
 - misc helpers
   - RRMatrix3x4::rotationByQuaternion()
   - RRMatrix3x4::getQuaternion()
+  - RRObjects::buildUnwrap() has one more parameter
 
 \section news135 ------------------------------------ 2012.11.22 -------------------------------------
 
