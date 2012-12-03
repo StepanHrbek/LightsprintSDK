@@ -1397,19 +1397,19 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		svframe->simulateSun();
 	}
 
-	Paint(false);
+	Paint(false,"");
 
 	// done
 	SwapBuffers();
 }
 
-void SVCanvas::Paint(bool _takingSshot)
+void SVCanvas::Paint(bool _takingSshot, const wxString& extraMessage)
 {
 #ifdef _MSC_VER
 	__try
 	{
 #endif
-		PaintCore(_takingSshot);
+		PaintCore(_takingSshot,extraMessage);
 #ifdef _MSC_VER
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
@@ -1423,7 +1423,7 @@ void SVCanvas::Paint(bool _takingSshot)
 }
 
 
-void SVCanvas::PaintCore(bool _takingSshot)
+void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 {
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	if (renderEmptyFrames)

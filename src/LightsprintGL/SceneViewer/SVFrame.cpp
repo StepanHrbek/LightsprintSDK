@@ -1036,6 +1036,7 @@ save_scene_as:
 			{
 				rr::RRReportInterval report(rr::INF2,"Saving enhanced screenshot...\n");
 
+
 				// 1a. enable FSAA
 				// (1*1*FSAA is ugly, worse than plain capture)
 				// (2*2*FSAA works fine, but it's too much for Quadro)
@@ -1101,7 +1102,7 @@ save_scene_as:
 
 					// 6. render to texColor
 					wxPaintEvent e;
-					m_canvas->Paint(true);
+					m_canvas->Paint(true,"");
 
 					// 7. downscale to sshot
 					rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,smallSize.x,smallSize.y,1,rr::BF_RGB,true,NULL);

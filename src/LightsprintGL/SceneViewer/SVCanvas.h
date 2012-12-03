@@ -52,9 +52,9 @@ namespace rr_gl
 		// set context, paint, swap, catch exceptions
 		void OnPaint(wxPaintEvent& event);
 		// paints to current buffer, may be called from outside to paint hires screenshot to texture
-		void Paint(bool takingSshot);
+		void Paint(bool takingSshot, const wxString& extraMessage);
 		// helper
-		void PaintCore(bool takingSshot);
+		void PaintCore(bool takingSshot, const wxString& extraMessage);
 
 		void OnSize(wxSizeEvent& event);
 		void OnSizeCore(bool force);
