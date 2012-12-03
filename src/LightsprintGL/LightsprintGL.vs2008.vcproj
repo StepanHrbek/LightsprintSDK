@@ -179,7 +179,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_amd64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_x64_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -350,7 +350,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_amd64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_x64_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -539,7 +539,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_amd64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_x64_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName).pdb"
 				RandomizedBaseAddress="1"
@@ -733,7 +733,7 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_amd64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_x64_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.pdb"
 				RandomizedBaseAddress="1"

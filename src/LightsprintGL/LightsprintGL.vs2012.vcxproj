@@ -238,7 +238,7 @@
     </ResourceCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName)_sr.lib</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc110_amd64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc110_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
     <Bscmake>
@@ -333,7 +333,7 @@
     </ResourceCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName)_sd.lib</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc110_amd64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc110_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
     <Bscmake>
@@ -447,7 +447,7 @@
     </ProjectReference>
     <Link>
       <OutputFile>..\..\bin\$(Platform)\$(ProjectName).dll</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc110_amd64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc110_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -559,7 +559,7 @@
     </ProjectReference>
     <Link>
       <OutputFile>..\..\bin\$(Platform)\$(ProjectName)_dd.dll</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc110_amd64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(WXWIDGETS_DIR)\lib\vc110_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
