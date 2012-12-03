@@ -215,36 +215,6 @@ void RRBuffer::deleteFromCache()
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// FaceGroups
-
-void RRObject::FaceGroups::getTexcoords(RRVector<unsigned>& _texcoords, bool _forUnwrap, bool _forDiffuse, bool _forSpecular, bool _forEmissive, bool _forTransparent) const
-{
-	std::set<unsigned> texcoords;
-	for (unsigned fg=0; fg<size(); fg++)
-	{
-		RRMaterial* material = (*this)[fg].material;
-		if (material)
-		{
-			if (_forUnwrap)
-				texcoords.insert(material->lightmapTexcoord);
-			if (_forDiffuse && material->diffuseReflectance.texture)
-				texcoords.insert(material->diffuseReflectance.texcoord);
-			if (_forSpecular && material->specularReflectance.texture)
-				texcoords.insert(material->specularReflectance.texcoord);
-			if (_forEmissive && material->diffuseEmittance.texture)
-				texcoords.insert(material->diffuseEmittance.texcoord);
-			if (_forTransparent && material->specularTransmittance.texture)
-				texcoords.insert(material->specularTransmittance.texcoord);
-		}
-	}
-	_texcoords.clear();
-	for (std::set<unsigned>::const_iterator i=texcoords.begin();i!=texcoords.end();++i)
-		_texcoords.push_back(*i);
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
 // RRObjects
 
 void RRObjects::getAllMaterials(RRMaterials& materials) const

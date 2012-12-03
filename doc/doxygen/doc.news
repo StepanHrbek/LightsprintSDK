@@ -18,6 +18,10 @@ NEWS
   - RRMatrix3x4::getQuaternion()
   - RRObjects::buildUnwrap() has one more parameter
 
+CHANGES
+
+- FaceGroups::getTexcoords() removed, no longer needed
+
 \section news135 ------------------------------------ 2012.11.22 -------------------------------------
 
 NEWS
@@ -35,6 +39,7 @@ NEWS
   - RRObjects::optimizeFaceGroups()
 
 CHANGES
+
 - RRCamera::setRangeDynamically() has different parameters (so that it can take dynamic objects into account)
 - RRCamera::setView() has different parameters (so that it can take dynamic objects into account)
 - RealtimeLight::configureCSM() has different parameters (so that it can take dynamic objects into account)

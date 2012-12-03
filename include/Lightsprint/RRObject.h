@@ -81,7 +81,6 @@ namespace rr
 		{
 		public:
 			bool containsEmittance() const;
-			void getTexcoords(RRVector<unsigned>& texcoords, bool forUnwrap, bool forDiffuse, bool forSpecular, bool forEmissive, bool forTransparent) const;
 		};
 		//! Assignment of materials to triangles.
 		//
