@@ -20,7 +20,7 @@ set BITS=%2
 set SETENVBAT=%3
 set ERR=%COMPILER%_log
 set CPU=
-if x%BITS%==x64 set CPU=_amd64
+if x%BITS%==x64 set CPU=_x64
 cd %WX%\build\msw
 if exist %SETENVBAT% (
 	call %SETENVBAT% >%ERR%
