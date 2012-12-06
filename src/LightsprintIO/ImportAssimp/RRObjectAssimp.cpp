@@ -124,7 +124,7 @@ public:
 			if (model==aiShadingMode_NoShading)
 				material.diffuseReflectance.color = RRVec3(0);
 			else
-				convertMaterialProperty(aimaterial,aiTextureType_DIFFUSE,AI_MATKEY_COLOR_DIFFUSE,material.diffuseReflectance);
+				convertMaterialProperty(aimaterial,aiTextureType_DIFFUSE,AI_MATKEY_COLOR_DIFFUSE,material,material.diffuseReflectance);
 
 			// specularReflectance
 			if (model!=aiShadingMode_NoShading)
@@ -159,11 +159,11 @@ public:
 			}
 
 			// diffuseEmittance
-			convertMaterialProperty(aimaterial,aiTextureType_EMISSIVE,AI_MATKEY_COLOR_EMISSIVE,material.diffuseEmittance);
+			convertMaterialProperty(aimaterial,aiTextureType_EMISSIVE,AI_MATKEY_COLOR_EMISSIVE,material,material.diffuseEmittance);
 
 			// specularTransmittance
 			{
-				convertMaterialProperty(aimaterial,aiTextureType_OPACITY,AI_MATKEY_COLOR_TRANSPARENT,material.specularTransmittance);
+				convertMaterialProperty(aimaterial,aiTextureType_OPACITY,AI_MATKEY_COLOR_TRANSPARENT,material,material.specularTransmittance);
 				aiColor3D transparentColor;
 				bool transparentColorSet = aimaterial->Get(AI_MATKEY_COLOR_TRANSPARENT,transparentColor)==AI_SUCCESS;
 				float opacity;
@@ -185,9 +185,9 @@ public:
 			aimaterial->Get(AI_MATKEY_REFRACTI,material.refractionIndex);
 
 			// bumpMap
-			convertMaterialProperty(aimaterial,aiTextureType_NORMALS,NULL,0,0,material.bumpMap);
+			convertMaterialProperty(aimaterial,aiTextureType_NORMALS,NULL,0,0,material,material.bumpMap);
 			if (!material.bumpMap.texture)
-				convertMaterialProperty(aimaterial,aiTextureType_HEIGHT,NULL,0,0,material.bumpMap);
+				convertMaterialProperty(aimaterial,aiTextureType_HEIGHT,NULL,0,0,material,material.bumpMap);
 
 			// lightmapTexcoord
 			if (aimaterial->Get(_AI_MATKEY_UVWSRC_BASE,aiTextureType_LIGHTMAP,0,(int&)material.lightmapTexcoord)!=AI_SUCCESS)
@@ -312,7 +312,7 @@ public:
 		}
 	}
 
-	void convertMaterialProperty(aiMaterial* aimaterial, aiTextureType aitype, const char* aimatkey, unsigned zero1, unsigned zero2, RRMaterial::Property& property)
+	void convertMaterialProperty(aiMaterial* aimaterial, aiTextureType aitype, const char* aimatkey, unsigned zero1, unsigned zero2, RRMaterial& material, RRMaterial::Property& property)
 	{
 		aiString str;
 		aimaterial->Get(_AI_MATKEY_TEXTURE_BASE,aitype,0,str);
@@ -328,10 +328,17 @@ public:
 				{
 					if (texFlags&aiTextureFlags_Invert)
 					{
-						RRBuffer* textureCopy = property.texture->createCopy();
-						textureCopy->invert();
-						delete property.texture;
-						property.texture = textureCopy;
+						if (&property==&material.specularTransmittance)
+						{
+							material.specularTransmittanceMapInverted = true;
+						}
+						else
+						{
+							RRBuffer* textureCopy = property.texture->createCopy();
+							textureCopy->invert();
+							delete property.texture;
+							property.texture = textureCopy;
+						}
 					}
 				}
 			}
