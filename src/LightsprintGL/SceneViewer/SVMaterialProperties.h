@@ -73,6 +73,7 @@ namespace rr_gl
 		wxPGProperty*     propTransparent;
 		wxPGProperty*     propTransparency1bit;
 		wxPGProperty*     propTransparencyInAlpha;
+		wxPGProperty*     propTransparencyMapInverted;
 		wxPGProperty*     propRefraction;
 		wxPGProperty*     propBumpMap;
 		wxPGProperty*     propBumpType;

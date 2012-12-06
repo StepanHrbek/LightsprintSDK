@@ -804,6 +804,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	{
 		program->sendTexture("materialTransparencyMap",NULL,TEX_CODE_2D_MATERIAL_TRANSPARENCY);
 		s_buffers1x1.bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
+		program->sendUniform("materialTransparencyMapInverted",material->specularTransmittanceMapInverted?1:0);
 	}
 
 	if (MATERIAL_BUMP_MAP)

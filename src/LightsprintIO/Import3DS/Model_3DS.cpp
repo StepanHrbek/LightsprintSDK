@@ -569,11 +569,7 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	Materials[matindex].specularTransmittanceInAlpha = diffuseName && opacityName && strcmp(diffuseName,opacityName)==0;
 	if (Materials[matindex].specularTransmittance.texture && !Materials[matindex].specularTransmittanceInAlpha)
 	{
-		Materials[matindex].specularTransmittance.texture->invert();
-		// material does not know that texture has to be inverted after load form disk
-		// if we save scene to rr3 and load it back, texture won't be inverted
-		// by clearing filename, save to rr3 embeds inverted texture
-		Materials[matindex].specularTransmittance.texture->filename.clear();
+		Materials[matindex].specularTransmittanceMapInverted = true;
 	}
 	free(diffuseName);
 	free(opacityName);

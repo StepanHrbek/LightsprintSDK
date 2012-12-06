@@ -14,6 +14,7 @@ NEWS
 
 - Visual C++ 2012 support
 - misc helpers
+  - RRMaterial::specularTransmittanceMapInverted, lets you invert material transparency with single flag, no need to invert all pixels
   - RRMatrix3x4::rotationByQuaternion()
   - RRMatrix3x4::getQuaternion()
   - RRObjects::buildUnwrap() has one more parameter

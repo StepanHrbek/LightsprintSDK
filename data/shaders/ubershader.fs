@@ -246,6 +246,7 @@ varying vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_TRANSPARENCY_MAP
 	uniform sampler2D materialTransparencyMap;
+	uniform bool materialTransparencyMapInverted;
 	varying vec2 materialTransparencyCoord;
 #endif
 
@@ -409,6 +410,8 @@ void main()
 	#endif
 	#ifdef MATERIAL_TRANSPARENCY_MAP
 		vec4 materialTransparencyMapColor = texture2D(materialTransparencyMap, materialTransparencyCoord);
+		if (materialTransparencyMapInverted)
+			materialTransparencyMapColor = vec4(1.0)-materialTransparencyMapColor;
 		#ifdef MATERIAL_TRANSPARENCY_IN_ALPHA
 			opacityA = materialTransparencyMapColor.a;
 			transparencyRGB = vec3(1.0-materialTransparencyMapColor.a);
@@ -420,6 +423,8 @@ void main()
 	#ifdef MATERIAL_DIFFUSE_MAP
 		vec4 materialDiffuseMapColor = texture2D(materialDiffuseMap, materialDiffuseCoord+parallaxOffset);
 		#if !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP) && defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
+			if (materialTransparencyMapInverted)
+				materialDiffuseMapColor.a = 1.0-materialDiffuseMapColor.a;
 			opacityA = materialDiffuseMapColor.a;
 			transparencyRGB = vec3(1.0-materialDiffuseMapColor.a);
 		#endif

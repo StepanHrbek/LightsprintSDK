@@ -425,6 +425,10 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	ar & make_nvp("specularTransmittance",a.specularTransmittance);
 	ar & make_nvp("specularTransmittanceInAlpha",a.specularTransmittanceInAlpha);
 	ar & make_nvp("specularTransmittanceKeyed",a.specularTransmittanceKeyed);
+	if (version>3)
+	{
+		ar & make_nvp("specularTransmittanceMapInverted",a.specularTransmittanceMapInverted);
+	}
 	ar & make_nvp("refractionIndex",a.refractionIndex);
 	if (version>1)
 	{
@@ -952,7 +956,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRCamera)
 #endif
 
 BOOST_CLASS_VERSION(rr::RRString,1)
-BOOST_CLASS_VERSION(rr::RRMaterial,3)
+BOOST_CLASS_VERSION(rr::RRMaterial,4)
 #ifndef DONT_SERIALIZE_RRLIGHT
 BOOST_CLASS_VERSION(rr::RRLight,4)
 #endif

@@ -91,6 +91,9 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	AppendIn(propTransparent,propTransparencyInAlpha = new wxBoolProperty(_("in alpha")));
 	SetPropertyEditor(propTransparencyInAlpha,wxPGEditor_CheckBox);
 	propTransparencyInAlpha->SetHelpString(_("Reads opacity from alpha rather than from rgb."));
+	AppendIn(propTransparent,propTransparencyMapInverted = new wxBoolProperty(_("inverted")));
+	SetPropertyEditor(propTransparencyMapInverted,wxPGEditor_CheckBox);
+	propTransparencyMapInverted->SetHelpString(_("Inverts how transparency texture is interpreted."));
 	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index",_("Index of refraction when light hits surface from front side."),1,svs.precision,0.25f,4,0.1f,false));
 	SetPropertyBackgroundColour(propTransparent,importantPropertyBackgroundColor,false);
 	Collapse(propTransparent);
@@ -229,6 +232,7 @@ void SVMaterialProperties::updateProperties()
 		updateFloat(propSpecularRoughness,material->specularShininess);
 		updateBool(propTransparency1bit,material->specularTransmittanceKeyed);
 		updateBool(propTransparencyInAlpha,material->specularTransmittanceInAlpha);
+		updateBool(propTransparencyMapInverted,material->specularTransmittanceMapInverted);
 		updateFloat(propRefraction,material->refractionIndex);
 		updateBool(propBumpType,material->bumpMapTypeHeight);
 		updateFloat(propBumpMultiplier1,material->bumpMap.color.x);
@@ -531,6 +535,14 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propTransparencyInAlpha)
 	{
 		material->specularTransmittanceInAlpha = property->GetValue().GetBool();
+		transmittanceChanged = true;
+	}
+	else
+	if (property==propTransparencyMapInverted)
+	{
+		material->specularTransmittanceMapInverted = property->GetValue().GetBool();
+		if (material->specularTransmittance.texture)
+			material->specularTransmittance.color = rr::RRVec3(1)-material->specularTransmittance.color;
 		transmittanceChanged = true;
 	}
 	else
