@@ -255,8 +255,12 @@ static bool shuffleCrossToCube(unsigned char*& pixelsOld, unsigned& widthOld, un
 		return false;
 	}
 
-	// quit when unused area in cross shape is not black
-	if (pixelsOld[0] || pixelsOld[widthOld*bytesPerPixel-bytesPerPixel] || pixelsOld[widthOld*(heightOld-1)*bytesPerPixel] || pixelsOld[widthOld*heightOld*bytesPerPixel-bytesPerPixel])
+	// quit when unused area in cross shape is not all the same color
+	bool cornersIdentical = true;
+	for (unsigned i=0;i<bytesPerPixel;i++)
+		if (pixelsOld[i]!=pixelsOld[widthOld*bytesPerPixel-bytesPerPixel+i] || pixelsOld[i]!=pixelsOld[widthOld*(heightOld-1)*bytesPerPixel+i] || pixelsOld[i]!=pixelsOld[widthOld*heightOld*bytesPerPixel-bytesPerPixel+i])
+			cornersIdentical = false;
+	if (!cornersIdentical)
 	{
 		return false;
 	}
