@@ -94,7 +94,8 @@ public:
 	RRBuffer* load_cached(const RRString& filename, const char* cubeSideName[6])
 	{
 		bool sixfiles = wcsstr(filename.w_str(),L"%s")!=NULL;
-		bool exists = !sixfiles && bf::exists(RR_RR2PATH(filename));
+		boost::system::error_code ec;
+		bool exists = !sixfiles && bf::exists(RR_RR2PATH(filename),ec);
 
 		Cache::iterator i = cache.find(RR_RR2STDW(filename));
 		if (i!=cache.end())
@@ -105,7 +106,7 @@ public:
 					|| i->second.buffer->version==i->second.bufferVersionWhenLoaded) // take static content from cache only if version did not change
 				&& (sixfiles
 					|| !exists // for example c@pture is virtual file, it does not exist on disk, but still we cache it
-					|| (i->second.fileTimeWhenLoaded==bf::last_write_time(filename.w_str()) && i->second.fileSizeWhenLoaded==bf::file_size(filename.w_str())))
+					|| (i->second.fileTimeWhenLoaded==bf::last_write_time(filename.w_str(),ec) && i->second.fileSizeWhenLoaded==bf::file_size(filename.w_str())))
 				)
 			{
 				// detect and report possible error
@@ -128,8 +129,8 @@ public:
 		{
 			value.buffer->createReference(); // keep initial ref for us, add one ref for user
 			value.bufferVersionWhenLoaded = value.buffer->version;
-			value.fileTimeWhenLoaded = exists ? bf::last_write_time(filename.w_str()) : 0;
-			value.fileSizeWhenLoaded = exists ? bf::file_size(filename.w_str()) : 0;
+			value.fileTimeWhenLoaded = exists ? bf::last_write_time(filename.w_str(),ec) : 0;
+			value.fileSizeWhenLoaded = exists ? bf::file_size(filename.w_str(),ec) : 0;
 		}
 		return value.buffer;
 	}
@@ -319,12 +320,13 @@ unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRStr
 			layerParameters.suggestedPath = path;
 			layerParameters.suggestedExt = ext;
 			object->recommendLayerParameters(layerParameters);
-			if ( !bf::exists(RR_RR2PATH(layerParameters.actualFilename)) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
+			boost::system::error_code ec;
+			if ( !bf::exists(RR_RR2PATH(layerParameters.actualFilename),ec) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
 			{
 				// if it fails, try to load per-vertex format
 				layerParameters.suggestedMapWidth = layerParameters.suggestedMapHeight = 0;
 				object->recommendLayerParameters(layerParameters);
-				if (bf::exists(RR_RR2PATH(layerParameters.actualFilename)))
+				if (bf::exists(RR_RR2PATH(layerParameters.actualFilename),ec))
 					buffer = RRBuffer::load(layerParameters.actualFilename.c_str());
 			}
 			if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=object->getCollider()->getMesh()->getNumVertices())
@@ -367,7 +369,8 @@ unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRStr
 				{
 					bf::path prefix(RR_RR2PATH(path));
 					prefix.remove_filename();
-					bf::exists(prefix) || bf::create_directories(prefix);
+					boost::system::error_code ec;
+					bf::exists(prefix,ec) || bf::create_directories(prefix,ec);
 					directoryCreated = true;
 				}
 
@@ -429,7 +432,8 @@ unsigned RRObjects::layerDeleteFromDisk(const RRString& path, const RRString& ex
 		layerParameters.suggestedExt = ext;
 		(*this)[objectIndex]->recommendLayerParameters(layerParameters);
 		bf::path path(RR_RR2PATH(layerParameters.actualFilename));
-		if (bf::exists(path))
+		boost::system::error_code ec;
+		if (bf::exists(path,ec))
 		{
 			path.remove_filename();
 			result++;

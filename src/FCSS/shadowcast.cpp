@@ -1718,6 +1718,7 @@ void parseOptions(int argc, const char*const*argv)
 {
 	int i,tmp;
 	bool badArgument = false;
+	boost::system::error_code ec;
 
 	for (i=1; i<argc; i++)
 	{
@@ -1806,7 +1807,7 @@ void parseOptions(int argc, const char*const*argv)
 			customScene = "";
 		}
 		else
-		if (bf::exists(argv[i]))
+		if (bf::exists(argv[i],ec))
 		{
 			customScene = argv[i];
 		}

@@ -230,7 +230,8 @@ bool UserPreferences::save() const
 {
 	try
 	{
-		bf::create_directories(RR_WX2PATH(suggestPreferencesDirectory()));
+		boost::system::error_code ec;
+		bf::create_directories(RR_WX2PATH(suggestPreferencesDirectory()),ec);
 		std::ofstream ofs(RR_WX2STREAM(suggestPreferencesFilename()));
 		if (!ofs || ofs.bad())
 		{

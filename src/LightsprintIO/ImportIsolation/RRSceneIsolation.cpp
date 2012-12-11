@@ -58,7 +58,8 @@ RRScene* loadIsolated(const RRString& filename, RRFileLocator* textureLocator, b
 	RRScene* scene = new RRScene(RR_PATH2RR(output),textureLocator,aborting);
 
 	// delete scene from temp
-	bf::remove(output);
+	boost::system::error_code ec;
+	bf::remove(output,ec);
 
 	// done
 	return scene;

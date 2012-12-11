@@ -192,7 +192,8 @@ RRString RRFileLocator::getLocation(const RRString& originalFilename, const RRSt
 		RRString location = getLocation(originalFilename,attempt);
 		if (location.empty())
 			return fallbackFilename;
-		bool exists = bf::exists(RR_RR2PATH(location));
+		boost::system::error_code ec;
+		bool exists = bf::exists(RR_RR2PATH(location),ec);
 		RRReporter::report(INF3," %d%c %s\n",attempt,exists?'+':'-',location.c_str());
 		if (exists)
 		{

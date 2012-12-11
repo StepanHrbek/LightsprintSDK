@@ -206,7 +206,8 @@ struct LoadersAndSavers
 		}
 
 		// test whether file exists (to properly report this common error)
-		if (!bf::exists(RR_RR2PATH(_filename)))
+		boost::system::error_code ec;
+		if (!bf::exists(RR_RR2PATH(_filename),ec))
 		{
 			RRReporter::report(WARN,"%ls does not exist.\n",_filename.w_str());
 			return false;

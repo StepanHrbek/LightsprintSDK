@@ -905,7 +905,8 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 			int ofs = (int)location_buf.find(L"%s");
 			if (ofs>=0)
 				location_buf.replace(ofs,2,RRString(_cubeSideName[0]).w_str());
-			bool exists = bf::exists(location_buf);
+			boost::system::error_code ec;
+			bool exists = bf::exists(location_buf,ec);
 			RRReporter::report(INF3,"%d%c %ls\n",attempt,exists?'+':'-',location.w_str());
 			if (exists)
 			{
