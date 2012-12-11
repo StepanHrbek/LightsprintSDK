@@ -291,6 +291,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	level->solver->renderScene(
 		uberProgramSetup,
 		camera,
+		rr_gl::SM_MONO,
 		renderingFromThisLight,
 		true,
 		LAYER_LIGHTMAPS,
