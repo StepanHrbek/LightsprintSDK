@@ -1,6 +1,6 @@
 @echo off
 set sdkpath=.
-set colladapath=c:\OpenCollada
+set colladapath=c:\c\OpenCollada
 
 xcopy /s /y "%colladapath%\COLLADABaseUtils\include\*.h" "%sdkpath%\COLLADABaseUtils\include\"
 xcopy /s /y "%colladapath%\COLLADABaseUtils\src\*.cpp" "%sdkpath%\COLLADABaseUtils\src\"
