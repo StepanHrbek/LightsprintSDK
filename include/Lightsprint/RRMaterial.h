@@ -251,7 +251,7 @@ namespace rr
 		//! Optional bump map modulates surface normals.
 		//
 		//! RGB maps are interpreted as normal maps, grayscale maps (or the same map as diffuseReflectance.texture, or c\@pture) as heightmaps.
-		//! Property::color.x is used as a multiplier of normal steepness, y multiplies height in parallax mapping, defaults are 1.
+		//! Property::color.x is used as a multiplier of normal steepness, y multiplies height in parallax mapping, defaults are 1, negative values are ok.
 		Property      bumpMap;
 		//! True = bump map is height/displacement map, false = bump map is normal map.
 		bool          bumpMapTypeHeight;
