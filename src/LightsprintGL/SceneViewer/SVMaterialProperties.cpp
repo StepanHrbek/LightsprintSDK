@@ -104,8 +104,8 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	AppendIn(propBumpMap,propBumpType = new wxBoolProperty(_("height map")));
 	SetPropertyEditor(propBumpType,wxPGEditor_CheckBox);
 	propBumpType->SetHelpString(_("Use the map as a height map rather than normal map."));
-	AppendIn(propBumpMap,propBumpMultiplier1 = new FloatProperty("normal multiplier",_("Multiplies bump effect on normals."),1,svs.precision,0,1000,0.1f,false));
-	AppendIn(propBumpMap,propBumpMultiplier2 = new FloatProperty("parallax multiplier",_("Multiplies parallax mapping effect."),1,svs.precision,0,1000,0.1f,false));
+	AppendIn(propBumpMap,propBumpMultiplier1 = new FloatProperty("normal multiplier",_("Multiplies bump effect on normals."),1,svs.precision,-1000,1000,0.1f,false));
+	AppendIn(propBumpMap,propBumpMultiplier2 = new FloatProperty("parallax multiplier",_("Multiplies parallax mapping effect."),1,svs.precision,-1000,1000,0.1f,false));
 	SetPropertyBackgroundColour(propBumpMap,importantPropertyBackgroundColor,false);
 	Collapse(propBumpMap);
 
