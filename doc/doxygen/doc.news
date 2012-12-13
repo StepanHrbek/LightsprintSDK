@@ -8,11 +8,12 @@ namespace rr
 
 \page main_news What's new
 
-\section news136 ------------------------------------ 2012.11.xx -------------------------------------
+\section news136 ------------------------------------ 2012.12.xx -------------------------------------
 
 NEWS
 
 - Visual C++ 2012 support
+- specular maps, with optional shininess/roughness in alpha
 - misc helpers
   - RRMaterial::specularTransmittanceMapInverted, lets you invert material transparency with single flag, no need to invert all pixels
   - RRMatrix3x4::rotationByQuaternion()

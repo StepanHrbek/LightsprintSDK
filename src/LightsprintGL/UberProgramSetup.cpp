@@ -101,6 +101,7 @@ void UberProgramSetup::enableAllMaterials()
 	MATERIAL_DIFFUSE_MAP = true;
 	MATERIAL_SPECULAR = true;
 	MATERIAL_SPECULAR_CONST = true;
+	MATERIAL_SPECULAR_MAP = true;
 	MATERIAL_EMISSIVE_CONST = true;
 	MATERIAL_EMISSIVE_MAP = true;
 	MATERIAL_TRANSPARENCY_CONST = true;
@@ -716,6 +717,7 @@ float getMipLevel(const rr::RRMaterial* material)
 {
 	switch (material->specularModel)
 	{
+		// [#19]
 		case rr::RRMaterial::PHONG:
 			{
 				float shininess = RR_CLAMPED(material->specularShininess,1,1e10f);
@@ -765,7 +767,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	{
 		float shininess = material->specularShininess;
 		float miplevel = getMipLevel(material); // miplevel 0=sample from 1x1x6, miplevel 1=2x2x6, miplevel 2=4x4x6...
-		program->sendUniform("materialSpecularShininessData",shininess,miplevel);
+		program->sendUniform("materialSpecularShininessData",rr::RRVec3(shininess,powf(shininess,0.01f),miplevel)); // [#20] makes shininess map perception linear-like
 	}
 
 	if (MATERIAL_SPECULAR_CONST)
@@ -792,6 +794,12 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	{
 		program->sendTexture("materialDiffuseMap",NULL,TEX_CODE_2D_MATERIAL_DIFFUSE);
 		s_buffers1x1.bindPropertyTexture(material->diffuseReflectance,0);
+	}
+
+	if (MATERIAL_SPECULAR_MAP)
+	{
+		program->sendTexture("materialSpecularMap",NULL,TEX_CODE_2D_MATERIAL_SPECULAR);
+		s_buffers1x1.bindPropertyTexture(material->specularReflectance,1);
 	}
 
 	if (MATERIAL_EMISSIVE_MAP)

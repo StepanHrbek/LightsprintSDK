@@ -61,7 +61,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	Append(propSpecular = new wxStringProperty(_("Specular")));
 	AppendIn(propSpecular,new HDRColorProperty(_("color"),_("If texture is set, color is calculated from texture and can't be edited."),svs.precision));
 	AppendIn(propSpecular,new wxIntProperty(_("uv")));
-	AppendIn(propSpecular,new ImageFileProperty(_("texture or video"),_("Specular texture or video. Type in c@pture to use live video input.")));
+	AppendIn(propSpecular,new ImageFileProperty(_("texture or video"),_("Specular texture or video. Type in c@pture to use live video input. Alpha (if present) modulates shininess/roughness.")));
 	{
 		const wxChar* strings[] = {wxT("Phong"),wxT("Blinn-Phong"),wxT("Torrance-Sparrow (Gaussian)"),wxT("Blinn-Torrance-Sparrow"),NULL};
 		const long values[] = {rr::RRMaterial::PHONG,rr::RRMaterial::BLINN_PHONG,rr::RRMaterial::TORRANCE_SPARROW,rr::RRMaterial::BLINN_TORRANCE_SPARROW};

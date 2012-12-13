@@ -208,17 +208,21 @@ namespace rr
 		//! Radiant emittance in watts per square meter (each channel separately). (Adapters usually create materials in sRGB scale, so that this is screen color.)
 		Property      diffuseEmittance;
 		//! Fraction of energy that is reflected in <a href="http://en.wikipedia.org/wiki/Specular_reflection">specular reflection</a> (each channel separately).
+		//
+		//! When texture is set, its color is used as a specular reflectance color, and its alpha is used to modulate material's specularShininess/roughness.
+		//! For alpha=1 there is no change in shininess/roughness. As alpha goes down to 0, shininess/roughness also goes down to its minimal value (1 or 0).
+		//! Whether it is rough or shiny depends on specularModel. So in case of need, you can invert effect of alpha channel by changing specularModel.
 		Property      specularReflectance;
 		enum SpecularModel
 		{
-			PHONG                  = 0, //< as in http://en.wikipedia.org/wiki/Phong_shading
-			BLINN_PHONG            = 1, //< as in http://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model
-			TORRANCE_SPARROW       = 2, //< as in Zara J.: Pocitacova grafika (1992)
-			BLINN_TORRANCE_SPARROW = 3, //< as in http://www.siggraph.org/education/materials/HyperGraph/illumin/specular_highlights/blinn_model_for_specular_reflect_1.htm
+			PHONG                  = 0, //< as in http://en.wikipedia.org/wiki/Phong_shading (shininess in 1..inf)
+			BLINN_PHONG            = 1, //< as in http://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model (shininess in 1..inf)
+			TORRANCE_SPARROW       = 2, //< as in Zara J.: Pocitacova grafika (1992) (roughness in 0..1)
+			BLINN_TORRANCE_SPARROW = 3, //< as in http://www.siggraph.org/education/materials/HyperGraph/illumin/specular_highlights/blinn_model_for_specular_reflect_1.htm (roughness in 0..1)
 		};
 		//! Selects what model / distribution function to use for specular reflectance.
 		SpecularModel specularModel;
-		//! Interpreted as shininess or roughness, according to specularModel.
+		//! Interpreted as shininess (1..inf) or roughness (0..1), according to specularModel.
 		RRReal        specularShininess;
 		//! Fraction of energy that continues through surface (with direction possibly changed by refraction).
 		//

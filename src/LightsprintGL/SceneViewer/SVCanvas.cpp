@@ -1596,6 +1596,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse;
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures;
 			uberProgramSetup.MATERIAL_SPECULAR = svs.renderMaterialSpecular;
+			uberProgramSetup.MATERIAL_SPECULAR_MAP = svs.renderMaterialSpecular && svs.renderMaterialTextures;
 			uberProgramSetup.MATERIAL_SPECULAR_CONST = svs.renderMaterialSpecular;
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = svs.renderMaterialEmission;
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = svs.renderMaterialEmission && svs.renderMaterialTextures;

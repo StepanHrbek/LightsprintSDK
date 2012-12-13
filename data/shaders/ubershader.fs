@@ -222,11 +222,16 @@ uniform vec3 worldEyePos; // is it in use? it's complicated and error prone to t
 varying vec3 worldPos;
 
 #if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || (defined(LIGHT_INDIRECT_MIRROR_SPECULAR) && defined (LIGHT_INDIRECT_MIRROR_MIPMAPS)))
-	uniform vec2 materialSpecularShininessData; // shininess,cube miplevel(0=1x1x6,2=2x2x6,3=4x4x6...)
+	uniform vec3 materialSpecularShininessData; // shininess,pow(shininess,0.01),cube miplevel(0=1x1x6,2=2x2x6,3=4x4x6...)
 #endif
 
 #ifdef MATERIAL_SPECULAR_CONST
 	uniform vec4 materialSpecularConst;
+#endif
+
+#ifdef MATERIAL_SPECULAR_MAP
+	uniform sampler2D materialSpecularMap;
+	varying vec2 materialSpecularCoord;
 #endif
 
 varying vec3 worldNormalSmooth;
@@ -446,12 +451,29 @@ void main()
 	// specular
 
 	#ifdef MATERIAL_SPECULAR_MAP
-		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
-		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
+		vec4 materialSpecularMapColor = texture2D(materialSpecularMap, materialSpecularCoord+parallaxOffset);
 	#endif
 	#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || (defined(LIGHT_INDIRECT_MIRROR_SPECULAR) && defined (LIGHT_INDIRECT_MIRROR_MIPMAPS)))
 		float materialSpecularShininess = materialSpecularShininessData.x;
-		float materialSpecularMipLevel = materialSpecularShininessData.y;
+		float materialSpecularShininessSqrt = materialSpecularShininessData.y;
+		float materialSpecularMipLevel = materialSpecularShininessData.z;
+		#ifdef MATERIAL_SPECULAR_MAP
+			// materialSpecularShininess calculated as in [#18]
+			// materialSpecularMipLevel calculated as in [#19]
+			#if MATERIAL_SPECULAR_MODEL<2
+				materialSpecularShininessSqrt = 1.0+(materialSpecularShininessSqrt-1.0)*materialSpecularMapColor.a;
+				materialSpecularShininess = pow(materialSpecularShininessSqrt,100.0); // [#20]
+				float spreadAngle = acos(pow(1.0/(materialSpecularShininess+1.0),1.0/materialSpecularShininess));
+				#if MATERIAL_SPECULAR_MODEL==1
+					spreadAngle = spreadAngle*2.0; // estimate: 2x higher than PHONG
+				#endif
+				materialSpecularMipLevel = (spreadAngle<=0.0) ? 15.0 : log(spreadAngle/(45.0*3.14159/180.0))/log(0.5);
+			#else
+				materialSpecularShininess = materialSpecularShininess * materialSpecularMapColor.a;
+				float shininess = clamp(materialSpecularShininess*materialSpecularShininess,0.0000000001,1);
+				materialSpecularMipLevel = -log(shininess)*0.4;
+			#endif
+		#endif
 	#endif
 
 	// emittance
@@ -752,9 +774,6 @@ void main()
 				#ifdef MATERIAL_DIFFUSE_MAP
 					materialDiffuseMapColor *
 				#endif
-				#ifdef MATERIAL_SPECULAR_MAP
-					materialDiffuseReflectance *
-				#endif
 				#if defined(MATERIAL_TRANSPARENCY_BLEND) && ( !defined(MATERIAL_DIFFUSE_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) )
 					// outside shader, blend operation is: color_in_buffer = RGB + (1-A)*color_in_buffer
 					// so if we want RGB modulated by opacity, it must be done here in shader
@@ -825,7 +844,7 @@ void main()
 					materialSpecularConst *
 				#endif
 				#ifdef MATERIAL_SPECULAR_MAP
-					materialSpecularReflectance *
+					materialSpecularMapColor *
 				#endif
 				#ifdef MATERIAL_TRANSPARENCY_FRESNEL
 					// Fresnel did subtract fraction (materialFresnelReflectance) of transmittance (1.0-preFresnelOpacityA)

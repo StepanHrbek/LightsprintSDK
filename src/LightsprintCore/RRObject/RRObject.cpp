@@ -227,7 +227,17 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 		RRMesh::TriangleMapping triangleMapping;
 		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.specularReflectance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		material.specularReflectance.color = material.specularReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
+		RRVec4 specColor = material.specularReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
+		material.specularReflectance.color = specColor;
+		// shininess is modulated by specular map alpha. does nothing if specular map is RGB only [#18]
+		if (material.specularModel==RRMaterial::PHONG || material.specularModel==RRMaterial::BLINN_PHONG)
+		{
+			RRReal specularShininessSqrt = powf(RR_CLAMPED(material.specularShininess,1,1e10f),0.01f); // [#20]
+			specularShininessSqrt = 1+(specularShininessSqrt-1)*specColor.w;
+			material.specularShininess = powf(specularShininessSqrt,100.0f);
+		}
+		else
+			material.specularShininess *= specColor.w;
 		if (scaler)
 		{
 			scaler->getPhysicalFactor(material.specularReflectance.color);

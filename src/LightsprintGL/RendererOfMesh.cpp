@@ -319,7 +319,7 @@ void MeshArraysVBOs::renderMesh(
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			}
 		};
-		UvChannelBinding uvChannelBinding = {UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX}; // must have all MULTITEXCOORD_COUNT items initialized to UINT_MAX
+		UvChannelBinding uvChannelBinding = {UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX}; // must have all MULTITEXCOORD_COUNT items initialized to UINT_MAX [#17]
 
 		for (unsigned r=0;r<_numFaceGroupRanges;r++)
 		{
@@ -369,6 +369,8 @@ void MeshArraysVBOs::renderMesh(
 							_uberProgramSetup.useMaterial(_program,material);
 							if (_uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_DIFFUSE,material->diffuseReflectance.texcoord,material->diffuseReflectance.texture,_object->name,material->name);
+							if (_uberProgramSetup.MATERIAL_SPECULAR_MAP)
+								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_SPECULAR,material->specularReflectance.texcoord,material->specularReflectance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_EMISSIVE_MAP)
 								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_EMISSIVE,material->diffuseEmittance.texcoord,material->diffuseEmittance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
@@ -415,6 +417,13 @@ void MeshArraysVBOs::renderMesh(
 	if (_uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 	{
 		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
+		glBindTexture(GL_TEXTURE_2D,0);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
+	// unset material specular texcoords
+	if (_uberProgramSetup.MATERIAL_SPECULAR_MAP)
+	{
+		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_SPECULAR);
 		glBindTexture(GL_TEXTURE_2D,0);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}

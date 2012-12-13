@@ -20,13 +20,14 @@ enum
 	// Program::sendTexture() codes, not sent to OpenGL
 	// (Program remembers dynamically allocated texture units in slots indexed by these codes)
 	TEX_CODE_2D_MATERIAL_DIFFUSE          = 0, ///< Program::sendTexture() code used by our uberprogram for diffuse map.
-	TEX_CODE_2D_LIGHT_DIRECT              = 1, ///< Program::sendTexture() code used by our uberprogram for projected light map.
-	TEX_CODE_2D_LIGHT_INDIRECT            = 2, ///< Program::sendTexture() code used by our uberprogram for lightmap/ambient map/light detail map.
-	TEX_CODE_2D_MATERIAL_TRANSPARENCY     = 3, ///< Program::sendTexture() code used by our uberprogram for rgb transparency map.
-	TEX_CODE_2D_MATERIAL_EMISSIVE         = 4, ///< Program::sendTexture() code used by our uberprogram for emissive map.
-	TEX_CODE_2D_MATERIAL_BUMP             = 5, ///< Program::sendTexture() code used by our uberprogram for normal map.
-	TEX_CODE_CUBE_LIGHT_INDIRECT          = 6, ///< Program::sendTexture() code used by our uberprogram for environment map.
+	TEX_CODE_2D_MATERIAL_SPECULAR         = 1, ///< Program::sendTexture() code used by our uberprogram for specular map.
+	TEX_CODE_2D_MATERIAL_TRANSPARENCY     = 2, ///< Program::sendTexture() code used by our uberprogram for rgb transparency map.
+	TEX_CODE_2D_MATERIAL_EMISSIVE         = 3, ///< Program::sendTexture() code used by our uberprogram for emissive map.
+	TEX_CODE_2D_MATERIAL_BUMP             = 4, ///< Program::sendTexture() code used by our uberprogram for normal map.
+	TEX_CODE_2D_LIGHT_DIRECT              = 5, ///< Program::sendTexture() code used by our uberprogram for projected light map.
+	TEX_CODE_2D_LIGHT_INDIRECT            = 6, ///< Program::sendTexture() code used by our uberprogram for lightmap/ambient map/light detail map.
 	TEX_CODE_2D_LIGHT_INDIRECT_MIRROR     = 7, ///< Program::sendTexture() code used by our uberprogram for mirror map.
+	TEX_CODE_CUBE_LIGHT_INDIRECT          = 8, ///< Program::sendTexture() code used by our uberprogram for environment map.
 
 	// texcoords assigned to UberProgram, sent to OpenGL
 	// these constants are hardcoded in shaders
@@ -36,7 +37,8 @@ enum
 	MULTITEXCOORD_MATERIAL_EMISSIVE      = 3, ///< Texcoord channel used by our uberprogram for emissive map uv.
 	MULTITEXCOORD_MATERIAL_TRANSPARENCY  = 4, ///< Texcoord channel used by our uberprogram for rgb transparency map uv.
 	MULTITEXCOORD_MATERIAL_BUMP_MAP      = 5, ///< Texcoord channel used by our uberprogram for normal map uv.
-	MULTITEXCOORD_COUNT                  = 6,
+	MULTITEXCOORD_MATERIAL_SPECULAR      = 6, ///< Texcoord channel used by our uberprogram for specular map uv.
+	MULTITEXCOORD_COUNT                  = 7, ///< If you increase it, see [#17]
 };
 
 //! Clipping plane values.
@@ -113,7 +115,7 @@ struct RR_GL_API UberProgramSetup
 
 	bool     MATERIAL_SPECULAR             :1; ///< Enables material's specular reflectance. All enabled MATERIAL_SPECULAR_XXX are multiplied. When only MATERIAL_SPECULAR is enabled, specular color is 1 (white).
 	bool     MATERIAL_SPECULAR_CONST       :1; ///< Enables material's specular reflectance modulated by constant color.
-	bool     MATERIAL_SPECULAR_MAP         :1; ///< Enables specular map, each pixel gets 100% diffuse or 100% specular. Decision is based on contents of diffuse map.
+	bool     MATERIAL_SPECULAR_MAP         :1; ///< Enables material's specular reflectance and shininess modulated by specular map (reflectance is read from RGB, material's shininess is modulated by A).
 	unsigned char MATERIAL_SPECULAR_MODEL  :2; ///< Copy of specularModel from material.
 
 	bool     MATERIAL_EMISSIVE_CONST       :1; ///< Enables material's emission stored in constant. All enabled MATERIAL_EMISSIVE_XXX are accumulated.

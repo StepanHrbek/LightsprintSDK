@@ -132,6 +132,10 @@ varying vec3 worldNormalSmooth;
 	varying vec2 materialDiffuseCoord;
 #endif
 
+#ifdef MATERIAL_SPECULAR_MAP
+	varying vec2 materialSpecularCoord;
+#endif
+
 #ifdef MATERIAL_EMISSIVE_MAP
 	varying vec2 materialEmissiveCoord;
 #endif
@@ -189,6 +193,10 @@ void main()
 
 	#ifdef MATERIAL_DIFFUSE_MAP
 		materialDiffuseCoord = gl_MultiTexCoord0.xy; // 0 = MULTITEXCOORD_MATERIAL_DIFFUSE
+	#endif
+
+	#ifdef MATERIAL_SPECULAR_MAP
+		materialSpecularCoord = gl_MultiTexCoord6.xy; // 6 = MULTITEXCOORD_MATERIAL_SPECULAR
 	#endif
 
 	#ifdef MATERIAL_EMISSIVE_MAP
