@@ -424,6 +424,23 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propSpecularModel)
 	{
 		material->specularModel = (rr::RRMaterial::SpecularModel)(property->GetValue().GetInteger());
+		switch (material->specularModel)
+		{
+			case rr::RRMaterial::PHONG:
+			case rr::RRMaterial::BLINN_PHONG:
+				if (material->specularShininess<=0)
+					material->specularShininess = 1000000;
+				else if (material->specularShininess<1)
+					material->specularShininess = 1/material->specularShininess;
+				updateFloat(propSpecularShininess,material->specularShininess);
+				break;
+			case rr::RRMaterial::TORRANCE_SPARROW:
+			case rr::RRMaterial::BLINN_TORRANCE_SPARROW:
+				if (material->specularShininess>1)
+					material->specularShininess = 1/material->specularShininess;
+				updateFloat(propSpecularRoughness,material->specularShininess);
+				break;
+		}
 		updateHide();
 	}
 	else
