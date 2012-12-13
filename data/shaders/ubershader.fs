@@ -449,6 +449,10 @@ void main()
 		float materialSpecularReflectance = step(materialDiffuseMapColor.r,0.6);
 		float materialDiffuseReflectance = 1.0 - materialSpecularReflectance;
 	#endif
+	#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || (defined(LIGHT_INDIRECT_MIRROR_SPECULAR) && defined (LIGHT_INDIRECT_MIRROR_MIPMAPS)))
+		float materialSpecularShininess = materialSpecularShininessData.x;
+		float materialSpecularMipLevel = materialSpecularShininessData.y;
+	#endif
 
 	// emittance
 
@@ -720,10 +724,10 @@ void main()
 		#endif
 		#if defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
 			#ifdef LIGHT_INDIRECT_MIRROR_MIPMAPS
-				float mirrorLod = lightIndirectMirrorData.z-materialSpecularShininessData.y
+				float mirrorLod = lightIndirectMirrorData.z-materialSpecularMipLevel
 					// makes reflection sharper closer to reflected object (rough appriximation)
 					// but does not sharpen very blurry reflections, it would look bad, partially because of low quality generated mipmaps
-					+ max(materialSpecularShininessData.y,0.0)*(texture2DLod(lightIndirectMirrorMap, mirrorCenterSmooth, lightIndirectMirrorData.z).a*4.0-4.0);
+					+ max(materialSpecularMipLevel,0.0)*(texture2DLod(lightIndirectMirrorMap, mirrorCenterSmooth, lightIndirectMirrorData.z).a*4.0-4.0);
 					// BTW, texture2DLod() in fragment shader requires GLSL 1.30+ or GL_EXT_gpu_shader4 and we don't check it, it is virtually always present
 				vec2 mirrorShift1 = noiseSinCos * lightIndirectMirrorData.xy * pow(1.5,mirrorLod);
 			#else
@@ -843,16 +847,16 @@ void main()
 					#ifdef LIGHT_DIRECT
 						#if MATERIAL_SPECULAR_MODEL==0
 							// Phong, materialSpecularShininess in 1..inf
-							+ pow( max(0.0,dot(worldLightDirFromPixel,normalize(worldViewReflected))) ,materialSpecularShininessData.x) * (materialSpecularShininessData.x+1.0)
+							+ pow( max(0.0,dot(worldLightDirFromPixel,normalize(worldViewReflected))) ,materialSpecularShininess) * (materialSpecularShininess+1.0)
 						#elif MATERIAL_SPECULAR_MODEL==1
 							// Blinn-Phong, materialSpecularShininess in 1..inf
-							+ pow(NH,materialSpecularShininessData.x) * (materialSpecularShininessData.x+1.0)
+							+ pow(NH,materialSpecularShininess) * (materialSpecularShininess+1.0)
 						#elif MATERIAL_SPECULAR_MODEL==2
 							// Torrance-Sparrow (Gaussian), materialSpecularShininess=m^2=0..1
-							+ exp((1.0-1.0/(NH*NH))/materialSpecularShininessData.x) / (4.0*materialSpecularShininessData.x*((NH*NH)*(NH*NH))+0.0000000000001)
+							+ exp((1.0-1.0/(NH*NH))/materialSpecularShininess) / (4.0*materialSpecularShininess*((NH*NH)*(NH*NH))+0.0000000000001)
 						#else
 							// Blinn-Torrance-Sparrow, materialSpecularShininess=c3^2=0..1
-							+ sqr(materialSpecularShininessData.x/(NH*NH*(materialSpecularShininessData.x-1.0)+1.0))
+							+ sqr(materialSpecularShininess/(NH*NH*(materialSpecularShininess-1.0)+1.0))
 						#endif
 						* lightDirect
 					#endif
@@ -863,7 +867,7 @@ void main()
 						+ lightIndirectConst
 					#endif
 					#ifdef LIGHT_INDIRECT_ENV_SPECULAR
-						+ textureCubeLod(lightIndirectEnvMap, worldViewReflected, lightIndirectEnvMapNumLods-materialSpecularShininessData.y)
+						+ textureCubeLod(lightIndirectEnvMap, worldViewReflected, lightIndirectEnvMapNumLods-materialSpecularMipLevel)
 						#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
 							// reflection maps for big complex objects like whole building tend to be very inaccurate,
 							// modulating reflection by indirect irradiance makes them look better
