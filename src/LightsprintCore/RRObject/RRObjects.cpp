@@ -123,6 +123,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 					else if (desiredEnvMapSize)
 					{
 						buffer->reset(BT_CUBE_TEXTURE,desiredEnvMapSize,desiredEnvMapSize,6,BF_RGBA,true,NULL);
+						buffer->filename.clear(); // contents was destroyed, buffer is no longer related to file on disk
 						buffer->version = rand()*11111; // updateEnvironmentMap() considers version++ from reset() too small change to update, upper 16bits must change
 					}
 					else
