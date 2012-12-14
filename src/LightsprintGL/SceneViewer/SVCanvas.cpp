@@ -464,8 +464,9 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 	ray->collisionHandler = collisionHandler;
 
 	// alloc rtgi buffers, otherwise new objects would have no realtime indirect
-	if (add)
-		reallocateBuffersForRealtimeGI(true);
+	// (it has to be called even when removing static objects, because multiobject is rebuilt and has no rtgi buffer;
+	//  if we don't call it, optimized render that uses multiobject would have no indir from FB/architect, optimized render usually shows up after disabling cubes/mirrors)
+	reallocateBuffersForRealtimeGI(true);
 
 	recalculateIconSizeAndPosition();
 
