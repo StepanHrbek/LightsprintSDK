@@ -94,7 +94,7 @@ public:
 	//! Sets uniform of type int2.
 	void sendUniform(const char* name, int x, int y);
 	//! Sets uniform of type mat2, mat3 or mat4.
-	void sendUniform(const char* name, float *m, bool transp=false, int size=4);
+	void sendUniform(const char* name, const float *m, bool transp=false, int size=4);
 
 	//! Does uniform exist in program? 
 	bool uniformExists(const char* uniformName);

@@ -189,7 +189,7 @@ void Program::sendUniform(const char* name, int x, int y)
 	glUniform2i(getLoc(name), x, y);
 }
 
-void Program::sendUniform(const char* name, float *matrix, bool transpose, int size)
+void Program::sendUniform(const char* name, const float *matrix, bool transpose, int size)
 {
 	int loc = getLoc(name);
 
