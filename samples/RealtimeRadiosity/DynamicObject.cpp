@@ -61,47 +61,12 @@ void DynamicObject::updatePosition()
 {
 	// set object's world matrix
 	if (model)
-	{
-		/*
-		glPushMatrix();
-		glLoadIdentity();
-		glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
-		glRotatef(rotYZ[1],0,0,1);
-		glRotatef(rotYZ[0],0,1,0);
-		if (model) glTranslatef(-model->localCenter.x,-model->localMinY,-model->localCenter.z);
-		glGetFloatv(GL_MODELVIEW_MATRIX,worldMatrix);
-		glPopMatrix();
-		*/
-		float sz = sin(RR_DEG2RAD(rotYZ[1]));
-		float cz = cos(RR_DEG2RAD(rotYZ[1]));
-		float sy = sin(RR_DEG2RAD(rotYZ[0]));
-		float cy = cos(RR_DEG2RAD(rotYZ[0]));
-		float mx = -model->localCenter.x;
-		float my = -model->localMinY;
-		float mz = -model->localCenter.z;
-		worldMatrix[0] = cz*cy;
-		worldMatrix[1] = sz*cy;
-		worldMatrix[2] = -sy;
-		worldMatrix[3] = 0;
-		worldMatrix[4] = -sz;
-		worldMatrix[5] = cz;
-		worldMatrix[6] = 0;
-		worldMatrix[7] = 0;
-		worldMatrix[8] = cz*sy;
-		worldMatrix[9] = sz*sy;
-		worldMatrix[10] = cy;
-		worldMatrix[11] = 0;
-		worldMatrix[12] = cz*cy*mx-sz*my+cz*sy*mz+worldFoot[0];
-		worldMatrix[13] = sz*cy*mx+cz*my+sz*sy*mz+worldFoot[1];
-		worldMatrix[14] = -sy*mx+cy*mz+worldFoot[2];
-		worldMatrix[15] = 1;
-	}
+		worldMatrix = rr::RRMatrix3x4::translation(worldFoot)
+			* rr::RRMatrix3x4::rotationByYawPitchRoll(rr::RRVec3(rotYZ[0],rotYZ[1],0)*(RR_PI/180))
+			* rr::RRMatrix3x4::translation(rr::RRVec3(-model->localCenter.x,-model->localMinY,-model->localCenter.z));
 
 	// update object's center in world coordinates
-	illumination->envMapWorldCenter = rr::RRVec3(
-		model->localCenter.x*worldMatrix[0]+model->localCenter.y*worldMatrix[4]+model->localCenter.z*worldMatrix[ 8]+worldMatrix[12],
-		model->localCenter.x*worldMatrix[1]+model->localCenter.y*worldMatrix[5]+model->localCenter.z*worldMatrix[ 9]+worldMatrix[13],
-		model->localCenter.x*worldMatrix[2]+model->localCenter.y*worldMatrix[6]+model->localCenter.z*worldMatrix[10]+worldMatrix[14]);
+	illumination->envMapWorldCenter = worldMatrix.getTransformedPosition(model->localCenter);
 }
 
 void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRCamera& camera,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance,const rr::RRCamera& eye, const rr::RRVec4* brightness, float gamma)
@@ -164,7 +129,9 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	// set matrix
 	if (uberProgramSetup.OBJECT_SPACE)
 	{
-		program->sendUniform("worldMatrix",worldMatrix,false,4);
+		rr::RRObject object;
+		object.setWorldMatrix(&worldMatrix);
+		uberProgramSetup.useWorldMatrix(program,&object);
 	}
 	// set envmap
 	uberProgramSetup.useIlluminationEnvMap(program,illumination->getLayer(LAYER_ENVIRONMENT));

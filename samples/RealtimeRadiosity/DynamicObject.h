@@ -53,14 +53,12 @@ public:
 protected:
 	DynamicObject();
 	class Model_3DS* model;
-	rr::RRObjects* singleObjects;
-	rr::RRObject* multiObject;
 	rr_gl::UberProgramSetup material;
 	class Renderer* rendererWithoutCache;
 	class Renderer* rendererCached;
 
 	// updated by updatePosition
-	float worldMatrix[16];
+	rr::RRMatrix3x4 worldMatrix;
 };
 
 // arbitrary unique non-negative numbers

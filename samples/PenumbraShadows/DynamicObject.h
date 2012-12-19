@@ -29,7 +29,7 @@ public:
 	static DynamicObject* create(const char* filename,float scale);
 	void render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRCamera& camera,rr_gl::RealtimeLight* light,unsigned firstInstance,rr::RRBuffer* lightIndirectEnvSpecular,const rr::RRCamera& eye,float rot);
 
-	float worldFoot[3];
+	rr::RRVec3 worldFoot;
 private:
 	Model_3DS model;
 	rr::RRObjectIllumination illumination;

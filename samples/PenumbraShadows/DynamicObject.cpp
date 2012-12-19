@@ -39,15 +39,12 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	// set matrices
 	if (uberProgramSetup.OBJECT_SPACE)
 	{
-		float m[16];
-		glPushMatrix();
-		glLoadIdentity();
-		glTranslatef(worldFoot[0],worldFoot[1],worldFoot[2]);
-		glRotatef(rot,0,1,0);
-		glTranslatef(-model.localCenter.x,-model.localMinY,-model.localCenter.z);
-		glGetFloatv(GL_MODELVIEW_MATRIX,m);
-		glPopMatrix();
-		program->sendUniform("worldMatrix",m,false,4);
+		rr::RRObject object;
+		object.setWorldMatrix(&( 
+			rr::RRMatrix3x4::translation(worldFoot)
+			* rr::RRMatrix3x4::rotationByYawPitchRoll(rr::RRVec3(rot*RR_PI/180,0,0))
+			* rr::RRMatrix3x4::translation(rr::RRVec3(-model.localCenter.x,-model.localMinY,-model.localCenter.z)) ));
+		uberProgramSetup.useWorldMatrix(program,&object);
 	}
 	// render
 	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
