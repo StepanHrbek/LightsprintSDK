@@ -48,6 +48,10 @@ public:
 	{
 		return inherited->getWorldMatrix();
 	}
+	virtual const RRMatrix3x4* getInverseWorldMatrix() const
+	{
+		return inherited->getInverseWorldMatrix();
+	}
 	virtual void setWorldMatrix(const RRMatrix3x4* _worldMatrix)
 	{
 		return inherited->setWorldMatrix(_worldMatrix);

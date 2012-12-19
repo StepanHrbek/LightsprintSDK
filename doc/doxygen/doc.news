@@ -21,6 +21,8 @@ NEWS
   - RRMatrix3x4::rotationByQuaternion()
   - RRMatrix3x4::getQuaternion()
   - RRObjects::buildUnwrap() has one more parameter
+  - RRObject::getInverseWorldMatrix()
+  - RRObject::getInverseWorldMatrixRef()
 
 CHANGES
 
