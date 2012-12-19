@@ -329,28 +329,31 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 
 		static RRMatrix3x4 mirror(const RRVec4& plane);
 
-		//! Returns position in 3d space transformed by matrix.
-		RRVec3 getTransformedPosition(const RRVec3& a) const;
 		//! Transforms position in 3d space by matrix.
 		void transformPosition(RRVec3& a) const;
-		//! Returns direction in 3d space transformed by matrix.
-		RRVec3 getTransformedDirection(const RRVec3& a) const;
+		//! Returns position in 3d space transformed by matrix.
+		RRVec3 getTransformedPosition(const RRVec3& a) const;
+
 		//! Transforms direction in 3d space by matrix.
 		void transformDirection(RRVec3& a) const;
-		//! Returns normal in 3d space transformed by transformation's inverse matrix. Result is not normalized.
-		//
-		//! Unlike matrix.getTransformedDirection(), inverse.getTransformedNormal() ensures that normals perpendicular to surface
-		//! stay perpendicular even for matrices with non-uniform scale.
-		RRVec3 getTransformedNormal(const RRVec3& a) const;
+		//! Returns direction in 3d space transformed by matrix.
+		RRVec3 getTransformedDirection(const RRVec3& a) const;
+
 		//! Transforms normal in 3d space by transformation's inverse matrix. Result is not normalized.
 		//
 		//! Unlike matrix.transformDirection(), inverse.transformNormal() ensures that normals perpendicular to surface
 		//! stay perpendicular even for matrices with non-uniform scale.
 		void transformNormal(RRVec3& a) const;
-		//! Returns plane in 3d space transformed by matrix.
-		RRVec4 getTransformedPlane(const RRVec4& a) const;
+		//! Returns normal in 3d space transformed by transformation's inverse matrix. Result is not normalized.
+		//
+		//! Unlike matrix.getTransformedDirection(), inverse.getTransformedNormal() ensures that normals perpendicular to surface
+		//! stay perpendicular even for matrices with non-uniform scale.
+		RRVec3 getTransformedNormal(const RRVec3& a) const;
+
 		//! Transforms plane in 3d space by matrix.
 		void transformPlane(RRVec4& a) const;
+		//! Returns plane in 3d space transformed by matrix.
+		RRVec4 getTransformedPlane(const RRVec4& a) const;
 
 		bool operator ==(const RRMatrix3x4& a) const;
 		bool operator !=(const RRMatrix3x4& a) const;

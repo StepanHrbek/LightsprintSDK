@@ -188,6 +188,13 @@ namespace rr
 		//!  For valid t, requested LOD info is written to out. For invalid t, out stays unmodified.
 		virtual void getTriangleLod(unsigned t, LodInfo& out) const;
 
+		//! Sets object transformation from local to world space.
+		//
+		//! It copies data from your matrix rather than remembering your pointer.
+		//! NULL is accepted as no transformation.
+		//! If you set identity matrix, getWorldMatrix() will return NULL.
+		virtual void setWorldMatrix(const RRMatrix3x4* worldMatrix);
+
 		//! Returns object transformation from local to world space.
 		//
 		//! Returns NULL for identity, for use in "if (matrix) slow_transform_path; else fast_identity_path;" scenarios.
@@ -203,13 +210,6 @@ namespace rr
 		virtual const RRMatrix3x4* getInverseWorldMatrix() const;
 		//! Returns inverse of object transformation from local to world space.
 		const RRMatrix3x4& getInverseWorldMatrixRef() const;
-
-		//! Sets object transformation from local to world space.
-		//
-		//! It copies data from your matrix rather than remembering your pointer.
-		//! NULL is accepted as no transformation.
-		//! If you set identity matrix, getWorldMatrix() will return NULL.
-		virtual void setWorldMatrix(const RRMatrix3x4* worldMatrix);
 
 		//! Returns arbitrary additional data provided by adapter, or NULL for unsupported data.
 		//

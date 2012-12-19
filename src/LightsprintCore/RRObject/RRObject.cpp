@@ -305,6 +305,21 @@ void RRObject::getTriangleLod(unsigned t, LodInfo& out) const
 	out.distanceMax = 1e35f;
 }
 
+void RRObject::setWorldMatrix(const RRMatrix3x4* _worldMatrix)
+{
+	if (_worldMatrix && !_worldMatrix->isIdentity())
+	{
+		if (!worldMatrix)
+			worldMatrix = new RRMatrix3x4[2];
+		worldMatrix[0] = *_worldMatrix;
+		worldMatrix[0].invertedTo(worldMatrix[1]);
+	}
+	else
+	{
+		RR_SAFE_DELETE_ARRAY(worldMatrix);
+	}
+}
+
 const RRMatrix3x4* RRObject::getWorldMatrix() const
 {
 	return worldMatrix;
@@ -327,21 +342,6 @@ const RRMatrix3x4& RRObject::getInverseWorldMatrixRef() const
 	const RRMatrix3x4* iwm = getInverseWorldMatrix();
 	static RRMatrix3x4 identity = RRMatrix3x4::identity();
 	return iwm?*iwm:identity;
-}
-
-void RRObject::setWorldMatrix(const RRMatrix3x4* _worldMatrix)
-{
-	if (_worldMatrix && !_worldMatrix->isIdentity())
-	{
-		if (!worldMatrix)
-			worldMatrix = new RRMatrix3x4[2];
-		worldMatrix[0] = *_worldMatrix;
-		worldMatrix[0].invertedTo(worldMatrix[1]);
-	}
-	else
-	{
-		RR_SAFE_DELETE_ARRAY(worldMatrix);
-	}
 }
 
 void* RRObject::getCustomData(const char* name) const

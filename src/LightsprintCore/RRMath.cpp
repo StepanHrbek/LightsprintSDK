@@ -187,39 +187,6 @@ RRMatrix3x4::RRMatrix3x4(double m00, double m01, double m02, double m03, double 
 //
 // RRMatrix3x4 point transformations
 
-RRVec3 RRMatrix3x4::getTransformedPosition(const RRVec3& a) const
-{
-	RR_ASSERT(m);
-	return RRVec3(
-	  a[0]*m[0][0] + a[1]*m[0][1] + a[2]*m[0][2] + m[0][3],
-	  a[0]*m[1][0] + a[1]*m[1][1] + a[2]*m[1][2] + m[1][3],
-	  a[0]*m[2][0] + a[1]*m[2][1] + a[2]*m[2][2] + m[2][3]);
-}
-
-RRVec3 RRMatrix3x4::getTransformedDirection(const RRVec3& a) const
-{
-	RR_ASSERT(m);
-	return RRVec3(
-		a[0]*m[0][0] + a[1]*m[0][1] + a[2]*m[0][2],
-		a[0]*m[1][0] + a[1]*m[1][1] + a[2]*m[1][2],
-		a[0]*m[2][0] + a[1]*m[2][1] + a[2]*m[2][2]);
-}
-
-RRVec3 RRMatrix3x4::getTransformedNormal(const RRVec3& a) const
-{
-	RR_ASSERT(m);
-	return RRVec3(
-		a[0]*m[0][0] + a[1]*m[1][0] + a[2]*m[2][0],
-		a[0]*m[0][1] + a[1]*m[1][1] + a[2]*m[2][1],
-		a[0]*m[0][2] + a[1]*m[1][2] + a[2]*m[2][2]);
-}
-
-RRVec4 RRMatrix3x4::getTransformedPlane(const RRVec4& a) const
-{
-	RRMatrix3x4 inverse;
-	return RRVec4::plane(invertedTo(inverse) ? inverse.getTransformedNormal(a) : getTransformedDirection(a), getTransformedPosition(a.pointInPlane()) );
-}
-
 void RRMatrix3x4::transformPosition(RRVec3& a) const
 {
 	RR_ASSERT(m);
@@ -227,6 +194,15 @@ void RRMatrix3x4::transformPosition(RRVec3& a) const
 		a[0]*m[0][0] + a[1]*m[0][1] + a[2]*m[0][2] + m[0][3],
 		a[0]*m[1][0] + a[1]*m[1][1] + a[2]*m[1][2] + m[1][3],
 		a[0]*m[2][0] + a[1]*m[2][1] + a[2]*m[2][2] + m[2][3]);
+}
+
+RRVec3 RRMatrix3x4::getTransformedPosition(const RRVec3& a) const
+{
+	RR_ASSERT(m);
+	return RRVec3(
+	  a[0]*m[0][0] + a[1]*m[0][1] + a[2]*m[0][2] + m[0][3],
+	  a[0]*m[1][0] + a[1]*m[1][1] + a[2]*m[1][2] + m[1][3],
+	  a[0]*m[2][0] + a[1]*m[2][1] + a[2]*m[2][2] + m[2][3]);
 }
 
 void RRMatrix3x4::transformDirection(RRVec3& a) const
@@ -238,6 +214,15 @@ void RRMatrix3x4::transformDirection(RRVec3& a) const
 		a.x*m[2][0] + a.y*m[2][1] + a.z*m[2][2]);
 }
 
+RRVec3 RRMatrix3x4::getTransformedDirection(const RRVec3& a) const
+{
+	RR_ASSERT(m);
+	return RRVec3(
+		a[0]*m[0][0] + a[1]*m[0][1] + a[2]*m[0][2],
+		a[0]*m[1][0] + a[1]*m[1][1] + a[2]*m[1][2],
+		a[0]*m[2][0] + a[1]*m[2][1] + a[2]*m[2][2]);
+}
+
 void RRMatrix3x4::transformNormal(RRVec3& a) const
 {
 	RR_ASSERT(m);
@@ -247,9 +232,24 @@ void RRMatrix3x4::transformNormal(RRVec3& a) const
 		a.x*m[0][2] + a.y*m[1][2] + a.z*m[2][2]);
 }
 
+RRVec3 RRMatrix3x4::getTransformedNormal(const RRVec3& a) const
+{
+	RR_ASSERT(m);
+	return RRVec3(
+		a[0]*m[0][0] + a[1]*m[1][0] + a[2]*m[2][0],
+		a[0]*m[0][1] + a[1]*m[1][1] + a[2]*m[2][1],
+		a[0]*m[0][2] + a[1]*m[1][2] + a[2]*m[2][2]);
+}
+
 void RRMatrix3x4::transformPlane(RRVec4& a) const
 {
 	a = getTransformedPlane(a);
+}
+
+RRVec4 RRMatrix3x4::getTransformedPlane(const RRVec4& a) const
+{
+	RRMatrix3x4 inverse;
+	return RRVec4::plane(invertedTo(inverse) ? inverse.getTransformedNormal(a) : getTransformedDirection(a), getTransformedPosition(a.pointInPlane()) );
 }
 
 //////////////////////////////////////////////////////////////////////////////
