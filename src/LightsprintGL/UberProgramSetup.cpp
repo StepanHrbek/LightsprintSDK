@@ -890,28 +890,26 @@ void UberProgramSetup::useWorldMatrix(Program* program, const rr::RRObject* obje
 {
 	if (OBJECT_SPACE && object)
 	{
-		const rr::RRMatrix3x4* world = object->getWorldMatrix();
-		if (world)
+		const rr::RRMatrix3x4& world = object->getWorldMatrixRef();
+		float worldMatrix[16] =
 		{
-			float worldMatrix[16] =
-			{
-				world->m[0][0],world->m[1][0],world->m[2][0],0,
-				world->m[0][1],world->m[1][1],world->m[2][1],0,
-				world->m[0][2],world->m[1][2],world->m[2][2],0,
-				world->m[0][3],world->m[1][3],world->m[2][3],1
-			};
-			program->sendUniform("worldMatrix",worldMatrix,false,4);
-		}
-		else
+			world.m[0][0],world.m[1][0],world.m[2][0],0,
+			world.m[0][1],world.m[1][1],world.m[2][1],0,
+			world.m[0][2],world.m[1][2],world.m[2][2],0,
+			world.m[0][3],world.m[1][3],world.m[2][3],1
+		};
+		program->sendUniform("worldMatrix",worldMatrix,false,4);
+
+		if (program->uniformExists("inverseWorldMatrix")) // it is too difficult to find out whether uniform exists from defines
 		{
-			float worldMatrix[16] =
+			const rr::RRMatrix3x4& inverse = object->getInverseWorldMatrixRef();
+			float inverseMatrix[9] =
 			{
-				1,0,0,0,
-				0,1,0,0,
-				0,0,1,0,
-				0,0,0,1
+				inverse.m[0][0],inverse.m[1][0],inverse.m[2][0],
+				inverse.m[0][1],inverse.m[1][1],inverse.m[2][1],
+				inverse.m[0][2],inverse.m[1][2],inverse.m[2][2],
 			};
-			program->sendUniform("worldMatrix",worldMatrix,false,4);
+			program->sendUniform("inverseWorldMatrix",inverseMatrix,true,3);
 		}
 	}
 }

@@ -2855,17 +2855,15 @@ rr::RRVector<*>{
    units to meters. (Source code of adapters is in samples/Import*)
 
  \section gscale Scale
-   Lightsprint libraries support scaled objects.
-   \n\n
-   RRMesh and RRCollider support all scaled objects: positively or negatively, uniformly or non-uniformly scaled.
-   \n\n
-   RRObject and RRDynamicSolver support typical scaled objects:
-   positively or negatively, uniformly scaled.
-   \n Negative scale is supported with both possible interpretations
-   for singlesided faces:
-   Singlesided box visible from outside transformed with scale -1
-   can stay visible form the outside or become visible only from inside,
-   see RRObject::createWorldSpaceObject().
+   Lightsprint libraries support all types of scaled objects:
+   positively, negatively, uniformly, non-uniformly.
+   Negative scale, however, often brings inconsistent lighting, as math behind scaling makes normals
+   point to back sides of triangles.
+   It's not entirely clear what users want here,
+   - keep negative scale as it is?
+   - automatically swap front/back sides?
+   - automatically change orienatation of normals?
+   Let us know what do you prefer.
 
  \section gowner Ownership
    Dynamically created objects (using new, create() etc) are never adopted, ownership never changes.

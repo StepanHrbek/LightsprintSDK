@@ -59,6 +59,7 @@
 
 #ifdef OBJECT_SPACE
 	uniform mat4 worldMatrix;
+	uniform mat3 inverseWorldMatrix;
 #endif
 
 #if defined(SHADOW_MAPS)
@@ -160,7 +161,7 @@ void main()
 {
 	#ifdef OBJECT_SPACE
 		vec4 worldPos4 = worldMatrix * gl_Vertex;
-		worldNormalSmooth = normalize( ( worldMatrix * vec4(gl_Normal,0.0) ).xyz );
+		worldNormalSmooth = normalize( inverseWorldMatrix * gl_Normal );
 	#else
 		vec4 worldPos4 = gl_Vertex;
 		worldNormalSmooth = normalize( gl_Normal );
@@ -223,8 +224,8 @@ void main()
 			bitangent2 = vertexBitangent;
 		}
 		#ifdef OBJECT_SPACE
-			worldTangent = normalize( ( worldMatrix * vec4(tangent2,0.0) ).xyz );
-			worldBitangent = normalize( ( worldMatrix * vec4(bitangent2,0.0) ).xyz );
+			worldTangent = normalize( inverseWorldMatrix * tangent2 );
+			worldBitangent = normalize( inverseWorldMatrix * bitangent2 );
 		#else
 			worldTangent = normalize(tangent2);
 			worldBitangent = normalize(bitangent2);

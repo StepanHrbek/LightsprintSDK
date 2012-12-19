@@ -21,6 +21,8 @@ public:
 		: RRMeshFilter(mesh)
 	{
 		m = matrix;
+		if (!m || !m->invertedTo(inverse))
+			inverse = RRMatrix3x4::identity();
 	}
 	/*RRTransformedMeshFilter(RRObject* object)
 		: RRMeshFilter(object->getCollider()->getMesh())
@@ -44,14 +46,15 @@ public:
 			for (unsigned v=0;v<3;v++)
 			{
 				// nonuniform scale breaks orthogonality
-				out.vertex[v].normal = m->getTransformedDirection(out.vertex[v].normal).normalized();
-				out.vertex[v].tangent = m->getTransformedDirection(out.vertex[v].tangent).normalized();
-				out.vertex[v].bitangent = m->getTransformedDirection(out.vertex[v].bitangent).normalized();
+				out.vertex[v].normal = inverse.getTransformedNormal(out.vertex[v].normal).normalized();
+				out.vertex[v].tangent = inverse.getTransformedNormal(out.vertex[v].tangent).normalized();
+				out.vertex[v].bitangent = inverse.getTransformedNormal(out.vertex[v].bitangent).normalized();
 			}
 		}
 	}
 private:
 	const RRMatrix3x4* m;
+	RRMatrix3x4 inverse;
 };
 
 }; // namespace

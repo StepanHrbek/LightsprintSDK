@@ -14,6 +14,8 @@ NEWS
 
 - Visual C++ 2012 support
 - specular maps, with optional shininess/roughness in alpha
+- full support for non-uniformly scaled objects
+  \n (lightmap baking, realtime GI etc, everything should work correctly also with non-uniformly scaled objects)
 - misc helpers
   - RRMaterial::specularTransmittanceMapInverted, lets you invert material transparency with single flag, no need to invert all pixels
   - RRMatrix3x4::transformNormal()
