@@ -37,17 +37,14 @@ private:
 	RayHits& rayHits;
 };
 
-// Stores inverse matrices, needs rebuild each time object moves (only to update inverse matrices).
-// Q: How about storing inverse matrices in objects?
-// A: + supercollider would work without rebuild even if objects move (simplification, most likely small speedup)
-//    - by not rebuilding supercollider, we would close path to more clever collider with kd
+// Reads matrices from objects, does not need rebuild each time object moves.
+// (However, more clever supercollider with KD would need rebuilding supercollider [#21])
 class RRColliderMulti : public RRCollider
 {
 public:
 	RRColliderMulti(const RRObjects& _objects, IntersectTechnique _technique, bool& _aborting)//, const char* cacheLocation, void* buildParams)
 	{
 		objects = _objects;
-		inverseMatrix = new RRMatrix3x4[_objects.size()];
 
 		bool disabledReporting = false;
 		bool b1,b3;
@@ -68,7 +65,6 @@ public:
 				}
 				objects[i]->getCollider()->setTechnique(_technique,_aborting);//,cacheLocation,buildParams);
 			}
-			objects[i]->getWorldMatrixRef().invertedTo(inverseMatrix[i]);
 		}
 
 		// restore reporting
@@ -93,16 +89,11 @@ public:
 		for (unsigned i=0;i<objects.size();i++)
 		{
 			ray->hitObject = objects[i];
-			const RRMatrix3x4* m = ray->hitObject->getWorldMatrix();
+			const RRMatrix3x4* m = ray->hitObject->getInverseWorldMatrix();
 			if (m)
 			{
-				// slower: inverts matrices in every ray
-				//RRMatrix3x4 inverseMatrix;
-				//if (!m->invertedTo(inverseMatrix)) continue;
-				// faster: uses matrices preinverted in ctor
-
-				inverseMatrix[i].transformPosition(ray->rayOrigin);
-				inverseMatrix[i].transformDirection(ray->rayDir);
+				m->transformPosition(ray->rayOrigin);
+				m->transformDirection(ray->rayDir);
 				storeCollisionHandler.scale = ray->rayDir.length();
 				ray->rayDir /= storeCollisionHandler.scale;
 				ray->rayLengthMin *= storeCollisionHandler.scale;
@@ -140,14 +131,8 @@ public:
 	{
 		return sizeof(*this);
 	}
-
-	virtual ~RRColliderMulti()
-	{
-		delete[] inverseMatrix;
-	}
 private:
 	RRObjects objects;
-	RRMatrix3x4* inverseMatrix;
 };
 
 RRCollider* createMultiCollider(const RRObjects& objects, RRCollider::IntersectTechnique technique, bool& aborting)
