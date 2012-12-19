@@ -2055,35 +2055,6 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				glGetIntegerv(GL_DEPTH_BITS, &depthBits);
 				textOutput(x,y+=18,h,"r+g+b+a+z: %d+%d+%d+%d+%d",(int)redBits,(int)greenBits,(int)blueBits,(int)alphaBits,(int)depthBits);
 			}
-			if (!svs.renderLightmaps2d) if (svs.selectedLightIndex<solver->realtimeLights.size())
-			{
-				// analyzes data from rarely used feature: lighting and shadowing only selected objects/combinations of objects
-				if (numTrianglesMulti<100000) // skip this expensive step for big scenes
-				{
-					RealtimeLight* rtlight = solver->realtimeLights[svs.selectedLightIndex];
-					const rr::RRLight* rrlight = &rtlight->getRRLight();
-					static RealtimeLight* lastLight = NULL;
-					static unsigned numLightReceivers = 0;
-					static unsigned numShadowCasters = 0;
-					if (rtlight!=lastLight)
-					{
-						lastLight = rtlight;
-						numLightReceivers = 0;
-						numShadowCasters = 0;
-						for (unsigned t=0;t<numTrianglesMulti;t++)
-						{
-							if (multiObject->getTriangleMaterial(t,rrlight,NULL)) numLightReceivers++;
-							for (unsigned j=0;j<numObjects;j++)
-							{
-								if (multiObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowCasters++;
-							}
-						}
-					}
-					textOutput(x,y+=18*2,h,"[light %d/%d]",svs.selectedLightIndex,solver->realtimeLights.size());
-					textOutput(x,y+=18,h,"triangles lit: %d/%d",numLightReceivers,numTrianglesMulti);
-					textOutput(x,y+=18,h,"triangles casting shadow: %f/%d",numShadowCasters/float(numObjects),numTrianglesMulti);
-				}
-			}
 			if (singleMesh)
 			{
 				textOutput(x,y+=18*2,h,"[object %d/%d]",svs.selectedObjectIndex,numObjects);
@@ -2096,39 +2067,12 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				static rr::RRVec3 bboxMinW;
 				static rr::RRVec3 bboxMaxW;
 				static rr::RRVec3 centerW;
-				static unsigned numReceivedLights = 0;
-				static unsigned numShadowsCast = 0;
-				if (singleObject!=lastObject)
-				{
-					lastObject = singleObject;
-					singleObject->getCollider()->getMesh()->getAABB(&bboxMinL,&bboxMaxL,&centerL);
-					rr::RRMesh* singleWorldMesh = singleObject->createWorldSpaceMesh();
-					singleWorldMesh->getAABB(&bboxMinW,&bboxMaxW,&centerW);
-					delete singleWorldMesh;
-					numReceivedLights = 0;
-					numShadowsCast = 0;
-					for (unsigned i=0;i<numLights;i++)
-					{
-						rr::RRLight* rrlight = solver->getLights()[i];
-						for (unsigned t=0;t<numTrianglesSingle;t++)
-						{
-							if (singleObject->getTriangleMaterial(t,rrlight,NULL)) numReceivedLights++;
-							for (unsigned j=0;j<numObjects;j++)
-							{
-								if (singleObject->getTriangleMaterial(t,rrlight,solver->getObject(j))) numShadowsCast++;
-							}
-						}
-					}
-				}
-
 				if (numTrianglesSingle)
 				{
 					textOutput(x,y+=18,h,"world AABB: %f %f %f .. %f %f %f",bboxMinW[0],bboxMinW[1],bboxMinW[2],bboxMaxW[0],bboxMaxW[1],bboxMaxW[2]);
 					textOutput(x,y+=18,h,"world center: %f %f %f",centerW[0],centerW[1],centerW[2]);
 					textOutput(x,y+=18,h,"local AABB: %f %f %f .. %f %f %f",bboxMinL[0],bboxMinL[1],bboxMinL[2],bboxMaxL[0],bboxMaxL[1],bboxMaxL[2]);
 					textOutput(x,y+=18,h,"local center: %f %f %f",centerL[0],centerL[1],centerL[2]);
-					textOutput(x,y+=18,h,"received lights: %f/%d",numReceivedLights/float(numTrianglesSingle),numLights);
-					textOutput(x,y+=18,h,"shadows cast: %f/%d",numShadowsCast/float(numTrianglesSingle),numLights*numObjects);
 				}
 				if (solver->getObject(svs.selectedObjectIndex))
 				{
@@ -2211,19 +2155,6 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					textOutput(x,y+=18,h,"tangent: %f %f %f",selectedPointBasis.tangent[0],selectedPointBasis.tangent[1],selectedPointBasis.tangent[2]);
 					textOutput(x,y+=18,h,"bitangent: %f %f %f",selectedPointBasis.bitangent[0],selectedPointBasis.bitangent[1],selectedPointBasis.bitangent[2]);
 					textOutput(x,y+=18,h,"side: %s",ray->hitFrontSide?"front":"back");
-					unsigned numReceivedLights = 0;
-					unsigned numShadowsCast = 0;
-					for (unsigned i=0;i<numLights;i++)
-					{
-						rr::RRLight* rrlight = solver->getLights()[i];
-						if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,NULL)) numReceivedLights++;
-						for (unsigned j=0;j<numObjects;j++)
-						{
-							if (multiObject->getTriangleMaterial(ray->hitTriangle,rrlight,solver->getObject(j))) numShadowsCast++;
-						}
-					}
-					textOutput(x,y+=18,h,"received lights: %d/%d",numReceivedLights,numLights);
-					textOutput(x,y+=18,h,"shadows cast: %d/%d",numShadowsCast,numLights*numObjects);
 				}
 				textOutput(x,y+=18*2,h,"numbers of casters/lights show potential, what is allowed");
 			}
