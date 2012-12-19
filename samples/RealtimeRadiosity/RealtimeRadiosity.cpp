@@ -162,10 +162,11 @@ public:
 	{
 		setDirectIlluminationBoost(2);
 	}
-protected:
 	// called from RRDynamicSolverGL to update shadowmaps
 	virtual void renderScene(
 		const rr_gl::UberProgramSetup& _uberProgramSetup,
+		const rr::RRCamera& _camera,
+		rr_gl::StereoMode _stereoMode,
 		const rr::RRLight* _renderingFromThisLight,
 		bool _updateLayers,
 		unsigned _layerLightmap,
@@ -175,7 +176,9 @@ protected:
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
 		float _gamma)
-	{
+{
+		rr_gl::setupForRender(_camera);
+
 		// disable all material properties not supported by custom 3ds renderer
 		rr_gl::UberProgramSetup uberProgramSetup = _uberProgramSetup;
 		//uberProgramSetup.MATERIAL_DIFFUSE
