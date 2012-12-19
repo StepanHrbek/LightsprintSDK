@@ -16,6 +16,8 @@ NEWS
 - specular maps, with optional shininess/roughness in alpha
 - misc helpers
   - RRMaterial::specularTransmittanceMapInverted, lets you invert material transparency with single flag, no need to invert all pixels
+  - RRMatrix3x4::transformNormal()
+  - RRMatrix3x4::getTransformedNormal()
   - RRMatrix3x4::rotationByQuaternion()
   - RRMatrix3x4::getQuaternion()
   - RRObjects::buildUnwrap() has one more parameter

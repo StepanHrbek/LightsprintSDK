@@ -337,12 +337,23 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		RRVec3 getTransformedDirection(const RRVec3& a) const;
 		//! Transforms direction in 3d space by matrix.
 		void transformDirection(RRVec3& a) const;
+		//! Returns normal in 3d space transformed by transformation's inverse matrix. Result is not normalized.
+		//
+		//! Unlike matrix.getTransformedDirection(), inverse.getTransformedNormal() ensures that normals perpendicular to surface
+		//! stay perpendicular even for matrices with non-uniform scale.
+		RRVec3 getTransformedNormal(const RRVec3& a) const;
+		//! Transforms normal in 3d space by transformation's inverse matrix. Result is not normalized.
+		//
+		//! Unlike matrix.transformDirection(), inverse.transformNormal() ensures that normals perpendicular to surface
+		//! stay perpendicular even for matrices with non-uniform scale.
+		void transformNormal(RRVec3& a) const;
 		//! Returns plane in 3d space transformed by matrix.
 		RRVec4 getTransformedPlane(const RRVec4& a) const;
 		//! Transforms plane in 3d space by matrix.
 		void transformPlane(RRVec4& a) const;
 
 		bool operator ==(const RRMatrix3x4& a) const;
+		bool operator !=(const RRMatrix3x4& a) const;
 		//! A*B returns matrix that performs transformation B, then A.
 		RRMatrix3x4 operator *(const RRMatrix3x4& a) const;
 		//! A*=B adds transformation B at the beginning of transformations defined by A. If you want B at the end, do A=B*A;
