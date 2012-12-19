@@ -284,7 +284,9 @@ public:
 	{
 		unoptimizeTriangle(t);
 		if (t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMaterial(t,light,receiver);
-		return pack[1].getImporter()->getTriangleMaterial(t-pack[0].getNumTriangles(),light,receiver);
+		return pack[1].getImporter() ? // this test prevents crash, importer might be NULL when multiobject is made of 1 object and t exceeds number of triangles
+			pack[1].getImporter()->getTriangleMaterial(t-pack[0].getNumTriangles(),light,receiver)
+			: NULL;
 	}
 
 	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& out, const RRScaler* scaler = NULL) const
@@ -293,6 +295,7 @@ public:
 		if (t<pack[0].getNumTriangles())
 			pack[0].getImporter()->getPointMaterial(t,uv,out,scaler);
 		else
+			if (pack[1].getImporter()) // this test prevents crash, importer might be NULL when multiobject is made of 1 object and t exceeds number of triangles
 			pack[1].getImporter()->getPointMaterial(t-pack[0].getNumTriangles(),uv,out,scaler);
 	}
 
@@ -301,7 +304,9 @@ public:
 	{
 		unoptimizeTriangle(t);
 		if (t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleLod(t,out);
-		return pack[1].getImporter()->getTriangleLod(t-pack[0].getNumTriangles(),out);
+		return pack[1].getImporter() ? // this test prevents crash, importer might be NULL when multiobject is made of 1 object and t exceeds number of triangles
+			pack[1].getImporter()->getTriangleLod(t-pack[0].getNumTriangles(),out)
+			: NULL;
 	}
 
 	virtual ~RRObjectMultiSmall()
