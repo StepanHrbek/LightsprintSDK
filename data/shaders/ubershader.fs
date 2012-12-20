@@ -251,8 +251,11 @@ varying vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_TRANSPARENCY_MAP
 	uniform sampler2D materialTransparencyMap;
-	uniform bool materialTransparencyMapInverted;
 	varying vec2 materialTransparencyCoord;
+#endif
+
+#if defined(MATERIAL_TRANSPARENCY_MAP) || (defined(MATERIAL_TRANSPARENCY_IN_ALPHA) && defined(MATERIAL_DIFFUSE_MAP))
+	uniform bool materialTransparencyMapInverted;
 #endif
 
 #ifdef MATERIAL_TRANSPARENCY_FRESNEL
