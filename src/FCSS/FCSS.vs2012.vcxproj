@@ -120,6 +120,18 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">backend</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">backend</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">
+    <LibraryPath>$(WXWIDGETS_DIR)\lib\vc110_lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">
+    <LibraryPath>$(WXWIDGETS_DIR)\lib\vc110_lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">
+    <LibraryPath>$(WXWIDGETS_DIR)\lib\vc110_x64_lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">
+    <LibraryPath>$(WXWIDGETS_DIR)\lib\vc110_x64_lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">
     <Midl>
       <TypeLibraryName>.\Release/shadowcast.tlb</TypeLibraryName>
