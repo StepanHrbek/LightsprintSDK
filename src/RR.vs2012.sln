@@ -46,8 +46,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeLights.vs2012", "..
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneViewer.vs2012", "..\samples\SceneViewer\SceneViewer.vs2012.vcxproj", "{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32dlg", "win32dlg\win32dlg.vcxproj", "{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MovingSun.vs2012", "..\samples\MovingSun\MovingSun.vs2012.vcxproj", "{2691A4C3-6413-8964-A425-B51468532572}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintIO.vs2012", "LightsprintIO\LightsprintIO.vs2012.vcxproj", "{98765432-1234-11D0-8D11-00A0C91BC942}"
