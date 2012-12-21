@@ -808,7 +808,7 @@ Material formats (1)
   in both static GI and realtime GI. It lets you build lightmaps, ambient occlusion, unwrap,
   manipulate lights, materials and geometry with immediate GI updates etc.
   \ref samples_realtime "More about SceneViewer".
-  \n Run prebuilt version by bin/win32/SceneViewer.vs2005.exe or bin/x64/SceneViewer.vs2008.exe,
+  \n Run prebuilt version by bin/win32/SceneViewer.*.exe or bin/x64/SceneViewer.*.exe,
   or build your own version, source code is included.
 
  \section artist_offline_buildlightmaps BuildLightmaps tool
