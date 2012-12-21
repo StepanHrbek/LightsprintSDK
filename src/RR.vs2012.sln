@@ -1,5 +1,5 @@
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2012
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Collider samples", "Collider samples", "{0835826C-4BA7-43CD-8525-A2553DE5D2C3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "realtime rendering samples", "realtime rendering samples", "{EC64F9B1-68EC-40FB-AE66-CB39A0955585}"
@@ -311,18 +311,6 @@ Global
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release static|Win32.Build.0 = Release static|Win32
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release static|x64.ActiveCfg = Release static|x64
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release static|x64.Build.0 = Release static|x64
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug DLL|Win32.ActiveCfg = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug DLL|Win32.Build.0 = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug DLL|x64.ActiveCfg = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug static|Win32.ActiveCfg = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug static|Win32.Build.0 = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug static|x64.ActiveCfg = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release DLL|Win32.ActiveCfg = Release|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release DLL|Win32.Build.0 = Release|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release DLL|x64.ActiveCfg = Release|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release static|Win32.ActiveCfg = Release|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release static|Win32.Build.0 = Release|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release static|x64.ActiveCfg = Release|Win32
 		{2691A4C3-6413-8964-A425-B51468532572}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
 		{2691A4C3-6413-8964-A425-B51468532572}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
 		{2691A4C3-6413-8964-A425-B51468532572}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
@@ -356,21 +344,13 @@ Global
 		{98765432-1234-11D0-8D11-00A0C91BC942}.Release static|x64.ActiveCfg = Release static|x64
 		{98765432-1234-11D0-8D11-00A0C91BC942}.Release static|x64.Build.0 = Release static|x64
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug DLL|x64.Build.0 = Debug DLL|x64
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug static|Win32.Build.0 = Debug static|Win32
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug static|x64.ActiveCfg = Debug static|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Debug static|x64.Build.0 = Debug static|x64
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release DLL|Win32.Build.0 = Release DLL|Win32
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release DLL|x64.ActiveCfg = Release DLL|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release DLL|x64.Build.0 = Release DLL|x64
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|Win32.ActiveCfg = Release static|Win32
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|Win32.Build.0 = Release static|Win32
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|x64.ActiveCfg = Release static|x64
-		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|x64.Build.0 = Release static|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
