@@ -212,7 +212,8 @@ public:
 		// don't use _basisSkewedNormalized, because it's not orthonormal, it's made for compatibility with UE3
 		RRVec3 dir = getRandomEnterDirNormalized(fillerDir,_basisOrthonormal);
 
-		// prepare for approximate measurement of hit distance (if it is not changed = no hit)
+		// AO [#22]: prepare for approximate measurement of hit distance (if it is not changed = no hit)
+		// gatherPhysicalExitance() won't change it if there is no accepted hit
 		gatherer.ray.hitDistance = 1e10f;
 
 		// gather 1 ray

@@ -45,12 +45,22 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		RR_ASSERT(0);
 		return Channels(0);
 	}
+
+	// AO [#22]: GatheredIrradianceHemisphere calculates AO from ray.hitDistance,
+	// so it needs us to return it unchanged if initial ray does not hit scene (or if handler refused all intersections)
+	// or return initial ray's hit distance otherwise
+	// it doesn't want any secondary/reflected ray data
+	RRReal hitDistanceBackup = ray.hitDistance;
+
 	ray.rayOrigin = eye;
 	ray.rayDir = direction;
 	//ray.hitObject = already set in ctor
 	collisionHandlerGatherHemisphere.setShooterTriangle(skipTriangleIndex);
 	if (!collider->intersect(&ray))
 	{
+		// AO [#22]: possible hits were refused by handler, restore original hitDistance
+		ray.hitDistance = hitDistanceBackup;
+
 		// ray left scene
 		if (environment)
 		{
@@ -60,6 +70,8 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		}
 		return Channels(0);
 	}
+	// AO [#22]: scene was hit, remember distance
+	hitDistanceBackup = ray.hitDistance;
 
 	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
 	RR_ASSERT(IS_NUMBER(ray.hitDistance));
@@ -150,6 +162,10 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			}
 		}
 	}
+
+	// AO [#22]: restore hitDistance from first hit, overwrite any later hits from reflected rays
+	ray.hitDistance = hitDistanceBackup;
+
 	//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 	return exitance;
 }
