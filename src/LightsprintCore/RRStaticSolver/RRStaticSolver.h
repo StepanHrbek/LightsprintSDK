@@ -178,7 +178,7 @@ namespace rr
 	private:
 		class Scene*  scene;
 		friend class Gatherer;
-		friend class RRCollisionHandlerGatherHemisphere;
+		friend class RRCollisionHandlerFinalGathering;
 		friend class RRDynamicSolver;
 		RRStaticSolver(RRObject* object, const RRDynamicSolver::SmoothingParameters* smoothing, class Object* obj, bool& aborting);
 	};

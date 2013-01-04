@@ -311,127 +311,6 @@ protected:
 };
 
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRCollisionHandlerGatherLight
-//
-//! Calculates visibility (0..1) between begin and end of ray.
-//
-//! getVisibility() returns visibility computed from transparency of penetrated materials.
-//! If illegal side is encountered, ray is terminated(=collision found) and isLegal() returns false.
-//!
-//! Used to test direct visibility from light to receiver, with ray shot from receiver to light (for higher precision).
-
-class RRCollisionHandlerGatherLight : public RRCollisionHandler
-{
-public:
-	RRCollisionHandlerGatherLight(const RRObject* _multiObject, const RRObject* _singleObjectReceiver, const RRLight* _light, unsigned _quality, bool _staticSceneContainsLods)
-	{
-		multiObject = _multiObject;
-		singleObjectReceiver = _singleObjectReceiver;
-		light = _light;
-		quality = _quality;
-		staticSceneContainsLods = _staticSceneContainsLods;
-		shooterTriangleIndex = UINT_MAX; // set manually before intersect
-	}
-
-	void setShooterTriangle(unsigned t)
-	{
-		if (shooterTriangleIndex!=t)
-		{
-			shooterTriangleIndex = t;
-			multiObject->getTriangleLod(t,shooterLod);
-		}
-	}
-
-	virtual void init(RRRay* ray)
-	{
-		ray->rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
-		visibility = 1;
-	}
-	virtual bool collides(const RRRay* ray)
-	{
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_POINT2D);
-
-		// don't collide with shooter
-		if (ray->hitTriangle==shooterTriangleIndex)
-			return false;
-
-		// don't collide with wrong LODs
-		if (staticSceneContainsLods)
-		{
-			RRObject::LodInfo shadowCasterLod;
-			multiObject->getTriangleLod(ray->hitTriangle,shadowCasterLod);
-			if ((shadowCasterLod.base==shooterLod.base && shadowCasterLod.level!=shooterLod.level) // non-shooting LOD of shooter
-				|| (shadowCasterLod.base!=shooterLod.base && shadowCasterLod.level)) // non-base LOD of non-shooter
-				return false;
-		}
-
-		// don't collide when object has shadow casting disabled
-		const RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(ray->hitTriangle,light,singleObjectReceiver);
-		if (!triangleMaterial)
-			return false;
-
-		if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
-		{
-			// per-pixel materials
-			if (quality>=triangleMaterial->minimalQualityForPointMaterials)
-			{
-				RRPointMaterial pointMaterial;
-				multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-				if (pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
-				{
-					legal = pointMaterial.sideBits[ray->hitFrontSide?0:1].legal;
-					visibility *= pointMaterial.specularTransmittance.color.avg() * pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
-					RR_ASSERT(_finite(pointMaterial.specularTransmittance.color.avg()));
-					RR_ASSERT(_finite(visibility));
-					return !visibility;
-				}
-			}
-			else
-			// per-triangle materials
-			{
-				legal = triangleMaterial->sideBits[ray->hitFrontSide?0:1].legal;
-				visibility *= triangleMaterial->specularTransmittance.color.avg() * triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
-				RR_ASSERT(_finite(triangleMaterial->specularTransmittance.color.avg()));
-				RR_ASSERT(_finite(visibility));
-				return !visibility;
-			}
-		}
-		return false;
-	}
-	virtual bool done()
-	{
-		return visibility==0;
-	}
-
-	// returns visibility between ends of last ray
-	RRReal getVisibility() const
-	{
-		return visibility;
-	}
-
-	// returns false when illegal side was contacted 
-	bool isLegal() const
-	{
-		return legal!=0;
-	}
-
-	const RRLight* light;
-private:
-	unsigned shooterTriangleIndex;
-	RRObject::LodInfo shooterLod;
-	const RRObject* multiObject;
-	const RRObject* singleObjectReceiver;
-	unsigned quality; // 0 to forbid point details, more = use point details more often
-	bool staticSceneContainsLods;
-	RRReal visibility;
-	unsigned legal;
-};
-
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // for 1 texel: irradiance gathered from lights
@@ -451,7 +330,6 @@ public:
 		pti(_pti),
 		collisionHandlerGatherLight(
 			_pti.context.solver->getMultiObjectPhysical(), // handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
-			_pti.context.singleObjectReceiver,NULL,
 			_pti.context.params->quality*2, // when gathering lights (possibly rendering direct shadows), make point details 2* more important
 			_pti.context.staticSceneContainsLods)
 	{
@@ -527,7 +405,7 @@ public:
 			ray.rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE|RRRay::FILL_DISTANCE|RRRay::FILL_POINT2D; // triangle+2d is only for point materials
 			//ray.hitObject = already set in ctor
 			ray.collisionHandler = &collisionHandlerGatherLight;
-			collisionHandlerGatherLight.light = _light;
+			collisionHandlerGatherLight.setLight(_light,pti.context.singleObjectReceiver);
 			if (!_light->castShadows || !tools.collider->intersect(&ray))
 			{
 				// direct visibility found (at least partial), add irradiance from light
@@ -666,7 +544,7 @@ protected:
 	unsigned hitsScene;
 	unsigned shotRounds;
 	// collision handler
-	RRCollisionHandlerGatherLight collisionHandlerGatherLight;
+	RRCollisionHandlerFinalGathering collisionHandlerGatherLight;
 };
 
 
