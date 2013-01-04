@@ -83,7 +83,7 @@ public:
 		result = pointMaterialValid = false;
 
 		// gathering light
-		visibility = 1;
+		visibility = RRVec3(1);
 	}
 
 	virtual bool collides(const RRRay* ray)
@@ -129,10 +129,10 @@ public:
 
 					// gathering light
 					legal = pointMaterial.sideBits[ray->hitFrontSide?0:1].legal;
-					visibility *= pointMaterial.specularTransmittance.color.avg() * pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
+					visibility *= pointMaterial.specularTransmittance.color * pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
 					RR_ASSERT(_finite(pointMaterial.specularTransmittance.color.avg()));
 					RR_ASSERT(_finite(visibility));
-					return !visibility;
+					return visibility==RRVec3(0);
 				}
 			}
 			else
@@ -144,10 +144,10 @@ public:
 
 				// gathering light
 				legal = triangleMaterial->sideBits[ray->hitFrontSide?0:1].legal;
-				visibility *= triangleMaterial->specularTransmittance.color.avg() * triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
+				visibility *= triangleMaterial->specularTransmittance.color * triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
 				RR_ASSERT(_finite(triangleMaterial->specularTransmittance.color.avg()));
 				RR_ASSERT(_finite(visibility));
-				return !visibility;
+				return visibility==RRVec3(0);
 			}
 		}
 		return false;
@@ -159,7 +159,7 @@ public:
 			// gathering hemisphere
 			? result
 			// gathering light
-			: visibility==0;
+			: visibility==RRVec3(0);
 	}
 
 	// gathering hemisphere: returns contact material from previous collision
@@ -171,7 +171,7 @@ public:
 	}
 
 	// gathering light: returns visibility between ends of last ray
-	RRReal getVisibility() const
+	RRVec3 getVisibility() const
 	{
 		return visibility;
 	}
@@ -200,7 +200,7 @@ private:
 	// gathering light
 	const RRObject* singleObjectReceiver;
 	const RRLight* light;
-	RRReal visibility;
+	RRVec3 visibility;
 	unsigned legal;
 };
 
