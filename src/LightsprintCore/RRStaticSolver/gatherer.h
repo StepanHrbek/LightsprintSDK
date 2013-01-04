@@ -31,6 +31,7 @@ public:
 	RRCollisionHandlerFinalGathering(const RRObject* _multiObject, unsigned _quality, bool _staticSceneContainsLods)
 	{
 		multiObject = _multiObject; // Physical
+		multiMesh = multiObject->getCollider()->getMesh();
 		quality = _quality;
 		staticSceneContainsLods = _staticSceneContainsLods;
 		shooterTriangleIndex = UINT_MAX; // set manually before intersect
@@ -49,6 +50,9 @@ public:
 		{
 			shooterTriangleIndex = t;
 			multiObject->getTriangleLod(t,shooterLod);
+
+			// initialize detector of identical triangles
+			shooterVertexLoaded = false;
 		}
 	}
 
@@ -95,6 +99,33 @@ public:
 		// don't collide with shooter
 		if (ray->hitTriangle==shooterTriangleIndex)
 			return false;
+
+		// don't collide with other triangles at the same location
+		if (shooterTriangleIndex!=UINT_MAX
+			//&& triangle[shooterTriangleIndex].area==triangle[ray->hitTriangle].area // optimization, but too dangerous, areas of identical triangles might differ because of different vertex order
+			&& ray->hitDistance<1000*ray->rayLengthMin) // optimization, perform these tests only for hits in small distance (ideally zero, but there is floating point error). we expect our caller to set rayLengthMin to minimalSafeDistance; float error in scene drezy is 1000x bigger
+		{
+			if (!shooterVertexLoaded)
+			{
+				RRMesh::Triangle t;
+				multiMesh->getTriangle(shooterTriangleIndex,t);
+				multiMesh->getVertex(t[0],shooterVertex[0]);
+				multiMesh->getVertex(t[1],shooterVertex[1]);
+				multiMesh->getVertex(t[2],shooterVertex[2]);
+				shooterVertexLoaded = true;
+			}
+			RRMesh::Triangle t;
+			multiMesh->getTriangle(ray->hitTriangle,t);
+			for (unsigned i=0;i<3;i++)
+			{
+				RRVec3 hitVertex;
+				multiMesh->getVertex(t[i],hitVertex);
+				if (hitVertex!=shooterVertex[0] && hitVertex!=shooterVertex[1] && hitVertex!=shooterVertex[2])
+					goto not_identical;
+			}
+			return false;
+			not_identical:;
+		}
 
 		// don't collide with wrong LODs
 		if (staticSceneContainsLods)
@@ -188,6 +219,11 @@ private:
 	const RRObject* multiObject;
 	unsigned quality; // 0 to forbid point details, more = use point details more often
 	bool staticSceneContainsLods;
+
+	// detector of triangles identical to shooter
+	const RRMesh* multiMesh;
+	bool shooterVertexLoaded;
+	RRVec3 shooterVertex[3];
 
 	// gathering hemisphere
 	Triangle* triangle; // shortcut, direct access to materials in rrcore
