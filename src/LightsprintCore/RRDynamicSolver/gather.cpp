@@ -415,7 +415,7 @@ public:
 				if (_light->castShadows)
 				{
 					irrad *= collisionHandlerGatherLight.getVisibility();
-					RR_ASSERT(collisionHandlerGatherLight.getVisibility());
+					RR_ASSERT(IS_VEC3(collisionHandlerGatherLight.getVisibility()));
 					RR_ASSERT(IS_VEC3(irrad));
 				}
 				if (!pti.context.gatherAllDirections)
