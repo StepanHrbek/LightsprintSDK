@@ -113,6 +113,10 @@ namespace rr
 		//! This is one of ways how light enters solver, others are setEnvironment(), setDirectIllumination(), emissive materials.
 		//!
 		//! By default, scene contains no lights.
+		//!
+		//! Setting lights is important for offline GI and for direct illumination in realtime renderer.
+		//! If you integrate Lightsprint realtime GI with third party renderer and you use solver only to calculate realtime indirect illumination,
+		//! calling setLights() is not necessary; calling setDirectIllumination() instead gives solver necessary information.
 		virtual void setLights(const RRLights& lights);
 
 		//! Returns lights in scene, set by setLights().
@@ -122,10 +126,14 @@ namespace rr
 		//! Sets custom irradiance for all triangles in scene.
 		//
 		//! This is one of paths for light to enter solver, others are setLights(), setEnvironment(), emissive materials.
+		//! Unlike the other paths, this one is usually called many times - whenever lighting changes.
 		//!
-		//! If you use rr_gl::RRDynamicSolverGL, setDirectIllumination() is called automatically
-		//! from calculate(). If you want to provide your own direct illumination data, use RRDynamicSolver
-		//! and call setDirectIllumination() manually before calculate().
+		//! If you use rr_gl::RRDynamicSolverGL, setDirectIllumination() is called automatically from calculate().
+		//!
+		//! If you want to provide your own direct illumination data, for example when integrating Lightsprint realtime GI
+		//! with third party renderer, use RRDynamicSolver and call setDirectIllumination() manually before calculate() whenever lighting changes.
+		//! Note that functions that reset solver or change its type (setStaticObjects(), loadFireball() etc) might reset also direct illumination,
+		//! so you need to set it again after such functions.
 		//!
 		//! \param perTriangleIrradiance
 		//!  Array of average per-triangle direct-lighting irradiances in custom scale.
