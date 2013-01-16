@@ -372,9 +372,23 @@ void main()
 	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(MATERIAL_TRANSPARENCY_FRESNEL) || defined(POSTPROCESS_NORMALS)
 		#ifdef MATERIAL_BUMP_MAP
 			#ifdef MATERIAL_NORMAL_MAP_FLOW
-				vec3 localNormal = normalize(
-					texture2D(materialBumpMap,0.2*materialBumpMapCoord   +seconds*0.5*vec2(0.051,0.019                         )).xyz+
-					texture2D(materialBumpMap,0.2*materialBumpMapCoord.yx+seconds*0.5*vec2(cos(seconds*0.05)*-0.0006-0.0049,0.0)).xyz-vec3(1.0,1.0,1.0) );
+				// bumpmap animation is hardcoded here
+				vec2 materialBumpMapCoord1 = 0.2*materialBumpMapCoord   +seconds*0.5*vec2(0.051,0.019                         );
+				vec2 materialBumpMapCoord2 = 0.2*materialBumpMapCoord.yx+seconds*0.5*vec2(cos(seconds*0.05)*-0.0006-0.0049,0.0);
+				#ifdef MATERIAL_BUMP_TYPE_HEIGHT
+					// a) faster
+					//float height = texture2D(materialBumpMap,materialBumpMapCoord1).x+texture2D(materialBumpMap,materialBumpMapCoord2).x-1.0;
+					//vec3 localNormal = vec3(dFdx(height),dFdy(height),0.1);
+					// b) higher quality
+					float height = texture2D(materialBumpMap,materialBumpMapCoord1).x+texture2D(materialBumpMap,materialBumpMapCoord2).x-1.0;
+					float hx = texture2D(materialBumpMap,materialBumpMapCoord1+vec2(materialBumpMapData.x,0.0)).x+texture2D(materialBumpMap,materialBumpMapCoord2+vec2(materialBumpMapData.x,0.0)).x-1.0;
+					float hy = texture2D(materialBumpMap,materialBumpMapCoord1+vec2(0.0,materialBumpMapData.y)).x+texture2D(materialBumpMap,materialBumpMapCoord2+vec2(0.0,materialBumpMapData.y)).x-1.0;
+					vec3 localNormal = vec3(height-hx,height-hy,0.1);
+				#else
+					vec3 localNormal = normalize(
+						texture2D(materialBumpMap,materialBumpMapCoord1).xyz+
+						texture2D(materialBumpMap,materialBumpMapCoord2).xyz-vec3(1.0,1.0,1.0) );
+				#endif
 			#else
 				#ifdef MATERIAL_BUMP_TYPE_HEIGHT
 					float height = texture2D(materialBumpMap,materialBumpMapCoord).x;
@@ -382,6 +396,9 @@ void main()
 						parallaxOffset = (height-0.5) * materialBumpMapData.w * normalize(vec3(dot(worldEyeDir,worldTangent),dot(worldEyeDir,worldBitangent),dot(worldEyeDir,worldNormalSmooth))).xy;
 						height = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset).x;
 					#endif
+					// a) faster
+					//vec3 localNormal = vec3(dFdx(height),dFdy(height),0.1);
+					// b) higher quality
 					float hx = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(materialBumpMapData.x,0.0)).x;
 					float hy = texture2D(materialBumpMap,materialBumpMapCoord+parallaxOffset+vec2(0.0,materialBumpMapData.y)).x;
 					vec3 localNormal = vec3(height-hx,height-hy,0.1);
