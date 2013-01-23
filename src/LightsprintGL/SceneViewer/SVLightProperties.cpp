@@ -142,6 +142,9 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propShadowSamples = new wxIntProperty(_("Shadow Samples"),wxPG_LABEL,rtlight->getNumShadowSamples());
 			AppendIn(propCastShadows,propShadowSamples);
 
+			propShadowBias = new RRVec2Property(_("Shadow Bias"),_("Controls distance of shadow from shadow caster, default=1."),svs.precision,light->rtShadowmapBias,1);
+			AppendIn(propCastShadows,propShadowBias);
+
 			propNear = new FloatProperty(_("Near")+" (m)",_("Near plane distance for generating shadowmaps. Greater value reduces shadow bias."),rtlight->getCamera()->getNear(),_precision,0,1e10f,0.1f,false);
 			AppendIn(propCastShadows,propNear);
 
@@ -177,6 +180,7 @@ void SVLightProperties::updateHide()
 	propShadowmaps->Hide(!light->castShadows || light->type!=rr::RRLight::DIRECTIONAL,false);
 	propShadowmapRes->Hide(!light->castShadows,false);
 	propShadowSamples->Hide(!light->castShadows,false);
+	propShadowBias->Hide(!light->castShadows,false);
 	propNear->Hide(!light->castShadows,false);
 	propFar->Hide(!light->castShadows,false);
 }
@@ -366,6 +370,12 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propShadowSamples)
 	{
 		rtlight->setNumShadowSamples(property->GetValue().GetInteger());
+	}
+	else
+	if (property==propShadowBias)
+	{
+		light->rtShadowmapBias << property->GetValue();
+		rtlight->dirtyShadowmap = true;
 	}
 	else
 	if (property==propNear)

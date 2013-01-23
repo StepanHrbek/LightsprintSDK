@@ -67,6 +67,7 @@ namespace rr_gl
 		wxPGProperty*     propShadowmaps;
 		wxPGProperty*     propShadowmapRes;
 		wxPGProperty*     propShadowSamples;
+		wxPGProperty*     propShadowBias;
 		wxPGProperty*     propNear;
 		wxPGProperty*     propFar;
 

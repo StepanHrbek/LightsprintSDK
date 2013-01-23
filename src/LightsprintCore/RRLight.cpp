@@ -274,6 +274,7 @@ RRLight::RRLight()
 	rtProjectedTexture = NULL;
 	rtNumShadowmaps = 6;
 	rtShadowmapSize = 1024;
+	rtShadowmapBias = RRVec2(1);
 	//name = "";
 	customData = NULL;
 }
@@ -297,6 +298,7 @@ RRLight::RRLight(const RRLight& a)
 	rtProjectedTexture = a.rtProjectedTexture ? a.rtProjectedTexture->createReference() : NULL;
 	rtNumShadowmaps = a.rtNumShadowmaps;
 	rtShadowmapSize = a.rtShadowmapSize;
+	rtShadowmapBias = a.rtShadowmapBias;
 	name = a.name;
 	customData = a.customData;
 }
@@ -324,6 +326,7 @@ const RRLight& RRLight::operator=(const RRLight& a)
 	}
 	rtNumShadowmaps = a.rtNumShadowmaps;
 	rtShadowmapSize = a.rtShadowmapSize;
+	rtShadowmapBias = a.rtShadowmapBias;
 	name = a.name;
 	customData = a.customData;
 	return *this;

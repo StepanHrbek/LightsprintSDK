@@ -256,6 +256,14 @@ namespace rr
 		//! You may set/change it at any time, renderer updates automatically.
 		//! Set higher resolution for hard and sharper shadows, lower for area and more blurry shadows.
 		unsigned rtShadowmapSize;
+		//! Shadowmap bias multiplier.
+		//
+		//! Relevant only for realtime renderer (has rt prefix).
+		//! You may set/change it at any time, renderer updates automatically.
+		//!
+		//! x controls slope/factor part of bias, y controls fixed part.
+		//! Set 1 for default automatic bias, more for larger bias, less for smaller.
+		RRVec2 rtShadowmapBias;
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Misc

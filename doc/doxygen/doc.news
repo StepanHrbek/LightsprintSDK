@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news137 ------------------------------------ 2013.01.xx -------------------------------------
+
+NEWS
+
+- shadow bias can be controlled
+  - RRLight::rtShadowmapBias
+  - Scene viewer has it in Light properties
+
 \section news136 ------------------------------------ 2012.12.21 -------------------------------------
 
 NEWS

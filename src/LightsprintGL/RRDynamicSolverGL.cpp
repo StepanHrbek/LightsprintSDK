@@ -291,6 +291,8 @@ done:
 					float slopeBias = (light->getNumShadowSamples(i)==1)?2.6f:8.f;
 					float fixedBias = slopeBias*500;
 					Workaround::needsIncreasedBias(slopeBias,fixedBias,light->getRRLight());
+					slopeBias *= light->getRRLight().rtShadowmapBias.x;
+					fixedBias *= light->getRRLight().rtShadowmapBias.y;
 					glPolygonOffset(slopeBias,fixedBias);
 					glViewport(0, 0, light->getRRLight().rtShadowmapSize, light->getRRLight().rtShadowmapSize);
 					FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,shadowmap);

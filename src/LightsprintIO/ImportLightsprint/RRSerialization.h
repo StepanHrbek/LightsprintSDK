@@ -549,6 +549,10 @@ void serialize(Archive & ar, rr::RRLight& a, const unsigned int version)
 	{
 		ar & make_nvp("rtShadowmapSize",a.rtShadowmapSize);
 	}
+	if (version>4)
+	{
+		ar & make_nvp("rtShadowmapBias",a.rtShadowmapBias);
+	}
 	if (version>3)
 	{
 		ar & make_nvp("directLambertScaled",a.directLambertScaled);
@@ -958,7 +962,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRCamera)
 BOOST_CLASS_VERSION(rr::RRString,1)
 BOOST_CLASS_VERSION(rr::RRMaterial,4)
 #ifndef DONT_SERIALIZE_RRLIGHT
-BOOST_CLASS_VERSION(rr::RRLight,4)
+BOOST_CLASS_VERSION(rr::RRLight,5)
 #endif
 BOOST_CLASS_VERSION(rr::RRObject,1)
 #ifndef DONT_SERIALIZE_RRCAMERA
