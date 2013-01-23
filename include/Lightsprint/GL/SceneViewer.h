@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file SceneViewer.h
 //! \brief LightsprintGL | viewer of scene
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2012
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2013
 //! All rights reserved
 //----------------------------------------------------------------------------
 

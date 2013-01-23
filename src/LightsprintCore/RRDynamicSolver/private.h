@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Private attributes of dynamic GI solver.
-// Copyright (c) 2006-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2006-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef PRIVATE_H

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // LightField, precomputed GI for dynamic objects + static lights
-// Copyright (c) 2008-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2008-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 

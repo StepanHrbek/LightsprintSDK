@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Lightsprint adapters for Quake3 map (.bsp).
-// Copyright (C) 2007-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECTBSP_H

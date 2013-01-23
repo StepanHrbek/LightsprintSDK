@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Ray-mesh intersection traversal - verificator.
-// Copyright (c) 2000-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2000-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef COLLIDER_INTERSECTVERIFICATION_H

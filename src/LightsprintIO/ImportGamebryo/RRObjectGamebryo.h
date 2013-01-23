@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Lightsprint adapters for Gamebryo scene.
-// Copyright (C) 2008-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2008-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RROBJECTGAMEBRYO_H

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Lightsprint adapters for 3DS scene.
-// Copyright (C) 2005-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2005-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 // OBSOLETED: Assimp contains more complete .3ds loader.

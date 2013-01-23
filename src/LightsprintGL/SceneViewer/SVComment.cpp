@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Scene viewer - commenting.
-// Copyright (C) 2009-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2009-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifdef SUPPORT_SCENEVIEWER

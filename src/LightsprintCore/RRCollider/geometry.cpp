@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Helper AABB code for ray-mesh intersections.
-// Copyright (c) 2000-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2000-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cmath>

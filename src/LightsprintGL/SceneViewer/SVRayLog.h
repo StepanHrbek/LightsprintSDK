@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Scene viewer - ray log for debugging.
-// Copyright (C) 2007-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef SVRAYLOG_H

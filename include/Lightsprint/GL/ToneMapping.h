@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file ToneMapping.h
 //! \brief LightsprintGL | tone mapping
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2008-2012
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2008-2013
 //! All rights reserved
 //----------------------------------------------------------------------------
 

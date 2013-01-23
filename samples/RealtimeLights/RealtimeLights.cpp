@@ -23,7 +23,7 @@
 // but is more open for your experiments, customization.
 // Everything important is in source code below.
 //
-// Copyright (C) 2007-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 //#define FBO_EXAMPLE // renders scene into texture, copies texture to screen. unlike scene on screen, scene in texture can be postprocessed

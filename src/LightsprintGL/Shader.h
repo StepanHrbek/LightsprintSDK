@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Shader, OpenGL 2.0 object.
-// Copyright (C) 2005-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2005-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef SHADER_H

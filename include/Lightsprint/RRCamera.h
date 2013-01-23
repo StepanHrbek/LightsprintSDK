@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file RRCamera.h
 //! \brief LightsprintGL | frustum with adjustable pos, dir, aspect, fov, near, far
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2012
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2013
 //! All rights reserved
 //----------------------------------------------------------------------------
 

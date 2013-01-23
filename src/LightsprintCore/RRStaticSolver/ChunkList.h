@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Chunk list - single linked list allocated from local pool
-// Copyright (c) 2008-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2008-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef CHUNK_LIST_H

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Renderer implementation that renders RRObject instance.
-// Copyright (C) 2005-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2005-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef OBJECTBUFFERS_H

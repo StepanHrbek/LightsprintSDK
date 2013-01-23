@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Image load & save using FreeImage.
-// Copyright (C) 2006-2012 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2006-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "../supported_formats.h"
