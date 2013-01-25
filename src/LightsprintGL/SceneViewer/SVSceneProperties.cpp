@@ -43,8 +43,8 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propCameraEyeSeparation = new FloatProperty(_("Eye separation")+" (m)",_("Distance from left to right eye. Negative value swaps left and right eye."),svs.eye.eyeSeparation,svs.precision,-1000,1000,0.01f,false);
 			AppendIn(propCameraStereo,propCameraEyeSeparation);
 
-			propCameraFocalLength = new FloatProperty(_("Focal length")+" (m)",_("How distant objects should appear in display plane."),svs.eye.focalLength,svs.precision,0,1e10,1,false);
-			AppendIn(propCameraStereo,propCameraFocalLength);
+			propCameraFocalLength = new FloatProperty(_("Focal length")+" (m)",_("For stereo: How distant objects should appear in display plane. For DOF: how distant objects are in focus."),svs.eye.focalLength,svs.precision,0,1e10,1,false);
+			AppendIn(propCamera,propCameraFocalLength);
 
 		}
 
@@ -261,7 +261,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 void SVSceneProperties::updateHide()
 {
 	propCameraEyeSeparation->Hide(!svs.renderStereo,false);
-	propCameraFocalLength->Hide(!svs.renderStereo,false);
+	//propCameraFocalLength->Hide(!svs.renderStereo,false);
 
 	propCameraFov->Hide(svs.eye.isOrthogonal(),false);
 	propCameraOrthoSize->Hide(!svs.eye.isOrthogonal(),false);
