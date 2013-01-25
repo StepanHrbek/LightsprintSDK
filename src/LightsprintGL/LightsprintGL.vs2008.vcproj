@@ -952,6 +952,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\data\shaders\dof.fs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\dof.vs"
+				>
+			</File>
+			<File
 				RelativePath="..\..\data\shaders\scaledown_filter.fs"
 				>
 			</File>
@@ -1002,6 +1010,14 @@
 		</File>
 		<File
 			RelativePath="..\..\include\Lightsprint\GL\DemoEngine.h"
+			>
+		</File>
+		<File
+			RelativePath=".\DOF.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\DOF.h"
 			>
 		</File>
 		<File

@@ -113,6 +113,10 @@ namespace rr_gl
 		bool                       bloomLoadAttempted;
 		class Bloom*               bloom;
 
+		// DOF
+		bool                       dofLoadAttempted;
+		class DOF*                 dof;
+
 		// lens flare
 		bool                       lensFlareLoadAttempted;
 		class LensFlare*           lensFlare;

@@ -86,6 +86,8 @@ namespace rr_gl
 
 		BoolRefProperty*  propRenderBloom;
 
+		BoolRefProperty*  propRenderDOF;
+
 		BoolRefProperty*  propLensFlare;
 		FloatProperty*    propLensFlareSize;
 		FloatProperty*    propLensFlareId;

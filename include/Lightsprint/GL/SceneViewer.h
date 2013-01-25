@@ -100,6 +100,7 @@ struct SceneViewerState
 	bool             renderIcons;               //! Unused.
 	bool             renderHelpers;             //! Show helper wireframe objects and text outputs.
 	bool             renderBloom;               //! Render bloom effect.
+	bool             renderDOF;                 //! Render depth of field effect.
 	bool             renderLensFlare;           //! Render lens flare effect.
 	float            lensFlareSize;             //! Relative lens flare size, 1 for typical size.
 	unsigned         lensFlareId;               //! Other lens flare parameters are generated from this number.
@@ -191,6 +192,7 @@ struct SceneViewerState
 		renderHelpers = 0;
 		renderLightmapsBilinear = 1;
 		renderBloom = 0;
+		renderDOF = 0;
 		renderLensFlare = 1;
 		lensFlareSize = 8;
 		lensFlareId = 204;
@@ -275,6 +277,7 @@ struct SceneViewerState
 			&& a.renderIcons==renderIcons
 			&& a.renderHelpers==renderHelpers
 			&& a.renderBloom==renderBloom
+			&& a.renderDOF==renderDOF
 			&& a.renderLensFlare==renderLensFlare
 			&& a.lensFlareSize==lensFlareSize
 			&& a.lensFlareId==lensFlareId

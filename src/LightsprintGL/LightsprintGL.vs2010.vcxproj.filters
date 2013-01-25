@@ -99,6 +99,7 @@
     <ClInclude Include="SceneViewer\SVThumbnailCtrl.h">
       <Filter>SceneViewer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\Lightsprint\GL\DOF.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SceneViewer\SVApp.cpp">
@@ -181,6 +182,7 @@
     <ClCompile Include="SceneViewer\SVThumbnailCtrl.cpp">
       <Filter>SceneViewer</Filter>
     </ClCompile>
+    <ClCompile Include="DOF.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\data\shaders\scaledown_filter.fs">
@@ -211,6 +213,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\..\data\shaders\bloom.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\data\shaders\dof.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\data\shaders\dof.vs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -213,6 +213,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderBloom = new BoolRefProperty(_("Bloom"),_("Applies fullscreen bloom effect."),svs.renderBloom);
 		AppendIn(propRenderExtras,propRenderBloom);
 
+		propRenderDOF = new BoolRefProperty(_("DOF"),_("Applies fullscreen depth of field effect. Focus is controlled by camera's focal length."),svs.renderDOF);
+		AppendIn(propRenderExtras,propRenderDOF);
+
 		// lens flare
 		{
 			propLensFlare = new BoolRefProperty(_("Lens Flare"),_("Renders lens flare for all directional lights."),svs.renderLensFlare);
@@ -347,6 +350,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderHelpers)
 		+ updateBoolRef(propRenderFPS)
 		+ updateBoolRef(propRenderBloom)
+		+ updateBoolRef(propRenderDOF)
 		+ updateFloat(propLensFlareSize,svs.lensFlareSize)
 		+ updateFloat(propLensFlareId,svs.lensFlareId)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)

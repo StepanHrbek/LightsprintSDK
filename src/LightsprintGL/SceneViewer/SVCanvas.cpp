@@ -17,6 +17,7 @@
 #include "SVMaterialProperties.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/Bloom.h"
+#include "Lightsprint/GL/DOF.h"
 #include "Lightsprint/GL/LensFlare.h"
 #include "Lightsprint/GL/ToneMapping.h"
 #include "../PreserveState.h"
@@ -109,6 +110,9 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 
 	bloomLoadAttempted = false;
 	bloom = NULL;
+
+	dofLoadAttempted = false;
+	dof = NULL;
 
 	lensFlareLoadAttempted = false;
 	lensFlare = NULL;
@@ -1709,6 +1713,21 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (bloom)
 			{
 				bloom->applyBloom(winWidth,winHeight);
+			}
+		}
+
+		// render DOF, using own shader
+		if (svs.renderDOF)
+		{
+			if (!dofLoadAttempted)
+			{
+				dofLoadAttempted = true;
+				RR_ASSERT(!dof);
+				dof = new DOF(svs.pathToShaders);
+			}
+			if (dof)
+			{
+				dof->applyDOF(winWidth,winHeight,svs.eye);
 			}
 		}
 

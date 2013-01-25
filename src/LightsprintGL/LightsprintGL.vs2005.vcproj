@@ -968,6 +968,14 @@
 			>
 		</File>
 		<File
+			RelativePath=".\DOF.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\DOF.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\include\Lightsprint\GL\FBO.h"
 			>
 		</File>

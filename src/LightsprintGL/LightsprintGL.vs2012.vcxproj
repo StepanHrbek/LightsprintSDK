@@ -574,6 +574,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Lightsprint\GL\Bloom.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\DOF.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\FBO.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\LensFlare.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\SceneViewer.h" />
@@ -620,6 +621,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bloom.cpp" />
+    <ClCompile Include="DOF.cpp" />
     <ClCompile Include="LensFlare.cpp" />
     <ClCompile Include="SceneViewer\SVAnimationProperties.cpp" />
     <ClCompile Include="SceneViewer\SVApp.cpp" />
@@ -661,6 +663,8 @@
   <ItemGroup>
     <None Include="..\..\data\shaders\bloom.fs" />
     <None Include="..\..\data\shaders\bloom.vs" />
+    <None Include="..\..\data\shaders\dof.fs" />
+    <None Include="..\..\data\shaders\dof.vs" />
     <None Include="..\..\data\shaders\scaledown_filter.fs" />
     <None Include="..\..\data\shaders\scaledown_filter.vs" />
     <None Include="..\..\data\shaders\sky.fs" />

@@ -12,6 +12,9 @@ namespace rr
 
 NEWS
 
+- depth of field
+  - rr_gl::DOF
+  - Scene viewer has it in Scene properties/Render extras
 - shadow bias can be controlled
   - RRLight::rtShadowmapBias
   - Scene viewer has it in Light properties

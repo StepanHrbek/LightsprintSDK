@@ -100,6 +100,7 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/GL/Bloom.h" \
                          "../../include/Lightsprint/GL/Camera.h" \
                          "../../include/Lightsprint/GL/DemoEngine.h" \
+                         "../../include/Lightsprint/GL/DOF.h" \
                          "../../include/Lightsprint/GL/FBO.h" \
                          "../../include/Lightsprint/GL/FPS.h" \
                          "../../include/Lightsprint/GL/LensFlare.h" \
