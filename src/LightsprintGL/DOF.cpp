@@ -27,7 +27,11 @@ DOF::~DOF()
 
 void DOF::applyDOF(unsigned _w, unsigned _h, const rr::RRCamera& _eye)
 {
-	if (!bigColor || !bigDepth || !dofProgram) return;
+	if (!bigColor || !bigDepth || !dofProgram)
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"DOF shader failed to initialize.\n"));
+		return;
+	}
 
 	FBO oldFBOState = FBO::getState();
 
