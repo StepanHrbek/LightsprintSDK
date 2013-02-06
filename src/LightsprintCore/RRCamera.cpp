@@ -519,6 +519,7 @@ RRReal blendModulo(RRReal a,RRReal b,RRReal alpha,RRReal modulo)
 	return blendNormal(a,b,alpha);
 }
 
+// expects normalized quaternions, returns normalized quaternion
 RRVec4 quaternion_slerp(RRVec4 q0, RRVec4 q1, float t)
 {
 	float dp = q0.dot(q1);

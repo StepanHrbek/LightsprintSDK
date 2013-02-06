@@ -325,7 +325,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		static RRMatrix3x4 translation(const RRVec3& translation);
 		static RRMatrix3x4 rotationByYawPitchRoll(const RRVec3& yawPitchRollRad); ///< Yaw + Pitch + Roll = YXZ Euler angles as defined at http://en.wikipedia.org/wiki/Euler_angles
 		static RRMatrix3x4 rotationByAxisAngle(const RRVec3& rotationAxis, RRReal rotationAngleRad);
-		static RRMatrix3x4 rotationByQuaternion(const RRVec4& quaternion);
+		static RRMatrix3x4 rotationByQuaternion(const RRVec4& quaternion); ///< Expects normalized quaternion.
 
 		static RRMatrix3x4 mirror(const RRVec4& plane);
 
@@ -390,7 +390,7 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 		//! Returns rotation component of matrix as rotation axis (xyz) and rotation angle in radians (w) .
 		RRVec4 getAxisAngle() const;
 
-		//! Returns rotation component of matrix as quaternion.
+		//! Returns rotation component of matrix as normalized quaternion.
 		RRVec4 getQuaternion() const;
 
 		//! Returns i-th matrix column, for i=0,1,2,3.
