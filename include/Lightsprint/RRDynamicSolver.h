@@ -123,7 +123,7 @@ namespace rr
 		const RRLights& getLights() const;
 
 
-		//! Sets custom irradiance for all triangles in scene.
+		//! Sets custom irradiance for all static triangles in scene.
 		//
 		//! This is one of paths for light to enter solver, others are setLights(), setEnvironment(), emissive materials.
 		//! Unlike the other paths, this one is usually called many times - whenever lighting changes.
@@ -141,8 +141,8 @@ namespace rr
 		//!  but materials are not. So result for fully shadowed triangle is 0, fully lit
 		//!  0xffffff00 (00 is alpha, it is ignored).
 		//!
-		//!  Order of values in array is defined by order of triangles in scene,
-		//!  first all triangles from object 0, then all triangles from object 1 etc.
+		//!  Order of values in array is defined by order of static triangles in scene,
+		//!  first all triangles from static object 0, then all triangles from static object 1 etc.
 		//!
 		//!  Array must stay valid at least until next setDirectIllumination() call.
 		//!  Array is not adopted+deleted, you are still responsible for deleting it.

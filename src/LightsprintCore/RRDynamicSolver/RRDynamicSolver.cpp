@@ -531,6 +531,19 @@ void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVecto
 	for (unsigned i=0;i<getLights().size();i++)
 		set.insert(getLights()[i]->rtProjectedTexture);
 	// - maps from materials
+	/* shorter but slower (more allocations)
+	RRMaterials materials;
+	getObjects().getAllMaterials(materials);
+	for (int i=0;i<materials.size();i++)
+		if (materials[i])
+		{
+			set.insert(materials[i]->diffuseReflectance.texture);
+			set.insert(materials[i]->specularReflectance.texture);
+			set.insert(materials[i]->diffuseEmittance.texture);
+			set.insert(materials[i]->specularTransmittance.texture);
+			set.insert(materials[i]->bumpMap.texture);
+		}
+	*/
 	const RRObjects& objects = getDynamicObjects();
 	for (int i=-1;i<(int)objects.size();i++)
 	{
