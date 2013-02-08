@@ -384,38 +384,4 @@ RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction) const
 	return getElement(coord[0]+coord[1]*width+coord[2]*width*height);
 }
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// RRBuffer
-
-RRBuffer* RRBuffer::create(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char* _data)
-{
-	RRBuffer* buffer = new RRBufferInMemory();
-	if (!buffer->reset(_type,_width,_height,_depth,_format,_scaled,_data))
-		RR_SAFE_DELETE(buffer);
-	return buffer;
-}
-
-RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool scaled)
-{
-	if (upper==lower)
-	{
-		const RRVec4 data[6] = {upper,upper,upper,upper,upper,upper};
-		return create(BT_CUBE_TEXTURE,1,1,6,BF_RGBAF,scaled,(const unsigned char*)data);
-	}
-	else
-	{
-		const RRVec4 data[24] = {
-			upper,upper,lower,lower,
-			upper,upper,lower,lower,
-			upper,upper,upper,upper,
-			lower,lower,lower,lower,//bottom
-			upper,upper,lower,lower,
-			upper,upper,lower,lower
-		};
-		return create(BT_CUBE_TEXTURE,2,2,6,BF_RGBAF,scaled,(const unsigned char*)data);
-	}
-}
-
 }; // namespace
