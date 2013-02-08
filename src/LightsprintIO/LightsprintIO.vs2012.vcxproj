@@ -931,6 +931,7 @@
     <ClCompile Include="ImportLightsprint\portable_binary_oarchive.cpp" />
     <ClCompile Include="ImportLightsprint\RRObjectLightsprint.cpp" />
     <ClCompile Include="ImportScene.cpp" />
+    <ClCompile Include="SmallLuxGpu\SmallLuxGpu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Import3DS\Model_3DS.h" />
@@ -1490,6 +1491,7 @@
     <ClInclude Include="ImportLightsprint\RRObjectLightsprint.h" />
     <ClInclude Include="ImportLightsprint\RRSerialization.h" />
     <ClInclude Include="..\..\include\Lightsprint\IO\ImportScene.h" />
+    <ClInclude Include="SmallLuxGpu\SmallLuxGpu.h" />
     <ClInclude Include="supported_formats.h" />
   </ItemGroup>
   <ItemGroup>

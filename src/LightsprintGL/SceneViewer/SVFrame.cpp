@@ -732,6 +732,8 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_WINDOW_LAYOUT1+userPreferences.currentWindowLayout,true);
 		winMenu->AppendSeparator();
 		winMenu->AppendCheckItem(ME_WINDOW_RESIZE,_("Set viewport size"),_("Lets you set exact viewport size in pixels."));
+		winMenu->AppendSeparator();
+		winMenu->Append(ME_WINDOW_SMALLLUXGPU,"SmallLuxGPU",_("Open scene in SmallLuxGPU, GPU accelerated pathtracer. It can be configured via data/scenes/SmallLuxGpu/scene.cfg"));
 		menuBar->Append(winMenu, _("Windows"));
 	}
 
@@ -1469,6 +1471,20 @@ reload_skybox:
 						wxMessageBox(panes?_("There's not enough space. You can make more space by resizing or closing panes."):_("There's not enough space. Switch to fullscreen mode for maximal resolution."));
 					}
 				}
+			}
+			break;
+		case ME_WINDOW_SMALLLUXGPU:
+			{
+				if (!svs.srgbCorrect)
+					rr::RRReporter::report(rr::WARN,"With Global illumination/sRGB correctness unchecked, lighting differes from pathtracer a lot.\n");
+				_chdir("../../data/scenes/SmallLuxGpu");
+				saveScene("scene.scn");
+				spawnl(_P_NOWAIT,"../../../bin/win32/slg4.exe","../../../bin/win32/slg4.exe","scene.cfg",NULL);
+#if defined(_M_X64) || defined(_LP64)
+				_chdir("../../../bin/x64");
+#else
+				_chdir("../../../bin/win32");
+#endif
 			}
 			break;
 

@@ -4667,6 +4667,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="SmallLuxGpu"
+			>
+			<File
+				RelativePath=".\SmallLuxGpu\SmallLuxGpu.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SmallLuxGpu\SmallLuxGpu.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ImportScene.cpp"
 			>

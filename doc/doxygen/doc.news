@@ -12,6 +12,12 @@ namespace rr
 
 NEWS
 
+- GPU accelerated pathtracer SmallLuxGpu included
+  - Scene viewer integration: click Windows/SmallLuxGPU to see the same scene pathtraced
+  - export scene to SmallLuxGpu format by scene.save("foo.scn")
+  - configure SmallLuxGpu via data/scenes/SmallLuxGpu/scene.cfg
+  - open scene in SmallLuxGpu by bin/win32/slg4.exe scene.cfg
+  - sRGB correctness (more accurate rendering) in Scene viewer is enabled by default, as pathtracer is also sRGB correct
 - depth of field
   - rr_gl::DOF
   - Scene viewer has it in Scene properties/Render extras

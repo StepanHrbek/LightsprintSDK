@@ -160,6 +160,9 @@
     <Filter Include="Assimp\contrib\poly2tri">
       <UniqueIdentifier>{aec9e359-664b-4df6-88de-968a74ca8992}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SmallLuxGpu">
+      <UniqueIdentifier>{0397ccbe-4569-4158-bc2b-8a112f47ae16}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Import3DS\Model_3DS.cpp">
@@ -1233,6 +1236,9 @@
     </ClCompile>
     <ClCompile Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep_context.cc">
       <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClCompile>
+    <ClCompile Include="SmallLuxGpu\SmallLuxGpu.cpp">
+      <Filter>SmallLuxGpu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2905,6 +2911,9 @@
     </ClInclude>
     <ClInclude Include="ImportAssimp\contrib\poly2tri\poly2tri\sweep\sweep_context.h">
       <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="SmallLuxGpu\SmallLuxGpu.h">
+      <Filter>SmallLuxGpu</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

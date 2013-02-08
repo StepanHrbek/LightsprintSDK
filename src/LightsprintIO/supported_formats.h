@@ -19,7 +19,7 @@
 #define SUPPORT_DIRECTSHOW  // avi, wmv, mpg etc
 //#define SUPPORT_OBJ       // Wavefront .obj (obsoleted by Assimp)
 #define SUPPORT_ISOLATION   // makes scene import run in isolated process
-
+#define SUPPORT_SMALLLUXGPU // SmallLuxGpu .scn, .ply
 
 // Actual support depends on your operating system, compiler etc.
 
@@ -47,4 +47,9 @@
 // Isolation is implemented only for Windows, and it requires .rr3 support
 #if defined(SUPPORT_ISOLATION) && (!defined(_WIN32) || !defined(SUPPORT_LIGHTSPRINT))
 	#undef SUPPORT_ISOLATION
+#endif
+
+// For now, we include SmallLuxGpu only in Windows.
+#if defined(SUPPORT_SMALLLUXGPU) && !defined(_WIN32)
+	#undef SUPPORT_SMALLLUXGPU
 #endif

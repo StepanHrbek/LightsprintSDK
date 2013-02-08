@@ -18,6 +18,7 @@
 #include "ImportQuake3/RRObjectBSP.h"
 #include "ImportMGF/RRObjectMGF.h"
 #include "ImportOBJ/RRObjectOBJ.h"
+#include "SmallLuxGpu/SmallLuxGpu.h"
 
 void rr_io::registerLoaders()
 {
@@ -78,6 +79,10 @@ void rr_io::registerLoaders()
 
 #ifdef SUPPORT_OBJ
 	registerLoaderOBJ();
+#endif
+
+#ifdef SUPPORT_SMALLLUXGPU
+	registerSmallLuxGpu();
 #endif
 }
 
