@@ -280,6 +280,12 @@ namespace rr
 		//! By default, white cube for ambient occlusion is created.
 		static RRBuffer* createSky(const RRVec4& upper = RRVec4(1), const RRVec4& lower = RRVec4(1), bool scaled = true);
 
+		//! Creates equirectangular 360 degree panorama (2d texture) from texture loaded with loadCube().
+		//
+		//! When called on cubemap, it creates new 2d texture with the same number of pixels.
+		//! When called on 2d texture, it already is equirectangular, so it returns new reference to the same texture.
+		//! When called on other buffer type (vertex buffer), it returns NULL.
+		RRBuffer* createEquirectangular();
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Tools for loading/saving

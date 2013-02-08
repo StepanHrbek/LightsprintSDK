@@ -821,6 +821,42 @@ bool RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRBuffer tools for creation
+
+RRBuffer* RRBuffer::createEquirectangular()
+{
+	if (!this)
+		return NULL;
+	switch (getType())
+	{
+		case BT_CUBE_TEXTURE:
+			{
+				unsigned width = getWidth()*3;
+				unsigned height = getHeight()*2;
+				RRBuffer* b = RRBuffer::create(BT_2D_TEXTURE,width,height,1,getFormat(),getScaled(),NULL);
+				for (unsigned j=0;j<height;j++)
+					for (unsigned i=0;i<width;i++)
+					{
+						RRVec3 direction;
+						direction.y = sin(RR_PI*((j+0.5f)/height-0.5f));
+						direction.x = sin(RR_PI*(-2.0f*(i+0.5f)/width+1.5f)) * sqrt(1-direction.y*direction.y);
+						direction.z = sqrt(1-direction.x*direction.x-direction.y*direction.y);
+						if (i*2<width)
+							direction.z = -direction.z;
+						b->setElement(j*width+i,getElementAtDirection(direction));
+					}
+				return b;
+			}
+		case BT_2D_TEXTURE:
+			return createReference();
+		default: //BT_VERTEX_BUFFER
+			return NULL;
+	}
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // ImageCache
 // - needs exceptions, implemented in exceptions.cpp
 
