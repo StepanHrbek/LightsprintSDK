@@ -224,7 +224,7 @@ struct SceneViewerState
 		mirrorsDiffuse = true;
 		mirrorsSpecular = true;
 		mirrorsMipmaps = true;
-		srgbCorrect = false;
+		srgbCorrect = true;
 		lightmapFloats = false;
 		lightmapDirectParameters.aoSize = 1;
 		cameraDynamicNear = 1;
