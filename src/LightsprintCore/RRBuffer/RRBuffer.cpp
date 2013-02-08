@@ -72,9 +72,10 @@ void RRBuffer::unlock()
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::unlock() called.\n"));
 }
 
-/////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
 //
-// RRBuffer tools
+// RRBuffer tools for creation/copying
 
 RRBuffer* RRBuffer::createCopy()
 {
@@ -112,6 +113,71 @@ bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRScaler* scaler) con
 	}
 	return true;
 }
+
+RRBuffer* RRBuffer::create(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char* _data)
+{
+	RRBuffer* buffer = new RRBufferInMemory();
+	if (!buffer->reset(_type,_width,_height,_depth,_format,_scaled,_data))
+		RR_SAFE_DELETE(buffer);
+	return buffer;
+}
+
+RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool scaled)
+{
+	if (upper==lower)
+	{
+		const RRVec4 data[6] = {upper,upper,upper,upper,upper,upper};
+		return create(BT_CUBE_TEXTURE,1,1,6,BF_RGBAF,scaled,(const unsigned char*)data);
+	}
+	else
+	{
+		const RRVec4 data[24] = {
+			upper,upper,lower,lower,
+			upper,upper,lower,lower,
+			upper,upper,upper,upper,
+			lower,lower,lower,lower,//bottom
+			upper,upper,lower,lower,
+			upper,upper,lower,lower
+		};
+		return create(BT_CUBE_TEXTURE,2,2,6,BF_RGBAF,scaled,(const unsigned char*)data);
+	}
+}
+
+RRBuffer* RRBuffer::createEquirectangular()
+{
+	if (!this)
+		return NULL;
+	switch (getType())
+	{
+		case BT_CUBE_TEXTURE:
+			{
+				unsigned width = getWidth()*3;
+				unsigned height = getHeight()*2;
+				RRBuffer* b = RRBuffer::create(BT_2D_TEXTURE,width,height,1,getFormat(),getScaled(),NULL);
+				for (unsigned j=0;j<height;j++)
+					for (unsigned i=0;i<width;i++)
+					{
+						RRVec3 direction;
+						direction.y = sin(RR_PI*((j+0.5f)/height-0.5f));
+						direction.x = sin(RR_PI*(-2.0f*(i+0.5f)/width+1.5f)) * sqrt(1-direction.y*direction.y);
+						direction.z = sqrt(1-direction.x*direction.x-direction.y*direction.y);
+						if (i*2<width)
+							direction.z = -direction.z;
+						b->setElement(j*width+i,getElementAtDirection(direction));
+					}
+				return b;
+			}
+		case BT_2D_TEXTURE:
+			return createReference();
+		default: //BT_VERTEX_BUFFER
+			return NULL;
+	}
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRBuffer tools
 
 void RRBuffer::setFormat(RRBufferFormat newFormat)
 {
@@ -816,71 +882,6 @@ bool RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 		setElement(i,(color[3]<0)?backgroundColor:color);
 	}
 	return true;
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-//
-// RRBuffer tools for creation
-
-RRBuffer* RRBuffer::create(RRBufferType _type, unsigned _width, unsigned _height, unsigned _depth, RRBufferFormat _format, bool _scaled, const unsigned char* _data)
-{
-	RRBuffer* buffer = new RRBufferInMemory();
-	if (!buffer->reset(_type,_width,_height,_depth,_format,_scaled,_data))
-		RR_SAFE_DELETE(buffer);
-	return buffer;
-}
-
-RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool scaled)
-{
-	if (upper==lower)
-	{
-		const RRVec4 data[6] = {upper,upper,upper,upper,upper,upper};
-		return create(BT_CUBE_TEXTURE,1,1,6,BF_RGBAF,scaled,(const unsigned char*)data);
-	}
-	else
-	{
-		const RRVec4 data[24] = {
-			upper,upper,lower,lower,
-			upper,upper,lower,lower,
-			upper,upper,upper,upper,
-			lower,lower,lower,lower,//bottom
-			upper,upper,lower,lower,
-			upper,upper,lower,lower
-		};
-		return create(BT_CUBE_TEXTURE,2,2,6,BF_RGBAF,scaled,(const unsigned char*)data);
-	}
-}
-
-RRBuffer* RRBuffer::createEquirectangular()
-{
-	if (!this)
-		return NULL;
-	switch (getType())
-	{
-		case BT_CUBE_TEXTURE:
-			{
-				unsigned width = getWidth()*3;
-				unsigned height = getHeight()*2;
-				RRBuffer* b = RRBuffer::create(BT_2D_TEXTURE,width,height,1,getFormat(),getScaled(),NULL);
-				for (unsigned j=0;j<height;j++)
-					for (unsigned i=0;i<width;i++)
-					{
-						RRVec3 direction;
-						direction.y = sin(RR_PI*((j+0.5f)/height-0.5f));
-						direction.x = sin(RR_PI*(-2.0f*(i+0.5f)/width+1.5f)) * sqrt(1-direction.y*direction.y);
-						direction.z = sqrt(1-direction.x*direction.x-direction.y*direction.y);
-						if (i*2<width)
-							direction.z = -direction.z;
-						b->setElement(j*width+i,getElementAtDirection(direction));
-					}
-				return b;
-			}
-		case BT_2D_TEXTURE:
-			return createReference();
-		default: //BT_VERTEX_BUFFER
-			return NULL;
-	}
 }
 
 
