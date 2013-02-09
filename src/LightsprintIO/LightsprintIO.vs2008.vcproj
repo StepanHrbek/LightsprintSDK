@@ -1207,6 +1207,106 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\FBXAnimation.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXBinaryTokenizer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXCompileConfig.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXConverter.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXConverter.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXDeformer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXDocument.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXDocument.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXDocumentUtil.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXDocumentUtil.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXImporter.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXImporter.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXImportSettings.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXMaterial.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXMeshGeometry.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXModel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXNodeAttribute.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXParser.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXParser.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXProperties.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXProperties.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXTokenizer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXTokenizer.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXUtil.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\FBXUtil.h"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\FileLogStream.h"
 					>
 				</File>
@@ -1287,6 +1387,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ImportAssimp\code\IfcBoolean.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\ImportAssimp\code\IFCCurve.cpp"
 					>
 				</File>
@@ -1304,6 +1408,10 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\IFCMaterial.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\IFCOpenings.cpp"
 					>
 				</File>
 				<File
@@ -1892,6 +2000,14 @@
 				</File>
 				<File
 					RelativePath=".\ImportAssimp\code\STEPFile.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\STEPFileEncoding.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ImportAssimp\code\STEPFileEncoding.h"
 					>
 				</File>
 				<File

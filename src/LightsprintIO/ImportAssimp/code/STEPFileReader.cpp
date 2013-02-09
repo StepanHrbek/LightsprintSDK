@@ -44,8 +44,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "AssimpPCH.h"
 #include "STEPFileReader.h"
+#include "STEPFileEncoding.h"
 #include "TinyFormatter.h"
 #include "fast_atof.h"
+
 
 using namespace Assimp;
 namespace EXPRESS = STEP::EXPRESS;
@@ -331,7 +333,6 @@ void STEP::ReadFile(DB& db,const EXPRESS::ConversionSchema& scheme,
 	}
 }
 
-
 // ------------------------------------------------------------------------------------------------
 boost::shared_ptr<const EXPRESS::DataType> EXPRESS::DataType::Parse(const char*& inout,uint64_t line, const EXPRESS::ConversionSchema* schema /*= NULL*/)
 {
@@ -419,7 +420,15 @@ boost::shared_ptr<const EXPRESS::DataType> EXPRESS::DataType::Parse(const char*&
 
 		inout = cur + 1;
 
-		return boost::make_shared<EXPRESS::STRING>(std::string(start, static_cast<size_t>(cur - start)));
+		// assimp is supposed to output UTF8 strings, so we have to deal
+		// with foreign encodings.
+		std::string stemp = std::string(start, static_cast<size_t>(cur - start));
+		if(!StringToUTF8(stemp)) {
+			// TODO: route this to a correct logger with line numbers etc., better error messages
+			DefaultLogger::get()->error("an error occurred reading escape sequences in ASCII text");
+		}
+
+		return boost::make_shared<EXPRESS::STRING>(stemp);
 	}
 	else if (*cur == '\"' ) {
 		throw STEP::SyntaxError("binary data not supported yet",line);
