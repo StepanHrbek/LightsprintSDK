@@ -1479,7 +1479,7 @@ reload_skybox:
 					rr::RRReporter::report(rr::WARN,"With Global illumination/sRGB correctness unchecked, lighting differes from pathtracer a lot.\n");
 				_chdir("../../data/scenes/SmallLuxGpu");
 				saveScene("scene.scn");
-				spawnl(_P_NOWAIT,"../../../bin/win32/slg4.exe","../../../bin/win32/slg4.exe","scene.cfg",NULL);
+				_spawnl(_P_NOWAIT,"../../../bin/win32/slg4.exe","../../../bin/win32/slg4.exe","scene.cfg",NULL);
 #if defined(_M_X64) || defined(_LP64)
 				_chdir("../../../bin/x64");
 #else
