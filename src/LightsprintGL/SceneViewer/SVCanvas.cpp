@@ -1727,7 +1727,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			if (dof)
 			{
-				dof->applyDOF(winWidth,winHeight,svs.eye);
+				dof->applyDOF(winWidth,winHeight,svs.eye,svs.dofFocalLength);
 			}
 		}
 

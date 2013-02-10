@@ -33,7 +33,7 @@ public:
 	~DOF();
 
 	//! Adds depth of field effect to image in current render target, to region of size w*h.
-	void applyDOF(unsigned w, unsigned h, const rr::RRCamera& eye);
+	void applyDOF(unsigned w, unsigned h, const rr::RRCamera& eye, float focalLength);
 
 protected:
 	Texture* bigColor;
