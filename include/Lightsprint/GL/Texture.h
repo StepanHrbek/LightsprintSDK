@@ -45,6 +45,8 @@ public:
 	const rr::RRBuffer* getBuffer() const;
 	//! Rebuilds texture from buffer and additional parameters.
 	//
+	//! Note that depth textures are automatically configured for the most common use case - shadowmapping.
+	//! If you plan to read depth values from depth texture (instead of shadowmapping), call glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE); after reset().
 	//! \param buildMipMaps
 	//!  Builds texture with mipmaps.
 	//! \param compress
