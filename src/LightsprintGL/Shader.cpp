@@ -104,7 +104,7 @@ Shader* Shader::create(const char* defines, const char* filename, GLenum shaderT
 #else // !MESA_VERSION
 
 	const char* source[NUM_LINES];
-	source[0] = "#version 110\n"; // why not higher? because we wish to run on any OpenGL 2.0 system
+	source[0] = "";//"#version 110\n"; // 110 is default, should be supported by any gl2.0 implementation. we don't insert it here, so that shader can specify its own version (dof needs 120)
 	source[1] = s_es ? "precision highp float;\n" : "";
 	source[2] = defines?defines:"";
 	source[3] = readShader(filename);

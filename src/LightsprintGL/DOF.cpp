@@ -42,6 +42,7 @@ void DOF::applyDOF(unsigned _w, unsigned _h, const rr::RRCamera& _eye)
 		bigDepth->getBuffer()->reset(rr::BT_2D_TEXTURE,_w,_h,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 		bigColor->reset(false,false,false);
 		bigDepth->reset(false,false,false);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 	}
 	
 	// disable depth
