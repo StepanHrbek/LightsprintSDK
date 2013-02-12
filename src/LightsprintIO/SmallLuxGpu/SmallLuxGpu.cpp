@@ -7,11 +7,11 @@
 #ifdef SUPPORT_SMALLLUXGPU
 
 #include <string>
-#include <fstream>
 #include <set>
 #include "SmallLuxGpu.h"
 #include "Lightsprint/RRScene.h"
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 namespace bf = boost::filesystem;
 
 using namespace rr;
@@ -77,7 +77,7 @@ bool savePly(const RRObject* object, const RRString& filename)
 	}
 	try
 	{
-		std::ofstream ofs(RR_RR2STREAM(filename),std::ios::out|std::ios::binary|std::ios::trunc); // binary because valid .ply needs 0a on first line, 0d 0a is wrong
+		bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc); // binary because valid .ply needs 0a on first line, 0d 0a is wrong
 		if (!ofs || ofs.bad())
 		{
 			rr::RRReporter::report(rr::WARN,"File %ls can't be created, object not saved.\n",filename.w_str());
@@ -159,7 +159,7 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 	}
 	try
 	{
-		std::ofstream ofs(RR_RR2STREAM(filename),std::ios::out|std::ios::trunc);
+		bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::trunc);
 		if (!ofs || ofs.bad())
 		{
 			rr::RRReporter::report(rr::WARN,"File %ls can't be created, scene not saved.\n",filename.w_str());

@@ -165,8 +165,7 @@ namespace rr
 	// PATH   - boost::filesystem:path
 	// STD    - std::string
 	// STDW   - std::wstring
-	// WX     - wxWidgets
-	// STREAM - fstream constructor
+	// WX     - wxString
 	// CHAR   - char*
 	// WCHAR  - wchar_t*
 	//
@@ -189,13 +188,6 @@ namespace rr
 	#define RR_WX2PATH(w)   ((const wchar_t*)(w))   // ok, unicode->unicode
 	#define RR_RR2WX(r)     ((r).w_str())           // ok, unicode->unicode
 	#define RR_PATH2WX(p)   ((p).wstring())         // ok, unicode->unicode
-#if defined(_MSC_VER) && _MSC_VER>=1400 // Visual Studio 2005+ accepts std::fstream(const wchar_t*)
-	#define RR_RR2STREAM(w) ((w).w_str())           // ok, unicode->unicode
-	#define RR_WX2STREAM(w) ((const wchar_t*)(w))   // ok, unicode->unicode
-#else
-	#define RR_RR2STREAM(w) ((w).c_str())           // WRONG, unicode->local
-	#define RR_WX2STREAM(w) ((const char*)(w))      // WRONG, unicode->local
-#endif
 	#define RR_RR2CHAR(r)   ((r).c_str())           // WRONG, unicode->local
 	#define RR_WX2WCHAR(w)  ((const wchar_t*)(w))   // ok, unicode->unicode
 	#define RR_WX2CHAR(w)   ((const char*)(w))      // WRONG, unicode->local

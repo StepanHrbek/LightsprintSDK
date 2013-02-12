@@ -27,6 +27,10 @@ NEWS
 - misc helpers
   - RRBuffer::createEquirectangular()
 
+CHANGES
+
+- RR_RR2STREAM and RR_WX2STREAM macros removed, no longer needed when using <boost/filesystem/fstream.hpp> instead of <fstream>
+
 \section news136 ------------------------------------ 2012.12.21 -------------------------------------
 
 NEWS

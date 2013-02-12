@@ -25,7 +25,6 @@
 
 #include "RRObjectLightsprint.h"
 #include "RRSerialization.h"
-#include <fstream>
 #ifdef USE_TEXT
 	#include <boost/archive/text_iarchive.hpp>
 	#include <boost/archive/text_oarchive.hpp>
@@ -89,6 +88,7 @@
 #include <algorithm>
 #include <string>
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 namespace bf = boost::filesystem;
 
 using namespace std;
@@ -108,7 +108,7 @@ public:
 	{
 		try
 		{
-			std::ifstream ifs(RR_RR2STREAM(filename),std::ios::in|std::ios::binary);
+			bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
 			if (!ifs || ifs.bad())
 			{
 				rr::RRReporter::report(rr::WARN,"Scene %ls can't be loaded, file does not exist.\n",filename.w_str());
@@ -212,7 +212,7 @@ public:
 		}
 		try
 		{
-			std::ofstream ofs(RR_RR2STREAM(filename),std::ios::out|std::ios::binary|std::ios::trunc);
+			bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc);
 			if (!ofs || ofs.bad())
 			{
 				rr::RRReporter::report(rr::WARN,"File %ls can't be created, scene not saved.\n",filename.w_str());
@@ -312,7 +312,7 @@ static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6
 {
 	try
 	{
-		std::ifstream ifs(RR_RR2STREAM(filename),std::ios::in|std::ios::binary);
+		bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
 		if (!ifs || ifs.bad())
 		{
 			//rr::RRReporter::report(rr::WARN,"Buffer %ls can't be loaded, file does not exist.\n",filename.w_str());
@@ -355,7 +355,7 @@ static bool saveBuffer(RRBuffer* buffer, const RRString& filename, const char* c
 	}
 	try
 	{
-		std::ofstream ofs(RR_RR2STREAM(filename),std::ios::out|std::ios::binary|std::ios::trunc);
+		bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc);
 		if (!ofs || ofs.bad())
 		{
 			//rr::RRReporter::report(rr::WARN,"File %ls can't be created, buffer not saved.\n",filename.w_str());
@@ -390,7 +390,7 @@ static RRMaterials* loadMaterial(const RRString& filename, RRFileLocator* textur
 	RRMaterials* materials = new RRMaterials;
 	try
 	{
-		std::ifstream ifs(RR_RR2STREAM(filename),std::ios::in|std::ios::binary);
+		bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
 		if (!ifs || ifs.bad())
 		{
 			//rr::RRReporter::report(rr::WARN,"Buffer %ls can't be loaded, file does not exist.\n",filename.w_str());
@@ -435,7 +435,7 @@ static bool saveMaterial(const RRMaterials* materials, const RRString& filename)
 	}
 	try
 	{
-		std::ofstream ofs(RR_RR2STREAM(filename),std::ios::out|std::ios::binary|std::ios::trunc);
+		bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc);
 		if (!ofs || ofs.bad())
 		{
 			//rr::RRReporter::report(rr::WARN,"File %ls can't be created, buffer not saved.\n",filename.w_str());
