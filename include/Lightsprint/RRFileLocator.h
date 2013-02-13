@@ -58,6 +58,12 @@ namespace rr
 		//! Ignored by default implementation, honoured by create().
 		virtual void setAttempt(unsigned attemptNumber, const RRString& location) {}
 
+		//! Tests whether this exact file or directory exists.
+		//
+		//! Only one test is made, without trying other possible locations.
+		//! Default implementation is based on boost::filesystem::exists(), you are free to override it.
+		virtual bool exists(const RRString& filename) const;
+
 		//! Returns possible file location.
 		//
 		//! Default implementation returns original filename as the only attempt.
@@ -69,7 +75,7 @@ namespace rr
 		//! \return
 		//!  Possible file location or empty string when attemptNumber is too high.
 		virtual RRString getLocation(const RRString& originalFilename, unsigned attemptNumber) const;
-		//! Returns file location or fallback string if not found. Uses getLocation(,i) and boost::filesystem::exists() for i=0,1,2...
+		//! Returns file location or fallback string if not found. Uses getLocation(,i) and exists() for i=0,1,2...
 		virtual RRString getLocation(const RRString& originalFilename, const RRString& fallbackFilename) const;
 
 		virtual ~RRFileLocator() {}

@@ -205,40 +205,53 @@ struct LoadersAndSavers
 			return false;
 		}
 
-		// test whether file exists (to properly report this common error)
-		boost::system::error_code ec;
-		if (!bf::exists(RR_RR2PATH(_filename),ec))
-		{
-			RRReporter::report(WARN,"%ls does not exist.\n",_filename.w_str());
-			return false;
-		}
-
 		// tell texture locator scene filename
 		RRFileLocator* localTextureLocator = _textureLocator?_textureLocator:RRFileLocator::create();
 		localTextureLocator->setParent(true,_filename);
 
-		// attempt load
-		bool loaderFound = false;
 		RRClass* loaded = NULL;
-		for (unsigned i=0;i<loaders.size();i++)
+
+		// test whether file exists (to properly report this common error)
+		if (!localTextureLocator->exists(_filename))
 		{
-			if (extensionListMatches(_filename,loaders[i].extensions.c_str()))
+			RRReporter::report(WARN,"%ls does not exist.\n",_filename.w_str());
+		}
+		else
+		{
+			// attempt load
+			bool loaderFound = false;
+			for (unsigned i=0;i<loaders.size();i++)
 			{
-				loaderFound = true;
-				try
+				if (extensionListMatches(_filename,loaders[i].extensions.c_str()))
 				{
-					loaded = callLoader(loaders[i].loader,_filename,localTextureLocator,_aborting,classname);
+					loaderFound = true;
+					try
+					{
+						loaded = callLoader(loaders[i].loader,_filename,localTextureLocator,_aborting,classname);
+					}
+					catch (...)
+					{
+						RRReporter::report(WARN,"Import ended by throwing C++ exception, something is broken.\n");
+					}
+					if (loaded)
+					{
+						break; // loaded, success
+					}
+					// load failed, but don't give up for cycle yet,
+					//  it's possible that another loader for the same extension will succeed
 				}
-				catch (...)
-				{
-					RRReporter::report(WARN,"Import ended by throwing C++ exception, something is broken.\n");
-				}
-				if (loaded)
-				{
-					break; // loaded, success
-				}
-				// load failed, but don't give up for cycle yet,
-				//  it's possible that another loader for the same extension will succeed
+			}
+
+			// report result
+			if (!loaderFound)
+			{
+				RRReporter::report(WARN,"%ls not loaded, no loader for this extension was registered.\n",_filename.w_str());
+			}
+			else
+			if (!loaded)
+			{
+				// exact reason was already reported by loader
+				//RRReporter::report(WARN,"%s load failed.\n");
 			}
 		}
 
@@ -247,17 +260,6 @@ struct LoadersAndSavers
 		if (!_textureLocator)
 			delete localTextureLocator;
 
-		// report result
-		if (!loaderFound)
-		{
-			RRReporter::report(WARN,"%ls not loaded, no loader for this extension was registered.\n",_filename.w_str());
-		}
-		else
-		if (!loaded)
-		{
-			// exact reason was already reported by loader
-			//RRReporter::report(WARN,"%s load failed.\n");
-		}
 		return loaded;
 	}
 

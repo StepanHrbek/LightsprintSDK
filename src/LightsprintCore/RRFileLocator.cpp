@@ -180,6 +180,16 @@ protected:
 //
 // RRFileLocator
 
+bool RRFileLocator::exists(const RRString& filename) const
+{
+	if (filename=="c@pture")
+		return true;
+	boost::system::error_code ec;
+	bool result = bf::exists(RR_RR2PATH(filename),ec);
+	RRReporter::report(INF3,"%sexists(%s), ec.val=%d, ec.name=%s, ec.msg=%s\n",result?"":"!",filename.c_str(),ec.value(),ec.category().name(),ec.message().c_str());
+	return result;
+}
+
 RRString RRFileLocator::getLocation(const RRString& originalFilename, unsigned attemptNumber) const
 {
 	return attemptNumber ? "" : originalFilename;
@@ -192,8 +202,7 @@ RRString RRFileLocator::getLocation(const RRString& originalFilename, const RRSt
 		RRString location = getLocation(originalFilename,attempt);
 		if (location.empty())
 			return fallbackFilename;
-		boost::system::error_code ec;
-		bool exists = bf::exists(RR_RR2PATH(location),ec);
+		bool exists = this->exists(location);
 		RRReporter::report(INF3," %d%c %s\n",attempt,exists?'+':'-',location.c_str());
 		if (exists)
 		{
