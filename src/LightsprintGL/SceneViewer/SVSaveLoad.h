@@ -89,7 +89,7 @@ namespace rr_gl
 			sshotEnhancedShadowResolutionFactor = 2;
 			sshotEnhancedShadowSamples = 8;
 			testingLogShaders = false;
-			testingLogMore = false;
+			testingLogMore = !false;
 			testingBeta = false;
 		}
 		void resetLayouts()
