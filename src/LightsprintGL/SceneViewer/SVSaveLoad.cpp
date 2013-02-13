@@ -15,13 +15,13 @@
 #include "SVApp.h"
 #include "wx/wx.h"
 #include <cstdio>
-#include <fstream>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/version.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/filesystem/fstream.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 
@@ -232,7 +232,7 @@ bool UserPreferences::save() const
 	{
 		boost::system::error_code ec;
 		bf::create_directories(RR_WX2PATH(suggestPreferencesDirectory()),ec);
-		std::ofstream ofs(RR_WX2STREAM(suggestPreferencesFilename()));
+		bf::ofstream ofs(RR_WX2PATH(suggestPreferencesFilename()));
 		if (!ofs || ofs.bad())
 		{
 			rr::RRReporter::report(rr::WARN,"File %ls can't be created, preferences not saved.\n",RR_WX2WCHAR(suggestPreferencesFilename()));
@@ -255,7 +255,7 @@ bool UserPreferences::load(const wxString& nonDefaultFilename)
 {
 	try
 	{
-		std::ifstream ifs(RR_WX2STREAM(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
+		bf::ifstream ifs(RR_WX2PATH(nonDefaultFilename.size()?nonDefaultFilename:suggestPreferencesFilename()));
 		if (!ifs || ifs.bad())
 		{
 			// don't warn, we attempt to load prefs each time, without knowing the file exists
