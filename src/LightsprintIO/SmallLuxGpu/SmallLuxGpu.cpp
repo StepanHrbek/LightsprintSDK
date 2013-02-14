@@ -21,14 +21,22 @@ using namespace rr;
 //
 // conversion helpers
 
+// swaps axes, so that we don't have to rotate environment
 RRVec3 convertPos(const RRVec3& a)
 {
 	return RRVec3(-a.x,a.z,a.y);
 }
 
+// swaps axes, so that we don't have to rotate environment
 RRVec3 convertDir(const RRVec3& a)
 {
 	return RRVec3(-a.x,a.z,a.y);
+}
+
+// converts #inf/#nan to 0, they would break .ply
+float fix(float a)
+{
+	return _finite(a) ? a : 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -37,12 +45,12 @@ RRVec3 convertDir(const RRVec3& a)
 
 std::ostream & operator<<(std::ostream &os, const RRVec2& a)
 {
-	return os << a.x << " " << a.y;
+	return os << fix(a.x) << " " << fix(a.y);
 }
 
 std::ostream & operator<<(std::ostream &os, const RRVec3& a)
 {
-	return os << a.x << " " << a.y << " " << a.z;
+	return os << fix(a.x) << " " << fix(a.y) << " " << fix(a.z);
 }
 
 std::set<const RRBuffer*> textures; // global, so that << can deduce textureIndex
