@@ -10,7 +10,7 @@
 #include <map>
 #include <boost/algorithm/string.hpp> // split, is_any_of
 #include <boost/filesystem.hpp>
-//#include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/fstream.hpp>
 namespace bf = boost::filesystem;
 
 namespace rr
@@ -185,27 +185,31 @@ bool RRFileLocator::exists(const RRString& filename) const
 {
 	if (filename=="c@pture")
 		return true;
-/*
+	
+	int result = 1;
 	try
 	{
 		bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
-		if (!ifs || ifs.bad())
+		result = 2;
+		if (ifs && !ifs.bad())
 		{
-			return false;
+			result = 3;
+			char c;
+			ifs.get(c);
+			if (ifs.good())
+				result = 4;
 		}
-		char c;
-		ifs.get(c);
-		return ifs.good();
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to load buffer %ls.\n",filename.w_str());
-		return NULL;
+		result = -result;
 	}
-*/	
+	bool result1 = result==4;
+
 	boost::system::error_code ec;
-	bool result = bf::exists(RR_RR2PATH(filename),ec);
-	RRReporter::report(INF3,"%sexists(%s), ec.val=%d, ec.name=%s, ec.msg=%s\n",result?"":"!",filename.c_str(),ec.value(),ec.category().name(),ec.message().c_str());
+	bool result2 = bf::exists(RR_RR2PATH(filename),ec);
+
+	RRReporter::report(INF3,"%sexists(%s)=%d, ec.val=%d, ec.name=%s, ec.msg=%s\n",(result1&&result2)?"":((!result1&&!result2)?"!":"??????????"),filename.c_str(),result,ec.value(),ec.category().name(),ec.message().c_str());
 	return result;
 }
 
