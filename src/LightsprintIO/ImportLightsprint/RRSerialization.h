@@ -816,6 +816,8 @@ void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
 	ar & make_nvp("screenCenter",screenCenter);
 	ar & make_nvp("eyeSeparation",a.eyeSeparation);
 	ar & make_nvp("focalLength",a.focalLength);
+	ar & make_nvp("dofNear",a.dofNear);
+	ar & make_nvp("dofFar",a.dofFar);
 }
 
 template<class Archive>
@@ -848,6 +850,11 @@ void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 	{
 		ar & make_nvp("eyeSeparation",a.eyeSeparation);
 		ar & make_nvp("focalLength",a.focalLength);
+	}
+	if (version>1)
+	{
+		ar & make_nvp("dofNear",a.dofNear);
+		ar & make_nvp("dofFar",a.dofFar);
 	}
 }
 #endif // !DONT_SERIALIZE_RRCAMERA
@@ -966,7 +973,7 @@ BOOST_CLASS_VERSION(rr::RRLight,5)
 #endif
 BOOST_CLASS_VERSION(rr::RRObject,1)
 #ifndef DONT_SERIALIZE_RRCAMERA
-BOOST_CLASS_VERSION(rr::RRCamera,1)
+BOOST_CLASS_VERSION(rr::RRCamera,2)
 #endif
 BOOST_CLASS_VERSION(rr::RRScene,1)
 

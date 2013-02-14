@@ -80,6 +80,8 @@ struct SceneViewerState
 	unsigned         selectedObjectIndex;       //! Index into static objects array.
 	bool             fullscreen;                //! Ignored. Fullscreen/windowed bit is saved to and read from user preferences file. Quit sceneViewer() in fullscreen and it will start in fullscreen next time.
 	bool             renderStereo;              //! Enables interlaced stereo rendering.
+	bool             renderDof;                 //! Render depth of field effect.
+	bool             dofAutomatic;              //! For depth of field effect only: set dof near/far automatically.
 	LightingDirect   renderLightDirect;         //! Direct illumination mode.
 	LightingIndirect renderLightIndirect;       //! Indirect illumination mode.
 	float            renderLightIndirectMultiplier; //! Makes indirect illumination this times brighter.
@@ -100,8 +102,6 @@ struct SceneViewerState
 	bool             renderIcons;               //! Unused.
 	bool             renderHelpers;             //! Show helper wireframe objects and text outputs.
 	bool             renderBloom;               //! Render bloom effect.
-	bool             renderDOF;                 //! Render depth of field effect.
-	float            dofFocalLength;            //! For depth of field effect only: Distance of objects in focus.
 	bool             renderLensFlare;           //! Render lens flare effect.
 	float            lensFlareSize;             //! Relative lens flare size, 1 for typical size.
 	unsigned         lensFlareId;               //! Other lens flare parameters are generated from this number.
@@ -174,6 +174,8 @@ struct SceneViewerState
 		selectedObjectIndex = 0;
 		fullscreen = 0;
 		renderStereo = false;
+		renderDof = false;
+		dofAutomatic = false;
 		renderLightDirect = LD_REALTIME;
 		renderLightIndirect = LI_REALTIME_FIREBALL;
 		renderLightIndirectMultiplier = 1;
@@ -193,8 +195,6 @@ struct SceneViewerState
 		renderHelpers = 0;
 		renderLightmapsBilinear = 1;
 		renderBloom = 0;
-		renderDOF = 0;
-		dofFocalLength = 5;
 		renderLensFlare = 1;
 		lensFlareSize = 8;
 		lensFlareId = 204;
@@ -260,6 +260,8 @@ struct SceneViewerState
 			//&& a.selectedObjectIndex==selectedObjectIndex
 			&& a.fullscreen==fullscreen
 			&& a.renderStereo==renderStereo
+			&& a.renderDof==renderDof
+			&& a.dofAutomatic==dofAutomatic
 			&& a.renderLightDirect==renderLightDirect
 			&& a.renderLightIndirect==renderLightIndirect
 			&& a.renderLightIndirectMultiplier==renderLightIndirectMultiplier
@@ -279,8 +281,6 @@ struct SceneViewerState
 			&& a.renderIcons==renderIcons
 			&& a.renderHelpers==renderHelpers
 			&& a.renderBloom==renderBloom
-			&& a.renderDOF==renderDOF
-			&& a.dofFocalLength==dofFocalLength
 			&& a.renderLensFlare==renderLensFlare
 			&& a.lensFlareSize==lensFlareSize
 			&& a.lensFlareId==lensFlareId

@@ -9,7 +9,7 @@ uniform sampler2D colorMap;
 uniform sampler2D depthMap;
 uniform float zNear;
 uniform float zFar;
-uniform float focalLength;
+uniform vec2 focusNearFar;
 uniform vec2 radiusAtTwiceFocalLength;
 varying vec2 mapCoord;
 
@@ -81,7 +81,7 @@ void main()
 {
 	float depth = texture2D(depthMap,mapCoord).x;
 	float linearDepth = 2.0 * zNear * zFar / (zFar + zNear - (2.0*depth-1.0) * (zFar - zNear));
-	vec2 radius = min(max(linearDepth/focalLength,focalLength/linearDepth)-1.0,10.0) * radiusAtTwiceFocalLength;
+	vec2 radius = clamp(max(linearDepth/focusNearFar.y,focusNearFar.x/linearDepth)-1.0,0.0,10.0) * radiusAtTwiceFocalLength;
 	vec4 color = texture2D(colorMap,mapCoord)*0.01;
 	float colors = 0.01;
 	float noise = sin(dot(mapCoord,vec2(52.714,112.9898))) * 43758.5453;

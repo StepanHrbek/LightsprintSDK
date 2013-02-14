@@ -48,6 +48,22 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 		}
 
+		// dof
+		{
+			propCameraDof = new BoolRefProperty(_("DOF"),_("Applies fullscreen depth of field effect."),svs.renderDof);
+			AppendIn(propCamera,propCameraDof);
+
+			propCameraDofAutomatic = new BoolRefProperty(_("Auto"),_("Adjusts near and far automatically."),svs.dofAutomatic);
+			AppendIn(propCameraDof,propCameraDofAutomatic);
+
+			propCameraDofNear = new FloatProperty(_("Near"),_("DOF blurs pixels closer than this distance, in meters."),(float)svs.eye.dofNear,svs.precision,0,100000,1,false);
+			AppendIn(propCameraDof,propCameraDofNear);
+
+			propCameraDofFar = new FloatProperty(_("Far"),_("DOF blurs pixels farther than this distance, in meters."),(float)svs.eye.dofFar,svs.precision,0,100000,1,false);
+			AppendIn(propCameraDof,propCameraDofFar);
+
+		}
+
 
 		propCameraSpeed = new FloatProperty(_("Speed")+" (m/s)",_("Controls how quickly camera moves when controlled by arrows/wsad."),svs.cameraMetersPerSecond,svs.precision,0,1e10f,1,false);
 		AppendIn(propCamera,propCameraSpeed);
@@ -213,15 +229,6 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderBloom = new BoolRefProperty(_("Bloom"),_("Applies fullscreen bloom effect."),svs.renderBloom);
 		AppendIn(propRenderExtras,propRenderBloom);
 
-		// dof
-		{
-			propDOF = new BoolRefProperty(_("DOF"),_("Applies fullscreen depth of field effect."),svs.renderDOF);
-			AppendIn(propRenderExtras,propDOF);
-
-			propDOFFocalLength = new FloatProperty(_("Focal length"),_("Distance of sharp objects."),(float)svs.dofFocalLength,svs.precision,0,100000,1,false);
-			AppendIn(propDOF,propDOFFocalLength);
-		}
-
 		// lens flare
 		{
 			propLensFlare = new BoolRefProperty(_("Lens Flare"),_("Renders lens flare for all directional lights."),svs.renderLensFlare);
@@ -269,6 +276,10 @@ void SVSceneProperties::updateHide()
 	propCameraEyeSeparation->Hide(!svs.renderStereo,false);
 	propCameraFocalLength->Hide(!svs.renderStereo,false);
 
+	propCameraDofAutomatic->Hide(!svs.renderDof,false);
+	propCameraDofNear->Hide(!svs.renderDof,false);
+	propCameraDofFar->Hide(!svs.renderDof,false);
+
 	propCameraFov->Hide(svs.eye.isOrthogonal(),false);
 	propCameraOrthoSize->Hide(!svs.eye.isOrthogonal(),false);
 	EnableProperty(propCameraNear,!svs.cameraDynamicNear);
@@ -290,8 +301,6 @@ void SVSceneProperties::updateHide()
 	propRenderMaterialTransparencyFresnel->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
 
 
-	propDOFFocalLength->Hide(!svs.renderDOF,false);
-
 	propLensFlareSize->Hide(!svs.renderLensFlare,false);
 	propLensFlareId->Hide(!svs.renderLensFlare,false);
 
@@ -309,6 +318,8 @@ void SVSceneProperties::updateProperties()
 	// this function would still have to support at least properties that user can change by hotkeys or mouse navigation.
 	unsigned numChangesRelevantForHiding =
 		+ updateBoolRef(propCameraStereo)
+		+ updateBoolRef(propCameraDof)
+		+ updateBoolRef(propCameraDofAutomatic)
 		+ updateBool(propCameraOrtho,svs.eye.isOrthogonal())
 		+ updateBoolRef(propCameraRangeAutomatic)
 		//+ updateBoolRef(propEnvSimulateSky)
@@ -317,7 +328,6 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propToneMapping)
 		+ updateBool(propToneMappingAutomatic,svs.tonemappingAutomatic)
 		+ updateBoolRef(propLogo)
-		+ updateBoolRef(propDOF)
 		+ updateBoolRef(propLensFlare)
 		+ updateBoolRef(propVignette)
 		+ updateBoolRef(propGrid)
@@ -326,6 +336,8 @@ void SVSceneProperties::updateProperties()
 	unsigned numChangesOther =
 		+ updateFloat(propCameraEyeSeparation,svs.eye.eyeSeparation)
 		+ updateFloat(propCameraFocalLength,svs.eye.focalLength)
+		+ updateFloat(propCameraDofNear,svs.eye.dofNear)
+		+ updateFloat(propCameraDofFar,svs.eye.dofFar)
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
 		+ updateProperty(propCameraPosition,svs.eye.getPosition())
 		+ updateProperty(propCameraDirection,svs.eye.getDirection())
@@ -359,7 +371,6 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderHelpers)
 		+ updateBoolRef(propRenderFPS)
 		+ updateBoolRef(propRenderBloom)
-		+ updateFloat(propDOFFocalLength,svs.dofFocalLength)
 		+ updateFloat(propLensFlareSize,svs.lensFlareSize)
 		+ updateFloat(propLensFlareId,svs.lensFlareId)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)
@@ -403,6 +414,26 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCameraFocalLength)
 	{
 		svs.eye.focalLength = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propCameraDof)
+	{
+		updateHide();
+	}
+	else
+	if (property==propCameraDofAutomatic)
+	{
+		updateHide();
+	}
+	else
+	if (property==propCameraDofNear)
+	{
+		svs.eye.dofNear = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propCameraDofFar)
+	{
+		svs.eye.dofFar = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propCameraView)
@@ -574,16 +605,6 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		// update shadowmaps
 		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
-	}
-	else
-	if (property==propDOF)
-	{
-		updateHide();
-	}
-	else
-	if (property==propDOFFocalLength)
-	{
-		svs.dofFocalLength = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propLensFlare)

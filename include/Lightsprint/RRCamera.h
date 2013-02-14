@@ -167,12 +167,22 @@ public:
 	// stereo
 	//////////////////////////////////////////////////////////////////////////////
 
-	//! Distance (in meters) between left and right eye.
+	//! For stereo effect: Distance (in meters) between left and right eye.
 	float eyeSeparation;
-	//! Distance (in meters) of focused object from camera.
+	//! For stereo effect: Distance (in meters) of objects rendered in display plane (so that closer objects appear in front of display, farther objects behind display).
 	float focalLength;
 	//! Creates left and right camera.
 	void getStereoCameras(RRCamera& left, RRCamera& right) const;
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	// depth of field
+	//////////////////////////////////////////////////////////////////////////////
+
+	//! For depth of field effect: Blur pixels closer than this distance, in meters.
+	float dofNear;
+	//! For depth of field effect: Blur pixels farther than this distance, in meters.
+	float dofFar;
 
 
 	//////////////////////////////////////////////////////////////////////////////

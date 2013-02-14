@@ -37,6 +37,10 @@ namespace rr_gl
 		BoolRefProperty*  propCameraStereo;
 		wxPGProperty*     propCameraEyeSeparation;
 		wxPGProperty*     propCameraFocalLength;
+		BoolRefProperty*  propCameraDof;
+		BoolRefProperty*  propCameraDofAutomatic;
+		FloatProperty*    propCameraDofNear;
+		FloatProperty*    propCameraDofFar;
 		wxPGProperty*     propCameraView;
 		wxPGProperty*     propCameraSpeed;
 		wxPGProperty*     propCameraPosition;
@@ -85,9 +89,6 @@ namespace rr_gl
 		BoolRefProperty*  propLogo;
 
 		BoolRefProperty*  propRenderBloom;
-
-		BoolRefProperty*  propDOF;
-		FloatProperty*    propDOFFocalLength;
 
 		BoolRefProperty*  propLensFlare;
 		FloatProperty*    propLensFlareSize;

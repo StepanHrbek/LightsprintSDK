@@ -1717,7 +1717,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		}
 
 		// render DOF, using own shader
-		if (svs.renderDOF)
+		if (svs.renderDof)
 		{
 			if (!dofLoadAttempted)
 			{
@@ -1727,7 +1727,22 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			if (dof)
 			{
-				dof->applyDOF(winWidth,winHeight,svs.eye,svs.dofFocalLength);
+				if (svs.dofAutomatic)
+				{
+					ray->rayOrigin = svs.eye.getRayOrigin(svs.eye.getScreenCenter());
+					ray->rayDir = svs.eye.getRayDirection(svs.eye.getScreenCenter()).normalized();
+					ray->rayLengthMin = svs.eye.getNear();
+					ray->rayLengthMax = svs.eye.getFar();
+					ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
+					ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
+					ray->collisionHandler = collisionHandler;
+					if (solver->getCollider()->intersect(ray))
+					{
+						svs.eye.dofNear = ray->hitDistance;
+						svs.eye.dofFar = ray->hitDistance;
+					}
+				}
+				dof->applyDOF(winWidth,winHeight,svs.eye);
 			}
 		}
 

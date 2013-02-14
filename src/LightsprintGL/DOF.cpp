@@ -25,7 +25,7 @@ DOF::~DOF()
 	delete bigColor;
 }
 
-void DOF::applyDOF(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _focalLength)
+void DOF::applyDOF(unsigned _w, unsigned _h, const rr::RRCamera& _eye)
 {
 	if (!bigColor || !bigDepth || !dofProgram)
 	{
@@ -67,7 +67,7 @@ void DOF::applyDOF(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _fo
 	dofProgram->sendTexture("depthMap",bigDepth,1);
 	dofProgram->sendUniform("zNear",_eye.getNear());
 	dofProgram->sendUniform("zFar",_eye.getFar());
-	dofProgram->sendUniform("focalLength",_focalLength);
+	dofProgram->sendUniform("focusNearFar",_eye.dofNear,_eye.dofFar);
 	dofProgram->sendUniform("radiusAtTwiceFocalLength",5.0f/bigColor->getBuffer()->getWidth(),5.0f/bigColor->getBuffer()->getHeight());
 	glViewport(0,0,bigColor->getBuffer()->getWidth(),bigColor->getBuffer()->getHeight());
 	glBegin(GL_POLYGON);

@@ -42,6 +42,10 @@ RRCamera::RRCamera()
 	// stereo
 	eyeSeparation = 0.08f;
 	focalLength = 0.5f;
+
+	// dof
+	dofNear = 1;
+	dofFar = 10;
 }
 
 RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar)
@@ -66,6 +70,10 @@ RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspec
 	// stereo
 	eyeSeparation = 0.08f;
 	focalLength = 0.5f;
+
+	// dof
+	dofNear = 1;
+	dofFar = 10;
 }
 
 RRCamera::RRCamera(RRLight& _light)
@@ -96,6 +104,10 @@ RRCamera::RRCamera(RRLight& _light)
 	// stereo
 	eyeSeparation = 0.08f;
 	focalLength = 0.5f;
+
+	// dof
+	dofNear = 1;
+	dofFar = 10;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -587,6 +599,8 @@ void RRCamera::blendLinear(const RRCamera& sample0, const RRCamera& sample1, flo
 	orthogonal = sample0.orthogonal;
 	orthoSize = blendNormal(sample0.orthoSize,sample1.orthoSize,blend);
 	screenCenter = blendNormal(sample0.screenCenter,sample1.screenCenter,blend);
+	dofNear = blendNormal(sample0.dofNear,sample1.dofNear,blend);
+	dofFar = blendNormal(sample0.dofFar,sample1.dofFar,blend);
 	updateView(true,true);
 	updateProjection();
 }
@@ -782,9 +796,9 @@ void RRCamera::blendAkima(unsigned numSamples, const RRCamera** samples, float* 
 	*this = *samples[i-1];
 
 	// interpolate
-	BLEND_RRVEC3(pos);
+	BLEND_4FLOATS(pos.x,pos.y,pos.z,fieldOfViewVerticalDeg);
 	BLEND_RRVEC3_ANGLES(yawPitchRollRad);
-	BLEND_3FLOATS(anear,afar,fieldOfViewVerticalDeg);
+	BLEND_4FLOATS(anear,afar,dofNear,dofFar);
 	BLEND_4FLOATS(screenCenter.x,screenCenter.y,orthoSize,aspect);
 	updateView(true,true);
 	updateProjection();
