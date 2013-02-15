@@ -210,7 +210,7 @@ bool RRFileLocator::exists(const RRString& filename) const
 	bool result2 = bf::exists(RR_RR2PATH(filename),ec);
 
 	RRReporter::report(INF3,"%sexists(%s)=%d, ec.val=%d, ec.name=%s, ec.msg=%s\n",(result1&&result2)?"":((!result1&&!result2)?"!":"??????????"),filename.c_str(),result,ec.value(),ec.category().name(),ec.message().c_str());
-	return result;
+	return result==4;
 }
 
 RRString RRFileLocator::getLocation(const RRString& originalFilename, unsigned attemptNumber) const
