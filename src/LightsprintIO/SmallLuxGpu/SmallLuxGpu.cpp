@@ -33,6 +33,12 @@ RRVec3 convertDir(const RRVec3& a)
 	return RRVec3(-a.x,a.z,a.y);
 }
 
+// smalllux renders some textures wrong. not sure if problem is in mapping, probably not
+RRVec2 convertUv(const RRVec2& a)
+{
+	return RRVec2(a.x,a.y);
+}
+
 // converts #inf/#nan to 0, they would break .ply
 float fix(float a)
 {
@@ -53,14 +59,14 @@ std::ostream & operator<<(std::ostream &os, const RRVec3& a)
 	return os << fix(a.x) << " " << fix(a.y) << " " << fix(a.z);
 }
 
-std::set<const RRBuffer*> textures; // global, so that << can deduce textureIndex
+std::set<RRBuffer*> textures; // global, so that << can deduce textureIndex
 
 std::ostream & operator<<(std::ostream &os, const RRMaterial::Property& a)
 {
 	if (a.texture)
 	{
 		unsigned textureIndex = 0;
-		for (std::set<const RRBuffer*>::const_iterator i=textures.begin();i!=textures.end();++i)
+		for (std::set<RRBuffer*>::const_iterator i=textures.begin();i!=textures.end();++i)
 			if (*i)
 			{
 				if (*i==a.texture)
@@ -134,7 +140,7 @@ bool savePly(const RRObject* object, const RRString& filename)
 			if (uvChannel==-1)
 				ofs << convertPos(worldMatrix.getTransformedPosition(mesh->position[i])) << " " << convertDir(worldMatrixInv.getTransformedNormal(mesh->normal[i])) << "\n";
 			else
-				ofs << convertPos(worldMatrix.getTransformedPosition(mesh->position[i])) << " " << convertDir(worldMatrixInv.getTransformedNormal(mesh->normal[i])) << " " << mesh->texcoord[uvChannel][i] << "\n";
+				ofs << convertPos(worldMatrix.getTransformedPosition(mesh->position[i])) << " " << convertDir(worldMatrixInv.getTransformedNormal(mesh->normal[i])) << " " << convertUv(mesh->texcoord[uvChannel][i]) << "\n";
 		}
 
 		// triangles
@@ -278,10 +284,38 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 				textures.insert(materials[i]->bumpMap.texture);
 			}
 		unsigned textrueIndex = 0;
-		for (std::set<const RRBuffer*>::const_iterator i=textures.begin();i!=textures.end();++i)
+		for (std::set<RRBuffer*>::const_iterator i=textures.begin();i!=textures.end();++i)
 			if (*i)
 			{
-				ofs << "scene.textures.tex" << textrueIndex << ".file = " << (*i)->filename.c_str() << "\n"; //!!! breaks unicode
+				// prepare ascii filename, just in case we need it later
+				char asciiFilename[20];
+				sprintf(asciiFilename,"texture%d.%s",textrueIndex,"png");
+
+				bool originalIsAscii = true;
+				const wchar_t* p = (*i)->filename.w_str();
+				while (*p)
+					if (*(p++)>127)
+						originalIsAscii = false;
+				if ((*i)->filename.empty())
+				{
+					// embedded texture, save it to disk
+					RRBuffer* tmp = (*i)->createCopy(); // we don't want to modify (*i) so we save its copy (alternatively we can backup and restore (*i)'s filename and version)
+					tmp->save(asciiFilename);
+					delete tmp;
+					ofs << "scene.textures.tex" << textrueIndex << ".file = " << asciiFilename << "\n";
+				}
+				else
+				if (!originalIsAscii)
+				{
+					// non-ascii filename, copy file to ascii filename
+					bf::copy_file(RR_RR2PATH((*i)->filename),asciiFilename);
+					ofs << "scene.textures.tex" << textrueIndex << ".file = " << asciiFilename << "\n";
+				}
+				else
+				{
+					// original filename is ascii, keep it
+					ofs << "scene.textures.tex" << textrueIndex << ".file = " << (*i)->filename.c_str() << "\n";
+				}
 				//ofs << "scene.textures.tex" << textrueIndex << ".gamma = 1.0
 				//ofs << "scene.textures.tex" << textrueIndex << ".uvscale = 2 2
 				//ofs << "scene.textures.tex" << textrueIndex << ".gain = 7.0
