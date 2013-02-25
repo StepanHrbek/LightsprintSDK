@@ -185,32 +185,9 @@ bool RRFileLocator::exists(const RRString& filename) const
 {
 	if (filename=="c@pture")
 		return true;
-	
-	int result = 1;
-	try
-	{
-		bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
-		result = 2;
-		if (ifs && !ifs.bad())
-		{
-			result = 3;
-			char c;
-			ifs.get(c);
-			if (ifs.good())
-				result = 4;
-		}
-	}
-	catch(...)
-	{
-		result = -result;
-	}
-	bool result1 = result==4;
 
 	boost::system::error_code ec;
-	bool result2 = bf::exists(RR_RR2PATH(filename),ec);
-
-	RRReporter::report(INF3,"%sexists(%s)=%d, ec.val=%d, ec.name=%s, ec.msg=%s\n",(result1&&result2)?"":((!result1&&!result2)?"!":"??????????"),filename.c_str(),result,ec.value(),ec.category().name(),ec.message().c_str());
-	return result==4;
+	return bf::exists(RR_RR2PATH(filename),ec);
 }
 
 RRString RRFileLocator::getLocation(const RRString& originalFilename, unsigned attemptNumber) const
