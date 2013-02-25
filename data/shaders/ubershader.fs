@@ -254,7 +254,7 @@ varying vec3 worldNormalSmooth;
 	varying vec2 materialTransparencyCoord;
 #endif
 
-#if defined(MATERIAL_TRANSPARENCY_MAP) || (defined(MATERIAL_TRANSPARENCY_IN_ALPHA) && defined(MATERIAL_DIFFUSE_MAP))
+#if defined(MATERIAL_TRANSPARENCY_MAP) || (defined(MATERIAL_DIFFUSE_MAP) && defined(MATERIAL_TRANSPARENCY_IN_ALPHA) && !defined(MATERIAL_TRANSPARENCY_CONST))
 	uniform bool materialTransparencyMapInverted;
 #endif
 
