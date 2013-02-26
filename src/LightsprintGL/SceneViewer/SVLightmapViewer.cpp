@@ -80,7 +80,8 @@ void SVLightmapViewer::OnMouseEvent(wxMouseEvent& event, wxSize windowSize)
 {
 	if (event.RightDown())
 	{
-		alpha = !alpha;
+		// right now there's no use for alpha mode, it is only confusing users, so it's disabled
+		//alpha = !alpha;
 	}
 	if (event.GetWheelRotation()>0)
 	{
