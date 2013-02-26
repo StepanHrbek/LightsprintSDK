@@ -9,6 +9,7 @@
 #ifdef _MSC_VER
 	#include <windows.h> // EXCEPTION_EXECUTE_HANDLER
 #endif
+#include <boost/unordered_set.hpp>
 #include <boost/filesystem.hpp>
 
 namespace bf = boost::filesystem;
@@ -478,6 +479,69 @@ void RRScene::normalizeUpAxis(unsigned currentUpAxis)
 			RR_ASSERT(0);
 			return;
 	}
+}
+
+void RRScene::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsigned>* _layers) const
+{
+	if (!this)
+		return;
+	typedef boost::unordered_set<RRBuffer*> Set;
+	Set set;
+	// fill set
+	// - original contents of vector
+	for (unsigned i=0;i<_buffers.size();i++)
+		set.insert(_buffers[i]);
+	// - maps from lights
+	for (unsigned i=0;i<lights.size();i++)
+		set.insert(lights[i]->rtProjectedTexture);
+	// - maps from materials
+	/* shorter but slower (more allocations)
+	RRMaterials materials;
+	objects.getAllMaterials(materials);
+	for (int i=0;i<materials.size();i++)
+		if (materials[i])
+		{
+			set.insert(materials[i]->diffuseReflectance.texture);
+			set.insert(materials[i]->specularReflectance.texture);
+			set.insert(materials[i]->diffuseEmittance.texture);
+			set.insert(materials[i]->specularTransmittance.texture);
+			set.insert(materials[i]->bumpMap.texture);
+		}
+	*/
+	for (int i=0;i<(int)objects.size();i++)
+	{
+		const RRObject* object = objects[i];
+		if (object)
+		{
+			const RRObject::FaceGroups& faceGroups = object->faceGroups;
+			for (unsigned g=0;g<faceGroups.size();g++)
+			{
+				RRMaterial* m = faceGroups[g].material;
+				if (m)
+				{
+					set.insert(m->diffuseReflectance.texture);
+					set.insert(m->specularReflectance.texture);
+					set.insert(m->diffuseEmittance.texture);
+					set.insert(m->specularTransmittance.texture);
+					set.insert(m->bumpMap.texture);
+				}
+			}
+		}
+	}
+	// - environment
+	set.insert(environment);
+	// - illumination layers
+	if (_layers)
+	{
+		for (unsigned i=0;i<objects.size();i++)
+			for (unsigned j=0;j<_layers->size();j++)
+				set.insert(objects[i]->illumination.getLayer((*_layers)[j]));
+	}
+	// copy set back to vector
+	_buffers.clear();
+	for (Set::const_iterator i=set.begin();i!=set.end();++i)
+		if (*i)
+			_buffers.push_back(*i);
 }
 
 RRScene::~RRScene()

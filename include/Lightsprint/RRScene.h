@@ -100,6 +100,16 @@ public:
 	//! \param currentUpAxis
 	//!  0=X, 1=Y, 2=Z
 	void normalizeUpAxis(unsigned currentUpAxis);
+	//! Inserts all buffers found in scene's materials, lights, environment and illumination layers into collection.
+	//
+	//! Can be used to gather all texture filenames, to pause all videos etc.
+	//! \param buffers
+	//!  In-out collection of buffers.
+	//!  Unique input buffers are preserved, new buffers from scene are added to collection.
+	//!  Ordering of input buffers may change and duplicates and NULL buffers are removed.
+	//! \param layers
+	//!  Illumination from given layers will be gathered too.
+	void getAllBuffers(RRVector<RRBuffer*>& buffers, const RRVector<unsigned>* layers) const;
 
 
 	//////////////////////////////////////////////////////////////////////////////
