@@ -244,6 +244,8 @@ namespace rr
 		bool          specularTransmittanceInAlpha;
 		//! Whether 1-bit alpha keying is used instead of smooth alpha blending in realtime render. 1-bit alpha keying is faster but removes semi-translucency. Smooth alpha blend renders semi-translucency, but artifacts appear on meshes where semi-translucent faces overlap.
 		bool          specularTransmittanceKeyed;
+		//! If specularTransmittanceKeyed, transmittance in 0..1 range is tested against this threshold. Values above threshold are considered fully transparent, values below threshold are considered fully opaque.
+		RRReal        specularTransmittanceThreshold;
 		//! Whether specular transmittance map is inverted. True = values read from map should be inverted before use. This inversion is implemented in getPointMaterial() and in shaders.
 		bool          specularTransmittanceMapInverted;
 		//! For 1-sided faces, it is refractive index of matter behind surface divided by refractive index of matter in front of surface

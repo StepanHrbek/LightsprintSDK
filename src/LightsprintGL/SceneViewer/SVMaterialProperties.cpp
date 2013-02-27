@@ -88,6 +88,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	AppendIn(propTransparent,propTransparency1bit = new wxBoolProperty(_("1-bit")));
 	SetPropertyEditor(propTransparency1bit,wxPGEditor_CheckBox);
 	propTransparency1bit->SetHelpString(_("Makes opacity either 0% or 100%."));
+	AppendIn(propTransparency1bit,propTransparencyThreshold = new FloatProperty(_("threshold"),_("Transmittance in 0..1 range is tested against this threshold. Values above threshold are considered fully transparent, values below threshold are considered fully opaque."),0,svs.precision,0,1,0.1,false));
 	AppendIn(propTransparent,propTransparencyInAlpha = new wxBoolProperty(_("in alpha")));
 	SetPropertyEditor(propTransparencyInAlpha,wxPGEditor_CheckBox);
 	propTransparencyInAlpha->SetHelpString(_("Reads opacity from alpha rather than from rgb."));
@@ -177,6 +178,7 @@ void SVMaterialProperties::updateHide()
 		HideProperty(propSpecularRoughness,!material || material->specularModel==rr::RRMaterial::PHONG || material->specularModel==rr::RRMaterial::BLINN_PHONG);
 		HideProperty(propEmissive,!material);
 		HideProperty(propTransparent,!material);
+		HideProperty(propTransparencyThreshold,!material || !material->specularTransmittanceKeyed);
 		HideProperty(propBumpMap,!material);
 		HideProperty(propBumpType,!material || !material->bumpMap.texture);
 		HideProperty(propBumpMultiplier1,!material || !material->bumpMap.texture);
@@ -231,6 +233,7 @@ void SVMaterialProperties::updateProperties()
 		updateFloat(propSpecularShininess,material->specularShininess);
 		updateFloat(propSpecularRoughness,material->specularShininess);
 		updateBool(propTransparency1bit,material->specularTransmittanceKeyed);
+		updateFloat(propTransparencyThreshold,material->specularTransmittanceThreshold);
 		updateBool(propTransparencyInAlpha,material->specularTransmittanceInAlpha);
 		updateBool(propTransparencyMapInverted,material->specularTransmittanceMapInverted);
 		updateFloat(propRefraction,material->refractionIndex);
@@ -547,6 +550,13 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		material->specularTransmittanceKeyed = property->GetValue().GetBool();
 		transmittanceChanged = true;
+		updateHide();
+	}
+	else
+	if (property==propTransparencyThreshold)
+	{
+		material->specularTransmittanceThreshold = property->GetValue().GetDouble();
+		transmittanceChanged = true; // update shadows
 	}
 	else
 	if (property==propTransparencyInAlpha)

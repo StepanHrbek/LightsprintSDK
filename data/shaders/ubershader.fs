@@ -258,6 +258,10 @@ varying vec3 worldNormalSmooth;
 	uniform bool materialTransparencyMapInverted;
 #endif
 
+#if (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)) && !defined(MATERIAL_TRANSPARENCY_BLEND) && !defined(MATERIAL_TRANSPARENCY_TO_RGB)
+	uniform float materialTransparencyThreshold;
+#endif
+
 #ifdef MATERIAL_TRANSPARENCY_FRESNEL
 	uniform float materialRefractionIndex;
 	float fresnelReflectance(float cos_theta1)
@@ -459,7 +463,7 @@ void main()
 		// We don't use GL_ALPHA_TEST because Radeons ignore it when rendering into shadowmap (all Radeons, last version tested: Catalyst 9-10)
 		//  MATERIAL_TRANSPARENCY_BLEND = alpha blending, not alpha keying
 		//  MATERIAL_TRANSPARENCY_TO_RGB = rendering blended material into rgb shadowmap or rgb blending, not alpha keying
-		if (opacityA<0.5) discard;
+		if (opacityA<materialTransparencyThreshold) discard;
 	#endif
 	#ifdef MATERIAL_TRANSPARENCY_FRESNEL
 		float materialFresnelReflectance = clamp(fresnelReflectance(abs(dot(worldEyeDir,worldNormal))),0.0,0.999); // clamping to 1.0 produces strange artifact

@@ -813,6 +813,10 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendTexture("materialTransparencyMap",NULL,TEX_CODE_2D_MATERIAL_TRANSPARENCY);
 		s_buffers1x1.bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
 	}
+	if ((MATERIAL_TRANSPARENCY_CONST || MATERIAL_TRANSPARENCY_MAP || MATERIAL_TRANSPARENCY_IN_ALPHA) && !MATERIAL_TRANSPARENCY_BLEND && !MATERIAL_TRANSPARENCY_TO_RGB)
+	{
+		program->sendUniform("materialTransparencyThreshold",material->specularTransmittanceThreshold);
+	}
 	if (MATERIAL_TRANSPARENCY_MAP || (MATERIAL_DIFFUSE_MAP && MATERIAL_TRANSPARENCY_IN_ALPHA && !MATERIAL_TRANSPARENCY_CONST))
 	{
 		program->sendUniform("materialTransparencyMapInverted",material->specularTransmittanceMapInverted?1:0);
