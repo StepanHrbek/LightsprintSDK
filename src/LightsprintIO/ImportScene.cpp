@@ -20,7 +20,9 @@
 #include "ImportOBJ/RRObjectOBJ.h"
 #include "SmallLuxGpu/SmallLuxGpu.h"
 
-void rr_io::registerLoaders()
+void rr_io::registerLoaders(unsigned phase)
+{
+if (phase==0 || phase==1)
 {
 	// if multiple loaders support the same format,
 	// register more robust implementations first
@@ -53,6 +55,10 @@ void rr_io::registerLoaders()
 	registerLoaderIsolationStep1();
 #endif
 
+}
+if (phase==0 || phase==2)
+{
+
 #ifdef SUPPORT_OPENCOLLADA
 	// is better than FCollada
 	registerLoaderOpenCollada();
@@ -84,6 +90,8 @@ void rr_io::registerLoaders()
 #ifdef SUPPORT_SMALLLUXGPU
 	registerSmallLuxGpu();
 #endif
+
+}
 }
 
 void rr_io::isolateSceneLoaders()

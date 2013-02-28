@@ -112,7 +112,11 @@ namespace rr_io /// LightsprintIO - access to scenes and images on disk
 //! - rr::RRBuffer::load("filename.ext") to load 2d images, cube maps, vertex buffers, videos
 //! - rr::RRBuffer::save("filename.ext") to save 2d images, vertex buffers
 //! - rr::RRBuffer::load("c@pture") to capture live video
-void RR_IO_API registerLoaders();
+//!
+//! \param step Keep empty.
+//!  Only if you need to register your own isolated loader for fileformat already supported by LightsprintIO, all without modifying LightsprintIO,
+//!  call registerLoaders(1); registerYourLoader(); registerLoaders(2); isolateSceneLoaders();
+void RR_IO_API registerLoaders(unsigned step = 0);
 
 //! Isolates scene loaders, makes them run in separated processes.
 //
