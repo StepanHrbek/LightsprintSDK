@@ -392,7 +392,6 @@
       <AdditionalLibraryDirectories>$(OutDir);C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
@@ -457,7 +456,6 @@
       <AdditionalLibraryDirectories>$(OutDir);C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
@@ -513,7 +511,6 @@
       <AdditionalLibraryDirectories>$(OutDir);C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
@@ -573,7 +570,6 @@
       <AdditionalLibraryDirectories>$(OutDir);C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX64</TargetMachine>

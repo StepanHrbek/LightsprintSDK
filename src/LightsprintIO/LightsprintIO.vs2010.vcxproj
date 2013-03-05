@@ -377,7 +377,6 @@
       <AdditionalLibraryDirectories>$(OutDir);C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86;$(EGB_PATH)\SDK\Win32\Lib\vc90\ShippingLib;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\ShippingLib;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\ShippingLib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
@@ -440,7 +439,6 @@
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
@@ -495,7 +493,6 @@
       <AdditionalLibraryDirectories>$(OutDir);C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86;$(EGB_PATH)\SDK\Win32\Lib\vc90\DebugLib;$(EGB_PATH)\ThirdPartyCode\TinyXML\NiProject\Win32\VC90\DebugLib;$(GAMEBRYO_GI_PATH)\sdk\Win32\Lib\VC90\DebugLib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
@@ -554,7 +551,6 @@
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
-      <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
