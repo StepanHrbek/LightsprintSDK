@@ -22,6 +22,7 @@ class FloatProperty : public wxFloatProperty
 {
 public:
 	FloatProperty(const wxString& label, const wxString& help, float value, int precision, float mini, float maxi, float step, bool wrap);
+	wxString ValueToString( wxVariant& value, int argFlags ) const;
 };
 
 

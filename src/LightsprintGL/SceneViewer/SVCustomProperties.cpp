@@ -30,6 +30,13 @@ FloatProperty::FloatProperty(const wxString& label, const wxString& help, float 
 	SetHelpString(help);
 }
 
+wxString FloatProperty::ValueToString( wxVariant& value, int argFlags ) const
+{
+	wxString tmp;
+	return (m_precision<0)
+		? wxString::Format("%g",value.GetDouble()) // renders 1e-10 as 1e-10 rather than 0, which is wxWidgets default behaviour
+		: wxPropertyGrid::DoubleToString(tmp,value.GetDouble(),m_precision,true,NULL); // default code, removes unnecessary zeroes
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
