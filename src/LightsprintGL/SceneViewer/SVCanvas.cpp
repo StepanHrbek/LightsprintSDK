@@ -1738,8 +1738,15 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					ray->collisionHandler = collisionHandler;
 					if (solver->getCollider()->intersect(ray))
 					{
-						svs.eye.dofNear = ray->hitDistance;
-						svs.eye.dofFar = ray->hitDistance;
+						float ratio = sqrtf(svs.eye.dofFar/svs.eye.dofNear);
+						svs.eye.dofNear = ray->hitDistance/ratio;
+						svs.eye.dofFar = ray->hitDistance*ratio;
+					}
+					else
+					{
+						float ratio = sqrtf(svs.eye.dofFar/svs.eye.dofNear);
+						svs.eye.dofNear = svs.eye.getFar()/ratio;
+						svs.eye.dofFar = svs.eye.getFar()*ratio;
 					}
 				}
 				dof->applyDOF(winWidth,winHeight,svs.eye);
