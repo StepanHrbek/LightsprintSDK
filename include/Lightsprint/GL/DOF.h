@@ -36,9 +36,14 @@ public:
 	void applyDOF(unsigned w, unsigned h, const rr::RRCamera& eye);
 
 protected:
+	Texture* smallColor1;
+	Texture* smallColor2;
+	Texture* smallColor3;
 	Texture* bigColor;
 	Texture* bigDepth;
-	Program* dofProgram;
+	Program* dofProgram1;
+	Program* dofProgram2;
+	Program* dofProgram3;
 };
 
 }; // namespace

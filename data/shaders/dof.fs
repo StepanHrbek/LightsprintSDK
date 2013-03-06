@@ -1,16 +1,18 @@
 #version 120 // necessary for 'poisson' array
 
-// LightsprintGL: Depth of field effect
+// LightsprintGL: Depth of field effect [work in progress, includes unused paths]
 // Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint
 //
 // Options:
+// PASS [1|2|3]
 
 uniform sampler2D colorMap;
+uniform sampler2D midMap;
+uniform sampler2D smallMap;
 uniform sampler2D depthMap;
-uniform float zNear;
-uniform float zFar;
+uniform vec2 pixelSize;
+uniform vec4 depthRange; // near,far,far-near,near*far
 uniform vec2 focusNearFar;
-uniform vec2 radiusAtTwiceFocalLength;
 varying vec2 mapCoord;
 
 #define MAX_SAMPLES 60
@@ -79,23 +81,181 @@ vec2 poisson[MAX_SAMPLES] = vec2[MAX_SAMPLES](
 
 void main()
 {
-	float depth = texture2D(depthMap,mapCoord).x;
-	float linearDepth = 2.0 * zNear * zFar / (zFar + zNear - (2.0*depth-1.0) * (zFar - zNear));
-	vec2 radius = clamp(max(linearDepth/focusNearFar.y,focusNearFar.x/linearDepth)-1.0,0.0,10.0) * radiusAtTwiceFocalLength;
-	vec4 color = texture2D(colorMap,mapCoord)*0.01;
-	float colors = 0.01;
-	float noise = sin(dot(mapCoord,vec2(52.714,112.9898))) * 43758.5453;
-	mat2 rot = mat2(cos(noise),-sin(noise),sin(noise),cos(noise));
-	for (int i=0;i<MAX_SAMPLES;i++)
-	{
-		vec2 sampleCoord = mapCoord + rot*poisson[i]*radius;
-		//vec2 sampleCoord = mapCoord + poisson[i]*radius; // it is 5x faster without rot
-		//float sampleDepth = texture2D(depthMap,sampleCoord).x;
-		//if (sampleDepth>=depth-0.01)
+//#define BLUR_RGB
+//#define BLUR_A_COC
+#define BLUR_A_COC_NEAR
+#define BLUR_R_COC_FAR
+#define COC_BOOST 5.0
+#define MAX_COC 10.0
+#if PASS==1
+	// create downscaled color+CoC
+	#ifdef BLUR_RGB
+		#if 1
+			vec4 color = (
+				+ pow(texture2D(colorMap,mapCoord+vec2(+0.5,+0.5)*pixelSize),vec4(2.22222,2.22222,2.22222,2.22222))
+				+ pow(texture2D(colorMap,mapCoord+vec2(-0.5,-0.5)*pixelSize),vec4(2.22222,2.22222,2.22222,2.22222))
+				+ pow(texture2D(colorMap,mapCoord+vec2(+2.5,+0.5)*pixelSize),vec4(2.22222,2.22222,2.22222,2.22222))
+				+ pow(texture2D(colorMap,mapCoord+vec2(+0.5,+2.5)*pixelSize),vec4(2.22222,2.22222,2.22222,2.22222))
+				+ pow(texture2D(colorMap,mapCoord+vec2(-0.5,-2.5)*pixelSize),vec4(2.22222,2.22222,2.22222,2.22222))
+				+ pow(texture2D(colorMap,mapCoord+vec2(-2.5,-0.5)*pixelSize),vec4(2.22222,2.22222,2.22222,2.22222))
+				+ pow(texture2D(colorMap,mapCoord+vec2(+1.5,-1.5)*pixelSize),vec4(2.22222,2.22222,2.22222,2.22222))
+				+ pow(texture2D(colorMap,mapCoord+vec2(-1.5,+1.5)*pixelSize),vec4(2.22222,2.22222,2.22222,2.22222))
+				)*0.125;
+		#else
+			vec4 color = (
+				+ texture2D(colorMap,mapCoord+vec2(+0.5,+1.5)*pixelSize)
+				+ texture2D(colorMap,mapCoord+vec2(-0.5,-1.5)*pixelSize)
+				+ texture2D(colorMap,mapCoord+vec2(+1.5,-0.5)*pixelSize)
+				+ texture2D(colorMap,mapCoord+vec2(-1.5,+0.5)*pixelSize)
+				+ texture2D(colorMap,mapCoord+vec2(+2.5,+1.5)*pixelSize)
+				+ texture2D(colorMap,mapCoord+vec2(-2.5,-1.5)*pixelSize)
+				+ texture2D(colorMap,mapCoord+vec2(+1.5,-2.5)*pixelSize)
+				+ texture2D(colorMap,mapCoord+vec2(-1.5,+2.5)*pixelSize)
+				)*0.125;
+			vec4 color = (
+				+ texture2D(colorMap,mapCoord+vec2(+0.5,+1.5)*pixelSize)
+				+ texture2D(colorMap,mapCoord+vec2(-0.5,-1.5)*pixelSize)
+				+ texture2D(colorMap,mapCoord+vec2(+1.5,-0.5)*pixelSize)
+				+ texture2D(colorMap,mapCoord+vec2(-1.5,+0.5)*pixelSize)
+				)*0.25;
+			vec4 color = texture2D(colorMap,mapCoord);
+		#endif
+		gl_FragColor.rgb = color.rgb;
+	#endif
+	float depth1 = texture2D(depthMap,mapCoord+vec2(+0.5,+0.5)*pixelSize).x;
+	float depth2 = texture2D(depthMap,mapCoord+vec2(+0.5,-0.5)*pixelSize).x;
+	float depth3 = texture2D(depthMap,mapCoord+vec2(-0.5,+0.5)*pixelSize).x;
+	float depth4 = texture2D(depthMap,mapCoord+vec2(-0.5,-0.5)*pixelSize).x;
+	#ifdef BLUR_A_COC
+		float depthMin = min(min(depth1,depth2),min(depth3,depth4));
+		float depthMax = max(max(depth1,depth2),max(depth3,depth4));
+		float linearDepthMin = depthRange.w / (depthRange.y - depthMin * depthRange.z);
+		float linearDepthMax = depthRange.w / (depthRange.y - depthMax * depthRange.z);
+		gl_FragColor.a = (max(linearDepthMax/focusNearFar.y,focusNearFar.x/linearDepthMin)-1.0)/MAX_COC;
+	#endif
+	#ifdef BLUR_A_COC_NEAR
+		float depth = min(min(depth1,depth2),min(depth3,depth4));
+		float linearDepth = depthRange.w / (depthRange.y - depth * depthRange.z);
+		gl_FragColor.a = (focusNearFar.x/linearDepth-1.0)/MAX_COC;
+	#endif
+	#ifdef BLUR_R_COC_FAR
+		// if we don't blur far coc, there are occassional sharp edges visible between far objects, e.g. slightly blurred trees and highly blurred background
 		{
-			color += pow(texture2D(colorMap,sampleCoord),vec4(2.22222,2.22222,2.22222,2.22222));
-			colors += 1.0;
+		float depth = max(max(depth1,depth2),max(depth3,depth4));
+		float linearDepth = depthRange.w / (depthRange.y - depth * depthRange.z);
+		gl_FragColor.r = (linearDepth/focusNearFar.y-1.0)/MAX_COC;
 		}
-	}
-	gl_FragColor = pow(color/colors,vec4(0.45,0.45,0.45,0.45));
+	#endif
+#endif
+#if PASS==2
+	// blur color+CoC
+	gl_FragColor = (
+		#if 1
+			+texture2D(smallMap,mapCoord-8.5*pixelSize)*0.2
+			+texture2D(smallMap,mapCoord-6.5*pixelSize)*0.4
+			+texture2D(smallMap,mapCoord-4.5*pixelSize)*0.6
+			+texture2D(smallMap,mapCoord-2.5*pixelSize)*0.8
+			+texture2D(smallMap,mapCoord-0.5*pixelSize)
+			+texture2D(smallMap,mapCoord+1.5*pixelSize)*0.9
+			+texture2D(smallMap,mapCoord+3.5*pixelSize)*0.7
+			+texture2D(smallMap,mapCoord+5.5*pixelSize)*0.5
+			+texture2D(smallMap,mapCoord+7.5*pixelSize)*0.3
+			+texture2D(smallMap,mapCoord+9.5*pixelSize)*0.1
+			) / 5.5;
+		#else
+			+texture2D(smallMap,mapCoord-4.5*pixelSize)*0.36
+			+texture2D(smallMap,mapCoord-2.5*pixelSize)*0.68
+			+texture2D(smallMap,mapCoord-0.5*pixelSize)
+			+texture2D(smallMap,mapCoord+1.5*pixelSize)*0.84
+			+texture2D(smallMap,mapCoord+3.5*pixelSize)*0.52
+			+texture2D(smallMap,mapCoord+5.5*pixelSize)*0.20
+			) / 3.6;
+		#endif
+#endif
+#if PASS==3
+	// apply downscaled blurred color+CoC
+	//vec4 color1 = pow(texture2D(colorMap,mapCoord),vec4(2.22222,2.22222,2.22222,2.22222));
+	vec4 color2 = texture2D(midMap,mapCoord);
+	vec4 color3 = texture2D(smallMap,mapCoord);
+
+	#if 1
+		float nearCoc = color3.a*MAX_COC;
+	#else
+		float nearCoc = (max(color2.a,color3.a)*2.0-color2.a)*MAX_COC;
+	#endif
+	#if 0
+		color2 = ( color1 * 0.25
+			+ texture2D(colorMap,mapCoord+pixelSize*vec2(0.5,1.5))
+			+ texture2D(colorMap,mapCoord+pixelSize*vec2(-0.5,-1.5))
+			+ texture2D(colorMap,mapCoord+pixelSize*vec2(1.5,-0.5))
+			+ texture2D(colorMap,mapCoord+pixelSize*vec2(-1.5,0.5))
+			) / 4.25;
+	#endif
+	#ifdef BLUR_A_COC
+		float coc = nearCoc*COC_BOOST;
+	#endif
+	#ifdef BLUR_A_COC_NEAR
+		#ifdef BLUR_R_COC_FAR
+			// for any unblurred farcoc<=0.01, we make pixel sharp, otherwise we use blurred farcoc
+			// why?
+			//  pass 2 blurred all edges. here we resharp edges between pixels in focus and background
+			//  edges between pixels in focus and foreground must stay blurry because foreground overlaps pixels in focus
+			// why 0.01?
+			//  <=0.0 would let sharp objects have blurry edges, <=0.03 would make it visible where far blur begins
+			float farCoc = (color2.r<=0.01) ? 0.0 : color3.r*MAX_COC;
+		#else
+			float depth = texture2D(depthMap,mapCoord).x;
+			float linearDepth = depthRange.w / (depthRange.y - depth * depthRange.z);
+			float farCoc = (linearDepth/focusNearFar.y-1.0);
+		#endif
+		float maxCoc = max(nearCoc,farCoc);
+		float coc = maxCoc*COC_BOOST;
+	#endif
+
+	#if 0
+		// average single sample from 3 textures (fullres, small, blurry..)
+		#define COC1 1.0
+		#define COC2 3.0
+		#define COC3 16.0
+		float a1 = clamp((COC2-coc)/(COC2-COC1),0.0,1.0);
+		float a3 = clamp((coc-COC2)/(COC3-COC2),0.0,1.0);
+		float a2 = 1.0-a1-a3;
+		vec4 color = color1*a1+color2*a2+color3*a3;
+		gl_FragColor = color;
+		gl_FragColor = pow(color,vec4(0.45,0.45,0.45,0.45));
+		//gl_FragColor = vec4(coc)/10.0;
+	#else
+		// average 60 samples from single (fullres) texture
+		coc = clamp(coc,0.0,50.0);
+		vec4 color = texture2D(colorMap,mapCoord)*0.01;
+		float colors = 0.01;
+		float noise = sin(dot(mapCoord,vec2(52.714,112.9898))) * 43758.5453;
+		mat2 rot = mat2(cos(noise)*coc*pixelSize.x,-sin(noise)*coc*pixelSize.y,sin(noise)*coc*pixelSize.x,cos(noise)*coc*pixelSize.y);
+		for (int i=0;i<MAX_SAMPLES;i++)
+		{
+			vec2 sampleCoord = mapCoord + rot*poisson[i];
+			//vec2 sampleCoord = mapCoord + poisson[i]*coc*pixelSize; // it is 5x faster without rot
+			#if defined(BLUR_A_COC_NEAR) && !defined(BLUR_R_COC_FAR)
+				float sampleNearCoc = texture2D(smallMap,sampleCoord).a*MAX_COC;
+				float sampleDepth = texture2D(depthMap,sampleCoord).x;
+				float sampleLinearDepth = depthRange.w / (depthRange.y - sampleDepth * depthRange.z);
+				float sampleFarCoc = (sampleLinearDepth/focusNearFar.y-1.0);
+				float sampleMaxCoc = max(sampleNearCoc,sampleFarCoc);
+				if (sampleMaxCoc>=maxCoc*length(poisson[i]))
+			#endif
+			#if defined(BLUR_A_COC_NEAR) && defined(BLUR_R_COC_FAR)
+				vec4 sample = texture2D(smallMap,sampleCoord)*MAX_COC;
+				float sampleNearCoc = sample.a;
+				float sampleFarCoc = sample.r;
+				float sampleMaxCoc = max(sampleNearCoc,sampleFarCoc);
+				if (sampleMaxCoc>=maxCoc*length(poisson[i]))
+			#endif
+			{
+				color += pow(texture2D(colorMap,sampleCoord),vec4(2.22222,2.22222,2.22222,2.22222));
+				colors += 1.0;
+			}
+		}
+		gl_FragColor = pow(color/colors,vec4(0.45,0.45,0.45,0.45));
+	#endif
+#endif
 }
