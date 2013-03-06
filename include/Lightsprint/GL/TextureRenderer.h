@@ -82,6 +82,9 @@ public:
 	//! texture.* uberprogram, only for reading, feel free to render with it directly.
 	UberProgram* twodProgram;
 
+	//! Helper, renders quad, identical to glBegin();4x glVertex();glEnd(); with coordinates from -1,-1 to 1,1.
+	static void renderQuad();
+
 private:
 	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture, float angleRad, const rr::RRVec3& brightness, float gamma);
 };

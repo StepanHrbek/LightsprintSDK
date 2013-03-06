@@ -70,12 +70,7 @@ void DOF::applyDOF(unsigned _w, unsigned _h, const rr::RRCamera& _eye)
 	dofProgram->sendUniform("focusNearFar",_eye.dofNear,_eye.dofFar);
 	dofProgram->sendUniform("radiusAtTwiceFocalLength",5.0f/bigColor->getBuffer()->getWidth(),5.0f/bigColor->getBuffer()->getHeight());
 	glViewport(0,0,bigColor->getBuffer()->getWidth(),bigColor->getBuffer()->getHeight());
-	glBegin(GL_POLYGON);
-		glVertex2f(-1,-1);
-		glVertex2f(-1,1);
-		glVertex2f(1,1);
-		glVertex2f(1,-1);
-	glEnd();
+	TextureRenderer::renderQuad();
 }
 
 }; // namespace

@@ -202,4 +202,13 @@ void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, 
 	}
 }
 
+void TextureRenderer::renderQuad()
+{
+	float position[8] = {-1,-1, -1,1, 1,1, 1,-1};
+	glEnableVertexAttribArray(VAA_POSITION);
+	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
+	glDrawArrays(GL_POLYGON, 0, 4);
+	glDisableVertexAttribArray(VAA_POSITION);
+}
+
 }; // namespace
