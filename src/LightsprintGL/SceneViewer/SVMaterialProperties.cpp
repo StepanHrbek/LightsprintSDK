@@ -88,7 +88,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	AppendIn(propTransparent,propTransparency1bit = new wxBoolProperty(_("1-bit")));
 	SetPropertyEditor(propTransparency1bit,wxPGEditor_CheckBox);
 	propTransparency1bit->SetHelpString(_("Makes opacity either 0% or 100%."));
-	AppendIn(propTransparency1bit,propTransparencyThreshold = new FloatProperty(_("threshold"),_("Transmittance in 0..1 range is tested against this threshold. Values above threshold are considered fully transparent, values below threshold are considered fully opaque."),0,svs.precision,0,1,0.1,false));
+	AppendIn(propTransparency1bit,propTransparencyThreshold = new FloatProperty(_("threshold"),_("Transmittance in 0..1 range is tested against this threshold. Values above threshold are considered fully transparent, values below threshold are considered fully opaque."),0,svs.precision,0,1,0.1f,false));
 	AppendIn(propTransparent,propTransparencyInAlpha = new wxBoolProperty(_("in alpha")));
 	SetPropertyEditor(propTransparencyInAlpha,wxPGEditor_CheckBox);
 	propTransparencyInAlpha->SetHelpString(_("Reads opacity from alpha rather than from rgb."));
