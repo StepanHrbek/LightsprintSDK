@@ -83,8 +83,7 @@ void DOF::applyDOF(unsigned _w, unsigned _h, const rr::RRCamera& _eye)
 	dofProgram1->sendTexture("depthMap",bigDepth);
 	//dofProgram1->sendTexture("colorMap",bigColor);
 	dofProgram1->sendUniform("pixelSize",1.0f/bigColor->getBuffer()->getWidth(),1.0f/bigColor->getBuffer()->getHeight());
-	dofProgram1->sendUniform("depthRange",rr::RRVec4(_eye.getNear(),_eye.getFar(),_eye.getFar()-_eye.getNear(),_eye.getNear()*_eye.getFar()));
-	dofProgram1->sendUniform("focusNearFar",_eye.dofNear,_eye.dofFar);
+	dofProgram1->sendUniform("depthRange",rr::RRVec3(_eye.getNear()*_eye.getFar()/((_eye.getFar()-_eye.getNear())*_eye.dofFar ),_eye.getFar()/(_eye.getFar()-_eye.getNear()),_eye.getNear()*_eye.getFar()/((_eye.getFar()-_eye.getNear())*_eye.dofNear)));
 	glViewport(0,0,smallColor1->getBuffer()->getWidth(),smallColor1->getBuffer()->getHeight());
 	TextureRenderer::renderQuad();
 
@@ -109,8 +108,7 @@ void DOF::applyDOF(unsigned _w, unsigned _h, const rr::RRCamera& _eye)
 	dofProgram3->sendTexture("smallMap",smallColor3);
 	dofProgram3->sendTexture("midMap",smallColor1);
 	dofProgram3->sendUniform("pixelSize",1.0f/bigColor->getBuffer()->getWidth(),1.0f/bigColor->getBuffer()->getHeight());
-	//dofProgram3->sendUniform("depthRange",rr::RRVec4(_eye.getNear(),_eye.getFar(),_eye.getFar()-_eye.getNear(),_eye.getNear()*_eye.getFar()));
-	//dofProgram3->sendUniform("focusNearFar",_eye.dofNear,_eye.dofFar);
+	//dofProgram1->sendUniform("depthRange",rr::RRVec3(_eye.getNear()*_eye.getFar()/((_eye.getFar()-_eye.getNear())*_eye.dofFar ),_eye.getFar()/(_eye.getFar()-_eye.getNear()),_eye.getNear()*_eye.getFar()/((_eye.getFar()-_eye.getNear())*_eye.dofNear)));
 	glViewport(0,0,bigColor->getBuffer()->getWidth(),bigColor->getBuffer()->getHeight());
 	TextureRenderer::renderQuad();
 }

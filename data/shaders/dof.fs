@@ -11,8 +11,7 @@ uniform sampler2D midMap;
 uniform sampler2D smallMap;
 uniform sampler2D depthMap;
 uniform vec2 pixelSize;
-uniform vec4 depthRange; // near,far,far-near,near*far
-uniform vec2 focusNearFar;
+uniform vec3 depthRange; // near/focusFar*far/(far-near),far/(far-near),near/focusNear*far/(far-near)
 varying vec2 mapCoord;
 
 #define MAX_SAMPLES 60
@@ -129,21 +128,17 @@ void main()
 	#ifdef BLUR_A_COC
 		float depthMin = min(min(depth1,depth2),min(depth3,depth4));
 		float depthMax = max(max(depth1,depth2),max(depth3,depth4));
-		float linearDepthMin = depthRange.w / (depthRange.y - depthMin * depthRange.z);
-		float linearDepthMax = depthRange.w / (depthRange.y - depthMax * depthRange.z);
-		gl_FragColor.a = (max(linearDepthMax/focusNearFar.y,focusNearFar.x/linearDepthMin)-1.0)/MAX_COC;
+		gl_FragColor.a = (max((depthRange.y - depthMax) / depthRange.z, depthRange.x / (depthRange.y - depthMin))-1.0)/MAX_COC;
 	#endif
 	#ifdef BLUR_A_COC_NEAR
 		float depth = min(min(depth1,depth2),min(depth3,depth4));
-		float linearDepth = depthRange.w / (depthRange.y - depth * depthRange.z);
-		gl_FragColor.a = (focusNearFar.x/linearDepth-1.0)/MAX_COC;
+		gl_FragColor.a = ((depthRange.y - depth) / depthRange.z - 1.0)/MAX_COC;
 	#endif
 	#ifdef BLUR_R_COC_FAR
 		// if we don't blur far coc, there are occassional sharp edges visible between far objects, e.g. slightly blurred trees and highly blurred background
 		{
 		float depth = max(max(depth1,depth2),max(depth3,depth4));
-		float linearDepth = depthRange.w / (depthRange.y - depth * depthRange.z);
-		gl_FragColor.r = (linearDepth/focusNearFar.y-1.0)/MAX_COC;
+		gl_FragColor.r = (depthRange.x / (depthRange.y - depth) - 1.0)/MAX_COC;
 		}
 	#endif
 #endif
@@ -204,9 +199,7 @@ void main()
 			//  <=0.0 would let sharp objects have blurry edges, <=0.03 would make it visible where far blur begins
 			float farCoc = (color2.r<=0.01) ? 0.0 : color3.r*MAX_COC;
 		#else
-			float depth = texture2D(depthMap,mapCoord).x;
-			float linearDepth = depthRange.w / (depthRange.y - depth * depthRange.z);
-			float farCoc = (linearDepth/focusNearFar.y-1.0);
+			float farCoc = depthRange.x / (depthRange.y - texture2D(depthMap,mapCoord).x) - 1.0;
 		#endif
 		float maxCoc = max(nearCoc,farCoc);
 		float coc = maxCoc*COC_BOOST;
@@ -237,9 +230,7 @@ void main()
 			//vec2 sampleCoord = mapCoord + poisson[i]*coc*pixelSize; // it is 5x faster without rot
 			#if defined(BLUR_A_COC_NEAR) && !defined(BLUR_R_COC_FAR)
 				float sampleNearCoc = texture2D(smallMap,sampleCoord).a*MAX_COC;
-				float sampleDepth = texture2D(depthMap,sampleCoord).x;
-				float sampleLinearDepth = depthRange.w / (depthRange.y - sampleDepth * depthRange.z);
-				float sampleFarCoc = (sampleLinearDepth/focusNearFar.y-1.0);
+				float sampleFarCoc = depthRange.x / (depthRange.y - texture2D(depthMap,sampleCoord).x) - 1.0;
 				float sampleMaxCoc = max(sampleNearCoc,sampleFarCoc);
 				if (sampleMaxCoc>=maxCoc*length(poisson[i]))
 			#endif
