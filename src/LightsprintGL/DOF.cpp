@@ -103,10 +103,10 @@ void DOF::applyDOF(unsigned _w, unsigned _h, const rr::RRCamera& _eye)
 	// blur bigColor+bigDepth to render target using CoC from smallColor
 	oldFBOState.restore();
 	dofProgram3->useIt();
-	//dofProgram3->sendTexture("depthMap",bigDepth);
+	dofProgram3->sendTexture("depthMap",bigDepth);
 	dofProgram3->sendTexture("colorMap",bigColor);
 	dofProgram3->sendTexture("smallMap",smallColor3);
-	dofProgram3->sendTexture("midMap",smallColor1);
+	//dofProgram3->sendTexture("midMap",smallColor1);
 	dofProgram3->sendUniform("pixelSize",1.0f/bigColor->getBuffer()->getWidth(),1.0f/bigColor->getBuffer()->getHeight());
 	dofProgram3->sendUniform("depthRange",rr::RRVec3(_eye.getNear()*_eye.getFar()/((_eye.getFar()-_eye.getNear())*_eye.dofFar),_eye.getFar()/(_eye.getFar()-_eye.getNear()),_eye.getNear()*_eye.getFar()/((_eye.getFar()-_eye.getNear())*_eye.dofNear)));
 	glViewport(0,0,bigColor->getBuffer()->getWidth(),bigColor->getBuffer()->getHeight());

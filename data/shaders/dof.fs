@@ -170,7 +170,7 @@ void main()
 #if PASS==3
 	// apply downscaled blurred color+CoC
 	//vec4 color1 = pow(texture2D(colorMap,mapCoord),vec4(2.22222,2.22222,2.22222,2.22222));
-	vec4 color2 = texture2D(midMap,mapCoord);
+	//vec4 color2 = texture2D(midMap,mapCoord);
 	vec4 color3 = texture2D(smallMap,mapCoord);
 
 	#if 1
@@ -191,13 +191,16 @@ void main()
 	#endif
 	#ifdef BLUR_A_COC_NEAR
 		#ifdef BLUR_R_COC_FAR
+			// in contrast to simple farCoc = color3.r*MAX_COC; following code kills unwanted blur at some edges, especially between sharp pixels and blurry background
+			float farCoc = depthRange.x / (depthRange.y - texture2D(depthMap,mapCoord).x) - 1.0;
+			farCoc = min(farCoc*5.0,color3.r*MAX_COC);
 			// for any unblurred farcoc<=0.01, we make pixel sharp, otherwise we use blurred farcoc
 			// why?
 			//  pass 2 blurred all edges. here we resharp edges between pixels in focus and background
 			//  edges between pixels in focus and foreground must stay blurry because foreground overlaps pixels in focus
 			// why 0.01?
 			//  <=0.0 would let sharp objects have blurry edges, <=0.03 would make it visible where far blur begins
-			float farCoc = (color2.r<=0.01) ? 0.0 : color3.r*MAX_COC;
+			//float farCoc = (color2.r<=0.01) ? 0.0 : color3.r*MAX_COC;
 		#else
 			float farCoc = depthRange.x / (depthRange.y - texture2D(depthMap,mapCoord).x) - 1.0;
 		#endif
@@ -220,7 +223,7 @@ void main()
 	#else
 		// average 60 samples from single (fullres) texture
 		coc = clamp(coc,0.0,50.0);
-		vec4 color = texture2D(colorMap,mapCoord)*0.01;
+		vec4 color = pow(texture2D(colorMap,mapCoord),vec4(2.22222,2.22222,2.22222,2.22222))*0.01;
 		float colors = 0.01;
 		float noise = sin(dot(mapCoord,vec2(52.714,112.9898))) * 43758.5453;
 		mat2 rot = mat2(cos(noise)*coc*pixelSize.x,-sin(noise)*coc*pixelSize.y,sin(noise)*coc*pixelSize.x,cos(noise)*coc*pixelSize.y);
