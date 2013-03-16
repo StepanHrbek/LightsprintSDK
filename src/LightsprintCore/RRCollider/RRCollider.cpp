@@ -3,7 +3,7 @@
 // Copyright (c) 2000-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "Lightsprint/RRObject.h"
+#include "RRCollisionHandler.h"
 #include "IntersectBspCompact.h"
 #include "IntersectBspFast.h"
 #include "IntersectVerification.h"
@@ -160,6 +160,70 @@ void RRCollider::intersectBatch(RRRay* ray, unsigned numRays) const
 	for (int i=0;i<(int)numRays;i++)
 	{
 		if (!intersect(ray+i)) ray[i].hitDistance = -1;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////
+//
+// RRCollider getDistanceFromXxx
+
+static void addRay(const RRCollider* collider, RRRay& ray, RRVec3 dir, RRVec2& distanceMinMax)
+{
+	float dirLength = dir.length();
+	dir.normalize();
+	ray.rayDir = dir;
+	if (dir.finite() && collider->intersect(&ray))
+	{
+		// calculation of distanceOfPotentialNearPlane depends on dir length
+		float distanceOfPotentialNearPlane = ray.hitDistance/dirLength;
+		distanceMinMax[0] = RR_MIN(distanceMinMax[0],distanceOfPotentialNearPlane);
+		distanceMinMax[1] = RR_MAX(distanceMinMax[1],distanceOfPotentialNearPlane);
+	}
+}
+
+void RRCollider::getDistancesFromPoint(const RRVec3& point, const RRObject* object, RRVec2& distanceMinMax) const
+{
+	RRRay ray;
+	RRCollisionHandlerFirstVisible collisionHandler(object);
+	ray.rayOrigin = point;
+	ray.rayLengthMax = 1e12f;
+	ray.rayFlags = RRRay::FILL_DISTANCE;
+	ray.hitObject = object;
+	ray.collisionHandler = &collisionHandler;
+	enum {RAYS=3}; // total num rays is (2*RAYS+1)^2 * 6 = 294
+	for (int i=-RAYS;i<=RAYS;i++)
+	{
+		for (int j=-RAYS;j<=RAYS;j++)
+		{
+			float u = i/(RAYS+0.5f);
+			float v = j/(RAYS+0.5f);
+			addRay(this,ray,RRVec3(u,v,+1),distanceMinMax);
+			addRay(this,ray,RRVec3(u,v,-1),distanceMinMax);
+			addRay(this,ray,RRVec3(u,+1,v),distanceMinMax);
+			addRay(this,ray,RRVec3(u,-1,v),distanceMinMax);
+			addRay(this,ray,RRVec3(+1,u,v),distanceMinMax);
+			addRay(this,ray,RRVec3(-1,u,v),distanceMinMax);
+		}
+	}
+}
+
+void RRCollider::getDistancesFromCamera(const RRCamera& camera, const RRObject* object, RRVec2& distanceMinMax) const
+{
+	RRRay ray;
+	RRCollisionHandlerFirstVisible collisionHandler(object);
+	ray.rayLengthMax = 1e12f;
+	ray.rayFlags = RRRay::FILL_DISTANCE;
+	ray.hitObject = object;
+	ray.collisionHandler = &collisionHandler;
+	enum {RAYS=4}; // #rays is actually (2*RAYS+1)^2 = 81
+	for (int i=-RAYS;i<=RAYS;i++)
+	{
+		for (int j=-RAYS;j<=RAYS;j++)
+		{
+			RRVec2 posInWindow(i/float(RAYS),j/float(RAYS));
+			ray.rayOrigin = camera.getRayOrigin(posInWindow);
+			addRay(this,ray,camera.getRayDirection(posInWindow),distanceMinMax);
+		}
 	}
 }
 

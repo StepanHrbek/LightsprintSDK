@@ -63,7 +63,6 @@ RRMesh/RRMesh.cpp \
 RRMesh/RRMeshAccelerated.cpp \
 RRMesh/RRMeshArrays.cpp \
 RRMesh/RRMeshLessVertices.cpp \
-RRObject/RRCollisionHandler.cpp \
 RRObject/RRMaterial.cpp \
 RRObject/RRObject.cpp \
 RRObject/RRObjects.cpp \

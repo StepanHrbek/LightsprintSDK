@@ -5,7 +5,7 @@
 
 #include "../RRMesh/RRMeshFilter.h"
 #include "../RRStaticSolver/rrcore.h"
-#include "Lightsprint/RRObject.h"
+#include "../RRCollider/RRCollisionHandler.h"
 #include "RRObjectFilter.h"
 #include "RRObjectFilterTransformed.h"
 #include "RRObjectMulti.h"
@@ -470,6 +470,16 @@ void RRObject::updateIlluminationEnvMapCenter()
 	getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
 	illumination.envMapWorldCenter = getWorldMatrixRef().getTransformedPosition(center);
 	illumination.envMapWorldRadius = (maxi-mini).length()/2*getWorldMatrixRef().getScale().abs().avg();
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRObject collisions
+
+RRCollisionHandler* RRObject::createCollisionHandlerFirstVisible() const
+{
+	return new RRCollisionHandlerFirstVisible(this);
 }
 
 

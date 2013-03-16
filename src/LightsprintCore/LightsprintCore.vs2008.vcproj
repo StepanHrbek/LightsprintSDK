@@ -876,6 +876,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RRCollider\RRCollisionHandler.h"
+				>
+			</File>
+			<File
 				RelativePath="RRCollider\RRRay.cpp"
 				>
 			</File>
@@ -963,10 +967,6 @@
 		<Filter
 			Name="RRObject"
 			>
-			<File
-				RelativePath="RRObject\RRCollisionHandler.cpp"
-				>
-			</File>
 			<File
 				RelativePath="RRObject\RRObject.cpp"
 				>

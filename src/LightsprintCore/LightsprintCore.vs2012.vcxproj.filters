@@ -93,9 +93,6 @@
     <ClCompile Include="RRMesh\RRMeshLessVertices.cpp">
       <Filter>RRMesh</Filter>
     </ClCompile>
-    <ClCompile Include="RRObject\RRCollisionHandler.cpp">
-      <Filter>RRObject</Filter>
-    </ClCompile>
     <ClCompile Include="RRObject\RRObject.cpp">
       <Filter>RRObject</Filter>
     </ClCompile>
@@ -425,6 +422,9 @@
     <ClInclude Include="NumReports.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRFileLocator.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRCamera.h" />
+    <ClInclude Include="RRCollider\RRCollisionHandler.h">
+      <Filter>RRCollider</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="squish\singlecolourlookup.inl">

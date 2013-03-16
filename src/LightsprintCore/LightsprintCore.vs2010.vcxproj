@@ -603,7 +603,6 @@
     <ClCompile Include="RRMesh\RRMeshAccelerated.cpp" />
     <ClCompile Include="RRMesh\RRMeshArrays.cpp" />
     <ClCompile Include="RRMesh\RRMeshLessVertices.cpp" />
-    <ClCompile Include="RRObject\RRCollisionHandler.cpp" />
     <ClCompile Include="RRObject\RRObject.cpp" />
     <ClCompile Include="RRObject\RRObjects.cpp" />
     <ClCompile Include="RRObject\RRObjectWithPhysicalMaterials.cpp">
@@ -715,6 +714,7 @@
     <ClInclude Include="RRCollider\IntersectVerification.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRCollider.h" />
     <ClInclude Include="RRCollider\pcube.h" />
+    <ClInclude Include="RRCollider\RRCollisionHandler.h" />
     <ClInclude Include="RRCollider\vec.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRMesh.h" />
     <ClInclude Include="RRMesh\RRMeshFilter.h" />
