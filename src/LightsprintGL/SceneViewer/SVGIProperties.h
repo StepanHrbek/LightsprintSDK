@@ -67,6 +67,8 @@ namespace rr_gl
 		wxPGProperty*     propGILightmapAOIntensity;
 		wxPGProperty*     propGILightmapAOSize;
 		wxPGProperty*     propGILightmapSmoothingAmount;
+		wxPGProperty*     propGILightmapSpreadForegroundColor;
+		wxPGProperty*     propGILightmapBackgroundColor;
 		BoolRefProperty*  propGILightmapWrapping;
 		ButtonProperty*   propGIBuildLmaps;
 		ButtonProperty*   propGIBuildAmbientMaps;

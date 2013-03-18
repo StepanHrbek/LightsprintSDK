@@ -164,6 +164,13 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGILightmapSmoothingAmount = new FloatProperty(_("Smoothing amount"),_("Amount of smoothing applied when baking lightmaps. Makes edges smoother, reduces noise, but washes out tiny details. Reasonable values are around 1. 0=off."),svs.lightmapFilteringParameters.smoothingAmount,svs.precision,0,10,1,false);
 		AppendIn(propGILightmap,propGILightmapSmoothingAmount);
 
+		propGILightmapSpreadForegroundColor = new wxIntProperty(_("Spread foreground"),wxPG_LABEL,svs.lightmapFilteringParameters.spreadForegroundColor);
+		propGILightmapSpreadForegroundColor->SetHelpString(_("Affects invisible parts of lightmap only: How far in pixels do valid lightmap colors spread into adjacent unused pixels."));
+		AppendIn(propGILightmap,propGILightmapSpreadForegroundColor);
+
+		propGILightmapBackgroundColor = new HDRColorProperty(_("Background color"),_("Affects invisible parts of lightmap only: Color of unused pixels in lightmap."),svs.precision,svs.lightmapFilteringParameters.backgroundColor);
+		AppendIn(propGILightmap,propGILightmapBackgroundColor);
+
 		propGILightmapWrapping = new BoolRefProperty(_("Wrapping"),_("Checked = smoothing works across lightmap boundaries."),svs.lightmapFilteringParameters.wrap);
 		AppendIn(propGILightmap,propGILightmapWrapping);
 
@@ -253,6 +260,8 @@ void SVGIProperties::updateProperties()
 		+ updateFloat(propGILightmapAOIntensity,svs.lightmapDirectParameters.aoIntensity)
 		+ updateFloat(propGILightmapAOSize,svs.lightmapDirectParameters.aoSize)
 		+ updateFloat(propGILightmapSmoothingAmount,svs.lightmapFilteringParameters.smoothingAmount)
+		+ updateInt(propGILightmapSpreadForegroundColor,svs.lightmapFilteringParameters.spreadForegroundColor)
+		+ updateProperty(propGILightmapBackgroundColor,rr::RRVec3(svs.lightmapFilteringParameters.backgroundColor))
 		+ updateBoolRef(propGILightmapWrapping)
 		+ updateBoolRef(propGIBilinear)
 		;
@@ -405,6 +414,16 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGILightmapSmoothingAmount)
 	{
 		svs.lightmapFilteringParameters.smoothingAmount = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGILightmapSpreadForegroundColor)
+	{
+		svs.lightmapFilteringParameters.spreadForegroundColor = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propGILightmapBackgroundColor)
+	{
+		svs.lightmapFilteringParameters.backgroundColor << property->GetValue();
 	}
 	else
 	if (property==propGIBilinear)
