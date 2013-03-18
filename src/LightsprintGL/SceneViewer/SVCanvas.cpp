@@ -1754,7 +1754,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		}
 
 		// render lens flare, using own shader
-		if (svs.renderLensFlare && !svs.eye.isOrthogonal())
+		if (svs.renderLensFlare && !svs.eye.isOrthogonal() && !svs.renderStereo)
 		{
 			if (!lensFlareLoadAttempted)
 			{
@@ -1808,7 +1808,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		}
 
 		// render vignette, using own shader (must go before video capture)
-		if (svs.renderVignette)
+		if (svs.renderVignette && !svs.renderStereo)
 		{
 			if (!vignetteLoadAttempted)
 			{
