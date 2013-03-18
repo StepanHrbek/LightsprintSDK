@@ -879,7 +879,7 @@ bool RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 	for (unsigned i=0;i<numElements;i++)
 	{
 		RRVec4 color = getElement(i);
-		setElement(i,(color[3]<0)?backgroundColor:color);
+		setElement(i,(color[3]<=0)?backgroundColor:color);
 	}
 	return true;
 }
