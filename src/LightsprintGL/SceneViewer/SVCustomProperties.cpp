@@ -10,6 +10,8 @@
 #include "wx/colordlg.h"
 #include "SVFrame.h" // needed by ButtonProperty
 #include "SVSceneTree.h" // needed by ButtonProperty
+#include <boost/filesystem.hpp>
+namespace bf = boost::filesystem;
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -400,6 +402,46 @@ wxString getTextureDescription(rr::RRBuffer* buffer)
 			? wxString::Format("(%dx%d embedded)",buffer->getWidth(),buffer->getHeight())
 			: wxString(RR_RR2WX(buffer->filename)))
 		:"(no texture)";
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// FileComboProperty
+
+FileComboData::FileComboData(const wxString& dir)
+{
+	fileDir = dir;
+	boost::system::error_code ec;
+	bf::directory_iterator end_itr;
+	for (bf::directory_iterator itr(RR_WX2PATH(fileDir),ec); itr!=end_itr; ++itr)
+	{
+		if (bf::is_regular_file(itr->status()))
+		{
+			fileNames.push_back(RR_PATH2WX((*itr).path().filename()));
+			fileValues.push_back(fileValues.size());
+		}
+	}
+	fileNames.Sort();
+}
+
+FileComboProperty::FileComboProperty(const wxString& label, const wxString& help, const wxString& dir)
+	: FileComboData(dir), wxEnumProperty(label,wxPG_LABEL,fileNames,fileValues)
+{
+	SetHelpString(help);
+}
+
+wxString FileComboProperty::getSelectedFullPath() const
+{
+	return fileDir + fileNames[this->GetValue().GetInteger()];
+}
+
+bool FileComboProperty::contains(const wxString& filename) const
+{
+	for (unsigned i=0;i<fileNames.size();i++)
+		if (fileNames[i]==filename)
+			return true;
+	return false;
 }
 
 

@@ -158,6 +158,31 @@ wxString getTextureDescription(rr::RRBuffer* buffer);
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// FileComboProperty
+
+// helper class, we need it to initialize filelist before base class (wxEnumProperty ) ctor gets called
+class FileComboData
+{
+public:
+	FileComboData(const wxString& dir);
+protected:
+	wxString fileDir;
+	wxArrayString fileNames;
+	wxArrayInt fileValues;
+};
+
+// dropdown menu with all files from given directory
+class FileComboProperty : protected FileComboData, public wxEnumProperty
+{
+public:
+	FileComboProperty(const wxString& label = wxPG_LABEL, const wxString& help = wxPG_LABEL, const wxString& dir = wxPG_LABEL);
+	wxString getSelectedFullPath() const;
+	bool contains(const wxString& filename) const;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // LocationProperty
 
 class LocationProperty : public wxPGProperty
