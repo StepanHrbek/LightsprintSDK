@@ -24,6 +24,7 @@ SVLightProperties::SVLightProperties(SVFrame* _svframe)
 	rtlight = NULL;
 }
 
+
 void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 {
 	rtlight = _rtlight;
