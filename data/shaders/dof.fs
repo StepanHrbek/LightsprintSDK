@@ -85,7 +85,7 @@ void main()
 #define BLUR_A_COC_NEAR
 #define BLUR_R_COC_FAR
 #define COC_BOOST 5.0
-#define MAX_COC 10.0
+#define MAX_COC 10.0 // less = even extreme cases have very small blur, more = when edge goes to distance, there is bigger step at the end of sharp area. smallmap with 2 half channels would solve it
 #if PASS==1
 	// create downscaled color+CoC
 	#ifdef BLUR_RGB
@@ -166,6 +166,10 @@ void main()
 			+texture2D(smallMap,mapCoord+5.5*pixelSize)*0.20
 			) / 3.6;
 		#endif
+	// blurability keeps sharp edges sharp in channel r (farCoc), blur does not spread inside
+	float localFarCoc = texture2D(smallMap,mapCoord).r;
+	float blurability = smoothstep(0.0,1.0,localFarCoc*30.0);
+	gl_FragColor.r *= blurability;
 #endif
 #if PASS==3
 	// apply downscaled blurred color+CoC
@@ -191,16 +195,9 @@ void main()
 	#endif
 	#ifdef BLUR_A_COC_NEAR
 		#ifdef BLUR_R_COC_FAR
-			// in contrast to simple farCoc = color3.r*MAX_COC; following code kills unwanted blur at some edges, especially between sharp pixels and blurry background
+			// in contrast to simple farCoc = color3.r*MAX_COC; following code makes edges in focus sharper against background (remember, color3.r is halfres)
 			float farCoc = depthRange.x / (depthRange.y - texture2D(depthMap,mapCoord).x) - 1.0;
-			farCoc = min(farCoc*5.0,color3.r*MAX_COC);
-			// for any unblurred farcoc<=0.01, we make pixel sharp, otherwise we use blurred farcoc
-			// why?
-			//  pass 2 blurred all edges. here we resharp edges between pixels in focus and background
-			//  edges between pixels in focus and foreground must stay blurry because foreground overlaps pixels in focus
-			// why 0.01?
-			//  <=0.0 would let sharp objects have blurry edges, <=0.03 would make it visible where far blur begins
-			//float farCoc = (color2.r<=0.01) ? 0.0 : color3.r*MAX_COC;
+			farCoc = (farCoc<=0.0) ? 0.0 : color3.r*MAX_COC;
 		#else
 			float farCoc = depthRange.x / (depthRange.y - texture2D(depthMap,mapCoord).x) - 1.0;
 		#endif
