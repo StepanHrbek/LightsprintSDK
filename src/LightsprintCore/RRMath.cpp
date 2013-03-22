@@ -507,7 +507,9 @@ RRVec4 RRMatrix3x4::getQuaternion() const
 			mr[4*i+j] = m[i][j]/scale[j];
 
 	// expects unscaled matrix
-	return RRVec4(mr[9]-mr[6],mr[2]-mr[8],mr[4]-mr[1],mr[0]+mr[5]+mr[10]+1).normalized();
+	// "safe" is important: it normalizes 0,0,0,0 into 1,0,0,0 instead of dividing by zero
+	// (fourth number in quaternion is rotation. if it is 0, first 3 numbers are irrelevant)
+	return RRVec4(mr[9]-mr[6],mr[2]-mr[8],mr[4]-mr[1],mr[0]+mr[5]+mr[10]+1).normalizedSafe();
 }
 
 //////////////////////////////////////////////////////////////////////////////
