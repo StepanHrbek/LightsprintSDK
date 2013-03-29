@@ -53,10 +53,10 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			Append(propIllumination = new wxStringProperty(_("Illumination"),wxPG_LABEL));
 			EnableProperty(propIllumination,false);
 			rr::RRBuffer* reflectionEnvMap = object->illumination.getLayer(svs.layerRealtimeEnvironment);
-			AppendIn(propIllumination, propRealtimeEnvRes = new FloatProperty("Realtime environment size",_("Size of realtime raytraced reflection cubemap"),reflectionEnvMap?reflectionEnvMap->getWidth():0,_precision,0,100000,1,false));
+			AppendIn(propIllumination, propRealtimeEnvRes = new FloatProperty("Realtime environment size",_("Size of realtime raytraced cubemap"),reflectionEnvMap?reflectionEnvMap->getWidth():0,_precision,0,100000,1,false));
 			EnableProperty(propRealtimeEnvRes,false);
 			reflectionEnvMap = object->illumination.getLayer(svs.layerBakedEnvironment);
-			AppendIn(propIllumination, propBakedEnvRes = new FloatProperty("Baked environment size",_("Size of offline raytraced reflection cubemap"),reflectionEnvMap?reflectionEnvMap->getWidth():0,_precision,0,100000,1,false));
+			AppendIn(propIllumination, propBakedEnvRes = new FloatProperty("Baked environment size",_("Size of offline raytraced cubemap"),reflectionEnvMap?reflectionEnvMap->getWidth():0,_precision,0,100000,1,false));
 			EnableProperty(propBakedEnvRes,false);
 
 			// mesh

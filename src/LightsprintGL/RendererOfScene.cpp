@@ -363,7 +363,7 @@ void RendererOfSceneImpl::render(
 		&& !_renderingFromThisLight
 		&& (
 			// optimized render can't sort
-			_uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND
+			_uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && !_uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT
 		);
 
 	rr::RRReportInterval report(rr::INF3,"Rendering %s%s scene...\n",needsIndividualStaticObjectsForEverything?"1obj":"multiobj",needsIndividualStaticObjectsOnlyForBlending?"+1objblend":"");
@@ -541,7 +541,7 @@ void RendererOfSceneImpl::render(
 					const rr::RRMaterial* material = faceGroups[g].material;
 					if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom))
 					{
-						if (material->needsBlending() && _uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND)
+						if (material->needsBlending() && _uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && !_uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT)
 						{
 							// here we process everything that needs sorting, i.e. what is blended in final render
 							// blended objects rendered into rgb shadowmap are not processed here, because they don't need sort

@@ -113,7 +113,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			glEnable(GL_BLEND);
 		}
 		else
-		if (mainUberProgramSetup.MATERIAL_TRANSPARENCY_BLEND)
+		if (mainUberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && !mainUberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT)
 		{
 			// before alpha blending
 			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);

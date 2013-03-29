@@ -750,7 +750,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					selectedObjects = allObjects;
 
 				// allocate cubes
-				selectedObjects.allocateBuffersForRealtimeGI(-1,svs.layerBakedEnvironment,4,2*svs.raytracedCubesRes,true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
+				selectedObjects.allocateBuffersForRealtimeGI(-1,svs.layerBakedEnvironment,4,2*svs.raytracedCubesRes,2*svs.raytracedCubesRes,true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
 
 				// delete cubes from disk
 				// if we always keep all files, it won't be possible to get rid of once baked cube

@@ -12,15 +12,18 @@ namespace rr
 
 NEWS
 
+- depth of field
+  - rr_gl::DOF
+  - Scene viewer has it in Scene properties/Render extras
+- refraction
+  - rr_gl::LIGHT_INDIRECT_ENV_REFRACT
+  - Scene viewer has it in Scene properties/Render material/Trensparency/Refraction
 - GPU accelerated pathtracer SmallLuxGpu included
   - Scene viewer integration: click Windows/SmallLuxGPU to see the same scene pathtraced
   - export scene to SmallLuxGpu format by scene.save("foo.scn")
   - configure SmallLuxGpu via data/scenes/SmallLuxGpu/scene.cfg
   - open scene in SmallLuxGpu by bin/win32/slg4.exe scene.cfg
   - sRGB correctness (more accurate rendering) in Scene viewer is enabled by default, as pathtracer is also sRGB correct
-- depth of field
-  - rr_gl::DOF
-  - Scene viewer has it in Scene properties/Render extras
 - shadow bias can be controlled
   - RRLight::rtShadowmapBias
   - Scene viewer has it in Light properties
@@ -34,8 +37,12 @@ NEWS
 
 CHANGES
 
-- rr_gl::RendererOfScene::render() parameter added, please add the same parameter to your own implementations, if any
-- rr_gl::RRDynamicSolverGL::renderScene() parameter added, please add the same parameter to your own implementations, if any
+- rr_gl::RendererOfScene::render() parameter animationTime added
+  \n please add the same parameter to your own implementations, if any
+- rr_gl::RRDynamicSolverGL::renderScene() parameter animationTime added
+  \n please add the same parameter to your own implementations, if any
+- allocateBuffersForRealtimeGI() 5th parameter added
+  \n please check all places where you pass 5 or more parameters and insert 5th one
 - RR_RR2STREAM and RR_WX2STREAM macros removed, no longer needed when using <boost/filesystem/fstream.hpp> instead of <fstream>
 
 \section news136 ------------------------------------ 2012.12.21 -------------------------------------

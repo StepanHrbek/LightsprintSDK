@@ -196,6 +196,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderMaterialTransparencyFresnel = new BoolRefProperty(_("Fresnel"),_("Toggles using fresnel term."),svs.renderMaterialTransparencyFresnel);
 		AppendIn(propRenderMaterialTransparency,propRenderMaterialTransparencyFresnel);
 
+		propRenderMaterialTransparencyRefraction = new BoolRefProperty(_("Refraction"),_("Toggles rendering refraction, using raytraced cubemaps."),svs.renderMaterialTransparencyRefraction);
+		AppendIn(propRenderMaterialTransparency,propRenderMaterialTransparencyRefraction);
+
 		propRenderMaterialBumpMaps = new BoolRefProperty(_("Bump maps"),_("Toggles rendering bump maps."),svs.renderMaterialBumpMaps);
 		AppendIn(propRenderMaterials,propRenderMaterialBumpMaps);
 
@@ -299,6 +302,7 @@ void SVSceneProperties::updateHide()
 	propToneMappingContrast->Hide(!svs.renderTonemapping,false);
 
 	propRenderMaterialTransparencyFresnel->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
+	propRenderMaterialTransparencyRefraction->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
 
 
 	propLensFlareSize->Hide(!svs.renderLensFlare,false);
@@ -364,6 +368,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderMaterialEmittance)
 		+ updateInt(propRenderMaterialTransparency,svs.renderMaterialTransparency)
 		+ updateBoolRef(propRenderMaterialTransparencyFresnel)
+		+ updateBoolRef(propRenderMaterialTransparencyRefraction)
 		+ updateBoolRef(propRenderMaterialBumpMaps)
 		+ updateBoolRef(propRenderMaterialTextures)
 		+ updateBoolRef(propRenderMaterialSidedness)
@@ -599,6 +604,12 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		// update rgb shadowmaps
 		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
+	}
+	else
+	if (property==propRenderMaterialTransparencyRefraction)
+	{
+		// update rgb shadowmaps
+		//svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
 	}
 	else
 	if (property==propRenderMaterialSidedness)

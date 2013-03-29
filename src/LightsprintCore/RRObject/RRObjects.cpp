@@ -17,7 +17,7 @@ namespace rr
 //
 // RRObjects
 
-unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerEnvironment, unsigned _diffuseEnvMapSize, unsigned _specularEnvMapSize, bool _allocateNewBuffers, bool _changeExistingBuffers, float _specularThreshold, float _depthThreshold) const
+unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerEnvironment, unsigned _diffuseEnvMapSize, unsigned _specularEnvMapSize, unsigned _refractEnvMapSize, bool _allocateNewBuffers, bool _changeExistingBuffers, float _specularThreshold, float _depthThreshold) const
 {
 	unsigned buffersTouched = 0;
 	for (unsigned i=0;i<size();i++)
@@ -59,6 +59,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 				unsigned currentEnvMapSize = buffer ? buffer->getWidth() : 0;
 				unsigned desiredDiffuseSize = currentEnvMapSize;
 				unsigned desiredSpecularSize = currentEnvMapSize;
+				unsigned desiredRefractSize = currentEnvMapSize;
 
 				// is it suitable for mirror rather than cube?
 				bool useMirror;
@@ -73,7 +74,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 				}
 
 				// calculate diffuse size
-				if (!numVertices || useMirror)
+				if (!numVertices || useMirror || (_changeExistingBuffers && !_diffuseEnvMapSize))
 				{
 					desiredDiffuseSize = 0;
 				}
@@ -114,8 +115,36 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 					}
 				}
 
+				// calculate refract size
+				if (!numVertices || useMirror || (_changeExistingBuffers && !_refractEnvMapSize))
+				{
+					desiredRefractSize = 0;
+				}
+				else
+				if ((!currentEnvMapSize && _allocateNewBuffers) || (currentEnvMapSize && _changeExistingBuffers))
+				{
+					// test whether refraction is possible
+					for (unsigned g=0;g<object->faceGroups.size();g++)
+					{
+						const RRMaterial* material = object->faceGroups[g].material;
+						if (material)
+						{
+							if (material->needsBlending())
+							{
+								// refraction is possible (although not necessary, we don't know if user renders with LIGHT_INDIRECT_ENV_REFRACT or not. but then he should call us with _refractEnvMapSize 0)
+								desiredRefractSize = _refractEnvMapSize;
+								goto refraction_done;
+							}
+						}
+					}
+					// refraction is not possible
+					if (_changeExistingBuffers)
+						desiredRefractSize = 0;
+					refraction_done:;
+				}
+
 				// allocate cube for LIGHT_INDIRECT_ENV_
-				unsigned desiredEnvMapSize = RR_MAX(desiredDiffuseSize,desiredSpecularSize);
+				unsigned desiredEnvMapSize = RR_MAX3(desiredDiffuseSize,desiredSpecularSize,desiredRefractSize);
 				if (desiredEnvMapSize!=currentEnvMapSize)
 				{
 					if (!currentEnvMapSize)

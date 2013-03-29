@@ -939,7 +939,7 @@ namespace rr
 		//
 		//! See RRObjects::allocateBuffersForRealtimeGI() for parameters
 		//! and additional information.
-		virtual void allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize = 4, unsigned specularEnvMapSize = 16, bool allocateNewBuffers = true, bool changeExistingBuffers = true, float specularThreshold = 0.2f, float depthThreshold = 0.1f) const;
+		virtual void allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize = 4, unsigned specularEnvMapSize = 16, unsigned refractEnvMapSize = 16, bool allocateNewBuffers = true, bool changeExistingBuffers = true, float specularThreshold = 0.2f, float depthThreshold = 0.1f) const;
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
 		RRObject* getMultiObjectCustom() const;

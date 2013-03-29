@@ -89,6 +89,7 @@ void UberProgramSetup::enableAllLights()
 	LIGHT_INDIRECT_DETAIL_MAP = true;
 	LIGHT_INDIRECT_ENV_DIFFUSE = true;
 	LIGHT_INDIRECT_ENV_SPECULAR = true;
+	//LIGHT_INDIRECT_ENV_REFRACT = true; // option, disabled by default, has to be enabled manually
 	LIGHT_INDIRECT_MIRROR_DIFFUSE = true;
 	LIGHT_INDIRECT_MIRROR_SPECULAR = true;
 	LIGHT_INDIRECT_MIRROR_MIPMAPS = true;
@@ -173,8 +174,8 @@ const char* UberProgramSetup::getSetupString()
 	sprintf(shadowSamples,"#define SHADOW_SAMPLES %d\n",(int)SHADOW_SAMPLES);
 	sprintf(specularModel,"#define MATERIAL_SPECULAR_MODEL %d\n",(int)MATERIAL_SPECULAR_MODEL);
 
-	static char setup[2000];
-	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	static char setup[2000]; // at the time of writing this comment, theoretical max string length is around 1782
+	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		comment?comment:"",
 		SHADOW_MAPS?shadowMaps:"",
 		SHADOW_SAMPLES?shadowSamples:"",
@@ -199,6 +200,7 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_INDIRECT_DETAIL_MAP?"#define LIGHT_INDIRECT_DETAIL_MAP\n":"",
 		LIGHT_INDIRECT_ENV_DIFFUSE?"#define LIGHT_INDIRECT_ENV_DIFFUSE\n":"",
 		LIGHT_INDIRECT_ENV_SPECULAR?"#define LIGHT_INDIRECT_ENV_SPECULAR\n":"",
+		LIGHT_INDIRECT_ENV_REFRACT?"#define LIGHT_INDIRECT_ENV_REFRACT\n":"",
 		LIGHT_INDIRECT_MIRROR_DIFFUSE?"#define LIGHT_INDIRECT_MIRROR_DIFFUSE\n":"",
 		LIGHT_INDIRECT_MIRROR_SPECULAR?"#define LIGHT_INDIRECT_MIRROR_SPECULAR\n":"",
 		LIGHT_INDIRECT_MIRROR_MIPMAPS?"#define LIGHT_INDIRECT_MIRROR_MIPMAPS\n":"",
@@ -398,9 +400,24 @@ void UberProgramSetup::validate()
 		// it can't work without transparency (e.g. with specular only)
 		MATERIAL_TRANSPARENCY_FRESNEL = 0;
 	}
+	if (!MATERIAL_TRANSPARENCY_BLEND
+		||
+		(!MATERIAL_TRANSPARENCY_CONST
+		&& !MATERIAL_TRANSPARENCY_MAP
+		&& !MATERIAL_TRANSPARENCY_IN_ALPHA))
+	{
+		// no transparency with blending -> no refraction
+		LIGHT_INDIRECT_ENV_REFRACT = 0;
+	}
+	if (LIGHT_INDIRECT_ENV_REFRACT)
+	{
+		// renderer fails when both are enabled
+		MATERIAL_TRANSPARENCY_TO_RGB = 0;
+	}
 	if (!(MATERIAL_DIFFUSE_MAP && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_MIRROR_DIFFUSE))
 		&& !MATERIAL_SPECULAR
 		&& !LIGHT_INDIRECT_ENV_DIFFUSE // env diffuse can use normal maps, even if specular is disabled
+		&& !LIGHT_INDIRECT_ENV_REFRACT // refraction can use bump maps, even if specular is disabled
 		&& !LIGHT_INDIRECT_MIRROR_DIFFUSE // mirror diffuse can use normal maps, even if specular is disabled
 		&& !MATERIAL_TRANSPARENCY_FRESNEL) // fresnel can use normal maps, even if specular is disabled
 	{
@@ -470,7 +487,7 @@ void UberProgramSetup::validate()
 		MATERIAL_SPECULAR = 0;
 		MATERIAL_SPECULAR_CONST = 0;
 		MATERIAL_SPECULAR_MAP = 0;
-		if (!MATERIAL_TRANSPARENCY_FRESNEL)
+		if (!MATERIAL_TRANSPARENCY_FRESNEL && !LIGHT_INDIRECT_ENV_REFRACT)
 			MATERIAL_BUMP_MAP = 0;
 		if (!MATERIAL_EMISSIVE_CONST && !MATERIAL_EMISSIVE_MAP)
 		{
@@ -669,7 +686,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		program->sendUniform("postprocessGamma", gamma);
 	}
 
-	if ((MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR)) || MATERIAL_BUMP_TYPE_HEIGHT || MATERIAL_TRANSPARENCY_FRESNEL)
+	if ((MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR)) || MATERIAL_BUMP_TYPE_HEIGHT || MATERIAL_TRANSPARENCY_FRESNEL || LIGHT_INDIRECT_ENV_REFRACT)
 	{
 		// it is difficult to tell exactly when "worldEyePos" is in use, condition above is only simple superset, uniformExists() test is necessary
 		if (camera && program->uniformExists("worldEyePos"))
@@ -785,7 +802,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendUniform("materialTransparencyConst",rr::RRVec4(material->specularTransmittance.color,1-material->specularTransmittance.color.avg()));
 	}
 
-	if (MATERIAL_TRANSPARENCY_FRESNEL)
+	if (LIGHT_INDIRECT_ENV_REFRACT || MATERIAL_TRANSPARENCY_FRESNEL)
 	{
 		program->sendUniform("materialRefractionIndex",RR_CLAMPED(material->refractionIndex,0.001f,1000.f)); // 0 would produce division by zero in shader
 	}
@@ -850,7 +867,7 @@ void UberProgramSetup::useIlluminationEnvMap(Program* program, const rr::RRBuffe
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationEnvMaps(program=NULL).\n"));
 		return;
 	}
-	if ((LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE) || (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR))
+	if ((LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE) || (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR) || (LIGHT_INDIRECT_ENV_REFRACT && MATERIAL_TRANSPARENCY_BLEND && (MATERIAL_TRANSPARENCY_CONST || MATERIAL_TRANSPARENCY_MAP || MATERIAL_TRANSPARENCY_IN_ALPHA)))
 	{
 		if (!reflectionEnvMap)
 		{
@@ -858,6 +875,9 @@ void UberProgramSetup::useIlluminationEnvMap(Program* program, const rr::RRBuffe
 			return;
 		}
 		program->sendTexture("lightIndirectEnvMap",getTexture(reflectionEnvMap,true,false),TEX_CODE_CUBE_LIGHT_INDIRECT);
+	}
+	if ((LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE) || (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR))
+	{
 		unsigned w = reflectionEnvMap->getWidth();
 		unsigned numLevels = 1;
 		while (w>1) {w = w/2; numLevels++;}

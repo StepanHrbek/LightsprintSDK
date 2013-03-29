@@ -1045,14 +1045,14 @@ bool RRDynamicSolver::containsRealtimeGILightSource() const
 		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance());
 }
 
-void RRDynamicSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
+void RRDynamicSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, unsigned refractEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
 {
 	// allocate vertex buffers (don't touch cubes)
 	if (layerLightmap>=0)
 	{
 		if (getMultiObjectCustom())
 		{
-			getStaticObjects().allocateBuffersForRealtimeGI(layerLightmap,-1,0,0,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold); // -1=don't touch cubes (0 would delete them, next allocateBuffersForRealtimeGI would recreate them)
+			getStaticObjects().allocateBuffersForRealtimeGI(layerLightmap,-1,0,0,0,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold); // -1=don't touch cubes (0 would delete them, next allocateBuffersForRealtimeGI would recreate them)
 			RRObjectIllumination& multiIllumination = getMultiObjectCustom()->illumination;
 			if (!multiIllumination.getLayer(layerLightmap))
 				multiIllumination.getLayer(layerLightmap) =
@@ -1069,8 +1069,8 @@ void RRDynamicSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerE
 	// allocate cube maps (don't touch vertex buffers)
 	if (layerEnvironment>=0)
 	{
-		getStaticObjects().allocateBuffersForRealtimeGI(-1,layerEnvironment,0,specularEnvMapSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
-		getDynamicObjects().allocateBuffersForRealtimeGI(-1,layerEnvironment,diffuseEnvMapSize,specularEnvMapSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
+		getStaticObjects().allocateBuffersForRealtimeGI(-1,layerEnvironment,0,specularEnvMapSize,refractEnvMapSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
+		getDynamicObjects().allocateBuffersForRealtimeGI(-1,layerEnvironment,diffuseEnvMapSize,specularEnvMapSize,refractEnvMapSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
 	}
 }
 

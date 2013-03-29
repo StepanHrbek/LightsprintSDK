@@ -505,6 +505,9 @@ namespace rr
 		//! \param specularEnvMapSize
 		//!  If materials have specular reflection, reflection map of at least this size will be allocated in illumination.
 		//!  Size 16 is usually sufficient, not very sharp, but makes GI calculation fast.
+		//! \param refractEnvMapSize
+		//!  If materials refract light using cubemap, cubemap of at least this size will be allocated in illumination.
+		//!  Size 16 is very lowres, but it makes GI calculation fast.
 		//! \param allocateNewBuffers
 		//!  If buffer does not exist yet, true = it will be allocated, false = no action.
 		//! \param changeExistingBuffers
@@ -518,7 +521,7 @@ namespace rr
 		//!  For absolutely flat objects, see rr_gl::UberProgramSetup::LIGHT_INDIRECT_MIRROR_SPECULAR, it produces reflections of high quality and accuracy.
 		//! \return
 		//!  Number of buffers allocated or reallocated.
-		virtual unsigned allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const;
+		virtual unsigned allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, unsigned refractEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const;
 
 		//! Reports inconsistencies found in objects.
 		//
