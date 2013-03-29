@@ -1641,12 +1641,18 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
+
+			float secondsPassed = svs.referenceTime.secondsPassed();
+			if (secondsPassed>1000)
+				svs.referenceTime.addSeconds(1000);
+
 			solver->renderScene(
 				uberProgramSetup,
 				svs.eye,
 				svs.renderStereo?sm:SM_MONO,
 				NULL,
 				updateLayers,layers[0],layers[1],layers[2],
+				secondsPassed,
 				&clipPlanes,
 				svs.srgbCorrect,
 				&brightness,
@@ -1692,7 +1698,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								const rr::RRMesh* mesh = object->getCollider()->getMesh();
 								FaceGroupRange fgRange(0,0,object->faceGroups.size()-1,0,mesh->getNumTriangles());
 								RendererOfMesh* rendererOfMesh = solver->getRendererOfScene()->getRendererOfMesh(mesh);
-								rendererOfMesh->renderMesh(program,object,&fgRange,1,uberProgramSetup,false,NULL,NULL);
+								rendererOfMesh->renderMesh(program,object,&fgRange,1,uberProgramSetup,false,NULL,NULL,svs.referenceTime.secondsPassed());
 							}
 						}
 					}

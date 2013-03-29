@@ -62,6 +62,7 @@ enum Transparency
 struct SceneViewerState
 {
 	rr::RRCamera     eye;                       //! Current camera.
+	rr::RRTime       referenceTime;             //! Time when animation started/was in position 0.
 
 	bool             envSimulateSky;            //! Should we simulate sky according to location and datetime?
 	bool             envSimulateSun;            //! Should we simulate Sun according to location and datetime?

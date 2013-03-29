@@ -34,6 +34,8 @@ NEWS
 
 CHANGES
 
+- rr_gl::RendererOfScene::render() parameter added, please add the same parameter to your own implementations, if any
+- rr_gl::RRDynamicSolverGL::renderScene() parameter added, please add the same parameter to your own implementations, if any
 - RR_RR2STREAM and RR_WX2STREAM macros removed, no longer needed when using <boost/filesystem/fstream.hpp> instead of <fstream>
 
 \section news136 ------------------------------------ 2012.12.21 -------------------------------------

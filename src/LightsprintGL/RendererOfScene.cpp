@@ -107,6 +107,7 @@ public:
 		unsigned _layerLightmap,
 		unsigned _layerEnvironment,
 		unsigned _layerLDM,
+		float _animationTime,
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
@@ -214,6 +215,7 @@ void RendererOfSceneImpl::render(
 		unsigned _layerLightmap,
 		unsigned _layerEnvironment,
 		unsigned _layerLDM,
+		float _animationTime,
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
@@ -258,7 +260,7 @@ void RendererOfSceneImpl::render(
 			glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
 			render(
 				_solver,_uberProgramSetup,swapEyes?rightEye:leftEye,SM_MONO,_lights,_renderingFromThisLight,
-				_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,_clipPlanes,_srgbCorrect,_brightness,_gamma);
+				_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,_animationTime,_clipPlanes,_srgbCorrect,_brightness,_gamma);
 
 			// render right
 			// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
@@ -270,7 +272,7 @@ void RendererOfSceneImpl::render(
 			glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
 			render(
 				_solver,_uberProgramSetup,swapEyes?leftEye:rightEye,SM_MONO,_lights,_renderingFromThisLight,
-				false,_layerLightmap,_layerEnvironment,_layerLDM,_clipPlanes,_srgbCorrect,_brightness,_gamma);
+				false,_layerLightmap,_layerEnvironment,_layerLDM,_animationTime,_clipPlanes,_srgbCorrect,_brightness,_gamma);
 		}
 
 		// composite
@@ -672,7 +674,8 @@ void RendererOfSceneImpl::render(
 							passUberProgramSetup,
 							_renderingFromThisLight?true:false,
 							objectBuffers.lightIndirectBuffer,
-							objectBuffers.lightIndirectDetailMap);
+							objectBuffers.lightIndirectDetailMap,
+							_animationTime);
 
 						j += numRanges;
 #ifdef MIRRORS
@@ -735,7 +738,8 @@ void RendererOfSceneImpl::render(
 							mirrorMaskUberProgramSetup,
 							false,
 							NULL,
-							NULL);
+							NULL,
+							_animationTime);
 					}
 				}
 
@@ -811,7 +815,7 @@ void RendererOfSceneImpl::render(
 				//    a) add LIGHT_INDIRECT_MIRROR_SRGB, and convert manually in shader (would increase already large number of shaders)
 				//    b) make ubershader work with linear light (number of differences between correct and incorrect path would grow too much, difficult to maintain)
 				//       (srgb incorrect path must remain because of OpenGL ES)
-				render(_solver,mirrorUberProgramSetup,mirrorCamera,SM_MONO,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,&clipPlanes,false,NULL,1);
+				render(_solver,mirrorUberProgramSetup,mirrorCamera,SM_MONO,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,_animationTime,&clipPlanes,false,NULL,1);
 
 				// copy mirrorMaskMap to mirrorColorMap.A
 				if (_uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
@@ -909,7 +913,8 @@ void RendererOfSceneImpl::render(
 					passUberProgramSetup,
 					_renderingFromThisLight?true:false,
 					objectBuffers.lightIndirectBuffer,
-					objectBuffers.lightIndirectDetailMap);
+					objectBuffers.lightIndirectDetailMap,
+					_animationTime);
 			}
 		}
 	}

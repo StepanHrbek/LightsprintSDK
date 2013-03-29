@@ -209,7 +209,7 @@ struct RR_GL_API UberProgramSetup
 	Program* useProgram(UberProgram* uberProgram, const rr::RRCamera* camera, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, const ClipPlanes* clipPlanes);
 	//! Sets shader uniform parameters to match given material, should be called after useProgram() or getNextPass().
 	//! You can call expensive useProgram() once and cheaper useMaterial() multiple times.
-	void useMaterial(Program* program, const rr::RRMaterial* material) const;
+	void useMaterial(Program* program, const rr::RRMaterial* material, float animationTime) const;
 	//! Sets shader illumination environment map, should be called after useProgram() or getNextPass().
 	//! You can call expensive useProgram() once and cheaper useIlluminationEnvMap() multiple times.
 	void useIlluminationEnvMap(Program* program, const rr::RRBuffer* environment);

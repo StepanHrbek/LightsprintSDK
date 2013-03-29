@@ -197,7 +197,8 @@ void MeshArraysVBOs::renderMesh(
 	const UberProgramSetup& _uberProgramSetup,
 	bool _renderingFromLight,
 	rr::RRBuffer* _lightIndirectBuffer,
-	const rr::RRBuffer* _lightDetailMap)
+	const rr::RRBuffer* _lightDetailMap,
+	float _animationTime)
 {
 	// fast path for no data
 	if (!_object || !createdOk)
@@ -366,7 +367,7 @@ void MeshArraysVBOs::renderMesh(
 							}
 
 							// set material
-							_uberProgramSetup.useMaterial(_program,material);
+							_uberProgramSetup.useMaterial(_program,material,_animationTime);
 							if (_uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_DIFFUSE,material->diffuseReflectance.texcoord,material->diffuseReflectance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_SPECULAR_MAP)
@@ -576,7 +577,8 @@ void RendererOfMesh::renderMesh(
 	const UberProgramSetup& _uberProgramSetup,
 	bool _renderingFromLight,
 	rr::RRBuffer* _lightIndirectBuffer,
-	const rr::RRBuffer* _lightDetailMap)
+	const rr::RRBuffer* _lightDetailMap,
+	float _animationTime)
 {
 	RR_ASSERT(_object);
 	if (!_object) return;
@@ -630,7 +632,8 @@ void RendererOfMesh::renderMesh(
 			_uberProgramSetup,
 			_renderingFromLight,
 			_lightIndirectBuffer,
-			_lightDetailMap);
+			_lightDetailMap,
+			_animationTime);
 	}
 	else
 	if (mesh)

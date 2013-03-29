@@ -744,7 +744,7 @@ float getMipLevel(const rr::RRMaterial* material)
 	return 0;
 }
 
-void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* material) const
+void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* material, float animationTime) const
 {
 	if (!program)
 	{
@@ -838,11 +838,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		}
 		if (MATERIAL_NORMAL_MAP_FLOW)
 		{
-			static rr::RRTime time;
-			float secondsPassed = time.secondsPassed();
-			if (secondsPassed>1000)
-				time.addSeconds(1000);
-			program->sendUniform("seconds",secondsPassed);
+			program->sendUniform("seconds",animationTime);
 		}
 	}
 }

@@ -68,6 +68,7 @@ namespace rr_gl
 			unsigned _layerLightmap,
 			unsigned _layerEnvironment,
 			unsigned _layerLDM,
+			float _animationTime,
 			const ClipPlanes* _clipPlanes,
 			bool _srgbCorrect,
 			const rr::RRVec4* _brightness,

@@ -88,6 +88,8 @@ public:
 	//!  Function touches only existing buffers, does not allocate new ones.
 	//! \param _layerLDM
 	//!  Specifies source of light detail maps. Function only reads them.
+	//! \param _animationTime
+	//!  Specifies time from start of animation. At the moment, only water shader uses it for animating waves.
 	//! \param _clipPlanes
 	//!  Specifies clipping of rendered geometry, pass NULL for no clipping.
 	//! \param _srgbCorrect
@@ -107,6 +109,7 @@ public:
 		unsigned _layerLightmap,
 		unsigned _layerEnvironment,
 		unsigned _layerLDM,
+		float _animationTime,
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,

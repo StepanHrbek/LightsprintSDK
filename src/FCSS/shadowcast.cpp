@@ -297,6 +297,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 		LAYER_LIGHTMAPS,
 		LAYER_ENVIRONMENT,
 		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX,
+		0,
 		NULL,false,
 		&globalBrightnessBoosted,
 		globalGammaBoosted);

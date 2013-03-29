@@ -327,7 +327,7 @@ done:
 						}
 						bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
 						if (depthClamp) glEnable(GL_DEPTH_CLAMP);
-						renderScene(uberProgramSetup,light->getShadowmapCamera(i,lightInstance),SM_MONO,&light->getRRLight(),false,UINT_MAX,UINT_MAX,UINT_MAX,NULL,false,NULL,1);
+						renderScene(uberProgramSetup,light->getShadowmapCamera(i,lightInstance),SM_MONO,&light->getRRLight(),false,UINT_MAX,UINT_MAX,UINT_MAX,0,NULL,false,NULL,1);
 						if (depthClamp) glDisable(GL_DEPTH_CLAMP);
 					}
 				}
@@ -526,7 +526,8 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 			uberProgramSetup,
 			false,
 			NULL,
-			NULL);
+			NULL,
+			0);
 
 
 		// downscale 10pixel triangles in 4x4 squares to single pixel values
@@ -661,6 +662,7 @@ void RRDynamicSolverGL::renderScene(
 		unsigned _layerLightmap,
 		unsigned _layerEnvironment,
 		unsigned _layerLDM,
+		float _animationTime,
 		const ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,
@@ -677,6 +679,7 @@ void RRDynamicSolverGL::renderScene(
 		_layerLightmap,
 		_layerEnvironment,
 		_layerLDM,
+		_animationTime,
 		_clipPlanes,
 		_srgbCorrect,
 		_brightness,

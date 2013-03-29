@@ -125,7 +125,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		return;
 	}
 	// use material
-	uberProgramSetup.useMaterial(program,model->Materials);
+	uberProgramSetup.useMaterial(program,model->Materials,animationTime);
 	// set matrix
 	if (uberProgramSetup.OBJECT_SPACE)
 	{

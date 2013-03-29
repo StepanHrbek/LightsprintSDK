@@ -33,7 +33,8 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 		return;
 	}
 	// use material
-	uberProgramSetup.useMaterial(program,model.Materials);
+	static rr::RRTime time;
+	uberProgramSetup.useMaterial(program,model.Materials,time.secondsPassed());
 	// use environment map
 	uberProgramSetup.useIlluminationEnvMap(program,lightIndirectEnvSpecular);
 	// set matrices
