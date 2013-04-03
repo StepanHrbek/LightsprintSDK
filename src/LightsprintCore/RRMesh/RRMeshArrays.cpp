@@ -509,19 +509,22 @@ void RRMeshArrays::buildTangents(unsigned uvChannel)
 			RRVec3 udir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
 			RRVec3 vdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
 
-			tangent[i1] += udir;
-			tangent[i2] += udir;
-			tangent[i3] += udir;
+			if (udir.finite() && vdir.finite()) // exclude invalid inputs, exclude corner cases with r = 1 / 0;
+			{
+				tangent[i1] += udir;
+				tangent[i2] += udir;
+				tangent[i3] += udir;
 
-			bitangent[i1] += vdir;
-			bitangent[i2] += vdir;
-			bitangent[i3] += vdir;
+				bitangent[i1] += vdir;
+				bitangent[i2] += vdir;
+				bitangent[i3] += vdir;
+			}
 		}
 		for (unsigned v=0;v<numVertices;v++)
 		{
 			const RRVec3& n = normal[v];
 			RRVec3 t = tangent[v];
-			tangent[v] = (t-n*n.dot(t)).normalizedSafe();
+			tangent[v] = (t-n*n.dot(t)).normalizedSafe(); // sum of valid vectors can be 0, normalize safely
 			bitangent[v] = n.cross(tangent[v])*(n.cross(t).dot(bitangent[v])<0?-1.0f:1.0f);
 		}
 	}
