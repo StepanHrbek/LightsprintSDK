@@ -304,9 +304,8 @@ public:
 	{
 		unoptimizeTriangle(t);
 		if (t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleLod(t,out);
-		return pack[1].getImporter() ? // this test prevents crash, importer might be NULL when multiobject is made of 1 object and t exceeds number of triangles
-			pack[1].getImporter()->getTriangleLod(t-pack[0].getNumTriangles(),out)
-			: NULL;
+		if (pack[1].getImporter()) // this test prevents crash, importer might be NULL when multiobject is made of 1 object and t exceeds number of triangles
+			return pack[1].getImporter()->getTriangleLod(t-pack[0].getNumTriangles(),out);
 	}
 
 	virtual ~RRObjectMultiSmall()
