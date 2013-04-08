@@ -42,6 +42,11 @@ $(OBJ_DIR)/%.o: %.cpp
 	g++ -o $@ -c $< $(CPP_FLAGS) -MD
 	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
 
+$(OBJ_DIR)/%.o: %.cc
+	@mkdir -p $(dir $@)
+	g++ -o $@ -c $< $(CPP_FLAGS) -MD
+	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
+
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	gcc -o $@ -c $< $(CPP_FLAGS) -MD
