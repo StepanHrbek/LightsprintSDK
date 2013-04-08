@@ -502,7 +502,7 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 		if (buffer->getType()!=BT_VERTEX_BUFFER)
 		{
 			rr::RRReporter::report(rr::WARN,"Attempt to save non-vertex-buffer to .vbu format (vertex buffers only).\n");
-			goto ende;
+			return result;
 		}
 		const unsigned char* rawData = buffer->lock(BL_READ);
 		if (rawData)
@@ -522,14 +522,14 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 			}
 			buffer->unlock();
 		}
-		goto ende;
+		return result;
 	}
 
 	// get src format
 	rr::RRBufferFormat srcFormat = buffer->getFormat();
 	unsigned srcbypp = (buffer->getElementBits()+7)/8;
 	if (srcFormat<BF_RGB || srcFormat>BF_LUMINANCEF)
-		goto ende;
+		return result;
 
 	// select dst format
 	unsigned tryTable[][4] =
@@ -554,7 +554,7 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 	{
 		// Don't warn, there's still chance other saver will work (.rrbuffer)
 		//RRReporter::report(WARN,"Save not supported for %ls format.\n",filename.w_str());
-		goto ende;
+		return result;
 	}
 	FREE_IMAGE_TYPE fit = (dstbipp==128)?FIT_RGBAF:( (dstbipp==96)?FIT_RGBF:( (dstbipp==33)?FIT_FLOAT: FIT_BITMAP));
 	dstbipp &= 0xfe; // 33->32, remove flag
