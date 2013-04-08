@@ -12,8 +12,8 @@ LINK_FLAGS += -L/opt/local/lib/wx-devel
 CORE_DEPS = \
 	-lstdc++ \
 	-lgomp \
-	-lboost_filesystem \
-	-lboost_system
+	-lboost_filesystem-mt \
+	-lboost_system-mt
 
 CORE_LIBS = \
 	$(CORE_DEPS) \
@@ -26,8 +26,8 @@ GL_DEPS = \
 	-lGLEW \
 	-lwx_osx_cocoau-2.9 \
 	-lwx_osx_cocoau_gl-2.9 \
-	-lboost_serialization \
-	-lboost_iostreams
+	-lboost_serialization-mt \
+	-lboost_iostreams-mt
 
 GL_LIBS = \
 	$(GL_DEPS) \
@@ -35,8 +35,8 @@ GL_LIBS = \
 
 IO_DEPS = \
 	-lfreeimage \
-	-lboost_serialization \
-	-lboost_iostreams
+	-lboost_serialization-mt \
+	-lboost_iostreams-mt
 
 IO_LIBS = \
 	$(IO_DEPS) \
