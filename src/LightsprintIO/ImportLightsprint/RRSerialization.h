@@ -32,6 +32,8 @@ namespace serialization {
 //#define make_array_or_binary(a,s) make_array(a,s)
 #define make_array_or_binary(a,s) make_binary_object(a,(s)*sizeof(*(a)))
 
+static void freeProxies();
+    
 //------------------------------ RRVec2 -------------------------------------
 
 template<class Archive>
@@ -512,8 +514,7 @@ void serialize(Archive & ar, rr::RRMaterials& a, const unsigned int version)
 	serialize(ar,aa,version);
 	// must be called after load. there's nothing to free after save
 	// we do it here because we know that RRMaterials are serialized at the end of file
-	RRBufferProxy::freeMemory();
-	RRMeshProxy::freeMemory();
+	freeProxies();
 }
 
 //------------------------------ RRLight ------------------------------------
@@ -799,15 +800,15 @@ void serialize(Archive & ar, rr::RRObjects& a, const unsigned int version)
 template<class Archive>
 void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
 {
-	RRVec3 position = a.getPosition();
-	RRVec3 yawPitchRollRad = a.getYawPitchRollRad();
+    rr::RRVec3 position = a.getPosition();
+    rr::RRVec3 yawPitchRollRad = a.getYawPitchRollRad();
 	bool orthogonal = a.isOrthogonal();
 	float aspect = a.getAspect();
 	float fieldOfViewVerticalDeg = a.getFieldOfViewVerticalDeg();
 	float anear = a.getNear();
 	float afar = a.getFar();
 	float orthoSize = a.getOrthoSize();
-	RRVec2 screenCenter = a.getScreenCenter();
+    rr::RRVec2 screenCenter = a.getScreenCenter();
 
 	ar & make_nvp("position",position);
 	ar & make_nvp("yawPitchRollRad",yawPitchRollRad);
@@ -827,15 +828,15 @@ void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
 template<class Archive>
 void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 {
-	RRVec3 position;
-	RRVec3 yawPitchRollRad;
+    rr::RRVec3 position;
+    rr::RRVec3 yawPitchRollRad;
 	bool orthogonal;
 	float aspect;
 	float fieldOfViewVerticalDeg;
 	float anear;
 	float afar;
 	float orthoSize;
-	RRVec2 screenCenter;
+    rr::RRVec2 screenCenter;
 
 	ar & make_nvp("position",position);
 	ar & make_nvp("yawPitchRollRad",yawPitchRollRad);
@@ -949,10 +950,15 @@ void serialize(Archive & ar, rr::RRScene& a, const unsigned int version)
 	}
 	// must be called after load. there's nothing to free after save
 	// we do it here because we know that RRScene is serialized at the end of file
+	freeProxies();
+}
+
+static void freeProxies()
+{
 	RRBufferProxy::freeMemory();
 	RRMeshProxy::freeMemory();
 }
-
+    
 //---------------------------------------------------------------------------
 
 } // namespace
