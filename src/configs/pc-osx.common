@@ -23,7 +23,11 @@ GL_DEPS = \
 	-framework CoreFoundation \
 	-framework ApplicationServices \
 	-lGLEW \
-	-lwx_osx_cocoau-2.9 \
+	-lwx_baseu-2.9 \
+	-lwx_osx_cocoau_core-2.9 \
+	-lwx_osx_cocoau_adv-2.9 \
+	-lwx_osx_cocoau_propgrid-2.9 \
+	-lwx_osx_cocoau_aui-2.9 \
 	-lwx_osx_cocoau_gl-2.9 \
 	-lboost_serialization-mt \
 	-lboost_iostreams-mt
