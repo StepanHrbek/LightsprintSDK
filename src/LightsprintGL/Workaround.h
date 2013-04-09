@@ -25,6 +25,7 @@ public:
 	static bool needsDDI4x4();
 	static bool needsHardPointShadows();
 	static unsigned needsReducedQualityPenumbra(unsigned SHADOW_MAPS);
+    static bool needsNoLods();
 
 	// is feature supported?
 	static bool supportsDepthClamp();

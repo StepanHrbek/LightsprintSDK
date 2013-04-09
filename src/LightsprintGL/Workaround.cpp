@@ -126,6 +126,11 @@ unsigned Workaround::needsReducedQualityPenumbra(unsigned SHADOW_MAPS)
 	return SHADOW_MAPS;
 }
 
+bool Workaround::needsNoLods()
+{
+    return !true;
+}
+
 bool Workaround::supportsDepthClamp()
 {
 	// if true, volume of detailed shadows is reduced in near/far direction,

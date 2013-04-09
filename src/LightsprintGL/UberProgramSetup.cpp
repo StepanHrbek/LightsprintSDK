@@ -175,7 +175,7 @@ const char* UberProgramSetup::getSetupString()
 	sprintf(specularModel,"#define MATERIAL_SPECULAR_MODEL %d\n",(int)MATERIAL_SPECULAR_MODEL);
 
 	static char setup[2000]; // at the time of writing this comment, theoretical max string length is around 1782
-	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		comment?comment:"",
 		SHADOW_MAPS?shadowMaps:"",
 		SHADOW_SAMPLES?shadowSamples:"",
@@ -237,7 +237,8 @@ const char* UberProgramSetup::getSetupString()
 		CLIP_PLANE_YB?"#define CLIP_PLANE_YB\n":"",
 		CLIP_PLANE_ZA?"#define CLIP_PLANE_ZA\n":"",
 		CLIP_PLANE_ZB?"#define CLIP_PLANE_ZB\n":"",
-		FORCE_2D_POSITION?"#define FORCE_2D_POSITION\n":""
+		FORCE_2D_POSITION?"#define FORCE_2D_POSITION\n":"",
+		Workaround::needsNoLods()?"#define WORKAROUND_NO_LODS\n":""
 		);
 	return setup;
 }
@@ -876,7 +877,7 @@ void UberProgramSetup::useIlluminationEnvMap(Program* program, const rr::RRBuffe
 		}
 		program->sendTexture("lightIndirectEnvMap",getTexture(reflectionEnvMap,true,false),TEX_CODE_CUBE_LIGHT_INDIRECT);
 	}
-	if ((LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE) || (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR))
+	if (((LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE) || (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR)) && !Workaround::needsNoLods())
 	{
 		unsigned w = reflectionEnvMap->getWidth();
 		unsigned numLevels = 1;

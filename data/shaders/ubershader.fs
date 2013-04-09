@@ -65,6 +65,11 @@
 
 #define sqr(a) ((a)*(a))
 
+#ifdef WORKAROUND_NO_LODS
+	#define texture2DLod(a,b,c) texture2D(a,b)
+	#define textureCubeLod(a,b,c) textureCube(a,b)
+#endif
+
 #if defined(SHADOW_MAPS)
 #if SHADOW_MAPS>0
 	varying vec4 shadowCoord0;
