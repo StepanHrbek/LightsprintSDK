@@ -17,7 +17,7 @@
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDynamicSolver.h"
 
-#if _MSC_VER==1600
+#if !defined(_WIN32) || _MSC_VER==1600
 //#define CUSTOMIZED_FOR_3DRENDER
 #endif
 

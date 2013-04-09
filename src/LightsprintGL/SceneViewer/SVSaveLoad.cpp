@@ -14,6 +14,7 @@
 
 #include "SVApp.h"
 #include "wx/wx.h"
+#include "wx/stdpaths.h" // wxStandardPaths
 #include <cstdio>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_free.hpp>
@@ -208,25 +209,7 @@ unsigned ImportParameters::getUpAxis(const wxString& filename) const
 
 static wxString suggestPreferencesDirectory()
 {
-#ifdef _WIN32
-		#define APPDATA_SUBDIR "\\Lightsprint"
-		// Vista, 7
-		const wchar_t* appdata = _wgetenv(L"LOCALAPPDATA");
-		if (appdata)
-			return wxString(appdata) + APPDATA_SUBDIR;
-		// XP
-		const wchar_t* user = _wgetenv(L"USERPROFILE");
-		if (user)
-			return wxString(user) + "\\Local Settings\\Application Data" + APPDATA_SUBDIR;
-		// unknown
-		return APPDATA_SUBDIR;
-#else
-	// theoretically $HOME can be wrong, NSHomeDirectory() in OSX would be better
-	const char* user = getenv("HOME");
-	if (user)
-		return wxString(user) + "/.Lightsprint";
-	return ".Lightsprint";
-#endif
+    return wxStandardPaths::Get().GetUserDataDir()+"/Lightsprint";
 }
 
 static wxString suggestPreferencesFilename()
