@@ -2,12 +2,11 @@ OS = OSX
 BITS = 64
 
 CPP_FLAGS += -I/opt/local/include
-CPP_FLAGS += -I/opt/local/include/wx-devel/wx-2.9
-CPP_FLAGS += -I/opt/local/lib/wx-devel/wx/include/osx_cocoa-unicode-2.9
+CPP_FLAGS += -I/opt/local/include/wx-2.9
+CPP_FLAGS += -I/opt/local/lib/wx/include/osx_cocoa-unicode-2.9
 CPP_FLAGS += -D__WXOSX_COCOA__
 
 LINK_FLAGS += -L/opt/local/lib
-LINK_FLAGS += -L/opt/local/lib/wx-devel
 
 CORE_DEPS = \
 	-lstdc++ \
