@@ -72,8 +72,15 @@ void serialize(Archive & ar, rr_gl::UserPreferences::WindowLayout& a, const unsi
 	SERIALIZE_WXSTRING("perspective",a.perspective,version>0);
 }
 
+enum LegacyStereoMode
+{
+	LSM_INTERLACED  =0, // top scanline is visible by right eye, correct at least for LG D2342P-PN
+	LSM_SIDE_BY_SIDE=1, // left hals is left eye
+	LSM_TOP_DOWN    =2, // top half is left eye
+};
+
 template<class Archive>
-void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int version)
+void	 serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int version)
 {
 	if (version>7)
 	{
@@ -86,12 +93,6 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 	else
 	if (version>13)
 	{
-		enum LegacyStereoMode
-		{
-			LSM_INTERLACED  =0, // top scanline is visible by right eye, correct at least for LG D2342P-PN
-			LSM_SIDE_BY_SIDE=1, // left hals is left eye
-			LSM_TOP_DOWN    =2, // top half is left eye
-		};
 		LegacyStereoMode legacyStereoMode;
 		bool legacyStereoSwap;
 		ar & make_nvp("stereoMode",legacyStereoMode);
