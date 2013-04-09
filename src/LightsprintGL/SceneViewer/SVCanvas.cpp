@@ -205,6 +205,8 @@ public:
 #endif
 #endif // SUPPORT_GL_ES
 	}
+#ifdef SUPPORT_GL_ES
+#ifdef _WIN32
 	static void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, GLvoid* userParam)
 	{
 		rr::RRReporter::report(
@@ -216,6 +218,8 @@ public:
 			int i=1;
 		}
 	}
+#endif
+#endif // SUPPORT_GL_ES
 };
 
 
