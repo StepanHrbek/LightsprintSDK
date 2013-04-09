@@ -20,6 +20,7 @@ static bool        s_isQuadro = false;
 static bool        s_isRadeon = false;
 static bool        s_isFire = false;
 static unsigned    s_modelNumber = 0;
+static bool        s_supportsLods = true;
 
 #include <string.h>
 
@@ -52,6 +53,19 @@ static void init()
 				s_modelNumber = (s_renderer[i+1]-'0')*100 + (s_renderer[i+2]-'0')*10 + (s_renderer[i+3]-'0');
 				break;
 			}
+
+		// try to compile texture2DLod()
+		const GLchar* source[] = {"uniform samplerCube map; void main() { gl_FragColor = textureCubeLod(map,vec3(1.0,1.0,1.0),2.0); }\n",NULL};
+		GLuint handle = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(handle, 1, source, NULL);
+		glCompileShader(handle);
+		GLint compiled;
+		glGetShaderiv(handle, GL_COMPILE_STATUS, &compiled);
+		if (!compiled)
+		{
+			s_supportsLods = compiled;
+			rr::RRReporter::report(rr::WARN,"textureCubeLod() not available.\n");
+		}
 	}
 }
 
@@ -128,7 +142,7 @@ unsigned Workaround::needsReducedQualityPenumbra(unsigned SHADOW_MAPS)
 
 bool Workaround::needsNoLods()
 {
-    return !true;
+	return !s_supportsLods;
 }
 
 bool Workaround::supportsDepthClamp()
