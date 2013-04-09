@@ -204,6 +204,17 @@ rr::RRBuffer* onlyCube(rr::RRBuffer* buffer)
 
 extern float getMipLevel(const rr::RRMaterial* material);
 
+#ifdef MIRRORS
+// here we map planes to mirrors, so that two objects with the same plane share mirror
+struct PlaneCompare // comparing RRVec4 looks strange, so we do it here rather than in public RRVec4 operator<
+{
+	bool operator()(const rr::RRVec4& a, const rr::RRVec4& b) const
+	{
+		return a.x<b.x || (a.x==b.x && (a.y<b.y || (a.y==b.y && (a.z<b.z || (a.z==b.z && a.w<b.w)))));
+	}
+};
+#endif
+
 void RendererOfSceneImpl::render(
 		rr::RRDynamicSolver* _solver,
 		const UberProgramSetup& _uberProgramSetup,
@@ -319,13 +330,6 @@ void RendererOfSceneImpl::render(
 	GLint viewport[4];
 	glGetIntegerv(GL_VIEWPORT,viewport);
 	// here we map planes to mirrors, so that two objects with the same plane share mirror
-	struct PlaneCompare // comparing RRVec4 looks strange, so we do it in private PlaneCompare rather than in public RRVec4 operator<
-	{
-		bool operator()(const rr::RRVec4& a, const rr::RRVec4& b) const
-		{
-			return a.x<b.x || (a.x==b.x && (a.y<b.y || (a.y==b.y && (a.z<b.z || (a.z==b.z && a.w<b.w)))));
-		}
-	};
 	typedef std::map<rr::RRVec4,rr::RRBuffer*,PlaneCompare> Mirrors;
 	Mirrors mirrors;
 #endif
