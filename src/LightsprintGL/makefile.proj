@@ -57,15 +57,17 @@ SceneViewer/SVStub.cpp
 
 ifeq ($(OS),OSX)
 SOURCES += \
+SceneViewer/SVAnimationProperties.cpp \
 SceneViewer/SVApp.cpp \
 SceneViewer/SVCanvas.cpp \
+SceneViewer/SVComment.cpp \
 SceneViewer/SVCustomProperties.cpp \
 SceneViewer/SVDialogs.cpp \
 SceneViewer/SVEntityIcons.cpp \
 SceneViewer/SVFrame.cpp \
 SceneViewer/SVGIProperties.cpp \
-SceneViewer/SVLightProperties.cpp \
 SceneViewer/SVLightmapViewer.cpp \
+SceneViewer/SVLightProperties.cpp \
 SceneViewer/SVLog.cpp \
 SceneViewer/SVMaterialProperties.cpp \
 SceneViewer/SVObjectProperties.cpp \
@@ -73,6 +75,7 @@ SceneViewer/SVRayLog.cpp \
 SceneViewer/SVSaveLoad.cpp \
 SceneViewer/SVSceneProperties.cpp \
 SceneViewer/SVSceneTree.cpp \
+SceneViewer/SVThumbnailCtrl.cpp \
 SceneViewer/SVUserProperties.cpp
 endif
 
