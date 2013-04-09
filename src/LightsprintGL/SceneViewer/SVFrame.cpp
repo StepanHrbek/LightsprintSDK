@@ -732,8 +732,10 @@ void SVFrame::UpdateMenuBar()
 		winMenu->Check(ME_WINDOW_LAYOUT1+userPreferences.currentWindowLayout,true);
 		winMenu->AppendSeparator();
 		winMenu->AppendCheckItem(ME_WINDOW_RESIZE,_("Set viewport size"),_("Lets you set exact viewport size in pixels."));
+#ifdef _WIN32
 		winMenu->AppendSeparator();
 		winMenu->Append(ME_WINDOW_SMALLLUXGPU,"SmallLuxGPU",_("Open scene in SmallLuxGPU, GPU accelerated pathtracer. It can be configured via data/scenes/SmallLuxGpu/scene.cfg"));
+#endif
 		menuBar->Append(winMenu, _("Windows"));
 	}
 
@@ -1473,6 +1475,7 @@ reload_skybox:
 				}
 			}
 			break;
+#ifdef _WIN32
 		case ME_WINDOW_SMALLLUXGPU:
 			{
 				if (!svs.srgbCorrect)
@@ -1487,7 +1490,8 @@ reload_skybox:
 #endif
 			}
 			break;
-
+#endif
+            
 
 		//////////////////////////////// HELP ///////////////////////////////
 

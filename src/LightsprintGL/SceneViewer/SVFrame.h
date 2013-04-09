@@ -143,8 +143,10 @@ namespace rr_gl
 			ME_WINDOW_LAYOUT2,
 			ME_WINDOW_LAYOUT3,
 			ME_WINDOW_RESIZE,
+#ifdef _WIN32
 			ME_WINDOW_SMALLLUXGPU,
-
+#endif
+            
 			ME_HELP,
 #ifdef _WIN32
 			ME_SDK_HELP,
