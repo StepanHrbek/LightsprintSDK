@@ -674,7 +674,6 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 		FreeImage_Unload(dib);
 	}
 
-ende:
 	return result;
 }
 
