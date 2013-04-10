@@ -146,7 +146,7 @@ namespace rr_gl
 #ifdef _WIN32
 			ME_WINDOW_SMALLLUXGPU,
 #endif
-            
+
 			ME_HELP,
 #ifdef _WIN32
 			ME_SDK_HELP,

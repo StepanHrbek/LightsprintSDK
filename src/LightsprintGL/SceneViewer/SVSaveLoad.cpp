@@ -89,7 +89,7 @@ enum LegacyStereoMode
 };
 
 template<class Archive>
-void	 serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int version)
+void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int version)
 {
 	if (version>7)
 	{
@@ -209,7 +209,7 @@ unsigned ImportParameters::getUpAxis(const wxString& filename) const
 
 static wxString suggestPreferencesDirectory()
 {
-    return wxStandardPaths::Get().GetUserDataDir()+"/Lightsprint";
+	return wxStandardPaths::Get().GetUserDataDir()+"/Lightsprint";
 }
 
 static wxString suggestPreferencesFilename()

@@ -33,7 +33,7 @@ namespace serialization {
 #define make_array_or_binary(a,s) make_binary_object(a,(s)*sizeof(*(a)))
 
 static void freeProxies();
-    
+
 //------------------------------ RRVec2 -------------------------------------
 
 template<class Archive>
@@ -806,15 +806,15 @@ void serialize(Archive & ar, rr::RRObjects& a, const unsigned int version)
 template<class Archive>
 void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
 {
-    rr::RRVec3 position = a.getPosition();
-    rr::RRVec3 yawPitchRollRad = a.getYawPitchRollRad();
+	rr::RRVec3 position = a.getPosition();
+	rr::RRVec3 yawPitchRollRad = a.getYawPitchRollRad();
 	bool orthogonal = a.isOrthogonal();
 	float aspect = a.getAspect();
 	float fieldOfViewVerticalDeg = a.getFieldOfViewVerticalDeg();
 	float anear = a.getNear();
 	float afar = a.getFar();
 	float orthoSize = a.getOrthoSize();
-    rr::RRVec2 screenCenter = a.getScreenCenter();
+	rr::RRVec2 screenCenter = a.getScreenCenter();
 
 	ar & make_nvp("position",position);
 	ar & make_nvp("yawPitchRollRad",yawPitchRollRad);
@@ -834,15 +834,15 @@ void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
 template<class Archive>
 void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 {
-    rr::RRVec3 position;
-    rr::RRVec3 yawPitchRollRad;
+	rr::RRVec3 position;
+	rr::RRVec3 yawPitchRollRad;
 	bool orthogonal;
 	float aspect;
 	float fieldOfViewVerticalDeg;
 	float anear;
 	float afar;
 	float orthoSize;
-    rr::RRVec2 screenCenter;
+	rr::RRVec2 screenCenter;
 
 	ar & make_nvp("position",position);
 	ar & make_nvp("yawPitchRollRad",yawPitchRollRad);
@@ -964,7 +964,7 @@ static void freeProxies()
 	RRBufferProxy::freeMemory();
 	RRMeshProxy::freeMemory();
 }
-    
+
 //---------------------------------------------------------------------------
 
 } // namespace
