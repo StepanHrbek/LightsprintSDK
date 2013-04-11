@@ -487,7 +487,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 #if defined(_WIN32) && _MSC_VER>=1400 && defined(NDEBUG)
 	rr::RRTime splashStart;
-	AlphaSplashScreen splash(wxString::Format("%s../maps/sv_splash.png",svs.pathToShaders),230,-245);
+	AlphaSplashScreen splash(wxString::Format("%ssv_splash.png",svs.pathToMaps),230,-245);
 #endif
 
 	// load preferences (must be done very early)
@@ -554,7 +554,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	rr::RRReporter::setFilter(true,userPreferences.testingLogMore?3:2,true);
 
 	textureLocator = rr::RRFileLocator::create();
-	textureLocator->setAttempt(rr::RRFileLocator::ATTEMPT_STUB,RR_WX2RR(wxString::Format("%s../maps/sv_missing.png",svs.pathToShaders)));
+	textureLocator->setAttempt(rr::RRFileLocator::ATTEMPT_STUB,RR_WX2RR(wxString::Format("%ssv_missing.png",svs.pathToMaps)));
 
 	m_mgr.SetManagedWindow(this);
 
@@ -918,6 +918,20 @@ void SVFrame::OnMenuEvent(wxCommandEvent& event)
 	OnMenuEventCore(event.GetId());
 }
 
+wxString convertSlashes(wxString path)
+{
+	// wxLaunchDefaultApplication (and underlying ShellExecute) have strange behaviour
+	// foo/bar/baz.chm fails in windows with error code file not found
+	// foo/bar\\baz.chm and foo\\bar\\baz.chm work
+	// workaround: calling this function on wxLaunchDefaultApplication arguments
+#ifdef _WIN32
+	path.Replace('/','\\');
+#else
+	path.Replace('\\','/');
+#endif
+	return path;
+}
+
 void SVFrame::OnMenuEventCore(unsigned eventCode)
 {
 #ifdef _WIN32
@@ -1229,18 +1243,18 @@ save_scene_as:
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////
 
 		case ME_ENV_WHITE:
-			svs.skyboxFilename = wxString::Format("%s../maps/skybox/white.png",svs.pathToShaders);
+			svs.skyboxFilename = wxString::Format("%sskybox/white.png",svs.pathToMaps);
 			goto reload_skybox;
 		case ME_ENV_BLACK:
-			svs.skyboxFilename = wxString::Format("%s../maps/skybox/black.png",svs.pathToShaders);
+			svs.skyboxFilename = wxString::Format("%sskybox/black.png",svs.pathToMaps);
 			goto reload_skybox;
 		case ME_ENV_WHITE_TOP:
-			svs.skyboxFilename = wxString::Format("%s../maps/skybox/white_top.png",svs.pathToShaders);
+			svs.skyboxFilename = wxString::Format("%sskybox/white_top.png",svs.pathToMaps);
 			goto reload_skybox;
 		case ME_ENV_OPEN:
 			{
 				wxFileDialog dialog(this,_("Choose a skybox image"),"","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-				dialog.SetPath(svs.skyboxFilename.IsEmpty()?wxString::Format("%s../maps/skybox/",svs.pathToShaders):svs.skyboxFilename);
+				dialog.SetPath(svs.skyboxFilename.IsEmpty()?wxString::Format("%sskybox/",svs.pathToMaps):svs.skyboxFilename);
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 
@@ -1496,12 +1510,11 @@ reload_skybox:
 		//////////////////////////////// HELP ///////////////////////////////
 
 		case ME_HELP: svs.renderHelp = !svs.renderHelp; break;
-#ifdef _WIN32
 		case ME_SDK_HELP:
-			ShellExecuteA(NULL,"open",wxString::Format("%s..\\..\\doc\\Lightsprint.chm",svs.pathToShaders),NULL,NULL,SW_SHOWNORMAL);
+			wxLaunchDefaultApplication(convertSlashes(svs.pathToData+"../doc/Lightsprint.chm"));
 			break;
 		case ME_SUPPORT:
-			ShellExecuteA(NULL,"open",wxString::Format("mailto:support@lightsprint.com?Subject=Bug in build %s %s%d %d",__DATE__,
+			wxLaunchDefaultApplication(wxString::Format("mailto:support@lightsprint.com?Subject=Bug in build %s %s%d %d",__DATE__,
 				"win",
 	#if defined(_M_X64) || defined(_LP64)
 				64,
@@ -1513,12 +1526,11 @@ reload_skybox:
 	#else
 				0
 	#endif
-				),NULL,NULL,SW_SHOWNORMAL);
+				));
 			break;
 		case ME_LIGHTSPRINT:
-			ShellExecuteA(NULL,"open","http://lightsprint.com",NULL,NULL,SW_SHOWNORMAL);
+			wxLaunchDefaultBrowser("http://lightsprint.com");
 			break;
-#endif // _WIN32
 		case ME_CHECK_SOLVER:
 			solver->checkConsistency();
 			break;
@@ -1531,7 +1543,7 @@ reload_skybox:
 #ifdef __WXMAC__
 				wxIcon* icon = NULL; // icon asserts in wx 2.9.1 @ OSX 10.6
 #else
-				wxIcon* icon = loadIcon(wxString::Format("%s../maps/sv_logo.png",svs.pathToShaders));
+				wxIcon* icon = loadIcon(wxString::Format("%ssv_logo.png",svs.pathToMaps));
 #endif
 				wxAboutDialogInfo info;
 				if (icon) info.SetIcon(*icon);

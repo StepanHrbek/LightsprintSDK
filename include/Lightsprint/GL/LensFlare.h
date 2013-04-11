@@ -28,13 +28,10 @@ namespace rr_gl
 class RR_GL_API LensFlare
 {
 public:
-	//! \param pathToShaders
-	//!  Path to directory with shaders.
-	//!  Must be terminated with slash (or be empty for current dir).
-	//!  Lens flare textures are loaded from (pathToShaders)../maps/(prefix)flare_*.png.
-	//! \param prefix
-	//!  Optional prefix in lens flare texture filenames.
-	LensFlare(const char* pathToShaders, const char* prefix=NULL);
+	//! \param pathToMaps
+	//!  Path to directory with maps.
+	//!  Lens flare textures are loaded from (pathToMaps)flare_*.png.
+	LensFlare(const char* pathToMaps);
 	~LensFlare();
 
 	//! Renders lens flares for single light source.

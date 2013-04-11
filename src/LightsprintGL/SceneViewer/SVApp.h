@@ -33,8 +33,12 @@ struct SceneViewerStateEx : public SceneViewerState
 {
 	//! Initial scene to be displayed, never deleted, never NULLed even when no longer displayed (because solver->aborting is still used).
 	rr::RRDynamicSolver* initialInputSolver;
-	//! Initial and never changing path to shaders, never freed.
-	const char* pathToShaders;
+	//! Path to data necessary for scene viewer.
+	wxString pathToData;
+	//! pathToData+"shaders/"
+	char* pathToShaders;
+	//! pathToData+"maps/"
+	char* pathToMaps;
 	//! Current scene filename, e.g. path/scene.dae.
 	wxString sceneFilename;
 	//! Current skybox filename, e.g. skybox.hdr or skybox_ft.tga.
@@ -48,6 +52,7 @@ struct SceneViewerStateEx : public SceneViewerState
 	{
 		initialInputSolver = NULL;
 		pathToShaders = NULL;
+		pathToMaps = NULL;
 		skyboxRotationRad = 0;
 		releaseResources = true;
 	}

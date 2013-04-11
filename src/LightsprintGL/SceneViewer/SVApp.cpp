@@ -82,7 +82,7 @@ static wxAppConsole *wxCreateApp()
 	return new SVApp;
 }
 
-void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, const char* _skyboxFilename, const char* _pathToShaders, SceneViewerState* _svs, bool _releaseResources)
+void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, const char* _skyboxFilename, const char* _pathToData, SceneViewerState* _svs, bool _releaseResources)
 {
 	// randomize all rand()s
 	srand (time(NULL));
@@ -102,13 +102,18 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, 
 		s_svs.skyboxFilename = _skyboxFilename;
 	}
 	s_svs.initialInputSolver = _inputSolver;
-	s_svs.pathToShaders = _pathToShaders;
+	s_svs.pathToData = _pathToData;
+	s_svs.pathToShaders = _strdup(s_svs.pathToData+"shaders/");
+	s_svs.pathToMaps = _strdup(s_svs.pathToData+"maps/");
 	s_svs.releaseResources = _releaseResources;
 
 	wxApp::SetInitializerFunction(wxCreateApp);
 	int argc = 0;
 	char** argv = NULL;
 	wxEntry(argc,argv);
+
+	RR_SAFE_FREE(s_svs.pathToShaders);
+	RR_SAFE_FREE(s_svs.pathToMaps);
 }
  
 }; // namespace

@@ -43,6 +43,8 @@ CHANGES
   \n please add the same parameter to your own implementations, if any
 - allocateBuffersForRealtimeGI() 5th parameter added
   \n please check all places where you pass 5 or more parameters and insert 5th one
+- rr_gl::sceneViewer() 4th parameter changed, remove "shaders/" from the end of string
+- rr_gl::LensFlare() parameter changed, change "shaders/" at the end of string to "maps/"
 - RR_RR2STREAM and RR_WX2STREAM macros removed, no longer needed when using <boost/filesystem/fstream.hpp> instead of <fstream>
 
 \section news136 ------------------------------------ 2012.12.21 -------------------------------------

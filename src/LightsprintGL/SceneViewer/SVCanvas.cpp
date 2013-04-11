@@ -345,7 +345,7 @@ void SVCanvas::createContextCore()
 	lightFieldQuadric = gluNewQuadric();
 	lightFieldObjectIllumination = new rr::RRObjectIllumination;
 	lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
-	entityIcons = new SVEntityIcons(wxString::Format("%s../maps/",svs.pathToShaders),solver->getUberProgram());
+	entityIcons = new SVEntityIcons(svs.pathToMaps,solver->getUberProgram());
 	recalculateIconSizeAndPosition();
 
 #if defined(_WIN32)
@@ -1771,7 +1771,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				lensFlareLoadAttempted = true;
 				RR_ASSERT(!lensFlare);
-				lensFlare = new LensFlare(svs.pathToShaders);
+				lensFlare = new LensFlare(svs.pathToMaps);
 			}
 			if (lensFlare)
 			{
@@ -1825,7 +1825,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				vignetteLoadAttempted = true;
 				RR_ASSERT(!vignetteImage);
-				vignetteImage = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%s../maps/sv_vignette.png",svs.pathToShaders)));
+				vignetteImage = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_vignette.png",svs.pathToMaps)));
 			}
 			if (vignetteImage && textureRenderer)
 			{
@@ -1845,7 +1845,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				{
 					logoLoadAttempted = true;
 					RR_ASSERT(!logoImage);
-					logoImage = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%s../maps/sv_logo.png",svs.pathToShaders)));
+					logoImage = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_logo.png",svs.pathToMaps)));
 				}
 				if (logoImage)
 				{
@@ -2246,7 +2246,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		{
 			helpLoadAttempted = true;
 			RR_ASSERT(!helpImage);
-			helpImage = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%s../maps/sv_help.png",svs.pathToShaders)));
+			helpImage = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_help.png",svs.pathToMaps)));
 			if (!helpImage)
 			{
 				wxMessageBox("To LOOK, move mouse with left button pressed.\n"
@@ -2291,7 +2291,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		{
 			fpsLoadAttempted = true;
 			RR_ASSERT(!fpsDisplay);
-			fpsDisplay = FpsDisplay::create(wxString::Format("%s../maps/",svs.pathToShaders));
+			fpsDisplay = FpsDisplay::create(svs.pathToMaps);
 		}
 		if (fpsDisplay)
 		{

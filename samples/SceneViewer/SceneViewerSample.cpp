@@ -84,11 +84,11 @@ int main(int argc, char** argv)
 	rr_gl::SceneViewerState svs;
 #ifdef NDEBUG
 	// release returns quickly without freeing resources
-	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/shaders/",&svs,false);
+	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,false);
 	return 0;
 #endif
 	// debug frees everything and reports memory leaks
-	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/shaders/",&svs,true);
+	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,true);
 #else
 	// View scene _in memory_ in scene viewer.
 
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
 
 	// View solver in scene viewer
-	rr_gl::sceneViewer(solver,sceneFilename,NULL,"../../data/shaders/",NULL,true);
+	rr_gl::sceneViewer(solver,sceneFilename,NULL,"../../data/",NULL,true);
 
 	// Cleanup
 	delete solver->getEnvironment();

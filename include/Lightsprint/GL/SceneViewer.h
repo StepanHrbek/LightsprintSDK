@@ -355,8 +355,8 @@ struct SceneViewerState
 //! \param skyboxFilename
 //!  If RRBuffer::loadCube() loads this skybox successfully, it is used, overriding eventual environment from inputSolver.
 //!  Your string is not free()d.
-//! \param pathToShaders
-//!  Path to directory with shaders.
+//! \param pathToData
+//!  Path to directory with data, where subdirectories maps, shaders are expected.
 //!  Must be terminated with slash (or be empty for current dir).
 //!  Your string is not free()d.
 //! \param svs
@@ -365,7 +365,7 @@ struct SceneViewerState
 //!  Resources allocated by scene viewer will be released on exit.
 //!  It could take some time in huge scenes, so there's option to not release them, let them leak.
 //!  Not releasing resources is good idea e.g. if you plan to exit application soon.
-void RR_GL_API sceneViewer(rr::RRDynamicSolver* inputSolver, const char* inputFilename, const char* skyboxFilename, const char* pathToShaders, SceneViewerState* svs, bool releaseResources);
+void RR_GL_API sceneViewer(rr::RRDynamicSolver* inputSolver, const char* inputFilename, const char* skyboxFilename, const char* pathToData, SceneViewerState* svs, bool releaseResources);
 
 }; // namespace
 
