@@ -94,11 +94,11 @@ void SVEntities::addXYZ(rr::RRVec3 center, IconCode transformation, const rr::RR
 //
 // SVEntityIcons
 
-SVEntityIcons::SVEntityIcons(const char* pathToMaps, UberProgram* uberProgram)
+SVEntityIcons::SVEntityIcons(wxString pathToMaps, UberProgram* uberProgram)
 {
 	const char* filename[] = {"sv_point","sv_spot","sv_sun","sv_movement","sv_rotation","sv_scale","sv_static","sv_x","sv_y","sv_z"};
 	for (IconCode i=IC_POINT;i!=IC_LAST;i=(IconCode)(i+1))
-		icon[i] = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%s%s.png",pathToMaps,filename[i])));
+		icon[i] = rr::RRBuffer::load(RR_WX2RR(pathToMaps+filename[i]+".png"));
 
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;

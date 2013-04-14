@@ -104,7 +104,7 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, 
 	s_svs.initialInputSolver = _inputSolver;
 	s_svs.pathToData = _pathToData;
 	s_svs.pathToShaders = _strdup(s_svs.pathToData+"shaders/");
-	s_svs.pathToMaps = _strdup(s_svs.pathToData+"maps/");
+	s_svs.pathToMaps = s_svs.pathToData+"maps/";
 	s_svs.releaseResources = _releaseResources;
 
 	wxApp::SetInitializerFunction(wxCreateApp);
@@ -113,7 +113,6 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, 
 	wxEntry(argc,argv);
 
 	RR_SAFE_FREE(s_svs.pathToShaders);
-	RR_SAFE_FREE(s_svs.pathToMaps);
 }
  
 }; // namespace

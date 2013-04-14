@@ -487,7 +487,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 #if defined(_WIN32) && _MSC_VER>=1400 && defined(NDEBUG)
 	rr::RRTime splashStart;
-	AlphaSplashScreen splash(wxString::Format("%ssv_splash.png",svs.pathToMaps),230,-245);
+	AlphaSplashScreen splash(svs.pathToMaps+"sv_splash.png",230,-245);
 #endif
 
 	// load preferences (must be done very early)
@@ -554,7 +554,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	rr::RRReporter::setFilter(true,userPreferences.testingLogMore?3:2,true);
 
 	textureLocator = rr::RRFileLocator::create();
-	textureLocator->setAttempt(rr::RRFileLocator::ATTEMPT_STUB,RR_WX2RR(wxString::Format("%ssv_missing.png",svs.pathToMaps)));
+	textureLocator->setAttempt(rr::RRFileLocator::ATTEMPT_STUB,RR_WX2RR(svs.pathToMaps+"sv_missing.png"));
 
 	m_mgr.SetManagedWindow(this);
 
@@ -1243,18 +1243,18 @@ save_scene_as:
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////
 
 		case ME_ENV_WHITE:
-			svs.skyboxFilename = wxString::Format("%sskybox/white.png",svs.pathToMaps);
+			svs.skyboxFilename = svs.pathToMaps+"skybox/white.png";
 			goto reload_skybox;
 		case ME_ENV_BLACK:
-			svs.skyboxFilename = wxString::Format("%sskybox/black.png",svs.pathToMaps);
+			svs.skyboxFilename = svs.pathToMaps+"skybox/black.png";
 			goto reload_skybox;
 		case ME_ENV_WHITE_TOP:
-			svs.skyboxFilename = wxString::Format("%sskybox/white_top.png",svs.pathToMaps);
+			svs.skyboxFilename = svs.pathToMaps+"skybox/white_top.png";
 			goto reload_skybox;
 		case ME_ENV_OPEN:
 			{
 				wxFileDialog dialog(this,_("Choose a skybox image"),"","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-				dialog.SetPath(svs.skyboxFilename.IsEmpty()?wxString::Format("%sskybox/",svs.pathToMaps):svs.skyboxFilename);
+				dialog.SetPath(svs.skyboxFilename.IsEmpty()?svs.pathToMaps+"skybox/":svs.skyboxFilename);
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 
@@ -1543,7 +1543,7 @@ reload_skybox:
 #ifdef __WXMAC__
 				wxIcon* icon = NULL; // icon asserts in wx 2.9.1 @ OSX 10.6
 #else
-				wxIcon* icon = loadIcon(wxString::Format("%ssv_logo.png",svs.pathToMaps));
+				wxIcon* icon = loadIcon(svs.pathToMaps+"sv_logo.png");
 #endif
 				wxAboutDialogInfo info;
 				if (icon) info.SetIcon(*icon);

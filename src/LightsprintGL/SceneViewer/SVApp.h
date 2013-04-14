@@ -38,7 +38,7 @@ struct SceneViewerStateEx : public SceneViewerState
 	//! pathToData+"shaders/"
 	char* pathToShaders;
 	//! pathToData+"maps/"
-	char* pathToMaps;
+	wxString pathToMaps;
 	//! Current scene filename, e.g. path/scene.dae.
 	wxString sceneFilename;
 	//! Current skybox filename, e.g. skybox.hdr or skybox_ft.tga.
@@ -52,7 +52,6 @@ struct SceneViewerStateEx : public SceneViewerState
 	{
 		initialInputSolver = NULL;
 		pathToShaders = NULL;
-		pathToMaps = NULL;
 		skyboxRotationRad = 0;
 		releaseResources = true;
 	}

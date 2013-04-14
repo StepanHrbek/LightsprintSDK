@@ -1825,7 +1825,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				vignetteLoadAttempted = true;
 				RR_ASSERT(!vignetteImage);
-				vignetteImage = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_vignette.png",svs.pathToMaps)));
+				vignetteImage = rr::RRBuffer::load(RR_WX2RR(svs.pathToMaps+"sv_vignette.png"));
 			}
 			if (vignetteImage && textureRenderer)
 			{
@@ -1845,7 +1845,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				{
 					logoLoadAttempted = true;
 					RR_ASSERT(!logoImage);
-					logoImage = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_logo.png",svs.pathToMaps)));
+					logoImage = rr::RRBuffer::load(RR_WX2RR(svs.pathToMaps+"sv_logo.png"));
 				}
 				if (logoImage)
 				{
@@ -2246,7 +2246,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		{
 			helpLoadAttempted = true;
 			RR_ASSERT(!helpImage);
-			helpImage = rr::RRBuffer::load(RR_WX2RR(wxString::Format("%ssv_help.png",svs.pathToMaps)));
+			helpImage = rr::RRBuffer::load(RR_WX2RR(svs.pathToMaps+"sv_help.png"));
 			if (!helpImage)
 			{
 				wxMessageBox("To LOOK, move mouse with left button pressed.\n"
