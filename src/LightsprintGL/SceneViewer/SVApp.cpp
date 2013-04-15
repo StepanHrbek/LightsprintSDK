@@ -8,6 +8,10 @@
 #include "SVApp.h"
 #include "SVFrame.h"
 #include "SVObjectProperties.h"
+#ifdef __APPLE__
+	#include <boost/filesystem.hpp>
+	namespace bf = boost::filesystem;
+#endif
 
 namespace rr_gl
 {
@@ -65,12 +69,19 @@ void DateTime::addSeconds(double _seconds)
 
 // the only instance used by whole scene viewer
 static SceneViewerStateEx s_svs;
+#ifdef __APPLE__
+	static bf::path s_initPath;
+#endif
 
 class SVApp: public wxApp
 {
 public:
 	bool OnInit()
 	{
+#ifdef __APPLE__
+		// current dir is wrong here, fix it
+		bf::current_path(s_initPath);
+#endif
 		SVFrame::Create(s_svs);
 		return true;
 	}
@@ -79,6 +90,10 @@ public:
 static wxAppConsole *wxCreateApp()
 {
 	wxAppConsole::CheckBuildOptions(WX_BUILD_OPTIONS_SIGNATURE,"SceneViewer");
+#ifdef __APPLE__
+	// this is the last place with current dir still ok, remember it
+	s_initPath = bf::current_path();
+#endif
 	return new SVApp;
 }
 
