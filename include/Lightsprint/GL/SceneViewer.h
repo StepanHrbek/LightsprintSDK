@@ -18,7 +18,7 @@
 #include "Lightsprint/RRDynamicSolver.h"
 
 #if !defined(_WIN32) || _MSC_VER==1600
-//error : inserted by sunifdef: "#define CUSTOMIZED_FOR_3DRENDER" contradicts -U at R:\work2\.git-rewrite\t\include\Lightsprint\GL\SceneViewer.h~(21)
+//#define CUSTOMIZED_FOR_3DRENDER
 #endif
 
 #ifdef RR_GL_BUILD
