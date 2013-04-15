@@ -490,7 +490,10 @@ rr::RRObject* SVSceneTree::addMesh(rr::RRMesh* mesh, wxString name, bool inFront
 	fg.material = material;
 	object->faceGroups.push_back(fg);
 	if (inFrontOfCamera)
-		object->setWorldMatrix(&rr::RRMatrix3x4::translation(svs.eye.getPosition()+svs.eye.getDirection()*3-svs.eye.getUp()*0.5f));
+	{
+		rr::RRMatrix3x4 m = rr::RRMatrix3x4::translation(svs.eye.getPosition()+svs.eye.getDirection()*3-svs.eye.getUp()*0.5f);
+		object->setWorldMatrix(&m);
+	}
 	object->isDynamic = true;
 	object->name = RR_WX2RR(name);
 	object->updateIlluminationEnvMapCenter();
