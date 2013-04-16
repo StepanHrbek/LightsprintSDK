@@ -563,9 +563,9 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	// setup dock art (colors etc)
 	wxAuiDockArt* dockArt = new wxAuiDefaultDockArt;
 	//dockArt->SetMetric(wxAUI_DOCKART_SASH_SIZE,4);
-	wxColour sash = wxColour(190,190,190);//dockArt->GetColor(wxAUI_DOCKART_SASH_COLOUR);
-	dockArt->SetColor(wxAUI_DOCKART_SASH_COLOUR,sash);//wxColour(225,225,225));
-	//dockArt->SetColor(wxAUI_DOCKART_SASH_COLOUR,wxColour(60,60,60));
+	wxColour sash = wxColour(190,190,190);
+	dockArt->SetColor(wxAUI_DOCKART_SASH_COLOUR,sash);
+	SetBackgroundColour(sash); // sash gets this color in osx
 
 	//dockArt->SetMetric(wxAUI_DOCKART_GRIPPER_SIZE,0);
 	//dockArt->SetColor(wxAUI_DOCKART_GRIPPER_COLOUR,wxColour(0,0,0));
