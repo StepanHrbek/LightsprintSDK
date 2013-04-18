@@ -2,6 +2,7 @@ OS = OSX
 BITS = 64
 
 CPP_FLAGS += -I/opt/local/include
+CPP_FLAGS += -I/opt/local/include/freetype2
 CPP_FLAGS += -I/opt/local/include/wx-2.9
 CPP_FLAGS += -I/opt/local/lib/wx/include/osx_cocoa-unicode-2.9
 CPP_FLAGS += -D__WXOSX_COCOA__
@@ -30,7 +31,8 @@ GL_DEPS = \
 	-lwx_osx_cocoau_aui-2.9 \
 	-lwx_osx_cocoau_gl-2.9 \
 	-lboost_serialization-mt \
-	-lboost_iostreams-mt
+	-lboost_iostreams-mt \
+	-lftgl
 
 GL_LIBS = \
 	$(GL_DEPS) \

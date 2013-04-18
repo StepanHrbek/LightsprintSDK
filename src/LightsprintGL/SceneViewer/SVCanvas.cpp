@@ -63,10 +63,8 @@ namespace rr_gl
 static int s_attribList[] = {
 	WX_GL_RGBA,
 	WX_GL_DOUBLEBUFFER,
-	//WX_GL_SAMPLE_BUFFERS, GL_TRUE, // produces no visible improvement
-#ifndef __WXMAC__ // multisampling on MacMini would use software renderer
+	WX_GL_SAMPLE_BUFFERS, GL_TRUE, // makes no difference in Windows, is necessary in OSX for antialiasing
 	WX_GL_SAMPLES, 4, // antialiasing. can be later disabled by glDisable(GL_MULTISAMPLE), but it doesn't improve speed (tested on X1650). it must be disabled here (change 4 to 1) for higher fps
-#endif
 	WX_GL_DEPTH_SIZE, 24, // default is 16, explicit 24 should reduce z-fight. 32 fails on all cards tested including hd5870 and gf460 (falls back to default without antialiasing)
 	0, 0};
 
