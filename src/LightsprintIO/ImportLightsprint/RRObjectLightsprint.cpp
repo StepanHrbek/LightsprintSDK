@@ -179,6 +179,7 @@ public:
 				// version 1, unicode filename added
 				ar & boost::serialization::make_nvp("filename", oldReference);
 			}
+			fixPath(oldReference);
 			if (g_textureLocator)
 				g_textureLocator->setRelocation(true,oldReference,filename);
 			ar & boost::serialization::make_nvp("scene", *(RRScene*)scene);
@@ -405,6 +406,7 @@ static RRMaterials* loadMaterial(const RRString& filename, RRFileLocator* textur
 		g_textureLocator = textureLocator;
 		RRString oldReference;
 		ar & boost::serialization::make_nvp("filename", oldReference);
+		fixPath(oldReference);
 		if (g_textureLocator)
 			g_textureLocator->setRelocation(true,oldReference,filename);
 		ar & boost::serialization::make_nvp("materials",*materials);

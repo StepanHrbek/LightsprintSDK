@@ -25,6 +25,23 @@ namespace bf = boost::filesystem;
 // Global, don't serialize in multiple threads at the same time.
 rr::RRFileLocator* g_textureLocator = NULL;
 
+//------------------------- filename portability --------------------------------
+
+// to be called on deserialized paths
+// fixes Windows paths on non Windows platforms
+// other solution would be to save only generic paths, but we already have many datafiles saved with Windows native paths
+void fixPath(rr::RRString& filename)
+{
+#ifndef _WIN32
+	// Windows tends to accept both / and \, but other OSes expect /, let's convert \ to / on read
+	// we know that overwriting internals of our RRString is safe
+	char*    c = const_cast<char*   >(filename.c_str()); if (c) while(*c) {if (*c=='\\') *c='/'; c++;}
+	wchar_t* w = const_cast<wchar_t*>(filename.w_str()); if (w) while(*w) {if (*w=='\\') *w='/'; w++;}
+#endif
+}
+
+//--------------------------- serialization ----------------------------------
+
 namespace boost {
 namespace serialization {
 
@@ -277,12 +294,7 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 	}
 	else
 	{
-#ifndef _WIN32
-		// Windows tends to accept both / and \, but other OSes expect /, let's convert \ to / on read
-		// we know that overwriting internals of our RRString is safe
-		char*    c = const_cast<char*   >(filename.c_str()); while(*c) {if (*c=='\\') *c='/'; c++;}
-		wchar_t* w = const_cast<wchar_t*>(filename.w_str()); while(*w) {if (*w=='\\') *w='/'; w++;}
-#endif
+		fixPath(filename);
 		if (g_nextBufferIsCube)
 			a.buffer = rr::RRBuffer::loadCube(filename,g_textureLocator);
 		else

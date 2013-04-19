@@ -128,8 +128,8 @@ protected:
 		if (filename.empty())
 			return "";
 
-		bf::path relativeFilename = relative(filename,bf::path(oldReference).parent_path());
-		bf::path relocatedFilename = bf::absolute(relativeFilename,system_complete(bf::path(newReference).parent_path())).normalize();
+		bf::path relativeFilename = relative(filename,oldReference.parent_path());
+		bf::path relocatedFilename = bf::absolute(relativeFilename,system_complete(newReference.parent_path())).normalize();
 		return relocatedFilename;
 	}
 
