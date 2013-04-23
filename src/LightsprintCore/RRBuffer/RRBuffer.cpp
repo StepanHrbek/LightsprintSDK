@@ -1012,7 +1012,9 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 	}
 	else
 	{
-		return load_cached(_filename,_cubeSideName);
+		RRBuffer* result = load_cached(_filename,_cubeSideName);
+		RRReporter::report(INF3,"@%c %ls\n",result?'+':'-',_filename.w_str());
+		return result;
 	}
 }
 
