@@ -24,14 +24,10 @@ namespace bf = boost::filesystem;
 // Helper for relocating paths.
 // Must be set up before serialization.
 // Global, don't serialize in multiple threads at the same time.
-// Must be enclosed in struct.
-// (Not having struct in OSX leads to different includers seeing different variables,
-//  while we still see only one of them. So locating textures fails.)
-struct SerializationGlobals
-{
-	static rr::RRFileLocator* textureLocator;
-};
-rr::RRFileLocator* SerializationGlobals::textureLocator = NULL;
+// It is extern, with variable living in core. If we omit extern and let it live here,
+// OSX compiled libraries that include RRSerialization.h write to different variables,
+// while serialization reads from one variable, so some textures are not located.
+RR_API extern rr::RRFileLocator* g_textureLocator;
 
 //------------------------- filename portability --------------------------------
 
@@ -304,9 +300,9 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 	{
 		fixPath(filename);
 		if (g_nextBufferIsCube)
-			a.buffer = rr::RRBuffer::loadCube(filename,SerializationGlobals::textureLocator);
+			a.buffer = rr::RRBuffer::loadCube(filename,g_textureLocator);
 		else
-			a.buffer = rr::RRBuffer::load(filename,NULL,SerializationGlobals::textureLocator);
+			a.buffer = rr::RRBuffer::load(filename,NULL,g_textureLocator);
 	}
 }
 

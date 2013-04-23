@@ -165,7 +165,7 @@ public:
 #endif
 			RRSceneLightsprint* scene = new RRSceneLightsprint;
 
-			SerializationGlobals::textureLocator = textureLocator;
+			g_textureLocator = textureLocator;
 			RRString oldReference;
 			std::string filenameOrVersion;
 			ar & boost::serialization::make_nvp("filename", filenameOrVersion);
@@ -180,12 +180,12 @@ public:
 				ar & boost::serialization::make_nvp("filename", oldReference);
 			}
 			fixPath(oldReference);
-			if (SerializationGlobals::textureLocator)
-				SerializationGlobals::textureLocator->setRelocation(true,oldReference,filename);
+			if (g_textureLocator)
+				g_textureLocator->setRelocation(true,oldReference,filename);
 			ar & boost::serialization::make_nvp("scene", *(RRScene*)scene);
-			if (SerializationGlobals::textureLocator)
-				SerializationGlobals::textureLocator->setRelocation(false,oldReference,filename);
-			SerializationGlobals::textureLocator = NULL;
+			if (g_textureLocator)
+				g_textureLocator->setRelocation(false,oldReference,filename);
+			g_textureLocator = NULL;
 
 			// remember materials and meshes created by boost, so we can free them in destructor
 			// user is allowed to manipulate scene, add or remove parts, but we will still delete only what load() created
@@ -403,16 +403,16 @@ static RRMaterials* loadMaterial(const RRString& filename, RRFileLocator* textur
 		in.push(ifs);
 		portable_binary_iarchive ar(in);
 
-		SerializationGlobals::textureLocator = textureLocator;
+		g_textureLocator = textureLocator;
 		RRString oldReference;
 		ar & boost::serialization::make_nvp("filename", oldReference);
 		fixPath(oldReference);
-		if (SerializationGlobals::textureLocator)
-			SerializationGlobals::textureLocator->setRelocation(true,oldReference,filename);
+		if (g_textureLocator)
+			g_textureLocator->setRelocation(true,oldReference,filename);
 		ar & boost::serialization::make_nvp("materials",*materials);
-		if (SerializationGlobals::textureLocator)
-			SerializationGlobals::textureLocator->setRelocation(false,oldReference,filename);
-		SerializationGlobals::textureLocator = NULL;
+		if (g_textureLocator)
+			g_textureLocator->setRelocation(false,oldReference,filename);
+		g_textureLocator = NULL;
 
 		return materials;
 	}
