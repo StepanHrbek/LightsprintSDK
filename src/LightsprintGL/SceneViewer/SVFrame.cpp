@@ -551,7 +551,10 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	CreateStatusBar();
 	enableTooltips(userPreferences.tooltips);
 	rr_gl::Program::logMessages(userPreferences.testingLogShaders);
-	rr::RRReporter::setFilter(true,userPreferences.testingLogMore?3:2,true);
+	bool f1,f3;
+	unsigned f2;
+	rr::RRReporter::getFilter(f1,f2,f3);
+	rr::RRReporter::setFilter(true,userPreferences.testingLogMore?3:RR_MAX(f2,2),true);
 
 	textureLocator = rr::RRFileLocator::create();
 	textureLocator->setAttempt(rr::RRFileLocator::ATTEMPT_STUB,RR_WX2RR(svs.pathToMaps+"sv_missing.png"));
