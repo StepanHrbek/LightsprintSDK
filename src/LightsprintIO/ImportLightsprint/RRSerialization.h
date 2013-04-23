@@ -20,17 +20,25 @@
 #include <boost/filesystem.hpp> // is_complete
 
 namespace bf = boost::filesystem;
+
 // Helper for relocating paths.
 // Must be set up before serialization.
 // Global, don't serialize in multiple threads at the same time.
-rr::RRFileLocator* g_textureLocator = NULL;
+// Must be enclosed in struct.
+// (Not having struct in OSX leads to different includers seeing different variables,
+//  while we still see only one of them. So locating textures fails.)
+struct SerializationGlobals
+{
+	static rr::RRFileLocator* textureLocator;
+};
+rr::RRFileLocator* SerializationGlobals::textureLocator = NULL;
 
 //------------------------- filename portability --------------------------------
 
 // to be called on deserialized paths
 // fixes Windows paths on non Windows platforms
 // other solution would be to save only generic paths, but we already have many datafiles saved with Windows native paths
-void fixPath(rr::RRString& filename)
+static void fixPath(rr::RRString& filename)
 {
 #ifndef _WIN32
 	// Windows tends to accept both / and \, but other OSes expect /, let's convert \ to / on read
@@ -296,9 +304,9 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 	{
 		fixPath(filename);
 		if (g_nextBufferIsCube)
-			a.buffer = rr::RRBuffer::loadCube(filename,g_textureLocator);
+			a.buffer = rr::RRBuffer::loadCube(filename,SerializationGlobals::textureLocator);
 		else
-			a.buffer = rr::RRBuffer::load(filename,NULL,g_textureLocator);
+			a.buffer = rr::RRBuffer::load(filename,NULL,SerializationGlobals::textureLocator);
 	}
 }
 
