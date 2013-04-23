@@ -128,13 +128,23 @@ protected:
 		if (filename.empty())
 			return "";
 
+//		RRReporter::report(INF3," relocation:\n");
+//		RRReporter::report(INF3,"   oldRef=%s\n",oldReference.string().c_str());
+//		RRReporter::report(INF3,"   newRef=%s\n",newReference.string().c_str());
+//		RRReporter::report(INF3,"   filename          =%s\n",filename.string().c_str());
 		bf::path relativeFilename = relative(filename,oldReference.parent_path());
 		bf::path relocatedFilename = bf::absolute(relativeFilename,system_complete(newReference.parent_path())).normalize();
+//		RRReporter::report(INF3,"   relativeFilename  =%s\n",relativeFilename.string().c_str());
+//		RRReporter::report(INF3,"   step1             =%s\n",newReference.parent_path().string().c_str());
+//		RRReporter::report(INF3,"   step2             =%s\n",system_complete(newReference.parent_path()).string().c_str());
+//		RRReporter::report(INF3,"   relocatedFilename =%s\n",relocatedFilename.string().c_str());
 		return relocatedFilename;
 	}
 
 	static bf::path relative(bf::path file, bf::path base)
 	{
+//		RRReporter::report(INF3,"     file            =%s\n",file.string().c_str());
+//		RRReporter::report(INF3,"     base            =%s\n",base.string().c_str());
 		file = bf::system_complete(file).relative_path().normalize();
 		base = bf::system_complete(base).relative_path().normalize();
 		bf::path::const_iterator itBase = base.begin();
@@ -147,6 +157,9 @@ protected:
 		bf::path result;
 		for (;itBase!=base.end();++itBase)
 			result /= "..";
+//		RRReporter::report(INF3,"     file            =%s\n",file.string().c_str());
+//		RRReporter::report(INF3,"     base            =%s\n",base.string().c_str());
+//		RRReporter::report(INF3,"     mid.result      =%s\n",result.string().c_str());
 		for (;itFile!=file.end();++itFile)
 			result /= *itFile;
 		return result;
