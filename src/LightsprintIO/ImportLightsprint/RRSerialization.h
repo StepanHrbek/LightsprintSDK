@@ -18,7 +18,7 @@
 #include <boost/serialization/version.hpp>
 #include <boost/unordered_set.hpp>
 #include <boost/filesystem.hpp> // is_complete
-//#include <boost/locale.hpp> // boost::locale::normalize()
+#include <boost/locale.hpp> // boost::locale::normalize()
 
 namespace bf = boost::filesystem;
 
@@ -37,13 +37,34 @@ RR_API extern rr::RRFileLocator* g_textureLocator;
 // other solution would be to save only generic paths, but we already have many datafiles saved with Windows native paths
 static void fixPath(rr::RRString& filename)
 {
-#ifdef _WIN32
-#else
-	// Windows tends to accept both / and \, but other OSes expect /, let's convert \ to / on read
-	// we know that overwriting internals of our RRString is safe
-	char*    c = const_cast<char*   >(filename.c_str()); if (c) while(*c) {if (*c=='\\') *c='/'; c++;}
-	wchar_t* w = const_cast<wchar_t*>(filename.w_str()); if (w) while(*w) {if (*w=='\\') *w='/'; w++;}
-#endif
+	try
+	{
+		boost::locale::generator gen;
+		std::locale loc = gen(""); 
+
+		// convert to wstring
+		std::wstring wstr = RR_RR2STDW(filename);
+
+	#ifdef _WIN32
+		// convert unicode to form used by Windows paths
+		// Windows composes OSX filenames with NFC (OSX is said to use NFKC, but boost NFKC with "winapi" backend keeps filenames decomposed, is it error?)
+		std::wstring wstr2 = boost::locale::normalize(wstr,boost::locale::norm_nfc,loc);
+	#else
+		// convert unicode to form used by Windows paths
+		// OSX decomposes Windows filenames with NFD
+		std::wstring wstr2 = boost::locale::normalize(wstr,boost::locale::norm_nfd,loc);
+
+		// Windows tends to accept both / and \, but other OSes expect /, let's convert \ to / on read
+		std::replace(wstr2.begin(),wstr2.end(),'\\','/');
+	#endif
+
+		// convert from wstring
+		filename = RR_STDW2RR(wstr2);
+	}
+	catch(...)
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Unicode normalization failed, data compatibility between platforms not guaranteed.\n"));
+	}
 }
 
 //--------------------------- serialization ----------------------------------
