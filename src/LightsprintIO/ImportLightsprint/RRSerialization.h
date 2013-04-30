@@ -18,6 +18,7 @@
 #include <boost/serialization/version.hpp>
 #include <boost/unordered_set.hpp>
 #include <boost/filesystem.hpp> // is_complete
+//#include <boost/locale.hpp> // boost::locale::normalize()
 
 namespace bf = boost::filesystem;
 
@@ -36,7 +37,8 @@ RR_API extern rr::RRFileLocator* g_textureLocator;
 // other solution would be to save only generic paths, but we already have many datafiles saved with Windows native paths
 static void fixPath(rr::RRString& filename)
 {
-#ifndef _WIN32
+#ifdef _WIN32
+#else
 	// Windows tends to accept both / and \, but other OSes expect /, let's convert \ to / on read
 	// we know that overwriting internals of our RRString is safe
 	char*    c = const_cast<char*   >(filename.c_str()); if (c) while(*c) {if (*c=='\\') *c='/'; c++;}
