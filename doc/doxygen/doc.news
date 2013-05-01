@@ -46,6 +46,7 @@ CHANGES
 - rr_gl::sceneViewer() 4th parameter changed, remove "shaders/" from the end of string
 - rr_gl::LensFlare() parameter changed, change "shaders/" at the end of string to "maps/"
 - RR_RR2STREAM and RR_WX2STREAM macros removed, no longer needed when using <boost/filesystem/fstream.hpp> instead of <fstream>
+- RRDynamicSolver::FilteringParameters::spreadForegroundColor default changed from 0 to 1000
 
 \section news136 ------------------------------------ 2012.12.21 -------------------------------------
 

@@ -1005,7 +1005,7 @@ Material formats (1)
  \section building_linux Others
 
   Setting up third party libraries:
-  - OSX: <code>sudo port install boost freeimage glew wxWidgets-devel freeglut</code>
+  - OSX: <code>sudo port install boost -python27 freeglut freeimage glew wxWidgets-devel +aui -sdl</code>
   - Ubuntu: <code>sudo apt-get install g++ libboost-dev libboost-serialization-dev libboost-filesystem-dev libboost-iostreams-dev libglew-dev libfreeimage-dev freeglut3-dev</code>
   - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code> (no longer tested, may be incomplete)
 

@@ -580,7 +580,9 @@ namespace rr
 			//! Reasonable values are around 1. 0=off.
 			float smoothingAmount;
 			//! Distance in pixels, how deep foreground (used) colors spread into background (unused) regions.
-			//! It is necessary only when creating mipmaps from lightmaps.
+			//! Zero is theoretically ok for lightmapping with bilinear interpolation, GPU should never sample from unused pixels.
+			//! However, some GPU antialiasing modes read samples from unused regions anyway, so in order to hide this problem,
+			//! it's good to fill lightmap background with nearby foreground colors (which is done by default).
 			unsigned spreadForegroundColor;
 			//! Color of unused background pixels.
 			RRVec4 backgroundColor;
@@ -591,7 +593,7 @@ namespace rr
 			FilteringParameters()
 			{
 				smoothingAmount = 1;
-				spreadForegroundColor = 0;
+				spreadForegroundColor = 1000;
 				backgroundColor = RRVec4(0);
 				wrap = false;
 			}
