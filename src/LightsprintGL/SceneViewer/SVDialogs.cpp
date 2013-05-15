@@ -204,6 +204,9 @@ DeleteDlg::DeleteDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	animations = new wxCheckBox( this, wxID_ANY, _("animations"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer8->Add( animations, 0, wxALL, 5 );
 	
+	m_button9 = new wxButton( this, wxID_CANCEL, _("Cancel"), wxDefaultPosition, wxSize( 0,0 ), 0 );
+	bSizer8->Add( m_button9, 0, wxALL, 5 );
+	
 	
 	bSizer7->Add( bSizer8, 1, wxEXPAND, 5 );
 	
@@ -334,6 +337,9 @@ MappingDialog::MappingDialog( wxWindow* parent, wxWindowID id, const wxString& t
 	
 	destination = new wxSpinCtrl( this, wxID_ANY, wxT("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxSP_WRAP, 0, 7, 0 );
 	gSizer1->Add( destination, 0, wxALL, 5 );
+	
+	m_button10 = new wxButton( this, wxID_CANCEL, _("Cancel"), wxDefaultPosition, wxSize( 0,0 ), 0 );
+	gSizer1->Add( m_button10, 0, wxALL, 5 );
 	
 	
 	bSizer9->Add( gSizer1, 1, wxEXPAND, 5 );

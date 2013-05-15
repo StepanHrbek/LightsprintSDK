@@ -70,7 +70,7 @@ class SmoothDlg : public wxDialog
 		wxCheckBox* stitchVertices;
 		wxButton* m_button3;
 		
-		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,309 ), long style = wxCAPTION|wxCLOSE_BOX ); 
+		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,370 ), long style = wxCAPTION|wxCLOSE_BOX ); 
 		~SmoothDlg();
 	
 };
@@ -108,6 +108,7 @@ class DeleteDlg : public wxDialog
 	private:
 	
 	protected:
+		wxButton* m_button9;
 		wxButton* m_button7;
 	
 	public:
@@ -143,6 +144,7 @@ class MappingDialog : public wxDialog
 		wxStaticText* m_staticText14;
 		wxStaticText* m_staticText15;
 		wxStaticText* m_staticText16;
+		wxButton* m_button10;
 	
 	public:
 		wxRadioButton* radio_generate;
