@@ -93,7 +93,9 @@ public:
 	//! \param _clipPlanes
 	//!  Specifies clipping of rendered geometry, pass NULL for no clipping.
 	//! \param _srgbCorrect
-	//!  True = calculates illumination in slower but more accurate sRGB correct way. Has no effect on very old GPUs.
+	//!  True = calculates illumination in slower but more accurate sRGB correct way.
+	//!  However, transparency is also calculated in sRGB, which makes it look different.
+	//!  Has no effect on very old GPUs that don't support sRGB textures.
 	//! \param _brightness
 	//!  Specifies global brightness. NULL for default brightness 1.
 	//! \param _gamma

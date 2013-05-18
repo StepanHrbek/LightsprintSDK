@@ -31,7 +31,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			AppendIn(propGIDirect,propGIShadowTransparency);
 		}
 
-		propGISRGBCorrect = new BoolRefProperty(_("sRGB correctness"),_("Increases realism by correctly adding realtime lights. Works only if OpenGL 3.0+ or necessary extensions are found."),svs.srgbCorrect);
+		propGISRGBCorrect = new BoolRefProperty(_("sRGB correctness"),_("Increases realism by correctly adding realtime lights (however, transparency in sRGB mode looks different). Works only if OpenGL 3.0+ or necessary extensions are found."),svs.srgbCorrect);
 		AppendIn(propGIDirect,propGISRGBCorrect);
 
 		SetPropertyBackgroundColour(propGIDirect,importantPropertyBackgroundColor,false);
