@@ -44,15 +44,16 @@ namespace serialization
 		if (Archive::is_loading::value) wxstring = utf8 ? wxString::FromUTF8(s.c_str()) : s; \
 	}
 
-#ifdef _WIN32
-	#define SERIALIZE_FILENAME SERIALIZE_WXSTRING
-#else
-	#define SERIALIZE_FILENAME(name,wxstring,utf8) \
+#define SERIALIZE_FILENAME(name,wxstring,utf8) \
 	{ \
 		SERIALIZE_WXSTRING(name,wxstring,utf8) \
-		if (Archive::is_loading::value) wxstring.Replace("\\","/",true); \
+		if (Archive::is_loading::value) \
+		{ \
+			rr::RRString rrstring = RR_WX2RR(wxstring); \
+			fixPath(rrstring); \
+			wxstring = RR_RR2WX(rrstring); \
+		} \
 	}
-#endif
 
 
 //------------------------- ImportParameters ------------------------------
