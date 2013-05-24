@@ -822,7 +822,7 @@ void RendererOfSceneImpl::render(
 				render(_solver,mirrorUberProgramSetup,mirrorCamera,SM_MONO,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,_animationTime,&clipPlanes,false,NULL,1);
 
 				// copy mirrorMaskMap to mirrorColorMap.A
-				if (_uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
+				//if (_uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
 				{
 					glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);
 					getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,-1,"#define MIRROR_MASK_ALPHA\n"); // disables depth test
@@ -846,7 +846,8 @@ void RendererOfSceneImpl::render(
 
 				glDisable(GL_BLEND);
 //				textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,1,0.7f,-0.3f,0.3f,0,"#define MIRROR_MASK_DEBUG\n"); // rendered up, MIRROR_MASK_DEBUG is necessary to show alpha as rgb
-//				textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.3f,-0.3f,0.3f,0); // rendered down
+//				textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.35f,-0.3f,0.3f,0);
+//				textureRenderer->render2D(getTexture(mirrorColorMap,false,false),NULL,1,1,0.0f,-0.3f,0.3f,0); // rendered down
 			}
 			glDepthMask(GL_TRUE);
 			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
