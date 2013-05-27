@@ -810,6 +810,7 @@ void RendererOfSceneImpl::render(
 				mirrorPlane.w -= mirrorPlane.RRVec3::length()*_camera.getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
 				rr::RRCamera mirrorCamera = _camera;
 				mirrorCamera.mirror(mirrorPlane);
+				mirrorCamera.setFar(mirrorCamera.getFar()*2); // should be far enough in majority of situations
 				ClipPlanes clipPlanes = {mirrorPlane,0,0,0,0,0,0};
 				// Q: how to make mirrors srgb correct?
 				// A: current mirror is always srgb incorrect, srgb correct render works only into real backbuffer, not into texture.
