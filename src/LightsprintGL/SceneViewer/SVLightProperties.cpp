@@ -352,6 +352,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCastShadows)
 	{
 		updateHide();
+		rtlight->dirtyGI = true;
 	}
 	else
 	if (property==propSpotExponent)
