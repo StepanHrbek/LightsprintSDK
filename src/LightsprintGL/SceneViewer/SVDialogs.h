@@ -95,7 +95,7 @@ class MergeDlg : public wxDialog
 		wxCheckBox* animations;
 		wxCheckBox* environment;
 		
-		MergeDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select what to merge"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 200,224 ), long style = wxCAPTION|wxCLOSE_BOX ); 
+		MergeDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Select what to merge"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 200,299 ), long style = wxCAPTION|wxCLOSE_BOX ); 
 		~MergeDlg();
 	
 };
@@ -118,7 +118,7 @@ class DeleteDlg : public wxDialog
 		wxCheckBox* unwrap;
 		wxCheckBox* animations;
 		
-		DeleteDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Check what to delete"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 206,184 ), long style = wxDEFAULT_DIALOG_STYLE ); 
+		DeleteDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Check what to delete"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 206,250 ), long style = wxDEFAULT_DIALOG_STYLE ); 
 		~DeleteDlg();
 	
 };
@@ -158,7 +158,7 @@ class MappingDialog : public wxDialog
 		wxSpinCtrl* destination;
 		wxButton* button;
 		
-		MappingDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Generate or modify uv mapping"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 366,237 ), long style = wxDEFAULT_DIALOG_STYLE ); 
+		MappingDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Generate or modify uv mapping"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 366,330 ), long style = wxDEFAULT_DIALOG_STYLE ); 
 		~MappingDialog();
 	
 };

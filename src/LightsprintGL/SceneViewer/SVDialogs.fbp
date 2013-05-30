@@ -1428,7 +1428,7 @@
             <property name="minimum_size"></property>
             <property name="name">MergeDlg</property>
             <property name="pos"></property>
-            <property name="size">200,224</property>
+            <property name="size">200,299</property>
             <property name="style">wxCAPTION|wxCLOSE_BOX</property>
             <property name="subclass"></property>
             <property name="title">Select what to merge</property>
@@ -2300,7 +2300,7 @@
             <property name="minimum_size"></property>
             <property name="name">DeleteDlg</property>
             <property name="pos"></property>
-            <property name="size">206,184</property>
+            <property name="size">206,250</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
             <property name="subclass"></property>
             <property name="title">Check what to delete</property>
@@ -2996,7 +2996,7 @@
             <property name="minimum_size"></property>
             <property name="name">MappingDialog</property>
             <property name="pos"></property>
-            <property name="size">366,237</property>
+            <property name="size">366,330</property>
             <property name="style">wxDEFAULT_DIALOG_STYLE</property>
             <property name="subclass"></property>
             <property name="title">Generate or modify uv mapping</property>
