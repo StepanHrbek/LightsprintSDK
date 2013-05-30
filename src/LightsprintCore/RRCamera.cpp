@@ -811,15 +811,15 @@ void RRCamera::blendAkima(unsigned numSamples, const RRCamera** samples, float* 
 
 void RRMatrix3x4::blendAkima(unsigned numSamples, const RRMatrix3x4** samples, const RRReal* times, RRReal time)
 {
-	RRReporter::report(WARN,"blendAkima() not yet implemented for this compiler, use VS 2010.\n");
+	RRReporter::report(WARN,"blendAkima() not implemented for this compiler, use VC++ 2010+ or gcc 4.7+.\n");
 }
 void RRLight::blendAkima(unsigned numSamples, const RRLight** samples, const RRReal* times, RRReal time)
 {
-	RRReporter::report(WARN,"blendAkima() not yet implemented for this compiler, use VS 2010.\n");
+	RRReporter::report(WARN,"blendAkima() not implemented for this compiler, use VC++ 2010+ or gcc 4.7+.\n");
 }
 void RRCamera::blendAkima(unsigned numSamples, const RRCamera** samples, float* times, float time)
 {
-	RRReporter::report(WARN,"blendAkima() not yet implemented for this compiler, use VS 2010.\n");
+	RRReporter::report(WARN,"blendAkima() not implemented for this compiler, use VC++ 2010+ or gcc 4.7+.\n");
 }
 
 #endif
