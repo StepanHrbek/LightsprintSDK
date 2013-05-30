@@ -6,7 +6,7 @@
 #include <cmath>
 #include <set> // generateRandomCamera
 #include <cfloat> // _finite in generateRandomCamera
-#if defined(_MSC_VER) && _MSC_VER>=1600
+#if _MSC_VER>=1600 || __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=2) // maybe gcc had it sooner, not sure
 	#include <functional> // blendAkima
 #endif
 #include "Lightsprint/RRCamera.h"
@@ -606,7 +606,7 @@ void RRCamera::blendLinear(const RRCamera& sample0, const RRCamera& sample1, flo
 	updateProjection();
 }
 
-#if defined(_MSC_VER) && _MSC_VER>=1600
+#if _MSC_VER>=1600 || __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=2) // maybe gcc had it sooner, not sure
 
 //static inline float abs(float a)
 //{
