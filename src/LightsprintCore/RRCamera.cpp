@@ -6,8 +6,10 @@
 #include <cmath>
 #include <set> // generateRandomCamera
 #include <cfloat> // _finite in generateRandomCamera
-#if _MSC_VER>=1600 || __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=2) // maybe gcc had it sooner, not sure
+#if _MSC_VER>=1600 || __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
 	#include <functional> // blendAkima
+#else
+	#warning Skipping Akima interpolation, requires C++11 compiler.
 #endif
 #include "Lightsprint/RRCamera.h"
 #include "Lightsprint/RRObject.h"
@@ -606,7 +608,7 @@ void RRCamera::blendLinear(const RRCamera& sample0, const RRCamera& sample1, flo
 	updateProjection();
 }
 
-#if _MSC_VER>=1600 || __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=2) // maybe gcc had it sooner, not sure
+#if _MSC_VER>=1600 || __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
 
 //static inline float abs(float a)
 //{

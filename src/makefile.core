@@ -10,7 +10,7 @@ LINK_FLAGS += $(addprefix -L, $(LIB_DIRS))
 ifeq ($(CFG_TYPE), exe)
 $(TARGET):: $(CFG_DIR)/current $(OBJECTS)
 	@mkdir -p $(dir $@)
-	g++ -o $@ $(LINK_FLAGS) $(OBJECTS) $(LIBS)
+	$(CXX) -o $@ $(LINK_FLAGS) $(OBJECTS) $(LIBS)
 endif
 
 # build static library
@@ -28,7 +28,7 @@ ifeq ($(CFG_TYPE), dll)
 CPP_FLAGS += -fpic
 $(TARGET):: $(CFG_DIR)/current $(OBJECTS)
 	@mkdir -p $(dir $@)
-	g++ -o $@ -shared $(LINK_FLAGS) $(OBJECTS) $(LIBS)
+	$(CXX) -o $@ -shared $(LINK_FLAGS) $(OBJECTS) $(LIBS)
 endif
 
 # include dependencies
@@ -39,17 +39,17 @@ endif
 
 $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
-	g++ -o $@ -c $< $(CPP_FLAGS) -MD
+	$(CXX) -o $@ -c $< $(CPP_FLAGS) -MD
 	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
 
 $(OBJ_DIR)/%.o: %.cc
 	@mkdir -p $(dir $@)
-	g++ -o $@ -c $< $(CPP_FLAGS) -MD
+	$(CXX) -o $@ -c $< $(CPP_FLAGS) -MD
 	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
 
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	gcc -o $@ -c $< $(CPP_FLAGS) -MD
+	$(CC) -o $@ -c $< $(CPP_FLAGS) -MD
 	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
 
 # clean object and dependency files

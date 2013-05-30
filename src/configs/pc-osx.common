@@ -1,6 +1,11 @@
 OS = OSX
 BITS = 64
 
+CC = gcc
+CXX = g++
+#default clang has no openmp
+#CXX = -Wno-unused-value
+#CPP_FLAGS += -std=c++11
 CPP_FLAGS += -I/opt/local/include
 CPP_FLAGS += -I/opt/local/include/freetype2
 CPP_FLAGS += -I/opt/local/include/wx-2.9
@@ -32,7 +37,10 @@ GL_DEPS = \
 	-lwx_osx_cocoau_gl-2.9 \
 	-lboost_serialization-mt \
 	-lboost_iostreams-mt \
+	-lboost_locale-mt \
 	-lftgl
+
+# GL needs boost_* only if CUSTOMIZED_FOR_3DRENDER 
 
 GL_LIBS = \
 	$(GL_DEPS) \
@@ -41,7 +49,8 @@ GL_LIBS = \
 IO_DEPS = \
 	-lfreeimage \
 	-lboost_serialization-mt \
-	-lboost_iostreams-mt
+	-lboost_iostreams-mt \
+	-lboost_locale-mt
 
 IO_LIBS = \
 	$(IO_DEPS) \
