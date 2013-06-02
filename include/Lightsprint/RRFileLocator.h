@@ -47,6 +47,9 @@ namespace rr
 		//! locator calculates where requested file might be after such relocation.
 		//! Ignored by default implementation, honoured by create().
 		virtual void setRelocation(bool add, const RRString& relocationSourceFilename, const RRString& relocationDestinationFilename) {}
+		//! Tells locator to try filename modified with regular expression.
+		//! Ignored by default implementation, honoured by create().
+		virtual void setRegexReplacement(bool add, const RRString& regex, const RRString& format) {}
 		//! Tells locator to look for files also in this directory (e.g. "foo/bar/").
 		//! Ignored by default implementation, honoured by create().
 		virtual void setLibrary(bool add, const RRString& libraryDirectory) {}

@@ -11,6 +11,7 @@
 #include <boost/algorithm/string.hpp> // split, is_any_of
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/regex.hpp>
 namespace bf = boost::filesystem;
 
 // helper for rr_io,
@@ -36,6 +37,10 @@ public:
 	{
 		if (!_relocationSourceFilename.empty() && !_relocationDestinationFilename.empty())
 			addOrRemove(_add,relocationFilenames,std::pair<bf::path,bf::path>(RR_RR2PATH(_relocationSourceFilename),RR_RR2PATH(_relocationDestinationFilename)));
+	}
+	virtual void setRegexReplacement(bool _add, const RRString& _regex, const RRString& _format)
+	{
+		addOrRemove(_add,regexReplacements,std::pair<std::wstring,std::wstring>(RR_RR2STDW(_regex),RR_RR2STDW(_format)));
 	}
 	virtual void setLibrary(bool _add, const RRString& _libraryDirectory)
 	{
@@ -114,6 +119,14 @@ protected:
 				return getRelocatedFilename(originalFilename,relocationFilenames[i].first,relocationFilenames[i].second);
 		}
 
+		// regex replaced
+		for (size_t i=0;i<regexReplacements.size();i++)
+		{
+			bf::path regexReplaced = getRegexReplacedFilename(originalFilename,regexReplacements[i].first,regexReplacements[i].second);
+			if (!regexReplaced.empty() && !attemptNumber--)
+				return regexReplaced;
+		}
+
 		// library
 		for (size_t i=0;i<libraryDirectories.size();i++)
 		{
@@ -169,6 +182,15 @@ protected:
 		return result;
 	}
 
+	// use regex to replace parts of filename
+	static bf::path getRegexReplacedFilename(const bf::path& filename, const std::wstring& regex, const std::wstring& format)
+	{
+		boost::wregex re(regex);
+		std::wstring output = boost::regex_replace(filename.wstring(),re,format,boost::regex_constants::format_default|boost::regex_constants::format_first_only|boost::regex_constants::format_no_copy);
+//		RRReporter::report(INF3,"     regex: %s -> %ls\n",filename.string().c_str(),output.c_str());
+		return bf::path(output);
+	}
+
 	template<class C>
 	static void addOrRemove(bool _add, std::vector<C>& _paths, const C& _path)
 	{
@@ -188,6 +210,7 @@ protected:
 
 	std::vector<bf::path> parentFilenames;
 	std::vector<std::pair<bf::path,bf::path> > relocationFilenames;
+	std::vector<std::pair<std::wstring,std::wstring> > regexReplacements;
 	std::vector<bf::path> libraryDirectories;
 	std::vector<std::string> extensions;
 	std::map<unsigned,RRString> specialAttempts;

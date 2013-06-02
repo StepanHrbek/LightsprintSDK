@@ -34,6 +34,7 @@ NEWS
   - RRBuffer::createEquirectangular(), helps when exporting environment to third party renderer that supports only equirectangular format
   - RRFileLocator::exists(), tests whether file exists, override it when adding support for your virtual filesystem
   - RRScene::getAllBuffers()
+  - RRFileLocator::setRegexReplacement()
 
 CHANGES
 
