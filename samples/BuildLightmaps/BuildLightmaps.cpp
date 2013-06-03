@@ -502,7 +502,7 @@ int main(int argc, char** argv)
 	//
 	// init image loaders
 	//
-	rr_io::registerLoaders();
+	rr_io::registerLoaders(argc,argv);
 
 	//
 	// switch inputs and outputs from HDR physical scale to sRGB screenspace

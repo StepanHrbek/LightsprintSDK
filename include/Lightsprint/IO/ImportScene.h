@@ -113,10 +113,14 @@ namespace rr_io /// LightsprintIO - access to scenes and images on disk
 //! - rr::RRBuffer::save("filename.ext") to save 2d images, vertex buffers
 //! - rr::RRBuffer::load("c@pture") to capture live video
 //!
+//! \param argc
+//!  Copy of your main() argument. Used only for import isolation on non-Windows platforms, can be 0 otherwise.
+//! \param argv
+//!  Copy of your main() argument. Used only for import isolation on non-Windows platforms, can be NULL otherwise.
 //! \param step Keep empty.
 //!  Only if you need to register your own isolated loader for fileformat already supported by LightsprintIO, all without modifying LightsprintIO,
 //!  call registerLoaders(1); registerYourLoader(); registerLoaders(2); isolateSceneLoaders();
-void RR_IO_API registerLoaders(unsigned step = 0);
+void RR_IO_API registerLoaders(int argc, char** argv, unsigned step = 0);
 
 //! Isolates scene loaders, makes them run in separated processes.
 //
@@ -141,7 +145,12 @@ void RR_IO_API registerLoaders(unsigned step = 0);
 //! If isolated process fails to import the scene or write it back as .rr3, caller tries to import the scene without isolation.
 //!
 //! .rr3 fileformat is never isolated, it is used for transferring data between processes.
-void RR_IO_API isolateSceneLoaders();
+//!
+//! \param argc
+//!  Copy of your main() argument. Used only on non-Windows platforms, can be 0 otherwise.
+//! \param argv
+//!  Copy of your main() argument. Used only on non-Windows platforms, can be NULL otherwise.
+void RR_IO_API isolateSceneLoaders(int argc, char** argv);
 
 
 } // namespace rr_io

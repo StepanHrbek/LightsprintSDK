@@ -44,8 +44,8 @@
 	#undef SUPPORT_DIRECTSHOW
 #endif
 
-// Isolation is implemented only for Windows, and it requires .rr3 support
-#if defined(SUPPORT_ISOLATION) && (!defined(_WIN32) || !defined(SUPPORT_LIGHTSPRINT))
+// Isolation requires .rr3 support
+#if defined(SUPPORT_ISOLATION) && !defined(SUPPORT_LIGHTSPRINT)
 	#undef SUPPORT_ISOLATION
 #endif
 
