@@ -16,7 +16,7 @@ namespace bf = boost::filesystem;
 
 // helper for rr_io,
 // single global variable shared by all libraries that include RRSerialization.h
-RR_API rr::RRFileLocator* g_textureLocator = NULL;
+RR_API class SerializationRuntime* g_serializationRuntime = NULL;
 
 namespace rr
 {

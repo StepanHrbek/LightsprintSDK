@@ -165,7 +165,8 @@ public:
 #endif
 			RRSceneLightsprint* scene = new RRSceneLightsprint;
 
-			g_textureLocator = textureLocator;
+			SerializationRuntime serializationRuntime(textureLocator);
+
 			RRString oldReference;
 			std::string filenameOrVersion;
 			ar & boost::serialization::make_nvp("filename", filenameOrVersion);
@@ -180,12 +181,11 @@ public:
 				ar & boost::serialization::make_nvp("filename", oldReference);
 			}
 			fixPath(oldReference);
-			if (g_textureLocator)
-				g_textureLocator->setRelocation(true,oldReference,filename);
+			if (serializationRuntime.textureLocator)
+				serializationRuntime.textureLocator->setRelocation(true,oldReference,filename);
 			ar & boost::serialization::make_nvp("scene", *(RRScene*)scene);
-			if (g_textureLocator)
-				g_textureLocator->setRelocation(false,oldReference,filename);
-			g_textureLocator = NULL;
+			if (serializationRuntime.textureLocator)
+				serializationRuntime.textureLocator->setRelocation(false,oldReference,filename);
 
 			// remember materials and meshes created by boost, so we can free them in destructor
 			// user is allowed to manipulate scene, add or remove parts, but we will still delete only what load() created
@@ -268,6 +268,8 @@ public:
 			out.push(ofs);
 			portable_binary_oarchive ar(out);
 #endif
+			SerializationRuntime serializationRuntime(NULL);
+
 			std::string filenameOrVersion;
 			ar & boost::serialization::make_nvp("filename", filenameOrVersion); // former local charset filename, must be preserved, loader always tries to read it, we don't have any version number at this point in file
 			ar & boost::serialization::make_nvp("filename", filename);
@@ -325,6 +327,8 @@ static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6
 		in.push(ifs);
 		portable_binary_iarchive ar(in);
 
+		SerializationRuntime serializationRuntime(NULL);
+
 		unsigned version;
 		ar & boost::serialization::make_nvp("version", version);
 		return boost::serialization::loadBufferContents<portable_binary_iarchive>(ar,version);
@@ -368,6 +372,8 @@ static bool saveBuffer(RRBuffer* buffer, const RRString& filename, const char* c
 		out.push(ofs);
 		portable_binary_oarchive ar(out);
 
+		SerializationRuntime serializationRuntime(NULL);
+
 		unsigned version = 0;
 		ar & boost::serialization::make_nvp("version", version);
 		boost::serialization::saveBufferContents<portable_binary_oarchive>(ar,*buffer,version);
@@ -403,16 +409,16 @@ static RRMaterials* loadMaterial(const RRString& filename, RRFileLocator* textur
 		in.push(ifs);
 		portable_binary_iarchive ar(in);
 
-		g_textureLocator = textureLocator;
+		SerializationRuntime serializationRuntime(textureLocator);
+
 		RRString oldReference;
 		ar & boost::serialization::make_nvp("filename", oldReference);
 		fixPath(oldReference);
-		if (g_textureLocator)
-			g_textureLocator->setRelocation(true,oldReference,filename);
+		if (serializationRuntime.textureLocator)
+			serializationRuntime.textureLocator->setRelocation(true,oldReference,filename);
 		ar & boost::serialization::make_nvp("materials",*materials);
-		if (g_textureLocator)
-			g_textureLocator->setRelocation(false,oldReference,filename);
-		g_textureLocator = NULL;
+		if (serializationRuntime.textureLocator)
+			serializationRuntime.textureLocator->setRelocation(false,oldReference,filename);
 
 		return materials;
 	}
@@ -448,6 +454,8 @@ static bool saveMaterial(const RRMaterials* materials, const RRString& filename)
 		out.push(boost::iostreams::zlib_compressor());
 		out.push(ofs);
 		portable_binary_oarchive ar(out);
+
+		SerializationRuntime serializationRuntime(NULL);
 
 		ar & boost::serialization::make_nvp("filename", filename);
 		ar & boost::serialization::make_nvp("materials",*materials);

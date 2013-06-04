@@ -48,6 +48,7 @@ CHANGES
 - rr_gl::LensFlare() parameter changed, change "shaders/" at the end of string to "maps/"
 - rr_io::registerLoaders() parameters argc,argv added
 - rr_io::isolateSceneLoaders() parameters argc,argv added
+- when creating new fileformats with RRSerialization.h, see new class SerializationRuntime
 - RR_RR2STREAM and RR_WX2STREAM macros removed, no longer needed when using <boost/filesystem/fstream.hpp> instead of <fstream>
 - RRDynamicSolver::FilteringParameters::spreadForegroundColor default changed from 0 to 1000
 

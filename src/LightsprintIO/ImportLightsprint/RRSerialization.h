@@ -22,13 +22,58 @@
 
 namespace bf = boost::filesystem;
 
-// Helper for relocating paths.
-// Must be set up before serialization.
-// Global, don't serialize in multiple threads at the same time.
-// It is extern, with variable living in core. If we omit extern and let it live here,
-// OSX compiled libraries that include RRSerialization.h write to different variables,
-// while serialization reads from one variable, so some textures are not located.
-RR_API extern rr::RRFileLocator* g_textureLocator;
+//------------------------- runtime declaration --------------------------------
+
+RR_API extern class SerializationRuntime* g_serializationRuntime;
+
+namespace boost {
+namespace serialization {
+
+	class RRBufferProxy;
+	class RRMeshProxy;
+
+}
+}
+
+// Global serialization state, single instance must exist during serialization.
+//
+// Q: How do I use it?
+// A: Add "SerializationRuntime sr(NULL);" at the beginning of your serialization code.
+//
+// Q: Is it thread safe?
+// A: No, serialization state is stored in single global variable, multiple threads serializing at the same time would break it.
+
+// Q: Global variable is ugly, is it necessary?
+// A: No. Proper solution is to make serialization state part of Archive class.
+//    It would make it legal to serialize in multiple threads at the same time.
+//    However, all attempts to do so generically (without reimplementing archive) have failed.
+//
+// Q: If it has to be global, why not simple static variable declared in this header? Why is it extern, with pointer living in core?
+// A: If we omit extern and let it live here,
+//    OSX (gcc 4.2) compiled libraries that include RRSerialization.h write to different variables,
+//    while serialization reads from one variable, so there is a mess, some textures are not located etc.
+//    No such problem exists with Visual C++.
+//
+// Q: If it has to be global, can we at least make it thread safe by storing pointer to state in TLS?
+// A: Maybe. So far we serialize serially, so it's low priority.
+
+class SerializationRuntime
+{
+public:
+	// Helps locate textures.
+	rr::RRFileLocator* textureLocator;
+
+	// Helps load 3:4 cross maps as cubemaps.
+	bool nextBufferIsCube;
+
+	// Helps save each instance only once.
+	boost::unordered_set<boost::serialization::RRBufferProxy*> bufferProxyInstances;
+	boost::unordered_set<boost::serialization::RRMeshProxy*> meshProxyInstances;
+
+	SerializationRuntime(rr::RRFileLocator* fileLocator);
+	~SerializationRuntime();
+};
+
 
 //------------------------- filename portability --------------------------------
 
@@ -75,8 +120,6 @@ namespace serialization {
 // switches between readable array and fast binary object
 //#define make_array_or_binary(a,s) make_array(a,s)
 #define make_array_or_binary(a,s) make_binary_object(a,(s)*sizeof(*(a)))
-
-static void freeProxies();
 
 //------------------------------ RRVec2 -------------------------------------
 
@@ -255,9 +298,7 @@ rr::RRBuffer* loadBufferContents(Archive & ar, const unsigned int version)
 //  - no custom allocation (http://lists.boost.org/boost-users/2005/05/11773.php)
 //  - all derived classes must be registered
 // If two pointers point to the same buffer, only one proxy is created.
-// We statically store set of proxy instances, they must be alive during load, free them by freeMemory() afterwards.
-// Static storage is not thread safe, don't serialize two scenes at once
-// (can be fixed by moving static proxy storage to Archive class).
+// We store set of proxy instances in g_serializationRuntime, they must be alive during load, we free them afterwards.
 
 class RRBufferProxy
 {
@@ -266,25 +307,17 @@ public:
 
 	RRBufferProxy()
 	{
+		RR_ASSERT(g_serializationRuntime);
 		buffer = NULL;
-		instances.insert(this);
+		g_serializationRuntime->bufferProxyInstances.insert(this);
 	}
 	~RRBufferProxy()
 	{
+		RR_ASSERT(g_serializationRuntime);
 		delete buffer; // all unique buffers are created and deleted once
-		instances.erase(this);
+		g_serializationRuntime->bufferProxyInstances.erase(this);
 	}
-	static void freeMemory()
-	{
-		while (!instances.empty())
-			delete *instances.begin();
-	}
-private:
-	static boost::unordered_set<RRBufferProxy*> instances; // not thread safe, don't serialize two scenes at once
 };
-
-boost::unordered_set<RRBufferProxy*> RRBufferProxy::instances;
-bool g_nextBufferIsCube = false;
 
 #define prefix_buffer(b)          (*(RRBufferProxy**)&(b))
 #define postfix_buffer(Archive,b) {if (Archive::is_loading::value && b) b = prefix_buffer(b)->buffer?prefix_buffer(b)->buffer->createReference():NULL;} // all non-unique buffers get their own reference
@@ -322,10 +355,11 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 	else
 	{
 		fixPath(filename);
-		if (g_nextBufferIsCube)
-			a.buffer = rr::RRBuffer::loadCube(filename,g_textureLocator);
+		RR_ASSERT(g_serializationRuntime);
+		if (g_serializationRuntime->nextBufferIsCube)
+			a.buffer = rr::RRBuffer::loadCube(filename,g_serializationRuntime->textureLocator);
 		else
-			a.buffer = rr::RRBuffer::load(filename,NULL,g_textureLocator);
+			a.buffer = rr::RRBuffer::load(filename,NULL,g_serializationRuntime->textureLocator);
 	}
 }
 
@@ -557,9 +591,6 @@ void serialize(Archive & ar, rr::RRMaterials& a, const unsigned int version)
 {
 	rr::RRVector<rr::RRMaterial*>& aa = a;
 	serialize(ar,aa,version);
-	// must be called after load. there's nothing to free after save
-	// we do it here because we know that RRMaterials are serialized at the end of file
-	freeProxies();
 }
 
 //------------------------------ RRLight ------------------------------------
@@ -712,9 +743,7 @@ void load(Archive & ar, rr::RRMeshArrays& a, const unsigned int version)
 // It's necessary to circumvent boost limitations:
 //  - no custom allocation (http://lists.boost.org/boost-users/2005/05/11773.php)
 //  - all derived classes must be registered
-// We statically store set of proxy instances, they must be alive during load, free them by freeMemory() afterwards.
-// Static storage is not thread safe, don't serialize two scenes at once
-// (can be fixed by moving static proxy storage to Archive class).
+// We store set of proxy instances in g_serializationRuntime, they must be alive during load, we free them afterwards.
 
 class RRMeshProxy
 {
@@ -723,22 +752,15 @@ public:
 
 	RRMeshProxy()
 	{
-		instances.insert(this);
+		RR_ASSERT(g_serializationRuntime);
+		g_serializationRuntime->meshProxyInstances.insert(this);
 	}
 	~RRMeshProxy()
 	{
-		instances.erase(this);
+		RR_ASSERT(g_serializationRuntime);
+		g_serializationRuntime->meshProxyInstances.erase(this);
 	}
-	static void freeMemory()
-	{
-		while (!instances.empty())
-			delete *instances.begin();
-	}
-private:
-	static boost::unordered_set<RRMeshProxy*> instances; // not thread safe, don't serialize two scenes at once
 };
-
-boost::unordered_set<RRMeshProxy*> RRMeshProxy::instances;
 
 template<class Archive>
 void save(Archive & ar, const RRMeshProxy& a, const unsigned int version)
@@ -983,31 +1005,44 @@ void serialize(Archive & ar, rr_gl::DateTime& a, const unsigned int version)
 template<class Archive>
 void serialize(Archive & ar, rr::RRScene& a, const unsigned int version)
 {
-	g_nextBufferIsCube = false;
+	RR_ASSERT(g_serializationRuntime);
+	g_serializationRuntime->nextBufferIsCube = false;
 	ar & make_nvp("objects",a.objects);
 	ar & make_nvp("lights",a.lights);
-	g_nextBufferIsCube = true; // global is not thread safe, don't load two .rr3 at once
+	g_serializationRuntime->nextBufferIsCube = true; // global is not thread safe, don't load two .rr3 at once
 	ar & make_nvp("environment",prefix_buffer(a.environment)); postfix_buffer(Archive,a.environment);
-	g_nextBufferIsCube = false;
+	g_serializationRuntime->nextBufferIsCube = false;
 	if (version>0)
 	{
 		ar & make_nvp("cameras",a.cameras);
 	}
-	// must be called after load. there's nothing to free after save
-	// we do it here because we know that RRScene is serialized at the end of file
-	freeProxies();
-}
-
-static void freeProxies()
-{
-	RRBufferProxy::freeMemory();
-	RRMeshProxy::freeMemory();
 }
 
 //---------------------------------------------------------------------------
 
 } // namespace
 } // namespace
+
+//------------------------- runtime implemented --------------------------------
+
+SerializationRuntime::SerializationRuntime(rr::RRFileLocator* fileLocator)
+{
+	textureLocator = fileLocator;
+	nextBufferIsCube = false;
+	RR_ASSERT(!g_serializationRuntime);
+	g_serializationRuntime = this;
+}
+
+SerializationRuntime::~SerializationRuntime()
+{
+	while (!bufferProxyInstances.empty())
+		delete *bufferProxyInstances.begin();
+	while (!meshProxyInstances.empty())
+		delete *meshProxyInstances.begin();
+	g_serializationRuntime = NULL;
+}
+
+//---------------------------------------------------------------------------
 
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRMatrix3x4)
 BOOST_SERIALIZATION_SPLIT_FREE(rr::RRString)
