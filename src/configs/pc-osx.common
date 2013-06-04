@@ -18,7 +18,8 @@ CORE_DEPS = \
 	-lstdc++ \
 	-lgomp \
 	-lboost_filesystem-mt \
-	-lboost_system-mt
+	-lboost_system-mt \
+	-lboost_regex-mt
 
 CORE_LIBS = \
 	$(CORE_DEPS) \
