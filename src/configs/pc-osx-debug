@@ -3,6 +3,6 @@ include $(CFG_DIR)/pc-osx.common
 CONFIG = pc-osx-debug
 
 CPP_FLAGS += -O0
-CPP_FLAGS += -g
+CPP_FLAGS += -ggdb
 CPP_FLAGS += -D_DEBUG
 
