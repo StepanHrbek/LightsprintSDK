@@ -95,10 +95,9 @@ static void fixPath(rr::RRString& filename)
 		// Windows composes OSX filenames with NFC (OSX is said to use NFKC, but boost NFKC with "winapi" backend keeps filenames decomposed, is it error?)
 		std::wstring wstr2 = boost::locale::normalize(wstr,boost::locale::norm_nfc,loc);
 	#else
-		// convert unicode to form used by Windows paths
+		// convert unicode to form used by OSX paths
 		// OSX decomposes Windows filenames with NFD
 		std::wstring wstr2 = boost::locale::normalize(wstr,boost::locale::norm_nfd,loc);
-
 		// Windows tends to accept both / and \, but other OSes expect /, let's convert \ to / on read
 		std::replace(wstr2.begin(),wstr2.end(),'\\','/');
 	#endif
