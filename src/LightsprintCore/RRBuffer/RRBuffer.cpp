@@ -970,7 +970,10 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 			std::wstring location_buf = RR_RR2STDW(location);
 			int ofs = (int)location_buf.find(L"%s");
 			if (ofs>=0)
-				location_buf.replace(ofs,2,RRString(_cubeSideName[0]).w_str());
+				if (_cubeSideName && _cubeSideName[0])
+					location_buf.replace(ofs,2,RRString(_cubeSideName[0]).w_str());
+				else
+					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Texture filename %ls contains %%s, but cubeSideNames is NULL.\n",location.w_str()));
 			bool exists = _fileLocator->exists(RR_STDW2RR(location_buf));
 			RRReporter::report(INF3,"%d%c %ls\n",attempt,exists?'+':'-',location.w_str());
 			if (exists)
