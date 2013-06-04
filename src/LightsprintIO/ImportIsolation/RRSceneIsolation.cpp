@@ -9,13 +9,17 @@
 #include "RRSceneIsolation.h"
 
 #include <string>
-#include <process.h>
 
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
 #ifdef _WIN32
 	#include <windows.h>
+	#include <process.h> // _spawnl
+#else
+	#include <sys/types.h>
+	#include <sys/wait.h> // waitpid
+	#include <unistd.h> // execl
 #endif
 
 using namespace rr;
@@ -39,36 +43,50 @@ RRScene* loadIsolated(const RRString& filename, RRFileLocator* textureLocator, b
 	sprintf(name,"temp%04d.rr3",rand()%10000);
 	bf::path output = input.parent_path() / name;
 
-	// find out our filename
-#ifdef _WIN32
-	wchar_t thisProgramFilename[MAX_PATH];
-	GetModuleFileNameW(NULL,thisProgramFilename,MAX_PATH);
-
+	// call self
 	{
 		RRReportInterval report(INF2,"Isolated process converts it to .rr3...\n");
+#ifdef _WIN32
+		wchar_t thisProgramFilename[MAX_PATH];
+		GetModuleFileNameW(NULL,thisProgramFilename,MAX_PATH);
 		intptr_t exitCode = _wspawnl(_P_WAIT,
 			thisProgramFilename,
-			(std::wstring(L"\"")+thisProgramFilename+L"\"").c_str(),
+			(std::wstring(L"\"")+thisProgramFilename+L"\"").c_str(), // add "", filenames with spaces need it
 			L"-isolated-conversion",
 			(std::wstring(L"\"")+input.wstring()+L"\"").c_str(),
 			(std::wstring(L"\"")+output.wstring()+L"\"").c_str(),
 			NULL);
-#else
-	{
-		RRReportInterval report(INF2,"Isolated process converts it to .rr3...\n");
-		intptr_t exitCode = _spawnl(_P_WAIT,
-			s_thisProgramFilename,
-			(std::string("\"")+s_thisProgramFilename+"\"").c_str(),
-			"-isolated-conversion",
-			(std::string("\"")+input.string()+"\"").c_str(),
-			(std::string("\"")+output.string()+"\"").c_str(),
-			NULL);
-#endif
-		if (exitCode!=0) // 0=success
+		bool success = exitCode==0;
+		if (!success)
 		{
 			RRReporter::report(WARN,"Isolated conversion failed with exit code %d.\n",exitCode);
 			return NULL;
 		}
+#else
+		pid_t child_pid = fork();
+		if (!child_pid)
+		{
+			// other option is to convert scene here, instead of execl. would it work?
+    		execl(s_thisProgramFilename,
+				s_thisProgramFilename, // don't add "", filenames with spaces already work fine
+				"-isolated-conversion",
+				input.string().c_str(),
+				output.string().c_str(),
+				NULL);
+			// child only gets here if exec fails
+			RRReporter::report(WARN,"Isolated conversion failed execl().\n");
+			exit(0);
+		}
+		int status = 0;
+		pid_t waitResult = waitpid(child_pid,&status,0);
+		int exitCode = WEXITSTATUS(status);
+		bool success = waitResult>0 && WIFEXITED(status) && exitCode==0;
+		if (!success)
+		{
+			RRReporter::report(WARN,"Isolated conversion failed with waitResult=%d exited=%d exitcode=%d.\n",(int)waitResult,WIFEXITED(status)?1:0,exitCode);
+			return NULL;
+		}
+#endif
 	}
 
 	// load scene from temp
@@ -123,7 +141,7 @@ void registerLoaderIsolationStep2(int argc, char** argv)
 		// other loaders are already registered
 		RRDynamicSolver* solver = new RRDynamicSolver;
 		RRReporter::createWindowedReporter(solver,"Isolated scene import...");
-		
+
 		// a) load without textures - faster
 		//  texture paths are stored in stub buffers and forwarded into rr3, so in most cases everything works
 		//  problem is "transparency in diffuse texture". we can't decide whether to copy diffuse channel into transparency channel
