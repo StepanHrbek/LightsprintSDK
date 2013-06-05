@@ -213,12 +213,11 @@ namespace rr
 		if (!triangles) return NULL;
 		if (!buildParams || buildParams->size<sizeof(BuildParams)) return NULL;
 		BspTree* tree = NULL;
-		char name[300];
-		importer->getHash().getFileName(name,300,TREE_VERSION,cacheLocation,ext);
+		RRString name = importer->getHash().getFileName(TREE_VERSION,cacheLocation,ext);
 
 		// try to load tree from disk
 		FILE* f;
-		if (!buildParams->forceRebuild && (f=fopen(name,"rb")))
+		if (!buildParams->forceRebuild && (f=fopen(RR_RR2CHAR(name),"rb")))
 		{
 			tree = load IBP2(f);
 			fclose(f);
@@ -275,7 +274,7 @@ namespace rr
 		// save tree to disk (gcc warning on following line is innocent but hard to prevent)
 		if (tree && tree->bsp.size>=MIN_BYTES_FOR_SAVE)
 		{
-			f = fopen(name,"wb");
+			f = fopen(RR_RR2CHAR(name),"wb");
 			if (f)
 			{
 				fwrite(tree,tree->bsp.size,1,f);

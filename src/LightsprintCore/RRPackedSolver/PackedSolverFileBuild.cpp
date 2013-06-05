@@ -326,11 +326,11 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 		);
 
 	RRHash hash = getMultiObjectPhysical()->getHash();
-	char filenameauto[1000];
+	RRString filenameauto;
 	if (!filename)
 	{
-		hash.getFileName(filenameauto,999,FIREBALL_FILENAME_VERSION,NULL,".fireball");
-		filename = filenameauto;
+		filenameauto = hash.getFileName(FIREBALL_FILENAME_VERSION,NULL,".fireball");
+		filename = RR_RR2CHAR(filenameauto);
 	}
 
 	if (filename[0])
@@ -369,11 +369,11 @@ bool RRDynamicSolver::loadFireball(const char* filename, bool onlyPerfectMatch)
 	RRHash hash;
 	if (!filename || onlyPerfectMatch) // save time, don't hash if we don't need it
 		hash = getMultiObjectPhysical()->getHash();
-	char filenameauto[1000];
+	RRString filenameauto;
 	if (!filename)
 	{
-		hash.getFileName(filenameauto,999,FIREBALL_FILENAME_VERSION,NULL,".fireball");
-		filename = filenameauto;
+		filenameauto = hash.getFileName(FIREBALL_FILENAME_VERSION,NULL,".fireball");
+		filename = RR_RR2CHAR(filenameauto);
 	}
 
 	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),PackedSolverFile::load(filename,onlyPerfectMatch?&hash:NULL));

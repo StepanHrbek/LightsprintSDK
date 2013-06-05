@@ -9,11 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef _WIN32
-	#include <windows.h> // GetTempPath
-#else
-	#include <sys/stat.h> // mkdir
-#endif
+#include <boost/filesystem.hpp>
+namespace bf = boost::filesystem;
 
 #define SWAP_32(x) \
 	((x) << 24) | \
@@ -38,7 +35,7 @@ static unsigned getBits(unsigned char* data, unsigned bit, unsigned bits)
 
 static void getFileName(char* buf, unsigned bufsize, unsigned char* hash, unsigned bits)
 {
-	const char* letter="0123456789abcdefghijklmnopqrstuv";
+	const char* letter = "0123456789abcdefghijklmnopqrstuv";
 	for (unsigned i=0;i<RR_MIN((bits+4)/5,bufsize-1);i++)
 		buf[i]=letter[getBits(hash, i*5, RR_MIN(5,bits-i*5))];
 	buf[RR_MIN((bits+4)/5,bufsize-1)]=0;
@@ -173,51 +170,40 @@ RRHash::RRHash(const unsigned char* data, unsigned size)
 	sha1.GetHash(value);
 }
 
-void RRHash::getFileName(char* buf, unsigned bufsize, unsigned version, const char* cacheLocation, const char* extension) const
+RRString RRHash::getFileName(unsigned version, const char* cacheLocation, const char* extension) const
 {
-	if (!bufsize) return;
-	buf[0]=0;
 	// rrcache
-#ifdef _WIN32
-	char tmpPath[_MAX_PATH+1];
+	std::string filename;
 	if (!cacheLocation)
 	{
-		GetTempPath(_MAX_PATH, tmpPath);
-		#define IS_PATHSEP(x) (((x) == '\\') || ((x) == '/'))
-		if (!IS_PATHSEP(tmpPath[strlen(tmpPath)-1])) strcat(tmpPath, "\\");
-		cacheLocation = tmpPath;
-	}
-#else
-	char tmpDir[] = "/tmp/lightsprint/";
-        mkdir(tmpDir, 0744);
-	cacheLocation = tmpDir;
-#endif
 #ifdef XBOX
-	if (!cacheLocation) cacheLocation = "game:\\"; // xbox 360
+		filename = "game:\\"; // xbox 360
+#else
+		boost::system::error_code ec;
+		bf::path path = bf::temp_directory_path(ec) / "Lightsprint";
+		bf::create_directory(path,ec);
+		filename = path.string() + "/";
 #endif
-	if (cacheLocation) 
+	}
+	else
 	{
-		strncpy(buf,cacheLocation,bufsize-1);
-		buf[bufsize-1]=0;
-		unsigned len = (unsigned)strlen(buf); 
-		buf += len; 
-		bufsize -= len;
+		filename = cacheLocation;
 	}
 	// hash
 	{
 		RRHash hash2 = *this;
 		*(unsigned*)hash2.value += version;
-		rr::getFileName(buf,bufsize-1,hash2.value,8*sizeof(hash2.value));
-		unsigned len = (unsigned)strlen(buf); 
-		buf += len; 
-		bufsize -= len;
+		char buf[40];
+		rr::getFileName(buf,39,hash2.value,8*sizeof(hash2.value));
+		filename += buf;
 	}
 	// extension
 	if (extension)
 	{
-		strncpy(buf,extension,bufsize-1);
-		buf[bufsize-1]=0;
+		filename += extension;
 	}
+
+	return RR_STD2RR(filename);
 }
 
 bool RRHash::operator !=(const RRHash& a) const
