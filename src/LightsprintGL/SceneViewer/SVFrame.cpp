@@ -22,7 +22,7 @@
 #include "../Workaround.h"
 #include "wx/aboutdlg.h"
 #ifdef _WIN32
-	#include <shlobj.h> // SHGetFolderPath, SHGetSpecialFolderPath
+	#include <shlobj.h> // SHGetSpecialFolderPath
 	#include <process.h> // _beginthread in AlphaSplashScreen
 #endif
 #ifdef __WXMAC__
@@ -485,6 +485,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_materialProperties = NULL;
 	m_sceneTree = NULL;
 
+
 #if defined(_WIN32) && _MSC_VER>=1400 && defined(NDEBUG)
 	rr::RRTime splashStart;
 	AlphaSplashScreen splash(svs.pathToMaps+"sv_splash.png",230,-245);
@@ -639,11 +640,16 @@ SVFrame::~SVFrame()
 {
 	if (fullyInited)
 	{
-		userPreferencesGatherFromWx();
-		userPreferences.save();
+		{
+			userPreferencesGatherFromWx();
+			userPreferences.save();
+		}
 	}
 	m_mgr.UnInit();
-	RR_SAFE_DELETE(textureLocator);
+	if (fullyInited)
+	{
+		RR_SAFE_DELETE(textureLocator);
+	}
 }
 
 
@@ -914,7 +920,6 @@ bool SVFrame::saveScene(wxString sceneFilename)
 	}
 	return result;
 }
-
 
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
 {
