@@ -206,15 +206,6 @@ unsigned ImportParameters::getUpAxis(const wxString& filename) const
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// main RL dir
-
-wxString SVSaveLoad::getRLDir()
-{
-	return wxStandardPaths::Get().GetDocumentsDir() + "/RENDERLights/";
-}
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // UserPreferences save/load
 
 static wxString suggestPreferencesDirectory()
