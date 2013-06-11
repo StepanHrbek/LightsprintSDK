@@ -22,7 +22,7 @@ namespace rr_gl
 //! Depth of Field postprocess.
 //
 //! This is how it looks:
-//! \image html dof.jpg
+//! \image html dof2.jpg
 class RR_GL_API DOF
 {
 public:
