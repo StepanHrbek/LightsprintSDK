@@ -12,7 +12,7 @@
 #include "Lightsprint/RRDebug.h"
 #include <windows.h>
 #include <dshow.h> // not found? install Windows SDK or delete #define SUPPORT_DIRECTSHOW in supported_formats.h
-#include <Qedit.h> // ISampleGrabber
+#include "Qedit.h" // ISampleGrabber. This file used to be part of Windows SDK, but it's hard to find now, so we have our own replacement.
 
 
 #pragma comment(lib,"strmiids.lib") // not found? install Windows SDK or delete #define SUPPORT_DIRECTSHOW in supported_formats.h
