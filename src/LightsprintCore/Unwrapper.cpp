@@ -62,6 +62,8 @@ private:
 	void copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvChannels& keepChannels, unsigned unwrapChannel) const;
 	static HRESULT CALLBACK callback(FLOAT percentDone,LPVOID context)
 	{
+		// this gets called, with context pointing to solver->aborting
+		// but our result seems to be ignored, calculation is never aborted
 		return *(bool*)context ? S_FALSE : S_OK;
 	}
 
@@ -81,6 +83,9 @@ private:
 	LPD3DXUVATLASCREATE    D3DXUVAtlasCreate;
 	LPD3DXUVATLASPARTITION D3DXUVAtlasPartition;
 	LPD3DXUVATLASPACK      D3DXUVAtlasPack;
+
+	HMODULE                hModD3D9;
+	HMODULE                hModD3DX9;
 #endif
 
 	HWND                hwnd;
@@ -120,33 +125,28 @@ Unwrapper::Unwrapper()
 
 	// create d3d to make d3ddevice happy
 #ifdef DYNAMIC_LOAD
-	static HMODULE s_hModD3D9 = LoadLibrary("d3d9.dll");
-	static HMODULE s_hModD3DX9 = NULL; //LoadLibrary("d3dx9_32.dll");
-	static bool inited = false;
-	if (!inited)
+	hModD3D9 = LoadLibrary("d3d9.dll");
+	hModD3DX9 = NULL; //LoadLibrary("d3dx9_32.dll");
+	for (unsigned version=43;!hModD3DX9 && version>=31;version--)
 	{
-		inited = true;
-		for (unsigned version=43;!s_hModD3DX9 && version>=31;version--)
-		{
-			char d3dxFilename[] = "d3dx9_??.dll";
-			d3dxFilename[6] = '0'+version/10;
-			d3dxFilename[7] = '0'+version%10;
-			s_hModD3DX9 = LoadLibrary(d3dxFilename);
-		}
+		char d3dxFilename[] = "d3dx9_??.dll";
+		d3dxFilename[6] = '0'+version/10;
+		d3dxFilename[7] = '0'+version%10;
+		hModD3DX9 = LoadLibrary(d3dxFilename);
 	}
 
-	Direct3DCreate9      = s_hModD3D9  ? (LPDIRECT3DCREATE9)     GetProcAddress(s_hModD3D9,  "Direct3DCreate9")      : NULL;
-	D3DXCreateMesh       = s_hModD3DX9 ? (LPD3DXCREATEMESH)      GetProcAddress(s_hModD3DX9, "D3DXCreateMesh")       : NULL;
-	D3DXCleanMesh        = s_hModD3DX9 ? (LPD3DXCLEANMESH)       GetProcAddress(s_hModD3DX9, "D3DXCleanMesh")        : NULL;
-	D3DXValidMesh        = s_hModD3DX9 ? (LPD3DXVALIDMESH)       GetProcAddress(s_hModD3DX9, "D3DXValidMesh")        : NULL;
-	D3DXUVAtlasCreate    = s_hModD3DX9 ? (LPD3DXUVATLASCREATE)   GetProcAddress(s_hModD3DX9, "D3DXUVAtlasCreate")    : NULL;
-	D3DXUVAtlasPartition = s_hModD3DX9 ? (LPD3DXUVATLASPARTITION)GetProcAddress(s_hModD3DX9, "D3DXUVAtlasPartition") : NULL;
-	D3DXUVAtlasPack      = s_hModD3DX9 ? (LPD3DXUVATLASPACK)     GetProcAddress(s_hModD3DX9, "D3DXUVAtlasPack")      : NULL;
+	Direct3DCreate9      = hModD3D9  ? (LPDIRECT3DCREATE9)     GetProcAddress(hModD3D9,  "Direct3DCreate9")      : NULL;
+	D3DXCreateMesh       = hModD3DX9 ? (LPD3DXCREATEMESH)      GetProcAddress(hModD3DX9, "D3DXCreateMesh")       : NULL;
+	D3DXCleanMesh        = hModD3DX9 ? (LPD3DXCLEANMESH)       GetProcAddress(hModD3DX9, "D3DXCleanMesh")        : NULL;
+	D3DXValidMesh        = hModD3DX9 ? (LPD3DXVALIDMESH)       GetProcAddress(hModD3DX9, "D3DXValidMesh")        : NULL;
+	D3DXUVAtlasCreate    = hModD3DX9 ? (LPD3DXUVATLASCREATE)   GetProcAddress(hModD3DX9, "D3DXUVAtlasCreate")    : NULL;
+	D3DXUVAtlasPartition = hModD3DX9 ? (LPD3DXUVATLASPARTITION)GetProcAddress(hModD3DX9, "D3DXUVAtlasPartition") : NULL;
+	D3DXUVAtlasPack      = hModD3DX9 ? (LPD3DXUVATLASPACK)     GetProcAddress(hModD3DX9, "D3DXUVAtlasPack")      : NULL;
 
 	d3d = Direct3DCreate9 ? Direct3DCreate9(D3D_SDK_VERSION) : NULL;
 	if (!d3d || !D3DXCreateMesh || !D3DXUVAtlasPartition || !D3DXUVAtlasPack)
 		RRReporter::report(WARN,"Unwrap not built, please install DirectX runtime%s.\n",
-			(!s_hModD3D9)?" (d3d9.dll not found)":((!s_hModD3DX9)?" (d3dx9_nn.dll not found, 44>nn>30)":""));
+			(!hModD3D9)?" (d3d9.dll not found)":((!hModD3DX9)?" (d3dx9_nn.dll not found, 44>nn>30)":""));
 #else
 	d3d = Direct3DCreate9(D3D_SDK_VERSION);
 #endif
@@ -536,6 +536,10 @@ Unwrapper::~Unwrapper()
 	if (d3d)
 		d3d->Release();
 	DestroyWindow(hwnd);
+#ifdef DYNAMIC_LOAD
+	FreeLibrary(hModD3DX9);
+	FreeLibrary(hModD3D9);
+#endif
 }
 
 unsigned RRObjects::buildUnwrap(unsigned resolution, unsigned minimalUvChannel, bool& aborting) const
