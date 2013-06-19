@@ -274,7 +274,7 @@ RRVec4 RRBufferInMemory::getElement(unsigned index) const
 	}
 	if (index>=width*height*depth)
 	{
-		RRReporter::report(WARN,"getElement(%d) out of range, buffer size %d*%d*%d=%d.\n",index,width,height,depth,width*height*depth);
+		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"getElement(%d) out of range, buffer size %d*%d*%d=%d.\n",index,width,height,depth,width*height*depth));
 		return RRVec4(0);
 	}
 	unsigned ofs = index * getElementBits()/8;

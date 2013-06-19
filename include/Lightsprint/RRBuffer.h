@@ -410,6 +410,11 @@ namespace rr
 		virtual void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
 		//! Flips buffer in x, y and/or z dimension. 
 		virtual void flip(bool flipX, bool flipY, bool flipZ);
+		//! Rotates single 2d layer of buffer in multiples of 90 degrees.
+		//
+		//! In case of cubemap, dapthLayer selects side.
+		//! Contents of buffer is undefined after +90/-90 degree rotation if width!=height.
+		virtual void rotate(int degrees, unsigned depthLayer = 0);
 		//! Changes all colors in buffer to pow(color*brightness,gamma).
 		//
 		//! Preserves buffer format.

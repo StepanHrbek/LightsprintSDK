@@ -373,6 +373,92 @@ void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 	}
 }
 
+void RRBuffer::rotate(int degrees, unsigned depthLayer)
+{
+	// not 0, 90, 180, 270...
+	if ((degrees/90)*90!=degrees)
+	{
+		RR_ASSERT(0);
+		return;
+	}
+	// 0
+	if ((degrees/360)*360==degrees)
+	{
+		return;
+	}
+	// 90, 180, 270...
+	switch (getFormat())
+	{
+		case BF_RGB:
+		case BF_BGR:
+		case BF_RGBA:
+		case BF_RGBF:
+		case BF_RGBAF:
+		case BF_DEPTH:
+		case BF_LUMINANCE:
+		case BF_LUMINANCEF:
+			{
+				// slow getElement path, faster path can be written using lock and direct access
+				unsigned xmax = getWidth();
+				unsigned ymax = getHeight();
+				unsigned zmax = getDepth();
+				unsigned offset = RR_CLAMPED(depthLayer,0,zmax-1)*xmax*ymax;
+				if ((degrees/180)*180==degrees)
+				{
+					// 180
+					// works like flip(true,true,false), but only for selected depthLayer
+					for (unsigned x=0;x<xmax;x++)
+					for (unsigned y=0;y<ymax;y++)
+					{
+						unsigned e1 = x+xmax*y;
+						unsigned e2 = xmax-1-x+xmax*(ymax-1-y);
+						if (e1<e2)
+						{
+							RRVec4 color1 = getElement(e1+offset);
+							RRVec4 color2 = getElement(e2+offset);
+							setElement(e1+offset,color2);
+							setElement(e2+offset,color1);
+						}
+					}
+				}
+				else
+				{
+					// 90, 270
+					unsigned direction = ((degrees/90)%4)+4;
+					for (unsigned x=0;x<xmax;x++)
+					for (unsigned y=0;y<ymax;y++)
+					{
+						unsigned e[4] =
+						{
+							x+xmax*y,
+							ymax-1-y+xmax*x,
+							xmax-1-x+xmax*(ymax-1-y),
+							y+xmax*(xmax-1-x)
+						};
+						if (e[0]<e[1] && e[0]<e[2] && e[0]<e[3])
+						{
+							RRVec4 color[4] =
+							{
+								getElement(e[0]+offset),
+								getElement(e[1]+offset),
+								getElement(e[2]+offset),
+								getElement(e[3]+offset)
+							};
+							for (unsigned i=0;i<4;i++)
+								setElement(e[i]+offset,color[(i+direction)%4]);
+						}
+					}
+				}
+			}
+			break;
+		case BF_DXT1:
+		case BF_DXT3:
+		case BF_DXT5:
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"rotate() not supported for compressed formats.\n"));
+			break;
+	}
+}
+
 void RRBuffer::brightnessGamma(RRVec4 brightness, RRVec4 gamma)
 {
 	if (brightness==RRVec4(1) && gamma==RRVec4(1))

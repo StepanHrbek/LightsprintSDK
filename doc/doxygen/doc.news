@@ -37,6 +37,7 @@ NEWS
   - Scene viewer has it in Material properties
 - misc helpers
   - RRBuffer::createEquirectangular(), helps when exporting environment to third party renderer that supports only equirectangular format
+  - RRBuffer::rotate(), rotates contents of buffer by multiples of 90 degrees
   - RRFileLocator::exists(), tests whether file exists, override it when adding support for your virtual filesystem
   - RRScene::getAllBuffers()
   - RRFileLocator::setRegexReplacement()
