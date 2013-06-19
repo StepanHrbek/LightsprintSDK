@@ -63,7 +63,7 @@ static void init()
 		glGetShaderiv(handle, GL_COMPILE_STATUS, &compiled);
 		if (!compiled)
 		{
-			s_supportsLods = compiled;
+			s_supportsLods = false;
 			rr::RRReporter::report(rr::WARN,"textureCubeLod() not available.\n");
 		}
 	}
