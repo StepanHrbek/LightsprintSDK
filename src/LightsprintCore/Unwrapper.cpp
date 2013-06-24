@@ -316,7 +316,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 		ID3DXMesh* dxMeshIn = createID3DXMesh(rrMesh,keepChannels);
 		if (dxMeshIn)
 		{
-			DWORD* adjacency = new DWORD[3*numTriangles];
+			DWORD* adjacency = new (std::nothrow) DWORD[3*numTriangles];
 			if (adjacency)
 			{
 				if (dxMeshIn->GenerateAdjacency(0.0f,adjacency)==D3D_OK)
@@ -350,30 +350,37 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					// fix bowties, unwrapper may fail because of them
 					if (D3DXCleanMesh)
 					{
-						ID3DXMesh* dxMeshOut = NULL;
-						DWORD* adjacencyOut = new DWORD[3*numTriangles];
-						ID3DXBuffer* errorsAndWarnings = NULL;
-						HRESULT err = D3DXCleanMesh(D3DXCLEAN_SIMPLIFICATION,dxMeshIn,adjacency,&dxMeshOut,adjacencyOut,&errorsAndWarnings);
-						//RRReporter::report(WARN,"cleanup=%s\n",DXGetErrorDescription9(err));
-						if (err==D3D_OK)
+						DWORD* adjacencyOut = new (std::nothrow) DWORD[3*numTriangles];
+						if (adjacencyOut)
 						{
-							if (dxMeshOut!=dxMeshIn)
+							ID3DXMesh* dxMeshOut = NULL;
+							ID3DXBuffer* errorsAndWarnings = NULL;
+							HRESULT err = D3DXCleanMesh(D3DXCLEAN_SIMPLIFICATION,dxMeshIn,adjacency,&dxMeshOut,adjacencyOut,&errorsAndWarnings);
+							//RRReporter::report(WARN,"cleanup=%s\n",DXGetErrorDescription9(err));
+							if (err==D3D_OK)
 							{
-								dxMeshIn->Release();
-								dxMeshIn = dxMeshOut;
-								dxMeshOut = NULL;
+								if (dxMeshOut!=dxMeshIn)
+								{
+									dxMeshIn->Release();
+									dxMeshIn = dxMeshOut;
+									dxMeshOut = NULL;
+								}
+								if (adjacencyOut!=adjacency)
+								{
+									delete[] adjacency;
+									adjacency = adjacencyOut;
+									adjacencyOut = NULL;
+								}
+								if (errorsAndWarnings)
+								{
+									RRReporter::report(WARN,"%s\n",errorsAndWarnings->GetBufferPointer());
+									errorsAndWarnings->Release();
+								}
 							}
-							if (adjacencyOut!=adjacency)
-							{
-								delete[] adjacency;
-								adjacency = adjacencyOut;
-								adjacencyOut = NULL;
-							}
-							if (errorsAndWarnings)
-							{
-								RRReporter::report(WARN,"%s\n",errorsAndWarnings->GetBufferPointer());
-								errorsAndWarnings->Release();
-							}
+						}
+						else
+						{
+							RRReporter::report(WARN,"Memory allocation failed in unwrapper, mesh not cleaned.\n");
 						}
 					}
 
@@ -521,6 +528,10 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 #endif
 				}
 				delete[] adjacency;
+			}
+			else
+			{
+				RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"Memory allocation failed in unwrapper, mesh skipped.\n"));
 			}
 			RR_SAFE_RELEASE(dxMeshIn);
 		}
