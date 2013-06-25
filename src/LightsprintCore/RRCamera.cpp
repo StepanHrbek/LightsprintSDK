@@ -9,7 +9,9 @@
 #if _MSC_VER>=1600 || __GNUC__>4 || (__GNUC__==4 && __GNUC_MINOR__>=7)
 	#include <functional> // blendAkima
 #else
-	#warning Skipping Akima interpolation, requires C++11 compiler.
+	#pragma message ( "Skipping Akima interpolation, requires C++11 compiler." )
+	// not recognized by msvc 2005, 2008:
+	//#warning Skipping Akima interpolation, requires C++11 compiler.
 #endif
 #include "Lightsprint/RRCamera.h"
 #include "Lightsprint/RRObject.h"
