@@ -23,8 +23,8 @@
 
 // Actual support depends on your operating system, compiler etc.
 
-// Assimp doesn't support Visual Studio 2003.
-#if defined(SUPPORT_ASSIMP) && defined(_MSC_VER) && (_MSC_VER < 1400)
+// Assimp doesn't support Visual Studio 2003, 2005.
+#if defined(SUPPORT_ASSIMP) && defined(_MSC_VER) && (_MSC_VER < 1500)
 	#undef SUPPORT_ASSIMP
 #endif
 
