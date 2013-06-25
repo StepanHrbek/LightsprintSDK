@@ -321,7 +321,8 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool re
 		RRVector<unsigned> texcoords;
 		mesh->getUvChannels(texcoords);
 		RRMeshArrays* mesh1 = mesh->createArrays(!splitVertices,texcoords,tangents);
-		mesh1->buildNormals(); // createOptimizedVertices() uses vertex normals, we want it to use triangle normals
+		if (smoothNormals) // when smoothNormals, we build new flat ones and then createOptimizedVertices() smooths them. otherwise we let createOptimizedVertices() stitch according to existing normals
+			mesh1->buildNormals();
 		const RRMesh* mesh2 = stitchVertices ? mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,maxDistanceBetweenUvsToSmooth,&texcoords) : mesh1; // stitch less, preserve uvs
 		const RRMesh* mesh3 = removeDegeneratedTriangles ? mesh2->createOptimizedTriangles() : mesh2;
 

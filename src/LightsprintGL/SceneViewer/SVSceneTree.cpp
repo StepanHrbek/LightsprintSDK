@@ -642,8 +642,10 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					LogWithAbort logWithAbort(this,solver,_("Building unwrap..."));
 
 
-					selectedObjectsAndInstances.smoothAndStitch(false,false,true,false,0,0,0,false); // remove degens, unwrapper crashes on them
-					selectedObjectsAndInstances.deleteComponents(false,true,true,false);
+					// 1) merge identical vertices so that two unwraps in a row work with the same data (possibly ordered differently). this must be done after deleting old unwrap
+					// 2) remove degens, unwrapper crashes on them
+					selectedObjectsAndInstances.deleteComponents(false,true,true,false); // remove old unwrap etc
+					selectedObjectsAndInstances.smoothAndStitch(false,true,true,false,0,0,0,false); // then merge identical vertices
 					selectedObjectsAndInstances.buildUnwrap(res,0,solver->aborting);
 
 					// static objects may be modified even after abort (unwrap is not atomic)

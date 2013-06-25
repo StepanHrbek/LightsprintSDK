@@ -21,7 +21,8 @@ namespace rr
 // Differences in positions, normals and selected uv channels are limited by parameters.
 // Uvs in not selected channels may differ arbitrarily.
 
-int __cdecl compareXyz(const void* elem1, const void* elem2);
+int __cdecl comparePositionNormal(const void* elem1, const void* elem2);
+int __cdecl comparePositionX(const void* elem1, const void* elem2);
 
 template <class INDEX>
 class RRLessVerticesFilter : public RRMeshFilter
@@ -140,8 +141,11 @@ public:
 		{
 			vertices[i].normal.normalizeSafe(); // normalize normals
 		}
-		qsort(sortedVertices,numVertices,sizeof(Vertex*),compareXyz);
-
+		// sorting by both position and normal is bit slower, but it makes vertices nicely ordered,
+		// which is good for reproducibility and debugging (we can log vertices and then compare logs,
+		// there will be a few insertions and deletions instead of tons of swaps)
+		// sorting by position.x should give the same results, with different vertex order
+		qsort(sortedVertices,numVertices,sizeof(Vertex*),comparePositionNormal);
 		// expensive expressions moved out of for cycle
 		bool stitchOnlyIdenticalNormals = maxRadiansBetweenNormalsToStitch==0;
 		float minNormalDotNormalToStitch = cos(maxRadiansBetweenNormalsToStitch);
@@ -299,7 +303,7 @@ public:
 			INHERITED::getVertex(i,vertices[i]);
 			sortedVertices[i] = &vertices[i];
 		}
-		qsort(sortedVertices,numVertices,sizeof(RRMesh::Vertex*),compareXyz);
+		qsort(sortedVertices,numVertices,sizeof(RRMesh::Vertex*),comparePositionX);
 
 		// find duplicates and stitch, fill translation arrays
 		// for each vertex
