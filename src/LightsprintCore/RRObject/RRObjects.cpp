@@ -256,11 +256,8 @@ unsigned RRObjects::optimizeFaceGroups(RRObject* object) const
 	return result;
 }
 
-void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool removeDegeneratedTriangles, bool generateNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, float maxDistanceBetweenUvsToSmooth, bool report) const
+void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool removeDegeneratedTriangles, bool stitchPositions, bool stitchNormals, bool generateNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, float maxDistanceBetweenUvsToSmooth, bool report) const
 {
-	bool stitchPositions = false;
-	bool stitchNormals = generateNormals && mergeVertices;
-
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
 	unsigned numMeshesWithoutArrays = 0;
 	boost::unordered_set<RRMeshArrays*> arrays;

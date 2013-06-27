@@ -589,25 +589,29 @@ namespace rr
 		//! This is case of solver; if you smooth in solver <code>solver->getStaticObjects().smoothAndStitch(...)</code>,
 		//! you have to resend modified objects to solver <code>solver->setStaticObjects(solver->getStaticObjects(),...)</code>.
 		//! \param splitVertices
-		//!  Allows splitting vertices to make mesh less smooth.
-		//! \param stitchVertices
-		//!  Allows stitching vertices to make mesh more smooth.
+		//!  Allows splitting vertices shared by multiple triangles (increases number of vertices), can make mesh less smooth.
+		//! \param mergeVertices
+		//!  Allows merging similar vertices (reduces number of vertices), can make mesh smoother.
 		//! \param removeDegeneratedTriangles
-		//!  Removes degenerated triangles (already present or created by stitching).
+		//!  Removes degenerated triangles (already present or created by merging/stitching).
 		//!  Note that number of triangles may drop to zero (while number of vertices may still be positive),
 		//!  you can use removeEmptyObjects() to remove such objects.
+		//! \param stitchPositions
+		//!  Allows stitching positions of nearby vertices (doesn't change number of vertices).
+		//! \prama stitchNormals
+		//!  Allows stitching normals of nearby vertices (doesn't change number of vertices).
 		//! \param generateNormals
-		//!  True = resets all vertex normals to averages of normals of connected faces (but keeps existing tangents).
+		//!  True = generates new normals from mesh geometry, completely ignoring old normals (but keeps existing tangents).
 		//!  False = keeps existing normals (and tangents).
 		//! \param maxDistanceBetweenVerticesToStitch
-		//!  When stitchVertices==true, controls maximal distance between vertices to stitch and smooth.
+		//!  When merging and/or stitching, controls maximal distance between vertices to merge and/or stitch.
 		//! \param maxRadiansBetweenNormalsToStitch
-		//!  When stitchVertices==true, controls maximal angle between face normals to stitch and smooth.
+		//!  When merging and/or stitching, controls maximal angle between face normals to stitch and smooth.
 		//! \param maxDistanceBetweenUvsToStitch
-		//!  When stitchVertices==true, controls maximal distance between uvs to stitch and smooth.
+		//!  When merging, controls maximal distance between uvs to merge.
 		//! \param report
 		//!  Allows reporting warnings.
-		virtual void smoothAndStitch(bool splitVertices, bool stitchVertices, bool removeDegeneratedTriangles, bool generateNormals, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, bool report) const;
+		virtual void smoothAndStitch(bool splitVertices, bool mergeVertices, bool removeDegeneratedTriangles, bool stitchPositions, bool stitchNormals, bool generateNormals, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, bool report) const;
 
 		//! Multiplies emittance in all materials, both colors and textures.
 		virtual void multiplyEmittance(float emissiveMultiplier) const;

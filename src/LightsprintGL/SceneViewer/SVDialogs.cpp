@@ -65,7 +65,7 @@ SmoothDlg::SmoothDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	bSizer3->Add( m_staticText1, 0, wxALL, 5 );
 	
 	smoothAngle = new wxTextCtrl( this, wxID_ANY, _("30"), wxDefaultPosition, wxDefaultSize, 0 );
-	smoothAngle->SetToolTip( _("Max angle between faces to smooth edge.") );
+	smoothAngle->SetToolTip( _("Max angle between faces to merge vertices or stitch normals.") );
 	
 	bSizer3->Add( smoothAngle, 0, wxALL, 5 );
 	
@@ -73,27 +73,49 @@ SmoothDlg::SmoothDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	m_staticText2->Wrap( -1 );
 	bSizer3->Add( m_staticText2, 0, wxALL, 5 );
 	
-	weldDistance = new wxTextCtrl( this, wxID_ANY, _("0"), wxDefaultPosition, wxDefaultSize, 0 );
-	weldDistance->SetToolTip( _("Max distance between vertices to stitch and smooth normals.") );
+	stitchDistance = new wxTextCtrl( this, wxID_ANY, _("0"), wxDefaultPosition, wxDefaultSize, 0 );
+	stitchDistance->SetToolTip( _("Max distance between positions to merge vertices or stitch positions.") );
 	
-	bSizer3->Add( weldDistance, 0, wxALL, 5 );
+	bSizer3->Add( stitchDistance, 0, wxALL, 5 );
 	
 	m_staticText3 = new wxStaticText( this, wxID_ANY, _("UV distance"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText3->Wrap( -1 );
 	bSizer3->Add( m_staticText3, 0, wxALL, 5 );
 	
 	uvDistance = new wxTextCtrl( this, wxID_ANY, _("0"), wxDefaultPosition, wxDefaultSize, 0 );
-	uvDistance->SetToolTip( _("Max distance between uvs to stitch and smooth normals.") );
+	uvDistance->SetToolTip( _("Max distance between uvs to merge vertices.") );
 	
 	bSizer3->Add( uvDistance, 0, wxALL, 5 );
 	
 	splitVertices = new wxCheckBox( this, wxID_ANY, _("Split vertices"), wxDefaultPosition, wxDefaultSize, 0 );
 	splitVertices->SetValue(true); 
+	splitVertices->SetToolTip( _("Increases number of vertices, makes mesh less smooth.") );
+	
 	bSizer3->Add( splitVertices, 0, wxALL, 5 );
 	
-	stitchVertices = new wxCheckBox( this, wxID_ANY, _("Stitch vertices"), wxDefaultPosition, wxDefaultSize, 0 );
-	stitchVertices->SetValue(true); 
-	bSizer3->Add( stitchVertices, 0, wxALL, 5 );
+	mergeVertices = new wxCheckBox( this, wxID_ANY, _("Merge vertices"), wxDefaultPosition, wxDefaultSize, 0 );
+	mergeVertices->SetValue(true); 
+	mergeVertices->SetToolTip( _("Reduces number of vertices, makes mesh smoother.") );
+	
+	bSizer3->Add( mergeVertices, 0, wxALL, 5 );
+	
+	stitchPositions = new wxCheckBox( this, wxID_ANY, _("Stitch positions"), wxDefaultPosition, wxDefaultSize, 0 );
+	stitchPositions->SetValue(true); 
+	stitchPositions->SetToolTip( _("Stitches positions of nearby vertices, doesn't change number of vertices.") );
+	
+	bSizer3->Add( stitchPositions, 0, wxALL, 5 );
+	
+	stitchNormals = new wxCheckBox( this, wxID_ANY, _("Stitch normals"), wxDefaultPosition, wxDefaultSize, 0 );
+	stitchNormals->SetValue(true); 
+	stitchNormals->SetToolTip( _("Stitches normals of nearby vertices, doesn't change number of vertices.") );
+	
+	bSizer3->Add( stitchNormals, 0, wxALL, 5 );
+	
+	generateNormals = new wxCheckBox( this, wxID_ANY, _("Generate new normals"), wxDefaultPosition, wxDefaultSize, 0 );
+	generateNormals->SetValue(true); 
+	generateNormals->SetToolTip( _("Generates new normals, completely ignoring old values.") );
+	
+	bSizer3->Add( generateNormals, 0, wxALL, 5 );
 	
 	m_button4 = new wxButton( this, wxID_CANCEL, _("Cancel"), wxPoint( -1,-1 ), wxSize( 0,0 ), 0 );
 	bSizer3->Add( m_button4, 0, wxALL, 5 );
