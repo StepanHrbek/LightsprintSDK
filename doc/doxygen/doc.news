@@ -12,7 +12,7 @@ namespace rr
 
 NEWS
 
-- depth of field
+- <b>depth of field</b>
   - rr_gl::DOF
   - Scene viewer has it in Scene properties/Render extras
     <table border=0><tr align=top><td>
@@ -20,15 +20,24 @@ NEWS
     </td><td>
     \image html dof2.jpg
     </td></tr></table>
-- refraction
+- <b>refraction</b>
   - rr_gl::UberProgramSetup::LIGHT_INDIRECT_ENV_REFRACT
   - Scene viewer has it in Scene properties/Render material/Trensparency/Refraction
-- GPU accelerated pathtracer SmallLuxGpu included
+    <table border=0><tr align=top><td>
+    \image html refraction-on.jpg Realtime refraction on
+    </td><td>
+    \image html refraction-off.jpg Off
+    </td></tr></table>
+- <b>GPU accelerated pathtracer SmallLuxGpu</b> included
   - Scene viewer integration: click Windows/SmallLuxGPU to see the same scene pathtraced
   - export scene to SmallLuxGpu format by scene.save("foo.scn")
   - configure SmallLuxGpu via data/scenes/SmallLuxGpu/scene.cfg
   - open scene in SmallLuxGpu by bin/win32/slg4.exe scene.cfg
   - sRGB correctness (more accurate rendering) in Scene viewer is enabled by default, as pathtracer is also sRGB correct
+  - note, this is development version of SmallLuxGpu 4, not a final product
+    <table border=0><tr align=top><td>
+    \image html refraction-slg4.jpg Pathtraced refraction, not realtime
+    </td></tr></table>
 - shadow bias can be controlled
   - RRLight::rtShadowmapBias
   - Scene viewer has it in Light properties
