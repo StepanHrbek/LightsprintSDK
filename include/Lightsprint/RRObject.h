@@ -597,8 +597,8 @@ namespace rr
 		//!  Note that number of triangles may drop to zero (while number of vertices may still be positive),
 		//!  you can use removeEmptyObjects() to remove such objects.
 		//! \param generateNormals
-		//!  True = resets all vertex normals to averages of normals of connected faces.
-		//!  False = old normals stay.
+		//!  True = resets all vertex normals to averages of normals of connected faces (but keeps existing tangents).
+		//!  False = keeps existing normals (and tangents).
 		//! \param maxDistanceBetweenVerticesToStitch
 		//!  When stitchVertices==true, controls maximal distance between vertices to stitch and smooth.
 		//! \param maxRadiansBetweenNormalsToStitch

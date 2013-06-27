@@ -256,8 +256,11 @@ unsigned RRObjects::optimizeFaceGroups(RRObject* object) const
 	return result;
 }
 
-void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool removeDegeneratedTriangles, bool smoothNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, float maxDistanceBetweenUvsToSmooth, bool report) const
+void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool removeDegeneratedTriangles, bool generateNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, float maxDistanceBetweenUvsToSmooth, bool report) const
 {
+	bool stitchPositions = false;
+	bool stitchNormals = generateNormals && mergeVertices;
+
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
 	unsigned numMeshesWithoutArrays = 0;
 	boost::unordered_set<RRMeshArrays*> arrays;
@@ -317,22 +320,50 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool re
 			if (nonUniformScale) numMeshesNonUniformScale++;
 		}
 
-		// create temporary meshes that don't depend on original
+		// create temporary mesh that doesn't depend on original
 		RRVector<unsigned> texcoords;
 		mesh->getUvChannels(texcoords);
 		RRMeshArrays* mesh1 = mesh->createArrays(!splitVertices,texcoords,tangents);
-		if (smoothNormals) // when smoothNormals, we build new flat ones and then createOptimizedVertices() smooths them. otherwise we let createOptimizedVertices() stitch according to existing normals
-			mesh1->buildNormals();
-		const RRMesh* mesh2 = stitchVertices ? mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,maxDistanceBetweenUvsToSmooth,&texcoords) : mesh1; // stitch less, preserve uvs
-		const RRMesh* mesh3 = removeDegeneratedTriangles ? mesh2->createOptimizedTriangles() : mesh2;
 
-		// smooth when stitching
-		if (smoothNormals && stitchVertices)
+		// stitch positions (even if normal or uv differs too much, therefore merge is not an option. and even if we don't merge at all)
+		if (stitchPositions)
+		{
+			// calc smooth positions from mesh1, write them back to mesh1
+			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,100,0,NULL); // stitch more, even if normals or uvs differ
+			RRMeshArrays* mesh5 = mesh4->createArrays(true,texcoords,tangents);
+			for (unsigned t=0;t<mesh1->numTriangles;t++)
+			{
+				mesh1->position[mesh1->triangle[t][0]] = mesh5->position[mesh5->triangle[t][0]];
+				mesh1->position[mesh1->triangle[t][1]] = mesh5->position[mesh5->triangle[t][1]];
+				mesh1->position[mesh1->triangle[t][2]] = mesh5->position[mesh5->triangle[t][2]];
+			}
+			if (mesh5!=mesh4) delete mesh5;
+			if (mesh4!=mesh1) delete mesh4;
+			// these are final positions, they should not change later, even merge should merge only what was stitched here
+			// (however, when merging but not stitching, positions are not final yet)
+		}
+
+		// generate normals (1)
+		//   we need to generate now, after position stitching, but before first createOptimizedVertices()
+		//   however, we might need to generate again if positions change again
+		if (generateNormals)
+			mesh1->buildNormals(); // here we build flat normals, later createOptimizedVertices() smooths them
+
+		// stitch normals (even if uv differs too much, therefore merge is not an option. and even if we don't merge at all)
+		// (Q: what would this do if generateNormals?
+		//  A: usually nothing, normals modified here are overwriten later
+		//     however, if (generateNormals && stitchNormals && splitVertices && !mergeVertices) 
+		if (stitchNormals)
 		{
 			// calc smooth normals from mesh1, write them back to mesh1
 			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,0,NULL); // stitch more, even if uvs differ
 			RRMeshArrays* mesh5 = mesh4->createArrays(true,texcoords,tangents);
-			mesh5->buildNormals();
+			// generate normals (2)
+			//   positions might have changed in createOptimizedVertices(), generate again
+			//   if stitchPositions, positions are already stitched and createOptimizedVertices did not change them, so this does nothing
+			//   if !stitchPositions, positions in mesh4 might differ from mesh1, so generate fixes them
+			if (generateNormals)
+				mesh5->buildNormals();
 			for (unsigned t=0;t<mesh1->numTriangles;t++)
 			{
 				mesh1->normal[mesh1->triangle[t][0]] = mesh5->normal[mesh5->triangle[t][0]];
@@ -341,7 +372,16 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool re
 			}
 			if (mesh5!=mesh4) delete mesh5;
 			if (mesh4!=mesh1) delete mesh4;
+			// these are final normals, they should not change later, even merge should merge only what was stitched here
+			// (however, when merging but not stitching, normals are not final yet)
 		}
+
+		// merge vertices (where all pos/norm/uv are close enough)
+		// (even if not smoothing, normals of stitched vertices are stitched, i.e. mesh becomes smoother)
+		const RRMesh* mesh2 = mergeVertices ? mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,maxDistanceBetweenUvsToSmooth,&texcoords) : mesh1; // stitch less, preserve uvs
+
+		// remove degenerated triangles
+		const RRMesh* mesh3 = removeDegeneratedTriangles ? mesh2->createOptimizedTriangles() : mesh2;
 
 		// fix facegroups in objects
 		if (removeDegeneratedTriangles) // facegroups should be unchanged if we did not remove triangles
@@ -370,8 +410,10 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool re
 		// overwrite original mesh with temporary
 		(*i)->reload(mesh3,true,texcoords,tangents);
 
-		// smooth when not stitching
-		if (smoothNormals && !stitchVertices)
+		// generate normals (3)
+		//   if (mergeVertices) positions might have changed in last createOptimizedVertices, we should generate normals again
+		//   however, if (stitchNormals) normals were stitched, we must not modify them
+		if (generateNormals && !stitchNormals)
 			(*i)->buildNormals();
 
 		// delete temporary meshes
@@ -394,7 +436,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool stitchVertices, bool re
 	if (report)
 	{
 		RRReporter::report(INF2,"Smoothing stats: tris %+d(%d), verts %+d(%d), fgs %+d(%d)\n",numTriangles2-numTriangles,numTriangles2,numVertices2-numVertices,numVertices2,numFaceGroups2-numFaceGroups,numFaceGroups2);
-		if (stitchVertices && maxDistanceBetweenVerticesToSmooth>0)
+		if (mergeVertices && maxDistanceBetweenVerticesToSmooth>0)
 		{
 			if (numMeshesDifferentScales)
 				RRReporter::report(WARN,"Stitching distance approximated in %d/%d meshes: instances have different scale.\n",numMeshesDifferentScales,arrays.size());
