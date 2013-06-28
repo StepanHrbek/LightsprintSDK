@@ -324,21 +324,19 @@ Material formats (1)
  - Linux (32bit, 64bit)
  - consoles
 
- GPUs on PC
- - NVIDIA GeForce 5xxx, 6xxx, 7xxx, 8xxx, 9xxx, 1xx, 2xx, 3xx, 4xx, 5xx, 6xx etc
- - AMD (ATI) Radeon 9500-9800, Xxxx, X1xxx, HD2xxx, HD3xxx, HD4xxx, HD5xxx, HD6xxx, HD7xxx etc
- - mobile versions of GPUs above (GeForce Go, Mobility Radeon)
- - subset of workstation versions (Quadro, FireGL)
- - Intel HDxxxx
+ GPUs
+ - all GPUs that support at least OpenGL 2.0 or OpenGL ES 2.0
+ - i.e. nearly all ATI/AMD since 2002, NVIDIA since 2003, Intel since 2006, tablets and smatrphones since 2010
  - for offline rendering, GPU is not needed
 
  3D APIs
  - OpenGL 2/3/4 (examples included)
- - Direct3D 9/10/11 (no examples yet)
+ - OpenGL ES 2/3 (examples coming)
+ - Direct3D 9/10/11 (no examples in SDK, was integrated with third party Direct3D engines)
  - for offline rendering, 3D API is not needed
 
  Compilers
- - Visual C++ 2012 with all security updates (32bit, 64bit)
+ - Visual C++ 2012.3 with all security updates (32bit, 64bit)
  - Visual C++ 2010 SP1 with all security updates (32bit, 64bit)
  - Visual C++ 2008 SP1 with all security updates (32bit, 64bit)
  - Visual C++ 2005 SP1 with all security updates (32bit, 64bit)
