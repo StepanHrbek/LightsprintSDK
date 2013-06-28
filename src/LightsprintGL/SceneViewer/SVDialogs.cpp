@@ -89,25 +89,37 @@ SmoothDlg::SmoothDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	splitVertices = new wxCheckBox( this, wxID_ANY, _("Split vertices"), wxDefaultPosition, wxDefaultSize, 0 );
 	splitVertices->SetValue(true); 
-	splitVertices->SetToolTip( _("Increases number of vertices, makes mesh less smooth.") );
+	splitVertices->SetToolTip( _("Splits vertices shared by multiple triangles (increases number of vertices), makes mesh less smooth.") );
 	
 	bSizer3->Add( splitVertices, 0, wxALL, 5 );
 	
 	mergeVertices = new wxCheckBox( this, wxID_ANY, _("Merge vertices"), wxDefaultPosition, wxDefaultSize, 0 );
 	mergeVertices->SetValue(true); 
-	mergeVertices->SetToolTip( _("Reduces number of vertices, makes mesh smoother.") );
+	mergeVertices->SetToolTip( _("Merges similar vertices (reduces number of vertices), makes mesh smoother.") );
 	
 	bSizer3->Add( mergeVertices, 0, wxALL, 5 );
 	
+	removeUnusedVertices = new wxCheckBox( this, wxID_ANY, _("Remove unused vertices"), wxDefaultPosition, wxDefaultSize, 0 );
+	removeUnusedVertices->SetValue(true); 
+	removeUnusedVertices->SetToolTip( _("Removes vertices not used in any triangle (reduces number of vertices).") );
+	
+	bSizer3->Add( removeUnusedVertices, 0, wxALL, 5 );
+	
+	removeDegeneratedTriangles = new wxCheckBox( this, wxID_ANY, _("Remove degenerated triangles"), wxDefaultPosition, wxDefaultSize, 0 );
+	removeDegeneratedTriangles->SetValue(true); 
+	removeDegeneratedTriangles->SetToolTip( _("Removes triangles with zero area (reduces number of triangles).") );
+	
+	bSizer3->Add( removeDegeneratedTriangles, 0, wxALL, 5 );
+	
 	stitchPositions = new wxCheckBox( this, wxID_ANY, _("Stitch positions"), wxDefaultPosition, wxDefaultSize, 0 );
 	stitchPositions->SetValue(true); 
-	stitchPositions->SetToolTip( _("Stitches positions of nearby vertices, doesn't change number of vertices.") );
+	stitchPositions->SetToolTip( _("Stitches positions of nearby vertices (doesn't change number of vertices).") );
 	
 	bSizer3->Add( stitchPositions, 0, wxALL, 5 );
 	
 	stitchNormals = new wxCheckBox( this, wxID_ANY, _("Stitch normals"), wxDefaultPosition, wxDefaultSize, 0 );
 	stitchNormals->SetValue(true); 
-	stitchNormals->SetToolTip( _("Stitches normals of nearby vertices, doesn't change number of vertices.") );
+	stitchNormals->SetToolTip( _("Stitches normals of nearby vertices (doesn't change number of vertices).") );
 	
 	bSizer3->Add( stitchNormals, 0, wxALL, 5 );
 	

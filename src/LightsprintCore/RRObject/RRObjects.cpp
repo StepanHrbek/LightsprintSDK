@@ -256,7 +256,7 @@ unsigned RRObjects::optimizeFaceGroups(RRObject* object) const
 	return result;
 }
 
-void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool removeDegeneratedTriangles, bool stitchPositions, bool stitchNormals, bool generateNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, float maxDistanceBetweenUvsToSmooth, bool report) const
+void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool removeUnusedVertices, bool removeDegeneratedTriangles, bool stitchPositions, bool stitchNormals, bool generateNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, float maxDistanceBetweenUvsToSmooth, bool report) const
 {
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
 	unsigned numMeshesWithoutArrays = 0;
@@ -380,16 +380,19 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 		// remove degenerated triangles
 		const RRMesh* mesh3 = removeDegeneratedTriangles ? mesh2->createOptimizedTriangles() : mesh2;
 
+		// remove unused vertices (previously used in degenerated triangles)
+		const RRMesh* mesh4 = removeUnusedVertices ? mesh3->createOptimizedVertices(-1,-1,-1,NULL) : mesh3;
+
 		// fix facegroups in objects
 		if (removeDegeneratedTriangles) // facegroups should be unchanged if we did not remove triangles
 		{
 			for (unsigned j=0;j<objects.size();j++)
 			{
 				RRObject::FaceGroups faceGroups;
-				unsigned mesh3_numTriangles = mesh3->getNumTriangles();
-				for (unsigned postImportTriangle=0;postImportTriangle<mesh3_numTriangles;postImportTriangle++)
+				unsigned mesh4_numTriangles = mesh4->getNumTriangles();
+				for (unsigned postImportTriangle=0;postImportTriangle<mesh4_numTriangles;postImportTriangle++)
 				{
-					unsigned preImportTriangle = mesh3->getPreImportTriangle(postImportTriangle).index;
+					unsigned preImportTriangle = mesh4->getPreImportTriangle(postImportTriangle).index;
 					RRMaterial* m = objects[j]->getTriangleMaterial(preImportTriangle,NULL,NULL);
 					if (!faceGroups.size() || faceGroups[faceGroups.size()-1].material!=m)
 					{
@@ -405,7 +408,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 		}
 
 		// overwrite original mesh with temporary
-		(*i)->reload(mesh3,true,texcoords,tangents);
+		(*i)->reload(mesh4,true,texcoords,tangents);
 
 		// generate normals (3)
 		//   if (mergeVertices) positions might have changed in last createOptimizedVertices, we should generate normals again
@@ -414,6 +417,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 			(*i)->buildNormals();
 
 		// delete temporary meshes
+		if (mesh4!=mesh3) delete mesh4;
 		if (mesh3!=mesh2) delete mesh3;
 		if (mesh2!=mesh1) delete mesh2;
 		if (mesh1!=mesh) delete mesh1;

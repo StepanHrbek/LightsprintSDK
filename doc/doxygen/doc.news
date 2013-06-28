@@ -53,7 +53,7 @@ NEWS
 
 CHANGES
 
-- rr::RRObjects::smoothAndStitch() has two more parameters, stitchPositions and stitchNormals,
+- rr::RRObjects::smoothAndStitch() has three more parameters, removeUnusedVertices, stitchPositions and stitchNormals,
   \n allows for stitching positions/normals even when vertices were not merged
 - rr_gl::RendererOfScene::render() parameter animationTime added
   \n please add the same parameter to your own implementations, if any

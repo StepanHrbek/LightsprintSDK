@@ -68,12 +68,14 @@ class SmoothDlg : public wxDialog
 		wxTextCtrl* uvDistance;
 		wxCheckBox* splitVertices;
 		wxCheckBox* mergeVertices;
+		wxCheckBox* removeUnusedVertices;
+		wxCheckBox* removeDegeneratedTriangles;
 		wxCheckBox* stitchPositions;
 		wxCheckBox* stitchNormals;
 		wxCheckBox* generateNormals;
 		wxButton* m_button3;
 		
-		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,482 ), long style = wxCAPTION|wxCLOSE_BOX ); 
+		SmoothDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Smoothing options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 215,573 ), long style = wxCAPTION|wxCLOSE_BOX ); 
 		~SmoothDlg();
 	
 };

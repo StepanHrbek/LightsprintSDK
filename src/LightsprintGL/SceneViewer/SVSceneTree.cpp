@@ -645,7 +645,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					// 1) merge identical vertices so that two unwraps in a row work with the same data (possibly ordered differently). this must be done after deleting old unwrap
 					// 2) remove degens, unwrapper crashes on them
 					selectedObjectsAndInstances.deleteComponents(false,true,true,false); // remove old unwrap etc
-					selectedObjectsAndInstances.smoothAndStitch(false,true,true,true,true,false,0,0,0,false); // then merge identical vertices
+					selectedObjectsAndInstances.smoothAndStitch(false,true,true,true,true,true,false,0,0,0,false); // then merge identical vertices
 					selectedObjectsAndInstances.buildUnwrap(res,0,solver->aborting);
 
 					// static objects may be modified even after abort (unwrap is not atomic)
@@ -857,7 +857,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						selectedObjectsAndInstances.smoothAndStitch(
 							svframe->smoothDlg.splitVertices->GetValue(),
 							svframe->smoothDlg.mergeVertices->GetValue(),
-							true,
+							svframe->smoothDlg.removeUnusedVertices->GetValue(),
+							svframe->smoothDlg.removeDegeneratedTriangles->GetValue(),
 							svframe->smoothDlg.stitchPositions->GetValue(),
 							svframe->smoothDlg.stitchNormals->GetValue(),
 							svframe->smoothDlg.generateNormals->GetValue(),

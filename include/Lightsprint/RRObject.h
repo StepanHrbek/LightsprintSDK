@@ -592,10 +592,12 @@ namespace rr
 		//!  Allows splitting vertices shared by multiple triangles (increases number of vertices), can make mesh less smooth.
 		//! \param mergeVertices
 		//!  Allows merging similar vertices (reduces number of vertices), can make mesh smoother.
+		//! \param removeUnusedVertices
+		//!  Removes unused vertices (reduces number of vertices).
 		//! \param removeDegeneratedTriangles
-		//!  Removes degenerated triangles (already present or created by merging/stitching).
-		//!  Note that number of triangles may drop to zero (while number of vertices may still be positive),
-		//!  you can use removeEmptyObjects() to remove such objects.
+		//!  Removes degenerated triangles possibly created by merging/stitching (reduces number of triangles).
+		//!  There might be unused vertices after removal of degenerated triangles, use removeUnusedVertices to remove them.
+		//!  Note that number of triangles may drop to zero, you can use removeEmptyObjects() to remove such objects.
 		//! \param stitchPositions
 		//!  Allows stitching positions of nearby vertices (doesn't change number of vertices).
 		//! \prama stitchNormals
@@ -611,7 +613,7 @@ namespace rr
 		//!  When merging, controls maximal distance between uvs to merge.
 		//! \param report
 		//!  Allows reporting warnings.
-		virtual void smoothAndStitch(bool splitVertices, bool mergeVertices, bool removeDegeneratedTriangles, bool stitchPositions, bool stitchNormals, bool generateNormals, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, bool report) const;
+		virtual void smoothAndStitch(bool splitVertices, bool mergeVertices, bool removeUnusedVertices, bool removeDegeneratedTriangles, bool stitchPositions, bool stitchNormals, bool generateNormals, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, bool report) const;
 
 		//! Multiplies emittance in all materials, both colors and textures.
 		virtual void multiplyEmittance(float emissiveMultiplier) const;
