@@ -423,29 +423,33 @@ namespace rr
 
 		//! Creates and returns nearly identical mesh with optimized set of vertices (removes unused and redundant ones).
 		//
-		//! Stitches identical or similar vertices so that number of vertices in returned mesh decreases.
+		//! Merges identical or similar vertices so that number of vertices in returned mesh decreases.
 		//! Only vertex positions, normals and uvs are tested, so vertices with completely
-		//! different tangents may be stitched.
+		//! different tangents may be merged.
 		//!
 		//! Created instance requires only small amount of additional memory, 
-		//!  but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
+		//! but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
 		//! If no vertex can be removed, 'this' is returned.
-		//! \param maxDistanceBetweenVerticesToStitch
-		//!  Vertices are not stitched if their positions differ more.
-		//! \param maxRadiansBetweenNormalsToStitch
-		//!  Vertices are not stitched if their normals differ more.
-		//! \param maxDistanceBetweenUvsToStitch
-		//!  Vertices are not stitched if their uvs from texcoords differ more.
+		//! \param maxDistanceBetweenVerticesToMerge
+		//!  Vertices are not merged if their positions differ more.
+		//!  If negative, vertices are never merged, but unused ones can still be removed.
+		//! \param maxRadiansBetweenNormalsToMerge
+		//!  Vertices are not merged if their normals differ more.
+		//!  If negative, vertices are never merged, but unused ones can still be removed.
+		//! \param maxDistanceBetweenUvsToMerge
+		//!  Vertices are not merged if their uvs from texcoords differ more.
 		//! \param texcoords
-		//!  Vertices are not stitched if their uvs from texcoords differ more than maxDistanceBetweenUvsToStitch.
-		//!  May be NULL. Uvs not listed in texcoords are ignored, differences in such channels don't prevent stitching.
-		const RRMesh* createOptimizedVertices(float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, const RRVector<unsigned>* texcoords) const;
+		//!  Vertices are not merged if their uvs from texcoords differ more than maxDistanceBetweenUvsToMerge.
+		//!  May be NULL. Uvs not listed in texcoords are ignored, differences in such channels don't prevent merging.
+		const RRMesh* createOptimizedVertices(float maxDistanceBetweenVerticesToMerge, float maxRadiansBetweenNormalsToMerge, float maxDistanceBetweenUvsToMerge, const RRVector<unsigned>* texcoords) const;
 
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
 		//
 		//! Created instance requires only small amount of additional memory, 
-		//!  but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
+		//! but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
 		//! If 'this' is already optimal, 'this' is returned.
+		//! Note that after removal of degenrated triangles, there might be unused vertices in mesh;
+		//! you can use createOptimizedVertices() to remove them.
 		const RRMesh* createOptimizedTriangles() const;
 
 		//! Creates and returns accelerated mesh.

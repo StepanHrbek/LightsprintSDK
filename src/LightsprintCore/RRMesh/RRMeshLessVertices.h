@@ -31,7 +31,10 @@ public:
 	RRLessVerticesFilter(const RRMesh* original, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, const RRVector<unsigned>* texcoords)
 		: RRMeshFilter(original)
 	{
-		RR_ASSERT(maxDistanceBetweenVerticesToStitch>=0); // negative value would remove no vertices -> no improvement
+		// negative values are legal, filter can still remove unused vertices
+		//RR_ASSERT(maxDistanceBetweenVerticesToStitch>=0);
+		bool mergingPossible = maxDistanceBetweenVerticesToStitch>=0 && maxRadiansBetweenNormalsToStitch>=0;
+
 		// prepare translation arrays
 		unsigned numVertices = inherited->getNumVertices();
 		unsigned numTriangles = inherited->getNumTriangles();
@@ -145,7 +148,8 @@ public:
 		// which is good for reproducibility and debugging (we can log vertices and then compare logs,
 		// there will be a few insertions and deletions instead of tons of swaps)
 		// sorting by position.x should give the same results, with different vertex order
-		qsort(sortedVertices,numVertices,sizeof(Vertex*),comparePositionNormal);
+		if (mergingPossible)
+			qsort(sortedVertices,numVertices,sizeof(Vertex*),comparePositionNormal);
 		// expensive expressions moved out of for cycle
 		bool stitchOnlyIdenticalNormals = maxRadiansBetweenNormalsToStitch==0;
 		float minNormalDotNormalToStitch = cos(maxRadiansBetweenNormalsToStitch);
@@ -164,6 +168,7 @@ public:
 				goto dupl;
 			}
 			// test his distance against all already found unique vertices
+			if (mergingPossible)
 			for (unsigned u=UniqueVertices;u--;) // u=filtered/our vertex, index into Unique2Dupl
 			{
 				Vertex& ufl = vertices[Unique2Dupl[u]];

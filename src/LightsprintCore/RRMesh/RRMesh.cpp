@@ -421,12 +421,15 @@ const RRMesh* RRMesh::createMultiMesh(const RRMesh* const* meshes, unsigned numM
 	return fast ? RRMeshMultiFast::create(meshes,numMeshes) : RRMeshMultiSmall::create(meshes,numMeshes);
 }
 
-const RRMesh* RRMesh::createOptimizedVertices(float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, float maxDistanceBetweenUvsToStitch, const RRVector<unsigned>* texcoords) const
+const RRMesh* RRMesh::createOptimizedVertices(float maxDistanceBetweenVerticesToMerge, float maxRadiansBetweenNormalsToMerge, float maxDistanceBetweenUvsToMerge, const RRVector<unsigned>* texcoords) const
 {
 	if (!this) return NULL;
-	if (maxDistanceBetweenVerticesToStitch<0 || maxRadiansBetweenNormalsToStitch<0)
-		return this;
-	RRMesh* tmp = new RRLessVerticesFilter<unsigned>(this,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,maxDistanceBetweenUvsToStitch,texcoords);
+
+	// negative values are legal, filter can still remove unused vertices
+	//if (maxDistanceBetweenVerticesToMerge<0 || maxRadiansBetweenNormalsToMerge<0)
+	//	return this;
+
+	RRMesh* tmp = new RRLessVerticesFilter<unsigned>(this,maxDistanceBetweenVerticesToMerge,maxRadiansBetweenNormalsToMerge,maxDistanceBetweenUvsToMerge,texcoords);
 	if (tmp->getNumVertices()<getNumVertices())
 		return tmp;
 	delete tmp;
