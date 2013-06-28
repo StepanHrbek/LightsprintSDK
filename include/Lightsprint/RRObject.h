@@ -600,7 +600,7 @@ namespace rr
 		//!  Note that number of triangles may drop to zero, you can use removeEmptyObjects() to remove such objects.
 		//! \param stitchPositions
 		//!  Allows stitching positions of nearby vertices (doesn't change number of vertices).
-		//! \prama stitchNormals
+		//! \param stitchNormals
 		//!  Allows stitching normals of nearby vertices (doesn't change number of vertices).
 		//! \param generateNormals
 		//!  True = generates new normals from mesh geometry, completely ignoring old normals (but keeps existing tangents).
