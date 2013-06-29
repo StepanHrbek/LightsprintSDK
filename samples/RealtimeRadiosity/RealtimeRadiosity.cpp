@@ -1,15 +1,23 @@
 // --------------------------------------------------------------------------
 // RealtimeRadiosity sample
 //
-// Shows realtime GI + area light with penumbra shadows + projected video _in custom renderer_.
+// Shows realtime GI + area light with penumbra shadows + projected video
+// ADDED TO 3RD PARTY SCENE VIEWER.
 //
-// Advantages
-// - source code of all draw commands
-// - shaders can be customized (animated robot, potato material)
-// - simple, extensible
-// Disadvantages
-// - you can do nearly the same in 5x fewer lines, see RealtimeLights or Lightmaps
-// - custom 3ds renderer is slower, doesn't support transparency etc
+// This sample started by taking 3rd party 3ds viewer.
+// Then we added Lightsprint's advanced lighting, with only small changes
+// to 3rd party code. It still uses 3rd party scene loader, data structures
+// and OpenGL draw calls, we only modified it to use Lightsprint shaders.
+// (Ok, we also replaced 3rd party Material class with our RRMaterial later, just to get rid of conversions.)
+//
+// If you wish to add realtime GI to your own OpenGL based engine,
+// see simpler PenumbraShadows and more advanced RealtimeRadiosity samples.
+//
+// However, if we ditch 3rd party code and use Lightsprint SDK functions instead, we get
+// - 5x shorter source code
+// - higher quality (translucency, bump maps etc)
+// - higher FPS
+// - see Lightmaps or RealtimeLights samples
 //
 // Controls:
 //  mouse = look around
@@ -460,6 +468,8 @@ int main(int argc, char** argv)
 
 	rr::RRReporter::report(rr::INF2,
 		"\n"
+		"This sample is all about adding lighting to 3rd party codebase.\n"
+		"We can get better results without 3rd party code, see Lightmaps sample.\n"
 		"For complete description, see comment at the beginning of sample source code.\n"
 		"\n"
 		"Controls:\n"

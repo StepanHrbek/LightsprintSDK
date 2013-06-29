@@ -1,13 +1,26 @@
 // --------------------------------------------------------------------------
 // Penumbra Shadows sample
 //
-// Use of LightsprintGL renderer is demonstrated on .3ds scene viewer.
+// Shows area light with penumbra shadows
+// ADDED TO 3RD PARTY SCENE VIEWER.
 //
-// Indirect illumination is approximated by constant ambient.
+// There is no GI, indirect illumination is approximated by constant ambient.
 // Dynamic objects reflect skybox (visible behind walls).
 //
-// See the same scene with global illumination in RealtimeRadiosity sample
-// (it has 100 lines added).
+// This sample started by taking 3rd party 3ds viewer.
+// Then we added Lightsprint's penumbra shadows, with only small changes
+// to 3rd party code. It still uses 3rd party scene loader, data structures
+// and OpenGL draw calls, we only modified it to use Lightsprint shaders.
+// (Ok, we also replaced 3rd party Material class with our RRMaterial later, just to get rid of conversions.)
+//
+// If you wish to add realtime GI to your own OpenGL based engine,
+// see simpler PenumbraShadows and more advanced RealtimeRadiosity samples.
+//
+// However, if we ditch 3rd party code and use Lightsprint SDK functions instead, we get
+// - 5x shorter source code
+// - higher quality (translucency, bump maps etc)
+// - higher FPS
+// - see Lightmaps or RealtimeLights samples
 //
 // Controls:
 //  mouse = look around
