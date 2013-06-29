@@ -20,10 +20,10 @@
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 
-#include <ctime>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 #include <GL/glew.h>
 #ifdef __APPLE__
 	#include <GLUT/glut.h>
@@ -37,6 +37,7 @@
 #include "../src/LightsprintIO/Import3DS/RRObject3DS.h"
 #include "DynamicObject.h"
 #include "Lightsprint/IO/ImportScene.h"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -125,6 +126,15 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	}
 	// move and rotate object freely, nothing is precomputed
 	float rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*70.f;
+	if (potato)
+	{
+		potato->worldFoot = rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f);
+		potato->rotYZ = rr::RRVec2(rotation/2,0);
+		potato->updatePosition();
+		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
+			solver->updateEnvironmentMap(potato->illumination,LAYER_ENVIRONMENT);
+		potato->render(uberProgram,uberProgramSetup,eye,&solver->realtimeLights,0,eye,NULL,1);
+	}
 	if (robot)
 	{
 		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
@@ -134,15 +144,6 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->updateEnvironmentMap(robot->illumination,LAYER_ENVIRONMENT);
 		robot->render(uberProgram,uberProgramSetup,eye,&solver->realtimeLights,0,eye,NULL,1);
-	}
-	if (potato)
-	{
-		potato->worldFoot = rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f);
-		potato->rotYZ = rr::RRVec2(rotation/2,0);
-		potato->updatePosition();
-		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
-			solver->updateEnvironmentMap(potato->illumination,LAYER_ENVIRONMENT);
-		potato->render(uberProgram,uberProgramSetup,eye,&solver->realtimeLights,0,eye,NULL,1);
 	}
 }
 
@@ -172,6 +173,7 @@ public:
 		unsigned _layerLightmap,
 		unsigned _layerEnvironment,
 		unsigned _layerLDM,
+		float _animationTime,
 		const rr_gl::ClipPlanes* _clipPlanes,
 		bool _srgbCorrect,
 		const rr::RRVec4* _brightness,

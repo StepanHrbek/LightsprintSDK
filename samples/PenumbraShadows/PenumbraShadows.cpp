@@ -54,21 +54,21 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-Model_3DS              m3ds;
-rr::RRCamera           eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0),1.3f,70,0.3f,60);
-rr_gl::RealtimeLight*  realtimeLight = NULL;
-rr::RRBuffer*          environmentMap = NULL;
-rr_gl::TextureRenderer*textureRenderer = NULL;
-rr_gl::UberProgram*    uberProgram = NULL;
-DynamicObject*         robot = NULL;
-DynamicObject*         potato = NULL;
-int                    winWidth = 0;
-int                    winHeight = 0;
-bool                   modeMovingEye = false;
-float                  speedForward = 0;
-float                  speedBack = 0;
-float                  speedRight = 0;
-float                  speedLeft = 0;
+Model_3DS                  m3ds;
+rr::RRCamera               eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0),1.3f,70,0.3f,60);
+rr_gl::RealtimeLight*      realtimeLight = NULL;
+rr::RRBuffer*              environmentMap = NULL;
+rr_gl::TextureRenderer*    textureRenderer = NULL;
+rr_gl::UberProgram*        uberProgram = NULL;
+DynamicObject*             robot = NULL;
+DynamicObject*             potato = NULL;
+int                        winWidth = 0;
+int                        winHeight = 0;
+bool                       modeMovingEye = false;
+float                      speedForward = 0;
+float                      speedBack = 0;
+float                      speedRight = 0;
+float                      speedLeft = 0;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ float                  speedLeft = 0;
 void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
-	if (uberProgramSetup.LIGHT_DIRECT)
+	if (uberProgramSetup.LIGHT_DIRECT && environmentMap)
 		textureRenderer->renderEnvironment(eye,rr_gl::getTexture(environmentMap),0,NULL,0,0,NULL,1,false);
 
 	// render static scene
@@ -92,7 +92,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	m3ds.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
 
 	// render dynamic objects
-	uberProgramSetup.OBJECT_SPACE = true; // enable object space
+	// enable object space
+	uberProgramSetup.OBJECT_SPACE = true;
 	if (uberProgramSetup.SHADOW_MAPS) uberProgramSetup.SHADOW_MAPS = 1; // reduce shadow quality
 	// move and rotate object freely, nothing is precomputed
 	static float rotation = 0;
@@ -100,9 +101,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	// render objects
 	if (potato)
 	{
-		potato->worldFoot[0] = 2.2f*sin(rotation*0.005f);
-		potato->worldFoot[1] = 1.0f;
-		potato->worldFoot[2] = 2.2f;
+		potato->worldFoot = rr::RRVec3(2.2f*sin(rotation*0.005f),1.0f,2.2f);
 		if (uberProgramSetup.LIGHT_DIRECT)
 		{
 			uberProgramSetup.MATERIAL_SPECULAR = true;
@@ -113,9 +112,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 	}
 	if (robot)
 	{
-		robot->worldFoot[0] = -1.83f;
-		robot->worldFoot[1] = 0;
-		robot->worldFoot[2] = -3;
+		robot->worldFoot = rr::RRVec3(-1.83f,0,-3);
 		if (uberProgramSetup.LIGHT_DIRECT)
 		{
 			uberProgramSetup.MATERIAL_DIFFUSE = false;
@@ -323,13 +320,6 @@ int main(int argc, char** argv)
 	// init textures
 	environmentMap = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
 
-	// init light
-	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);
-	rrlight->rtProjectedTexture = rr::RRBuffer::load("../../data/maps/spot0.png");
-	rrlight->rtShadowmapSize = 512;
-	realtimeLight = new rr_gl::RealtimeLight(*rrlight);
-	realtimeLight->numInstancesInArea = shadowmapsPerPass;
-
 	// init static .3ds scene
 	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",NULL,0.03f))
 		error("",false);
@@ -337,6 +327,13 @@ int main(int argc, char** argv)
 	// init dynamic objects
 	robot = DynamicObject::create("../../data/objects/I_Robot_female.3ds",0.3f);
 	potato = DynamicObject::create("../../data/objects/potato/potato01.3ds",0.004f);
+
+	// init light
+	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(1,0.2f,1),RR_DEG2RAD(40),0.1f);
+	rrlight->rtProjectedTexture = rr::RRBuffer::load("../../data/maps/spot0.png");
+	rrlight->rtShadowmapSize = 512;
+	realtimeLight = new rr_gl::RealtimeLight(*rrlight);
+	realtimeLight->numInstancesInArea = shadowmapsPerPass;
 
 	glutMainLoop();
 	return 0;
