@@ -152,6 +152,9 @@ namespace rr
 		//!  Setting NULL is the same as setting array filled by zeroes, no custom irradiance.
 		void setDirectIllumination(const unsigned* perTriangleIrradiance);
 
+		//! Returns pointer previously passed to setDirectIllumination(), or NULL if it was not set yet.
+		const unsigned* getDirectIllumination();
+
 		//! Sets factor that multiplies intensity of direct illumination set by setDirectIllumination().
 		//
 		//! Default value is 1 = realistic.
@@ -383,7 +386,7 @@ namespace rr
 			unsigned qualityIndirectStatic;
 
 			//! Only for RRDynamicSolverGL:
-			//! For how long time indirect illumination may stay unchanged.
+			//! For how many seconds indirect illumination can stay unchanged.
 			//! 0 = update in each frame, highest quality.
 			//! 0.05 = update less frequently, faster.
 			float secondsBetweenDDI;

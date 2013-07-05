@@ -654,6 +654,11 @@ void RRDynamicSolver::setDirectIllumination(const unsigned* directIllumination)
 	}
 }
 
+const unsigned* RRDynamicSolver::getDirectIllumination()
+{
+	return priv->customIrradianceRGBA8;
+}
+
 void RRDynamicSolver::setDirectIlluminationBoost(RRReal boost)
 {
 	if (priv->boostCustomIrradiance != boost)

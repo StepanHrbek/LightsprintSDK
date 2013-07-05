@@ -268,6 +268,7 @@ void SVCanvas::createContextCore()
 		solver->setStaticObjects(svs.initialInputSolver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BSP_FASTER,svs.initialInputSolver); // smoothing and multiobject are taken from _solver
 		solver->setDynamicObjects(svs.initialInputSolver->getDynamicObjects());
 		solver->setLights(svs.initialInputSolver->getLights());
+		solver->setDirectIllumination(svs.initialInputSolver->getDirectIllumination());
 	}
 	else
 	if (!svs.sceneFilename.empty())
