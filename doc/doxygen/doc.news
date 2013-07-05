@@ -8,7 +8,14 @@ namespace rr
 
 \page main_news What's new
 
-\section news138 ------------------------------------ 2013.06.28 -------------------------------------
+\section news139 ------------------------------------ 2013.0x.xx -------------------------------------
+
+NEWS
+
+- misc helpers
+  - RRDynamicSolver::getDirectIllumination()
+
+\section news138 ------------------------------------ 2013.06.29 -------------------------------------
 
 CHANGES
 

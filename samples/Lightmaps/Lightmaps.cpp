@@ -476,6 +476,7 @@ int main(int argc, char** argv)
 
 	rr::RRReporter::report(rr::INF2,
 		"\n"
+		"Shows differences between realtime and precomputed global illumination.\n"
 		"For complete description, see comment at the beginning of sample source code.\n"
 		"\n"
 		"Controls:\n"
