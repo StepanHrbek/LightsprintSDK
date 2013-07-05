@@ -415,12 +415,12 @@ void UberProgramSetup::validate()
 		// renderer fails when both are enabled
 		MATERIAL_TRANSPARENCY_TO_RGB = 0;
 	}
-	if (!(MATERIAL_DIFFUSE_MAP && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_MIRROR_DIFFUSE))
-		&& !MATERIAL_SPECULAR
-		&& !LIGHT_INDIRECT_ENV_DIFFUSE // env diffuse can use normal maps, even if specular is disabled
+	if (!(MATERIAL_DIFFUSE_MAP && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_DIFFUSE || LIGHT_INDIRECT_MIRROR_DIFFUSE)) // diffuse map with certain lights can use bump maps for parallax
+		&& !MATERIAL_SPECULAR // specular can use bump maps
+		&& !LIGHT_INDIRECT_ENV_DIFFUSE // env diffuse can use bump maps, even if specular is disabled
 		&& !LIGHT_INDIRECT_ENV_REFRACT // refraction can use bump maps, even if specular is disabled
-		&& !LIGHT_INDIRECT_MIRROR_DIFFUSE // mirror diffuse can use normal maps, even if specular is disabled
-		&& !MATERIAL_TRANSPARENCY_FRESNEL) // fresnel can use normal maps, even if specular is disabled
+		&& !LIGHT_INDIRECT_MIRROR_DIFFUSE // mirror diffuse can use bump maps, even if specular is disabled
+		&& !MATERIAL_TRANSPARENCY_FRESNEL) // fresnel can use bump maps, even if specular is disabled
 	{
 		MATERIAL_BUMP_MAP = 0; // no use for normal map
 	}
