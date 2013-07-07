@@ -12,6 +12,7 @@ namespace rr
 
 NEWS
 
+- bump maps, parallax mapping and specular highlights are visible also in shadows and under ambient lighting
 - misc helpers
   - RRDynamicSolver::getDirectIllumination()
 

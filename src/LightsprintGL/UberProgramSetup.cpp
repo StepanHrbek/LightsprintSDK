@@ -378,7 +378,9 @@ void UberProgramSetup::validate()
 		MATERIAL_DIFFUSE = 0; // diffuse reflection requested, but there's no suitable light
 	}
 	if (!LIGHT_DIRECT
-		//&& !LIGHT_INDIRECT_CONST ...why was it here, bug? constant indirect does not affect specular
+		&& !LIGHT_INDIRECT_CONST  // specular can treat it as directional, with direction=normal
+		&& !LIGHT_INDIRECT_VCOLOR // -"-
+		&& !LIGHT_INDIRECT_MAP    // -"-
 		//&& !LIGHT_INDIRECT_ENV_DIFFUSE // env diffuse needs normals, but it doesn't affect specular
 		&& !LIGHT_INDIRECT_ENV_SPECULAR
 		&& !LIGHT_INDIRECT_MIRROR_SPECULAR)
@@ -687,7 +689,9 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		program->sendUniform("postprocessGamma", gamma);
 	}
 
-	if ((MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR)) || MATERIAL_BUMP_TYPE_HEIGHT || MATERIAL_TRANSPARENCY_FRESNEL || LIGHT_INDIRECT_ENV_REFRACT)
+	bool LIGHT_INDIRECT_SIMULATED_DIRECTION = (LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP) && !LIGHT_DIRECT && !LIGHT_INDIRECT_ENV_SPECULAR && !LIGHT_INDIRECT_MIRROR_SPECULAR;
+
+	if ((MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_SIMULATED_DIRECTION || LIGHT_INDIRECT_ENV_SPECULAR)) || MATERIAL_BUMP_TYPE_HEIGHT || MATERIAL_TRANSPARENCY_FRESNEL || LIGHT_INDIRECT_ENV_REFRACT)
 	{
 		// it is difficult to tell exactly when "worldEyePos" is in use, condition above is only simple superset, uniformExists() test is necessary
 		if (camera && program->uniformExists("worldEyePos"))
@@ -781,7 +785,9 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendUniform("materialDiffuseConst",rr::RRVec4(material->diffuseReflectance.color,1.0f));
 	}
 
-	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_ENV_SPECULAR || (LIGHT_INDIRECT_MIRROR_SPECULAR && LIGHT_INDIRECT_MIRROR_MIPMAPS)))
+	bool LIGHT_INDIRECT_SIMULATED_DIRECTION = (LIGHT_INDIRECT_CONST || LIGHT_INDIRECT_VCOLOR || LIGHT_INDIRECT_MAP) && !LIGHT_DIRECT && !LIGHT_INDIRECT_ENV_SPECULAR && !LIGHT_INDIRECT_MIRROR_SPECULAR;
+
+	if (MATERIAL_SPECULAR && (LIGHT_DIRECT || LIGHT_INDIRECT_SIMULATED_DIRECTION || LIGHT_INDIRECT_ENV_SPECULAR || (LIGHT_INDIRECT_MIRROR_SPECULAR && LIGHT_INDIRECT_MIRROR_MIPMAPS)))
 	{
 		float shininess = material->specularShininess;
 		float miplevel = getMipLevel(material); // miplevel 0=sample from 1x1x6, miplevel 1=2x2x6, miplevel 2=4x4x6...

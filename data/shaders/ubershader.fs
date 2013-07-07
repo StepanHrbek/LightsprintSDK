@@ -70,6 +70,14 @@
 	#define textureCubeLod(a,b,c) textureCube(a,b)
 #endif
 
+#if defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP)
+	#define LIGHT_INDIRECT_SCALAR // we have an indirect light with unknown direction
+	#if !defined(LIGHT_DIRECT) && !defined(LIGHT_INDIRECT_ENV_SPECULAR) && !defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
+		#define LIGHT_INDIRECT_SIMULATED_DIRECTION // we turn part of indirect light to direct, to make bump and specular work
+		#define lightIndirectFractionOfScalarTurnedDirectional 0.15
+	#endif
+#endif
+
 #if defined(SHADOW_MAPS)
 #if SHADOW_MAPS>0
 	varying vec4 shadowCoord0;
@@ -227,7 +235,7 @@ uniform vec3 worldEyePos; // is it in use? it's complicated and error prone to t
 
 varying vec3 worldPos;
 
-#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || (defined(LIGHT_INDIRECT_MIRROR_SPECULAR) && defined (LIGHT_INDIRECT_MIRROR_MIPMAPS)))
+#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_SIMULATED_DIRECTION) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || (defined(LIGHT_INDIRECT_MIRROR_SPECULAR) && defined (LIGHT_INDIRECT_MIRROR_MIPMAPS)))
 	uniform vec3 materialSpecularShininessData; // shininess,pow(shininess,0.01),cube miplevel(0=1x1x6,2=2x2x6,3=4x4x6...)
 #endif
 
@@ -486,7 +494,7 @@ void main()
 	#ifdef MATERIAL_SPECULAR_MAP
 		vec4 materialSpecularMapColor = texture2D(materialSpecularMap, materialSpecularCoord+parallaxOffset);
 	#endif
-	#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || (defined(LIGHT_INDIRECT_MIRROR_SPECULAR) && defined (LIGHT_INDIRECT_MIRROR_MIPMAPS)))
+	#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_SIMULATED_DIRECTION) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || (defined(LIGHT_INDIRECT_MIRROR_SPECULAR) && defined (LIGHT_INDIRECT_MIRROR_MIPMAPS)))
 		float materialSpecularShininess = materialSpecularShininessData.x;
 		float materialSpecularShininessSqrt = materialSpecularShininessData.y;
 		float materialSpecularMipLevel = materialSpecularShininessData.z;
@@ -685,6 +693,7 @@ void main()
 	// light direct
 
 	#ifdef LIGHT_DIRECT
+		// calculate worldLightDirFromPixel and lightDirect for true direct light
 		#if defined(LIGHT_DIRECTIONAL)
 			vec3 worldLightDirFromPixel = -worldLightDir;
 		#else
@@ -746,16 +755,11 @@ void main()
 
 	#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_INDIRECT_ENV_REFRACT) || defined(LIGHT_INDIRECT_MIRROR_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR) || defined(MATERIAL_EMISSIVE_CONST) || defined(MATERIAL_EMISSIVE_MAP) || defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(POSTPROCESS_NORMALS)
 
-		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_DIRECT))
-			vec3 worldViewReflected = reflect(-worldEyeDir,worldNormal);
-		#endif
-
-		#if defined(MATERIAL_SPECULAR) && defined(LIGHT_DIRECT)
-			float NH = max(0.0,dot(worldNormal,normalize(worldLightDirFromPixel+worldEyeDir)));
-		#endif
-
-		#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
-			vec4 lightIndirectLightmap = 
+		#if defined(LIGHT_INDIRECT_SCALAR)
+			vec4 lightIndirectScalar = 
+					#ifdef LIGHT_INDIRECT_CONST
+						+ lightIndirectConst
+					#endif
 					#ifdef LIGHT_INDIRECT_VCOLOR
 						+ lightIndirectColor
 					#endif
@@ -768,6 +772,20 @@ void main()
 						* lightIndirectBlend
 					#endif
 					;
+		#endif
+
+		#if defined(LIGHT_INDIRECT_SIMULATED_DIRECTION)
+			// calculate worldLightDirFromPixel and lightDirect for simulated direct light
+			vec3 worldLightDirFromPixel = worldNormal;
+			vec4 lightDirect = lightIndirectScalar;
+		#endif
+
+		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_INDIRECT_ENV_SPECULAR) || defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_SIMULATED_DIRECTION))
+			vec3 worldViewReflected = reflect(-worldEyeDir,worldNormal);
+		#endif
+
+		#if defined(MATERIAL_SPECULAR) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_SIMULATED_DIRECTION))
+			float NH = max(0.0,dot(worldNormal,normalize(worldLightDirFromPixel+worldEyeDir)));
 		#endif
 
 		#if defined(LIGHT_INDIRECT_MIRROR_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
@@ -831,23 +849,20 @@ void main()
 					#ifdef LIGHT_INDIRECT_DETAIL_MAP
 						+ (
 					#endif
-						#ifdef LIGHT_INDIRECT_CONST
-							+ lightIndirectConst
-						#endif
-						#if defined(LIGHT_INDIRECT_VCOLOR) && defined(LIGHT_INDIRECT_ENV_DIFFUSE)
+						#if defined(LIGHT_INDIRECT_SCALAR) && defined(LIGHT_INDIRECT_ENV_DIFFUSE)
 							// here we have two sources of indirect illumination data, render average of both
 							// application should send only one of them down the pipeline
 							// the only case when it makes sense to send both is: when rendering static object with normal maps,
 							//   LIGHT_INDIRECT_VCOLOR provides accurate baseline, LIGHT_INDIRECT_ENV_DIFFUSE adds per pixel details
 							+ (
 						#endif
-						#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
-							+ lightIndirectLightmap
+						#ifdef LIGHT_INDIRECT_SCALAR
+							+ lightIndirectScalar
 						#endif
 						#ifdef LIGHT_INDIRECT_ENV_DIFFUSE
 							+ textureCubeLod(lightIndirectEnvMap, worldNormal, lightIndirectEnvMapNumLods-2.0)
 						#endif
-						#if defined(LIGHT_INDIRECT_VCOLOR) && defined(LIGHT_INDIRECT_ENV_DIFFUSE)
+						#if defined(LIGHT_INDIRECT_SCALAR) && defined(LIGHT_INDIRECT_ENV_DIFFUSE)
 							) * 0.5
 						#endif
 						#ifdef LIGHT_INDIRECT_MIRROR_DIFFUSE
@@ -896,7 +911,7 @@ void main()
 					) *
 				#endif
 				vec4((
-					#ifdef LIGHT_DIRECT
+					#if defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_SIMULATED_DIRECTION)
 						#if MATERIAL_SPECULAR_MODEL==0
 							// Phong, materialSpecularShininess in 1..inf
 							+ pow( max(0.0,dot(worldLightDirFromPixel,normalize(worldViewReflected))) ,materialSpecularShininess) * (materialSpecularShininess+1.0)
@@ -911,21 +926,20 @@ void main()
 							+ sqr(materialSpecularShininess/(NH*NH*(materialSpecularShininess-1.0)+1.0))
 						#endif
 						* lightDirect
+						#if defined(LIGHT_INDIRECT_SIMULATED_DIRECTION)
+							* lightIndirectFractionOfScalarTurnedDirectional
+						#endif
 					#endif
-					#if defined(LIGHT_INDIRECT_CONST) && !defined(LIGHT_INDIRECT_ENV_SPECULAR) && !defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
-						// const is ignored by specular component when better indirect (env or mirror) is available
-						// (still, const is always applied to diffuse component)
-						//  other more complicated option would be to split LIGHT_INDIRECT_CONST into _DIFFUSE and _SPECULAR
-						+ lightIndirectConst
+					#if defined(LIGHT_INDIRECT_SCALAR) && !defined(LIGHT_INDIRECT_ENV_SPECULAR) && !defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
+						// scalar is ignored by specular component when better indirect (env or mirror) is available
+						// (still, scalar is always applied to diffuse component)
+						+ lightIndirectScalar
+						#if defined(LIGHT_INDIRECT_SIMULATED_DIRECTION)
+							* (1.0-lightIndirectFractionOfScalarTurnedDirectional)
+						#endif
 					#endif
 					#ifdef LIGHT_INDIRECT_ENV_SPECULAR
 						+ textureCubeLod(lightIndirectEnvMap, worldViewReflected, lightIndirectEnvMapNumLods-materialSpecularMipLevel)
-						#if defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2)
-							// reflection maps for big complex objects like whole building tend to be very inaccurate,
-							// modulating reflection by indirect irradiance makes them look better
-							// however, it negatively affects simple objects where reflection map is accurate
-							//* lightIndirectLightmap
-						#endif
 					#endif
 					#ifdef LIGHT_INDIRECT_MIRROR_SPECULAR
 						+ dividedByAlpha(
@@ -980,11 +994,11 @@ void main()
 					gl_FragColor.a = opacityA;
 				#endif
 			#endif
-			#if defined(LIGHT_INDIRECT_VCOLOR) && !defined(MATERIAL_DIFFUSE_CONST) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP)
-				// only if not defined by material, opacity is taken from indirect vcolor
+			#if defined(LIGHT_INDIRECT_SCALAR) && !defined(MATERIAL_DIFFUSE_CONST) && !defined(MATERIAL_DIFFUSE_MAP) && !defined(MATERIAL_TRANSPARENCY_CONST) && !defined(MATERIAL_TRANSPARENCY_MAP)
+				// only if not defined by material, opacity is taken from indirect light
 				// - so we can construct simple shader with color and opacity controlled by glColor4() (e.g. in glMenu)
 				// - before doing this also for LIGHT_INDIRECT_MAP, UberProgramSetup::validate() would have to be changed, it disables lightmap if diffuse is not present
-				gl_FragColor.a = lightIndirectLightmap.a;
+				gl_FragColor.a = lightIndirectScalar.a;
 			#endif
 		#endif
 
