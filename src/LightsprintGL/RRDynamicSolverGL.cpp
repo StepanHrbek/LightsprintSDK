@@ -327,7 +327,11 @@ done:
 						}
 						bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
 						if (depthClamp) glEnable(GL_DEPTH_CLAMP);
-						renderScene(uberProgramSetup,light->getShadowmapCamera(i,lightInstance),SM_MONO,&light->getRRLight(),false,UINT_MAX,UINT_MAX,UINT_MAX,0,NULL,false,NULL,1);
+						RenderParameters rp;
+						rp.uberProgramSetup = uberProgramSetup;
+						rp.camera = &light->getShadowmapCamera(i,lightInstance);
+						rp.renderingFromThisLight = &light->getRRLight();
+						renderScene(rp);
 						if (depthClamp) glDisable(GL_DEPTH_CLAMP);
 					}
 				}
@@ -653,37 +657,9 @@ void drawRealtimeLight(RealtimeLight* light)
 	}
 }
 
-void RRDynamicSolverGL::renderScene(
-		const UberProgramSetup& _uberProgramSetup,
-		const rr::RRCamera& _camera,
-		StereoMode _stereoMode,
-		const rr::RRLight* _renderingFromThisLight,
-		bool _updateLayers,
-		unsigned _layerLightmap,
-		unsigned _layerEnvironment,
-		unsigned _layerLDM,
-		float _animationTime,
-		const ClipPlanes* _clipPlanes,
-		bool _srgbCorrect,
-		const rr::RRVec4* _brightness,
-		float _gamma)
+void RRDynamicSolverGL::renderScene(const RenderParameters& _renderParameters)
 {
-	rendererOfScene->render(
-		this,
-		_uberProgramSetup,
-		_camera,
-		_stereoMode,
-		_uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL,
-		_renderingFromThisLight,
-		_updateLayers,
-		_layerLightmap,
-		_layerEnvironment,
-		_layerLDM,
-		_animationTime,
-		_clipPlanes,
-		_srgbCorrect,
-		_brightness,
-		_gamma);
+	rendererOfScene->render(this, _renderParameters.uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL, _renderParameters);
 }
 
 void RRDynamicSolverGL::renderLights(const rr::RRCamera& _camera)

@@ -16,6 +16,13 @@ NEWS
 - misc helpers
   - RRDynamicSolver::getDirectIllumination()
 
+CHANGES
+
+- rr_gl::RRDynamicSolverGL::render() and rr_gl::RenderererOfScene::render()
+  parameters moved into rr_gl::RenderParameters structure
+  \n please modify your code and especially your own implementations of 
+  virtual RRDynamicSolverGL::render() to use the same parameters
+
 \section news138 ------------------------------------ 2013.06.29 -------------------------------------
 
 CHANGES

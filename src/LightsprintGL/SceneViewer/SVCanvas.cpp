@@ -1586,85 +1586,80 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr::RRReportInterval report(rr::INF3,"render scene...\n");
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
-			rr::RRVec4 brightness = svs.renderTonemapping ? svs.tonemappingBrightness * pow(svs.tonemappingGamma,0.45f) : rr::RRVec4(1);
-			float gamma = svs.renderTonemapping ?svs.tonemappingGamma : 1;
+			RenderParameters rp;
 
-			UberProgramSetup uberProgramSetup;
-			uberProgramSetup.SHADOW_MAPS = 1;
-			uberProgramSetup.LIGHT_DIRECT = svs.renderLightDirect==LD_REALTIME;
-			uberProgramSetup.LIGHT_DIRECT_COLOR = svs.renderLightDirect==LD_REALTIME;
-			uberProgramSetup.LIGHT_DIRECT_MAP = svs.renderLightDirect==LD_REALTIME;
-			uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderLightDirect==LD_REALTIME;
-			uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderLightIndirect==LI_CONSTANT;
-			uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
-			uberProgramSetup.LIGHT_INDIRECT_MAP = svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
-			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = svs.renderLDMEnabled();
-			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE =
-			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = svs.raytracedCubesEnabled && solver->getStaticObjects().size()+solver->getDynamicObjects().size()<svs.raytracedCubesMaxObjects;
-			uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT = uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && svs.renderMaterialTransparencyRefraction;
-			uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = svs.mirrorsEnabled && svs.mirrorsDiffuse;
-			uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = svs.mirrorsEnabled && svs.mirrorsSpecular;
-			uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = svs.mirrorsEnabled && svs.mirrorsMipmaps;
-			uberProgramSetup.MATERIAL_DIFFUSE = true;
-			uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse;
-			uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures;
-			uberProgramSetup.MATERIAL_SPECULAR = svs.renderMaterialSpecular;
-			uberProgramSetup.MATERIAL_SPECULAR_MAP = svs.renderMaterialSpecular && svs.renderMaterialTextures;
-			uberProgramSetup.MATERIAL_SPECULAR_CONST = svs.renderMaterialSpecular;
-			uberProgramSetup.MATERIAL_EMISSIVE_CONST = svs.renderMaterialEmission;
-			uberProgramSetup.MATERIAL_EMISSIVE_MAP = svs.renderMaterialEmission && svs.renderMaterialTextures;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderMaterialTransparency!=T_OPAQUE;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency!=T_OPAQUE && svs.renderMaterialTextures;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency!=T_OPAQUE;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency==T_ALPHA_BLEND || svs.renderMaterialTransparency==T_RGB_BLEND;
-			uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = svs.renderMaterialTransparency==T_RGB_BLEND && !uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT; // renderer processes _TO_RGB as multipass, this is not necessary (and not working) with _REFRACT, therefore we disable _TO_RGB when _REFRACT
-			uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL = svs.renderMaterialTransparencyFresnel;
-			uberProgramSetup.MATERIAL_BUMP_MAP = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
-			uberProgramSetup.MATERIAL_NORMAL_MAP_FLOW = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
-			uberProgramSetup.MATERIAL_CULLING = svs.renderMaterialSidedness;
-			uberProgramSetup.POSTPROCESS_BRIGHTNESS = brightness!=rr::RRVec4(1);
-			uberProgramSetup.POSTPROCESS_GAMMA = gamma!=1;
-			ClipPlanes clipPlanes = {rr::RRVec4(0),0,0,0,0,0,0};
+			rp.camera = &svs.eye;
+
+			rp.brightness = svs.renderTonemapping ? svs.tonemappingBrightness * pow(svs.tonemappingGamma,0.45f) : rr::RRVec4(1);
+			rp.gamma = svs.renderTonemapping ?svs.tonemappingGamma : 1;
+
+			rp.uberProgramSetup.SHADOW_MAPS = 1;
+			rp.uberProgramSetup.LIGHT_DIRECT = svs.renderLightDirect==LD_REALTIME;
+			rp.uberProgramSetup.LIGHT_DIRECT_COLOR = svs.renderLightDirect==LD_REALTIME;
+			rp.uberProgramSetup.LIGHT_DIRECT_MAP = svs.renderLightDirect==LD_REALTIME;
+			rp.uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderLightDirect==LD_REALTIME;
+			rp.uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderLightIndirect==LI_CONSTANT;
+			rp.uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
+			rp.uberProgramSetup.LIGHT_INDIRECT_MAP = svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
+			rp.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = svs.renderLDMEnabled();
+			rp.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE =
+			rp.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = svs.raytracedCubesEnabled && solver->getStaticObjects().size()+solver->getDynamicObjects().size()<svs.raytracedCubesMaxObjects;
+			rp.uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT = rp.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && svs.renderMaterialTransparencyRefraction;
+			rp.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = svs.mirrorsEnabled && svs.mirrorsDiffuse;
+			rp.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = svs.mirrorsEnabled && svs.mirrorsSpecular;
+			rp.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = svs.mirrorsEnabled && svs.mirrorsMipmaps;
+			rp.uberProgramSetup.MATERIAL_DIFFUSE = true;
+			rp.uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse;
+			rp.uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures;
+			rp.uberProgramSetup.MATERIAL_SPECULAR = svs.renderMaterialSpecular;
+			rp.uberProgramSetup.MATERIAL_SPECULAR_MAP = svs.renderMaterialSpecular && svs.renderMaterialTextures;
+			rp.uberProgramSetup.MATERIAL_SPECULAR_CONST = svs.renderMaterialSpecular;
+			rp.uberProgramSetup.MATERIAL_EMISSIVE_CONST = svs.renderMaterialEmission;
+			rp.uberProgramSetup.MATERIAL_EMISSIVE_MAP = svs.renderMaterialEmission && svs.renderMaterialTextures;
+			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderMaterialTransparency!=T_OPAQUE;
+			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency!=T_OPAQUE && svs.renderMaterialTextures;
+			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency!=T_OPAQUE;
+			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency==T_ALPHA_BLEND || svs.renderMaterialTransparency==T_RGB_BLEND;
+			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = svs.renderMaterialTransparency==T_RGB_BLEND && !rp.uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT; // renderer processes _TO_RGB as multipass, this is not necessary (and not working) with _REFRACT, therefore we disable _TO_RGB when _REFRACT
+			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL = svs.renderMaterialTransparencyFresnel;
+			rp.uberProgramSetup.MATERIAL_BUMP_MAP = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
+			rp.uberProgramSetup.MATERIAL_NORMAL_MAP_FLOW = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
+			rp.uberProgramSetup.MATERIAL_CULLING = svs.renderMaterialSidedness;
+			rp.uberProgramSetup.POSTPROCESS_BRIGHTNESS = rp.brightness!=rr::RRVec4(1);
+			rp.uberProgramSetup.POSTPROCESS_GAMMA = rp.gamma!=1;
 			// There was updateLayers=true by accident since rev 5221 (I think development version of mirrors needed it to update mirrors, and I forgot to revert it).
 			// It was error, because "true" when rendering static lmap allows RendererOfScene [#12] to use multiobj.
 			// And as lmap is always stored in 1obj, RendererOfScene can't find it in multiobj. Error was visible only with specular cubes disabled (they also enforce 1obj).
-			bool updateLayers = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
-			unsigned layers[3] =
-			{
-				(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient),
-				svs.raytracedCubesEnabled?((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeEnvironment:svs.layerBakedEnvironment):UINT_MAX,
-				svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX
-			};
+			rp.updateLayers = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
+			rp.layerLightmap = (svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient);
+			rp.layerEnvironment = svs.raytracedCubesEnabled?((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeEnvironment:svs.layerBakedEnvironment):UINT_MAX;
+			rp.layerLDM = svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX;
 			
 			// in interlaced mode, check whether image starts on odd or even scanline
-			StereoMode sm = svframe->userPreferences.stereoMode;
-			if (sm==SM_INTERLACED || sm==SM_INTERLACED_SWAP)
+			if (svs.renderStereo)
 			{
-				GLint viewport[4];
-				glGetIntegerv(GL_VIEWPORT,viewport);
-				int trueWinWidth, trueWinHeight;
-				GetClientSize(&trueWinWidth, &trueWinHeight);
-				if ((GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
-					sm = (sm==SM_INTERLACED)?SM_INTERLACED_SWAP:SM_INTERLACED;
+				rp.stereoMode = svframe->userPreferences.stereoMode;
+				if (rp.stereoMode==SM_INTERLACED || rp.stereoMode==SM_INTERLACED_SWAP)
+				{
+					GLint viewport[4];
+					glGetIntegerv(GL_VIEWPORT,viewport);
+					int trueWinWidth, trueWinHeight;
+					GetClientSize(&trueWinWidth, &trueWinHeight);
+					if ((GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
+						rp.stereoMode = (rp.stereoMode==SM_INTERLACED)?SM_INTERLACED_SWAP:SM_INTERLACED;
+				}
 			}
 
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 
-			float secondsPassed = svs.referenceTime.secondsPassed();
-			if (secondsPassed>1000)
+			rp.animationTime = svs.referenceTime.secondsPassed();
+			if (rp.animationTime>1000)
 				svs.referenceTime.addSeconds(1000);
 
-			solver->renderScene(
-				uberProgramSetup,
-				svs.eye,
-				svs.renderStereo?sm:SM_MONO,
-				NULL,
-				updateLayers,layers[0],layers[1],layers[2],
-				secondsPassed,
-				&clipPlanes,
-				svs.srgbCorrect,
-				&brightness,
-				gamma);
+			rp.srgbCorrect = svs.srgbCorrect;
+
+			solver->renderScene(rp);
+
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 			// adjust tonemapping

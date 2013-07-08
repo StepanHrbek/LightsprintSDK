@@ -30,6 +30,83 @@ enum StereoMode
 	SM_TOP_DOWN_SWAP    =7, // top half is right eye
 };
 
+//! Collection of parameters passed to renderer.
+//
+//! All parameters have safe default values set automatically.
+//! The only parameter you always have to set is camera, default NULL won't work.
+struct RenderParameters
+{
+	//! Specifies shader properties to be allowed during render.
+	//! For rendering with all light and material features,
+	//! use UberProgramSetup::enableAllLights() and UberProgramSetup::enableAllMaterials().
+	UberProgramSetup uberProgramSetup;
+
+	//! Pointer to your camera, to be used for rendering.
+	const rr::RRCamera* camera;
+
+	//! One of camera stereo modes, or SM_MONO for common non-stereo render.
+	StereoMode stereoMode;
+
+	//! When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
+	const rr::RRLight* renderingFromThisLight;
+
+	//! False = renders illumination as it is stored in buffers, without updating it.
+	//! True = updates illumination in _layerLightmap and _layerEnvironment layers before rendering it. Updates only outdated buffers, only buffers being rendered.
+	//! Note that renderer does not allocated or deleted buffers.
+	//! You can allocate buffers in advance by calling RRDynamicSolver::allocateBuffersForRealtimeGI() once.
+	bool updateLayers;
+
+	//! Indirect illumination is taken from and possibly updated in given layer.
+	//! Renderer touches only existing buffers, does not allocate new ones.
+	unsigned layerLightmap;
+
+	//! Environment is taken from and possibly updated in given layer.
+	//! Renderer touches only existing buffers, does not allocate new ones.
+	unsigned layerEnvironment;
+
+	//! Specifies source of light detail maps. Renderer only reads them.
+	unsigned layerLDM;
+
+	//! Specifies time from start of animation. At the moment, only water shader uses it for animated waves.
+	float animationTime;
+
+	//! Specifies clipping of rendered geometry.
+	ClipPlanes clipPlanes;
+
+	//! True = calculates illumination in slower but more accurate sRGB correct way.
+	//! However, transparency is also calculated in sRGB, which makes it look different.
+	//! Has no effect on very old GPUs that don't support sRGB textures.
+	bool srgbCorrect;
+
+	//! Specifies global brightness.
+	rr::RRVec4 brightness;
+
+	//! Specifies global gamma (contrast) factor. Default is 1 for standard pipeline, 2.2 for sRGB correct pipeline.
+	float gamma;
+
+	RenderParameters()
+	{
+		camera = NULL;
+		stereoMode = SM_MONO;
+		renderingFromThisLight = NULL;
+		updateLayers = false;
+		layerLightmap = UINT_MAX;
+		layerEnvironment = UINT_MAX;
+		layerLDM = UINT_MAX;
+		animationTime = 0;
+		clipPlanes.clipPlane = rr::RRVec4(1,0,0,0);
+		clipPlanes.clipPlaneXA = 0;
+		clipPlanes.clipPlaneXB = 0;
+		clipPlanes.clipPlaneYA = 0;
+		clipPlanes.clipPlaneYB = 0;
+		clipPlanes.clipPlaneZA = 0;
+		clipPlanes.clipPlaneZB = 0;
+		srgbCorrect = false;
+		brightness = rr::RRVec4(1);
+		gamma = 1;
+	}
+};
+
 //! OpenGL renderer of scene in RRDynamicSolver.
 //
 //! Renders scene from solver.
@@ -63,59 +140,12 @@ public:
 	//!
 	//! \param _solver
 	//!  Source of static and dynamic objects, environment and illumination. Direct lights from solver are ignored.
-	//! \param _uberProgramSetup
-	//!  Specifies shader properties to be allowed during render.
-	//!  For rendering with all light and material features,
-	//!  use UberProgramSetup::enableAllLights() and UberProgramSetup::enableAllMaterials().
-	//! \param _camera
-	//!  Camera scene is rendered from.
-	//! \param _stereoMode
-	//!  One of camera stereo modes, or SM_MONO for common non-stereo render.
 	//! \param _lights
 	//!  Set of lights, source of direct illumination in rendered scene.
-	//! \param _renderingFromThisLight
-	//!  When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
-	//! \param _updateLayers
-	//!  False = renders illumination as it is stored in buffers, without updating it.
-	//!  True = updates illumination in _layerLightmap and _layerEnvironment layers before rendering it. Updates only outdated buffers, only buffers being rendered.
-	//!  Note that buffers are not allocated or deleted here.
-	//!  You can allocate buffers in advance by calling RRDynamicSolver::allocateBuffersForRealtimeGI() once.
-	//! \param _layerLightmap
-	//!  Indirect illumination is taken from and possibly updated to given layer.
-	//!  Function touches only existing buffers, does not allocate new ones.
-	//! \param _layerEnvironment
-	//!  Environment is taken from and possibly updated to given layer.
-	//!  Function touches only existing buffers, does not allocate new ones.
-	//! \param _layerLDM
-	//!  Specifies source of light detail maps. Function only reads them.
-	//! \param _animationTime
-	//!  Specifies time from start of animation. At the moment, only water shader uses it for animating waves.
-	//! \param _clipPlanes
-	//!  Specifies clipping of rendered geometry, pass NULL for no clipping.
-	//! \param _srgbCorrect
-	//!  True = calculates illumination in slower but more accurate sRGB correct way.
-	//!  However, transparency is also calculated in sRGB, which makes it look different.
-	//!  Has no effect on very old GPUs that don't support sRGB textures.
-	//! \param _brightness
-	//!  Specifies global brightness. NULL for default brightness 1.
-	//! \param _gamma
-	//!  Specifies global gamma (contrast) factor. Default is 1 for standard pipeline, 2.2 for sRGB correct pipeline.
-	virtual void render(
-		rr::RRDynamicSolver* _solver,
-		const UberProgramSetup& _uberProgramSetup,
-		const rr::RRCamera& _camera,
-		StereoMode _stereoMode,
-		const RealtimeLights* _lights,
-		const rr::RRLight* _renderingFromThisLight,
-		bool _updateLayers,
-		unsigned _layerLightmap,
-		unsigned _layerEnvironment,
-		unsigned _layerLDM,
-		float _animationTime,
-		const ClipPlanes* _clipPlanes,
-		bool _srgbCorrect,
-		const rr::RRVec4* _brightness,
-		float _gamma) = 0;
+	//! \param _renderParameters
+	//!  Other rendering parameters.
+	virtual void render(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters) = 0;
+
 
 	virtual class RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh) = 0;
 	virtual class TextureRenderer* getTextureRenderer() = 0;

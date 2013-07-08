@@ -171,26 +171,18 @@ public:
 	{
 		setDirectIlluminationBoost(2);
 	}
-	// called from RRDynamicSolverGL to update shadowmaps
-	virtual void renderScene(
-		const rr_gl::UberProgramSetup& _uberProgramSetup,
-		const rr::RRCamera& _camera,
-		rr_gl::StereoMode _stereoMode,
-		const rr::RRLight* _renderingFromThisLight,
-		bool _updateLayers,
-		unsigned _layerLightmap,
-		unsigned _layerEnvironment,
-		unsigned _layerLDM,
-		float _animationTime,
-		const rr_gl::ClipPlanes* _clipPlanes,
-		bool _srgbCorrect,
-		const rr::RRVec4* _brightness,
-		float _gamma)
-{
-		rr_gl::setupForRender(_camera);
+	// Called from RRDynamicSolverGL to update shadowmaps.
+	// If we delete this function, sample still works, but dynamic objects have no shadows.
+	// It's because default renderScene() implemetation renders only objects we sent to solver.
+	// In this sample, dynamic objects are in third party format, and third party code renders them,
+	// so we can't send them to solver. The only thing solver needs is ability to render them on request.
+	// This function satisfies it.
+	virtual void renderScene(const rr_gl::RenderParameters& _renderParameters)
+	{
+		rr_gl::setupForRender(*_renderParameters.camera);
 
 		// disable all material properties not supported by custom 3ds renderer
-		rr_gl::UberProgramSetup uberProgramSetup = _uberProgramSetup;
+		rr_gl::UberProgramSetup uberProgramSetup = _renderParameters.uberProgramSetup;
 		//uberProgramSetup.MATERIAL_DIFFUSE
 		uberProgramSetup.MATERIAL_DIFFUSE_X2 = false;
 		uberProgramSetup.MATERIAL_DIFFUSE_CONST = false;

@@ -264,12 +264,20 @@ void display(void)
 
 	//rr::RRReportInterval report2(rr::INF1,"final...\n");
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.enableAllLights();
-	uberProgramSetup.enableAllMaterials();
-	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
-	uberProgramSetup.POSTPROCESS_GAMMA = true;
-	solver->renderScene(uberProgramSetup,eye,rr_gl::SM_MONO,NULL,true,LAYER_LIGHTMAPS,LAYER_ENVIRONMENT,UINT_MAX,0,NULL,false,&brightness,contrast);
+	// configure renderer
+	rr_gl::RenderParameters rp;
+	rp.uberProgramSetup.enableAllLights();
+	rp.uberProgramSetup.enableAllMaterials();
+	rp.uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
+	rp.uberProgramSetup.POSTPROCESS_GAMMA = true;
+	rp.camera = &eye;
+	rp.updateLayers = true;
+	rp.layerLightmap = LAYER_LIGHTMAPS;
+	rp.layerEnvironment = LAYER_ENVIRONMENT;
+	rp.brightness = brightness;
+	rp.gamma = contrast;
+	// render scene
+	solver->renderScene(rp);
 
 	glutSwapBuffers();
 }

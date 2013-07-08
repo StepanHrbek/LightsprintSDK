@@ -282,25 +282,21 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 
 	camera.setAspect( winHeight ? (float) winWidth / (float) winHeight : 1 );
 
-	rr::RRVec4 globalBrightnessBoosted = currentFrame.brightness;
-	rr::RRReal globalGammaBoosted = currentFrame.gamma;
-	demoPlayer->getBoost(globalBrightnessBoosted,globalGammaBoosted);
+	rr_gl::RenderParameters rp;
+	rp.uberProgramSetup = uberProgramSetup;
+	rp.camera = &camera;
+	rp.renderingFromThisLight = renderingFromThisLight;
+	rp.updateLayers = true;
+	rp.layerLightmap = LAYER_LIGHTMAPS;
+	rp.layerEnvironment = LAYER_ENVIRONMENT;
+	rp.layerLDM = uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX;
+	rp.brightness = currentFrame.brightness;
+	rp.gamma = currentFrame.gamma;
 
+	demoPlayer->getBoost(rp.brightness,rp.gamma);
 	rrLight->rtProjectedTexture = demoPlayer->getProjector(currentFrame.projectorIndex);
 
-	level->solver->renderScene(
-		uberProgramSetup,
-		camera,
-		rr_gl::SM_MONO,
-		renderingFromThisLight,
-		true,
-		LAYER_LIGHTMAPS,
-		LAYER_ENVIRONMENT,
-		uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX,
-		0,
-		NULL,false,
-		&globalBrightnessBoosted,
-		globalGammaBoosted);
+	level->solver->renderScene(rp);
 }
 
 void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance)
@@ -1918,7 +1914,7 @@ int main(int argc, char** argv)
 	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2012 [Linux %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #endif
 
-	rr_io::registerLoaders();
+	rr_io::registerLoaders(argc,argv);
 
 	if (customScene)
 	{

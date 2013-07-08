@@ -334,14 +334,19 @@ void display(void)
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	// configure renderer
-	rr_gl::UberProgramSetup uberProgramSetup;
-	uberProgramSetup.enableAllLights();
-	uberProgramSetup.enableAllMaterials();
-	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
-	uberProgramSetup.POSTPROCESS_GAMMA = true;
+	rr_gl::RenderParameters rp;
+	rp.uberProgramSetup.enableAllLights();
+	rp.uberProgramSetup.enableAllMaterials();
+	rp.uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
+	rp.uberProgramSetup.POSTPROCESS_GAMMA = true;
+	rp.camera = &eye;
+	rp.updateLayers = renderLayer==LAYER_REALTIME;
+	rp.layerLightmap = renderLayer;
+	rp.layerEnvironment = LAYER_ENVIRONMENT;
+	rp.brightness = brightness;
+	rp.gamma = contrast;
 	// render scene
-	solver->renderScene(uberProgramSetup,eye,rr_gl::SM_MONO,NULL,renderLayer==LAYER_REALTIME,renderLayer,LAYER_ENVIRONMENT,UINT_MAX,0,NULL,false,&brightness,contrast);
-
+	solver->renderScene(rp);
 	solver->renderLights(eye);
 
 	glutSwapBuffers();

@@ -96,22 +96,7 @@ public:
 	RendererOfSceneImpl(const char* pathToShaders);
 	virtual ~RendererOfSceneImpl();
 
-	virtual void render(
-		rr::RRDynamicSolver* _solver,
-		const UberProgramSetup& _uberProgramSetup,
-		const rr::RRCamera& _camera,
-		StereoMode _stereoMode,
-		const RealtimeLights* _lights,
-		const rr::RRLight* _renderingFromThisLight,
-		bool _updateLayers,
-		unsigned _layerLightmap,
-		unsigned _layerEnvironment,
-		unsigned _layerLDM,
-		float _animationTime,
-		const ClipPlanes* _clipPlanes,
-		bool _srgbCorrect,
-		const rr::RRVec4* _brightness,
-		float _gamma);
+	virtual void render(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters);
 
 	virtual RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
 	{
@@ -215,31 +200,19 @@ struct PlaneCompare // comparing RRVec4 looks strange, so we do it here rather t
 };
 #endif
 
-void RendererOfSceneImpl::render(
-		rr::RRDynamicSolver* _solver,
-		const UberProgramSetup& _uberProgramSetup,
-		const rr::RRCamera& _camera,
-		StereoMode _stereoMode,
-		const RealtimeLights* _lights,
-		const rr::RRLight* _renderingFromThisLight,
-		bool _updateLayers,
-		unsigned _layerLightmap,
-		unsigned _layerEnvironment,
-		unsigned _layerLDM,
-		float _animationTime,
-		const ClipPlanes* _clipPlanes,
-		bool _srgbCorrect,
-		const rr::RRVec4* _brightness,
-		float _gamma)
+void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters)
 {
-	if (!_solver)
+	if (!_solver || !_renderParameters.camera)
 	{
 		RR_ASSERT(0);
 		return;
 	}
 
+	// copy, so that we can modify some parameters
+	RenderParameters _ = _renderParameters;
+
 	// handle stereo modes by calling render() twice
-	if (_stereoMode!=SM_MONO && stereoUberProgram && stereoTexture)
+	if (_.stereoMode!=SM_MONO && stereoUberProgram && stereoTexture)
 	{
 		GLint viewport[4];
 		glGetIntegerv(GL_VIEWPORT,viewport);
@@ -253,8 +226,8 @@ void RendererOfSceneImpl::render(
 		// why not stencil buffer masked rendering to odd/even lines?
 		//  because lines blur with multisampled screen (even if multisampling is disabled)
 		rr::RRCamera leftEye, rightEye;
-		_camera.getStereoCameras(leftEye,rightEye);
-		bool swapEyes = _stereoMode==SM_INTERLACED_SWAP || _stereoMode==SM_TOP_DOWN || _stereoMode==SM_SIDE_BY_SIDE_SWAP;
+		_.camera->getStereoCameras(leftEye,rightEye);
+		bool swapEyes = _.stereoMode==SM_INTERLACED_SWAP || _.stereoMode==SM_TOP_DOWN || _.stereoMode==SM_SIDE_BY_SIDE_SWAP;
 
 		{
 			// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
@@ -263,31 +236,34 @@ void RendererOfSceneImpl::render(
 
 			// render left
 			GLint viewport1eye[4] = {viewport[0],viewport[1],viewport[2],viewport[3]};
-			if (_stereoMode==SM_SIDE_BY_SIDE || _stereoMode==SM_SIDE_BY_SIDE_SWAP)
+			if (_.stereoMode==SM_SIDE_BY_SIDE || _.stereoMode==SM_SIDE_BY_SIDE_SWAP)
 				viewport1eye[2] /= 2;
 			else
 				viewport1eye[3] /= 2;
 			glViewport(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
 			glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
-			render(
-				_solver,_uberProgramSetup,swapEyes?rightEye:leftEye,SM_MONO,_lights,_renderingFromThisLight,
-				_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,_animationTime,_clipPlanes,_srgbCorrect,_brightness,_gamma);
+			_.camera = swapEyes?&rightEye:&leftEye;
+			StereoMode backup = _.stereoMode;
+			_.stereoMode = SM_MONO;
+			render(_solver,_lights,_);
+			_.stereoMode = backup;
 
 			// render right
 			// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
-			if (_stereoMode==SM_SIDE_BY_SIDE || _stereoMode==SM_SIDE_BY_SIDE_SWAP)
+			if (_.stereoMode==SM_SIDE_BY_SIDE || _.stereoMode==SM_SIDE_BY_SIDE_SWAP)
 				viewport1eye[0] += viewport1eye[2];
 			else
 				viewport1eye[1] += viewport1eye[3];
 			glViewport(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
 			glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
-			render(
-				_solver,_uberProgramSetup,swapEyes?leftEye:rightEye,SM_MONO,_lights,_renderingFromThisLight,
-				false,_layerLightmap,_layerEnvironment,_layerLDM,_animationTime,_clipPlanes,_srgbCorrect,_brightness,_gamma);
+			_.camera = swapEyes?&leftEye:&rightEye;
+			_.stereoMode = SM_MONO;
+			render(_solver,_lights,_);
+			_.stereoMode = backup;
 		}
 
 		// composite
-		if (_stereoMode==SM_INTERLACED || _stereoMode==SM_INTERLACED_SWAP)
+		if (_.stereoMode==SM_INTERLACED || _.stereoMode==SM_INTERLACED_SWAP)
 		{
 			// turns top-down images to interlaced
 			glViewport(viewport[0],viewport[1]+(viewport[3]%2),viewport[2],viewport[3]/2*2);
@@ -317,11 +293,11 @@ void RendererOfSceneImpl::render(
 
 	// Ensure sRGB correctness.
 	if (!Workaround::supportsSRGB())
-		_srgbCorrect = false;
-	PreserveFlag p0(GL_FRAMEBUFFER_SRGB,_srgbCorrect);
-	if (_srgbCorrect)
+		_.srgbCorrect = false;
+	PreserveFlag p0(GL_FRAMEBUFFER_SRGB,_.srgbCorrect);
+	if (_.srgbCorrect)
 	{
-		_gamma *= 2.2f;
+		_.gamma *= 2.2f;
 	}
 
 #ifdef MIRRORS
@@ -338,7 +314,7 @@ void RendererOfSceneImpl::render(
 	//unsigned lightIndirectVersion = _solver?_solver->getSolutionVersion():0;
 	bool needsIndividualStaticObjectsForEverything =
 		// optimized render is faster and supports rendering into shadowmaps (this will go away with colored shadows)
-		!_renderingFromThisLight
+		!_.renderingFromThisLight
 
 		// disabled, this forced multiobj even if user expected lightmaps from 1obj to be rendered
 		// should be no loss, using multiobj in scenes with 1 object was faster only in old renderer, new renderer makes no difference
@@ -346,16 +322,16 @@ void RendererOfSceneImpl::render(
 
 		&& (
 			// optimized render can't render LDM for more than 1 object
-			(_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _layerLDM!=UINT_MAX)
+			(_.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _.layerLDM!=UINT_MAX)
 			// if we are to use provided indirect, take it always from 1objects
 			// ([#12] if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
-			|| ((_uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_uberProgramSetup.LIGHT_INDIRECT_MAP) && !_updateLayers && _layerLightmap!=UINT_MAX)
+			|| ((_.uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_.uberProgramSetup.LIGHT_INDIRECT_MAP) && !_.updateLayers && _.layerLightmap!=UINT_MAX)
 			// optimized render would look bad with single specular cube per-scene
-			|| ((_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _layerEnvironment!=UINT_MAX)
+			|| ((_.uberProgramSetup.MATERIAL_SPECULAR && _.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _.layerEnvironment!=UINT_MAX)
 #ifdef MIRRORS
 			// optimized render would look bad without mirrors in static parts
-			|| (_uberProgramSetup.MATERIAL_DIFFUSE && _uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE)
-			|| (_uberProgramSetup.MATERIAL_SPECULAR && _uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR)
+			|| (_.uberProgramSetup.MATERIAL_DIFFUSE && _.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE)
+			|| (_.uberProgramSetup.MATERIAL_SPECULAR && _.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR)
 #endif
 		);
 
@@ -364,10 +340,10 @@ void RendererOfSceneImpl::render(
 	// It's optimizations, makes render 10x faster in diacor (25k 1objects), compared to rendering everything from 1objects.
 	bool needsIndividualStaticObjectsOnlyForBlending =
 		!needsIndividualStaticObjectsForEverything
-		&& !_renderingFromThisLight
+		&& !_.renderingFromThisLight
 		&& (
 			// optimized render can't sort
-			_uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && !_uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT
+			_.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && !_.uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT
 		);
 
 	rr::RRReportInterval report(rr::INF3,"Rendering %s%s scene...\n",needsIndividualStaticObjectsForEverything?"1obj":"multiobj",needsIndividualStaticObjectsOnlyForBlending?"+1objblend":"");
@@ -393,7 +369,7 @@ void RendererOfSceneImpl::render(
 				objects = &_solver->getStaticObjects();
 				break;
 			case 2:
-				if (_uberProgramSetup.FORCE_2D_POSITION) continue;
+				if (_.uberProgramSetup.FORCE_2D_POSITION) continue;
 				objects = &_solver->getDynamicObjects();
 				break;
 		}
@@ -408,15 +384,15 @@ void RendererOfSceneImpl::render(
 				PerObjectBuffers objectBuffers;
 				objectBuffers.object = object;
 				objectBuffers.meshRenderer = rendererOfMeshCache.getRendererOfMesh(mesh);
-				rr::RRBuffer* lightIndirectVcolor = _uberProgramSetup.LIGHT_INDIRECT_VCOLOR ? onlyVbuf(illumination.getLayer(_layerLightmap)) : NULL;
-				rr::RRBuffer* lightIndirectMap = _uberProgramSetup.LIGHT_INDIRECT_MAP ? onlyLmap(illumination.getLayer(_layerLightmap)) : NULL;
+				rr::RRBuffer* lightIndirectVcolor = _.uberProgramSetup.LIGHT_INDIRECT_VCOLOR ? onlyVbuf(illumination.getLayer(_.layerLightmap)) : NULL;
+				rr::RRBuffer* lightIndirectMap = _.uberProgramSetup.LIGHT_INDIRECT_MAP ? onlyLmap(illumination.getLayer(_.layerLightmap)) : NULL;
 				objectBuffers.lightIndirectBuffer = lightIndirectVcolor?lightIndirectVcolor:lightIndirectMap;
-				objectBuffers.lightIndirectDetailMap = _uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? onlyLmap(illumination.getLayer(_layerLDM)) : NULL;
-				objectBuffers.reflectionEnvMap = (_uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) ? onlyCube(illumination.getLayer(_layerEnvironment)) : NULL;
+				objectBuffers.lightIndirectDetailMap = _.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? onlyLmap(illumination.getLayer(_.layerLDM)) : NULL;
+				objectBuffers.reflectionEnvMap = (_.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) ? onlyCube(illumination.getLayer(_.layerEnvironment)) : NULL;
 #ifdef MIRRORS
 				objectBuffers.mirrorColorMap = NULL;
 				objectBuffers.mirrorPlane = rr::RRVec4(0);
-				if ((_uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR) && !onlyCube(illumination.getLayer(_layerEnvironment)))
+				if ((_.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE || _.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR) && !onlyCube(illumination.getLayer(_.layerEnvironment)))
 				{
 					rr::RRVec3 mini,maxi;
 					mesh->getAABB(&mini,&maxi,NULL);
@@ -434,10 +410,10 @@ void RendererOfSceneImpl::render(
 							{
 								const rr::RRMaterial* material = faceGroups[g].material;
 								if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom)
-									&& ((_uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR && material->specularReflectance.color.sum()>0)
+									&& ((_.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR && material->specularReflectance.color.sum()>0)
 										// allocate mirror only because of diffuse reflection?
 										// yes, but only if...
-										|| (_uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE && material->diffuseReflectance.color.sum()>0
+										|| (_.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE && material->diffuseReflectance.color.sum()>0
 											// ...we don't have better data,
 											&& !objectBuffers.lightIndirectBuffer
 											// ...and plane is not small
@@ -471,7 +447,7 @@ void RendererOfSceneImpl::render(
 										// calculate optimal resolution for current specularModel+shininess
 										unsigned mirrorW;
 										unsigned mirrorH;
-										if (_uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
+										if (_.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
 										{
 											// mipmapped mirror should be power of two
 											//    GPU generated npot mipmaps are poor, unstable (pixels slide as resolution changes),
@@ -507,21 +483,21 @@ void RendererOfSceneImpl::render(
 				}
 #endif
 
-				objectBuffers.objectUberProgramSetup = _uberProgramSetup;
+				objectBuffers.objectUberProgramSetup = _.uberProgramSetup;
 				if (pass==2 && objectBuffers.objectUberProgramSetup.SHADOW_MAPS>1)
 					objectBuffers.objectUberProgramSetup.SHADOW_MAPS = 1; // decrease shadow quality on dynamic objects
-				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && objectBuffers.reflectionEnvMap;
-				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && objectBuffers.reflectionEnvMap;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = _.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && objectBuffers.reflectionEnvMap;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = _.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && objectBuffers.reflectionEnvMap;
 #ifdef MIRRORS
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = objectBuffers.mirrorColorMap && !objectBuffers.lightIndirectBuffer && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = objectBuffers.mirrorColorMap!=NULL;
-				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = objectBuffers.mirrorColorMap && _uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS;
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = objectBuffers.mirrorColorMap && _.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS;
 #else
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = false;
 #endif
-				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_CONST = _uberProgramSetup.LIGHT_INDIRECT_CONST && !lightIndirectVcolor && !lightIndirectMap && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE; // keep const only if no other indirect diffuse is available
+				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_CONST = _.uberProgramSetup.LIGHT_INDIRECT_CONST && !lightIndirectVcolor && !lightIndirectMap && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE; // keep const only if no other indirect diffuse is available
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR = lightIndirectVcolor!=NULL;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = false;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = lightIndirectVcolor!=NULL && !lightIndirectVcolor->getScaled();
@@ -529,7 +505,7 @@ void RendererOfSceneImpl::render(
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = objectBuffers.lightIndirectDetailMap!=NULL;
 				objectBuffers.objectUberProgramSetup.OBJECT_SPACE = object->getWorldMatrix()!=NULL;
-				if (_srgbCorrect) // we changed gamma value, it has to be enabled in shader to have effect
+				if (_.srgbCorrect) // we changed gamma value, it has to be enabled in shader to have effect
 					objectBuffers.objectUberProgramSetup.POSTPROCESS_GAMMA = true;
 
 				const rr::RRObject::FaceGroups& faceGroups = object->faceGroups;
@@ -545,7 +521,7 @@ void RendererOfSceneImpl::render(
 					const rr::RRMaterial* material = faceGroups[g].material;
 					if (material && (material->sideBits[0].renderFrom || material->sideBits[1].renderFrom))
 					{
-						if (material->needsBlending() && _uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && !_uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT)
+						if (material->needsBlending() && _.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && !_.uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT)
 						{
 							// here we process everything that needs sorting, i.e. what is blended in final render
 							// blended objects rendered into rgb shadowmap are not processed here, because they don't need sort
@@ -561,7 +537,7 @@ void RendererOfSceneImpl::render(
 									const rr::RRMatrix3x4* worldMatrix = object->getWorldMatrix();
 									if (worldMatrix)
 										worldMatrix->transformPosition(center);
-									objectBuffers.eyeDistance = (_camera.getPosition()-center).length();
+									objectBuffers.eyeDistance = (_.camera->getPosition()-center).length();
 								}
 							}
 						}
@@ -571,7 +547,7 @@ void RendererOfSceneImpl::render(
 							objectWillBeRendered = true;
 							UberProgramSetup fgUberProgramSetup = objectBuffers.objectUberProgramSetup;
 							fgUberProgramSetup.enableUsedMaterials(material,dynamic_cast<const rr::RRMeshArrays*>(mesh));
-							fgUberProgramSetup.reduceMaterials(_uberProgramSetup);
+							fgUberProgramSetup.reduceMaterials(_.uberProgramSetup);
 							fgUberProgramSetup.validate();
 							rr::RRVector<FaceGroupRange>*& nonBlended = nonBlendedFaceGroupsMap[recursionDepth][fgUberProgramSetup];
 							if (!nonBlended)
@@ -589,7 +565,7 @@ void RendererOfSceneImpl::render(
 				}
 				perObjectBuffers[recursionDepth].push_back(objectBuffers);
 
-				if (_updateLayers && objectWillBeRendered)
+				if (_.updateLayers && objectWillBeRendered)
 				{
 					// update vertex buffers
 					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR
@@ -612,7 +588,7 @@ void RendererOfSceneImpl::render(
 					// built-in version check
 					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE||objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 					{
-						_solver->updateEnvironmentMap(&illumination,_layerEnvironment);
+						_solver->updateEnvironmentMap(&illumination,_.layerEnvironment);
 					}
 				}
 			}
@@ -620,7 +596,7 @@ void RendererOfSceneImpl::render(
 	}
 
 	// copy camera to OpenGL fixed pipeline (to be removed)
-	setupForRender(_camera);
+	setupForRender(*_.camera);
 
 	PreserveCullFace p1;
 	PreserveCullMode p2;
@@ -640,13 +616,13 @@ void RendererOfSceneImpl::render(
 			if (nonBlendedFaceGroups && nonBlendedFaceGroups->size())
 			{
 				const UberProgramSetup& classUberProgramSetup = i->first;
-				if (_uberProgramSetup.MATERIAL_CULLING && !classUberProgramSetup.MATERIAL_CULLING)
+				if (_.uberProgramSetup.MATERIAL_CULLING && !classUberProgramSetup.MATERIAL_CULLING)
 				{
 					// we are rendering with culling, but it was disabled in this class because front=back
 					// setup culling at the beginning
 					glDisable(GL_CULL_FACE);
 				}
-				MultiPass multiPass(_camera,_lights,_renderingFromThisLight,classUberProgramSetup,uberProgram,_clipPlanes,_srgbCorrect,_brightness,_gamma);
+				MultiPass multiPass(*_.camera,_lights,_.renderingFromThisLight,classUberProgramSetup,uberProgram,&_.clipPlanes,_.srgbCorrect,&_.brightness,_.gamma);
 				UberProgramSetup passUberProgramSetup;
 				RealtimeLight* light;
 				Program* program;
@@ -661,7 +637,7 @@ void RendererOfSceneImpl::render(
 						passUberProgramSetup.useWorldMatrix(program,object);
 
 						// set envmaps
-						passUberProgramSetup.useIlluminationEnvMap(program,object->illumination.getLayer(_layerEnvironment));
+						passUberProgramSetup.useIlluminationEnvMap(program,object->illumination.getLayer(_.layerEnvironment));
 #ifdef MIRRORS
 						// set mirror
 						passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorColorMap);
@@ -676,10 +652,10 @@ void RendererOfSceneImpl::render(
 							object,
 							&(*nonBlendedFaceGroups)[j],numRanges,
 							passUberProgramSetup,
-							_renderingFromThisLight?true:false,
+							_.renderingFromThisLight?true:false,
 							objectBuffers.lightIndirectBuffer,
 							objectBuffers.lightIndirectDetailMap,
-							_animationTime);
+							_.animationTime);
 
 						j += numRanges;
 #ifdef MIRRORS
@@ -700,11 +676,11 @@ void RendererOfSceneImpl::render(
 			RR_ASSERT(!recursionDepth);
 			recursionDepth = 1;
 
-			UberProgramSetup mirrorUberProgramSetup = _uberProgramSetup;
-			mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
-			mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
-			mirrorUberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = false;
-			mirrorUberProgramSetup.CLIP_PLANE = true;
+			RenderParameters mirror = _;
+			mirror.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
+			mirror.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
+			mirror.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = false;
+			mirror.uberProgramSetup.CLIP_PLANE = true;
 			FBO oldState = FBO::getState();
 			for (Mirrors::iterator i=mirrors.begin();i!=mirrors.end();++i)
 			{
@@ -743,7 +719,7 @@ void RendererOfSceneImpl::render(
 							false,
 							NULL,
 							NULL,
-							_animationTime);
+							_.animationTime);
 					}
 				}
 
@@ -805,13 +781,14 @@ void RendererOfSceneImpl::render(
 				// render scene into mirrorDepthMap, mirrorColorMap.rgb
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
 				rr::RRVec4 mirrorPlane = i->first;
-				bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(_camera.getPosition())>0;
+				bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(_.camera->getPosition())>0;
 				if (!cameraInFrontOfMirror) mirrorPlane = -mirrorPlane;
-				mirrorPlane.w -= mirrorPlane.RRVec3::length()*_camera.getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
-				rr::RRCamera mirrorCamera = _camera;
+				mirrorPlane.w -= mirrorPlane.RRVec3::length()*_.camera->getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
+				rr::RRCamera mirrorCamera = *_.camera;
 				mirrorCamera.mirror(mirrorPlane);
 				mirrorCamera.setFar(mirrorCamera.getFar()*2); // should be far enough in majority of situations
-				ClipPlanes clipPlanes = {mirrorPlane,0,0,0,0,0,0};
+				mirror.camera = &mirrorCamera;
+				mirror.clipPlanes.clipPlane = mirrorPlane;
 				// Q: how to make mirrors srgb correct?
 				// A: current mirror is always srgb incorrect, srgb correct render works only into real backbuffer, not into texture.
 				//    result is not affected by using GL_RGB vs GL_SRGB
@@ -820,24 +797,27 @@ void RendererOfSceneImpl::render(
 				//    a) add LIGHT_INDIRECT_MIRROR_SRGB, and convert manually in shader (would increase already large number of shaders)
 				//    b) make ubershader work with linear light (number of differences between correct and incorrect path would grow too much, difficult to maintain)
 				//       (srgb incorrect path must remain because of OpenGL ES)
-				render(_solver,mirrorUberProgramSetup,mirrorCamera,SM_MONO,_lights,NULL,_updateLayers,_layerLightmap,_layerEnvironment,_layerLDM,_animationTime,&clipPlanes,false,NULL,1);
+				mirror.srgbCorrect = false;
+				mirror.brightness = rr::RRVec4(1);
+				mirror.gamma = 1;
+				render(_solver,_lights,mirror);
 
 				// copy mirrorMaskMap to mirrorColorMap.A
-				//if (_uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
+				//if (_.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
 				{
 					glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);
 					getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,-1,"#define MIRROR_MASK_ALPHA\n"); // disables depth test
 				}
 
 				oldState.restore();
-				setupForRender(_camera);
+				setupForRender(*_.camera);
 				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 
 				// build mirror mipmaps
 				// must go after oldState.restore();, HD2400+Catalyst 12.1 sometimes (in RealtimeLights, not in SceneViewer) crashes when generating mipmaps for render target
 				// mipmaps generated on GF220 are ugly, but GL_NICEST does not help (the only thing that helps is making mirror power of two)
 				//glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
-				if (_uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
+				if (_.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
 				{
 					glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 					mirrorColorTex->bindTexture();
@@ -858,7 +838,7 @@ void RendererOfSceneImpl::render(
 	}
 
 	// Render skybox.
- 	if (!_renderingFromThisLight && !_uberProgramSetup.FORCE_2D_POSITION)
+ 	if (!_.renderingFromThisLight && !_.uberProgramSetup.FORCE_2D_POSITION)
 	{
 		rr::RRReal envAngleRad0 = 0;
 		const rr::RRBuffer* env0 = _solver->getEnvironment(0,&envAngleRad0);
@@ -875,7 +855,7 @@ void RendererOfSceneImpl::render(
 				? getTexture(env1,false,false) // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
 				: getTexture(env1,false,false,GL_NEAREST,GL_NEAREST) // used by 2x2 sky
 				) : NULL;
-			textureRenderer->renderEnvironment(_camera,texture0,envAngleRad0,texture1,envAngleRad1,blendFactor,_brightness,_gamma,true);
+			textureRenderer->renderEnvironment(*_.camera,texture0,envAngleRad0,texture1,envAngleRad1,blendFactor,&_.brightness,_.gamma,true);
 		}
 	}
 
@@ -894,9 +874,9 @@ void RendererOfSceneImpl::render(
 			rr::RRMaterial* material = object->faceGroups[blendedFaceGroups[recursionDepth][i].faceGroupFirst].material;
 			UberProgramSetup fgUberProgramSetup = objectBuffers.objectUberProgramSetup;
 			fgUberProgramSetup.enableUsedMaterials(material,dynamic_cast<const rr::RRMeshArrays*>(object->getCollider()->getMesh()));
-			fgUberProgramSetup.reduceMaterials(_uberProgramSetup);
+			fgUberProgramSetup.reduceMaterials(_.uberProgramSetup);
 			fgUberProgramSetup.validate();
-			MultiPass multiPass(_camera,_lights,_renderingFromThisLight,fgUberProgramSetup,uberProgram,_clipPlanes,_srgbCorrect,_brightness,_gamma);
+			MultiPass multiPass(*_.camera,_lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,&_.clipPlanes,_.srgbCorrect,&_.brightness,_.gamma);
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
 			Program* program;
@@ -906,7 +886,7 @@ void RendererOfSceneImpl::render(
 				passUberProgramSetup.useWorldMatrix(program,object);
 
 				// set envmaps
-				passUberProgramSetup.useIlluminationEnvMap(program,object->illumination.getLayer(_layerEnvironment));
+				passUberProgramSetup.useIlluminationEnvMap(program,object->illumination.getLayer(_.layerEnvironment));
 #ifdef MIRRORS
 				// set mirror
 				passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorColorMap);
@@ -917,10 +897,10 @@ void RendererOfSceneImpl::render(
 					object,
 					&blendedFaceGroups[recursionDepth][i],1,
 					passUberProgramSetup,
-					_renderingFromThisLight?true:false,
+					_.renderingFromThisLight?true:false,
 					objectBuffers.lightIndirectBuffer,
 					objectBuffers.lightIndirectDetailMap,
-					_animationTime);
+					_.animationTime);
 			}
 		}
 	}
