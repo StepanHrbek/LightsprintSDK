@@ -90,6 +90,7 @@ struct SceneViewerState
 	bool             renderLDMEnabled() {return renderLDM && renderLightIndirect!=LI_BAKED && renderLightIndirect!=LI_NONE;}
 	bool             renderLightmaps2d;         //! When not rendering realtime, show static lightmaps in 2D.
 	bool             renderLightmapsBilinear;   //! Render lightmaps with bilinear interpolation rather than without it.
+	bool             renderDDI;                 //! Render triangles illuminated with DDI. Diagnostic use only.
 	bool             renderMaterialDiffuse;     //! Render diffuse color.
 	bool             renderMaterialSpecular;    //! Render specular reflections.
 	bool             renderMaterialEmission;    //! Render emissivity.
@@ -197,6 +198,7 @@ struct SceneViewerState
 		renderIcons = 1;
 		renderHelpers = 0;
 		renderLightmapsBilinear = 1;
+		renderDDI = false;
 		renderBloom = 0;
 		renderLensFlare = 1;
 		lensFlareSize = 8;
@@ -271,6 +273,7 @@ struct SceneViewerState
 			&& a.renderLDM==renderLDM
 			&& a.renderLightmaps2d==renderLightmaps2d
 			&& a.renderLightmapsBilinear==renderLightmapsBilinear
+			&& a.renderDDI==renderDDI
 			&& a.renderMaterialDiffuse==renderMaterialDiffuse
 			&& a.renderMaterialSpecular==renderMaterialSpecular
 			&& a.renderMaterialEmission==renderMaterialEmission

@@ -67,6 +67,9 @@ struct RenderParameters
 	//! Specifies source of light detail maps. Renderer only reads them.
 	unsigned layerLDM;
 
+	//! For diagnostic use only. 0=automatic, 1=force rendering singleobjects, 2=force rendering multiobject.
+	unsigned forceObjectType;
+
 	//! Specifies time from start of animation. At the moment, only water shader uses it for animated waves.
 	float animationTime;
 
@@ -93,6 +96,7 @@ struct RenderParameters
 		layerLightmap = UINT_MAX;
 		layerEnvironment = UINT_MAX;
 		layerLDM = UINT_MAX;
+		forceObjectType = 0;
 		animationTime = 0;
 		clipPlanes.clipPlane = rr::RRVec4(1,0,0,0);
 		clipPlanes.clipPlaneXA = 0;

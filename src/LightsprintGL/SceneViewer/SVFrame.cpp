@@ -759,6 +759,7 @@ void SVFrame::UpdateMenuBar()
 #endif
 		winMenu->Append(ME_CHECK_SOLVER,_("Log solver diagnose"),_("For diagnostic purposes."));
 		winMenu->Append(ME_CHECK_SCENE,_("Log scene errors"),_("For diagnostic purposes."));
+		winMenu->Append(ME_RENDER_DDI,_("Render solver DDI"),_("For diagnostic purposes."));
 		winMenu->Append(ME_ABOUT,_("About"));
 		menuBar->Append(winMenu, _("Help"));
 	}
@@ -1539,6 +1540,9 @@ reload_skybox:
 		case ME_CHECK_SCENE:
 			solver->getStaticObjects().checkConsistency("static");
 			solver->getDynamicObjects().checkConsistency("dynamic");
+			break;
+		case ME_RENDER_DDI:
+			svs.renderDDI = !svs.renderDDI;
 			break;
 		case ME_ABOUT:
 			{

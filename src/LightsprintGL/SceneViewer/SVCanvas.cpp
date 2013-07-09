@@ -712,6 +712,11 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 
 
 		case 27:
+			if (svs.renderDDI)
+			{
+				svs.renderDDI = 0;
+			}
+			else
 			if (svs.renderLightmaps2d)
 			{
 				svs.renderLightmaps2d = 0;
@@ -1650,6 +1655,48 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				}
 			}
 
+			if (svs.renderDDI)
+			{
+				// allocate and fill vertex buffer with DDI illumination
+				#define LAYER_DDI 1928374
+				rr::RRObject* multiObject = solver->getMultiObjectCustom();
+				if (multiObject)
+				{
+					const unsigned* ddi = ((svs.initialInputSolver&&svs.renderLightIndirect==LI_NONE)?svs.initialInputSolver:solver)->getDirectIllumination();
+					if (ddi)
+					{
+						unsigned numTriangles = multiObject->getCollider()->getMesh()->getNumTriangles();
+						rr::RRBuffer* vbuf = multiObject->illumination.getLayer(LAYER_DDI) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,3*numTriangles,1,1,rr::BF_RGBA,true,NULL);
+						unsigned* vbufData = (unsigned*)vbuf->lock(rr::BL_DISCARD_AND_WRITE);
+						if (vbufData)
+						{
+#define SWAP_BYTES(i) ((i<<24)|((i&0xff00)<<8)|((i&0xff0000)>>8)|(i>>24))
+							for (unsigned i=0;i<numTriangles;i++)
+								vbufData[3*i+2] = vbufData[3*i+1] = vbufData[3*i] = SWAP_BYTES(ddi[i]);
+						}
+						vbuf->unlock();
+						// tell renderer to use our buffer and not to update it
+						rp.updateLayers = false;
+						rp.layerLightmap = LAYER_DDI;
+						rp.layerEnvironment = UINT_MAX;
+						rp.layerLDM = UINT_MAX;
+						rp.forceObjectType = 2;
+					}
+					else
+						svs.renderDDI = false;
+				}
+				else
+					svs.renderDDI = false;
+				// change rendermode (I think !indexed VBO doesn't even have uvs, so we must not use textures)
+				UberProgramSetup uberProgramSetup;
+				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
+				uberProgramSetup.MATERIAL_DIFFUSE = true;
+				uberProgramSetup.MATERIAL_CULLING = rp.uberProgramSetup.MATERIAL_CULLING;
+				uberProgramSetup.POSTPROCESS_BRIGHTNESS = rp.uberProgramSetup.POSTPROCESS_BRIGHTNESS;
+				uberProgramSetup.POSTPROCESS_GAMMA = rp.uberProgramSetup.POSTPROCESS_GAMMA;
+				rp.uberProgramSetup = uberProgramSetup;
+			}
+
 			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
 
 			rp.animationTime = svs.referenceTime.secondsPassed();
@@ -1661,6 +1708,14 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			solver->renderScene(rp);
 
 			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+			if (svs.renderDDI)
+			{
+				// free vertex buffer with DDI illumination
+				rr::RRObject* multiObject = solver->getMultiObjectCustom();
+				if (multiObject)
+					RR_SAFE_DELETE(multiObject->illumination.getLayer(LAYER_DDI));
+			}
 
 			// adjust tonemapping
 			if (svs.renderTonemapping && svs.tonemappingAutomatic

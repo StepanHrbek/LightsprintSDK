@@ -155,6 +155,7 @@ namespace rr_gl
 #endif
 			ME_CHECK_SOLVER,
 			ME_CHECK_SCENE,
+			ME_RENDER_DDI,
 			ME_ABOUT,
 		};
 

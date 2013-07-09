@@ -335,6 +335,9 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 #endif
 		);
 
+	if (_.forceObjectType==1) needsIndividualStaticObjectsForEverything = true;
+	if (_.forceObjectType==2) needsIndividualStaticObjectsForEverything = false;
+
 
 	// Will we render opaque parts from multiobject and blended parts from 1objects?
 	// It's optimizations, makes render 10x faster in diacor (25k 1objects), compared to rendering everything from 1objects.
