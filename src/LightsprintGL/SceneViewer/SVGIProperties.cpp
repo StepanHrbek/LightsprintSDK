@@ -42,7 +42,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		const wxChar* strings[] = {_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("baked"),_("constant ambient"),_("none"),NULL};
 		const long values[] = {LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_BAKED,LI_CONSTANT,LI_NONE};
 		propGIIndirect = new wxEnumProperty(_("Indirect illumination"),wxPG_LABEL,strings,values);
-		propGIIndirect->SetHelpString(_("What indirect illumination technique to use."));
+		propGIIndirect->SetHelpString(_("What nondirectional indirect illumination technique to use. Note that directional techniques (Raytraced cubemaps, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
 		Append(propGIIndirect);
 
 		propGIIndirectMultiplier = new FloatProperty(_("Intensity"),_("Makes indirect illumination this times brighter, 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
