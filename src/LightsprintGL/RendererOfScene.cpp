@@ -326,8 +326,9 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 			// if we are to use provided indirect, take it always from 1objects
 			// ([#12] if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
 			|| ((_.uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_.uberProgramSetup.LIGHT_INDIRECT_MAP) && !_.updateLayers && _.layerLightmap!=UINT_MAX)
-			// optimized render would look bad with single specular cube per-scene
+			// optimized render would look bad with single cube per-scene (sometimes such cube does not exist at all)
 			|| ((_.uberProgramSetup.MATERIAL_SPECULAR && _.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _.layerEnvironment!=UINT_MAX)
+			|| ((_.uberProgramSetup.MATERIAL_DIFFUSE && _.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE) && _.layerEnvironment!=UINT_MAX)
 #ifdef MIRRORS
 			// optimized render would look bad without mirrors in static parts
 			|| (_.uberProgramSetup.MATERIAL_DIFFUSE && _.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE)
