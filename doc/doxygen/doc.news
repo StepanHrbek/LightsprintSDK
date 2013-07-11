@@ -8,11 +8,11 @@ namespace rr
 
 \page main_news What's new
 
-\section news139 ------------------------------------ 2013.0x.xx -------------------------------------
+\section news139 ------------------------------------ 2013.07.11 -------------------------------------
 
 NEWS
 
-- bump maps, parallax mapping and specular highlights are visible also in shadows and under ambient lighting
+- bump maps, parallax mapping and specular highlights are visible also with lightmaps, in shadows and under ambient lighting
 - misc helpers
   - RRDynamicSolver::getDirectIllumination()
 

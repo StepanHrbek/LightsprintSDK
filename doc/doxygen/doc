@@ -968,12 +968,12 @@ Material formats (1)
   All light sources are supported - point, spot, directional, emissive materials,
   sky (flat color, LDR or HDR texture) and they may arbitrarily change in realtime.
 
- \section artist_offline_formats File formats
+ \section artist_realtime_formats File formats
   Lightsprint SDK does not lock your data in properietary formats.
   Instead, it supports \ref supported_formats "95+ standard file formats".
   In case you pick Collada, here's list of available \ref collada_plugins.
 
- \section artist_offline_night Night scenes
+ \section artist_realtime_night Night scenes
   When creating night scene, you might consider two options - reduce light intensity
   or make materials darker. Both have the same effect on direct illumination.
   But global illumination reveals dramatic difference -
@@ -985,8 +985,40 @@ Material formats (1)
   Of course we recommend keeping usual materials and reducing light intensity,
   results look better.
 
+ \section artist_realtime_examples Problem examples
+  <table border=0><tr align=top><td>
+  \image html tessel1.jpg
+  </td><td>
+  \image html tessel2.jpg
+  </td></tr></table>
+  Above screenshots show realtime GI from skylight coming through ceiling opening.
+  There are some quality issues vissible.
 
+  - Floor lighting is completely flat, it is not darker in corners.
+    Why? Indirect component of realtime GI is stored per-vertex, and the floor does not have sufficient number of vertices.
+    Second screenshot with wireframe shows that there are only two vertices in corners.
+    In order to get higher quality lighting that includes details like darker corners, you can pick one of these approaches:
+     - split large polygons (preprocessing outside Lightsprint SDK)
+     - precalculate light detail maps (preprocessing within Lightsprint SDK)
+     - use one of many realtime ambient occlusion techniques (might be less accurate, but needs no preprocessing)
+     - make the floor shiny and use Lightsprint renderer, automatic mirror reflection on flat objects has no problem with insufficient tessellation
 
+  - There is lighter/darker pattern visible on the wall.
+    Why? It's because floor intersects wall triangles, as can be seen on screenshot with wireframe.
+    Upper parts of wall triangles are illuminated, bottom parts (under the floor) stay in the dark.
+    Indirect component of realtime GI is stored per-vertex, so we can't change indirect lighting at the floor level,
+    it is interpolated between darker vertices under the floor, and brighter vertices above the floor
+    and unwanted pattern shows up.
+    It can be fixed by better stitching floor and wall polygons, or by splitting triangles that intersect.
+    Intersecting triangles are not allowed in static objects, as was mentioned earlier on this page.
+
+  - Walls and ceiling are tessellated too much. This creates 'vertex noise' in renderings,
+    if Fireball quality is not set high enough.
+    It is not visible here, because sufficient 'quality' 10000 was set,
+    but we can optimize performance by tessellating less, from 5x5 or 10x10 vertices per wall, rather than 20x20 here.
+    It would give similar results at much lower Fireball quality, i.e. Fireball
+    build (precalculation) would be faster, framerate with realtime GI would be bit higher
+    and memory footprint lower.
 
 
 \page main_building Building
@@ -1374,93 +1406,79 @@ Material formats (1)
 
 \page detect_direct_illumination Detect direct illumination
 
- For OpenGL based renderers, 
- LightsprintGL implements detection of direct illumination
- in rr_gl::RRDynamicSolverGL.
+  For OpenGL based renderers, LightsprintGL implements detection of direct illumination
+  in rr_gl::RRDynamicSolverGL.
 
- For Direct3D and custom renderers, you need to reimplement
- detection of direct illumination.
+  For Direct3D and custom renderers, you need to write your own implementation.
 
- <b>What needs to be detected:</b> average color of each face;
- how does it look lit by your direct (not ambient) point, spot and directional lights
- and shadowed by your shadows.
+ \section ddi_what_to_detect What needs to be detected
 
- <b>What to do with detected values:</b> call RRDynamicSolver::setDirectIllumination().
+  Imagine that you render static scene with only direct lighting/shadowing and all materials diffuse white.
+  \image html ddi2.jpg
 
- <b>Why is it important:</b> we have no other knowledge about your lights.
- You can use many light types with very complex lighting equations.
- You can arbitrarily change them. No problem. Just let us know what are the results -
- average colors produced by your shader.
+  We need to know average color of each triangle under such conditions.
+  \image html ddi1.jpg
 
- <b>How to implement it:</b> turn off ambient/radiosity, render all scene faces,
- read rendered image to system memory and extract average color for each face.
- This is the most simple and universal approach (works with any number of any lights),
- however you can think about alternatives. This depends highly on your renderer.
+  We expect it in array of RGBA8 values, with length = number of triangles in static scene.
 
- \image html detect-dif.png
- Image shows arrangement of faces in matrix that makes extraction of average color/exitance simple.
- It wouldn't help to render faces in their original 3d positions, some would be probably
- hidden behind other faces. You can see that some faces are black, those are partially
- in shadow or completely unlit.
- You can also see that only 50% of texture space is used, triangles may be rearranged so that
- 100% of space is used, however averaging face color would become more expensive.
+ \section ddi_what_to_do What to do with detected values
 
- <b>Possible implementation in detail:</b> rendering faces into matrix
- requires one renderer enhancement - 2d position override - ability to render
- triangles to specified 2d positions while preserving their original look.
+  Call RRDynamicSolver::setDirectIllumination().
 
- For DX10 generation GPUs, solution is nearly as simple
- as adding two lines into geometry shader.
- Render as usual, using any combination of trilist/strip/indexed/nonindexed data,
- but at the end of geometry shader, override
- output vertex positions passed to rasterizer by new 2d triangle positions
- calculated right there from primitive id.
+ \section ddi_why Why is it important
 
- For DX9 generation GPUs, implemention has two steps:
- - Triangle positions in matrix are generated by CPU into new vertex stream.
-   At the end of vertex shader, vertex position passed to fragment shader is replaced by
-   position read from additional vertex stream.
- - For purpose of detection, scene is rendered using non-indexed triangle list.
-   This is necessary because if we want to render triangles with shared
-   vertices to completely different positions in texture, we have to split 
-   that vertices.
+  We have no other knowledge about your lights.
+  You can use many light types with very complex lighting equations.
+  You can arbitrarily change them. No problem. Just let us know what are the results -
+  average colors produced by your shader.
 
- <i>
- <b>Possible optimizations:</b>
+ \section ddi_impl How to implement it
 
- <b>Rendering irradiance:</b>
- For simple materials with diffuse texture only (such as in .3ds),
- process can be optimized by ignoring diffuse textures, thus rendering incoming light
- not multiplied by diffuse texture.
- Detected average face colors then correspond to intensity of light reaching 
- face (irradiance) instead of intensity of light leaving face (exitance),
- so detected color is passed to RRObjectAdditionalIllumination::setTriangleAdditionalMeasure
- as RM_IRRADIANCE, rather than RM_EXITANCE.
+  Render whole static scene with white diffuse material, with direct lighting only.
 
- \image html detect-nodif.png
- Image above shows optimized detection, faces are not modulated by material,
- so irradiance is detected. You can see mostly white faces, because scene is lit by white spotlight.
- Few orange pixels come from orange logo projected by spotlight.
+  Modify your shader so that instead of rendering triangles in 3d space, they are arranged
+  in 2d matrix.
 
- Optimized approach is not suitable for engines with texture atlases.
- If your material properties change very significantly over uv space,
- use original unoptimized approach for higher precision.
+  \image html detect-nodif.png
 
- <b>GPU averaging:</b>
- To decrease amount of data transferred from GPU to CPU and speed up
- whole process, it is recommended to calculate average triangle colors
- on GPU, using simple shader, write them into smaller texture
- and transfer this smaller textue to CPU.
- LightsprintGL does it using scaledown_filter.* shaders.
+  Scale down to get average triangle color.
 
- \image html detect-scaled.png
- Image was scaled down by scaledown_filter.* shaders for purpose of
- faster primary illumination detection.
- It is resized back to original size only in this documentation.
+  \image html detect-scaled.png
 
- </i>
+  Read texture back and you have an array of colors that can be sent to RRDynamicSolver::setDirectIllumination().
 
+ \section ddi_impl_details Possible implementation details
 
+  Rendering faces into 2d matrix
+  requires one renderer enhancement - 2d position override - ability to render
+  triangles to specified 2d positions while preserving their original look.
+
+  For DX10 generation GPUs, solution is nearly as simple
+  as adding two lines into geometry shader.
+  Render as usual, using any combination of trilist/strip/indexed/nonindexed data,
+  but at the end of geometry shader, override
+  output vertex positions passed to rasterizer by new 2d triangle positions
+  calculated right there from primitive id.
+
+  For DX9 generation GPUs, implemention has two steps:
+  - Triangle positions in matrix are generated by CPU into new vertex stream.
+    At the end of vertex shader, vertex position passed to fragment shader is replaced by
+    position read from additional vertex stream.
+  - For purpose of detection, scene is rendered using non-indexed triangle list.
+    This is necessary because if we want to render triangles with shared
+    vertices to completely different positions in texture, we have to split 
+    that vertices.
+
+ \section ddi_debug Debugging
+
+  If you call rr_gl::sceneViewer(solver,...) after
+  solver->setDirectIllumination() and then select menu item Help/Render DDI,
+  scene viewer visualizes data sent to setDirectIllumination().
+  \image html ddi1.jpg
+  With "Global illumination/Indirect illumination" property at default "Fireball",
+  it shows reference data produced by our implementation.
+  After switching "Indirect illumination" to "none", it shows your data.
+  Both results should be quite close, with only small noise-like differences.
 
 
 \page main_data_access Calculation and outputs
