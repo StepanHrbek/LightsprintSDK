@@ -21,6 +21,7 @@
 #include "SVLog.h"
 #include "../Workaround.h"
 #include "wx/aboutdlg.h"
+#include "wx/splash.h"
 #ifdef _WIN32
 	#include <shlobj.h> // SHGetSpecialFolderPath
 	#include <process.h> // _beginthread in AlphaSplashScreen
@@ -35,17 +36,56 @@ namespace rr_gl
 {
 
 
-#if defined(_WIN32) && _MSC_VER>=1400
+static wxImage* loadImage(const wxString& filename)
+{
+	// Q: why do we read images via RRBuffer::load()?
+	// A: wx file loaders are not compiled in, to reduce size
+	//    wxIcon(fname.ico) works only in Windows, only on some icons and it reduces icon resolution
+	//    wxBitmap(fname.bmp) works only in Windows and ignores alphachannel
+	rr::RRBuffer* buffer = rr::RRBuffer::load(RR_WX2RR(filename));
+	if (!buffer)
+		return NULL;
+	buffer->flip(false,true,false);
+	unsigned width = buffer->getWidth();
+	unsigned height = buffer->getHeight();
+	// filling wxImage per pixel rather than passing whole buffer to constructor is necessary with buggy wxWidgets 2.8.9
+	wxImage* image = new wxImage(width,height,false);
+	image->InitAlpha();
+	for (unsigned j=0;j<height;j++)
+		for (unsigned i=0;i<width;i++)
+		{
+			rr::RRVec4 element = buffer->getElement(j*width+i);
+			image->SetRGB(i,j,(unsigned)(element[0]*255),(unsigned)(element[1]*255),(unsigned)(element[2]*255));
+			image->SetAlpha(i,j,(unsigned)(element[3]*255));
+		}
+	delete buffer;
+	return image;
+}
+
+static wxIcon* loadIcon(const wxString& filename)
+{
+	wxImage* image = loadImage(filename);
+	if (!image)
+		return NULL;
+	wxBitmap bitmap(*image);
+	wxIcon* icon = new wxIcon();
+	icon->CopyFromBitmap(bitmap);
+	delete image;
+	return icon;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // AlphaSplashScreen
 
 bool g_alphaSplashOn = false;
 
+#if defined(_WIN32) && _MSC_VER>=1400
+
 class AlphaSplashScreen
 {
 public:
-	AlphaSplashScreen(const wxString& filename, int dx=0, int dy=0)
+	AlphaSplashScreen(const wxString& filename, bool evenIfAplhaIgnored, int dx=0, int dy=0)
 	{
 		// load image
 		hWnd = 0;
@@ -153,7 +193,33 @@ private:
 	}
 	HWND hWnd;
 };
-#endif // _WIN32
+
+#else // ! (defined(_WIN32) && _MSC_VER>=1400)
+
+class AlphaSplashScreen
+{
+public:
+	AlphaSplashScreen(const wxString& filename, bool evenIfAlphaIgnored, int dx=0, int dy=0)
+	{
+		splash = NULL;
+		if (!evenIfAlphaIgnored)
+			return;
+		wxImage* image = loadImage(filename);
+		if (!image)
+			return;
+		wxBitmap bitmap(*image);
+		splash = new wxSplashScreen(bitmap,wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT,600000,NULL,-1,wxDefaultPosition,wxDefaultSize,wxNO_BORDER|wxSTAY_ON_TOP);
+	}
+	~AlphaSplashScreen()
+	{
+		delete splash;
+		g_alphaSplashOn = false;
+	}
+private:
+	wxSplashScreen* splash;
+};
+
+#endif // ! (defined(_WIN32) && _MSC_VER>=1400)
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -380,44 +446,6 @@ void SVFrame::UpdateEverything()
 
 }
 
-static wxImage* loadImage(const wxString& filename)
-{
-	// Q: why do we read images via RRBuffer::load()?
-	// A: wx file loaders are not compiled in, to reduce size
-	//    wxIcon(fname.ico) works only in Windows, only on some icons and it reduces icon resolution
-	//    wxBitmap(fname.bmp) works only in Windows and ignores alphachannel
-	rr::RRBuffer* buffer = rr::RRBuffer::load(RR_WX2RR(filename));
-	if (!buffer)
-		return NULL;
-	buffer->flip(false,true,false);
-	unsigned width = buffer->getWidth();
-	unsigned height = buffer->getHeight();
-	// filling wxImage per pixel rather than passing whole buffer to constructor is necessary with buggy wxWidgets 2.8.9
-	wxImage* image = new wxImage(width,height,false);
-	image->InitAlpha();
-	for (unsigned j=0;j<height;j++)
-		for (unsigned i=0;i<width;i++)
-		{
-			rr::RRVec4 element = buffer->getElement(j*width+i);
-			image->SetRGB(i,j,(unsigned)(element[0]*255),(unsigned)(element[1]*255),(unsigned)(element[2]*255));
-			image->SetAlpha(i,j,(unsigned)(element[3]*255));
-		}
-	delete buffer;
-	return image;
-}
-
-static wxIcon* loadIcon(const wxString& filename)
-{
-	wxImage* image = loadImage(filename);
-	if (!image)
-		return NULL;
-	wxBitmap bitmap(*image);
-	wxIcon* icon = new wxIcon();
-	icon->CopyFromBitmap(bitmap);
-	delete image;
-	return icon;
-}
-
 void SVFrame::userPreferencesGatherFromWx()
 {
 	userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen = svs.fullscreen;
@@ -486,10 +514,10 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_sceneTree = NULL;
 
 
-#if defined(_WIN32) && _MSC_VER>=1400 && defined(NDEBUG)
+#ifdef NDEBUG
 	rr::RRTime splashStart;
-	AlphaSplashScreen splash(svs.pathToMaps+"sv_splash.png",230,-245);
-#endif
+	AlphaSplashScreen splash(svs.pathToMaps+"sv_splash.png",false,230,-245);
+#endif // NDEBUG
 
 	// load preferences (must be done very early)
 	bool layoutLoaded = userPreferences.load("");
