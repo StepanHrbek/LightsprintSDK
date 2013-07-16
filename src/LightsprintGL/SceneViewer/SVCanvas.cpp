@@ -753,7 +753,6 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 {
 	if (exitRequested || !fullyCreated)
 		return;
-
 	long evkey = event.GetKeyCode();
 	switch(evkey)
 	{
