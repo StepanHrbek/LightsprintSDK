@@ -422,10 +422,10 @@ void SVFrame::UpdateEverything()
 
 	if (!(svs.initialInputSolver && svs.initialInputSolver->aborting))
 	{
-		rr::RRCamera temp = svs.eye;
+		rr::RRCamera temp = svs.camera;
 		OnMenuEventCore(ME_VIEW_RANDOM);
 		if (!svs.autodetectCamera) // restore camera, keep only recalculated cameraMetersPerSecond
-			svs.eye = temp;
+			svs.camera = temp;
 	}
 
 	UpdateTitle();
@@ -943,7 +943,7 @@ bool SVFrame::saveScene(wxString sceneFilename)
 		scene.objects = m_canvas->solver->getObjects();
 		scene.lights = m_canvas->solver->getLights();
 		scene.environment = m_canvas->solver->getEnvironment();
-		scene.cameras.push_back(svs.eye);
+		scene.cameras.push_back(svs.camera);
 		result = scene.save(RR_WX2RR(sceneFilename));
 		scene.environment = NULL; // would be deleted in destructor otherwise
 	}
@@ -1135,11 +1135,11 @@ save_scene_as:
 				{
 					// 3b. propagate new size/aspect to renderer, correct screenCenter so that camera still points to the same area
 					wxSize oldSize(m_canvas->winWidth,m_canvas->winHeight);
-					rr::RRCamera oldEye = svs.eye;
-					svs.eye.setAspect(bigSize.x/(float)bigSize.y,(bigSize.x*m_canvas->winHeight>m_canvas->winWidth*bigSize.y)?1:0);
-					svs.eye.setScreenCenter(RRVec2(
-						svs.eye.getScreenCenter().x * tan(oldEye.getFieldOfViewHorizontalRad()/2)/tan(svs.eye.getFieldOfViewHorizontalRad()/2),
-						svs.eye.getScreenCenter().y * tan(oldEye.getFieldOfViewVerticalRad()/2)/tan(svs.eye.getFieldOfViewVerticalRad()/2)
+					rr::RRCamera oldEye = svs.camera;
+					svs.camera.setAspect(bigSize.x/(float)bigSize.y,(bigSize.x*m_canvas->winHeight>m_canvas->winWidth*bigSize.y)?1:0);
+					svs.camera.setScreenCenter(RRVec2(
+						svs.camera.getScreenCenter().x * tan(oldEye.getFieldOfViewHorizontalRad()/2)/tan(svs.camera.getFieldOfViewHorizontalRad()/2),
+						svs.camera.getScreenCenter().y * tan(oldEye.getFieldOfViewVerticalRad()/2)/tan(svs.camera.getFieldOfViewVerticalRad()/2)
 						));
 					m_canvas->winWidth = bigSize.x;
 					m_canvas->winHeight = bigSize.y;
@@ -1184,7 +1184,7 @@ save_scene_as:
 					// 3b. cleanup
 					m_canvas->winWidth = oldSize.x;
 					m_canvas->winHeight = oldSize.y;
-					svs.eye = oldEye;
+					svs.camera = oldEye;
 				}
 
 				// 3a. cleanup
@@ -1262,13 +1262,13 @@ save_scene_as:
 
 		//////////////////////////////// VIEW ///////////////////////////////
 
-		case ME_VIEW_TOP:    svs.eye.setView(rr::RRCamera::TOP   ,solver); break;
-		case ME_VIEW_BOTTOM: svs.eye.setView(rr::RRCamera::BOTTOM,solver); break;
-		case ME_VIEW_LEFT:   svs.eye.setView(rr::RRCamera::LEFT  ,solver); break;
-		case ME_VIEW_RIGHT:  svs.eye.setView(rr::RRCamera::RIGHT ,solver); break;
-		case ME_VIEW_FRONT:  svs.eye.setView(rr::RRCamera::FRONT ,solver); break;
-		case ME_VIEW_BACK:   svs.eye.setView(rr::RRCamera::BACK  ,solver); break;
-		case ME_VIEW_RANDOM: svs.eye.setView(rr::RRCamera::RANDOM,solver); svs.cameraMetersPerSecond = svs.eye.getFar()*0.08f; break;
+		case ME_VIEW_TOP:    svs.camera.setView(rr::RRCamera::TOP   ,solver); break;
+		case ME_VIEW_BOTTOM: svs.camera.setView(rr::RRCamera::BOTTOM,solver); break;
+		case ME_VIEW_LEFT:   svs.camera.setView(rr::RRCamera::LEFT  ,solver); break;
+		case ME_VIEW_RIGHT:  svs.camera.setView(rr::RRCamera::RIGHT ,solver); break;
+		case ME_VIEW_FRONT:  svs.camera.setView(rr::RRCamera::FRONT ,solver); break;
+		case ME_VIEW_BACK:   svs.camera.setView(rr::RRCamera::BACK  ,solver); break;
+		case ME_VIEW_RANDOM: svs.camera.setView(rr::RRCamera::RANDOM,solver); svs.cameraMetersPerSecond = svs.camera.getFar()*0.08f; break;
 
 
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////
@@ -1401,7 +1401,7 @@ reload_skybox:
 
 				rr::RRVec4 aabbMin,aabbMax;
 				solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
-				aabbMin.y = aabbMax.y = svs.eye.pos.y;
+				aabbMin.y = aabbMax.y = svs.camera.pos.y;
 				aabbMin.w = aabbMax.w = 0;
 				delete m_canvas->lightField;
 				m_canvas->lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);

@@ -279,7 +279,7 @@ void SVCanvas::createContextCore()
 
 		if (scene->cameras.size())
 		{
-			svs.eye = scene->cameras[0];
+			svs.camera = scene->cameras[0];
 			svs.autodetectCamera = false; // camera was taken from scene
 		}
 
@@ -302,7 +302,7 @@ void SVCanvas::createContextCore()
 	}
 
 
-	solver->observer = &svs.eye; // solver automatically updates lights that depend on camera
+	solver->observer = &svs.camera; // solver automatically updates lights that depend on camera
 
 	// make unique object names, so that lightmaps are loaded from different files
 	rr::RRObjects allObjects = solver->getObjects();
@@ -875,19 +875,19 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		s_ci.mouseMiddle = event.MiddleIsDown();
 		s_ci.mouseRight = event.RightIsDown();
 		rr::RRCamera* cam = (event.LeftIsDown()
-			 && selectedType==ST_LIGHT && svs.selectedLightIndex<solver->getLights().size()) ? solver->realtimeLights[svs.selectedLightIndex]->getCamera() : &svs.eye;
-		s_ci.pos = svs.eye.getPosition();
-		s_ci.rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
-		s_ci.rayDirection = svs.eye.getRayDirection(mousePositionInWindow);
+			 && selectedType==ST_LIGHT && svs.selectedLightIndex<solver->getLights().size()) ? solver->realtimeLights[svs.selectedLightIndex]->getCamera() : &svs.camera;
+		s_ci.pos = svs.camera.getPosition();
+		s_ci.rayOrigin = svs.camera.getRayOrigin(mousePositionInWindow);
+		s_ci.rayDirection = svs.camera.getRayDirection(mousePositionInWindow);
 
 		// find scene distance, adjust search range to look only for closer icons
-		s_ci.hitDistance = svs.eye.getNear()*0.9f+svs.eye.getFar()*0.1f;
+		s_ci.hitDistance = svs.camera.getNear()*0.9f+svs.camera.getFar()*0.1f;
 		ray->rayOrigin = s_ci.rayOrigin;
 		rr::RRVec3 directionToMouse = s_ci.rayDirection;
 		float directionToMouseLength = directionToMouse.length();
 		ray->rayDir = directionToMouse/directionToMouseLength;
-		ray->rayLengthMin = svs.eye.getNear()*directionToMouseLength;
-		ray->rayLengthMax = svs.eye.getFar()*directionToMouseLength;
+		ray->rayLengthMin = svs.camera.getNear()*directionToMouseLength;
+		ray->rayLengthMax = svs.camera.getFar()*directionToMouseLength;
 		ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D;
 		ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 		ray->collisionHandler = collisionHandler;
@@ -913,7 +913,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		{
 			s_ci.clickedEntity = *intersectedEntity; // ST_FIRST for gizmo icons
 			s_ci.hitTriangle = UINT_MAX; // must be cleared, otherwise we use it to look up point material
-			s_ci.hitDistance = (intersectedEntity->position-svs.eye.getPosition()).length();
+			s_ci.hitDistance = (intersectedEntity->position-svs.camera.getPosition()).length();
 			s_ci.hitPoint2d = rr::RRVec2(0);
 			s_ci.hitPoint3d = intersectedEntity->position;
 		}
@@ -1048,9 +1048,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			// moving/rotating/scaling selection (gizmo)
 			rr::RRMatrix3x4 transformation;
 			bool preTransform = false;
-			rr::RRVec3 pan = svs.eye.isOrthogonal()
-				? svs.eye.getRayOrigin(mousePositionInWindow)-svs.eye.getRayOrigin(oldMousePositionInWindow)
-				: (svs.eye.getRayDirection(mousePositionInWindow)-svs.eye.getRayDirection(oldMousePositionInWindow))*(s_ci.hitDistance/s_ci.rayDirection.length());
+			rr::RRVec3 pan = svs.camera.isOrthogonal()
+				? svs.camera.getRayOrigin(mousePositionInWindow)-svs.camera.getRayOrigin(oldMousePositionInWindow)
+				: (svs.camera.getRayDirection(mousePositionInWindow)-svs.camera.getRayDirection(oldMousePositionInWindow))*(s_ci.hitDistance/s_ci.rayDirection.length());
 			rr::RRVec2 drag = RRVec2((newPosition.x-oldPosition.x)/(float)winWidth,(newPosition.y-oldPosition.y)/(float)winHeight);
 			switch (selectedTransformation)
 			{
@@ -1071,8 +1071,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 						case IC_Y: transformation = rr::RRMatrix3x4::rotationByAxisAngle(RRVec3(0,1,0),-drag.x*5); break;
 						case IC_Z: transformation = rr::RRMatrix3x4::rotationByAxisAngle(RRVec3(0,0,1),-drag.x*5); break;
 						default:
-							transformation = rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getUp(),(manipulatingSingleLight?5:-5)*drag.x)
-								*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),(manipulatingSingleLight?5:-5)*drag.y);
+							transformation = rr::RRMatrix3x4::rotationByAxisAngle(svs.camera.getUp(),(manipulatingSingleLight?5:-5)*drag.x)
+								*rr::RRMatrix3x4::rotationByAxisAngle(svs.camera.getRight(),(manipulatingSingleLight?5:-5)*drag.y);
 							break;
 					}
 					break;
@@ -1099,9 +1099,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
 			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
 			while (!svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),
-				(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5*svs.eye.getFieldOfViewHorizontalDeg()/90)
-				*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),dragY*5*svs.eye.getFieldOfViewHorizontalDeg()/90))
-				.centeredAround(svs.eye.getPosition()),
+				(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5*svs.camera.getFieldOfViewHorizontalDeg()/90)
+				*rr::RRMatrix3x4::rotationByAxisAngle(svs.camera.getRight(),dragY*5*svs.camera.getFieldOfViewHorizontalDeg()/90))
+				.centeredAround(svs.camera.getPosition()),
 				false,false) && dragY)
 			{
 				// disable Y component and try rotation again, maybe this time pitch won't overflow 90/-90
@@ -1115,17 +1115,17 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			// panning
 			//  drag clicked pixel so that it stays under mouse
 			rr::RRVec3 pan;
-			if (svs.eye.isOrthogonal())
+			if (svs.camera.isOrthogonal())
 			{
 				rr::RRVec2 origMousePositionInWindow = rr::RRVec2((s_ci.mouseX*2.0f+winWidth-GetSize().x)/winWidth-1,(s_ci.mouseY*2.0f+winHeight-GetSize().y)/winHeight-1); // in fact, it is mouse position in _viewport_ where viewport winWidth*winHeight is in center of window GetSize()
-				pan = svs.eye.getRayOrigin(origMousePositionInWindow)-svs.eye.getRayOrigin(mousePositionInWindow);
+				pan = svs.camera.getRayOrigin(origMousePositionInWindow)-svs.camera.getRayOrigin(mousePositionInWindow);
 			}
 			else
 			{
-				rr::RRVec3 newRayDirection = svs.eye.getRayDirection(mousePositionInWindow);
+				rr::RRVec3 newRayDirection = svs.camera.getRayDirection(mousePositionInWindow);
 				pan = (s_ci.rayDirection-newRayDirection)*(s_ci.hitDistance/s_ci.rayDirection.length());
 			}
-			svs.eye.setPosition(s_ci.pos + pan);
+			svs.camera.setPosition(s_ci.pos + pan);
 			s_ciRenderCrosshair = true;
 		}
 		else
@@ -1137,7 +1137,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
 			while (!svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),
 				(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5)
-				*rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getRight(),dragY*5))
+				*rr::RRMatrix3x4::rotationByAxisAngle(svs.camera.getRight(),dragY*5))
 				.centeredAround(s_ci.hitPoint3d),false,false) && dragY)
 			{
 				dragY = 0;
@@ -1236,21 +1236,21 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		if (event.ControlDown())
 		{
 			// move camera forward/backward
-			svs.eye.setPosition(svs.eye.getPosition() - svs.eye.getDirection() * (event.GetWheelRotation()*spin*svs.cameraMetersPerSecond/event.GetWheelDelta()/3));
+			svs.camera.setPosition(svs.camera.getPosition() - svs.camera.getDirection() * (event.GetWheelRotation()*spin*svs.cameraMetersPerSecond/event.GetWheelDelta()/3));
 		}
 		else
 		{
 			// zoom camera
-			if (svs.eye.isOrthogonal())
+			if (svs.camera.isOrthogonal())
 			{
 				if (event.GetWheelRotation()*spin<0)
-					svs.eye.setOrthoSize(svs.eye.getOrthoSize()/1.4f);
+					svs.camera.setOrthoSize(svs.camera.getOrthoSize()/1.4f);
 				if (event.GetWheelRotation()*spin>0)
-					svs.eye.setOrthoSize(svs.eye.getOrthoSize()*1.4f);
+					svs.camera.setOrthoSize(svs.camera.getOrthoSize()*1.4f);
 			}
 			else
 			{
-				float fov = svs.eye.getFieldOfViewVerticalDeg();
+				float fov = svs.camera.getFieldOfViewVerticalDeg();
 				if (event.GetWheelRotation()*spin<0)
 				{
 					if (fov>13) fov -= 10; else fov /= 1.4f;
@@ -1259,7 +1259,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				{
 					if (fov*1.4f<=3) fov *= 1.4f; else if (fov<170) fov += 10;
 				}
-				svs.eye.setFieldOfViewVerticalDeg(fov);
+				svs.camera.setFieldOfViewVerticalDeg(fov);
 			}
 		}
 	}
@@ -1304,7 +1304,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		// camera/light keyboard move
 		RR_CLAMP(seconds,0.001f,0.3f);
 		float meters = seconds * svs.cameraMetersPerSecond;
-		rr::RRCamera* cam = (selectedType!=ST_LIGHT)?&svs.eye:solver->realtimeLights[svs.selectedLightIndex]->getCamera();
+		rr::RRCamera* cam = (selectedType!=ST_LIGHT)?&svs.camera:solver->realtimeLights[svs.selectedLightIndex]->getCamera();
 
 		{
 			// yes -> respond to keyboard
@@ -1312,11 +1312,11 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 			rr::RRVec3 center = svframe->m_sceneTree->getCenterOf(entities);
 			svframe->m_sceneTree->manipulateEntities(entities,
 				rr::RRMatrix3x4::translation(
-					svs.eye.getDirection() * ((speedForward-speedBack)*meters) +
-					svs.eye.getRight() * ((speedRight-speedLeft)*meters) +
-					svs.eye.getUp() * ((speedUp-speedDown)*meters) +
+					svs.camera.getDirection() * ((speedForward-speedBack)*meters) +
+					svs.camera.getRight() * ((speedRight-speedLeft)*meters) +
+					svs.camera.getUp() * ((speedUp-speedDown)*meters) +
 					rr::RRVec3(0,speedY*meters,0))
-				* rr::RRMatrix3x4::rotationByAxisAngle(svs.eye.getDirection(),-speedLean*seconds*0.5f).centeredAround(center),
+				* rr::RRMatrix3x4::rotationByAxisAngle(svs.camera.getDirection(),-speedLean*seconds*0.5f).centeredAround(center),
 				false, speedLean?true:false
 				);
 		}
@@ -1527,29 +1527,29 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		// - rendering enhanced screenshot
 		// - RL: restored previously saved camera and window size differs
 		// - RL: calculated camera from previously saved keyframes and window size differs
-		svs.eye.setAspect(winWidth/(float)winHeight,0.5f);
+		svs.camera.setAspect(winWidth/(float)winHeight,0.5f);
 
 		// move flashlight
 		for (unsigned i=solver->getLights().size();i--;)
 			if (solver->getLights()[i] && solver->getLights()[i]->enabled && solver->getLights()[i]->type==rr::RRLight::SPOT && solver->getLights()[i]->name=="Flashlight")
 			{
 				float viewportWidthCovered = 0.9f;
-				rr::RRVec3 newPos = svs.eye.getPosition() + svs.eye.getUp()*svs.cameraMetersPerSecond*0.03f+svs.eye.getRight()*svs.cameraMetersPerSecond*0.03f;
-				rr::RRVec3 newDir = svs.eye.getDirection();
+				rr::RRVec3 newPos = svs.camera.getPosition() + svs.camera.getUp()*svs.cameraMetersPerSecond*0.03f+svs.camera.getRight()*svs.cameraMetersPerSecond*0.03f;
+				rr::RRVec3 newDir = svs.camera.getDirection();
 				solver->realtimeLights[i]->getCamera()->setPosition(newPos);
 				solver->realtimeLights[i]->getCamera()->setDirection(newDir);
-				solver->getLights()[i]->outerAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.6f;
-				solver->getLights()[i]->fallOffAngleRad = svs.eye.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.4f;
-				solver->realtimeLights[i]->getCamera()->setRange(svs.eye.getNear(),svs.eye.getFar());
+				solver->getLights()[i]->outerAngleRad = svs.camera.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.6f;
+				solver->getLights()[i]->fallOffAngleRad = svs.camera.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.4f;
+				solver->realtimeLights[i]->getCamera()->setRange(svs.camera.getNear(),svs.camera.getFar());
 				solver->realtimeLights[i]->updateAfterRRLightChanges(); // sets dirtyRange if pos/dir/fov did change
 				solver->realtimeLights[i]->dirtyRange = false; // clear it, range already is good (dirty range would randomly disappear flashlight, reason unknown)
 				solver->realtimeLights[i]->dirtyShadowmap = true;
 			}
 
-		if (svs.cameraDynamicNear && !svs.eye.isOrthogonal()) // don't change range in ortho, fixed range from setView() is better
+		if (svs.cameraDynamicNear && !svs.camera.isOrthogonal()) // don't change range in ortho, fixed range from setView() is better
 		{
 			// eye must already be updated here because next line depends on pos, up, right
-			svs.eye.setRangeDynamically(solver);
+			svs.camera.setRangeDynamically(solver);
 		}
 
 		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
@@ -1592,7 +1592,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 			RenderParameters rp;
 
-			rp.camera = &svs.eye;
+			rp.camera = &svs.camera;
 
 			rp.brightness = svs.renderTonemapping ? svs.tonemappingBrightness * pow(svs.tonemappingGamma,0.45f) : rr::RRVec4(1);
 			rp.gamma = svs.renderTonemapping ?svs.tonemappingGamma : 1;
@@ -1792,32 +1792,32 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				if (svs.dofAutomatic)
 				{
-					ray->rayOrigin = svs.eye.getRayOrigin(svs.eye.getScreenCenter());
-					ray->rayDir = svs.eye.getRayDirection(svs.eye.getScreenCenter()).normalized();
-					ray->rayLengthMin = svs.eye.getNear();
-					ray->rayLengthMax = svs.eye.getFar();
+					ray->rayOrigin = svs.camera.getRayOrigin(svs.camera.getScreenCenter());
+					ray->rayDir = svs.camera.getRayDirection(svs.camera.getScreenCenter()).normalized();
+					ray->rayLengthMin = svs.camera.getNear();
+					ray->rayLengthMax = svs.camera.getFar();
 					ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
 					ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 					ray->collisionHandler = collisionHandler;
 					if (solver->getCollider()->intersect(ray))
 					{
-						float ratio = sqrtf(svs.eye.dofFar/svs.eye.dofNear);
-						svs.eye.dofNear = ray->hitDistance/ratio;
-						svs.eye.dofFar = ray->hitDistance*ratio;
+						float ratio = sqrtf(svs.camera.dofFar/svs.camera.dofNear);
+						svs.camera.dofNear = ray->hitDistance/ratio;
+						svs.camera.dofFar = ray->hitDistance*ratio;
 					}
 					else
 					{
-						float ratio = sqrtf(svs.eye.dofFar/svs.eye.dofNear);
-						svs.eye.dofNear = svs.eye.getFar()/ratio;
-						svs.eye.dofFar = svs.eye.getFar()*ratio;
+						float ratio = sqrtf(svs.camera.dofFar/svs.camera.dofNear);
+						svs.camera.dofNear = svs.camera.getFar()/ratio;
+						svs.camera.dofFar = svs.camera.getFar()*ratio;
 					}
 				}
-				dof->applyDOF(winWidth,winHeight,svs.eye);
+				dof->applyDOF(winWidth,winHeight,svs.camera);
 			}
 		}
 
 		// render lens flare, using own shader
-		if (svs.renderLensFlare && !svs.eye.isOrthogonal())
+		if (svs.renderLensFlare && !svs.camera.isOrthogonal())
 		{
 			if (!lensFlareLoadAttempted)
 			{
@@ -1827,7 +1827,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			if (lensFlare)
 			{
-				lensFlare->renderLensFlares(svs.lensFlareSize,svs.lensFlareId,textureRenderer,svs.eye,solver->getLights(),solver->getMultiObjectCustom(),64);
+				lensFlare->renderLensFlares(svs.lensFlareSize,svs.lensFlareId,textureRenderer,svs.camera,solver->getLights(),solver->getMultiObjectCustom(),64);
 			}
 		}
 
@@ -1836,8 +1836,8 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		if (svs.renderHelpers && !_takingSshot && lightField)
 		{
 			// update cube
-			lightFieldObjectIllumination->envMapWorldCenter = svs.eye.getPosition()+svs.eye.getDirection();
-			rr::RRVec2 sphereShift = rr::RRVec2(svs.eye.getDirection()[2],-svs.eye.getDirection()[0]).normalized()*0.05f;
+			lightFieldObjectIllumination->envMapWorldCenter = svs.camera.getPosition()+svs.camera.getDirection();
+			rr::RRVec2 sphereShift = rr::RRVec2(svs.camera.getDirection()[2],-svs.camera.getDirection()[0]).normalized()*0.05f;
 			lightField->updateEnvironmentMap(lightFieldObjectIllumination,svs.layerBakedEnvironment,0);
 
 			// diffuse
@@ -1847,7 +1847,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.tonemappingBrightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = svs.tonemappingGamma!=1;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
-			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.eye,NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
+			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			glPushMatrix();
@@ -1862,7 +1862,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			uberProgramSetup.MATERIAL_DIFFUSE = false;
 			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.OBJECT_SPACE = true;
-			program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.eye,NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
+			program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
@@ -1976,8 +1976,8 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			const EntityIds& autoEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
 			renderedIcons.markSelected(selectedEntityIds);
 			if (selectedEntityIds.size())
-				renderedIcons.addXYZ(svframe->m_sceneTree->getCenterOf(selectedEntityIds),(&selectedEntityIds==&autoEntityIds)?selectedTransformation:IC_STATIC,svs.eye);
-			entityIcons->renderIcons(renderedIcons,solver->getRendererOfScene()->getTextureRenderer(),svs.eye,solver->getCollider(),ray,svs);
+				renderedIcons.addXYZ(svframe->m_sceneTree->getCenterOf(selectedEntityIds),(&selectedEntityIds==&autoEntityIds)?selectedTransformation:IC_STATIC,svs.camera);
+			entityIcons->renderIcons(renderedIcons,solver->getRendererOfScene()->getTextureRenderer(),svs.camera,solver->getCollider(),ray,svs);
 		}
 	}
 
@@ -2015,10 +2015,10 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		if (!svs.renderLightmaps2d)
 		{
 			// ray and collisionHandler are used in this block
-			ray->rayOrigin = svs.eye.getRayOrigin(mousePositionInWindow);
-			ray->rayDir = svs.eye.getRayDirection(mousePositionInWindow).normalized();
-			ray->rayLengthMin = svs.eye.getNear();
-			ray->rayLengthMax = svs.eye.getFar();
+			ray->rayOrigin = svs.camera.getRayOrigin(mousePositionInWindow);
+			ray->rayDir = svs.camera.getRayDirection(mousePositionInWindow).normalized();
+			ray->rayLengthMin = svs.camera.getNear();
+			ray->rayLengthMax = svs.camera.getFar();
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
 			ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 			ray->collisionHandler = collisionHandler;

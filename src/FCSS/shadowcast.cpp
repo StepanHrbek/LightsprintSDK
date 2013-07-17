@@ -1925,8 +1925,8 @@ int main(int argc, char** argv)
 			rr_gl::SceneViewerState svs;
 			svs.renderLDM = true;
 			svs.renderTonemapping = false;
-			svs.eye.setPosition(rr::RRVec3(23.554733f,-5.993851f,-3.134015f));
-			svs.eye.setDirection(rr::RRVec3(0.64f,-0.3f,-0.7f));
+			svs.camera.setPosition(rr::RRVec3(23.554733f,-5.993851f,-3.134015f));
+			svs.camera.setDirection(rr::RRVec3(0.64f,-0.3f,-0.7f));
 			svs.cameraMetersPerSecond = 1;
 			svs.autodetectCamera = false;
 			rr_gl::sceneViewer(NULL,"scenes/wop_padattic/wop_padatticBB.rr3",NULL,"shaders/",&svs,false);

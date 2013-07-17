@@ -206,7 +206,7 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 			break;
 		case ST_CAMERA:
 			{
-				return svs.eye.manipulateViewBy(transformation,rollChangeAllowed,false)?1:0;
+				return svs.camera.manipulateViewBy(transformation,rollChangeAllowed,false)?1:0;
 			}
 			break;
 	}
@@ -321,7 +321,7 @@ rr::RRVec3 SVSceneTree::getCenterOf(const EntityIds& entityIds) const
 				}
 				break;
 			case ST_CAMERA:
-				selectedEntitiesCenter += svs.eye.getPosition();
+				selectedEntitiesCenter += svs.camera.getPosition();
 				numCenters++;
 				break;
 		}
@@ -491,7 +491,7 @@ rr::RRObject* SVSceneTree::addMesh(rr::RRMesh* mesh, wxString name, bool inFront
 	object->faceGroups.push_back(fg);
 	if (inFrontOfCamera)
 	{
-		rr::RRMatrix3x4 m = rr::RRMatrix3x4::translation(svs.eye.getPosition()+svs.eye.getDirection()*3-svs.eye.getUp()*0.5f);
+		rr::RRMatrix3x4 m = rr::RRMatrix3x4::translation(svs.camera.getPosition()+svs.camera.getDirection()*3-svs.camera.getUp()*0.5f);
 		object->setWorldMatrix(&m);
 	}
 	object->isDynamic = true;
@@ -591,8 +591,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				switch (actionCode)
 				{
 					case CM_LIGHT_DIR: newLight = rr::RRLight::createDirectionalLight(rr::RRVec3(-1),rr::RRVec3(1),true); newLight->name = "Sun"; break;
-					case CM_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.eye.getPosition(),rr::RRVec3(1),svs.eye.getDirection(),svs.eye.getFieldOfViewVerticalRad()/2,svs.eye.getFieldOfViewVerticalRad()/4); break;
-					case CM_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.eye.getPosition(),rr::RRVec3(1)); break;
+					case CM_LIGHT_SPOT: newLight = rr::RRLight::createSpotLight(svs.camera.getPosition(),rr::RRVec3(1),svs.camera.getDirection(),svs.camera.getFieldOfViewVerticalRad()/2,svs.camera.getFieldOfViewVerticalRad()/4); break;
+					case CM_LIGHT_POINT: newLight = rr::RRLight::createPointLight(svs.camera.getPosition(),rr::RRVec3(1)); break;
 				}
 				if (newLight)
 				{
@@ -1137,7 +1137,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					rr::RRScene scene;
 					scene.objects = selectedObjects;
 					scene.lights = selectedLights;
-					scene.cameras.push_back(svs.eye);
+					scene.cameras.push_back(svs.camera);
 					scene.environment = solver->getEnvironment();
 					scene.save(RR_WX2RR(selectedFilename));
 					scene.environment = NULL; // would be deleted in destructor otherwise

@@ -40,10 +40,10 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propCameraStereo = new BoolRefProperty(_("Stereo"),_("Enables stereo rendering. See User preferences/Stereo for stereo modes and options."),svs.renderStereo);
 			AppendIn(propCamera,propCameraStereo);
 
-			propCameraEyeSeparation = new FloatProperty(_("Eye separation")+" (m)",_("Distance from left to right eye. Negative value swaps left and right eye."),svs.eye.eyeSeparation,svs.precision,-1000,1000,0.01f,false);
+			propCameraEyeSeparation = new FloatProperty(_("Eye separation")+" (m)",_("Distance from left to right eye. Negative value swaps left and right eye."),svs.camera.eyeSeparation,svs.precision,-1000,1000,0.01f,false);
 			AppendIn(propCameraStereo,propCameraEyeSeparation);
 
-			propCameraFocalLength = new FloatProperty(_("Focal length")+" (m)",_("How distant objects should appear in display plane."),svs.eye.focalLength,svs.precision,0,1e10,1,false);
+			propCameraFocalLength = new FloatProperty(_("Focal length")+" (m)",_("How distant objects should appear in display plane."),svs.camera.focalLength,svs.precision,0,1e10,1,false);
 			AppendIn(propCameraStereo,propCameraFocalLength);
 
 		}
@@ -56,10 +56,10 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propCameraDofAutomatic = new BoolRefProperty(_("Auto"),_("Adjusts near and far automatically."),svs.dofAutomatic);
 			AppendIn(propCameraDof,propCameraDofAutomatic);
 
-			propCameraDofNear = new FloatProperty(_("Near"),_("DOF blurs pixels closer than this distance, in meters."),(float)svs.eye.dofNear,svs.precision,0,100000,1,false);
+			propCameraDofNear = new FloatProperty(_("Near"),_("DOF blurs pixels closer than this distance, in meters."),(float)svs.camera.dofNear,svs.precision,0,100000,1,false);
 			AppendIn(propCameraDof,propCameraDofNear);
 
-			propCameraDofFar = new FloatProperty(_("Far"),_("DOF blurs pixels farther than this distance, in meters."),(float)svs.eye.dofFar,svs.precision,0,100000,1,false);
+			propCameraDofFar = new FloatProperty(_("Far"),_("DOF blurs pixels farther than this distance, in meters."),(float)svs.camera.dofFar,svs.precision,0,100000,1,false);
 			AppendIn(propCameraDof,propCameraDofFar);
 
 		}
@@ -73,14 +73,14 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propCameraView = new wxEnumProperty(_("View"), wxPG_LABEL, viewStrings, viewValues);
 		AppendIn(propCamera,propCameraView);
 
-		propCameraPosition = new RRVec3Property(_("Position")+" (m)",_("Camera position in world space"),svs.precision,svs.eye.getPosition(),1);
+		propCameraPosition = new RRVec3Property(_("Position")+" (m)",_("Camera position in world space"),svs.precision,svs.camera.getPosition(),1);
 		AppendIn(propCamera,propCameraPosition);
 
-		propCameraDirection = new RRVec3Property(_("Direction"),_("Camera direction in world space, normalized"),svs.precision,svs.eye.getDirection(),0.2f);
+		propCameraDirection = new RRVec3Property(_("Direction"),_("Camera direction in world space, normalized"),svs.precision,svs.camera.getDirection(),0.2f);
 		AppendIn(propCamera,propCameraDirection);
 		EnableProperty(propCameraDirection,false);
 
-		propCameraAngles = new RRVec3Property(_("Angles")+L" (\u00b0)",_("Camera direction in angles: yaw, pitch, roll (or azimuth, elevation, leaning)"),svs.precision,RR_RAD2DEG(svs.eye.getYawPitchRollRad()),10);
+		propCameraAngles = new RRVec3Property(_("Angles")+L" (\u00b0)",_("Camera direction in angles: yaw, pitch, roll (or azimuth, elevation, leaning)"),svs.precision,RR_RAD2DEG(svs.camera.getYawPitchRollRad()),10);
 		AppendIn(propCamera,propCameraAngles);
 
 		propCameraOrtho = new wxBoolProperty(_("Orthogonal"));
@@ -88,24 +88,24 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		SetPropertyEditor(propCameraOrtho,wxPGEditor_CheckBox);
 		AppendIn(propCamera,propCameraOrtho);
 
-		propCameraOrthoSize = new FloatProperty(_("Size")+" (m)",_("World space distance between top and bottom of viewport."),svs.eye.getOrthoSize(),svs.precision,0,1000000,10,false);
+		propCameraOrthoSize = new FloatProperty(_("Size")+" (m)",_("World space distance between top and bottom of viewport."),svs.camera.getOrthoSize(),svs.precision,0,1000000,10,false);
 		AppendIn(propCameraOrtho,propCameraOrthoSize);
 
-		propCameraFov = new FloatProperty(_("FOV vertical")+L" (\u00b0)",_("Vertical field of view angle, angle between top and bottom of viewport"),svs.eye.getFieldOfViewVerticalDeg(),svs.precision,0,180,10,false);
+		propCameraFov = new FloatProperty(_("FOV vertical")+L" (\u00b0)",_("Vertical field of view angle, angle between top and bottom of viewport"),svs.camera.getFieldOfViewVerticalDeg(),svs.precision,0,180,10,false);
 		AppendIn(propCamera,propCameraFov);
 		// why it's not safe to move FOV above Ortho:
 		//   when Ortho is checked, FOV disappears and Ortho moves one line up, but just checked Ortho checkbox is rendered into old position
 
-		propCameraNear = new FloatProperty(_("Near")+" (m)",_("Near plane distance, elements closer to camera are not rendered."),svs.eye.getNear(),svs.precision,-1e10f,1e10f,0.1f,false);
+		propCameraNear = new FloatProperty(_("Near")+" (m)",_("Near plane distance, elements closer to camera are not rendered."),svs.camera.getNear(),svs.precision,-1e10f,1e10f,0.1f,false);
 		AppendIn(propCamera,propCameraNear);
 
-		propCameraFar = new FloatProperty(_("Far")+" (m)",_("Far plane distance, elements farther from camera are not rendered."),svs.eye.getFar(),svs.precision,-1e10f,1e10f,1,false);
+		propCameraFar = new FloatProperty(_("Far")+" (m)",_("Far plane distance, elements farther from camera are not rendered."),svs.camera.getFar(),svs.precision,-1e10f,1e10f,1,false);
 		AppendIn(propCamera,propCameraFar);
 
 		propCameraRangeAutomatic = new BoolRefProperty(_("Automatic near/far"),_("Near/far is set automatically based on distance of objects in viewport."),svs.cameraDynamicNear);
 		AppendIn(propCamera,propCameraRangeAutomatic);
 
-		propCameraCenter = new RRVec2Property(_("Center of screen"),_("Shifts look up/down/left/right without distorting image. E.g. in architecture, 0,0.3 moves horizon down without skewing vertical lines."),svs.precision,svs.eye.getScreenCenter(),1);
+		propCameraCenter = new RRVec2Property(_("Center of screen"),_("Shifts look up/down/left/right without distorting image. E.g. in architecture, 0,0.3 moves horizon down without skewing vertical lines."),svs.precision,svs.camera.getScreenCenter(),1);
 		AppendIn(propCamera,propCameraCenter);
 
 		SetPropertyBackgroundColour(propCamera,importantPropertyBackgroundColor,false);
@@ -283,8 +283,8 @@ void SVSceneProperties::updateHide()
 	propCameraDofNear->Hide(!svs.renderDof,false);
 	propCameraDofFar->Hide(!svs.renderDof,false);
 
-	propCameraFov->Hide(svs.eye.isOrthogonal(),false);
-	propCameraOrthoSize->Hide(!svs.eye.isOrthogonal(),false);
+	propCameraFov->Hide(svs.camera.isOrthogonal(),false);
+	propCameraOrthoSize->Hide(!svs.camera.isOrthogonal(),false);
 	EnableProperty(propCameraNear,!svs.cameraDynamicNear);
 	EnableProperty(propCameraFar,!svs.cameraDynamicNear);
 
@@ -324,7 +324,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propCameraStereo)
 		+ updateBoolRef(propCameraDof)
 		+ updateBoolRef(propCameraDofAutomatic)
-		+ updateBool(propCameraOrtho,svs.eye.isOrthogonal())
+		+ updateBool(propCameraOrtho,svs.camera.isOrthogonal())
 		+ updateBoolRef(propCameraRangeAutomatic)
 		//+ updateBoolRef(propEnvSimulateSky)
 		+ updateString(propEnvMap,(svframe->m_canvas&&svframe->m_canvas->solver&&svframe->m_canvas->solver->getEnvironment())?RR_RR2WX(svframe->m_canvas->solver->getEnvironment()->filename):L"(no texture)")
@@ -338,20 +338,20 @@ void SVSceneProperties::updateProperties()
 		;
 
 	unsigned numChangesOther =
-		+ updateFloat(propCameraEyeSeparation,svs.eye.eyeSeparation)
-		+ updateFloat(propCameraFocalLength,svs.eye.focalLength)
-		+ updateFloat(propCameraDofNear,svs.eye.dofNear)
-		+ updateFloat(propCameraDofFar,svs.eye.dofFar)
+		+ updateFloat(propCameraEyeSeparation,svs.camera.eyeSeparation)
+		+ updateFloat(propCameraFocalLength,svs.camera.focalLength)
+		+ updateFloat(propCameraDofNear,svs.camera.dofNear)
+		+ updateFloat(propCameraDofFar,svs.camera.dofFar)
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
-		+ updateProperty(propCameraPosition,svs.eye.getPosition())
-		+ updateProperty(propCameraDirection,svs.eye.getDirection())
-		+ updateProperty(propCameraAngles,RR_RAD2DEG(svs.eye.getYawPitchRollRad()))
-		+ updateInt(propCameraView,view2ME_VIEW(svs.eye.getView()))
-		+ updateFloat(propCameraOrthoSize,svs.eye.getOrthoSize())
-		+ updateFloat(propCameraFov,svs.eye.getFieldOfViewVerticalDeg())
-		+ updateFloat(propCameraNear,svs.eye.getNear())
-		+ updateFloat(propCameraFar,svs.eye.getFar())
-		+ updateProperty(propCameraCenter,svs.eye.getScreenCenter())
+		+ updateProperty(propCameraPosition,svs.camera.getPosition())
+		+ updateProperty(propCameraDirection,svs.camera.getDirection())
+		+ updateProperty(propCameraAngles,RR_RAD2DEG(svs.camera.getYawPitchRollRad()))
+		+ updateInt(propCameraView,view2ME_VIEW(svs.camera.getView()))
+		+ updateFloat(propCameraOrthoSize,svs.camera.getOrthoSize())
+		+ updateFloat(propCameraFov,svs.camera.getFieldOfViewVerticalDeg())
+		+ updateFloat(propCameraNear,svs.camera.getNear())
+		+ updateFloat(propCameraFar,svs.camera.getFar())
+		+ updateProperty(propCameraCenter,svs.camera.getScreenCenter())
 		//+ updateBoolRef(propEnvSimulateSky)
 		+ updateBoolRef(propEnvSimulateSun)
 		+ updateFloat(propEnvMapAngleDeg,RR_RAD2DEG(svs.skyboxRotationRad))
@@ -413,12 +413,12 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraEyeSeparation)
 	{
-		svs.eye.eyeSeparation = property->GetValue().GetDouble();
+		svs.camera.eyeSeparation = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propCameraFocalLength)
 	{
-		svs.eye.focalLength = property->GetValue().GetDouble();
+		svs.camera.focalLength = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propCameraDof)
@@ -433,12 +433,12 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraDofNear)
 	{
-		svs.eye.dofNear = property->GetValue().GetDouble();
+		svs.camera.dofNear = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propCameraDofFar)
 	{
-		svs.eye.dofFar = property->GetValue().GetDouble();
+		svs.camera.dofFar = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propCameraView)
@@ -456,40 +456,40 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		RRVec3 pos;
 		pos << property->GetValue();
-		svs.eye.setPosition(pos);
+		svs.camera.setPosition(pos);
 	}
 	else
 	if (property==propCameraAngles)
 	{
 		RRVec3 yawPitchRollRad;
 		yawPitchRollRad << property->GetValue();
-		svs.eye.setYawPitchRollRad(RR_DEG2RAD(yawPitchRollRad));
+		svs.camera.setYawPitchRollRad(RR_DEG2RAD(yawPitchRollRad));
 	}
 	else
 	if (property==propCameraOrtho)
 	{
-		svs.eye.setOrthogonal(property->GetValue().GetBool());
+		svs.camera.setOrthogonal(property->GetValue().GetBool());
 		updateHide();
 	}
 	else
 	if (property==propCameraOrthoSize)
 	{
-		svs.eye.setOrthoSize(property->GetValue().GetDouble());
+		svs.camera.setOrthoSize(property->GetValue().GetDouble());
 	}
 	else
 	if (property==propCameraFov)
 	{
-		svs.eye.setFieldOfViewVerticalDeg(property->GetValue().GetDouble());
+		svs.camera.setFieldOfViewVerticalDeg(property->GetValue().GetDouble());
 	}
 	else
 	if (property==propCameraNear)
 	{
-		svs.eye.setNear(property->GetValue().GetDouble());
+		svs.camera.setNear(property->GetValue().GetDouble());
 	}
 	else
 	if (property==propCameraFar)
 	{
-		svs.eye.setFar(property->GetValue().GetDouble());
+		svs.camera.setFar(property->GetValue().GetDouble());
 	}
 	else
 	if (property==propCameraRangeAutomatic)
@@ -501,7 +501,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		RRVec2 tmp;
 		tmp << property->GetValue();
-		svs.eye.setScreenCenter(tmp);
+		svs.camera.setScreenCenter(tmp);
 	}
 	else
 	//if (property==propEnvSimulateSky)

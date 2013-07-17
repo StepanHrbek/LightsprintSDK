@@ -61,7 +61,7 @@ enum Transparency
 //! Optional parameters of sceneViewer()
 struct SceneViewerState
 {
-	rr::RRCamera     eye;                       //! Current camera.
+	rr::RRCamera     camera;                    //! Current camera.
 	rr::RRTime       referenceTime;             //! Time when animation started/was in position 0.
 
 	bool             envSimulateSky;            //! Should we simulate sky according to location and datetime?
@@ -160,7 +160,7 @@ struct SceneViewerState
 	//! Clears all but state that should survive 'project' load.
 	void clearSvs()
 	{
-		new(&eye) rr::RRCamera(rr::RRVec3(-1.856f,1.8f,2.097f), rr::RRVec3(2.404f,-0.3f,0), 1.3f, 90, 0.1f,1000);
+		new(&camera) rr::RRCamera(rr::RRVec3(-1.856f,1.8f,2.097f), rr::RRVec3(2.404f,-0.3f,0), 1.3f, 90, 0.1f,1000);
 		envSimulateSky = false;
 		envSimulateSun = false;
 		envLongitudeDeg = 14+26/60.f; // Prague
@@ -247,7 +247,7 @@ struct SceneViewerState
 	bool operator ==(const SceneViewerState& a) const
 	{
 		return 1
-			&& a.eye==eye
+			&& a.camera==camera
 
 			&& a.envSimulateSky==envSimulateSky
 			&& a.envSimulateSun==envSimulateSun

@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news140 ------------------------------------ 2013.0x.xx -------------------------------------
+
+NEWS
+
+CHANGES
+
+- rr_gl::SceneViewerState::eye renamed to rr_gl::SceneViewerState::camera
+
 \section news139 ------------------------------------ 2013.07.11 -------------------------------------
 
 NEWS
