@@ -36,7 +36,7 @@ struct SceneViewerStateEx : public SceneViewerState
 	wxString sceneFilename;
 	//! Current skybox filename, e.g. skybox.hdr or skybox_ft.tga.
 	//! To specify Quake-style cube map, use name of any one of 6 images (Quake uses suffixes ft,bk,up,dn,rt,lf).
-	wxString skyboxFilename;
+	rr::RRString skyboxFilename;
 	float skyboxRotationRad;
 	bool releaseResources;
 

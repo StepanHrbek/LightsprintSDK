@@ -1274,28 +1274,28 @@ save_scene_as:
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////
 
 		case ME_ENV_WHITE:
-			svs.skyboxFilename = svs.pathToMaps+"skybox/white.png";
+			svs.skyboxFilename = RR_WX2RR(svs.pathToMaps+"skybox/white.png");
 			goto reload_skybox;
 		case ME_ENV_BLACK:
-			svs.skyboxFilename = svs.pathToMaps+"skybox/black.png";
+			svs.skyboxFilename = RR_WX2RR(svs.pathToMaps+"skybox/black.png");
 			goto reload_skybox;
 		case ME_ENV_WHITE_TOP:
-			svs.skyboxFilename = svs.pathToMaps+"skybox/white_top.png";
+			svs.skyboxFilename = RR_WX2RR(svs.pathToMaps+"skybox/white_top.png");
 			goto reload_skybox;
 		case ME_ENV_OPEN:
 			{
 				wxFileDialog dialog(this,_("Choose a skybox image"),"","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-				dialog.SetPath(svs.skyboxFilename.IsEmpty()?svs.pathToMaps+"skybox/":svs.skyboxFilename);
+				dialog.SetPath(svs.skyboxFilename.empty()?svs.pathToMaps+"skybox/":RR_RR2WX(svs.skyboxFilename));
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 
-				svs.skyboxFilename = dialog.GetPath();
+				svs.skyboxFilename = RR_WX2RR(dialog.GetPath());
 			}
 			goto reload_skybox;
 		case ME_ENV_RELOAD: // not a menu item, just command we can call from outside
 			{
 reload_skybox:
-				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(RR_WX2RR(svs.skyboxFilename),textureLocator);
+				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename,textureLocator);
 				if (envToBeDeletedOnExit && solver->getEnvironment(0))
 				{
 					solver->getEnvironment(0)->stop();

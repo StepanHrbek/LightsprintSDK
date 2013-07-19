@@ -44,7 +44,14 @@ namespace serialization
 		if (Archive::is_loading::value) wxstring = utf8 ? wxString::FromUTF8(s.c_str()) : s; \
 	}
 
-#define SERIALIZE_FILENAME(name,wxstring,utf8) \
+#define SERIALIZE_RRSTRING(name,rrstring,utf8) \
+	{ \
+		wxString wxstring = RR_RR2WX(rrstring); \
+		SERIALIZE_WXSTRING(name,wxstring,utf8); \
+		if (Archive::is_loading::value) rrstring = RR_WX2RR(wxstring); \
+	}
+
+#define SERIALIZE_WXFILENAME(name,wxstring,utf8) \
 	{ \
 		SERIALIZE_WXSTRING(name,wxstring,utf8) \
 		if (Archive::is_loading::value) \
@@ -53,6 +60,13 @@ namespace serialization
 			fixPath(rrstring); \
 			wxstring = RR_RR2WX(rrstring); \
 		} \
+	}
+
+#define SERIALIZE_RRFILENAME(name,rrstring,utf8) \
+	{ \
+		SERIALIZE_RRSTRING(name,rrstring,utf8) \
+		if (Archive::is_loading::value) \
+			fixPath(rrstring); \
 	}
 
 
