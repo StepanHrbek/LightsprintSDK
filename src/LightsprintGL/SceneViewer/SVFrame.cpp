@@ -1761,7 +1761,7 @@ void SVFrame::simulateSun()
 			{
 				double longitudeDeg = svs.envLongitudeDeg;
 				double latitudeRad = RR_DEG2RAD(svs.envLatitudeDeg);
-				double hour = svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.;
+				double hour = svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.+svs.envDateTime.tm_sec/3600.;
 				unsigned daysBeforeMonth[12] = {0,31,59,90,120,151,181,212,243,273,304,334};
 				unsigned dayInYear = daysBeforeMonth[svs.envDateTime.tm_mon]+svs.envDateTime.tm_mday-1; // svs.envDateTime.tm_yday is not set, calculate it here
 				double g = (M_PI*2/365.25)*(dayInYear + hour/24); // fractional year, rad
