@@ -65,6 +65,8 @@ struct SceneViewerState
 	rr::RRCamera     camera;                    //! Current camera.
 	rr::RRTime       referenceTime;             //! Time when animation started/was in position 0.
 
+	rr::RRString     skyboxFilename;            //! Current skybox filename, e.g. skybox.hdr or skybox_ft.tga.
+	float            skyboxRotationRad;
 	bool             envSimulateSky;            //! Should we simulate sky according to location and datetime?
 	bool             envSimulateSun;            //! Should we simulate Sun according to location and datetime?
 	float            envLongitudeDeg;           //! Longitude for sky/sun simulation, -180..180, east is positive, west is negative.
@@ -163,6 +165,7 @@ struct SceneViewerState
 	void clearSvs()
 	{
 		new(&camera) rr::RRCamera(rr::RRVec3(-1.856f,1.8f,2.097f), rr::RRVec3(2.404f,-0.3f,0), 1.3f, 90, 0.1f,1000);
+		skyboxRotationRad = 0;
 		envSimulateSky = false;
 		envSimulateSun = false;
 		envLongitudeDeg = 14+26/60.f; // Prague
@@ -253,6 +256,8 @@ struct SceneViewerState
 		return 1
 			&& a.camera==camera
 
+			&& a.skyboxFilename==skyboxFilename
+			&& a.skyboxRotationRad==skyboxRotationRad
 			&& a.envSimulateSky==envSimulateSky
 			&& a.envSimulateSun==envSimulateSun
 			&& a.envLongitudeDeg==envLongitudeDeg

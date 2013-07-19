@@ -34,25 +34,18 @@ struct SceneViewerStateEx : public SceneViewerState
 	wxString pathToMaps;
 	//! Current scene filename, e.g. path/scene.dae.
 	wxString sceneFilename;
-	//! Current skybox filename, e.g. skybox.hdr or skybox_ft.tga.
-	//! To specify Quake-style cube map, use name of any one of 6 images (Quake uses suffixes ft,bk,up,dn,rt,lf).
-	rr::RRString skyboxFilename;
-	float skyboxRotationRad;
 	bool releaseResources;
 
 	SceneViewerStateEx()
 	{
 		initialInputSolver = NULL;
 		pathToShaders = NULL;
-		skyboxRotationRad = 0;
 		releaseResources = true;
 	}
 	bool operator ==(const SceneViewerStateEx& a) const
 	{
 		return this->SceneViewerState::operator==(a)
 			&& a.sceneFilename==sceneFilename
-			&& a.skyboxFilename==skyboxFilename
-			&& a.skyboxRotationRad==skyboxRotationRad
 			;
 	}
 	bool operator !=(const SceneViewerStateEx& a) const
