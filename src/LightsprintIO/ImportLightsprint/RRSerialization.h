@@ -144,6 +144,12 @@ void serialize(Archive & ar, rr::RRVec3& a, const unsigned int version)
 template<class Archive>
 void serialize(Archive & ar, rr::RRVec4& a, const unsigned int version)
 {
+	// a) inherited variables are stored inside <base>
+	//ar & make_nvp("base",boost::serialization::base_object<rr::RRVec3>(a));
+	// b) it is unclear what version is used
+	//rr::RRVec3& aa = a;
+	//serialize(ar,aa,version);
+	// c) no inheritance
 	ar & make_nvp("x",a.x);
 	ar & make_nvp("y",a.y);
 	ar & make_nvp("z",a.z);
