@@ -10,7 +10,6 @@
 
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/RRScene.h"
-#include <ctime> // struct tm
 #include <string>
 #include <wx/wx.h>
 	#define SV_SUBWINDOW_BORDER wxBORDER_SUNKEN // wxBORDER_NONE // wxBORDER_SIMPLE
@@ -19,14 +18,8 @@ namespace rr_gl
 {
 
 
-struct DateTime : public tm
-{
-	int tm_nsec; // nanoseconds in second, 0..999999999
-
-	DateTime();
-	void setNow();
-	void addSeconds(double seconds); // tested for small positive values of seconds
-};
+void tm_setNow(tm& a);
+void tm_addSeconds(tm& a, double _seconds);
 
 //! Extended SceneViewerState.
 struct SceneViewerStateEx : public SceneViewerState
@@ -46,7 +39,6 @@ struct SceneViewerStateEx : public SceneViewerState
 	wxString skyboxFilename;
 	float skyboxRotationRad;
 	bool releaseResources;
-	DateTime         envDateTime;               //! Date and time for sky/sun simulation.
 
 	SceneViewerStateEx()
 	{
@@ -61,12 +53,6 @@ struct SceneViewerStateEx : public SceneViewerState
 			&& a.sceneFilename==sceneFilename
 			&& a.skyboxFilename==skyboxFilename
 			&& a.skyboxRotationRad==skyboxRotationRad
-			&& a.envDateTime.tm_year==envDateTime.tm_year
-			&& a.envDateTime.tm_mon==envDateTime.tm_mon
-			&& a.envDateTime.tm_mday==envDateTime.tm_mday
-			&& a.envDateTime.tm_hour==envDateTime.tm_hour
-			&& a.envDateTime.tm_min==envDateTime.tm_min
-			&& a.envDateTime.tm_sec==envDateTime.tm_sec
 			;
 	}
 	bool operator !=(const SceneViewerStateEx& a) const

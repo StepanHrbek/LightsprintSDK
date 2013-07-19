@@ -16,6 +16,7 @@
 
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDynamicSolver.h"
+#include <ctime> // struct tm
 
 #if !defined(_WIN32) || _MSC_VER==1600
 //#define CUSTOMIZED_FOR_3DRENDER
@@ -69,6 +70,7 @@ struct SceneViewerState
 	float            envLongitudeDeg;           //! Longitude for sky/sun simulation, -180..180, east is positive, west is negative.
 	float            envLatitudeDeg;            //! Latitude for sky/sun simulation, -90..90, north is positive, south is negative.
 	float            envSpeed;                  //! How qualicky simulation runs, 0=stopped, 1=realtime, 3600=day in 24sec.
+	tm               envDateTime;               //! Date and time for sky/sun simulation.
 
 	unsigned         layerBakedLightmap;        //! Layer used for static global illumination.
 	unsigned         layerBakedAmbient;         //! Layer used for static indirect illumination.
@@ -166,6 +168,8 @@ struct SceneViewerState
 		envLongitudeDeg = 14+26/60.f; // Prague
 		envLatitudeDeg = 50+5/60.f;
 		envSpeed = 0;
+		time_t now = time(NULL);
+		envDateTime = *localtime(&now);
 
 		layerBakedLightmap = 192837463; // any numbers unlikely to collide with user's layer numbers, better than 0 that nearly always collides
 		layerBakedAmbient = 192837464;
@@ -254,6 +258,12 @@ struct SceneViewerState
 			&& a.envLongitudeDeg==envLongitudeDeg
 			&& a.envLatitudeDeg==envLatitudeDeg
 			&& a.envSpeed==envSpeed
+			&& a.envDateTime.tm_year==envDateTime.tm_year
+			&& a.envDateTime.tm_mon==envDateTime.tm_mon
+			&& a.envDateTime.tm_mday==envDateTime.tm_mday
+			&& a.envDateTime.tm_hour==envDateTime.tm_hour
+			&& a.envDateTime.tm_min==envDateTime.tm_min
+			&& a.envDateTime.tm_sec==envDateTime.tm_sec
 
 			&& a.layerBakedLightmap==layerBakedLightmap
 			&& a.layerBakedAmbient==layerBakedAmbient

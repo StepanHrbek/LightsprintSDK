@@ -20,37 +20,31 @@ namespace rr_gl
 //
 // DateTime
 
-DateTime::DateTime()
-{
-	setNow();
-}
-
-void DateTime::setNow()
+void tm_setNow(tm& a)
 {
 	time_t now = time(NULL);
-	*(tm*)this = *localtime(&now);
-	tm_nsec = 0;
+	a = *localtime(&now);
 }
 
-void DateTime::addSeconds(double _seconds)
+void tm_addSeconds(tm& a, double _seconds)
 {
-	_seconds += tm_nsec*1e-9;
-	tm_nsec = fmod(_seconds,1)*1e9;
+	//_seconds += a.tm_nsec*1e-9;
+	//a.tm_nsec = fmod(_seconds,1)*1e9;
 	unsigned seconds = (unsigned)_seconds;
 	if (seconds)
 	{
-		seconds += tm_sec;
-		tm_sec = seconds%60;
+		seconds += a.tm_sec;
+		a.tm_sec = seconds%60;
 		unsigned minutes = seconds/60;
 		if (minutes)
 		{
-			minutes += tm_min;
-			tm_min = minutes%60;
+			minutes += a.tm_min;
+			a.tm_min = minutes%60;
 			unsigned hours = minutes/60;
 			if (hours)
 			{
-				hours += tm_hour;
-				tm_hour = hours%24;
+				hours += a.tm_hour;
+				a.tm_hour = hours%24;
 				unsigned days = hours/24;
 				if (days)
 				{

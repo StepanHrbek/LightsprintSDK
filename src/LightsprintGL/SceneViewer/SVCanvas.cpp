@@ -1410,7 +1410,14 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		static rr::RRTime time;
 		float seconds = time.secondsSinceLastQuery();
 		if (seconds>0 && seconds<1)
-			svs.envDateTime.addSeconds(seconds*svs.envSpeed);
+		{
+			// since switching back from DateTime(tm+nanoseconds) to plain tm, we need to remember fractions of seconds here, otherwise sun won't move at slow speeds
+			static float secondsToAdd = 0;
+			secondsToAdd += seconds*svs.envSpeed;
+			float secondsFloor = floor(secondsToAdd);
+			secondsToAdd -= secondsFloor;
+			tm_addSeconds(svs.envDateTime,secondsFloor);
+		}
 		svframe->simulateSun();
 	}
 

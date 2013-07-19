@@ -555,7 +555,6 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.envDateTime.tm_hour = (int)h;
 		svs.envDateTime.tm_min = fmodf(h,1)*60;
 		svs.envDateTime.tm_sec = 0;
-		svs.envDateTime.tm_nsec = 0;
 		svframe->simulateSun();
 	}
 	else
