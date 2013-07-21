@@ -106,7 +106,6 @@ struct SceneViewerState
 	bool             renderMaterialSidedness;   //! Render 1-sided materials as 1-sided, rather than everything 2-sided.
 	bool             renderWireframe;           //! Render all in wireframe.
 	bool             renderFPS;                 //! Render FPS counter.
-	bool             renderIcons;               //! Unused.
 	bool             renderHelpers;             //! Show helper wireframe objects and text outputs.
 	bool             renderBloom;               //! Render bloom effect.
 	bool             renderLensFlare;           //! Render lens flare effect.
@@ -202,7 +201,6 @@ struct SceneViewerState
 		renderMaterialSidedness = true;
 		renderWireframe = 0;
 		renderFPS = 0;
-		renderIcons = 1;
 		renderHelpers = 0;
 		renderLightmapsBilinear = 1;
 		renderDDI = false;
@@ -300,7 +298,6 @@ struct SceneViewerState
 			&& a.renderMaterialSidedness==renderMaterialSidedness
 			&& a.renderWireframe==renderWireframe
 			&& a.renderFPS==renderFPS
-			&& a.renderIcons==renderIcons
 			&& a.renderHelpers==renderHelpers
 			&& a.renderBloom==renderBloom
 			&& a.renderLensFlare==renderLensFlare
