@@ -6,8 +6,6 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "SVSceneProperties.h"
-#include "../Workaround.h"
-#include "wx/datetime.h" // Tm
 
 namespace rr_gl
 {
