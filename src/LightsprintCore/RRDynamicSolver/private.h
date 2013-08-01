@@ -142,6 +142,10 @@ namespace rr
 		~Private()
 		{
 			deleteScene();
+
+			// [#23] inc/dec refcount of environments entering/leaving solver
+			RR_SAFE_DELETE(environment0);
+			RR_SAFE_DELETE(environment1);
 		}
 		void deleteScene()
 		{

@@ -123,6 +123,13 @@ const RRScaler* RRDynamicSolver::getScaler() const
 
 void RRDynamicSolver::setEnvironment(RRBuffer* _environment0, RRBuffer* _environment1, RRReal _environmentAngleRad0, RRReal _environmentAngleRad1)
 {
+	// [#23] inc/dec refcount of environments entering/leaving solver
+	// (so that later we can delete env from slot0, forget about it, and then move env from slot0 to slot1 for fadeout)
+	if (_environment0 && _environment0!=priv->environment0) _environment0->createReference();
+	if (_environment1 && _environment1!=priv->environment1) _environment1->createReference();
+	if (priv->environment0 && _environment0!=priv->environment0) delete priv->environment0;
+	if (priv->environment1 && _environment1!=priv->environment1) delete priv->environment1;
+
 	priv->environment0 = _environment0;
 	priv->environment1 = _environment1;
 	priv->environmentAngleRad0 = _environmentAngleRad0;

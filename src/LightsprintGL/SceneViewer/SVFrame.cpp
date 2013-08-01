@@ -1300,7 +1300,12 @@ reload_skybox:
 				if (envToBeDeletedOnExit && solver->getEnvironment(0))
 				{
 					solver->getEnvironment(0)->stop();
-					delete solver->getEnvironment(0); // env is refcounted and usually still exists after delete
+					// solver->setEnvironment(skybox,solver->getEnvironment(0),...) will work only if env still exists after delete.
+					// This is usually ensured by image cache that owns extra reference, but sometimes (quake-like cubemaps?)
+					// cube is not cached. Then we rely on solver adding reference to current envs. [#23]
+					// Hypothetically if we delete last env reference here, solver will crash some time later
+					// when it tries to use the deleted env.
+					delete solver->getEnvironment(0); // env is refcounted and should still exist after delete
 				}
 				if (skybox)
 				{
