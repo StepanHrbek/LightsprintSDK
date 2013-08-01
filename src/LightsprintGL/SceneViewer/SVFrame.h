@@ -83,6 +83,7 @@ namespace rr_gl
 		//! Gathers scene data from solver and saves it to given filename (.rr3).
 		bool saveScene(wxString sceneFilename);
 
+
 		enum
 		{
 			ME_FIRST = 10000, // avoid conflict with wxWidgets event numbers, and also with CM_XXX

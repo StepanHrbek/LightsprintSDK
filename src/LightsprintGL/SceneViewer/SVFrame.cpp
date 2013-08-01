@@ -950,6 +950,7 @@ bool SVFrame::saveScene(wxString sceneFilename)
 	return result;
 }
 
+
 void SVFrame::OnMenuEvent(wxCommandEvent& event)
 {
 	OnMenuEventCore(event.GetId());

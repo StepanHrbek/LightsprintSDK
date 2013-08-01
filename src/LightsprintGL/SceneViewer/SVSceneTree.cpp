@@ -1203,7 +1203,6 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				svframe->updateAllPanels();
 			}
 			break;
-
 	}
 }
 
