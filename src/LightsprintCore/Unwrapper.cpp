@@ -475,23 +475,45 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					else
 					if (err==D3D_OK)
 					{
+						unsigned numTrianglesDx = dxMeshOut->GetNumFaces();
+						unsigned numVerticesDx = dxMeshOut->GetNumVertices();
+						RR_ASSERT(numTrianglesDx==numTriangles);
+						RR_ASSERT(numVerticesDx==numVertices);
+
 						//unsigned minimalMapSize = (unsigned)(gutter*sqrtf(numCharts)); // probably never succeeds
 						unsigned minimalMapSize = 1;
 						while (minimalMapSize*2.0f<gutter*sqrtf((float)numCharts)) minimalMapSize *= 2;
 						unsigned trySize = RR_MAX(mapSize,minimalMapSize);
 						while (1)
 						{
-							err = D3DXUVAtlasPack(
-								dxMeshOut,
-								trySize,
-								trySize,
-								gutter,
-								MAX_CHANNELS-1, // textureIndex
-								(DWORD*)partitionResultAdjacency->GetBufferPointer(),
-								&callback,0.0001f,&aborting,
-								0,
-								facePartitioning
-								);
+							err = 19191919;
+#if _MSC_VER>=1500 // this __try fails to compile in VS2005
+							__try
+							{
+#endif
+								err = D3DXUVAtlasPack(
+									dxMeshOut,
+									trySize,
+									trySize,
+									gutter,
+									MAX_CHANNELS-1, // textureIndex
+									(DWORD*)partitionResultAdjacency->GetBufferPointer(),
+									&callback,0.0001f,&aborting,
+									0,
+									facePartitioning
+									);
+#if _MSC_VER>=1500
+							}
+							__except(EXCEPTION_EXECUTE_HANDLER)
+							{
+							}
+#endif
+							if (err==19191919)
+							{
+								RRReporter::report(ERRO,"D3DXUVAtlasPack() crashed, better save your work and restart.\n");
+								break;
+							}
+							else
 							if (err==D3D_OK)
 							{
 								// update stats
