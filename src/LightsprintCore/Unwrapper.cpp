@@ -39,7 +39,12 @@
 namespace rr
 {
 
-typedef boost::unordered_set<unsigned> UvChannels;
+//typedef boost::unordered_set<unsigned> UvChannels;
+
+struct UvChannels : public boost::unordered_set<unsigned>
+{
+	RRString objectName;
+};
 
 class Unwrapper
 {
@@ -373,7 +378,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 								}
 								if (errorsAndWarnings)
 								{
-									RRReporter::report(WARN,"%s\n",errorsAndWarnings->GetBufferPointer());
+									RRReporter::report(WARN,"%ls: %s\n",keepChannels.objectName.w_str(),errorsAndWarnings->GetBufferPointer());
 									errorsAndWarnings->Release();
 								}
 							}
@@ -391,7 +396,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 						D3DXValidMesh(dxMeshIn,adjacency,&errorsAndWarnings2);
 						if (errorsAndWarnings2)
 						{
-							RRReporter::report(WARN,"%s\n",errorsAndWarnings2->GetBufferPointer());
+							RRReporter::report(WARN,"%ls: %s\n",keepChannels.objectName.w_str(),errorsAndWarnings2->GetBufferPointer());
 							errorsAndWarnings2->Release();
 						}
 					}
@@ -432,7 +437,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					}
 					else
 					{
-						RRReporter::report(WARN,"Build failed for mesh %x: %s.\n",(int)(size_t)rrMesh,DXGetErrorDescription9(err));
+						RRReporter::report(WARN,"Build failed for mesh %ls: %s.\n",keepChannels.objectName.w_str(),DXGetErrorDescription9(err));
 					}
 #else
 					ID3DXMesh* dxMeshOut = NULL;
@@ -470,7 +475,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 #endif
 					if (err==19191919)
 					{
-						RRReporter::report(ERRO,"D3DXUVAtlasPartition() crashed, better save your work and restart.\n");
+						RRReporter::report(ERRO,"D3DXUVAtlasPartition() crashed for mesh %ls, better save your work and restart.\n",keepChannels.objectName.w_str());
 					}
 					else
 					if (err==D3D_OK)
@@ -510,7 +515,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 #endif
 							if (err==19191919)
 							{
-								RRReporter::report(ERRO,"D3DXUVAtlasPack() crashed, better save your work and restart.\n");
+								RRReporter::report(ERRO,"D3DXUVAtlasPack() crashed for mesh %ls, better save your work and restart.\n",keepChannels.objectName.w_str());
 								break;
 							}
 							else
@@ -525,13 +530,13 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 								copyToRRMesh(rrMesh,dxMeshOut,keepChannels,unwrapChannel);
 								result = true;
 								if (trySize>mapSize)
-									RRReporter::report(WARN,"Mesh %x needs resolution at least %d (%d charts).\n",(int)(size_t)rrMesh,trySize,numCharts);
+									RRReporter::report(WARN,"Mesh %ls needs resolution at least %d (%d charts).\n",keepChannels.objectName.w_str(),trySize,numCharts);
 								break;
 							}
 							else
 							if (trySize>=8*1024)
 							{
-								RRReporter::report(WARN,"Packing failed (%s) for mesh %x, even resolution %d too low for %d charts?\n",DXGetErrorDescription9(err),(int)(size_t)rrMesh,trySize,numCharts);
+								RRReporter::report(WARN,"Packing failed (%s) for mesh %ls, even resolution %d too low for %d charts?\n",DXGetErrorDescription9(err),keepChannels.objectName.w_str(),trySize,numCharts);
 								break;
 							}
 							else
@@ -542,7 +547,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					}
 					else
 					{
-						RRReporter::report(WARN,"Partitioning failed (%s) for mesh %x.\n",DXGetErrorDescription9(err),(int)(size_t)rrMesh);
+						RRReporter::report(WARN,"Partitioning failed (%s) for mesh %ls.\n",DXGetErrorDescription9(err),keepChannels.objectName.w_str());
 					}
 					RR_SAFE_RELEASE(facePartitioning);
 					RR_SAFE_RELEASE(partitionResultAdjacency);
@@ -601,6 +606,8 @@ unsigned RRObjects::buildUnwrap(unsigned resolution, unsigned minimalUvChannel, 
 					{
 						// inserts arrays. without this, meshes without texcoords would not be inserted and unwrap not built
 						meshes[arrays].begin();
+
+						meshes[arrays].objectName = object->name;
 
 						for (unsigned channel=0;channel<arrays->texcoord.size();channel++)
 						{
