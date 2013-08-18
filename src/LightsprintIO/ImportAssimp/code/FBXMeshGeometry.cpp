@@ -521,14 +521,14 @@ void MeshGeometry::ReadVertexDataMaterials(std::vector<int>& materials_out, cons
 		materials.resize(face_count);
 
 		if(materials_out.size() != face_count) {
-			//FBXImporter::LogError(Formatter::format("length of input data unexpected for ByPolygon mapping: ")
+			//FBXImporter::LogError(Formatter::format("length of input data unexpected for ByPolygon mapping: ") 
 			//	<< materials_out.size() << ", expected " << face_count
 			//);
 			return;
 		}
 	}
 	else {
-		//FBXImporter::LogError(Formatter::format("ignoring material assignments, access type not implemented: ")
+		//FBXImporter::LogError(Formatter::format("ignoring material assignments, access type not implemented: ") 
 		//	<< MappingInformationType << "," << ReferenceInformationType);
 	}
 }
