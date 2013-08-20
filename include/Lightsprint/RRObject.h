@@ -578,6 +578,7 @@ namespace rr
 		//!  Number of objects modified.
 		virtual unsigned optimizeFaceGroups(RRObject* object = NULL) const;
 
+
 		//! Rebuilds objects to make them smooth (possibly changing numbers of triangles, vertices, facegroups).
 		//
 		//! If there are multiple objects sharing one mesh, all objects must be smoothed at once

@@ -256,6 +256,42 @@ unsigned RRObjects::optimizeFaceGroups(RRObject* object) const
 	return result;
 }
 
+unsigned updateColliders(const RRObjects& objects, bool& aborting)
+{
+	RRReportInterval report(INF3,"Updating colliders...\n");
+
+	//const RRObjects& objects = *this;
+	boost::unordered_set<const RRCollider*> updatedColliders; // optimization: prevents updating shared collider more than once
+	for (unsigned i=0;i<objects.size();i++)
+	if (!aborting)
+	{
+		const RRObject* object = objects[i];
+		if (object)
+		{
+			RRCollider* collider = object->getCollider();
+			if (collider && updatedColliders.find(collider)==updatedColliders.end())
+			{
+				const RRMesh* mesh = collider->getMesh();
+				if (mesh)
+				{
+					RRMeshArrays* arrays = dynamic_cast<RRMeshArrays*>(const_cast<RRMesh*>(mesh));
+					if (arrays)
+					{
+						RRCollider::IntersectTechnique it = collider->getTechnique();
+						if (it!=RRCollider::IT_LINEAR)
+						{
+							collider->setTechnique(RRCollider::IT_LINEAR,aborting);
+							collider->setTechnique(it,aborting);
+							updatedColliders.insert(collider);
+						}
+					}
+				}
+			}
+		}
+	}
+	return updatedColliders.size();
+}
+
 void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool removeUnusedVertices, bool removeDegeneratedTriangles, bool stitchPositions, bool stitchNormals, bool generateNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, float maxDistanceBetweenUvsToSmooth, bool report) const
 {
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
@@ -295,7 +331,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 		bool tangents = mesh->tangent!=NULL;
 
 		// create temporary list of objects with this mesh
-		std::vector<RRObject*> objects;
+		RRObjects objects;
 		for (unsigned j=0;j<size();j++)
 			if ((*this)[j]->getCollider()->getMesh()==*i)
 				objects.push_back((*this)[j]);
@@ -379,6 +415,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 
 		// remove degenerated triangles
 		const RRMesh* mesh3 = removeDegeneratedTriangles ? mesh2->createOptimizedTriangles() : mesh2;
+		bool removedDegeneratedTriangles = mesh3!=mesh2;
 
 		// remove unused vertices (previously used in degenerated triangles)
 		const RRMesh* mesh4 = removeUnusedVertices ? mesh3->createOptimizedVertices(-1,-1,-1,NULL) : mesh3;
@@ -421,6 +458,15 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 		if (mesh3!=mesh2) delete mesh3;
 		if (mesh2!=mesh1) delete mesh2;
 		if (mesh1!=mesh) delete mesh1;
+
+		// update colliders (only necessary if triangle bodies change)
+		if (removedDegeneratedTriangles
+			// here we test whether vertex positions COULD have changed. testing whether positions DID change would be beter but more complicated
+			|| ((mergeVertices || stitchPositions) && maxDistanceBetweenVerticesToSmooth))
+		{
+			bool neverAbort = false;
+			updateColliders(objects,neverAbort);
+		}
 	}
 
 	// stats
