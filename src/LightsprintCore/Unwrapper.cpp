@@ -16,6 +16,7 @@
 #include <vector>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
+#include <boost/thread.hpp>
 #include "Windows/d3dx9/D3DX9Mesh.h" // here we include our copy of Direct3DX9 headers, so that installing legacy packages (DirectX SDK) is not necessary
 #include "Lightsprint/RRObject.h"
 
@@ -39,11 +40,12 @@
 namespace rr
 {
 
-//typedef boost::unordered_set<unsigned> UvChannels;
+//a) typedef boost::unordered_set<unsigned> UvChannels;
 
 struct UvChannels : public boost::unordered_set<unsigned>
 {
-	RRString objectName;
+	// b) here we pass some extra data together with uv channels:
+	RRString objectName; // only for reporting
 };
 
 class Unwrapper
@@ -54,6 +56,7 @@ public:
 	~Unwrapper();
 
 	// stats updated by buildUnwrap()
+	// not thread safe, it's just stats used for reporting
 	unsigned sumMeshesFailed;
 	unsigned sumMeshesUnwrapped;
 	unsigned sumCharts; // in sumMeshesUnwrapped
@@ -294,6 +297,26 @@ void Unwrapper::copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvCh
 	hr = dxMesh->UnlockVertexBuffer();
 }
 
+#if _MSC_VER>=1600
+
+static void abortable(std::function<void ()> f, bool& aborting)
+{
+	boost::thread t(f);
+	while (!aborting && !t.try_join_for(boost::chrono::milliseconds(100))) ;
+	if (aborting)
+		TerminateThread(t.native_handle(),0);
+}
+
+#define BEGIN_ABORTABLE_SECTION abortable([&](){
+#define END_ABORTABLE_SECTION },aborting);
+
+#else
+
+#define BEGIN_ABORTABLE_SECTION
+#define END_ABORTABLE_SECTION
+
+#endif
+
 bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const UvChannels& keepChannels, unsigned mapSize, float gutter, float pixelsPerWorldUnit, bool& aborting)
 {
 	bool result = false;
@@ -360,6 +383,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 						{
 							ID3DXMesh* dxMeshOut = NULL;
 							ID3DXBuffer* errorsAndWarnings = NULL;
+							// D3DXCleanMesh can change number of vertices
 							HRESULT err = D3DXCleanMesh(D3DXCLEAN_SIMPLIFICATION,dxMeshIn,adjacency,&dxMeshOut,adjacencyOut,&errorsAndWarnings);
 							//RRReporter::report(WARN,"cleanup=%s\n",DXGetErrorDescription9(err));
 							if (err==D3D_OK)
@@ -446,11 +470,13 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					LPD3DXBUFFER partitionResultAdjacency = NULL;
 					LPD3DXBUFFER facePartitioning = NULL;
 					HRESULT err = 19191919;
+
+					BEGIN_ABORTABLE_SECTION
 #if _MSC_VER>=1500 // this __try fails to compile in VS2005
 					__try
 					{
 #endif
-						err = D3DXUVAtlasPartition(
+						err = this->D3DXUVAtlasPartition(
 							dxMeshIn,
 							0, // maxCharts
 							0.8f, // maxStretch
@@ -473,17 +499,30 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					{
 					}
 #endif
+					END_ABORTABLE_SECTION
+
 					if (err==19191919)
 					{
-						RRReporter::report(ERRO,"D3DXUVAtlasPartition() crashed for mesh %ls, better save your work and restart.\n",keepChannels.objectName.w_str());
+						if (aborting)
+							RRReporter::report(INF2,"D3DXUVAtlasPartition() was terminated when processing mesh %ls.\n",keepChannels.objectName.w_str());
+						else
+							RRReporter::report(WARN,"D3DXUVAtlasPartition() crashed for mesh %ls, better save your work and restart.\n",keepChannels.objectName.w_str());
+						// after crash or thread termination, outputs might be corrupted (not observed, but most likely possible)
+						// better leak memory than crash
+						facePartitioning = NULL;
+						partitionResultAdjacency = NULL;
+						dxMeshOut = NULL;
 					}
 					else
 					if (err==D3D_OK)
 					{
-						unsigned numTrianglesDx = dxMeshOut->GetNumFaces();
-						unsigned numVerticesDx = dxMeshOut->GetNumVertices();
-						RR_ASSERT(numTrianglesDx==numTriangles);
-						RR_ASSERT(numVerticesDx==numVertices);
+						unsigned numTrianglesDx1 = dxMeshIn->GetNumFaces();
+						unsigned numVerticesDx1 = dxMeshIn->GetNumVertices();
+						unsigned numTrianglesDx2 = dxMeshOut->GetNumFaces();
+						unsigned numVerticesDx2 = dxMeshOut->GetNumVertices();
+						RR_ASSERT(numTrianglesDx1==numTriangles && numTrianglesDx2==numTriangles);
+						//RR_ASSERT(numVerticesDx1==numVertices); // not true because of D3DXCleanMesh
+						//RR_ASSERT(numVerticesDx2==numVertices); // not true because of D3DXUVAtlasPartition
 
 						//unsigned minimalMapSize = (unsigned)(gutter*sqrtf(numCharts)); // probably never succeeds
 						unsigned minimalMapSize = 1;
@@ -492,11 +531,13 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 						while (1)
 						{
 							err = 19191919;
+
+							BEGIN_ABORTABLE_SECTION
 #if _MSC_VER>=1500 // this __try fails to compile in VS2005
 							__try
 							{
 #endif
-								err = D3DXUVAtlasPack(
+								err = this->D3DXUVAtlasPack(
 									dxMeshOut,
 									trySize,
 									trySize,
@@ -513,9 +554,14 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 							{
 							}
 #endif
+							END_ABORTABLE_SECTION
+
 							if (err==19191919)
 							{
-								RRReporter::report(ERRO,"D3DXUVAtlasPack() crashed for mesh %ls, better save your work and restart.\n",keepChannels.objectName.w_str());
+								if (aborting)
+									RRReporter::report(INF2,"D3DXUVAtlasPack() was terminated when processing mesh %ls.\n",keepChannels.objectName.w_str());
+								else
+									RRReporter::report(WARN,"D3DXUVAtlasPack() crashed for mesh %ls, better save your work and restart.\n",keepChannels.objectName.w_str());
 								break;
 							}
 							else
@@ -563,9 +609,13 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 			RR_SAFE_RELEASE(dxMeshIn);
 		}
 	}
+	// unwrap might change number of vertices, triangles don't change
+	// so existing colliders stay valid, no need to updateColliders()
+
 	if (!result) sumMeshesFailed++;
 	return result;
 }
+
 
 Unwrapper::~Unwrapper()
 {
@@ -681,10 +731,14 @@ try_next_channel:
 	#pragma omp parallel for schedule(dynamic)
 	for (int i=0;i<(int)meshesIterators.size();i++)
 	{
-		unwrapper.buildUnwrap(meshesIterators[i].iter->first,unwrapChannel,meshesIterators[i].iter->second,resolution,2.5f,1,aborting);
+		if (!aborting)
+			unwrapper.buildUnwrap(meshesIterators[i].iter->first,unwrapChannel,meshesIterators[i].iter->second,resolution,2.5f,1,aborting);
 	}
 #endif // !VS2003
 
+	if (aborting)
+		RRReporter::report(INF2,"Aborted after unwrapping %d of %d meshes.\n",unwrapper.sumMeshesUnwrapped,meshes.size());
+	else
 	if (unwrapper.sumMeshesFailed)
 		RRReporter::report(WARN,"Failed to unwrap %d of %d meshes.\n",unwrapper.sumMeshesFailed,meshes.size());
 	if (unwrapper.sumMeshesUnwrapped)

@@ -12,9 +12,15 @@ namespace rr
 
 NEWS
 
+- improved robustness of unwrapper (can be aborted, survives crashes in Microsoft code)
+
 CHANGES
 
 - rr_gl::SceneViewerState::eye renamed to rr_gl::SceneViewerState::camera
+
+FIXES
+
+- possible crash after smoothAndStitch() of dynamic object
 
 \section news139 ------------------------------------ 2013.07.11 -------------------------------------
 

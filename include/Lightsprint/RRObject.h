@@ -540,6 +540,8 @@ namespace rr
 		//! Therefore structures that depend on exact number of vertices may need update after unwrapping.
 		//! This is case of solver; if you build unwrap in solver <code>solver->getStaticObjects().buildUnwrap(...)</code>,
 		//! you have to resend modified objects to solver <code>solver->setStaticObjects(solver->getStaticObjects(),...)</code>.
+		//!
+		//! Currently it is implemented only for Windows platform.
 		//! \param resolution
 		//!  Expected lightmap resolution, e.g. 1024 for 1024x1024.
 		//! \param minimalUvChannel
