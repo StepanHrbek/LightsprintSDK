@@ -716,64 +716,64 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 
 					if (!ldm)
 					{
-					// update everything in temp layer
-					rr::RRDynamicSolver::UpdateParameters updateParameters(quality);
-					updateParameters.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
-					updateParameters.aoSize = svs.lightmapDirectParameters.aoSize;
+						// update everything in temp layer
+						rr::RRDynamicSolver::UpdateParameters updateParameters(quality);
+						updateParameters.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
+						updateParameters.aoSize = svs.lightmapDirectParameters.aoSize;
 #ifdef OLD_SIMPLE_GI
-					solver->updateLightmaps(tmpLayer,-1,-1,&updateParameters,&updateParameters,&svs.lightmapFilteringParameters);
+						solver->updateLightmaps(tmpLayer,-1,-1,&updateParameters,&updateParameters,&svs.lightmapFilteringParameters);
 #else
-					float directLightMultiplier = ambient ? 0 : 1;
-					float indirectLightMultiplier = svs.renderLightIndirectMultiplier; // affects baked solution only
+						float directLightMultiplier = ambient ? 0 : 1;
+						float indirectLightMultiplier = svs.renderLightIndirectMultiplier; // affects baked solution only
 
-					// apply indirect light multiplier
-					std::vector<rr::RRVec3> lightColors;
-					for (unsigned i=0;i<solver->getLights().size();i++)
-					{
-						lightColors.push_back(solver->getLights()[i]->color); // save original colors, just in case indirectLightMultiplier is 0
-						solver->getLights()[i]->color *= indirectLightMultiplier;
-					}
+						// apply indirect light multiplier
+						std::vector<rr::RRVec3> lightColors;
+						for (unsigned i=0;i<solver->getLights().size();i++)
+						{
+							lightColors.push_back(solver->getLights()[i]->color); // save original colors, just in case indirectLightMultiplier is 0
+							solver->getLights()[i]->color *= indirectLightMultiplier;
+						}
 
-					// calculate indirect illumination in solver
-					solver->updateLightmaps(-1,-1,-1,NULL,&updateParameters,NULL);
+						// calculate indirect illumination in solver
+						solver->updateLightmaps(-1,-1,-1,NULL,&updateParameters,NULL);
 
-					// apply direct light multiplier
-					for (unsigned i=0;i<solver->getLights().size();i++)
-						solver->getLights()[i]->color = lightColors[i]*directLightMultiplier;
+						// apply direct light multiplier
+						for (unsigned i=0;i<solver->getLights().size();i++)
+							solver->getLights()[i]->color = lightColors[i]*directLightMultiplier;
 
-					// build direct illumination
-					updateParameters.applyCurrentSolution = true;
-					solver->updateLightmaps(tmpLayer,-1,-1,&updateParameters,NULL,&svs.lightmapFilteringParameters);
+						// build direct illumination
+						updateParameters.applyCurrentSolution = true;
+						solver->updateLightmaps(tmpLayer,-1,-1,&updateParameters,NULL,&svs.lightmapFilteringParameters);
 
-					// restore light intensities
-					for (unsigned i=0;i<solver->getLights().size();i++)
-						solver->getLights()[i]->color = lightColors[i];
+						// restore light intensities
+						for (unsigned i=0;i<solver->getLights().size();i++)
+							solver->getLights()[i]->color = lightColors[i];
 #endif
-					// save temp layer to .exr
-					bool hdr = svs.lightmapFloats;
-					svs.lightmapFloats = true;
-					selectedObjects.saveLayer(tmpLayer,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
-					// save temp layer to .png
-					for (unsigned i=0;i<selectedObjects.size();i++)
-						if (selectedObjects[i]->illumination.getLayer(tmpLayer))
-							selectedObjects[i]->illumination.getLayer(tmpLayer)->setFormat(rr::BF_RGB);
-					svs.lightmapFloats = false;
-					selectedObjects.saveLayer(tmpLayer,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
-					svs.lightmapFloats = hdr;
+						// save temp layer to .exr
+						bool hdr = svs.lightmapFloats;
+						svs.lightmapFloats = true;
+						selectedObjects.saveLayer(tmpLayer,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
+						// save temp layer to .png
+						for (unsigned i=0;i<selectedObjects.size();i++)
+							if (selectedObjects[i]->illumination.getLayer(tmpLayer))
+								selectedObjects[i]->illumination.getLayer(tmpLayer)->setFormat(rr::BF_RGB);
+						svs.lightmapFloats = false;
+						selectedObjects.saveLayer(tmpLayer,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
+						svs.lightmapFloats = hdr;
 
-					// delete temp layer
-					selectedObjects.layerDeleteFromMemory(tmpLayer);
+						// delete temp layer
+						selectedObjects.layerDeleteFromMemory(tmpLayer);
 
-					// load final layer from disk
-					// (this can be optimized away if we create copy of HDR)
-					selectedObjects.loadLayer(ambient?svs.layerBakedAmbient:svs.layerBakedLightmap,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
+						// load final layer from disk
+						// (this can be optimized away if we create copy of HDR)
+						selectedObjects.loadLayer(ambient?svs.layerBakedAmbient:svs.layerBakedLightmap,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
 
-					// make results visible
-					svs.renderLightDirect = ambient?LD_REALTIME:LD_BAKED;
-					svs.renderLightIndirect = LI_BAKED;
+						// make results visible
+						svs.renderLightDirect = ambient?LD_REALTIME:LD_BAKED;
+						svs.renderLightIndirect = LI_BAKED;
 
-					// bake also cubemaps
-					goto bake_cubemaps;
+						// bake also cubemaps
+						goto bake_cubemaps;
 					}
 					else
 					{
