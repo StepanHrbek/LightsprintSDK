@@ -25,6 +25,7 @@
 #include <wx/radiobut.h>
 #include <wx/combobox.h>
 #include <wx/spinctrl.h>
+#include <wx/choice.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -165,6 +166,31 @@ class MappingDialog : public wxDialog
 		
 		MappingDialog( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Generate or modify uv mapping"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 366,330 ), long style = wxDEFAULT_DIALOG_STYLE ); 
 		~MappingDialog();
+	
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class BakeDlg
+///////////////////////////////////////////////////////////////////////////////
+class BakeDlg : public wxDialog 
+{
+	private:
+	
+	protected:
+		wxStaticText* m_staticText17;
+		wxStaticText* m_staticText18;
+		wxButton* m_button12;
+		wxStaticText* m_staticText21;
+	
+	public:
+		wxChoice* quality;
+		wxChoice* resolution;
+		wxCheckBox* useUnwrap;
+		wxTextCtrl* multiplier;
+		wxButton* button;
+		
+		BakeDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 254,233 ), long style = wxCAPTION|wxCLOSE_BOX ); 
+		~BakeDlg();
 	
 };
 

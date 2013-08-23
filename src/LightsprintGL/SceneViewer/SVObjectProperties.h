@@ -55,6 +55,8 @@ namespace rr_gl
 		wxPGProperty*     propMeshVerts;
 		wxPGProperty*     propMeshUvs;
 		wxPGProperty*     propMeshTangents;
+		wxPGProperty*     propMeshUnwrapChannel;
+		wxPGProperty*     propMeshUnwrapSize;
 
 		DECLARE_EVENT_TABLE()
 	};

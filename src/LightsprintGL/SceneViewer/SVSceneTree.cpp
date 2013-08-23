@@ -503,6 +503,7 @@ rr::RRObject* SVSceneTree::addMesh(rr::RRMesh* mesh, wxString name, bool inFront
 	return object;
 }
 
+extern unsigned getUnsigned(const wxString& str);
 extern bool getQuality(wxString title, wxWindow* parent, unsigned& quality);
 extern bool getResolution(wxString title, wxWindow* parent, unsigned& resolution, bool offerPerVertex);
 extern bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption);
@@ -660,30 +661,62 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 
 		case CM_OBJECTS_BUILD_LMAPS:
 		case CM_OBJECTS_BUILD_AMBIENT_MAPS:
+		case CM_OBJECTS_BUILD_LDMS:
 			if (solver)
 			{
+				unsigned mapType = actionCode-CM_OBJECTS_BUILD_LMAPS; // 0=lmap,1=amb,2=ldm
 				bool ambient = actionCode==CM_OBJECTS_BUILD_AMBIENT_MAPS;
-				static unsigned resLmap = 256;
-				static unsigned resAmb = 0; // 0=vertex buffers
-				unsigned& res = ambient?resAmb:resLmap;
-				static unsigned quality = 100;
-				if (getResolution(ambient?_("Ambient map build"):_("Lightmap build"),this,res,true) && getQuality(ambient?_("Ambient map build"):_("Lightmap build"),this,quality))
+				bool ldm = actionCode==CM_OBJECTS_BUILD_LDMS;
+
+				// initialize dialog with type-specific data
+				static unsigned res[3] = {6,0,6}; // 256x256, vertex buffer, 512x512
+				static float multiplier[3] = {1,1,1};
+				wxString title[3] = {_("Lightmap build"),_("Ambient map build"),_("LDM build")};
+				svframe->bakeDlg.SetTitle(title[mapType]);
+				if (ldm)
+					svframe->bakeDlg.resolution->Delete(0);
+				svframe->bakeDlg.resolution->SetSelection(res[mapType]);
+				svframe->bakeDlg.multiplier->SetValue(wxString::Format("%g",multiplier[mapType]));
+
+				if (svframe->bakeDlg.ShowModal()==wxID_OK)
 				{
 					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,solver,ambient?_("Building ambient maps..."):_("Building lightmaps..."));
+					LogWithAbort logWithAbort(this,solver,title[mapType]);
 
+					int quality = getUnsigned(svframe->bakeDlg.quality->GetStringSelection());
+					int resolution = getUnsigned(svframe->bakeDlg.resolution->GetStringSelection());
+					bool useUnwrap = svframe->bakeDlg.useUnwrap->GetValue();
+
+					// read type-specific data back from dialog
+					double d = 0;
+					res[mapType] = svframe->bakeDlg.resolution->GetSelection();
+					multiplier[mapType] = svframe->bakeDlg.multiplier->GetValue().ToDouble(&d) ? (float)d : 1;
 
 					// allocate buffers in temp layer
 					unsigned tmpLayer = 74529457;
 					for (unsigned i=0;i<selectedObjects.size();i++)
 						if (selectedObjects[i]->getCollider()->getMesh()->getNumVertices())
-							selectedObjects[i]->illumination.getLayer(tmpLayer) = res
-								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGBF,true,NULL) // A is only for debugging, F prevents clamping to 1 in very bright regions
+						{
+							int w = resolution;
+							int h = resolution;
+							const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(selectedObjects[i]->getCollider()->getMesh());
+							if (useUnwrap && arrays && arrays->unwrapWidth && arrays->unwrapHeight && multiplier[mapType]>0)
+							{
+								w = RR_MAX(1,multiplier[mapType] * arrays->unwrapWidth);
+								h = RR_MAX(1,multiplier[mapType] * arrays->unwrapHeight);
+							}
+							selectedObjects[i]->illumination.getLayer(tmpLayer) = w*h
+								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,w,h,1,ldm?rr::BF_RGB:rr::BF_RGBF,true,NULL) // A is only for debugging, F prevents clamping to 1 in very bright regions
 								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,selectedObjects[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+						}
 
-					// update everything in temp layer
-					solver->leaveFireball();
+					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
 					svframe->m_canvas->fireballLoadAttempted = false;
+					solver->leaveFireball();
+
+					if (!ldm)
+					{
+					// update everything in temp layer
 					rr::RRDynamicSolver::UpdateParameters updateParameters(quality);
 					updateParameters.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
 					updateParameters.aoSize = svs.lightmapDirectParameters.aoSize;
@@ -741,7 +774,47 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 
 					// bake also cubemaps
 					goto bake_cubemaps;
+					}
+					else
+					{
+						// update everything in temp layer
+						rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
+						paramsDirect.applyLights = 0;
+						paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
+						paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
+						rr::RRDynamicSolver::UpdateParameters paramsIndirect(quality);
+						paramsIndirect.applyLights = 0;
+						paramsIndirect.locality = -1;
+						paramsIndirect.qualityFactorRadiosity = 0;
+						rr::RRBuffer* oldEnv = solver->getEnvironment();
+						rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.65f),rr::RRVec4(0.65f)); // 0.65*typical materials = average color in LDM around 0.5
+						solver->setEnvironment(newEnv);
+						solver->updateLightmaps(tmpLayer,-1,-1,&paramsDirect,&paramsIndirect,&svs.lightmapFilteringParameters);
+						solver->setEnvironment(oldEnv,NULL,svs.skyboxRotationRad);
+						delete newEnv;
+
+						// save temp layer
+						allObjects.saveLayer(tmpLayer,LAYER_PREFIX,LDM_POSTFIX);
+
+						// move buffers from temp to final layer
+						for (unsigned i=0;i<selectedObjects.size();i++)
+							if (selectedObjects[i]->getCollider()->getMesh()->getNumVertices())
+							{
+								delete selectedObjects[i]->illumination.getLayer(svs.layerBakedLDM);
+								selectedObjects[i]->illumination.getLayer(svs.layerBakedLDM) = selectedObjects[i]->illumination.getLayer(tmpLayer);
+								selectedObjects[i]->illumination.getLayer(tmpLayer) = NULL;
+							}
+
+						// make results visible
+						if (svs.renderLightDirect==LD_BAKED)
+							svs.renderLightDirect = LD_REALTIME;
+						if (svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_BAKED)
+							svs.renderLightIndirect = LI_CONSTANT;
+						svs.renderLDM = true;
+					}
 				}
+				if (ldm)
+					svframe->bakeDlg.resolution->Insert(_("per-vertex"),0);
 			}
 			break;
 
@@ -770,64 +843,6 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 
 				// save cubes
 				selectedObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
-			}
-			break;
-
-		case CM_OBJECTS_BUILD_LDMS:
-			if (solver)
-			{
-				static unsigned res = 256;
-				static unsigned quality = 100;
-				if (getResolution("LDM build",this,res,false) && getQuality("LDM build",this,quality))
-				{
-					// display log window with 'abort' while this function runs
-					LogWithAbort logWithAbort(this,solver,_("Building LDM..."));
-
-					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
-					svframe->m_canvas->fireballLoadAttempted = false;
-					solver->leaveFireball();
-
-					// allocate buffers in temp layer
-					unsigned tmpLayer = 74529457;
-					for (unsigned i=0;i<selectedObjects.size();i++)
-						selectedObjects[i]->illumination.getLayer(tmpLayer) = 
-							rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
-
-					// update everything in temp layer
-					rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
-					paramsDirect.applyLights = 0;
-					paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
-					paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
-					rr::RRDynamicSolver::UpdateParameters paramsIndirect(quality);
-					paramsIndirect.applyLights = 0;
-					paramsIndirect.locality = -1;
-					paramsIndirect.qualityFactorRadiosity = 0;
-					rr::RRBuffer* oldEnv = solver->getEnvironment();
-					rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.65f),rr::RRVec4(0.65f)); // 0.65*typical materials = average color in LDM around 0.5
-					solver->setEnvironment(newEnv);
-					solver->updateLightmaps(tmpLayer,-1,-1,&paramsDirect,&paramsIndirect,&svs.lightmapFilteringParameters);
-					solver->setEnvironment(oldEnv,NULL,svs.skyboxRotationRad);
-					delete newEnv;
-
-					// save temp layer
-					allObjects.saveLayer(tmpLayer,LAYER_PREFIX,LDM_POSTFIX);
-
-					// move buffers from temp to final layer
-					for (unsigned i=0;i<selectedObjects.size();i++)
-						if (selectedObjects[i]->getCollider()->getMesh()->getNumVertices())
-						{
-							delete selectedObjects[i]->illumination.getLayer(svs.layerBakedLDM);
-							selectedObjects[i]->illumination.getLayer(svs.layerBakedLDM) = selectedObjects[i]->illumination.getLayer(tmpLayer);
-							selectedObjects[i]->illumination.getLayer(tmpLayer) = NULL;
-						}
-
-					// make results visible
-					if (svs.renderLightDirect==LD_BAKED)
-						svs.renderLightDirect = LD_REALTIME;
-					if (svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_BAKED)
-						svs.renderLightIndirect = LI_CONSTANT;
-					svs.renderLDM = true;
-				}
 			}
 			break;
 

@@ -604,15 +604,18 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 					material->lightmapTexcoord = UINT_MAX;
 			}
 
-	// 3. delete unused uvs
+	// 3. delete unused uvs, clear unwrapChannel
 	for (Meshes::const_iterator i=meshes.begin();i!=meshes.end();++i)
 	{
+		// delete unused uvs
 		for (unsigned j=0;j<i->first->texcoord.size();j++)
 			if (i->second.find(j)==i->second.end() && i->first->texcoord[j])
 			{
 				i->first->texcoord[j] = NULL;
 				i->first->version++;
 			}
+		// clear unwrapChannel
+		i->first->unwrapChannel = UINT_MAX;
 	}
 
 	// tangents

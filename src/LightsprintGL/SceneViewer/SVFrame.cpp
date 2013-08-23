@@ -497,7 +497,7 @@ SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 }
 
 SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos, const wxSize& _size, SceneViewerStateEx& _svs)
-	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE|wxMINIMIZE), svs(_svs), smoothDlg(this), importDlg(this), deleteDlg(this)
+	: wxFrame(_parent, wxID_ANY, _title, _pos, _size, wxDEFAULT_FRAME_STYLE|wxMINIMIZE), svs(_svs), smoothDlg(this), importDlg(this), deleteDlg(this), bakeDlg(this)
 {
 	fullyInited = false;
 	updateMenuBarNeeded = false;

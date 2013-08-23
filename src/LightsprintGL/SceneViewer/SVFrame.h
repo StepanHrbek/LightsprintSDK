@@ -171,6 +171,7 @@ namespace rr_gl
 		rr::RRFileLocator*           textureLocator;
 		SmoothDlg                    smoothDlg;
 		DeleteDlg                    deleteDlg;
+		BakeDlg                      bakeDlg;
 
 	private:
 		//! Creates empty frame.

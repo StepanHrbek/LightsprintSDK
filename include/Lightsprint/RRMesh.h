@@ -528,9 +528,6 @@ namespace rr
 		RRVec3* bitangent; ///< May be NULL.
 		RRVector<RRVec2*> texcoord; ///< May contain mix of NULL and non-NULL channels, e.g. texcoord[5] array is missing but texcoord[6] array is present.
 
-		//! Increase version each time you modify arrays, to let renderer know data in GPU are outdated.
-		unsigned version;
-
 		//! Memory management.
 		//
 		//! If you resize often, it's safe to resize once to max size and then change only numTriangles/numVertices.
@@ -562,6 +559,22 @@ namespace rr
 		//! \param tangents
 		//!  True = tangents will be stored in this mesh. False = tangents will be calculated on the fly in getTriangleNormals().
 		bool                 reload(const RRMesh* mesh, bool indexed, const RRVector<unsigned>& texcoords, bool tangents);
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Additional data not present in RRMesh
+		//////////////////////////////////////////////////////////////////////////////
+
+		//! Increase version each time you modify arrays, to let renderer know that data in GPU are outdated.
+		unsigned version;
+
+		//! Uv channel with unwrap, UINT_MAX=unknown or none.
+		//! It is filled by buildUnwrap(), but it is currently not used, renderer and solver use RRMaterial::lightmapTexcoord instead.
+		unsigned unwrapChannel;
+		//! Optimal texture width when using unwrap from unwrapChannel, 0=unknown or none. It is filled by buildUnwrap().
+		unsigned unwrapWidth;
+		//! Optimal texture height when using unwrap from unwrapChannel, 0=unknown or none. It is filled by buildUnwrap().
+		unsigned unwrapHeight;
 
 
 		//////////////////////////////////////////////////////////////////////////////

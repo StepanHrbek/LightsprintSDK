@@ -392,3 +392,71 @@ MappingDialog::MappingDialog( wxWindow* parent, wxWindowID id, const wxString& t
 MappingDialog::~MappingDialog()
 {
 }
+
+BakeDlg::BakeDlg( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+	
+	wxBoxSizer* bSizer12;
+	bSizer12 = new wxBoxSizer( wxVERTICAL );
+	
+	wxGridSizer* gSizer2;
+	gSizer2 = new wxGridSizer( 0, 2, 0, 0 );
+	
+	m_staticText17 = new wxStaticText( this, wxID_ANY, _("Quality"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText17->Wrap( -1 );
+	gSizer2->Add( m_staticText17, 0, wxALL, 5 );
+	
+	wxString qualityChoices[] = { _("1"), _("10"), _("40"), _("100"), _("350"), _("1000"), _("3000"), _("10000"), _("30000"), _("100000") };
+	int qualityNChoices = sizeof( qualityChoices ) / sizeof( wxString );
+	quality = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, qualityNChoices, qualityChoices, 0 );
+	quality->SetSelection( 3 );
+	quality->SetToolTip( _("10=low, 100=medium, 1000=high, 10000=very high") );
+	
+	gSizer2->Add( quality, 0, wxALL, 5 );
+	
+	m_staticText18 = new wxStaticText( this, wxID_ANY, _("Resolution"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText18->Wrap( -1 );
+	gSizer2->Add( m_staticText18, 0, wxALL, 5 );
+	
+	wxString resolutionChoices[] = { _("per-vertex"), _("8x8"), _("16x16"), _("32x32"), _("64x64"), _("128x128"), _("256x256"), _("512x512"), _("1024x1024"), _("2048x2048"), _("4096x4096") };
+	int resolutionNChoices = sizeof( resolutionChoices ) / sizeof( wxString );
+	resolution = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, resolutionNChoices, resolutionChoices, 0 );
+	resolution->SetSelection( 6 );
+	gSizer2->Add( resolution, 0, wxALL, 5 );
+	
+	useUnwrap = new wxCheckBox( this, wxID_ANY, _("Use unwrap resolution, if known"), wxDefaultPosition, wxDefaultSize, 0 );
+	useUnwrap->SetValue(true); 
+	useUnwrap->SetToolTip( _("Checked = objects with known Object panel / Mesh / Unwrap resolution use it instead of resolution selected above.") );
+	
+	gSizer2->Add( useUnwrap, 0, wxALL, 5 );
+	
+	m_button12 = new wxButton( this, wxID_CANCEL, _("Cancel"), wxDefaultPosition, wxSize( 0,0 ), 0 );
+	gSizer2->Add( m_button12, 0, wxALL, 5 );
+	
+	m_staticText21 = new wxStaticText( this, wxID_ANY, _("      multiplied by"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText21->Wrap( -1 );
+	gSizer2->Add( m_staticText21, 0, wxALL, 5 );
+	
+	multiplier = new wxTextCtrl( this, wxID_ANY, _("1"), wxDefaultPosition, wxDefaultSize, 0 );
+	multiplier->SetToolTip( _("If we use unwrap resolution, we multiply it by this number. Sometimes you might want to bake at half resolution (0.5) without updating unwrap, just for quick preview. Or when baking Ambient maps, Lightmaps and LDMs for the same dataset, you might want to use different resolutions - ambient maps look well even with low resolutions, while LDMs need high resolutions. However, when baking at lower resolution, artifacts can show up. And when baking at higher resolutions, parts of texture space are wasted. For the best results, keep this multiplier within 1 to 4 range.") );
+	
+	gSizer2->Add( multiplier, 0, wxALL, 5 );
+	
+	
+	bSizer12->Add( gSizer2, 1, wxEXPAND, 5 );
+	
+	button = new wxButton( this, wxID_OK, _("Bake"), wxDefaultPosition, wxDefaultSize, 0 );
+	button->SetDefault(); 
+	bSizer12->Add( button, 0, wxALIGN_RIGHT|wxALL, 5 );
+	
+	
+	this->SetSizer( bSizer12 );
+	this->Layout();
+	
+	this->Centre( wxBOTH );
+}
+
+BakeDlg::~BakeDlg()
+{
+}

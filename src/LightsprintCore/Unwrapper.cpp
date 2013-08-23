@@ -67,7 +67,7 @@ public:
 private:
 	IDirect3DVertexBuffer9* createVBuffer(void* data, unsigned numBytes) const;
 	ID3DXMesh* createID3DXMesh(const RRMeshArrays* mesh, const UvChannels& keepChannels) const;
-	void copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvChannels& keepChannels, unsigned unwrapChannel) const;
+	void copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvChannels& keepChannels, unsigned unwrapChannel, unsigned resolution) const;
 	static HRESULT CALLBACK callback(FLOAT percentDone,LPVOID context)
 	{
 		// this gets called, with context pointing to solver->aborting
@@ -261,7 +261,7 @@ ID3DXMesh* Unwrapper::createID3DXMesh(const RRMeshArrays* rrMesh, const UvChanne
 	return dxMesh;
 }
 
-void Unwrapper::copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvChannels& keepChannels, unsigned unwrapChannel) const
+void Unwrapper::copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvChannels& keepChannels, unsigned unwrapChannel, unsigned resolution) const
 {
 	unsigned numTriangles = dxMesh->GetNumFaces();
 	unsigned numVertices = dxMesh->GetNumVertices();
@@ -295,6 +295,10 @@ void Unwrapper::copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvCh
 		rrMesh->texcoord[unwrapChannel][v] = vertexData[v].texcoord[MAX_CHANNELS-1];
 	}
 	hr = dxMesh->UnlockVertexBuffer();
+	// copy extra data
+	rrMesh->unwrapChannel = unwrapChannel;
+	rrMesh->unwrapWidth = resolution;
+	rrMesh->unwrapHeight = resolution;
 }
 
 #if _MSC_VER>=1600
@@ -332,7 +336,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 		}
 	}
 
-	if (!wrongInputs && D3DXUVAtlasCreate)
+	if (!aborting && !wrongInputs && D3DXUVAtlasCreate)
 	{
 		unsigned numTriangles = rrMesh->getNumTriangles();
 		unsigned numVertices = rrMesh->getNumVertices();
@@ -376,7 +380,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 						delete rrMeshStitched;
 
 					// fix bowties, unwrapper may fail because of them
-					if (D3DXCleanMesh)
+					if (!aborting && D3DXCleanMesh)
 					{
 						DWORD* adjacencyOut = new (std::nothrow) DWORD[3*numTriangles];
 						if (adjacencyOut)
@@ -384,8 +388,36 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 							ID3DXMesh* dxMeshOut = NULL;
 							ID3DXBuffer* errorsAndWarnings = NULL;
 							// D3DXCleanMesh can change number of vertices
-							HRESULT err = D3DXCleanMesh(D3DXCLEAN_SIMPLIFICATION,dxMeshIn,adjacency,&dxMeshOut,adjacencyOut,&errorsAndWarnings);
+							HRESULT err = 19191919;
+
+							BEGIN_ABORTABLE_SECTION
+#if _MSC_VER>=1500 // this __try fails to compile in VS2005
+							__try
+							{
+#endif
+								err = this->D3DXCleanMesh(D3DXCLEAN_SIMPLIFICATION,dxMeshIn,adjacency,&dxMeshOut,adjacencyOut,&errorsAndWarnings);
+#if _MSC_VER>=1500
+							}
+							__except(EXCEPTION_EXECUTE_HANDLER)
+							{
+							}
+#endif
+							END_ABORTABLE_SECTION
+
 							//RRReporter::report(WARN,"cleanup=%s\n",DXGetErrorDescription9(err));
+							if (err==19191919)
+							{
+								if (aborting)
+									RRReporter::report(INF2,"D3DXCleanMesh() was terminated when processing mesh %ls.\n",keepChannels.objectName.w_str());
+								else
+									RRReporter::report(WARN,"D3DXCleanMesh() crashed for mesh %ls, better save your work and restart.\n",keepChannels.objectName.w_str());
+								// after crash or thread termination, outputs might be corrupted (not observed, but most likely possible)
+								// better leak memory than crash
+								dxMeshOut = NULL;
+								adjacencyOut = NULL;
+								errorsAndWarnings = NULL;
+							}
+							else
 							if (err==D3D_OK)
 							{
 								if (dxMeshOut!=dxMeshIn)
@@ -414,7 +446,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					}
 
 					// report remaining errors
-					if (D3DXValidMesh)
+					if (!aborting && D3DXValidMesh)
 					{
 						ID3DXBuffer* errorsAndWarnings2 = NULL;
 						D3DXValidMesh(dxMeshIn,adjacency,&errorsAndWarnings2);
@@ -425,6 +457,8 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 						}
 					}
 
+					if (!aborting)
+					{
 #if 0
 					ID3DXMesh* dxMeshOut = NULL;
 					FLOAT maxStretch = 0;
@@ -528,7 +562,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 						unsigned minimalMapSize = 1;
 						while (minimalMapSize*2.0f<gutter*sqrtf((float)numCharts)) minimalMapSize *= 2;
 						unsigned trySize = RR_MAX(mapSize,minimalMapSize);
-						while (1)
+						while (!aborting)
 						{
 							err = 19191919;
 
@@ -573,7 +607,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 								sumVerticesOld += numVertices;
 								sumVerticesNew += dxMeshOut->GetNumVertices();
 
-								copyToRRMesh(rrMesh,dxMeshOut,keepChannels,unwrapChannel);
+								copyToRRMesh(rrMesh,dxMeshOut,keepChannels,unwrapChannel,trySize);
 								result = true;
 								if (trySize>mapSize)
 									RRReporter::report(WARN,"Mesh %ls needs resolution at least %d (%d charts).\n",keepChannels.objectName.w_str(),trySize,numCharts);
@@ -598,6 +632,8 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					RR_SAFE_RELEASE(facePartitioning);
 					RR_SAFE_RELEASE(partitionResultAdjacency);
 					RR_SAFE_RELEASE(dxMeshOut);
+
+					} // !aborting
 #endif
 				}
 				delete[] adjacency;

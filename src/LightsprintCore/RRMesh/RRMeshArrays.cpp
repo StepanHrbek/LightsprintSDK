@@ -28,6 +28,9 @@ RRMeshArrays::RRMeshArrays()
 	// if someone deletes mesh arrays and creates new (different) one, pointer may be identical,
 	// so make at least version different.
 	version = rand();
+	unwrapChannel = UINT_MAX;
+	unwrapWidth = 0;
+	unwrapHeight = 0;
 }
 
 RRMeshArrays::~RRMeshArrays()

@@ -530,10 +530,12 @@ namespace rr
 		//! \return Number of problem reported.
 		unsigned checkConsistency(const char* objectType) const;
 
-		//! Rebuilds unwrap in all meshes.
+		//! Rebuilds unwrap in all meshes of RRMeshArrays type.
 		//
 		//! New unwrap is created into the lowest unused uv channel, the same channel in all meshes.
 		//! All materials are updated to use new unwrap.
+		//! All successfully unwrapped meshes have RRMeshArrays::unwrapChannel/unwrapWidth/unwrapHeight set,
+		//! failed and aborted meshes stay completely unchanged.
 		//!
 		//! Unwrapper doesn't modify pointers to objects, colliders, materials or meshes,
 		//! but it can add new vertices in mesh, if unwrap contains seams.
@@ -549,7 +551,7 @@ namespace rr
 		//!  So if minimalUvChannel=2, unwrap is never created to channel 0 or 1.
 		//! \param aborting
 		//!  May be set asynchronously, aborts build.
-		//! \return Number of new unwrap uv channel, it's the same for all meshes. UINT_MAX in case of failure.
+		//! \return Number of new unwrap uv channel, it's the same for all meshes. UINT_MAX in case of failure/no unwrapping.
 		virtual unsigned buildUnwrap(unsigned resolution, unsigned minimalUvChannel, bool& aborting) const;
 
 		//! Inserts all materials found in objects into collection.

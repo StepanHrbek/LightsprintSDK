@@ -705,6 +705,11 @@ void save(Archive & ar, const rr::RRMeshArrays& a, const unsigned int version)
 	for (unsigned i=0;i<a.texcoord.size();i++)
 		if (a.texcoord[i])
 			ar & make_nvp("texcoord",make_array_or_binary(a.texcoord[i],a.numVertices));
+
+	// unwrap
+	ar & make_nvp("unwrapChannel",a.unwrapChannel);
+	ar & make_nvp("unwrapWidth",a.unwrapWidth);
+	ar & make_nvp("unwrapHeight",a.unwrapHeight);
 }
 
 template<class Archive>
@@ -740,6 +745,14 @@ void load(Archive & ar, rr::RRMeshArrays& a, const unsigned int version)
 	for (unsigned i=0;i<a.texcoord.size();i++)
 		if (a.texcoord[i])
 			ar & make_nvp("texcoord",make_array_or_binary(a.texcoord[i],numVertices));
+
+	if (version>0)
+	{
+		// unwrap
+		ar & make_nvp("unwrapChannel",a.unwrapChannel);
+		ar & make_nvp("unwrapWidth",a.unwrapWidth);
+		ar & make_nvp("unwrapHeight",a.unwrapHeight);
+	}
 }
 
 //------------------------------ RRMeshProxy -------------------------------------
@@ -1066,6 +1079,7 @@ BOOST_CLASS_VERSION(rr::RRMaterial,5)
 #ifndef DONT_SERIALIZE_RRLIGHT
 BOOST_CLASS_VERSION(rr::RRLight,5)
 #endif
+BOOST_CLASS_VERSION(RRMeshProxy,1) // this is actually RRMeshArrays version, load of RRMeshProxy only send it to load of RRMeshArrays
 BOOST_CLASS_VERSION(rr::RRObject,1)
 #ifndef DONT_SERIALIZE_RRCAMERA
 BOOST_CLASS_VERSION(rr::RRCamera,2)

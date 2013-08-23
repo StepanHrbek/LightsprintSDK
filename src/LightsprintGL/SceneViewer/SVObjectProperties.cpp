@@ -73,6 +73,9 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 				AppendIn(propMesh, propMeshUvs = new wxStringProperty(_("uv channels"),wxPG_LABEL,channels));
 				AppendIn(propMesh, propMeshTangents = new wxBoolProperty(_("tangents"),wxPG_LABEL,arrays->tangent?true:false));
 				AppendIn(propMesh, new wxIntProperty(_("version"),wxPG_LABEL,arrays->version));
+				AppendIn(propMesh, propMeshUnwrapChannel = new wxStringProperty(_("unwrap channel")));
+				AppendIn(propMesh, propMeshUnwrapSize = new wxStringProperty(_("unwrap resolution")));
+				propMeshUnwrapSize->SetHelpString(_("Each unwrap is built and optimized for textures of certain resolution. If you import unwrap, we have no idea what resolution it was built for, but if you build it with Lightsprint SDK, resolution is stored here."));
 			}
 			wxPGProperty* propMeshSize  = new wxStringProperty(_("Size"));
 			AppendIn(propMesh,propMeshSize);
@@ -100,6 +103,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 		}
 	}
 	updateHide();
+	updateProperties(); // unwrap channel/resolution
 }
 
 //! Copy object -> enable/disable property.
@@ -144,6 +148,10 @@ void SVObjectProperties::updateProperties()
 				channels += wxString::Format("%d ",i);
 		updateString(propMeshUvs,channels);
 		updateBool(propMeshTangents,arrays->tangent?true:false);
+
+		// after "delete unwrap", "unwrap"
+		updateString(propMeshUnwrapChannel,(arrays->unwrapChannel!=UINT_MAX)?wxString::Format("%d",arrays->unwrapChannel):_("unknown"));
+		updateString(propMeshUnwrapSize,arrays->unwrapWidth*arrays->unwrapHeight?wxString::Format("%dx%d",arrays->unwrapWidth,arrays->unwrapHeight):_("unknown"));
 	}
 
 	// must be updated after dynamic object dragging
