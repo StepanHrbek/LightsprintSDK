@@ -122,7 +122,7 @@ void SVLightmapViewer::OnPaint(TextureRenderer* textureRenderer, wxSize windowSi
 
 	// render lightmap
 	if (buffer)
-		textureRenderer->render2D(getTexture(buffer),NULL,1,t_x,t_y,t_w,t_h,-1,(buffer->getType()==rr::BT_CUBE_TEXTURE)?"#define TEXTURE_IS_CUBE\n":(alpha?"#define SHOW_ALPHA0\n":NULL));
+		textureRenderer->render2D(getTexture(buffer),NULL,1,t_x,t_y,t_w,t_h,-1,alpha?"#define SHOW_ALPHA0\n":NULL);
 
 	// render mapping edges
 	const rr::RRMesh* mesh = object ? object->getCollider()->getMesh() : NULL;

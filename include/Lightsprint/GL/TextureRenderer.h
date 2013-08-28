@@ -50,7 +50,7 @@ public:
 	//! For rendering N textures, it's possible to simply call render2D() N times,
 	//! but render2dBegin() + N*render2dQuad() + render2dEnd() is slightly faster.
 	//! \param texture
-	//!  Texture to be rendered.
+	//!  Texture (2d or cube) to be rendered. Cube textures are rendered in equirectangular projection.
 	//! \param color
 	//!  For non-NULL color, output (texture color) is multiplied by color.
 	//! \param gamma
