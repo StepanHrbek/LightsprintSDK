@@ -12,12 +12,16 @@ namespace rr
 
 NEWS
 
-- improved unwrapper (can be aborted, survives crashes in Microsoft code, marks meshes that failed)
-- improved lightmap resolution management
+- improved unwrapper
+  - can be aborted more quickly
+  - survives crashes in Microsoft code
+  - marks meshes that failed
   - RRMeshArrays::unwrapChannel, set at unwrap time
   - RRMeshArrays::unwrapWidth, set at unwrap time
   - RRMeshArrays::unwrapHeight, set at unwrap time
-  - scene viewer has enhanced baking dialog, can use RRMeshArrays::unwrapChannel/Width/Height data
+- improved scene viewer
+  - enhanced baking dialog, can use resolution set at unwrap time
+  - Object / Illumination lists all illumination textures, click to show
 
 CHANGES
 

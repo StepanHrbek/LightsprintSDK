@@ -51,13 +51,18 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 
 			// illumination
 			Append(propIllumination = new wxStringProperty(_("Illumination"),wxPG_LABEL));
+			AppendIn(propIllumination, propIlluminationBakedLightmap = new wxStringProperty(_("Lightmap")));
+			AppendIn(propIllumination, propIlluminationBakedAmbient = new wxStringProperty(_("Baked ambient")));
+			AppendIn(propIllumination, propIlluminationRealtimeAmbient = new wxStringProperty(_("Realtime ambient")));
+			AppendIn(propIllumination, propIlluminationBakedEnv = new wxStringProperty(_("Baked environment")));
+			AppendIn(propIllumination, propIlluminationRealtimeEnv = new wxStringProperty(_("Realtime environment")));
+			AppendIn(propIllumination, propIlluminationBakedLDM = new wxStringProperty(_("LDM")));
 			EnableProperty(propIllumination,false);
-			rr::RRBuffer* reflectionEnvMap = object->illumination.getLayer(svs.layerRealtimeEnvironment);
-			AppendIn(propIllumination, propRealtimeEnvRes = new FloatProperty("Realtime environment size",_("Size of realtime raytraced cubemap"),reflectionEnvMap?reflectionEnvMap->getWidth():0,_precision,0,100000,1,false));
-			EnableProperty(propRealtimeEnvRes,false);
-			reflectionEnvMap = object->illumination.getLayer(svs.layerBakedEnvironment);
-			AppendIn(propIllumination, propBakedEnvRes = new FloatProperty("Baked environment size",_("Size of offline raytraced cubemap"),reflectionEnvMap?reflectionEnvMap->getWidth():0,_precision,0,100000,1,false));
-			EnableProperty(propBakedEnvRes,false);
+			for (unsigned i=0;i<propIllumination->GetChildCount();i++)
+			{
+				propIllumination->Item(i)->SetHelpString(_("Click to see the texture"));
+				EnableProperty(propIllumination->Item(i),false);
+			}
 
 			// mesh
 			const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(mesh);
@@ -106,6 +111,18 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 	updateProperties(); // unwrap channel/resolution
 }
 
+static void updateStringResolution(wxPGProperty* property, rr::RRBuffer* buffer)
+{
+	updateString(property,(!buffer)
+		? ""
+		: (buffer->getType()==rr::BT_2D_TEXTURE
+			? wxString::Format("%d*%d map",buffer->getWidth(),buffer->getHeight())
+			: (buffer->getType()==rr::BT_CUBE_TEXTURE
+				? wxString::Format("%d*%d*%d cube",buffer->getWidth(),buffer->getHeight(),buffer->getDepth())
+				: wxString::Format("%d vertex colors",buffer->getWidth())
+			)));
+}
+
 //! Copy object -> enable/disable property.
 //! Must not be called in every frame, float property that is unhid in every frame loses focus immediately after click, can't be edited.
 void SVObjectProperties::updateHide()
@@ -131,10 +148,12 @@ void SVObjectProperties::updateProperties()
 	}
 
 	// otherwise update only few items that sometimes change
-	rr::RRBuffer* reflectionEnvMap = object->illumination.getLayer(svs.layerRealtimeEnvironment);
-	updateFloat(propRealtimeEnvRes,reflectionEnvMap?reflectionEnvMap->getWidth():0);
-	reflectionEnvMap = object->illumination.getLayer(svs.layerBakedEnvironment);
-	updateFloat(propBakedEnvRes,reflectionEnvMap?reflectionEnvMap->getWidth():0);
+	updateStringResolution(propIlluminationBakedLightmap,object->illumination.getLayer(svs.layerBakedLightmap));
+	updateStringResolution(propIlluminationBakedAmbient,object->illumination.getLayer(svs.layerBakedAmbient));
+	updateStringResolution(propIlluminationRealtimeAmbient,object->illumination.getLayer(svs.layerRealtimeAmbient));
+	updateStringResolution(propIlluminationBakedEnv,object->illumination.getLayer(svs.layerBakedEnvironment));
+	updateStringResolution(propIlluminationRealtimeEnv,object->illumination.getLayer(svs.layerRealtimeEnvironment));
+	updateStringResolution(propIlluminationBakedLDM,object->illumination.getLayer(svs.layerBakedLDM));
 
 	// must be updated after "delete unwrap", "delete tangents"
 	const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(object->getCollider()->getMesh());
@@ -218,13 +237,28 @@ void SVObjectProperties::OnPropertySelect(wxPropertyGridEvent& event)
 		return;
 
 	wxPGProperty *property = event.GetProperty();
-	if (property && property->GetParent()==propFacegroups && svframe->m_materialProperties && object)
+	if (property)
+	if (property->GetParent()==propFacegroups && svframe->m_materialProperties && object)
 	{
 		unsigned fg = property->GetIndexInParent();
 		if (fg<object->faceGroups.size())
 		{
 			svframe->m_materialProperties->setMaterial(object->faceGroups[fg].material);
 		}
+	}
+	else
+	if (property->GetParent()==propIllumination)
+	{
+		svframe->m_canvas->selectedType = ST_OBJECT;
+		//svs.selectedObjectIndex already set
+		svs.renderLightmaps2d = 1;
+		if (property==propIlluminationBakedLightmap) svs.selectedLayer = svs.layerBakedLightmap; else
+		if (property==propIlluminationBakedAmbient) svs.selectedLayer = svs.layerBakedAmbient; else
+		if (property==propIlluminationRealtimeAmbient) svs.selectedLayer = svs.layerRealtimeAmbient; else
+		if (property==propIlluminationBakedEnv) svs.selectedLayer = svs.layerBakedEnvironment; else
+		if (property==propIlluminationRealtimeEnv) svs.selectedLayer = svs.layerRealtimeEnvironment; else
+		if (property==propIlluminationBakedLDM) svs.selectedLayer = svs.layerBakedLDM; else
+			svs.selectedLayer = 0;
 	}
 }
 

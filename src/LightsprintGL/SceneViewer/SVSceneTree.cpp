@@ -850,6 +850,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			svframe->m_canvas->selectedType = ST_OBJECT;
 			svs.selectedObjectIndex = contextEntityIds.begin()->index;
 			svs.renderLightmaps2d = 1;
+			svs.selectedLayer = 0; // automatic selection of layer, based on current ilumination mode
 			// a) slower, rebuilds tree, triggers wx bug: stealing focus (select obj or light, focus to canvas, select inspect from context menu (tree is rebuilt here), focus goes to tree)
 			//svframe->updateAllPanels();
 			// b) faster, avoids wx bug (focus in canvas stays in canvas)

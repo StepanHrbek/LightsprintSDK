@@ -1463,7 +1463,9 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		if (solver->getObject(svs.selectedObjectIndex))
 			lv.setObject(
 				solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(
-					svs.renderLDMEnabled() ? svs.layerBakedLDM : ((svs.renderLightIndirect!=LI_BAKED || svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:svs.layerBakedAmbient)),
+					svs.selectedLayer ? svs.selectedLayer : (
+						svs.renderLDMEnabled() ? svs.layerBakedLDM : ((svs.renderLightIndirect!=LI_BAKED || svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:svs.layerBakedAmbient))
+						),
 				solver->getObject(svs.selectedObjectIndex),
 				svs.renderLightmapsBilinear);
 		else

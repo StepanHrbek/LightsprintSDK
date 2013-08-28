@@ -83,6 +83,7 @@ struct SceneViewerState
 
 	unsigned         selectedLightIndex;        //! Index into lights array, light controlled by mouse/arrows.
 	unsigned         selectedObjectIndex;       //! Index into static objects array.
+	unsigned         selectedLayer;             //! When renderLightmaps2d, this is used for selecting what layer to show. 0 selects based on current illumination mode.
 	bool             fullscreen;                //! Ignored. Fullscreen/windowed bit is saved to and read from user preferences file. Quit sceneViewer() in fullscreen and it will start in fullscreen next time.
 	bool             renderStereo;              //! Enables interlaced stereo rendering.
 	bool             renderDof;                 //! Render depth of field effect.
@@ -181,6 +182,7 @@ struct SceneViewerState
 		layerRealtimeEnvironment = 192837468;
 		selectedLightIndex = 0;
 		selectedObjectIndex = 0;
+		selectedLayer = 0;
 		fullscreen = 0;
 		renderStereo = false;
 		renderDof = false;

@@ -3,15 +3,22 @@
 //
 // Options:
 // #define TEXTURE
+// #define TEXTURE_IS_CUBE
 // #define GAMMA
 // #define SHOW_ALPHA0
 // #define MIRROR_MASK
+
+#define RR_PI 3.1415926535897932384626433832795
 
 uniform vec4 color;
 uniform float gamma;
 
 #ifdef TEXTURE
-	uniform sampler2D map;
+	#ifdef TEXTURE_IS_CUBE
+		uniform samplerCube map;
+	#else
+		uniform sampler2D map;
+	#endif
 	varying vec2 uv;
 #endif
 #ifdef SHOW_ALPHA0
@@ -23,7 +30,18 @@ void main()
 {
 
 #ifdef TEXTURE
-	vec4 tex = texture2D(map,uv);
+	#ifdef TEXTURE_IS_CUBE
+		// similar to createEquirectangular()
+		vec3 direction;
+		direction.y = sin(RR_PI*(uv.y-0.5));
+		direction.x = sin(RR_PI*(2.0*uv.x+1.5)) * sqrt(1.0-direction.y*direction.y);
+		direction.z = sqrt(1-direction.x*direction.x-direction.y*direction.y);
+		if (uv.x<0.5)
+			direction.z = -direction.z;
+		vec4 tex = textureCube(map,direction);
+	#else
+		vec4 tex = texture2D(map,uv);
+	#endif
 #ifdef SHOW_ALPHA0
 	#define QUADRANT_X0Y0 1
 	#define QUADRANT_X1Y0 2
