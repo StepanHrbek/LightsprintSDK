@@ -144,30 +144,30 @@ void SVLightmapViewer::OnPaint(TextureRenderer* textureRenderer, wxSize windowSi
 			glEnd();
 			
 			// mapping
-		if ((!buffer) || buffer->getType()==rr::BT_2D_TEXTURE)
-		{
-			lineProgram->sendUniform("color",rr::RRVec4(1));
-			glBegin(GL_LINES);
-			for (unsigned i=0;i<numTriangles;i++)
+			if ((!buffer) || buffer->getType()==rr::BT_2D_TEXTURE)
 			{
-				const rr::RRMaterial* material = object->getTriangleMaterial(i,NULL,NULL);
-				if (material)
+				lineProgram->sendUniform("color",rr::RRVec4(1));
+				glBegin(GL_LINES);
+				for (unsigned i=0;i<numTriangles;i++)
 				{
-					rr::RRMesh::TriangleMapping mapping;
-					mesh->getTriangleMapping(i,mapping,material->lightmapTexcoord);
-					for (unsigned j=0;j<3;j++)
+					const rr::RRMaterial* material = object->getTriangleMaterial(i,NULL,NULL);
+					if (material)
 					{
-						mapping.uv[j] = transformUvToScreen(mapping.uv[j]);
-					}
-					for (unsigned j=0;j<3;j++)
-					{
-						glVertex2fv(&mapping.uv[j].x);
-						glVertex2fv(&mapping.uv[(j+1)%3].x);
+						rr::RRMesh::TriangleMapping mapping;
+						mesh->getTriangleMapping(i,mapping,material->lightmapTexcoord);
+						for (unsigned j=0;j<3;j++)
+						{
+							mapping.uv[j] = transformUvToScreen(mapping.uv[j]);
+						}
+						for (unsigned j=0;j<3;j++)
+						{
+							glVertex2fv(&mapping.uv[j].x);
+							glVertex2fv(&mapping.uv[(j+1)%3].x);
+						}
 					}
 				}
+				glEnd(); // here Radeon X300/Catalyst2007.09 does random fullscreen effects for 5-10sec, X1650 is ok
 			}
-			glEnd(); // here Radeon X300/Catalyst2007.09 does random fullscreen effects for 5-10sec, X1650 is ok
-		}
 		}
 	}
 
