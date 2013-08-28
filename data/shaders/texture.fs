@@ -35,7 +35,7 @@ void main()
 		vec3 direction;
 		direction.y = sin(RR_PI*(uv.y-0.5));
 		direction.x = sin(RR_PI*(2.0*uv.x+1.5)) * sqrt(1.0-direction.y*direction.y);
-		direction.z = sqrt(1-direction.x*direction.x-direction.y*direction.y);
+		direction.z = sqrt(1.0-direction.x*direction.x-direction.y*direction.y);
 		if (uv.x<0.5)
 			direction.z = -direction.z;
 		vec4 tex = textureCube(map,direction);
