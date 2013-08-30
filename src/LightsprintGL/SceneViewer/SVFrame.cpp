@@ -1286,7 +1286,7 @@ save_scene_as:
 		case ME_ENV_OPEN:
 			{
 				wxFileDialog dialog(this,_("Choose a skybox image"),"","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
-				dialog.SetPath(svs.skyboxFilename.empty()?svs.pathToMaps+"skybox/":RR_RR2WX(svs.skyboxFilename));
+				dialog.SetPath(svs.skyboxFilename.empty()?svs.pathToMaps+"skybox/":wxString(RR_RR2WX(svs.skyboxFilename)));
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 
