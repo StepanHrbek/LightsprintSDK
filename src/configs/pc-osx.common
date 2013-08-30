@@ -8,8 +8,10 @@ CXX = g++
 #CPP_FLAGS += -std=c++11
 CPP_FLAGS += -I/opt/local/include
 CPP_FLAGS += -I/opt/local/include/freetype2
-CPP_FLAGS += -I/opt/local/include/wx-2.9
-CPP_FLAGS += -I/opt/local/lib/wx/include/osx_cocoa-unicode-2.9
+CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/2.9/include/wx-2.9
+CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/2.9/lib/wx/include/osx_cocoa-unicode-2.9
+#CPP_FLAGS += -I/opt/local/include/wx-2.9
+#CPP_FLAGS += -I/opt/local/lib/wx/include/osx_cocoa-unicode-2.9
 CPP_FLAGS += -D__WXOSX_COCOA__
 
 LINK_FLAGS += -L/opt/local/lib
@@ -30,6 +32,7 @@ GL_DEPS = \
 	-framework CoreFoundation \
 	-framework ApplicationServices \
 	-lGLEW \
+	-L/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/2.9/lib \
 	-lwx_baseu-2.9 \
 	-lwx_osx_cocoau_core-2.9 \
 	-lwx_osx_cocoau_adv-2.9 \
@@ -40,6 +43,8 @@ GL_DEPS = \
 	-lboost_iostreams-mt \
 	-lboost_locale-mt \
 	-lftgl
+
+#	-F/opt/local/Library/Frameworks -framework wxWidgets
 
 # GL needs boost_* only if CUSTOMIZED_FOR_3DRENDER 
 
