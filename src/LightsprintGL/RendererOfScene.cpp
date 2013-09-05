@@ -307,6 +307,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 
 		// resize cube
 		unsigned size = (unsigned)sqrtf(viewport[2]*viewport[3]/3.f+1);
+		size = RR_MIN3(size,viewport[2],viewport[3]);
 		if (panoramaTexture->getBuffer()->getWidth()!=size)
 		{
 			panoramaTexture->getBuffer()->reset(rr::BT_CUBE_TEXTURE,size,size,6,rr::BF_RGB,true,RR_GHOST_BUFFER);
