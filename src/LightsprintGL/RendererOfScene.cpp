@@ -241,6 +241,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 			// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
 			// it could be faster, althout I did not see any speedup
 			PreserveFlag p0(GL_SCISSOR_TEST,true);
+			PreserveScissor p1;
 
 			// render left
 			GLint viewport1eye[4] = {viewport[0],viewport[1],viewport[2],viewport[3]};
@@ -318,6 +319,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 			// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
 			// it could be faster, althout I did not see any speedup
 			PreserveFlag p0(GL_SCISSOR_TEST,true);
+			PreserveScissor p1;
 			glScissor(viewport[0],viewport[1],size,size);
 			glViewport(viewport[0],viewport[1],size,size);
 
