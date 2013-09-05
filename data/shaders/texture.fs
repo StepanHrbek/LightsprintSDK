@@ -32,11 +32,12 @@ void main()
 #ifdef TEXTURE
 	#ifdef TEXTURE_IS_CUBE
 		// similar to createEquirectangular()
+		// rotated so that center of equirectangular view is the same as center of normal view with yaw=pitch=roll=0
 		vec3 direction;
 		direction.y = sin(RR_PI*(uv.y-0.5));
-		direction.x = sin(RR_PI*(2.0*uv.x+1.5)) * sqrt(1.0-direction.y*direction.y);
+		direction.x = sin(RR_PI*(2.0*uv.x+1.0)) * sqrt(1.0-direction.y*direction.y);
 		direction.z = sqrt(1.0-direction.x*direction.x-direction.y*direction.y);
-		if (uv.x<0.5)
+		if (uv.x>0.25 && uv.x<0.75)
 			direction.z = -direction.z;
 		vec4 tex = textureCube(map,direction);
 	#else
