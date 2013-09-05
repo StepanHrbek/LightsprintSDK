@@ -307,7 +307,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 
 		// resize cube
 		unsigned size = (unsigned)sqrtf(viewport[2]*viewport[3]/3.f+1);
-		size = RR_MIN3(size,viewport[2],viewport[3]);
+		size = RR_MIN3(size,(unsigned)viewport[2],(unsigned)viewport[3]);
 		if (panoramaTexture->getBuffer()->getWidth()!=size)
 		{
 			panoramaTexture->getBuffer()->reset(rr::BT_CUBE_TEXTURE,size,size,6,rr::BF_RGB,true,RR_GHOST_BUFFER);
@@ -318,8 +318,8 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 			// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
 			// it could be faster, althout I did not see any speedup
 			PreserveFlag p0(GL_SCISSOR_TEST,true);
-			glScissor(0,0,size,size);
-			glViewport(0,0,size,size);
+			glScissor(viewport[0],viewport[1],size,size);
+			glViewport(viewport[0],viewport[1],size,size);
 
 			// render 6 times
 			static rr::RRVec3 s_viewAngles[6] = // 6x yawPitchRollRad
@@ -361,7 +361,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 				render(_solver,_lights,_);
 				panoramaTexture->bindTexture();
-				glCopyTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGB,0,0,size,size,0);
+				glCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,0,0,viewport[0],viewport[1],size,size);
 			}
 			_.panoramaMode = backup;
 
