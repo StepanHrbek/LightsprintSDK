@@ -46,6 +46,13 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 		}
 
+		// panorama
+		{
+			propCameraPanorama = new BoolRefProperty(_("Panorama"),_("Enables 360 degree rendering."),svs.renderPanorama);
+			AppendIn(propCamera,propCameraPanorama);
+
+		}
+
 		// dof
 		{
 			propCameraDof = new BoolRefProperty(_("DOF"),_("Applies fullscreen depth of field effect."),svs.renderDof);
@@ -338,6 +345,7 @@ void SVSceneProperties::updateProperties()
 	unsigned numChangesOther =
 		+ updateFloat(propCameraEyeSeparation,svs.camera.eyeSeparation)
 		+ updateFloat(propCameraFocalLength,svs.camera.focalLength)
+		+ updateBoolRef(propCameraPanorama)
 		+ updateFloat(propCameraDofNear,svs.camera.dofNear)
 		+ updateFloat(propCameraDofFar,svs.camera.dofFar)
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)

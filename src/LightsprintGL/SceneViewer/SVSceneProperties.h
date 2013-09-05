@@ -37,6 +37,7 @@ namespace rr_gl
 		BoolRefProperty*  propCameraStereo;
 		wxPGProperty*     propCameraEyeSeparation;
 		wxPGProperty*     propCameraFocalLength;
+		BoolRefProperty*  propCameraPanorama;
 		BoolRefProperty*  propCameraDof;
 		BoolRefProperty*  propCameraDofAutomatic;
 		FloatProperty*    propCameraDofNear;

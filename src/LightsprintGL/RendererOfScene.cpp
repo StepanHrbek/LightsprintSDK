@@ -114,6 +114,7 @@ private:
 	UberProgram* uberProgram;
 	RendererOfMeshCache rendererOfMeshCache;
 	Texture* stereoTexture;
+	Texture* panoramaTexture;
 	UberProgram* stereoUberProgram;
 #ifdef MIRRORS
 	rr::RRBuffer* mirrorDepthMap;
@@ -148,6 +149,8 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 	stereoTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST);
 	stereoUberProgram = UberProgram::create(tmpstr("%sstereo.vs",pathToShaders),tmpstr("%sstereo.fs",pathToShaders));
 
+	panoramaTexture = new Texture(rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR);
+
 #ifdef MIRRORS
 	mirrorDepthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 	mirrorMaskMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGB,true,RR_GHOST_BUFFER);
@@ -161,6 +164,11 @@ RendererOfSceneImpl::~RendererOfSceneImpl()
 	delete mirrorMaskMap;
 	delete mirrorDepthMap;
 #endif
+	// panorama
+	if (panoramaTexture)
+		delete panoramaTexture->getBuffer();
+	RR_SAFE_DELETE(panoramaTexture);
+
 	// stereo
 	RR_SAFE_DELETE(stereoUberProgram);
 	if (stereoTexture)
@@ -287,6 +295,82 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 
 		// restore viewport after rendering stereo (it could be non-default, e.g. when enhanced sshot is enabled)
 		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+
+		return;
+	}
+
+	// handle panorama modes by calling render 6 times
+	if (_.panoramaMode!=PM_OFF && panoramaTexture)
+	{
+		GLint viewport[4];
+		glGetIntegerv(GL_VIEWPORT,viewport);
+
+		// resize cube
+		unsigned size = (unsigned)sqrtf(viewport[2]*viewport[3]/3.f+1);
+		if (panoramaTexture->getBuffer()->getWidth()!=size)
+		{
+			panoramaTexture->getBuffer()->reset(rr::BT_CUBE_TEXTURE,size,size,6,rr::BF_RGB,true,RR_GHOST_BUFFER);
+			panoramaTexture->reset(false,false,false);
+		}
+
+		{
+			// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
+			// it could be faster, althout I did not see any speedup
+			PreserveFlag p0(GL_SCISSOR_TEST,true);
+			glScissor(0,0,size,size);
+			glViewport(0,0,size,size);
+
+			// render 6 times
+			static rr::RRVec3 s_viewAngles[6] = // 6x yawPitchRollRad
+			{
+				// if we capture empty scene with skybox, we get original skybox:
+				rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
+				rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
+				rr::RRVec3(0,RR_PI/2,0), // BOTTOM
+				rr::RRVec3(0,-RR_PI/2,0), // TOP
+				rr::RRVec3(RR_PI,0,RR_PI), // BACK
+				rr::RRVec3(0,0,RR_PI), // FRONT
+				/* if we capture empty scene with skybox, we get sky rotated by 180 degrees:
+				rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
+				rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
+				rr::RRVec3(0,RR_PI/2,RR_PI), // BOTTOM
+				rr::RRVec3(0,-RR_PI/2,RR_PI), // TOP
+				rr::RRVec3(0,0,RR_PI), // FRONT
+				rr::RRVec3(RR_PI,0,RR_PI), // BACK
+				// if we capture empty scene with skybox, we get sky rotated by 90 degrees:
+				rr::RRVec3(0,0,RR_PI), // FRONT
+				rr::RRVec3(RR_PI,0,RR_PI), // BACK
+				rr::RRVec3(0,RR_PI/2,RR_PI*3/2), // BOTTOM
+				rr::RRVec3(0,-RR_PI/2,RR_PI/2), // TOP
+				rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
+				rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
+				*/
+			};
+			rr::RRCamera camera = *_.camera;
+			camera.setAspect(1);
+			camera.setFieldOfViewVerticalDeg(90);
+			camera.setOrthogonal(false);
+			camera.setScreenCenter(rr::RRVec2(0,0));
+			_.camera = &camera;
+			PanoramaMode backup = _.panoramaMode;
+			_.panoramaMode = PM_OFF;
+			for (unsigned side=0;side<6;side++)
+			{
+				camera.setYawPitchRollRad(s_viewAngles[side]);
+				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+				render(_solver,_lights,_);
+				panoramaTexture->bindTexture();
+				glCopyTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGB,0,0,size,size,0);
+			}
+			_.panoramaMode = backup;
+
+		}
+
+		// restore viewport after rendering panorama (it could be non-default, e.g. when enhanced sshot is enabled)
+		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+
+		// composite
+		textureRenderer->render2D(panoramaTexture,NULL,1,0,0,1,1);
 
 		return;
 	}

@@ -30,6 +30,12 @@ enum StereoMode
 	SM_TOP_DOWN_SWAP    =7, // top half is right eye
 };
 
+enum PanoramaMode
+{
+	PM_OFF              =0, // common non-panorama mode
+	PM_EQUIRECTANGULAR  =1, // 360 degree render in equirectangular projection
+};
+
 //! Collection of parameters passed to renderer.
 //
 //! All parameters have safe default values set automatically.
@@ -46,6 +52,9 @@ struct RenderParameters
 
 	//! One of camera stereo modes, or SM_MONO for common non-stereo render.
 	StereoMode stereoMode;
+
+	//! One of camera panorama modes, or PM_OFF for common non-panorama render.
+	PanoramaMode panoramaMode;
 
 	//! When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
 	const rr::RRLight* renderingFromThisLight;
@@ -91,6 +100,7 @@ struct RenderParameters
 	{
 		camera = NULL;
 		stereoMode = SM_MONO;
+		panoramaMode = PM_OFF;
 		renderingFromThisLight = NULL;
 		updateLayers = false;
 		layerLightmap = UINT_MAX;

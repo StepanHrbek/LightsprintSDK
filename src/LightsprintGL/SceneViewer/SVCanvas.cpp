@@ -1663,6 +1663,11 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				}
 			}
 
+			if (svs.renderPanorama)
+			{
+				rp.panoramaMode = PM_EQUIRECTANGULAR;
+			}
+
 			if (svs.renderDDI)
 			{
 				// allocate and fill vertex buffer with DDI illumination

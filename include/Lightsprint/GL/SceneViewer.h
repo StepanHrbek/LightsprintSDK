@@ -85,7 +85,8 @@ struct SceneViewerState
 	unsigned         selectedObjectIndex;       //! Index into static objects array.
 	unsigned         selectedLayer;             //! When renderLightmaps2d, this is used for selecting what layer to show. 0 selects based on current illumination mode.
 	bool             fullscreen;                //! Ignored. Fullscreen/windowed bit is saved to and read from user preferences file. Quit sceneViewer() in fullscreen and it will start in fullscreen next time.
-	bool             renderStereo;              //! Enables interlaced stereo rendering.
+	bool             renderStereo;              //! Enables stereo rendering.
+	bool             renderPanorama;            //! Enables 360 degree panorama rendering.
 	bool             renderDof;                 //! Render depth of field effect.
 	bool             dofAutomatic;              //! For depth of field effect only: set dof near/far automatically.
 	LightingDirect   renderLightDirect;         //! Direct illumination mode.
@@ -185,6 +186,7 @@ struct SceneViewerState
 		selectedLayer = 0;
 		fullscreen = 0;
 		renderStereo = false;
+		renderPanorama = false;
 		renderDof = false;
 		dofAutomatic = false;
 		renderLightDirect = LD_REALTIME;
@@ -280,6 +282,7 @@ struct SceneViewerState
 			//&& a.selectedObjectIndex==selectedObjectIndex
 			&& a.fullscreen==fullscreen
 			&& a.renderStereo==renderStereo
+			&& a.renderPanorama==renderPanorama
 			&& a.renderDof==renderDof
 			&& a.dofAutomatic==dofAutomatic
 			&& a.renderLightDirect==renderLightDirect

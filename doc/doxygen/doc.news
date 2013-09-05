@@ -12,6 +12,8 @@ namespace rr
 
 NEWS
 
+- panorama rendering
+  - enabled via rr_gl::RenderParameters::panoramaMode
 - improved unwrapper
   - can be aborted more quickly
   - survives crashes in Microsoft code
@@ -22,6 +24,7 @@ NEWS
 - improved scene viewer
   - enhanced baking dialog, can use resolution set at unwrap time
   - Object / Illumination lists all illumination textures, click to show
+  - Scene / Camera / Panorama enables panorama rendering mode
 
 CHANGES
 
