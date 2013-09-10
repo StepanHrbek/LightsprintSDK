@@ -373,7 +373,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 
 		// composite
-		textureRenderer->render2D(panoramaTexture,NULL,1,0,0,1,1);
+		textureRenderer->render2D(panoramaTexture,NULL,1,0,0,1,1,-1,(_.panoramaMode==PM_LITTLE_PLANET)?"#define PANORAMA_MODE 2\n":"#define PANORAMA_MODE 1\n");
 
 		return;
 	}

@@ -1665,7 +1665,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 			if (svs.renderPanorama)
 			{
-				rp.panoramaMode = PM_EQUIRECTANGULAR;
+				rp.panoramaMode = svs.panoramaMode;
 			}
 
 			if (svs.renderDDI)

@@ -34,6 +34,7 @@ enum PanoramaMode
 {
 	PM_OFF              =0, // common non-panorama mode
 	PM_EQUIRECTANGULAR  =1, // 360 degree render in equirectangular projection
+	PM_LITTLE_PLANET    =2, // 360 degree render in stereographic (little planet) projection
 };
 
 //! Collection of parameters passed to renderer.

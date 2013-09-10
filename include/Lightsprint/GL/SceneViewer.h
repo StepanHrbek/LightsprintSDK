@@ -15,6 +15,7 @@
 #endif
 
 #include "Lightsprint/GL/RealtimeLight.h"
+#include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include <ctime> // struct tm
 
@@ -87,6 +88,7 @@ struct SceneViewerState
 	bool             fullscreen;                //! Ignored. Fullscreen/windowed bit is saved to and read from user preferences file. Quit sceneViewer() in fullscreen and it will start in fullscreen next time.
 	bool             renderStereo;              //! Enables stereo rendering.
 	bool             renderPanorama;            //! Enables 360 degree panorama rendering.
+	PanoramaMode     panoramaMode;              //! Selects mode of panorama rendering.
 	bool             renderDof;                 //! Render depth of field effect.
 	bool             dofAutomatic;              //! For depth of field effect only: set dof near/far automatically.
 	LightingDirect   renderLightDirect;         //! Direct illumination mode.
@@ -187,6 +189,7 @@ struct SceneViewerState
 		fullscreen = 0;
 		renderStereo = false;
 		renderPanorama = false;
+		panoramaMode = PM_EQUIRECTANGULAR;
 		renderDof = false;
 		dofAutomatic = false;
 		renderLightDirect = LD_REALTIME;
@@ -283,6 +286,7 @@ struct SceneViewerState
 			&& a.fullscreen==fullscreen
 			&& a.renderStereo==renderStereo
 			&& a.renderPanorama==renderPanorama
+			&& a.panoramaMode==panoramaMode
 			&& a.renderDof==renderDof
 			&& a.dofAutomatic==dofAutomatic
 			&& a.renderLightDirect==renderLightDirect

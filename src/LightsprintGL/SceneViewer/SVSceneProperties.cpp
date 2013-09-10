@@ -51,6 +51,12 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propCameraPanorama = new BoolRefProperty(_("Panorama"),_("Enables 360 degree rendering."),svs.renderPanorama);
 			AppendIn(propCamera,propCameraPanorama);
 
+			const wxChar* panoStrings[] = {_("Equirectangular"),_("Little planet"),NULL};
+			const long panoValues[] = {PM_EQUIRECTANGULAR,PM_LITTLE_PLANET};
+			propCameraPanoramaMode = new wxEnumProperty(_("Mode"), wxPG_LABEL, panoStrings, panoValues);
+			AppendIn(propCameraPanorama,propCameraPanoramaMode);
+
+
 		}
 
 		// dof
@@ -284,6 +290,8 @@ void SVSceneProperties::updateHide()
 	propCameraEyeSeparation->Hide(!svs.renderStereo,false);
 	propCameraFocalLength->Hide(!svs.renderStereo,false);
 
+	propCameraPanoramaMode->Hide(!svs.renderPanorama,false);
+
 	propCameraDofAutomatic->Hide(!svs.renderDof,false);
 	propCameraDofNear->Hide(!svs.renderDof,false);
 	propCameraDofFar->Hide(!svs.renderDof,false);
@@ -327,6 +335,7 @@ void SVSceneProperties::updateProperties()
 	// this function would still have to support at least properties that user can change by hotkeys or mouse navigation.
 	unsigned numChangesRelevantForHiding =
 		+ updateBoolRef(propCameraStereo)
+		+ updateBoolRef(propCameraPanorama)
 		+ updateBoolRef(propCameraDof)
 		+ updateBoolRef(propCameraDofAutomatic)
 		+ updateBool(propCameraOrtho,svs.camera.isOrthogonal())
@@ -345,7 +354,7 @@ void SVSceneProperties::updateProperties()
 	unsigned numChangesOther =
 		+ updateFloat(propCameraEyeSeparation,svs.camera.eyeSeparation)
 		+ updateFloat(propCameraFocalLength,svs.camera.focalLength)
-		+ updateBoolRef(propCameraPanorama)
+		+ updateInt(propCameraPanoramaMode,svs.panoramaMode)
 		+ updateFloat(propCameraDofNear,svs.camera.dofNear)
 		+ updateFloat(propCameraDofFar,svs.camera.dofFar)
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
@@ -425,6 +434,16 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCameraFocalLength)
 	{
 		svs.camera.focalLength = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propCameraPanorama)
+	{
+		updateHide();
+	}
+	else
+	if (property==propCameraPanoramaMode)
+	{
+		svs.panoramaMode = (PanoramaMode)property->GetValue().GetInteger();
 	}
 	else
 	if (property==propCameraDof)
