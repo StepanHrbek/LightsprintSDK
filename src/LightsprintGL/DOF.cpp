@@ -19,9 +19,10 @@ DOF::DOF(const char* pathToShaders)
 	smallColor3 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	bigColor = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	bigDepth = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	dofProgram1 = Program::create("#define PASS 1\n",tmpstr("%sdof.vs",pathToShaders),tmpstr("%sdof.fs",pathToShaders));
-	dofProgram2 = Program::create("#define PASS 2\n",tmpstr("%sdof.vs",pathToShaders),tmpstr("%sdof.fs",pathToShaders));
-	dofProgram3 = Program::create("#define PASS 3\n",tmpstr("%sdof.vs",pathToShaders),tmpstr("%sdof.fs",pathToShaders));
+	// #version 120 is necessary for 'poisson' array
+	dofProgram1 = Program::create("#version 120\n#define PASS 1\n",tmpstr("%sdof.vs",pathToShaders),tmpstr("%sdof.fs",pathToShaders));
+	dofProgram2 = Program::create("#version 120\n#define PASS 2\n",tmpstr("%sdof.vs",pathToShaders),tmpstr("%sdof.fs",pathToShaders));
+	dofProgram3 = Program::create("#version 120\n#define PASS 3\n",tmpstr("%sdof.vs",pathToShaders),tmpstr("%sdof.fs",pathToShaders));
 }
 
 DOF::~DOF()
