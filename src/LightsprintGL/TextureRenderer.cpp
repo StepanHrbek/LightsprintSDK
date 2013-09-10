@@ -191,7 +191,7 @@ void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, 
 		depthTest = glIsEnabled(GL_DEPTH_TEST);
 		glDisable(GL_DEPTH_TEST);
 	}
-	if (render2dBegin(color,gamma,(texture && texture->getBuffer() && texture->getBuffer()->getType()==rr::BT_CUBE_TEXTURE)?"#define TEXTURE_IS_CUBE\n":extraDefines))
+	if (render2dBegin(color,gamma,tmpstr("%s%s",(texture && texture->getBuffer() && texture->getBuffer()->getType()==rr::BT_CUBE_TEXTURE)?"#define TEXTURE_IS_CUBE\n":"",extraDefines?extraDefines:"")))
 	{
 		render2dQuad(texture,x,y,w,h,z);
 		render2dEnd();
