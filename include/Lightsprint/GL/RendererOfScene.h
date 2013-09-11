@@ -161,6 +161,9 @@ public:
 	//!  Other rendering parameters.
 	virtual void render(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters) = 0;
 
+	//! Renders scene from solver into given cubemap.
+	virtual void renderToCube(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture) = 0;
+
 
 	virtual class RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh) = 0;
 	virtual class TextureRenderer* getTextureRenderer() = 0;

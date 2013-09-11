@@ -22,6 +22,15 @@
 #include "Workaround.h"
 #include "tmpstr.h"
 
+// COPY_TO_CUBE:
+//  -extra copying
+//  -cube must not be bigger than current render target viewport/scissor
+//  +multisampled
+// rendering directly into cube:
+//  -not srgb correct
+//  +can be optimized (later) to single pass with geometry shader
+//#define COPY_TO_CUBE
+
 namespace rr_gl
 {
 
@@ -97,6 +106,7 @@ public:
 	virtual ~RendererOfSceneImpl();
 
 	virtual void render(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters);
+	virtual void renderToCube(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture);
 
 	virtual RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
 	{
@@ -113,8 +123,9 @@ private:
 	TextureRenderer* textureRenderer;
 	UberProgram* uberProgram;
 	RendererOfMeshCache rendererOfMeshCache;
-	Texture* stereoTexture;
-	Texture* panoramaTexture;
+	Texture* stereoTexture; // for render()
+	Texture* panoramaTexture; // for render()
+	Texture* depthTexture; // for renderToCube()
 	UberProgram* stereoUberProgram;
 #ifdef MIRRORS
 	rr::RRBuffer* mirrorDepthMap;
@@ -150,6 +161,7 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 	stereoUberProgram = UberProgram::create(tmpstr("%sstereo.vs",pathToShaders),tmpstr("%sstereo.fs",pathToShaders));
 
 	panoramaTexture = new Texture(rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR);
+	depthTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_DEPTH,false,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR);
 
 #ifdef MIRRORS
 	mirrorDepthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
@@ -165,6 +177,9 @@ RendererOfSceneImpl::~RendererOfSceneImpl()
 	delete mirrorDepthMap;
 #endif
 	// panorama
+	if (depthTexture)
+		delete depthTexture->getBuffer();
+	RR_SAFE_DELETE(depthTexture);
 	if (panoramaTexture)
 		delete panoramaTexture->getBuffer();
 	RR_SAFE_DELETE(panoramaTexture);
@@ -207,6 +222,96 @@ struct PlaneCompare // comparing RRVec4 looks strange, so we do it here rather t
 	}
 };
 #endif
+
+void RendererOfSceneImpl::renderToCube(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture)
+{
+	// copy, so that we can modify some parameters
+	RenderParameters _ = _renderParameters;
+
+	if (!_cubeTexture || !depthTexture)
+		return;
+
+	// resize depth
+	unsigned size = _cubeTexture->getBuffer()->getWidth();
+	if (depthTexture->getBuffer()->getWidth()!=size)
+	{
+		depthTexture->getBuffer()->reset(rr::BT_2D_TEXTURE,size,size,1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
+		depthTexture->reset(false,false,false);
+	}
+
+#ifdef COPY_TO_CUBE
+	// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
+	// it could be faster, althout I did not see any speedup
+	PreserveFlag p0(GL_SCISSOR_TEST,true);
+	PreserveScissor p1;
+	GLint viewport[4];
+	glGetIntegerv(GL_VIEWPORT,viewport);
+	glScissor(viewport[0],viewport[1],size,size);
+	glViewport(viewport[0],viewport[1],size,size);
+#else
+	// all attempts at srgb correct render to texture failed so far
+	_.srgbCorrect = false;
+
+	PreserveFBO p0;
+	PreserveViewport p1;
+	PreserveFlag p2(GL_SCISSOR_TEST,false);
+	glViewport(0,0,size,size);
+	FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,depthTexture);
+#endif
+
+	// render 6 times
+	rr::RRVec3 s_viewAngles[6] = // 6x yawPitchRollRad
+	{
+		// if we capture empty scene with skybox, we get original skybox:
+		rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
+		rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
+		rr::RRVec3(0,RR_PI/2,0), // BOTTOM
+		rr::RRVec3(0,-RR_PI/2,0), // TOP
+		rr::RRVec3(RR_PI,0,RR_PI), // BACK
+		rr::RRVec3(0,0,RR_PI), // FRONT
+		/* if we capture empty scene with skybox, we get sky rotated by 180 degrees:
+		rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
+		rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
+		rr::RRVec3(0,RR_PI/2,RR_PI), // BOTTOM
+		rr::RRVec3(0,-RR_PI/2,RR_PI), // TOP
+		rr::RRVec3(0,0,RR_PI), // FRONT
+		rr::RRVec3(RR_PI,0,RR_PI), // BACK
+		// if we capture empty scene with skybox, we get sky rotated by 90 degrees:
+		rr::RRVec3(0,0,RR_PI), // FRONT
+		rr::RRVec3(RR_PI,0,RR_PI), // BACK
+		rr::RRVec3(0,RR_PI/2,RR_PI*3/2), // BOTTOM
+		rr::RRVec3(0,-RR_PI/2,RR_PI/2), // TOP
+		rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
+		rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
+		*/
+	};
+	rr::RRCamera camera = *_.camera;
+	camera.setAspect(1);
+	camera.setFieldOfViewVerticalDeg(90);
+	camera.setOrthogonal(false);
+	camera.setScreenCenter(rr::RRVec2(0,0));
+	_.camera = &camera;
+	_.panoramaMode = PM_OFF;
+	//_.stereoMode = SM_MONO;
+	for (unsigned side=0;side<6;side++)
+	{
+		camera.setYawPitchRollRad(s_viewAngles[side]);
+#ifndef COPY_TO_CUBE
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,_cubeTexture);
+#endif
+		glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+		render(_solver,_lights,_);
+#ifdef COPY_TO_CUBE
+		_cubeTexture->bindTexture();
+		glCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,0,0,viewport[0],viewport[1],size,size);
+#endif
+	}
+
+#ifdef COPY_TO_CUBE
+	// restore viewport after rendering panorama (it could be non-default, e.g. when enhanced sshot is enabled)
+	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+#endif
+}
 
 void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters)
 {
@@ -307,7 +412,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 		glGetIntegerv(GL_VIEWPORT,viewport);
 
 		// resize cube
-		unsigned size = (unsigned)sqrtf(viewport[2]*viewport[3]/3.f+1);
+		unsigned size = (unsigned)sqrtf(viewport[2]*viewport[3]/6.f+1);
 		size = RR_MIN3(size,(unsigned)viewport[2],(unsigned)viewport[3]);
 		if (panoramaTexture->getBuffer()->getWidth()!=size)
 		{
@@ -315,62 +420,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 			panoramaTexture->reset(false,false,false);
 		}
 
-		{
-			// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
-			// it could be faster, althout I did not see any speedup
-			PreserveFlag p0(GL_SCISSOR_TEST,true);
-			PreserveScissor p1;
-			glScissor(viewport[0],viewport[1],size,size);
-			glViewport(viewport[0],viewport[1],size,size);
-
-			// render 6 times
-			static rr::RRVec3 s_viewAngles[6] = // 6x yawPitchRollRad
-			{
-				// if we capture empty scene with skybox, we get original skybox:
-				rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
-				rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
-				rr::RRVec3(0,RR_PI/2,0), // BOTTOM
-				rr::RRVec3(0,-RR_PI/2,0), // TOP
-				rr::RRVec3(RR_PI,0,RR_PI), // BACK
-				rr::RRVec3(0,0,RR_PI), // FRONT
-				/* if we capture empty scene with skybox, we get sky rotated by 180 degrees:
-				rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
-				rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
-				rr::RRVec3(0,RR_PI/2,RR_PI), // BOTTOM
-				rr::RRVec3(0,-RR_PI/2,RR_PI), // TOP
-				rr::RRVec3(0,0,RR_PI), // FRONT
-				rr::RRVec3(RR_PI,0,RR_PI), // BACK
-				// if we capture empty scene with skybox, we get sky rotated by 90 degrees:
-				rr::RRVec3(0,0,RR_PI), // FRONT
-				rr::RRVec3(RR_PI,0,RR_PI), // BACK
-				rr::RRVec3(0,RR_PI/2,RR_PI*3/2), // BOTTOM
-				rr::RRVec3(0,-RR_PI/2,RR_PI/2), // TOP
-				rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
-				rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
-				*/
-			};
-			rr::RRCamera camera = *_.camera;
-			camera.setAspect(1);
-			camera.setFieldOfViewVerticalDeg(90);
-			camera.setOrthogonal(false);
-			camera.setScreenCenter(rr::RRVec2(0,0));
-			_.camera = &camera;
-			PanoramaMode backup = _.panoramaMode;
-			_.panoramaMode = PM_OFF;
-			for (unsigned side=0;side<6;side++)
-			{
-				camera.setYawPitchRollRad(s_viewAngles[side]);
-				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-				render(_solver,_lights,_);
-				panoramaTexture->bindTexture();
-				glCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,0,0,viewport[0],viewport[1],size,size);
-			}
-			_.panoramaMode = backup;
-
-		}
-
-		// restore viewport after rendering panorama (it could be non-default, e.g. when enhanced sshot is enabled)
-		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+		renderToCube(_solver,_lights,_,panoramaTexture);
 
 		// composite
 		textureRenderer->render2D(panoramaTexture,NULL,1,0,0,1,1,-1,(_.panoramaMode==PM_LITTLE_PLANET)?"#define PANORAMA_MODE 2\n":"#define PANORAMA_MODE 1\n");

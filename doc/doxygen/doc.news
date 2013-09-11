@@ -13,6 +13,7 @@ namespace rr
 NEWS
 
 - little planet panorama rendering mode
+- rr_gl::RendererOfScene::renderToCube() added
 
 \section news140 ------------------------------------ 2013.08.28 -------------------------------------
 
