@@ -81,6 +81,11 @@ namespace rr
 		class RR_API FaceGroups : public RRVector<FaceGroup>
 		{
 		public:
+#ifdef RR_SUPPORTS_RVALUE_REFERENCES
+			// Inherits move ctor and operator.
+			using RRVector<FaceGroup>::RRVector<FaceGroup>;
+			using RRVector<FaceGroup>::operator=;
+#endif
 			bool containsEmittance() const;
 		};
 		//! Assignment of materials to triangles.
@@ -427,6 +432,11 @@ namespace rr
 	class RR_API RRObjects : public RRVector<RRObject*>
 	{
 	public:
+#ifdef RR_SUPPORTS_RVALUE_REFERENCES
+		// Inherits move ctor and operator.
+		using RRVector<RRObject*>::RRVector<RRObject*>;
+		using RRVector<RRObject*>::operator=;
+#endif
 		//! Modifies non-unique object names to make them unique.
 		//
 		//! When multiple objects with the same name "name" are found, they are renamed to "name", "name.2", "name.3" etc.

@@ -507,6 +507,11 @@ namespace rr
 	class RRLights : public RRVector<RRLight*>
 	{
 	public:
+#ifdef RR_SUPPORTS_RVALUE_REFERENCES
+		// Inherits move ctor and operator.
+		using RRVector<RRLight*>::RRVector<RRLight*>;
+		using RRVector<RRLight*>::operator=;
+#endif
 		virtual ~RRLights() {};
 	};
 
