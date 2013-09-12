@@ -45,6 +45,8 @@ namespace rr_gl
 		wxPGProperty*     propGIShadowTransparency;
 		wxPGProperty*     propGIFireballQuality;
 		ButtonProperty*   propGIFireballBuild;
+		wxPGProperty*     propGIFireballWorkPerFrame;
+		wxPGProperty*     propGIFireballWorkTotal;
 		BoolRefProperty*  propGIRaytracedCubes;
 		wxPGProperty*     propGIRaytracedCubesRes;
 		wxPGProperty*     propGIRaytracedCubesMaxObjects;

@@ -63,6 +63,15 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			propGIFireballBuild = new ButtonProperty(_("Build"),_("Builds or rebuilds Fireball."),svframe,SVFrame::ME_REALTIME_FIREBALL_BUILD);
 			AppendIn(propGIFireball,propGIFireballBuild);
 			propGIFireballBuild->updateImage();
+
+			propGIFireballWorkPerFrame = new wxIntProperty(_("Bounces in 1. frame"),wxPG_LABEL,svs.fireballWorkPerFrame);
+			propGIFireballWorkPerFrame->SetHelpString(_("How much work Fireball does in first frame when GI needs update. Roughly equivalent to number of light bounces."));
+			AppendIn(propGIFireball,propGIFireballWorkPerFrame);
+
+			propGIFireballWorkTotal = new wxBoolProperty(_("Continue bouncing"),wxPG_LABEL,svs.fireballWorkTotal>svs.fireballWorkPerFrame);
+			propGIFireballWorkTotal->SetHelpString(_("Uncheck to make Fireball stop all work after first frame. Check to see GI slowly improve over time."));
+			SetPropertyEditor(propGIFireballWorkTotal,wxPGEditor_CheckBox);
+			AppendIn(propGIFireball,propGIFireballWorkTotal);
 		}
 
 		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Fireball only: Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
@@ -248,6 +257,8 @@ void SVGIProperties::updateProperties()
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
 		+ updateFloat(propGIIndirectMultiplier,svs.renderLightIndirectMultiplier)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
+		+ updateInt(propGIFireballWorkPerFrame,svs.fireballWorkPerFrame)
+		+ updateBool(propGIFireballWorkTotal,svs.fireballWorkTotal>svs.fireballWorkPerFrame)
 		+ updateBoolRef(propGIRaytracedCubes)
 		+ updateInt(propGIRaytracedCubesRes,svs.raytracedCubesRes)
 		+ updateInt(propGIRaytracedCubesMaxObjects,svs.raytracedCubesMaxObjects)
@@ -338,6 +349,18 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIFireballQuality)
 	{
 		svs.fireballQuality = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propGIFireballWorkPerFrame)
+	{
+		svs.fireballWorkPerFrame = property->GetValue().GetInteger();
+		if (svs.fireballWorkTotal<10000)
+			svs.fireballWorkTotal = svs.fireballWorkPerFrame;
+	}
+	else
+	if (property==propGIFireballWorkTotal)
+	{
+		svs.fireballWorkTotal = property->GetValue().GetBool() ? 10000 : svs.fireballWorkPerFrame;
 	}
 	else
 	if (property==propGIRaytracedCubes)

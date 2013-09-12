@@ -1577,8 +1577,8 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				params.materialTransmittanceVideoQuality = svs.videoTransmittanceAffectsGI?(svs.videoTransmittanceAffectsGIFull?2:1):0;
 				params.environmentStaticQuality = 6000;
 				params.environmentVideoQuality = svs.videoEnvironmentAffectsGI?svs.videoEnvironmentGIQuality+1:0;
-				params.qualityIndirectDynamic = 3;
-				params.qualityIndirectStatic = 10000;
+				params.qualityIndirectDynamic = svs.fireballWorkPerFrame;
+				params.qualityIndirectStatic = svs.fireballWorkTotal;
 			}
 			else
 			{

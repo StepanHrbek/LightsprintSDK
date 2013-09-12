@@ -134,6 +134,8 @@ struct SceneViewerState
 	bool             videoEnvironmentAffectsGI; //! Makes video in environment affect GI in realtime, light emitted from video is recalculated in every frame.
 	unsigned         videoEnvironmentGIQuality; //! Quality if videoEnvironmentAffectsGI is true.
 	unsigned         fireballQuality;           //! Quality used each time Fireball needs rebuild.
+	unsigned         fireballWorkPerFrame;
+	unsigned         fireballWorkTotal;
 	bool             raytracedCubesEnabled;     //! Enables realtime raytraced diffuse and specular cubemap reflections.
 	unsigned         raytracedCubesRes;         //! Resolution of reflection env maps.
 	unsigned         raytracedCubesMaxObjects;  //! But only if there is less than this number of objects in scene.
@@ -218,7 +220,7 @@ struct SceneViewerState
 		renderVignette = 0;
 		renderHelp = 0;
 		renderLogo = 0;
-		renderTonemapping = 1;
+		renderTonemapping = 0;
 		tonemappingAutomatic = 1;
 		tonemappingAutomaticTarget = 0.5f;
 		tonemappingAutomaticSpeed = 1;
@@ -234,6 +236,8 @@ struct SceneViewerState
 		videoEnvironmentAffectsGI = true;
 		videoEnvironmentGIQuality = 300;
 		fireballQuality = 350;
+		fireballWorkPerFrame = 3;
+		fireballWorkTotal = 10000;
 		raytracedCubesEnabled = true;
 		raytracedCubesRes = 16;
 		raytracedCubesMaxObjects = 1000;
@@ -331,6 +335,8 @@ struct SceneViewerState
 			&& a.videoEnvironmentAffectsGI==videoEnvironmentAffectsGI
 			&& a.videoEnvironmentGIQuality==videoEnvironmentGIQuality
 			&& a.fireballQuality==fireballQuality
+			&& a.fireballWorkPerFrame==fireballWorkPerFrame
+			&& a.fireballWorkTotal==fireballWorkTotal
 			&& a.raytracedCubesEnabled==raytracedCubesEnabled
 			&& a.raytracedCubesRes==raytracedCubesRes
 			&& a.raytracedCubesMaxObjects==raytracedCubesMaxObjects
