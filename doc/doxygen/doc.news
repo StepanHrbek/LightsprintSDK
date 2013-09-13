@@ -13,7 +13,15 @@ namespace rr
 NEWS
 
 - little planet panorama rendering mode
-- rr_gl::RendererOfScene::renderToCube() added
+- higher quality reflections
+  - for cubemap resolutions >=32, rr_gl::RRDynamicSolverGL::updateEnvironmentMap()
+    produces faster and higher quality data using rasterizer instead of raytracer
+- misc helpers
+  - rr_gl::RendererOfScene::renderToCube()
+
+CHANGES
+
+ - additional parameters in RRDynamicSolver::updateEnvironmentMap()
 
 \section news140 ------------------------------------ 2013.08.28 -------------------------------------
 

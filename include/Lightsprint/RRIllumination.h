@@ -80,21 +80,20 @@ namespace rr
 		RRVec3 envMapWorldCenter;
 		RRReal envMapWorldRadius;
 
+		//
+		// for caching of reflection maps, don't change
+		//
+		RRVec3 cachedCenter;
+		unsigned short cachedGatherSize;
+		unsigned short cachedNumTriangles; // number of triangles in multiobject, invalidates cache when multiobject changes
+		unsigned* cachedTriangleNumbers;
+
 	protected:
 		//
 		// for buffers
 		//
 		//! Container with all layers.
 		class LayersMap* layersMap;
-
-		//
-		// for reflection maps
-		//
-		friend class RRDynamicSolver;
-		RRVec3 cachedCenter;
-		unsigned short cachedGatherSize;
-		unsigned short cachedNumTriangles; // number of triangles in multiobject, invalidates cache when multiobject changes
-		unsigned* cachedTriangleNumbers;
 	};
 
 

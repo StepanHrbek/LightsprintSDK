@@ -421,7 +421,7 @@ static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const
 }
 
 
-unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsigned layerEnvironment)
+unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap)
 {
 	if (!illumination)
 	{

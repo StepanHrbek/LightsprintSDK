@@ -736,7 +736,7 @@ namespace rr
 		//! Solver only reads it, never modifies it, so don't forget to clear it after abort.
 		bool aborting;
 
-		//! Calculates and updates object's environment map, stored in given layer of given object.
+		//! Calculates and updates object's environment map, stored in given layer of given illumination.
 		//
 		//! Function updates existing buffer, it does nothing if buffer does not exist.
 		//! You can allocate buffers
@@ -759,9 +759,18 @@ namespace rr
 		//!  (It's not necessary to have RRObject adapter for dynamic object, but its RRObjectIllumination must exist.)
 		//! \param layerEnvironment
 		//!  Number of layer with environment maps, they are addressed by illumination->getLayer(layerEnvironment).
+		//! \param layerLightmap
+		//!  Number of layer with lightmaps, they are addressed by illumination->getLayer(layerLightmap).
+		//!  Unused by default implementation.
+		//! \param layerAmbientMap
+		//!  Number of layer with ambient maps, they are addressed by illumination->getLayer(layerAmbientMap).
+		//!  Unused by default implementation.
+		//!  While default implementation reads illumination directly from solver,
+		//!  access to lightmaps and/or ambient maps allows other implementations (rr_gl::RRDynamicSolverGL::updateEnvironmentMap())
+		//!  to read illumination from lights and these maps instead.
 		//! \return
 		//!  Number of environment maps updated, 0 or 1.
-		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination, unsigned layerEnvironment);
+		virtual unsigned updateEnvironmentMap(RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap);
 
 
 		//! Reads illumination of triangle's vertex in units given by measure.

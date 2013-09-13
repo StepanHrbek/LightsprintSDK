@@ -5,6 +5,7 @@
 
 #include <cstdarg>
 #include <cstdio>
+#include <vector>
 #include <GL/glew.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
@@ -14,6 +15,8 @@
 #include "tmpstr.h"
 
 #define REPORT(a) //a
+
+#define CENTER_GRANULARITY 0.01f // if envmap center moves less than granularity, it is considered unchanged. prevents updates when dynamic object rotates (=position slightly fluctuates)
 
 namespace rr_gl
 {
@@ -58,10 +61,13 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 	observer = NULL;
 	rendererOfScene = rr_gl::RendererOfScene::create(_pathToShaders);
 	uberProgram1 = UberProgram::create(tmpstr("%subershader.vs",pathToShaders),tmpstr("%subershader.fs",pathToShaders));
+
+	depthTexture = Texture::createShadowmap(1,1,false);
 }
 
 RRDynamicSolverGL::~RRDynamicSolverGL()
 {
+	delete depthTexture;
 	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 	delete rendererOfScene;
 	delete uberProgram1;
@@ -672,6 +678,117 @@ void RRDynamicSolverGL::renderLights(const rr::RRCamera& _camera)
 	for (unsigned i=0;i<getLights().size();i++)
 	{
 		drawRealtimeLight(realtimeLights[i]);
+	}
+}
+
+unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap)
+{
+	if (!illumination)
+	{
+		RR_ASSERT(0);
+		return 0;
+	}
+	rr::RRBuffer* cube = illumination->getLayer(layerEnvironment);
+	if (!cube)
+	{
+		return 0;
+	}
+	if (cube->getWidth()<ENVMAP_RES_RASTERIZED)
+	{
+		return this->RRDynamicSolver::updateEnvironmentMap(illumination,layerEnvironment,layerLightmap,layerAmbientMap);
+	}
+	else
+	{
+		// check version numbers, is cube out of date?
+		unsigned solutionVersion = getSolutionVersion();
+		bool centerMoved = (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY;
+		if (!centerMoved && (cube->version>>16)==(solutionVersion&65535))
+		{
+			return 0;
+		}
+	
+		// find out scene size
+		rr::RRVec3 mini,maxi;
+		getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+		rr::RRReal size = (maxi-mini).length();
+
+		// hide objects with current illumination
+		// (we hide it only in 1objects, it stays visible in multiobject. rendering with all lights and materials usually uses 1objects.
+		//  if it uses multiobject, object reflects itself)
+		struct ObjectInfo
+		{
+			rr::RRObject* object;
+			rr::RRObject::FaceGroups faceGroups;
+		};
+		std::vector<ObjectInfo> infos;
+		for (unsigned i=0;i<2;i++)
+		{
+			const rr::RRObjects& objects = i ? getDynamicObjects() : getStaticObjects();
+			for (unsigned j=0;j<objects.size();j++)
+			{
+				rr::RRObject* object = objects[j];
+				if (&object->illumination==illumination)
+				{
+					ObjectInfo info;
+					info.object = object;
+					info.faceGroups = std::move(object->faceGroups);
+					infos.push_back(info);
+				}
+			}
+		}
+
+		// update cube
+		rr::RRCamera camera;
+		camera.setPosition(illumination->envMapWorldCenter);
+		camera.setRange(size*0.0001f,size);
+		RenderParameters rp;
+		rp.camera = &camera;
+		rp.uberProgramSetup.enableAllMaterials();
+		rp.uberProgramSetup.enableAllLights();
+		rp.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // no mirrors, prevents render() from calling another render()
+		rp.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
+		rp.updateLayers = false; // no environment updates,  prevents render() from calling another updateEnvironmentMap(), we are not reentrant because of depthTexture
+		rp.layerEnvironment = UINT_MAX; // no envmaps, prevents using texture we are rendering into
+		if (layerAmbientMap!=UINT_MAX)
+		{
+			// realtime lights + ambient maps
+			rp.layerLightmap = layerAmbientMap;
+		}
+		else
+		if (layerLightmap!=UINT_MAX)
+		{
+			// lightmaps
+			rp.layerLightmap = layerLightmap;
+			rp.uberProgramSetup.SHADOW_MAPS = 1;
+			rp.uberProgramSetup.LIGHT_DIRECT = true;
+			rp.uberProgramSetup.LIGHT_DIRECT_COLOR = true;
+			rp.uberProgramSetup.LIGHT_DIRECT_MAP = true;
+			rp.uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = true;
+		}
+		else
+		{
+			// realtime lights + constant ambient
+		}
+		rp.srgbCorrect = true; // we don't know whether final render is srgb correct or not, let's request more realistic version (but renderToCube might ignore us)
+		Texture* cubeTexture = getTexture(cube,false,false);
+		getRendererOfScene()->renderToCube(this,&realtimeLights,rp,cubeTexture,depthTexture);
+		cubeTexture->bindTexture();
+		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glGenerateMipmapEXT(GL_TEXTURE_CUBE_MAP); // part of EXT_framebuffer_object
+
+		// unhide objects with current illumination
+		for (unsigned i=0;i<infos.size();i++)
+			infos[i].object->faceGroups = std::move(infos[i].faceGroups);
+
+		// update version numbers
+		cube->version++;
+		cube->version = (solutionVersion<<16)+(cube->version&65535);
+		cubeTexture->version = cube->version;
+		illumination->cachedNumTriangles = getMultiObjectCustom() ? getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles() : 0;
+		illumination->cachedCenter = illumination->envMapWorldCenter;
+
+		return 1;
 	}
 }
 

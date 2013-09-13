@@ -64,7 +64,7 @@ protected:
 // arbitrary unique non-negative numbers
 enum
 {
-	LAYER_LIGHTMAP,
+	LAYER_AMBIENT_MAP,
 	LAYER_ENVIRONMENT,
 };
 

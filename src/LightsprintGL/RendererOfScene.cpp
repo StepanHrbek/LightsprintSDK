@@ -23,11 +23,12 @@
 #include "tmpstr.h"
 
 // COPY_TO_CUBE:
-//  -extra copying
 //  -cube must not be bigger than current render target viewport/scissor
+//  -viewport/scissor area of current render target must not be in use
+//  -extra copying
 //  +multisampled
 // rendering directly into cube:
-//  -not srgb correct
+//  -not srgb correct (reflection less realistic)
 //  +can be optimized (later) to single pass with geometry shader
 //#define COPY_TO_CUBE
 
@@ -106,7 +107,7 @@ public:
 	virtual ~RendererOfSceneImpl();
 
 	virtual void render(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters);
-	virtual void renderToCube(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture);
+	virtual void renderToCube(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture, Texture* _depthTexture);
 
 	virtual RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
 	{
@@ -125,23 +126,24 @@ private:
 	RendererOfMeshCache rendererOfMeshCache;
 	Texture* stereoTexture; // for render()
 	Texture* panoramaTexture; // for render()
-	Texture* depthTexture; // for renderToCube()
+	Texture* depthTexture; // for render(), passed as parameter to renderToCube()
 	UberProgram* stereoUberProgram;
 #ifdef MIRRORS
 	rr::RRBuffer* mirrorDepthMap;
 	rr::RRBuffer* mirrorMaskMap;
 #endif
 
+	enum { MAX_RECURSION_DEPTH = 3 };
 	// PERMANENT ALLOCATION, TEMPORARY CONTENT (used only inside render(), placing it here saves alloc/free in every render(), but makes render() nonreentrant)
 	rr::RRObjects multiObjects; // used in first half of render()
 	//! Gathered per-object information.
-	rr::RRVector<PerObjectBuffers> perObjectBuffers[2]; // used in whole render(), indexed by [recursionDepth]
+	rr::RRVector<PerObjectBuffers> perObjectBuffers[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
 	typedef boost::unordered_map<UberProgramSetup,rr::RRVector<FaceGroupRange>*> ShaderFaceGroups;
 	//! Gathered non-blended object information.
-	ShaderFaceGroups nonBlendedFaceGroupsMap[2]; // used in whole render(), indexed by [recursionDepth]
+	ShaderFaceGroups nonBlendedFaceGroupsMap[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
 	//! Gathered blended object information.
-	rr::RRVector<FaceGroupRange> blendedFaceGroups[2]; // used in whole render(), indexed by [recursionDepth]
-	//! usually 0, 1 only when render() calls render() because of mirror
+	rr::RRVector<FaceGroupRange> blendedFaceGroups[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
+	//! usually 0, can grow to 1 or even 2 when render() calls render() because of mirror or updateEnvironmentMap()
 	unsigned recursionDepth;
 };
 
@@ -160,7 +162,7 @@ RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
 	stereoTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST);
 	stereoUberProgram = UberProgram::create(tmpstr("%sstereo.vs",pathToShaders),tmpstr("%sstereo.fs",pathToShaders));
 
-	panoramaTexture = new Texture(rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR);
+	panoramaTexture = new Texture(rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR); // A for mirroring
 	depthTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_DEPTH,false,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR);
 
 #ifdef MIRRORS
@@ -192,7 +194,7 @@ RendererOfSceneImpl::~RendererOfSceneImpl()
 
 	delete uberProgram;
 	delete textureRenderer;
-	for (recursionDepth=0;recursionDepth<2;recursionDepth++)
+	for (recursionDepth=0;recursionDepth<MAX_RECURSION_DEPTH;recursionDepth++)
 		for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap[recursionDepth].begin();i!=nonBlendedFaceGroupsMap[recursionDepth].end();++i)
 			delete i->second;
 }
@@ -223,21 +225,25 @@ struct PlaneCompare // comparing RRVec4 looks strange, so we do it here rather t
 };
 #endif
 
-void RendererOfSceneImpl::renderToCube(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture)
+void RendererOfSceneImpl::renderToCube(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture, Texture* _depthTexture)
 {
+	// we need depth texture here.
+	// but why is it sent via _depthTexture parameter?
+	// a) we can create and delete _depthTexture in this function (possibly many times in each frame)
+	//    but it could be slower
+	// b) we can't use single depthTexture owned by RendererOfSceneImpl
+	//    because renderToCube (panorama) calls renderToCube (update env maps) with different resolution, at least two depth maps are needed
+	// c) YES caller passes _depthTexture in parameter
+	//    this way two callers manage two depth textures and limited reentrancy works (panorama can update env maps,
+	//    although, panorama can't do panorama)
+
 	// copy, so that we can modify some parameters
 	RenderParameters _ = _renderParameters;
 
-	if (!_cubeTexture || !depthTexture)
+	if (!_cubeTexture || !_depthTexture)
 		return;
 
-	// resize depth
 	unsigned size = _cubeTexture->getBuffer()->getWidth();
-	if (depthTexture->getBuffer()->getWidth()!=size)
-	{
-		depthTexture->getBuffer()->reset(rr::BT_2D_TEXTURE,size,size,1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
-		depthTexture->reset(false,false,false);
-	}
 
 #ifdef COPY_TO_CUBE
 	// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
@@ -249,6 +255,13 @@ void RendererOfSceneImpl::renderToCube(rr::RRDynamicSolver* _solver, const Realt
 	glScissor(viewport[0],viewport[1],size,size);
 	glViewport(viewport[0],viewport[1],size,size);
 #else
+	// resize depth
+	if (_depthTexture->getBuffer()->getWidth()!=size)
+	{
+		_depthTexture->getBuffer()->reset(rr::BT_2D_TEXTURE,size,size,1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
+		_depthTexture->reset(false,false,false);
+	}
+
 	// all attempts at srgb correct render to texture failed so far
 	_.srgbCorrect = false;
 
@@ -256,7 +269,7 @@ void RendererOfSceneImpl::renderToCube(rr::RRDynamicSolver* _solver, const Realt
 	PreserveViewport p1;
 	PreserveFlag p2(GL_SCISSOR_TEST,false);
 	glViewport(0,0,size,size);
-	FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,depthTexture);
+	FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,_depthTexture);
 #endif
 
 	// render 6 times
@@ -416,11 +429,11 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 		size = RR_MIN3(size,(unsigned)viewport[2],(unsigned)viewport[3]);
 		if (panoramaTexture->getBuffer()->getWidth()!=size)
 		{
-			panoramaTexture->getBuffer()->reset(rr::BT_CUBE_TEXTURE,size,size,6,rr::BF_RGB,true,RR_GHOST_BUFFER);
+			panoramaTexture->getBuffer()->reset(rr::BT_CUBE_TEXTURE,size,size,6,rr::BF_RGBA,true,RR_GHOST_BUFFER); // A for mirroring
 			panoramaTexture->reset(false,false,false);
 		}
 
-		renderToCube(_solver,_lights,_,panoramaTexture);
+		renderToCube(_solver,_lights,_,panoramaTexture,depthTexture);
 
 		// composite
 		textureRenderer->render2D(panoramaTexture,NULL,1,0,0,1,1,-1,(_.panoramaMode==PM_LITTLE_PLANET)?"#define PANORAMA_MODE 2\n":"#define PANORAMA_MODE 1\n");
@@ -729,7 +742,13 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 					// built-in version check
 					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE||objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 					{
-						_solver->updateEnvironmentMap(&illumination,_.layerEnvironment);
+						RR_ASSERT(recursionDepth+1<MAX_RECURSION_DEPTH);
+						if (recursionDepth+1<MAX_RECURSION_DEPTH)
+						{
+							recursionDepth++;
+							_solver->updateEnvironmentMap(&illumination,_.layerEnvironment,_.uberProgramSetup.LIGHT_DIRECT?UINT_MAX:_.layerLightmap,_.uberProgramSetup.LIGHT_DIRECT?_.layerLightmap:UINT_MAX);
+							recursionDepth--;
+						}
 					}
 				}
 			}
@@ -814,8 +833,10 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 		// Update mirrors (after rendering all non-mirrors).
 		if (!applyingMirrors && mirrors.size())
 		{
-			RR_ASSERT(!recursionDepth);
-			recursionDepth = 1;
+			RR_ASSERT(recursionDepth+1<MAX_RECURSION_DEPTH);
+			if (recursionDepth+1<MAX_RECURSION_DEPTH)
+			{
+			recursionDepth++;
 
 			RenderParameters mirror = _;
 			mirror.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
@@ -973,7 +994,9 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 			}
 			glDepthMask(GL_TRUE);
 			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
-			recursionDepth = 0;
+
+			recursionDepth--;
+			}
 		}
 #endif
 	}
