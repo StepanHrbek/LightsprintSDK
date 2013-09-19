@@ -389,7 +389,7 @@ void main()
 	// bump
 
 	vec3 worldEyeDir = normalize(worldEyePos-worldPos);
-	vec2 parallaxOffset = vec2(0);
+	vec2 parallaxOffset = vec2(0.0);
 	#if defined(MATERIAL_DIFFUSE) || defined(MATERIAL_SPECULAR) || defined(MATERIAL_TRANSPARENCY_FRESNEL) || defined(LIGHT_INDIRECT_ENV_REFRACT) || defined(POSTPROCESS_NORMALS)
 		#ifdef MATERIAL_BUMP_MAP
 			#ifdef MATERIAL_NORMAL_MAP_FLOW
