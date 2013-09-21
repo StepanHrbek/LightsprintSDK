@@ -19,6 +19,7 @@ static bool        s_isGeforce = false;
 static bool        s_isQuadro = false;
 static bool        s_isRadeon = false;
 static bool        s_isFire = false;
+static bool        s_isIntel = false;
 static unsigned    s_modelNumber = 0;
 static bool        s_supportsLods = true;
 
@@ -34,6 +35,7 @@ static void init()
 		s_renderer = (const char*)glGetString(GL_RENDERER);
 		if (!s_renderer) s_renderer = "";
 
+		s_isIntel = strstr(s_renderer,"Intel")!=NULL;
 		s_isGeforce = strstr(s_renderer,"GeForce")!=NULL;
 		s_isQuadro = strstr(s_renderer,"Quadro")!=NULL;
 		s_isRadeon = strstr(s_renderer,"Radeon") || strstr(s_renderer,"RADEON");
@@ -158,7 +160,8 @@ bool Workaround::supportsDepthClamp()
 
 bool Workaround::supportsSRGB()
 {
-	return (GLEW_EXT_framebuffer_sRGB || GLEW_ARB_framebuffer_sRGB || GLEW_VERSION_3_0) // added in GL 3.0
+	return !s_isIntel // sRGB looks supported but is broken on Intel HD Graphics 4000 9.18.10.3257, probably others too
+		&& (GLEW_EXT_framebuffer_sRGB || GLEW_ARB_framebuffer_sRGB || GLEW_VERSION_3_0) // added in GL 3.0
 		&& (GLEW_EXT_texture_sRGB || GLEW_VERSION_2_1); // added in GL 2.1
 }
 
