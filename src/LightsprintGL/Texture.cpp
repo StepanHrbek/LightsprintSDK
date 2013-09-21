@@ -74,7 +74,8 @@ void FBO::init()
 
 	// necessary for "new FBO; setRenderTargetDepth; render..."
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, s_fb_id);
-	glDrawBuffer(GL_NONE);
+	if (!s_es)
+		glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
@@ -104,7 +105,8 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 			if (s_fboState.color_id)
 			{
 				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, s_fboState.color_target = GL_TEXTURE_2D, s_fboState.color_id = 0, 0);
-				glDrawBuffer(GL_NONE);
+				if (!s_es)
+					glDrawBuffer(GL_NONE);
 				glReadBuffer(GL_NONE);
 			}
 		}
@@ -125,12 +127,14 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, s_fboState.color_target = target, s_fboState.color_id = tex_id, 0);
 				if (tex_id)
 				{
-					glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
+					if (!s_es)
+						glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
 					glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
 				}
 				else
 				{
-					glDrawBuffer(GL_NONE);
+					if (!s_es)
+						glDrawBuffer(GL_NONE);
 					glReadBuffer(GL_NONE);
 				}
 			}
