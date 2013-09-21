@@ -496,7 +496,7 @@ void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, c
 		{
 			unsigned color = customDirectIrradiance[t];
 			triangles[t].incidentFluxDiffused = RRVec3(0);
-			triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect = RRVec3(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]) * triangles[t].area;
+			triangles[t].incidentFluxToDiffuse = triangles[t].incidentFluxDirect = RRVec3(customToPhysical[(color>>0)&255],customToPhysical[(color>>8)&255],customToPhysical[(color>>16)&255]) * triangles[t].area;
 			triangles[t].emissiveFluxToDiffuse.setProduct(triangles[t].diffuseEmittance,triangles[t].area);
 		}
 	}

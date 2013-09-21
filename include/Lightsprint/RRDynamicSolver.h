@@ -138,8 +138,8 @@ namespace rr
 		//! \param perTriangleIrradiance
 		//!  Array of average per-triangle direct-lighting irradiances in custom scale.
 		//!  In other words, average triangle colors when direct lighting+shadows are applied,
-		//!  but materials are not. So result for fully shadowed triangle is 0, fully lit
-		//!  0xffffff00 (00 is alpha, it is ignored).
+		//!  but materials are not.
+		//!  Format is RGBA8, i.e. first byte is red, second one is green, third one is blue, fourth one is ignored.
 		//!
 		//!  Order of values in array is defined by order of static triangles in scene,
 		//!  first all triangles from static object 0, then all triangles from static object 1 etc.
@@ -150,7 +150,7 @@ namespace rr
 		//!  performace is identical.
 		//!
 		//!  Setting NULL is the same as setting array filled by zeroes, no custom irradiance.
-		void setDirectIllumination(const unsigned* perTriangleIrradiance);
+		void setDirectIllumination(const unsigned* perTriangleIrradianceRGBA);
 
 		//! Returns pointer previously passed to setDirectIllumination(), or NULL if it was not set yet.
 		const unsigned* getDirectIllumination();

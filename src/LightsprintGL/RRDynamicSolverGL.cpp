@@ -564,7 +564,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		// read downscaled image to memory
 		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", triCountX, triCountYInThisPass));
 		RR_ASSERT(_space+2047>=firstCapturedTriangle+triCountX*triCountYInThisPass);
-		glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, _results+firstCapturedTriangle);
+		glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_RGBA, GL_UNSIGNED_BYTE, _results+firstCapturedTriangle); // GL_RGBA+GL_UNSIGNED_BYTE is the only fixed combination supported by OpenGL ES 2.0
 	}
 
 	return 1;

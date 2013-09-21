@@ -989,10 +989,10 @@ void RRDynamicSolver::checkConsistency()
 	memset(histo,0,sizeof(histo));
 	for (unsigned i=0;i<numTriangles;i++)
 	{
-		histo[detected[i]>>24][0]++;
-		histo[(detected[i]>>16)&255][1]++;
-		histo[(detected[i]>>8)&255][2]++;
-		if (detected[i]>>8) numLit++;
+		histo[(detected[i]>> 0)&255][0]++;
+		histo[(detected[i]>> 8)&255][1]++;
+		histo[(detected[i]>>16)&255][2]++;
+		if (detected[i]&0xffffff) numLit++;
 	}
 	if (histo[0][0]+histo[0][1]+histo[0][2]==3*numTriangles)
 	{

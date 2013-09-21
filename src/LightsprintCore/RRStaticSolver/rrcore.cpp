@@ -580,7 +580,7 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, c
 		if (directIrradianceCustomRGBA8)
 		{
 			unsigned color = directIrradianceCustomRGBA8[t];
-			directIrradiancePhysical = RRVec3(customToPhysical[(color>>24)&255],customToPhysical[(color>>16)&255],customToPhysical[(color>>8)&255]);
+			directIrradiancePhysical = RRVec3(customToPhysical[(color>>0)&255],customToPhysical[(color>>8)&255],customToPhysical[(color>>16)&255]);
 		}
 		else
 		if (directIrradiancePhysicalRGB)
