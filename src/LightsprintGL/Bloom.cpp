@@ -5,6 +5,7 @@
 
 #include <GL/glew.h>
 #include "Lightsprint/GL/Bloom.h"
+#include "Lightsprint/GL/TextureRenderer.h"
 #include "PreserveState.h"
 #include "tmpstr.h"
 
@@ -86,12 +87,7 @@ void Bloom::applyBloom(unsigned _w, unsigned _h)
 	glActiveTexture(GL_TEXTURE0);
 	bigMap->bindTexture();
 	glDisable(GL_CULL_FACE);
-	glBegin(GL_POLYGON);
-		glVertex2f(-1,-1);
-		glVertex2f(-1,1);
-		glVertex2f(1,1);
-		glVertex2f(1,-1);
-	glEnd();
+	TextureRenderer::renderQuad();
 
 	// horizontal blur smallMap1 to smallMap2
 	FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallMap2);
@@ -99,23 +95,13 @@ void Bloom::applyBloom(unsigned _w, unsigned _h)
 	blurProgram->sendUniform("map",0);
 	blurProgram->sendUniform("pixelDistance",0.0f,1.0f/smallMap1->getBuffer()->getHeight());
 	smallMap1->bindTexture();
-	glBegin(GL_POLYGON);
-		glVertex2f(-1,-1);
-		glVertex2f(-1,1);
-		glVertex2f(1,1);
-		glVertex2f(1,-1);
-	glEnd();
+	TextureRenderer::renderQuad();
 	
 	// vertical blur smallMap2 to smallMap1
 	FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallMap1);
 	blurProgram->sendUniform("pixelDistance",1.0f/smallMap1->getBuffer()->getWidth(),0.0f);
 	smallMap2->bindTexture();
-	glBegin(GL_POLYGON);
-		glVertex2f(-1,-1);
-		glVertex2f(-1,1);
-		glVertex2f(1,1);
-		glVertex2f(1,-1);
-	glEnd();
+	TextureRenderer::renderQuad();
 	
 	// blend smallMap1 to render target
 	oldFBOState.restore();
@@ -125,12 +111,7 @@ void Bloom::applyBloom(unsigned _w, unsigned _h)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 	smallMap1->bindTexture();
-	glBegin(GL_POLYGON);
-		glVertex2f(-1,-1);
-		glVertex2f(-1,1);
-		glVertex2f(1,1);
-		glVertex2f(1,-1);
-	glEnd();
+	TextureRenderer::renderQuad();
 	glDisable(GL_BLEND);
 
 #ifdef OPTIMIZE_BLOOM

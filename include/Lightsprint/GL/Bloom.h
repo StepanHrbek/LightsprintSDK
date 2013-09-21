@@ -10,7 +10,6 @@
 
 #include "Program.h"
 #include "Texture.h"
-#include "Camera.h"
 
 namespace rr_gl
 {
