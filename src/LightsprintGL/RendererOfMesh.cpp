@@ -217,7 +217,7 @@ void MeshArraysVBOs::renderMesh(
 	glEnableClientState(GL_VERTEX_ARRAY);
 	// set normals
 	bool LIGHT_INDIRECT_SIMULATED_DIRECTION = (_uberProgramSetup.LIGHT_INDIRECT_CONST || _uberProgramSetup.LIGHT_INDIRECT_VCOLOR || _uberProgramSetup.LIGHT_INDIRECT_MAP) && !_uberProgramSetup.LIGHT_DIRECT && !_uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && !_uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR;
-	bool setNormals = _uberProgramSetup.LIGHT_DIRECT || LIGHT_INDIRECT_SIMULATED_DIRECTION || _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || _uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT || _uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL || _uberProgramSetup.POSTPROCESS_NORMALS;
+	bool setNormals = _uberProgramSetup.LIGHT_DIRECT || LIGHT_INDIRECT_SIMULATED_DIRECTION || _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || _uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT || _uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL || _uberProgramSetup.MATERIAL_BUMP_MAP || _uberProgramSetup.POSTPROCESS_NORMALS;
 	if (setNormals)
 	{
 		BIND_VBO2(Normal,VBO[VBO_normal]);
