@@ -11,6 +11,7 @@
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "PreserveState.h"
 #include "RendererOfMesh.h" // DDI_TRIANGLES_X/Y
+#include "Shader.h" // s_es
 #include "Workaround.h"
 #include "tmpstr.h"
 
@@ -663,6 +664,11 @@ void RRDynamicSolverGL::renderScene(const RenderParameters& _renderParameters)
 
 void RRDynamicSolverGL::renderLights(const rr::RRCamera& _camera)
 {
+	if (s_es)
+	{
+		rr::RRReporter::report(rr::WARN,"renderLights() not implemented in OpenGL ES.\n");
+		return;
+	}
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 	uberProgramSetup.MATERIAL_DIFFUSE = 1;
