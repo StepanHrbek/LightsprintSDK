@@ -118,7 +118,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 	// cubes
 	{
-		propGIRaytracedCubes = new BoolRefProperty(_("Raytraced cubemaps"),_("Increases realism by realtime raytracing cubemaps for diffuse and specular reflection and refraction. Note: Cubemaps automatically update only in realtime GI modes. Other modes preserve old cubemaps. You can manually update cubemaps by baking lightmaps or by switching to realtime GI and back."),svs.raytracedCubesEnabled);
+		propGIRaytracedCubes = new BoolRefProperty(_("Raytraced cubemaps"),_("Increases realism by realtime raytracing lowres or rasterizing hires cubemaps for diffuse and specular reflection and refraction. Note: Cubemaps automatically update only in realtime GI modes. Other modes preserve old cubemaps. You can manually update cubemaps by baking lightmaps or by switching to realtime GI and back."),svs.raytracedCubesEnabled);
 		Append(propGIRaytracedCubes);
 		
 		propGIRaytracedCubesRes = new FloatProperty(_("Cube resolution"),_("Resolution of cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16."),svs.raytracedCubesRes,0,1,1024,10,false);
