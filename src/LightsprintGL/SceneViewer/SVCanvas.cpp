@@ -1941,6 +1941,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
+				uberProgramSetup.LEGACY_GL = 1;
 				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
 			}
 
@@ -2011,6 +2012,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			UberProgramSetup uberProgramSetup;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
+			uberProgramSetup.LEGACY_GL = 1;
 			uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
 		}
 
@@ -2109,7 +2111,6 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			centerTexel = UINT_MAX;
 			centerTriangle = UINT_MAX;
 			glDisable(GL_DEPTH_TEST);
-			PreserveMatrices p1;
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			glMatrixMode(GL_PROJECTION);
@@ -2120,6 +2121,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
+				uberProgramSetup.LEGACY_GL = 1;
 				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
 				program->sendUniform("lightIndirectConst",rr::RRVec4(1));
 			}

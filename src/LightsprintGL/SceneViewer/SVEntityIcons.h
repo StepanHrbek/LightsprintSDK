@@ -11,7 +11,6 @@
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/RRLight.h"
 #include "Lightsprint/RRCollider.h"
-#include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "SVEntity.h"
@@ -49,6 +48,7 @@ namespace rr_gl
 
 	private:
 		rr::RRBuffer* icon[IC_LAST]; // indexed by IconCode
+		UberProgramSetup uberProgramSetup;
 		Program* programArrows;
 		std::vector<std::pair<const SVEntity*,rr::RRVec4> > piwIconRectangles; // piw=positionInWindow in -1..1 range, filled by renderIcons(), read by intersectIcons()
 	};

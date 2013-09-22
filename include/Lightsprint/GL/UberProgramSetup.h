@@ -151,6 +151,8 @@ struct RR_GL_API UberProgramSetup
 	bool     CLIP_PLANE_ZB                 :1; ///< Discards geometry with z<clipPlaneZB.
 	bool     FORCE_2D_POSITION             :1; ///< Overrides projection space vertex coordinates with coordinates read from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
 
+	bool     LEGACY_GL                     :1; ///< Uses legacy built-in variable gl_ModelViewProjectionMatrix. For compatibility with 3rd party legacy rendering code.
+
 	const char* comment;                       ///< Comment added to shader. Must start with //. Not freed.
 
 	//! Creates UberProgramSetup with everything turned off by default.
@@ -208,6 +210,9 @@ struct RR_GL_API UberProgramSetup
 	//! Sets rendering pipeline so that following primitives are rendered by our program.
 	//! Some shader parameters are left uninitialized, useIlluminationEnvMaps(), useIlluminationMirror() and useMaterial() should follow to set them.
 	Program* useProgram(UberProgram* uberProgram, const rr::RRCamera* camera, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, const ClipPlanes* clipPlanes);
+	//! Sets shader uniform with camera settings.
+	//! It is also part of useProgram(), so call it only if you don't call useProgram().
+	void useCamera(Program* program, const rr::RRCamera* camera);
 	//! Sets shader uniform parameters to match given material, should be called after useProgram() or getNextPass().
 	//! You can call expensive useProgram() once and cheaper useMaterial() multiple times.
 	void useMaterial(Program* program, const rr::RRMaterial* material, float animationTime) const;

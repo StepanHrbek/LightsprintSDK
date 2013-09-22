@@ -9,7 +9,6 @@
 #define REALTIMELIGHT_H
 
 #include <cmath>
-#include "Camera.h"
 #include "Texture.h"
 #include "Lightsprint/RRObject.h"
 

@@ -9,7 +9,6 @@
 #define LENSFLARE_H
 
 #include "Texture.h"
-#include "Camera.h"
 #include "Lightsprint/RRLight.h"
 #include "Lightsprint/RRObject.h"
 

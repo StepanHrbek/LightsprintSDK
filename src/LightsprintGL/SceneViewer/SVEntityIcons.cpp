@@ -100,9 +100,9 @@ SVEntityIcons::SVEntityIcons(wxString pathToMaps, UberProgram* uberProgram)
 	for (IconCode i=IC_POINT;i!=IC_LAST;i=(IconCode)(i+1))
 		icon[i] = rr::RRBuffer::load(RR_WX2RR(pathToMaps+filename[i]+".png"));
 
-	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
+	uberProgramSetup.LEGACY_GL = 1;
 	programArrows = uberProgramSetup.getProgram(uberProgram);
 }
 
@@ -115,9 +115,12 @@ bool SVEntityIcons::isOk() const
 
 void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRRay* ray, const SceneViewerStateEx& svs)
 {
+	if (!programArrows)
+		return;
 	// render arrows
 	PreserveFlag p0(GL_DEPTH_TEST,false);
 	programArrows->useIt();
+	uberProgramSetup.useCamera(programArrows,&eye);
 	glLineWidth(5);
 	for (unsigned i=0;i<entities.size();i++)
 	{

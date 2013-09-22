@@ -173,7 +173,6 @@ void RRDynamicSolverGL::updateShadowmaps()
 {
 	PreserveClearColor p1;
 	PreserveViewport p2;
-	PreserveMatrices p3;
 	PreserveFBO p4; // must go after viewport, so that viewport is restored later
 
 	// calculate max reasonable level of shadow transparency for materials
@@ -355,7 +354,6 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 	if (!numTriangles) return NULL;
 
 	PreserveViewport p1;
-	PreserveMatrices p2;
 
 	// alloc space for detected direct illum
 	if (numTriangles!=detectedNumTriangles)
@@ -670,11 +668,12 @@ void RRDynamicSolverGL::renderScene(const RenderParameters& _renderParameters)
 
 void RRDynamicSolverGL::renderLights(const rr::RRCamera& _camera)
 {
-	setupForRender(_camera);
 	UberProgramSetup uberProgramSetup;
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 	uberProgramSetup.MATERIAL_DIFFUSE = 1;
+	uberProgramSetup.LEGACY_GL = 1;
 	Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,NULL,0,NULL,1,NULL);
+	uberProgramSetup.useCamera(program,&_camera);
 	for (unsigned i=0;i<getLights().size();i++)
 	{
 		drawRealtimeLight(realtimeLights[i]);

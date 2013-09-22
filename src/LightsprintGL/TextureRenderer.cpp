@@ -6,7 +6,6 @@
 #include <cstdio>
 #include <GL/glew.h>
 #include "Lightsprint/GL/TextureRenderer.h"
-#include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/RRDebug.h"
 #include "PreserveState.h"
 #include "tmpstr.h"
@@ -109,7 +108,6 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	// temporarily loads camera matrix with position 0
 	rr::RRCamera camera = _camera;
 	camera.setPosition(rr::RRVec3(0));
-	setupForRender(camera);
 
 	// render
 	bool result = renderEnvironment(camera,_texture0,_angleRad0,brightness*(1-_blendFactor),_gamma);
@@ -125,9 +123,6 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 		// render
 		result = renderEnvironment(camera,_texture1,_angleRad1,brightness*_blendFactor,_gamma);
 	}
-
-	// restore render states
-	setupForRender(_camera);
 
 	return result;
 };

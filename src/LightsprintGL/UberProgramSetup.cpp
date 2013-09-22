@@ -175,8 +175,8 @@ const char* UberProgramSetup::getSetupString()
 	sprintf(shadowSamples,"#define SHADOW_SAMPLES %d\n",(int)SHADOW_SAMPLES);
 	sprintf(specularModel,"#define MATERIAL_SPECULAR_MODEL %d\n",(int)MATERIAL_SPECULAR_MODEL);
 
-	static char setup[2000]; // at the time of writing this comment, theoretical max string length is around 1782
-	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	static char setup[2000]; // at the time of writing this comment, theoretical max string length is around 1800
+	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		comment?comment:"",
 		SHADOW_MAPS?shadowMaps:"",
 		SHADOW_SAMPLES?shadowSamples:"",
@@ -239,6 +239,7 @@ const char* UberProgramSetup::getSetupString()
 		CLIP_PLANE_ZA?"#define CLIP_PLANE_ZA\n":"",
 		CLIP_PLANE_ZB?"#define CLIP_PLANE_ZB\n":"",
 		FORCE_2D_POSITION?"#define FORCE_2D_POSITION\n":"",
+		LEGACY_GL?"#define LEGACY_GL\n":"",
 		Workaround::needsNoLods()?"#define WORKAROUND_NO_LODS\n":""
 		);
 	return setup;
@@ -533,6 +534,12 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 	}
 	program->useIt();
 
+	// camera
+	if (camera)
+	{
+		useCamera(program,camera);
+	}
+
 	// shadowMapN, textureMatrixN, shadowColorN
 	for (unsigned i=0;i<SHADOW_MAPS;i++)
 	{
@@ -736,6 +743,30 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 	}
 
 	return program;
+}
+
+void UberProgramSetup::useCamera(Program* program, const rr::RRCamera* camera)
+{
+	if (!program || !camera)
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useCamera(NULL)\n"));
+		return;
+	}
+	if (!FORCE_2D_POSITION && camera)
+	{
+		if (LEGACY_GL)
+		{
+			glMatrixMode(GL_PROJECTION);
+			glLoadMatrixd(camera->getProjectionMatrix());
+			glMatrixMode(GL_MODELVIEW);
+			glLoadMatrixd(camera->getViewMatrix());		}
+		else
+		{
+			float m1[16];
+			MULT_MATRIX(camera->getProjectionMatrix(),camera->getViewMatrix(),m1,double,float);
+			program->sendUniform("modelViewProjectionMatrix",m1,false,4);
+		}
+	}
 }
 
 // miplevel 0=sample from 1x1x6, miplevel 1=2x2x6, miplevel 2=4x4x6...

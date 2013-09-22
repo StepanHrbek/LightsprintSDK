@@ -756,16 +756,13 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 		}
 	}
 
-	// copy camera to OpenGL fixed pipeline (to be removed)
-	setupForRender(*_.camera);
-
 	PreserveCullFace p1;
 	PreserveCullMode p2;
 	PreserveBlend p3;     // changed by RendererOfMesh (in MultiPass)
 	PreserveColorMask p4; // changed by RendererOfMesh
 	PreserveDepthMask p5; // changed by RendererOfMesh
 
-	// Render non-sorted facegroups.
+	// Render non-sorted facegroups (update and apply mirrors).
 	for (unsigned applyingMirrors=0;applyingMirrors<2;applyingMirrors++) // 2 passes, LIGHT_INDIRECT_MIRROR should go _after_ !LIGHT_INDIRECT_MIRROR to increase speed and reduce light leaking under walls
 	{
 		for (unsigned transparencyToRGB=0;transparencyToRGB<2;transparencyToRGB++) // 2 passes, MATERIAL_TRANSPARENCY_TO_RGB(e.g. window) must go _after_ !MATERIAL_TRANSPARENCY_TO_RGB(e.g. wall), otherwise in "light - wall - window" scene, window would paint to rgb shadowmap (wall does not write to rgb) and cast rgb shadow on wall
@@ -866,6 +863,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 				mirrorMaskUberProgramSetup.OBJECT_SPACE = true;
 				Program* mirrorMaskProgram = mirrorMaskUberProgramSetup.getProgram(uberProgram);
 				mirrorMaskProgram->useIt();
+				mirrorMaskUberProgramSetup.useCamera(mirrorMaskProgram,_.camera);
 				for (unsigned j=0;j<perObjectBuffers[0].size();j++)
 				{
 					PerObjectBuffers& objectBuffers = perObjectBuffers[0][j];
@@ -973,7 +971,6 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 				}
 
 				oldState.restore();
-				setupForRender(*_.camera);
 				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
 
 				// build mirror mipmaps

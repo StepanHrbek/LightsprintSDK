@@ -10,7 +10,7 @@
 
 #include "Program.h"
 #include "Texture.h"
-#include "Camera.h"
+#include "Lightsprint/RRCamera.h"
 
 namespace rr_gl
 {

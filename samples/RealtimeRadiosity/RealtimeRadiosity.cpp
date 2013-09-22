@@ -103,21 +103,21 @@ void unlockVertexIllum(void* solver,unsigned object)
 }
 
 // render scene using very simple custom 3ds renderer, see source code in m3ds.Draw()
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
+void renderScene(const rr::RRCamera& camera, rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
 	if (uberProgramSetup.LIGHT_DIRECT && environmentMap)
-		textureRenderer->renderEnvironment(eye,rr_gl::getTexture(environmentMap),0,NULL,0,0,NULL,1,false);
+		textureRenderer->renderEnvironment(camera,rr_gl::getTexture(environmentMap),0,NULL,0,0,NULL,1,false);
 
 	// render static scene
 	rr::RRVec4 brightness(2);// render static scene
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&eye,realtimeLight,0,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&brightness:NULL,1,NULL);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,realtimeLight,0,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&brightness:NULL,1,NULL);
 	if (!program)
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
-		program->sendTexture("materialDiffuseMap",NULL); // activate unit, Draw will bind textures
+		program->sendTexture("materialDiffuseMap",NULL); // calls glActiveTexture(), Draw will bind textures
 	m3ds.Draw(solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
 
 	// render dynamic objects
@@ -141,7 +141,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		potato->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->updateEnvironmentMap(potato->illumination,LAYER_ENVIRONMENT,UINT_MAX,LAYER_AMBIENT_MAP);
-		potato->render(uberProgram,uberProgramSetup,eye,&solver->realtimeLights,0,NULL,1);
+		potato->render(uberProgram,uberProgramSetup,camera,&solver->realtimeLights,0,NULL,1);
 	}
 	if (robot)
 	{
@@ -151,7 +151,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 		robot->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->updateEnvironmentMap(robot->illumination,LAYER_ENVIRONMENT,UINT_MAX,LAYER_AMBIENT_MAP);
-		robot->render(uberProgram,uberProgramSetup,eye,&solver->realtimeLights,0,NULL,1);
+		robot->render(uberProgram,uberProgramSetup,camera,&solver->realtimeLights,0,NULL,1);
 	}
 }
 
@@ -179,8 +179,6 @@ public:
 	// This function satisfies it.
 	virtual void renderScene(const rr_gl::RenderParameters& _renderParameters)
 	{
-		rr_gl::setupForRender(*_renderParameters.camera);
-
 		// disable all material properties not supported by custom 3ds renderer
 		rr_gl::UberProgramSetup uberProgramSetup = _renderParameters.uberProgramSetup;
 		//uberProgramSetup.MATERIAL_DIFFUSE
@@ -201,7 +199,7 @@ public:
 		uberProgramSetup.MATERIAL_CULLING = false;
 
 		// call custom 3ds renderer
-		::renderScene(uberProgramSetup);
+		::renderScene(*_renderParameters.camera,uberProgramSetup);
 	}
 };
 
@@ -241,8 +239,7 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
 	glClear(GL_DEPTH_BUFFER_BIT);
-	rr_gl::setupForRender(eye);
-	renderScene(uberProgramSetup);
+	renderScene(eye,uberProgramSetup);
 
 	glutSwapBuffers();
 }

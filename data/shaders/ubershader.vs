@@ -154,6 +154,15 @@ varying vec3 worldNormalSmooth;
 	varying vec2 materialBumpMapCoord;
 #endif
 
+#ifdef FORCE_2D_POSITION
+#else
+	#ifdef LEGACY_GL
+		#define modelViewProjectionMatrix gl_ModelViewProjectionMatrix
+	#else
+		uniform mat4 modelViewProjectionMatrix;
+	#endif
+#endif
+
 #ifdef ANIMATION_WAVE
 	uniform float animationTime;
 #endif
@@ -273,7 +282,7 @@ void main()
 	#ifdef FORCE_2D_POSITION
 		gl_Position = vec4(gl_MultiTexCoord2.x,gl_MultiTexCoord2.y,0.5,1.0); // 2 = MULTITEXCOORD_FORCED_2D
 	#else
-		gl_Position = gl_ModelViewProjectionMatrix * worldPos4;
+		gl_Position = modelViewProjectionMatrix * worldPos4;
 	#endif
 
 	#if defined(LIGHT_INDIRECT_MIRROR_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR)

@@ -88,14 +88,14 @@ float                      speedLeft = 0;
 //
 // rendering scene
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
+void renderScene(const rr::RRCamera& camera, rr_gl::UberProgramSetup uberProgramSetup)
 {
 	// render skybox
 	if (uberProgramSetup.LIGHT_DIRECT && environmentMap)
-		textureRenderer->renderEnvironment(eye,rr_gl::getTexture(environmentMap),0,NULL,0,0,NULL,1,false);
+		textureRenderer->renderEnvironment(camera,rr_gl::getTexture(environmentMap),0,NULL,0,0,NULL,1,false);
 
 	// render static scene
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&eye,realtimeLight,0,NULL,1,NULL);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,realtimeLight,0,NULL,1,NULL);
 	if (!program)
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
@@ -121,7 +121,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = true;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 		}
-		potato->render(uberProgram,uberProgramSetup,eye,realtimeLight,0,environmentMap,rotation/2);
+		potato->render(uberProgram,uberProgramSetup,camera,realtimeLight,0,environmentMap,rotation/2);
 	}
 	if (robot)
 	{
@@ -134,7 +134,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 		}
-		robot->render(uberProgram,uberProgramSetup,eye,realtimeLight,0,environmentMap,rotation);
+		robot->render(uberProgram,uberProgramSetup,camera,realtimeLight,0,environmentMap,rotation);
 	}
 }
 
@@ -142,7 +142,6 @@ void updateShadowmap(unsigned mapIndex)
 {
 	rr::RRCamera lightInstance;
 	realtimeLight->getShadowmapCamera(mapIndex,lightInstance);
-	rr_gl::setupForRender(lightInstance);
 	glColorMask(0,0,0,0);
 	rr_gl::Texture* shadowmap = realtimeLight->getShadowmap(mapIndex);
 	glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
@@ -152,7 +151,7 @@ void updateShadowmap(unsigned mapIndex)
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets nearly all off, perfect for shadowmap
 	uberProgramSetup.MATERIAL_CULLING = 0;
-	renderScene(uberProgramSetup);
+	renderScene(lightInstance,uberProgramSetup);
 	oldFBOState.restore();
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	glViewport(0, 0, winWidth, winHeight);
@@ -182,7 +181,7 @@ void display(void)
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
 	uberProgramSetup.MATERIAL_DIFFUSE_MAP = true;
 	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	renderScene(uberProgramSetup);
+	renderScene(eye,uberProgramSetup);
 
 	glutSwapBuffers();
 }
