@@ -547,17 +547,12 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		glActiveTexture(GL_TEXTURE0);
 		detectBigMap->bindTexture();
 		glDisable(GL_CULL_FACE);
-		glBegin(GL_POLYGON);
-			glMultiTexCoord2f(GL_TEXTURE0,0,0);
-			glVertex2f(-1,-1);
-			float fractionOfBigMapUsed = 1.0f*triCountYInOnePass/DDI_TRIANGLES_MAX_Y; // we downscale only part of big map that is used
-			glMultiTexCoord2f(GL_TEXTURE0,0,fractionOfBigMapUsed);
-			glVertex2f(-1,fractionOfBigMapUsed*2-1);
-			glMultiTexCoord2f(GL_TEXTURE0,1,fractionOfBigMapUsed);
-			glVertex2f(1,fractionOfBigMapUsed*2-1);
-			glMultiTexCoord2f(GL_TEXTURE0,1,0);
-			glVertex2f(1,-1);
-		glEnd();
+		float fractionOfBigMapUsed = 1.0f*triCountYInOnePass/DDI_TRIANGLES_MAX_Y; // we downscale only part of big map that is used
+		float position[] = {0,0, 0,fractionOfBigMapUsed, 1,fractionOfBigMapUsed, 1,0};
+		glEnableVertexAttribArray(VAA_POSITION);
+		glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
+		glDrawArrays(GL_POLYGON, 0, 4);
+		glDisableVertexAttribArray(VAA_POSITION);
 
 		// read downscaled image to memory
 		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", triCountX, triCountYInThisPass));

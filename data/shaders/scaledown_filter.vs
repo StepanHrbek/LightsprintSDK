@@ -6,10 +6,11 @@
 // #define SIZEX n
 // #define SIZEY n
 
+attribute vec2 vertexPosition;
 varying vec2 lightmapCoord;
 
 void main()
 {
-	lightmapCoord = gl_MultiTexCoord0.xy;
-	gl_Position = gl_Vertex;
+	lightmapCoord = vertexPosition;
+	gl_Position = vec4((vertexPosition*2.0-vec2(1.0,1.0)),1.0,1.0);
 }
