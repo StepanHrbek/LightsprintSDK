@@ -36,17 +36,17 @@ void main()
 		#ifdef LITTLE_PLANET
 			// little planet
 			direction.xz = uv.xy-vec2(0.5,0.5);
-			float r = 2.0*length(direction.xz);
-			direction.xz = normalize(direction.xz);
-			direction.y = tan(RR_PI*(r-0.5)); // r=0 -> y=-inf, r=1 -> y=+inf
-			vec4 tex = textureCube(map,direction) * step(r,1.0);
+			float r = length(direction.xz)+0.000001; // +epsilon fixes center pixel on intel
+			direction.xz = direction.xz/r; // /r instead of normalize() fixes noise on intel
+			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
+			vec4 tex = textureCube(map,direction) * step(r,0.5);
 		#else
 			// equirectangular
 			// rotated so that render of empty scene with equirectangular environment E is E
 			// also implemented in createEquirectangular()
 			direction.y = sin(RR_PI*(uv.y-0.5));
 			direction.x = sin(RR_PI*(2.0*uv.x+1.5)) * sqrt(1.0-direction.y*direction.y);
-			direction.z = sqrt(1.0-direction.x*direction.x-direction.y*direction.y);
+			direction.z = sqrt(max(1.0-direction.x*direction.x-direction.y*direction.y,0.0)); // max() fixes center lines on intel
 			if (uv.x<0.5)
 				direction.z = -direction.z;
 			vec4 tex = textureCube(map,direction);
