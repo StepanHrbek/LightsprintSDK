@@ -8,6 +8,7 @@
 #include <GL/glew.h>
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/RRDebug.h"
+#include "Shader.h" // s_es
 #include "Workaround.h"
 
 namespace rr_gl
@@ -549,8 +550,11 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 			program->sendTexture(name,shadowmap);
 			// set depth border
 			// this makes Sun overshoot, illuminate geometry outside its shadowmap range
-			rr::RRVec4 depthBorder((LIGHT_DIRECTIONAL && i==0)?1.0f:0);
-			glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &depthBorder.x);
+			if (!s_es)
+			{
+				rr::RRVec4 depthBorder((LIGHT_DIRECTIONAL && i==0)?1.0f:0);
+				glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &depthBorder.x);
+			}
 			// set matrix
 			rr::RRCamera lightInstance;
 			light->getShadowmapCamera(firstInstance+i,lightInstance);
