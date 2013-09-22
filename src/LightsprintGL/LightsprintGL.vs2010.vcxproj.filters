@@ -221,5 +221,11 @@
     <None Include="..\..\data\shaders\dof.vs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="..\..\data\shaders\stereo.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\data\shaders\stereo.vs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

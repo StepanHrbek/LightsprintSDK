@@ -665,6 +665,8 @@
     <None Include="..\..\data\shaders\scaledown_filter.vs" />
     <None Include="..\..\data\shaders\sky.fs" />
     <None Include="..\..\data\shaders\sky.vs" />
+    <None Include="..\..\data\shaders\stereo.fs" />
+    <None Include="..\..\data\shaders\stereo.vs" />
     <None Include="..\..\data\shaders\texture.fs" />
     <None Include="..\..\data\shaders\texture.vs" />
     <None Include="..\..\data\shaders\ubershader.fs" />

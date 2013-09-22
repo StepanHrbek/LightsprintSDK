@@ -976,6 +976,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\data\shaders\stereo.fs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\stereo.vs"
+				>
+			</File>
+			<File
 				RelativePath="..\..\data\shaders\texture.fs"
 				>
 			</File>
