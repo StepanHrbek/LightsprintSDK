@@ -19,6 +19,7 @@
 #include "PreserveState.h"
 #include "MultiPass.h"
 #include "RendererOfMesh.h"
+#include "Shader.h" // s_es
 #include "Workaround.h"
 #include "tmpstr.h"
 
@@ -928,9 +929,9 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 				// workaround 2:
 				//   use "gl_FragDepth = step(0.51,tex.a);" directly on uncleared buffer. this code was removed in revision 5498 to get ES compatibility
 				//   -incompatible with vanilla OpenGL ES 2.0
-				glClearDepth(0);
+				if (s_es) glClearDepthf(0); else glClearDepth(0);
 				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-				glClearDepth(1);
+				if (s_es) glClearDepthf(1); else glClearDepth(1);
 
 				// write mirrorDepthMap=1 for pixels with mirrorMaskMap>0.7
 				// we clear to 0 and then overwrite some pixels to 1 (rather than writing both in one pass) because vanilla OpenGL ES 2.0 does not have gl_FragDepth
