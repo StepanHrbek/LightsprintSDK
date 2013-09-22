@@ -80,10 +80,10 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 		direction[i] = camera.getRayDirection(rr::RRVec2(position[i].x,-position[i].y));
 	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
 	glEnableVertexAttribArray(VAA_POSITION);
-	glVertexAttribPointer(VAA_DIRECTION, 3, GL_FLOAT, 0, 0, direction);
-	glEnableVertexAttribArray(VAA_DIRECTION);
+	glVertexAttribPointer(VAA_NORMAL, 3, GL_FLOAT, 0, 0, direction);
+	glEnableVertexAttribArray(VAA_NORMAL);
 	glDrawArrays(GL_POLYGON, 0, 4);
-	glDisableVertexAttribArray(VAA_DIRECTION);
+	glDisableVertexAttribArray(VAA_NORMAL);
 	glDisableVertexAttribArray(VAA_POSITION);
 
 	return true;

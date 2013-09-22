@@ -21,7 +21,7 @@ namespace rr_gl
 enum
 {
 	VAA_POSITION = 0,
-	VAA_DIRECTION = 1,
+	VAA_NORMAL = 1,
 	VAA_UV0 = 2,
 	VAA_TANGENT = 14,
 	VAA_BITANGENT = 15,

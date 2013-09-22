@@ -8,11 +8,11 @@
 //  #define POSTPROCESS_GAMMA
 
 attribute vec2 vertexPosition;
-attribute vec3 vertexDirection;
+attribute vec3 vertexNormal;
 varying vec3 dir;
 
 void main()
 {
 	gl_Position = vec4(vertexPosition,1.0,1.0);
-	dir = vertexDirection;
+	dir = vertexNormal;
 }
