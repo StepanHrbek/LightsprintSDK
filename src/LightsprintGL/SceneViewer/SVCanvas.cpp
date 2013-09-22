@@ -22,6 +22,7 @@
 #include "Lightsprint/GL/ToneMapping.h"
 #include "../PreserveState.h"
 #include "../RendererOfMesh.h"
+#include "../Shader.h" // s_es
 #ifdef _WIN32
 	#include <GL/wglew.h>
 #endif
@@ -1387,7 +1388,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 #ifdef _WIN32
 	// init font for text outputs
-	if (!fontInited)
+	if (!fontInited && !s_es)
 	{
 		fontInited = true;
 		HFONT font = CreateFont(-15,0,0,0,FW_THIN,FALSE,FALSE,FALSE,ANSI_CHARSET,OUT_TT_PRECIS,CLIP_DEFAULT_PRECIS,ANTIALIASED_QUALITY,FF_DONTCARE|FIXED_PITCH,_T("System"));
@@ -2102,7 +2103,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 
 		// render helper text, using own shader (because text output ignores color passed to line shader)
-		if (svs.renderHelpers && !_takingSshot)
+		if (svs.renderHelpers && !_takingSshot && fontInited)
 		{
 			centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
 			centerTexel = UINT_MAX;
