@@ -254,8 +254,8 @@ void Model_3DS::Draw(
 			const float* vertexColors = acquireVertexColors(model,i);
 			if (vertexColors)
 			{
-				glEnableClientState(GL_COLOR_ARRAY);
-				glColorPointer(3, GL_FLOAT, 0, vertexColors);
+				glEnableVertexAttribArray(rr_gl::VAA_COLOR);
+				glVertexAttribPointer(rr_gl::VAA_COLOR, 3, GL_FLOAT, GL_FALSE, 0, vertexColors);
 				if (releaseVertexColors) releaseVertexColors(model,i);
 			}
 		}
@@ -265,26 +265,24 @@ void Model_3DS::Draw(
 		}
 
 		// Enable texture coordiantes, normals, and vertices arrays
+		// Point them to the objects arrays
 		if (texturedDiffuse)
 		{
-			glClientActiveTexture(GL_TEXTURE0+rr_gl::MULTITEXCOORD_MATERIAL_DIFFUSE);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glEnableVertexAttribArray(rr_gl::VAA_UV_MATERIAL_DIFFUSE);
+			glVertexAttribPointer(rr_gl::VAA_UV_MATERIAL_DIFFUSE, 2, GL_FLOAT, GL_FALSE, 0, Objects[i].TexCoords);
 		}
 		if (texturedEmissive)
 		{
-			glClientActiveTexture(GL_TEXTURE0+rr_gl::MULTITEXCOORD_MATERIAL_EMISSIVE);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glEnableVertexAttribArray(rr_gl::VAA_UV_MATERIAL_EMISSIVE);
+			glVertexAttribPointer(rr_gl::VAA_UV_MATERIAL_EMISSIVE, 2, GL_FLOAT, GL_FALSE, 0, Objects[i].TexCoords);
 		}
 		if (lit)
-			glEnableClientState(GL_NORMAL_ARRAY);
-		glEnableClientState(GL_VERTEX_ARRAY);
-
-		// Point them to the objects arrays
-		if (texturedDiffuse || texturedEmissive)
-			glTexCoordPointer(2, GL_FLOAT, 0, Objects[i].TexCoords);
-		if (lit)
-			glNormalPointer(GL_FLOAT, 0, Objects[i].Normals);
-		glVertexPointer(3, GL_FLOAT, 0, Objects[i].Vertexes);
+		{
+			glEnableVertexAttribArray(rr_gl::VAA_NORMAL);
+			glVertexAttribPointer(rr_gl::VAA_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, Objects[i].Normals);
+		}
+		glEnableVertexAttribArray(rr_gl::VAA_POSITION);
+		glVertexAttribPointer(rr_gl::VAA_POSITION, 3, GL_FLOAT, GL_FALSE, 0, Objects[i].Vertexes);
 
 		// Loop through the faces as sorted by material and draw them
 		for (int j = 0; j < Objects[i].numMatFaces; j ++)
@@ -317,10 +315,11 @@ void Model_3DS::Draw(
 
 	//glPopMatrix();
 
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableVertexAttribArray(rr_gl::VAA_UV_MATERIAL_DIFFUSE);
+	glDisableVertexAttribArray(rr_gl::VAA_UV_MATERIAL_EMISSIVE);
+	glDisableVertexAttribArray(rr_gl::VAA_NORMAL);
+	glDisableVertexAttribArray(rr_gl::VAA_POSITION);
+	glDisableVertexAttribArray(rr_gl::VAA_COLOR);
 
 #endif // RR_IO_BUILD
 }

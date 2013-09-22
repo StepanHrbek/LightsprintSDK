@@ -12,7 +12,7 @@
 //
 // RendererWithCache
 
-bool  COMPILE = 1; // 0 would disable display lists
+bool  COMPILE = 0; // 0 disables display lists, 1 enables
 
 
 RendererWithCache::RendererWithCache(Renderer* arenderer)

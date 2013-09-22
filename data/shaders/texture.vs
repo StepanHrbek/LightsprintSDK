@@ -7,17 +7,17 @@
 // #define SHOW_ALPHA0
 // #define MIRROR_MASK
 
-attribute vec3 vertexPosition;
+attribute vec2 vertexPosition;
 
 #ifdef TEXTURE
-	attribute vec2 vertexUv0;
+	attribute vec2 vertexUvDiffuse;
 	varying vec2 uv;
 #endif
 
 void main()
 {
-	gl_Position = vec4(vertexPosition,1.0);
+	gl_Position = vec4(vertexPosition,1.0,1.0);
 #ifdef TEXTURE
-	uv = vertexUv0;
+	uv = vertexUvDiffuse;
 #endif
 }

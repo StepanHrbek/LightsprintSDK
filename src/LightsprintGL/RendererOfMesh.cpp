@@ -5,7 +5,7 @@
 
 #include <GL/glew.h>
 #include "Lightsprint/RRIllumination.h"
-#include "Lightsprint/GL/UberProgramSetup.h" // texture/multitexcoord id assignments
+#include "Lightsprint/GL/UberProgramSetup.h"
 #include "RendererOfMesh.h"
 #ifdef _OPENMP
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
@@ -207,29 +207,27 @@ void MeshArraysVBOs::renderMesh(
 	}
 
 	#define DRAW_ELEMENTS(a,b,c,d)                                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO[VBO_index]); glDrawElements(a,b,c,(const GLvoid*)(sizeof(unsigned)*d));
-	#define BIND_VBO2(glName,myName)           RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(           GL_FLOAT, 0, 0);
-	#define BIND_VBO3(glName,numFloats,myName) RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(numFloats, GL_FLOAT, 0, 0);
-	#define BIND_VBO4(index,myName)            RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	#define BIND_BUFFER(glName,buffer,myName)  RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); gl##glName##Pointer(getBufferNumComponents(buffer), getBufferComponentType(buffer), 0, 0);
+	#define BIND_VBO2(index,myName)            RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); glVertexAttribPointer(index, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	#define BIND_VBO3(index,myName)            RR_ASSERT(myName); glBindBuffer(GL_ARRAY_BUFFER, myName); glVertexAttribPointer(index, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	// set vertices
-	BIND_VBO3(Vertex,3,VBO[VBO_position]);
-	glEnableClientState(GL_VERTEX_ARRAY);
+	BIND_VBO3(VAA_POSITION,VBO[VBO_position]);
+	glEnableVertexAttribArray(VAA_POSITION);
 	// set normals
 	bool LIGHT_INDIRECT_SIMULATED_DIRECTION = (_uberProgramSetup.LIGHT_INDIRECT_CONST || _uberProgramSetup.LIGHT_INDIRECT_VCOLOR || _uberProgramSetup.LIGHT_INDIRECT_MAP) && !_uberProgramSetup.LIGHT_DIRECT && !_uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && !_uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR;
 	bool setNormals = _uberProgramSetup.LIGHT_DIRECT || LIGHT_INDIRECT_SIMULATED_DIRECTION || _uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR || _uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT || _uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL || _uberProgramSetup.MATERIAL_BUMP_MAP || _uberProgramSetup.POSTPROCESS_NORMALS;
 	if (setNormals)
 	{
-		BIND_VBO2(Normal,VBO[VBO_normal]);
-		glEnableClientState(GL_NORMAL_ARRAY);
+		BIND_VBO3(VAA_NORMAL,VBO[VBO_normal]);
+		glEnableVertexAttribArray(VAA_NORMAL);
 	}
 	// set tangents
 	bool setTangents = setNormals && _uberProgramSetup.MATERIAL_BUMP_MAP && hasTangents;
 	if (setTangents)
 	{
-		BIND_VBO4(VAA_TANGENT,VBO[VBO_tangent]);
+		BIND_VBO3(VAA_TANGENT,VBO[VBO_tangent]);
 		glEnableVertexAttribArray(VAA_TANGENT);
-		BIND_VBO4(VAA_BITANGENT,VBO[VBO_bitangent]);
+		BIND_VBO3(VAA_BITANGENT,VBO[VBO_bitangent]);
 		glEnableVertexAttribArray(VAA_BITANGENT);
 	}
 	// set indirect illumination vertices
@@ -247,15 +245,20 @@ void MeshArraysVBOs::renderMesh(
 				createdFromLightIndirectBuffer = _lightIndirectBuffer;
 				copyBufferToVBO(_lightIndirectBuffer,VBO[VBO_lightIndirectVcolor]);
 			}
-			glEnableClientState(GL_COLOR_ARRAY);
-			BIND_BUFFER(Color,_lightIndirectBuffer,VBO[VBO_lightIndirectVcolor]);
+			glEnableVertexAttribArray(VAA_COLOR);
+			RR_ASSERT(VBO[VBO_lightIndirectVcolor]);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_lightIndirectVcolor]);
+			// shader expects 4 components, we send 3 or 4
+			glVertexAttribPointer(VAA_COLOR, getBufferNumComponents(_lightIndirectBuffer), getBufferComponentType(_lightIndirectBuffer), GL_FALSE, 0, 0);
+			// send always 3 components, shader expects 3
+			//glVertexAttribPointer(VAA_COLOR, getBufferNumComponents(_lightIndirectBuffer), getBufferComponentType(_lightIndirectBuffer), GL_FALSE, _lightIndirectBuffer->getElementBits()/8, 0);
 		}
 		else
 		{
 			// INDEXED FROM VBUFFER THAT IS NULL
 			// scene will be rendered without indirect illumination
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Render of indirect illumination buffer requested, but buffer is NULL.\n"));
-			glDisableClientState(GL_COLOR_ARRAY);
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Render of indirect illumination buffer requested, but the buffer is NULL.\n"));
+			glDisableVertexAttribArray(VAA_COLOR);
 			glColor3b(0,0,0);
 		}
 	}
@@ -272,9 +275,8 @@ void MeshArraysVBOs::renderMesh(
 	// set 2d_position texcoords
 	if (_uberProgramSetup.FORCE_2D_POSITION)
 	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_FORCED_2D);
-		BIND_VBO3(TexCoord,2,VBO[VBO_texcoordForced2D]);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		BIND_VBO2(VAA_UV_FORCED_2D,VBO[VBO_texcoordForced2D]);
+		glEnableVertexAttribArray(VAA_UV_FORCED_2D);
 	}
 
 	// shortcut
@@ -296,11 +298,11 @@ void MeshArraysVBOs::renderMesh(
 		// cache uv channel binding
 		struct UvChannelBinding
 		{
-			unsigned boundUvChannel[MULTITEXCOORD_COUNT];
-			void bindUvChannel(const rr::RRVector<unsigned>& _texcoordVBO, unsigned _shaderChannel, unsigned _uvChannel, const rr::RRBuffer* _buffer, const rr::RRString& _objectName, const rr::RRString& _materialName)
+			unsigned boundUvChannel[VAA_UV_LAST+1];
+			void bindUvChannel(const rr::RRVector<unsigned>& _texcoordVBO, unsigned _vaa, unsigned _uvChannel, const rr::RRBuffer* _buffer, const rr::RRString& _objectName, const rr::RRString& _materialName)
 			{
-				RR_ASSERT(_shaderChannel<MULTITEXCOORD_COUNT);
-				if (boundUvChannel[_shaderChannel]==_uvChannel)
+				RR_ASSERT(_vaa<=VAA_UV_LAST);
+				if (boundUvChannel[_vaa]==_uvChannel)
 				{
 					// already set
 					return;
@@ -310,18 +312,17 @@ void MeshArraysVBOs::renderMesh(
 					// 1x1 texture is probably used and uv is irrelevant
 					return;
 				}
-				boundUvChannel[_shaderChannel] = _uvChannel;
+				boundUvChannel[_vaa] = _uvChannel;
 				if (_uvChannel>=_texcoordVBO.size() || _texcoordVBO[_uvChannel]==0)
 				{
 					RR_LIMITED_TIMES(10,rr::RRReporter::report(rr::WARN,"Material '%s' in object '%s' needs non existing uv channel %d (texcoord.size=%d).\n",_materialName.c_str(),_objectName.c_str(),_uvChannel,_texcoordVBO.size()));
 					return;
 				}
-				glClientActiveTexture(GL_TEXTURE0+_shaderChannel);
-				BIND_VBO3(TexCoord,2,_texcoordVBO[_uvChannel]);
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				BIND_VBO2(_vaa,_texcoordVBO[_uvChannel]);
+				glEnableVertexAttribArray(_vaa);
 			}
 		};
-		UvChannelBinding uvChannelBinding = {UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX}; // must have all MULTITEXCOORD_COUNT items initialized to UINT_MAX [#17]
+		UvChannelBinding uvChannelBinding = {UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX}; // must have all VAA_UV_LAST+1 items initialized to UINT_MAX [#17]
 
 		for (unsigned r=0;r<_numFaceGroupRanges;r++)
 		{
@@ -370,17 +371,17 @@ void MeshArraysVBOs::renderMesh(
 							// set material
 							_uberProgramSetup.useMaterial(_program,material,_animationTime);
 							if (_uberProgramSetup.MATERIAL_DIFFUSE_MAP)
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_DIFFUSE,material->diffuseReflectance.texcoord,material->diffuseReflectance.texture,_object->name,material->name);
+								uvChannelBinding.bindUvChannel(texcoordVBO,VAA_UV_MATERIAL_DIFFUSE,material->diffuseReflectance.texcoord,material->diffuseReflectance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_SPECULAR_MAP)
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_SPECULAR,material->specularReflectance.texcoord,material->specularReflectance.texture,_object->name,material->name);
+								uvChannelBinding.bindUvChannel(texcoordVBO,VAA_UV_MATERIAL_SPECULAR,material->specularReflectance.texcoord,material->specularReflectance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_EMISSIVE_MAP)
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_EMISSIVE,material->diffuseEmittance.texcoord,material->diffuseEmittance.texture,_object->name,material->name);
+								uvChannelBinding.bindUvChannel(texcoordVBO,VAA_UV_MATERIAL_EMISSIVE,material->diffuseEmittance.texcoord,material->diffuseEmittance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_TRANSPARENCY,material->specularTransmittance.texcoord,material->specularTransmittance.texture,_object->name,material->name);
+								uvChannelBinding.bindUvChannel(texcoordVBO,VAA_UV_MATERIAL_TRANSPARENT,material->specularTransmittance.texcoord,material->specularTransmittance.texture,_object->name,material->name);
 							if (_uberProgramSetup.MATERIAL_BUMP_MAP)
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_MATERIAL_BUMP_MAP,material->bumpMap.texcoord,material->bumpMap.texture,_object->name,material->name);
+								uvChannelBinding.bindUvChannel(texcoordVBO,VAA_UV_MATERIAL_BUMP,material->bumpMap.texcoord,material->bumpMap.texture,_object->name,material->name);
 							if ((_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) || (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
-								uvChannelBinding.bindUvChannel(texcoordVBO,MULTITEXCOORD_LIGHT_INDIRECT,material->lightmapTexcoord,(const rr::RRBuffer*)1,_object->name,material->name);
+								uvChannelBinding.bindUvChannel(texcoordVBO,VAA_UV_UNWRAP,material->lightmapTexcoord,(const rr::RRBuffer*)1,_object->name,material->name);
 
 							// render one facegroup
 							if (createdIndexed)
@@ -418,56 +419,54 @@ void MeshArraysVBOs::renderMesh(
 	// unset material diffuse texcoords
 	if (_uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_DIFFUSE);
+		_program->sendTexture("",NULL,TEX_CODE_2D_MATERIAL_DIFFUSE); // calls glActiveTexture()
 		glBindTexture(GL_TEXTURE_2D,0);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableVertexAttribArray(VAA_UV_MATERIAL_DIFFUSE);
 	}
 	// unset material specular texcoords
 	if (_uberProgramSetup.MATERIAL_SPECULAR_MAP)
 	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_SPECULAR);
+		_program->sendTexture("",NULL,TEX_CODE_2D_MATERIAL_SPECULAR); // calls glActiveTexture()
 		glBindTexture(GL_TEXTURE_2D,0);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableVertexAttribArray(VAA_UV_MATERIAL_SPECULAR);
 	}
 	// unset material transparency texcoords
 	if (_uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
 	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_TRANSPARENCY);
+		_program->sendTexture("",NULL,TEX_CODE_2D_MATERIAL_TRANSPARENCY); // calls glActiveTexture()
 		glBindTexture(GL_TEXTURE_2D,0);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableVertexAttribArray(VAA_UV_MATERIAL_TRANSPARENT);
 	}
 	// unset material emissive texcoords
 	if (_uberProgramSetup.MATERIAL_EMISSIVE_MAP)
 	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_EMISSIVE);
+		_program->sendTexture("",NULL,TEX_CODE_2D_MATERIAL_EMISSIVE); // calls glActiveTexture()
 		glBindTexture(GL_TEXTURE_2D,0);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableVertexAttribArray(VAA_UV_MATERIAL_EMISSIVE);
 	}
 	// unset material normal map texcoords
 	if (_uberProgramSetup.MATERIAL_BUMP_MAP)
 	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_MATERIAL_BUMP_MAP);
+		_program->sendTexture("",NULL,TEX_CODE_2D_MATERIAL_BUMP); // calls glActiveTexture()
 		glBindTexture(GL_TEXTURE_2D,0);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableVertexAttribArray(VAA_UV_MATERIAL_BUMP);
 	}
 	// unset 2d_position texcoords
 	if (_uberProgramSetup.FORCE_2D_POSITION)
 	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_FORCED_2D);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableVertexAttribArray(VAA_UV_FORCED_2D);
 	}
 	// unset indirect illumination texcoords + map (lightmap or light detail map)
 	if ((_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) || (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
 	{
-		glClientActiveTexture(GL_TEXTURE0+MULTITEXCOORD_LIGHT_INDIRECT);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		//_program->sendTexture("lightIndirectMap",NULL, TEX_CODE_2D_LIGHT_INDIRECT);
-		//glBindTexture(GL_TEXTURE_2D,0);
+		_program->sendTexture("",NULL,TEX_CODE_2D_LIGHT_INDIRECT); // calls glActiveTexture()
+		glBindTexture(GL_TEXTURE_2D,0);
+		glDisableVertexAttribArray(VAA_UV_UNWRAP);
 	}
 	// unset indirect illumination colors
 	if (_uberProgramSetup.LIGHT_INDIRECT_VCOLOR)
 	{
-		glDisableClientState(GL_COLOR_ARRAY);
+		glDisableVertexAttribArray(VAA_COLOR);
 	}
 	// unset tangents
 	if (setTangents)
@@ -478,10 +477,10 @@ void MeshArraysVBOs::renderMesh(
 	// unset normals
 	if (setNormals)
 	{
-		glDisableClientState(GL_NORMAL_ARRAY);
+		glDisableVertexAttribArray(VAA_NORMAL);
 	}
 	// unset vertices
-	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableVertexAttribArray(VAA_POSITION);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

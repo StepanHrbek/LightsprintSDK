@@ -28,17 +28,6 @@ enum
 	TEX_CODE_2D_LIGHT_INDIRECT            = 6, ///< Program::sendTexture() code used by our uberprogram for lightmap/ambient map/light detail map.
 	TEX_CODE_2D_LIGHT_INDIRECT_MIRROR     = 7, ///< Program::sendTexture() code used by our uberprogram for mirror map.
 	TEX_CODE_CUBE_LIGHT_INDIRECT          = 8, ///< Program::sendTexture() code used by our uberprogram for environment map.
-
-	// texcoords assigned to UberProgram, sent to OpenGL
-	// these constants are hardcoded in shaders
-	MULTITEXCOORD_MATERIAL_DIFFUSE       = 0, ///< Texcoord channel used by our uberprogram for diffuse map uv.
-	MULTITEXCOORD_LIGHT_INDIRECT         = 1, ///< Texcoord channel used by our uberprogram for lightmap/ambient map/light detail map uv.
-	MULTITEXCOORD_FORCED_2D              = 2, ///< Texcoord channel used by our uberprogram for forced projection space vertex coordinates.
-	MULTITEXCOORD_MATERIAL_EMISSIVE      = 3, ///< Texcoord channel used by our uberprogram for emissive map uv.
-	MULTITEXCOORD_MATERIAL_TRANSPARENCY  = 4, ///< Texcoord channel used by our uberprogram for rgb transparency map uv.
-	MULTITEXCOORD_MATERIAL_BUMP_MAP      = 5, ///< Texcoord channel used by our uberprogram for normal map uv.
-	MULTITEXCOORD_MATERIAL_SPECULAR      = 6, ///< Texcoord channel used by our uberprogram for specular map uv.
-	MULTITEXCOORD_COUNT                  = 7, ///< If you increase it, see [#17]
 };
 
 //! Clipping plane values.
@@ -151,7 +140,7 @@ struct RR_GL_API UberProgramSetup
 	bool     CLIP_PLANE_ZB                 :1; ///< Discards geometry with z<clipPlaneZB.
 	bool     FORCE_2D_POSITION             :1; ///< Overrides projection space vertex coordinates with coordinates read from texcoord7 channel. Triangles are lit as if they stay on their original positions, but they are rendered to externally set positions in texture.
 
-	bool     LEGACY_GL                     :1; ///< Uses legacy built-in variable gl_ModelViewProjectionMatrix. For compatibility with 3rd party legacy rendering code.
+	bool     LEGACY_GL                     :1; ///< Uses legacy built-in variables gl_Vertex, gl_Color and gl_ModelViewProjectionMatrix. For compatibility with 3rd party legacy rendering code.
 
 	const char* comment;                       ///< Comment added to shader. Must start with //. Not freed.
 

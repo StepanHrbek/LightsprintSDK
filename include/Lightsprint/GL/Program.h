@@ -15,16 +15,28 @@ namespace rr_gl
 {
 
 // vertex attrib array indices
-// Note: Nvidia is broken, small indices alias with fixed attributes like gl_Vertex (although spec explicitly states they don't alias).
-// Therefore we use the highest indices possible (MAX_VERTEX_ATTRIBS must be at least 16),
-// it is equally correct, and it works around Nvidia bug.
+// - Nvidia is broken, small indices alias with fixed attributes like gl_Vertex (although spec explicitly states they don't alias).
+//   Therefore if we ever mix fixed attributes (LEGACY_GL) with e.g. VAA_TANGENT, it's important that VAA_TANGENT is quite high
+//   (MAX_VERTEX_ATTRIBS must be at least 16, so we can safely go up to 15)
+//   to avoid aliasing; it is equally correct, and it works around Nvidia bug.
+// - Catalyst is broken (tested 13-1, HD3/4xxx), many shaders break (no sky, no shadows etc) if index 0 is not used.
+//   Therefore we use index 0 for position, it is almost always used.
 enum
 {
 	VAA_POSITION = 0,
 	VAA_NORMAL = 1,
-	VAA_UV0 = 2,
-	VAA_TANGENT = 14,
-	VAA_BITANGENT = 15,
+	VAA_UV_MATERIAL_DIFFUSE = 2,
+	VAA_UV_MATERIAL_SPECULAR = 3,
+	VAA_UV_MATERIAL_EMISSIVE = 4,
+	VAA_UV_MATERIAL_TRANSPARENT = 5,
+	VAA_UV_MATERIAL_BUMP = 6,
+	VAA_UV_UNWRAP = 7,
+	VAA_UV_FORCED_2D = 8,
+	VAA_UV_LAST = 8, // If you increase it, see [#17]
+	VAA_COLOR = 9,
+	VAA_TANGENT = 10,
+	VAA_BITANGENT = 11,
+	VAA_COUNT = 12
 };
 
 /////////////////////////////////////////////////////////////////////////////

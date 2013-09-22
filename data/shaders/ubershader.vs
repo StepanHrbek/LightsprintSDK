@@ -58,6 +58,14 @@
 
 #define sqr(a) ((a)*(a))
 
+#ifdef LEGACY_GL
+	#define vertexPosition gl_Vertex
+#else
+	attribute vec3 vertexPosition;
+#endif
+
+attribute vec3 vertexNormal;
+
 #ifdef OBJECT_SPACE
 	uniform mat4 worldMatrix;
 	uniform mat3 inverseWorldMatrix;
@@ -112,14 +120,21 @@
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR
+	#ifdef LEGACY_GL
+		#define vertexColor gl_Color
+	#else
+		attribute vec4 vertexColor;
+	#endif
 	varying vec4 lightIndirectColor;
 #endif
 
 #ifdef LIGHT_INDIRECT_VCOLOR2
+	attribute vec4 vertexColor2;
 	uniform float lightIndirectBlend;
 #endif
 
 #if defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_DETAIL_MAP)
+	attribute vec2 vertexUvUnwrap;
 	varying vec2 lightIndirectCoord;
 #endif
 
@@ -131,30 +146,36 @@ varying vec3 worldPos;
 varying vec3 worldNormalSmooth;
 
 #ifdef MATERIAL_DIFFUSE_MAP
+	attribute vec2 vertexUvDiffuse;
 	varying vec2 materialDiffuseCoord;
 #endif
 
 #ifdef MATERIAL_SPECULAR_MAP
+	attribute vec2 vertexUvSpecular;
 	varying vec2 materialSpecularCoord;
 #endif
 
 #ifdef MATERIAL_EMISSIVE_MAP
+	attribute vec2 vertexUvEmissive;
 	varying vec2 materialEmissiveCoord;
 #endif
 
 #ifdef MATERIAL_TRANSPARENCY_MAP
+	attribute vec2 vertexUvTransparent;
 	varying vec2 materialTransparencyCoord;
 #endif
 
 #ifdef MATERIAL_BUMP_MAP
 	attribute vec3 vertexTangent;
 	attribute vec3 vertexBitangent;
+	attribute vec2 vertexUvBump;
 	varying vec3 worldTangent;
 	varying vec3 worldBitangent;
 	varying vec2 materialBumpMapCoord;
 #endif
 
 #ifdef FORCE_2D_POSITION
+	attribute vec2 vertexUvForced2D;
 #else
 	#ifdef LEGACY_GL
 		#define modelViewProjectionMatrix gl_ModelViewProjectionMatrix
@@ -170,11 +191,19 @@ varying vec3 worldNormalSmooth;
 void main()
 {
 	#ifdef OBJECT_SPACE
-		vec4 worldPos4 = worldMatrix * gl_Vertex;
-		worldNormalSmooth = normalize( inverseWorldMatrix * gl_Normal );
+		#ifdef LEGACY_GL
+			vec4 worldPos4 = worldMatrix * vertexPosition;
+		#else
+			vec4 worldPos4 = worldMatrix * vec4(vertexPosition,1.0);
+		#endif
+		worldNormalSmooth = normalize( inverseWorldMatrix * vertexNormal );
 	#else
-		vec4 worldPos4 = gl_Vertex;
-		worldNormalSmooth = normalize( gl_Normal );
+		#ifdef LEGACY_GL
+			vec4 worldPos4 = vertexPosition;
+		#else
+			vec4 worldPos4 = vec4(vertexPosition,1.0);
+		#endif
+		worldNormalSmooth = normalize( vertexNormal );
 	#endif
 	#ifdef ANIMATION_WAVE
 		worldPos4.z += 0.1*sin(animationTime+5.0*worldPos4.y); // arbitrary procedural deformation
@@ -189,9 +218,9 @@ void main()
 
 	#ifdef LIGHT_INDIRECT_VCOLOR
 		#ifdef LIGHT_INDIRECT_VCOLOR2
-			lightIndirectColor = gl_Color*(1.0-lightIndirectBlend)+gl_SecondaryColor*lightIndirectBlend;
+			lightIndirectColor = vertexColor*(1.0-lightIndirectBlend)+vertexColor2*lightIndirectBlend;
 		#else
-			lightIndirectColor = gl_Color;
+			lightIndirectColor = vertexColor;
 		#endif
 		#ifdef LIGHT_INDIRECT_VCOLOR_PHYSICAL
 			lightIndirectColor = pow(lightIndirectColor,vec4(0.45,0.45,0.45,0.45));
@@ -199,27 +228,27 @@ void main()
 	#endif
 
 	#if defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_DETAIL_MAP)
-		lightIndirectCoord = gl_MultiTexCoord1.xy; // 1 = MULTITEXCOORD_LIGHT_INDIRECT
+		lightIndirectCoord = vertexUvUnwrap;
 	#endif
 
 	#ifdef MATERIAL_DIFFUSE_MAP
-		materialDiffuseCoord = gl_MultiTexCoord0.xy; // 0 = MULTITEXCOORD_MATERIAL_DIFFUSE
+		materialDiffuseCoord = vertexUvDiffuse;
 	#endif
 
 	#ifdef MATERIAL_SPECULAR_MAP
-		materialSpecularCoord = gl_MultiTexCoord6.xy; // 6 = MULTITEXCOORD_MATERIAL_SPECULAR
+		materialSpecularCoord = vertexUvSpecular;
 	#endif
 
 	#ifdef MATERIAL_EMISSIVE_MAP
-		materialEmissiveCoord = gl_MultiTexCoord3.xy; // 3 = MULTITEXCOORD_MATERIAL_EMISSIVE
+		materialEmissiveCoord = vertexUvEmissive;
 	#endif
 
 	#ifdef MATERIAL_TRANSPARENCY_MAP
-		materialTransparencyCoord = gl_MultiTexCoord4.xy; // 4 = MULTITEXCOORD_MATERIAL_TRANSPARENCY
+		materialTransparencyCoord = vertexUvTransparent;
 	#endif
 
 	#ifdef MATERIAL_BUMP_MAP
-		materialBumpMapCoord = gl_MultiTexCoord5.xy; // 5 = MULTITEXCOORD_MATERIAL_BUMP_MAP
+		materialBumpMapCoord = vertexUvBump;
 		vec3 tangent2, bitangent2;
 		if (vertexTangent==vec3(0.0,0.0,0.0))
 		{
@@ -280,7 +309,7 @@ void main()
 	#endif
   
 	#ifdef FORCE_2D_POSITION
-		gl_Position = vec4(gl_MultiTexCoord2.x,gl_MultiTexCoord2.y,0.5,1.0); // 2 = MULTITEXCOORD_FORCED_2D
+		gl_Position = vec4(vertexUvForced2D,0.5,1.0);
 	#else
 		gl_Position = modelViewProjectionMatrix * worldPos4;
 	#endif

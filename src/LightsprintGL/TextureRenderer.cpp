@@ -77,10 +77,10 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 		camera.setYawPitchRollRad(camera.getYawPitchRollRad()+rr::RRVec3(_angleRad,0,0));
 	for (unsigned i=0;i<4;i++)
 		direction[i] = camera.getRayDirection(rr::RRVec2(position[i].x,-position[i].y));
-	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
 	glEnableVertexAttribArray(VAA_POSITION);
-	glVertexAttribPointer(VAA_NORMAL, 3, GL_FLOAT, 0, 0, direction);
+	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
 	glEnableVertexAttribArray(VAA_NORMAL);
+	glVertexAttribPointer(VAA_NORMAL, 3, GL_FLOAT, 0, 0, direction);
 	glDrawArrays(GL_POLYGON, 0, 4);
 	glDisableVertexAttribArray(VAA_NORMAL);
 	glDisableVertexAttribArray(VAA_POSITION);
@@ -143,7 +143,7 @@ bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma, const 
 	if (gamma!=1)
 		program->sendUniform("gamma",gamma);
 	glEnableVertexAttribArray(VAA_POSITION);
-	glEnableVertexAttribArray(VAA_UV0);
+	glEnableVertexAttribArray(VAA_UV_MATERIAL_DIFFUSE);
 	return true;
 }
 
@@ -163,7 +163,7 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 	rr::RRVec3 position[4] = {rr::RRVec3(2*x-1,2*y-1,RR_MAX(z,0)),rr::RRVec3(2*(x+w)-1,2*y-1,RR_MAX(z,0)),rr::RRVec3(2*(x+w)-1,2*(y+h)-1,RR_MAX(z,0)),rr::RRVec3(2*x-1,2*(y+h)-1,RR_MAX(z,0))};
 	rr::RRVec2 uv[4] = {rr::RRVec2(0,0),rr::RRVec2(1,0),rr::RRVec2(1,1),rr::RRVec2(0,1)};
 	glVertexAttribPointer(VAA_POSITION, 3, GL_FLOAT, 0, 0, position);
-	glVertexAttribPointer(VAA_UV0, 2, GL_FLOAT, 0, 0, uv);
+	glVertexAttribPointer(VAA_UV_MATERIAL_DIFFUSE, 2, GL_FLOAT, 0, 0, uv);
 	glDrawArrays(GL_POLYGON, 0, 4);
 
 	if (texture->getBuffer()->getFormat()==rr::BF_DEPTH)
@@ -174,7 +174,7 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 
 void TextureRenderer::render2dEnd()
 {
-	glDisableVertexAttribArray(VAA_UV0);
+	glDisableVertexAttribArray(VAA_UV_MATERIAL_DIFFUSE);
 	glDisableVertexAttribArray(VAA_POSITION);
 }
 
