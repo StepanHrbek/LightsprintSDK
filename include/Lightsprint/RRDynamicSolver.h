@@ -135,7 +135,7 @@ namespace rr
 		//! Note that functions that reset solver or change its type (setStaticObjects(), loadFireball() etc) might reset also direct illumination,
 		//! so you need to set it again after such functions.
 		//!
-		//! \param perTriangleIrradiance
+		//! \param perTriangleIrradianceRGBA
 		//!  Array of average per-triangle direct-lighting irradiances in custom scale.
 		//!  In other words, average triangle colors when direct lighting+shadows are applied,
 		//!  but materials are not.

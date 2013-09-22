@@ -3338,6 +3338,16 @@ rr::RRVector<*>{
 
  - \subpage trouble_bad_units
 
+ Known GPU driver bugs (with the most recent drivers):
+
+ - Nvidia
+   - When repeatedly changing resolution of reflection cubemap by one, artifacts shows up in reflection (driver seems to interpret mipmapped cube as not mipmapped).
+     \n Workaround: don't change cubemap resolution by one.
+
+ - Intel
+   - sRGB correct rendering does not work, scene is darker in sRGB mode.
+     \n Workaround: render without "sRGB correct" option.
+
 
 \page trouble_memory Not enough memory?
 
