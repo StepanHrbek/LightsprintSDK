@@ -764,7 +764,7 @@ void UberProgramSetup::useCamera(Program* program, const rr::RRCamera* camera)
 		{
 			float m3[16];
 			const double* m1 = camera->getProjectionMatrix();
-			MULT_MATRIX(m1,camera->getViewMatrix(),m3,double,float);
+			MULT_MATRIX(m1,camera->getViewMatrix(),m3,float);
 			program->sendUniform("modelViewProjectionMatrix",m3,false,4);
 		}
 	}
