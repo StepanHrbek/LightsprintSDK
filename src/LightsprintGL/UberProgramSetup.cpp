@@ -762,9 +762,10 @@ void UberProgramSetup::useCamera(Program* program, const rr::RRCamera* camera)
 			glLoadMatrixd(camera->getViewMatrix());		}
 		else
 		{
-			float m1[16];
-			MULT_MATRIX(camera->getProjectionMatrix(),camera->getViewMatrix(),m1,double,float);
-			program->sendUniform("modelViewProjectionMatrix",m1,false,4);
+			float m3[16];
+			const double* m1 = camera->getProjectionMatrix();
+			MULT_MATRIX(m1,camera->getViewMatrix(),m3,double,float);
+			program->sendUniform("modelViewProjectionMatrix",m3,false,4);
 		}
 	}
 }
