@@ -23,7 +23,7 @@ uniform float gamma;
 	varying vec2 uv;
 #endif
 #ifdef SHOW_ALPHA0
-	#extension GL_EXT_gpu_shader4 : enable // testing bits is much easier with GL3/DX10 generation GPU
+	#extension GL_EXT_gpu_shader4 : require // testing bits is much easier with GL3/DX10 generation GPU
 	uniform vec2 resolution;
 #endif
 
