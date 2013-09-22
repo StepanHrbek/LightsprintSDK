@@ -4,7 +4,7 @@
 // Options:
 // #define TEXTURE
 // #define TEXTURE_IS_CUBE
-// #define PANORAMA_MODE [1|2]
+// #define LITTLE_PLANET
 // #define GAMMA
 // #define SHOW_ALPHA0
 // #define MIRROR_MASK
@@ -33,7 +33,7 @@ void main()
 #ifdef TEXTURE
 	#ifdef TEXTURE_IS_CUBE
 		vec3 direction;
-		#if PANORAMA_MODE+0==2
+		#ifdef LITTLE_PLANET
 			// little planet
 			direction.xz = uv.xy-vec2(0.5,0.5);
 			float r = 2.0*length(direction.xz);
