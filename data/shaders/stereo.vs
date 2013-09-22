@@ -5,10 +5,11 @@
 // #define SIZEX n
 // #define SIZEY n
 
+attribute vec2 vertexPosition;
 varying vec2 texcoord;
 
 void main()
 {
-	texcoord = (gl_Vertex.xy+vec2(1.0,1.0))*0.5;
-	gl_Position = gl_Vertex;
+	texcoord = (vertexPosition+vec2(1.0,1.0))*0.5;
+	gl_Position = vec4(vertexPosition,0.0,1.0);
 }

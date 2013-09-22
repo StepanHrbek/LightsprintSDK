@@ -404,12 +404,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 				stereoProgram->sendTexture("map",stereoTexture);
 				stereoProgram->sendUniform("mapHalfHeight",float(viewport[3]/2));
 				glDisable(GL_CULL_FACE);
-				glBegin(GL_POLYGON);
-					glVertex2f(-1,-1);
-					glVertex2f(-1,1);
-					glVertex2f(1,1);
-					glVertex2f(1,-1);
-				glEnd();
+				TextureRenderer::renderQuad();
 			}
 		}
 
