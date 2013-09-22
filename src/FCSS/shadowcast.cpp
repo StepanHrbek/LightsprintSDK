@@ -88,7 +88,6 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RealtimeLight.h"
-#include "Lightsprint/GL/Camera.h"
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"

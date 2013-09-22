@@ -3,9 +3,8 @@
 
 #include <vector>
 #include <cstdio>
-#include "Lightsprint/GL/Camera.h"
+#include "Lightsprint/RRCamera.h"
 #include "Lightsprint/GL/Texture.h"
-#include "Lightsprint/RRMath.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
