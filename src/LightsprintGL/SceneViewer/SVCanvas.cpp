@@ -194,11 +194,18 @@ public:
 				m_glContext = betterContext;
 				if (debug && glewInit()==GLEW_OK)
 				{
-					glDebugMessageCallbackARB(debugCallback, NULL);
-					glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-					glDebugMessageControlARB(GL_DONT_CARE,GL_DEBUG_TYPE_PERFORMANCE_ARB,GL_DONT_CARE,0,NULL,GL_FALSE);
+					if (glDebugMessageCallbackARB)
+					{
+						glDebugMessageCallbackARB(debugCallback, NULL);
+						glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+						glDebugMessageControlARB(GL_DONT_CARE,GL_DEBUG_TYPE_PERFORMANCE_ARB,GL_DONT_CARE,0,NULL,GL_FALSE);
+					}
+					else
+						rr::RRReporter::report(rr::WARN,"OpenGL debug messages not supported by driver.\n");
 				}
 			}
+			else
+				rr::RRReporter::report(rr::WARN,"Requested OpenGL context not supported by driver.\n");
 		}
 #endif
 #endif // SUPPORT_GL_ES
