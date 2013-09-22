@@ -8,10 +8,11 @@
 // Then we added Lightsprint's advanced lighting, with only small changes
 // to 3rd party code. It still uses 3rd party scene loader, data structures
 // and OpenGL draw calls, we only modified it to use Lightsprint shaders.
-// (Ok, we also replaced 3rd party Material class with our RRMaterial later, just to get rid of conversions.)
+// (Ok, we also replaced 3rd party Material class with our RRMaterial later,
+//  just to get rid of conversions and further simplify code.)
 //
-// If you wish to add realtime GI to your own OpenGL based engine,
-// see simpler PenumbraShadows and more advanced RealtimeRadiosity samples.
+// If you wish to add only penumbra shadows to your own OpenGL based engine,
+// see simpler PenumbraShadows sample.
 //
 // However, if we ditch 3rd party code and use Lightsprint SDK functions instead, we get
 // - 5x shorter source code

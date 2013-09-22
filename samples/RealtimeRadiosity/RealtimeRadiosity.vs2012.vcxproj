@@ -525,17 +525,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\LightsprintIO\Import3DS\Model_3DS.cpp" />
-    <ClCompile Include="RendererOf3DS.cpp" />
-    <ClCompile Include="RendererWithCache.cpp" />
     <ClCompile Include="..\..\src\LightsprintIO\Import3DS\RRObject3DS.cpp" />
     <ClCompile Include="DynamicObject.cpp" />
     <ClCompile Include="RealtimeRadiosity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\LightsprintIO\Import3DS\Model_3DS.h" />
-    <ClInclude Include="Renderer.h" />
-    <ClInclude Include="RendererOf3DS.h" />
-    <ClInclude Include="RendererWithCache.h" />
     <ClInclude Include="..\..\src\LightsprintIO\Import3DS\RRObject3DS.h" />
     <ClInclude Include="DynamicObject.h" />
   </ItemGroup>

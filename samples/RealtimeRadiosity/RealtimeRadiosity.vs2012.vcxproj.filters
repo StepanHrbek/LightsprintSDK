@@ -9,12 +9,6 @@
     <ClCompile Include="..\..\src\LightsprintIO\Import3DS\Model_3DS.cpp">
       <Filter>3DS</Filter>
     </ClCompile>
-    <ClCompile Include="RendererOf3DS.cpp">
-      <Filter>3DS</Filter>
-    </ClCompile>
-    <ClCompile Include="RendererWithCache.cpp">
-      <Filter>3DS</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\LightsprintIO\Import3DS\RRObject3DS.cpp">
       <Filter>3DS</Filter>
     </ClCompile>
@@ -23,15 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\LightsprintIO\Import3DS\Model_3DS.h">
-      <Filter>3DS</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>3DS</Filter>
-    </ClInclude>
-    <ClInclude Include="RendererOf3DS.h">
-      <Filter>3DS</Filter>
-    </ClInclude>
-    <ClInclude Include="RendererWithCache.h">
       <Filter>3DS</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\LightsprintIO\Import3DS\RRObject3DS.h">

@@ -23,8 +23,6 @@ CPP_FLAGS += -DSUPPORT_3DS
 SOURCES = \
 RealtimeRadiosity.cpp \
 DynamicObject.cpp \
-RendererOf3DS.cpp \
-RendererWithCache.cpp \
 ../../src/LightsprintIO/Import3DS/Model_3DS.cpp
 
 # libraries

@@ -54,8 +54,6 @@ protected:
 	DynamicObject();
 	class Model_3DS* model;
 	rr_gl::UberProgramSetup material;
-	class Renderer* rendererWithoutCache;
-	class Renderer* rendererCached;
 
 	// updated by updatePosition
 	rr::RRMatrix3x4 worldMatrix;

@@ -829,26 +829,6 @@
 				>
 			</File>
 			<File
-				RelativePath="Renderer.h"
-				>
-			</File>
-			<File
-				RelativePath="RendererOf3DS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="RendererOf3DS.h"
-				>
-			</File>
-			<File
-				RelativePath="RendererWithCache.cpp"
-				>
-			</File>
-			<File
-				RelativePath="RendererWithCache.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\LightsprintIO\Import3DS\RRObject3DS.cpp"
 				>
 			</File>

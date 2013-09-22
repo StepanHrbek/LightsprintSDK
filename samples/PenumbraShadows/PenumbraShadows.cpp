@@ -14,7 +14,7 @@
 // (Ok, we also replaced 3rd party Material class with our RRMaterial later, just to get rid of conversions.)
 //
 // If you wish to add realtime GI to your own OpenGL based engine,
-// see simpler PenumbraShadows and more advanced RealtimeRadiosity samples.
+// see more advanced RealtimeRadiosity samples.
 //
 // However, if we ditch 3rd party code and use Lightsprint SDK functions instead, we get
 // - 5x shorter source code

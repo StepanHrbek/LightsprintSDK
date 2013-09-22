@@ -6,7 +6,6 @@
 #include <GL/glew.h>
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "DynamicObject.h"
-#include "RendererOf3DS.h"
 #include "../src/LightsprintIO/Import3DS/Model_3DS.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -25,11 +24,6 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 		if (d->material.MATERIAL_DIFFUSE || d->material.MATERIAL_SPECULAR)
 			d->illumination->getLayer(LAYER_ENVIRONMENT) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,_reflectionCubeSize,_reflectionCubeSize,6,rr::BF_RGBA,true,NULL);
 		d->updatePosition();
-
-		// simple renderer, one draw call, display list of many arrays
-		d->rendererWithoutCache = new RendererOf3DS(d->model,true,_material.MATERIAL_DIFFUSE_MAP,_material.MATERIAL_EMISSIVE_MAP);
-		d->rendererWithoutCache->render(); // render once without cache to create textures, avoid doing so in display list
-		d->rendererCached = d->rendererWithoutCache->createDisplayList();
 		return d;
 	}
 	if (!d->model->numObjects) rr::RRReporter::report(rr::WARN,"Model %s contains no objects.\n",_filename);
@@ -40,8 +34,6 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 DynamicObject::DynamicObject()
 {
 	model = NULL;
-	rendererWithoutCache = NULL;
-	rendererCached = NULL;
 	illumination = new rr::RRObjectIllumination;
 	worldFoot = rr::RRVec3(0);
 	rotYZ = rr::RRVec2(0);
@@ -51,8 +43,6 @@ DynamicObject::DynamicObject()
 
 DynamicObject::~DynamicObject()
 {
-	delete rendererCached;
-	delete rendererWithoutCache;
 	delete illumination;
 	delete model;
 }
@@ -142,8 +132,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	}
 
 	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
-		program->sendTexture("materialDiffuseMap",NULL); // activate unit, render() will bind textures
+		program->sendTexture("materialDiffuseMap",NULL); // activate unit, Draw will bind textures
 
-	// simple render, cached inside display list
-	rendererCached->render();
+	model->Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
 }
