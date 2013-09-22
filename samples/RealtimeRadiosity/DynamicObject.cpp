@@ -69,7 +69,7 @@ void DynamicObject::updatePosition()
 	illumination->envMapWorldCenter = worldMatrix.getTransformedPosition(model->localCenter);
 }
 
-void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRCamera& camera,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance,const rr::RRCamera& eye, const rr::RRVec4* brightness, float gamma)
+void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRCamera& camera,const rr::RRVector<rr_gl::RealtimeLight*>* lights,unsigned firstInstance, const rr::RRVec4* brightness, float gamma)
 {
 	if (!uberProgramSetup.LIGHT_DIRECT)
 	{

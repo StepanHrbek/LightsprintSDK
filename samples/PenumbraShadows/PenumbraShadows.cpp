@@ -121,7 +121,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = true;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 		}
-		potato->render(uberProgram,uberProgramSetup,eye,realtimeLight,0,environmentMap,eye,rotation/2);
+		potato->render(uberProgram,uberProgramSetup,eye,realtimeLight,0,environmentMap,rotation/2);
 	}
 	if (robot)
 	{
@@ -134,7 +134,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup)
 			uberProgramSetup.MATERIAL_SPECULAR_MAP = false;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = true;
 		}
-		robot->render(uberProgram,uberProgramSetup,eye,realtimeLight,0,environmentMap,eye,rotation);
+		robot->render(uberProgram,uberProgramSetup,eye,realtimeLight,0,environmentMap,rotation);
 	}
 }
 
