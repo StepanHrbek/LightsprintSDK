@@ -1693,9 +1693,8 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 						unsigned* vbufData = (unsigned*)vbuf->lock(rr::BL_DISCARD_AND_WRITE);
 						if (vbufData)
 						{
-#define SWAP_BYTES(i) ((i<<24)|((i&0xff00)<<8)|((i&0xff0000)>>8)|(i>>24))
 							for (unsigned i=0;i<numTriangles;i++)
-								vbufData[3*i+2] = vbufData[3*i+1] = vbufData[3*i] = SWAP_BYTES(ddi[i]);
+								vbufData[3*i+2] = vbufData[3*i+1] = vbufData[3*i] = ddi[i];
 						}
 						vbuf->unlock();
 						// tell renderer to use our buffer and not to update it
