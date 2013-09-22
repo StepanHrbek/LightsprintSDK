@@ -170,6 +170,24 @@ static GLenum getBufferComponentType(const rr::RRBuffer* buffer)
 	}
 }
 
+static GLenum getBufferNeedsNormalization(const rr::RRBuffer* buffer)
+{
+	switch(buffer->getFormat())
+	{
+		case rr::BF_RGBF:
+		case rr::BF_RGBAF:
+		case rr::BF_DEPTH:
+		case rr::BF_LUMINANCEF:
+			return GL_FALSE;
+		case rr::BF_RGB:
+		case rr::BF_BGR:
+		case rr::BF_RGBA:
+		case rr::BF_LUMINANCE:
+		default:
+			return GL_TRUE;
+	}
+}
+
 static void copyBufferToVBO(rr::RRBuffer* buffer, unsigned VBO)
 {
 	RR_ASSERT(buffer);
@@ -249,9 +267,9 @@ void MeshArraysVBOs::renderMesh(
 			RR_ASSERT(VBO[VBO_lightIndirectVcolor]);
 			glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_lightIndirectVcolor]);
 			// shader expects 4 components, we send 3 or 4
-			glVertexAttribPointer(VAA_COLOR, getBufferNumComponents(_lightIndirectBuffer), getBufferComponentType(_lightIndirectBuffer), GL_FALSE, 0, 0);
+			glVertexAttribPointer(VAA_COLOR, getBufferNumComponents(_lightIndirectBuffer), getBufferComponentType(_lightIndirectBuffer), getBufferNeedsNormalization(_lightIndirectBuffer), 0, 0);
 			// send always 3 components, shader expects 3
-			//glVertexAttribPointer(VAA_COLOR, getBufferNumComponents(_lightIndirectBuffer), getBufferComponentType(_lightIndirectBuffer), GL_FALSE, _lightIndirectBuffer->getElementBits()/8, 0);
+			//glVertexAttribPointer(VAA_COLOR, 3, getBufferComponentType(_lightIndirectBuffer), getBufferNeedsNormalization(_lightIndirectBuffer), _lightIndirectBuffer->getElementBits()/8, 0);
 		}
 		else
 		{
