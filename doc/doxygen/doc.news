@@ -22,6 +22,7 @@ NEWS
 CHANGES
 
 - RRDynamicSolver::setDirectIllumination() byte order changed from ABGR to RGBA
+- additional parameters in RRDynamicSolver::updateEnvironmentMap()
 
 \section news140 ------------------------------------ 2013.08.28 -------------------------------------
 
