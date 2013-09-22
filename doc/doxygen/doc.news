@@ -23,6 +23,7 @@ CHANGES
 
 - RRDynamicSolver::setDirectIllumination() byte order changed from ABGR to RGBA
 - additional parameters in RRDynamicSolver::updateEnvironmentMap()
+- removed GL/Camera.h, rr_gl::setupForRender(), no longer needed
 
 \section news140 ------------------------------------ 2013.08.28 -------------------------------------
 

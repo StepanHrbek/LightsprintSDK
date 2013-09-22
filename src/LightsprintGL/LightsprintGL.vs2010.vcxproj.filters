@@ -57,7 +57,6 @@
     <ClInclude Include="SceneViewer\SVSceneTree.h">
       <Filter>SceneViewer</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\Lightsprint\GL\Camera.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\DemoEngine.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\FPS.h" />
     <ClInclude Include="MultiPass.h" />
@@ -147,7 +146,6 @@
     <ClCompile Include="SceneViewer\SVStub.cpp">
       <Filter>SceneViewer</Filter>
     </ClCompile>
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FPS.cpp" />
     <ClCompile Include="MultiPass.cpp" />
     <ClCompile Include="Program.cpp" />

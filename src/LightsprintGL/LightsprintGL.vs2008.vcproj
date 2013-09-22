@@ -1009,14 +1009,6 @@
 			>
 		</File>
 		<File
-			RelativePath="Camera.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\Camera.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\include\Lightsprint\GL\DemoEngine.h"
 			>
 		</File>

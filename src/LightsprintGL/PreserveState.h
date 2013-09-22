@@ -48,10 +48,6 @@ DECLARE_PRESERVE_STATE( PreserveBlend     ,GLboolean blend        ,blend=glIsEna
 DECLARE_PRESERVE_STATE( PreserveBlendFunc ,GLint src;GLint dst    ,glGetIntegerv(GL_BLEND_SRC_RGB,&src);glGetIntegerv(GL_BLEND_DST_RGB,&dst) ,glBlendFunc(src,dst));
 DECLARE_PRESERVE_STATE( PreserveAlphaTest ,GLboolean test         ,test=glIsEnabled(GL_ALPHA_TEST)             ,if (test) glEnable(GL_ALPHA_TEST); else glDisable(GL_ALPHA_TEST));
 DECLARE_PRESERVE_STATE( PreserveAlphaFunc ,GLint func;GLfloat ref ,glGetIntegerv(GL_ALPHA_TEST_FUNC,&func);glGetFloatv(GL_ALPHA_TEST_REF,&ref) ,glAlphaFunc(func,ref));
-// current matrix only
-DECLARE_PRESERVE_STATE( PreserveMatrix    ,                       ,glPushMatrix()                              ,glPopMatrix(););
-// projection and modelview matrices only
-DECLARE_PRESERVE_STATE( PreserveMatrices  ,GLint matrixMode       ,glGetIntegerv(GL_MATRIX_MODE,&matrixMode);glMatrixMode(GL_PROJECTION);glPushMatrix();glMatrixMode(GL_MODELVIEW);glPushMatrix(), glMatrixMode(GL_PROJECTION);glPopMatrix();glMatrixMode(GL_MODELVIEW);glPopMatrix();glMatrixMode(matrixMode););
 DECLARE_PRESERVE_STATE( PreserveFBO       ,FBO state              ,state=FBO::getState()                       ,state.restore());
 DECLARE_PRESERVE_STATE( PreserveFBSRGB    ,GLboolean enabled      ,enabled=glIsEnabled(GL_FRAMEBUFFER_SRGB)    ,if (enabled) glEnable(GL_FRAMEBUFFER_SRGB); else glDisable(GL_FRAMEBUFFER_SRGB));
 
