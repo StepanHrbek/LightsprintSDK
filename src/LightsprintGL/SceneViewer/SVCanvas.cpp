@@ -29,6 +29,8 @@
 #include <cctype>
 #include <boost/filesystem.hpp> // extension()==".gsa"
 
+//#define SUPPORT_GL_ES
+
 namespace bf = boost::filesystem;
 
 #if !wxUSE_GLCANVAS
@@ -1764,7 +1766,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					UberProgramSetup uberProgramSetup;
 					uberProgramSetup.OBJECT_SPACE = true;
 					uberProgramSetup.POSTPROCESS_NORMALS = true;
-					Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
+					Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,NULL,1,NULL);
 					for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
 					{
 						EntityId entity = *i;
