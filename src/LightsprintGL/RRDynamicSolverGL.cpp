@@ -681,6 +681,13 @@ void RRDynamicSolverGL::renderLights(const rr::RRCamera& _camera)
 	}
 }
 
+// gcc 4.2 can't instantiate std::vector if this struct is declared locally
+struct ObjectInfo
+{
+	rr::RRObject* object;
+	rr::RRObject::FaceGroups faceGroups;
+};
+
 unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap)
 {
 	if (!illumination)
@@ -715,11 +722,6 @@ unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illum
 		// hide objects with current illumination
 		// (we hide it only in 1objects, it stays visible in multiobject. rendering with all lights and materials usually uses 1objects.
 		//  if it uses multiobject, object reflects itself)
-		struct ObjectInfo
-		{
-			rr::RRObject* object;
-			rr::RRObject::FaceGroups faceGroups;
-		};
 		std::vector<ObjectInfo> infos;
 		for (unsigned i=0;i<2;i++)
 		{
@@ -731,7 +733,12 @@ unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illum
 				{
 					ObjectInfo info;
 					info.object = object;
+#ifdef RR_SUPPORTS_RVALUE_REFERENCES
 					info.faceGroups = std::move(object->faceGroups);
+#else
+					info.faceGroups = object->faceGroups;
+					object->faceGroups.clear();
+#endif
 					infos.push_back(info);
 				}
 			}
@@ -779,7 +786,11 @@ unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illum
 
 		// unhide objects with current illumination
 		for (unsigned i=0;i<infos.size();i++)
+#ifdef RR_SUPPORTS_RVALUE_REFERENCES
 			infos[i].object->faceGroups = std::move(infos[i].faceGroups);
+#else
+			infos[i].object->faceGroups = infos[i].faceGroups;
+#endif
 
 		// update version numbers
 		cube->version++;
