@@ -446,6 +446,7 @@ void SVFrame::UpdateEverything()
 
 }
 
+
 void SVFrame::userPreferencesGatherFromWx()
 {
 	userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen = svs.fullscreen;
