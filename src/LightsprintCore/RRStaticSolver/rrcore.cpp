@@ -969,19 +969,22 @@ void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceN
 	RR_ASSERT(sourceNode->surface);
 	RRVec3 position = improvingBody.vertex0 + improvingBody.side1*(u*(1.f/RMAX)) + improvingBody.side2*(v*(1.f/RMAX));
 
-	// select random direction of light exiting diffuse surface (= uses uniform distribution)
+	// select random direction of light exiting diffuse surface
 	// reads sidebits, exits to sides from sidebits
-retry:
-	RRVec3 direction(
-		((int)RAND-(int)(RMAX/2))*(2.f/RMAX),
-		((int)RAND-(int)(RMAX/2))*(2.f/RMAX),
-		((int)RAND-(int)(RMAX/2))*(2.f/RMAX));
-	float length2 = direction.length2();
-	if (length2>1) goto retry;
-	direction *= 1/sqrt(length2);
-	unsigned side = improvingBasisOrthonormal.normal.dot(direction)>0 ? 0 : 1; // 0=front, 1=back
-	if (!sourceNode->surface->sideBits[side].emitTo)
-		direction = -direction;
+	RRReal tmp = (real)RAND/RMAX*SHOOT_FULL_RANGE;
+	RRReal cosa = sqrt(1-tmp);
+	// emit only inside?
+	// emit to both sides?
+	const RRSideBits* sideBits = sideBits;
+	if (sourceNode->surface->sideBits[1].emitTo && (!sourceNode->surface->sideBits[0].emitTo || (RAND%2)))
+		cosa = -cosa;
+	// don't emit?
+	//  this case is catched in Reflectors::insert()
+	//if (!sideBits[0].emitTo && !sideBits[1].emitTo)
+	//	return false;
+	RRReal sina = sqrt(tmp);     // a = rotation angle from normal to side, sin(a) = distance from center of circle
+	Angle b = RAND*2*RR_PI/RMAX; // b = rotation angle around normal
+	RRVec3 direction = improvingBasisOrthonormal.normal*cosa + improvingBasisOrthonormal.tangent*(sina*cos(b)) + improvingBasisOrthonormal.bitangent*(sina*sin(b));
 	RR_ASSERT(IS_SIZE1(direction));
 
 	// cast ray
