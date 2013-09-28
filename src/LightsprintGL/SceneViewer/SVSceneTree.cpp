@@ -749,19 +749,34 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						for (unsigned i=0;i<solver->getLights().size();i++)
 							solver->getLights()[i]->color = lightColors[i];
 #endif
-						// save temp layer to .exr
+						// switch to .exr mode
 						bool hdr = svs.lightmapFloats;
 						svs.lightmapFloats = true;
+						// delete old .exr files that would obscure new .rrbuffer files
+						selectedObjects.layerDeleteFromDisk(LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
+						// save temp layer to .exr/.rrbuffer
 						selectedObjects.saveLayer(tmpLayer,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
-						// save temp layer to .png
+
+						// delete vertex buffers from memory (otherwise we would convert them to 8bit and save over .rrbuffer)
+						for (unsigned objectIndex=0;objectIndex<selectedObjects.size();objectIndex++)
+							if (selectedObjects[objectIndex]->illumination.getLayer(tmpLayer))
+								if (selectedObjects[objectIndex]->illumination.getLayer(tmpLayer)->getType()==rr::BT_VERTEX_BUFFER)
+									RR_SAFE_DELETE(selectedObjects[objectIndex]->illumination.getLayer(tmpLayer));
+
+						// switch to .png mode
+						svs.lightmapFloats = false;
 						for (unsigned i=0;i<selectedObjects.size();i++)
 							if (selectedObjects[i]->illumination.getLayer(tmpLayer))
 								selectedObjects[i]->illumination.getLayer(tmpLayer)->setFormat(rr::BF_RGB);
-						svs.lightmapFloats = false;
+						// delete old .png files that would obscure new .rrbuffer files
+						selectedObjects.layerDeleteFromDisk(LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
+						// save temp layer to .png
 						selectedObjects.saveLayer(tmpLayer,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
+						
+						// switch to original mode
 						svs.lightmapFloats = hdr;
 
-						// delete temp layer
+						// delete temp layer from memory
 						selectedObjects.layerDeleteFromMemory(tmpLayer);
 
 						// load final layer from disk
