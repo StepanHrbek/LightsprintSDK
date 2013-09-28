@@ -48,6 +48,9 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIIndirectMultiplier = new FloatProperty(_("Intensity"),_("Makes indirect illumination this times brighter, 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
 		AppendIn(propGIIndirect,propGIIndirectMultiplier);
 
+		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Fireball only: Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
+		AppendIn(propGIIndirect,propGIEmisMultiplier);
+
 		propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination."),svs.renderLDM);
 		AppendIn(propGIIndirect,propGILDM);
 
@@ -73,9 +76,6 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			SetPropertyEditor(propGIFireballWorkTotal,wxPGEditor_CheckBox);
 			AppendIn(propGIFireball,propGIFireballWorkTotal);
 		}
-
-		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Fireball only: Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
-		AppendIn(propGIIndirect,propGIEmisMultiplier);
 
 		// video
 		{
