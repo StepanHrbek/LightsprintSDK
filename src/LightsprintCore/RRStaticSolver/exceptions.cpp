@@ -435,8 +435,8 @@ unsigned RRObjects::layerDeleteFromDisk(const RRString& path, const RRString& ex
 		boost::system::error_code ec;
 		if (bf::exists(path,ec))
 		{
-			path.remove_filename();
-			result++;
+			if (bf::remove(path,ec))
+				result++;
 		}
 	}
 	return result;
