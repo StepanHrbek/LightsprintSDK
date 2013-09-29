@@ -1121,6 +1121,13 @@ unsigned RRDynamicSolver::updateLightmaps(int layerLightmap, int layerDirectiona
 		}
 	}
 
+	// remove light from first gather still stored in solver
+	// (if we don't, switching to Architect after bake in scene with 0 lights keeps baked light as solver's direct illum)
+	if (containsFirstGather)
+	{
+		priv->dirtyCustomIrradiance = true;
+	}
+
 	return updatedBuffers;
 }
 
