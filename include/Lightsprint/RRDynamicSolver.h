@@ -467,6 +467,9 @@ namespace rr
 			//! and applyLights/applyEnvironment at the same time.
 			bool applyCurrentSolution;
 
+			//! Include emissive materials as a source of illumination.
+			RRReal applyEmittance;
+
 			//! Quality of computed illumination.
 			//
 			//! Relates to number of rays per texel or triangle,
@@ -540,6 +543,7 @@ namespace rr
 				applyLights = false;
 				applyEnvironment = false;
 				applyCurrentSolution = true;
+				applyEmittance = 1;
 				quality = 0;
 				qualityFactorRadiosity = 1;
 				insideObjectsThreshold = 1;
@@ -983,7 +987,7 @@ namespace rr
 		//! Detects direct illumination, feeds solver and calculates until indirect illumination values are available.
 		bool updateSolverIndirectIllumination(const UpdateParameters* paramsIndirect);
 
-		bool gatherPerTrianglePhysical(const UpdateParameters* aparams, const class GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots, bool gatherEmissiveMaterials);
+		bool gatherPerTrianglePhysical(const UpdateParameters* aparams, const class GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots);
 		unsigned updateVertexBufferFromPerTriangleDataPhysical(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleDataPhysical, unsigned stride, bool allowScaling) const;
 		void calculateCore(float improveStep,CalculateParameters* params=NULL);
 		unsigned updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);

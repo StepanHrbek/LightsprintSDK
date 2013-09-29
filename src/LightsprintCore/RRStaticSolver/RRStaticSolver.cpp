@@ -53,6 +53,7 @@ RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver:
 
 RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::SmoothingParameters* smoothing, Object* obj, bool& aborting)
 {
+	materialEmittanceMultiplier = 1;
 	scene=new Scene();
 	RR_ASSERT(importer);
 	RR_ASSERT(obj);
@@ -75,7 +76,7 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 		mesh->getTriangleBody(fi,body);
 		if (!t->setGeometry(body,smoothing->ignoreSmallerAngle,smoothing->ignoreSmallerArea))
 		{
-			obj->objSourceExitingFlux+=abs(t->setSurface(s,RRVec3(0),true));
+			obj->objSourceExitingFlux+=abs(t->setSurface(s,RRVec3(0),true,materialEmittanceMultiplier));
 		}
 		else
 		{
@@ -94,10 +95,11 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::Smooth
 //
 // calculate radiosity
 
-RRStaticSolver::Improvement RRStaticSolver::illuminationReset(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
+RRStaticSolver::Improvement RRStaticSolver::illuminationReset(bool resetFactors, bool resetPropagation, RRReal emissiveMultiplier, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
 {
 	__frameNumber++;
-	return scene->resetStaticIllumination(resetFactors,resetPropagation,directIrradianceCustomRGBA8,customToPhysical,directIrradiancePhysicalRGB);
+	materialEmittanceMultiplier = emissiveMultiplier;
+	return scene->resetStaticIllumination(resetFactors,resetPropagation,emissiveMultiplier,directIrradianceCustomRGBA8,customToPhysical,directIrradiancePhysicalRGB);
 }
 
 RRStaticSolver::Improvement RRStaticSolver::illuminationImprove(EndFunc& endfunc)
@@ -152,7 +154,7 @@ RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle
 
 // Returns triangle measure, any combination of measure.direct/indirect/exiting.
 // Works as if measure.scaled=0, measure.flux=0.
-RRVec3 Triangle::getMeasure(RRRadiometricMeasure measure) const
+RRVec3 Triangle::getMeasure(RRRadiometricMeasure measure, RRReal emissiveMultiplier) const
 {
 	RR_ASSERT(surface);
 
@@ -165,7 +167,7 @@ RRVec3 Triangle::getMeasure(RRRadiometricMeasure measure) const
 	{
 		if (measure.exiting)
 		{
-			return getDirectExitance();
+			return getDirectExitance(emissiveMultiplier);
 		}
 		else
 		{
@@ -188,7 +190,7 @@ RRVec3 Triangle::getMeasure(RRRadiometricMeasure measure) const
 	{
 		if (measure.exiting)
 		{
-			return getIndirectExitance();
+			return getIndirectExitance(emissiveMultiplier);
 		}
 		else
 		{
@@ -224,13 +226,13 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 		// measure exiting
 		if (measure.exiting)
 		{
-			irrad = irrad * tri->surface->diffuseReflectance.color + tri->surface->diffuseEmittance.color;
+			irrad = irrad * tri->surface->diffuseReflectance.color + tri->surface->diffuseEmittance.color*materialEmittanceMultiplier;
 		}
 	}
 	else
 	{
 		// measure direct/indirect/exiting (with proper emissivity handling)
-		irrad = tri->getMeasure(measure);
+		irrad = tri->getMeasure(measure,materialEmittanceMultiplier);
 	}
 
 	if (measure.scaled)

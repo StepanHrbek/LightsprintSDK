@@ -718,6 +718,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					{
 						// update everything in temp layer
 						rr::RRDynamicSolver::UpdateParameters updateParameters(quality);
+						updateParameters.applyEmittance = svs.emissiveMultiplier;
 						updateParameters.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
 						updateParameters.aoSize = svs.lightmapDirectParameters.aoSize;
 #ifdef OLD_SIMPLE_GI
@@ -794,6 +795,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					{
 						// update everything in temp layer
 						rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
+						paramsDirect.applyEmittance = svs.emissiveMultiplier;
 						paramsDirect.applyLights = 0;
 						paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
 						paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;

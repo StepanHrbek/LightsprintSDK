@@ -161,8 +161,8 @@ public:
 			_pti.context.solver->priv->scene,
 			_tools.environment,
 			_tools.scaler,
-			_pti.context.gatherDirectEmitors?1.0f:0.0f,
-			_pti.context.params->applyCurrentSolution?1.0f:0.0f,
+			_pti.context.params?_pti.context.params->applyEmittance:1.f,
+			_pti.context.params->applyCurrentSolution?1.f:0.f,
 			_pti.context.staticSceneContainsLods,
 			_pti.context.params->quality)
 	{
@@ -172,7 +172,7 @@ public:
 			irradiancePhysicalHemisphere[i] = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
-		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.gatherDirectEmitors) ? RR_MAX(1,pti.context.params->quality) : 0;
+		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.params->applyEmittance!=0) ? RR_MAX(1,pti.context.params->quality) : 0;
 		gatherer.ray.rayLengthMin = pti.rayLengthMin;
 	}
 
@@ -768,7 +768,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 // CPU, gathers per-triangle lighting from RRLights, environment, current solution
 // may be called as first gather or final gather
-bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots, bool _gatherDirectEmitors)
+bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots)
 {
 	if (aborting)
 		return false;
@@ -811,7 +811,6 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* _params,
 	for (unsigned i=0;i<NUM_BUFFERS;i++) tc.pixelBuffers[i] = NULL;
 	tc.params = &params;
 	tc.singleObjectReceiver = NULL; // later modified per triangle
-	tc.gatherDirectEmitors = _gatherDirectEmitors;
 	tc.gatherAllDirections = resultsPhysical->data[LS_DIRECTION1]||resultsPhysical->data[LS_DIRECTION2]||resultsPhysical->data[LS_DIRECTION3];
 	tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
@@ -921,14 +920,16 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* _pa
 		RRReporter::report(ERRO,"Not enough memory, illumination not updated.\n");
 		return false;
 	}
-	if (!gatherPerTrianglePhysical(_params,finalGather,numPostImportTriangles,false)) // this is first gather -> don't gather emitors
+	UpdateParameters params = _params ? *_params : UpdateParameters();
+	params.applyEmittance = 0;
+	if (!gatherPerTrianglePhysical(&params,finalGather,numPostImportTriangles)) // this is first gather -> don't gather emitors
 	{
 		delete finalGather;
 		return false;
 	}
 
 	// tmparray -> solver.direct
-	priv->scene->illuminationReset(false,true,NULL,NULL,finalGather->data[LS_LIGHTMAP]);
+	priv->scene->illuminationReset(false,true,_params?_params->applyEmittance:1,NULL,NULL,finalGather->data[LS_LIGHTMAP]);
 	priv->solutionVersion++;
 	delete finalGather;
 
@@ -1009,7 +1010,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* _
 	{
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 		calculateCore(0,&priv->previousCalculateParameters);
-		priv->scene->illuminationReset(true,true,NULL,NULL,NULL); // required by endByQuality()
+		priv->scene->illuminationReset(true,true,_paramsIndirect?_paramsIndirect->applyEmittance:1,NULL,NULL,NULL); // required by endByQuality()
 
 		// first gather
 		unsigned tmp = paramsIndirect.quality;
@@ -1040,7 +1041,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* _
 			}
 
 			// optimization: free memory taken by factors (we won't need them anymore), but preserve accumulators (we need them for final gather)
-			priv->scene->illuminationReset(true,false,NULL,NULL,NULL);
+			priv->scene->illuminationReset(true,false,_paramsIndirect?_paramsIndirect->applyEmittance:1,NULL,NULL,NULL);
 		}
 	}
 	return true;

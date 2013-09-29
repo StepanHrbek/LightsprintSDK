@@ -108,6 +108,7 @@ namespace rr
 		//!  \n False: Illumination already propagated using old factors is preserved for 
 		//!     future calculation. It is only updated. It is faster option when illumination 
 		//!     changes by small amount -> use after tiny light movement, small color/intensity change.
+		//! \param emissiveMultiplier
 		//! \param directIrradianceCustomRGBA8
 		//!  Array of per-triangle detected direct irradiances in RGBA8 format, one value per multiobject triangle.
 		//!  May be NULL.
@@ -118,7 +119,7 @@ namespace rr
 		//!  Array of per-triangle detected direct irradiances in RGB format, one value per multiobject triangle.
 		//!  May be NULL.
 		//! \return Calculation state, see Improvement.
-		Improvement   illuminationReset(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
+		Improvement   illuminationReset(bool resetFactors, bool resetPropagation, RRReal emissiveMultiplier, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
 
 		class EndFunc
 		{
@@ -175,6 +176,7 @@ namespace rr
 		//! Build Fireball. For internal use by RRDynamicSolver::buildFireball().
 		const class PackedSolverFile* buildFireball(unsigned raysPerTriangle, float importanceOfDetails, bool& aborting);
 
+		RRReal materialEmittanceMultiplier;
 	private:
 		class Scene*  scene;
 		friend class Gatherer;

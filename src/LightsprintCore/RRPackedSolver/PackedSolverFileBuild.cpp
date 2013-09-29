@@ -254,10 +254,10 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 			{
 				directIrradiancePhysicalRGB[t] = RRVec3(skyPatchHitsForAllTriangles[t].patches[p][0]/actualRaysFromTriangle[t]);
 			}
-			resetStaticIllumination(false,true,NULL,NULL,directIrradiancePhysicalRGB);
+			// 0 disables emissive component, they are added later in realtime (this allows for realtime changes in materials)
+			resetStaticIllumination(false,true,0,NULL,NULL,directIrradiancePhysicalRGB);
 
 			// calculate
-			//!!! disable emissive surfaces
 			// KA-RA/AS_blanc_05m-sub-collapse-color.FBX (skylight goes in by ceiling opening, ceiling is illuminated only by indirect skylight):
 			//   second parameter alone must be as low as 0.000001f for sky to illuminate ceiling
 			//   first parameter alone must be at least object->triangles

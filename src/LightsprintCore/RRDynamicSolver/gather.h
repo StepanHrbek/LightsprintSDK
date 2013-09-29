@@ -32,7 +32,6 @@ struct TexelContext
 	RRBuffer* pixelBuffers[NUM_BUFFERS]; // classical lmap, 3 directional lmaps, bent normal map
 	const RRDynamicSolver::UpdateParameters* params; // measure_internal.direct zapina gather z emitoru. measure_internal.indirect zapina gather indirectu ze static solveru. oboje zapina gather direct+indirect ze static solveru
 	RRObject* singleObjectReceiver;
-	bool gatherDirectEmitors; // true only in final (not first) gather when scene contains emitors. might result in full hemisphere gather
 	bool gatherAllDirections; // LS_DIRECTIONn irradiances are gathered too
 	bool staticSceneContainsLods; // scene contains LODs, additional work
 };

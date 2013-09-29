@@ -121,10 +121,10 @@ public:
 	// get direct light (entered by client, not calculated)
 	RRVec3  getDirectIncidentFlux()   const {return directIncidentFlux;}
 	//RRVec3  getDirectEmitingFlux()    const {return surface->diffuseEmittance.color*area;} // emissivity
-	RRVec3  getDirectExitingFlux()    const {return directIncidentFlux*surface->diffuseReflectance.color + surface->diffuseEmittance.color*area;} // emissivity + reflected light
+	RRVec3  getDirectExitingFlux(RRReal emissiveMultiplier) const {return directIncidentFlux*surface->diffuseReflectance.color + surface->diffuseEmittance.color*(area*emissiveMultiplier);} // emissivity + reflected light
 	RRVec3  getDirectIrradiance()     const {return directIncidentFlux/area;}
 	//RRVec3  getDirectEmittance()      const {return surface->diffuseEmittance.color;}
-	RRVec3  getDirectExitance()       const {return directIncidentFlux/area*surface->diffuseReflectance.color + surface->diffuseEmittance.color;}
+	RRVec3  getDirectExitance(RRReal emissiveMultiplier) const {return directIncidentFlux/area*surface->diffuseReflectance.color + surface->diffuseEmittance.color*emissiveMultiplier;}
 
 	// get total light
 	//RRVec3  getTotalIncidentFlux()    const {return totalIncidentFlux;}
@@ -140,10 +140,10 @@ public:
 	//RRVec3  getIndirectExitingFlux()  const {return totalExitingFlux-getDirectExitingFlux();}
 	RRVec3  getIndirectIrradiance()   const {return (totalIncidentFlux-directIncidentFlux)/area;}
 	//RRVec3  getIndirectEmittance()    const {return RRVec3(0);}
-	RRVec3  getIndirectExitance()     const {return totalExitingFlux/area-getDirectExitance();}
+	RRVec3  getIndirectExitance(RRReal emissiveMultiplier) const {return totalExitingFlux/area-getDirectExitance(emissiveMultiplier);}
 
 	// get any combination of direc/indirect/exiting light
-	RRVec3  getMeasure(RRRadiometricMeasure measure) const;
+	RRVec3  getMeasure(RRRadiometricMeasure measure, RRReal emissiveMultiplier) const;
 
 	// precalc for best()
 	real    precalcDistributing;
@@ -155,7 +155,7 @@ public:
 	S8      setGeometry(const RRMesh::TriangleBody& body,float ignoreSmallerAngle,float ignoreSmallerArea);
 
 	// material
-	Channels setSurface(const RRMaterial *s,const RRVec3& sourceIrradiance, bool resetPropagation); // sets direct(source) lighting. emittance comes with material. irradiance comes from detectDirectIllumination [realtime] or from first gather [offline]
+	Channels setSurface(const RRMaterial *s,const RRVec3& sourceIrradiance, bool resetPropagation, RRReal emissiveMultiplier); // sets direct(source) lighting. emittance comes with material. irradiance comes from detectDirectIllumination [realtime] or from first gather [offline]
 	const RRMaterial* surface;     // material at outer and inner side of Triangle
 
 	// smoothing
@@ -241,7 +241,7 @@ public:
 
 	// energies
 	Channels objSourceExitingFlux; // primary source exiting radiant flux in Watts
-	void    resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
+	void    resetStaticIllumination(bool resetFactors, bool resetPropagation, RRReal emissiveMultiplier, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
 
 private:
 	Object();
@@ -315,7 +315,7 @@ public:
 
 	void    objInsertStatic(Object *aobject);
 
-	RRStaticSolver::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
+	RRStaticSolver::Improvement resetStaticIllumination(bool resetFactors, bool resetPropagation, RRReal emissiveMultiplier, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
 	RRStaticSolver::Improvement improveStatic(RRStaticSolver::EndFunc& endfunc);
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);

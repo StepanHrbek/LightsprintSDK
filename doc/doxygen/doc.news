@@ -16,6 +16,9 @@ NEWS
 - higher quality reflections
   - for cubemap resolutions >=32, rr_gl::RRDynamicSolverGL::updateEnvironmentMap()
     produces faster and higher quality data using rasterizer instead of raytracer
+- emissive multiplier now available in all solvers
+  - RRDynamicSolver::UpdateParameters::applyEmittance added, lets you bake with emissive multiplier
+  - RRDynamicSolver::CalculateParameters::materialEmittanceMultiplier now works also for Architect solver (previously Fireball only)
 - misc helpers
   - rr_gl::RendererOfScene::renderToCube()
 
@@ -25,6 +28,10 @@ CHANGES
 - additional parameters in RRDynamicSolver::updateEnvironmentMap()
 - removed GL/Camera.h, rr_gl::setupForRender(), no longer needed
 - custom renderer in RealtimeRadiosity sample simplified, removed display lists
+
+FIXES
+
+- there was bias towards brighter corners in highly tessellated scenes
 
 \section news140 ------------------------------------ 2013.08.28 -------------------------------------
 

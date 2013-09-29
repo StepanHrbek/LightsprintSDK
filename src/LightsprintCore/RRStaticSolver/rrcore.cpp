@@ -151,7 +151,7 @@ S8 Triangle::setGeometry(const RRMesh::TriangleBody& body,float ignoreSmallerAng
 //  pouze zaktualizuje primary illum energie podle surfacu a additionalExitingFlux
 // return new primary exiting radiant flux in watts
 
-Channels Triangle::setSurface(const RRMaterial *s, const RRVec3& _sourceIrradiance, bool resetPropagation)
+Channels Triangle::setSurface(const RRMaterial *s, const RRVec3& _sourceIrradiance, bool resetPropagation, RRReal emissiveMultiplier)
 {
 	RR_ASSERT(area!=0);//setGeometry must be called before setSurface
 	//RR_ASSERT(s); problem was already reported one level up, let's try to survive
@@ -171,7 +171,7 @@ Channels Triangle::setSurface(const RRMaterial *s, const RRVec3& _sourceIrradian
 	#error CHANNELS == 1 not supported here.
 #else
 	Channels newSourceIrradiance = _sourceIrradiance;
-	Channels newSourceExitance = surface->diffuseEmittance.color + _sourceIrradiance * surface->diffuseReflectance.color;
+	Channels newSourceExitance = surface->diffuseEmittance.color*emissiveMultiplier + _sourceIrradiance * surface->diffuseReflectance.color;
 	Channels newSourceIncidentFlux = newSourceIrradiance * area;
 	Channels newSourceExitingFlux = newSourceExitance * area;
 	RR_ASSERT(IS_VEC3(newSourceIncidentFlux));
@@ -195,7 +195,7 @@ Channels Triangle::setSurface(const RRMaterial *s, const RRVec3& _sourceIrradian
 	}
 	else
 	{
-		Channels oldSourceExitingFlux = getDirectExitingFlux();
+		Channels oldSourceExitingFlux = getDirectExitingFlux(emissiveMultiplier);
 		Channels addSourceExitingFlux = newSourceExitingFlux-oldSourceExitingFlux;
 		Channels oldSourceIncidentFlux = getDirectIncidentFlux();
 		Channels addSourceIncidentFlux = newSourceIncidentFlux-oldSourceIncidentFlux;
@@ -553,7 +553,7 @@ Object::~Object()
 	delete[] topivertexArray;
 }
 
-void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
+void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, RRReal emissiveMultiplier, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
 {
 	// zero accumulators. separated to three floats to satisfy openmp reduction rules
 	//objSourceExitingFlux=Channels(0);
@@ -587,7 +587,7 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, c
 		{
 			directIrradiancePhysical = directIrradiancePhysicalRGB[t];
 		}
-		Channels tmp = abs(triangle[t].setSurface(triangle[t].surface,directIrradiancePhysical,resetPropagation));
+		Channels tmp = abs(triangle[t].setSurface(triangle[t].surface,directIrradiancePhysical,resetPropagation,emissiveMultiplier));
 		//objSourceExitingFlux += tmp;
 		tmpx += tmp.x;
 		tmpy += tmp.y;
@@ -745,7 +745,7 @@ void Scene::objInsertStatic(Object *o)
 	shootingKernels.setGeometry(object->triangle);
 }
 
-RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
+RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bool resetPropagation, RRReal emissiveMultiplier, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB)
 {
 	abortStaticImprovement();
 
@@ -778,7 +778,7 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 		staticReflectors.resetBest();
 	}
 
-	object->resetStaticIllumination(resetFactors,resetPropagation,directIrradianceCustomRGBA8,customToPhysical,directIrradiancePhysicalRGB);
+	object->resetStaticIllumination(resetFactors,resetPropagation,emissiveMultiplier,directIrradianceCustomRGBA8,customToPhysical,directIrradiancePhysicalRGB);
 
 	staticReflectors.insertObject(object);
 

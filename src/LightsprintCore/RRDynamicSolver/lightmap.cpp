@@ -622,6 +622,8 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		params.applyLights = false;
 	if (params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
+	if (!getMultiObjectCustom()->faceGroups.containsEmittance())
+		params.applyEmittance = 0;
 	bool paramsAllowRealtime = !params.applyLights && !params.applyEnvironment && params.applyCurrentSolution && !params.quality;
 
 	// init solver
@@ -738,7 +740,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			}
 			else
 			{
-				gatherPerTrianglePhysical(&params,finalGatherPhysical,numTriangles,getMultiObjectCustom()->faceGroups.containsEmittance()); // this is final gather -> gather emissive materials
+				gatherPerTrianglePhysical(&params,finalGatherPhysical,numTriangles); // this is final gather -> gather emissive materials
 
 				// interpolate: tmparray -> buffer
 				for (unsigned i=0;i<NUM_BUFFERS;i++)
@@ -775,7 +777,6 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			}
 		tc.params = &params;
 		tc.singleObjectReceiver = getStaticObjects()[objectNumber]; // safe objectNumber, checked in updateLightmap()
-		tc.gatherDirectEmitors = getMultiObjectCustom()->faceGroups.containsEmittance(); // this is final gather -> gather from emitors
 		tc.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
 		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 		UnwrapStatistics us;
@@ -903,6 +904,9 @@ unsigned RRDynamicSolver::updateLightmaps(int layerLightmap, int layerDirectiona
 	paramsIndirect.applyCurrentSolution = false;
 	if (_paramsDirect) paramsDirect = *_paramsDirect;
 	if (_paramsIndirect) paramsIndirect = *_paramsIndirect;
+
+	if (!getMultiObjectCustom() || !getMultiObjectCustom()->faceGroups.containsEmittance())
+		paramsDirect.applyEmittance = paramsIndirect.applyEmittance = 0;
 
 	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
 	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
@@ -1074,7 +1078,7 @@ unsigned RRDynamicSolver::updateLightmaps(int layerLightmap, int layerDirectiona
 			}
 			else
 			{
-				gatherPerTrianglePhysical(&paramsDirect,finalGatherPhysical,numTriangles,getMultiObjectCustom()->faceGroups.containsEmittance()); // this is final gather -> gather emissive materials
+				gatherPerTrianglePhysical(&paramsDirect,finalGatherPhysical,numTriangles); // this is final gather -> gather emissive materials
 
 				// 5. interpolate: tmparray -> buffer
 				// for each object with vertex buffer

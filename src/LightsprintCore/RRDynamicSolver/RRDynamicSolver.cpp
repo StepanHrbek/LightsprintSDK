@@ -788,7 +788,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		RR_SAFE_DELETE(priv->packedSolver);
 		if (priv->scene)
 		{
-			priv->scene->illuminationReset(true,true,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
+			priv->scene->illuminationReset(true,true,_params->materialEmittanceMultiplier,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
 		}
 		priv->solutionVersion++;
 		priv->readingResultsPeriodSteps = 0;
@@ -821,6 +821,15 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 			}
 		}
 	}
+	else
+	if (priv->scene)
+	{
+		// architect: when materialEmittanceMultiplier changes, enforce illuminationReset()
+		if (_params->materialEmittanceMultiplier!=priv->scene->materialEmittanceMultiplier)
+		{
+			priv->dirtyCustomIrradiance = true;
+		}
+	}
 
 	if (priv->dirtyCustomIrradiance)
 	{
@@ -832,7 +841,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 		else
 		if (priv->scene)
 		{
-			priv->scene->illuminationReset(false,true,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
+			priv->scene->illuminationReset(false,true,_params->materialEmittanceMultiplier,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
 		}
 		priv->solutionVersion++;
 		priv->readingResultsPeriodSteps = 0;
