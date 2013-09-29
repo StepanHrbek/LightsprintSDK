@@ -42,11 +42,6 @@ public:
 	{
 		addOrRemove(_add,regexReplacements,std::pair<std::wstring,std::wstring>(RR_RR2STDW(_regex),RR_RR2STDW(_format)));
 	}
-	virtual void setLibrary(bool _add, const RRString& _libraryDirectory)
-	{
-		if (!_libraryDirectory.empty())
-			addOrRemove(_add,libraryDirectories,bf::path(RR_RR2PATH(_libraryDirectory)));
-	}
 	virtual void setExtensions(bool _add, const RRString& _extensions)
 	{
 		const char* tmpExtensions2 = _extensions.c_str();
@@ -127,15 +122,6 @@ protected:
 				return regexReplaced;
 		}
 
-		// library
-		for (size_t i=0;i<libraryDirectories.size();i++)
-		{
-			if (!attemptNumber--)
-				return libraryDirectories[i].parent_path() / originalFilename.relative_path();
-			if (originalFilename.relative_path().has_parent_path() && !attemptNumber--)
-				return libraryDirectories[i].parent_path() / originalFilename.filename();
-		}
-
 		return "";
 	}
 
@@ -211,7 +197,6 @@ protected:
 	std::vector<bf::path> parentFilenames;
 	std::vector<std::pair<bf::path,bf::path> > relocationFilenames;
 	std::vector<std::pair<std::wstring,std::wstring> > regexReplacements;
-	std::vector<bf::path> libraryDirectories;
 	std::vector<std::string> extensions;
 	std::map<unsigned,RRString> specialAttempts;
 };

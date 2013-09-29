@@ -40,7 +40,7 @@ namespace rr
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! If non-empty (e.g. "foo/bar/baz.3ds"), tells locator to look for files also in parent directory ("foo/bar/").
+		//! If non-empty (e.g. "foo/bar/" or "foo/bar/baz.3ds"), tells locator to look for files also in parent directory ("foo/bar/").
 		//! Ignored by default implementation, honoured by create().
 		virtual void setParent(bool add, const RRString& parentFilename) {}
 		//! If both relocation filenames are non-empty (e.g. "c:/foo/bar/baz.3ds" and "d:/bar/baz.3ds"),
@@ -50,9 +50,6 @@ namespace rr
 		//! Tells locator to try filename modified with regular expression.
 		//! Ignored by default implementation, honoured by create().
 		virtual void setRegexReplacement(bool add, const RRString& regex, const RRString& format) {}
-		//! Tells locator to look for files also in this directory (e.g. "foo/bar/").
-		//! Ignored by default implementation, honoured by create().
-		virtual void setLibrary(bool add, const RRString& libraryDirectory) {}
 		//! Tells locator to try these extensions (e.g. ".jpg;.png;.tga") for files without extension.
 		//! Ignored by default implementation, honoured by create().
 		virtual void setExtensions(bool add, const RRString& extensions) {}

@@ -31,6 +31,7 @@ CHANGES
 - additional parameters in RRDynamicSolver::updateEnvironmentMap()
 - removed GL/Camera.h, rr_gl::setupForRender(), no longer needed
 - custom renderer in RealtimeRadiosity sample simplified, removed display lists
+- RRFileLocator::setLibrary() removed, use RRFileLocator::setParent()
 
 FIXES
 
