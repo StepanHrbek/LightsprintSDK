@@ -45,7 +45,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIIndirect->SetHelpString(_("What nondirectional indirect illumination technique to use. Note that directional techniques (Raytraced cubemaps, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
 		Append(propGIIndirect);
 
-		propGIIndirectMultiplier = new FloatProperty(_("Intensity"),_("Makes indirect illumination this times brighter, 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
+		propGIIndirectMultiplier = new FloatProperty(_("Intensity"),_("Makes indirect illumination from lights (not from emissive surfaces) this times brighter, 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
 		AppendIn(propGIIndirect,propGIIndirectMultiplier);
 
 		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Fireball only: Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
@@ -212,6 +212,7 @@ void SVGIProperties::updateHide()
 	propGISRGBCorrect->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 	propGIShadowTransparency->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 	//propGIIndirectMultiplier->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED,false);
+	//propGIEmisMultiplier->Hide(!realtimeGI,false);
 
 	propGIRaytracedCubesRes->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
@@ -222,7 +223,6 @@ void SVGIProperties::updateHide()
 	propGIMirrorsSpecular->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsQuality->Hide(!svs.mirrorsEnabled,false);
 
-	propGIEmisMultiplier->Hide(!realtimeGI,false);
 	propGIVideo->Hide(!realtimeGI,false);
 	propGIEmisVideoAffectsGI->Hide(!realtimeGI,false);
 	propGIEmisVideoGIQuality->Hide(!realtimeGI || !svs.videoEmittanceAffectsGI,false);
@@ -256,6 +256,7 @@ void SVGIProperties::updateProperties()
 		+ updateBoolRef(propGISRGBCorrect)
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
 		+ updateFloat(propGIIndirectMultiplier,svs.renderLightIndirectMultiplier)
+		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
 		+ updateInt(propGIFireballWorkPerFrame,svs.fireballWorkPerFrame)
 		+ updateBool(propGIFireballWorkTotal,svs.fireballWorkTotal>svs.fireballWorkPerFrame)
@@ -264,7 +265,6 @@ void SVGIProperties::updateProperties()
 		+ updateInt(propGIRaytracedCubesMaxObjects,svs.raytracedCubesMaxObjects)
 		+ updateFloat(propGIRaytracedCubesSpecularThreshold,svs.raytracedCubesSpecularThreshold)
 		+ updateFloat(propGIRaytracedCubesDepthThreshold,svs.raytracedCubesDepthThreshold)
-		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
 		+ updateInt(propGIEmisVideoGIQuality,svs.videoEmittanceGIQuality)
 		+ updateBoolRef(propGITranspVideoAffectsGIFull)
 		+ updateInt(propGIEnvVideoGIQuality,svs.videoEnvironmentGIQuality)
@@ -336,6 +336,11 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		}
 	}
 	else
+	if (property==propGIEmisMultiplier)
+	{
+		svs.emissiveMultiplier = property->GetValue().GetDouble();
+	}
+	else
 	if (property==propGILDM)
 	{
 		updateHide();
@@ -395,11 +400,6 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIMirrors)
 	{
 		updateHide();
-	}
-	else
-	if (property==propGIEmisMultiplier)
-	{
-		svs.emissiveMultiplier = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propGIEmisVideoAffectsGI || property==propGITranspVideoAffectsGI || property==propGIEnvVideoAffectsGI)
