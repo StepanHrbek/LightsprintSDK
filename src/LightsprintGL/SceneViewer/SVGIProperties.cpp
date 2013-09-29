@@ -45,10 +45,10 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIIndirect->SetHelpString(_("What nondirectional indirect illumination technique to use. Note that directional techniques (Raytraced cubemaps, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
 		Append(propGIIndirect);
 
-		propGIIndirectMultiplier = new FloatProperty(_("Intensity"),_("Makes indirect illumination from lights (not from emissive surfaces) this times brighter, 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
+		propGIIndirectMultiplier = new FloatProperty(_("Light multiplier"),_("Multiplies indirect illumination from lights, without affecting lights. 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
 		AppendIn(propGIIndirect,propGIIndirectMultiplier);
 
-		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Fireball only: Multiplies effect of emissive materials on scene, without affecting emissive materials. Default=1."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
+		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting materials. 1=realistic. In baked modes, it is applied when baking, not when rendering."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
 		AppendIn(propGIIndirect,propGIEmisMultiplier);
 
 		propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination."),svs.renderLDM);
