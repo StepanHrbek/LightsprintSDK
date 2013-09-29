@@ -160,7 +160,7 @@ public:
 
 					// gathering light
 					legal = pointMaterial.sideBits[ray->hitFrontSide?0:1].legal;
-					visibility *= pointMaterial.specularTransmittance.color * pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
+					visibility *= pointMaterial.specularTransmittance.color * RRReal( pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
 					RR_ASSERT(IS_VEC3(pointMaterial.specularTransmittance.color));
 					RR_ASSERT(IS_VEC3(visibility));
 					return visibility==RRVec3(0);
@@ -175,7 +175,7 @@ public:
 
 				// gathering light
 				legal = triangleMaterial->sideBits[ray->hitFrontSide?0:1].legal;
-				visibility *= triangleMaterial->specularTransmittance.color * triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal;
+				visibility *= triangleMaterial->specularTransmittance.color * RRReal( triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
 				RR_ASSERT(IS_VEC3(triangleMaterial->specularTransmittance.color));
 				RR_ASSERT(IS_VEC3(visibility));
 				return visibility==RRVec3(0);
