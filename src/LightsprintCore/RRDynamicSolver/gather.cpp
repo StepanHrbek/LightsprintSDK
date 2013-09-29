@@ -768,7 +768,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 // CPU, gathers per-triangle lighting from RRLights, environment, current solution
 // may be called as first gather or final gather
-bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams, const GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots, bool _gatherDirectEmitors)
+bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots, bool _gatherDirectEmitors)
 {
 	if (aborting)
 		return false;
@@ -789,7 +789,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 
 	// validate params
 	UpdateParameters params;
-	if (aparams) params = *aparams;
+	if (_params) params = *_params;
 	params.quality = RR_MAX(1,params.quality);
 	
 	// optimize params
@@ -897,7 +897,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 }
 
 // CPU version, detects per-triangle direct from RRLights, environment, gathers from current solution
-bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* aparams)
+bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 {
 	RRReportInterval report(INF2,"Updating solver direct ...\n");
 
@@ -921,7 +921,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 		RRReporter::report(ERRO,"Not enough memory, illumination not updated.\n");
 		return false;
 	}
-	if (!gatherPerTrianglePhysical(aparams,finalGather,numPostImportTriangles,false)) // this is first gather -> don't gather emitors
+	if (!gatherPerTrianglePhysical(_params,finalGather,numPostImportTriangles,false)) // this is first gather -> don't gather emitors
 	{
 		delete finalGather;
 		return false;
@@ -954,7 +954,7 @@ public:
 	bool* aborting;
 };
 
-bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* aparamsIndirect)
+bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsIndirect)
 {
 	if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
@@ -979,9 +979,9 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 	paramsIndirect.applyLights = false;
 	paramsIndirect.applyEnvironment = false;
 	//paramsDirect.applyCurrentSolution = false;
-	if (aparamsIndirect)
+	if (_paramsIndirect)
 	{
-		paramsIndirect = *aparamsIndirect;
+		paramsIndirect = *_paramsIndirect;
 		// disable debugging in first gather
 		paramsIndirect.debugObject = UINT_MAX;
 		paramsIndirect.debugTexel = UINT_MAX;
