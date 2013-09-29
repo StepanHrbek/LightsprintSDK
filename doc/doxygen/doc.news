@@ -8,11 +8,14 @@ namespace rr
 
 \page main_news What's new
 
-\section news141 ------------------------------------ 2013.09.xx -------------------------------------
+\section news141 ------------------------------------ 2013.09.29 -------------------------------------
 
 NEWS
 
 - little planet panorama rendering mode
+    <table border=0><tr align=top><td>
+    \image html 360-planet.jpg
+    </td></tr></table>
 - higher quality reflections
   - for cubemap resolutions >=32, rr_gl::RRDynamicSolverGL::updateEnvironmentMap()
     produces faster and higher quality data using rasterizer instead of raytracer
@@ -37,8 +40,11 @@ FIXES
 
 NEWS
 
-- panorama rendering
+- equirectangular panorama rendering
   - enabled via rr_gl::RenderParameters::panoramaMode
+    <table border=0><tr align=top><td>
+    \image html 360-equirect.jpg
+    </td></tr></table>
 - improved unwrapper
   - can be aborted more quickly
   - survives crashes in Microsoft code
