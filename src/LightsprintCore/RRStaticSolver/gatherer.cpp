@@ -12,7 +12,7 @@ namespace rr
 
 extern RRVec3 refract(RRVec3 N, RRVec3 I, const RRMaterial* m);
 
-Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, bool _gatherDirectEmitors, bool _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
+Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, RRReal _gatherDirectEmitors, RRReal _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
 	: collisionHandlerGatherHemisphere(_multiObject,_quality,_staticSceneContainsLods)
 {
 	collisionHandlerGatherHemisphere.setHemisphere(_staticSolver);
@@ -20,8 +20,10 @@ Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSo
 	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
 	environment = _environment;
 	scaler = _scaler;
-	gatherDirectEmitors = _gatherDirectEmitors;
-	gatherIndirectLight = _gatherIndirectLight;
+	gatherDirectEmitors = _gatherDirectEmitors?true:false;
+	gatherDirectEmitorsMultiplier = _gatherDirectEmitors;
+	gatherIndirectLight = _gatherIndirectLight?true:false;
+	gatherIndirectLightMultiplier = _gatherIndirectLight;
 	Object* _object = _staticSolver->scene->object;
 	object = _object->importer;
 	collider = object->getCollider();
@@ -129,7 +131,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			if (gatherDirectEmitors)
 			{
 				// used in direct lighting final gather [per pixel emittance]
-				exitance += visibility * material->diffuseEmittance.color;// * splitToTwoSides;
+				exitance += visibility * material->diffuseEmittance.color * gatherDirectEmitorsMultiplier;// * splitToTwoSides;
 			}
 
 			// diffuse reflection
@@ -138,7 +140,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				// used in GI final gather
 				{
 					// point detail version
-					exitance += visibility * hitTriangle->getTotalIrradiance() * material->diffuseReflectance.color;// * splitToTwoSides;
+					exitance += visibility * hitTriangle->getTotalIrradiance() * material->diffuseReflectance.color * gatherIndirectLightMultiplier;// * splitToTwoSides;
 					// per triangle version (ignores point detail even if it's already available)
 					//exitance += visibility * hitTriangle->totalExitingFlux / hitTriangle->area;
 				}

@@ -161,8 +161,8 @@ public:
 			_pti.context.solver->priv->scene,
 			_tools.environment,
 			_tools.scaler,
-			_pti.context.gatherDirectEmitors,
-			_pti.context.params->applyCurrentSolution,
+			_pti.context.gatherDirectEmitors?1.0f:0.0f,
+			_pti.context.params->applyCurrentSolution?1.0f:0.0f,
 			_pti.context.staticSceneContainsLods,
 			_pti.context.params->quality)
 	{
