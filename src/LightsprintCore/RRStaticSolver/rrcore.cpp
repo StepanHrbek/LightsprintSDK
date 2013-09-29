@@ -975,7 +975,6 @@ void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceN
 	RRReal cosa = sqrt(1-tmp);
 	// emit only inside?
 	// emit to both sides?
-	const RRSideBits* sideBits = sideBits;
 	if (sourceNode->surface->sideBits[1].emitTo && (!sourceNode->surface->sideBits[0].emitTo || (RAND%2)))
 		cosa = -cosa;
 	// don't emit?
@@ -1194,7 +1193,7 @@ bool Scene::energyFromDistributedUntil(BestInfo source,RRStaticSolver::EndFunc& 
 //
 // improve global illumination in scene by only distributing energy
 
-bool Scene::distribute(unsigned minSteps, real maxError)
+bool Scene::distribute(int minSteps, real maxError)
 {
 	bool distributed=false;
 	int steps=0;
