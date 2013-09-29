@@ -313,7 +313,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 	RRReportInterval report(INF1,"Building Fireball (quality=%d, triangles=%d)...\n",raysPerTriangle,getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
 	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REbuild it)
 	priv->postVertex2Ivertex.clear(); // clear also table that depends on packed solver
-	calculateCore(0); // create static solver if not created yet
+	calculateCore(0,&priv->previousCalculateParameters); // create static solver if not created yet
 	if (!priv->scene)
 	{
 		RRReporter::report(WARN,"Fireball not built, empty scene.\n");

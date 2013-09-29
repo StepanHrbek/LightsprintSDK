@@ -943,6 +943,9 @@ void RRDynamicSolver::calculate(CalculateParameters* _params)
 		else
 			priv->calcStep = 0.6f*priv->calcStep + 0.4f*lastCalcStep;
 	}
+
+	if (_params)
+		priv->previousCalculateParameters = *_params;
 }
 
 

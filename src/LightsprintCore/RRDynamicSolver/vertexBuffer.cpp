@@ -225,7 +225,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 	// dynamic solver
 	if (!priv->scene)
 	{
-		calculateCore(0); // create missing solver
+		calculateCore(0,&priv->previousCalculateParameters); // create missing solver
 		if (!priv->scene)
 		{
 			RRReporter::report(WARN,"Empty scene, vertex buffer not set.\n");

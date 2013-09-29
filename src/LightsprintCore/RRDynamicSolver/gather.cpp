@@ -775,7 +775,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* aparams,
 	if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
-		calculateCore(0);
+		calculateCore(0,&priv->previousCalculateParameters);
 		if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RRReporter::report(WARN,"RRDynamicSolver::gatherPerTrianglePhysical: Empty scene.\n");
@@ -904,7 +904,7 @@ bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* apa
 	if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
-		calculateCore(0);
+		calculateCore(0,&priv->previousCalculateParameters);
 		if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RR_ASSERT(0);
@@ -960,7 +960,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 	{
 		// create objects
 		RRReportInterval report(INF2,"Smoothing scene ...\n");
-		calculateCore(0);
+		calculateCore(0,&priv->previousCalculateParameters);
 		if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
 			if (priv->packedSolver)
@@ -1008,7 +1008,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* a
 	if (paramsIndirect.applyLights || paramsIndirect.applyEnvironment)
 	{
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
-		calculateCore(0);
+		calculateCore(0,&priv->previousCalculateParameters);
 		priv->scene->illuminationReset(true,true,NULL,NULL,NULL); // required by endByQuality()
 
 		// first gather

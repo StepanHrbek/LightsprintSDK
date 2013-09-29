@@ -630,7 +630,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 		) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
-		calculateCore(0);
+		calculateCore(0,&priv->previousCalculateParameters);
 		if ( (!priv->scene
 			&& !priv->packedSolver
 			) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())

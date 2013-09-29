@@ -83,6 +83,7 @@ namespace rr
 		unsigned   solutionVersion; // incremented each time we want user to update lightmaps (not after every change in solution, slightly less frequently)
 		RRPackedSolver* packedSolver;
 		unsigned   materialTransmittanceVersionSum[2];
+		CalculateParameters previousCalculateParameters; // copy of previous non-NULL params sent by user (we pass it to calculate when we call it internally)
 
 		// read results
 		struct TriangleVertexPair {unsigned triangleIndex:30;unsigned vertex012:2;TriangleVertexPair(unsigned _triangleIndex,unsigned _vertex012):triangleIndex(_triangleIndex),vertex012(_vertex012){}}; // packed as 30+2 bits is much faster than 32+32 bits
