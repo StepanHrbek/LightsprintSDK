@@ -13,6 +13,9 @@
 #include "include/assimp/postprocess.h"
 #include "include/assimp/scene.h"
 #include "include/assimp/material.inl"
+#include <boost/filesystem.hpp>
+
+namespace bf = boost::filesystem;
 
 using namespace rr;
 
@@ -492,11 +495,23 @@ public:
 		}
 		RRSceneAssimp* scene = new RRSceneAssimp;
 		RRReportInterval report(INF3,"Adapting scene...\n");
+		RRString subdirTex = RR_PATH2RR(bf::path(RR_RR2PATH(filename)).parent_path()/"tex/"); // .c4d is known to have textures in "tex" subdir
+		RRString subdirTextures = RR_PATH2RR(bf::path(RR_RR2PATH(filename)).parent_path()/"textures/"); // "textures" is another subdir searched by assimp_view
+		if (textureLocator)
+		{
+			textureLocator->setParent(true,subdirTex);
+			textureLocator->setParent(true,subdirTextures);
+		}
 		scene->protectedObjects = new RRObjectsAssimp(aiscene,textureLocator);
 		scene->protectedLights = new RRLightsAssimp(aiscene);
 		for (unsigned i=0;i<aiscene->mNumCameras;i++)
 			if (aiscene->mCameras[i])
 				scene->cameras.push_back(convertCamera(*aiscene->mCameras[i]));
+		if (textureLocator)
+		{
+			textureLocator->setParent(false,subdirTextures);
+			textureLocator->setParent(false,subdirTex);
+		}
 		aiReleaseImport(aiscene);
 		return scene;
 	}
