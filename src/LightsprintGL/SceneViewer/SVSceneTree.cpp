@@ -433,8 +433,10 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			bool selectedExactlyAllStaticObjects = entityIds.rbegin()->index+1==svframe->m_canvas->solver->getStaticObjects().size();
 			bool selectedOnlyStaticObjects = entityIds.rbegin()->index<svframe->m_canvas->solver->getStaticObjects().size();
 			bool selectedOnlyDynamicObjects = entityIds.rbegin()->index>=svframe->m_canvas->solver->getStaticObjects().size();
+#ifdef _WIN32 // SDK implements unwrap only in Windows
 			if (selectedExactlyAllStaticObjects || svframe->userPreferences.testingBeta) // is safe only for all objects at once because lightmapTexcoord is in material, not in RRObject, we can't change only selected objects without duplicating materials
 				menu.Append(CM_OBJECTS_UNWRAP,_("Build unwrap..."),_("(Re)builds unwrap. Unwrap is necessary for lightmaps and LDM."));
+#endif
 			if (selectedOnlyStaticObjects)
 			{
 				menu.Append(CM_OBJECTS_BUILD_LMAPS,_("Bake lightmaps..."),_("(Re)builds per-vertex or per-pixel lightmaps. Per-pixel requires unwrap."));
