@@ -5,7 +5,6 @@
 
 #include "Lightsprint/GL/FPS.h"
 #include "PreserveState.h"
-#include "tmpstr.h"
 
 namespace rr_gl
 {
