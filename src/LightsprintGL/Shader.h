@@ -31,16 +31,16 @@ public:
 	//!  Source code of GLSL shader.
 	//! \param shaderType
 	//!  GL_FRAGMENT_SHADER for fragment shader, GL_VERTEX_SHADER for vertex shader.
-	static Shader* create(const char* defines, const char* filename, GLenum shaderType = GL_FRAGMENT_SHADER);
+	static Shader* create(const char* defines, const rr::RRString& filename, GLenum shaderType = GL_FRAGMENT_SHADER);
 	~Shader();
 
 	//! Compiles shader.  
 	//! (When errors are encountered, program link will fail.)
-	void compile(const char* filenameDiagnosticOnly);
+	void compile(const rr::RRString& filenameDiagnosticOnly);
 	//! Returns OpenGL handle to shader.
 	GLuint getHandle() const;
 private:
-	Shader(const char* filenameDiagnosticOnly, const GLchar** source, GLenum shaderType);
+	Shader(const rr::RRString& filenameDiagnosticOnly, const GLchar** source, GLenum shaderType);
 	GLuint handle;
 };
 

@@ -9,127 +9,48 @@
 #include <stdlib.h>
 #include "Shader.h"
 #include "Lightsprint/RRDebug.h"
+#include <sstream>
+#include <boost/filesystem/fstream.hpp>
+namespace bf = boost::filesystem;
 
 namespace rr_gl
 {
 
-char* readShader(const char* filename)
-{
-	FILE* f = fopen(filename,"rb");
-	if (!f) return NULL;
-	fseek(f,0,SEEK_END);
-	unsigned count = ftell(f);
-	char* buf;
-	buf = new char[count + 1];
-	fseek(f,0,SEEK_SET);
-	count = (unsigned)fread(buf,1,count,f);
-	fclose(f);
-	buf[count] = 0;
-	return buf;
-}
-
 #define NUM_LINES 4
 
-Shader* Shader::create(const char* defines, const char* filename, GLenum shaderType)
+Shader* Shader::create(const char* defines, const rr::RRString& filename, GLenum shaderType)
 {
-
-// HACK: is MESA library present? (PS3 Linux)
-#if !defined(_WIN32) && defined(__PPC__)
-#define MESA_VERSION
-#endif
-
-#ifdef MESA_VERSION
-
-	// MESA preprocessor is buggy, therefore we use GCC preprocessor instead
-
-	const char* shaderDefs = defines ? defines : "";
-
-	FILE* f = fopen(filename, "rb");
-	if (!f) return NULL;
-
-	fseek(f, 0, SEEK_END);
-	long shaderFileSize = ftell(f);
-	fseek(f, 0, SEEK_SET);
-
-	int shaderSrcSize = strlen(shaderDefs) + shaderFileSize + 2;
-	char* shaderSrc = new char[shaderSrcSize];
-	memset(shaderSrc, 0, shaderSrcSize);
-
-	sprintf(shaderSrc, "%s\n", shaderDefs);
-	fread(shaderSrc + strlen(shaderSrc), shaderFileSize, 1, f);
-	fclose(f);
-
-	if (!strncmp(shaderSrc, "#version", 8))
-	{
-		// remove "#version" tag which GCC preprocessor does not recognize
-		char* p = shaderSrc;
-		while (*p != 0x0A && *p != 0x00) *p++ = ' ';
-	}
-
-	char* srcName = "shader.s";
-	char* parsedSrcName = "shader.i";
-/*
-	static int shaderNum = -1;
-	shaderNum++;
-
-	printf("SHADER %02d: %s\n%s\n", shaderNum, filename, shaderDefs);
-
-	char srcName[256];
-	sprintf(srcName, "ubershader.s%02d", shaderNum);
-
-	char parsedSrcName[256];
-	sprintf(parsedSrcName, "ubershader.p%02d", shaderNum);
-*/
-	f = fopen(srcName, "wb");
-	fwrite(shaderSrc, strlen(shaderSrc), 1, f);
-	fclose(f);
-
-	delete [] shaderSrc;
-
-	char shellCmd[256];
-	sprintf(shellCmd, "gcc -E -P -x c %s > %s", srcName, parsedSrcName);
-	system(shellCmd);
-
-	// C parser doesn't recognize "#version" tag
-
-	const char* source[NUM_LINES];
-	source[0] = "#version 110\n"; // this is just for clarity, 110 is default so it's not necessary to specify it
-	source[1] = "";
-	source[2] = "";
-	source[3] = readShader(parsedSrcName);
-
-	sprintf(shellCmd, "rm %s", parsedSrcName);
-	system(shellCmd);
-
-#else // !MESA_VERSION
-
 	#define SHADOW_HACK "#version 300\n#define shadow2D(a,b) vec4(texture(a,b))\n#define shadow2DProj(a,b) vec4(textureProj(a,b))\n#define textureCube texture\n"
 	//#define SHADOW_HACK "#extension GL_EXT_shadow_samplers : require\n#define shadow2D(a,b) vec4(shadow2DEXT(a,b))\n#define shadow2DProj(a,b) vec4(shadow2DProjEXT(a,b))\n"
 	const char* source[NUM_LINES];
-	source[0] = (s_es && strstr(filename,"ubershader") ) ? SHADOW_HACK : "";//"#version 110\n"; // 110 is default, should be supported by any gl2.0 implementation. we don't insert it here, so that shader can specify its own version (dof needs 120)
+	source[0] = (s_es && strstr(filename.c_str(),"ubershader") ) ? SHADOW_HACK : "";//"#version 110\n"; // 110 is default, should be supported by any gl2.0 implementation. we don't insert it here, so that shader can specify its own version (dof needs 120)
 	source[1] = s_es ? "precision highp float;\n" : "";
 	source[2] = defines?defines:"";
-	source[3] = readShader(filename);
-
-#endif // !MESA_VERSION
-
-	if (!source[NUM_LINES-1])
+	try
 	{
-		rr::RRReporter::report(rr::ERRO,"Shader %s not found.\n",filename);
-		return NULL;
+		bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
+		std::stringstream buffer;
+		buffer << ifs.rdbuf();
+		std::string s = buffer.str();
+		source[3] = s.c_str();
+		if (*source[3])
+			return new Shader(filename,source,shaderType);
 	}
-	return new Shader(filename,source,shaderType);
+	catch(...)
+	{
+	}
+	rr::RRReporter::report(rr::ERRO,"Shader %ls not found.\n",filename.w_str());
+	return NULL;
 }
 
-Shader::Shader(const char* filenameDiagnosticOnly, const GLchar** source, GLenum shaderType)
+Shader::Shader(const rr::RRString& filenameDiagnosticOnly, const GLchar** source, GLenum shaderType)
 {
 	handle = glCreateShader(shaderType);
-	glShaderSource(handle, NUM_LINES, (const GLchar**)source, NULL);
+	glShaderSource(handle, NUM_LINES, source, NULL);
 	compile(filenameDiagnosticOnly);
-	delete[] source[NUM_LINES-1];
 }
 
-void Shader::compile(const char* filenameDiagnosticOnly)
+void Shader::compile(const rr::RRString& filenameDiagnosticOnly)
 {
 	GLint compiled;
 
@@ -138,7 +59,7 @@ void Shader::compile(const char* filenameDiagnosticOnly)
 
 	if (!compiled)
 	{
-		rr::RRReporter::report(rr::ERRO,"%s compilation failed:\n",filenameDiagnosticOnly);
+		rr::RRReporter::report(rr::ERRO,"%ls compilation failed:\n",filenameDiagnosticOnly.w_str());
 
 		GLchar* debug;
 		GLint debugLength;
