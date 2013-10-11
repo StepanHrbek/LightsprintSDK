@@ -21,7 +21,6 @@
 #include "RendererOfMesh.h"
 #include "Shader.h" // s_es
 #include "Workaround.h"
-#include "tmpstr.h"
 
 // COPY_TO_CUBE:
 //  -cube must not be bigger than current render target viewport/scissor
@@ -104,7 +103,7 @@ std::size_t hash_value(const UberProgramSetup& b)
 class RendererOfSceneImpl : public RendererOfScene
 {
 public:
-	RendererOfSceneImpl(const char* pathToShaders);
+	RendererOfSceneImpl(const rr::RRString& pathToShaders);
 	virtual ~RendererOfSceneImpl();
 
 	virtual void render(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters);
@@ -155,13 +154,13 @@ bool FaceGroupRange::operator <(const FaceGroupRange& a) const // for sort()
 	return (*s_perObjectBuffers)[object].eyeDistance>(*s_perObjectBuffers)[a.object].eyeDistance;
 }
 
-RendererOfSceneImpl::RendererOfSceneImpl(const char* pathToShaders)
+RendererOfSceneImpl::RendererOfSceneImpl(const rr::RRString& pathToShaders)
 {
 	textureRenderer = new TextureRenderer(pathToShaders);
-	uberProgram = UberProgram::create(tmpstr("%subershader.vs",pathToShaders),tmpstr("%subershader.fs",pathToShaders));
+	uberProgram = UberProgram::create(rr::RRString(0,L"%subershader.vs",pathToShaders.w_str()),rr::RRString(0,L"%subershader.fs",pathToShaders.w_str()));
 
 	stereoTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST);
-	stereoUberProgram = UberProgram::create(tmpstr("%sstereo.vs",pathToShaders),tmpstr("%sstereo.fs",pathToShaders));
+	stereoUberProgram = UberProgram::create(rr::RRString(0,L"%sstereo.vs",pathToShaders.w_str()),rr::RRString(0,L"%sstereo.fs",pathToShaders.w_str()));
 
 	panoramaTexture = new Texture(rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR); // A for mirroring
 	depthTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_DEPTH,false,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR);
@@ -1080,7 +1079,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 //
 // RendererOfScene
 
-RendererOfScene* RendererOfScene::create(const char* pathToShaders)
+RendererOfScene* RendererOfScene::create(const rr::RRString& pathToShaders)
 {
 	return new RendererOfSceneImpl(pathToShaders);
 }

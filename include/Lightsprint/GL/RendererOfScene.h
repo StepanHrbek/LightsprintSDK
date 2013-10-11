@@ -134,7 +134,7 @@ public:
 	//! \param pathToShaders
 	//!  Path to directory with shaders.
 	//!  Must be terminated with slash (or be empty for current dir).
-	static RendererOfScene* create(const char* pathToShaders);
+	static RendererOfScene* create(const rr::RRString& pathToShaders);
 	virtual ~RendererOfScene() {};
 
 	//! Renders scene from solver into current render target and current viewport.
