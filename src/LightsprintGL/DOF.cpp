@@ -7,12 +7,11 @@
 #include "Lightsprint/GL/DOF.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "PreserveState.h"
-#include "tmpstr.h"
 
 namespace rr_gl
 {
 
-DOF::DOF(const char* pathToShaders)
+DOF::DOF(const rr::RRString& pathToShaders)
 {
 	smallColor1 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	smallColor2 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
@@ -20,9 +19,12 @@ DOF::DOF(const char* pathToShaders)
 	bigColor = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	bigDepth = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	// #version 120 is necessary for 'poisson' array
-	dofProgram1 = Program::create("#version 120\n#define PASS 1\n",tmpstr("%sdof.vs",pathToShaders),tmpstr("%sdof.fs",pathToShaders));
-	dofProgram2 = Program::create("#version 120\n#define PASS 2\n",tmpstr("%sdof.vs",pathToShaders),tmpstr("%sdof.fs",pathToShaders));
-	dofProgram3 = Program::create("#version 120\n#define PASS 3\n",tmpstr("%sdof.vs",pathToShaders),tmpstr("%sdof.fs",pathToShaders));
+	rr::RRString filename1,filename2;
+	filename1.format(L"%sdof.vs",pathToShaders.w_str());
+	filename2.format(L"%sdof.fs",pathToShaders.w_str());
+	dofProgram1 = Program::create("#version 120\n#define PASS 1\n",filename1,filename2);
+	dofProgram2 = Program::create("#version 120\n#define PASS 2\n",filename1,filename2);
+	dofProgram3 = Program::create("#version 120\n#define PASS 3\n",filename1,filename2);
 }
 
 DOF::~DOF()

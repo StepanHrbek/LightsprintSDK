@@ -29,7 +29,7 @@ public:
 	//! \param pathToShaders
 	//!  Path to directory with shaders.
 	//!  Must be terminated with slash (or be empty for current dir).
-	DOF(const char* pathToShaders);
+	DOF(const rr::RRString& pathToShaders);
 	~DOF();
 
 	//! Adds depth of field effect to image in current render target, to region of size w*h.
