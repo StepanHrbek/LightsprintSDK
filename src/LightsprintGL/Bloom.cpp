@@ -7,21 +7,23 @@
 #include "Lightsprint/GL/Bloom.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "PreserveState.h"
-#include "tmpstr.h"
 
 namespace rr_gl
 {
 
 //#define OPTIMIZE_BLOOM // optional optimization
 
-Bloom::Bloom(const char* pathToShaders)
+Bloom::Bloom(const rr::RRString& pathToShaders)
 {
 	bigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	smallMap1 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	smallMap2 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	scaleDownProgram = Program::create("#define PASS 1\n",tmpstr("%sbloom.vs",pathToShaders),tmpstr("%sbloom.fs",pathToShaders));
-	blurProgram = Program::create("#define PASS 2\n",tmpstr("%sbloom.vs",pathToShaders),tmpstr("%sbloom.fs",pathToShaders));
-	blendProgram = Program::create("#define PASS 3\n",tmpstr("%sbloom.vs",pathToShaders),tmpstr("%sbloom.fs",pathToShaders));
+	rr::RRString filename1,filename2;
+	filename1.format(L"%sbloom.vs",pathToShaders.w_str());
+	filename2.format(L"%sbloom.fs",pathToShaders.w_str());
+	scaleDownProgram = Program::create("#define PASS 1\n",filename1,filename2);
+	blurProgram = Program::create("#define PASS 2\n",filename1,filename2);
+	blendProgram = Program::create("#define PASS 3\n",filename1,filename2);
 }
 
 Bloom::~Bloom()
