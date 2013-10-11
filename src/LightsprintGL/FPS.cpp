@@ -28,7 +28,7 @@ unsigned FpsCounter::getFps()
 //
 // FpsDisplay
 
-FpsDisplay* FpsDisplay::create(const char* pathToMaps)
+FpsDisplay* FpsDisplay::create(const rr::RRString& pathToMaps)
 {
 	FpsDisplay* fps = new FpsDisplay(pathToMaps);
 	if (!fps->mapFps) goto err;
@@ -42,12 +42,12 @@ err:
 	return NULL;
 }
 
-FpsDisplay::FpsDisplay(const char* pathToMaps)
+FpsDisplay::FpsDisplay(const rr::RRString& pathToMaps)
 {
-	mapFps = rr::RRBuffer::load(tmpstr("%stxt-fps.png",pathToMaps));
+	mapFps = rr::RRBuffer::load(rr::RRString(0,L"%lstxt-fps.png",pathToMaps.w_str()));
 	for (unsigned i=0;i<10;i++)
 	{
-		mapDigit[i] = rr::RRBuffer::load(tmpstr("%stxt-%d.png",pathToMaps,i));
+		mapDigit[i] = rr::RRBuffer::load(rr::RRString(0,L"%lstxt-%d.png",pathToMaps.w_str(),i));
 	}
 }
 
