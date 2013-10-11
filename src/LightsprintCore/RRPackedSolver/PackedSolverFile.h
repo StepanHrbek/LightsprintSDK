@@ -465,10 +465,14 @@ public:
 	{
 		return packedFactors->getMemoryOccupied() + packedIvertices->getMemoryOccupied() + packedSmoothTrianglesBytes;
 	}
-	bool save(const char* filename, const RRHash& hash) const
+	bool save(const RRString& filename, const RRHash& hash) const
 	{
 		// create file
-		FILE* f = fopen(filename,"wb");
+#ifdef _WIN32
+		FILE* f = _wfopen(filename.w_str(),L"wb");
+#else
+		FILE* f = fopen(RR_RR2CHAR(filename),"wb");
+#endif
 		if (!f) return false;
 		// save invalid header (because file contents is incomplete ATM)
 		Header header;
@@ -496,10 +500,14 @@ public:
 		fclose(f);
 		return true;
 	}
-	static PackedSolverFile* load(const char* filename, const RRHash* hashThatMustMatch)
+	static PackedSolverFile* load(const RRString& filename, const RRHash* hashThatMustMatch)
 	{
 		// open file
-		FILE* f = fopen(filename,"rb");
+#ifdef _WIN32
+		FILE* f = _wfopen(filename.w_str(),L"rb");
+#else
+		FILE* f = fopen(RR_RR2CHAR(filename),"rb");
+#endif
 		if (!f) return NULL;
 		// load header
 		Header header;

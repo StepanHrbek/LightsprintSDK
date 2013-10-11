@@ -886,12 +886,11 @@ namespace rr
 		//!  Higher number = longer calculation, higher quality results, bigger file.
 		//! \param filename
 		//!  Data precomputed for current static scene will be saved to this file.
-		//!  Set NULL for automatically generated name in temp directory.
-		//!  Set "" for no saving.
+		//!  If empty, automatically generated name (in temp directory) is used.
 		//! \return
 		//!  True if successful.
 		//!  For better consistency, if save (disk operation) fails, Fireball is not started.
-		bool buildFireball(unsigned avgRaysPerTriangle, const char* filename);
+		bool buildFireball(unsigned avgRaysPerTriangle, const RRString& filename);
 
 		//! Load and start Fireball.
 		//
@@ -906,7 +905,7 @@ namespace rr
 		//!
 		//! \param filename
 		//!  File with data to load, previously created by buildFireball().
-		//!  Set NULL to use automatically generated name (in your temp directory).
+		//!  If empty, automatically generated name is used (in your temp directory).
 		//! \param onlyPerfectMatch
 		//!  Loads file only if it was built for exactly the same scene on the same CPU architecture.
 		//!  Applications that build fireball on end-user machines should use true.
@@ -916,7 +915,7 @@ namespace rr
 		//!  difference may be caused by different floation point precision on end-user's system).
 		//! \return
 		//!  True if successful.
-		bool loadFireball(const char* filename, bool onlyPerfectMatch);
+		bool loadFireball(const RRString& filename, bool onlyPerfectMatch);
 
 		//! Switch to non-Fireball solver that supports offline calculations.
 		void leaveFireball();

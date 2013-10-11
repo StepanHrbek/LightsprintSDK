@@ -307,7 +307,7 @@ const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle, 
 //
 // RRDynamicSolver
 
-bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filename)
+bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const RRString& _filename)
 {
 	float importanceOfDetails = 0.1f;
 	RRReportInterval report(INF1,"Building Fireball (quality=%d, triangles=%d)...\n",raysPerTriangle,getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
@@ -329,22 +329,14 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 		);
 
 	RRHash hash = getMultiObjectPhysical()->getHash();
-	RRString filenameauto;
-	if (!filename)
-	{
-		filenameauto = hash.getFileName(FIREBALL_FILENAME_VERSION,NULL,".fireball");
-		filename = RR_RR2CHAR(filenameauto);
-	}
+	RRString filename = _filename.empty() ? hash.getFileName(FIREBALL_FILENAME_VERSION,NULL,".fireball") : _filename;
 
-	if (filename[0])
+	if (packedSolverFile->save(filename,hash))
+		RRReporter::report(INF2,"Saved to %ls\n",filename.w_str());
+	else
 	{
-		if (packedSolverFile->save(filename,hash))
-			RRReporter::report(INF2,"Saved to %s\n",filename);
-		else
-		{
-			RRReporter::report(WARN,"Failed to save to %s\n",filename);
-			RR_SAFE_DELETE(packedSolverFile); // to make it consistent, delete fireball when save fails
-		}
+		RRReporter::report(WARN,"Failed to save to %ls\n",filename.w_str());
+		RR_SAFE_DELETE(packedSolverFile); // to make it consistent, delete fireball when save fails
 	}
 	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),packedSolverFile);
 	if (priv->packedSolver)
@@ -357,7 +349,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const char* filena
 	return priv->packedSolver!=NULL;
 }
 
-bool RRDynamicSolver::loadFireball(const char* filename, bool onlyPerfectMatch)
+bool RRDynamicSolver::loadFireball(const RRString& _filename, bool onlyPerfectMatch)
 {
 	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REload it)
 	priv->postVertex2Ivertex.clear(); // clear also table that depends on packed solver
@@ -370,14 +362,9 @@ bool RRDynamicSolver::loadFireball(const char* filename, bool onlyPerfectMatch)
 	}
 
 	RRHash hash;
-	if (!filename || onlyPerfectMatch) // save time, don't hash if we don't need it
+	if (_filename.empty() || onlyPerfectMatch) // save time, don't hash if we don't need it
 		hash = getMultiObjectPhysical()->getHash();
-	RRString filenameauto;
-	if (!filename)
-	{
-		filenameauto = hash.getFileName(FIREBALL_FILENAME_VERSION,NULL,".fireball");
-		filename = RR_RR2CHAR(filenameauto);
-	}
+	RRString filename = _filename.empty() ? hash.getFileName(FIREBALL_FILENAME_VERSION,NULL,".fireball") : _filename;
 
 	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),PackedSolverFile::load(filename,onlyPerfectMatch?&hash:NULL));
 	if (priv->packedSolver)

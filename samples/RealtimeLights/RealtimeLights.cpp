@@ -408,7 +408,7 @@ int main(int argc, char** argv)
 	solver->allocateBuffersForRealtimeGI(LAYER_LIGHTMAPS,LAYER_ENVIRONMENT);
 
 	// enable Fireball - faster, higher quality, smaller realtime global illumination solver
-	solver->loadFireball(NULL,true) || solver->buildFireball(350,NULL);
+	solver->loadFireball("",true) || solver->buildFireball(350,"");
 
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutDisplayFunc(display);

@@ -1345,7 +1345,7 @@ reload_skybox:
 				if (!fireballLoadAttempted)
 				{
 					fireballLoadAttempted = true;
-					solver->loadFireball(NULL,true);
+					solver->loadFireball("",true);
 				}
 			}
 			if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRDynamicSolver::BOTH)
@@ -1355,7 +1355,7 @@ reload_skybox:
 				LogWithAbort logWithAbort(this,solver,_("Building Fireball..."));
 
 				// ask no questions, it's possible scene is loading right now and it's not safe to render/idle. dialog would render/idle on background
-				solver->buildFireball(svs.fireballQuality,NULL);
+				solver->buildFireball(svs.fireballQuality,"");
 				solver->reportDirectIlluminationChange(-1,true,true,false);
 				// this would ask questions
 				//OnMenuEventCore(ME_REALTIME_FIREBALL_BUILD);
@@ -1388,7 +1388,7 @@ reload_skybox:
 					svs.renderLightDirect = LD_REALTIME;
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 					svs.renderLightmaps2d = 0;
-					solver->buildFireball(svs.fireballQuality,NULL);
+					solver->buildFireball(svs.fireballQuality,"");
 					solver->reportDirectIlluminationChange(-1,true,true,false);
 					fireballLoadAttempted = true;
 					// affects realtime solution only
