@@ -38,7 +38,7 @@ namespace rr_gl
 		//!  Must be terminated with slash (or be empty for current dir).
 		//! \param detectionQuality
 		//!  Sets quality of our detectDirectIllumination() routine.
-		RRDynamicSolverGL(const char* pathToShaders, DDIQuality detectionQuality = DDI_AUTO);
+		RRDynamicSolverGL(const rr::RRString& pathToShaders, DDIQuality detectionQuality = DDI_AUTO);
 		virtual ~RRDynamicSolverGL();
 
 		//! Sets lights used by both realtime and offline renderer.
@@ -129,7 +129,6 @@ namespace rr_gl
 		unsigned lastDDINumLightsEnabled;
 
 		// for internal rendering (shadowmaps)
-		char pathToShaders[300];
 		RendererOfScene* rendererOfScene;
 		UberProgram* uberProgram1; // for updating shadowmaps and detecting direct illumination
 

@@ -26,11 +26,8 @@ namespace rr_gl
 //
 // RRDynamicSolverGL
 
-RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _detectionQuality)
+RRDynamicSolverGL::RRDynamicSolverGL(const rr::RRString& pathToShaders, DDIQuality _detectionQuality)
 {
-	strncpy(pathToShaders,_pathToShaders?_pathToShaders:"",299);
-	pathToShaders[299]=0;
-
 	switch(_detectionQuality)
 	{
 		case DDI_4X4:
@@ -51,17 +48,17 @@ RRDynamicSolverGL::RRDynamicSolverGL(const char* _pathToShaders, DDIQuality _det
 
 	scaleDownProgram = Program::create(
 		tmpstr("#define SIZEX %d\n#define SIZEY %d\n",faceSizeX,faceSizeY),
-		tmpstr("%sscaledown_filter.vs",pathToShaders),
-		tmpstr("%sscaledown_filter.fs",pathToShaders));
-	if (!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %sscaledown_filter.*\n",pathToShaders);
+		rr::RRString(0,L"%sscaledown_filter.vs",pathToShaders.w_str()),
+		rr::RRString(0,L"%sscaledown_filter.fs",pathToShaders.w_str()));
+	if (!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %lsscaledown_filter.*\n",pathToShaders.w_str());
 
 	lastDDITime.addSeconds(-1000000);
 	detectedDirectSum = NULL;
 	detectedNumTriangles = 0;
 
 	observer = NULL;
-	rendererOfScene = rr_gl::RendererOfScene::create(_pathToShaders);
-	uberProgram1 = UberProgram::create(tmpstr("%subershader.vs",pathToShaders),tmpstr("%subershader.fs",pathToShaders));
+	rendererOfScene = rr_gl::RendererOfScene::create(pathToShaders);
+	uberProgram1 = UberProgram::create(rr::RRString(0,L"%subershader.vs",pathToShaders.w_str()),rr::RRString(0,L"%subershader.fs",pathToShaders.w_str()));
 
 	depthTexture = Texture::createShadowmap(1,1,false);
 }
