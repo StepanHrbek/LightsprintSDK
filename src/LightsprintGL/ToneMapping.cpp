@@ -16,7 +16,7 @@ namespace rr_gl
 //
 // ToneMapping
 
-ToneMapping::ToneMapping(const char* pathToShaders)
+ToneMapping::ToneMapping()
 {
 	bigTexture = NULL;
 	smallTexture = NULL;

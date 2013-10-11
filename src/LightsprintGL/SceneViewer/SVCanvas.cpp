@@ -361,7 +361,7 @@ void SVCanvas::createContextCore()
 	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
 #endif
 
-	toneMapping = new ToneMapping(svs.pathToShaders);
+	toneMapping = new ToneMapping();
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
 
