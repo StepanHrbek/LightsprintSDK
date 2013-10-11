@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDebug.h"
+#include "Lightsprint/RRMemory.h"
 #include "PreserveState.h"
 #include "tmpstr.h"
 
@@ -20,14 +21,14 @@ namespace rr_gl
 //
 // TextureRenderer
 
-TextureRenderer::TextureRenderer(const char* pathToShaders)
+TextureRenderer::TextureRenderer(const rr::RRString& pathToShaders)
 {
-	skyProgram = UberProgram::create(tmpstr("%ssky.vs",pathToShaders),tmpstr("%ssky.fs",pathToShaders));
-	twodProgram = UberProgram::create(tmpstr("%stexture.vs",pathToShaders),tmpstr("%stexture.fs",pathToShaders));
+	skyProgram = UberProgram::create(rr::RRString(0,L"%ssky.vs",pathToShaders.w_str()),rr::RRString(0,L"%ssky.fs",pathToShaders.w_str()));
+	twodProgram = UberProgram::create(rr::RRString(0,L"%stexture.vs",pathToShaders.w_str()),rr::RRString(0,L"%stexture.fs",pathToShaders.w_str()));
 	if (!skyProgram)
-		rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %ssky.*\n",pathToShaders);
+		rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %lssky.*\n",pathToShaders.w_str());
 	if (!twodProgram)
-		rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %stexture.*\n",pathToShaders);
+		rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %lstexture.*\n",pathToShaders.w_str());
 }
 
 TextureRenderer::~TextureRenderer()

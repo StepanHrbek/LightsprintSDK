@@ -31,7 +31,7 @@ public:
 	//! \param pathToShaders
 	//!  Path to directory with shaders.
 	//!  Must be terminated with slash (or be empty for current dir).
-	TextureRenderer(const char* pathToShaders);
+	TextureRenderer(const rr::RRString& pathToShaders);
 
 	//! Shutdowns renderer, freeing shaders.
 	~TextureRenderer();
