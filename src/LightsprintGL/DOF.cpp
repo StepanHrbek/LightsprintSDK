@@ -19,9 +19,8 @@ DOF::DOF(const rr::RRString& pathToShaders)
 	bigColor = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	bigDepth = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	// #version 120 is necessary for 'poisson' array
-	rr::RRString filename1,filename2;
-	filename1.format(L"%sdof.vs",pathToShaders.w_str());
-	filename2.format(L"%sdof.fs",pathToShaders.w_str());
+	rr::RRString filename1(0,L"%sdof.vs",pathToShaders.w_str());
+	rr::RRString filename2(0,L"%sdof.fs",pathToShaders.w_str());
 	dofProgram1 = Program::create("#version 120\n#define PASS 1\n",filename1,filename2);
 	dofProgram2 = Program::create("#version 120\n#define PASS 2\n",filename1,filename2);
 	dofProgram3 = Program::create("#version 120\n#define PASS 3\n",filename1,filename2);
