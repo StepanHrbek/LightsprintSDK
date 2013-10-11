@@ -20,18 +20,16 @@ namespace rr_gl
 class UberProgramImpl : public UberProgram
 {
 public:
-	UberProgramImpl(const char* _vertexShaderFileName, const char* _fragmentShaderFileName)
+	UberProgramImpl(const rr::RRString& _vertexShaderFileName, const rr::RRString& _fragmentShaderFileName)
 	{
-		vertexShaderFileName = _strdup(_vertexShaderFileName);
-		fragmentShaderFileName = _strdup(_fragmentShaderFileName);
+		vertexShaderFileName = _vertexShaderFileName;
+		fragmentShaderFileName = _fragmentShaderFileName;
 	}
 	virtual ~UberProgramImpl()
 	{
 		// delete all programs in cache
 		for (Cache::const_iterator i=cache.begin();i!=cache.end();i++)
 			delete (*i).second;
-		free((void*)fragmentShaderFileName);
-		free((void*)vertexShaderFileName);
 	}
 
 	virtual Program* getProgram(const char* defines)
@@ -49,8 +47,8 @@ public:
 	}
 
 private:
-	const char* vertexShaderFileName;
-	const char* fragmentShaderFileName;
+	rr::RRString vertexShaderFileName;
+	rr::RRString fragmentShaderFileName;
 	typedef boost::unordered_map<unsigned,Program*> Cache;
 	Cache cache;
 };
@@ -59,7 +57,7 @@ private:
 //
 // UberProgram
 
-UberProgram* UberProgram::create(const char* vertexShaderFileName, const char* fragmentShaderFileName)
+UberProgram* UberProgram::create(const rr::RRString& vertexShaderFileName, const rr::RRString& fragmentShaderFileName)
 {
 	return new UberProgramImpl(vertexShaderFileName,fragmentShaderFileName);
 }

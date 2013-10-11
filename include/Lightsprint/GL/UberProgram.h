@@ -37,7 +37,7 @@ public:
 	//!  File name of GLSL vertex shader source code.
 	//! \param fragmentShaderFileName
 	//!  File name of GLSL fragment shader source code.
-	static UberProgram* create(const char* vertexShaderFileName, const char* fragmentShaderFileName);
+	static UberProgram* create(const rr::RRString& vertexShaderFileName, const rr::RRString& fragmentShaderFileName);
 
 protected:
 	UberProgram() {};
