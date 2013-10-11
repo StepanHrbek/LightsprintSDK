@@ -30,7 +30,7 @@ public:
 	//! \param pathToMaps
 	//!  Path to directory with maps.
 	//!  Lens flare textures are loaded from (pathToMaps)flare_*.png.
-	LensFlare(const char* pathToMaps);
+	LensFlare(const rr::RRString& pathToMaps);
 	~LensFlare();
 
 	//! Renders lens flares for single light source.

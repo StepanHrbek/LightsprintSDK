@@ -9,7 +9,6 @@
 #include "Lightsprint/GL/LensFlare.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "PreserveState.h"
-#include "tmpstr.h"
 
 namespace rr_gl
 {
@@ -50,13 +49,13 @@ public:
 //
 // LensFlare
 
-LensFlare::LensFlare(const char* pathToMaps)
+LensFlare::LensFlare(const rr::RRString& pathToMaps)
 {
 	for (unsigned i=0;i<NUM_PRIMARY_MAPS;i++)
-		primaryMap[i] = rr::RRBuffer::load(tmpstr("%sflare_prim%d.png",pathToMaps,i+1));
+		primaryMap[i] = rr::RRBuffer::load(rr::RRString(0,L"%sflare_prim%d.png",pathToMaps.w_str(),i+1));
 	for (unsigned i=0;i<NUM_SECONDARY_MAPS;i++)
 	{
-		secondaryMap[i] = rr::RRBuffer::load(tmpstr("%sflare_sec%d.png",pathToMaps,i+1));
+		secondaryMap[i] = rr::RRBuffer::load(rr::RRString(0,L"%sflare_sec%d.png",pathToMaps.w_str(),i+1));
 		// is it mostly grayscale? we will colorize it in renderLensFlare() only if it is mostly gray
 		if (secondaryMap[i])
 		{

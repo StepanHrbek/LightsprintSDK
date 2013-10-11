@@ -1846,7 +1846,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				lensFlareLoadAttempted = true;
 				RR_ASSERT(!lensFlare);
-				lensFlare = new LensFlare(svs.pathToMaps);
+				lensFlare = new LensFlare(RR_WX2RR(svs.pathToMaps));
 			}
 			if (lensFlare)
 			{
