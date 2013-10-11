@@ -21,7 +21,7 @@ void Program::logMessages(bool enable)
 	s_showLog = enable;
 }
 
-Program::Program(const char* defines, const char* vertexShader, const char* fragmentShader)
+Program::Program(const char* defines, const rr::RRString& vertexShader, const rr::RRString& fragmentShader)
 {
 	handle = glCreateProgram();
 	vertex = NULL;
@@ -30,18 +30,18 @@ Program::Program(const char* defines, const char* vertexShader, const char* frag
 
 	if (s_showLog)
 	{
-		rr::RRReporter::report(rr::INF2,"Building %s + %s\n",vertexShader,fragmentShader);
+		rr::RRReporter::report(rr::INF2,"Building %ls + %ls\n",vertexShader.w_str(),fragmentShader.w_str());
 		if (defines && defines[0]) rr::RRReporter::report(rr::INF2,"%s",defines);
 	}
 
-	if (vertexShader)
+	if (!vertexShader.empty())
 	{
 		vertex = Shader::create(defines, vertexShader, GL_VERTEX_SHADER);
 		if (!vertex) goto end;
 		glAttachShader(handle, vertex->getHandle());
 	}
 
-	if (fragmentShader)
+	if (!fragmentShader.empty())
 	{
 		fragment = Shader::create(defines, fragmentShader, GL_FRAGMENT_SHADER);
 		if (!fragment) goto end;
@@ -98,7 +98,7 @@ Program::~Program()
 	glDeleteProgram(handle);
 }
 
-Program* Program::create(const char* defines, const char* vertexShader, const char* fragmentShader)
+Program* Program::create(const char* defines, const rr::RRString& vertexShader, const rr::RRString& fragmentShader)
 {
 	Program* res = new Program(defines,vertexShader,fragmentShader);
 	if (!res->isLinked()) RR_SAFE_DELETE(res);

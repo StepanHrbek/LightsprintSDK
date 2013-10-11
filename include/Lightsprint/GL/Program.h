@@ -56,10 +56,10 @@ public:
 	//! \param defines
 	//!  String inserted before compilation at the beginning of shader source code. May be NULL.
 	//! \param vertexShader
-	//!  Name of text file with GLSL vertex shader. May be NULL for fixed pipeline.
+	//!  Name of text file with GLSL vertex shader. May be empty for fixed pipeline.
 	//! \param fragmentShader
-	//!  Name of text file with GLSL fragment shader. May be NULL for fixed pipeline.
-	static Program* create(const char* defines, const char* vertexShader, const char* fragmentShader);
+	//!  Name of text file with GLSL fragment shader. May be empty for fixed pipeline.
+	static Program* create(const char* defines, const rr::RRString& vertexShader, const rr::RRString& fragmentShader);
 
 	~Program();
 
@@ -114,7 +114,7 @@ public:
 	//! Print OpenGL log to console. False by default. Set true for debugging.
 	static void logMessages(bool enable);
 private:
-	Program(const char* defines, const char* vertexShader, const char* fragmentShader);
+	Program(const char* defines, const rr::RRString& vertexShader, const rr::RRString& fragmentShader);
 	int getLoc(const char* name);
 	bool isLinked();
 	bool logLooksSafe();
