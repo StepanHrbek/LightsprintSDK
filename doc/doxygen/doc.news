@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news142 ------------------------------------ 2013.10.xx -------------------------------------
+
+NEWS
+
+CHANGES
+
+- last few path/filename parameters changed from char* to RRString, so that all paths in SDK are processed in unicode
+
 \section news141 ------------------------------------ 2013.09.29 -------------------------------------
 
 NEWS

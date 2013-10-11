@@ -91,7 +91,7 @@ static wxAppConsole *wxCreateApp()
 	return new SVApp;
 }
 
-void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, const char* _skyboxFilename, const char* _pathToData, SceneViewerState* _svs, bool _releaseResources)
+void sceneViewer(rr::RRDynamicSolver* _inputSolver, const rr::RRString& _inputFilename, const rr::RRString& _skyboxFilename, const rr::RRString& _pathToData, SceneViewerState* _svs, bool _releaseResources)
 {
 	// randomize all rand()s
 	srand (time(NULL));
@@ -102,16 +102,16 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const char* _inputFilename, 
 	// set initial values (user may change them interactively in scene viewer)
 	s_svs = SceneViewerStateEx();
 	if (_svs) memcpy(&s_svs,_svs,sizeof(*_svs));
-	if (_inputFilename)
+	if (!_inputFilename.empty())
 	{
-		s_svs.sceneFilename = _inputFilename;
+		s_svs.sceneFilename = RR_RR2WX(_inputFilename);
 	}
-	if (_skyboxFilename)
+	if (!_skyboxFilename.empty())
 	{
 		s_svs.skyboxFilename = _skyboxFilename;
 	}
 	s_svs.initialInputSolver = _inputSolver;
-	s_svs.pathToData = _pathToData;
+	s_svs.pathToData = RR_RR2WX(_pathToData);
 	s_svs.pathToShaders = s_svs.pathToData+"shaders/";
 	s_svs.pathToMaps = s_svs.pathToData+"maps/";
 	s_svs.releaseResources = _releaseResources;

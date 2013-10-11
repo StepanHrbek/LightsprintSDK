@@ -381,21 +381,18 @@ struct SceneViewerState
 //!  Solver to be displayed. This is handy for debugging scene already present in solver. May be NULL.
 //! \param inputFilename
 //!  If inputSolver is NULL, we attempt to open and display this file. This is handy for scene viewer applications.
-//!  Your string is not free()d.
 //! \param skyboxFilename
 //!  If RRBuffer::loadCube() loads this skybox successfully, it is used, overriding eventual environment from inputSolver.
-//!  Your string is not free()d.
 //! \param pathToData
 //!  Path to directory with data, where subdirectories maps, shaders are expected.
 //!  Must be terminated with slash (or be empty for current dir).
-//!  Your string is not free()d.
 //! \param svs
 //!  Initial state of viewer. Use NULL for default state with realtime GI and random camera.
 //! \param releaseResources
 //!  Resources allocated by scene viewer will be released on exit.
 //!  It could take some time in huge scenes, so there's option to not release them, let them leak.
 //!  Not releasing resources is good idea e.g. if you plan to exit application soon.
-void RR_GL_API sceneViewer(rr::RRDynamicSolver* inputSolver, const char* inputFilename, const char* skyboxFilename, const char* pathToData, SceneViewerState* svs, bool releaseResources);
+void RR_GL_API sceneViewer(rr::RRDynamicSolver* inputSolver, const rr::RRString& inputFilename, const rr::RRString& skyboxFilename, const rr::RRString& pathToData, SceneViewerState* svs, bool releaseResources);
 
 }; // namespace
 
