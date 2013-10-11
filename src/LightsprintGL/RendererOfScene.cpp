@@ -857,6 +857,17 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 				mirrorMaskUberProgramSetup.MATERIAL_CULLING = true;
 				mirrorMaskUberProgramSetup.OBJECT_SPACE = true;
 				Program* mirrorMaskProgram = mirrorMaskUberProgramSetup.getProgram(uberProgram);
+				if (!mirrorMaskProgram)
+				{
+					skip_mirror:
+					// mirror is completely occluded, don't render mirrorColorMap, delete it
+					// mirror might still be rendered later in final render, but mirrorColorMap will be NULL
+					for (unsigned j=0;j<perObjectBuffers[0].size();j++)
+						if (perObjectBuffers[0][j].mirrorColorMap==i->second)
+							perObjectBuffers[0][j].mirrorColorMap = NULL;
+					RR_SAFE_DELETE(i->second);
+					continue;
+				}
 				mirrorMaskProgram->useIt();
 				mirrorMaskUberProgramSetup.useCamera(mirrorMaskProgram,_.camera);
 				for (unsigned j=0;j<perObjectBuffers[0].size();j++)
@@ -885,15 +896,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 				glEndQuery(GL_SAMPLES_PASSED);
 				glGetQueryObjectuiv(1,GL_QUERY_RESULT,&mirrorVisible);
 				if (!mirrorVisible)
-				{
-					// mirror is completely occluded, don't render mirrorColorMap, delete it
-					// mirror might still be rendered later in final render, but mirrorColorMap will be NULL
-					for (unsigned j=0;j<perObjectBuffers[0].size();j++)
-						if (perObjectBuffers[0][j].mirrorColorMap==i->second)
-							perObjectBuffers[0][j].mirrorColorMap = NULL;
-					RR_SAFE_DELETE(i->second);
-					continue;
-				}
+					goto skip_mirror;
 #endif
 				// copy A to mirrorMaskMap.A
 				getTexture(mirrorMaskMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE)->bindTexture();
