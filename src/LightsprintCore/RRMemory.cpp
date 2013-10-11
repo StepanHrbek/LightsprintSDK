@@ -177,17 +177,15 @@ void RRString::clear()
 	wstr = NULL;
 }
 
-void RRString::format(const wchar_t* fmt, ...)
+static void form(RRString* thiz, const wchar_t* fmt, va_list& argptr)
 {
-	va_list argptr;
 	size_t bufSize = 1000;
 	wchar_t buf[1000];
-	va_start(argptr,fmt);
 	int characters = _vsnwprintf(buf,bufSize-1,fmt,argptr);
 	if (characters>=0)
 	{
 		buf[bufSize-1] = 0;
-		*this = buf;
+		*thiz = buf;
 	}
 	else
 	while (1)
@@ -197,19 +195,35 @@ void RRString::format(const wchar_t* fmt, ...)
 		if (!buf)
 		{
 			RR_ASSERT(0);
-			*this = "format() error";
+			*thiz = "format() error";
 			return;
 		}
 		characters = _vsnwprintf(buf,bufSize-1,fmt,argptr);
 		if (characters>=0)
 		{
 			buf[bufSize-1] = 0;
-			*this = buf;
+			*thiz = buf;
 			delete[] buf;
 			return;
 		}
 		delete[] buf;
 	}
+}
+
+RRString::RRString(unsigned zero, const wchar_t* fmt, ...)
+{
+	str = NULL;
+	wstr = NULL;
+	va_list argptr;
+	va_start(argptr,fmt);
+	form(this,fmt,argptr);
+}
+
+void RRString::format(const wchar_t* fmt, ...)
+{
+	va_list argptr;
+	va_start(argptr,fmt);
+	form(this,fmt,argptr);
 }
 
 RRString& RRString::operator =(const RRString& a)

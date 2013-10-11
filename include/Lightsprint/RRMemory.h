@@ -131,6 +131,7 @@ namespace rr
 		RRString(const RRString& a);
 		RRString(const char* a);
 		RRString(const wchar_t* a);
+		RRString(unsigned zero, const wchar_t* fmt, ...); ///< Initializes string using wprintf() like syntax (%s for wide string, %hs for singlebyte). First parameter is reserved and should be always zero.
 		RRString& operator =(const RRString& a);
 		RRString& operator =(const char* a);
 		RRString& operator =(const wchar_t* a);
