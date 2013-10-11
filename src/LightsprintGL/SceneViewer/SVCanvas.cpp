@@ -2368,7 +2368,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		{
 			fpsLoadAttempted = true;
 			RR_ASSERT(!fpsDisplay);
-			fpsDisplay = FpsDisplay::create(svs.pathToMaps);
+			fpsDisplay = FpsDisplay::create(RR_WX2RR(svs.pathToMaps));
 		}
 		if (fpsDisplay)
 		{
