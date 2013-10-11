@@ -266,7 +266,7 @@ void SVCanvas::createContextCore()
 
 
 	// init solver
-	solver = new rr_gl::RRDynamicSolverGL(svs.pathToShaders);
+	solver = new rr_gl::RRDynamicSolverGL(RR_WX2RR(svs.pathToShaders));
 	textureRenderer = solver->getRendererOfScene()->getTextureRenderer();
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	if (svs.initialInputSolver)
@@ -1794,7 +1794,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				bloomLoadAttempted = true;
 				RR_ASSERT(!bloom);
-				bloom = new Bloom(svs.pathToShaders);
+				bloom = new Bloom(RR_WX2RR(svs.pathToShaders));
 			}
 			if (bloom)
 			{
@@ -1809,7 +1809,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				dofLoadAttempted = true;
 				RR_ASSERT(!dof);
-				dof = new DOF(svs.pathToShaders);
+				dof = new DOF(RR_WX2RR(svs.pathToShaders));
 			}
 			if (dof)
 			{

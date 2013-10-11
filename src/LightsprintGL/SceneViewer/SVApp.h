@@ -29,7 +29,7 @@ struct SceneViewerStateEx : public SceneViewerState
 	//! Path to data necessary for scene viewer.
 	wxString pathToData;
 	//! pathToData+"shaders/"
-	char* pathToShaders;
+	wxString pathToShaders;
 	//! pathToData+"maps/"
 	wxString pathToMaps;
 	//! Current scene filename, e.g. path/scene.dae.
@@ -39,7 +39,6 @@ struct SceneViewerStateEx : public SceneViewerState
 	SceneViewerStateEx()
 	{
 		initialInputSolver = NULL;
-		pathToShaders = NULL;
 		releaseResources = true;
 	}
 	bool operator ==(const SceneViewerStateEx& a) const
