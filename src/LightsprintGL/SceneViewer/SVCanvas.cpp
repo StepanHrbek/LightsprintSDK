@@ -1822,15 +1822,16 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
 					ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 					ray->collisionHandler = collisionHandler;
+					float ratio = sqrtf(svs.camera.dofFar/svs.camera.dofNear);
+					if (!_finite(ratio) || ratio<1)
+						ratio = 1;
 					if (solver->getCollider()->intersect(ray))
 					{
-						float ratio = sqrtf(svs.camera.dofFar/svs.camera.dofNear);
 						svs.camera.dofNear = ray->hitDistance/ratio;
 						svs.camera.dofFar = ray->hitDistance*ratio;
 					}
 					else
 					{
-						float ratio = sqrtf(svs.camera.dofFar/svs.camera.dofNear);
 						svs.camera.dofNear = svs.camera.getFar()/ratio;
 						svs.camera.dofFar = svs.camera.getFar()*ratio;
 					}
