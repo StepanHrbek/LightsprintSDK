@@ -921,7 +921,11 @@ unsigned RRCamera::fixInvalidValues()
 		+ makeFinite(orthoSize,100)
 		+ makeFinite(yawPitchRollRad[0],0)
 		+ makeFinite(yawPitchRollRad[1],0)
-		+ makeFinite(yawPitchRollRad[2],0);
+		+ makeFinite(yawPitchRollRad[2],0)
+		+ makeFinite(eyeSeparation,0.08f)
+		+ makeFinite(focalLength,0.5f)
+		+ makeFinite(dofNear,1)
+		+ makeFinite(dofFar,10);
 	if (numFixes)
 	{
 		updateView(true,true);
