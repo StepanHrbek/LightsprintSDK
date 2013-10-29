@@ -520,7 +520,7 @@ Material formats (1)
    - <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
 
   \section wx_version Version
-   - Windows: wxWidgets trunk svn revision 73001 from 2012-11-24 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
+   - Windows: wxWidgets trunk svn revision 75075 from 2013-10-28 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
    - other platforms: not used
 
   \section wx_building Installing/building
