@@ -332,20 +332,20 @@ void SVCanvas::createContextCore()
 			// create architect
 			case LI_REALTIME_ARCHITECT:    svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT); break;
 		}
-
-		// try to load lightmaps
-		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedLightmap))
-			solver->getStaticObjects().loadLayer(svs.layerBakedLightmap,LAYER_PREFIX,LMAP_POSTFIX);
-
-		// try to load ambient maps
-		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedAmbient))
-			solver->getStaticObjects().loadLayer(svs.layerBakedAmbient,LAYER_PREFIX,AMBIENT_POSTFIX);
-
-		// try to load LDM. if not found, disable it
-		if (!solver->getStaticObjects().layerExistsInMemory(svs.layerBakedLDM))
-			if (!solver->getStaticObjects().loadLayer(svs.layerBakedLDM,LAYER_PREFIX,LDM_POSTFIX))
-				svs.renderLDM = false;
 	}
+
+	// try to load lightmaps
+	if (!allObjects.layerExistsInMemory(svs.layerBakedLightmap))
+		allObjects.loadLayer(svs.layerBakedLightmap,LAYER_PREFIX,LMAP_POSTFIX);
+
+	// try to load ambient maps
+	if (!allObjects.layerExistsInMemory(svs.layerBakedAmbient))
+		allObjects.loadLayer(svs.layerBakedAmbient,LAYER_PREFIX,AMBIENT_POSTFIX);
+
+	// try to load LDM. if not found, disable it
+	if (!allObjects.layerExistsInMemory(svs.layerBakedLDM))
+		if (!allObjects.loadLayer(svs.layerBakedLDM,LAYER_PREFIX,LDM_POSTFIX))
+			svs.renderLDM = false;
 
 	// try to load cubemaps
 	if (!allObjects.layerExistsInMemory(svs.layerBakedEnvironment))
