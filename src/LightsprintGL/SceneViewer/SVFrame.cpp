@@ -514,7 +514,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_materialProperties = NULL;
 	m_sceneTree = NULL;
 
-
 #ifdef NDEBUG
 	rr::RRTime splashStart;
 	AlphaSplashScreen splash(svs.pathToMaps+"sv_splash.png",false,230,-245);
