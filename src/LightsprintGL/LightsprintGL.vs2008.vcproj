@@ -976,6 +976,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\data\shaders\ssgi.fs"
+				>
+			</File>
+			<File
+				RelativePath="..\..\data\shaders\ssgi.vs"
+				>
+			</File>
+			<File
 				RelativePath="..\..\data\shaders\stereo.fs"
 				>
 			</File>
@@ -1098,6 +1106,14 @@
 		</File>
 		<File
 			RelativePath="Shader.h"
+			>
+		</File>
+		<File
+			RelativePath="SSGI.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\SSGI.h"
 			>
 		</File>
 		<File

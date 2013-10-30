@@ -566,6 +566,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\FBO.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\LensFlare.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\SceneViewer.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\SSGI.h" />
     <ClInclude Include="SceneViewer\SVAnimationProperties.h" />
     <ClInclude Include="SceneViewer\SVApp.h" />
     <ClInclude Include="SceneViewer\SVCanvas.h" />
@@ -639,6 +640,7 @@
     <ClCompile Include="SceneViewer\SVUserProperties.cpp" />
     <ClCompile Include="SceneViewer\SVThumbnailCtrl.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="SSGI.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureRenderer.cpp" />
     <ClCompile Include="ToneMapping.cpp" />
@@ -655,6 +657,8 @@
     <None Include="..\..\data\shaders\scaledown_filter.vs" />
     <None Include="..\..\data\shaders\sky.fs" />
     <None Include="..\..\data\shaders\sky.vs" />
+    <None Include="..\..\data\shaders\ssgi.fs" />
+    <None Include="..\..\data\shaders\ssgi.vs" />
     <None Include="..\..\data\shaders\stereo.fs" />
     <None Include="..\..\data\shaders\stereo.vs" />
     <None Include="..\..\data\shaders\texture.fs" />

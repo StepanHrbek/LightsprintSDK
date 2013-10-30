@@ -12,9 +12,20 @@ namespace rr
 
 NEWS
 
+- screen space global illumination, rr_gl::SSGI
+  - postprocess, simulates single short distance light bounce, with color bleeding
+  - can be used with Fireball or Architect realtime GI solvers to improve realtime GI quality (GI solvers contribute low frequency GI, SSGI adds high frequencies)
+  - can be used with constant ambient to add at least some GI effects to non-GI render
+  - is a realtime alternative to baked LDM
+    <table border=0><tr align=top><td>
+    \image html ssgi1.jpg
+    </td><td>
+    \image html ssgi2.jpg
+    </td></tr></table>
+
 CHANGES
 
-- last few path/filename parameters changed from char* to RRString, so that all paths in SDK are processed in unicode
+- several path/filename parameters changed from char* to RRString for more complete unicode support
   \n you might need to pass "" instead of NULL if old code fails to compile
 
 \section news141 ------------------------------------ 2013.09.29 -------------------------------------

@@ -46,6 +46,7 @@ RendererOfMesh.cpp \
 RendererOfScene.cpp \
 RRDynamicSolverGL.cpp \
 Shader.cpp \
+SSGI.cpp \
 Texture.cpp \
 TextureRenderer.cpp \
 ToneMapping.cpp \

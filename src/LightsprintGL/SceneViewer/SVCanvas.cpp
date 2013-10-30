@@ -17,6 +17,7 @@
 #include "SVMaterialProperties.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/Bloom.h"
+#include "Lightsprint/GL/SSGI.h"
 #include "Lightsprint/GL/DOF.h"
 #include "Lightsprint/GL/LensFlare.h"
 #include "Lightsprint/GL/ToneMapping.h"
@@ -111,6 +112,9 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 
 	bloomLoadAttempted = false;
 	bloom = NULL;
+
+	ssgiLoadAttempted = false;
+	ssgi = NULL;
 
 	dofLoadAttempted = false;
 	dof = NULL;
@@ -1799,6 +1803,21 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (bloom)
 			{
 				bloom->applyBloom(winWidth,winHeight);
+			}
+		}
+
+		// render SSGI, using own shader
+		if (svs.renderLightIndirect!=LI_NONE && svs.ssgiEnabled)
+		{
+			if (!ssgiLoadAttempted)
+			{
+				ssgiLoadAttempted = true;
+				RR_ASSERT(!ssgi);
+				ssgi = new SSGI(RR_WX2RR(svs.pathToShaders));
+			}
+			if (ssgi)
+			{
+				ssgi->applySSGI(winWidth,winHeight,svs.camera,svs.ssgiIntensity,svs.ssgiRadius,svs.ssgiAngleBias);
 			}
 		}
 

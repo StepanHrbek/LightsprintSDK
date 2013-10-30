@@ -1048,6 +1048,14 @@
 			>
 		</File>
 		<File
+			RelativePath="SSGI.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\SSGI.h"
+			>
+		</File>
+		<File
 			RelativePath="Texture.cpp"
 			>
 		</File>

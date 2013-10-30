@@ -51,7 +51,22 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting materials. 1=realistic. In baked modes, it is applied when baking, not when rendering."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
 		AppendIn(propGIIndirect,propGIEmisMultiplier);
 
-		propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination."),svs.renderLDM);
+		// SSGI
+		{
+			propGISSGI = new BoolRefProperty(_("SSGI"),_("Screen space global illumination improves quality of constant and realtime indirect illumination. SSGI works without any precalculations, however, it is slower and looks worse than LDM."),svs.ssgiEnabled);
+			AppendIn(propGIIndirect,propGISSGI);
+
+			propGISSGIIntensity = new FloatProperty(_("Intensity"),_("Multiplies effect of SSGI."),svs.ssgiIntensity,svs.precision,0,100,1,false);
+			AppendIn(propGISSGI,propGISSGIIntensity);
+
+			propGISSGIRadius = new FloatProperty(_("Radius"),_("Max distance of occluder to create occlusion."),svs.ssgiRadius,svs.precision,0,100,1,false);
+			AppendIn(propGISSGI,propGISSGIRadius);
+
+			propGISSGIAngleBias = new FloatProperty(_("Hide false edges"),_("0 for full occlusion (makes false edges visible), increase to hide occlusion on false edges."),svs.ssgiAngleBias,svs.precision,0,100,1,false);
+			AppendIn(propGISSGI,propGISSGIAngleBias);
+		}
+
+		propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination. LDMs are faster and look better than SSGI, but they have to be baked first (which takes time and requires unwrap)."),svs.renderLDM);
 		AppendIn(propGIIndirect,propGILDM);
 
 		// fireball
@@ -208,6 +223,10 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 void SVGIProperties::updateHide()
 {
 	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
+	propGISSGI->Hide(svs.renderLightIndirect==LI_NONE,false);
+	propGISSGIIntensity->Hide(svs.renderLightIndirect==LI_NONE || !svs.ssgiEnabled,false);
+	propGISSGIRadius->Hide(svs.renderLightIndirect==LI_NONE || !svs.ssgiEnabled,false);
+	propGISSGIAngleBias->Hide(svs.renderLightIndirect==LI_NONE || !svs.ssgiEnabled,false);
 	propGILDM->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_BAKED,false);
 	propGISRGBCorrect->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 	propGIShadowTransparency->Hide(svs.renderLightDirect!=LD_REALTIME,false);
@@ -246,6 +265,7 @@ void SVGIProperties::updateProperties()
 	unsigned numChangesRelevantForHiding =
 		+ updateInt(propGIDirect,svs.renderLightDirect)
 		+ updateInt(propGIIndirect,svs.renderLightIndirect)
+		+ updateBoolRef(propGISSGI)
 		+ updateBoolRef(propGILDM)
 		+ updateBoolRef(propGIEmisVideoAffectsGI)
 		+ updateBoolRef(propGITranspVideoAffectsGI)
@@ -255,6 +275,9 @@ void SVGIProperties::updateProperties()
 	unsigned numChangesOther =
 		+ updateBoolRef(propGISRGBCorrect)
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
+		+ updateFloat(propGISSGIIntensity,svs.ssgiIntensity)
+		+ updateFloat(propGISSGIRadius,svs.ssgiRadius)
+		+ updateFloat(propGISSGIAngleBias,svs.ssgiAngleBias)
 		+ updateFloat(propGIIndirectMultiplier,svs.renderLightIndirectMultiplier)
 		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
@@ -339,6 +362,26 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIEmisMultiplier)
 	{
 		svs.emissiveMultiplier = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGISSGI)
+	{
+		updateHide();
+	}
+	else
+	if (property==propGISSGIIntensity)
+	{
+		svs.ssgiIntensity = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGISSGIRadius)
+	{
+		svs.ssgiRadius = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGISSGIAngleBias)
+	{
+		svs.ssgiAngleBias = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propGILDM)

@@ -20,7 +20,7 @@ inline const char* tmpstr(const char* fmt, ...)
 {
 	enum
 	{
-		MAX_STRINGS=12, // FpsDisplay::FpsDisplay requires at least 12
+		MAX_STRINGS=2,
 		MAX_STRING_SIZE=1000
 	};
 	static unsigned i = 0;

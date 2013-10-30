@@ -99,6 +99,7 @@
       <Filter>SceneViewer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\Lightsprint\GL\DOF.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\SSGI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SceneViewer\SVApp.cpp">
@@ -181,6 +182,7 @@
       <Filter>SceneViewer</Filter>
     </ClCompile>
     <ClCompile Include="DOF.cpp" />
+    <ClCompile Include="SSGI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\data\shaders\scaledown_filter.fs">
@@ -223,6 +225,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\..\data\shaders\stereo.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\data\shaders\ssgi.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\data\shaders\ssgi.vs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

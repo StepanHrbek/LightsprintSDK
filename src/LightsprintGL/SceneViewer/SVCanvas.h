@@ -113,6 +113,10 @@ namespace rr_gl
 		bool                       bloomLoadAttempted;
 		class Bloom*               bloom;
 
+		// SSGI
+		bool                       ssgiLoadAttempted;
+		class SSGI*                ssgi;
+
 		// DOF
 		bool                       dofLoadAttempted;
 		class DOF*                 dof;

@@ -124,6 +124,10 @@ struct SceneViewerState
 	bool             tonemappingAutomatic;      //! Automatically adjust tonemappingBrightness.
 	float            tonemappingAutomaticTarget;//! Target average screen intensity for tonemappingAutomatic.
 	float            tonemappingAutomaticSpeed; //! Speed of automatic tonemapping change.
+	bool             ssgiEnabled;               //! Apply SSGI postprocess.
+	float            ssgiIntensity;             //! Intensity of SSGI effect, with 1=default, 0=no effect.
+	float            ssgiRadius;                //! Distance of occluders (in meters) taken into account when calculating SSGI.
+	float            ssgiAngleBias;             //! SSGI is based on face normals, not per-pixel normals, so at 0 even smooth edges are visible; higher angle bias makes more edges invisible.
 	bool             playVideos;                //! Play videos, false = videos are paused.
 	RealtimeLight::ShadowTransparency shadowTransparency; //! Type of transparency in shadows, we copy it to all lights.
 	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
@@ -226,6 +230,10 @@ struct SceneViewerState
 		tonemappingAutomaticSpeed = 1;
 		tonemappingBrightness = rr::RRVec4(1);
 		tonemappingGamma = 1;
+		ssgiEnabled = true;
+		ssgiIntensity = 1.0f;
+		ssgiRadius = 0.3f;
+		ssgiAngleBias = 0.1f;
 		playVideos = 1;
 		shadowTransparency = RealtimeLight::FRESNEL_SHADOWS;
 		emissiveMultiplier = 1;
@@ -325,6 +333,10 @@ struct SceneViewerState
 			&& a.tonemappingAutomaticSpeed==tonemappingAutomaticSpeed
 			&& (a.tonemappingBrightness==tonemappingBrightness || (renderTonemapping && tonemappingAutomatic)) // brightness may differ if automatic tonemapping is enabled
 			&& a.tonemappingGamma==tonemappingGamma
+			&& a.ssgiEnabled==ssgiEnabled
+			&& a.ssgiIntensity==ssgiIntensity
+			&& a.ssgiRadius==ssgiRadius
+			&& a.ssgiAngleBias==ssgiAngleBias
 			&& a.playVideos==playVideos
 			&& a.shadowTransparency==shadowTransparency
 			&& a.emissiveMultiplier==emissiveMultiplier
