@@ -280,7 +280,8 @@ public:
 	virtual bool parseElement (
 		const GeneratedSaxParser::ParserChar* profileName,
 		const GeneratedSaxParser::StringHash& elementHash,
-		const COLLADAFW::UniqueId& uniqueId )
+		const COLLADAFW::UniqueId& uniqueId,
+        COLLADAFW::Object* object )
 	{
 		// parse for extra elements that we have data structures for
 		currExtraData = NULL;

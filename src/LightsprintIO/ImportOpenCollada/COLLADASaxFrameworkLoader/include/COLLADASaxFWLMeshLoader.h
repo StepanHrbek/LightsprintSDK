@@ -141,15 +141,25 @@ namespace COLLADASaxFWL
 		unsigned int mNormalsIndexOffset; 
         bool mUseNormals;
 
+        unsigned long long mTangentsOffset; 
+        unsigned int mTangentsIndexOffset; 
+        bool mUseTangents;
+
+        unsigned long long mBinormalsOffset; 
+        unsigned int mBinormalsIndexOffset; 
+        bool mUseBinormals;
+
+        /** Multiple tex tangent data. */
+        std::vector<PrimitiveInput> mTexTangentList;
+
+        /** Multiple tex binormal data. */
+        std::vector<PrimitiveInput> mTexBinormalList;
+
         /** Multiple colors. */
         std::vector<PrimitiveInput> mColorList;
 
         /** Multiple texcoordinates. */
         std::vector<PrimitiveInput> mTexCoordList;
-
-		/** Multiple tex data. */
-		std::vector<PrimitiveInput> mTexTangentList;
-		std::vector<PrimitiveInput> mTexBinormalList;
 
         /** The type of the current primitive element. */
 		PrimitiveType mCurrentPrimitiveType;
@@ -363,8 +373,10 @@ namespace COLLADASaxFWL
         void initializeTexCoordsOffset ();
         void initializeColorsOffset ();
         void initializeNormalsOffset ();
+        void initializeTangentsOffset ();
+        void initializeBinormalsOffset ();
+        void initializeTexDataOffset (InputSemantic::Semantic inputSemantic, std::vector<PrimitiveInput>& inputList);
         void initializePositionsOffset ();
-		void initializeTexDataOffset (InputSemantic::Semantic inputSemantic, std::vector<PrimitiveInput>& inputList);
 
 		/** Writes all the indices in data into the indices array of the current mesh primitive.*/
 		bool writePrimitiveIndices ( const unsigned long long* data, size_t length );
@@ -407,10 +419,17 @@ namespace COLLADASaxFWL
         */
         bool loadTexCoordsSourceElement ( const InputShared& input );
 
-		/**
-		* Load the tex data (textangent or texbinormals) source elements
-		*/
-		bool loadTexDataSourceElement ( const InputShared& input, InputSemantic::Semantic inputSemantic, char* inputName, COLLADAFW::MeshVertexData& inputData );
+        /** 
+        * Load the tangent source element of the current input element into the framework mesh
+        */
+
+        bool loadTexBinormalSourceElement( const InputShared & input );
+
+        /** 
+        * Load the tangent source element of the current input element into the framework mesh
+        */
+
+        bool loadTexTangentSourceElement( const InputShared & input );
 
         /**
         * Appends the values of the source in the list with the dimension of source's stride.

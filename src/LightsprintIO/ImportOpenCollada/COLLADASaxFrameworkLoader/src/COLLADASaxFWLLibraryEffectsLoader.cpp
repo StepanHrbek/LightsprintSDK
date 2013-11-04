@@ -194,13 +194,82 @@ namespace COLLADASaxFWL
 				if ( attributeData.texcoord )
 				{
 					texture.setTextureMapId( getTextureMapIdBySematic( attributeData.texcoord) );
-				}
+                    texture.setTexcoord(attributeData.texcoord);
+                }
 
 				break;
 			}
 		}
 		return success;
 
+	}
+
+	//------------------------------
+	bool LibraryEffectsLoader::handleExtraEffectTextures( const COLLADAFW::PointerArray<COLLADAFW::TextureAttributes>& effectTextures )
+	{
+		bool success = true;
+
+		size_t countExtraTextures = effectTextures.getCount();
+		if( countExtraTextures == 0 )
+			return success;
+
+// 		switch ( mCurrentProfile )
+// 		{
+// 		case PROFILE_COMMON:
+//			{
+
+		for( size_t iTexture = 0; iTexture < countExtraTextures; ++iTexture )
+		{
+			COLLADAFW::TextureAttributes* textureAttributes = effectTextures[iTexture];
+			if( textureAttributes == 0 )
+				continue;
+
+			// Check if the texture is referenced.
+			const String& textureSid = textureAttributes->textureSampler;
+			SidSamplerInfoMap::const_iterator it = mEffectProfileSidSamplerInfoMap.find(textureSid);
+			if ( it == mEffectProfileSidSamplerInfoMap.end() )
+			{
+				it = mEffectSidSamplerInfoMap.find( textureSid );
+				if ( it == mEffectSidSamplerInfoMap.end() )
+				{
+					String msg("Texture with sid \"" + textureSid + "\" not found");
+					if ( mCurrentEffect )
+					{
+						msg += " in effect with id \"" + mCurrentEffect->getOriginalId() + "\"";
+					}
+					msg += ".";
+					success = handleFWLError ( SaxFWLError::ERROR_UNRESOLVED_REFERENCE, msg );
+					continue;;
+				}
+			}
+
+			// Push the texture sid of the current sampler in the list of used samplers
+			// of the current effect profile. 
+			size_t samplerIndex = 0;
+			StringIndexMap::const_iterator samplerIt = mEffectProfileSamplersMap.find(textureSid);
+			if ( samplerIt == mEffectProfileSamplersMap.end() )
+			{
+				// This sid has not been used before. Add to map with next index
+				samplerIndex = mNextSamplerIndex;
+				mEffectProfileSamplersMap.insert(std::make_pair(textureSid, mNextSamplerIndex++));
+			}
+			else
+			{
+				// This sid is already in the map. Use its index
+				samplerIndex = samplerIt->second;
+			}
+
+			// Initialize the texture element.
+			//bumpMap.setUniqueId ( createUniqueId(COLLADAFW::Texture::ID()) ); //texture id?
+			textureAttributes->samplerId = samplerIndex;
+			if ( !(textureAttributes->texCoord.empty()) )
+				textureAttributes->textureMapId = getTextureMapIdBySematic( textureAttributes->texCoord );
+		}
+
+//				break;
+//			}
+//		}
+		return success;
 	}
 
 	//------------------------------
@@ -328,7 +397,9 @@ namespace COLLADASaxFWL
 	//------------------------------
 	bool LibraryEffectsLoader::end__effect()
 	{
-		getFileLoader()->addEffect(mCurrentEffect);
+		COLLADASaxFWL::Loader* colladaLoader = getColladaLoader();
+		COLLADASaxFWL::FileLoader* fileLoader = getFileLoader();
+		fileLoader->addEffect(mCurrentEffect);
 
         mCurrentEffect = 0;
         SidSamplerInfoMap::iterator samplerIt = mEffectSidSamplerInfoMap.begin();
@@ -363,6 +434,9 @@ namespace COLLADASaxFWL
 	{
 		// Calculate the opacity value.
 		calculateOpacity ();
+
+		const COLLADAFW::PointerArray<COLLADAFW::TextureAttributes>& effectTextures = mCurrentEffect->getExtraTextures();
+		handleExtraEffectTextures( effectTextures );
 
         // Fill the array of samplers of the current profile.
         if ( !fillSamplerArray() )
@@ -449,6 +523,13 @@ namespace COLLADASaxFWL
     bool LibraryEffectsLoader::end__newparam____fx_newparam_common()
     {
         mCurrentNewParamSid.clear();
+        return true;
+    }
+
+    //------------------------------
+    bool LibraryEffectsLoader::begin__newparam____cg_newparam( const newparam____cg_newparam__AttributeData& attributeData )
+    {
+        addToSidTree( 0, (const char *) attributeData.sid ); 
         return true;
     }
 
@@ -881,10 +962,8 @@ namespace COLLADASaxFWL
         COLLADAFW::EffectCommon& commonEffect =  *mCurrentEffect->getCommonEffects().back();
         COLLADAFW::SamplerPointerArray& samplerArray = commonEffect.getSamplerPointerArray();
 
-		/* Separate from the rest we will save us all samplers with valid surfaces, this is needed for processing of textures
-		 * in extra data, since we don't know about at this time. Also, we need to deep-copy this, unused samplers gets deleted along the way
-		 * This is a quick hack and a potential FIXME and should basically replace the used samplers code in the second part of this function
-		 */
+		// Separate from the rest we will save us all samplers with valid surfaces, needed for extra data
+		// Also, we need to deep-copy this, unused sampler according to opencollada gets deleted along the way
 		for(SidSamplerInfoMap::iterator samplerIt = mEffectProfileSidSamplerInfoMap.begin(); samplerIt != mEffectProfileSidSamplerInfoMap.end(); samplerIt++)
 		{
 			SamplerInfo& samplerInfo = samplerIt->second;
@@ -909,7 +988,6 @@ namespace COLLADASaxFWL
 
 			commonEffect.getAllSamplersArray().insert( std::pair<String, COLLADAFW::Sampler>( samplerIt->first, sampler ) );
 		}
-		//////////////////////
 
         // Iterate over the list of used samplers in the current effect profile 
         // and push them in the sampler array.
@@ -974,6 +1052,42 @@ namespace COLLADASaxFWL
 		return true;
     }
 
+    bool LibraryEffectsLoader::data__minfilter( const ENUM__fx_sampler_filter_common value )
+    {
+        COLLADAFW::Sampler::SamplerFilter filter = COLLADAFW::Sampler::SAMPLER_FILTER_UNSPECIFIED;
+        if ( mCurrentSampler ) {
+            switch (value) {
+                case ENUM__fx_sampler_filter_common__NOT_PRESENT:
+                case ENUM__fx_sampler_filter_common__COUNT:
+                case ENUM__fx_sampler_filter_common__NONE:
+                    filter = COLLADAFW::Sampler::SAMPLER_FILTER_NONE;
+                    break;
+                case ENUM__fx_sampler_filter_common__NEAREST:
+                    filter = COLLADAFW::Sampler::SAMPLER_FILTER_NEAREST;
+                    break;
+                case ENUM__fx_sampler_filter_common__LINEAR:
+                    filter = COLLADAFW::Sampler::SAMPLER_FILTER_LINEAR;
+                    break;
+                case ENUM__fx_sampler_filter_common__NEAREST_MIPMAP_NEAREST:
+                    filter = COLLADAFW::Sampler::SAMPLER_FILTER_NEAREST_MIPMAP_NEAREST;
+                    break;
+                case ENUM__fx_sampler_filter_common__LINEAR_MIPMAP_NEAREST:
+                    filter = COLLADAFW::Sampler::SAMPLER_FILTER_LINEAR_MIPMAP_NEAREST;
+                    break;
+                case ENUM__fx_sampler_filter_common__NEAREST_MIPMAP_LINEAR:
+                    filter = COLLADAFW::Sampler::SAMPLER_FILTER_NEAREST_MIPMAP_LINEAR;
+                    break;
+                case ENUM__fx_sampler_filter_common__LINEAR_MIPMAP_LINEAR:
+                    filter = COLLADAFW::Sampler::SAMPLER_FILTER_LINEAR_MIPMAP_LINEAR;
+                    break;
+            }
+            mCurrentSampler->setMinFilter(filter);
+        }
+        
+        return true;
+    }
+
+    
     //------------------------------
     const COLLADAFW::UniqueId& LibraryEffectsLoader::getUniqueId ()
     {
@@ -983,5 +1097,15 @@ namespace COLLADASaxFWL
             return mCurrentEffect->getUniqueId ();
         return COLLADAFW::UniqueId::INVALID;
     }
+
+	//------------------------------
+	COLLADAFW::Object* LibraryEffectsLoader::getObject()
+	{
+		if ( mCurrentSampler ) 
+			return mCurrentSampler;
+		else if ( mCurrentEffect ) 
+			return mCurrentEffect;
+		return 0;
+	}
 
 } // namespace COLLADASaxFWL

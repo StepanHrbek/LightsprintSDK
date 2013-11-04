@@ -105,7 +105,9 @@ namespace COLLADASaxFWL
 
         /** Constructor. */
         SourceBase (  )
-            : mInitialIndex (0)
+            : mId()
+			, mStride(0)
+			, mInitialIndex (0)
             , mLoadedInputElements ( COLLADAFW::MeshPrimitiveArray::OWNER )
         {}
 
@@ -127,7 +129,7 @@ namespace COLLADASaxFWL
         * elements or from different input elements (NORMALS, COLOR, TEXCOORD, ...). It should be 
         * loaded only once from every input element.
         */
-        bool addLoadedInputElement ( InputSemantic::Semantic& semantic )
+        bool addLoadedInputElement ( const InputSemantic::Semantic& semantic )
         {
             if ( !isLoadedInputElement ( semantic ) )
             {
@@ -144,7 +146,7 @@ namespace COLLADASaxFWL
         * elements or from different input elements (NORMALS, COLOR, TEXCOORD, ...). It should be 
         * loaded only once from every input element.
         */
-        bool isLoadedInputElement ( InputSemantic::Semantic& semantic )
+        bool isLoadedInputElement ( const InputSemantic::Semantic& semantic )
         {
             const size_t numLoadedInputElements = mLoadedInputElements.getCount ();
             for ( size_t i=0; i<numLoadedInputElements; ++i )

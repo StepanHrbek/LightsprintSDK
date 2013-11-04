@@ -52,6 +52,8 @@ virtual bool begin__newparam____common_newparam_type( const COLLADASaxFWL14::new
 
 virtual bool end__newparam____common_newparam_type();
 
+virtual bool begin__newparam____cg_newparam( const COLLADASaxFWL14::newparam____cg_newparam__AttributeData& attributeData );
+
 virtual bool begin__surface____fx_surface_common( const COLLADASaxFWL14::surface____fx_surface_common__AttributeData& attributeData );
 
 virtual bool end__surface____fx_surface_common();
@@ -164,6 +166,9 @@ virtual bool begin__technique( const COLLADASaxFWL14::technique__AttributeData& 
 
 virtual bool end__technique();
 
+    virtual bool begin__minfilter();
+    virtual bool end__minfilter();
+    virtual bool data__minfilter( const COLLADASaxFWL14::ENUM__fx_sampler_filter_common value );
 
 private:
 /** Disable default copy ctor. */

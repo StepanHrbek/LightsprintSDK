@@ -2698,6 +2698,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportOpenCollada\COLLADAFramework\src\COLLADAFWSpline.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportOpenCollada\COLLADAFramework\src\COLLADAFWTexture.cpp"
 						>
 					</File>
@@ -3026,6 +3030,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportOpenCollada\COLLADAFramework\include\COLLADAFWPolylist.h"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportOpenCollada\COLLADAFramework\include\COLLADAFWPrerequisites.h"
 						>
 					</File>
@@ -3107,6 +3115,10 @@
 					</File>
 					<File
 						RelativePath=".\ImportOpenCollada\COLLADAFramework\include\COLLADAFWSkinControllerData.h"
+						>
+					</File>
+					<File
+						RelativePath=".\ImportOpenCollada\COLLADAFramework\include\COLLADAFWSpline.h"
 						>
 					</File>
 					<File
@@ -3378,6 +3390,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSplineLoader.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLTransformationLoader.cpp"
 						>
 					</File>
@@ -3474,6 +3490,10 @@
 						</File>
 						<File
 							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLSourceArrayLoader14.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLSplineLoader14.cpp"
 							>
 						</File>
 						<File
@@ -3862,6 +3882,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSplineLoader.h"
+						>
+					</File>
+					<File
 						RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLStableHeaders.h"
 						>
 					</File>
@@ -3978,6 +4002,10 @@
 						</File>
 						<File
 							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSourceArrayLoader14.h"
+							>
+						</File>
+						<File
+							RelativePath=".\ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSplineLoader14.h"
 							>
 						</File>
 						<File

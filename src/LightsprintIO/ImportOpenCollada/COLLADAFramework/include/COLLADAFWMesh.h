@@ -71,12 +71,27 @@ namespace COLLADAFW
         */
         MeshVertexData mUVCoords;
 
-		
-		/** 
-        * The tex data arrays.
+        /**
+        * The Tangent array
         */
-		MeshVertexData mTexTangents;
-		MeshVertexData mTexBinormals;
+
+        MeshVertexData mTangents;
+
+        /**
+        * The Binormal array
+        */
+
+        MeshVertexData mBinormals;
+
+        /** 
+        * The TexTangent data arrays
+        */
+        MeshVertexData mTexTangents;
+
+        /** 
+        * The TexBinormal data arrays
+        */
+        MeshVertexData mTexBinormals;
 
         /**
         * Geometric primitives, which assemble values from the inputs into vertex attribute data. 
@@ -222,8 +237,32 @@ namespace COLLADAFW
             return 0;
         }
 
-		/** 
-        * The tex data arrays
+        /** 
+        * The 3 dimensional tangent coordinates array. 
+        * Tangent coordinates can be stored as float or double values.
+        */
+        const MeshVertexData& getTangents () const { return mTangents; }
+
+        /** 
+        * The 3 dimensional tangent coordinates array. 
+        * Tangent coordinates can be stored as float or double values.
+        */
+        MeshVertexData& getTangents () { return mTangents; }
+
+        /** 
+        * The 3 dimensional binormal coordinates array. 
+        * Binormal coordinates can be stored as float or double values.
+        */
+        const MeshVertexData& getBinormals () const { return mBinormals; }
+
+        /** 
+        * The 3 dimensional binormal coordinates array. 
+        * Binormal coordinates can be stored as float or double values.
+        */
+        MeshVertexData& getBinormals () { return mBinormals; }
+
+        /** 
+        * The tex tangents data arrays
         */
         const MeshVertexData& getTexTangents () const { return mTexTangents; }
         MeshVertexData& getTexTangents() { return mTexTangents; }
@@ -234,26 +273,29 @@ namespace COLLADAFW
                 if ( COLLADABU::Utils::equals ( name, mTexTangents.getName ( index ) ) )
                     return index;
             }
-			std::cerr << "No textangents set with name \"" << name << "\"!" << std::endl; 
+            std::cerr << "No textangents set with name \"" << name << "\"!" << std::endl; 
             COLLADABU_ASSERT ( true );
 
             return 0;
         }
 
-		const MeshVertexData& getTexBinormals () const { return mTexBinormals; }
-		MeshVertexData& getTexBinormals() { return mTexBinormals; }
-		size_t getTexBinormalsSetIndexByName ( const String& name ) const
-		{
-			for ( size_t index=0; index<mTexBinormals.getValuesCount (); ++index )
-			{
-				if ( COLLADABU::Utils::equals ( name, mTexBinormals.getName ( index ) ) )
-					return index;
-			}
-			std::cerr << "No texbinormals set with name \"" << name << "\"!" << std::endl; 
-			COLLADABU_ASSERT ( true );
+        /** 
+        * The tex binormals data arrays
+        */
+        const MeshVertexData& getTexBinormals () const { return mTexBinormals; }
+        MeshVertexData& getTexBinormals() { return mTexBinormals; }
+        size_t getTexBinormalsSetIndexByName ( const String& name ) const
+        {
+            for ( size_t index=0; index<mTexBinormals.getValuesCount (); ++index )
+            {
+                if ( COLLADABU::Utils::equals ( name, mTexBinormals.getName ( index ) ) )
+                    return index;
+            }
+            std::cerr << "No texbinormals set with name \"" << name << "\"!" << std::endl; 
+            COLLADABU_ASSERT ( true );
 
-			return 0;
-		}
+            return 0;
+        }
 
         /**
         * Geometric primitives, which assemble values from the inputs into vertex attribute data. 
@@ -297,6 +339,7 @@ namespace COLLADAFW
 
 		/** Counts the number of all polygons in all polygons primitives.*/
 		size_t getPolygonsPolygonCount();
+		size_t getPolylistPolygonCount();
 
 
 		/** Counts the number of all primitives in all primitives of type @a primitiveType.

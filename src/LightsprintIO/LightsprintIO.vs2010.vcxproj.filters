@@ -372,165 +372,6 @@
     <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWVisualScene.cpp">
       <Filter>OpenCollada\COLLADAFramework\src</Filter>
     </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWInstanceKinematicsScene.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLAssetLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLCOLLADACsymbol.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLDocumentProcessor.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLExtraDataElementHandler.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLExtraDataLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFileLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFilePartLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFormulasLinker.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFormulasLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLGeometryLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLGeometryMaterialIdInfo.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIError.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIErrorHandler.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIExtraDataCallbackHandler.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIFilePartLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLInputUnshared.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIParserImpl14.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIParserImpl15.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLJointsLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLKinematicsIntermediateData.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLKinematicsSceneCreator.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryAnimationsLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryArticulatedSystemsLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryCamerasLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryControllersLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryEffectsLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryFormulasLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryImagesLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryJointsLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryKinematicsModelsLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryLightsLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryMaterialsLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryNodesLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLMeshLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLMeshPrimitiveInputList.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLNodeLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLPostProcessor.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLPrecompiledHeaders.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLRootParser14.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLRootParser15.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxFWLError.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxParserError.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxParserErrorHandler.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSceneLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSidAddress.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSidTreeNode.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSourceArrayLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLTransformationLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLTypes.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLVersionParser.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLVisualSceneLoader.cpp">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
-    </ClCompile>
     <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLAssetLoader14.cpp">
       <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
     </ClCompile>
@@ -1293,6 +1134,174 @@
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\STEPFileEncoding.cpp">
       <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWSpline.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLAssetLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLCOLLADACsymbol.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLDocumentProcessor.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLExtraDataElementHandler.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLExtraDataLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFileLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFilePartLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFormulasLinker.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLFormulasLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLGeometryLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLGeometryMaterialIdInfo.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIError.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIErrorHandler.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIExtraDataCallbackHandler.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIFilePartLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLInputUnshared.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIParserImpl14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLIParserImpl15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLJointsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLKinematicsIntermediateData.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLKinematicsSceneCreator.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryAnimationsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryArticulatedSystemsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryCamerasLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryControllersLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryEffectsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryFormulasLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryImagesLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryJointsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryKinematicsModelsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryLightsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryMaterialsLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLibraryNodesLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLMeshLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLMeshPrimitiveInputList.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLNodeLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLPostProcessor.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLPrecompiledHeaders.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLRootParser14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLRootParser15.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxFWLError.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxParserError.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSaxParserErrorHandler.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSceneLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSidAddress.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSidTreeNode.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSourceArrayLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSplineLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLTransformationLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLTypes.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLVersionParser.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLVisualSceneLoader.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLSplineLoader14.cpp">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWInstanceKinematicsScene.cpp">
+      <Filter>OpenCollada\COLLADAFramework\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3001,6 +3010,18 @@
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\STEPFileEncoding.h">
       <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPolylist.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSpline.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSplineLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSplineLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -81,6 +81,13 @@ SaxVirtualFunctionTest14(end__newparam____common_newparam_type());
 return mLoader->end__newparam____common_newparam_type();
 }
 
+bool LibraryEffectsLoader14::begin__newparam____cg_newparam( const COLLADASaxFWL14::newparam____cg_newparam__AttributeData& attributeData )
+{
+SaxVirtualFunctionTest14(begin__newparam____cg_newparam(attributeData));
+COLLADASaxFWL::newparam____cg_newparam__AttributeData attrData;
+attrData.sid = attributeData.sid;
+return mLoader->begin__newparam____cg_newparam(attrData);
+}
 
 bool LibraryEffectsLoader14::begin__surface____fx_surface_common( const COLLADASaxFWL14::surface____fx_surface_common__AttributeData& attributeData )
 {
@@ -537,6 +544,22 @@ SaxVirtualFunctionTest14(end__technique());
 return mLoader->end__technique();
 }
 
+    bool LibraryEffectsLoader14::begin__minfilter(){
+        SaxVirtualFunctionTest14(begin__minfilter());
+        mLoader->begin__minfilter();
+        return true;}
+    bool LibraryEffectsLoader14::end__minfilter(){
+        SaxVirtualFunctionTest14(end__minfilter());
+        mLoader->end__minfilter();
+
+        return true;
+    }
+    bool LibraryEffectsLoader14::data__minfilter( const COLLADASaxFWL14::ENUM__fx_sampler_filter_common value )
+    {
+        mLoader->data__minfilter((const ENUM__fx_sampler_filter_common)value);
+
+        return true;
+    }
 
 
 }

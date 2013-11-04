@@ -251,6 +251,7 @@ ImportOpenCollada/COLLADAFramework/src/COLLADAFWSampler.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWScale.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWSkinController.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWSkinControllerData.cpp \
+ImportOpenCollada/COLLADAFramework/src/COLLADAFWSpline.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWTexture.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWTransformation.cpp \
 ImportOpenCollada/COLLADAFramework/src/COLLADAFWTranslate.cpp \
@@ -308,6 +309,7 @@ ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLSceneLoader.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLSidAddress.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLSidTreeNode.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLSourceArrayLoader.cpp \
+ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLSplineLoader.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLTransformationLoader.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLTypes.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/COLLADASaxFWLVersionParser.cpp \
@@ -332,6 +334,7 @@ ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated14/COLLADASaxFWLMeshLoa
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated14/COLLADASaxFWLNodeLoader14.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated14/COLLADASaxFWLSceneLoader14.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated14/COLLADASaxFWLSourceArrayLoader14.cpp \
+ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated14/COLLADASaxFWLSplineLoader14.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated14/COLLADASaxFWLVisualSceneLoader14.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLAssetLoader15.cpp \
 ImportOpenCollada/COLLADASaxFrameworkLoader/src/generated15/COLLADASaxFWLColladaParserAutoGen15Private.cpp \

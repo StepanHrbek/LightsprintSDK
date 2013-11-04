@@ -50,6 +50,7 @@ namespace COLLADASaxFWL
 	class IErrorHandler;
 	class DocumentProcessor;
 	class PostProcessor;
+    class FileLoader;
 
 
 	typedef std::list<String> StringList;
@@ -188,6 +189,8 @@ namespace COLLADASaxFWL
 		/** The version of the collada document.*/
 		COLLADAVersion mCOLLADAVersion;
 
+		FileLoader * mFileLoader;
+
 		/** Loader utils that will help us to fill the model.*/
 		COLLADAFW::LoaderUtils mLoaderUtil;
 
@@ -306,6 +309,10 @@ namespace COLLADASaxFWL
 		/** The version of the collada document.*/
 		COLLADAVersion getCOLLADAVersion() const { return mCOLLADAVersion; }
 
+        const FileLoader * getFileLoader() const { return mFileLoader; }
+
+        AnimationSidAddressBindingList & getAnimationSidAddressBindingList() { return mAnimationSidAddressBindings; }
+
         /** Starts loading the model and feeds the writer with data.
 		@param fileName The name of the file that should be loaded.
 		@param writer The writer that should be fed with data.
@@ -345,6 +352,10 @@ namespace COLLADASaxFWL
 		assigned to any Uri, an invalid uri is returned.*/
 		const COLLADABU::URI& getFileUri( COLLADAFW::FileId fileId )const;
 
+        /** Maps the Unique generated from the id of the COLLADA controller element to the
+         InstanceControllerDataList containing all instance controllers that reference the same controller.*/
+		InstanceControllerDataListMap& getInstanceControllerDataListMap() { return mInstanceControllerDataListMap; }
+        
 	private:
 		friend class IFilePartLoader;
 		friend class FileLoader;
@@ -441,10 +452,6 @@ namespace COLLADASaxFWL
 		/** Maps unique ids of skin data to the sids or ids of the joints of this skin controller.*/
 		SkinDataJointSidsMap& getSkinDataJointSidsMap() { return mSkinDataJointSidsMap; }
 		
-		/** Maps the Unique generated from the id of the COLLADA controller element to the 
-		InstanceControllerDataList containing all instance controllers that reference the same controller.*/
-		InstanceControllerDataListMap& getInstanceControllerDataListMap() { return mInstanceControllerDataListMap; }
-
 		/** Maps unique ids of skin data to the source uri string.*/
 		SkinDataSkinSourceMap& getSkinDataSkinSourceMap() { 
 			return mSkinDataSkinSourceMap; 

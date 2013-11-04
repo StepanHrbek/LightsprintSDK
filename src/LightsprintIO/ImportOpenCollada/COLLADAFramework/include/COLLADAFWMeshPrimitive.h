@@ -109,6 +109,27 @@ namespace COLLADAFW
         UIntValuesArray mNormalIndices;
 
         /** 
+        * The index list of the tangent array (support of multiple uv sets). 
+        */
+        UIntValuesArray mTangentIndices;
+
+        /** 
+        * The index list of the binormal array (support of multiple uv sets). 
+        */
+        UIntValuesArray mBinormalIndices;
+
+        /** 
+        * The index list of the tex tangent arrays (support of multiple sets). 
+        */
+        IndexListArray mTexTangentIndicesArray;
+
+        /** 
+        * The index list of the tex binormal arrays (support of multiple sets). 
+        */
+        IndexListArray mTexBinormalIndicesArray;
+        
+
+        /** 
         * The index list of the colors array  (support of multiple colors). 
         */
         IndexListArray mColorIndicesArray;
@@ -118,12 +139,6 @@ namespace COLLADAFW
         */
         IndexListArray mUVCoordIndicesArray;
 
-		/** 
-        * The index list of the tex data arrays (support of multiple sets). 
-        */
-		IndexListArray mTexTangentIndicesArray;
-		IndexListArray mTexBinormalIndicesArray;
-        
     public:	
 
         /**
@@ -207,6 +222,62 @@ namespace COLLADAFW
 		bool hasNormalIndices() const { return !mNormalIndices.empty(); }
 
         /** 
+		* The index list of the normals array. 
+		*/
+		UIntValuesArray& getTangentIndices () { return mTangentIndices; }
+
+		/** 
+		* The index list of the normals array. 
+		*/
+        const UIntValuesArray& getTangentIndices () const{ return mTangentIndices; }
+
+        /** 
+        * The index list of the normals array. 
+        */
+        void setTagentIndices ( const UIntValuesArray& TangentIndices ) { mTangentIndices = TangentIndices; }
+
+		/**Returns true if the mesh primitive has normals.*/
+		bool hasTangentIndices() const { return !mTangentIndices.empty(); }
+
+        		/** 
+		* The index list of the normals array. 
+		*/
+		UIntValuesArray& getBinormalIndices () { return mBinormalIndices; }
+
+		/** 
+		* The index list of the normals array. 
+		*/
+		const UIntValuesArray& getBinormalIndices () const{ return mBinormalIndices; }
+
+        /** 
+        * The index list of the normals array. 
+        */
+        void setBinormalIndices ( const UIntValuesArray& BinormalIndices ) { mBinormalIndices = BinormalIndices; }
+
+		/**Returns true if the mesh primitive has normals.*/
+		bool hasBinormalIndices() const { return !mBinormalIndices.empty(); }
+
+        /** 
+        * The tex tangent data arrays 
+        */
+        IndexListArray& getTexTangentsIndicesArray () { return mTexTangentIndicesArray; }
+        const IndexListArray& getTexTangentsIndicesArray () const { return mTexTangentIndicesArray; }
+        IndexList* getTexTangentsIndices ( size_t index ) { if ( index >= mTexTangentIndicesArray.getCount () ) return 0; return mTexTangentIndicesArray [ index ]; }
+        const IndexList* getTexTangentsIndices ( size_t index ) const { if ( index >= mTexTangentIndicesArray.getCount () ) return 0; return mTexTangentIndicesArray [ index ]; }
+        void appendTexTangentsIndices ( IndexList* texTangentsIndices ) { mTexTangentIndicesArray.append ( texTangentsIndices ); }
+        bool hasTexTangentsIndices() const { return !mTexTangentIndicesArray.empty(); }
+
+        /** 
+        * The tex binormal data arrays 
+        */
+        IndexListArray& getTexBinormalsIndicesArray () { return mTexBinormalIndicesArray; }
+        const IndexListArray& getTexBinormalsIndicesArray () const { return mTexBinormalIndicesArray; }
+        IndexList* getTexBinormalsIndices ( size_t index ) { if ( index >= mTexBinormalIndicesArray.getCount () ) return 0; return mTexBinormalIndicesArray [ index ]; }
+        const IndexList* getTexBinormalsIndices ( size_t index ) const { if ( index >= mTexBinormalIndicesArray.getCount () ) return 0; return mTexBinormalIndicesArray [ index ]; }
+        void appendTexBinormalsIndices ( IndexList* texBinormalIndices ) { mTexBinormalIndicesArray.append ( texBinormalIndices ); }
+        bool hasTexBinormalsIndices() const { return !mTexBinormalIndicesArray.empty(); }
+
+        /** 
         * The index list of the colors array. 
         */
         IndexList* getColorIndices ( size_t index ) 
@@ -277,23 +348,6 @@ namespace COLLADAFW
 
 		/**Returns true if the mesh primitive has at least one set of uv coordinates.*/
 		bool hasUVCoordIndices() const { return !mUVCoordIndicesArray.empty(); }
-
-		/** 
-        * The tex data arrays 
-        */
-        IndexListArray& getTexTangentsIndicesArray () { return mTexTangentIndicesArray; }
-        const IndexListArray& getTexTangentsIndicesArray () const { return mTexTangentIndicesArray; }
-        IndexList* getTexTangentsIndices ( size_t index ) { if ( index >= mTexTangentIndicesArray.getCount () ) return 0; return mTexTangentIndicesArray [ index ]; }
-        const IndexList* getTexTangentsIndices ( size_t index ) const { if ( index >= mTexTangentIndicesArray.getCount () ) return 0; return mTexTangentIndicesArray [ index ]; }
-        void appendTexTangentsIndices ( IndexList* texTangentsIndices ) { mTexTangentIndicesArray.append ( texTangentsIndices ); }
-		bool hasTexTangentsIndices() const { return !mTexTangentIndicesArray.empty(); }
-
-		IndexListArray& getTexBinormalsIndicesArray () { return mTexBinormalIndicesArray; }
-		const IndexListArray& getTexBinormalsIndicesArray () const { return mTexBinormalIndicesArray; }
-		IndexList* getTexBinormalsIndices ( size_t index ) { if ( index >= mTexBinormalIndicesArray.getCount () ) return 0; return mTexBinormalIndicesArray [ index ]; }
-		const IndexList* getTexBinormalsIndices ( size_t index ) const { if ( index >= mTexBinormalIndicesArray.getCount () ) return 0; return mTexBinormalIndicesArray [ index ]; }
-		void appendTexBinormalsIndices ( IndexList* texBinormalIndices ) { mTexBinormalIndicesArray.append ( texBinormalIndices ); }
-		bool hasTexBinormalsIndices() const { return !mTexBinormalIndicesArray.empty(); }
 
 		/** @return The material id of the sub mesh. This material id is used to assign material 
 		to submeshes when the mesh gets instantiated.*/

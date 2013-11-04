@@ -728,6 +728,9 @@
     <ClCompile Include="ImportMGF\words.c" />
     <ClCompile Include="ImportMGF\xf.c" />
     <ClCompile Include="ImportOBJ\RRObjectOBJ.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADAFramework\src\COLLADAFWSpline.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\COLLADASaxFWLSplineLoader.cpp" />
+    <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLSplineLoader14.cpp" />
     <ClCompile Include="ImportQuake3\Q3Loader.cpp" />
     <ClCompile Include="ImportQuake3\RRObjectBSP.cpp" />
     <ClCompile Include="ImportGamebryo\NiMaterialDetector.cpp" />
@@ -1167,6 +1170,10 @@
     <ClInclude Include="ImportMGF\mgfparser.h" />
     <ClInclude Include="ImportMGF\RRObjectMGF.h" />
     <ClInclude Include="ImportOBJ\RRObjectOBJ.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWPolylist.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADAFramework\include\COLLADAFWSpline.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSplineLoader.h" />
+    <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSplineLoader14.h" />
     <ClInclude Include="ImportQuake3\Q3Loader.h" />
     <ClInclude Include="ImportQuake3\RRObjectBSP.h" />
     <ClInclude Include="ImportGamebryo\NiMaterialDetector.h" />

@@ -89,6 +89,7 @@ namespace COLLADASaxFWL
 		, mCurrentOffset(0)
 		, mCurrentBindShapeMatrix( COLLADABU::Math::Matrix4::IDENTITY)
 		, mCurrentMatrixIndex(0)
+		, mVerboseValidate(true)
 	{}
 
     //------------------------------
@@ -226,7 +227,7 @@ namespace COLLADASaxFWL
 	bool LibraryControllersLoader::end__skin()
 	{
 		bool success = true;
-		if ( validate( mCurrentSkinControllerData ) )
+		if ( validate( mCurrentSkinControllerData, mVerboseValidate ) == 0 )
 		{
 			success = writer()->writeSkinControllerData( mCurrentSkinControllerData );
 		}
@@ -486,7 +487,14 @@ namespace COLLADASaxFWL
 							break;
 						}
 
-						if ( sourceBase->getStride() != 1 )
+
+						unsigned long long stride = sourceBase->getStride();
+						if( stride == 0 )
+						{
+							handleFWLError ( SaxFWLError::ERROR_DATA_NOT_VALID, "Stride of sourceBase of skin controller with semantic SEMANTIC_MORPH_WEIGHT not found! Assuming stride 1!" );
+							stride = 1;
+						}
+						if ( stride != 1 )
 						{
                             handleFWLError ( SaxFWLError::ERROR_DATA_NOT_VALID, "Stride of sourceBase of skin controller with semantic SEMANTIC_MORPH_WEIGHT not valid!" );
 							break;

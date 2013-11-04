@@ -17,12 +17,13 @@
 #include "COLLADAFWSampler.h"
 #include "COLLADAFWFloatOrParam.h"
 
+
 namespace COLLADAFW
 {
-	typedef std::map<String, COLLADAFW::Sampler> StringSamplerMap;
-
 	/** Once we implement referencing of floats, this might become a class.*/
 //	typedef double FloatOrParam;
+
+	typedef std::map<String, COLLADAFW::Sampler> StringSamplerMap;
 
 
     /** An effect defined as in the COLLADA common profile.  */
@@ -149,7 +150,7 @@ namespace COLLADAFW
 		/** All the samplers used as texture in the CommonEffect.*/
 		SamplerPointerArray mSamplers;
 
-		/** All samplers (even unused). Used for textures in extra tags */
+		/** All the samplers (even unused ones). */
 		StringSamplerMap mAllSamplers;
 
 	public:
@@ -417,7 +418,7 @@ namespace COLLADAFW
 		/** Returns the samplers used by the common effect.*/
 		const SamplerPointerArray& getSamplerPointerArray() const { return mSamplers; }
 
-		/** Returns all samplers in the common effect. */
+		/** Returns all the samplers (even unused ones).*/
 		StringSamplerMap& getAllSamplersArray() { return mAllSamplers; }
 		const StringSamplerMap& getAllSamplersArray() const { return mAllSamplers; }
 
