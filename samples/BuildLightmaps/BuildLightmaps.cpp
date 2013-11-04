@@ -695,10 +695,10 @@ int main(int argc, char** argv)
 		RR_SAFE_DELETE(reporter);
 #ifdef NDEBUG
 		// release returns quickly without freeing resources
-		rr_gl::sceneViewer(solver,globalParameters.sceneFilename,NULL,"../../data/",&svs,false);
+		rr_gl::sceneViewer(solver,globalParameters.sceneFilename,"","../../data/",&svs,false);
 #else
 		// debug frees everything and reports memory leaks
-		rr_gl::sceneViewer(solver,globalParameters.sceneFilename,NULL,"../../data/",&svs,true);
+		rr_gl::sceneViewer(solver,globalParameters.sceneFilename,"","../../data/",&svs,true);
 		rr_gl::deleteAllTextures();
 #endif
 	}
