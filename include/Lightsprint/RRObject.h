@@ -83,8 +83,8 @@ namespace rr
 		public:
 #ifdef RR_SUPPORTS_RVALUE_REFERENCES
 			// Inherits move ctor and operator.
-			using RRVector<FaceGroup>::RRVector<FaceGroup>;
-			using RRVector<FaceGroup>::operator=;
+			using RRVector::RRVector;
+			using RRVector::operator=;
 #endif
 			bool containsEmittance() const;
 		};
@@ -434,8 +434,8 @@ namespace rr
 	public:
 #ifdef RR_SUPPORTS_RVALUE_REFERENCES
 		// Inherits move ctor and operator.
-		using RRVector<RRObject*>::RRVector<RRObject*>;
-		using RRVector<RRObject*>::operator=;
+		using RRVector::RRVector;
+		using RRVector::operator=;
 #endif
 		//! Modifies non-unique object names to make them unique.
 		//
