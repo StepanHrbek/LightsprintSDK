@@ -155,7 +155,7 @@ RRString::RRString(const wchar_t* a)
 		while (*wstri)
 		{
 			size_t bytesWritten = wcrtomb(stri,*wstri,&mbstate);
-			if (bytesWritten>=0)
+			if (bytesWritten!=(size_t)-1)
 				stri += bytesWritten;
 			else
 				*(stri++) = '?';
