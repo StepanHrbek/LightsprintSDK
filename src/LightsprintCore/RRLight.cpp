@@ -367,6 +367,9 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* sc
 			RR_ASSERT(distanceAttenuation>=0 && _finite(distanceAttenuation));
 			break;
 		}
+		case NONE:
+			// prevents warning
+			break;
 	}
 
 	float angleAttenuation = 1;
