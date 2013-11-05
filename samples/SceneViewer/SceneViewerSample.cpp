@@ -82,6 +82,25 @@ int main(int argc, char** argv)
 	// See how adapters in src/LightsprintIO/ImportXXX/RRObjectXXX.cpp register,
 	// you can do the same for your own file format.
 	rr_gl::SceneViewerState svs;
+	/*
+	svs.renderLightIndirect = rr_gl::LI_CONSTANT;
+	svs.renderMaterialBumpMaps = 0;
+	//svs.renderMaterialDiffuse = 0;
+	svs.renderMaterialSpecular = 0;
+	svs.renderMaterialTextures = 0;
+	svs.mirrorsEnabled = 0;
+	svs.raytracedCubesEnabled = 0;
+	svs.renderLightDirect = rr_gl::LD_NONE;
+	svs.renderTonemapping = 1;
+	svs.tonemappingAutomatic = 0;
+	svs.tonemappingBrightness = rr::RRVec3(5.0f);
+	svs.renderLDM = 0;
+//	svs.renderFPS = 1;
+//	svs.srgbCorrect = 0;
+//svs.renderTonemapping = 0;
+svs.renderMaterialDiffuse = 0;
+	svs.ssgiIntensity = 3.0f;
+	svs.tonemappingBrightness = rr::RRVec4(3.0f);*/
 #ifdef NDEBUG
 	// release returns quickly without freeing resources
 	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,false);
