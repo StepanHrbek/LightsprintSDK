@@ -960,7 +960,7 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 #define SUBTREE_M (m?(char*)m+relative:m)
 
 	BspTree node;
-	node.bsp.size=-1;
+	node.bsp.size=-1; // -Wbitfield-constant-conversion warning should be ok, at least code works well
 	WRITE(node);
 
 	if (t->kdroot && (t->front || t->back)) // pro prazdny kdnode uz nezapisuje splitValue
@@ -1010,6 +1010,7 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 	empty.kdroot = (VERTEX*)1;
 	if (t->kdroot && t!=&empty) RR_ASSERT(t->front || t->back);
 	if (t->front || t->back)
+	{
 #endif
 	if (transition)
 	{
@@ -1049,6 +1050,7 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 		{
 			WRITE_SUBTREE(save_bsp IBP2(&empty,f,SUBTREE_M));
 		}
+	}
 #endif
 	}
 #ifdef SUPPORT_EMPTY_KDNODE
