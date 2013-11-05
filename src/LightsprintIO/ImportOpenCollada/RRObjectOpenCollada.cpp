@@ -338,7 +338,7 @@ private:
 	ExtraDataCallbackHandler( const ExtraDataCallbackHandler& pre ) { }
 
 	/** Disable default assignment operator. */
-	const ExtraDataCallbackHandler& operator= ( const ExtraDataCallbackHandler& pre ) { }
+	const ExtraDataCallbackHandler& operator= ( const ExtraDataCallbackHandler& pre ) {return *this;}
 
 };
 
@@ -718,6 +718,10 @@ public:
 				{
 					rrLight = RRLight::createDirectionalLight(direction,color,false);
 				}
+				break;
+			case COLLADAFW::Light::AMBIENT_LIGHT:
+			case COLLADAFW::Light::UNDEFINED:
+				// no action, just to prevent warning
 				break;
 			}
 
@@ -1296,6 +1300,12 @@ public:
 				baseMatrix.setElement(1,0,-1.0f);
 				baseMatrix.setElement(1,1,0.0f);
 				break;*/
+
+			case COLLADAFW::FileInfo::X_UP:
+			case COLLADAFW::FileInfo::Y_UP:
+			case COLLADAFW::FileInfo::NONE:
+				// no action, just to prevent warning
+				break;
 			}
 
 			// set rescale matrix according to linear unit in the scene
@@ -1518,6 +1528,7 @@ public:
 				assignWithCheck<float>(data[remappedIndex].y,values,texDataIndex+1,texDataCount);
 				assignWithCheck<float>(data[remappedIndex].z,values,texDataIndex+2,texDataCount);
 				if(generateOther)
+				{
 					if(texDataChannel->getStride() >= 4)
 					{
 						rr::RRReal val;
@@ -1529,6 +1540,7 @@ public:
 					}
 					else
 						other[remappedIndex].x = 1.f;
+				}
 				break;
 			}
 
@@ -1539,6 +1551,7 @@ public:
 				assignWithCheck<double>(data[remappedIndex].y,values,texDataIndex+1,texDataCount);
 				assignWithCheck<double>(data[remappedIndex].z,values,texDataIndex+2,texDataCount);
 				if(generateOther)
+				{
 					if(texDataChannel->getStride() >= 4)
 					{
 						rr::RRReal val;
@@ -1550,6 +1563,7 @@ public:
 					}
 					else
 						other[remappedIndex].x = 1.f;
+				}
 				break;
 			}
 
@@ -2399,7 +2413,7 @@ RRScene* RRSceneOpenCollada::load(const RRString& filename, RRFileLocator* textu
 	RRWriterOpenCollada writer(objects, lights, scene->cameras, filename, textureLocator);
 
 	if( !writer.parseDocument() )
-		return false;
+		return NULL;
 
 	scene->protectedObjects = objects;
 	scene->protectedLights = lights;
