@@ -149,11 +149,9 @@ namespace rr_gl
 #endif
 
 			ME_HELP,
-#ifdef _WIN32
 			ME_SDK_HELP,
 			ME_SUPPORT,
 			ME_LIGHTSPRINT,
-#endif
 			ME_CHECK_SOLVER,
 			ME_CHECK_SCENE,
 			ME_RENDER_DDI,
