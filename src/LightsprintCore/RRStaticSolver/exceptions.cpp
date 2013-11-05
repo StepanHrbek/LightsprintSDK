@@ -285,7 +285,7 @@ again:
 					// if it is already taken, increase index and goto 1
 					try_index:
 					RRString newNameCandidate;
-					newNameCandidate.format(L"%s%s%0*d",j->second->name.w_str(),j->second->name.empty()?"":".",numDigits,index);
+					newNameCandidate.format(L"%ls%hs%0*d",j->second->name.w_str(),j->second->name.empty()?"":".",numDigits,index);
 					if (map.find(filenamized(newNameCandidate))!=map.end())
 					{
 						index++;

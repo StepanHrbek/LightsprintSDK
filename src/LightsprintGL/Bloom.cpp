@@ -18,8 +18,8 @@ Bloom::Bloom(const rr::RRString& pathToShaders)
 	bigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	smallMap1 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	smallMap2 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	rr::RRString filename1(0,L"%sbloom.vs",pathToShaders.w_str());
-	rr::RRString filename2(0,L"%sbloom.fs",pathToShaders.w_str());
+	rr::RRString filename1(0,L"%lsbloom.vs",pathToShaders.w_str());
+	rr::RRString filename2(0,L"%lsbloom.fs",pathToShaders.w_str());
 	scaleDownProgram = Program::create("#define PASS 1\n",filename1,filename2);
 	blurProgram = Program::create("#define PASS 2\n",filename1,filename2);
 	blendProgram = Program::create("#define PASS 3\n",filename1,filename2);

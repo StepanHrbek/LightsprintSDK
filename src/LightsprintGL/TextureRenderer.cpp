@@ -23,8 +23,8 @@ namespace rr_gl
 
 TextureRenderer::TextureRenderer(const rr::RRString& pathToShaders)
 {
-	skyProgram = UberProgram::create(rr::RRString(0,L"%ssky.vs",pathToShaders.w_str()),rr::RRString(0,L"%ssky.fs",pathToShaders.w_str()));
-	twodProgram = UberProgram::create(rr::RRString(0,L"%stexture.vs",pathToShaders.w_str()),rr::RRString(0,L"%stexture.fs",pathToShaders.w_str()));
+	skyProgram = UberProgram::create(rr::RRString(0,L"%lssky.vs",pathToShaders.w_str()),rr::RRString(0,L"%lssky.fs",pathToShaders.w_str()));
+	twodProgram = UberProgram::create(rr::RRString(0,L"%lstexture.vs",pathToShaders.w_str()),rr::RRString(0,L"%lstexture.fs",pathToShaders.w_str()));
 	if (!skyProgram)
 		rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %lssky.*\n",pathToShaders.w_str());
 	if (!twodProgram)

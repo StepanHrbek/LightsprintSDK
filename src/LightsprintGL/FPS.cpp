@@ -43,10 +43,10 @@ err:
 
 FpsDisplay::FpsDisplay(const rr::RRString& pathToMaps)
 {
-	mapFps = rr::RRBuffer::load(rr::RRString(0,L"%stxt-fps.png",pathToMaps.w_str()));
+	mapFps = rr::RRBuffer::load(rr::RRString(0,L"%lstxt-fps.png",pathToMaps.w_str()));
 	for (unsigned i=0;i<10;i++)
 	{
-		mapDigit[i] = rr::RRBuffer::load(rr::RRString(0,L"%stxt-%d.png",pathToMaps.w_str(),i));
+		mapDigit[i] = rr::RRBuffer::load(rr::RRString(0,L"%lstxt-%d.png",pathToMaps.w_str(),i));
 	}
 }
 

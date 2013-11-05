@@ -157,10 +157,10 @@ bool FaceGroupRange::operator <(const FaceGroupRange& a) const // for sort()
 RendererOfSceneImpl::RendererOfSceneImpl(const rr::RRString& pathToShaders)
 {
 	textureRenderer = new TextureRenderer(pathToShaders);
-	uberProgram = UberProgram::create(rr::RRString(0,L"%subershader.vs",pathToShaders.w_str()),rr::RRString(0,L"%subershader.fs",pathToShaders.w_str()));
+	uberProgram = UberProgram::create(rr::RRString(0,L"%lsubershader.vs",pathToShaders.w_str()),rr::RRString(0,L"%lsubershader.fs",pathToShaders.w_str()));
 
 	stereoTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST);
-	stereoUberProgram = UberProgram::create(rr::RRString(0,L"%sstereo.vs",pathToShaders.w_str()),rr::RRString(0,L"%sstereo.fs",pathToShaders.w_str()));
+	stereoUberProgram = UberProgram::create(rr::RRString(0,L"%lsstereo.vs",pathToShaders.w_str()),rr::RRString(0,L"%lsstereo.fs",pathToShaders.w_str()));
 
 	panoramaTexture = new Texture(rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR); // A for mirroring
 	depthTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_DEPTH,false,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR);

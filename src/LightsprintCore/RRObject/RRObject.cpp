@@ -546,14 +546,14 @@ inline void formatFilename(const RRString& path, const RRString& suggestedName, 
 		}
 	}
 	if (!suggestedName.empty())
-		out.format(L"%s%s.%s",path.w_str(),suggestedName.w_str(),finalExt);
+		out.format(L"%ls%ls.%ls",path.w_str(),suggestedName.w_str(),finalExt);
 	else
 	{
 		std::wstring name = RR_RR2STDW(objectName);
 		for (unsigned i=0;i<name.size();i++)
 			if (wcschr(L"<>:\"/\\|?*",name[i]))
 				name[i] = '_';
-		out.format(L"%s%s.%s",path.w_str(),name.c_str(),finalExt);
+		out.format(L"%ls%ls.%ls",path.w_str(),name.c_str(),finalExt);
 	}
 	delete[] tmp;
 }
