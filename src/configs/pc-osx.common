@@ -1,15 +1,19 @@
 OS = OSX
 BITS = 64
 
-CC = gcc
-CXX = g++
+#CC = gcc
+#CXX = g++
 #default clang has no openmp
 #CXX = -Wno-unused-value
-#CPP_FLAGS += -std=c++11
+C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++11 from CPP_FLAGS 
+CPP_FLAGS += -std=c++11 # rvalue references, lambda
+CPP_FLAGS += -ftemplate-depth=256 # prevents “recursive template instantiation exceeded maximum depth of 128”
+CPP_FLAGS += -Wno-deprecated-declarations # disables _finite() warnings in many files
+#CPP_FLAGS += -Wno-bitfield-constant-conversion # disables warnings in bsp.cpp
 CPP_FLAGS += -I/opt/local/include
 CPP_FLAGS += -I/opt/local/include/freetype2
-CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/2.9/include/wx-2.9
-CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/2.9/lib/wx/include/osx_cocoa-unicode-2.9
+CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/include/wx-3.0
+CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/lib/wx/include/osx_cocoa-unicode-3.0
 #CPP_FLAGS += -I/opt/local/include/wx-2.9
 #CPP_FLAGS += -I/opt/local/lib/wx/include/osx_cocoa-unicode-2.9
 CPP_FLAGS += -D__WXOSX_COCOA__
@@ -18,10 +22,11 @@ LINK_FLAGS += -L/opt/local/lib
 
 CORE_DEPS = \
 	-lstdc++ \
-	-lgomp \
 	-lboost_filesystem-mt \
 	-lboost_system-mt \
 	-lboost_regex-mt
+
+#	-lgomp # not yet supported by LLVM
 
 CORE_LIBS = \
 	$(CORE_DEPS) \
@@ -32,13 +37,13 @@ GL_DEPS = \
 	-framework CoreFoundation \
 	-framework ApplicationServices \
 	-lGLEW \
-	-L/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/2.9/lib \
-	-lwx_baseu-2.9 \
-	-lwx_osx_cocoau_core-2.9 \
-	-lwx_osx_cocoau_adv-2.9 \
-	-lwx_osx_cocoau_propgrid-2.9 \
-	-lwx_osx_cocoau_aui-2.9 \
-	-lwx_osx_cocoau_gl-2.9 \
+	-L/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/lib \
+	-lwx_baseu-3.0 \
+	-lwx_osx_cocoau_core-3.0 \
+	-lwx_osx_cocoau_adv-3.0 \
+	-lwx_osx_cocoau_propgrid-3.0 \
+	-lwx_osx_cocoau_aui-3.0 \
+	-lwx_osx_cocoau_gl-3.0 \
 	-lboost_serialization-mt \
 	-lboost_iostreams-mt \
 	-lboost_locale-mt \
