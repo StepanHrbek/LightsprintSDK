@@ -20,8 +20,8 @@ int view2ME_VIEW(rr::RRCamera::View view)
 		case rr::RRCamera::BACK: return SVFrame::ME_VIEW_BACK;
 		case rr::RRCamera::LEFT: return SVFrame::ME_VIEW_LEFT;
 		case rr::RRCamera::RIGHT: return SVFrame::ME_VIEW_RIGHT;
-		default: return SVFrame::ME_VIEW_RANDOM;
 	};
+	return SVFrame::ME_VIEW_RANDOM;
 }
 
 SVSceneProperties::SVSceneProperties(SVFrame* _svframe)

@@ -69,22 +69,18 @@ public:
 		oldval = glIsEnabled(name)!=GL_FALSE;
 		newval = _newval;
 		if (newval!=oldval)
-		{
 			if (newval)
 				glEnable(name);
 			else
 				glDisable(name);
-		}
 	}
 	~PreserveFlag()
 	{
 		if (newval!=oldval)
-		{
 			if (oldval)
 				glEnable(name);
 			else
 				glDisable(name);
-		}
 	}
 };
 

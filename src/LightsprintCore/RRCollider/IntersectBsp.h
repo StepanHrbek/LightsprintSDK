@@ -271,8 +271,8 @@ namespace rr
 			delete[] obj.face;
 		}
 
-		// save tree to disk
-		if (tree && tree->bsp.size>=MIN_BYTES_FOR_SAVE) // -Wtautological-constant-out-of-range-compare warning is innocent but difficult to prevent
+		// save tree to disk (gcc warning on following line is innocent but hard to prevent)
+		if (tree && tree->bsp.size>=MIN_BYTES_FOR_SAVE)
 		{
 			f = fopen(RR_RR2CHAR(name),"wb");
 			if (f)

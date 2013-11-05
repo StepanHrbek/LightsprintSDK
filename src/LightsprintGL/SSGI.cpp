@@ -77,7 +77,7 @@ void SSGI::applySSGI(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _
 	ssgiProgram->sendUniform("occlusionIntensity",_intensity);
 	ssgiProgram->sendUniform("angleBias",_angleBias);
 	ssgiProgram->sendUniform("pixelSize",1.0f/_w,1.0f/_h);
-	ssgiProgram->sendUniform("aoRangeInTextureSpaceIn1mDistance",(float)(_radius/(tan(_eye.getFieldOfViewHorizontalRad()/2)*2)),(float)(_radius/(tan(_eye.getFieldOfViewVerticalRad()/2)*2))); //!!! nefunguje v ortho
+	ssgiProgram->sendUniform("aoRangeInTextureSpaceIn1mDistance",_radius/(tan(_eye.getFieldOfViewHorizontalRad()/2)*2),_radius/(tan(_eye.getFieldOfViewVerticalRad()/2)*2)); //!!! nefunguje v ortho
 	ssgiProgram->sendUniform("depthRange",_eye.getNear()*_eye.getFar()/((_eye.getFar()-_eye.getNear())),_eye.getFar()/(_eye.getFar()-_eye.getNear()));
 	if (1) // 0=noise, 1=blur
 	{

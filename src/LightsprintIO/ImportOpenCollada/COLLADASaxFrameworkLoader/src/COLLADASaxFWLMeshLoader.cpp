@@ -1571,9 +1571,6 @@ namespace COLLADASaxFWL
 				}
 			}
 			break;
-		case NONE:
-			// just to prevent warning
-			break;
 		}
 		return true;
 	}
@@ -1754,9 +1751,6 @@ namespace COLLADASaxFWL
 					mCurrentPhHasEmptyP = true;
 				}
 			}
-			break;
-		case NONE:
-			// just to prevent warning
 			break;
 		}
 		return true;

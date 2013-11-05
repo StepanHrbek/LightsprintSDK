@@ -136,12 +136,10 @@ tryagain:
 	 */
 	while (ndx--)
 		if (le[ndx].key != NULL)
-		{
 			if (le[ndx].data != NULL)
 				*lu_find(tbl, le[ndx].key) = le[ndx];
 			else if (tbl->freek != NULL)
 				(*tbl->freek)(le[ndx].key);
-		}
 	free((MEM_PTR)le);
 	goto tryagain;			/* should happen only once! */
 }

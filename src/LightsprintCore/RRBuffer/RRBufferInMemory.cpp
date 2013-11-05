@@ -48,9 +48,6 @@ static unsigned getBufferSize(RRBufferFormat _format, unsigned _width, unsigned 
 			_width = (_width+3)&0xfffffffc;
 			_height = (_height+3)&0xfffffffc;
 			break;
-		default:
-			// no alignment
-			break;
 	}
 	return _width * _height * _depth * getBitsPerPixel(_format) / 8;
 }
@@ -106,8 +103,7 @@ RRBufferInMemory::~RRBufferInMemory()
 		// skip destructor
 		filename._skipDestructor();
 		// backup first 4 or 8 bytes
-		// note: this works well with known compilers, but it can fail with hypothetical one, so we don’t disable compiler warning
-		memcpy(&g_classHeader,this,sizeof(void*)); // -Wdynamic-class-memaccess warning is ok
+		memcpy(&g_classHeader,this,sizeof(void*));
 	}
 	else
 	{
@@ -125,9 +121,7 @@ void RRBufferInMemory::operator delete(void* p, std::size_t n)
 		if (b->refCount)
 		{
 			// fix instance after destructor (restore first 4 or 8 bytes)
-			// note: this works well with known compilers, but it can fail with hypothetical one, so we don’t disable compiler warning
-			memcpy(b,&g_classHeader,sizeof(void*)); // -Wdynamic-class-memaccess warning is ok
-
+			memcpy(b,&g_classHeader,sizeof(void*));
 			// however, if last reference remains, try to delete it from cache
 			if (b->refCount==1)
 				b->deleteFromCache();
