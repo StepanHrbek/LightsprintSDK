@@ -327,10 +327,17 @@ void SVCanvas::createContextCore()
 		rr::RRReportInterval report(rr::INF3,"Setting illumination type...\n");
 		switch (svs.renderLightIndirect)
 		{
-			// try to load FB. if not found, create it
-			case LI_REALTIME_FIREBALL:     svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL); break;
-			// create architect
-			case LI_REALTIME_ARCHITECT:    svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT); break;
+			case LI_REALTIME_FIREBALL:
+				// try to load FB. if not found, create it
+				svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL);
+				break;
+			case LI_REALTIME_ARCHITECT:
+				// create architect
+				svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT);
+				break;
+			default:
+				// no action needed for other modes. just to avoid warning
+				break;
 		}
 	}
 
@@ -1074,6 +1081,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 						case IC_X: pan.y = pan.z = 0; break;
 						case IC_Y: pan.x = pan.z = 0; break;
 						case IC_Z: pan.x = pan.y = 0; break;
+						default: break; // just to prevent warning
 					}
 					s_accumulatedPanning += pan;
 					transformation = rr::RRMatrix3x4::translation(pan);
@@ -1102,6 +1110,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					transformation = rr::RRMatrix3x4::scale(pan);
 					if (manipulatedEntities.size()==1)
 						preTransform = true;
+					break;
+				default:
+					// should not get here, just to prevent warning
 					break;
 			}
 			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,preTransform?transformation:transformation.centeredAround(manipulatedCenter),preTransform,false);

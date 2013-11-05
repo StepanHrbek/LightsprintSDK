@@ -546,7 +546,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		if (!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (SHADOW_MAPS>0).\n");
-			return false;
+			return NULL;
 		}
 		Texture* shadowmap = light->getShadowmap(firstInstance+i);
 		if (shadowmap)
@@ -600,12 +600,12 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		if (!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (LIGHT_DIRECT set).\n");
-			return false;
+			return NULL;
 		}
 		if (!light->getCamera())
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: light->getCamera()==NULL.\n");
-			return false;
+			return NULL;
 		}
 
 		if (LIGHT_DIRECT_MAP && !SHADOW_MAPS)
@@ -632,7 +632,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		if (!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (LIGHT_DIRECT_COLOR set).\n");
-			return false;
+			return NULL;
 		}
 		rr::RRVec4 color(light->getRRLight().color,1);
 		if (light->getRRLight().distanceAttenuationType!=rr::RRLight::POLYNOMIAL)
@@ -649,7 +649,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		if (!light->getProjectedTexture())
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: LIGHT_DIRECT_MAP set, but getProjectedTexture()==NULL.\n");
-			return false;
+			return NULL;
 		}
 		program->sendTexture("lightDirectMap", light->getProjectedTexture(), TEX_CODE_2D_LIGHT_DIRECT);
 	}
@@ -954,6 +954,11 @@ void UberProgramSetup::useIlluminationMirror(Program* program, const rr::RRBuffe
 
 void UberProgramSetup::useWorldMatrix(Program* program, const rr::RRObject* object)
 {
+	if (!program)
+	{
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useWorldMatrix(program=NULL).\n"));
+		return;
+	}
 	if (OBJECT_SPACE && object)
 	{
 		const rr::RRMatrix3x4& world = object->getWorldMatrixRef();

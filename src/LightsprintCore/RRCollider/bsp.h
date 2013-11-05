@@ -82,6 +82,8 @@ namespace rr
 					bspMaxFacesInTree = 400; // makes build and intersections slower, but tree smaller
 					kdMinFacesInTree = 10;
 					break;
+				default:
+					break;
 			}
 		}
 	};

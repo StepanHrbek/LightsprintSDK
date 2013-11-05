@@ -141,6 +141,8 @@ wxTreeItemId SVSceneTree::entityIdToItemId(EntityId entity) const
 			}
 			break;
 		case ST_CAMERA: return wxTreeItemId();
+		case ST_FIRST:
+		case ST_LAST: break; // should not get here, just to prevent warning
 	}
 	if (!searchRoot.IsOk())
 	{
@@ -208,6 +210,9 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 			{
 				return svs.camera.manipulateViewBy(transformation,rollChangeAllowed,false)?1:0;
 			}
+			break;
+		default:
+			// nothing to do, just to avoid warning
 			break;
 	}
 	return 0;
@@ -279,6 +284,9 @@ const EntityIds& SVSceneTree::getEntityIds(SVSceneTree::ManipulatedEntityIds pre
 			return cameraEntityIds;
 		case MEI_SELECTED:
 			return selectedEntityIds;
+		case MEI_AUTO:
+			// don’t return, continue in this function
+			break;
 	}
 	bool atLeastOneMovableSelected = false;
 	for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
@@ -323,6 +331,9 @@ rr::RRVec3 SVSceneTree::getCenterOf(const EntityIds& entityIds) const
 			case ST_CAMERA:
 				selectedEntitiesCenter += svs.camera.getPosition();
 				numCenters++;
+				break;
+			default:
+				// nothing to do here, just to prevent warning
 				break;
 		}
 	}
@@ -871,7 +882,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 							// we don't know what layers contain valid data, so let's send the most common, realtime ambient
 							// updateEnvironmentMap applies const ambient for objects with realtime ambient buffer missing
 							// the only danger: realtime ambient buffers were not updated yet = black
-							solver->updateEnvironmentMap(&selectedObjects[i]->illumination,svs.layerBakedEnvironment,NULL,svs.layerRealtimeAmbient);
+							solver->updateEnvironmentMap(&selectedObjects[i]->illumination,svs.layerBakedEnvironment,UINT_MAX,svs.layerRealtimeAmbient);
 							break;
 					}
 

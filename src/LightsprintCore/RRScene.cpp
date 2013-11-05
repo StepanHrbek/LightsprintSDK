@@ -203,7 +203,7 @@ struct LoadersAndSavers
 		if (loaders.empty())
 		{
 			RRReporter::report(WARN,"No loaders registered, call rr_io::registerLoaders() or RR%s::registerLoader() first.\n",classname);
-			return false;
+			return NULL;
 		}
 
 		// tell texture locator scene filename

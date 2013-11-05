@@ -189,12 +189,13 @@ void RRBuffer::setFormat(RRBufferFormat newFormat)
 	{
 		RRBuffer* copy = createCopy();
 		reset(getType(),getWidth(),getHeight(),getDepth(),BF_RGBA,getScaled(),NULL);
-		int flags = 0;
+		int flags;
 		switch (getFormat())
 		{
 			case BF_DXT1: flags = squish::kDxt1; break;
 			case BF_DXT3: flags = squish::kDxt3; break;
 			case BF_DXT5: flags = squish::kDxt5; break;
+			default:      flags = 0; break;
 		};
 		// compressed copy -> decompressed this
 		squish::DecompressImage(lock(BL_DISCARD_AND_WRITE),getWidth(),getHeight(),copy->lock(BL_READ),flags);
@@ -209,12 +210,13 @@ void RRBuffer::setFormat(RRBufferFormat newFormat)
 		setFormat(BF_RGBA);
 		RRBuffer* copy = createCopy();
 		reset(getType(),getWidth(),getHeight(),getDepth(),newFormat,getScaled(),NULL);
-		int flags = 0;
+		int flags;
 		switch (getFormat())
 		{
 			case BF_DXT1: flags = squish::kDxt1; break;
 			case BF_DXT3: flags = squish::kDxt3; break;
 			case BF_DXT5: flags = squish::kDxt5; break;
+			default:      flags = 0; break;
 		};
 		// uncompressed copy -> compressed this
 		squish::CompressImage(copy->lock(BL_READ),getWidth(),getHeight(),lock(BL_DISCARD_AND_WRITE),flags);
@@ -253,6 +255,12 @@ void RRBuffer::setFormatFloats()
 			setFormat(BF_LUMINANCEF);
 			break;
 		case BF_DEPTH:
+			// implementation defined
+			break;
+		case BF_RGBF:
+		case BF_RGBAF:
+		case BF_LUMINANCEF:
+			// already floats
 			break;
 	}
 }
@@ -1056,10 +1064,12 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 			std::wstring location_buf = RR_RR2STDW(location);
 			int ofs = (int)location_buf.find(L"%s");
 			if (ofs>=0)
+			{
 				if (_cubeSideName && _cubeSideName[0])
 					location_buf.replace(ofs,2,RRString(_cubeSideName[0]).w_str());
 				else
 					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Texture filename %ls contains %%s, but cubeSideNames is NULL.\n",location.w_str()));
+			}
 			bool exists = _fileLocator->exists(RR_STDW2RR(location_buf));
 			RRReporter::report(INF3,"%d%c %ls\n",attempt,exists?'+':'-',location.w_str());
 			if (exists)

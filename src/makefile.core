@@ -49,7 +49,7 @@ $(OBJ_DIR)/%.o: %.cc
 
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(CC) -o $@ -c $< $(CPP_FLAGS) -MD
+	$(CC) -o $@ -c $< $(CPP_FLAGS) $(C_EXTRA_FLAGS) -MD
 	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/$*.d >> $(OBJ_DIR)/$*.d
 
 # clean object and dependency files

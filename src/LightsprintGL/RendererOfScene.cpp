@@ -778,7 +778,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 				UberProgramSetup passUberProgramSetup;
 				RealtimeLight* light;
 				Program* program;
-				while (program = multiPass.getNextPass(passUberProgramSetup,light))
+				while ((program = multiPass.getNextPass(passUberProgramSetup,light)))
 				{
 					for (unsigned j=0;j<nonBlendedFaceGroups->size();)
 					{
@@ -1039,7 +1039,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
 			Program* program;
-			while (program = multiPass.getNextPass(passUberProgramSetup,light))
+			while ((program = multiPass.getNextPass(passUberProgramSetup,light)))
 			{
 				// set transformation
 				passUberProgramSetup.useWorldMatrix(program,object);

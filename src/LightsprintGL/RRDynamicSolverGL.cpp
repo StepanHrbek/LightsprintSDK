@@ -400,6 +400,7 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 	for (unsigned i=0;i<realtimeLights.size();i++)
 	{
 		if (realtimeLights[i] && realtimeLights[i]->getRRLight().enabled)
+		{
 			if (!theOnlyEnabledLight)
 			{
 				// first enabled light found
@@ -425,6 +426,7 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 				// return sum
 				return detectedDirectSum;
 			}
+		}
 	}
 	if (theOnlyEnabledLight)
 	{

@@ -40,8 +40,8 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 		case BF_DEPTH: return 4;
 		case BF_LUMINANCE: return 1;
 		case BF_LUMINANCEF: return 4;
+		default: return 0;
 	}
-	return 0;
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -88,7 +88,7 @@ namespace COLLADAFW
             if ( faceIndex >= mGroupedVerticesVertexCountArray.getCount () ) 
             {
                 std::cerr << "Face index out of range: " << faceIndex << std::endl;
-				COLLADABU_ASSERT ( "Face index out of range: " + faceIndex );
+				COLLADABU_ASSERT ( "Face index out of range: " ); //+ faceIndex ); clang assert
                 return -1;
             }
 

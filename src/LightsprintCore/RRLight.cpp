@@ -344,7 +344,7 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* sc
 	RR_ASSERT(IS_VEC3(receiverPosition));
 	RR_ASSERT(IS_VEC3(position));
 
-	float distanceAttenuation = 1;
+	float distanceAttenuation;
 	switch (distanceAttenuationType)
 	{
 		case PHYSICAL:
@@ -365,6 +365,12 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* sc
 			RR_ASSERT(fallOffExponent>=0 && _finite(fallOffExponent));
 			distanceAttenuation = pow(RR_MAX(0,1-(receiverPosition-position).length2()/(radius*radius)),fallOffExponent);
 			RR_ASSERT(distanceAttenuation>=0 && _finite(distanceAttenuation));
+			break;
+		}
+		case NONE:
+		default:
+		{
+			distanceAttenuation = 1;
 			break;
 		}
 	}
