@@ -237,7 +237,9 @@ void SVObjectProperties::OnPropertySelect(wxPropertyGridEvent& event)
 		return;
 
 	wxPGProperty *property = event.GetProperty();
-	if (property)
+	if (!property)
+		return;
+
 	if (property->GetParent()==propFacegroups && svframe->m_materialProperties && object)
 	{
 		unsigned fg = property->GetIndexInParent();
