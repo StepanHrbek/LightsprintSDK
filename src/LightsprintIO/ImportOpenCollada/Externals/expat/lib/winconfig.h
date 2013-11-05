@@ -11,7 +11,7 @@
 #define WINCONFIG_H
 
 #define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+//#include <windows.h> // breaks osx/clang
 #undef WIN32_LEAN_AND_MEAN
 
 #include <memory.h>
