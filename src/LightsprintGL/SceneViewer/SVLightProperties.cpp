@@ -70,10 +70,11 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			propAzimuth = new FloatProperty(_("Azimuth")+L" (\u00b0)",_("Solar azimuth angle, 90 for east, 180 for south, 270 for west."),ANGLE2AZI(rtlight->getCamera()->getYawPitchRollRad()[0]),_precision,0,360,10,true);
 			AppendIn(propType,propAzimuth);
 
-			propOuterAngle = new FloatProperty(_("Outer angle")+L" (\u00b0)",_("Outer cone angle, angle between major direction and border direction."),RR_RAD2DEG(light->outerAngleRad),_precision,0,180,10,false);
+			enum {MAX_SPOT_ANGLE=180};
+			propOuterAngle = new FloatProperty(_("Outer angle")+L" (\u00b0)",_("Outer cone angle, angle between major direction and border direction. Can be up to 89 with shadows enabled, up to 180 with shadows disabled."),RR_RAD2DEG(light->outerAngleRad),_precision,0,MAX_SPOT_ANGLE,10,false);
 			AppendIn(propType,propOuterAngle);
 
-			propFallOffAngle = new FloatProperty(_("Fall off angle")+L" (\u00b0)",_("Outer angle minus inner angle, part of outer angle where intensity falls off."),RR_RAD2DEG(light->fallOffAngleRad),_precision,0,180,10,false);
+			propFallOffAngle = new FloatProperty(_("Fall off angle")+L" (\u00b0)",_("Outer angle minus inner angle, part of outer angle where intensity falls off."),RR_RAD2DEG(light->fallOffAngleRad),_precision,0,MAX_SPOT_ANGLE,10,false);
 			AppendIn(propType,propFallOffAngle);
 
 			propSpotExponent = new FloatProperty(_("Spot exponent"),_("Controls attenuation curve inside fall off angle."),light->spotExponent,_precision,0,1000,0.1f,false);
