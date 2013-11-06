@@ -59,7 +59,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			propGISSGIIntensity = new FloatProperty(_("Intensity"),_("Multiplies effect of SSGI."),svs.ssgiIntensity,svs.precision,0,100,1,false);
 			AppendIn(propGISSGI,propGISSGIIntensity);
 
-			propGISSGIRadius = new FloatProperty(_("Radius"),_("Max distance of occluder to create occlusion."),svs.ssgiRadius,svs.precision,0,100,1,false);
+			propGISSGIRadius = new FloatProperty(_("Radius")+" (m)",_("Max distance of occluder to create occlusion."),svs.ssgiRadius,svs.precision,0,100,1,false);
 			AppendIn(propGISSGI,propGISSGIRadius);
 
 			propGISSGIAngleBias = new FloatProperty(_("Hide false edges"),_("0 for full occlusion (makes false edges visible), increase to hide occlusion on false edges."),svs.ssgiAngleBias,svs.precision,0,100,1,false);
