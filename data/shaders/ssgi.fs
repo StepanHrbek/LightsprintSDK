@@ -88,6 +88,7 @@ void main()
 			if (occlusion>maxOcclusion)
 			{
 				vec4 c1 = texture2D(colorMap,mapCoord+float(s)*stepInTextureSpace);
+				c1.a = 1.0; // can be 0 after mirror
 				occlusionColor += c1*(occlusion-maxOcclusion);
 				maxOcclusion = occlusion;
 			}
