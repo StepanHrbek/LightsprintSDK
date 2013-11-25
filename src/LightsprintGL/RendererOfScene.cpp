@@ -983,9 +983,11 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 				}
 
 				glDisable(GL_BLEND);
-//				textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,1,0.7f,-0.3f,0.3f,0,"#define MIRROR_MASK_DEBUG\n"); // rendered up, MIRROR_MASK_DEBUG is necessary to show alpha as rgb
-//				textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.35f,-0.3f,0.3f,0);
-//				textureRenderer->render2D(getTexture(mirrorColorMap,false,false),NULL,1,1,0.0f,-0.3f,0.3f,0); // rendered down
+				// debug: render textures to backbuffer with z=-1 to pass z-test
+				//        z-write is disabled, so everything rendered later (mirrors and glasses) overlaps them
+				//textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,0.7f,0.7f,0.3f,0.3f,-1,"#define MIRROR_MASK_DEBUG\n"); // rendered up, MIRROR_MASK_DEBUG is necessary to show alpha as rgb
+				//textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.35f,-0.3f,0.3f,-1);
+				//textureRenderer->render2D(getTexture(mirrorColorMap,false,false),NULL,1,1,0.0f,-0.3f,0.3f,-1); // rendered down
 			}
 			glDepthMask(GL_TRUE);
 			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
