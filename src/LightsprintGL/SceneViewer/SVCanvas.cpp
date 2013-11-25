@@ -1740,7 +1740,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (rp.animationTime>1000)
 				svs.referenceTime.addSeconds(1000);
 
-			rp.srgbCorrect = svs.srgbCorrect;
+			rp.srgbCorrect = (svs.renderLightDirect==LD_REALTIME) && svs.srgbCorrect;
 
 			solver->renderScene(rp);
 
