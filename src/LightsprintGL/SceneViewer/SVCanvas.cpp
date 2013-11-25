@@ -1828,7 +1828,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			if (ssgi)
 			{
-				ssgi->applySSGI(winWidth,winHeight,svs.camera,svs.ssgiIntensity,svs.ssgiRadius,svs.ssgiAngleBias);
+				ssgi->applySSGI(winWidth,winHeight,svs.camera,svs.ssgiIntensity,svs.ssgiRadius,svs.ssgiAngleBias,textureRenderer);
 			}
 		}
 

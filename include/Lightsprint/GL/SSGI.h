@@ -10,6 +10,7 @@
 
 #include "UberProgram.h"
 #include "Texture.h"
+#include "TextureRenderer.h"
 #include "Lightsprint/RRCamera.h"
 
 namespace rr_gl
@@ -33,7 +34,7 @@ public:
 	~SSGI();
 
 	//! Adds screen space ambient occlusion effect to image in current render target, to region of size w*h.
-	void applySSGI(unsigned w, unsigned h, const rr::RRCamera& eye, float intensity, float radius, float angleBias);
+	void applySSGI(unsigned w, unsigned h, const rr::RRCamera& eye, float intensity, float radius, float angleBias, TextureRenderer* debugTextureRenderer = NULL);
 
 protected:
 	Texture* bigColor;

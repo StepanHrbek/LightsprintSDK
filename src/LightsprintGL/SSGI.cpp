@@ -31,7 +31,7 @@ SSGI::~SSGI()
 	delete bigColor;
 }
 
-void SSGI::applySSGI(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _intensity, float _radius, float _angleBias)
+void SSGI::applySSGI(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _intensity, float _radius, float _angleBias, TextureRenderer* _textureRenderer)
 {
 	if (!bigColor || !bigColor2 || !bigDepth || !ssgiProgram1 || !ssgiProgram2)
 	{
@@ -136,6 +136,8 @@ void SSGI::applySSGI(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _
 		glBlendFunc(GL_ZERO,GL_SRC_COLOR);
 		TextureRenderer::renderQuad();
 	}
+	//if (_textureRenderer)
+	//	_textureRenderer->render2D(bigDepth,NULL,1,0,0.35f,0.3f,0.3f,-1);
 }
 
 }; // namespace
