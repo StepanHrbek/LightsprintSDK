@@ -112,6 +112,7 @@ struct SceneViewerState
 	bool             renderFPS;                 //! Render FPS counter.
 	bool             renderHelpers;             //! Show helper wireframe objects and text outputs.
 	bool             renderBloom;               //! Render bloom effect.
+	float            bloomThreshold;            //! Only pixels with intensity above this threshold receive bloom.
 	bool             renderLensFlare;           //! Render lens flare effect.
 	float            lensFlareSize;             //! Relative lens flare size, 1 for typical size.
 	unsigned         lensFlareId;               //! Other lens flare parameters are generated from this number.
@@ -218,6 +219,7 @@ struct SceneViewerState
 		renderLightmapsBilinear = 1;
 		renderDDI = false;
 		renderBloom = 0;
+		bloomThreshold = 1;
 		renderLensFlare = 1;
 		lensFlareSize = 8;
 		lensFlareId = 204;
@@ -321,6 +323,7 @@ struct SceneViewerState
 			&& a.renderFPS==renderFPS
 			&& a.renderHelpers==renderHelpers
 			&& a.renderBloom==renderBloom
+			&& a.bloomThreshold==bloomThreshold
 			&& a.renderLensFlare==renderLensFlare
 			&& a.lensFlareSize==lensFlareSize
 			&& a.lensFlareId==lensFlareId

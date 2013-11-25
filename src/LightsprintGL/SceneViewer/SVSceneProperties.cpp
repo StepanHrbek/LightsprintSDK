@@ -240,8 +240,14 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propRenderExtras,propLogo);
 		}
 
-		propRenderBloom = new BoolRefProperty(_("Bloom"),_("Applies fullscreen bloom effect."),svs.renderBloom);
-		AppendIn(propRenderExtras,propRenderBloom);
+		// bloom
+		{
+			propBloom = new BoolRefProperty(_("Bloom"),_("Applies fullscreen bloom effect."),svs.renderBloom);
+			AppendIn(propRenderExtras,propBloom);
+
+			propBloomThreshold = new FloatProperty(_("Threshold"),_("Only pixels with intensity above this threshold receive bloom."),(float)svs.bloomThreshold,svs.precision,0,1,0.1f,false);
+			AppendIn(propBloom,propBloomThreshold);
+		}
 
 		// lens flare
 		{
@@ -318,6 +324,8 @@ void SVSceneProperties::updateHide()
 	propRenderMaterialTransparencyRefraction->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
 
 
+	propBloomThreshold->Hide(!svs.renderBloom,false);
+
 	propLensFlareSize->Hide(!svs.renderLensFlare,false);
 	propLensFlareId->Hide(!svs.renderLensFlare,false);
 
@@ -346,6 +354,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propToneMapping)
 		+ updateBool(propToneMappingAutomatic,svs.tonemappingAutomatic)
 		+ updateBoolRef(propLogo)
+		+ updateBoolRef(propBloom)
 		+ updateBoolRef(propLensFlare)
 		+ updateBoolRef(propVignette)
 		+ updateBoolRef(propGrid)
@@ -390,7 +399,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderWireframe)
 		+ updateBoolRef(propRenderHelpers)
 		+ updateBoolRef(propRenderFPS)
-		+ updateBoolRef(propRenderBloom)
+		+ updateFloat(propBloomThreshold,svs.bloomThreshold)
 		+ updateFloat(propLensFlareSize,svs.lensFlareSize)
 		+ updateFloat(propLensFlareId,svs.lensFlareId)
 		+ updateInt(propGridNumSegments,svs.gridNumSegments)
@@ -640,6 +649,16 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		// update shadowmaps
 		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
+	}
+	else
+	if (property==propBloom)
+	{
+		updateHide();
+	}
+	else
+	if (property==propBloomThreshold)
+	{
+		svs.bloomThreshold = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propLensFlare)

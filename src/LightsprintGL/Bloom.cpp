@@ -35,7 +35,7 @@ Bloom::~Bloom()
 	delete bigMap;
 }
 
-void Bloom::applyBloom(unsigned _w, unsigned _h)
+void Bloom::applyBloom(unsigned _w, unsigned _h, float _threshold)
 {
 	if (!bigMap || !smallMap1 || !smallMap2 || !blurProgram || !scaleDownProgram) return;
 
@@ -84,6 +84,7 @@ void Bloom::applyBloom(unsigned _w, unsigned _h)
 	scaleDownProgram->useIt();
 	scaleDownProgram->sendUniform("map",0);
 	scaleDownProgram->sendUniform("pixelDistance",1.0f/bigMap->getBuffer()->getWidth(),1.0f/bigMap->getBuffer()->getHeight());
+	scaleDownProgram->sendUniform("threshold",3.0f*_threshold);
 	glViewport(0,0,smallMap1->getBuffer()->getWidth(),smallMap1->getBuffer()->getHeight());
 	glActiveTexture(GL_TEXTURE0);
 	bigMap->bindTexture();
@@ -103,7 +104,7 @@ void Bloom::applyBloom(unsigned _w, unsigned _h)
 	blurProgram->sendUniform("pixelDistance",1.0f/smallMap1->getBuffer()->getWidth(),0.0f);
 	smallMap2->bindTexture();
 	TextureRenderer::renderQuad();
-	
+
 	// blend smallMap1 to render target
 	oldFBOState.restore();
 	blendProgram->useIt();

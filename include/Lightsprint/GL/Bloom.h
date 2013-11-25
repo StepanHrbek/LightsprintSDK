@@ -32,7 +32,7 @@ public:
 	~Bloom();
 
 	//! Adds bloom effect to image in current render target, to region of size w*h.
-	void applyBloom(unsigned w, unsigned h);
+	void applyBloom(unsigned w, unsigned h, float threshold = 1);
 
 protected:
 	Texture* bigMap;

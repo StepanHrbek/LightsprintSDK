@@ -91,7 +91,8 @@ namespace rr_gl
 
 		BoolRefProperty*  propLogo;
 
-		BoolRefProperty*  propRenderBloom;
+		BoolRefProperty*  propBloom;
+		FloatProperty*    propBloomThreshold;
 
 		BoolRefProperty*  propLensFlare;
 		FloatProperty*    propLensFlareSize;

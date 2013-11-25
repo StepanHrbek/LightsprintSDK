@@ -6,6 +6,7 @@
 
 uniform sampler2D map;
 uniform vec2 pixelDistance;
+uniform float threshold;
 varying vec2 mapCoord;
 
 void main()
@@ -19,7 +20,7 @@ void main()
 		+texture2D(map,mapCoord+pixelDistance*vec2(+1.0,+1.0))
 		) / 4.0;
 //	gl_FragColor = step(vec4(1.0,1.0,1.0,1.0),color);
-	gl_FragColor = (color.r+color.g+color.b>=3.0)?color:vec4(0.0,0.0,0.0,0.0);
+	gl_FragColor = (color.r+color.g+color.b>=threshold)?color:vec4(0.0,0.0,0.0,0.0);
 #elif PASS==2
 	// blur downscaled image
 	gl_FragColor = (

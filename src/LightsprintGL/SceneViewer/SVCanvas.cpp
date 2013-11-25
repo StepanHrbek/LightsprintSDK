@@ -1813,7 +1813,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			if (bloom)
 			{
-				bloom->applyBloom(winWidth,winHeight);
+				bloom->applyBloom(winWidth,winHeight,svs.bloomThreshold);
 			}
 		}
 
