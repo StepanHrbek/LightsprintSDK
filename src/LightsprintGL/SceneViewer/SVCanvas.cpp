@@ -1974,7 +1974,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
 				uberProgramSetup.LEGACY_GL = 1;
-				uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
+				uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,NULL,1,NULL);
 			}
 
 			// render crosshair, using previously set shader
