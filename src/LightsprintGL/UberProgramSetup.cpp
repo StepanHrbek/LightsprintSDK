@@ -759,7 +759,8 @@ void UberProgramSetup::useCamera(Program* program, const rr::RRCamera* camera)
 			glMatrixMode(GL_PROJECTION);
 			glLoadMatrixd(camera->getProjectionMatrix());
 			glMatrixMode(GL_MODELVIEW);
-			glLoadMatrixd(camera->getViewMatrix());		}
+			glLoadMatrixd(camera->getViewMatrix());
+		}
 		else
 		{
 			float m3[16];

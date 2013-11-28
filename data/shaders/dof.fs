@@ -5,7 +5,7 @@
 // PASS [1|2|3]
 
 uniform sampler2D colorMap;
-uniform sampler2D midMap;
+//uniform sampler2D midMap;
 uniform sampler2D smallMap;
 uniform sampler2D depthMap;
 uniform vec2 pixelSize;

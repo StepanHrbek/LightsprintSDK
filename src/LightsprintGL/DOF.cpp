@@ -68,7 +68,7 @@ void DOF::applyDOF(unsigned _w, unsigned _h, const rr::RRCamera& _eye)
 	PreserveDepthTest p1;
 	PreserveDepthMask p2;
 	glDisable(GL_DEPTH_TEST);
-	glDepthMask(0);
+	glDepthMask(GL_FALSE);
 
 	// acquire source maps
 	{
