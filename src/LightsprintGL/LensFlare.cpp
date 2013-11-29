@@ -8,7 +8,7 @@
 #include <ctime>
 #include "Lightsprint/GL/LensFlare.h"
 #include "Lightsprint/GL/TextureRenderer.h"
-#include "PreserveState.h"
+#include "Lightsprint/GL/PreserveState.h"
 
 namespace rr_gl
 {

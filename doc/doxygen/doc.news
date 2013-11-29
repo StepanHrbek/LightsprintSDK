@@ -27,6 +27,7 @@ CHANGES
 
 - several path/filename parameters changed from char* to RRString for more complete unicode support
   \n you might need to pass "" instead of NULL if old code fails to compile
+- GL/PreserveState.h header made public, previously internal
 
 \section news141 ------------------------------------ 2013.09.29 -------------------------------------
 

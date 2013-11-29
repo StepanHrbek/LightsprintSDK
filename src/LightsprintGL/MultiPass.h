@@ -9,7 +9,7 @@
 #define MULTIPASS_H
 
 #include "Lightsprint/GL/UberProgramSetup.h"
-#include "PreserveState.h"
+#include "Lightsprint/GL/PreserveState.h"
 
 namespace rr_gl
 {

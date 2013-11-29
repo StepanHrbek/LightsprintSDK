@@ -590,7 +590,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\DemoEngine.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\FPS.h" />
     <ClInclude Include="MultiPass.h" />
-    <ClInclude Include="PreserveState.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\PreserveState.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Program.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\RealtimeLight.h" />
     <ClInclude Include="RendererOfMesh.h" />

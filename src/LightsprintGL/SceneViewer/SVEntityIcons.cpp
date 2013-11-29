@@ -7,7 +7,7 @@
 
 #include "SVEntityIcons.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
-#include "../PreserveState.h"
+#include "Lightsprint/GL/PreserveState.h"
 #include "wx/wx.h"
 
 namespace rr_gl

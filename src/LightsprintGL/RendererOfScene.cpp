@@ -16,7 +16,7 @@
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/TextureRenderer.h"
-#include "PreserveState.h"
+#include "Lightsprint/GL/PreserveState.h"
 #include "MultiPass.h"
 #include "RendererOfMesh.h"
 #include "Shader.h" // s_es

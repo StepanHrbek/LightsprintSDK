@@ -8,7 +8,7 @@
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRMemory.h"
-#include "PreserveState.h"
+#include "Lightsprint/GL/PreserveState.h"
 #include "tmpstr.h"
 
 #define PHYS2SRGB 0.45f
