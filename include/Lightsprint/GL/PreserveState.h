@@ -15,16 +15,17 @@ namespace rr_gl
 
 // Rules for GL states:
 //
-// - LightsprintGL modifies GL state.
+// - LightsprintGL functions modify GL state.
 // - Some states are modified but original value is preserved
 //   and restored back automatically:
-//   - matrices
+//   - blending
 //   - culling
 //   - viewport
+//   - scissors
+//   - FBO etc
 // - Some states are modified and left modified:
-//   - vertex attributes: color, secondary color, normal, texcoords
 //   - program
-//   - textures
+//   - textures etc
 
 // Example of use:
 // {
