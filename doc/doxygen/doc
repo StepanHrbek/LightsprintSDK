@@ -3155,19 +3155,19 @@ rr::RRVector<*>{
  \section io_overview Overview
 
   LightsprintIO provides support for \subpage supported_formats "95+ fileformats", by registering import/export callbacks
-  for textures and 3d scenes.
+  for textures, materials and 3d scenes.
 
-  It has simple and friendly user interface, one function without parameters.
+  It has simple and friendly user interface, single function without parameters.
 
  \section io_api API
 
   Namespace: rr_io
 
   <hr>
-  Header: Lightsprint/IO/ImportScene.h
+  Header: Lightsprint/IO/IO.h
 
   - rr_io::registerLoaders() registers all loaders implemented in this library,
-    \n use RRScene and RRBuffer to load and save files
+    \n use RRScene, RRBuffer and RRMaterial to load and save files
 
 
 

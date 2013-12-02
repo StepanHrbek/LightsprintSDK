@@ -26,7 +26,7 @@
 
 #include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/GL/Program.h"
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/IO/IO.h"
 #include <cstdlib>
 #include <cstdio>
 #ifdef _WIN32
@@ -82,6 +82,31 @@ int main(int argc, char** argv)
 	// See how adapters in src/LightsprintIO/ImportXXX/RRObjectXXX.cpp register,
 	// you can do the same for your own file format.
 	rr_ed::SceneViewerState svs;
+	/*/ testuju SSGI ztmavovani v dali
+	svs.renderMaterialBumpMaps = 0;
+	svs.renderMaterialDiffuse = 0;
+	svs.renderMaterialSpecular = 0;
+	svs.renderMaterialTextures = 0;
+	svs.renderLensFlare = 0;
+	svs.renderTonemapping = 1;
+	svs.tonemappingAutomatic = 0;
+	svs.tonemappingBrightness = rr::RRVec4(2.0f);
+	svs.renderLDM = 0;
+	svs.renderMaterialEmission = 0;
+	svs.renderMaterialTransparency = rr_gl::T_OPAQUE;
+	svs.raytracedCubesEnabled = 0;
+	svs.renderLightDirect = rr_gl::LD_NONE;
+	svs.renderLightIndirect = rr_gl::LI_CONSTANT;
+	svs.srgbCorrect = false;
+	svs.mirrorsEnabled = 0;
+	svs.renderFPS = 1;
+	svs.renderDof = 1;
+	sceneFilename = "C:\\c\\rr\\data\\scenes\\koupelna\\koupelna4.rr3";
+	// testuju DOF na geforce
+	sceneFilename = "";
+	svs.renderTonemapping = 0;
+	svs.ssgiEnabled = 0;
+	svs.renderFPS = 1;*/
 #ifdef NDEBUG
 	// release returns quickly without freeing resources
 	rr_ed::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,false);

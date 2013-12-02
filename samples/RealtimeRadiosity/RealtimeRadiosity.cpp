@@ -45,7 +45,7 @@
 #include "../src/LightsprintIO/Import3DS/Model_3DS.h"
 #include "../src/LightsprintIO/Import3DS/RRObject3DS.h"
 #include "DynamicObject.h"
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/IO/IO.h"
 
 
 /////////////////////////////////////////////////////////////////////////////

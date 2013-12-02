@@ -45,7 +45,7 @@
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDebug.h"
 #include "DynamicObject.h"
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/IO/IO.h"
 
 
 /////////////////////////////////////////////////////////////////////////////

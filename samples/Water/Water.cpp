@@ -20,7 +20,7 @@
 #else
 	#include <GL/glut.h>
 #endif
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/IO/IO.h"
 #include "Lightsprint/GL/Water.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDebug.h"

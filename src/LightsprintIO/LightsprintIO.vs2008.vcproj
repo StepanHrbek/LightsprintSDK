@@ -4825,7 +4825,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\IO\ImportScene.h"
+			RelativePath="..\..\include\Lightsprint\IO\IO.h"
 			>
 		</File>
 		<File

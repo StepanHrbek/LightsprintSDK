@@ -2373,7 +2373,7 @@
     <ClInclude Include="ImportLightsprint\RRSerialization.h">
       <Filter>Lightsprint</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\Lightsprint\IO\ImportScene.h" />
+    <ClInclude Include="..\..\include\Lightsprint\IO\IO.h" />
     <ClInclude Include="supported_formats.h" />
     <ClInclude Include="ImportAssimp\contrib\unzip\crypt.h">
       <Filter>Assimp\contrib\unzip</Filter>

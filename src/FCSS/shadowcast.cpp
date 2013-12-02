@@ -93,7 +93,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/GL/FPS.h"
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/IO/IO.h"
 #include "AnimationEditor.h"
 #include "DemoPlayer.h"
 #include "DynamicObjects.h"

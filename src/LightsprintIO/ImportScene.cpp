@@ -3,7 +3,7 @@
 // Copyright (C) 2006-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/IO/IO.h"
 
 #include "supported_formats.h"
 #include "ImportImages/ImportFreeImage.h"

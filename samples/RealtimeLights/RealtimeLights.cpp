@@ -44,7 +44,7 @@
 	#include <GL/glut.h>
 #endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/IO/IO.h"
 #ifdef FBO_EXAMPLE
 	#include "Lightsprint/GL/FBO.h"
 	#include "Lightsprint/GL/TextureRenderer.h"

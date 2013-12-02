@@ -52,7 +52,7 @@
 	#include <GL/glut.h>
 #endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/IO/IO.h"
 #include <stdio.h>   // printf
 
 

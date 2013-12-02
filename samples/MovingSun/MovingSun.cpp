@@ -41,7 +41,7 @@
 	#include <GL/glut.h>
 #endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/IO/IO.h"
 
 #if defined(LINUX) || defined(linux)
 	#include <sys/stat.h>

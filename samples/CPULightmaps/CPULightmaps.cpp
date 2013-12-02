@@ -16,7 +16,7 @@
 #endif
 
 #include "Lightsprint/RRDynamicSolver.h"
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/IO/IO.h"
 
 void error(const char* message, bool gfxRelated)
 {

@@ -65,7 +65,7 @@
 	#include <direct.h> // _chdir
 #endif
 #include "Lightsprint/RRMath.h"
-#include "Lightsprint/IO/ImportScene.h"
+#include "Lightsprint/IO/IO.h"
 #ifdef SCENE_VIEWER
 	#include "Lightsprint/Ed/Ed.h"
 	#include "Lightsprint/GL/Texture.h"
