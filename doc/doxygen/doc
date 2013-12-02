@@ -553,7 +553,7 @@ Material formats (1)
    Only for LightsprintEd source code licensees:
    If you don't have time building wxWidgets or simply don't need sceneViewer() function,
    you can build Lightsprint SDK without wxWidgets
-   - delete <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code>
+   - delete <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/Ed/Ed.h</code>
 
  \page wxwidgets_patch wxWidgets patch
    We contribute our improvements back to original projects, however,
@@ -3141,7 +3141,7 @@ rr::RRVector<*>{
  Namespace: rr_ed
 
  <hr>
- Header: Lightsprint/GL/SceneViewer.h
+ Header: Lightsprint/Ed/Ed.h
 
  - rr_ed::sceneViewer() is a single function scene viewer, with UI for editing lights and materials,
    with realtime and static GI, with 2d viewer of lightmaps and mappings.

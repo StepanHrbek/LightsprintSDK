@@ -8,7 +8,7 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
-#include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/Ed/Ed.h"
 #include "SVFrame.h"
 
 namespace rr_ed

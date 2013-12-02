@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
-//! \file SceneViewer.h
-//! \brief LightsprintGL | viewer of scene
+//! \file Ed.h
+//! \brief LightsprintGL | scene editor
 //! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2013
 //! All rights reserved
 //----------------------------------------------------------------------------

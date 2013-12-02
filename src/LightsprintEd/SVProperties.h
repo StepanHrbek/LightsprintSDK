@@ -10,7 +10,7 @@
 
 //#define PROPERTYGRID_TABS
 
-#include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/Ed/Ed.h"
 #include "SVFrame.h"
 #include "SVCustomProperties.h"
 #include "wx/propgrid/propgrid.h"

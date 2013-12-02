@@ -10,7 +10,7 @@
 
 #define BOOST_NO_CXX11_SCOPED_ENUMS // prevents OSX/clang linker error undefined symbol boost::filesystem::detail::copy_file
 
-#include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/Ed/Ed.h"
 #include "SVCanvas.h"
 #include "SVDialogs.h"
 #include "wx/aui/aui.h"

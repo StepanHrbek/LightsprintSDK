@@ -569,7 +569,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\Lightsprint\GL\SceneViewer.h" />
+    <ClInclude Include="..\..\include\Lightsprint\Ed\Ed.h" />
     <ClInclude Include="SVAnimationProperties.h" />
     <ClInclude Include="SVApp.h" />
     <ClInclude Include="SVCanvas.h" />

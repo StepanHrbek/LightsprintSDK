@@ -8,7 +8,7 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
-#include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/GL/Bloom.h"
 #include "Lightsprint/GL/DOF.h"
 #include "Lightsprint/GL/FPS.h"

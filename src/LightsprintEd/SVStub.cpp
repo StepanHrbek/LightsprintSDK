@@ -5,7 +5,7 @@
 
 #ifndef SUPPORT_SCENEVIEWER
 
-#include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/Ed/Ed.h"
 
 namespace rr_ed
 {

@@ -24,7 +24,7 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/GL/Program.h"
 #include "Lightsprint/IO/ImportScene.h"
 #include <cstdlib>

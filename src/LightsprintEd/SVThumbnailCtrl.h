@@ -3,7 +3,7 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
-#include "Lightsprint/GL/SceneViewer.h" // wxMSVC_VERSION_AUTO
+#include "Lightsprint/Ed/Ed.h" // wxMSVC_VERSION_AUTO
 
 #endif // SUPPORT_SCENEVIEWER
 

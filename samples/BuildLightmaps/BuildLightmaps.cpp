@@ -67,7 +67,7 @@
 #include "Lightsprint/RRMath.h"
 #include "Lightsprint/IO/ImportScene.h"
 #ifdef SCENE_VIEWER
-	#include "Lightsprint/GL/SceneViewer.h"
+	#include "Lightsprint/Ed/Ed.h"
 	#include "Lightsprint/GL/Texture.h"
 #endif
 

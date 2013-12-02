@@ -776,7 +776,7 @@
 	</References>
 	<Files>
 			<File
-				RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h"
+				RelativePath="..\..\include\Lightsprint\Ed\Ed.h"
 				>
 			</File>
 			<File

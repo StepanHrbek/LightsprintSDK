@@ -18,7 +18,7 @@
         <property name="name">SVDialogs</property>
         <property name="namespace"></property>
         <property name="path">.</property>
-        <property name="precompiled_header">#include &quot;Lightsprint/GL/SceneViewer.h&quot;</property>
+        <property name="precompiled_header">#include &quot;Lightsprint/Ed/Ed.h&quot;</property>
         <property name="relative_path">1</property>
         <property name="skip_php_events">1</property>
         <property name="skip_python_events">1</property>

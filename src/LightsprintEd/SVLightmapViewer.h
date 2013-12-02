@@ -8,7 +8,7 @@
 
 #ifdef SUPPORT_SCENEVIEWER
 
-#include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/Ed/Ed.h"
 #include "wx/wx.h"
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
