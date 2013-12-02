@@ -6,10 +6,7 @@
 #ifndef SVCOMMENT_H
 #define SVCOMMENT_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

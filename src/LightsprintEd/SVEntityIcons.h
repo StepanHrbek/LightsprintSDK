@@ -6,8 +6,6 @@
 #ifndef SVENTITYICONS_H
 #define SVENTITYICONS_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/RRLight.h"
 #include "Lightsprint/RRCollider.h"
@@ -54,7 +52,5 @@ namespace rr_ed
 	};
  
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

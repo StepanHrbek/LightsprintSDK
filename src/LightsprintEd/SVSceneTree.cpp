@@ -3,8 +3,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVSceneTree.h"
 #include "SVFrame.h"
 #include "SVObjectProperties.h"
@@ -1300,5 +1298,3 @@ END_EVENT_TABLE()
 
  
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER

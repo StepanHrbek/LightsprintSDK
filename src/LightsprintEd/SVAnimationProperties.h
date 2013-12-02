@@ -6,10 +6,7 @@
 #ifndef SVANIMATIONPROPERTIES_H
 #define SVANIMATIONPROPERTIES_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

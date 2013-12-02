@@ -6,8 +6,6 @@
 #ifndef SVSCENEPROPERTIES_H
 #define SVSCENEPROPERTIES_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 #include "SVProperties.h"
 #include "SVCustomProperties.h"
@@ -109,7 +107,5 @@ namespace rr_ed
 	};
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

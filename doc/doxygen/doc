@@ -552,8 +552,8 @@ Material formats (1)
   \section wx_removing Removing
    Only for LightsprintEd source code licensees:
    If you don't have time building wxWidgets or simply don't need sceneViewer() function,
-   you can build Lightsprint SDK without wxWidgets
-   - delete <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/Ed/Ed.h</code>
+   you can build the rest of Lightsprint SDK without wxWidgets
+   - unload or remove LightsprintEd project from solution
 
  \page wxwidgets_patch wxWidgets patch
    We contribute our improvements back to original projects, however,

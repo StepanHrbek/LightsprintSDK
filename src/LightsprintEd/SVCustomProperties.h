@@ -6,8 +6,6 @@
 #ifndef SVCUSTOMPROPERTIES_H
 #define SVCUSTOMPROPERTIES_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 #include "wx/wx.h"
 #include "wx/propgrid/propgrid.h"
@@ -280,7 +278,5 @@ unsigned updateProperty(wxPGProperty* prop,C value)
 }
 
 } // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

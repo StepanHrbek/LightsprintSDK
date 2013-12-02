@@ -3,8 +3,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVFrame.h"
 #include "Lightsprint/RRScene.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
@@ -1813,5 +1811,3 @@ BEGIN_EVENT_TABLE(SVFrame, wxFrame)
 END_EVENT_TABLE()
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER

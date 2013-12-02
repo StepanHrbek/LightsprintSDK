@@ -52,7 +52,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				StringPooling="true"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
@@ -143,7 +143,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
@@ -229,7 +229,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
@@ -315,7 +315,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -403,7 +403,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				StringPooling="true"
 				ExceptionHandling="2"
 				RuntimeLibrary="2"
@@ -503,7 +503,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -600,7 +600,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
@@ -697,7 +697,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -922,10 +922,6 @@
 			</File>
 			<File
 				RelativePath="SVSceneTree.h"
-				>
-			</File>
-			<File
-				RelativePath="SVStub.cpp"
 				>
 			</File>
 			<File

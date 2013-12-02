@@ -3,8 +3,6 @@
 // Copyright (C) 2009-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVLog.h"
 #include "SVFrame.h"
 
@@ -115,5 +113,3 @@ LogWithAbort::~LogWithAbort()
 }
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER

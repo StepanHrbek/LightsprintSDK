@@ -3,8 +3,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVLightmapViewer.h"
 
 namespace rr_ed
@@ -177,5 +175,3 @@ void SVLightmapViewer::OnPaint(rr_gl::TextureRenderer* textureRenderer, wxSize w
 }
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER

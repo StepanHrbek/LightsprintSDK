@@ -6,8 +6,6 @@
 #ifndef SVCANVAS_H
 #define SVCANVAS_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/GL/Bloom.h"
 #include "Lightsprint/GL/DOF.h"
@@ -170,7 +168,5 @@ namespace rr_ed
 	};
  
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

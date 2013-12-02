@@ -6,8 +6,6 @@
 #ifndef SVPROPERTIES_H
 #define SVPROPERTIES_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 //#define PROPERTYGRID_TABS
 
 #include "Lightsprint/Ed/Ed.h"
@@ -80,7 +78,5 @@ namespace rr_ed
 #endif
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

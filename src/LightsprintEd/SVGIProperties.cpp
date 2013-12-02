@@ -3,8 +3,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVGIProperties.h"
 #include "SVSceneTree.h" // action buttons
 
@@ -523,5 +521,3 @@ END_EVENT_TABLE()
 
  
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER

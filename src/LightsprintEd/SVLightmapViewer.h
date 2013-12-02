@@ -6,8 +6,6 @@
 #ifndef SVLIGHTMAPVIEWER_H
 #define SVLIGHTMAPVIEWER_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 #include "wx/wx.h"
 #include "Lightsprint/RRIllumination.h"
@@ -58,7 +56,5 @@ private:
 };
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

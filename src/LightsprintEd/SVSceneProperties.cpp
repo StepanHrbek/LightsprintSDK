@@ -3,8 +3,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVSceneProperties.h"
 
 namespace rr_ed
@@ -699,5 +697,3 @@ END_EVENT_TABLE()
 
  
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER

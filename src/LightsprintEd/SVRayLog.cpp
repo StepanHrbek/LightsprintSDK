@@ -3,8 +3,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVRayLog.h"
 
 namespace rr_ed
@@ -26,5 +24,3 @@ namespace rr_ed
 	}
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER

@@ -6,8 +6,6 @@
 #ifndef SVLOG_H
 #define SVLOG_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 #include "SVFrame.h"
 
@@ -57,7 +55,5 @@ namespace rr_ed
 	};
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

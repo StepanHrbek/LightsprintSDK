@@ -3,8 +3,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVSaveLoad.h"
 
 
@@ -283,5 +281,3 @@ bool UserPreferences::load(const wxString& nonDefaultFilename)
 
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER

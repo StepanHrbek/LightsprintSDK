@@ -6,8 +6,6 @@
 #ifndef SVFRAME_H
 #define SVFRAME_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #define BOOST_NO_CXX11_SCOPED_ENUMS // prevents OSX/clang linker error undefined symbol boost::filesystem::detail::copy_file
 
 #include "Lightsprint/Ed/Ed.h"
@@ -211,7 +209,5 @@ namespace rr_ed
 #define ENV_POSTFIX "cube.rrbuffer"
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

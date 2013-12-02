@@ -6,8 +6,6 @@
 #ifndef SVENTITY_H
 #define SVENTITY_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 #include "SVApp.h"
 #include <set>
@@ -125,7 +123,5 @@ namespace rr_ed
 	};
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

@@ -3,8 +3,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVApp.h"
 #include "SVCustomProperties.h"
 #include "wx/colordlg.h"
@@ -785,5 +783,3 @@ wxVariant LocationProperty::ChildChanged(wxVariant& thisValue, int childIndex, w
 	thisValue << latitudeLongitude;
 	return thisValue;
 }
-
-#endif // SUPPORT_SCENEVIEWER

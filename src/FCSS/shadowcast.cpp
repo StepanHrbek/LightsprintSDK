@@ -1,5 +1,4 @@
 // pred releasem
-// - vypnout SUPPORT_SCENEVIEWER
 // - vypnout SUPPORT_GAMEBRYO/COLLADA/MGF/OBJ
 // - prepnout FACTOR_FORMAT na 0
 #define MAX_INSTANCES              10  // max number of light instances aproximating one area light

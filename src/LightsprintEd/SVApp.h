@@ -6,8 +6,6 @@
 #ifndef SVAPP_H
 #define SVAPP_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/RRScene.h"
 #include <string>
@@ -54,7 +52,5 @@ struct SceneViewerStateEx : public SceneViewerState
 };
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

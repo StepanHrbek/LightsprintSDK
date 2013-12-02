@@ -6,8 +6,6 @@
 #ifndef SVSAVELOAD_H
 #define SVSAVELOAD_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/GL/RendererOfScene.h"
 #include "SVApp.h"
@@ -112,7 +110,5 @@ namespace rr_ed
 
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

@@ -3,8 +3,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVCanvas.h"
 #include "SVEntityIcons.h"
 #include "SVRayLog.h"
@@ -2407,5 +2405,3 @@ END_EVENT_TABLE()
 
  
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER

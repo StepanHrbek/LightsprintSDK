@@ -6,8 +6,6 @@
 #ifndef SVSCENETREE_H
 #define SVSCENETREE_H
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "wx/wx.h"
@@ -118,7 +116,5 @@ namespace rr_ed
 	};
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
 
 #endif

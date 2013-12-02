@@ -3,8 +3,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVEntityIcons.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/GL/PreserveState.h"
@@ -211,5 +209,3 @@ SVEntityIcons::~SVEntityIcons()
 }
 
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER

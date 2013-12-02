@@ -3,8 +3,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#ifdef SUPPORT_SCENEVIEWER
-
 #include "SVApp.h"
 #include "SVFrame.h"
 #include "SVObjectProperties.h"
@@ -123,5 +121,3 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const rr::RRString& _inputFi
 }
  
 }; // namespace
-
-#endif // SUPPORT_SCENEVIEWER
