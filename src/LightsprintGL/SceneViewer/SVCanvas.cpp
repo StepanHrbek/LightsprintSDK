@@ -22,7 +22,6 @@
 #include "Lightsprint/GL/LensFlare.h"
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/PreserveState.h"
-#include "../RendererOfMesh.h"
 #include "../Shader.h" // s_es
 #ifdef _WIN32
 	#include <GL/wglew.h>
@@ -1780,23 +1779,12 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					UberProgramSetup uberProgramSetup;
 					uberProgramSetup.OBJECT_SPACE = true;
 					uberProgramSetup.POSTPROCESS_NORMALS = true;
-					Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,NULL,1,NULL);
+					rp.uberProgramSetup = uberProgramSetup;
+					rr::RRObjects selectedObjects;
 					for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
-					{
-						EntityId entity = *i;
-						if (entity.type==ST_OBJECT)
-						{
-							const rr::RRObject* object = solver->getObject(entity.index);
-							if (object && object->faceGroups.size())
-							{
-								uberProgramSetup.useWorldMatrix(program,object);
-								const rr::RRMesh* mesh = object->getCollider()->getMesh();
-								FaceGroupRange fgRange(0,0,object->faceGroups.size()-1,0,mesh->getNumTriangles());
-								RendererOfMesh* rendererOfMesh = solver->getRendererOfScene()->getRendererOfMesh(mesh);
-								rendererOfMesh->renderMesh(program,object,&fgRange,1,uberProgramSetup,false,NULL,NULL,svs.referenceTime.secondsPassed());
-							}
-						}
-					}
+						if ((*i).type==ST_OBJECT)
+							selectedObjects.push_back(solver->getObject((*i).index));
+					solver->getRendererOfScene()->render(solver, &selectedObjects, NULL, rp);
 					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				}
 			}
