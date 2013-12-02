@@ -1172,7 +1172,7 @@ void mainMenu(int item)
 	switch (item)
 	{
 		case ME_SCENE_VIEWER:
-			rr_ed::sceneViewer(level->solver,NULL,NULL,"shaders/",NULL,true);
+			rr_ed::sceneViewer(level->solver,"","","shaders/",NULL,true);
 			break;
 		case ME_TOGGLE_VIDEO:
 			captureVideo = captureVideo ? NULL : "jpg";
@@ -1927,7 +1927,7 @@ int main(int argc, char** argv)
 			svs.camera.setDirection(rr::RRVec3(0.64f,-0.3f,-0.7f));
 			svs.cameraMetersPerSecond = 1;
 			svs.autodetectCamera = false;
-			rr_ed::sceneViewer(NULL,"scenes/wop_padattic/wop_padatticBB.rr3",NULL,"shaders/",&svs,false);
+			rr_ed::sceneViewer(NULL,"scenes/wop_padattic/wop_padatticBB.rr3","","shaders/",&svs,false);
 		}
 		return 0;
 	}
