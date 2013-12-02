@@ -154,7 +154,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_GL_STATIC;RR_ED_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -206,7 +206,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_GL_STATIC;RR_ED_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -254,7 +254,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_GL_STATIC;RR_ED_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -302,7 +302,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_GL_STATIC;RR_ED_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>

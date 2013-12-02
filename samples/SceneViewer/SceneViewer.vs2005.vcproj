@@ -52,7 +52,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories=".;..\..\include;..\..\include\Windows"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC;RR_IO_STATIC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC;RR_ED_STATIC;RR_IO_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -83,7 +83,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName)_sr.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -156,7 +156,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories=".;..\..\include;..\..\include\Windows"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC;RR_IO_STATIC"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC;RR_ED_STATIC;RR_IO_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -187,7 +187,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName)_sr.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -255,7 +255,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\..\include;..\..\include\Windows"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC;RR_IO_STATIC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC;RR_ED_STATIC;RR_IO_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="3"
 				EnableEnhancedInstructionSet="0"
@@ -283,7 +283,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName)_sd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -352,7 +352,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\..\include;..\..\include\Windows"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC;RR_IO_STATIC"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_CONSOLE;RR_STATIC;RR_GL_STATIC;RR_ED_STATIC;RR_IO_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="3"
 				EnableEnhancedInstructionSet="0"
@@ -380,7 +380,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName)_sd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -484,7 +484,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -589,7 +589,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalDependencies="glut32.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -686,7 +686,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName)_dd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -784,7 +784,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalDependencies="glut32.lib glu32.lib opengl32.lib"
+				AdditionalDependencies=""
 				OutputFile="$(OutDir)\$(ProjectName)_dd.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
