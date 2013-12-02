@@ -22,7 +22,6 @@
 #include "Lightsprint/GL/LensFlare.h"
 #include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/PreserveState.h"
-#include "../Shader.h" // s_es
 #ifdef _WIN32
 	#include <GL/wglew.h>
 #endif
@@ -43,6 +42,8 @@ namespace bf = boost::filesystem;
 
 namespace rr_gl
 {
+
+bool s_es = false; // todo: access s_es from Shader.h
 
 
 #ifdef REPORT_HEAP_STATISTICS

@@ -1,62 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="SceneViewer">
-      <UniqueIdentifier>{0c65c1a6-7c59-4f2f-be2e-67b43c8ecbe7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{35625851-ac8d-4c3e-8b7b-66d4a0f2d15f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\Lightsprint\GL\SceneViewer.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVApp.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVCanvas.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVComment.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVCustomProperties.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVEntity.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVEntityIcons.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVFrame.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVLightmapViewer.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVLightProperties.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVMaterialProperties.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVObjectProperties.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVRayLog.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVSaveLoad.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVSceneProperties.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVSceneTree.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\Lightsprint\GL\DemoEngine.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\FPS.h" />
     <ClInclude Include="MultiPass.h" />
@@ -74,79 +23,13 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgramSetup.h" />
     <ClInclude Include="Workaround.h" />
     <ClInclude Include="tmpstr.h" />
-    <ClInclude Include="SceneViewer\SVAnimationProperties.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVProperties.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\Lightsprint\GL\Bloom.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\LensFlare.h" />
-    <ClInclude Include="SceneViewer\SVUserProperties.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\Lightsprint\GL\FBO.h" />
-    <ClInclude Include="SceneViewer\SVDialogs.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVLog.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVGIProperties.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneViewer\SVThumbnailCtrl.h">
-      <Filter>SceneViewer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\Lightsprint\GL\DOF.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\SSGI.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SceneViewer\SVApp.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVCanvas.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVComment.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVCustomProperties.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVEntityIcons.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVFrame.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVLightmapViewer.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVLightProperties.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVMaterialProperties.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVObjectProperties.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVRayLog.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVSaveLoad.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVSceneProperties.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVSceneTree.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVStub.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
     <ClCompile Include="FPS.cpp" />
     <ClCompile Include="MultiPass.cpp" />
     <ClCompile Include="Program.cpp" />
@@ -161,26 +44,8 @@
     <ClCompile Include="UberProgram.cpp" />
     <ClCompile Include="UberProgramSetup.cpp" />
     <ClCompile Include="Workaround.cpp" />
-    <ClCompile Include="SceneViewer\SVAnimationProperties.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
     <ClCompile Include="Bloom.cpp" />
     <ClCompile Include="LensFlare.cpp" />
-    <ClCompile Include="SceneViewer\SVUserProperties.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVDialogs.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVLog.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVGIProperties.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
-    <ClCompile Include="SceneViewer\SVThumbnailCtrl.cpp">
-      <Filter>SceneViewer</Filter>
-    </ClCompile>
     <ClCompile Include="DOF.cpp" />
     <ClCompile Include="SSGI.cpp" />
   </ItemGroup>

@@ -10,7 +10,7 @@
 
 // enforces comctl32.dll version 6 in all application that use sceneViewer() (such application must include this header or use following pragma)
 // default version 5 creates errors we described in http://trac.wxwidgets.org/ticket/12709, 12710, 12711, 12112
-#if !defined(RR_GL_STATIC)
+#if !defined(RR_ED_STATIC)
 	#pragma comment(linker,"\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 
@@ -23,7 +23,47 @@
 //#define CUSTOMIZED_FOR_3DRENDER
 #endif
 
-#ifdef RR_GL_BUILD
+// define RR_ED_API
+#ifdef _MSC_VER
+	#ifdef RR_ED_STATIC
+		// build or use static library
+		#define RR_ED_API
+	#elif defined(RR_ED_BUILD)
+		// build dll
+		#define RR_ED_API __declspec(dllexport)
+		//#pragma warning(disable:4251) // stop MSVC warnings
+	#else
+		// use dll
+		#define RR_ED_API __declspec(dllimport)
+		//#pragma warning(disable:4251) // stop MSVC warnings
+	#endif
+#else
+	// build or use static library
+	#define RR_ED_API
+#endif
+
+// autolink library when external project includes this header
+#ifdef _MSC_VER
+	#if !defined(RR_ED_MANUAL_LINK) && !defined(RR_ED_BUILD)
+		#ifdef RR_ED_STATIC
+			// use static library
+			#ifdef NDEBUG
+				#pragma comment(lib,"LightsprintEd." RR_LIB_COMPILER "_sr.lib")
+			#else
+				#pragma comment(lib,"LightsprintEd." RR_LIB_COMPILER "_sd.lib")
+			#endif
+		#else
+			// use dll
+			#ifdef NDEBUG
+				#pragma comment(lib,"LightsprintEd." RR_LIB_COMPILER ".lib")
+			#else
+				#pragma comment(lib,"LightsprintEd." RR_LIB_COMPILER "_dd.lib")
+			#endif
+		#endif
+	#endif
+#endif
+
+#ifdef RR_ED_BUILD
 	#define wxMSVC_VERSION_AUTO // used only when building this library
 #endif
 
@@ -407,7 +447,7 @@ struct SceneViewerState
 //!  Resources allocated by scene viewer will be released on exit.
 //!  It could take some time in huge scenes, so there's option to not release them, let them leak.
 //!  Not releasing resources is good idea e.g. if you plan to exit application soon.
-void RR_GL_API sceneViewer(rr::RRDynamicSolver* inputSolver, const rr::RRString& inputFilename, const rr::RRString& skyboxFilename, const rr::RRString& pathToData, SceneViewerState* svs, bool releaseResources);
+void RR_ED_API sceneViewer(rr::RRDynamicSolver* inputSolver, const rr::RRString& inputFilename, const rr::RRString& skyboxFilename, const rr::RRString& pathToData, SceneViewerState* svs, bool releaseResources);
 
 }; // namespace
 

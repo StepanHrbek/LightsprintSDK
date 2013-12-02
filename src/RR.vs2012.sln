@@ -52,6 +52,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintIO.vs2012", "Lig
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RLPower", "RENDERLights\RLPower.vcxproj", "{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintEd.vs2012", "LightsprintEd\LightsprintEd.vs2012.vcxproj", "{1A354CD4-2F21-93DE-51B9-88DA14A602BF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Win32 = Debug DLL|Win32
@@ -351,6 +353,22 @@ Global
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release DLL|x64.ActiveCfg = Release DLL|x64
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|Win32.ActiveCfg = Release static|Win32
 		{3CA3701A-B342-AEF3-3B11-3B42CC2EFAA3}.Release static|x64.ActiveCfg = Release static|x64
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Debug DLL|x64.Build.0 = Debug DLL|x64
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Debug static|Win32.ActiveCfg = Debug static|Win32
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Debug static|Win32.Build.0 = Debug static|Win32
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Debug static|x64.ActiveCfg = Debug static|x64
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Debug static|x64.Build.0 = Debug static|x64
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release DLL|Win32.ActiveCfg = Release DLL|Win32
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release DLL|Win32.Build.0 = Release DLL|Win32
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release DLL|x64.ActiveCfg = Release DLL|x64
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release DLL|x64.Build.0 = Release DLL|x64
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release static|Win32.ActiveCfg = Release static|Win32
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release static|Win32.Build.0 = Release static|Win32
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release static|x64.ActiveCfg = Release static|x64
+		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release static|x64.Build.0 = Release static|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

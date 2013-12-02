@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
-	Name="LightsprintGL.vs2005"
-	ProjectGUID="{2D2907C3-3E69-234A-306C-243C989A3411}"
-	RootNamespace="LightsprintGL"
+	Version="9.00"
+	Name="LightsprintEd.vs2008"
+	ProjectGUID="{1A354CD4-2F21-93DE-51B9-88DA14A602BF}"
+	RootNamespace="LightsprintEd"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -50,10 +51,10 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				StringPooling="true"
-				ExceptionHandling="1"
+				ExceptionHandling="2"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
@@ -87,7 +88,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc80_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -98,7 +99,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				OutputFile="$(IntDir)/vc80.bsc"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -141,8 +142,8 @@
 				InlineFunctionExpansion="2"
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
@@ -178,7 +179,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sr.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc80_x64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_x64_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -189,7 +190,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				OutputFile="$(IntDir)/vc80.bsc"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -227,10 +228,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				MinimalRebuild="false"
-				ExceptionHandling="1"
+				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
@@ -263,8 +264,8 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc80_lib"
-				IgnoreAllDefaultLibraries="true"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_lib"
+				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -274,7 +275,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				OutputFile="$(IntDir)/vc80.bsc"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -313,8 +314,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -349,7 +350,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile="$(OutDir)/$(ProjectName)_sd.lib"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc80_x64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_x64_lib"
 				IgnoreAllDefaultLibraries="true"
 			/>
 			<Tool
@@ -360,7 +361,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				OutputFile="$(IntDir)/vc80.bsc"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -401,10 +402,10 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				StringPooling="true"
-				ExceptionHandling="1"
+				ExceptionHandling="2"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="false"
 				EnableFunctionLevelLinking="true"
@@ -438,9 +439,11 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc80_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName).pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
 			/>
 			<Tool
@@ -454,7 +457,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				OutputFile="$(IntDir)/vc80.bsc"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -463,12 +466,7 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				Description="copy dll to UE3"
-				CommandLine="if exist &quot;$(SolutionDir)..\..\Binaries&quot; copy ..\..\bin\$(PlatformName)\$(ProjectName).dll &quot;$(SolutionDir)..\..\Binaries&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -504,8 +502,8 @@
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -541,9 +539,11 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName).dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc80_x64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_x64_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName).pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
 				TargetMachine="17"
 			/>
@@ -558,16 +558,13 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				OutputFile="$(IntDir)/vc80.bsc"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -602,10 +599,10 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				MinimalRebuild="false"
-				ExceptionHandling="1"
+				ExceptionHandling="2"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
@@ -639,9 +636,11 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc80_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
 			/>
 			<Tool
@@ -655,7 +654,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				OutputFile="$(IntDir)/vc80.bsc"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -664,12 +663,7 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
-				Description="copy dll to UE3"
-				CommandLine="if exist &quot;$(SolutionDir)..\..\Binaries&quot; copy ..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll &quot;$(SolutionDir)..\..\Binaries&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -702,8 +696,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
+				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;&quot;$(WXWIDGETS_DIR)\include&quot;;&quot;$(WXWIDGETS_DIR)\include\msvc&quot;"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -739,9 +733,11 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				OutputFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.dll"
-				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc80_x64_lib"
+				AdditionalLibraryDirectories="$(OutDir);$(WXWIDGETS_DIR)\lib\vc90_x64_lib"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)\$(ProjectName)_dd.pdb"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary="$(OutDir)\$(TargetName).lib"
 				TargetMachine="17"
 			/>
@@ -756,16 +752,13 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				OutputFile="$(IntDir)/vc80.bsc"
+				OutputFile="$(IntDir)/vc90.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -775,166 +768,174 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath="Bloom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\Bloom.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\DemoEngine.h"
-			>
-		</File>
-		<File
-			RelativePath=".\DOF.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\DOF.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\FBO.h"
-			>
-		</File>
-		<File
-			RelativePath="FPS.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\FPS.h"
-			>
-		</File>
-		<File
-			RelativePath="LensFlare.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\LensFlare.h"
-			>
-		</File>
-		<File
-			RelativePath="MultiPass.cpp"
-			>
-		</File>
-		<File
-			RelativePath="MultiPass.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\PreserveState.h"
-			>
-		</File>
-		<File
-			RelativePath="Program.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\Program.h"
-			>
-		</File>
-		<File
-			RelativePath="RealtimeLight.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\RealtimeLight.h"
-			>
-		</File>
-		<File
-			RelativePath="RendererOfMesh.cpp"
-			>
-		</File>
-		<File
-			RelativePath="RendererOfMesh.h"
-			>
-		</File>
-		<File
-			RelativePath="RendererOfScene.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h"
-			>
-		</File>
-		<File
-			RelativePath="RRDynamicSolverGL.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h"
-			>
-		</File>
-		<File
-			RelativePath="Shader.cpp"
-			>
-		</File>
-		<File
-			RelativePath="Shader.h"
-			>
-		</File>
-		<File
-			RelativePath="SSGI.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\SSGI.h"
-			>
-		</File>
-		<File
-			RelativePath="Texture.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\Texture.h"
-			>
-		</File>
-		<File
-			RelativePath="TextureRenderer.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\TextureRenderer.h"
-			>
-		</File>
-		<File
-			RelativePath="tmpstr.h"
-			>
-		</File>
-		<File
-			RelativePath="ToneMapping.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\ToneMapping.h"
-			>
-		</File>
-		<File
-			RelativePath="UberProgram.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\UberProgram.h"
-			>
-		</File>
-		<File
-			RelativePath="UberProgramSetup.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\UberProgramSetup.h"
-			>
-		</File>
-		<File
-			RelativePath="Workaround.cpp"
-			>
-		</File>
-		<File
-			RelativePath="Workaround.h"
-			>
-		</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="SVAnimationProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVAnimationProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVApp.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVApp.h"
+				>
+			</File>
+			<File
+				RelativePath="SVCanvas.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVCanvas.h"
+				>
+			</File>
+			<File
+				RelativePath="SVComment.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVComment.h"
+				>
+			</File>
+			<File
+				RelativePath="SVCustomProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVCustomProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVDialogs.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVDialogs.h"
+				>
+			</File>
+			<File
+				RelativePath="SVEntity.h"
+				>
+			</File>
+			<File
+				RelativePath="SVEntityIcons.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVEntityIcons.h"
+				>
+			</File>
+			<File
+				RelativePath="SVFrame.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVFrame.h"
+				>
+			</File>
+			<File
+				RelativePath="SVGIProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVGIProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVLightmapViewer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVLightmapViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="SVLightProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVLightProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVLog.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVLog.h"
+				>
+			</File>
+			<File
+				RelativePath="SVMaterialProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVMaterialProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVObjectProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVObjectProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVRayLog.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVRayLog.h"
+				>
+			</File>
+			<File
+				RelativePath="SVSaveLoad.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVSaveLoad.h"
+				>
+			</File>
+			<File
+				RelativePath="SVSceneProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVSceneProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVSceneTree.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVSceneTree.h"
+				>
+			</File>
+			<File
+				RelativePath="SVStub.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVUserProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVUserProperties.h"
+				>
+			</File>
 	</Files>
 	<Globals>
 	</Globals>

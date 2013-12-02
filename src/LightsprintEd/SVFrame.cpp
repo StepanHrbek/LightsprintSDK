@@ -19,7 +19,6 @@
 #include "SVMaterialProperties.h"
 #include "SVSceneTree.h"
 #include "SVLog.h"
-#include "../Workaround.h"
 #include "wx/aboutdlg.h"
 #include "wx/splash.h"
 #ifdef _WIN32
@@ -35,6 +34,13 @@ namespace bf = boost::filesystem;
 namespace rr_gl
 {
 
+// reimplemention of rr_gl's internal Workaround::supportsSRGB()
+bool supportsSRGB()
+{
+	return true
+		&& (GLEW_EXT_framebuffer_sRGB || GLEW_ARB_framebuffer_sRGB || GLEW_VERSION_3_0) // added in GL 3.0
+		&& (GLEW_EXT_texture_sRGB || GLEW_VERSION_2_1); // added in GL 2.1
+}
 
 static wxImage* loadImage(const wxString& filename)
 {
@@ -1116,7 +1122,7 @@ save_scene_as:
 				rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 				Texture texColor(bufColor,false,false);
 				Texture texDepth(bufDepth,false,false);
-				bool srgb = Workaround::supportsSRGB() && svs.srgbCorrect;
+				bool srgb = supportsSRGB() && svs.srgbCorrect;
 				if (srgb)
 				{
 					// prepare framebuffer for sRGB correct rendering

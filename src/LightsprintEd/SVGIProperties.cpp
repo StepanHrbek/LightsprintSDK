@@ -7,10 +7,11 @@
 
 #include "SVGIProperties.h"
 #include "SVSceneTree.h" // action buttons
-#include "../Workaround.h"
 
 namespace rr_gl
 {
+
+extern bool supportsSRGB();
 
 SVGIProperties::SVGIProperties(SVFrame* _svframe)
 	: SVProperties(_svframe)
@@ -253,7 +254,7 @@ void SVGIProperties::updateHide()
 
 void SVGIProperties::updateAfterGLInit()
 {
-	propGISRGBCorrect->Hide(!Workaround::supportsSRGB(),false);
+	propGISRGBCorrect->Hide(!supportsSRGB(),false);
 }
 
 void SVGIProperties::updateProperties()

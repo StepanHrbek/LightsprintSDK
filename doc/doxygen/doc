@@ -471,9 +471,12 @@ Material formats (1)
  - \subpage tpl_boost
  - \subpage tpl_squish
 
- Used by LightsprintGL (optional OpenGL support and scene editor):
+ Used by LightsprintGL (optional OpenGL support):
  - \subpage tpl_boost
  - \subpage tpl_glew
+
+ Used by LightsprintEd (optional scene editor):
+ - \subpage tpl_boost
  - \subpage tpl_wx
  - \subpage tpl_art
 
@@ -520,12 +523,12 @@ Material formats (1)
    - <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
 
   \section wx_version Version
-   - Windows: wxWidgets trunk svn revision 75075 from 2013-10-28 (\subpage wxwidgets_patch "patched") is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
+   - Windows: wxWidgets trunk svn revision 75075 from 2013-10-28 (\subpage wxwidgets_patch "patched") is used internally by LightsprintEd library, it's not visible from outside (no headers or dll files)
    - other platforms: not used
 
   \section wx_building Installing/building
-   Only for LightsprintGL source code licensees:
-   You will need wxWidgets when rebuilding LightsprintGL from source code, follow instructions
+   Only for LightsprintEd source code licensees:
+   You will need wxWidgets when rebuilding LightsprintEd from source code, follow instructions
    - Windows
     - Get \ref tpl_wx source code from wxWidgets.org svn trunk.
     - If you use one version of Visual Studio and target only win32,
@@ -537,7 +540,7 @@ Material formats (1)
       - Set environment variable WXWIDGETS_DIR to your wxWidgets root,
         e.g. C:\\wxWidgets. No spaces please.
       - Run our bin/build_wxWidgets.bat.
-      - LightsprintGL DLL works now. For static LightsprintGL library, add wx library path
+      - LightsprintEd DLL works now. For static LightsprintEd library, add wx library path
         to <code>Tools / Options / Projects and Solutions / VC++ Directories / Library Files</code>.
 	- \$(WXWIDGETS_DIR)\\lib\\vc90_lib for vc2008 win32 target
 	- \$(WXWIDGETS_DIR)\\lib\\vc80_amd64_lib for vc2005 x64 target
@@ -547,7 +550,7 @@ Material formats (1)
    - Ubuntu: install with <code>sudo apt-get install libwxgtk2.9-dev</code>
 
   \section wx_removing Removing
-   Only for LightsprintGL source code licensees:
+   Only for LightsprintEd source code licensees:
    If you don't have time building wxWidgets or simply don't need sceneViewer() function,
    you can build Lightsprint SDK without wxWidgets
    - delete <code>\#define SUPPORT_SCENEVIEWER</code> in <code>include/Lightsprint/GL/SceneViewer.h</code>
@@ -1027,7 +1030,7 @@ Material formats (1)
 
   Setting up third party libraries
   - \ref tpl_boost
-  - \ref tpl_wx (you need it only if you build LightsprintGL from source code)
+  - \ref tpl_wx (you need it only if you build LightsprintEd from source code)
 
   Lightsprint SDK includes solutions for all supported Visual C++ compilers,
   simply open solution and build.
@@ -2839,10 +2842,10 @@ rr::RRVector<*>{
  \section glinking Automatic library linking
    By default, including library header automatically links Lightsprint DLLs using \#pragma comment(lib,name).
    Debug library is linked to debug exe, Release library to release exe.
-   \n \#define RR_STATIC / RR_GL_STATIC / RR_IO_STATIC selects static library instead of DLL.
-   \n \#define RR_MANUAL_LINK / RR_GL_MANUAL_LINK  / RR_IO_MANUAL_LINK disables automatic library linking,
+   \n \#define RR_STATIC / RR_GL_STATIC / RR_ED_STATIC / RR_IO_STATIC selects static library instead of DLL.
+   \n \#define RR_MANUAL_LINK / RR_GL_MANUAL_LINK  / RR_ED_MANUAL_LINK  / RR_IO_MANUAL_LINK disables automatic library linking,
       so you can e.g. manually link release library with debug exe.
-   \n (version with RR_ affects LightsprintCore, RR_GL_ affects LightsprintGL, RR_IO_ affects LightsprintIO)
+   \n (version with RR_ affects LightsprintCore, RR_GL_ affects LightsprintGL, RR_ED_ affects LightsprintEd, RR_IO_ affects LightsprintIO)
 
  \section gunits Illumination units (radiometry, photometry, screen)
    Lightsprint computes all in HDR.
@@ -3073,7 +3076,7 @@ rr::RRVector<*>{
 
  \section gl_overview Overview
 
- LightsprintGL consists of 3 components
+ LightsprintGL consists of 2 components
    -# integration of GI solvers with OpenGL
      - implemented in rr_gl::RRDynamicSolverGL
    -# high performance OpenGL renderer
@@ -3093,11 +3096,7 @@ rr::RRVector<*>{
        - emission: none, constant, per pixel
        - transparency: none, constant, per pixel / blend or 1bit alpha keying
        - bump: normal map, height map with parallax mapping
-     - minimal requirements: OpenGL 2.0
-     - supported GPUs: GeForce 5xxx and higher, Radeon 9500 and higher etc
-   -# scene viewer and editor
-     - see it by running SceneViewer sample
-     - implemented in rr_gl::sceneViewer()
+     - minimal requirements: OpenGL 2.0 or OpenGL ES 2.0
 
  \section gl_api API
 
@@ -3117,14 +3116,6 @@ rr::RRVector<*>{
  - detects what data are available (lightmaps, vertex colors)
 
  <hr>
- Header: Lightsprint/GL/SceneViewer.h
-
- - rr_gl::sceneViewer() is a single function scene viewer, with UI for editing lights and materials,
-   with realtime and static GI, with 2d viewer of lightmaps and mappings.
-   It is very helpful during debugging, it can display contents of RRDynamicSolver at any moment and let you
-   examine and experiment with all scene properties.
-
- <hr>
  Other headers/classes:
 
  - rr_gl::Texture is OpenGL texture, extension of RRBuffer needed for realtime rendering
@@ -3133,6 +3124,29 @@ rr::RRVector<*>{
  - rr_gl::UberProgramSetup is set of parameters for our ubershaders UberShader.vs and UberShader.fs
  - rr_gl::Camera is frustum suitable for camera or spotlight
  - rr_gl::RealtimeLight is an extension of RRLight, structures needed for realtime GI rendering
+
+
+
+\page api_ed LightsprintEd
+
+ \section ed_overview Overview
+
+ LightsprintEd consists of single component
+   -# scene editor
+     - see it by running SceneViewer sample
+     - implemented in rr_gl::sceneViewer()
+
+ \section ed_api API
+
+ Namespace: rr_gl
+
+ <hr>
+ Header: Lightsprint/GL/SceneViewer.h
+
+ - rr_gl::sceneViewer() is a single function scene viewer, with UI for editing lights and materials,
+   with realtime and static GI, with 2d viewer of lightmaps and mappings.
+   It is very helpful during debugging, it can display contents of RRDynamicSolver at any moment and let you
+   examine and experiment with all scene properties.
 
 
 

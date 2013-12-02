@@ -527,6 +527,9 @@
     <ClCompile Include="BuildLightmaps.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\LightsprintEd\LightsprintEd.vs2012.vcxproj">
+      <Project>{1a354cd4-2f21-93de-51b9-88da14a602bf}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\LightsprintGL\LightsprintGL.vs2012.vcxproj">
       <Project>{2d2907c3-3e69-234a-306c-243c989a3411}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

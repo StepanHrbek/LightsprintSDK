@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
-	Name="LightsprintGL.vs2005"
-	ProjectGUID="{2D2907C3-3E69-234A-306C-243C989A3411}"
-	RootNamespace="LightsprintGL"
+	Name="LightsprintEd.vs2005"
+	ProjectGUID="{1A354CD4-2F21-93DE-51B9-88DA14A602BF}"
+	RootNamespace="LightsprintEd"
 	>
 	<Platforms>
 		<Platform
@@ -51,7 +51,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
@@ -142,7 +142,7 @@
 				OmitFramePointers="true"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				StringPooling="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
@@ -228,7 +228,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -314,7 +314,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD;RR_STATIC;RR_GL_STATIC"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD;RR_STATIC;RR_ED_STATIC"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -402,7 +402,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -505,7 +505,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				StringPooling="true"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -603,7 +603,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -703,7 +703,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include;..\..\include\Windows;$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc"
-				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_GL_BUILD"
+				PreprocessorDefinitions="SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_SCENEVIEWER;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;RR_ED_BUILD"
 				MinimalRebuild="false"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -775,166 +775,174 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath="Bloom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\Bloom.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\DemoEngine.h"
-			>
-		</File>
-		<File
-			RelativePath=".\DOF.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\DOF.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\FBO.h"
-			>
-		</File>
-		<File
-			RelativePath="FPS.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\FPS.h"
-			>
-		</File>
-		<File
-			RelativePath="LensFlare.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\LensFlare.h"
-			>
-		</File>
-		<File
-			RelativePath="MultiPass.cpp"
-			>
-		</File>
-		<File
-			RelativePath="MultiPass.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\PreserveState.h"
-			>
-		</File>
-		<File
-			RelativePath="Program.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\Program.h"
-			>
-		</File>
-		<File
-			RelativePath="RealtimeLight.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\RealtimeLight.h"
-			>
-		</File>
-		<File
-			RelativePath="RendererOfMesh.cpp"
-			>
-		</File>
-		<File
-			RelativePath="RendererOfMesh.h"
-			>
-		</File>
-		<File
-			RelativePath="RendererOfScene.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h"
-			>
-		</File>
-		<File
-			RelativePath="RRDynamicSolverGL.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h"
-			>
-		</File>
-		<File
-			RelativePath="Shader.cpp"
-			>
-		</File>
-		<File
-			RelativePath="Shader.h"
-			>
-		</File>
-		<File
-			RelativePath="SSGI.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\SSGI.h"
-			>
-		</File>
-		<File
-			RelativePath="Texture.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\Texture.h"
-			>
-		</File>
-		<File
-			RelativePath="TextureRenderer.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\TextureRenderer.h"
-			>
-		</File>
-		<File
-			RelativePath="tmpstr.h"
-			>
-		</File>
-		<File
-			RelativePath="ToneMapping.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\ToneMapping.h"
-			>
-		</File>
-		<File
-			RelativePath="UberProgram.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\UberProgram.h"
-			>
-		</File>
-		<File
-			RelativePath="UberProgramSetup.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\UberProgramSetup.h"
-			>
-		</File>
-		<File
-			RelativePath="Workaround.cpp"
-			>
-		</File>
-		<File
-			RelativePath="Workaround.h"
-			>
-		</File>
+			<File
+				RelativePath="..\..\include\Lightsprint\GL\SceneViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="SVAnimationProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVAnimationProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVApp.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVApp.h"
+				>
+			</File>
+			<File
+				RelativePath="SVCanvas.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVCanvas.h"
+				>
+			</File>
+			<File
+				RelativePath="SVComment.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVComment.h"
+				>
+			</File>
+			<File
+				RelativePath="SVCustomProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVCustomProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVDialogs.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVDialogs.h"
+				>
+			</File>
+			<File
+				RelativePath="SVEntity.h"
+				>
+			</File>
+			<File
+				RelativePath="SVEntityIcons.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVEntityIcons.h"
+				>
+			</File>
+			<File
+				RelativePath="SVFrame.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVFrame.h"
+				>
+			</File>
+			<File
+				RelativePath="SVGIProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVGIProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVLightmapViewer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVLightmapViewer.h"
+				>
+			</File>
+			<File
+				RelativePath="SVLightProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVLightProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVLog.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVLog.h"
+				>
+			</File>
+			<File
+				RelativePath="SVMaterialProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVMaterialProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVObjectProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVObjectProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVRayLog.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVRayLog.h"
+				>
+			</File>
+			<File
+				RelativePath="SVSaveLoad.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVSaveLoad.h"
+				>
+			</File>
+			<File
+				RelativePath="SVSceneProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVSceneProperties.h"
+				>
+			</File>
+			<File
+				RelativePath="SVSceneTree.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVSceneTree.h"
+				>
+			</File>
+			<File
+				RelativePath="SVStub.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVUserProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="SVUserProperties.h"
+				>
+			</File>
 	</Files>
 	<Globals>
 	</Globals>

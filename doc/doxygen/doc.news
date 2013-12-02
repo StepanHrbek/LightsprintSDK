@@ -25,6 +25,7 @@ NEWS
 
 CHANGES
 
+- rr_gl::sceneViewer() moved into new LightsprintEd library
 - several path/filename parameters changed from char* to RRString for more complete unicode support
   \n you might need to pass "" instead of NULL if old code fails to compile
 - rr_gl::RendererOfScene::render() and renderToCube() have new parameter collection of objects,
