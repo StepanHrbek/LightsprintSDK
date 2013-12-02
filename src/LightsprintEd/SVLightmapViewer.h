@@ -14,7 +14,7 @@
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ public:
 	rr::RRVec2 getCenterUv(wxSize windowSize);
 
 	void OnMouseEvent(wxMouseEvent& event, wxSize windowSize);
-	void OnPaint(TextureRenderer* textureRenderer, wxSize windowSize);
+	void OnPaint(rr_gl::TextureRenderer* textureRenderer, wxSize windowSize);
 
 private:
 	bool nearest;

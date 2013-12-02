@@ -7,7 +7,7 @@
 
 #include "SVRayLog.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 	SVRayLog::Ray SVRayLog::log[MAX_RAYS];

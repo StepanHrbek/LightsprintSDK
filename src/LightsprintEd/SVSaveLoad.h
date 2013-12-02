@@ -13,7 +13,7 @@
 #include "SVApp.h"
 #include "wx/wx.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 	struct ImportParameters
@@ -45,7 +45,7 @@ namespace rr_gl
 	struct UserPreferences
 	{
 		bool        tooltips;
-		StereoMode  stereoMode;
+		rr_gl::StereoMode stereoMode;
 
 		unsigned    currentWindowLayout;
 		struct WindowLayout
@@ -78,7 +78,7 @@ namespace rr_gl
 		UserPreferences()
 		{
 			tooltips = true;
-			stereoMode = SM_SIDE_BY_SIDE;
+			stereoMode = rr_gl::SM_SIDE_BY_SIDE;
 			currentWindowLayout = 0;
 			resetLayouts();
 			sshotFilename = "";

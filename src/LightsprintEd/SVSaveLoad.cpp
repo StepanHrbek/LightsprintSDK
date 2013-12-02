@@ -73,7 +73,7 @@ namespace serialization
 //------------------------- ImportParameters ------------------------------
 
 template<class Archive>
-void serialize(Archive & ar, rr_gl::ImportParameters& a, const unsigned int version)
+void serialize(Archive & ar, rr_ed::ImportParameters& a, const unsigned int version)
 {
 	ar & make_nvp("unitEnum",a.unitEnum);
 	ar & make_nvp("unitFloat",a.unitFloat);
@@ -89,7 +89,7 @@ void serialize(Archive & ar, rr_gl::ImportParameters& a, const unsigned int vers
 //------------------------- UserPreferences ------------------------------
 
 template<class Archive>
-void serialize(Archive & ar, rr_gl::UserPreferences::WindowLayout& a, const unsigned int version)
+void serialize(Archive & ar, rr_ed::UserPreferences::WindowLayout& a, const unsigned int version)
 {
 	ar & make_nvp("fullscreen",a.fullscreen);
 	ar & make_nvp("maximized",a.maximized);
@@ -104,7 +104,7 @@ enum LegacyStereoMode
 };
 
 template<class Archive>
-void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int version)
+void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int version)
 {
 	if (version>7)
 	{
@@ -165,13 +165,13 @@ void serialize(Archive & ar, rr_gl::UserPreferences& a, const unsigned int versi
 } // namespace
 } // namespace
 
-BOOST_CLASS_VERSION(rr_gl::ImportParameters,1);
-BOOST_CLASS_VERSION(rr_gl::UserPreferences::WindowLayout,2)
-BOOST_CLASS_VERSION(rr_gl::UserPreferences,16)
+BOOST_CLASS_VERSION(rr_ed::ImportParameters,1);
+BOOST_CLASS_VERSION(rr_ed::UserPreferences::WindowLayout,2)
+BOOST_CLASS_VERSION(rr_ed::UserPreferences,16)
 
 //---------------------------------------------------------------------------
 
-namespace rr_gl
+namespace rr_ed
 {
 
 /////////////////////////////////////////////////////////////////////////////

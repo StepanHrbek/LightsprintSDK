@@ -24,7 +24,7 @@
 #define IS_SHOWN(pane) ((pane) && (pane)->IsShownOnScreen())
 
 
-namespace rr_gl
+namespace rr_ed
 {
 
 	/////////////////////////////////////////////////////////////////////////////

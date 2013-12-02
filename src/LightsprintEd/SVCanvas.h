@@ -9,7 +9,12 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/GL/Bloom.h"
+#include "Lightsprint/GL/DOF.h"
 #include "Lightsprint/GL/FPS.h"
+#include "Lightsprint/GL/LensFlare.h"
+#include "Lightsprint/GL/SSGI.h"
+#include "Lightsprint/GL/ToneMapping.h"
 #include <GL/glew.h> // must go before wx/GLCanvas
 #include "wx/GLCanvas.h"
 #include "wx/joystick.h"
@@ -18,7 +23,7 @@
 #include "SVLightmapViewer.h"
 #include "SVSaveLoad.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -83,7 +88,7 @@ namespace rr_gl
 		int                        winWidth; // current size
 		int                        winHeight; // current size
 		int                        windowCoord[4]; // x,y,w,h of window when user switched to fullscreen
-		class ToneMapping*         toneMapping;
+		rr_gl::ToneMapping*        toneMapping;
 		float                      speedForward;
 		float                      speedBack;
 		float                      speedRight;
@@ -111,19 +116,19 @@ namespace rr_gl
 
 		// bloom
 		bool                       bloomLoadAttempted;
-		class Bloom*               bloom;
+		rr_gl::Bloom*              bloom;
 
 		// SSGI
 		bool                       ssgiLoadAttempted;
-		class SSGI*                ssgi;
+		rr_gl::SSGI*               ssgi;
 
 		// DOF
 		bool                       dofLoadAttempted;
-		class DOF*                 dof;
+		rr_gl::DOF*                dof;
 
 		// lens flare
 		bool                       lensFlareLoadAttempted;
-		class LensFlare*           lensFlare;
+		rr_gl::LensFlare*          lensFlare;
 
 		// vignette
 		bool                       vignetteLoadAttempted;
@@ -139,10 +144,10 @@ namespace rr_gl
 		rr::RRObjectIllumination*  lightFieldObjectIllumination;
 
 		// FPS
-		TextureRenderer*           textureRenderer; // used also by help
+		rr_gl::TextureRenderer*    textureRenderer; // used also by help
 		bool                       fpsLoadAttempted;
-		FpsCounter                 fpsCounter;
-		FpsDisplay*                fpsDisplay;
+		rr_gl::FpsCounter          fpsCounter;
+		rr_gl::FpsDisplay*         fpsDisplay;
 
 		// icons
 	public:

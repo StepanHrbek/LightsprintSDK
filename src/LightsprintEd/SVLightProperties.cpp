@@ -17,7 +17,7 @@ namespace bf = boost::filesystem;
 #define ALT2ANGLEX(alt) RR_DEG2RAD(-(alt))
 #define AZI2ANGLE(azi) RR_DEG2RAD(180-(azi))
 
-namespace rr_gl
+namespace rr_ed
 {
 
 SVLightProperties::SVLightProperties(SVFrame* _svframe)
@@ -27,7 +27,7 @@ SVLightProperties::SVLightProperties(SVFrame* _svframe)
 }
 
 
-void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
+void SVLightProperties::setLight(rr_gl::RealtimeLight* _rtlight, int _precision)
 {
 	rtlight = _rtlight;
 
@@ -130,7 +130,7 @@ void SVLightProperties::setLight(RealtimeLight* _rtlight, int _precision)
 			Append(propCastShadows);
 			
 			const wxChar* tsStrings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),_("24-bit (fresnel shadows)"),NULL};
-			const long tsValues[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS,RealtimeLight::FRESNEL_SHADOWS};
+			const long tsValues[] = {rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS,rr_gl::RealtimeLight::ALPHA_KEYED_SHADOWS,rr_gl::RealtimeLight::RGB_SHADOWS,rr_gl::RealtimeLight::FRESNEL_SHADOWS};
 			propShadowTransparency = new wxEnumProperty(_("Shadow transparency"),wxPG_LABEL,tsStrings,tsValues);
 			propShadowTransparency->SetHelpString(_("How shadows actually work. Can be controlled via Scene properties / GI / Shadow transparency."));
 //			propShadowTransparency->Enable(false); // not yet in wx 2.9.1

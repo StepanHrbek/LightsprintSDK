@@ -13,7 +13,7 @@
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
-namespace rr_gl
+namespace rr_ed
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ SVSceneTree::SVSceneTree(SVFrame* _svframe)
 	Expand(root); // must go after appends, otherwise it does not expand
 }
 
-void SVSceneTree::updateContent(RRDynamicSolverGL* solver)
+void SVSceneTree::updateContent(rr_gl::RRDynamicSolverGL* solver)
 {
 	if (callDepth)
 	{
@@ -173,7 +173,7 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 		return 0;
 	if (transformation.isIdentity()) // without this, we would transform camera by identity in every frame. such transformation converts euler angles to matrix and back = float errors accumulate over time, "front" view stops being exactly front etc
 		return 0;
-	RRDynamicSolverGL* solver = svframe->m_canvas->solver;
+	rr_gl::RRDynamicSolverGL* solver = svframe->m_canvas->solver;
 	switch(entity.type)
 	{
 		case ST_OBJECT:
@@ -200,7 +200,7 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 			break;
 		case ST_LIGHT:
 			{
-				RealtimeLight* rtlight = solver->realtimeLights[entity.index];
+				rr_gl::RealtimeLight* rtlight = solver->realtimeLights[entity.index];
 				unsigned result = rtlight->getCamera()->manipulateViewBy(transformation,rollChangeAllowed,false)?1:0;
 				solver->reportDirectIlluminationChange(entity.index,true,true,true);
 				return result;
@@ -535,7 +535,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 	svframe->commitPropertyChanges();
 	callDepth--;
 
-	RRDynamicSolverGL* solver = svframe->m_canvas->solver;
+	rr_gl::RRDynamicSolverGL* solver = svframe->m_canvas->solver;
 
 	// what objects to process, code shared by many actions
 	rr::RRObjects allObjects = solver->getObjects();

@@ -11,7 +11,7 @@
 #include "Lightsprint/GL/SceneViewer.h"
 #include "Lightsprint/RRCollider.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 	class SVRayLog

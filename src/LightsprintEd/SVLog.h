@@ -11,7 +11,7 @@
 #include "Lightsprint/GL/SceneViewer.h"
 #include "SVFrame.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ namespace rr_gl
 	class LogWithAbort
 	{
 	public:
-		LogWithAbort(wxWindow* window, RRDynamicSolverGL*& solver, const char* caption);
+		LogWithAbort(wxWindow* window, rr_gl::RRDynamicSolverGL*& solver, const char* caption);
 		~LogWithAbort();
 		static bool logIsOn;
 	private:

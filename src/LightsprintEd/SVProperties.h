@@ -22,7 +22,7 @@
 	#define PROPERTYGRID_BASE wxPropertyGrid
 #endif
 
-namespace rr_gl
+namespace rr_ed
 {
 
 	// Code shared by all property panels (SVXxxProperties).

@@ -13,7 +13,7 @@
 #include "SVCustomProperties.h"
 #include "Lightsprint/GL/RealtimeLight.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 	class SVLightProperties : public SVProperties
@@ -22,8 +22,8 @@ namespace rr_gl
 		SVLightProperties(SVFrame* svframe);
 
 		//! Copy light -> property (all values, show/hide).
-		void setLight(RealtimeLight* _rtlight, int _precision);
-		RealtimeLight* getLight() {return rtlight;}
+		void setLight(rr_gl::RealtimeLight* _rtlight, int _precision);
+		rr_gl::RealtimeLight* getLight() {return rtlight;}
 
 		//! Copy light -> property (show/hide).
 		void updateHide();
@@ -40,7 +40,7 @@ namespace rr_gl
 		void OnPropertyChange(wxPropertyGridEvent& event);
 
 	private:
-		RealtimeLight*    rtlight;
+		rr_gl::RealtimeLight* rtlight;
 
 		wxPGProperty*     propName;
 		BoolRefProperty*  propEnabled;

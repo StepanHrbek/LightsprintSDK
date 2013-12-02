@@ -7,7 +7,7 @@
 
 #include "SVSceneProperties.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 int view2ME_VIEW(rr::RRCamera::View view)
@@ -52,7 +52,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propCamera,propCameraPanorama);
 
 			const wxChar* panoStrings[] = {_("Equirectangular"),_("Little planet"),NULL};
-			const long panoValues[] = {PM_EQUIRECTANGULAR,PM_LITTLE_PLANET};
+			const long panoValues[] = {rr_gl::PM_EQUIRECTANGULAR,rr_gl::PM_LITTLE_PLANET};
 			propCameraPanoramaMode = new wxEnumProperty(_("Mode"), wxPG_LABEL, panoStrings, panoValues);
 			AppendIn(propCameraPanorama,propCameraPanoramaMode);
 
@@ -452,7 +452,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraPanoramaMode)
 	{
-		svs.panoramaMode = (PanoramaMode)property->GetValue().GetInteger();
+		svs.panoramaMode = (rr_gl::PanoramaMode)property->GetValue().GetInteger();
 	}
 	else
 	if (property==propCameraDof)

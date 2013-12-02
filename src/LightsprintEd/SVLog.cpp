@@ -8,7 +8,7 @@
 #include "SVLog.h"
 #include "SVFrame.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ SVLog::~SVLog()
 
 bool LogWithAbort::logIsOn = false;
 
-LogWithAbort::LogWithAbort(wxWindow* _window, RRDynamicSolverGL*& _solver, const char* _caption)
+LogWithAbort::LogWithAbort(wxWindow* _window, rr_gl::RRDynamicSolverGL*& _solver, const char* _caption)
 {
 	enabled = !logIsOn; // do nothing if log is already enabled
 	if (enabled)

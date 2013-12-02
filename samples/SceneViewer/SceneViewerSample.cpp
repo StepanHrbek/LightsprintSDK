@@ -81,14 +81,14 @@ int main(int argc, char** argv)
 	// Works only for scenes in registered file formats.
 	// See how adapters in src/LightsprintIO/ImportXXX/RRObjectXXX.cpp register,
 	// you can do the same for your own file format.
-	rr_gl::SceneViewerState svs;
+	rr_ed::SceneViewerState svs;
 #ifdef NDEBUG
 	// release returns quickly without freeing resources
-	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,false);
+	rr_ed::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,false);
 	return 0;
 #endif
 	// debug frees everything and reports memory leaks
-	rr_gl::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,true);
+	rr_ed::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,true);
 #else
 	// View scene _in memory_ in scene viewer.
 
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
 
 	// View solver in scene viewer
-	rr_gl::sceneViewer(solver,sceneFilename,NULL,"../../data/",NULL,true);
+	rr_ed::sceneViewer(solver,sceneFilename,NULL,"../../data/",NULL,true);
 
 	// Cleanup
 	delete solver->getEnvironment();

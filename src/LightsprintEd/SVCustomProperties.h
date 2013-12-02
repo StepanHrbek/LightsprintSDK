@@ -94,7 +94,7 @@ private:
 //
 // ButtonProperty
 
-namespace rr_gl
+namespace rr_ed
 {
 	class SVFrame;
 }
@@ -103,12 +103,12 @@ class ButtonProperty : public wxStringProperty // if we use wxPGProperty, value 
 {
 	WX_PG_DECLARE_PROPERTY_CLASS(ButtonProperty)
 public:
-	ButtonProperty(const wxString& label = wxPG_LABEL, const wxString& help = wxPG_LABEL, rr_gl::SVFrame* svframe = NULL, int menuItem = 0);
+	ButtonProperty(const wxString& label = wxPG_LABEL, const wxString& help = wxPG_LABEL, rr_ed::SVFrame* svframe = NULL, int menuItem = 0);
 	void updateImage();
 	virtual bool OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event);
 private:
 	int menuItem;
-	rr_gl::SVFrame* svframe;
+	rr_ed::SVFrame* svframe;
 };
 
 
@@ -203,7 +203,7 @@ private:
 //
 // updates faster than plain SetValue
 
-namespace rr_gl
+namespace rr_ed
 {
 
 inline unsigned updateBool(wxPGProperty* prop,bool value)

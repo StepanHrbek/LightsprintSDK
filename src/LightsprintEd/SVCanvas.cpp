@@ -16,11 +16,6 @@
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
-#include "Lightsprint/GL/Bloom.h"
-#include "Lightsprint/GL/SSGI.h"
-#include "Lightsprint/GL/DOF.h"
-#include "Lightsprint/GL/LensFlare.h"
-#include "Lightsprint/GL/ToneMapping.h"
 #include "Lightsprint/GL/PreserveState.h"
 #ifdef _WIN32
 	#include <GL/wglew.h>
@@ -40,7 +35,7 @@ namespace bf = boost::filesystem;
 	#define REPORT_HEAP_STATISTICS // reports num allocations per frame
 #endif
 
-namespace rr_gl
+namespace rr_ed
 {
 
 bool s_es = false; // todo: access s_es from Shader.h
@@ -244,7 +239,7 @@ void SVCanvas::createContextCore()
 	s_oldAllocHook = _CrtSetAllocHook(newAllocHook);
 #endif
 
-	const char* error = initializeGL();
+	const char* error = rr_gl::initializeGL();
 	if (error)
 	{
 		rr::RRReporter::report(rr::ERRO,error);
@@ -372,7 +367,7 @@ void SVCanvas::createContextCore()
 	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
 #endif
 
-	toneMapping = new ToneMapping();
+	toneMapping = new rr_gl::ToneMapping();
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
 
@@ -558,7 +553,7 @@ SVCanvas::~SVCanvas()
 	RR_SAFE_DELETE(ray);
 	RR_SAFE_DELETE(toneMapping);
 
-	deleteAllTextures();
+	rr_gl::deleteAllTextures();
 	// delete objects referenced by solver
 	if (solver)
 	{
@@ -1624,7 +1619,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr::RRReportInterval report(rr::INF3,"render scene...\n");
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
-			RenderParameters rp;
+			rr_gl::RenderParameters rp;
 
 			rp.camera = &svs.camera;
 
@@ -1677,14 +1672,14 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (svs.renderStereo)
 			{
 				rp.stereoMode = svframe->userPreferences.stereoMode;
-				if (rp.stereoMode==SM_INTERLACED || rp.stereoMode==SM_INTERLACED_SWAP)
+				if (rp.stereoMode==rr_gl::SM_INTERLACED || rp.stereoMode==rr_gl::SM_INTERLACED_SWAP)
 				{
 					GLint viewport[4];
 					glGetIntegerv(GL_VIEWPORT,viewport);
 					int trueWinWidth, trueWinHeight;
 					GetClientSize(&trueWinWidth, &trueWinHeight);
 					if ((GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
-						rp.stereoMode = (rp.stereoMode==SM_INTERLACED)?SM_INTERLACED_SWAP:SM_INTERLACED;
+						rp.stereoMode = (rp.stereoMode==rr_gl::SM_INTERLACED)?rr_gl::SM_INTERLACED_SWAP:rr_gl::SM_INTERLACED;
 				}
 			}
 
@@ -1725,7 +1720,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				else
 					svs.renderDDI = false;
 				// change rendermode (I think !indexed VBO doesn't even have uvs, so we must not use textures)
-				UberProgramSetup uberProgramSetup;
+				rr_gl::UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 				uberProgramSetup.MATERIAL_DIFFUSE = true;
 				uberProgramSetup.MATERIAL_CULLING = rp.uberProgramSetup.MATERIAL_CULLING;
@@ -1777,7 +1772,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				if (selectedEntityIds.size())
 				{
 					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					UberProgramSetup uberProgramSetup;
+					rr_gl::UberProgramSetup uberProgramSetup;
 					uberProgramSetup.OBJECT_SPACE = true;
 					uberProgramSetup.POSTPROCESS_NORMALS = true;
 					rp.uberProgramSetup = uberProgramSetup;
@@ -1798,7 +1793,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				bloomLoadAttempted = true;
 				RR_ASSERT(!bloom);
-				bloom = new Bloom(RR_WX2RR(svs.pathToShaders));
+				bloom = new rr_gl::Bloom(RR_WX2RR(svs.pathToShaders));
 			}
 			if (bloom)
 			{
@@ -1813,7 +1808,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				ssgiLoadAttempted = true;
 				RR_ASSERT(!ssgi);
-				ssgi = new SSGI(RR_WX2RR(svs.pathToShaders));
+				ssgi = new rr_gl::SSGI(RR_WX2RR(svs.pathToShaders));
 			}
 			if (ssgi)
 			{
@@ -1828,7 +1823,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				dofLoadAttempted = true;
 				RR_ASSERT(!dof);
-				dof = new DOF(RR_WX2RR(svs.pathToShaders));
+				dof = new rr_gl::DOF(RR_WX2RR(svs.pathToShaders));
 			}
 			if (dof)
 			{
@@ -1866,7 +1861,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				lensFlareLoadAttempted = true;
 				RR_ASSERT(!lensFlare);
-				lensFlare = new LensFlare(RR_WX2RR(svs.pathToMaps));
+				lensFlare = new rr_gl::LensFlare(RR_WX2RR(svs.pathToMaps));
 			}
 			if (lensFlare)
 			{
@@ -1885,12 +1880,12 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 			// diffuse
 			// set shader (no direct light)
-			UberProgramSetup uberProgramSetup;
+			rr_gl::UberProgramSetup uberProgramSetup;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
 			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.tonemappingBrightness!=rr::RRVec4(1);
 			uberProgramSetup.POSTPROCESS_GAMMA = svs.tonemappingGamma!=1;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
-			Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
+			rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			glPushMatrix();
@@ -1926,7 +1921,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				textureRenderer->render2D(getTexture(vignetteImage,false,false),NULL,1,0,0,1,1);
+				textureRenderer->render2D(rr_gl::getTexture(vignetteImage,false,false),NULL,1,0,0,1,1);
 				glDisable(GL_BLEND);
 			}
 		}
@@ -1948,7 +1943,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					float h = logoImage->getHeight()/(float)winHeight;
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					textureRenderer->render2D(getTexture(logoImage,false,false),NULL,1,1-w,1-h,w,h);
+					textureRenderer->render2D(rr_gl::getTexture(logoImage,false,false),NULL,1,1-w,1-h,w,h);
 					glDisable(GL_BLEND);
 				}
 			}
@@ -1959,7 +1954,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		{
 			// set line shader
 			{
-				UberProgramSetup uberProgramSetup;
+				rr_gl::UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
 				uberProgramSetup.LEGACY_GL = 1;
@@ -2030,7 +2025,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	{
 		// set line shader
 		{
-			UberProgramSetup uberProgramSetup;
+			rr_gl::UberProgramSetup uberProgramSetup;
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
 			uberProgramSetup.LEGACY_GL = 1;
@@ -2139,11 +2134,11 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			gluOrtho2D(0, winWidth, winHeight, 0);
 			{
 				// set shader
-				UberProgramSetup uberProgramSetup;
+				rr_gl::UberProgramSetup uberProgramSetup;
 				uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
 				uberProgramSetup.LEGACY_GL = 1;
-				Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
+				rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
 				program->sendUniform("lightIndirectConst",rr::RRVec4(1));
 			}
 			int x = 10;
@@ -2374,7 +2369,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			textureRenderer->render2D(getTexture(helpImage,false,false),NULL,1,(1-w)*0.5f,(1-h)*0.5f,w,h);
+			textureRenderer->render2D(rr_gl::getTexture(helpImage,false,false),NULL,1,(1-w)*0.5f,(1-h)*0.5f,w,h);
 			glDisable(GL_BLEND);
 		}
 	}
@@ -2388,7 +2383,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		{
 			fpsLoadAttempted = true;
 			RR_ASSERT(!fpsDisplay);
-			fpsDisplay = FpsDisplay::create(RR_WX2RR(svs.pathToMaps));
+			fpsDisplay = rr_gl::FpsDisplay::create(RR_WX2RR(svs.pathToMaps));
 		}
 		if (fpsDisplay)
 		{

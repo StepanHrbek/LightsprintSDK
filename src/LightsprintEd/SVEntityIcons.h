@@ -16,7 +16,7 @@
 #include "SVEntity.h"
 #include <vector>
 
-namespace rr_gl
+namespace rr_ed
 {
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -40,16 +40,16 @@ namespace rr_gl
 	class SVEntityIcons
 	{
 	public:
-		SVEntityIcons(wxString pathToMaps, UberProgram* uberProgram);
+		SVEntityIcons(wxString pathToMaps, rr_gl::UberProgram* uberProgram);
 		bool isOk() const;
-		void renderIcons(const SVEntities& entities, TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRRay* ray, const SceneViewerStateEx& svs);
+		void renderIcons(const SVEntities& entities, rr_gl::TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRRay* ray, const SceneViewerStateEx& svs);
 		const SVEntity* intersectIcons(const SVEntities& entities, rr::RRVec2 mousePositionInWindow);
 		~SVEntityIcons();
 
 	private:
 		rr::RRBuffer* icon[IC_LAST]; // indexed by IconCode
-		UberProgramSetup uberProgramSetup;
-		Program* programArrows;
+		rr_gl::UberProgramSetup uberProgramSetup;
+		rr_gl::Program* programArrows;
 		std::vector<std::pair<const SVEntity*,rr::RRVec4> > piwIconRectangles; // piw=positionInWindow in -1..1 range, filled by renderIcons(), read by intersectIcons()
 	};
  

@@ -678,14 +678,14 @@ int main(int argc, char** argv)
 #ifdef SCENE_VIEWER
 	if (globalParameters.runViewer || !globalParameters.buildQuality)
 	{
-		rr_gl::SceneViewerState svs;
+		rr_ed::SceneViewerState svs;
 		svs.tonemappingAutomatic = false;
 		svs.renderHelpers = true;
 		if (globalParameters.buildQuality)
 		{
 			// switch from default realtime GI to static GI
-			svs.renderLightDirect =  globalParameters.directLightMultiplier ? rr_gl::LD_BAKED : rr_gl::LD_REALTIME;
-			svs.renderLightIndirect = rr_gl::LI_BAKED;
+			svs.renderLightDirect =  globalParameters.directLightMultiplier ? rr_ed::LD_BAKED : rr_ed::LD_REALTIME;
+			svs.renderLightIndirect = rr_ed::LI_BAKED;
 		}
 		if (globalParameters.directLightMultiplier)
 			svs.layerBakedLightmap = globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP; // switch from default layer to our layer 0
@@ -695,10 +695,10 @@ int main(int argc, char** argv)
 		RR_SAFE_DELETE(reporter);
 #ifdef NDEBUG
 		// release returns quickly without freeing resources
-		rr_gl::sceneViewer(solver,globalParameters.sceneFilename,"","../../data/",&svs,false);
+		rr_ed::sceneViewer(solver,globalParameters.sceneFilename,"","../../data/",&svs,false);
 #else
 		// debug frees everything and reports memory leaks
-		rr_gl::sceneViewer(solver,globalParameters.sceneFilename,"","../../data/",&svs,true);
+		rr_ed::sceneViewer(solver,globalParameters.sceneFilename,"","../../data/",&svs,true);
 		rr_gl::deleteAllTextures();
 #endif
 	}

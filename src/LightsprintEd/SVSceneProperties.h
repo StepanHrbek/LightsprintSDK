@@ -12,7 +12,7 @@
 #include "SVProperties.h"
 #include "SVCustomProperties.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 	class SVSceneProperties : public SVProperties

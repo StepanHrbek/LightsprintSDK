@@ -12,7 +12,7 @@
 #include "SVApp.h"
 #include <set>
 
-namespace rr_gl
+namespace rr_ed
 {
 
 

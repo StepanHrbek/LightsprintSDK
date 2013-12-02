@@ -10,7 +10,7 @@
 #include "SVMaterialProperties.h"
 #include "SVFrame.h" // updateSceneTree()
 
-namespace rr_gl
+namespace rr_ed
 {
 
 SVObjectProperties::SVObjectProperties(SVFrame* _svframe)

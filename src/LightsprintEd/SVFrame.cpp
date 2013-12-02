@@ -31,7 +31,7 @@
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
-namespace rr_gl
+namespace rr_ed
 {
 
 // reimplemention of rr_gl's internal Workaround::supportsSRGB()
@@ -1103,12 +1103,12 @@ save_scene_as:
 				wxSize bigSize = AA*smallSize;
 					
 				// 1b. enhance shadows
-				rr::RRVector<RealtimeLight*>& lights = m_canvas->solver->realtimeLights;
+				rr::RRVector<rr_gl::RealtimeLight*>& lights = m_canvas->solver->realtimeLights;
 				unsigned* shadowSamples = new unsigned[lights.size()];
 				unsigned* shadowRes = new unsigned[lights.size()];
 				for (unsigned i=0;i<lights.size();i++)
 				{
-					RealtimeLight* rl = lights[i];
+					rr_gl::RealtimeLight* rl = lights[i];
 					shadowRes[i] = rl->getRRLight().rtShadowmapSize;
 					shadowSamples[i] = rl->getNumShadowSamples();
 					rl->setShadowmapSize(shadowRes[i]*userPreferences.sshotEnhancedShadowResolutionFactor);
@@ -1120,8 +1120,8 @@ save_scene_as:
 				//    (it must have alpha, because mirror needs render target with alpha. radeons work even without alpha, geforces need it)
 				rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_RGBA,true,NULL);
 				rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
-				Texture texColor(bufColor,false,false);
-				Texture texDepth(bufDepth,false,false);
+				rr_gl::Texture texColor(bufColor,false,false);
+				rr_gl::Texture texDepth(bufDepth,false,false);
 				bool srgb = supportsSRGB() && svs.srgbCorrect;
 				if (srgb)
 				{
@@ -1131,10 +1131,10 @@ save_scene_as:
 				}
 
 				// 3a. set new rendertarget
-				FBO oldFBOState = FBO::getState();
-				FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,&texDepth);
-				FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,&texColor);
-				if (!FBO::isOk())
+				rr_gl::FBO oldFBOState = rr_gl::FBO::getState();
+				rr_gl::FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,&texDepth);
+				rr_gl::FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,&texColor);
+				if (!rr_gl::FBO::isOk())
 				{
 					wxMessageBox(_("Try lower resolution or disable FSAA (both in User preferences / Screenshot)."),_("Rendering screenshot failed."));
 				}
@@ -1205,7 +1205,7 @@ save_scene_as:
 				// 1b. cleanup
 				for (unsigned i=0;i<lights.size();i++)
 				{
-					RealtimeLight* rl = lights[i];
+					rr_gl::RealtimeLight* rl = lights[i];
 					rl->setShadowmapSize(shadowRes[i]);
 					rl->setNumShadowSamples(shadowSamples[i]);
 				}

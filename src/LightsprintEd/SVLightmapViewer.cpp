@@ -7,7 +7,7 @@
 
 #include "SVLightmapViewer.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 
@@ -43,7 +43,7 @@ void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject*
 	object = _object;
 	if (buffer)
 	{
-		getTexture(buffer);
+		rr_gl::getTexture(buffer);
 		glActiveTexture(GL_TEXTURE0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, _bilinear?GL_LINEAR:GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, _bilinear?GL_LINEAR:GL_NEAREST);
@@ -99,7 +99,7 @@ void SVLightmapViewer::OnMouseEvent(wxMouseEvent& event, wxSize windowSize)
 	previousPosition = event.GetPosition();
 }
 
-void SVLightmapViewer::OnPaint(TextureRenderer* textureRenderer, wxSize windowSize)
+void SVLightmapViewer::OnPaint(rr_gl::TextureRenderer* textureRenderer, wxSize windowSize)
 {
 	if (!textureRenderer)
 	{
@@ -122,14 +122,14 @@ void SVLightmapViewer::OnPaint(TextureRenderer* textureRenderer, wxSize windowSi
 
 	// render lightmap
 	if (buffer)
-		textureRenderer->render2D(getTexture(buffer),NULL,1,t_x,t_y,t_w,t_h,-1,alpha?"#define SHOW_ALPHA0\n":NULL);
+		textureRenderer->render2D(rr_gl::getTexture(buffer),NULL,1,t_x,t_y,t_w,t_h,-1,alpha?"#define SHOW_ALPHA0\n":NULL);
 
 	// render mapping edges
 	const rr::RRMesh* mesh = object ? object->getCollider()->getMesh() : NULL;
 	unsigned numTriangles = mesh ? mesh->getNumTriangles() : 0;
 	if (numTriangles)
 	{
-		Program* lineProgram = textureRenderer->twodProgram->getProgram(NULL);
+		rr_gl::Program* lineProgram = textureRenderer->twodProgram->getProgram(NULL);
 		if (lineProgram)
 		{
 			lineProgram->useIt();

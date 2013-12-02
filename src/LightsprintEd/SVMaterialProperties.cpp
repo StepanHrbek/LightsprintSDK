@@ -10,7 +10,7 @@
 #include "SVApp.h"
 #include "Lightsprint/GL/Texture.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 //////////////////////////////////////////////////////////////////////////////

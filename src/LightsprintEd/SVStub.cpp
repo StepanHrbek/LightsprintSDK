@@ -7,7 +7,7 @@
 
 #include "Lightsprint/GL/SceneViewer.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 void sceneViewer(rr::RRDynamicSolver* _inputSolver, const rr::RRString& _inputFilename, const rr::RRString& _skyboxFilename, const rr::RRString& _pathToData, SceneViewerState* _svs, bool _releaseResources)

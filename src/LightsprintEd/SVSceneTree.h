@@ -9,12 +9,13 @@
 #ifdef SUPPORT_SCENEVIEWER
 
 #include "Lightsprint/GL/SceneViewer.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "wx/wx.h"
 #include "wx/treectrl.h"
 #include "SVApp.h"
 #include "SVFrame.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 	enum ContextMenu
 	{
@@ -60,7 +61,7 @@ namespace rr_gl
 		SVSceneTree(SVFrame* svframe);
 
 		//! Updates whole tree contents. If solver is NULL, lights and objects are not updated.
-		void updateContent(class RRDynamicSolverGL* solver);
+		void updateContent(rr_gl::RRDynamicSolverGL* solver);
 
 		//! Selects entity in tree, without changing anything outside tree.
 		void selectEntityInTree(EntityId entity);

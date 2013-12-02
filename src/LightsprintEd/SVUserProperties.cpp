@@ -9,7 +9,7 @@
 #include "SVCustomProperties.h"
 
 
-namespace rr_gl
+namespace rr_ed
 {
 
 SVUserProperties::SVUserProperties(SVFrame* _svframe)
@@ -189,7 +189,7 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propStereoMode || property==propStereoSwap)
 	{
-		userPreferences.stereoMode = (StereoMode)(propStereoMode->GetValue().GetInteger()*2+(propStereoSwap->GetValue().GetBool()?3:2));
+		userPreferences.stereoMode = (rr_gl::StereoMode)(propStereoMode->GetValue().GetInteger()*2+(propStereoSwap->GetValue().GetBool()?3:2));
 	}
 	else
 	if (property==propImportUnitsEnum)

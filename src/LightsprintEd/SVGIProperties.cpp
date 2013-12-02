@@ -8,7 +8,7 @@
 #include "SVGIProperties.h"
 #include "SVSceneTree.h" // action buttons
 
-namespace rr_gl
+namespace rr_ed
 {
 
 extern bool supportsSRGB();
@@ -26,7 +26,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 		{
 			const wxChar* strings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),_("24-bit (fresnel shadows)"),NULL};
-			const long values[] = {RealtimeLight::FULLY_OPAQUE_SHADOWS,RealtimeLight::ALPHA_KEYED_SHADOWS,RealtimeLight::RGB_SHADOWS,RealtimeLight::FRESNEL_SHADOWS};
+			const long values[] = {rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS,rr_gl::RealtimeLight::ALPHA_KEYED_SHADOWS,rr_gl::RealtimeLight::RGB_SHADOWS,rr_gl::RealtimeLight::FRESNEL_SHADOWS};
 			propGIShadowTransparency = new wxEnumProperty(_("Shadow transparency"),wxPG_LABEL,strings,values);
 			propGIShadowTransparency->SetHelpString(_("Changes how realistically semi-transparent shadows are rendered."));
 			AppendIn(propGIDirect,propGIShadowTransparency);
@@ -392,7 +392,7 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propGIShadowTransparency)
 	{
-		svs.shadowTransparency = (RealtimeLight::ShadowTransparency)property->GetValue().GetInteger();
+		svs.shadowTransparency = (rr_gl::RealtimeLight::ShadowTransparency)property->GetValue().GetInteger();
 	}
 	else
 	if (property==propGIFireballQuality)
@@ -507,7 +507,7 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 				rr::RRBuffer* buf = svframe->m_canvas->solver->getStaticObjects()[i]->illumination.getLayer(layers[j]);
 				if (buf && buf->getType()==rr::BT_2D_TEXTURE)
 				{
-					getTexture(buf)->bindTexture();
+					rr_gl::getTexture(buf)->bindTexture();
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, svs.renderLightmapsBilinear?GL_LINEAR:GL_NEAREST);
 				}

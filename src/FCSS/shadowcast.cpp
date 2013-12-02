@@ -1173,7 +1173,7 @@ void mainMenu(int item)
 	switch (item)
 	{
 		case ME_SCENE_VIEWER:
-			rr_gl::sceneViewer(level->solver,NULL,NULL,"shaders/",NULL,true);
+			rr_ed::sceneViewer(level->solver,NULL,NULL,"shaders/",NULL,true);
 			break;
 		case ME_TOGGLE_VIDEO:
 			captureVideo = captureVideo ? NULL : "jpg";
@@ -1918,17 +1918,17 @@ int main(int argc, char** argv)
 	if (customScene)
 	{
 		if (customScene[0])
-			rr_gl::sceneViewer(NULL,customScene,"maps/skybox/skybox_bk.jpg","shaders/",NULL,false);
+			rr_ed::sceneViewer(NULL,customScene,"maps/skybox/skybox_bk.jpg","shaders/",NULL,false);
 		else
 		{
-			rr_gl::SceneViewerState svs;
+			rr_ed::SceneViewerState svs;
 			svs.renderLDM = true;
 			svs.renderTonemapping = false;
 			svs.camera.setPosition(rr::RRVec3(23.554733f,-5.993851f,-3.134015f));
 			svs.camera.setDirection(rr::RRVec3(0.64f,-0.3f,-0.7f));
 			svs.cameraMetersPerSecond = 1;
 			svs.autodetectCamera = false;
-			rr_gl::sceneViewer(NULL,"scenes/wop_padattic/wop_padatticBB.rr3",NULL,"shaders/",&svs,false);
+			rr_ed::sceneViewer(NULL,"scenes/wop_padattic/wop_padatticBB.rr3",NULL,"shaders/",&svs,false);
 		}
 		return 0;
 	}

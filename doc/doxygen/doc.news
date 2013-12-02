@@ -25,7 +25,7 @@ NEWS
 
 CHANGES
 
-- rr_gl::sceneViewer() moved into new LightsprintEd library
+- rr_ed::sceneViewer() moved into new LightsprintEd library
 - several path/filename parameters changed from char* to RRString for more complete unicode support
   \n you might need to pass "" instead of NULL if old code fails to compile
 - rr_gl::RendererOfScene::render() and renderToCube() have new parameter collection of objects,
@@ -84,7 +84,7 @@ NEWS
 
 CHANGES
 
-- rr_gl::SceneViewerState::eye renamed to rr_gl::SceneViewerState::camera
+- rr_ed::SceneViewerState::eye renamed to rr_ed::SceneViewerState::camera
 
 FIXES
 
@@ -162,7 +162,7 @@ CHANGES
   \n please add the same parameter to your own implementations, if any
 - allocateBuffersForRealtimeGI() 5th parameter added
   \n please check all places where you pass 5 or more parameters and insert 5th one
-- rr_gl::sceneViewer() 4th parameter changed, remove "shaders/" from the end of string
+- rr_ed::sceneViewer() 4th parameter changed, remove "shaders/" from the end of string
 - rr_gl::LensFlare() parameter changed, change "shaders/" at the end of string to "maps/"
 - rr_io::registerLoaders() parameters argc,argv added
 - rr_io::isolateSceneLoaders() parameters argc,argv added
@@ -1231,14 +1231,14 @@ NEWS
 - small API extensions
   - RRBuffer::getMinMax() added
   - RRObject::LayerParameter::createBuffers() optional parameter added
-- new tone mapping settings in rr_gl::SceneViewerState (available also from SceneViewer GUI)
+- new tone mapping settings in rr_ed::SceneViewerState (available also from SceneViewer GUI)
   - tonemappingAutomaticTarget
   - tonemappingAutomaticSpeed
 
 CHANGES
 
 - .rr3 format changed to ensure platform independence
-- renames in rr_gl::SceneViewerState
+- renames in rr_ed::SceneViewerState
   - brightness renamed to tonemappingBrightness
   - gamma renamed to tonemappingGamma
   - adjustTonemapping renamed to tonemappingAutomatic
@@ -1521,7 +1521,7 @@ CHANGES
 
 NEWS
 
-- enhanced rr_gl::sceneViewer() and SceneViewer sample
+- enhanced rr_ed::sceneViewer() and SceneViewer sample
    - added light icons
    - added scene properties window
 - improved water rendering in rr_gl::Water
@@ -1541,7 +1541,7 @@ NEWS
   </td><td>
   \image html Toolbench-Cornell.jpg
   </td></tr></table>
-- enhanced rr_gl::sceneViewer() and SceneViewer sample
+- enhanced rr_ed::sceneViewer() and SceneViewer sample
   - added scene tree window
   - all windows dockable
   \image html SceneViewer_1.jpg
@@ -1637,13 +1637,13 @@ CHANGES
 NEWS
 
 - faster realtime render (up to 2x higher fps in Lightsmark)
-- enhanced rr_gl::sceneViewer() and SceneViewer sample
+- enhanced rr_ed::sceneViewer() and SceneViewer sample
   - new "Global illumination" menu adds capabilities, replaces "Realtime lighting" and "Static lighting" menus
   - new parameter releaseResources lets you exit faster without releasing stuff
 
 CHANGES
 
-- several members of rr_gl::SceneViewerState renamed or added to better cover new capabilities
+- several members of rr_ed::SceneViewerState renamed or added to better cover new capabilities
 - new parameter lightIndirectVersion in several rr_gl rendering function
   \n changing it only when illumination changes makes realtime render faster
 
@@ -1654,7 +1654,7 @@ NEWS
 - enhanced rr_gl::TextureRenderer
   - new parameter float gamma for gamma correction
   - parameters float color[4] changed to RRVec4 color (pass RRVec4(1) where you passed NULL)
-- enhanced rr_gl::sceneViewer() and SceneViewer sample
+- enhanced rr_ed::sceneViewer() and SceneViewer sample
   - help as overlay image
   - new menu items: render FPS
   - adjust contrast
@@ -1689,8 +1689,8 @@ CHANGES
 NEWS
 
 - realistic realtime specular reflections
-  - enabled in rr_gl::sceneViewer() and SceneViewer and BuildLightmaps samples
-    \n default rr_gl::SceneViewerState::renderSpecular was changed to true
+  - enabled in rr_ed::sceneViewer() and SceneViewer and BuildLightmaps samples
+    \n default rr_ed::SceneViewerState::renderSpecular was changed to true
   - new RRDynamicSolver::updateBuffersForRealtimeGI()
     \n allocates and updates vertex buffers and reflection maps, structures used to pass computed GI to external renderers
   - new RRDynamicSolver::allocateBuffersForRealtimeGI()
@@ -1745,7 +1745,7 @@ NEWS
 
 CHANGES
 
-- default realtime GI solver in rr_gl::sceneViewer(), SceneViewer and BuildLightmaps samples changed to Fireball
+- default realtime GI solver in rr_ed::sceneViewer(), SceneViewer and BuildLightmaps samples changed to Fireball
   \n Fireball makes rendering faster and GI is complete (includes skylight)
   \n when opening scene for first time, Fireball is built automatically at medium quality 350
   \n use menu Realtime lighting / Rebuild fireball to change quality
@@ -1780,7 +1780,7 @@ NEWS
     with additional blur specified by RRDynamicSolver::SmoothingParameters::minFeatureSize.
   - new parameter in RRMesh::createOptimizedVertices() and RRObject::createMultiObject()
     \n makes it possible to stitch only vertices with similar normals
-- improved rr_gl::sceneViewer(), SceneViewer sample, BuildLightmaps tools
+- improved rr_ed::sceneViewer(), SceneViewer sample, BuildLightmaps tools
   - new Environment / Load skybox... menu item
 - improved cube map loading
   - new RRBuffer::loadCube() and RRBuffer::reloadCube()

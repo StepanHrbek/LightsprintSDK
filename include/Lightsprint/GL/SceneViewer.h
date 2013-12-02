@@ -67,7 +67,7 @@
 	#define wxMSVC_VERSION_AUTO // used only when building this library
 #endif
 
-namespace rr_gl
+namespace rr_ed
 {
 
 enum LightingDirect
@@ -128,7 +128,7 @@ struct SceneViewerState
 	bool             fullscreen;                //! Ignored. Fullscreen/windowed bit is saved to and read from user preferences file. Quit sceneViewer() in fullscreen and it will start in fullscreen next time.
 	bool             renderStereo;              //! Enables stereo rendering.
 	bool             renderPanorama;            //! Enables 360 degree panorama rendering.
-	PanoramaMode     panoramaMode;              //! Selects mode of panorama rendering.
+	rr_gl::PanoramaMode panoramaMode;           //! Selects mode of panorama rendering.
 	bool             renderDof;                 //! Render depth of field effect.
 	bool             dofAutomatic;              //! For depth of field effect only: set dof near/far automatically.
 	LightingDirect   renderLightDirect;         //! Direct illumination mode.
@@ -170,7 +170,7 @@ struct SceneViewerState
 	float            ssgiRadius;                //! Distance of occluders (in meters) taken into account when calculating SSGI.
 	float            ssgiAngleBias;             //! SSGI is based on face normals, not per-pixel normals, so at 0 even smooth edges are visible; higher angle bias makes more edges invisible.
 	bool             playVideos;                //! Play videos, false = videos are paused.
-	RealtimeLight::ShadowTransparency shadowTransparency; //! Type of transparency in shadows, we copy it to all lights.
+	rr_gl::RealtimeLight::ShadowTransparency shadowTransparency; //! Type of transparency in shadows, we copy it to all lights.
 	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
 	bool             videoEmittanceAffectsGI;   //! Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.
 	unsigned         videoEmittanceGIQuality;   //! Quality if videoEmittanceAffectsGI is true.
@@ -236,7 +236,7 @@ struct SceneViewerState
 		fullscreen = 0;
 		renderStereo = false;
 		renderPanorama = false;
-		panoramaMode = PM_EQUIRECTANGULAR;
+		panoramaMode = rr_gl::PM_EQUIRECTANGULAR;
 		renderDof = false;
 		dofAutomatic = false;
 		renderLightDirect = LD_REALTIME;
@@ -277,7 +277,7 @@ struct SceneViewerState
 		ssgiRadius = 0.3f;
 		ssgiAngleBias = 0.1f;
 		playVideos = 1;
-		shadowTransparency = RealtimeLight::FRESNEL_SHADOWS;
+		shadowTransparency = rr_gl::RealtimeLight::FRESNEL_SHADOWS;
 		emissiveMultiplier = 1;
 		videoEmittanceAffectsGI = true;
 		videoEmittanceGIQuality = 5;

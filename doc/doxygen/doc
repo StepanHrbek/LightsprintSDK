@@ -1474,7 +1474,7 @@ Material formats (1)
 
  \section ddi_debug Debugging
 
-  If you call rr_gl::sceneViewer(solver,...) after
+  If you call rr_ed::sceneViewer(solver,...) after
   solver->setDirectIllumination() and then select menu item Help/Render DDI,
   scene viewer visualizes data sent to setDirectIllumination().
   \image html ddi1.jpg
@@ -3134,16 +3134,16 @@ rr::RRVector<*>{
  LightsprintEd consists of single component
    -# scene editor
      - see it by running SceneViewer sample
-     - implemented in rr_gl::sceneViewer()
+     - implemented in rr_ed::sceneViewer()
 
  \section ed_api API
 
- Namespace: rr_gl
+ Namespace: rr_ed
 
  <hr>
  Header: Lightsprint/GL/SceneViewer.h
 
- - rr_gl::sceneViewer() is a single function scene viewer, with UI for editing lights and materials,
+ - rr_ed::sceneViewer() is a single function scene viewer, with UI for editing lights and materials,
    with realtime and static GI, with 2d viewer of lightmaps and mappings.
    It is very helpful during debugging, it can display contents of RRDynamicSolver at any moment and let you
    examine and experiment with all scene properties.

@@ -10,7 +10,7 @@
 #include "Lightsprint/GL/PreserveState.h"
 #include "wx/wx.h"
 
-namespace rr_gl
+namespace rr_ed
 {
 
 /////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ void SVEntities::addXYZ(rr::RRVec3 center, IconCode transformation, const rr::RR
 //
 // SVEntityIcons
 
-SVEntityIcons::SVEntityIcons(wxString pathToMaps, UberProgram* uberProgram)
+SVEntityIcons::SVEntityIcons(wxString pathToMaps, rr_gl::UberProgram* uberProgram)
 {
 	const char* filename[] = {"sv_point","sv_spot","sv_sun","sv_movement","sv_rotation","sv_scale","sv_static","sv_x","sv_y","sv_z"};
 	for (IconCode i=IC_POINT;i!=IC_LAST;i=(IconCode)(i+1))
@@ -113,12 +113,12 @@ bool SVEntityIcons::isOk() const
 	return true;
 }
 
-void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRRay* ray, const SceneViewerStateEx& svs)
+void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRRay* ray, const SceneViewerStateEx& svs)
 {
 	if (!programArrows)
 		return;
 	// render arrows
-	PreserveFlag p0(GL_DEPTH_TEST,false);
+	rr_gl::PreserveFlag p0(GL_DEPTH_TEST,false);
 	programArrows->useIt();
 	uberProgramSetup.useCamera(programArrows,&eye);
 	glLineWidth(5);
@@ -147,10 +147,10 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* tex
 	glLineWidth(1);
 
 	// render icons
-	PreserveBlend p1;
-	PreserveBlendFunc p2;
-	PreserveAlphaTest p3;
-	PreserveAlphaFunc p4;
+	rr_gl::PreserveBlend p1;
+	rr_gl::PreserveBlendFunc p2;
+	rr_gl::PreserveAlphaTest p3;
+	rr_gl::PreserveAlphaFunc p4;
 	glEnable(GL_ALPHA_TEST); glAlphaFunc(GL_GREATER,0.03f); // keyed icons (alpha0=transparent)
 	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // blended icons (alpha0=transparent)
 	piwIconRectangles.clear();
@@ -186,7 +186,7 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, TextureRenderer* tex
 				rr::RRVec2 piwSize = rr::RRVec2(1,eye.getAspect()) * size2;
 				rr::RRVec4 piwRectangle(piwCenter.x-piwSize.x/2,piwCenter.y-piwSize.y/2,piwSize.x,piwSize.y); // in -1..1 range
 				piwIconRectangles.push_back(std::pair<const SVEntity*,rr::RRVec4>(&entities[i],piwRectangle));
-				textureRenderer->render2D(getTexture(icon[entities[i].iconCode],true,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),&color,1,piwRectangle[0]*.5f+.5f,piwRectangle[1]*.5f+.5f,piwRectangle[2]*.5f,piwRectangle[3]*.5f);
+				textureRenderer->render2D(rr_gl::getTexture(icon[entities[i].iconCode],true,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),&color,1,piwRectangle[0]*.5f+.5f,piwRectangle[1]*.5f+.5f,piwRectangle[2]*.5f,piwRectangle[3]*.5f);
 			}
 		}
 	}

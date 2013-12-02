@@ -14,7 +14,7 @@
 #include <wx/wx.h>
 	#define SV_SUBWINDOW_BORDER wxBORDER_SUNKEN // wxBORDER_NONE // wxBORDER_SIMPLE
 
-namespace rr_gl
+namespace rr_ed
 {
 
 
