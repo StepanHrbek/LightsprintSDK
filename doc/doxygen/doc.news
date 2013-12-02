@@ -27,6 +27,8 @@ CHANGES
 
 - several path/filename parameters changed from char* to RRString for more complete unicode support
   \n you might need to pass "" instead of NULL if old code fails to compile
+- rr_gl::RendererOfScene::render() and renderToCube() have new parameter collection of objects,
+  this lets you render arbitrary objects, not just objects from solver
 - GL/PreserveState.h header made public, previously internal
 
 \section news141 ------------------------------------ 2013.09.29 -------------------------------------

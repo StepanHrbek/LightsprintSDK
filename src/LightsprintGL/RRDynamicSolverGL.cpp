@@ -658,7 +658,7 @@ void drawRealtimeLight(RealtimeLight* light)
 
 void RRDynamicSolverGL::renderScene(const RenderParameters& _renderParameters)
 {
-	rendererOfScene->render(this, _renderParameters.uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL, _renderParameters);
+	rendererOfScene->render(this, NULL, _renderParameters.uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL, _renderParameters);
 }
 
 void RRDynamicSolverGL::renderLights(const rr::RRCamera& _camera)
@@ -777,7 +777,7 @@ unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illum
 		}
 		rp.srgbCorrect = true; // we don't know whether final render is srgb correct or not, let's request more realistic version (but renderToCube might ignore us)
 		Texture* cubeTexture = getTexture(cube,false,false);
-		getRendererOfScene()->renderToCube(this,&realtimeLights,rp,cubeTexture,depthTexture);
+		getRendererOfScene()->renderToCube(this,NULL,&realtimeLights,rp,cubeTexture,depthTexture);
 		cubeTexture->bindTexture();
 		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

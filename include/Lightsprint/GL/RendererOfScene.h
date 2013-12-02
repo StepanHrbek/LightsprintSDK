@@ -155,14 +155,19 @@ public:
 	//!
 	//! \param _solver
 	//!  Source of static and dynamic objects, environment and illumination. Direct lights from solver are ignored.
+	//! \param _objects
+	//!  Objects to be rendered, or NULL for all objects from solver.
+	//!  \n NULL: All objects from solver are rendered. You can request renderer to update illumination buffers with data from solver.
+	//!  \n non-NULL: Given objects will be rendered. Possible request to update illumination buffers at render time is ignored.
+	//!  \n When rendering all objects from solver, it is recommended to pass NULL rather than collection of all objects, as it could be faster.
 	//! \param _lights
 	//!  Set of lights, source of direct illumination in rendered scene.
 	//! \param _renderParameters
 	//!  Other rendering parameters.
-	virtual void render(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters) = 0;
+	virtual void render(rr::RRDynamicSolver* _solver, const rr::RRObjects* _objects, const RealtimeLights* _lights, const RenderParameters& _renderParameters) = 0;
 
 	//! Renders scene from solver into given cubemap.
-	virtual void renderToCube(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture, Texture* _depthTexture) = 0;
+	virtual void renderToCube(rr::RRDynamicSolver* _solver, const rr::RRObjects* _objects, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture, Texture* _depthTexture) = 0;
 
 
 	virtual class RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh) = 0;

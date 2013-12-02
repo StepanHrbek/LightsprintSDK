@@ -106,8 +106,8 @@ public:
 	RendererOfSceneImpl(const rr::RRString& pathToShaders);
 	virtual ~RendererOfSceneImpl();
 
-	virtual void render(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters);
-	virtual void renderToCube(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture, Texture* _depthTexture);
+	virtual void render(rr::RRDynamicSolver* _solver, const rr::RRObjects* _objects, const RealtimeLights* _lights, const RenderParameters& _renderParameters);
+	virtual void renderToCube(rr::RRDynamicSolver* _solver, const rr::RRObjects* _objects, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture, Texture* _depthTexture);
 
 	virtual RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
 	{
@@ -225,7 +225,7 @@ struct PlaneCompare // comparing RRVec4 looks strange, so we do it here rather t
 };
 #endif
 
-void RendererOfSceneImpl::renderToCube(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture, Texture* _depthTexture)
+void RendererOfSceneImpl::renderToCube(rr::RRDynamicSolver* _solver, const rr::RRObjects* _objects, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture, Texture* _depthTexture)
 {
 	// we need depth texture here.
 	// but why is it sent via _depthTexture parameter?
@@ -313,7 +313,7 @@ void RendererOfSceneImpl::renderToCube(rr::RRDynamicSolver* _solver, const Realt
 		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,_cubeTexture);
 #endif
 		glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-		render(_solver,_lights,_);
+		render(_solver,_objects,_lights,_);
 #ifdef COPY_TO_CUBE
 		_cubeTexture->bindTexture();
 		glCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,0,0,viewport[0],viewport[1],size,size);
@@ -326,7 +326,7 @@ void RendererOfSceneImpl::renderToCube(rr::RRDynamicSolver* _solver, const Realt
 #endif
 }
 
-void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLights* _lights, const RenderParameters& _renderParameters)
+void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjects* _objects, const RealtimeLights* _lights, const RenderParameters& _renderParameters)
 {
 	if (!_solver || !_renderParameters.camera)
 	{
@@ -372,7 +372,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 			_.camera = swapEyes?&rightEye:&leftEye;
 			StereoMode backup = _.stereoMode;
 			_.stereoMode = SM_MONO;
-			render(_solver,_lights,_);
+			render(_solver,_objects,_lights,_);
 			_.stereoMode = backup;
 
 			// render right
@@ -385,7 +385,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 			glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
 			_.camera = swapEyes?&leftEye:&rightEye;
 			_.stereoMode = SM_MONO;
-			render(_solver,_lights,_);
+			render(_solver,_objects,_lights,_);
 			_.stereoMode = backup;
 		}
 
@@ -428,7 +428,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 			panoramaTexture->reset(false,false,false);
 		}
 
-		renderToCube(_solver,_lights,_,panoramaTexture,depthTexture);
+		renderToCube(_solver,_objects,_lights,_,panoramaTexture,depthTexture);
 
 		// composite
 		textureRenderer->render2D(panoramaTexture,NULL,1,0,0,1,1,-1,(_.panoramaMode==PM_LITTLE_PLANET)?"#define LITTLE_PLANET\n":NULL);
@@ -510,14 +510,17 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 		switch (pass)
 		{
 			case 0:
+				if (_objects) {objects = _objects; break;}
 				if (needsIndividualStaticObjectsForEverything) continue;
 				objects = &multiObjects;
 				break;
 			case 1:
+				if (_objects) continue;
 				if (!needsIndividualStaticObjectsForEverything && !needsIndividualStaticObjectsOnlyForBlending) continue;
 				objects = &_solver->getStaticObjects();
 				break;
 			case 2:
+				if (_objects) continue;
 				if (_.uberProgramSetup.FORCE_2D_POSITION) continue;
 				objects = &_solver->getDynamicObjects();
 				break;
@@ -674,7 +677,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 						{
 							// here we process everything that needs sorting, i.e. what is blended in final render
 							// blended objects rendered into rgb shadowmap are not processed here, because they don't need sort
-							if (!needsIndividualStaticObjectsOnlyForBlending || pass!=0)
+							if (!needsIndividualStaticObjectsOnlyForBlending || pass!=0 || _objects)
 							{
 								objectWillBeRendered = true;
 								blendedFaceGroups[recursionDepth].push_back(FaceGroupRange(perObjectBuffers[recursionDepth].size(),g,triangleInFgFirst,triangleInFgLastPlus1));
@@ -691,7 +694,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 							}
 						}
 						else
-						if (!needsIndividualStaticObjectsOnlyForBlending || pass!=1)
+						if (!needsIndividualStaticObjectsOnlyForBlending || pass!=1 || _objects)
 						{
 							objectWillBeRendered = true;
 							UberProgramSetup fgUberProgramSetup = objectBuffers.objectUberProgramSetup;
@@ -719,7 +722,9 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 					// update vertex buffers
 					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR
 						// quit if buffer is already up to date
-						&& lightIndirectVcolor->version!=_solver->getSolutionVersion())
+						&& lightIndirectVcolor->version!=_solver->getSolutionVersion()
+						// quit if rendering arbitrary non-solver objects
+						&& !_objects)
 					{
 						if (pass==1)
 						{
@@ -958,7 +963,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 				mirror.srgbCorrect = false;
 				mirror.brightness = rr::RRVec4(1);
 				mirror.gamma = 1;
-				render(_solver,_lights,mirror);
+				render(_solver,_objects,_lights,mirror);
 
 				// copy mirrorMaskMap to mirrorColorMap.A
 				//if (_.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
@@ -999,7 +1004,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const RealtimeLig
 	}
 
 	// Render skybox.
- 	if (!_.renderingFromThisLight && !_.uberProgramSetup.FORCE_2D_POSITION)
+ 	if (!_.renderingFromThisLight && !_.uberProgramSetup.FORCE_2D_POSITION && !_objects)
 	{
 		rr::RRReal envAngleRad0 = 0;
 		const rr::RRBuffer* env0 = _solver->getEnvironment(0,&envAngleRad0);
