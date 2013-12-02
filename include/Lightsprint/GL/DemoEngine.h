@@ -39,69 +39,17 @@
 	#if !defined(RR_GL_MANUAL_LINK) && !defined(RR_GL_BUILD)
 		#ifdef RR_GL_STATIC
 			// use static library
-			#if _MSC_VER<1400
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintGL.vs2003_sr.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2003_sd.lib")
-				#endif
-			#elif _MSC_VER<1500
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintGL.vs2005_sr.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2005_sd.lib")
-				#endif
-			#elif _MSC_VER<1600
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintGL.vs2008_sr.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2008_sd.lib")
-				#endif
-			#elif _MSC_VER<1700
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintGL.vs2010_sr.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2010_sd.lib")
-				#endif
+			#ifdef NDEBUG
+				#pragma comment(lib,"LightsprintGL." RR_LIB_COMPILER "_sr.lib")
 			#else
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintGL.vs2012_sr.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2012_sd.lib")
-				#endif
+				#pragma comment(lib,"LightsprintGL." RR_LIB_COMPILER "_sd.lib")
 			#endif
 		#else
 			// use dll
-			#if _MSC_VER<1400
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintGL.vs2003.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2003_dd.lib")
-				#endif
-			#elif _MSC_VER<1500
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintGL.vs2005.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2005_dd.lib")
-				#endif
-			#elif _MSC_VER<1600
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintGL.vs2008.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2008_dd.lib")
-				#endif
-			#elif _MSC_VER<1700
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintGL.vs2010.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2010_dd.lib")
-				#endif
+			#ifdef NDEBUG
+				#pragma comment(lib,"LightsprintGL." RR_LIB_COMPILER ".lib")
 			#else
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintGL.vs2012.lib")
-				#else
-					#pragma comment(lib,"LightsprintGL.vs2012_dd.lib")
-				#endif
+				#pragma comment(lib,"LightsprintGL." RR_LIB_COMPILER "_dd.lib")
 			#endif
 		#endif
 	#endif

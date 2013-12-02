@@ -29,72 +29,33 @@
 
 // autolink library when external project includes this header
 #ifdef _MSC_VER
+
+	#if _MSC_VER<1400
+		#define RR_LIB_COMPILER "vs2003"
+	#elif _MSC_VER<1500
+		#define RR_LIB_COMPILER "vs2005"
+	#elif _MSC_VER<1600
+		#define RR_LIB_COMPILER "vs2008"
+	#elif _MSC_VER<1700
+		#define RR_LIB_COMPILER "vs2010"
+	#else
+		#define RR_LIB_COMPILER "vs2012"
+	#endif
+
 	#if !defined(RR_MANUAL_LINK) && !defined(RR_BUILD)
 		#ifdef RR_STATIC
 			// use static library
-			#if _MSC_VER<1400
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintCore.vs2003_sr.lib")
-				#else
-					#pragma comment(lib,"LightsprintCore.vs2003_sd.lib")
-				#endif
-			#elif _MSC_VER<1500
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintCore.vs2005_sr.lib")
-				#else
-					#pragma comment(lib,"LightsprintCore.vs2005_sd.lib")
-				#endif
-			#elif _MSC_VER<1600
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintCore.vs2008_sr.lib")
-				#else
-					#pragma comment(lib,"LightsprintCore.vs2008_sd.lib")
-				#endif
-			#elif _MSC_VER<1700
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintCore.vs2010_sr.lib")
-				#else
-					#pragma comment(lib,"LightsprintCore.vs2010_sd.lib")
-				#endif
+			#ifdef NDEBUG
+				#pragma comment(lib,"LightsprintCore." RR_LIB_COMPILER "_sr.lib")
 			#else
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintCore.vs2012_sr.lib")
-				#else
-					#pragma comment(lib,"LightsprintCore.vs2012_sd.lib")
-				#endif
+				#pragma comment(lib,"LightsprintCore." RR_LIB_COMPILER "_sd.lib")
 			#endif
 		#else
 			// use dll
-			#if _MSC_VER<1400
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintCore.vs2003.lib")
-				#else
-					#pragma comment(lib,"LightsprintCore.vs2003_dd.lib")
-				#endif
-			#elif _MSC_VER<1500
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintCore.vs2005.lib")
-				#else
-					#pragma comment(lib,"LightsprintCore.vs2005_dd.lib")
-				#endif
-			#elif _MSC_VER<1600
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintCore.vs2008.lib")
-				#else
-					#pragma comment(lib,"LightsprintCore.vs2008_dd.lib")
-				#endif
-			#elif _MSC_VER<1700
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintCore.vs2010.lib")
-				#else
-					#pragma comment(lib,"LightsprintCore.vs2010_dd.lib")
-				#endif
+			#ifdef NDEBUG
+				#pragma comment(lib,"LightsprintCore." RR_LIB_COMPILER ".lib")
 			#else
-				#ifdef NDEBUG
-					#pragma comment(lib,"LightsprintCore.vs2012.lib")
-				#else
-					#pragma comment(lib,"LightsprintCore.vs2012_dd.lib")
-				#endif
+				#pragma comment(lib,"LightsprintCore." RR_LIB_COMPILER "_dd.lib")
 			#endif
 		#endif
 	#endif
