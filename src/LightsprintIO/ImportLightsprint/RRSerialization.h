@@ -70,8 +70,8 @@ public:
 	boost::unordered_set<boost::serialization::RRBufferProxy*> bufferProxyInstances;
 	boost::unordered_set<boost::serialization::RRMeshProxy*> meshProxyInstances;
 
-	SerializationRuntime(rr::RRFileLocator* fileLocator);
-	~SerializationRuntime();
+	inline SerializationRuntime(rr::RRFileLocator* fileLocator);
+	inline ~SerializationRuntime();
 };
 
 
@@ -174,7 +174,7 @@ void load(Archive & ar, rr::RRMatrix3x4& a, const unsigned int version)
 
 // boost can't portably serialize wstring, here we convert it to portable utf8 string
 
-void utf32or16to8(const wchar_t* utf32, std::string& utf8)
+static void utf32or16to8(const wchar_t* utf32, std::string& utf8)
 {
 	bool invalid = false;
 	for (unsigned i=0;utf32[i];i++)
@@ -194,7 +194,7 @@ void utf32or16to8(const wchar_t* utf32, std::string& utf8)
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Serializing invalid wide string: %ls\n",utf32));
 }
 
-void utf8to16or32(const char* utf8, std::wstring& utf32)
+static void utf8to16or32(const char* utf8, std::wstring& utf32)
 {
 	bool invalid = false;
 	for (unsigned i=0;utf8[i];i++)

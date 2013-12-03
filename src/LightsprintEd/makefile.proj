@@ -32,10 +32,8 @@ CPP_FLAGS += -DSUPPORT_LIGHTFIELD
 # source files
 
 SOURCES = \
-SVAnimationProperties.cpp \
 SVApp.cpp \
 SVCanvas.cpp \
-SVComment.cpp \
 SVCustomProperties.cpp \
 SVDialogs.cpp \
 SVEntityIcons.cpp \
@@ -50,7 +48,6 @@ SVRayLog.cpp \
 SVSaveLoad.cpp \
 SVSceneProperties.cpp \
 SVSceneTree.cpp \
-SVThumbnailCtrl.cpp \
 SVUserProperties.cpp
 
 # libraries

@@ -19,10 +19,6 @@
 #include "Lightsprint/RRDynamicSolver.h"
 #include <ctime> // struct tm
 
-#if !defined(_WIN32) || _MSC_VER==1600
-//#define CUSTOMIZED_FOR_3DRENDER
-#endif
-
 // define RR_ED_API
 #ifdef _MSC_VER
 	#ifdef RR_ED_STATIC

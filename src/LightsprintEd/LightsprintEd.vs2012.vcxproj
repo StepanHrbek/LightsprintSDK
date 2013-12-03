@@ -570,10 +570,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Lightsprint\Ed\Ed.h" />
-    <ClInclude Include="SVAnimationProperties.h" />
     <ClInclude Include="SVApp.h" />
     <ClInclude Include="SVCanvas.h" />
-    <ClInclude Include="SVComment.h" />
     <ClInclude Include="SVCustomProperties.h" />
     <ClInclude Include="SVDialogs.h" />
     <ClInclude Include="SVEntity.h" />
@@ -591,13 +589,10 @@
     <ClInclude Include="SVSceneProperties.h" />
     <ClInclude Include="SVSceneTree.h" />
     <ClInclude Include="SVUserProperties.h" />
-    <ClInclude Include="SVThumbnailCtrl.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SVAnimationProperties.cpp" />
     <ClCompile Include="SVApp.cpp" />
     <ClCompile Include="SVCanvas.cpp" />
-    <ClCompile Include="SVComment.cpp" />
     <ClCompile Include="SVCustomProperties.cpp" />
     <ClCompile Include="SVDialogs.cpp" />
     <ClCompile Include="SVEntityIcons.cpp" />
@@ -613,7 +608,6 @@
     <ClCompile Include="SVSceneProperties.cpp" />
     <ClCompile Include="SVSceneTree.cpp" />
     <ClCompile Include="SVUserProperties.cpp" />
-    <ClCompile Include="SVThumbnailCtrl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LightsprintCore\LightsprintCore.vs2012.vcxproj">
