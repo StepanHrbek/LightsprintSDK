@@ -59,8 +59,8 @@
 	#endif
 #endif
 
-#ifdef RR_ED_BUILD
-	#define wxMSVC_VERSION_AUTO // used only when building this library
+#if defined(RR_ED_BUILD) && !defined(wxMSVC_VERSION_AUTO)
+	#define wxMSVC_VERSION_AUTO // used only when building this library, looks for wx libraries at different paths for different compilers
 #endif
 
 namespace rr_ed
