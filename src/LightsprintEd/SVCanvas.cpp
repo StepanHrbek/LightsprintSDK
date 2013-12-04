@@ -1476,6 +1476,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		SwapBuffers();
 		return;
 	}
+	if (exitRequested || !winWidth || !winHeight) return; // can't display without window
 	if (svs.renderLightmaps2d)
 	{
 		if (solver->getObject(svs.selectedObjectIndex))
@@ -1495,8 +1496,6 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	}
 	else
 	{
-		if (exitRequested || !winWidth || !winHeight) return; // can't display without window
-
 		// blend skyboxes
 		if (skyboxBlendingInProgress)
 		{
