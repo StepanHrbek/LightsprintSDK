@@ -99,7 +99,7 @@ void sceneViewer(rr::RRDynamicSolver* _inputSolver, const rr::RRString& _inputFi
 
 	// set initial values (user may change them interactively in scene viewer)
 	s_svs = SceneViewerStateEx();
-	if (_svs) memcpy(&s_svs,_svs,sizeof(*_svs));
+	if (_svs) s_svs.SceneViewerState::operator=(*_svs);
 	if (!_inputFilename.empty())
 	{
 		s_svs.sceneFilename = RR_RR2WX(_inputFilename);
