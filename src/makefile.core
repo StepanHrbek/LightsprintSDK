@@ -1,4 +1,5 @@
-OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(SOURCES))))
+# (../ to xx/ replacement in tmp paths exists only because of RL project which contains cpp files from ../LightsprintEd, their .o files in ../ would be shared between debug and release, and clean would not delete them. changing ../ to xx/ solves both)
+OBJECTS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(patsubst ../%,xx/%,$(SOURCES)))))
 
 # specify include and library directories
 
@@ -36,6 +37,11 @@ endif
 -include $(OBJECTS:%.o=%.d)
 
 # compile
+
+$(OBJ_DIR)/xx/%.o: ../%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) -o $@ -c $< $(CPP_FLAGS) -MD
+	@sed 's|^.*:||;s| *\\$$||;s|$$|:|' < $(OBJ_DIR)/xx/$*.d >> $(OBJ_DIR)/xx/$*.d
 
 $(OBJ_DIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
