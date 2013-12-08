@@ -66,7 +66,7 @@
 #include <cfloat>
 #include <cmath>
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__clang__)
 	// fix symbols missing in gcc
 	#define _strdup strdup
 	#define _stricmp strcasecmp
