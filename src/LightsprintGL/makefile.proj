@@ -49,8 +49,7 @@ TextureRenderer.cpp \
 ToneMapping.cpp \
 UberProgram.cpp \
 UberProgramSetup.cpp \
-Workaround.cpp \
-SceneViewer/SVStub.cpp
+Workaround.cpp
 
 # libraries
 
