@@ -511,7 +511,7 @@ void main()
 				materialSpecularMipLevel = (spreadAngle<=0.0) ? 15.0 : log(spreadAngle/(45.0*3.14159/180.0))/log(0.5);
 			#else
 				materialSpecularShininess = materialSpecularShininess * materialSpecularMapColor.a;
-				float shininess = clamp(materialSpecularShininess*materialSpecularShininess,0.0000000001,1);
+				float shininess = clamp(materialSpecularShininess*materialSpecularShininess,0.0000000001,1.0);
 				materialSpecularMipLevel = -log(shininess)*0.4;
 			#endif
 		#endif
