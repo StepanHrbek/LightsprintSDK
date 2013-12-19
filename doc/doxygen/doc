@@ -546,7 +546,7 @@ Material formats (1)
 	- \$(WXWIDGETS_DIR)\\lib\\vc80_amd64_lib for vc2005 x64 target
 	- \$(WXWIDGETS_DIR)\\lib\\vc100_lib for vc2010 win32 target
 	- etc
-   - OSX: install with <code>sudo port install wxWidgets-3.0 +aui</code>
+   - OSX: install with <code>sudo port install wxWidgets-3.0</code>
    - Ubuntu: install with <code>sudo apt-get install libwxgtk2.9-dev</code>
 
   \section wx_removing Removing
@@ -1038,7 +1038,7 @@ Material formats (1)
  \section building_linux Others
 
   Setting up third party libraries:
-  - OSX: <code>sudo port install boost -python27 freeglut freeimage glew wxWidgets-3.0 +aui</code>
+  - OSX: <code>sudo port install boost -python27 freeglut freeimage glew wxWidgets-3.0</code>
   - Ubuntu: <code>sudo apt-get install g++ libboost-dev libboost-serialization-dev libboost-filesystem-dev libboost-iostreams-dev libglew-dev libfreeimage-dev freeglut3-dev</code>
   - Fedora: <code>pkcon install mesa-libGLU-devel glew-devel freeglut-devel freeimage-devel libxml2-devel</code> (no longer tested, may be incomplete)
 
