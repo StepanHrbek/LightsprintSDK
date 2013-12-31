@@ -22,7 +22,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 
 	// init radiosity solver
 	extern rr_gl::RRDynamicSolverGL::DDIQuality lightStability;
-	solver = new rr_gl::RRDynamicSolverGL("shaders/",lightStability);
+	solver = new rr_gl::RRDynamicSolverGL("shaders/","maps/",lightStability);
 	solver->setDirectIlluminationBoost(2);
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createFastRgbScaler());
@@ -50,10 +50,6 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	solver->setStaticObjects(scene->objects,&sp);
 	if (!solver->getMultiObjectCustom())
 		error("No objects in scene.",false);
-
-	// create buffers for computed GI
-	// (select types, formats, resolutions, don't create buffers for objects that don't need GI)
-	solver->allocateBuffersForRealtimeGI(LAYER_LIGHTMAPS,LAYER_ENVIRONMENT);
 
 	// init light
 	//rr::RRLights lights;

@@ -1172,7 +1172,7 @@ void mainMenu(int item)
 	switch (item)
 	{
 		case ME_SCENE_VIEWER:
-			rr_ed::sceneViewer(level->solver,"","","shaders/",NULL,true);
+			rr_ed::sceneViewer(level->solver,"","","",NULL,true);
 			break;
 		case ME_TOGGLE_VIDEO:
 			captureVideo = captureVideo ? NULL : "jpg";
@@ -1917,7 +1917,7 @@ int main(int argc, char** argv)
 	if (customScene)
 	{
 		if (customScene[0])
-			rr_ed::sceneViewer(NULL,customScene,"maps/skybox/skybox_bk.jpg","shaders/",NULL,false);
+			rr_ed::sceneViewer(NULL,customScene,"maps/skybox/skybox_bk.jpg","",NULL,false);
 		else
 		{
 			rr_ed::SceneViewerState svs;
@@ -1927,7 +1927,7 @@ int main(int argc, char** argv)
 			svs.camera.setDirection(rr::RRVec3(0.64f,-0.3f,-0.7f));
 			svs.cameraMetersPerSecond = 1;
 			svs.autodetectCamera = false;
-			rr_ed::sceneViewer(NULL,"scenes/wop_padattic/wop_padatticBB.rr3","","shaders/",&svs,false);
+			rr_ed::sceneViewer(NULL,"scenes/wop_padattic/wop_padatticBB.bsp","","",&svs,false);
 		}
 		return 0;
 	}

@@ -111,6 +111,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	{
 		Level* level = new Level(new LevelSetup(buf),skyMap,supportEditor);
 		level->solver->setDynamicObjects(*dynamicObjects);
+		level->solver->allocateBuffersForRealtimeGI(LAYER_LIGHTMAPS,LAYER_ENVIRONMENT);
 		scenes.push_back(level);
 	}
 	nextSceneIndex = 0;
