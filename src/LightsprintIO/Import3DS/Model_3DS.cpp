@@ -578,16 +578,6 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	Materials[matindex].updateColorsFromTextures(scaler,rr::RRMaterial::UTA_DELETE,true);
 	delete scaler;
 
-	/*/ build 1x1 colored texture for the material w/o texture, Draw() expects it exists
-	no longer necessary for RendererOfScene
-	if (!Materials[matindex].diffuseReflectance.texture)
-	{
-		Materials[matindex].diffuseReflectance.texture = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,true,(unsigned char*)&Materials[matindex].diffuseReflectance.color[0]);
-		// old GeForce cards render float textures very slowly, switch to bytes
-		// (float precision is lost here)
-		Materials[matindex].diffuseReflectance.texture->setFormat(rr::BF_RGB);
-	}*/
-
 	// autodetect keying
 	Materials[matindex].updateKeyingFromTransmittance();
 
