@@ -19,10 +19,10 @@ namespace rr_gl
 
 //! Adds screen space global illumination effect on top of scene render (next plugin).
 //
-//! - SSGI simulates single short distance light bounce, with color bleeding.
-//! - SSGI can be used with Fireball or Architect realtime GI solvers to improve realtime GI quality (GI solvers contribute low frequency GI, SSGI adds high frequencies).
-//! - SSGI can be used with constant ambient to add at least some GI effects to non-GI render.
-//! - SSGI is a realtime alternative to baked LDM.
+//! SSGI simulates single short distance light bounce, with color bleeding.
+//! \n It can be used with Fireball or Architect realtime GI solvers to improve realtime GI quality (GI solvers contribute low frequency GI, SSGI adds high frequencies).
+//! \n It can be used with constant ambient to add at least some GI effects to non-GI render.
+//! \n It is a realtime alternative to baked LDM.
 //!
 //! <table border=0><tr align=top><td>
 //! \image html ssgi1.jpg
