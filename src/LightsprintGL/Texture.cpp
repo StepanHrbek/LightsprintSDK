@@ -249,7 +249,7 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 		_compress = false;
 	}
 
-	bool srgb = _scaledAsSRGB && buffer->getScaled();
+	bool srgb = _scaledAsSRGB;// && buffer->getScaled();
 	if (srgb && !GLEW_EXT_texture_sRGB)
 	{
 		srgb = false;

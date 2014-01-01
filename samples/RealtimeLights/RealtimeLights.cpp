@@ -26,8 +26,6 @@
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-//#define FBO_EXAMPLE // renders scene into texture, copies texture to screen. unlike scene on screen, scene in texture can be postprocessed
-
 #ifdef _WIN32
 	#include <windows.h>    // SetCurrentDirectory
 #endif
@@ -44,11 +42,9 @@
 	#include <GL/glut.h>
 #endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/PluginScene.h"
+#include "Lightsprint/GL/PluginSky.h"
 #include "Lightsprint/IO/IO.h"
-#ifdef FBO_EXAMPLE
-	#include "Lightsprint/GL/FBO.h"
-	#include "Lightsprint/GL/TextureRenderer.h"
-#endif
 
 // only longjmp can break us from glut mainloop
 #include <setjmp.h>
@@ -264,41 +260,27 @@ void display(void)
 
 	solver->calculate();
 
-#ifdef FBO_EXAMPLE
-	// set our texture as a render target
-	static rr_gl::Texture* colorTexture = rr_gl::getTexture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false);
-	static rr_gl::Texture* depthTexture = rr_gl::getTexture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false);
-	rr_gl::FBO oldFBOState = rr_gl::FBO::getState();
-	rr_gl::FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,colorTexture);
-	rr_gl::FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,depthTexture);
-#endif
-
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-	// configure renderer
-	rr_gl::RenderParameters rp;
-	rp.uberProgramSetup.enableAllLights();
-	rp.uberProgramSetup.enableAllMaterials();
-	rp.uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
-	rp.uberProgramSetup.POSTPROCESS_GAMMA = true;
-	rp.camera = &eye;
-	rp.updateLayers = true;
-	rp.layerLightmap = LAYER_LIGHTMAPS;
-	rp.layerEnvironment = LAYER_ENVIRONMENT;
-	rp.brightness = brightness;
-	rp.gamma = contrast;
+	// configure plugins
+	rr_gl::PluginParamsSky ppSky(NULL,solver);
+	rr_gl::PluginParamsScene ppScene(&ppSky,solver);
+	ppScene.solver = solver;
+	ppScene.lights = &solver->realtimeLights;
+	ppScene.uberProgramSetup.enableAllLights();
+	ppScene.uberProgramSetup.enableAllMaterials();
+	ppScene.uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
+	ppScene.uberProgramSetup.POSTPROCESS_GAMMA = true;
+	ppScene.updateLayers = true;
+	ppScene.layerLightmap = LAYER_LIGHTMAPS;
+	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
+	rr_gl::PluginParamsShared ppShared;
+	ppShared.camera = &eye;
+	ppShared.brightness = brightness;
+	ppShared.gamma = contrast;
 	// render scene
-	solver->renderScene(rp);
+	solver->getRenderer()->render(&ppScene,ppShared);
 	// render light frustum
 	solver->renderLights(eye);
-
-#ifdef FBO_EXAMPLE
-	// restore previous render target
-	oldFBOState.restore();
-	// here you can postprocess texture
-	// copy texture to render target
-	solver->getRendererOfScene()->getTextureRenderer()->render2D(colorTexture,NULL,1,0,0,1,1);
-	solver->getRendererOfScene()->getTextureRenderer()->render2D(colorTexture,&rr::RRVec4(2),0.8f,0.7f,0.7f,0.3f,0.3f);
-#endif
 
 	glutSwapBuffers();
 }
@@ -376,7 +358,7 @@ int main(int argc, char** argv)
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-	solver = new rr_gl::RRDynamicSolverGL("../../data/shaders/");
+	solver = new rr_gl::RRDynamicSolverGL("../../data/shaders/","../../data/maps/");
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 
 	// load static scene

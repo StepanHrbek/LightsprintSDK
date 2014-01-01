@@ -12,7 +12,14 @@ namespace rr
 
 NEWS
 
-- screen space global illumination, rr_gl::SSGI
+- extensible plugins based rr_gl::Renderer replaces fixed rr_gl::RendererOfScene with a fixed set of features and effects
+  - initial set of 12 plugins replaces and exceeds old functionality
+  - easier to use, no dynamic allocations, all is configured via small rr_gl::PluginParams structure passed to renderer
+  - easier to customize, new plugins can modify nearly any part of rendering pipeline
+  - postprocesses work also in stereo and panorama modes
+  - can render custom set of objects, not just contents of solver
+  - Lightsprint/GL/PreserveState.h header with helper functions made public, previously internal
+- screen space global illumination, plugin rr_gl::PluginParamsSSGI
   - postprocess, simulates single short distance light bounce, with color bleeding
   - can be used with Fireball or Architect realtime GI solvers to improve realtime GI quality (GI solvers contribute low frequency GI, SSGI adds high frequencies)
   - can be used with constant ambient to add at least some GI effects to non-GI render
@@ -25,15 +32,55 @@ NEWS
 
 CHANGES
 
+- VS2005 and VS2008 support removed
 - rr_ed::sceneViewer() moved into new LightsprintEd library
   - new rr_ed namespace
   - Lightsprint/GL/SceneViewer.h renamed to Lightsprint/Ed/Ed.h
   - Lightsprint/IO/ImportScene.h renamed to Lightsprint/IO/IO.h
 - several path/filename parameters changed from char* to RRString for more complete unicode support
   \n you might need to pass "" instead of NULL if old code fails to compile
-- rr_gl::RendererOfScene::render() and renderToCube() have new parameter collection of objects,
-  this lets you render arbitrary objects, not just objects from solver
-- GL/PreserveState.h header made public, previously internal
+
+- When porting your code to use new renderer, change old
+@code
+	#include "Lightsprint/GL/Bloom.h"
+	//#include "Lightsprint/GL/RendererOfScene.h"
+	//RendererOfScene* rendererOfScene;
+	//...allocation of Bloom* bloom;
+	RenderParameters rp;
+	rp.uberProgramSetup.enableAllLights();
+	rp.uberProgramSetup.enableAllMaterials();
+	rp.uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
+	rp.uberProgramSetup.POSTPROCESS_GAMMA = true;
+	rp.camera = &eye;
+	rp.brightness = brightness;
+	rp.gamma = contrast;
+	solver->renderScene(rp); // renders sky and objects using fixed renderer
+	bloom->applyBloom(winWidth,winHeight,bloomThreshold); // adds bloom effect on top
+	//...destruction of Bloom* bloom;
+@endcode
+to new
+@code
+	#include "Lightsprint/GL/PluginSky.h"
+	#include "Lightsprint/GL/PluginScene.h"
+	#include "Lightsprint/GL/PluginBloom.h"
+	//#include "Lightsprint/GL/Renderer.h"
+	//Renderer* renderer;
+	PluginParamsSky ppSky(NULL,solver); // first plugin in our chain, renders background, sky
+	PluginParamsScene ppScene(&ppSky,solver); // second one, renders scene objects
+	ppScene.uberProgramSetup.enableAllLights();
+	ppScene.uberProgramSetup.enableAllMaterials();
+	ppScene.uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
+	ppScene.uberProgramSetup.POSTPROCESS_GAMMA = true;
+	PluginParamsBloom ppBloom(&ppScene,bloomThreshold); // third one, adds bloom effect on top
+	PluginParamsShared sp; // common parameters shared by all plugins
+	sp.camera = &eye;
+	sp.viewport[2] = winWidth;
+	sp.viewport[3] = winHeight;
+	sp.brightness = brightness;
+	sp.gamma = contrast;
+	solver->getRenderer()->render(&ppBloom,sp); // runs plugin chain
+@endcode
+
 
 \section news141 ------------------------------------ 2013.09.29 -------------------------------------
 

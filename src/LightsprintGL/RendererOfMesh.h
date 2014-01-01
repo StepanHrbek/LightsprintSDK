@@ -9,6 +9,7 @@
 #include <vector>
 #include "Lightsprint/RRObject.h"
 #include "Lightsprint/GL/Texture.h"
+#include "Lightsprint/GL/UberProgramSetup.h"
 
 namespace rr_gl
 {
@@ -26,7 +27,7 @@ namespace rr_gl
 
 struct FaceGroupRange
 {
-	unsigned object; // for internal use by RendererOfScene, ignored by RendererOfMesh
+	unsigned object; // for internal use by PluginScene, ignored by RendererOfMesh
 	unsigned short faceGroupFirst;
 	unsigned short faceGroupLast;
 	unsigned triangleFirst;

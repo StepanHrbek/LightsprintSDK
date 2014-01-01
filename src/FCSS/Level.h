@@ -2,7 +2,6 @@
 #define LEVEL_H
 
 #include "AnimationEditor.h"
-#include "Lightsprint/GL/RendererOfScene.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/IO/IO.h"
 

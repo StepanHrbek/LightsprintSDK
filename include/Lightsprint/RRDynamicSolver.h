@@ -669,7 +669,7 @@ namespace rr
 		//!   (per-pixel, per-vertex, bytes, floats, rgb, rgba, physical scale, custom scale)
 		//!   and store them to getStaticObjects()[objectNumber]->illumination->getLayer(layerIndex)
 		//! -# call updatelightmaps()
-		//! -# enjoy buffers with computed lighting, you can do buffer->save(), buffer->lock(), rendererOfScene->render()...
+		//! -# enjoy buffers with computed lighting, you can do buffer->save(), buffer->lock(), renderer->render()...
 		//!
 		//! For 2d texture buffer (lightmap, bentNormalMap), uv channel material->lightmapTexcoord is used.
 		//! All uv coordinates must be in 0..1 range and two triangles

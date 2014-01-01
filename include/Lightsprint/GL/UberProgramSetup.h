@@ -59,8 +59,8 @@ struct ClipPlanes
 //! LIGHT_INDIRECT_XXX flags enable rendering of indirect illumination in various situations, using various techniques.
 //! Shader accumulates illumination from all enabled techniques, so if you build it with multiple techniques enabled,
 //! you can end up with higher than expected indirect illumination.
-//! On the other hand, higher level functions like RendererOfScene::render() are designed to be called with multiple techniques enabled;
-//! they automatically select optimal technique out of enabled ones and disable the rest before building shader
+//! On the other hand, high level interface of PluginParamsScene is designed to be called with multiple techniques enabled;
+//! plugin automatically selects optimal technique out of enabled ones and disables the rest before building shader
 //! (selection is based on material and illumination buffers available in object).
 struct RR_GL_API UberProgramSetup
 {
@@ -151,13 +151,13 @@ struct RR_GL_API UberProgramSetup
 		memset(this,0,sizeof(*this));
 	}
 
-	//! Prepares for rendering with all lighting features, enables all SHADOW_XXX and LIGHT_XXX relevant for RendererOfScene.
+	//! Prepares for rendering with all lighting features, enables all SHADOW_XXX and LIGHT_XXX relevant for PluginParamsScene.
 	//
 	//! Certain shadow and light flags are enabled, you can disable individual flags to prevent renderer from using given features.
-	//! Some flags are not touched, they depend on light properties and RendererOfScene sets them automatically.
+	//! Some flags are not touched, they depend on light properties and plugin sets them automatically.
 	void enableAllLights();
 
-	//! Prepares for rendering with all material features, enables all MATERIAL_XXX relevant for RendererOfScene.
+	//! Prepares for rendering with all material features, enables all MATERIAL_XXX relevant for PluginParamsScene.
 	//
 	//! Nearly all material flags are enabled,
 	//! you can disable individual flags to prevent renderer from using given features.

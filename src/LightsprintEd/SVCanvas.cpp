@@ -14,6 +14,17 @@
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/PluginBloom.h"
+#include "Lightsprint/GL/PluginDOF.h"
+#include "Lightsprint/GL/PluginFPS.h"
+#include "Lightsprint/GL/PluginLensFlare.h"
+#include "Lightsprint/GL/PluginPanorama.h"
+#include "Lightsprint/GL/PluginScene.h"
+#include "Lightsprint/GL/PluginShowDDI.h"
+#include "Lightsprint/GL/PluginSky.h"
+#include "Lightsprint/GL/PluginSSGI.h"
+#include "Lightsprint/GL/PluginStereo.h"
+#include "Lightsprint/GL/PluginToneMapping.h"
 #include "Lightsprint/GL/PreserveState.h"
 #ifdef _WIN32
 	#include <GL/wglew.h>
@@ -79,7 +90,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 	windowCoord[1] = 0;
 	windowCoord[2] = 800;
 	windowCoord[3] = 600;
-	toneMapping = NULL;
 	fireballLoadAttempted = 0;
 	speedForward = 0;
 	speedBack = 0;
@@ -103,17 +113,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 	helpLoadAttempted = false;
 	helpImage = NULL;
 
-	bloomLoadAttempted = false;
-	bloom = NULL;
-
-	ssgiLoadAttempted = false;
-	ssgi = NULL;
-
-	dofLoadAttempted = false;
-	dof = NULL;
-
-	lensFlareLoadAttempted = false;
-	lensFlare = NULL;
 
 	vignetteLoadAttempted = false;
 	vignetteImage = NULL;
@@ -126,8 +125,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 	lightFieldObjectIllumination = NULL;
 
 	textureRenderer = NULL;
-	fpsLoadAttempted = false;
-	fpsDisplay = NULL;
 
 	entityIcons = NULL;
 	sunIconPosition = rr::RRVec3(0);
@@ -263,8 +260,8 @@ void SVCanvas::createContextCore()
 
 
 	// init solver
-	solver = new rr_gl::RRDynamicSolverGL(RR_WX2RR(svs.pathToShaders));
-	textureRenderer = solver->getRendererOfScene()->getTextureRenderer();
+	solver = new rr_gl::RRDynamicSolverGL(RR_WX2RR(svs.pathToShaders), RR_WX2RR(svs.pathToMaps));
+	textureRenderer = solver->getRenderer()->getTextureRenderer();
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	if (svs.initialInputSolver)
 	{
@@ -365,7 +362,6 @@ void SVCanvas::createContextCore()
 	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
 #endif
 
-	toneMapping = new rr_gl::ToneMapping();
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
 
@@ -527,21 +523,11 @@ SVCanvas::~SVCanvas()
 		}
 	}
 
-	// fps
-	RR_SAFE_DELETE(fpsDisplay);
-	textureRenderer = NULL;
-
 	// logo
 	RR_SAFE_DELETE(logoImage);
 
 	// vignette
 	RR_SAFE_DELETE(vignetteImage);
-
-	// lens flare
-	RR_SAFE_DELETE(lensFlare);
-
-	// bloom
-	RR_SAFE_DELETE(bloom);
 
 	// help
 	RR_SAFE_DELETE(helpImage);
@@ -549,7 +535,6 @@ SVCanvas::~SVCanvas()
 	RR_SAFE_DELETE(entityIcons);
 	RR_SAFE_DELETE(collisionHandler);
 	RR_SAFE_DELETE(ray);
-	RR_SAFE_DELETE(toneMapping);
 
 	rr_gl::deleteAllTextures();
 	// delete objects referenced by solver
@@ -572,6 +557,8 @@ SVCanvas::~SVCanvas()
 		{
 			delete solver->getScaler();
 		}
+
+		textureRenderer = NULL;
 	}
 	RR_SAFE_DELETE(solver);
 	for (unsigned i=0;i<mergedScenes.size();i++) delete mergedScenes[i];
@@ -1616,214 +1603,100 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr::RRReportInterval report(rr::INF3,"render scene...\n");
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
-			rr_gl::RenderParameters rp;
+			// shared plugin data
+			rr_gl::PluginParamsShared ppShared;
+			ppShared.camera = &svs.camera;
+			ppShared.viewport[2] = winWidth;
+			ppShared.viewport[3] = winHeight;
+			ppShared.srgbCorrect = (svs.renderLightDirect==LD_REALTIME) && svs.srgbCorrect;
+			ppShared.brightness = svs.renderTonemapping ? svs.tonemappingBrightness * pow(svs.tonemappingGamma,0.45f) : rr::RRVec4(1);
+			ppShared.gamma = svs.renderTonemapping ? svs.tonemappingGamma : 1;
 
-			rp.camera = &svs.camera;
+			// start chaining plugins
+			const rr_gl::PluginParams* pluginChain = NULL;
 
-			rp.brightness = svs.renderTonemapping ? svs.tonemappingBrightness * pow(svs.tonemappingGamma,0.45f) : rr::RRVec4(1);
-			rp.gamma = svs.renderTonemapping ?svs.tonemappingGamma : 1;
+			// skybox plugin
+			rr_gl::PluginParamsSky ppSky(pluginChain,solver);
+			pluginChain = &ppSky;
 
-			rp.uberProgramSetup.SHADOW_MAPS = 1;
-			rp.uberProgramSetup.LIGHT_DIRECT = svs.renderLightDirect==LD_REALTIME;
-			rp.uberProgramSetup.LIGHT_DIRECT_COLOR = svs.renderLightDirect==LD_REALTIME;
-			rp.uberProgramSetup.LIGHT_DIRECT_MAP = svs.renderLightDirect==LD_REALTIME;
-			rp.uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderLightDirect==LD_REALTIME;
-			rp.uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderLightIndirect==LI_CONSTANT;
-			rp.uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
-			rp.uberProgramSetup.LIGHT_INDIRECT_MAP = svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
-			rp.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = svs.renderLDMEnabled();
-			rp.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE =
-			rp.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = svs.raytracedCubesEnabled && solver->getStaticObjects().size()+solver->getDynamicObjects().size()<svs.raytracedCubesMaxObjects;
-			rp.uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT = rp.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && svs.renderMaterialTransparencyRefraction;
-			rp.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = svs.mirrorsEnabled && svs.mirrorsDiffuse;
-			rp.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = svs.mirrorsEnabled && svs.mirrorsSpecular;
-			rp.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = svs.mirrorsEnabled && svs.mirrorsMipmaps;
-			rp.uberProgramSetup.MATERIAL_DIFFUSE = true;
-			rp.uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse;
-			rp.uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures;
-			rp.uberProgramSetup.MATERIAL_SPECULAR = svs.renderMaterialSpecular;
-			rp.uberProgramSetup.MATERIAL_SPECULAR_MAP = svs.renderMaterialSpecular && svs.renderMaterialTextures;
-			rp.uberProgramSetup.MATERIAL_SPECULAR_CONST = svs.renderMaterialSpecular;
-			rp.uberProgramSetup.MATERIAL_EMISSIVE_CONST = svs.renderMaterialEmission;
-			rp.uberProgramSetup.MATERIAL_EMISSIVE_MAP = svs.renderMaterialEmission && svs.renderMaterialTextures;
-			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderMaterialTransparency!=T_OPAQUE;
-			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency!=T_OPAQUE && svs.renderMaterialTextures;
-			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency!=T_OPAQUE;
-			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency==T_ALPHA_BLEND || svs.renderMaterialTransparency==T_RGB_BLEND;
-			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = svs.renderMaterialTransparency==T_RGB_BLEND && !rp.uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT; // renderer processes _TO_RGB as multipass, this is not necessary (and not working) with _REFRACT, therefore we disable _TO_RGB when _REFRACT
-			rp.uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL = svs.renderMaterialTransparencyFresnel;
-			rp.uberProgramSetup.MATERIAL_BUMP_MAP = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
-			rp.uberProgramSetup.MATERIAL_NORMAL_MAP_FLOW = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
-			rp.uberProgramSetup.MATERIAL_CULLING = svs.renderMaterialSidedness;
-			rp.uberProgramSetup.POSTPROCESS_BRIGHTNESS = rp.brightness!=rr::RRVec4(1);
-			rp.uberProgramSetup.POSTPROCESS_GAMMA = rp.gamma!=1;
+			// selection plugin
+			rr_gl::PluginParamsScene ppSelection(pluginChain,NULL);
+			const EntityIds& selectedEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
+			rr::RRObjects selectedObjects;
+			for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
+				if ((*i).type==ST_OBJECT)
+					selectedObjects.push_back(solver->getObject((*i).index));
+			ppSelection.objects = &selectedObjects;
+			ppSelection.uberProgramSetup.OBJECT_SPACE = true;
+			ppSelection.uberProgramSetup.POSTPROCESS_NORMALS = true;
+			ppSelection.wireframe = true;
+			if (selectedObjects.size() && !_takingSshot)
+				pluginChain = &ppSelection;
+
+			// scene plugin
+			rr_gl::PluginParamsScene ppScene(pluginChain,solver);
+			ppScene.uberProgramSetup.SHADOW_MAPS = 1;
+			ppScene.uberProgramSetup.LIGHT_DIRECT = svs.renderLightDirect==LD_REALTIME;
+			ppScene.uberProgramSetup.LIGHT_DIRECT_COLOR = svs.renderLightDirect==LD_REALTIME;
+			ppScene.uberProgramSetup.LIGHT_DIRECT_MAP = svs.renderLightDirect==LD_REALTIME;
+			ppScene.uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderLightDirect==LD_REALTIME;
+			ppScene.uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderLightIndirect==LI_CONSTANT;
+			ppScene.uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
+			ppScene.uberProgramSetup.LIGHT_INDIRECT_MAP = svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
+			ppScene.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = svs.renderLDMEnabled();
+			ppScene.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE =
+			ppScene.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = svs.raytracedCubesEnabled && solver->getStaticObjects().size()+solver->getDynamicObjects().size()<svs.raytracedCubesMaxObjects;
+			ppScene.uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT = ppScene.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && svs.renderMaterialTransparencyRefraction;
+			ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = svs.mirrorsEnabled && svs.mirrorsDiffuse;
+			ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = svs.mirrorsEnabled && svs.mirrorsSpecular;
+			ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = svs.mirrorsEnabled && svs.mirrorsMipmaps;
+			ppScene.uberProgramSetup.MATERIAL_DIFFUSE = true;
+			ppScene.uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse;
+			ppScene.uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures;
+			ppScene.uberProgramSetup.MATERIAL_SPECULAR = svs.renderMaterialSpecular;
+			ppScene.uberProgramSetup.MATERIAL_SPECULAR_MAP = svs.renderMaterialSpecular && svs.renderMaterialTextures;
+			ppScene.uberProgramSetup.MATERIAL_SPECULAR_CONST = svs.renderMaterialSpecular;
+			ppScene.uberProgramSetup.MATERIAL_EMISSIVE_CONST = svs.renderMaterialEmission;
+			ppScene.uberProgramSetup.MATERIAL_EMISSIVE_MAP = svs.renderMaterialEmission && svs.renderMaterialTextures;
+			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderMaterialTransparency!=T_OPAQUE;
+			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency!=T_OPAQUE && svs.renderMaterialTextures;
+			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency!=T_OPAQUE;
+			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency==T_ALPHA_BLEND || svs.renderMaterialTransparency==T_RGB_BLEND;
+			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = svs.renderMaterialTransparency==T_RGB_BLEND && !ppScene.uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT; // renderer processes _TO_RGB as multipass, this is not necessary (and not working) with _REFRACT, therefore we disable _TO_RGB when _REFRACT
+			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL = svs.renderMaterialTransparencyFresnel;
+			ppScene.uberProgramSetup.MATERIAL_BUMP_MAP = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
+			ppScene.uberProgramSetup.MATERIAL_NORMAL_MAP_FLOW = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
+			ppScene.uberProgramSetup.MATERIAL_CULLING = svs.renderMaterialSidedness;
+			ppScene.uberProgramSetup.POSTPROCESS_BRIGHTNESS = ppShared.brightness!=rr::RRVec4(1);
+			ppScene.uberProgramSetup.POSTPROCESS_GAMMA = ppShared.gamma!=1;
 			// There was updateLayers=true by accident since rev 5221 (I think development version of mirrors needed it to update mirrors, and I forgot to revert it).
-			// It was error, because "true" when rendering static lmap allows RendererOfScene [#12] to use multiobj.
-			// And as lmap is always stored in 1obj, RendererOfScene can't find it in multiobj. Error was visible only with specular cubes disabled (they also enforce 1obj).
-			rp.updateLayers = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
-			rp.layerLightmap = (svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient);
-			rp.layerEnvironment = svs.raytracedCubesEnabled?((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeEnvironment:svs.layerBakedEnvironment):UINT_MAX;
-			rp.layerLDM = svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX;
-			
-			// in interlaced mode, check whether image starts on odd or even scanline
-			if (svs.renderStereo)
-			{
-				rp.stereoMode = svframe->userPreferences.stereoMode;
-				if (rp.stereoMode==rr_gl::SM_INTERLACED || rp.stereoMode==rr_gl::SM_INTERLACED_SWAP)
-				{
-					GLint viewport[4];
-					glGetIntegerv(GL_VIEWPORT,viewport);
-					int trueWinWidth, trueWinHeight;
-					GetClientSize(&trueWinWidth, &trueWinHeight);
-					if ((GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
-						rp.stereoMode = (rp.stereoMode==rr_gl::SM_INTERLACED)?rr_gl::SM_INTERLACED_SWAP:rr_gl::SM_INTERLACED;
-				}
-			}
-
-			if (svs.renderPanorama)
-			{
-				rp.panoramaMode = svs.panoramaMode;
-			}
-
-			if (svs.renderDDI)
-			{
-				// allocate and fill vertex buffer with DDI illumination
-				#define LAYER_DDI 1928374
-				rr::RRObject* multiObject = solver->getMultiObjectCustom();
-				if (multiObject)
-				{
-					const unsigned* ddi = ((svs.initialInputSolver&&svs.renderLightIndirect==LI_NONE)?svs.initialInputSolver:solver)->getDirectIllumination();
-					if (ddi)
-					{
-						unsigned numTriangles = multiObject->getCollider()->getMesh()->getNumTriangles();
-						rr::RRBuffer* vbuf = multiObject->illumination.getLayer(LAYER_DDI) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,3*numTriangles,1,1,rr::BF_RGBA,true,NULL);
-						unsigned* vbufData = (unsigned*)vbuf->lock(rr::BL_DISCARD_AND_WRITE);
-						if (vbufData)
-						{
-							for (unsigned i=0;i<numTriangles;i++)
-								vbufData[3*i+2] = vbufData[3*i+1] = vbufData[3*i] = ddi[i];
-						}
-						vbuf->unlock();
-						// tell renderer to use our buffer and not to update it
-						rp.updateLayers = false;
-						rp.layerLightmap = LAYER_DDI;
-						rp.layerEnvironment = UINT_MAX;
-						rp.layerLDM = UINT_MAX;
-						rp.forceObjectType = 2;
-					}
-					else
-						svs.renderDDI = false;
-				}
-				else
-					svs.renderDDI = false;
-				// change rendermode (I think !indexed VBO doesn't even have uvs, so we must not use textures)
-				rr_gl::UberProgramSetup uberProgramSetup;
-				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
-				uberProgramSetup.MATERIAL_DIFFUSE = true;
-				uberProgramSetup.MATERIAL_CULLING = rp.uberProgramSetup.MATERIAL_CULLING;
-				uberProgramSetup.POSTPROCESS_BRIGHTNESS = rp.uberProgramSetup.POSTPROCESS_BRIGHTNESS;
-				uberProgramSetup.POSTPROCESS_GAMMA = rp.uberProgramSetup.POSTPROCESS_GAMMA;
-				rp.uberProgramSetup = uberProgramSetup;
-			}
-
-			if (svs.renderWireframe) {glClear(GL_COLOR_BUFFER_BIT); glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);}
-
-			rp.animationTime = svs.referenceTime.secondsPassed();
-			if (rp.animationTime>1000)
+			// It was error, because "true" when rendering static lmap allows PluginScene [#12] to use multiobj.
+			// And as lmap is always stored in 1obj, PluginScene can't find it in multiobj. Error was visible only with specular cubes disabled (they also enforce 1obj).
+			ppScene.updateLayers = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
+			ppScene.layerLightmap = (svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient);
+			ppScene.layerEnvironment = svs.raytracedCubesEnabled?((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeEnvironment:svs.layerBakedEnvironment):UINT_MAX;
+			ppScene.layerLDM = svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX;
+			ppScene.wireframe = svs.renderWireframe;
+			ppScene.animationTime = svs.referenceTime.secondsPassed();
+			if (ppScene.animationTime>1000)
 				svs.referenceTime.addSeconds(1000);
+			pluginChain = &ppScene;
 
-			rp.srgbCorrect = (svs.renderLightDirect==LD_REALTIME) && svs.srgbCorrect;
+			// bloom plugin
+			rr_gl::PluginParamsBloom ppBloom(pluginChain,svs.bloomThreshold);
+			if (svs.renderBloom)
+				pluginChain = &ppBloom;
 
-			solver->renderScene(rp);
+			// SSGI plugin
+			rr_gl::PluginParamsSSGI ppSSGI(pluginChain,svs.ssgiIntensity,svs.ssgiRadius,svs.ssgiAngleBias);
+			if (svs.ssgiEnabled)
+				pluginChain = &ppSSGI;
 
-			if (svs.renderWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-			if (svs.renderDDI)
+			// DOF plugin
+			rr_gl::PluginParamsDOF ppDOF(pluginChain);
+			if (svs.renderDof)
 			{
-				// free vertex buffer with DDI illumination
-				rr::RRObject* multiObject = solver->getMultiObjectCustom();
-				if (multiObject)
-					RR_SAFE_DELETE(multiObject->illumination.getLayer(LAYER_DDI));
-			}
-
-			// adjust tonemapping
-			if (svs.renderTonemapping && svs.tonemappingAutomatic
-				&& !svs.renderWireframe
-				&& ((svs.renderLightIndirect==LI_BAKED && solver->containsLightSource())
-					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
-					|| svs.renderLightIndirect==LI_CONSTANT
-					))
-			{
-				static rr::RRTime time;
-				float secondsSinceLastFrame = time.secondsSinceLastQuery();
-				if (secondsSinceLastFrame>0 && secondsSinceLastFrame<10)
-				{
-					toneMapping->adjustOperator(textureRenderer,secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingBrightness,svs.tonemappingGamma,svs.tonemappingAutomaticTarget);
-				}
-			}
-
-			// render selected
-			if (!_takingSshot)
-			{
-				const EntityIds& selectedEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
-				if (selectedEntityIds.size())
-				{
-					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-					rr_gl::UberProgramSetup uberProgramSetup;
-					uberProgramSetup.OBJECT_SPACE = true;
-					uberProgramSetup.POSTPROCESS_NORMALS = true;
-					rp.uberProgramSetup = uberProgramSetup;
-					rr::RRObjects selectedObjects;
-					for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
-						if ((*i).type==ST_OBJECT)
-							selectedObjects.push_back(solver->getObject((*i).index));
-					solver->getRendererOfScene()->render(solver, &selectedObjects, NULL, rp);
-					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				}
-			}
-		}
-
-		// render bloom, using own shader
-		if (svs.renderBloom)
-		{
-			if (!bloomLoadAttempted)
-			{
-				bloomLoadAttempted = true;
-				RR_ASSERT(!bloom);
-				bloom = new rr_gl::Bloom(RR_WX2RR(svs.pathToShaders));
-			}
-			if (bloom)
-			{
-				bloom->applyBloom(winWidth,winHeight,svs.bloomThreshold);
-			}
-		}
-
-		// render SSGI, using own shader
-		if (svs.renderLightIndirect!=LI_NONE && svs.ssgiEnabled)
-		{
-			if (!ssgiLoadAttempted)
-			{
-				ssgiLoadAttempted = true;
-				RR_ASSERT(!ssgi);
-				ssgi = new rr_gl::SSGI(RR_WX2RR(svs.pathToShaders));
-			}
-			if (ssgi)
-			{
-				ssgi->applySSGI(winWidth,winHeight,svs.camera,svs.ssgiIntensity,svs.ssgiRadius,svs.ssgiAngleBias,textureRenderer);
-			}
-		}
-
-		// render DOF, using own shader
-		if (svs.renderDof)
-		{
-			if (!dofLoadAttempted)
-			{
-				dofLoadAttempted = true;
-				RR_ASSERT(!dof);
-				dof = new rr_gl::DOF(RR_WX2RR(svs.pathToShaders));
-			}
-			if (dof)
-			{
+				pluginChain = &ppDOF;
 				if (svs.dofAutomatic)
 				{
 					ray->rayOrigin = svs.camera.getRayOrigin(svs.camera.getScreenCenter());
@@ -1847,23 +1720,63 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 						svs.camera.dofFar = svs.camera.getFar()*ratio;
 					}
 				}
-				dof->applyDOF(winWidth,winHeight,svs.camera);
 			}
-		}
 
-		// render lens flare, using own shader
-		if (svs.renderLensFlare && !svs.camera.isOrthogonal())
-		{
-			if (!lensFlareLoadAttempted)
+			// lens flare plugin
+			rr_gl::PluginParamsLensFlare ppLensFlare(pluginChain,svs.lensFlareSize,svs.lensFlareId,&solver->getLights(),solver->getMultiObjectCustom(),64);
+			if (svs.renderLensFlare && !svs.camera.isOrthogonal() && !svs.renderPanorama)
+				pluginChain = &ppLensFlare;
+
+			// panorama plugin
+			rr_gl::PluginParamsPanorama ppPanorama(pluginChain,svs.panoramaMode);
+			if (svs.renderPanorama)
+				pluginChain = &ppPanorama;
+
+			// FPS plugin
+			rr_gl::PluginParamsFPS ppFPS(pluginChain,fpsCounter.getFps());
+			if (svs.renderFPS)
+				pluginChain = &ppFPS;
+
+			// stereo plugin
+			rr_gl::PluginParamsStereo ppStereo(pluginChain,svframe->userPreferences.stereoMode);
+			if (svs.renderStereo)
 			{
-				lensFlareLoadAttempted = true;
-				RR_ASSERT(!lensFlare);
-				lensFlare = new rr_gl::LensFlare(RR_WX2RR(svs.pathToMaps));
+				// in interlaced mode, check whether image starts on odd or even scanline
+				if (ppStereo.stereoMode==rr_gl::SM_INTERLACED || ppStereo.stereoMode==rr_gl::SM_INTERLACED_SWAP)
+				{
+					GLint viewport[4];
+					glGetIntegerv(GL_VIEWPORT,viewport);
+					int trueWinWidth, trueWinHeight;
+					GetClientSize(&trueWinWidth, &trueWinHeight);
+					if ((GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
+						ppStereo.stereoMode = (ppStereo.stereoMode==rr_gl::SM_INTERLACED)?rr_gl::SM_INTERLACED_SWAP:rr_gl::SM_INTERLACED;
+				}
+				pluginChain = &ppStereo;
 			}
-			if (lensFlare)
-			{
-				lensFlare->renderLensFlares(svs.lensFlareSize,svs.lensFlareId,textureRenderer,svs.camera,solver->getLights(),solver->getMultiObjectCustom(),64);
-			}
+
+			// tonemapping plugin
+			static rr::RRTime time;
+			float secondsSinceLastFrame = time.secondsSinceLastQuery();
+			bool adjustingTonemapping = (secondsSinceLastFrame>0 && secondsSinceLastFrame<10)
+				&& svs.renderTonemapping
+				&& svs.tonemappingAutomatic
+				&& !svs.renderWireframe
+				&& ((svs.renderLightIndirect==LI_BAKED && solver->containsLightSource())
+					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
+					|| svs.renderLightIndirect==LI_CONSTANT
+					);
+			rr_gl::PluginParamsToneMapping ppToneMapping(pluginChain,svs.tonemappingBrightness,secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingAutomaticTarget);
+			if (adjustingTonemapping)
+				pluginChain = &ppToneMapping;
+
+			// showDDI plugin
+			rr_gl::PluginParamsShowDDI ppShowDDI(pluginChain,(svs.initialInputSolver&&svs.renderLightIndirect==LI_NONE)?svs.initialInputSolver:solver);
+			if (svs.renderDDI)
+				pluginChain = &ppShowDDI;
+
+			// final render
+			solver->getRenderer()->render(pluginChain,ppShared);
+
 		}
 
 
@@ -2013,7 +1926,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			renderedIcons.markSelected(selectedEntityIds);
 			if (selectedEntityIds.size())
 				renderedIcons.addXYZ(svframe->m_sceneTree->getCenterOf(selectedEntityIds),(&selectedEntityIds==&autoEntityIds)?selectedTransformation:IC_STATIC,svs.camera);
-			entityIcons->renderIcons(renderedIcons,solver->getRendererOfScene()->getTextureRenderer(),svs.camera,solver->getCollider(),ray,svs);
+			entityIcons->renderIcons(renderedIcons,solver->getRenderer()->getTextureRenderer(),svs.camera,solver->getCollider(),ray,svs);
 		}
 	}
 
@@ -2371,22 +2284,6 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		}
 	}
 
-
-	// render fps, using own shader
-	unsigned fps = fpsCounter.getFps();
-	if (svs.renderFPS)
-	{
-		if (!fpsLoadAttempted)
-		{
-			fpsLoadAttempted = true;
-			RR_ASSERT(!fpsDisplay);
-			fpsDisplay = rr_gl::FpsDisplay::create(RR_WX2RR(svs.pathToMaps));
-		}
-		if (fpsDisplay)
-		{
-			fpsDisplay->render(textureRenderer,fps,winWidth,winHeight);
-		}
-	}
 
 }
 

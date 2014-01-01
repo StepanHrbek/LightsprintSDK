@@ -168,7 +168,7 @@ void renderScene(const rr::RRCamera& camera, rr_gl::UberProgramSetup uberProgram
 class Solver : public rr_gl::RRDynamicSolverGL
 {
 public:
-	Solver() : RRDynamicSolverGL("../../data/shaders/")
+	Solver() : RRDynamicSolverGL("../../data/shaders/","../../data/maps/")
 	{
 		setDirectIlluminationBoost(2);
 	}
@@ -178,7 +178,7 @@ public:
 	// In this sample, dynamic objects are in third party format, and third party code renders them,
 	// so we can't send them to solver. The only thing solver needs is ability to render them on request.
 	// This function satisfies it.
-	virtual void renderScene(const rr_gl::RenderParameters& _renderParameters)
+	/*virtual void renderScene(const rr_gl::RenderParameters& _renderParameters)
 	{
 		// disable all material properties not supported by custom 3ds renderer
 		rr_gl::UberProgramSetup uberProgramSetup = _renderParameters.uberProgramSetup;
@@ -201,7 +201,7 @@ public:
 
 		// call custom 3ds renderer
 		::renderScene(*_renderParameters.camera,uberProgramSetup);
-	}
+	}*/
 };
 
 

@@ -38,7 +38,7 @@ public:
 	//! Check whether render target is set correctly (all textures the same size etc).
 	static bool isOk();
 
-	//! Return currect state, what textures are set as render target.
+	//! Return current state, what textures are set as render target.
 	static const FBO& getState();
 	//! Restore saved state.
 	void restore();

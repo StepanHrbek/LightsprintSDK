@@ -96,22 +96,28 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/RRObject.h" \
                          "../../include/Lightsprint/RRScene.h" \
                          "../../include/Lightsprint/RRVector.h" \
-                         "../../include/Lightsprint/GL/Bloom.h" \
-                         "../../include/Lightsprint/GL/Camera.h" \
-                         "../../include/Lightsprint/GL/DemoEngine.h" \
-                         "../../include/Lightsprint/GL/DOF.h" \
                          "../../include/Lightsprint/GL/FBO.h" \
-                         "../../include/Lightsprint/GL/FPS.h" \
-                         "../../include/Lightsprint/GL/LensFlare.h" \
+                         "../../include/Lightsprint/GL/Plugin.h" \
+                         "../../include/Lightsprint/GL/PluginBloom.h" \
+                         "../../include/Lightsprint/GL/PluginCube.h" \
+                         "../../include/Lightsprint/GL/PluginDOF.h" \
+                         "../../include/Lightsprint/GL/PluginFPS.h" \
+                         "../../include/Lightsprint/GL/PluginLensFlare.h" \
+                         "../../include/Lightsprint/GL/PluginPanorama.h" \
+                         "../../include/Lightsprint/GL/PluginScene.h" \
+                         "../../include/Lightsprint/GL/PluginShowDDI.h" \
+                         "../../include/Lightsprint/GL/PluginSky.h" \
+                         "../../include/Lightsprint/GL/PluginSSGI.h" \
+                         "../../include/Lightsprint/GL/PluginStereo.h" \
+                         "../../include/Lightsprint/GL/PluginToneMapping.h" \
+                         "../../include/Lightsprint/GL/Renderer.h" \
+                         "../../include/Lightsprint/GL/DemoEngine.h" \
                          "../../include/Lightsprint/GL/PreserveState.h" \
                          "../../include/Lightsprint/GL/Program.h" \
                          "../../include/Lightsprint/GL/RealtimeLight.h" \
-                         "../../include/Lightsprint/GL/RendererOfScene.h" \
                          "../../include/Lightsprint/GL/RRDynamicSolverGL.h" \
-                         "../../include/Lightsprint/GL/SSGI.h" \
                          "../../include/Lightsprint/GL/Texture.h" \
                          "../../include/Lightsprint/GL/TextureRenderer.h" \
-                         "../../include/Lightsprint/GL/ToneMapping.h" \
                          "../../include/Lightsprint/GL/UberProgram.h" \
                          "../../include/Lightsprint/GL/UberProgramSetup.h" \
                          "../../include/Lightsprint/Ed/Ed.h" \

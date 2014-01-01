@@ -3,15 +3,29 @@
 // Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <GL/glew.h>
-#include "Lightsprint/GL/SSGI.h"
-#include "Lightsprint/GL/TextureRenderer.h"
+#include "Lightsprint/GL/PluginSSGI.h"
 #include "Lightsprint/GL/PreserveState.h"
 
 namespace rr_gl
 {
 
-SSGI::SSGI(const rr::RRString& pathToShaders)
+/////////////////////////////////////////////////////////////////////////////
+//
+// PluginRuntimeSSGI
+
+class PluginRuntimeSSGI : public PluginRuntime
+{
+	Texture* bigColor;
+	Texture* bigColor2;
+	Texture* bigColor3;
+	Texture* bigDepth;
+	UberProgram* ssgiUberProgram;
+	Program* ssgiProgram1;
+	Program* ssgiProgram2;
+
+public:
+
+PluginRuntimeSSGI(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
 {
 	bigColor = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	bigColor2 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
@@ -22,7 +36,7 @@ SSGI::SSGI(const rr::RRString& pathToShaders)
 	ssgiProgram2 = ssgiUberProgram ? ssgiUberProgram->getProgram("#define PASS 2\n") : NULL;
 }
 
-SSGI::~SSGI()
+virtual ~PluginRuntimeSSGI()
 {
 	delete ssgiUberProgram;
 	delete bigDepth;
@@ -31,8 +45,12 @@ SSGI::~SSGI()
 	delete bigColor;
 }
 
-void SSGI::applySSGI(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _intensity, float _radius, float _angleBias, TextureRenderer* _textureRenderer)
+virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 {
+	_renderer.render(_pp.next,_sp);
+
+	const PluginParamsSSGI& pp = *dynamic_cast<const PluginParamsSSGI*>(&_pp);
+		
 	if (!bigColor || !bigColor2 || !bigDepth || !ssgiProgram1 || !ssgiProgram2)
 	{
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"SSGI shader failed to initialize.\n"));
@@ -40,12 +58,14 @@ void SSGI::applySSGI(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _
 	}
 
 	// adjust map sizes to match render target size
-	if (_w!=bigColor->getBuffer()->getWidth() || _h!=bigColor->getBuffer()->getHeight())
+	unsigned w = _sp.viewport[2];
+	unsigned h = _sp.viewport[3];
+	if (w!=bigColor->getBuffer()->getWidth() || h!=bigColor->getBuffer()->getHeight())
 	{
-		bigColor->getBuffer()->reset(rr::BT_2D_TEXTURE,_w,_h,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-		bigColor2->getBuffer()->reset(rr::BT_2D_TEXTURE,_w,_h,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-		bigColor3->getBuffer()->reset(rr::BT_2D_TEXTURE,_w,_h,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-		bigDepth->getBuffer()->reset(rr::BT_2D_TEXTURE,_w,_h,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
+		bigColor->getBuffer()->reset(rr::BT_2D_TEXTURE,w,h,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+		bigColor2->getBuffer()->reset(rr::BT_2D_TEXTURE,w,h,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+		bigColor3->getBuffer()->reset(rr::BT_2D_TEXTURE,w,h,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+		bigDepth->getBuffer()->reset(rr::BT_2D_TEXTURE,w,h,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 		bigColor->reset(false,false,false);
 		bigColor2->reset(false,false,false);
 		bigColor3->reset(false,false,false);
@@ -56,6 +76,7 @@ void SSGI::applySSGI(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _
 	// disable depth
 	PreserveDepthTest p1;
 	PreserveDepthMask p2;
+	PreserveFlag p3(GL_SCISSOR_TEST,false);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(0);
 
@@ -63,27 +84,28 @@ void SSGI::applySSGI(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _
 	{
 		// copy backbuffer to bigColor+bigDepth
 		bigColor->bindTexture();
-		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,0,0,_w,_h,0);
+		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,_sp.viewport[0],_sp.viewport[1],w,h,0);
 		bigDepth->bindTexture();
-		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT,0,0,_w,_h,0);
+		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT,_sp.viewport[0],_sp.viewport[1],w,h,0);
 	}
 
 	// calculate noisy SSGI texture
+	const rr::RRCamera& eye = *_sp.camera;
 	Program* ssgiProgram = ssgiProgram1;
 	ssgiProgram->useIt();
 	ssgiProgram->sendTexture("depthMap",bigDepth);
 	ssgiProgram->sendTexture("colorMap",bigColor);
-	ssgiProgram->sendUniform("aoRange",_radius);
-	ssgiProgram->sendUniform("occlusionIntensity",_intensity);
-	ssgiProgram->sendUniform("angleBias",_angleBias);
-	ssgiProgram->sendUniform("pixelSize",1.0f/_w,1.0f/_h);
-	ssgiProgram->sendUniform("aoRangeInTextureSpaceIn1mDistance",(float)(_radius/(tan(_eye.getFieldOfViewHorizontalRad()/2)*2)),(float)(_radius/(tan(_eye.getFieldOfViewVerticalRad()/2)*2))); //!!! nefunguje v ortho
-	ssgiProgram->sendUniform("depthRange",_eye.getNear()*_eye.getFar()/((_eye.getFar()-_eye.getNear())),_eye.getFar()/(_eye.getFar()-_eye.getNear()));
+	ssgiProgram->sendUniform("aoRange",pp.radius);
+	ssgiProgram->sendUniform("occlusionIntensity",pp.intensity);
+	ssgiProgram->sendUniform("angleBias",pp.angleBias);
+	ssgiProgram->sendUniform("pixelSize",1.0f/w,1.0f/h);
+	ssgiProgram->sendUniform("aoRangeInTextureSpaceIn1mDistance",(float)(pp.radius/(tan(eye.getFieldOfViewHorizontalRad()/2)*2)),(float)(pp.radius/(tan(eye.getFieldOfViewVerticalRad()/2)*2))); //!!! nefunguje v ortho
+	ssgiProgram->sendUniform("depthRange",eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())),eye.getFar()/(eye.getFar()-eye.getNear()));
 	if (1) // 0=noise, 1=blur
 	{
 		FBO oldFBOState = FBO::getState();
 		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,bigColor2);
-		//glViewport(0,0,_w*2,_h*2);
+		glViewport(0,0,w,h);
 		TextureRenderer::renderQuad();
 
 		if (0) // 0=2d blur, 1=1d blur
@@ -95,13 +117,8 @@ void SSGI::applySSGI(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _
 		ssgiProgram->sendTexture("depthMap",bigDepth);
 		ssgiProgram->sendTexture("colorMap",bigColor);
 		ssgiProgram->sendTexture("aoMap",bigColor);
-		ssgiProgram->sendUniform("pixelSize",1.0f/_w,0.f);
-		ssgiProgram->sendUniform("depthRange",_eye.getNear()*_eye.getFar()/((_eye.getFar()-_eye.getNear())),_eye.getFar()/(_eye.getFar()-_eye.getNear()));
-		PreserveFlag p0(GL_BLEND,GL_TRUE);
-		PreserveBlendFunc p1;
-		glBlendFunc(GL_ZERO,GL_SRC_COLOR);
-		glViewport(0,0,_w,_h);
-		TextureRenderer::renderQuad();
+		ssgiProgram->sendUniform("pixelSize",1.0f/w,0.f);
+		ssgiProgram->sendUniform("depthRange",eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())),eye.getFar()/(eye.getFar()-eye.getNear()));
 		}
 		else
 		{
@@ -112,8 +129,8 @@ void SSGI::applySSGI(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _
 		ssgiProgram->sendTexture("depthMap",bigDepth);
 		ssgiProgram->sendTexture("colorMap",bigColor);
 		ssgiProgram->sendTexture("aoMap",bigColor2);
-		ssgiProgram->sendUniform("pixelSize",1.0f/_w,0.f);
-		//ssgiProgram->sendUniform("depthRange",_eye.getNear()*_eye.getFar()/((_eye.getFar()-_eye.getNear())),_eye.getFar()/(_eye.getFar()-_eye.getNear()));
+		ssgiProgram->sendUniform("pixelSize",1.0f/w,0.f);
+		//ssgiProgram->sendUniform("depthRange",eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())),eye.getFar()/(eye.getFar()-eye.getNear()));
 		TextureRenderer::renderQuad();
 
 		// blur smallColor2 to render target
@@ -121,23 +138,28 @@ void SSGI::applySSGI(unsigned _w, unsigned _h, const rr::RRCamera& _eye, float _
 		ssgiProgram->sendTexture("depthMap",bigDepth);
 		ssgiProgram->sendTexture("colorMap",bigColor);
 		ssgiProgram->sendTexture("aoMap",bigColor3);
-		ssgiProgram->sendUniform("pixelSize",0.f,1.0f/_h);
-		//ssgiProgram->sendUniform("depthRange",_eye.getNear()*_eye.getFar()/((_eye.getFar()-_eye.getNear())),_eye.getFar()/(_eye.getFar()-_eye.getNear()));
-		PreserveFlag p0(GL_BLEND,GL_TRUE);
-		PreserveBlendFunc p1;
-		glBlendFunc(GL_ZERO,GL_SRC_COLOR);
-		TextureRenderer::renderQuad();
+		ssgiProgram->sendUniform("pixelSize",0.f,1.0f/h);
+		//ssgiProgram->sendUniform("depthRange",eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())),eye.getFar()/(eye.getFar()-eye.getNear()));
 		}
+		glViewport(_sp.viewport[0],_sp.viewport[1],w,h);
 	}
-	else
-	{
-		PreserveFlag p0(GL_BLEND,GL_TRUE);
-		PreserveBlendFunc p1;
-		glBlendFunc(GL_ZERO,GL_SRC_COLOR);
-		TextureRenderer::renderQuad();
-	}
+	PreserveFlag p4(GL_BLEND,GL_TRUE);
+	PreserveBlendFunc p5;
+	glBlendFunc(GL_ZERO,GL_SRC_COLOR);
+	TextureRenderer::renderQuad();
 	//if (_textureRenderer)
 	//	_textureRenderer->render2D(bigDepth,NULL,1,0,0.35f,0.3f,0.3f,-1);
+}
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PluginParamsSSGI
+
+PluginRuntime* PluginParamsSSGI::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+{
+	return new PluginRuntimeSSGI(pathToShaders, pathToMaps);
 }
 
 }; // namespace

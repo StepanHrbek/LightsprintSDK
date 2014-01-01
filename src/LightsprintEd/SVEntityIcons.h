@@ -10,6 +10,7 @@
 #include "Lightsprint/RRLight.h"
 #include "Lightsprint/RRCollider.h"
 #include "Lightsprint/GL/UberProgram.h"
+#include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "SVEntity.h"
 #include <vector>

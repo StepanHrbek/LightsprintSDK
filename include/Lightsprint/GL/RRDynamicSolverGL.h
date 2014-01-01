@@ -11,7 +11,7 @@
 #include "../RRDynamicSolver.h"
 #include "Texture.h"
 #include "Program.h"
-#include "RendererOfScene.h"
+#include "Renderer.h"
 #include "UberProgramSetup.h"
 
 //! LightsprintGL - multiplatform OpenGL based renderer that displays realtime global illumination.
@@ -36,9 +36,14 @@ namespace rr_gl
 		//! \param pathToShaders
 		//!  Path to directory with shaders.
 		//!  Must be terminated with slash (or be empty for current dir).
+		//!  It is also passed to renderer and its plugins.
+		//! \param pathToMaps
+		//!  Path to directory with maps.
+		//!  Must be terminated with slash (or be empty for current dir).
+		//!  It is passed to renderer and its plugins, solver itself doesn't use any maps.
 		//! \param detectionQuality
 		//!  Sets quality of our detectDirectIllumination() routine.
-		RRDynamicSolverGL(const rr::RRString& pathToShaders, DDIQuality detectionQuality = DDI_AUTO);
+		RRDynamicSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps, DDIQuality detectionQuality = DDI_AUTO);
 		virtual ~RRDynamicSolverGL();
 
 		//! Sets lights used by both realtime and offline renderer.
@@ -56,7 +61,7 @@ namespace rr_gl
 		virtual void setLights(const rr::RRLights& lights);
 
 		//! Renders scene in solver, with all static and dynamic objects, lights, environment.
-		virtual void renderScene(const RenderParameters& renderParameters);
+		//virtual void renderScene(const RenderParameters& renderParameters);
 
 		//! Renders wireframe frustums or boxes of lights.
 		virtual void renderLights(const rr::RRCamera& _camera);
@@ -96,7 +101,7 @@ namespace rr_gl
 		//! Users can reuse our uberprogram for their own rendering.
 		UberProgram* getUberProgram() {return uberProgram1;}
 		//! Users can reuse our renderer for their own rendering.
-		RendererOfScene* getRendererOfScene() {return rendererOfScene;}
+		Renderer* getRenderer() {return renderer;}
 
 	protected:
 		//! Detects direct illumination from lights (see setLights()) on all faces in scene and returns it in array of RGBA values.
@@ -129,7 +134,7 @@ namespace rr_gl
 		unsigned lastDDINumLightsEnabled;
 
 		// for internal rendering (shadowmaps)
-		RendererOfScene* rendererOfScene;
+		Renderer* renderer;
 		UberProgram* uberProgram1; // for updating shadowmaps and detecting direct illumination
 
 		// for updating envmaps

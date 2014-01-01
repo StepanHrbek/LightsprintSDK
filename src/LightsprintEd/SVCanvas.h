@@ -7,12 +7,7 @@
 #define SVCANVAS_H
 
 #include "Lightsprint/Ed/Ed.h"
-#include "Lightsprint/GL/Bloom.h"
-#include "Lightsprint/GL/DOF.h"
-#include "Lightsprint/GL/FPS.h"
-#include "Lightsprint/GL/LensFlare.h"
-#include "Lightsprint/GL/SSGI.h"
-#include "Lightsprint/GL/ToneMapping.h"
+#include "Lightsprint/GL/PluginFPS.h"
 #include <GL/glew.h> // must go before wx/GLCanvas
 #include "wx/GLCanvas.h"
 #include "wx/joystick.h"
@@ -86,7 +81,6 @@ namespace rr_ed
 		int                        winWidth; // current size
 		int                        winHeight; // current size
 		int                        windowCoord[4]; // x,y,w,h of window when user switched to fullscreen
-		rr_gl::ToneMapping*        toneMapping;
 		float                      speedForward;
 		float                      speedBack;
 		float                      speedRight;
@@ -112,22 +106,6 @@ namespace rr_ed
 		bool                       helpLoadAttempted;
 		rr::RRBuffer*              helpImage;
 
-		// bloom
-		bool                       bloomLoadAttempted;
-		rr_gl::Bloom*              bloom;
-
-		// SSGI
-		bool                       ssgiLoadAttempted;
-		rr_gl::SSGI*               ssgi;
-
-		// DOF
-		bool                       dofLoadAttempted;
-		rr_gl::DOF*                dof;
-
-		// lens flare
-		bool                       lensFlareLoadAttempted;
-		rr_gl::LensFlare*          lensFlare;
-
 		// vignette
 		bool                       vignetteLoadAttempted;
 		rr::RRBuffer*              vignetteImage;
@@ -142,10 +120,8 @@ namespace rr_ed
 		rr::RRObjectIllumination*  lightFieldObjectIllumination;
 
 		// FPS
-		rr_gl::TextureRenderer*    textureRenderer; // used also by help
-		bool                       fpsLoadAttempted;
+		rr_gl::TextureRenderer*    textureRenderer;
 		rr_gl::FpsCounter          fpsCounter;
-		rr_gl::FpsDisplay*         fpsDisplay;
 
 		// icons
 	public:

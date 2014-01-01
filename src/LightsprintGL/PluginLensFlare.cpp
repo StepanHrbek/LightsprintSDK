@@ -1,14 +1,11 @@
 // --------------------------------------------------------------------------
-// Lens flare effect.
+// Lens flare postprocess.
 // Copyright (C) 2010-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <GL/glew.h>
-#include <cstdlib>
-#include <ctime>
-#include "Lightsprint/GL/LensFlare.h"
-#include "Lightsprint/GL/TextureRenderer.h"
+#include "Lightsprint/GL/PluginLensFlare.h"
 #include "Lightsprint/GL/PreserveState.h"
+#include "Lightsprint/RRObject.h"
 
 namespace rr_gl
 {
@@ -45,11 +42,23 @@ public:
 	rr::RRVec3 transparency;
 };
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
-// LensFlare
+// PluginRuntimeLensFlare
 
-LensFlare::LensFlare(const rr::RRString& pathToMaps)
+class PluginRuntimeLensFlare : public PluginRuntime
+{
+	enum {NUM_PRIMARY_MAPS=3,NUM_SECONDARY_MAPS=3};
+	rr::RRBuffer* primaryMap[NUM_PRIMARY_MAPS];
+	rr::RRBuffer* secondaryMap[NUM_SECONDARY_MAPS];
+	bool colorizeSecondaryMap[NUM_SECONDARY_MAPS];
+	rr::RRRay* ray;
+	class CollisionHandlerTransparency* collisionHandlerTransparency;
+
+public:
+
+PluginRuntimeLensFlare(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
 {
 	for (unsigned i=0;i<NUM_PRIMARY_MAPS;i++)
 		primaryMap[i] = rr::RRBuffer::load(rr::RRString(0,L"%lsflare_prim%d.png",pathToMaps.w_str(),i+1));
@@ -74,7 +83,7 @@ LensFlare::LensFlare(const rr::RRString& pathToMaps)
 	ray->collisionHandler = collisionHandlerTransparency;
 }
 
-LensFlare::~LensFlare()
+virtual ~PluginRuntimeLensFlare()
 {
 	delete collisionHandlerTransparency;
 	delete ray;
@@ -84,7 +93,17 @@ LensFlare::~LensFlare()
 		delete secondaryMap[i];
 }
 
-void LensFlare::renderLensFlare(float _flareSize, unsigned _flareId, TextureRenderer* _textureRenderer, float _aspect, rr::RRVec2 _lightPositionInWindow)
+//! \param flareSize
+//!  Relative size of flare, 1 for typical size.
+//! \param flareId
+//!  Various flare parameters are generated from this number.
+//! \param textureRenderer
+//!  Pointer to caller's TextureRenderer instance, we save time by not creating local instance.
+//! \param aspect
+//!  Camera aspect.
+//! \param lightPositionInWindow
+//!  0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
+void renderLensFlare(float _flareSize, unsigned _flareId, TextureRenderer* _textureRenderer, float _aspect, rr::RRVec2 _lightPositionInWindow)
 {
 	// set GL state
 	PreserveBlend p3;
@@ -121,63 +140,74 @@ void LensFlare::renderLensFlare(float _flareSize, unsigned _flareId, TextureRend
 	srand(oldSeed);
 }
 
-void LensFlare::renderLensFlares(float _flareSize, unsigned _flareId, TextureRenderer* _textureRenderer, const rr::RRCamera& _eye, const rr::RRLights& _lights, const rr::RRObject* _scene, unsigned _quality)
-{
-	if (_textureRenderer)
+	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 	{
-		if (!_quality) _quality = 1;
-		for (unsigned i=0;i<_lights.size();i++)
+		_renderer.render(_pp.next,_sp);
+
+		const PluginParamsLensFlare& pp = *dynamic_cast<const PluginParamsLensFlare*>(&_pp);
+		
+		for (unsigned i=0;i<pp.lights->size();i++)
 		{
 			// is it sun above horizon?
-			rr::RRLight* light = _lights[i];
+			rr::RRLight* light = (*pp.lights)[i];
 			if (light && light->enabled && light->type==rr::RRLight::DIRECTIONAL && light->direction.y<=0)
 			{
 				// is it on screen?
-				rr::RRVec2 lightPositionInWindow = _eye.getPositionInWindow(_eye.getPosition()-light->direction*1e10f);
-				if (_eye.getDirection().dot(light->direction)<0 && lightPositionInWindow.x>-1 && lightPositionInWindow.x<1 && lightPositionInWindow.y>-1 && lightPositionInWindow.y<1)
+				rr::RRVec2 lightPositionInWindow = _sp.camera->getPositionInWindow(_sp.camera->getPosition()-light->direction*1e10f);
+				if (_sp.camera->getDirection().dot(light->direction)<0 && lightPositionInWindow.x>-1 && lightPositionInWindow.x<1 && lightPositionInWindow.y>-1 && lightPositionInWindow.y<1)
 				{
-					if (!_scene)
+					if (!pp.scene)
 					{
-						renderLensFlare(_flareSize,_flareId,_textureRenderer,_eye.getAspect(),lightPositionInWindow);
+						renderLensFlare(pp.flareSize,pp.flareId,_renderer.getTextureRenderer(),_sp.camera->getAspect(),lightPositionInWindow);
 					}
 					else
 					{
 						// is it visible, not occluded?
 						rr::RRVec3 transparencySum(0);
 						rr::RRVec3 dirSum(0);
-						ray->rayOrigin = _eye.getRayOrigin(_eye.getPosition());
+						ray->rayOrigin = _sp.camera->getRayOrigin(_sp.camera->getPosition());
 						ray->rayLengthMin = 0;
 						ray->rayLengthMax = 1e10f;
 						ray->rayFlags = 0;
-						collisionHandlerTransparency->object = _scene;
+						collisionHandlerTransparency->object = pp.scene;
 
 						// generate everything from _flareId
 						unsigned oldSeed = rand();
-						srand(_flareId);
+						srand(pp.flareId);
 
-						for (unsigned i=0;i<_quality;i++)
+						for (unsigned i=0;i<RR_MAX(pp.quality,1);i++)
 						{
 							ray->rayDir = ( rr::RRVec3(rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f)*0.02f - light->direction.normalized() ).normalized();
-							ray->hitObject = _scene; // we set hitObject for colliders that don't set it
-							_scene->getCollider()->intersect(ray);
+							ray->hitObject = pp.scene; // we set hitObject for colliders that don't set it
+							pp.scene->getCollider()->intersect(ray);
 							transparencySum += collisionHandlerTransparency->transparency;
 							dirSum -= ray->rayDir*collisionHandlerTransparency->transparency.sum();
 						}
 						// cleanup
 						srand(oldSeed);
-						float transparency = transparencySum.avg()/_quality;
+						float transparency = transparencySum.avg()/RR_MAX(pp.quality,1);
 						if (transparency>0.15f) // hide tiny flares, they jump randomly when looking through tree
 						{
 							// move flare a bit if light is half occluded
-							lightPositionInWindow = _eye.getPositionInWindow(_eye.getPosition()-dirSum*1e10f);
+							lightPositionInWindow = _sp.camera->getPositionInWindow(_sp.camera->getPosition()-dirSum*1e10f);
 
-							renderLensFlare(_flareSize*transparency,_flareId,_textureRenderer,_eye.getAspect(),lightPositionInWindow);
+							renderLensFlare(pp.flareSize*transparency,pp.flareId,_renderer.getTextureRenderer(),_sp.camera->getAspect(),lightPositionInWindow);
 						}
 					}
 				}
 			}
 		}
 	}
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// PluginParamsLensFlare
+
+PluginRuntime* PluginParamsLensFlare::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+{
+	return new PluginRuntimeLensFlare(pathToShaders,pathToMaps);
 }
 
 }; // namespace

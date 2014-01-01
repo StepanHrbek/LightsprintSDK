@@ -7,7 +7,6 @@
 #define SVSAVELOAD_H
 
 #include "Lightsprint/Ed/Ed.h"
-#include "Lightsprint/GL/RendererOfScene.h"
 #include "SVApp.h"
 #include "wx/wx.h"
 

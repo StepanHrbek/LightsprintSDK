@@ -52,6 +52,8 @@
 	#include <GL/glut.h>
 #endif
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/PluginScene.h"
+#include "Lightsprint/GL/PluginSky.h"
 #include "Lightsprint/IO/IO.h"
 #include <stdio.h>   // printf
 
@@ -333,20 +335,24 @@ void display(void)
 	solver->calculate();
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-	// configure renderer
-	rr_gl::RenderParameters rp;
-	rp.uberProgramSetup.enableAllLights();
-	rp.uberProgramSetup.enableAllMaterials();
-	rp.uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
-	rp.uberProgramSetup.POSTPROCESS_GAMMA = true;
-	rp.camera = &eye;
-	rp.updateLayers = renderLayer==LAYER_REALTIME;
-	rp.layerLightmap = renderLayer;
-	rp.layerEnvironment = LAYER_ENVIRONMENT;
-	rp.brightness = brightness;
-	rp.gamma = contrast;
+	// configure plugins
+	rr_gl::PluginParamsSky ppSky(NULL,solver);
+	rr_gl::PluginParamsScene ppScene(&ppSky,solver);
+	ppScene.solver = solver;
+	ppScene.lights = &solver->realtimeLights;
+	ppScene.uberProgramSetup.enableAllLights();
+	ppScene.uberProgramSetup.enableAllMaterials();
+	ppScene.uberProgramSetup.POSTPROCESS_BRIGHTNESS = true; // enable brightness/gamma adjustment
+	ppScene.uberProgramSetup.POSTPROCESS_GAMMA = true;
+	ppScene.updateLayers = renderLayer==LAYER_REALTIME;
+	ppScene.layerLightmap = renderLayer;
+	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
+	rr_gl::PluginParamsShared ppShared;
+	ppShared.camera = &eye;
+	ppShared.brightness = brightness;
+	ppShared.gamma = contrast;
 	// render scene
-	solver->renderScene(rp);
+	solver->getRenderer()->render(&ppScene,ppShared);
 	solver->renderLights(eye);
 
 	glutSwapBuffers();
@@ -423,7 +429,7 @@ int main(int argc, char** argv)
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-	solver = new rr_gl::RRDynamicSolverGL("../../data/shaders/");
+	solver = new rr_gl::RRDynamicSolverGL("../../data/shaders/","../../data/maps/");
 	solver->setDirectIlluminationBoost(2);
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 

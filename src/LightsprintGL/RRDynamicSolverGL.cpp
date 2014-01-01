@@ -10,6 +10,9 @@
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/GL/PreserveState.h"
+#include "Lightsprint/GL/PluginCube.h"
+#include "Lightsprint/GL/PluginScene.h"
+#include "Lightsprint/GL/PluginSky.h"
 #include "RendererOfMesh.h" // DDI_TRIANGLES_X/Y
 #include "Shader.h" // s_es
 #include "Workaround.h"
@@ -26,7 +29,7 @@ namespace rr_gl
 //
 // RRDynamicSolverGL
 
-RRDynamicSolverGL::RRDynamicSolverGL(const rr::RRString& pathToShaders, DDIQuality _detectionQuality)
+RRDynamicSolverGL::RRDynamicSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps, DDIQuality _detectionQuality)
 {
 	switch(_detectionQuality)
 	{
@@ -57,7 +60,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const rr::RRString& pathToShaders, DDIQuali
 	detectedNumTriangles = 0;
 
 	observer = NULL;
-	rendererOfScene = rr_gl::RendererOfScene::create(pathToShaders);
+	renderer = rr_gl::Renderer::create(pathToShaders, pathToMaps);
 	uberProgram1 = UberProgram::create(rr::RRString(0,L"%lsubershader.vs",pathToShaders.w_str()),rr::RRString(0,L"%lsubershader.fs",pathToShaders.w_str()));
 
 	depthTexture = Texture::createShadowmap(1,1,false);
@@ -67,7 +70,7 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 {
 	delete depthTexture;
 	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
-	delete rendererOfScene;
+	delete renderer;
 	delete uberProgram1;
 	delete[] detectedDirectSum;
 	delete scaleDownProgram;
@@ -330,11 +333,15 @@ done:
 						}
 						bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
 						if (depthClamp) glEnable(GL_DEPTH_CLAMP);
-						RenderParameters rp;
-						rp.uberProgramSetup = uberProgramSetup;
-						rp.camera = &light->getShadowmapCamera(i,lightInstance);
-						rp.renderingFromThisLight = &light->getRRLight();
-						renderScene(rp);
+						PluginParamsScene ppScene(NULL,this);
+						ppScene.lights = NULL;
+						ppScene.uberProgramSetup = uberProgramSetup;
+						ppScene.renderingFromThisLight = &light->getRRLight();
+						PluginParamsShared ppShared;
+						ppShared.camera = &light->getShadowmapCamera(i,lightInstance);
+						ppShared.viewport[2] = light->getRRLight().rtShadowmapSize;
+						ppShared.viewport[3] = light->getRRLight().rtShadowmapSize;
+						renderer->render(&ppScene,ppShared);
 						if (depthClamp) glDisable(GL_DEPTH_CLAMP);
 					}
 				}
@@ -526,7 +533,7 @@ unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, 
 		// render scene
 		glDisable(GL_CULL_FACE);
 		FaceGroupRange fgRange(0,0,0,firstCapturedTriangle,lastCapturedTrianglePlus1);
-		rendererOfScene->getRendererOfMesh(getMultiObjectCustom()->getCollider()->getMesh())->renderMesh(
+		renderer->getMeshRenderer(getMultiObjectCustom()->getCollider()->getMesh())->renderMesh(
 			program,
 			getMultiObjectCustom(),
 			&fgRange,
@@ -656,10 +663,10 @@ void drawRealtimeLight(RealtimeLight* light)
 	}
 }
 
-void RRDynamicSolverGL::renderScene(const RenderParameters& _renderParameters)
+/*void RRDynamicSolverGL::renderScene(const RenderParameters& _renderParameters)
 {
-	rendererOfScene->render(this, NULL, _renderParameters.uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL, _renderParameters);
-}
+	renderer->render(this, NULL, _renderParameters.uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL, _renderParameters);
+}*/
 
 void RRDynamicSolverGL::renderLights(const rr::RRCamera& _camera)
 {
@@ -744,40 +751,43 @@ unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illum
 		}
 
 		// update cube
-		rr::RRCamera camera;
-		camera.setPosition(illumination->envMapWorldCenter);
-		camera.setRange(size*0.0001f,size);
-		RenderParameters rp;
-		rp.camera = &camera;
-		rp.uberProgramSetup.enableAllMaterials();
-		rp.uberProgramSetup.enableAllLights();
-		rp.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // no mirrors, prevents render() from calling another render()
-		rp.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
-		rp.updateLayers = false; // no environment updates,  prevents render() from calling another updateEnvironmentMap(), we are not reentrant because of depthTexture
-		rp.layerEnvironment = UINT_MAX; // no envmaps, prevents using texture we are rendering into
+		PluginParamsSky ppSky(NULL,this);
+		PluginParamsScene ppScene(&ppSky,this);
+		ppScene.uberProgramSetup.enableAllMaterials();
+		ppScene.uberProgramSetup.enableAllLights();
+		ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // no mirrors, prevents render() from calling another render()
+		ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
+		ppScene.updateLayers = false; // no environment updates,  prevents render() from calling another updateEnvironmentMap(), we are not reentrant because of depthTexture
+		ppScene.layerEnvironment = UINT_MAX; // no envmaps, prevents using texture we are rendering into
 		if (layerAmbientMap!=UINT_MAX)
 		{
 			// realtime lights + ambient maps
-			rp.layerLightmap = layerAmbientMap;
+			ppScene.layerLightmap = layerAmbientMap;
 		}
 		else
 		if (layerLightmap!=UINT_MAX)
 		{
 			// lightmaps
-			rp.layerLightmap = layerLightmap;
-			rp.uberProgramSetup.SHADOW_MAPS = 1;
-			rp.uberProgramSetup.LIGHT_DIRECT = true;
-			rp.uberProgramSetup.LIGHT_DIRECT_COLOR = true;
-			rp.uberProgramSetup.LIGHT_DIRECT_MAP = true;
-			rp.uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = true;
+			ppScene.layerLightmap = layerLightmap;
+			ppScene.uberProgramSetup.SHADOW_MAPS = 1;
+			ppScene.uberProgramSetup.LIGHT_DIRECT = true;
+			ppScene.uberProgramSetup.LIGHT_DIRECT_COLOR = true;
+			ppScene.uberProgramSetup.LIGHT_DIRECT_MAP = true;
+			ppScene.uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = true;
 		}
 		else
 		{
 			// realtime lights + constant ambient
 		}
-		rp.srgbCorrect = true; // we don't know whether final render is srgb correct or not, let's request more realistic version (but renderToCube might ignore us)
 		Texture* cubeTexture = getTexture(cube,false,false);
-		getRendererOfScene()->renderToCube(this,NULL,&realtimeLights,rp,cubeTexture,depthTexture);
+		PluginParamsCube ppCube(&ppScene,cubeTexture,depthTexture);
+		rr::RRCamera camera;
+		camera.setPosition(illumination->envMapWorldCenter);
+		camera.setRange(size*0.0001f,size);
+		PluginParamsShared ppShared;
+		ppShared.camera = &camera;
+		ppShared.srgbCorrect = true; // we don't know whether final render is srgb correct or not, let's request more realistic version (but renderToCube might ignore us)
+		renderer->render(&ppCube,ppShared);
 		cubeTexture->bindTexture();
 		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

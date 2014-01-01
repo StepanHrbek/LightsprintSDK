@@ -3,17 +3,28 @@
 // Copyright (C) 2010-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <GL/glew.h>
-#include "Lightsprint/GL/Bloom.h"
-#include "Lightsprint/GL/TextureRenderer.h"
+#include "Lightsprint/GL/PluginBloom.h"
 #include "Lightsprint/GL/PreserveState.h"
 
 namespace rr_gl
 {
 
-//#define OPTIMIZE_BLOOM // optional optimization
+/////////////////////////////////////////////////////////////////////////////
+//
+// PluginRuntimeBloom
 
-Bloom::Bloom(const rr::RRString& pathToShaders)
+class PluginRuntimeBloom : public PluginRuntime
+{
+	Texture* bigMap;
+	Texture* smallMap1;
+	Texture* smallMap2;
+	Program* scaleDownProgram;
+	Program* blurProgram;
+	Program* blendProgram;
+
+public:
+
+PluginRuntimeBloom(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
 {
 	bigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 	smallMap1 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
@@ -25,7 +36,7 @@ Bloom::Bloom(const rr::RRString& pathToShaders)
 	blendProgram = Program::create("#define PASS 3\n",filename1,filename2);
 }
 
-Bloom::~Bloom()
+virtual ~PluginRuntimeBloom()
 {
 	delete blendProgram;
 	delete blurProgram;
@@ -35,29 +46,36 @@ Bloom::~Bloom()
 	delete bigMap;
 }
 
-void Bloom::applyBloom(unsigned _w, unsigned _h, float _threshold)
+virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 {
-	if (!bigMap || !smallMap1 || !smallMap2 || !blurProgram || !scaleDownProgram) return;
+	_renderer.render(_pp.next,_sp);
+
+	const PluginParamsBloom& pp = *dynamic_cast<const PluginParamsBloom*>(&_pp);
+		
+	if (!bigMap || !smallMap1 || !smallMap2 || !scaleDownProgram || !blurProgram || !blendProgram) return;
 
 	FBO oldFBOState = FBO::getState();
 
 	// adjust map sizes to match render target size
-	if (_w!=bigMap->getBuffer()->getWidth() || _h!=bigMap->getBuffer()->getHeight())
+	unsigned w = _sp.viewport[2];
+	unsigned h = _sp.viewport[3];
+	if (w!=bigMap->getBuffer()->getWidth() || h!=bigMap->getBuffer()->getHeight())
 	{
-		bigMap->getBuffer()->reset(rr::BT_2D_TEXTURE,_w,_h,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+		bigMap->getBuffer()->reset(rr::BT_2D_TEXTURE,w,h,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
 #ifdef OPTIMIZE_BLOOM
 		if (!oldFBOState.color_id)
 #endif
 			bigMap->reset(false,false,false);
-		smallMap1->getBuffer()->reset(rr::BT_2D_TEXTURE,_w/4,_h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+		smallMap1->getBuffer()->reset(rr::BT_2D_TEXTURE,w/4,h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
 		smallMap1->reset(false,false,false);
-		smallMap2->getBuffer()->reset(rr::BT_2D_TEXTURE,_w/4,_h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+		smallMap2->getBuffer()->reset(rr::BT_2D_TEXTURE,w/4,h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
 		smallMap2->reset(false,false,false);
 	}
 	
 	// disable depth
 	PreserveDepthTest p1;
 	PreserveDepthMask p2;
+	PreserveFlag p3(GL_SCISSOR_TEST,false);
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(0);
 
@@ -75,7 +93,7 @@ void Bloom::applyBloom(unsigned _w, unsigned _h, float _threshold)
 	{
 		// copy backbuffer to bigMap
 		bigMap->bindTexture();
-		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,0,0,_w,_h,0);
+		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,0,0,w,h,0);
 	}
 
 	// downscale bigMap to smallMap1
@@ -84,7 +102,7 @@ void Bloom::applyBloom(unsigned _w, unsigned _h, float _threshold)
 	scaleDownProgram->useIt();
 	scaleDownProgram->sendUniform("map",0);
 	scaleDownProgram->sendUniform("pixelDistance",1.0f/bigMap->getBuffer()->getWidth(),1.0f/bigMap->getBuffer()->getHeight());
-	scaleDownProgram->sendUniform("threshold",3.0f*_threshold);
+	scaleDownProgram->sendUniform("threshold",3.0f*pp.threshold);
 	glViewport(0,0,smallMap1->getBuffer()->getWidth(),smallMap1->getBuffer()->getHeight());
 	glActiveTexture(GL_TEXTURE0);
 	bigMap->bindTexture();
@@ -122,6 +140,17 @@ void Bloom::applyBloom(unsigned _w, unsigned _h, float _threshold)
 		bigMap->id = oldBigMapId;
 	}
 #endif
+}
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PluginParamsBloom
+
+PluginRuntime* PluginParamsBloom::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+{
+	return new PluginRuntimeBloom(pathToShaders, pathToMaps);
 }
 
 }; // namespace

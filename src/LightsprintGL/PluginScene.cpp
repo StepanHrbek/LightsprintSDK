@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Renderer implementation that renders contents of RRDynamicSolver instance.
+// Plugin that renders contents of RRDynamicSolver instance.
 // Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
@@ -13,56 +13,19 @@
 #include <cstdio>
 #include <boost/unordered_map.hpp>
 #include <GL/glew.h>
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
-#include "Lightsprint/GL/RendererOfScene.h"
-#include "Lightsprint/GL/TextureRenderer.h"
+#include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PreserveState.h"
+#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RealtimeLight.h"
+#include "Lightsprint/GL/UberProgramSetup.h"
 #include "MultiPass.h"
 #include "RendererOfMesh.h"
 #include "Shader.h" // s_es
 #include "Workaround.h"
 
-// COPY_TO_CUBE:
-//  -cube must not be bigger than current render target viewport/scissor
-//  -viewport/scissor area of current render target must not be in use
-//  -extra copying
-//  +multisampled
-// rendering directly into cube:
-//  -not srgb correct (reflection less realistic)
-//  +can be optimized (later) to single pass with geometry shader
-//#define COPY_TO_CUBE
-
 namespace rr_gl
 {
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// RendererOfMeshCache
-
-class RendererOfMeshCache
-{
-public:
-	RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
-	{
-		Cache::iterator i=cache.find(mesh);
-		if (i!=cache.end())
-		{
-			return i->second;
-		}
-		else
-		{
-			return cache[mesh] = new RendererOfMesh();
-		}
-	}
-	~RendererOfMeshCache()
-	{
-		for (Cache::const_iterator i=cache.begin();i!=cache.end();++i)
-			delete i->second;
-	}
-private:
-	typedef boost::unordered_map<const rr::RRMesh*,RendererOfMesh*> Cache;
-	Cache cache;
-};
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -87,116 +50,20 @@ struct PerObjectBuffers
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// for unordered_map<UberProgramSetup,>
-//
+// misc helpers
 
+// for unordered_map<UberProgramSetup,>
 std::size_t hash_value(const UberProgramSetup& b)
 {
 	unsigned* p = (unsigned*)&b;
 	return p[0]+p[1];
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//
-// RendererOfSceneImpl
-
-class RendererOfSceneImpl : public RendererOfScene
-{
-public:
-	RendererOfSceneImpl(const rr::RRString& pathToShaders);
-	virtual ~RendererOfSceneImpl();
-
-	virtual void render(rr::RRDynamicSolver* _solver, const rr::RRObjects* _objects, const RealtimeLights* _lights, const RenderParameters& _renderParameters);
-	virtual void renderToCube(rr::RRDynamicSolver* _solver, const rr::RRObjects* _objects, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture, Texture* _depthTexture);
-
-	virtual RendererOfMesh* getRendererOfMesh(const rr::RRMesh* mesh)
-	{
-		return rendererOfMeshCache.getRendererOfMesh(mesh);
-	}
-
-	virtual TextureRenderer* getTextureRenderer()
-	{
-		return textureRenderer;
-	}
-
-private:
-	// PERMANENT CONTENT
-	TextureRenderer* textureRenderer;
-	UberProgram* uberProgram;
-	RendererOfMeshCache rendererOfMeshCache;
-	Texture* stereoTexture; // for render()
-	Texture* panoramaTexture; // for render()
-	Texture* depthTexture; // for render(), passed as parameter to renderToCube()
-	UberProgram* stereoUberProgram;
-#ifdef MIRRORS
-	rr::RRBuffer* mirrorDepthMap;
-	rr::RRBuffer* mirrorMaskMap;
-#endif
-
-	enum { MAX_RECURSION_DEPTH = 3 };
-	// PERMANENT ALLOCATION, TEMPORARY CONTENT (used only inside render(), placing it here saves alloc/free in every render(), but makes render() nonreentrant)
-	rr::RRObjects multiObjects; // used in first half of render()
-	//! Gathered per-object information.
-	rr::RRVector<PerObjectBuffers> perObjectBuffers[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
-	typedef boost::unordered_map<UberProgramSetup,rr::RRVector<FaceGroupRange>*> ShaderFaceGroups;
-	//! Gathered non-blended object information.
-	ShaderFaceGroups nonBlendedFaceGroupsMap[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
-	//! Gathered blended object information.
-	rr::RRVector<FaceGroupRange> blendedFaceGroups[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
-	//! usually 0, can grow to 1 or even 2 when render() calls render() because of mirror or updateEnvironmentMap()
-	unsigned recursionDepth;
-};
-
 static rr::RRVector<PerObjectBuffers>* s_perObjectBuffers = NULL; // used by sort()
 
 bool FaceGroupRange::operator <(const FaceGroupRange& a) const // for sort()
 {
 	return (*s_perObjectBuffers)[object].eyeDistance>(*s_perObjectBuffers)[a.object].eyeDistance;
-}
-
-RendererOfSceneImpl::RendererOfSceneImpl(const rr::RRString& pathToShaders)
-{
-	textureRenderer = new TextureRenderer(pathToShaders);
-	uberProgram = UberProgram::create(rr::RRString(0,L"%lsubershader.vs",pathToShaders.w_str()),rr::RRString(0,L"%lsubershader.fs",pathToShaders.w_str()));
-
-	stereoTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST);
-	stereoUberProgram = UberProgram::create(rr::RRString(0,L"%lsstereo.vs",pathToShaders.w_str()),rr::RRString(0,L"%lsstereo.fs",pathToShaders.w_str()));
-
-	panoramaTexture = new Texture(rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR); // A for mirroring
-	depthTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_DEPTH,false,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR);
-
-#ifdef MIRRORS
-	mirrorDepthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
-	mirrorMaskMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGB,true,RR_GHOST_BUFFER);
-#endif
-	recursionDepth = 0;
-}
-
-RendererOfSceneImpl::~RendererOfSceneImpl()
-{
-#ifdef MIRRORS
-	delete mirrorMaskMap;
-	delete mirrorDepthMap;
-#endif
-	// panorama
-	if (depthTexture)
-		delete depthTexture->getBuffer();
-	RR_SAFE_DELETE(depthTexture);
-	if (panoramaTexture)
-		delete panoramaTexture->getBuffer();
-	RR_SAFE_DELETE(panoramaTexture);
-
-	// stereo
-	RR_SAFE_DELETE(stereoUberProgram);
-	if (stereoTexture)
-		delete stereoTexture->getBuffer();
-	RR_SAFE_DELETE(stereoTexture);
-
-	delete uberProgram;
-	delete textureRenderer;
-	for (recursionDepth=0;recursionDepth<MAX_RECURSION_DEPTH;recursionDepth++)
-		for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap[recursionDepth].begin();i!=nonBlendedFaceGroupsMap[recursionDepth].end();++i)
-			delete i->second;
 }
 
 rr::RRBuffer* onlyVbuf(rr::RRBuffer* buffer)
@@ -225,225 +92,73 @@ struct PlaneCompare // comparing RRVec4 looks strange, so we do it here rather t
 };
 #endif
 
-void RendererOfSceneImpl::renderToCube(rr::RRDynamicSolver* _solver, const rr::RRObjects* _objects, const RealtimeLights* _lights, const RenderParameters& _renderParameters, Texture* _cubeTexture, Texture* _depthTexture)
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// PluginRuntimeScene
+
+//! OpenGL renderer of scene in RRDynamicSolver.
+//
+//! Renders scene from solver.
+//! Takes live illumination from solver or computed illumination from layer.
+class PluginRuntimeScene : public PluginRuntime
 {
-	// we need depth texture here.
-	// but why is it sent via _depthTexture parameter?
-	// a) we can create and delete _depthTexture in this function (possibly many times in each frame)
-	//    but it could be slower
-	// b) we can't use single depthTexture owned by RendererOfSceneImpl
-	//    because renderToCube (panorama) calls renderToCube (update env maps) with different resolution, at least two depth maps are needed
-	// c) YES caller passes _depthTexture in parameter
-	//    this way two callers manage two depth textures and limited reentrancy works (panorama can update env maps,
-	//    although, panorama can't do panorama)
+	// PERMANENT CONTENT
+	UberProgram* uberProgram;
+#ifdef MIRRORS
+	rr::RRBuffer* mirrorDepthMap;
+	rr::RRBuffer* mirrorMaskMap;
+#endif
 
-	// copy, so that we can modify some parameters
-	RenderParameters _ = _renderParameters;
+	// PERMANENT ALLOCATION, TEMPORARY CONTENT (used only inside render(), placing it here saves alloc/free in every render(), but makes render() nonreentrant)
+	enum { MAX_RECURSION_DEPTH = 4 }; // 1 for normal render, 1 for mirror, 1 for update envmaps, 1 for selection (called at skybox time)
+	rr::RRObjects multiObjects; // used in first half of render()
+	//! Gathered per-object information.
+	rr::RRVector<PerObjectBuffers> perObjectBuffers[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
+	typedef boost::unordered_map<UberProgramSetup,rr::RRVector<FaceGroupRange>*> ShaderFaceGroups;
+	//! Gathered non-blended object information.
+	ShaderFaceGroups nonBlendedFaceGroupsMap[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
+	//! Gathered blended object information.
+	rr::RRVector<FaceGroupRange> blendedFaceGroups[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
+	//! usually 0, can grow to 1 or even 2 when render() calls render() because of mirror or updateEnvironmentMap()
+	int recursionDepth;
 
-	if (!_cubeTexture || !_depthTexture)
-		return;
+public:
 
-	unsigned size = _cubeTexture->getBuffer()->getWidth();
-
-#ifdef COPY_TO_CUBE
-	// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
-	// it could be faster, althout I did not see any speedup
-	PreserveFlag p0(GL_SCISSOR_TEST,true);
-	PreserveScissor p1;
-	GLint viewport[4];
-	glGetIntegerv(GL_VIEWPORT,viewport);
-	glScissor(viewport[0],viewport[1],size,size);
-	glViewport(viewport[0],viewport[1],size,size);
-#else
-	// resize depth
-	if (_depthTexture->getBuffer()->getWidth()!=size)
+	PluginRuntimeScene(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
 	{
-		_depthTexture->getBuffer()->reset(rr::BT_2D_TEXTURE,size,size,1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
-		_depthTexture->reset(false,false,false);
+		uberProgram = UberProgram::create(rr::RRString(0,L"%lsubershader.vs",pathToShaders.w_str()),rr::RRString(0,L"%lsubershader.fs",pathToShaders.w_str()));
+
+#ifdef MIRRORS
+		mirrorDepthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
+		mirrorMaskMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGB,true,RR_GHOST_BUFFER);
+#endif
+		recursionDepth = -1;
 	}
 
-	// all attempts at srgb correct render to texture failed so far
-	_.srgbCorrect = false;
-
-	PreserveFBO p0;
-	PreserveViewport p1;
-	PreserveFlag p2(GL_SCISSOR_TEST,false);
-	glViewport(0,0,size,size);
-	FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,_depthTexture);
-#endif
-
-	// render 6 times
-	rr::RRVec3 s_viewAngles[6] = // 6x yawPitchRollRad
-	{
-		// if we capture empty scene with skybox, we get original skybox:
-		rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
-		rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
-		rr::RRVec3(0,RR_PI/2,0), // BOTTOM
-		rr::RRVec3(0,-RR_PI/2,0), // TOP
-		rr::RRVec3(RR_PI,0,RR_PI), // BACK
-		rr::RRVec3(0,0,RR_PI), // FRONT
-		/* if we capture empty scene with skybox, we get sky rotated by 180 degrees:
-		rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
-		rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
-		rr::RRVec3(0,RR_PI/2,RR_PI), // BOTTOM
-		rr::RRVec3(0,-RR_PI/2,RR_PI), // TOP
-		rr::RRVec3(0,0,RR_PI), // FRONT
-		rr::RRVec3(RR_PI,0,RR_PI), // BACK
-		// if we capture empty scene with skybox, we get sky rotated by 90 degrees:
-		rr::RRVec3(0,0,RR_PI), // FRONT
-		rr::RRVec3(RR_PI,0,RR_PI), // BACK
-		rr::RRVec3(0,RR_PI/2,RR_PI*3/2), // BOTTOM
-		rr::RRVec3(0,-RR_PI/2,RR_PI/2), // TOP
-		rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
-		rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
-		*/
-	};
-	rr::RRCamera camera = *_.camera;
-	camera.setAspect(1);
-	camera.setFieldOfViewVerticalDeg(90);
-	camera.setOrthogonal(false);
-	camera.setScreenCenter(rr::RRVec2(0,0));
-	_.camera = &camera;
-	_.panoramaMode = PM_OFF;
-	//_.stereoMode = SM_MONO;
-	for (unsigned side=0;side<6;side++)
-	{
-		camera.setYawPitchRollRad(s_viewAngles[side]);
-#ifndef COPY_TO_CUBE
-		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,_cubeTexture);
-#endif
-		glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-		render(_solver,_objects,_lights,_);
-#ifdef COPY_TO_CUBE
-		_cubeTexture->bindTexture();
-		glCopyTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,0,0,viewport[0],viewport[1],size,size);
-#endif
-	}
-
-#ifdef COPY_TO_CUBE
-	// restore viewport after rendering panorama (it could be non-default, e.g. when enhanced sshot is enabled)
-	glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
-#endif
-}
-
-void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjects* _objects, const RealtimeLights* _lights, const RenderParameters& _renderParameters)
+virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 {
-	if (!_solver || !_renderParameters.camera)
+	const PluginParamsScene& pp = *dynamic_cast<const PluginParamsScene*>(&_pp);
+	if (!(pp.solver || pp.objects) || !_sp.camera)
 	{
 		RR_ASSERT(0);
 		return;
 	}
 
+	RR_ASSERT(recursionDepth+1<MAX_RECURSION_DEPTH);
+	if (recursionDepth+1>=MAX_RECURSION_DEPTH)
+		return;
+
+	recursionDepth++; // no "return" or throw from this function allowed, we must reach recursionDepth-- at the end
+
 	// copy, so that we can modify some parameters
-	RenderParameters _ = _renderParameters;
-
-	// handle stereo modes by calling render() twice
-	if (_.stereoMode!=SM_MONO && stereoUberProgram && stereoTexture)
-	{
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT,viewport);
-
-		// why rendering to multisampled screen rather than 1-sampled texture?
-		//  we prefer quality over minor speedup
-		// why not rendering to multisampled texture?
-		//  it needs extension, possible minor speedup is not worth adding extra renderpath
-		// why not quad buffered rendering?
-		//  because it works only with quadro/firegl, this is GPU independent
-		// why not stencil buffer masked rendering to odd/even lines?
-		//  because lines blur with multisampled screen (even if multisampling is disabled)
-		rr::RRCamera leftEye, rightEye;
-		_.camera->getStereoCameras(leftEye,rightEye);
-		bool swapEyes = _.stereoMode==SM_INTERLACED_SWAP || _.stereoMode==SM_TOP_DOWN || _.stereoMode==SM_SIDE_BY_SIDE_SWAP;
-
-		{
-			// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
-			// it could be faster, althout I did not see any speedup
-			PreserveFlag p0(GL_SCISSOR_TEST,true);
-			PreserveScissor p1;
-
-			// render left
-			GLint viewport1eye[4] = {viewport[0],viewport[1],viewport[2],viewport[3]};
-			if (_.stereoMode==SM_SIDE_BY_SIDE || _.stereoMode==SM_SIDE_BY_SIDE_SWAP)
-				viewport1eye[2] /= 2;
-			else
-				viewport1eye[3] /= 2;
-			glViewport(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
-			glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
-			_.camera = swapEyes?&rightEye:&leftEye;
-			StereoMode backup = _.stereoMode;
-			_.stereoMode = SM_MONO;
-			render(_solver,_objects,_lights,_);
-			_.stereoMode = backup;
-
-			// render right
-			// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
-			if (_.stereoMode==SM_SIDE_BY_SIDE || _.stereoMode==SM_SIDE_BY_SIDE_SWAP)
-				viewport1eye[0] += viewport1eye[2];
-			else
-				viewport1eye[1] += viewport1eye[3];
-			glViewport(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
-			glScissor(viewport1eye[0],viewport1eye[1],viewport1eye[2],viewport1eye[3]);
-			_.camera = swapEyes?&leftEye:&rightEye;
-			_.stereoMode = SM_MONO;
-			render(_solver,_objects,_lights,_);
-			_.stereoMode = backup;
-		}
-
-		// composite
-		if (_.stereoMode==SM_INTERLACED || _.stereoMode==SM_INTERLACED_SWAP)
-		{
-			// turns top-down images to interlaced
-			glViewport(viewport[0],viewport[1]+(viewport[3]%2),viewport[2],viewport[3]/2*2);
-			stereoTexture->bindTexture();
-			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,viewport[0],viewport[1],viewport[2],viewport[3]/2*2,0);
-			Program* stereoProgram = stereoUberProgram->getProgram("");
-			if (stereoProgram)
-			{
-				stereoProgram->useIt();
-				stereoProgram->sendTexture("map",stereoTexture);
-				stereoProgram->sendUniform("mapHalfHeight",float(viewport[3]/2));
-				glDisable(GL_CULL_FACE);
-				TextureRenderer::renderQuad();
-			}
-		}
-
-		// restore viewport after rendering stereo (it could be non-default, e.g. when enhanced sshot is enabled)
-		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
-
-		return;
-	}
-
-	// handle panorama modes by calling render 6 times
-	if (_.panoramaMode!=PM_OFF && panoramaTexture)
-	{
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT,viewport);
-
-		// resize cube
-		unsigned size = (unsigned)sqrtf(viewport[2]*viewport[3]/6.f+1);
-		size = RR_MIN3(size,(unsigned)viewport[2],(unsigned)viewport[3]);
-		if (panoramaTexture->getBuffer()->getWidth()!=size)
-		{
-			panoramaTexture->getBuffer()->reset(rr::BT_CUBE_TEXTURE,size,size,6,rr::BF_RGBA,true,RR_GHOST_BUFFER); // A for mirroring
-			panoramaTexture->reset(false,false,false);
-		}
-
-		renderToCube(_solver,_objects,_lights,_,panoramaTexture,depthTexture);
-
-		// composite
-		textureRenderer->render2D(panoramaTexture,NULL,1,0,0,1,1,-1,(_.panoramaMode==PM_LITTLE_PLANET)?"#define LITTLE_PLANET\n":NULL);
-
-		return;
-	}
+	PluginParamsScene _ = pp;
+	PluginParamsShared sp = _sp;
 
 	// Ensure sRGB correctness.
 	if (!Workaround::supportsSRGB())
-		_.srgbCorrect = false;
-	PreserveFlag p0(GL_FRAMEBUFFER_SRGB,_.srgbCorrect);
-	if (_.srgbCorrect)
-	{
-		_.gamma *= 2.2f;
-	}
+		sp.srgbCorrect = false;
+	PreserveFlag p0(GL_FRAMEBUFFER_SRGB,sp.srgbCorrect);
 
 #ifdef MIRRORS
 	GLint hasAlphaBits = -1; // -1=unknown, 0=no, 1,2,4,8...=yes
@@ -503,26 +218,27 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 		i->second->clear(); // saves lots of new/delete, but makes cycling over map slower, empty fields make cycle longer. needs benchmarking to make sure it's faster than plain nonBlendedFaceGroupsMap[recursionDepth].clear();
 	blendedFaceGroups[recursionDepth].clear();
 	multiObjects.clear();
-	multiObjects.push_back(_solver->getMultiObjectCustom());
+	if (_.solver)
+		multiObjects.push_back(_.solver->getMultiObjectCustom());
 	for (unsigned pass=0;pass<3;pass++)
 	{
 		const rr::RRObjects* objects;
 		switch (pass)
 		{
 			case 0:
-				if (_objects) {objects = _objects; break;}
+				if (_.objects) {objects = _.objects; break;}
 				if (needsIndividualStaticObjectsForEverything) continue;
 				objects = &multiObjects;
 				break;
 			case 1:
-				if (_objects) continue;
+				if (_.objects) continue;
 				if (!needsIndividualStaticObjectsForEverything && !needsIndividualStaticObjectsOnlyForBlending) continue;
-				objects = &_solver->getStaticObjects();
+				objects = &_.solver->getStaticObjects();
 				break;
 			case 2:
-				if (_objects) continue;
+				if (_.objects) continue;
 				if (_.uberProgramSetup.FORCE_2D_POSITION) continue;
-				objects = &_solver->getDynamicObjects();
+				objects = &_.solver->getDynamicObjects();
 				break;
 		}
 		for (unsigned i=0;i<objects->size();i++)
@@ -535,7 +251,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 
 				PerObjectBuffers objectBuffers;
 				objectBuffers.object = object;
-				objectBuffers.meshRenderer = rendererOfMeshCache.getRendererOfMesh(mesh);
+				objectBuffers.meshRenderer = _renderer.getMeshRenderer(mesh);
 				rr::RRBuffer* lightIndirectVcolor = _.uberProgramSetup.LIGHT_INDIRECT_VCOLOR ? onlyVbuf(illumination.getLayer(_.layerLightmap)) : NULL;
 				rr::RRBuffer* lightIndirectMap = _.uberProgramSetup.LIGHT_INDIRECT_MAP ? onlyLmap(illumination.getLayer(_.layerLightmap)) : NULL;
 				objectBuffers.lightIndirectBuffer = lightIndirectVcolor?lightIndirectVcolor:lightIndirectMap;
@@ -657,7 +373,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
 				objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = objectBuffers.lightIndirectDetailMap!=NULL;
 				objectBuffers.objectUberProgramSetup.OBJECT_SPACE = object->getWorldMatrix()!=NULL;
-				if (_.srgbCorrect) // we changed gamma value, it has to be enabled in shader to have effect
+				if (sp.srgbCorrect) // we changed gamma value, it has to be enabled in shader to have effect
 					objectBuffers.objectUberProgramSetup.POSTPROCESS_GAMMA = true;
 
 				const rr::RRObject::FaceGroups& faceGroups = object->faceGroups;
@@ -677,7 +393,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 						{
 							// here we process everything that needs sorting, i.e. what is blended in final render
 							// blended objects rendered into rgb shadowmap are not processed here, because they don't need sort
-							if (!needsIndividualStaticObjectsOnlyForBlending || pass!=0 || _objects)
+							if (!needsIndividualStaticObjectsOnlyForBlending || pass!=0 || _.objects)
 							{
 								objectWillBeRendered = true;
 								blendedFaceGroups[recursionDepth].push_back(FaceGroupRange(perObjectBuffers[recursionDepth].size(),g,triangleInFgFirst,triangleInFgLastPlus1));
@@ -689,12 +405,12 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 									const rr::RRMatrix3x4* worldMatrix = object->getWorldMatrix();
 									if (worldMatrix)
 										worldMatrix->transformPosition(center);
-									objectBuffers.eyeDistance = (_.camera->getPosition()-center).length();
+									objectBuffers.eyeDistance = (sp.camera->getPosition()-center).length();
 								}
 							}
 						}
 						else
-						if (!needsIndividualStaticObjectsOnlyForBlending || pass!=1 || _objects)
+						if (!needsIndividualStaticObjectsOnlyForBlending || pass!=1 || _.objects)
 						{
 							objectWillBeRendered = true;
 							UberProgramSetup fgUberProgramSetup = objectBuffers.objectUberProgramSetup;
@@ -722,20 +438,20 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 					// update vertex buffers
 					if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR
 						// quit if buffer is already up to date
-						&& lightIndirectVcolor->version!=_solver->getSolutionVersion()
+						&& lightIndirectVcolor->version!=_.solver->getSolutionVersion()
 						// quit if rendering arbitrary non-solver objects
-						&& !_objects)
+						&& !_.objects)
 					{
 						if (pass==1)
 						{
 							// updates indexed 1object buffer
-							_solver->updateLightmap(i,lightIndirectVcolor,NULL,NULL,NULL);
+							_.solver->updateLightmap(i,lightIndirectVcolor,NULL,NULL,NULL);
 						}
 						else
 						if (pass==0)
 						{
 							// -1 = updates indexed multiobject buffer
-							_solver->updateLightmap(-1,lightIndirectVcolor,NULL,NULL,NULL);
+							_.solver->updateLightmap(-1,lightIndirectVcolor,NULL,NULL,NULL);
 						}
 					}
 					// update cube maps
@@ -745,9 +461,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 						RR_ASSERT(recursionDepth+1<MAX_RECURSION_DEPTH);
 						if (recursionDepth+1<MAX_RECURSION_DEPTH)
 						{
-							recursionDepth++;
-							_solver->updateEnvironmentMap(&illumination,_.layerEnvironment,_.uberProgramSetup.LIGHT_DIRECT?UINT_MAX:_.layerLightmap,_.uberProgramSetup.LIGHT_DIRECT?_.layerLightmap:UINT_MAX);
-							recursionDepth--;
+							_.solver->updateEnvironmentMap(&illumination,_.layerEnvironment,_.uberProgramSetup.LIGHT_DIRECT?UINT_MAX:_.layerLightmap,_.uberProgramSetup.LIGHT_DIRECT?_.layerLightmap:UINT_MAX);
 						}
 					}
 				}
@@ -760,6 +474,9 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 	PreserveBlend p3;     // changed by RendererOfMesh (in MultiPass)
 	PreserveColorMask p4; // changed by RendererOfMesh
 	PreserveDepthMask p5; // changed by RendererOfMesh
+
+	if (pp.wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// Render non-sorted facegroups (update and apply mirrors).
 	for (unsigned applyingMirrors=0;applyingMirrors<2;applyingMirrors++) // 2 passes, LIGHT_INDIRECT_MIRROR should go _after_ !LIGHT_INDIRECT_MIRROR to increase speed and reduce light leaking under walls
@@ -779,7 +496,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 					// setup culling at the beginning
 					glDisable(GL_CULL_FACE);
 				}
-				MultiPass multiPass(*_.camera,_lights,_.renderingFromThisLight,classUberProgramSetup,uberProgram,&_.clipPlanes,_.srgbCorrect,&_.brightness,_.gamma);
+				MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,classUberProgramSetup,uberProgram,&_.clipPlanes,sp.srgbCorrect,&sp.brightness,sp.gamma*(sp.srgbCorrect?2.2f:1.f));
 				UberProgramSetup passUberProgramSetup;
 				RealtimeLight* light;
 				Program* program;
@@ -833,9 +550,8 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 			RR_ASSERT(recursionDepth+1<MAX_RECURSION_DEPTH);
 			if (recursionDepth+1<MAX_RECURSION_DEPTH)
 			{
-			recursionDepth++;
 
-			RenderParameters mirror = _;
+			PluginParamsScene mirror = _;
 			mirror.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
 			mirror.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
 			mirror.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = false;
@@ -873,7 +589,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 					continue;
 				}
 				mirrorMaskProgram->useIt();
-				mirrorMaskUberProgramSetup.useCamera(mirrorMaskProgram,_.camera);
+				mirrorMaskUberProgramSetup.useCamera(mirrorMaskProgram,sp.camera);
 				for (unsigned j=0;j<perObjectBuffers[0].size();j++)
 				{
 					PerObjectBuffers& objectBuffers = perObjectBuffers[0][j];
@@ -938,38 +654,31 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 				glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
 				glDepthFunc(GL_ALWAYS); // depth test must stay enabled, otherwise depth would not be written
 				glDisable(GL_CULL_FACE);
-				getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,1,"#define MIRROR_MASK_DEPTH\n"); // keeps depth test enabled
+				_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,1,"#define MIRROR_MASK_DEPTH\n"); // keeps depth test enabled
 				glDepthFunc(GL_LEQUAL);
 
 				// render scene into mirrorDepthMap, mirrorColorMap.rgb
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_FALSE);
 				rr::RRVec4 mirrorPlane = i->first;
-				bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(_.camera->getPosition())>0;
+				bool cameraInFrontOfMirror = mirrorPlane.planePointDistance(sp.camera->getPosition())>0;
 				if (!cameraInFrontOfMirror) mirrorPlane = -mirrorPlane;
-				mirrorPlane.w -= mirrorPlane.RRVec3::length()*_.camera->getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
-				rr::RRCamera mirrorCamera = *_.camera;
+				mirrorPlane.w -= mirrorPlane.RRVec3::length()*sp.camera->getFar()*1e-5f; // add bias, clip face in clipping plane, avoid reflecting mirror in itself
+				rr::RRCamera mirrorCamera = *sp.camera;
 				mirrorCamera.mirror(mirrorPlane);
 				mirrorCamera.setFar(mirrorCamera.getFar()*2); // should be far enough in majority of situations
-				mirror.camera = &mirrorCamera;
 				mirror.clipPlanes.clipPlane = mirrorPlane;
-				// Q: how to make mirrors srgb correct?
-				// A: current mirror is always srgb incorrect, srgb correct render works only into real backbuffer, not into texture.
-				//    result is not affected by using GL_RGB vs GL_SRGB
-				//    even if we render srgb correctly into texture(=writes encode), reads in final render will decode(=we get what we wrote in, conversion is lost)
-				//    for srgb correct mirror, we would have to
-				//    a) add LIGHT_INDIRECT_MIRROR_SRGB, and convert manually in shader (would increase already large number of shaders)
-				//    b) make ubershader work with linear light (number of differences between correct and incorrect path would grow too much, difficult to maintain)
-				//       (srgb incorrect path must remain because of OpenGL ES)
-				mirror.srgbCorrect = false;
-				mirror.brightness = rr::RRVec4(1);
-				mirror.gamma = 1;
-				render(_solver,_objects,_lights,mirror);
+				PluginParamsShared mirrorShared;
+				mirrorShared.camera = &mirrorCamera;
+				mirrorShared.viewport[2] = mirrorColorMap->getWidth();
+				mirrorShared.viewport[3] = mirrorColorMap->getHeight();
+				mirrorShared.srgbCorrect = sp.srgbCorrect;
+				_renderer.render(&mirror,mirrorShared);
 
 				// copy mirrorMaskMap to mirrorColorMap.A
 				//if (_.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
 				{
 					glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);
-					getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,-1,"#define MIRROR_MASK_ALPHA\n"); // disables depth test
+					_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,-1,"#define MIRROR_MASK_ALPHA\n"); // disables depth test
 				}
 
 				oldState.restore();
@@ -990,40 +699,23 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 				glDisable(GL_BLEND);
 				// debug: render textures to backbuffer with z=-1 to pass z-test
 				//        z-write is disabled, so everything rendered later (mirrors and glasses) overlaps them
-				//textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,0.7f,0.7f,0.3f,0.3f,-1,"#define MIRROR_MASK_DEBUG\n"); // rendered up, MIRROR_MASK_DEBUG is necessary to show alpha as rgb
-				//textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.35f,-0.3f,0.3f,-1);
-				//textureRenderer->render2D(getTexture(mirrorColorMap,false,false),NULL,1,1,0.0f,-0.3f,0.3f,-1); // rendered down
+				//_renderer.textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,0.7f,0.7f,0.3f,0.3f,-1,"#define MIRROR_MASK_DEBUG\n"); // rendered up, MIRROR_MASK_DEBUG is necessary to show alpha as rgb
+				//_renderer.textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.35f,-0.3f,0.3f,-1);
+				//_renderer.textureRenderer->render2D(getTexture(mirrorColorMap,false,false),NULL,1,1,0.0f,-0.3f,0.3f,-1); // rendered down
 			}
 			glDepthMask(GL_TRUE);
 			glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 
-			recursionDepth--;
 			}
 		}
 #endif
 	}
 
+	if (pp.wireframe)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 	// Render skybox.
- 	if (!_.renderingFromThisLight && !_.uberProgramSetup.FORCE_2D_POSITION && !_objects)
-	{
-		rr::RRReal envAngleRad0 = 0;
-		const rr::RRBuffer* env0 = _solver->getEnvironment(0,&envAngleRad0);
-		if (textureRenderer && env0)
-		{
-			rr::RRReal envAngleRad1 = 0;
-			const rr::RRBuffer* env1 = _solver->getEnvironment(1,&envAngleRad1);
-			float blendFactor = _solver->getEnvironmentBlendFactor();
-			Texture* texture0 = (env0->getWidth()>2)
-				? getTexture(env0,false,false) // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
-				: getTexture(env0,false,false,GL_NEAREST,GL_NEAREST) // used by 2x2 sky
-				;
-			Texture* texture1 = env1 ? ( (env1->getWidth()>2)
-				? getTexture(env1,false,false) // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
-				: getTexture(env1,false,false,GL_NEAREST,GL_NEAREST) // used by 2x2 sky
-				) : NULL;
-			textureRenderer->renderEnvironment(*_.camera,texture0,envAngleRad0,texture1,envAngleRad1,blendFactor,&_.brightness,_.gamma,true);
-		}
-	}
+	_renderer.render(_pp.next,sp);
 
 	// Render sorted facegroups.
 	if (blendedFaceGroups[recursionDepth].size())
@@ -1042,7 +734,7 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 			fgUberProgramSetup.enableUsedMaterials(material,dynamic_cast<const rr::RRMeshArrays*>(object->getCollider()->getMesh()));
 			fgUberProgramSetup.reduceMaterials(_.uberProgramSetup);
 			fgUberProgramSetup.validate();
-			MultiPass multiPass(*_.camera,_lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,&_.clipPlanes,_.srgbCorrect,&_.brightness,_.gamma);
+			MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,&_.clipPlanes,sp.srgbCorrect,&sp.brightness,sp.gamma*(sp.srgbCorrect?2.2f:1.f));
 			UberProgramSetup passUberProgramSetup;
 			RealtimeLight* light;
 			Program* program;
@@ -1079,16 +771,32 @@ void RendererOfSceneImpl::render(rr::RRDynamicSolver* _solver, const rr::RRObjec
 		delete i->second;
 	}
 #endif
+
+	recursionDepth--;
 }
+
+	virtual ~PluginRuntimeScene()
+	{
+#ifdef MIRRORS
+		delete mirrorMaskMap;
+		delete mirrorDepthMap;
+#endif
+
+		delete uberProgram;
+		for (recursionDepth=0;recursionDepth<MAX_RECURSION_DEPTH;recursionDepth++)
+			for (ShaderFaceGroups::iterator i=nonBlendedFaceGroupsMap[recursionDepth].begin();i!=nonBlendedFaceGroupsMap[recursionDepth].end();++i)
+				delete i->second;
+	};
+};
 
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RendererOfScene
+// PluginParamsScene
 
-RendererOfScene* RendererOfScene::create(const rr::RRString& pathToShaders)
+PluginRuntime* PluginParamsScene::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
 {
-	return new RendererOfSceneImpl(pathToShaders);
+	return new PluginRuntimeScene(pathToShaders, pathToMaps);
 }
 
 }; // namespace

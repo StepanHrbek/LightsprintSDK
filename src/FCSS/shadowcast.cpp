@@ -85,13 +85,21 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 	#include <unistd.h> // chdir
 	#define _chdir chdir
 #endif
+//#include "Lightsprint/GL/PluginBloom.h"
+//#include "Lightsprint/GL/PluginDOF.h"
+#include "Lightsprint/GL/PluginFPS.h"
+//#include "Lightsprint/GL/PluginLensFlare.h"
+//#include "Lightsprint/GL/PluginPanorama.h"
+#include "Lightsprint/GL/PluginScene.h"
+#include "Lightsprint/GL/PluginSky.h"
+//#include "Lightsprint/GL/PluginSSGI.h"
+//#include "Lightsprint/GL/PluginStereo.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/Ed/Ed.h"
-#include "Lightsprint/GL/FPS.h"
 #include "Lightsprint/IO/IO.h"
 #include "AnimationEditor.h"
 #include "DemoPlayer.h"
@@ -149,7 +157,6 @@ const char* customScene = NULL;
 // Fps
 
 rr_gl::FpsCounter  g_fpsCounter;
-rr_gl::FpsDisplay* g_fpsDisplay = NULL;
 unsigned           g_playedFrames = 0;
 float              g_fpsAvg = 0;
 
@@ -209,7 +216,6 @@ void init_gl_resources()
 #ifdef CORNER_LOGO
 	lightsprintMap = rr_gl::Texture::load("maps/Lightsprint230.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
 #endif
-	g_fpsDisplay = rr_gl::FpsDisplay::create("maps/");
 
 	uberProgram = rr_gl::UberProgram::create("shaders/ubershader.vs", "shaders/ubershader.fs");
 	rr_gl::UberProgramSetup uberProgramSetup;
@@ -235,7 +241,6 @@ void done_gl_resources()
 {
 	RR_SAFE_DELETE(skyRenderer);
 	RR_SAFE_DELETE(uberProgram);
-	RR_SAFE_DELETE(g_fpsDisplay);
 #ifdef CORNER_LOGO
 	RR_SAFE_DELETE(lightsprintMap);
 #endif
@@ -280,21 +285,25 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 
 	camera.setAspect( winHeight ? (float) winWidth / (float) winHeight : 1 );
 
-	rr_gl::RenderParameters rp;
-	rp.uberProgramSetup = uberProgramSetup;
-	rp.camera = &camera;
-	rp.renderingFromThisLight = renderingFromThisLight;
-	rp.updateLayers = true;
-	rp.layerLightmap = LAYER_LIGHTMAPS;
-	rp.layerEnvironment = LAYER_ENVIRONMENT;
-	rp.layerLDM = uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX;
-	rp.brightness = currentFrame.brightness;
-	rp.gamma = currentFrame.gamma;
-
-	demoPlayer->getBoost(rp.brightness,rp.gamma);
+	rr_gl::PluginParamsSky ppSky(NULL,level->solver);
+	rr_gl::PluginParamsScene ppScene(&ppSky,level->solver);
+	ppScene.uberProgramSetup = uberProgramSetup;
+	ppScene.renderingFromThisLight = renderingFromThisLight;
+	ppScene.updateLayers = true;
+	ppScene.layerLightmap = LAYER_LIGHTMAPS;
+	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
+	ppScene.layerLDM = uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX;
+	rr_gl::PluginParamsFPS ppFPS(&ppScene,g_fpsCounter.getFps());
+	rr_gl::PluginParamsShared ppShared;
+	ppShared.camera = &camera;
+	ppShared.viewport[2] = winWidth;
+	ppShared.viewport[3] = winHeight;
+	ppShared.brightness = currentFrame.brightness;
+	ppShared.gamma = currentFrame.gamma;
+	demoPlayer->getBoost(ppShared.brightness,ppShared.gamma);
 	rrLight->rtProjectedTexture = demoPlayer->getProjector(currentFrame.projectorIndex);
 
-	level->solver->renderScene(rp);
+	level->solver->getRenderer()->render(captureVideo?(rr_gl::PluginParams*)&ppScene:(rr_gl::PluginParams*)&ppFPS,ppShared);
 }
 
 void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance)
@@ -1606,11 +1615,6 @@ no_frame:
 		if (!demoPlayer->getPaused()) g_playedFrames++;
 		float seconds = demoPlayer->getDemoPosition();
 		g_fpsAvg = g_playedFrames/RR_MAX(0.01f,seconds);
-		if (g_fpsDisplay && !captureVideo)
-		{
-			unsigned fps = g_fpsCounter.getFps();
-			g_fpsDisplay->render(skyRenderer,fps,winWidth,winHeight);
-		}
 
 		if (demoPlayer->getPaused() && level->animationEditor)
 		{

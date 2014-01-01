@@ -15,7 +15,8 @@
 #endif
 
 #include "Lightsprint/GL/RealtimeLight.h"
-#include "Lightsprint/GL/RendererOfScene.h"
+#include "Lightsprint/GL/PluginPanorama.h"
+#include "Lightsprint/GL/PluginStereo.h"
 #include "Lightsprint/RRDynamicSolver.h"
 #include <ctime> // struct tm
 

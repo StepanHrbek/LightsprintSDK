@@ -175,11 +175,16 @@ Lighting computed (outputs)
 
 Renderers
 - integrates with external renderers
-- includes OpenGL shader based renderer
+- includes modern extensible OpenGL / OpenGL ES based renderer
 
 Stereo rendering
-- integrates with external stereo compositors
-- includes interlaced stereo renderer, works with any GPU
+- side-by-side
+- top-down
+- interlaced
+
+Panorama rendering
+- equirectangular
+- little planet
 
 Materials
 - supports all types of materials
@@ -2936,11 +2941,13 @@ rr::RRVector<*>{
   (includes also fast ray-scene intersections)
 
  - <b> \subpage api_gl "LIGHTSPRINT GL" </b> -
-  is such an integration with OpenGL
-  (includes also high performance renderer and scene editor)
+  is such an integration with OpenGL, together with modern extensible plugins based renderer
 
  - <b> \subpage api_io "LIGHTSPRINT IO" </b> -
   provides support for 95+ fileformats
+
+ - <b> \subpage api_ed "LIGHTSPRINT ED" </b> -
+  is a realtime 3d scene visualizer and editor, with nearly all features of other Lightsprint libraries integrated
 
  structured into core layer and extensions:
 
@@ -3076,27 +3083,11 @@ rr::RRVector<*>{
 
  \section gl_overview Overview
 
- LightsprintGL consists of 2 components
+ LightsprintGL consists of 2 major components
    -# integration of GI solvers with OpenGL
      - implemented in rr_gl::RRDynamicSolverGL
-   -# high performance OpenGL renderer
-     - realtime global illumination from lights, emissive materials, sky, custom
-     - unlimited number of realtime lights
-     - linear and area spotlights with realtime penumbra shadows
-     - sky: cubemap, cross, equirectangular, HDR, LDR, blending
-     - effects: tone mapping, bloom, lens flare
-     - separately enabled/disabled light features:
-       - color
-       - projected texture
-       - polynomial, exponential, none or physically correct distance attenuation models
-       - shadows with variable softness, resolution, automatically cascaded in outdoor
-     - separately enabled/disabled material features:
-       - diffuse reflection: none, constant, per vertex, per pixel
-       - specular reflection: none, constant, per vertex, per pixel
-       - emission: none, constant, per pixel
-       - transparency: none, constant, per pixel / blend or 1bit alpha keying
-       - bump: normal map, height map with parallax mapping
-     - minimal requirements: OpenGL 2.0 or OpenGL ES 2.0
+   -# extensible high performance OpenGL renderer
+     - implemented in rr_gl::Renderer
 
  \section gl_api API
 
@@ -3108,12 +3099,9 @@ rr::RRVector<*>{
  - rr_gl::RRDynamicSolverGL integrates GI solvers with OpenGL 2.0
 
  <hr>
- Header: Lightsprint/GL/RendererOfScene.h
+ Header: Lightsprint/GL/Renderer.h
 
- - rr_gl::RendererOfScene is a renderer of 3d scene in RRDynamicSolver
- - renders environment, HDR
- - renders scene objects with precomputed or realtime computed illumination
- - detects what data are available (lightmaps, vertex colors)
+ - rr_gl::Renderer is a plugins based renderer
 
  <hr>
  Other headers/classes:
@@ -3122,8 +3110,8 @@ rr::RRVector<*>{
  - rr_gl::Program is GLSL program
  - rr_gl::UberProgram is GLSL program with preprocessor parameters changeable at runtime
  - rr_gl::UberProgramSetup is set of parameters for our ubershaders UberShader.vs and UberShader.fs
- - rr_gl::Camera is frustum suitable for camera or spotlight
  - rr_gl::RealtimeLight is an extension of RRLight, structures needed for realtime GI rendering
+ - rr_gl::FBO lets you render to textures
 
 
 
@@ -3143,7 +3131,7 @@ rr::RRVector<*>{
  <hr>
  Header: Lightsprint/Ed/Ed.h
 
- - rr_ed::sceneViewer() is a single function scene viewer, with UI for editing lights and materials,
+ - rr_ed::sceneViewer() is a single function scene viewer, with UI for editing objects, lights and materials,
    with realtime and static GI, with 2d viewer of lightmaps and mappings.
    It is very helpful during debugging, it can display contents of RRDynamicSolver at any moment and let you
    examine and experiment with all scene properties.

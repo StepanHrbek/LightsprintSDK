@@ -776,23 +776,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="Bloom.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\Bloom.h"
-			>
-		</File>
-		<File
 			RelativePath="..\..\include\Lightsprint\GL\DemoEngine.h"
-			>
-		</File>
-		<File
-			RelativePath=".\DOF.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\DOF.h"
 			>
 		</File>
 		<File
@@ -800,27 +784,115 @@
 			>
 		</File>
 		<File
-			RelativePath="FPS.cpp"
+			RelativePath=".\MultiPass.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\GL\FPS.h"
+			RelativePath=".\MultiPass.h"
 			>
 		</File>
 		<File
-			RelativePath="LensFlare.cpp"
+			RelativePath=".\Plugin.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\GL\LensFlare.h"
+			RelativePath="..\..\include\Lightsprint\GL\Plugin.h"
 			>
 		</File>
 		<File
-			RelativePath="MultiPass.cpp"
+			RelativePath=".\PluginBloom.cpp"
 			>
 		</File>
 		<File
-			RelativePath="MultiPass.h"
+			RelativePath="..\..\include\Lightsprint\GL\PluginBloom.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PluginCube.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\PluginCube.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PluginDOF.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\PluginDOF.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PluginFPS.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\PluginFPS.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PluginLensFlare.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\PluginLensFlare.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PluginPanorama.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\PluginPanorama.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PluginScene.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\PluginScene.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PluginShowDDI.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\PluginShowDDI.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PluginSky.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\PluginSky.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PluginSSGI.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\PluginSSGI.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PluginStereo.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\PluginStereo.h"
+			>
+		</File>
+		<File
+			RelativePath=".\PluginToneMapping.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\include\Lightsprint\GL\PluginToneMapping.h"
 			>
 		</File>
 		<File
@@ -828,7 +900,7 @@
 			>
 		</File>
 		<File
-			RelativePath="Program.cpp"
+			RelativePath=".\Program.cpp"
 			>
 		</File>
 		<File
@@ -836,7 +908,7 @@
 			>
 		</File>
 		<File
-			RelativePath="RealtimeLight.cpp"
+			RelativePath=".\RealtimeLight.cpp"
 			>
 		</File>
 		<File
@@ -844,23 +916,23 @@
 			>
 		</File>
 		<File
-			RelativePath="RendererOfMesh.cpp"
+			RelativePath=".\Renderer.cpp"
 			>
 		</File>
 		<File
-			RelativePath="RendererOfMesh.h"
+			RelativePath="..\..\include\Lightsprint\GL\Renderer.h"
 			>
 		</File>
 		<File
-			RelativePath="RendererOfScene.cpp"
+			RelativePath=".\RendererOfMesh.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\include\Lightsprint\GL\RendererOfScene.h"
+			RelativePath=".\RendererOfMesh.h"
 			>
 		</File>
 		<File
-			RelativePath="RRDynamicSolverGL.cpp"
+			RelativePath=".\RRDynamicSolverGL.cpp"
 			>
 		</File>
 		<File
@@ -868,23 +940,15 @@
 			>
 		</File>
 		<File
-			RelativePath="Shader.cpp"
+			RelativePath=".\Shader.cpp"
 			>
 		</File>
 		<File
-			RelativePath="Shader.h"
+			RelativePath=".\Shader.h"
 			>
 		</File>
 		<File
-			RelativePath="SSGI.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\SSGI.h"
-			>
-		</File>
-		<File
-			RelativePath="Texture.cpp"
+			RelativePath=".\Texture.cpp"
 			>
 		</File>
 		<File
@@ -892,7 +956,7 @@
 			>
 		</File>
 		<File
-			RelativePath="TextureRenderer.cpp"
+			RelativePath=".\TextureRenderer.cpp"
 			>
 		</File>
 		<File
@@ -900,19 +964,11 @@
 			>
 		</File>
 		<File
-			RelativePath="tmpstr.h"
+			RelativePath=".\tmpstr.h"
 			>
 		</File>
 		<File
-			RelativePath="ToneMapping.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\include\Lightsprint\GL\ToneMapping.h"
-			>
-		</File>
-		<File
-			RelativePath="UberProgram.cpp"
+			RelativePath=".\UberProgram.cpp"
 			>
 		</File>
 		<File
@@ -920,7 +976,7 @@
 			>
 		</File>
 		<File
-			RelativePath="UberProgramSetup.cpp"
+			RelativePath=".\UberProgramSetup.cpp"
 			>
 		</File>
 		<File
@@ -928,11 +984,11 @@
 			>
 		</File>
 		<File
-			RelativePath="Workaround.cpp"
+			RelativePath=".\Workaround.cpp"
 			>
 		</File>
 		<File
-			RelativePath="Workaround.h"
+			RelativePath=".\Workaround.h"
 			>
 		</File>
 	</Files>
