@@ -23,16 +23,6 @@
 
 // Actual support depends on your operating system, compiler etc.
 
-// Assimp doesn't support Visual Studio 2003, 2005.
-#if defined(SUPPORT_ASSIMP) && defined(_MSC_VER) && (_MSC_VER < 1500)
-	#undef SUPPORT_ASSIMP
-#endif
-
-// FCollada doesn't support Visual Studio 2003.
-#if defined(SUPPORT_FCOLLADA) && defined(_MSC_VER) && (_MSC_VER < 1400)
-	#undef SUPPORT_FCOLLADA
-#endif
-
 // Gamebryo doesn't support Visual Studio 2003, 2010, 64-bit code, Linux.
 // We don't support Gamebryo in static LightsprintIO (it works, but Gamebryo libs are not automatically linked to samples).
 #if defined(SUPPORT_GAMEBRYO) && ( !defined(_MSC_VER) || _MSC_VER<1400 || _MSC_VER>1500 || defined(_M_X64) || defined(RR_IO_STATIC) )

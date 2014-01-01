@@ -191,21 +191,10 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 		RRVec3* lock = vertexBuffer->getFormat()==BF_RGBF ? (RRVec3*)(vertexBuffer->lock(BL_DISCARD_AND_WRITE)) : NULL;
 		if (lock)
 		{
-			// #pragma with if () is broken in VC++2005
-			if (numPostImportVertices>35000)
+			#pragma omp parallel for schedule(static) if(numPostImportVertices>35000)
+			for (int postImportVertex=0;(unsigned)postImportVertex<numPostImportVertices;postImportVertex++)
 			{
-				#pragma omp parallel for schedule(static)
-				for (int postImportVertex=0;(unsigned)postImportVertex<numPostImportVertices;postImportVertex++)
-				{
-					lock[postImportVertex] = *postVertex2Ivertex[postImportVertex];
-				}
-			}
-			else
-			{
-				for (int postImportVertex=0;(unsigned)postImportVertex<numPostImportVertices;postImportVertex++)
-				{
-					lock[postImportVertex] = *postVertex2Ivertex[postImportVertex];
-				}
+				lock[postImportVertex] = *postVertex2Ivertex[postImportVertex];
 			}
 			vertexBuffer->unlock();
 		}

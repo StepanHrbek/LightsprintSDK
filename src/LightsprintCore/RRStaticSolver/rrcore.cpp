@@ -1056,11 +1056,7 @@ void Scene::refreshFormFactorsFromUntil(BestInfo source,RRStaticSolver::EndFunc&
 			)
 		{
 			int shotsTodo = RR_MIN(shotsForNewFactors-shotsAccumulated,100000);
-			#if defined(_MSC_VER) && (_MSC_VER<1500)
-				#pragma omp parallel for // 2005 SP1 has broken if
-			#else
-				#pragma omp parallel for if(shotsTodo>30)
-			#endif
+			#pragma omp parallel for if(shotsTodo>30)
 			for (int i=0;i<shotsTodo;i++)
 			{
 				#ifdef _OPENMP

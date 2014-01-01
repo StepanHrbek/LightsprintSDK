@@ -391,17 +391,13 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 							HRESULT err = 19191919;
 
 							BEGIN_ABORTABLE_SECTION
-#if _MSC_VER>=1500 // this __try fails to compile in VS2005
 							__try
 							{
-#endif
 								err = this->D3DXCleanMesh(D3DXCLEAN_SIMPLIFICATION,dxMeshIn,adjacency,&dxMeshOut,adjacencyOut,&errorsAndWarnings);
-#if _MSC_VER>=1500
 							}
 							__except(EXCEPTION_EXECUTE_HANDLER)
 							{
 							}
-#endif
 							END_ABORTABLE_SECTION
 
 							//RRReporter::report(WARN,"cleanup=%s\n",DXGetErrorDescription9(err));
@@ -506,10 +502,8 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					HRESULT err = 19191919;
 
 					BEGIN_ABORTABLE_SECTION
-#if _MSC_VER>=1500 // this __try fails to compile in VS2005
 					__try
 					{
-#endif
 						err = this->D3DXUVAtlasPartition(
 							dxMeshIn,
 							0, // maxCharts
@@ -527,12 +521,10 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 							&maxStretch, // max stretch
 							&numCharts // num charts
 							);
-#if _MSC_VER>=1500
 					}
 					__except(EXCEPTION_EXECUTE_HANDLER)
 					{
 					}
-#endif
 					END_ABORTABLE_SECTION
 
 					if (err==19191919)
@@ -567,10 +559,8 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 							err = 19191919;
 
 							BEGIN_ABORTABLE_SECTION
-#if _MSC_VER>=1500 // this __try fails to compile in VS2005
 							__try
 							{
-#endif
 								err = this->D3DXUVAtlasPack(
 									dxMeshOut,
 									trySize,
@@ -582,12 +572,10 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 									0,
 									facePartitioning
 									);
-#if _MSC_VER>=1500
 							}
 							__except(EXCEPTION_EXECUTE_HANDLER)
 							{
 							}
-#endif
 							END_ABORTABLE_SECTION
 
 							if (err==19191919)
