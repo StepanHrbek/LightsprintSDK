@@ -341,10 +341,8 @@ Material formats (1)
  - for offline rendering, 3D API is not needed
 
  Compilers
- - Visual C++ 2012.3 with all security updates (32bit, 64bit)
+ - Visual C++ 2012.4 with all security updates (32bit, 64bit)
  - Visual C++ 2010 SP1 with all security updates (32bit, 64bit)
- - Visual C++ 2008 SP1 with all security updates (32bit, 64bit)
- - Visual C++ 2005 SP1 with all security updates (32bit, 64bit)
  - GCC (32bit, 64bit)
  - Clang (64bit)
 
@@ -547,9 +545,8 @@ Material formats (1)
       - Run our bin/build_wxWidgets.bat.
       - LightsprintEd DLL works now. For static LightsprintEd library, add wx library path
         to <code>Tools / Options / Projects and Solutions / VC++ Directories / Library Files</code>.
-	- \$(WXWIDGETS_DIR)\\lib\\vc90_lib for vc2008 win32 target
-	- \$(WXWIDGETS_DIR)\\lib\\vc80_amd64_lib for vc2005 x64 target
-	- \$(WXWIDGETS_DIR)\\lib\\vc100_lib for vc2010 win32 target
+	- e.g. \$(WXWIDGETS_DIR)\\lib\\vc100_lib for vc2010 win32 target
+	- \$(WXWIDGETS_DIR)\\lib\\vc110_amd64_lib for vc2012 x64 target
 	- etc
    - OSX: install with <code>sudo port install wxWidgets-3.0</code>
    - Ubuntu: install with <code>sudo apt-get install libwxgtk2.9-dev</code>
@@ -2785,7 +2782,7 @@ Material formats (1)
 
 \page main_vs Visual Studio
 
- Lightsprint SDK works with Visual Studio out of the box, but in Visual Studio 2005 and newer, it's possible to improve visualizations of Lightsprint types in debugger.
+ Lightsprint SDK works with Visual Studio out of the box, but it's possible to improve visualizations of Lightsprint types in debugger.
 
  To improve visualizations, open Visual Studio file <code>Common7/Packages/Debugger/autoexp.dat</code> and insert following blocks of text
  - into [AutoExpand] section
