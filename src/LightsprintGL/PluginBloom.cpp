@@ -24,123 +24,123 @@ class PluginRuntimeBloom : public PluginRuntime
 
 public:
 
-PluginRuntimeBloom(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
-{
-	bigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	smallMap1 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	smallMap2 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-	rr::RRString filename1(0,L"%lsbloom.vs",pathToShaders.w_str());
-	rr::RRString filename2(0,L"%lsbloom.fs",pathToShaders.w_str());
-	scaleDownProgram = Program::create("#define PASS 1\n",filename1,filename2);
-	blurProgram = Program::create("#define PASS 2\n",filename1,filename2);
-	blendProgram = Program::create("#define PASS 3\n",filename1,filename2);
-}
+	PluginRuntimeBloom(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
+	{
+		bigMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+		smallMap1 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+		smallMap2 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
+		rr::RRString filename1(0,L"%lsbloom.vs",pathToShaders.w_str());
+		rr::RRString filename2(0,L"%lsbloom.fs",pathToShaders.w_str());
+		scaleDownProgram = Program::create("#define PASS 1\n",filename1,filename2);
+		blurProgram = Program::create("#define PASS 2\n",filename1,filename2);
+		blendProgram = Program::create("#define PASS 3\n",filename1,filename2);
+	}
 
-virtual ~PluginRuntimeBloom()
-{
-	delete blendProgram;
-	delete blurProgram;
-	delete scaleDownProgram;
-	delete smallMap2;
-	delete smallMap1;
-	delete bigMap;
-}
+	virtual ~PluginRuntimeBloom()
+	{
+		delete blendProgram;
+		delete blurProgram;
+		delete scaleDownProgram;
+		delete smallMap2;
+		delete smallMap1;
+		delete bigMap;
+	}
 
-virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
-{
-	_renderer.render(_pp.next,_sp);
+	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
+	{
+		_renderer.render(_pp.next,_sp);
 
-	const PluginParamsBloom& pp = *dynamic_cast<const PluginParamsBloom*>(&_pp);
+		const PluginParamsBloom& pp = *dynamic_cast<const PluginParamsBloom*>(&_pp);
 		
-	if (!bigMap || !smallMap1 || !smallMap2 || !scaleDownProgram || !blurProgram || !blendProgram) return;
+		if (!bigMap || !smallMap1 || !smallMap2 || !scaleDownProgram || !blurProgram || !blendProgram) return;
 
-	FBO oldFBOState = FBO::getState();
+		FBO oldFBOState = FBO::getState();
 
-	// adjust map sizes to match render target size
-	unsigned w = _sp.viewport[2];
-	unsigned h = _sp.viewport[3];
-	if (w!=bigMap->getBuffer()->getWidth() || h!=bigMap->getBuffer()->getHeight())
-	{
-		bigMap->getBuffer()->reset(rr::BT_2D_TEXTURE,w,h,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+		// adjust map sizes to match render target size
+		unsigned w = _sp.viewport[2];
+		unsigned h = _sp.viewport[3];
+		if (w!=bigMap->getBuffer()->getWidth() || h!=bigMap->getBuffer()->getHeight())
+		{
+			bigMap->getBuffer()->reset(rr::BT_2D_TEXTURE,w,h,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
 #ifdef OPTIMIZE_BLOOM
-		if (!oldFBOState.color_id)
+			if (!oldFBOState.color_id)
 #endif
-			bigMap->reset(false,false,false);
-		smallMap1->getBuffer()->reset(rr::BT_2D_TEXTURE,w/4,h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-		smallMap1->reset(false,false,false);
-		smallMap2->getBuffer()->reset(rr::BT_2D_TEXTURE,w/4,h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
-		smallMap2->reset(false,false,false);
-	}
+				bigMap->reset(false,false,false);
+			smallMap1->getBuffer()->reset(rr::BT_2D_TEXTURE,w/4,h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+			smallMap1->reset(false,false,false);
+			smallMap2->getBuffer()->reset(rr::BT_2D_TEXTURE,w/4,h/4,1,rr::BF_RGBA,true,RR_GHOST_BUFFER);
+			smallMap2->reset(false,false,false);
+		}
 	
-	// disable depth
-	PreserveDepthTest p1;
-	PreserveDepthMask p2;
-	PreserveFlag p3(GL_SCISSOR_TEST,false);
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(0);
+		// disable depth
+		PreserveDepthTest p1;
+		PreserveDepthMask p2;
+		PreserveFlag p3(GL_SCISSOR_TEST,false);
+		glDisable(GL_DEPTH_TEST);
+		glDepthMask(0);
 
-	// acquire bigMap
+		// acquire bigMap
 #ifdef OPTIMIZE_BLOOM
-	unsigned oldBigMapId;
-	if (oldFBOState.color_id)
-	{
-		// use color texture currently assigned to FBO
-		oldBigMapId = bigMap->id;
-		bigMap->id = oldFBOState.color_id;
-	}
-	else
+		unsigned oldBigMapId;
+		if (oldFBOState.color_id)
+		{
+			// use color texture currently assigned to FBO
+			oldBigMapId = bigMap->id;
+			bigMap->id = oldFBOState.color_id;
+		}
+		else
 #endif
-	{
-		// copy backbuffer to bigMap
+		{
+			// copy backbuffer to bigMap
+			bigMap->bindTexture();
+			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,0,0,w,h,0);
+		}
+
+		// downscale bigMap to smallMap1
+		FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,NULL);
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallMap1);
+		scaleDownProgram->useIt();
+		scaleDownProgram->sendUniform("map",0);
+		scaleDownProgram->sendUniform("pixelDistance",1.0f/bigMap->getBuffer()->getWidth(),1.0f/bigMap->getBuffer()->getHeight());
+		scaleDownProgram->sendUniform("threshold",3.0f*pp.threshold);
+		glViewport(0,0,smallMap1->getBuffer()->getWidth(),smallMap1->getBuffer()->getHeight());
+		glActiveTexture(GL_TEXTURE0);
 		bigMap->bindTexture();
-		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,0,0,w,h,0);
-	}
+		glDisable(GL_CULL_FACE);
+		TextureRenderer::renderQuad();
 
-	// downscale bigMap to smallMap1
-	FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,NULL);
-	FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallMap1);
-	scaleDownProgram->useIt();
-	scaleDownProgram->sendUniform("map",0);
-	scaleDownProgram->sendUniform("pixelDistance",1.0f/bigMap->getBuffer()->getWidth(),1.0f/bigMap->getBuffer()->getHeight());
-	scaleDownProgram->sendUniform("threshold",3.0f*pp.threshold);
-	glViewport(0,0,smallMap1->getBuffer()->getWidth(),smallMap1->getBuffer()->getHeight());
-	glActiveTexture(GL_TEXTURE0);
-	bigMap->bindTexture();
-	glDisable(GL_CULL_FACE);
-	TextureRenderer::renderQuad();
-
-	// horizontal blur smallMap1 to smallMap2
-	FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallMap2);
-	blurProgram->useIt();
-	blurProgram->sendUniform("map",0);
-	blurProgram->sendUniform("pixelDistance",0.0f,1.0f/smallMap1->getBuffer()->getHeight());
-	smallMap1->bindTexture();
-	TextureRenderer::renderQuad();
+		// horizontal blur smallMap1 to smallMap2
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallMap2);
+		blurProgram->useIt();
+		blurProgram->sendUniform("map",0);
+		blurProgram->sendUniform("pixelDistance",0.0f,1.0f/smallMap1->getBuffer()->getHeight());
+		smallMap1->bindTexture();
+		TextureRenderer::renderQuad();
 	
-	// vertical blur smallMap2 to smallMap1
-	FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallMap1);
-	blurProgram->sendUniform("pixelDistance",1.0f/smallMap1->getBuffer()->getWidth(),0.0f);
-	smallMap2->bindTexture();
-	TextureRenderer::renderQuad();
+		// vertical blur smallMap2 to smallMap1
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallMap1);
+		blurProgram->sendUniform("pixelDistance",1.0f/smallMap1->getBuffer()->getWidth(),0.0f);
+		smallMap2->bindTexture();
+		TextureRenderer::renderQuad();
 
-	// blend smallMap1 to render target
-	oldFBOState.restore();
-	blendProgram->useIt();
-	blendProgram->sendUniform("map",0);
-	glViewport(0,0,bigMap->getBuffer()->getWidth(),bigMap->getBuffer()->getHeight());
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-	smallMap1->bindTexture();
-	TextureRenderer::renderQuad();
-	glDisable(GL_BLEND);
+		// blend smallMap1 to render target
+		oldFBOState.restore();
+		blendProgram->useIt();
+		blendProgram->sendUniform("map",0);
+		glViewport(0,0,bigMap->getBuffer()->getWidth(),bigMap->getBuffer()->getHeight());
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		smallMap1->bindTexture();
+		TextureRenderer::renderQuad();
+		glDisable(GL_BLEND);
 
 #ifdef OPTIMIZE_BLOOM
-	if (oldFBOState.color_id)
-	{
-		bigMap->id = oldBigMapId;
-	}
+		if (oldFBOState.color_id)
+		{
+			bigMap->id = oldBigMapId;
+		}
 #endif
-}
+	}
 };
 
 

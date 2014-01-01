@@ -58,87 +58,87 @@ class PluginRuntimeLensFlare : public PluginRuntime
 
 public:
 
-PluginRuntimeLensFlare(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
-{
-	for (unsigned i=0;i<NUM_PRIMARY_MAPS;i++)
-		primaryMap[i] = rr::RRBuffer::load(rr::RRString(0,L"%lsflare_prim%d.png",pathToMaps.w_str(),i+1));
-	for (unsigned i=0;i<NUM_SECONDARY_MAPS;i++)
+	PluginRuntimeLensFlare(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
 	{
-		secondaryMap[i] = rr::RRBuffer::load(rr::RRString(0,L"%lsflare_sec%d.png",pathToMaps.w_str(),i+1));
-		// is it mostly grayscale? we will colorize it in renderLensFlare() only if it is mostly gray
-		if (secondaryMap[i])
+		for (unsigned i=0;i<NUM_PRIMARY_MAPS;i++)
+			primaryMap[i] = rr::RRBuffer::load(rr::RRString(0,L"%lsflare_prim%d.png",pathToMaps.w_str(),i+1));
+		for (unsigned i=0;i<NUM_SECONDARY_MAPS;i++)
 		{
-			float sum = 0;
-			unsigned numElements = secondaryMap[i]->getNumElements();
-			for (unsigned j=0;j<numElements;j++)
+			secondaryMap[i] = rr::RRBuffer::load(rr::RRString(0,L"%lsflare_sec%d.png",pathToMaps.w_str(),i+1));
+			// is it mostly grayscale? we will colorize it in renderLensFlare() only if it is mostly gray
+			if (secondaryMap[i])
 			{
-				rr::RRVec3 color = secondaryMap[i]->getElement(j);
-				sum += abs(color[0]-color[1])+abs(color[1]-color[2])+abs(color[2]-color[0]);
+				float sum = 0;
+				unsigned numElements = secondaryMap[i]->getNumElements();
+				for (unsigned j=0;j<numElements;j++)
+				{
+					rr::RRVec3 color = secondaryMap[i]->getElement(j);
+					sum += abs(color[0]-color[1])+abs(color[1]-color[2])+abs(color[2]-color[0]);
+				}
+				colorizeSecondaryMap[i] = sum/numElements<0.03f;
 			}
-			colorizeSecondaryMap[i] = sum/numElements<0.03f;
 		}
+		ray = rr::RRRay::create();
+		collisionHandlerTransparency = new CollisionHandlerTransparency;
+		ray->collisionHandler = collisionHandlerTransparency;
 	}
-	ray = rr::RRRay::create();
-	collisionHandlerTransparency = new CollisionHandlerTransparency;
-	ray->collisionHandler = collisionHandlerTransparency;
-}
 
-virtual ~PluginRuntimeLensFlare()
-{
-	delete collisionHandlerTransparency;
-	delete ray;
-	for (unsigned i=0;i<NUM_PRIMARY_MAPS;i++)
-		delete primaryMap[i];
-	for (unsigned i=0;i<NUM_SECONDARY_MAPS;i++)
-		delete secondaryMap[i];
-}
-
-//! \param flareSize
-//!  Relative size of flare, 1 for typical size.
-//! \param flareId
-//!  Various flare parameters are generated from this number.
-//! \param textureRenderer
-//!  Pointer to caller's TextureRenderer instance, we save time by not creating local instance.
-//! \param aspect
-//!  Camera aspect.
-//! \param lightPositionInWindow
-//!  0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
-void renderLensFlare(float _flareSize, unsigned _flareId, TextureRenderer* _textureRenderer, float _aspect, rr::RRVec2 _lightPositionInWindow)
-{
-	// set GL state
-	PreserveBlend p3;
-	PreserveBlendFunc p4;
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-
-	// generate everything from _flareId
-	unsigned oldSeed = rand();
-	srand(_flareId);
-
-	rr::RRVec2 baseSize = rr::RRVec2(1/sqrtf(_aspect),sqrtf(_aspect))*_flareSize/30;
-	rr::RRVec2 size = baseSize * 6;
-	rr::RRVec2 center = _lightPositionInWindow;
-	rr::RRVec2 topleft = center-size/2;
-	rr::RRBuffer* map = primaryMap[rand()%NUM_PRIMARY_MAPS];
-	if (map)
-		_textureRenderer->render2D(getTexture(map),NULL,1,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
-
-	unsigned numSecondaryFlares = rand()%10;
-	for (unsigned i=0;i<numSecondaryFlares;i++)
+	virtual ~PluginRuntimeLensFlare()
 	{
-		rr::RRVec4 color(0);
-		color[rand()%3] = rand()*1.2f/RAND_MAX;
-		size = baseSize * (float)(1+(rand()%5));
-		center -= _lightPositionInWindow*(rand()*2.0f/RAND_MAX);
-		topleft = center-size/2;
-		unsigned mapIndex = rand()%NUM_SECONDARY_MAPS;
-		if (secondaryMap[mapIndex])
-			_textureRenderer->render2D(getTexture(secondaryMap[mapIndex]),colorizeSecondaryMap[mapIndex]?&color:NULL,1,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
+		delete collisionHandlerTransparency;
+		delete ray;
+		for (unsigned i=0;i<NUM_PRIMARY_MAPS;i++)
+			delete primaryMap[i];
+		for (unsigned i=0;i<NUM_SECONDARY_MAPS;i++)
+			delete secondaryMap[i];
 	}
 
-	// cleanup
-	srand(oldSeed);
-}
+	//! \param flareSize
+	//!  Relative size of flare, 1 for typical size.
+	//! \param flareId
+	//!  Various flare parameters are generated from this number.
+	//! \param textureRenderer
+	//!  Pointer to caller's TextureRenderer instance, we save time by not creating local instance.
+	//! \param aspect
+	//!  Camera aspect.
+	//! \param lightPositionInWindow
+	//!  0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
+	void renderLensFlare(float _flareSize, unsigned _flareId, TextureRenderer* _textureRenderer, float _aspect, rr::RRVec2 _lightPositionInWindow)
+	{
+		// set GL state
+		PreserveBlend p3;
+		PreserveBlendFunc p4;
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+
+		// generate everything from _flareId
+		unsigned oldSeed = rand();
+		srand(_flareId);
+
+		rr::RRVec2 baseSize = rr::RRVec2(1/sqrtf(_aspect),sqrtf(_aspect))*_flareSize/30;
+		rr::RRVec2 size = baseSize * 6;
+		rr::RRVec2 center = _lightPositionInWindow;
+		rr::RRVec2 topleft = center-size/2;
+		rr::RRBuffer* map = primaryMap[rand()%NUM_PRIMARY_MAPS];
+		if (map)
+			_textureRenderer->render2D(getTexture(map),NULL,1,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
+
+		unsigned numSecondaryFlares = rand()%10;
+		for (unsigned i=0;i<numSecondaryFlares;i++)
+		{
+			rr::RRVec4 color(0);
+			color[rand()%3] = rand()*1.2f/RAND_MAX;
+			size = baseSize * (float)(1+(rand()%5));
+			center -= _lightPositionInWindow*(rand()*2.0f/RAND_MAX);
+			topleft = center-size/2;
+			unsigned mapIndex = rand()%NUM_SECONDARY_MAPS;
+			if (secondaryMap[mapIndex])
+				_textureRenderer->render2D(getTexture(secondaryMap[mapIndex]),colorizeSecondaryMap[mapIndex]?&color:NULL,1,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
+		}
+
+		// cleanup
+		srand(oldSeed);
+	}
 
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 	{
