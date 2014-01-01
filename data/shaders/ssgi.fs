@@ -1,4 +1,4 @@
-// LightsprintGL: Screen space ambient occlusion with color bleeding
+// Screen space ambient occlusion with color bleeding
 // Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint
 //
 // Options:

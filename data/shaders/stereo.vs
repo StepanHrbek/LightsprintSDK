@@ -1,4 +1,4 @@
-// SceneViewer: Stereo compositing filter, converts top-down images to single interlaced image
+// Stereo compositing filter, converts top-down images to single interlaced image
 // Copyright (C) 2012 Stepan Hrbek, Lightsprint
 //
 // Options:

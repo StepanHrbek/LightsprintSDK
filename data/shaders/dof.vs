@@ -1,4 +1,4 @@
-// LightsprintGL: Depth of field effect
+// Depth of field effect
 // Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint
 
 attribute vec2 vertexPosition;

@@ -1,4 +1,4 @@
-// LightsprintGL: Depth of field effect [work in progress, includes unused paths]
+// Depth of field effect [work in progress, includes unused paths]
 // Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint
 //
 // Options:

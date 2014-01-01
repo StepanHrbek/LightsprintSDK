@@ -1,5 +1,4 @@
-// LightsprintGL: Scale down filter
-// Used by detectDirectIllumination()
+// DDI scale down filter
 // Copyright (C) 2006-2012 Stepan Hrbek, Lightsprint
 //
 // Options:

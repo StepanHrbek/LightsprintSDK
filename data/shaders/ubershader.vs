@@ -1,4 +1,4 @@
-// LightsprintGL: vertex ubershader
+// Ubershader
 // Copyright (C) 2006-2012 Stepan Hrbek, Lightsprint
 //
 // Options:

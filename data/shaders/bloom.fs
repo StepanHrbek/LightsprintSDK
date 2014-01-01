@@ -1,4 +1,4 @@
-// LightsprintGL: Bloom effect
+// Bloom effect
 // Copyright (C) 2010-2012 Stepan Hrbek, Lightsprint
 //
 // Options:
