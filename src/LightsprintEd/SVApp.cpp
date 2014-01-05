@@ -77,6 +77,10 @@ public:
 		SVFrame::Create(s_svs);
 		return true;
 	}
+	virtual int OnExit()
+	{
+		return 0;
+	}
 };
 
 static wxAppConsole *wxCreateApp()
