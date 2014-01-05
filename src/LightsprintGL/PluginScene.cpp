@@ -552,6 +552,7 @@ public:
 				{
 
 				PluginParamsScene mirror = _;
+				mirror.wireframe = false;
 				mirror.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // Don't use mirror in mirror, to prevent update in update (infinite recursion).
 				mirror.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
 				mirror.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = false;
@@ -720,6 +721,9 @@ public:
 		// Render sorted facegroups.
 		if (blendedFaceGroups[recursionDepth].size())
 		{
+			if (pp.wireframe)
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 			// Sort blended objects.
 			s_perObjectBuffers = &perObjectBuffers[recursionDepth];
 			std::sort(&blendedFaceGroups[recursionDepth][0],&blendedFaceGroups[recursionDepth][0]+blendedFaceGroups[recursionDepth].size());
@@ -761,6 +765,9 @@ public:
 						_.animationTime);
 				}
 			}
+
+			if (pp.wireframe)
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 
 #ifdef MIRRORS
