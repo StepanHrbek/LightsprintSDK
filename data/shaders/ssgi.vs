@@ -1,4 +1,4 @@
-// Screen space ambient occlusion with color bleeding
+// Screen space global illumination
 // Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint
 
 attribute vec2 vertexPosition;
