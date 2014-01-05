@@ -68,17 +68,29 @@ static SceneViewerStateEx s_svs;
 class SVApp: public wxApp
 {
 public:
+	SVFrame* svframe;
+	SVApp()
+	{
+		svframe = NULL;
+	}
 	bool OnInit()
 	{
 #ifdef __APPLE__
 		// current dir is wrong here, fix it
 		bf::current_path(s_initPath);
 #endif
-		SVFrame::Create(s_svs);
+		svframe = SVFrame::Create(s_svs);
 		return true;
+	}
+	int FilterEvent(wxEvent& event)
+	{
+		if (event.GetEventType()!=wxEVT_KEY_DOWN || !svframe || !svframe->m_canvas)
+			return Event_Skip;
+		return svframe->m_canvas->FilterEvent((wxKeyEvent&)event);
 	}
 	virtual int OnExit()
 	{
+		svframe = NULL;
 		return 0;
 	}
 };

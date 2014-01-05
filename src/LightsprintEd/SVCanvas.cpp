@@ -601,6 +601,51 @@ void SVCanvas::OnSizeCore(bool force)
 	}
 }
 
+int SVCanvas::FilterEvent(wxKeyEvent& event)
+{
+	if (exitRequested || !fullyCreated)
+		return wxApp::Event_Skip;
+
+	bool needsRefresh = false;
+	int evkey = event.GetKeyCode();
+	if (event.GetModifiers()==wxMOD_CONTROL) switch (evkey)
+	{
+		case 'T': // ctrl-t
+			svs.renderMaterialTextures = !svs.renderMaterialTextures;
+			return wxApp::Event_Processed;
+		case 'W': // ctrl-w
+			svs.renderWireframe = !svs.renderWireframe;
+			return wxApp::Event_Processed;
+		case 'H': // ctrl-h
+			svs.renderHelpers = !svs.renderHelpers;
+			return wxApp::Event_Processed;
+		case 'F': // ctrl-f
+			svs.renderFPS = !svs.renderFPS;
+			return wxApp::Event_Processed;
+	}
+	else if (event.GetModifiers()==wxMOD_ALT) switch (evkey)
+	{
+		case 'S': // alt-s
+			svframe->OnMenuEventCore(SVFrame::ME_LIGHT_SPOT);
+			return wxApp::Event_Processed;
+		case 'O': // alt-o
+			svframe->OnMenuEventCore(SVFrame::ME_LIGHT_POINT);
+			return wxApp::Event_Processed;
+		case 'F': // alt-f
+			svframe->OnMenuEventCore(SVFrame::ME_LIGHT_FLASH);
+			return wxApp::Event_Processed;
+		case '1':
+		case '2':
+		case '3':
+			svframe->OnMenuEventCore(SVFrame::ME_WINDOW_LAYOUT1+evkey-'1');
+			return wxApp::Event_Processed;
+	}
+	//else switch (evkey)
+	//{
+	//}
+	return wxApp::Event_Skip;
+}
+
 void SVCanvas::OnKeyDown(wxKeyEvent& event)
 {
 	if (exitRequested || !fullyCreated)
@@ -609,39 +654,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	bool needsRefresh = false;
 	long evkey = event.GetKeyCode();
 	float speed = (event.GetModifiers()==wxMOD_SHIFT) ? 3 : 1;
-	if (event.GetModifiers()==wxMOD_CONTROL) switch (evkey)
-	{
-		case 'T': // ctrl-t
-			svs.renderMaterialTextures = !svs.renderMaterialTextures;
-			break;
-		case 'W': // ctrl-w
-			svs.renderWireframe = !svs.renderWireframe;
-			break;
-		case 'H': // ctrl-h
-			svs.renderHelpers = !svs.renderHelpers;
-			break;
-		case 'F': // ctrl-f
-			svs.renderFPS = !svs.renderFPS;
-			break;
-	}
-	else if (event.GetModifiers()==wxMOD_ALT) switch (evkey)
-	{
-		case 'S': // alt-s
-			svframe->OnMenuEventCore(SVFrame::ME_LIGHT_SPOT);
-			break;
-		case 'O': // alt-o
-			svframe->OnMenuEventCore(SVFrame::ME_LIGHT_POINT);
-			break;
-		case 'F': // alt-f
-			svframe->OnMenuEventCore(SVFrame::ME_LIGHT_FLASH);
-			break;
-		case '1':
-		case '2':
-		case '3':
-			svframe->OnMenuEventCore(SVFrame::ME_WINDOW_LAYOUT1+evkey-'1');
-			break;
-	}
-	else switch(evkey)
+	switch(evkey)
 	{
 		case ' ':
 			// pause/play videos
