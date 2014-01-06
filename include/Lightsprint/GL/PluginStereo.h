@@ -54,8 +54,8 @@ public:
 	//! For Oculus Rift only, 1-2.0*HMDInfo.LensSeparationDistance/HMDInfo.HScreenSize
 	float oculusLensShift;
 
-	//! Convenience ctor, for setting plugin parameters. Additional Oculus Rift parameters are not set.
-	PluginParamsStereo(const PluginParams* _next, StereoMode _stereoMode) : stereoMode(_stereoMode), oculusDistortionK(0), oculusChromaAbCorrection(0), oculusLensShift(0) {next=_next;}
+	//! Convenience ctor, for setting plugin parameters. Additional Oculus Rift parameters are set to defaults.
+	PluginParamsStereo(const PluginParams* _next, StereoMode _stereoMode) : stereoMode(_stereoMode), oculusDistortionK(1,0.22f,0.24f,0), oculusChromaAbCorrection(0.996f,-0.004f,1.014f,0), oculusLensShift(0.152f) {next=_next;}
 
 	//! Convenience ctor, for setting plugin parameters, including Oculus Rift ones.
 	//
