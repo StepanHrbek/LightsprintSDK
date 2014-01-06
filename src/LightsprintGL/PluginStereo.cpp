@@ -33,8 +33,7 @@ public:
 		if (pp.stereoMode==SM_MONO || !stereoUberProgram || !stereoTexture)
 			return;
 
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT,viewport);
+		const unsigned* viewport = _sp.viewport;
 
 		// why rendering to multisampled screen rather than 1-sampled texture?
 		//  we prefer quality over minor speedup
@@ -100,7 +99,7 @@ public:
 				glViewport(viewport[0],viewport[1]+(viewport[3]%2),viewport[2],viewport[3]/2*2);
 			stereoTexture->bindTexture();
 			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,viewport[0],viewport[1],viewport[2],viewport[3]/2*2,0);
-			Program* stereoProgram = stereoUberProgram->getProgram(oculus?"#define OCULUS_RIFT\n":"#define INTERLACED");
+			Program* stereoProgram = stereoUberProgram->getProgram(oculus?"#define OCULUS_RIFT\n":"#define INTERLACED\n");
 			if (stereoProgram)
 			{
 				glDisable(GL_CULL_FACE);
