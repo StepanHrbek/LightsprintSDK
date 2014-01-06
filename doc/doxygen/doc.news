@@ -29,6 +29,10 @@ NEWS
     </td><td>
     \image html ssgi2.jpg
     </td></tr></table>
+- \ref main_oculus support
+    <table border=0><tr align=top><td>
+    \image html stereo_oculus.jpg
+    </td></tr></table>
 
 CHANGES
 
@@ -450,9 +454,7 @@ NEWS
   - RRCamera::getStereoCameras()
   - in scene viewer, check Scene properties / Camera / [ ] Stereo (interlaced)
   <table border=0><tr align=top><td>
-  \image html stereo1.png
-  </td><td>
-  \image html stereo2.png
+  \image html stereo_interlaced.png
   </td></tr></table>
   (screenshots must start on even line of your polarized display to display correctly, scroll a bit up or down if stereo looks wrong)
 - <b>rendering of shininess and environment maps</b>

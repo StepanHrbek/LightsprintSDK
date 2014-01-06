@@ -1,9 +1,5 @@
-// Stereo compositing filter, converts top-down images to single interlaced image
-// Copyright (C) 2012 Stepan Hrbek, Lightsprint
-//
-// Options:
-// #define SIZEX n
-// #define SIZEY n
+// Stereo compositing filter.
+// Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint
 
 attribute vec2 vertexPosition;
 varying vec2 texcoord;

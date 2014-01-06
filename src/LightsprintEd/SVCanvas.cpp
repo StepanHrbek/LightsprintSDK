@@ -359,7 +359,7 @@ void SVCanvas::createContextCore()
 	recalculateIconSizeAndPosition();
 
 #if defined(_WIN32)
-	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
+	if (wglSwapIntervalEXT) wglSwapIntervalEXT(1); // 1 for oculus, 0 for benchmarking fps
 #endif
 
 	ray = rr::RRRay::create();
@@ -1296,6 +1296,21 @@ void SVCanvas::OnContextMenuCreate(wxContextMenuEvent& _event)
 }
 
 
+#ifdef SUPPORT_OCULUS
+//static rr::RRVec4 convertVec4(float a[4])
+//{
+//	return rr::RRVec4(a[0],a[1],a[2],a[3]);
+//}
+//static rr::RRVec4 convertQuat(OVR::Quatf q)
+//{
+//	return rr::RRVec4(q.x,q.y,q.z,q.w);
+//}
+//static rr::RRMatrix3x4 convertMatrix(OVR::Matrix4f m)
+//{
+//	return rr::RRMatrix3x4(m.M[0][0],m.M[0][1],m.M[0][2],m.M[0][3],m.M[1][0],m.M[1][1],m.M[1][2],m.M[1][3],m.M[2][0],m.M[2][1],m.M[2][2],m.M[2][3]);
+//}
+#endif
+
 void SVCanvas::OnIdle(wxIdleEvent& event)
 {
 	if ((svs.initialInputSolver && svs.initialInputSolver->aborting) || (fullyCreated && !solver) || (solver && solver->aborting) || exitRequested)
@@ -1310,6 +1325,23 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 	// otherwise they would display before next synchronous report, possibly much later
 	if (svframe->m_log)
 		svframe->m_log->flushQueue();
+
+#ifdef SUPPORT_OCULUS
+	// oculus camera rotation
+	if (svframe->oculusSensor && svs.renderStereo && svframe->userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT)
+	{
+		float yaw,pitch,roll;
+		svframe->oculusFusion.GetPredictedOrientation().GetEulerAngles<OVR::Axis_Y,OVR::Axis_X,OVR::Axis_Z>(&yaw,&pitch,&roll);
+		svs.camera.setYawPitchRollRad(RRVec3(yaw,pitch,roll));
+		// another way to do the same:
+		//OVR::Quatf q = svframe->oculusFusion.GetPredictedOrientation();
+		//rr::RRVec3 oldpos = svs.camera.getPosition();
+		//svs.camera.setPosition(rr::RRVec3(0));
+		//svs.camera.setYawPitchRollRad(rr::RRVec3(0));
+		//svs.camera.manipulateViewBy(rr::RRMatrix3x4::rotationByQuaternion(convertQuat(q)));
+		//svs.camera.setPosition(oldpos);
+	}
+#endif
 
 	// camera/light movement
 	static rr::RRTime prevTime;
@@ -1751,18 +1783,37 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppFPS;
 
 			// stereo plugin
+#ifdef SUPPORT_OCULUS
+			rr_gl::PluginParamsStereo ppStereo(pluginChain,svframe->userPreferences.stereoMode,svframe->oculusHMDInfo.DistortionK,svframe->oculusHMDInfo.ChromaAbCorrection,1-2.f*svframe->oculusHMDInfo.LensSeparationDistance/svframe->oculusHMDInfo.HScreenSize);
+#else
 			rr_gl::PluginParamsStereo ppStereo(pluginChain,svframe->userPreferences.stereoMode);
+#endif
 			if (svs.renderStereo)
 			{
-				// in interlaced mode, check whether image starts on odd or even scanline
-				if (ppStereo.stereoMode==rr_gl::SM_INTERLACED || ppStereo.stereoMode==rr_gl::SM_INTERLACED_SWAP)
+				switch (ppStereo.stereoMode)
 				{
-					GLint viewport[4];
-					glGetIntegerv(GL_VIEWPORT,viewport);
-					int trueWinWidth, trueWinHeight;
-					GetClientSize(&trueWinWidth, &trueWinHeight);
-					if ((GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
-						ppStereo.stereoMode = (ppStereo.stereoMode==rr_gl::SM_INTERLACED)?rr_gl::SM_INTERLACED_SWAP:rr_gl::SM_INTERLACED;
+					// in interlaced mode, check whether image starts on odd or even scanline
+					case rr_gl::SM_INTERLACED:
+					case rr_gl::SM_INTERLACED_SWAP:
+						{
+							GLint viewport[4];
+							glGetIntegerv(GL_VIEWPORT,viewport);
+							int trueWinWidth, trueWinHeight;
+							GetClientSize(&trueWinWidth, &trueWinHeight);
+							if ((GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
+								ppStereo.stereoMode = (ppStereo.stereoMode==rr_gl::SM_INTERLACED)?rr_gl::SM_INTERLACED_SWAP:rr_gl::SM_INTERLACED;
+						}
+						break;
+#ifdef SUPPORT_OCULUS
+					// in oculus rift, adjust camera
+					case rr_gl::SM_OCULUS_RIFT:
+					case rr_gl::SM_OCULUS_RIFT_SWAP:
+						// enforce realistic eyeSeparation
+						svs.camera.eyeSeparation = svframe->oculusHMDInfo.InterpupillaryDistance;
+						// enforce realistic FOV
+						svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(svframe->oculusHMDInfo.VScreenSize/(2.f*svframe->oculusHMDInfo.EyeToScreenDistance))));
+						break;
+#endif
 				}
 				pluginChain = &ppStereo;
 			}

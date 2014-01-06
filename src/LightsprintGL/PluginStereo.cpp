@@ -46,7 +46,15 @@ public:
 		//  because lines blur with multisampled screen (even if multisampling is disabled)
 		rr::RRCamera leftEye, rightEye;
 		_sp.camera->getStereoCameras(leftEye,rightEye);
-		bool swapEyes = pp.stereoMode==SM_INTERLACED_SWAP || pp.stereoMode==SM_TOP_DOWN || pp.stereoMode==SM_SIDE_BY_SIDE_SWAP;
+		bool swapEyes = pp.stereoMode==SM_INTERLACED_SWAP || pp.stereoMode==SM_TOP_DOWN || pp.stereoMode==SM_SIDE_BY_SIDE_SWAP || pp.stereoMode==SM_OCULUS_RIFT_SWAP;
+		bool oculus = pp.stereoMode==SM_OCULUS_RIFT || pp.stereoMode==SM_OCULUS_RIFT_SWAP;
+		if (oculus)
+		{
+			leftEye.setAspect(_sp.camera->getAspect()*0.5f);
+			rightEye.setAspect(_sp.camera->getAspect()*0.5f);
+			leftEye.setScreenCenter(rr::RRVec2(rr::RRReal(-pp.oculusLensShift*leftEye.getProjectionMatrix()[0]),0));
+			rightEye.setScreenCenter(rr::RRVec2(rr::RRReal(pp.oculusLensShift*rightEye.getProjectionMatrix()[0]),0));
+		}
 
 		{
 			// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
@@ -61,7 +69,7 @@ public:
 			left.viewport[1] = viewport[1];
 			left.viewport[2] = viewport[2];
 			left.viewport[3] = viewport[3];
-			if (pp.stereoMode==SM_SIDE_BY_SIDE || pp.stereoMode==SM_SIDE_BY_SIDE_SWAP)
+			if (pp.stereoMode==SM_SIDE_BY_SIDE || pp.stereoMode==SM_SIDE_BY_SIDE_SWAP || oculus)
 				left.viewport[2] /= 2;
 			else
 				left.viewport[3] /= 2;
@@ -73,7 +81,7 @@ public:
 			// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
 			PluginParamsShared right = left;
 			right.camera = swapEyes?&leftEye:&rightEye;
-			if (pp.stereoMode==SM_SIDE_BY_SIDE || pp.stereoMode==SM_SIDE_BY_SIDE_SWAP)
+			if (pp.stereoMode==SM_SIDE_BY_SIDE || pp.stereoMode==SM_SIDE_BY_SIDE_SWAP || oculus)
 				right.viewport[0] += right.viewport[2];
 			else
 				right.viewport[1] += right.viewport[3];
@@ -83,20 +91,61 @@ public:
 		}
 
 		// composite
-		if (pp.stereoMode==SM_INTERLACED || pp.stereoMode==SM_INTERLACED_SWAP)
+		if (pp.stereoMode==SM_INTERLACED || pp.stereoMode==SM_INTERLACED_SWAP || oculus)
 		{
-			// turns top-down images to interlaced
-			glViewport(viewport[0],viewport[1]+(viewport[3]%2),viewport[2],viewport[3]/2*2);
+			// turns top-down images to interlaced or oculus
+			if (oculus)
+				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+			else
+				glViewport(viewport[0],viewport[1]+(viewport[3]%2),viewport[2],viewport[3]/2*2);
 			stereoTexture->bindTexture();
 			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,viewport[0],viewport[1],viewport[2],viewport[3]/2*2,0);
-			Program* stereoProgram = stereoUberProgram->getProgram("");
+			Program* stereoProgram = stereoUberProgram->getProgram(oculus?"#define OCULUS_RIFT\n":"#define INTERLACED");
 			if (stereoProgram)
 			{
+				glDisable(GL_CULL_FACE);
 				stereoProgram->useIt();
 				stereoProgram->sendTexture("map",stereoTexture);
-				stereoProgram->sendUniform("mapHalfHeight",float(viewport[3]/2));
-				glDisable(GL_CULL_FACE);
-				TextureRenderer::renderQuad();
+				if (!oculus)
+				{
+					stereoProgram->sendUniform("mapHalfHeight",float(viewport[3]/2));
+					TextureRenderer::renderQuad();
+				}
+				else
+				{
+					unsigned WindowWidth = viewport[2];
+					unsigned WindowHeight = viewport[3];
+					int DistortionXCenterOffset = 0;
+					float DistortionScale = 1.5f;
+					float w = float(viewport[2]/2) / float(WindowWidth);
+					float h = float(viewport[3]) / float(WindowHeight);
+					float y = float(viewport[1]) / float(WindowHeight);
+					float as = float(viewport[2]/2) / float(viewport[3]);
+					float scaleFactor = 1.0f / DistortionScale;
+
+					stereoProgram->sendUniform("HmdWarpParam",rr::RRVec4(pp.oculusDistortionK));
+					stereoProgram->sendUniform("ChromAbParam",rr::RRVec4(pp.oculusChromaAbCorrection));
+					stereoProgram->sendUniform("Scale",(w/2) * scaleFactor, (h/2) * scaleFactor * as);
+					stereoProgram->sendUniform("ScaleIn",(2/w), (2/h) / as);
+
+					// distort left eye
+					{
+						float x = float(viewport[0]) / float(WindowWidth);
+						stereoProgram->sendUniform("LensCenter",x + (w + DistortionXCenterOffset * 0.5f)*0.5f, y + h*0.5f);
+						stereoProgram->sendUniform("ScreenCenter",x + w*0.5f, y + h*0.5f);
+						float leftPosition[8] = {-1,-1, -1,1, 0,1, 0,-1};
+						TextureRenderer::renderQuad(leftPosition);
+					}
+
+					// distort right eye
+					{
+						float x = float(viewport[0]+viewport[2]/2) / float(WindowWidth);
+						stereoProgram->sendUniform("LensCenter",x + (w + DistortionXCenterOffset * 0.5f)*0.5f, y + h*0.5f);
+						stereoProgram->sendUniform("ScreenCenter",x + w*0.5f, y + h*0.5f);
+						float rightPosition[8] = {0,-1, 0,1, 1,1, 1,-1};
+						TextureRenderer::renderQuad(rightPosition);
+					}
+				}
 			}
 		}
 

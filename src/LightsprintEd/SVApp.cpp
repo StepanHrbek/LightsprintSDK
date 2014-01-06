@@ -10,6 +10,14 @@
 	#include <boost/filesystem.hpp>
 	namespace bf = boost::filesystem;
 #endif
+#ifdef SUPPORT_OCULUS
+	#include "OVR.h"
+	#ifdef NDEBUG
+		#pragma comment(lib,"libovr." RR_LIB_COMPILER ".lib")
+	#else
+		#pragma comment(lib,"libovrd." RR_LIB_COMPILER ".lib")
+	#endif
+#endif
 
 namespace rr_ed
 {
@@ -79,6 +87,9 @@ public:
 		// current dir is wrong here, fix it
 		bf::current_path(s_initPath);
 #endif
+#ifdef SUPPORT_OCULUS
+		OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
+#endif
 		svframe = SVFrame::Create(s_svs);
 		return true;
 	}
@@ -91,6 +102,9 @@ public:
 	virtual int OnExit()
 	{
 		svframe = NULL;
+#ifdef SUPPORT_OCULUS
+		OVR::System::Destroy();
+#endif
 		return 0;
 	}
 };

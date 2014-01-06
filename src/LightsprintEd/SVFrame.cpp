@@ -526,6 +526,17 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	// load preferences (must be done very early)
 	bool layoutLoaded = userPreferences.load("");
 
+#ifdef SUPPORT_OCULUS
+	oculusManager = *OVR::DeviceManager::Create();
+	if (oculusManager)
+		oculusHMD = *oculusManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
+	if (oculusHMD)
+		oculusSensor = *oculusHMD->GetSensor();
+	if (oculusSensor)
+		oculusFusion.AttachToSensor(oculusSensor);
+	oculusHMD->GetDeviceInfo(&oculusHMDInfo);
+#endif // SUPPORT_OCULUS
+
 	// create properties (based also on data from preferences)
 	m_userProperties = new SVUserProperties(this);
 	m_sceneProperties = new SVSceneProperties(this);

@@ -12,6 +12,9 @@
 #include "SVCanvas.h"
 #include "SVDialogs.h"
 #include "wx/aui/aui.h"
+#ifdef SUPPORT_OCULUS
+	#include "OVR.h"
+#endif
 
 //#define DEBUG_TEXEL ...not working, will be revived later when needed
 //#define SV_LIGHTFIELD
@@ -170,6 +173,14 @@ namespace rr_ed
 		SmoothDlg                    smoothDlg;
 		DeleteDlg                    deleteDlg;
 		BakeDlg                      bakeDlg;
+
+#ifdef SUPPORT_OCULUS
+		OVR::Ptr<OVR::DeviceManager> oculusManager;
+		OVR::Ptr<OVR::SensorDevice>  oculusSensor;
+		OVR::Ptr<OVR::HMDDevice>     oculusHMD;
+		OVR::SensorFusion            oculusFusion;
+		OVR::HMDInfo                 oculusHMDInfo;
+#endif
 
 	private:
 		//! Creates empty frame.

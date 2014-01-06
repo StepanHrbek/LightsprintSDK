@@ -23,6 +23,7 @@ namespace rr
  - \subpage main_gamebryo3
  - \subpage main_gamebryo26
  - \subpage main_ue3
+ - \subpage main_oculus
  - \subpage main_vs
 
  \section root_artists_guide Artist's guide
@@ -181,6 +182,7 @@ Stereo rendering
 - side-by-side
 - top-down
 - interlaced
+- Oculus Rift
 
 Panorama rendering
 - equirectangular
@@ -481,6 +483,7 @@ Material formats (1)
  Used by LightsprintEd (optional scene editor):
  - \subpage tpl_boost
  - \subpage tpl_wx
+ - \subpage tpl_oculus
  - \subpage tpl_art
 
  Used by LightsprintIO (optional file format support):
@@ -563,6 +566,28 @@ Material formats (1)
 
    \section wx_patch_accepted Accepted patches
    We fixed crash when scene viewer is opened for second time http://trac.wxwidgets.org/ticket/11787
+
+\page tpl_oculus LibOVR
+  \section oculus_www Web
+   - <a href="http://oculusvr.com/">oculusvr.com</a>
+
+  \section oculus_license License
+   - <a href="https://developer.oculusvr.com/license">Oculus VR SDK Software License</a>
+   - Copyright (c) 2013 Oculus VR, Inc. All rights reserved
+
+  \section oculus_version Version
+   - version 0.25c is used internally by LightsprintEd library, it's not visible from outside (no headers or dll files)
+
+  \section oculus_build Installing/building LibOVR
+   Only for LightsprintEd source code licensees:
+   - install <a href="http://oculusvr.com/">Oculus VR SDK</a>
+   - if it does not contain LibOVR prebuilt for your compiler, follow Oculus VR SDK instructions to build it
+   - set environment variable OCULUS_DIR to point to LibOVR dir inside Oculus SDK, so e.g. c:\\OculusSDK\\LibOVR
+
+  \section oculus_remove Removing LibOVR
+   Only for LightsprintEd source code licensees:
+   If you wish to remove Oculus Rift support
+   - remove <code>\#define SUPPORT_OCULUS</code> from LightsprintEd project files and build as usual
 
 \page tpl_art 2d art
   - scene viewer uses icons from <a href="http://www.fatcow.com/free-icons/index.bml">Fat Cow</a>, under <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>
@@ -2779,6 +2804,58 @@ Material formats (1)
 
 
 
+
+\page main_oculus Oculus Rift
+
+ Lightsprint SDK includes everything necessary for work with Oculus Rift head mounted display.
+
+ \image html stereo_oculus.jpg
+
+ \section oculus_user User's guide
+
+  SceneViewer tool supports Oculus Rift out of the box.
+  In order to render in stereo, check <code>Scene / Camera / Stereo</code>.
+
+  Oculus Rift is one of multiple stereo devices supported, so changing <code>User preferences / Stereo mode</code> to <code>Oculus Rift</code> might be necessary.
+
+  The final step is to switch from window to fullscreen on Oculus display. Drag SceneViewer window from your main display to Oculus display,
+  then press alt-3 (to switch to window layout 3, which defaults to fullscreen with all panels closed). Later you can return back to layout 1 by alt-1.
+  Alternatively you can manually close all panels and toggle fullscreen by F11.
+
+ \section oculus_programmer Programmer's guide
+
+  Initialize Oculus Rift as usual, see Oculus SDK documentation. We use following block:
+  \code
+OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
+oculusManager = *OVR::DeviceManager::Create();
+if (oculusManager) oculusHMD = *oculusManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
+if (oculusHMD) oculusSensor = *oculusHMD->GetSensor();
+if (oculusSensor) oculusFusion.AttachToSensor(oculusSensor);
+oculusHMD->GetDeviceInfo(&oculusHMDInfo);
+  \endcode
+
+  To render in stereo, with Oculus Rift distortion correction and chromatic aberation correction, add following plugin at the end of your rendering plugin chain:
+  \code
+rr_gl::PluginParamsStereo ppStereo(pluginChain,SM_OCULUS_RIFT,oculusHMDInfo.DistortionK,
+	oculusHMDInfo.ChromaAbCorrection,1-2.f*oculusHMDInfo.LensSeparationDistance/oculusHMDInfo.HScreenSize);
+  \endcode
+
+  To rotate Lightsprint camera according to Oculus Rift rotation, do
+  \code
+float yaw,pitch,roll;
+oculusFusion.GetPredictedOrientation().GetEulerAngles<OVR::Axis_Y,OVR::Axis_X,OVR::Axis_Z>(&yaw,&pitch,&roll);
+camera.setYawPitchRollRad(RRVec3(yaw,pitch,roll));
+  \endcode
+
+  To improve realism, enforce following camera settings:
+  \code
+camera.eyeSeparation = oculusHMDInfo.InterpupillaryDistance;
+camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(oculusHMDInfo.VScreenSize/(2.f*oculusHMDInfo.EyeToScreenDistance))));
+  \endcode
+
+
+
+  
 
 \page main_vs Visual Studio
 

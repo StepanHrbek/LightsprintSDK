@@ -83,7 +83,8 @@ public:
 	UberProgram* twodProgram;
 
 	//! Helper, renders quad, identical to glBegin();4x glVertex();glEnd(); with coordinates from -1,-1 to 1,1.
-	static void renderQuad();
+	//! Optional parameter lets you provide your own coordinates.
+	static void renderQuad(const float (&position)[8] = NULL);
 
 private:
 	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture, float angleRad, const rr::RRVec3& brightness, float gamma);
