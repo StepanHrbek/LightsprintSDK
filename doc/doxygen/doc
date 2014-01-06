@@ -2818,25 +2818,19 @@ Material formats (1)
 
   Oculus Rift is one of multiple stereo devices supported, so changing <code>User preferences / Stereo mode</code> to <code>Oculus Rift</code> might be necessary.
 
-  The final step is to switch from window to fullscreen on Oculus display. Drag SceneViewer window from your main display to Oculus display,
-  then press alt-3 (to switch to window layout 3, which defaults to fullscreen with all panels closed). Later you can return back to layout 1 by alt-1.
+  The final step is to switch from window to fullscreen on Oculus display.
+  If you duplicate Oculus display on your main display, simply press alt-3 (to switch to window layout 3, which defaults to fullscreen with all panels closed);
+  otherwise drag SceneViewer window from your main display to Oculus display first, then press alt-3.
+  Later you can return back to layout 1 by alt-1.
   Alternatively you can manually close all panels and toggle fullscreen by F11.
 
  \section oculus_programmer Programmer's guide
 
-  Initialize Oculus Rift as usual, see Oculus SDK documentation. We use following block:
-  \code
-OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
-oculusManager = *OVR::DeviceManager::Create();
-if (oculusManager) oculusHMD = *oculusManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
-if (oculusHMD) oculusSensor = *oculusHMD->GetSensor();
-if (oculusSensor) oculusFusion.AttachToSensor(oculusSensor);
-oculusHMD->GetDeviceInfo(&oculusHMDInfo);
-  \endcode
+  Initialize Oculus Rift as usual, see Oculus SDK documentation. \ref oculus_init "Here" you can see how we initialize it.
 
   To render in stereo, with Oculus Rift distortion correction and chromatic aberation correction, add following plugin at the end of your rendering plugin chain:
   \code
-rr_gl::PluginParamsStereo ppStereo(pluginChain,SM_OCULUS_RIFT,oculusHMDInfo.DistortionK,
+PluginParamsStereo ppStereo(pluginChain,SM_OCULUS_RIFT,oculusHMDInfo.DistortionK,
 	oculusHMDInfo.ChromaAbCorrection,1-2.f*oculusHMDInfo.LensSeparationDistance/oculusHMDInfo.HScreenSize);
   \endcode
 
@@ -2851,6 +2845,29 @@ camera.setYawPitchRollRad(RRVec3(yaw,pitch,roll));
   \code
 camera.eyeSeparation = oculusHMDInfo.InterpupillaryDistance;
 camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(oculusHMDInfo.VScreenSize/(2.f*oculusHMDInfo.EyeToScreenDistance))));
+  \endcode
+
+
+\page oculus_init Oculus initialization
+
+  We use following code to initialize Oculus Rift.
+  There is nothing Lightsprint specific in it.
+
+  \code
+OVR::Ptr<OVR::DeviceManager> oculusManager;
+OVR::Ptr<OVR::SensorDevice>  oculusSensor;
+OVR::Ptr<OVR::HMDDevice>     oculusHMD;
+OVR::SensorFusion            oculusFusion;
+OVR::HMDInfo                 oculusHMDInfo;
+  \endcode
+
+  \code
+OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
+oculusManager = *OVR::DeviceManager::Create();
+if (oculusManager) oculusHMD = *oculusManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
+if (oculusHMD) oculusSensor = *oculusHMD->GetSensor();
+if (oculusSensor) oculusFusion.AttachToSensor(oculusSensor);
+oculusHMD->GetDeviceInfo(&oculusHMDInfo);
   \endcode
 
 
