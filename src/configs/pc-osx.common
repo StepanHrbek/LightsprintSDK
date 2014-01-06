@@ -11,12 +11,10 @@ CPP_FLAGS += -ftemplate-depth=256 # prevents “recursive template instantiation
 CPP_FLAGS += -Wno-deprecated-declarations # disables _finite() warnings in many files
 #CPP_FLAGS += -Wno-bitfield-constant-conversion # disables warnings in bsp.cpp
 CPP_FLAGS += -I/opt/local/include
-CPP_FLAGS += -I/opt/local/include/freetype2
 CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/include/wx-3.0
 CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/lib/wx/include/osx_cocoa-unicode-3.0
-#CPP_FLAGS += -I/opt/local/include/wx-2.9
-#CPP_FLAGS += -I/opt/local/lib/wx/include/osx_cocoa-unicode-2.9
 CPP_FLAGS += -D__WXOSX_COCOA__
+CPP_FLAGS += -I../../3rd/OculusSDK/LibOVR/Include
 
 LINK_FLAGS += -L/opt/local/lib
 
@@ -49,7 +47,8 @@ ED_DEPS = \
 	-lboost_serialization-mt \
 	-lboost_iostreams-mt \
 	-lboost_locale-mt \
-	-lftgl
+	-framework IOKit \
+	-lovr
 
 #	-F/opt/local/Library/Frameworks -framework wxWidgets
 

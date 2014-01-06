@@ -10,3 +10,4 @@ CPP_FLAGS += -DNDEBUG
 
 CPP_IO_FLAGS = -Os
 
+LINK_FLAGS += -L../../3rd/OculusSDK/LibOVR/Lib/MacOS/Release
