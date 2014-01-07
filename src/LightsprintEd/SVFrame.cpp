@@ -534,7 +534,8 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 		oculusSensor = *oculusHMD->GetSensor();
 	if (oculusSensor)
 		oculusFusion.AttachToSensor(oculusSensor);
-	oculusHMD->GetDeviceInfo(&oculusHMDInfo);
+	if (oculusHMD)
+		oculusHMD->GetDeviceInfo(&oculusHMDInfo);
 #endif // SUPPORT_OCULUS
 
 	// create properties (based also on data from preferences)

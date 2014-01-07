@@ -1297,10 +1297,10 @@ void SVCanvas::OnContextMenuCreate(wxContextMenuEvent& _event)
 
 
 #ifdef SUPPORT_OCULUS
-//static rr::RRVec4 convertVec4(float a[4])
-//{
-//	return rr::RRVec4(a[0],a[1],a[2],a[3]);
-//}
+static rr::RRVec4 convertVec4(float a[4])
+{
+	return rr::RRVec4(a[0],a[1],a[2],a[3]);
+}
 //static rr::RRVec4 convertQuat(OVR::Quatf q)
 //{
 //	return rr::RRVec4(q.x,q.y,q.z,q.w);
@@ -1783,11 +1783,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppFPS;
 
 			// stereo plugin
-#ifdef SUPPORT_OCULUS
-			rr_gl::PluginParamsStereo ppStereo(pluginChain,svframe->userPreferences.stereoMode,svframe->oculusHMDInfo.DistortionK,svframe->oculusHMDInfo.ChromaAbCorrection,1-2.f*svframe->oculusHMDInfo.LensSeparationDistance/svframe->oculusHMDInfo.HScreenSize);
-#else
 			rr_gl::PluginParamsStereo ppStereo(pluginChain,svframe->userPreferences.stereoMode);
-#endif
 			if (svs.renderStereo)
 			{
 				switch (ppStereo.stereoMode)
@@ -1808,12 +1804,20 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					// in oculus rift, adjust camera
 					case rr_gl::SM_OCULUS_RIFT:
 					case rr_gl::SM_OCULUS_RIFT_SWAP:
-						// enforce realistic eyeSeparation
-						svs.camera.eyeSeparation = svframe->oculusHMDInfo.InterpupillaryDistance;
-						// enforce realistic FOV
-						svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(svframe->oculusHMDInfo.VScreenSize/(2.f*svframe->oculusHMDInfo.EyeToScreenDistance))));
+						if (svframe->oculusHMD) // use HMDInfo only if HMD exists, HMDInfo is wrong if HMD does not exist
+						{
+							ppStereo.oculusDistortionK = convertVec4(svframe->oculusHMDInfo.DistortionK);
+							ppStereo.oculusChromaAbCorrection = convertVec4(svframe->oculusHMDInfo.ChromaAbCorrection);
+							ppStereo.oculusLensShift = 1-2.f*svframe->oculusHMDInfo.LensSeparationDistance/svframe->oculusHMDInfo.HScreenSize;
+							// enforce realistic eyeSeparation
+							svs.camera.eyeSeparation = svframe->oculusHMDInfo.InterpupillaryDistance;
+							// enforce realistic FOV
+							svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(svframe->oculusHMDInfo.VScreenSize/(2.f*svframe->oculusHMDInfo.EyeToScreenDistance))));
+						}
 						break;
-#endif
+#endif // SUPPORT_OCULUS
+					default: // prevents clang warning
+						break;
 				}
 				pluginChain = &ppStereo;
 			}
