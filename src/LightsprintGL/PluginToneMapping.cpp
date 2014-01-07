@@ -50,12 +50,11 @@ public:
 		const PluginParamsToneMapping& pp = *dynamic_cast<const PluginParamsToneMapping*>(&_pp);
 
 		if (!_renderer.getTextureRenderer()) return;
-		const unsigned* viewport = _sp.viewport;
 
 		if (!bigTexture) bigTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		bigTexture->bindTexture();
-		int bwidth = viewport[2];
-		int bheight = viewport[3];
+		int bwidth = _sp.viewport[2];
+		int bheight = _sp.viewport[3];
 		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,0,0,bwidth,bheight,0);
 
 		const unsigned swidth = 32;
@@ -73,7 +72,7 @@ public:
 		_renderer.getTextureRenderer()->render2D(bigTexture,NULL,1,0,0,1,1);
 		glReadPixels(0,0,swidth,sheight,GL_RGB,GL_UNSIGNED_BYTE,buf);
 		oldFBOState.restore();
-		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+		glViewport(_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]);
 		for (unsigned i=0;i<256;i++)
 			histo[i] = 0;
 		for (unsigned i=0;i<swidth*sheight*3;i+=3)

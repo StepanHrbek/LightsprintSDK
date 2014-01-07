@@ -162,8 +162,6 @@ public:
 
 #ifdef MIRRORS
 		GLint hasAlphaBits = -1; // -1=unknown, 0=no, 1,2,4,8...=yes
-		// get viewport size, so we know how large mirror textures to use
-		const unsigned* viewport = _sp.viewport;
 		// here we map planes to mirrors, so that two objects with the same plane share mirror
 		typedef std::map<rr::RRVec4,rr::RRBuffer*,PlaneCompare> Mirrors;
 		Mirrors mirrors;
@@ -321,17 +319,17 @@ public:
 												//    large areas of npot LIGHT_INDIRECT_MIRROR_DIFFUSE could reflect 0/0=undefined,
 												//    adding texture2D(lightIndirectMirrorMap, mirrorCenterSmooth)*0.01 inside dividedByAlpha() avoids undefined, but creates perfect mirror, look wrong too
 												//    +8.5 increases resolution, protects against shimmering
-												float factor = RR_CLAMPED(powf(2.f,getMipLevel(material)+8.5f)/(viewport[2]+viewport[3]),0.1f,1);
-												mirrorW = 1; while (mirrorW*2<=viewport[2]*factor) mirrorW *= 2;
-												mirrorH = 1; while (mirrorH*2<=viewport[3]*factor) mirrorH *= 2;
+												float factor = RR_CLAMPED(powf(2.f,getMipLevel(material)+8.5f)/(_sp.viewport[2]+_sp.viewport[3]),0.1f,1);
+												mirrorW = 1; while (mirrorW*2<=_sp.viewport[2]*factor) mirrorW *= 2;
+												mirrorH = 1; while (mirrorH*2<=_sp.viewport[3]*factor) mirrorH *= 2;
 											}
 											else
 											{
 												// non-mipmapped mirror is better npot
 												//    bluriness changes smoothly, not in big jumps
-												float factor = RR_CLAMPED(powf(2.f,getMipLevel(material)+6.f)/(viewport[2]+viewport[3]),0.1f,1); // 0.001 instead of 0.1 would allow lowres mirror for rough surfaces. would look more rough, but suffers from terrible shimmering. it is tax for speed, user can switch to higher quality mipmapped mirrors
-												mirrorW = (unsigned)(viewport[2]*factor);
-												mirrorH = (unsigned)(viewport[3]*factor);
+												float factor = RR_CLAMPED(powf(2.f,getMipLevel(material)+6.f)/(_sp.viewport[2]+_sp.viewport[3]),0.1f,1); // 0.001 instead of 0.1 would allow lowres mirror for rough surfaces. would look more rough, but suffers from terrible shimmering. it is tax for speed, user can switch to higher quality mipmapped mirrors
+												mirrorW = (unsigned)(_sp.viewport[2]*factor);
+												mirrorH = (unsigned)(_sp.viewport[3]*factor);
 											}
 
 											// adjust mirror resolution to be max of all optimal resolutions
@@ -620,7 +618,7 @@ public:
 #endif
 					// copy A to mirrorMaskMap.A
 					getTexture(mirrorMaskMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE)->bindTexture();
-					glCopyTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,viewport[0],viewport[1],viewport[2],viewport[3],0);
+					glCopyTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3],0);
 
 					// clear mirrorDepthMap=0, mirrorColorMap=0
 					rr::RRBuffer* mirrorColorMap = i->second;
@@ -682,7 +680,7 @@ public:
 					}
 
 					oldState.restore();
-					glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+					glViewport(_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]);
 
 					// build mirror mipmaps
 					// must go after oldState.restore();, HD2400+Catalyst 12.1 sometimes (in RealtimeLights, not in SceneViewer) crashes when generating mipmaps for render target

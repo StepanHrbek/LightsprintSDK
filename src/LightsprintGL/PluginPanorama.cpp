@@ -36,11 +36,9 @@ public:
 		if (pp.panoramaMode==PM_OFF || !cubeTexture)
 			return;
 
-		const unsigned* viewport = _sp.viewport;
-
 		// resize cube
-		unsigned size = (unsigned)sqrtf(viewport[2]*viewport[3]/6.f+1);
-		size = RR_MIN3(size,(unsigned)viewport[2],(unsigned)viewport[3]);
+		unsigned size = (unsigned)sqrtf(_sp.viewport[2]*_sp.viewport[3]/6.f+1);
+		size = RR_MIN3(size,_sp.viewport[2],_sp.viewport[3]);
 		if (cubeTexture->getBuffer()->getWidth()!=size || _sp.srgbCorrect!=cubeTextureIsSrgb)
 		{
 			cubeTexture->getBuffer()->reset(rr::BT_CUBE_TEXTURE,size,size,6,rr::BF_RGBA,true,RR_GHOST_BUFFER); // A for mirroring

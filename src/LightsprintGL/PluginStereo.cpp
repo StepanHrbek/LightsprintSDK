@@ -33,8 +33,6 @@ public:
 		if (pp.stereoMode==SM_MONO || !stereoUberProgram || !stereoTexture)
 			return;
 
-		const unsigned* viewport = _sp.viewport;
-
 		// why rendering to multisampled screen rather than 1-sampled texture?
 		//  we prefer quality over minor speedup
 		// why not rendering to multisampled texture?
@@ -64,10 +62,10 @@ public:
 			// render left
 			PluginParamsShared left = _sp;
 			left.camera = swapEyes?&rightEye:&leftEye;
-			left.viewport[0] = viewport[0];
-			left.viewport[1] = viewport[1];
-			left.viewport[2] = viewport[2];
-			left.viewport[3] = viewport[3];
+			left.viewport[0] = _sp.viewport[0];
+			left.viewport[1] = _sp.viewport[1];
+			left.viewport[2] = _sp.viewport[2];
+			left.viewport[3] = _sp.viewport[3];
 			if (pp.stereoMode==SM_SIDE_BY_SIDE || pp.stereoMode==SM_SIDE_BY_SIDE_SWAP || oculus)
 				left.viewport[2] /= 2;
 			else
@@ -94,11 +92,11 @@ public:
 		{
 			// turns top-down images to interlaced or oculus
 			if (oculus)
-				glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+				glViewport(_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]);
 			else
-				glViewport(viewport[0],viewport[1]+(viewport[3]%2),viewport[2],viewport[3]/2*2);
+				glViewport(_sp.viewport[0],_sp.viewport[1]+(_sp.viewport[3]%2),_sp.viewport[2],_sp.viewport[3]/2*2);
 			stereoTexture->bindTexture();
-			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,viewport[0],viewport[1],viewport[2],viewport[3]/2*2,0);
+			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]/2*2,0);
 			Program* stereoProgram = stereoUberProgram->getProgram(oculus?"#define OCULUS_RIFT\n":"#define INTERLACED\n");
 			if (stereoProgram)
 			{
@@ -107,19 +105,19 @@ public:
 				stereoProgram->sendTexture("map",stereoTexture);
 				if (!oculus)
 				{
-					stereoProgram->sendUniform("mapHalfHeight",float(viewport[3]/2));
+					stereoProgram->sendUniform("mapHalfHeight",float(_sp.viewport[3]/2));
 					TextureRenderer::renderQuad();
 				}
 				else
 				{
-					unsigned WindowWidth = viewport[2];
-					unsigned WindowHeight = viewport[3];
+					unsigned WindowWidth = _sp.viewport[2];
+					unsigned WindowHeight = _sp.viewport[3];
 					int DistortionXCenterOffset = 0;
 					float DistortionScale = 1.5f;
-					float w = float(viewport[2]/2) / float(WindowWidth);
-					float h = float(viewport[3]) / float(WindowHeight);
-					float y = float(viewport[1]) / float(WindowHeight);
-					float as = float(viewport[2]/2) / float(viewport[3]);
+					float w = float(_sp.viewport[2]/2) / float(WindowWidth);
+					float h = float(_sp.viewport[3]) / float(WindowHeight);
+					float y = float(_sp.viewport[1]) / float(WindowHeight);
+					float as = float(_sp.viewport[2]/2) / float(_sp.viewport[3]);
 					float scaleFactor = 1.0f / DistortionScale;
 
 					stereoProgram->sendUniform("HmdWarpParam",rr::RRVec4(pp.oculusDistortionK));
@@ -129,7 +127,7 @@ public:
 
 					// distort left eye
 					{
-						float x = float(viewport[0]) / float(WindowWidth);
+						float x = float(_sp.viewport[0]) / float(WindowWidth);
 						stereoProgram->sendUniform("LensCenter",x + (w + DistortionXCenterOffset * 0.5f)*0.5f, y + h*0.5f);
 						stereoProgram->sendUniform("ScreenCenter",x + w*0.5f, y + h*0.5f);
 						float leftPosition[8] = {-1,-1, -1,1, 0,1, 0,-1};
@@ -138,7 +136,7 @@ public:
 
 					// distort right eye
 					{
-						float x = float(viewport[0]+viewport[2]/2) / float(WindowWidth);
+						float x = float(_sp.viewport[0]+_sp.viewport[2]/2) / float(WindowWidth);
 						stereoProgram->sendUniform("LensCenter",x + (w + DistortionXCenterOffset * 0.5f)*0.5f, y + h*0.5f);
 						stereoProgram->sendUniform("ScreenCenter",x + w*0.5f, y + h*0.5f);
 						float rightPosition[8] = {0,-1, 0,1, 1,1, 1,-1};
@@ -149,7 +147,7 @@ public:
 		}
 
 		// restore viewport after rendering stereo (it could be non-default, e.g. when enhanced sshot is enabled)
-		glViewport(viewport[0],viewport[1],viewport[2],viewport[3]);
+		glViewport(_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]);
 	}
 
 	virtual ~PluginRuntimeStereo()
