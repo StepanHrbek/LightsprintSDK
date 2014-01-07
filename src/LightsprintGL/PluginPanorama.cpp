@@ -36,8 +36,7 @@ public:
 		if (pp.panoramaMode==PM_OFF || !cubeTexture)
 			return;
 
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT,viewport);
+		const unsigned* viewport = _sp.viewport;
 
 		// resize cube
 		unsigned size = (unsigned)sqrtf(viewport[2]*viewport[3]/6.f+1);

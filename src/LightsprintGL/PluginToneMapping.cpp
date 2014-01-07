@@ -50,8 +50,7 @@ public:
 		const PluginParamsToneMapping& pp = *dynamic_cast<const PluginParamsToneMapping*>(&_pp);
 
 		if (!_renderer.getTextureRenderer()) return;
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT,viewport);
+		const unsigned* viewport = _sp.viewport;
 
 		if (!bigTexture) bigTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		bigTexture->bindTexture();

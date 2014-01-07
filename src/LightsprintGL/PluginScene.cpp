@@ -163,8 +163,7 @@ public:
 #ifdef MIRRORS
 		GLint hasAlphaBits = -1; // -1=unknown, 0=no, 1,2,4,8...=yes
 		// get viewport size, so we know how large mirror textures to use
-		GLint viewport[4];
-		glGetIntegerv(GL_VIEWPORT,viewport);
+		const unsigned* viewport = _sp.viewport;
 		// here we map planes to mirrors, so that two objects with the same plane share mirror
 		typedef std::map<rr::RRVec4,rr::RRBuffer*,PlaneCompare> Mirrors;
 		Mirrors mirrors;
