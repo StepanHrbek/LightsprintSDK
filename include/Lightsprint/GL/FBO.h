@@ -48,13 +48,6 @@ public:
 private:
 	static void setRenderTargetGL(GLenum attachment, GLenum target, GLuint texture);
 
-	// Automatic one time initialization.
-	friend class Texture;
-	//! Called automatically when first texture is created.
-	static void init();
-	//! Called automatically when last texture is deleted.
-	static void done();
-
 	// Saved state.
 	GLuint fb_id;
 	GLenum color_target;

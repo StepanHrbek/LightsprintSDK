@@ -16,59 +16,16 @@
 namespace rr_gl
 {
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// init GL
-
 bool s_es = false; // is this OpenGL ES?
-
-const char* initializeGL()
-{
-	// init GLEW
-	if (glewInit()!=GLEW_OK)
-	{
-		return "GLEW init failed (OpenGL 2.0 capable graphics card is required).\n";
-	}
-
-	// check gl version
-	rr::RRReporter::report(rr::INF2,"OpenGL %s by %s on %s.\n",glGetString(GL_VERSION),glGetString(GL_VENDOR),glGetString(GL_RENDERER));
-	int major, minor;
-	s_es = sscanf((char*)glGetString(GL_VERSION),"OpenGL ES %d.%d",&major,&minor)==2 && major>=2;
-	if (!s_es && (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2))
-	{
-		return "Your system does not support OpenGL 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n";
-	}
-
-	// check FBO
-	if (!GLEW_EXT_framebuffer_object) // added in GL 3.0
-	{
-		return "GL_EXT_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n";
-	}
-
-	// init misc GL states
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glDepthFunc(GL_LEQUAL);
-	glEnable(GL_DEPTH_TEST);
-
-	// init "seamless cube maps" feature
-	// in OSX 10.7, supported from Radeon HD2400, GeForce 9400(but not 9600,1xx), HD graphics 3000
-	if (GLEW_ARB_seamless_cube_map)
-		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-
-	return NULL;
-}
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // FBO
 
 static FBO      s_fboState;
-static unsigned s_numPotentialFBOUsers = 0;
 static GLuint   s_fb_id = 0;
 
-void FBO::init()
+void FBO_init()
 {
 	glGenFramebuffersEXT(1, &s_fb_id);
 
@@ -80,7 +37,7 @@ void FBO::init()
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
-void FBO::done()
+void FBO_done()
 {
 	glDeleteFramebuffersEXT(1, &s_fb_id);
 }
@@ -124,19 +81,19 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 		{
 			if (s_fboState.color_target != target || s_fboState.color_id != tex_id)
 			{
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, s_fboState.color_target = target, s_fboState.color_id = tex_id, 0);
-				if (tex_id)
+				if (!s_fboState.color_id && tex_id)
 				{
 					if (!s_es)
 						glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
 					glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
 				}
-				else
+				if (s_fboState.color_id && !tex_id)
 				{
 					if (!s_es)
 						glDrawBuffer(GL_NONE);
 					glReadBuffer(GL_NONE);
 				}
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, s_fboState.color_target = target, s_fboState.color_id = tex_id, 0);
 			}
 		}
 	}
@@ -197,6 +154,51 @@ void FBO::restore()
 }
 
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// init GL
+
+const char* initializeGL()
+{
+	// init GLEW
+	if (glewInit()!=GLEW_OK)
+	{
+		return "GLEW init failed (OpenGL 2.0 capable graphics card is required).\n";
+	}
+
+	// check gl version
+	rr::RRReporter::report(rr::INF2,"OpenGL %s by %s on %s.\n",glGetString(GL_VERSION),glGetString(GL_VENDOR),glGetString(GL_RENDERER));
+	int major, minor;
+	s_es = sscanf((char*)glGetString(GL_VERSION),"OpenGL ES %d.%d",&major,&minor)==2 && major>=2;
+	if (!s_es && (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2))
+	{
+		return "Your system does not support OpenGL 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n";
+	}
+
+	// check FBO
+	if (!GLEW_EXT_framebuffer_object) // added in GL 3.0
+	{
+		return "GL_EXT_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n";
+	}
+
+	FBO_init();
+
+	// init misc GL states
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_DEPTH_TEST);
+
+	// init "seamless cube maps" feature
+	// in OSX 10.7, supported from Radeon HD2400, GeForce 9400(but not 9600,1xx), HD graphics 3000
+	if (GLEW_ARB_seamless_cube_map)
+		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+	return NULL;
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Texture
@@ -209,12 +211,6 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 	buffer = _buffer ? _buffer->createReference() : NULL;
 	if (buffer)
 		buffer->customData = this;
-
-	if (!s_numPotentialFBOUsers)
-	{
-		s_fboState.init();
-	}
-	s_numPotentialFBOUsers++;
 
 	if (buffer && buffer->getDuration())
 	{
@@ -408,12 +404,6 @@ Texture::~Texture()
 	}
 	glDeleteTextures(1, &id);
 	id = UINT_MAX;
-
-	s_numPotentialFBOUsers--;
-	if (!s_numPotentialFBOUsers)
-	{
-		s_fboState.done();
-	}
 }
 
 
