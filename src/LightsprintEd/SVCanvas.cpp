@@ -1769,7 +1769,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 			// lens flare plugin
 			rr_gl::PluginParamsLensFlare ppLensFlare(pluginChain,svs.lensFlareSize,svs.lensFlareId,&solver->getLights(),solver->getMultiObjectCustom(),64);
-			if (svs.renderLensFlare && !svs.camera.isOrthogonal() && !svs.renderPanorama)
+			if (svs.renderLensFlare && !svs.camera.isOrthogonal() && !svs.renderPanorama && !svs.renderStereo)
 				pluginChain = &ppLensFlare;
 
 			// panorama plugin
