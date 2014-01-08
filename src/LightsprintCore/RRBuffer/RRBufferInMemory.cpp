@@ -111,6 +111,10 @@ RRBufferInMemory::~RRBufferInMemory()
 	}
 	else
 	{
+		if (customData)
+		{
+			RRReporter::report(WARN,"Deleting buffer with non-NULL customData, memory leak? If it links to Texture, delete the Texture first.\n");
+		}
 		// destruct
 		delete[] data;
 	}
