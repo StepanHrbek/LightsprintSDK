@@ -147,7 +147,8 @@ public:
 		}
 
 		// restore viewport after rendering stereo (it could be non-default, e.g. when enhanced sshot is enabled)
-		glViewport(_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]);
+		if (!oculus)
+			glViewport(_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]);
 	}
 
 	virtual ~PluginRuntimeStereo()
