@@ -31,12 +31,13 @@ if (phase==0 || phase==1)
 	registerLoaderImages();
 #endif
 
-#ifdef SUPPORT_DIRECTSHOW
-	registerLoaderDirectShow();
-#endif
-
 #ifdef SUPPORT_LIGHTSPRINT
 	registerLoaderLightsprint();
+#endif
+
+#ifdef SUPPORT_DIRECTSHOW
+	// should be the last one, because it is probably very slow in rejecting unsupported formats
+	registerLoaderDirectShow();
 #endif
 
 #ifdef SUPPORT_GAMEBRYO
