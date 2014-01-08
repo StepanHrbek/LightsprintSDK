@@ -93,7 +93,7 @@ public:
 		{
 			// copy backbuffer to bigMap
 			bigMap->bindTexture();
-			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,0,0,w,h,0);
+			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,_sp.viewport[0],_sp.viewport[1],w,h,0);
 		}
 
 		// downscale bigMap to smallMap1
@@ -127,7 +127,7 @@ public:
 		oldFBOState.restore();
 		blendProgram->useIt();
 		blendProgram->sendUniform("map",0);
-		glViewport(0,0,bigMap->getBuffer()->getWidth(),bigMap->getBuffer()->getHeight());
+		glViewport(_sp.viewport[0],_sp.viewport[1],w,h);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE);
 		smallMap1->bindTexture();
