@@ -85,6 +85,8 @@ public:
 
 	virtual ~RendererImpl()
 	{
+		for (boost::unordered_map<std::type_index,PluginRuntime*>::iterator i = pluginRuntimes.begin(); i!=pluginRuntimes.end(); ++i)
+			delete i->second;
 	}
 
 private:
