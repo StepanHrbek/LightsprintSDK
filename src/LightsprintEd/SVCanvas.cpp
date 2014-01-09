@@ -1812,7 +1812,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 							// enforce realistic eyeSeparation
 							svs.camera.eyeSeparation = svframe->oculusHMDInfo.InterpupillaryDistance;
 							// enforce realistic FOV
-							svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(svframe->oculusHMDInfo.VScreenSize/(2.f*svframe->oculusHMDInfo.EyeToScreenDistance))));
+							//RR_LIMITED_TIMES(1,svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(svframe->oculusHMDInfo.VScreenSize/(2.f*svframe->oculusHMDInfo.EyeToScreenDistance)))));
 						}
 						break;
 #endif // SUPPORT_OCULUS
