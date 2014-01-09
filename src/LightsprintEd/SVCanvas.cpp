@@ -1330,10 +1330,12 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 	// oculus camera rotation
 	if (svframe->oculusSensor && svs.renderStereo && svframe->userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT)
 	{
-		float yaw,pitch,roll;
-		svframe->oculusFusion.GetPredictedOrientation().GetEulerAngles<OVR::Axis_Y,OVR::Axis_X,OVR::Axis_Z>(&yaw,&pitch,&roll);
-		svs.camera.setYawPitchRollRad(RRVec3(yaw,pitch,roll));
-		// another way to do the same:
+		static rr::RRVec3 oldOculusRot(0);
+		rr::RRVec3 oculusRot(0);
+		svframe->oculusFusion.GetPredictedOrientation().GetEulerAngles<OVR::Axis_Y,OVR::Axis_X,OVR::Axis_Z>(&oculusRot.x,&oculusRot.y,&oculusRot.z);
+		svs.camera.setYawPitchRollRad(svs.camera.getYawPitchRollRad()+oculusRot-oldOculusRot);
+		oldOculusRot = oculusRot;
+		// another way to copy (not add) oculus rotation to camera:
 		//OVR::Quatf q = svframe->oculusFusion.GetPredictedOrientation();
 		//rr::RRVec3 oldpos = svs.camera.getPosition();
 		//svs.camera.setPosition(rr::RRVec3(0));
