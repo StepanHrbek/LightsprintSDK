@@ -393,6 +393,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		rtlight->dirtyShadowmap = true;
 	}
 	rtlight->updateAfterRRLightChanges();
+	svframe->OnAnyChange(property);
 }
 
 BEGIN_EVENT_TABLE(SVLightProperties, wxPropertyGrid)

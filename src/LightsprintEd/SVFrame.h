@@ -12,6 +12,7 @@
 #include "SVCanvas.h"
 #include "SVDialogs.h"
 #include "wx/aui/aui.h"
+#include "wx/propgrid/propgrid.h"
 #ifdef SUPPORT_OCULUS
 	#include "OVR.h"
 #endif
@@ -85,6 +86,11 @@ namespace rr_ed
 
 		//! Gathers scene data from solver and saves it to given filename (.rr3).
 		bool saveScene(wxString sceneFilename);
+
+		//! Called on any state change.
+		void OnAnyChange(wxPGProperty* eventSource);
+		//! Increased each time state changes.
+		unsigned stateVersion;
 
 
 		enum

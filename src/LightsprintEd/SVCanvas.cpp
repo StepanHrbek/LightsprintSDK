@@ -491,6 +491,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 
 	recalculateIconSizeAndPosition();
 
+	svframe->OnAnyChange(NULL);
 }
 
 void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
@@ -827,6 +828,7 @@ static bool s_ciRelevant = false; // are we dragging and is s_ci describing clic
 static bool s_ciRenderCrosshair = false;
 static ClickInfo s_ci;
 static rr::RRVec3 s_accumulatedPanning(0); // accumulated worldspace movement in 'dragging' path, cleared at the end of dragging
+static bool s_draggingObjectOrLight = false;
 
 // What triggers context menu:
 // a) rightclick -> OnMouseEvent() -> creates context menu
@@ -1057,6 +1059,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		bool manipulatingSelection = s_ci.clickedEntityIsSelected && !manipulatingCamera;
 		bool manipulatingSingleLight = selectedEntities.size()==1 && selectedEntities.begin()->type==ST_LIGHT;
 		bool manipulatingGizmo = s_ci.clickedEntity.iconCode>=IC_MOVEMENT && s_ci.clickedEntity.iconCode<=IC_Z;
+		s_draggingObjectOrLight = manipulatingGizmo && !manipulatingCamera;
 		if (event.LeftIsDown() && !manipulatingCamera && (manipulatingSelection || manipulatingGizmo))
 		{
 			// moving/rotating/scaling selection (gizmo)
@@ -1244,6 +1247,11 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					}
 				}
 			}
+		}
+		if (s_draggingObjectOrLight)
+		{
+			svframe->OnAnyChange(NULL);
+			s_draggingObjectOrLight = false;
 		}
 	}
 

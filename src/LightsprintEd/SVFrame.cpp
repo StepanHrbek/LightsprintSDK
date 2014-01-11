@@ -448,6 +448,7 @@ void SVFrame::UpdateEverything()
 		m_canvas->OnKeyDown(event);
 	}
 
+	OnAnyChange(NULL);
 }
 
 
@@ -964,6 +965,11 @@ bool SVFrame::saveScene(wxString sceneFilename)
 		scene.environment = NULL; // would be deleted in destructor otherwise
 	}
 	return result;
+}
+
+void SVFrame::OnAnyChange(wxPGProperty* eventSource)
+{
+	stateVersion++;
 }
 
 

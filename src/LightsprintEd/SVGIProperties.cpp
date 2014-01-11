@@ -512,6 +512,7 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 			}
 		}
 	}
+	svframe->OnAnyChange(property);
 }
 
 BEGIN_EVENT_TABLE(SVGIProperties, wxPropertyGrid)
