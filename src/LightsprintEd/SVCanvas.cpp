@@ -491,7 +491,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 
 	recalculateIconSizeAndPosition();
 
-	svframe->OnAnyChange(NULL);
+	svframe->OnAnyChange(SVFrame::ES_MISC,NULL);
 }
 
 void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
@@ -762,12 +762,14 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	{
 		Refresh(false);
 	}
+	svframe->OnAnyChange(SVFrame::ES_KEYBOARD_MID_MOVEMENT,NULL);
 }
 
 void SVCanvas::OnKeyUp(wxKeyEvent& event)
 {
 	if (exitRequested || !fullyCreated)
 		return;
+	bool didMove = (speedForward-speedBack) || (speedRight-speedLeft) || (speedUp-speedDown) || speedY || speedLean;
 	long evkey = event.GetKeyCode();
 	switch(evkey)
 	{
@@ -799,6 +801,9 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 		case 'C': speedLean = 0; break;
 	}
 	event.Skip();
+	bool movesNow = (speedForward-speedBack) || (speedRight-speedLeft) || (speedUp-speedDown) || speedY || speedLean;
+	if (didMove && !movesNow)
+		svframe->OnAnyChange(SVFrame::ES_KEYBOARD_END,NULL);
 }
 
 extern bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption);
@@ -1165,10 +1170,12 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			}
 			s_ciRenderCrosshair = true;
 		}
-
+		svframe->OnAnyChange(SVFrame::ES_MOUSE_MID_MOVEMENT,NULL);
 	}
 	if (!event.ButtonDown() && !event.Dragging())
 	{
+		if (s_ciRelevant)
+			svframe->OnAnyChange(SVFrame::ES_MOUSE_END,NULL);
 		// dragging ended, all s_xxx become invalid
 		s_ciRelevant = false;
 		s_ciRenderCrosshair = false;
@@ -1250,7 +1257,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 		if (s_draggingObjectOrLight)
 		{
-			svframe->OnAnyChange(NULL);
 			s_draggingObjectOrLight = false;
 		}
 	}
@@ -1288,6 +1294,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				svs.camera.setFieldOfViewVerticalDeg(fov);
 			}
 		}
+		svframe->OnAnyChange(SVFrame::ES_MOUSE_END,NULL);
 	}
 
 	solver->reportInteraction();
@@ -1379,6 +1386,9 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 				* rr::RRMatrix3x4::rotationByAxisAngle(svs.camera.getDirection(),-speedLean*seconds*0.5f).centeredAround(center),
 				false, speedLean?true:false
 				);
+			bool movesNow = (speedForward-speedBack) || (speedRight-speedLeft) || (speedUp-speedDown) || speedY || speedLean;
+			if (movesNow)
+				svframe->OnAnyChange(SVFrame::ES_KEYBOARD_MID_MOVEMENT,NULL);
 		}
 	}
 

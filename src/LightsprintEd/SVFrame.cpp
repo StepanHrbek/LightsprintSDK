@@ -448,7 +448,7 @@ void SVFrame::UpdateEverything()
 		m_canvas->OnKeyDown(event);
 	}
 
-	OnAnyChange(NULL);
+	OnAnyChange(ES_MISC,NULL);
 }
 
 
@@ -967,7 +967,7 @@ bool SVFrame::saveScene(wxString sceneFilename)
 	return result;
 }
 
-void SVFrame::OnAnyChange(wxPGProperty* eventSource)
+void SVFrame::OnAnyChange(EventSource eventSource, wxPGProperty* property)
 {
 	stateVersion++;
 }

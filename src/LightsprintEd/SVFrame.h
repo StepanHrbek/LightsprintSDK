@@ -87,8 +87,17 @@ namespace rr_ed
 		//! Gathers scene data from solver and saves it to given filename (.rr3).
 		bool saveScene(wxString sceneFilename);
 
+		enum EventSource
+		{
+			ES_KEYBOARD_MID_MOVEMENT,
+			ES_KEYBOARD_END,
+			ES_MOUSE_MID_MOVEMENT,
+			ES_MOUSE_END,
+			ES_PROPERTY,
+			ES_MISC
+		};
 		//! Called on any state change.
-		void OnAnyChange(wxPGProperty* eventSource);
+		void OnAnyChange(EventSource eventSource, wxPGProperty* property);
 		//! Increased each time state changes.
 		unsigned stateVersion;
 
