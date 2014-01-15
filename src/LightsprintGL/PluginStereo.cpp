@@ -90,8 +90,8 @@ public:
 		{
 			leftEye.setAspect(_sp.camera->getAspect()*0.5f);
 			rightEye.setAspect(_sp.camera->getAspect()*0.5f);
-			leftEye.setScreenCenter(rr::RRVec2(rr::RRReal(-pp.oculusLensShift*leftEye.getProjectionMatrix()[0]),0));
-			rightEye.setScreenCenter(rr::RRVec2(rr::RRReal(pp.oculusLensShift*rightEye.getProjectionMatrix()[0]),0));
+			leftEye.setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(-pp.oculusLensShift*leftEye.getProjectionMatrix()[0]),0));
+			rightEye.setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(pp.oculusLensShift*rightEye.getProjectionMatrix()[0]),0));
 		}
 
 		{
