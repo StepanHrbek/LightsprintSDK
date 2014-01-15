@@ -186,7 +186,7 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 			const RRCamera& eye = scene->cameras[0];
 			ofs << "scene.camera.lookat = " << convertPos(eye.getPosition()) << " " << convertPos(eye.getPosition()+eye.getDirection()) << "\n";
 			ofs << "scene.camera.up = " << convertDir(eye.getUp()) << "\n";
-			ofs << "scene.camera.focaldistance = " << eye.focalLength << "\n";
+			ofs << "scene.camera.focaldistance = " << (eye.dofNear+eye.dofFar)/2 << "\n";
 			ofs << "scene.camera.fieldofview = " << eye.getFieldOfViewHorizontalDeg() << "\n";
 			ofs << "################################################################################\n";
 		}
