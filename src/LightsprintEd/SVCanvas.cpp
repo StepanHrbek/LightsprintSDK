@@ -1785,11 +1785,6 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (svs.renderPanorama)
 				pluginChain = &ppPanorama;
 
-			// FPS plugin
-			rr_gl::PluginParamsFPS ppFPS(pluginChain,fpsCounter.getFps());
-			if (svs.renderFPS)
-				pluginChain = &ppFPS;
-
 			// stereo plugin
 			rr_gl::PluginParamsStereo ppStereo(pluginChain,svframe->userPreferences.stereoMode);
 			if (svs.renderStereo)
@@ -1844,6 +1839,11 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr_gl::PluginParamsToneMapping ppToneMapping(pluginChain,svs.tonemappingBrightness,secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingAutomaticTarget);
 			if (adjustingTonemapping)
 				pluginChain = &ppToneMapping;
+
+			// FPS plugin
+			rr_gl::PluginParamsFPS ppFPS(pluginChain,fpsCounter.getFps());
+			if (svs.renderFPS)
+				pluginChain = &ppFPS;
 
 			// showDDI plugin
 			rr_gl::PluginParamsShowDDI ppShowDDI(pluginChain,(svs.initialInputSolver&&svs.renderLightIndirect==LI_NONE)?svs.initialInputSolver:solver);
