@@ -370,7 +370,10 @@ public:
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = objectBuffers.lightIndirectDetailMap!=NULL;
 					objectBuffers.objectUberProgramSetup.OBJECT_SPACE = object->getWorldMatrix()!=NULL;
-					if (sp.srgbCorrect) // we changed gamma value, it has to be enabled in shader to have effect
+					// autoset POSTPROCESS_ if not set (for top fps), keep it on if set (for fewer shaders)
+					if (sp.brightness!=rr::RRVec4(1))
+						objectBuffers.objectUberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
+					if (sp.srgbCorrect || sp.gamma!=1) // srgbCorrect means that gamma is not final yet, we are going to adjust it
 						objectBuffers.objectUberProgramSetup.POSTPROCESS_GAMMA = true;
 
 					const rr::RRObject::FaceGroups& faceGroups = object->faceGroups;

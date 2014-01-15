@@ -40,8 +40,16 @@ public:
 	const RealtimeLights* lights;
 
 	//! Specifies shader properties to be allowed during render.
+	//
 	//! For rendering with all light and material features,
 	//! use UberProgramSetup::enableAllLights() and UberProgramSetup::enableAllMaterials().
+	//!
+	//! For brightness/gamma correction, it is sufficient to set PluginParamsShared::brightness/gamma.
+	//! If you don't set POSTPROCESS_BRIGHTNESS/POSTPROCESS_GAMMA, plugin sets them automatically according to 
+	//! SharedPluginParams::brightness/gamma. This gives you top fps, but system might need to compile multiple shaders
+	//! (depending on brightness/gamma values), so startup might be slower.
+	//! If you set POSTPROCESS_BRIGHTNESS/POSTPROCESS_GAMMA, they stay set even if not necessary, so startup is faster,
+	//! but shader executes few extra instructions even if they are not needed, so fps might be super tiny bit lower.
 	UberProgramSetup uberProgramSetup;
 
 	//! When rendering shadows into shadowmap, set it to respective light, otherwise NULL.

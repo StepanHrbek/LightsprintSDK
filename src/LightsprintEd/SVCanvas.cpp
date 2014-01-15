@@ -1722,8 +1722,6 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppScene.uberProgramSetup.MATERIAL_BUMP_MAP = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
 			ppScene.uberProgramSetup.MATERIAL_NORMAL_MAP_FLOW = svs.renderMaterialBumpMaps && svs.renderMaterialTextures;
 			ppScene.uberProgramSetup.MATERIAL_CULLING = svs.renderMaterialSidedness;
-			ppScene.uberProgramSetup.POSTPROCESS_BRIGHTNESS = ppShared.brightness!=rr::RRVec4(1);
-			ppScene.uberProgramSetup.POSTPROCESS_GAMMA = ppShared.gamma!=1;
 			// There was updateLayers=true by accident since rev 5221 (I think development version of mirrors needed it to update mirrors, and I forgot to revert it).
 			// It was error, because "true" when rendering static lmap allows PluginScene [#12] to use multiobj.
 			// And as lmap is always stored in 1obj, PluginScene can't find it in multiobj. Error was visible only with specular cubes disabled (they also enforce 1obj).
@@ -1870,8 +1868,6 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			// set shader (no direct light)
 			rr_gl::UberProgramSetup uberProgramSetup;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
-			uberProgramSetup.POSTPROCESS_BRIGHTNESS = svs.tonemappingBrightness!=rr::RRVec4(1);
-			uberProgramSetup.POSTPROCESS_GAMMA = svs.tonemappingGamma!=1;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
 			rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));

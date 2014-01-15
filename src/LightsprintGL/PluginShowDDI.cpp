@@ -71,8 +71,6 @@ public:
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = true;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
 			uberProgramSetup.MATERIAL_CULLING = ppScene->uberProgramSetup.MATERIAL_CULLING;
-			uberProgramSetup.POSTPROCESS_BRIGHTNESS = ppScene->uberProgramSetup.POSTPROCESS_BRIGHTNESS;
-			uberProgramSetup.POSTPROCESS_GAMMA = ppScene->uberProgramSetup.POSTPROCESS_GAMMA;
 			ppScene->uberProgramSetup = uberProgramSetup;
 		}
 

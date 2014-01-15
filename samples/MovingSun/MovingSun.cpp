@@ -273,8 +273,6 @@ void display(void)
 	ppScene.lights = &solver->realtimeLights;
 	ppScene.uberProgramSetup.enableAllLights();
 	ppScene.uberProgramSetup.enableAllMaterials();
-	ppScene.uberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
-	ppScene.uberProgramSetup.POSTPROCESS_GAMMA = true;
 	ppScene.updateLayers = true;
 	ppScene.layerLightmap = LAYER_LIGHTMAPS;
 	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
