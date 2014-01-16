@@ -32,6 +32,8 @@ namespace rr_ed
 
 		wxPGProperty*     propTooltips;
 
+		wxPGProperty*     propSwapInterval;
+
 		wxPGProperty*     propStereoMode;
 		wxPGProperty*     propStereoSwap;
 

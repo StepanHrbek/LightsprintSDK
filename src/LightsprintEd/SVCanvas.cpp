@@ -359,9 +359,7 @@ void SVCanvas::createContextCore()
 	entityIcons = new SVEntityIcons(svs.pathToMaps,solver->getUberProgram());
 	recalculateIconSizeAndPosition();
 
-#if defined(_WIN32)
-	if (wglSwapIntervalEXT) wglSwapIntervalEXT(1); // 1 for oculus, 0 for benchmarking fps
-#endif
+	svframe->userPreferences.applySwapInterval();
 
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();

@@ -42,6 +42,7 @@ namespace rr_ed
 	struct UserPreferences
 	{
 		bool        tooltips;
+		int         swapInterval; // value sent to wglSwapInterval, 0 for max fps, -1 for oculus
 		rr_gl::StereoMode stereoMode;
 
 		unsigned    currentWindowLayout;
@@ -75,6 +76,7 @@ namespace rr_ed
 		UserPreferences()
 		{
 			tooltips = true;
+			swapInterval = -1;
 			stereoMode = rr_gl::SM_SIDE_BY_SIDE;
 			currentWindowLayout = 0;
 			resetLayouts();
@@ -105,6 +107,8 @@ namespace rr_ed
 		bool save() const;
 		//! Loads preferences, ""=filename is automatic.
 		bool load(const wxString& nonDefaultFilename);
+		//! Send swapInterval to rendering pipeline.
+		void applySwapInterval();
 	};
 
 

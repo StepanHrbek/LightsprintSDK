@@ -23,6 +23,9 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#ifdef _WIN32
+	#include <GL/wglew.h> // wglSwapInterval
+#endif
 
 
 namespace bf = boost::filesystem;
@@ -108,6 +111,10 @@ void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int versi
 	{
 		ar & make_nvp("tooltips",a.tooltips);
 	}
+	if (version>16)
+	{
+		ar & make_nvp("swapInterval",a.swapInterval);
+	}
 	if (version>14)
 	{
 		ar & make_nvp("stereoMode",a.stereoMode);
@@ -165,7 +172,7 @@ void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int versi
 
 BOOST_CLASS_VERSION(rr_ed::ImportParameters,1);
 BOOST_CLASS_VERSION(rr_ed::UserPreferences::WindowLayout,2)
-BOOST_CLASS_VERSION(rr_ed::UserPreferences,16)
+BOOST_CLASS_VERSION(rr_ed::UserPreferences,17)
 
 //---------------------------------------------------------------------------
 
@@ -277,6 +284,13 @@ bool UserPreferences::load(const wxString& nonDefaultFilename)
 	}
 
 	return true;
+}
+
+void UserPreferences::applySwapInterval()
+{
+#if defined(_WIN32)
+	if (wglSwapIntervalEXT) wglSwapIntervalEXT(swapInterval);
+#endif
 }
 
 

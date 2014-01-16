@@ -18,6 +18,11 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 	propTooltips = new BoolRefProperty(_("Tooltips"),_("Enables tooltips."),userPreferences.tooltips);
 	Append(propTooltips);
 
+	
+	propSwapInterval = new wxBoolProperty(_("Max fps"),wxPG_LABEL,userPreferences.swapInterval==0);
+	SetPropertyEditor(propSwapInterval,wxPGEditor_CheckBox);
+	propSwapInterval->SetHelpString(_("Windows only. Checked = unrestricted fps, good only for benchmarking. Unchecked = fps adaptively synchronized with display refresh, smoother, reduced fan noise."));
+	Append(propSwapInterval);
 
 	// stereo
 	{
@@ -183,6 +188,12 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propTooltips)
 	{
 		svframe->enableTooltips(svframe->userPreferences.tooltips);
+	}
+	else
+	if (property==propSwapInterval)
+	{
+		userPreferences.swapInterval = property->GetValue().GetBool()?0:-1;
+		userPreferences.applySwapInterval();
 	}
 	else
 	if (property==propStereoMode || property==propStereoSwap)
