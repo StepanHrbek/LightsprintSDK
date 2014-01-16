@@ -34,6 +34,7 @@ CPP_FLAGS += -DSUPPORT_LIGHTFIELD
 SOURCES = \
 MultiPass.cpp \
 Plugin.cpp \
+PluginAccumulation.cpp \
 PluginBloom.cpp \
 PluginCube.cpp \
 PluginDOF.cpp \

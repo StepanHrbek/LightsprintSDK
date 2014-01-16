@@ -49,8 +49,9 @@ RRCamera::RRCamera()
 	focalLength = 0.5f;
 
 	// dof
+	apertureDiameter = 0.04f;
 	dofNear = 1;
-	dofFar = 10;
+	dofFar = 1;
 }
 
 RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar)
@@ -77,8 +78,9 @@ RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspec
 	focalLength = 0.5f;
 
 	// dof
+	apertureDiameter = 0.04f;
 	dofNear = 1;
-	dofFar = 10;
+	dofFar = 1;
 }
 
 RRCamera::RRCamera(RRLight& _light)
@@ -111,8 +113,9 @@ RRCamera::RRCamera(RRLight& _light)
 	focalLength = 0.5f;
 
 	// dof
+	apertureDiameter = 0.04f;
 	dofNear = 1;
-	dofFar = 10;
+	dofFar = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -608,6 +611,7 @@ void RRCamera::blendLinear(const RRCamera& sample0, const RRCamera& sample1, flo
 	orthogonal = sample0.orthogonal;
 	orthoSize = blendNormal(sample0.orthoSize,sample1.orthoSize,blend);
 	screenCenter = blendNormal(sample0.screenCenter,sample1.screenCenter,blend);
+	apertureDiameter = blendNormal(sample0.apertureDiameter,sample1.apertureDiameter,blend);
 	dofNear = blendNormal(sample0.dofNear,sample1.dofNear,blend);
 	dofFar = blendNormal(sample0.dofFar,sample1.dofFar,blend);
 	updateView(true,true);
@@ -805,9 +809,10 @@ void RRCamera::blendAkima(unsigned numSamples, const RRCamera** samples, float* 
 	*this = *samples[i-1];
 
 	// interpolate
-	BLEND_4FLOATS(pos.x,pos.y,pos.z,fieldOfViewVerticalDeg);
+	BLEND_RRVEC3(pos);
 	BLEND_RRVEC3_ANGLES(yawPitchRollRad);
-	BLEND_4FLOATS(anear,afar,dofNear,dofFar);
+	BLEND_3FLOATS(apertureDiameter,dofNear,dofFar);
+	BLEND_3FLOATS(fieldOfViewVerticalDeg,anear,afar);
 	BLEND_4FLOATS(screenCenter.x,screenCenter.y,orthoSize,aspect);
 	updateView(true,true);
 	updateProjection();
@@ -866,14 +871,62 @@ RRVec3 RRCamera::getRayDirection(RRVec2 posInWindow) const
 		;
 }
 
+const RRCamera& RRCamera::operator=(const RRCamera& a)
+{
+	// view
+	pos = a.pos;
+	yawPitchRollRad = a.yawPitchRollRad;
+
+	// projection
+	aspect = a.aspect;
+	fieldOfViewVerticalDeg = a.fieldOfViewVerticalDeg;
+	orthogonal = a.orthogonal;
+	anear = a.anear;
+	afar = a.afar;
+	orthoSize = a.orthoSize;
+	screenCenter = a.screenCenter;
+
+	// stereo
+	eyeSeparation = a.eyeSeparation;
+	focalLength = a.focalLength;
+
+	// dof
+	apertureDiameter = a.apertureDiameter;
+	dofNear = a.dofNear;
+	dofFar = a.dofFar;
+
+	light = a.light;
+
+	updateView(false,false);
+	updateProjection();
+
+	return *this;
+}
+
 bool RRCamera::operator==(const RRCamera& a) const
 {
-	return pos==a.pos
+	return
+		// view
+		pos==a.pos
 		&& yawPitchRollRad==a.yawPitchRollRad
+
+		// projection
 		//&& aspect==a.aspect ... aspect is usually just byproduct of window size, users don't want "scene was modified" just because window size changed
 		&& fieldOfViewVerticalDeg==a.fieldOfViewVerticalDeg
+		&& orthogonal==a.orthogonal
 		&& anear==a.anear
-		&& afar==a.afar;
+		&& afar==a.afar
+		&& orthoSize==a.orthoSize
+		&& screenCenter==a.screenCenter
+
+		// stereo
+		&& eyeSeparation==a.eyeSeparation
+		&& focalLength==a.focalLength
+
+		// dof
+		&& apertureDiameter==a.apertureDiameter
+		&& dofNear==a.dofNear
+		&& dofFar==a.dofFar;
 }
 
 bool RRCamera::operator!=(const RRCamera& a) const
@@ -928,8 +981,9 @@ unsigned RRCamera::fixInvalidValues()
 		+ makeFinite(yawPitchRollRad[2],0)
 		+ makeFinite(eyeSeparation,0.08f)
 		+ makeFinite(focalLength,0.5f)
+		+ makeFinite(apertureDiameter,0.04f)
 		+ makeFinite(dofNear,1)
-		+ makeFinite(dofFar,10);
+		+ makeFinite(dofFar,1);
 	if (numFixes)
 	{
 		updateView(true,true);

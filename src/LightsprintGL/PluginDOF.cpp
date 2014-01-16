@@ -15,6 +15,11 @@ namespace rr_gl
 
 class PluginRuntimeDOF : public PluginRuntime
 {
+	// accumulation based
+	rr::RRString bokehFilename;
+	rr::RRBuffer* bokehBuffer;
+
+	// shader based
 	Texture* smallColor1;
 	Texture* smallColor2;
 	Texture* smallColor3;
@@ -28,6 +33,10 @@ public:
 
 	PluginRuntimeDOF(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
 	{
+		// accumulation based
+		bokehBuffer = NULL;
+
+		// shader based
 		smallColor1 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 		smallColor2 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 		smallColor3 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
@@ -43,6 +52,10 @@ public:
 
 	virtual ~PluginRuntimeDOF()
 	{
+		// accumulation based
+		delete bokehBuffer;
+
+		// shader based
 		delete dofProgram3;
 		delete dofProgram2;
 		delete dofProgram1;
@@ -55,9 +68,57 @@ public:
 
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 	{
+		const PluginParamsDOF& pp = *dynamic_cast<const PluginParamsDOF*>(&_pp);
+
+		// accumulation based version
+		if (pp.accumulated)
+		{
+			// select sample from bokeh texture
+			if (bokehFilename!=pp.apertureShapeFilename)
+			{
+				bokehFilename = pp.apertureShapeFilename;
+				delete bokehBuffer;
+				bokehBuffer = rr::RRBuffer::load(pp.apertureShapeFilename);
+			}
+			unsigned numSamples = 0;
+			float sampledSum = 0;
+		more_samples_needed:
+			rr::RRVec3 offsetInBuffer = rr::RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),0); // 0..1
+			if (bokehBuffer)
+			{
+				sampledSum += bokehBuffer->getElementAtPosition(offsetInBuffer).RRVec3::avg();
+				numSamples++;
+				if (numSamples<100) // bad luck or black bokeh texture, stop sampling
+				if (sampledSum<1) // sample is not inside bokeh shape, or is in darker region
+					goto more_samples_needed;
+			}
+			else
+			{
+				rr::RRVec2 a(offsetInBuffer.x*2-1,offsetInBuffer.y*2-1);
+				if (a.length2()>1) // sample is not inside default bokeh shape (circle)
+					goto more_samples_needed;
+			}
+
+			// jitter camera
+			PluginParamsShared sp(_sp);
+			rr::RRCamera camera(*_sp.camera);
+			rr::RRReal dofDistance = (camera.dofFar+camera.dofNear)/2;
+			rr::RRVec2 offsetInMeters = rr::RRVec2(offsetInBuffer.x-0.5f,offsetInBuffer.y-0.5f)*camera.apertureDiameter; // how far do we move camera in right,up directions, -apertureDiameter/2..apertureDiameter/2 (m)
+			camera.setPosition(camera.getPosition()+camera.getRight()*offsetInMeters.x+camera.getUp()*offsetInMeters.y);
+			rr::RRVec2 visibleMetersAtFocusedDistance(tan(camera.getFieldOfViewHorizontalRad()/2)*dofDistance,tan(camera.getFieldOfViewVerticalRad()/2)*dofDistance); // when in center of focus, how far to right,up can we go to stay on screen (m)
+			rr::RRVec2 offsetOnScreen = offsetInMeters/visibleMetersAtFocusedDistance; // how far do we move camera in -1..1 screen space 
+			camera.setScreenCenter(camera.getScreenCenter()-offsetOnScreen);
+			sp.camera = &camera;
+
+			// render frame
+			_renderer.render(_pp.next,sp);
+			return;
+		}
+
+		// shader based version
 		_renderer.render(_pp.next,_sp);
 
-		if (!smallColor1 || !smallColor2 || !smallColor3 || !bigColor || !bigDepth || !dofProgram1 || !dofProgram2 || !dofProgram3)
+		if (!smallColor1 || !smallColor2 || !smallColor3 || !bigColor || !bigDepth || !dofProgram1 || !dofProgram2 || !dofProgram3 || !_sp.camera)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"DOF shader failed to initialize.\n"));
 			return;

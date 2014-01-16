@@ -65,9 +65,10 @@ namespace rr_gl
 //! - PluginParamsDOF
 //! - PluginParamsLensFlare
 //! - PluginParamsPanorama
-//! - PluginParamsFPS
 //! - PluginParamsStereo
+//! - PluginParamsAccumulation
 //! - PluginParamsToneMapping
+//! - PluginParamsFPS
 //! - PluginParamsShowDDI
 class RR_GL_API Renderer : public rr::RRUniformlyAllocatedNonCopyable
 {

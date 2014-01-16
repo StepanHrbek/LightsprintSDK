@@ -906,6 +906,7 @@ void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
 	ar & make_nvp("screenCenter",screenCenter);
 	ar & make_nvp("eyeSeparation",a.eyeSeparation);
 	ar & make_nvp("focalLength",a.focalLength);
+	ar & make_nvp("apertureDiameter",a.apertureDiameter);
 	ar & make_nvp("dofNear",a.dofNear);
 	ar & make_nvp("dofFar",a.dofFar);
 }
@@ -940,6 +941,10 @@ void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 	{
 		ar & make_nvp("eyeSeparation",a.eyeSeparation);
 		ar & make_nvp("focalLength",a.focalLength);
+	}
+	if (version>2)
+	{
+		ar & make_nvp("apertureDiameter",a.apertureDiameter);
 	}
 	if (version>1)
 	{
@@ -1082,7 +1087,7 @@ BOOST_CLASS_VERSION(rr::RRLight,5)
 BOOST_CLASS_VERSION(RRMeshProxy,1) // this is actually RRMeshArrays version, load of RRMeshProxy only send it to load of RRMeshArrays
 BOOST_CLASS_VERSION(rr::RRObject,1)
 #ifndef DONT_SERIALIZE_RRCAMERA
-BOOST_CLASS_VERSION(rr::RRCamera,2)
+BOOST_CLASS_VERSION(rr::RRCamera,3)
 #endif
 BOOST_CLASS_VERSION(rr::RRScene,1)
 

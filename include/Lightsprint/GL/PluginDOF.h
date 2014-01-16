@@ -27,8 +27,15 @@ namespace rr_gl
 class RR_GL_API PluginParamsDOF : public PluginParams
 {
 public:
+	//! True = physically based DOF, requires PluginAccumulation later in plugin chain.
+	//! False = faster DOF approximation
+	bool accumulated;
+
+	//! Filename of texture with aperture/bokeh shape. Only used if accumulated==true.
+	rr::RRString apertureShapeFilename;
+
 	//! Convenience ctor, for setting plugin parameters.
-	PluginParamsDOF(const PluginParams* _next) {next=_next;}
+	PluginParamsDOF(const PluginParams* _next, bool _accumulated, const rr::RRString& _apertureShapeFilename) : accumulated(_accumulated), apertureShapeFilename(_apertureShapeFilename) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;

@@ -563,6 +563,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\Lightsprint\GL\FBO.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Plugin.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\PluginAccumulation.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginBloom.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginCube.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginDOF.h" />
@@ -594,6 +595,7 @@
   <ItemGroup>
     <ClCompile Include="MultiPass.cpp" />
     <ClCompile Include="Plugin.cpp" />
+    <ClCompile Include="PluginAccumulation.cpp" />
     <ClCompile Include="PluginBloom.cpp" />
     <ClCompile Include="PluginCube.cpp" />
     <ClCompile Include="PluginDOF.cpp" />

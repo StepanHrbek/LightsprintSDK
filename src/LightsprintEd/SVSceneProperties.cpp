@@ -62,14 +62,28 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propCameraDof = new BoolRefProperty(_("DOF"),_("Applies fullscreen depth of field effect."),svs.renderDof);
 			AppendIn(propCamera,propCameraDof);
 
+			propCameraDofAccumulated = new BoolRefProperty(_("Realistic"),_("Higher quality, but needs more time."),svs.dofAccumulated);
+			AppendIn(propCameraDof,propCameraDofAccumulated);
+
+			propCameraDofApertureDiameter = new FloatProperty(_("Aperture diameter")+" (m)",_("Diameter of opening inside the camera lens. Wider = DOF is more apparent."),(float)svs.camera.apertureDiameter,svs.precision,0,100000,1,false);
+			AppendIn(propCameraDofAccumulated,propCameraDofApertureDiameter);
+
+			propCameraDofApertureShape = new ImageFileProperty(_("Aperure/bokeh shape"),_("Image of bokeh from single bright dot. Disk (circle) is used when image is not set."));
+			// string is updated from OnIdle
+			AppendIn(propCameraDofAccumulated,propCameraDofApertureShape);
+
+			propCameraDofFocusDistance = new wxStringProperty(_("Focus distance"), wxPG_LABEL);
+			AppendIn(propCameraDof,propCameraDofFocusDistance);
+			SetPropertyReadOnly(propCameraDofFocusDistance,true,wxPG_DONT_RECURSE);
+
 			propCameraDofAutomatic = new BoolRefProperty(_("Auto"),_("Adjusts near and far automatically."),svs.dofAutomatic);
-			AppendIn(propCameraDof,propCameraDofAutomatic);
+			AppendIn(propCameraDofFocusDistance,propCameraDofAutomatic);
 
-			propCameraDofNear = new FloatProperty(_("Near"),_("DOF blurs pixels closer than this distance, in meters."),(float)svs.camera.dofNear,svs.precision,0,100000,1,false);
-			AppendIn(propCameraDof,propCameraDofNear);
+			propCameraDofNear = new FloatProperty(_("Near"),_("DOF blurs pixels closer than this distance")+" (m)",(float)svs.camera.dofNear,svs.precision,0,100000,1,false);
+			AppendIn(propCameraDofFocusDistance,propCameraDofNear);
 
-			propCameraDofFar = new FloatProperty(_("Far"),_("DOF blurs pixels farther than this distance, in meters."),(float)svs.camera.dofFar,svs.precision,0,100000,1,false);
-			AppendIn(propCameraDof,propCameraDofFar);
+			propCameraDofFar = new FloatProperty(_("Far"),_("DOF blurs pixels farther than this distance")+" (m)",(float)svs.camera.dofFar,svs.precision,0,100000,1,false);
+			AppendIn(propCameraDofFocusDistance,propCameraDofFar);
 
 		}
 
@@ -296,9 +310,15 @@ void SVSceneProperties::updateHide()
 
 	propCameraPanoramaMode->Hide(!svs.renderPanorama,false);
 
+	propCameraDofAccumulated->Hide(!svs.renderDof,false);
+	propCameraDofApertureDiameter->Hide(!svs.renderDof || !svs.dofAccumulated,false);
+	propCameraDofApertureShape->Hide(!svs.renderDof || !svs.dofAccumulated,false);
+	propCameraDofFocusDistance->Hide(!svs.renderDof,false);
 	propCameraDofAutomatic->Hide(!svs.renderDof,false);
 	propCameraDofNear->Hide(!svs.renderDof,false);
 	propCameraDofFar->Hide(!svs.renderDof,false);
+	propCameraDofNear->Enable(!svs.dofAutomatic);
+	propCameraDofFar->Enable(!svs.dofAutomatic);
 
 	propCameraFov->Hide(svs.camera.isOrthogonal(),false);
 	propCameraOrthoSize->Hide(!svs.camera.isOrthogonal(),false);
@@ -343,7 +363,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propCameraStereo)
 		+ updateBoolRef(propCameraPanorama)
 		+ updateBoolRef(propCameraDof)
-		+ updateBoolRef(propCameraDofAutomatic)
+		+ updateBoolRef(propCameraDofAccumulated)
 		+ updateBool(propCameraOrtho,svs.camera.isOrthogonal())
 		+ updateBoolRef(propCameraRangeAutomatic)
 		//+ updateBoolRef(propEnvSimulateSky)
@@ -362,6 +382,9 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propCameraEyeSeparation,svs.camera.eyeSeparation)
 		+ updateFloat(propCameraFocalLength,svs.camera.focalLength)
 		+ updateInt(propCameraPanoramaMode,svs.panoramaMode)
+		+ updateFloat(propCameraDofApertureDiameter,svs.camera.apertureDiameter)
+		+ updateString(propCameraDofApertureShape,RR_RR2WX(svs.dofApertureShapeFilename))
+		+ updateBoolRef(propCameraDofAutomatic)
 		+ updateFloat(propCameraDofNear,svs.camera.dofNear)
 		+ updateFloat(propCameraDofFar,svs.camera.dofFar)
 		+ updateFloat(propCameraSpeed,svs.cameraMetersPerSecond)
@@ -456,6 +479,21 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCameraDof)
 	{
 		updateHide();
+	}
+	else
+	if (property==propCameraDofAccumulated)
+	{
+		updateHide();
+	}
+	else
+	if (property==propCameraDofApertureDiameter)
+	{
+		svs.camera.apertureDiameter = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propCameraDofApertureShape)
+	{
+		svs.dofApertureShapeFilename = RR_WX2RR(property->GetValue().GetString());
 	}
 	else
 	if (property==propCameraDofAutomatic)

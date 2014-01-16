@@ -38,6 +38,10 @@ namespace rr_ed
 		BoolRefProperty*  propCameraPanorama;
 		wxPGProperty*     propCameraPanoramaMode;
 		BoolRefProperty*  propCameraDof;
+		BoolRefProperty*  propCameraDofAccumulated;
+		FloatProperty*    propCameraDofApertureDiameter;
+		ImageFileProperty*propCameraDofApertureShape;
+		wxPGProperty*     propCameraDofFocusDistance;
 		BoolRefProperty*  propCameraDofAutomatic;
 		FloatProperty*    propCameraDofNear;
 		FloatProperty*    propCameraDofFar;

@@ -30,7 +30,7 @@ public:
 
 	//! Initializes camera in world center.
 	RRCamera();
-	//! Initializes everything at once.
+	//! Initializes all basic parameters at once.
 	RRCamera(const RRVec3& pos, const RRVec3& yawPitchRollRad, float aspect, float fieldOfViewVerticalDeg, float anear, float afar);
 	//! Initializes camera from RRLight. Changes made to camera will be propagated back to light, so you must not delete light before camera.
 	RRCamera(RRLight& light);
@@ -179,6 +179,8 @@ public:
 	// depth of field
 	//////////////////////////////////////////////////////////////////////////////
 
+	//! For depth of field effect: Diameter of opening inside the camera lens, in meters. Wider = DOF effect is more apparent.
+	float apertureDiameter;
 	//! For depth of field effect: Blur pixels closer than this distance, in meters.
 	float dofNear;
 	//! For depth of field effect: Blur pixels farther than this distance, in meters.
@@ -221,7 +223,9 @@ public:
 	//! positionInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
 	RRVec3 getRayDirection(RRVec2 positionInWindow) const;
 
-	//! == operator, true when inputs without aspect are equal.
+	//! Creates copy of camera.
+	const RRCamera& operator=(const RRCamera& camera);
+	//! == operator, true when inputs without aspect are equal. Transformations like setPosition(getPosition()) preserve identity, while setDirection(getDirection()) not, due to limited float precision.
 	bool operator==(const RRCamera& a) const;
 	//! != operator, true when inputs differ.
 	bool operator!=(const RRCamera& a) const;

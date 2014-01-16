@@ -29,6 +29,10 @@ NEWS
     </td><td>
     \image html ssgi2.jpg
     </td></tr></table>
+- physically based depth of field
+  - configurable aperture/bokeh shape
+  - configurable aperture size
+  - works by adding new plugin rr_gl::PluginParamsAccumulation somewhere after rr_gl::PluginParamsDOF
 - \ref main_oculus support
     <table border=0><tr align=top><td>
     \image html stereo_oculus.jpg

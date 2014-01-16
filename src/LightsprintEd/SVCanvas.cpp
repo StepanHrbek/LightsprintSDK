@@ -14,6 +14,7 @@
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/PluginAccumulation.h"
 #include "Lightsprint/GL/PluginBloom.h"
 #include "Lightsprint/GL/PluginDOF.h"
 #include "Lightsprint/GL/PluginFPS.h"
@@ -1740,7 +1741,8 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppScene.layerEnvironment = svs.raytracedCubesEnabled?((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeEnvironment:svs.layerBakedEnvironment):UINT_MAX;
 			ppScene.layerLDM = svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX;
 			ppScene.wireframe = svs.renderWireframe;
-			ppScene.animationTime = svs.referenceTime.secondsPassed();
+			if (!svs.renderDof || !svs.dofAccumulated) // when accumulating dof, stop animations
+				ppScene.animationTime = svs.referenceTime.secondsPassed();
 			if (ppScene.animationTime>1000)
 				svs.referenceTime.addSeconds(1000);
 			pluginChain = &ppScene;
@@ -1756,8 +1758,11 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppSSGI;
 
 			// DOF plugin
-			rr_gl::PluginParamsDOF ppDOF(pluginChain);
-			if (svs.renderDof)
+			static unsigned oldStateVersion;
+			bool resetAccumulation = svframe->stateVersion!=oldStateVersion;
+			oldStateVersion = svframe->stateVersion;
+			rr_gl::PluginParamsDOF ppDOF(pluginChain,svs.dofAccumulated,svs.dofApertureShapeFilename);
+			if (svs.renderDof && !(svs.dofAccumulated && resetAccumulation))
 			{
 				pluginChain = &ppDOF;
 				if (svs.dofAutomatic)
@@ -1834,6 +1839,11 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				}
 				pluginChain = &ppStereo;
 			}
+
+			// accumulation plugin
+			rr_gl::PluginParamsAccumulation ppAccumulation(pluginChain,resetAccumulation);
+			if (svs.renderDof && svs.dofAccumulated)
+				pluginChain = &ppAccumulation;
 
 			// tonemapping plugin
 			static rr::RRTime time;

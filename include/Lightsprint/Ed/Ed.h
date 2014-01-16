@@ -127,6 +127,8 @@ struct SceneViewerState
 	bool             renderPanorama;            //! Enables 360 degree panorama rendering.
 	rr_gl::PanoramaMode panoramaMode;           //! Selects mode of panorama rendering.
 	bool             renderDof;                 //! Render depth of field effect.
+	bool             dofAccumulated;            //! For depth of field effect only: set dof near/far automatically.
+	rr::RRString     dofApertureShapeFilename;  //! For depth of field effect only: filename of bokeh image.
 	bool             dofAutomatic;              //! For depth of field effect only: set dof near/far automatically.
 	LightingDirect   renderLightDirect;         //! Direct illumination mode.
 	LightingIndirect renderLightIndirect;       //! Indirect illumination mode.
@@ -235,6 +237,7 @@ struct SceneViewerState
 		renderPanorama = false;
 		panoramaMode = rr_gl::PM_EQUIRECTANGULAR;
 		renderDof = false;
+		dofAccumulated = true;
 		dofAutomatic = false;
 		renderLightDirect = LD_REALTIME;
 		renderLightIndirect = LI_REALTIME_FIREBALL;
@@ -339,6 +342,8 @@ struct SceneViewerState
 			&& a.renderPanorama==renderPanorama
 			&& a.panoramaMode==panoramaMode
 			&& a.renderDof==renderDof
+			&& a.dofAccumulated==dofAccumulated
+			&& a.dofApertureShapeFilename==dofApertureShapeFilename
 			&& a.dofAutomatic==dofAutomatic
 			&& a.renderLightDirect==renderLightDirect
 			&& a.renderLightIndirect==renderLightIndirect
