@@ -338,7 +338,8 @@ static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6
 	}
 	catch(...)
 	{
-		rr::RRReporter::report(rr::ERRO,"Failed to load buffer %ls.\n",filename.w_str());
+		// importers don't report failure, it is reported at the end of RRBuffer::load()
+		//rr::RRReporter::report(rr::ERRO,"Failed to load buffer %ls.\n",filename.w_str());
 		return NULL;
 	}
 }
