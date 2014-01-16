@@ -39,8 +39,8 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propCameraEyeSeparation = new FloatProperty(_("Eye separation")+" (m)",_("Distance from left to right eye. Negative value swaps left and right eye."),svs.camera.eyeSeparation,svs.precision,-1000,1000,0.01f,false);
 			AppendIn(propCameraStereo,propCameraEyeSeparation);
 
-			propCameraFocalLength = new FloatProperty(_("Focal length")+" (m)",_("How distant objects should appear in display plane."),svs.camera.focalLength,svs.precision,0,1e10,1,false);
-			AppendIn(propCameraStereo,propCameraFocalLength);
+			propCameraDisplayDistance = new FloatProperty(_("Display distance")+" (m)",_("How distant objects should appear in display plane."),svs.camera.displayDistance,svs.precision,0,1e10,1,false);
+			AppendIn(propCameraStereo,propCameraDisplayDistance);
 
 		}
 
@@ -306,7 +306,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 void SVSceneProperties::updateHide()
 {
 	propCameraEyeSeparation->Hide(!svs.renderStereo,false);
-	propCameraFocalLength->Hide(!svs.renderStereo,false);
+	propCameraDisplayDistance->Hide(!svs.renderStereo,false);
 
 	propCameraPanoramaMode->Hide(!svs.renderPanorama,false);
 
@@ -380,7 +380,7 @@ void SVSceneProperties::updateProperties()
 
 	unsigned numChangesOther =
 		+ updateFloat(propCameraEyeSeparation,svs.camera.eyeSeparation)
-		+ updateFloat(propCameraFocalLength,svs.camera.focalLength)
+		+ updateFloat(propCameraDisplayDistance,svs.camera.displayDistance)
 		+ updateInt(propCameraPanoramaMode,svs.panoramaMode)
 		+ updateFloat(propCameraDofApertureDiameter,svs.camera.apertureDiameter)
 		+ updateString(propCameraDofApertureShape,RR_RR2WX(svs.dofApertureShapeFilename))
@@ -461,9 +461,9 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.camera.eyeSeparation = property->GetValue().GetDouble();
 	}
 	else
-	if (property==propCameraFocalLength)
+	if (property==propCameraDisplayDistance)
 	{
-		svs.camera.focalLength = property->GetValue().GetDouble();
+		svs.camera.displayDistance = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propCameraPanorama)

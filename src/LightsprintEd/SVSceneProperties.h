@@ -34,7 +34,7 @@ namespace rr_ed
 		wxPGProperty*     propCamera;
 		BoolRefProperty*  propCameraStereo;
 		wxPGProperty*     propCameraEyeSeparation;
-		wxPGProperty*     propCameraFocalLength;
+		wxPGProperty*     propCameraDisplayDistance;
 		BoolRefProperty*  propCameraPanorama;
 		wxPGProperty*     propCameraPanoramaMode;
 		BoolRefProperty*  propCameraDof;

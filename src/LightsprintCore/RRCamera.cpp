@@ -46,7 +46,7 @@ RRCamera::RRCamera()
 
 	// stereo
 	eyeSeparation = 0.08f;
-	focalLength = 0.5f;
+	displayDistance = 0.5f;
 
 	// dof
 	apertureDiameter = 0.04f;
@@ -75,7 +75,7 @@ RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspec
 
 	// stereo
 	eyeSeparation = 0.08f;
-	focalLength = 0.5f;
+	displayDistance = 0.5f;
 
 	// dof
 	apertureDiameter = 0.04f;
@@ -110,7 +110,7 @@ RRCamera::RRCamera(RRLight& _light)
 
 	// stereo
 	eyeSeparation = 0.08f;
-	focalLength = 0.5f;
+	displayDistance = 0.5f;
 
 	// dof
 	apertureDiameter = 0.04f;
@@ -509,8 +509,8 @@ void RRCamera::getStereoCameras(RRCamera& leftEye, RRCamera& rightEye) const
 	rightEye = *this;
 	leftEye.pos -= getRight()*(eyeSeparation/2);
 	rightEye.pos += getRight()*(eyeSeparation/2);
-	leftEye.screenCenter.x += eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*focalLength);
-	rightEye.screenCenter.x -= eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*focalLength);
+	leftEye.screenCenter.x += eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*displayDistance);
+	rightEye.screenCenter.x -= eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*displayDistance);
 	leftEye.updateView(true,true);
 	rightEye.updateView(true,true);
 	leftEye.updateProjection();
@@ -888,7 +888,7 @@ const RRCamera& RRCamera::operator=(const RRCamera& a)
 
 	// stereo
 	eyeSeparation = a.eyeSeparation;
-	focalLength = a.focalLength;
+	displayDistance = a.displayDistance;
 
 	// dof
 	apertureDiameter = a.apertureDiameter;
@@ -921,7 +921,7 @@ bool RRCamera::operator==(const RRCamera& a) const
 
 		// stereo
 		&& eyeSeparation==a.eyeSeparation
-		&& focalLength==a.focalLength
+		&& displayDistance==a.displayDistance
 
 		// dof
 		&& apertureDiameter==a.apertureDiameter
@@ -980,7 +980,7 @@ unsigned RRCamera::fixInvalidValues()
 		+ makeFinite(yawPitchRollRad[1],0)
 		+ makeFinite(yawPitchRollRad[2],0)
 		+ makeFinite(eyeSeparation,0.08f)
-		+ makeFinite(focalLength,0.5f)
+		+ makeFinite(displayDistance,0.5f)
 		+ makeFinite(apertureDiameter,0.04f)
 		+ makeFinite(dofNear,1)
 		+ makeFinite(dofFar,1);

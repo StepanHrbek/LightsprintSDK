@@ -905,7 +905,7 @@ void save(Archive & ar, const rr::RRCamera& a, const unsigned int version)
 	ar & make_nvp("orthoSize",orthoSize);
 	ar & make_nvp("screenCenter",screenCenter);
 	ar & make_nvp("eyeSeparation",a.eyeSeparation);
-	ar & make_nvp("focalLength",a.focalLength);
+	ar & make_nvp("focalLength",a.displayDistance);
 	ar & make_nvp("apertureDiameter",a.apertureDiameter);
 	ar & make_nvp("dofNear",a.dofNear);
 	ar & make_nvp("dofFar",a.dofFar);
@@ -940,7 +940,7 @@ void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 	if (version>0)
 	{
 		ar & make_nvp("eyeSeparation",a.eyeSeparation);
-		ar & make_nvp("focalLength",a.focalLength);
+		ar & make_nvp("focalLength",a.displayDistance);
 	}
 	if (version>2)
 	{

@@ -169,8 +169,8 @@ public:
 
 	//! For stereo effect: Distance (in meters) between left and right eye.
 	float eyeSeparation;
-	//! For stereo effect: Distance (in meters) of objects rendered in display plane (so that closer objects appear in front of display, farther objects behind display).
-	float focalLength;
+	//! For stereo effect: Distance (in meters) between eye and objects rendered in display plane (so that closer objects appear in front of display, farther objects behind display).
+	float displayDistance;
 	//! Creates left and right camera.
 	void getStereoCameras(RRCamera& left, RRCamera& right) const;
 
