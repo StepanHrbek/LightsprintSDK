@@ -437,36 +437,31 @@ void MeshArraysVBOs::renderMesh(
 	// unset material diffuse texcoords
 	if (_uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 	{
-		_program->sendTexture("",NULL,TEX_CODE_2D_MATERIAL_DIFFUSE); // calls glActiveTexture()
-		glBindTexture(GL_TEXTURE_2D,0);
+		_program->unsendTexture(TEX_CODE_2D_MATERIAL_DIFFUSE);
 		glDisableVertexAttribArray(VAA_UV_MATERIAL_DIFFUSE);
 	}
 	// unset material specular texcoords
 	if (_uberProgramSetup.MATERIAL_SPECULAR_MAP)
 	{
-		_program->sendTexture("",NULL,TEX_CODE_2D_MATERIAL_SPECULAR); // calls glActiveTexture()
-		glBindTexture(GL_TEXTURE_2D,0);
+		_program->unsendTexture(TEX_CODE_2D_MATERIAL_SPECULAR);
 		glDisableVertexAttribArray(VAA_UV_MATERIAL_SPECULAR);
 	}
 	// unset material transparency texcoords
 	if (_uberProgramSetup.MATERIAL_TRANSPARENCY_MAP)
 	{
-		_program->sendTexture("",NULL,TEX_CODE_2D_MATERIAL_TRANSPARENCY); // calls glActiveTexture()
-		glBindTexture(GL_TEXTURE_2D,0);
+		_program->unsendTexture(TEX_CODE_2D_MATERIAL_TRANSPARENCY);
 		glDisableVertexAttribArray(VAA_UV_MATERIAL_TRANSPARENT);
 	}
 	// unset material emissive texcoords
 	if (_uberProgramSetup.MATERIAL_EMISSIVE_MAP)
 	{
-		_program->sendTexture("",NULL,TEX_CODE_2D_MATERIAL_EMISSIVE); // calls glActiveTexture()
-		glBindTexture(GL_TEXTURE_2D,0);
+		_program->unsendTexture(TEX_CODE_2D_MATERIAL_EMISSIVE);
 		glDisableVertexAttribArray(VAA_UV_MATERIAL_EMISSIVE);
 	}
 	// unset material normal map texcoords
 	if (_uberProgramSetup.MATERIAL_BUMP_MAP)
 	{
-		_program->sendTexture("",NULL,TEX_CODE_2D_MATERIAL_BUMP); // calls glActiveTexture()
-		glBindTexture(GL_TEXTURE_2D,0);
+		_program->unsendTexture(TEX_CODE_2D_MATERIAL_BUMP);
 		glDisableVertexAttribArray(VAA_UV_MATERIAL_BUMP);
 	}
 	// unset 2d_position texcoords
@@ -477,8 +472,7 @@ void MeshArraysVBOs::renderMesh(
 	// unset indirect illumination texcoords + map (lightmap or light detail map)
 	if ((_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) || (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
 	{
-		_program->sendTexture("",NULL,TEX_CODE_2D_LIGHT_INDIRECT); // calls glActiveTexture()
-		glBindTexture(GL_TEXTURE_2D,0);
+		_program->unsendTexture(TEX_CODE_2D_LIGHT_INDIRECT);
 		glDisableVertexAttribArray(VAA_UV_UNWRAP);
 	}
 	// unset indirect illumination colors

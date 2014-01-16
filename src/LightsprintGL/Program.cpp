@@ -160,6 +160,24 @@ unsigned Program::sendTexture(const char* name, const Texture* t, int code)
 	return textureUnit;
 }
 
+void Program::unsendTexture(int code)
+{
+	if (code<0 || code>=16)
+	{
+		rr::RRReporter::report(rr::WARN,"Calling unsendTexture(%d), but only 0..15 allowed as a parameter.\n",code);
+		return;
+	}
+	if (assignedTextureUnit[code]<0)
+	{
+		// material was not set but we try to unset it
+		// it happens when RendererOfMesh skips whole facegroup because all fragments would be dropped in alpha-test
+		//rr::RRReporter::report(rr::WARN,"Calling unsendTexture(%d), but never called sendTexture(,,%d) before.\n",code,code);
+		return;
+	}
+	glActiveTexture(GL_TEXTURE0+assignedTextureUnit[code]);
+	glBindTexture(GL_TEXTURE_2D,0);
+}
+
 void Program::sendUniform(const char* name, float x)
 {
 	glUniform1f(getLoc(name), x);

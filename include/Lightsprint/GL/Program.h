@@ -91,6 +91,9 @@ public:
 	//! Without codes, 200 texture units would be allocated.
 	unsigned sendTexture(const char* name, const class Texture* t, int code = -1);
 
+	//! Unbinds texture previously sent via sendTexture(,,code);
+	void unsendTexture(int code);
+
 	//! Sets uniform of type float.
 	void sendUniform(const char* name, float x);
 	//! Sets uniform of type vec2.
