@@ -42,7 +42,7 @@ namespace rr_ed
 		FloatProperty*    propCameraDofApertureDiameter;
 		ImageFileProperty*propCameraDofApertureShape;
 		wxPGProperty*     propCameraDofFocusDistance;
-		BoolRefProperty*  propCameraDofAutomatic;
+		BoolRefProperty*  propCameraDofAutomaticFocusDistance;
 		FloatProperty*    propCameraDofNear;
 		FloatProperty*    propCameraDofFar;
 		wxPGProperty*     propCameraView;

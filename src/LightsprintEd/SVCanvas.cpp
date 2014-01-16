@@ -1765,7 +1765,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (svs.renderDof && !(svs.dofAccumulated && resetAccumulation))
 			{
 				pluginChain = &ppDOF;
-				if (svs.dofAutomatic)
+				if (svs.dofAutomaticFocusDistance)
 				{
 					ray->rayOrigin = svs.camera.getRayOrigin(svs.camera.getScreenCenter());
 					ray->rayDir = svs.camera.getRayDirection(svs.camera.getScreenCenter()).normalized();
