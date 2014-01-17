@@ -155,9 +155,9 @@ public:
 		{
 			// copy backbuffer to bigColor+bigDepth
 			bigColor->bindTexture();
-			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,0,0,w,h,0);
+			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,_sp.viewport[0],_sp.viewport[1],w,h,0);
 			bigDepth->bindTexture();
-			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT,0,0,w,h,0);
+			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT,_sp.viewport[0],_sp.viewport[1],w,h,0);
 		}
 
 		// fill smallColor1 with CoC
