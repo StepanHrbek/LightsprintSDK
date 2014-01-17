@@ -172,7 +172,7 @@ void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int versi
 
 BOOST_CLASS_VERSION(rr_ed::ImportParameters,1);
 BOOST_CLASS_VERSION(rr_ed::UserPreferences::WindowLayout,2)
-BOOST_CLASS_VERSION(rr_ed::UserPreferences,17)
+BOOST_CLASS_VERSION(rr_ed::UserPreferences,18)
 
 //---------------------------------------------------------------------------
 

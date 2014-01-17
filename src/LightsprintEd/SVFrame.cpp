@@ -1811,6 +1811,7 @@ void SVFrame::simulateSun()
 	}
 }
 
+
 void SVFrame::enableTooltips(bool enable)
 {
 	m_lightProperties->enableTooltips(enable);
