@@ -65,7 +65,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propCameraDofAccumulated = new BoolRefProperty(_("Realistic"),_("Higher quality, but needs more time."),svs.dofAccumulated);
 			AppendIn(propCameraDof,propCameraDofAccumulated);
 
-			propCameraDofApertureDiameter = new FloatProperty(_("Aperture diameter")+" (m)",_("Diameter of opening inside the camera lens. Wider = DOF is more apparent."),(float)svs.camera.apertureDiameter,svs.precision,0,100000,1,false);
+			propCameraDofApertureDiameter = new FloatProperty(_("Aperture diameter")+" (m)",_("Diameter of opening inside the camera lens. Wider = DOF is more apparent."),(float)svs.camera.apertureDiameter,svs.precision,0.001f,1,0.01f,false);
 			AppendIn(propCameraDofAccumulated,propCameraDofApertureDiameter);
 
 			propCameraDofApertureShape = new ImageFileProperty(_("Aperure/bokeh shape"),_("Image of bokeh from single bright dot. Disk (circle) is used when image is not set."));
