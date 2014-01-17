@@ -1347,7 +1347,9 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		static rr::RRVec3 oldOculusRot(0);
 		rr::RRVec3 oculusRot(0);
 		svframe->oculusFusion.GetPredictedOrientation().GetEulerAngles<OVR::Axis_Y,OVR::Axis_X,OVR::Axis_Z>(&oculusRot.x,&oculusRot.y,&oculusRot.z);
-		svs.camera.setYawPitchRollRad(svs.camera.getYawPitchRollRad()+oculusRot-oldOculusRot);
+		rr::RRVec3 newRot = oculusRot;
+		newRot.x = svs.camera.getYawPitchRollRad().x + oculusRot.x-oldOculusRot.x;
+		svs.camera.setYawPitchRollRad(newRot);
 		oldOculusRot = oculusRot;
 		// another way to copy (not add) oculus rotation to camera:
 		//OVR::Quatf q = svframe->oculusFusion.GetPredictedOrientation();
