@@ -131,6 +131,12 @@ public:
 		// composite
 		if (pp.stereoMode==SM_INTERLACED || pp.stereoMode==SM_INTERLACED_SWAP || oculus)
 		{
+			// disable depth
+			PreserveDepthTest p1;
+			PreserveDepthMask p2;
+			glDisable(GL_DEPTH_TEST);
+			glDepthMask(0);
+
 			// turns top-down images to interlaced or oculus
 			if (oculus)
 			{
