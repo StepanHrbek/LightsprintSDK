@@ -1825,6 +1825,8 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 							ppStereo.oculusDistortionK = convertVec4(svframe->oculusHMDInfo.DistortionK);
 							ppStereo.oculusChromaAbCorrection = convertVec4(svframe->oculusHMDInfo.ChromaAbCorrection);
 							ppStereo.oculusLensShift = 1-2.f*svframe->oculusHMDInfo.LensSeparationDistance/svframe->oculusHMDInfo.HScreenSize;
+							// enforce screenCenter 0
+							svs.camera.setScreenCenter(rr::RRVec2(0));
 							// enforce realistic eyeSeparation
 							svs.camera.eyeSeparation = svframe->oculusHMDInfo.InterpupillaryDistance;
 							// enforce realistic FOV
