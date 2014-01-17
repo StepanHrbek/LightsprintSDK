@@ -1356,6 +1356,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		//svs.camera.setYawPitchRollRad(rr::RRVec3(0));
 		//svs.camera.manipulateViewBy(rr::RRMatrix3x4::rotationByQuaternion(convertQuat(q)));
 		//svs.camera.setPosition(oldpos);
+		svframe->OnAnyChange(SVFrame::ES_RIFT,NULL);
 	}
 #endif
 
