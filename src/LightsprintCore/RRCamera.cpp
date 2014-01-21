@@ -1029,11 +1029,11 @@ void RRCamera::updateProjection()
 		projectionMatrix[7] = 0;
 		projectionMatrix[8] = 0;
 		projectionMatrix[9] = 0;
-		projectionMatrix[10] = -1/(afar-anear);
+		projectionMatrix[10] = 1/(anear-afar);
 		projectionMatrix[11] = 0;
 		projectionMatrix[12] = -screenCenter.x;
 		projectionMatrix[13] = -screenCenter.y;
-		projectionMatrix[14] = -(anear+afar)/(afar-anear);
+		projectionMatrix[14] = (anear+afar)/(anear-afar);
 		projectionMatrix[15] = 1;
 	}
 	else
@@ -1048,11 +1048,11 @@ void RRCamera::updateProjection()
 		projectionMatrix[7] = 0;
 		projectionMatrix[8] = screenCenter.x;
 		projectionMatrix[9] = screenCenter.y;
-		projectionMatrix[10] = -(afar+anear)/(afar-anear);
+		projectionMatrix[10] = (afar+anear)/(anear-afar);
 		projectionMatrix[11] = -1;
 		projectionMatrix[12] = 0;
 		projectionMatrix[13] = 0;
-		projectionMatrix[14] = -2*anear*afar/(afar-anear);
+		projectionMatrix[14] = 2*anear*afar/(anear-afar);
 		projectionMatrix[15] = 0;
 	}
 }
