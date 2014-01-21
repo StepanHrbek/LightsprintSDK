@@ -182,7 +182,7 @@ public:
 					unsigned WindowWidth = _sp.viewport[2];
 					unsigned WindowHeight = _sp.viewport[3];
 					int DistortionXCenterOffset = 0;
-					float DistortionScale = 1.6f;
+					float DistortionScale = 1.5f;
 					float w = float(_sp.viewport[2]/2) / float(WindowWidth);
 					float h = float(_sp.viewport[3]) / float(WindowHeight);
 					float y = float(_sp.viewport[1]) / float(WindowHeight);
