@@ -1340,28 +1340,6 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 	if (svframe->m_log)
 		svframe->m_log->flushQueue();
 
-#ifdef SUPPORT_OCULUS
-	// oculus camera rotation
-	if (svframe->oculusSensor && svs.renderStereo && svframe->userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT)
-	{
-		static rr::RRVec3 oldOculusRot(0);
-		rr::RRVec3 oculusRot(0);
-		svframe->oculusFusion.GetPredictedOrientation().GetEulerAngles<OVR::Axis_Y,OVR::Axis_X,OVR::Axis_Z>(&oculusRot.x,&oculusRot.y,&oculusRot.z);
-		rr::RRVec3 newRot = oculusRot;
-		newRot.x = svs.camera.getYawPitchRollRad().x + oculusRot.x-oldOculusRot.x;
-		svs.camera.setYawPitchRollRad(newRot);
-		oldOculusRot = oculusRot;
-		// another way to copy (not add) oculus rotation to camera:
-		//OVR::Quatf q = svframe->oculusFusion.GetPredictedOrientation();
-		//rr::RRVec3 oldpos = svs.camera.getPosition();
-		//svs.camera.setPosition(rr::RRVec3(0));
-		//svs.camera.setYawPitchRollRad(rr::RRVec3(0));
-		//svs.camera.manipulateViewBy(rr::RRMatrix3x4::rotationByQuaternion(convertQuat(q)));
-		//svs.camera.setPosition(oldpos);
-		svframe->OnAnyChange(SVFrame::ES_RIFT,NULL);
-	}
-#endif
-
 	// camera/light movement
 	static rr::RRTime prevTime;
 	float seconds = prevTime.secondsSinceLastQuery();
@@ -1550,6 +1528,29 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	}
 	else
 	{
+
+#ifdef SUPPORT_OCULUS
+		// oculus camera rotation
+		if (svframe->oculusSensor && svs.renderStereo && svframe->userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT)
+		{
+			static rr::RRVec3 oldOculusRot(0);
+			rr::RRVec3 oculusRot(0);
+			svframe->oculusFusion.GetPredictedOrientation().GetEulerAngles<OVR::Axis_Y,OVR::Axis_X,OVR::Axis_Z>(&oculusRot.x,&oculusRot.y,&oculusRot.z);
+			rr::RRVec3 newRot = oculusRot;
+			newRot.x = svs.camera.getYawPitchRollRad().x + oculusRot.x-oldOculusRot.x;
+			svs.camera.setYawPitchRollRad(newRot);
+			oldOculusRot = oculusRot;
+			// another way to copy (not add) oculus rotation to camera:
+			//OVR::Quatf q = svframe->oculusFusion.GetPredictedOrientation();
+			//rr::RRVec3 oldpos = svs.camera.getPosition();
+			//svs.camera.setPosition(rr::RRVec3(0));
+			//svs.camera.setYawPitchRollRad(rr::RRVec3(0));
+			//svs.camera.manipulateViewBy(rr::RRMatrix3x4::rotationByQuaternion(convertQuat(q)));
+			//svs.camera.setPosition(oldpos);
+			svframe->OnAnyChange(SVFrame::ES_RIFT,NULL);
+		}
+#endif
+
 		// blend skyboxes
 		if (skyboxBlendingInProgress)
 		{
