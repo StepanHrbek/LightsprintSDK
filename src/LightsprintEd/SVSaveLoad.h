@@ -50,11 +50,13 @@ namespace rr_ed
 		{
 			bool fullscreen;
 			bool maximized;
+			wxRect rectangle; // rectangle of non-maximized window
 			wxString perspective;
 			WindowLayout()
 			{
 				fullscreen = false;
 				maximized = false;
+				// rectangle stays 0,0,0,0 which is invalid, we fill it later
 			}
 		};
 		WindowLayout windowLayout[3];

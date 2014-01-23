@@ -87,6 +87,17 @@ void serialize(Archive & ar, rr_ed::ImportParameters& a, const unsigned int vers
 	}
 }
 
+//------------------------- wxRect ------------------------------
+
+template<class Archive>
+void serialize(Archive & ar, wxRect& a, const unsigned int version)
+{
+	ar & make_nvp("x",a.x);
+	ar & make_nvp("y",a.y);
+	ar & make_nvp("w",a.width);
+	ar & make_nvp("h",a.height);
+}
+
 //------------------------- UserPreferences ------------------------------
 
 template<class Archive>
@@ -94,6 +105,8 @@ void serialize(Archive & ar, rr_ed::UserPreferences::WindowLayout& a, const unsi
 {
 	ar & make_nvp("fullscreen",a.fullscreen);
 	ar & make_nvp("maximized",a.maximized);
+	if (version>2)
+		ar & make_nvp("rectangle",a.rectangle);
 	SERIALIZE_WXSTRING("perspective",a.perspective,version>0);
 }
 
@@ -171,7 +184,7 @@ void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int versi
 } // namespace
 
 BOOST_CLASS_VERSION(rr_ed::ImportParameters,1);
-BOOST_CLASS_VERSION(rr_ed::UserPreferences::WindowLayout,2)
+BOOST_CLASS_VERSION(rr_ed::UserPreferences::WindowLayout,3)
 BOOST_CLASS_VERSION(rr_ed::UserPreferences,18)
 
 //---------------------------------------------------------------------------

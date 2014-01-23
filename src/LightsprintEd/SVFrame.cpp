@@ -456,6 +456,8 @@ void SVFrame::userPreferencesGatherFromWx()
 {
 	userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen = svs.fullscreen;
 	userPreferences.windowLayout[userPreferences.currentWindowLayout].maximized = IsMaximized();
+	if (!svs.fullscreen && !IsMaximized())
+		userPreferences.windowLayout[userPreferences.currentWindowLayout].rectangle = GetRect();
 	userPreferences.windowLayout[userPreferences.currentWindowLayout].perspective = m_mgr.SavePerspective();
 }
 
@@ -465,6 +467,13 @@ void SVFrame::userPreferencesApplyToWx()
 		OnMenuEventCore(ME_WINDOW_FULLSCREEN);
 	if (!svs.fullscreen && userPreferences.windowLayout[userPreferences.currentWindowLayout].maximized != IsMaximized())
 		Maximize(!IsMaximized());
+	if (!svs.fullscreen && !IsMaximized())
+	{
+		wxRect& rect = userPreferences.windowLayout[userPreferences.currentWindowLayout].rectangle;
+		if (rect.IsEmpty())
+			rect = GetRect();
+		SetSize(rect);
+	}
 	m_mgr.LoadPerspective(userPreferences.windowLayout[userPreferences.currentWindowLayout].perspective,true);
 
 	// if language selection did change, pane captions must be updated
