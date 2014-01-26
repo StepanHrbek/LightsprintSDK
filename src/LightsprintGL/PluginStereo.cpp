@@ -6,7 +6,7 @@
 #include "Lightsprint/GL/PluginStereo.h"
 #include "Lightsprint/GL/PreserveState.h"
 
-//#define SCALE 2 // not defined=render to multisampled screen, defined=render to this many times larger texture
+//#define SCALE 1.3 // not defined=render to multisampled screen, defined=render to this many times larger texture
 
 namespace rr_gl
 {
@@ -90,8 +90,8 @@ public:
 		{
 			leftEye.setAspect(_sp.camera->getAspect()*0.5f);
 			rightEye.setAspect(_sp.camera->getAspect()*0.5f);
-			leftEye.setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(-pp.oculusLensShift*leftEye.getProjectionMatrix()[0]),0));
-			rightEye.setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(pp.oculusLensShift*rightEye.getProjectionMatrix()[0]),0));
+			leftEye.setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(-pp.oculusLensShift*1.15*leftEye.getProjectionMatrix()[0]),0));
+			rightEye.setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(pp.oculusLensShift*1.15*rightEye.getProjectionMatrix()[0]),0));
 		}
 
 		{
@@ -181,8 +181,8 @@ public:
 #endif
 					unsigned WindowWidth = _sp.viewport[2];
 					unsigned WindowHeight = _sp.viewport[3];
-					int DistortionXCenterOffset = 0;
-					float DistortionScale = 1.5f;
+					float DistortionXCenterOffset = pp.oculusLensShift;
+					float DistortionScale = 1.3f;
 					float w = float(_sp.viewport[2]/2) / float(WindowWidth);
 					float h = float(_sp.viewport[3]) / float(WindowHeight);
 					float y = float(_sp.viewport[1]) / float(WindowHeight);
@@ -206,7 +206,7 @@ public:
 					// distort right eye
 					{
 						float x = float(_sp.viewport[0]+_sp.viewport[2]/2) / float(WindowWidth);
-						stereoProgram->sendUniform("LensCenter",x + (w + DistortionXCenterOffset * 0.5f)*0.5f, y + h*0.5f);
+						stereoProgram->sendUniform("LensCenter",x + (w - DistortionXCenterOffset * 0.5f)*0.5f, y + h*0.5f);
 						stereoProgram->sendUniform("ScreenCenter",x + w*0.5f, y + h*0.5f);
 						float rightPosition[8] = {0,-1, 0,1, 1,1, 1,-1};
 						TextureRenderer::renderQuad(rightPosition);

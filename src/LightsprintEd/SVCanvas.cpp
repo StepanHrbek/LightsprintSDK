@@ -1834,7 +1834,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 							// enforce realistic eyeSeparation
 							svs.camera.eyeSeparation = svframe->oculusHMDInfo.InterpupillaryDistance;
 							// enforce realistic FOV
-							float DistortionScale = 1.5f; // the same constant exists in PluginStereo
+							float DistortionScale = 1.3f; // the same constant exists in PluginStereo
 							svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(DistortionScale*svframe->oculusHMDInfo.VScreenSize/(2*svframe->oculusHMDInfo.EyeToScreenDistance))));
 						}
 						break;
