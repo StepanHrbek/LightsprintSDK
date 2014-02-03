@@ -13,6 +13,7 @@ namespace rr_gl
 //
 // PluginRuntimeSSGI
 
+
 class PluginRuntimeSSGI : public PluginRuntime
 {
 	Texture* bigColor;
@@ -102,28 +103,15 @@ public:
 		ssgiProgram->sendUniform("mScreenSizeIn1mDistance",(float)(2*tan(eye.getFieldOfViewHorizontalRad()/2)),(float)(2*tan(eye.getFieldOfViewVerticalRad()/2))); //!!! nefunguje v ortho
 		ssgiProgram->sendUniform("mDepthRange",eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())),eye.getFar()/(eye.getFar()-eye.getNear()));
 
-		if (0) // 0=noise, 1=blur
+		if (1) // 0=noise, 1=blur
 		{
+			// bigColor2 = noisy SSGI
 			FBO oldFBOState = FBO::getState();
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,bigColor2);
 			glViewport(0,0,w,h);
 			TextureRenderer::renderQuad();
 
-			if (0) // 0=2d blur, 1=1d blur
-			{
-			// blur bigColor2 to render target
-			oldFBOState.restore();
-			ssgiProgram = ssgiProgram2;
-			ssgiProgram->useIt();
-			ssgiProgram->sendTexture("depthMap",bigDepth);
-			ssgiProgram->sendTexture("colorMap",bigColor);
-			ssgiProgram->sendTexture("aoMap",bigColor);
-			ssgiProgram->sendUniform("tPixelSize",1.0f/w,0.f);
-			ssgiProgram->sendUniform("mDepthRange",eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())),eye.getFar()/(eye.getFar()-eye.getNear()));
-			}
-			else
-			{
-			// blur bigColor2 to bigColor
+			// bigColor3 = blurred(bigColor2)
 			ssgiProgram = ssgiProgram2;
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,bigColor3);
 			ssgiProgram->useIt();
@@ -131,17 +119,14 @@ public:
 			ssgiProgram->sendTexture("colorMap",bigColor);
 			ssgiProgram->sendTexture("aoMap",bigColor2);
 			ssgiProgram->sendUniform("tPixelSize",1.0f/w,0.f);
-			//ssgiProgram->sendUniform("mDepthRange",eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())),eye.getFar()/(eye.getFar()-eye.getNear()));
 			TextureRenderer::renderQuad();
 
-			// blur smallColor2 to render target
+			// backbuffer = blurred(bigColor3)
 			oldFBOState.restore();
 			ssgiProgram->sendTexture("depthMap",bigDepth);
 			ssgiProgram->sendTexture("colorMap",bigColor);
 			ssgiProgram->sendTexture("aoMap",bigColor3);
 			ssgiProgram->sendUniform("tPixelSize",0.f,1.0f/h);
-			//ssgiProgram->sendUniform("mDepthRange",eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())),eye.getFar()/(eye.getFar()-eye.getNear()));
-			}
 			glViewport(_sp.viewport[0],_sp.viewport[1],w,h);
 		}
 		PreserveFlag p4(GL_BLEND,GL_TRUE);

@@ -76,23 +76,17 @@ void main()
 	for (int d=0;d<NUM_DIRS;d++)
 	{
 		float maxOcclusion = 0.0;
-		vec2 tRangeInTextureSpace = tAORangeInz0Distance*dir[d]; //*(mFlatPizelSize/mSkewedPizelSize); //! je kruh, ma byt elipsa, zohlednit dz (if dz==0 step nechat, jinak zmensit)
+		vec2 tRangeInTextureSpace = tAORangeInz0Distance*dir[d];
 		for (int s=0;s<NUM_STEPS;s++)
 		{
 			float mid = (0.001+noise01+float(s))/float(NUM_STEPS); // randomized step prevents shadows forming strips. 0.001 prevents mysterious random blackpixels
 			vec2 tMid = tMapCoord+mid*tRangeInTextureSpace;
+			if (tMid.x<0 || tMid.x>1 || tMid.y<0 || tMid.y>1)
+				continue; // removes shadow from viewport border
 			tMid = (floor(tMid/tPixelSize)+vec2(0.5,0.5))*tPixelSize; // round tMid to center of texel
-	#if 0
-			// !ztmaveni na podlaze/zdi temer rovnobezny s pohledem (kdyz kamera temer lezi na podlaze)
-			// !zesvetleni takovy podlahy tesne pred objektem na ni
-			float mExpectedLinearz0 = mDepthRange.x / (mDepthRange.y - texture2D(depthMap,tMid).z + dot((tMid-tMapCoord)/tPixelSize,dz));
-			float r = (mLinearz0-mExpectedLinearz0)/mAONoisyRange;
-	#else
 			float mExpectedLinearz1 = mLinearz0 + dot((tMid-tMapCoord)/tPixelSize,mLineardz);
 			float mActualLinearz1 = mDepthRange.x / (mDepthRange.y - texture2D(depthMap,tMid).z);
 			float r = (mExpectedLinearz1-mActualLinearz1)/mAONoisyRange;
-	#endif
-			if (tMid.x<0 || tMid.x>1 || tMid.y<0 || tMid.y>1) r = 0.0; // odstrani ztmaveni tesne pred kamerou kdyz temer lezi na podlaze
 			float att = max(1.0-r*r,0.0);
 			float occlusion = r*att/mid-angleBias;
 			if (occlusion>maxOcclusion)
@@ -176,26 +170,3 @@ void main()
 }
 
 #endif
-
-/*
-
-!AO aplikuju i na leskly a emisivni matrose
-  a) pridat extra render sceny do textury, A=dif/(dif+spec+emi)=jak moc je pixel citlivej na AO
-
-Q: jaky pro/proti ma prechod na texturu s normalama
-A: -pomalejsi a slozitejsi protoze musim vyrobit texturu s normalama
-     a) extra render sceny jednoduchym shaderem gl_FragColor = (normal+vec4(1.0))*0.5; (Z textura, normal textura)
-	    (neeliminuje kopirovani Z ani COLOR, ty musim dal kopirovat az po final renderu)
-	 b) ve final rendru mit dva render targety, do druhyho zapsat normalu
-		jde od GL 2, GLES 3
-		-nejde v GL ES 2.0
-		 (ale vadi to? stejne bude na mobilu nepouzitelne pomaly)
-   +rychlejsi tim ze PASS 1 muze jet do halfresu, naslednej fullres blur zahladi badpixely u hran
-   +zmizej badpixely na hranach u kterejch ted nejde urcit do kteryho facu patrej
-   +pujde blurovat aniz by barva pretejkala pres hranu
-     ?jak poznam ze barva nema pretejkat?
-	   dovolit blur jen kdyz je podobna normala a podobny z (3 lookupy na kazdej pixel v kernelu)
-	 ?jak moc bude vadit kdyz blur separuju do X a Y passu?
-	   skoro vubec
-
-*/
