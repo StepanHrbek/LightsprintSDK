@@ -273,6 +273,8 @@ void display(void)
 	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
 	rr_gl::PluginParamsShared ppShared;
 	ppShared.camera = &eye;
+	ppShared.viewport[2] = winWidth;
+	ppShared.viewport[3] = winHeight;
 	ppShared.brightness = brightness;
 	ppShared.gamma = contrast;
 	// render scene

@@ -54,6 +54,7 @@
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PluginSky.h"
+#include "Lightsprint/GL/PluginSSGI.h"
 #include "Lightsprint/IO/IO.h"
 #include <stdio.h>   // printf
 
@@ -87,7 +88,6 @@ enum Layer// arbitrary layer numbers
 Layer                      renderLayer = LAYER_REALTIME;
 rr::RRCamera               eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0), 1.3f,70,0.1f,100);
 rr::RRCamera*              light;
-rr_gl::UberProgram*        uberProgram = NULL;
 rr_gl::RRDynamicSolverGL*  solver = NULL;
 rr::RRLightField*          lightField = NULL;
 rr::RRObject*              robot = NULL;
@@ -317,7 +317,7 @@ void passive(int x, int y)
 void display(void)
 {
 	if (!winWidth || !winHeight) return; // can't display without window
-
+	
 	// move dynamic objects
 	float rotation = fmod(clock()/float(CLOCKS_PER_SEC),10000)*50.f;
 	transformObject(robot,rr::RRVec3(-1.83f,0,-3),rr::RRVec2(rotation,0));
@@ -345,12 +345,15 @@ void display(void)
 	ppScene.updateLayers = renderLayer==LAYER_REALTIME;
 	ppScene.layerLightmap = renderLayer;
 	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
+	rr_gl::PluginParamsSSGI ppSSGI(&ppScene,1,0.3f,0.1f);
 	rr_gl::PluginParamsShared ppShared;
 	ppShared.camera = &eye;
+	ppShared.viewport[2] = winWidth;
+	ppShared.viewport[3] = winHeight;
 	ppShared.brightness = brightness;
 	ppShared.gamma = contrast;
 	// render scene
-	solver->getRenderer()->render(&ppScene,ppShared);
+	solver->getRenderer()->render(&ppSSGI,ppShared);
 	solver->renderLights(eye);
 
 	glutSwapBuffers();
@@ -420,9 +423,6 @@ int main(int argc, char** argv)
 	if (err)
 		error(err,true);
 	
-	// init shaders
-	uberProgram = rr_gl::UberProgram::create("../../data/shaders/ubershader.vs", "../../data/shaders/ubershader.fs");
-
 	// init solver
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
