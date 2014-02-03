@@ -25,6 +25,8 @@ public:
 
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 	{
+		_renderer.render(_pp.next,_sp);
+
 		const PluginParamsSky& pp = *dynamic_cast<const PluginParamsSky*>(&_pp);
 
 		rr::RRReal envAngleRad0 = 0;
