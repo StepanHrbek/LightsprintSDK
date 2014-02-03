@@ -36,6 +36,7 @@ void main()
 	dir[3] = vec2(-noiseSinCos.y,noiseSinCos.x);
 
 	// get normal
+	// lots of lookups, but still cheaper than prerendering normalmap
 	vec3 c0   = texture2D(colorMap,tMapCoord).rgb;
 	vec3 cx_2 = texture2D(colorMap,vec2(tMapCoord.x-2.0*tPixelSize.x,tMapCoord.y)).rgb;
 	vec3 cx_1 = texture2D(colorMap,vec2(tMapCoord.x-tPixelSize.x,tMapCoord.y)).rgb;
@@ -61,14 +62,12 @@ void main()
 	//vec2 dz = vec2(abs(z0-zx_1)<abs(zx1-z0)?z0-zx_1:zx1-z0,abs(z0-zy_1)<abs(zy1-z0)?z0-zy_1:zy1-z0);
 	// c) ~1% of edge pixels assigned to wrong plane
 	//vec2 dz = vec2(abs(z0+zx_2-2.0*zx_1)<abs(z0+zx2-2.0*zx1)?z0-zx_1:zx1-z0,abs(z0+zy_2-2.0*zy_1)<abs(z0+zy2-2.0*zy1)?z0-zy_1:zy1-z0);
-	// d) <<1% of edge pixels assigned to wrong plane (more when plane's colors don't differ, but then it's much less serious error)
+	// d) <<1% of edge pixels assigned to wrong plane (more when plane's colors don't differ)
 	vec2 dz = vec2(length(c0+cx_2-2.0*cx_1)<length(c0+cx2-2.0*cx1)?z0-zx_1:zx1-z0,length(c0+cy_2-2.0*cy_1)<length(c0+cy2-2.0*cy1)?z0-zy_1:zy1-z0);
 	// e) all edge pixels would get correct normal only if we prerender normals into separated texture
 
 	vec2 mLineardz = mDepthRange.xx / (mDepthRange.yy - z0-dz) - vec2(mLinearz0,mLinearz0); // how much z changes within current pixel (m)
-	vec2 mFlatPizelSize = 1/(mScreenSizeIn1mDistance*mLinearz0); // current pixel width,height (m) as if whole pixel is in the same distance
-	vec2 mSkewedPizelSize = sqrt(mLineardz*mLineardz+mFlatPizelSize*mFlatPizelSize); // current pixel width,height (m), taking varying z of corners into account
-	float mAONoisyRange = mAORange;//*noise01;
+	float mAONoisyRange = mAORange;//*(0.5+noise01);
 	vec2 tAORangeIn1mDistance = mAONoisyRange/mScreenSizeIn1mDistance;
 	vec2 tAORangeInz0Distance = tAORangeIn1mDistance/mLinearz0;
 
@@ -78,25 +77,18 @@ void main()
 	{
 		float maxOcclusion = 0.0;
 		vec2 tRangeInTextureSpace = tAORangeInz0Distance*dir[d]; //*(mFlatPizelSize/mSkewedPizelSize); //! je kruh, ma byt elipsa, zohlednit dz (if dz==0 step nechat, jinak zmensit)
-		float rangeInZ = dot(tRangeInTextureSpace/tPixelSize,dz);
-		float mRangeInLinearZ = dot(tRangeInTextureSpace/tPixelSize,mLineardz);
 		for (int s=0;s<NUM_STEPS;s++)
 		{
-			float mid = (noise01+float(s))/float(NUM_STEPS); // randomized step prevents shadows forming strips
+			float mid = (0.001+noise01+float(s))/float(NUM_STEPS); // randomized step prevents shadows forming strips. 0.001 prevents mysterious random blackpixels
 			vec2 tMid = tMapCoord+mid*tRangeInTextureSpace;
+			tMid = (floor(tMid/tPixelSize)+vec2(0.5,0.5))*tPixelSize; // round tMid to center of texel
 	#if 0
-			// ?r=max(r,0.0): kolem konvexnich hran je stin, i kdyz se tam nic nestini
-			//  to je v poradku, pro mirne zaporny r vyjde r*att kladny
 			// !ztmaveni na podlaze/zdi temer rovnobezny s pohledem (kdyz kamera temer lezi na podlaze)
 			// !zesvetleni takovy podlahy tesne pred objektem na ni
-			// !+nezadouci siluaty (stin kolem occluderu), jsou slabsi
-			float mExpectedLinearz0 = mDepthRange.x / (mDepthRange.y - texture2D(depthMap,tMid).z + mid*rangeInZ);
+			float mExpectedLinearz0 = mDepthRange.x / (mDepthRange.y - texture2D(depthMap,tMid).z + dot((tMid-tMapCoord)/tPixelSize,dz));
 			float r = (mLinearz0-mExpectedLinearz0)/mAONoisyRange;
 	#else
-			// +kolem konvexnich hran neni stin, spravne
-			// +neztmavuje podlahy/zdi temer rovnobezny s pohledem
-			// !-nezadouci siluaty (stin kolem occluderu), jsou silnejsi
-			float mExpectedLinearz1 = mLinearz0 + mid*mRangeInLinearZ;
+			float mExpectedLinearz1 = mLinearz0 + dot((tMid-tMapCoord)/tPixelSize,mLineardz);
 			float mActualLinearz1 = mDepthRange.x / (mDepthRange.y - texture2D(depthMap,tMid).z);
 			float r = (mExpectedLinearz1-mActualLinearz1)/mAONoisyRange;
 	#endif
@@ -181,15 +173,6 @@ void main()
 		}
 	}
 	gl_FragColor = col / col.w;
-}
-
-#elif PASS==3
-
-void main()
-{
-	vec4 c1  = texture2D(colorMap,tMapCoord);
-	vec4 c2  = texture2D(depthMap,tMapCoord);
-	gl_FragColor = max(c1,c2);
 }
 
 #endif
