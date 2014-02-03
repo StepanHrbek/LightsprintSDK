@@ -25,9 +25,13 @@ namespace rr_gl
 //! \n It is a realtime alternative to baked LDM.
 //!
 //! <table border=0><tr align=top><td>
-//! \image html ssgi1.jpg
+//! \image html ssgi1on.jpg on
 //! </td><td>
-//! \image html ssgi2.jpg
+//! \image html ssgi1off.jpg off
+//! </td></tr><tr><td>
+//! \image html ssgi2on.jpg
+//! </td><td>
+//! \image html ssgi2off.jpg
 //! </td></tr></table>
 class RR_GL_API PluginParamsSSGI : public PluginParams
 {
