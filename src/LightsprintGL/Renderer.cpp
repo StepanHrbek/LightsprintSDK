@@ -63,6 +63,8 @@ public:
 				runtime = _pp->createRuntime(pathToShaders, pathToMaps);
 			if (runtime)
 			{
+				if (!_sp.viewport[2] && !_sp.viewport[3])
+					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Did you forget to set PluginParamsShared::viewport? It is empty.\n"));
 				runtime->render(*this,*_pp,_sp);
 			}
 			else
