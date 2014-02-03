@@ -43,6 +43,7 @@
 #include "Lightsprint/GL/RRDynamicSolverGL.h"
 #include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PluginSky.h"
+#include "Lightsprint/GL/PluginSSGI.h"
 #include "Lightsprint/IO/IO.h"
 
 #if defined(LINUX) || defined(linux)
@@ -276,6 +277,7 @@ void display(void)
 	ppScene.updateLayers = true;
 	ppScene.layerLightmap = LAYER_LIGHTMAPS;
 	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
+	rr_gl::PluginParamsSSGI ppSSGI(&ppScene,1,1.0f,0.1f);
 	rr_gl::PluginParamsShared ppShared;
 	ppShared.camera = &eye;
 	ppShared.viewport[2] = winWidth;
@@ -283,7 +285,7 @@ void display(void)
 	ppShared.brightness = brightness;
 	ppShared.gamma = contrast;
 	// render scene
-	solver->getRenderer()->render(&ppScene,ppShared);
+	solver->getRenderer()->render(&ppSSGI,ppShared);
 
 	glutSwapBuffers();
 }
