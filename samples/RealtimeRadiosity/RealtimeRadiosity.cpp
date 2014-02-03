@@ -9,7 +9,7 @@
 // to 3rd party code. It still uses 3rd party scene loader, data structures
 // and OpenGL draw calls, we only modified it to use Lightsprint shaders.
 // (Ok, we also replaced 3rd party Material class with our RRMaterial later,
-//  just to get rid of conversions and further simplify code.)
+//  just to get rid of conversions and to further simplify code.)
 //
 // If you wish to add only penumbra shadows to your own OpenGL based engine,
 // see simpler PenumbraShadows sample.
