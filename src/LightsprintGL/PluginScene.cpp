@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Plugin that renders contents of RRDynamicSolver instance.
-// Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #define MIRRORS // enables implementation of mirrors, marks mirror source code

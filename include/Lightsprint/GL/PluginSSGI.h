@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file PluginSSGI.h
 //! \brief LightsprintGL | screen space global illumination postprocess
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2012-2013
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2012-2014
 //! All rights reserved
 //----------------------------------------------------------------------------
 

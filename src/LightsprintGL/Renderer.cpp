@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Plugin based rendered.
-// Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/Renderer.h"

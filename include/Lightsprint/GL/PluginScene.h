@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file PluginScene.h
 //! \brief LightsprintGL | renders given objects and light
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2011-2013
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2011-2014
 //! All rights reserved
 //----------------------------------------------------------------------------
 

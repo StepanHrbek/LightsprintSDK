@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 //! \file FBO.h
 //! \brief LightsprintGL | Render target manipulation.
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2013
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2014
 //! All rights reserved
 //---------------------------------------------------------------------------
 

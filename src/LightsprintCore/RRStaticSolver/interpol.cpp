@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Smoothing.
-// Copyright (c) 2000-2013 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2000-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 

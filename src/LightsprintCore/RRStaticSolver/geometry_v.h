@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Trivial math for local use.
-// Copyright (c) 2000-2013 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2000-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef RRVISION_GEOMETRY_H

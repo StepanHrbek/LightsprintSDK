@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Lens flare postprocess.
-// Copyright (C) 2010-2013 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2010-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/PluginLensFlare.h"

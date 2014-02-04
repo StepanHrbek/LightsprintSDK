@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // FPS counter and renderer.
-// Copyright (C) 2006-2013 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2006-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/PluginFPS.h"

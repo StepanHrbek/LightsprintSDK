@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Illumination buffers for single object.
-// Copyright (c) 2005-2013 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2005-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <boost/unordered_map.hpp>

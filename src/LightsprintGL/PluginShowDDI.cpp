@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Modifies PluginScene parameters to show detected direct illumination.
-// Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2012-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/PluginShowDDI.h"

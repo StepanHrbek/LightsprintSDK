@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRMemory.h
 //! \brief LightsprintCore | base elements related to memory allocation
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2013
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2014
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 

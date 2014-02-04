@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //! \file RRObject.h
 //! \brief LightsprintCore | 3d object with geometry, materials, position etc
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2013
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2014
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 

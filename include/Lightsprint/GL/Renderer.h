@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file Renderer.h
 //! \brief LightsprintGL | plugin based renderer
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2013
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2014
 //! All rights reserved
 //----------------------------------------------------------------------------
 

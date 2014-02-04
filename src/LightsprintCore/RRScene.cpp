@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // 3d scene and its import.
-// Copyright (c) 2006-2013 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (c) 2006-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include <cstdio>

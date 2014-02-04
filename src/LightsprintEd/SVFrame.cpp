@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Scene viewer - main window with menu.
-// Copyright (C) 2007-2013 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2007-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "SVFrame.h"
@@ -1619,7 +1619,7 @@ reload_skybox:
 				wxAboutDialogInfo info;
 				if (icon) info.SetIcon(*icon);
 				info.SetName("Lightsprint SDK");
-				info.SetCopyright("(c) 1999-2013 Stepan Hrbek, Lightsprint\n\n"+_("3rd party contributions - see Lightsprint SDK manual.")+"\n");
+				info.SetCopyright("(c) 1999-2014 Stepan Hrbek, Lightsprint\n\n"+_("3rd party contributions - see Lightsprint SDK manual.")+"\n");
 				info.SetWebSite("http://lightsprint.com");
 				wxAboutBox(info);
 				delete icon;

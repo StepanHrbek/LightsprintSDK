@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file DemoEngine.h
 //! \brief LightsprintGL | library settings and macros
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2013
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2014
 //! All rights reserved
 //----------------------------------------------------------------------------
 

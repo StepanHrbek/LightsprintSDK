@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file Ed.h
 //! \brief LightsprintGL | scene editor
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2013
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2014
 //! All rights reserved
 //----------------------------------------------------------------------------
 

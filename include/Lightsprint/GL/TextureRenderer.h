@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------
 //! \file TextureRenderer.h
 //! \brief LightsprintGL | helper for rendering 2D or cube texture in OpenGL 2.0
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2013
+//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2014
 //! All rights reserved
 //----------------------------------------------------------------------------
 
