@@ -11,13 +11,13 @@ call %SETENVBAT% >nul
 
 echo %ACTION%ing %COMPILER% "Debug DLL%TARGET2%"...
 rem Nesmim volat primo devenv.exe, nedostal bych z nej stdout a exitcode.
-if NOT %COMPILER%==vs2012 devenv  src\RR.%COMPILER%.sln /%ACTION% "Debug DLL%TARGET2%" >%ERR%
-if     %COMPILER%==vs2012 msbuild src\RR.%COMPILER%.sln /t:%ACTION% /p:Configuration="Debug DLL" /p:Platform=%TARGET% >%ERR%
+if     %COMPILER%==vs2010 devenv  src\RR.%COMPILER%.sln /%ACTION% "Debug DLL%TARGET2%" >%ERR%
+if NOT %COMPILER%==vs2010 msbuild src\RR.%COMPILER%.sln /t:%ACTION% /p:Configuration="Debug DLL" /p:Platform=%TARGET% >%ERR%
 if ERRORLEVEL 1 goto error
 
 echo %ACTION%ing %COMPILER% "Release DLL%TARGET2%"...
-if NOT %COMPILER%==vs2012 devenv  src\RR.%COMPILER%.sln /%ACTION% "Release DLL%TARGET2%" >%ERR%
-if     %COMPILER%==vs2012 msbuild src\RR.%COMPILER%.sln /t:%ACTION% /p:Configuration="Release DLL" /p:Platform=%TARGET% >%ERR%
+if     %COMPILER%==vs2010 devenv  src\RR.%COMPILER%.sln /%ACTION% "Release DLL%TARGET2%" >%ERR%
+if NOT %COMPILER%==vs2010 msbuild src\RR.%COMPILER%.sln /t:%ACTION% /p:Configuration="Release DLL" /p:Platform=%TARGET% >%ERR%
 if ERRORLEVEL 1 goto error
 
 if %COMPILER%==vs2008 if %TARGET%==win32 (
