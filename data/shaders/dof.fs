@@ -119,7 +119,7 @@ void main()
 		#endif
 		gl_FragColor.rgb = color.rgb;
 	#endif
-	float depth1 = texture2D(depthMap,mapCoord+vec2(+0.5,+0.5)*pixelSize).x;
+	float depth1 = texture2D(depthMap,mapCoord+vec2(+0.5,+0.5)*pixelSize).x; // we read from centers, NEAREST might be faster
 	float depth2 = texture2D(depthMap,mapCoord+vec2(+0.5,-0.5)*pixelSize).x;
 	float depth3 = texture2D(depthMap,mapCoord+vec2(-0.5,+0.5)*pixelSize).x;
 	float depth4 = texture2D(depthMap,mapCoord+vec2(-0.5,-0.5)*pixelSize).x;
