@@ -52,7 +52,7 @@ SVSceneTree::SVSceneTree(SVFrame* _svframe)
 	Expand(root); // must go after appends, otherwise it does not expand
 }
 
-void SVSceneTree::updateContent(rr_gl::RRDynamicSolverGL* solver)
+void SVSceneTree::updateContent(rr_gl::RRSolverGL* solver)
 {
 	if (callDepth)
 	{
@@ -171,7 +171,7 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 		return 0;
 	if (transformation.isIdentity()) // without this, we would transform camera by identity in every frame. such transformation converts euler angles to matrix and back = float errors accumulate over time, "front" view stops being exactly front etc
 		return 0;
-	rr_gl::RRDynamicSolverGL* solver = svframe->m_canvas->solver;
+	rr_gl::RRSolverGL* solver = svframe->m_canvas->solver;
 	switch(entity.type)
 	{
 		case ST_OBJECT:
@@ -533,7 +533,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 	svframe->commitPropertyChanges();
 	callDepth--;
 
-	rr_gl::RRDynamicSolverGL* solver = svframe->m_canvas->solver;
+	rr_gl::RRSolverGL* solver = svframe->m_canvas->solver;
 
 	// what objects to process, code shared by many actions
 	rr::RRObjects allObjects = solver->getObjects();
@@ -728,7 +728,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					if (!ldm)
 					{
 						// update everything in temp layer
-						rr::RRDynamicSolver::UpdateParameters updateParameters(quality);
+						rr::RRSolver::UpdateParameters updateParameters(quality);
 						updateParameters.applyEmittance = svs.emissiveMultiplier;
 						updateParameters.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
 						updateParameters.aoSize = svs.lightmapDirectParameters.aoSize;
@@ -805,12 +805,12 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					else
 					{
 						// update everything in temp layer
-						rr::RRDynamicSolver::UpdateParameters paramsDirect(quality);
+						rr::RRSolver::UpdateParameters paramsDirect(quality);
 						paramsDirect.applyEmittance = svs.emissiveMultiplier;
 						paramsDirect.applyLights = 0;
 						paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
 						paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
-						rr::RRDynamicSolver::UpdateParameters paramsIndirect(quality);
+						rr::RRSolver::UpdateParameters paramsIndirect(quality);
 						paramsIndirect.applyLights = 0;
 						paramsIndirect.locality = -1;
 						paramsIndirect.qualityFactorRadiosity = 0;

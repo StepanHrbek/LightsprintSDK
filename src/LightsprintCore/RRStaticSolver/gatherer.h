@@ -248,7 +248,7 @@ private:
 
 // Casts 1 ray with possible reflections/refractions, returns color visible in given direction.
 
-// It is used only by RRDynamicSolver, but for higher speed,
+// It is used only by RRSolver, but for higher speed,
 // it reads data directly from RRStaticSolver internals, so it is here.
 
 // For final gathering of many rays, use one gatherer per thread.

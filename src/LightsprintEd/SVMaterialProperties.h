@@ -21,7 +21,7 @@ namespace rr_ed
 		void setMaterial(rr::RRMaterial* material);
 
 		//! Copy material -> property (selected by clicking pixel in viewport, honours point and physical flags).
-		void setMaterial(rr::RRDynamicSolver* solver, rr::RRObject* object, unsigned hitTriangle, rr::RRVec2 hitPoint2d);
+		void setMaterial(rr::RRSolver* solver, rr::RRObject* object, unsigned hitTriangle, rr::RRVec2 hitPoint2d);
 
 		//! Copy material -> property.
 		void updateProperties();
@@ -38,7 +38,7 @@ namespace rr_ed
 		void updateReadOnly();
 		void updateIsInStaticScene(); // updates materialIsInStaticScene, called from setMaterial()
 
-		rr::RRDynamicSolver* lastSolver;
+		rr::RRSolver* lastSolver;
 		rr::RRObject*     lastObject;
 		unsigned          lastTriangle;
 		rr::RRVec2        lastPoint2d;

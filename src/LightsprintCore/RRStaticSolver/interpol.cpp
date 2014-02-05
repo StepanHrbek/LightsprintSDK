@@ -118,7 +118,7 @@ IVertex::~IVertex()
 	free(dynamicCorner);
 }
 
-bool Object::buildTopIVertices(const RRDynamicSolver::SmoothingParameters* smoothing, bool& aborting)
+bool Object::buildTopIVertices(const RRSolver::SmoothingParameters* smoothing, bool& aborting)
 {
 	bool outOfMemory = false;
 

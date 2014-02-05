@@ -10,7 +10,7 @@
 #endif
 
 #include "report.h"
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 #include "../RRMathPrivate.h"
 #include "private.h"
 
@@ -163,7 +163,7 @@ CubeGatheringKit::~CubeGatheringKit()
 //  - triangleNumbers, multiobj postImport numbers, UINT_MAX for skybox, may be NULL
 //  - exitanceHdr, float exitance in physical scale, may be NULL
 //  - false=exitanceHdr not filled, true=exitanceHdr filled
-bool RRDynamicSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerEnvironment, RRVec3* exitanceHdr)
+bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerEnvironment, RRVec3* exitanceHdr)
 {
 	if (!illumination)
 	{
@@ -319,7 +319,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 {
 	if (!scene && !packedSolver && !environment0)
 	{
-		// BTW environment without solver is nothing unusual, called from RendererOfRRDynamicSolver::initSpecularReflection()
+		// BTW environment without solver is nothing unusual, called from RendererOfRRSolver::initSpecularReflection()
 		RR_ASSERT(0);
 		return;
 	}
@@ -421,7 +421,7 @@ static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const
 }
 
 
-unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap)
+unsigned RRSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap)
 {
 	if (!illumination)
 	{
@@ -439,7 +439,7 @@ unsigned RRDynamicSolver::updateEnvironmentMap(RRObjectIllumination* illuminatio
 
 	if (!priv->scene && !priv->packedSolver && !getEnvironment())
 	{
-		// BTW environment without solver is nothing unusual, called from RendererOfRRDynamicSolver::initSpecularReflection()
+		// BTW environment without solver is nothing unusual, called from RendererOfRRSolver::initSpecularReflection()
 		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"No solver, no environment, reflection map will be updated to black, call calculate().\n"));
 	}
 	if (!priv->scene && priv->packedSolver && !priv->customIrradianceRGBA8)

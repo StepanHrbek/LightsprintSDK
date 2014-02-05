@@ -15,7 +15,7 @@
 	#include <crtdbg.h>
 #endif
 
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 #include "Lightsprint/IO/IO.h"
 
 void error(const char* message, bool gfxRelated)
@@ -50,7 +50,7 @@ int main(int argc, char** argv)
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
+	rr::RRSolver* solver = new rr::RRSolver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	rr::RRScaler* scaler = rr::RRScaler::createRgbScaler();
 	solver->setScaler(scaler);
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 	}
 
 	// calculate lightmaps(layer0), directional lightmaps(layer1,2,3), bent normals(layer4)
-	rr::RRDynamicSolver::UpdateParameters params(1000);
+	rr::RRSolver::UpdateParameters params(1000);
 	params.aoIntensity = 1;
 	params.aoSize = 1;
 	solver->updateLightmaps(0,1,4,&params,&params,NULL);

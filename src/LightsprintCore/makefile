@@ -52,11 +52,6 @@ RRCollider/pcube.cpp \
 RRCollider/RRCollider.cpp \
 RRCollider/RRColliderMulti.cpp \
 RRCollider/RRRay.cpp \
-RRDynamicSolver/environmentMap.cpp \
-RRDynamicSolver/gather.cpp \
-RRDynamicSolver/lightmap.cpp \
-RRDynamicSolver/RRDynamicSolver.cpp \
-RRDynamicSolver/vertexBuffer.cpp \
 RRHash/sha1.cpp \
 RRHash/RRHash.cpp \
 RRMesh/RRMesh.cpp \
@@ -70,6 +65,11 @@ RRObject/RRObjectWithPhysicalMaterials.cpp \
 RRObject/RRScaler.cpp \
 RRPackedSolver/PackedSolverFileBuild.cpp \
 RRPackedSolver/RRPackedSolver.cpp \
+RRSolver/environmentMap.cpp \
+RRSolver/gather.cpp \
+RRSolver/lightmap.cpp \
+RRSolver/RRSolver.cpp \
+RRSolver/vertexBuffer.cpp \
 RRStaticSolver/exceptions.cpp \
 RRStaticSolver/gatherer.cpp \
 RRStaticSolver/geometry_v.cpp \

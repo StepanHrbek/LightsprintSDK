@@ -5,7 +5,7 @@
 
 #include "Lightsprint/GL/PluginSky.h"
 #include "Lightsprint/GL/PreserveState.h"
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 
 namespace rr_gl
 {

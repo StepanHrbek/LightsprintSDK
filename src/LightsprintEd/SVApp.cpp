@@ -119,7 +119,7 @@ static wxAppConsole *wxCreateApp()
 	return new SVApp;
 }
 
-void sceneViewer(rr::RRDynamicSolver* _inputSolver, const rr::RRString& _inputFilename, const rr::RRString& _skyboxFilename, const rr::RRString& _pathToData, SceneViewerState* _svs, bool _releaseResources)
+void sceneViewer(rr::RRSolver* _inputSolver, const rr::RRString& _inputFilename, const rr::RRString& _skyboxFilename, const rr::RRString& _pathToData, SceneViewerState* _svs, bool _releaseResources)
 {
 	// randomize all rand()s
 	srand (time(NULL));

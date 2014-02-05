@@ -139,7 +139,7 @@ namespace rr
 		//!  or any other number of vertices greater than 8, collisions and 
 		//!  illumination will be computed correctly.
 		//!  (24 because each one of 8 vertices is used by 3 sides with different normal)
-		//! \n RRDynamicSolver depends on vertex list defined here.
+		//! \n RRSolver depends on vertex list defined here.
 		//!  If you request vertex buffer with per-vertex illumination,
 		//!  vertex buffer will have getNumVertices() items.
 		//!  So when writing new RRMesh implementations, create vertex list
@@ -464,7 +464,7 @@ namespace rr
 		//! Colliders are critical for performance of lightmap building.
 		//!
 		//! In practice, this function is not needed for lightmap building, use collider types
-		//! BSP_COMPACT, BSP_FAST, BSP_FASTER, BSP_FASTEST in RRDynamicSolver::setStaticObjects()
+		//! BSP_COMPACT, BSP_FAST, BSP_FASTER, BSP_FASTEST in RRSolver::setStaticObjects()
 		//! to trade performance / memory.
 		const RRMesh* createAccelerated() const;
 
@@ -476,7 +476,7 @@ namespace rr
 		//! All other mesh filters and optimizers let you convert between original and new triangle
 		//! and vertex numbers using getPreImportVertex() and getPreImportTriangle().
 		//! This filter only erases original (preImport) numbers and sets them equal to current (postImport) numbers.
-		//! PreImport numbers are used by RRDynamicSolver for vertex buffer layout, so this filter
+		//! PreImport numbers are used by RRSolver for vertex buffer layout, so this filter
 		//! adjusts layout of generated vertex buffers to use current vertex numbers.
 		RRMesh* createVertexBufferRuler() const;
 

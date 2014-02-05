@@ -49,7 +49,7 @@ bool LevelSetup::load(const char* afilename)
 	float minFeatureSize;
 	fscanf(f,"min_feature = %f\n",&minFeatureSize);
 	// load quality
-	calculateParams = rr::RRDynamicSolver::CalculateParameters();
+	calculateParams = rr::RRSolver::CalculateParameters();
 	fscanf(f,"indirect_quality = %d,%d\n",&calculateParams.qualityIndirectDynamic,&calculateParams.qualityIndirectStatic);
 	// load objects
 	objects.clear();
@@ -87,8 +87,8 @@ bool LevelSetup::save() const
 	// save scale
 	fprintf(f,"scale = %f\n",scale);
 	// save quality
-	if ((calculateParams.qualityIndirectDynamic!=rr::RRDynamicSolver::CalculateParameters().qualityIndirectDynamic) ||
-		(calculateParams.qualityIndirectStatic!=rr::RRDynamicSolver::CalculateParameters().qualityIndirectStatic))
+	if ((calculateParams.qualityIndirectDynamic!=rr::RRSolver::CalculateParameters().qualityIndirectDynamic) ||
+		(calculateParams.qualityIndirectStatic!=rr::RRSolver::CalculateParameters().qualityIndirectStatic))
 	fprintf(f,"indirect_quality = %d,%d\n",calculateParams.qualityIndirectDynamic,calculateParams.qualityIndirectStatic);
 	// save objects
 	for (unsigned i=0;i<objects.size();i++)

@@ -1,8 +1,8 @@
-#ifndef RRDYNAMICSOLVER_H
-#define RRDYNAMICSOLVER_H
+#ifndef RRSOLVER_H
+#define RRSOLVER_H
 
 //////////////////////////////////////////////////////////////////////////////
-//! \file RRDynamicSolver.h
+//! \file RRSolver.h
 //! \brief LightsprintCore | global illumination solver for dynamic scenes
 //! \author Copyright (C) Stepan Hrbek, Lightsprint 2000-2014
 //! All rights reserved
@@ -18,7 +18,7 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRDynamicSolver
+	//  RRSolver
 	//! Global illumination solver for interactive applications.
 	//
 	//! Usage for interactive realtime visualizations and tools:
@@ -37,7 +37,7 @@ namespace rr
 	//!   or RRBuffer::save() functions.
 	//!
 	//! Custom access to GPU and your renderer is not implemented here.
-	//! You may implement it in your RRDynamicSolver subclass
+	//! You may implement it in your RRSolver subclass
 	//! or use RRRealtimeRadioosityGL, that implements GPU access using OpenGL 2.0.
 	//!
 	//! Sample RealtimeRadiosity shows both typical usage scenarios,
@@ -50,11 +50,11 @@ namespace rr
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRDynamicSolver: public RRUniformlyAllocatedNonCopyable
+	class RR_API RRSolver: public RRUniformlyAllocatedNonCopyable
 	{
 	public:
-		RRDynamicSolver();
-		virtual ~RRDynamicSolver();
+		RRSolver();
+		virtual ~RRSolver();
 
 
 		//! Set scaler used by this scene i/o operations.
@@ -67,7 +67,7 @@ namespace rr
 		//! Not setting scaler is allowed for future rendering pipelines working fully in physical scale.
 		//! \param scaler
 		//!  Scaler for converting illumination between physical and custom scale.
-		//!  It will be used by all data input and output paths in RRDynamicSolver, if not specified otherwise.
+		//!  It will be used by all data input and output paths in RRSolver, if not specified otherwise.
 		//!  Note that scaler is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.
 		virtual void setScaler(const RRScaler* scaler);
@@ -128,10 +128,10 @@ namespace rr
 		//! This is one of paths for light to enter solver, others are setLights(), setEnvironment(), emissive materials.
 		//! Unlike the other paths, this one is usually called many times - whenever lighting changes.
 		//!
-		//! If you use rr_gl::RRDynamicSolverGL, setDirectIllumination() is called automatically from calculate().
+		//! If you use rr_gl::RRSolverGL, setDirectIllumination() is called automatically from calculate().
 		//!
 		//! If you want to provide your own direct illumination data, for example when integrating Lightsprint realtime GI
-		//! with third party renderer, use RRDynamicSolver and call setDirectIllumination() manually before calculate() whenever lighting changes.
+		//! with third party renderer, use RRSolver and call setDirectIllumination() manually before calculate() whenever lighting changes.
 		//! Note that functions that reset solver or change its type (setStaticObjects(), loadFireball() etc) might reset also direct illumination,
 		//! so you need to set it again after such functions.
 		//!
@@ -243,7 +243,7 @@ namespace rr
 		//!  Intersection technique used by solver. Techniques differ by speed and memory requirements.
 		//! \param copyFrom
 		//!  Should stay NULL (used by sceneViewer to reuse multiObjectCustom and smoothing from old solver).
-		virtual void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BSP_FASTER, RRDynamicSolver* copyFrom = NULL);
+		virtual void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BSP_FASTER, RRSolver* copyFrom = NULL);
 		//! Returns static contents of scene, all static objects at once. It is very fast, returning reference to existing collection.
 		const RRObjects& getStaticObjects() const;
 
@@ -385,7 +385,7 @@ namespace rr
 			//! improves in several consecutive calculate()s when direct lighting doesn't change.
 			unsigned qualityIndirectStatic;
 
-			//! Only for RRDynamicSolverGL:
+			//! Only for RRSolverGL:
 			//! For how many seconds indirect illumination can stay unchanged.
 			//! 0 = update in each frame, highest quality.
 			//! 0.05 = update less frequently, faster.
@@ -537,7 +537,7 @@ namespace rr
 			void (*debugRay)(const RRRay* ray, bool hit);
 
 
-			//! Sets default parameters for fast realtime update. Only direct lighting from RRDynamicSolver::setDirectIllumination() enters calculation.
+			//! Sets default parameters for fast realtime update. Only direct lighting from RRSolver::setDirectIllumination() enters calculation.
 			UpdateParameters()
 			{
 				applyLights = false;
@@ -770,7 +770,7 @@ namespace rr
 		//!  Number of layer with ambient maps, they are addressed by illumination->getLayer(layerAmbientMap).
 		//!  Unused by default implementation.
 		//!  While default implementation reads illumination directly from solver,
-		//!  access to lightmaps and/or ambient maps allows other implementations (rr_gl::RRDynamicSolverGL::updateEnvironmentMap())
+		//!  access to lightmaps and/or ambient maps allows other implementations (rr_gl::RRSolverGL::updateEnvironmentMap())
 		//!  to read illumination from lights and these maps instead.
 		//! \return
 		//!  Number of environment maps updated, 0 or 1.
@@ -834,11 +834,11 @@ namespace rr
 		//!  Light number in list of lights, see setLights(). If geometry changes, pass -1, change will be reported to all lights in solver.
 		//! \param dirtyShadows
 		//!  Tells that direct shadows should be updated.
-		//!  Generic RRDynamicSolver uses it only to invalidate collider returned by getCollider() (because when shadows need update, it's most likely because geometry did change);
-		//!  subclasses (e.g. rr_gl::RRDynamicSolverGL) use it also to update light's shadowmaps.
+		//!  Generic RRSolver uses it only to invalidate collider returned by getCollider() (because when shadows need update, it's most likely because geometry did change);
+		//!  subclasses (e.g. rr_gl::RRSolverGL) use it also to update light's shadowmaps.
 		//! \param dirtyGI
 		//!  Tells that global illumination should be updated.
-		//!  Generic RRDynamicSolver ignores it, but subclasses (e.g. rr_gl::RRDynamicSolverGL)
+		//!  Generic RRSolver ignores it, but subclasses (e.g. rr_gl::RRSolverGL)
 		//!  use it to redetect appropriate direct irradiances and call setDirectIllumination().
 		//!  You can save time by setting false when changes in scene were so small, that
 		//!  change in GI would be hardly visible. This is usually case when objects move,
@@ -968,7 +968,7 @@ namespace rr
 
 		//! Optional extension of calculate(), sets dirty flags in lights when it detects change in transparency texture or video.
 		//
-		//! Realtime GI implementations (like rr_gl::RRDynamicSolverGL)
+		//! Realtime GI implementations (like rr_gl::RRSolverGL)
 		//! call it from calculate(), before updating shadowmaps.
 		void calculateDirtyLights(CalculateParameters* params = NULL);
 
@@ -1010,7 +1010,7 @@ namespace rr
 	//! Returns id of interface offered by library.
 	RR_API unsigned RR_INTERFACE_ID_LIB();
 	// Returns id of interface expected by app.
-	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRDynamicSolver) + 6 )
+	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRSolver) + 6 )
 	//! Returns if interface matches. False = dll mismatch, app should be terminated.
 	#define RR_INTERFACE_OK (RR_INTERFACE_ID_APP()==rr::RR_INTERFACE_ID_LIB())
 	//! Returns description of interface offered by library + compile date.

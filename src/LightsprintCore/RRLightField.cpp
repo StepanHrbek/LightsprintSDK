@@ -5,7 +5,7 @@
 
 
 #include <cstdio> // save/load
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 
 namespace rr
 {
@@ -70,7 +70,7 @@ public:
 		delete[] rawCell;
 	}
 
-	virtual void captureLighting(class RRDynamicSolver* solver, unsigned timeSlot)
+	virtual void captureLighting(class RRSolver* solver, unsigned timeSlot)
 	{
 		if (!solver) return;
 		RRReportInterval report(INF2,"Filling lightfield %d*%d*%d res=%d size=%d.%dM...\n",header.gridSize[0],header.gridSize[1],header.gridSize[2],header.envMapSize,header.fieldSize()/1024/1024,(header.fieldSize()*10/1024/1024)%10);

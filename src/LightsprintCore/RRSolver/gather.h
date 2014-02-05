@@ -8,7 +8,7 @@
 //#define USE_BOOST_POOL // use boost. big, fast
 // comment out both = use stl. small, slow
 
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 	#include "../RRStaticSolver/ChunkList.h"
 
 namespace rr
@@ -28,9 +28,9 @@ enum LightmapSemantic
 
 struct TexelContext
 {
-	RRDynamicSolver* solver;
+	RRSolver* solver;
 	RRBuffer* pixelBuffers[NUM_BUFFERS]; // classical lmap, 3 directional lmaps, bent normal map
-	const RRDynamicSolver::UpdateParameters* params; // measure_internal.direct zapina gather z emitoru. measure_internal.indirect zapina gather indirectu ze static solveru. oboje zapina gather direct+indirect ze static solveru
+	const RRSolver::UpdateParameters* params; // measure_internal.direct zapina gather z emitoru. measure_internal.indirect zapina gather indirectu ze static solveru. oboje zapina gather direct+indirect ze static solveru
 	RRObject* singleObjectReceiver;
 	bool gatherAllDirections; // LS_DIRECTIONn irradiances are gathered too
 	bool staticSceneContainsLods; // scene contains LODs, additional work

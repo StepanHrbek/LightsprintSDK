@@ -51,7 +51,7 @@ Program.cpp \
 RealtimeLight.cpp \
 Renderer.cpp \
 RendererOfMesh.cpp \
-RRDynamicSolverGL.cpp \
+RRSolverGL.cpp \
 Shader.cpp \
 Texture.cpp \
 TextureRenderer.cpp \

@@ -412,7 +412,7 @@ int main(int argc, char** argv)
 	//
 	// create message reporter
 	//
-	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
+	rr::RRSolver* solver = new rr::RRSolver();
 #ifdef _WIN32
 	rr::RRReporter* reporter = rr::RRReporter::createWindowedReporter(solver,"BUILD LIGHTMAPS tool");
 #else
@@ -566,7 +566,7 @@ int main(int argc, char** argv)
 		}
 
 		// calculate indirect illumination in solver
-		rr::RRDynamicSolver::UpdateParameters updateParameters(globalParameters.buildQuality);
+		rr::RRSolver::UpdateParameters updateParameters(globalParameters.buildQuality);
 		solver->updateLightmaps(-1,-1,-1,NULL,&updateParameters,NULL);
 		updateParameters.applyCurrentSolution = true;
 		updateParameters.aoIntensity = globalParameters.aoIntensity;

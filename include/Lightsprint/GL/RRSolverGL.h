@@ -1,14 +1,14 @@
 //----------------------------------------------------------------------------
-//! \file RRDynamicSolverGL.h
-//! \brief LightsprintGL | OpenGL based RRDynamicSolver
+//! \file RRSolverGL.h
+//! \brief LightsprintGL | OpenGL based RRSolver
 //! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2014
 //! All rights reserved
 //----------------------------------------------------------------------------
 
-#ifndef RRDYNAMICSOLVERGL_H
-#define RRDYNAMICSOLVERGL_H
+#ifndef RRSOLVERGL_H
+#define RRSOLVERGL_H
 
-#include "../RRDynamicSolver.h"
+#include "../RRSolver.h"
 #include "Texture.h"
 #include "Program.h"
 #include "Renderer.h"
@@ -18,11 +18,11 @@
 namespace rr_gl
 {
 
-	//! Implementation of rr::RRDynamicSolver generic GPU operations using OpenGL 2.0.
+	//! Implementation of rr::RRSolver generic GPU operations using OpenGL 2.0.
 	//
 	//! Before creating solver, make sure OpenGL context already exists,
 	//! and OpenGL version is at least 2.0.
-	class RR_GL_API RRDynamicSolverGL : public rr::RRDynamicSolver
+	class RR_GL_API RRSolverGL : public rr::RRSolver
 	{
 	public:
 		enum DDIQuality
@@ -32,7 +32,7 @@ namespace rr_gl
 			DDI_8X8, // higher quality, warning: buggy Radeon driver is known to crash on X300
 		};
 
-		//! Initializes generic GPU access implemented in RRDynamicSolverGL.
+		//! Initializes generic GPU access implemented in RRSolverGL.
 		//! \param pathToShaders
 		//!  Path to directory with shaders.
 		//!  Must be terminated with slash (or be empty for current dir).
@@ -43,8 +43,8 @@ namespace rr_gl
 		//!  It is passed to renderer and its plugins, solver itself doesn't use any maps.
 		//! \param detectionQuality
 		//!  Sets quality of our detectDirectIllumination() routine.
-		RRDynamicSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps, DDIQuality detectionQuality = DDI_AUTO);
-		virtual ~RRDynamicSolverGL();
+		RRSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps, DDIQuality detectionQuality = DDI_AUTO);
+		virtual ~RRSolverGL();
 
 		//! Sets lights used by both realtime and offline renderer.
 		//
@@ -80,9 +80,9 @@ namespace rr_gl
 		//! It updates illumination from dirty lights only, call reportDirectIlluminationChange() to mark light dirty.
 		//! \n You can update only shadowmaps by setting params->qualityIndirectDynamic=0.
 		//!
-		//! Note that RRDynamicSolverGL::calculate() calls setDirectIllumination() automatically.
-		//! If you want to provide your own direct illumination data, switch from RRDynamicSolverGL to
-		//! rr::RRDynamicSolver and call setDirectIllumination() manually before calculate().
+		//! Note that RRSolverGL::calculate() calls setDirectIllumination() automatically.
+		//! If you want to provide your own direct illumination data, switch from RRSolverGL to
+		//! rr::RRSolver and call setDirectIllumination() manually before calculate().
 		virtual void calculate(CalculateParameters* params = NULL);
 
 		enum { ENVMAP_RES_RASTERIZED = 32 };

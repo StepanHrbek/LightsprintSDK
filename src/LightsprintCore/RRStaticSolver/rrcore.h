@@ -236,7 +236,7 @@ public:
 	unsigned vertices;
 	unsigned triangles;
 	Triangle*triangle;
-	bool     buildTopIVertices(const RRDynamicSolver::SmoothingParameters* smoothing, bool& aborting); // false when out of memory or aborting
+	bool     buildTopIVertices(const RRSolver::SmoothingParameters* smoothing, bool& aborting); // false when out of memory or aborting
 	unsigned getTriangleIndex(Triangle* t); // return index of triangle in object, UINT_MAX for invalid input
 
 	// energies

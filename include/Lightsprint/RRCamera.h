@@ -91,7 +91,7 @@ public:
 	//! Setting OTHER has no effect.
 	//! If solver is provided, adjusts also position/near/far to fit surrounding geometry.
 	//! Setting orthogonal view is fast, RANDOM uses raycasting (~1000 rays).
-	void setView(View view, const class RRDynamicSolver* solver);
+	void setView(View view, const class RRSolver* solver);
 
 	//! Sets all parameters used to construct view matrix at once. It is slightly faster than setting all parameters one by one.
 	void setView(const RRVec3& pos, const RRVec3& yawPitchRollRad);
@@ -145,7 +145,7 @@ public:
 	//! Uses raycasting (~100 rays), performance hit is acceptable even if called once per frame.
 	//! \param solver
 	//!  Camera is tested against geometry in given solver. Range is not adjusted if it is NULL.
-	void  setRangeDynamically(const class RRDynamicSolver* solver);
+	void  setRangeDynamically(const class RRSolver* solver);
 
 	//! Only if orthogonal: Returns world space distance between top and bottom of viewport.
 	float getOrthoSize() const {return orthoSize;}

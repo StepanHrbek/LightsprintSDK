@@ -6,7 +6,7 @@
 #include <cstring> // NULL
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDebug.h"
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 #include "Workaround.h"
 #include <GL/glew.h>
 
@@ -55,7 +55,7 @@ namespace rr_gl
 				delete shadowmaps[c][i];
 	}
 
-	void RealtimeLight::configureCSM(const rr::RRCamera* observer, const rr::RRDynamicSolver* solver)
+	void RealtimeLight::configureCSM(const rr::RRCamera* observer, const rr::RRSolver* solver)
 	{
 		if (rrlight.type==rr::RRLight::DIRECTIONAL)
 		{

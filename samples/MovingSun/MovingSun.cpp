@@ -40,7 +40,7 @@
 #else
 	#include <GL/glut.h>
 #endif
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PluginSky.h"
 #include "Lightsprint/GL/PluginSSGI.h"
@@ -68,7 +68,7 @@ enum
 
 // Sets lights in scene (positions, directions, intensities, whole skybox etc) for given animation phase in 0..1 range.
 // Sample uses only 1 directional light that moves (code below) and single static skybox (not touched here).
-void setupLights(rr_gl::RRDynamicSolverGL* _solver, const rr::RRCamera* _observer, float _lightTime01)
+void setupLights(rr_gl::RRSolverGL* _solver, const rr::RRCamera* _observer, float _lightTime01)
 {
 	RR_ASSERT(_solver);
 	RR_ASSERT(_solver->getLights().size()==1);
@@ -83,7 +83,7 @@ void setupLights(rr_gl::RRDynamicSolverGL* _solver, const rr::RRCamera* _observe
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::RRDynamicSolverGL*  solver = NULL;
+rr_gl::RRSolverGL*  solver = NULL;
 rr::RRCamera               eye(rr::RRVec3(-1.856f,1.440f,2.097f), rr::RRVec3(2.404f,0.02f,0), 1.3f,90,0.1f,1000);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
@@ -373,7 +373,7 @@ int main(int argc, char** argv)
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-	solver = new rr_gl::RRDynamicSolverGL("../../data/shaders/","../../data/maps/");
+	solver = new rr_gl::RRSolverGL("../../data/shaders/","../../data/maps/");
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 
 	// load scene

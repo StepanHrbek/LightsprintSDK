@@ -139,7 +139,7 @@ void registerLoaderIsolationStep2(int argc, char** argv)
 	{
 		// we are isolated process, converting scene to rr3
 		// other loaders are already registered
-		RRDynamicSolver* solver = new RRDynamicSolver;
+		RRSolver* solver = new RRSolver;
 		RRReporter::createWindowedReporter(solver,"Isolated scene import...");
 
 		// a) load without textures - faster

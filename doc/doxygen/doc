@@ -1314,7 +1314,7 @@ Material formats (1)
     or projected shadows. If it doesn't, add them or contact us for further support.
   - Open RealtimeRadiosity sample. See that both scene loader, scene data structures and rendering are part of project, in source code.
     You can remove sample's scene loader, structures and rendering and use your own.
-  - But keep rr_gl::RRDynamicSolverGL instance, it calculates realtime GI for you. See how sample does it, read how to <b> \subpage use_rrdynamicsolver </b>.
+  - But keep rr_gl::RRSolverGL instance, it calculates realtime GI for you. See how sample does it, read how to <b> \subpage use_rrsolver </b>.
   - Render our indirect illumination, see how sample does it, read more in \ref main_data_access
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
@@ -1324,51 +1324,51 @@ Material formats (1)
   - 1 week
 
 
-\page use_rrdynamicsolver Use RRDynamicSolver or its subclass
+\page use_rrsolver Use RRSolver or its subclass
 
- RRDynamicSolver class is your primary interface to Lightsprint engine.
+ RRSolver class is your primary interface to Lightsprint engine.
  To add global illumination to your application,
 
- - Create instance of RRDynamicSolver or its subclass (e.g. RRDynamicSolverGL).
+ - Create instance of RRSolver or its subclass (e.g. RRSolverGL).
 
  - Set static objects once,
-   call RRDynamicSolver::setStaticObjects() with set of static objects participating in calculation.
+   call RRSolver::setStaticObjects() with set of static objects participating in calculation.
    This call is expensive, design your application to minimize
    changes to static scene.
 
- - Set dynamic objects, call RRDynamicSolver::setDynamicObjects().
+ - Set dynamic objects, call RRSolver::setDynamicObjects().
    It is cheap call, you can add/remove dynamic objects frequently.
    Once your dynamic objects are added, you can manipulate them freely.
 
- - Call RRDynamicSolver::allocateBuffersForRealtimeGI().
+ - Call RRSolver::allocateBuffersForRealtimeGI().
 
- - Set lights, call RRDynamicSolver::setLights() with set of lights participating in calculation.
-   Optionally call also RRDynamicSolver::setEnvironment() to add outdoor/sky lighting.
+ - Set lights, call RRSolver::setLights() with set of lights participating in calculation.
+   Optionally call also RRSolver::setEnvironment() to add outdoor/sky lighting.
    These calls are cheap, you can change lights frequently.
 
- - Call RRDynamicSolver::calculate() often. If main loop of your
-   application contains rendering of one frame, add one call to RRDynamicSolver::calculate().
+ - Call RRSolver::calculate() often. If main loop of your
+   application contains rendering of one frame, add one call to RRSolver::calculate().
    If you render scene only when it has changed,
-   still call RRDynamicSolver::calculate() in every iteration of the main loop
+   still call RRSolver::calculate() in every iteration of the main loop
    and if it returns IMPROVED, rerender scene.
 
  - If you use custom/external renderer:
-   \n When RRDynamicSolver::getSolutionVersion() changes,
-   call RRDynamicSolver::updateLightmaps() and RRDynamicSolver::updateEnvironmentMap()
+   \n When RRSolver::getSolutionVersion() changes,
+   call RRSolver::updateLightmaps() and RRSolver::updateEnvironmentMap()
    to update illumination values stored in your buffers.
 
- - Call RRDynamicSolver::reportDirectIlluminationChange() whenever direct illumination changes.
+ - Call RRSolver::reportDirectIlluminationChange() whenever direct illumination changes.
    It is mainly when light moves or changes properties, but for higher precision,
    you may call it also when object moves and its shadow changes.
 
- - Call RRDynamicSolver::reportMaterialChange() whenever materials in static scene change.
+ - Call RRSolver::reportMaterialChange() whenever materials in static scene change.
    Right now, this is as expensive as full setStaticObjects() call, but it may be cheap in future.
 
- - Call RRDynamicSolver::reportInteraction() whenever user interacts or other reason for
+ - Call RRSolver::reportInteraction() whenever user interacts or other reason for
    high responsiveness exists. Without reportInteraction calls, solver takes more CPU time
    and FPS decreases.
 
- - Call RRDynamicSolver::updateEnvironmentMap()
+ - Call RRSolver::updateEnvironmentMap()
    to acquire static or dynamic object's illumination, see \ref data_environment_map.
 
  Samples like Lightmaps or RealtimeLights show these calls in action.
@@ -1405,9 +1405,9 @@ Material formats (1)
  </td></tr></table>
 
   - Make sure your static scene is suitable for per-vertex lighting, read more in \ref artist_realtime_static "artist's guide".
-  - <b> \subpage subclass_rrdynamicsolver </b>
+  - <b> \subpage subclass_rrsolver </b>
   - <b> \subpage detect_direct_illumination </b>
-  - \ref use_rrdynamicsolver to update illumination in RRBuffer buffers, use them in your renderer
+  - \ref use_rrsolver to update illumination in RRBuffer buffers, use them in your renderer
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
  Expected time spent:
@@ -1416,28 +1416,28 @@ Material formats (1)
   - 1-3 weeks
 
 
-\page subclass_rrdynamicsolver Subclass RRDynamicSolver
+\page subclass_rrsolver Subclass RRSolver
 
- RRDynamicSolver is a global illumination solver.
+ RRSolver is a global illumination solver.
  For offline rendering, it is complete and it can be used immediately.
- For realtime rendering, subclass RRDynamicSolver and implement
+ For realtime rendering, subclass RRSolver and implement
  tasks specific for your renderer.
 
  \section step4_gl OpenGL
 
- rr_gl::RRDynamicSolverGL, subclass of RRDynamicSolver already implements GPU tasks using OpenGL.
+ rr_gl::RRSolverGL, subclass of RRSolver already implements GPU tasks using OpenGL.
  If you plan to use OpenGL realtime renderer (Lightsprint or any other), use it, no subclassing is necessary.
 
  \section step4_dx Direct3D/other
 
- If you need global illumination in Direct3D/other renderer, subclass RRDynamicSolver.
+ If you need global illumination in Direct3D/other renderer, subclass RRSolver.
  The only additional function you need to implement is \ref detect_direct_illumination.
 
 
 \page detect_direct_illumination Detect direct illumination
 
   For OpenGL based renderers, LightsprintGL implements detection of direct illumination
-  in rr_gl::RRDynamicSolverGL.
+  in rr_gl::RRSolverGL.
 
   For Direct3D and custom renderers, you need to write your own implementation.
 
@@ -1453,7 +1453,7 @@ Material formats (1)
 
  \section ddi_what_to_do What to do with detected values
 
-  Call RRDynamicSolver::setDirectIllumination().
+  Call RRSolver::setDirectIllumination().
 
  \section ddi_why Why is it important
 
@@ -1475,7 +1475,7 @@ Material formats (1)
 
   \image html detect-scaled.png
 
-  Read texture back and you have an array of colors that can be sent to RRDynamicSolver::setDirectIllumination().
+  Read texture back and you have an array of colors that can be sent to RRSolver::setDirectIllumination().
 
  \section ddi_impl_details Possible implementation details
 
@@ -1538,7 +1538,7 @@ Material formats (1)
  use vertex buffers for the rest. You can mix formats even in single object,
  e.g. give it per-pixel lightmap with 8bit RGBA channels and sRGB space
  and per-vertex bent normals with floating point RGB channels and linear space.
- When (empty) buffers are created, single RRDynamicSolver::updateLightmaps()
+ When (empty) buffers are created, single RRSolver::updateLightmaps()
  call fills them.
 
  Lightsprint automatically uses all processing power available in a single computer,
@@ -1547,18 +1547,18 @@ Material formats (1)
  \section calc_distributed Distributed calculation
 
  Lightsprint is ready for distribution of work in network / multiple computers,
- including computers without GPU. Expensive RRDynamicSolver::updateLightmaps() call
+ including computers without GPU. Expensive RRSolver::updateLightmaps() call
  (it is core of all lightmap, ambient occlusion map and bent normal map calculations)
- can be replaced by many small RRDynamicSolver::updateLightmap() calls
+ can be replaced by many small RRSolver::updateLightmap() calls
  and you are free to execute them in parallel on different computers.
 
  In more detail, you can run many clients that do
  \code
-	RRDynamicSolver solver;
+	RRSolver solver;
 	solver.setStaticObjects(objects);
 	solver.setLights(lights);
 	solver.setEnvironment(environment);
-	RRDynamicSolver::UpdateParameters params;
+	RRSolver::UpdateParameters params;
 	params.quality = 1000;
 	params.applyCurrentSolution = false;
 	params.applyEnvironment = true;
@@ -1729,13 +1729,13 @@ Material formats (1)
 
   Calculation of ambient occlusion is non-realtime process.
   To calculate ambient occlusion,
-  - Create RRDynamicSolver
-  - Set geometry with RRDynamicSolver::setStaticObjects().
+  - Create RRSolver
+  - Set geometry with RRSolver::setStaticObjects().
     Set single object here for single object ambient occlusion.
     If you set scene with multiple objects here, each object will be
     occluded by all other objects.
-  - Set uniform white environment with RRDynamicSolver::setEnvironment(RRBuffer::createSky())
-  - Call RRDynamicSolver::updateLightmaps() with
+  - Set uniform white environment with RRSolver::setEnvironment(RRBuffer::createSky())
+  - Call RRSolver::updateLightmaps() with
     \n paramsDirect.applyCurrentSolution=false
     \n paramsDirect.applyLights=false
     \n paramsDirect.applyEnvironment=true
@@ -1782,7 +1782,7 @@ Material formats (1)
  \section db3 Calculation
 
   Calculation of bent normals is non-realtime process.
-  To calculate bent normals, use RRDynamicSolver::updateLightmaps()
+  To calculate bent normals, use RRSolver::updateLightmaps()
   and set bent normal layer accordingly.
 
   Bent normals are intentionally stored in different layer than ilumination,
@@ -1845,9 +1845,9 @@ Material formats (1)
 
  \section d14 Instances
    - stored in: RRObjectIllumination::getLayer()
-   - created by: RRDynamicSolver::allocateBuffersForRealtimeGI() or allocate and assign buffers yourself
-   - updated by: RRDynamicSolver::updateLightmaps()
-     or RRDynamicSolver::updateLightmap().
+   - created by: RRSolver::allocateBuffersForRealtimeGI() or allocate and assign buffers yourself
+   - updated by: RRSolver::updateLightmaps()
+     or RRSolver::updateLightmap().
 
  \section d16 Rendering with
    - Stream data from vertex buffer into vertex shader, interpret them
@@ -1862,7 +1862,7 @@ Material formats (1)
    - OpenGL example:
      \n Rendering with per vertex ambient.
      \code
-	rr::RRDynamicSolver* dynamicSolver;
+	rr::RRSolver* dynamicSolver;
 	GLuint program;
 	...
 	// set program created from shaders below
@@ -1994,8 +1994,8 @@ Material formats (1)
    - stored in: RRObjectIllumination::getLayer()
      or your arbitrary location.
    - created by: you
-   - updated by: RRDynamicSolver::updateLightmaps()
-     or RRDynamicSolver::updateLightmap().
+   - updated by: RRSolver::updateLightmaps()
+     or RRSolver::updateLightmap().
 
  \section d26 Rendering
    - Map pixel buffer to your object using your uv channel with object's unwrap,
@@ -2011,7 +2011,7 @@ Material formats (1)
    - OpenGL example:
      Rendering with lightmap.
      \code
-	rr::RRDynamicSolver* dynamicSolver;
+	rr::RRSolver* dynamicSolver;
 	GLuint program;
 	...
 	// set program created from shaders below
@@ -2059,7 +2059,7 @@ Material formats (1)
 	// create vertex declaration that includes lightmap uv channel as TEXCOORD0
 	IDirect3DVertexDeclaration9* vertexDeclaration;
 	device->CreateVertexDeclaration(description, &vertexDeclaration);
-	rr::RRDynamicSolver* dynamicSolver;
+	rr::RRSolver* dynamicSolver;
 	...
 	// set rendering pipeline to use shaders below
 	device->SetPixelShader(vertexShader);
@@ -2132,8 +2132,8 @@ Material formats (1)
 
  \section d34 Instances
    - stored in: RRObjectIllumination::diffuseEnvMap and RRObjectIllumination::specularEnvMap or your arbitrary location
-   - created by: RRDynamicSolver::allocateBuffersForRealtimeGI() or allocate and assign buffers yourself
-   - updated by: RRDynamicSolver::updateEnvironmentMap() or RRLightField::updateEnvironmentMap()
+   - created by: RRSolver::allocateBuffersForRealtimeGI() or allocate and assign buffers yourself
+   - updated by: RRSolver::updateEnvironmentMap() or RRLightField::updateEnvironmentMap()
 
  \section d36 Rendering
    - Many rendering techniques are based on faked precomputed environment maps.
@@ -2172,7 +2172,7 @@ Material formats (1)
    - OpenGL example:
      \n Rendering with environment maps.
      \code
-	rr::RRDynamicSolver* solver;
+	rr::RRSolver* solver;
 	rr::RRObjectIllumination* illumination;
 	GLuint program;
 	...
@@ -2221,7 +2221,7 @@ Material formats (1)
      \code
 	IDirect3DDevice9* device;
 	IDirect3DPixelShader9* pixelShader;
-	rr::RRDynamicSolver* solver;
+	rr::RRSolver* solver;
 	rr::RRObjectIllumination* illumination;
 	...
 	// update environment maps
@@ -2286,8 +2286,8 @@ Material formats (1)
    - Not demonstrated in samples yet.
 
  \section d44 Query
-   - Call RRDynamicSolver::getTriangleMeasure with vertex=0,1,2 for triangle vertices
-   - Call RRDynamicSolver::getTriangleMeasure with vertex>2 for whole triangle area
+   - Call RRSolver::getTriangleMeasure with vertex=0,1,2 for triangle vertices
+   - Call RRSolver::getTriangleMeasure with vertex>2 for whole triangle area
    - Reading illumination level from triangle is slightly faster than reading
      it from vertex, but both are very fast.
 
@@ -2317,7 +2317,7 @@ Material formats (1)
    - Not demonstrated in samples yet.
 
  \section d54 Query
-   - Call RRDynamicSolver::getMultiObjectCustom()->getCollider()->intersect()
+   - Call RRSolver::getMultiObjectCustom()->getCollider()->intersect()
      to find static triangle at the end of ray.
    - See \ref data_triangle for access to triangle's illumination.
 
@@ -2354,11 +2354,11 @@ Material formats (1)
   Fireball uses the same API as the rest of Lightsprint SDK.
   Usually no changes in code are needed to start using Fireball,
   except for one additional call, see:
-  - RRDynamicSolver::buildFireball()
-  - RRDynamicSolver::loadFireball()
+  - RRSolver::buildFireball()
+  - RRSolver::loadFireball()
 
   In case you change emissive maps dynamically (e.g. stream video into emissive map), call
-  - RRDynamicSolver::setEmittance()
+  - RRSolver::setEmittance()
 
  \section fb_outputs Outputs
   Fireball calculates indirect illumination and stores it into 
@@ -2410,7 +2410,7 @@ Material formats (1)
   Note that some offline featues are disabled if you load \ref calc_fireball for realtime lighting.
 
  \section of_speed Speed
-  Estimate of time to build all lightmaps in scene (using RRDynamicSolver::updateLightmaps()) is
+  Estimate of time to build all lightmaps in scene (using RRSolver::updateLightmaps()) is
 
   <code>
   log( number of triangles in scene )
@@ -2466,7 +2466,7 @@ Material formats (1)
   - Point/spot/directional light source.
   - Data structure: RRLight
   - Data structure container: RRLights
-  - Setup: RRDynamicSolver::setLights()
+  - Setup: RRSolver::setLights()
   - Supported in offline GI: yes
   - Supported in realtime GI: yes
 
@@ -2487,7 +2487,7 @@ Material formats (1)
   - Area light source, emissive skybox or sphere surrounding whole scene.
   - Data structure: RRBuffer
   - Data structure container: none, only one environment in scene
-  - Setup: RRDynamicSolver::setEnvironment()
+  - Setup: RRSolver::setEnvironment()
   - Supported in offline GI: yes
   - Supported in realtime GI: yes (only in Fireball)
 
@@ -2501,7 +2501,7 @@ Material formats (1)
   - Area light source, triangles covered by materials that emit light.
   - Data structure: RRObject with emissive materials
   - Data structure container: RRObjects
-  - Setup: RRDynamicSolver::setStaticObjects(), RRDynamicSolver::setEmittance()
+  - Setup: RRSolver::setStaticObjects(), RRSolver::setEmittance()
   - Supported in offline GI: yes
   - Supported in realtime GI: yes
 
@@ -2512,7 +2512,7 @@ Material formats (1)
   </td></tr></table>
 
  \section lrealtime Custom lights
-  - Per-triangle direct irradiances set by RRDynamicSolver::setDirectIllumination()
+  - Per-triangle direct irradiances set by RRSolver::setDirectIllumination()
   - Supported in offline GI: yes
   - Supported in realtime GI: yes
 
@@ -2951,13 +2951,13 @@ rr::RRVector<*>{
    \n\n
    However, it is possible to communicate in screen colors
    or other units. Everything you need is to setup appropriate
-   convertor, see RRDynamicSolver::setScaler(). Scaler internally converts values from native
+   convertor, see RRSolver::setScaler(). Scaler internally converts values from native
    physical radiometry scale to your custom scale and vice versa.
    \n\n
    In typical situations, it is most straightforward to think and communicate
    in screen colors. This means you can set nearly all inputs in screen colors
    (scaled to 0-1 range) and read all outputs in screen colors.
-   To setup this mode, call RRDynamicSolver::setScaler(RRScaler::createRgbScaler()).
+   To setup this mode, call RRSolver::setScaler(RRScaler::createRgbScaler()).
    RealtimeRadiosity sample demonstrates it.
 
  \section gunits2 Geometry units
@@ -3065,13 +3065,13 @@ rr::RRVector<*>{
 
  <hr>
 
- Header: Lightsprint/RRDynamicSolver.h
+ Header: Lightsprint/RRSolver.h
 
  - calculates global illumination in static or dynamic scenes, offline or realtime
  - gives you full control over speed/quality
  - calculated illumination is available in vertex buffers, lightmaps and environment maps
  - communicates completely in custom units, e.g. screen colors
- - purely CPU, extensions for realtime rendering on GPU implemented in rr_gl::RRDynamicSolverGL
+ - purely CPU, extensions for realtime rendering on GPU implemented in rr_gl::RRSolverGL
 
  Samples RealtimeLights and RealtimeRadiosity show the result of integration,
  interactive Collada scene viewer with global illumination immediately responding
@@ -3176,7 +3176,7 @@ rr::RRVector<*>{
 
  LightsprintGL consists of 2 major components
    -# integration of GI solvers with OpenGL
-     - implemented in rr_gl::RRDynamicSolverGL
+     - implemented in rr_gl::RRSolverGL
    -# extensible high performance OpenGL renderer
      - implemented in rr_gl::Renderer
 
@@ -3185,9 +3185,9 @@ rr::RRVector<*>{
  Namespace: rr_gl
 
  <hr>
- Header: Lightsprint/GL/RRDynamicSolverGL.h
+ Header: Lightsprint/GL/RRSolverGL.h
 
- - rr_gl::RRDynamicSolverGL integrates GI solvers with OpenGL 2.0
+ - rr_gl::RRSolverGL integrates GI solvers with OpenGL 2.0
 
  <hr>
  Header: Lightsprint/GL/Renderer.h
@@ -3224,7 +3224,7 @@ rr::RRVector<*>{
 
  - rr_ed::sceneViewer() is a single function scene viewer, with UI for editing objects, lights and materials,
    with realtime and static GI, with 2d viewer of lightmaps and mappings.
-   It is very helpful during debugging, it can display contents of RRDynamicSolver at any moment and let you
+   It is very helpful during debugging, it can display contents of RRSolver at any moment and let you
    examine and experiment with all scene properties.
 
 

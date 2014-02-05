@@ -5,7 +5,7 @@
 
 #include "Lightsprint/RRCollider.h"
 #include "config.h" // USE_SSE
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 
 #include <cstring>
 
@@ -33,7 +33,7 @@ RRRay* RRRay::create(unsigned n)
 	return new RRRay[n]();
 }
 
-bool RRRay::convertHitFromMultiToSingleObject(RRDynamicSolver* solver)
+bool RRRay::convertHitFromMultiToSingleObject(RRSolver* solver)
 {
 	if (!solver || !hitObject || hitObject!=solver->getMultiObjectCustom() || hitTriangle==UINT_MAX)
 		return false;

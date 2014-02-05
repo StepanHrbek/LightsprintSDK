@@ -12,7 +12,7 @@
 #include "Lightsprint/RRLight.h"
 #include "Lightsprint/RRObject.h" // UnwrapSeams
 #include "../squish/squish.h"
-#include "../RRDynamicSolver/gather.h" // TexelFlags
+#include "../RRSolver/gather.h" // TexelFlags
 #include <boost/filesystem.hpp>
 #include "RRBufferInMemory.h"
 

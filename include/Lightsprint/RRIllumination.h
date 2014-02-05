@@ -24,7 +24,7 @@ namespace rr
 	//!
 	//! Buffers are created by you and deleted by destructor (unless you delete them manually).
 	//!
-	//! RRDynamicSolver::updateXxx() functions store calculated illumination in buffers.
+	//! RRSolver::updateXxx() functions store calculated illumination in buffers.
 	//! They usually preserve buffer properties you selected while creating buffer:
 	//! BufferType, BufferFormat and scale. So you are free to select between per-pixel
 	//! and per-vertex lighting etc.
@@ -109,7 +109,7 @@ namespace rr
 	//! You can use multiple lightfields for different locations in game level.
 	//!
 	//! Typical use:
-	//! - RRDynamicSolver::buildLightField() - create new instance in game editor
+	//! - RRSolver::buildLightField() - create new instance in game editor
 	//! - RRLightField::save() - save it in game editor
 	//! - RRLightField::load() - load instance in game
 	//! - RRLightField::updateEnvironmentMap() - use instance in game
@@ -144,13 +144,13 @@ namespace rr
 		//!  Lighting in scene will be stored to given slot.
 		//!  Time slot numbers are 0..numTimeSlots-1
 		//!  where numTimeSlots was specified by create().
-		virtual void captureLighting(class RRDynamicSolver* solver, unsigned timeSlot) = 0;
+		virtual void captureLighting(class RRSolver* solver, unsigned timeSlot) = 0;
 
 		//! Updates diffuse and/or specular environment maps in object illumination.
 		//
 		//! Unlike all other buffer update function in Lightsprint SDK, this one
 		//! changes type/size/format of buffer (to RGB cubemap of size you entered
-		//! to RRDynamicSolver::buildLightField()).
+		//! to RRSolver::buildLightField()).
 		//! \param illumination
 		//!  Illumination you want to update.
 		//! \param layerEnvironment

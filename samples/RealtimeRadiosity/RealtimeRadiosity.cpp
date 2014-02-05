@@ -41,7 +41,7 @@
 	#include <GL/glut.h>
 #endif
 #include "Lightsprint/GL/TextureRenderer.h"
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 #include "../src/LightsprintIO/Import3DS/Model_3DS.h"
 #include "../src/LightsprintIO/Import3DS/RRObject3DS.h"
 #include "DynamicObject.h"
@@ -73,7 +73,7 @@ rr_gl::RealtimeLight*      realtimeLight = NULL;
 rr::RRBuffer*              environmentMap = NULL;
 rr_gl::TextureRenderer*    textureRenderer = NULL;
 rr_gl::UberProgram*        uberProgram = NULL;
-rr_gl::RRDynamicSolverGL*  solver = NULL;
+rr_gl::RRSolverGL*  solver = NULL;
 DynamicObject*             robot = NULL;
 DynamicObject*             potato = NULL;
 int                        winWidth = 0;
@@ -92,14 +92,14 @@ float                      speedLeft = 0;
 // callback that feeds 3ds renderer with our vertex illumination in RGBF format
 const float* lockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getStaticObjects()[object]->illumination.getLayer(LAYER_AMBIENT_MAP);
+	rr::RRBuffer* vertexBuffer = ((rr::RRSolver*)solver)->getStaticObjects()[object]->illumination.getLayer(LAYER_AMBIENT_MAP);
 	return vertexBuffer && (vertexBuffer->getFormat()==rr::BF_RGBF) ? (float*)(vertexBuffer->lock(rr::BL_READ)) : NULL;
 }
 
 // callback that cleans vertex illumination
 void unlockVertexIllum(void* solver,unsigned object)
 {
-	rr::RRBuffer* vertexBuffer = ((rr::RRDynamicSolver*)solver)->getStaticObjects()[object]->illumination.getLayer(LAYER_AMBIENT_MAP);
+	rr::RRBuffer* vertexBuffer = ((rr::RRSolver*)solver)->getStaticObjects()[object]->illumination.getLayer(LAYER_AMBIENT_MAP);
 	if (vertexBuffer) vertexBuffer->unlock();
 }
 
@@ -165,14 +165,14 @@ void renderScene(const rr::RRCamera& camera, rr_gl::UberProgramSetup uberProgram
 // either send robot to solver                         <-- this is shown in RealtimeLights, Lightmaps etc
 // or overload solver->renderScene() to render robot   <-- this is shown here
 
-class Solver : public rr_gl::RRDynamicSolverGL
+class Solver : public rr_gl::RRSolverGL
 {
 public:
-	Solver() : RRDynamicSolverGL("../../data/shaders/","../../data/maps/")
+	Solver() : RRSolverGL("../../data/shaders/","../../data/maps/")
 	{
 		setDirectIlluminationBoost(2);
 	}
-	// Called from RRDynamicSolverGL to update shadowmaps.
+	// Called from RRSolverGL to update shadowmaps.
 	// If we delete this function, sample still works, but dynamic objects have no shadows.
 	// It's because default renderScene() implemetation renders only objects we sent to solver.
 	// In this sample, dynamic objects are in third party format, and third party code renders them,

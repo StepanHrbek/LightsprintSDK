@@ -4,7 +4,7 @@
 #include "Music.h"
 #include "DynamicObjects.h"
 //#include "LevelSequence.h"
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/RRDebug.h"
 
 extern void showImage(const rr_gl::Texture* tex);

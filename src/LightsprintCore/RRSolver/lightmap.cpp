@@ -12,7 +12,7 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 #include "../RRMathPrivate.h"
 #include "private.h"
 #include "gather.h"
@@ -585,7 +585,7 @@ RRBuffer* onlyLmap(RRBuffer* buffer)
 	return (buffer && buffer->getType()==BT_2D_TEXTURE) ? buffer : NULL;
 }
 
-unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* _filtering)
+unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* _filtering)
 {
 	if (aborting)
 		return 0;
@@ -637,7 +637,7 @@ unsigned RRDynamicSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRB
 			&& !priv->packedSolver
 			) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
-			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"RRDynamicSolver::updateLightmap: Empty scene.\n"));
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"RRSolver::updateLightmap: Empty scene.\n"));
 			return 0;
 		}
 	}
@@ -897,7 +897,7 @@ struct SortedBuffer
 };
 
 
-unsigned RRDynamicSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightmap, int layerBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
+unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightmap, int layerBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
 {
 	UpdateParameters paramsDirect;
 	UpdateParameters paramsIndirect;

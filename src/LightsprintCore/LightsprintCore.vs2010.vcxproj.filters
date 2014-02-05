@@ -19,7 +19,7 @@
     <Filter Include="RRStaticSolver">
       <UniqueIdentifier>{d48944a0-8225-43a7-ad9b-94f85469736f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="RRDynamicSolver">
+    <Filter Include="RRSolver">
       <UniqueIdentifier>{7110a52b-adee-42d1-be12-844ea51995c9}</UniqueIdentifier>
     </Filter>
     <Filter Include="RRPackedSolver">
@@ -126,20 +126,20 @@
     <ClCompile Include="RRStaticSolver\RRStaticSolver.cpp">
       <Filter>RRStaticSolver</Filter>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\environmentMap.cpp">
-      <Filter>RRDynamicSolver</Filter>
+    <ClCompile Include="RRSolver\environmentMap.cpp">
+      <Filter>RRSolver</Filter>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\gather.cpp">
-      <Filter>RRDynamicSolver</Filter>
+    <ClCompile Include="RRSolver\gather.cpp">
+      <Filter>RRSolver</Filter>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\lightmap.cpp">
-      <Filter>RRDynamicSolver</Filter>
+    <ClCompile Include="RRSolver\lightmap.cpp">
+      <Filter>RRSolver</Filter>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\RRDynamicSolver.cpp">
-      <Filter>RRDynamicSolver</Filter>
+    <ClCompile Include="RRSolver\RRSolver.cpp">
+      <Filter>RRSolver</Filter>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\vertexBuffer.cpp">
-      <Filter>RRDynamicSolver</Filter>
+    <ClCompile Include="RRSolver\vertexBuffer.cpp">
+      <Filter>RRSolver</Filter>
     </ClCompile>
     <ClCompile Include="RRPackedSolver\PackedSolverFileBuild.cpp">
       <Filter>RRPackedSolver</Filter>
@@ -324,17 +324,17 @@
     <ClInclude Include="RRStaticSolver\RRStaticSolver.h">
       <Filter>RRStaticSolver</Filter>
     </ClInclude>
-    <ClInclude Include="RRDynamicSolver\gather.h">
-      <Filter>RRDynamicSolver</Filter>
+    <ClInclude Include="RRSolver\gather.h">
+      <Filter>RRSolver</Filter>
     </ClInclude>
-    <ClInclude Include="RRDynamicSolver\private.h">
-      <Filter>RRDynamicSolver</Filter>
+    <ClInclude Include="RRSolver\private.h">
+      <Filter>RRSolver</Filter>
     </ClInclude>
-    <ClInclude Include="RRDynamicSolver\report.h">
-      <Filter>RRDynamicSolver</Filter>
+    <ClInclude Include="RRSolver\report.h">
+      <Filter>RRSolver</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\Lightsprint\RRDynamicSolver.h">
-      <Filter>RRDynamicSolver</Filter>
+    <ClInclude Include="..\..\include\Lightsprint\RRSolver.h">
+      <Filter>RRSolver</Filter>
     </ClInclude>
     <ClInclude Include="RRPackedSolver\PackedSolverFile.h">
       <Filter>RRPackedSolver</Filter>

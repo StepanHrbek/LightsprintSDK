@@ -22,10 +22,10 @@ class RR_GL_API PluginParamsSky : public PluginParams
 {
 public:
 	//! Solver with environment you want to render.
-	rr::RRDynamicSolver* solver;
+	rr::RRSolver* solver;
 
 	//! Convenience ctor, for setting plugin parameters.
-	PluginParamsSky(const PluginParams* _next, rr::RRDynamicSolver* _solver) : solver(_solver) {next=_next;}
+	PluginParamsSky(const PluginParams* _next, rr::RRSolver* _solver) : solver(_solver) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;

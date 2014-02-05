@@ -496,7 +496,7 @@ namespace rr
 		//! 
 		//! However, you can save time by calling this helper function, once for solver's static objects, once for dynamic ones.
 		//!
-		//! Well, you can save even more by calling RRDynamicSolver::allocateBuffersForRealtimeGI(), it handles both static ond dynamic objects at once.
+		//! Well, you can save even more by calling RRSolver::allocateBuffersForRealtimeGI(), it handles both static ond dynamic objects at once.
 		//! \param layerLightmap
 		//!  Arbitrary layer number for storing realtime calculated per-vertex indirect illumination.
 		//!  If >=0, vertex buffers in illumination->getLayer(layerLightmap) are allocated, resized or deleted according to other parameters.

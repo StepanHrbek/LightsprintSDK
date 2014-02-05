@@ -7,7 +7,7 @@
 #ifdef _OPENMP
 #include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 #include "report.h"
 #include "private.h"
 #include "gather.h"
@@ -16,7 +16,7 @@
 namespace rr
 {
 
-void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
+void RRSolver::updateVertexLookupTableDynamicSolver()
 // prepare lookup tables postImportVertex -> [postImportTriangle,vertex012] for all objects
 // depends on static objects (needs update when they change)
 {
@@ -75,7 +75,7 @@ void RRDynamicSolver::updateVertexLookupTableDynamicSolver()
 	}
 }
 
-void RRDynamicSolver::updateVertexLookupTablePackedSolver()
+void RRSolver::updateVertexLookupTablePackedSolver()
 // prepare lookup tables preImportVertex -> Ivertex for multiobject and for all singleobjects
 // depends on static objects and packedSolver (needs update when they change)
 {
@@ -162,7 +162,7 @@ void RRDynamicSolver::updateVertexLookupTablePackedSolver()
 //!  without final gather. In other words, it assumes that
 //!  params.applyCurrentSolution=1; applyLights=0; applyEnvironment=0.
 //!  For higher quality final gathered results, use updateLightmaps().
-unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params)
+unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params)
 {
 	if (objectNumber<10 || (objectNumber<100 && !(objectNumber%10)) || (objectNumber<1000 && !(objectNumber%100)) || !(objectNumber%1000))
 		RRReporter::report(INF3,"Updating vertex buffer for object %d/%d.\n",objectNumber,getStaticObjects().size());
@@ -253,7 +253,7 @@ unsigned RRDynamicSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffe
 // Converts data from input array [post import triangles of whole scene]
 // to output array [pre import vertices of single object]
 // Fast, but used only in offline solutions.
-unsigned RRDynamicSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleDataPhysical, unsigned stride, bool allowScaling) const
+unsigned RRSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleDataPhysical, unsigned stride, bool allowScaling) const
 {
 	RRReporter::report(INF3,"Updating object %d/%d, vertex buffer.\n",objectHandle,getStaticObjects().size());
 

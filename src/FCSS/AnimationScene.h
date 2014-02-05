@@ -3,7 +3,7 @@
 
 #include <list>
 #include "AnimationFrame.h"
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -14,7 +14,7 @@ class LevelSetup
 public:
 	// constant setup
 	const char* filename;
-	rr::RRDynamicSolver::CalculateParameters calculateParams;
+	rr::RRSolver::CalculateParameters calculateParams;
 	float scale;
 	typedef std::list<AnimationFrame*> Frames;
 	Frames frames;

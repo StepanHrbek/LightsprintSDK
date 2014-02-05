@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 	// (see "doc/Lightsprint.chm/Integration" page) and adapt it to RRObjects and RRLights here.
 
 	// Send scene to GI solver
-	rr::RRDynamicSolver* solver = new rr::RRDynamicSolver();
+	rr::RRSolver* solver = new rr::RRSolver();
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setStaticObjects(scene.objects,NULL);
 	solver->setDynamicObjects(scene.objects);

@@ -17,7 +17,7 @@ namespace rr_gl
 //
 // Render DDI plugin
 
-//! Helper for visualizing per-triangle data sent to RRDynamicSolver::setDirectIllumination().
+//! Helper for visualizing per-triangle data sent to RRSolver::setDirectIllumination().
 //
 //! This plugin works by locating PluginScene in plugin chain and changing its parameters.
 //! It has no effect if no such plugin is found.
@@ -31,10 +31,10 @@ class RR_GL_API PluginParamsShowDDI : public PluginParams
 {
 public:
 	//! Solver with DDI (detected direct illumination) you want to visualize.
-	rr::RRDynamicSolver* solver;
+	rr::RRSolver* solver;
 
 	//! Convenience ctor, for setting plugin parameters.
-	PluginParamsShowDDI(const PluginParams* _next, rr::RRDynamicSolver* _solver) : solver(_solver) {next=_next;}
+	PluginParamsShowDDI(const PluginParams* _next, rr::RRSolver* _solver) : solver(_solver) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;

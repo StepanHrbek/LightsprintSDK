@@ -9,7 +9,7 @@
 #include "Lightsprint/Ed/Ed.h"
 #include "wx/wx.h"
 #include "Lightsprint/RRIllumination.h"
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 
 namespace rr_ed

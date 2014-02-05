@@ -8,7 +8,7 @@
 #include <cfloat> // _finite in generateRandomCamera
 #include "Lightsprint/RRCamera.h"
 #include "Lightsprint/RRObject.h"
-	#include "Lightsprint/RRDynamicSolver.h"
+	#include "Lightsprint/RRSolver.h"
 
 #ifdef RR_HAS_LAMBDAS
 	#include <functional> // blendAkima
@@ -189,7 +189,7 @@ static float s_viewAngles[6][3] = // 6x yawPitchRollRad
 };
 
 // Generates position and direction suitable for automatically placed camera.
-static void generateRandomCamera(const RRDynamicSolver* _solver, RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist)
+static void generateRandomCamera(const RRSolver* _solver, RRVec3& _pos, RRVec3& _dir, RRReal& _maxdist)
 {
 	if (!_solver)
 	{
@@ -251,7 +251,7 @@ static void generateRandomCamera(const RRDynamicSolver* _solver, RRVec3& _pos, R
 	delete superObject;
 }
 
-void RRCamera::setView(RRCamera::View view, const RRDynamicSolver* solver)
+void RRCamera::setView(RRCamera::View view, const RRSolver* solver)
 {
 	// process RANDOM
 	if (view==RANDOM)
@@ -429,7 +429,7 @@ void RRCamera::setScreenCenter(RRVec2 _screenCenter)
 	}
 }
 
-void RRCamera::setRangeDynamically(const RRDynamicSolver* solver)
+void RRCamera::setRangeDynamically(const RRSolver* solver)
 {
 	if (!solver)
 		return;

@@ -7,7 +7,7 @@
 #define SVSCENETREE_H
 
 #include "Lightsprint/Ed/Ed.h"
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "wx/wx.h"
 #include "wx/treectrl.h"
 #include "SVApp.h"
@@ -59,7 +59,7 @@ namespace rr_ed
 		SVSceneTree(SVFrame* svframe);
 
 		//! Updates whole tree contents. If solver is NULL, lights and objects are not updated.
-		void updateContent(rr_gl::RRDynamicSolverGL* solver);
+		void updateContent(rr_gl::RRSolverGL* solver);
 
 		//! Selects entity in tree, without changing anything outside tree.
 		void selectEntityInTree(EntityId entity);

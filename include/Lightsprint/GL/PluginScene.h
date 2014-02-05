@@ -11,7 +11,7 @@
 #include "Plugin.h"
 #include "RealtimeLight.h"
 #include "UberProgramSetup.h"
-#include "RRDynamicSolverGL.h"
+#include "RRSolverGL.h"
 
 namespace rr_gl
 {
@@ -28,7 +28,7 @@ class RR_GL_API PluginParamsScene : public PluginParams
 {
 public:
 	//! Source of static and dynamic objects and illumination. Direct lights from solver are ignored if you set #lights differently.
-	rr::RRDynamicSolver* solver;
+	rr::RRSolver* solver;
 
 	//! Objects to be rendered, or NULL for all objects from solver.
 	//! \n NULL: All objects from solver are rendered. You can request renderer to update illumination buffers with data from solver.
@@ -58,7 +58,7 @@ public:
 	//! False = renders illumination as it is stored in buffers, without updating it.
 	//! True = updates illumination in _layerLightmap and _layerEnvironment layers before rendering it. Updates only outdated buffers, only buffers being rendered.
 	//! Note that renderer does not allocated or deleted buffers.
-	//! You can allocate buffers in advance by calling RRDynamicSolver::allocateBuffersForRealtimeGI() once.
+	//! You can allocate buffers in advance by calling RRSolver::allocateBuffersForRealtimeGI() once.
 	bool updateLayers;
 
 	//! Indirect illumination is taken from and possibly updated in given layer.
@@ -85,7 +85,7 @@ public:
 	bool wireframe;
 
 	//! Convenience ctor, for setting some plugin parameters. You still might want to change default values of some other parameters after ctor.
-	PluginParamsScene(const PluginParams* _next, RRDynamicSolverGL* _solver)
+	PluginParamsScene(const PluginParams* _next, RRSolverGL* _solver)
 	{
 		next = _next;
 		solver = _solver;

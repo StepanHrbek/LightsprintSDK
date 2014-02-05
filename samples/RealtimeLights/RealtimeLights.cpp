@@ -41,7 +41,7 @@
 #else
 	#include <GL/glut.h>
 #endif
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PluginSky.h"
 #include "Lightsprint/GL/PluginSSGI.h"
@@ -77,7 +77,7 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::RRDynamicSolverGL*  solver = NULL;
+rr_gl::RRSolverGL*  solver = NULL;
 rr::RRObject*              robot = NULL;
 rr::RRObject*              potato = NULL;
 rr::RRCamera               eye(rr::RRVec3(-0.856f,1.440f,2.097f), rr::RRVec3(5.744f,0.02f,0), 1.3f,110,0.1f,1000);
@@ -360,7 +360,7 @@ int main(int argc, char** argv)
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-	solver = new rr_gl::RRDynamicSolverGL("../../data/shaders/","../../data/maps/");
+	solver = new rr_gl::RRSolverGL("../../data/shaders/","../../data/maps/");
 	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 
 	// load static scene

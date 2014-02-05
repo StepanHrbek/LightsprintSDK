@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Plugin that renders contents of RRDynamicSolver instance.
+// Plugin that renders contents of RRSolver instance.
 // Copyright (C) 2007-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@
 #include <GL/glew.h>
 #include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PreserveState.h"
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "MultiPass.h"
@@ -97,7 +97,7 @@ struct PlaneCompare // comparing RRVec4 looks strange, so we do it here rather t
 //
 // PluginRuntimeScene
 
-//! OpenGL renderer of scene in RRDynamicSolver.
+//! OpenGL renderer of scene in RRSolver.
 //
 //! Renders scene from solver.
 //! Takes live illumination from solver or computed illumination from layer.

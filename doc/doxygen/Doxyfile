@@ -84,7 +84,6 @@ WARN_LOGFILE           =
 INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/RRCollider.h" \
                          "../../include/Lightsprint/RRDebug.h" \
-                         "../../include/Lightsprint/RRDynamicSolver.h" \
                          "../../include/Lightsprint/RRFileLocator.h" \
                          "../../include/Lightsprint/RRHash.h" \
                          "../../include/Lightsprint/RRIllumination.h" \
@@ -95,6 +94,7 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/RRMesh.h" \
                          "../../include/Lightsprint/RRObject.h" \
                          "../../include/Lightsprint/RRScene.h" \
+                         "../../include/Lightsprint/RRSolver.h" \
                          "../../include/Lightsprint/RRVector.h" \
                          "../../include/Lightsprint/GL/FBO.h" \
                          "../../include/Lightsprint/GL/Plugin.h" \
@@ -116,7 +116,7 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/GL/PreserveState.h" \
                          "../../include/Lightsprint/GL/Program.h" \
                          "../../include/Lightsprint/GL/RealtimeLight.h" \
-                         "../../include/Lightsprint/GL/RRDynamicSolverGL.h" \
+                         "../../include/Lightsprint/GL/RRSolverGL.h" \
                          "../../include/Lightsprint/GL/Texture.h" \
                          "../../include/Lightsprint/GL/TextureRenderer.h" \
                          "../../include/Lightsprint/GL/UberProgram.h" \

@@ -26,7 +26,7 @@ RRStaticSolver::~RRStaticSolver()
 // import geometry
 
 
-RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver::SmoothingParameters* _smoothing, bool& _aborting)
+RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRSolver::SmoothingParameters* _smoothing, bool& _aborting)
 {
 	if (!_object)
 	{
@@ -51,13 +51,13 @@ RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRDynamicSolver:
 	return solver;
 }
 
-RRStaticSolver::RRStaticSolver(RRObject* importer, const RRDynamicSolver::SmoothingParameters* smoothing, Object* obj, bool& aborting)
+RRStaticSolver::RRStaticSolver(RRObject* importer, const RRSolver::SmoothingParameters* smoothing, Object* obj, bool& aborting)
 {
 	materialEmittanceMultiplier = 1;
 	scene=new Scene();
 	RR_ASSERT(importer);
 	RR_ASSERT(obj);
-	RRDynamicSolver::SmoothingParameters defaultSmoothing;
+	RRSolver::SmoothingParameters defaultSmoothing;
 	if (!smoothing) smoothing = &defaultSmoothing;
 	const RRMesh* mesh = importer->getCollider()->getMesh();
 	obj->importer = importer;

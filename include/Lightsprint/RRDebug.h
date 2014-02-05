@@ -154,7 +154,7 @@ namespace rr
 		//!  Optional custom window caption, NULL for default one.
 		//! \param closeWhenDone
 		//!  Closes window immediately after reporting ends, rather than asking user what to do.
-		static RRReporter* createWindowedReporter(class RRDynamicSolver*& solver, const char* caption = NULL, bool closeWhenDone = false);
+		static RRReporter* createWindowedReporter(class RRSolver*& solver, const char* caption = NULL, bool closeWhenDone = false);
 
 		//! Helper, converts number of bytes to human readable string, e.g. 12345678 to "12 MB".
 		static const char* bytesToString(size_t bytes);

@@ -45,7 +45,7 @@ namespace rr_ed
 	class LogWithAbort
 	{
 	public:
-		LogWithAbort(wxWindow* window, rr_gl::RRDynamicSolverGL*& solver, const char* caption);
+		LogWithAbort(wxWindow* window, rr_gl::RRSolverGL*& solver, const char* caption);
 		~LogWithAbort();
 		static bool logIsOn;
 	private:

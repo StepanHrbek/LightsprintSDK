@@ -12,7 +12,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\Program.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\RealtimeLight.h" />
     <ClInclude Include="RendererOfMesh.h" />
-    <ClInclude Include="..\..\include\Lightsprint\GL\RRDynamicSolverGL.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\RRSolverGL.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Texture.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\TextureRenderer.h" />
@@ -42,7 +42,7 @@
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="RealtimeLight.cpp" />
     <ClCompile Include="RendererOfMesh.cpp" />
-    <ClCompile Include="RRDynamicSolverGL.cpp" />
+    <ClCompile Include="RRSolverGL.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TextureRenderer.cpp" />

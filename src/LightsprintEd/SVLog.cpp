@@ -87,7 +87,7 @@ SVLog::~SVLog()
 
 bool LogWithAbort::logIsOn = false;
 
-LogWithAbort::LogWithAbort(wxWindow* _window, rr_gl::RRDynamicSolverGL*& _solver, const char* _caption)
+LogWithAbort::LogWithAbort(wxWindow* _window, rr_gl::RRSolverGL*& _solver, const char* _caption)
 {
 	enabled = !logIsOn; // do nothing if log is already enabled
 	if (enabled)
@@ -95,7 +95,7 @@ LogWithAbort::LogWithAbort(wxWindow* _window, rr_gl::RRDynamicSolverGL*& _solver
 		// display log window with 'abort'
 		logIsOn = true;
 		window = _window;
-		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRDynamicSolver**)&_solver,_caption,true);
+		localReporter = rr::RRReporter::createWindowedReporter(*(rr::RRSolver**)&_solver,_caption,true);
 	}
 }
 

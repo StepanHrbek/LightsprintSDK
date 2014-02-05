@@ -50,6 +50,7 @@ CHANGES
   - new rr_ed namespace
   - Lightsprint/GL/SceneViewer.h renamed to Lightsprint/Ed/Ed.h
   - Lightsprint/IO/ImportScene.h renamed to Lightsprint/IO/IO.h
+- RRDynamicSolver[GL] renamed to RRSolver[GL]
 - several path/filename parameters changed from char* to RRString for more complete unicode support
   \n you might need to pass "" instead of NULL if old code fails to compile
 

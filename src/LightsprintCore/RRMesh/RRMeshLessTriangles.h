@@ -79,7 +79,7 @@ public:
 	virtual unsigned getPostImportTriangle(PreImportNumber preImportTriangle) const 
 	{
 		// check that this slow code is not called often
-//!!! is called when RRDynamicSolver works with single object
+//!!! is called when RRSolver works with single object
 //		RR_ASSERT(0);
 		// efficient implementation would require another translation array
 		unsigned midImportTriangle = inherited->getPostImportTriangle(preImportTriangle);

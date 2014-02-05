@@ -109,7 +109,7 @@ namespace rr
 	//! For offline GI, solver->updateLightmaps(-1,-1,-1,NULL,indirectParams,) accesses light to calculate indirect illumination,
 	//! while solver->updateLightmaps(,,,directParams,NULL,) accesses light to calculate direct illumination.
 	//! There are other ways of controlling intensity of indirect illumination,
-	//! see RRDynamicSolverGL::setDirectIlluminationBoost().
+	//! see RRSolverGL::setDirectIlluminationBoost().
 	//
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//! All custom implementations must be thread safe too.
@@ -499,8 +499,8 @@ namespace rr
 	//
 	//! This is usual product of adapter that creates Lightsprint interface for external 3d scene.
 	//! You may use it for example to
-	//! - send it to RRDynamicSolver and calculate global illumination
-	//! - manipulate this set before sending it to RRDynamicSolver, e.g. remove moving lights
+	//! - send it to RRSolver and calculate global illumination
+	//! - manipulate this set before sending it to RRSolver, e.g. remove moving lights
 	//
 	//////////////////////////////////////////////////////////////////////////////
 

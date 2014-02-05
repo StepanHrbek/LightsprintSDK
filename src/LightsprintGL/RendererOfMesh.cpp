@@ -94,7 +94,7 @@ bool MeshArraysVBOs::update(const rr::RRMeshArrays* _mesh, bool _indexed)
 			// calculate mapping for FORCED_2D
 			//  We have working space for 256x256 tringles, so scene with 80k triangles must be split to two passes.
 			//  We do 256x157,256x157 passes, but 256x256,256x57 would work too.
-			//  Here we render to texture, this calculation is repeated in RRDynamicSolverGL::detectDirectIlluminationTo where we read texture back.
+			//  Here we render to texture, this calculation is repeated in RRSolverGL::detectDirectIlluminationTo where we read texture back.
 			unsigned triCountX = DDI_TRIANGLES_X;
 			unsigned triCountYTotal = (_mesh->numTriangles+DDI_TRIANGLES_X-1)/DDI_TRIANGLES_X;
 			unsigned numPasses = (triCountYTotal+DDI_TRIANGLES_MAX_Y-1)/DDI_TRIANGLES_MAX_Y;
@@ -254,7 +254,7 @@ void MeshArraysVBOs::renderMesh(
 		if (_lightIndirectBuffer)
 		{
 			// INDEXED FROM VBUFFER
-			// use vertex buffer precomputed by RRDynamicSolver
+			// use vertex buffer precomputed by RRSolver
 			// indirectIllumination has vertices merged according to RRObject, can't be used with non-indexed trilist, needs indexed trilist
 			bool copyLayerToVBO = createdFromLightIndirectVersion!=_lightIndirectBuffer->version || createdFromLightIndirectBuffer!=_lightIndirectBuffer;
 			if (copyLayerToVBO)
@@ -366,7 +366,7 @@ void MeshArraysVBOs::renderMesh(
 								// honourOfflineFlags
 								//  +if flags for offline solver say catch light from both directions, we should render shadow 2-sided to create the same image in realtime
 								//  -makes overdraw rgb shadow darker than object itself (rgb sm=frontcolor*backcolor)
-								//  .note: RRDynamicSolverGL::updateShadowmaps() already renders shadows without MATERIAL_CULLING,
+								//  .note: RRSolverGL::updateShadowmaps() already renders shadows without MATERIAL_CULLING,
 								//         this would affect only shadows with MATERIAL_CULLING
 								bool honourOfflineFlags = true;
 								bool renderFront = material->sideBits[0].renderFrom || (honourOfflineFlags && _renderingFromLight && material->sideBits[0].catchFrom);

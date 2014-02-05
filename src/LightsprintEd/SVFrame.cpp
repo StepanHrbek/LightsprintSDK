@@ -5,7 +5,7 @@
 
 #include "SVFrame.h"
 #include "Lightsprint/RRScene.h"
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/GL/FBO.h"
 #include "SVRayLog.h"
 #include "SVSaveLoad.h"
@@ -1022,7 +1022,7 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 	if (m_canvas && m_canvas->solver)
 		try
 {
-	rr_gl::RRDynamicSolverGL*& solver = m_canvas->solver;
+	rr_gl::RRSolverGL*& solver = m_canvas->solver;
 	bool& fireballLoadAttempted = m_canvas->fireballLoadAttempted;
 	int* windowCoord = m_canvas->windowCoord;
 	bool& envToBeDeletedOnExit = m_canvas->envToBeDeletedOnExit;
@@ -1370,7 +1370,7 @@ reload_skybox:
 				svs.renderLightDirect = LD_REALTIME;
 			svs.renderLightmaps2d = 0;
 			solver->reportDirectIlluminationChange(-1,true,true,false);
-			if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRDynamicSolver::BOTH)
+			if (solver->getInternalSolverType()!=rr::RRSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRSolver::BOTH)
 			{
 				if (!fireballLoadAttempted)
 				{
@@ -1378,7 +1378,7 @@ reload_skybox:
 					solver->loadFireball("",true);
 				}
 			}
-			if (solver->getInternalSolverType()!=rr::RRDynamicSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRDynamicSolver::BOTH)
+			if (solver->getInternalSolverType()!=rr::RRSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRSolver::BOTH)
 			{
 				// display log window with 'abort' while this function runs
 				// don't display it if it is already displayed (we may be automatically called when scene loads and fireball is requested, log is already on)
@@ -1431,7 +1431,7 @@ reload_skybox:
 		case ME_STATIC_BUILD_LIGHTFIELD_2D:
 			{
 				// create solver if it doesn't exist yet
-				if (solver->getInternalSolverType()==rr::RRDynamicSolver::NONE)
+				if (solver->getInternalSolverType()==rr::RRSolver::NONE)
 				{
 					solver->calculate();
 				}
@@ -1448,7 +1448,7 @@ reload_skybox:
 		case ME_STATIC_BUILD_LIGHTFIELD_3D:
 			{
 				// create solver if it doesn't exist yet
-				if (solver->getInternalSolverType()==rr::RRDynamicSolver::NONE)
+				if (solver->getInternalSolverType()==rr::RRSolver::NONE)
 				{
 					solver->calculate();
 				}
@@ -1472,7 +1472,7 @@ reload_skybox:
 					unsigned quality = 100;
 					if (getQuality(_("Lightmap diagnose"),this,quality))
 					{
-						rr::RRDynamicSolver::UpdateParameters params(quality);
+						rr::RRSolver::UpdateParameters params(quality);
 						params.debugObject = m_canvas->centerObject;
 						params.debugTexel = m_canvas->centerTexel;
 						params.debugTriangle = (m_canvas->centerTexel==UINT_MAX)?m_canvas->centerTriangle:UINT_MAX;

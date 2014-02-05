@@ -13,7 +13,7 @@
 #include "SVLog.h"
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/GL/PluginAccumulation.h"
 #include "Lightsprint/GL/PluginBloom.h"
 #include "Lightsprint/GL/PluginDOF.h"
@@ -261,7 +261,7 @@ void SVCanvas::createContextCore()
 
 
 	// init solver
-	solver = new rr_gl::RRDynamicSolverGL(RR_WX2RR(svs.pathToShaders), RR_WX2RR(svs.pathToMaps));
+	solver = new rr_gl::RRSolverGL(RR_WX2RR(svs.pathToShaders), RR_WX2RR(svs.pathToMaps));
 	textureRenderer = solver->getRenderer()->getTextureRenderer();
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	if (svs.initialInputSolver)
@@ -1638,7 +1638,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
 			for (unsigned i=0;i<solver->realtimeLights.size();i++)
 				solver->realtimeLights[i]->shadowTransparencyRequested = svs.shadowTransparency;
-			rr::RRDynamicSolver::CalculateParameters params;
+			rr::RRSolver::CalculateParameters params;
 			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			{
 				// rendering indirect -> calculate will update shadowmaps, possibly resample environment and emissive maps, improve indirect
@@ -2188,10 +2188,10 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				const char* strSolver = "?";
 				switch(solver->getInternalSolverType())
 				{
-					case rr::RRDynamicSolver::NONE: strSolver = "none"; break;
-					case rr::RRDynamicSolver::ARCHITECT: strSolver = "Architect"; break;
-					case rr::RRDynamicSolver::FIREBALL: strSolver = "Fireball"; break;
-					case rr::RRDynamicSolver::BOTH: strSolver = "both"; break;
+					case rr::RRSolver::NONE: strSolver = "none"; break;
+					case rr::RRSolver::ARCHITECT: strSolver = "Architect"; break;
+					case rr::RRSolver::FIREBALL: strSolver = "Fireball"; break;
+					case rr::RRSolver::BOTH: strSolver = "both"; break;
 				}
 				// print it
 				textOutput(x,y+=18,h,"lighting direct=%s indirect=%s%s lightmaps=(%dx vbuf %dx lmap %dx none) solver=%s",

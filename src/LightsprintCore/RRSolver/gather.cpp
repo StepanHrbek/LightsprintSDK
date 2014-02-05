@@ -8,7 +8,7 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 #include "../RRMathPrivate.h"
 #include "private.h"
 #include "gather.h"
@@ -768,7 +768,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 // CPU, gathers per-triangle lighting from RRLights, environment, current solution
 // may be called as first gather or final gather
-bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots)
+bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots)
 {
 	if (aborting)
 		return false;
@@ -778,7 +778,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* _params,
 		calculateCore(0,&priv->previousCalculateParameters);
 		if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 		{
-			RRReporter::report(WARN,"RRDynamicSolver::gatherPerTrianglePhysical: Empty scene.\n");
+			RRReporter::report(WARN,"RRSolver::gatherPerTrianglePhysical: Empty scene.\n");
 			RR_ASSERT(0);
 			return false;
 		}
@@ -896,7 +896,7 @@ bool RRDynamicSolver::gatherPerTrianglePhysical(const UpdateParameters* _params,
 }
 
 // CPU version, detects per-triangle direct from RRLights, environment, gathers from current solution
-bool RRDynamicSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
+bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 {
 	RRReportInterval report(INF2,"Updating solver direct ...\n");
 
@@ -955,7 +955,7 @@ public:
 	bool* aborting;
 };
 
-bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsIndirect)
+bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsIndirect)
 {
 	if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
 	{
@@ -967,7 +967,7 @@ bool RRDynamicSolver::updateSolverIndirectIllumination(const UpdateParameters* _
 			if (priv->packedSolver)
 				RRReporter::report(WARN,"Calculation not supported by Fireball, call leaveFireball() to enable Architect solver.\n");
 			else
-				RRReporter::report(WARN,"RRDynamicSolver::updateSolverIndirectIllumination: Empty scene (%d %d %d).\n",
+				RRReporter::report(WARN,"RRSolver::updateSolverIndirectIllumination: Empty scene (%d %d %d).\n",
 					getMultiObjectCustom()?1:0,
 					priv->scene?1:0,
 					getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);

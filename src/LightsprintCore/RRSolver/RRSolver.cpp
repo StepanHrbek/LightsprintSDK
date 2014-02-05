@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <set>
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 #include "report.h"
 #include "private.h"
 #include "../RRStaticSolver/rrcore.h" // build of packed factors
@@ -31,7 +31,7 @@ namespace rr
 //
 // CalculateParameters
 
-bool RRDynamicSolver::CalculateParameters::operator ==(const RRDynamicSolver::CalculateParameters& a) const
+bool RRSolver::CalculateParameters::operator ==(const RRSolver::CalculateParameters& a) const
 {
 	return 1
 		&& a.materialEmittanceMultiplier==materialEmittanceMultiplier
@@ -52,7 +52,7 @@ bool RRDynamicSolver::CalculateParameters::operator ==(const RRDynamicSolver::Ca
 //
 // UpdateParameters
 
-bool RRDynamicSolver::UpdateParameters::operator ==(const RRDynamicSolver::UpdateParameters& a) const
+bool RRSolver::UpdateParameters::operator ==(const RRSolver::UpdateParameters& a) const
 {
 	return 1
 		&& a.applyLights==applyLights
@@ -77,7 +77,7 @@ bool RRDynamicSolver::UpdateParameters::operator ==(const RRDynamicSolver::Updat
 //
 // FilteringParameters
 
-bool RRDynamicSolver::FilteringParameters::operator ==(const RRDynamicSolver::FilteringParameters& a) const
+bool RRSolver::FilteringParameters::operator ==(const RRSolver::FilteringParameters& a) const
 {
 	return 1
 		&& a.smoothingAmount==smoothingAmount
@@ -89,20 +89,20 @@ bool RRDynamicSolver::FilteringParameters::operator ==(const RRDynamicSolver::Fi
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// RRDynamicSolver
+// RRSolver
 
-RRDynamicSolver::RRDynamicSolver()
+RRSolver::RRSolver()
 {
 	aborting = false;
 	priv = new Private;
 }
 
-RRDynamicSolver::~RRDynamicSolver()
+RRSolver::~RRSolver()
 {
 	delete priv;
 }
 
-void RRDynamicSolver::setScaler(const RRScaler* _scaler)
+void RRSolver::setScaler(const RRScaler* _scaler)
 {
 	priv->scaler = _scaler;
 	// update fast conversion table for our setDirectIllumination
@@ -116,12 +116,12 @@ void RRDynamicSolver::setScaler(const RRScaler* _scaler)
 	reportDirectIlluminationChange(-1,false,true,false);
 }
 
-const RRScaler* RRDynamicSolver::getScaler() const
+const RRScaler* RRSolver::getScaler() const
 {
 	return priv->scaler;
 }
 
-void RRDynamicSolver::setEnvironment(RRBuffer* _environment0, RRBuffer* _environment1, RRReal _environmentAngleRad0, RRReal _environmentAngleRad1)
+void RRSolver::setEnvironment(RRBuffer* _environment0, RRBuffer* _environment1, RRReal _environmentAngleRad0, RRReal _environmentAngleRad1)
 {
 	// [#23] inc/dec refcount of environments entering/leaving solver
 	// (so that later we can delete env from slot0, forget about it, and then move env from slot0 to slot1 for fadeout)
@@ -138,26 +138,26 @@ void RRDynamicSolver::setEnvironment(RRBuffer* _environment0, RRBuffer* _environ
 	priv->solutionVersion++;
 }
 
-RRBuffer* RRDynamicSolver::getEnvironment(unsigned _environmentIndex, RRReal* _environmentAngleRad) const
+RRBuffer* RRSolver::getEnvironment(unsigned _environmentIndex, RRReal* _environmentAngleRad) const
 {
 	if (_environmentAngleRad)
 		*_environmentAngleRad = _environmentIndex ? priv->environmentAngleRad1 : priv->environmentAngleRad0;
 	return _environmentIndex ? priv->environment1 : priv->environment0;
 }
 
-void RRDynamicSolver::setEnvironmentBlendFactor(float _blendFactor)
+void RRSolver::setEnvironmentBlendFactor(float _blendFactor)
 {
 	priv->environmentBlendFactor = _blendFactor;
 	// affects specular cubemaps
 	priv->solutionVersion++;
 }
 
-float RRDynamicSolver::getEnvironmentBlendFactor() const
+float RRSolver::getEnvironmentBlendFactor() const
 {
 	return priv->environmentBlendFactor;
 }
 
-void RRDynamicSolver::setLights(const RRLights& _lights)
+void RRSolver::setLights(const RRLights& _lights)
 {
 	if (!&_lights)
 	{
@@ -175,13 +175,13 @@ void RRDynamicSolver::setLights(const RRLights& _lights)
 	priv->lights = _lights;
 }
 
-const RRLights& RRDynamicSolver::getLights() const
+const RRLights& RRSolver::getLights() const
 {
 	return priv->lights;
 }
 
 
-void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing, const char* _cacheLocation, RRCollider::IntersectTechnique _intersectTechnique, RRDynamicSolver* _copyFrom)
+void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParameters* _smoothing, const char* _cacheLocation, RRCollider::IntersectTechnique _intersectTechnique, RRSolver* _copyFrom)
 {
 	// check inputs
 	if (!&_objects)
@@ -222,7 +222,7 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 				)
 			{
 				// we expect inputs with trivial preimport numbers
-				// without this check, we would later crash in RRDynamicSolver::updateVertexLookupTableDynamicSolver()
+				// without this check, we would later crash in RRSolver::updateVertexLookupTableDynamicSolver()
 				RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d] is multiobject or has e.g. vertex stitching filter applied. Fix meshes with createArrays() or createVertexBufferRuler().\n",i);
 				return;
 			}
@@ -339,12 +339,12 @@ void RRDynamicSolver::setStaticObjects(const RRObjects& _objects, const Smoothin
 	priv->superColliderDirty = true;
 }
 
-const RRObjects& RRDynamicSolver::getStaticObjects() const
+const RRObjects& RRSolver::getStaticObjects() const
 {
 	return priv->staticObjects;
 }
 
-void RRDynamicSolver::setDynamicObjects(const RRObjects& _objects)
+void RRSolver::setDynamicObjects(const RRObjects& _objects)
 {
 	// check inputs
 	if (!&_objects)
@@ -380,19 +380,19 @@ void RRDynamicSolver::setDynamicObjects(const RRObjects& _objects)
 	priv->superColliderDirty = true;
 }
 
-const RRObjects& RRDynamicSolver::getDynamicObjects() const
+const RRObjects& RRSolver::getDynamicObjects() const
 {
 	return priv->dynamicObjects;
 }
 
-RRObjects RRDynamicSolver::getObjects() const
+RRObjects RRSolver::getObjects() const
 {
 	rr::RRObjects allObjects = getStaticObjects();
 	allObjects.insert(allObjects.end(),getDynamicObjects().begin(),getDynamicObjects().end());
 	return allObjects;
 }
 
-RRObject* RRDynamicSolver::getObject(unsigned index) const
+RRObject* RRSolver::getObject(unsigned index) const
 {
 	if (index<getStaticObjects().size())
 		return getStaticObjects()[index];
@@ -402,7 +402,7 @@ RRObject* RRDynamicSolver::getObject(unsigned index) const
 	return NULL;
 }
 
-RRCollider* RRDynamicSolver::getCollider() const
+RRCollider* RRSolver::getCollider() const
 {
 	if (!priv->dynamicObjects.size() && getMultiObjectCustom())
 		return getMultiObjectCustom()->getCollider();
@@ -497,7 +497,7 @@ RRCollider* RRDynamicSolver::getCollider() const
 	return priv->superCollider;
 }
 
-const RRObject* RRDynamicSolver::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
+const RRObject* RRSolver::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 {
 	if (!priv->dynamicObjects.size())
 	{
@@ -524,7 +524,7 @@ const RRObject* RRDynamicSolver::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _
 	}
 }
 
-void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsigned>* _layers) const
+void RRSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsigned>* _layers) const
 {
 	if (!this)
 		return;
@@ -592,17 +592,17 @@ void RRDynamicSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVecto
 			_buffers.push_back(*i);
 }
 
-RRObject* RRDynamicSolver::getMultiObjectCustom() const
+RRObject* RRSolver::getMultiObjectCustom() const
 {
 	return priv->multiObjectCustom;
 }
 
-const RRObject* RRDynamicSolver::getMultiObjectPhysical() const
+const RRObject* RRSolver::getMultiObjectPhysical() const
 {
 	return priv->multiObjectPhysical;
 }
 
-bool RRDynamicSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRVec3& out) const
+bool RRSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRVec3& out) const
 {
 	if (priv->packedSolver)
 	{
@@ -616,7 +616,7 @@ bool RRDynamicSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRR
 	return false;
 }
 
-void RRDynamicSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
+void RRSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 {
 	REPORT(RRReporter::report(INF1,"<MaterialChange>\n"));
 	// here we dirty shadowmaps and DDI
@@ -636,7 +636,7 @@ void RRDynamicSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 	//if (priv->multiObjectPhysical) priv->multiObjectPhysical->update(aborting);
 }
 
-void RRDynamicSolver::reportDirectIlluminationChange(int lightIndex, bool dirtyShadows, bool dirtyGI, bool dirtyRange)
+void RRSolver::reportDirectIlluminationChange(int lightIndex, bool dirtyShadows, bool dirtyGI, bool dirtyRange)
 {
 	REPORT(RRReporter::report(INF1,"<IlluminationChange>\n"));
 	// invalidate supercollider (-1=geometry change, supercollider has precalculated inverse matrices inside, needs rebuild)
@@ -644,13 +644,13 @@ void RRDynamicSolver::reportDirectIlluminationChange(int lightIndex, bool dirtyS
 		priv->superColliderDirty = true;
 }
 
-void RRDynamicSolver::reportInteraction()
+void RRSolver::reportInteraction()
 {
 	REPORT(RRReporter::report(INF1,"<Interaction>\n"));
 	priv->lastInteractionTime.setNow();
 }
 
-void RRDynamicSolver::setDirectIllumination(const unsigned* directIllumination)
+void RRSolver::setDirectIllumination(const unsigned* directIllumination)
 {
 	if (priv->customIrradianceRGBA8 || directIllumination)
 	{
@@ -661,12 +661,12 @@ void RRDynamicSolver::setDirectIllumination(const unsigned* directIllumination)
 	}
 }
 
-const unsigned* RRDynamicSolver::getDirectIllumination()
+const unsigned* RRSolver::getDirectIllumination()
 {
 	return priv->customIrradianceRGBA8;
 }
 
-void RRDynamicSolver::setDirectIlluminationBoost(RRReal boost)
+void RRSolver::setDirectIlluminationBoost(RRReal boost)
 {
 	if (priv->boostCustomIrradiance != boost)
 	{
@@ -675,7 +675,7 @@ void RRDynamicSolver::setDirectIlluminationBoost(RRReal boost)
 	}
 }
 
-void RRDynamicSolver::calculateDirtyLights(CalculateParameters* _params)
+void RRSolver::calculateDirtyLights(CalculateParameters* _params)
 {
 	// replace NULL by default parameters
 	static CalculateParameters s_params;
@@ -749,7 +749,7 @@ public:
 
 // calculates radiosity in existing times (improveStep = seconds to spend in improving),
 //  does no timing adjustments
-void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _params)
+void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 {
 	if (!getMultiObjectCustom()) return;
 
@@ -892,7 +892,7 @@ void RRDynamicSolver::calculateCore(float improveStep,CalculateParameters* _para
 }
 
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
-void RRDynamicSolver::calculate(CalculateParameters* _params)
+void RRSolver::calculate(CalculateParameters* _params)
 {
 	RRTime calcBeginTime;
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);
@@ -962,7 +962,7 @@ void RRDynamicSolver::calculate(CalculateParameters* _params)
 //
 // misc
 
-void RRDynamicSolver::checkConsistency()
+void RRSolver::checkConsistency()
 {
 	RRReporter::report(INF1,"Solver diagnose:\n");
 	if (!getMultiObjectCustom())
@@ -1039,19 +1039,19 @@ void RRDynamicSolver::checkConsistency()
 	RRReporter::report(INF1,"  Scaling from custom scale 0..255 to average physical scale %f.\n",avgPhys);
 }
 
-unsigned RRDynamicSolver::getSolutionVersion() const
+unsigned RRSolver::getSolutionVersion() const
 {
 	return priv->solutionVersion;
 }
 
-RRDynamicSolver::InternalSolverType RRDynamicSolver::getInternalSolverType() const
+RRSolver::InternalSolverType RRSolver::getInternalSolverType() const
 {
 	if (priv->scene)
 		return priv->packedSolver?BOTH:ARCHITECT;
 	return priv->packedSolver?FIREBALL:NONE;
 }
 
-bool RRDynamicSolver::containsLightSource() const
+bool RRSolver::containsLightSource() const
 {
 	for (unsigned i=0;i<getLights().size();i++)
 		if (getLights()[i] && getLights()[i]->enabled)
@@ -1060,7 +1060,7 @@ bool RRDynamicSolver::containsLightSource() const
 		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance());
 }
 
-bool RRDynamicSolver::containsRealtimeGILightSource() const
+bool RRSolver::containsRealtimeGILightSource() const
 {
 	for (unsigned i=0;i<getLights().size();i++)
 		if (getLights()[i] && getLights()[i]->enabled)
@@ -1069,7 +1069,7 @@ bool RRDynamicSolver::containsRealtimeGILightSource() const
 		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance());
 }
 
-void RRDynamicSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, unsigned refractEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
+void RRSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, unsigned refractEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
 {
 	// allocate vertex buffers (don't touch cubes)
 	if (layerLightmap>=0)

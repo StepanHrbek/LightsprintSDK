@@ -17,7 +17,7 @@
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/GL/PluginPanorama.h"
 #include "Lightsprint/GL/PluginStereo.h"
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 #include <ctime> // struct tm
 
 // define RR_ED_API
@@ -191,10 +191,10 @@ struct SceneViewerState
 	bool             mirrorsMipmaps;            //! Enables higher quality mirroring mode using mipmaps.
 	bool             srgbCorrect;               //! Add realtime lights sRGB correctly, if OpenGL 3.0+ or sufficient extensions are found.
 	bool             lightmapFloats;
-	//rr::RRDynamicSolver::CalculateParameters calculateParameters;        //! Realtime GI settings.
-	rr::RRDynamicSolver::UpdateParameters    lightmapDirectParameters;   //! Lightmap baking settings.
-	//rr::RRDynamicSolver::UpdateParameters    lightmapIndirectParameters; //! Lightmap baking settings.
-	rr::RRDynamicSolver::FilteringParameters lightmapFilteringParameters;  //! Lightmap baking settings.
+	//rr::RRSolver::CalculateParameters calculateParameters;        //! Realtime GI settings.
+	rr::RRSolver::UpdateParameters    lightmapDirectParameters;   //! Lightmap baking settings.
+	//rr::RRSolver::UpdateParameters    lightmapIndirectParameters; //! Lightmap baking settings.
+	rr::RRSolver::FilteringParameters lightmapFilteringParameters;  //! Lightmap baking settings.
 	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.
 	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
 	bool             renderGrid;                //! Show grid.
@@ -449,7 +449,7 @@ struct SceneViewerState
 //!  Resources allocated by scene viewer will be released on exit.
 //!  It could take some time in huge scenes, so there's option to not release them, let them leak.
 //!  Not releasing resources is good idea e.g. if you plan to exit application soon.
-void RR_ED_API sceneViewer(rr::RRDynamicSolver* inputSolver, const rr::RRString& inputFilename, const rr::RRString& skyboxFilename, const rr::RRString& pathToData, SceneViewerState* svs, bool releaseResources);
+void RR_ED_API sceneViewer(rr::RRSolver* inputSolver, const rr::RRString& inputFilename, const rr::RRString& skyboxFilename, const rr::RRString& pathToData, SceneViewerState* svs, bool releaseResources);
 
 }; // namespace
 

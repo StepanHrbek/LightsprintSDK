@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <GL/glew.h>
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "DynamicObject.h"
 #include "../src/LightsprintIO/Import3DS/Model_3DS.h"
 

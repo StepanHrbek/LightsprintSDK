@@ -23,7 +23,7 @@ void tm_addSeconds(tm& a, double _seconds);
 struct SceneViewerStateEx : public SceneViewerState
 {
 	//! Initial scene to be displayed, never deleted, never NULLed even when no longer displayed (because solver->aborting is still used).
-	rr::RRDynamicSolver* initialInputSolver;
+	rr::RRSolver* initialInputSolver;
 	//! Path to data necessary for scene viewer.
 	wxString pathToData;
 	//! pathToData+"shaders/"

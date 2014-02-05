@@ -629,31 +629,31 @@
     <ClCompile Include="RRStaticSolver\interpol.cpp" />
     <ClCompile Include="RRStaticSolver\rrcore.cpp" />
     <ClCompile Include="RRStaticSolver\RRStaticSolver.cpp" />
-    <ClCompile Include="RRDynamicSolver\environmentMap.cpp">
+    <ClCompile Include="RRSolver\environmentMap.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\gather.cpp">
+    <ClCompile Include="RRSolver\gather.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\lightmap.cpp">
+    <ClCompile Include="RRSolver\lightmap.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\RRDynamicSolver.cpp">
+    <ClCompile Include="RRSolver\RRSolver.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
     </ClCompile>
-    <ClCompile Include="RRDynamicSolver\vertexBuffer.cpp">
+    <ClCompile Include="RRSolver\vertexBuffer.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
@@ -737,10 +737,10 @@
     <ClInclude Include="RRStaticSolver\interpol.h" />
     <ClInclude Include="RRStaticSolver\rrcore.h" />
     <ClInclude Include="RRStaticSolver\RRStaticSolver.h" />
-    <ClInclude Include="RRDynamicSolver\gather.h" />
-    <ClInclude Include="RRDynamicSolver\private.h" />
-    <ClInclude Include="RRDynamicSolver\report.h" />
-    <ClInclude Include="..\..\include\Lightsprint\RRDynamicSolver.h" />
+    <ClInclude Include="RRSolver\gather.h" />
+    <ClInclude Include="RRSolver\private.h" />
+    <ClInclude Include="RRSolver\report.h" />
+    <ClInclude Include="..\..\include\Lightsprint\RRSolver.h" />
     <ClInclude Include="RRPackedSolver\PackedSolverFile.h" />
     <ClInclude Include="RRPackedSolver\RRPackedSolver.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRLight.h" />

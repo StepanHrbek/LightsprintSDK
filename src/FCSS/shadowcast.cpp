@@ -94,7 +94,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/GL/PluginSky.h"
 //#include "Lightsprint/GL/PluginSSGI.h"
 //#include "Lightsprint/GL/PluginStereo.h"
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/TextureRenderer.h"
@@ -104,7 +104,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "AnimationEditor.h"
 #include "DemoPlayer.h"
 #include "DynamicObjects.h"
-#include "../LightsprintCore/RRDynamicSolver/report.h"
+#include "../LightsprintCore/RRSolver/report.h"
 #include "resource.h"
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
@@ -147,7 +147,7 @@ DemoPlayer* demoPlayer = NULL;
 unsigned selectedObject_indexInDemo = 0;
 bool renderInfo = 1;
 const char* cfgFile = CFG_FILE;
-rr_gl::RRDynamicSolverGL::DDIQuality lightStability = rr_gl::RRDynamicSolverGL::DDI_AUTO;
+rr_gl::RRSolverGL::DDIQuality lightStability = rr_gl::RRSolverGL::DDI_AUTO;
 char globalOutputDirectory[1000] = "."; // without trailing slash
 const char* customScene = NULL;
 
@@ -1542,7 +1542,7 @@ no_frame:
 	// zisk by ale byl miniaturni
 	level->solver->reportInteraction();
 
-	rr::RRDynamicSolver::CalculateParameters calculateParams = level->setup->calculateParams;
+	rr::RRSolver::CalculateParameters calculateParams = level->setup->calculateParams;
 
 #if FRAMERATE_SMOOTHING==1
 	// DDI in every frame, low fps, smooth
@@ -1753,17 +1753,17 @@ void parseOptions(int argc, const char*const*argv)
 		else
 		if (!strcmp("stability=low", argv[i]))
 		{
-			lightStability = rr_gl::RRDynamicSolverGL::DDI_4X4;
+			lightStability = rr_gl::RRSolverGL::DDI_4X4;
 		}
 		else
 		if (!strcmp("stability=auto", argv[i]))
 		{
-			lightStability = rr_gl::RRDynamicSolverGL::DDI_AUTO;
+			lightStability = rr_gl::RRSolverGL::DDI_AUTO;
 		}
 		else
 		if (!strcmp("stability=high", argv[i]))
 		{
-			lightStability = rr_gl::RRDynamicSolverGL::DDI_8X8;
+			lightStability = rr_gl::RRSolverGL::DDI_8X8;
 		}
 		else
 		if (!strcmp("silent", argv[i]))

@@ -957,7 +957,7 @@ void load(Archive & ar, rr::RRCamera& a, const unsigned int version)
 /*/------------------------------ CalculateParameters -------------------------------------
 
 template<class Archive>
-void serialize(Archive & ar, rr::RRDynamicSolver::CalculateParameters& a, const unsigned int version)
+void serialize(Archive & ar, rr::RRSolver::CalculateParameters& a, const unsigned int version)
 {
 	ar & make_nvp("materialEmittanceMultiplier",a.materialEmittanceMultiplier);
 	ar & make_nvp("materialEmittanceStaticQuality",a.materialEmittanceStaticQuality);
@@ -975,7 +975,7 @@ void serialize(Archive & ar, rr::RRDynamicSolver::CalculateParameters& a, const 
 //------------------------------ UpdateParameters -------------------------------------
 
 template<class Archive>
-void serialize(Archive & ar, rr::RRDynamicSolver::UpdateParameters& a, const unsigned int version)
+void serialize(Archive & ar, rr::RRSolver::UpdateParameters& a, const unsigned int version)
 {
 	ar & make_nvp("applyLights",a.applyLights);
 	ar & make_nvp("applyEnvironment",a.applyEnvironment);
@@ -993,7 +993,7 @@ void serialize(Archive & ar, rr::RRDynamicSolver::UpdateParameters& a, const uns
 //------------------------------ FilteringParameters -------------------------------------
 
 template<class Archive>
-void serialize(Archive & ar, rr::RRDynamicSolver::FilteringParameters& a, const unsigned int version)
+void serialize(Archive & ar, rr::RRSolver::FilteringParameters& a, const unsigned int version)
 {
 	ar & make_nvp("smoothingAmount",a.smoothingAmount);
 	ar & make_nvp("spreadForegroundColor",a.spreadForegroundColor);

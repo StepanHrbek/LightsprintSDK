@@ -72,7 +72,7 @@ public:
 	virtual unsigned getNumShadowmaps(bool color = false) const;
 
 	//! Provides light with data necessary for CSM calculations in getShadowmapCamera().
-	void configureCSM(const rr::RRCamera* observer, const class rr::RRDynamicSolver* solver);
+	void configureCSM(const rr::RRCamera* observer, const class rr::RRSolver* solver);
 	//! Returns position of observer from previous configureCSM() call.
 	rr::RRVec3 getObserverPos() const;
 	//! Copies camera for n-th shadowmap into out and returns it.
@@ -129,27 +129,27 @@ public:
 	//! Renderer is still allowed to use lower(simpler) transparency modes for materials that need it, but not higher.
 	//! If you set unnecessarily high mode, there's no performance penalty, renderer detects it and uses lower mode (see shadowTransparencyActual).
 	ShadowTransparency shadowTransparencyRequested;
-	//! Actual shadow transparency mode. For reading only, set by RRDynamicSolverGL::updateShadowmaps().
+	//! Actual shadow transparency mode. For reading only, set by RRSolverGL::updateShadowmaps().
 	ShadowTransparency shadowTransparencyActual;
 
-	//! Helper for GI calculation, used by RRDynamicSolverGL.
+	//! Helper for GI calculation, used by RRSolverGL.
 	unsigned* smallMapCPU;
-	//! Helper for GI calculation, used by RRDynamicSolverGL.
+	//! Helper for GI calculation, used by RRSolverGL.
 	unsigned numTriangles;
 
 	//! Whether shadowmap needs update.
 	//
-	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange() or manually, cleared by RRDynamicSolverGL::calculate()
+	//! Set by RRSolverGL::reportDirectIlluminationChange() or manually, cleared by RRSolverGL::calculate()
 	//! (unless light or shadow casting is disabled).
 	bool dirtyShadowmap;
 	//! Whether GI needs update.
 	//
-	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange() and by getProjectedTexture()
-	//! (see #changesInProjectedTextureAffectGI), cleared by RRDynamicSolverGL::calculate().
+	//! Set by RRSolverGL::reportDirectIlluminationChange() and by getProjectedTexture()
+	//! (see #changesInProjectedTextureAffectGI), cleared by RRSolverGL::calculate().
 	bool dirtyGI;
 	//! Whether shadowmap near/far range needs update.
 	//
-	//! Set by RRDynamicSolverGL::reportDirectIlluminationChange(), cleared by RRDynamicSolverGL::calculate()
+	//! Set by RRSolverGL::reportDirectIlluminationChange(), cleared by RRSolverGL::calculate()
 	//! or setRangeDynamically().
 	//! Range should be wide enough to not clip visible geometry, but not wider,
 	//! becuase it increases shadow bias and makes distant triangles z-fight.

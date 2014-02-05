@@ -51,7 +51,7 @@
 #else
 	#include <GL/glut.h>
 #endif
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PluginSky.h"
 #include "Lightsprint/GL/PluginSSGI.h"
@@ -88,7 +88,7 @@ enum Layer// arbitrary layer numbers
 Layer                      renderLayer = LAYER_REALTIME;
 rr::RRCamera               eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0), 1.3f,70,0.1f,100);
 rr::RRCamera*              light;
-rr_gl::RRDynamicSolverGL*  solver = NULL;
+rr_gl::RRSolverGL*  solver = NULL;
 rr::RRLightField*          lightField = NULL;
 rr::RRObject*              robot = NULL;
 rr::RRObject*              potato = NULL;
@@ -186,12 +186,12 @@ void keyboard(unsigned char c, int x, int y)
 		case 'p':
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
-				rr::RRDynamicSolver::UpdateParameters paramsDirect;
+				rr::RRSolver::UpdateParameters paramsDirect;
 				paramsDirect.quality = 1000;
 				paramsDirect.applyCurrentSolution = false;
 				paramsDirect.aoIntensity = 1;
 				paramsDirect.aoSize = 1;
-				rr::RRDynamicSolver::UpdateParameters paramsIndirect;
+				rr::RRSolver::UpdateParameters paramsIndirect;
 				paramsIndirect.applyCurrentSolution = false;
 
 				// 1. type of lighting
@@ -427,7 +427,7 @@ int main(int argc, char** argv)
 	const char* licError = rr::loadLicense("../../data/licence_number");
 	if (licError)
 		error(licError,false);
-	solver = new rr_gl::RRDynamicSolverGL("../../data/shaders/","../../data/maps/");
+	solver = new rr_gl::RRSolverGL("../../data/shaders/","../../data/maps/");
 	solver->setDirectIlluminationBoost(2);
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 

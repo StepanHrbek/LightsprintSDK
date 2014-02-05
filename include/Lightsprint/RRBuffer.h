@@ -130,7 +130,7 @@ namespace rr
 		//!  When buffer is updated or rendered later, this setting is respected.
 		//!  \n\n In greater detail: GI is internally calculated in physical scale, while displays work in sRGB,
 		//!  so data must be converted at some point in pipeline.
-		//!  True = data are scaled by RRDynamicSolver::updateLightmaps(), increasing CPU load;
+		//!  True = data are scaled by RRSolver::updateLightmaps(), increasing CPU load;
 		//!  positive sideeffect is that scaled data are suitable even for smaller RGB/RGBA buffers.
 		//!  False = data should be scaled later, for example in renderer, thus increasing GPU load.
 		//!  In both cases, scaling to sRGB is simple x=pow(x,0.45) operation.

@@ -68,7 +68,7 @@ namespace rr_ed
 
 		bool                       renderEmptyFrames;
 		// public only for SVFrame::selectEntity()
-		rr_gl::RRDynamicSolverGL*  solver;
+		rr_gl::RRSolverGL*  solver;
 		EntityType                 selectedType;
 		// public only for SVSceneTree::runContextMenuAction()
 		rr::RRLights               lightsToBeDeletedOnExit; // list of lights owned and deleted by us

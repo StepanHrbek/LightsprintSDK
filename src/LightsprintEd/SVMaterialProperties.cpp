@@ -282,7 +282,7 @@ void SVMaterialProperties::setMaterial(rr::RRMaterial* _material)
 // copy material to propertygrid
 // if object!=NULL, show custom data for hitTriangle in object, show no physical data
 // if object==NULL, show custom/physical data for hitTriangle in getMultiObject[Custom|Physical]()
-void SVMaterialProperties::setMaterial(rr::RRDynamicSolver* solver, rr::RRObject* object, unsigned hitTriangle, rr::RRVec2 hitPoint2d)
+void SVMaterialProperties::setMaterial(rr::RRSolver* solver, rr::RRObject* object, unsigned hitTriangle, rr::RRVec2 hitPoint2d)
 {
 	if (locked) return;
 

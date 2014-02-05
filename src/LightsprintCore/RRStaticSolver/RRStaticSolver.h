@@ -13,7 +13,7 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 
 namespace rr
 {
@@ -72,7 +72,7 @@ namespace rr
 		//!  Illumination smoothing parameters.
 		//! \param aborting
 		//!  When set, even asynchronously during create(), work is aborted.
-		static RRStaticSolver* create(RRObject* object, const RRDynamicSolver::SmoothingParameters* smoothing, bool& aborting);
+		static RRStaticSolver* create(RRObject* object, const RRSolver::SmoothingParameters* smoothing, bool& aborting);
 
 		//! Destructs static scene.
 		~RRStaticSolver();
@@ -173,7 +173,7 @@ namespace rr
 		//!  True if out was successfully filled. False may be caused by invalid inputs.
 		bool          getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const;
 
-		//! Build Fireball. For internal use by RRDynamicSolver::buildFireball().
+		//! Build Fireball. For internal use by RRSolver::buildFireball().
 		const class PackedSolverFile* buildFireball(unsigned raysPerTriangle, float importanceOfDetails, bool& aborting);
 
 		RRReal materialEmittanceMultiplier;
@@ -181,8 +181,8 @@ namespace rr
 		class Scene*  scene;
 		friend class Gatherer;
 		friend class RRCollisionHandlerFinalGathering;
-		friend class RRDynamicSolver;
-		RRStaticSolver(RRObject* object, const RRDynamicSolver::SmoothingParameters* smoothing, class Object* obj, bool& aborting);
+		friend class RRSolver;
+		RRStaticSolver(RRObject* object, const RRSolver::SmoothingParameters* smoothing, class Object* obj, bool& aborting);
 	};
 
 

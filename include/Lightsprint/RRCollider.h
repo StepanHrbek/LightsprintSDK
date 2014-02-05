@@ -129,7 +129,7 @@ namespace rr
 		//! This function checks if it is the case, and modifies hitObject and hitTriangle to point to singleobject, using code similar to
 		//! hitObject = solver->getStaticObjects()[hitObject->getCollider()->getMesh()->getPreImportTriangle(hitTriangle).object]
 		//! It is not done automatically, because it is often unnecessary, not doing it makes collider faster.
-		bool convertHitFromMultiToSingleObject(class RRDynamicSolver* solver);
+		bool convertHitFromMultiToSingleObject(class RRSolver* solver);
 	};
 
 

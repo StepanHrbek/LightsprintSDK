@@ -8,11 +8,11 @@
 
 #include "PackedSolverFile.h"
 #include "../RRStaticSolver/rrcore.h"
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 
 #pragma warning(disable:4530) // unrelated std::vector in private.h complains about exceptions
 
-#include "../RRDynamicSolver/private.h"
+#include "../RRSolver/private.h"
 
 namespace rr
 {
@@ -305,9 +305,9 @@ const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle, 
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRDynamicSolver
+// RRSolver
 
-bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const RRString& _filename)
+bool RRSolver::buildFireball(unsigned raysPerTriangle, const RRString& _filename)
 {
 	float importanceOfDetails = 0.1f;
 	RRReportInterval report(INF1,"Building Fireball (quality=%d, triangles=%d)...\n",raysPerTriangle,getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
@@ -349,7 +349,7 @@ bool RRDynamicSolver::buildFireball(unsigned raysPerTriangle, const RRString& _f
 	return priv->packedSolver!=NULL;
 }
 
-bool RRDynamicSolver::loadFireball(const RRString& _filename, bool onlyPerfectMatch)
+bool RRSolver::loadFireball(const RRString& _filename, bool onlyPerfectMatch)
 {
 	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REload it)
 	priv->postVertex2Ivertex.clear(); // clear also table that depends on packed solver
@@ -378,7 +378,7 @@ bool RRDynamicSolver::loadFireball(const RRString& _filename, bool onlyPerfectMa
 	return priv->packedSolver!=NULL;
 }
 
-void RRDynamicSolver::leaveFireball()
+void RRSolver::leaveFireball()
 {
 	RR_SAFE_DELETE(priv->packedSolver);
 	priv->postVertex2Ivertex.clear(); // clear also table that depends on packed solver

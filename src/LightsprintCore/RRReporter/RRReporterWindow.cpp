@@ -13,7 +13,7 @@
 #include <windows.h>
 #include <richedit.h> // setting text color
 #include "reporterWindow.h"
-#include "Lightsprint/RRDynamicSolver.h"
+#include "Lightsprint/RRSolver.h"
 #include "../Preferences.h"
 
 #define LOCATION "WindowedReporter"
@@ -400,7 +400,7 @@ class Abort : public RRCallback
 {
 public:
 	// This is called from main thread when work begins.
-	Abort(RRDynamicSolver** _solver)
+	Abort(RRSolver** _solver)
 	{
 		solver = _solver;
 		aborted = false;
@@ -430,14 +430,14 @@ public:
 		}
 	}
 private:
-	RRDynamicSolver** solver;
+	RRSolver** solver;
 	bool aborted;
 };
 
 class RRReporterWindowAbortSolver : public RRReporterWindow
 {
 public:
-	RRReporterWindowAbortSolver(class RRDynamicSolver** _solver, const char* caption, bool closeWhenDone)
+	RRReporterWindowAbortSolver(class RRSolver** _solver, const char* caption, bool closeWhenDone)
 		: abort(_solver), RRReporterWindow(&abort,caption,closeWhenDone)
 	{
 	}
@@ -445,7 +445,7 @@ private:
 	Abort abort;
 };
 
-RRReporter* RRReporter::createWindowedReporter(class RRDynamicSolver*& _solver, const char* caption, bool closeWhenDone)
+RRReporter* RRReporter::createWindowedReporter(class RRSolver*& _solver, const char* caption, bool closeWhenDone)
 {
 	return new RRReporterWindowAbortSolver(&_solver,caption,closeWhenDone);
 }
@@ -454,7 +454,7 @@ RRReporter* RRReporter::createWindowedReporter(class RRDynamicSolver*& _solver, 
 
 #else // _WIN32
 
-rr::RRReporter* rr::RRReporter::createWindowedReporter(rr::RRDynamicSolver*& _solver, const char* caption, bool closeWhenDone)
+rr::RRReporter* rr::RRReporter::createWindowedReporter(rr::RRSolver*& _solver, const char* caption, bool closeWhenDone)
 {
 	return NULL;
 }

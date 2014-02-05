@@ -76,7 +76,7 @@ namespace rr
 	//!   Renderer expects, that custom scale is sRGB (physical->sRGB conversion is offloaded from CPU to GPU).
 	//!   We don't enforce validation, so you can safely create and render unrealistic materials.
 	//! - GI solver internally creates material copies converted to physical scale and validated,
-	//!   you can access them via RRDynamicSolver::getMultiObjectPhysical().
+	//!   you can access them via RRSolver::getMultiObjectPhysical().
 	struct RR_API RRMaterial : public RRUniformlyAllocatedNonCopyable
 	{
 		//! What to do with completely uniform textures (single color).

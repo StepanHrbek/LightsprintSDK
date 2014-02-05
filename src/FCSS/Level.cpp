@@ -21,8 +21,8 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	solver = NULL;
 
 	// init radiosity solver
-	extern rr_gl::RRDynamicSolverGL::DDIQuality lightStability;
-	solver = new rr_gl::RRDynamicSolverGL("shaders/","maps/",lightStability);
+	extern rr_gl::RRSolverGL::DDIQuality lightStability;
+	solver = new rr_gl::RRSolverGL("shaders/","maps/",lightStability);
 	solver->setDirectIlluminationBoost(2);
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setScaler(rr::RRScaler::createFastRgbScaler());
@@ -44,7 +44,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	// a) nesmoothovat
 	// b) smoothovat a pocitat fireball u uzivatele 
 	// c) smoothovat, dodat svuj fireball, pripustit ze nekteri uzivatele si spocitaj jinej (musel by mit stejnou kvalitu)
-	rr::RRDynamicSolver::SmoothingParameters sp;
+	rr::RRSolver::SmoothingParameters sp;
 	sp.vertexWeldDistance = 0.01f; // akorat dost aby sesmoothoval sane ve wop_padattic (nicmene pri 1cm speka podlahy v flat1, pri 1mm speka podlahu a strop v flat3)
 	sp.maxSmoothAngle = 0.5; // akorat dost aby sesmoothoval sane ve wop_padattic
 	solver->setStaticObjects(scene->objects,&sp);
@@ -65,18 +65,18 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 		{
 			// build light detail map
 			solver->getStaticObjects()[0]->illumination.getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,2048,2048,1,rr::BF_RGB,true,NULL);
-			rr::RRDynamicSolver::UpdateParameters paramsDirect(REBUILD_JPG ? 2000 : 20);
+			rr::RRSolver::UpdateParameters paramsDirect(REBUILD_JPG ? 2000 : 20);
 			paramsDirect.applyLights = 0;
 			paramsDirect.aoIntensity = 2;
 			paramsDirect.aoSize = 1;
-			rr::RRDynamicSolver::UpdateParameters paramsIndirect(REBUILD_JPG ? 2000 : 20);
+			rr::RRSolver::UpdateParameters paramsIndirect(REBUILD_JPG ? 2000 : 20);
 			paramsIndirect.applyLights = 0;
 			paramsIndirect.locality = -1;
 			paramsIndirect.qualityFactorRadiosity = 0;
 			rr::RRBuffer* oldEnv = solver->getEnvironment();
 			rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.6f,0.7f,0.75f,1),rr::RRVec4(0.6f,0.7f,0.75f,1)); // kompenzuju tmave hnedy barvy padattic aby vysledna LDM obsahovala barvy kolem 0.5
 			solver->setEnvironment(newEnv);
-			rr::RRDynamicSolver::FilteringParameters filtering;
+			rr::RRSolver::FilteringParameters filtering;
 			filtering.backgroundColor = rr::RRVec4(0.5f);
 			filtering.wrap = false;
 			solver->updateLightmaps(getLDMLayer(),-1,-1,&paramsDirect,&paramsIndirect,&filtering); 

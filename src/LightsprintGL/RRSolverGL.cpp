@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <vector>
 #include <GL/glew.h>
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/GL/PreserveState.h"
 #include "Lightsprint/GL/PluginCube.h"
@@ -27,9 +27,9 @@ namespace rr_gl
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// RRDynamicSolverGL
+// RRSolverGL
 
-RRDynamicSolverGL::RRDynamicSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps, DDIQuality _detectionQuality)
+RRSolverGL::RRSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps, DDIQuality _detectionQuality)
 {
 	switch(_detectionQuality)
 	{
@@ -66,7 +66,7 @@ RRDynamicSolverGL::RRDynamicSolverGL(const rr::RRString& pathToShaders, const rr
 	depthTexture = Texture::createShadowmap(1,1,false);
 }
 
-RRDynamicSolverGL::~RRDynamicSolverGL()
+RRSolverGL::~RRSolverGL()
 {
 	delete depthTexture;
 	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
@@ -80,10 +80,10 @@ RRDynamicSolverGL::~RRDynamicSolverGL()
 	delete detectSmallMap;
 }
 
-void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
+void RRSolverGL::setLights(const rr::RRLights& _lights)
 {
 	// create realtime lights
-	RRDynamicSolver::setLights(_lights);
+	RRSolver::setLights(_lights);
 	for (unsigned i=0;i<realtimeLights.size();i++) delete realtimeLights[i];
 	realtimeLights.clear();
 	for (unsigned i=0;i<getLights().size();i++)
@@ -96,10 +96,10 @@ void RRDynamicSolverGL::setLights(const rr::RRLights& _lights)
 	if (detectedDirectSum) memset(detectedDirectSum,0,detectedNumTriangles*sizeof(unsigned));
 }
 
-void RRDynamicSolverGL::reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI, bool dirtyRange)
+void RRSolverGL::reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI, bool dirtyRange)
 {
 	// do core work (call once with lightIndex=-1, it tells core that geometry did change, do not call many times with lightIndex=0,1,2...)
-	RRDynamicSolver::reportDirectIlluminationChange(lightIndex,dirtyShadowmap,dirtyGI,dirtyRange);
+	RRSolver::reportDirectIlluminationChange(lightIndex,dirtyShadowmap,dirtyGI,dirtyRange);
 	// do rr_gl work
 	for (unsigned i=0;i<realtimeLights.size();i++)
 		if (lightIndex==i || lightIndex==-1) // -1=geometry change, affects all lights
@@ -110,7 +110,7 @@ void RRDynamicSolverGL::reportDirectIlluminationChange(int lightIndex, bool dirt
 		}
 }
 
-void RRDynamicSolverGL::calculate(CalculateParameters* _params)
+void RRSolverGL::calculate(CalculateParameters* _params)
 {
 	REPORT(rr::RRReportInterval report(rr::INF3,"calculate GL...\n"));
 
@@ -167,10 +167,10 @@ void RRDynamicSolverGL::calculate(CalculateParameters* _params)
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Inconsistency: getLights().size=%d realtimeLights.size()=%d. Don't insert/delete realtimeLights directly, use setLights().\n",getLights().size(),realtimeLights.size()));
 	}
 
-	RRDynamicSolver::calculate(_params);
+	RRSolver::calculate(_params);
 }
 
-void RRDynamicSolverGL::updateShadowmaps()
+void RRSolverGL::updateShadowmaps()
 {
 	PreserveClearColor p1;
 	PreserveViewport p2;
@@ -352,7 +352,7 @@ done:
 	}
 }
 
-const unsigned* RRDynamicSolverGL::detectDirectIllumination()
+const unsigned* RRSolverGL::detectDirectIllumination()
 {
 	if (!getMultiObjectCustom()) return NULL;
 	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
@@ -444,7 +444,7 @@ const unsigned* RRDynamicSolverGL::detectDirectIllumination()
 	return NULL;
 }
 
-unsigned RRDynamicSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigned* _results, unsigned _space)
+unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigned* _results, unsigned _space)
 {
 	if (!scaleDownProgram || !_results)
 	{
@@ -663,12 +663,12 @@ void drawRealtimeLight(RealtimeLight* light)
 	}
 }
 
-/*void RRDynamicSolverGL::renderScene(const RenderParameters& _renderParameters)
+/*void RRSolverGL::renderScene(const RenderParameters& _renderParameters)
 {
 	renderer->render(this, NULL, _renderParameters.uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL, _renderParameters);
 }*/
 
-void RRDynamicSolverGL::renderLights(const rr::RRCamera& _camera)
+void RRSolverGL::renderLights(const rr::RRCamera& _camera)
 {
 	if (s_es)
 	{
@@ -694,7 +694,7 @@ struct ObjectInfo
 	rr::RRObject::FaceGroups faceGroups;
 };
 
-unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap)
+unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap)
 {
 	if (!illumination)
 	{
@@ -708,7 +708,7 @@ unsigned RRDynamicSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illum
 	}
 	if (cube->getWidth()<ENVMAP_RES_RASTERIZED)
 	{
-		return this->RRDynamicSolver::updateEnvironmentMap(illumination,layerEnvironment,layerLightmap,layerAmbientMap);
+		return this->RRSolver::updateEnvironmentMap(illumination,layerEnvironment,layerLightmap,layerAmbientMap);
 	}
 	else
 	{

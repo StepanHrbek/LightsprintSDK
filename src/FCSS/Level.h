@@ -2,7 +2,7 @@
 #define LEVEL_H
 
 #include "AnimationEditor.h"
-#include "Lightsprint/GL/RRDynamicSolverGL.h"
+#include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/IO/IO.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ public:
 	LevelSetup* setup;
 	AnimationEditor* animationEditor;
 	rr::RRScene* scene;
-	rr_gl::RRDynamicSolverGL* solver;
+	rr_gl::RRSolverGL* solver;
 
 	unsigned saveIllumination(const char* path);
 	unsigned loadIllumination(const char* path);
