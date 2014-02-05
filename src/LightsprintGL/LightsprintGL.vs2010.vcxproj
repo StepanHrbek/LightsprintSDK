@@ -577,7 +577,6 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginStereo.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginToneMapping.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Renderer.h" />
-    <ClInclude Include="..\..\include\Lightsprint\GL\DemoEngine.h" />
     <ClInclude Include="MultiPass.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PreserveState.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Program.h" />

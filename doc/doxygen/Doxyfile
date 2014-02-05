@@ -112,7 +112,6 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/GL/PluginStereo.h" \
                          "../../include/Lightsprint/GL/PluginToneMapping.h" \
                          "../../include/Lightsprint/GL/Renderer.h" \
-                         "../../include/Lightsprint/GL/DemoEngine.h" \
                          "../../include/Lightsprint/GL/PreserveState.h" \
                          "../../include/Lightsprint/GL/Program.h" \
                          "../../include/Lightsprint/GL/RealtimeLight.h" \

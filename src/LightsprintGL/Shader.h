@@ -7,7 +7,7 @@
 #define SHADER_H
 
 #include <GL/glew.h>
-#include "Lightsprint/GL/DemoEngine.h"
+#include "Lightsprint/RRMemory.h"
 
 namespace rr_gl
 {

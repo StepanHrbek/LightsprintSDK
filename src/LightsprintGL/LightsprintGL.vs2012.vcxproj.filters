@@ -6,7 +6,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\Lightsprint\GL\DemoEngine.h" />
     <ClInclude Include="MultiPass.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PreserveState.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Program.h" />
