@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news142 ------------------------------------ 2013.10.xx -------------------------------------
+\section news142 ------------------------------------ 2014.02.xx -------------------------------------
 
 NEWS
 
@@ -41,11 +41,11 @@ NEWS
     <table border=0><tr align=top><td>
     \image html stereo_oculus.jpg
     </td></tr></table>
+- VS2013 support added, VS2005 and VS2008 removed
 - scene viewer <code>Preferences / Max fps</code> lets you switch between max fps for benchmarking and adaptive vsync for smoother image
 
 CHANGES
 
-- VS2005 and VS2008 support removed
 - rr_ed::sceneViewer() moved into new LightsprintEd library
   - new rr_ed namespace
   - Lightsprint/GL/SceneViewer.h renamed to Lightsprint/Ed/Ed.h

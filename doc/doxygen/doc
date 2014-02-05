@@ -343,6 +343,7 @@ Material formats (1)
  - for offline rendering, 3D API is not needed
 
  Compilers
+ - Visual C++ 2013.1 with all security updates (32bit, 64bit)
  - Visual C++ 2012.4 with all security updates (32bit, 64bit)
  - Visual C++ 2010 SP1 with all security updates (32bit, 64bit)
  - GCC (32bit, 64bit)
@@ -601,8 +602,8 @@ Material formats (1)
    - <a href="http://www.boost.org/LICENSE_1_0.txt">Boost Software License</a>
 
   \section boost_version Version
-   - version 1.52 is used internally by Lightsprint libraries, it's not visible from outside (no headers or dll files)
-   - version known to work without modifications: 1.46 - 1.52
+   - version 1.55 is used internally by Lightsprint libraries, it's not visible from outside (no headers or dll files)
+   - version known to work without modifications: 1.46 - 1.55
 
   \section boost_build Installing/building boost
    You need boost when building Ligtsprint libraries from source code,

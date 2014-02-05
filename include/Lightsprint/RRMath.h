@@ -38,8 +38,10 @@
 		#define RR_LIB_COMPILER "vs2008"
 	#elif _MSC_VER<1700
 		#define RR_LIB_COMPILER "vs2010"
-	#else
+	#elif _MSC_VER<1800
 		#define RR_LIB_COMPILER "vs2012"
+	#else
+		#define RR_LIB_COMPILER "vs2013"
 	#endif
 
 	#if !defined(RR_MANUAL_LINK) && !defined(RR_BUILD)

@@ -13,6 +13,7 @@
 #include <memory>
 #include <string.h>
 #include <limits>
+#include <algorithm> // min
 
 namespace GeneratedSaxParser
 {
