@@ -1,5 +1,5 @@
 // Depth of field effect [work in progress, includes unused paths]
-// Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint
+// Copyright (C) 2012-2014 Stepan Hrbek, Lightsprint
 //
 // Options:
 // PASS [1|2|3]

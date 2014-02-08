@@ -1,5 +1,5 @@
 // DDI scale down filter
-// Copyright (C) 2006-2012 Stepan Hrbek, Lightsprint
+// Copyright (C) 2006-2014 Stepan Hrbek, Lightsprint
 //
 // Options:
 // #define SIZEX n

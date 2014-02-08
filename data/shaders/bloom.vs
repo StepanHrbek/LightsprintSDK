@@ -1,5 +1,5 @@
 // Bloom effect
-// Copyright (C) 2010-2012 Stepan Hrbek, Lightsprint
+// Copyright (C) 2010-2014 Stepan Hrbek, Lightsprint
 
 attribute vec2 vertexPosition;
 varying vec2 mapCoord;

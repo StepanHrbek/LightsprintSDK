@@ -1,5 +1,5 @@
 // Stereo compositing filter.
-// Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint - except for Oculus specific code from Oculus SDK
+// Copyright (C) 2012-2014 Stepan Hrbek, Lightsprint - except for Oculus specific code from Oculus SDK
 //
 // Options:
 // INTERLACED  - converts top-down image to single interlaced image

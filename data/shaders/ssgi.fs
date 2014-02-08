@@ -1,5 +1,5 @@
 // Screen space global illumination
-// Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint
+// Copyright (C) 2012-2014 Stepan Hrbek, Lightsprint
 //
 // Options:
 // #define PASS [1|2]

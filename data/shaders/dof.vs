@@ -1,5 +1,5 @@
 // Depth of field effect
-// Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint
+// Copyright (C) 2012-2014 Stepan Hrbek, Lightsprint
 
 attribute vec2 vertexPosition;
 varying vec2 mapCoord;
