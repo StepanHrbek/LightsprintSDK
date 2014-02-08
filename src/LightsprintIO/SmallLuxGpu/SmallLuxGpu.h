@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------
 // Lightsprint adapters for Lightsprint SmallLuxGpu .scn/.ply formats.
-// Copyright (C) 2012-2013 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 2012-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifndef SMALLLUXGPU_H
