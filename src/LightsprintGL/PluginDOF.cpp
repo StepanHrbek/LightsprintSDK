@@ -193,6 +193,72 @@ public:
 		//dofProgram3->sendTexture("midMap",smallColor1);
 		dofProgram3->sendUniform("pixelSize",1.0f/bigColor->getBuffer()->getWidth(),1.0f/bigColor->getBuffer()->getHeight());
 		dofProgram3->sendUniform("depthRange",rr::RRVec3(eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofFar),eye.getFar()/(eye.getFar()-eye.getNear()),eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofNear)));
+		enum {NUM_SAMPLES=60};
+		rr::RRVec2 sample[2*NUM_SAMPLES] = {
+			rr::RRVec2(-0.8769053f, -0.1801577f),
+			rr::RRVec2(-0.560903f, 0.06491917f),
+			rr::RRVec2(-0.8496868f, -0.4068463f),
+			rr::RRVec2(-0.6684758f, -0.2965162f),
+			rr::RRVec2(-0.7673495f, -0.005029257f),
+			rr::RRVec2(-0.9880703f, 0.04116542f),
+			rr::RRVec2(-0.7846559f, 0.3813636f),
+			rr::RRVec2(-0.7290462f, 0.5805985f),
+			rr::RRVec2(-0.3905317f, 0.3820366f),
+			rr::RRVec2(-0.4862368f, 0.5637667f),
+			rr::RRVec2(-0.9504438f, 0.2511463f),
+			rr::RRVec2(-0.4776598f, -0.1798614f),
+			rr::RRVec2(-0.604219f, 0.2934287f),
+			rr::RRVec2(-0.2081008f, -0.04978198f),
+			rr::RRVec2(-0.2508037f, 0.1751049f),
+			rr::RRVec2(-0.6864566f, -0.5584068f),
+			rr::RRVec2(-0.4704278f, -0.3887475f),
+			rr::RRVec2(-0.4935126f, -0.6113455f),
+			rr::RRVec2(-0.1219745f, -0.2906288f),
+			rr::RRVec2(-0.2514639f, -0.4794517f),
+			rr::RRVec2(0.001370483f, -0.5498651f),
+			rr::RRVec2(-0.2616202f, -0.7039202f),
+			rr::RRVec2(-0.08041584f, -0.8092448f),
+			rr::RRVec2(0.03335056f, 0.2391213f),
+			rr::RRVec2(0.005224985f, 0.01072675f),
+			rr::RRVec2(0.1313823f, -0.1700258f),
+			rr::RRVec2(-0.4821748f, 0.8128408f),
+			rr::RRVec2(0.1671764f, -0.7225859f),
+			rr::RRVec2(0.1472889f, -0.9805518f),
+			rr::RRVec2(-0.319748f, -0.9090942f),
+			rr::RRVec2(-0.2708471f, 0.8782267f),
+			rr::RRVec2(-0.2557987f, 0.5722433f),
+			rr::RRVec2(-0.02759428f, 0.67807520f),
+			rr::RRVec2(-0.08137709f, 0.4126224f),
+			rr::RRVec2(0.1456477f, 0.8903562f),
+			rr::RRVec2(0.3371713f, 0.7640222f),
+			rr::RRVec2(0.2000765f, 0.4972369f),
+			rr::RRVec2(-0.06930163f, 0.964883f),
+			rr::RRVec2(0.2733895f, 0.09887506f),
+			rr::RRVec2(0.2422106f, -0.463336f),
+			rr::RRVec2(-0.5466529f, -0.8083814f),
+			rr::RRVec2(0.6191299f, 0.5104562f),
+			rr::RRVec2(0.5362201f, 0.7429689f),
+			rr::RRVec2(0.3735984f, 0.3863356f),
+			rr::RRVec2(0.6939798f, 0.1787464f),
+			rr::RRVec2(0.4732445f, 0.1937991f),
+			rr::RRVec2(0.8838001f, 0.2504165f),
+			rr::RRVec2(0.8430692f, 0.4679047f),
+			rr::RRVec2(0.447724f, -0.8855019f),
+			rr::RRVec2(0.5618694f, -0.7126608f),
+			rr::RRVec2(0.4958969f, -0.4975741f),
+			rr::RRVec2(0.8366239f, -0.3825552f),
+			rr::RRVec2(0.717171f, -0.5788124f),
+			rr::RRVec2(0.5782395f, -0.1434195f),
+			rr::RRVec2(0.3609872f, -0.1903974f),
+			rr::RRVec2(0.7937168f, -0.00281623f),
+			rr::RRVec2(0.9551116f, -0.1922427f),
+			rr::RRVec2(0.6263707f, -0.3429523f),
+			rr::RRVec2(0.9990594f, 0.01618059f),
+			rr::RRVec2(0.3529771f, -0.6476724f)
+		};
+		int numSamples = NUM_SAMPLES;
+		dofProgram3->sendUniform("num_samples",numSamples);
+		dofProgram3->sendUniformArray("samples", numSamples, sample);
 		glViewport(_sp.viewport[0],_sp.viewport[1],w,h);
 		TextureRenderer::renderQuad();
 	}

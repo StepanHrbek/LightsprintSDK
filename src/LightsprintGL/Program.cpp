@@ -198,11 +198,6 @@ void Program::sendUniform(const char* name, const rr::RRVec4& xyzw)
 	glUniform4fv(getLoc(name), 1, &xyzw[0]);
 }
 
-void Program::sendUniform(const char* name, int count, const GLint* x)
-{
-	glUniform1iv(getLoc(name), count, x);
-}
-
 void Program::sendUniform(const char* name, int x)
 {
 	glUniform1i(getLoc(name), x);
@@ -229,6 +224,31 @@ void Program::sendUniform(const char* name, const float *matrix, bool transpose,
 		glUniformMatrix4fv(loc, 1, transpose, matrix);
 		break;
 	}
+}
+
+void Program::sendUniformArray(const char* name, int count, const GLint* x)
+{
+	glUniform1iv(getLoc(name), count, x);
+}
+
+void Program::sendUniformArray(const char* name, int count, const GLfloat* x)
+{
+	glUniform1fv(getLoc(name), count, x);
+}
+
+void Program::sendUniformArray(const char* name, int count, const rr::RRVec2* x)
+{
+	glUniform2fv(getLoc(name), count, (const GLfloat*)x);
+}
+
+void Program::sendUniformArray(const char* name, int count, const rr::RRVec3* x)
+{
+	glUniform3fv(getLoc(name), count, (const GLfloat*)x);
+}
+
+void Program::sendUniformArray(const char* name, int count, const rr::RRVec4* x)
+{
+	glUniform4fv(getLoc(name), count, (const GLfloat*)x);
 }
 
 int Program::getLoc(const char* name)

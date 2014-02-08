@@ -147,14 +147,19 @@ public:
 	void sendUniform(const char* name, const rr::RRVec3& xyz);
 	//! Sets uniform of type vec4.
 	void sendUniform(const char* name, const rr::RRVec4& xyzw);
-	//! Sets array of uniforms of type int or sampler2D or samplerCube or sampler2DShadow.
-	void sendUniform(const char* name, int count, const GLint* x);
 	//! Sets uniform of type int or sampler2D or samplerCube or sampler2DShadow.
 	void sendUniform(const char* name, int x);
 	//! Sets uniform of type int2.
 	void sendUniform(const char* name, int x, int y);
 	//! Sets uniform of type mat2, mat3 or mat4.
 	void sendUniform(const char* name, const float *m, bool transp=false, int size=4);
+
+	//! Sets array of uniforms of type int or sampler2D or samplerCube or sampler2DShadow.
+	void sendUniformArray(const char* name, int count, const GLint* x);
+	void sendUniformArray(const char* name, int count, const GLfloat* x);
+	void sendUniformArray(const char* name, int count, const rr::RRVec2* x);
+	void sendUniformArray(const char* name, int count, const rr::RRVec3* x);
+	void sendUniformArray(const char* name, int count, const rr::RRVec4* x);
 
 	//! Does uniform exist in program? 
 	bool uniformExists(const char* uniformName);
