@@ -42,12 +42,11 @@ public:
 		smallColor3 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 		bigColor = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 		bigDepth = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-		// #version 120 is necessary for 'poisson' array
 		rr::RRString filename1(0,L"%lsdof.vs",pathToShaders.w_str());
 		rr::RRString filename2(0,L"%lsdof.fs",pathToShaders.w_str());
-		dofProgram1 = Program::create("#version 120\n#define PASS 1\n",filename1,filename2);
-		dofProgram2 = Program::create("#version 120\n#define PASS 2\n",filename1,filename2);
-		dofProgram3 = Program::create("#version 120\n#define PASS 3\n",filename1,filename2);
+		dofProgram1 = Program::create("#define PASS 1\n",filename1,filename2);
+		dofProgram2 = Program::create("#define PASS 2\n",filename1,filename2);
+		dofProgram3 = Program::create("#define PASS 3\n",filename1,filename2);
 	}
 
 	virtual ~PluginRuntimeDOF()
