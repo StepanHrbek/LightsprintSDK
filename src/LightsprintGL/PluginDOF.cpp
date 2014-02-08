@@ -165,7 +165,7 @@ public:
 		dofProgram1->useIt();
 		dofProgram1->sendTexture("depthMap",bigDepth);
 		//dofProgram1->sendTexture("colorMap",bigColor);
-		dofProgram1->sendUniform("pixelSize",1.0f/bigColor->getBuffer()->getWidth(),1.0f/bigColor->getBuffer()->getHeight());
+		dofProgram1->sendUniform("tPixelSize",1.0f/bigColor->getBuffer()->getWidth(),1.0f/bigColor->getBuffer()->getHeight());
 		dofProgram1->sendUniform("depthRange",rr::RRVec3(eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofFar),eye.getFar()/(eye.getFar()-eye.getNear()),eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofNear)));
 		glViewport(0,0,smallColor1->getBuffer()->getWidth(),smallColor1->getBuffer()->getHeight());
 		TextureRenderer::renderQuad();
@@ -174,13 +174,13 @@ public:
 		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallColor2);
 		dofProgram2->useIt();
 		dofProgram2->sendTexture("smallMap",smallColor1);
-		dofProgram2->sendUniform("pixelSize",1.0f/smallColor1->getBuffer()->getWidth(),0.f);
+		dofProgram2->sendUniform("tPixelSize",1.0f/smallColor1->getBuffer()->getWidth(),0.f);
 		TextureRenderer::renderQuad();
 
 		// blur smallColor2 to smallColor3
 		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallColor3);
 		dofProgram2->sendTexture("smallMap",smallColor2);
-		dofProgram2->sendUniform("pixelSize",0.f,1.0f/smallColor1->getBuffer()->getHeight());
+		dofProgram2->sendUniform("tPixelSize",0.f,1.0f/smallColor1->getBuffer()->getHeight());
 		TextureRenderer::renderQuad();
 
 		// blur bigColor+bigDepth to render target using CoC from smallColor
@@ -190,7 +190,7 @@ public:
 		dofProgram3->sendTexture("colorMap",bigColor);
 		dofProgram3->sendTexture("smallMap",smallColor3);
 		//dofProgram3->sendTexture("midMap",smallColor1);
-		dofProgram3->sendUniform("pixelSize",1.0f/bigColor->getBuffer()->getWidth(),1.0f/bigColor->getBuffer()->getHeight());
+		dofProgram3->sendUniform("tPixelSize",1.0f/bigColor->getBuffer()->getWidth(),1.0f/bigColor->getBuffer()->getHeight());
 		dofProgram3->sendUniform("depthRange",rr::RRVec3(eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofFar),eye.getFar()/(eye.getFar()-eye.getNear()),eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofNear)));
 		enum {NUM_SAMPLES=60};
 		rr::RRVec2 sample[2*NUM_SAMPLES] = {
