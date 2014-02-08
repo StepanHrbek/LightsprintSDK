@@ -2827,7 +2827,10 @@ Material formats (1)
 
  \section oculus_programmer Programmer's guide
 
-  Initialize Oculus Rift as usual, see Oculus SDK documentation. \ref oculus_init "Here" you can see how we initialize it.
+  If you wish to support Oculus Rift outside of our scene viewer, or if you rebuild scene viewer from source code, you need Oculus SDK.
+  We don't ship it with Lightsprint SDK, it is up to you to get it and build it ("libovr" library).
+
+  Once you have it, initialize Oculus Rift as usual, see Oculus SDK documentation. \ref oculus_init "Here" you can see how we initialize it.
 
   To render in stereo, with Oculus Rift distortion correction and chromatic aberation correction, add following plugin at the end of your rendering plugin chain:
   \code
