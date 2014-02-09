@@ -65,12 +65,12 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propCameraDofAccumulated = new BoolRefProperty(_("Realistic"),_("Higher quality, but needs more time."),svs.dofAccumulated);
 			AppendIn(propCameraDof,propCameraDofAccumulated);
 
-			propCameraDofApertureDiameter = new FloatProperty(_("Aperture diameter")+" (m)",_("Diameter of opening inside the camera lens. Wider = DOF is more apparent."),(float)svs.camera.apertureDiameter,svs.precision,0.001f,1,0.01f,false);
-			AppendIn(propCameraDofAccumulated,propCameraDofApertureDiameter);
-
 			propCameraDofApertureShape = new ImageFileProperty(_("Aperure/bokeh shape"),_("Image of bokeh from single bright dot. Disk (circle) is used when image is not set."));
 			// string is updated from OnIdle
 			AppendIn(propCameraDofAccumulated,propCameraDofApertureShape);
+
+			propCameraDofApertureDiameter = new FloatProperty(_("Aperture diameter")+" (m)",_("Diameter of opening inside the camera lens. Wider = DOF is more apparent."),(float)svs.camera.apertureDiameter,svs.precision,0.001f,1,0.01f,false);
+			AppendIn(propCameraDof,propCameraDofApertureDiameter);
 
 			propCameraDofFocusDistance = new wxStringProperty(_("Focus distance"), wxPG_LABEL);
 			AppendIn(propCameraDof,propCameraDofFocusDistance);
@@ -311,8 +311,8 @@ void SVSceneProperties::updateHide()
 	propCameraPanoramaMode->Hide(!svs.renderPanorama,false);
 
 	propCameraDofAccumulated->Hide(!svs.renderDof,false);
-	propCameraDofApertureDiameter->Hide(!svs.renderDof || !svs.dofAccumulated,false);
 	propCameraDofApertureShape->Hide(!svs.renderDof || !svs.dofAccumulated,false);
+	propCameraDofApertureDiameter->Hide(!svs.renderDof,false);
 	propCameraDofFocusDistance->Hide(!svs.renderDof,false);
 	propCameraDofAutomaticFocusDistance->Hide(!svs.renderDof,false);
 	propCameraDofNear->Hide(!svs.renderDof,false);
@@ -382,8 +382,8 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propCameraEyeSeparation,svs.camera.eyeSeparation)
 		+ updateFloat(propCameraDisplayDistance,svs.camera.displayDistance)
 		+ updateInt(propCameraPanoramaMode,svs.panoramaMode)
-		+ updateFloat(propCameraDofApertureDiameter,svs.camera.apertureDiameter)
 		+ updateString(propCameraDofApertureShape,RR_RR2WX(svs.dofApertureShapeFilename))
+		+ updateFloat(propCameraDofApertureDiameter,svs.camera.apertureDiameter)
 		+ updateBoolRef(propCameraDofAutomaticFocusDistance)
 		+ updateFloat(propCameraDofNear,svs.camera.dofNear)
 		+ updateFloat(propCameraDofFar,svs.camera.dofFar)
@@ -486,14 +486,14 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		updateHide();
 	}
 	else
-	if (property==propCameraDofApertureDiameter)
-	{
-		svs.camera.apertureDiameter = property->GetValue().GetDouble();
-	}
-	else
 	if (property==propCameraDofApertureShape)
 	{
 		svs.dofApertureShapeFilename = RR_WX2RR(property->GetValue().GetString());
+	}
+	else
+	if (property==propCameraDofApertureDiameter)
+	{
+		svs.camera.apertureDiameter = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propCameraDofAutomaticFocusDistance)

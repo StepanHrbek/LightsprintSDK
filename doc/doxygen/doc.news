@@ -12,7 +12,9 @@ namespace rr
 
 NEWS
 
-- improved DOF speed
+- improved DOF
+  - fast DOF is faster
+  - both fast and realistic DOF produce much closer results, fast DOF can be used as a preview for Realistic one
 
 CHANGES
 

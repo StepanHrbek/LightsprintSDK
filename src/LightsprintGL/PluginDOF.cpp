@@ -69,6 +69,12 @@ public:
 	{
 		const PluginParamsDOF& pp = *dynamic_cast<const PluginParamsDOF*>(&_pp);
 
+		if (!_sp.camera)
+		{
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"DOF: camera not set.\n"));
+			return;
+		}
+
 		// accumulation based version
 		if (pp.accumulated)
 		{
@@ -104,7 +110,7 @@ public:
 			rr::RRReal dofDistance = (camera.dofFar+camera.dofNear)/2;
 			rr::RRVec2 offsetInMeters = rr::RRVec2(offsetInBuffer.x-0.5f,offsetInBuffer.y-0.5f)*camera.apertureDiameter; // how far do we move camera in right,up directions, -apertureDiameter/2..apertureDiameter/2 (m)
 			camera.setPosition(camera.getPosition()+camera.getRight()*offsetInMeters.x+camera.getUp()*offsetInMeters.y);
-			rr::RRVec2 visibleMetersAtFocusedDistance(tan(camera.getFieldOfViewHorizontalRad()/2)*dofDistance,tan(camera.getFieldOfViewVerticalRad()/2)*dofDistance); // when in center of focus, how far to right,up can we go to stay on screen (m)
+			rr::RRVec2 visibleMetersAtFocusedDistance(tan(camera.getFieldOfViewHorizontalRad()/2)*dofDistance,tan(camera.getFieldOfViewVerticalRad()/2)*dofDistance); // from center to edge (m)
 			rr::RRVec2 offsetOnScreen = offsetInMeters/visibleMetersAtFocusedDistance; // how far do we move camera in -1..1 screen space 
 			camera.setScreenCenter(camera.getScreenCenter()-offsetOnScreen);
 			sp.camera = &camera;
@@ -117,7 +123,7 @@ public:
 		// shader based version
 		_renderer.render(_pp.next,_sp);
 
-		if (!smallColor1 || !smallColor2 || !smallColor3 || !bigColor || !bigDepth || !dofProgram1 || !dofProgram2 || !dofProgram3 || !_sp.camera)
+		if (!smallColor1 || !smallColor2 || !smallColor3 || !bigColor || !bigDepth || !dofProgram1 || !dofProgram2 || !dofProgram3)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"DOF shader failed to initialize.\n"));
 			return;
@@ -166,7 +172,12 @@ public:
 		dofProgram1->sendTexture("depthMap",bigDepth);
 		//dofProgram1->sendTexture("colorMap",bigColor);
 		dofProgram1->sendUniform("tPixelSize",1.0f/bigColor->getBuffer()->getWidth(),1.0f/bigColor->getBuffer()->getHeight());
-		dofProgram1->sendUniform("depthRange",rr::RRVec3(eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofFar),eye.getFar()/(eye.getFar()-eye.getNear()),eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofNear)));
+		dofProgram1->sendUniform("mScreenSizeIn1mDistance",(float)(2*tan(eye.getFieldOfViewHorizontalRad()/2)),(float)(2*tan(eye.getFieldOfViewVerticalRad()/2))); // from edge to edge //!!! nefunguje v ortho
+		dofProgram1->sendUniform("mApertureDiameter",eye.apertureDiameter);
+		dofProgram1->sendUniform("mFocusDistanceNear",eye.dofNear);
+		dofProgram1->sendUniform("mFocusDistanceFar",eye.dofFar);
+		//dofProgram1->sendUniform("depthRange",rr::RRVec3(eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofFar),eye.getFar()/(eye.getFar()-eye.getNear()),eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofNear)));
+		dofProgram1->sendUniform("mDepthRange",eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())),eye.getFar()/(eye.getFar()-eye.getNear()));
 		glViewport(0,0,smallColor1->getBuffer()->getWidth(),smallColor1->getBuffer()->getHeight());
 		TextureRenderer::renderQuad();
 
@@ -191,7 +202,9 @@ public:
 		dofProgram3->sendTexture("smallMap",smallColor3);
 		//dofProgram3->sendTexture("midMap",smallColor1);
 		dofProgram3->sendUniform("tPixelSize",1.0f/bigColor->getBuffer()->getWidth(),1.0f/bigColor->getBuffer()->getHeight());
-		dofProgram3->sendUniform("depthRange",rr::RRVec3(eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofFar),eye.getFar()/(eye.getFar()-eye.getNear()),eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofNear)));
+		dofProgram3->sendUniform("mFocusDistanceFar",eye.dofFar);
+		//dofProgram3->sendUniform("depthRange",rr::RRVec3(eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofFar),eye.getFar()/(eye.getFar()-eye.getNear()),eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())*eye.dofNear)));
+		dofProgram3->sendUniform("mDepthRange",eye.getNear()*eye.getFar()/((eye.getFar()-eye.getNear())),eye.getFar()/(eye.getFar()-eye.getNear()));
 		enum {NUM_SAMPLES=60};
 		rr::RRVec2 sample[2*NUM_SAMPLES] = {
 			rr::RRVec2(-0.8769053f, -0.1801577f),
