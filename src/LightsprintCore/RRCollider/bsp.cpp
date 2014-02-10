@@ -960,7 +960,7 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 #define SUBTREE_M (m?(char*)m+relative:m)
 
 	BspTree node;
-	node.bsp.size=-1; // -Wbitfield-constant-conversion warning should be ok, at least code works well
+	node.bsp.size=BspTree::BSP_SIZE_MAX; // probably never used, but safer to keep it. we used to set -1; BSP_SIZE_MAX does the same while preventing clang -Wbitfield-constant-conversion and ndk-gcc -Woverflow.
 	WRITE(node);
 
 	if (t->kdroot && (t->front || t->back)) // pro prazdny kdnode uz nezapisuje splitValue

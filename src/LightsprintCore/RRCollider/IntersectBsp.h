@@ -34,7 +34,7 @@ namespace rr
 		typedef Ofs _Ofs;
 		typedef TriInfo _TriInfo;
 		typedef Lo _Lo;
-		enum {allows_transition=0, allows_kd=1, allows_emptykd=1};
+		enum {allows_transition=0, allows_kd=1, allows_emptykd=1, BSP_SIZE_MAX=(1<<(sizeof(Ofs)*8-3))-1};
 		typedef const BspTree1<Ofs,TriInfo,Lo> This;
 		typedef This Transitioneer;
 		typedef This Son;
@@ -90,7 +90,7 @@ namespace rr
 		typedef Ofs _Ofs;
 		typedef TriInfo _TriInfo;
 		typedef Lo _Lo;
-		enum {allows_transition=0, allows_kd=1, allows_emptykd=0};
+		enum {allows_transition=0, allows_kd=1, allows_emptykd=0, BSP_SIZE_MAX=(1<<(sizeof(Ofs)*8-4))-1};
 		typedef const BspTree2T<Ofs,TriInfo,Lo> This;
 		typedef const This Transitioneer;
 		typedef const Lo Son;
@@ -139,7 +139,7 @@ namespace rr
 		typedef Ofs _Ofs;
 		typedef TriInfo _TriInfo;
 		typedef Lo _Lo;
-		enum {allows_transition=1, allows_kd=1, allows_emptykd=0};
+		enum {allows_transition=1, allows_kd=1, allows_emptykd=0, BSP_SIZE_MAX=(1<<(sizeof(Ofs)*8-4))-1};
 		typedef const BspTree2<Ofs,TriInfo,Lo> This;
 		typedef const BspTree2T<Ofs,TriInfo,Lo> Transitioneer;
 		typedef This Son;
