@@ -373,28 +373,6 @@ const rr::RRBuffer* Texture::getBuffer() const
 	return buffer;
 }
 
-unsigned Texture::getTexelBits() const
-{
-	if (!buffer) return 0;
-
-	if (buffer->getFormat()==rr::BF_DEPTH)
-	{
-		GLint bits = 0;
-		bindTexture();
-		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_DEPTH_SIZE,&bits);
-		//printf("texture depth precision = %d\n", bits);
-
-		// workaround for Radeon HD bug (Catalyst 7.9)
-		if (bits==8) bits = 16;
-
-		return bits;
-	}
-	else
-	{
-		return getBuffer()->getElementBits();
-	}
-}
-
 Texture::~Texture()
 {
 	if (buffer)

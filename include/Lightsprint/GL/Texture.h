@@ -56,8 +56,6 @@ public:
 	void reset(bool buildMipMaps, bool compress, bool scaledAsSRGB);
 	//! Binds texture.
 	void bindTexture() const;
-	//! Returns number of bits per texel.
-	unsigned getTexelBits() const;
 	~Texture();
 
 	unsigned version; // For interal use only. Version of data in GPU, copied from buffer->version.
