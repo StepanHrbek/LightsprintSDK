@@ -791,7 +791,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		cubeTexture->bindTexture();
 		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glGenerateMipmapEXT(GL_TEXTURE_CUBE_MAP); // part of EXT_framebuffer_object
+		glGenerateMipmap(GL_TEXTURE_CUBE_MAP); // exists in GL2+ARB_framebuffer_object, GL3, ES2
 
 		// unhide objects with current illumination
 		for (unsigned i=0;i<infos.size();i++)

@@ -694,7 +694,7 @@ public:
 						glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
 						mirrorColorTex->bindTexture();
 						glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-						glGenerateMipmapEXT(GL_TEXTURE_2D); // part of EXT_framebuffer_object
+						glGenerateMipmap(GL_TEXTURE_2D); // exists in GL2+ARB_framebuffer_object, GL3, ES2
 					}
 
 					glDisable(GL_BLEND);

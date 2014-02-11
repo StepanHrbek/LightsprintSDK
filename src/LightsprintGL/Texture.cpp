@@ -338,7 +338,7 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 			__try
 			{
 #endif
-				glGenerateMipmapEXT(cubeOr2d); // part of EXT_framebuffer_object
+				glGenerateMipmap(cubeOr2d); // exists in GL2+ARB_framebuffer_object, GL3, ES2
 #ifdef _MSC_VER
 			}
 			__except(EXCEPTION_EXECUTE_HANDLER)
