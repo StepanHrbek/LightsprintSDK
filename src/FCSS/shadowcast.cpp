@@ -214,7 +214,7 @@ void init_gl_resources()
 	rrLight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),RR_DEG2RAD(40),0.1f);
 
 #ifdef CORNER_LOGO
-	lightsprintMap = rr_gl::Texture::load("maps/Lightsprint230.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP, GL_CLAMP);
+	lightsprintMap = rr_gl::Texture::load("maps/Lightsprint230.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 #endif
 
 	uberProgram = rr_gl::UberProgram::create("shaders/ubershader.vs", "shaders/ubershader.fs");
