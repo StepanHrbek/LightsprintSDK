@@ -69,8 +69,8 @@ public:
 				depthTexture->getBuffer()->reset(rr::BT_2D_TEXTURE,viewport[2],viewport[3],1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 				depthTexture->reset(false,false,false);
 			}
-			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,depthTexture);
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,colorTexture);
+			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depthTexture);
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,colorTexture);
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 		}
 #endif

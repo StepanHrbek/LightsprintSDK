@@ -67,7 +67,7 @@ public:
 			smallTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,swidth,sheight,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		}
 		FBO oldFBOState = FBO::getState();
-		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallTexture);
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallTexture);
 		glViewport(0,0,swidth,sheight);
 		_renderer.getTextureRenderer()->render2D(bigTexture,NULL,1,0,0,1,1);
 		glReadPixels(0,0,swidth,sheight,GL_RGB,GL_UNSIGNED_BYTE,buf);

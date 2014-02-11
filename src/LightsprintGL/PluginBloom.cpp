@@ -97,8 +97,8 @@ public:
 		}
 
 		// downscale bigMap to smallMap1
-		FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,NULL);
-		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallMap1);
+		FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,NULL);
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallMap1);
 		scaleDownProgram->useIt();
 		scaleDownProgram->sendUniform("map",0);
 		scaleDownProgram->sendUniform("pixelDistance",1.0f/bigMap->getBuffer()->getWidth(),1.0f/bigMap->getBuffer()->getHeight());
@@ -110,7 +110,7 @@ public:
 		TextureRenderer::renderQuad();
 
 		// horizontal blur smallMap1 to smallMap2
-		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallMap2);
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallMap2);
 		blurProgram->useIt();
 		blurProgram->sendUniform("map",0);
 		blurProgram->sendUniform("pixelDistance",0.0f,1.0f/smallMap1->getBuffer()->getHeight());
@@ -118,7 +118,7 @@ public:
 		TextureRenderer::renderQuad();
 	
 		// vertical blur smallMap2 to smallMap1
-		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallMap1);
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallMap1);
 		blurProgram->sendUniform("pixelDistance",1.0f/smallMap1->getBuffer()->getWidth(),0.0f);
 		smallMap2->bindTexture();
 		TextureRenderer::renderQuad();

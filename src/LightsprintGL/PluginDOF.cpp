@@ -166,7 +166,7 @@ public:
 		}
 
 		// fill smallColor1 with CoC
-		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallColor1);
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallColor1);
 		const rr::RRCamera& eye = *_sp.camera;
 		dofProgram1->useIt();
 		dofProgram1->sendTexture("depthMap",bigDepth);
@@ -182,14 +182,14 @@ public:
 		TextureRenderer::renderQuad();
 
 		// blur smallColor1 to smallColor2
-		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallColor2);
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallColor2);
 		dofProgram2->useIt();
 		dofProgram2->sendTexture("smallMap",smallColor1);
 		dofProgram2->sendUniform("tPixelSize",1.0f/smallColor1->getBuffer()->getWidth(),0.f);
 		TextureRenderer::renderQuad();
 
 		// blur smallColor2 to smallColor3
-		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,smallColor3);
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallColor3);
 		dofProgram2->sendTexture("smallMap",smallColor2);
 		dofProgram2->sendUniform("tPixelSize",0.f,1.0f/smallColor1->getBuffer()->getHeight());
 		TextureRenderer::renderQuad();

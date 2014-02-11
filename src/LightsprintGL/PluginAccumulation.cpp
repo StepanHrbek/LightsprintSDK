@@ -90,8 +90,8 @@ public:
 	
 			// render to colorMap (c^2.2 * brightnessAdjustment^2.2)
 			colorMap->reset(false,false,_sp.srgbCorrect);
-			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,depthMap);
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,colorMap);
+			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depthMap);
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,colorMap);
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			PluginParamsShared sp = _sp;
 			sp.brightness *= brightnessAdjustment;
@@ -101,7 +101,7 @@ public:
 			_renderer.render(_pp.next,sp);
 
 			// add colorMap (c^2.2 * brightnessAdjustment^2.2) to accumulation buffer
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,accumulationMap);
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,accumulationMap);
 			PreserveDepthTest p2;
 			PreserveDepthMask p3;
 			PreserveFlag p4(GL_SCISSOR_TEST,false);

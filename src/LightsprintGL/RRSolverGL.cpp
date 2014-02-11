@@ -301,7 +301,7 @@ done:
 					fixedBias *= light->getRRLight().rtShadowmapBias.y;
 					glPolygonOffset(slopeBias,fixedBias);
 					glViewport(0, 0, light->getRRLight().rtShadowmapSize, light->getRRLight().rtShadowmapSize);
-					FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,shadowmap);
+					FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,shadowmap);
 					if (light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS || light->shadowTransparencyActual==RealtimeLight::FRESNEL_SHADOWS)
 					{
 						Texture* colormap = light->getShadowmap(i,true);
@@ -311,7 +311,7 @@ done:
 						}
 						else
 						{
-							FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,colormap);
+							FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,colormap);
 						}
 					}
 					if (!FBO::isOk())
@@ -501,7 +501,7 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 		unsigned triCountYInThisPass = (lastCapturedTrianglePlus1-firstCapturedTriangle+triCountX-1)/triCountX; // may be bit lower in last pass of multipass, this prevents writing too far beyond end of _results
 
 		// prepare for scaling down -> render to texture
-		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,detectBigMap);
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,detectBigMap);
 
 		// clear
 		glViewport(0, 0, pixelWidth,pixelHeightInOnePass);
@@ -546,7 +546,7 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 
 
 		// downscale 10pixel triangles in 4x4 squares to single pixel values
-		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,detectSmallMap);
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,detectSmallMap);
 		scaleDownProgram->useIt();
 		scaleDownProgram->sendUniform("lightmap",0);
 		scaleDownProgram->sendUniform("pixelDistance",1.0f/detectBigMap->getBuffer()->getWidth(),1.0f/detectBigMap->getBuffer()->getHeight());

@@ -49,19 +49,19 @@ void FBO::setRenderTarget(GLenum attachment, GLenum target, Texture* tex)
 
 void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 {
-	RR_ASSERT(attachment==GL_DEPTH_ATTACHMENT_EXT || attachment==GL_COLOR_ATTACHMENT0_EXT);
+	RR_ASSERT(attachment==GL_DEPTH_ATTACHMENT || attachment==GL_COLOR_ATTACHMENT0);
 	RR_ASSERT(target==GL_TEXTURE_2D || (target>=GL_TEXTURE_CUBE_MAP_POSITIVE_X && target<=GL_TEXTURE_CUBE_MAP_NEGATIVE_Z));
 
-	GLuint fb_id = (tex_id || (attachment==GL_DEPTH_ATTACHMENT_EXT && s_fboState.color_id) || (attachment==GL_COLOR_ATTACHMENT0_EXT && s_fboState.depth_id)) ? s_fb_id : 0;
+	GLuint fb_id = (tex_id || (attachment==GL_DEPTH_ATTACHMENT && s_fboState.color_id) || (attachment==GL_COLOR_ATTACHMENT0 && s_fboState.depth_id)) ? s_fb_id : 0;
 	if (s_fboState.fb_id != fb_id)
 	{
 		if (!fb_id)
 		{
 			if (s_fboState.depth_id)
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, s_fboState.depth_id = 0, 0);
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_fboState.depth_id = 0, 0);
 			if (s_fboState.color_id)
 			{
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, s_fboState.color_target = GL_TEXTURE_2D, s_fboState.color_id = 0, 0);
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, s_fboState.color_target = GL_TEXTURE_2D, s_fboState.color_id = 0, 0);
 				if (!s_es)
 					glDrawBuffer(GL_NONE);
 				glReadBuffer(GL_NONE);
@@ -71,11 +71,11 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 	}
 	if (fb_id)
 	{
-		if (attachment==GL_DEPTH_ATTACHMENT_EXT)
+		if (attachment==GL_DEPTH_ATTACHMENT)
 		{
 			RR_ASSERT(target==GL_TEXTURE_2D);
 			if (s_fboState.depth_id != tex_id)
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, s_fboState.depth_id = tex_id, 0);
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_fboState.depth_id = tex_id, 0);
 		}
 		else
 		{
@@ -84,8 +84,8 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 				if (!s_fboState.color_id && tex_id)
 				{
 					if (!s_es)
-						glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
-					glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
+						glDrawBuffer(GL_COLOR_ATTACHMENT0);
+					glReadBuffer(GL_COLOR_ATTACHMENT0);
 				}
 				if (s_fboState.color_id && !tex_id)
 				{
@@ -93,7 +93,7 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 						glDrawBuffer(GL_NONE);
 					glReadBuffer(GL_NONE);
 				}
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, s_fboState.color_target = target, s_fboState.color_id = tex_id, 0);
+				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, s_fboState.color_target = target, s_fboState.color_id = tex_id, 0);
 			}
 		}
 	}
@@ -149,8 +149,8 @@ const FBO& FBO::getState()
 
 void FBO::restore()
 {
-	setRenderTargetGL(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,depth_id);
-	setRenderTargetGL(GL_COLOR_ATTACHMENT0_EXT,color_target,color_id);
+	setRenderTargetGL(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depth_id);
+	setRenderTargetGL(GL_COLOR_ATTACHMENT0,color_target,color_id);
 }
 
 

@@ -51,7 +51,7 @@ public:
 		PreserveViewport p1;
 		PreserveFlag p2(GL_SCISSOR_TEST,false);
 		glViewport(0,0,size,size);
-		FBO::setRenderTarget(GL_DEPTH_ATTACHMENT_EXT,GL_TEXTURE_2D,pp.depthTexture);
+		FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,pp.depthTexture);
 
 		// render 6 times
 		// TODO: optimize these six renders down to one, with geometry shader
@@ -94,7 +94,7 @@ public:
 		for (unsigned side=0;side<6;side++)
 		{
 			cubeCamera.setYawPitchRollRad(s_viewAngles[side]);
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,pp.cubeTexture);
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,pp.cubeTexture);
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			_renderer.render(_pp.next,sp);
 		}

@@ -29,7 +29,7 @@ public:
 	//! To return back to default render target, call restore() on previously backed up state,
 	//! or on newly constructed FBO.
 	//! \param attachment
-	//!  GL_DEPTH_ATTACHMENT_EXT or GL_COLOR_ATTACHMENT0_EXT.
+	//!  GL_DEPTH_ATTACHMENT or GL_COLOR_ATTACHMENT0.
 	//! \param target
 	//!  GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP_POSITIVE_X or _NEGATIVE_X or _POSITIVE_Y or _NEGATIVE_Y or _POSITIVE_Z or _NEGATIVE_Z.
 	//! \param texture

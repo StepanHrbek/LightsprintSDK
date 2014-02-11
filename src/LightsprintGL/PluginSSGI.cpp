@@ -107,13 +107,13 @@ public:
 		{
 			// bigColor2 = noisy SSGI
 			FBO oldFBOState = FBO::getState();
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,bigColor2);
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,bigColor2);
 			glViewport(0,0,w,h);
 			TextureRenderer::renderQuad();
 
 			// bigColor3 = blurred(bigColor2)
 			ssgiProgram = ssgiProgram2;
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0_EXT,GL_TEXTURE_2D,bigColor3);
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,bigColor3);
 			ssgiProgram->useIt();
 			ssgiProgram->sendTexture("depthMap",bigDepth);
 			ssgiProgram->sendTexture("colorMap",bigColor);
