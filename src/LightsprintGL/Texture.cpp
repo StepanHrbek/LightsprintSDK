@@ -27,19 +27,19 @@ static GLuint   s_fb_id = 0;
 
 void FBO_init()
 {
-	glGenFramebuffersEXT(1, &s_fb_id);
+	glGenFramebuffers(1, &s_fb_id);
 
 	// necessary for "new FBO; setRenderTargetDepth; render..."
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, s_fb_id);
+	glBindFramebuffer(GL_FRAMEBUFFER, s_fb_id);
 	if (!s_es)
 		glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
-	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void FBO_done()
 {
-	glDeleteFramebuffersEXT(1, &s_fb_id);
+	glDeleteFramebuffers(1, &s_fb_id);
 }
 
 void FBO::setRenderTarget(GLenum attachment, GLenum target, Texture* tex)
@@ -58,16 +58,16 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 		if (!fb_id)
 		{
 			if (s_fboState.depth_id)
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_fboState.depth_id = 0, 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_fboState.depth_id = 0, 0);
 			if (s_fboState.color_id)
 			{
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, s_fboState.color_target = GL_TEXTURE_2D, s_fboState.color_id = 0, 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, s_fboState.color_target = GL_TEXTURE_2D, s_fboState.color_id = 0, 0);
 				if (!s_es)
 					glDrawBuffer(GL_NONE);
 				glReadBuffer(GL_NONE);
 			}
 		}
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, s_fboState.fb_id = fb_id);
+		glBindFramebuffer(GL_FRAMEBUFFER, s_fboState.fb_id = fb_id);
 	}
 	if (fb_id)
 	{
@@ -75,7 +75,7 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 		{
 			RR_ASSERT(target==GL_TEXTURE_2D);
 			if (s_fboState.depth_id != tex_id)
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_fboState.depth_id = tex_id, 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, s_fboState.depth_id = tex_id, 0);
 		}
 		else
 		{
@@ -93,7 +93,7 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 						glDrawBuffer(GL_NONE);
 					glReadBuffer(GL_NONE);
 				}
-				glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0, s_fboState.color_target = target, s_fboState.color_id = tex_id, 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, s_fboState.color_target = target, s_fboState.color_id = tex_id, 0);
 			}
 		}
 	}
@@ -101,31 +101,33 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 
 bool FBO::isOk()
 {
-	GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	switch(status)
 	{
-		case GL_FRAMEBUFFER_COMPLETE_EXT:
+		case GL_FRAMEBUFFER_COMPLETE:
 			return true;
-		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+		case GL_FRAMEBUFFER_UNSUPPORTED:
 			// choose different formats
 			// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
 			rr::RRReporter::report(rr::ERRO,"FBO failed.\n");
 			break;
-		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+		case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
 			// programming error; will fail on all hardware
 			// possible reason: color_id texture has LINEAR_MIPMAP_LINEAR, but only one mip level (=incomplete)
 			RR_ASSERT(0);
 			break;
+#ifndef __ANDROID__
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
 			// programming error; will fail on all hardware
 			// possible reason: color_id and depth_id textures differ in size
 			RR_ASSERT(0);
 			break;
-		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+		case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
 			// programming error; will fail on all hardware
 			// possible reason: glDrawBuffer(GL_NONE);glReadBuffer(GL_NONE); was not called before rendering to depth texture
 			RR_ASSERT(0);
 			break;
+#endif
 		default:
 			// programming error; will fail on all hardware
 			RR_ASSERT(0);
@@ -177,9 +179,9 @@ const char* initializeGL()
 	}
 
 	// check FBO
-	if (!GLEW_EXT_framebuffer_object) // added in GL 3.0
+	if (!GLEW_ARB_framebuffer_object) // added in GL 3.0
 	{
-		return "GL_EXT_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n";
+		return "GL_ARB_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n";
 	}
 
 	FBO_init();
@@ -344,7 +346,7 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 			__except(EXCEPTION_EXECUTE_HANDLER)
 			{
 				// This happens in carat-bsp1.dae/carat-bsp2.dae, not sure why.
-				RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"GPU driver crashed in glGenerateMipmapEXT().\n"));
+				RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"GPU driver crashed in glGenerateMipmap().\n"));
 			}
 #endif
 		}
