@@ -3,13 +3,13 @@
 // Copyright (c) 2005-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 #include "Lightsprint/RRIllumination.h"
 
 namespace rr
 {
 
-class LayersMap : public boost::unordered_map<unsigned,RRBuffer*>
+class LayersMap : public std::unordered_map<unsigned,RRBuffer*>
 {
 };
 

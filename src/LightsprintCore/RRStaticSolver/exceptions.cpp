@@ -6,12 +6,12 @@
 // RRMesh
 #include "Lightsprint/RRMesh.h"
 #include "../RRMathPrivate.h"
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 // ImageCache
 #include "Lightsprint/RRBuffer.h"
 #include <string>
-//#include <boost/unordered_map.hpp>
+//#include <unordered_map>
 #ifdef _MSC_VER
 	#include <windows.h> // EXCEPTION_EXECUTE_HANDLER
 #endif
@@ -22,7 +22,7 @@
 
 // RRObjects
 //#include "Lightsprint/RRObject.h"
-#include <boost/unordered_set.hpp>
+#include <unordered_set>
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
@@ -52,7 +52,7 @@ RRReal RRMesh::findGroundLevel() const
 	unsigned numTriangles = getNumTriangles();
 	if (numTriangles)
 	{
-		typedef boost::unordered_map<RRReal,RRReal> YToArea;
+		typedef std::unordered_map<RRReal,RRReal> YToArea;
 		YToArea yToArea;
 		for (unsigned t=0;t<numTriangles;t++)
 		{
@@ -172,7 +172,7 @@ protected:
 		std::time_t fileTimeWhenLoaded;
 		boost::uintmax_t fileSizeWhenLoaded;
 	};
-	typedef boost::unordered_map<std::wstring,Value> Cache;
+	typedef std::unordered_map<std::wstring,Value> Cache;
 	Cache cache;
 
 	void deleteFromCache(Cache::iterator i)
@@ -220,7 +220,7 @@ void RRBuffer::deleteFromCache()
 
 void RRObjects::getAllMaterials(RRMaterials& materials) const
 {
-	typedef boost::unordered_set<RRMaterial*> Set;
+	typedef std::unordered_set<RRMaterial*> Set;
 	Set set;
 	// fill set
 	for (unsigned i=materials.size();i--;) // iteration from 0 would flip order of materials in RRMaterials. we don't promise to preserve order, but at least we try to, this mostly works (although it probably depends on implementation of unordered_set)
@@ -255,7 +255,7 @@ void RRObjects::makeNamesUnique() const
 	// turns names xxx,xxx,xxx,xxx.3,xxx.3 into xxx,xxx.2,xxx.4,xxx.3,xxx.3.2
 again:
 	bool modified = false;
-	typedef boost::unordered_multimap<std::wstring,RRObject*> Map;
+	typedef std::unordered_multimap<std::wstring,RRObject*> Map;
 	Map map;
 	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 	{

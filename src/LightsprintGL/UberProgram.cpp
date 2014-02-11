@@ -5,7 +5,7 @@
 
 #include <cstdlib>
 #include <string.h> // _strdup
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 #include "Lightsprint/GL/UberProgram.h"
 
 namespace rr_gl
@@ -49,7 +49,7 @@ public:
 private:
 	rr::RRString vertexShaderFileName;
 	rr::RRString fragmentShaderFileName;
-	typedef boost::unordered_map<unsigned,Program*> Cache;
+	typedef std::unordered_map<unsigned,Program*> Cache;
 	Cache cache;
 };
 

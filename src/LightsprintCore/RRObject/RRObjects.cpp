@@ -6,8 +6,8 @@
 #include <cstdio>
 #include <vector>
 #include "Lightsprint/RRObject.h"
-#include <boost/unordered_set.hpp>
-#include <boost/unordered_map.hpp>
+#include <unordered_set>
+#include <unordered_map>
 
 namespace rr
 {
@@ -169,7 +169,7 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 {
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
 	unsigned numMeshesWithoutArrays = 0;
-	boost::unordered_set<RRMeshArrays*> arrays;
+	std::unordered_set<RRMeshArrays*> arrays;
 	for (unsigned i=0;i<size();i++)
 	{
 		RRMeshArrays* mesh = const_cast<RRMeshArrays*>(dynamic_cast<const RRMeshArrays*>((*this)[i]->getCollider()->getMesh()));
@@ -185,7 +185,7 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 
 	// flip
 	unsigned numFlips = 0;
-	for (boost::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
+	for (std::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
 	{
 		numFlips += (*i)->flipFrontBack(numNormalsThatMustPointBack);
 	}
@@ -261,7 +261,7 @@ unsigned updateColliders(const RRObjects& objects, bool& aborting)
 	RRReportInterval report(INF3,"Updating colliders...\n");
 
 	//const RRObjects& objects = *this;
-	boost::unordered_set<const RRCollider*> updatedColliders; // optimization: prevents updating shared collider more than once
+	std::unordered_set<const RRCollider*> updatedColliders; // optimization: prevents updating shared collider more than once
 	for (unsigned i=0;i<objects.size();i++)
 	if (!aborting)
 	{
@@ -296,7 +296,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 {
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
 	unsigned numMeshesWithoutArrays = 0;
-	boost::unordered_set<RRMeshArrays*> arrays;
+	std::unordered_set<RRMeshArrays*> arrays;
 	for (unsigned i=0;i<size();i++)
 	{
 		RRMeshArrays* mesh = const_cast<RRMeshArrays*>(dynamic_cast<const RRMeshArrays*>((*this)[i]->getCollider()->getMesh()));
@@ -314,7 +314,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 	unsigned numTriangles = 0;
 	unsigned numVertices = 0;
 	unsigned numFaceGroups = 0;
-	for (boost::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
+	for (std::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
 	{
 		numTriangles += (*i)->numTriangles;
 		numVertices += (*i)->numVertices;
@@ -325,7 +325,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 	// stitch
 	unsigned numMeshesDifferentScales = 0;
 	unsigned numMeshesNonUniformScale = 0;
-	for (boost::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
+	for (std::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
 	{
 		RRMeshArrays* mesh = *i;
 		bool tangents = mesh->tangent!=NULL;
@@ -473,7 +473,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 	unsigned numTriangles2 = 0;
 	unsigned numVertices2 = 0;
 	unsigned numFaceGroups2 = 0;
-	for (boost::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
+	for (std::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
 	{
 		numTriangles2 += (*i)->numTriangles;
 		numVertices2 += (*i)->numVertices;
@@ -498,7 +498,7 @@ void RRObjects::multiplyEmittance(float emissiveMultiplier) const
 	if (emissiveMultiplier==1)
 		return;
 	// gather unique materials
-	boost::unordered_set<RRMaterial*> materials;
+	std::unordered_set<RRMaterial*> materials;
 	for (unsigned i=0;i<size();i++)
 	{
 		RRObject* object = (*this)[i];
@@ -507,7 +507,7 @@ void RRObjects::multiplyEmittance(float emissiveMultiplier) const
 				materials.insert(object->faceGroups[fg].material);
 	}
 	// multiply
-	for (boost::unordered_set<RRMaterial*>::iterator i=materials.begin();i!=materials.end();++i)
+	for (std::unordered_set<RRMaterial*>::iterator i=materials.begin();i!=materials.end();++i)
 	{
 		if (*i)
 		{
@@ -533,8 +533,8 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 	}
 
 	// 1. gather unique meshes and used uv channels
-	typedef boost::unordered_set<unsigned> UvChannels;
-	typedef boost::unordered_map<RRMeshArrays*,UvChannels> Meshes;
+	typedef std::unordered_set<unsigned> UvChannels;
+	typedef std::unordered_map<RRMeshArrays*,UvChannels> Meshes;
 	Meshes meshes;
 	const RRObjects& objects = *this;
 	for (unsigned i=0;i<objects.size();i++)

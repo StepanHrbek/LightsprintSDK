@@ -3,7 +3,7 @@
 // Copyright (c) 2005-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 #include "RRObjectFilter.h"
 #include "Lightsprint/RRLight.h"
 
@@ -104,7 +104,7 @@ public:
 
 private:
 	const RRScaler* scaler;
-	typedef boost::unordered_map<const RRMaterial*,RRMaterial*> Cache;
+	typedef std::unordered_map<const RRMaterial*,RRMaterial*> Cache;
 	Cache cache;
 };
 

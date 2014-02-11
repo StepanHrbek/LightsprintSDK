@@ -11,7 +11,7 @@
 	#include <map>
 #endif
 #include <cstdio>
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 #include <GL/glew.h>
 #include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PreserveState.h"
@@ -53,11 +53,14 @@ struct PerObjectBuffers
 // misc helpers
 
 // for unordered_map<UberProgramSetup,>
-std::size_t hash_value(const UberProgramSetup& b)
+struct UberProgramSetupHasher
 {
-	unsigned* p = (unsigned*)&b;
-	return p[0]+p[1];
-}
+	std::size_t operator()(const UberProgramSetup& b) const
+	{
+		unsigned* p = (unsigned*)&b;
+		return p[0]+p[1];
+	}
+};
 
 static rr::RRVector<PerObjectBuffers>* s_perObjectBuffers = NULL; // used by sort()
 
@@ -115,7 +118,7 @@ class PluginRuntimeScene : public PluginRuntime
 	rr::RRObjects multiObjects; // used in first half of render()
 	//! Gathered per-object information.
 	rr::RRVector<PerObjectBuffers> perObjectBuffers[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
-	typedef boost::unordered_map<UberProgramSetup,rr::RRVector<FaceGroupRange>*> ShaderFaceGroups;
+	typedef std::unordered_map<UberProgramSetup,rr::RRVector<FaceGroupRange>*,UberProgramSetupHasher> ShaderFaceGroups;
 	//! Gathered non-blended object information.
 	ShaderFaceGroups nonBlendedFaceGroupsMap[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
 	//! Gathered blended object information.

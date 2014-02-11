@@ -16,7 +16,7 @@
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
-#include <boost/unordered_set.hpp>
+#include <unordered_set>
 #include <boost/filesystem.hpp> // is_complete
 #include <boost/locale.hpp> // boost::locale::normalize()
 
@@ -67,8 +67,8 @@ public:
 	bool nextBufferIsCube;
 
 	// Helps save each instance only once.
-	boost::unordered_set<boost::serialization::RRBufferProxy*> bufferProxyInstances;
-	boost::unordered_set<boost::serialization::RRMeshProxy*> meshProxyInstances;
+	std::unordered_set<boost::serialization::RRBufferProxy*> bufferProxyInstances;
+	std::unordered_set<boost::serialization::RRMeshProxy*> meshProxyInstances;
 
 	inline SerializationRuntime(rr::RRFileLocator* fileLocator);
 	inline ~SerializationRuntime();

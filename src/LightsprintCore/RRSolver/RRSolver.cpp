@@ -8,7 +8,7 @@
 #include "report.h"
 #include "private.h"
 #include "../RRStaticSolver/rrcore.h" // build of packed factors
-#include <boost/unordered_set.hpp>
+#include <unordered_set>
 
 namespace rr
 {
@@ -528,7 +528,7 @@ void RRSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsig
 {
 	if (!this)
 		return;
-	typedef boost::unordered_set<RRBuffer*> Set;
+	typedef std::unordered_set<RRBuffer*> Set;
 	Set set;
 	// fill set
 	// - original contents of vector

@@ -301,9 +301,9 @@ public:
 
 private:
 	//! Resources deleted at destruction time.
-	boost::unordered_set<RRMaterial*> materials;
+	std::unordered_set<RRMaterial*> materials;
 	//! Resources deleted at destruction time.
-	boost::unordered_set<RRMesh*> meshes;
+	std::unordered_set<RRMesh*> meshes;
 };
 
 

@@ -7,7 +7,7 @@
 #include "Lightsprint/GL/Plugin.h"
 #include "RendererOfMesh.h"
 #include <typeindex>
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 namespace rr_gl
 {
@@ -37,7 +37,7 @@ public:
 			delete i->second;
 	}
 private:
-	typedef boost::unordered_map<const rr::RRMesh*,RendererOfMesh*> Cache;
+	typedef std::unordered_map<const rr::RRMesh*,RendererOfMesh*> Cache;
 	Cache cache;
 };
 
@@ -87,7 +87,7 @@ public:
 
 	virtual ~RendererImpl()
 	{
-		for (boost::unordered_map<std::type_index,PluginRuntime*>::iterator i = pluginRuntimes.begin(); i!=pluginRuntimes.end(); ++i)
+		for (std::unordered_map<std::type_index,PluginRuntime*>::iterator i = pluginRuntimes.begin(); i!=pluginRuntimes.end(); ++i)
 			delete i->second;
 	}
 
@@ -98,7 +98,7 @@ private:
 	TextureRenderer* textureRenderer;
 	//UberProgram* uberProgram;
 	RendererOfMeshCache rendererOfMeshCache;
-	boost::unordered_map<std::type_index,PluginRuntime*> pluginRuntimes;
+	std::unordered_map<std::type_index,PluginRuntime*> pluginRuntimes;
 };
 
 //////////////////////////////////////////////////////////////////////////////

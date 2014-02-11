@@ -14,8 +14,8 @@
 #include <cstdio>
 #include <string>
 #include <vector>
-#include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
+#include <unordered_map>
+#include <unordered_set>
 #include <boost/thread.hpp>
 #include "Windows/d3dx9/D3DX9Mesh.h" // here we include our copy of Direct3DX9 headers, so that installing legacy packages (DirectX SDK) is not necessary
 #include "Lightsprint/RRObject.h"
@@ -40,9 +40,9 @@
 namespace rr
 {
 
-//a) typedef boost::unordered_set<unsigned> UvChannels;
+//a) typedef std::unordered_set<unsigned> UvChannels;
 
-struct UvChannels : public boost::unordered_set<unsigned>
+struct UvChannels : public std::unordered_set<unsigned>
 {
 	// b) here we pass some extra data together with uv channels:
 	RRString objectName; // only for reporting
@@ -659,7 +659,7 @@ unsigned RRObjects::buildUnwrap(unsigned resolution, unsigned minimalUvChannel, 
 	RRReportInterval report(INF2,"Building unwrap...\n");
 
 	// 1. gather unique meshes and used uv channels
-	typedef boost::unordered_map<RRMeshArrays*,UvChannels> Meshes;
+	typedef std::unordered_map<RRMeshArrays*,UvChannels> Meshes;
 	Meshes meshes;
 	const RRObjects& objects = *this;
 	for (unsigned i=0;i<objects.size();i++)

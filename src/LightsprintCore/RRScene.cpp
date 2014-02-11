@@ -9,7 +9,7 @@
 #ifdef _MSC_VER
 	#include <windows.h> // EXCEPTION_EXECUTE_HANDLER
 #endif
-#include <boost/unordered_set.hpp>
+#include <unordered_set>
 #include <boost/filesystem.hpp>
 
 namespace bf = boost::filesystem;
@@ -485,7 +485,7 @@ void RRScene::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsign
 {
 	if (!this)
 		return;
-	typedef boost::unordered_set<RRBuffer*> Set;
+	typedef std::unordered_set<RRBuffer*> Set;
 	Set set;
 	// fill set
 	// - original contents of vector

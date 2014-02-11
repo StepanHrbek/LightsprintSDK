@@ -4,7 +4,6 @@
 // --------------------------------------------------------------------------
 
 
-#include <boost/unordered_map.hpp>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
