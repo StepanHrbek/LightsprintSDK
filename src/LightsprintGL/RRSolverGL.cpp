@@ -558,7 +558,7 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 		float position[] = {0,0, 0,fractionOfBigMapUsed, 1,fractionOfBigMapUsed, 1,0};
 		glEnableVertexAttribArray(VAA_POSITION);
 		glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
-		glDrawArrays(GL_POLYGON, 0, 4);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 		glDisableVertexAttribArray(VAA_POSITION);
 
 		// read downscaled image to memory

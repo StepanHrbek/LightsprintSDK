@@ -82,7 +82,7 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
 	glEnableVertexAttribArray(VAA_NORMAL);
 	glVertexAttribPointer(VAA_NORMAL, 3, GL_FLOAT, 0, 0, direction);
-	glDrawArrays(GL_POLYGON, 0, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableVertexAttribArray(VAA_NORMAL);
 	glDisableVertexAttribArray(VAA_POSITION);
 
@@ -165,7 +165,7 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 	rr::RRVec2 uv[4] = {rr::RRVec2(0,0),rr::RRVec2(1,0),rr::RRVec2(1,1),rr::RRVec2(0,1)};
 	glVertexAttribPointer(VAA_POSITION, 3, GL_FLOAT, 0, 0, position);
 	glVertexAttribPointer(VAA_UV_MATERIAL_DIFFUSE, 2, GL_FLOAT, 0, 0, uv);
-	glDrawArrays(GL_POLYGON, 0, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 	if (texture->getBuffer()->getFormat()==rr::BF_DEPTH)
 		// must be GL_COMPARE_REF_TO_TEXTURE for sampler2DShadow, otherwise result is undefined
@@ -203,7 +203,7 @@ void TextureRenderer::renderQuad(const float* position)
 	float fixedPosition[8] = {-1,-1, -1,1, 1,1, 1,-1};
 	glEnableVertexAttribArray(VAA_POSITION);
 	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position?position:fixedPosition);
-	glDrawArrays(GL_POLYGON, 0, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableVertexAttribArray(VAA_POSITION);
 }
 
