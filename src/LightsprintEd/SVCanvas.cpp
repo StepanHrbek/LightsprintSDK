@@ -50,7 +50,6 @@ namespace rr_ed
 
 bool s_es = false; // todo: access s_es from Shader.h
 
-
 #ifdef REPORT_HEAP_STATISTICS
 	_CRT_ALLOC_HOOK s_oldAllocHook;
 	unsigned s_numAllocs = 0;
