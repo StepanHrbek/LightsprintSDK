@@ -27,7 +27,6 @@
 	#include <GL/wglew.h> // wglSwapInterval
 #endif
 
-
 namespace bf = boost::filesystem;
 
 namespace boost
@@ -69,7 +68,6 @@ namespace serialization
 		if (Archive::is_loading::value) \
 			fixPath(rrstring); \
 	}
-
 
 //------------------------- ImportParameters ------------------------------
 
@@ -177,7 +175,6 @@ void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int versi
 	}
 }
 
-
 //---------------------------------------------------------------------------
 
 } // namespace
@@ -247,8 +244,7 @@ static wxString suggestPreferencesDirectory()
 
 static wxString suggestPreferencesFilename()
 {
-	return suggestPreferencesDirectory()
-		+ "/SceneViewer.prefs";
+	return suggestPreferencesDirectory() + "/SceneViewer.prefs";
 }
 
 bool UserPreferences::save() const
@@ -305,6 +301,5 @@ void UserPreferences::applySwapInterval()
 	if (wglSwapIntervalEXT) wglSwapIntervalEXT(swapInterval);
 #endif
 }
-
 
 }; // namespace

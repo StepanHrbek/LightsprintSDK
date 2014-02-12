@@ -6,11 +6,11 @@
 #include "SVCanvas.h"
 #include "SVEntityIcons.h"
 #include "SVRayLog.h"
-#include "SVSaveLoad.h"
 #include "SVFrame.h"
 #include "SVLightProperties.h"
 #include "SVSceneTree.h" // for shortcuts that manipulate animations in scene tree
 #include "SVLog.h"
+	#include "SVSaveLoad.h"
 #include "SVObjectProperties.h"
 #include "SVMaterialProperties.h"
 #include "Lightsprint/GL/RRSolverGL.h"

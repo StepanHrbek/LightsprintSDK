@@ -63,7 +63,6 @@ namespace rr_ed
 
 		ImportParameters import;
 
-
 		wxString    sshotFilename;
 		bool        sshotEnhanced;
 		unsigned    sshotEnhancedWidth;
@@ -71,6 +70,7 @@ namespace rr_ed
 		unsigned    sshotEnhancedFSAA;
 		float       sshotEnhancedShadowResolutionFactor;
 		unsigned    sshotEnhancedShadowSamples;
+
 		bool        testingLogShaders;
 		bool        testingLogMore;
 		bool        testingBeta;
@@ -112,7 +112,6 @@ namespace rr_ed
 		//! Send swapInterval to rendering pipeline.
 		void applySwapInterval();
 	};
-
 
 }; // namespace
 

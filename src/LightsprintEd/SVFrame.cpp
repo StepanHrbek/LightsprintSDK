@@ -8,7 +8,6 @@
 #include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/GL/FBO.h"
 #include "SVRayLog.h"
-#include "SVSaveLoad.h"
 #include "SVUserProperties.h"
 #include "SVSceneProperties.h"
 #include "SVGIProperties.h"
