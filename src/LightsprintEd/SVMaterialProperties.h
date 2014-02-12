@@ -84,7 +84,6 @@ namespace rr_ed
 		DECLARE_EVENT_TABLE()
 	};
 
-
 }; // namespace
 
 #endif

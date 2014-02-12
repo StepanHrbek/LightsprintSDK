@@ -8,6 +8,7 @@
 #include "SVApp.h"
 #include "Lightsprint/GL/Texture.h"
 
+
 namespace rr_ed
 {
 
@@ -630,7 +631,5 @@ BEGIN_EVENT_TABLE(SVMaterialProperties, wxPropertyGrid)
 	EVT_PG_CHANGED(-1,SVMaterialProperties::OnPropertyChange)
 	EVT_IDLE(SVMaterialProperties::OnIdle)
 END_EVENT_TABLE()
-
-
 
 }; // namespace
