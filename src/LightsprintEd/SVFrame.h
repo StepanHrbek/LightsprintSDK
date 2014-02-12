@@ -11,6 +11,7 @@
 #include "Lightsprint/Ed/Ed.h"
 #include "SVCanvas.h"
 #include "SVDialogs.h"
+#include "../rllic/RLDialogs.h"
 #include "wx/aui/aui.h"
 #include "wx/propgrid/propgrid.h"
 #ifdef SUPPORT_OCULUS

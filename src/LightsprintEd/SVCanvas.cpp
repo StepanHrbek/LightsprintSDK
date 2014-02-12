@@ -1247,8 +1247,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 						}
 						solver->setLights(lights); // RealtimeLight in light props is deleted here
 						objects.makeNamesUnique();
-						reallocateBuffersForRealtimeGI(false);
 						solver->setDynamicObjects(objects);
+						reallocateBuffersForRealtimeGI(false);
 						svframe->updateAllPanels();
 					}
 				}
