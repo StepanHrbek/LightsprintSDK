@@ -81,7 +81,7 @@ void main()
 		{
 			float mid = (0.001+noise01+float(s))/float(NUM_STEPS); // randomized step prevents shadows forming strips. 0.001 prevents mysterious random blackpixels
 			vec2 tMid = tMapCoord+mid*tRangeInTextureSpace;
-			if (tMid.x<0 || tMid.x>1 || tMid.y<0 || tMid.y>1)
+			if (tMid.x<0.0 || tMid.x>1.0 || tMid.y<0.0 || tMid.y>1.0)
 				continue; // removes shadow from viewport border
 			tMid = (floor(tMid/tPixelSize)+vec2(0.5,0.5))*tPixelSize; // round tMid to center of texel
 			float mExpectedLinearz1 = mLinearz0 + dot((tMid-tMapCoord)/tPixelSize,mLineardz);
