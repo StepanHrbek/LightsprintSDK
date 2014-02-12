@@ -45,7 +45,7 @@ namespace rr_ed
 
 		void reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers);
 
-		void dropMaterialAt(rr::RRMaterial* droppedMaterial, const rr::RRObject* destinationObject, unsigned destinationTriangle);
+		void dropMaterialAt(rr::RRMaterial* droppedMaterial, bool droppedShift, const rr::RRObject* destinationObject, unsigned destinationTriangle);
 
 		// set context, paint, swap, catch exceptions
 		void OnPaint(wxPaintEvent& event);
