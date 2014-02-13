@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
 #include <vector>
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
@@ -13,10 +14,7 @@
 #include "Lightsprint/RRObject.h" // UnwrapSeams
 #include "../squish/squish.h"
 #include "../RRSolver/gather.h" // TexelFlags
-#include <boost/filesystem.hpp>
 #include "RRBufferInMemory.h"
-
-namespace bf = boost::filesystem;
 
 namespace rr
 {
