@@ -1098,14 +1098,15 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					}
 					break;
 				case IC_SCALE:
+					pan = rr::RRVec3(drag.x); // make pan independent of world scale
 					switch (s_ci.clickedEntity.iconCode)
 					{
 						case IC_X: pan.y = pan.z = 0; break;
 						case IC_Y: pan.x = pan.z = 0; break;
 						case IC_Z: pan.x = pan.y = 0; break;
-						default: pan = RRVec3(pan.sum()); break;
+						default: pan = RRVec3(pan.avg()); break;
 					}
-					for (unsigned i=0;i<3;i++) pan[i] = powf(1.6f,pan[i]);
+					for (unsigned i=0;i<3;i++) pan[i] = powf(6.f,pan[i]);
 					transformation = rr::RRMatrix3x4::scale(pan);
 					if (manipulatedEntities.size()==1)
 						preTransform = true;
