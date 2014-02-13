@@ -47,6 +47,11 @@ void main()
 	vec3 cy1  = texture2D(colorMap,vec2(tMapCoord.x,tMapCoord.y+tPixelSize.y)).rgb;
 	vec3 cy2  = texture2D(colorMap,vec2(tMapCoord.x,tMapCoord.y+2.0*tPixelSize.y)).rgb;
 	float z0   = texture2D(depthMap,tMapCoord).z;
+	if (z0>=1.0) // prevents noise on background that shows up when SSGI radius is close to camera far
+	{
+		gl_FragColor = vec4(1.0);
+		return;
+	}
 	//float zx_2 = texture2D(depthMap,tMapCoord-vec2(tPixelSize.x*2.0,0.0)).z;
 	float zx_1 = texture2D(depthMap,tMapCoord-vec2(tPixelSize.x,0.0)).z;
 	float zx1  = texture2D(depthMap,tMapCoord+vec2(tPixelSize.x,0.0)).z;
