@@ -69,7 +69,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			// string is updated from OnIdle
 			AppendIn(propCameraDofAccumulated,propCameraDofApertureShape);
 
-			propCameraDofApertureDiameter = new FloatProperty(_("Aperture diameter")+" (m)",_("Diameter of opening inside the camera lens. Wider = DOF is more apparent."),(float)svs.camera.apertureDiameter,svs.precision,0.001f,1,0.01f,false);
+			propCameraDofApertureDiameter = new FloatProperty(_("Aperture diameter")+" (m)",_("Diameter of opening inside the camera lens. Wider = DOF is more apparent."),(float)svs.camera.apertureDiameter,svs.precision,0,1,0.01f,false);
 			AppendIn(propCameraDof,propCameraDofApertureDiameter);
 
 			propCameraDofFocusDistance = new wxStringProperty(_("Focus distance"), wxPG_LABEL);
