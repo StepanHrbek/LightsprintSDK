@@ -10,9 +10,6 @@
 	#include <windows.h> // EXCEPTION_EXECUTE_HANDLER
 #endif
 #include <unordered_set>
-#include <boost/filesystem.hpp>
-
-namespace bf = boost::filesystem;
 
 namespace rr
 {
