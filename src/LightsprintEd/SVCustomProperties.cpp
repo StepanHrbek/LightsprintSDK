@@ -466,7 +466,7 @@ struct CityLocation
 
 const CityLocation cityLocations[] =
 {
-	{_("unknown"),0,0,'N',0,0,'W'},
+	{wxT("unknown"),0,0,'N',0,0,'W'}, // _() would crash here, called before wx initialization
 	{wxT("Aberdeen, Scotland"),57,9,'N',2,9,'W'},
 	{wxT("Adelaide, Australia"),34,55,'S',138,36,'E'},
 	{wxT("Albany, N.Y., USA"),42,40,'N',73,45,'W'},
