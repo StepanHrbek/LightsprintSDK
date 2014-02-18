@@ -1218,8 +1218,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 									newLight->position -= accumulatedPanning*(j/(numCopies-1.0f));
 									svframe->m_canvas->lightsToBeDeletedOnExit.push_back(newLight);
 									lights.push_back(newLight);
-									if (j+1==numCopies) // after cloning, select the last clone group
-										selectedLights.push_back(newLight);
 								}
 								else
 								if (i->type==ST_OBJECT)
@@ -1244,8 +1242,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 									rr::RRMatrix3x4 matrix = rr::RRMatrix3x4::translation(accumulatedPanning*(j/(1.0f-numCopies))) * objects[i->index]->getWorldMatrixRef();
 									newObject->setWorldMatrix(&matrix);
 									objects.push_back(newObject);
-									if (j+1==numCopies) // after cloning, select the last clone group
-										selectedObjects.push_back(newObject);
 								}
 							}
 						}
