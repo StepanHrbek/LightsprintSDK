@@ -302,6 +302,11 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 						priv->scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,exitanceHdr[ofs]);
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 					}
+					else
+					{
+						// no solver, return darkness
+						exitanceHdr[ofs] = RRVec3(0);
+					}
 				}
 			}
 	}
