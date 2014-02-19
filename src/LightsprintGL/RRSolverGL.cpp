@@ -786,6 +786,8 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		camera.setRange(size*0.0001f,size);
 		PluginParamsShared ppShared;
 		ppShared.camera = &camera;
+		ppShared.viewport[2] = cube->getWidth();
+		ppShared.viewport[3] = cube->getHeight();
 		ppShared.srgbCorrect = true; // we don't know whether final render is srgb correct or not, let's request more realistic version (but renderToCube might ignore us)
 		renderer->render(&ppCube,ppShared);
 		cubeTexture->bindTexture();
