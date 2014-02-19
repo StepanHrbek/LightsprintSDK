@@ -302,6 +302,16 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 						priv->scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,exitanceHdr[ofs]);
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 					}
+#ifdef RR_DEVELOPMET
+					else if (priv->customIrradianceRGBA8 && priv->customToPhysical && getMultiObjectCustom())
+					{
+						// no solver, return DDI
+						RRMaterial* triangleMaterial = getMultiObjectCustom()->getTriangleMaterial(face,NULL,NULL);
+						unsigned rgba8 = priv->customIrradianceRGBA8[face];
+						RRVec3 physicalIrradiance(priv->customToPhysical[rgba8&0xff],priv->customToPhysical[(rgba8>>8)&0xff],priv->customToPhysical[(rgba8>>16)&0xff]);
+						exitanceHdr[ofs] = triangleMaterial ? triangleMaterial->diffuseReflectance.color*physicalIrradiance+triangleMaterial->diffuseEmittance.color : RRVec3(0);
+					}
+#endif
 					else
 					{
 						// no solver, return darkness
@@ -320,7 +330,11 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 
 // thread safe: yes
 // converts triangle numbers to float exitance in physical scale
+#ifdef RR_DEVELOPMET
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const unsigned* customIrradianceRGBA8, const RRReal* customToPhysical, const RRObject* multiObjectCustom, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
+#else
 static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
+#endif
 {
 	if (!scene && !packedSolver && !environment0)
 	{
@@ -386,6 +400,16 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 			scene->getTriangleMeasure(face,3,RM_EXITANCE_PHYSICAL,NULL,exitanceHdr[ofs]);
 			RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 		}
+#ifdef RR_DEVELOPMET
+		else if (customIrradianceRGBA8 && customToPhysical && multiObjectCustom)
+		{
+			// no solver, return DDI
+			RRMaterial* triangleMaterial = multiObjectCustom->getTriangleMaterial(face,NULL,NULL);
+			unsigned rgba8 = customIrradianceRGBA8[face];
+			RRVec3 physicalIrradiance(customToPhysical[rgba8&0xff],customToPhysical[(rgba8>>8)&0xff],customToPhysical[(rgba8>>16)&0xff]);
+			exitanceHdr[ofs] = triangleMaterial ? triangleMaterial->diffuseReflectance.color*physicalIrradiance+triangleMaterial->diffuseEmittance.color : RRVec3(0);
+		}
+#endif
 		else
 		{
 			// no solver, return darkness
@@ -458,7 +482,11 @@ unsigned RRSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsi
 
 	if (!cubeMapGather(illumination,layerEnvironment,gatheredExitance))
 	{
+#ifdef RR_DEVELOPMET
+		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getDirectIllumination(),priv->customToPhysical,getMultiObjectCustom(),getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
+#else
 		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
+#endif
 	}
 
 	unsigned updatedMaps = 0;
