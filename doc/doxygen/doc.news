@@ -18,6 +18,8 @@ NEWS
 
 CHANGES
 
+- PluginParamsScene::updateLayers split into PluginParamsScene::updateLayerLightmap, PluginParamsScene::updateLayerEnvironment (for more fine grained control)
+
 \section news142 ------------------------------------ 2014.02.05 -------------------------------------
 
 NEWS
