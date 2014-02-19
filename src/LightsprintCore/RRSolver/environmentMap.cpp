@@ -256,7 +256,14 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 					ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
 					ray->hitObject = multiObject;
 					if (ray->hitObject->getCollider()->intersect(ray))
+					{
 						face = kit->handler6[side].gethHitTriangle(); //ray->hitTriangle;
+						if (face>=numTriangles)
+						{
+							RR_ASSERT(0);
+							face = UINT_MAX;
+						}
+					}
 				}
 				if (illumination->cachedTriangleNumbers)
 				{
