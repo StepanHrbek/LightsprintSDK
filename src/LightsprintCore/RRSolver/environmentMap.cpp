@@ -181,9 +181,10 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 	float blendFactor = getEnvironmentBlendFactor();
 	const RRScaler* scalerForReadingEnv = getScaler();
 	unsigned gatherSize = reflectionEnvMap->getWidth();
+	unsigned numTriangles = getMultiObjectCustom() ? getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles() : 0;
 
 	if (gatherSize==illumination->cachedGatherSize
-		&& (unsigned short)(getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0)==illumination->cachedNumTriangles
+		&& (unsigned short)(numTriangles)==illumination->cachedNumTriangles
 		&& (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()<=CENTER_GRANULARITY)
 		return false;
 
@@ -306,7 +307,7 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 	}
 	kit->inUse = false;
 	illumination->cachedGatherSize = gatherSize;
-	illumination->cachedNumTriangles = getMultiObjectCustom() ? getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles() : 0;
+	illumination->cachedNumTriangles = numTriangles;
 	illumination->cachedCenter = illumination->envMapWorldCenter;
 	return true;
 }
