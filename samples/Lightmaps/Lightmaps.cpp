@@ -342,7 +342,8 @@ void display(void)
 	ppScene.lights = &solver->realtimeLights;
 	ppScene.uberProgramSetup.enableAllLights();
 	ppScene.uberProgramSetup.enableAllMaterials();
-	ppScene.updateLayers = renderLayer==LAYER_REALTIME;
+	ppScene.updateLayerLightmap = renderLayer==LAYER_REALTIME;
+	ppScene.updateLayerEnvironment = renderLayer==LAYER_REALTIME;
 	ppScene.layerLightmap = renderLayer;
 	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
 	rr_gl::PluginParamsSSGI ppSSGI(&ppScene,1,0.3f,0.1f);

@@ -59,7 +59,8 @@ public:
 					}
 					vbuf->unlock();
 					// tell renderer to use our buffer and not to update it
-					ppScene->updateLayers = false;
+					ppScene->updateLayerLightmap = false;
+					ppScene->updateLayerEnvironment = false;
 					ppScene->layerLightmap = LAYER_DDI;
 					ppScene->layerEnvironment = UINT_MAX;
 					ppScene->layerLDM = UINT_MAX;

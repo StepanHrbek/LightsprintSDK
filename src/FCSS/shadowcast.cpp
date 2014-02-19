@@ -289,7 +289,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	rr_gl::PluginParamsScene ppScene(&ppSky,level->solver);
 	ppScene.uberProgramSetup = uberProgramSetup;
 	ppScene.renderingFromThisLight = renderingFromThisLight;
-	ppScene.updateLayers = true;
+	ppScene.updateLayerLightmap = true;
+	ppScene.updateLayerEnvironment = true;
 	ppScene.layerLightmap = LAYER_LIGHTMAPS;
 	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
 	ppScene.layerLDM = uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX;

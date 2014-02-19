@@ -55,11 +55,19 @@ public:
 	//! When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
 	const rr::RRLight* renderingFromThisLight;
 
-	//! False = renders illumination as it is stored in buffers, without updating it.
-	//! True = updates illumination in _layerLightmap and _layerEnvironment layers before rendering it. Updates only outdated buffers, only buffers being rendered.
-	//! Note that renderer does not allocated or deleted buffers.
-	//! You can allocate buffers in advance by calling RRSolver::allocateBuffersForRealtimeGI() once.
-	bool updateLayers;
+	//! True = updates illumination stored in buffers in layerLightmap layer before rendering it.
+	//
+	//! Updates only outdated buffers, only buffers being rendered.
+	//! Note that renderer does not allocate or delete buffers.
+	//! You can allocate buffers in advance manually or by calling RRSolver::allocateBuffersForRealtimeGI() once.
+	bool updateLayerLightmap;
+
+	//! True = updates illumination stored in buffers in layerEnvironment layer before rendering it.
+	//
+	//! Updates only outdated buffers, only buffers being rendered.
+	//! Note that renderer does not allocate or delete buffers.
+	//! You can allocate buffers in advance manually or by calling RRSolver::allocateBuffersForRealtimeGI() once.
+	bool updateLayerEnvironment;
 
 	//! Indirect illumination is taken from and possibly updated in given layer.
 	//! Renderer touches only existing buffers, does not allocate new ones.
@@ -92,7 +100,8 @@ public:
 		objects = NULL;
 		lights = _solver?&_solver->realtimeLights:NULL;
 		renderingFromThisLight = NULL;
-		updateLayers = false;
+		updateLayerLightmap = false;
+		updateLayerEnvironment = false;
 		layerLightmap = UINT_MAX;
 		layerEnvironment = UINT_MAX;
 		layerLDM = UINT_MAX;

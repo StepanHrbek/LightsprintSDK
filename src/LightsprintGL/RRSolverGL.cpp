@@ -757,7 +757,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		ppScene.uberProgramSetup.enableAllLights();
 		ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // no mirrors, prevents render() from calling another render()
 		ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
-		ppScene.updateLayers = false; // no environment updates,  prevents render() from calling another updateEnvironmentMap(), we are not reentrant because of depthTexture
+		ppScene.updateLayerEnvironment = false; // no environment updates,  prevents render() from calling another updateEnvironmentMap(), we are not reentrant because of depthTexture
 		ppScene.layerEnvironment = UINT_MAX; // no envmaps, prevents using texture we are rendering into
 		if (layerAmbientMap!=UINT_MAX)
 		{

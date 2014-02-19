@@ -185,7 +185,7 @@ public:
 				(_.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _.layerLDM!=UINT_MAX)
 				// if we are to use provided indirect, take it always from 1objects
 				// ([#12] if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
-				|| ((_.uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_.uberProgramSetup.LIGHT_INDIRECT_MAP) && !_.updateLayers && _.layerLightmap!=UINT_MAX)
+				|| ((_.uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_.uberProgramSetup.LIGHT_INDIRECT_MAP) && !_.updateLayerLightmap && _.layerLightmap!=UINT_MAX)
 				// optimized render would look bad with single cube per-scene (sometimes such cube does not exist at all)
 				|| ((_.uberProgramSetup.MATERIAL_SPECULAR && _.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _.layerEnvironment!=UINT_MAX)
 				|| ((_.uberProgramSetup.MATERIAL_DIFFUSE && _.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE) && _.layerEnvironment!=UINT_MAX)
@@ -436,7 +436,7 @@ public:
 					}
 					perObjectBuffers[recursionDepth].push_back(objectBuffers);
 
-					if (_.updateLayers && objectWillBeRendered)
+					if (_.updateLayerLightmap && objectWillBeRendered)
 					{
 						// update vertex buffers
 						if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR
@@ -457,6 +457,9 @@ public:
 								_.solver->updateLightmap(-1,lightIndirectVcolor,NULL,NULL,NULL);
 							}
 						}
+					}
+					if (_.updateLayerEnvironment && objectWillBeRendered)
+					{
 						// update cube maps
 						// built-in version check
 						if (objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE||objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
