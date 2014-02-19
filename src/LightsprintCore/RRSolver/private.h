@@ -57,7 +57,7 @@ namespace rr
 		float      environmentAngleRad0;
 		float      environmentAngleRad1;
 		float      environmentBlendFactor;
-		const unsigned* customIrradianceRGBA8;
+		const unsigned* customIrradianceRGBA8; // NULL or array of getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles() elements
 
 		// scale: inputs
 		const RRScaler*  scaler;

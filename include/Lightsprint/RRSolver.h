@@ -141,6 +141,7 @@ namespace rr
 		//!  but materials are not.
 		//!  Format is RGBA8, i.e. first byte is red, second one is green, third one is blue, fourth one is ignored.
 		//!
+		//!  Length of array is getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles().
 		//!  Order of values in array is defined by order of static triangles in scene,
 		//!  first all triangles from static object 0, then all triangles from static object 1 etc.
 		//!
