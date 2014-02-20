@@ -15,7 +15,6 @@
 namespace rr_ed
 {
 
-
 void tm_setNow(tm& a);
 void tm_addSeconds(tm& a, double _seconds);
 
