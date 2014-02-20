@@ -1531,7 +1531,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 #ifdef SUPPORT_OCULUS
 		// oculus camera rotation
-		if (svframe->oculusSensor && svs.renderStereo && svframe->userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT)
+		if (svframe->oculusActive())
 		{
 			static rr::RRVec3 oldOculusRot(0);
 			rr::RRVec3 oculusRot(0);
