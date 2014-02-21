@@ -113,12 +113,15 @@ static void updateStringResolution(wxPGProperty* property, rr::RRBuffer* buffer)
 {
 	updateString(property,(!buffer)
 		? ""
-		: (buffer->getType()==rr::BT_2D_TEXTURE
+		: ((buffer->getType()==rr::BT_2D_TEXTURE
 			? wxString::Format("%d*%d map",buffer->getWidth(),buffer->getHeight())
 			: (buffer->getType()==rr::BT_CUBE_TEXTURE
 				? wxString::Format("%d*%d*%d cube",buffer->getWidth(),buffer->getHeight(),buffer->getDepth())
 				: wxString::Format("%d vertex colors",buffer->getWidth())
-			)));
+			))
+			+ (buffer->getScaled()?"":" linear")
+			+ (buffer->getFormat()==rr::BF_RGBF || buffer->getFormat()==rr::BF_RGBAF?" floats":"")
+		));
 }
 
 //! Copy object -> enable/disable property.
