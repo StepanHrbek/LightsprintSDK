@@ -299,6 +299,10 @@ void SVCanvas::createContextCore()
 	reallocateBuffersForRealtimeGI(true);
 
 	// load skybox from filename only if we don't have it from inputsolver or scene yet
+	if (solver->getEnvironment())
+		rr::RRReporter::report(rr::INF3,"skybox: solver.env[%s]=%s, svs.env=%s\n",solver->getEnvironment()->isStub()?"stub":"ok",solver->getEnvironment()->filename.c_str(),svs.skyboxFilename.c_str());
+	else
+		rr::RRReporter::report(rr::INF3,"skybox: solver.env=NULL, svs.env=%s\n",svs.skyboxFilename.c_str());
 	if ((!solver->getEnvironment() || solver->getEnvironment()->isStub()) && !svs.skyboxFilename.empty())
 	{
 		rr::RRReportInterval report(rr::INF3,"Loading skybox...\n");
