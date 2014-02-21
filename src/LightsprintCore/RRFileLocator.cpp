@@ -95,7 +95,7 @@ protected:
 		}
 
 		// original
-		if ((parentFilenames.empty() || originalFilename.has_root_path()) && !attemptNumber--)
+		if (!attemptNumber--)
 			return originalFilename;
 
 		// relative to parent
