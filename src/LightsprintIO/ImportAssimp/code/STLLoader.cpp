@@ -86,7 +86,12 @@ bool IsAsciiSTL(const char* buffer, unsigned int fileSize) {
 	if (IsBinarySTL(buffer, fileSize))
 		return false;
 
-	if (fileSize < 5)
+	const char* bufferEnd = buffer + fileSize;
+
+	if (!SkipSpaces(&buffer))
+		return false;
+
+	if (buffer + 5 >= bufferEnd)
 		return false;
 
 	return strncmp(buffer, "solid", 5) == 0;
@@ -148,8 +153,8 @@ void STLImporter::InternReadFile( const std::string& pFile,
 	this->pScene = pScene;
 	this->mBuffer = &mBuffer2[0];
 
-	// the default vertex color is white
-	clrColorDefault.r = clrColorDefault.g = clrColorDefault.b = clrColorDefault.a = 1.0f;
+	// the default vertex color is light gray.
+	clrColorDefault.r = clrColorDefault.g = clrColorDefault.b = clrColorDefault.a = 0.6f;
 
 	// allocate one mesh
 	pScene->mNumMeshes = 1;
@@ -184,13 +189,14 @@ void STLImporter::InternReadFile( const std::string& pFile,
 		}
 	}
 
-	// create a single default material - everything white, as we have vertex colors
+	// create a single default material, using a light gray diffuse color for consistency with
+	// other geometric types (e.g., PLY).
 	aiMaterial* pcMat = new aiMaterial();
 	aiString s;
 	s.Set(AI_DEFAULT_MATERIAL_NAME);
 	pcMat->AddProperty(&s, AI_MATKEY_NAME);
 
-	aiColor4D clrDiffuse(1.0f,1.0f,1.0f,1.0f);
+	aiColor4D clrDiffuse(0.6f,0.6f,0.6f,1.0f);
 	if (bMatClr) {
 		clrDiffuse = clrColorDefault;
 	}
@@ -209,7 +215,11 @@ void STLImporter::LoadASCIIFile()
 {
 	aiMesh* pMesh = pScene->mMeshes[0];
 
-	const char* sz = mBuffer + 5; // skip the "solid"
+	const char* sz = mBuffer;
+	SkipSpaces(&sz);
+	ai_assert(!IsLineEnd(sz));
+
+	sz += 5; // skip the "solid"
 	SkipSpaces(&sz);
 	const char* szMe = sz;
 	while (!::IsSpaceOrNewLine(*sz)) {

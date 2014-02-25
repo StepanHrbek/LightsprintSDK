@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2012, assimp team
+Copyright (c) 2006-2013, assimp team
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms, 
@@ -38,48 +38,56 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Stuff to deal with aiScene::mPrivate
+/** @file  BlenderBMesh.h
+ *  @brief Conversion of Blender's new BMesh stuff
  */
-#ifndef AI_SCENEPRIVATE_H_INCLUDED
-#define AI_SCENEPRIVATE_H_INCLUDED
+#ifndef INCLUDED_AI_BLEND_BMESH_H
+#define INCLUDED_AI_BLEND_BMESH_H
 
+#include "LogAux.h"
 
-namespace Assimp	{
+namespace Assimp
+{
+	// TinyFormatter.h
+	namespace Formatter
+	{
+		template < typename T,typename TR, typename A > class basic_formatter;
+		typedef class basic_formatter< char, std::char_traits< char >, std::allocator< char > > format;
+	}
 
-	class Importer;
+	// BlenderScene.h
+	namespace Blender
+	{
+		struct Mesh;
+		struct MPoly;
+		struct MLoop;
+	}
 
-struct ScenePrivateData {
-	
-	ScenePrivateData()
-		: mOrigImporter()
-		, mPPStepsApplied()
-		, mIsCopy()
-	{}
+	class BlenderBMeshConverter: public LogFunctions< BlenderBMeshConverter >
+	{
+	public:
+		BlenderBMeshConverter( const Blender::Mesh* mesh );
+		~BlenderBMeshConverter( );
 
-	// Importer that originally loaded the scene though the C-API
-	// If set, this object is owned by this private data instance.
-	Assimp::Importer* mOrigImporter;
+		bool ContainsBMesh( ) const;
 
-	// List of postprocessing steps already applied to the scene.
-	unsigned int mPPStepsApplied;
+		const Blender::Mesh* TriangulateBMesh( );
 
-	// true if the scene is a copy made with aiCopyScene()
-	// or the corresponding C++ API. This means that user code
-	// may have made modifications to it, so mPPStepsApplied
-	// and mOrigImporter are no longer safe to rely on and only
-	// serve informative purposes.
-	bool mIsCopy;
-};
+	private:
+		void AssertValidMesh( );
+		void AssertValidSizes( );
+		void PrepareTriMesh( );
+		void DestroyTriMesh( );
+		void ConvertPolyToFaces( const Blender::MPoly& poly );
+		void AddFace( int v1, int v2, int v3, int v4 = 0 );
 
-// Access private data stored in the scene
-inline ScenePrivateData* ScenePriv(aiScene* in) {
-	return static_cast<ScenePrivateData*>(in->mPrivate);
-}
+		const Blender::Mesh* BMesh;
+		Blender::Mesh* triMesh;
 
-inline const ScenePrivateData* ScenePriv(const aiScene* in) {
-	return static_cast<const ScenePrivateData*>(in->mPrivate);
-}
+		friend class BlenderTessellatorGL;
+		friend class BlenderTessellatorP2T;
+	};
 
-}
+} // end of namespace Assimp
 
-#endif
+#endif // INCLUDED_AI_BLEND_BMESH_H

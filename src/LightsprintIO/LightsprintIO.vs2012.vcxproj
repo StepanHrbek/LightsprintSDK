@@ -582,10 +582,12 @@
     <ClCompile Include="ImportAssimp\code\B3DImporter.cpp" />
     <ClCompile Include="ImportAssimp\code\BaseImporter.cpp" />
     <ClCompile Include="ImportAssimp\code\BaseProcess.cpp" />
+    <ClCompile Include="ImportAssimp\code\BlenderBMesh.cpp" />
     <ClCompile Include="ImportAssimp\code\BlenderDNA.cpp" />
     <ClCompile Include="ImportAssimp\code\BlenderLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\BlenderModifier.cpp" />
     <ClCompile Include="ImportAssimp\code\BlenderScene.cpp" />
+    <ClCompile Include="ImportAssimp\code\BlenderTessellator.cpp" />
     <ClCompile Include="ImportAssimp\code\BVHLoader.cpp" />
     <ClCompile Include="ImportAssimp\code\CalcTangentsProcess.cpp" />
     <ClCompile Include="ImportAssimp\code\COBLoader.cpp" />
@@ -963,12 +965,14 @@
     <ClInclude Include="ImportAssimp\code\B3DImporter.h" />
     <ClInclude Include="ImportAssimp\code\BaseImporter.h" />
     <ClInclude Include="ImportAssimp\code\BaseProcess.h" />
+    <ClInclude Include="ImportAssimp\code\BlenderBMesh.h" />
     <ClInclude Include="ImportAssimp\code\BlenderDNA.h" />
     <ClInclude Include="ImportAssimp\code\BlenderIntermediate.h" />
     <ClInclude Include="ImportAssimp\code\BlenderLoader.h" />
     <ClInclude Include="ImportAssimp\code\BlenderModifier.h" />
     <ClInclude Include="ImportAssimp\code\BlenderScene.h" />
     <ClInclude Include="ImportAssimp\code\BlenderSceneGen.h" />
+    <ClInclude Include="ImportAssimp\code\BlenderTessellator.h" />
     <ClInclude Include="ImportAssimp\code\BlobIOSystem.h" />
     <ClInclude Include="ImportAssimp\code\BVHLoader.h" />
     <ClInclude Include="ImportAssimp\code\ByteSwap.h" />

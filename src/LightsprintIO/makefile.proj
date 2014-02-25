@@ -124,10 +124,12 @@ ImportAssimp/code/MDCLoader.cpp \
 ImportAssimp/code/COBLoader.cpp \
 ImportAssimp/code/MS3DLoader.cpp \
 ImportAssimp/code/Subdivision.cpp \
+ImportAssimp/code/BlenderBMesh.cpp \
 ImportAssimp/code/BlenderDNA.cpp \
 ImportAssimp/code/BlenderLoader.cpp \
 ImportAssimp/code/BlenderModifier.cpp \
 ImportAssimp/code/BlenderScene.cpp \
+ImportAssimp/code/BlenderTessellator.cpp \
 ImportAssimp/code/MakeVerboseFormat.cpp \
 ImportAssimp/code/NDOLoader.cpp \
 ImportAssimp/code/Q3BSPFileImporter.cpp \

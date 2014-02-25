@@ -210,7 +210,7 @@ bool IntersectsBoundaryProfile( const IfcVector3& e0, const IfcVector3& e1, cons
 		// segment-segment intersection
 		// solve b0 + b*s = e0 + e*t for (s,t)
 		const IfcFloat det = (-b.x * e.y + e.x * b.y);
-		if(fabs(det) < 1e-6) {
+		if(fabs(det) < 1e-5) {
 			// no solutions (parallel lines)
 			continue;
 		}

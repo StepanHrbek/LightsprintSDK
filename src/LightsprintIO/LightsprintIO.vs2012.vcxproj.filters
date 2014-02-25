@@ -1303,6 +1303,12 @@
     <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLSplineLoader14.cpp">
       <Filter>OpenCollada\COLLADASaxFrameworkLoader\src\generated14</Filter>
     </ClCompile>
+    <ClCompile Include="ImportAssimp\code\BlenderBMesh.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportAssimp\code\BlenderTessellator.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Import3DS\Model_3DS.h">
@@ -3022,6 +3028,12 @@
     </ClInclude>
     <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSplineLoader14.h">
       <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BlenderBMesh.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportAssimp\code\BlenderTessellator.h">
+      <Filter>Assimp\code</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

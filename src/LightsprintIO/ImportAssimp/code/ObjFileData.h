@@ -156,11 +156,26 @@ struct Material
 	aiString texture;
 	aiString textureSpecular;
 	aiString textureAmbient;
+	aiString textureEmissive;
 	aiString textureBump;
 	aiString textureNormal;
 	aiString textureSpecularity;
 	aiString textureOpacity;
 	aiString textureDisp;
+	enum TextureType
+	{
+		TextureDiffuseType = 0,
+		TextureSpecularType,
+		TextureAmbientType,
+		TextureEmissiveType,
+		TextureBumpType,
+		TextureNormalType,
+		TextureSpecularityType,
+		TextureOpacityType,
+		TextureDispType,
+		TextureTypeCount
+	};
+	bool clamp[TextureTypeCount];
 
 	//!	Ambient color 
 	aiColor3D ambient;
@@ -186,6 +201,10 @@ struct Material
 		,	ior		(1.f)
 	{
 		// empty
+		for (size_t i = 0; i < TextureTypeCount; ++i)
+		{
+			clamp[i] = false;
+		}
 	}
 
 	// Destructor
@@ -277,7 +296,7 @@ struct Model
 	//!	Material map
 	std::map<std::string, Material*> m_MaterialMap;
 
-	//!	\brief	Default constructor
+	//!	\brief	The default class constructor
 	Model() :
 		m_ModelName(""),
 		m_pCurrent(NULL),
@@ -290,7 +309,7 @@ struct Model
 		// empty
 	}
 	
-	//!	\brief	Destructor
+	//!	\brief	The class destructor
 	~Model()
 	{
 		// Clear all stored object instances
