@@ -49,10 +49,19 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propCameraPanorama = new BoolRefProperty(_("Panorama"),_("Enables 360 degree rendering."),svs.renderPanorama);
 			AppendIn(propCamera,propCameraPanorama);
 
+			{
 			const wxChar* panoStrings[] = {_("Equirectangular"),_("Little planet"),_("Dome"),NULL};
 			const long panoValues[] = {rr_gl::PM_EQUIRECTANGULAR,rr_gl::PM_LITTLE_PLANET,rr_gl::PM_DOME};
 			propCameraPanoramaMode = new wxEnumProperty(_("Mode"), wxPG_LABEL, panoStrings, panoValues);
 			AppendIn(propCameraPanorama,propCameraPanoramaMode);
+			}
+
+			{
+			const wxChar* panoStrings[] = {_("Full+stretch"),_("Full"),_("Truncate bottom"),_("Truncate top"),NULL};
+			const long panoValues[] = {rr_gl::PC_FULL_STRETCH,rr_gl::PC_FULL,rr_gl::PC_TRUNCATE_BOTTOM,rr_gl::PC_TRUNCATE_TOP};
+			propCameraPanoramaCoverage = new wxEnumProperty(_("Coverage"), wxPG_LABEL, panoStrings, panoValues);
+			AppendIn(propCameraPanorama,propCameraPanoramaCoverage);
+			}
 
 
 		}
@@ -309,6 +318,7 @@ void SVSceneProperties::updateHide()
 	propCameraDisplayDistance->Hide(!svs.renderStereo,false);
 
 	propCameraPanoramaMode->Hide(!svs.renderPanorama,false);
+	propCameraPanoramaCoverage->Hide(!svs.renderPanorama,false);
 
 	propCameraDofAccumulated->Hide(!svs.renderDof,false);
 	propCameraDofApertureShape->Hide(!svs.renderDof || !svs.dofAccumulated,false);
@@ -382,6 +392,7 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propCameraEyeSeparation,svs.camera.eyeSeparation)
 		+ updateFloat(propCameraDisplayDistance,svs.camera.displayDistance)
 		+ updateInt(propCameraPanoramaMode,svs.panoramaMode)
+		+ updateInt(propCameraPanoramaCoverage,svs.panoramaCoverage)
 		+ updateString(propCameraDofApertureShape,RR_RR2WX(svs.dofApertureShapeFilename))
 		+ updateFloat(propCameraDofApertureDiameter,svs.camera.apertureDiameter)
 		+ updateBoolRef(propCameraDofAutomaticFocusDistance)
@@ -474,6 +485,11 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCameraPanoramaMode)
 	{
 		svs.panoramaMode = (rr_gl::PanoramaMode)property->GetValue().GetInteger();
+	}
+	else
+	if (property==propCameraPanoramaCoverage)
+	{
+		svs.panoramaCoverage = (rr_gl::PanoramaCoverage)property->GetValue().GetInteger();
 	}
 	else
 	if (property==propCameraDof)

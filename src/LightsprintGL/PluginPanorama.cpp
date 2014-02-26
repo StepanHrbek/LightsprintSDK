@@ -51,7 +51,36 @@ public:
 		_renderer.render(&ppCube,_sp);
 
 		// composite
-		_renderer.getTextureRenderer()->render2D(cubeTexture,NULL,_sp.srgbCorrect?0.45f:1.f,0,0,1,1,-1,(pp.panoramaMode==PM_EQUIRECTANGULAR)?"#define CUBE_TO_EQUIRECTANGULAR\n":((pp.panoramaMode==PM_LITTLE_PLANET)?"#define CUBE_TO_LITTLE_PLANET\n":((pp.panoramaMode==PM_DOME)?"#define CUBE_TO_DOME\n":NULL)),_sp.camera?_sp.camera->getYawPitchRollRad().x:0);
+		float x0 = 0;
+		float y0 = 0;
+		float w = 1;
+		float h = 1;
+		if (pp.panoramaMode!=rr_gl::PM_EQUIRECTANGULAR)
+		switch (pp.panoramaCoverage)
+		{
+			case rr_gl::PC_FULL_STRETCH:
+				break;
+			case rr_gl::PC_FULL:
+				if (_sp.viewport[2]>_sp.viewport[3])
+				{
+					w = _sp.viewport[3]/float(_sp.viewport[2]);
+					x0 = (1-w)/2;
+				}
+				else
+				{
+					h = _sp.viewport[2]/float(_sp.viewport[3]);
+					y0 = (1-h)/2;
+				}
+				break;
+			case rr_gl::PC_TRUNCATE_BOTTOM:
+				h = _sp.viewport[2]/float(_sp.viewport[3]);
+				y0 = 1-h;
+				break;
+			case rr_gl::PC_TRUNCATE_TOP:
+				h = _sp.viewport[2]/float(_sp.viewport[3]);
+				break;
+		}
+		_renderer.getTextureRenderer()->render2D(cubeTexture,NULL,_sp.srgbCorrect?0.45f:1.f,x0,y0,w,h,-1,(pp.panoramaMode==PM_EQUIRECTANGULAR)?"#define CUBE_TO_EQUIRECTANGULAR\n":((pp.panoramaMode==PM_LITTLE_PLANET)?"#define CUBE_TO_LITTLE_PLANET\n":((pp.panoramaMode==PM_DOME)?"#define CUBE_TO_DOME\n":NULL)),_sp.camera?_sp.camera->getYawPitchRollRad().x:0);
 
 	}
 

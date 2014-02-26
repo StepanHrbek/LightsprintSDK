@@ -6,7 +6,7 @@
 // #define TEXTURE_IS_CUBE
 // #define  CUBE_TO_EQUIRECTANGULAR
 // #define  CUBE_TO_LITTLE_PLANET
-// #define  CUBE_TO_DOME yaw_rad
+// #define  CUBE_TO_DOME
 // #define GAMMA
 // #define SHOW_ALPHA0
 // #define MIRROR_MASK
