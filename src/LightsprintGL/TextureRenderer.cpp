@@ -128,7 +128,7 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	return result;
 };
 
-bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines)
+bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines, float yawAngleRad)
 {
 	Program* program = twodProgram ? twodProgram->getProgram(tmpstr("#define TEXTURE\n%s%s",(gamma!=1)?"#define GAMMA\n":"",extraDefines?extraDefines:"")) : NULL;
 	if (!program)
@@ -143,6 +143,8 @@ bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma, const 
 	program->sendUniform("color",color?*color:rr::RRVec4(1));
 	if (gamma!=1)
 		program->sendUniform("gamma",gamma);
+	if (strstr(extraDefines,"#define TEXTURE_IS_CUBE\n"))
+		program->sendUniform("yawAngleRad",yawAngleRad);
 	glEnableVertexAttribArray(VAA_POSITION);
 	glEnableVertexAttribArray(VAA_UV_MATERIAL_DIFFUSE);
 	return true;
@@ -179,7 +181,7 @@ void TextureRenderer::render2dEnd()
 	glDisableVertexAttribArray(VAA_POSITION);
 }
 
-void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z, const char* extraDefines)
+void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z, const char* extraDefines, float yawAngleRad)
 {
 	GLboolean depthTest;
 	if (z<0)
@@ -187,7 +189,7 @@ void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, 
 		depthTest = glIsEnabled(GL_DEPTH_TEST);
 		glDisable(GL_DEPTH_TEST);
 	}
-	if (render2dBegin(color,gamma,tmpstr("%s%s",(texture && texture->getBuffer() && texture->getBuffer()->getType()==rr::BT_CUBE_TEXTURE)?"#define TEXTURE_IS_CUBE\n":"",extraDefines?extraDefines:"")))
+	if (render2dBegin(color,gamma,tmpstr("%s%s",(texture && texture->getBuffer() && texture->getBuffer()->getType()==rr::BT_CUBE_TEXTURE)?"#define TEXTURE_IS_CUBE\n":"",extraDefines?extraDefines:""),yawAngleRad))
 	{
 		render2dQuad(texture,x,y,w,h,z);
 		render2dEnd();

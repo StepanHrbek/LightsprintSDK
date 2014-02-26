@@ -12,6 +12,10 @@ namespace rr
 
 NEWS
 
+- 180 degree dome rendering
+  - use PluginPanorama with rr_gl::PM_DOME
+  - in Scene viewer, select Panorama mode Dome
+  - all panorama modes respond to camera rotation
 - improved DOF
   - fast DOF is faster
   - both fast and realistic DOF produce much closer results, fast DOF can be used as a preview for Realistic one

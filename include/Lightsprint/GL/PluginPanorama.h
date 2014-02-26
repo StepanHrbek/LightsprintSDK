@@ -18,6 +18,7 @@ enum PanoramaMode
 	PM_OFF              =0, ///< common non-panorama mode
 	PM_EQUIRECTANGULAR  =1, ///< 360 degree render in equirectangular projection \image html 360-equirect.jpg
 	PM_LITTLE_PLANET    =2, ///< 360 degree render in stereographic (little planet) projection \image html 360-planet.jpg
+	PM_DOME             =3, ///< 180 degree render in front truncated dome projection \image html 180-dome.jpg
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -30,6 +31,8 @@ enum PanoramaMode
 //! \image html 360-equirect.jpg
 //! </td><td>
 //! \image html 360-planet.jpg
+//! </td><td>
+//! \image html 180-dome.jpg
 //! </td></tr></table>
 class RR_GL_API PluginParamsPanorama : public PluginParams
 {

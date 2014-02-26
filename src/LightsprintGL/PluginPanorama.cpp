@@ -51,7 +51,7 @@ public:
 		_renderer.render(&ppCube,_sp);
 
 		// composite
-		_renderer.getTextureRenderer()->render2D(cubeTexture,NULL,_sp.srgbCorrect?0.45f:1.f,0,0,1,1,-1,(pp.panoramaMode==PM_LITTLE_PLANET)?"#define LITTLE_PLANET\n":NULL);
+		_renderer.getTextureRenderer()->render2D(cubeTexture,NULL,_sp.srgbCorrect?0.45f:1.f,0,0,1,1,-1,(pp.panoramaMode==PM_EQUIRECTANGULAR)?"#define CUBE_TO_EQUIRECTANGULAR\n":((pp.panoramaMode==PM_LITTLE_PLANET)?"#define CUBE_TO_LITTLE_PLANET\n":((pp.panoramaMode==PM_DOME)?"#define CUBE_TO_DOME\n":NULL)),_sp.camera?_sp.camera->getYawPitchRollRad().x:0);
 
 	}
 

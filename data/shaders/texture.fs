@@ -4,7 +4,9 @@
 // Options:
 // #define TEXTURE
 // #define TEXTURE_IS_CUBE
-// #define LITTLE_PLANET
+// #define  CUBE_TO_EQUIRECTANGULAR
+// #define  CUBE_TO_LITTLE_PLANET
+// #define  CUBE_TO_DOME yaw_rad
 // #define GAMMA
 // #define SHOW_ALPHA0
 // #define MIRROR_MASK
@@ -17,6 +19,7 @@ uniform float gamma;
 #ifdef TEXTURE
 	#ifdef TEXTURE_IS_CUBE
 		uniform samplerCube map;
+		uniform float yawAngleRad;
 	#else
 		uniform sampler2D map;
 	#endif
@@ -33,15 +36,12 @@ void main()
 #ifdef TEXTURE
 	#ifdef TEXTURE_IS_CUBE
 		vec3 direction;
-		#ifdef LITTLE_PLANET
-			// little planet
-			direction.xz = uv.xy-vec2(0.5,0.5);
-			float r = length(direction.xz)+0.000001; // +epsilon fixes center pixel on intel
-			direction.xz = direction.xz/r; // /r instead of normalize() fixes noise on intel
-			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
-			vec4 tex = textureCube(map,direction) * step(r,0.5);
-		#else
-			// equirectangular
+		#if !defined(CUBE_TO_LITTLE_PLANET) && !defined(CUBE_TO_DOME)
+			#define CUBE_TO_EQUIRECTANGULAR // this happens when user renders cubemap as a 2d texture, without any #defines
+		#endif
+		float c = cos(-yawAngleRad);
+		float s = sin(-yawAngleRad);
+		#ifdef CUBE_TO_EQUIRECTANGULAR
 			// rotated so that render of empty scene with equirectangular environment E is E
 			// also implemented in createEquirectangular()
 			direction.y = sin(RR_PI*(uv.y-0.5));
@@ -49,7 +49,24 @@ void main()
 			direction.z = sqrt(max(1.0-direction.x*direction.x-direction.y*direction.y,0.0)); // max() fixes center lines on intel
 			if (uv.x<0.5)
 				direction.z = -direction.z;
+			direction.xz = vec2(c*direction.x-s*direction.z,s*direction.x+c*direction.z); // yaw rotation
 			vec4 tex = textureCube(map,direction);
+		#endif
+		#ifdef CUBE_TO_LITTLE_PLANET
+			direction.xz = uv.xy-vec2(0.5,0.5);
+			direction.xz = vec2(c*direction.x-s*direction.z,s*direction.x+c*direction.z); // yaw rotation
+			float r = length(direction.xz)+0.000001; // +epsilon fixes center pixel on intel
+			direction.xz = direction.xz/r; // /r instead of normalize() fixes noise on intel
+			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
+			vec4 tex = textureCube(map,direction) * step(r,0.5);
+		#endif
+		#ifdef CUBE_TO_DOME
+			direction.xz = uv.xy-vec2(0.5,0.5);
+			float r = 0.5*length(direction.xz)+0.000001; // +epsilon fixes center pixel on intel
+			direction.xz = direction.xz/r; // /r instead of normalize() fixes noise on intel
+			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
+			direction.xy = vec2(c*direction.x-s*direction.y,s*direction.x+c*direction.y); // yaw rotation
+			vec4 tex = textureCube(map,direction.xzy) * step(r,0.25);
 		#endif
 	#else
 		vec4 tex = texture2D(map,uv);

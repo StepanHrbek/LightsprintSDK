@@ -49,8 +49,8 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			propCameraPanorama = new BoolRefProperty(_("Panorama"),_("Enables 360 degree rendering."),svs.renderPanorama);
 			AppendIn(propCamera,propCameraPanorama);
 
-			const wxChar* panoStrings[] = {_("Equirectangular"),_("Little planet"),NULL};
-			const long panoValues[] = {rr_gl::PM_EQUIRECTANGULAR,rr_gl::PM_LITTLE_PLANET};
+			const wxChar* panoStrings[] = {_("Equirectangular"),_("Little planet"),_("Dome"),NULL};
+			const long panoValues[] = {rr_gl::PM_EQUIRECTANGULAR,rr_gl::PM_LITTLE_PLANET,rr_gl::PM_DOME};
 			propCameraPanoramaMode = new wxEnumProperty(_("Mode"), wxPG_LABEL, panoStrings, panoValues);
 			AppendIn(propCameraPanorama,propCameraPanoramaMode);
 
