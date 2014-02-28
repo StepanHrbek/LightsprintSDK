@@ -116,9 +116,6 @@ public:
 	//! following primitives rendered.
 	//! Program must be linked before use.
 	void useIt();
-	//! Prints variables found in linked program to standard output.
-	//! Used for debugging.
-	void enumVariables();
 
 	//! Sets uniform texture (activates texture unit, binds texture), returns texture unit used.
 	//
