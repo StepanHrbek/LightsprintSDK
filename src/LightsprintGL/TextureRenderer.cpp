@@ -142,7 +142,7 @@ bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma, const 
 	program->sendUniform("color",color?*color:rr::RRVec4(1));
 	if (gamma!=1)
 		program->sendUniform("gamma",gamma);
-	if (strstr(extraDefines,"#define TEXTURE_IS_CUBE\n"))
+	if (extraDefines && strstr(extraDefines,"#define TEXTURE_IS_CUBE\n"))
 		program->sendUniform("yawAngleRad",yawAngleRad);
 	glEnableVertexAttribArray(VAA_POSITION);
 	glEnableVertexAttribArray(VAA_UV_MATERIAL_DIFFUSE);
