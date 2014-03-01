@@ -330,8 +330,10 @@ done:
 						{
 							glClear(GL_DEPTH_BUFFER_BIT);
 						}
+#ifndef RR_GL_ES2
 						bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
 						if (depthClamp) glEnable(GL_DEPTH_CLAMP);
+#endif
 						PluginParamsScene ppScene(NULL,this);
 						ppScene.lights = NULL;
 						ppScene.uberProgramSetup = uberProgramSetup;
@@ -341,7 +343,9 @@ done:
 						ppShared.viewport[2] = light->getRRLight().rtShadowmapSize;
 						ppShared.viewport[3] = light->getRRLight().rtShadowmapSize;
 						renderer->render(&ppScene,ppShared);
+#ifndef RR_GL_ES2
 						if (depthClamp) glDisable(GL_DEPTH_CLAMP);
+#endif
 					}
 				}
 			}
@@ -471,7 +475,9 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 	PreserveDepthMask p4;
 	PreserveDepthTest p5;
 	PreserveFBO p6; // must go after viewport, so that viewport is restored later
+#ifndef RR_GL_ES2
 	PreserveFlag p7(GL_FRAMEBUFFER_SRGB,false); // we need GL_FRAMEBUFFER_SRGB disabled
+#endif
 
 	// setup render states
 	glClearColor(0,0,0,1);
@@ -568,6 +574,15 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 
 	return 1;
 }
+
+#ifdef RR_GL_ES2
+
+void RRSolverGL::renderLights(const rr::RRCamera& _camera)
+{
+	RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"renderLights() not implemented in OpenGL ES.\n"));
+}
+
+#else //!RR_GL_ES2
 
 static bool invertMatrix4x4(const double m[16], double inverse[16])
 {
@@ -671,7 +686,7 @@ void RRSolverGL::renderLights(const rr::RRCamera& _camera)
 {
 	if (s_es)
 	{
-		rr::RRReporter::report(rr::WARN,"renderLights() not implemented in OpenGL ES.\n");
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"renderLights() not implemented in OpenGL ES.\n"));
 		return;
 	}
 	UberProgramSetup uberProgramSetup;
@@ -685,6 +700,8 @@ void RRSolverGL::renderLights(const rr::RRCamera& _camera)
 		drawRealtimeLight(realtimeLights[i]);
 	}
 }
+
+#endif //!RR_GL_ES2
 
 // gcc 4.2 can't instantiate std::vector if this struct is declared locally
 struct ObjectInfo

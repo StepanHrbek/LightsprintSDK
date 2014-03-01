@@ -276,7 +276,9 @@ void MeshArraysVBOs::renderMesh(
 			// scene will be rendered without indirect illumination
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Render of indirect illumination buffer requested, but the buffer is NULL.\n"));
 			glDisableVertexAttribArray(VAA_COLOR);
+#ifndef RR_GL_ES2
 			glColor3b(0,0,0);
+#endif
 		}
 	}
 

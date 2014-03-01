@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <cstring>
-#include "Lightsprint/GL/Program.h" // includes glew.h
+#include "Lightsprint/GL/Program.h" // includes <glew.h>
 #include "Workaround.h"
 
 namespace rr_gl
@@ -155,14 +155,22 @@ bool Workaround::supportsDepthClamp()
 	// true: all geforces, radeon 5870
 	// false:
 	// unknown: older radeons
+#ifdef RR_GL_ES2
+	return false;
+#else
 	return GLEW_ARB_depth_clamp!=GL_FALSE; // added in GL 3.2
+#endif
 }
 
 bool Workaround::supportsSRGB()
 {
+#ifdef RR_GL_ES2
+	return false;
+#else
 	return !s_isIntel // sRGB looks supported but is broken on Intel HD Graphics 4000 9.18.10.3257, probably others too
 		&& (GLEW_EXT_framebuffer_sRGB || GLEW_ARB_framebuffer_sRGB || GLEW_VERSION_3_0) // added in GL 3.0
 		&& (GLEW_EXT_texture_sRGB || GLEW_VERSION_2_1); // added in GL 2.1
+#endif
 }
 
 }; // namespace

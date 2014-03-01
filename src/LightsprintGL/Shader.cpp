@@ -23,6 +23,9 @@ Shader* Shader::create(const char* defines, const rr::RRString& filename, GLenum
 	#define SHADOW_HACK "#version 300\n#define shadow2D(a,b) vec4(texture(a,b))\n#define shadow2DProj(a,b) vec4(textureProj(a,b))\n#define textureCube texture\n"
 	//#define SHADOW_HACK "#extension GL_EXT_shadow_samplers : require\n#define shadow2D(a,b) vec4(shadow2DEXT(a,b))\n#define shadow2DProj(a,b) vec4(shadow2DProjEXT(a,b))\n"
 	const char* source[NUM_LINES];
+#ifdef RR_GL_ES2
+	bool s_es = true;
+#endif
 	source[0] = (s_es && strstr(filename.c_str(),"ubershader") ) ? SHADOW_HACK : "";//"#version 110\n"; // 110 is default, should be supported by any gl2.0 implementation. we don't insert it here, so that shader can specify its own version (dof needs 120)
 	source[1] = s_es ? "precision highp float;\n" : "";
 	source[2] = defines?defines:"";

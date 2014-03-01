@@ -4,7 +4,6 @@
 // --------------------------------------------------------------------------
 
 #define MIRRORS // enables implementation of mirrors, marks mirror source code
-#define OCCLUSION_QUERY // enables mirror optimization; usually helps, but makes CPU wait for GPU, kills all chances for speedup on dual GPU
 
 #include <algorithm> // sort
 #ifdef MIRRORS
@@ -21,6 +20,10 @@
 #include "RendererOfMesh.h"
 #include "Shader.h" // s_es
 #include "Workaround.h"
+
+#ifndef RR_GL_ES2
+	#define OCCLUSION_QUERY // enables mirror optimization; usually helps, but makes CPU wait for GPU, kills all chances for speedup on dual GPU
+#endif
 
 namespace rr_gl
 {
@@ -160,7 +163,9 @@ public:
 		// Ensure sRGB correctness.
 		if (!Workaround::supportsSRGB())
 			sp.srgbCorrect = false;
+#ifndef RR_GL_ES2
 		PreserveFlag p0(GL_FRAMEBUFFER_SRGB,sp.srgbCorrect);
+#endif
 
 #ifdef MIRRORS
 		GLint hasAlphaBits = -1; // -1=unknown, 0=no, 1,2,4,8...=yes
@@ -480,8 +485,10 @@ public:
 		PreserveColorMask p4; // changed by RendererOfMesh
 		PreserveDepthMask p5; // changed by RendererOfMesh
 
+#ifndef RR_GL_ES2
 		if (pp.wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#endif
 
 		// Render non-sorted facegroups (update and apply mirrors).
 		for (unsigned applyingMirrors=0;applyingMirrors<2;applyingMirrors++) // 2 passes, LIGHT_INDIRECT_MIRROR should go _after_ !LIGHT_INDIRECT_MIRROR to increase speed and reduce light leaking under walls
@@ -585,7 +592,9 @@ public:
 					Program* mirrorMaskProgram = mirrorMaskUberProgramSetup.getProgram(uberProgram);
 					if (!mirrorMaskProgram)
 					{
-						skip_mirror:
+#ifdef OCCLUSION_QUERY
+					skip_mirror:
+#endif
 						// mirror is completely occluded, don't render mirrorColorMap, delete it
 						// mirror might still be rendered later in final render, but mirrorColorMap will be NULL
 						for (unsigned j=0;j<perObjectBuffers[0].size();j++)
@@ -651,9 +660,17 @@ public:
 					// workaround 2:
 					//   use "gl_FragDepth = step(0.51,tex.a);" directly on uncleared buffer. this code was removed in revision 5498 to get ES compatibility
 					//   -incompatible with vanilla OpenGL ES 2.0
+#ifdef RR_GL_ES2
+					glClearDepthf(0);
+#else
 					if (s_es) glClearDepthf(0); else glClearDepth(0);
+#endif
 					glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+#ifdef RR_GL_ES2
+					glClearDepthf(1);
+#else
 					if (s_es) glClearDepthf(1); else glClearDepth(1);
+#endif
 
 					// write mirrorDepthMap=1 for pixels with mirrorMaskMap>0.7
 					// we clear to 0 and then overwrite some pixels to 1 (rather than writing both in one pass) because vanilla OpenGL ES 2.0 does not have gl_FragDepth
@@ -717,8 +734,10 @@ public:
 #endif
 		}
 
+#ifndef RR_GL_ES2
 		if (pp.wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
 		// Render skybox.
 		_renderer.render(_pp.next,sp);
@@ -726,8 +745,10 @@ public:
 		// Render sorted facegroups.
 		if (blendedFaceGroups[recursionDepth].size())
 		{
+#ifndef RR_GL_ES2
 			if (pp.wireframe)
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#endif
 
 			// Sort blended objects.
 			s_perObjectBuffers = &perObjectBuffers[recursionDepth];
@@ -771,8 +792,10 @@ public:
 				}
 			}
 
+#ifndef RR_GL_ES2
 			if (pp.wireframe)
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 		}
 
 #ifdef MIRRORS

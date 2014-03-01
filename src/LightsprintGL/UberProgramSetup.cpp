@@ -554,6 +554,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 			char name[] = "shadowMap0";
 			name[9] = '0'+i;
 			program->sendTexture(name,shadowmap);
+#ifndef RR_GL_ES2
 			// set depth border
 			// this makes Sun overshoot, illuminate geometry outside its shadowmap range
 			if (!s_es)
@@ -561,6 +562,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 				rr::RRVec4 depthBorder((LIGHT_DIRECTIONAL && i==0)?1.0f:0);
 				glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &depthBorder.x);
 			}
+#endif
 			// set matrix
 			rr::RRCamera lightInstance;
 			light->getShadowmapCamera(firstInstance+i,lightInstance);
@@ -753,6 +755,7 @@ void UberProgramSetup::useCamera(Program* program, const rr::RRCamera* camera)
 	}
 	if (!FORCE_2D_POSITION && camera)
 	{
+#ifndef RR_GL_ES2
 		if (LEGACY_GL)
 		{
 			glMatrixMode(GL_PROJECTION);
@@ -761,6 +764,7 @@ void UberProgramSetup::useCamera(Program* program, const rr::RRCamera* camera)
 			glLoadMatrixd(camera->getViewMatrix());
 		}
 		else
+#endif
 		{
 			float m3[16];
 			const double* m1 = camera->getProjectionMatrix();

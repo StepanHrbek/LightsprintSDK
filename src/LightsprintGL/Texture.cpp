@@ -16,7 +16,10 @@
 namespace rr_gl
 {
 
-bool s_es = false; // is this OpenGL ES?
+// RR_GL_ES2 platforms (Android..) are ES 2.0 only, the rest (Windows..) can be switched
+#ifndef RR_GL_ES2
+	bool s_es = false;
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -31,9 +34,11 @@ void FBO_init()
 
 	// necessary for "new FBO; setRenderTargetDepth; render..."
 	glBindFramebuffer(GL_FRAMEBUFFER, s_fb_id);
+#ifndef RR_GL_ES2
 	if (!s_es)
 		glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
+#endif
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -62,9 +67,11 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 			if (s_fboState.color_id)
 			{
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, s_fboState.color_target = GL_TEXTURE_2D, s_fboState.color_id = 0, 0);
+#ifndef RR_GL_ES2
 				if (!s_es)
 					glDrawBuffer(GL_NONE);
 				glReadBuffer(GL_NONE);
+#endif
 			}
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, s_fboState.fb_id = fb_id);
@@ -83,15 +90,19 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 			{
 				if (!s_fboState.color_id && tex_id)
 				{
+#ifndef RR_GL_ES2
 					if (!s_es)
 						glDrawBuffer(GL_COLOR_ATTACHMENT0);
 					glReadBuffer(GL_COLOR_ATTACHMENT0);
+#endif
 				}
 				if (s_fboState.color_id && !tex_id)
 				{
+#ifndef RR_GL_ES2
 					if (!s_es)
 						glDrawBuffer(GL_NONE);
 					glReadBuffer(GL_NONE);
+#endif
 				}
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, s_fboState.color_target = target, s_fboState.color_id = tex_id, 0);
 			}
@@ -116,7 +127,7 @@ bool FBO::isOk()
 			// possible reason: color_id texture has LINEAR_MIPMAP_LINEAR, but only one mip level (=incomplete)
 			RR_ASSERT(0);
 			break;
-#ifndef __ANDROID__
+#ifndef RR_GL_ES2
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
 			// programming error; will fail on all hardware
 			// possible reason: color_id and depth_id textures differ in size
@@ -163,6 +174,12 @@ void FBO::restore()
 
 const char* initializeGL()
 {
+#ifdef __ANDROID__
+
+	// no check for gl version, it should be ensured elsewhere
+
+#else //!__ANDROID__
+
 	// init GLEW
 	if (glewInit()!=GLEW_OK)
 	{
@@ -172,8 +189,11 @@ const char* initializeGL()
 	// check gl version
 	rr::RRReporter::report(rr::INF2,"OpenGL %s by %s on %s.\n",glGetString(GL_VERSION),glGetString(GL_VENDOR),glGetString(GL_RENDERER));
 	int major, minor;
+#ifndef RR_GL_ES2
 	s_es = sscanf((char*)glGetString(GL_VERSION),"OpenGL ES %d.%d",&major,&minor)==2 && major>=2;
-	if (!s_es && (sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2))
+	if (!s_es)
+#endif
+	if ((sscanf((char*)glGetString(GL_VERSION),"%d.%d",&major,&minor)!=2 || major<2))
 	{
 		return "Your system does not support OpenGL 2.0. You can see it with GLview. Note: Some multi-display systems support 2.0 only on one display.\n";
 	}
@@ -184,6 +204,13 @@ const char* initializeGL()
 		return "GL_ARB_framebuffer_object not supported. Disable 'Extension limit' in Nvidia Control panel.\n";
 	}
 
+	// init "seamless cube maps" feature
+	// in OSX 10.7, supported from Radeon HD2400, GeForce 9400(but not 9600,1xx), HD graphics 3000
+	if (GLEW_ARB_seamless_cube_map)
+		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
+#endif //!__ANDROID__
+
 	FBO_init();
 
 	// init misc GL states
@@ -191,11 +218,6 @@ const char* initializeGL()
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
-
-	// init "seamless cube maps" feature
-	// in OSX 10.7, supported from Radeon HD2400, GeForce 9400(but not 9600,1xx), HD graphics 3000
-	if (GLEW_ARB_seamless_cube_map)
-		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	return NULL;
 }
@@ -247,17 +269,31 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 		_compress = false;
 	}
 
+#ifdef RR_GL_ES2
+	bool srgb = false;
+#else
 	bool srgb = _scaledAsSRGB;// && buffer->getScaled();
 	if (srgb && !GLEW_EXT_texture_sRGB)
 	{
 		srgb = false;
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"sRGB textures not suported, results may be incorrect. Upgrade your GPU or driver.\n"));
 	}
+#endif
 	GLenum glinternal; // GL_RGB8, GL_RGBA8, GL_SRGB8, GL_SRGB8_ALPHA8, GL_COMPRESSED_RGB, GL_COMPRESSED_RGBA, GL_COMPRESSED_SRGB, GL_COMPRESSED_SRGB_ALPHA, GL_RGB16F_ARB, GL_RGBA16F_ARB, GL_DEPTH_COMPONENT24...
 	GLenum glformat; // GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT
 	GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
 	switch(buffer->getFormat())
 	{
+#ifdef RR_GL_ES2
+		case rr::BF_RGB: glinternal = GL_RGB; glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_BGR: glinternal = GL_RGB; glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_RGBA: glinternal = GL_RGBA; glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_RGBF: glinternal = GL_RGB; glformat = GL_RGB; gltype = GL_FLOAT; break;
+		case rr::BF_RGBAF: glinternal = GL_RGBA; glformat = GL_RGBA; gltype = GL_FLOAT; break;
+		case rr::BF_DEPTH: glinternal = GL_DEPTH_COMPONENT; glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_LUMINANCE: glinternal = GL_LUMINANCE; glformat = GL_LUMINANCE; gltype = GL_UNSIGNED_BYTE; break;
+		case rr::BF_LUMINANCEF: glinternal = GL_LUMINANCE; glformat = GL_LUMINANCE; gltype = GL_FLOAT; break;
+#else
 		case rr::BF_RGB: glinternal = srgb?(_compress?GL_COMPRESSED_SRGB:GL_SRGB8):(_compress?GL_COMPRESSED_RGB:GL_RGB8); glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_BGR: glinternal = srgb?(_compress?GL_COMPRESSED_SRGB:GL_SRGB8):(_compress?GL_COMPRESSED_RGB:GL_RGB8); glformat = GL_BGR; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_RGBA: glinternal = srgb?(_compress?GL_COMPRESSED_SRGB_ALPHA:GL_SRGB8_ALPHA8):(_compress?GL_COMPRESSED_RGBA:GL_RGBA8); glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; break;
@@ -271,10 +307,13 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 		case rr::BF_DEPTH: glinternal = GL_DEPTH_COMPONENT24; glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_LUMINANCE: glinternal = srgb?(_compress?GL_COMPRESSED_SLUMINANCE:GL_SLUMINANCE8):(_compress?GL_COMPRESSED_LUMINANCE:GL_LUMINANCE8); glformat = GL_LUMINANCE; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_LUMINANCEF: glinternal = srgb?(_compress?GL_COMPRESSED_SLUMINANCE:GL_SLUMINANCE):(_compress?GL_COMPRESSED_LUMINANCE:GL_LUMINANCE16); glformat = GL_LUMINANCE; gltype = GL_FLOAT; break;
+#endif
 		default: rr::RRReporter::report(rr::ERRO,"Texture of unknown format created.\n"); break;
 	}
+#ifndef RR_GL_ES2
 	if (s_es)
 		glinternal = glformat;
+#endif
 	if (buffer->version==version && glinternal==internalFormat)
 	{
 		// buffer did not change since last reset
@@ -307,30 +346,40 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 		for (unsigned side=0;side<6;side++)
 		{
 			const unsigned char* sideData = data?data+side*buffer->getWidth()*buffer->getHeight()*(buffer->getElementBits()/8):NULL;
+#ifndef RR_GL_ES2
 			glGetError();
+#endif
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,glinternal,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,sideData);
+#ifndef RR_GL_ES2
 			if (glGetError())
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,0,GL_RGBA8,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,sideData);
+#endif
 		}
 	}
 	else
 	{
 		// 2d
+#ifndef RR_GL_ES2
 		glGetError();
+#endif
 		glTexImage2D(GL_TEXTURE_2D,0,glinternal,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,data);
+#ifndef RR_GL_ES2
 		if (glGetError())
 			glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,buffer->getWidth(),buffer->getHeight(),0,glformat,gltype,data);
+#endif
 	}
 
 	// for shadow2D() instead of texture2D()
 	if (buffer->getFormat()==rr::BF_DEPTH)
 	{
 		RR_ASSERT(!_buildMipmaps);
+#ifndef RR_GL_ES2
 		// GL_NONE for sampler2D, GL_COMPARE_REF_TO_TEXTURE for sampler2DShadow, otherwise results are undefined
 		// we keep all depth textures ready for sampler2DShadow
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 		// GL_LEQUAL is default, but let's set it anyway, we don't do it often
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+#endif
 	}
 	else
 	{
@@ -406,7 +455,11 @@ Texture* Texture::createShadowmap(unsigned width, unsigned height, bool color)
 	rr::RRBuffer* buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,color?rr::BF_RGB:rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 	if (!buffer)
 		return NULL;
+#ifdef RR_GL_ES2
+	Texture* texture = new Texture(buffer,false,false, filtering(), filtering(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+#else
 	Texture* texture = new Texture(buffer,false,false, filtering(), filtering(), color?GL_CLAMP_TO_EDGE:GL_CLAMP_TO_BORDER, color?GL_CLAMP_TO_EDGE:GL_CLAMP_TO_BORDER);
+#endif
 	delete buffer; // Texture already created its own reference, so here we just remove our reference
 	return texture;
 }
@@ -473,7 +526,11 @@ void readPixelsToBuffer(rr::RRBuffer* buffer, unsigned x, unsigned y)
 	switch(buffer->getFormat())
 	{
 		case rr::BF_RGB: glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
+#ifdef RR_GL_ES2
+		case rr::BF_BGR: glformat = GL_RGB; gltype = GL_UNSIGNED_BYTE; break;
+#else
 		case rr::BF_BGR: glformat = GL_BGR; gltype = GL_UNSIGNED_BYTE; break;
+#endif
 		case rr::BF_RGBA: glformat = GL_RGBA; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_RGBF: glformat = GL_RGB; gltype = GL_FLOAT; break;
 		case rr::BF_RGBAF: glformat = GL_RGBA; gltype = GL_FLOAT; break;

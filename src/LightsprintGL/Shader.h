@@ -44,7 +44,9 @@ private:
 	GLuint handle;
 };
 
-extern bool s_es;
+#ifndef RR_GL_ES2
+	extern bool s_es;
+#endif
 
 }; // namespace
 

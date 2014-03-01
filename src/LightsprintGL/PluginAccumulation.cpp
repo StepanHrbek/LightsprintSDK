@@ -9,6 +9,15 @@
 namespace rr_gl
 {
 
+#ifdef RR_GL_ES2
+
+PluginRuntime* PluginParamsAccumulation::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+{
+	return NULL;
+}
+
+#else //!RR_GL_ES2
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // PluginRuntimeAccumulation
@@ -131,5 +140,7 @@ PluginRuntime* PluginParamsAccumulation::createRuntime(const rr::RRString& pathT
 {
 	return new PluginRuntimeAccumulation(pathToShaders, pathToMaps);
 }
+
+#endif //!RR_GL_ES2
 
 }; // namespace

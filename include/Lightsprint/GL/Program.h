@@ -9,7 +9,11 @@
 #define PROGRAM_H
 
 #include "Lightsprint/RRMemory.h"
-#include <GL/glew.h>
+#ifdef __ANDROID__
+	#include <GLES2/gl2.h>
+#else
+	#include <GL/glew.h>
+#endif
 
 // define RR_GL_API
 #ifdef _MSC_VER
@@ -54,6 +58,10 @@
 			#endif
 		#endif
 	#endif
+#endif
+
+#ifdef __ANDROID__
+	#define RR_GL_ES2 // use OpenGL ES 2.0, not OpenGL. if not defined, both OpenGL and OpenGL ES paths are supported via bool s_es
 #endif
 
 namespace rr_gl

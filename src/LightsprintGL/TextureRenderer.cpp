@@ -158,9 +158,11 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 	}
 	texture->bindTexture();
 
+#ifndef RR_GL_ES2
 	if (texture->getBuffer()->getFormat()==rr::BF_DEPTH)
 		// must be GL_NONE for sampler2D, otherwise result is undefined
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+#endif
 
 	rr::RRVec3 position[4] = {rr::RRVec3(2*x-1,2*y-1,RR_MAX(z,0)),rr::RRVec3(2*(x+w)-1,2*y-1,RR_MAX(z,0)),rr::RRVec3(2*(x+w)-1,2*(y+h)-1,RR_MAX(z,0)),rr::RRVec3(2*x-1,2*(y+h)-1,RR_MAX(z,0))};
 	rr::RRVec2 uv[4] = {rr::RRVec2(0,0),rr::RRVec2(1,0),rr::RRVec2(1,1),rr::RRVec2(0,1)};
@@ -168,10 +170,12 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 	glVertexAttribPointer(VAA_UV_MATERIAL_DIFFUSE, 2, GL_FLOAT, 0, 0, uv);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
+#ifndef RR_GL_ES2
 	if (texture->getBuffer()->getFormat()==rr::BF_DEPTH)
 		// must be GL_COMPARE_REF_TO_TEXTURE for sampler2DShadow, otherwise result is undefined
 		// we keep all depth textures ready for sampler2DShadow
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+#endif
 }
 
 void TextureRenderer::render2dEnd()

@@ -146,7 +146,9 @@ public:
 			smallColor3->reset(false,false,false);
 			bigColor->reset(false,false,false);
 			bigDepth->reset(false,false,false);
+#ifndef RR_GL_ES2
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+#endif
 		}
 	
 		// disable depth
