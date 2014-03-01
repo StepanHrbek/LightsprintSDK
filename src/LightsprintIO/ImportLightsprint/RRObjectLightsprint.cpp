@@ -417,6 +417,7 @@ static RRMaterials* loadMaterial(const RRString& filename, RRFileLocator* textur
 
 		RRString oldReference;
 		ar & boost::serialization::make_nvp("filename", oldReference);
+		//rr::RRReporter::report(rr::INF2,"originally saved as %ls.\n",oldReference.w_str());
 		fixPath(oldReference);
 		if (serializationRuntime.textureLocator)
 			serializationRuntime.textureLocator->setRelocation(true,oldReference,filename);
