@@ -8,7 +8,6 @@
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRSolver.h"
 #include "Workaround.h"
-#include <GL/glew.h>
 
 namespace rr_gl
 {

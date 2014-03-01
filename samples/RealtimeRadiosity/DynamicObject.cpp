@@ -3,7 +3,6 @@
 // Copyright (C) 2005-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <GL/glew.h>
 #include "Lightsprint/GL/RRSolverGL.h"
 #include "DynamicObject.h"
 #include "../src/LightsprintIO/Import3DS/Model_3DS.h"

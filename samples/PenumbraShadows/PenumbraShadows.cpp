@@ -34,18 +34,17 @@
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
-#include <GL/glew.h>
+#include "Lightsprint/GL/FBO.h"
+#include "Lightsprint/GL/TextureRenderer.h"
+#include "Lightsprint/RRDebug.h"
+#include "DynamicObject.h"
+#include "Lightsprint/IO/IO.h"
 #ifdef __APPLE__
 	#include <GLUT/glut.h>
 	#include <ApplicationServices/ApplicationServices.h>
 #else
 	#include <GL/glut.h>
 #endif
-#include "Lightsprint/GL/FBO.h"
-#include "Lightsprint/GL/TextureRenderer.h"
-#include "Lightsprint/RRDebug.h"
-#include "DynamicObject.h"
-#include "Lightsprint/IO/IO.h"
 
 
 /////////////////////////////////////////////////////////////////////////////

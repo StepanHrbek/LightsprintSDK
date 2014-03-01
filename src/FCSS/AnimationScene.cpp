@@ -1,4 +1,3 @@
-#include "GL/glew.h"
 #include "AnimationScene.h"
 #include "Lightsprint/RRDebug.h"
 

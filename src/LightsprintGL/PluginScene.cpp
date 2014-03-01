@@ -12,7 +12,6 @@
 #endif
 #include <cstdio>
 #include <unordered_map>
-#include <GL/glew.h>
 #include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PreserveState.h"
 #include "Lightsprint/GL/RRSolverGL.h"

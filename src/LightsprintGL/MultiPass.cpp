@@ -3,7 +3,6 @@
 // Copyright (C) 2007-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <GL/glew.h>
 #include "MultiPass.h"
 #include "Lightsprint/GL/PreserveState.h"
 

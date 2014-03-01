@@ -6,7 +6,6 @@
 #include "Lightsprint/GL/PluginToneMapping.h"
 //#include "Lightsprint/GL/PreserveState.h"
 //#include <cstdlib>
-//#include <GL/glew.h>
 #include "Lightsprint/GL/FBO.h"
 
 namespace rr_gl

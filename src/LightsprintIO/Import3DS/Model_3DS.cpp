@@ -48,9 +48,6 @@
 
 #include <cmath>
 #include <cstring>
-#ifndef RR_IO_BUILD
-#include <GL/glew.h>
-#endif
 #include "Model_3DS.h"
 #ifndef RR_IO_BUILD
 #include "Lightsprint/GL/UberProgramSetup.h"

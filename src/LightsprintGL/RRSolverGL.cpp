@@ -6,7 +6,6 @@
 #include <cstdarg>
 #include <cstdio>
 #include <vector>
-#include <GL/glew.h>
 #include "Lightsprint/GL/RRSolverGL.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/GL/PreserveState.h"

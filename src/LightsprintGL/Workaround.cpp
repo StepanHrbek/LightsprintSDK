@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #include <cstring>
-#include <GL/glew.h>
+#include "Lightsprint/GL/Program.h" // includes glew.h
 #include "Workaround.h"
 
 namespace rr_gl

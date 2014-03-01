@@ -4,7 +4,6 @@
 // --------------------------------------------------------------------------
 
 #include <cstdio>
-#include <GL/glew.h>
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRMemory.h"

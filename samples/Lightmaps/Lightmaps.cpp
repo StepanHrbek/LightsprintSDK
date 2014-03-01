@@ -42,21 +42,20 @@
 // --------------------------------------------------------------------------
 
 #include <cmath>
+#include <cstdio>   // printf
 #include <cstdlib>
 #include <ctime>
-#include <GL/glew.h>
+#include "Lightsprint/GL/RRSolverGL.h"
+#include "Lightsprint/GL/PluginScene.h"
+#include "Lightsprint/GL/PluginSky.h"
+#include "Lightsprint/GL/PluginSSGI.h"
+#include "Lightsprint/IO/IO.h"
 #ifdef __APPLE__
 	#include <GLUT/glut.h>
 	#include <ApplicationServices/ApplicationServices.h>
 #else
 	#include <GL/glut.h>
 #endif
-#include "Lightsprint/GL/RRSolverGL.h"
-#include "Lightsprint/GL/PluginScene.h"
-#include "Lightsprint/GL/PluginSky.h"
-#include "Lightsprint/GL/PluginSSGI.h"
-#include "Lightsprint/IO/IO.h"
-#include <stdio.h>   // printf
 
 
 /////////////////////////////////////////////////////////////////////////////

@@ -33,18 +33,17 @@
 	#include <windows.h> // SetCurrentDirectoryA
 	#include <direct.h> // _mkdir
 #endif // _MSC_VER
-#include <GL/glew.h>
+#include "Lightsprint/GL/RRSolverGL.h"
+#include "Lightsprint/GL/PluginScene.h"
+#include "Lightsprint/GL/PluginSky.h"
+#include "Lightsprint/GL/PluginSSGI.h"
+#include "Lightsprint/IO/IO.h"
 #ifdef __APPLE__
 	#include <GLUT/glut.h>
 	#include <ApplicationServices/ApplicationServices.h>
 #else
 	#include <GL/glut.h>
 #endif
-#include "Lightsprint/GL/RRSolverGL.h"
-#include "Lightsprint/GL/PluginScene.h"
-#include "Lightsprint/GL/PluginSky.h"
-#include "Lightsprint/GL/PluginSSGI.h"
-#include "Lightsprint/IO/IO.h"
 
 #if defined(LINUX) || defined(linux)
 	#include <sys/stat.h>

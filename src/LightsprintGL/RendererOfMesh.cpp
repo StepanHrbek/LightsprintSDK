@@ -3,7 +3,6 @@
 // Copyright (C) 2005-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <GL/glew.h>
 #include "Lightsprint/RRIllumination.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "RendererOfMesh.h"

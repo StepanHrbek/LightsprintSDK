@@ -5,7 +5,6 @@
 
 #include <unordered_map>
 #include <cstdio>
-#include <GL/glew.h>
 #include "Lightsprint/GL/UberProgramSetup.h"
 #include "Lightsprint/RRDebug.h"
 #include "Shader.h" // s_es

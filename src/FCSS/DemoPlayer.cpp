@@ -1,4 +1,3 @@
-#include "GL/glew.h"
 #include "Level.h"
 #include "DemoPlayer.h"
 #include "Music.h"
