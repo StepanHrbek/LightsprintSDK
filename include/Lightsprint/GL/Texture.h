@@ -9,7 +9,7 @@
 #define TEXTURE_H
 
 #include "Lightsprint/RRBuffer.h"
-#include "Lightsprint/GL/Program.h" // only to define RR_GL_API
+#include "Lightsprint/GL/Program.h" // RR_GL_API
 
 namespace rr_gl
 {
