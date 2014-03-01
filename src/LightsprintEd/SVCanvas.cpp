@@ -604,6 +604,8 @@ void SVCanvas::OnSizeCore(bool force)
 	}
 }
 
+static bool s_shiftDown = false;
+
 int SVCanvas::FilterEvent(wxKeyEvent& event)
 {
 	if (exitRequested || !fullyCreated)
@@ -651,12 +653,14 @@ int SVCanvas::FilterEvent(wxKeyEvent& event)
 
 void SVCanvas::OnKeyDown(wxKeyEvent& event)
 {
+	s_shiftDown = event.ShiftDown();
+
 	if (exitRequested || !fullyCreated)
 		return;
 
 	bool needsRefresh = false;
 	long evkey = event.GetKeyCode();
-	float speed = (event.GetModifiers()==wxMOD_SHIFT) ? 3 : 1;
+	float speed = 1;
 	switch(evkey)
 	{
 		case ' ':
@@ -769,6 +773,8 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 
 void SVCanvas::OnKeyUp(wxKeyEvent& event)
 {
+	s_shiftDown = event.ShiftDown();
+
 	if (exitRequested || !fullyCreated)
 		return;
 	bool didMove = (speedForward-speedBack) || (speedRight-speedLeft) || (speedUp-speedDown) || speedY || speedLean;
@@ -1361,12 +1367,13 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 			// yes -> respond to keyboard
 			const EntityIds& entities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
 			rr::RRVec3 center = svframe->m_sceneTree->getCenterOf(entities);
+			float speed = s_shiftDown ? 3 : 1;
 			svframe->m_sceneTree->manipulateEntities(entities,
-				rr::RRMatrix3x4::translation(
+				rr::RRMatrix3x4::translation( (
 					svs.camera.getDirection() * ((speedForward-speedBack)*meters) +
 					svs.camera.getRight() * ((speedRight-speedLeft)*meters) +
 					svs.camera.getUp() * ((speedUp-speedDown)*meters) +
-					rr::RRVec3(0,speedY*meters,0))
+					rr::RRVec3(0,speedY*meters,0)) *speed)
 				* rr::RRMatrix3x4::rotationByAxisAngle(svs.camera.getDirection(),-speedLean*seconds*0.5f).centeredAround(center),
 				false, speedLean?true:false
 				);
