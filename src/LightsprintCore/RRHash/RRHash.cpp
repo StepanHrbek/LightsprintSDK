@@ -9,8 +9,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <boost/filesystem.hpp>
-namespace bf = boost::filesystem;
+#ifdef RR_LINKS_BOOST
+	#include <boost/filesystem.hpp>
+	namespace bf = boost::filesystem;
+#endif
 
 #define SWAP_32(x) \
 	((x) << 24) | \
@@ -179,10 +181,14 @@ RRString RRHash::getFileName(unsigned version, const char* cacheLocation, const 
 #ifdef XBOX
 		filename = "game:\\"; // xbox 360
 #else
+#ifdef RR_LINKS_BOOST
 		boost::system::error_code ec;
 		bf::path path = bf::temp_directory_path(ec) / "Lightsprint";
 		bf::create_directory(path,ec);
 		filename = path.string() + "/";
+#else
+		// in default directory
+#endif
 #endif
 	}
 	else

@@ -6,6 +6,12 @@
 #include "Lightsprint/RRFileLocator.h"
 #include "Lightsprint/RRDebug.h"
 
+// helper for rr_io,
+// single global variable shared by all libraries that include RRSerialization.h
+RR_API class SerializationRuntime* g_serializationRuntime = NULL;
+
+#ifdef RR_LINKS_BOOST
+
 #include <vector>
 #include <map>
 #include <boost/algorithm/string.hpp> // split, is_any_of
@@ -13,10 +19,6 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/regex.hpp>
 namespace bf = boost::filesystem;
-
-// helper for rr_io,
-// single global variable shared by all libraries that include RRSerialization.h
-RR_API class SerializationRuntime* g_serializationRuntime = NULL;
 
 namespace rr
 {
@@ -241,5 +243,60 @@ RRFileLocator* RRFileLocator::create()
 {
 	return new FileLocator;
 }
+
+#else //!RR_LINKS_BOOST
+
+#include <cstdio>
+#include <climits> // UINT_MAX
+
+namespace rr
+{
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// RRFileLocator
+
+bool RRFileLocator::exists(const RRString& filename) const
+{
+	if (filename=="c@pture")
+		return true;
+
+	FILE* f = fopen(RR_RR2CHAR(filename),"rb");
+	if (f)
+	{
+		fclose(f);
+		return true;
+	}
+	return false;
+}
+
+RRString RRFileLocator::getLocation(const RRString& originalFilename, unsigned attemptNumber) const
+{
+	return attemptNumber ? "" : originalFilename;
+}
+
+RRString RRFileLocator::getLocation(const RRString& originalFilename, const RRString& fallbackFilename) const
+{
+	for (unsigned attempt=0;attempt<UINT_MAX;attempt++)
+	{
+		RRString location = getLocation(originalFilename,attempt);
+		if (location.empty())
+			return fallbackFilename;
+		bool exists = this->exists(location);
+		RRReporter::report(INF3," %d%c %s\n",attempt,exists?'+':'-',location.c_str());
+		if (exists)
+		{
+			return location;
+		}
+	}
+	return "";
+}
+
+RRFileLocator* RRFileLocator::create()
+{
+	return new RRFileLocator;
+}
+
+#endif //!RR_LINKS_BOOST
 
 } //namespace

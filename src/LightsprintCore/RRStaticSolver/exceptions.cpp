@@ -23,8 +23,12 @@
 // RRObjects
 //#include "Lightsprint/RRObject.h"
 #include <unordered_set>
-#include <boost/filesystem.hpp>
-namespace bf = boost::filesystem;
+#ifdef RR_LINKS_BOOST
+	#include <boost/filesystem.hpp>
+	namespace bf = boost::filesystem;
+#else
+	#include "Lightsprint/RRFileLocator.h"
+#endif
 
 namespace rr
 {
@@ -94,8 +98,13 @@ public:
 	RRBuffer* load_cached(const RRString& filename, const char* cubeSideName[6])
 	{
 		bool sixfiles = wcsstr(filename.w_str(),L"%s")!=NULL;
+#ifdef RR_LINKS_BOOST
 		boost::system::error_code ec;
 		bool exists = !sixfiles && bf::exists(RR_RR2PATH(filename),ec);
+#else
+		RRFileLocator fl;
+		bool exists = !sixfiles && fl.exists(filename);
+#endif
 
 		Cache::iterator i = cache.find(RR_RR2STDW(filename));
 		if (i!=cache.end())
@@ -106,14 +115,21 @@ public:
 					|| i->second.buffer->version==i->second.bufferVersionWhenLoaded) // take static content from cache only if version did not change
 				&& (sixfiles
 					|| !exists // for example c@pture is virtual file, it does not exist on disk, but still we cache it
-					|| (i->second.fileTimeWhenLoaded==bf::last_write_time(filename.w_str(),ec) && i->second.fileSizeWhenLoaded==bf::file_size(filename.w_str())))
+#ifdef RR_LINKS_BOOST
+					|| (i->second.fileTimeWhenLoaded==bf::last_write_time(filename.w_str(),ec) && i->second.fileSizeWhenLoaded==bf::file_size(filename.w_str()))
+#endif
+					)
 				)
 			{
 				// detect and report possible error
 				bool cached2dCross = i->second.buffer->getType()==BT_2D_TEXTURE && (i->second.buffer->getWidth()*3==i->second.buffer->getHeight()*4 || i->second.buffer->getWidth()*4==i->second.buffer->getHeight()*3);
 				bool cachedCube = i->second.buffer->getType()==BT_CUBE_TEXTURE;
 				if ((cached2dCross && cubeSideName)
+#ifdef RR_LINKS_BOOST
 					|| (cachedCube && !cubeSideName && bf::path(RR_RR2PATH(filename)).extension()!=".rrbuffer")) // .rrbuffer is the only format that can produce cube even with cubeSideName=NULL, exclude it from test here
+#else
+					|| (cachedCube && !cubeSideName))
+#endif
 					RRReporter::report(WARN,"You broke image cache by loading %ls as both 2d and cube.\n",filename.w_str());
 
 				// image is already in memory and it was not modified since load, use it
@@ -129,8 +145,10 @@ public:
 		{
 			value.buffer->createReference(); // keep initial ref for us, add one ref for user
 			value.bufferVersionWhenLoaded = value.buffer->version;
+#ifdef RR_LINKS_BOOST
 			value.fileTimeWhenLoaded = exists ? bf::last_write_time(filename.w_str(),ec) : 0;
 			value.fileSizeWhenLoaded = exists ? bf::file_size(filename.w_str(),ec) : 0;
+#endif
 		}
 		return value.buffer;
 	}
@@ -169,8 +187,10 @@ protected:
 		RRBuffer* buffer;
 		unsigned bufferVersionWhenLoaded;
 		// attributes critical for Toolbench plugin, "Bake from cache" must not load images from cache if they did change on disk.
+#ifdef RR_LINKS_BOOST
 		std::time_t fileTimeWhenLoaded;
 		boost::uintmax_t fileSizeWhenLoaded;
+#endif
 	};
 	typedef std::unordered_map<std::wstring,Value> Cache;
 	Cache cache;
@@ -320,13 +340,22 @@ unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRStr
 			layerParameters.suggestedPath = path;
 			layerParameters.suggestedExt = ext;
 			object->recommendLayerParameters(layerParameters);
+#ifdef RR_LINKS_BOOST
 			boost::system::error_code ec;
 			if ( !bf::exists(RR_RR2PATH(layerParameters.actualFilename),ec) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
+#else
+			RRFileLocator fl;
+			if ( !fl.exists(layerParameters.actualFilename) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
+#endif
 			{
 				// if it fails, try to load per-vertex format
 				layerParameters.suggestedMapWidth = layerParameters.suggestedMapHeight = 0;
 				object->recommendLayerParameters(layerParameters);
+#ifdef RR_LINKS_BOOST
 				if (bf::exists(RR_RR2PATH(layerParameters.actualFilename),ec))
+#else
+				if (fl.exists(layerParameters.actualFilename))
+#endif
 					buffer = RRBuffer::load(layerParameters.actualFilename.c_str());
 			}
 			if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=object->getCollider()->getMesh()->getNumVertices())
@@ -365,6 +394,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRStr
 			if (buffer)
 			{
 				// create destination directories
+#ifdef RR_LINKS_BOOST
 				if (!directoryCreated)
 				{
 					bf::path prefix(RR_RR2PATH(path));
@@ -373,6 +403,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRStr
 					bf::exists(prefix,ec) || bf::create_directories(prefix,ec);
 					directoryCreated = true;
 				}
+#endif
 
 				numBuffers++;
 				RRObject::LayerParameters layerParameters;
@@ -425,6 +456,7 @@ unsigned RRObjects::layerDeleteFromMemory(int layerNumber) const
 unsigned RRObjects::layerDeleteFromDisk(const RRString& path, const RRString& ext) const
 {
 	unsigned result = 0;
+#ifdef RR_LINKS_BOOST
 	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 	{
 		rr::RRObject::LayerParameters layerParameters;
@@ -439,6 +471,7 @@ unsigned RRObjects::layerDeleteFromDisk(const RRString& path, const RRString& ex
 				result++;
 		}
 	}
+#endif
 	return result;
 }
 
