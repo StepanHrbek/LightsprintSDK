@@ -5,6 +5,7 @@
 
 #include "Lightsprint/GL/PluginFPS.h"
 #include "Lightsprint/GL/PreserveState.h"
+#include <cstdio> // sprintf
 
 namespace rr_gl
 {
