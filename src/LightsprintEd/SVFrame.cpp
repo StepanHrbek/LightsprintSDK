@@ -1791,6 +1791,7 @@ bool SVFrame::oculusActive()
 	return oculusSensor && svs.renderStereo && (userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT || userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT_SWAP);
 }
 
+
 void SVFrame::simulateSun()
 {
 	if (svs.envSimulateSun && m_canvas->solver)

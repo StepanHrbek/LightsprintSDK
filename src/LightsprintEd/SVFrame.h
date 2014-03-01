@@ -78,7 +78,7 @@ namespace rr_ed
 		void userPreferencesGatherFromWx();
 		void userPreferencesApplyToWx();
 
-		bool oculusActive();
+		bool oculusActive(); // true if active (not necessarily fullscreen)
 
 		//! Loads and returns scene with normalized units and up axis.
 		rr::RRScene* loadScene(const wxString& filename, float units, unsigned upAxis, bool popup);
