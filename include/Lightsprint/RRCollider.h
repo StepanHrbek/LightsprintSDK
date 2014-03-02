@@ -148,7 +148,7 @@ namespace rr
 	class RR_API RRCollider : public RRAlignedNonCopyable
 	{
 	public:
-		//! Techniques for finding ray-mesh intersections.
+		//! Built-in techniques for finding ray-mesh intersections. Others can be added via registerTechnique().
 		enum IntersectTechnique
 		{
 			IT_LINEAR,          ///< Speed   1%, size    0. Fallback technique when better one fails.
@@ -158,6 +158,11 @@ namespace rr
 			IT_BSP_FASTEST,     ///< Speed 230%, size ~200 bytes per triangle. For speed benchmarks.
 			IT_VERIFICATION,    ///< Only for verification purposes, performs tests using all known techniques and compares results.
 		};
+
+		//! Type of custom collider builder.
+		typedef RRCollider* Builder(const RRMesh* mesh, const class RRObjects* objects, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams);
+		//! Lets you register custom collider builder. If other builder was already registered with the same intersectTechnique number, it is replaced with the new builder.
+		static void registerTechnique(unsigned intersectTechnique, Builder* builder);
 
 		//! Creates and returns collider, acceleration structure for finding ray x mesh intersections.
 		//

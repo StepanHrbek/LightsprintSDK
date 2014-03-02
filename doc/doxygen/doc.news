@@ -19,6 +19,7 @@ NEWS
 - improved DOF
   - fast DOF is faster
   - both fast and realistic DOF produce much closer results, fast DOF can be used as a preview for Realistic one
+- custom collider builders can be registered with RRCollider::registerTechnique()
 
 CHANGES
 

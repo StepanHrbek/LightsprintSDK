@@ -3,6 +3,7 @@
 // Copyright (c) 2000-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
+#include <map>
 #include "RRCollisionHandler.h"
 #include "IntersectBspCompact.h"
 #include "IntersectBspFast.h"
@@ -69,17 +70,12 @@ protected:
 // RRCollider
 
 
-void RRCollider::setTechnique(IntersectTechnique technique, bool& aborting)
-{
-	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"setTechnique() ignored, collider was not created with IT_LINEAR.\n"));
-}
+static std::map<unsigned,RRCollider::Builder*> s_builders;
 
 RRCollider* createMultiCollider(const RRObjects& objects, RRCollider::IntersectTechnique technique, bool& aborting);
 
-RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
+RRCollider* defaultBuilder(const RRMesh* mesh, const class RRObjects* objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
 {
-	try {
-
 	if (!mesh)
 	{
 		return objects ? createMultiCollider(*objects,intersectTechnique,aborting) : NULL;
@@ -89,7 +85,7 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 	switch(intersectTechnique)
 	{
 		// needs explicit instantiation at the end of IntersectBspFast.cpp and IntersectBspCompact.cpp and bsp.cpp
-		case IT_BSP_COMPACT:
+		case RRCollider::IT_BSP_COMPACT:
 			if (mesh->getNumTriangles()<=256)
 			{
 				// we expect that mesh with <256 triangles won't produce >64k tree, CBspTree21 has 16bit offsets
@@ -118,12 +114,12 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 				delete in;
 				goto linear;
 			}
-		case IT_BSP_FASTEST:
-		case IT_BSP_FASTER:
-		case IT_BSP_FAST:
+		case RRCollider::IT_BSP_FASTEST:
+		case RRCollider::IT_BSP_FASTER:
+		case RRCollider::IT_BSP_FAST:
 			{
 				typedef IntersectBspFast<BspTree44> T;
-				T* in = T::create(mesh,intersectTechnique,aborting,cacheLocation,(intersectTechnique==IT_BSP_FAST)?".fast":((intersectTechnique==IT_BSP_FASTER)?".faster":".fastest"),(BuildParams*)buildParams);
+				T* in = T::create(mesh,intersectTechnique,aborting,cacheLocation,(intersectTechnique==RRCollider::IT_BSP_FAST)?".fast":((intersectTechnique==RRCollider::IT_BSP_FASTER)?".faster":".fastest"),(BuildParams*)buildParams);
 				unsigned size1 = in->getMemoryOccupied();
 				if (size1>=10000000)
 					RRReporter::report(INF1,"Memory taken by collider(fast*): %dMB\n",size1/1024/1024);
@@ -131,11 +127,11 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 				delete in;
 				goto linear;
 			}
-		case IT_VERIFICATION:
+		case RRCollider::IT_VERIFICATION:
 			{
 				return IntersectVerification::create(mesh,aborting);
 			}
-		case IT_LINEAR:
+		case RRCollider::IT_LINEAR:
 			{
 				return new IntersectWrapper(mesh,aborting);
 			}
@@ -145,7 +141,43 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 				return IntersectLinear::create(mesh);
 			}
 	}
+}
 
+void RRCollider::registerTechnique(unsigned intersectTechnique, Builder* builder)
+{
+	s_builders[intersectTechnique] = builder;
+}
+
+void RRCollider::setTechnique(IntersectTechnique technique, bool& aborting)
+{
+	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"setTechnique() ignored, collider was not created with IT_LINEAR.\n"));
+}
+
+RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
+{
+	if (s_builders.empty())
+	{
+		registerTechnique(IT_LINEAR,defaultBuilder);
+		registerTechnique(IT_BSP_COMPACT,defaultBuilder);
+		registerTechnique(IT_BSP_FAST,defaultBuilder);
+		registerTechnique(IT_BSP_FASTER,defaultBuilder);
+		registerTechnique(IT_BSP_FASTEST,defaultBuilder);
+		registerTechnique(IT_VERIFICATION,defaultBuilder);
+	}
+
+	Builder* builder = s_builders[intersectTechnique];
+
+	if (!builder)
+	{
+		RRReporter::report(ERRO,"No builder registered for IntersectTechnique %d.\n",(int)intersectTechnique);
+		return NULL;
+	}
+
+	try
+	{
+		RRCollider* result = builder(mesh,objects,intersectTechnique,aborting,cacheLocation,buildParams);
+		RRReporter::report(ERRO,"Builder for IntersectTechnique %d failed.\n",(int)intersectTechnique);
+		return result;
 	}
 	catch(std::bad_alloc e)
 	{

@@ -131,7 +131,7 @@ void RRObject::setCollider(RRCollider* _collider)
 {
 	collider = _collider;
 	if (!_collider)
-		RRReporter::report(WARN,"setCollider(NULL) called, collider must never be NULL.\n");
+		RRReporter::report(ERRO,"setCollider(NULL) called, collider must never be NULL.\n");
 }
 
 RRMaterial* RRObject::getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const
