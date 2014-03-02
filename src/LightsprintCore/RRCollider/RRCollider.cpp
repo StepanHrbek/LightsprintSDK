@@ -176,7 +176,8 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 	try
 	{
 		RRCollider* result = builder(mesh,objects,intersectTechnique,aborting,cacheLocation,buildParams);
-		RRReporter::report(ERRO,"Builder for IntersectTechnique %d failed.\n",(int)intersectTechnique);
+		if (!result)
+			RRReporter::report(ERRO,"Builder for IntersectTechnique %d failed.\n",(int)intersectTechnique);
 		return result;
 	}
 	catch(std::bad_alloc e)
