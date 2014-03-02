@@ -144,11 +144,15 @@ struct BSP_TREE
 #define CACHE_SIZE 1000
 #define DELTA_NORMALS_MATCH 0.01 // min distance of normals to be recognized as non-plane
 #define SAFE_DISTANCE_IN_UNIT_SCENE 1e-5f
-#define PLANE 0 // 2d in splitting plane
-#define FRONT 1 // 2d in front, 1d may be in plane
-#define BACK -1 // 2d in back, 1d may be in plane
-#define SPLIT 2 // 2d partially in front, partially in back
-#define NONE  3 // 2d outside bbox, 1d may be in front or back
+
+enum FaceClass
+{
+	FC_PLANE, // 2d in splitting plane
+	FC_FRONT, // 2d in front (higher values), 1d may be in plane
+	FC_BACK, // 2d in back (lower values), 1d may be in plane
+	FC_SPLIT, // 2d partially in front, partially in back
+	FC_NONE, // 2d outside bbox, 1d may be in front or back
+};
 
 #define nALLOC(A,B) (A *)malloc((B)*sizeof(A))
 #define ALLOC(A) nALLOC(A,1)
@@ -241,7 +245,7 @@ static int normals_match(const FACE *plane, const FACE *face)
 //		fabs(plane->normal.a-face->normal.a)+fabs(plane->normal.b-face->normal.b)+fabs(plane->normal.c-face->normal.c)<DELTA_NORMALS_MATCH;
 }
 
-static int locate_face_bsp(const FACE *plane, const FACE *face, float DELTA_INSIDE_PLANE)
+static FaceClass locate_face_bsp(const FACE *plane, const FACE *face, float DELTA_INSIDE_PLANE)
 {
 	int f=0,b=0,p=0;
 
@@ -254,12 +258,12 @@ static int locate_face_bsp(const FACE *plane, const FACE *face, float DELTA_INSI
 	if (plane==face)
 	{
 		RR_ASSERT(p==3); // face not in its own plane? happened before because of imprecise normals calculated in floats, fixed by calculating normals in doubles
-		return PLANE;
+		return FC_PLANE;
 	}
-	if (p==3 && normals_match(plane,face)) return PLANE;
-	if (f==3) return FRONT;
-	if (b==3) return BACK;
-	return SPLIT;
+	if (p==3 && normals_match(plane,face)) return FC_PLANE;
+	if (f==3) return FC_FRONT;
+	if (b==3) return FC_BACK;
+	return FC_SPLIT;
 }
 
 #ifdef STRICT_SEPARATION
@@ -295,7 +299,7 @@ static bool face_intersects_box(const FACE* face, BBOX* bbox)
 }
 #endif
 
-int locate_face_kd(float splitValue, int splitAxis, BBOX *bbox, const FACE *face)
+FaceClass locate_face_kd(float splitValue, int splitAxis, BBOX *bbox, const FACE *face)
 // bbox = bbox of node
 // splitValue/axis = where bbox is splited
 // face = object that needs to be located
@@ -309,9 +313,9 @@ int locate_face_kd(float splitValue, int splitAxis, BBOX *bbox, const FACE *face
 		if (r>splitValue) f++; else if (r<splitValue) b++; else {f++;b++;p++;}
 	}
 
-	if (p==3) return PLANE;
-	if (f==3) return FRONT;
-	if (b==3) return BACK;
+	if (p==3) return FC_PLANE;
+	if (f==3) return FC_FRONT;
+	if (b==3) return FC_BACK;
 #ifdef STRICT_SEPARATION
 	// new: verify that face really intersects both subboxes
 	BBOX bbox2 = *bbox;
@@ -330,13 +334,13 @@ int locate_face_kd(float splitValue, int splitAxis, BBOX *bbox, const FACE *face
 	bbox2.hi[splitAxis] = splitValue;
 	bool backHit = face_intersects_box(face,&bbox2);
 
-	if (frontHit && backHit) return SPLIT;
-	if (frontHit) return FRONT;
-	if (backHit) return BACK;
-	return NONE; // shouldn't happen
+	if (frontHit && backHit) return FC_SPLIT;
+	if (frontHit) return FC_FRONT;
+	if (backHit) return FC_BACK;
+	return FC_NONE; // shouldn't happen
 #else
 	// old
-	return SPLIT;
+	return FC_SPLIT;
 #endif
 }
 
@@ -450,10 +454,10 @@ VERTEX *find_best_root_kd(BBOX *bbox, const FACE **list, ROOT_INFO* bestinfo)
 				{
 					switch(locate_face_kd(info2.value,axis,list[i])) 
 					{
-					case BACK: back_num++; break;
-					case PLANE: plane_num++; break;
-					case FRONT: front_num++; break;
-					case SPLIT: split_num++; break;
+					case FC_BACK: back_num++; break;
+					case FC_PLANE: plane_num++; break;
+					case FC_FRONT: front_num++; break;
+					case FC_SPLIT: split_num++; break;
 					}
 				}
 				info2.back = back_num;
@@ -582,10 +586,10 @@ FACE *find_best_root_bsp_all(const FACE **list)
 		for (j=0;list[j];j++)
 			switch (locate_face_bsp(list[i],list[j])) 
 		{
-			case PLANE:plane++;break;
-			case FRONT:front++;break;
-			case SPLIT:split++;break;
-			case BACK:back++;break;
+			case FC_PLANE:plane++;break;
+			case FC_FRONT:front++;break;
+			case FC_SPLIT:split++;break;
+			case FC_BACK:back++;break;
 		}
 
 		prize = split*SPLIT_PRIZE+plane*PLANE_PRIZE+ABS(front-back)*BALANCE_PRIZE;
@@ -671,10 +675,10 @@ const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo, float DEL
 		for (int j=0;list[j];j++)
 			switch(locate_face_bsp(tmp[i].f,list[j],DELTA_INSIDE_PLANE)) 
 			{
-				case PLANE:plane++;break;
-				case FRONT:front++;break;
-				case SPLIT:split++;break;
-				case BACK:back++;break;
+				case FC_PLANE:plane++;break;
+				case FC_FRONT:front++;break;
+				case FC_SPLIT:split++;break;
+				case FC_BACK:back++;break;
 			}
 
 		int prize=split*SPLIT_PRIZE+plane*PLANE_PRIZE+ABS(front-back)*BALANCE_PRIZE;
@@ -801,11 +805,11 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		sides[i] = kdroot ? locate_face_kd((*kdroot)[info_kd.axis],info_kd.axis,bbox,space[i]) : locate_face_bsp(bsproot,space[i],bbox->minSafeDistance);
 		switch(sides[i]) 
 		{
-			case BACK: back_num++; break;
-			case PLANE: plane_num++; break;
-			case FRONT: front_num++; break;
-			case SPLIT: split_num++; break;
-			case NONE: none_num++; break;
+			case FC_BACK: back_num++; break;
+			case FC_PLANE: plane_num++; break;
+			case FC_FRONT: front_num++; break;
+			case FC_SPLIT: split_num++; break;
+			case FC_NONE: none_num++; break;
 		}
 	}
 	if (kdroot)
@@ -856,11 +860,11 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		{
 			switch(sides[i])
 			{
-				case PLANE: if (!kdroot) {plane[plane_id++]=space[i]; break;}
+				case FC_PLANE: if (!kdroot) {plane[plane_id++]=space[i]; break;}
 					// intentionally no break for kd, plane goes into back
-				case BACK: back[back_id++]=space[i]; break;
-				case FRONT: front[front_id++]=space[i]; break;
-				case SPLIT: front[front_id++]=space[i]; back[back_id++]=space[i]; break;
+				case FC_BACK: back[back_id++]=space[i]; break;
+				case FC_FRONT: front[front_id++]=space[i]; break;
+				case FC_SPLIT: front[front_id++]=space[i]; back[back_id++]=space[i]; break;
 			}
 		}
 	}
