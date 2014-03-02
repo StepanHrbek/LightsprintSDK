@@ -12,11 +12,10 @@
 
 namespace rr
 {
-	struct VERTEX 
+	struct VERTEX : public RRVec3
 	{
 		int id,side,used;
-		float x,y,z,u,v;
-		float operator [](unsigned i) const {return (&x)[i];}
+		float u,v;
 	};
 
 	struct NORMAL 
