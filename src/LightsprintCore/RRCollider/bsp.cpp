@@ -16,7 +16,7 @@
 //#define CHECK_KD // slow checks of kd build correctness
 
 // more strict separation of faces into kd_front / kd_back
-// makes subtrees much smaller, traversal very slightly faster
+// makes subtrees much smaller, build and traversal slightly faster
 #define STRICT_SEPARATION 
 
 #ifdef STRICT_SEPARATION
@@ -196,8 +196,8 @@ struct BBOX
 	}
 	void updateMaxVertexValue()
 	{
-		float a = RR_MAX3(hi[0],hi[1],hi[2]);
-		float b = RR_MIN3(lo[0],lo[1],lo[2]);
+		float a = hi.maxi();
+		float b = lo.mini();
 		maxVertexValue = RR_MAX(a,-b);
 		minSafeDistance = maxVertexValue * SAFE_DISTANCE_IN_UNIT_SCENE; // min distance from plane to be recognized as non-plane
 	}
