@@ -177,15 +177,13 @@ struct BBOX
 	{
 	}
 
+	// if it still has negative volume, we return 0
 	float getSurfaceArea() const
 	{
 		float a=hi[0]-lo[0];
 		float b=hi[1]-lo[1];
 		float c=hi[2]-lo[2];
-		RR_ASSERT(a>=0);
-		RR_ASSERT(b>=0);
-		RR_ASSERT(c>=0);
-		return 2*(a*(b+c)+b*c);
+		return (a>0 && b>0 && c>0) ? 2*(a*(b+c)+b*c) : 0;
 	}
 	void updateMaxVertexValue()
 	{
