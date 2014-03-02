@@ -177,7 +177,7 @@ struct BBOX
 	{
 	}
 
-	float getSurfaceSize() const
+	float getSurfaceArea() const
 	{
 		float a=hi[0]-lo[0];
 		float b=hi[1]-lo[1];
@@ -470,12 +470,12 @@ VERTEX *find_best_root_kd(BBOX *bbox, const FACE **list, ROOT_INFO* bestinfo)
 				{
 					float tmp = bbox->hi[axis];
 					bbox->hi[axis] = info2.value;
-					float backsurface = bbox->getSurfaceSize();
+					float backsurface = bbox->getSurfaceArea();
 					bbox->hi[axis] = tmp;
 					// frontsurface
 					tmp = bbox->lo[axis];
 					bbox->lo[axis] = info2.value;
-					float frontsurface = bbox->getSurfaceSize();
+					float frontsurface = bbox->getSurfaceArea();
 					bbox->lo[axis] = tmp;
 					// prize
 					info2.fprize = (info2.front+info2.split)*frontsurface + (info2.back+info2.plane+info2.split)*backsurface;
@@ -510,12 +510,12 @@ info2_done:			//----
 			{
 			float tmp = bbox->hi[axis];
 			bbox->hi[axis] = info.value;
-			float backsurface = bbox->getSurfaceSize();
+			float backsurface = bbox->getSurfaceArea();
 			bbox->hi[axis] = tmp;
 			// frontsurface
 			tmp = bbox->lo[axis];
 			bbox->lo[axis] = info.value;
-			float frontsurface = bbox->getSurfaceSize();
+			float frontsurface = bbox->getSurfaceArea();
 			bbox->lo[axis] = tmp;
 			// prize
 			info.fprize = (info.front+info.split)*frontsurface + (info.back+info.plane+info.split)*backsurface;
