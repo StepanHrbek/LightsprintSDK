@@ -177,6 +177,15 @@ struct BBOX
 	{
 	}
 
+	void expand(RRVec3 point)
+	{
+		for (unsigned i=0;i<3;i++)
+		{
+			if (point[i]>hi[i]) hi[i] = point[i];
+			if (point[i]<lo[i]) lo[i] = point[i];
+		}
+	}
+
 	// if it still has negative volume, we return 0
 	float getSurfaceArea() const
 	{
