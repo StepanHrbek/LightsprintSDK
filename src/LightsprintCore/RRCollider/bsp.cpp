@@ -51,31 +51,9 @@ struct first_nonvoid<void,T2>{
 	static const bool value = true;
 }; 
 
-
-typedef float VECTOR[3];
-
-static void cross_product(VECTOR res, VECTOR a, VECTOR b)
-{
-	res[0]=b[1]*a[2]-a[1]*b[2];
-	res[1]=b[2]*a[0]-a[2]*b[0];
-	res[2]=b[0]*a[1]-a[0]*b[1];
-}
-
 float FACE::getArea() const
 {
-	VECTOR u,v,n;
-
-	u[0]=vertex[1]->x-vertex[0]->x;
-	u[1]=vertex[1]->y-vertex[0]->y;
-	u[2]=vertex[1]->z-vertex[0]->z;
-
-	v[0]=vertex[2]->x-vertex[0]->x;
-	v[1]=vertex[2]->y-vertex[0]->y;
-	v[2]=vertex[2]->z-vertex[0]->z;
-
-	cross_product(n,v,u);
-
-	return n[0]*n[0]+n[1]*n[1]+n[2]*n[2];
+	return (*vertex[1]-*vertex[0]).cross(*vertex[2]-*vertex[0]).length2();
 }
 
 void FACE::fillNormal()
