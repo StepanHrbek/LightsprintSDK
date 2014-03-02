@@ -165,8 +165,14 @@ bool&       aborting;
 
 struct BBOX
 {
-	float hi[3];
-	float lo[3];
+	RRVec3 hi;
+	RRVec3 lo;
+
+	// constructs with negative volume
+	BBOX() : lo(1e30f), hi(-1e30f)
+	{
+	}
+
 	float getSurfaceSize() const
 	{
 		float a=hi[0]-lo[0];
@@ -271,9 +277,9 @@ static void get_tri_normal(RRReal normal[3], const RRReal verts[3][3])
 static bool face_intersects_box(const FACE* face, BBOX* bbox)
 {
 	// find out transformation a*point+b from box to [-0.5,-0.5,-0.5]..[0.5,0.5,0.5] box
-	Vec3 a = (*(Vec3*)bbox->hi-*(Vec3*)bbox->lo);
+	Vec3 a = (bbox->hi-bbox->lo);
 	a = Vec3(1/a.x,1/a.y,1/a.z);
-	Vec3 b = (*(Vec3*)bbox->lo+*(Vec3*)bbox->hi)*a*-0.5;
+	Vec3 b = (bbox->lo+bbox->hi)*a*-0.5;
 	// transform face
 	real tri[3][3]; 
 	for (unsigned i=0; i<3; i++)
@@ -1122,7 +1128,7 @@ static const FACE **make_list(OBJECT *o)
 
 BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
 {
-	BBOX bbox={-1e10,-1e10,-1e10,1e10,1e10,1e10};
+	BBOX bbox;
 
 	RR_ASSERT(obj->face_num>0); // pozor nastava
 
