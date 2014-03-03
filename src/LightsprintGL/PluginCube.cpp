@@ -93,7 +93,10 @@ public:
 		sp.viewport[3] = size;
 		for (unsigned side=0;side<6;side++)
 		{
-			cubeCamera.setYawPitchRollRad(s_viewAngles[side]);
+			// a) six fixed views (world x+, x-, etc)
+			//cubeCamera.setYawPitchRollRad(s_viewAngles[side]);
+			// b) six views relative to current camera
+			cubeCamera.setYawPitchRollRad((rr::RRMatrix3x4(_sp.camera->getViewMatrix(),false) * rr::RRMatrix3x4::rotationByYawPitchRoll(s_viewAngles[side])).getYawPitchRoll());
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,pp.cubeTexture);
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			_renderer.render(_pp.next,sp);
