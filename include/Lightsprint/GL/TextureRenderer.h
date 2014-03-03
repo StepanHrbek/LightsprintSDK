@@ -68,10 +68,10 @@ public:
 	//!  Additional effect of z in render2D() (not in render2dQuad()) is: "if (z<0) temporarily disable GL_DEPTH_TEST"
 	//! \param extraDefines
 	//!  Usually NULL, may be additional glsl code inserted at the beginning of shader, to enable special rendering paths.
-	void render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z=-1, const char* extraDefines=NULL, float yawAngleRad=0);
+	void render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z=-1, const char* extraDefines=NULL);
 
 	//! Component of render2D(), initializes pipeline.
-	bool render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines=NULL, float yawAngleRad=0);
+	bool render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines=NULL);
 	//! Component of render2D(), renders textured quad. May be called multiple times between render2dBegin() and render2dEnd().
 	void render2dQuad(const Texture* texture, float x,float y,float w,float h,float z=-1);
 	//! Component of render2D(), restores pipeline.
