@@ -83,7 +83,7 @@ RRMatrix3x4::RRMatrix3x4()
 {
 }
 
-RRMatrix3x4::RRMatrix3x4(float* m3x4, bool transposed)
+RRMatrix3x4::RRMatrix3x4(const float* m3x4, bool transposed)
 {
 	if (transposed)
 	{
@@ -117,7 +117,7 @@ RRMatrix3x4::RRMatrix3x4(float* m3x4, bool transposed)
 	}
 }
 
-RRMatrix3x4::RRMatrix3x4(double* m3x4, bool transposed)
+RRMatrix3x4::RRMatrix3x4(const double* m3x4, bool transposed)
 {
 	if (transposed)
 	{
