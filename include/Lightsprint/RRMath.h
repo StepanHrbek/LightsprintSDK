@@ -283,8 +283,8 @@ namespace rr /// LightsprintCore - platform independent realtime global illumina
 
 		// Constructors
 		RRMatrix3x4(); // uninitialized
-		RRMatrix3x4(float* m3x4, bool transposed);
-		RRMatrix3x4(double* m3x4, bool transposed);
+		RRMatrix3x4(const float* m3x4, bool transposed);
+		RRMatrix3x4(const double* m3x4, bool transposed);
 		RRMatrix3x4(float m00, float m01, float m02, float m03, float m10, float m11, float m12, float m13, float m20, float m21, float m22, float m23);
 		RRMatrix3x4(double m00, double m01, double m02, double m03, double m10, double m11, double m12, double m13, double m20, double m21, double m22, double m23);
 		static RRMatrix3x4 identity();
