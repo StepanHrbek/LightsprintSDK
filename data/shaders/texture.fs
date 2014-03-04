@@ -61,10 +61,9 @@ void main()
 		#ifdef CUBE_TO_DOME
 			direction.xz = uv.xy-vec2(0.5,0.5);
 			float r = length(direction.xz)+0.000001; // +epsilon fixes center pixel on intel
-			float rr = domeFovDeg/360.0*r;
-			direction.xz = direction.xz/rr; // /r instead of normalize() fixes noise on intel
-			direction.y = tan(RR_PI*2.0*(rr-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
-			vec4 tex = textureCube(map,direction.xzy) * step(r,0.5);
+			direction.xz = direction.xz/r; // /r instead of normalize() fixes noise on intel
+			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
+			vec4 tex = textureCube(map,direction.xzy) * step(r*360/domeFovDeg,0.5);
 		#endif
 	#else
 		vec4 tex = texture2D(map,uv);

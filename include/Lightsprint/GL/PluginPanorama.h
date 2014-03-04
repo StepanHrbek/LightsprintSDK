@@ -49,11 +49,13 @@ public:
 	PanoramaMode panoramaMode;
 	//! One of panorama coverage modes.
 	PanoramaCoverage panoramaCoverage;
-	//! Field of view in Dome projection mode. 360 for full sphere, 180 for hemisphere.
+	//! Panorama scale, 1 for normal size, 2 for bigger etc. Note that you can shift panorama with RRCamera::setScreenCenter().
+	float scale;
+	//! Panorama field of view, 360 for full sphere, 180 for hemisphere. Only for Dome projection mode.
 	float domeFovDeg;
 
 	//! Convenience ctor, for setting plugin parameters.
-	PluginParamsPanorama(const PluginParams* _next, PanoramaMode _panoramaMode, PanoramaCoverage _panoramaCoverage, float _domeFovDeg) : panoramaMode(_panoramaMode), panoramaCoverage(_panoramaCoverage), domeFovDeg(_domeFovDeg) {next=_next;}
+	PluginParamsPanorama(const PluginParams* _next, PanoramaMode _panoramaMode, PanoramaCoverage _panoramaCoverage, float _scale, float _domeFovDeg) : panoramaMode(_panoramaMode), panoramaCoverage(_panoramaCoverage), scale(_scale), domeFovDeg(_domeFovDeg) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;

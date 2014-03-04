@@ -127,6 +127,7 @@ struct SceneViewerState
 	bool             renderPanorama;            //! Enables 360 degree panorama rendering.
 	rr_gl::PanoramaMode panoramaMode;           //! Selects mode of panorama rendering.
 	rr_gl::PanoramaCoverage panoramaCoverage;   //! Selects screen area covered by panorama.
+	float            panoramaScale;             //! Scale of panorama, 1 for normal size, 2 for bigger etc. Note that you can shift panorama with RRCamera::setScreenCenter().
 	float            panoramaFovDeg;            //! Field of view of panorama, 360 for full sphere, 180 for hemisphere. Only for Dome projection.
 	bool             renderDof;                 //! Render depth of field effect.
 	bool             dofAccumulated;            //! For depth of field effect only: set dof near/far automatically.
@@ -239,6 +240,7 @@ struct SceneViewerState
 		renderPanorama = false;
 		panoramaMode = rr_gl::PM_EQUIRECTANGULAR;
 		panoramaCoverage = rr_gl::PC_FULL;
+		panoramaScale = 1;
 		panoramaFovDeg = 180;
 		renderDof = false;
 		dofAccumulated = true;
@@ -346,6 +348,7 @@ struct SceneViewerState
 			&& a.renderPanorama==renderPanorama
 			&& a.panoramaMode==panoramaMode
 			&& a.panoramaCoverage==panoramaCoverage
+			&& a.panoramaScale==panoramaScale
 			&& a.panoramaFovDeg==panoramaFovDeg
 			&& a.renderDof==renderDof
 			&& a.dofAccumulated==dofAccumulated
