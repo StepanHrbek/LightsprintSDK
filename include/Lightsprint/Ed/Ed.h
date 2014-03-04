@@ -126,7 +126,8 @@ struct SceneViewerState
 	bool             renderStereo;              //! Enables stereo rendering.
 	bool             renderPanorama;            //! Enables 360 degree panorama rendering.
 	rr_gl::PanoramaMode panoramaMode;           //! Selects mode of panorama rendering.
-	rr_gl::PanoramaCoverage panoramaCoverage;   //! Selects area covered by panorama.
+	rr_gl::PanoramaCoverage panoramaCoverage;   //! Selects screen area covered by panorama.
+	float            panoramaFovDeg;            //! Field of view of panorama, 360 for full sphere, 180 for hemisphere. Only for Dome projection.
 	bool             renderDof;                 //! Render depth of field effect.
 	bool             dofAccumulated;            //! For depth of field effect only: set dof near/far automatically.
 	rr::RRString     dofApertureShapeFilename;  //! For depth of field effect only: filename of bokeh image.
@@ -238,6 +239,7 @@ struct SceneViewerState
 		renderPanorama = false;
 		panoramaMode = rr_gl::PM_EQUIRECTANGULAR;
 		panoramaCoverage = rr_gl::PC_FULL;
+		panoramaFovDeg = 180;
 		renderDof = false;
 		dofAccumulated = true;
 		dofAutomaticFocusDistance = false;
@@ -344,6 +346,7 @@ struct SceneViewerState
 			&& a.renderPanorama==renderPanorama
 			&& a.panoramaMode==panoramaMode
 			&& a.panoramaCoverage==panoramaCoverage
+			&& a.panoramaFovDeg==panoramaFovDeg
 			&& a.renderDof==renderDof
 			&& a.dofAccumulated==dofAccumulated
 			&& a.dofApertureShapeFilename==dofApertureShapeFilename

@@ -49,9 +49,11 @@ public:
 	PanoramaMode panoramaMode;
 	//! One of panorama coverage modes.
 	PanoramaCoverage panoramaCoverage;
+	//! Field of view in Dome projection mode. 360 for full sphere, 180 for hemisphere.
+	float domeFovDeg;
 
 	//! Convenience ctor, for setting plugin parameters.
-	PluginParamsPanorama(const PluginParams* _next, PanoramaMode _panoramaMode, PanoramaCoverage _panoramaCoverage) : panoramaMode(_panoramaMode), panoramaCoverage(_panoramaCoverage) {next=_next;}
+	PluginParamsPanorama(const PluginParams* _next, PanoramaMode _panoramaMode, PanoramaCoverage _panoramaCoverage, float _domeFovDeg) : panoramaMode(_panoramaMode), panoramaCoverage(_panoramaCoverage), domeFovDeg(_domeFovDeg) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;

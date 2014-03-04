@@ -80,7 +80,7 @@ public:
 				h = _sp.viewport[2]/float(_sp.viewport[3]);
 				break;
 		}
-		_renderer.getTextureRenderer()->render2D(cubeTexture,NULL,_sp.srgbCorrect?0.45f:1.f,x0,y0,w,h,-1,(pp.panoramaMode==PM_EQUIRECTANGULAR)?"#define CUBE_TO_EQUIRECTANGULAR\n":((pp.panoramaMode==PM_LITTLE_PLANET)?"#define CUBE_TO_LITTLE_PLANET\n":((pp.panoramaMode==PM_DOME)?"#define CUBE_TO_DOME\n":NULL)));
+		_renderer.getTextureRenderer()->render2D(cubeTexture,NULL,_sp.srgbCorrect?0.45f:1.f,x0,y0,w,h,-1,(pp.panoramaMode==PM_EQUIRECTANGULAR)?"#define CUBE_TO_EQUIRECTANGULAR\n":((pp.panoramaMode==PM_LITTLE_PLANET)?"#define CUBE_TO_LITTLE_PLANET\n":((pp.panoramaMode==PM_DOME)?"#define CUBE_TO_DOME\n":NULL)),pp.domeFovDeg);
 
 	}
 

@@ -1810,7 +1810,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppLensFlare;
 
 			// panorama plugin
-			rr_gl::PluginParamsPanorama ppPanorama(pluginChain,svs.panoramaMode,svs.panoramaCoverage);
+			rr_gl::PluginParamsPanorama ppPanorama(pluginChain,svs.panoramaMode,svs.panoramaCoverage,svs.panoramaFovDeg);
 			if (svs.renderPanorama)
 				pluginChain = &ppPanorama;
 
