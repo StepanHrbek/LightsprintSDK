@@ -127,13 +127,13 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	return result;
 };
 
-bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines, float domeFovDeg)
+Program* TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines, float domeFovDeg)
 {
 	Program* program = twodProgram ? twodProgram->getProgram(tmpstr("#define TEXTURE\n%s%s",(gamma!=1)?"#define GAMMA\n":"",extraDefines?extraDefines:"")) : NULL;
 	if (!program)
 	{
 		RR_ASSERT(0);
-		return false;
+		return NULL;
 	}
 	// render 2d
 	program->useIt();
@@ -146,7 +146,7 @@ bool TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma, const 
 		program->sendUniform("domeFovDeg",domeFovDeg);
 	glEnableVertexAttribArray(VAA_POSITION);
 	glEnableVertexAttribArray(VAA_UV_MATERIAL_DIFFUSE);
-	return true;
+	return program;
 }
 
 void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float w,float h,float z)

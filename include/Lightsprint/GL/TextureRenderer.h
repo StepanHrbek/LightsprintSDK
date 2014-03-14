@@ -71,7 +71,7 @@ public:
 	void render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z=-1, const char* extraDefines=NULL, float domeFovDeg=180);
 
 	//! Component of render2D(), initializes pipeline.
-	bool render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines=NULL, float domeFovDeg=180);
+	Program* render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines=NULL, float domeFovDeg=180);
 	//! Component of render2D(), renders textured quad. May be called multiple times between render2dBegin() and render2dEnd().
 	void render2dQuad(const Texture* texture, float x,float y,float w,float h,float z=-1);
 	//! Component of render2D(), restores pipeline.
