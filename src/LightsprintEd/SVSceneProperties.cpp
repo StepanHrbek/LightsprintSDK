@@ -56,18 +56,18 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propCameraPanorama,propCameraPanoramaMode);
 			}
 
+			propCameraPanoramaFovDeg = new FloatProperty(_("FOV"),_("180 for hemisphere, 360 for full sphere."),svs.panoramaFovDeg,svs.precision,1,360,10,false);
+			AppendIn(propCameraPanoramaMode,propCameraPanoramaFovDeg);
+
 			{
 			const wxChar* panoStrings[] = {_("Full+stretch"),_("Full"),_("Truncate bottom"),_("Truncate top"),NULL};
 			const long panoValues[] = {rr_gl::PC_FULL_STRETCH,rr_gl::PC_FULL,rr_gl::PC_TRUNCATE_BOTTOM,rr_gl::PC_TRUNCATE_TOP};
 			propCameraPanoramaCoverage = new wxEnumProperty(_("Coverage"), wxPG_LABEL, panoStrings, panoValues);
-			AppendIn(propCameraPanorama,propCameraPanoramaCoverage);
+			AppendIn(propCameraPanoramaMode,propCameraPanoramaCoverage);
 			}
 
 			propCameraPanoramaScale = new FloatProperty(_("Scale"),_("1 for normal size."),svs.panoramaScale,svs.precision,0,10,1,false);
 			AppendIn(propCameraPanorama,propCameraPanoramaScale);
-
-			propCameraPanoramaFovDeg = new FloatProperty(_("Dome FOV"),_("180 for hemisphere, 360 for full sphere."),svs.panoramaFovDeg,svs.precision,1,360,10,false);
-			AppendIn(propCameraPanorama,propCameraPanoramaFovDeg);
 
 		}
 
@@ -323,9 +323,9 @@ void SVSceneProperties::updateHide()
 	propCameraDisplayDistance->Hide(!svs.renderStereo,false);
 
 	propCameraPanoramaMode->Hide(!svs.renderPanorama,false);
-	propCameraPanoramaCoverage->Hide(!svs.renderPanorama,false);
+	propCameraPanoramaFovDeg->Hide(!svs.renderPanorama || svs.panoramaMode!=rr_gl::PM_DOME,false);
+	propCameraPanoramaCoverage->Hide(!svs.renderPanorama || svs.panoramaMode==rr_gl::PM_EQUIRECTANGULAR,false);
 	propCameraPanoramaScale->Hide(!svs.renderPanorama,false);
-	propCameraPanoramaFovDeg->Hide(!svs.renderPanorama,false);
 
 	propCameraDofAccumulated->Hide(!svs.renderDof,false);
 	propCameraDofApertureShape->Hide(!svs.renderDof || !svs.dofAccumulated,false);
@@ -379,6 +379,7 @@ void SVSceneProperties::updateProperties()
 	unsigned numChangesRelevantForHiding =
 		+ updateBoolRef(propCameraStereo)
 		+ updateBoolRef(propCameraPanorama)
+		+ updateInt(propCameraPanoramaMode,svs.panoramaMode)
 		+ updateBoolRef(propCameraDof)
 		+ updateBoolRef(propCameraDofAccumulated)
 		+ updateBool(propCameraOrtho,svs.camera.isOrthogonal())
@@ -398,7 +399,6 @@ void SVSceneProperties::updateProperties()
 	unsigned numChangesOther =
 		+ updateFloat(propCameraEyeSeparation,svs.camera.eyeSeparation)
 		+ updateFloat(propCameraDisplayDistance,svs.camera.displayDistance)
-		+ updateInt(propCameraPanoramaMode,svs.panoramaMode)
 		+ updateInt(propCameraPanoramaCoverage,svs.panoramaCoverage)
 		+ updateFloat(propCameraPanoramaScale,svs.panoramaScale)
 		+ updateFloat(propCameraPanoramaFovDeg,svs.panoramaFovDeg)
@@ -494,6 +494,12 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCameraPanoramaMode)
 	{
 		svs.panoramaMode = (rr_gl::PanoramaMode)property->GetValue().GetInteger();
+		updateHide();
+	}
+	else
+	if (property==propCameraPanoramaFovDeg)
+	{
+		svs.panoramaFovDeg = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propCameraPanoramaCoverage)
@@ -504,11 +510,6 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCameraPanoramaScale)
 	{
 		svs.panoramaScale = property->GetValue().GetDouble();
-	}
-	else
-	if (property==propCameraPanoramaFovDeg)
-	{
-		svs.panoramaFovDeg = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propCameraDof)
