@@ -128,7 +128,7 @@ struct SceneViewerState
 	rr_gl::PanoramaMode panoramaMode;           //! Selects mode of panorama rendering.
 	rr_gl::PanoramaCoverage panoramaCoverage;   //! Selects screen area covered by panorama.
 	float            panoramaScale;             //! Scale of panorama, 1 for normal size, 2 for bigger etc. Note that you can shift panorama with RRCamera::setScreenCenter().
-	float            panoramaFovDeg;            //! For PM_DOME: Field of view of panorama, 360 for full sphere, 180 for hemisphere.
+	float            panoramaFovDeg;            //! For PM_FISHEYE: Field of view of panorama, 360 for full sphere, 180 for hemisphere.
 	bool             renderDof;                 //! Render depth of field effect.
 	bool             dofAccumulated;            //! For depth of field effect only: set dof near/far automatically.
 	rr::RRString     dofApertureShapeFilename;  //! For depth of field effect only: filename of bokeh image.

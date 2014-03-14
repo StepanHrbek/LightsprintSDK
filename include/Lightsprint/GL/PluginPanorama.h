@@ -18,7 +18,7 @@ enum PanoramaMode
 	PM_OFF              =0, ///< common non-panorama mode
 	PM_EQUIRECTANGULAR  =1, ///< 360 degree render in equirectangular projection \image html 360-equirect.jpg
 	PM_LITTLE_PLANET    =2, ///< 360 degree render in stereographic (little planet) projection \image html 360-planet.jpg
-	PM_DOME             =3, ///< 180 degree render in dome projection \image html 180-dome.jpg
+	PM_FISHEYE             =3, ///< variable FOV fisheye render; suitable for dome projection with spherical mirror in center \image html 180-dome.jpg
 };
 
 enum PanoramaCoverage
@@ -51,11 +51,11 @@ public:
 	PanoramaCoverage panoramaCoverage;
 	//! Panorama scale, 1 for normal size, 2 for bigger etc. Note that you can shift panorama with RRCamera::setScreenCenter().
 	float scale;
-	//! Panorama field of view, 360 for full sphere, 180 for hemisphere. Only for Dome projection mode.
-	float domeFovDeg;
+	//! Fisheye field of view, 360 for full sphere, 180 for hemisphere.
+	float fisheyeFovDeg;
 
 	//! Convenience ctor, for setting plugin parameters.
-	PluginParamsPanorama(const PluginParams* _next, PanoramaMode _panoramaMode, PanoramaCoverage _panoramaCoverage, float _scale, float _domeFovDeg) : panoramaMode(_panoramaMode), panoramaCoverage(_panoramaCoverage), scale(_scale), domeFovDeg(_domeFovDeg) {next=_next;}
+	PluginParamsPanorama(const PluginParams* _next, PanoramaMode _panoramaMode, PanoramaCoverage _panoramaCoverage, float _scale, float _fisheyeFovDeg) : panoramaMode(_panoramaMode), panoramaCoverage(_panoramaCoverage), scale(_scale), fisheyeFovDeg(_fisheyeFovDeg) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;

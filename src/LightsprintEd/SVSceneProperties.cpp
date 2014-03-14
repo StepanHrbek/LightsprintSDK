@@ -50,8 +50,8 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propCamera,propCameraPanorama);
 
 			{
-			const wxChar* panoStrings[] = {_("Equirectangular"),_("Little planet"),_("Dome"),NULL};
-			const long panoValues[] = {rr_gl::PM_EQUIRECTANGULAR,rr_gl::PM_LITTLE_PLANET,rr_gl::PM_DOME};
+			const wxChar* panoStrings[] = {_("Equirectangular"),_("Little planet"),_("Fisheye"),NULL};
+			const long panoValues[] = {rr_gl::PM_EQUIRECTANGULAR,rr_gl::PM_LITTLE_PLANET,rr_gl::PM_FISHEYE};
 			propCameraPanoramaMode = new wxEnumProperty(_("Mode"), wxPG_LABEL, panoStrings, panoValues);
 			AppendIn(propCameraPanorama,propCameraPanoramaMode);
 			}
@@ -323,7 +323,7 @@ void SVSceneProperties::updateHide()
 	propCameraDisplayDistance->Hide(!svs.renderStereo,false);
 
 	propCameraPanoramaMode->Hide(!svs.renderPanorama,false);
-	propCameraPanoramaFovDeg->Hide(!svs.renderPanorama || svs.panoramaMode!=rr_gl::PM_DOME,false);
+	propCameraPanoramaFovDeg->Hide(!svs.renderPanorama || svs.panoramaMode!=rr_gl::PM_FISHEYE,false);
 	propCameraPanoramaCoverage->Hide(!svs.renderPanorama || svs.panoramaMode==rr_gl::PM_EQUIRECTANGULAR,false);
 	propCameraPanoramaScale->Hide(!svs.renderPanorama,false);
 

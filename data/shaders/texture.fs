@@ -6,7 +6,7 @@
 // #define TEXTURE_IS_CUBE
 // #define  CUBE_TO_EQUIRECTANGULAR
 // #define  CUBE_TO_LITTLE_PLANET
-// #define  CUBE_TO_DOME
+// #define  CUBE_TO_FISHEYE
 // #define  CUBE_TO_WARP
 // #define GAMMA
 // #define SHOW_ALPHA0
@@ -20,8 +20,8 @@ uniform float gamma;
 #ifdef TEXTURE
 	#ifdef TEXTURE_IS_CUBE
 		uniform samplerCube map;
-		#ifdef CUBE_TO_DOME
-			uniform float domeFovDeg;
+		#ifdef CUBE_TO_FISHEYE
+			uniform float fisheyeFovDeg;
 		#endif
 		#ifdef CUBE_TO_WARP
 			varying float intensity;
@@ -42,7 +42,7 @@ void main()
 #ifdef TEXTURE
 	#ifdef TEXTURE_IS_CUBE
 		vec3 direction;
-		#if !defined(CUBE_TO_LITTLE_PLANET) && !defined(CUBE_TO_DOME) && !defined(CUBE_TO_WARP)
+		#if !defined(CUBE_TO_LITTLE_PLANET) && !defined(CUBE_TO_FISHEYE) && !defined(CUBE_TO_WARP)
 			#define CUBE_TO_EQUIRECTANGULAR // this happens when user renders cubemap as a 2d texture, without any #defines
 		#endif
 		#ifdef CUBE_TO_EQUIRECTANGULAR
@@ -62,12 +62,12 @@ void main()
 			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
 			vec4 tex = textureCube(map,direction) * step(r,0.5);
 		#endif
-		#ifdef CUBE_TO_DOME
+		#ifdef CUBE_TO_FISHEYE
 			direction.xz = uv.xy-vec2(0.5,0.5);
 			float r = length(direction.xz)+0.000001; // +epsilon fixes center pixel on intel
 			direction.xz = direction.xz/r; // /r instead of normalize() fixes noise on intel
 			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
-			vec4 tex = textureCube(map,direction.xzy) * step(r*360/domeFovDeg,0.5);
+			vec4 tex = textureCube(map,direction.xzy) * step(r*360/fisheyeFovDeg,0.5);
 		#endif
 		#ifdef CUBE_TO_WARP
 			// rotated so that render of empty scene with equirectangular environment E is E
