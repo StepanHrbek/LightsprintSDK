@@ -7,6 +7,7 @@
 // #define  CUBE_TO_EQUIRECTANGULAR
 // #define  CUBE_TO_LITTLE_PLANET
 // #define  CUBE_TO_DOME
+// #define  CUBE_TO_WARP
 // #define GAMMA
 // #define SHOW_ALPHA0
 // #define MIRROR_MASK
@@ -21,6 +22,9 @@ uniform float gamma;
 		uniform samplerCube map;
 		#ifdef CUBE_TO_DOME
 			uniform float domeFovDeg;
+		#endif
+		#ifdef CUBE_TO_WARP
+			varying float intensity;
 		#endif
 	#else
 		uniform sampler2D map;
@@ -38,7 +42,7 @@ void main()
 #ifdef TEXTURE
 	#ifdef TEXTURE_IS_CUBE
 		vec3 direction;
-		#if !defined(CUBE_TO_LITTLE_PLANET) && !defined(CUBE_TO_DOME)
+		#if !defined(CUBE_TO_LITTLE_PLANET) && !defined(CUBE_TO_DOME) && !defined(CUBE_TO_WARP)
 			#define CUBE_TO_EQUIRECTANGULAR // this happens when user renders cubemap as a 2d texture, without any #defines
 		#endif
 		#ifdef CUBE_TO_EQUIRECTANGULAR
@@ -64,6 +68,17 @@ void main()
 			direction.xz = direction.xz/r; // /r instead of normalize() fixes noise on intel
 			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
 			vec4 tex = textureCube(map,direction.xzy) * step(r*360/domeFovDeg,0.5);
+		#endif
+		#ifdef CUBE_TO_WARP
+			// rotated so that render of empty scene with equirectangular environment E is E
+			// also implemented in createEquirectangular()
+			direction.y = sin(RR_PI*(uv.y-0.5));
+			direction.x = sin(RR_PI*(2.0*uv.x+1.0)) * sqrt(1.0-direction.y*direction.y);
+			direction.z = sqrt(max(1.0-direction.x*direction.x-direction.y*direction.y,0.0)); // max() fixes center lines on intel
+			if (uv.x>0.25 && uv.x<0.75)
+				direction.z = -direction.z;
+			vec4 tex = textureCube(map,direction);
+			tex *= intensity;
 		#endif
 	#else
 		vec4 tex = texture2D(map,uv);
