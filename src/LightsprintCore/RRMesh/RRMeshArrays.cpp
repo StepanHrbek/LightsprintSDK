@@ -384,7 +384,7 @@ void RRMeshArrays::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 	if (_center) *_center = aabbCache->center;
 }
 
-unsigned RRMeshArrays::flipFrontBack(unsigned numNormalsThatMustPointBack)
+unsigned RRMeshArrays::flipFrontBack(unsigned numNormalsThatMustPointBack, bool negativeScale)
 {
 	unsigned numFlips = 0;
 	for (unsigned t=0;t<numTriangles;t++)
@@ -397,7 +397,7 @@ unsigned RRMeshArrays::flipFrontBack(unsigned numNormalsThatMustPointBack)
 			{
 				for (unsigned v=0;v<3;v++)
 				{
-					if (normal[triangle[t][v]].dot(triangleNormal)<0)
+					if (normal[triangle[t][v]].dot(triangleNormal)*(negativeScale?-1.f:1.f)<0)
 						numNormalsPointingBack++;
 				}
 			}

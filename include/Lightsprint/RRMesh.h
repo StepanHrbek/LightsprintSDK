@@ -600,8 +600,9 @@ namespace rr
 
 		//! Flips front/back if at least this number of normals in triangle points to back side.
 		//! So all triangles are flipped if numNormalsThatMustPointBack==0.
+		//! Meaning of front and back is inverted when negativeScale.
 		//! \return Number of triangles flipped.
-		unsigned             flipFrontBack(unsigned numNormalsThatMustPointBack);
+		unsigned             flipFrontBack(unsigned numNormalsThatMustPointBack, bool negativeScale);
 
 		//! Builds new smooth vertex normals from angles between faces.
 		void                 buildNormals();

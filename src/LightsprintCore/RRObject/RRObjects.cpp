@@ -187,7 +187,29 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 	unsigned numFlips = 0;
 	for (std::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
 	{
-		numFlips += (*i)->flipFrontBack(numNormalsThatMustPointBack);
+		// detect scale
+		unsigned numObjectWithPositiveScale = 0;
+		unsigned numObjectWithNegativeScale = 0;
+		for (unsigned j=0;j<size();j++)
+		{
+			RRMeshArrays* mesh = const_cast<RRMeshArrays*>(dynamic_cast<const RRMeshArrays*>((*this)[j]->getCollider()->getMesh()));
+			if (mesh==*i)
+			{
+				RRVec3 scale3 = (*this)[j]->getWorldMatrixRef().getScale();
+				float scale1 = scale3.x*scale3.y*scale3.z;
+				if (scale1>0) numObjectWithPositiveScale++;
+				if (scale1<0) numObjectWithNegativeScale++;
+			}
+		}
+		bool negativeScale;
+		if (numObjectWithPositiveScale && !numObjectWithNegativeScale) negativeScale = false; else
+		if (!numObjectWithPositiveScale && numObjectWithNegativeScale) negativeScale = true; else
+		{
+			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"flipFrontBack(): not flipping mesh that has instances with both positive and negative scale.\n"));
+			continue;
+		}
+		// flip
+		numFlips += (*i)->flipFrontBack(numNormalsThatMustPointBack,negativeScale);
 	}
 	if (report && numFlips)
 	{
