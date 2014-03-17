@@ -1057,8 +1057,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 	}
 
-	// handle double clicking
-	if (event.LeftDClick() && s_ci.hitTriangle==UINT_MAX)
+	// handle double clicking sky
+	if (event.LeftDClick() && s_ci.hitTriangle==UINT_MAX && s_ci.clickedEntity.iconCode==IC_LAST) // IC_LAST means no icon clicked
 	{
 		svframe->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META);
 	}
