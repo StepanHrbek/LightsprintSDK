@@ -691,6 +691,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 SVFrame::~SVFrame()
 {
+	rr::RRReporter::report(rr::INF2,"~SVFrame()\n");
 	if (fullyInited)
 	{
 		{
@@ -708,6 +709,7 @@ SVFrame::~SVFrame()
 
 void SVFrame::OnExit(wxCommandEvent& event)
 {
+	rr::RRReporter::report(rr::INF2,"OnExit()\n");
 	// true is to force the frame to close
 	Close(true);
 }
