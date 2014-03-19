@@ -1761,11 +1761,6 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				svs.referenceTime.addSeconds(1000);
 			pluginChain = &ppScene;
 
-			// bloom plugin
-			rr_gl::PluginParamsBloom ppBloom(pluginChain,svs.bloomThreshold);
-			if (svs.renderBloom)
-				pluginChain = &ppBloom;
-
 			// SSGI plugin
 			rr_gl::PluginParamsSSGI ppSSGI(pluginChain,svs.ssgiIntensity,svs.ssgiRadius,svs.ssgiAngleBias);
 			if (svs.ssgiEnabled)
@@ -1813,6 +1808,11 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr_gl::PluginParamsPanorama ppPanorama(pluginChain,svs.panoramaMode,svs.panoramaCoverage,svs.panoramaScale,svs.panoramaFovDeg);
 			if (svs.renderPanorama)
 				pluginChain = &ppPanorama;
+
+			// bloom plugin (should go after panorama, to avoid discontinuities)
+			rr_gl::PluginParamsBloom ppBloom(pluginChain,svs.bloomThreshold);
+			if (svs.renderBloom)
+				pluginChain = &ppBloom;
 
 			// stereo plugin
 			rr_gl::PluginParamsStereo ppStereo(pluginChain,svframe->userPreferences.stereoMode);
