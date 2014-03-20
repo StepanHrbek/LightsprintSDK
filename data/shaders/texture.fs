@@ -67,7 +67,7 @@ void main()
 			float r = length(direction.xz)+0.000001; // +epsilon fixes center pixel on intel
 			direction.xz = direction.xz/r; // /r instead of normalize() fixes noise on intel
 			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf
-			vec4 tex = textureCube(map,direction.xzy) * step(r*360/fisheyeFovDeg,0.5);
+			vec4 tex = textureCube(map,direction.xzy) * step(r*360.0/fisheyeFovDeg,0.5);
 		#endif
 		#ifdef CUBE_TO_WARP
 			// rotated so that render of empty scene with equirectangular environment E is E
