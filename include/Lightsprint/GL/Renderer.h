@@ -60,11 +60,11 @@ namespace rr_gl
 //! If not sure, use this order of standard plugins:
 //! - PluginParamsSky
 //! - PluginParamsScene
-//! - PluginParamsBloom
 //! - PluginParamsSSGI
 //! - PluginParamsDOF
 //! - PluginParamsLensFlare
 //! - PluginParamsPanorama
+//! - PluginParamsBloom
 //! - PluginParamsStereo
 //! - PluginParamsAccumulation
 //! - PluginParamsToneMapping
