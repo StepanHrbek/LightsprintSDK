@@ -1025,22 +1025,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				// display log window with 'abort' while this function runs
 				LogWithAbort logWithAbort(this,solver,_("Building tangents..."));
 
-				for (unsigned i=0;i<selectedObjects.size();i++)
-				{
-					unsigned uvChannel = 0;
-					const rr::RRObject::FaceGroups& fgs = selectedObjects[i]->faceGroups;
-					for (unsigned fg=0;fg<fgs.size();fg++)
-						if (fgs[fg].material)
-						{
-							uvChannel = fgs[fg].material->bumpMap.texcoord;
-							if (fgs[fg].material->bumpMap.texture)
-								break;
-						}
-					rr::RRMeshArrays* arrays = dynamic_cast<rr::RRMeshArrays*>(const_cast<rr::RRMesh*>(selectedObjects[i]->getCollider()->getMesh()));
-					if (arrays)
-						arrays->buildTangents(uvChannel);
-				}
-
+				selectedObjects.buildTangents(true);
 				svframe->m_canvas->addOrRemoveScene(NULL,true,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
 			}
 			break;

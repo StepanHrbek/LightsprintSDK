@@ -576,6 +576,9 @@ namespace rr
 		//! \return Number of triangles flipped.
 		virtual unsigned flipFrontBack(unsigned numNormalsThatMustPointBack, bool report) const;
 
+		//! Builds tangents in all meshes, or in all meshes that don't have tangents. Returns number of meshes modified.
+		virtual unsigned buildTangents(bool overwriteExistingTangents) const;
+
 		//! Merges facegroups with the same material. Reorders triangles in mesh if necessary.
 		//
 		//! Object is silently skipped in two special cases: if either its mesh is not of RRMeshArrays type

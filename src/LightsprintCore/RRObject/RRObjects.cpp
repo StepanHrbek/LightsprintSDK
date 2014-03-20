@@ -218,6 +218,30 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 	return numFlips;
 }
 
+unsigned RRObjects::buildTangents(bool overwriteExistingTangents) const
+{
+	unsigned numBuilds = 0;
+	for (unsigned i=0;i<size();i++)
+	{
+		unsigned uvChannel = 0;
+		const rr::RRObject::FaceGroups& fgs = (*this)[i]->faceGroups;
+		for (unsigned fg=0;fg<fgs.size();fg++)
+			if (fgs[fg].material)
+			{
+				uvChannel = fgs[fg].material->bumpMap.texcoord;
+				if (fgs[fg].material->bumpMap.texture)
+					break;
+			}
+		rr::RRMeshArrays* arrays = dynamic_cast<rr::RRMeshArrays*>(const_cast<rr::RRMesh*>((*this)[i]->getCollider()->getMesh()));
+		if (arrays && (overwriteExistingTangents || !arrays->tangent))
+		{
+			arrays->buildTangents(uvChannel);
+			numBuilds++;
+		}
+	}
+	return numBuilds;
+}
+
 unsigned RRObjects::optimizeFaceGroups(RRObject* object) const
 {
 	unsigned result = 0;
