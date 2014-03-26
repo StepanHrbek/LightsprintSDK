@@ -175,7 +175,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		Append(propGILightmap);
 		SetPropertyReadOnly(propGILightmap,true,wxPG_DONT_RECURSE);
 
-		propGILightmapFloats = new BoolRefProperty(_("HDR"),_("Renders lightmaps in floating point/high dynamic range format. Off = baked illumination is clamped to 0..1 range. HDR takes more memory, save it for scenes where LDR can't capture lighting well."),svs.lightmapFloats);
+		propGILightmapFloats = new BoolRefProperty(_("HDR"),_("Renders lightmaps in floating point/high dynamic range format. Off = baked illumination is clamped to 0..1 range. HDR takes more memory, save it for scenes where LDR can't capture lighting well. Note that baking saves both LDR(.png) and HDR(.exr) maps to disk, this checkbox selects which ones to render."),svs.lightmapFloats);
 		AppendIn(propGILightmap,propGILightmapFloats);
 
 		propGILightmapAOIntensity = new FloatProperty(_("AO intensity"),_("Higher value makes indirect illumination in corners darker, 0=disabled/lighter, 1=normal, 2=darker."),svs.lightmapDirectParameters.aoIntensity,svs.precision,0,10,1,false);
