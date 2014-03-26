@@ -737,9 +737,13 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		}
 	
 		// find out scene size
-		rr::RRVec3 mini,maxi;
-		getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
-		rr::RRReal size = (maxi-mini).length();
+		rr::RRReal size = 1;
+		if (getMultiObjectCustom())
+		{
+			rr::RRVec3 mini,maxi;
+			getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+			size = (maxi-mini).length();
+		}
 
 		// hide objects with current illumination
 		// (we hide it only in 1objects, it stays visible in multiobject. rendering with all lights and materials usually uses 1objects.
