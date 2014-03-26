@@ -823,10 +823,12 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 			infos[i].object->faceGroups = infos[i].faceGroups;
 #endif
 
-		// update version numbers
-		cube->version++;
+		// copy texture to buffer
+		cubeTexture->copyTextureToBuffer();
+		// encode solutionVersion into cube version
 		cube->version = (solutionVersion<<16)+(cube->version&65535);
 		cubeTexture->version = cube->version;
+
 		illumination->cachedNumTriangles = getMultiObjectCustom() ? getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles() : 0;
 		illumination->cachedCenter = illumination->envMapWorldCenter;
 
