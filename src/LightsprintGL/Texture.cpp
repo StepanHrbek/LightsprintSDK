@@ -6,6 +6,7 @@
 #include <climits> // UINT_MAX
 #include <cstdlib> // rand
 #include "Lightsprint/GL/FBO.h"
+#include "Lightsprint/GL/PreserveState.h"
 #include "Lightsprint/RRDebug.h"
 #include "Workaround.h"
 #include <vector>
@@ -47,7 +48,7 @@ void FBO_done()
 	glDeleteFramebuffers(1, &s_fb_id);
 }
 
-void FBO::setRenderTarget(GLenum attachment, GLenum target, Texture* tex)
+void FBO::setRenderTarget(GLenum attachment, GLenum target, const Texture* tex)
 {
 	setRenderTargetGL(attachment,target,tex?tex->id:0);
 }
@@ -512,16 +513,16 @@ void deleteAllTextures()
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// render target -> RRBuffer
+// Texture -> RRBuffer
 
-void readPixelsToBuffer(rr::RRBuffer* buffer, unsigned x, unsigned y)
+static unsigned char* getFormatLockBuffer(rr::RRBuffer* buffer, GLenum& glformat, GLenum& gltype)
 {
-	GLenum glformat; // GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT
-	GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
-	if (!buffer || buffer->getType()!=rr::BT_2D_TEXTURE)
+	//GLenum glformat; // GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT
+	//GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
+	if (!buffer)
 	{
-		rr::RRReporter::report(rr::ERRO,"readBackbufferToBuffer() failed, buffer type is not 2d.\n");
-		return;
+		rr::RRReporter::report(rr::ERRO,"readPixelsToBuffer() failed, buffer=NULL.\n");
+		return NULL;
 	}
 	switch(buffer->getFormat())
 	{
@@ -537,16 +538,61 @@ void readPixelsToBuffer(rr::RRBuffer* buffer, unsigned x, unsigned y)
 		case rr::BF_DEPTH: glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_LUMINANCE: glformat = GL_LUMINANCE; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_LUMINANCEF: glformat = GL_LUMINANCE; gltype = GL_FLOAT; break;
-		default: rr::RRReporter::report(rr::ERRO,"readBackbufferToBuffer() failed, buffer format not supported.\n"); return;
+		default: rr::RRReporter::report(rr::ERRO,"readPixelsToBuffer() failed, buffer format not supported.\n"); return NULL;
 	}
-	unsigned char* pixels = buffer->lock(rr::BL_DISCARD_AND_WRITE);
+	unsigned char* pixels = buffer->lock(rr::BL_DISCARD_AND_WRITE); // increases buffer version
 	if (!pixels)
 	{
-		rr::RRReporter::report(rr::ERRO,"readBackbufferToBuffer() failed, buffer can't be locked.\n");
+		rr::RRReporter::report(rr::ERRO,"readPixelsToBuffer() failed, buffer can't be locked.\n");
+		return NULL;
+	}
+	return pixels;
+}
+
+void readPixelsToBuffer(rr::RRBuffer* buffer, unsigned x, unsigned y)
+{
+	GLenum glformat; // GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT
+	GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
+	unsigned char* pixels = getFormatLockBuffer(buffer,glformat,gltype);
+	if (!pixels)
+		return; // error was already reported
+	if (buffer->getType()!=rr::BT_2D_TEXTURE)
+	{
+		rr::RRReporter::report(rr::ERRO,"readPixelsToBuffer() failed, buffer type is not 2d.\n");
 		return;
 	}
 	glReadPixels(x,y,buffer->getWidth(),buffer->getHeight(),glformat,gltype,pixels);
 	buffer->unlock();
+}
+
+void Texture::copyTextureToBuffer()
+{
+	GLenum glformat; // GL_RGB, GL_RGBA, GL_DEPTH_COMPONENT
+	GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
+	unsigned char* pixels = getFormatLockBuffer(buffer,glformat,gltype);
+	if (!pixels)
+		return; // error was already reported
+	PreserveFBO p1;
+	if (buffer->getType()==rr::BT_2D_TEXTURE)
+	{
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,this);
+		glReadPixels(0,0,buffer->getWidth(),buffer->getHeight(),glformat,gltype,pixels);
+	}
+	else
+	if (buffer->getType()==rr::BT_CUBE_TEXTURE)
+	{
+		for (unsigned side=0;side<6;side++)
+		{
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,this);
+			glReadPixels(0,0,buffer->getWidth(),buffer->getHeight(),glformat,gltype,pixels+buffer->getBufferBytes()/6*side);
+		}
+	}
+	else
+	{
+		rr::RRReporter::report(rr::ERRO,"copyTextureToBuffer() failed, buffer not 2d or cube.\n");
+	}
+	buffer->unlock();
+	version = buffer->version; // sync version with buffer (buffer version was increased by lock())
 }
 
 }; // namespace

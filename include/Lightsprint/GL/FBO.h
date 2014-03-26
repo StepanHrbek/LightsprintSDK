@@ -34,7 +34,7 @@ public:
 	//!  GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP_POSITIVE_X or _NEGATIVE_X or _POSITIVE_Y or _NEGATIVE_Y or _POSITIVE_Z or _NEGATIVE_Z.
 	//! \param texture
 	//!  Texture to be set as render target. May be NULL. If you set both color and depth, sizes must match.
-	static void setRenderTarget(GLenum attachment, GLenum target, Texture* texture);
+	static void setRenderTarget(GLenum attachment, GLenum target, const Texture* texture);
 	//! Check whether render target is set correctly (all textures the same size etc).
 	static bool isOk();
 

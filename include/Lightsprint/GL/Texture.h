@@ -55,6 +55,8 @@ public:
 	void reset(bool buildMipMaps, bool compress, bool scaledAsSRGB);
 	//! Binds texture.
 	void bindTexture() const;
+	//! Reads texture back from GPU memory to buffer, increases version.
+	void copyTextureToBuffer();
 	~Texture();
 
 	unsigned version; // For interal use only. Version of data in GPU, copied from buffer->version.
