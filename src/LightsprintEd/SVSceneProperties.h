@@ -37,9 +37,9 @@ namespace rr_ed
 		wxPGProperty*     propCameraDisplayDistance;
 		BoolRefProperty*  propCameraPanorama;
 		wxPGProperty*     propCameraPanoramaMode;
+		FloatProperty*    propCameraPanoramaFovDeg;
 		wxPGProperty*     propCameraPanoramaCoverage;
 		FloatProperty*    propCameraPanoramaScale;
-		FloatProperty*    propCameraPanoramaFovDeg;
 		BoolRefProperty*  propCameraDof;
 		BoolRefProperty*  propCameraDofAccumulated;
 		FloatProperty*    propCameraDofApertureDiameter;
