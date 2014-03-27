@@ -145,7 +145,9 @@ public:
 	//! Uses raycasting (~100 rays), performance hit is acceptable even if called once per frame.
 	//! \param solver
 	//!  Camera is tested against geometry in given solver. Range is not adjusted if it is NULL.
-	void  setRangeDynamically(const class RRSolver* solver);
+	//! \param panorama
+	//!  If true, rays are shot to all directions, as if rendering panorama.
+	void  setRangeDynamically(const class RRSolver* solver, bool panorama);
 
 	//! Only if orthogonal: Returns world space distance between top and bottom of viewport.
 	float getOrthoSize() const {return orthoSize;}
