@@ -70,12 +70,12 @@ void main()
 			vec4 tex = textureCube(map,direction.xzy) * step(r*360.0/fisheyeFovDeg,0.5);
 		#endif
 		#ifdef CUBE_TO_WARP
-			// rotated so that render of empty scene with equirectangular environment E is E
-			// also implemented in createEquirectangular()
+			// similar to CUBE_TO_EQUIRECTANGULAR
+			float uv_x = uv.x*.5+0.25;
 			direction.y = sin(RR_PI*(uv.y-0.5));
-			direction.x = sin(RR_PI*(2.0*uv.x+1.0)) * sqrt(1.0-direction.y*direction.y);
+			direction.x = sin(RR_PI*(2.0*uv_x+1.0)) * sqrt(1.0-direction.y*direction.y);
 			direction.z = sqrt(max(1.0-direction.x*direction.x-direction.y*direction.y,0.0)); // max() fixes center lines on intel
-			if (uv.x>0.25 && uv.x<0.75)
+			if (uv_x>0.25 && uv_x<0.75)
 				direction.z = -direction.z;
 			vec4 tex = textureCube(map,direction);
 			tex *= intensity;
