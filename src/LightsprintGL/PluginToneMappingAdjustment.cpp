@@ -52,9 +52,7 @@ public:
 
 		if (!bigTexture) bigTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		bigTexture->bindTexture();
-		int bwidth = _sp.viewport[2];
-		int bheight = _sp.viewport[3];
-		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,0,0,bwidth,bheight,0);
+		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3],0);
 
 		const unsigned swidth = 32;
 		const unsigned sheight = 32;
