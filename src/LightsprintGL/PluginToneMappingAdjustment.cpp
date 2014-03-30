@@ -81,7 +81,7 @@ public:
 			// completely black scene
 			//  extremely low brightness? -> reset it to 1
 			//  disabled lighting? -> avoid increasing brightness ad infinitum
-			pp.brightness = rr::RRVec3(1);
+			pp.brightness = pp.brightness / (pp.brightness.RRVec3::avg()?pp.brightness.RRVec3::avg():1);
 		}
 		else
 		{
