@@ -584,6 +584,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginSSGI.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginStereo.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginToneMapping.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\PluginToneMappingAdjustment.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Renderer.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\DemoEngine.h" />
     <ClInclude Include="MultiPass.h" />
@@ -616,6 +617,7 @@
     <ClCompile Include="PluginSSGI.cpp" />
     <ClCompile Include="PluginStereo.cpp" />
     <ClCompile Include="PluginToneMapping.cpp" />
+    <ClCompile Include="PluginToneMappingAdjustment.cpp" />
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="RealtimeLight.cpp" />
     <ClCompile Include="Renderer.cpp" />

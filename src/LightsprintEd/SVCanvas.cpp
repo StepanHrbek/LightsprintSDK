@@ -26,6 +26,7 @@
 #include "Lightsprint/GL/PluginSSGI.h"
 #include "Lightsprint/GL/PluginStereo.h"
 #include "Lightsprint/GL/PluginToneMapping.h"
+#include "Lightsprint/GL/PluginToneMappingAdjustment.h"
 #include "Lightsprint/GL/PreserveState.h"
 #ifdef _WIN32
 	#include <GL/wglew.h>
@@ -1873,9 +1874,9 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
 					|| svs.renderLightIndirect==LI_CONSTANT
 					);
-			rr_gl::PluginParamsToneMapping ppToneMapping(pluginChain,svs.tonemappingBrightness,secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingAutomaticTarget);
+			rr_gl::PluginParamsToneMappingAdjustment ppToneMappingAdjustment(pluginChain,svs.tonemappingBrightness,secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingAutomaticTarget);
 			if (adjustingTonemapping)
-				pluginChain = &ppToneMapping;
+				pluginChain = &ppToneMappingAdjustment;
 
 			// FPS plugin
 			rr_gl::PluginParamsFPS ppFPS(pluginChain,fpsCounter.getFps());

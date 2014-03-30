@@ -47,6 +47,7 @@ PluginSky.cpp \
 PluginSSGI.cpp \
 PluginStereo.cpp \
 PluginToneMapping.cpp \
+PluginToneMappingAdjustment.cpp \
 Program.cpp \
 RealtimeLight.cpp \
 Renderer.cpp \

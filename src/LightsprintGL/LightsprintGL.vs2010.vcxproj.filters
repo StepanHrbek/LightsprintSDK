@@ -35,6 +35,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginToneMapping.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginShowDDI.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginAccumulation.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\PluginToneMappingAdjustment.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MultiPass.cpp" />
@@ -63,6 +64,7 @@
     <ClCompile Include="PluginToneMapping.cpp" />
     <ClCompile Include="PluginShowDDI.cpp" />
     <ClCompile Include="PluginAccumulation.cpp" />
+    <ClCompile Include="PluginToneMappingAdjustment.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\data\shaders\scaledown_filter.fs">
