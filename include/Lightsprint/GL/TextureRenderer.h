@@ -56,18 +56,20 @@ public:
 	//! \param gamma
 	//!  Gamma correction, 1 for no change.
 	//! \param x
-	//!  Position of texture's left side in render target, 0=leftmost, 1=rightmost.
+	//!  Position of texture's left side in viewport, 0=leftmost, 1=rightmost.
 	//! \param y
-	//!  Position of texture's bottom side in render target, 0=bottom, 1=top.
+	//!  Position of texture's bottom side in viewport, 0=bottom, 1=top.
 	//! \param w
-	//!  x+w is position of texture's right side in render target, 0=leftmost, 1=rightmost. Negative w is supported.
+	//!  x+w is position of texture's right side in viewport, 0=leftmost, 1=rightmost. Negative w is supported.
 	//! \param h
-	//!  y+h is position of texture's top side in render target, 0=bottom, 1=top. Negative h is supported.
+	//!  y+h is position of texture's top side in viewport, 0=bottom, 1=top. Negative h is supported.
 	//! \param z
 	//!  Depth in 0..1 range to be assigned to all rendered fragments.
 	//!  Additional effect of z in render2D() (not in render2dQuad()) is: "if (z<0) temporarily disable GL_DEPTH_TEST"
 	//! \param extraDefines
 	//!  Usually NULL, may be additional glsl code inserted at the beginning of shader, to enable special rendering paths.
+	//! \param fisheyeFovDeg
+	//!  For internal use.
 	void render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z=-1, const char* extraDefines=NULL, float fisheyeFovDeg=180);
 
 	//! Component of render2D(), initializes pipeline.

@@ -68,6 +68,7 @@ namespace rr_gl
 //! - PluginParamsStereo
 //! - PluginParamsAccumulation
 //! - PluginParamsToneMapping
+//! - PluginParamsToneMappingAdjustment
 //! - PluginParamsFPS
 //! - PluginParamsShowDDI
 class RR_GL_API Renderer : public rr::RRUniformlyAllocatedNonCopyable
