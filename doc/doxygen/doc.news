@@ -23,6 +23,7 @@ NEWS
   - following functions/structures have two old parameters (brightness and gamma) replaced with one (rr_gl::ToneParameters):
     - rr_gl::TextureRenderer::render2d()
     - rr_gl::TextureRenderer::render2dBegin()
+    - rr_ed::SceneViewerState
   - BREAKING CHANGE: find all places where you call render2D() or render2DBegin() and replace two parameters with one. old code might compile even if not fixed, but it would be wrong
 - custom collider builders can be registered with RRCollider::registerTechnique()
 

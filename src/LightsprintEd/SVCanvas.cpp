@@ -682,15 +682,15 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		case WXK_F8: svframe->OnMenuEventCore(SVFrame::ME_FILE_SAVE_SCREENSHOT); break;
 		case WXK_F11: svframe->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META); break;
 		case WXK_NUMPAD_ADD:
-		case '+': svs.tonemappingBrightness *= 1.2f; needsRefresh = true; break;
+		case '+': svs.tonemapping.color *= 1.2f; needsRefresh = true; break;
 		case WXK_NUMPAD_SUBTRACT:
-		case '-': svs.tonemappingBrightness /= 1.2f; needsRefresh = true; break;
+		case '-': svs.tonemapping.color /= 1.2f; needsRefresh = true; break;
 
 		//case '8': if (event.GetModifiers()==0) break; // ignore '8', but accept '8' + shift as '*', continue to next case
 		case WXK_NUMPAD_MULTIPLY:
-		case '*': svs.tonemappingGamma *= 1.2f; needsRefresh = true; break;
+		case '*': svs.tonemapping.gamma *= 1.2f; needsRefresh = true; break;
 		case WXK_NUMPAD_DIVIDE:
-		case '/': svs.tonemappingGamma /= 1.2f; needsRefresh = true; break;
+		case '/': svs.tonemapping.gamma /= 1.2f; needsRefresh = true; break;
 
 		case WXK_UP:
 		case 'w':
@@ -1689,8 +1689,8 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppShared.viewport[2] = winWidth;
 			ppShared.viewport[3] = winHeight;
 			ppShared.srgbCorrect = (svs.renderLightDirect==LD_REALTIME) && svs.srgbCorrect;
-			ppShared.brightness = rr::RRVec4( svs.renderTonemapping ? svs.tonemappingBrightness.RRVec3::avg() * pow(svs.tonemappingGamma,0.45f) : 1 );
-			ppShared.gamma = svs.renderTonemapping ? svs.tonemappingGamma : 1;
+			ppShared.brightness = rr::RRVec4( svs.renderTonemapping ? svs.tonemapping.color.RRVec3::avg() * pow(svs.tonemapping.gamma,0.45f) : 1 );
+			ppShared.gamma = svs.renderTonemapping ? svs.tonemapping.gamma : 1;
 
 			// start chaining plugins
 			const rr_gl::PluginParams* pluginChain = NULL;
@@ -1874,7 +1874,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
 					|| svs.renderLightIndirect==LI_CONSTANT
 					);
-			rr_gl::PluginParamsToneMappingAdjustment ppToneMappingAdjustment(pluginChain,svs.tonemappingBrightness,secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingAutomaticTarget);
+			rr_gl::PluginParamsToneMappingAdjustment ppToneMappingAdjustment(pluginChain,svs.tonemapping.color,secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingAutomaticTarget);
 			if (adjustingTonemapping)
 				pluginChain = &ppToneMappingAdjustment;
 
@@ -1907,7 +1907,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr_gl::UberProgramSetup uberProgramSetup;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
-			rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
+			rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,&svs.tonemapping.color,svs.tonemapping.gamma,NULL);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			glPushMatrix();
@@ -1922,7 +1922,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			uberProgramSetup.MATERIAL_DIFFUSE = false;
 			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.OBJECT_SPACE = true;
-			program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,&svs.tonemappingBrightness,svs.tonemappingGamma,NULL);
+			program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,&svs.tonemapping.color,svs.tonemapping.gamma,NULL);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};

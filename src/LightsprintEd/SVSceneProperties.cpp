@@ -186,7 +186,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 	// tone mapping
 	{
-		propToneMapping = new BoolRefProperty(_("Tone Mapping"),_("Enables fullscreen brightness and contrast adjustments."),svs.renderTonemapping);
+		propToneMapping = new BoolRefProperty(_("Tone Mapping"),_("Enables fullscreen color adjustments. Adjustments are performed in the same order their properties are displayed here."),svs.renderTonemapping);
 		Append(propToneMapping);
 
 		propToneMappingAutomatic = new BoolRefProperty(_("Automatic"),_("Makes brightness adjust automatically."),svs.tonemappingAutomatic);
@@ -200,13 +200,13 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propToneMappingAutomatic,propToneMappingAutomaticSpeed);
 		}
 
-		propToneMappingBrightness = new FloatProperty(_("Brightness"),_("Brightness correction applied to rendered images, default=1."),svs.tonemappingBrightness.RRVec3::avg(),svs.precision,0,1000,0.1f,false);
+		propToneMappingBrightness = new FloatProperty(_("Brightness"),_("Brightness correction applied to rendered images, default=1."),svs.tonemapping.color.RRVec3::avg(),svs.precision,0,1000,0.1f,false);
 		AppendIn(propToneMapping,propToneMappingBrightness);
 
-		propToneMappingContrast = new FloatProperty(_("Contrast"),_("Contrast correction applied to rendered images, default=1."),svs.tonemappingGamma,svs.precision,0,100,0.1f,false);
+		propToneMappingContrast = new FloatProperty(_("Contrast"),_("Contrast correction applied to rendered images, default=1."),svs.tonemapping.gamma,svs.precision,0,100,0.1f,false);
 		AppendIn(propToneMapping,propToneMappingContrast);
 
-		propToneMappingColor = new HDRColorProperty(_("Color"),_(""),svs.precision,svs.tonemappingBrightness);
+		propToneMappingColor = new HDRColorProperty(_("Color"),_(""),svs.precision,svs.tonemapping.color);
 		AppendIn(propToneMapping,propToneMappingColor);
 
 		SetPropertyBackgroundColour(propToneMapping,importantPropertyBackgroundColor,false);
@@ -430,9 +430,9 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propEnvSpeed,svs.envSpeed)
 		+ updateFloat(propToneMappingAutomaticTarget,svs.tonemappingAutomaticTarget)
 		+ updateFloat(propToneMappingAutomaticSpeed,svs.tonemappingAutomaticSpeed)
-		+ updateFloat(propToneMappingBrightness,svs.tonemappingBrightness.RRVec3::avg())
-		+ updateFloat(propToneMappingContrast,svs.tonemappingGamma)
-		+ updateProperty(propToneMappingColor,RRVec3(svs.tonemappingBrightness))
+		+ updateFloat(propToneMappingBrightness,svs.tonemapping.color.RRVec3::avg())
+		+ updateFloat(propToneMappingContrast,svs.tonemapping.gamma)
+		+ updateProperty(propToneMappingColor,RRVec3(svs.tonemapping.color))
 		+ updateBoolRef(propRenderMaterialDiffuse)
 		+ updateBoolRef(propRenderMaterialSpecular)
 		+ updateBoolRef(propRenderMaterialEmittance)
@@ -696,21 +696,21 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propToneMappingBrightness)
 	{
-		float oldValue = svs.tonemappingBrightness.RRVec3::avg();
+		float oldValue = svs.tonemapping.color.RRVec3::avg();
 		if (oldValue)
-			svs.tonemappingBrightness *= property->GetValue().GetDouble()/oldValue;
+			svs.tonemapping.color *= property->GetValue().GetDouble()/oldValue;
 		else
-			svs.tonemappingBrightness = rr::RRVec4(property->GetValue().GetDouble());
+			svs.tonemapping.color = rr::RRVec4(property->GetValue().GetDouble());
 	}
 	else
 	if (property==propToneMappingContrast)
 	{
-		svs.tonemappingGamma = property->GetValue().GetDouble();
+		svs.tonemapping.gamma = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propToneMappingColor)
 	{
-		svs.tonemappingBrightness << property->GetValue();
+		svs.tonemapping.color << property->GetValue();
 	}
 	else
 	if (property==propRenderMaterialTransparency)

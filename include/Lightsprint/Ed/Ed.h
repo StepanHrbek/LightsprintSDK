@@ -162,8 +162,7 @@ struct SceneViewerState
 	bool             renderHelp;                //! Render help overlay from sv_help.png.
 	bool             renderLogo;                //! Render logo overlay from sv_logo.png.
 	bool             renderTonemapping;         //! Render with tonemapping.
-	rr::RRVec4       tonemappingBrightness;     //! If(renderTonemapping) Brightness applied at render time as simple multiplication, changed by tonemappingAutomatic.
-	float            tonemappingGamma;          //! If(renderTonemapping) Gamma correction applied at render time, 1=no correction.
+	rr_gl::ToneParameters tonemapping;        //! If(renderTonemapping) color correction applied at render time.
 	bool             tonemappingAutomatic;      //! Automatically adjust tonemappingBrightness.
 	float            tonemappingAutomaticTarget;//! Target average screen intensity for tonemappingAutomatic.
 	float            tonemappingAutomaticSpeed; //! Speed of automatic tonemapping change.
@@ -276,8 +275,7 @@ struct SceneViewerState
 		tonemappingAutomatic = 1;
 		tonemappingAutomaticTarget = 0.5f;
 		tonemappingAutomaticSpeed = 1;
-		tonemappingBrightness = rr::RRVec4(1);
-		tonemappingGamma = 1;
+		tonemapping = rr_gl::ToneParameters();
 		ssgiEnabled = true;
 		ssgiIntensity = 1.0f;
 		ssgiRadius = 0.3f;
@@ -385,8 +383,8 @@ struct SceneViewerState
 			&& a.tonemappingAutomatic==tonemappingAutomatic
 			&& a.tonemappingAutomaticTarget==tonemappingAutomaticTarget
 			&& a.tonemappingAutomaticSpeed==tonemappingAutomaticSpeed
-			&& (a.tonemappingBrightness==tonemappingBrightness || (renderTonemapping && tonemappingAutomatic)) // brightness may differ if automatic tonemapping is enabled
-			&& a.tonemappingGamma==tonemappingGamma
+			&& (a.tonemapping.color==tonemapping.color || (renderTonemapping && tonemappingAutomatic)) // brightness may differ if automatic tonemapping is enabled
+			&& a.tonemapping.gamma==tonemapping.gamma
 			&& a.ssgiEnabled==ssgiEnabled
 			&& a.ssgiIntensity==ssgiIntensity
 			&& a.ssgiRadius==ssgiRadius
