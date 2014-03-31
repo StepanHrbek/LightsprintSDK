@@ -24,15 +24,18 @@ NEWS
     - saturation adjustment
     - hue shift
     - color banding
+  - new tonemapping plugin (rr_gl::PluginParamsTonemapping) applies all these operation
+- custom collider builders can be registered with RRCollider::registerTechnique()
+
+CHANGES
+
+- tonemapping
+  - old rr_gl::PluginParamsTonemapping renamed to rr_gl::PluginParamsTonemappingAdjustment, because it only adjusts parameters
   - following functions/structures have two old parameters (brightness and gamma) replaced with one (rr_gl::ToneParameters):
     - rr_gl::TextureRenderer::render2d()
     - rr_gl::TextureRenderer::render2dBegin()
     - rr_ed::SceneViewerState
   - BREAKING CHANGE: find all places where you call render2D() or render2DBegin() and replace two parameters with one. old code might compile even if not fixed, but it would be wrong
-- custom collider builders can be registered with RRCollider::registerTechnique()
-
-CHANGES
-
 - PluginParamsScene::updateLayers split into PluginParamsScene::updateLayerLightmap, PluginParamsScene::updateLayerEnvironment (for more fine grained control)
 
 \section news142 ------------------------------------ 2014.02.05 -------------------------------------
