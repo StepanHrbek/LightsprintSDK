@@ -200,22 +200,22 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propToneMappingAutomatic,propToneMappingAutomaticSpeed);
 		}
 
-		propToneMappingBrightness = new FloatProperty(_("Brightness"),_("Brightness correction applied to rendered images, default=1."),svs.tonemapping.color.RRVec3::avg(),svs.precision,0,1000,0.1f,false);
+		propToneMappingBrightness = new FloatProperty(_("Brightness"),_("Brightness correction applied to rendered images, 1=no change."),svs.tonemapping.color.RRVec3::avg(),svs.precision,0,1000,0.1f,false);
 		AppendIn(propToneMapping,propToneMappingBrightness);
 
-		propToneMappingContrast = new FloatProperty(_("Contrast"),_("Contrast correction applied to rendered images, default=1."),svs.tonemapping.gamma,svs.precision,0,100,0.1f,false);
+		propToneMappingContrast = new FloatProperty(_("Contrast"),_("Contrast correction applied to rendered images, 1=no change."),svs.tonemapping.gamma,svs.precision,0,100,0.1f,false);
 		AppendIn(propToneMapping,propToneMappingContrast);
 
 		propToneMappingSaturation = new FloatProperty(_("Saturation"),_("Saturation adjustment applied to rendered images, 1=no change."),svs.tonemapping.hsv.y,svs.precision,0,100,1,false);
 		AppendIn(propToneMapping,propToneMappingSaturation);
 
-		propToneMappingHueShift = new FloatProperty(_("Hue shift"),_("Hue shift applied to rendered images, 0..360."),svs.tonemapping.hsv.x*360,svs.precision,0,360,10,true);
+		propToneMappingHueShift = new FloatProperty(_("Hue shift"),_("Hue shift applied to rendered images, 0..360, 0=no change."),svs.tonemapping.hsv.x*360,svs.precision,0,360,10,true);
 		AppendIn(propToneMapping,propToneMappingHueShift);
 
 		propToneMappingColorBands = new FloatProperty(_("Color bands"),_("Reduce color precision, split each channel to given number of bands, 0=no change."),svs.tonemapping.colorbands,svs.precision,0,256,10,false);
 		AppendIn(propToneMapping,propToneMappingColorBands);
 
-		propToneMappingColor = new HDRColorProperty(_("Color"),_(""),svs.precision,svs.tonemapping.color);
+		propToneMappingColor = new HDRColorProperty(_("Color"),_("Final image is multiplied by this color, white=no change."),svs.precision,svs.tonemapping.color);
 		AppendIn(propToneMapping,propToneMappingColor);
 
 		SetPropertyBackgroundColour(propToneMapping,importantPropertyBackgroundColor,false);
