@@ -548,7 +548,7 @@ public:
 							//if (objectBuffers.mirrorColorMap)
 							//{
 							//	glDisable(GL_BLEND);
-							//	textureRenderer->render2D(getTexture(objectBuffers.mirrorColorMap,false,false),NULL,1,0,0,0.5f,0.5f);
+							//	textureRenderer->render2D(getTexture(objectBuffers.mirrorColorMap,false,false),NULL,0,0,0.5f,0.5f);
 							//}
 #endif
 						}
@@ -677,7 +677,7 @@ public:
 					glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
 					glDepthFunc(GL_ALWAYS); // depth test must stay enabled, otherwise depth would not be written
 					glDisable(GL_CULL_FACE);
-					_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,1,"#define MIRROR_MASK_DEPTH\n"); // keeps depth test enabled
+					_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,0,-1,1,1,"#define MIRROR_MASK_DEPTH\n"); // keeps depth test enabled
 					glDepthFunc(GL_LEQUAL);
 
 					// render scene into mirrorDepthMap, mirrorColorMap.rgb
@@ -701,7 +701,7 @@ public:
 					//if (_.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
 					{
 						glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);
-						_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,1,0,-1,1,-1,"#define MIRROR_MASK_ALPHA\n"); // disables depth test
+						_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,0,-1,1,-1,"#define MIRROR_MASK_ALPHA\n"); // disables depth test
 					}
 
 					oldState.restore();
@@ -722,9 +722,9 @@ public:
 					glDisable(GL_BLEND);
 					// debug: render textures to backbuffer with z=-1 to pass z-test
 					//        z-write is disabled, so everything rendered later (mirrors and glasses) overlaps them
-					//_renderer.textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,1,0.7f,0.7f,0.3f,0.3f,-1,"#define MIRROR_MASK_DEBUG\n"); // rendered up, MIRROR_MASK_DEBUG is necessary to show alpha as rgb
-					//_renderer.textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,1,0.35f,-0.3f,0.3f,-1);
-					//_renderer.textureRenderer->render2D(getTexture(mirrorColorMap,false,false),NULL,1,1,0.0f,-0.3f,0.3f,-1); // rendered down
+					//_renderer.textureRenderer->render2D(getTexture(mirrorMaskMap,false,false),NULL,0.7f,0.7f,0.3f,0.3f,-1,"#define MIRROR_MASK_DEBUG\n"); // rendered up, MIRROR_MASK_DEBUG is necessary to show alpha as rgb
+					//_renderer.textureRenderer->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,0.35f,-0.3f,0.3f,-1);
+					//_renderer.textureRenderer->render2D(getTexture(mirrorColorMap,false,false),NULL,1,0.0f,-0.3f,0.3f,-1); // rendered down
 				}
 				glDepthMask(GL_TRUE);
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);

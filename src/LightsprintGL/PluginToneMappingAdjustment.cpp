@@ -66,7 +66,7 @@ public:
 		FBO oldFBOState = FBO::getState();
 		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallTexture);
 		glViewport(0,0,swidth,sheight);
-		_renderer.getTextureRenderer()->render2D(bigTexture,NULL,1,0,0,1,1);
+		_renderer.getTextureRenderer()->render2D(bigTexture,NULL,0,0,1,1);
 		glReadPixels(0,0,swidth,sheight,GL_RGB,GL_UNSIGNED_BYTE,buf);
 		oldFBOState.restore();
 		glViewport(_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]);

@@ -127,9 +127,12 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	return result;
 };
 
-Program* TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines, float fisheyeFovDeg)
+Program* TextureRenderer::render2dBegin(const ToneParameters* tp, const char* extraDefines, float fisheyeFovDeg)
 {
-	Program* program = twodProgram ? twodProgram->getProgram(tmpstr("#define TEXTURE\n%s%s",(gamma!=1)?"#define GAMMA\n":"",extraDefines?extraDefines:"")) : NULL;
+	ToneParameters tp0;
+	if (!tp)
+		tp = &tp0;
+	Program* program = twodProgram ? twodProgram->getProgram(tmpstr("#define TEXTURE\n%s%s",(tp->gamma!=1)?"#define GAMMA\n":"",extraDefines?extraDefines:"")) : NULL;
 	if (!program)
 	{
 		RR_ASSERT(0);
@@ -139,9 +142,9 @@ Program* TextureRenderer::render2dBegin(const rr::RRVec4* color, float gamma, co
 	program->useIt();
 	glActiveTexture(GL_TEXTURE0);
 	program->sendUniform("map",0);
-	program->sendUniform("color",color?*color:rr::RRVec4(1));
-	if (gamma!=1)
-		program->sendUniform("gamma",gamma);
+	program->sendUniform("color",tp->color);
+	if (tp->gamma!=1)
+		program->sendUniform("gamma",tp->gamma);
 	if (extraDefines && strstr(extraDefines,"#define TEXTURE_IS_CUBE\n") && strstr(extraDefines,"#define CUBE_TO_FISHEYE\n"))
 		program->sendUniform("fisheyeFovDeg",fisheyeFovDeg);
 	glEnableVertexAttribArray(VAA_POSITION);
@@ -184,7 +187,7 @@ void TextureRenderer::render2dEnd()
 	glDisableVertexAttribArray(VAA_POSITION);
 }
 
-void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z, const char* extraDefines, float fisheyeFovDeg)
+void TextureRenderer::render2D(const Texture* texture, const ToneParameters* tp, float x,float y,float w,float h,float z, const char* extraDefines, float fisheyeFovDeg)
 {
 	GLboolean depthTest;
 	if (z<0)
@@ -192,7 +195,7 @@ void TextureRenderer::render2D(const Texture* texture, const rr::RRVec4* color, 
 		depthTest = glIsEnabled(GL_DEPTH_TEST);
 		glDisable(GL_DEPTH_TEST);
 	}
-	if (render2dBegin(color,gamma,tmpstr("%s%s",(texture && texture->getBuffer() && texture->getBuffer()->getType()==rr::BT_CUBE_TEXTURE)?"#define TEXTURE_IS_CUBE\n":"",extraDefines?extraDefines:""),fisheyeFovDeg))
+	if (render2dBegin(tp,tmpstr("%s%s",(texture && texture->getBuffer() && texture->getBuffer()->getType()==rr::BT_CUBE_TEXTURE)?"#define TEXTURE_IS_CUBE\n":"",extraDefines?extraDefines:""),fisheyeFovDeg))
 	{
 		render2dQuad(texture,x,y,w,h,z);
 		render2dEnd();

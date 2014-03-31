@@ -1689,7 +1689,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppShared.viewport[2] = winWidth;
 			ppShared.viewport[3] = winHeight;
 			ppShared.srgbCorrect = (svs.renderLightDirect==LD_REALTIME) && svs.srgbCorrect;
-			ppShared.brightness = svs.renderTonemapping ? svs.tonemappingBrightness * pow(svs.tonemappingGamma,0.45f) : rr::RRVec4(1);
+			ppShared.brightness = rr::RRVec4( svs.renderTonemapping ? svs.tonemappingBrightness.RRVec3::avg() * pow(svs.tonemappingGamma,0.45f) : 1 );
 			ppShared.gamma = svs.renderTonemapping ? svs.tonemappingGamma : 1;
 
 			// start chaining plugins
@@ -1863,7 +1863,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (svs.renderDof && svs.dofAccumulated)
 				pluginChain = &ppAccumulation;
 
-			// tonemapping plugin
+			// tonemapping adjustment plugin
 			static rr::RRTime time;
 			float secondsSinceLastFrame = time.secondsSinceLastQuery();
 			bool adjustingTonemapping = (secondsSinceLastFrame>0 && secondsSinceLastFrame<10)
@@ -1943,7 +1943,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				textureRenderer->render2D(rr_gl::getTexture(vignetteImage,false,false),NULL,1,0,0,1,1);
+				textureRenderer->render2D(rr_gl::getTexture(vignetteImage,false,false),NULL,0,0,1,1);
 				glDisable(GL_BLEND);
 			}
 		}
@@ -1965,7 +1965,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					float h = logoImage->getHeight()/(float)winHeight;
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					textureRenderer->render2D(rr_gl::getTexture(logoImage,false,false),NULL,1,1-w,1-h,w,h);
+					textureRenderer->render2D(rr_gl::getTexture(logoImage,false,false),NULL,1-w,1-h,w,h);
 					glDisable(GL_BLEND);
 				}
 			}
@@ -2391,7 +2391,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			textureRenderer->render2D(rr_gl::getTexture(helpImage,false,false),NULL,1,(1-w)*0.5f,(1-h)*0.5f,w,h);
+			textureRenderer->render2D(rr_gl::getTexture(helpImage,false,false),NULL,(1-w)*0.5f,(1-h)*0.5f,w,h);
 			glDisable(GL_BLEND);
 		}
 	}

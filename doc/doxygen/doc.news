@@ -19,6 +19,11 @@ NEWS
 - improved DOF
   - fast DOF is faster
   - both fast and realistic DOF produce much closer results, fast DOF can be used as a preview for Realistic one
+- improved tonemapping
+  - following functions/structures have two old parameters (brightness and gamma) replaced with one (rr_gl::ToneParameters):
+    - rr_gl::TextureRenderer::render2d()
+    - rr_gl::TextureRenderer::render2dBegin()
+  - BREAKING CHANGE: find all places where you call render2D() or render2DBegin() and replace two parameters with one. old code might compile even if not fixed, but it would be wrong
 - custom collider builders can be registered with RRCollider::registerTechnique()
 
 CHANGES

@@ -121,7 +121,7 @@ public:
 		rr::RRVec2 topleft = center-size/2;
 		rr::RRBuffer* map = primaryMap[rand()%NUM_PRIMARY_MAPS];
 		if (map)
-			_textureRenderer->render2D(getTexture(map),NULL,1,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
+			_textureRenderer->render2D(getTexture(map),NULL,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
 
 		unsigned numSecondaryFlares = rand()%10;
 		for (unsigned i=0;i<numSecondaryFlares;i++)
@@ -133,7 +133,12 @@ public:
 			topleft = center-size/2;
 			unsigned mapIndex = rand()%NUM_SECONDARY_MAPS;
 			if (secondaryMap[mapIndex])
-				_textureRenderer->render2D(getTexture(secondaryMap[mapIndex]),colorizeSecondaryMap[mapIndex]?&color:NULL,1,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
+			{
+				ToneParameters tp;
+				if (colorizeSecondaryMap[mapIndex])
+					tp.color = color;
+				_textureRenderer->render2D(getTexture(secondaryMap[mapIndex]),&tp,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
+			}
 		}
 
 		// cleanup

@@ -184,7 +184,9 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 				rr::RRVec2 piwSize = rr::RRVec2(1,eye.getAspect()) * size2;
 				rr::RRVec4 piwRectangle(piwCenter.x-piwSize.x/2,piwCenter.y-piwSize.y/2,piwSize.x,piwSize.y); // in -1..1 range
 				piwIconRectangles.push_back(std::pair<const SVEntity*,rr::RRVec4>(&entities[i],piwRectangle));
-				textureRenderer->render2D(rr_gl::getTexture(icon[entities[i].iconCode],true,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),&color,1,piwRectangle[0]*.5f+.5f,piwRectangle[1]*.5f+.5f,piwRectangle[2]*.5f,piwRectangle[3]*.5f);
+				rr_gl::ToneParameters tp;
+				tp.color = color;
+				textureRenderer->render2D(rr_gl::getTexture(icon[entities[i].iconCode],true,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),&tp,piwRectangle[0]*.5f+.5f,piwRectangle[1]*.5f+.5f,piwRectangle[2]*.5f,piwRectangle[3]*.5f);
 			}
 		}
 	}

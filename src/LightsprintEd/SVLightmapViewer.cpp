@@ -120,7 +120,7 @@ void SVLightmapViewer::OnPaint(rr_gl::TextureRenderer* textureRenderer, wxSize w
 
 	// render lightmap
 	if (buffer)
-		textureRenderer->render2D(rr_gl::getTexture(buffer),NULL,1,t_x,t_y,t_w,t_h,-1,alpha?"#define SHOW_ALPHA0\n":NULL);
+		textureRenderer->render2D(rr_gl::getTexture(buffer),NULL,t_x,t_y,t_w,t_h,-1,alpha?"#define SHOW_ALPHA0\n":NULL);
 
 	// render mapping edges
 	const rr::RRMesh* mesh = object ? object->getCollider()->getMesh() : NULL;

@@ -15,6 +15,30 @@
 namespace rr_gl
 {
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// ToneParameters
+//
+//! Set of simple parameters that affect output color.
+//
+//! Color changes are applied in following order:
+//! - output is multiplied by color 
+//! - output is gamma corrected by gamma
+
+struct RR_GL_API ToneParameters
+{
+	rr::RRVec4 color;
+	float gamma;
+
+	//! Sets defaults that do nothing.
+	ToneParameters()
+	{
+		color = rr::RRVec4(1);
+		gamma = 1;
+	}
+};
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // TextureRenderer
@@ -51,10 +75,8 @@ public:
 	//! but render2dBegin() + N*render2dQuad() + render2dEnd() is slightly faster.
 	//! \param texture
 	//!  Texture (2d or cube) to be rendered. Cube textures are rendered in equirectangular projection.
-	//! \param color
-	//!  For non-NULL color, output (texture color) is multiplied by color.
-	//! \param gamma
-	//!  Gamma correction, 1 for no change.
+	//! \param tp
+	//!  For non-NULL tp, output is tonemapped using given parameters.
 	//! \param x
 	//!  Position of texture's left side in viewport, 0=leftmost, 1=rightmost.
 	//! \param y
@@ -70,10 +92,10 @@ public:
 	//!  Usually NULL, may be additional glsl code inserted at the beginning of shader, to enable special rendering paths.
 	//! \param fisheyeFovDeg
 	//!  For internal use.
-	void render2D(const Texture* texture, const rr::RRVec4* color, float gamma, float x,float y,float w,float h,float z=-1, const char* extraDefines=NULL, float fisheyeFovDeg=180);
+	void render2D(const Texture* texture, const ToneParameters* tp, float x,float y,float w,float h,float z=-1, const char* extraDefines=NULL, float fisheyeFovDeg=180);
 
 	//! Component of render2D(), initializes pipeline.
-	Program* render2dBegin(const rr::RRVec4* color, float gamma, const char* extraDefines=NULL, float fisheyeFovDeg=180);
+	Program* render2dBegin(const ToneParameters* tp, const char* extraDefines=NULL, float fisheyeFovDeg=180);
 	//! Component of render2D(), renders textured quad. May be called multiple times between render2dBegin() and render2dEnd().
 	void render2dQuad(const Texture* texture, float x,float y,float w,float h,float z=-1);
 	//! Component of render2D(), restores pipeline.

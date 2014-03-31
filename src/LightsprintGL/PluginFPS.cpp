@@ -53,7 +53,7 @@ public:
 			if (!mapDigit[i]) return;
 
 		PreserveFlag p0(GL_DEPTH_TEST,false);
-		if (_renderer.getTextureRenderer() && _renderer.getTextureRenderer()->render2dBegin(NULL,1))
+		if (_renderer.getTextureRenderer() && _renderer.getTextureRenderer()->render2dBegin(NULL))
 		{
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

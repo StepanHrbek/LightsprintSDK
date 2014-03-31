@@ -118,7 +118,7 @@ public:
 			glDepthMask(0);
 			PreserveFlag p5(GL_BLEND,numAccumulatedFrames?true:false);
 			glBlendFunc(GL_ONE, GL_ONE);
-			_renderer.getTextureRenderer()->render2D(colorMap,NULL,1,0,0,1,1,-1);
+			_renderer.getTextureRenderer()->render2D(colorMap,NULL,0,0,1,1,-1);
 			glViewport(_sp.viewport[0],_sp.viewport[1],w,h);
 			numAccumulatedFrames++;
 			accumulatedBrightness += _sp.srgbCorrect ? pow(brightnessAdjustment,2.2f) : brightnessAdjustment;
@@ -126,8 +126,9 @@ public:
 
 		// copy accumulation buffer back to render target (divided by accumulated brightnessAdjustment^2.2)
 		PreserveFlag p6(GL_FRAMEBUFFER_SRGB,_sp.srgbCorrect);
-		rr::RRVec4 color(1.f/accumulatedBrightness);
-		_renderer.getTextureRenderer()->render2D(accumulationMap,&color,1,0,0,1,1);
+		ToneParameters tp;
+		tp.color = rr::RRVec4(1.f/accumulatedBrightness);
+		_renderer.getTextureRenderer()->render2D(accumulationMap,&tp,0,0,1,1);
 	}
 };
 
