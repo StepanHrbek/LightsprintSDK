@@ -1863,6 +1863,14 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (svs.renderDof && svs.dofAccumulated)
 				pluginChain = &ppAccumulation;
 
+			// tonemapping plugin
+			rr_gl::ToneParameters tp = svs.tonemapping;
+			tp.color = svs.tonemapping.color.RRVec3::avg() ? svs.tonemapping.color / svs.tonemapping.color.RRVec3::avg() : svs.tonemapping.color; // don't apply color's brightness, it was already applied by ppScene
+			tp.gamma = 1; // don't apply gamma, it was already applied by ppScene
+			rr_gl::PluginParamsToneMapping ppToneMapping(pluginChain,tp);
+			if (svs.renderTonemapping)
+				pluginChain = &ppToneMapping;
+
 			// tonemapping adjustment plugin
 			static rr::RRTime time;
 			float secondsSinceLastFrame = time.secondsSinceLastQuery();

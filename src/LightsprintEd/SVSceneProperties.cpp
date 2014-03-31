@@ -206,6 +206,15 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propToneMappingContrast = new FloatProperty(_("Contrast"),_("Contrast correction applied to rendered images, default=1."),svs.tonemapping.gamma,svs.precision,0,100,0.1f,false);
 		AppendIn(propToneMapping,propToneMappingContrast);
 
+		propToneMappingSaturation = new FloatProperty(_("Saturation"),_("Saturation adjustment applied to rendered images, 1=no change."),svs.tonemapping.hsv.y,svs.precision,0,100,1,false);
+		AppendIn(propToneMapping,propToneMappingSaturation);
+
+		propToneMappingHueShift = new FloatProperty(_("Hue shift"),_("Hue shift applied to rendered images, 0..360."),svs.tonemapping.hsv.x*360,svs.precision,0,360,10,true);
+		AppendIn(propToneMapping,propToneMappingHueShift);
+
+		propToneMappingColorBands = new FloatProperty(_("Color bands"),_("Reduce color precision, split each channel to given number of bands, 0=no change."),svs.tonemapping.colorbands,svs.precision,0,256,10,false);
+		AppendIn(propToneMapping,propToneMappingColorBands);
+
 		propToneMappingColor = new HDRColorProperty(_("Color"),_(""),svs.precision,svs.tonemapping.color);
 		AppendIn(propToneMapping,propToneMappingColor);
 
@@ -357,6 +366,9 @@ void SVSceneProperties::updateHide()
 	propToneMappingAutomaticSpeed->Hide(!svs.renderTonemapping || !svs.tonemappingAutomatic,false);
 	propToneMappingBrightness->Hide(!svs.renderTonemapping,false);
 	propToneMappingContrast->Hide(!svs.renderTonemapping,false);
+	propToneMappingSaturation->Hide(!svs.renderTonemapping,false);
+	propToneMappingHueShift->Hide(!svs.renderTonemapping,false);
+	propToneMappingColorBands->Hide(!svs.renderTonemapping,false);
 	propToneMappingColor->Hide(!svs.renderTonemapping,false);
 
 	propRenderMaterialTransparencyFresnel->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
@@ -432,7 +444,12 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propToneMappingAutomaticSpeed,svs.tonemappingAutomaticSpeed)
 		+ updateFloat(propToneMappingBrightness,svs.tonemapping.color.RRVec3::avg())
 		+ updateFloat(propToneMappingContrast,svs.tonemapping.gamma)
-		+ updateProperty(propToneMappingColor,RRVec3(svs.tonemapping.color))
+		+ updateFloat(propToneMappingSaturation,svs.tonemapping.hsv.y)
+		+ updateFloat(propToneMappingHueShift,svs.tonemapping.hsv.x*360)
+		+ updateFloat(propToneMappingColorBands,svs.tonemapping.colorbands)
+		//+ updateProperty(propToneMappingColor,RRVec3(svs.tonemapping.color)) // changes with brightness
+		//+ updateProperty(propToneMappingColor,RRVec3(svs.tonemapping.color)/(svs.tonemapping.color.RRVec3::maxi()?svs.tonemapping.color.RRVec3::maxi():1)) // no response to brightness
+		+ updateProperty(propToneMappingColor,RRVec3(svs.tonemapping.color)/RR_MAX(svs.tonemapping.color.RRVec3::maxi(),1)) // limited change with brightness
 		+ updateBoolRef(propRenderMaterialDiffuse)
 		+ updateBoolRef(propRenderMaterialSpecular)
 		+ updateBoolRef(propRenderMaterialEmittance)
@@ -708,9 +725,29 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.tonemapping.gamma = property->GetValue().GetDouble();
 	}
 	else
+	if (property==propToneMappingSaturation)
+	{
+		svs.tonemapping.hsv.y = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propToneMappingHueShift)
+	{
+		svs.tonemapping.hsv.x = property->GetValue().GetDouble()/360;
+	}
+	else
+	if (property==propToneMappingColorBands)
+	{
+		svs.tonemapping.colorbands = property->GetValue().GetDouble();
+	}
+	else
 	if (property==propToneMappingColor)
 	{
-		svs.tonemapping.color << property->GetValue();
+		rr::RRVec3 newColor;
+		newColor << property->GetValue();
+		float newBrightness = newColor.RRVec3::avg();
+		float oldBrightness = svs.tonemapping.color.RRVec3::avg();
+		// mix newColor with oldBrightness
+		svs.tonemapping.color = newColor/(newBrightness?newBrightness:1)*oldBrightness;
 	}
 	else
 	if (property==propRenderMaterialTransparency)

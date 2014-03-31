@@ -385,6 +385,8 @@ struct SceneViewerState
 			&& a.tonemappingAutomaticSpeed==tonemappingAutomaticSpeed
 			&& (a.tonemapping.color==tonemapping.color || (renderTonemapping && tonemappingAutomatic)) // brightness may differ if automatic tonemapping is enabled
 			&& a.tonemapping.gamma==tonemapping.gamma
+			&& a.tonemapping.hsv==tonemapping.hsv
+			&& a.tonemapping.colorbands==tonemapping.colorbands
 			&& a.ssgiEnabled==ssgiEnabled
 			&& a.ssgiIntensity==ssgiIntensity
 			&& a.ssgiRadius==ssgiRadius

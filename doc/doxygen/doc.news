@@ -20,6 +20,10 @@ NEWS
   - fast DOF is faster
   - both fast and realistic DOF produce much closer results, fast DOF can be used as a preview for Realistic one
 - improved tonemapping
+  - new options added to rr_gl::ToneParameters
+    - saturation adjustment
+    - hue shift
+    - color banding
   - following functions/structures have two old parameters (brightness and gamma) replaced with one (rr_gl::ToneParameters):
     - rr_gl::TextureRenderer::render2d()
     - rr_gl::TextureRenderer::render2dBegin()

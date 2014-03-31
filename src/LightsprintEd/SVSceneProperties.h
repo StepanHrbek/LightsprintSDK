@@ -77,6 +77,9 @@ namespace rr_ed
 		wxPGProperty*     propToneMappingAutomaticSpeed;
 		wxPGProperty*     propToneMappingBrightness;
 		wxPGProperty*     propToneMappingContrast;
+		wxPGProperty*     propToneMappingSaturation;
+		wxPGProperty*     propToneMappingHueShift;
+		wxPGProperty*     propToneMappingColorBands;
 		wxPGProperty*     propToneMappingColor;
 
 		wxPGProperty*     propRenderMaterials;

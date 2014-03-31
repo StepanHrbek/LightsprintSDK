@@ -23,17 +23,25 @@ namespace rr_gl
 //! Set of simple parameters that affect output color.
 //
 //! Color changes are applied in following order:
+//! - hue is increased by hsv[0] (in 0..360 range)
+//! - saturation is multiplied by hsv[1]
+//! - value(intensity) is multiplied by hsv[2]
+//! - precision is reduced so that all colors in 0..1 range fall into given number of colorbands. 0=off
 //! - output is multiplied by color 
 //! - output is gamma corrected by gamma
 
 struct RR_GL_API ToneParameters
 {
+	rr::RRVec3 hsv; // h in 0..360 range
+	float colorbands;
 	rr::RRVec4 color;
 	float gamma;
 
 	//! Sets defaults that do nothing.
 	ToneParameters()
 	{
+		hsv = rr::RRVec3(0,1,1);
+		colorbands = 0;
 		color = rr::RRVec4(1);
 		gamma = 1;
 	}

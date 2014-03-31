@@ -9,6 +9,8 @@
 // #define  CUBE_TO_FISHEYE
 // #define  CUBE_TO_WARP
 // #define GAMMA
+// #define HSV
+// #define COLORBANDS
 // #define SHOW_ALPHA0
 // #define MIRROR_MASK
 
@@ -34,6 +36,32 @@ uniform float gamma;
 #ifdef SHOW_ALPHA0
 	#extension GL_EXT_gpu_shader4 : require // testing bits is much easier with GL3/DX10 generation GPU
 	uniform vec2 resolution;
+#endif
+
+#ifdef HSV
+	uniform vec3 hsv; // h adder, s,v multiplier
+
+	vec3 rgb2hsv(vec3 c)
+	{
+		vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+		vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+		vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+
+		float d = q.x - min(q.w, q.y);
+		float e = 1.0e-10;
+		return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+	}
+
+	vec3 hsv2rgb(vec3 c)
+	{
+		vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+		vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+		return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+	}
+#endif
+
+#ifdef COLORBANDS
+	uniform float colorbands;
 #endif
 
 void main()
@@ -115,18 +143,25 @@ void main()
 #endif
 #endif
 
-	gl_FragColor =
-#ifdef GAMMA
-		pow(
-#endif
-		color
 #ifdef TEXTURE
-		* tex
+	gl_FragColor = tex;
+#else
+	gl_FragColor = vec4(1.0,1.0,1.0,1.0);
 #endif
+
+#ifdef HSV
+	gl_FragColor.xyz = hsv2rgb(rgb2hsv(gl_FragColor.xyz)*vec3(1.0,hsv.yz)+vec3(hsv.x,0.0,0.0));
+#endif
+
+#ifdef COLORBANDS
+	gl_FragColor = floor(gl_FragColor * colorbands + vec4(0.5)) / colorbands;
+#endif
+
+	gl_FragColor *= color;
+
 #ifdef GAMMA
-		,vec4(gamma,gamma,gamma,1))
+	gl_FragColor = pow(gl_FragColor,vec4(gamma,gamma,gamma,1));
 #endif
-		;
 
 #ifdef MIRROR_MASK_DEPTH
 	if (color.a*tex.a<0.7) discard; // big pixels with over 70% of surface covered by hires mirror are nearly always inside lowres mirror. 0.65 would result in occassional leaks, some pixels with 65% coverage are outside lowres mirror. (btw, when we had lowres exactly 50% of hires, 0.51 seemed sufficient)
