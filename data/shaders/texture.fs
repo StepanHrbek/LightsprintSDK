@@ -10,7 +10,7 @@
 // #define  CUBE_TO_WARP
 // #define GAMMA
 // #define HSV
-// #define COLORBANDS
+// #define STEPS
 // #define SHOW_ALPHA0
 // #define MIRROR_MASK
 
@@ -60,8 +60,8 @@ uniform float gamma;
 	}
 #endif
 
-#ifdef COLORBANDS
-	uniform float colorbands;
+#ifdef STEPS
+	uniform float steps;
 #endif
 
 void main()
@@ -153,8 +153,8 @@ void main()
 	gl_FragColor.xyz = hsv2rgb(rgb2hsv(gl_FragColor.xyz)*vec3(1.0,hsv.yz)+vec3(hsv.x,0.0,0.0));
 #endif
 
-#ifdef COLORBANDS
-	gl_FragColor = floor(gl_FragColor * colorbands + vec4(0.5)) / colorbands;
+#ifdef STEPS
+	gl_FragColor = floor(gl_FragColor * steps + vec4(0.5)) / steps;
 #endif
 
 	gl_FragColor *= color;

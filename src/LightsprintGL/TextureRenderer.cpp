@@ -132,7 +132,7 @@ Program* TextureRenderer::render2dBegin(const ToneParameters* tp, const char* ex
 	ToneParameters tp0;
 	if (!tp)
 		tp = &tp0;
-	Program* program = twodProgram ? twodProgram->getProgram(tmpstr("#define TEXTURE\n%s%s%s%s",(tp->gamma!=1)?"#define GAMMA\n":"",(tp->hsv!=rr::RRVec3(0,1,1))?"#define HSV\n":"",(tp->colorbands!=0)?"#define COLORBANDS\n":"",extraDefines?extraDefines:"")) : NULL;
+	Program* program = twodProgram ? twodProgram->getProgram(tmpstr("#define TEXTURE\n%s%s%s%s",(tp->gamma!=1)?"#define GAMMA\n":"",(tp->hsv!=rr::RRVec3(0,1,1))?"#define HSV\n":"",(tp->steps>0 && tp->steps<256)?"#define STEPS\n":"",extraDefines?extraDefines:"")) : NULL;
 	if (!program)
 	{
 		RR_ASSERT(0);
@@ -147,8 +147,8 @@ Program* TextureRenderer::render2dBegin(const ToneParameters* tp, const char* ex
 		program->sendUniform("gamma",tp->gamma);
 	if (tp->hsv!=rr::RRVec3(0,1,1))
 		program->sendUniform("hsv",tp->hsv);
-	if (tp->colorbands!=0)
-		program->sendUniform("colorbands",tp->colorbands);
+	if (tp->steps>0 && tp->steps<256)
+		program->sendUniform("steps",tp->steps);
 	if (extraDefines && strstr(extraDefines,"#define TEXTURE_IS_CUBE\n") && strstr(extraDefines,"#define CUBE_TO_FISHEYE\n"))
 		program->sendUniform("fisheyeFovDeg",fisheyeFovDeg);
 	glEnableVertexAttribArray(VAA_POSITION);
