@@ -98,6 +98,7 @@ public:
 			// b) six views relative to current camera
 			cubeCamera.setYawPitchRollRad((rr::RRMatrix3x4(_sp.camera->getViewMatrix(),false) * rr::RRMatrix3x4::rotationByYawPitchRoll(s_viewAngles[side])).getYawPitchRoll());
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,pp.cubeTexture);
+			RR_ASSERT(FBO::isOk()); // if someone called getTexture(cubeBuffer), texture is compressed and setting it as render target has no effect. here we report problem, at least in debug version
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			_renderer.render(_pp.next,sp);
 		}
