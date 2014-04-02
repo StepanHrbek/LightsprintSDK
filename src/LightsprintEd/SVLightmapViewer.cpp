@@ -41,7 +41,7 @@ void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject*
 	object = _object;
 	if (buffer)
 	{
-		rr_gl::getTexture(buffer);
+		rr_gl::getTexture(buffer,true,_pixelBuffer->getType()==rr::BT_2D_TEXTURE); // no compression for cubemaps, it would prevent rendering into them later
 		glActiveTexture(GL_TEXTURE0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, _bilinear?GL_LINEAR:GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, _bilinear?GL_LINEAR:GL_NEAREST);
