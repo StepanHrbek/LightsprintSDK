@@ -215,10 +215,10 @@ namespace rr
 		Property      specularReflectance;
 		enum SpecularModel
 		{
-			PHONG                  = 0, //< as in http://en.wikipedia.org/wiki/Phong_shading (shininess in 1..inf)
-			BLINN_PHONG            = 1, //< as in http://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model (shininess in 1..inf)
-			TORRANCE_SPARROW       = 2, //< as in Zara J.: Pocitacova grafika (1992) (roughness in 0..1)
-			BLINN_TORRANCE_SPARROW = 3, //< as in http://www.siggraph.org/education/materials/HyperGraph/illumin/specular_highlights/blinn_model_for_specular_reflect_1.htm (roughness in 0..1)
+			PHONG                  = 0, ///< as in http://en.wikipedia.org/wiki/Phong_shading (shininess in 1..inf)
+			BLINN_PHONG            = 1, ///< as in http://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model (shininess in 1..inf)
+			TORRANCE_SPARROW       = 2, ///< as in Zara J.: Pocitacova grafika (1992) (roughness in 0..1)
+			BLINN_TORRANCE_SPARROW = 3, ///< as in http://www.siggraph.org/education/materials/HyperGraph/illumin/specular_highlights/blinn_model_for_specular_reflect_1.htm (roughness in 0..1)
 		};
 		//! Selects what model / distribution function to use for specular reflectance.
 		SpecularModel specularModel;
