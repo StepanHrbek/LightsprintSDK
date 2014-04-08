@@ -955,7 +955,7 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 #define SUBTREE_M (m?(char*)m+relative:m)
 
 	BspTree node;
-	node.bsp.size=BspTree::BSP_SIZE_MAX; // probably never used, but safer to keep it. we used to set -1; BSP_SIZE_MAX does the same while preventing clang -Wbitfield-constant-conversion and ndk-gcc -Woverflow.
+	node.bsp.size = 0; // probably never used. used to be -1, but it generated clang -Wbitfield-constant-conversion and ndk-gcc -Woverflow.
 	WRITE(node);
 
 	if (t->kdroot && (t->front || t->back)) // pro prazdny kdnode uz nezapisuje splitValue
@@ -1091,7 +1091,12 @@ unsigned save_bsp(BSP_TREE* t, FILE* f, void* m)
 	unsigned pos1 = 0;
 	unsigned pos2 = TELL();
 	node.bsp.size = pos2-pos1;
-	if (node.bsp.size!=pos2-pos1) {RR_ASSERT(0);return false;}
+	if (node.bsp.size!=pos2-pos1)
+	{
+		// Max collider size exceeded. 512MB
+		RR_ASSERT(0);
+		return false;
+	}
 	node.setTransition(transition);
 	node.setKd(t->kdroot || t->leaf);
 	if (t->kdroot || t->leaf)
@@ -1217,10 +1222,10 @@ bool createAndSaveBsp(OBJECT *obj, bool& aborting, BuildParams* buildParams, FIL
 	template unsigned BspBuilder::save_bsp<BspTree>(OBJECT* obj, BSP_TREE* bsp, FILE* f, void* m);\
 	template bool createAndSaveBsp<BspTree>(OBJECT* obj, bool& aborting, BuildParams* buildParams, FILE* f, void** m)
 
-// single-level bsp
+// single-level bsp (FAST, FASTER, FASTEST)
 INSTANTIATE(BspTree44);
 
-// multi-level bsp
+// multi-level bsp (COMPACT)
 INSTANTIATE( BspTree14);
 INSTANTIATE(CBspTree24);
 INSTANTIATE(CBspTree44);
