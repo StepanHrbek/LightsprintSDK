@@ -138,7 +138,7 @@ IntersectLinear::IntersectLinear(const RRMesh* aimporter)
 	numIntersects = 0;
 }
 
-unsigned IntersectLinear::getMemoryOccupied() const
+size_t IntersectLinear::getMemoryOccupied() const
 {
 	return sizeof(IntersectLinear);
 }

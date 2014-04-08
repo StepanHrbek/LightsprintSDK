@@ -18,7 +18,7 @@ namespace rr
 		virtual ~IntersectVerification();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual IntersectTechnique getTechnique() const {return IT_VERIFICATION;}
-		virtual unsigned  getMemoryOccupied() const;
+		virtual size_t    getMemoryOccupied() const;
 	protected:
 		IntersectVerification(const RRMesh* aimporter, bool& aborting);
 		const RRCollider* collider[IT_VERIFICATION];

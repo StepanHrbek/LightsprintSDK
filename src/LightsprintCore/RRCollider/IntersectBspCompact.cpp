@@ -313,7 +313,7 @@ IntersectBspCompact IBP2::IntersectBspCompact(const RRMesh* aimporter, Intersect
 }
 
 template IBP
-unsigned IntersectBspCompact IBP2::getMemoryOccupied() const
+size_t IntersectBspCompact IBP2::getMemoryOccupied() const
 {
 	return sizeof(IntersectBspCompact)
 		+ (tree?tree->bsp.size:0);

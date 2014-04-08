@@ -35,9 +35,9 @@ IntersectVerification::~IntersectVerification()
 		delete collider[i];
 }
 
-unsigned IntersectVerification::getMemoryOccupied() const
+size_t IntersectVerification::getMemoryOccupied() const
 {
-	unsigned sum = 0;
+	size_t sum = 0;
 	for (unsigned i=0;i<IT_VERIFICATION;i++)
 		sum += collider[i]->getMemoryOccupied();
 	return sum;

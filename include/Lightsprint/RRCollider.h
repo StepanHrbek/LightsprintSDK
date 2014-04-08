@@ -274,7 +274,7 @@ namespace rr
 		virtual void setTechnique(IntersectTechnique intersectTechnique, bool& aborting);
 
 		//! \return Total amount of system memory occupied by collider.
-		virtual unsigned getMemoryOccupied() const = 0;
+		virtual size_t getMemoryOccupied() const = 0;
 
 		virtual ~RRCollider() {};
 	};

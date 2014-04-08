@@ -57,7 +57,7 @@ public:
 			}
 		}
 	}
-	virtual unsigned getMemoryOccupied() const
+	virtual size_t getMemoryOccupied() const
 	{
 		return collider->getMemoryOccupied();
 	}
@@ -107,9 +107,9 @@ RRCollider* defaultBuilder(const RRMesh* mesh, const class RRObjects* objects, R
 			{
 				typedef IntersectBspCompact<CBspTree44> T;
 				T* in = T::create(mesh,intersectTechnique,aborting,cacheLocation,".compact",(BuildParams*)buildParams);
-				unsigned size1 = in->getMemoryOccupied();
+				size_t size1 = in->getMemoryOccupied();
 				if (size1>=10000000)
-					RRReporter::report(INF1,"Memory taken by collider(compact): %dMB\n",size1/1024/1024);
+					RRReporter::report(INF1,"Memory taken by collider(compact): %dMB\n",(unsigned)(size1/1024/1024));
 				if (size1>sizeof(T)) return in;
 				delete in;
 				goto linear;
@@ -120,9 +120,9 @@ RRCollider* defaultBuilder(const RRMesh* mesh, const class RRObjects* objects, R
 			{
 				typedef IntersectBspFast<BspTree44> T;
 				T* in = T::create(mesh,intersectTechnique,aborting,cacheLocation,(intersectTechnique==RRCollider::IT_BSP_FAST)?".fast":((intersectTechnique==RRCollider::IT_BSP_FASTER)?".faster":".fastest"),(BuildParams*)buildParams);
-				unsigned size1 = in->getMemoryOccupied();
+				size_t size1 = in->getMemoryOccupied();
 				if (size1>=10000000)
-					RRReporter::report(INF1,"Memory taken by collider(fast*): %dMB\n",size1/1024/1024);
+					RRReporter::report(INF1,"Memory taken by collider(fast*): %dMB\n",(unsigned)(size1/1024/1024));
 				if (size1>sizeof(T)) return in;
 				delete in;
 				goto linear;

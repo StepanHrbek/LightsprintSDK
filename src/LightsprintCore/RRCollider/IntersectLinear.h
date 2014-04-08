@@ -34,7 +34,7 @@ namespace rr
 		virtual bool      isValidTriangle(unsigned i) const;
 		virtual const RRMesh* getMesh() const {return importer;}
 		virtual IntersectTechnique getTechnique() const {return IT_LINEAR;}
-		virtual unsigned  getMemoryOccupied() const;
+		virtual size_t    getMemoryOccupied() const;
 	protected:
 		IntersectLinear(const RRMesh* aimporter);
 		real              DELTA_BSP; // tolerance to numeric errors (absolute distance in scenespace)

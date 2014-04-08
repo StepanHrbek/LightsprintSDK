@@ -127,7 +127,7 @@ public:
 		return objects.size() ? objects[0]->getCollider()->getTechnique() : IT_LINEAR;
 	}
 
-	virtual unsigned getMemoryOccupied() const
+	virtual size_t getMemoryOccupied() const
 	{
 		return sizeof(*this);
 	}

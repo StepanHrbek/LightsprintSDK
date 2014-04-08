@@ -18,7 +18,7 @@ namespace rr
 		virtual ~IntersectBspCompact();
 		virtual bool      intersect(RRRay* ray) const;
 		virtual IntersectTechnique getTechnique() const {return IT_BSP_COMPACT;}
-		virtual unsigned  getMemoryOccupied() const;
+		virtual size_t    getMemoryOccupied() const;
 		// must be public because it calls itself with different template params
 		bool              intersect_bsp(RRRay* ray, const BspTree *t, real distanceMax) const; 
 	protected:
