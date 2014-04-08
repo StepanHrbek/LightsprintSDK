@@ -34,7 +34,7 @@ namespace rr
 		typedef Ofs _Ofs;
 		typedef TriInfo _TriInfo;
 		typedef Lo _Lo;
-		enum {allows_transition=0, allows_kd=1, allows_emptykd=1, BSP_SIZE_MAX=(1<<(sizeof(Ofs)*8-3))-1};
+		enum {allows_transition=0, allows_kd=1, allows_emptykd=1};
 		typedef const BspTree1<Ofs,TriInfo,Lo> This;
 		typedef This Transitioneer;
 		typedef This Son;
@@ -54,7 +54,7 @@ namespace rr
 		struct KdData
 		{
 			enum {transition=0};
-			Ofs               size:sizeof(Ofs)*8-3;
+			Ofs               size:sizeof(Ofs)*8-3; // for 32bit unsigned, max size is 512MB
 			Ofs               kd:1;
 			Ofs               splitAxis:2;
 			bool              isLeaf()         const {return splitAxis==3;}
@@ -90,14 +90,14 @@ namespace rr
 		typedef Ofs _Ofs;
 		typedef TriInfo _TriInfo;
 		typedef Lo _Lo;
-		enum {allows_transition=0, allows_kd=1, allows_emptykd=0, BSP_SIZE_MAX=(1<<(sizeof(Ofs)*8-4))-1};
+		enum {allows_transition=0, allows_kd=1, allows_emptykd=0};
 		typedef const BspTree2T<Ofs,TriInfo,Lo> This;
 		typedef const This Transitioneer;
 		typedef const Lo Son;
 		struct BspData
 		{
 			enum {transition=1};
-			Ofs               size:sizeof(Ofs)*8-4;
+			Ofs               size:sizeof(Ofs)*8-4; // for 32bit unsigned, max size is 256MB
 			Ofs               kd:1;
 			Ofs               _transition:1;
 			Ofs               front:1;
@@ -139,7 +139,7 @@ namespace rr
 		typedef Ofs _Ofs;
 		typedef TriInfo _TriInfo;
 		typedef Lo _Lo;
-		enum {allows_transition=1, allows_kd=1, allows_emptykd=0, BSP_SIZE_MAX=(1<<(sizeof(Ofs)*8-4))-1};
+		enum {allows_transition=1, allows_kd=1, allows_emptykd=0};
 		typedef const BspTree2<Ofs,TriInfo,Lo> This;
 		typedef const BspTree2T<Ofs,TriInfo,Lo> Transitioneer;
 		typedef This Son;
