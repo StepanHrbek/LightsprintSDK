@@ -1899,6 +1899,16 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			// final render
 			solver->getRenderer()->render(pluginChain,ppShared);
 
+
+			// report statistics
+			if (svframe->userPreferences.testingLogMore)
+			{
+				for (rr_gl::NamedCounter* counter = solver->getRenderer()->getCounters(); counter; counter=counter->next)
+				{
+					rr::RRReporter::report(rr::INF2,"%s %d\n",counter->name,counter->count);
+					counter->count = 0;
+				}
+			}
 		}
 
 
