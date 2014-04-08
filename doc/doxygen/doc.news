@@ -26,6 +26,9 @@ NEWS
     - color banding
   - new tonemapping plugin (rr_gl::PluginParamsTonemapping) applies all these operation
 - custom collider builders can be registered with RRCollider::registerTechnique()
+- rendering statistics
+  - plugins expose named counters, rr_gl::NamedCounter
+  - application can read them with rr_gl::Renderer::getCounters()
 
 CHANGES
 

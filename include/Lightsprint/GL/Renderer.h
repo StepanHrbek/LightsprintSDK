@@ -14,6 +14,30 @@
 namespace rr_gl
 {
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// NamedCounter
+
+//! Counter with ASCII name, helps plugin developers gather rendering statistics.
+//
+//! Plugins own counters and increment them as they wish.
+//! Application reads them via Renderer::getCounters().
+class RR_GL_API NamedCounter
+{
+public:
+	unsigned count; ///< Count, zeroed at creation time, incremented by plugin, read and possibly modified by application.
+	const char* name; ///< Name, set at creation time, never modified or freed.
+	NamedCounter* next; ///< Pointer to next counter, NULL for end of list.
+
+	NamedCounter* init(const char* _name, NamedCounter* _next)
+	{
+		count = 0;
+		name = _name;
+		next = _next;
+		return this;
+	}
+};
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Renderer
@@ -108,6 +132,9 @@ public:
 
 	//! Helper function, for internal use.
 	virtual class RendererOfMesh* getMeshRenderer(const rr::RRMesh* mesh) = 0;
+
+	//! Returns named counters exposed by plugins. You can freely modify counts, e.g. zero them at the beginning of frame.
+	virtual class NamedCounter* getCounters() = 0;
 
 	virtual ~Renderer() {};
 };

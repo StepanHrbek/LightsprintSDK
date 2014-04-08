@@ -50,6 +50,7 @@ class RendererImpl : public Renderer
 public:
 	RendererImpl(const rr::RRString& _pathToShaders, const rr::RRString& _pathToMaps) : pathToShaders(_pathToShaders), pathToMaps(_pathToMaps)
 	{
+		counters = NULL;
 		textureRenderer = new TextureRenderer(pathToShaders);
 	}
 
@@ -61,7 +62,9 @@ public:
 			PluginRuntime*& runtime = pluginRuntimes[std::type_index(typeid(*_pp))];
 			if (!initialized)
 			{
-				PluginCreateRuntimeParams params;
+				NamedCounter** lastCounter = &counters;
+				while (*lastCounter) lastCounter = &lastCounter[0]->next;
+				PluginCreateRuntimeParams params(*lastCounter);
 				params.pathToShaders = pathToShaders;
 				params.pathToMaps = pathToMaps;
 				runtime = _pp->createRuntime(params);
@@ -96,10 +99,16 @@ public:
 			delete i->second;
 	}
 
+	virtual NamedCounter* getCounters()
+	{
+		return counters;
+	}
+
 private:
 	// PERMANENT CONTENT
 	rr::RRString pathToShaders;
 	rr::RRString pathToMaps;
+	NamedCounter* counters; // linked list of counters exposed by plugins. plugins add counters from ctor, increment from render(). whole list is statically allocated by plugins, no dynamic allocation
 	TextureRenderer* textureRenderer;
 	//UberProgram* uberProgram;
 	RendererOfMeshCache rendererOfMeshCache;
