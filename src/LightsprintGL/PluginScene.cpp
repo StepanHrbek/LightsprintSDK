@@ -128,6 +128,14 @@ class PluginRuntimeScene : public PluginRuntime
 	//! usually 0, can grow to 1 or even 2 when render() calls render() because of mirror or updateEnvironmentMap()
 	int recursionDepth;
 
+	NamedCounter countScene;
+	NamedCounter countSceneMirror;
+	NamedCounter countSceneMirrorPlane;
+	NamedCounter countSceneMirrorPlaneVisible;
+	NamedCounter countSceneUpdateVbuf;
+	NamedCounter countSceneUpdateCube;
+	NamedCounter countSceneRenderMeshOpaque;
+	NamedCounter countSceneRenderMeshBlended;
 public:
 
 	PluginRuntimeScene(const PluginCreateRuntimeParams& params)
@@ -139,10 +147,22 @@ public:
 		mirrorMaskMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGB,true,RR_GHOST_BUFFER);
 #endif
 		recursionDepth = -1;
+		params.counters =
+			countScene.init("scene",
+			countSceneMirror.init("scene.mirror",
+			countSceneMirrorPlane.init("scene.mirror.plane",
+			countSceneMirrorPlaneVisible.init("scene.mirror.plane.visible",
+			countSceneUpdateVbuf.init("scene.update.vbuf",
+			countSceneUpdateCube.init("scene.update.cube",
+			countSceneRenderMeshOpaque.init("scene.rendermesh.opaque",
+			countSceneRenderMeshBlended.init("scene.rendermesh.blended",
+			NULL))))))));
 	}
 
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 	{
+		countScene.count++;
+
 		const PluginParamsScene& pp = *dynamic_cast<const PluginParamsScene*>(&_pp);
 		if (!(pp.solver || pp.objects) || !_sp.camera)
 		{
@@ -305,6 +325,8 @@ public:
 										}
 										if (hasAlphaBits)
 										{
+											countSceneMirror.count++;
+
 											// find or allocate 1x1 mirror
 											objectBuffers.mirrorPlane = mirrorPlane;
 											Mirrors::const_iterator i = mirrors.find(mirrorPlane);
@@ -452,12 +474,14 @@ public:
 							if (pass==1)
 							{
 								// updates indexed 1object buffer
+								countSceneUpdateVbuf.count++;
 								_.solver->updateLightmap(i,lightIndirectVcolor,NULL,NULL,NULL);
 							}
 							else
 							if (pass==0)
 							{
 								// -1 = updates indexed multiobject buffer
+								countSceneUpdateVbuf.count++;
 								_.solver->updateLightmap(-1,lightIndirectVcolor,NULL,NULL,NULL);
 							}
 						}
@@ -471,6 +495,7 @@ public:
 							RR_ASSERT(recursionDepth+1<MAX_RECURSION_DEPTH);
 							if (recursionDepth+1<MAX_RECURSION_DEPTH)
 							{
+								countSceneUpdateCube.count++;
 								_.solver->updateEnvironmentMap(&illumination,_.layerEnvironment,_.uberProgramSetup.LIGHT_DIRECT?UINT_MAX:_.layerLightmap,_.uberProgramSetup.LIGHT_DIRECT?_.layerLightmap:UINT_MAX);
 							}
 						}
@@ -533,6 +558,7 @@ public:
 							while (j+numRanges<nonBlendedFaceGroups->size() && (*nonBlendedFaceGroups)[j+numRanges].object==(*nonBlendedFaceGroups)[j].object) numRanges++;
 
 							// render
+							countSceneRenderMeshOpaque.count++;
 							objectBuffers.meshRenderer->renderMesh(
 								program,
 								object,
@@ -583,6 +609,8 @@ public:
 					// occlusion query optimization: phase 1
 					glBeginQuery(GL_SAMPLES_PASSED,1);
 #endif
+					countSceneMirrorPlane.count++;
+
 					// render shape of visible mirror pixels into A
 					glDepthMask(GL_FALSE);
 					UberProgramSetup mirrorMaskUberProgramSetup;
@@ -633,6 +661,8 @@ public:
 					if (!mirrorVisible)
 						goto skip_mirror;
 #endif
+					countSceneMirrorPlaneVisible.count++;
+
 					// copy A to mirrorMaskMap.A
 					getTexture(mirrorMaskMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE)->bindTexture();
 					glCopyTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3],0);
@@ -780,6 +810,7 @@ public:
 					passUberProgramSetup.useIlluminationMirror(program,objectBuffers.mirrorColorMap);
 #endif
 					// render
+					countSceneRenderMeshBlended.count++;
 					objectBuffers.meshRenderer->renderMesh(
 						program,
 						object,

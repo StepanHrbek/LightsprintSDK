@@ -15,14 +15,23 @@ namespace rr_gl
 
 class PluginRuntimeCube : public PluginRuntime
 {
+	NamedCounter countCube;
+	NamedCounter countCubeResize;
+
 public:
 
 	PluginRuntimeCube(const PluginCreateRuntimeParams& params)
 	{
+		params.counters =
+			countCube.init("cube",
+			countCubeResize.init("cube.resize",
+			NULL));
 	}
 
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 	{
+		countCube.count++;
+
 		const PluginParamsCube& pp = *dynamic_cast<const PluginParamsCube*>(&_pp);
 		
 		if (!pp.cubeTexture || !pp.depthTexture)
@@ -43,6 +52,7 @@ public:
 		// resize depth
 		if (pp.depthTexture->getBuffer()->getWidth()!=size)
 		{
+			countCubeResize.count++;
 			pp.depthTexture->getBuffer()->reset(rr::BT_2D_TEXTURE,size,size,1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
 			pp.depthTexture->reset(false,false,false);
 		}
