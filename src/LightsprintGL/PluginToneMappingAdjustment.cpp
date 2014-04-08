@@ -22,7 +22,7 @@ class PluginRuntimeToneMappingAdjustment : public PluginRuntime
 
 public:
 
-	PluginRuntimeToneMappingAdjustment(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
+	PluginRuntimeToneMappingAdjustment(const PluginCreateRuntimeParams& params)
 	{
 		bigTexture = NULL;
 		smallTexture = NULL;
@@ -98,9 +98,9 @@ public:
 //
 // PluginParamsToneMappingAdjustment
 
-PluginRuntime* PluginParamsToneMappingAdjustment::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+PluginRuntime* PluginParamsToneMappingAdjustment::createRuntime(const PluginCreateRuntimeParams& params) const
 {
-	return new PluginRuntimeToneMappingAdjustment(pathToShaders, pathToMaps);
+	return new PluginRuntimeToneMappingAdjustment(params);
 }
 
 }; // namespace

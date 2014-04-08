@@ -11,7 +11,7 @@ namespace rr_gl
 
 #ifdef RR_GL_ES2
 
-PluginRuntime* PluginParamsAccumulation::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+PluginRuntime* PluginParamsAccumulation::createRuntime(const PluginCreateRuntimeParams& params) const
 {
 	return NULL;
 }
@@ -32,7 +32,7 @@ class PluginRuntimeAccumulation : public PluginRuntime
 
 public:
 
-	PluginRuntimeAccumulation(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
+	PluginRuntimeAccumulation(const PluginCreateRuntimeParams& params)
 	{
 		colorMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false);
 		depthMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false);
@@ -137,9 +137,9 @@ public:
 //
 // PluginParamsAccumulation
 
-PluginRuntime* PluginParamsAccumulation::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+PluginRuntime* PluginParamsAccumulation::createRuntime(const PluginCreateRuntimeParams& params) const
 {
-	return new PluginRuntimeAccumulation(pathToShaders, pathToMaps);
+	return new PluginRuntimeAccumulation(params);
 }
 
 #endif //!RR_GL_ES2

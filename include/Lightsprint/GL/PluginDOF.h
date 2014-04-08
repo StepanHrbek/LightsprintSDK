@@ -38,7 +38,7 @@ public:
 	PluginParamsDOF(const PluginParams* _next, bool _accumulated, const rr::RRString& _apertureShapeFilename) : accumulated(_accumulated), apertureShapeFilename(_apertureShapeFilename) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
-	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;
+	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;
 };
 
 }; // namespace

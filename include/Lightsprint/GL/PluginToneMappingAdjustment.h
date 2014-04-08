@@ -35,7 +35,7 @@ public:
 	PluginParamsToneMappingAdjustment(const PluginParams* _next, rr::RRVec3& _brightness, rr::RRReal _secondsSinceLastAdjustment, rr::RRReal _targetIntensity) : brightness(_brightness), secondsSinceLastAdjustment(_secondsSinceLastAdjustment), targetIntensity(_targetIntensity) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
-	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;
+	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;
 };
 
 }; // namespace

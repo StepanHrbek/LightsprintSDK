@@ -18,7 +18,7 @@ class PluginRuntimeToneMapping : public PluginRuntime
 
 public:
 
-	PluginRuntimeToneMapping(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
+	PluginRuntimeToneMapping(const PluginCreateRuntimeParams& params)
 	{
 		colorTexture = NULL;
 	}
@@ -52,9 +52,9 @@ public:
 //
 // PluginParamsToneMapping
 
-PluginRuntime* PluginParamsToneMapping::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+PluginRuntime* PluginParamsToneMapping::createRuntime(const PluginCreateRuntimeParams& params) const
 {
-	return new PluginRuntimeToneMapping(pathToShaders, pathToMaps);
+	return new PluginRuntimeToneMapping(params);
 }
 
 }; // namespace

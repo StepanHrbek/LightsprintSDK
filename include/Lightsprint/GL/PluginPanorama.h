@@ -58,7 +58,7 @@ public:
 	PluginParamsPanorama(const PluginParams* _next, PanoramaMode _panoramaMode, PanoramaCoverage _panoramaCoverage, float _scale, float _fisheyeFovDeg) : panoramaMode(_panoramaMode), panoramaCoverage(_panoramaCoverage), scale(_scale), fisheyeFovDeg(_fisheyeFovDeg) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
-	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;
+	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;
 };
 
 }; // namespace

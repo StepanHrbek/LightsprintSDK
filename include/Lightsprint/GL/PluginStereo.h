@@ -64,7 +64,7 @@ public:
 	PluginParamsStereo(const PluginParams* _next, StereoMode _stereoMode, const float(&_oculusDistortionK)[4], const float(&_oculusChromaAbCorrection)[4], float _oculusLensShift) : stereoMode(_stereoMode), oculusDistortionK(_oculusDistortionK[0],_oculusDistortionK[1],_oculusDistortionK[2],_oculusDistortionK[3]), oculusChromaAbCorrection(_oculusChromaAbCorrection[0],_oculusChromaAbCorrection[1],_oculusChromaAbCorrection[2],_oculusChromaAbCorrection[3]), oculusLensShift(_oculusLensShift) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
-	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;
+	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;
 };
 
 }; // namespace

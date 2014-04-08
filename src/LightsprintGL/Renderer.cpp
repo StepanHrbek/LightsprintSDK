@@ -60,7 +60,12 @@ public:
 			bool initialized = pluginRuntimes.find(std::type_index(typeid(*_pp))) != pluginRuntimes.end();
 			PluginRuntime*& runtime = pluginRuntimes[std::type_index(typeid(*_pp))];
 			if (!initialized)
-				runtime = _pp->createRuntime(pathToShaders, pathToMaps);
+			{
+				PluginCreateRuntimeParams params;
+				params.pathToShaders = pathToShaders;
+				params.pathToMaps = pathToMaps;
+				runtime = _pp->createRuntime(params);
+			}
 			if (runtime)
 			{
 				if (!_sp.viewport[2] && !_sp.viewport[3])

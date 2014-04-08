@@ -18,7 +18,7 @@ class PluginRuntimeShowDDI : public PluginRuntime
 
 public:
 
-	PluginRuntimeShowDDI(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
+	PluginRuntimeShowDDI(const PluginCreateRuntimeParams& params)
 	{
 	}
 
@@ -99,9 +99,9 @@ public:
 //
 // PluginParamsSSGI
 
-PluginRuntime* PluginParamsShowDDI::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+PluginRuntime* PluginParamsShowDDI::createRuntime(const PluginCreateRuntimeParams& params) const
 {
-	return new PluginRuntimeShowDDI(pathToShaders, pathToMaps);
+	return new PluginRuntimeShowDDI(params);
 }
 
 }; // namespace

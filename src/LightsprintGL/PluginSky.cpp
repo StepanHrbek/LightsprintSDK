@@ -19,7 +19,7 @@ class PluginRuntimeSky : public PluginRuntime
 
 public:
 
-	PluginRuntimeSky(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
+	PluginRuntimeSky(const PluginCreateRuntimeParams& params)
 	{
 	}
 
@@ -58,9 +58,9 @@ public:
 //
 // PluginParamsSky
 
-PluginRuntime* PluginParamsSky::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+PluginRuntime* PluginParamsSky::createRuntime(const PluginCreateRuntimeParams& params) const
 {
-	return new PluginRuntimeSky(pathToShaders, pathToMaps);
+	return new PluginRuntimeSky(params);
 }
 
 }; // namespace

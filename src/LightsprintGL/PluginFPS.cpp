@@ -35,11 +35,11 @@ class PluginRuntimeFPS : public PluginRuntime
 
 public:
 
-	PluginRuntimeFPS(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
+	PluginRuntimeFPS(const PluginCreateRuntimeParams& params)
 	{
-		mapFps = rr::RRBuffer::load(rr::RRString(0,L"%lstxt-fps.png",pathToMaps.w_str()));
+		mapFps = rr::RRBuffer::load(rr::RRString(0,L"%lstxt-fps.png",params.pathToMaps.w_str()));
 		for (unsigned i=0;i<10;i++)
-			mapDigit[i] = rr::RRBuffer::load(rr::RRString(0,L"%lstxt-%d.png",pathToMaps.w_str(),i));
+			mapDigit[i] = rr::RRBuffer::load(rr::RRString(0,L"%lstxt-%d.png",params.pathToMaps.w_str(),i));
 	}
 
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
@@ -88,9 +88,9 @@ public:
 //
 // PluginParamsFPS
 
-PluginRuntime* PluginParamsFPS::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+PluginRuntime* PluginParamsFPS::createRuntime(const PluginCreateRuntimeParams& params) const
 {
-	return new PluginRuntimeFPS(pathToShaders, pathToMaps);
+	return new PluginRuntimeFPS(params);
 }
 
 }; // namespace

@@ -30,7 +30,7 @@ public:
 	PluginParamsCube(const PluginParams* _next, Texture* _cubeTexture, Texture* _depthTexture) : cubeTexture(_cubeTexture), depthTexture(_depthTexture) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
-	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;
+	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;
 };
 
 }; // namespace

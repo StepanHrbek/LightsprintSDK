@@ -130,9 +130,9 @@ class PluginRuntimeScene : public PluginRuntime
 
 public:
 
-	PluginRuntimeScene(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
+	PluginRuntimeScene(const PluginCreateRuntimeParams& params)
 	{
-		uberProgram = UberProgram::create(rr::RRString(0,L"%lsubershader.vs",pathToShaders.w_str()),rr::RRString(0,L"%lsubershader.fs",pathToShaders.w_str()));
+		uberProgram = UberProgram::create(rr::RRString(0,L"%lsubershader.vs",params.pathToShaders.w_str()),rr::RRString(0,L"%lsubershader.fs",params.pathToShaders.w_str()));
 
 #ifdef MIRRORS
 		mirrorDepthMap = rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
@@ -829,9 +829,9 @@ public:
 //
 // PluginParamsScene
 
-PluginRuntime* PluginParamsScene::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+PluginRuntime* PluginParamsScene::createRuntime(const PluginCreateRuntimeParams& params) const
 {
-	return new PluginRuntimeScene(pathToShaders, pathToMaps);
+	return new PluginRuntimeScene(params);
 }
 
 }; // namespace

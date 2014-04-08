@@ -26,13 +26,13 @@ class PluginRuntimeSSGI : public PluginRuntime
 
 public:
 
-	PluginRuntimeSSGI(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
+	PluginRuntimeSSGI(const PluginCreateRuntimeParams& params)
 	{
 		bigColor = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 		bigColor2 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 		bigColor3 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 		bigDepth = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-		ssgiUberProgram = UberProgram::create(rr::RRString(0,L"%lsssgi.vs",pathToShaders.w_str()),rr::RRString(0,L"%lsssgi.fs",pathToShaders.w_str()));
+		ssgiUberProgram = UberProgram::create(rr::RRString(0,L"%lsssgi.vs",params.pathToShaders.w_str()),rr::RRString(0,L"%lsssgi.fs",params.pathToShaders.w_str()));
 		ssgiProgram1 = ssgiUberProgram ? ssgiUberProgram->getProgram("#define PASS 1\n") : NULL;
 		ssgiProgram2 = ssgiUberProgram ? ssgiUberProgram->getProgram("#define PASS 2\n") : NULL;
 	}
@@ -145,9 +145,9 @@ public:
 //
 // PluginParamsSSGI
 
-PluginRuntime* PluginParamsSSGI::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+PluginRuntime* PluginParamsSSGI::createRuntime(const PluginCreateRuntimeParams& params) const
 {
-	return new PluginRuntimeSSGI(pathToShaders, pathToMaps);
+	return new PluginRuntimeSSGI(params);
 }
 
 }; // namespace

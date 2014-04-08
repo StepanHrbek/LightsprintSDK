@@ -37,7 +37,7 @@ public:
 	PluginParamsShowDDI(const PluginParams* _next, rr::RRSolver* _solver) : solver(_solver) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
-	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;
+	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;
 };
 
 }; // namespace

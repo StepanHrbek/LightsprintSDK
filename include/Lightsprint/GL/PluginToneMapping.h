@@ -28,7 +28,7 @@ public:
 	PluginParamsToneMapping(const PluginParams* _next, const ToneParameters& _tp) : tp(_tp) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
-	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;
+	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;
 };
 
 }; // namespace

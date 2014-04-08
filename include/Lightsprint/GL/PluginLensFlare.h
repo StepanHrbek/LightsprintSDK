@@ -40,7 +40,7 @@ public:
 	PluginParamsLensFlare(const PluginParams* _next, float _flareSize, unsigned _flareId, const rr::RRLights* _lights, const rr::RRObject* _scene, unsigned _quality) : flareSize(_flareSize), flareId(_flareId), lights(_lights), scene(_scene), quality(_quality) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
-	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;
+	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;
 };
 
 }; // namespace

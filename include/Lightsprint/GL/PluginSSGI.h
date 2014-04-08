@@ -47,7 +47,7 @@ public:
 	PluginParamsSSGI(const PluginParams* _next, float _intensity, float _radius, float _angleBias) : intensity(_intensity), radius(_radius), angleBias(_angleBias) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
-	virtual PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const;
+	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;
 };
 
 }; // namespace

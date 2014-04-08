@@ -17,7 +17,7 @@ class PluginRuntimeCube : public PluginRuntime
 {
 public:
 
-	PluginRuntimeCube(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
+	PluginRuntimeCube(const PluginCreateRuntimeParams& params)
 	{
 	}
 
@@ -114,9 +114,9 @@ public:
 //
 // PluginParamsCube
 
-PluginRuntime* PluginParamsCube::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+PluginRuntime* PluginParamsCube::createRuntime(const PluginCreateRuntimeParams& params) const
 {
-	return new PluginRuntimeCube(pathToShaders, pathToMaps);
+	return new PluginRuntimeCube(params);
 }
 
 }; // namespace

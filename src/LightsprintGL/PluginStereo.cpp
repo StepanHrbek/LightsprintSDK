@@ -26,14 +26,14 @@ class PluginRuntimeStereo : public PluginRuntime
 
 public:
 
-	PluginRuntimeStereo(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps)
+	PluginRuntimeStereo(const PluginCreateRuntimeParams& params)
 	{
 		stereoTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST); // GL_NEAREST is for interlaced
 #ifdef SCALE
 		colorTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false);
 		depthTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false);
 #endif
-		stereoUberProgram = UberProgram::create(rr::RRString(0,L"%lsstereo.vs",pathToShaders.w_str()),rr::RRString(0,L"%lsstereo.fs",pathToShaders.w_str()));
+		stereoUberProgram = UberProgram::create(rr::RRString(0,L"%lsstereo.vs",params.pathToShaders.w_str()),rr::RRString(0,L"%lsstereo.fs",params.pathToShaders.w_str()));
 	}
 
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
@@ -242,9 +242,9 @@ public:
 //
 // PluginParamsStereo
 
-PluginRuntime* PluginParamsStereo::createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const
+PluginRuntime* PluginParamsStereo::createRuntime(const PluginCreateRuntimeParams& params) const
 {
-	return new PluginRuntimeStereo(pathToShaders, pathToMaps);
+	return new PluginRuntimeStereo(params);
 }
 
 }; // namespace

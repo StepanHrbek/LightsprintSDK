@@ -15,16 +15,29 @@ namespace rr_gl
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// PluginCreateRuntimeParams
+
+//! Parameters sent to plugins at creation time. They are the same for all plugins.
+class RR_GL_API PluginCreateRuntimeParams
+{
+public:
+	rr::RRString pathToShaders;
+	rr::RRString pathToMaps;
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // PluginParams
 
-//! Parameters of single plugin, with link to next plugin in chain.
+//! Parameters sent to plugins at render time. This is base class, plugins extend it, add custom parameters.
 class RR_GL_API PluginParams
 {
 public:
 	//! Pointer to next plugin in chain, see rr_gl::Renderer for more details.
 	const PluginParams* next;
 	//! Creates plugin runtime. You don't need to call it, rr_gl::Renderer manages its own set of runtimes.
-	virtual class PluginRuntime* createRuntime(const rr::RRString& pathToShaders, const rr::RRString& pathToMaps) const = 0;
+	virtual class PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const = 0;
 };
 
 //! Parameters shared by all plugins.
@@ -65,6 +78,7 @@ struct PluginParamsShared
 		gamma = 1;
 	}
 };
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
