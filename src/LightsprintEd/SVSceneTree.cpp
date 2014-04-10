@@ -888,22 +888,10 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 
 				// update cubes
 				for (unsigned i=0;i<selectedObjects.size();i++)
-					switch (actionCode)
-					{
-						case CM_OBJECTS_BUILD_LMAPS:
-							solver->updateEnvironmentMap(&selectedObjects[i]->illumination,svs.layerBakedEnvironment,svs.layerBakedLightmap,UINT_MAX);
-							break;
-						case CM_OBJECTS_BUILD_AMBIENT_MAPS:
-							solver->updateEnvironmentMap(&selectedObjects[i]->illumination,svs.layerBakedEnvironment,UINT_MAX,svs.layerBakedAmbient);
-							break;
-						case CM_OBJECTS_BUILD_CUBES:
-						default:
-							// we don't know what layers contain valid data, so let's send the most common, realtime ambient
-							// updateEnvironmentMap applies const ambient for objects with realtime ambient buffer missing
-							// the only danger: realtime ambient buffers were not updated yet = black
-							solver->updateEnvironmentMap(&selectedObjects[i]->illumination,svs.layerBakedEnvironment,UINT_MAX,svs.layerRealtimeAmbient);
-							break;
-					}
+					solver->updateEnvironmentMap(&selectedObjects[i]->illumination,
+						svs.layerBakedEnvironment,
+						(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:UINT_MAX,
+						(svs.renderLightDirect==LD_BAKED)?UINT_MAX:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:((svs.renderLightIndirect==LI_REALTIME_FIREBALL||svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeAmbient:UINT_MAX)));
 
 				// save cubes
 				selectedObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
