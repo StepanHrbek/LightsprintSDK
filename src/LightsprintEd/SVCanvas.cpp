@@ -1582,38 +1582,6 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 		}
 
-		// attempt to render empty baked layer? fill it with data from realtime layer
-		// (and save it to disk, users expect that what they see in "baked" mode is saved)
-		if (previousLightIndirect!=svs.renderLightIndirect)
-		{
-			rr::RRObjects allObjects = solver->getObjects();
-			if (svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED)
-			{
-				bool needsSave = false;
-				for (unsigned i=0;i<allObjects.size();i++)
-					if (!allObjects[i]->illumination.getLayer(svs.layerBakedEnvironment) && allObjects[i]->illumination.getLayer(svs.layerRealtimeEnvironment))
-					{
-						allObjects[i]->illumination.getLayer(svs.layerBakedEnvironment) = allObjects[i]->illumination.getLayer(svs.layerRealtimeEnvironment)->createReference();
-						needsSave = true;
-					}
-				if (needsSave)
-					allObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
-			}
-			if (svs.renderLightIndirect==LI_BAKED)
-			{
-				bool needsSave = false;
-				for (unsigned i=0;i<allObjects.size();i++)
-					if (!allObjects[i]->illumination.getLayer(svs.layerBakedAmbient) && allObjects[i]->illumination.getLayer(svs.layerRealtimeAmbient))
-					{
-						allObjects[i]->illumination.getLayer(svs.layerBakedAmbient) = allObjects[i]->illumination.getLayer(svs.layerRealtimeAmbient)->createReference();
-						needsSave = true;
-					}
-				if (needsSave)
-					allObjects.saveLayer(svs.layerBakedAmbient,LAYER_PREFIX,AMBIENT_POSTFIX);
-			}
-			previousLightIndirect = svs.renderLightIndirect;
-		}
-
 
 		// aspect needs update after
 		// - OnSize()
