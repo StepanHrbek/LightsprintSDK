@@ -1098,6 +1098,7 @@ void RRSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironm
 	// allocate cube maps (don't touch vertex buffers)
 	if (layerEnvironment>=0)
 	{
+		// don't allocate cubes for static objects that only need diffuse reflection [#27]
 		getStaticObjects().allocateBuffersForRealtimeGI(-1,layerEnvironment,0,specularEnvMapSize,refractEnvMapSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
 		getDynamicObjects().allocateBuffersForRealtimeGI(-1,layerEnvironment,diffuseEnvMapSize,specularEnvMapSize,refractEnvMapSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
 	}

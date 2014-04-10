@@ -538,11 +538,19 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 	// what objects to process, code shared by many actions
 	rr::RRObjects allObjects = solver->getObjects();
 	rr::RRObjects selectedObjects;
+	rr::RRObjects selectedObjectsStatic;
+	rr::RRObjects selectedObjectsDynamic;
 	rr::RRObjects selectedObjectsAndInstances; // some tasks have to process instances of selected objects too
 	for (unsigned i=0;i<allObjects.size();i++)
 	{
 		if (contextEntityIds.find(EntityId(ST_OBJECT,i))!=contextEntityIds.end())
+		{
 			selectedObjects.push_back(allObjects[i]);
+			if (allObjects[i]->isDynamic)
+				selectedObjectsDynamic.push_back(allObjects[i]);
+			else
+				selectedObjectsStatic.push_back(allObjects[i]);
+		}
 		for (EntityIds::const_iterator j=contextEntityIds.begin();j!=contextEntityIds.end();++j)
 			if (j->type==ST_OBJECT && allObjects[j->index]->getCollider()->getMesh()==allObjects[i]->getCollider()->getMesh())
 			{
@@ -853,10 +861,24 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				// when baking all static objects, bake also dynamic objects
 				// (alternative approach would be to expose baking in context menu also for dynamic objects, user would have to explicitly bake also dynamic)
 				if (selectedObjectRoot || selectedObjects.size()==solver->getStaticObjects().size())
+				{
 					selectedObjects = allObjects;
+					selectedObjectsStatic = solver->getStaticObjects();
+					selectedObjectsDynamic = solver->getDynamicObjects();
+				}
 
-				// allocate cubes
-				selectedObjects.allocateBuffersForRealtimeGI(-1,svs.layerBakedEnvironment,4,2*svs.raytracedCubesRes,2*svs.raytracedCubesRes,true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
+				// allocate baked cubes
+				//  baked ones get 2x higher res than realtime ones
+				//  but if they are only for diffuse reflection, allocator falls back to 8x8
+				// don't allocate cubes for static objects that only need diffuse reflection [#27]
+				//  it is important to keep realtime and baked cubes in sync, so that exists(realtimeCube)==exists(bakedCube),
+				//  having them out of sync creates problem in koupelna4.dae with lights removed:
+				//    if RRSolver::allocateBuffersForRealtimeGI() doesn't allocate realtime cube for 'steny', but here we allocate baked cube,
+				//    final render with realtime GI is all black, but rendering into baked cubemaps of other objects uses baked cubemap of 'steny' which contains light from skybox
+				//    in the end, we get two very different renderings, which is surprising and hard to explain.
+				//    so better keep realtime and baked cubes in sync, so that renderings are more similar/less surprising
+				selectedObjectsStatic .allocateBuffersForRealtimeGI(-1,svs.layerBakedEnvironment,0,2*svs.raytracedCubesRes,2*svs.raytracedCubesRes,true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
+				selectedObjectsDynamic.allocateBuffersForRealtimeGI(-1,svs.layerBakedEnvironment,4,2*svs.raytracedCubesRes,2*svs.raytracedCubesRes,true,true,svs.raytracedCubesSpecularThreshold,svs.raytracedCubesDepthThreshold);
 
 				// delete cubes from disk
 				// if we always keep all files, it won't be possible to get rid of once baked cube
