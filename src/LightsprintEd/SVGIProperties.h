@@ -77,6 +77,7 @@ namespace rr_ed
 		ButtonProperty*   propGIBuildLmaps;
 		ButtonProperty*   propGIBuildAmbientMaps;
 		ButtonProperty*   propGIBuildLDMs;
+		ButtonProperty*   propGIBuildCubes;
 
 		DECLARE_EVENT_TABLE()
 	};

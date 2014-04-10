@@ -208,6 +208,10 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIBuildLDMs = new ButtonProperty(_("Build LDMs"),_("Builds or rebuilds LDMs for all selected static objects."),svframe,CM_OBJECTS_BUILD_LDMS);
 		AppendIn(propGILightmap,propGIBuildLDMs);
 		propGIBuildLDMs->updateImage();
+
+		propGIBuildCubes = new ButtonProperty(_("Build cubemaps"),_("Builds or rebuilds cubemaps for selected objects."),svframe,CM_OBJECTS_BUILD_CUBES);
+		AppendIn(propGILightmap,propGIBuildCubes);
+		propGIBuildCubes->updateImage();
 		propGIBilinear = new BoolRefProperty(_("Bilinear"),_("Bilinear interpolation of lightmaps and LDMs, keep always on, unless you analyze pixels."),svs.renderLightmapsBilinear);
 		AppendIn(propGILightmap,propGIBilinear);
 

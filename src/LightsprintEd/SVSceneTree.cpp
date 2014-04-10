@@ -452,6 +452,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 				menu.Append(CM_OBJECTS_BUILD_AMBIENT_MAPS,_("Bake ambient maps..."),_("(Re)builds per-vertex or per-pixel ambient maps. Per-pixel requires unwrap."));
 				menu.Append(CM_OBJECTS_BUILD_LDMS,_("Build LDMs..."),_("(Re)builds LDMs, layer of additional per-pixel details. LDMs require unwrap."));
 			}
+			menu.Append(CM_OBJECTS_BUILD_CUBES,_("Build cubemaps"),_("(Re)builds per-object cubemaps."));
 			if (temporaryContext!=staticObjects && temporaryContextItems.size()==1)
 				menu.Append(CM_OBJECT_INSPECT_UNWRAP,_("Inspect unwrap,lightmap,LDM..."),_("Shows unwrap and lightmap or LDM in 2D."));
 			if (entityIds.size()>1)
