@@ -127,8 +127,8 @@ struct RR_GL_API UberProgramSetup
 	// Misc other options.
 	bool     ANIMATION_WAVE                :1; ///< Enables simple procedural deformation, only to demonstrate that lighting supports animations.
 	bool     POSTPROCESS_NORMALS           :1; ///< Renders normal values instead of colors.
-	bool     POSTPROCESS_BRIGHTNESS        :1; ///< Enables brightness correction of final color (before gamma).
-	bool     POSTPROCESS_GAMMA             :1; ///< Enables gamma correction of final color (after brightness).
+	bool     POSTPROCESS_BRIGHTNESS        :1; ///< Enables brightness correction of final color (before gamma). 1 = instructions always included in shader = fewer shader versions = faster startup. 0 = instructions removed from shader when not needed, more shaders to compile but possibly higher fps.
+	bool     POSTPROCESS_GAMMA             :1; ///< Enables gamma correction of final color (after brightness). 1 = instructions always included in shader = fewer shader versions = faster startup. 0 = instructions removed from shader when not needed, more shaders to compile but possibly higher fps.
 	bool     POSTPROCESS_BIGSCREEN         :1; ///< Simulates effect of party projected bigscreen with ambient light.
 	bool     OBJECT_SPACE                  :1; ///< Enables positions in object space, vertices are transformed by uniform worldMatrix. Without OBJECT_SPACE, objects are rendered in their local spaces, you may get all objects stacked in world center.
 	bool     CLIP_PLANE                    :1; ///< Discards geometry with pos . clipPlane<=0.
