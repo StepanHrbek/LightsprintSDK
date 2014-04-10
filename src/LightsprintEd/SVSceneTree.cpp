@@ -891,10 +891,17 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				//  do it twice, first update of object1 renders object2,... with old reflection
 				for (unsigned j=0;j<2;j++)
 				for (unsigned i=0;i<selectedObjects.size();i++)
+				{
+					// change version to enforce update
+					rr::RRBuffer* cube = selectedObjects[i]->illumination.getLayer(svs.layerBakedEnvironment);
+					if (cube)
+						cube->version = rand()+(rand()<<16);
+
 					solver->updateEnvironmentMap(&selectedObjects[i]->illumination,
 						svs.layerBakedEnvironment,
 						(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:UINT_MAX,
 						(svs.renderLightDirect==LD_BAKED)?UINT_MAX:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:((svs.renderLightIndirect==LI_REALTIME_FIREBALL||svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeAmbient:UINT_MAX)));
+				}
 
 				// save cubes
 				selectedObjects.saveLayer(svs.layerBakedEnvironment,LAYER_PREFIX,ENV_POSTFIX);
