@@ -808,6 +808,14 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						svs.renderLightIndirect = LI_BAKED;
 
 						// bake also cubemaps
+						// when baking all static cubes, bake also dynamic cubes
+						// (alternative approach would be to expose baking in context menu also for dynamic objects, user would have to explicitly bake also dynamic)
+						if (selectedObjectRoot || selectedObjects.size()==solver->getStaticObjects().size())
+						{
+							selectedObjects = allObjects;
+							selectedObjectsStatic = solver->getStaticObjects();
+							selectedObjectsDynamic = solver->getDynamicObjects();
+						}
 						goto bake_cubemaps;
 					}
 					else
@@ -858,15 +866,6 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			bake_cubemaps:
 			if (solver)
 			{
-				// when baking all static objects, bake also dynamic objects
-				// (alternative approach would be to expose baking in context menu also for dynamic objects, user would have to explicitly bake also dynamic)
-				if (selectedObjectRoot || selectedObjects.size()==solver->getStaticObjects().size())
-				{
-					selectedObjects = allObjects;
-					selectedObjectsStatic = solver->getStaticObjects();
-					selectedObjectsDynamic = solver->getDynamicObjects();
-				}
-
 				// allocate baked cubes
 				//  baked ones get 2x higher res than realtime ones
 				//  but if they are only for diffuse reflection, allocator falls back to 8x8
