@@ -778,7 +778,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false; // no mirrors, prevents render() from calling another render()
 		ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = false;
 		ppScene.updateLayerEnvironment = false; // no environment updates,  prevents render() from calling another updateEnvironmentMap(), we are not reentrant because of depthTexture
-		ppScene.layerEnvironment = UINT_MAX; // no envmaps, prevents using texture we are rendering into
+		ppScene.layerEnvironment = layerEnvironment; // use the same envmaps we are rendering into (object being updated is hidden, so there should be no conflict from using texture we render into)
 		if (layerAmbientMap!=UINT_MAX)
 		{
 			// realtime lights + ambient maps
@@ -789,17 +789,17 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		{
 			// lightmaps
 			ppScene.layerLightmap = layerLightmap;
-			ppScene.uberProgramSetup.SHADOW_MAPS = 1;
-			ppScene.uberProgramSetup.LIGHT_DIRECT = true;
-			ppScene.uberProgramSetup.LIGHT_DIRECT_COLOR = true;
-			ppScene.uberProgramSetup.LIGHT_DIRECT_MAP = true;
-			ppScene.uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = true;
+			ppScene.lightmapsContainAlsoDirectIllumination = true;
 		}
 		else
 		{
 			// realtime lights + constant ambient
 		}
+		bool srgbCorrect = !true; // we don't know whether final render is srgb correct or not, let's request more realistic version (but renderToCube might ignore us)
+			// something is off here, cube has wrong intensities, srgb incorrect one is bit better so it is used for now
+			// (srgb is probably more wrong here because we receive linear BT_RGB cubes to update, they should be scaled for srgb)
 		Texture* cubeTexture = getTexture(cube,false,false);
+		cubeTexture->reset(false,false,srgbCorrect);
 		PluginParamsCube ppCube(&ppScene,cubeTexture,depthTexture);
 		rr::RRCamera camera;
 		camera.setPosition(illumination->envMapWorldCenter);
@@ -808,7 +808,8 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		ppShared.camera = &camera;
 		ppShared.viewport[2] = cube->getWidth();
 		ppShared.viewport[3] = cube->getHeight();
-		ppShared.srgbCorrect = true; // we don't know whether final render is srgb correct or not, let's request more realistic version (but renderToCube might ignore us)
+		ppShared.srgbCorrect = srgbCorrect;
+		ppShared.gamma = srgbCorrect?0.45f:1.f;
 		renderer->render(&ppCube,ppShared);
 		cubeTexture->bindTexture();
 		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -823,7 +824,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 			infos[i].object->faceGroups = infos[i].faceGroups;
 #endif
 
-		// copy texture to buffer
+		// copy texture to buffer (only necessary before save, can be skipped otherwise)
 		cubeTexture->copyTextureToBuffer();
 		// encode solutionVersion into cube version
 		cube->version = (solutionVersion<<16)+(cube->version&65535);
