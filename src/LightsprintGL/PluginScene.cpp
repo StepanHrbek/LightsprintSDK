@@ -380,6 +380,12 @@ public:
 					objectBuffers.objectUberProgramSetup = _.uberProgramSetup;
 					if (pass==2 && objectBuffers.objectUberProgramSetup.SHADOW_MAPS>1)
 						objectBuffers.objectUberProgramSetup.SHADOW_MAPS = 1; // decrease shadow quality on dynamic objects
+					if (pp.lightmapsContainAlsoDirectIllumination && lightIndirectMap)
+					{
+						// when GI lightmap is found, disable direct lighting&shadowing
+						objectBuffers.objectUberProgramSetup.SHADOW_MAPS = 0;
+						objectBuffers.objectUberProgramSetup.LIGHT_DIRECT = 0;
+					}
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = _.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && objectBuffers.reflectionEnvMap;
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = _.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && objectBuffers.reflectionEnvMap;
 #ifdef MIRRORS

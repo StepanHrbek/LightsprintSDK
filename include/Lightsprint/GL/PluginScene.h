@@ -80,6 +80,9 @@ public:
 	//! Specifies source of light detail maps. Renderer only reads them.
 	unsigned layerLDM;
 
+	//! True = when rendering with lightmap from layerLightmap, direct lights are disabled.
+	bool lightmapsContainAlsoDirectIllumination;
+
 	//! For diagnostic use only. 0=automatic, 1=force rendering singleobjects, 2=force rendering multiobject.
 	unsigned forceObjectType;
 
@@ -105,6 +108,7 @@ public:
 		layerLightmap = UINT_MAX;
 		layerEnvironment = UINT_MAX;
 		layerLDM = UINT_MAX;
+		lightmapsContainAlsoDirectIllumination = false;
 		forceObjectType = 0;
 		animationTime = 0;
 		clipPlanes.clipPlane = rr::RRVec4(1,0,0,0);
