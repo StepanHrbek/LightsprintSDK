@@ -1307,6 +1307,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		svframe->OnAnyChange(SVFrame::ES_MOUSE_END,NULL);
 	}
 
+
 	solver->reportInteraction();
 	oldPosition = newPosition;
 	oldMousePositionInWindow = mousePositionInWindow;
