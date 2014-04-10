@@ -133,7 +133,9 @@ class PluginRuntimeScene : public PluginRuntime
 	NamedCounter countSceneMirrorPlane;
 	NamedCounter countSceneMirrorPlaneVisible;
 	NamedCounter countSceneUpdateVbuf;
+	NamedCounter countSceneUpdatedVbuf;
 	NamedCounter countSceneUpdateCube;
+	NamedCounter countSceneUpdatedCube;
 	NamedCounter countSceneRenderMeshOpaque;
 	NamedCounter countSceneRenderMeshBlended;
 public:
@@ -153,10 +155,12 @@ public:
 			countSceneMirrorPlane.init("scene.mirror.plane",
 			countSceneMirrorPlaneVisible.init("scene.mirror.plane.visible",
 			countSceneUpdateVbuf.init("scene.update.vbuf",
+			countSceneUpdatedVbuf.init("scene.updated.vbuf",
 			countSceneUpdateCube.init("scene.update.cube",
+			countSceneUpdatedCube.init("scene.updated.cube",
 			countSceneRenderMeshOpaque.init("scene.rendermesh.opaque",
 			countSceneRenderMeshBlended.init("scene.rendermesh.blended",
-			NULL))))))));
+			NULL))))))))));
 	}
 
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
@@ -481,14 +485,14 @@ public:
 							{
 								// updates indexed 1object buffer
 								countSceneUpdateVbuf.count++;
-								_.solver->updateLightmap(i,lightIndirectVcolor,NULL,NULL,NULL);
+								countSceneUpdatedVbuf.count += _.solver->updateLightmap(i,lightIndirectVcolor,NULL,NULL,NULL);
 							}
 							else
 							if (pass==0)
 							{
 								// -1 = updates indexed multiobject buffer
 								countSceneUpdateVbuf.count++;
-								_.solver->updateLightmap(-1,lightIndirectVcolor,NULL,NULL,NULL);
+								countSceneUpdatedVbuf.count += _.solver->updateLightmap(-1,lightIndirectVcolor,NULL,NULL,NULL);
 							}
 						}
 					}
@@ -502,7 +506,7 @@ public:
 							if (recursionDepth+1<MAX_RECURSION_DEPTH)
 							{
 								countSceneUpdateCube.count++;
-								_.solver->updateEnvironmentMap(&illumination,_.layerEnvironment,_.uberProgramSetup.LIGHT_DIRECT?UINT_MAX:_.layerLightmap,_.uberProgramSetup.LIGHT_DIRECT?_.layerLightmap:UINT_MAX);
+								countSceneUpdatedCube.count += _.solver->updateEnvironmentMap(&illumination,_.layerEnvironment,_.uberProgramSetup.LIGHT_DIRECT?UINT_MAX:_.layerLightmap,_.uberProgramSetup.LIGHT_DIRECT?_.layerLightmap:UINT_MAX);
 							}
 						}
 					}
