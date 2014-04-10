@@ -887,6 +887,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				selectedObjects.layerDeleteFromDisk(LAYER_PREFIX,ENV_POSTFIX);
 
 				// update cubes
+				//  do it twice, first update of object1 renders object2,... with old reflection
+				for (unsigned j=0;j<2;j++)
 				for (unsigned i=0;i<selectedObjects.size();i++)
 					solver->updateEnvironmentMap(&selectedObjects[i]->illumination,
 						svs.layerBakedEnvironment,
