@@ -229,6 +229,23 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 		}
 	}
 
+	// update illumination environment centers, clear caches
+	// it is important to clear caches in both old objects and new objects. (we used to clear only new objects. 
+	//  when user checked "Dynamic", object was first removed from static, but here it was not yet in dynamic, we did not invalidate its cache,
+	//  cache survived to next fireball mode, first env update used cached old triangle numbers=possibly access invalid memory)
+	for (unsigned j=0;j<3;j++)
+	{
+		const rr::RRObjects& objects = (j==0)?getStaticObjects():((j==1)?_objects:getDynamicObjects());
+		for (unsigned i=0;i<objects.size();i++)
+		{
+			// update envmap centers
+			objects[i]->updateIlluminationEnvMapCenter();
+
+			// clear cached triangle numbers
+			objects[i]->illumination.cachedGatherSize = 0;
+		}
+	}
+
 	// copy only static objects
 	// don't exclude empty ones, old users may depend on object numbers, removing empties would break their numbers
 	// call x.removeEmptyObjects() before setStaticObjects(x) to remove them manually
@@ -323,18 +340,6 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 			priv->staticSceneContainsLods?"yes":"no");
 	}
 
-	// update illumination environment
-	for (unsigned i=0;i<getStaticObjects().size();i++)
-	{
-		getStaticObjects()[i]->updateIlluminationEnvMapCenter();
-
-		// clear cached triangle numbers
-		getStaticObjects()[i]->illumination.cachedGatherSize = 0;
-	}
-	for (unsigned i=0;i<getDynamicObjects().size();i++)
-	{
-		getDynamicObjects()[i]->illumination.cachedGatherSize = 0;
-	}
 	// invalidate supercollider
 	priv->superColliderDirty = true;
 }
