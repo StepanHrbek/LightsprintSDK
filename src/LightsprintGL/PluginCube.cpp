@@ -57,9 +57,11 @@ public:
 			pp.depthTexture->reset(false,false,false);
 		}
 
+		bool scissor = pp.fovDeg<=249; // scissor out parts of cube?
+
 		PreserveFBO p0;
 		PreserveViewport p1;
-		PreserveFlag p2(GL_SCISSOR_TEST,false);
+		PreserveFlag p2(GL_SCISSOR_TEST,scissor);
 		glViewport(0,0,size,size);
 		FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,pp.depthTexture);
 
@@ -90,6 +92,15 @@ public:
 			rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
 			*/
 		};
+		char s_scissor[6] =
+		{
+			1,
+			4,
+			8,
+			2,
+			15,
+			0
+		};
 		rr::RRCamera cubeCamera = *_sp.camera;
 		cubeCamera.setAspect(1);
 		cubeCamera.setFieldOfViewVerticalDeg(90);
@@ -110,6 +121,18 @@ public:
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,pp.cubeTexture);
 			RR_ASSERT(FBO::isOk()); // if someone called getTexture(cubeBuffer), texture is compressed and setting it as render target has no effect. here we report problem, at least in debug version
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+			char sc = s_scissor[side];
+			if (scissor && ((sc==15 && pp.fovDeg<=249) || (sc && pp.fovDeg<=90)))
+				continue;
+			if (scissor)
+			{
+				int reduceby = (int)(size*(249-pp.fovDeg)/159);
+				int x0 = (sc&1)?reduceby:0;
+				int y0 = (sc&2)?reduceby:0;
+				int x1 = size-((sc&4)?reduceby:0);
+				int y1 = size-((sc&8)?reduceby:0);
+				glScissor(x0,y0,x1-x0,y1-y0);
+			}
 			_renderer.render(_pp.next,sp);
 		}
 	}

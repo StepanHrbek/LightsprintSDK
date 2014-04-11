@@ -47,7 +47,7 @@ public:
 		}
 
 		// render to cube
-		PluginParamsCube ppCube(_pp.next,cubeTexture,depthTexture);
+		PluginParamsCube ppCube(_pp.next,cubeTexture,depthTexture,(pp.panoramaMode==PM_FISHEYE)?pp.fisheyeFovDeg:360);
 		_renderer.render(&ppCube,_sp);
 
 		// composite

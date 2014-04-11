@@ -800,7 +800,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 			// (srgb is probably more wrong here because we receive linear BT_RGB cubes to update, they should be scaled for srgb)
 		Texture* cubeTexture = getTexture(cube,false,false);
 		cubeTexture->reset(false,false,srgbCorrect);
-		PluginParamsCube ppCube(&ppScene,cubeTexture,depthTexture);
+		PluginParamsCube ppCube(&ppScene,cubeTexture,depthTexture,360);
 		rr::RRCamera camera;
 		camera.setPosition(illumination->envMapWorldCenter);
 		camera.setRange(size*0.0001f,size);
