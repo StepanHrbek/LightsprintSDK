@@ -120,7 +120,11 @@ public:
 			cubeCamera.setYawPitchRollRad((rr::RRMatrix3x4(_sp.camera->getViewMatrix(),false) * rr::RRMatrix3x4::rotationByYawPitchRoll(s_viewAngles[side])).getYawPitchRoll());
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,pp.cubeTexture);
 			RR_ASSERT(FBO::isOk()); // if someone called getTexture(cubeBuffer), texture is compressed and setting it as render target has no effect. here we report problem, at least in debug version
+			if (scissor)
+				glDisable(GL_SCISSOR_TEST);
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+			if (scissor)
+				glEnable(GL_SCISSOR_TEST);
 			char sc = s_scissor[side];
 			if (scissor && ((sc==15 && pp.fovDeg<=249) || (sc && pp.fovDeg<=90)))
 				continue;
