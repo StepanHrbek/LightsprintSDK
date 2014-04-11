@@ -56,7 +56,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propCameraPanorama,propCameraPanoramaMode);
 			}
 
-			propCameraPanoramaFovDeg = new FloatProperty(_("FOV"),_("180 for hemisphere, 360 for full sphere."),svs.panoramaFovDeg,svs.precision,1,360,10,false);
+			propCameraPanoramaFovDeg = new FloatProperty(_("FOV"),_("Field of view rendered into panorama, 180 for hemisphere, 360 for full sphere."),svs.panoramaFovDeg,svs.precision,1,360,10,false);
 			AppendIn(propCameraPanoramaMode,propCameraPanoramaFovDeg);
 
 			{
@@ -335,7 +335,7 @@ void SVSceneProperties::updateHide()
 	propCameraDisplayDistance->Hide(!svs.renderStereo,false);
 
 	propCameraPanoramaMode->Hide(!svs.renderPanorama,false);
-	propCameraPanoramaFovDeg->Hide(!svs.renderPanorama || svs.panoramaMode!=rr_gl::PM_FISHEYE,false);
+	propCameraPanoramaFovDeg->Hide(!svs.renderPanorama || svs.panoramaMode==rr_gl::PM_EQUIRECTANGULAR || svs.panoramaMode==rr_gl::PM_LITTLE_PLANET,false);
 	propCameraPanoramaCoverage->Hide(!svs.renderPanorama || svs.panoramaMode==rr_gl::PM_EQUIRECTANGULAR,false);
 	propCameraPanoramaScale->Hide(!svs.renderPanorama,false);
 
