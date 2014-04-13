@@ -23,7 +23,7 @@ NEWS
   - new options added to rr_gl::ToneParameters
     - saturation adjustment
     - hue shift
-    - color banding
+    - color steps
   - new tonemapping plugin (rr_gl::PluginParamsTonemapping) applies all these operation
 - custom collider builders can be registered with RRCollider::registerTechnique()
 - rendering statistics
@@ -40,6 +40,7 @@ CHANGES
     - rr_ed::SceneViewerState
   - BREAKING CHANGE: find all places where you call render2D() or render2DBegin() and replace two parameters with one. old code might compile even if not fixed, but it would be wrong
 - PluginParamsScene::updateLayers split into PluginParamsScene::updateLayerLightmap, PluginParamsScene::updateLayerEnvironment (for more fine grained control)
+- RRObjects::buildUnwrap() has additional parameter that controls quality
 
 \section news142 ------------------------------------ 2014.02.05 -------------------------------------
 

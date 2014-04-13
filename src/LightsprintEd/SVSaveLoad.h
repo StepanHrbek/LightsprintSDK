@@ -71,6 +71,9 @@ namespace rr_ed
 		float       sshotEnhancedShadowResolutionFactor;
 		unsigned    sshotEnhancedShadowSamples;
 
+		unsigned    unwrapResolution;
+		unsigned    unwrapNumTriangles;
+
 		bool        testingLogShaders;
 		bool        testingLogMore;
 		bool        testingBeta;
@@ -89,6 +92,8 @@ namespace rr_ed
 			sshotEnhancedFSAA = 4;
 			sshotEnhancedShadowResolutionFactor = 2;
 			sshotEnhancedShadowSamples = 8;
+			unwrapResolution = 256;
+			unwrapNumTriangles = 25000;
 			testingLogShaders = false;
 			testingLogMore = false;
 			testingBeta = false;

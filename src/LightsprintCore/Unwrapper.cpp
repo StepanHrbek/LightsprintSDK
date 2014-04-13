@@ -52,7 +52,7 @@ class Unwrapper
 {
 public:
 	Unwrapper();
-	bool buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const UvChannels& keepChannels, unsigned mapSize, float gutter, float pixelsPerWorldUnit, bool& aborting);
+	bool buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const UvChannels& keepChannels, unsigned mapSize, float gutter, float pixelsPerWorldUnit, unsigned minTrianglesForFastUnwrap, bool& aborting);
 	~Unwrapper();
 
 	// stats updated by buildUnwrap()
@@ -321,7 +321,7 @@ static void abortable(std::function<void ()> f, bool& aborting)
 
 #endif
 
-bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const UvChannels& keepChannels, unsigned mapSize, float gutter, float pixelsPerWorldUnit, bool& aborting)
+bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const UvChannels& keepChannels, unsigned mapSize, float gutter, float pixelsPerWorldUnit, unsigned minTrianglesForFastUnwrap, bool& aborting)
 {
 	bool result = false;
 
@@ -513,7 +513,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 							NULL, // falseEdges,
 							NULL, // metric tensor array
 							&callback,0.0001f,&aborting,
-							D3DXUVATLAS_DEFAULT,
+							(numTriangles>=minTrianglesForFastUnwrap)?D3DXUVATLAS_GEODESIC_FAST:D3DXUVATLAS_GEODESIC_QUALITY, //D3DXUVATLAS_DEFAULT works as if minTrianglesForFastUnwrap=25k
 							&dxMeshOut,
 							&facePartitioning,
 							NULL, // vertex remap array
@@ -654,7 +654,7 @@ Unwrapper::~Unwrapper()
 #endif
 }
 
-unsigned RRObjects::buildUnwrap(unsigned resolution, unsigned minimalUvChannel, bool& aborting) const
+unsigned RRObjects::buildUnwrap(unsigned resolution, unsigned minimalUvChannel, unsigned minTrianglesForFastUnwrap, bool& aborting) const
 {
 	RRReportInterval report(INF2,"Building unwrap...\n");
 
@@ -729,7 +729,7 @@ try_next_channel:
 	// serial
 	for (Meshes::const_iterator i=meshes.begin();i!=meshes.end();++i)
 	{
-		unwrapper.buildUnwrap(i->first,unwrapChannel,i->second,resolution,2.5f,1,aborting);
+		unwrapper.buildUnwrap(i->first,unwrapChannel,i->second,resolution,2.5f,1,minTrianglesForFastUnwrap,aborting);
 	}
 #else // !VS2003
 	// parallel
@@ -756,7 +756,7 @@ try_next_channel:
 	for (int i=0;i<(int)meshesIterators.size();i++)
 	{
 		if (!aborting)
-			unwrapper.buildUnwrap(meshesIterators[i].iter->first,unwrapChannel,meshesIterators[i].iter->second,resolution,2.5f,1,aborting);
+			unwrapper.buildUnwrap(meshesIterators[i].iter->first,unwrapChannel,meshesIterators[i].iter->second,resolution,2.5f,1,minTrianglesForFastUnwrap,aborting);
 	}
 #endif // !VS2003
 
@@ -779,7 +779,7 @@ try_next_channel:
 namespace rr
 {
 
-unsigned RRObjects::buildUnwrap(unsigned resolution, unsigned minimalUvChannel, bool& aborting) const
+unsigned RRObjects::buildUnwrap(unsigned resolution, unsigned minimalUvChannel, unsigned minTrianglesForFastUnwrap, bool& aborting) const
 {
 	RRReporter::report(WARN,"buildUnwrap() not supported on this platform.\n");
 	return UINT_MAX;

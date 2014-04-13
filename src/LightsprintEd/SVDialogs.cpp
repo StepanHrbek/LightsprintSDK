@@ -266,3 +266,52 @@ BakeDlg::BakeDlg( wxWindow* parent, wxWindowID id, const wxString& title, const 
 BakeDlg::~BakeDlg()
 {
 }
+
+UnwrapDlg::UnwrapDlg( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+	
+	wxBoxSizer* bSizer8;
+	bSizer8 = new wxBoxSizer( wxVERTICAL );
+	
+	wxBoxSizer* bSizer9;
+	bSizer9 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticText7 = new wxStaticText( this, wxID_ANY, _("Unwrap resolution"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText7->Wrap( -1 );
+	bSizer9->Add( m_staticText7, 0, wxALL, 5 );
+	
+	resolution = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	resolution->SetToolTip( _("Unwrap can be optimized for lightmaps of certain resolution. This is the resolution to optimize for, enter e.g. 256 for 256x256 lightmaps.") );
+	
+	bSizer9->Add( resolution, 0, wxALL, 5 );
+	
+	m_staticText8 = new wxStaticText( this, wxID_ANY, _("Number of triangles"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText8->Wrap( -1 );
+	bSizer9->Add( m_staticText8, 0, wxALL, 5 );
+	
+	numTriangles = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	numTriangles->SetToolTip( _("Meshes with fewer triangles do high quality unwrap, meshes with more triangles do fast unwrap. If your unwraps take too much time, try reducing this number. Default is 25000.") );
+	
+	bSizer9->Add( numTriangles, 0, wxALL, 5 );
+	
+	cancel = new wxButton( this, wxID_CANCEL, _("Cancel"), wxDefaultPosition, wxSize( 0,0 ), 0 );
+	bSizer9->Add( cancel, 0, wxALL, 5 );
+	
+	
+	bSizer8->Add( bSizer9, 1, wxEXPAND, 5 );
+	
+	button = new wxButton( this, wxID_OK, _("Unwrap"), wxDefaultPosition, wxDefaultSize, 0 );
+	button->SetDefault(); 
+	bSizer8->Add( button, 0, wxALIGN_RIGHT|wxALL, 5 );
+	
+	
+	this->SetSizer( bSizer8 );
+	this->Layout();
+	
+	this->Centre( wxBOTH );
+}
+
+UnwrapDlg::~UnwrapDlg()
+{
+}

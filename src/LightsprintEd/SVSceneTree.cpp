@@ -656,18 +656,24 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 		case CM_OBJECTS_UNWRAP:
 			if (solver)
 			{
-				static unsigned res = 256;
-				if (getResolution(_("Unwrap build"),this,res,false))
+				// initialize dialog
+				svframe->unwrapDlg.resolution->SetValue(wxString::Format("%d",svframe->userPreferences.unwrapResolution));
+				svframe->unwrapDlg.numTriangles->SetValue(wxString::Format("%d",svframe->userPreferences.unwrapNumTriangles));
+
+				if (svframe->unwrapDlg.ShowModal()==wxID_OK)
 				{
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver,_("Building unwrap..."));
 
 
+					svframe->userPreferences.unwrapResolution = getUnsigned(svframe->unwrapDlg.resolution->GetValue());
+					svframe->userPreferences.unwrapNumTriangles = getUnsigned(svframe->unwrapDlg.numTriangles->GetValue());
+
 					// 1) merge identical vertices so that two unwraps in a row work with the same data (possibly ordered differently). this must be done after deleting old unwrap
 					// 2) remove degens, unwrapper crashes on them
 					selectedObjectsAndInstances.deleteComponents(false,true,true,false); // remove old unwrap etc
 					selectedObjectsAndInstances.smoothAndStitch(false,true,true,true,true,true,false,0,0,0,false); // then merge identical vertices (removeDegeneratedTriangles=true enforces updateColliders, which is slow, but unwrapper would probably fail if we don't remove them)
-					selectedObjectsAndInstances.buildUnwrap(res,0,solver->aborting);
+					selectedObjectsAndInstances.buildUnwrap(svframe->userPreferences.unwrapResolution,0,svframe->userPreferences.unwrapNumTriangles,solver->aborting);
 
 					// static objects may be modified even after abort (unwrap is not atomic)
 					// so it's better if following setStaticObjects is not aborted

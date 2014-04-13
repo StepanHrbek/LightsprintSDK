@@ -191,6 +191,7 @@ namespace rr_ed
 		SmoothDlg                    smoothDlg;
 		DeleteDlg                    deleteDlg;
 		BakeDlg                      bakeDlg;
+		UnwrapDlg                    unwrapDlg;
 
 #ifdef SUPPORT_OCULUS
 		OVR::Ptr<OVR::DeviceManager> oculusManager;

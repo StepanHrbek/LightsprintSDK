@@ -161,6 +161,11 @@ void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int versi
 		ar & make_nvp("sshotEnhancedShadowResolutionFactor",a.sshotEnhancedShadowResolutionFactor);
 		ar & make_nvp("sshotEnhancedShadowSamples",a.sshotEnhancedShadowSamples);
 	}
+	if (version>18)
+	{
+		ar & make_nvp("unwrapResolution",a.unwrapResolution);
+		ar & make_nvp("unwrapNumTriangles",a.unwrapNumTriangles);
+	}
 	if (version==9)
 	{
 		bool debugging;
@@ -182,7 +187,7 @@ void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int versi
 
 BOOST_CLASS_VERSION(rr_ed::ImportParameters,1);
 BOOST_CLASS_VERSION(rr_ed::UserPreferences::WindowLayout,3)
-BOOST_CLASS_VERSION(rr_ed::UserPreferences,18)
+BOOST_CLASS_VERSION(rr_ed::UserPreferences,19)
 
 //---------------------------------------------------------------------------
 

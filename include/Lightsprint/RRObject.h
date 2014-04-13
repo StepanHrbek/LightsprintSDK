@@ -559,10 +559,12 @@ namespace rr
 		//! \param minimalUvChannel
 		//!  New unwrap is created into the lowest unused uv channel, but at least minimalUvChannel.
 		//!  So if minimalUvChannel=2, unwrap is never created to channel 0 or 1.
+		//! \param minTrianglesForFastUnwrap
+		//!  Higher quality but slower technique is used for meshes with lower number of triangles. It is too slow for large meshes, so reasonable threshold could be 25000.
 		//! \param aborting
 		//!  May be set asynchronously, aborts build.
 		//! \return Number of new unwrap uv channel, it's the same for all meshes. UINT_MAX in case of failure/no unwrapping.
-		virtual unsigned buildUnwrap(unsigned resolution, unsigned minimalUvChannel, bool& aborting) const;
+		virtual unsigned buildUnwrap(unsigned resolution, unsigned minimalUvChannel, unsigned minTrianglesForFastUnwrap, bool& aborting) const;
 
 		//! Inserts all materials found in objects into collection.
 		//

@@ -126,4 +126,26 @@ class BakeDlg : public wxDialog
 	
 };
 
+///////////////////////////////////////////////////////////////////////////////
+/// Class UnwrapDlg
+///////////////////////////////////////////////////////////////////////////////
+class UnwrapDlg : public wxDialog 
+{
+	private:
+	
+	protected:
+		wxStaticText* m_staticText7;
+		wxStaticText* m_staticText8;
+		wxButton* cancel;
+		wxButton* button;
+	
+	public:
+		wxTextCtrl* resolution;
+		wxTextCtrl* numTriangles;
+		
+		UnwrapDlg( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Unwrapping options"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 184,259 ), long style = wxDEFAULT_DIALOG_STYLE ); 
+		~UnwrapDlg();
+	
+};
+
 #endif //__SVDIALOGS_H__
