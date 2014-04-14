@@ -27,7 +27,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 	// stereo
 	{
 		{
-			const wxChar* stereoStrings[] = {_("interlaced"),wxT("side by side"),wxT("top down"),wxT("Oculus Rift"),NULL};
+			const wxChar* stereoStrings[] = {_("interlaced"),_("side by side"),_("top down"),_("Oculus Rift"),NULL};
 			const long stereoValues[] = {0,1,2,3};
 			propStereoMode = new wxEnumProperty(_("Stereo mode"), wxPG_LABEL, stereoStrings, stereoValues);
 			propStereoMode->SetValueFromInt(userPreferences.stereoMode/2-1,wxPG_FULL_VALUE);
@@ -79,7 +79,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 
 		// flipFrontBack
 		{
-			const wxChar* flipStrings[] = {_("never"),wxT("when 3 normals point back"),_("when 2 or 3 normals point back"),NULL};
+			const wxChar* flipStrings[] = {_("never"),_("when 3 normals point back"),_("when 2 or 3 normals point back"),NULL};
 			const long flipValues[] = {4,3,2};
 			propImportFlipFrontBack = new wxEnumProperty(_("Flip front/back"), wxPG_LABEL, flipStrings, flipValues);
 			propImportFlipFrontBack->SetValueFromInt(userPreferences.import.flipFrontBack,wxPG_FULL_VALUE);
