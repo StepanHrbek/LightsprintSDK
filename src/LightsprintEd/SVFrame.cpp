@@ -503,6 +503,7 @@ SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 //	wxPGEditor_SpinCtrl = NULL;
 //	wxPGEditor_DatePickerCtrl = NULL;
 
+
 	// open at ~50% of screen size
 	int x,y,width,height;
 	::wxClientDisplayRect(&x,&y,&width,&height);
@@ -533,7 +534,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 #endif // NDEBUG
 
 	// load preferences (must be done very early)
-	bool layoutLoaded = userPreferences.load("");
+	userPreferences.load("");
 
 #ifdef SUPPORT_OCULUS
 	{
