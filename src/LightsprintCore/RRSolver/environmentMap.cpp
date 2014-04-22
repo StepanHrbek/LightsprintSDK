@@ -253,7 +253,7 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 					ray->rayDir = dir.normalized();
 					ray->rayLengthMin = 0;
 					ray->rayLengthMax = 10000; //!!! hard limit
-					ray->rayFlags = RRRay::FILL_TRIANGLE|RRRay::TEST_SINGLESIDED;
+					ray->rayFlags = RRRay::FILL_TRIANGLE;
 					ray->hitObject = multiObject;
 					if (ray->hitObject->getCollider()->intersect(ray))
 					{
