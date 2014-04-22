@@ -3,6 +3,8 @@
 // Copyright (c) 2000-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
+#define EMBREE
+
 #include <map>
 #include "RRCollisionHandler.h"
 #include "IntersectBspCompact.h"
@@ -12,9 +14,196 @@
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
 
+#ifdef EMBREE
+	#include "embree2/rtcore.h"
+	#include "embree2/rtcore_ray.h"
+	#pragma comment(lib,"embree.lib")
+#endif
+
+#ifdef _MSC_VER
+	#define THREAD_LOCAL __declspec(thread)
+#else
+	#define THREAD_LOCAL thread_local
+#endif
 
 namespace rr
 {
+
+#ifdef EMBREE
+
+////////////////////////////////////////////////////////////////////////////
+//
+// Embree
+
+static unsigned s_numEmbreeColliders = 0;
+static THREAD_LOCAL RRCollisionHandler* s_callisionHandler = NULL;
+
+class EmbreeCollider : public RRCollider
+{
+	const RRMesh* rrMesh;
+	RTCScene rtcScene;
+
+	template <class C, class D>
+	static void copyVec3(const C& src, D& dst)
+	{
+		dst[0] = src[0];
+		dst[1] = src[1];
+		dst[2] = src[2];
+	}
+
+	static void copyRrRayToRtc(const RRRay& rrRay, RTCRay& rtcRay)
+	{
+		copyVec3(rrRay.rayOrigin,rtcRay.org);
+		copyVec3(rrRay.rayDir,rtcRay.dir);
+		rtcRay.tnear = rrRay.rayLengthMin;
+		rtcRay.tfar = rrRay.rayLengthMax;
+		rtcRay.geomID = RTC_INVALID_GEOMETRY_ID;
+		rtcRay.primID = RTC_INVALID_GEOMETRY_ID;
+		rtcRay.instID = RTC_INVALID_GEOMETRY_ID;
+		rtcRay.mask = 0xffffffff;
+		rtcRay.time = 0;
+		s_callisionHandler = rrRay.collisionHandler;
+	}
+
+	static void copyRtcRayToRr(const RTCRay& rtcRay, RRRay& rrRay)
+	{
+		copyVec3(rtcRay.org,rrRay.rayOrigin);
+		copyVec3(rtcRay.dir,rrRay.rayDir);
+		rrRay.rayLengthMin = rtcRay.tnear;
+		rrRay.rayLengthMax = rtcRay.tfar;
+		rrRay.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D|RRRay::FILL_PLANE|RRRay::FILL_SIDE;//!!!
+		rrRay.collisionHandler = s_callisionHandler;
+	}
+
+	static void copyRtcHitToRr(const RTCRay& rtcRay, RRRay& rrRay)
+	{
+		if (rrRay.rayFlags&RRRay::FILL_DISTANCE)
+			rrRay.hitDistance = rtcRay.tfar;
+		if (rrRay.rayFlags&RRRay::FILL_TRIANGLE)
+			rrRay.hitTriangle = rtcRay.primID;
+		if (rrRay.rayFlags&RRRay::FILL_POINT2D)
+			rrRay.hitPoint2d = RRVec2(rtcRay.u,rtcRay.v);
+		if (rrRay.rayFlags&RRRay::FILL_POINT3D)
+			rrRay.hitPoint3d = rrRay.rayOrigin + rrRay.rayDir*rtcRay.tfar;
+		if (rrRay.rayFlags&RRRay::FILL_PLANE)
+		{
+			RRVec3 hitPoint3d = rrRay.rayOrigin + rrRay.rayDir*rtcRay.tfar;
+			RRVec3 n(-rtcRay.Ng[0],-rtcRay.Ng[1],-rtcRay.Ng[2]);
+			float siz = n.length();
+			rrRay.hitPlane[0] = n.x/siz;
+			rrRay.hitPlane[1] = n.y/siz;
+			rrRay.hitPlane[2] = n.z/siz;
+			rrRay.hitPlane[3] = -(hitPoint3d[0] * rrRay.hitPlane[0] + hitPoint3d[1] * rrRay.hitPlane[1] + hitPoint3d[2] * rrRay.hitPlane[2]);
+		}
+		if (rrRay.rayFlags&RRRay::FILL_SIDE)
+		{
+			RRVec3 n(-rtcRay.Ng[0],-rtcRay.Ng[1],-rtcRay.Ng[2]);
+			rrRay.hitFrontSide = rrRay.rayDir.dot(n.normalized())<0;
+		}
+	}
+	/*
+	static void copyRrHitToRtc(const RRRay& rrRay, RTCRay& rtcRay)
+	{
+		rtcRay.tfar = rrRay.hitDistance;
+		rtcRay.primID = rrRay.hitTriangle;
+		rtcRay.u = rrRay.hitPoint2d[0];
+		rtcRay.v = rrRay.hitPoint2d[1];
+		copyVec3(rrRay.hitPlane,rtcRay.Ng);
+	}*/
+
+	static void callback(void* userPtr, RTCRay& rtcRay)
+	{
+		if (s_callisionHandler)
+		{
+			RRRay rrRay;
+
+			// copy rtcRay to rrRay
+			copyRtcRayToRr(rtcRay,rrRay);
+			copyRtcHitToRr(rtcRay,rrRay);
+
+			// call rr callback
+			bool collides = s_callisionHandler->collides(&rrRay);
+
+			if (!collides)
+				rtcRay.geomID = RTC_INVALID_GEOMETRY_ID;
+		}
+	}
+
+public:
+
+	EmbreeCollider(const RRMesh* _mesh)
+	{
+		if (!s_numEmbreeColliders++)
+			rtcInit(NULL);
+
+		rrMesh = _mesh;
+		unsigned numTriangles = _mesh->getNumTriangles();
+		unsigned numVertices = _mesh->getNumVertices();
+		rtcScene = rtcNewScene(RTC_SCENE_DYNAMIC|RTC_SCENE_INCOHERENT,RTC_INTERSECT1);
+		unsigned geomId = rtcNewTriangleMesh(rtcScene,RTC_GEOMETRY_STATIC,numTriangles,numVertices);
+
+		// indices
+		{
+			//rtcSetBuffer(rtcScene,geomId,RTC_INDEX_BUFFER,rrMesh->triangle,0,sizeof(RRMesh::Triangle));
+			RRMesh::Triangle* buffer = (RRMesh::Triangle*)rtcMapBuffer(rtcScene,geomId,RTC_INDEX_BUFFER);
+			for (unsigned i=0;i<numTriangles;i++)
+				rrMesh->getTriangle(i,buffer[i]);
+			rtcUnmapBuffer(rtcScene,geomId,RTC_INDEX_BUFFER);
+		}
+		
+		// positions
+		{
+			//rtcSetBuffer(rtcScene,geomId,RTC_VERTEX_BUFFER,rrMesh->position,0,sizeof(RRMesh::Vertex));
+			RRVec3p* buffer = (RRVec3p*)rtcMapBuffer(rtcScene,geomId,RTC_VERTEX_BUFFER);
+			for (unsigned i=0;i<numVertices;i++)
+				rrMesh->getVertex(i,buffer[i]);
+			rtcUnmapBuffer(rtcScene,geomId,RTC_VERTEX_BUFFER);
+		}
+
+		rtcCommit(rtcScene);
+
+		rtcSetIntersectionFilterFunction(rtcScene,geomId,callback);
+	}
+
+	virtual bool intersect(RRRay* rrRay) const
+	{
+		if (rrRay->collisionHandler)
+			rrRay->collisionHandler->init(rrRay);
+		RTCRay rtcRay;
+		copyRrRayToRtc(*rrRay,rtcRay);
+		rtcIntersect(rtcScene,rtcRay);
+		bool result = rtcRay.primID!=RTC_INVALID_GEOMETRY_ID;
+		if (result)
+			copyRtcHitToRr(rtcRay,*rrRay);
+		if (rrRay->collisionHandler)
+			result = rrRay->collisionHandler->done();
+		return result;
+	};
+
+	virtual const RRMesh* getMesh() const
+	{
+		return rrMesh;
+	};
+
+	virtual IntersectTechnique getTechnique() const
+	{
+		return (IntersectTechnique)10;
+	}
+
+	virtual size_t getMemoryOccupied() const
+	{
+		return 10;
+	}
+
+	virtual ~EmbreeCollider()
+	{
+		if (!--s_numEmbreeColliders)
+			rtcExit();
+	};
+};
+
+#endif // EMBREE
+
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -84,6 +273,12 @@ RRCollider* defaultBuilder(const RRMesh* mesh, const class RRObjects* objects, R
 	if (!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
 	switch(intersectTechnique)
 	{
+		case RRCollider::IT_BVH:
+#ifdef EMBREE
+			return new EmbreeCollider(mesh);
+#else
+			return NULL;
+#endif
 		// needs explicit instantiation at the end of IntersectBspFast.cpp and IntersectBspCompact.cpp and bsp.cpp
 		case RRCollider::IT_BSP_COMPACT:
 			if (mesh->getNumTriangles()<=256)
@@ -158,6 +353,7 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 	if (s_builders.empty())
 	{
 		registerTechnique(IT_LINEAR,defaultBuilder);
+		registerTechnique(IT_BVH,defaultBuilder);
 		registerTechnique(IT_BSP_COMPACT,defaultBuilder);
 		registerTechnique(IT_BSP_FAST,defaultBuilder);
 		registerTechnique(IT_BSP_FASTER,defaultBuilder);

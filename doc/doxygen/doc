@@ -464,9 +464,9 @@ Material formats (1)
 
 \page main_credits Third party components
 
- Lightsprint integrated into game engine doesn't need any third party library.
+ Lightsprint integrated into game engine can work without any third party component.
 
- Lightsprint without game engine needs functions for file import/export and GUI,
+ Lightsprint without game engine needs functions for file import/export, GUI etc,
  this is why several free open source libraries with permissive licenses are used.
  You are free to download their sources and modify them, use them in commercial applications
  without need to open your source code etc.
@@ -476,6 +476,7 @@ Material formats (1)
  Libraries used by LightsprintCore (global illumination solvers):
  - \subpage tpl_boost
  - \subpage tpl_squish
+ - \subpage tpl_embree
 
  Used by LightsprintGL (optional OpenGL support):
  - \subpage tpl_boost
@@ -505,6 +506,12 @@ Material formats (1)
   - license: <a href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>
   - optional, used only by Lightspeed integration, we can remove it on request
   - version 1.10 used internally, it is not visible from outside (no headers or dll files)
+
+\page tpl_embree embree
+  - www: <a href="http://embree.github.io/">embree</a>
+  - license: <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>
+  - precompiled version from 2014-03-19 git master is a part of SDK
+  - used for ray-mesh intersections, we can replace it with our own collider if necessary
 
 \page tpl_glew GLEW
   - www: <a href="http://glew.sourceforge.net/">GLEW</a>

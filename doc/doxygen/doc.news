@@ -12,6 +12,8 @@ namespace rr
 
 NEWS
 
+- faster colliders
+  - new RRCollider::IT_BVH technique
 - improved panorama rendering
   - new mode: 180 degree dome rendering
   - panorama coverage modes: full, stretched, truncated bottom, truncated top

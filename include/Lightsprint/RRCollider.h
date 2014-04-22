@@ -152,6 +152,7 @@ namespace rr
 		enum IntersectTechnique
 		{
 			IT_LINEAR,          ///< Speed   1%, size    0. Fallback technique when better one fails.
+			IT_BVH,
 			IT_BSP_COMPACT,     ///< Speed 100%, size   ~5 bytes per triangle. For platforms with extremely limited memory.
 			IT_BSP_FAST,        ///< Speed 175%, size  ~31 bytes per triangle. For platforms with limited memory.
 			IT_BSP_FASTER,      ///< Speed 200%, size  ~60 bytes per triangle. For PC tools.
