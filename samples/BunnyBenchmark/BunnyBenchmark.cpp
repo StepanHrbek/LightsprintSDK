@@ -34,7 +34,6 @@ int main(int argc, char** argv)
 	if (licError)
 		RRReporter::report(ERRO,"%s\n",licError);
 
-
 	// load mesh from disk
 	PlyMesh plyMesh;
 	PlyMeshReader reader;
@@ -69,7 +68,11 @@ int main(int argc, char** argv)
 
 	// create collider
 	bool aborting = false;
-	const RRCollider* collider = RRCollider::create(rrMesh,NULL,RRCollider::IT_BSP_FASTEST,aborting);
+	const RRCollider* collider;
+	{
+		RRReportInterval report(INF1,"Build BVH...");
+		collider = RRCollider::create(rrMesh,NULL,RRCollider::IT_BVH,aborting);
+	}
 
 	// start watch
 	RRTime time;
