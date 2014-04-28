@@ -103,17 +103,10 @@ class EmbreeCollider : public RRCollider
 		}
 	}
 
-public:
-
-	EmbreeCollider(const RRMesh* _mesh)
+	static unsigned loadMesh(RTCScene rtcScene, const RRMesh* _mesh)
 	{
-		if (!s_numEmbreeColliders++)
-			rtcInit(NULL);
-
-		rrMesh = _mesh;
 		unsigned numTriangles = _mesh->getNumTriangles();
 		unsigned numVertices = _mesh->getNumVertices();
-		rtcScene = rtcNewScene(RTC_SCENE_DYNAMIC|RTC_SCENE_INCOHERENT,RTC_INTERSECT1);
 		unsigned geomId = rtcNewTriangleMesh(rtcScene,RTC_GEOMETRY_STATIC,numTriangles,numVertices);
 
 		// indices
@@ -121,7 +114,7 @@ public:
 			//rtcSetBuffer(rtcScene,geomId,RTC_INDEX_BUFFER,rrMesh->triangle,0,sizeof(RRMesh::Triangle));
 			RRMesh::Triangle* buffer = (RRMesh::Triangle*)rtcMapBuffer(rtcScene,geomId,RTC_INDEX_BUFFER);
 			for (unsigned i=0;i<numTriangles;i++)
-				rrMesh->getTriangle(i,buffer[i]);
+				_mesh->getTriangle(i,buffer[i]);
 			rtcUnmapBuffer(rtcScene,geomId,RTC_INDEX_BUFFER);
 		}
 		
@@ -130,13 +123,27 @@ public:
 			//rtcSetBuffer(rtcScene,geomId,RTC_VERTEX_BUFFER,rrMesh->position,0,sizeof(RRMesh::Vertex));
 			RRVec3p* buffer = (RRVec3p*)rtcMapBuffer(rtcScene,geomId,RTC_VERTEX_BUFFER);
 			for (unsigned i=0;i<numVertices;i++)
-				rrMesh->getVertex(i,buffer[i]);
+				_mesh->getVertex(i,buffer[i]);
 			rtcUnmapBuffer(rtcScene,geomId,RTC_VERTEX_BUFFER);
 		}
 
-		rtcCommit(rtcScene);
-
 		rtcSetIntersectionFilterFunction(rtcScene,geomId,callback);
+
+		return geomId;
+	}
+
+public:
+
+	EmbreeCollider(const RRMesh* _mesh)
+	{
+		if (!s_numEmbreeColliders++)
+			rtcInit(NULL);
+
+		rrMesh = _mesh;
+		rtcScene = rtcNewScene(RTC_SCENE_DYNAMIC|RTC_SCENE_INCOHERENT,RTC_INTERSECT1);
+
+		loadMesh(rtcScene,_mesh);
+		rtcCommit(rtcScene);
 	}
 
 	virtual bool intersect(RRRay* rrRay) const
