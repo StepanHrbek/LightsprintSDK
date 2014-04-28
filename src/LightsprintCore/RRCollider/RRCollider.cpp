@@ -20,12 +20,6 @@
 	#pragma comment(lib,"embree.lib")
 #endif
 
-#ifdef _MSC_VER
-	#define THREAD_LOCAL __declspec(thread)
-#else
-	#define THREAD_LOCAL thread_local
-#endif
-
 namespace rr
 {
 
@@ -36,12 +30,16 @@ namespace rr
 // Embree
 
 static unsigned s_numEmbreeColliders = 0;
-static THREAD_LOCAL RRCollisionHandler* s_callisionHandler = NULL;
 
 class EmbreeCollider : public RRCollider
 {
 	const RRMesh* rrMesh;
 	RTCScene rtcScene;
+
+	struct Ray : public RTCRay
+	{
+		RRRay* rrRay;
+	};
 
 	template <class C, class D>
 	static void copyVec3(const C& src, D& dst)
@@ -62,17 +60,6 @@ class EmbreeCollider : public RRCollider
 		rtcRay.instID = RTC_INVALID_GEOMETRY_ID;
 		rtcRay.mask = 0xffffffff;
 		rtcRay.time = 0;
-		s_callisionHandler = rrRay.collisionHandler;
-	}
-
-	static void copyRtcRayToRr(const RTCRay& rtcRay, RRRay& rrRay)
-	{
-		copyVec3(rtcRay.org,rrRay.rayOrigin);
-		copyVec3(rtcRay.dir,rrRay.rayDir);
-		rrRay.rayLengthMin = rtcRay.tnear;
-		rrRay.rayLengthMax = rtcRay.tfar;
-		rrRay.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D|RRRay::FILL_PLANE|RRRay::FILL_SIDE;//!!!
-		rrRay.collisionHandler = s_callisionHandler;
 	}
 
 	static void copyRtcHitToRr(const RTCRay& rtcRay, RRRay& rrRay)
@@ -101,30 +88,17 @@ class EmbreeCollider : public RRCollider
 			rrRay.hitFrontSide = rrRay.rayDir.dot(n.normalized())<0;
 		}
 	}
-	/*
-	static void copyRrHitToRtc(const RRRay& rrRay, RTCRay& rtcRay)
-	{
-		rtcRay.tfar = rrRay.hitDistance;
-		rtcRay.primID = rrRay.hitTriangle;
-		rtcRay.u = rrRay.hitPoint2d[0];
-		rtcRay.v = rrRay.hitPoint2d[1];
-		copyVec3(rrRay.hitPlane,rtcRay.Ng);
-	}*/
 
-	static void callback(void* userPtr, RTCRay& rtcRay)
+	static void callback(void* _userPtr, RTCRay& _rtcRay)
 	{
-		if (s_callisionHandler)
+		Ray& rtcRay = *(Ray*)&_rtcRay;
+
+		// copy rtcRay to rrRay
+		copyRtcHitToRr(rtcRay,*rtcRay.rrRay);
+
+		if (rtcRay.rrRay->collisionHandler)
 		{
-			RRRay rrRay;
-
-			// copy rtcRay to rrRay
-			copyRtcRayToRr(rtcRay,rrRay);
-			copyRtcHitToRr(rtcRay,rrRay);
-
-			// call rr callback
-			bool collides = s_callisionHandler->collides(&rrRay);
-
-			if (!collides)
+			if (!rtcRay.rrRay->collisionHandler->collides(rtcRay.rrRay))
 				rtcRay.geomID = RTC_INVALID_GEOMETRY_ID;
 		}
 	}
@@ -169,12 +143,11 @@ public:
 	{
 		if (rrRay->collisionHandler)
 			rrRay->collisionHandler->init(rrRay);
-		RTCRay rtcRay;
+		Ray rtcRay;
+		rtcRay.rrRay = rrRay;
 		copyRrRayToRtc(*rrRay,rtcRay);
 		rtcIntersect(rtcScene,rtcRay);
 		bool result = rtcRay.primID!=RTC_INVALID_GEOMETRY_ID;
-		if (result)
-			copyRtcHitToRr(rtcRay,*rrRay);
 		if (rrRay->collisionHandler)
 			result = rrRay->collisionHandler->done();
 		return result;
@@ -263,7 +236,7 @@ static std::map<unsigned,RRCollider::Builder*> s_builders;
 
 RRCollider* createMultiCollider(const RRObjects& objects, RRCollider::IntersectTechnique technique, bool& aborting);
 
-RRCollider* defaultBuilder(const RRMesh* mesh, const class RRObjects* objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
+RRCollider* defaultBuilder(const RRMesh* mesh, const RRObjects* objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
 {
 	if (!mesh)
 	{
