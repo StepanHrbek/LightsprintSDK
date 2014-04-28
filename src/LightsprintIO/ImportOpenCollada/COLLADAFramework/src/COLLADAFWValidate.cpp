@@ -103,6 +103,7 @@ namespace COLLADAFW
 			if ( animationCurve->getInterpolationTypes().getCount() != 0 ) {
 				if (verbose)
 					printf("ERROR: [%s] Found %d mixed interpolation types (expected only one type).\n",
+					animationCurve->getName().c_str(),
 					animationCurve->getInterpolationTypes().getCount());
 				failure_count +=1;
 			}
