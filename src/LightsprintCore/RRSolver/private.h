@@ -48,7 +48,7 @@ namespace rr
 		RRVec3     superColliderMin;
 		RRVec3     superColliderMax;
 		RRVec3     superColliderCenter;
-		const RRObject* superColliderPlane;
+		const RRObject* superColliderPlane; // RRCamera::setRangeDynamically() uses it for better near/far
 
 		// lights: inputs
 		RRLights   lights;
