@@ -156,7 +156,7 @@ namespace rr
 			IT_BSP_FASTER,      ///< Speed 200%, size  ~60 bytes per triangle. Slow build.
 			IT_BSP_FASTEST,     ///< Speed 230%, size ~200 bytes per triangle. Slow build.
 			IT_BVH_COMPACT,     ///< Speed 200%, size ~150 bytes per triangle. Fast build.
-			IT_BVH,             ///< Speed 230%, size ~162 bytes per triangle. Fast build. Usually the best choice.
+			IT_BVH_FAST,        ///< Speed 230%, size ~162 bytes per triangle. Fast build. Usually the best choice.
 			IT_VERIFICATION,    ///< Only for verification purposes, performs tests using all known techniques and compares results.
 		};
 

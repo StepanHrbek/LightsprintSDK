@@ -252,8 +252,8 @@ RRCollider* defaultBuilder(const RRMesh* mesh, const RRObjects* objects, RRColli
 	if (!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
 	switch(intersectTechnique)
 	{
-		case RRCollider::IT_BVH:
 		case RRCollider::IT_BVH_COMPACT:
+		case RRCollider::IT_BVH_FAST:
 #ifdef EMBREE
 			return new EmbreeCollider(intersectTechnique,mesh);
 #else
@@ -338,7 +338,7 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 		registerTechnique(IT_BSP_FASTER,defaultBuilder);
 		registerTechnique(IT_BSP_FASTEST,defaultBuilder);
 		registerTechnique(IT_BVH_COMPACT,defaultBuilder);
-		registerTechnique(IT_BVH,defaultBuilder);
+		registerTechnique(IT_BVH_FAST,defaultBuilder);
 		registerTechnique(IT_VERIFICATION,defaultBuilder);
 	}
 

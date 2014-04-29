@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 	const RRCollider* collider;
 	{
 		RRReportInterval report(INF1,"Build BVH...");
-		collider = RRCollider::create(rrMesh,NULL,RRCollider::IT_BVH,aborting);
+		collider = RRCollider::create(rrMesh,NULL,RRCollider::IT_BVH_FAST,aborting);
 	}
 
 	// start watch

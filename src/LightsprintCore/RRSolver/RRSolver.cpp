@@ -437,7 +437,7 @@ RRCollider* RRSolver::getCollider() const
 		priv->superColliderObjects.insert(priv->superColliderObjects.end(),priv->dynamicObjects.begin(),priv->dynamicObjects.end());
 		delete priv->superCollider;
 		bool aborting = false;
-		priv->superCollider = RRCollider::create(NULL,&priv->superColliderObjects,RRCollider::IT_BVH,aborting);
+		priv->superCollider = RRCollider::create(NULL,&priv->superColliderObjects,RRCollider::IT_BVH_FAST,aborting);
 		priv->superColliderDirty = false;
 		
 		// update superColliderMin/Max/Center

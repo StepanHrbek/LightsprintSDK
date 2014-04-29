@@ -270,7 +270,7 @@ void SVCanvas::createContextCore()
 		solver->setScaler(svs.initialInputSolver->getScaler());
 		solver->setEnvironment(svs.initialInputSolver->getEnvironment(0),svs.initialInputSolver->getEnvironment(1),svs.skyboxRotationRad,svs.skyboxRotationRad);
 		envToBeDeletedOnExit = false;
-		solver->setStaticObjects(svs.initialInputSolver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BVH,svs.initialInputSolver); // smoothing and multiobject are taken from _solver
+		solver->setStaticObjects(svs.initialInputSolver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BVH_FAST,svs.initialInputSolver); // smoothing and multiobject are taken from _solver
 		solver->setDynamicObjects(svs.initialInputSolver->getDynamicObjects());
 		solver->setLights(svs.initialInputSolver->getLights());
 		solver->setDirectIllumination(svs.initialInputSolver->getDirectIllumination());
