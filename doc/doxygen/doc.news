@@ -13,7 +13,8 @@ namespace rr
 NEWS
 
 - faster colliders
-  - new RRCollider::IT_BVH technique
+  - new RRCollider::IT_BVH technique, has slightly faster intersections, builds much faster than old ones. Used by default.
+  - new RRCollider::IT_BVH_COMPACT technique, more compact but slower than IT_BVH
 - improved panorama rendering
   - new mode: 180 degree dome rendering
   - panorama coverage modes: full, stretched, truncated bottom, truncated top

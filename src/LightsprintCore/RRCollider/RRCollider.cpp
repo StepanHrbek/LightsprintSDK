@@ -134,14 +134,13 @@ class EmbreeCollider : public RRCollider
 
 public:
 
-	EmbreeCollider(const RRMesh* _mesh)
+	EmbreeCollider(RRCollider::IntersectTechnique _technique, const RRMesh* _mesh)
 	{
 		if (!s_numEmbreeColliders++)
 			rtcInit(NULL);
 
 		rrMesh = _mesh;
-		rtcScene = rtcNewScene(RTC_SCENE_DYNAMIC|RTC_SCENE_INCOHERENT,RTC_INTERSECT1);
-
+		rtcScene = rtcNewScene( RTC_SCENE_DYNAMIC | ((_technique==IT_BVH_COMPACT) ? (RTC_SCENE_INCOHERENT|RTC_SCENE_COMPACT) : RTC_SCENE_INCOHERENT), RTC_INTERSECT1);
 		loadMesh(rtcScene,_mesh);
 		rtcCommit(rtcScene);
 	}
@@ -254,8 +253,9 @@ RRCollider* defaultBuilder(const RRMesh* mesh, const RRObjects* objects, RRColli
 	switch(intersectTechnique)
 	{
 		case RRCollider::IT_BVH:
+		case RRCollider::IT_BVH_COMPACT:
 #ifdef EMBREE
-			return new EmbreeCollider(mesh);
+			return new EmbreeCollider(intersectTechnique,mesh);
 #else
 			return NULL;
 #endif
@@ -333,11 +333,12 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 	if (s_builders.empty())
 	{
 		registerTechnique(IT_LINEAR,defaultBuilder);
-		registerTechnique(IT_BVH,defaultBuilder);
 		registerTechnique(IT_BSP_COMPACT,defaultBuilder);
 		registerTechnique(IT_BSP_FAST,defaultBuilder);
 		registerTechnique(IT_BSP_FASTER,defaultBuilder);
 		registerTechnique(IT_BSP_FASTEST,defaultBuilder);
+		registerTechnique(IT_BVH_COMPACT,defaultBuilder);
+		registerTechnique(IT_BVH,defaultBuilder);
 		registerTechnique(IT_VERIFICATION,defaultBuilder);
 	}
 

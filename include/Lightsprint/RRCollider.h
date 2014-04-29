@@ -151,11 +151,12 @@ namespace rr
 		enum IntersectTechnique
 		{
 			IT_LINEAR,          ///< Speed   1%, size    0. Fallback technique when better one fails.
-			IT_BVH,
-			IT_BSP_COMPACT,     ///< Speed 100%, size   ~5 bytes per triangle. For platforms with extremely limited memory.
-			IT_BSP_FAST,        ///< Speed 175%, size  ~31 bytes per triangle. For platforms with limited memory.
-			IT_BSP_FASTER,      ///< Speed 200%, size  ~60 bytes per triangle. For PC tools.
-			IT_BSP_FASTEST,     ///< Speed 230%, size ~200 bytes per triangle. For speed benchmarks.
+			IT_BSP_COMPACT,     ///< Speed 100%, size   ~5 bytes per triangle. Slow build. For platforms with extremely limited memory.
+			IT_BSP_FAST,        ///< Speed 175%, size  ~31 bytes per triangle. Slow build. For platforms with limited memory.
+			IT_BSP_FASTER,      ///< Speed 200%, size  ~60 bytes per triangle. Slow build.
+			IT_BSP_FASTEST,     ///< Speed 230%, size ~200 bytes per triangle. Slow build.
+			IT_BVH_COMPACT,     ///< Speed 200%, size ~150 bytes per triangle. Fast build.
+			IT_BVH,             ///< Speed 230%, size ~162 bytes per triangle. Fast build. Usually the best choice.
 			IT_VERIFICATION,    ///< Only for verification purposes, performs tests using all known techniques and compares results.
 		};
 
