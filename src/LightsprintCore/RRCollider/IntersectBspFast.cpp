@@ -230,11 +230,10 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	#undef CASE
 
 #ifdef FILL_HITSIDE
-	if (ray->rayFlags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
+	if (ray->rayFlags&RRRay::FILL_SIDE)
 	{
 		//bool hitFrontSide=size2(ray->rayDir-t->n3)>2;
 		bool hitFrontSide=dot(ray->rayDir,RRVec3(t->n4))<0;
-		if (!hitFrontSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 		ray->hitFrontSide=hitFrontSide;
 	}
 #endif
@@ -279,11 +278,10 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMesh::
 	if (u<0 || u+v>1) return false;
 
 #ifdef FILL_HITSIDE
-	if (ray->rayFlags&(RRRay::FILL_SIDE|RRRay::TEST_SINGLESIDED))
+	if (ray->rayFlags&RRRay::FILL_SIDE)
 	{
 		//bool hitFrontSide=size2(ray->rayDir-t->n3)>2;
 		bool hitFrontSide=dot(ray->rayDir,RRVec3(t->n4))<0;
-		if (!hitFrontSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 		ray->hitFrontSide=hitFrontSide;
 	}
 #endif

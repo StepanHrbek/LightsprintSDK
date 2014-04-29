@@ -36,7 +36,6 @@ static bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t, RRReal
 
 	// cull test
 	bool hitFrontSide = det>0;
-	if (!hitFrontSide && (ray->rayFlags&RRRay::TEST_SINGLESIDED)) return false;
 
 	// if determinant is near zero, ray lies in plane of triangle
 	if (det==0) return false;

@@ -98,7 +98,6 @@ namespace rr
 			FILL_PLANE      =(1<<3), ///< Fill hitPlane.
 			FILL_TRIANGLE   =(1<<4), ///< Fill hitTriangle.
 			FILL_SIDE       =(1<<5), ///< Fill hitFrontSide.
-			TEST_SINGLESIDED=(1<<6), ///< Detect collision only against front side. Default is to test both sides.
 		};
 
 		// inputs
