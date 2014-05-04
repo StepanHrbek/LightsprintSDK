@@ -8,16 +8,16 @@ namespace rr
 
 \page main_news What's new
 
-\section news143 ------------------------------------ 2014.02.xx -------------------------------------
+\section news143 ------------------------------------ 2014.05.04 -------------------------------------
 
 NEWS
 
 - faster colliders
   - new RRCollider::IT_BVH_FAST technique, has slightly faster intersections and builds much faster than old techniques. Used by default.
-  - new RRCollider::IT_BVH_COMPACT technique, more compact but slower than IT_BVH_FAST
+  - new RRCollider::IT_BVH_COMPACT technique, more compact but bit slower than IT_BVH_FAST
 - improved panorama rendering
-  - new mode: 180 degree dome rendering
-  - panorama coverage modes: full, stretched, truncated bottom, truncated top
+  - new panorama mode: rr_gl::PM_FISHEYE with configurable field of view
+  - panorama coverage modes: full, stretched, truncated bottom, truncated top (rr_gl::PanoramaCoverage)
   - all panorama modes respond to camera rotation
 - improved DOF
   - fast DOF is faster
@@ -38,13 +38,13 @@ CHANGES
 - tonemapping
   - old rr_gl::PluginParamsTonemapping renamed to rr_gl::PluginParamsTonemappingAdjustment, because it only adjusts parameters
   - following functions/structures have two old parameters (brightness and gamma) replaced with one (rr_gl::ToneParameters):
-    - rr_gl::TextureRenderer::render2d()
+    - rr_gl::TextureRenderer::render2D()
     - rr_gl::TextureRenderer::render2dBegin()
     - rr_ed::SceneViewerState
   - BREAKING CHANGE: find all places where you call render2D() or render2DBegin() and replace two parameters with one. old code might compile even if not fixed, but it would be wrong
 - PluginParamsScene::updateLayers split into PluginParamsScene::updateLayerLightmap, PluginParamsScene::updateLayerEnvironment (for more fine grained control)
 - RRObjects::buildUnwrap() has additional parameter that controls quality
-- removed RRCollider::TEST_SINGLESIDED (it can emulated with collision handler)
+- removed RRCollider::TEST_SINGLESIDED (it can be emulated with simple collision handler)
 
 \section news142 ------------------------------------ 2014.02.05 -------------------------------------
 
