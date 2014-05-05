@@ -328,6 +328,22 @@ void RRCollider::setTechnique(IntersectTechnique technique, bool& aborting)
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"setTechnique() ignored, collider was not created with IT_LINEAR.\n"));
 }
 
+RRCollider* tryBuilder(RRCollider::Builder* builder, const RRMesh* mesh, const RRObjects* objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
+{
+#ifdef _MSC_VER
+	__try
+	{
+#endif
+		return builder(mesh,objects,intersectTechnique,aborting,cacheLocation,buildParams);
+#ifdef _MSC_VER
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		return (RRCollider*)1;
+	}
+#endif
+}
+
 RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
 {
 	if (s_builders.empty())
@@ -350,18 +366,31 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 		return NULL;
 	}
 
+	RRCollider* result = (RRCollider*)1;
 	try
 	{
-		RRCollider* result = builder(mesh,objects,intersectTechnique,aborting,cacheLocation,buildParams);
-		if (!result)
-			RRReporter::report(ERRO,"Builder for IntersectTechnique %d failed.\n",(int)intersectTechnique);
-		return result;
+		result = tryBuilder(builder,mesh,objects,intersectTechnique,aborting,cacheLocation,buildParams);
 	}
 	catch(std::bad_alloc e)
 	{
 		RRReporter::report(ERRO,"Not enough memory, collider not created.\n");
-		return NULL;
+		result = NULL;
 	}
+	catch(...)
+	{
+		RRReporter::report(ERRO,"Builder for IntersectTechnique %d failed.\n",(int)intersectTechnique);
+		result = NULL;
+	}
+	if (result==(RRCollider*)1)
+	{
+		RRReporter::report(ERRO,"Builder for IntersectTechnique %d crashed.\n",(int)intersectTechnique);
+		result = NULL;
+	}
+	if (!result && intersectTechnique!=IT_LINEAR)
+	{
+		return create(mesh,objects,IT_LINEAR,aborting,cacheLocation,buildParams);
+	}
+	return result;
 }
 
 void RRCollider::intersectBatch(RRRay* ray, unsigned numRays) const
