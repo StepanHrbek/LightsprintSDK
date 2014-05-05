@@ -238,6 +238,7 @@ protected:
 // RRCollider
 
 
+
 static std::map<unsigned,RRCollider::Builder*> s_builders;
 
 RRCollider* createMultiCollider(const RRObjects& objects, RRCollider::IntersectTechnique technique, bool& aborting);

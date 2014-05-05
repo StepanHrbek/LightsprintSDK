@@ -21,11 +21,9 @@
 
 #include "bsp.h"
 #include "IntersectLinear.h"
-#include "../LicGen.h"
 
 namespace rr
 {
-
 
 	// single-level bps
 	template <class Ofs, class TriInfo, class Lo>
