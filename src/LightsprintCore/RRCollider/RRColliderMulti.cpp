@@ -50,7 +50,9 @@ public:
 		bool b1,b3;
 		unsigned b2;
 
-#pragma omp parallel for schedule(dynamic)
+// embree must not be called in parallel, it would crash in glut based samples with probability=0.15 (surprisingly i did not see it crash in sceneviewer)
+// (embree is parallelized internally, #pragma would speed up only IT_BSP_ colliders but no one uses them, right?)
+//#pragma omp parallel for schedule(dynamic)
 		for (int i=0;i<(int)objects.size();i++)
 		{
 			if (objects[i]->getCollider()->getTechnique()==RRCollider::IT_LINEAR)
