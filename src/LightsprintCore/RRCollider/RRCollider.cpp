@@ -13,7 +13,9 @@
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
-
+#ifdef _MSC_VER
+	#include <excpt.h> // EXCEPTION_EXECUTE_HANDLER
+#endif
 #ifdef EMBREE
 	#include "embree2/rtcore.h"
 	#include "embree2/rtcore_ray.h"
