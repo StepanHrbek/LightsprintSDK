@@ -8,13 +8,14 @@ namespace rr
 
 \page main_news What's new
 
-\section news143 ------------------------------------ 2014.05.04 -------------------------------------
+\section news143 ------------------------------------ 2014.05.06 -------------------------------------
 
 NEWS
 
 - faster colliders
-  - new RRCollider::IT_BVH_FAST technique, has slightly faster intersections and builds much faster than old techniques. Used by default.
-  - new RRCollider::IT_BVH_COMPACT technique, more compact but bit slower than IT_BVH_FAST
+  - new RRCollider::IT_BVH_FAST technique, builds 100-1000x faster than old techniques. Used by default.
+  - new RRCollider::IT_BVH_COMPACT technique, more compact than IT_BVH_FAST
+  - if you explicitly specified one of IT_BSP_ colliders in your code, make sure to switch to IT_BVH_, otherwise you won't see any speedup
 - improved panorama rendering
   - new panorama mode: rr_gl::PM_FISHEYE with configurable field of view
   - panorama coverage modes: full, stretched, truncated bottom, truncated top (rr_gl::PanoramaCoverage)
