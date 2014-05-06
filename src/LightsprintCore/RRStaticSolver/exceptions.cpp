@@ -425,7 +425,7 @@ unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRStr
 			; // don't report saving empty layer
 		else
 		if (numSaved)
-			RRReporter::report(INF2,"Saved %d/%d buffers into %ls<object name>%ls from layer %d.\n",numSaved,numBuffers,path.w_str(),ext.w_str(),layerNumber);
+			RRReporter::report(INF2,"Saved %d/%d buffers into %ls<object name>.%ls from layer %d.\n",numSaved,numBuffers,path.w_str(),ext.w_str(),layerNumber);
 		else
 			RRReporter::report(WARN,"Failed to save layer %d (%d buffers) into %ls.\n",layerNumber,numBuffers,path.w_str());
 	}
