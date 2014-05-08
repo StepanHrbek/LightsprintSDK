@@ -90,6 +90,11 @@ RRHash RRObject::getHash() const
 		sha1.Update((const unsigned char*)&v, sizeof(v));
 	}
 	unsigned numTriangles = mesh->getNumTriangles();
+
+	// optimization: avoid slow getTriangleMaterial()
+	unsigned fg = UINT_MAX; // facegroup index
+	unsigned numTrisToProcessBeforeIncrementingFg = 0;
+
 	for (unsigned i=0;i<numTriangles;i++)
 	{
 		struct TriangleData
@@ -101,7 +106,7 @@ RRHash RRObject::getHash() const
 			RRVec3 materialData[4];
 			RRReal refractionIndex;
 
-			TriangleData(const RRObject* object, const RRMesh* mesh, unsigned t)
+			TriangleData(const RRObject* object, const RRMesh* mesh, unsigned t, const RRMaterial* material)
 			{
 				// without this, triangle mappings that don't exist would be uninitialized
 				memset(this,0,sizeof(*this));
@@ -111,8 +116,10 @@ RRHash RRObject::getHash() const
 				for (unsigned j=0;j<3;j++)
 					((unsigned long*)&triangle)[j] = SWAP_32(((unsigned long*)&triangle)[j]);
 #endif
+				// optimization: avoid slow getTriangleMaterial()
+				//const RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
+				//RR_ASSERT(material==_material);
 
-				const RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
 				if (material)
 				{
 					// sideBits is bitfield, it contains at least one unused uninitialized bit
@@ -145,7 +152,21 @@ RRHash RRObject::getHash() const
 				mesh->getTriangleMapping(t,triangleMapping[3],material->specularTransmittance.texcoord);
 			}
 		};
-		TriangleData td(this,mesh,i);
+
+		// optimization: avoid slow getTriangleMaterial()
+		if (!numTrisToProcessBeforeIncrementingFg)
+		{
+			fg++;
+			if (fg>=faceGroups.size())
+			{
+				RR_ASSERT(0); // broken faceGroups
+				break;
+			}
+			numTrisToProcessBeforeIncrementingFg = faceGroups[fg].numTriangles;
+		}
+		numTrisToProcessBeforeIncrementingFg--;
+
+		TriangleData td(this,mesh,i,faceGroups[fg].material);
 		sha1.Update((const unsigned char*)&td, sizeof(td));
 	}
 	RRHash hash;
