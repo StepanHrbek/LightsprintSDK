@@ -20,7 +20,7 @@ namespace rr
 	//! Interface for non-trivial handling of collisions in collision test.
 	//
 	//! You can use it to
-	//! - intersect mesh that contains both singlesided and twosided faces
+	//! - intersect mesh that contains singlesided faces
 	//! - intersect mesh with layers that can be independently turned on/off
 	//! - gather all intersections with one mesh
 	//!
@@ -46,11 +46,13 @@ namespace rr
 
 		//! Handles each collision detected by single intersection test.
 		//
-		//! Is called at each triangle hit inside RRCollider::intersect().
-		//! Positive result stops further searching, negative makes it continue.
-		//! \n For IT_BSP techniques, intersections are reported in order from the nearest one.
-		//! For IT_LINEAR technique, intersections go unsorted.
-		//! \return Return false if you want ray to continue penetrating mesh in the same direction and search for further intersections.
+		//! It is called at each triangle hit inside RRCollider::intersect().
+		//! When its result is false, collision is rejected and testing continues.
+		//! When its result is true, collision is accepted, but it does not necessarily end testing,
+		//! as collider can find closer itersection after testing more distant one first.
+		//! In general case, intersections are reported unordered.
+		//! Intersections are reported in order from the nearest one (and first positive result ends testing) only for IT_BSP techniques.
+		//! \return Return false if you want to discard intersection and continue testing.
 		virtual bool collides(const class RRRay* ray) = 0;
 
 		//! Cleans up after single intersection test.
