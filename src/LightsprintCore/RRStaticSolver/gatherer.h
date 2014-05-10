@@ -11,6 +11,10 @@
 #include "Lightsprint/RRIllumination.h" // toto je jedine misto kde kod z RRStaticSolver zavisi na RRIllumination
 #include "../RRStaticSolver/rrcore.h" // optional direct access to materials in rrcore
 
+//#define COLLISION_LOG(x) x
+#define COLLISION_LOG(x)
+COLLISION_LOG(#include <sstream>)
+
 namespace rr
 {
 
@@ -28,6 +32,7 @@ namespace rr
 class RRCollisionHandlerFinalGathering : public RRCollisionHandler
 {
 public:
+	COLLISION_LOG(std::stringstream log);
 	RRCollisionHandlerFinalGathering(const RRObject* _multiObject, unsigned _quality, bool _staticSceneContainsLods)
 	{
 		multiObject = _multiObject; // Physical
@@ -46,6 +51,7 @@ public:
 
 	void setShooterTriangle(unsigned t)
 	{
+		COLLISION_LOG(log<<"setShooterTriangle("<<t<<")\n");
 		if (shooterTriangleIndex!=t)
 		{
 			shooterTriangleIndex = t;
@@ -63,6 +69,7 @@ public:
 	//! Finds closest surface with RRMaterial::sideBits::catchFrom && triangleIndex!=emitorTriangleIndex.
 	void setHemisphere(const RRStaticSolver* _staticSolver)
 	{
+		COLLISION_LOG(log<<"setHemisphere()\n");
 		triangle = _staticSolver ? _staticSolver->scene->object->triangle : NULL;
 	}
 
@@ -75,12 +82,14 @@ public:
 	//! It is used to test direct visibility from light to receiver, with ray shot from receiver to light (for higher precision).
 	void setLight(const RRLight* _light, const RRObject* _singleObjectReceiver)
 	{
+		COLLISION_LOG(log<<"setLight()\n");
 		light = _light;
 		singleObjectReceiver = _singleObjectReceiver;
 	}
 
 	virtual void init(RRRay* ray)
 	{
+		COLLISION_LOG(log<<"init()\n");
 		ray->rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
 
 		// gathering hemisphere
@@ -92,14 +101,17 @@ public:
 
 	virtual bool collides(const RRRay* ray)
 	{
+		COLLISION_LOG(log<<"origin="<<ray->rayOrigin.x<<" "<<ray->rayOrigin.y<<" "<<ray->rayOrigin.z<<" dir="<<ray->rayDir.x<<" "<<ray->rayDir.y<<" "<<ray->rayDir.z<<" hitDistance="<<ray->hitDistance<<" hitTriangle="<<ray->hitTriangle<<"  ");
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_POINT2D);
 
 		// don't collide with shooter
 		if (ray->hitTriangle==shooterTriangleIndex)
+		{
+			COLLISION_LOG(log<<"collides()=false1\n");
 			return false;
-
+		}
 		// don't collide with other triangles at the same location
 		if (shooterTriangleIndex!=UINT_MAX
 			//&& triangle[shooterTriangleIndex].area==triangle[ray->hitTriangle].area // optimization, but too dangerous, areas of identical triangles might differ because of different vertex order
@@ -123,6 +135,7 @@ public:
 				if (hitVertex!=shooterVertex[0] && hitVertex!=shooterVertex[1] && hitVertex!=shooterVertex[2])
 					goto not_identical;
 			}
+			COLLISION_LOG(log<<"collides()=false2\n");
 			return false;
 			not_identical:;
 		}
@@ -134,7 +147,10 @@ public:
 			multiObject->getTriangleLod(ray->hitTriangle,shadowCasterLod);
 			if ((shadowCasterLod.base==shooterLod.base && shadowCasterLod.level!=shooterLod.level) // non-shooting LOD of shooter
 				|| (shadowCasterLod.base!=shooterLod.base && shadowCasterLod.level)) // non-base LOD of non-shooter
+			{
+				COLLISION_LOG(log<<"collides()=false3\n");
 				return false;
+			}
 		}
 
 		const RRMaterial* triangleMaterial = triangle
@@ -143,7 +159,10 @@ public:
 			// gathering light: don't collide when object has shadow casting disabled
 			: multiObject->getTriangleMaterial(ray->hitTriangle,light,singleObjectReceiver);
 		if (!triangleMaterial)
+		{
+			COLLISION_LOG(log<<"collides()=false4\n");
 			return false;
+		}
 		if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
 		{
 			// per-pixel materials
@@ -156,6 +175,7 @@ public:
 					// gathering hemisphere
 					if (triangle)
 					{
+						COLLISION_LOG(log<<"collides()=true1\n");
 						firstContactMaterial = &pointMaterial[pmi];
 						return true;
 					}
@@ -164,6 +184,7 @@ public:
 					visibility *= pointMaterial[pmi].specularTransmittance.color * RRReal( pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
 					RR_ASSERT(IS_VEC3(pointMaterial[pmi].specularTransmittance.color));
 					RR_ASSERT(IS_VEC3(visibility));
+					COLLISION_LOG(log<<"collides()=?1\n");
 					return visibility==RRVec3(0);
 				}
 			}
@@ -173,6 +194,7 @@ public:
 				// gathering hemisphere
 				if (triangle)
 				{
+					COLLISION_LOG(log<<"collides()=true2\n");
 					firstContactMaterial = triangleMaterial;
 					return true;
 				}
@@ -181,14 +203,17 @@ public:
 				visibility *= triangleMaterial->specularTransmittance.color * RRReal( triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
 				RR_ASSERT(IS_VEC3(triangleMaterial->specularTransmittance.color));
 				RR_ASSERT(IS_VEC3(visibility));
+				COLLISION_LOG(log<<"collides()=?2\n");
 				return visibility==RRVec3(0);
 			}
 		}
+		COLLISION_LOG(log<<"collides()=false\n");
 		return false;
 	}
 
 	virtual bool done()
 	{
+		COLLISION_LOG(log<<"done()="<<(triangle?firstContactMaterial!=NULL:visibility==RRVec3(0))<<"\n\n");
 		return triangle
 			// gathering hemisphere
 			? firstContactMaterial!=NULL
