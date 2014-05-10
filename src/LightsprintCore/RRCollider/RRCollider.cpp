@@ -154,10 +154,35 @@ public:
 		Ray rtcRay;
 		rtcRay.rrRay = rrRay;
 		copyRrRayToRtc(*rrRay,rtcRay);
+		
+		// backup rrRay.hitXxx (callback overwrites it, but all intersections can be rejected)
+		RRReal          hitDistance  = rrRay->hitDistance;
+		unsigned        hitTriangle  = rrRay->hitTriangle;
+		RRVec2          hitPoint2d   = rrRay->hitPoint2d;
+		RRVec4          hitPlane     = rrRay->hitPlane;
+		RRVec3          hitPoint3d   = rrRay->hitPoint3d;
+		bool            hitFrontSide = rrRay->hitFrontSide;
+
 		rtcIntersect(rtcScene,rtcRay);
 		bool result = rtcRay.primID!=RTC_INVALID_GEOMETRY_ID;
 		if (rrRay->collisionHandler)
+		{
+			// rrRay->hitXxx is overwritten, here we fix it
+			// (when custom handler rejects collisions, wrong data are left in rrRay->hitXxx)
+			if (result)
+				copyRtcHitToRr(rtcRay,*rtcRay.rrRay);
+			else
+			{
+				// restore rrRay.hitXxx (callback overwrites it, but all intersections can be rejected)
+				rrRay->hitDistance = hitDistance;
+				rrRay->hitTriangle = hitTriangle;
+				rrRay->hitPoint2d = hitPoint2d;
+				rrRay->hitPlane = hitPlane;
+				rrRay->hitPoint3d = hitPoint3d;
+				rrRay->hitFrontSide = hitFrontSide;
+			}
 			result = rrRay->collisionHandler->done();
+		}
 		return result;
 	};
 
