@@ -224,6 +224,7 @@ public:
 			// single irradiance is computed
 			// no need to compute dot(dir,normal), it is already compensated by picking dirs close to normal more often
 			irradiancePhysicalHemisphere[LS_LIGHTMAP] += irrad;
+			RR_ASSERT(IS_VEC3(irradiancePhysicalHemisphere[LS_LIGHTMAP]));
 		}
 		else
 		{
@@ -239,7 +240,10 @@ public:
 					RRVec3 lightmapDirection = _basisSkewedNormalized.tangent*g_lightmapDirections[i][0] + _basisSkewedNormalized.bitangent*g_lightmapDirections[i][1] + _basisSkewedNormalized.normal*g_lightmapDirections[i][2];
 					float normalIncidence2 = dot(dir,lightmapDirection.normalized());
 					if (normalIncidence2>0)
+					{
 						irradiancePhysicalHemisphere[i] += irrad * (normalIncidence2*normalIncidence1Inv);
+						RR_ASSERT(IS_VEC3(irradiancePhysicalHemisphere[i]));
+					}
 				}
 			}
 		}
@@ -280,7 +284,10 @@ public:
 			if (pti.context.params->aoIntensity>0 && pti.context.params->aoSize>0)
 				factor *= pow(hitsDistant/(float)hitsReliable,pti.context.params->aoIntensity);
 			for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
+			{
 				irradiancePhysicalHemisphere[i] *= factor;
+				RR_ASSERT(IS_VEC3(irradiancePhysicalHemisphere[i]));
+			}
 			// compute reliability
 			reliabilityHemisphere = hitsReliable/(RRReal)rays;
 		}
@@ -734,8 +741,12 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 	{
 		result.irradiancePhysical[i] = gilights.irradiancePhysicalLights[i] + hemisphere.irradiancePhysicalHemisphere[i]; // [3] = 0
+		RR_ASSERT(IS_VEC4(result.irradiancePhysical[i]));
 		if (gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
+		{
 			result.irradiancePhysical[i][3] = TEXELFLAGS_TO_FLOAT(pti.subTexels->texelFlags); // only completely unreliable results stay at 0, others get 1 here
+			RR_ASSERT(IS_VEC4(result.irradiancePhysical[i]));
+		}
 		// store irradiance (no scaling yet)
 		if (pti.context.pixelBuffers[i])
 			pti.context.pixelBuffers[i]->setElement(pti.uv[0]+pti.uv[1]*pti.context.pixelBuffers[i]->getWidth(),result.irradiancePhysical[i]);
@@ -745,10 +756,14 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	// sum bent normals
 	result.bentNormal = gilights.bentNormalLights + hemisphere.bentNormalHemisphere; // [3] = 0
 	if (gilights.reliabilityLights || hemisphere.reliabilityHemisphere)
+	{
 		result.bentNormal[3] = TEXELFLAGS_TO_FLOAT(pti.subTexels->texelFlags); // only completely unreliable results stay at 0, others get 1 here
+		RR_ASSERT(IS_VEC4(result.bentNormal));
+	}
 	if (result.bentNormal[0] || result.bentNormal[1] || result.bentNormal[2]) // avoid NaN
 	{
 		result.bentNormal.RRVec3::normalize();
+		RR_ASSERT(IS_VEC4(result.bentNormal));
 	}
 	// store bent normal (no scaling now or later)
 	if (pti.context.pixelBuffers[LS_BENT_NORMALS])

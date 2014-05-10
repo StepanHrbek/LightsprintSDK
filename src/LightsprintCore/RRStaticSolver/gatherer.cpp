@@ -79,6 +79,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
 	RR_ASSERT(IS_NUMBER(ray.hitDistance));
 	Triangle* hitTriangle = &triangle[ray.hitTriangle];
+	RR_ASSERT(hitTriangle->surface && hitTriangle->area); // triangles rejected by setGeometry() have surface=area=0, collisionHandler should reject them too
 	const RRMaterial* material = collisionHandlerGatherHemisphere.getContactMaterial(); // could be point detail, unlike hitTriangle->surface 
 	RRSideBits side=material->sideBits[ray.hitFrontSide?0:1];
 	Channels exitance = Channels(0);
@@ -140,12 +141,17 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				// used in GI final gather
 				{
 					// point detail version
+					// zero area would create #INF in getTotalIrradiance() 
+					// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
+					RR_ASSERT(hitTriangle->area);
 					exitance += visibility * hitTriangle->getTotalIrradiance() * material->diffuseReflectance.color * gatherIndirectLightMultiplier;// * splitToTwoSides;
+					RR_ASSERT(IS_VEC3(exitance));
 					// per triangle version (ignores point detail even if it's already available)
 					//exitance += visibility * hitTriangle->totalExitingFlux / hitTriangle->area;
 				}
 			}
 			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+			RR_ASSERT(IS_VEC3(exitance));
 		}
 
 		if (numBounces>0)
@@ -155,6 +161,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				// recursively call this function
 				exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,rayHitTriangle,specularReflectPower/specularReflectMax,numBounces-1);
 				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+				RR_ASSERT(IS_VEC3(exitance));
 			}
 
 			if (specularTransmit)
@@ -162,6 +169,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				// recursively call this function
 				exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,rayHitTriangle,specularTransmitPower/specularTransmitMax,numBounces-1);
 				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+				RR_ASSERT(IS_VEC3(exitance));
 			}
 		}
 	}
@@ -170,6 +178,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 	ray.hitDistance = hitDistanceBackup;
 
 	//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+	RR_ASSERT(IS_VEC3(exitance));
 	return exitance;
 }
 

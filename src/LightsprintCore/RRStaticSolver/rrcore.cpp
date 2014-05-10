@@ -139,6 +139,7 @@ S8 Triangle::setGeometry(const RRMesh::TriangleBody& body,float ignoreSmallerAng
 	area = calculateArea(body);
 	if (!IS_NUMBER(area)) return -11;
 	if (area<=ignoreSmallerArea) return -12;
+	RR_ASSERT(area); // zero area would creates #INF in getTotalIrradiance()
 
 	return 0;
 }
