@@ -84,7 +84,7 @@ public:
 		ray->rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
 
 		// gathering hemisphere
-		result = pointMaterialValid = false;
+		firstContactMaterial = NULL;
 
 		// gathering light
 		visibility = RRVec3(1);
@@ -137,31 +137,32 @@ public:
 				return false;
 		}
 
-		triangleMaterial = triangle
-			// gathering hemisphere: don't collide when object has NULL material (illegal)
+		const RRMaterial* triangleMaterial = triangle
+			// gathering hemisphere: don't collide when triangle has surface=NULL (triangle was rejected by setGeometry, everything should work as if it does not exist)
 			? triangle[ray->hitTriangle].surface // read from rrcore, faster than multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL)
 			// gathering light: don't collide when object has shadow casting disabled
 			: multiObject->getTriangleMaterial(ray->hitTriangle,light,singleObjectReceiver);
 		if (!triangleMaterial)
 			return false;
-
 		if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
 		{
 			// per-pixel materials
 			if (quality>=triangleMaterial->minimalQualityForPointMaterials)
 			{
-
-				multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-				if (pointMaterial.sideBits[ray->hitFrontSide?0:1].catchFrom)
+				unsigned pmi = (firstContactMaterial==pointMaterial)?1:0; // index into pointMaterial[], one that is not occupied by firstContactMaterial
+				multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial[pmi]);
+				if (pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].catchFrom)
 				{
 					// gathering hemisphere
 					if (triangle)
-						return result = pointMaterialValid = true;
-
+					{
+						firstContactMaterial = &pointMaterial[pmi];
+						return true;
+					}
 					// gathering light
-					legal = pointMaterial.sideBits[ray->hitFrontSide?0:1].legal;
-					visibility *= pointMaterial.specularTransmittance.color * RRReal( pointMaterial.sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
-					RR_ASSERT(IS_VEC3(pointMaterial.specularTransmittance.color));
+					legal = pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].legal;
+					visibility *= pointMaterial[pmi].specularTransmittance.color * RRReal( pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
+					RR_ASSERT(IS_VEC3(pointMaterial[pmi].specularTransmittance.color));
 					RR_ASSERT(IS_VEC3(visibility));
 					return visibility==RRVec3(0);
 				}
@@ -171,8 +172,10 @@ public:
 			{
 				// gathering hemisphere
 				if (triangle)
-					return result = true;
-
+				{
+					firstContactMaterial = triangleMaterial;
+					return true;
+				}
 				// gathering light
 				legal = triangleMaterial->sideBits[ray->hitFrontSide?0:1].legal;
 				visibility *= triangleMaterial->specularTransmittance.color * RRReal( triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
@@ -188,7 +191,7 @@ public:
 	{
 		return triangle
 			// gathering hemisphere
-			? result
+			? firstContactMaterial!=NULL
 			// gathering light
 			: visibility==RRVec3(0);
 	}
@@ -196,9 +199,7 @@ public:
 	// gathering hemisphere: returns contact material from previous collision
 	const RRMaterial* getContactMaterial()
 	{
-		if (!result) return NULL;
-		if (pointMaterialValid) return &pointMaterial;
-		return triangleMaterial;
+		return firstContactMaterial;
 	}
 
 	// gathering light: returns visibility between ends of last ray
@@ -227,11 +228,8 @@ private:
 
 	// gathering hemisphere
 	Triangle* triangle; // shortcut, direct access to materials in rrcore
-	bool result;
-	// when collision is found, contact material is stored here:
-	const RRMaterial* triangleMaterial;
-	RRPointMaterial pointMaterial;
-	bool pointMaterialValid;
+	const RRMaterial* firstContactMaterial; // when collision is found, contact material is stored here:
+	RRPointMaterial pointMaterial[2]; // helper for storing contact material. one slot for old accepted contact, one slot for new not-yet-accepted contact
 
 	// gathering light
 	const RRObject* singleObjectReceiver;
