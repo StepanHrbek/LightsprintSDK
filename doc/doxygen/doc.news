@@ -16,6 +16,8 @@ NEWS
   - new RRCollider::IT_BVH_FAST technique, builds 100-1000x faster than old techniques. Used by default.
   - new RRCollider::IT_BVH_COMPACT technique, more compact than IT_BVH_FAST
   - if you explicitly specified one of IT_BSP_ colliders in your code, make sure to switch to IT_BVH_, otherwise you won't see any speedup
+  - custom RRCollisionHandler-s might need small modifications: IT_BVH_ collisions arrive unordered, while IT_BSP_ collisions arrive ordered by distance
+    \n (so when handler accepts collision, IT_BSP_ collider ends testing immediately, while IT_BVH_ might still find closer collision and send it to the handler)
 - improved panorama rendering
   - new panorama mode: rr_gl::PM_FISHEYE with configurable field of view
   - panorama coverage modes: full, stretched, truncated bottom, truncated top (rr_gl::PanoramaCoverage)
