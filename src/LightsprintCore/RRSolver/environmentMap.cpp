@@ -86,6 +86,7 @@ public:
 	{
 		ray->rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_DISTANCE;
 		hitTriangleMemory = UINT_MAX;
+		hitDistanceMemory = 0;
 	}
 	virtual bool collides(const RRRay* ray)
 	{
@@ -97,7 +98,12 @@ public:
 		RRMesh::PreImportNumber preImport = multiObject->getCollider()->getMesh()->getPreImportTriangle(ray->hitTriangle);
 		if (preImport.object==singleObjectNumber)
 		{
-			hitTriangleMemory = UINT_MAX;
+			// forget about intersections closer than this self-intersection
+			if (hitDistanceMemory<ray->hitDistance)
+			{
+				hitTriangleMemory = UINT_MAX;
+				hitDistanceMemory = 0;
+			}
 			return false;
 		}
 
@@ -110,10 +116,11 @@ public:
 		//if (!pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom || pointMaterial.specularTransmittance.color==RRVec3(1))
 		//	return false;
 
-		// kdyz zasahnu jiny obj Y uvnitr AABB X: { pokud je pamet M prazdna, zapamatovat si Y. pokracovat }
-		// kdyz zasahnu jiny obj Y mimo AABB X: { skoncit s M?M:Z }
-		if (hitTriangleMemory==UINT_MAX)
+		if (hitTriangleMemory==UINT_MAX || ray->hitDistance<hitDistanceMemory)
+		{
 			hitTriangleMemory = ray->hitTriangle;
+			hitDistanceMemory = ray->hitDistance;
+		}
 		return ray->hitDistance>singleObjectWorldRadius;
 	}
 	virtual bool done()
@@ -129,6 +136,7 @@ private:
 	unsigned singleObjectNumber;
 	float singleObjectWorldRadius;
 	unsigned hitTriangleMemory;
+	float hitDistanceMemory; // hitDistance for hitTriangleMemory
 };
 
 

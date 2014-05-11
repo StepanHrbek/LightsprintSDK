@@ -38,9 +38,11 @@ public:
 
 		RRPointMaterial pointMaterial;
 		objectToReadMaterialFrom->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial);
-		return result = pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom
+		if (pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom
 			// This makes selecting in sceneviewer see through transparent pixels, they don't have renderFrom cleared.
-			&& pointMaterial.specularTransmittance.color!=RRVec3(1);
+			&& pointMaterial.specularTransmittance.color!=RRVec3(1))
+			return result = true;
+		return false;
 	}
 	virtual bool done()
 	{
