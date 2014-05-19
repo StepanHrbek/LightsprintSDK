@@ -329,6 +329,7 @@ FaceClass locate_face_kd(float splitValue, int splitAxis, BBOX *bbox, const FACE
 #endif
 }
 
+
 static int compare_face_minx_asc( const void *p1, const void *p2 )
 {
 	float f=(*(FACE**)p2)->min[0]-(*(FACE**)p1)->min[0];
@@ -395,12 +396,15 @@ VERTEX *find_best_root_kd(BBOX *bbox, const FACE **list, ROOT_INFO* bestinfo)
 	RR_ASSERT(faces);
 	if (!faces) return NULL;
 	FACE** minx = new FACE*[faces];
+
+
 	FACE** maxx = new FACE*[faces];
 	memcpy(minx,list,sizeof(FACE*)*faces);
 
 	for (info.axis=0;info.axis<3;info.axis++)
 	{
 		unsigned axis = info.axis;
+
 
 		// sort sortarrays
 		qsort(minx,faces,sizeof(FACE*),(axis==0)?compare_face_minx_asc:((axis==1)?compare_face_miny_asc:compare_face_minz_asc));
@@ -491,7 +495,7 @@ info2_done:			//----
 			}
 #endif
 
-			// backsurface
+			// fprize = SAH from full subboxes (optimized subboxes would be better)
 			{
 			float tmp = bbox->hi[axis];
 			bbox->hi[axis] = info.value;
@@ -504,6 +508,7 @@ info2_done:			//----
 			bbox->lo[axis] = tmp;
 			// prize
 			info.fprize = (info.front+info.split)*frontsurface + (info.back+info.plane+info.split)*backsurface;
+
 			}
 
 
@@ -519,6 +524,8 @@ next:
 			if (minxi==faces) break;
 			if (minx[minxi]->min[axis] == minx[minxi-1]->min[axis]) goto next; // another identical planes -> skip it
 		}
+
+
 	}
 
 	// delete sortarrays
@@ -738,7 +745,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 			if (bsproot) RR_ASSERT(info_bsp.plane>=1);
 			if (buildParams.kdHavran==0 && kdroot && info_kd.prize<info_bsp.prize+pn)
 				bsproot=NULL; 
-			else 
+			else
 				kdroot=NULL;
 		}
 	}
