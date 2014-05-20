@@ -84,7 +84,9 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 	RRSideBits side=material->sideBits[ray.hitFrontSide?0:1];
 	Channels exitance = Channels(0);
 	RRVec3 pixelNormal = RRVec3(ray.hitPlane);
-	if (side.legal && (side.catchFrom || side.emitTo))
+	if (side.legal)
+	{
+	if (side.catchFrom || side.emitTo)
 	{
 		// work with ray+material before we recurse and overwrite them
 		bool   specularReflect = false;
@@ -173,6 +175,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 		}
+	}
 	}
 
 	// AO [#22]: restore hitDistance from first hit, overwrite any later hits from reflected rays
