@@ -83,9 +83,9 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 	const RRMaterial* material = collisionHandlerGatherHemisphere.getContactMaterial(); // could be point detail, unlike hitTriangle->surface 
 	RRSideBits side=material->sideBits[ray.hitFrontSide?0:1];
 	Channels exitance = Channels(0);
-	RRVec3 pixelNormal = RRVec3(ray.hitPlane);
 	if (side.legal)
 	{
+	RRVec3 pixelNormal = RRVec3(ray.hitPlane);
 	if (side.catchFrom || side.emitTo)
 	{
 		// work with ray+material before we recurse and overwrite them
