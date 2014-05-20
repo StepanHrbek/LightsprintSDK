@@ -83,6 +83,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 	const RRMaterial* material = collisionHandlerGatherHemisphere.getContactMaterial(); // could be point detail, unlike hitTriangle->surface 
 	RRSideBits side=material->sideBits[ray.hitFrontSide?0:1];
 	Channels exitance = Channels(0);
+	RRVec3 pixelNormal = RRVec3(ray.hitPlane);
 	if (side.legal && (side.catchFrom || side.emitTo))
 	{
 		// work with ray+material before we recurse and overwrite them
@@ -102,7 +103,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			if (specularReflect)
 			{
 				// calculate new direction after ideal mirror reflection
-				specularReflectDir = RRVec3(ray.hitPlane)*(-2*dot(direction,RRVec3(ray.hitPlane))/size2(RRVec3(ray.hitPlane)))+direction;
+				specularReflectDir = pixelNormal*(-2*dot(direction,pixelNormal)/size2(pixelNormal))+direction;
 			}
 		}
 		if (side.transmitFrom)
@@ -113,7 +114,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			if (specularTransmit)
 			{
 				// calculate new direction after refraction
-				specularTransmitDir = refract(ray.hitPlane,direction,material);
+				specularTransmitDir = refract(pixelNormal,direction,material);
 			}
 		}
 		RRVec3 hitPoint3d=eye+direction*ray.hitDistance;
