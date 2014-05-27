@@ -109,7 +109,7 @@ public:
 	//! Makes camera orthogonal or perspective.
 	void setOrthogonal(bool orthogonal);
 
-	//! Returns aspect ratio.
+	//! Returns aspect ratio, which is usually viewport width/height.
 	float getAspect()                   const {return aspect;}
 	//! Sets aspect ratio, with configurable effect on FOV.
 	//! \param aspect
