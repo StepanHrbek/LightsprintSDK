@@ -213,6 +213,23 @@ void SVMaterialProperties::updateReadOnly()
 	}
 }
 
+void SVMaterialProperties::updateHelp()
+{
+	for (unsigned j=0;j<2;j++)
+	for (unsigned i=0;i<2;i++)
+	{
+		(i?propBack:propFront)->SetHelpString(wxString::Format("%s,%s,%s,%s,%s,%s,%s",
+			material->sideBits[i].renderFrom?"RENDER_FROM":"render",
+			material->sideBits[i].emitTo?"EMIT_TO":"emit",
+			material->sideBits[i].catchFrom?"CATCH_FROM":"catch",
+			material->sideBits[i].legal?"LEGAL":"legal",
+			material->sideBits[i].receiveFrom?"RECEIVE_FROM":"receive",
+			material->sideBits[i].reflect?"REFLECT":"reflect",
+			material->sideBits[i].transmitFrom?"TRANSMIT_FROM":"transmit"
+			));
+	}
+}
+
 void SVMaterialProperties::updateProperties()
 {
 	if (material)
@@ -221,6 +238,7 @@ void SVMaterialProperties::updateProperties()
 
 		updateBool(propFront,material->sideBits[0].renderFrom);
 		updateBool(propBack,material->sideBits[1].renderFrom);
+		updateHelp();
 
 		setMaterialProperty(propDiffuse,material->diffuseReflectance);
 		setMaterialProperty(propSpecular,material->specularReflectance);
@@ -368,6 +386,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		for (unsigned side=0;side<2;side++)
 			material->sideBits[side] = bits[(propFront->GetValue().GetBool()?4:0) + (propBack->GetValue().GetBool()?2:0) + side];
 		transmittanceChanged = true;
+		updateHelp();
 	}
 	else
 

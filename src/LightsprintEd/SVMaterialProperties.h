@@ -25,6 +25,7 @@ namespace rr_ed
 
 		//! Copy material -> property.
 		void updateProperties();
+		void updateHelp();
 
 		//! Defocus.
 		void OnIdle(wxIdleEvent& event);
