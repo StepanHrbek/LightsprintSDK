@@ -788,6 +788,13 @@ public:
 #ifndef RR_GL_ES2
 			if (pp.wireframe)
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+			// We want to blend in custom scale, therefore we have to disable GL_FRAMEBUFFER_SRGB while blending
+			// (otherwise framebuffer color is linearized, then blended, then converted back to sRGB, result would look more transparent).
+			// Other option would be to keep GL_FRAMEBUFFER_SRGB and convert blending factor to physical scale in shader
+			// (i.e. compensate for linearization and delinearization), but it would take more lines of code and results would be less accurate,
+			//  because we can't accurately compensate unknown function hardcoded in HW.
+			p0.change(false);
 #endif
 
 			// Sort blended objects.
