@@ -353,23 +353,20 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		material->name = RR_WX2RR(property->GetValue().GetString());
 	}
 	else
-	if (property==propFront)
+	if (property==propFront || property==propBack)
 	{
-		rr::RRSideBits visible[3] = {
-			{1,1,1,1,1,1,1}, // checked
-			{0,0,1,1,0,0,1}, // unchecked (the other side is checked), catchFrom is set to preserve opacity
-			{0,0,0,1,0,0,0}}; // unchecked (the other side is unchecked), catchFrom is disabled to enforce 100% transparency
-		material->sideBits[0] = visible[property->GetValue().GetBool()?0:(propBack->GetValue().GetBool()?1:2)];
-		transmittanceChanged = true;
-	}
-	else
-	if (property==propBack)
-	{
-		rr::RRSideBits visible[3] = {
-			{1,0,1,1,1,1,1}, // checked
-			{0,0,1,1,0,0,1}, // unchecked (the other side is checked), catchFrom is set to preserve opacity
-			{0,0,0,1,0,0,0}}; // unchecked (the other side is unchecked), catchFrom is disabled to enforce 100% transparency
-		material->sideBits[1] = visible[property->GetValue().GetBool()?0:(propFront->GetValue().GetBool()?1:2)];
+		rr::RRSideBits bits[8] = {
+			{0,0,0,1,0,0,0}, // none (catchFrom is disabled to enforce 100% transparency)
+			{0,0,0,1,0,0,0},
+			{0,0,1,1,0,0,1}, // back (front.catchFrom is set to preserve opacity)
+			{1,0,1,1,1,1,1},
+			{1,1,1,1,1,1,1}, // front (back.catchFrom is set to preserve opacity)
+			{0,0,1,1,0,0,1},
+			{1,1,1,1,1,1,1}, // front+back
+			{1,0,1,1,1,1,1},
+		};
+		for (unsigned side=0;side<2;side++)
+			material->sideBits[side] = bits[(propFront->GetValue().GetBool()?4:0) + (propBack->GetValue().GetBool()?2:0) + side];
 		transmittanceChanged = true;
 	}
 	else
