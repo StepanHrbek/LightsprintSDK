@@ -265,7 +265,8 @@ namespace rr
 
 		//! Creates copy of buffer. Copy is located in system memory and is completely separated, both buffers may contain different data. Copy of video contains single frame.
 		RRBuffer* createCopy();
-		//! Copies contents of buffer. Buffer format and scale are preserved, data are converted as necessary.
+		RRBuffer* createCopy(RRBufferFormat format, bool scaled, const class RRScaler* scaler) const;
+		//! Copies contents of buffer. Destination buffer format and scale are preserved, data are converted as necessary.
 		//
 		//! \param destination
 		//!  Destination buffer. Must have the same width, height, depth, may differ in format, scale.

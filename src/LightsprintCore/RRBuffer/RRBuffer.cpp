@@ -83,6 +83,13 @@ RRBuffer* RRBuffer::createCopy()
 	return copy;
 }
 
+RRBuffer* RRBuffer::createCopy(RRBufferFormat _format, bool _scaled, const class RRScaler* _scaler) const
+{
+	RRBuffer* copy = RRBuffer::create(getType(),getWidth(),getHeight(),getDepth(),_format,_scaled,NULL);
+	copyElementsTo(copy,_scaler);
+	return copy;
+}
+
 bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRScaler* scaler) const
 {
 	const RRBuffer* source = this; 
