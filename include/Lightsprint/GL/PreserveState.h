@@ -69,10 +69,14 @@ public:
 	PreserveFlag(GLenum _name, bool _newval)
 	{
 		name = _name;
-		oldval = glIsEnabled(name)!=GL_FALSE;
-		newval = _newval;
-		if (newval!=oldval)
+		newval = oldval = glIsEnabled(name)!=GL_FALSE;
+		change(_newval);
+	}
+	void change(bool _newval)
+	{
+		if (_newval!=newval)
 		{
+			newval = _newval;
 			if (newval)
 				glEnable(name);
 			else
@@ -81,13 +85,7 @@ public:
 	}
 	~PreserveFlag()
 	{
-		if (newval!=oldval)
-		{
-			if (oldval)
-				glEnable(name);
-			else
-				glDisable(name);
-		}
+		change(oldval);
 	}
 };
 
