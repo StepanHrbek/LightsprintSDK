@@ -335,7 +335,7 @@ unsigned updateColliders(const RRObjects& objects, bool& aborting)
 			}
 		}
 	}
-	return updatedColliders.size();
+	return (unsigned)updatedColliders.size();
 }
 
 void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool removeUnusedVertices, bool removeDegeneratedTriangles, bool stitchPositions, bool stitchNormals, bool generateNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, float maxDistanceBetweenUvsToSmooth, bool report) const
