@@ -226,10 +226,9 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 void SVGIProperties::updateHide()
 {
 	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
-	propGISSGI->Hide(svs.renderLightIndirect==LI_NONE,false);
-	propGISSGIIntensity->Hide(svs.renderLightIndirect==LI_NONE || !svs.ssgiEnabled,false);
-	propGISSGIRadius->Hide(svs.renderLightIndirect==LI_NONE || !svs.ssgiEnabled,false);
-	propGISSGIAngleBias->Hide(svs.renderLightIndirect==LI_NONE || !svs.ssgiEnabled,false);
+	propGISSGIIntensity->Hide(!svs.ssgiEnabled,false);
+	propGISSGIRadius->Hide(!svs.ssgiEnabled,false);
+	propGISSGIAngleBias->Hide(!svs.ssgiEnabled,false);
 	propGILDM->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_BAKED,false);
 	propGISRGBCorrect->Hide(svs.renderLightDirect!=LD_REALTIME,false);
 	propGIShadowTransparency->Hide(svs.renderLightDirect!=LD_REALTIME,false);
