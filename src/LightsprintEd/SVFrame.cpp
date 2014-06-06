@@ -1834,6 +1834,7 @@ void SVFrame::simulateSun()
 
 void SVFrame::enableTooltips(bool enable)
 {
+	wxToolTip::Enable(enable); // necessary, some tooltips don't disappear without this
 	m_lightProperties->enableTooltips(enable);
 	m_objectProperties->enableTooltips(enable);
 	m_materialProperties->enableTooltips(enable);
