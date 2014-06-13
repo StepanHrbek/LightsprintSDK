@@ -90,7 +90,7 @@ public:
 	virtual void init(RRRay* ray)
 	{
 		COLLISION_LOG(log<<"init()\n");
-		ray->rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
+		ray->rayFlags |= RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
 
 		// gathering hemisphere
 		firstContactMaterial = NULL;
@@ -102,6 +102,7 @@ public:
 	virtual bool collides(const RRRay* ray)
 	{
 		COLLISION_LOG(log<<"origin="<<ray->rayOrigin.x<<" "<<ray->rayOrigin.y<<" "<<ray->rayOrigin.z<<" dir="<<ray->rayDir.x<<" "<<ray->rayDir.y<<" "<<ray->rayDir.z<<" hitDistance="<<ray->hitDistance<<" hitTriangle="<<ray->hitTriangle<<"  ");
+		RR_ASSERT(ray->rayFlags&RRRay::FILL_DISTANCE);
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_POINT2D);
