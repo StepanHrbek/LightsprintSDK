@@ -66,7 +66,7 @@ public:
 	//
 	//! When _staticSolver is set, handler finds closest receiver for given emitor.
 	//! Supports optional point details (e.g. alpha keying) provided by RRObject::getPointMaterial().
-	//! Finds closest surface with RRMaterial::sideBits::catchFrom && triangleIndex!=emitorTriangleIndex.
+	//! Finds closest surface with RRMaterial::sideBits::renderFrom && triangleIndex!=emitorTriangleIndex.
 	void setHemisphere(const RRStaticSolver* _staticSolver)
 	{
 		COLLISION_LOG(log<<"setHemisphere()\n");
@@ -164,14 +164,14 @@ public:
 			COLLISION_LOG(log<<"collides()=false4\n");
 			return false;
 		}
-		if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].catchFrom)
+		if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].renderFrom)
 		{
 			// per-pixel materials
 			if (quality>=triangleMaterial->minimalQualityForPointMaterials)
 			{
 				unsigned pmi = (firstContactMaterial==pointMaterial)?1:0; // index into pointMaterial[], one that is not occupied by firstContactMaterial
 				multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial[pmi]);
-				if (pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].catchFrom)
+				if (pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].renderFrom)
 				{
 					// gathering hemisphere
 					if (triangle)
