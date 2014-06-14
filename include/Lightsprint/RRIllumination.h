@@ -76,8 +76,17 @@ namespace rr
 		RRBuffer*& getLayer(unsigned layerNumber);
 		RRBuffer* getLayer(unsigned layerNumber) const;
 
-		//! World coordinate of object center. To be updated by you when object moves.
+		//! World coordinate of object center.
+		//
+		//! To be updated by you when object moves.
+		//! You can use RRObject::updateIlluminationEnvMapCenter() to update it.
 		RRVec3 envMapWorldCenter;
+		//! World radius of object's bounding sphere.
+		//
+		//! To be updated by you when object changes/scales.
+		//! You can use RRObject::updateIlluminationEnvMapCenter() to update it.
+		//! When rr_gl::RRSolverGL::updateEnvironmentMap() renders into envmap in envmap layer,
+		//! this is used as a camera near setting, to prevent rendering what's inside object.
 		RRReal envMapWorldRadius;
 
 		//
