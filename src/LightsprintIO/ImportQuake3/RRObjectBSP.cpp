@@ -28,7 +28,7 @@ using namespace rr;
 
 static RRVec2 convertUv(const float* a)
 {
-	return RRVec2(a[0],a[1]);
+	return RRVec2(a[0],1-a[1]);
 }
 
 static RRVec3 convertPos(const float* a)
@@ -148,8 +148,10 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 	bool knownMissingTexture = (g_lightsmarkAttic && !(strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble"))) // temporary: don't report known missing textures in Lightsmark
 		|| (g_lightsmarkCloister && !(strcmp(strippedName,"utopiaatoll")));
 	RRBuffer* t = knownMissingTexture ? NULL : RRBuffer::load(m->mName,NULL,textureLocator);
-	if (t)
-		t->flip(false,true,false);
+	// we used to flip here, but information about flipping is lost, it is not saved to rr3.
+	// today we flip in convertUv() and flipped uvs are saved to rr3.
+	//if (t)
+	//	t->flip(false,true,false);
 
 	// for diffuse textures provided by bsp,
 	// it is sufficient to compute average texture color
