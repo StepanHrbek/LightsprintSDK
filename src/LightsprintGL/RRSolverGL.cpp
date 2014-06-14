@@ -803,7 +803,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		PluginParamsCube ppCube(&ppScene,cubeTexture,depthTexture,360);
 		rr::RRCamera camera;
 		camera.setPosition(illumination->envMapWorldCenter);
-		camera.setRange(size*0.0001f,size);
+		camera.setRange(illumination->envMapWorldRadius,size);
 		PluginParamsShared ppShared;
 		ppShared.camera = &camera;
 		ppShared.viewport[2] = cube->getWidth();
