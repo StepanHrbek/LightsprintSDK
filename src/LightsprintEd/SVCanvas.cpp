@@ -75,6 +75,7 @@ static int s_attribList[] = {
 	WX_GL_SAMPLE_BUFFERS, GL_TRUE, // makes no difference in Windows, is necessary in OSX for antialiasing
 	WX_GL_SAMPLES, 4, // antialiasing. can be later disabled by glDisable(GL_MULTISAMPLE), but it doesn't improve speed (tested on X1650). it must be disabled here (change 4 to 1) for higher fps
 	WX_GL_DEPTH_SIZE, 24, // default is 16, explicit 24 should reduce z-fight. 32 fails on all cards tested including hd5870 and gf460 (falls back to default without antialiasing)
+	WX_GL_STEREO, // required by SM_QUAD_BUFFERED. not yet tested on quadbuf-compatible systems. seems to have no effect on incompatible system
 	0, 0};
 
 SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
