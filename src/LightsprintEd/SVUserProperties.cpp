@@ -28,14 +28,14 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 	{
 		{
 			const wxChar* stereoStrings[] = {_("interlaced"),_("side by side"),_("top down"),_("Oculus Rift"),NULL};
-			const long stereoValues[] = {0,1,2,3};
+			const long stereoValues[] = {rr_gl::SM_INTERLACED,rr_gl::SM_SIDE_BY_SIDE,rr_gl::SM_TOP_DOWN,rr_gl::SM_OCULUS_RIFT};
 			propStereoMode = new wxEnumProperty(_("Stereo mode"), wxPG_LABEL, stereoStrings, stereoValues);
-			propStereoMode->SetValueFromInt(userPreferences.stereoMode/2-1,wxPG_FULL_VALUE);
+			propStereoMode->SetValueFromInt(userPreferences.stereoMode,wxPG_FULL_VALUE);
 			propStereoMode->SetHelpString(_("How images for left and right eye are composited. Interlaced requires passive (polarized) display working in its native resolution."));
 			Append(propStereoMode);
 		}
 
-		propStereoSwap = new wxBoolProperty(_("Swap"),wxPG_LABEL,userPreferences.stereoMode&1);
+		propStereoSwap = new BoolRefProperty(_("Swap"),wxPG_LABEL,userPreferences.stereoSwap);
 		propStereoSwap->SetHelpString(_("Swaps left and right eye."));
 		SetPropertyEditor(propStereoSwap,wxPGEditor_CheckBox);
 		AppendIn(propStereoMode,propStereoSwap);
@@ -196,9 +196,9 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		userPreferences.applySwapInterval();
 	}
 	else
-	if (property==propStereoMode || property==propStereoSwap)
+	if (property==propStereoMode)
 	{
-		userPreferences.stereoMode = (rr_gl::StereoMode)(propStereoMode->GetValue().GetInteger()*2+(propStereoSwap->GetValue().GetBool()?3:2));
+		userPreferences.stereoMode = (rr_gl::StereoMode)(propStereoMode->GetValue().GetInteger());
 	}
 	else
 	if (property==propImportUnitsEnum)

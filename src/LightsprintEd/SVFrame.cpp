@@ -1794,7 +1794,7 @@ rr::RRScene* SVFrame::loadScene(const wxString& _filename, float _units, unsigne
 
 bool SVFrame::oculusActive()
 {
-	return oculusSensor && svs.renderStereo && (userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT || userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT_SWAP);
+	return oculusSensor && svs.renderStereo && (userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT);
 }
 
 

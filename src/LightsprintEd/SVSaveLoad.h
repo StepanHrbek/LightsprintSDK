@@ -44,6 +44,7 @@ namespace rr_ed
 		bool        tooltips;
 		int         swapInterval; // value sent to wglSwapInterval, 0 for max fps, -1 for oculus
 		rr_gl::StereoMode stereoMode;
+		bool        stereoSwap;
 
 		unsigned    currentWindowLayout;
 		struct WindowLayout
@@ -83,6 +84,7 @@ namespace rr_ed
 			tooltips = true;
 			swapInterval = -1;
 			stereoMode = rr_gl::SM_SIDE_BY_SIDE;
+			stereoSwap = false;
 			currentWindowLayout = 0;
 			resetLayouts();
 			sshotFilename = "";

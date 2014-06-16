@@ -108,13 +108,6 @@ void serialize(Archive & ar, rr_ed::UserPreferences::WindowLayout& a, const unsi
 	SERIALIZE_WXSTRING("perspective",a.perspective,version>0);
 }
 
-enum LegacyStereoMode
-{
-	LSM_INTERLACED  =0, // top scanline is visible by right eye, correct at least for LG D2342P-PN
-	LSM_SIDE_BY_SIDE=1, // left hals is left eye
-	LSM_TOP_DOWN    =2, // top half is left eye
-};
-
 template<class Archive>
 void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int version)
 {
@@ -126,25 +119,8 @@ void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int versi
 	{
 		ar & make_nvp("swapInterval",a.swapInterval);
 	}
-	if (version>14)
-	{
-		ar & make_nvp("stereoMode",a.stereoMode);
-	}
-	else
-	if (version>13)
-	{
-		LegacyStereoMode legacyStereoMode;
-		bool legacyStereoSwap;
-		ar & make_nvp("stereoMode",legacyStereoMode);
-		ar & make_nvp("stereoSwap",legacyStereoSwap);
-		a.stereoMode = (rr_gl::StereoMode)(legacyStereoMode*2+(legacyStereoSwap?3:2));
-	}
-	else
-	if (version>11)
-	{
-		bool legacyStereoSwap;
-		ar & make_nvp("stereoTopLineSeenByLeftEye",legacyStereoSwap);
-	}
+	ar & make_nvp("stereoMode",a.stereoMode);
+	ar & make_nvp("stereoSwap",a.stereoSwap);
 	ar & make_nvp("currentWindowLayout",a.currentWindowLayout);
 	ar & make_nvp("windowLayout",a.windowLayout);
 	if (version>3)

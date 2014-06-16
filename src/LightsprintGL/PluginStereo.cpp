@@ -48,7 +48,7 @@ public:
 			return;
 
 		unsigned viewport[4] = {_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]}; // our temporary viewport, could differ from _sp.viewport
-		bool oculus = pp.stereoMode==SM_OCULUS_RIFT || pp.stereoMode==SM_OCULUS_RIFT_SWAP;
+		bool oculus = pp.stereoMode==SM_OCULUS_RIFT;
 
 #ifdef SCALE
 		FBO oldFBOState = FBO::getState();
@@ -85,7 +85,7 @@ public:
 		//  because lines blur with multisampled screen (even if multisampling is disabled)
 		rr::RRCamera leftEye, rightEye;
 		_sp.camera->getStereoCameras(leftEye,rightEye);
-		bool swapEyes = pp.stereoMode==SM_INTERLACED_SWAP || pp.stereoMode==SM_TOP_DOWN || pp.stereoMode==SM_SIDE_BY_SIDE_SWAP || pp.stereoMode==SM_OCULUS_RIFT_SWAP;
+		bool swapEyes = pp.stereoSwap != (pp.stereoMode==SM_TOP_DOWN);
 		if (oculus)
 		{
 			leftEye.setAspect(_sp.camera->getAspect()*0.5f);
@@ -107,7 +107,7 @@ public:
 			left.viewport[1] = viewport[1];
 			left.viewport[2] = viewport[2];
 			left.viewport[3] = viewport[3];
-			if (pp.stereoMode==SM_SIDE_BY_SIDE || pp.stereoMode==SM_SIDE_BY_SIDE_SWAP || oculus)
+			if (pp.stereoMode==SM_SIDE_BY_SIDE || oculus)
 				left.viewport[2] /= 2;
 			else
 				left.viewport[3] /= 2;
@@ -119,7 +119,7 @@ public:
 			// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
 			PluginParamsShared right = left;
 			right.camera = swapEyes?&leftEye:&rightEye;
-			if (pp.stereoMode==SM_SIDE_BY_SIDE || pp.stereoMode==SM_SIDE_BY_SIDE_SWAP || oculus)
+			if (pp.stereoMode==SM_SIDE_BY_SIDE || oculus)
 				right.viewport[0] += right.viewport[2];
 			else
 				right.viewport[1] += right.viewport[3];
@@ -129,7 +129,7 @@ public:
 		}
 
 		// composite
-		if (pp.stereoMode==SM_INTERLACED || pp.stereoMode==SM_INTERLACED_SWAP || oculus)
+		if (pp.stereoMode==SM_INTERLACED || oculus)
 		{
 			// disable depth
 			PreserveDepthTest p1;

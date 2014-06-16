@@ -1785,27 +1785,25 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppBloom;
 
 			// stereo plugin
-			rr_gl::PluginParamsStereo ppStereo(pluginChain,svframe->userPreferences.stereoMode);
+			rr_gl::PluginParamsStereo ppStereo(pluginChain,svframe->userPreferences.stereoMode,svframe->userPreferences.stereoSwap);
 			if (svs.renderStereo)
 			{
 				switch (ppStereo.stereoMode)
 				{
 					// in interlaced mode, check whether image starts on odd or even scanline
 					case rr_gl::SM_INTERLACED:
-					case rr_gl::SM_INTERLACED_SWAP:
 						{
 							GLint viewport[4];
 							glGetIntegerv(GL_VIEWPORT,viewport);
 							int trueWinWidth, trueWinHeight;
 							GetClientSize(&trueWinWidth, &trueWinHeight);
 							if ((GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
-								ppStereo.stereoMode = (ppStereo.stereoMode==rr_gl::SM_INTERLACED)?rr_gl::SM_INTERLACED_SWAP:rr_gl::SM_INTERLACED;
+								ppStereo.stereoSwap = !ppStereo.stereoSwap;
 						}
 						break;
 #ifdef SUPPORT_OCULUS
 					// in oculus rift, adjust camera
 					case rr_gl::SM_OCULUS_RIFT:
-					case rr_gl::SM_OCULUS_RIFT_SWAP:
 						if (svframe->oculusHMD) // use HMDInfo only if HMD exists, HMDInfo is wrong if HMD does not exist
 						{
 							ppStereo.oculusDistortionK = convertVec4(svframe->oculusHMDInfo.DistortionK);
