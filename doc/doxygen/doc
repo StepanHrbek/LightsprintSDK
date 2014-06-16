@@ -343,7 +343,7 @@ Material formats (1)
  - for offline rendering, 3D API is not needed
 
  Compilers
- - Visual C++ 2013.1 with all security updates (32bit, 64bit)
+ - Visual C++ 2013.2 with all security updates (32bit, 64bit)
  - Visual C++ 2012.4 with all security updates (32bit, 64bit)
  - Visual C++ 2010 SP1 with all security updates (32bit, 64bit)
  - GCC (32bit, 64bit)
