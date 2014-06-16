@@ -20,6 +20,7 @@ enum StereoMode
 	SM_SIDE_BY_SIDE     =2, ///< left half is left eye \image html stereo_sidebyside.jpg
 	SM_TOP_DOWN         =3, ///< top half is left eye \image html stereo_topdown.jpg
 	SM_OCULUS_RIFT      =4, ///< for Oculus Rift \image html stereo_oculus.jpg
+	SM_QUAD_BUFFERED    =5, ///< quad buffered stereo, GL_BACK_RIGHT+GL_BACK_LEFT
 };
 
 /////////////////////////////////////////////////////////////////////////////

@@ -27,8 +27,8 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 	// stereo
 	{
 		{
-			const wxChar* stereoStrings[] = {_("interlaced"),_("side by side"),_("top down"),_("Oculus Rift"),NULL};
-			const long stereoValues[] = {rr_gl::SM_INTERLACED,rr_gl::SM_SIDE_BY_SIDE,rr_gl::SM_TOP_DOWN,rr_gl::SM_OCULUS_RIFT};
+			const wxChar* stereoStrings[] = {_("interlaced"),_("side by side"),_("top down"),_("Oculus Rift"),_("Quad Buffered"),NULL};
+			const long stereoValues[] = {rr_gl::SM_INTERLACED,rr_gl::SM_SIDE_BY_SIDE,rr_gl::SM_TOP_DOWN,rr_gl::SM_OCULUS_RIFT,rr_gl::SM_QUAD_BUFFERED};
 			propStereoMode = new wxEnumProperty(_("Stereo mode"), wxPG_LABEL, stereoStrings, stereoValues);
 			propStereoMode->SetValueFromInt(userPreferences.stereoMode,wxPG_FULL_VALUE);
 			propStereoMode->SetHelpString(_("How images for left and right eye are composited. Interlaced requires passive (polarized) display working in its native resolution."));
