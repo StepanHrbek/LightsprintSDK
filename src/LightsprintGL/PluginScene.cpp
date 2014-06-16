@@ -680,9 +680,9 @@ public:
 					// clear mirrorDepthMap=0, mirrorColorMap=0
 					rr::RRBuffer* mirrorColorMap = i->second;
 					mirrorDepthMap->reset(rr::BT_2D_TEXTURE,mirrorColorMap->getWidth(),mirrorColorMap->getHeight(),1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
-					FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,getTexture(mirrorDepthMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE));
+					FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,getTexture(mirrorDepthMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),oldState);
 					Texture* mirrorColorTex = new Texture(mirrorColorMap,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE); // new Texture instead of getTexture makes our texture deletable at the end of render()
-					FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,mirrorColorTex);
+					FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,mirrorColorTex,oldState);
 					PreserveFlag p0(GL_SCISSOR_TEST,false);
 					glViewport(0,0,mirrorColorMap->getWidth(),mirrorColorMap->getHeight());
 					glDepthMask(GL_TRUE);

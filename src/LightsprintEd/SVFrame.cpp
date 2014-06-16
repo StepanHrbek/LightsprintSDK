@@ -1162,8 +1162,8 @@ save_scene_as:
 
 				// 3a. set new rendertarget
 				rr_gl::FBO oldFBOState = rr_gl::FBO::getState();
-				rr_gl::FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,&texDepth);
-				rr_gl::FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,&texColor);
+				rr_gl::FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,&texDepth,oldFBOState);
+				rr_gl::FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,&texColor,oldFBOState);
 				if (!rr_gl::FBO::isOk())
 				{
 					wxMessageBox(_("Try lower resolution or disable FSAA (both in User preferences / Screenshot)."),_("Rendering screenshot failed."));

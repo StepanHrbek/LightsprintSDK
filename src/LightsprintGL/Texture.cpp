@@ -35,11 +35,7 @@ void FBO_init()
 
 	// necessary for "new FBO; setRenderTargetDepth; render..."
 	glBindFramebuffer(GL_FRAMEBUFFER, s_fb_id);
-#ifndef RR_GL_ES2
-	if (!s_es)
-		glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-#endif
+	FBO::setRenderBuffers(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -48,12 +44,12 @@ void FBO_done()
 	glDeleteFramebuffers(1, &s_fb_id);
 }
 
-void FBO::setRenderTarget(GLenum attachment, GLenum target, const Texture* tex)
+void FBO::setRenderTarget(GLenum attachment, GLenum target, const Texture* tex, const FBO& oldState)
 {
-	setRenderTargetGL(attachment,target,tex?tex->id:0);
+	setRenderTargetGL(attachment,target,tex?tex->id:0,oldState);
 }
 
-void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
+void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id, const FBO& oldState)
 {
 	RR_ASSERT(attachment==GL_DEPTH_ATTACHMENT || attachment==GL_COLOR_ATTACHMENT0);
 	RR_ASSERT(target==GL_TEXTURE_2D || (target>=GL_TEXTURE_CUBE_MAP_POSITIVE_X && target<=GL_TEXTURE_CUBE_MAP_NEGATIVE_Z));
@@ -68,11 +64,7 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 			if (s_fboState.color_id)
 			{
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, s_fboState.color_target = GL_TEXTURE_2D, s_fboState.color_id = 0, 0);
-#ifndef RR_GL_ES2
-				if (!s_es)
-					glDrawBuffer(GL_NONE);
-				glReadBuffer(GL_NONE);
-#endif
+				FBO::setRenderBuffers(oldState.buffers);
 			}
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, s_fboState.fb_id = fb_id);
@@ -91,23 +83,28 @@ void FBO::setRenderTargetGL(GLenum attachment, GLenum target, GLuint tex_id)
 			{
 				if (!s_fboState.color_id && tex_id)
 				{
-#ifndef RR_GL_ES2
-					if (!s_es)
-						glDrawBuffer(GL_COLOR_ATTACHMENT0);
-					glReadBuffer(GL_COLOR_ATTACHMENT0);
-#endif
+					FBO::setRenderBuffers(GL_COLOR_ATTACHMENT0);
 				}
 				if (s_fboState.color_id && !tex_id)
 				{
-#ifndef RR_GL_ES2
-					if (!s_es)
-						glDrawBuffer(GL_NONE);
-					glReadBuffer(GL_NONE);
-#endif
+					FBO::setRenderBuffers(oldState.buffers);
 				}
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, s_fboState.color_target = target, s_fboState.color_id = tex_id, 0);
 			}
 		}
+	}
+}
+
+void FBO::setRenderBuffers(GLenum buffers)
+{
+	if (s_fboState.buffers != buffers)
+	{
+		s_fboState.buffers = buffers;
+#ifndef RR_GL_ES2
+		if (!s_es)
+			glDrawBuffer(buffers);
+		glReadBuffer(buffers);
+#endif
 	}
 }
 
@@ -150,6 +147,7 @@ bool FBO::isOk()
 
 FBO::FBO()
 {
+	buffers = GL_FRONT; // anything but GL_NONE, we call setRenderBuffers(GL_NONE) and it must not thing GL_NONE is already set
 	fb_id = 0;
 	color_target = GL_TEXTURE_2D;
 	color_id = 0;
@@ -163,8 +161,9 @@ const FBO& FBO::getState()
 
 void FBO::restore()
 {
-	setRenderTargetGL(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depth_id);
-	setRenderTargetGL(GL_COLOR_ATTACHMENT0,color_target,color_id);
+	setRenderTargetGL(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depth_id,*this);
+	setRenderTargetGL(GL_COLOR_ATTACHMENT0,color_target,color_id,*this);
+	//setRenderBuffers(buffers);
 }
 
 
@@ -575,7 +574,7 @@ void Texture::copyTextureToBuffer()
 	PreserveFBO p1;
 	if (buffer->getType()==rr::BT_2D_TEXTURE)
 	{
-		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,this);
+		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,this,p1.state);
 		glReadPixels(0,0,buffer->getWidth(),buffer->getHeight(),glformat,gltype,pixels);
 	}
 	else
@@ -583,7 +582,7 @@ void Texture::copyTextureToBuffer()
 	{
 		for (unsigned side=0;side<6;side++)
 		{
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,this);
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,this,p1.state);
 			glReadPixels(0,0,buffer->getWidth(),buffer->getHeight(),glformat,gltype,pixels+buffer->getBufferBytes()/6*side);
 		}
 	}

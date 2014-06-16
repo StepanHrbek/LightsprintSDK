@@ -63,7 +63,7 @@ public:
 		PreserveViewport p1;
 		PreserveFlag p2(GL_SCISSOR_TEST,scissor);
 		glViewport(0,0,size,size);
-		FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,pp.depthTexture);
+		FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,pp.depthTexture,p0.state);
 
 		// render 6 times
 		// TODO: optimize these six renders down to one, with geometry shader
@@ -118,7 +118,7 @@ public:
 			//cubeCamera.setYawPitchRollRad(s_viewAngles[side]);
 			// b) six views relative to current camera
 			cubeCamera.setYawPitchRollRad((rr::RRMatrix3x4(_sp.camera->getViewMatrix(),false) * rr::RRMatrix3x4::rotationByYawPitchRoll(s_viewAngles[side])).getYawPitchRoll());
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,pp.cubeTexture);
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+side,pp.cubeTexture,p0.state);
 			RR_ASSERT(FBO::isOk()); // if someone called getTexture(cubeBuffer), texture is compressed and setting it as render target has no effect. here we report problem, at least in debug version
 			if (scissor)
 				glDisable(GL_SCISSOR_TEST);

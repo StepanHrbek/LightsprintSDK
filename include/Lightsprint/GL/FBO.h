@@ -34,7 +34,15 @@ public:
 	//!  GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP_POSITIVE_X or _NEGATIVE_X or _POSITIVE_Y or _NEGATIVE_Y or _POSITIVE_Z or _NEGATIVE_Z.
 	//! \param texture
 	//!  Texture to be set as render target. May be NULL. If you set both color and depth, sizes must match.
-	static void setRenderTarget(GLenum attachment, GLenum target, const Texture* texture);
+	//! \param oldState
+	//!  When setting NULL color texture, setRenderBuffers(oldState.buffers) restores old buffers.
+	static void setRenderTarget(GLenum attachment, GLenum target, const Texture* texture, const FBO& oldState);
+	//! Wrapper for glDrawBuffer() and glReadBuffer().
+	//
+	//! It is used internally by setRenderTarget(), it is rarely needed outside.
+	//! We only use it for setting left&right in quad buffered stereo.
+	//! Possible parameters: GL_NONE, GL_COLOR_ATTACHMENT0, GL_BACK_LEFT, GL_BACK_RIGHT..
+	static void setRenderBuffers(GLenum draw_buffer);
 	//! Check whether render target is set correctly (all textures the same size etc).
 	static bool isOk();
 
@@ -46,9 +54,10 @@ public:
 	//! Initializes new instance of default framebuffer, without modifying OpenGL state. Calling restore() would restore default framebuffer.
 	FBO();
 private:
-	static void setRenderTargetGL(GLenum attachment, GLenum target, GLuint texture);
+	static void setRenderTargetGL(GLenum attachment, GLenum target, GLuint texture, const FBO& oldState);
 
 	// Saved state.
+	GLenum buffers; // GL_COLOR_ATTACHMENT0, GL_NONE, GL_BACK_LEFT, GL_BACK_RIGHT
 	GLuint fb_id;
 	GLenum color_target;
 	GLuint color_id;

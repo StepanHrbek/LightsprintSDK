@@ -68,8 +68,8 @@ public:
 				depthTexture->getBuffer()->reset(rr::BT_2D_TEXTURE,viewport[2],viewport[3],1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 				depthTexture->reset(false,false,false);
 			}
-			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depthTexture);
-			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,colorTexture);
+			FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,depthTexture,oldFBOState);
+			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,colorTexture,oldFBOState);
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 		}
 #endif
@@ -99,6 +99,10 @@ public:
 			PreserveFlag p0(GL_SCISSOR_TEST,true);
 			PreserveScissor p1;
 
+			FBO oldFBOStateQB;
+			if (pp.stereoMode==SM_QUAD_BUFFERED)
+				oldFBOStateQB = FBO::getState();
+
 			// render left
 			PluginParamsShared left = _sp;
 			left.camera = swapEyes?&rightEye:&leftEye;
@@ -108,7 +112,7 @@ public:
 			left.viewport[3] = viewport[3];
 			if (pp.stereoMode==SM_QUAD_BUFFERED)
 			{
-				glDrawBuffer(GL_BACK_LEFT);
+				FBO::setRenderBuffers(GL_BACK_LEFT);
 			}
 			else
 			{
@@ -127,7 +131,8 @@ public:
 			right.camera = swapEyes?&leftEye:&rightEye;
 			if (pp.stereoMode==SM_QUAD_BUFFERED)
 			{
-				glDrawBuffer(GL_BACK_RIGHT);
+				FBO::setRenderBuffers(GL_BACK_RIGHT);
+				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			}
 			else
 			{
@@ -141,9 +146,7 @@ public:
 			_renderer.render(_pp.next,right);
 
 			if (pp.stereoMode==SM_QUAD_BUFFERED)
-			{
-				glDrawBuffer(GL_BACK);
-			}
+				oldFBOStateQB.restore();
 		}
 
 		// composite

@@ -145,7 +145,7 @@ void updateShadowmap(unsigned mapIndex)
 	rr_gl::Texture* shadowmap = realtimeLight->getShadowmap(mapIndex);
 	glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
 	rr_gl::FBO oldFBOState = rr_gl::FBO::getState();
-	rr_gl::FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,shadowmap);
+	rr_gl::FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,shadowmap,oldFBOState);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets nearly all off, perfect for shadowmap
