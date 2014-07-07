@@ -68,7 +68,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 		propSpecularModel->SetHelpString(_("Changes shape and intensity of specular highlights."));
 		AppendIn(propSpecular,propSpecularModel);
 	}
-	AppendIn(propSpecularModel,propSpecularShininess = new FloatProperty(_("shininess"),_("Effect depends on model."),10,svs.precision,1,1000000,5,false));
+	AppendIn(propSpecularModel,propSpecularShininess = new FloatProperty(_("shininess"),_("Effect depends on model."),10,svs.precision,0,1000000,5,false));
 	AppendIn(propSpecularModel,propSpecularRoughness = new FloatProperty(_("roughness"),_("Effect depends on model."),10,svs.precision,0,1,0.2f,false));
 	SetPropertyBackgroundColour(propSpecular,importantPropertyBackgroundColor,false);
 	Collapse(propSpecular);
@@ -441,21 +441,22 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propSpecularModel)
 	{
+		bool wasShininess = material->specularModel==rr::RRMaterial::PHONG || material->specularModel==rr::RRMaterial::BLINN_PHONG;
 		material->specularModel = (rr::RRMaterial::SpecularModel)(property->GetValue().GetInteger());
 		switch (material->specularModel)
 		{
 			case rr::RRMaterial::PHONG:
 			case rr::RRMaterial::BLINN_PHONG:
-				if (material->specularShininess<=0)
-					material->specularShininess = 1000000;
-				else if (material->specularShininess<1)
-					material->specularShininess = 1/material->specularShininess;
+				if (!wasShininess)
+					material->specularShininess = 1/material->specularShininess-1;
+				RR_CLAMP(material->specularShininess,0,100000);
 				updateFloat(propSpecularShininess,material->specularShininess);
 				break;
 			case rr::RRMaterial::TORRANCE_SPARROW:
 			case rr::RRMaterial::BLINN_TORRANCE_SPARROW:
-				if (material->specularShininess>1)
-					material->specularShininess = 1/material->specularShininess;
+				if (wasShininess)
+					material->specularShininess = 1/(material->specularShininess+1);
+				RR_CLAMP(material->specularShininess,0,1);
 				updateFloat(propSpecularRoughness,material->specularShininess);
 				break;
 		}

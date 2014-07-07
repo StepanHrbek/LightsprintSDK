@@ -222,7 +222,7 @@ namespace rr
 		};
 		//! Selects what model / distribution function to use for specular reflectance.
 		SpecularModel specularModel;
-		//! Interpreted as shininess (1..inf) or roughness (0..1), according to specularModel.
+		//! Interpreted as shininess (0..inf) or roughness (0..1), according to specularModel.
 		RRReal        specularShininess;
 		//! Fraction of energy that continues through surface (with direction possibly changed by refraction).
 		//
