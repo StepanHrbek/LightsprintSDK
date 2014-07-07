@@ -1693,7 +1693,27 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 				rr::RRObject* object = m_canvas->solver->getObject(entity.index);
 				m_objectProperties->setObject(object,svs.precision);
 				if (object && object->faceGroups.size())
-					m_materialProperties->setMaterial(object->faceGroups[0].material);
+				{
+					// start of optional code
+					// lets panel find both custom+physical materials for static objects
+					// (advantage: changes will be propagated to physical materials used by pathtracer
+					//             there is also chance occassional FB divergence was caused by not-updated physical materials)
+					if (!object->isDynamic)
+					{
+						unsigned hitTriangle = 0; // some triangle of selected object in multiobject
+						if (m_canvas->solver && m_canvas->solver->getMultiObjectCustom())
+						{
+							hitTriangle = m_canvas->solver->getMultiObjectCustom()->getCollider()->getMesh()->getPostImportTriangle(rr::RRMesh::PreImportNumber(entity.index,0));
+						}
+						m_materialProperties->setMaterial(m_canvas->solver,NULL,hitTriangle,rr::RRVec2(0));
+					}
+					else
+					// end of optional code
+					{
+						// dynamic object -> send only custom material, there is no physical one permanently created
+						m_materialProperties->setMaterial(object->faceGroups[0].material);
+					}
+				}
 			}
 			m_canvas->selectedType = entity.type;
 			svs.selectedObjectIndex = entity.index;
