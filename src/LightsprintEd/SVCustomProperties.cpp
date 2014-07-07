@@ -148,12 +148,12 @@ HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& help,
 	RRVec3 hsv = rgb.getHsvFromRgb();
 	SetAttribute("MotionSpin",true);
 	SetEditor("SpinCtrl");
-	AddPrivateChild(new FloatProperty(_("red"),_("Red component intensity"),rgb[0],precision,0,100,0.1f,false));
-	AddPrivateChild(new FloatProperty(_("green"),_("Green component intensity"),rgb[1],precision,0,100,0.1f,false));
-	AddPrivateChild(new FloatProperty(_("blue"),_("Blue component intensity"),rgb[2],precision,0,100,0.1f,false));
+	AddPrivateChild(new FloatProperty(_("red"),_("Red component intensity"),rgb[0],precision,0,10000,0.1f,false));
+	AddPrivateChild(new FloatProperty(_("green"),_("Green component intensity"),rgb[1],precision,0,10000,0.1f,false));
+	AddPrivateChild(new FloatProperty(_("blue"),_("Blue component intensity"),rgb[2],precision,0,10000,0.1f,false));
 	AddPrivateChild(new FloatProperty(_("hue"),_("Color hue, 0..360"),hsv[0],precision,0,360,10,true));
 	AddPrivateChild(new FloatProperty(_("saturation"),_("Color saturation, 0..1"),hsv[1],precision,0,1,0.1f,false));
-	AddPrivateChild(new FloatProperty(_("value"),_("Overall intensity"),hsv[2],precision,0,100,0.1f,false));
+	AddPrivateChild(new FloatProperty(_("value"),_("Overall intensity"),hsv[2],precision,0,10000,0.1f,false));
 }
 
 void HDRColorProperty::RefreshChildren()
