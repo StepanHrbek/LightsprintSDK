@@ -1615,7 +1615,8 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				solver->realtimeLights[i]->getCamera()->setDirection(newDir);
 				solver->getLights()[i]->outerAngleRad = svs.camera.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.6f;
 				solver->getLights()[i]->fallOffAngleRad = svs.camera.getFieldOfViewHorizontalRad()*viewportWidthCovered*0.4f;
-				solver->realtimeLights[i]->getCamera()->setRange(svs.camera.getNear(),svs.camera.getFar());
+				//solver->realtimeLights[i]->getCamera()->setRange(svs.camera.getNear(),svs.camera.getFar()); // not good when camera goes very close to objects, flashlight needs different near
+				solver->realtimeLights[i]->getCamera()->setRangeDynamically(solver,false);
 				solver->realtimeLights[i]->updateAfterRRLightChanges(); // sets dirtyRange if pos/dir/fov did change
 				solver->realtimeLights[i]->dirtyRange = false; // clear it, range already is good (dirty range would randomly disappear flashlight, reason unknown)
 				solver->realtimeLights[i]->dirtyShadowmap = true;
