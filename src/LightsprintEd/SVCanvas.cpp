@@ -1624,7 +1624,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		if (svs.cameraDynamicNear && !svs.camera.isOrthogonal()) // don't change range in ortho, fixed range from setView() is better
 		{
 			// eye must already be updated here because next line depends on pos, up, right
-			svs.camera.setRangeDynamically(solver,svs.renderPanorama);
+			svs.camera.setRangeDynamically(solver,svs.renderPanorama,svs.cameraDynamicNearNumRays);
 		}
 
 		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)

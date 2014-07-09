@@ -429,7 +429,7 @@ void RRCamera::setScreenCenter(RRVec2 _screenCenter)
 	}
 }
 
-void RRCamera::setRangeDynamically(const RRSolver* solver, bool panorama)
+void RRCamera::setRangeDynamically(const RRSolver* solver, bool panorama, unsigned numRays)
 {
 	if (!solver)
 		return;
@@ -465,9 +465,9 @@ void RRCamera::setRangeDynamically(const RRSolver* solver, bool panorama)
 	// calculate distance to visible geometry (raycasting)
 	RRVec2 distanceMinMax(1e10f,0);
 	if (panorama)
-		solver->getCollider()->getDistancesFromPoint(getPosition(),solver->getMultiObjectCustom(),distanceMinMax);
+		solver->getCollider()->getDistancesFromPoint(getPosition(),solver->getMultiObjectCustom(),distanceMinMax,numRays);
 	else
-		solver->getCollider()->getDistancesFromCamera(*this,solver->getMultiObjectCustom(),distanceMinMax);
+		solver->getCollider()->getDistancesFromCamera(*this,solver->getMultiObjectCustom(),distanceMinMax,numRays);
 
 	// set range
 	if (distanceMinMax[1]>=distanceMinMax[0])

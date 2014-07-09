@@ -257,9 +257,11 @@ namespace rr
 		//!  Has to be initialized. distanceMinMax[0] is decreased whenever closer collision is found,
 		//!  distanceMinMax[1] is increased whenever farther collision is found.
 		//!  Stays unchanged when ray doesn't collide at all.
-		void getDistancesFromPoint(const RRVec3& point, const RRObject* object, RRVec2& distanceMinMax) const;
+		//! \param numRays
+		//!  Approximately how many rays it shoots (higher number = slower but more accurate).
+		void getDistancesFromPoint(const RRVec3& point, const RRObject* object, RRVec2& distanceMinMax, unsigned numRays = 300) const;
 		//! Similar to getDistancesFromPoint, but shoots from camera.
-		void getDistancesFromCamera(const RRCamera& camera, const RRObject* object, RRVec2& distanceMinMax) const;
+		void getDistancesFromCamera(const RRCamera& camera, const RRObject* object, RRVec2& distanceMinMax, unsigned numRays = 100) const;
 
 
 		//! \return Mesh that was passed to create().

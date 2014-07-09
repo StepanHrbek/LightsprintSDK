@@ -234,7 +234,7 @@ namespace rr_gl
 		return getNumShadowSamples();
 	}
 
-	void RealtimeLight::setRangeDynamically(const rr::RRCollider* collider, const rr::RRObject* object)
+	void RealtimeLight::setRangeDynamically(const rr::RRCollider* collider, const rr::RRObject* object, unsigned numRays)
 	{
 		if (!object)
 			return;
@@ -245,7 +245,7 @@ namespace rr_gl
 			if (rrlight.type==rr::RRLight::POINT)
 			{
 				// POINT
-				collider->getDistancesFromPoint(rrlight.position,object,distanceMinMax);
+				collider->getDistancesFromPoint(rrlight.position,object,distanceMinMax,numRays?numRays:300);
 			}
 			else
 			{
@@ -253,7 +253,7 @@ namespace rr_gl
 				rr::RRCamera shadowmapCamera;
 				for (unsigned i=0;i<getNumShadowmaps();i++)
 				{
-					collider->getDistancesFromCamera(getShadowmapCamera(i,shadowmapCamera),object,distanceMinMax);
+					collider->getDistancesFromCamera(getShadowmapCamera(i,shadowmapCamera),object,distanceMinMax,numRays?numRays:100);
 				}
 			}
 			if (distanceMinMax[1]>=distanceMinMax[0]

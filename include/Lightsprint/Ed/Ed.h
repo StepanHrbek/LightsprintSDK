@@ -198,6 +198,7 @@ struct SceneViewerState
 	//rr::RRSolver::UpdateParameters    lightmapIndirectParameters; //! Lightmap baking settings.
 	rr::RRSolver::FilteringParameters lightmapFilteringParameters;  //! Lightmap baking settings.
 	bool             cameraDynamicNear;         //! Camera sets near dynamically to prevent near clipping.
+	unsigned         cameraDynamicNearNumRays;  //! How many rays it shoots per frame to autodetect camera near/far.
 	float            cameraMetersPerSecond;     //! Speed of movement controlled by user, in m/s.
 	bool             renderGrid;                //! Show grid.
 	unsigned         gridNumSegments;           //! Number of grid segments per line, e.g. 10 makes grid with 10x10 squares.
@@ -304,7 +305,8 @@ struct SceneViewerState
 		srgbCorrect = true;
 		lightmapFloats = false;
 		lightmapDirectParameters.aoSize = 1;
-		cameraDynamicNear = 1;
+		cameraDynamicNear = true;
+		cameraDynamicNearNumRays = 100;
 		cameraMetersPerSecond = 2;
 		renderGrid = 0;
 		gridNumSegments = 100;
@@ -417,6 +419,7 @@ struct SceneViewerState
 			&& a.lightmapDirectParameters==lightmapDirectParameters
 			&& a.lightmapFilteringParameters==lightmapFilteringParameters
 			&& a.cameraDynamicNear==cameraDynamicNear
+			&& a.cameraDynamicNearNumRays==cameraDynamicNearNumRays
 			&& a.cameraMetersPerSecond==cameraMetersPerSecond
 			&& a.renderGrid==renderGrid
 			&& a.gridNumSegments==gridNumSegments

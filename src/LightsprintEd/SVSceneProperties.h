@@ -59,6 +59,7 @@ namespace rr_ed
 		wxPGProperty*     propCameraNear;
 		wxPGProperty*     propCameraFar;
 		BoolRefProperty*  propCameraRangeAutomatic;
+		wxPGProperty*     propCameraRangeAutomaticNumRays;
 		wxPGProperty*     propCameraCenter;
 
 		wxPGProperty*     propEnv;

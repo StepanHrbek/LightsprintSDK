@@ -99,7 +99,7 @@ public:
 
 	//! Sets near and far to cover scene visible by light, but not much more.
 	//
-	//! Uses raycasting (~100 rays), performance hit for one light is acceptable even if called once per frame;
+	//! Uses raycasting, performance hit for one light is acceptable even if called once per frame;
 	//! but it could be too much when called for many lights in every frame.
 	//!
 	//! Instead of directly calling setRangeDynamically(), you can set #dirtyRange, solver will call
@@ -109,7 +109,10 @@ public:
 	//!  Collider to be used for distance testing.
 	//! \param object
 	//!  Object to be used for material testing, may be NULL.
-	void setRangeDynamically(const rr::RRCollider* collider, const rr::RRObject* object);
+	//! \param numRays
+	//!  How many rays it shoots to measure distances. Higher = more accurate, but slower.
+	//!  0 for defaults (around 300 for pointlight, 100 for spotlight).
+	void setRangeDynamically(const rr::RRCollider* collider, const rr::RRObject* object, unsigned numRays = 0);
 
 	//! Renders only shadows, no illumination. This is useful for simulating indirect shadows.
 	//! Works only in presence of indirect illumination, shadows are subtracted from indirect illumination.

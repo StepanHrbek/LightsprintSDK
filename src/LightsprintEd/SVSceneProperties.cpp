@@ -142,6 +142,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propCameraRangeAutomatic = new BoolRefProperty(_("Automatic near/far"),_("Near/far is set automatically based on distance of objects in viewport."),svs.cameraDynamicNear);
 		AppendIn(propCamera,propCameraRangeAutomatic);
 
+		propCameraRangeAutomaticNumRays = new FloatProperty(_("Accuracy"),_("How many rays to shoot from camera per frame to gather optimal near/far distances. Higher number = more accurate, but slower."),svs.cameraDynamicNearNumRays,0,1,100000,100,false);
+		AppendIn(propCameraRangeAutomatic,propCameraRangeAutomaticNumRays);
+
 		propCameraCenter = new RRVec2Property(_("Center of screen"),_("Shifts look up/down/left/right without distorting image. E.g. in architecture, 0,0.3 moves horizon down without skewing vertical lines."),svs.precision,svs.camera.getScreenCenter(),1);
 		AppendIn(propCamera,propCameraCenter);
 
@@ -353,6 +356,7 @@ void SVSceneProperties::updateHide()
 	propCameraOrthoSize->Hide(!svs.camera.isOrthogonal(),false);
 	EnableProperty(propCameraNear,!svs.cameraDynamicNear);
 	EnableProperty(propCameraFar,!svs.cameraDynamicNear);
+	propCameraRangeAutomaticNumRays->Hide(!svs.cameraDynamicNear,false);
 
 	propEnvMap->Hide(svs.envSimulateSky,false);
 	propEnvMapAngleDeg->Hide(svs.envSimulateSky||!svframe->m_canvas||!svframe->m_canvas->solver||!svframe->m_canvas->solver->getEnvironment(),false);
@@ -432,6 +436,7 @@ void SVSceneProperties::updateProperties()
 		+ updateFloat(propCameraFov,svs.camera.getFieldOfViewVerticalDeg())
 		+ updateFloat(propCameraNear,svs.camera.getNear())
 		+ updateFloat(propCameraFar,svs.camera.getFar())
+		+ updateInt(propCameraRangeAutomaticNumRays,svs.cameraDynamicNearNumRays)
 		+ updateProperty(propCameraCenter,svs.camera.getScreenCenter())
 		//+ updateBoolRef(propEnvSimulateSky)
 		+ updateBoolRef(propEnvSimulateSun)
@@ -623,6 +628,11 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propCameraRangeAutomatic)
 	{
 		updateHide();
+	}
+	else
+	if (property==propCameraRangeAutomaticNumRays)
+	{
+		svs.cameraDynamicNearNumRays = property->GetValue().GetInteger();
 	}
 	else
 	if (property==propCameraCenter)

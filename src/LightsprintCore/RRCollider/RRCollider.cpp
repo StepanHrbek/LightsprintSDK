@@ -448,7 +448,7 @@ static void addRay(const RRCollider* collider, RRRay& ray, RRVec3 dir, RRVec2& d
 	}
 }
 
-void RRCollider::getDistancesFromPoint(const RRVec3& point, const RRObject* object, RRVec2& distanceMinMax) const
+void RRCollider::getDistancesFromPoint(const RRVec3& point, const RRObject* object, RRVec2& distanceMinMax, unsigned numRays) const
 {
 	RRRay ray;
 	RRCollisionHandlerFirstVisible collisionHandler(object);
@@ -457,7 +457,11 @@ void RRCollider::getDistancesFromPoint(const RRVec3& point, const RRObject* obje
 	ray.rayFlags = RRRay::FILL_DISTANCE;
 	ray.hitObject = object;
 	ray.collisionHandler = &collisionHandler;
-	enum {RAYS=3}; // total num rays is (2*RAYS+1)^2 * 6 = 294
+	int RAYS = (sqrtf(numRays/6)-1)/2; // numRays ~= (2*RAYS+1)^2 * 6
+	int nr0 = (2*RAYS+1)*(2*RAYS+1)*6;
+	int nr1 = (2*(RAYS+1)+1)*(2*(RAYS+1)+1)*6;
+	if (numRays-nr0>nr1-numRays)
+		RAYS++;
 	for (int i=-RAYS;i<=RAYS;i++)
 	{
 		for (int j=-RAYS;j<=RAYS;j++)
@@ -474,7 +478,7 @@ void RRCollider::getDistancesFromPoint(const RRVec3& point, const RRObject* obje
 	}
 }
 
-void RRCollider::getDistancesFromCamera(const RRCamera& camera, const RRObject* object, RRVec2& distanceMinMax) const
+void RRCollider::getDistancesFromCamera(const RRCamera& camera, const RRObject* object, RRVec2& distanceMinMax, unsigned numRays) const
 {
 	RRRay ray;
 	RRCollisionHandlerFirstVisible collisionHandler(object);
@@ -482,7 +486,11 @@ void RRCollider::getDistancesFromCamera(const RRCamera& camera, const RRObject* 
 	ray.rayFlags = RRRay::FILL_DISTANCE;
 	ray.hitObject = object;
 	ray.collisionHandler = &collisionHandler;
-	enum {RAYS=4}; // #rays is actually (2*RAYS+1)^2 = 81
+	int RAYS = (sqrtf(numRays)-1)/2; // numRays ~= (2*RAYS+1)^2
+	int nr0 = (2*RAYS+1)*(2*RAYS+1);
+	int nr1 = (2*(RAYS+1)+1)*(2*(RAYS+1)+1);
+	if (numRays-nr0>nr1-numRays)
+		RAYS++;
 	for (int i=-RAYS;i<=RAYS;i++)
 	{
 		for (int j=-RAYS;j<=RAYS;j++)
