@@ -833,6 +833,7 @@ void save(Archive & ar, const rr::RRObject& a, const unsigned int version)
 	ar & make_nvp("faceGroups",a.faceGroups);
 	ar & make_nvp("worldMatrix",a.getWorldMatrixRef());
 	ar & make_nvp("isDynamic",a.isDynamic);
+	ar & make_nvp("enabled",a.enabled);
 	{
 		RRMeshProxy* proxy = (RRMeshProxy*)a.getCollider()->getMesh();
 		if (!proxy)
@@ -854,6 +855,10 @@ void load(Archive & ar, rr::RRObject& a, const unsigned int version)
 	if (version>0)
 	{
 		ar & make_nvp("isDynamic",a.isDynamic);
+	}
+	if (version>1)
+	{
+		ar & make_nvp("enabled",a.enabled);
 	}
 	{
 		RRMeshProxy* proxy = NULL;
@@ -1085,7 +1090,7 @@ BOOST_CLASS_VERSION(rr::RRMaterial,5)
 BOOST_CLASS_VERSION(rr::RRLight,5)
 #endif
 BOOST_CLASS_VERSION(RRMeshProxy,1) // this is actually RRMeshArrays version, load of RRMeshProxy only send it to load of RRMeshArrays
-BOOST_CLASS_VERSION(rr::RRObject,1)
+BOOST_CLASS_VERSION(rr::RRObject,2)
 #ifndef DONT_SERIALIZE_RRCAMERA
 BOOST_CLASS_VERSION(rr::RRCamera,3)
 #endif
