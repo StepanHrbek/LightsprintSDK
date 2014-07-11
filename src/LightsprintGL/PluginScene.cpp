@@ -272,7 +272,7 @@ public:
 			for (unsigned i=0;i<objects->size();i++)
 			{
 				rr::RRObject* object = (*objects)[i];
-				if (object)// && !_camera->frustumCull(object))
+				if (object && object->enabled)// && !_camera->frustumCull(object))
 				{
 					const rr::RRMesh* mesh = object->getCollider()->getMesh();
 					rr::RRObjectIllumination& illumination = object->illumination;
