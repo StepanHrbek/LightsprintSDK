@@ -89,28 +89,30 @@ public:
 		StoreCollisionHandler storeCollisionHandler(rayHits);
 		ray->collisionHandler = &storeCollisionHandler;
 		for (unsigned i=0;i<objects.size();i++)
-		if (objects[i]->enabled)
 		{
-			ray->hitObject = objects[i];
-			const RRMatrix3x4* m = ray->hitObject->getInverseWorldMatrix();
-			if (m)
+			if (objects[i]->enabled)
 			{
-				m->transformPosition(ray->rayOrigin);
-				m->transformDirection(ray->rayDir);
-				storeCollisionHandler.scale = ray->rayDir.length();
-				ray->rayDir /= storeCollisionHandler.scale;
-				ray->rayLengthMin *= storeCollisionHandler.scale;
-				ray->rayLengthMax *= storeCollisionHandler.scale;
-			}
-			else
-				storeCollisionHandler.scale = 1;
-			ray->hitObject->getCollider()->intersect(ray);
-			if (m)
-			{
-				ray->rayOrigin = rayOrigin;
-				ray->rayDir = rayDir;
-				ray->rayLengthMin = rayLengthMin;
-				ray->rayLengthMax = rayLengthMax;
+				ray->hitObject = objects[i];
+				const RRMatrix3x4* m = ray->hitObject->getInverseWorldMatrix();
+				if (m)
+				{
+					m->transformPosition(ray->rayOrigin);
+					m->transformDirection(ray->rayDir);
+					storeCollisionHandler.scale = ray->rayDir.length();
+					ray->rayDir /= storeCollisionHandler.scale;
+					ray->rayLengthMin *= storeCollisionHandler.scale;
+					ray->rayLengthMax *= storeCollisionHandler.scale;
+				}
+				else
+					storeCollisionHandler.scale = 1;
+				ray->hitObject->getCollider()->intersect(ray);
+				if (m)
+				{
+					ray->rayOrigin = rayOrigin;
+					ray->rayDir = rayDir;
+					ray->rayLengthMin = rayLengthMin;
+					ray->rayLengthMax = rayLengthMax;
+				}
 			}
 		}
 		ray->collisionHandler = oldCollisionHandler;
