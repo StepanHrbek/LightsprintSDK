@@ -89,6 +89,7 @@ public:
 		StoreCollisionHandler storeCollisionHandler(rayHits);
 		ray->collisionHandler = &storeCollisionHandler;
 		for (unsigned i=0;i<objects.size();i++)
+		if (objects[i]->enabled)
 		{
 			ray->hitObject = objects[i];
 			const RRMatrix3x4* m = ray->hitObject->getInverseWorldMatrix();

@@ -119,6 +119,7 @@ RRObject::RRObject()
 {
 	collider = NULL;
 	worldMatrix = NULL;
+	enabled = true;
 	isDynamic = false;
 }
 

@@ -231,6 +231,9 @@ namespace rr
 		//! Optional name of the object.
 		RRString name;
 
+		//! Disabled object becomes invisible for renderer.
+		bool enabled;
+
 		//! Is this object dynamic = is it safe to modify it?
 		//
 		//! This flag does not enforce anything, you set it as you wish and you comply with it if you wish.
