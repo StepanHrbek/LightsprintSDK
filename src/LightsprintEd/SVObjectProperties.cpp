@@ -28,6 +28,7 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 		if (object)
 		{
 			Append(propName = new wxStringProperty(_("Name"),wxPG_LABEL,RR_RR2WX(object->name)));
+			Append(propEnabled = new BoolRefProperty(_("Enabled"), _("Disabled objects are invisible."),object->enabled));
 			Append(propDynamic = new BoolRefProperty(_("Dynamic"),_("Can we move/scale/rotate it?"),object->isDynamic));
 		}
 
@@ -192,6 +193,11 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		object->name = RR_WX2RR(property->GetValue().GetString());
 		svframe->updateSceneTree();
+	}
+	else
+	if (property==propEnabled)
+	{
+		//svframe->updateSceneTree();
 	}
 	else
 	if (property==propDynamic)

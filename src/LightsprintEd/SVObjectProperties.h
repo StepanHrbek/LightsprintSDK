@@ -38,6 +38,7 @@ namespace rr_ed
 		rr::RRVec3        localCenter;
 
 		wxPGProperty*     propName;
+		BoolRefProperty*  propEnabled;
 		wxPGProperty*     propDynamic;
 		wxPGProperty*     propLocation;
 		wxPGProperty*     propCenter;
