@@ -457,7 +457,7 @@ void RRCollider::getDistancesFromPoint(const RRVec3& point, const RRObject* obje
 	ray.rayFlags = RRRay::FILL_DISTANCE;
 	ray.hitObject = object;
 	ray.collisionHandler = &collisionHandler;
-	int RAYS = (sqrtf(numRays/6)-1)/2; // numRays ~= (2*RAYS+1)^2 * 6
+	int RAYS = (int)((sqrtf(numRays/6.f)-1)/2); // numRays ~= (2*RAYS+1)^2 * 6
 	int nr0 = (2*RAYS+1)*(2*RAYS+1)*6;
 	int nr1 = (2*(RAYS+1)+1)*(2*(RAYS+1)+1)*6;
 	if (numRays-nr0>nr1-numRays)
@@ -486,7 +486,7 @@ void RRCollider::getDistancesFromCamera(const RRCamera& camera, const RRObject* 
 	ray.rayFlags = RRRay::FILL_DISTANCE;
 	ray.hitObject = object;
 	ray.collisionHandler = &collisionHandler;
-	int RAYS = (sqrtf(numRays)-1)/2; // numRays ~= (2*RAYS+1)^2
+	int RAYS = (int)((sqrtf((float)numRays)-1)/2); // numRays ~= (2*RAYS+1)^2
 	int nr0 = (2*RAYS+1)*(2*RAYS+1);
 	int nr1 = (2*(RAYS+1)+1)*(2*(RAYS+1)+1);
 	if (numRays-nr0>nr1-numRays)
