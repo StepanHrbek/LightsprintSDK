@@ -488,7 +488,7 @@ void SVSceneTree::OnContextMenuRun(wxCommandEvent& event)
 	runContextMenuAction(event.GetId(),getEntityIds(SVSceneTree::MEI_SELECTED));
 }
 
-rr::RRObject* SVSceneTree::addMesh(rr::RRMesh* mesh, wxString name, bool inFrontOfCamera)
+rr::RRObject* SVSceneTree::addMesh(rr::RRMesh* mesh, wxString name, bool inFrontOfCamera, bool twoSided)
 {
 	// this leaks memory, but it is not called often = not serious
 	bool aborting = false;
@@ -496,7 +496,7 @@ rr::RRObject* SVSceneTree::addMesh(rr::RRMesh* mesh, wxString name, bool inFront
 	rr::RRObject* object = new rr::RRObject;
 	object->setCollider(collider);
 	rr::RRMaterial* material = new rr::RRMaterial;
-	material->reset(false);
+	material->reset(twoSided);
 	rr::RRObject::FaceGroup fg;
 	fg.numTriangles = mesh->getNumTriangles();
 	fg.material = material;

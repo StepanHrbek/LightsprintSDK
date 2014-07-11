@@ -97,7 +97,7 @@ namespace rr_ed
 
 	private:
 		// returns pointer to newly created object added to scene (don't delete it, it's just if you want to modify the object)
-		rr::RRObject* addMesh(rr::RRMesh* mesh, wxString name, bool inFrontOfCamera=true);
+		rr::RRObject* addMesh(rr::RRMesh* mesh, wxString name, bool inFrontOfCamera=true, bool twoSided=false);
 
 		void updateSelectedEntityIds();
 		EntityIds selectedEntityIds; // always up to date, with root of lights replaced by all lights, root of objects replaced by all objects
