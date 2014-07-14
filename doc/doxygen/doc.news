@@ -15,11 +15,14 @@ NEWS
 - quad buffered stereo support
   - new rr_gl::StereoMode rr_gl::SM_QUAD_BUFFERED
   - sceneViewer() support included (User preferences / Stereo mode)
-  - note that GPU vendors put various restrictions on quad buffered stereo; as of writing this
+  - note that GPU vendors put various artificial restrictions on quad buffered stereo; as of writing this
     - Quadro and FirePro support quad buffered stereo
     - Radeon supports quad buffered stereo in fullscreen only, on HD6000 and newer
     - GeForce does NOT support quad buffered stereo
     - Intel does NOT support quad buffered stereo
+- rendering of contours
+  - rr_gl::PluginParamsContours
+  - silhouettes, creases
 - hiding objects
   - RRObject::enabled, clear this flag to hide object
   - note that while hidden objects are invisible for renderer, some GI solvers still let them reflect or emit light, so hiding is not as reliable as removing object

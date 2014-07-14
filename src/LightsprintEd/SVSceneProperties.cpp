@@ -269,6 +269,15 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		Append(propRenderExtras);
 		SetPropertyReadOnly(propRenderExtras,true,wxPG_DONT_RECURSE);
 
+		// contours
+		{
+			propRenderContours = new BoolRefProperty(_("Contours"),_("Renders dark contours on object boundaries."),svs.contoursEnabled);
+			AppendIn(propRenderExtras,propRenderContours);
+
+			AppendIn(propRenderContours,propRenderContoursSilhouette = new HDRColorProperty(_("Silhouette"),_("Color of silhouette lines, white for no lines."),svs.precision,svs.contoursSilhouetteColor));
+			AppendIn(propRenderContours,propRenderContoursCrease = new HDRColorProperty(_("Crease"),_("Color of crease lines, white for no lines."),svs.precision,svs.contoursCreaseColor));
+		}
+
 		propRenderWireframe = new BoolRefProperty(_("Wireframe"),_("Toggles between solid and wireframe rendering modes.")+" (ctrl-w)",svs.renderWireframe);
 		AppendIn(propRenderExtras,propRenderWireframe);
 
@@ -378,6 +387,9 @@ void SVSceneProperties::updateHide()
 	propRenderMaterialTransparencyFresnel->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
 	propRenderMaterialTransparencyRefraction->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
 
+	propRenderContoursSilhouette->Hide(!svs.contoursEnabled,false);
+	propRenderContoursCrease->Hide(!svs.contoursEnabled,false);
+
 
 	propBloomThreshold->Hide(!svs.renderBloom,false);
 
@@ -409,6 +421,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propEnvSimulateSun)
 		+ updateBoolRef(propToneMapping)
 		+ updateBool(propToneMappingAutomatic,svs.tonemappingAutomatic)
+		+ updateBoolRef(propRenderContours)
 		+ updateBoolRef(propLogo)
 		+ updateBoolRef(propBloom)
 		+ updateBoolRef(propLensFlare)
@@ -464,6 +477,8 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderMaterialBumpMaps)
 		+ updateBoolRef(propRenderMaterialTextures)
 		+ updateBoolRef(propRenderMaterialSidedness)
+		+ updateProperty(propRenderContoursSilhouette,svs.contoursSilhouetteColor)
+		+ updateProperty(propRenderContoursCrease,svs.contoursCreaseColor)
 		+ updateBoolRef(propRenderWireframe)
 		+ updateBoolRef(propRenderHelpers)
 		+ updateBoolRef(propRenderFPS)
@@ -782,6 +797,21 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		// update shadowmaps
 		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
+	}
+	else
+	if (property==propRenderContours)
+	{
+		updateHide();
+	}
+	else
+	if (property==propRenderContoursSilhouette)
+	{
+		svs.contoursSilhouetteColor << property->GetValue();
+	}
+	else
+	if (property==propRenderContoursCrease)
+	{
+		svs.contoursCreaseColor << property->GetValue();
 	}
 	else
 	if (property==propBloom)

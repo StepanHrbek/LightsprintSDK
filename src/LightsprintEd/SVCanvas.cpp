@@ -24,6 +24,7 @@
 #include "Lightsprint/GL/PluginShowDDI.h"
 #include "Lightsprint/GL/PluginSky.h"
 #include "Lightsprint/GL/PluginSSGI.h"
+#include "Lightsprint/GL/PluginContours.h"
 #include "Lightsprint/GL/PluginStereo.h"
 #include "Lightsprint/GL/PluginToneMapping.h"
 #include "Lightsprint/GL/PluginToneMappingAdjustment.h"
@@ -1748,6 +1749,11 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr_gl::PluginParamsSSGI ppSSGI(pluginChain,svs.ssgiIntensity,svs.ssgiRadius,svs.ssgiAngleBias);
 			if (svs.ssgiEnabled)
 				pluginChain = &ppSSGI;
+
+			// Contours plugin
+			rr_gl::PluginParamsContours ppContours(pluginChain,svs.contoursSilhouetteColor,svs.contoursCreaseColor);
+			if (svs.contoursEnabled)
+				pluginChain = &ppContours;
 
 			// DOF plugin
 			static unsigned oldStateVersion;

@@ -100,6 +100,7 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/GL/Plugin.h" \
                          "../../include/Lightsprint/GL/PluginAccumulation.h" \
                          "../../include/Lightsprint/GL/PluginBloom.h" \
+                         "../../include/Lightsprint/GL/PluginContours.h" \
                          "../../include/Lightsprint/GL/PluginCube.h" \
                          "../../include/Lightsprint/GL/PluginDOF.h" \
                          "../../include/Lightsprint/GL/PluginFPS.h" \

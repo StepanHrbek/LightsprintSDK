@@ -36,6 +36,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginShowDDI.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginAccumulation.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginToneMappingAdjustment.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\PluginContours.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MultiPass.cpp" />
@@ -65,6 +66,7 @@
     <ClCompile Include="PluginShowDDI.cpp" />
     <ClCompile Include="PluginAccumulation.cpp" />
     <ClCompile Include="PluginToneMappingAdjustment.cpp" />
+    <ClCompile Include="PluginContours.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\data\shaders\scaledown_filter.fs">
@@ -113,6 +115,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\..\data\shaders\ssgi.vs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\data\shaders\contours.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\..\data\shaders\contours.vs">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

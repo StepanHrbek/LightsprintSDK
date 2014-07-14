@@ -573,6 +573,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\Plugin.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginAccumulation.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginBloom.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\PluginContours.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginCube.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginDOF.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginFPS.h" />
@@ -606,6 +607,7 @@
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="PluginAccumulation.cpp" />
     <ClCompile Include="PluginBloom.cpp" />
+    <ClCompile Include="PluginContours.cpp" />
     <ClCompile Include="PluginCube.cpp" />
     <ClCompile Include="PluginDOF.cpp" />
     <ClCompile Include="PluginFPS.cpp" />
@@ -633,6 +635,8 @@
   <ItemGroup>
     <None Include="..\..\data\shaders\bloom.fs" />
     <None Include="..\..\data\shaders\bloom.vs" />
+    <None Include="..\..\data\shaders\contours.fs" />
+    <None Include="..\..\data\shaders\contours.vs" />
     <None Include="..\..\data\shaders\dof.fs" />
     <None Include="..\..\data\shaders\dof.vs" />
     <None Include="..\..\data\shaders\scaledown_filter.fs" />

@@ -95,6 +95,9 @@ namespace rr_ed
 		BoolRefProperty*  propRenderMaterialSidedness;
 
 		wxPGProperty*     propRenderExtras;
+		BoolRefProperty*  propRenderContours;
+		HDRColorProperty* propRenderContoursSilhouette;
+		HDRColorProperty* propRenderContoursCrease;
 		BoolRefProperty*  propRenderWireframe;
 		BoolRefProperty*  propRenderHelpers;
 		BoolRefProperty*  propRenderFPS;

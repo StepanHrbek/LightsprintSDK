@@ -85,6 +85,7 @@ public:
 //! - PluginParamsSky
 //! - PluginParamsScene
 //! - PluginParamsSSGI
+//! - PluginParamsContours
 //! - PluginParamsDOF
 //! - PluginParamsLensFlare
 //! - PluginParamsPanorama

@@ -170,6 +170,9 @@ struct SceneViewerState
 	float            ssgiIntensity;             //! Intensity of SSGI effect, with 1=default, 0=no effect.
 	float            ssgiRadius;                //! Distance of occluders (in meters) taken into account when calculating SSGI.
 	float            ssgiAngleBias;             //! SSGI is based on face normals, not per-pixel normals, so at 0 even smooth edges are visible; higher angle bias makes more edges invisible.
+	bool             contoursEnabled;
+	rr::RRVec3       contoursSilhouetteColor;
+	rr::RRVec3       contoursCreaseColor;
 	bool             playVideos;                //! Play videos, false = videos are paused.
 	rr_gl::RealtimeLight::ShadowTransparency shadowTransparency; //! Type of transparency in shadows, we copy it to all lights.
 	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
@@ -281,6 +284,9 @@ struct SceneViewerState
 		ssgiIntensity = 1.0f;
 		ssgiRadius = 0.3f;
 		ssgiAngleBias = 0.1f;
+		contoursEnabled = false;
+		contoursSilhouetteColor = rr::RRVec3(0);
+		contoursCreaseColor = rr::RRVec3(0.7f);
 		playVideos = 1;
 		shadowTransparency = rr_gl::RealtimeLight::FRESNEL_SHADOWS;
 		emissiveMultiplier = 1;
@@ -393,6 +399,9 @@ struct SceneViewerState
 			&& a.ssgiIntensity==ssgiIntensity
 			&& a.ssgiRadius==ssgiRadius
 			&& a.ssgiAngleBias==ssgiAngleBias
+			&& a.contoursEnabled==contoursEnabled
+			&& a.contoursSilhouetteColor==contoursSilhouetteColor
+			&& a.contoursCreaseColor==contoursCreaseColor
 			&& a.playVideos==playVideos
 			&& a.shadowTransparency==shadowTransparency
 			&& a.emissiveMultiplier==emissiveMultiplier

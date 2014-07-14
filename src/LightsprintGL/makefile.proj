@@ -36,6 +36,7 @@ MultiPass.cpp \
 Plugin.cpp \
 PluginAccumulation.cpp \
 PluginBloom.cpp \
+PluginContours.cpp \
 PluginCube.cpp \
 PluginDOF.cpp \
 PluginFPS.cpp \
