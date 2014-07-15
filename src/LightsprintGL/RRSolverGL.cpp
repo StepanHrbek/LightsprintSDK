@@ -812,8 +812,8 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		ppShared.gamma = srgbCorrect?0.45f:1.f;
 		renderer->render(&ppCube,ppShared);
 		cubeTexture->bindTexture();
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		//glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); // without glTexParameteri all env reflections would have max shininess
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glGenerateMipmap(GL_TEXTURE_CUBE_MAP); // exists in GL2+ARB_framebuffer_object, GL3, ES2
 
 		// unhide objects with current illumination
