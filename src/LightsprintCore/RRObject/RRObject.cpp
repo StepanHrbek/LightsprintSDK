@@ -220,7 +220,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 		material.diffuseEmittance.color = material.diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
 		if (scaler)
 		{
-			scaler->getPhysicalScale(material.diffuseEmittance.color);
+			material.diffuseEmittance.colorPhysical = material.diffuseEmittance.color; scaler->getPhysicalScale(material.diffuseEmittance.colorPhysical);
 		}
 	}
 	if (material.specularReflectance.texture)
@@ -241,7 +241,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 			material.specularShininess *= specColor.w;
 		if (scaler)
 		{
-			scaler->getPhysicalFactor(material.specularReflectance.color);
+			material.specularReflectance.colorPhysical = scaler->getPhysicalFactor(material.specularReflectance.color);
 		}
 	}
 	if (material.diffuseReflectance.texture && material.specularTransmittance.texture==material.diffuseReflectance.texture && material.specularTransmittanceInAlpha)
@@ -257,8 +257,8 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 			material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
 		if (scaler)
 		{
-			scaler->getPhysicalFactor(material.diffuseReflectance.color);
-			scaler->getPhysicalFactor(material.specularTransmittance.color);
+			material.diffuseReflectance.colorPhysical = scaler->getPhysicalFactor(material.diffuseReflectance.color);
+			material.specularTransmittance.colorPhysical = scaler->getPhysicalFactor(material.specularTransmittance.color);
 		}
 	}
 	else
@@ -277,7 +277,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 				material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
 			if (scaler)
 			{
-				scaler->getPhysicalFactor(material.specularTransmittance.color);
+				material.specularTransmittance.colorPhysical = scaler->getPhysicalFactor(material.specularTransmittance.color);
 			}
 		}
 		if (material.diffuseReflectance.texture)
@@ -292,7 +292,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 				* (RRVec3(1)-material.specularTransmittance.color);
 			if (scaler)
 			{
-				scaler->getPhysicalFactor(material.diffuseReflectance.color);
+				material.diffuseReflectance.colorPhysical = scaler->getPhysicalFactor(material.diffuseReflectance.color);
 			}
 		}
 	}

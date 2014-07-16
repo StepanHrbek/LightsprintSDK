@@ -55,6 +55,7 @@ bool RRSideBits::operator ==(const RRSideBits& a) const
 bool RRMaterial::Property::operator ==(const RRMaterial::Property& a) const
 {
 	return a.color==color
+		&& a.colorPhysical==colorPhysical
 		&& a.texcoord==texcoord
 		&& a.texture==texture
 		;
@@ -73,6 +74,7 @@ RRMaterial::RRMaterial()
 static void copyProperty(RRMaterial::Property& to, const RRMaterial::Property& from)
 {
 	to.color = from.color;
+	to.colorPhysical = from.colorPhysical;
 	to.texcoord = from.texcoord;
 	// copy texture only if it differs, copying is bit expensive and thread unsafe
 	if (to.texture!=from.texture)
@@ -139,6 +141,7 @@ void RRMaterial::reset(bool twoSided)
 	sideBits[0]                  = sideBitsTmp[twoSided?1:0][0];
 	sideBits[1]                  = sideBitsTmp[twoSided?1:0][1];
 	diffuseReflectance.color     = RRVec3(0.5f);
+	diffuseReflectance.colorPhysical = RRVec3(0.5f);//!!!
 	specularModel                = PHONG;
 	specularShininess            = DEFAULT_SHININESS;
 	specularTransmittanceInAlpha = false;
@@ -148,6 +151,7 @@ void RRMaterial::reset(bool twoSided)
 	bumpMapTypeHeight            = true;
 	refractionIndex              = 1;
 	bumpMap.color                = RRVec3(1);
+	bumpMap.colorPhysical        = RRVec3(1);
 	lightmapTexcoord             = UINT_MAX; // no unwrap by default
 	minimalQualityForPointMaterials = UINT_MAX; // Keep point materials disabled, adapter must explicitly want them.
 	name.clear();
@@ -444,18 +448,18 @@ bool RRMaterial::validate(RRReal redistributedPhotonsLimit)
 {
 	bool changed = false;
 
-	if (clamp3(diffuseReflectance.color,0,10)) changed = true;
-	if (clamp3(specularReflectance.color,0,10)) changed = true;
-	if (clamp3(specularTransmittance.color,0,10)) changed = true;
-	if (clamp3(diffuseEmittance.color,0,1e6f)) changed = true;
+	if (clamp3(diffuseReflectance.colorPhysical,0,10)) changed = true;
+	if (clamp3(specularReflectance.colorPhysical,0,10)) changed = true;
+	if (clamp3(specularTransmittance.colorPhysical,0,10)) changed = true;
+	if (clamp3(diffuseEmittance.colorPhysical,0,1e6f)) changed = true;
 
-	RRVec3 sum = diffuseReflectance.color+specularTransmittance.color+specularReflectance.color;
+	RRVec3 sum = diffuseReflectance.colorPhysical+specularTransmittance.colorPhysical+specularReflectance.colorPhysical;
 	RRReal max = RR_MAX3(sum[0],sum[1],sum[2]);
 	if (max>redistributedPhotonsLimit)
 	{
-		diffuseReflectance.color *= redistributedPhotonsLimit/max;
-		specularReflectance.color *= redistributedPhotonsLimit/max;
-		specularTransmittance.color *= redistributedPhotonsLimit/max;
+		diffuseReflectance.colorPhysical *= redistributedPhotonsLimit/max;
+		specularReflectance.colorPhysical *= redistributedPhotonsLimit/max;
+		specularTransmittance.colorPhysical *= redistributedPhotonsLimit/max;
 		changed = true;
 	}
 
@@ -469,10 +473,10 @@ void RRMaterial::convertToCustomScale(const RRScaler* scaler)
 {
 	if (scaler)
 	{
-		scaler->getCustomFactor(diffuseReflectance.color);
-		scaler->getCustomScale(diffuseEmittance.color);
-		scaler->getCustomFactor(specularReflectance.color);
-		scaler->getCustomFactor(specularTransmittance.color);
+		diffuseReflectance.color = scaler->getCustomFactor(diffuseReflectance.colorPhysical);
+		diffuseEmittance.color = diffuseEmittance.colorPhysical; scaler->getCustomScale(diffuseEmittance.color);
+		specularReflectance.color = scaler->getCustomFactor(specularReflectance.colorPhysical);
+		specularTransmittance.color = scaler->getCustomFactor(specularTransmittance.colorPhysical);
 	}
 	validate();
 }
@@ -481,10 +485,10 @@ void RRMaterial::convertToPhysicalScale(const RRScaler* scaler)
 {
 	if (scaler)
 	{
-		scaler->getPhysicalFactor(diffuseReflectance.color);
-		scaler->getPhysicalScale(diffuseEmittance.color);
-		scaler->getPhysicalFactor(specularReflectance.color);
-		scaler->getPhysicalFactor(specularTransmittance.color);
+		diffuseReflectance.colorPhysical = scaler->getPhysicalFactor(diffuseReflectance.color);
+		diffuseEmittance.colorPhysical = diffuseEmittance.color; scaler->getPhysicalScale(diffuseEmittance.colorPhysical);
+		specularReflectance.colorPhysical = scaler->getPhysicalFactor(specularReflectance.color);
+		specularTransmittance.colorPhysical = scaler->getPhysicalFactor(specularTransmittance.color);
 	}
 	validate();
 }

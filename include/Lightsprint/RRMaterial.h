@@ -90,8 +90,11 @@ namespace rr
 		//! Part of material description.
 		struct RR_API Property
 		{
-			//! Material property expressed as 3 floats. If texture is present, this is average color of texture.
+			//! Material property expressed as 3 floats. If texture is present, this is average color of the texture.
+			//! It is color in custom (usually sRGB) scale. Used by importers, exporters and realtime renderes (except for our pathtracer).
 			RRVec3                 color;
+			//! Color converted to physical (linear) scale and validated. Used by GI solvers and our pathtracer.
+			RRVec3                 colorPhysical;
 			//! Material property expressed as a texture or video.
 			//
 			//! Texture is owned and deleted by RRMaterial, so in order to change texture,
@@ -106,6 +109,7 @@ namespace rr
 			Property()
 			{
 				color = RRVec3(0);
+				colorPhysical = RRVec3(0);
 				texture = NULL;
 				texcoord = 0;
 			}
@@ -185,12 +189,12 @@ namespace rr
 		//! Updates bumpMapTypeHeight, tries to guess what type it is by looking at contents of bumpMap.texture.
 		void          updateBumpMapType();
 
-		//! Changes material to closest physically valid values. Returns whether changes were made.
+		//! Changes material's colorPhysical values to closest physically valid ones. Returns whether changes were made.
 		//
 		//! In physical scale, diffuse+specular+transmission must be below 1 (real world materials are below 0.98)
 		//! and this function enforces it. We call it automatically from solver.
-		//! In custom scale, it's legal to have diffuse+specular+transmission higher (up to roughly 1.7),
-		//! so we don't call validate on custom scale materials.
+		//! In custom scale, real world materials have diffuse+specular+transmission higher (up to roughly 1.7),
+		//! but we don't enforce this at all, color stays unchanged.
 		bool          validate(RRReal redistributedPhotonsLimit=0.98f);
 
 		//! Converts material properties from physical to custom scale.
@@ -257,7 +261,7 @@ namespace rr
 		//! Optional bump map modulates surface normals.
 		//
 		//! RGB maps are interpreted as normal maps, grayscale maps (or the same map as diffuseReflectance.texture, or c\@pture) as heightmaps.
-		//! Property::color.x is used as a multiplier of normal steepness, y multiplies height in parallax mapping, defaults are 1, negative values are ok.
+		//! bumpMap.color.x is used as a multiplier of normal steepness, y multiplies height in parallax mapping, defaults are 1, negative values are legal.
 		Property      bumpMap;
 		//! True = bump map is height/displacement map, false = bump map is normal map.
 		bool          bumpMapTypeHeight;

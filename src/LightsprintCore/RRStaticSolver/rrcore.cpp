@@ -172,15 +172,15 @@ Channels Triangle::setSurface(const RRMaterial *s, const RRVec3& _sourceIrradian
 	#error CHANNELS == 1 not supported here.
 #else
 	Channels newSourceIrradiance = _sourceIrradiance;
-	Channels newSourceExitance = surface->diffuseEmittance.color*emissiveMultiplier + _sourceIrradiance * surface->diffuseReflectance.color;
+	Channels newSourceExitance = surface->diffuseEmittance.colorPhysical*emissiveMultiplier + _sourceIrradiance * surface->diffuseReflectance.colorPhysical;
 	Channels newSourceIncidentFlux = newSourceIrradiance * area;
 	Channels newSourceExitingFlux = newSourceExitance * area;
 	RR_ASSERT(IS_VEC3(newSourceIncidentFlux));
 	RR_ASSERT(IS_VEC3(newSourceExitingFlux));
 #endif
-	RR_ASSERT(surface->diffuseEmittance.color[0]>=0); // teoreticky by melo jit i se zapornou
-	RR_ASSERT(surface->diffuseEmittance.color[1]>=0);
-	RR_ASSERT(surface->diffuseEmittance.color[2]>=0);
+	RR_ASSERT(surface->diffuseEmittance.colorPhysical[0]>=0); // teoreticky by melo jit i se zapornou
+	RR_ASSERT(surface->diffuseEmittance.colorPhysical[1]>=0);
+	RR_ASSERT(surface->diffuseEmittance.colorPhysical[2]>=0);
 	RR_ASSERT(area>=0);
 	RR_ASSERT(_sourceIrradiance.x>=0); // teoreticky by melo jit i se zapornou
 	RR_ASSERT(_sourceIrradiance.y>=0);
@@ -858,7 +858,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	//  without visible loss of quality
 	if (side.receiveFrom)
 	{
-		RRReal diffuseReflectPower = sum(abs(hitTriangle->surface->diffuseReflectance.color*power));
+		RRReal diffuseReflectPower = sum(abs(hitTriangle->surface->diffuseReflectance.colorPhysical*power));
 		if (diffuseReflectPower>0.01)
 		{
 			hitPower += diffuseReflectPower;
@@ -879,12 +879,12 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	RRReal specularTransmitPower;
 	if (side.reflect)
 	{
-		specularReflectPower = power*hitTriangle->surface->specularReflectance.color.avg();
+		specularReflectPower = power*hitTriangle->surface->specularReflectance.colorPhysical.avg();
 		specularReflect = shootingKernel->russianRoulette.survived(specularReflectPower);
 	}
 	if (side.transmitFrom)
 	{
-		specularTransmitPower = power*hitTriangle->surface->specularTransmittance.color.avg();
+		specularTransmitPower = power*hitTriangle->surface->specularTransmittance.colorPhysical.avg();
 		specularTransmit = shootingKernel->russianRoulette.survived(specularTransmitPower);
 	}
 
@@ -1006,7 +1006,7 @@ static void distributeEnergyViaFactor(const Factor& factor, Channels energy, Ref
 	RR_ASSERT(IS_VEC3(destination->totalIncidentFlux));
 	RR_ASSERT(IS_VEC3(destination->totalExitingFlux));
 	RR_ASSERT(IS_VEC3(destination->totalExitingFluxToDiffuse));
-	RR_ASSERT(IS_VEC3(destination->surface->diffuseReflectance.color));
+	RR_ASSERT(IS_VEC3(destination->surface->diffuseReflectance.colorPhysical));
 
 	energy *= factor.power;
 	RR_ASSERT(IS_VEC3(energy));
@@ -1014,7 +1014,7 @@ static void distributeEnergyViaFactor(const Factor& factor, Channels energy, Ref
 	destination->totalIncidentFlux += energy;
 	RR_ASSERT(IS_VEC3(destination->totalIncidentFlux));
 
-	energy *= destination->surface->diffuseReflectance.color;
+	energy *= destination->surface->diffuseReflectance.colorPhysical;
 	RR_ASSERT(IS_VEC3(energy));
 
 	destination->totalExitingFlux += energy;

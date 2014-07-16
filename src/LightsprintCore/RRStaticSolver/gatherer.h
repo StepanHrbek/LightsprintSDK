@@ -182,8 +182,8 @@ public:
 					}
 					// gathering light
 					legal = pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].legal;
-					visibility *= pointMaterial[pmi].specularTransmittance.color * RRReal( pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
-					RR_ASSERT(IS_VEC3(pointMaterial[pmi].specularTransmittance.color));
+					visibility *= pointMaterial[pmi].specularTransmittance.colorPhysical * RRReal( pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
+					RR_ASSERT(IS_VEC3(pointMaterial[pmi].specularTransmittance.colorPhysical));
 					RR_ASSERT(IS_VEC3(visibility));
 					COLLISION_LOG(log<<"collides()=?1\n");
 					return visibility==RRVec3(0);
@@ -201,8 +201,8 @@ public:
 				}
 				// gathering light
 				legal = triangleMaterial->sideBits[ray->hitFrontSide?0:1].legal;
-				visibility *= triangleMaterial->specularTransmittance.color * RRReal( triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
-				RR_ASSERT(IS_VEC3(triangleMaterial->specularTransmittance.color));
+				visibility *= triangleMaterial->specularTransmittance.colorPhysical * RRReal( triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
+				RR_ASSERT(IS_VEC3(triangleMaterial->specularTransmittance.colorPhysical));
 				RR_ASSERT(IS_VEC3(visibility));
 				COLLISION_LOG(log<<"collides()=?2\n");
 				return visibility==RRVec3(0);

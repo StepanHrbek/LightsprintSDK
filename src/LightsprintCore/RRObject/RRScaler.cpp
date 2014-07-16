@@ -157,36 +157,34 @@ void RRScaler::getPhysicalScale(RRReal& value) const
 	value = tmp[0];
 }
 
-void RRScaler::getCustomFactor(RRVec3& value) const
+RRVec3 RRScaler::getCustomFactor(const RRVec3& value) const
 {
 	// for typical scalers like sRGB, result does not depend on 0.5 constant
 	RRVec3 tmp1 = value*0.5f;
 	RRVec3 tmp2(0.5f);
 	getCustomScale(tmp1);
 	getCustomScale(tmp2);
-	value = tmp1/tmp2;
+	return tmp1/tmp2;
 }
-void RRScaler::getCustomFactor(RRReal& value) const
+RRReal RRScaler::getCustomFactor(const RRReal& value) const
 {
 	RRVec3 tmp(value);
-	getCustomFactor(tmp);
-	value = tmp[0];
+	return getCustomFactor(tmp)[0];
 }
 
-void RRScaler::getPhysicalFactor(RRVec3& value) const
+RRVec3 RRScaler::getPhysicalFactor(const RRVec3& value) const
 {
 	// for typical scalers like sRGB, result does not depend on 0.5 constant
 	RRVec3 tmp1 = value*0.5f;
 	RRVec3 tmp2(0.5f);
 	getPhysicalScale(tmp1);
 	getPhysicalScale(tmp2);
-	value = tmp1/tmp2;
+	return tmp1/tmp2;
 }
-void RRScaler::getPhysicalFactor(RRReal& value) const
+RRReal RRScaler::getPhysicalFactor(const RRReal& value) const
 {
 	RRVec3 tmp(value);
-	getPhysicalFactor(tmp);
-	value = tmp[0];
+	return getPhysicalFactor(tmp)[0];
 }
 
 RRScaler* RRScaler::createRgbScaler(RRReal power)

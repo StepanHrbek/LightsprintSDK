@@ -100,7 +100,7 @@ public:
 	// reads diffuseReflectance from material (or possibly from our copy to make memory accesses localized)
 	const RRVec3& getDiffuseReflectance() const
 	{
-		return material->diffuseReflectance.color;
+		return material->diffuseReflectance.colorPhysical;
 	}
 	// importance is amount of unshot energy. important triangles are processed first
 	RRReal getImportance() const
@@ -472,7 +472,7 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 					{
 						RRPointMaterial material;
 						object->getPointMaterial((unsigned)t,samplePoints[i],material);
-						sum += material.diffuseEmittance.color;
+						sum += material.diffuseEmittance.colorPhysical;
 					}
 					triangles[t].diffuseEmittance = sum * (_materialEmittanceMultiplier/numSamples);
 				}
@@ -480,7 +480,7 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 			}
 		}
 		// super-fast per-material averages (numSamples = 0)
-		triangles[t].diffuseEmittance = triangles[t].material->diffuseEmittance.color * _materialEmittanceMultiplier;
+		triangles[t].diffuseEmittance = triangles[t].material->diffuseEmittance.colorPhysical * _materialEmittanceMultiplier;
 	}
 
 	return true;

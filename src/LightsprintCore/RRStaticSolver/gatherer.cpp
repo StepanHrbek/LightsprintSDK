@@ -99,7 +99,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			RRVec3 specularTransmitDir;
 			if (side.reflect)
 			{
-				specularReflectPower = visibility*material->specularReflectance.color;
+				specularReflectPower = visibility*material->specularReflectance.colorPhysical;
 				specularReflectMax = specularReflectPower.maxi();
 				specularReflect = russianRoulette.survived(specularReflectMax);
 				if (specularReflect)
@@ -110,7 +110,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			}
 			if (side.transmitFrom)
 			{
-				specularTransmitPower = visibility*material->specularTransmittance.color;
+				specularTransmitPower = visibility*material->specularTransmittance.colorPhysical;
 				specularTransmitMax = specularTransmitPower.maxi();
 				specularTransmit = russianRoulette.survived(specularTransmitMax);
 				if (specularTransmit)
@@ -135,7 +135,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				if (gatherDirectEmitors)
 				{
 					// used in direct lighting final gather [per pixel emittance]
-					exitance += visibility * material->diffuseEmittance.color * gatherDirectEmitorsMultiplier;// * splitToTwoSides;
+					exitance += visibility * material->diffuseEmittance.colorPhysical * gatherDirectEmitorsMultiplier;// * splitToTwoSides;
 				}
 
 				// diffuse reflection
@@ -147,7 +147,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 						// zero area would create #INF in getTotalIrradiance() 
 						// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 						RR_ASSERT(hitTriangle->area);
-						exitance += visibility * hitTriangle->getTotalIrradiance() * material->diffuseReflectance.color * gatherIndirectLightMultiplier;// * splitToTwoSides;
+						exitance += visibility * hitTriangle->getTotalIrradiance() * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
 						RR_ASSERT(IS_VEC3(exitance));
 						// per triangle version (ignores point detail even if it's already available)
 						//exitance += visibility * hitTriangle->totalExitingFlux / hitTriangle->area;
