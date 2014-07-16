@@ -557,9 +557,7 @@ void RRObjects::multiplyEmittance(float emissiveMultiplier) const
 	{
 		if (*i)
 		{
-			(*i)->diffuseEmittance.color *= emissiveMultiplier;
-			if ((*i)->diffuseEmittance.texture)
-				(*i)->diffuseEmittance.texture->multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0));
+			(*i)->diffuseEmittance.multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0));
 		}
 	}
 }
