@@ -27,6 +27,12 @@ NEWS
   - RRObject::enabled, clear this flag to hide object
   - note that while hidden objects are invisible for renderer, some GI solvers still let them reflect or emit light, so hiding is not as reliable as removing object
 
+CHANGES
+
+- merge of custom (sRGB) and physical materials
+  - RRMaterial::Property::colorPhysical added
+  - getMultiObjectCustom() and getMultiObjectPhysical() merged into getMultiObject()
+
 \section news143 ------------------------------------ 2014.05.06 -------------------------------------
 
 NEWS

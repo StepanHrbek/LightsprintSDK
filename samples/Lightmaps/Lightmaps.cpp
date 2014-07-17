@@ -220,7 +220,7 @@ void keyboard(unsigned char c, int x, int y)
 
 				// update lightfield
 				rr::RRVec4 aabbMin,aabbMax;
-				solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
+				solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
 				aabbMin.w = aabbMax.w = 0;
 				if (!lightField) lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
 				if (lightField)

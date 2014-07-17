@@ -233,7 +233,7 @@ static void generateRandomCamera(const RRSolver* _solver, RRVec3& _pos, RRVec3& 
 			ray.rayDir = ( dir + RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX))-RRVec3(0.5f) ).normalized();
 			ray.rayLengthMax = _maxdist;
 			ray.rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE;
-			ray.hitObject = _solver->getMultiObjectCustom();
+			ray.hitObject = _solver->getMultiObject();
 			if (collider->intersect(&ray))
 			{
 				const RRMaterial* material = ray.hitObject->getTriangleMaterial(ray.hitTriangle,NULL,NULL);
@@ -465,9 +465,9 @@ void RRCamera::setRangeDynamically(const RRSolver* solver, bool panorama, unsign
 	// calculate distance to visible geometry (raycasting)
 	RRVec2 distanceMinMax(1e10f,0);
 	if (panorama)
-		solver->getCollider()->getDistancesFromPoint(getPosition(),solver->getMultiObjectCustom(),distanceMinMax,numRays);
+		solver->getCollider()->getDistancesFromPoint(getPosition(),solver->getMultiObject(),distanceMinMax,numRays);
 	else
-		solver->getCollider()->getDistancesFromCamera(*this,solver->getMultiObjectCustom(),distanceMinMax,numRays);
+		solver->getCollider()->getDistancesFromCamera(*this,solver->getMultiObject(),distanceMinMax,numRays);
 
 	// set range
 	if (distanceMinMax[1]>=distanceMinMax[0])

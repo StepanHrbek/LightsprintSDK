@@ -276,9 +276,9 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	// old smoothing code with stitching here in multiobject
 	//  stitching here (it's based on positions and normals only) would corrupt uvs in indexed render
 	//  we don't pass maxDistanceBetweenUvsToStitch+texcoords as parameters, therefore stitching here calls createOptimizedVertices(,,0,NULL) and different uvs are stitched
-	//priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
+	//priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObject() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
 	// new smoothing stitches in Object::buildTopIVertices, no stitching here in multiobject
-	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObjectCustom() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,-1,0,false,0,_cacheLocation);
+	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObject() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,-1,0,false,0,_cacheLocation);
 	priv->forcedMultiObjectCustom = _copyFrom ? true : false;
 
 	// convert it to physical scale
@@ -427,8 +427,8 @@ RRObject* RRSolver::getObject(unsigned index) const
 
 RRCollider* RRSolver::getCollider() const
 {
-	if (!priv->dynamicObjects.size() && getMultiObjectCustom())
-		return getMultiObjectCustom()->getCollider();
+	if (!priv->dynamicObjects.size() && getMultiObject())
+		return getMultiObject()->getCollider();
 
 	// check dynamic mesh versions (static meshes are not allowed to change), invalidate supercollider if they did change
 	unsigned superColliderMeshVersion = 0;
@@ -449,8 +449,8 @@ RRCollider* RRSolver::getCollider() const
 	if (!priv->superCollider || priv->superColliderDirty)
 	{
 		priv->superColliderObjects.clear();
-		if (getMultiObjectCustom())
-			priv->superColliderObjects.push_back(getMultiObjectCustom());
+		if (getMultiObject())
+			priv->superColliderObjects.push_back(getMultiObject());
 		//priv->superColliderObjects.insert(priv->superColliderObjects.end(),priv->staticObjects.begin(),priv->staticObjects.end());
 		priv->superColliderObjects.insert(priv->superColliderObjects.end(),priv->dynamicObjects.begin(),priv->dynamicObjects.end());
 		delete priv->superCollider;
@@ -465,10 +465,10 @@ RRCollider* RRSolver::getCollider() const
 		priv->superColliderMax = RRVec3(-1e37f);
 		priv->superColliderCenter = RRVec3(0);
 		priv->superColliderPlane = NULL;
-		if (getMultiObjectCustom())
+		if (getMultiObject())
 		{
-			getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&priv->superColliderMin,&priv->superColliderMax,&priv->superColliderCenter);
-			numVerticesSum = getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices();
+			getMultiObject()->getCollider()->getMesh()->getAABB(&priv->superColliderMin,&priv->superColliderMax,&priv->superColliderCenter);
+			numVerticesSum = getMultiObject()->getCollider()->getMesh()->getNumVertices();
 			priv->superColliderCenter *= (RRReal)numVerticesSum;
 		}
 		for (unsigned testPlanes=0;testPlanes<2;testPlanes++) // first pass=all but planes, second pass=only planes
@@ -511,7 +511,7 @@ RRCollider* RRSolver::getCollider() const
 				}
 			}
 			// skip second pass if we already found non-plane geometry
-			if (getMultiObjectCustom() || numPlanesSkipped<priv->dynamicObjects.size())
+			if (getMultiObject() || numPlanesSkipped<priv->dynamicObjects.size())
 				break;
 		}
 		priv->superColliderCenter /= (RRReal)numVerticesSum;
@@ -524,9 +524,9 @@ const RRObject* RRSolver::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center)
 {
 	if (!priv->dynamicObjects.size())
 	{
-		if (getMultiObjectCustom())
+		if (getMultiObject())
 		{
-			getMultiObjectCustom()->getCollider()->getMesh()->getAABB(_mini,_maxi,_center);
+			getMultiObject()->getCollider()->getMesh()->getAABB(_mini,_maxi,_center);
 		}
 		else
 		{
@@ -577,7 +577,7 @@ void RRSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsig
 	const RRObjects& objects = getDynamicObjects();
 	for (int i=-1;i<(int)objects.size();i++)
 	{
-		const RRObject* object = (i==-1)?getMultiObjectCustom():objects[i];
+		const RRObject* object = (i==-1)?getMultiObject():objects[i];
 		if (object)
 		{
 			const RRObject::FaceGroups& faceGroups = object->faceGroups;
@@ -615,12 +615,7 @@ void RRSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsig
 			_buffers.push_back(*i);
 }
 
-RRObject* RRSolver::getMultiObjectCustom() const
-{
-	return priv->multiObjectCustom;
-}
-
-const RRObject* RRSolver::getMultiObjectPhysical() const
+RRObject* RRSolver::getMultiObject() const
 {
 	return priv->multiObjectCustom;
 }
@@ -714,7 +709,7 @@ void RRSolver::calculateDirtyLights(CalculateParameters* _params)
 		unsigned versionSum[2] = {0,0}; // 0=static, 1=video
 #if 0
 		// detect texture changes only in static objects
-		RRObject* object = getMultiObjectCustom();
+		RRObject* object = getMultiObject();
 		if (object)
 		{
 			for (unsigned g=0;g<object->faceGroups.size();g++)
@@ -730,7 +725,7 @@ void RRSolver::calculateDirtyLights(CalculateParameters* _params)
 		const RRObjects& dynobjects = getDynamicObjects();
 		for (int i=-1;i<(int)dynobjects.size();i++)
 		{
-			RRObject* object = (i<0)?getMultiObjectCustom():dynobjects[i];
+			RRObject* object = (i<0)?getMultiObject():dynobjects[i];
 			if (object)
 			{
 				for (unsigned g=0;g<object->faceGroups.size();g++)
@@ -774,7 +769,7 @@ public:
 //  does no timing adjustments
 void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 {
-	if (!getMultiObjectCustom()) return;
+	if (!getMultiObject()) return;
 
 	// replace NULL by default parameters
 	static CalculateParameters s_params;
@@ -988,7 +983,7 @@ void RRSolver::calculate(CalculateParameters* _params)
 void RRSolver::checkConsistency()
 {
 	RRReporter::report(INF1,"Solver diagnose:\n");
-	if (!getMultiObjectCustom())
+	if (!getMultiObject())
 	{
 		RRReporter::report(WARN,"  No static objects in solver, see setStaticObjects().\n");
 		return;
@@ -1018,7 +1013,7 @@ void RRSolver::checkConsistency()
 	}
 
 	// histogram
-	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+	unsigned numTriangles = getMultiObject()->getCollider()->getMesh()->getNumTriangles();
 	unsigned numLit = 0;
 	unsigned histo[256][3];
 	memset(histo,0,sizeof(histo));
@@ -1080,7 +1075,7 @@ bool RRSolver::containsLightSource() const
 		if (getLights()[i] && getLights()[i]->enabled)
 			return true;
 	return getEnvironment()
-		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance());
+		|| (getMultiObject() && getMultiObject()->faceGroups.containsEmittance());
 }
 
 bool RRSolver::containsRealtimeGILightSource() const
@@ -1089,7 +1084,7 @@ bool RRSolver::containsRealtimeGILightSource() const
 		if (getLights()[i] && getLights()[i]->enabled)
 			return true;
 	return (getEnvironment() && getInternalSolverType()==FIREBALL) // Fireball calculates skybox realtime GI, Architect does not
-		|| (getMultiObjectCustom() && getMultiObjectCustom()->faceGroups.containsEmittance());
+		|| (getMultiObject() && getMultiObject()->faceGroups.containsEmittance());
 }
 
 void RRSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize, unsigned specularEnvMapSize, unsigned refractEnvMapSize, bool allocateNewBuffers, bool changeExistingBuffers, float specularThreshold, float depthThreshold) const
@@ -1097,13 +1092,13 @@ void RRSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironm
 	// allocate vertex buffers (don't touch cubes)
 	if (layerLightmap>=0)
 	{
-		if (getMultiObjectCustom())
+		if (getMultiObject())
 		{
 			getStaticObjects().allocateBuffersForRealtimeGI(layerLightmap,-1,0,0,0,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold); // -1=don't touch cubes (0 would delete them, next allocateBuffersForRealtimeGI would recreate them)
-			RRObjectIllumination& multiIllumination = getMultiObjectCustom()->illumination;
+			RRObjectIllumination& multiIllumination = getMultiObject()->illumination;
 			if (!multiIllumination.getLayer(layerLightmap))
 				multiIllumination.getLayer(layerLightmap) =
-					RRBuffer::create(BT_VERTEX_BUFFER,getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,false,NULL); // [multiobj indir is indexed]
+					RRBuffer::create(BT_VERTEX_BUFFER,getMultiObject()->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,false,NULL); // [multiobj indir is indexed]
 		}
 		for (unsigned i=0;i<getDynamicObjects().size();i++)
 		{

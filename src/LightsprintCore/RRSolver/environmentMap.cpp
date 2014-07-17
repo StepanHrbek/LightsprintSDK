@@ -183,13 +183,13 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 		RR_ASSERT(0);
 		return false;
 	}
-	const RRObject* multiObject = getMultiObjectCustom();
+	const RRObject* multiObject = getMultiObject();
 	const RRBuffer* environment0 = getEnvironment(0);
 	const RRBuffer* environment1 = getEnvironment(1);
 	float blendFactor = getEnvironmentBlendFactor();
 	const RRScaler* scalerForReadingEnv = getScaler();
 	unsigned gatherSize = reflectionEnvMap->getWidth();
-	unsigned numTriangles = getMultiObjectCustom() ? getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles() : 0;
+	unsigned numTriangles = getMultiObject() ? getMultiObject()->getCollider()->getMesh()->getNumTriangles() : 0;
 
 	if (gatherSize==illumination->cachedGatherSize
 		&& (unsigned short)(numTriangles)==illumination->cachedNumTriangles
@@ -318,10 +318,10 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 					}
 #ifdef RR_DEVELOPMET
-					else if (priv->customIrradianceRGBA8 && priv->customToPhysical && getMultiObjectCustom())
+					else if (priv->customIrradianceRGBA8 && priv->customToPhysical && getMultiObject())
 					{
 						// no solver, return DDI
-						RRMaterial* triangleMaterial = getMultiObjectCustom()->getTriangleMaterial(face,NULL,NULL);
+						RRMaterial* triangleMaterial = getMultiObject()->getTriangleMaterial(face,NULL,NULL);
 						unsigned rgba8 = priv->customIrradianceRGBA8[face];
 						RRVec3 physicalIrradiance(priv->customToPhysical[rgba8&0xff],priv->customToPhysical[(rgba8>>8)&0xff],priv->customToPhysical[(rgba8>>16)&0xff]);
 						exitanceHdr[ofs] = triangleMaterial ? triangleMaterial->diffuseReflectance.color*physicalIrradiance+triangleMaterial->diffuseEmittance.color : RRVec3(0);
@@ -498,7 +498,7 @@ unsigned RRSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsi
 	if (!cubeMapGather(illumination,layerEnvironment,gatheredExitance))
 	{
 #ifdef RR_DEVELOPMET
-		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getDirectIllumination(),priv->customToPhysical,getMultiObjectCustom(),getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
+		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getDirectIllumination(),priv->customToPhysical,getMultiObject(),getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
 #else
 		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
 #endif

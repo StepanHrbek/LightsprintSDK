@@ -245,7 +245,7 @@ void display(void)
 
 	// move characters
 	rr::RRVec3 aabbMin,aabbMax; // AABB of static scene
-	solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);	
+	solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);	
 	for (unsigned i=0;i<DYNAMIC_OBJECTS;i++)
 	{
 		float a = 1;
@@ -381,11 +381,11 @@ int main(int argc, char** argv)
 	if (!scene.objects.size())
 		error("No objects in scene.",false);
 	solver->setStaticObjects(scene.objects, NULL);
-	groundLevel = solver->getMultiObjectCustom()->getCollider()->getMesh()->findGroundLevel();
+	groundLevel = solver->getMultiObject()->getCollider()->getMesh()->findGroundLevel();
 
 	// init environment
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
-	if (!solver->getMultiObjectCustom())
+	if (!solver->getMultiObject())
 		error("No objects in scene.",false);
 
 	// init lights

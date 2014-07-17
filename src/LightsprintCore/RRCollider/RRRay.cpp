@@ -35,7 +35,7 @@ RRRay* RRRay::create(unsigned n)
 
 bool RRRay::convertHitFromMultiToSingleObject(RRSolver* solver)
 {
-	if (!solver || !hitObject || hitObject!=solver->getMultiObjectCustom() || hitTriangle==UINT_MAX)
+	if (!solver || !hitObject || hitObject!=solver->getMultiObject() || hitTriangle==UINT_MAX)
 		return false;
 	if (!(rayFlags&FILL_TRIANGLE))
 	{

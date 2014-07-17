@@ -380,7 +380,7 @@ void SVCanvas::createContextCore()
 	svframe->userPreferences.applySwapInterval();
 
 	ray = rr::RRRay::create();
-	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
+	collisionHandler = solver->getMultiObject()->createCollisionHandlerFirstVisible();
 
 	exitRequested = false;
 	fullyCreated = true;
@@ -407,7 +407,7 @@ void SVCanvas::createContext()
 void SVCanvas::recalculateIconSizeAndPosition()
 {
 	rr::RRVec3 sceneMin,sceneMax;
-	rr::RRObject* object = solver->getMultiObjectCustom();
+	rr::RRObject* object = solver->getMultiObject();
 	if (object)
 	{
 		object->getCollider()->getMesh()->getAABB(&sceneMin,&sceneMax,&sunIconPosition);
@@ -497,7 +497,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 
 	// fix dangling pointer in collisionHandler
 	delete collisionHandler;
-	collisionHandler = solver->getMultiObjectCustom()->createCollisionHandlerFirstVisible();
+	collisionHandler = solver->getMultiObject()->createCollisionHandlerFirstVisible();
 	// now that we have new collisionHandler, fix dangling pointer in ray
 	ray->collisionHandler = collisionHandler;
 
@@ -933,7 +933,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		ray->rayLengthMin = svs.camera.getNear()*directionToMouseLength;
 		ray->rayLengthMax = svs.camera.getFar()*directionToMouseLength;
 		ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D;
-		ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
+		ray->hitObject = solver->getMultiObject(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 		ray->collisionHandler = collisionHandler;
 		if (solver->getCollider()->intersect(ray))
 		{
@@ -964,7 +964,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		else
 		{
 			s_ci.clickedEntity.type = (s_ci.hitTriangle==UINT_MAX) ? ST_CAMERA : ST_OBJECT;
-			if (ray->hitObject==NULL || ray->hitObject==solver->getMultiObjectCustom())
+			if (ray->hitObject==NULL || ray->hitObject==solver->getMultiObject())
 			{
 				if (s_ci.hitTriangle==UINT_MAX)
 				{
@@ -972,7 +972,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				}
 				else
 				{
-					rr::RRMesh::PreImportNumber pre = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle);
+					rr::RRMesh::PreImportNumber pre = solver->getMultiObject()->getCollider()->getMesh()->getPreImportTriangle(s_ci.hitTriangle);
 					s_ci.clickedEntity.index =  pre.object;
 					s_ci.hitTriangle = pre.index;
 				}
@@ -1048,7 +1048,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					rr::RRMesh::PreImportNumber pre;
 					pre.object = s_ci.clickedEntity.index;
 					pre.index = s_ci.hitTriangle;
-					unsigned post = solver->getMultiObjectCustom()->getCollider()->getMesh()->getPostImportTriangle(pre);
+					unsigned post = solver->getMultiObject()->getCollider()->getMesh()->getPostImportTriangle(pre);
 					svframe->m_materialProperties->setMaterial(solver,NULL,post,s_ci.hitPoint2d);
 				}
 			}
@@ -1770,7 +1770,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					ray->rayLengthMin = svs.camera.getNear();
 					ray->rayLengthMax = svs.camera.getFar();
 					ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
-					ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
+					ray->hitObject = solver->getMultiObject(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 					ray->collisionHandler = collisionHandler;
 					float ratio = sqrtf(svs.camera.dofFar/svs.camera.dofNear);
 					if (!_finite(ratio) || ratio<1)
@@ -1789,7 +1789,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 
 			// lens flare plugin
-			rr_gl::PluginParamsLensFlare ppLensFlare(pluginChain,svs.lensFlareSize,svs.lensFlareId,&solver->getLights(),solver->getMultiObjectCustom(),64);
+			rr_gl::PluginParamsLensFlare ppLensFlare(pluginChain,svs.lensFlareSize,svs.lensFlareId,&solver->getLights(),solver->getMultiObject(),64);
 			if (svs.renderLensFlare && !svs.camera.isOrthogonal() && !svs.renderPanorama && !svs.renderStereo)
 				pluginChain = &ppLensFlare;
 
@@ -2062,7 +2062,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		unsigned numLights = solver->getLights().size();
 		static rr::RRTime time;
 		bool displayPhysicalMaterials = fmod(time.secondsPassed(),8)>4;
-		const rr::RRObject* multiObject = displayPhysicalMaterials ? solver->getMultiObjectPhysical() : solver->getMultiObjectCustom();
+		const rr::RRObject* multiObject = displayPhysicalMaterials ? solver->getMultiObject() : solver->getMultiObject();
 		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
 
@@ -2086,7 +2086,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ray->rayLengthMin = svs.camera.getNear();
 			ray->rayLengthMax = svs.camera.getFar();
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
-			ray->hitObject = solver->getMultiObjectCustom(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
+			ray->hitObject = solver->getMultiObject(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
 			ray->collisionHandler = collisionHandler;
 			if (solver->getCollider()->intersect(ray))
 			{

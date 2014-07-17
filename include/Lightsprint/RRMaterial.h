@@ -69,14 +69,6 @@ namespace rr
 	//!
 	//! Textures are owned and deleted by material.
 	//! To change texture on the fly, delete old one before setting new one.
-	//!
-	//! Values may be in physical or any other scale, depends on context, who uses it.
-	//! - Adapters create materials in custom scale (usually sRGB, so material properties are screen colors).
-	//! - Realtime renderer uses custom scale materials.
-	//!   Renderer expects, that custom scale is sRGB (physical->sRGB conversion is offloaded from CPU to GPU).
-	//!   We don't enforce validation, so you can safely create and render unrealistic materials.
-	//! - GI solver internally creates material copies converted to physical scale and validated,
-	//!   you can access them via RRSolver::getMultiObjectPhysical().
 	struct RR_API RRMaterial : public RRUniformlyAllocatedNonCopyable
 	{
 		//! What to do with completely uniform textures (single color).
@@ -91,7 +83,9 @@ namespace rr
 		struct RR_API Property
 		{
 			//! Material property expressed as 3 floats. If texture is present, this is average color of the texture.
+			//
 			//! It is color in custom (usually sRGB) scale. Used by importers, exporters and realtime renderes (except for our pathtracer).
+			//! We don't enforce any kind of color validation, so you can create unrealistic materials.
 			RRVec3                 color;
 			//! Color converted to physical (linear) scale and validated. Used by GI solvers and our pathtracer.
 			RRVec3                 colorPhysical;

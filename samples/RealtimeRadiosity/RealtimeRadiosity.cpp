@@ -423,7 +423,7 @@ int main(int argc, char** argv)
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 	solver->setStaticObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
 	solver->setEnvironment(environmentMap);
-	if (!solver->getMultiObjectCustom())
+	if (!solver->getMultiObject())
 		error("No objects in scene.",false);
 
 	// create buffers for computed GI

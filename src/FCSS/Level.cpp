@@ -47,7 +47,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	sp.vertexWeldDistance = 0.01f; // akorat dost aby sesmoothoval sane ve wop_padattic (nicmene pri 1cm speka podlahy v flat1, pri 1mm speka podlahu a strop v flat3)
 	sp.maxSmoothAngle = 0.5; // akorat dost aby sesmoothoval sane ve wop_padattic
 	solver->setStaticObjects(scene->objects,&sp);
-	if (!solver->getMultiObjectCustom())
+	if (!solver->getMultiObject())
 		error("No objects in scene.",false);
 
 	// init light
@@ -114,7 +114,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	free(fbname);
 
 	/*/ autodetect positions in center of scene
-	rr::RRMesh* mesh = solver->getMultiObjectCustom()->getCollider()->getMesh();
+	rr::RRMesh* mesh = solver->getMultiObject()->getCollider()->getMesh();
 	rr::RRVec3 center;
 	rr::RRVec3 mini;
 	rr::RRVec3 maxi;
@@ -135,7 +135,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	eye.pos = bestPos;
 	*/
 
-	//printf("After optimizations: vertices=%d, triangles=%d.\n",solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(),solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles());
+	//printf("After optimizations: vertices=%d, triangles=%d.\n",solver->getMultiObject()->getCollider()->getMesh()->getNumVertices(),solver->getMultiObject()->getCollider()->getMesh()->getNumTriangles());
 }
 
 Level::~Level()

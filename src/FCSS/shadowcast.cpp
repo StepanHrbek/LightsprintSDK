@@ -257,7 +257,7 @@ void done_gl_resources()
 const rr::RRCollider* getSceneCollider()
 {
 	if (!level) return NULL;
-	return level->solver->getMultiObjectCustom()->getCollider();
+	return level->solver->getMultiObject()->getCollider();
 }
 
 
@@ -1017,7 +1017,7 @@ void keyboard(unsigned char c, int x, int y)
 				ray->rayLengthMin = 0;
 				ray->rayLengthMax = 1000;
 				ray->rayFlags = rr::RRRay::FILL_POINT3D;
-				ray->hitObject = level->solver->getMultiObjectCustom();
+				ray->hitObject = level->solver->getMultiObject();
 				// kdyz neni kolize se scenou, umistit 10m daleko
 				if (!ray->hitObject->getCollider()->intersect(ray))
 				{

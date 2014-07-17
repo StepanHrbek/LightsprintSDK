@@ -43,7 +43,7 @@ public:
 			ppSceneBackup = *ppScene;
 			// allocate and fill vertex buffer with DDI illumination
 			#define LAYER_DDI 1928374
-			rr::RRObject* multiObject = ppScene->solver->getMultiObjectCustom();
+			rr::RRObject* multiObject = ppScene->solver->getMultiObject();
 			if (multiObject)
 			{
 				const unsigned* ddi = pp.solver->getDirectIllumination();
@@ -81,7 +81,7 @@ public:
 		// free vertex buffer with DDI illumination
 		if (ppScene)
 		{
-			rr::RRObject* multiObject = ppScene->solver->getMultiObjectCustom();
+			rr::RRObject* multiObject = ppScene->solver->getMultiObject();
 			if (multiObject)
 				RR_SAFE_DELETE(multiObject->illumination.getLayer(LAYER_DDI));
 			// restore

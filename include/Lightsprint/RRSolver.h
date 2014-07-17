@@ -141,7 +141,7 @@ namespace rr
 		//!  but materials are not.
 		//!  Format is RGBA8, i.e. first byte is red, second one is green, third one is blue, fourth one is ignored.
 		//!
-		//!  Length of array is getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles().
+		//!  Length of array is getMultiObject()->getCollider()->getMesh()->getNumTriangles().
 		//!  Order of values in array is defined by order of static triangles in scene,
 		//!  first all triangles from static object 0, then all triangles from static object 1 etc.
 		//!
@@ -294,11 +294,11 @@ namespace rr
 		//!
 		//! Returned collider does not necessarily know about objects, so ray.hitObjects is not necessarily set after intersection.
 		//! If you need to know what single object was intersected, follow instructions
-		//! - before calling intersect() on this collider, do ray.hitObject = solver->getMultiObjectCustom();
+		//! - before calling intersect() on this collider, do ray.hitObject = solver->getMultiObject();
 		//! - when intersect() on this collider returns true, do ray.convertHitFromMultiToSingleObject(solver);
 		//!
 		//! If you can afford to ignore dynamic objects, collide with static objects only, it's faster.
-		//! To collide with static objects only, use getMultiObjectCustom()->getCollider().
+		//! To collide with static objects only, use getMultiObject()->getCollider().
 		RRCollider* getCollider() const;
 
 		//! Fills bounding box of all objects in solver.
@@ -804,17 +804,12 @@ namespace rr
 		//! but you are responsible for keeping them in sync.
 		//! Complete code sequence to edit original material, synchronize copy in solver and report change could look like
 		//! \code
-		//! // this is your original material
-		//! materialCustom = solver->getMultiObjectCustom()->getTriangleMaterial(t,NULL,NULL);
-		//! // this is validated copy in solver
-		//! materialPhysical = solver->getMultiObjectPhysical()->getTriangleMaterial(t,NULL,NULL);
-		//! ... here you edit materialCustom
-		//! materialPhysical->copyFrom(*materialCustom);
-		//! materialPhysical->convertToPhysicalScale(solver->getScaler());
+		//! ... here you edit material's color
+		//! material->convertToPhysicalScale(solver->getScaler()); // converts material's color to colorPhysical
 		//! solver->reallocateBuffersForRealtimeGI(); // allocates specular reflection cubes if you add specular
 		//! solver->reportMaterialChange();
 		//! \endcode
-		//! If you make e.g. red materialCustom and blue materialPhysical, realtime renderer will
+		//! If you make e.g. red color and blue colorPhysical, realtime renderer will
 		//! render red material, but reflected light will be blue.
 		//! \param dirtyShadows
 		//!  Set this if you want shadows updated. Shadows may need update after change in material transparency.
@@ -960,10 +955,7 @@ namespace rr
 		virtual void allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironment, unsigned diffuseEnvMapSize = 4, unsigned specularEnvMapSize = 16, unsigned refractEnvMapSize = 16, bool allocateNewBuffers = true, bool changeExistingBuffers = true, float specularThreshold = 0.2f, float depthThreshold = 0.1f) const;
 
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
-		RRObject* getMultiObjectCustom() const;
-
-		//! As getMultiObjectCustom, but with materials converted to physical space.
-		const RRObject* getMultiObjectPhysical() const;
+		RRObject* getMultiObject() const;
 
 	protected:
 

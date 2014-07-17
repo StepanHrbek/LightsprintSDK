@@ -622,20 +622,20 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 		params.applyLights = false;
 	if (params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
-	if (!getMultiObjectCustom()->faceGroups.containsEmittance())
+	if (!getMultiObject()->faceGroups.containsEmittance())
 		params.applyEmittance = 0;
 	bool paramsAllowRealtime = !params.applyLights && !params.applyEnvironment && params.applyCurrentSolution && !params.quality;
 
 	// init solver
 	if ((!priv->scene
 		&& !priv->packedSolver
-		) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		) || !getMultiObject()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0,&priv->previousCalculateParameters);
 		if ( (!priv->scene
 			&& !priv->packedSolver
-			) || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+			) || !getMultiObject()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RR_LIMITED_TIMES(1,RRReporter::report(WARN,"RRSolver::updateLightmap: Empty scene.\n"));
 			return 0;
@@ -653,7 +653,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 	{
 		if (paramsAllowRealtime && objectNumber==-1)
 		{
-			vertexBufferWidth = getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(); // [multiobj indir is indexed]
+			vertexBufferWidth = getMultiObject()->getCollider()->getMesh()->getNumVertices(); // [multiobj indir is indexed]
 		}
 		else
 		{
@@ -732,7 +732,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 			// final gather: solver.direct+indirect+lights+env -> tmparray
 			// for each triangle
 			// future optimization: gather only triangles necessary for selected object
-			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+			unsigned numTriangles = getMultiObject()->getCollider()->getMesh()->getNumTriangles();
 			GatheredPerTriangleData* finalGatherPhysical = GatheredPerTriangleData::create(numTriangles,allVertexBuffers[LS_LIGHTMAP]?1:0,allVertexBuffers[LS_DIRECTION1]||allVertexBuffers[LS_DIRECTION2]||allVertexBuffers[LS_DIRECTION3],allVertexBuffers[LS_BENT_NORMALS]?1:0);
 			if (!finalGatherPhysical)
 			{
@@ -780,7 +780,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 		tc.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
 		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 		UnwrapStatistics us;
-		bool gathered = enumerateTexelsFull(getMultiObjectCustom(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance,us);
+		bool gathered = enumerateTexelsFull(getMultiObject(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance,us);
 
 		// report unwrap errors
 		if (gathered && (us.numTrianglesWithoutUnwrap || us.numTrianglesWithUnwrapOutOfRange))
@@ -905,7 +905,7 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	if (_paramsDirect) paramsDirect = *_paramsDirect;
 	if (_paramsIndirect) paramsIndirect = *_paramsIndirect;
 
-	if (!getMultiObjectCustom() || !getMultiObjectCustom()->faceGroups.containsEmittance())
+	if (!getMultiObject() || !getMultiObject()->faceGroups.containsEmittance())
 		paramsDirect.applyEmittance = paramsIndirect.applyEmittance = 0;
 
 	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
@@ -1070,7 +1070,7 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	{
 			// 4. final gather: solver.direct+indirect+lights+env -> tmparray
 			// for each triangle
-			unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+			unsigned numTriangles = getMultiObject()->getCollider()->getMesh()->getNumTriangles();
 			const GatheredPerTriangleData* finalGatherPhysical = GatheredPerTriangleData::create(numTriangles,containsVertexBuffer[LS_LIGHTMAP],containsVertexBuffer[LS_DIRECTION1]||containsVertexBuffer[LS_DIRECTION2]||containsVertexBuffer[LS_DIRECTION3],containsVertexBuffer[LS_BENT_NORMALS]);
 			if (!finalGatherPhysical)
 			{

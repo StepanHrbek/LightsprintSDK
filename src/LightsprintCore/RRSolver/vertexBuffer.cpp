@@ -25,7 +25,7 @@ void RRSolver::updateVertexLookupTableDynamicSolver()
 	if (!priv->postVertex2PostTriangleVertex.empty()) return;
 
 	RRReportInterval reportProp(INF3,"Updating vertex lookup table...\n");
-	if (!getMultiObjectPhysical())
+	if (!getMultiObject())
 	{
 		RR_ASSERT(0);
 		return;
@@ -40,7 +40,7 @@ void RRSolver::updateVertexLookupTableDynamicSolver()
 		priv->postVertex2PostTriangleVertex[objectHandle].resize(numPostImportSingleVertices,Private::TriangleVertexPair(RRMesh::UNDEFINED,RRMesh::UNDEFINED));
 	}
 	// fill table
-	const RRMesh* multiMesh = getMultiObjectPhysical()->getCollider()->getMesh();
+	const RRMesh* multiMesh = getMultiObject()->getCollider()->getMesh();
 	unsigned numPostImportMultiVertices = multiMesh->getNumVertices();
 	unsigned numPostImportMultiTriangles = multiMesh->getNumTriangles();
 	for (unsigned postImportMultiTriangle=0;postImportMultiTriangle<numPostImportMultiTriangles;postImportMultiTriangle++)
@@ -80,12 +80,12 @@ void RRSolver::updateVertexLookupTablePackedSolver()
 // depends on static objects and packedSolver (needs update when they change)
 {
 	RRReportInterval reportProp(INF3,"Updating fireball lookup table...\n");
-	if (!priv->packedSolver || !getMultiObjectPhysical())
+	if (!priv->packedSolver || !getMultiObject())
 	{
 		RR_ASSERT(0);
 		return;
 	}
-	const RRMesh* multiMesh = getMultiObjectPhysical()->getCollider()->getMesh();
+	const RRMesh* multiMesh = getMultiObject()->getCollider()->getMesh();
 	unsigned numPostImportMultiVertices = multiMesh->getNumVertices();
 	unsigned numPostImportMultiTriangles = multiMesh->getNumTriangles();
 
@@ -174,7 +174,7 @@ unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vert
 	}
 	unsigned numPostImportVertices = (objectNumber>=0)
 		? getStaticObjects()[objectNumber]->getCollider()->getMesh()->getNumVertices() // elements in 1object vertex buffer
-		: getMultiObjectCustom()->getCollider()->getMesh()->getNumVertices(); // elements in multiobject vertex buffer [multiobj indir is indexed]
+		: getMultiObject()->getCollider()->getMesh()->getNumVertices(); // elements in multiobject vertex buffer [multiobj indir is indexed]
 	if (vertexBuffer->getType()!=BT_VERTEX_BUFFER || vertexBuffer->getWidth()<numPostImportVertices)
 	{
 		RR_ASSERT(0);

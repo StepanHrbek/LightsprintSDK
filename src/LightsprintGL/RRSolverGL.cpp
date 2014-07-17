@@ -181,7 +181,7 @@ void RRSolverGL::updateShadowmaps()
 	const rr::RRObjects& dynobjects = getDynamicObjects();
 	for (int i=-1;i<(int)dynobjects.size();i++)
 	{
-		rr::RRObject* object = (i<0)?getMultiObjectCustom():dynobjects[i];
+		rr::RRObject* object = (i<0)?getMultiObject():dynobjects[i];
 		if (object)
 		{
 			for (unsigned g=0;g<object->faceGroups.size();g++)
@@ -234,8 +234,8 @@ done:
 		if (light->dirtyShadowmap || isDirtyOnlyBecauseObserverHasMoved)
 		{
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
-			if (light->dirtyRange && getMultiObjectCustom())
-				light->setRangeDynamically(getCollider(),getMultiObjectCustom()); // getMultiObjectCustom()->getCollider() would makes it test static objects only
+			if (light->dirtyRange && getMultiObject())
+				light->setRangeDynamically(getCollider(),getMultiObject()); // getMultiObject()->getCollider() would makes it test static objects only
 			light->configureCSM(observer,this);
 			glEnable(GL_POLYGON_OFFSET_FILL);
 			// Setup shader for rendering to SM.
@@ -357,8 +357,8 @@ done:
 
 const unsigned* RRSolverGL::detectDirectIllumination()
 {
-	if (!getMultiObjectCustom()) return NULL;
-	unsigned numTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+	if (!getMultiObject()) return NULL;
+	unsigned numTriangles = getMultiObject()->getCollider()->getMesh()->getNumTriangles();
 	if (!numTriangles) return NULL;
 
 	PreserveViewport p1;
@@ -457,10 +457,10 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 
 	REPORT(rr::RRReportInterval report(rr::INF1,"detectDirectIllumination()\n"));
 
-	if (!getMultiObjectCustom())
+	if (!getMultiObject())
 		return 0;
 
-	const rr::RRMesh* mesh = getMultiObjectCustom()->getCollider()->getMesh();
+	const rr::RRMesh* mesh = getMultiObject()->getCollider()->getMesh();
 	unsigned numTriangles = mesh->getNumTriangles();
 	if (!numTriangles)
 	{
@@ -538,9 +538,9 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 		// render scene
 		glDisable(GL_CULL_FACE);
 		FaceGroupRange fgRange(0,0,0,firstCapturedTriangle,lastCapturedTrianglePlus1);
-		renderer->getMeshRenderer(getMultiObjectCustom()->getCollider()->getMesh())->renderMesh(
+		renderer->getMeshRenderer(getMultiObject()->getCollider()->getMesh())->renderMesh(
 			program,
-			getMultiObjectCustom(),
+			getMultiObject(),
 			&fgRange,
 			1,
 			uberProgramSetup,
@@ -738,10 +738,10 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 	
 		// find out scene size
 		rr::RRReal size = 1;
-		if (getMultiObjectCustom())
+		if (getMultiObject())
 		{
 			rr::RRVec3 mini,maxi;
-			getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+			getMultiObject()->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
 			size = (maxi-mini).length();
 		}
 
@@ -830,7 +830,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		cube->version = (solutionVersion<<16)+(cube->version&65535);
 		cubeTexture->version = cube->version;
 
-		illumination->cachedNumTriangles = getMultiObjectCustom() ? getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles() : 0;
+		illumination->cachedNumTriangles = getMultiObject() ? getMultiObject()->getCollider()->getMesh()->getNumTriangles() : 0;
 		illumination->cachedCenter = illumination->envMapWorldCenter;
 
 		return 1;

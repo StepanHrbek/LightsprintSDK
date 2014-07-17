@@ -247,7 +247,7 @@ public:
 		blendedFaceGroups[recursionDepth].clear();
 		multiObjects.clear();
 		if (_.solver)
-			multiObjects.push_back(_.solver->getMultiObjectCustom());
+			multiObjects.push_back(_.solver->getMultiObject());
 		for (unsigned pass=0;pass<3;pass++)
 		{
 			const rr::RRObjects* objects;

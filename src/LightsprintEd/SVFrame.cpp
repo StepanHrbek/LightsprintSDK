@@ -1442,7 +1442,7 @@ reload_skybox:
 				}
 
 				rr::RRVec4 aabbMin,aabbMax;
-				solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
+				solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
 				aabbMin.y = aabbMax.y = svs.camera.pos.y;
 				aabbMin.w = aabbMax.w = 0;
 				delete m_canvas->lightField;
@@ -1459,7 +1459,7 @@ reload_skybox:
 				}
 
 				rr::RRVec4 aabbMin,aabbMax;
-				solver->getMultiObjectCustom()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
+				solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
 				aabbMin.w = aabbMax.w = 0;
 				delete m_canvas->lightField;
 				m_canvas->lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
@@ -1701,9 +1701,9 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 					if (!object->isDynamic)
 					{
 						unsigned hitTriangle = 0; // some triangle of selected object in multiobject
-						if (m_canvas->solver && m_canvas->solver->getMultiObjectCustom())
+						if (m_canvas->solver && m_canvas->solver->getMultiObject())
 						{
-							hitTriangle = m_canvas->solver->getMultiObjectCustom()->getCollider()->getMesh()->getPostImportTriangle(rr::RRMesh::PreImportNumber(entity.index,0));
+							hitTriangle = m_canvas->solver->getMultiObject()->getCollider()->getMesh()->getPostImportTriangle(rr::RRMesh::PreImportNumber(entity.index,0));
 						}
 						m_materialProperties->setMaterial(m_canvas->solver,NULL,hitTriangle,rr::RRVec2(0));
 					}

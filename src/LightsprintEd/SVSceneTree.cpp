@@ -979,7 +979,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 
 				// convert oldObject with Multi* into newObject with RRMeshArrays
 				// if we don't do it
-				// - solver->getMultiObjectCustom() preimport numbers would point to many 1objects, although there is only one 1object now
+				// - solver->getMultiObject() preimport numbers would point to many 1objects, although there is only one 1object now
 				// - attempt to smooth scene would fail, it needs arrays
 				const rr::RRCollider* oldCollider = oldObject->getCollider();
 				const rr::RRMesh* oldMesh = oldCollider->getMesh();

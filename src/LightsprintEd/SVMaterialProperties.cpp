@@ -270,7 +270,7 @@ void SVMaterialProperties::updateIsInStaticScene()
 	materialIsInStaticScene = false;
 	if (svframe && svframe->m_canvas && svframe->m_canvas->solver)
 	{
-		const rr::RRObject* multiobject = svframe->m_canvas->solver->getMultiObjectCustom();
+		const rr::RRObject* multiobject = svframe->m_canvas->solver->getMultiObject();
 		if (multiobject)
 			for (unsigned fg=0;fg<multiobject->faceGroups.size();fg++)
 				if (multiobject->faceGroups[fg].material==materialCustom)
@@ -323,15 +323,15 @@ void SVMaterialProperties::setMaterial(rr::RRSolver* solver, rr::RRObject* objec
 	if (showPoint)
 	{
 		if (showPhysical)
-			solver->getMultiObjectPhysical()->getPointMaterial(hitTriangle,hitPoint2d,materialPoint);
+			solver->getMultiObject()->getPointMaterial(hitTriangle,hitPoint2d,materialPoint);
 		else
-			(object?object:solver->getMultiObjectCustom())->getPointMaterial(hitTriangle,hitPoint2d,materialPoint);
+			(object?object:solver->getMultiObject())->getPointMaterial(hitTriangle,hitPoint2d,materialPoint);
 		material = &materialPoint;
 	}
 	else
 	{
-		materialPhysical = object?NULL:solver->getMultiObjectPhysical()->getTriangleMaterial(hitTriangle,NULL,NULL);
-		materialCustom = (object?object:solver->getMultiObjectCustom())->getTriangleMaterial(hitTriangle,NULL,NULL);
+		materialPhysical = object?NULL:solver->getMultiObject()->getTriangleMaterial(hitTriangle,NULL,NULL);
+		materialCustom = (object?object:solver->getMultiObject())->getTriangleMaterial(hitTriangle,NULL,NULL);
 		material = showPhysical ? materialPhysical : materialCustom;
 	}
 

@@ -310,7 +310,7 @@ const PackedSolverFile* RRStaticSolver::buildFireball(unsigned raysPerTriangle, 
 bool RRSolver::buildFireball(unsigned raysPerTriangle, const RRString& _filename)
 {
 	float importanceOfDetails = 0.1f;
-	RRReportInterval report(INF1,"Building Fireball (quality=%d, triangles=%d)...\n",raysPerTriangle,getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
+	RRReportInterval report(INF1,"Building Fireball (quality=%d, triangles=%d)...\n",raysPerTriangle,getMultiObject()?getMultiObject()->getCollider()->getMesh()->getNumTriangles():0);
 	RR_SAFE_DELETE(priv->packedSolver); // delete packed solver if it already exists (we REbuild it)
 	priv->postVertex2Ivertex.clear(); // clear also table that depends on packed solver
 	calculateCore(0,&priv->previousCalculateParameters); // create static solver if not created yet
@@ -328,7 +328,7 @@ bool RRSolver::buildFireball(unsigned raysPerTriangle, const RRString& _filename
 		( packedSolverFile->packedIvertices->getMemoryOccupied()+packedSolverFile->packedSmoothTrianglesBytes )/1024
 		);
 
-	RRHash hash = getMultiObjectPhysical()->getHash();
+	RRHash hash = getMultiObject()->getHash();
 	RRString filename = _filename.empty() ? hash.getFileName(FIREBALL_FILENAME_VERSION,NULL,".fireball") : _filename;
 
 	if (packedSolverFile->save(filename,hash))
@@ -338,7 +338,7 @@ bool RRSolver::buildFireball(unsigned raysPerTriangle, const RRString& _filename
 		RRReporter::report(WARN,"Failed to save to %ls\n",filename.w_str());
 		RR_SAFE_DELETE(packedSolverFile); // to make it consistent, delete fireball when save fails
 	}
-	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),packedSolverFile);
+	priv->packedSolver = RRPackedSolver::create(getMultiObject(),packedSolverFile);
 	if (priv->packedSolver)
 	{
 		updateVertexLookupTablePackedSolver();
@@ -355,7 +355,7 @@ bool RRSolver::loadFireball(const RRString& _filename, bool onlyPerfectMatch)
 	priv->postVertex2Ivertex.clear(); // clear also table that depends on packed solver
 
 	// do nothing for empty scene
-	if (!getMultiObjectPhysical())
+	if (!getMultiObject())
 	{
 		RRReporter::report(WARN,"Fireball not loaded, empty scene.\n");
 		return false;
@@ -363,13 +363,13 @@ bool RRSolver::loadFireball(const RRString& _filename, bool onlyPerfectMatch)
 
 	RRHash hash;
 	if (_filename.empty() || onlyPerfectMatch) // save time, don't hash if we don't need it
-		hash = getMultiObjectPhysical()->getHash();
+		hash = getMultiObject()->getHash();
 	RRString filename = _filename.empty() ? hash.getFileName(FIREBALL_FILENAME_VERSION,NULL,".fireball") : _filename;
 
-	priv->packedSolver = RRPackedSolver::create(getMultiObjectPhysical(),PackedSolverFile::load(filename,onlyPerfectMatch?&hash:NULL));
+	priv->packedSolver = RRPackedSolver::create(getMultiObject(),PackedSolverFile::load(filename,onlyPerfectMatch?&hash:NULL));
 	if (priv->packedSolver)
 	{
-		//RRReporter::report(INF2,"Loaded Fireball (%s, triangles=%d)\n",filename,getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
+		//RRReporter::report(INF2,"Loaded Fireball (%s, triangles=%d)\n",filename,getMultiObject()?getMultiObject()->getCollider()->getMesh()->getNumTriangles():0);
 		updateVertexLookupTablePackedSolver();
 		priv->dirtyMaterials = false; // packed solver defines materials & factors, they are safe now
 		priv->dirtyCustomIrradiance = true; // request reload of direct illumination into solver

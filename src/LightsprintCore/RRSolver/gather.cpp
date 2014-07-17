@@ -130,7 +130,7 @@ public:
 	GatheringTools(const ProcessTexelParams& pti)
 	{
 		scaler = pti.context.solver->getScaler();
-		collider = pti.context.solver->getMultiObjectCustom()->getCollider();
+		collider = pti.context.solver->getMultiObject()->getCollider();
 		environment = pti.context.params->applyEnvironment ? pti.context.solver->getEnvironment() : NULL;
 		fillerPos.Reset(pti.resetFiller);
 	}
@@ -157,7 +157,7 @@ public:
 		tools(_tools),
 		pti(_pti),
 		gatherer(
-			_pti.context.solver->getMultiObjectPhysical(), // multiObjectPhysical is used because collisionHandler reads point details and gatherer reuses them
+			_pti.context.solver->getMultiObject(), // multiObjectPhysical is used because collisionHandler reads point details and gatherer reuses them
 			_pti.context.solver->priv->scene,
 			_tools.environment,
 			_tools.scaler,
@@ -336,7 +336,7 @@ public:
 		: tools(_tools),
 		pti(_pti),
 		collisionHandlerGatherLight(
-			_pti.context.solver->getMultiObjectPhysical(), // handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
+			_pti.context.solver->getMultiObject(), // handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
 			_pti.context.params->quality*2, // when gathering lights (possibly rendering direct shadows), make point details 2* more important
 			_pti.context.staticSceneContainsLods)
 	{
@@ -352,7 +352,7 @@ public:
 		{
 			numRelevantLights = 0;
 			const RRLights& allLights = _pti.context.solver->getLights();
-			const RRObject* multiObject = _pti.context.solver->getMultiObjectCustom();
+			const RRObject* multiObject = _pti.context.solver->getMultiObject();
 			for (unsigned i=0;i<allLights.size();i++)
 				if (allLights[i]->enabled && multiObject->getTriangleMaterial(_pti.subTexels->begin()->multiObjPostImportTriIndex,allLights[i],NULL))
 				{
@@ -366,7 +366,7 @@ public:
 		reliabilityLights = 0;
 		rounds = (pti.context.params->applyLights && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
 		rays = numRelevantLights*rounds;
-		ray.hitObject = pti.context.solver->getMultiObjectPhysical();
+		ray.hitObject = pti.context.solver->getMultiObject();
 		ray.rayLengthMin = pti.rayLengthMin;
 	}
 
@@ -565,7 +565,7 @@ protected:
 //   if tc->pixelBuffer is not set, physical scale irradiance is returned
 ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 {
-	if (!pti.context.solver || !pti.context.solver->getMultiObjectCustom() || !pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	if (!pti.context.solver || !pti.context.solver->getMultiObject() || !pti.context.solver->getMultiObject()->getCollider()->getMesh()->getNumTriangles())
 	{
 		RRReporter::report(WARN,"processTexel: Empty scene.\n");
 		RR_ASSERT(0);
@@ -656,7 +656,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			if (subTexel->multiObjPostImportTriIndex!=cache_triangleIndex)
 			{
 				cache_triangleIndex = subTexel->multiObjPostImportTriIndex;
-				const RRMesh* multiMesh = pti.context.solver->getMultiObjectCustom()->getCollider()->getMesh();
+				const RRMesh* multiMesh = pti.context.solver->getMultiObject()->getCollider()->getMesh();
 				multiMesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
 				multiMesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,cache_bases);
 			}
@@ -787,18 +787,18 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 {
 	if (aborting)
 		return false;
-	if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	if (!getMultiObject() || !priv->scene || !getMultiObject()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0,&priv->previousCalculateParameters);
-		if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		if (!getMultiObject() || !priv->scene || !getMultiObject()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RRReporter::report(WARN,"RRSolver::gatherPerTrianglePhysical: Empty scene.\n");
 			RR_ASSERT(0);
 			return false;
 		}
 	}
-	const RRObject* multiObject = getMultiObjectCustom();
+	const RRObject* multiObject = getMultiObject();
 	const RRMesh* multiMesh = multiObject->getCollider()->getMesh();
 	unsigned numPostImportTriangles = multiMesh->getNumTriangles();
 
@@ -915,11 +915,11 @@ bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 {
 	RRReportInterval report(INF2,"Updating solver direct ...\n");
 
-	if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	if (!getMultiObject() || !priv->scene || !getMultiObject()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		calculateCore(0,&priv->previousCalculateParameters);
-		if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		if (!getMultiObject() || !priv->scene || !getMultiObject()->getCollider()->getMesh()->getNumTriangles())
 		{
 			RR_ASSERT(0);
 			RRReporter::report(WARN,"Empty scene.\n");
@@ -928,7 +928,7 @@ bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 	}
 
 	// solution+lights+env -gather-> tmparray
-	unsigned numPostImportTriangles = getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles();
+	unsigned numPostImportTriangles = getMultiObject()->getCollider()->getMesh()->getNumTriangles();
 	GatheredPerTriangleData* finalGather = GatheredPerTriangleData::create(numPostImportTriangles,1,0,0);
 	if (!finalGather)
 	{
@@ -972,20 +972,20 @@ public:
 
 bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsIndirect)
 {
-	if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+	if (!getMultiObject() || !priv->scene || !getMultiObject()->getCollider()->getMesh()->getNumTriangles())
 	{
 		// create objects
 		RRReportInterval report(INF2,"Smoothing scene ...\n");
 		calculateCore(0,&priv->previousCalculateParameters);
-		if (!getMultiObjectCustom() || !priv->scene || !getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles())
+		if (!getMultiObject() || !priv->scene || !getMultiObject()->getCollider()->getMesh()->getNumTriangles())
 		{
 			if (priv->packedSolver)
 				RRReporter::report(WARN,"Calculation not supported by Fireball, call leaveFireball() to enable Architect solver.\n");
 			else
 				RRReporter::report(WARN,"RRSolver::updateSolverIndirectIllumination: Empty scene (%d %d %d).\n",
-					getMultiObjectCustom()?1:0,
+					getMultiObject()?1:0,
 					priv->scene?1:0,
-					getMultiObjectCustom()?getMultiObjectCustom()->getCollider()->getMesh()->getNumTriangles():0);
+					getMultiObject()?getMultiObject()->getCollider()->getMesh()->getNumTriangles():0);
 			return false;
 		}
 	}
