@@ -61,7 +61,6 @@ RRMesh/RRMeshLessVertices.cpp \
 RRObject/RRMaterial.cpp \
 RRObject/RRObject.cpp \
 RRObject/RRObjects.cpp \
-RRObject/RRObjectWithPhysicalMaterials.cpp \
 RRObject/RRScaler.cpp \
 RRPackedSolver/PackedSolverFileBuild.cpp \
 RRPackedSolver/RRPackedSolver.cpp \

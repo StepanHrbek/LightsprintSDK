@@ -299,19 +299,6 @@ namespace rr
 		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
 		static RRObject* createMultiObject(const class RRObjects* objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation);
 
-		//! Creates and returns object with materials converted to physical space.
-		//
-		//! Created instance contains copy of all materials, converted and adjusted to fit in physical space.
-		//! \n It is typically used to convert user provided objects in custom scale to physical scale.
-		//! \n Created instance depends on original object and scaler, so it is not allowed to delete original object and scaler before deleting newly created instance.
-		//! \param scaler
-		//!  Scaler used for custom scale -> physical scale conversion.
-		//!  Provide the same scaler you use for the rest of calculation.
-		//!  If it is NULL, 'this' is returned.
-		//! \param aborting
-		//!  May be set asynchronously, aborts creation.
-		class RRObject* createObjectWithPhysicalMaterials(const class RRScaler* scaler, bool& aborting);
-
 
 		// other tools
 

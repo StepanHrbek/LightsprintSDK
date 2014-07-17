@@ -613,12 +613,6 @@
     <ClCompile Include="RRMesh\RRMeshLessVertices.cpp" />
     <ClCompile Include="RRObject\RRObject.cpp" />
     <ClCompile Include="RRObject\RRObjects.cpp" />
-    <ClCompile Include="RRObject\RRObjectWithPhysicalMaterials.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
     <ClCompile Include="RRLightField.cpp" />
     <ClCompile Include="RRObjectIllumination.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>

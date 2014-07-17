@@ -99,9 +99,6 @@
     <ClCompile Include="RRObject\RRObjects.cpp">
       <Filter>RRObject</Filter>
     </ClCompile>
-    <ClCompile Include="RRObject\RRObjectWithPhysicalMaterials.cpp">
-      <Filter>RRObject</Filter>
-    </ClCompile>
     <ClCompile Include="RRLightField.cpp">
       <Filter>RRIllumination</Filter>
     </ClCompile>
