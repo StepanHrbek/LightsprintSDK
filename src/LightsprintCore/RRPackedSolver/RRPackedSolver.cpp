@@ -444,16 +444,16 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 			unsigned numSamples = quality-1;
 			if (numSamples) // 0 samples = use material averages
 			{
+				RRVec3 sum(0);
 				if (!_materialEmittanceUsePointMaterials)
 				{
 					// fast direct texture access
 					// (quality=1 never gets here)
 					const RRMaterial::Property& diffuseEmittance = triangles[t].material->diffuseEmittance;
-					RRVec3 sum(0);
+					RRMesh::TriangleMapping triangleMapping;
+					object->getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,diffuseEmittance.texcoord);
 					for (unsigned i=0;i<numSamples;i++)
 					{
-						RRMesh::TriangleMapping triangleMapping;
-						object->getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,diffuseEmittance.texcoord);
 						RRVec2 materialUv = triangleMapping.uv[0]*(1-samplePoints[i][0]-samplePoints[i][1]) + triangleMapping.uv[1]*samplePoints[i][0] + triangleMapping.uv[2]*samplePoints[i][1];
 						RRVec3 color = diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
 						if (_scaler)
@@ -462,24 +462,18 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 						}
 						sum += color;
 					}
-					triangles[t].diffuseEmittance = sum * (_materialEmittanceMultiplier/numSamples);
 				}
 				else
 				{
 					// slow point materials
-					RRVec3 sum(0);
 					for (unsigned i=0;i<numSamples;i++)
 					{
 						RRPointMaterial material;
-						object->getPointMaterial((unsigned)t,samplePoints[i],material,NULL); // NULL avoids scaling things we don't need
-						if (_scaler)
-						{
-							_scaler->getPhysicalScale(material.diffuseEmittance.color);
-						}
+						object->getPointMaterial((unsigned)t,samplePoints[i],material,_scaler);
 						sum += material.diffuseEmittance.color;
 					}
-					triangles[t].diffuseEmittance = sum * (_materialEmittanceMultiplier/numSamples);
 				}
+				triangles[t].diffuseEmittance = sum * (_materialEmittanceMultiplier/numSamples);
 				continue;
 			}
 		}
