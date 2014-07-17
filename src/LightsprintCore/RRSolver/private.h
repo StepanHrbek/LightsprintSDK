@@ -36,8 +36,8 @@ namespace rr
 		RRObjects  dynamicObjects;
 		SmoothingParameters smoothing; // for staticObjects only
 		// scene: function of inputs
-		RRObject*  multiObjectCustom;
-		bool       forcedMultiObjectCustom;
+		RRObject*  multiObject;
+		bool       forcedMultiObject;
 		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
 		bool       staticSceneContainsLods;
 		RRCollider*superCollider;
@@ -99,8 +99,8 @@ namespace rr
 			environmentAngleRad1 = 0;
 			environmentBlendFactor = 0;
 			// scene: function of inputs
-			multiObjectCustom = NULL;
-			forcedMultiObjectCustom = false;
+			multiObject = NULL;
+			forcedMultiObject = false;
 			staticSceneContainsLods = false;
 			superCollider = NULL;
 			superColliderDirty = false;
@@ -151,9 +151,9 @@ namespace rr
 			RR_SAFE_DELETE(packedSolver);
 			RR_SAFE_DELETE(scene);
 			// if forced (in sceneViewer) -> don't delete custom
-			if (forcedMultiObjectCustom) multiObjectCustom = NULL;
+			if (forcedMultiObject) multiObject = NULL;
 			RR_SAFE_DELETE(superCollider);
-			RR_SAFE_DELETE(multiObjectCustom);
+			RR_SAFE_DELETE(multiObject);
 			// clear tables that depend on scene (code that fills tables needs them empty)
 			postVertex2PostTriangleVertex.clear();
 			postVertex2Ivertex.clear();

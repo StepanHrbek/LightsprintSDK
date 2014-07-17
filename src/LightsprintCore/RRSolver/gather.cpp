@@ -157,7 +157,7 @@ public:
 		tools(_tools),
 		pti(_pti),
 		gatherer(
-			_pti.context.solver->getMultiObject(), // multiObjectPhysical is used because collisionHandler reads point details and gatherer reuses them
+			_pti.context.solver->getMultiObject(),
 			_pti.context.solver->priv->scene,
 			_tools.environment,
 			_tools.scaler,
@@ -336,7 +336,7 @@ public:
 		: tools(_tools),
 		pti(_pti),
 		collisionHandlerGatherLight(
-			_pti.context.solver->getMultiObject(), // handler: multiObjectPhysical is sufficient because only sideBits and transparency(physical) are tested
+			_pti.context.solver->getMultiObject(),
 			_pti.context.params->quality*2, // when gathering lights (possibly rendering direct shadows), make point details 2* more important
 			_pti.context.staticSceneContainsLods)
 	{

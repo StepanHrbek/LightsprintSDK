@@ -346,7 +346,7 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 // thread safe: yes
 // converts triangle numbers to float exitance in physical scale
 #ifdef RR_DEVELOPMET
-static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const unsigned* customIrradianceRGBA8, const RRReal* customToPhysical, const RRObject* multiObjectCustom, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const unsigned* customIrradianceRGBA8, const RRReal* customToPhysical, const RRObject* multiObject, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 #else
 static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 #endif
@@ -416,10 +416,10 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 			RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 		}
 #ifdef RR_DEVELOPMET
-		else if (customIrradianceRGBA8 && customToPhysical && multiObjectCustom)
+		else if (customIrradianceRGBA8 && customToPhysical && multiObject)
 		{
 			// no solver, return DDI
-			RRMaterial* triangleMaterial = multiObjectCustom->getTriangleMaterial(face,NULL,NULL);
+			RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(face,NULL,NULL);
 			unsigned rgba8 = customIrradianceRGBA8[face];
 			RRVec3 physicalIrradiance(customToPhysical[rgba8&0xff],customToPhysical[(rgba8>>8)&0xff],customToPhysical[(rgba8>>16)&0xff]);
 			exitanceHdr[ofs] = triangleMaterial ? triangleMaterial->diffuseReflectance.color*physicalIrradiance+triangleMaterial->diffuseEmittance.color : RRVec3(0);

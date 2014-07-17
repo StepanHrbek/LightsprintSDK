@@ -276,10 +276,10 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	// old smoothing code with stitching here in multiobject
 	//  stitching here (it's based on positions and normals only) would corrupt uvs in indexed render
 	//  we don't pass maxDistanceBetweenUvsToStitch+texcoords as parameters, therefore stitching here calls createOptimizedVertices(,,0,NULL) and different uvs are stitched
-	//priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObject() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
+	//priv->multiObject = _copyFrom ? _copyFrom->getMultiObject() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
 	// new smoothing stitches in Object::buildTopIVertices, no stitching here in multiobject
-	priv->multiObjectCustom = _copyFrom ? _copyFrom->getMultiObject() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,-1,0,false,0,_cacheLocation);
-	priv->forcedMultiObjectCustom = _copyFrom ? true : false;
+	priv->multiObject = _copyFrom ? _copyFrom->getMultiObject() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,-1,0,false,0,_cacheLocation);
+	priv->forcedMultiObject = _copyFrom ? true : false;
 
 	// convert it to physical scale
 	if (!getScaler())
@@ -306,7 +306,7 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	priv->staticSolverCreationFailed = false;
 
 	// update minimalSafeDistance
-	if (priv->multiObjectCustom)
+	if (priv->multiObject)
 	{
 		if (aborting)
 		{
@@ -315,7 +315,7 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 		else
 		{
 			RRVec3 mini,maxi,center;
-			priv->multiObjectCustom->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
+			priv->multiObject->getCollider()->getMesh()->getAABB(&mini,&maxi,&center);
 			priv->minimalSafeDistance = (maxi-mini).avg()*1e-6f;
 		}
 	}
@@ -323,17 +323,17 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	// update staticSceneContainsLods
 	priv->staticSceneContainsLods = false;
 	std::set<const RRBuffer*> allTextures;
-	if (priv->multiObjectCustom)
+	if (priv->multiObject)
 	{
-		unsigned numTrianglesMulti = priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles();
+		unsigned numTrianglesMulti = priv->multiObject->getCollider()->getMesh()->getNumTriangles();
 		for (unsigned t=0;t<numTrianglesMulti;t++)
 		{
 			if (!aborting)
 			{
-				const RRMaterial* material = priv->multiObjectCustom->getTriangleMaterial(t,NULL,NULL);
+				const RRMaterial* material = priv->multiObject->getTriangleMaterial(t,NULL,NULL);
 
 				RRObject::LodInfo lodInfo;
-				priv->multiObjectCustom->getTriangleLod(t,lodInfo);
+				priv->multiObject->getTriangleLod(t,lodInfo);
 				if (lodInfo.level)
 					priv->staticSceneContainsLods = true;
 
@@ -353,7 +353,7 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 		}
 
 		RRReporter::report(_copyFrom?INF9:INF2,"Static scene: %d obj, %d(%d) tri, %d(%d) vert, %s tex, lods %s\n",
-			getStaticObjects().size(),origNumTriangles,priv->multiObjectCustom->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObjectCustom->getCollider()->getMesh()->getNumVertices(),
+			getStaticObjects().size(),origNumTriangles,priv->multiObject->getCollider()->getMesh()->getNumTriangles(),origNumVertices,priv->multiObject->getCollider()->getMesh()->getNumVertices(),
 			RRReporter::bytesToString(memoryOccupiedByTextures),
 			priv->staticSceneContainsLods?"yes":"no");
 	}
@@ -617,7 +617,7 @@ void RRSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsig
 
 RRObject* RRSolver::getMultiObject() const
 {
-	return priv->multiObjectCustom;
+	return priv->multiObject;
 }
 
 bool RRSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRVec3& out) const
@@ -651,7 +651,6 @@ void RRSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 		//}
 		priv->dirtyMaterials = true;
 	}
-	//if (priv->multiObjectPhysical) priv->multiObjectPhysical->update(aborting);
 }
 
 void RRSolver::reportDirectIlluminationChange(int lightIndex, bool dirtyShadows, bool dirtyGI, bool dirtyRange)
@@ -793,7 +792,7 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 		REPORT(RRReportInterval report(INF3,"Opening new radiosity solver...\n"));
 		dirtyFactors = true;
 		// create new
-		priv->scene = RRStaticSolver::create(priv->multiObjectCustom,&priv->smoothing,aborting);
+		priv->scene = RRStaticSolver::create(priv->multiObject,&priv->smoothing,aborting);
 		if (!priv->scene && !aborting) priv->staticSolverCreationFailed = true; // set after failure so that we don't try again
 		if (priv->scene) updateVertexLookupTableDynamicSolver();
 		if (aborting) RR_SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
