@@ -555,6 +555,11 @@ namespace rr
 		//! Removes duplicates, the same material is never listed twice.
 		void getAllMaterials(RRMaterials& materials) const;
 
+		//! Converts color to colorPhysical in all materials.
+		//
+		//! Solver calls it automatically from RRSolver::setStaticObjects() and setDynamicObjects().
+		void updateColorPhysical(const RRScaler* scaler) const;
+
 		//! Flips front/back if at least this number of normals in triangle points to back side.
 		//
 		//! So all triangles are flipped if numNormalsThatMustPointBack==0.

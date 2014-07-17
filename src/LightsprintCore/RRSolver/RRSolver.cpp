@@ -284,24 +284,7 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	// convert it to physical scale
 	if (!getScaler())
 		RRReporter::report(WARN,"scaler=NULL, call setScaler() if your data are in sRGB.\n");
-
-	// gather unique materials
-	std::unordered_set<RRMaterial*> materials;
-	for (unsigned i=0;i<getStaticObjects().size();i++)
-	{
-		RRObject* object = getStaticObjects()[i];
-		if (object)
-			for (unsigned fg=0;fg<object->faceGroups.size();fg++)
-				materials.insert(object->faceGroups[fg].material);
-	}
-	// color->colorPhysical
-	for (std::unordered_set<RRMaterial*>::iterator i=materials.begin();i!=materials.end();++i)
-	{
-		if (*i)
-		{
-			(*i)->convertToPhysicalScale(getScaler());
-		}
-	}
+	getStaticObjects().updateColorPhysical(getScaler());
 
 	priv->staticSolverCreationFailed = false;
 
@@ -399,6 +382,10 @@ void RRSolver::setDynamicObjects(const RRObjects& _objects)
 	for (unsigned i=0;i<_objects.size();i++)
 		if (_objects[i]->isDynamic)
 			priv->dynamicObjects.push_back(_objects[i]);
+	// convert it to physical scale
+	if (!getScaler())
+		RRReporter::report(WARN,"scaler=NULL, call setScaler() if your data are in sRGB.\n");
+	getDynamicObjects().updateColorPhysical(getScaler());
 	// invalidate supercollider
 	priv->superColliderDirty = true;
 }

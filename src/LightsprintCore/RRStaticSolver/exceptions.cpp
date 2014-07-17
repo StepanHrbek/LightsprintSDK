@@ -260,6 +260,25 @@ void RRObjects::getAllMaterials(RRMaterials& materials) const
 			materials.push_back(*i);
 }
 
+void RRObjects::updateColorPhysical(const RRScaler* scaler) const
+{
+	typedef std::unordered_set<RRMaterial*> Set;
+	Set set;
+	// gather all materials (it has to be fast, using getAllMaterials would be slow)
+	for (unsigned i=0;i<size();i++)
+	{
+		RRObject::FaceGroups& faceGroups = (*this)[i]->faceGroups;
+		for (unsigned g=0;g<faceGroups.size();g++)
+		{
+			set.insert(faceGroups[g].material);
+		}
+	}
+	// color->colorPhysical
+	for (Set::const_iterator i=set.begin();i!=set.end();++i)
+		if (*i)
+			(*i)->convertToPhysicalScale(scaler);
+}
+
 static std::wstring filenamized(RRString& name)
 {
 	std::wstring filename;
