@@ -188,30 +188,20 @@ void RRObject::updateFaceGroupsFromTriangleMaterials()
 
 void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material, const RRScaler* scaler) const
 {
-	if (!scaler)
+	// Material is undefined on input, fill it with per-triangle quality first.
+	const RRMaterial* perTriangleMaterial = getTriangleMaterial(t,NULL,NULL);
+	if (perTriangleMaterial)
 	{
-		// Slow path for end users, material is undefined on input, we fill it in custom scale.
-		// Start by reading per-triangle quality, adapters usually have it cached.
-		const RRMaterial* perTriangleMaterial = getTriangleMaterial(t,NULL,NULL);
-		if (perTriangleMaterial)
-		{
-			material = *perTriangleMaterial;
-		}
-		else
-		{
-			RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL.\n"));
-			material.reset(false);
-			RR_ASSERT(0);
-		}
+		material = *perTriangleMaterial;
 	}
 	else
 	{
-		// Fast path for solver, material is prefilled with physical scale colors and custom scale textures
-		// (RRObjectWithPhysicalMaterialsImpl::getPointMaterial() prefilled it, no one else is expected to do it).
-		// We will only update selected colors in physical scale.
+		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL.\n"));
+		material.reset(false);
+		RR_ASSERT(0);
 	}
 
-	// Improve precision using textures.
+	// Make color (and possibly also colorPhysical) more accurate using textures.
 	if (material.diffuseEmittance.texture)
 	{
 		RRMesh::TriangleMapping triangleMapping;

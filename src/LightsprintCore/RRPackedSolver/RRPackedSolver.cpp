@@ -471,8 +471,12 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 					for (unsigned i=0;i<numSamples;i++)
 					{
 						RRPointMaterial material;
-						object->getPointMaterial((unsigned)t,samplePoints[i],material);
-						sum += material.diffuseEmittance.colorPhysical;
+						object->getPointMaterial((unsigned)t,samplePoints[i],material,NULL); // NULL avoids scaling things we don't need
+						if (_scaler)
+						{
+							_scaler->getPhysicalScale(material.diffuseEmittance.color);
+						}
+						sum += material.diffuseEmittance.color;
 					}
 					triangles[t].diffuseEmittance = sum * (_materialEmittanceMultiplier/numSamples);
 				}

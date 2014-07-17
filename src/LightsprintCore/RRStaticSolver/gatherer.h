@@ -33,9 +33,10 @@ class RRCollisionHandlerFinalGathering : public RRCollisionHandler
 {
 public:
 	COLLISION_LOG(std::stringstream log);
-	RRCollisionHandlerFinalGathering(const RRObject* _multiObject, unsigned _quality, bool _staticSceneContainsLods)
+	RRCollisionHandlerFinalGathering(const RRObject* _multiObject, const RRScaler* _scaler, unsigned _quality, bool _staticSceneContainsLods)
 	{
-		multiObject = _multiObject; // Physical
+		multiObject = _multiObject;
+		scaler = _scaler;
 		multiMesh = multiObject->getCollider()->getMesh();
 		quality = _quality;
 		staticSceneContainsLods = _staticSceneContainsLods;
@@ -170,7 +171,7 @@ public:
 			if (quality>=triangleMaterial->minimalQualityForPointMaterials)
 			{
 				unsigned pmi = (firstContactMaterial==pointMaterial)?1:0; // index into pointMaterial[], one that is not occupied by firstContactMaterial
-				multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial[pmi]);
+				multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial[pmi],scaler);
 				if (pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].renderFrom)
 				{
 					// gathering hemisphere
@@ -244,6 +245,7 @@ private:
 	unsigned shooterTriangleIndex;
 	RRObject::LodInfo shooterLod;
 	const RRObject* multiObject;
+	const RRScaler* scaler;
 	unsigned quality; // 0 to forbid point details, more = use point details more often
 	bool staticSceneContainsLods;
 

@@ -13,7 +13,7 @@ namespace rr
 extern RRVec3 refract(RRVec3 N, RRVec3 I, const RRMaterial* m);
 
 Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, RRReal _gatherDirectEmitors, RRReal _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
-	: collisionHandlerGatherHemisphere(_multiObject,_quality,_staticSceneContainsLods)
+	: collisionHandlerGatherHemisphere(_multiObject,_scaler,_quality,_staticSceneContainsLods)
 {
 	collisionHandlerGatherHemisphere.setHemisphere(_staticSolver);
 	ray.collisionHandler = &collisionHandlerGatherHemisphere;

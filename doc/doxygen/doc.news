@@ -31,7 +31,8 @@ CHANGES
 
 - merge of custom (sRGB) and physical materials
   - RRMaterial::Property::colorPhysical added
-  - getMultiObjectCustom() and getMultiObjectPhysical() merged into getMultiObject()
+  - getMultiObjectCustom() and getMultiObjectPhysical() merged into RRSolver::getMultiObject()
+  - RRObject::getPointMaterial() has one more parameter (scaler), necessary for filling colorPhysical
 
 \section news143 ------------------------------------ 2014.05.06 -------------------------------------
 

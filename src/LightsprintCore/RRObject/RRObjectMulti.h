@@ -90,7 +90,7 @@ public:
 		return singles[mid.object].object->getTriangleMaterial(mid.index,light,receiver);
 	}
 
-	virtual void getPointMaterial(unsigned t, RRVec2 uv,RRPointMaterial& out, const RRScaler* scaler = NULL) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv,RRPointMaterial& out, const RRScaler* scaler) const
 	{
 		RRMesh::PreImportNumber mid = postImportToMidImportTriangle[t];
 		singles[mid.object].object->getPointMaterial(mid.index,uv,out,scaler);
@@ -289,7 +289,7 @@ public:
 			: NULL;
 	}
 
-	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& out, const RRScaler* scaler = NULL) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& out, const RRScaler* scaler) const
 	{
 		unoptimizeTriangle(t);
 		if (t<pack[0].getNumTriangles())

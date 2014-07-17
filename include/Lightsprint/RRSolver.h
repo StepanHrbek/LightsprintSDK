@@ -224,8 +224,6 @@ namespace rr
 		//!
 		//! \param objects
 		//!  Static contents of your scene, set of static objects.
-		//!  Object's getTriangleMaterial() and getPointMaterial() should return values
-		//!  in custom scale (usually screen colors).
 		//!  \n Objects are passed via RRObjects, collection of pointers to objects.
 		//!     Solver creates its own copy of these pointers, but it does not copy actual objects.
 		//!     So while your collection is no longer accessed after this call,

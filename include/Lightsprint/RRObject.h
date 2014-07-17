@@ -120,10 +120,8 @@ namespace rr
 		//! <b>Editing materials</b>
 		//! \n Caller is allowed to modify returned materials including textures
 		//! (textures are owned and deleted by material, so when changing texture, old one must be deleted).
-		//! Filtered objects (e.g. objects created by createMultiObject()) usually
+		//! Filtered objects (e.g. objects created by createMultiObject())
 		//! share materials, so by modifying base object, filtered one is modified too.
-		//! There is one notable exception - createObjectWithPhysicalMaterials() creates object with new independent
-		//! set of RRMaterials, only textures inside materials are shared with original object.
 		//! \param t
 		//!  Triangle number.
 		//! \param light
@@ -150,16 +148,11 @@ namespace rr
 		//! \param uv
 		//!  2D coordinates of point, in triangle's space. Triangle vertices are in 0,0 1,0 0,1.
 		//! \param out
-		//!  For default scaler=NULL, out is undefined on input, function fills it with material.
-		//!  For special case of scaler!=NULL, see explanation in scaler.
+		//!  Undefined on input, function fills it with material for requested point.
 		//! \param scaler
-		//!  You are expected to keep it NULL, only solver calls it with scaler.
-		//!  When called normally without scaler, function goal is to fill out in adapter's native(custom) scale.
-		//!  When called with scaler, out is already filled with per-triangle material in physical scale
-		//!  (colors in physical scale, textures are in adapter's default scale to save memory),
-		//!  function's goal is to modify colors in physical scale. Default implementation
-		//!  reads custom scale colors from textures and converts them to physical scale using scaler.
-		virtual void getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& out, const RRScaler* scaler = NULL) const;
+		//!  Function reads point details from textures to color, then uses scaler to convert color to colorPhysical.
+		//!  If scaler=NULL, conversion is skipped and colorPhysical contains material averages, it's the same for any uv.
+		virtual void getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& out, const RRScaler* scaler) const;
 
 		//! Information about single object, its place in hierarchy of LODs.
 		//

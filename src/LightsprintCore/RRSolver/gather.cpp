@@ -337,6 +337,7 @@ public:
 		pti(_pti),
 		collisionHandlerGatherLight(
 			_pti.context.solver->getMultiObject(),
+			_tools.scaler,
 			_pti.context.params->quality*2, // when gathering lights (possibly rendering direct shadows), make point details 2* more important
 			_pti.context.staticSceneContainsLods)
 	{
