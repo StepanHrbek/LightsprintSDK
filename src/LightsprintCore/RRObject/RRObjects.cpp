@@ -544,20 +544,14 @@ void RRObjects::multiplyEmittance(float emissiveMultiplier) const
 	if (emissiveMultiplier==1)
 		return;
 	// gather unique materials
-	std::unordered_set<RRMaterial*> materials;
-	for (unsigned i=0;i<size();i++)
-	{
-		RRObject* object = (*this)[i];
-		if (object)
-			for (unsigned fg=0;fg<object->faceGroups.size();fg++)
-				materials.insert(object->faceGroups[fg].material);
-	}
+	RRMaterials materials;
+	getAllMaterials(materials);
 	// multiply
-	for (std::unordered_set<RRMaterial*>::iterator i=materials.begin();i!=materials.end();++i)
+	for (unsigned i=0;i<materials.size();i++)
 	{
-		if (*i)
+		if (materials[i])
 		{
-			(*i)->diffuseEmittance.multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0));
+			materials[i]->diffuseEmittance.multiplyAdd(RRVec4(emissiveMultiplier),RRVec4(0));
 		}
 	}
 }
