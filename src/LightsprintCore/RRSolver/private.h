@@ -38,7 +38,6 @@ namespace rr
 		// scene: function of inputs
 		RRObject*  multiObjectCustom;
 		bool       forcedMultiObjectCustom;
-		RRObject*  multiObjectPhysical;
 		RRReal     minimalSafeDistance; // minimal distance safely used in current scene, proportional to scene size
 		bool       staticSceneContainsLods;
 		RRCollider*superCollider;
@@ -102,7 +101,6 @@ namespace rr
 			// scene: function of inputs
 			multiObjectCustom = NULL;
 			forcedMultiObjectCustom = false;
-			multiObjectPhysical = NULL;
 			staticSceneContainsLods = false;
 			superCollider = NULL;
 			superColliderDirty = false;
@@ -152,15 +150,10 @@ namespace rr
 		{
 			RR_SAFE_DELETE(packedSolver);
 			RR_SAFE_DELETE(scene);
-			// be careful:
-			// 1. physical==custom (when no scaler) -> don't delete physical
-			if (multiObjectPhysical==multiObjectCustom) multiObjectPhysical = NULL;
-			// 2. forced (in sceneViewer) -> don't delete custom
+			// if forced (in sceneViewer) -> don't delete custom
 			if (forcedMultiObjectCustom) multiObjectCustom = NULL;
-			// 3. both -> don't delete 
 			RR_SAFE_DELETE(superCollider);
 			RR_SAFE_DELETE(multiObjectCustom);
-			RR_SAFE_DELETE(multiObjectPhysical);
 			// clear tables that depend on scene (code that fills tables needs them empty)
 			postVertex2PostTriangleVertex.clear();
 			postVertex2Ivertex.clear();

@@ -284,7 +284,25 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	// convert it to physical scale
 	if (!getScaler())
 		RRReporter::report(WARN,"scaler=NULL, call setScaler() if your data are in sRGB.\n");
-	priv->multiObjectPhysical = (priv->multiObjectCustom) ? priv->multiObjectCustom->createObjectWithPhysicalMaterials(getScaler(),aborting) : NULL; // no scaler -> physical==custom
+
+	// gather unique materials
+	std::unordered_set<RRMaterial*> materials;
+	for (unsigned i=0;i<getStaticObjects().size();i++)
+	{
+		RRObject* object = getStaticObjects()[i];
+		if (object)
+			for (unsigned fg=0;fg<object->faceGroups.size();fg++)
+				materials.insert(object->faceGroups[fg].material);
+	}
+	// color->colorPhysical
+	for (std::unordered_set<RRMaterial*>::iterator i=materials.begin();i!=materials.end();++i)
+	{
+		if (*i)
+		{
+			(*i)->convertToPhysicalScale(getScaler());
+		}
+	}
+
 	priv->staticSolverCreationFailed = false;
 
 	// update minimalSafeDistance
@@ -604,7 +622,7 @@ RRObject* RRSolver::getMultiObjectCustom() const
 
 const RRObject* RRSolver::getMultiObjectPhysical() const
 {
-	return priv->multiObjectPhysical;
+	return priv->multiObjectCustom;
 }
 
 bool RRSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, RRVec3& out) const
@@ -780,7 +798,7 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 		REPORT(RRReportInterval report(INF3,"Opening new radiosity solver...\n"));
 		dirtyFactors = true;
 		// create new
-		priv->scene = RRStaticSolver::create(priv->multiObjectPhysical,&priv->smoothing,aborting);
+		priv->scene = RRStaticSolver::create(priv->multiObjectCustom,&priv->smoothing,aborting);
 		if (!priv->scene && !aborting) priv->staticSolverCreationFailed = true; // set after failure so that we don't try again
 		if (priv->scene) updateVertexLookupTableDynamicSolver();
 		if (aborting) RR_SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
