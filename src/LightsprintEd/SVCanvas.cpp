@@ -2057,8 +2057,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		// gather information about scene
 		unsigned numLights = solver->getLights().size();
 		static rr::RRTime time;
-		bool displayPhysicalMaterials = fmod(time.secondsPassed(),8)>4;
-		const rr::RRObject* multiObject = displayPhysicalMaterials ? solver->getMultiObject() : solver->getMultiObject();
+		const rr::RRObject* multiObject = solver->getMultiObject();
 		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : NULL;
 		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
 
