@@ -490,10 +490,6 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 
 	// fix dangling pointers in light properties, object properties etc
 	svframe->updateAllPanels();
-	// fix dangling pointer in material properties (materialPhysical points to freed memory after smoothAndStitch())
-	// sideeffect: disables [x]point [x]phys
-	// this is not part of updateAllPanels() because updateAllPanels() is called too often (e.g. after right click in viewport) and sideeffects hurt
-	svframe->m_materialProperties->setMaterial(svframe->m_materialProperties->materialCustom);
 
 	// fix dangling pointer in collisionHandler
 	delete collisionHandler;

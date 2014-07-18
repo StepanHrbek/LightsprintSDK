@@ -273,7 +273,7 @@ void SVMaterialProperties::updateIsInStaticScene()
 		const rr::RRObject* multiobject = svframe->m_canvas->solver->getMultiObject();
 		if (multiobject)
 			for (unsigned fg=0;fg<multiobject->faceGroups.size();fg++)
-				if (multiobject->faceGroups[fg].material==materialCustom)
+				if (multiobject->faceGroups[fg].material==material)
 					materialIsInStaticScene = true;
 	}
 }
@@ -289,8 +289,6 @@ void SVMaterialProperties::setMaterial(rr::RRMaterial* _material)
 	updateBool(propPoint,showPoint = false);
 	updateBool(propPhysical,showPhysical = false);
 
-	materialPhysical = NULL;
-	materialCustom = _material;
 	material = _material;
 
 	updateProperties();
@@ -316,8 +314,6 @@ void SVMaterialProperties::setMaterial(rr::RRSolver* solver, rr::RRObject* objec
 	if (hitTriangle==UINT_MAX || !solver || (object && showPhysical))
 	{
 		material = NULL;
-		materialPhysical = NULL;
-		materialCustom = NULL;
 	}
 	else
 	if (showPoint)
@@ -330,9 +326,7 @@ void SVMaterialProperties::setMaterial(rr::RRSolver* solver, rr::RRObject* objec
 	}
 	else
 	{
-		materialPhysical = object?NULL:solver->getMultiObject()->getTriangleMaterial(hitTriangle,NULL,NULL);
-		materialCustom = (object?object:solver->getMultiObject())->getTriangleMaterial(hitTriangle,NULL,NULL);
-		material = showPhysical ? materialPhysical : materialCustom;
+		material = (object?object:solver->getMultiObject())->getTriangleMaterial(hitTriangle,NULL,NULL);
 	}
 
 	updateProperties();
@@ -606,17 +600,15 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	}
 
 	// propagate change from physical material to custom and vice versa
-	if (!showPoint && materialPhysical && materialCustom && lastSolver)
+	if (!showPoint && material && lastSolver)
 	{
 		if (showPhysical)
 		{
-			materialCustom->copyFrom(*materialPhysical);
-			materialCustom->convertToCustomScale(lastSolver->getScaler());
+			material->convertToCustomScale(lastSolver->getScaler());
 		}
 		else
 		{
-			materialPhysical->copyFrom(*materialCustom);
-			materialPhysical->convertToPhysicalScale(lastSolver->getScaler());
+			material->convertToPhysicalScale(lastSolver->getScaler());
 		}
 	}
 

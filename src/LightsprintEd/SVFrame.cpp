@@ -1263,7 +1263,10 @@ save_scene_as:
 					{
 						unsigned selectedMaterialIndex = 0;
 						if (materials->size()==1 || getMaterial("Available materials:",this,*materials,selectedMaterialIndex))
-							m_materialProperties->materialCustom->copyFrom(*(*materials)[selectedMaterialIndex]);
+						{
+							m_materialProperties->material->copyFrom(*(*materials)[selectedMaterialIndex]);
+							m_materialProperties->material->convertToPhysicalScale(m_canvas->solver->getScaler());
+						}
 						for (unsigned i=0;i<materials->size();i++)
 							delete (*materials)[i];
 					}
@@ -1279,7 +1282,7 @@ save_scene_as:
 					break;
 				if (dialog.GetPath().empty())
 					break;
-				m_materialProperties->materialCustom->save(RR_WX2RR(dialog.GetPath()));
+				m_materialProperties->material->save(RR_WX2RR(dialog.GetPath()));
 			}
 			break;
 

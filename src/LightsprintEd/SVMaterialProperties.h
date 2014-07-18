@@ -44,11 +44,9 @@ namespace rr_ed
 		unsigned          lastTriangle;
 		rr::RRVec2        lastPoint2d;
 
-		rr::RRMaterial*   material; // materialCustom or materialPhysical or &materialPoint
 	public:
-		rr::RRMaterial*   materialCustom; // public only for SVFrame's ME_MATERIAL_SAVE/LOAD
+		rr::RRMaterial*   material; // materialCustom or materialPhysical or &materialPoint. public only for SVFrame's ME_MATERIAL_SAVE/LOAD
 	private:
-		rr::RRMaterial*   materialPhysical;
 		rr::RRPointMaterial materialPoint;
 		bool              materialIsInStaticScene; // optimization: we don't report material change if material is not used in static scene (GI does not need update)
 
