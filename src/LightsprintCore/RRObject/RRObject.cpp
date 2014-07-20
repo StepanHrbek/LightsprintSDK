@@ -201,8 +201,14 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 		RR_ASSERT(0);
 	}
 
+	// Improve precision using textures.
+	updatePointMaterial(getCollider()->getMesh(),t,uv,material,scaler);
+}
+// Expects material prefilled with getTriangleMaterial(), both color and colorPhysical.
+// Updates color and (if scaler!=NULL) colorPhysical for properties with texture.
+static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, RRPointMaterial& material, const RRScaler* scaler)
+{
 	// Make color (and possibly also colorPhysical) more accurate using textures.
-	const RRMesh* mesh = getCollider()->getMesh();
 	if (material.diffuseEmittance.texture)
 	{
 		RRMesh::TriangleMapping triangleMapping;
