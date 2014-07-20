@@ -12,6 +12,9 @@
 #include <climits> // UINT_MAX
 
 #define DEFAULT_SHININESS 1000
+#define MIN_ROUGHNESS 5e-7f // 1e-8 and smaller generate #IND in BLINN_TORRANCE_SPARROW. 1e-7 makes car in test/cuberefl-car too bright (becomes about normal at 5e-7f)
+#define MAX_SHININESS (1/MIN_ROUGHNESS)
+#define MAX_EMITTANCE 1e6f
 
 namespace rr
 {
@@ -451,10 +454,15 @@ bool RRMaterial::validate(RRReal redistributedPhotonsLimit)
 	if (clamp3(diffuseReflectance.colorPhysical,0,10)) changed = true;
 	if (clamp3(specularReflectance.colorPhysical,0,10)) changed = true;
 	if (clamp3(specularTransmittance.colorPhysical,0,10)) changed = true;
-	if (clamp3(diffuseEmittance.colorPhysical,0,1e6f)) changed = true;
+	if (clamp3(diffuseEmittance.colorPhysical,0,MAX_EMITTANCE)) changed = true;
+
+	if (specularModel==PHONG || specularModel==BLINN_PHONG)
+		if (clamp1(specularShininess,0,MAX_SHININESS)) changed = true;
+	if (specularModel==TORRANCE_SPARROW || specularModel==BLINN_TORRANCE_SPARROW)
+		if (clamp1(specularShininess,MIN_ROUGHNESS,1)) changed = true;
 
 	RRVec3 sum = diffuseReflectance.colorPhysical+specularTransmittance.colorPhysical+specularReflectance.colorPhysical;
-	RRReal max = RR_MAX3(sum[0],sum[1],sum[2]);
+	RRReal max = sum.maxi();
 	if (max>redistributedPhotonsLimit)
 	{
 		diffuseReflectance.colorPhysical *= redistributedPhotonsLimit/max;
