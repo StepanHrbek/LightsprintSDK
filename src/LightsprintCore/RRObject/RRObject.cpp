@@ -186,24 +186,6 @@ void RRObject::updateFaceGroupsFromTriangleMaterials()
 	}
 }
 
-void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material, const RRScaler* scaler) const
-{
-	// Material is undefined on input, fill it with per-triangle quality first.
-	const RRMaterial* perTriangleMaterial = getTriangleMaterial(t,NULL,NULL);
-	if (perTriangleMaterial)
-	{
-		material = *perTriangleMaterial;
-	}
-	else
-	{
-		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL.\n"));
-		material.reset(false);
-		RR_ASSERT(0);
-	}
-
-	// Improve precision using textures.
-	updatePointMaterial(getCollider()->getMesh(),t,uv,material,scaler);
-}
 // Expects material prefilled with getTriangleMaterial(), both color and colorPhysical.
 // Updates color and (if scaler!=NULL) colorPhysical for properties with texture.
 static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, RRPointMaterial& material, const RRScaler* scaler)
@@ -293,6 +275,25 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			}
 		}
 	}
+}
+
+void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material, const RRScaler* scaler) const
+{
+	// Material is undefined on input, fill it with per-triangle quality first.
+	const RRMaterial* perTriangleMaterial = getTriangleMaterial(t,NULL,NULL);
+	if (perTriangleMaterial)
+	{
+		material = *perTriangleMaterial;
+	}
+	else
+	{
+		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL.\n"));
+		material.reset(false);
+		RR_ASSERT(0);
+	}
+
+	// Improve precision using textures.
+	updatePointMaterial(getCollider()->getMesh(),t,uv,material,scaler);
 }
 
 void RRObject::getTriangleLod(unsigned t, LodInfo& out) const
