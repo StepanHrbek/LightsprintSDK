@@ -202,10 +202,11 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 	}
 
 	// Make color (and possibly also colorPhysical) more accurate using textures.
+	const RRMesh* mesh = getCollider()->getMesh();
 	if (material.diffuseEmittance.texture)
 	{
 		RRMesh::TriangleMapping triangleMapping;
-		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.diffuseEmittance.texcoord);
+		mesh->getTriangleMapping(t,triangleMapping,material.diffuseEmittance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 		material.diffuseEmittance.color = material.diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
 		if (scaler)
@@ -216,7 +217,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 	if (material.specularReflectance.texture)
 	{
 		RRMesh::TriangleMapping triangleMapping;
-		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.specularReflectance.texcoord);
+		mesh->getTriangleMapping(t,triangleMapping,material.specularReflectance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 		RRVec4 specColor = material.specularReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
 		material.specularReflectance.color = specColor;
@@ -238,7 +239,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 	{
 		// optional optimized path: transmittance in diffuse map alpha
 		RRMesh::TriangleMapping triangleMapping;
-		getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
+		mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 		RRVec2 materialUv= triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 		RRVec4 rgba = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
 		material.diffuseReflectance.color = rgba * rgba[3];
@@ -257,7 +258,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 		if (material.specularTransmittance.texture)
 		{
 			RRMesh::TriangleMapping triangleMapping;
-			getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.specularTransmittance.texcoord);
+			mesh->getTriangleMapping(t,triangleMapping,material.specularTransmittance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 			RRVec4 rgba = material.specularTransmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
 			if (material.specularTransmittanceMapInverted)
@@ -273,7 +274,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 		if (material.diffuseReflectance.texture)
 		{
 			RRMesh::TriangleMapping triangleMapping;
-			getCollider()->getMesh()->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
+			mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 			material.diffuseReflectance.color = RRVec3(material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0)))
 				// we multiply dif texture by opacity on the fly
