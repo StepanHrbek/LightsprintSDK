@@ -13,7 +13,7 @@ MultiPass::MultiPass(const rr::RRCamera& _camera, const RealtimeLights* _lights,
 	: camera(_camera)
 {
 	// inputs
-	lights = _lights;
+	lights = _mainUberProgramSetup.LIGHT_DIRECT ? _lights : NULL;
 	unsigned numLights = 0; // count only non-NULL enabled lights
 	if (lights)
 		for (unsigned i=0;i<lights->size();i++)
