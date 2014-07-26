@@ -37,7 +37,6 @@ public:
 	{
 		multiObject = _multiObject;
 		scaler = _scaler;
-		multiMesh = multiObject->getCollider()->getMesh();
 		quality = _quality;
 		staticSceneContainsLods = _staticSceneContainsLods;
 		shooterTriangleIndex = UINT_MAX; // set manually before intersect
@@ -121,19 +120,21 @@ public:
 		{
 			if (!shooterVertexLoaded)
 			{
+				const RRMesh* shooterMesh = multiObject->getCollider()->getMesh();
 				RRMesh::Triangle t;
-				multiMesh->getTriangle(shooterTriangleIndex,t);
-				multiMesh->getVertex(t[0],shooterVertex[0]);
-				multiMesh->getVertex(t[1],shooterVertex[1]);
-				multiMesh->getVertex(t[2],shooterVertex[2]);
+				shooterMesh->getTriangle(shooterTriangleIndex,t);
+				shooterMesh->getVertex(t[0],shooterVertex[0]);
+				shooterMesh->getVertex(t[1],shooterVertex[1]);
+				shooterMesh->getVertex(t[2],shooterVertex[2]);
 				shooterVertexLoaded = true;
 			}
+			const RRMesh* hitMesh = multiObject->getCollider()->getMesh();
 			RRMesh::Triangle t;
-			multiMesh->getTriangle(ray->hitTriangle,t);
+			hitMesh->getTriangle(ray->hitTriangle,t);
 			for (unsigned i=0;i<3;i++)
 			{
 				RRVec3 hitVertex;
-				multiMesh->getVertex(t[i],hitVertex);
+				hitMesh->getVertex(t[i],hitVertex);
 				if (hitVertex!=shooterVertex[0] && hitVertex!=shooterVertex[1] && hitVertex!=shooterVertex[2])
 					goto not_identical;
 			}
@@ -250,7 +251,6 @@ private:
 	bool staticSceneContainsLods;
 
 	// detector of triangles identical to shooter
-	const RRMesh* multiMesh;
 	bool shooterVertexLoaded;
 	RRVec3 shooterVertex[3];
 
