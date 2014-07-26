@@ -16,10 +16,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 {
 	// direct
 	{
-		const wxChar* strings[] = {_("realtime"),_("baked"),_("none"),NULL};
-		const long values[] = {LD_REALTIME,LD_BAKED,LD_NONE};
-		propGIDirect = new wxEnumProperty(_("Direct illumination"),wxPG_LABEL,strings,values);
-		propGIDirect->SetHelpString(_("What direct illumination technique to use."));
+		propGIDirect = new BoolRefProperty(_("Direct illumination"),_("Uncheck to disable direct illumination, e.g. to see indirect illumination more clearly."),svs.renderLightDirect);
 		Append(propGIDirect);
 
 		{
@@ -38,8 +35,8 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 	// indirect
 	{
-		const wxChar* strings[] = {_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("baked"),_("constant ambient"),_("none"),NULL};
-		const long values[] = {LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_BAKED,LI_CONSTANT,LI_NONE};
+		const wxChar* strings[] = {_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),NULL};
+		const long values[] = {LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_LIGHTMAPS,LI_AMBIENTMAPS,LI_CONSTANT,LI_NONE};
 		propGIIndirect = new wxEnumProperty(_("Indirect illumination"),wxPG_LABEL,strings,values);
 		propGIIndirect->SetHelpString(_("What nondirectional indirect illumination technique to use. Note that directional techniques (Raytraced cubemaps, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
 		Append(propGIIndirect);
@@ -229,9 +226,9 @@ void SVGIProperties::updateHide()
 	propGISSGIIntensity->Hide(!svs.ssgiEnabled,false);
 	propGISSGIRadius->Hide(!svs.ssgiEnabled,false);
 	propGISSGIAngleBias->Hide(!svs.ssgiEnabled,false);
-	propGILDM->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_BAKED,false);
-	propGISRGBCorrect->Hide(svs.renderLightDirect!=LD_REALTIME,false);
-	propGIShadowTransparency->Hide(svs.renderLightDirect!=LD_REALTIME,false);
+	propGILDM->Hide(!svs.renderLDMRelevant(),false);
+	propGISRGBCorrect->Hide(!svs.renderLightDirectActive(),false);
+	propGIShadowTransparency->Hide(!svs.renderLightDirectActive(),false);
 	//propGIIndirectMultiplier->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED,false);
 	//propGIEmisMultiplier->Hide(!realtimeGI,false);
 
@@ -247,7 +244,7 @@ void SVGIProperties::updateHide()
 	propGIVideo->Hide(!realtimeGI,false);
 	propGIEmisVideoAffectsGI->Hide(!realtimeGI,false);
 	propGIEmisVideoGIQuality->Hide(!realtimeGI || !svs.videoEmittanceAffectsGI,false);
-	propGITranspVideoAffectsGI->Hide(svs.renderLightDirect!=LD_REALTIME,false);
+	propGITranspVideoAffectsGI->Hide(!svs.renderLightDirectActive(),false);
 	propGITranspVideoAffectsGIFull->Hide(!realtimeGI || !svs.videoTransmittanceAffectsGI,false);
 	propGIEnvVideoAffectsGI->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
 	propGIEnvVideoGIQuality->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL || !svs.videoEnvironmentAffectsGI,false);
@@ -265,7 +262,7 @@ void SVGIProperties::updateProperties()
 	// Other approach would be to create all properties again, however,
 	// this function would still have to support at least properties that user can change by hotkeys or mouse navigation.
 	unsigned numChangesRelevantForHiding =
-		+ updateInt(propGIDirect,svs.renderLightDirect)
+		+ updateBoolRef(propGIDirect)
 		+ updateInt(propGIIndirect,svs.renderLightIndirect)
 		+ updateBoolRef(propGISSGI)
 		+ updateBoolRef(propGILDM)
@@ -333,17 +330,12 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 
 	if (property==propGIDirect)
 	{
-		svs.renderLightDirect = (LightingDirect)property->GetValue().GetInteger();
-		if (svs.renderLightDirect==LD_BAKED)
-			svs.renderLightIndirect = LI_BAKED;
 		updateHide();
 	}
 	else
 	if (property==propGIIndirect)
 	{
 		svs.renderLightIndirect = (LightingIndirect)property->GetValue().GetInteger();
-		if (svs.renderLightIndirect!=LI_BAKED && svs.renderLightDirect==LD_BAKED)
-			svs.renderLightDirect = LD_REALTIME;
 		if (svs.renderLightIndirect==LI_REALTIME_FIREBALL)
 			svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL);
 		if (svs.renderLightIndirect==LI_REALTIME_ARCHITECT)

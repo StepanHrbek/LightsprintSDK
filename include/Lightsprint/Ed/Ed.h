@@ -67,18 +67,12 @@
 namespace rr_ed
 {
 
-enum LightingDirect
-{
-	LD_NONE,                 ///< No direct illumination, for testing only.
-	LD_BAKED,                ///< Direct illumination is taken from lightmaps in layerBakedLightmap.
-	LD_REALTIME,             ///< Direct illumination is realtime computed.
-};
-
 enum LightingIndirect
 {
 	LI_NONE,                 ///< No indirect illumination, Doom-3 look with shadows completely black.
 	LI_CONSTANT,             ///< Constant ambient, widely used poor man's approach.
-	LI_BAKED,                ///< Indirect illumination is taken from lightmaps in layerBakedLightmap or layerBakedAmbient.
+	LI_LIGHTMAPS,            ///< Indirect illumination is taken from baked lightmaps in layerBakedLightmap.
+	LI_AMBIENTMAPS,          ///< Indirect illumination is taken from baked ambient maps in layerBakedAmbient.
 	LI_REALTIME_ARCHITECT,   ///< Indirect illumination is realtime computed by Architect solver. No precalculations. If not sure, use Fireball.
 	LI_REALTIME_FIREBALL,    ///< Indirect illumination is realtime computed by Fireball solver. Fast.
 };
@@ -133,11 +127,14 @@ struct SceneViewerState
 	bool             dofAccumulated;            //! For depth of field effect only: set dof near/far automatically.
 	rr::RRString     dofApertureShapeFilename;  //! For depth of field effect only: filename of bokeh image.
 	bool             dofAutomaticFocusDistance; //! For depth of field effect only: set dof near/far automatically.
-	LightingDirect   renderLightDirect;         //! Direct illumination mode.
+	bool             renderLightDirect;         //! False disables realtime direct lighting based on glsl+shadowmaps.
 	LightingIndirect renderLightIndirect;       //! Indirect illumination mode.
+	bool             renderLightDirectRelevant() {return renderLightIndirect!=LI_LIGHTMAPS;}
+	bool             renderLightDirectActive() {return renderLightDirect && renderLightDirectRelevant();}
 	float            renderLightIndirectMultiplier; //! Makes indirect illumination this times brighter.
 	bool             renderLDM;                 //! Modulate indirect illumination by LDM.
-	bool             renderLDMEnabled() {return renderLDM && renderLightIndirect!=LI_BAKED && renderLightIndirect!=LI_NONE;}
+	bool             renderLDMRelevant() {return renderLightIndirect!=LI_LIGHTMAPS && renderLightIndirect!=LI_AMBIENTMAPS && renderLightIndirect!=LI_NONE;}
+	bool             renderLDMEnabled() {return renderLDM && renderLDMRelevant();}
 	bool             renderLightmaps2d;         //! When not rendering realtime, show static lightmaps in 2D.
 	bool             renderLightmapsBilinear;   //! Render lightmaps with bilinear interpolation rather than without it.
 	bool             renderDDI;                 //! Render triangles illuminated with DDI. Diagnostic use only.
@@ -248,7 +245,7 @@ struct SceneViewerState
 		renderDof = false;
 		dofAccumulated = true;
 		dofAutomaticFocusDistance = false;
-		renderLightDirect = LD_REALTIME;
+		renderLightDirect = true;
 		renderLightIndirect = LI_REALTIME_FIREBALL;
 		renderLightIndirectMultiplier = 1;
 		renderLDM = true;

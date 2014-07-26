@@ -1374,8 +1374,6 @@ reload_skybox:
 
 		case ME_LIGHTING_INDIRECT_FIREBALL:
 			svs.renderLightIndirect = LI_REALTIME_FIREBALL;
-			if (svs.renderLightDirect==LD_BAKED) // direct must not stay baked
-				svs.renderLightDirect = LD_REALTIME;
 			svs.renderLightmaps2d = 0;
 			solver->reportDirectIlluminationChange(-1,true,true,false);
 			if (solver->getInternalSolverType()!=rr::RRSolver::FIREBALL && solver->getInternalSolverType()!=rr::RRSolver::BOTH)
@@ -1404,8 +1402,6 @@ reload_skybox:
 
 		case ME_LIGHTING_INDIRECT_ARCHITECT:
 			svs.renderLightIndirect = LI_REALTIME_ARCHITECT;
-			if (svs.renderLightDirect==LD_BAKED) // direct must not stay baked
-				svs.renderLightDirect = LD_REALTIME;
 			svs.renderLightmaps2d = 0;
 			solver->reportDirectIlluminationChange(-1,true,true,false);
 			fireballLoadAttempted = false;
@@ -1423,7 +1419,6 @@ reload_skybox:
 					// display log window with 'abort' while this function runs
 					LogWithAbort logWithAbort(this,solver,_("Building Fireball..."));
 
-					svs.renderLightDirect = LD_REALTIME;
 					svs.renderLightIndirect = LI_REALTIME_FIREBALL;
 					svs.renderLightmaps2d = 0;
 					solver->buildFireball(svs.fireballQuality,"");

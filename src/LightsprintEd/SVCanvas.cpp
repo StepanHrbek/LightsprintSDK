@@ -1538,7 +1538,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			lv.setObject(
 				solver->getObject(svs.selectedObjectIndex)->illumination.getLayer(
 					svs.selectedLayer ? svs.selectedLayer : (
-						svs.renderLDMEnabled() ? svs.layerBakedLDM : ((svs.renderLightIndirect!=LI_BAKED || svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:svs.layerBakedAmbient))
+						svs.renderLDMEnabled() ? svs.layerBakedLDM : ((svs.renderLightIndirect==LI_AMBIENTMAPS)?svs.layerBakedAmbient:svs.layerBakedLightmap))
 						),
 				solver->getObject(svs.selectedObjectIndex),
 				svs.renderLightmapsBilinear);
@@ -1624,7 +1624,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			svs.camera.setRangeDynamically(solver,svs.renderPanorama,svs.cameraDynamicNearNumRays);
 		}
 
-		if (svs.renderLightDirect==LD_REALTIME || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
+		if (svs.renderLightDirectActive() || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
 			for (unsigned i=0;i<solver->realtimeLights.size();i++)
@@ -1667,7 +1667,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppShared.camera = &svs.camera;
 			ppShared.viewport[2] = winWidth;
 			ppShared.viewport[3] = winHeight;
-			ppShared.srgbCorrect = (svs.renderLightDirect==LD_REALTIME) && svs.srgbCorrect;
+			ppShared.srgbCorrect = svs.renderLightDirectActive() && svs.srgbCorrect;
 			ppShared.brightness = rr::RRVec4( svs.renderTonemapping ? svs.tonemapping.color.RRVec3::avg() * pow(svs.tonemapping.gamma,0.45f) : 1 );
 			ppShared.gamma = svs.renderTonemapping ? svs.tonemapping.gamma : 1;
 
@@ -1695,10 +1695,10 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			// scene plugin
 			rr_gl::PluginParamsScene ppScene(pluginChain,solver);
 			ppScene.uberProgramSetup.SHADOW_MAPS = 1;
-			ppScene.uberProgramSetup.LIGHT_DIRECT = svs.renderLightDirect==LD_REALTIME;
-			ppScene.uberProgramSetup.LIGHT_DIRECT_COLOR = svs.renderLightDirect==LD_REALTIME;
-			ppScene.uberProgramSetup.LIGHT_DIRECT_MAP = svs.renderLightDirect==LD_REALTIME;
-			ppScene.uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderLightDirect==LD_REALTIME;
+			ppScene.uberProgramSetup.LIGHT_DIRECT = svs.renderLightDirectActive();
+			ppScene.uberProgramSetup.LIGHT_DIRECT_COLOR = svs.renderLightDirectActive();
+			ppScene.uberProgramSetup.LIGHT_DIRECT_MAP = svs.renderLightDirectActive();
+			ppScene.uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = svs.renderLightDirectActive();
 			ppScene.uberProgramSetup.LIGHT_INDIRECT_CONST = svs.renderLightIndirect==LI_CONSTANT;
 			ppScene.uberProgramSetup.LIGHT_INDIRECT_VCOLOR =
 			ppScene.uberProgramSetup.LIGHT_INDIRECT_MAP = svs.renderLightIndirect!=LI_CONSTANT && svs.renderLightIndirect!=LI_NONE;
@@ -1731,7 +1731,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			// And as lmap is always stored in 1obj, PluginScene can't find it in multiobj. Error was visible only with specular cubes disabled (they also enforce 1obj).
 			ppScene.updateLayerLightmap = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
 			ppScene.updateLayerEnvironment = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
-			ppScene.layerLightmap = (svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:svs.layerRealtimeAmbient);
+			ppScene.layerLightmap = (svs.renderLightIndirect==LI_LIGHTMAPS)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_AMBIENTMAPS)?svs.layerBakedAmbient:svs.layerRealtimeAmbient);
 			ppScene.layerEnvironment = svs.raytracedCubesEnabled?((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeEnvironment:svs.layerBakedEnvironment):UINT_MAX;
 			ppScene.layerLDM = svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX;
 			ppScene.wireframe = svs.renderWireframe;
@@ -1860,7 +1860,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				&& svs.renderTonemapping
 				&& svs.tonemappingAutomatic
 				&& !svs.renderWireframe
-				&& ((svs.renderLightIndirect==LI_BAKED && solver->containsLightSource())
+				&& (((svs.renderLightIndirect==LI_LIGHTMAPS || svs.renderLightIndirect==LI_AMBIENTMAPS) && solver->containsLightSource())
 					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
 					|| svs.renderLightIndirect==LI_CONSTANT
 					);
@@ -2168,20 +2168,15 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			unsigned numObjects = solver->getStaticObjects().size()+solver->getDynamicObjects().size();
 			{
 				// what direct
-				const char* strDirect = "?";
-				switch (svs.renderLightDirect)
-				{
-					case LD_REALTIME: strDirect = "realtime"; break;
-					case LD_BAKED: strDirect = "baked"; break;
-					case LD_NONE: strDirect = "off"; break;
-				}
+				const char* strDirect = svs.renderLightDirectActive()?"realtime":"";
 				// what indirect
 				const char* strIndirect = "?";
 				switch (svs.renderLightIndirect)
 				{
 					case LI_REALTIME_FIREBALL: strIndirect = "fireball"; break;
 					case LI_REALTIME_ARCHITECT: strIndirect = "architect"; break;
-					case LI_BAKED: strIndirect = "baked"; break;
+					case LI_LIGHTMAPS: strIndirect = "lightmaps"; break;
+					case LI_AMBIENTMAPS: strIndirect = "ambientmaps"; break;
 					case LI_CONSTANT: strIndirect = "constant"; break;
 					case LI_NONE: strIndirect = "off"; break;
 				}

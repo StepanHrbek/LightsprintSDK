@@ -811,8 +811,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						selectedObjects.loadLayer(ambient?svs.layerBakedAmbient:svs.layerBakedLightmap,LAYER_PREFIX,ambient?AMBIENT_POSTFIX:LMAP_POSTFIX);
 
 						// make results visible
-						svs.renderLightDirect = ambient?LD_REALTIME:LD_BAKED;
-						svs.renderLightIndirect = LI_BAKED;
+						svs.renderLightIndirect = ambient?LI_AMBIENTMAPS:LI_LIGHTMAPS;
 
 						// bake also cubemaps
 						// when baking all static cubes, bake also dynamic cubes
@@ -857,9 +856,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 							}
 
 						// make results visible
-						if (svs.renderLightDirect==LD_BAKED)
-							svs.renderLightDirect = LD_REALTIME;
-						if (svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_BAKED)
+						if (!svs.renderLDMRelevant())
 							svs.renderLightIndirect = LI_CONSTANT;
 						svs.renderLDM = true;
 					}
@@ -905,8 +902,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 
 					solver->updateEnvironmentMap(&selectedObjects[i]->illumination,
 						svs.layerBakedEnvironment,
-						(svs.renderLightDirect==LD_BAKED)?svs.layerBakedLightmap:UINT_MAX,
-						(svs.renderLightDirect==LD_BAKED)?UINT_MAX:((svs.renderLightIndirect==LI_BAKED)?svs.layerBakedAmbient:((svs.renderLightIndirect==LI_REALTIME_FIREBALL||svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeAmbient:UINT_MAX)));
+						(svs.renderLightIndirect==LI_LIGHTMAPS)?svs.layerBakedLightmap:UINT_MAX,
+						(svs.renderLightIndirect==LI_AMBIENTMAPS)?svs.layerBakedAmbient:((svs.renderLightIndirect==LI_REALTIME_FIREBALL||svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeAmbient:UINT_MAX));
 				}
 
 				// save cubes

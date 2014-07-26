@@ -34,7 +34,7 @@ namespace rr_ed
 		//! Copy svs -> hide/show property.
 		void updateHide();
 
-		wxPGProperty*     propGIDirect;
+		BoolRefProperty*  propGIDirect;
 		wxPGProperty*     propGIIndirect;
 		wxPGProperty*     propGIIndirectMultiplier;
 		BoolRefProperty*  propGISSGI;
