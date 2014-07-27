@@ -287,6 +287,37 @@ namespace rr
 
 
 		//////////////////////////////////////////////////////////////////////////////
+		// Pathtracing queries
+		//////////////////////////////////////////////////////////////////////////////
+
+		enum BrdfType
+		{
+			BRDF_NONE     = 0,
+			BRDF_DIFFUSE  = 1,
+			BRDF_SPECULAR = 2,
+			BRDF_TRANSMIT = 4,
+			BRDF_ALL      = 7,
+			NUM_BRDFS     = 3,
+		};
+
+		struct Response
+		{
+			RRVec3 dirIn;     ///< normalized direction of incoming light
+			RRVec3 dirNormal; ///< normalized surface normal
+			RRVec3 dirOut;    ///< normalized direction of leaving light
+			RRVec3 colorOut;  ///< color of leaving light (incoming light is 1)
+			RRReal pdf;       ///< probability distribution function
+			BrdfType brdfType;///< type of response
+		};
+
+		//! Returns color of light leaving surface in response to incoming white light (dirIn, dirNormal, dirOut -> colorOut)
+		void getResponse(Response& response, BrdfType type = BRDF_ALL) const;
+
+		//! Generates incoming direction and returns color of light leaving in response (dirNormal, dirOut -> dirIn, colorOut, pdf, brdfType
+		void sampleResponse(Response& response, const RRVec3& randomness, BrdfType type = BRDF_ALL) const;
+
+
+		//////////////////////////////////////////////////////////////////////////////
 		// Loaders/Savers
 		//////////////////////////////////////////////////////////////////////////////
 

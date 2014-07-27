@@ -849,22 +849,7 @@ RRStaticSolver::Improvement Scene::resetStaticIllumination(bool resetFactors, bo
 // trace ray, reflect from triangles and mark hitpoints
 // return amount of power added to scene
 
-RRVec3 refract(RRVec3 n, RRVec3 i, const RRMaterial* m)
-{
-	RR_ASSERT(m);
-	if (m->sideBits[0].receiveFrom && m->sideBits[1].receiveFrom) // testing .reflect instead of .receiveFrom broke caustic under glass sphere in scene5.mgf because updateSideBitsFromColors() sets .reflect even for back of 1sided face, sphere was treated as bubble
-	{
-		// 2sided faces simulate thin layer, don't change light direction
-		return i;
-	}
-	RRReal ndoti = dot(n,i);
-	RRReal r = (ndoti>=0) ? m->refractionIndex : 1/m->refractionIndex;
-	RRReal D2 = 1-r*r*(1-ndoti*ndoti);
-	if (D2>=0)
-		return i*r-n*((ndoti>=0)?r*ndoti-sqrt(D2):r*ndoti+sqrt(D2));
-	// total internal reflection
-	return i-n*(2*ndoti);
-}
+extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 
 HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& eye, const RRVec3& direction, const Triangle *skip, HitChannels power)
 // returns power which will be diffuse reflected (result<=power)
@@ -954,7 +939,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 		if (specularTransmit)
 		{
 			// calculate new direction after refraction
-			newDirectionTransmit = refract(ray.hitPlane,direction,hitTriangle->surface);
+			newDirectionTransmit = refract(direction,ray.hitPlane,hitTriangle->surface);
 		}
 
 		// mirror reflection

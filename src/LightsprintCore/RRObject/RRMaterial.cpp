@@ -8,6 +8,7 @@
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRMaterial.h"
 #include "Lightsprint/RRBuffer.h"
+#include "Lightsprint/RRMesh.h"
 #include "memory.h"
 #include <climits> // UINT_MAX
 
@@ -514,6 +515,248 @@ RRMaterial::~RRMaterial()
 	delete specularTransmittance.texture;
 	delete bumpMap.texture;
 	delete preview;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRMaterial pathtracing
+
+// Copy of GLSL reflect(), used for consistency with shaders.
+// I ... Specifies the incident vector.
+// N ... Specifies the normal vector.
+// N normalized = returns reflection direction
+// N and I normalized = returns normalized reflection direction
+static RRVec3 reflect(const RRVec3& I, const RRVec3& N)
+{
+	return I - N * (2 * N.dot(I));
+}
+
+// Similar to GLSL refract(), used for consistency with shaders.
+// I ... Specifies the incident vector.
+// N ... Specifies the normal vector.
+// eta ... Specifies the ratio of indices of refraction.
+// Differs by
+// - returns total internal reflection direction where GLSL returns 0.
+RRVec3 refract(const RRVec3& I, const RRVec3& N, float eta)
+{
+	RRReal ndoti = I.dot(N);
+	RRReal D2 = 1-eta*eta*(1-ndoti*ndoti);
+	if (D2>=0)
+		return I*eta-N*((ndoti>=0)?eta*ndoti-sqrt(D2):eta*ndoti+sqrt(D2));
+	// total internal reflection
+	return I-N*(2*ndoti);
+}
+
+// Customized refract(). Differs by
+// - detects side hit and inverts refractionIndex if necessary
+// - 2sided face behaves as thin layer
+RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m)
+{
+	RR_ASSERT(m);
+	if (m->sideBits[0].receiveFrom && m->sideBits[1].receiveFrom) // testing .reflect instead of .receiveFrom broke caustic under glass sphere in scene5.mgf because updateSideBitsFromColors() sets .reflect even for back of 1sided face, sphere was treated as bubble
+	{
+		// 2sided faces simulate thin layer, don't change light direction
+		return I;
+	}
+	RRReal ndoti = I.dot(N);
+	RRReal eta = (ndoti<=0) ? m->refractionIndex : 1/m->refractionIndex;
+	return refract(I,N,eta);
+}
+
+// dirIn,dirNormal,dirOut -> result
+static RRReal specularResponse(RRMaterial::SpecularModel specularModel, RRReal specularShininess, RRMaterial::Response& response, const RRVec3& dirInMajor)
+{
+	RRReal spec = 0;
+	RRReal NH = response.dirNormal.dot((response.dirOut-response.dirIn).normalized());
+	NH = RR_MAX(0,NH);
+	switch (specularModel)
+	{
+		case RRMaterial::PHONG:
+			// specularShininess in (0..inf)
+			if (specularShininess>0)
+			{
+				//specularShininess = RR_MIN(specularShininess,MAX_SHININESS);
+				spec = response.dirIn.dot(dirInMajor.normalized());
+				spec = pow(RR_MAX(0,spec),specularShininess) * (specularShininess+1);
+			}
+			else
+			{
+				// formula above does not converge to diffuse for shininess->0, so we force it at least for 0
+				spec = 1; // still not identical to diffuse, but much closer
+			}
+			break;
+		case RRMaterial::BLINN_PHONG:
+			// specularShininess in (0..inf)
+			spec = pow(NH,specularShininess) * (specularShininess+1);
+			break;
+		case RRMaterial::TORRANCE_SPARROW:
+			// specularShininess=m^2=0..1
+			spec = exp((1-1/(NH*NH))/specularShininess) / (4*specularShininess*((NH*NH)*(NH*NH))+0.0000000000001f);
+			break;
+		case RRMaterial::BLINN_TORRANCE_SPARROW:
+			// specularShininess=c3^2=0..1
+			spec = specularShininess/(NH*NH*(specularShininess-1)+1);
+			spec = spec*spec;
+			break;
+		default:
+			RR_ASSERT(0);
+	}
+	RR_ASSERT(_finite(spec));
+	return spec;
+}
+
+// dirIn, dirNormal, dirOut -> colorOut
+void RRMaterial::getResponse(Response& response, BrdfType type) const
+{
+	switch(type)
+	{
+		case BRDF_DIFFUSE:
+			{
+				RRReal dif = -response.dirIn.dot(response.dirNormal);
+				RR_CLAMP(dif,0,1);
+				response.colorOut = diffuseReflectance.colorPhysical * dif; /* embree: /RR_PI */
+				RR_ASSERT(response.colorOut.finite());
+			}
+			break;
+		case BRDF_SPECULAR:
+		case BRDF_TRANSMIT:
+			{
+				RRVec3 dirInMajor = (type==BRDF_SPECULAR) ? reflect(response.dirOut,response.dirNormal) : refract(response.dirOut,response.dirNormal,this);
+				// we have importance sampling implemented only for PHONG, so other models are temporarily converted to PHONG
+				RRReal phongShininess = (specularModel==PHONG || specularModel==BLINN_PHONG) ? specularShininess : (1/RR_MAX(specularShininess,MIN_ROUGHNESS)-1);
+				RRReal spec = specularResponse(PHONG,phongShininess,response,dirInMajor);
+				//RRReal spec = specularResponse(specularModel,specularShininess,response,dirInMajor);
+				response.colorOut = ((type==BRDF_SPECULAR) ? specularReflectance.colorPhysical : specularTransmittance.colorPhysical) * spec;
+				RR_ASSERT(response.colorOut.finite());
+			}
+			break;
+		case BRDF_NONE:
+			response.colorOut = RRVec3(0);
+			break;
+		default:
+			{	
+				RR_ASSERT((unsigned)type<=BRDF_ALL);
+				RRVec3 color(0);
+				for (unsigned i=1;i<=BRDF_ALL;i*=2)
+					if (type&i)
+					{
+						getResponse(response, (BrdfType)i);
+						color += response.colorOut;
+					}
+				response.colorOut = color;
+				RR_ASSERT(response.colorOut.finite());
+			}
+			break;
+	}
+	RR_ASSERT(response.colorOut.finite());
+}
+
+// w is probability distribution function
+// (similar function is getRandomEnterDirNormalized, can be merged)
+RRVec4 sampleHemisphereDiffuse(const RRVec2& uv, const RRVec3& normal)
+{
+	RRMesh::TangentBasis basisOrthonormal;
+	basisOrthonormal.normal = normal;
+	basisOrthonormal.buildBasisFromNormal();
+	RRReal phi = 2*RR_PI*uv[0]; // phi = rotation angle around normal
+	RRReal cosTheta = sqrt(uv[1]); // theta = rotation angle from normal to side
+	RRReal sinTheta = sqrt(1 - uv[1]);
+	return RRVec4(basisOrthonormal.normal*cosTheta + basisOrthonormal.tangent*(cos(phi)*sinTheta) + basisOrthonormal.bitangent*(sin(phi)*sinTheta), cosTheta /* embree: /RR_PI */);
+}
+
+RRVec4 sampleHemisphereSpecular(const RRVec2& uv, const RRVec3& dirInMajor, float exp)
+{
+	RRMesh::TangentBasis basisOrthonormal;
+	basisOrthonormal.normal = dirInMajor;
+	basisOrthonormal.buildBasisFromNormal();
+	const float phi = 2*RR_PI*uv[0]; // phi = rotation angle around dirInMajor
+	const float cosTheta = pow(uv[1],1/(exp+1)); // theta = rotation angle from dirInMajor to side
+	const float sinTheta = sqrt(RR_MAX(0,1-cosTheta*cosTheta));
+	return RRVec4(basisOrthonormal.normal*cosTheta + basisOrthonormal.tangent*(cos(phi)*sinTheta) + basisOrthonormal.bitangent*(sin(phi)*sinTheta), (exp+1)*pow(cosTheta,exp) /* embree: /(2*RR_PI) */);
+}
+
+// dirNormal, dirOut -> dirIn, colorOut, pdf, brdfType
+void RRMaterial::sampleResponse(Response& response, const RRVec3& randomness, BrdfType type) const
+{
+	switch (type)
+	{
+		case BRDF_DIFFUSE:
+			{
+				RRVec4 sample = sampleHemisphereDiffuse(randomness,response.dirNormal);
+				response.dirIn = -sample;
+				response.pdf = sample.w;
+				response.brdfType = BRDF_DIFFUSE;
+				getResponse(response,type);
+			}
+			break;
+		case BRDF_SPECULAR:
+		case BRDF_TRANSMIT:
+			{
+				RRVec3 dirInMajor = (type==BRDF_SPECULAR) ? reflect(response.dirOut,response.dirNormal) : refract(response.dirOut,response.dirNormal,this);
+				// we have importance sampling implemented only for PHONG, so other models are temporarily converted to PHONG
+				RRReal phongShininess = (specularModel==PHONG || specularModel==BLINN_PHONG) ? specularShininess : (1/RR_MAX(specularShininess,MIN_ROUGHNESS)-1);
+				RRVec4 sample = sampleHemisphereSpecular(randomness,dirInMajor,phongShininess);
+				response.dirIn = sample;
+				response.pdf = sample.w;
+				response.brdfType = type;
+				//optimize: the same reflect()/refract() is called again in getResponse()
+				getResponse(response,type);
+				if (response.colorOut==RRVec3(0))
+				{
+					response.dirIn = dirInMajor;
+					response.pdf = phongShininess+1;
+					getResponse(response,type);
+				}
+			}
+			break;
+		case BRDF_NONE:
+			none:
+			response.dirIn = RRVec3(0);
+			response.colorOut = RRVec3(0);
+			response.pdf = 0;
+			response.brdfType = BRDF_NONE;
+			break;
+		default:
+			{	
+				if ((unsigned)type>BRDF_ALL)
+				{
+					RR_ASSERT(0);
+					type = BRDF_ALL;
+				}
+				// sample selected brdfs
+				unsigned numSamples = 0;
+				Response sample[NUM_BRDFS];
+				float weightSum = 0;
+				for (unsigned i=1;i<=BRDF_ALL;i*=2)
+					if (type&i)
+					{
+						sampleResponse(response, randomness, (BrdfType)i);
+						if (response.colorOut!=RRVec3(0) && response.pdf>0)
+						{
+							sample[numSamples++] = response;
+							weightSum += response.colorOut.maxi()/response.pdf;
+						}
+					}
+				// early exit if none available
+				if (!numSamples)
+					goto none;
+				// select one sample
+				float weightAccumulator = 0;
+				for (unsigned i=0;i<numSamples;i++)
+				{
+					float weight = sample[i].colorOut.maxi()/(sample[i].pdf*weightSum);
+					weightAccumulator += weight;
+					if (weightAccumulator>randomness.z || i+1==numSamples)
+					{
+						response = sample[i];
+						response.pdf *= weight;
+						break;
+					}
+				}
+			}
+			break;
+	}
 }
 
 
