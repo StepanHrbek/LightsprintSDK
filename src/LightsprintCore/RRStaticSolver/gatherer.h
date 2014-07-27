@@ -181,7 +181,7 @@ public:
 				if (pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].renderFrom)
 				{
 					// gathering hemisphere
-					if (triangle)
+					if (!light)
 					{
 						COLLISION_LOG(log<<"collides()=true1\n");
 						firstContactMaterial = &pointMaterial[pmi];
@@ -200,7 +200,7 @@ public:
 			// per-triangle materials
 			{
 				// gathering hemisphere
-				if (triangle)
+				if (!light)
 				{
 					COLLISION_LOG(log<<"collides()=true2\n");
 					firstContactMaterial = triangleMaterial;
@@ -221,8 +221,8 @@ public:
 
 	virtual bool done()
 	{
-		COLLISION_LOG(log<<"done()="<<(triangle?firstContactMaterial!=NULL:visibility==RRVec3(0))<<"\n\n");
-		return triangle
+		COLLISION_LOG(log<<"done()="<<(!light?firstContactMaterial!=NULL:visibility==RRVec3(0))<<"\n\n");
+		return !light
 			// gathering hemisphere
 			? firstContactMaterial!=NULL
 			// gathering light
