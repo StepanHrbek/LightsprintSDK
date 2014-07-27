@@ -25,11 +25,10 @@ Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSo
 	gatherIndirectLight = _gatherIndirectLight?true:false;
 	gatherIndirectLightMultiplier = _gatherIndirectLight;
 	Object* _object = _staticSolver->scene->object;
-	object = _object->importer;
-	collider = object->getCollider();
+	multiObject = _object->importer;
+	collider = multiObject->getCollider();
 	triangle = _object->triangle;
 	triangles = _object->triangles;
-	ray.hitObject = object;
 
 	// final gather in lightmap does this per-pixel, rather than per-thread
 	//  so at very low quality, lightmaps are biased smooth rather than unbiased noisy
@@ -57,7 +56,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 
 	ray.rayOrigin = eye;
 	ray.rayDir = direction;
-	//ray.hitObject = already set in ctor
+	ray.hitObject = multiObject; // non-RRMultiCollider does not fill ray.hitObject, we prefill it here, collisionHandler needs it filled
 	collisionHandlerGatherHemisphere.setShooterTriangle(shooterObject,shooterTriangle);
 	if (!collider->intersect(&ray))
 	{

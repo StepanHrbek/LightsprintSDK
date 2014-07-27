@@ -308,7 +308,7 @@ public:
 	RRRay ray; // aligned, better keep it first
 protected:
 	RRCollisionHandlerFinalGathering collisionHandlerGatherHemisphere;
-	RRObject* object;
+	RRObject* multiObject;
 	const RRCollider* collider;
 	const RRBuffer* environment;
 	const RRScaler* scaler;
