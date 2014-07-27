@@ -257,6 +257,14 @@ RRVec3 Triangle::getMeasure(RRRadiometricMeasure measure, RRReal emissiveMultipl
 	}
 }
 
+RRVec3 Triangle::getPointMeasure(RRRadiometricMeasure measure, const RRVec2& uv) const
+{
+	RR_ASSERT(measure==RM_IRRADIANCE_PHYSICAL || measure==rr::RRRadiometricMeasure(0,0,0,1,0) || measure==RM_IRRADIANCE_PHYSICAL_INDIRECT);
+	return topivertex[0]->irradiance(measure)*(1-uv[0]-uv[1])
+		+ topivertex[1]->irradiance(measure)*uv[0]
+		+ topivertex[2]->irradiance(measure)*uv[1];
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // reflectors (light sources and things that reflect light)

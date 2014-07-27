@@ -144,6 +144,7 @@ public:
 
 	// get any combination of direc/indirect/exiting light
 	RRVec3  getMeasure(RRRadiometricMeasure measure, RRReal emissiveMultiplier) const;
+	RRVec3  getPointMeasure(RRRadiometricMeasure measure, const RRVec2& uv) const; // supports only RM_IRRADIANCE_PHYSICAL, RM_IRRADIANCE_PHYSICAL_DIRECT, RM_IRRADIANCE_PHYSICAL_INDIRECT
 
 	// precalc for best()
 	real    precalcDistributing;
