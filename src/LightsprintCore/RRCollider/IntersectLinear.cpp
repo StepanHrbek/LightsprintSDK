@@ -317,13 +317,23 @@ void RayHitBackup::restoreBackupTo(RRRay* ray, const RRMesh* mesh)
 	#ifdef FILL_HITPOINT3D
 		if (ray->rayFlags&RRRay::FILL_POINT3D)
 		{
+			RR_ASSERT(ray->rayFlags&RRRay::FILL_DISTANCE); //!!! this is not ensured
 			update_hitPoint3d(ray,ray->hitDistance);
 		}
 	#endif
 	#ifdef FILL_HITPLANE
 		if (ray->rayFlags&RRRay::FILL_PLANE)
 		{
+			// sets local space hitPlane
 			update_hitPlane(ray,mesh?mesh:ray->hitObject->getCollider()->getMesh());
+			// converts it to world space
+			if (ray->hitObject && ray->hitObject->getWorldMatrix())
+			{
+				ray->hitObject->getWorldMatrix()->transformPlane(ray->hitPlane);
+				// normalize
+				RRReal length = ray->hitPlane.RRVec3::length();
+				ray->hitPlane /= length;
+			}
 		}
 	#endif
 }
