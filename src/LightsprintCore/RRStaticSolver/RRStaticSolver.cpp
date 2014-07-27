@@ -212,5 +212,4 @@ zero:
 	return false;
 }
 
-
 } // namespace
