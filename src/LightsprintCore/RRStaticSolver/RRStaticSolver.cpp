@@ -152,53 +152,6 @@ RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle
 	return ivertex->getVertexDataFromTriangleData(questionedTriangle,questionedVertex012,perTriangleData,stride,scene->object->triangle,scene->object->triangles);
 }
 
-// Returns triangle measure, any combination of measure.direct/indirect/exiting.
-// Works as if measure.scaled=0, measure.flux=0.
-RRVec3 Triangle::getMeasure(RRRadiometricMeasure measure, RRReal emissiveMultiplier) const
-{
-	RR_ASSERT(surface);
-
-	if (!measure.direct && !measure.indirect)
-	{
-		return RRVec3(0);
-	}
-	else
-	if (measure.direct && !measure.indirect)
-	{
-		if (measure.exiting)
-		{
-			return getDirectExitance(emissiveMultiplier);
-		}
-		else
-		{
-			return getDirectIrradiance();
-		}
-	}
-	else
-	if (measure.direct && measure.indirect) 
-	{
-		if (measure.exiting)
-		{
-			return getTotalExitance();
-		}
-		else
-		{
-			return getTotalIrradiance();
-		}
-	}
-	else
-	{
-		if (measure.exiting)
-		{
-			return getIndirectExitance(emissiveMultiplier);
-		}
-		else
-		{
-			return getIndirectIrradiance();
-		}
-	}
-}
-
 bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const
 {
 	Channels irrad;
