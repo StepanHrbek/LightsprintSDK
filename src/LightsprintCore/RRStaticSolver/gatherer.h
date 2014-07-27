@@ -33,9 +33,8 @@ class RRCollisionHandlerFinalGathering : public RRCollisionHandler
 {
 public:
 	COLLISION_LOG(std::stringstream log);
-	RRCollisionHandlerFinalGathering(const RRObject* _multiObject, const RRScaler* _scaler, unsigned _quality, bool _staticSceneContainsLods)
+	RRCollisionHandlerFinalGathering(const RRScaler* _scaler, unsigned _quality, bool _staticSceneContainsLods)
 	{
-		multiObject = _multiObject;
 		scaler = _scaler;
 		quality = _quality;
 		staticSceneContainsLods = _staticSceneContainsLods;
@@ -116,6 +115,7 @@ public:
 			COLLISION_LOG(log<<"collides()=false1\n");
 			return false;
 		}
+		const RRObject* hitObject = ray->hitObject;
 		// don't collide with other triangles at the same location
 		if (shooterObject && shooterTriangleIndex!=UINT_MAX
 			//&& triangle[shooterTriangleIndex].area==triangle[ray->hitTriangle].area // optimization, but too dangerous, areas of identical triangles might differ because of different vertex order
@@ -131,7 +131,7 @@ public:
 				shooterMesh->getVertex(t[2],shooterVertex[2]);
 				shooterVertexLoaded = true;
 			}
-			const RRMesh* hitMesh = multiObject->getCollider()->getMesh();
+			const RRMesh* hitMesh = hitObject->getCollider()->getMesh();
 			RRMesh::Triangle t;
 			hitMesh->getTriangle(ray->hitTriangle,t);
 			for (unsigned i=0;i<3;i++)
@@ -150,7 +150,7 @@ public:
 		if (staticSceneContainsLods)
 		{
 			RRObject::LodInfo shadowCasterLod;
-			multiObject->getTriangleLod(ray->hitTriangle,shadowCasterLod);
+			hitObject->getTriangleLod(ray->hitTriangle,shadowCasterLod);
 			if ((shadowCasterLod.base==shooterLod.base && shadowCasterLod.level!=shooterLod.level) // non-shooting LOD of shooter
 				|| (shadowCasterLod.base!=shooterLod.base && shadowCasterLod.level)) // non-base LOD of non-shooter
 			{
@@ -163,7 +163,7 @@ public:
 			// gathering hemisphere: don't collide when triangle has surface=NULL (triangle was rejected by setGeometry, everything should work as if it does not exist)
 			? triangle[ray->hitTriangle].surface // read from rrcore, faster than multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL)
 			// gathering light: don't collide when object has shadow casting disabled
-			: multiObject->getTriangleMaterial(ray->hitTriangle,light,singleObjectReceiver);
+			: hitObject->getTriangleMaterial(ray->hitTriangle,light,singleObjectReceiver);
 		if (!triangleMaterial)
 		{
 			COLLISION_LOG(log<<"collides()=false4\n");
@@ -175,7 +175,7 @@ public:
 			if (quality>=triangleMaterial->minimalQualityForPointMaterials)
 			{
 				unsigned pmi = (firstContactMaterial==pointMaterial)?1:0; // index into pointMaterial[], one that is not occupied by firstContactMaterial
-				multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial[pmi],scaler);
+				hitObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial[pmi],scaler);
 				if (pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].renderFrom)
 				{
 					// gathering hemisphere
@@ -249,7 +249,6 @@ private:
 	const RRObject* shooterObject;
 	unsigned shooterTriangleIndex;
 	RRObject::LodInfo shooterLod;
-	const RRObject* multiObject;
 	const RRScaler* scaler;
 	unsigned quality; // 0 to forbid point details, more = use point details more often
 	bool staticSceneContainsLods;
