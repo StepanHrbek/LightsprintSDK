@@ -117,7 +117,7 @@ public:
 			return false;
 		}
 		// don't collide with other triangles at the same location
-		if (shooterTriangleIndex!=UINT_MAX
+		if (shooterObject && shooterTriangleIndex!=UINT_MAX
 			//&& triangle[shooterTriangleIndex].area==triangle[ray->hitTriangle].area // optimization, but too dangerous, areas of identical triangles might differ because of different vertex order
 			&& ray->hitDistance<1000*ray->rayLengthMin) // optimization, perform these tests only for hits in small distance (ideally zero, but there is floating point error). we expect our caller to set rayLengthMin to minimalSafeDistance; float error in scene drezy is 1000x bigger
 		{
