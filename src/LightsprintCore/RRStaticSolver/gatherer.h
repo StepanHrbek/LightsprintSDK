@@ -84,6 +84,8 @@ public:
 	//! It is used to test direct visibility from light to receiver, with ray shot from receiver to light (for higher precision).
 	void setLight(const RRLight* _light, const RRObject* _singleObjectReceiver)
 	{
+		RR_ASSERT(_light);
+		//RR_ASSERT(_singleObjectReceiver); not necessary, only for checking light-object shadow casting flags
 		COLLISION_LOG(log<<"setLight()\n");
 		light = _light;
 		singleObjectReceiver = _singleObjectReceiver;
@@ -159,9 +161,9 @@ public:
 			}
 		}
 
-		const RRMaterial* triangleMaterial = triangle
+		const RRMaterial* triangleMaterial = (triangle && hitObject && !hitObject->isDynamic) // we can access solver's material only for static objects
 			// gathering hemisphere: don't collide when triangle has surface=NULL (triangle was rejected by setGeometry, everything should work as if it does not exist)
-			? triangle[ray->hitTriangle].surface // read from rrcore, faster than multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL)
+			? triangle[ray->hitTriangle].surface // read from rrcore, faster than hitObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL)
 			// gathering light: don't collide when object has shadow casting disabled
 			: hitObject->getTriangleMaterial(ray->hitTriangle,light,singleObjectReceiver);
 		if (!triangleMaterial)
