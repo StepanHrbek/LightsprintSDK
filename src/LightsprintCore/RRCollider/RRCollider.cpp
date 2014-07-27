@@ -76,6 +76,8 @@ class EmbreeCollider : public RRCollider
 			rrRay.hitPoint3d = rrRay.rayOrigin + rrRay.rayDir*rtcRay.tfar;
 		if (rrRay.rayFlags&RRRay::FILL_PLANE)
 		{
+			// embree Ng is unnormalized, goes from back side
+			// Lightsprint RRVec3(hitPlane) is normalized, goes from front side
 			RRVec3 hitPoint3d = rrRay.rayOrigin + rrRay.rayDir*rtcRay.tfar;
 			RRVec3 n(-rtcRay.Ng[0],-rtcRay.Ng[1],-rtcRay.Ng[2]);
 			float siz = n.length();
