@@ -974,6 +974,11 @@ bool RussianRoulette::survived(float survivalProbability)
 	RR_ASSERT(survivalProbability>=0);
 	RR_ASSERT(survivalProbability<=1);
 
+#if 0
+	return rand()<survivalProbability*RAND_MAX;
+#else
+	// faster
+	// creates moire in pathtraced image, but we don't use it in pathtracer, so it's ok
 	accumulator += survivalProbability;
 	if (accumulator>1)
 	{
@@ -984,6 +989,7 @@ bool RussianRoulette::survived(float survivalProbability)
 	{
 		return false;
 	}
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
