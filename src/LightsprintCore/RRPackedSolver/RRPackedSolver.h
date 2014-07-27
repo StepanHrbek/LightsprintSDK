@@ -44,9 +44,10 @@ public:
 
 	//! Returns triangle exitance, physical, flat. For dynamic objects/per-triangle materials.
 	RRVec3 getTriangleExitance(unsigned triangle) const;
-
 	//! Returns triangle exitance, physical, flat. For dynamic objects/point materials.
 	RRVec3 getTriangleIrradiance(unsigned triangle) const;
+	//! Returns RM_IRRADIANCE_PHYSICAL_DIRECT for given static triangle. Fast, no interpolation.
+	RRVec3 getTriangleIrradianceDirect(unsigned triangle) const;
 
 	//! Updates values behind pointers returned by getTriangleIrradianceIndirect().
 	void getTriangleIrradianceIndirectUpdate();
@@ -57,6 +58,8 @@ public:
 	//! Pointers are valid even without calling update, however data behind pointers
 	//! are valid only after calling update.
 	const RRVec3* getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const;
+	//! Returns RM_IRRADIANCE_PHYSICAL_INDIRECT for given point of static triangle. Fast, uses per-vertex values updated by getTriangleIrradianceIndirectUpdate().
+	RRVec3 getPointIrradianceIndirect(unsigned triangle, const RRVec2& uv) const;
 
 	//! Returns any specified measure, slower but universal replacement for other getTriangleXxx() functions.
 	bool getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const;

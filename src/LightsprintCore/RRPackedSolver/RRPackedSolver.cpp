@@ -119,6 +119,11 @@ public:
 		RR_ASSERT(IS_VEC3(((incidentFluxDiffused+incidentFluxToDiffuse+incidentFluxSky)*areaInv)));
 		return (incidentFluxDiffused+incidentFluxToDiffuse+incidentFluxSky)*areaInv;
 	}
+	RRVec3 getIrradianceDirect() const
+	{
+		RR_ASSERT(IS_VEC3(((incidentFluxDirect)*areaInv)));
+		return (incidentFluxDirect)*areaInv;
+	}
 	// for dynamic objects (per-tri material), includes emissivity
 	RRVec3 getExitance() const
 	{
@@ -589,6 +594,12 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 
 }
 
+RRVec3 RRPackedSolver::getTriangleIrradianceDirect(unsigned triangle) const
+{
+	RR_ASSERT(triangle<numTriangles);
+	return triangles[triangle].getIrradianceDirect();
+}
+
 RRVec3 RRPackedSolver::getTriangleIrradiance(unsigned triangle) const
 {
 	RR_ASSERT(triangle<numTriangles);
@@ -621,6 +632,7 @@ void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 	}	
 }
 
+// fast, uses per-vertex data precalculated by getTriangleIrradianceIndirectUpdate()
 const RRVec3* RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const
 {
 	if (triangle>=0x3fffffff || vertex>=3 // wrong inputs, shouldn't happen (btw, it's not ffff, UNDEFINED is clamped to 30 + 2 bits)
@@ -629,6 +641,20 @@ const RRVec3* RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, u
 		return NULL;
 	}
 	return &ivertexIndirectIrradiance[packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]];
+}
+
+static RRVec3 nullToBlack(const RRVec3* p)
+{
+	return p ? *p : RRVec3(0);
+}
+
+// fast, uses per-vertex data precalculated by getTriangleIrradianceIndirectUpdate()
+RRVec3 RRPackedSolver::getPointIrradianceIndirect(unsigned triangle, const RRVec2& uv) const
+{
+	RR_ASSERT(triangle<numTriangles);
+	return nullToBlack(getTriangleIrradianceIndirect(triangle,0))*(1-uv[0]-uv[1])
+		+ nullToBlack(getTriangleIrradianceIndirect(triangle,1))*uv[0]
+		+ nullToBlack(getTriangleIrradianceIndirect(triangle,2))*uv[1];
 }
 
 bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const
