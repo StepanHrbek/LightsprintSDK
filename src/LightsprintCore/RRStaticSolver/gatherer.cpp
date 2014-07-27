@@ -37,7 +37,7 @@ Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSo
 	russianRoulette.reset();
 }
 
-RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, unsigned skipTriangleIndex, RRVec3 visibility, int numBounces)
+RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, int numBounces)
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
@@ -58,7 +58,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 	ray.rayOrigin = eye;
 	ray.rayDir = direction;
 	//ray.hitObject = already set in ctor
-	collisionHandlerGatherHemisphere.setShooterTriangle(skipTriangleIndex);
+	collisionHandlerGatherHemisphere.setShooterTriangle(shooterObject,shooterTriangle);
 	if (!collider->intersect(&ray))
 	{
 		// AO [#22]: possible hits were refused by handler, restore original hitDistance
@@ -162,7 +162,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				if (specularReflect)
 				{
 					// recursively call this function
-					exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,rayHitTriangle,specularReflectPower/specularReflectMax,numBounces-1);
+					exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,ray.hitObject,rayHitTriangle,specularReflectPower/specularReflectMax,numBounces-1);
 					//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 					RR_ASSERT(IS_VEC3(exitance));
 				}
@@ -170,7 +170,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				if (specularTransmit)
 				{
 					// recursively call this function
-					exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,rayHitTriangle,specularTransmitPower/specularTransmitMax,numBounces-1);
+					exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,ray.hitObject,rayHitTriangle,specularTransmitPower/specularTransmitMax,numBounces-1);
 					//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 					RR_ASSERT(IS_VEC3(exitance));
 				}

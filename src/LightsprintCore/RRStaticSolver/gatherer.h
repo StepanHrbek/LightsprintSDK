@@ -39,6 +39,7 @@ public:
 		scaler = _scaler;
 		quality = _quality;
 		staticSceneContainsLods = _staticSceneContainsLods;
+		shooterObject = NULL;
 		shooterTriangleIndex = UINT_MAX; // set manually before intersect
 
 		// gathering hemisphere
@@ -49,13 +50,15 @@ public:
 		singleObjectReceiver = NULL;
 	}
 
-	void setShooterTriangle(unsigned t)
+	void setShooterTriangle(const RRObject* _object, unsigned _triangle)
 	{
 		COLLISION_LOG(log<<"setShooterTriangle("<<t<<")\n");
-		if (shooterTriangleIndex!=t)
+		if (shooterTriangleIndex!=_triangle || shooterObject!=_object)
 		{
-			shooterTriangleIndex = t;
-			multiObject->getTriangleLod(t,shooterLod);
+			shooterObject = _object;
+			shooterTriangleIndex = _triangle;
+			if (shooterObject)
+				shooterObject->getTriangleLod(shooterTriangleIndex,shooterLod);
 
 			// initialize detector of identical triangles
 			shooterVertexLoaded = false;
@@ -108,7 +111,7 @@ public:
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_POINT2D);
 
 		// don't collide with shooter
-		if (ray->hitTriangle==shooterTriangleIndex)
+		if (ray->hitTriangle==shooterTriangleIndex && ray->hitObject==shooterObject)
 		{
 			COLLISION_LOG(log<<"collides()=false1\n");
 			return false;
@@ -120,7 +123,7 @@ public:
 		{
 			if (!shooterVertexLoaded)
 			{
-				const RRMesh* shooterMesh = multiObject->getCollider()->getMesh();
+				const RRMesh* shooterMesh = shooterObject->getCollider()->getMesh();
 				RRMesh::Triangle t;
 				shooterMesh->getTriangle(shooterTriangleIndex,t);
 				shooterMesh->getVertex(t[0],shooterVertex[0]);
@@ -243,6 +246,7 @@ public:
 	}
 
 private:
+	const RRObject* shooterObject;
 	unsigned shooterTriangleIndex;
 	RRObject::LodInfo shooterLod;
 	const RRObject* multiObject;
@@ -299,7 +303,7 @@ public:
 	//!  Importance for final exitance, result in physical scale is multiplied by visibility.
 	//! \param numBounces
 	//!  Unused.
-	RRVec3 gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, unsigned skipTriangleNumber, RRVec3 visibility, int numBounces);
+	RRVec3 gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, int numBounces);
 
 	// helper structures
 	RRRay ray; // aligned, better keep it first
