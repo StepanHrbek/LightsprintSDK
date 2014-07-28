@@ -8,6 +8,7 @@
 #include "report.h"
 #include "private.h"
 #include "../RRStaticSolver/rrcore.h" // build of packed factors
+#include "../RRStaticSolver/gatherer.h" // pathTraceFrame()
 #include <unordered_set>
 
 namespace rr
@@ -1100,6 +1101,44 @@ void RRSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironm
 		// don't allocate cubes for static objects that only need diffuse reflection [#27]
 		getStaticObjects().allocateBuffersForRealtimeGI(-1,layerEnvironment,0,specularEnvMapSize,refractEnvMapSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
 		getDynamicObjects().allocateBuffersForRealtimeGI(-1,layerEnvironment,diffuseEnvMapSize,specularEnvMapSize,refractEnvMapSize,allocateNewBuffers,changeExistingBuffers,specularThreshold,depthThreshold);
+	}
+}
+
+void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _accumulated)
+{
+	if (!_frame)
+		return;
+	//RRReportInterval report(INF2,"Pathtracing frame...\n");
+	unsigned w = _frame->getWidth();
+	unsigned h = _frame->getHeight();
+	const RRCollider* collider = getCollider();
+#pragma omp parallel for schedule(dynamic)
+	for (int j=0;j<(int)h;j++)
+	{
+		Gatherer gatherer(getMultiObject(),priv->scene,getEnvironment(),getScaler(),true,true,false,UINT_MAX);
+		unsigned shortcut = (unsigned)sqrtf((float)(_accumulated/10)); // starts at 0, increases on frames 10, 40, 90, 160 etc
+		gatherer.useFlatNormalsSinceDepth = shortcut+1;
+		gatherer.useSolverDirectSinceDepth = shortcut+1;
+		gatherer.useSolverIndirectSinceDepth = shortcut;
+		gatherer.ray.rayLengthMin = priv->minimalSafeDistance; // necessary, e.g. 2011_BMW_5_series_F10_535_i_v1.1.rr3
+		gatherer.ray.rayLengthMax = 1e10f;
+		for (unsigned i=0;i<w;i++)
+		{
+			unsigned index = i+j*w;
+			RRVec4 c = _frame->getElement(index);
+			//for (int sy=0; sy<2; sy++)
+			//for (int sx=0; sx<2; sx++)
+			//for (int s=0; s<2; s++)
+			{
+				float r1=rand()*(2.f/RAND_MAX), dx=r1<1 ? sqrtf(r1)-1: 1-sqrtf(2-r1);
+				float r2=rand()*(2.f/RAND_MAX), dy=r2<1 ? sqrtf(r2)-1: 1-sqrtf(2-r2);
+				//RRVec2 positionInWindow((sx+.5+dx+2*i)/w-1,1-(sy+.5+dy+2*j)/h);
+				RRVec2 positionInWindow(2*(dx+i)/w-1,1-2*(dy+j)/h);
+				RRVec3 color = gatherer.gatherPhysicalExitance(_camera.getRayOrigin(positionInWindow),_camera.getRayDirection(positionInWindow).normalized(),NULL,UINT_MAX,RRVec3(1),20);
+				c = (c*RRReal(_accumulated)+RRVec4(color,0))/(_accumulated+1);
+			}
+			_frame->setElement(index,c);
+		}
 	}
 }
 

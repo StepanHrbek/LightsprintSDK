@@ -75,6 +75,7 @@ enum LightingIndirect
 	LI_AMBIENTMAPS,          ///< Indirect illumination is taken from baked ambient maps in layerBakedAmbient.
 	LI_REALTIME_ARCHITECT,   ///< Indirect illumination is realtime computed by Architect solver. No precalculations. If not sure, use Fireball.
 	LI_REALTIME_FIREBALL,    ///< Indirect illumination is realtime computed by Fireball solver. Fast.
+	LI_PATHTRACED,
 };
 
 //! Transparency modes used by realtime renderer, to trade speed/quality. Offline GI solver always works as if the highest quality mode is selected.
@@ -129,11 +130,11 @@ struct SceneViewerState
 	bool             dofAutomaticFocusDistance; //! For depth of field effect only: set dof near/far automatically.
 	bool             renderLightDirect;         //! False disables realtime direct lighting based on glsl+shadowmaps.
 	LightingIndirect renderLightIndirect;       //! Indirect illumination mode.
-	bool             renderLightDirectRelevant() {return renderLightIndirect!=LI_LIGHTMAPS;}
+	bool             renderLightDirectRelevant() {return renderLightIndirect!=LI_PATHTRACED && renderLightIndirect!=LI_LIGHTMAPS;}
 	bool             renderLightDirectActive() {return renderLightDirect && renderLightDirectRelevant();}
 	float            renderLightIndirectMultiplier; //! Makes indirect illumination this times brighter.
 	bool             renderLDM;                 //! Modulate indirect illumination by LDM.
-	bool             renderLDMRelevant() {return renderLightIndirect!=LI_LIGHTMAPS && renderLightIndirect!=LI_AMBIENTMAPS && renderLightIndirect!=LI_NONE;}
+	bool             renderLDMRelevant() {return renderLightIndirect!=LI_PATHTRACED && renderLightIndirect!=LI_LIGHTMAPS && renderLightIndirect!=LI_AMBIENTMAPS && renderLightIndirect!=LI_NONE;}
 	bool             renderLDMEnabled() {return renderLDM && renderLDMRelevant();}
 	bool             renderLightmaps2d;         //! When not rendering realtime, show static lightmaps in 2D.
 	bool             renderLightmapsBilinear;   //! Render lightmaps with bilinear interpolation rather than without it.

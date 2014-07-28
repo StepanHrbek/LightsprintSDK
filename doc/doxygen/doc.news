@@ -12,6 +12,11 @@ namespace rr
 
 NEWS
 
+- pathtracing
+  - additional rendering technique added to portfolio
+  - integrated into SceneViewer (change "Global illumination / Indirect illumination" technique to "Pathtracing")
+  - RRSolver::pathTraceFrame() renders single frame
+  - RRMaterial::getResponse() and RRMaterial::sampleResponse() provide building blocks for external pathtracers working with Lightsprint data
 - quad buffered stereo support
   - new rr_gl::StereoMode rr_gl::SM_QUAD_BUFFERED
   - sceneViewer() support included (User preferences / Stereo mode)

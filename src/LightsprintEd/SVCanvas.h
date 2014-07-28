@@ -136,6 +136,10 @@ namespace rr_ed
 		rr::RRTime                 skyboxBlendingStartTime;
 
 
+		// pathtracer
+		rr::RRBuffer*              pathTracedBuffer;
+		unsigned                   pathTracedAccumulator;
+
 		LightingIndirect           previousLightIndirect;
 
 		friend class SVFrame;

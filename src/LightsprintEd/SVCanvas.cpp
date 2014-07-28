@@ -151,6 +151,8 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 
 	previousLightIndirect = LI_NONE;
 
+	pathTracedBuffer = NULL;
+	pathTracedAccumulator = 0;
 }
 
 class SVContext : public wxGLContext
@@ -536,6 +538,9 @@ SVCanvas::~SVCanvas()
 			return;
 		}
 	}
+
+	// pathtracer
+	RR_SAFE_DELETE(pathTracedBuffer);
 
 	// logo
 	RR_SAFE_DELETE(logoImage);
@@ -1658,6 +1663,26 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			solver->calculate(&params);
 		}
 
+		if (svs.renderLightIndirect==LI_PATHTRACED)
+		{
+			rr::RRReportInterval report(rr::INF3,"pathtrace scene...\n");
+			if (!pathTracedBuffer)
+				pathTracedBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,false,NULL);
+			if (winWidth!=pathTracedBuffer->getWidth() || winHeight!=pathTracedBuffer->getHeight())
+			{
+				pathTracedBuffer->reset(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGBF,false,NULL); // embree accepts only RGB,RGBA,RGBF
+				pathTracedAccumulator = 0;
+			}
+			rr::RRCamera camera = svs.camera;
+			if (!svs.renderDof)
+				camera.apertureDiameter = 0;
+			solver->pathTraceFrame(camera,pathTracedBuffer,pathTracedAccumulator);
+			rr_gl::ToneParameters tp = svs.tonemapping;
+			tp.gamma *= 0.45f;
+			pathTracedAccumulator++;
+			solver->getRenderer()->getTextureRenderer()->render2D(rr_gl::getTexture(pathTracedBuffer,false,false),&tp,0,0,1,1);
+		}
+		else
 		{
 			rr::RRReportInterval report(rr::INF3,"render scene...\n");
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
@@ -2173,6 +2198,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				const char* strIndirect = "?";
 				switch (svs.renderLightIndirect)
 				{
+					case LI_PATHTRACED: strIndirect = "path"; break;
 					case LI_REALTIME_FIREBALL: strIndirect = "fireball"; break;
 					case LI_REALTIME_ARCHITECT: strIndirect = "architect"; break;
 					case LI_LIGHTMAPS: strIndirect = "lightmaps"; break;

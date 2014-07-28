@@ -35,8 +35,8 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 	// indirect
 	{
-		const wxChar* strings[] = {_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),NULL};
-		const long values[] = {LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_LIGHTMAPS,LI_AMBIENTMAPS,LI_CONSTANT,LI_NONE};
+		const wxChar* strings[] = {_("pathtraced"),_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),NULL};
+		const long values[] = {LI_PATHTRACED,LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_LIGHTMAPS,LI_AMBIENTMAPS,LI_CONSTANT,LI_NONE};
 		propGIIndirect = new wxEnumProperty(_("Indirect illumination"),wxPG_LABEL,strings,values);
 		propGIIndirect->SetHelpString(_("What nondirectional indirect illumination technique to use. Note that directional techniques (Raytraced cubemaps, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
 		Append(propGIIndirect);
