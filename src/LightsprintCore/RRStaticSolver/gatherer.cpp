@@ -57,7 +57,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 	ray.rayDir = direction;
 	ray.hitObject = multiObject; // non-RRMultiCollider does not fill ray.hitObject, we prefill it here, collisionHandler needs it filled
 	collisionHandlerGatherHemisphere.setShooterTriangle(shooterObject,shooterTriangle);
-	if (!collider->intersect(&ray))
+	if (!collider || !collider->intersect(&ray))
 	{
 		// AO [#22]: possible hits were refused by handler, restore original hitDistance
 		ray.hitDistance = hitDistanceBackup;
