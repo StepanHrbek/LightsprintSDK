@@ -10,7 +10,7 @@
 namespace rr
 {
 
-extern RRVec3 refract(RRVec3 N, RRVec3 I, const RRMaterial* m);
+extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 
 Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, RRReal _gatherDirectEmitors, RRReal _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
 	: collisionHandlerGatherHemisphere(_scaler,_quality,_staticSceneContainsLods)
@@ -24,11 +24,10 @@ Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSo
 	gatherDirectEmitorsMultiplier = _gatherDirectEmitors;
 	gatherIndirectLight = _gatherIndirectLight?true:false;
 	gatherIndirectLightMultiplier = _gatherIndirectLight;
-	Object* _object = _staticSolver->scene->object;
-	multiObject = _object->importer;
+	multiObject = _multiObject;
 	collider = multiObject->getCollider();
-	triangle = _object->triangle;
-	triangles = _object->triangles;
+	triangle = (_staticSolver && _staticSolver->scene && _staticSolver->scene->object) ? _staticSolver->scene->object->triangle : NULL;
+	triangles = triangle ? _staticSolver->scene->object->triangles : 0;
 
 	// final gather in lightmap does this per-pixel, rather than per-thread
 	//  so at very low quality, lightmaps are biased smooth rather than unbiased noisy
@@ -115,7 +114,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				if (specularTransmit)
 				{
 					// calculate new direction after refraction
-					specularTransmitDir = refract(pixelNormal,direction,material);
+					specularTransmitDir = refract(direction,pixelNormal,material);
 				}
 			}
 			RRVec3 hitPoint3d=eye+direction*ray.hitDistance;

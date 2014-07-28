@@ -1117,9 +1117,9 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 	{
 		Gatherer gatherer(getMultiObject(),priv->scene,getEnvironment(),getScaler(),true,true,false,UINT_MAX);
 		unsigned shortcut = (unsigned)sqrtf((float)(_accumulated/10)); // starts at 0, increases on frames 10, 40, 90, 160 etc
-		gatherer.useFlatNormalsSinceDepth = shortcut+1;
-		gatherer.useSolverDirectSinceDepth = shortcut+1;
-		gatherer.useSolverIndirectSinceDepth = shortcut;
+//		gatherer.useFlatNormalsSinceDepth = shortcut+1;
+//		gatherer.useSolverDirectSinceDepth = shortcut+1;
+//		gatherer.useSolverIndirectSinceDepth = shortcut;
 		gatherer.ray.rayLengthMin = priv->minimalSafeDistance; // necessary, e.g. 2011_BMW_5_series_F10_535_i_v1.1.rr3
 		gatherer.ray.rayLengthMax = 1e10f;
 		for (unsigned i=0;i<w;i++)
