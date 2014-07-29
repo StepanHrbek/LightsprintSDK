@@ -89,6 +89,13 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		RRVec3 faceNormal = ray.hitPlane;
 		RRVec3 pixelNormal = faceNormal;
 
+		// normals go from hit side now
+		if (!ray.hitFrontSide)
+		{
+			faceNormal = -faceNormal;
+			pixelNormal = -pixelNormal;
+		}
+
 		if (side.catchFrom || side.emitTo)
 		{
 			// work with ray+material before we recurse and overwrite them
