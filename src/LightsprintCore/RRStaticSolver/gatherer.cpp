@@ -63,11 +63,12 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		// AO [#22]: possible hits were refused by handler, restore original hitDistance
 		ray.hitDistance = hitDistanceBackup;
 
-		// ray left scene
+		// ray left scene, add environment lighting
 		if (environment)
 		{
 			RRVec3 irrad = environment->getElementAtDirection(direction);
 			if (scaler && environment->getScaled()) scaler->getPhysicalScale(irrad);
+			RR_ASSERT(IS_VEC3(irrad));
 			return visibility * irrad;
 		}
 		return Channels(0);
