@@ -315,8 +315,10 @@ public:
 	//!  Unused.
 	RRVec3 gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, unsigned numBounces);
 
-	// helper structures
 	RRRay ray; // aligned, better keep it first
+	// termination criteria
+	unsigned stopAtDepth;
+	RRReal   stopAtVisibility;
 protected:
 	RRCollisionHandlerFinalGathering collisionHandlerGatherHemisphere;
 	const RRObject* multiObject;
