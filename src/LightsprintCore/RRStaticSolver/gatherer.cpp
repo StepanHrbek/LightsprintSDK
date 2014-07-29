@@ -131,6 +131,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 	const RRMaterial* material = collisionHandlerGatherHemisphere.getContactMaterial(); // could be point detail, unlike hitTriangle->surface 
 	RRSideBits side=material->sideBits[ray.hitFrontSide?0:1];
 	Channels exitance = Channels(0);
+	RR_ASSERT(side.renderFrom); // guaranteed by RRCollisionHandlerFinalGathering
 	if (side.legal)
 	{
 		// normals initially go from front side
