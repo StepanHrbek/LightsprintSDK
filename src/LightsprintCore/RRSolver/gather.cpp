@@ -157,10 +157,8 @@ public:
 		tools(_tools),
 		pti(_pti),
 		gatherer(
-			_pti.context.solver->getMultiObject(),
-			_pti.context.solver->priv->scene,
-			_tools.environment,
-			_tools.scaler,
+			_pti.context.solver,
+			false,
 			_pti.context.params?_pti.context.params->applyEmittance:1.f,
 			_pti.context.params->applyCurrentSolution?1.f:0.f,
 			_pti.context.staticSceneContainsLods,
