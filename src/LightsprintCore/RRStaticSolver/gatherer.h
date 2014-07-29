@@ -64,7 +64,7 @@ public:
 		}
 	}
 
-	//! Configures handler for gathering illumination from hemisphere.
+	//! Configures handler for gathering illumination from hemisphere (collides when hitSide has renderFrom).
 	//
 	//! When _staticSolver is set, handler finds closest receiver for given emitor.
 	//! Supports optional point details (e.g. alpha keying) provided by RRObject::getPointMaterial().
@@ -75,7 +75,7 @@ public:
 		triangle = _staticSolver ? _staticSolver->scene->object->triangle : NULL;
 	}
 
-	//! Configures handler for gathering illumination from light.
+	//! Configures handler for gathering illumination from light (collides when any side has renderFrom).
 	//
 	//! When _singleObjectReceiver and _light is set,
 	//! handler calculates visibility (0..1) between begin and end of ray.
@@ -90,6 +90,9 @@ public:
 		light = _light;
 		singleObjectReceiver = _singleObjectReceiver;
 	}
+
+	// Tests one side after setHemisphere(), two sides after setLight().
+	#define TEST_BIT(material,bit) ((material)->sideBits[ray->hitFrontSide?0:1].bit || (light && (material)->sideBits[ray->hitFrontSide?1:0].bit))
 
 	virtual void init(RRRay* ray)
 	{
@@ -171,14 +174,14 @@ public:
 			COLLISION_LOG(log<<"collides()=false4\n");
 			return false;
 		}
-		if (triangleMaterial->sideBits[ray->hitFrontSide?0:1].renderFrom)
+		if (TEST_BIT(triangleMaterial,renderFrom))
 		{
 			// per-pixel materials
 			if (quality>=triangleMaterial->minimalQualityForPointMaterials)
 			{
 				unsigned pmi = (firstContactMaterial==pointMaterial)?1:0; // index into pointMaterial[], one that is not occupied by firstContactMaterial
 				hitObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial[pmi],scaler);
-				if (pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].renderFrom)
+				if (TEST_BIT(&pointMaterial[pmi],renderFrom))
 				{
 					// gathering hemisphere
 					if (!light)
