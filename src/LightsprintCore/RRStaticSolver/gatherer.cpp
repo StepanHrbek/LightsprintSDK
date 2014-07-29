@@ -35,6 +35,54 @@ Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSo
 	russianRoulette.reset();
 }
 
+// material, ray.hitObject, ray.hitTriangle, ray.hitPoint2d -> normal
+// Lightsprint RRVec3(hitPlane) is normalized, goes from front side. point normal also goes from front side
+static RRVec3 getPointNormal(const RRRay& ray, const RRMaterial* material)
+{
+	RR_ASSERT(ray.hitObject);
+	RR_ASSERT(material);
+
+	// calculate interpolated objectspace normal
+	const RRMesh* mesh = ray.hitObject->getCollider()->getMesh();
+	RRMesh::TriangleNormals tn;
+	mesh->getTriangleNormals(ray.hitTriangle,tn);
+	RRMesh::TangentBasis pointBasis;
+	pointBasis.normal = tn.vertex[0].normal + (tn.vertex[1].normal-tn.vertex[0].normal)*ray.hitPoint2d[0] + (tn.vertex[2].normal-tn.vertex[0].normal)*ray.hitPoint2d[1];
+	RRVec3 objectNormal = pointBasis.normal.normalized();
+
+	// if material has bumpmap, read it
+	RRMesh::TriangleMapping tm;
+	if (material->bumpMap.texture && mesh->getTriangleMapping(ray.hitTriangle,tm,material->bumpMap.texcoord))
+	{
+		// read localspace normal from bumpmap
+		RRVec2 uvInTextureSpace = tm.uv[0] + (tm.uv[1]-tm.uv[0])*ray.hitPoint2d[0] + (tm.uv[2]-tm.uv[0])*ray.hitPoint2d[1];
+		RRVec3 bumpElement = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1],0));
+		RRVec3 localNormal;
+		if (material->bumpMapTypeHeight)
+		{
+			float height = bumpElement.x;
+			float hx = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0]+1.f/material->bumpMap.texture->getWidth(),uvInTextureSpace[1],0)).x;
+			float hy = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1]+1.f/material->bumpMap.texture->getHeight(),0)).x;
+			localNormal = RRVec3(height-hx,height-hy,0.1f);
+		}
+		else
+		{
+			localNormal = bumpElement*2-RRVec3(1);
+		}
+		localNormal.z /= material->bumpMap.color.x;
+		localNormal.normalize();
+
+		// convert localspace normal to objectspace normal
+		pointBasis.tangent = tn.vertex[0].tangent + (tn.vertex[1].tangent-tn.vertex[0].tangent)*ray.hitPoint2d[0] + (tn.vertex[2].tangent-tn.vertex[0].tangent)*ray.hitPoint2d[1];
+		pointBasis.bitangent = tn.vertex[0].bitangent + (tn.vertex[1].bitangent-tn.vertex[0].bitangent)*ray.hitPoint2d[0] + (tn.vertex[2].bitangent-tn.vertex[0].bitangent)*ray.hitPoint2d[1];
+		objectNormal = (pointBasis.tangent*localNormal.x+pointBasis.bitangent*localNormal.y+pointBasis.normal*localNormal.z).normalized();
+	}
+
+	// convert objectspace normal to worldspace normal
+	const RRMatrix3x4* iwm = ray.hitObject->getInverseWorldMatrix();
+	return iwm ? iwm->getTransformedNormal(objectNormal).normalized() : objectNormal;
+}
+
 RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, int numBounces)
 {
 	RR_ASSERT(IS_VEC3(eye));
