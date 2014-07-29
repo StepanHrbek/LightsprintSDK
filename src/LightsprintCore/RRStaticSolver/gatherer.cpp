@@ -83,7 +83,7 @@ static RRVec3 getPointNormal(const RRRay& ray, const RRMaterial* material)
 	return iwm ? iwm->getTransformedNormal(objectNormal).normalized() : objectNormal;
 }
 
-RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, int numBounces)
+RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, unsigned numBounces)
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
