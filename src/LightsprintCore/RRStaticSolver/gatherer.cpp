@@ -33,7 +33,6 @@ Gatherer::Gatherer(const RRSolver* _solver, bool _dynamic, RRReal _gatherDirectE
 	multiObject = _solver->getMultiObject();
 	collider = _dynamic ? _solver->getCollider() : multiObject->getCollider();
 	triangle = (_solver->priv->scene && _solver->priv->scene->scene && _solver->priv->scene->scene->object) ? _solver->priv->scene->scene->object->triangle : NULL;
-	triangles = triangle ? _solver->priv->scene->scene->object->triangles : 0;
 
 	// final gather in lightmap does this per-pixel, rather than per-thread
 	//  so at very low quality, lightmaps are biased smooth rather than unbiased noisy
@@ -94,12 +93,6 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
 	RR_ASSERT(fabs(size2(direction)-1)<0.001);//ocekava normalizovanej dir
-	if (!triangles)
-	{
-		// although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
-		RR_ASSERT(0);
-		return Channels(0);
-	}
 
 	// AO [#22]: GatheredIrradianceHemisphere calculates AO from ray.hitDistance,
 	// so it needs us to return it unchanged if initial ray does not hit scene (or if handler refused all intersections)

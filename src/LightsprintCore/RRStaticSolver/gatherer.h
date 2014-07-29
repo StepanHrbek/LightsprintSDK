@@ -334,7 +334,6 @@ protected:
 	RRReal gatherDirectEmitorsMultiplier;
 	RRReal gatherIndirectLightMultiplier;
 	class Triangle* triangle; // shortcut for accessing indirect in Architect solver
-	unsigned triangles;
 	RussianRoulette russianRoulette;
 };
 
