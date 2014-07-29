@@ -995,7 +995,7 @@ namespace rr
 		bool cubeMapGather(RRObjectIllumination* illumination, unsigned layerEnvironment, RRVec3* exitanceHdr);
 		struct Private;
 		Private* priv;
-		friend class GatheredIrradianceHemisphere;
+		friend class Gatherer;
 	};
 
 
