@@ -114,13 +114,19 @@ public:
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
 		RR_ASSERT(ray->rayFlags&RRRay::FILL_POINT2D);
 
+		const RRObject* hitObject = ray->hitObject;
+		RR_ASSERT(hitObject);
+
+		// don't collide with disabled objects
+		if (!hitObject->enabled)
+			return false;
+
 		// don't collide with shooter
-		if (ray->hitTriangle==shooterTriangleIndex && ray->hitObject==shooterObject)
+		if (ray->hitTriangle==shooterTriangleIndex && hitObject==shooterObject)
 		{
 			COLLISION_LOG(log<<"collides()=false1\n");
 			return false;
 		}
-		const RRObject* hitObject = ray->hitObject;
 		// don't collide with other triangles at the same location
 		if (shooterObject && shooterTriangleIndex!=UINT_MAX
 			//&& triangle[shooterTriangleIndex].area==triangle[ray->hitTriangle].area // optimization, but too dangerous, areas of identical triangles might differ because of different vertex order
@@ -164,7 +170,7 @@ public:
 			}
 		}
 
-		const RRMaterial* triangleMaterial = (triangle && hitObject && !hitObject->isDynamic) // we can access solver's material only for static objects
+		const RRMaterial* triangleMaterial = (triangle && !hitObject->isDynamic) // we can access solver's material only for static objects
 			// gathering hemisphere: don't collide when triangle has surface=NULL (triangle was rejected by setGeometry, everything should work as if it does not exist)
 			? triangle[ray->hitTriangle].surface // read from rrcore, faster than hitObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL)
 			// gathering light: don't collide when object has shadow casting disabled
