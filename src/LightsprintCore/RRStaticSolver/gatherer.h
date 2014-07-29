@@ -312,7 +312,7 @@ public:
 	//! \param visibility
 	//!  Importance for final exitance, result in physical scale is multiplied by visibility.
 	//! \param numBounces
-	//!  Unused.
+	//!  Current recursion depth.
 	RRVec3 gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility = RRVec3(1), unsigned numBounces = 0);
 
 	RRRay ray; // aligned, better keep it first
@@ -329,7 +329,7 @@ protected:
 	bool gatherIndirectLight;
 	RRReal gatherDirectEmitorsMultiplier;
 	RRReal gatherIndirectLightMultiplier;
-	class Triangle* triangle;
+	class Triangle* triangle; // shortcut for accessing indirect in Architect solver
 	unsigned triangles;
 	RussianRoulette russianRoulette;
 };
