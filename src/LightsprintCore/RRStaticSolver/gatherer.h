@@ -251,14 +251,14 @@ public:
 	}
 
 private:
-	const RRObject* shooterObject;
-	unsigned shooterTriangleIndex;
 	RRObject::LodInfo shooterLod;
 	const RRScaler* scaler;
-	unsigned quality; // 0 to forbid point details, more = use point details more often
+	unsigned quality; // 0 to forbid point details, more = use point details more often, UINT_MAX = always
 	bool staticSceneContainsLods;
 
 	// detector of triangles identical to shooter
+	const RRObject* shooterObject;
+	unsigned shooterTriangleIndex;
 	bool shooterVertexLoaded;
 	RRVec3 shooterVertex[3];
 
