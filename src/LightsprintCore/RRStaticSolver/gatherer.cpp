@@ -14,7 +14,8 @@ namespace rr
 extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 
 Gatherer::Gatherer(const RRSolver* _solver, bool _dynamic, RRReal _gatherDirectEmitors, RRReal _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
-	: collisionHandlerGatherHemisphere(_solver->getScaler(),_quality,_staticSceneContainsLods)
+	: collisionHandlerGatherHemisphere(_solver->getScaler(),_quality,_staticSceneContainsLods),
+	  collisionHandlerGatherLights(_solver->getScaler(),_quality,_staticSceneContainsLods)
 {
 	useFlatNormalsSinceDepth = 0;
 	useSolverDirectSinceDepth = 0;
@@ -24,6 +25,7 @@ Gatherer::Gatherer(const RRSolver* _solver, bool _dynamic, RRReal _gatherDirectE
 	collisionHandlerGatherHemisphere.setHemisphere(_solver->priv->scene);
 	ray.collisionHandler = &collisionHandlerGatherHemisphere;
 	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
+	lights = &_solver->getLights();
 	environment = _solver->getEnvironment();
 	scaler = _solver->getScaler();
 	gatherDirectEmitors = _gatherDirectEmitors?true:false;
@@ -32,6 +34,7 @@ Gatherer::Gatherer(const RRSolver* _solver, bool _dynamic, RRReal _gatherDirectE
 	gatherIndirectLightMultiplier = _gatherIndirectLight;
 	multiObject = _solver->getMultiObject();
 	collider = _dynamic ? _solver->getCollider() : multiObject->getCollider();
+	packedSolver = _solver->priv->packedSolver;
 	triangle = (_solver->priv->scene && _solver->priv->scene->scene && _solver->priv->scene->scene->object) ? _solver->priv->scene->scene->object->triangle : NULL;
 
 	// final gather in lightmap does this per-pixel, rather than per-thread

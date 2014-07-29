@@ -325,14 +325,17 @@ public:
 	RRReal   stopAtVisibility;
 protected:
 	RRCollisionHandlerFinalGathering collisionHandlerGatherHemisphere;
+	RRCollisionHandlerFinalGathering collisionHandlerGatherLights;
 	const RRObject* multiObject;
 	const RRCollider* collider;
+	const RRLights* lights;
 	const RRBuffer* environment;
 	const RRScaler* scaler;
 	bool gatherDirectEmitors;
 	bool gatherIndirectLight;
 	RRReal gatherDirectEmitorsMultiplier;
 	RRReal gatherIndirectLightMultiplier;
+	const RRPackedSolver* packedSolver; // shortcut for accessing indirect in Fireball solver
 	class Triangle* triangle; // shortcut for accessing indirect in Architect solver
 	RussianRoulette russianRoulette;
 };
