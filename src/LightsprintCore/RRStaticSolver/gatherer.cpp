@@ -15,7 +15,7 @@ extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 Gatherer::Gatherer(const RRObject* _multiObject, const RRStaticSolver* _staticSolver, const RRBuffer* _environment, const RRScaler* _scaler, RRReal _gatherDirectEmitors, RRReal _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
 	: collisionHandlerGatherHemisphere(_scaler,_quality,_staticSceneContainsLods)
 {
-	stopAtDepth = 20;
+	stopAtDepth = 20; // without stopAtDepth limit, Lightmaps sample with refractive sphere runs forever, single ray bounces inside sphere. it hits only pixels with r=1, so it does not fade away. material clamping does not help here, point materials are used for quality>=18. in this case, stopAtDepth 20 is not visibly slower than 2
 	stopAtVisibility = 0.001f;
 	collisionHandlerGatherHemisphere.setHemisphere(_staticSolver);
 	ray.collisionHandler = &collisionHandlerGatherHemisphere;
@@ -218,12 +218,12 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 
-			if (numBounces>0)
+			if (numBounces<stopAtDepth)
 			{
 				if (specularReflect)
 				{
 					// recursively call this function
-					exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,ray.hitObject,rayHitTriangle,specularReflectPower/specularReflectMax,numBounces-1);
+					exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,ray.hitObject,rayHitTriangle,specularReflectPower/specularReflectMax,numBounces+1);
 					//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 					RR_ASSERT(IS_VEC3(exitance));
 				}
@@ -231,7 +231,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				if (specularTransmit)
 				{
 					// recursively call this function
-					exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,ray.hitObject,rayHitTriangle,specularTransmitPower/specularTransmitMax,numBounces-1);
+					exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,ray.hitObject,rayHitTriangle,specularTransmitPower/specularTransmitMax,numBounces+1);
 					//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 					RR_ASSERT(IS_VEC3(exitance));
 				}
