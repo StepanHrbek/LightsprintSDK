@@ -16,6 +16,9 @@ extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 Gatherer::Gatherer(const RRSolver* _solver, bool _dynamic, RRReal _gatherDirectEmitors, RRReal _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
 	: collisionHandlerGatherHemisphere(_solver->getScaler(),_quality,_staticSceneContainsLods)
 {
+	useFlatNormalsSinceDepth = 0;
+	useSolverDirectSinceDepth = 0;
+	useSolverIndirectSinceDepth = 0;
 	stopAtDepth = 20; // without stopAtDepth limit, Lightmaps sample with refractive sphere runs forever, single ray bounces inside sphere. it hits only pixels with r=1, so it does not fade away. material clamping does not help here, point materials are used for quality>=18. in this case, stopAtDepth 20 is not visibly slower than 2
 	stopAtVisibility = 0.001f;
 	collisionHandlerGatherHemisphere.setHemisphere(_solver->priv->scene);
@@ -140,6 +143,8 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		// normals initially go from front side
 		RRVec3 faceNormal = ray.hitPlane;
 		RRVec3 pixelNormal = faceNormal;
+		if (numBounces<useFlatNormalsSinceDepth)
+			pixelNormal = getPointNormal(ray,material);
 
 		// normals go from hit side now
 		if (!ray.hitFrontSide)
