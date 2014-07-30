@@ -340,13 +340,45 @@ RRVec4 RRBufferInMemory::getElement(unsigned index) const
 	return result;
 }
 
-RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& position) const
+static float jitter()
 {
+	float r = rand()*(2.f/RAND_MAX);
+	return r<1 ? sqrtf(r)-1: 1-sqrtf(2-r);
+//	return (rand()-RAND_MAX/2)*(1.0f/RAND_MAX);
+}
+
+RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position) const
+{
+#if 0
+	// fast, no interpolation
 	unsigned coord[3];
-	coord[0] = (unsigned)(position[0] * width) % width;
-	coord[1] = (unsigned)(position[1] * height) % height;
-	coord[2] = (unsigned)(position[2] * depth) % depth;
+	coord[0] = (unsigned)(_position[0] * width) % width;
+	coord[1] = (unsigned)(_position[1] * height) % height;
+	coord[2] = (unsigned)(_position[2] * depth) % depth;
 	return getElement(coord[0]+coord[1]*width+coord[2]*width*height);
+#else
+#if 0
+	// fast, temporal interpolation/noise
+	unsigned coord[3];
+	coord[0] = (unsigned)(jitter() + _position[0] * width) % width;
+	coord[1] = (unsigned)(jitter() + _position[1] * height) % height;
+	coord[2] = (unsigned)(_position[2] * depth) % depth;
+	return getElement(coord[0]+coord[1]*width+coord[2]*width*height);
+#else
+	// slow, interpolation
+	RRVec3 position((fmodf(_position[0],1)+2)*width-0.5f,(fmodf(_position[1],1)+2)*height-0.5f,(fmodf(_position[2],1)+1)*depth);
+	RRVec2 remainder(fmodf(position[0],1),fmodf(position[1],1));
+	unsigned coord[3];
+	coord[0] = (unsigned)(position[0]);
+	coord[1] = (unsigned)(position[1]);
+	coord[2] = ((unsigned)(position[2]) % depth)*width*height;
+	RRVec4 e00 = getElement(( coord[0]   %width)+( coord[1]   %height)*width+coord[2]);
+	RRVec4 e01 = getElement(( coord[0]   %width)+((coord[1]+1)%height)*width+coord[2]);
+	RRVec4 e10 = getElement(((coord[0]+1)%width)+( coord[1]   %height)*width+coord[2]);
+	RRVec4 e11 = getElement(((coord[0]+1)%width)+((coord[1]+1)%height)*width+coord[2]);
+	return e00*((1-remainder[0])*(1-remainder[1]))+e01*((1-remainder[0])*(remainder[1]))+e10*(remainder[0]*(1-remainder[1]))+e11*(remainder[0]*remainder[1]);
+#endif
+#endif
 }
 
 RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction) const
