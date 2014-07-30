@@ -223,6 +223,18 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			ray.rayLengthMax = 1e10f;
 		}
 
+		// add material's own emission
+		if (side.emitTo && gatherDirectEmitors)
+		{
+			// we emit everything to both sides of 2sided face, thus doubling energy
+			// this may be changed later
+			//float splitToTwoSides = material->sideBits[ray.hitFrontSide?1:0].emitTo ? 0.5f : 1;
+
+			// used in direct lighting final gather [per pixel emittance]
+			exitance += material->diffuseEmittance.colorPhysical * gatherDirectEmitorsMultiplier;// * splitToTwoSides;
+			RR_ASSERT(IS_VEC3(exitance));
+		}
+
 		if (side.catchFrom || side.emitTo)
 		{
 			// work with ray+material before we recurse and overwrite them
@@ -264,17 +276,6 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			// diffuse reflection + emission
 			if (side.emitTo)
 			{
-				// we emit everything to both sides of 2sided face, thus doubling energy
-				// this may be changed later
-				//float splitToTwoSides = material->sideBits[ray.hitFrontSide?1:0].emitTo ? 0.5f : 1;
-
-				// diffuse emission
-				if (gatherDirectEmitors)
-				{
-					// used in direct lighting final gather [per pixel emittance]
-					exitance += material->diffuseEmittance.colorPhysical * gatherDirectEmitorsMultiplier;// * splitToTwoSides;
-				}
-
 				// diffuse reflection
 				if (gatherIndirectLight)
 				{
