@@ -45,6 +45,7 @@ namespace rr_ed
 		BoolRefProperty*  propGIBilinear;
 		BoolRefProperty*  propGISRGBCorrect;
 		wxPGProperty*     propGIShadowTransparency;
+		wxPGProperty*     propGIFireball;
 		wxPGProperty*     propGIFireballQuality;
 		ButtonProperty*   propGIFireballBuild;
 		wxPGProperty*     propGIFireballWorkPerFrame;

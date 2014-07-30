@@ -67,7 +67,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 		// fireball
 		{
-			wxPGProperty* propGIFireball = new wxStringProperty(_("Fireball"), wxPG_LABEL);
+			propGIFireball = new wxStringProperty(_("Fireball"), wxPG_LABEL);
 			AppendIn(propGIIndirect,propGIFireball);
 			SetPropertyReadOnly(propGIFireball,true,wxPG_DONT_RECURSE);
 
@@ -168,7 +168,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 
 	// lightmap
 	{
-		wxPGProperty* propGILightmap = new wxStringProperty(_("Baking"), wxPG_LABEL);
+		propGILightmap = new wxStringProperty(_("Baking"), wxPG_LABEL);
 		Append(propGILightmap);
 		SetPropertyReadOnly(propGILightmap,true,wxPG_DONT_RECURSE);
 
@@ -226,6 +226,8 @@ void SVGIProperties::updateHide()
 	propGISRGBCorrect->Hide(!svs.renderLightDirectActive(),false);
 	propGIShadowTransparency->Hide(!svs.renderLightDirectActive(),false);
 
+	propGIFireball->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
+
 	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
 	propGISSGI->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
 	propGISSGIIntensity->Hide(!svs.ssgiEnabled,false);
@@ -253,6 +255,8 @@ void SVGIProperties::updateHide()
 	propGITranspVideoAffectsGIFull->Hide(!realtimeGI || !svs.videoTransmittanceAffectsGI,false);
 	propGIEnvVideoAffectsGI->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
 	propGIEnvVideoGIQuality->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL || !svs.videoEnvironmentAffectsGI,false);
+
+	propGILightmap->Hide(svs.renderLightIndirect!=LI_LIGHTMAPS && svs.renderLightIndirect!=LI_AMBIENTMAPS,false);
 }
 
 void SVGIProperties::updateAfterGLInit()
