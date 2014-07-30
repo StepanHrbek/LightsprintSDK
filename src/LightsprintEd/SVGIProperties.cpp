@@ -222,21 +222,26 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 //! Must not be called in every frame, float property that is unhid in every frame loses focus immediately after click, can't be edited.
 void SVGIProperties::updateHide()
 {
+	propGIDirect->Hide(!svs.renderLightDirectRelevant(),false);
+	propGISRGBCorrect->Hide(!svs.renderLightDirectActive(),false);
+	propGIShadowTransparency->Hide(!svs.renderLightDirectActive(),false);
+
 	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
+	propGISSGI->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
 	propGISSGIIntensity->Hide(!svs.ssgiEnabled,false);
 	propGISSGIRadius->Hide(!svs.ssgiEnabled,false);
 	propGISSGIAngleBias->Hide(!svs.ssgiEnabled,false);
 	propGILDM->Hide(!svs.renderLDMRelevant(),false);
-	propGISRGBCorrect->Hide(!svs.renderLightDirectActive(),false);
-	propGIShadowTransparency->Hide(!svs.renderLightDirectActive(),false);
 	//propGIIndirectMultiplier->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED,false);
 	//propGIEmisMultiplier->Hide(!realtimeGI,false);
 
+	propGIRaytracedCubes->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
 	propGIRaytracedCubesRes->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesSpecularThreshold->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesDepthThreshold->Hide(!svs.raytracedCubesEnabled,false);
 	
+	propGIMirrors->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
 	propGIMirrorsDiffuse->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsSpecular->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsQuality->Hide(!svs.mirrorsEnabled,false);
