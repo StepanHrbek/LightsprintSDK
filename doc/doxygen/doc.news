@@ -14,7 +14,7 @@ NEWS
 
 - pathtracing
   - additional rendering technique added to portfolio
-  - integrated into SceneViewer (change "Global illumination / Indirect illumination" technique to "Pathtracing")
+  - integrated into SceneViewer (change "Global illumination / Technique" to "Pathtracing")
   - RRSolver::pathTraceFrame() renders single frame
   - RRMaterial::getResponse() and RRMaterial::sampleResponse() provide building blocks for external pathtracers working with Lightsprint data
 - quad buffered stereo support
@@ -30,7 +30,7 @@ NEWS
   - silhouettes, creases
 - hiding objects
   - RRObject::enabled, clear this flag to hide object
-  - note that while hidden objects are invisible for renderer, some GI solvers still let them reflect or emit light, so hiding is not as reliable as removing object
+  - fully implemented only for dynamic objects, hidden static objects might be still visible
 
 CHANGES
 
