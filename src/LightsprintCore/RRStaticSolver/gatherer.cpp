@@ -235,6 +235,28 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			RR_ASSERT(IS_VEC3(exitance));
 		}
 
+		// diffuse reflection
+		if (side.emitTo)
+		{
+			// diffuse reflection
+			if (gatherIndirectLight)
+			{
+				// used in GI final gather
+				{
+					// point detail version
+					// zero area would create #INF in getTotalIrradiance() 
+					// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
+					RR_ASSERT(hitTriangle->area);
+					exitance += hitTriangle->getIndirectIrradiance() * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
+					RR_ASSERT(IS_VEC3(exitance));
+					// per triangle version (ignores point detail even if it's already available)
+					//exitance += hitTriangle->totalExitingFlux / hitTriangle->area;
+				}
+			}
+			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+			RR_ASSERT(IS_VEC3(exitance));
+		}
+
 		if (side.catchFrom || side.emitTo)
 		{
 			// work with ray+material before we recurse and overwrite them
@@ -272,28 +294,6 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 
 			// copy remaining ray+material data to local stack
 			unsigned rayHitTriangle = ray.hitTriangle;
-
-			// diffuse reflection + emission
-			if (side.emitTo)
-			{
-				// diffuse reflection
-				if (gatherIndirectLight)
-				{
-					// used in GI final gather
-					{
-						// point detail version
-						// zero area would create #INF in getTotalIrradiance() 
-						// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
-						RR_ASSERT(hitTriangle->area);
-						exitance += hitTriangle->getIndirectIrradiance() * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
-						RR_ASSERT(IS_VEC3(exitance));
-						// per triangle version (ignores point detail even if it's already available)
-						//exitance += hitTriangle->totalExitingFlux / hitTriangle->area;
-					}
-				}
-				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
-				RR_ASSERT(IS_VEC3(exitance));
-			}
 
 			if (numBounces<stopAtDepth)
 			{
