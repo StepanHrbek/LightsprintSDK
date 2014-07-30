@@ -1692,7 +1692,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppShared.camera = &svs.camera;
 			ppShared.viewport[2] = winWidth;
 			ppShared.viewport[3] = winHeight;
-			ppShared.srgbCorrect = svs.renderLightDirectActive() && svs.srgbCorrect;
+			ppShared.srgbCorrect = svs.srgbCorrect; // affects image even with direct lighting disabled (by adding dif+spec+emis correctly)
 			ppShared.brightness = rr::RRVec4( svs.renderTonemapping ? svs.tonemapping.color.RRVec3::avg() * pow(svs.tonemapping.gamma,0.45f) : 1 );
 			ppShared.gamma = svs.renderTonemapping ? svs.tonemapping.gamma : 1;
 
