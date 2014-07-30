@@ -34,8 +34,10 @@ namespace rr_ed
 		//! Copy svs -> hide/show property.
 		void updateHide();
 
+		wxPGProperty*     propGITechnique;
+		BoolRefProperty*  propGISRGBCorrect;
 		BoolRefProperty*  propGIDirect;
-		wxPGProperty*     propGIIndirect;
+		wxPGProperty*     propGIShadowTransparency;
 		wxPGProperty*     propGIIndirectMultiplier;
 		BoolRefProperty*  propGISSGI;
 		wxPGProperty*     propGISSGIIntensity;
@@ -43,8 +45,6 @@ namespace rr_ed
 		wxPGProperty*     propGISSGIAngleBias;
 		BoolRefProperty*  propGILDM;
 		BoolRefProperty*  propGIBilinear;
-		BoolRefProperty*  propGISRGBCorrect;
-		wxPGProperty*     propGIShadowTransparency;
 		wxPGProperty*     propGIFireball;
 		wxPGProperty*     propGIFireballQuality;
 		ButtonProperty*   propGIFireballBuild;

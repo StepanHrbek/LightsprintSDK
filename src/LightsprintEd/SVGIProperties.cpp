@@ -14,10 +14,19 @@ extern bool supportsSRGB();
 SVGIProperties::SVGIProperties(SVFrame* _svframe)
 	: SVProperties(_svframe)
 {
-	// direct
+	// technique
 	{
+		const wxChar* strings[] = {_("pathtracing"),_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),NULL};
+		const long values[] = {LI_PATHTRACED,LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_LIGHTMAPS,LI_AMBIENTMAPS,LI_CONSTANT,LI_NONE};
+		propGITechnique = new wxEnumProperty(_("Technique"),wxPG_LABEL,strings,values);
+		propGITechnique->SetHelpString(_("What base GI technique to use. Note that additional techniques (Raytraced cubemaps, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
+		Append(propGITechnique);
+
+		propGISRGBCorrect = new BoolRefProperty(_("sRGB correctness"),_("Increases realism by correctly adding realtime lights (however, transparency in sRGB mode looks different). Works only if OpenGL 3.0+ or necessary extensions are found."),svs.srgbCorrect);
+		AppendIn(propGITechnique,propGISRGBCorrect);
+
 		propGIDirect = new BoolRefProperty(_("Direct illumination"),_("Uncheck to disable direct illumination, e.g. to see indirect illumination more clearly."),svs.renderLightDirect);
-		Append(propGIDirect);
+		AppendIn(propGITechnique,propGIDirect);
 
 		{
 			const wxChar* strings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),_("24-bit (fresnel shadows)"),NULL};
@@ -27,30 +36,16 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			AppendIn(propGIDirect,propGIShadowTransparency);
 		}
 
-		propGISRGBCorrect = new BoolRefProperty(_("sRGB correctness"),_("Increases realism by correctly adding realtime lights (however, transparency in sRGB mode looks different). Works only if OpenGL 3.0+ or necessary extensions are found."),svs.srgbCorrect);
-		AppendIn(propGIDirect,propGISRGBCorrect);
-
-		SetPropertyBackgroundColour(propGIDirect,importantPropertyBackgroundColor,false);
-	}
-
-	// indirect
-	{
-		const wxChar* strings[] = {_("pathtraced"),_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),NULL};
-		const long values[] = {LI_PATHTRACED,LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_LIGHTMAPS,LI_AMBIENTMAPS,LI_CONSTANT,LI_NONE};
-		propGIIndirect = new wxEnumProperty(_("Indirect illumination"),wxPG_LABEL,strings,values);
-		propGIIndirect->SetHelpString(_("What nondirectional indirect illumination technique to use. Note that directional techniques (Raytraced cubemaps, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
-		Append(propGIIndirect);
-
 		propGIIndirectMultiplier = new FloatProperty(_("Light multiplier"),_("Multiplies indirect illumination from lights, without affecting lights. 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
-		AppendIn(propGIIndirect,propGIIndirectMultiplier);
+		AppendIn(propGITechnique,propGIIndirectMultiplier);
 
 		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting materials. 1=realistic. In baked modes, it is applied when baking, not when rendering."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
-		AppendIn(propGIIndirect,propGIEmisMultiplier);
+		AppendIn(propGITechnique,propGIEmisMultiplier);
 
 		// SSGI
 		{
 			propGISSGI = new BoolRefProperty(_("SSGI"),_("Screen space global illumination improves quality of constant and realtime indirect illumination. SSGI works without any precalculations, however, it is slower and looks worse than LDM."),svs.ssgiEnabled);
-			AppendIn(propGIIndirect,propGISSGI);
+			AppendIn(propGITechnique,propGISSGI);
 
 			propGISSGIIntensity = new FloatProperty(_("Intensity"),_("Multiplies effect of SSGI."),svs.ssgiIntensity,svs.precision,0,100,1,false);
 			AppendIn(propGISSGI,propGISSGIIntensity);
@@ -63,35 +58,12 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		}
 
 		propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination. LDMs are faster and look better than SSGI, but they have to be baked first (which takes time and requires unwrap)."),svs.renderLDM);
-		AppendIn(propGIIndirect,propGILDM);
-
-		// fireball
-		{
-			propGIFireball = new wxStringProperty(_("Fireball"), wxPG_LABEL);
-			AppendIn(propGIIndirect,propGIFireball);
-			SetPropertyReadOnly(propGIFireball,true,wxPG_DONT_RECURSE);
-
-			propGIFireballQuality = new FloatProperty(_("Quality"),_("More = longer precalculation, higher quality realtime GI. Rebuild Fireball for this change to take effect."),svs.fireballQuality,0,0,1000000,100,false);
-			AppendIn(propGIFireball,propGIFireballQuality);
-
-			propGIFireballBuild = new ButtonProperty(_("Build"),_("Builds or rebuilds Fireball."),svframe,SVFrame::ME_REALTIME_FIREBALL_BUILD);
-			AppendIn(propGIFireball,propGIFireballBuild);
-			propGIFireballBuild->updateImage();
-
-			propGIFireballWorkPerFrame = new wxIntProperty(_("Bounces in 1. frame"),wxPG_LABEL,svs.fireballWorkPerFrame);
-			propGIFireballWorkPerFrame->SetHelpString(_("How much work Fireball does in first frame when GI needs update. Roughly equivalent to number of light bounces."));
-			AppendIn(propGIFireball,propGIFireballWorkPerFrame);
-
-			propGIFireballWorkTotal = new wxBoolProperty(_("Continue bouncing"),wxPG_LABEL,svs.fireballWorkTotal>svs.fireballWorkPerFrame);
-			propGIFireballWorkTotal->SetHelpString(_("Uncheck to make Fireball stop all work after first frame. Check to see GI slowly improve over time."));
-			SetPropertyEditor(propGIFireballWorkTotal,wxPGEditor_CheckBox);
-			AppendIn(propGIFireball,propGIFireballWorkTotal);
-		}
+		AppendIn(propGITechnique,propGILDM);
 
 		// video
 		{
 			propGIVideo = new wxStringProperty(_("Video realtime GI"), wxPG_LABEL);
-			AppendIn(propGIIndirect,propGIVideo);
+			AppendIn(propGITechnique,propGIVideo);
 			SetPropertyReadOnly(propGIVideo,true,wxPG_DONT_RECURSE);
 
 			// emissive video
@@ -124,12 +96,37 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			Collapse(propGIVideo);
 		}
 
-		SetPropertyBackgroundColour(propGIIndirect,importantPropertyBackgroundColor,false);
+		SetPropertyBackgroundColour(propGITechnique,importantPropertyBackgroundColor,false);
+	}
+
+	// fireball
+	{
+		propGIFireball = new wxStringProperty(_("Fireball"), wxPG_LABEL);
+		Append(propGIFireball);
+		SetPropertyReadOnly(propGIFireball,true,wxPG_DONT_RECURSE);
+
+		propGIFireballQuality = new FloatProperty(_("Quality"),_("More = longer precalculation, higher quality realtime GI. Rebuild Fireball for this change to take effect."),svs.fireballQuality,0,0,1000000,100,false);
+		AppendIn(propGIFireball,propGIFireballQuality);
+
+		propGIFireballBuild = new ButtonProperty(_("Build"),_("Builds or rebuilds Fireball."),svframe,SVFrame::ME_REALTIME_FIREBALL_BUILD);
+		AppendIn(propGIFireball,propGIFireballBuild);
+		propGIFireballBuild->updateImage();
+
+		propGIFireballWorkPerFrame = new wxIntProperty(_("Bounces in 1. frame"),wxPG_LABEL,svs.fireballWorkPerFrame);
+		propGIFireballWorkPerFrame->SetHelpString(_("How much work Fireball does in first frame when GI needs update. Roughly equivalent to number of light bounces."));
+		AppendIn(propGIFireball,propGIFireballWorkPerFrame);
+
+		propGIFireballWorkTotal = new wxBoolProperty(_("Continue bouncing"),wxPG_LABEL,svs.fireballWorkTotal>svs.fireballWorkPerFrame);
+		propGIFireballWorkTotal->SetHelpString(_("Uncheck to make Fireball stop all work after first frame. Check to see GI slowly improve over time."));
+		SetPropertyEditor(propGIFireballWorkTotal,wxPGEditor_CheckBox);
+		AppendIn(propGIFireball,propGIFireballWorkTotal);
+
+		SetPropertyBackgroundColour(propGIFireball,importantPropertyBackgroundColor,false);
 	}
 
 	// cubes
 	{
-		propGIRaytracedCubes = new BoolRefProperty(_("Raytraced cubemaps"),_("Increases realism by realtime raytracing lowres or rasterizing hires cubemaps for diffuse and specular reflection and refraction. Note: Cubemaps automatically update only in realtime GI modes. Other modes preserve old cubemaps. You can manually update cubemaps by baking lightmaps or by switching to realtime GI and back."),svs.raytracedCubesEnabled);
+		propGIRaytracedCubes = new BoolRefProperty(_("Cubemap reflections"),_("Increases realism by realtime raytracing lowres or rasterizing hires cubemaps for diffuse and specular reflection and refraction. Note: Cubemaps automatically update only in realtime GI modes. Other modes preserve old cubemaps. You can manually update cubemaps by baking lightmaps or by switching to realtime GI and back."),svs.raytracedCubesEnabled);
 		Append(propGIRaytracedCubes);
 		
 		propGIRaytracedCubesRes = new FloatProperty(_("Cube resolution"),_("Resolution of cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16."),svs.raytracedCubesRes,0,1,1024,10,false);
@@ -222,8 +219,8 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 //! Must not be called in every frame, float property that is unhid in every frame loses focus immediately after click, can't be edited.
 void SVGIProperties::updateHide()
 {
+	propGISRGBCorrect->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
 	propGIDirect->Hide(!svs.renderLightDirectRelevant(),false);
-	propGISRGBCorrect->Hide(!svs.renderLightDirectActive(),false);
 	propGIShadowTransparency->Hide(!svs.renderLightDirectActive(),false);
 
 	propGIFireball->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
@@ -272,7 +269,7 @@ void SVGIProperties::updateProperties()
 	// this function would still have to support at least properties that user can change by hotkeys or mouse navigation.
 	unsigned numChangesRelevantForHiding =
 		+ updateBoolRef(propGIDirect)
-		+ updateInt(propGIIndirect,svs.renderLightIndirect)
+		+ updateInt(propGITechnique,svs.renderLightIndirect)
 		+ updateBoolRef(propGISSGI)
 		+ updateBoolRef(propGILDM)
 		+ updateBoolRef(propGIEmisVideoAffectsGI)
@@ -342,7 +339,7 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		updateHide();
 	}
 	else
-	if (property==propGIIndirect)
+	if (property==propGITechnique)
 	{
 		svs.renderLightIndirect = (LightingIndirect)property->GetValue().GetInteger();
 		if (svs.renderLightIndirect==LI_REALTIME_FIREBALL)
