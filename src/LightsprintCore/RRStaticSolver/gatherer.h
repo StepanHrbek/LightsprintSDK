@@ -268,7 +268,7 @@ private:
 	bool shooterVertexLoaded;
 	RRVec3 shooterVertex[3];
 
-	// gathering hemisphere
+	// gathering hemisphere, pathtracing
 	Triangle* triangle; // shortcut, direct access to materials in rrcore
 	const RRMaterial* firstContactMaterial; // when collision is found, contact material is stored here:
 	RRPointMaterial pointMaterial[2]; // helper for storing contact material. one slot for old accepted contact, one slot for new not-yet-accepted contact
@@ -286,10 +286,10 @@ private:
 // Gatherer
 //
 
-// Casts 1 ray with possible reflections/refractions, returns color visible in given direction.
+// Casts 1 ray with possible reflections/refractions/shadowrays, returns color visible in given direction.
 
 // It is used only by RRSolver, but for higher speed,
-// it reads data directly from RRStaticSolver internals, so it is here.
+// it can read data directly from RRStaticSolver or RRPackedSolver internals, so it is here.
 
 // For final gathering of many rays, use one gatherer per thread.
 // May be used 1000x for 1 final gathered texel, 640x480x for 1 raytraced image...
