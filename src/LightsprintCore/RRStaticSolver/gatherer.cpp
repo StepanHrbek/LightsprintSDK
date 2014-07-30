@@ -147,6 +147,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		response.dirOut = -direction;
 
 		// add direct lighting
+		if (parameters.directIllumination || numBounces)
 		if (numBounces>=useSolverDirectSinceDepth
 			&& ray.hitObject && !ray.hitObject->isDynamic // only available if we hit static object
 			&& (packedSolver || triangle))

@@ -34,7 +34,9 @@ namespace rr_ed
 		//! Copy svs -> hide/show property.
 		void updateHide();
 
+	public:
 		wxPGProperty*     propGITechnique;
+	private:
 		BoolRefProperty*  propGISRGBCorrect;
 		BoolRefProperty*  propGIDirect;
 		wxPGProperty*     propGIShadowTransparency;

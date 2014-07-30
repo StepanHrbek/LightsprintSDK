@@ -316,6 +316,7 @@ public:
 	RRVec3 gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility = RRVec3(1), unsigned numBounces = 0);
 
 	RRRay ray; // aligned, better keep it first
+	RRSolver::PathTracingParameters parameters;
 	// how many bounces before given optimization kicks in?
 	unsigned useFlatNormalsSinceDepth;
 	unsigned useSolverDirectSinceDepth;

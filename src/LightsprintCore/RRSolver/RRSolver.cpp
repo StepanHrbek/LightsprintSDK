@@ -1104,7 +1104,7 @@ void RRSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironm
 	}
 }
 
-void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _accumulated)
+void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _accumulated, const PathTracingParameters* _parameters)
 {
 	if (!_frame)
 		return;
@@ -1116,6 +1116,8 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 	for (int j=0;j<(int)h;j++)
 	{
 		Gatherer gatherer(this,true,true,true,false,UINT_MAX);
+		if (_parameters)
+			gatherer.parameters = *_parameters;
 		unsigned shortcut = (unsigned)sqrtf((float)(_accumulated/10)); // starts at 0, increases on frames 10, 40, 90, 160 etc
 		gatherer.useFlatNormalsSinceDepth = shortcut+1;
 		gatherer.useSolverDirectSinceDepth = shortcut+1;

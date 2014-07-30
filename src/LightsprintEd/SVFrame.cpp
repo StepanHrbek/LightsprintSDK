@@ -984,7 +984,7 @@ bool SVFrame::saveScene(wxString sceneFilename)
 void SVFrame::OnAnyChange(EventSource eventSource, wxPGProperty* property)
 {
 	stateVersion++;
-	if (eventSource!=ES_PROPERTY || property->GetGrid()!=m_giProperties)
+	if (eventSource!=ES_PROPERTY || property!=m_giProperties->propGITechnique)
 		m_canvas->pathTracedAccumulator = 0;
 }
 

@@ -220,7 +220,6 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 void SVGIProperties::updateHide()
 {
 	propGISRGBCorrect->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
-	propGIDirect->Hide(!svs.renderLightDirectRelevant(),false);
 	propGIShadowTransparency->Hide(!svs.renderLightDirectActive(),false);
 
 	propGIFireball->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);

@@ -955,6 +955,16 @@ namespace rr
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
 		RRObject* getMultiObject() const;
 
+		struct RR_API PathTracingParameters
+		{
+			bool directIllumination;
+
+			PathTracingParameters()
+			{
+				directIllumination = true;
+			}
+		};
+
 		//! Renders scene image into given frame, using pathtracer.
 		//
 		//! Pathtracing is slower and noisier than rasterization, but it offers higher quality if you give it enough time.
@@ -962,7 +972,7 @@ namespace rr
 		//! \param camera Camera to view scene from.
 		//! \param frame Framebuffer to render to. If you accumulate multiple frames into single buffer, format should be BF_RGBF or BF_RGBAF, to avoid color banding.
 		//! \param accumulate Number of frames already accumulated in frame. Increase this number each time you call pathTraceFrame, zero it only when camera or scene change.
-		void pathTraceFrame(RRCamera& camera, RRBuffer* frame, unsigned accumulate);
+		void pathTraceFrame(RRCamera& camera, RRBuffer* frame, unsigned accumulate, const PathTracingParameters* parameters);
 
 	protected:
 
