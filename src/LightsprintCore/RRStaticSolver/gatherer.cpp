@@ -233,9 +233,15 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			RR_ASSERT(IS_VEC3(exitance));
 		}
 
+		// probabilities that we reflect using given BRDF
+		float probabilityDiff = RR_MAX(0,material->diffuseReflectance.colorPhysical.avg());
+		float probabilitySpec = RR_MAX(0,material->specularReflectance.colorPhysical.avg());
+		float probabilityTran = RR_MAX(0,material->specularTransmittance.colorPhysical.avg());
+		float probabilityStop = RR_MAX(0,1-probabilityDiff-probabilitySpec-probabilityTran);
+
 		// add material's diffuse reflection using shortcut (reading irradiance from solver) 
 		// if shortcut is requested, use it always, to reduce noise
-		if (side.emitTo
+		if (numBounces>=useSolverIndirectSinceDepth
 			&& ray.hitObject && !ray.hitObject->isDynamic) // only available if we hit static object
 		{
 			if (packedSolver)
@@ -243,6 +249,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				// fireball:
 				exitance += packedSolver->getPointIrradianceIndirect(ray.hitTriangle,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));
+				probabilityDiff = 0; // exclude diffuse from next path
 			}
 			else
 			if (triangle)
@@ -255,62 +262,36 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				RR_ASSERT(hitTriangle->area);
 				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_PHYSICAL_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));
+				probabilityDiff = 0; // exclude diffuse from next path
 			}
 		}
 
-		if (side.catchFrom || side.emitTo)
+		// continue path
+		float r = rand()/(float)RAND_MAX;
+		if (// terminate by russian roulette?
+			r<probabilityDiff+probabilitySpec+probabilityTran
+			// terminate by max depth?
+			&& numBounces<stopAtDepth)
 		{
-			// work with ray+material before we recurse and overwrite them
-			bool   specularReflect = false;
-			RRVec3 specularReflectPower;
-			RRReal specularReflectMax;
-			RRVec3 specularReflectDir;
-			bool   specularTransmit = false;
-			RRVec3 specularTransmitPower;
-			RRReal specularTransmitMax;
-			RRVec3 specularTransmitDir;
-			if (side.reflect)
-			{
-				specularReflectPower = material->specularReflectance.colorPhysical;
-				specularReflectMax = specularReflectPower.maxi();
-				specularReflect = russianRoulette.survived(specularReflectMax);
-				if (specularReflect)
-				{
-					// calculate new direction after ideal mirror reflection
-					specularReflectDir = pixelNormal*(-2*dot(direction,pixelNormal)/size2(pixelNormal))+direction;
-				}
-			}
-			if (side.transmitFrom)
-			{
-				specularTransmitPower = material->specularTransmittance.colorPhysical;
-				specularTransmitMax = specularTransmitPower.maxi();
-				specularTransmit = russianRoulette.survived(specularTransmitMax);
-				if (specularTransmit)
-				{
-					// calculate new direction after refraction
-					specularTransmitDir = refract(direction,pixelNormal,material);
-				}
-			}
-			RRVec3 hitPoint3d=eye+direction*ray.hitDistance;
+			// select BRDF type of reflected ray
+			RRMaterial::BrdfType brdfType = (r<probabilityDiff) ? RRMaterial::BRDF_DIFFUSE : ( (r<probabilityDiff+probabilitySpec) ? RRMaterial::BRDF_SPECULAR : RRMaterial::BRDF_TRANSMIT );
 
-			// copy remaining ray+material data to local stack
-			unsigned rayHitTriangle = ray.hitTriangle;
+			// increase intensity to compensate for not shooting rays of other types
+			float intensity = (probabilityDiff+probabilitySpec+probabilityTran+probabilityStop) / ( (r<probabilityDiff) ? probabilityDiff : ( (r<probabilityDiff+probabilitySpec) ? probabilitySpec : probabilityTran ) );
 
-			if (numBounces<stopAtDepth)
+			// select ray
+			material->sampleResponse(response,RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX)),brdfType);
+
+			// if it is good
+			if (response.pdf>0 // not invalid
+				&& (response.brdfType!=RRMaterial::BRDF_TRANSMIT) == (response.dirIn.dot(faceNormal)<0)) // does not go through wall because of bad normals/normalmap (fixes test/bump-propousti-svetlo.rr3)
 			{
-				if (specularReflect)
+				// and strong enough
+				RRVec3 responseStrength = response.colorOut * (intensity/response.pdf);
+				if (responseStrength.avg()>stopAtVisibility)
 				{
-					// recursively call this function
-					exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,ray.hitObject,rayHitTriangle,visibility*(specularReflectPower/specularReflectMax),numBounces+1) * (specularReflectPower/specularReflectMax);
-					//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
-					RR_ASSERT(IS_VEC3(exitance));
-				}
-
-				if (specularTransmit)
-				{
-					// recursively call this function
-					exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,ray.hitObject,rayHitTriangle,visibility*(specularTransmitPower/specularTransmitMax),numBounces+1) * (specularTransmitPower/specularTransmitMax);
-					//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
+					// shoot it
+					exitance += gatherPhysicalExitance(eye+direction*ray.hitDistance,-response.dirIn,ray.hitObject,ray.hitTriangle,visibility*responseStrength,numBounces+1) * responseStrength;
 					RR_ASSERT(IS_VEC3(exitance));
 				}
 			}
