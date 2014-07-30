@@ -352,6 +352,20 @@ vec4 dividedByAlpha(vec4 color)
 	return color/color.a;
 }
 
+vec4 toLinear()
+{
+	return vec4(0.0,0.0,0.0,0.0);
+}
+
+vec4 toLinear(vec4 color)
+{
+	#ifdef POSTPROCESS_GAMMA
+		return pow(color,vec4(postprocessGamma,postprocessGamma,postprocessGamma,1));
+	#else
+		return color;
+	#endif
+}
+
 void main()
 {
 
@@ -816,6 +830,7 @@ void main()
 			//
 
 			#if defined(MATERIAL_DIFFUSE) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_DIFFUSE))
+			toLinear(
 				#ifdef MATERIAL_DIFFUSE_X2
 					vec4(2.0,2.0,2.0,1.0) *
 				#endif
@@ -876,6 +891,7 @@ void main()
 						) * texture2D(lightIndirectMap, lightIndirectCoord) * 2.0
 					#endif
 				).rgb,1.0)
+			)
 			#endif
 
 
@@ -884,7 +900,7 @@ void main()
 			//
 
 			#ifdef MATERIAL_SPECULAR
-				+
+			+ toLinear(
 				#ifdef MATERIAL_TRANSPARENCY_FRESNEL
 					(
 				#endif
@@ -962,6 +978,7 @@ void main()
 							)
 					#endif
 				).rgb,1.0)
+			)
 			#endif
 
 
@@ -969,6 +986,7 @@ void main()
 			// emission
 			//
 
+			+ toLinear(
 			#ifdef MATERIAL_EMISSIVE_CONST
 				+ materialEmissiveConst
 				#ifdef MATERIAL_TRANSPARENCY_FRESNEL
@@ -978,8 +996,8 @@ void main()
 			#ifdef MATERIAL_EMISSIVE_MAP
 				+ materialEmissiveMapColor
 			#endif
+			)
 
-			+ vec4(0.0,0.0,0.0,0.0) // prevent broken shader when material properties are disabled
 			;
 
 		#ifdef FORCE_2D_POSITION
@@ -1008,9 +1026,9 @@ void main()
 		#ifdef POSTPROCESS_BRIGHTNESS
 			gl_FragColor.rgb *= postprocessBrightness.rgb;
 		#endif
-		#ifdef POSTPROCESS_GAMMA
-			gl_FragColor.rgb = pow(gl_FragColor.rgb,vec3(postprocessGamma,postprocessGamma,postprocessGamma));
-		#endif
+//		#ifdef POSTPROCESS_GAMMA
+//			gl_FragColor.rgb = pow(gl_FragColor.rgb,vec3(postprocessGamma,postprocessGamma,postprocessGamma));
+//		#endif
 		#ifdef POSTPROCESS_BIGSCREEN
 			gl_FragColor.rgb = max(gl_FragColor.rgb,vec3(0.33,0.33,0.33));
 		#endif
