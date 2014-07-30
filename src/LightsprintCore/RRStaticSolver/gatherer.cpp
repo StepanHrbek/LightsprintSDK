@@ -119,7 +119,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			RRVec3 irrad = environment->getElementAtDirection(direction);
 			if (scaler && environment->getScaled()) scaler->getPhysicalScale(irrad);
 			RR_ASSERT(IS_VEC3(irrad));
-			return visibility * irrad;
+			return irrad;
 		}
 		return Channels(0);
 	}
@@ -163,7 +163,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			if (packedSolver)
 			{
 				// fireball
-				exitance += visibility * packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorPhysical;
+				exitance += packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorPhysical;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 			else
@@ -174,7 +174,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				// zero area would create #INF in getIndirectIrradiance()
 				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 				RR_ASSERT(hitTriangle->area);
-				exitance += visibility * hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorPhysical;
+				exitance += hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorPhysical;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 		}
@@ -214,7 +214,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 						if (totalContribution!=RRVec3(0) && !collider->intersect(&shadowRay))
 						{
 							// dokud neudelam bidir, shadow raye musej prolitat bez refrakce, s pocitanim pruhlednosti, jinak nevzniknou rgb stiny
-							exitance += visibility * totalContribution * collisionHandlerGatherLights.getVisibility();
+							exitance += totalContribution * collisionHandlerGatherLights.getVisibility();
 							RR_ASSERT(IS_VEC3(exitance));
 						}
 					}
@@ -236,7 +236,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			RRVec3 specularTransmitDir;
 			if (side.reflect)
 			{
-				specularReflectPower = visibility*material->specularReflectance.colorPhysical;
+				specularReflectPower = material->specularReflectance.colorPhysical;
 				specularReflectMax = specularReflectPower.maxi();
 				specularReflect = russianRoulette.survived(specularReflectMax);
 				if (specularReflect)
@@ -247,7 +247,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			}
 			if (side.transmitFrom)
 			{
-				specularTransmitPower = visibility*material->specularTransmittance.colorPhysical;
+				specularTransmitPower = material->specularTransmittance.colorPhysical;
 				specularTransmitMax = specularTransmitPower.maxi();
 				specularTransmit = russianRoulette.survived(specularTransmitMax);
 				if (specularTransmit)
@@ -272,7 +272,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				if (gatherDirectEmitors)
 				{
 					// used in direct lighting final gather [per pixel emittance]
-					exitance += visibility * material->diffuseEmittance.colorPhysical * gatherDirectEmitorsMultiplier;// * splitToTwoSides;
+					exitance += material->diffuseEmittance.colorPhysical * gatherDirectEmitorsMultiplier;// * splitToTwoSides;
 				}
 
 				// diffuse reflection
@@ -284,10 +284,10 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 						// zero area would create #INF in getTotalIrradiance() 
 						// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 						RR_ASSERT(hitTriangle->area);
-						exitance += visibility * hitTriangle->getIndirectIrradiance() * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
+						exitance += hitTriangle->getIndirectIrradiance() * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
 						RR_ASSERT(IS_VEC3(exitance));
 						// per triangle version (ignores point detail even if it's already available)
-						//exitance += visibility * hitTriangle->totalExitingFlux / hitTriangle->area;
+						//exitance += hitTriangle->totalExitingFlux / hitTriangle->area;
 					}
 				}
 				//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
@@ -299,7 +299,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				if (specularReflect)
 				{
 					// recursively call this function
-					exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,ray.hitObject,rayHitTriangle,specularReflectPower/specularReflectMax,numBounces+1);
+					exitance += gatherPhysicalExitance(hitPoint3d,specularReflectDir,ray.hitObject,rayHitTriangle,visibility*(specularReflectPower/specularReflectMax),numBounces+1) * (specularReflectPower/specularReflectMax);
 					//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 					RR_ASSERT(IS_VEC3(exitance));
 				}
@@ -307,7 +307,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				if (specularTransmit)
 				{
 					// recursively call this function
-					exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,ray.hitObject,rayHitTriangle,specularTransmitPower/specularTransmitMax,numBounces+1);
+					exitance += gatherPhysicalExitance(hitPoint3d,specularTransmitDir,ray.hitObject,rayHitTriangle,visibility*(specularTransmitPower/specularTransmitMax),numBounces+1) * (specularTransmitPower/specularTransmitMax);
 					//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
 					RR_ASSERT(IS_VEC3(exitance));
 				}
