@@ -337,7 +337,6 @@ protected:
 	RRReal gatherIndirectLightMultiplier;
 	const RRPackedSolver* packedSolver; // shortcut for accessing indirect in Fireball solver
 	class Triangle* triangle; // shortcut for accessing indirect in Architect solver
-	RussianRoulette russianRoulette;
 };
 
 }; // namespace

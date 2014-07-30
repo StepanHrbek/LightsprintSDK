@@ -36,11 +36,6 @@ Gatherer::Gatherer(const RRSolver* _solver, bool _dynamic, RRReal _gatherDirectE
 	collider = _dynamic ? _solver->getCollider() : multiObject->getCollider();
 	packedSolver = _solver->priv->packedSolver;
 	triangle = (_solver->priv->scene && _solver->priv->scene->scene && _solver->priv->scene->scene->object) ? _solver->priv->scene->scene->object->triangle : NULL;
-
-	// final gather in lightmap does this per-pixel, rather than per-thread
-	//  so at very low quality, lightmaps are biased smooth rather than unbiased noisy
-	//  bias is related to 1/quality
-	russianRoulette.reset();
 }
 
 // material, ray.hitObject, ray.hitTriangle, ray.hitPoint2d -> normal
