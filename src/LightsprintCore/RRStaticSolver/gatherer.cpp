@@ -128,8 +128,6 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 
 	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
 	RR_ASSERT(IS_NUMBER(ray.hitDistance));
-	Triangle* hitTriangle = &triangle[ray.hitTriangle];
-	RR_ASSERT(hitTriangle->surface && hitTriangle->area); // triangles rejected by setGeometry() have surface=area=0, collisionHandler should reject them too
 	const RRMaterial* material = collisionHandlerGatherHemisphere.getContactMaterial(); // could be point detail, unlike hitTriangle->surface 
 	RRSideBits side=material->sideBits[ray.hitFrontSide?0:1];
 	Channels exitance = Channels(0);
@@ -235,26 +233,29 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			RR_ASSERT(IS_VEC3(exitance));
 		}
 
-		// diffuse reflection
-		if (side.emitTo)
+		// add material's diffuse reflection using shortcut (reading irradiance from solver) 
+		// if shortcut is requested, use it always, to reduce noise
+		if (side.emitTo
+			&& ray.hitObject && !ray.hitObject->isDynamic) // only available if we hit static object
 		{
-			// diffuse reflection
-			if (gatherIndirectLight)
+			if (packedSolver)
 			{
-				// used in GI final gather
-				{
-					// point detail version
-					// zero area would create #INF in getTotalIrradiance() 
-					// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
-					RR_ASSERT(hitTriangle->area);
-					exitance += hitTriangle->getIndirectIrradiance() * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
-					RR_ASSERT(IS_VEC3(exitance));
-					// per triangle version (ignores point detail even if it's already available)
-					//exitance += hitTriangle->totalExitingFlux / hitTriangle->area;
-				}
+				// fireball:
+				exitance += packedSolver->getPointIrradianceIndirect(ray.hitTriangle,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
+				RR_ASSERT(IS_VEC3(exitance));
 			}
-			//RR_ASSERT(exitance[0]>=0 && exitance[1]>=0 && exitance[2]>=0); may be negative by rounding error
-			RR_ASSERT(IS_VEC3(exitance));
+			else
+			if (triangle)
+			{
+				// if we have triangle, it means that we can access indirect irradiance stored in Architect solver (and we hit static object)
+				Triangle* hitTriangle = triangle ? &triangle[ray.hitTriangle] : NULL;
+				RR_ASSERT(!triangle || (hitTriangle->surface && hitTriangle->area)); // triangles rejected by setGeometry() have surface=area=0, collisionHandler should reject them too
+				// zero area would create #INF in getIndirectIrradiance()
+				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
+				RR_ASSERT(hitTriangle->area);
+				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_PHYSICAL_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
+				RR_ASSERT(IS_VEC3(exitance));
+			}
 		}
 
 		if (side.catchFrom || side.emitTo)
