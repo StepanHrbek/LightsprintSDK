@@ -24,7 +24,7 @@ Gatherer::Gatherer(const RRSolver* _solver, bool _dynamic, RRReal _gatherDirectE
 	stopAtVisibility = 0.001f;
 	collisionHandlerGatherHemisphere.setHemisphere(_solver->priv->scene);
 	ray.collisionHandler = &collisionHandlerGatherHemisphere;
-	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE;
+	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_POINT3D|RRRay::FILL_TRIANGLE; // 3D is only for shadowrays
 	lights = &_solver->getLights();
 	environment = _solver->getEnvironment();
 	scaler = _solver->getScaler();
@@ -149,6 +149,80 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			pixelNormal = -pixelNormal;
 		}
 
+		RRMaterial::Response response;
+		response.dirNormal = pixelNormal;
+		response.dirOut = -direction;
+
+		// add direct lighting
+		if (numBounces>=useSolverDirectSinceDepth
+			&& ray.hitObject && !ray.hitObject->isDynamic // only available if we hit static object
+			&& (packedSolver || triangle))
+		{
+			// fast: read direct light from solver
+			// (not interpolated, interpolation is slow and does not improve accuracy)
+			if (packedSolver)
+			{
+				// fireball
+				exitance += visibility * packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorPhysical;
+				RR_ASSERT(IS_VEC3(exitance));
+			}
+			else
+			{
+				// architect
+				Triangle* hitTriangle = triangle ? &triangle[ray.hitTriangle] : NULL;
+				RR_ASSERT(!triangle || (hitTriangle->surface && hitTriangle->area)); // triangles rejected by setGeometry() have surface=area=0, collisionHandler should reject them too
+				// zero area would create #INF in getIndirectIrradiance()
+				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
+				RR_ASSERT(hitTriangle->area);
+				exitance += visibility * hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorPhysical;
+				RR_ASSERT(IS_VEC3(exitance));
+			}
+		}
+		else
+		{
+			// accurate: shoot shadow rays to lights
+			RRRay shadowRay;
+			shadowRay.rayOrigin = ray.hitPoint3d;
+			shadowRay.rayLengthMin = ray.rayLengthMin;
+			shadowRay.collisionHandler = &collisionHandlerGatherLights;
+			shadowRay.rayFlags = 0;
+			collisionHandlerGatherLights.setShooterTriangle(ray.hitObject,ray.hitTriangle);
+			unsigned numLights = lights ? lights->size() : 0;
+			for (unsigned i=0;i<numLights;i++)
+			{
+				RRLight* light = (*lights)[i];
+				if (light->enabled)
+				{
+					if (light->type==RRLight::DIRECTIONAL)
+					{
+						shadowRay.rayDir = -light->direction;
+						shadowRay.rayLengthMax = 1e10f;//!!!
+					}
+					else
+					{
+						shadowRay.rayDir = (light->position-shadowRay.rayOrigin).normalized();
+						shadowRay.rayLengthMax = (light->position-shadowRay.rayOrigin).length();
+					}
+					if (pixelNormal.dot(shadowRay.rayDir)>0 && faceNormal.dot(shadowRay.rayDir)>0) // bad normalmap -> some rays are terminated here
+					{
+						collisionHandlerGatherLights.setLight(light,NULL);
+						RRVec3 unobstructedLight = light->getIrradiance(shadowRay.rayOrigin,scaler);
+						response.dirIn = -shadowRay.rayDir;
+						material->getResponse(response);
+						RRVec3 totalContribution = unobstructedLight * response.colorOut;
+						shadowRay.hitObject = multiObject; // non-RRMultiCollider does not fill ray.hitObject, we prefill it here, collisionHandler needs it filled
+						if (totalContribution!=RRVec3(0) && !collider->intersect(&shadowRay))
+						{
+							// dokud neudelam bidir, shadow raye musej prolitat bez refrakce, s pocitanim pruhlednosti, jinak nevzniknou rgb stiny
+							exitance += visibility * totalContribution * collisionHandlerGatherLights.getVisibility();
+							RR_ASSERT(IS_VEC3(exitance));
+						}
+					}
+				}
+			}
+			ray.rayLengthMax = 1e10f;
+		}
+
 		if (side.catchFrom || side.emitTo)
 		{
 			// work with ray+material before we recurse and overwrite them
@@ -210,7 +284,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 						// zero area would create #INF in getTotalIrradiance() 
 						// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 						RR_ASSERT(hitTriangle->area);
-						exitance += visibility * hitTriangle->getTotalIrradiance() * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
+						exitance += visibility * hitTriangle->getIndirectIrradiance() * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
 						RR_ASSERT(IS_VEC3(exitance));
 						// per triangle version (ignores point detail even if it's already available)
 						//exitance += visibility * hitTriangle->totalExitingFlux / hitTriangle->area;
