@@ -232,6 +232,10 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		RRVec4 rgba = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
 		material.diffuseReflectance.color = rgba * rgba[3];
 		material.specularTransmittance.color = RRVec3(1-rgba[3]);
+		if (material.specularTransmittanceMapInverted)
+			material.specularTransmittance.color = RRVec3(1)-material.specularTransmittance.color;
+		if (material.specularTransmittanceKeyed)
+			material.specularTransmittance.color = (material.specularTransmittance.color.avg()>=material.specularTransmittanceThreshold) ? RRVec3(1) : RRVec3(0);
 		if (rgba[3]==0)
 			material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
 		if (scaler)
@@ -249,9 +253,11 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			mesh->getTriangleMapping(t,triangleMapping,material.specularTransmittance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 			RRVec4 rgba = material.specularTransmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
-			if (material.specularTransmittanceMapInverted)
-				rgba = RRVec4(1)-rgba;
 			material.specularTransmittance.color = material.specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
+			if (material.specularTransmittanceMapInverted)
+				material.specularTransmittance.color = RRVec3(1)-material.specularTransmittance.color;
+			if (material.specularTransmittanceKeyed)
+				material.specularTransmittance.color = (material.specularTransmittance.color.avg()>=material.specularTransmittanceThreshold) ? RRVec3(1) : RRVec3(0);
 			if (material.specularTransmittance.color==RRVec3(1))
 				material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
 			if (scaler)
