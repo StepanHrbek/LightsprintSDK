@@ -192,6 +192,9 @@ public:
 					// gathering hemisphere
 					if (!light)
 					{
+						// this could speed up rays through holes, but it needs testing
+						//if (pointMaterial[pmi].specularTransmittance.texture && visibility==RRVec3(1))
+						//	return false;
 						COLLISION_LOG(log<<"collides()=true1\n");
 						firstContactMaterial = &pointMaterial[pmi];
 						return true;

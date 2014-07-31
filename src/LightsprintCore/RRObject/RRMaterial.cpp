@@ -619,8 +619,15 @@ void RRMaterial::getResponse(Response& response, BrdfType type) const
 				RR_ASSERT(response.colorOut.finite());
 			}
 			break;
-		case BRDF_SPECULAR:
 		case BRDF_TRANSMIT:
+			if (specularTransmittance.texture && specularTransmittance.colorPhysical==RRVec3(1))
+			{
+				// hole in transparency texture, pass through without shininess and refraction
+				response.colorOut = RRVec3((response.dirIn==response.dirOut)?1:0);
+				break;
+			}
+			// intentionally no break
+		case BRDF_SPECULAR:
 			{
 				RRVec3 dirInMajor = (type==BRDF_SPECULAR) ? reflect(response.dirOut,response.dirNormal) : refract(response.dirOut,response.dirNormal,this);
 				// we have importance sampling implemented only for PHONG, so other models are temporarily converted to PHONG
@@ -686,12 +693,22 @@ void RRMaterial::sampleResponse(Response& response, const RRVec3& randomness, Br
 				RRVec4 sample = sampleHemisphereDiffuse(randomness,response.dirNormal);
 				response.dirIn = -sample;
 				response.pdf = sample.w;
-				response.brdfType = BRDF_DIFFUSE;
+				response.brdfType = type;
 				getResponse(response,type);
 			}
 			break;
-		case BRDF_SPECULAR:
 		case BRDF_TRANSMIT:
+				if (specularTransmittance.texture && specularTransmittance.colorPhysical==RRVec3(1))
+				{
+					// hole in transparency texture, pass through without shininess and refraction
+					response.dirIn = response.dirOut;
+					response.colorOut = RRVec3(1);
+					response.pdf = 1;
+					response.brdfType = type;
+					break;
+				}
+				// intentionally no break
+		case BRDF_SPECULAR:
 			{
 				RRVec3 dirInMajor = (type==BRDF_SPECULAR) ? reflect(response.dirOut,response.dirNormal) : refract(response.dirOut,response.dirNormal,this);
 				// we have importance sampling implemented only for PHONG, so other models are temporarily converted to PHONG
@@ -715,7 +732,7 @@ void RRMaterial::sampleResponse(Response& response, const RRVec3& randomness, Br
 			response.dirIn = RRVec3(0);
 			response.colorOut = RRVec3(0);
 			response.pdf = 0;
-			response.brdfType = BRDF_NONE;
+			response.brdfType = type;
 			break;
 		default:
 			{	
