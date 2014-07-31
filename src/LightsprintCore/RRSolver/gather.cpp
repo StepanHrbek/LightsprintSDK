@@ -159,11 +159,17 @@ public:
 		gatherer(
 			_pti.context.solver,
 			false,
-			_pti.context.params?_pti.context.params->applyEmittance:1.f,
-			_pti.context.params->applyCurrentSolution?1.f:0.f,
 			_pti.context.staticSceneContainsLods,
 			_pti.context.params->quality)
 	{
+		if (_pti.context.params)
+		{
+			gatherer.parameters.lightsMultiplier = _pti.context.params->applyLights?1.f:0.f;
+			gatherer.parameters.skyMultiplier = _pti.context.params->applyEnvironment?1.f:0.f;
+			gatherer.parameters.emissiveMultiplier = _pti.context.params->applyEmittance;
+			gatherer.parameters.indirectIlluminationMultiplier = _pti.context.params->applyCurrentSolution?1.f:0.f;
+		}
+
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
 		// used by processTexel even when not shooting to hemisphere
 		for (unsigned i=0;i<NUM_LIGHTMAPS;i++)

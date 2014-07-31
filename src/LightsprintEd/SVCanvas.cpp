@@ -1677,7 +1677,10 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (!svs.renderDof)
 				camera.apertureDiameter = 0;
 			rr::RRSolver::PathTracingParameters params;
-			params.directIllumination = svs.renderLightDirect;
+			params.lightsMultiplier = svs.renderLightDirect ? 1 : 0;
+			params.skyMultiplier = svs.skyMultiplier;
+			params.emissiveMultiplier = svs.emissiveMultiplier;
+			params.indirectIlluminationMultiplier = svs.renderLightIndirectMultiplier;
 			solver->pathTraceFrame(camera,pathTracedBuffer,pathTracedAccumulator,&params);
 			rr_gl::ToneParameters tp = svs.tonemapping;
 			tp.gamma *= 0.45f;

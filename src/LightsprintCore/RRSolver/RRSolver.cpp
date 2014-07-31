@@ -1115,7 +1115,7 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 #pragma omp parallel for schedule(dynamic)
 	for (int j=0;j<(int)h;j++)
 	{
-		Gatherer gatherer(this,true,true,true,false,UINT_MAX);
+		Gatherer gatherer(this,true,false,UINT_MAX);
 		if (_parameters)
 			gatherer.parameters = *_parameters;
 		unsigned shortcut = (unsigned)sqrtf((float)(_accumulated/10)); // starts at 0, increases on frames 10, 40, 90, 160 etc

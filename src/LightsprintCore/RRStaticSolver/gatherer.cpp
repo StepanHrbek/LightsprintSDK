@@ -13,7 +13,7 @@ namespace rr
 
 extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 
-Gatherer::Gatherer(const RRSolver* _solver, bool _dynamic, RRReal _gatherDirectEmitors, RRReal _gatherIndirectLight, bool _staticSceneContainsLods, unsigned _quality)
+Gatherer::Gatherer(const RRSolver* _solver, bool _dynamic, bool _staticSceneContainsLods, unsigned _quality)
 	: collisionHandlerGatherHemisphere(_solver->getScaler(),_quality,_staticSceneContainsLods),
 	  collisionHandlerGatherLights(_solver->getScaler(),_quality,_staticSceneContainsLods)
 {
@@ -28,10 +28,6 @@ Gatherer::Gatherer(const RRSolver* _solver, bool _dynamic, RRReal _gatherDirectE
 	lights = &_solver->getLights();
 	environment = _solver->getEnvironment();
 	scaler = _solver->getScaler();
-	gatherDirectEmitors = _gatherDirectEmitors?true:false;
-	gatherDirectEmitorsMultiplier = _gatherDirectEmitors;
-	gatherIndirectLight = _gatherIndirectLight?true:false;
-	gatherIndirectLightMultiplier = _gatherIndirectLight;
 	multiObject = _solver->getMultiObject();
 	collider = _dynamic ? _solver->getCollider() : multiObject->getCollider();
 	packedSolver = _solver->priv->packedSolver;
@@ -114,7 +110,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			RRVec3 irrad = environment->getElementAtDirection(direction);
 			if (scaler && environment->getScaled()) scaler->getPhysicalScale(irrad);
 			RR_ASSERT(IS_VEC3(irrad));
-			return irrad;
+			return irrad * parameters.skyMultiplier;
 		}
 		return Channels(0);
 	}
@@ -147,7 +143,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		response.dirOut = -direction;
 
 		// add direct lighting
-		if (parameters.directIllumination || numBounces)
+		if (parameters.lightsMultiplier)
 		if (numBounces>=useSolverDirectSinceDepth
 			&& ray.hitObject && !ray.hitObject->isDynamic // only available if we hit static object
 			&& (packedSolver || triangle))
@@ -157,7 +153,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			if (packedSolver)
 			{
 				// fireball
-				exitance += packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorPhysical;
+				exitance += packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorPhysical * parameters.lightsMultiplier;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 			else
@@ -168,7 +164,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				// zero area would create #INF in getIndirectIrradiance()
 				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 				RR_ASSERT(hitTriangle->area);
-				exitance += hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorPhysical;
+				exitance += hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorPhysical * parameters.lightsMultiplier;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 		}
@@ -208,7 +204,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 						if (totalContribution!=RRVec3(0) && !collider->intersect(&shadowRay))
 						{
 							// dokud neudelam bidir, shadow raye musej prolitat bez refrakce, s pocitanim pruhlednosti, jinak nevzniknou rgb stiny
-							exitance += totalContribution * collisionHandlerGatherLights.getVisibility();
+							exitance += totalContribution * collisionHandlerGatherLights.getVisibility() * parameters.lightsMultiplier;
 							RR_ASSERT(IS_VEC3(exitance));
 						}
 					}
@@ -218,14 +214,14 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		}
 
 		// add material's own emission
-		if (side.emitTo && gatherDirectEmitors)
+		if (side.emitTo)
 		{
 			// we emit everything to both sides of 2sided face, thus doubling energy
 			// this may be changed later
 			//float splitToTwoSides = material->sideBits[ray.hitFrontSide?1:0].emitTo ? 0.5f : 1;
 
 			// used in direct lighting final gather [per pixel emittance]
-			exitance += material->diffuseEmittance.colorPhysical * gatherDirectEmitorsMultiplier;// * splitToTwoSides;
+			exitance += material->diffuseEmittance.colorPhysical * parameters.emissiveMultiplier;// * splitToTwoSides;
 			RR_ASSERT(IS_VEC3(exitance));
 		}
 
@@ -235,6 +231,9 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		float probabilityTran = RR_MAX(0,material->specularTransmittance.colorPhysical.avg());
 		float probabilityStop = RR_MAX(0,1-probabilityDiff-probabilitySpec-probabilityTran);
 
+		if (parameters.indirectIlluminationMultiplier)
+		{
+
 		// add material's diffuse reflection using shortcut (reading irradiance from solver) 
 		// if shortcut is requested, use it always, to reduce noise
 		if (numBounces>=useSolverIndirectSinceDepth
@@ -243,7 +242,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 			if (packedSolver)
 			{
 				// fireball:
-				exitance += packedSolver->getPointIrradianceIndirect(ray.hitTriangle,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
+				exitance += packedSolver->getPointIrradianceIndirect(ray.hitTriangle,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical * parameters.indirectIlluminationMultiplier;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));
 				probabilityDiff = 0; // exclude diffuse from next path
 			}
@@ -256,7 +255,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				// zero area would create #INF in getIndirectIrradiance()
 				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 				RR_ASSERT(hitTriangle->area);
-				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_PHYSICAL_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical * gatherIndirectLightMultiplier;// * splitToTwoSides;
+				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_PHYSICAL_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical * parameters.indirectIlluminationMultiplier;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));
 				probabilityDiff = 0; // exclude diffuse from next path
 			}
@@ -287,10 +286,12 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				if (responseStrength.avg()>stopAtVisibility)
 				{
 					// shoot it
-					exitance += gatherPhysicalExitance(eye+direction*ray.hitDistance,-response.dirIn,ray.hitObject,ray.hitTriangle,visibility*responseStrength,numBounces+1) * responseStrength;
+					exitance += gatherPhysicalExitance(eye+direction*ray.hitDistance,-response.dirIn,ray.hitObject,ray.hitTriangle,visibility*responseStrength,numBounces+1) * responseStrength * parameters.indirectIlluminationMultiplier;
 					RR_ASSERT(IS_VEC3(exitance));
 				}
 			}
+		}
+
 		}
 	}
 

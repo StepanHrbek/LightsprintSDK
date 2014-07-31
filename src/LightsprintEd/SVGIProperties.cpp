@@ -36,11 +36,14 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			AppendIn(propGIDirect,propGIShadowTransparency);
 		}
 
-		propGIIndirectMultiplier = new FloatProperty(_("Light multiplier"),_("Multiplies indirect illumination from lights, without affecting lights. 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
-		AppendIn(propGITechnique,propGIIndirectMultiplier);
+		propGISkyMultiplier = new FloatProperty(_("Sky multiplier"),_("Multiplies effect of sky lighting on scene. 1=realistic."),svs.skyMultiplier,svs.precision,0,1e10f,1,false);
+		AppendIn(propGITechnique,propGISkyMultiplier);
 
 		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies effect of emissive materials on scene, without affecting materials. 1=realistic. In baked modes, it is applied when baking, not when rendering."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
 		AppendIn(propGITechnique,propGIEmisMultiplier);
+
+		propGIIndirectMultiplier = new FloatProperty(_("Indirect multiplier"),_("Multiplies indirect illumination from lights, without affecting lights. 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
+		AppendIn(propGITechnique,propGIIndirectMultiplier);
 
 		// SSGI
 		{
@@ -282,8 +285,9 @@ void SVGIProperties::updateProperties()
 		+ updateFloat(propGISSGIIntensity,svs.ssgiIntensity)
 		+ updateFloat(propGISSGIRadius,svs.ssgiRadius)
 		+ updateFloat(propGISSGIAngleBias,svs.ssgiAngleBias)
-		+ updateFloat(propGIIndirectMultiplier,svs.renderLightIndirectMultiplier)
+		+ updateFloat(propGISkyMultiplier,svs.skyMultiplier)
 		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
+		+ updateFloat(propGIIndirectMultiplier,svs.renderLightIndirectMultiplier)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
 		+ updateInt(propGIFireballWorkPerFrame,svs.fireballWorkPerFrame)
 		+ updateBool(propGIFireballWorkTotal,svs.fireballWorkTotal>svs.fireballWorkPerFrame)
@@ -348,6 +352,16 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		updateHide();
 	}
 	else
+	if (property==propGISkyMultiplier)
+	{
+		svs.skyMultiplier = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGIEmisMultiplier)
+	{
+		svs.emissiveMultiplier = property->GetValue().GetDouble();
+	}
+	else
 	if (property==propGIIndirectMultiplier)
 	{
 		svs.renderLightIndirectMultiplier = property->GetValue().GetDouble();
@@ -356,11 +370,6 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 			// affects realtime solution only
 			svframe->m_canvas->solver->setDirectIlluminationBoost(svs.renderLightIndirectMultiplier);
 		}
-	}
-	else
-	if (property==propGIEmisMultiplier)
-	{
-		svs.emissiveMultiplier = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propGISSGI)

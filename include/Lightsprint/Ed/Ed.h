@@ -173,6 +173,7 @@ struct SceneViewerState
 	rr::RRVec3       contoursCreaseColor;
 	bool             playVideos;                //! Play videos, false = videos are paused.
 	rr_gl::RealtimeLight::ShadowTransparency shadowTransparency; //! Type of transparency in shadows, we copy it to all lights.
+	float            skyMultiplier;             //! Multiplies effect of sky lighting on scene.
 	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
 	bool             videoEmittanceAffectsGI;   //! Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.
 	unsigned         videoEmittanceGIQuality;   //! Quality if videoEmittanceAffectsGI is true.
@@ -287,6 +288,7 @@ struct SceneViewerState
 		contoursCreaseColor = rr::RRVec3(0.7f);
 		playVideos = 1;
 		shadowTransparency = rr_gl::RealtimeLight::FRESNEL_SHADOWS;
+		skyMultiplier = 1;
 		emissiveMultiplier = 1;
 		videoEmittanceAffectsGI = true;
 		videoEmittanceGIQuality = 5;
@@ -402,6 +404,7 @@ struct SceneViewerState
 			&& a.contoursCreaseColor==contoursCreaseColor
 			&& a.playVideos==playVideos
 			&& a.shadowTransparency==shadowTransparency
+			&& a.skyMultiplier==skyMultiplier
 			&& a.emissiveMultiplier==emissiveMultiplier
 			&& a.videoEmittanceAffectsGI==videoEmittanceAffectsGI
 			&& a.videoEmittanceGIQuality==videoEmittanceGIQuality

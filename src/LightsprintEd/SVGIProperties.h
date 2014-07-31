@@ -40,6 +40,8 @@ namespace rr_ed
 		BoolRefProperty*  propGISRGBCorrect;
 		BoolRefProperty*  propGIDirect;
 		wxPGProperty*     propGIShadowTransparency;
+		wxPGProperty*     propGISkyMultiplier;
+		wxPGProperty*     propGIEmisMultiplier;
 		wxPGProperty*     propGIIndirectMultiplier;
 		BoolRefProperty*  propGISSGI;
 		wxPGProperty*     propGISSGIIntensity;
@@ -61,7 +63,6 @@ namespace rr_ed
 		BoolRefProperty*  propGIMirrorsDiffuse;
 		BoolRefProperty*  propGIMirrorsSpecular;
 		BoolRefProperty*  propGIMirrorsQuality;
-		wxPGProperty*     propGIEmisMultiplier;
 		wxPGProperty*     propGIVideo;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;
 		wxPGProperty*     propGIEmisVideoGIQuality;

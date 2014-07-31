@@ -303,7 +303,7 @@ public:
 	//!  Gather indirect exitance (stored in static solver). May include indirect light computed from direct realtime lights, direct emitors, rrlights, env.
 	//! \param quality
 	//!  Desired illumination quality, used to enable/disable point materials.
-	Gatherer(const RRSolver* solver, bool dynamic, RRReal gatherDirectEmitors, RRReal gatherIndirectLight, bool staticSceneContainsLods, unsigned quality);
+	Gatherer(const RRSolver* solver, bool dynamic, bool staticSceneContainsLods, unsigned quality);
 
 	//! Returns color visible in given direction, in physical scale, multiplied by visibility.
 	//
@@ -332,10 +332,6 @@ protected:
 	const RRLights* lights;
 	const RRBuffer* environment;
 	const RRScaler* scaler;
-	bool gatherDirectEmitors;
-	bool gatherIndirectLight;
-	RRReal gatherDirectEmitorsMultiplier;
-	RRReal gatherIndirectLightMultiplier;
 	const RRPackedSolver* packedSolver; // shortcut for accessing indirect in Fireball solver
 	class Triangle* triangle; // shortcut for accessing indirect in Architect solver
 };

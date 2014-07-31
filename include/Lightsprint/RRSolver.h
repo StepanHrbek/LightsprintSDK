@@ -957,11 +957,17 @@ namespace rr
 
 		struct RR_API PathTracingParameters
 		{
-			bool directIllumination;
+			RRReal lightsMultiplier;
+			RRReal skyMultiplier;
+			RRReal emissiveMultiplier;
+			RRReal indirectIlluminationMultiplier;
 
 			PathTracingParameters()
 			{
-				directIllumination = true;
+				lightsMultiplier = 1;
+				skyMultiplier = 1;
+				emissiveMultiplier = 1;
+				indirectIlluminationMultiplier = 1;
 			}
 		};
 
