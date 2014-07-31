@@ -198,7 +198,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 						collisionHandlerGatherLights.setLight(light,NULL);
 						RRVec3 unobstructedLight = light->getIrradiance(shadowRay.rayOrigin,scaler);
 						response.dirIn = -shadowRay.rayDir;
-						material->getResponse(response);
+						material->getResponse(response,parameters.brdfTypes);
 						RRVec3 totalContribution = unobstructedLight * response.colorOut;
 						shadowRay.hitObject = multiObject; // non-RRMultiCollider does not fill ray.hitObject, we prefill it here, collisionHandler needs it filled
 						if (totalContribution!=RRVec3(0) && !collider->intersect(&shadowRay))
@@ -226,9 +226,9 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		}
 
 		// probabilities that we reflect using given BRDF
-		float probabilityDiff = RR_MAX(0,material->diffuseReflectance.colorPhysical.avg());
-		float probabilitySpec = RR_MAX(0,material->specularReflectance.colorPhysical.avg());
-		float probabilityTran = RR_MAX(0,material->specularTransmittance.colorPhysical.avg());
+		float probabilityDiff = (parameters.brdfTypes&RRMaterial::BRDF_DIFFUSE) ? RR_MAX(0,material->diffuseReflectance.colorPhysical.avg()) : 0;
+		float probabilitySpec = (parameters.brdfTypes&RRMaterial::BRDF_SPECULAR) ? RR_MAX(0,material->specularReflectance.colorPhysical.avg()) : 0;
+		float probabilityTran = (parameters.brdfTypes&RRMaterial::BRDF_TRANSMIT) ? RR_MAX(0,material->specularTransmittance.colorPhysical.avg()) : 0;
 		float probabilityStop = RR_MAX(0,1-probabilityDiff-probabilitySpec-probabilityTran);
 
 		if (parameters.indirectIlluminationMultiplier)
@@ -237,6 +237,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 		// add material's diffuse reflection using shortcut (reading irradiance from solver) 
 		// if shortcut is requested, use it always, to reduce noise
 		if (numBounces>=useSolverIndirectSinceDepth
+			&& probabilityDiff
 			&& ray.hitObject && !ray.hitObject->isDynamic) // only available if we hit static object
 		{
 			if (packedSolver)

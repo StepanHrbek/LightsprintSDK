@@ -1681,6 +1681,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			params.skyMultiplier = svs.skyMultiplier;
 			params.emissiveMultiplier = svs.emissiveMultiplier;
 			params.indirectIlluminationMultiplier = svs.renderLightIndirectMultiplier;
+			params.brdfTypes = rr::RRMaterial::BrdfType( (svs.renderMaterialDiffuse?rr::RRMaterial::BRDF_DIFFUSE:0) + (svs.renderMaterialSpecular?rr::RRMaterial::BRDF_SPECULAR:0) + ((svs.renderMaterialTransparency!=T_OPAQUE)?rr::RRMaterial::BRDF_TRANSMIT:0) );
 			solver->pathTraceFrame(camera,pathTracedBuffer,pathTracedAccumulator,&params);
 			rr_gl::ToneParameters tp = svs.tonemapping;
 			tp.gamma *= 0.45f;

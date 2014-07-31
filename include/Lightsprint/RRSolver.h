@@ -962,12 +962,15 @@ namespace rr
 			RRReal emissiveMultiplier;
 			RRReal indirectIlluminationMultiplier;
 
+			RRMaterial::BrdfType brdfTypes;
+
 			PathTracingParameters()
 			{
 				lightsMultiplier = 1;
 				skyMultiplier = 1;
 				emissiveMultiplier = 1;
 				indirectIlluminationMultiplier = 1;
+				brdfTypes = RRMaterial::BRDF_ALL;
 			}
 		};
 
