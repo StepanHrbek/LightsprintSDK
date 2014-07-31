@@ -45,6 +45,9 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIIndirectMultiplier = new FloatProperty(_("Indirect multiplier"),_("Multiplies indirect illumination from lights, without affecting lights. 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
 		AppendIn(propGITechnique,propGIIndirectMultiplier);
 
+		propGIPathShortcut = new BoolRefProperty(_("Shortcut"),_("Lets pathtracer access indirect illumination stored in Fireball or Architect solver, if it was in use before."),svs.pathShortcut);
+		AppendIn(propGITechnique,propGIPathShortcut);
+
 		// SSGI
 		{
 			propGISSGI = new BoolRefProperty(_("SSGI"),_("Screen space global illumination improves quality of constant and realtime indirect illumination. SSGI works without any precalculations, however, it is slower and looks worse than LDM."),svs.ssgiEnabled);
@@ -225,6 +228,8 @@ void SVGIProperties::updateHide()
 	propGISRGBCorrect->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
 	propGIShadowTransparency->Hide(!svs.renderLightDirectActive(),false);
 
+	propGIPathShortcut->Hide(svs.renderLightIndirect!=LI_PATHTRACED,false);
+
 	propGIFireball->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
 
 	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
@@ -282,6 +287,7 @@ void SVGIProperties::updateProperties()
 	unsigned numChangesOther =
 		+ updateBoolRef(propGISRGBCorrect)
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
+		+ updateBoolRef(propGIPathShortcut)
 		+ updateFloat(propGISSGIIntensity,svs.ssgiIntensity)
 		+ updateFloat(propGISSGIRadius,svs.ssgiRadius)
 		+ updateFloat(propGISSGIAngleBias,svs.ssgiAngleBias)

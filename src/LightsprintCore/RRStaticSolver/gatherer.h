@@ -320,10 +320,6 @@ public:
 
 	RRRay ray; // aligned, better keep it first
 	RRSolver::PathTracingParameters parameters;
-	// how many bounces before given optimization kicks in?
-	unsigned useFlatNormalsSinceDepth;
-	unsigned useSolverDirectSinceDepth;
-	unsigned useSolverIndirectSinceDepth;
 	// termination criteria
 	unsigned stopAtDepth;
 	RRReal   stopAtVisibility;

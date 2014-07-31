@@ -964,6 +964,11 @@ namespace rr
 
 			RRMaterial::BrdfType brdfTypes;
 
+			// how many bounces before given optimization kicks in?
+			unsigned useFlatNormalsSinceDepth;
+			unsigned useSolverDirectSinceDepth;
+			unsigned useSolverIndirectSinceDepth;
+
 			PathTracingParameters()
 			{
 				lightsMultiplier = 1;
@@ -971,6 +976,9 @@ namespace rr
 				emissiveMultiplier = 1;
 				indirectIlluminationMultiplier = 1;
 				brdfTypes = RRMaterial::BRDF_ALL;
+				useFlatNormalsSinceDepth = UINT_MAX;
+				useSolverDirectSinceDepth = UINT_MAX;
+				useSolverIndirectSinceDepth = UINT_MAX;
 			}
 		};
 

@@ -168,6 +168,10 @@ public:
 			gatherer.parameters.skyMultiplier = _pti.context.params->applyEnvironment?1.f:0.f;
 			gatherer.parameters.emissiveMultiplier = _pti.context.params->applyEmittance;
 			gatherer.parameters.indirectIlluminationMultiplier = _pti.context.params->applyCurrentSolution?1.f:0.f;
+			gatherer.parameters.brdfTypes = RRMaterial::BRDF_ALL;
+			gatherer.parameters.useFlatNormalsSinceDepth = 0;
+			gatherer.parameters.useSolverDirectSinceDepth = 0;
+			gatherer.parameters.useSolverIndirectSinceDepth = 0;
 		}
 
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());

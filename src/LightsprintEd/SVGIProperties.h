@@ -49,20 +49,26 @@ namespace rr_ed
 		wxPGProperty*     propGISSGIAngleBias;
 		BoolRefProperty*  propGILDM;
 		BoolRefProperty*  propGIBilinear;
+
+		BoolRefProperty*  propGIPathShortcut;
+
 		wxPGProperty*     propGIFireball;
 		wxPGProperty*     propGIFireballQuality;
 		ButtonProperty*   propGIFireballBuild;
 		wxPGProperty*     propGIFireballWorkPerFrame;
 		wxPGProperty*     propGIFireballWorkTotal;
+
 		BoolRefProperty*  propGIRaytracedCubes;
 		wxPGProperty*     propGIRaytracedCubesRes;
 		wxPGProperty*     propGIRaytracedCubesMaxObjects;
 		FloatProperty*    propGIRaytracedCubesSpecularThreshold;
 		FloatProperty*    propGIRaytracedCubesDepthThreshold;
+
 		BoolRefProperty*  propGIMirrors;
 		BoolRefProperty*  propGIMirrorsDiffuse;
 		BoolRefProperty*  propGIMirrorsSpecular;
 		BoolRefProperty*  propGIMirrorsQuality;
+
 		wxPGProperty*     propGIVideo;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;
 		wxPGProperty*     propGIEmisVideoGIQuality;
@@ -70,6 +76,7 @@ namespace rr_ed
 		BoolRefProperty*  propGITranspVideoAffectsGIFull;
 		BoolRefProperty*  propGIEnvVideoAffectsGI;
 		wxPGProperty*     propGIEnvVideoGIQuality;
+
 		wxPGProperty*     propGILightmap;
 		BoolRefProperty*  propGILightmapFloats;
 		wxPGProperty*     propGILightmapAOIntensity;

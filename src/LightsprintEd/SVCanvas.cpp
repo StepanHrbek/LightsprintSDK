@@ -1682,6 +1682,10 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			params.emissiveMultiplier = svs.emissiveMultiplier;
 			params.indirectIlluminationMultiplier = svs.renderLightIndirectMultiplier;
 			params.brdfTypes = rr::RRMaterial::BrdfType( (svs.renderMaterialDiffuse?rr::RRMaterial::BRDF_DIFFUSE:0) + (svs.renderMaterialSpecular?rr::RRMaterial::BRDF_SPECULAR:0) + ((svs.renderMaterialTransparency!=T_OPAQUE)?rr::RRMaterial::BRDF_TRANSMIT:0) );
+			unsigned shortcut = (unsigned)sqrtf((float)(pathTracedAccumulator/10)); // starts at 0, increases on frames 10, 40, 90, 160 etc
+			params.useFlatNormalsSinceDepth = shortcut+1;
+			params.useSolverDirectSinceDepth = svs.pathShortcut ? shortcut+1 : UINT_MAX;
+			params.useSolverIndirectSinceDepth = svs.pathShortcut ? shortcut : UINT_MAX;
 			solver->pathTraceFrame(camera,pathTracedBuffer,pathTracedAccumulator,&params);
 			rr_gl::ToneParameters tp = svs.tonemapping;
 			tp.gamma *= 0.45f;
