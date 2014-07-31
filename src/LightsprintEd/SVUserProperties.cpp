@@ -269,7 +269,7 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		rr::RRReporter::setFilter(true,svframe->userPreferences.testingLogMore?3:2,true);
 	}
-	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property);
+	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL);
 }
 
 BEGIN_EVENT_TABLE(SVUserProperties, wxPropertyGrid)

@@ -100,7 +100,7 @@ namespace rr_ed
 			ES_MISC
 		};
 		//! Called on any state change.
-		void OnAnyChange(EventSource eventSource, wxPGProperty* property);
+		void OnAnyChange(EventSource eventSource, const wxPGProperty* property, const wxEvent* event);
 		//! Increased each time state changes.
 		unsigned stateVersion;
 

@@ -447,7 +447,7 @@ void SVFrame::UpdateEverything()
 		m_canvas->OnKeyDown(event);
 	}
 
-	OnAnyChange(ES_MISC,NULL);
+	OnAnyChange(ES_MISC,NULL,NULL);
 }
 
 
@@ -981,10 +981,12 @@ bool SVFrame::saveScene(wxString sceneFilename)
 	return result;
 }
 
-void SVFrame::OnAnyChange(EventSource eventSource, wxPGProperty* property)
+void SVFrame::OnAnyChange(EventSource eventSource, const wxPGProperty* property, const wxEvent* event)
 {
 	stateVersion++;
-	if (eventSource!=ES_PROPERTY || property!=m_giProperties->propGITechnique)
+	// restart pathtracer unless
+	if (!(eventSource==ES_PROPERTY && property==m_giProperties->propGITechnique) // changing GI technique
+		&& !(eventSource==ES_KEYBOARD_MID_MOVEMENT && ((wxKeyEvent*)event)->GetKeyCode()==WXK_F8)) // F8 saving screenshot
 		m_canvas->pathTracedAccumulator = 0;
 }
 
