@@ -376,8 +376,10 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 	const EntityIds& entityIds = getEntityIds(SVSceneTree::MEI_SELECTED);
 	bool entityIdsUniform = true;
 	unsigned numObjects = 0;
+	unsigned numObjectsDisabled= 0;
 	unsigned numObjectsStatic = 0;
 	unsigned numLights = 0;
+	unsigned numLightsDisabled = 0;
 	unsigned numOthers = 0;
 	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
 	{
@@ -387,10 +389,14 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 		{
 			numObjects++;
 			if (!svframe->m_canvas->solver->getObject(i->index)->isDynamic) numObjectsStatic++;
+			if (!svframe->m_canvas->solver->getObject(i->index)->enabled) numObjectsDisabled++;
 		}
 		else
 		if (i->type==ST_LIGHT)
+		{
 			numLights++;
+			if (!svframe->m_canvas->solver->getLights()[i->index]->enabled) numLightsDisabled++;
+		}
 		else
 			numOthers++;
 	}
@@ -475,6 +481,10 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			menu.Append(CM_OBJECTS_DYNAMIC, _("Make dynamic"));
 		if (numObjects+numLights && !numOthers)
 			menu.Append(CM_EXPORT, _("Export..."));
+		if (numObjects+numLights && !numOthers && numObjectsDisabled+numLightsDisabled)
+			menu.Append(CM_ENABLE, _("Enable"));
+		if (numObjects+numLights && !numOthers && numObjectsDisabled+numLightsDisabled<numObjects+numLights)
+			menu.Append(CM_DISABLE, _("Disable"));
 		if (numObjects && !numLights && !numOthers)
 			menu.Append(CM_OBJECTS_DELETE_DIALOG,_("Purge..."),_("Deletes components within objects."));
 		menu.Append(CM_DELETE, _("Delete")+" (del)");
@@ -1208,6 +1218,18 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					scene.save(RR_WX2RR(selectedFilename));
 					scene.environment = NULL; // would be deleted in destructor otherwise
 				}
+			}
+			break;
+		case CM_ENABLE:
+		case CM_DISABLE:
+			if (solver)
+			{
+				for (unsigned i=0;i<selectedObjects.size();i++)
+					selectedObjects[i]->enabled = actionCode==CM_ENABLE;
+				for (unsigned i=0;i<selectedLights.size();i++)
+					selectedLights[i]->enabled = actionCode==CM_ENABLE;
+				svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
+				svframe->m_objectProperties->updateProperties(); // update object [ ] enabled
 			}
 			break;
 		case CM_DELETE:

@@ -157,6 +157,9 @@ void SVObjectProperties::updateProperties()
 	updateStringResolution(propIlluminationRealtimeEnv,object->illumination.getLayer(svs.layerRealtimeEnvironment));
 	updateStringResolution(propIlluminationBakedLDM,object->illumination.getLayer(svs.layerBakedLDM));
 
+	// must be updated after change from context menu
+	updateBoolRef(propEnabled);
+
 	// must be updated after "delete unwrap", "delete tangents"
 	const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(object->getCollider()->getMesh());
 	if (arrays)

@@ -30,6 +30,8 @@ namespace rr_ed
 		CM_LIGHT_FLASH,
 
 		CM_EXPORT,
+		CM_ENABLE,
+		CM_DISABLE,
 		CM_DELETE,
 
 		CM_OBJECTS_UNWRAP,
