@@ -560,7 +560,7 @@ RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m)
 		return I;
 	}
 	RRReal ndoti = I.dot(N);
-	RRReal eta = (ndoti<=0) ? m->refractionIndex : 1/m->refractionIndex;
+	RRReal eta = (ndoti<=0) ? m->refractionIndex : 1/m->refractionIndex; //!!! asi spatne, pokud jsem hitnul backside tak uz sem prisla obracena normala 
 	return refract(I,N,eta);
 }
 
@@ -606,6 +606,31 @@ static RRReal specularResponse(RRMaterial::SpecularModel specularModel, RRReal s
 	return spec;
 }
 
+// 0..1, fraction of specularTransmittance that is turned into specularReflectance
+float getFresnelReflectance(float cos_theta1, bool twosided, bool hitFrontSide, float materialRefractionIndex)
+{
+	float index;
+	if (!twosided)
+		index = hitFrontSide?materialRefractionIndex:1.0f/materialRefractionIndex;
+	else
+		// treat 2sided face as thin layer: always start by hitting front side
+		index = materialRefractionIndex;
+
+	float cos_theta2 = sqrt( 1 - (1-cos_theta1*cos_theta1)/(index*index) );
+	if (!_finite(cos_theta2)) // total internal reflection?
+		return 1;
+	float fresnel_rs = (cos_theta1-index*cos_theta2) / (cos_theta1+index*cos_theta2);
+	float fresnel_rp = (index*cos_theta1-cos_theta2) / (index*cos_theta1+cos_theta2);
+	float r = (fresnel_rs*fresnel_rs + fresnel_rp*fresnel_rp)*0.5f;
+	if (!twosided)
+		return r;
+		// for cos_theta1=1, reflectance is ((1.0-materialRefractionIndex)/(1.0+materialRefractionIndex))^2
+		// for materialRefractionIndex=1, reflectance is 0
+	else
+		// treat 2sided face as thin layer: take multiple interreflections between front and back into account
+		return 2*r/(1+r);
+}
+
 // dirIn, dirNormal, dirOut -> colorOut
 void RRMaterial::getResponse(Response& response, BrdfType type) const
 {
@@ -623,18 +648,33 @@ void RRMaterial::getResponse(Response& response, BrdfType type) const
 			if (specularTransmittance.texture && specularTransmittance.colorPhysical==RRVec3(1))
 			{
 				// hole in transparency texture, pass through without shininess and refraction
-				response.colorOut = RRVec3((response.dirIn==response.dirOut)?1:0);
+				response.colorOut = RRVec3((response.dirIn==response.dirOut)?1.f:0.f);
 				break;
 			}
 			// intentionally no break
 		case BRDF_SPECULAR:
 			{
+				RRVec3 specularReflectance_colorPhysical = specularReflectance.colorPhysical;
+				RRVec3 specularTransmittance_colorPhysical = specularTransmittance.colorPhysical;
+
+				// fresnel effect
+				if (refractionIndex!=1)
+				{
+					RRReal dif = response.dirOut.dot(response.dirNormal);
+					bool twoSided = sideBits[0].renderFrom && sideBits[1].renderFrom;
+					bool hitFrontSide = dif>=0; //!!! asi spatne, pokud jsem hitnul backside tak uz sem prisla obracena normala
+					float fresnelReflectance = getFresnelReflectance(dif,twoSided,hitFrontSide,refractionIndex);
+					RR_CLAMP(fresnelReflectance,0,0.999f); // clamping to 1 in shader produces strange artifact
+					specularReflectance_colorPhysical += specularTransmittance.colorPhysical*fresnelReflectance;
+					specularTransmittance_colorPhysical *= 1-fresnelReflectance;
+				}
+
 				RRVec3 dirInMajor = (type==BRDF_SPECULAR) ? reflect(response.dirOut,response.dirNormal) : refract(response.dirOut,response.dirNormal,this);
 				// we have importance sampling implemented only for PHONG, so other models are temporarily converted to PHONG
 				RRReal phongShininess = (specularModel==PHONG || specularModel==BLINN_PHONG) ? specularShininess : (1/RR_MAX(specularShininess,MIN_ROUGHNESS)-1);
 				RRReal spec = specularResponse(PHONG,phongShininess,response,dirInMajor);
 				//RRReal spec = specularResponse(specularModel,specularShininess,response,dirInMajor);
-				response.colorOut = ((type==BRDF_SPECULAR) ? specularReflectance.colorPhysical : specularTransmittance.colorPhysical) * spec;
+				response.colorOut = ((type==BRDF_SPECULAR) ? specularReflectance_colorPhysical : specularTransmittance_colorPhysical) * spec;
 				RR_ASSERT(response.colorOut.finite());
 			}
 			break;
