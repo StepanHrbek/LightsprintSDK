@@ -198,6 +198,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propEnabled)
 	{
 		//svframe->updateSceneTree();
+		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
 	}
 	else
 	if (property==propDynamic)
