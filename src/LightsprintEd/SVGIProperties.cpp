@@ -225,7 +225,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 //! Must not be called in every frame, float property that is unhid in every frame loses focus immediately after click, can't be edited.
 void SVGIProperties::updateHide()
 {
-	propGISRGBCorrect->Hide(svs.renderLightIndirect==LI_PATHTRACED || (svframe->m_canvas->fullyCreated && !supportsSRGB()),false);
+	propGISRGBCorrect->Hide(svs.renderLightIndirect==LI_PATHTRACED || (svframe->m_canvas && svframe->m_canvas->fullyCreated && !supportsSRGB()),false);
 	propGIShadowTransparency->Hide(!svs.renderLightDirectActive(),false);
 
 	propGIPathShortcut->Hide(svs.renderLightIndirect!=LI_PATHTRACED,false);
