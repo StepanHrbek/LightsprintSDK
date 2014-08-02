@@ -100,7 +100,9 @@ namespace rr_ed
 		rr::RRRay*                 ray; // all users use this ray to prevent allocations in every frame
 		rr::RRCollisionHandler*    collisionHandler; // all users use this collision handler to prevent allocations in every frame
 		bool                       fontInited;
+	public:
 		bool                       fullyCreated; // true only after complete constructor and createContext
+	private:
 
 		// help
 		bool                       helpLoadAttempted;
