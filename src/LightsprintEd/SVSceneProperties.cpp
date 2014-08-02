@@ -230,8 +230,11 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		Append(propRenderMaterials);
 		SetPropertyReadOnly(propRenderMaterials,true,wxPG_DONT_RECURSE);
 
-		propRenderMaterialDiffuse = new BoolRefProperty(_("Diffuse color"),_("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."),svs.renderMaterialDiffuse);
+		propRenderMaterialDiffuse = new BoolRefProperty(_("Diffuse"),_("Toggles rendering diffuse reflections."),svs.renderMaterialDiffuse);
 		AppendIn(propRenderMaterials,propRenderMaterialDiffuse);
+
+		propRenderMaterialDiffuseColor = new BoolRefProperty(_("Color"),_("Toggles between rendering diffuse colors and diffuse white. With diffuse color disabled, color bleeding is usually clearly visible."),svs.renderMaterialDiffuseColor);
+		AppendIn(propRenderMaterialDiffuse,propRenderMaterialDiffuseColor);
 
 		propRenderMaterialSpecular = new BoolRefProperty(_("Specular"),_("Toggles rendering specular reflections. Disabling them could make huge highly specular scenes render faster."),svs.renderMaterialSpecular);
 		AppendIn(propRenderMaterials,propRenderMaterialSpecular);
@@ -384,6 +387,7 @@ void SVSceneProperties::updateHide()
 	propToneMappingSteps->Hide(!svs.renderTonemapping,false);
 	propToneMappingColor->Hide(!svs.renderTonemapping,false);
 
+	propRenderMaterialDiffuseColor->Hide(!svs.renderMaterialDiffuse,false);
 	propRenderMaterialTransparencyFresnel->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
 	propRenderMaterialTransparencyRefraction->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
 
@@ -421,6 +425,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propEnvSimulateSun)
 		+ updateBoolRef(propToneMapping)
 		+ updateBool(propToneMappingAutomatic,svs.tonemappingAutomatic)
+		+ updateBoolRef(propRenderMaterialDiffuse)
 		+ updateBoolRef(propRenderContours)
 		+ updateBoolRef(propLogo)
 		+ updateBoolRef(propBloom)
@@ -468,7 +473,7 @@ void SVSceneProperties::updateProperties()
 		//+ updateProperty(propToneMappingColor,RRVec3(svs.tonemapping.color)) // changes with brightness
 		//+ updateProperty(propToneMappingColor,RRVec3(svs.tonemapping.color)/(svs.tonemapping.color.RRVec3::maxi()?svs.tonemapping.color.RRVec3::maxi():1)) // no response to brightness
 		+ updateProperty(propToneMappingColor,RRVec3(svs.tonemapping.color)/RR_MAX(svs.tonemapping.color.RRVec3::maxi(),1)) // limited change with brightness
-		+ updateBoolRef(propRenderMaterialDiffuse)
+		+ updateBoolRef(propRenderMaterialDiffuseColor)
 		+ updateBoolRef(propRenderMaterialSpecular)
 		+ updateBoolRef(propRenderMaterialEmittance)
 		+ updateInt(propRenderMaterialTransparency,svs.renderMaterialTransparency)
@@ -773,6 +778,11 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		float oldBrightness = svs.tonemapping.color.RRVec3::avg();
 		// mix newColor with oldBrightness
 		svs.tonemapping.color = newColor/(newBrightness?newBrightness:1)*oldBrightness;
+	}
+	else
+	if (property==propRenderMaterialDiffuse)
+	{
+		updateHide();
 	}
 	else
 	if (property==propRenderMaterialTransparency)

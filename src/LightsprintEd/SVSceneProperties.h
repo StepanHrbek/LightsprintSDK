@@ -85,6 +85,7 @@ namespace rr_ed
 
 		wxPGProperty*     propRenderMaterials;
 		BoolRefProperty*  propRenderMaterialDiffuse;
+		BoolRefProperty*  propRenderMaterialDiffuseColor;
 		BoolRefProperty*  propRenderMaterialSpecular;
 		BoolRefProperty*  propRenderMaterialEmittance;
 		wxPGProperty*     propRenderMaterialTransparency;

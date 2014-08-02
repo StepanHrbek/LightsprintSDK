@@ -1679,7 +1679,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr::RRSolver::PathTracingParameters params;
 			params.lightsMultiplier = svs.renderLightDirect ? 1 : 0;
 			params.skyMultiplier = svs.skyMultiplier;
-			params.emissiveMultiplier = svs.emissiveMultiplier;
+			params.emissiveMultiplier = svs.renderMaterialEmission ? svs.emissiveMultiplier : 0;
 			params.indirectIlluminationMultiplier = svs.renderLightIndirectMultiplier;
 			params.brdfTypes = rr::RRMaterial::BrdfType( (svs.renderMaterialDiffuse?rr::RRMaterial::BRDF_DIFFUSE:0) + (svs.renderMaterialSpecular?rr::RRMaterial::BRDF_SPECULAR:0) + ((svs.renderMaterialTransparency!=T_OPAQUE)?rr::RRMaterial::BRDF_TRANSMIT:0) );
 			unsigned shortcut = (unsigned)sqrtf((float)(pathTracedAccumulator/10)); // starts at 0, increases on frames 10, 40, 90, 160 etc
@@ -1744,9 +1744,9 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = svs.mirrorsEnabled && svs.mirrorsDiffuse;
 			ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = svs.mirrorsEnabled && svs.mirrorsSpecular;
 			ppScene.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = svs.mirrorsEnabled && svs.mirrorsMipmaps;
-			ppScene.uberProgramSetup.MATERIAL_DIFFUSE = true;
-			ppScene.uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse;
-			ppScene.uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialTextures;
+			ppScene.uberProgramSetup.MATERIAL_DIFFUSE = svs.renderMaterialDiffuse;
+			ppScene.uberProgramSetup.MATERIAL_DIFFUSE_CONST = svs.renderMaterialDiffuse && svs.renderMaterialDiffuseColor;
+			ppScene.uberProgramSetup.MATERIAL_DIFFUSE_MAP = svs.renderMaterialDiffuse && svs.renderMaterialDiffuseColor && svs.renderMaterialTextures;
 			ppScene.uberProgramSetup.MATERIAL_SPECULAR = svs.renderMaterialSpecular;
 			ppScene.uberProgramSetup.MATERIAL_SPECULAR_MAP = svs.renderMaterialSpecular && svs.renderMaterialTextures;
 			ppScene.uberProgramSetup.MATERIAL_SPECULAR_CONST = svs.renderMaterialSpecular;

@@ -139,7 +139,8 @@ struct SceneViewerState
 	bool             renderLightmaps2d;         //! When not rendering realtime, show static lightmaps in 2D.
 	bool             renderLightmapsBilinear;   //! Render lightmaps with bilinear interpolation rather than without it.
 	bool             renderDDI;                 //! Render triangles illuminated with DDI. Diagnostic use only.
-	bool             renderMaterialDiffuse;     //! Render diffuse color.
+	bool             renderMaterialDiffuse;     //! Render diffuse reflections.
+	bool             renderMaterialDiffuseColor;//! Render diffuse color.
 	bool             renderMaterialSpecular;    //! Render specular reflections.
 	bool             renderMaterialEmission;    //! Render emissivity.
 	Transparency     renderMaterialTransparency;//! Render transparency. Allows realtime renderer to use modes up to this one. Offline GI always uses the highest one.
@@ -254,6 +255,7 @@ struct SceneViewerState
 		renderLDM = true;
 		renderLightmaps2d = 0;
 		renderMaterialDiffuse = 1;
+		renderMaterialDiffuseColor = 1;
 		renderMaterialSpecular = 1;
 		renderMaterialEmission = 1;
 		renderMaterialTransparency = T_RGB_BLEND;
@@ -370,6 +372,7 @@ struct SceneViewerState
 			&& a.renderLightmapsBilinear==renderLightmapsBilinear
 			&& a.renderDDI==renderDDI
 			&& a.renderMaterialDiffuse==renderMaterialDiffuse
+			&& a.renderMaterialDiffuseColor==renderMaterialDiffuseColor
 			&& a.renderMaterialSpecular==renderMaterialSpecular
 			&& a.renderMaterialEmission==renderMaterialEmission
 			&& a.renderMaterialTransparency==renderMaterialTransparency
