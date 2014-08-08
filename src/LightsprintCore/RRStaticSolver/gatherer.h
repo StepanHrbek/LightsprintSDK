@@ -306,7 +306,7 @@ public:
 	//!  Gather indirect exitance (stored in static solver). May include indirect light computed from direct realtime lights, direct emitors, rrlights, env.
 	//! \param quality
 	//!  Desired illumination quality, used to enable/disable point materials.
-	Gatherer(const RRSolver* solver, bool dynamic, bool staticSceneContainsLods, unsigned quality);
+	Gatherer(const RRSolver* solver, const RRSolver::PathTracingParameters& parameters, bool dynamic, bool staticSceneContainsLods, unsigned quality);
 
 	//! Returns color visible in given direction, in physical scale.
 	//
@@ -319,8 +319,8 @@ public:
 	RRVec3 getIncidentRadiance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility = RRVec3(1), unsigned numBounces = 0);
 
 	RRRay ray; // aligned, better keep it first
-	RRSolver::PathTracingParameters parameters;
 protected:
+	const RRSolver::PathTracingParameters& parameters;
 	RRCollisionHandlerFinalGathering collisionHandlerGatherHemisphere;
 	RRCollisionHandlerFinalGathering collisionHandlerGatherLights;
 	const RRObject* multiObject;

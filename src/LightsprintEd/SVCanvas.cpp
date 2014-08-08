@@ -1686,7 +1686,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			params.useFlatNormalsSinceDepth = shortcut+1;
 			params.useSolverDirectSinceDepth = svs.pathShortcut ? shortcut+1 : UINT_MAX;
 			params.useSolverIndirectSinceDepth = svs.pathShortcut ? shortcut : UINT_MAX;
-			solver->pathTraceFrame(camera,pathTracedBuffer,pathTracedAccumulator,&params);
+			solver->pathTraceFrame(camera,pathTracedBuffer,pathTracedAccumulator,params);
 			rr_gl::ToneParameters tp = svs.tonemapping;
 			tp.gamma *= 0.45f;
 			pathTracedAccumulator++;

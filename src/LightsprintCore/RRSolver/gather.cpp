@@ -158,20 +158,21 @@ public:
 		pti(_pti),
 		gatherer(
 			_pti.context.solver,
+			pathTracingParameters,
 			false,
 			_pti.context.staticSceneContainsLods,
 			_pti.context.params->quality)
 	{
 		if (_pti.context.params)
 		{
-			gatherer.parameters.lightsMultiplier = _pti.context.params->applyLights?1.f:0.f;
-			gatherer.parameters.skyMultiplier = _pti.context.params->applyEnvironment?1.f:0.f;
-			gatherer.parameters.emissiveMultiplier = _pti.context.params->applyEmittance;
-			gatherer.parameters.indirectIlluminationMultiplier = _pti.context.params->applyCurrentSolution?1.f:0.f;
-			gatherer.parameters.brdfTypes = RRMaterial::BRDF_ALL;
-			gatherer.parameters.useFlatNormalsSinceDepth = 0;
-			gatherer.parameters.useSolverDirectSinceDepth = 0;
-			gatherer.parameters.useSolverIndirectSinceDepth = 0;
+			pathTracingParameters.lightsMultiplier = _pti.context.params->applyLights?1.f:0.f;
+			pathTracingParameters.skyMultiplier = _pti.context.params->applyEnvironment?1.f:0.f;
+			pathTracingParameters.emissiveMultiplier = _pti.context.params->applyEmittance;
+			pathTracingParameters.indirectIlluminationMultiplier = _pti.context.params->applyCurrentSolution?1.f:0.f;
+			pathTracingParameters.brdfTypes = RRMaterial::BRDF_ALL;
+			pathTracingParameters.useFlatNormalsSinceDepth = 0;
+			pathTracingParameters.useSolverDirectSinceDepth = 0;
+			pathTracingParameters.useSolverIndirectSinceDepth = 0;
 		}
 
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
@@ -314,6 +315,7 @@ protected:
 	const GatheringTools& tools;
 	const ProcessTexelParams& pti;
 	Gatherer gatherer;
+	RRSolver::PathTracingParameters pathTracingParameters; // passed to gatherer
 	// homogenous filler
 	HomogenousFiller2 fillerDir;
 	// counters

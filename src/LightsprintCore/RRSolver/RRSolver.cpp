@@ -1104,7 +1104,7 @@ void RRSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironm
 	}
 }
 
-void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _accumulated, const PathTracingParameters* _parameters)
+void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _accumulated, const PathTracingParameters& _parameters)
 {
 	if (!_frame)
 		return;
@@ -1115,9 +1115,7 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 #pragma omp parallel for schedule(dynamic)
 	for (int j=0;j<(int)h;j++)
 	{
-		Gatherer gatherer(this,true,false,UINT_MAX);
-		if (_parameters)
-			gatherer.parameters = *_parameters;
+		Gatherer gatherer(this,_parameters,true,false,UINT_MAX);
 		gatherer.ray.rayLengthMin = priv->minimalSafeDistance; // necessary, e.g. 2011_BMW_5_series_F10_535_i_v1.1.rr3
 		gatherer.ray.rayLengthMax = 1e10f;
 		for (unsigned i=0;i<w;i++)

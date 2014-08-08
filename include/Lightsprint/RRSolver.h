@@ -995,7 +995,7 @@ namespace rr
 		//! \param camera Camera to view scene from.
 		//! \param frame Framebuffer to render to. If you accumulate multiple frames into single buffer, format should be BF_RGBF or BF_RGBAF, to avoid color banding.
 		//! \param accumulate Number of frames already accumulated in frame. Increase this number each time you call pathTraceFrame, zero it only when camera or scene change.
-		void pathTraceFrame(RRCamera& camera, RRBuffer* frame, unsigned accumulate, const PathTracingParameters* parameters);
+		void pathTraceFrame(RRCamera& camera, RRBuffer* frame, unsigned accumulate, const PathTracingParameters& parameters);
 
 	protected:
 
