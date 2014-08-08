@@ -79,7 +79,7 @@ static RRVec3 getPointNormal(const RRRay& ray, const RRMaterial* material)
 	return iwm ? iwm->getTransformedNormal(objectNormal).normalized() : objectNormal;
 }
 
-RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, unsigned numBounces)
+RRVec3 Gatherer::getIncidentRadiance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, unsigned numBounces)
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));
@@ -284,7 +284,7 @@ RRVec3 Gatherer::gatherPhysicalExitance(const RRVec3& eye, const RRVec3& directi
 				if (responseStrength.avg()>stopAtVisibility)
 				{
 					// shoot it
-					exitance += gatherPhysicalExitance(eye+direction*ray.hitDistance,-response.dirIn,ray.hitObject,ray.hitTriangle,visibility*responseStrength,numBounces+1) * responseStrength * parameters.indirectIlluminationMultiplier;
+					exitance += getIncidentRadiance(eye+direction*ray.hitDistance,-response.dirIn,ray.hitObject,ray.hitTriangle,visibility*responseStrength,numBounces+1) * responseStrength * parameters.indirectIlluminationMultiplier;
 					RR_ASSERT(IS_VEC3(exitance));
 				}
 			}

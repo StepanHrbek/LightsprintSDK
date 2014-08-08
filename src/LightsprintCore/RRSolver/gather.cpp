@@ -221,11 +221,11 @@ public:
 		RRVec3 dir = getRandomEnterDirNormalized(fillerDir,_basisOrthonormal);
 
 		// AO [#22]: prepare for approximate measurement of hit distance (if it is not changed = no hit)
-		// gatherPhysicalExitance() won't change it if there is no accepted hit
+		// getIncidentRadiance() won't change it if there is no accepted hit
 		gatherer.ray.hitDistance = 1e10f;
 
 		// gather 1 ray
-		RRVec3 irrad = gatherer.gatherPhysicalExitance(gatherer.ray.rayOrigin,dir,pti.context.solver->getMultiObject(),_skipTriangleIndex);
+		RRVec3 irrad = gatherer.getIncidentRadiance(gatherer.ray.rayOrigin,dir,pti.context.solver->getMultiObject(),_skipTriangleIndex);
 		//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
 		if (!pti.context.gatherAllDirections)
 		{

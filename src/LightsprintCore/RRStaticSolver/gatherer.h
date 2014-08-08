@@ -316,7 +316,7 @@ public:
 	//!  Importance for final exitance, result in physical scale is multiplied by visibility.
 	//! \param numBounces
 	//!  Current recursion depth.
-	RRVec3 gatherPhysicalExitance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility = RRVec3(1), unsigned numBounces = 0);
+	RRVec3 getIncidentRadiance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility = RRVec3(1), unsigned numBounces = 0);
 
 	RRRay ray; // aligned, better keep it first
 	RRSolver::PathTracingParameters parameters;
