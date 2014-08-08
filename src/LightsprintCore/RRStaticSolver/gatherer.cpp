@@ -17,8 +17,6 @@ Gatherer::Gatherer(const RRSolver* _solver, bool _dynamic, bool _staticSceneCont
 	: collisionHandlerGatherHemisphere(_solver->getScaler(),_quality,_staticSceneContainsLods),
 	  collisionHandlerGatherLights(_solver->getScaler(),_quality,_staticSceneContainsLods)
 {
-	stopAtDepth = 20; // without stopAtDepth limit, Lightmaps sample with refractive sphere runs forever, single ray bounces inside sphere. it hits only pixels with r=1, so it does not fade away. material clamping does not help here, point materials are used for quality>=18. in this case, stopAtDepth 20 is not visibly slower than 2
-	stopAtVisibility = 0.001f;
 	collisionHandlerGatherHemisphere.setHemisphere(_solver->priv->scene);
 	ray.collisionHandler = &collisionHandlerGatherHemisphere;
 	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_POINT3D|RRRay::FILL_TRIANGLE; // 3D is only for shadowrays
@@ -264,7 +262,7 @@ RRVec3 Gatherer::getIncidentRadiance(const RRVec3& eye, const RRVec3& direction,
 		if (// terminate by russian roulette?
 			r<probabilityDiff+probabilitySpec+probabilityTran
 			// terminate by max depth?
-			&& numBounces<stopAtDepth)
+			&& numBounces<parameters.stopAtDepth)
 		{
 			// select BRDF type of reflected ray
 			RRMaterial::BrdfType brdfType = (r<probabilityDiff) ? RRMaterial::BRDF_DIFFUSE : ( (r<probabilityDiff+probabilitySpec) ? RRMaterial::BRDF_SPECULAR : RRMaterial::BRDF_TRANSMIT );
@@ -281,7 +279,7 @@ RRVec3 Gatherer::getIncidentRadiance(const RRVec3& eye, const RRVec3& direction,
 			{
 				// and strong enough
 				RRVec3 responseStrength = response.colorOut * (intensity/response.pdf);
-				if (responseStrength.avg()>stopAtVisibility)
+				if (responseStrength.avg()>parameters.stopAtVisibility)
 				{
 					// shoot it
 					exitance += getIncidentRadiance(eye+direction*ray.hitDistance,-response.dirIn,ray.hitObject,ray.hitTriangle,visibility*responseStrength,numBounces+1) * responseStrength * parameters.indirectIlluminationMultiplier;

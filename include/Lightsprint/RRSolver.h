@@ -969,6 +969,10 @@ namespace rr
 			unsigned useSolverDirectSinceDepth;
 			unsigned useSolverIndirectSinceDepth;
 
+			// termination criteria
+			unsigned stopAtDepth;
+			RRReal   stopAtVisibility;
+
 			PathTracingParameters()
 			{
 				lightsMultiplier = 1;
@@ -979,6 +983,8 @@ namespace rr
 				useFlatNormalsSinceDepth = UINT_MAX;
 				useSolverDirectSinceDepth = UINT_MAX;
 				useSolverIndirectSinceDepth = UINT_MAX;
+				stopAtDepth = 20; // without stopAtDepth limit, Lightmaps sample with refractive sphere runs forever, single ray bounces inside sphere. it hits only pixels with r=1, so it does not fade away. material clamping does not help here, point materials are used for quality>=18. in this case, stopAtDepth 20 is not visibly slower than 2
+				stopAtVisibility = 0.001f;
 			}
 		};
 

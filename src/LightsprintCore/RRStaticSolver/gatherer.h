@@ -308,7 +308,7 @@ public:
 	//!  Desired illumination quality, used to enable/disable point materials.
 	Gatherer(const RRSolver* solver, bool dynamic, bool staticSceneContainsLods, unsigned quality);
 
-	//! Returns color visible in given direction, in physical scale, multiplied by visibility.
+	//! Returns color visible in given direction, in physical scale.
 	//
 	//! May reflect/refract internally until visibility is sufficiently low.
 	//! Individual calls to gather() are independent.
@@ -320,9 +320,6 @@ public:
 
 	RRRay ray; // aligned, better keep it first
 	RRSolver::PathTracingParameters parameters;
-	// termination criteria
-	unsigned stopAtDepth;
-	RRReal   stopAtVisibility;
 protected:
 	RRCollisionHandlerFinalGathering collisionHandlerGatherHemisphere;
 	RRCollisionHandlerFinalGathering collisionHandlerGatherLights;
