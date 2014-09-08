@@ -82,15 +82,15 @@ public:
 		//  because it works only with quadro/firegl, this is GPU independent
 		// why not stencil buffer masked rendering to odd/even lines?
 		//  because lines blur with multisampled screen (even if multisampling is disabled)
-		rr::RRCamera leftEye, rightEye;
-		_sp.camera->getStereoCameras(leftEye,rightEye);
+		rr::RRCamera eye[2]; // 0=left, 1=right
+		_sp.camera->getStereoCameras(eye[0],eye[1]);
 		bool swapEyes = pp.stereoSwap != (pp.stereoMode==SM_TOP_DOWN);
 		if (pp.stereoMode==SM_OCULUS_RIFT)
 		{
-			leftEye.setAspect(_sp.camera->getAspect()*0.5f);
-			rightEye.setAspect(_sp.camera->getAspect()*0.5f);
-			leftEye.setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(-pp.oculusLensShift*1.15*leftEye.getProjectionMatrix()[0]),0));
-			rightEye.setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(pp.oculusLensShift*1.15*rightEye.getProjectionMatrix()[0]),0));
+			eye[0].setAspect(_sp.camera->getAspect()*0.5f);
+			eye[1].setAspect(_sp.camera->getAspect()*0.5f);
+			eye[0].setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(-pp.oculusLensShift*1.15*eye[0].getProjectionMatrix()[0]),0));
+			eye[1].setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(pp.oculusLensShift*1.15*eye[1].getProjectionMatrix()[0]),0));
 		}
 
 		{
@@ -105,7 +105,7 @@ public:
 
 			// render left
 			PluginParamsShared left = _sp;
-			left.camera = swapEyes?&rightEye:&leftEye;
+			left.camera = &eye[swapEyes?1:0];
 			left.viewport[0] = viewport[0];
 			left.viewport[1] = viewport[1];
 			left.viewport[2] = viewport[2];
@@ -128,7 +128,7 @@ public:
 			// render right
 			// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
 			PluginParamsShared right = left;
-			right.camera = swapEyes?&leftEye:&rightEye;
+			right.camera = &eye[swapEyes?0:1];
 			if (pp.stereoMode==SM_QUAD_BUFFERED)
 			{
 				FBO::setRenderBuffers(GL_BACK_RIGHT);
