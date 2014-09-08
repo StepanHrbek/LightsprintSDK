@@ -45,6 +45,7 @@ DECLARE_PRESERVE_STATE( PreserveDepthMask ,GLboolean depthMask    ,glGetBooleanv
 DECLARE_PRESERVE_STATE( PreserveColorMask ,GLboolean colorMask[4] ,glGetBooleanv(GL_COLOR_WRITEMASK,colorMask) ,glColorMask(colorMask[0],colorMask[1],colorMask[2],colorMask[3]));
 DECLARE_PRESERVE_STATE( PreserveCullFace  ,GLboolean cullFace     ,cullFace=glIsEnabled(GL_CULL_FACE)          ,if (cullFace) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE));
 DECLARE_PRESERVE_STATE( PreserveCullMode  ,GLint cullMode         ,glGetIntegerv(GL_CULL_FACE_MODE,&cullMode)  ,glCullFace(cullMode));
+DECLARE_PRESERVE_STATE( PreserveFrontFace ,GLint frontFace        ,glGetIntegerv(GL_FRONT_FACE,&frontFace)     ,glFrontFace(frontFace));
 DECLARE_PRESERVE_STATE( PreserveBlend     ,GLboolean blend        ,blend=glIsEnabled(GL_BLEND)                 ,if (blend) glEnable(GL_BLEND); else glDisable(GL_BLEND));
 DECLARE_PRESERVE_STATE( PreserveBlendFunc ,GLint src;GLint dst    ,glGetIntegerv(GL_BLEND_SRC_RGB,&src);glGetIntegerv(GL_BLEND_DST_RGB,&dst) ,glBlendFunc(src,dst));
 DECLARE_PRESERVE_STATE( PreserveFBO       ,FBO state              ,state=FBO::getState()                       ,state.restore());
