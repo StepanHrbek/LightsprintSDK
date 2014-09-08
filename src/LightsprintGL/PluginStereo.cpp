@@ -11,6 +11,15 @@
 namespace rr_gl
 {
 
+// copy of ovrFovPort from Oculus SDK
+struct OvrFovPort
+{
+	float UpTan;
+	float DownTan;
+	float LeftTan;
+	float RightTan;
+};
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // PluginRuntimeStereo
@@ -85,13 +94,16 @@ public:
 		rr::RRCamera eye[2]; // 0=left, 1=right
 		_sp.camera->getStereoCameras(eye[0],eye[1]);
 		bool swapEyes = pp.stereoSwap != (pp.stereoMode==SM_TOP_DOWN);
-		if (pp.stereoMode==SM_OCULUS_RIFT)
+		if (pp.stereoMode==SM_OCULUS_RIFT && pp.oculusTanHalfFov)
 		{
 			float aspect = _sp.camera->getAspect()*0.5f;
 			for (unsigned e=0;e<2;e++)
 			{
+				const OvrFovPort& tanHalfFov = ((const OvrFovPort*)(pp.oculusTanHalfFov))[e];
 				eye[e].setAspect(aspect);
-				eye[e].setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal((e?1:-1)*pp.oculusLensShift*1.15*eye[0].getProjectionMatrix()[0]),0));
+				//eye[e].setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal((e?1:-1)*pp.oculusLensShift*1.15*eye[0].getProjectionMatrix()[0]),0));
+				eye[e].setScreenCenter(rr::RRVec2( -( tanHalfFov.LeftTan - tanHalfFov.RightTan ) / ( tanHalfFov.LeftTan + tanHalfFov.RightTan ), ( tanHalfFov.UpTan - tanHalfFov.DownTan ) / ( tanHalfFov.UpTan + tanHalfFov.DownTan ) ));
+				eye[e].setFieldOfViewVerticalDeg(RR_RAD2DEG( 2*atan( (tanHalfFov.LeftTan + tanHalfFov.RightTan)/(2*aspect) ) ));
 			}
 		}
 
@@ -152,7 +164,7 @@ public:
 		}
 
 		// composite
-		if (pp.stereoMode==SM_INTERLACED || pp.stereoMode==SM_OCULUS_RIFT)
+		if (pp.stereoMode==SM_INTERLACED)// || pp.stereoMode==SM_OCULUS_RIFT)
 		{
 			// disable depth
 			PreserveDepthTest p1;
@@ -239,7 +251,7 @@ public:
 		}
 
 		// restore viewport after rendering stereo (it could be non-default, e.g. when enhanced sshot is enabled)
-		if (pp.stereoMode!=SM_OCULUS_RIFT)
+		//if (pp.stereoMode!=SM_OCULUS_RIFT)
 			glViewport(_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]);
 	}
 

@@ -539,6 +539,8 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 #ifdef SUPPORT_OCULUS
 	{
 		rr::RRReportInterval report(rr::INF2,"Checking Oculus Rift...\n");
+		oculusHMD = ovrHmd_Create(0);
+		/*
 		oculusManager = *OVR::DeviceManager::Create();
 		if (oculusManager)
 			oculusHMD = *oculusManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
@@ -548,6 +550,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 			oculusFusion.AttachToSensor(oculusSensor);
 		if (oculusHMD)
 			oculusHMD->GetDeviceInfo(&oculusHMDInfo);
+		*/
 	}
 #endif // SUPPORT_OCULUS
 
@@ -706,6 +709,10 @@ SVFrame::~SVFrame()
 	m_mgr.UnInit();
 	if (fullyInited)
 	{
+#ifdef SUPPORT_OCULUS
+		if (oculusHMD)
+			ovrHmd_Destroy(oculusHMD);
+#endif
 		RR_SAFE_DELETE(textureLocator);
 	}
 }
@@ -1816,7 +1823,11 @@ rr::RRScene* SVFrame::loadScene(const wxString& _filename, float _units, unsigne
 
 bool SVFrame::oculusActive()
 {
-	return oculusSensor && svs.renderStereo && (userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT);
+#ifdef SUPPORT_OCULUS
+	return svs.renderStereo && (userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT) && oculusHMD;
+#else
+	return svs.renderStereo && (userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT);
+#endif
 }
 
 

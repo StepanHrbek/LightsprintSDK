@@ -19,7 +19,7 @@ enum StereoMode
 	SM_INTERLACED       =1, ///< interlaced, with top scanline visible by right eye, for passive displays \image html stereo_interlaced.png
 	SM_SIDE_BY_SIDE     =2, ///< left half is left eye \image html stereo_sidebyside.jpg
 	SM_TOP_DOWN         =3, ///< top half is left eye \image html stereo_topdown.jpg
-	SM_OCULUS_RIFT      =4, ///< for Oculus Rift \image html stereo_oculus.jpg
+	SM_OCULUS_RIFT      =4, ///< for Oculus Rift with SDK 0.4+, later call Oculus SDK to distort image \image html stereo_oculus.jpg
 	SM_QUAD_BUFFERED    =5, ///< quad buffered stereo, GL_BACK_RIGHT+GL_BACK_LEFT
 };
 
@@ -52,15 +52,17 @@ public:
 	rr::RRVec4 oculusChromaAbCorrection;
 	//! For Oculus Rift only, 1-2.0*HMDInfo.LensSeparationDistance/HMDInfo.HScreenSize
 	float oculusLensShift;
+	//! For Oculus Rift only, ovrFovPort DefaultEyeFov[2]. We type it to void* to avoid Oculus SDK dependency.
+	const void* oculusTanHalfFov;
 
 	//! Convenience ctor, for setting plugin parameters. Additional Oculus Rift parameters are set to defaults.
-	PluginParamsStereo(const PluginParams* _next, StereoMode _stereoMode, bool _stereoSwap) : stereoMode(_stereoMode), stereoSwap(_stereoSwap), oculusDistortionK(1,0.22f,0.24f,0), oculusChromaAbCorrection(0.996f,-0.004f,1.014f,0), oculusLensShift(0.152f) {next=_next;}
+	PluginParamsStereo(const PluginParams* _next, StereoMode _stereoMode, bool _stereoSwap) : stereoMode(_stereoMode), stereoSwap(_stereoSwap), oculusDistortionK(1,0.22f,0.24f,0), oculusChromaAbCorrection(0.996f,-0.004f,1.014f,0), oculusLensShift(0.152f), oculusTanHalfFov(NULL) {next=_next;}
 
 	//! Convenience ctor, for setting plugin parameters, including Oculus Rift ones.
 	//
 	//! Example:
 	//! rr_gl::PluginParamsStereo ppStereo(pluginChain,SM_OCULUS_RIFT,oculusHMDInfo.DistortionK,oculusHMDInfo.ChromaAbCorrection,1-2.f*oculusHMDInfo.LensSeparationDistance/oculusHMDInfo.HScreenSize);
-	PluginParamsStereo(const PluginParams* _next, StereoMode _stereoMode, bool _stereoSwap, const float(&_oculusDistortionK)[4], const float(&_oculusChromaAbCorrection)[4], float _oculusLensShift) : stereoMode(_stereoMode), stereoSwap(_stereoSwap), oculusDistortionK(_oculusDistortionK[0],_oculusDistortionK[1],_oculusDistortionK[2],_oculusDistortionK[3]), oculusChromaAbCorrection(_oculusChromaAbCorrection[0],_oculusChromaAbCorrection[1],_oculusChromaAbCorrection[2],_oculusChromaAbCorrection[3]), oculusLensShift(_oculusLensShift) {next=_next;}
+	PluginParamsStereo(const PluginParams* _next, StereoMode _stereoMode, bool _stereoSwap, const float(&_oculusDistortionK)[4], const float(&_oculusChromaAbCorrection)[4], float _oculusLensShift) : stereoMode(_stereoMode), stereoSwap(_stereoSwap), oculusDistortionK(_oculusDistortionK[0],_oculusDistortionK[1],_oculusDistortionK[2],_oculusDistortionK[3]), oculusChromaAbCorrection(_oculusChromaAbCorrection[0],_oculusChromaAbCorrection[1],_oculusChromaAbCorrection[2],_oculusChromaAbCorrection[3]), oculusLensShift(_oculusLensShift), oculusTanHalfFov(NULL) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;

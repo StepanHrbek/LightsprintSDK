@@ -142,6 +142,10 @@ namespace rr_ed
 		rr::RRBuffer*              pathTracedBuffer;
 		unsigned                   pathTracedAccumulator;
 
+#ifdef SUPPORT_OCULUS
+		rr_gl::Texture*            oculusTexture[2];
+#endif
+
 		LightingIndirect           previousLightIndirect;
 
 		friend class SVFrame;

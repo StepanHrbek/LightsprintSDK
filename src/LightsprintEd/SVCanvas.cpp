@@ -34,6 +34,9 @@
 #endif
 #include <cctype>
 #include <boost/filesystem.hpp> // extension()==".gsa"
+#ifdef SUPPORT_OCULUS
+	#include "../Src/OVR_CAPI_GL.h"
+#endif
 
 //#define SUPPORT_GL_ES
 
@@ -153,6 +156,10 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 
 	pathTracedBuffer = NULL;
 	pathTracedAccumulator = 0;
+#ifdef SUPPORT_OCULUS
+	oculusTexture[0] = NULL;
+	oculusTexture[1] = NULL;
+#endif
 }
 
 class SVContext : public wxGLContext
@@ -539,6 +546,16 @@ SVCanvas::~SVCanvas()
 		}
 	}
 
+#ifdef SUPPORT_OCULUS
+	// oculus
+	for (unsigned i=0;i<2;i++)
+		if (oculusTexture[i])
+		{
+			delete oculusTexture[i]->getBuffer();
+			RR_SAFE_DELETE(oculusTexture[i]);
+		}
+#endif
+
 	// pathtracer
 	RR_SAFE_DELETE(pathTracedBuffer);
 
@@ -626,6 +643,19 @@ int SVCanvas::FilterEvent(wxKeyEvent& event)
 {
 	if (exitRequested || !fullyCreated)
 		return wxApp::Event_Skip;
+
+#ifdef SUPPORT_OCULUS
+	if (svframe->oculusActive())
+	{
+		ovrHSWDisplayState hswDisplayState;
+		ovrHmd_GetHSWDisplayState(svframe->oculusHMD, &hswDisplayState);
+		if (hswDisplayState.Displayed)
+		{
+			ovrHmd_DismissHSWDisplay(svframe->oculusHMD);
+			return wxApp::Event_Skip;
+		}
+	}
+#endif
 
 	bool needsRefresh = false;
 	int evkey = event.GetKeyCode();
@@ -1338,6 +1368,11 @@ void SVCanvas::OnContextMenuCreate(wxContextMenuEvent& _event)
 
 
 #ifdef SUPPORT_OCULUS
+template<class T>
+static rr::RRVec3 convertVec3(OVR::Vector3<T> a)
+{
+	return rr::RRVec3(a[0],a[1],a[2]);
+}
 static rr::RRVec4 convertVec4(float a[4])
 {
 	return rr::RRVec4(a[0],a[1],a[2],a[3]);
@@ -1502,6 +1537,9 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 	Paint(false,"");
 
 	// done
+#ifdef SUPPORT_OCULUS
+	if (!svframe->oculusActive()) // oculus ovrHmd_EndFrame() at the end of Paint() replaces SwapBuffers
+#endif
 	SwapBuffers();
 }
 
@@ -1561,12 +1599,20 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		// oculus camera rotation
 		if (svframe->oculusActive())
 		{
+			// read data from oculus
+			ovrTrackingState oculusTs = ovrHmd_GetTrackingState(svframe->oculusHMD, ovr_GetTimeInSeconds());
+			OVR::Posef oculusPose = oculusTs.HeadPose.ThePose;
+			// apply oculus translation to our camera
+			static rr::RRVec3 oldOculusTrans(0);
+			rr::RRVec3 oculusTrans(0);
+			oculusTrans = convertVec3(oculusPose.Translation);
+			svs.camera.setPosition(svs.camera.getPosition()+oculusTrans-oldOculusTrans);
+			oldOculusTrans = oculusTrans;
+			// apply oculus rotation to our camera
 			static rr::RRVec3 oldOculusRot(0);
 			rr::RRVec3 oculusRot(0);
-			svframe->oculusFusion.GetPredictedOrientation().GetEulerAngles<OVR::Axis_Y,OVR::Axis_X,OVR::Axis_Z>(&oculusRot.x,&oculusRot.y,&oculusRot.z);
-			rr::RRVec3 newRot = oculusRot;
-			newRot.x = svs.camera.getYawPitchRollRad().x + oculusRot.x-oldOculusRot.x;
-			svs.camera.setYawPitchRollRad(newRot);
+			oculusPose.Rotation.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&oculusRot.x,&oculusRot.y,&oculusRot.z);
+			svs.camera.setYawPitchRollRad(rr::RRVec3(svs.camera.getYawPitchRollRad().x + oculusRot.x-oldOculusRot.x, oculusRot.y, oculusRot.z));
 			oldOculusRot = oculusRot;
 			// another way to copy (not add) oculus rotation to camera:
 			//OVR::Quatf q = svframe->oculusFusion.GetPredictedOrientation();
@@ -1854,18 +1900,59 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 #ifdef SUPPORT_OCULUS
 					// in oculus rift, adjust camera
 					case rr_gl::SM_OCULUS_RIFT:
-						if (svframe->oculusHMD) // use HMDInfo only if HMD exists, HMDInfo is wrong if HMD does not exist
+						if (svframe->oculusActive()) // use oculusHMD only if it exists
 						{
-							ppStereo.oculusDistortionK = convertVec4(svframe->oculusHMDInfo.DistortionK);
-							ppStereo.oculusChromaAbCorrection = convertVec4(svframe->oculusHMDInfo.ChromaAbCorrection);
-							ppStereo.oculusLensShift = 1-2.f*svframe->oculusHMDInfo.LensSeparationDistance/svframe->oculusHMDInfo.HScreenSize;
+							// configure oculus renderer once in SVCanvas life
+							if (!oculusTexture[0])
+							{
+								oculusTexture[0] = new rr_gl::Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false);
+								oculusTexture[1] = NULL;
+
+								ovrHmd_ConfigureTracking(svframe->oculusHMD, ovrTrackingCap_Orientation|ovrTrackingCap_MagYawCorrection|ovrTrackingCap_Position, 0);
+
+								ovrGLConfig cfg;
+								cfg.OGL.Header.API = ovrRenderAPI_OpenGL;
+								cfg.OGL.Header.RTSize.w = svframe->oculusHMD->Resolution.w;
+								cfg.OGL.Header.RTSize.h = svframe->oculusHMD->Resolution.h;
+								cfg.OGL.Header.Multisample = 1;
+								#ifdef _WIN32
+									cfg.OGL.Window = GetHWND();
+									cfg.OGL.DC = NULL;
+								#endif
+								unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette;
+								//distortionCaps |= ovrDistortionCap_SRGB;
+								//distortionCaps |= ovrDistortionCap_Overdrive;
+								//distortionCaps |= ovrDistortionCap_TimeWarp;
+								//distortionCaps |= ovrDistortionCap_ProfileNoTimewarpSpinWaits;
+								ovrFovPort eyeFov[2];
+								eyeFov[0] = svframe->oculusHMD->DefaultEyeFov[0];
+								eyeFov[1] = svframe->oculusHMD->DefaultEyeFov[1];
+								// Clamp Fov based on our dynamically adjustable FovSideTanMax.
+								// Most apps should use the default, but reducing Fov does reduce rendering cost.
+								//eyeFov[0] = FovPort::Min(eyeFov[0], FovPort(FovSideTanMax));
+								//eyeFov[1] = FovPort::Min(eyeFov[1], FovPort(FovSideTanMax));
+								ovrEyeRenderDesc eyeRenderDesc[2];
+								eyeRenderDesc[ovrEye_Left] = ovrHmd_GetRenderDesc(svframe->oculusHMD, ovrEye_Left,  eyeFov[ovrEye_Left]);
+								eyeRenderDesc[ovrEye_Right] = ovrHmd_GetRenderDesc(svframe->oculusHMD, ovrEye_Right,  eyeFov[ovrEye_Right]);
+								ovrBool result = ovrHmd_ConfigureRendering(svframe->oculusHMD, &cfg.Config, distortionCaps, eyeFov, eyeRenderDesc);
+								#ifdef _WIN32
+									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)GetHWND(),NULL,NULL);
+								#endif
+							}
+
+							//ppStereo.oculusDistortionK = convertVec4(svframe->oculusHMDInfo.DistortionK);
+							//ppStereo.oculusChromaAbCorrection = convertVec4(svframe->oculusHMDInfo.ChromaAbCorrection);
+							//ppStereo.oculusLensShift = 1-2.f*svframe->oculusHMDInfo.LensSeparationDistance/svframe->oculusHMDInfo.HScreenSize;
+							ppStereo.oculusTanHalfFov = (void*)svframe->oculusHMD->DefaultEyeFov;
 							// enforce screenCenter 0
-							svs.camera.setScreenCenter(rr::RRVec2(0));
+							//svs.camera.setScreenCenter(rr::RRVec2(0));
 							// enforce realistic eyeSeparation
-							svs.camera.eyeSeparation = svframe->oculusHMDInfo.InterpupillaryDistance;
+							//svs.camera.eyeSeparation = svframe->oculusHMD->.InterpupillaryDistance; = svframe->oculusHMD->EyeLeft.NoseToPupilInMeters + svframe->oculusHMD->EyeRight.NoseToPupilInMeters;
 							// enforce realistic FOV
-							float DistortionScale = 1.3f; // the same constant exists in PluginStereo
-							svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(DistortionScale*svframe->oculusHMDInfo.VScreenSize/(2*svframe->oculusHMDInfo.EyeToScreenDistance))));
+							//float DistortionScale = 1.3f; // the same constant exists in PluginStereo
+							//svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(DistortionScale*svframe->oculusHMDInfo.VScreenSize/(2*svframe->oculusHMDInfo.EyeToScreenDistance))));
+
+							ovrHmd_BeginFrame(svframe->oculusHMD,0);
 						}
 						break;
 #endif // SUPPORT_OCULUS
@@ -2427,6 +2514,35 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	}
 
 
+
+#ifdef SUPPORT_OCULUS
+	if (svframe->oculusActive())
+	{
+		ovrPosef pose[2];
+		pose[ovrEye_Left] = ovrHmd_GetEyePose(svframe->oculusHMD, ovrEye_Left);
+		pose[ovrEye_Right] = ovrHmd_GetEyePose(svframe->oculusHMD, ovrEye_Right);
+		ovrTexture tex[2];
+		tex[0].Header.API = ovrRenderAPI_OpenGL;
+		tex[0].Header.TextureSize.w = winWidth;
+		tex[0].Header.TextureSize.h = winHeight;
+		tex[0].Header.RenderViewport.Pos.x = 0;
+		tex[0].Header.RenderViewport.Pos.y = 0;
+		tex[0].Header.RenderViewport.Size.w = winWidth/2;
+		tex[0].Header.RenderViewport.Size.h = winHeight;
+		oculusTexture[0]->bindTexture();
+		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,0,0,winWidth,winHeight,0);
+		((ovrGLTexture_s*)tex)[0].OGL.TexId = oculusTexture[0]->getId();
+		tex[1] = tex[0];
+		tex[1].Header.RenderViewport.Pos.x = winWidth/2;
+		tex[1].Header.RenderViewport.Size.w = winWidth - winWidth/2;
+		//rr_gl::PreserveFlag p1(GL_SCISSOR_TEST,false);
+		//rr_gl::PreserveScissor p2;
+		//rr_gl::PreserveFrontFace p3;
+		ovrHmd_EndFrame(svframe->oculusHMD,pose,tex);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+#endif
 }
 
 

@@ -12,11 +12,21 @@
 #endif
 #ifdef SUPPORT_OCULUS
 	#include "OVR.h"
-	#ifdef NDEBUG
-		#pragma comment(lib,"libovr." RR_LIB_COMPILER ".lib")
+	#if defined(_M_X64) || defined(_LP64)
+		#define RR_64 "64"
 	#else
-		#pragma comment(lib,"libovrd." RR_LIB_COMPILER ".lib")
+		#define RR_64
 	#endif
+	#ifdef NDEBUG
+		//#pragma comment(lib,RR_LIB_COMPILER "/libovr" RR_64 ".lib")
+		#pragma comment(lib,"/c/OculusSDK/LibOVR/Lib/x64/VS2010/libovr" RR_64 ".lib") // use abs.path temporarily before dropping vs2010 support. vs2010 bug https://connect.microsoft.com/VisualStudio/feedback/details/596828
+		#pragma comment(linker, "/NODEFAULTLIB:libcpmt.lib") // libovr is compiled with static crt, force it to use our dll crt
+	#else
+		//#pragma comment(lib,RR_LIB_COMPILER "/libovr" RR_64 "d.lib")
+		#pragma comment(lib,"/c/OculusSDK/LibOVR/Lib/x64/VS2010/libovr" RR_64 "d.lib")
+		#pragma comment(linker, "/NODEFAULTLIB:libcpmtd.lib")
+	#endif
+	#pragma comment(lib,"ws2_32.lib")
 #endif
 
 namespace rr_ed
@@ -86,7 +96,7 @@ public:
 		bf::current_path(s_initPath);
 #endif
 #ifdef SUPPORT_OCULUS
-		OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
+		ovr_Initialize();
 #endif
 		svframe = SVFrame::Create(s_svs);
 		return true;
@@ -101,7 +111,7 @@ public:
 	{
 		svframe = NULL;
 #ifdef SUPPORT_OCULUS
-		OVR::System::Destroy();
+		ovr_Shutdown();
 #endif
 		return 0;
 	}
