@@ -91,9 +91,8 @@ public:
 			for (unsigned e=0;e<2;e++)
 			{
 				eye[e].setAspect(aspect);
+				eye[e].setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal((e?1:-1)*pp.oculusLensShift*1.15*eye[0].getProjectionMatrix()[0]),0));
 			}
-			eye[0].setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(-pp.oculusLensShift*1.15*eye[0].getProjectionMatrix()[0]),0));
-			eye[1].setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(pp.oculusLensShift*1.15*eye[1].getProjectionMatrix()[0]),0));
 		}
 
 		{
