@@ -57,6 +57,8 @@ public:
 	void bindTexture() const;
 	//! Reads texture back from GPU memory to buffer, increases version.
 	void copyTextureToBuffer();
+	//! Returns OpenGL specific id of texture. Only necessary for passing our textures to third party OpenGL code.
+	const GLuint getId() const {return id;}
 	~Texture();
 
 	unsigned version; // For interal use only. Version of data in GPU, copied from buffer->version.
