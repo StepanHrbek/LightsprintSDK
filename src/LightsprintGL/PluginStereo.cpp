@@ -87,8 +87,11 @@ public:
 		bool swapEyes = pp.stereoSwap != (pp.stereoMode==SM_TOP_DOWN);
 		if (pp.stereoMode==SM_OCULUS_RIFT)
 		{
-			eye[0].setAspect(_sp.camera->getAspect()*0.5f);
-			eye[1].setAspect(_sp.camera->getAspect()*0.5f);
+			float aspect = _sp.camera->getAspect()*0.5f;
+			for (unsigned e=0;e<2;e++)
+			{
+				eye[e].setAspect(aspect);
+			}
 			eye[0].setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(-pp.oculusLensShift*1.15*eye[0].getProjectionMatrix()[0]),0));
 			eye[1].setScreenCenter(_sp.camera->getScreenCenter()+rr::RRVec2(rr::RRReal(pp.oculusLensShift*1.15*eye[1].getProjectionMatrix()[0]),0));
 		}
