@@ -178,7 +178,7 @@
     </ResourceCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName)_sr.lib</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\Win32;$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\Win32\VS2010;$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
     <Bscmake>
@@ -230,7 +230,7 @@
     </ResourceCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName)_sr.lib</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\x64;$(WXWIDGETS_DIR)\lib\vc100_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\x64\VS2010;$(WXWIDGETS_DIR)\lib\vc100_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
     <Bscmake>
@@ -277,7 +277,7 @@
     </ResourceCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName)_sd.lib</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\Win32;$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\Win32\VS2010;$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Lib>
     <Bscmake>
@@ -325,7 +325,7 @@
     </ResourceCompile>
     <Lib>
       <OutputFile>$(OutDir)$(ProjectName)_sd.lib</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\x64;$(WXWIDGETS_DIR)\lib\vc100_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\x64\VS2010;$(WXWIDGETS_DIR)\lib\vc100_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>true</IgnoreAllDefaultLibraries>
     </Lib>
     <Bscmake>
@@ -379,7 +379,7 @@
     </ProjectReference>
     <Link>
       <OutputFile>..\..\bin\$(Platform)\$(ProjectName).dll</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\Win32;$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\Win32\VS2010;$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
       <DataExecutionPrevention>
@@ -438,7 +438,7 @@
     </ProjectReference>
     <Link>
       <OutputFile>..\..\bin\$(Platform)\$(ProjectName).dll</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\x64;$(WXWIDGETS_DIR)\lib\vc100_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\x64\VS2010;$(WXWIDGETS_DIR)\lib\vc100_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName).pdb</ProgramDatabaseFile>
       <DataExecutionPrevention>
@@ -493,7 +493,7 @@
     </ProjectReference>
     <Link>
       <OutputFile>..\..\bin\$(Platform)\$(ProjectName)_dd.dll</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\Win32;$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\Win32\VS2010;$(WXWIDGETS_DIR)\lib\vc100_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
       <DataExecutionPrevention>
@@ -548,7 +548,7 @@
     </ProjectReference>
     <Link>
       <OutputFile>..\..\bin\$(Platform)\$(ProjectName)_dd.dll</OutputFile>
-      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\x64;$(WXWIDGETS_DIR)\lib\vc100_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir);$(OCULUS_DIR)\lib\x64\VS2010;$(WXWIDGETS_DIR)\lib\vc100_x64_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>..\..\bin\$(Platform)\$(ProjectName)_dd.pdb</ProgramDatabaseFile>
       <DataExecutionPrevention>

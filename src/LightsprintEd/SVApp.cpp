@@ -18,12 +18,10 @@
 		#define RR_64
 	#endif
 	#ifdef NDEBUG
-		//#pragma comment(lib,RR_LIB_COMPILER "/libovr" RR_64 ".lib")
-		#pragma comment(lib,"/c/OculusSDK/LibOVR/Lib/x64/VS2010/libovr" RR_64 ".lib") // use abs.path temporarily before dropping vs2010 support. vs2010 bug https://connect.microsoft.com/VisualStudio/feedback/details/596828
+		#pragma comment(lib,"libovr" RR_64)
 		#pragma comment(linker, "/NODEFAULTLIB:libcpmt.lib") // libovr is compiled with static crt, force it to use our dll crt
 	#else
-		//#pragma comment(lib,RR_LIB_COMPILER "/libovr" RR_64 "d.lib")
-		#pragma comment(lib,"/c/OculusSDK/LibOVR/Lib/x64/VS2010/libovr" RR_64 "d.lib")
+		#pragma comment(lib,"libovr" RR_64 "d")
 		#pragma comment(linker, "/NODEFAULTLIB:libcpmtd.lib")
 	#endif
 	#pragma comment(lib,"ws2_32.lib")
