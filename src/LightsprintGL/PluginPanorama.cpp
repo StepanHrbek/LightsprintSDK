@@ -80,8 +80,8 @@ public:
 				h = _sp.viewport[2]/float(_sp.viewport[3]);
 				break;
 		}
-		x0 -= _sp.camera->getScreenCenter().x;
-		y0 -= _sp.camera->getScreenCenter().y;
+		//x0 -= _sp.camera->getScreenCenter().x;
+		//y0 -= _sp.camera->getScreenCenter().y;
 		float scale = (pp.panoramaMode==PM_FISHEYE) ? pp.scale * 360/pp.fisheyeFovDeg : pp.scale;
 		ToneParameters tp;
 		tp.gamma = _sp.srgbCorrect?0.45f:1.f;
