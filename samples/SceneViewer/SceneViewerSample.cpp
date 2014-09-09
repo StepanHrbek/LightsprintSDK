@@ -82,6 +82,8 @@ int main(int argc, char** argv)
 	// See how adapters in src/LightsprintIO/ImportXXX/RRObjectXXX.cpp register,
 	// you can do the same for your own file format.
 	rr_ed::SceneViewerState svs;
+	svs.renderStereo = 1;
+	svs.renderPanorama  =1;
 #ifdef NDEBUG
 	// release returns quickly without freeing resources
 	rr_ed::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,false);
