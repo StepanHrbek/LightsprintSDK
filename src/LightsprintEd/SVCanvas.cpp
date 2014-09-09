@@ -2539,8 +2539,8 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		//rr_gl::PreserveScissor p2;
 		//rr_gl::PreserveFrontFace p3;
 		ovrHmd_EndFrame(svframe->oculusHMD,pose,tex);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		//glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0); // at least this one is necessary for RL
 	}
 #endif
 }
