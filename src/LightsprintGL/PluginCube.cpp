@@ -62,6 +62,7 @@ public:
 		PreserveFBO p0;
 		PreserveViewport p1;
 		PreserveFlag p2(GL_SCISSOR_TEST,scissor);
+		PreserveScissor p3; // necessary for stereo fisheye with fov<250 (scissor inside scissor)
 		glViewport(0,0,size,size);
 		FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,pp.depthTexture,p0.state);
 
