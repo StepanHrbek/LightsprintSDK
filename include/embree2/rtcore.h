@@ -1,5 +1,5 @@
 // ======================================================================== //
-// Copyright 2009-2013 Intel Corporation                                    //
+// Copyright 2009-2014 Intel Corporation                                    //
 //                                                                          //
 // Licensed under the Apache License, Version 2.0 (the "License");          //
 // you may not use this file except in compliance with the License.         //
@@ -88,6 +88,12 @@ enum RTCError {
   previous error. The rtcGetError function reads and returns the
   currently stored error and clears the error flag again. */
 RTCORE_API RTCError rtcGetError();
+
+/*! \brief Type of error callback function. */
+typedef void (*RTC_ERROR_FUNCTION)(const RTCError code, const char* str);
+
+/*! \brief Sets a callback function that is called whenever an error occurs. */
+RTCORE_API void rtcSetErrorFunction(RTC_ERROR_FUNCTION func);
 
 /*! \brief Implementation specific (do not call).
 

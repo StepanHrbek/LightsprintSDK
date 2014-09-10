@@ -1,5 +1,5 @@
 // ======================================================================== //
-// Copyright 2009-2013 Intel Corporation                                    //
+// Copyright 2009-2014 Intel Corporation                                    //
 //                                                                          //
 // Licensed under the Apache License, Version 2.0 (the "License");          //
 // you may not use this file except in compliance with the License.         //
@@ -104,7 +104,8 @@ RTCORE_API unsigned rtcNewTriangleMesh (RTCScene scene,                    //!< 
                                         size_t numTimeSteps = 1            //!< number of motion blur time steps
   );
 
-/*! \brief Creates a new set of cubic bezier curves. The number of
+/*! \brief Creates a new hair geometry, consisting of multiple hairs
+  represented as cubic bezier curves with varying radii. The number of
   curves (numCurves), number of vertices (numVertices), and number of
   time steps (1 for normal curves, and 2 for linear motion blur), have
   to get specified at construction time. Further, the curve index
@@ -116,12 +117,16 @@ RTCORE_API unsigned rtcNewTriangleMesh (RTCScene scene,                    //!< 
   single 32 bit integer index for each curve, that references the
   start vertex of the curve. The vertex buffer stores 4 control points
   per curve, each such control point consists of a single precision
-  (x,y,z) position and radius, stored in that order in memory. */
-RTCORE_API unsigned rtcNewBezierCurves (RTCScene scene,                    //!< the scene the curves belong to
-                                                 RTCGeometryFlags flags,            //!< geometry flags
-                                                 size_t numCurves,                  //!< number of curves
-                                                 size_t numVertices,                //!< number of vertices
-                                                 size_t numTimeSteps = 1            //!< number of motion blur time steps
+  (x,y,z) position and radius, stored in that order in
+  memory. Individual hairs are considered to be subpixel sized which
+  allows the implementation to approximate the intersection
+  calculation. This in particular means that zooming onto one hair
+  might show geometric artefacts. */
+RTCORE_API unsigned rtcNewHairGeometry (RTCScene scene,                    //!< the scene the curves belong to
+					RTCGeometryFlags flags,            //!< geometry flags
+					size_t numCurves,                  //!< number of curves
+					size_t numVertices,                //!< number of vertices
+					size_t numTimeSteps = 1            //!< number of motion blur time steps
   );
 
 /*! \brief Sets 32 bit ray mask. */
