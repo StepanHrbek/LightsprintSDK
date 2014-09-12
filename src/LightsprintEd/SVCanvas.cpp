@@ -1612,6 +1612,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			static rr::RRVec3 oldOculusTrans(0);
 			rr::RRVec3 oculusTrans(0);
 			oculusTrans = convertVec3(oculusPose.Translation);
+			oculusTrans = svs.camera.getRight() * oculusTrans.x + svs.camera.getUp() * oculusTrans.y - svs.camera.getDirection() * oculusTrans.z;
 			svs.camera.setPosition(svs.camera.getPosition()+oculusTrans-oldOculusTrans);
 			oldOculusTrans = oculusTrans;
 			// another way to copy (not add) oculus rotation to camera:
