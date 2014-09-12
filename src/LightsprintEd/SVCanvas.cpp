@@ -1816,6 +1816,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppScene.layerEnvironment = svs.raytracedCubesEnabled?((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeEnvironment:svs.layerBakedEnvironment):UINT_MAX;
 			ppScene.layerLDM = svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX;
 			ppScene.wireframe = svs.renderWireframe;
+			ppScene.mirrorOcclusionQuery = svs.mirrorsOcclusion;
 			if (!svs.renderDof || !svs.dofAccumulated) // when accumulating dof, stop animations
 				ppScene.animationTime = svs.referenceTime.secondsPassed();
 			if (ppScene.animationTime>1000)

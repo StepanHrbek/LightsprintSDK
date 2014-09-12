@@ -68,6 +68,7 @@ namespace rr_ed
 		BoolRefProperty*  propGIMirrorsDiffuse;
 		BoolRefProperty*  propGIMirrorsSpecular;
 		BoolRefProperty*  propGIMirrorsQuality;
+		BoolRefProperty*  propGIMirrorsOcclusion;
 
 		wxPGProperty*     propGIVideo;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;

@@ -95,6 +95,9 @@ public:
 	//! True = renders polygons as wireframe.
 	bool wireframe;
 
+	//! When rendering mirrors, this enables occlusion query optimization. It increases fps in some situations, reduces in others.
+	bool mirrorOcclusionQuery;
+
 	//! Convenience ctor, for setting some plugin parameters. You still might want to change default values of some other parameters after ctor.
 	PluginParamsScene(const PluginParams* _next, RRSolverGL* _solver)
 	{
@@ -119,6 +122,7 @@ public:
 		clipPlanes.clipPlaneZA = 0;
 		clipPlanes.clipPlaneZB = 0;
 		wireframe = false;
+		mirrorOcclusionQuery = true;
 	}
 
 	//! Access to actual plugin code, called by Renderer.

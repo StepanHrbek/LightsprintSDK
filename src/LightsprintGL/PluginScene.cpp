@@ -617,7 +617,8 @@ public:
 
 #ifdef OCCLUSION_QUERY
 					// occlusion query optimization: phase 1
-					glBeginQuery(GL_SAMPLES_PASSED,1);
+					if (pp.mirrorOcclusionQuery)
+						glBeginQuery(GL_SAMPLES_PASSED,1);
 #endif
 					countSceneMirrorPlane.count++;
 
@@ -665,11 +666,14 @@ public:
 
 #ifdef OCCLUSION_QUERY
 					// occlusion query optimization: phase 2
-					GLuint mirrorVisible = 0;
-					glEndQuery(GL_SAMPLES_PASSED);
-					glGetQueryObjectuiv(1,GL_QUERY_RESULT,&mirrorVisible);
-					if (!mirrorVisible)
-						goto skip_mirror;
+					if (pp.mirrorOcclusionQuery)
+					{
+						GLuint mirrorVisible = 0;
+						glEndQuery(GL_SAMPLES_PASSED);
+						glGetQueryObjectuiv(1,GL_QUERY_RESULT,&mirrorVisible);
+						if (!mirrorVisible)
+							goto skip_mirror;
+					}
 #endif
 					countSceneMirrorPlaneVisible.count++;
 

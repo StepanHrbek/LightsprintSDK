@@ -195,6 +195,7 @@ struct SceneViewerState
 	bool             mirrorsDiffuse;            //! Enables using mirrors when rendering diffuse reflection.
 	bool             mirrorsSpecular;           //! Enables using mirrors when rendering specular reflection.
 	bool             mirrorsMipmaps;            //! Enables higher quality mirroring mode using mipmaps.
+	bool             mirrorsOcclusion;          //! Enables occlusion query optimization, increases fps in some scenes, reduces in others.
 	bool             srgbCorrect;               //! Add realtime lights sRGB correctly, if OpenGL 3.0+ or sufficient extensions are found.
 	bool             lightmapFloats;
 	//rr::RRSolver::CalculateParameters calculateParameters;        //! Realtime GI settings.
@@ -312,6 +313,7 @@ struct SceneViewerState
 		mirrorsDiffuse = true;
 		mirrorsSpecular = true;
 		mirrorsMipmaps = true;
+		mirrorsOcclusion = true;
 		srgbCorrect = true;
 		lightmapFloats = false;
 		lightmapDirectParameters.aoSize = 1;
@@ -430,6 +432,7 @@ struct SceneViewerState
 			&& a.mirrorsDiffuse==mirrorsDiffuse
 			&& a.mirrorsSpecular==mirrorsSpecular
 			&& a.mirrorsMipmaps==mirrorsMipmaps
+			&& a.mirrorsOcclusion==mirrorsOcclusion
 			&& a.srgbCorrect==srgbCorrect
 			&& a.lightmapFloats==lightmapFloats
 			&& a.lightmapDirectParameters==lightmapDirectParameters

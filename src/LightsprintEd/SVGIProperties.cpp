@@ -165,6 +165,9 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIMirrorsQuality = new BoolRefProperty(_("Higher quality"),_("Improves quality by making reflection of close objects sharper."),svs.mirrorsMipmaps);
 		AppendIn(propGIMirrors,propGIMirrorsQuality);
 
+		propGIMirrorsOcclusion = new BoolRefProperty(_("Occlusion query"),_("Optimization, improves fps in some scenes, reduces in others."),svs.mirrorsOcclusion);
+		AppendIn(propGIMirrors,propGIMirrorsOcclusion);
+
 		SetPropertyBackgroundColour(propGIMirrors,importantPropertyBackgroundColor,false);
 
 	}
@@ -251,6 +254,7 @@ void SVGIProperties::updateHide()
 	propGIMirrorsDiffuse->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsSpecular->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsQuality->Hide(!svs.mirrorsEnabled,false);
+	propGIMirrorsOcclusion->Hide(!svs.mirrorsEnabled,false);
 
 	propGIVideo->Hide(!realtimeGI,false);
 	propGIEmisVideoAffectsGI->Hide(!realtimeGI,false);
@@ -309,6 +313,7 @@ void SVGIProperties::updateProperties()
 		+ updateBoolRef(propGIMirrorsDiffuse)
 		+ updateBoolRef(propGIMirrorsSpecular)
 		+ updateBoolRef(propGIMirrorsQuality)
+		+ updateBoolRef(propGIMirrorsOcclusion)
 		+ updateBoolRef(propGILightmapFloats)
 		+ updateFloat(propGILightmapAOIntensity,svs.lightmapDirectParameters.aoIntensity)
 		+ updateFloat(propGILightmapAOSize,svs.lightmapDirectParameters.aoSize)
