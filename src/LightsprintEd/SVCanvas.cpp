@@ -1602,18 +1602,18 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			// read data from oculus
 			ovrTrackingState oculusTs = ovrHmd_GetTrackingState(svframe->oculusHMD, ovr_GetTimeInSeconds());
 			OVR::Posef oculusPose = oculusTs.HeadPose.ThePose;
-			// apply oculus translation to our camera
-			static rr::RRVec3 oldOculusTrans(0);
-			rr::RRVec3 oculusTrans(0);
-			oculusTrans = convertVec3(oculusPose.Translation);
-			svs.camera.setPosition(svs.camera.getPosition()+oculusTrans-oldOculusTrans);
-			oldOculusTrans = oculusTrans;
 			// apply oculus rotation to our camera
 			static rr::RRVec3 oldOculusRot(0);
 			rr::RRVec3 oculusRot(0);
 			oculusPose.Rotation.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&oculusRot.x,&oculusRot.y,&oculusRot.z);
 			svs.camera.setYawPitchRollRad(rr::RRVec3(svs.camera.getYawPitchRollRad().x + oculusRot.x-oldOculusRot.x, oculusRot.y, oculusRot.z));
 			oldOculusRot = oculusRot;
+			// apply oculus translation to our camera
+			static rr::RRVec3 oldOculusTrans(0);
+			rr::RRVec3 oculusTrans(0);
+			oculusTrans = convertVec3(oculusPose.Translation);
+			svs.camera.setPosition(svs.camera.getPosition()+oculusTrans-oldOculusTrans);
+			oldOculusTrans = oculusTrans;
 			// another way to copy (not add) oculus rotation to camera:
 			//OVR::Quatf q = svframe->oculusFusion.GetPredictedOrientation();
 			//rr::RRVec3 oldpos = svs.camera.getPosition();
