@@ -1595,6 +1595,26 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	else
 	{
 
+		// blend skyboxes
+		if (skyboxBlendingInProgress)
+		{
+			float blend = skyboxBlendingStartTime.secondsPassed()/3;
+			// blending adds small CPU+GPU overhead, so don't blend if not necessary
+			// blend only if 3sec period running && second texture is present && differs from first one
+			if (blend>=0 && blend<=1 && solver->getEnvironment(1) && solver->getEnvironment(0)!=solver->getEnvironment(1))
+			{
+				// blend
+				solver->setEnvironmentBlendFactor(1-blend);
+			}
+			else
+			{
+				// stop blending
+				solver->setEnvironmentBlendFactor(0);
+				skyboxBlendingInProgress = false;
+			}
+		}
+
+
 #ifdef SUPPORT_OCULUS
 		// oculus camera rotation
 		if (svframe->oculusActive())
@@ -1625,25 +1645,6 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			svframe->OnAnyChange(SVFrame::ES_RIFT,NULL,NULL);
 		}
 #endif
-
-		// blend skyboxes
-		if (skyboxBlendingInProgress)
-		{
-			float blend = skyboxBlendingStartTime.secondsPassed()/3;
-			// blending adds small CPU+GPU overhead, so don't blend if not necessary
-			// blend only if 3sec period running && second texture is present && differs from first one
-			if (blend>=0 && blend<=1 && solver->getEnvironment(1) && solver->getEnvironment(0)!=solver->getEnvironment(1))
-			{
-				// blend
-				solver->setEnvironmentBlendFactor(1-blend);
-			}
-			else
-			{
-				// stop blending
-				solver->setEnvironmentBlendFactor(0);
-				skyboxBlendingInProgress = false;
-			}
-		}
 
 
 		// aspect needs update after
