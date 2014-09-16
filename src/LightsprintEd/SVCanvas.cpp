@@ -1951,7 +1951,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 							// enforce screenCenter 0
 							//svs.camera.setScreenCenter(rr::RRVec2(0));
 							// enforce realistic eyeSeparation
-							//svs.camera.eyeSeparation = svframe->oculusHMD->.InterpupillaryDistance; = svframe->oculusHMD->EyeLeft.NoseToPupilInMeters + svframe->oculusHMD->EyeRight.NoseToPupilInMeters;
+							svs.camera.eyeSeparation = ovrHmd_GetFloat(svframe->oculusHMD, OVR_KEY_IPD, svs.camera.eyeSeparation);
 							// enforce realistic FOV
 							//float DistortionScale = 1.3f; // the same constant exists in PluginStereo
 							//svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(DistortionScale*svframe->oculusHMDInfo.VScreenSize/(2*svframe->oculusHMDInfo.EyeToScreenDistance))));
