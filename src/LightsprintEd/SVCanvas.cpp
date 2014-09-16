@@ -159,6 +159,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 #ifdef SUPPORT_OCULUS
 	oculusTexture[0] = NULL;
 	oculusTexture[1] = NULL;
+	oculusRenderingFrame = false;
 #endif
 }
 
@@ -1956,6 +1957,7 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 							//svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(DistortionScale*svframe->oculusHMDInfo.VScreenSize/(2*svframe->oculusHMDInfo.EyeToScreenDistance))));
 
 							ovrHmd_BeginFrame(svframe->oculusHMD,0);
+							oculusRenderingFrame = true;
 						}
 						break;
 #endif // SUPPORT_OCULUS
@@ -2518,8 +2520,9 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 
 #ifdef SUPPORT_OCULUS
-	if (svframe->oculusActive())
+	if (oculusRenderingFrame)
 	{
+		oculusRenderingFrame = false;
 		ovrPosef pose[2];
 		pose[ovrEye_Left] = ovrHmd_GetEyePose(svframe->oculusHMD, ovrEye_Left);
 		pose[ovrEye_Right] = ovrHmd_GetEyePose(svframe->oculusHMD, ovrEye_Right);

@@ -144,6 +144,7 @@ namespace rr_ed
 
 #ifdef SUPPORT_OCULUS
 		rr_gl::Texture*            oculusTexture[2];
+		bool                       oculusRenderingFrame;
 #endif
 
 		LightingIndirect           previousLightIndirect;
