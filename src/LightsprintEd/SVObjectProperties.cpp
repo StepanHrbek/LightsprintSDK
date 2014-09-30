@@ -210,24 +210,14 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		updateHide();
 	}
 	else
-	if (property==propTranslation)
+	if (property==propTranslation || property==propRotation || property==propScale)
 	{
-		rr::RRMatrix3x4 worldMatrix = object->getWorldMatrixRef();
-		RRVec3 newTranslation;
-		newTranslation << property->GetValue();
-		worldMatrix.setTranslation(newTranslation);
-		object->setWorldMatrix(&worldMatrix);
-		object->updateIlluminationEnvMapCenter();
-		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
-	}
-	else
-	if (property==propScale || property==propRotation)
-	{
-		RRVec3 scale;
-		scale << propScale->GetValue();
+		RRVec3 translation;
+		translation << property->GetValue();
 		RRVec3 rotation;
 		rotation << propRotation->GetValue();
-		RRVec3 translation = object->getWorldMatrixRef().getTranslation();
+		RRVec3 scale;
+		scale << propScale->GetValue();
 		rr::RRMatrix3x4 worldMatrix = rr::RRMatrix3x4::rotationByYawPitchRoll(RR_DEG2RAD(rotation));
 		worldMatrix.preScale(scale);
 		worldMatrix.postTranslate(translation);
