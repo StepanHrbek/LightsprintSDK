@@ -44,9 +44,9 @@ void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
 			const rr::RRMatrix3x4 worldMatrix = object->getWorldMatrixRef();
 			AppendIn(propLocation, propCenter = new RRVec3Property(_("World center"),_("Center of object in world space"),_precision,worldMatrix.getTransformedPosition(localCenter)));
 			EnableProperty(propCenter,false);
-			AppendIn(propLocation, propTranslation = new RRVec3Property(_("Translation")+" (m)",_("Translation of object in world space"),_precision,worldMatrix.getTranslation(),10));
-			AppendIn(propLocation, propRotation = new RRVec3Property(_("Rotation")+L" (\u00b0)",_("Yaw/pitch/roll rotation angles"),_precision,RR_RAD2DEG(worldMatrix.getYawPitchRoll()),10));
-			AppendIn(propLocation, propScale = new RRVec3Property(_("Scale"),_("How many times object is bigger than mesh"),_precision,worldMatrix.getScale(),10));
+			AppendIn(propLocation, propTranslation = new RRVec3Property(_("Translation")+" (m)",_("Translation of object in world space"),_precision,rr::RRVec3(0),10));
+			AppendIn(propLocation, propRotation = new RRVec3Property(_("Rotation")+L" (\u00b0)",_("Yaw/pitch/roll rotation angles"),_precision,rr::RRVec3(0),10));
+			AppendIn(propLocation, propScale = new RRVec3Property(_("Scale"),_("How many times object is bigger than mesh"),_precision,rr::RRVec3(1),10));
 
 			// illumination
 			Append(propIllumination = new wxStringProperty(_("Illumination"),wxPG_LABEL));
