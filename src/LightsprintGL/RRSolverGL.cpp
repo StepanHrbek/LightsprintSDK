@@ -722,11 +722,13 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 	{
 		return 0;
 	}
-	if (cube->getWidth()<ENVMAP_RES_RASTERIZED)
-	{
-		return this->RRSolver::updateEnvironmentMap(illumination,layerEnvironment,layerLightmap,layerAmbientMap);
-	}
-	else
+	// we used to automatically switch to RRSolver's implementation,
+	//  but it fills cube with black if internal solver does not exist, some users prefer our implementation that works always
+	//if (cube->getWidth()<ENVMAP_RES_RASTERIZED)
+	//{
+	//	return this->RRSolver::updateEnvironmentMap(illumination,layerEnvironment,layerLightmap,layerAmbientMap);
+	//}
+	//else
 	{
 		// check version numbers, is cube out of date?
 		unsigned solutionVersion = getSolutionVersion();

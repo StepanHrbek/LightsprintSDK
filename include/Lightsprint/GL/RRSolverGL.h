@@ -85,13 +85,11 @@ namespace rr_gl
 		//! rr::RRSolver and call setDirectIllumination() manually before calculate().
 		virtual void calculate(CalculateParameters* params = NULL);
 
-		enum { ENVMAP_RES_RASTERIZED = 32 };
 		//! Calculates and updates object's environment map, stored in given layer of given illumination.
 		//
-		//! If map resolution is below ENVMAP_RES_RASTERIZED, function falls back to default implementation, which is realtime raytracer,
-		//! using only diffuse color, no textures, with indirect illumination taken directly from solver.
-		//! If resolution is ENVMAP_RES_RASTERIZED or higher, function renders map with LightsprintGL's renderer, honouring all light and material properties,
-		//! with indirect illumination taken from buffers in layerLightmap.
+		//! Function renders map with LightsprintGL's renderer, honouring all light and material properties,
+		//! with indirect illumination taken from buffers in layerXxx.
+		//! If your envmap has low resolution (less than approximately 32x32x6), consider calling RRSolver::updateEnvironmentMap() instead, which is faster.
 		virtual unsigned updateEnvironmentMap(rr::RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap);
 
 		//! Realtime lights, set by setLights(). You may modify them freely.

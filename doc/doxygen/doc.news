@@ -38,6 +38,9 @@ CHANGES
   - RRMaterial::Property::colorPhysical added
   - getMultiObjectCustom() and getMultiObjectPhysical() merged into RRSolver::getMultiObject()
   - RRObject::getPointMaterial() has one more parameter (scaler), necessary for filling colorPhysical
+- rr_gl::RRSolverGL::updateEnvironmentMap() implementation never falls back to RRSolver::updateEnvironmentMap()
+  caller should directly call RRSolver::updateEnvironmentMap() if he prefers it over RRSolverGL's version
+  (RRSolverGL builds higher quality envmaps, but RRSolver is much faster for low resolution envmaps)
 
 \section news143 ------------------------------------ 2014.05.06 -------------------------------------
 

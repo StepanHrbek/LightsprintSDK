@@ -748,11 +748,14 @@ namespace rr
 		//!
 		//! Generated environment can be used for illumination of both static and dynamic objects.
 		//!
-		//! Function is fast, suitable for use in realtime applications.
+		//! Function is fast for low resolution cubemaps, suitable for use in realtime applications.
 		//! It is safe to call it often, it returns quickly if it detects that illumination is already up to date.
+		//! For high resolution (more than approximately 32x32x6) envmaps,
+		//! consider calling RRSolverGL::updateEnvironmentMap() instead, it is faster.
 		//!
 		//! Function reads static scene illumination, so don't call it before calculate(), otherwise
-		//! dynamic objects will reflect light from previous frame.
+		//! dynamic objects will reflect light from previous frame, or no light at all.
+		//! If you have to update envmaps before calculate(), use RRSolverGL::updateEnvironmentMap().
 		//!
 		//! Thread safe: yes, may be called from multiple threads at the same time
 		//!  (but there's no need as it uses all cores internally)
