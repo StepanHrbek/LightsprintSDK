@@ -827,7 +827,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 						numBuffersFull++;
 					else
 						numBuffersEmpty++;
-					tc.pixelBuffers[b]->lightmapGrow(_filtering->spreadForegroundColor,_filtering->wrap);
+					tc.pixelBuffers[b]->lightmapGrow(_filtering->spreadForegroundColor,_filtering->wrap,aborting);
 					tc.pixelBuffers[b]->lightmapFillBackground(_filtering->backgroundColor);
 					tc.pixelBuffers[b]->copyElementsTo(allPixelBuffers[b],(b==LS_BENT_NORMALS)?NULL:priv->scaler);
 					allPixelBuffers[b]->version = getSolutionVersion();

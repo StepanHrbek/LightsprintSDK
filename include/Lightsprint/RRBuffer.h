@@ -459,9 +459,11 @@ namespace rr
 		//!  Distance in pixels, how deep into unused regions to grow used colors.
 		//! \param wrap
 		//!  True = grow through lightmap boundaries.
+		//! \param aborting
+		//!  Can be set asynchronously to abort work in progress. When aborted, results are identical to call with lower distance.
 		//! \return
 		//!  True on success, may fail when allocation fails or buffer is not 2d texture.
-		virtual bool lightmapGrow(unsigned distance, bool wrap);
+		virtual bool lightmapGrow(unsigned distance, bool wrap, bool& aborting);
 		//! Fills unused texels in lightmap by backgroundColor.
 		//
 		//! Expects used texels to have alpha>0.

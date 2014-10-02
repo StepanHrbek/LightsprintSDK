@@ -861,7 +861,7 @@ bool RRBuffer::lightmapGrowForBilinearInterpolation(bool _wrap)
 	return notEmpty;
 }
 
-bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap)
+bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap, bool& _aborting)
 {
 	if (!this)
 	{
@@ -903,7 +903,7 @@ bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap)
 	}
 
 	// grow temp
-	while (_numSteps--)
+	while (!_aborting && _numSteps--)
 	{
 		bool changed = false;
 		if (_wrap)
