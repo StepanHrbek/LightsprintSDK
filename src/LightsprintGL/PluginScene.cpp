@@ -509,8 +509,8 @@ public:
 								rr::RRBuffer* cube = illumination.getLayer(_.layerEnvironment);
 								if (cube)
 									countSceneUpdatedCube.count += (cube->getWidth()<32)
-										? _.solver->RRSolver  ::updateEnvironmentMap(&illumination,_.layerEnvironment,_.uberProgramSetup.LIGHT_DIRECT?UINT_MAX:_.layerLightmap,_.uberProgramSetup.LIGHT_DIRECT?_.layerLightmap:UINT_MAX)
-										: _.solver->RRSolverGL::updateEnvironmentMap(&illumination,_.layerEnvironment,_.uberProgramSetup.LIGHT_DIRECT?UINT_MAX:_.layerLightmap,_.uberProgramSetup.LIGHT_DIRECT?_.layerLightmap:UINT_MAX);
+										? _.solver->RRSolver::updateEnvironmentMap(&illumination,_.layerEnvironment,_.uberProgramSetup.LIGHT_DIRECT?UINT_MAX:_.layerLightmap,_.uberProgramSetup.LIGHT_DIRECT?_.layerLightmap:UINT_MAX)
+										: _.solver->          updateEnvironmentMap(&illumination,_.layerEnvironment,_.uberProgramSetup.LIGHT_DIRECT?UINT_MAX:_.layerLightmap,_.uberProgramSetup.LIGHT_DIRECT?_.layerLightmap:UINT_MAX);
 							}
 						}
 					}
