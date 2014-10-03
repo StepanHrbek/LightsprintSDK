@@ -180,9 +180,10 @@ void SVObjectProperties::updateProperties()
 
 	// must be updated after dynamic object dragging
 	updateProperty(propCenter,object->getWorldMatrixRef().getTransformedPosition(localCenter));
-	updateProperty(propTranslation,object->getWorldMatrixRef().getTranslation());
-	updateProperty(propRotation,RR_RAD2DEG(object->getWorldMatrixRef().getYawPitchRoll()));
-	updateProperty(propScale,object->getWorldMatrixRef().getScale());
+	const rr::RRMatrix3x4& worldMatrix = object->getWorldMatrixRef();
+	updateProperty(propTranslation,worldMatrix.getTranslation());
+	updateProperty(propRotation,RR_RAD2DEG(worldMatrix.getYawPitchRoll()));
+	updateProperty(propScale,worldMatrix.getScale());
 }
 
 void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
