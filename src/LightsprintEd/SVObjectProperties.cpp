@@ -213,7 +213,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propTranslation || property==propRotation || property==propScale)
 	{
 		RRVec3 translation;
-		translation << property->GetValue();
+		translation << propTranslation->GetValue();
 		RRVec3 rotation;
 		rotation << propRotation->GetValue();
 		RRVec3 scale;
