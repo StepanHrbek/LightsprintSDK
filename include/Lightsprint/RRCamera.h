@@ -82,7 +82,7 @@ public:
 	//! Predefined camera views.
 	enum View
 	{
-		TOP, BOTTOM, FRONT, BACK, LEFT, RIGHT, RANDOM, OTHER // note: in case of changing order, fix getView()
+		TOP, BOTTOM, FRONT, BACK, LEFT, RIGHT, EXTENTS, RANDOM, OTHER // note: in case of changing order, fix getView()
 	};
 	//! Returns whether camera is in one of predefined orthogonal views, or OTHER if it is not.
 	//! View is detected from direction or yawPitchRollRad, position and range are ignored.

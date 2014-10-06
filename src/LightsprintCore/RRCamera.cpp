@@ -253,77 +253,107 @@ static void generateRandomCamera(const RRSolver* _solver, RRVec3& _pos, RRVec3& 
 
 void RRCamera::setView(RRCamera::View view, const RRSolver* solver)
 {
-	// process RANDOM
-	if (view==RANDOM)
+	switch (view)
 	{
-		orthogonal = false;
-		if (solver)
-		{
-			// generate new values
-			RRVec3 newPos, newDir;
-			float maxDistance;
-			generateRandomCamera(solver,newPos,newDir,maxDistance);
-			// set them
-			pos = newPos;
-			setDirection(newDir);
-			setRange(maxDistance/500,maxDistance);
-		}
-		return;
+		case RANDOM:
+			orthogonal = false;
+			if (solver)
+			{
+				// generate new values
+				RRVec3 newPos, newDir;
+				float maxDistance;
+				generateRandomCamera(solver,newPos,newDir,maxDistance);
+				// set them
+				pos = newPos;
+				setDirection(newDir);
+				setRange(maxDistance/500,maxDistance);
+			}
+			break;
+		case EXTENTS:
+			if (solver)
+			{
+				RRVec3 mini,maxi;
+				solver->getAABB(&mini,&maxi,NULL);
+				pos = (maxi+mini)/2;
+				if (orthogonal)
+				{
+					orthoSize = (maxi-mini).maxi()/2;
+					pos -= getRight() * (getScreenCenter().x * orthoSize) + getUp() * (getScreenCenter().y * orthoSize);
+					afar = (maxi-mini).length();
+					anear = -afar;
+				}
+				else
+				{
+					float dist = (maxi-mini).length() / (RRVec2(tan(getFieldOfViewHorizontalRad()/2),tan(getFieldOfViewVerticalRad()/2)).mini()*2);
+					pos -= (
+						getDirection() +
+						getRight() * (getScreenCenter().x * tan(getFieldOfViewHorizontalRad()/2)) +
+						getUp() * (getScreenCenter().y * tan(getFieldOfViewVerticalRad()/2))
+						) * dist;
+					afar = dist + (maxi-mini).length();
+					anear = afar/1000;
+				}
+				updateView(true,true);
+				updateProjection();
+			}
+			break;
+		case TOP:
+		case BOTTOM:
+		case FRONT:
+		case BACK:
+		case LEFT:
+		case RIGHT:
+			orthogonal = true;
+			yawPitchRollRad[0] = s_viewAngles[view][0];
+			yawPitchRollRad[1] = s_viewAngles[view][1];
+			yawPitchRollRad[2] = s_viewAngles[view][2];
+			if (solver)
+			{
+				RRVec3 mini,maxi;
+				solver->getAABB(&mini,&maxi,NULL);
+				switch (view)
+				{
+					case TOP:
+						orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2])/2;
+						//pos = RRVec3((mini[0]+maxi[0])/2,maxi[1]+orthoSize,(mini[2]+maxi[2])/2);
+						break;
+					case BOTTOM:
+						orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2])/2;
+						//pos = RRVec3((mini[0]+maxi[0])/2,mini[1]-orthoSize,(mini[2]+maxi[2])/2);
+						break;
+					case LEFT:
+						orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2])/2;
+						//pos = RRVec3(mini[0]-orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
+						break;
+					case RIGHT:
+						orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2])/2;
+						//pos = RRVec3(maxi[0]+orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
+						break;
+					case FRONT:
+						orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1])/2;
+						//pos = RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,maxi[2]+orthoSize);
+						break;
+					case BACK:
+						orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1])/2;
+						//pos = RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,mini[2]-orthoSize);
+						break;
+					default:
+						// should not get here, just prevents warning
+						break;
+				}
+				// move pos to center, so that camera rotation keeps object in viewport
+				// user application is advised to stop setting range dynamically
+				pos = (maxi+mini)/2;
+				anear = -(mini-maxi).length()/2;
+				afar = -1.5f*anear;
+			}
+			updateView(true,true);
+			updateProjection();
+			break;
+		default:
+			// should not get here, just prevents warning
+			break;
 	}
-
-	// process OTHER and invalid inputs
-	if (!(view==TOP || view==BOTTOM || view==FRONT || view==BACK || view==LEFT || view==RIGHT))
-	{
-		return;
-	}
-
-	// process TOP, BOTTOM, FRONT, BACK, LEFT, RIGHT
-	orthogonal = true;
-	yawPitchRollRad[0] = s_viewAngles[view][0];
-	yawPitchRollRad[1] = s_viewAngles[view][1];
-	yawPitchRollRad[2] = s_viewAngles[view][2];
-	if (solver)
-	{
-		RRVec3 mini,maxi;
-		solver->getAABB(&mini,&maxi,NULL);
-		switch (view)
-		{
-			case TOP:
-				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2])/2;
-				//pos = RRVec3((mini[0]+maxi[0])/2,maxi[1]+orthoSize,(mini[2]+maxi[2])/2);
-				break;
-			case BOTTOM:
-				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2])/2;
-				//pos = RRVec3((mini[0]+maxi[0])/2,mini[1]-orthoSize,(mini[2]+maxi[2])/2);
-				break;
-			case LEFT:
-				orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2])/2;
-				//pos = RRVec3(mini[0]-orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
-				break;
-			case RIGHT:
-				orthoSize = RR_MAX(maxi[1]-mini[1],maxi[2]-mini[2])/2;
-				//pos = RRVec3(maxi[0]+orthoSize,(mini[1]+maxi[1])/2,(mini[2]+maxi[2])/2);
-				break;
-			case FRONT:
-				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1])/2;
-				//pos = RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,maxi[2]+orthoSize);
-				break;
-			case BACK:
-				orthoSize = RR_MAX(maxi[0]-mini[0],maxi[1]-mini[1])/2;
-				//pos = RRVec3((mini[0]+maxi[0])/2,(mini[1]+maxi[1])/2,mini[2]-orthoSize);
-				break;
-			default:
-				// should not get here, just prevents warning
-				break;
-		}
-		// move pos to center, so that camera rotation keeps object in viewport
-		// user application is advised to stop setting range dynamically
-		pos = (maxi+mini)/2;
-		anear = -(mini-maxi).length()/2;
-		afar = -1.5f*anear;
-	}
-	updateView(true,true);
-	updateProjection();
 }
 
 RRCamera::View RRCamera::getView() const
