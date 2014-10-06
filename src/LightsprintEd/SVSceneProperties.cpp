@@ -41,7 +41,6 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 			propCameraDisplayDistance = new FloatProperty(_("Display distance")+" (m)",_("How distant objects should appear in display plane."),svs.camera.displayDistance,svs.precision,0,1e10,1,false);
 			AppendIn(propCameraStereo,propCameraDisplayDistance);
-
 		}
 
 		// panorama

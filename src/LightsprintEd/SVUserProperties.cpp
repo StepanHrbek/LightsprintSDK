@@ -39,7 +39,6 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 		propStereoSwap->SetHelpString(_("Swaps left and right eye."));
 		SetPropertyEditor(propStereoSwap,wxPGEditor_CheckBox);
 		AppendIn(propStereoMode,propStereoSwap);
-
 	}
 
 	// import
