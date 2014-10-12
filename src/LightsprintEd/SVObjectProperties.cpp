@@ -201,7 +201,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propEnabled)
 	{
-		//svframe->updateSceneTree();
+		svframe->updateSceneTree(); // updates tree [off], but breaks multiselection
 		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
 	}
 	else

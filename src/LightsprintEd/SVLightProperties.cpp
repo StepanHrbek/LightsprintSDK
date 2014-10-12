@@ -225,7 +225,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	wxPGProperty *property = event.GetProperty();
 	if (property==propEnabled)
 	{
-		svframe->updateSceneTree();
+		svframe->updateSceneTree(); // updates tree [off], but breaks multiselection
 	}
 	else
 	if (property==propName)

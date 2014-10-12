@@ -1235,6 +1235,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				for (unsigned i=0;i<selectedLights.size();i++)
 					selectedLights[i]->enabled = actionCode==CM_ENABLE;
 				svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
+				//svframe->updateSceneTree(); // updates tree [off], but breaks multiselection
 				svframe->m_objectProperties->updateProperties(); // update object [ ] enabled
 			}
 			break;
