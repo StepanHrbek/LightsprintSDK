@@ -95,6 +95,8 @@ void SVSceneTree::updateContent(rr_gl::RRSolverGL* solver)
 			rr::RRObject* object = solver->getStaticObjects()[i];
 			wxString name = RR_RR2WX(object->name);
 			if (name.empty()) name = wxString::Format(_("object %d"),i);
+			if (!object->enabled)
+				name += " [" + _("off") + "]";
 			AppendItem(staticObjects,name,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
 		}
 	}
@@ -111,6 +113,8 @@ void SVSceneTree::updateContent(rr_gl::RRSolverGL* solver)
 			rr::RRObject* object = solver->getDynamicObjects()[i];
 			wxString name = RR_RR2WX(object->name);
 			if (name.empty()) name = wxString::Format(_("object %d"),i);
+			if (!object->enabled)
+				name += " [" + _("off") + "]";
 			AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_OBJECT,numStaticObjects+i)));
 		}
 	}
