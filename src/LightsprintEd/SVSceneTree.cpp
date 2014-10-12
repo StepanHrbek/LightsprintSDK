@@ -92,7 +92,8 @@ void SVSceneTree::updateContent(rr_gl::RRSolverGL* solver)
 		unsigned numStaticObjects = solver->getStaticObjects().size();
 		for (unsigned i=0;solver && i<numStaticObjects;i++)
 		{
-			wxString name = RR_RR2WX(solver->getStaticObjects()[i]->name);
+			rr::RRObject* object = solver->getStaticObjects()[i];
+			wxString name = RR_RR2WX(object->name);
 			if (name.empty()) name = wxString::Format(_("object %d"),i);
 			AppendItem(staticObjects,name,-1,-1,new ItemData(EntityId(ST_OBJECT,i)));
 		}
@@ -107,7 +108,8 @@ void SVSceneTree::updateContent(rr_gl::RRSolverGL* solver)
 		unsigned numDynamicObjects = solver->getDynamicObjects().size();
 		for (unsigned i=0;solver && i<numDynamicObjects;i++)
 		{
-			wxString name = RR_RR2WX(solver->getDynamicObjects()[i]->name);
+			rr::RRObject* object = solver->getDynamicObjects()[i];
+			wxString name = RR_RR2WX(object->name);
 			if (name.empty()) name = wxString::Format(_("object %d"),i);
 			AppendItem(dynamicObjects,name,-1,-1,new ItemData(EntityId(ST_OBJECT,numStaticObjects+i)));
 		}
