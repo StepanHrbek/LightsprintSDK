@@ -87,8 +87,8 @@ void SVLightProperties::setLight(rr_gl::RealtimeLight* _rtlight, int _precision)
 		{
 			propTexture = new ImageFileProperty(_("Projected texture or video"),_("Texture or video projected by light. Both color and texture are applied. Type in c@pture to project live video input."));
 			updateString(propTexture,getTextureDescription(light->rtProjectedTexture));
-			propTexture->updateIcon(light->rtProjectedTexture);
 			Append(propTexture);
+			propTexture->updateIcon(light->rtProjectedTexture);
 			//SetPropertyAttribute( _("FileProperty"), wxPG_FILE_WILDCARD, _("All files")+": (*.*)|*.*" );
 
 			propTextureChangeAffectsGI = new wxBoolProperty(_("Realtime GI from projected video"), wxPG_LABEL, rtlight->changesInProjectedTextureAffectGI);
