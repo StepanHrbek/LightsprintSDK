@@ -17,6 +17,7 @@
 #include "SVSceneTree.h"
 #include "SVLog.h"
 #include "wx/aboutdlg.h"
+#include "wx/display.h"
 #include "wx/splash.h"
 #ifdef _WIN32
 	#include <shlobj.h> // SHGetSpecialFolderPath
