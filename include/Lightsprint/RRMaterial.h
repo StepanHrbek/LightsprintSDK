@@ -88,6 +88,10 @@ namespace rr
 			//! We don't enforce any kind of color validation, so you can create unrealistic materials.
 			RRVec3                 color;
 			//! Color converted to physical (linear) scale and validated. Used by GI solvers and our pathtracer.
+			//
+			//! Solver needs it filled, but usually it happens automatically.
+			//! To keep colorPhysical synchronized with color, solver calls RRObjects::updateColorPhysical() on incoming objects.
+			//! Only if you modify color already passed to solver, you need to call RRMaterial::convertToPhysicalScale() to update colorPhysical.
 			RRVec3                 colorPhysical;
 			//! Material property expressed as a texture or video.
 			//
@@ -191,9 +195,9 @@ namespace rr
 		//! but we don't enforce this at all, color stays unchanged.
 		bool          validate(RRReal redistributedPhotonsLimit=0.98f);
 
-		//! Converts material properties from physical to custom scale.
+		//! Converts material properties from physical to custom scale (colorPhysical -> color).
 		void          convertToCustomScale(const RRScaler* scaler);
-		//! Converts material properties from custom to physical scale.
+		//! Converts material properties from custom to physical scale (color -> colorPhysical).
 		void          convertToPhysicalScale(const RRScaler* scaler);
 
 		//! True if renderer needs blending to render the material.
