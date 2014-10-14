@@ -63,12 +63,12 @@ namespace rr
 
 	//! Description of material properties of a surface.
 	//
-	//! It is minimal set of properties needed by global illumination solver,
-	//! so it not necessarily complete material description,
-	//! custom renderer may use additional custom information stored elsewhere.
+	//! It is a set of common material properties relevant for global illumination solver.
+	//! It is not necessarily complete material description,
+	//! custom renderers can use additional custom information stored elsewhere.
 	//!
 	//! Textures are owned and deleted by material.
-	//! To change texture on the fly, delete old one before setting new one.
+	//! To change texture on the fly, delete old one before assigning new one.
 	struct RR_API RRMaterial : public RRUniformlyAllocatedNonCopyable
 	{
 		//! What to do with completely uniform textures (single color).
@@ -306,7 +306,7 @@ namespace rr
 			RRVec3 dirNormal; ///< normalized surface normal
 			RRVec3 dirOut;    ///< normalized direction of leaving light
 			RRVec3 colorOut;  ///< color of leaving light (incoming light is 1)
-			RRReal pdf;       ///< probability distribution function
+			RRReal pdf;       ///< probability density function
 			BrdfType brdfType;///< type of response
 		};
 
