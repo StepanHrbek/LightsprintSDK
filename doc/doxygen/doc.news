@@ -8,16 +8,19 @@ namespace rr
 
 \page main_news What's new
 
-\section news144 ------------------------------------ 2014.06.xx -------------------------------------
+\section news144 ------------------------------------ 2014.10.16 -------------------------------------
 
 NEWS
 
-- pathtracing
-  - additional rendering technique added to portfolio
-  - integrated into SceneViewer (change "Global illumination / Technique" to "Pathtracing")
+- <b>pathtracing</b>
+  - this is early preview, suffers from noise
+  - classical rendering technique added as an option
+  - unbiased, converges to accurate result
+  - much slower than other techniques
+  - integrated into SceneViewer (change "Global illumination / Technique" to "Pathtracing"; note that some options don't work for some techniques)
   - RRSolver::pathTraceFrame() renders single frame
   - RRMaterial::getResponse() and RRMaterial::sampleResponse() provide building blocks for external pathtracers working with Lightsprint data
-- quad buffered stereo support
+- <b>quad buffered stereo support</b>
   - new rr_gl::StereoMode rr_gl::SM_QUAD_BUFFERED
   - sceneViewer() support included (User preferences / Stereo mode)
   - note that GPU vendors put various artificial restrictions on quad buffered stereo; as of writing this
@@ -25,7 +28,7 @@ NEWS
     - Radeon supports quad buffered stereo in fullscreen only, on HD6000 and newer
     - GeForce does NOT support quad buffered stereo
     - Intel does NOT support quad buffered stereo
-- rendering of contours
+- <b>rendering of contours</b>
   - rr_gl::PluginParamsContours
   - silhouettes, creases
 - hiding objects

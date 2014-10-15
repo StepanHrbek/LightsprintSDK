@@ -20,11 +20,11 @@ namespace rr
  - \subpage main_credits
 
  \section root_integrations Integrations
+ - \subpage main_oculus
+ - \subpage main_vs
  - \subpage main_gamebryo3
  - \subpage main_gamebryo26
  - \subpage main_ue3
- - \subpage main_oculus
- - \subpage main_vs
 
  \section root_artists_guide Artist's guide
  - \subpage main_artist_offline
@@ -584,7 +584,7 @@ Material formats (1)
    - Copyright (c) 2013 Oculus VR, Inc. All rights reserved
 
   \section oculus_version Version
-   - version 0.25c is used internally by LightsprintEd library, it's not visible from outside (no headers or dll files)
+   - version 0.4.2 is used internally by LightsprintEd library, it's not visible from outside (no headers or dll files)
 
   \section oculus_build Installing/building LibOVR
    Only for LightsprintEd source code licensees:
@@ -610,7 +610,7 @@ Material formats (1)
 
   \section boost_version Version
    - version 1.55 is used internally by Lightsprint libraries, it's not visible from outside (no headers or dll files)
-   - version known to work without modifications: 1.46 - 1.55
+   - version known to work without modifications: 1.46 - 1.55 (1.56 probably works too, not yet tested)
 
   \section boost_build Installing/building boost
    You need boost when building Ligtsprint libraries from source code,
@@ -2826,7 +2826,8 @@ Material formats (1)
 
   Oculus Rift is one of multiple stereo devices supported, so changing <code>User preferences / Stereo mode</code> to <code>Oculus Rift</code> might be necessary.
 
-  The final step is to switch from window to fullscreen on Oculus display.
+  <b>Temporary problem:</b> Rift display mode "Direct HMD access" does not work, switch to "Extend Desktop" mode.
+  Then switch from window to fullscreen on Oculus display.
   If you duplicate Oculus display on your main display, simply press alt-3 (to switch to window layout 3, which defaults to fullscreen with all panels closed);
   otherwise drag SceneViewer window from your main display to Oculus display first, then press alt-3.
   Later you can return back to layout 1 by alt-1.
@@ -2836,6 +2837,9 @@ Material formats (1)
 
   If you wish to support Oculus Rift outside of our scene viewer, or if you rebuild scene viewer from source code, you need Oculus SDK.
   We don't ship it with Lightsprint SDK, it is up to you to get it and build it ("libovr" library).
+
+  <b>Following examples were written for Oculus SDK 0.3, they no longer apply to Oculus SDK 0.4.
+  We will update this documentation once Oculus SDK stabilizes a bit.</b>
 
   Once you have it, initialize Oculus Rift as usual, see Oculus SDK documentation. \ref oculus_init "Here" you can see how we initialize it.
 
