@@ -206,6 +206,7 @@ public:
 					stereoProgram->sendUniform("mapHalfHeight",float(_sp.viewport[3]/2));
 					TextureRenderer::renderQuad();
 				}
+#if 0 // our distortion code from Oculus SDK 0.3. these SDK 0.4 days we just prepare side-by-side image and let caller ask Oculus SDK to distort it
 				else
 				{
 #ifdef SCALE
@@ -247,6 +248,7 @@ public:
 						TextureRenderer::renderQuad(rightPosition);
 					}
 				}
+#endif // 0
 			}
 		}
 
