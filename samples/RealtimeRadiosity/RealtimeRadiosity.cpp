@@ -2,7 +2,7 @@
 // RealtimeRadiosity sample
 //
 // Shows realtime GI + area light with penumbra shadows + projected video
-// ADDED TO 3RD PARTY SCENE VIEWER.
+// ADDED TO 3RD PARTY 3DS VIEWER.
 //
 // This sample started by taking 3rd party 3ds viewer.
 // Then we added Lightsprint's advanced lighting, with only small changes
@@ -15,7 +15,7 @@
 // see simpler PenumbraShadows sample.
 //
 // However, if we ditch 3rd party code and use Lightsprint SDK functions instead, we get
-// - 5x shorter source code
+// - 5x shorter sample source code
 // - higher quality (translucency, bump maps etc)
 // - higher FPS
 // - see Lightmaps or RealtimeLights samples

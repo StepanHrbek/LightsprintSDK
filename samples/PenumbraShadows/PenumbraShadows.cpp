@@ -2,7 +2,7 @@
 // Penumbra Shadows sample
 //
 // Shows area light with penumbra shadows
-// ADDED TO 3RD PARTY SCENE VIEWER.
+// ADDED TO 3RD PARTY 3DS VIEWER.
 //
 // There is no GI, indirect illumination is approximated by constant ambient.
 // Dynamic objects reflect skybox (visible behind walls).
@@ -17,7 +17,7 @@
 // see more advanced RealtimeRadiosity samples.
 //
 // However, if we ditch 3rd party code and use Lightsprint SDK functions instead, we get
-// - 5x shorter source code
+// - 5x shorter sample source code
 // - higher quality (translucency, bump maps etc)
 // - higher FPS
 // - see Lightmaps or RealtimeLights samples
