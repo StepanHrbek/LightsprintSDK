@@ -142,7 +142,7 @@ Data input / output
 - \subpage supported_formats
 
 Global illumination
-- realtime global illumination / realtime radiosity / realtime raytracing
+- realtime global illumination / realtime radiosity / realtime pathtracing
 - realtime penumbra shadows, soft shadows, RGB shadows, RGB blending
 - realtime color bleeding
 - dynamic lights
@@ -152,7 +152,6 @@ Global illumination
 - supports work distributed in cluster of computers
 - computed and rendered in HDR
 - custom scale on inputs/outputs (HDR/sRGB/other)
-- scene size not limited
 
 \ref inputs_light_sources "Light source formats (inputs)"
 - spot, point, directinal lights
@@ -175,8 +174,10 @@ Lighting computed (outputs)
 - any combination of direct/indirect/global illumination
 
 Renderers
-- integrates with external renderers
 - includes modern extensible OpenGL / OpenGL ES based renderer
+- integrates with external renderers (possibly based on Direct3D, Mantle, Metal etc. not demonstrated in SDK)
+- includes CPU based pathtracer
+- integrates with external pathtracers (demonstrated in SDK)
 
 Stereo rendering
 - side-by-side
@@ -187,12 +188,13 @@ Stereo rendering
 Panorama rendering
 - equirectangular
 - little planet
+- fisheye
 
 Materials
-- supports all types of materials
 - diffuse/specular/emissive/opacity/normalmap/heightmap slots
 - video files and live video capture can be used in all slots
 - index of refraction, shininess/roughness
+- integrations support arbitrary 3rd party materials
 
 Unwrap
 - imports your unwrap
@@ -207,32 +209,15 @@ Realtime/precomputed
 - supports precomputed illumination
 - supports mix of realtime and precomputed illumination
 
-Ray-Mesh collisions
-- up to 200x faster than commercial physical engines
-- small memory footprint, typically 10x smaller than commercial physical engines
-- multithreaded
-- up to 4294967295 vertices in mesh
-- up to 1073741824 triangles in mesh
-- triangle lists/strips/indexed/nonindexed
-- floats, doubles, halfs, ints, shorts
-- custom mesh data structures without data duplication
-- uniform scaling, non uniform scaling
-- singlesided tests, doublesided tests
-- number of sides defined by material
-- return one or gather all collisions
-- custom action at collision
-- returns intersection distance, 2D and 3D position
-- returns normal, plane and face side that was hit
-- high precision, higher than commercial physical engines
-- high reliability, 7 years under heavy load
-
 
 \page supported_formats Supported formats
 
 Scene formats (57+)
-- Gamebryo LightSpeed 3.1.1
-- Gamebryo 2.6 ( *.gsa )
-- Unreal Engine 3
+- Collada 1.4, 1.5 ( *.dae )    <------ if not sure, use Collada, see \subpage collada_plugins
+- integrations
+  - Gamebryo LightSpeed 3.1.1
+  - Gamebryo 2.6 ( *.gsa )
+  - Unreal Engine 3
 - \subpage rr3_specification "Lightsprint ( .rr3 )"
 - 3D GameStudio ( *.mdl;*.hmp )
 - 3D Studio Max ( *.3ds;*.ase )
@@ -243,7 +228,6 @@ Scene formats (57+)
 - Blender ( *.blend )
 - BlitzBasic ( *.b3d )
 - CharacterStudio ( *.csm )
-- Collada ( *.dae )    <------ if not sure, use Collada, see \subpage collada_plugins
 - DirectX ( *.x )
 - iD software
   - Quake I ( *.mdl )
@@ -322,13 +306,17 @@ Video formats (5+)
 
 Material formats (1)
 - \subpage rr3_specification "Lightsprint .rrmaterial" [reading, writing]
+- .mtl [reading]
+
 
 \page supported_platforms Supported platforms
 
- Platforms
+ Full support
  - Windows (XP, Vista, 7, 8, 32bit, 64bit)
  - OSX (10.9, 64bit)
- - Linux (32bit, 64bit)
+ - Linux (32bit, 64bit, tested with Ubuntu, might work with SteamOS and other distros)
+
+ Partial support
  - consoles
 
  GPUs
@@ -337,10 +325,10 @@ Material formats (1)
  - for offline rendering, GPU is not needed
 
  3D APIs
- - OpenGL 2/3/4 (examples included)
- - OpenGL ES 2/3 (examples coming)
- - Direct3D 9/10/11 (no examples in SDK, was integrated with third party Direct3D engines)
- - for offline rendering, 3D API is not needed
+ - OpenGL 2.0 or higher (examples included)
+ - OpenGL ES 2.0 or higher (examples coming)
+ - Direct3D (no examples in SDK, was integrated with third party Direct3D engines)
+ - for baking and pathtracing, 3D API is not needed
 
  Compilers
  - Visual C++ 2013.2 with all security updates (32bit, 64bit)
