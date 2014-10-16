@@ -16,21 +16,19 @@ NEWS
   - this is early preview, suffers from noise
   - classical rendering technique added as an option
   - unbiased, converges to accurate result
-  - much slower than other techniques
+  - interactive, much slower than our realtime GI techniques
   - integrated into SceneViewer (change "Global illumination / Technique" to "Pathtracing"; note that some options don't work for some techniques)
   - RRSolver::pathTraceFrame() renders single frame
   - RRMaterial::getResponse() and RRMaterial::sampleResponse() provide building blocks for external pathtracers working with Lightsprint data
 - <b>quad buffered stereo support</b>
   - new rr_gl::StereoMode rr_gl::SM_QUAD_BUFFERED
   - sceneViewer() support included (User preferences / Stereo mode)
-  - note that GPU vendors put various artificial restrictions on quad buffered stereo; as of writing this
-    - Quadro and FirePro support quad buffered stereo
-    - Radeon supports quad buffered stereo in fullscreen only, on HD6000 and newer
-    - GeForce does NOT support quad buffered stereo
-    - Intel does NOT support quad buffered stereo
 - <b>rendering of contours</b>
   - rr_gl::PluginParamsContours
   - silhouettes, creases
+    <table border=0><tr align=top><td>
+    \image html contours1.jpg
+    </td></tr></table>
 - hiding objects
   - RRObject::enabled, clear this flag to hide object
   - fully implemented only for dynamic objects, hidden static objects might be still visible

@@ -49,22 +49,19 @@ namespace rr
 
   Realistic illumination looks good and attracts more users.
   While direct illumination has been 'solved' by science and software developers of 20th century,
-  global illumination still challenges both sides. \subpage details
-
-  Lightsprint is first to come with physically correct 
-  global illumination synthesis so fast, that it 
-  is suitable not only for precalculations, but also for realtime rendering in dynamic scenes.
+  global illumination still challenges both sides. \subpage more "more"
 
   Lightsprint SDK offers you single flexible API for both realtime global illumination rendering
-  and non-realtime lighting precalculations.
+  and non-realtime baking / precalculations.
 
- \image html lowpoly3.jpg
-  <center>realtime global illumination in scene with dynamic light and dynamic objects</center>
+  It has been used by game developers (L.A.Noire, ...) and visualization software developers (RenderLights, ...) since 2006.
 
+  \image html rl2.jpg
+  <center>image: <a href="http://www.renderlights.com/">RenderLights</a></center>
 
-\page details Details
+\page more Direct vs indirect illumination basics
  In our real world, we see visible light coming mostly from special surfaces 
- (hot wolfram fibre in bulb, luminofor of fluorescent lamp)
+ (LED diode, hot wolfram fibre in lightbulb, luminofor of fluorescent lamp)
  or from whole volumes of plasma (sun, fire).
  We call these surfaces and volumes <b>source of direct illumination</b>.
 
@@ -90,17 +87,14 @@ namespace rr
  most notably shadow mapping, volumetric/stencil shadows and projected/texture based shadows.
 
  There is still problem with indirect illumination, which remains
- hard to be computed quickly.
-
-
+ hard to compute quickly.
 
 
 \page main_scenarios Usage scenarios
 
  \section scenario2 Lightsprint in toolchain, precomputes GI, realtime GI previews
 
-  - Saves months of work to graphics artists and designers,
-    previously spent in lightmap rebuilds or fake light placement.
+  - Saves graphics artists and designers from excessive lightmap rebuilds or fake light placement.
 
   - Realtime GI preview allows artists to find visually more attractive positions / settings for lights.
 
@@ -113,14 +107,12 @@ namespace rr
 
   - Greatly improves realism and visual appeal.
 
-  - Requires zero or minimal level preprocessing, saves time previously spent on infinite levels builds.
+  - Saves time previously spent by rebaking lightmaps on every change.
 
   - Simplifies integration of mods and other user provided assets.
 
   - Supports arbitrary materials / shaders, even those writen by modders
     after game release.
-
-  - Publicity, be first with this level of realism in game.
 
   - See <a href="http://dee.cz/lightsmark">Lightsmark</a>
     as an example, it's a simple demo based on Lightsprint SDK.
@@ -312,9 +304,9 @@ Material formats (1)
 \page supported_platforms Supported platforms
 
  Full support
- - Windows (XP, Vista, 7, 8, 32bit, 64bit)
- - OSX (10.9, 64bit)
- - Linux (32bit, 64bit, tested with Ubuntu, might work with SteamOS and other distros)
+ - Windows (Vista, 7, 8, 32bit, 64bit)
+ - OSX (10.9, 64bit) (we are about to switch to 10.10 soon)
+ - Linux (32bit, 64bit)
 
  Partial support
  - consoles
@@ -525,7 +517,7 @@ Material formats (1)
    - <a href="http://www.wxwidgets.org/about/newlicen.htm">modified LGPL</a>
 
   \section wx_version Version
-   - Windows: wxWidgets trunk svn revision 75875 from 2014-02-13 (\subpage wxwidgets_patch "patched") is used internally by LightsprintEd library, it's not visible from outside (no headers or dll files)
+   - Windows: wxWidgets trunk svn revision 78014 from 2014-10-13 (\subpage wxwidgets_patch "patched") is used internally by LightsprintEd library, it's not visible from outside (no headers or dll files)
    - other platforms: not used
 
   \section wx_building Installing/building
@@ -933,9 +925,9 @@ Material formats (1)
 \page main_artist_realtime Realtime GI
 
   Realtime lighting using dynamic lights is a mainstream approach today,
-  however its realism was always
-  severely limited by lack of properly computed indirect light.
-  \n Lightsprint solved realtime global illumination problem (see \ref samples_realtime "samples").
+  however its realism was always severely limited by lack of properly computed indirect light.
+  \n Lightsprint solves this realtime global illumination problem (see \ref samples_realtime "samples"),
+  however, quality suffers in presence of certain geometry "errors", so you might have to clean up your geometry.
   \n Following hints help you get good performance and quality in your projects.
 
   For purpose of realtime GI calculation, we expect scene split in two parts, static and dynamic.

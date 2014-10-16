@@ -20,7 +20,15 @@ enum StereoMode
 	SM_SIDE_BY_SIDE     =2, ///< left half is left eye \image html stereo_sidebyside.jpg
 	SM_TOP_DOWN         =3, ///< top half is left eye \image html stereo_topdown.jpg
 	SM_OCULUS_RIFT      =4, ///< for Oculus Rift with SDK 0.4+, later call Oculus SDK to distort image \image html stereo_oculus.jpg
-	SM_QUAD_BUFFERED    =5, ///< quad buffered stereo, GL_BACK_RIGHT+GL_BACK_LEFT
+
+	//! quad buffered stereo, GL_BACK_RIGHT+GL_BACK_LEFT
+	//
+	//! note that GPU vendors put various artificial restrictions on quad buffered stereo; as of writing this
+	//! - Quadro and FirePro support quad buffered stereo
+	//! - Radeon supports quad buffered stereo in fullscreen only, on HD6000 and newer
+	//! - GeForce does NOT support quad buffered stereo
+	//! - Intel does NOT support quad buffered stereo
+	SM_QUAD_BUFFERED    =5,
 };
 
 /////////////////////////////////////////////////////////////////////////////

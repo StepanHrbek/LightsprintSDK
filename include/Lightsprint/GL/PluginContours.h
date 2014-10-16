@@ -18,6 +18,10 @@ namespace rr_gl
 // Contours plugin
 
 //! Adds contours on top of scene render (next plugin).
+//
+//! <table border=0><tr align=top><td>
+//! \image html contours1.jpg
+//! </td></tr></table>
 class RR_GL_API PluginParamsContours : public PluginParams
 {
 public:
