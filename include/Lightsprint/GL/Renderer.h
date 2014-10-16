@@ -49,6 +49,7 @@ public:
 //! You can easily add custom plugins to add functionality.
 //! For a complete list of our plugins, see PluginParams.
 //!
+//! <b>Plugin capabilities</b> \n
 //! With our plugins, you can render
 //! - realtime global illumination from lights, emissive materials, sky, custom sources
 //! - unlimited number of realtime lights
@@ -69,9 +70,11 @@ public:
 //!   - transparency: none, constant, per pixel / blend or 1bit alpha keying
 //!   - bump: normal map, height map with parallax mapping
 //!
-//! Minimal requirements: OpenGL 2.0 or OpenGL ES 2.0.
+//! <b>Plugin requirements</b> \n
+//! Minimal requirements for existing plugins: OpenGL 2.0 or OpenGL ES 2.0.
 //! 3.x and 4.x functions are used when available, for higher quality and speed.
 //!
+//! <b>How plugins call each other</b> \n
 //! Each plugin is expected to call next plugin in chain at some point, but it is free to decide when to call it,
 //! how many times to call it, and what plugin parameters to modify.
 //! So for example
@@ -80,6 +83,7 @@ public:
 //! - PluginStereo calls next plugin once for left eye, once for right eye.
 //! - PluginCube calls next plugin 6 times, once for each side of given cubemap.
 //!
+//! <b>Plugin order</b> \n
 //! When creating plugin chain, you are free to change order of plugins to create various effects.
 //! If not sure, use this order of standard plugins:
 //! - PluginParamsSky
@@ -96,6 +100,33 @@ public:
 //! - PluginParamsToneMappingAdjustment
 //! - PluginParamsFPS
 //! - PluginParamsShowDDI
+//!
+//! <b>Using plugins</b> \n
+//! Example of calling renderer with plugin chain (see samples for complete code):
+//! \code
+//! // declare first plugin in chain, to render skybox on background
+//! PluginParamsSky ppSky(NULL,solver);
+//!
+//! // declare second plugin, to render objects over background
+//! PluginParamsScene ppScene(&ppSky,solver);
+//! ppScene.foo = bar; // (set additional parameters)
+//!
+//! // declare third plugin, to add SSGI postprocess on top
+//! PluginParamsSSGI ppSSGI(&ppScene,1,0.3f,0.1f);
+//!
+//! // declare parameters shared by all plugins
+//! PluginParamsShared ppShared;
+//! ppShared.foo = bar; // (set additional parameters)
+//!
+//! // here we just run the last plugins in chain to do its work (third plugin calls second plugin etc)
+//! solver->getRenderer()->render(&ppSSGI,ppShared);
+//! \endcode
+//!
+//! <b>Creating plugins</b> \n
+//! Creating new plugins is easy as well.
+//! Plugins contain virtually no boilerplate code, they are just constructor, render() function and destructor.
+//! For source code licensee, it is recommended to take source code of one of plugins and modify it.
+
 class RR_GL_API Renderer : public rr::RRUniformlyAllocatedNonCopyable
 {
 public:

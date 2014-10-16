@@ -224,7 +224,7 @@ namespace rr
 		//! Optional name of the object.
 		RRString name;
 
-		//! Disabled object becomes invisible for renderer.
+		//! Disabled object becomes invisible for renderer. Not fully implemented for static objects, disabled static object might stay visible.
 		bool enabled;
 
 		//! Is this object dynamic = is it safe to modify it?

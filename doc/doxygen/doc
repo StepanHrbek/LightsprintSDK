@@ -621,8 +621,7 @@ Material formats (1)
   \section boost_remove Removing boost
    Boost is good, but if you really must build Lightsprint SDK without it, do
    - delete <code>\#define SUPPORT_ASSIMP</code> and <code>\#define SUPPORT_LIGHTSPRINT</code> in <code>src/LightsprintIO/supported_formats.h</code>
-   - replace all boost/unordered_set and boost/unordered_map with similar classes supported by your compiler (e.g. hash_set and hash_map)
-   - replace boost::filesystem with C++ TR2 equivalents, or with similar functions supported by your compiler
+   - replace boost::filesystem with C++ TR2 equivalents, or with similar functions supported by your compiler (it is planned for inclusion in C++17, see https://isocpp.org/std/status)
    - few more places might need tweak
 
 \page tpl_assimp Assimp
@@ -2826,10 +2825,8 @@ Material formats (1)
 
   Oculus Rift is one of multiple stereo devices supported, so changing <code>User preferences / Stereo mode</code> to <code>Oculus Rift</code> might be necessary.
 
-  <b>Temporary problem:</b> Rift display mode "Direct HMD access" does not work, switch to "Extend Desktop" mode.
-  Then switch from window to fullscreen on Oculus display.
-  If you duplicate Oculus display on your main display, simply press alt-3 (to switch to window layout 3, which defaults to fullscreen with all panels closed);
-  otherwise drag SceneViewer window from your main display to Oculus display first, then press alt-3.
+  Recently introduced Rift display mode <b>"Direct HMD access"</b> is not yet supported, switch to <b>"Extend Desktop"</b> mode.
+  Then drag SceneViewer window to be mostly on Oculus part of desktop, and press alt-3 (to switch to window layout 3, which defaults to fullscreen with all panels closed).
   Later you can return back to layout 1 by alt-1.
   Alternatively you can manually close all panels and toggle fullscreen by F11.
 

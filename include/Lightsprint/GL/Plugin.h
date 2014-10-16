@@ -36,6 +36,9 @@ public:
 // PluginParams
 
 //! Parameters sent to plugins at render time. This is base class, plugins extend it, add custom parameters.
+//
+//! Using plugins is very simple,
+//! see rr_gl::Renderer page for details.
 class RR_GL_API PluginParams
 {
 public:
