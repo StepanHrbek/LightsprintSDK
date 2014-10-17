@@ -51,10 +51,13 @@ namespace rr
   While direct illumination has been 'solved' by science and software developers of 20th century,
   global illumination still challenges both sides. \subpage more "more"
 
-  Lightsprint SDK offers you single flexible API for both realtime global illumination rendering
-  and non-realtime baking / precalculations.
+  Basically three approaches exist
+  - realtime global illumination rendering, with some restrictions
+  - interactive global illumination, without limits, but at reduced speed
+  - precalculating/baking GI, which makes scene more static
 
-  It has been used by game developers (L.A.Noire, ...) and visualization software developers (RenderLights, ...) since 2006.
+  Lightsprint SDK offers you single flexible API for all three approaches.
+  It has been used by game developers and visualization software developers since 2006.
 
   \image html rl2.jpg
   <center>image: <a href="http://www.renderlights.com/">RenderLights</a></center>
@@ -490,7 +493,7 @@ Material formats (1)
 \page tpl_embree embree
   - www: <a href="http://embree.github.io/">embree</a>
   - license: <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>
-  - precompiled version from 2014-03-19 git master is a part of SDK
+  - precompiled version from 2014-10 git master is a part of SDK
   - used for ray-mesh intersections, we can replace it with our own collider if necessary
 
 \page tpl_glew GLEW
@@ -764,9 +767,9 @@ Material formats (1)
 
  \section deploy_setup Setup
 
-  Lightsprint SDK does not need any setup, environment variables,
-  registry entries etc.
+  Lightsprint SDK does not need any setup, environment variables, registry entries etc.
   It works from any location in filesystem (local disk or network).
+  \n Only source code licensees might need few environment variables for build system to locate \ref main_credits.
 
  \section deploy_programmers Deployment - game programmers
 
