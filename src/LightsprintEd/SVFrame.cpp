@@ -891,22 +891,39 @@ void SVFrame::saveScreenshot(rr::RRBuffer* sshot)
 	// fix empty filename
 	if (userPreferences.sshotFilename.empty())
 	{
-		char screenshotFilename[1000]=".";
-#ifdef _WIN32
-		SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
-#endif
-		userPreferences.sshotFilename = screenshotFilename;
 		time_t t = time(NULL);
-		userPreferences.sshotFilename += wxString::Format("/screenshot%04d.jpg",(int)(t%10000));
+		userPreferences.sshotFilename += wxString::Format("screenshot%04d.jpg",(int)(t%10000));
+	}
+
+	// if path is relative, prepend scene dir
+	wxString finalFilename = userPreferences.sshotFilename;
+	if (bf::path(RR_WX2PATH(finalFilename)).is_relative())
+	{
+		bf::path tmp(RR_WX2PATH(svs.sceneFilename));
+		tmp.remove_filename();
+#ifdef _WIN32
+		// if scene dir is empty, prepend desktop dir
+		if (tmp.empty())
+		{
+			// there is nothing like wxStandardPaths::Get().GetDesktopDir()
+			char screenshotFilename[1000]=".";
+			SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
+			tmp = screenshotFilename;
+		}
+#endif
+		tmp /= RR_WX2PATH(finalFilename);
+		finalFilename = RR_PATH2WX(tmp);
 	}
 
 	// save
 	rr::RRBuffer::SaveParameters saveParameters;
 	saveParameters.jpegQuality = 100;
-	if (sshot->save(RR_WX2RR(userPreferences.sshotFilename),NULL,&saveParameters))
-		rr::RRReporter::report(rr::INF2,"Saved %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
+	if (sshot->save(RR_WX2RR(finalFilename),NULL,&saveParameters))
+		rr::RRReporter::report(rr::INF2,"Saved %ls.\n",RR_WX2WCHAR(finalFilename));
 	else
-		rr::RRReporter::report(rr::WARN,"Error: Failed to save %ls.\n",RR_WX2WCHAR(userPreferences.sshotFilename));
+	{
+		rr::RRReporter::report(rr::WARN,"Error: Failed to save %ls.\n",RR_WX2WCHAR(finalFilename));
+	}
 
 	// increment filename
 	incrementFilename(userPreferences.sshotFilename);
