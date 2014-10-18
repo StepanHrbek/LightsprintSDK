@@ -249,6 +249,7 @@ struct SceneViewerState
 		panoramaFovDeg = 180;
 		renderDof = false;
 		dofAccumulated = true;
+		dofApertureShapeFilename.clear();
 		dofAutomaticFocusDistance = false;
 		renderLightDirect = true;
 		renderLightIndirect = LI_REALTIME_FIREBALL;
