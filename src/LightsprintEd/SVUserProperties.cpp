@@ -97,7 +97,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 		SetPropertyReadOnly(propSshot,true,wxPG_DONT_RECURSE);
 
 		propSshotFilename = new wxFileProperty(_("Filename"),wxPG_LABEL,userPreferences.sshotFilename);
-		propSshotFilename->SetHelpString(_("Filename, is automatically incremented on save."));
+		propSshotFilename->SetHelpString(_("Filename (in current scene folder) or full path. It is automatically incremented on save."));
 		AppendIn(propSshot,propSshotFilename);
 
 		// enhanced
