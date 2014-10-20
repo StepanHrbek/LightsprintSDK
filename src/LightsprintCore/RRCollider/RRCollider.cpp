@@ -37,6 +37,7 @@ class EmbreeCollider : public RRCollider
 {
 	const RRMesh* rrMesh;
 	RTCScene rtcScene;
+	RRCollider::IntersectTechnique technique;
 
 	struct Ray : public RTCRay
 	{
@@ -145,6 +146,7 @@ public:
 
 		rrMesh = _mesh;
 		rtcScene = rtcNewScene( RTC_SCENE_DYNAMIC | ((_technique==IT_BVH_COMPACT) ? (RTC_SCENE_INCOHERENT|RTC_SCENE_COMPACT) : RTC_SCENE_INCOHERENT), RTC_INTERSECT1);
+		technique = _technique;
 		loadMesh(rtcScene,_mesh);
 		rtcCommit(rtcScene);
 	}
@@ -195,7 +197,7 @@ public:
 
 	virtual IntersectTechnique getTechnique() const
 	{
-		return (IntersectTechnique)10;
+		return technique;
 	}
 
 	virtual size_t getMemoryOccupied() const
