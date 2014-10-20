@@ -392,7 +392,11 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 
 	if (!builder)
 	{
-		RRReporter::report(ERRO,"No builder registered for IntersectTechnique %d.\n",(int)intersectTechnique);
+		char tmp[300] = "";
+		for (std::map<unsigned,RRCollider::Builder*>::const_iterator i=s_builders.begin();i!=s_builders.end();++i)
+			if (strlen(tmp)<270)
+				sprintf(tmp+strlen(tmp)," %d",(unsigned)i->first);
+		RRReporter::report(ERRO,"No builder registered for IntersectTechnique %d. Registered builders:%s.\n",(int)intersectTechnique,tmp);
 		return NULL;
 	}
 
