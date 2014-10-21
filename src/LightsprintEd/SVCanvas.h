@@ -49,9 +49,9 @@ namespace rr_ed
 		// set context, paint, swap, catch exceptions
 		void OnPaint(wxPaintEvent& event);
 		// paints to current buffer, may be called from outside to paint hires screenshot to texture
-		void Paint(bool takingSshot, const wxString& extraMessage);
-		// helper
-		void PaintCore(bool takingSshot, const wxString& extraMessage);
+		bool Paint(bool takingSshot, const wxString& extraMessage);
+		// helper, returns true if swapBuffers was already called (by oculus)
+		bool PaintCore(bool takingSshot, const wxString& extraMessage);
 
 		void OnSize(wxSizeEvent& event);
 		void OnSizeCore(bool force);
@@ -65,7 +65,7 @@ namespace rr_ed
 		void OnIdle(wxIdleEvent& event);
 
 
-		bool                       renderEmptyFrames;
+		unsigned                   renderEmptyFrames; // how many empty frames to render before starting the real thing
 		// public only for SVFrame::selectEntity()
 		rr_gl::RRSolverGL*  solver;
 		EntityType                 selectedType;

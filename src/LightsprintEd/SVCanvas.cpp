@@ -97,7 +97,7 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
 	(_svframe->userPreferences.stereoMode==rr_gl::SM_QUAD_BUFFERED) ? s_attribListQuad : s_attribList,
 		wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE|wxWANTS_CHARS, "GLCanvas"), svs(_svs)
 {
-	renderEmptyFrames = false;
+	renderEmptyFrames = UINT_MAX;
 	context = NULL;
 	svframe = _svframe;
 	solver = NULL;
@@ -1481,13 +1481,24 @@ static void drawTriangle(rr::RRMesh::TriangleBody body)
 
 void SVCanvas::OnPaint(wxPaintEvent& event)
 {
-	if (exitRequested || !fullyCreated || !winWidth || !winHeight)
+	if (exitRequested || !winWidth || !winHeight)
 		return;
 
 	wxPaintDC dc(this);
 
 	if (!context) return;
 	SetCurrent(*context);
+
+	if (renderEmptyFrames || !fullyCreated)
+	{
+		glClearColor(0.31f,0.31f,0.31f,0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0,0,0,0);
+		if (renderEmptyFrames)
+			renderEmptyFrames--;
+		SwapBuffers();
+		return;
+	}
 
 	svframe->AfterPaneOpenClose();
 
@@ -1535,22 +1546,19 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		svframe->simulateSun();
 	}
 
-	Paint(false,"");
-
-	// done
-#ifdef SUPPORT_OCULUS
-	if (!svframe->oculusActive()) // oculus ovrHmd_EndFrame() at the end of Paint() replaces SwapBuffers
-#endif
-	SwapBuffers();
+	bool swapBuffersAlreadyCalled = Paint(false,"");
+	if (!swapBuffersAlreadyCalled)
+		SwapBuffers();
 }
 
-void SVCanvas::Paint(bool _takingSshot, const wxString& extraMessage)
+bool SVCanvas::Paint(bool _takingSshot, const wxString& extraMessage)
 {
+	bool result = false;
 #ifdef _MSC_VER
 	__try
 	{
 #endif
-		PaintCore(_takingSshot,extraMessage);
+		result = PaintCore(_takingSshot,extraMessage);
 #ifdef _MSC_VER
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER)
@@ -1561,21 +1569,15 @@ void SVCanvas::Paint(bool _takingSshot, const wxString& extraMessage)
 		glClearColor(0,0,0,0);
 	}
 #endif
+	return result;
 }
 
 
-void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
+bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 {
 	rr::RRReportInterval report(rr::INF3,"display...\n");
-	if (renderEmptyFrames)
-	{
-		glClearColor(0.31f,0.31f,0.31f,0);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glClearColor(0,0,0,0);
-		SwapBuffers();
-		return;
-	}
-	if (exitRequested || !winWidth || !winHeight) return; // can't display without window
+	bool result = false;
+	if (exitRequested || !fullyCreated || !winWidth || !winHeight) return result; // can't display without window
 	if (svs.renderLightmaps2d)
 	{
 		if (solver->getObject(svs.selectedObjectIndex))
@@ -2544,11 +2546,14 @@ void SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		rr_gl::PreserveScissor p2;
 		rr_gl::PreserveFrontFace p3;
 		ovrHmd_EndFrame(svframe->oculusHMD,pose,tex);
+		result = true; // SwapBuffers was just called from ovrHmd_EndFrame
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0); // at least this one is necessary for RL
 	}
 #endif
 
+
+	return result;
 }
 
 
