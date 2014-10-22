@@ -867,7 +867,7 @@ extern bool getFactor(wxWindow* parent, float& factor, const wxString& message, 
 struct ClickInfo
 {
 	rr::RRTime time;
-	int mouseX;
+	int mouseX; // click coord in canvas, 0..n, n might be >=winWidth
 	int mouseY;
 	bool mouseLeft;
 	bool mouseRight;
@@ -2129,6 +2129,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				glEnd();
 				glLineWidth(1);
 			}
+
 
 			// render grid, using previously set shader
 			if (svs.renderGrid)
