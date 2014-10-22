@@ -1228,7 +1228,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 		svframe->OnAnyChange(SVFrame::ES_MOUSE_MID_MOVEMENT,NULL,&event);
 	}
-	if (!event.ButtonDown() && !event.Dragging())
+	if (!event.ButtonDown() && !event.Dragging()
+		&& !event.LeftIsDown() && !event.MiddleIsDown() && !event.RightIsDown()) // when dragging leaves window, event arrives with LeftIsDown() && !Dragging(). this makes dragging survive such event
 	{
 		if (s_ciRelevant)
 			svframe->OnAnyChange(SVFrame::ES_MOUSE_END,NULL,&event);
