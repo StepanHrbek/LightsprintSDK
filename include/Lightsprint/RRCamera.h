@@ -217,11 +217,9 @@ public:
 	// other tools
 	//////////////////////////////////////////////////////////////////////////////
 
-	//! Converts world space position (3d) to position in window (2d).
-	//
-	//! positionInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
-	//! z=0 is in near plane, z=1 is in far plane.
-	RRVec3 getPositionInWindow(RRVec3 worldPosition) const;
+	//! Converts world space position to normalized device coordinates (left top near viewport corner in -1,-1,0, right bottom far viewport corner in 1,1,1)
+	RRVec3 getPositionInViewport(RRVec3 worldPosition) const;
+
 	//! Converts position in window (2d) to world space ray origin (3d), suitable for raycasting screen pixels.
 	//! positionInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
 	RRVec3 getRayOrigin(RRVec2 positionInWindow) const;

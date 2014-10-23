@@ -59,7 +59,7 @@ void SVEntities::markSelected(const EntityIds& selectedEntityIds)
 
 void SVEntities::addXYZ(rr::RRVec3 center, IconCode transformation, const rr::RRCamera& eye)
 {
-	float size1 = (eye.getPositionInWindow(center+eye.getRight()*iconSize)-eye.getPositionInWindow(center)).RRVec2::length()*2;
+	float size1 = (eye.getPositionInViewport(center+eye.getRight()*iconSize)-eye.getPositionInViewport(center)).RRVec2::length()*2;
 	float size2 = RR_CLAMPED(size1,0.02f,0.2f);
 	float adjustedIconSize = iconSize*size2/size1;
 
@@ -157,7 +157,7 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 		unsigned counter = 0;
 		for (unsigned i=0;i<entities.size();i++)
 		{
-			rr::RRVec2 piwCenter = eye.getPositionInWindow(entities[i].position); // in -1..1 range
+			rr::RRVec2 piwCenter = eye.getPositionInViewport(entities[i].position); // in -1..1 range
 			rr::RRVec3 rayVisibleOrigin = eye.getRayOrigin(piwCenter) + eye.getRayDirection(piwCenter)*eye.getNear();
 			rr::RRVec3 rayDir = entities[i].position-rayVisibleOrigin;
 			if (eye.getDirection().dot( rayDir.normalized() )>0) // is in front of camera?
@@ -179,7 +179,7 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 				static rr::RRTime time;
 				float brightness = entities[i].selected ? 1+fabs(fmod((float)(time.secondsPassed()),1.0f)) : (entities[i].bright?1:0.3f);
 				rr::RRVec4 color(brightness,brightness,brightness,visible?1.0f:0.5f);
-				float size1 = (rr::RRVec2(eye.getPositionInWindow(entities[i].position+eye.getRight()*entities[i].iconSize))-piwCenter).length()*2;
+				float size1 = (rr::RRVec2(eye.getPositionInViewport(entities[i].position+eye.getRight()*entities[i].iconSize))-piwCenter).length()*2;
 				float size2 = RR_CLAMPED(size1,0.02f,0.2f);
 				rr::RRVec2 piwSize = rr::RRVec2(1,eye.getAspect()) * size2;
 				rr::RRVec4 piwRectangle(piwCenter.x-piwSize.x/2,piwCenter.y-piwSize.y/2,piwSize.x,piwSize.y); // in -1..1 range

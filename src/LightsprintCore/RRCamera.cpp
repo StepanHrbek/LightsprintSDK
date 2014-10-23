@@ -873,7 +873,7 @@ void RRCamera::blendAkima(unsigned numSamples, const RRCamera** samples, float* 
 //
 // other tools
 
-RRVec3 RRCamera::getPositionInWindow(RRVec3 worldPosition) const
+RRVec3 RRCamera::getPositionInViewport(RRVec3 worldPosition) const
 {
 	double tmp[4],out[4];
 	for (int i=0; i<4; i++) tmp[i] = worldPosition[0] * viewMatrix[0*4+i] + worldPosition[1] * viewMatrix[1*4+i] + worldPosition[2] * viewMatrix[2*4+i] + viewMatrix[3*4+i];

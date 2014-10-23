@@ -8,6 +8,14 @@ namespace rr
 
 \page main_news What's new
 
+\section news145 ------------------------------------ 2014.xx.xx -------------------------------------
+
+NEWS
+
+CHANGES
+
+- RRCamera::getPositionInViewport() replaces RRCamera::getPositionInWindow(), returns also depth
+
 \section news144 ------------------------------------ 2014.10.16 -------------------------------------
 
 NEWS

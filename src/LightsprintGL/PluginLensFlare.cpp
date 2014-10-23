@@ -158,7 +158,7 @@ public:
 			if (light && light->enabled && light->type==rr::RRLight::DIRECTIONAL && light->direction.y<=0)
 			{
 				// is it on screen?
-				rr::RRVec2 lightPositionInWindow = _sp.camera->getPositionInWindow(_sp.camera->getPosition()-light->direction*1e10f);
+				rr::RRVec2 lightPositionInWindow = _sp.camera->getPositionInViewport(_sp.camera->getPosition()-light->direction*1e10f);
 				if (_sp.camera->getDirection().dot(light->direction)<0 && lightPositionInWindow.x>-1 && lightPositionInWindow.x<1 && lightPositionInWindow.y>-1 && lightPositionInWindow.y<1)
 				{
 					if (!pp.scene)
@@ -194,7 +194,7 @@ public:
 						if (transparency>0.15f) // hide tiny flares, they jump randomly when looking through tree
 						{
 							// move flare a bit if light is half occluded
-							lightPositionInWindow = _sp.camera->getPositionInWindow(_sp.camera->getPosition()-dirSum*1e10f);
+							lightPositionInWindow = _sp.camera->getPositionInViewport(_sp.camera->getPosition()-dirSum*1e10f);
 
 							renderLensFlare(pp.flareSize*transparency,pp.flareId,_renderer.getTextureRenderer(),_sp.camera->getAspect(),lightPositionInWindow);
 						}
