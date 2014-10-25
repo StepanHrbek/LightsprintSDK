@@ -217,7 +217,7 @@ public:
 	// other tools
 	//////////////////////////////////////////////////////////////////////////////
 
-	//! Converts world space position to normalized device coordinates (left top near viewport corner in -1,-1,0, right bottom far viewport corner in 1,1,1)
+	//! Converts world space position to normalized device coordinates (left top near viewport corner in -1,-1,-1, right bottom far viewport corner in 1,1,1)
 	RRVec3 getPositionInViewport(RRVec3 worldPosition) const;
 
 	//! Converts position in window (2d) to world space ray origin (3d), suitable for raycasting screen pixels.
