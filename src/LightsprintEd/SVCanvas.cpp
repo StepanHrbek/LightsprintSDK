@@ -2534,8 +2534,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	{
 		oculusRenderingFrame = false;
 		ovrPosef pose[2];
-		pose[ovrEye_Left] = ovrHmd_GetEyePose(svframe->oculusHMD, ovrEye_Left);
-		pose[ovrEye_Right] = ovrHmd_GetEyePose(svframe->oculusHMD, ovrEye_Right);
+		pose[ovrEye_Left] = ovrHmd_GetHmdPosePerEye(svframe->oculusHMD, ovrEye_Left);
+		pose[ovrEye_Right] = ovrHmd_GetHmdPosePerEye(svframe->oculusHMD, ovrEye_Right);
 		ovrTexture tex[2];
 		tex[0].Header.API = ovrRenderAPI_OpenGL;
 		tex[0].Header.TextureSize.w = winWidth;
