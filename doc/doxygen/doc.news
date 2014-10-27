@@ -14,6 +14,7 @@ NEWS
 
 CHANGES
 
+- RRCamera::setView() has more parameters, lets you zoom to whole scene or selected area
 - RRCamera::getPositionInViewport() replaces RRCamera::getPositionInWindow(), returns also depth
 
 \section news144 ------------------------------------ 2014.10.16 -------------------------------------

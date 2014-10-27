@@ -251,18 +251,33 @@ static void generateRandomCamera(const RRSolver* _solver, RRVec3& _pos, RRVec3& 
 	delete superObject;
 }
 
-void RRCamera::setView(RRCamera::View view, const RRSolver* solver)
+void RRCamera::setView(RRCamera::View _view, const RRSolver* _solver, const RRVec3* _mini, const RRVec3* _maxi)
 {
-	switch (view)
+	// find out extents
+	RRVec3 mini(0),maxi(0);
+	if (_solver)
+	{
+		_solver->getAABB(&mini,&maxi,NULL);
+	}
+	else
+	if (_mini && _maxi && *_mini!=*_maxi)
+	{
+		mini = *_mini;
+		maxi = *_maxi;
+	}
+	bool knownExtents = maxi.x>mini.x && maxi.y>mini.y && maxi.z>mini.z;
+
+	// configure camera
+	switch (_view)
 	{
 		case RANDOM:
 			orthogonal = false;
-			if (solver)
+			if (_solver)
 			{
 				// generate new values
 				RRVec3 newPos, newDir;
 				float maxDistance;
-				generateRandomCamera(solver,newPos,newDir,maxDistance);
+				generateRandomCamera(_solver,newPos,newDir,maxDistance);
 				// set them
 				pos = newPos;
 				setDirection(newDir);
@@ -270,10 +285,8 @@ void RRCamera::setView(RRCamera::View view, const RRSolver* solver)
 			}
 			break;
 		case EXTENTS:
-			if (solver)
+			if (knownExtents)
 			{
-				RRVec3 mini,maxi;
-				solver->getAABB(&mini,&maxi,NULL);
 				pos = (maxi+mini)/2;
 				if (orthogonal)
 				{
@@ -284,7 +297,8 @@ void RRCamera::setView(RRCamera::View view, const RRSolver* solver)
 				}
 				else
 				{
-					float dist = (maxi-mini).length() / (RRVec2(tan(getFieldOfViewHorizontalRad()/2),tan(getFieldOfViewVerticalRad()/2)).mini()*2);
+					// 0.2 is compensation for the worst corner case, scene made of single axis aligned cube
+					float dist = (maxi-mini).length() * ( 0.2f + 1 / (RRVec2(tan(getFieldOfViewHorizontalRad()/2),tan(getFieldOfViewVerticalRad()/2)).mini()*2) );
 					pos -= (
 						getDirection() +
 						getRight() * (getScreenCenter().x * tan(getFieldOfViewHorizontalRad()/2)) +
@@ -303,15 +317,13 @@ void RRCamera::setView(RRCamera::View view, const RRSolver* solver)
 		case BACK:
 		case LEFT:
 		case RIGHT:
-			orthogonal = true;
-			yawPitchRollRad[0] = s_viewAngles[view][0];
-			yawPitchRollRad[1] = s_viewAngles[view][1];
-			yawPitchRollRad[2] = s_viewAngles[view][2];
-			if (solver)
+			yawPitchRollRad[0] = s_viewAngles[_view][0];
+			yawPitchRollRad[1] = s_viewAngles[_view][1];
+			yawPitchRollRad[2] = s_viewAngles[_view][2];
+			if (knownExtents)
 			{
-				RRVec3 mini,maxi;
-				solver->getAABB(&mini,&maxi,NULL);
-				switch (view)
+				orthogonal = true;
+				switch (_view)
 				{
 					case TOP:
 						orthoSize = RR_MAX(maxi[0]-mini[0],maxi[2]-mini[2])/2;

@@ -90,8 +90,8 @@ public:
 	//! Sets one of predefined orthogonal camera views, or random perspective view if RANDOM is requested.
 	//! Setting OTHER has no effect.
 	//! If solver is provided, adjusts also position/near/far to fit surrounding geometry.
-	//! Setting orthogonal view is fast, RANDOM uses raycasting (~1000 rays).
-	void setView(View view, const class RRSolver* solver);
+	//! Setting orthogonal view is fast, RANDOM uses raycasting (~1000 rays) to find interesting view.
+	void setView(View view, const class RRSolver* solver, const RRVec3* mini, const RRVec3* maxi);
 
 	//! Sets all parameters used to construct view matrix at once. It is slightly faster than setting all parameters one by one.
 	void setView(const RRVec3& pos, const RRVec3& yawPitchRollRad);

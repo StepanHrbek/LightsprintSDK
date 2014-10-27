@@ -254,7 +254,7 @@ void keyboard(unsigned char c, int x, int y)
 			}
 
 		case 'r':
-			eye.setView(rr::RRCamera::RANDOM,solver);
+			eye.setView(rr::RRCamera::RANDOM,solver,NULL,NULL);
 			break;
 
 		case 27:

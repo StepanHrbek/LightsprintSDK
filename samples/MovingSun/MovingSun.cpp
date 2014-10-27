@@ -399,7 +399,7 @@ int main(int argc, char** argv)
 
 	// auto-set camera, speed
 	//srand((unsigned)time(NULL));
-	eye.setView(rr::RRCamera::RANDOM,solver);
+	eye.setView(rr::RRCamera::RANDOM,solver,NULL,NULL);
 	cameraSpeed = eye.getFar()*CAM_SPEED;
 
 	// init dynamic objects

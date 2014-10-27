@@ -1336,13 +1336,13 @@ save_scene_as:
 
 		//////////////////////////////// VIEW ///////////////////////////////
 
-		case ME_VIEW_TOP:    svs.camera.setView(rr::RRCamera::TOP   ,solver); break;
-		case ME_VIEW_BOTTOM: svs.camera.setView(rr::RRCamera::BOTTOM,solver); break;
-		case ME_VIEW_LEFT:   svs.camera.setView(rr::RRCamera::LEFT  ,solver); break;
-		case ME_VIEW_RIGHT:  svs.camera.setView(rr::RRCamera::RIGHT ,solver); break;
-		case ME_VIEW_FRONT:  svs.camera.setView(rr::RRCamera::FRONT ,solver); break;
-		case ME_VIEW_BACK:   svs.camera.setView(rr::RRCamera::BACK  ,solver); break;
-		case ME_VIEW_RANDOM: svs.camera.setView(rr::RRCamera::RANDOM,solver); svs.cameraMetersPerSecond = svs.camera.getFar()*0.08f; break;
+		case ME_VIEW_TOP:    svs.camera.setView(rr::RRCamera::TOP   ,solver,NULL,NULL); break;
+		case ME_VIEW_BOTTOM: svs.camera.setView(rr::RRCamera::BOTTOM,solver,NULL,NULL); break;
+		case ME_VIEW_LEFT:   svs.camera.setView(rr::RRCamera::LEFT  ,solver,NULL,NULL); break;
+		case ME_VIEW_RIGHT:  svs.camera.setView(rr::RRCamera::RIGHT ,solver,NULL,NULL); break;
+		case ME_VIEW_FRONT:  svs.camera.setView(rr::RRCamera::FRONT ,solver,NULL,NULL); break;
+		case ME_VIEW_BACK:   svs.camera.setView(rr::RRCamera::BACK  ,solver,NULL,NULL); break;
+		case ME_VIEW_RANDOM: svs.camera.setView(rr::RRCamera::RANDOM,solver,NULL,NULL); svs.cameraMetersPerSecond = svs.camera.getFar()*0.08f; break;
 
 
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////
