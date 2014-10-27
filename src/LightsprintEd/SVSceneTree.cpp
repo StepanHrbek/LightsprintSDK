@@ -353,8 +353,8 @@ void SVSceneTree::getAABBOf(const EntityIds& _entityIds, PivotPosition _pp, rr::
 					switch (_pp)
 					{
 						case PP_CENTER: _pivot += object->getWorldMatrixRef().getTransformedPosition(osCenter); break;
-						case PP_TOP:    _pivot += object->getWorldMatrixRef().getTransformedPosition(rr::RRVec3(osCenter.x,osCenter.y,osMaxi.z)); break;
-						case PP_BOTTOM: _pivot += object->getWorldMatrixRef().getTransformedPosition(rr::RRVec3(osCenter.x,osCenter.y,osMini.z)); break;
+						case PP_TOP:    _pivot += object->getWorldMatrixRef().getTransformedPosition(rr::RRVec3(osCenter.x,osMaxi.y,osCenter.z)); break;
+						case PP_BOTTOM: _pivot += object->getWorldMatrixRef().getTransformedPosition(rr::RRVec3(osCenter.x,osMini.y,osCenter.z)); break;
 						default: RR_ASSERT(0);
 					}
 					numPivots++;
