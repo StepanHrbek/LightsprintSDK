@@ -29,7 +29,7 @@ void SVEntities::addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPositi
 				case rr::RRLight::DIRECTIONAL:
 					entity.iconCode = IC_DIRECTIONAL;
 					entity.position = dirlightPosition;
-					dirlightPosition.y += 4*iconSize; // the same constant is in getCenterOf()
+					dirlightPosition.y += 4*iconSize; // the same constant is in getAABBOf()
 					break;
 				case rr::RRLight::POINT:
 					entity.iconCode = IC_POINT;

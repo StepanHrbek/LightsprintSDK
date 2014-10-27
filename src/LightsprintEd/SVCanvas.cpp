@@ -1114,7 +1114,8 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	if (event.Dragging() && s_ciRelevant && newPosition!=oldPosition && !clicking)
 	{
 		const EntityIds& manipulatedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
-		rr::RRVec3 manipulatedCenter = svframe->m_sceneTree->getCenterOf(manipulatedEntities);
+		rr::RRVec3 manipulationMini,manipulationMaxi,manipulationPivot;
+		svframe->m_sceneTree->getAABBOf(manipulatedEntities,PP_CENTER,manipulationMini,manipulationMaxi,manipulationPivot);
 		bool manipulatingCamera = manipulatedEntities==svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_CAMERA);
 		bool manipulatingSelection = s_ci.clickedEntityIsSelected && !manipulatingCamera;
 		bool manipulatingSingleLight = selectedEntities.size()==1 && selectedEntities.begin()->type==ST_LIGHT;
@@ -1172,7 +1173,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					// should not get here, just to prevent warning
 					break;
 			}
-			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,preTransform?transformation:transformation.centeredAround(manipulatedCenter),preTransform,false);
+			svframe->m_sceneTree->manipulateEntities(manipulatedEntities,preTransform?transformation:transformation.centeredAround(manipulationPivot),preTransform,false);
 		}
 		else
 		if (event.LeftIsDown())
@@ -1420,7 +1421,8 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		{
 			// yes -> respond to keyboard
 			const EntityIds& entities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
-			rr::RRVec3 center = svframe->m_sceneTree->getCenterOf(entities);
+			rr::RRVec3 mini,maxi,pivot;
+			svframe->m_sceneTree->getAABBOf(entities,PP_CENTER,mini,maxi,pivot);
 			float speed = s_shiftDown ? 3 : 1;
 			svframe->m_sceneTree->manipulateEntities(entities,
 				rr::RRMatrix3x4::translation( (
@@ -1428,7 +1430,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 					svs.camera.getRight() * ((speedRight-speedLeft)*meters) +
 					svs.camera.getUp() * ((speedUp-speedDown)*meters) +
 					rr::RRVec3(0,speedY*meters,0)) *speed)
-				* rr::RRMatrix3x4::rotationByAxisAngle(svs.camera.getDirection(),-speedLean*seconds*0.5f).centeredAround(center),
+				* rr::RRMatrix3x4::rotationByAxisAngle(svs.camera.getDirection(),-speedLean*seconds*0.5f).centeredAround(pivot),
 				false, speedLean?true:false
 				);
 			bool movesNow = (speedForward-speedBack) || (speedRight-speedLeft) || (speedUp-speedDown) || speedY || speedLean;
@@ -2168,7 +2170,11 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			const EntityIds& autoEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_AUTO);
 			renderedIcons.markSelected(selectedEntityIds);
 			if (selectedEntityIds.size())
-				renderedIcons.addXYZ(svframe->m_sceneTree->getCenterOf(selectedEntityIds),(&selectedEntityIds==&autoEntityIds)?selectedTransformation:IC_STATIC,svs.camera);
+			{
+				rr::RRVec3 mini,maxi,pivot;
+				svframe->m_sceneTree->getAABBOf(selectedEntityIds,PP_CENTER,mini,maxi,pivot);
+				renderedIcons.addXYZ(pivot,(&selectedEntityIds==&autoEntityIds)?selectedTransformation:IC_STATIC,svs.camera);
+			}
 			entityIcons->renderIcons(renderedIcons,solver->getRenderer()->getTextureRenderer(),svs.camera,solver->getCollider(),ray,svs);
 		}
 	}
