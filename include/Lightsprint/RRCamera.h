@@ -217,6 +217,8 @@ public:
 	// other tools
 	//////////////////////////////////////////////////////////////////////////////
 
+	//! Converts world space position to clip space
+	RRVec4 getPositionInClipSpace(RRVec3 worldPosition) const;
 	//! Converts world space position to normalized device coordinates (left top near viewport corner in -1,-1,-1, right bottom far viewport corner in 1,1,1)
 	RRVec3 getPositionInViewport(RRVec3 worldPosition) const;
 
