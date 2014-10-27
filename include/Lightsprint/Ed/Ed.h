@@ -92,6 +92,13 @@ enum Transparency
 };
 
 
+enum PivotPosition
+{
+	PP_TOP,
+	PP_CENTER,
+	PP_BOTTOM,
+};
+
 //! Optional parameters of sceneViewer()
 struct SceneViewerState
 {
