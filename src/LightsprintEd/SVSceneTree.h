@@ -81,6 +81,7 @@ namespace rr_ed
 			MEI_AUTO, // selected or camera, see SVSceneTree::getEntityIds()
 		};
 		const EntityIds& getEntityIds(SVSceneTree::ManipulatedEntityIds preference) const;
+		void getAABBOf(const EntityIds& entityIds, PivotPosition pp, rr::RRVec3& mini, rr::RRVec3& maxi, rr::RRVec3& pivot) const;
 		rr::RRVec3 getCenterOf(const EntityIds& entityIds) const;
 
 		//! Runs context menu action, public only for SVCanvas hotkey handling.

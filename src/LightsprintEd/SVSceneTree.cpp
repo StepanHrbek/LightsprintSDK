@@ -300,11 +300,30 @@ const EntityIds& SVSceneTree::getEntityIds(SVSceneTree::ManipulatedEntityIds pre
 	return atLeastOneMovableSelected ? selectedEntityIds : cameraEntityIds;
 }
 
-rr::RRVec3 SVSceneTree::getCenterOf(const EntityIds& entityIds) const
+struct AABB
 {
-	rr::RRVec3 selectedEntitiesCenter(0);
-	unsigned numCenters = 0;
-	for (EntityIds::const_iterator i=entityIds.begin();i!=entityIds.end();++i)
+	rr::RRVec3 mini,maxi;
+	AABB()
+	{
+		mini = rr::RRVec3(1e37f);
+		maxi = rr::RRVec3(-1e37f);
+	}
+	void extend(const rr::RRVec3& a)
+	{
+		for (unsigned i=0;i<3;i++)
+		{
+			mini[i] = RR_MIN(mini[i],a[i]);
+			maxi[i] = RR_MAX(maxi[i],a[i]);
+		}
+	}
+};
+
+void SVSceneTree::getAABBOf(const EntityIds& _entityIds, PivotPosition _pp, rr::RRVec3& _mini, rr::RRVec3& _maxi, rr::RRVec3& _pivot) const
+{
+	AABB aabb;
+	_pivot = rr::RRVec3(0);
+	unsigned numPivots = 0;
+	for (EntityIds::const_iterator i=_entityIds.begin();i!=_entityIds.end();++i)
 	{
 		switch (i->type)
 		{
@@ -319,31 +338,51 @@ rr::RRVec3 SVSceneTree::getCenterOf(const EntityIds& entityIds) const
 							if (lights[j]->type==rr::RRLight::DIRECTIONAL)
 								lightPos.y += 4*svframe->m_canvas->renderedIcons.iconSize; // the same constant is in addLights()
 					}
-					selectedEntitiesCenter += lightPos;
-					numCenters++;
+					aabb.extend(lightPos);
+					_pivot += lightPos;
+					numPivots++;
 				}
 				break;
 			case ST_OBJECT:
 				{
 					rr::RRObject* object = svframe->m_canvas->solver->getObject(i->index);
-					rr::RRVec3 center;
-					object->getCollider()->getMesh()->getAABB(NULL,NULL,&center);
-					selectedEntitiesCenter += object->getWorldMatrixRef().getTransformedPosition(center);
-					numCenters++;
+					rr::RRVec3 osMini,osMaxi,osCenter;
+					object->getCollider()->getMesh()->getAABB(&osMini,&osMaxi,&osCenter);
+					for (unsigned j=0;j<8;j++)
+						aabb.extend(object->getWorldMatrixRef().getTransformedPosition(rr::RRVec3((j&4)?osMaxi.x:osMini.x,(j&2)?osMaxi.y:osMini.y,(j&1)?osMaxi.z:osMini.z)));
+					switch (_pp)
+					{
+						case PP_CENTER: _pivot += object->getWorldMatrixRef().getTransformedPosition(osCenter); break;
+						case PP_TOP:    _pivot += object->getWorldMatrixRef().getTransformedPosition(rr::RRVec3(osCenter.x,osCenter.y,osMaxi.z)); break;
+						case PP_BOTTOM: _pivot += object->getWorldMatrixRef().getTransformedPosition(rr::RRVec3(osCenter.x,osCenter.y,osMini.z)); break;
+						default: RR_ASSERT(0);
+					}
+					numPivots++;
 				}
 				break;
 			case ST_CAMERA:
-				selectedEntitiesCenter += svs.camera.getPosition();
-				numCenters++;
+				aabb.extend(svs.camera.getPosition());
+				_pivot += svs.camera.getPosition();
+				numPivots++;
 				break;
 			default:
 				// nothing to do here, just to prevent warning
 				break;
 		}
 	}
-	if (numCenters)
-		selectedEntitiesCenter /= numCenters;
-	return selectedEntitiesCenter;
+	if (numPivots)
+		_pivot /= numPivots;
+	else
+		aabb.extend(rr::RRVec3(0));
+	_mini = aabb.mini;
+	_maxi = aabb.maxi;
+}
+
+rr::RRVec3 SVSceneTree::getCenterOf(const EntityIds& _entityIds) const
+{
+	rr::RRVec3 mini,maxi,center;
+	getAABBOf(_entityIds,PP_CENTER,mini,maxi,center);
+	return center;
 }
 
 void SVSceneTree::OnSelChanged(wxTreeEvent& event)
