@@ -91,7 +91,7 @@ CHANGES
     - rr_gl::TextureRenderer::render2dBegin()
     - rr_ed::SceneViewerState
   - BREAKING CHANGE: find all places where you call render2D() or render2DBegin() and replace two parameters with one. old code might compile even if not fixed, but it would be wrong
-- PluginParamsScene::updateLayers split into PluginParamsScene::updateLayerLightmap, PluginParamsScene::updateLayerEnvironment (for more fine grained control)
+- PluginParamsScene::updateLayers split into rr_gl::PluginParamsScene::updateLayerLightmap, rr_gl::PluginParamsScene::updateLayerEnvironment (for more fine grained control)
 - RRObjects::buildUnwrap() has additional parameter that controls quality
 - removed RRCollider::TEST_SINGLESIDED (it can be emulated with simple collision handler)
 
