@@ -220,15 +220,15 @@ ID3DXMesh* Unwrapper::createID3DXMesh(const RRMeshArrays* rrMesh, const UvChanne
 	// allocate mesh
 	Vertex* vertexData = NULL;
 	D3DVERTEXELEMENT9 dxMeshDeclaration[MAX_FVF_DECL_SIZE] = {
-		{0,(char*)&vertexData->position   -(char*)vertexData,D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_POSITION,0},
-		{0,(char*)&vertexData->normal     -(char*)vertexData,D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_NORMAL,0},
-		{0,(char*)&vertexData->tangent    -(char*)vertexData,D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TANGENT,0},
-		{0,(char*)&vertexData->bitangent  -(char*)vertexData,D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_BINORMAL,0},
-		{0,(char*)&vertexData->texcoord[0]-(char*)vertexData,D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,0},
-		{0,(char*)&vertexData->texcoord[1]-(char*)vertexData,D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,1},
-		{0,(char*)&vertexData->texcoord[2]-(char*)vertexData,D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,2},
-		{0,(char*)&vertexData->texcoord[3]-(char*)vertexData,D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,3},
-		{0,(char*)&vertexData->texcoord[4]-(char*)vertexData,D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,4},
+		{0,(WORD)((char*)&vertexData->position   -(char*)vertexData),D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_POSITION,0},
+		{0,(WORD)((char*)&vertexData->normal     -(char*)vertexData),D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_NORMAL,0},
+		{0,(WORD)((char*)&vertexData->tangent    -(char*)vertexData),D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TANGENT,0},
+		{0,(WORD)((char*)&vertexData->bitangent  -(char*)vertexData),D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_BINORMAL,0},
+		{0,(WORD)((char*)&vertexData->texcoord[0]-(char*)vertexData),D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,0},
+		{0,(WORD)((char*)&vertexData->texcoord[1]-(char*)vertexData),D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,1},
+		{0,(WORD)((char*)&vertexData->texcoord[2]-(char*)vertexData),D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,2},
+		{0,(WORD)((char*)&vertexData->texcoord[3]-(char*)vertexData),D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,3},
+		{0,(WORD)((char*)&vertexData->texcoord[4]-(char*)vertexData),D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,4},
 		{0xFF,0,D3DDECLTYPE_UNUSED, 0,0,0}//D3DDECL_END
 	};
 	ID3DXMesh* dxMesh = NULL;
