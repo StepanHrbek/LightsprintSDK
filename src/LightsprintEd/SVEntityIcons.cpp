@@ -194,7 +194,6 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 
 const SVEntity* SVEntityIcons::intersectIcons(const SVEntities& entities, rr::RRVec2 mousePositionInWindow)
 {
-	mousePositionInWindow.y = -mousePositionInWindow.y; // y gets inverted somewhere
 	for (unsigned i=piwIconRectangles.size();i--;)
 	{
 		if (mousePositionInWindow.x>=piwIconRectangles[i].second.x && mousePositionInWindow.x<piwIconRectangles[i].second.x+piwIconRectangles[i].second.z &&

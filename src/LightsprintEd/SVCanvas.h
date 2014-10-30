@@ -93,7 +93,7 @@ namespace rr_ed
 		int                        menuHandle;
 		bool                       envToBeDeletedOnExit; // whether environment is owned and deleted by us
 		SVLightmapViewer           lv; // 2d lightmap viewer
-		rr::RRVec2                 mousePositionInWindow; // -1,-1 top left corner, 0,0 center, 1,1 bottom right corner (set by OnMouseEvent)
+		rr::RRVec2                 mousePositionInWindow; // -1,-1 left bottom corner, 0,0 center, 1,1 right top corner (set by OnMouseEvent)
 		unsigned                   centerObject; // object pointed by mouse
 		unsigned                   centerTexel; // texel pointed by mouse
 		unsigned                   centerTriangle; // triangle pointed by mouse, multiObjPostImport

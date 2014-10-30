@@ -909,7 +909,7 @@ RRVec3 RRCamera::getRayOrigin(RRVec2 posInWindow) const
 	return
 		pos
 		+ getRight() * (posInWindow[0]+screenCenter[0]) * orthoSize * aspect
-		- getUp()    * (posInWindow[1]-screenCenter[1]) * orthoSize
+		+ getUp()    * (posInWindow[1]+screenCenter[1]) * orthoSize
 		;
 }
 
@@ -921,7 +921,7 @@ RRVec3 RRCamera::getRayDirection(RRVec2 posInWindow) const
 	return
 		getDirection()
 		+ getRight() * ( (posInWindow[0]+screenCenter[0]) * tan(getFieldOfViewHorizontalRad()/2) )
-		- getUp()    * ( (posInWindow[1]-screenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
+		+ getUp()    * ( (posInWindow[1]+screenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
 		;
 }
 

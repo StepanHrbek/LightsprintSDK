@@ -219,15 +219,15 @@ public:
 
 	//! Converts world space position to clip space
 	RRVec4 getPositionInClipSpace(RRVec3 worldPosition) const;
-	//! Converts world space position to normalized device coordinates (left top near viewport corner in -1,-1,-1, right bottom far viewport corner in 1,1,1)
+	//! Converts world space position to normalized device coordinates (left bottom near viewport corner in -1,-1,-1, right top far viewport corner in 1,1,1)
 	RRVec3 getPositionInViewport(RRVec3 worldPosition) const;
 
 	//! Converts position in window (2d) to world space ray origin (3d), suitable for raycasting screen pixels.
-	//! positionInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
+	//! positionInWindow 0,0 represents center of window, -1,-1 bottom left window corner, 1,1 top right window corner.
 	RRVec3 getRayOrigin(RRVec2 positionInWindow) const;
 	//! Converts position in window (2d) to world space ray direction (3d) from origin to depth=1.
 	//! Vector is not normalized, length is >=1, so that getRayPosition()+getRayDirection() is always in depth=1 plane.
-	//! positionInWindow 0,0 represents center of window, -1,-1 top left window corner, 1,1 bottom right window corner.
+	//! positionInWindow 0,0 represents center of window, -1,-1 bottom left window corner, 1,1 top right window corner.
 	RRVec3 getRayDirection(RRVec2 positionInWindow) const;
 
 	//! Creates copy of camera.
