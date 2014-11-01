@@ -22,6 +22,7 @@
 
 // RRObjects
 //#include "Lightsprint/RRObject.h"
+#include <string> // std::to_wstring
 #include <unordered_set>
 #ifdef RR_LINKS_BOOST
 	#include <boost/filesystem.hpp>
@@ -289,8 +290,67 @@ static std::wstring filenamized(RRString& name)
 	return filename;
 }
 
+void splitName(std::wstring& prefix, unsigned long long& number)
+{
+	number = 0;
+	unsigned long long base = 1;
+	while (prefix.size() && prefix[prefix.size()-1]>='0' && prefix[prefix.size()-1]<='9')
+	{
+		number += base * (prefix[prefix.size()-1]-'0');
+		prefix.pop_back();
+		base *= 10;
+	}
+}
+
+std::wstring mergedName(const std::wstring& prefix, unsigned long long number)
+{
+	return prefix + ((number<10)?L"0":L"") + std::to_wstring(number);
+}
+
 void RRObjects::makeNamesUnique() const
 {
+	// naming scheme 1
+	// turns names xxx,xxx,xxx,xxx5,xxx5 into xxx,xxx01,xxx02,xxx5,xxx06
+	typedef std::unordered_set<std::wstring> Set;
+	Set filenamizedOriginals;
+	Set filenamizedAccepted;
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+	{
+		RRObject* object = (*this)[objectIndex];
+		filenamizedOriginals.insert(filenamized(object->name));
+	}
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+	{
+		RRObject* object = (*this)[objectIndex];
+		std::wstring filenamizedCandidate = filenamized(object->name);
+		if (filenamizedAccepted.find(filenamizedCandidate)==filenamizedAccepted.end())
+		{
+			// 1. accept "so far" unique names
+			filenamizedAccepted.insert(filenamizedCandidate);
+		}
+		else
+		{
+			// 2. split non-unique name to prefix + number
+			std::wstring filenamizedPrefix = filenamizedCandidate;
+			unsigned long long number;
+			splitName(filenamizedPrefix,number);
+			// 3. try increasing number until it becomes "globally" unique
+			do
+			{
+				number++;
+				filenamizedCandidate = mergedName(filenamizedPrefix,number);
+			}
+			while (filenamizedAccepted.find(filenamizedCandidate)!=filenamizedAccepted.end() || filenamizedOriginals.find(filenamizedCandidate)!=filenamizedOriginals.end());
+			filenamizedAccepted.insert(filenamizedCandidate);
+			// 4. construct final non-filenamized name
+			std::wstring rawPrefix = RR_RR2STDW(object->name);
+			unsigned long long rawNumber;
+			splitName(rawPrefix,rawNumber);
+			object->name = RR_STDW2RR(mergedName(rawPrefix,number));
+		}
+	}
+#if 0
+	// naming scheme 2
 	// turns names xxx,xxx,xxx,xxx.3,xxx.3 into xxx,xxx.2,xxx.4,xxx.3,xxx.3.2
 again:
 	bool modified = false;
@@ -342,6 +402,7 @@ again:
 		// "name" was changed to "name.1", but we did not yet check that "name.1" is free, let's run all checks again
 		goto again;
 	}
+#endif
 }
 
 
