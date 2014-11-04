@@ -210,7 +210,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 
 	for (unsigned s=0;s<(unsigned)model->mTextures.size();s++)
 	{
-		unsigned numTrianglesBeforeFacegroup = triangles.size();
+		unsigned numTrianglesBeforeFacegroup = (unsigned)triangles.size();
 		RRMaterial* material = new RRMaterial;
 		fillMaterial(*material,&model->mTextures[s],textureLocator);
 		if (material->diffuseReflectance.texture)
@@ -247,7 +247,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 						if (xlat[ti[v]]==UINT_MAX)
 						{
 							xlat[ti[v]] = (unsigned)vertices.size();
-							vertices.push_back(VertexInfo(model->mVertices[ti[v]],model->mFaces[f].mLightmapIndex,model->mLightMaps.size()));
+							vertices.push_back(VertexInfo(model->mVertices[ti[v]],model->mFaces[f].mLightmapIndex,(unsigned)model->mLightMaps.size()));
 						}
 						ti[v] = xlat[ti[v]];
 					}
@@ -285,7 +285,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 							controls[0] * (b * b) + 
 							controls[3] * (2 * b * a) +
 							controls[6] * (a * a),
-							patch.mLightmapIndex,model->mLightMaps.size());
+							patch.mLightmapIndex,(unsigned)model->mLightMaps.size());
 					}
 					for (int i=1;i<L1;i++)
 					{
@@ -308,7 +308,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 								temp[0] * (b * b) + 
 								temp[1] * (2 * b * a) +
 								temp[2] * (a * a),
-								patch.mLightmapIndex,model->mLightMaps.size());
+								patch.mLightmapIndex,(unsigned)model->mLightMaps.size());
 						}
 					}
 				}
@@ -344,7 +344,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 		if (triangles.size()-numTrianglesBeforeFacegroup)
 		{
 			materials.push_back(material);
-			faceGroups.push_back(FaceGroup(material,triangles.size()-numTrianglesBeforeFacegroup));
+			faceGroups.push_back(FaceGroup(material,(unsigned)triangles.size()-numTrianglesBeforeFacegroup));
 		}
 		else
 			delete material;
