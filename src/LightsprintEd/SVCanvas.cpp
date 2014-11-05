@@ -392,6 +392,7 @@ void SVCanvas::createContextCore()
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObject()->createCollisionHandlerFirstVisible();
 
+
 	exitRequested = false;
 	fullyCreated = true;
 }
@@ -1481,6 +1482,7 @@ static void drawTriangle(rr::RRMesh::TriangleBody body)
 	glVertex3f(body.vertex0[0]+body.side2[0],body.vertex0[1]+body.side2[1],body.vertex0[2]+body.side2[2]);
 	glEnd();
 }
+
 
 void SVCanvas::OnPaint(wxPaintEvent& event)
 {
