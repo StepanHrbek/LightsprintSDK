@@ -131,12 +131,15 @@ void RRSolver::setEnvironment(RRBuffer* _environment0, RRBuffer* _environment1, 
 	if (priv->environment0 && _environment0!=priv->environment0) delete priv->environment0;
 	if (priv->environment1 && _environment1!=priv->environment1) delete priv->environment1;
 
-	priv->environment0 = _environment0;
-	priv->environment1 = _environment1;
-	priv->environmentAngleRad0 = _environmentAngleRad0;
-	priv->environmentAngleRad1 = _environmentAngleRad1;
-	// affects specular cubemaps
-	priv->solutionVersion++;
+	if (priv->environment0!=_environment0 || priv->environment1!=_environment1 || priv->environmentAngleRad0!=_environmentAngleRad0 || priv->environmentAngleRad1!=_environmentAngleRad1)
+	{
+		priv->environment0 = _environment0;
+		priv->environment1 = _environment1;
+		priv->environmentAngleRad0 = _environmentAngleRad0;
+		priv->environmentAngleRad1 = _environmentAngleRad1;
+		// affects specular cubemaps
+		priv->solutionVersion++;
+	}
 }
 
 RRBuffer* RRSolver::getEnvironment(unsigned _environmentIndex, RRReal* _environmentAngleRad) const
@@ -148,9 +151,12 @@ RRBuffer* RRSolver::getEnvironment(unsigned _environmentIndex, RRReal* _environm
 
 void RRSolver::setEnvironmentBlendFactor(float _blendFactor)
 {
-	priv->environmentBlendFactor = _blendFactor;
-	// affects specular cubemaps
-	priv->solutionVersion++;
+	if (priv->environmentBlendFactor!=_blendFactor)
+	{
+		priv->environmentBlendFactor = _blendFactor;
+		// affects specular cubemaps
+		priv->solutionVersion++;
+	}
 }
 
 float RRSolver::getEnvironmentBlendFactor() const
