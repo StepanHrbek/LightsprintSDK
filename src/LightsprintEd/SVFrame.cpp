@@ -674,7 +674,11 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	//wxPaintEvent e;
 	//m_canvas->Paint(false);
 
-	// 1. setup panel locations. this should be done before we make window visible
+	// render first visible frame, with good panels, disabled glcanvas
+	// window was created with wxMINIMIZE, this makes it visible
+	Restore();
+
+	// 1. setup frame size+location. it would be nice to do this before we make window visible, but SetSize does not work on minimized window
 	// 2. synchronize fullscreen state between 3 places
 	// - userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen
 	//   - was just loaded from file or initiaized to default
@@ -688,15 +692,12 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	svs.fullscreen = false;
 	userPreferencesApplyToWx();
 
-	// render first visible frame, with good panels, disabled glcanvas
-	// window was created with wxMINIMIZE, this makes it visible
-	Restore();
-
 	// SetFocus in UpdateEverything() is not sufficient, adding panes changes focus, so here we set it again
 	m_canvas->SetFocus();
 
 	m_mgr.Update();
-	// switch to normal rendering
+
+	// switch to normal rendering (with enabled glcanvas)
 	// still, do at least 1 empty frame to quickly clear canvas (important in windows classic mode)
 	fullyInited = true;
 	m_canvas->renderEmptyFrames = 1;
