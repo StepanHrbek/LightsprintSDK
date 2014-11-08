@@ -265,7 +265,7 @@ void RRCamera::setView(RRCamera::View _view, const RRSolver* _solver, const RRVe
 		mini = *_mini;
 		maxi = *_maxi;
 	}
-	bool knownExtents = maxi.x>mini.x && maxi.y>mini.y && maxi.z>mini.z;
+	bool knownExtents = (maxi-mini).mini()>=0 && (maxi-mini).sum()>0;
 
 	// configure camera
 	switch (_view)
