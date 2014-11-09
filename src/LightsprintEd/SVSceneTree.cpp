@@ -1245,6 +1245,28 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			{
 				selectedObjectsAndInstances.deleteComponents(svframe->deleteDlg.tangents->GetValue(),svframe->deleteDlg.unwrap->GetValue(),svframe->deleteDlg.unusedUvChannels->GetValue(),svframe->deleteDlg.emptyFacegroups->GetValue());
 
+				// delete baked lighting
+				if (svframe->deleteDlg.lightmaps->GetValue())
+				{
+					selectedObjects.layerDeleteFromMemory(svs.layerBakedLightmap);
+					selectedObjects.layerDeleteFromDisk(LAYER_PREFIX,LMAP_POSTFIX);
+				}
+				if (svframe->deleteDlg.ambmaps->GetValue())
+				{
+					selectedObjects.layerDeleteFromMemory(svs.layerBakedAmbient);
+					selectedObjects.layerDeleteFromDisk(LAYER_PREFIX,AMBIENT_POSTFIX);
+				}
+				if (svframe->deleteDlg.envmaps->GetValue())
+				{
+					selectedObjects.layerDeleteFromMemory(svs.layerBakedEnvironment);
+					selectedObjects.layerDeleteFromDisk(LAYER_PREFIX,ENV_POSTFIX);
+				}
+				if (svframe->deleteDlg.ldms->GetValue())
+				{
+					selectedObjects.layerDeleteFromMemory(svs.layerBakedLDM);
+					selectedObjects.layerDeleteFromDisk(LAYER_PREFIX,LDM_POSTFIX);
+				}
+
 				svframe->m_canvas->addOrRemoveScene(NULL,true,containsStaticObject(selectedObjectsAndInstances)); // calls svframe->updateAllPanels(); // necessary at least after deleting empty facegroups
 			}
 			break;

@@ -175,6 +175,18 @@ DeleteDlg::DeleteDlg( wxWindow* parent, wxWindowID id, const wxString& title, co
 	unwrap = new wxCheckBox( this, wxID_ANY, _("unwrap"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer8->Add( unwrap, 0, wxALL, 5 );
 	
+	lightmaps = new wxCheckBox( this, wxID_ANY, _("baked lightmaps"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer8->Add( lightmaps, 0, wxALL, 5 );
+	
+	ambmaps = new wxCheckBox( this, wxID_ANY, _("baked ambient maps"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer8->Add( ambmaps, 0, wxALL, 5 );
+	
+	envmaps = new wxCheckBox( this, wxID_ANY, _("baked environment maps"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer8->Add( envmaps, 0, wxALL, 5 );
+	
+	ldms = new wxCheckBox( this, wxID_ANY, _("baked LDMs"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer8->Add( ldms, 0, wxALL, 5 );
+	
 	animations = new wxCheckBox( this, wxID_ANY, _("animations"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer8->Add( animations, 0, wxALL, 5 );
 	
