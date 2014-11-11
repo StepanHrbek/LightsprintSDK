@@ -29,8 +29,6 @@
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
-#define m_canvasWindow m_canvas
-
 namespace rr_ed
 {
 
@@ -401,7 +399,7 @@ void SVFrame::UpdateEverything()
 
 	bool oldReleaseResources = svs.releaseResources;
 	svs.releaseResources = true; // we are not returning yet, we should shutdown
-	if (m_canvas) m_mgr.DetachPane(m_canvas);
+	m_canvasWindow->svcanvas = nextCanvas;
 	RR_SAFE_DELETE(m_canvas);
 	svs.releaseResources = oldReleaseResources;
 
@@ -439,9 +437,6 @@ void SVFrame::UpdateEverything()
 	UpdateTitle();
 	m_giProperties->updateAfterGLInit();
 	updateAllPanels();
-
-	m_mgr.AddPane(m_canvas, wxAuiPaneInfo().Name("glcanvas").CenterPane().PaneBorder(false));
-	m_mgr.Update();
 
 	// start playing videos
 	if (svs.playVideos)
@@ -529,6 +524,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	fullyInited = false;
 	updateMenuBarNeeded = false;
 	m_canvas = NULL;
+	m_canvasWindow = NULL;
 	LogWithAbort::logIsOn = !svs.openLogWindows;
 
 	// zero at least the most important variables, before starting dangerous work
@@ -567,6 +563,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 #endif // SUPPORT_OCULUS
 
 	// create properties (based also on data from preferences)
+	m_canvasWindow = new CanvasWindow(this);
 	m_userProperties = new SVUserProperties(this);
 	m_sceneProperties = new SVSceneProperties(this);
 	m_giProperties = new SVGIProperties(this);
@@ -666,6 +663,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	m_mgr.SetArtProvider(dockArt);
 
 	// create panes
+	m_mgr.AddPane(m_canvasWindow, wxAuiPaneInfo().Name("glcanvas").CenterPane().PaneBorder(false));
 	m_mgr.AddPane(m_sceneTree, wxAuiPaneInfo().Name("scenetree").CloseButton(true).Left());
 	m_mgr.AddPane(m_userProperties, wxAuiPaneInfo().Name("userproperties").CloseButton(true).Left());
 	m_mgr.AddPane(m_sceneProperties, wxAuiPaneInfo().Name("sceneproperties").CloseButton(true).Left());

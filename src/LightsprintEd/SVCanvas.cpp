@@ -42,7 +42,7 @@
 
 namespace bf = boost::filesystem;
 
-#define canvasWindow this
+#define canvasWindow (svframe->m_canvasWindow)
 #define canvasGetSize() canvasWindow->GetSize()
 
 #if !wxUSE_GLCANVAS
@@ -95,10 +95,15 @@ static int s_attribList[] = {
 	WX_GL_DEPTH_SIZE, 24,
 	0, 0};
 
-SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
+CanvasWindow::CanvasWindow(SVFrame* _svframe)
 	: wxGLCanvas(_svframe, wxID_ANY, 
 	(_svframe->userPreferences.stereoMode==rr_gl::SM_QUAD_BUFFERED) ? s_attribListQuad : s_attribList,
-		wxDefaultPosition, wxDefaultSize, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE|wxWANTS_CHARS, "GLCanvas"), svs(_svs)
+		wxDefaultPosition, wxDefaultSize, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE|wxWANTS_CHARS, "GLCanvas")
+{
+}
+
+SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
+	: svs(_svs)
 {
 	renderEmptyFrames = UINT_MAX;
 	context = NULL;
@@ -2570,14 +2575,14 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 }
 
 
-BEGIN_EVENT_TABLE(SVCanvas, wxGLCanvas)
-	EVT_SIZE(SVCanvas::OnSize)
-	EVT_PAINT(SVCanvas::OnPaint)
-	EVT_KEY_DOWN(SVCanvas::OnKeyDown)
-	EVT_KEY_UP(SVCanvas::OnKeyUp)
-	EVT_MOUSE_EVENTS(SVCanvas::OnMouseEvent)
-	EVT_CONTEXT_MENU(SVCanvas::OnContextMenuCreate)
-	EVT_IDLE(SVCanvas::OnIdle)
+BEGIN_EVENT_TABLE(CanvasWindow, wxGLCanvas)
+	EVT_SIZE(CanvasWindow::OnSize)
+	EVT_PAINT(CanvasWindow::OnPaint)
+	EVT_KEY_DOWN(CanvasWindow::OnKeyDown)
+	EVT_KEY_UP(CanvasWindow::OnKeyUp)
+	EVT_MOUSE_EVENTS(CanvasWindow::OnMouseEvent)
+	EVT_CONTEXT_MENU(CanvasWindow::OnContextMenuCreate)
+	EVT_IDLE(CanvasWindow::OnIdle)
 END_EVENT_TABLE()
 
  

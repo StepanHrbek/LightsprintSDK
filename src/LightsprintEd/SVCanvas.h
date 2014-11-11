@@ -22,7 +22,7 @@ namespace rr_ed
 	//
 	// SVCanvas
 
-	class SVCanvas: public wxGLCanvas
+	class SVCanvas
 	{
 	public:
 		SVCanvas( SceneViewerStateEx& svse, class SVFrame* svframe);
@@ -149,10 +149,36 @@ namespace rr_ed
 		LightingIndirect           previousLightIndirect;
 
 		friend class SVFrame;
+	};
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CanvasWindow
+
+	#define PASS_EVENT(result,func,param)  result func(param& event) \
+		{ \
+			if (svcanvas) \
+				return svcanvas->func(event); \
+		};
+
+	class CanvasWindow : public wxGLCanvas
+	{
+	public:
+		SVCanvas* svcanvas; // possibly NULL
+
+		CanvasWindow(class SVFrame* svframe);
+		PASS_EVENT(void, OnPaint, wxPaintEvent);
+		PASS_EVENT(void, OnSize, wxSizeEvent);
+		PASS_EVENT(int, FilterEvent, wxKeyEvent);
+		PASS_EVENT(void, OnKeyDown, wxKeyEvent);
+		PASS_EVENT(void, OnKeyUp, wxKeyEvent);
+		PASS_EVENT(void, OnMouseEvent, wxMouseEvent);
+		PASS_EVENT(void, OnContextMenuCreate, wxContextMenuEvent);
+		PASS_EVENT(void, OnIdle, wxIdleEvent);
 
 		DECLARE_EVENT_TABLE()
 	};
- 
+
 }; // namespace
 
 #endif
