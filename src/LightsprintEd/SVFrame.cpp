@@ -29,6 +29,8 @@
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
+#define m_canvasWindow m_canvas
+
 namespace rr_ed
 {
 
@@ -422,7 +424,7 @@ void SVFrame::UpdateEverything()
 	m_canvas->createContext(); // contains fullyCreated = true; from now on, events are processed
 
 	// without SetFocus, keyboard events may be sent to frame instead of canvas
-	m_canvas->SetFocus();
+	m_canvasWindow->SetFocus();
 
 	if (!(svs.initialInputSolver && svs.initialInputSolver->aborting))
 	{
@@ -699,7 +701,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	userPreferencesApplyToWx();
 
 	// SetFocus in UpdateEverything() is not sufficient, adding panes changes focus, so here we set it again
-	m_canvas->SetFocus();
+	m_canvasWindow->SetFocus();
 
 	m_mgr.Update();
 
@@ -1144,7 +1146,7 @@ save_scene_as:
 		case ME_FILE_SAVE_SCREENSHOT_ORIGINAL:
 			{
 				// Grab content of backbuffer to sshot.
-				wxSize size = m_canvas->GetSize();
+				wxSize size = m_canvasWindow->GetSize();
 				rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
 				glReadBuffer(GL_BACK);
 				rr_gl::readPixelsToBuffer(sshot);
