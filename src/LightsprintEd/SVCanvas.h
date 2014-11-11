@@ -56,7 +56,6 @@ namespace rr_ed
 		void OnSize(wxSizeEvent& event);
 		void OnSizeCore(bool force);
 
-		void OnEraseBackground(wxEraseEvent& event) {} // Do nothing, to avoid flashing.
 		int FilterEvent(wxKeyEvent& event);
 		void OnKeyDown(wxKeyEvent& event);
 		void OnKeyUp(wxKeyEvent& event);
