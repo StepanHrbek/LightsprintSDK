@@ -417,6 +417,7 @@ void SVFrame::UpdateEverything()
 	UpdateMenuBar();
 
 	// should go as late as possible, we don't want window displayed yet
+	// has to be called, otherwise m_isShown stays false -> SVSceneProperties::OnIdle IS_SHOWN is false -> automatic tonemapping never updates
 	Show(true);
 
 	// must go after Show() otherwise SetCurrent() in createContext() fails
