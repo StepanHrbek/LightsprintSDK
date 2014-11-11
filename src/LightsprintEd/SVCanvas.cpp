@@ -42,6 +42,9 @@
 
 namespace bf = boost::filesystem;
 
+#define canvasWindow this
+#define canvasGetSize() canvasWindow->GetSize()
+
 #if !wxUSE_GLCANVAS
     #error "OpenGL required: set wxUSE_GLCANVAS to 1 and rebuild the library"
 #endif
@@ -252,8 +255,8 @@ public:
 
 void SVCanvas::createContextCore()
 {
-	context = new SVContext(this,false,false,false);
-	SetCurrent(*context);
+	context = new SVContext(canvasWindow,false,false,false);
+	canvasWindow->SetCurrent(*context);
 
 #ifdef REPORT_HEAP_STATISTICS
 	s_oldAllocHook = _CrtSetAllocHook(newAllocHook);
@@ -618,13 +621,13 @@ void SVCanvas::OnSizeCore(bool force)
 {
 	// set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
 	int w, h;
-	GetClientSize(&w, &h);
+	canvasWindow->GetClientSize(&w, &h);
 	if (context
 		// do nothing when wx calls us with unchanged size
 		// (why? when exiting SV with one panel floating and all other panels closed, partialy destroyed window calls us with unchanged size, SetCurrent would assert)
 		&& (force || w!=winWidth || h!=winHeight))
 	{
-		SetCurrent(*context);
+		canvasWindow->SetCurrent(*context);
 		winWidth = w;
 		winHeight = h;
 		// with Enhanced screenshot checked, viewport maintains the same aspect as screenshot
@@ -814,7 +817,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 		solver->reportInteraction();
 	if (needsRefresh)
 	{
-		Refresh(false);
+		canvasWindow->Refresh(false);
 	}
 	svframe->OnAnyChange(SVFrame::ES_KEYBOARD_MID_MOVEMENT,NULL,&event);
 }
@@ -915,7 +918,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	if (event.IsButton())
 	{
 		// regain focus, innocent actions like clicking menu take it away
-		SetFocus();
+		canvasWindow->SetFocus();
 	}
 
 	// coords from previous frame, inherited to current frame if new coords are not available
@@ -923,7 +926,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	static rr::RRVec2 oldMousePositionInWindow(0);
 	bool contextMenu = event.GetId()==ID_CONTEXT_MENU;
 	wxPoint newPosition = (event.GetPosition()==wxPoint(-1,-1)) ? oldPosition : event.GetPosition(); // use previous coords for event that does not come with its own
-	mousePositionInWindow = rr::RRVec2((newPosition.x*2.0f+winWidth-GetSize().x)/winWidth-1,1-(newPosition.y*2.0f+winHeight-GetSize().y)/winHeight); // in fact, it is mouse position in _viewport_ where viewport winWidth*winHeight is in center of window GetSize()
+	mousePositionInWindow = rr::RRVec2((newPosition.x*2.0f+winWidth-canvasGetSize().x)/winWidth-1,1-(newPosition.y*2.0f+winHeight-canvasGetSize().y)/winHeight); // in fact, it is mouse position in _viewport_ where viewport winWidth*winHeight is in center of window GetSize()
 
 	if (!winWidth || !winHeight || !solver)
 	{
@@ -931,14 +934,14 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	}
 	if (svs.renderLightmaps2d)
 	{
-		lv.OnMouseEvent(event,GetSize());
+		lv.OnMouseEvent(event,canvasGetSize());
 		return;
 	}
 
 	const EntityIds& selectedEntities = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
 
 	const SVEntity* intersectedEntity = entityIcons->intersectIcons(renderedIcons,mousePositionInWindow);
-	SetCursor(wxCursor(intersectedEntity?wxCursor(wxCURSOR_HAND):wxNullCursor));
+	canvasWindow->SetCursor(wxCursor(intersectedEntity?wxCursor(wxCURSOR_HAND):wxNullCursor));
 
 	// scene clicked: fill s_xxx
 	if (event.ButtonDown() || contextMenu)
@@ -1201,7 +1204,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			rr::RRVec3 pan;
 			if (svs.camera.isOrthogonal())
 			{
-				rr::RRVec2 origMousePositionInWindow = rr::RRVec2((s_ci.mouseX*2.0f+winWidth-GetSize().x)/winWidth-1,1-(s_ci.mouseY*2.0f+winHeight-GetSize().y)/winHeight); // in fact, it is mouse position in _viewport_ where viewport winWidth*winHeight is in center of window GetSize()
+				rr::RRVec2 origMousePositionInWindow = rr::RRVec2((s_ci.mouseX*2.0f+winWidth-canvasGetSize().x)/winWidth-1,1-(s_ci.mouseY*2.0f+winHeight-canvasGetSize().y)/winHeight); // in fact, it is mouse position in _viewport_ where viewport winWidth*winHeight is in center of window GetSize()
 				pan = svs.camera.getRayOrigin(origMousePositionInWindow)-svs.camera.getRayOrigin(mousePositionInWindow);
 			}
 			else
@@ -1440,7 +1443,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		}
 	}
 
-	Refresh(false);
+	canvasWindow->Refresh(false);
 }
 
 static void textOutput(int x, int y, int h, const char* format, ...)
@@ -1489,10 +1492,10 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 	if (exitRequested || !winWidth || !winHeight)
 		return;
 
-	wxPaintDC dc(this);
+	wxPaintDC dc(canvasWindow);
 
 	if (!context) return;
-	SetCurrent(*context);
+	canvasWindow->SetCurrent(*context);
 
 	if (renderEmptyFrames || !fullyCreated)
 	{
@@ -1501,7 +1504,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 		glClearColor(0,0,0,0);
 		if (renderEmptyFrames)
 			renderEmptyFrames--;
-		SwapBuffers();
+		canvasWindow->SwapBuffers();
 		return;
 	}
 
@@ -1553,7 +1556,7 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 	bool swapBuffersAlreadyCalled = Paint(false,"");
 	if (!swapBuffersAlreadyCalled)
-		SwapBuffers();
+		canvasWindow->SwapBuffers();
 }
 
 bool SVCanvas::Paint(bool _takingSshot, const wxString& extraMessage)
@@ -1598,7 +1601,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				NULL,
 				NULL,
 				svs.renderLightmapsBilinear);
-		lv.OnPaint(textureRenderer,GetSize());
+		lv.OnPaint(textureRenderer,canvasGetSize());
 	}
 	else
 	{
@@ -1903,8 +1906,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 							GLint viewport[4];
 							glGetIntegerv(GL_VIEWPORT,viewport);
 							int trueWinWidth, trueWinHeight;
-							GetClientSize(&trueWinWidth, &trueWinHeight);
-							if ((GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
+							canvasWindow->GetClientSize(&trueWinWidth, &trueWinHeight);
+							if ((canvasWindow->GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
 								ppStereo.stereoSwap = !ppStereo.stereoSwap;
 						}
 						break;
@@ -1927,7 +1930,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								cfg.OGL.Header.RTSize.h = svframe->oculusHMD->Resolution.h;
 								cfg.OGL.Header.Multisample = 1;
 								#ifdef _WIN32
-									cfg.OGL.Window = GetHWND();
+									cfg.OGL.Window = canvasWindow->GetHWND();
 									cfg.OGL.DC = NULL;
 								#endif
 								unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette;
@@ -1947,7 +1950,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								eyeRenderDesc[ovrEye_Right] = ovrHmd_GetRenderDesc(svframe->oculusHMD, ovrEye_Right,  eyeFov[ovrEye_Right]);
 								ovrBool result = ovrHmd_ConfigureRendering(svframe->oculusHMD, &cfg.Config, distortionCaps, eyeFov, eyeRenderDesc);
 								#ifdef _WIN32
-									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)GetHWND(),NULL,NULL);
+									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)canvasWindow->GetHWND(),NULL,NULL);
 								#endif
 							}
 
@@ -2304,7 +2307,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			int x = 10;
 			int y = 10;
-			int h = GetSize().y;
+			int h = canvasGetSize().y;
 			unsigned numObjects = solver->getStaticObjects().size()+solver->getDynamicObjects().size();
 			{
 				// what direct
@@ -2462,7 +2465,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			if (multiMesh && svs.renderLightmaps2d)
 			{
-				rr::RRVec2 uv = lv.getCenterUv(GetSize());
+				rr::RRVec2 uv = lv.getCenterUv(canvasGetSize());
 				textOutput(x,y+=18*2,h,"[pointed by mouse]");
 				textOutput(x,y+=18,h,"uv: %f %f",uv[0],uv[1]);
 				if (solver->getObject(svs.selectedObjectIndex))
