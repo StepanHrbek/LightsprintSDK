@@ -25,7 +25,7 @@ namespace rr_ed
 	class SVCanvas: public wxGLCanvas
 	{
 	public:
-		SVCanvas( SceneViewerStateEx& svse, class SVFrame* svframe, wxSize size);
+		SVCanvas( SceneViewerStateEx& svse, class SVFrame* svframe);
 		~SVCanvas();
 
 		// initializes gl context and other stuff, must be called once after canvas is created and Show()n

@@ -386,7 +386,7 @@ void SVFrame::UpdateEverything()
 	if (m_canvas)
 		m_canvas->fullyCreated = false;
 
-	SVCanvas* nextCanvas = new SVCanvas( svs, this, wxDefaultSize);
+	SVCanvas* nextCanvas = new SVCanvas(svs,this);
 	bool firstUpdate = !m_canvas;
 
 	// display log window with 'abort' while this function runs

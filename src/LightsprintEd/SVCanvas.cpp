@@ -95,10 +95,10 @@ static int s_attribList[] = {
 	WX_GL_DEPTH_SIZE, 24,
 	0, 0};
 
-SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe, wxSize _size)
+SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
 	: wxGLCanvas(_svframe, wxID_ANY, 
 	(_svframe->userPreferences.stereoMode==rr_gl::SM_QUAD_BUFFERED) ? s_attribListQuad : s_attribList,
-		wxDefaultPosition, _size, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE|wxWANTS_CHARS, "GLCanvas"), svs(_svs)
+		wxDefaultPosition, wxDefaultSize, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE|wxWANTS_CHARS, "GLCanvas"), svs(_svs)
 {
 	renderEmptyFrames = UINT_MAX;
 	context = NULL;
