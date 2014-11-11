@@ -107,25 +107,25 @@ public:
 			if (pboTime.secondsSinceLastQuery()<2) // don't adjust based on PBO we started reading more than 2sec ago (prevents adjust based on initial empty buffer)
 			{
 #endif
-			for (unsigned i=0;i<256;i++)
-				histo[i] = 0;
-			for (unsigned i=0;i<SMALL_W*SMALL_H*SMALL_E;i+=SMALL_E)
-				histo[RR_MAX3(buf[i],buf[i+1],buf[i+2])]++;
-			for (unsigned i=0;i<256;i++)
-				avg += histo[i]*i;
-			if (avg==0)
-			{
-				// completely black scene
-				//  extremely low brightness? -> reset it to 1
-				//  disabled lighting? -> avoid increasing brightness ad infinitum
-				pp.brightness = pp.brightness / (pp.brightness.RRVec3::avg()?pp.brightness.RRVec3::avg():1);
-			}
-			else
-			{
-				avg = avg/(SMALL_W*SMALL_H)+1;
-				if (histo[255]>=SMALL_W*SMALL_H*7/10) avg = 1000; // at least 70% of screen overshot, adjust faster
-				pp.brightness *= pow(pp.targetIntensity*255/avg,RR_CLAMPED(pp.secondsSinceLastAdjustment*0.15f,0.0002f,0.2f));
-			}
+				for (unsigned i=0;i<256;i++)
+					histo[i] = 0;
+				for (unsigned i=0;i<SMALL_W*SMALL_H*SMALL_E;i+=SMALL_E)
+					histo[RR_MAX3(buf[i],buf[i+1],buf[i+2])]++;
+				for (unsigned i=0;i<256;i++)
+					avg += histo[i]*i;
+				if (avg==0)
+				{
+					// completely black scene
+					//  extremely low brightness? -> reset it to 1
+					//  disabled lighting? -> avoid increasing brightness ad infinitum
+					pp.brightness = pp.brightness / (pp.brightness.RRVec3::avg()?pp.brightness.RRVec3::avg():1);
+				}
+				else
+				{
+					avg = avg/(SMALL_W*SMALL_H)+1;
+					if (histo[255]>=SMALL_W*SMALL_H*7/10) avg = 1000; // at least 70% of screen overshot, adjust faster
+					pp.brightness *= pow(pp.targetIntensity*255/avg,RR_CLAMPED(pp.secondsSinceLastAdjustment*0.15f,0.0002f,0.2f));
+				}
 #ifdef PBO
 			}
 			glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
