@@ -1997,6 +1997,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				&& (((svs.renderLightIndirect==LI_LIGHTMAPS || svs.renderLightIndirect==LI_AMBIENTMAPS) && solver->containsLightSource())
 					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
 					|| svs.renderLightIndirect==LI_CONSTANT
+					|| (getEnvironment() && getStaticObjects().size()+getDynamicObjects().size()==0)
 					);
 			rr_gl::PluginParamsToneMappingAdjustment ppToneMappingAdjustment(pluginChain,svs.tonemapping.color,secondsSinceLastFrame*svs.tonemappingAutomaticSpeed,svs.tonemappingAutomaticTarget);
 			if (adjustingTonemapping)
