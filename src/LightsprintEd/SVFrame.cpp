@@ -432,6 +432,7 @@ void SVFrame::UpdateEverything()
 			svs.camera = temp;
 	}
 
+
 	UpdateTitle();
 	m_giProperties->updateAfterGLInit();
 	updateAllPanels();

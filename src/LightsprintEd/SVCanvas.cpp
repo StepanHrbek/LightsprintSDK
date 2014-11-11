@@ -395,7 +395,6 @@ void SVCanvas::createContextCore()
 	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObject()->createCollisionHandlerFirstVisible();
 
-
 	exitRequested = false;
 	fullyCreated = true;
 }
