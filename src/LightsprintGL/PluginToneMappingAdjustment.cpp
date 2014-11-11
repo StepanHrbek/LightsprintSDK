@@ -26,6 +26,7 @@ class PluginRuntimeToneMappingAdjustment : public PluginRuntime
 	Texture* smallTexture;
 #ifdef PBO
 	GLuint pbo[2];
+	rr::RRTime pboTime;
 	unsigned pboIndex;
 #endif
 
@@ -43,6 +44,7 @@ public:
 		glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, SMALL_W*SMALL_H*SMALL_E, 0, GL_STREAM_READ_ARB);
 		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
 		pboIndex = 0;
+		pboTime.addSeconds(-10);
 #endif
 	}
 
@@ -102,6 +104,8 @@ public:
 		GLubyte* buf = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER,GL_READ_ONLY);
 		if(buf)
 		{
+			if (pboTime.secondsSinceLastQuery()<2) // don't adjust based on PBO we started reading more than 2sec ago (prevents adjust based on initial empty buffer)
+			{
 #endif
 			for (unsigned i=0;i<256;i++)
 				histo[i] = 0;
@@ -123,6 +127,7 @@ public:
 				pp.brightness *= pow(pp.targetIntensity*255/avg,RR_CLAMPED(pp.secondsSinceLastAdjustment*0.15f,0.0002f,0.2f));
 			}
 #ifdef PBO
+			}
 			glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
 		}
 		pboIndex = 1-pboIndex;
