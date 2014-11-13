@@ -458,7 +458,7 @@ static RRBuffer* load(const RRString& filename, const char* cubeSideName[6])
 		: (cubeSideName
 			? reloadCube(buffer,filename,cubeSideName)
 			: reload2d(buffer,filename) );
-	buffer->filename = filename;
+	buffer->filename = filename; // [#36] exact filename we just opened or failed to open (we don't have a locator -> no attempts to open similar names)
 	if (!reloaded)
 		RR_SAFE_DELETE(buffer);
 	return buffer;

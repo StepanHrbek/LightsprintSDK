@@ -333,7 +333,7 @@ static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6
 		ar & boost::serialization::make_nvp("version", version);
 		rr::RRBuffer* buffer = boost::serialization::loadBufferContents<portable_binary_iarchive>(ar,version);
 		if (buffer)
-			buffer->filename = filename;
+			buffer->filename = filename; // [#36] actual filename opened
 		return buffer;
 	}
 	catch(...)

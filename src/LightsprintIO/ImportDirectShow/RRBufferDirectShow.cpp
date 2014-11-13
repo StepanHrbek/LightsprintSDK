@@ -49,7 +49,7 @@ public:
 	RRBufferDirectShow(const RRString& _filename)
 	{
 		refCount = 1;
-		filename = _filename;
+		filename = _filename; // [#36] exact filename we are trying to open (we don't have a locator -> no attempts to open similar names)
 		version = rand();
 		front = NULL;
 		back = NULL;

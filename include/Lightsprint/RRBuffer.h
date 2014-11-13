@@ -236,6 +236,10 @@ namespace rr
 		virtual bool isStub() {return false;}
 
 		//! Optional filename, automatically set when load/save succeeds.
+		//
+		//! When RRFileLocator is in use and it locates requested file in different place, this is the name of file actually opened.
+		//! When RRFileLocator fails to locate requested file, but it generates or loads stub image, this is name of file requested.
+		//! Path can be relative or absolute, anything supported by operating system, we don't restrict its format.
 		RRString filename;
 
 		//! Version of data in buffer, modified each time buffer content changes.

@@ -1040,7 +1040,7 @@ bool RRBuffer::save(const RRString& _filename, const char* _cubeSideName[6], con
 	for (unsigned i=0;i<s_savers.size();i++)
 		if (s_savers[i](this,_filename,_cubeSideName,_parameters))
 		{
-			filename = _filename;
+			filename = _filename; // [#36] filename of last successful save (although this could be weird if we save one frame of video)
 			return true;
 		}
 	RRReporter::report(WARN,"Failed to save %ls.\n",_filename.w_str());
@@ -1104,7 +1104,7 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 					data[3*(i+16*j)+2] = data[3*(i+16*j)+1] = data[3*(i+16*j)] = (((i/2^j/2)%2)?0:255);
 				result = RRBuffer::create(BT_2D_TEXTURE,16,16,1,BF_RGB,true,(unsigned char*)data);
 			}
-			result->filename = _filename;
+			result->filename = _filename; // [#36] stub contains original filename (of file that was not located)
 			RRBufferInMemory* bufferInMemory = dynamic_cast<RRBufferInMemory*>(result);
 			if (bufferInMemory)
 				bufferInMemory->stub = true;
@@ -1144,7 +1144,7 @@ bool RRBuffer::reload(const RRString& _filename, const char* _cubeSideName[6], c
 	// reload into existing buffer
 	const unsigned char* loadedData = loaded->lock(BL_READ);
 	reset(loaded->getType(),loaded->getWidth(),loaded->getHeight(),loaded->getDepth(),loaded->getFormat(),loaded->getScaled(),loadedData);
-	filename = loaded->filename;
+	filename = loaded->filename; // [#36] reload() just tmp->load()s and then copies all, including filename
 	if (loadedData)
 	{
 		loaded->unlock();

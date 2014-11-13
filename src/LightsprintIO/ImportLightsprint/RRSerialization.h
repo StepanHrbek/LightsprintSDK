@@ -103,7 +103,7 @@ static void fixPath(rr::RRString& filename)
 	#endif
 
 		// convert from wstring
-		filename = RR_STDW2RR(wstr2);
+		filename = RR_STDW2RR(wstr2); // [#36] no changes to path, just encoding
 	}
 	catch(...)
 	{

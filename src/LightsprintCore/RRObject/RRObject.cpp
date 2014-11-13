@@ -83,10 +83,10 @@ RRBuffer* RRObject::LayerParameters::createBuffer(bool forceFloats, bool forceAl
 			std::wstring filename = actualFilename.w_str();
 			int ofs = (int)filename.rfind('.',-1);
 			if (ofs>=0) filename.insert(ofs,insertBeforeExtension);
-			buffer->filename = RR_STDW2RR(filename);
+			buffer->filename = RR_STDW2RR(filename); // [#36] constructed name of empty lightmap, envmap etc
 		}
 		else
-			buffer->filename = actualFilename;
+			buffer->filename = actualFilename; // [#36] constructed name of empty lightmap, envmap etc
 	}
 	return buffer;
 }
