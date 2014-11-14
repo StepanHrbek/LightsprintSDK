@@ -8,7 +8,6 @@
 // Comment out formats you don't need.
 
 #define SUPPORT_LIGHTSPRINT // Lightsprint .rr3, .rrbuffer
-//#define SUPPORT_GAMEBRYO    // Gamebryo .gsa
 #define SUPPORT_OPENCOLLADA // OpenCollada .dae (better than Fcollada and Assimp)
 //#define SUPPORT_FCOLLADA  // FCollada .dae (better than Assimp, but obsoleted by OpenCollada)
 #define SUPPORT_3DS         // 3D Studio .3ds (sometimes better, sometimes worse than Assimp)
@@ -22,12 +21,6 @@
 #define SUPPORT_SMALLLUXGPU // SmallLuxGpu .scn, .ply
 
 // Actual support depends on your operating system, compiler etc.
-
-// Gamebryo doesn't support Visual Studio 2003, 2010, 64-bit code, Linux.
-// We don't support Gamebryo in static LightsprintIO (it works, but Gamebryo libs are not automatically linked to samples).
-#if defined(SUPPORT_GAMEBRYO) && ( !defined(_MSC_VER) || _MSC_VER<1400 || _MSC_VER>1500 || defined(_M_X64) || defined(RR_IO_STATIC) )
-	#undef SUPPORT_GAMEBRYO
-#endif
 
 // DirectShow exists only in Windows.
 #if defined(SUPPORT_DIRECTSHOW) && !defined(_WIN32)

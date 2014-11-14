@@ -11,7 +11,6 @@
 #include "ImportLightsprint/RRObjectLightsprint.h"
 #include "Import3DS/RRObject3DS.h"
 #include "ImportAssimp/RRObjectAssimp.h"
-#include "ImportGamebryo/RRObjectGamebryo.h"
 #include "ImportIsolation/RRSceneIsolation.h"
 #include "ImportOpenCollada/RRObjectOpenCollada.h"
 #include "ImportFCollada/RRObjectFCollada.h"
@@ -38,10 +37,6 @@ if (phase==0 || phase==1)
 #ifdef SUPPORT_DIRECTSHOW
 	// should be the last one, because it is probably very slow in rejecting unsupported formats
 	registerLoaderDirectShow();
-#endif
-
-#ifdef SUPPORT_GAMEBRYO
-	registerLoaderGamebryo();
 #endif
 
 #ifdef SUPPORT_QUAKE3

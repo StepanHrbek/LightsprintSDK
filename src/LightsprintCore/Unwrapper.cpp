@@ -691,7 +691,7 @@ unsigned RRObjects::buildUnwrap(unsigned resolution, unsigned minimalUvChannel, 
 					}
 					else 
 					{
-						RRReporter::report(WARN,"Unwrap not built, scene contains non-RRMeshArrays meshes. This affects 3ds, gamebryo, mgf, try changing format.\n");
+						RRReporter::report(WARN,"Unwrap not built, scene contains non-RRMeshArrays meshes. This affects 3ds, mgf, try changing format.\n");
 						return UINT_MAX;
 					}
 				}

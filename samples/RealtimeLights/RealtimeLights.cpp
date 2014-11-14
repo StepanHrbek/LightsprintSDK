@@ -1,7 +1,7 @@
 // --------------------------------------------------------------------------
 // RealtimeLights sample
 //
-// This is a viewer of Collada/Gamebryo/3ds/etc scenes with
+// This is a viewer of Collada/3ds/etc scenes with
 // - realtime GI from lights, emissive materials, skybox
 // - lights can be moved
 // - dynamic objects move

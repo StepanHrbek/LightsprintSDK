@@ -780,8 +780,6 @@
     <ClCompile Include="ImportOpenCollada\COLLADASaxFrameworkLoader\src\generated14\COLLADASaxFWLSplineLoader14.cpp" />
     <ClCompile Include="ImportQuake3\Q3Loader.cpp" />
     <ClCompile Include="ImportQuake3\RRObjectBSP.cpp" />
-    <ClCompile Include="ImportGamebryo\NiMaterialDetector.cpp" />
-    <ClCompile Include="ImportGamebryo\RRObjectGamebryo.cpp" />
     <ClCompile Include="ImportImages\ImportFreeImage.cpp" />
     <ClCompile Include="ImportAssimp\RRObjectAssimp.cpp" />
     <ClCompile Include="ImportAssimp\contrib\zlib\adler32.c" />
@@ -1172,8 +1170,6 @@
     <ClInclude Include="ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSplineLoader14.h" />
     <ClInclude Include="ImportQuake3\Q3Loader.h" />
     <ClInclude Include="ImportQuake3\RRObjectBSP.h" />
-    <ClInclude Include="ImportGamebryo\NiMaterialDetector.h" />
-    <ClInclude Include="ImportGamebryo\RRObjectGamebryo.h" />
     <ClInclude Include="ImportImages\ImportFreeImage.h" />
     <ClInclude Include="ImportAssimp\RRObjectAssimp.h" />
     <ClInclude Include="ImportAssimp\contrib\zlib\crc32.h" />

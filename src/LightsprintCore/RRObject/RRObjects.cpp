@@ -624,7 +624,7 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 					}
 					else 
 					{
-						RRReporter::report(WARN,"Texcoords not removed, scene contains non-RRMeshArrays meshes. This affects 3ds, gamebryo, mgf, try changing format.\n");
+						RRReporter::report(WARN,"Texcoords not removed, scene contains non-RRMeshArrays meshes. This affects 3ds, mgf, try changing format.\n");
 						return;
 					}
 				}

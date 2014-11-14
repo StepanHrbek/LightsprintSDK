@@ -546,13 +546,8 @@ SVCanvas::~SVCanvas()
 	if (!svs.releaseResources)
 	{
 		// user requested fast exit without releasing resources
-		// however, if scene is .gsa, we must ignore him and release resources (it shutdowns gamebryo)
-		bool sceneMustBeReleased = _stricmp(bf::path(RR_WX2PATH(svs.sceneFilename)).extension().string().c_str(),".gsa")==0;
-		if (!sceneMustBeReleased)
-		{
-			// save time and don't release scene
-			return;
-		}
+		// save time and don't release scene
+		return;
 	}
 
 #ifdef SUPPORT_OCULUS

@@ -17,7 +17,6 @@
 //
 // It supports inputs in various file formats
 // - Collada
-// - Gamebryo
 // - other partially supported formats
 //
 // It supports outputs in various file formats
@@ -336,7 +335,7 @@ struct Parameters
 	{
 		if (!buildNothing)
 		{
-			illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.createBuffer(false,true,L"") : NULL; // "" rather than ".lightmap" because Gamebryo 2.6 integration wants us to build <hash>.tga, not <hash>.lightmap.tga
+			illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.createBuffer(false,true,L".lightmap") : NULL;
 			illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? layerParameters.createBuffer(false,true,L".occlusion") : NULL; // floats not necessary, alpha for smoothing
 			illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional1") : NULL;
 			illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional2") : NULL;

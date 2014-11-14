@@ -16,9 +16,6 @@
     <Filter Include="Quake3">
       <UniqueIdentifier>{f3d6a34a-2808-4651-94e4-6a456af1d8dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Gamebryo">
-      <UniqueIdentifier>{33703d82-902c-400b-bfc6-a0ed8a949fee}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Images">
       <UniqueIdentifier>{ed2d0185-279b-4968-87cb-21072429f572}</UniqueIdentifier>
     </Filter>
@@ -209,12 +206,6 @@
     </ClCompile>
     <ClCompile Include="ImportQuake3\RRObjectBSP.cpp">
       <Filter>Quake3</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportGamebryo\NiMaterialDetector.cpp">
-      <Filter>Gamebryo</Filter>
-    </ClCompile>
-    <ClCompile Include="ImportGamebryo\RRObjectGamebryo.cpp">
-      <Filter>Gamebryo</Filter>
     </ClCompile>
     <ClCompile Include="ImportImages\ImportFreeImage.cpp">
       <Filter>Images</Filter>
@@ -1340,12 +1331,6 @@
     </ClInclude>
     <ClInclude Include="ImportQuake3\RRObjectBSP.h">
       <Filter>Quake3</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportGamebryo\NiMaterialDetector.h">
-      <Filter>Gamebryo</Filter>
-    </ClInclude>
-    <ClInclude Include="ImportGamebryo\RRObjectGamebryo.h">
-      <Filter>Gamebryo</Filter>
     </ClInclude>
     <ClInclude Include="ImportImages\ImportFreeImage.h">
       <Filter>Images</Filter>
