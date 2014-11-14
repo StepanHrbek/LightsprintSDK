@@ -326,7 +326,7 @@ Material formats (1)
  - for baking and pathtracing, 3D API is not needed
 
  Compilers
- - Visual C++ 2013.3 (32bit, 64bit)
+ - Visual C++ 2013.4 (32bit, 64bit)
  - Visual C++ 2012.4 (32bit, 64bit)
  - Visual C++ 2010 SP1 with all security updates (32bit, 64bit)
  - GCC (32bit, 64bit)
