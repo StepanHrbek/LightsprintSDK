@@ -312,17 +312,19 @@ void RRObjects::makeNamesUnique() const
 	// naming scheme 1
 	// turns names xxx,xxx,xxx,xxx5,xxx5 into xxx,xxx01,xxx02,xxx5,xxx06
 	typedef std::unordered_set<std::wstring> Set;
-	Set filenamizedOriginals;
+	typedef std::unordered_map<std::wstring,unsigned long long> Map;
+	Map filenamizedOriginals; // value = the highest number so far assigned to this filename, we skip lower numbers when searching for unused one
 	Set filenamizedAccepted;
 	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 	{
 		RRObject* object = (*this)[objectIndex];
-		filenamizedOriginals.insert(filenamized(object->name));
+		filenamizedOriginals[filenamized(object->name)] = 0;
 	}
 	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
 	{
 		RRObject* object = (*this)[objectIndex];
-		std::wstring filenamizedCandidate = filenamized(object->name);
+		std::wstring filenamizedOriginal = filenamized(object->name);
+		std::wstring filenamizedCandidate = filenamizedOriginal;
 		if (filenamizedAccepted.find(filenamizedCandidate)==filenamizedAccepted.end())
 		{
 			// 1. accept "so far" unique names
@@ -334,6 +336,9 @@ void RRObjects::makeNamesUnique() const
 			std::wstring filenamizedPrefix = filenamizedCandidate;
 			unsigned long long number;
 			splitName(filenamizedPrefix,number);
+			// optimization step1: skip numbers that are definitely not free
+			if (filenamizedOriginals[filenamizedOriginal])
+				number = filenamizedOriginals[filenamizedOriginal];
 			// 3. try increasing number until it becomes "globally" unique
 			do
 			{
@@ -342,6 +347,8 @@ void RRObjects::makeNamesUnique() const
 			}
 			while (filenamizedAccepted.find(filenamizedCandidate)!=filenamizedAccepted.end() || filenamizedOriginals.find(filenamizedCandidate)!=filenamizedOriginals.end());
 			filenamizedAccepted.insert(filenamizedCandidate);
+			// optimization step2: remember numbers that are definitely not free
+			filenamizedOriginals[filenamizedOriginal] = number;
 			// 4. construct final non-filenamized name
 			std::wstring rawPrefix = RR_RR2STDW(object->name);
 			unsigned long long rawNumber;
