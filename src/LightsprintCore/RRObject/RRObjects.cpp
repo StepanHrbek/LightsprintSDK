@@ -167,6 +167,8 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 
 unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool report) const
 {
+	if (numNormalsThatMustPointBack>3)
+		return 0;
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
 	unsigned numMeshesWithoutArrays = 0;
 	std::unordered_set<RRMeshArrays*> arrays;

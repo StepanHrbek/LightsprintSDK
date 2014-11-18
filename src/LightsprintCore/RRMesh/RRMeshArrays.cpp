@@ -386,6 +386,8 @@ void RRMeshArrays::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 
 unsigned RRMeshArrays::flipFrontBack(unsigned numNormalsThatMustPointBack, bool negativeScale)
 {
+	if (numNormalsThatMustPointBack>3)
+		return 0;
 	unsigned numFlips = 0;
 	for (unsigned t=0;t<numTriangles;t++)
 	{
