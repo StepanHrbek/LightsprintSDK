@@ -171,12 +171,14 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 		return 0;
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
 	unsigned numMeshesWithoutArrays = 0;
-	std::unordered_set<RRMeshArrays*> arrays;
+	typedef std::unordered_map<RRMeshArrays*,std::vector<RRObject*> > Map;
+	Map arrays;
 	for (unsigned i=0;i<size();i++)
 	{
-		RRMeshArrays* mesh = const_cast<RRMeshArrays*>(dynamic_cast<const RRMeshArrays*>((*this)[i]->getCollider()->getMesh()));
+		RRObject* object = (*this)[i];
+		RRMeshArrays* mesh = const_cast<RRMeshArrays*>(dynamic_cast<const RRMeshArrays*>(object->getCollider()->getMesh()));
 		if (mesh)
-			arrays.insert(mesh);
+			arrays[mesh].push_back(object);
 		else
 			numMeshesWithoutArrays++;
 	}
@@ -187,21 +189,19 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 
 	// flip
 	unsigned numFlips = 0;
-	for (std::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
+	for (Map::iterator i=arrays.begin();i!=arrays.end();++i)
 	{
+		RRMeshArrays* mesh = i->first;
+		const std::vector<RRObject*>& objects = i->second;
 		// detect scale
 		unsigned numObjectWithPositiveScale = 0;
 		unsigned numObjectWithNegativeScale = 0;
-		for (unsigned j=0;j<size();j++)
+		for (std::vector<RRObject*>::const_iterator j=objects.begin();j!=objects.end();++j)
 		{
-			RRMeshArrays* mesh = const_cast<RRMeshArrays*>(dynamic_cast<const RRMeshArrays*>((*this)[j]->getCollider()->getMesh()));
-			if (mesh==*i)
-			{
-				RRVec3 scale3 = (*this)[j]->getWorldMatrixRef().getScale();
-				float scale1 = scale3.x*scale3.y*scale3.z;
-				if (scale1>0) numObjectWithPositiveScale++;
-				if (scale1<0) numObjectWithNegativeScale++;
-			}
+			RRVec3 scale3 = (*j)->getWorldMatrixRef().getScale();
+			float scale1 = scale3.x*scale3.y*scale3.z;
+			if (scale1>0) numObjectWithPositiveScale++;
+			if (scale1<0) numObjectWithNegativeScale++;
 		}
 		bool negativeScale;
 		if (numObjectWithPositiveScale && !numObjectWithNegativeScale) negativeScale = false; else
@@ -211,7 +211,7 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 			continue;
 		}
 		// flip
-		numFlips += (*i)->flipFrontBack(numNormalsThatMustPointBack,negativeScale);
+		numFlips += mesh->flipFrontBack(numNormalsThatMustPointBack,negativeScale);
 	}
 	if (report && numFlips)
 	{
