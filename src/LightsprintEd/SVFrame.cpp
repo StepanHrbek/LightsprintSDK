@@ -32,6 +32,7 @@ namespace bf = boost::filesystem;
 namespace rr_ed
 {
 
+
 // reimplemention of rr_gl's internal Workaround::supportsSRGB()
 bool supportsSRGB()
 {
@@ -1774,7 +1775,7 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 
 	if (action!=SEA_NOTHING && m_sceneTree)
 	{
-		m_sceneTree->selectEntityInTree(entity);
+		m_sceneTree->selectEntityInTree(entity); // cycle: selectEntityInTree() -> ctrl::SelectItem() -> OnSelChanged() -> selectEntityInTreeAndUpdatePanel()
 	}
 }
 
