@@ -401,7 +401,10 @@ void SVFrame::UpdateEverything()
 	bool oldReleaseResources = svs.releaseResources;
 	svs.releaseResources = true; // we are not returning yet, we should shutdown
 	m_canvasWindow->svcanvas = nextCanvas;
-	RR_SAFE_DELETE(m_canvas);
+	{
+		rr::RRReportInterval report(rr::INF2,"Cleaning up...\n"); // temporary, we had crash somewhere around here, this will help locate it
+		RR_SAFE_DELETE(m_canvas);
+	}
 	svs.releaseResources = oldReleaseResources;
 
 	// initialInputSolver may be changed only if canvas is NULL
