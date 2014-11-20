@@ -158,8 +158,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;RR_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>
-      </ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -210,8 +209,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;RR_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>
-      </ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -356,8 +354,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;GATE_LICENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>
-      </ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -420,8 +417,7 @@
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;GATE_LICENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>
-      </ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
