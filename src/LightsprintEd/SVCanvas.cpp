@@ -728,7 +728,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 			}
 			break;
 
-		case WXK_F8: svframe->OnMenuEventCore(SVFrame::ME_FILE_SAVE_SCREENSHOT); break;
+		case WXK_F9: svframe->OnMenuEventCore(SVFrame::ME_FILE_SAVE_SCREENSHOT); break;
 		case WXK_F11: svframe->OnMenuEventCore(SVFrame::ME_WINDOW_FULLSCREEN_META); break;
 		case WXK_NUMPAD_ADD:
 		case '+': svs.tonemapping.color *= 1.2f; needsRefresh = true; break;
