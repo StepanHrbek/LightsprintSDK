@@ -1726,9 +1726,11 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr::RRReportInterval report(rr::INF3,"pathtrace scene...\n");
 			if (!pathTracedBuffer)
 				pathTracedBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,false,NULL);
-			if (winWidth!=pathTracedBuffer->getWidth() || winHeight!=pathTracedBuffer->getHeight())
+			unsigned pathTraceWidth = winWidth;
+			unsigned pathTraceHeight = winHeight;
+			if (pathTraceWidth!=pathTracedBuffer->getWidth() || pathTraceHeight!=pathTracedBuffer->getHeight())
 			{
-				pathTracedBuffer->reset(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGBF,false,NULL); // embree accepts only RGB,RGBA,RGBF
+				pathTracedBuffer->reset(rr::BT_2D_TEXTURE,pathTraceWidth,pathTraceHeight,1,rr::BF_RGBF,false,NULL); // embree accepts only RGB,RGBA,RGBF
 				pathTracedAccumulator = 0;
 			}
 			rr::RRCamera camera = svs.camera;
