@@ -3,10 +3,6 @@
 // Copyright (c) 2006-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include "RRBufferBlend.h"
 #include "Lightsprint/RRDebug.h"
 
