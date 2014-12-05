@@ -8,7 +8,7 @@
 #include "report.h"
 #include "private.h"
 #include "../RRStaticSolver/rrcore.h" // build of packed factors
-#include "../RRStaticSolver/gatherer.h" // pathTraceFrame()
+#include "../RRStaticSolver/pathtracer.h" // pathTraceFrame()
 #include <unordered_set>
 
 namespace rr
