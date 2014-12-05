@@ -156,7 +156,7 @@ public:
 	GatheredIrradianceHemisphere(const GatheringTools& _tools, const ProcessTexelParams& _pti) :
 		tools(_tools),
 		pti(_pti),
-		gatherer(
+		pathtracerWorker(
 			_pti.context,
 			_pti.context.solver,
 			pathTracingParameters,
@@ -183,7 +183,7 @@ public:
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
 		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.params->applyEmittance!=0) ? RR_MAX(1,pti.context.params->quality) : 0;
-		gatherer.ray.rayLengthMin = pti.rayLengthMin;
+		pathtracerWorker.ray.rayLengthMin = pti.rayLengthMin;
 	}
 
 	// once before shooting (full init)
@@ -206,7 +206,7 @@ public:
 		maxSingleRayContribution = 0; // max sum of all irradiance components in physical scale
 		// init ray
 		//pti.rays[0].rayLengthMin = 0; // Our caller already set rayLengthMin to nice small value, keep it. Small bias is important for UE3 terrain segments that overlap. 0 would be better only if triangles don't overlap.
-		gatherer.ray.rayLengthMax = pti.context.params->locality;
+		pathtracerWorker.ray.rayLengthMax = pti.context.params->locality;
 	}
 
 	// 1 ray
@@ -215,7 +215,7 @@ public:
 	// _basisSkewed is derived from RRMesh basis, not orthogonal, not normalized
 	void shotRay(const RRVec3& _rayOrigin, const RRMesh::TangentBasis& _basisSkewedNormalized, const RRMesh::TangentBasis& _basisOrthonormal, unsigned _skipTriangleIndex)
 	{
-		gatherer.ray.rayOrigin = _rayOrigin;
+		pathtracerWorker.ray.rayOrigin = _rayOrigin;
 
 		// random exit dir
 		// use orthonormal basis (so that probabilities of exit directions are correct)
@@ -224,10 +224,10 @@ public:
 
 		// AO [#22]: prepare for approximate measurement of hit distance (if it is not changed = no hit)
 		// getIncidentRadiance() won't change it if there is no accepted hit
-		gatherer.ray.hitDistance = 1e10f;
+		pathtracerWorker.ray.hitDistance = 1e10f;
 
 		// gather 1 ray
-		RRVec3 irrad = gatherer.getIncidentRadiance(gatherer.ray.rayOrigin,dir,pti.context.solver->getMultiObject(),_skipTriangleIndex);
+		RRVec3 irrad = pathtracerWorker.getIncidentRadiance(pathtracerWorker.ray.rayOrigin,dir,pti.context.solver->getMultiObject(),_skipTriangleIndex);
 		//RR_ASSERT(irrad[0]>=0 && irrad[1]>=0 && irrad[2]>=0); may be negative by rounding error
 		if (!pti.context.gatherAllDirections)
 		{
@@ -260,7 +260,7 @@ public:
 		bentNormalHemisphere += dir * irrad.abs().avg();
 		hitsScene++;
 		hitsReliable++;
-		if (gatherer.ray.hitDistance>pti.context.params->aoSize)
+		if (pathtracerWorker.ray.hitDistance>pti.context.params->aoSize)
 			hitsDistant++;
 	}
 
@@ -315,8 +315,8 @@ public:
 protected:
 	const GatheringTools& tools;
 	const ProcessTexelParams& pti;
-	PathtracerWorker gatherer;
-	RRSolver::PathTracingParameters pathTracingParameters; // passed to gatherer
+	PathtracerWorker pathtracerWorker;
+	RRSolver::PathTracingParameters pathTracingParameters; // passed to pathtracerWorker
 	// homogenous filler
 	HomogenousFiller2 fillerDir;
 	// counters

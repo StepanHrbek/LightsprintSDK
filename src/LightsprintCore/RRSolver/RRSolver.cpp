@@ -1122,9 +1122,9 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 #pragma omp parallel for schedule(dynamic)
 	for (int j=0;j<(int)h;j++)
 	{
-		PathtracerWorker gatherer(ptj,this,_parameters,true,false,UINT_MAX);
-		gatherer.ray.rayLengthMin = priv->minimalSafeDistance; // necessary, e.g. 2011_BMW_5_series_F10_535_i_v1.1.rr3
-		gatherer.ray.rayLengthMax = 1e10f;
+		PathtracerWorker pathtracerWorker(ptj,this,_parameters,true,false,UINT_MAX);
+		pathtracerWorker.ray.rayLengthMin = priv->minimalSafeDistance; // necessary, e.g. 2011_BMW_5_series_F10_535_i_v1.1.rr3
+		pathtracerWorker.ray.rayLengthMax = 1e10f;
 		for (unsigned i=0;i<w;i++)
 		{
 			unsigned index = i+j*w;
@@ -1137,7 +1137,7 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 				float r2=rand()*(2.f/RAND_MAX), dy=r2<1 ? sqrtf(r2)-1: 1-sqrtf(2-r2);
 				//RRVec2 positionInWindow((sx+.5+dx+2*i)/w-1,1-(sy+.5+dy+2*j)/h);
 				RRVec2 positionInWindow(2*(dx+i)/w-1,2*(dy+j)/h-1);
-				RRVec3 color = gatherer.getIncidentRadiance(_camera.getRayOrigin(positionInWindow),_camera.getRayDirection(positionInWindow).normalized(),NULL,UINT_MAX);
+				RRVec3 color = pathtracerWorker.getIncidentRadiance(_camera.getRayOrigin(positionInWindow),_camera.getRayDirection(positionInWindow).normalized(),NULL,UINT_MAX);
 				c = (c*RRReal(_accumulated)+RRVec4(color,0))/(_accumulated+1);
 			}
 			_frame->setElement(index,c);

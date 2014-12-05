@@ -310,8 +310,8 @@ public:
 // It is used only by RRSolver, but for higher speed,
 // it can read data directly from RRStaticSolver or RRPackedSolver internals, so it is here.
 
-// For final gathering of many rays, use one gatherer per thread.
-// May be used 1000x for 1 final gathered texel, 640x480x for 1 raytraced image...
+// For final gathering of many rays, use one worker per thread or per pixel, whatever is easier.
+// Can be used 1000x for 1 final gathered texel, 640x480x for 1 raytraced image...
 class PathtracerWorker
 {
 public:
