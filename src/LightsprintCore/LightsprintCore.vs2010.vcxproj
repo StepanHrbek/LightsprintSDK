@@ -569,6 +569,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="RRBuffer\RRBufferBlend.cpp" />
     <ClCompile Include="RRCamera.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Async</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Async</ExceptionHandling>
@@ -694,6 +695,7 @@
     <ClInclude Include="..\..\include\Lightsprint\RRCamera.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRFileLocator.h" />
     <ClInclude Include="NumReports.h" />
+    <ClInclude Include="RRBuffer\RRBufferBlend.h" />
     <ClInclude Include="RRCollider\bsp.h" />
     <ClInclude Include="RRCollider\config.h" />
     <ClInclude Include="RRCollider\geometry.h" />

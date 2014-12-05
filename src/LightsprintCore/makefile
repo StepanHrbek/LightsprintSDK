@@ -34,6 +34,7 @@ CPP_FLAGS += -DSUPPORT_LIGHTFIELD
 
 SOURCES = \
 RRBuffer/RRBuffer.cpp \
+RRBuffer/RRBufferBlend.cpp \
 RRBuffer/RRBufferInMemory.cpp \
 RRReporter/RRReporter.cpp \
 RRReporter/RRReporterFile.cpp \

@@ -223,6 +223,9 @@
       <Filter>RRCollider</Filter>
     </ClCompile>
     <ClCompile Include="RRCamera.cpp" />
+    <ClCompile Include="RRBuffer\RRBufferBlend.cpp">
+      <Filter>RRBuffer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RRCollider\bsp.h">
@@ -421,6 +424,9 @@
     <ClInclude Include="..\..\include\Lightsprint\RRCamera.h" />
     <ClInclude Include="RRCollider\RRCollisionHandler.h">
       <Filter>RRCollider</Filter>
+    </ClInclude>
+    <ClInclude Include="RRBuffer\RRBufferBlend.h">
+      <Filter>RRBuffer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
