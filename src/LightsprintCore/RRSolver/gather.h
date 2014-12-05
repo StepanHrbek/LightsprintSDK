@@ -9,6 +9,7 @@
 // comment out both = use stl. small, slow
 
 #include "Lightsprint/RRSolver.h"
+#include "../RRStaticSolver/gatherer.h" // PathtracerJob
 	#include "../RRStaticSolver/ChunkList.h"
 
 namespace rr
@@ -26,7 +27,7 @@ enum LightmapSemantic
 	NUM_BUFFERS = LS_BENT_NORMALS+1,
 };
 
-struct TexelContext
+struct TexelContext : public PathtracerJob
 {
 	RRSolver* solver;
 	RRBuffer* pixelBuffers[NUM_BUFFERS]; // classical lmap, 3 directional lmaps, bent normal map
@@ -36,6 +37,7 @@ struct TexelContext
 	bool staticSceneContainsLods; // scene contains LODs, additional work
 
 	TexelContext(RRSolver* _solver)
+		: PathtracerJob(_solver)
 	{
 		solver = _solver;
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
