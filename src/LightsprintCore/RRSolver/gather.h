@@ -34,6 +34,17 @@ struct TexelContext
 	RRObject* singleObjectReceiver;
 	bool gatherAllDirections; // LS_DIRECTIONn irradiances are gathered too
 	bool staticSceneContainsLods; // scene contains LODs, additional work
+
+	TexelContext(RRSolver* _solver)
+	{
+		solver = _solver;
+		for (unsigned i=0;i<NUM_BUFFERS;i++)
+			pixelBuffers[i] = NULL;
+		params = NULL;
+		singleObjectReceiver = NULL;
+		gatherAllDirections = true;
+		staticSceneContainsLods = false;
+	};
 };
 
 // subtexel is triangular intersection of triangle and texel

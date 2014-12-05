@@ -831,11 +831,8 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 
 	RRReportInterval report(INF2,"Gathering(%s%s%s%d) ...\n",
 		params.applyLights?"lights ":"",params.applyEnvironment?"env ":"",params.applyCurrentSolution?"cur ":"",params.quality);
-	TexelContext tc;
-	tc.solver = this;
-	for (unsigned i=0;i<NUM_BUFFERS;i++) tc.pixelBuffers[i] = NULL;
+	TexelContext tc(this);
 	tc.params = &params;
-	tc.singleObjectReceiver = NULL; // later modified per triangle
 	tc.gatherAllDirections = resultsPhysical->data[LS_DIRECTION1]||resultsPhysical->data[LS_DIRECTION2]||resultsPhysical->data[LS_DIRECTION3];
 	tc.staticSceneContainsLods = priv->staticSceneContainsLods;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);

@@ -542,8 +542,7 @@ const char* checkUnwrapConsistency(const RRObject* object)
 	{
 		UnwrapStatisticsEx us;
 		us.subtexelsInMapSpace = true;
-		TexelContext tc;
-		memset(&tc,0,sizeof(tc));
+		TexelContext tc(NULL);
 		tc.singleObjectReceiver = reinterpret_cast<RRObject*>(&us);
 		enumerateTexelsFull(object,-1,MAP_WIDTH,MAP_WIDTH,us.callback,tc,0,us);
 		float missing = us.numTrianglesWithoutUnwrap/(float)numTriangles;
@@ -758,10 +757,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 	// PER-PIXEL (NON-REALTIME)
 	if (numPixelBuffers)
 	{
-		TexelContext tc;
-		tc.solver = this;
-		for (unsigned i=0;i<NUM_BUFFERS;i++)
-			tc.pixelBuffers[i] = NULL;
+		TexelContext tc(this);
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
 			if (allPixelBuffers[i])
 			{
