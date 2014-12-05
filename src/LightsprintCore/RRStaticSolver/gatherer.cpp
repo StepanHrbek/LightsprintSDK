@@ -13,6 +13,14 @@ namespace rr
 
 extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 
+PathtracerJob::PathtracerJob(const RRSolver* solver)
+{
+}
+
+PathtracerJob::~PathtracerJob()
+{
+}
+
 Gatherer::Gatherer(const RRSolver* _solver, const RRSolver::PathTracingParameters& _parameters, bool _dynamic, bool _staticSceneContainsLods, unsigned _quality)
 	: collisionHandlerGatherHemisphere(_solver->getScaler(),_quality,_staticSceneContainsLods),
 	  collisionHandlerGatherLights(_solver->getScaler(),_quality,_staticSceneContainsLods),
