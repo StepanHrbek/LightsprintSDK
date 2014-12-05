@@ -343,7 +343,6 @@ protected:
 	const RRObject* multiObject;
 	const RRCollider* collider;
 	const RRLights* lights;
-	const RRBuffer* environment;
 	const RRScaler* scaler;
 	const RRPackedSolver* packedSolver; // shortcut for accessing indirect in Fireball solver
 	class Triangle* triangle; // shortcut for accessing indirect in Architect solver

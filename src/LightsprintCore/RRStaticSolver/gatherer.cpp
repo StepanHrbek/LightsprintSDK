@@ -38,7 +38,6 @@ Gatherer::Gatherer(const PathtracerJob& _ptj, const RRSolver* _solver, const RRS
 	ray.collisionHandler = &collisionHandlerGatherHemisphere;
 	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_POINT3D|RRRay::FILL_TRIANGLE; // 3D is only for shadowrays
 	lights = &_solver->getLights();
-	environment = _solver->getEnvironment();
 	scaler = _solver->getScaler();
 	multiObject = _solver->getMultiObject();
 	collider = _dynamic ? _solver->getCollider() : multiObject->getCollider();
@@ -117,7 +116,7 @@ RRVec3 Gatherer::getIncidentRadiance(const RRVec3& eye, const RRVec3& direction,
 		ray.hitDistance = hitDistanceBackup;
 
 		// ray left scene, add environment lighting
-		if (environment)
+		if (ptj.environment)
 		{
 			RRVec3 irrad = ptj.environment->getElementAtDirection(direction);
 			if (scaler && ptj.environment->getScaled()) scaler->getPhysicalScale(irrad);
