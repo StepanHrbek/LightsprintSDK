@@ -1122,7 +1122,7 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 #pragma omp parallel for schedule(dynamic)
 	for (int j=0;j<(int)h;j++)
 	{
-		PathtracerWorker pathtracerWorker(ptj,this,_parameters,true,false,UINT_MAX);
+		PathtracerWorker pathtracerWorker(ptj,_parameters,true,false,UINT_MAX);
 		pathtracerWorker.ray.rayLengthMin = priv->minimalSafeDistance; // necessary, e.g. 2011_BMW_5_series_F10_535_i_v1.1.rr3
 		pathtracerWorker.ray.rayLengthMax = 1e10f;
 		for (unsigned i=0;i<w;i++)

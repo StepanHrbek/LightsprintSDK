@@ -18,8 +18,9 @@ extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 // PathtracerJob
 //
 
-PathtracerJob::PathtracerJob(const RRSolver* solver)
+PathtracerJob::PathtracerJob(const RRSolver* _solver)
 {
+	solver = _solver;
 	RRReal angleRad0 = 0;
 	RRReal angleRad1 = 0;
 	RRReal blendFactor = solver ? solver->getEnvironmentBlendFactor() : 0;
@@ -40,20 +41,20 @@ PathtracerJob::~PathtracerJob()
 // PathtracerWorker
 //
 
-PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver* _solver, const RRSolver::PathTracingParameters& _parameters, bool _dynamic, bool _staticSceneContainsLods, unsigned _quality)
-	: ptj(_ptj), collisionHandlerGatherHemisphere(_solver->getScaler(),_quality,_staticSceneContainsLods),
-	  collisionHandlerGatherLights(_solver->getScaler(),_quality,_staticSceneContainsLods),
+PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::PathTracingParameters& _parameters, bool _dynamic, bool _staticSceneContainsLods, unsigned _quality)
+	: ptj(_ptj), collisionHandlerGatherHemisphere(_ptj.solver->getScaler(),_quality,_staticSceneContainsLods),
+	  collisionHandlerGatherLights(_ptj.solver->getScaler(),_quality,_staticSceneContainsLods),
 	  parameters(_parameters)
 {
-	collisionHandlerGatherHemisphere.setHemisphere(_solver->priv->scene);
+	collisionHandlerGatherHemisphere.setHemisphere(ptj.solver->priv->scene);
 	ray.collisionHandler = &collisionHandlerGatherHemisphere;
 	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_POINT3D|RRRay::FILL_TRIANGLE; // 3D is only for shadowrays
-	lights = &_solver->getLights();
-	scaler = _solver->getScaler();
-	multiObject = _solver->getMultiObject();
-	collider = _dynamic ? _solver->getCollider() : multiObject->getCollider();
-	packedSolver = _solver->priv->packedSolver;
-	triangle = (_solver->priv->scene && _solver->priv->scene->scene && _solver->priv->scene->scene->object) ? _solver->priv->scene->scene->object->triangle : NULL;
+	lights = &ptj.solver->getLights();
+	scaler = ptj.solver->getScaler();
+	multiObject = ptj.solver->getMultiObject();
+	collider = _dynamic ? ptj.solver->getCollider() : multiObject->getCollider();
+	packedSolver = ptj.solver->priv->packedSolver;
+	triangle = (ptj.solver->priv->scene && ptj.solver->priv->scene->scene && ptj.solver->priv->scene->scene->object) ? ptj.solver->priv->scene->scene->object->triangle : NULL;
 }
 
 // material, ray.hitObject, ray.hitTriangle, ray.hitPoint2d -> normal

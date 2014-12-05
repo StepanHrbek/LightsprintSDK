@@ -295,7 +295,8 @@ class PathtracerJob
 public:
 	PathtracerJob(const RRSolver* solver);
 	~PathtracerJob();
-
+	
+	const RRSolver* solver;
 	RRBuffer* environment; // blend of two rotated solver environments
 };
 
@@ -322,7 +323,7 @@ public:
 	//!  Gather indirect exitance (stored in static solver). May include indirect light computed from direct realtime lights, direct emitors, rrlights, env.
 	//! \param quality
 	//!  Desired illumination quality, used to enable/disable point materials.
-	PathtracerWorker(const PathtracerJob& ptj, const RRSolver* solver, const RRSolver::PathTracingParameters& parameters, bool dynamic, bool staticSceneContainsLods, unsigned quality);
+	PathtracerWorker(const PathtracerJob& ptj, const RRSolver::PathTracingParameters& parameters, bool dynamic, bool staticSceneContainsLods, unsigned quality);
 
 	//! Returns color visible in given direction, in physical scale.
 	//

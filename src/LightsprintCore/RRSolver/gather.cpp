@@ -158,7 +158,6 @@ public:
 		pti(_pti),
 		pathtracerWorker(
 			_pti.context,
-			_pti.context.solver,
 			pathTracingParameters,
 			false,
 			_pti.context.staticSceneContainsLods,

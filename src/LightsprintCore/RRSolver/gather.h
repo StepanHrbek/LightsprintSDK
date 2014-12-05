@@ -29,7 +29,6 @@ enum LightmapSemantic
 
 struct TexelContext : public PathtracerJob
 {
-	RRSolver* solver;
 	RRBuffer* pixelBuffers[NUM_BUFFERS]; // classical lmap, 3 directional lmaps, bent normal map
 	const RRSolver::UpdateParameters* params; // measure_internal.direct zapina gather z emitoru. measure_internal.indirect zapina gather indirectu ze static solveru. oboje zapina gather direct+indirect ze static solveru
 	RRObject* singleObjectReceiver;
@@ -39,7 +38,6 @@ struct TexelContext : public PathtracerJob
 	TexelContext(RRSolver* _solver)
 		: PathtracerJob(_solver)
 	{
-		solver = _solver;
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
 			pixelBuffers[i] = NULL;
 		params = NULL;
