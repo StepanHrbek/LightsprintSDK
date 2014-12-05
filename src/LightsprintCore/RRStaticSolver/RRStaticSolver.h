@@ -178,7 +178,7 @@ namespace rr
 		RRReal materialEmittanceMultiplier;
 	private:
 		class Scene*  scene;
-		friend class Gatherer;
+		friend class PathtracerWorker;
 		friend class RRCollisionHandlerFinalGathering;
 		friend class RRSolver;
 		RRStaticSolver(RRObject* object, const RRSolver::SmoothingParameters* smoothing, class Object* obj, bool& aborting);

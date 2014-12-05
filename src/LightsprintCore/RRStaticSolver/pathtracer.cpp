@@ -13,6 +13,11 @@ namespace rr
 
 extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// PathtracerJob
+//
+
 PathtracerJob::PathtracerJob(const RRSolver* solver)
 {
 	RRReal angleRad0 = 0;
@@ -29,7 +34,13 @@ PathtracerJob::~PathtracerJob()
 	delete environment;
 }
 
-Gatherer::Gatherer(const PathtracerJob& _ptj, const RRSolver* _solver, const RRSolver::PathTracingParameters& _parameters, bool _dynamic, bool _staticSceneContainsLods, unsigned _quality)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PathtracerWorker
+//
+
+PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver* _solver, const RRSolver::PathTracingParameters& _parameters, bool _dynamic, bool _staticSceneContainsLods, unsigned _quality)
 	: ptj(_ptj), collisionHandlerGatherHemisphere(_solver->getScaler(),_quality,_staticSceneContainsLods),
 	  collisionHandlerGatherLights(_solver->getScaler(),_quality,_staticSceneContainsLods),
 	  parameters(_parameters)
@@ -93,7 +104,7 @@ static RRVec3 getPointNormal(const RRRay& ray, const RRMaterial* material)
 	return iwm ? iwm->getTransformedNormal(objectNormal).normalized() : objectNormal;
 }
 
-RRVec3 Gatherer::getIncidentRadiance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, unsigned numBounces)
+RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, unsigned numBounces)
 {
 	RR_ASSERT(IS_VEC3(eye));
 	RR_ASSERT(IS_VEC3(direction));

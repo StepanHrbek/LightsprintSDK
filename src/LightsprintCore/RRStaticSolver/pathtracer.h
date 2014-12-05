@@ -302,7 +302,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Gatherer
+// PathtracerWorker
 //
 
 // Casts 1 ray with possible reflections/refractions/shadowrays, returns color visible in given direction.
@@ -312,7 +312,7 @@ public:
 
 // For final gathering of many rays, use one gatherer per thread.
 // May be used 1000x for 1 final gathered texel, 640x480x for 1 raytraced image...
-class Gatherer
+class PathtracerWorker
 {
 public:
 	// Initializes helper structures for gather().
@@ -322,7 +322,7 @@ public:
 	//!  Gather indirect exitance (stored in static solver). May include indirect light computed from direct realtime lights, direct emitors, rrlights, env.
 	//! \param quality
 	//!  Desired illumination quality, used to enable/disable point materials.
-	Gatherer(const PathtracerJob& ptj, const RRSolver* solver, const RRSolver::PathTracingParameters& parameters, bool dynamic, bool staticSceneContainsLods, unsigned quality);
+	PathtracerWorker(const PathtracerJob& ptj, const RRSolver* solver, const RRSolver::PathTracingParameters& parameters, bool dynamic, bool staticSceneContainsLods, unsigned quality);
 
 	//! Returns color visible in given direction, in physical scale.
 	//

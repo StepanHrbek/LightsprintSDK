@@ -315,7 +315,7 @@ public:
 protected:
 	const GatheringTools& tools;
 	const ProcessTexelParams& pti;
-	Gatherer gatherer;
+	PathtracerWorker gatherer;
 	RRSolver::PathTracingParameters pathTracingParameters; // passed to gatherer
 	// homogenous filler
 	HomogenousFiller2 fillerDir;
