@@ -295,6 +295,8 @@ class PathtracerJob
 public:
 	PathtracerJob(const RRSolver* solver);
 	~PathtracerJob();
+
+	RRBuffer* environment; // blend of two rotated solver environments
 };
 
 

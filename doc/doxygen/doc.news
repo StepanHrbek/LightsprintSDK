@@ -12,6 +12,8 @@ namespace rr
 
 NEWS
 
+- pathtracer supports rotated environment and blend of two environments (like all other GI solvers)
+
 CHANGES
 
 - RRCamera::setView() has more parameters, lets you zoom to whole scene or selected area

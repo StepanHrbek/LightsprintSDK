@@ -15,10 +15,18 @@ extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 
 PathtracerJob::PathtracerJob(const RRSolver* solver)
 {
+	RRReal angleRad0 = 0;
+	RRReal angleRad1 = 0;
+	RRReal blendFactor = solver ? solver->getEnvironmentBlendFactor() : 0;
+	RRBuffer* environment0 = solver ? solver->getEnvironment(0,&angleRad0) : NULL;
+	RRBuffer* environment1 = solver ? solver->getEnvironment(1,&angleRad1) : NULL;
+	const RRScaler* scaler = solver ? solver->getScaler() : NULL;
+	environment = RRBuffer::createEnvironmentBlend(environment0,environment1,angleRad0,angleRad1,blendFactor,scaler);
 }
 
 PathtracerJob::~PathtracerJob()
 {
+	delete environment;
 }
 
 Gatherer::Gatherer(const PathtracerJob& _ptj, const RRSolver* _solver, const RRSolver::PathTracingParameters& _parameters, bool _dynamic, bool _staticSceneContainsLods, unsigned _quality)
@@ -111,8 +119,8 @@ RRVec3 Gatherer::getIncidentRadiance(const RRVec3& eye, const RRVec3& direction,
 		// ray left scene, add environment lighting
 		if (environment)
 		{
-			RRVec3 irrad = environment->getElementAtDirection(direction);
-			if (scaler && environment->getScaled()) scaler->getPhysicalScale(irrad);
+			RRVec3 irrad = ptj.environment->getElementAtDirection(direction);
+			if (scaler && ptj.environment->getScaled()) scaler->getPhysicalScale(irrad);
 			RR_ASSERT(IS_VEC3(irrad));
 			return irrad * parameters.skyMultiplier;
 		}
