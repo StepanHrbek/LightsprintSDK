@@ -1,11 +1,11 @@
 // --------------------------------------------------------------------------
-// Final gather support.
+// Pathtracer.
 // Copyright (c) 2007-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 
-#ifndef GATHERER_H
-#define GATHERER_H
+#ifndef PATHTRACER_H
+#define PATHTRACER_H
 
 #include "../RRStaticSolver/RRStaticSolver.h"
 #include "Lightsprint/RRIllumination.h" // toto je jedine misto kde kod z RRStaticSolver zavisi na RRIllumination

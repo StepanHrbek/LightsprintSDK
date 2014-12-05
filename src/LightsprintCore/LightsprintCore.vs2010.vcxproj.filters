@@ -108,7 +108,7 @@
     <ClCompile Include="RRStaticSolver\exceptions.cpp">
       <Filter>RRStaticSolver</Filter>
     </ClCompile>
-    <ClCompile Include="RRStaticSolver\gatherer.cpp">
+    <ClCompile Include="RRStaticSolver\pathtracer.cpp">
       <Filter>RRStaticSolver</Filter>
     </ClCompile>
     <ClCompile Include="RRStaticSolver\geometry_v.cpp">
@@ -309,7 +309,7 @@
     <ClInclude Include="RRStaticSolver\ChunkList.h">
       <Filter>RRStaticSolver</Filter>
     </ClInclude>
-    <ClInclude Include="RRStaticSolver\gatherer.h">
+    <ClInclude Include="RRStaticSolver\pathtracer.h">
       <Filter>RRStaticSolver</Filter>
     </ClInclude>
     <ClInclude Include="RRStaticSolver\geometry_v.h">

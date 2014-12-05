@@ -623,7 +623,7 @@
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
     </ClCompile>
-    <ClCompile Include="RRStaticSolver\gatherer.cpp" />
+    <ClCompile Include="RRStaticSolver\pathtracer.cpp" />
     <ClCompile Include="RRStaticSolver\geometry_v.cpp" />
     <ClCompile Include="RRStaticSolver\interpol.cpp" />
     <ClCompile Include="RRStaticSolver\rrcore.cpp" />
@@ -732,7 +732,7 @@
     <ClInclude Include="RRObject\RRObjectMulti.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRIllumination.h" />
     <ClInclude Include="RRStaticSolver\ChunkList.h" />
-    <ClInclude Include="RRStaticSolver\gatherer.h" />
+    <ClInclude Include="RRStaticSolver\pathtracer.h" />
     <ClInclude Include="RRStaticSolver\geometry_v.h" />
     <ClInclude Include="RRStaticSolver\interpol.h" />
     <ClInclude Include="RRStaticSolver\rrcore.h" />

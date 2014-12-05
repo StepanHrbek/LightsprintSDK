@@ -71,9 +71,9 @@ RRSolver/lightmap.cpp \
 RRSolver/RRSolver.cpp \
 RRSolver/vertexBuffer.cpp \
 RRStaticSolver/exceptions.cpp \
-RRStaticSolver/gatherer.cpp \
 RRStaticSolver/geometry_v.cpp \
 RRStaticSolver/interpol.cpp \
+RRStaticSolver/pathtracer.cpp \
 RRStaticSolver/rrcore.cpp \
 RRStaticSolver/RRStaticSolver.cpp \
 squish/alpha.cpp \

@@ -9,7 +9,7 @@
 // comment out both = use stl. small, slow
 
 #include "Lightsprint/RRSolver.h"
-#include "../RRStaticSolver/gatherer.h" // PathtracerJob
+#include "../RRStaticSolver/pathtracer.h" // PathtracerJob
 	#include "../RRStaticSolver/ChunkList.h"
 
 namespace rr

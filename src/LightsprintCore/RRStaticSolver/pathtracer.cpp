@@ -1,10 +1,10 @@
 // --------------------------------------------------------------------------
-// Final gather support.
+// Pathtracer.
 // Copyright (c) 2007-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 
-#include "gatherer.h"
+#include "pathtracer.h"
 #include "rrcore.h"
 #include "../RRSolver/private.h"
 

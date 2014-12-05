@@ -12,7 +12,7 @@
 #include "../RRMathPrivate.h"
 #include "private.h"
 #include "gather.h"
-#include "../RRStaticSolver/gatherer.h" //!!! vola neverejny interface static solveru
+#include "../RRStaticSolver/pathtracer.h" //!!! vola neverejny interface static solveru
 
 #define HOMOGENOUS_FILL // enables homogenous rather than random(noisy) shooting, improves baking quality as long as randomnes is provided via [#15]
 //#define BLUR 4 // enables full lightmap blur, higher=stronger
