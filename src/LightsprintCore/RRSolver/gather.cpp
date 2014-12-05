@@ -157,6 +157,7 @@ public:
 		tools(_tools),
 		pti(_pti),
 		gatherer(
+			_pti.context,
 			_pti.context.solver,
 			pathTracingParameters,
 			false,

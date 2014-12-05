@@ -21,8 +21,8 @@ PathtracerJob::~PathtracerJob()
 {
 }
 
-Gatherer::Gatherer(const RRSolver* _solver, const RRSolver::PathTracingParameters& _parameters, bool _dynamic, bool _staticSceneContainsLods, unsigned _quality)
-	: collisionHandlerGatherHemisphere(_solver->getScaler(),_quality,_staticSceneContainsLods),
+Gatherer::Gatherer(const PathtracerJob& _ptj, const RRSolver* _solver, const RRSolver::PathTracingParameters& _parameters, bool _dynamic, bool _staticSceneContainsLods, unsigned _quality)
+	: ptj(_ptj), collisionHandlerGatherHemisphere(_solver->getScaler(),_quality,_staticSceneContainsLods),
 	  collisionHandlerGatherLights(_solver->getScaler(),_quality,_staticSceneContainsLods),
 	  parameters(_parameters)
 {
