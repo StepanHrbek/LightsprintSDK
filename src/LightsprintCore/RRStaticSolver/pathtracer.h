@@ -297,6 +297,7 @@ public:
 	~PathtracerJob();
 	
 	const RRSolver* solver;
+	const RRScaler* scaler;
 	RRBuffer* environment; // blend of two rotated solver environments
 };
 
@@ -344,7 +345,6 @@ protected:
 	const RRObject* multiObject;
 	const RRCollider* collider;
 	const RRLights* lights;
-	const RRScaler* scaler;
 	const RRPackedSolver* packedSolver; // shortcut for accessing indirect in Fireball solver
 	class Triangle* triangle; // shortcut for accessing indirect in Architect solver
 };

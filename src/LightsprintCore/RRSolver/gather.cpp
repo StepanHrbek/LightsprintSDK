@@ -129,13 +129,11 @@ class GatheringTools
 public:
 	GatheringTools(const ProcessTexelParams& pti)
 	{
-		scaler = pti.context.solver->getScaler();
 		collider = pti.context.solver->getMultiObject()->getCollider();
 		environment = pti.context.params->applyEnvironment ? pti.context.solver->getEnvironment() : NULL;
 		fillerPos.Reset(pti.resetFiller);
 	}
 
-	const RRScaler* scaler;
 	const RRCollider* collider;
 	const RRBuffer* environment;
 	HomogenousFiller2 fillerPos;
@@ -346,7 +344,7 @@ public:
 		: tools(_tools),
 		pti(_pti),
 		collisionHandlerGatherLight(
-			_tools.scaler,
+			_pti.context.scaler,
 			_pti.context.params->quality*2, // when gathering lights (possibly rendering direct shadows), make point details 2* more important
 			_pti.context.staticSceneContainsLods)
 	{
@@ -427,7 +425,7 @@ public:
 			{
 				// direct visibility found (at least partial), add irradiance from light
 				// !_light->castShadows -> direct visibility guaranteed even without raycast
-				RRVec3 irrad = _light->getIrradiance(ray.rayOrigin,tools.scaler);
+				RRVec3 irrad = _light->getIrradiance(ray.rayOrigin,pti.context.scaler);
 				RR_ASSERT(IS_VEC3(irrad)); // getIrradiance() must return finite number
 				if (_light->castShadows)
 				{
@@ -437,8 +435,8 @@ public:
 				}
 				if (!pti.context.gatherAllDirections)
 				{
-					if (tools.scaler && _light->directLambertScaled)
-						tools.scaler->getPhysicalScale(normalIncidence1);
+					if (pti.context.scaler && _light->directLambertScaled)
+						pti.context.scaler->getPhysicalScale(normalIncidence1);
 					irradiancePhysicalLights[LS_LIGHTMAP] += irrad * normalIncidence1;
 					RR_ASSERT(IS_VEC3(irrad));
 					RR_ASSERT(_finite(normalIncidence1));
@@ -457,8 +455,8 @@ public:
 							// helps a bit on sphere, but it's unclear how much it would help in general case
 							//normalIncidence2 = sqrt(normalIncidence1*normalIncidence2)*1.36f;
 
-							if (tools.scaler && _light->directLambertScaled)
-								tools.scaler->getPhysicalScale(normalIncidence2);
+							if (pti.context.scaler && _light->directLambertScaled)
+								pti.context.scaler->getPhysicalScale(normalIncidence2);
 							irradiancePhysicalLights[i] += irrad * normalIncidence2;
 							RR_ASSERT(IS_VEC3(irradiancePhysicalLights[0]));
 						}
@@ -584,7 +582,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	RR_ASSERT(pti.subTexels->size());
 
 
-	// init helper objects: scaler, collider, environment, fillerPos
+	// init helper objects: collider, environment, fillerPos
 	GatheringTools tools(pti);
 
 	// prepare irradiance accumulators, set .rays properly (0 when shooting is disabled for any reason)
