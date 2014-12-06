@@ -27,6 +27,7 @@ enum LightmapSemantic
 	NUM_BUFFERS = LS_BENT_NORMALS+1,
 };
 
+// common data shared by all lightmapper workers/threads
 struct LightmapperJob : public PathtracerJob
 {
 	RRBuffer* pixelBuffers[NUM_BUFFERS]; // classical lmap, 3 directional lmaps, bent normal map
