@@ -1927,8 +1927,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 								ovrGLConfig cfg;
 								cfg.OGL.Header.API = ovrRenderAPI_OpenGL;
-								cfg.OGL.Header.RTSize.w = svframe->oculusHMD->Resolution.w;
-								cfg.OGL.Header.RTSize.h = svframe->oculusHMD->Resolution.h;
+								cfg.OGL.Header.BackBufferSize.w = svframe->oculusHMD->Resolution.w;
+								cfg.OGL.Header.BackBufferSize.h = svframe->oculusHMD->Resolution.h;
 								cfg.OGL.Header.Multisample = 1;
 								#ifdef _WIN32
 									cfg.OGL.Window = canvasWindow->GetHWND();
