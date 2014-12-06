@@ -27,7 +27,7 @@ enum LightmapSemantic
 	NUM_BUFFERS = LS_BENT_NORMALS+1,
 };
 
-struct TexelContext : public PathtracerJob
+struct LightmapperJob : public PathtracerJob
 {
 	RRBuffer* pixelBuffers[NUM_BUFFERS]; // classical lmap, 3 directional lmaps, bent normal map
 	const RRSolver::UpdateParameters* params; // measure_internal.direct zapina gather z emitoru. measure_internal.indirect zapina gather indirectu ze static solveru. oboje zapina gather direct+indirect ze static solveru
@@ -35,7 +35,7 @@ struct TexelContext : public PathtracerJob
 	bool gatherAllDirections; // LS_DIRECTIONn irradiances are gathered too
 	bool staticSceneContainsLods; // scene contains LODs, additional work
 
-	TexelContext(RRSolver* _solver)
+	LightmapperJob(RRSolver* _solver)
 		: PathtracerJob(_solver)
 	{
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
@@ -84,7 +84,7 @@ public:
 
 struct ProcessTexelParams
 {
-	ProcessTexelParams(const TexelContext& _context) : context(_context) 
+	ProcessTexelParams(const LightmapperJob& _context) : context(_context) 
 	{
 		// [#15] rand() randomizes HOMOGENOUS_FILL, so that every texel shoots into different directions (but still homogenously)
 		// &0xffff reduces randomness on systems with huge RAND_MAX, it saves calculation time (filler speed depends on number of bits in this number)
@@ -94,7 +94,7 @@ struct ProcessTexelParams
 		rayLengthMin = 0;
 		relevantLights = NULL;
 	}
-	const TexelContext& context;
+	const LightmapperJob& context;
 	TexelSubTexels* subTexels;
 	unsigned uv[2]; // texel coord in lightmap in 0..width-1,0..height-1
 	unsigned resetFiller;

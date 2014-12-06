@@ -71,7 +71,7 @@ struct UnwrapStatistics
 bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 		unsigned mapWidth, unsigned mapHeight,
 		unsigned rectXMin, unsigned rectYMin, unsigned rectXMaxPlus1, unsigned rectYMaxPlus1, 
-		ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc,
+		ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const LightmapperJob& lmj,
 		RRReal minimalSafeDistance, UnwrapStatistics& unwrapStatistics, int onlyTriangleNumber=-1)
 {
 	if (!multiObject)
@@ -100,7 +100,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	try
 	{
 	// iterate only triangles in singlemesh
-	const RRObject* singleObject = tc.solver ? tc.solver->getStaticObjects()[objectNumber] : multiObject; // safe objectNumber, checked in updateLightmap()
+	const RRObject* singleObject = lmj.solver ? lmj.solver->getStaticObjects()[objectNumber] : multiObject; // safe objectNumber, checked in updateLightmap()
 	const RRMesh* singleMesh = singleObject->getCollider()->getMesh();
 	unsigned numSinglePostImportTriangles = singleMesh->getNumTriangles();
 	for (unsigned singlePostImportTriangle=0;singlePostImportTriangle<numSinglePostImportTriangles;singlePostImportTriangle++)
@@ -173,7 +173,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 			{
 				for (unsigned x=xminu;x<xmaxu;x++)
 				{
-					if (!tc.solver || ((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==x+y*mapWidth) && !tc.solver->aborting)) // process only texel selected for debugging
+					if (!lmj.solver || ((lmj.params->debugTexel==UINT_MAX || lmj.params->debugTexel==x+y*mapWidth) && !lmj.solver->aborting)) // process only texel selected for debugging
 					{
 						// start with full texel, 4 vertices
 						unsigned polySize = 4;
@@ -337,12 +337,12 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 #else
 	int numThreads = 1;
 #endif
-	unsigned numAllLights = tc.solver ? tc.solver->getLights().size() : 0;
+	unsigned numAllLights = lmj.solver ? lmj.solver->getLights().size() : 0;
 	unsigned numRelevantLights = 0;
 	const RRLight** relevantLightsForObject = new const RRLight*[numAllLights*numThreads];
 	for (unsigned i=0;i<numAllLights;i++)
 	{
-		RRLight* light = tc.solver->getLights()[i];
+		RRLight* light = lmj.solver->getLights()[i];
 		if (light && light->enabled && multiObject->getTriangleMaterial(multiPostImportTriangleNumber,light,NULL))
 		{
 			for (int k=0;k<numThreads;k++)
@@ -366,9 +366,9 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 			unsigned indexInRect = (i-rectXMin)+(j-rectYMin)*(rectXMaxPlus1-rectXMin);
 			if (texelsRect[indexInRect].size())
 			{
-				if (!tc.solver || ((tc.params->debugTexel==UINT_MAX || tc.params->debugTexel==i+j*mapWidth) && !tc.solver->aborting)) // process only texel selected for debugging
+				if (!lmj.solver || ((lmj.params->debugTexel==UINT_MAX || lmj.params->debugTexel==i+j*mapWidth) && !lmj.solver->aborting)) // process only texel selected for debugging
 				{
-					ProcessTexelParams ptp(tc);
+					ProcessTexelParams ptp(lmj);
 					ptp.uv[0] = i;
 					ptp.uv[1] = j;
 					ptp.subTexels = texelsRect+indexInRect;
@@ -413,7 +413,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 //! \param unwrapStatistics
 //!  Values in this structure are incremented.
 //! \return False if failed to enumerate all texels.
-bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const TexelContext& tc, RRReal minimalSafeDistance, UnwrapStatistics& unwrapStatistics, int onlyTriangleNumber=-1)
+bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, unsigned mapWidth, unsigned mapHeight, ProcessTexelResult (callback)(const struct ProcessTexelParams& pti), const LightmapperJob& lmj, RRReal minimalSafeDistance, UnwrapStatistics& unwrapStatistics, int onlyTriangleNumber=-1)
 {
 	enum {MAX_TEXELS_PER_PASS=512*512};
 	unsigned numTexelsInMap = mapWidth*mapHeight;
@@ -425,7 +425,7 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 		for (unsigned i=0;i<numPasses;i++)
 		{
 			unwrapStatistics.pass = i;
-			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, 0,mapHeight*i/numPasses,mapWidth,mapHeight*(i+1)/numPasses, callback, tc, minimalSafeDistance, unwrapStatistics, onlyTriangleNumber))
+			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, 0,mapHeight*i/numPasses,mapWidth,mapHeight*(i+1)/numPasses, callback, lmj, minimalSafeDistance, unwrapStatistics, onlyTriangleNumber))
 				return false;
 		}
 	}
@@ -434,7 +434,7 @@ bool enumerateTexelsFull(const RRObject* multiObject, unsigned objectNumber, uns
 		for (unsigned i=0;i<numPasses;i++)
 		{
 			unwrapStatistics.pass = i;
-			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, mapHeight*i/numPasses,0,mapWidth*(i+1)/numPasses,mapHeight, callback, tc, minimalSafeDistance, unwrapStatistics, onlyTriangleNumber))
+			if (!enumerateTexelsPartial(multiObject, objectNumber, mapWidth, mapHeight, mapHeight*i/numPasses,0,mapWidth*(i+1)/numPasses,mapHeight, callback, lmj, minimalSafeDistance, unwrapStatistics, onlyTriangleNumber))
 				return false;
 		}
 	}
@@ -542,9 +542,9 @@ const char* checkUnwrapConsistency(const RRObject* object)
 	{
 		UnwrapStatisticsEx us;
 		us.subtexelsInMapSpace = true;
-		TexelContext tc(NULL);
-		tc.singleObjectReceiver = reinterpret_cast<RRObject*>(&us);
-		enumerateTexelsFull(object,-1,MAP_WIDTH,MAP_WIDTH,us.callback,tc,0,us);
+		LightmapperJob lmj(NULL);
+		lmj.singleObjectReceiver = reinterpret_cast<RRObject*>(&us);
+		enumerateTexelsFull(object,-1,MAP_WIDTH,MAP_WIDTH,us.callback,lmj,0,us);
 		float missing = us.numTrianglesWithoutUnwrap/(float)numTriangles;
 		bool missingBad = missing>0.02f;
 		bool missingPoor = missing>0;
@@ -757,26 +757,26 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 	// PER-PIXEL (NON-REALTIME)
 	if (numPixelBuffers)
 	{
-		TexelContext tc(this);
+		LightmapperJob lmj(this);
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
 			if (allPixelBuffers[i])
 			{
-				tc.pixelBuffers[i] = RRBuffer::create(BT_2D_TEXTURE,pixelBufferWidth,pixelBufferHeight,1,BF_RGBAF,false,NULL);
-				if (!tc.pixelBuffers[i])
+				lmj.pixelBuffers[i] = RRBuffer::create(BT_2D_TEXTURE,pixelBufferWidth,pixelBufferHeight,1,BF_RGBAF,false,NULL);
+				if (!lmj.pixelBuffers[i])
 				{
 					for (unsigned i=0;i<NUM_BUFFERS;i++)
-						delete tc.pixelBuffers[i];
+						delete lmj.pixelBuffers[i];
 					RRReporter::report(ERRO,"Allocation failed, lightmap not updated(0).\n");
 					return updatedBuffers;
 				}
-				tc.pixelBuffers[i]->clear();
+				lmj.pixelBuffers[i]->clear();
 			}
-		tc.params = &params;
-		tc.singleObjectReceiver = getStaticObjects()[objectNumber]; // safe objectNumber, checked in updateLightmap()
-		tc.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
-		tc.staticSceneContainsLods = priv->staticSceneContainsLods;
+		lmj.params = &params;
+		lmj.singleObjectReceiver = getStaticObjects()[objectNumber]; // safe objectNumber, checked in updateLightmap()
+		lmj.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
+		lmj.staticSceneContainsLods = priv->staticSceneContainsLods;
 		UnwrapStatistics us;
-		bool gathered = enumerateTexelsFull(getMultiObject(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,tc,priv->minimalSafeDistance,us);
+		bool gathered = enumerateTexelsFull(getMultiObject(),objectNumber,pixelBufferWidth,pixelBufferHeight,processTexel,lmj,priv->minimalSafeDistance,us);
 
 		// report unwrap errors
 		if (gathered && (us.numTrianglesWithoutUnwrap || us.numTrianglesWithUnwrapOutOfRange))
@@ -812,24 +812,24 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 		unsigned numBuffersFull = 0;
 		for (unsigned b=0;b<NUM_BUFFERS;b++)
 		{
-			if (tc.pixelBuffers[b])
+			if (lmj.pixelBuffers[b])
 			{
 				if (allPixelBuffers[b]
 					&& params.debugTexel==UINT_MAX // skip texture update when debugging texel
 					&& gathered)
 				{
-					tc.pixelBuffers[b]->lightmapSmooth(_filtering->smoothingAmount,_filtering->wrap,getStaticObjects()[objectNumber]); // safe objectNumber, was already checked
-					if (tc.pixelBuffers[b]->lightmapGrowForBilinearInterpolation(_filtering->wrap))
+					lmj.pixelBuffers[b]->lightmapSmooth(_filtering->smoothingAmount,_filtering->wrap,getStaticObjects()[objectNumber]); // safe objectNumber, was already checked
+					if (lmj.pixelBuffers[b]->lightmapGrowForBilinearInterpolation(_filtering->wrap))
 						numBuffersFull++;
 					else
 						numBuffersEmpty++;
-					tc.pixelBuffers[b]->lightmapGrow(_filtering->spreadForegroundColor,_filtering->wrap,aborting);
-					tc.pixelBuffers[b]->lightmapFillBackground(_filtering->backgroundColor);
-					tc.pixelBuffers[b]->copyElementsTo(allPixelBuffers[b],(b==LS_BENT_NORMALS)?NULL:priv->scaler);
+					lmj.pixelBuffers[b]->lightmapGrow(_filtering->spreadForegroundColor,_filtering->wrap,aborting);
+					lmj.pixelBuffers[b]->lightmapFillBackground(_filtering->backgroundColor);
+					lmj.pixelBuffers[b]->copyElementsTo(allPixelBuffers[b],(b==LS_BENT_NORMALS)?NULL:priv->scaler);
 					allPixelBuffers[b]->version = getSolutionVersion();
 					updatedBuffers++;
 				}
-				delete tc.pixelBuffers[b];
+				delete lmj.pixelBuffers[b];
 			}
 		}
 		if (numBuffersEmpty && !aborting)

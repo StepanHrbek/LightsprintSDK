@@ -831,10 +831,10 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 
 	RRReportInterval report(INF2,"Gathering(%s%s%s%d) ...\n",
 		params.applyLights?"lights ":"",params.applyEnvironment?"env ":"",params.applyCurrentSolution?"cur ":"",params.quality);
-	TexelContext tc(this);
-	tc.params = &params;
-	tc.gatherAllDirections = resultsPhysical->data[LS_DIRECTION1]||resultsPhysical->data[LS_DIRECTION2]||resultsPhysical->data[LS_DIRECTION3];
-	tc.staticSceneContainsLods = priv->staticSceneContainsLods;
+	LightmapperJob lmj(this);
+	lmj.params = &params;
+	lmj.gatherAllDirections = resultsPhysical->data[LS_DIRECTION1]||resultsPhysical->data[LS_DIRECTION2]||resultsPhysical->data[LS_DIRECTION3];
+	lmj.staticSceneContainsLods = priv->staticSceneContainsLods;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);
 
 	// preallocates texels
@@ -892,8 +892,8 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 			int threadNum = 0;
 #endif
 			unsigned objectNumber = multiMesh->getPreImportTriangle(t).object;
-			tc.singleObjectReceiver = getStaticObjects()[objectNumber];
-			ProcessTexelParams ptp(tc);
+			lmj.singleObjectReceiver = getStaticObjects()[objectNumber];
+			ProcessTexelParams ptp(lmj);
 			ptp.subTexels = subTexels+threadNum;
 			ptp.subTexels->begin()->multiObjPostImportTriIndex = t;
 			ptp.rayLengthMin = priv->minimalSafeDistance;
