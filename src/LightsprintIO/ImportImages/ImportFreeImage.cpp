@@ -21,6 +21,7 @@
 #include <string>
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
+#include "Lightsprint/RRLight.h" // RRScaler
 #include "ImportFreeImage.h"
 #include "FreeImage.h"
 
@@ -560,6 +561,9 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 	dstbipp &= 0xfe; // 33->32, remove flag
 	unsigned dstbypp = (dstbipp+7)/8;
 
+	// is conversion to sRGB necesasary?
+	rr::RRScaler* scaler = (!buffer->getScaled() && fit==FIT_BITMAP) ? rr::RRScaler::createRgbScaler() : NULL;
+
 	FIBITMAP* dib = FreeImage_AllocateT(fit,buffer->getWidth(),buffer->getHeight(),dstbipp);
 	if (dib)
 	{
@@ -598,6 +602,9 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 							pixel[0] = pixel[2];
 							pixel[2] = tmp;
 						}
+						// convert to sRGB
+						if (scaler)
+							scaler->getCustomScale(pixel);
 						// write dst pixel
 						if ((i%width)==0) dst += 3-(((unsigned long)dst+3)&3); // compensate for freeimage's scanline padding
 						switch(dstbipp)
@@ -673,6 +680,8 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 		}
 		FreeImage_Unload(dib);
 	}
+
+	delete scaler;
 
 	return result;
 }
