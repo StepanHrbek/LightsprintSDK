@@ -108,6 +108,11 @@ public:
 	{
 		try
 		{
+			if (SerializationRuntime::exists())
+			{
+				rr::RRReporter::report(rr::ERRO,"Scene %ls can't be loaded, other load/save in progress.\n",filename.w_str());
+				return NULL;
+			}
 			bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
 			if (!ifs || ifs.bad())
 			{
@@ -213,6 +218,11 @@ public:
 		}
 		try
 		{
+			if (SerializationRuntime::exists())
+			{
+				rr::RRReporter::report(rr::ERRO,"Scene %ls can't be saved, other load/save in progress.\n",filename.w_str());
+				return false;
+			}
 			bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc);
 			if (!ofs || ofs.bad())
 			{
@@ -315,6 +325,12 @@ static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6
 {
 	try
 	{
+		if (SerializationRuntime::exists())
+		{
+			rr::RRReporter::report(rr::ERRO,"Buffer %ls can't be loaded, other load/save in progress.\n",filename.w_str());
+			return NULL;
+		}
+
 		bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
 		if (!ifs || ifs.bad())
 		{
@@ -364,6 +380,12 @@ static bool saveBuffer(RRBuffer* buffer, const RRString& filename, const char* c
 	}
 	try
 	{
+		if (SerializationRuntime::exists())
+		{
+			rr::RRReporter::report(rr::ERRO,"Buffer %ls can't be saved, other load/save in progress.\n",filename.w_str());
+			return false;
+		}
+
 		bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc);
 		if (!ofs || ofs.bad())
 		{
@@ -401,6 +423,12 @@ static RRMaterials* loadMaterial(const RRString& filename, RRFileLocator* textur
 	RRMaterials* materials = new RRMaterials;
 	try
 	{
+		if (SerializationRuntime::exists())
+		{
+			rr::RRReporter::report(rr::ERRO,"Material %ls can't be loaded, other load/save in progress.\n",filename.w_str());
+			return NULL;
+		}
+
 		bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
 		if (!ifs || ifs.bad())
 		{
@@ -448,6 +476,12 @@ static bool saveMaterial(const RRMaterials* materials, const RRString& filename)
 	}
 	try
 	{
+		if (SerializationRuntime::exists())
+		{
+			rr::RRReporter::report(rr::ERRO,"Material %ls can't be saved, other load/save in progress.\n",filename.w_str());
+			return false;
+		}
+
 		bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc);
 		if (!ofs || ofs.bad())
 		{

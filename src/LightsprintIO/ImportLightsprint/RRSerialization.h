@@ -72,6 +72,8 @@ public:
 
 	inline SerializationRuntime(rr::RRFileLocator* fileLocator);
 	inline ~SerializationRuntime();
+
+	static inline bool exists();
 };
 
 
@@ -1068,6 +1070,11 @@ SerializationRuntime::~SerializationRuntime()
 	while (!meshProxyInstances.empty())
 		delete *meshProxyInstances.begin();
 	g_serializationRuntime = NULL;
+}
+
+bool SerializationRuntime::exists()
+{
+	return g_serializationRuntime!=NULL;
 }
 
 //---------------------------------------------------------------------------
