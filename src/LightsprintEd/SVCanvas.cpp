@@ -1752,7 +1752,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr::RRCamera camera = svs.camera;
 			if (!svs.renderDof)
 				camera.apertureDiameter = 0;
-			camera.setAspect(pathTraceWidth/(float)pathTraceHeight);
+			camera.setAspect(pathTraceWidth/(float)pathTraceHeight); // [#37] not ,0.5
 			rr::RRSolver::PathTracingParameters params;
 			params.lightsMultiplier = svs.renderLightDirect ? 1 : 0;
 			params.skyMultiplier = svs.skyMultiplier;
