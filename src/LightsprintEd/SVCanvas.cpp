@@ -1642,7 +1642,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 
 #ifdef SUPPORT_OCULUS
-		// oculus camera rotation
+		// oculus camera rotation+translation
 		if (svframe->oculusActive())
 		{
 			// read data from oculus
