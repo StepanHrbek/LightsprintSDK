@@ -52,7 +52,6 @@ namespace rr_ed
 		CM_OBJECTS_ADD_RECTANGLE,
 		CM_OBJECTS_ADD_BOX,
 		CM_OBJECTS_ADD_SPHERE,
-
 	};
 
 	class SVSceneTree : public wxTreeCtrl
