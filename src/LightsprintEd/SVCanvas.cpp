@@ -1627,7 +1627,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			float blend = skyboxBlendingStartTime.secondsPassed()/3;
 			// blending adds small CPU+GPU overhead, so don't blend if not necessary
 			// blend only if 3sec period running && second texture is present && differs from first one
-			if (blend>=0 && blend<=1 && solver->getEnvironment(1) && solver->getEnvironment(0)!=solver->getEnvironment(1))
+			if (blend>=0 && blend<=1 && solver->getEnvironment(1) && solver->getEnvironment(0)!=solver->getEnvironment(1) && svs.renderLightIndirect!=LI_PATHTRACED)
 			{
 				// blend
 				solver->setEnvironmentBlendFactor(1-blend);
