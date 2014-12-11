@@ -1029,7 +1029,8 @@ void SVFrame::OnAnyChange(EventSource eventSource, const wxPGProperty* property,
 	// restart pathtracer unless
 	if (!(eventSource==ES_PROPERTY && property==m_giProperties->propGITechnique) // changing GI technique
 		&& !(eventSource==ES_KEYBOARD_MID_MOVEMENT && ((wxKeyEvent*)event)->GetKeyCode()==WXK_F9) // F9 saving screenshot
-		&& !(eventSource==ES_MENU && (menuEvent==ME_FILE_SAVE_SCREENSHOT || menuEvent==ME_FILE_SAVE_SCREENSHOT_ORIGINAL || menuEvent==ME_FILE_SAVE_SCREENSHOT_ENHANCED)))
+		&& !(eventSource==ES_MENU && (menuEvent==ME_FILE_SAVE_SCREENSHOT || menuEvent==ME_FILE_SAVE_SCREENSHOT_ORIGINAL || menuEvent==ME_FILE_SAVE_SCREENSHOT_ENHANCED))
+		)
 		m_canvas->pathTracedAccumulator = 0;
 }
 
