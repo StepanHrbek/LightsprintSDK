@@ -1769,7 +1769,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr_gl::ToneParameters tp = svs.tonemapping;
 			tp.gamma *= 0.45f;
 			pathTracedAccumulator++;
-			solver->getRenderer()->getTextureRenderer()->render2D(rr_gl::getTexture(pathTracedBuffer,false,false),&tp,0,0,1,1);
+			solver->getRenderer()->getTextureRenderer()->render2D(rr_gl::getTexture(pathTracedBuffer,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),&tp,0,0,1,1);
 		}
 		else
 		{
