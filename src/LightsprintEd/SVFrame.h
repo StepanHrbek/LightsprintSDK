@@ -95,6 +95,7 @@ namespace rr_ed
 			ES_KEYBOARD_END,
 			ES_MOUSE_MID_MOVEMENT,
 			ES_MOUSE_END,
+			ES_MENU,
 			ES_RIFT,
 			ES_PROPERTY,
 			ES_MISC

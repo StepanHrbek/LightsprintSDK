@@ -1028,7 +1028,8 @@ void SVFrame::OnAnyChange(EventSource eventSource, const wxPGProperty* property,
 	stateVersion++;
 	// restart pathtracer unless
 	if (!(eventSource==ES_PROPERTY && property==m_giProperties->propGITechnique) // changing GI technique
-		&& !(eventSource==ES_KEYBOARD_MID_MOVEMENT && ((wxKeyEvent*)event)->GetKeyCode()==WXK_F8)) // F8 saving screenshot
+		&& !(eventSource==ES_KEYBOARD_MID_MOVEMENT && ((wxKeyEvent*)event)->GetKeyCode()==WXK_F8) // F8 saving screenshot
+		&& !(eventSource==ES_MENU && (menuEvent==ME_FILE_SAVE_SCREENSHOT || menuEvent==ME_FILE_SAVE_SCREENSHOT_ORIGINAL || menuEvent==ME_FILE_SAVE_SCREENSHOT_ENHANCED)))
 		m_canvas->pathTracedAccumulator = 0;
 }
 
@@ -1680,6 +1681,7 @@ reload_skybox:
 
 	UpdateMenuBar();
 
+	OnAnyChange(ES_MENU,NULL,NULL,eventCode);
 }
 	catch(...)
 	{
