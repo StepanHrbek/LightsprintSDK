@@ -630,7 +630,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 			lastSolver->reportMaterialChange(transmittanceChanged,true);
 	}
 
-	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL);
+	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL,0);
 }
 
 BEGIN_EVENT_TABLE(SVMaterialProperties, wxPropertyGrid)

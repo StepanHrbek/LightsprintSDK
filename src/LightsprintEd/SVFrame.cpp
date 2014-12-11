@@ -451,7 +451,7 @@ void SVFrame::UpdateEverything()
 		m_canvas->OnKeyDown(event);
 	}
 
-	OnAnyChange(ES_MISC,NULL,NULL);
+	OnAnyChange(ES_MISC,NULL,NULL,0);
 
 	m_canvas->renderEmptyFrames = 1;
 }
@@ -1023,7 +1023,7 @@ bool SVFrame::saveScene(wxString sceneFilename)
 	return result;
 }
 
-void SVFrame::OnAnyChange(EventSource eventSource, const wxPGProperty* property, const wxEvent* event)
+void SVFrame::OnAnyChange(EventSource eventSource, const wxPGProperty* property, const wxEvent* event, unsigned menuEvent)
 {
 	stateVersion++;
 	// restart pathtracer unless

@@ -862,7 +862,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		svs.gridSegmentSize = property->GetValue().GetDouble();
 	}
-	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL);
+	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL,0);
 }
 
 BEGIN_EVENT_TABLE(SVSceneProperties, wxPropertyGrid)

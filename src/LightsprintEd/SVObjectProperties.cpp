@@ -231,7 +231,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		// (alternatively we can keep user entered values, not update, but user would be surprised when he returns back to this object later)
 		updateProperties();
 	}
-		svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL);
+		svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL,0);
 }
 
 void SVObjectProperties::OnPropertySelect(wxPropertyGridEvent& event)

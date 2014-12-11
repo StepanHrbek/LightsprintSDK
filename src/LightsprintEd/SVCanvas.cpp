@@ -522,7 +522,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 
 	recalculateIconSizeAndPosition();
 
-	svframe->OnAnyChange(SVFrame::ES_MISC,NULL,NULL);
+	svframe->OnAnyChange(SVFrame::ES_MISC,NULL,NULL,0);
 }
 
 void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
@@ -834,7 +834,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	{
 		canvasWindow->Refresh(false);
 	}
-	svframe->OnAnyChange(SVFrame::ES_KEYBOARD_MID_MOVEMENT,NULL,&event);
+	svframe->OnAnyChange(SVFrame::ES_KEYBOARD_MID_MOVEMENT,NULL,&event,0);
 }
 
 void SVCanvas::OnKeyUp(wxKeyEvent& event)
@@ -877,7 +877,7 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 	event.Skip();
 	bool movesNow = (speedForward-speedBack) || (speedRight-speedLeft) || (speedUp-speedDown) || speedY || speedLean;
 	if (didMove && !movesNow)
-		svframe->OnAnyChange(SVFrame::ES_KEYBOARD_END,NULL,&event);
+		svframe->OnAnyChange(SVFrame::ES_KEYBOARD_END,NULL,&event,0);
 }
 
 extern bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption);
@@ -1246,13 +1246,13 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			}
 			s_ciRenderCrosshair = true;
 		}
-		svframe->OnAnyChange(SVFrame::ES_MOUSE_MID_MOVEMENT,NULL,&event);
+		svframe->OnAnyChange(SVFrame::ES_MOUSE_MID_MOVEMENT,NULL,&event,0);
 	}
 	if (!event.ButtonDown() && !event.Dragging()
 		&& !event.LeftIsDown() && !event.MiddleIsDown() && !event.RightIsDown()) // when dragging leaves window, event arrives with LeftIsDown() && !Dragging(). this makes dragging survive such event
 	{
 		if (s_ciRelevant)
-			svframe->OnAnyChange(SVFrame::ES_MOUSE_END,NULL,&event);
+			svframe->OnAnyChange(SVFrame::ES_MOUSE_END,NULL,&event,0);
 		// dragging ended, all s_xxx become invalid
 		s_ciRelevant = false;
 		s_ciRenderCrosshair = false;
@@ -1371,7 +1371,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				svs.camera.setFieldOfViewVerticalDeg(fov);
 			}
 		}
-		svframe->OnAnyChange(SVFrame::ES_MOUSE_END,NULL,&event);
+		svframe->OnAnyChange(SVFrame::ES_MOUSE_END,NULL,&event,0);
 	}
 
 
@@ -1454,7 +1454,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 				);
 			bool movesNow = (speedForward-speedBack) || (speedRight-speedLeft) || (speedUp-speedDown) || speedY || speedLean;
 			if (movesNow)
-				svframe->OnAnyChange(SVFrame::ES_KEYBOARD_MID_MOVEMENT,NULL,&event);
+				svframe->OnAnyChange(SVFrame::ES_KEYBOARD_MID_MOVEMENT,NULL,&event,0);
 		}
 	}
 
@@ -1668,7 +1668,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			//svs.camera.setYawPitchRollRad(rr::RRVec3(0));
 			//svs.camera.manipulateViewBy(rr::RRMatrix3x4::rotationByQuaternion(convertQuat(q)));
 			//svs.camera.setPosition(oldpos);
-			svframe->OnAnyChange(SVFrame::ES_RIFT,NULL,NULL);
+			svframe->OnAnyChange(SVFrame::ES_RIFT,NULL,NULL,0);
 		}
 #endif
 
