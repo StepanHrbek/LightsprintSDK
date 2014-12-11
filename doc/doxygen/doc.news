@@ -12,7 +12,12 @@ namespace rr
 
 NEWS
 
-- pathtracer supports rotated environment and blend of two environments (like all other GI solvers)
+- <b>improved pathtracer</b>
+  - pathtracer can illuminate and cast shadows on background
+    - add object (usually plane) with material (usually white) named "background"
+    - it renders as background, but its illumination/shadows are visible
+    - typical use case: invisible plane under car, that makes car shadows visible
+  - pathtracer supports rotated environment and blend of two environments (like all other GI solvers)
 
 CHANGES
 
