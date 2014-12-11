@@ -1631,6 +1631,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				// blend
 				solver->setEnvironmentBlendFactor(1-blend);
+				// restart pathtracer
+				pathTracedAccumulator = 0;
 			}
 			else
 			{
