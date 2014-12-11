@@ -28,6 +28,18 @@ PathtracerJob::PathtracerJob(const RRSolver* _solver)
 	RRBuffer* environment0 = solver ? solver->getEnvironment(0,&angleRad0) : NULL;
 	RRBuffer* environment1 = solver ? solver->getEnvironment(1,&angleRad1) : NULL;
 	environment = RRBuffer::createEnvironmentBlend(environment0,environment1,angleRad0,angleRad1,blendFactor,scaler);
+
+#ifdef MATERIAL_BACKGROUND_HACK
+	environmentAveragePhysical = RRVec3(0);
+	for (int i=-1;i<=1;i++)
+	for (int j=-1;j<=1;j++)
+	for (int k=-1;k<=1;k++)
+		if (i || j || k)
+			environmentAveragePhysical += environment->getElementAtDirection(RRVec3((float)i,(float)j,(float)k));
+	environmentAveragePhysical /= 26;
+	if (scaler && environment->getScaled())
+		scaler->getPhysicalScale(environmentAveragePhysical);
+#endif
 }
 
 PathtracerJob::~PathtracerJob()
@@ -54,6 +66,10 @@ PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::Pa
 	collider = _dynamic ? ptj.solver->getCollider() : multiObject->getCollider();
 	packedSolver = ptj.solver->priv->packedSolver;
 	triangle = (ptj.solver->priv->scene && ptj.solver->priv->scene->scene && ptj.solver->priv->scene->scene->object) ? ptj.solver->priv->scene->scene->object->triangle : NULL;
+
+#ifdef MATERIAL_BACKGROUND_HACK
+	bouncedOffInvisiblePlane = false;
+#endif
 }
 
 // material, ray.hitObject, ray.hitTriangle, ray.hitPoint2d -> normal
@@ -129,6 +145,11 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		// ray left scene, add environment lighting
 		if (ptj.environment)
 		{
+#ifdef MATERIAL_BACKGROUND_HACK
+			if (bouncedOffInvisiblePlane)
+				return ptj.environmentAveragePhysical * parameters.skyMultiplier;
+#endif
+
 			RRVec3 irrad = ptj.environment->getElementAtDirection(direction);
 			if (ptj.scaler && ptj.environment->getScaled()) ptj.scaler->getPhysicalScale(irrad);
 			RR_ASSERT(IS_VEC3(irrad));
@@ -163,6 +184,31 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		RRMaterial::Response response;
 		response.dirNormal = pixelNormal;
 		response.dirOut = -direction;
+
+#ifdef MATERIAL_BACKGROUND_HACK
+		RRPointMaterial invisiblePlaneMaterial;
+		bool oldBouncedOffInvisiblePlane = bouncedOffInvisiblePlane;
+		if (!bouncedOffInvisiblePlane && material && material->name=="background" && ptj.environment)
+		{
+			invisiblePlaneMaterial = *material;
+			bouncedOffInvisiblePlane = true;
+			RRVec3 environmentAndSunsPhysical = ptj.environmentAveragePhysical * parameters.skyMultiplier;
+			for (unsigned i=0;i<lights->size();i++)
+				if ((*lights)[i]->enabled && (*lights)[i]->type==RRLight::DIRECTIONAL)
+				{
+					response.dirIn = (*lights)[i]->direction;
+					invisiblePlaneMaterial.getResponse(response,parameters.brdfTypes);
+					environmentAndSunsPhysical += (*lights)[i]->color * response.colorOut * parameters.lightsMultiplier;
+				}
+			RRVec3 floor = ptj.environment->getElementAtDirection(direction);
+			if (ptj.scaler && ptj.environment->getScaled())
+				ptj.scaler->getPhysicalScale(floor);
+			floor /= environmentAndSunsPhysical+RRVec3(1e-10f);
+			invisiblePlaneMaterial.diffuseReflectance.colorPhysical *= floor;
+			invisiblePlaneMaterial.specularReflectance.colorPhysical *= floor;
+			material = &invisiblePlaneMaterial;
+		}
+#endif
 
 		// add direct lighting
 		if (parameters.lightsMultiplier)
@@ -316,6 +362,10 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		}
 
 		}
+
+#ifdef MATERIAL_BACKGROUND_HACK
+		bouncedOffInvisiblePlane = oldBouncedOffInvisiblePlane;
+#endif
 	}
 
 	// AO [#22]: restore hitDistance from first hit, overwrite any later hits from reflected rays

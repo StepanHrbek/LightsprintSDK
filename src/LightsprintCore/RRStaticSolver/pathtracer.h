@@ -11,6 +11,7 @@
 #include "Lightsprint/RRIllumination.h" // toto je jedine misto kde kod z RRStaticSolver zavisi na RRIllumination
 #include "../RRStaticSolver/rrcore.h" // optional direct access to materials in rrcore
 
+#define MATERIAL_BACKGROUND_HACK // pathtracer renders material with name "background" with background color
 //#define COLLISION_LOG(x) x
 #define COLLISION_LOG(x)
 COLLISION_LOG(#include <sstream>)
@@ -299,6 +300,10 @@ public:
 	const RRSolver* solver;
 	const RRScaler* scaler;
 	RRBuffer* environment; // blend of two rotated solver environments
+
+#ifdef MATERIAL_BACKGROUND_HACK
+	RRVec3 environmentAveragePhysical;
+#endif
 };
 
 
@@ -347,6 +352,10 @@ protected:
 	const RRLights* lights;
 	const RRPackedSolver* packedSolver; // shortcut for accessing indirect in Fireball solver
 	class Triangle* triangle; // shortcut for accessing indirect in Architect solver
+
+#ifdef MATERIAL_BACKGROUND_HACK
+	bool bouncedOffInvisiblePlane;
+#endif
 };
 
 }; // namespace
