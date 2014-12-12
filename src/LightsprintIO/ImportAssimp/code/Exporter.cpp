@@ -71,12 +71,17 @@ void GetPostProcessingStepInstanceList(std::vector< BaseProcess* >& out);
 
 // ------------------------------------------------------------------------------------------------
 // Exporter worker function prototypes. Should not be necessary to #ifndef them, it's just a prototype
+// do not use const, because some exporter need to convert the scene temporary
 void ExportSceneCollada(const char*,IOSystem*, const aiScene*);
+void ExportSceneXFile(const char*,IOSystem*, const aiScene*); 
 void ExportSceneObj(const char*,IOSystem*, const aiScene*);
 void ExportSceneSTL(const char*,IOSystem*, const aiScene*);
 void ExportSceneSTLBinary(const char*,IOSystem*, const aiScene*);
 void ExportScenePly(const char*,IOSystem*, const aiScene*);
-void ExportScene3DS(const char*, IOSystem*, const aiScene*) {}
+void ExportScenePlyBinary(const char*, IOSystem*, const aiScene*);
+void ExportScene3DS(const char*, IOSystem*, const aiScene*);
+void ExportSceneAssbin(const char*, IOSystem*, const aiScene*);
+void ExportSceneAssxml(const char*, IOSystem*, const aiScene*);
 
 // ------------------------------------------------------------------------------------------------
 // global array of all export formats which Assimp supports in its current build
@@ -84,6 +89,11 @@ Exporter::ExportFormatEntry gExporters[] =
 {
 #ifndef ASSIMP_BUILD_NO_COLLADA_EXPORTER
 	Exporter::ExportFormatEntry( "collada", "COLLADA - Digital Asset Exchange Schema", "dae", &ExportSceneCollada),
+#endif
+
+#ifndef ASSIMP_BUILD_NO_FXILE_EXPORTER
+	Exporter::ExportFormatEntry( "x", "X Files", "x", &ExportSceneXFile,
+		aiProcess_MakeLeftHanded | aiProcess_FlipWindingOrder | aiProcess_FlipUVs),
 #endif
 
 #ifndef ASSIMP_BUILD_NO_OBJ_EXPORTER
@@ -95,7 +105,7 @@ Exporter::ExportFormatEntry gExporters[] =
 	Exporter::ExportFormatEntry( "stl", "Stereolithography", "stl" , &ExportSceneSTL, 
 		aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_PreTransformVertices
 	),
-	Exporter::ExportFormatEntry( "stlb", "Stereolithography(binary)", "stlb" , &ExportSceneSTLBinary, 
+	Exporter::ExportFormatEntry( "stlb", "Stereolithography (binary)", "stl" , &ExportSceneSTLBinary, 
 		aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_PreTransformVertices
 	),
 #endif
@@ -104,11 +114,23 @@ Exporter::ExportFormatEntry gExporters[] =
 	Exporter::ExportFormatEntry( "ply", "Stanford Polygon Library", "ply" , &ExportScenePly, 
 		aiProcess_PreTransformVertices
 	),
+	Exporter::ExportFormatEntry( "plyb", "Stanford Polygon Library (binary)", "ply", &ExportScenePlyBinary,
+		aiProcess_PreTransformVertices
+	),
 #endif
 
-//#ifndef ASSIMP_BUILD_NO_3DS_EXPORTER
-//	ExportFormatEntry( "3ds", "Autodesk 3DS (legacy format)", "3ds" , &ExportScene3DS),
-//#endif
+#ifndef ASSIMP_BUILD_NO_3DS_EXPORTER
+	Exporter::ExportFormatEntry( "3ds", "Autodesk 3DS (legacy)", "3ds" , &ExportScene3DS,
+		aiProcess_Triangulate | aiProcess_SortByPType | aiProcess_JoinIdenticalVertices),
+#endif
+
+#ifndef ASSIMP_BUILD_NO_ASSBIN_EXPORTER
+	Exporter::ExportFormatEntry( "assbin", "Assimp Binary", "assbin" , &ExportSceneAssbin, 0),
+#endif
+
+#ifndef ASSIMP_BUILD_NO_ASSXML_EXPORTER
+	Exporter::ExportFormatEntry( "assxml", "Assxml Document", "assxml" , &ExportSceneAssxml, 0),
+#endif
 };
 
 #define ASSIMP_NUM_EXPORTERS (sizeof(gExporters)/sizeof(gExporters[0]))
@@ -176,6 +198,8 @@ Exporter :: Exporter()
 Exporter :: ~Exporter()
 {
 	FreeBlob();
+
+	delete pimpl;
 }
 
 
@@ -433,6 +457,11 @@ const aiExportFormatDesc* Exporter :: GetExportFormatDescription( size_t pIndex 
 {
 	if (pIndex >= GetExportFormatCount()) {
 		return NULL;
+	}
+	
+	// Return from static storage if the requested index is built-in.
+	if (pIndex < sizeof(gExporters) / sizeof(gExporters[0])) {
+		return &gExporters[pIndex].mDescription;
 	}
 
 	return &pimpl->mExporters[pIndex].mDescription;

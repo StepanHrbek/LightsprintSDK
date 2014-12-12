@@ -466,8 +466,9 @@ void MeshGeometry::ReadVertexDataTangents(std::vector<aiVector3D>& tangents_out,
 	const std::string& MappingInformationType,
 	const std::string& ReferenceInformationType)
 {
+	const char * str = source.Elements().count( "Tangents" ) > 0 ? "Tangents" : "Tangent";
 	ResolveVertexDataArray(tangents_out,source,MappingInformationType,ReferenceInformationType,
-		"Tangent",
+		str,
 		"TangentIndex",
 		vertices.size(),
 		mapping_counts,
@@ -481,8 +482,9 @@ void MeshGeometry::ReadVertexDataBinormals(std::vector<aiVector3D>& binormals_ou
 	const std::string& MappingInformationType,
 	const std::string& ReferenceInformationType)
 {
+	const char * str = source.Elements().count( "Binormals" ) > 0 ? "Binormals" : "Binormal";
 	ResolveVertexDataArray(binormals_out,source,MappingInformationType,ReferenceInformationType,
-		"Binormal",
+		str,
 		"BinormalIndex",
 		vertices.size(),
 		mapping_counts,
@@ -507,11 +509,11 @@ void MeshGeometry::ReadVertexDataMaterials(std::vector<int>& materials_out, cons
 	if (MappingInformationType == "AllSame") {
 		// easy - same material for all faces
 		if (materials_out.empty()) {
-			//FBXImporter::LogError(Formatter::format("expected material index, ignoring"));
+			FBXImporter::LogError(Formatter::format("expected material index, ignoring"));
 			return;
 		}
 		else if (materials_out.size() > 1) {
-			//FBXImporter::LogWarn(Formatter::format("expected only a single material index, ignoring all except the first one"));
+			FBXImporter::LogWarn(Formatter::format("expected only a single material index, ignoring all except the first one"));
 			materials_out.clear();
 		}
  
@@ -521,15 +523,15 @@ void MeshGeometry::ReadVertexDataMaterials(std::vector<int>& materials_out, cons
 		materials.resize(face_count);
 
 		if(materials_out.size() != face_count) {
-			//FBXImporter::LogError(Formatter::format("length of input data unexpected for ByPolygon mapping: ") 
-			//	<< materials_out.size() << ", expected " << face_count
-			//);
+			FBXImporter::LogError(Formatter::format("length of input data unexpected for ByPolygon mapping: ") 
+				<< materials_out.size() << ", expected " << face_count
+			);
 			return;
 		}
 	}
 	else {
-		//FBXImporter::LogError(Formatter::format("ignoring material assignments, access type not implemented: ") 
-		//	<< MappingInformationType << "," << ReferenceInformationType);
+		FBXImporter::LogError(Formatter::format("ignoring material assignments, access type not implemented: ") 
+			<< MappingInformationType << "," << ReferenceInformationType);
 	}
 }
 

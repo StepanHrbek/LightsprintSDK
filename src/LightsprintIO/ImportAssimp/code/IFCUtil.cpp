@@ -193,7 +193,7 @@ void TempMesh::ComputePolygonNormals(std::vector<IfcVector3>& normals,
 			temp[cnt++] = v.x;
 			temp[cnt++] = v.y;
 			temp[cnt++] = v.z;
-#ifdef _DEBUG
+#ifdef ASSIMP_BUILD_DEBUG
 			temp[cnt] = std::numeric_limits<IfcFloat>::quiet_NaN();
 #endif
 			++cnt;
@@ -278,7 +278,7 @@ void TempMesh::RemoveAdjacentDuplicates()
 		//		continue;
 		//	}
 
-		//	const IfcFloat d = (d0/sqrt(l0))*(d1/sqrt(l1));
+		//	const IfcFloat d = (d0/std::sqrt(l0))*(d1/std::sqrt(l1));
 
 		//	if ( d >= 1.f-dotepsilon ) {
 		//		v1 = v0;

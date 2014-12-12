@@ -47,10 +47,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "GenericProperty.h"
 #include "CInterfaceIOWrapper.h"
+#include "../include/assimp/importerdesc.h"
 #include "Importer.h"
 
 // ------------------------------------------------------------------------------------------------
-#ifdef AI_C_THREADSAFE
+#ifndef ASSIMP_BUILD_SINGLETHREADED
 #	include <boost/thread/thread.hpp>
 #	include <boost/thread/mutex.hpp>
 #endif
@@ -84,10 +85,14 @@ namespace Assimp
 
 	/** Verbose logging active or not? */
 	static aiBool gVerboseLogging = false;
-}
+
+    /** will return all registered importers. */
+    void GetImporterInstanceList(std::vector< BaseImporter* >& out);
+
+} // namespace assimp
 
 
-#ifdef AI_C_THREADSAFE
+#ifndef ASSIMP_BUILD_SINGLETHREADED
 /** Global mutex to manage the access to the logstream map */
 static boost::mutex gLogStreamMutex;
 #endif
@@ -104,7 +109,7 @@ public:
 	}
 
 	~LogToCallbackRedirector()	{
-#ifdef AI_C_THREADSAFE
+#ifndef ASSIMP_BUILD_SINGLETHREADED
 		boost::mutex::scoped_lock lock(gLogStreamMutex);
 #endif
 		// (HACK) Check whether the 'stream.user' pointer points to a
@@ -172,6 +177,7 @@ const aiScene* aiImportFileExWithProperties( const char* pFile, unsigned int pFl
 		pimpl->mIntProperties = pp->ints;
 		pimpl->mFloatProperties = pp->floats;
 		pimpl->mStringProperties = pp->strings;
+		pimpl->mMatrixProperties = pp->matrices;
 	}
 	// setup a custom IO system if necessary
 	if (pFS)	{
@@ -230,6 +236,7 @@ const aiScene* aiImportFileFromMemoryWithProperties(
 		pimpl->mIntProperties = pp->ints;
 		pimpl->mFloatProperties = pp->floats;
 		pimpl->mStringProperties = pp->strings;
+		pimpl->mMatrixProperties = pp->matrices;
 	}
 
 	// and have it read the file from the memory buffer
@@ -337,7 +344,7 @@ ASSIMP_API void aiAttachLogStream( const aiLogStream* stream )
 {
 	ASSIMP_BEGIN_EXCEPTION_REGION();
 
-#ifdef AI_C_THREADSAFE
+#ifndef ASSIMP_BUILD_SINGLETHREADED
 	boost::mutex::scoped_lock lock(gLogStreamMutex);
 #endif
 
@@ -356,7 +363,7 @@ ASSIMP_API aiReturn aiDetachLogStream( const aiLogStream* stream)
 {
 	ASSIMP_BEGIN_EXCEPTION_REGION();
 
-#ifdef AI_C_THREADSAFE
+#ifndef ASSIMP_BUILD_SINGLETHREADED
 	boost::mutex::scoped_lock lock(gLogStreamMutex);
 #endif
 	// find the logstream associated with this data
@@ -381,7 +388,7 @@ ASSIMP_API aiReturn aiDetachLogStream( const aiLogStream* stream)
 ASSIMP_API void aiDetachAllLogStreams(void)
 {
 	ASSIMP_BEGIN_EXCEPTION_REGION();
-#ifdef AI_C_THREADSAFE
+#ifndef ASSIMP_BUILD_SINGLETHREADED
 	boost::mutex::scoped_lock lock(gLogStreamMutex);
 #endif
 	for (LogStreamMap::iterator it = gActiveLogStreams.begin(); it != gActiveLogStreams.end(); ++it) {
@@ -505,6 +512,20 @@ ASSIMP_API void aiSetImportPropertyString(aiPropertyStore* p, const char* szName
 }
 
 // ------------------------------------------------------------------------------------------------
+// Importer::SetPropertyMatrix
+ASSIMP_API void aiSetImportPropertyMatrix(aiPropertyStore* p, const char* szName,
+	const C_STRUCT aiMatrix4x4* mat)
+{
+	if (!mat) {
+		return;
+	}
+	ASSIMP_BEGIN_EXCEPTION_REGION();
+	PropertyMap* pp = reinterpret_cast<PropertyMap*>(p);
+	SetGenericProperty<aiMatrix4x4>(pp->matrices,szName,*mat,NULL);
+	ASSIMP_END_EXCEPTION_REGION(void);
+}
+
+// ------------------------------------------------------------------------------------------------
 // Rotation matrix to quaternion
 ASSIMP_API void aiCreateQuaternionFromMatrix(aiQuaternion* quat,const aiMatrix3x3* mat)
 {
@@ -590,4 +611,22 @@ ASSIMP_API void aiIdentityMatrix4(
 	*mat = aiMatrix4x4();
 }
 
+// ------------------------------------------------------------------------------------------------
+ASSIMP_API C_STRUCT const aiImporterDesc* aiGetImporterDesc( const char *extension ) {
+    if( NULL == extension ) {
+        return NULL;
+    }
+    const aiImporterDesc *desc( NULL );
+    std::vector< BaseImporter* > out;
+    GetImporterInstanceList( out );
+    for( size_t i = 0; i < out.size(); ++i ) {
+        if( 0 == strncmp( out[ i ]->GetInfo()->mFileExtensions, extension, strlen( extension ) ) ) {
+            desc = out[ i ]->GetInfo();
+            break;
+        }
+    }
 
+    return desc;
+}
+
+// ------------------------------------------------------------------------------------------------

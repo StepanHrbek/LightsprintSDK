@@ -50,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "matrix4x4.h"
 #include <algorithm>
+#include <cmath>
 #include <limits>
 
 // ------------------------------------------------------------------------------------------------
@@ -113,7 +114,7 @@ inline const TReal* aiMatrix3x3t<TReal>::operator[] (unsigned int p_iIndex) cons
 
 // ------------------------------------------------------------------------------------------------
 template <typename TReal>
-inline bool aiMatrix3x3t<TReal>::operator== (const aiMatrix4x4t<TReal> m) const
+inline bool aiMatrix3x3t<TReal>::operator== (const aiMatrix4x4t<TReal>& m) const
 {
 	return a1 == m.a1 && a2 == m.a2 && a3 == m.a3 &&
 		   b1 == m.b1 && b2 == m.b2 && b3 == m.b3 &&
@@ -122,9 +123,24 @@ inline bool aiMatrix3x3t<TReal>::operator== (const aiMatrix4x4t<TReal> m) const
 
 // ------------------------------------------------------------------------------------------------
 template <typename TReal>
-inline bool aiMatrix3x3t<TReal>::operator!= (const aiMatrix4x4t<TReal> m) const
+inline bool aiMatrix3x3t<TReal>::operator!= (const aiMatrix4x4t<TReal>& m) const
 {
 	return !(*this == m);
+}
+
+// ---------------------------------------------------------------------------
+template<typename TReal>
+inline bool aiMatrix3x3t<TReal>::Equal(const aiMatrix4x4t<TReal>& m, TReal epsilon) const {
+	return
+		std::abs(a1 - m.a1) <= epsilon &&
+		std::abs(a2 - m.a2) <= epsilon &&
+		std::abs(a3 - m.a3) <= epsilon &&
+		std::abs(b1 - m.b1) <= epsilon &&
+		std::abs(b2 - m.b2) <= epsilon &&
+		std::abs(b3 - m.b3) <= epsilon &&
+		std::abs(c1 - m.c1) <= epsilon &&
+		std::abs(c2 - m.c2) <= epsilon &&
+		std::abs(c3 - m.c3) <= epsilon;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -184,8 +200,8 @@ inline aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::Inverse()
 template <typename TReal>
 inline aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::RotationZ(TReal a, aiMatrix3x3t<TReal>& out)
 {
-	out.a1 = out.b2 = ::cos(a);
-	out.b1 = ::sin(a);
+	out.a1 = out.b2 = std::cos(a);
+	out.b1 = std::sin(a);
 	out.a2 = - out.b1;
 
 	out.a3 = out.b3 = out.c1 = out.c2 = 0.f;
@@ -199,7 +215,7 @@ inline aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::RotationZ(TReal a, aiMatrix3x3t
 template <typename TReal>
 inline aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::Rotation( TReal a, const aiVector3t<TReal>& axis, aiMatrix3x3t<TReal>& out)
 {
-  TReal c = cos( a), s = sin( a), t = 1 - c;
+  TReal c = std::cos( a), s = std::sin( a), t = 1 - c;
   TReal x = axis.x, y = axis.y, z = axis.z;
 
   // Many thanks to MathWorld and Wikipedia
