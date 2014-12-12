@@ -535,6 +535,9 @@ void registerLoaderAssimp()
 	// hide assimp 3ds loader if better? one exists
 	str.erase(str.find("*.3ds;"),6);
 #endif
+#if defined(ASSIMP_SUPPORT_ONLY_FORMATS)
+	str = ASSIMP_SUPPORT_ONLY_FORMATS;
+#endif
 	RRScene::registerLoader(str.c_str(),RRSceneAssimp::load);
 }
 
