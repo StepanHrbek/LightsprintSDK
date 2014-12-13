@@ -2419,7 +2419,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					}
 				}
 			}
-			if (multiMesh && !svs.renderLightmaps2d)
+			if (!svs.renderLightmaps2d)
 			{
 				if (selectedPointValid)
 				{
@@ -2483,7 +2483,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				}
 				textOutput(x,y+=18*2,h,"numbers of casters/lights show potential, what is allowed");
 			}
-			if (multiMesh && svs.renderLightmaps2d)
+			if (svs.renderLightmaps2d)
 			{
 				rr::RRVec2 uv = lv.getCenterUv(canvasGetSize());
 				textOutput(x,y+=18*2,h,"[pointed by mouse]");
