@@ -154,7 +154,9 @@ void registerLoaderIsolationStep2(int argc, char** argv)
 
 		// b) load with textures - slower
 #ifdef _WIN32
-		RRScene scene(argvw[2], NULL, &solver->aborting);
+		RRFileLocator* textureLocator = RRFileLocator::create();
+		textureLocator->setAttempt(RRFileLocator::ATTEMPT_STUB,"yes"); // load with stubs, so that paths to missing textures are not lost
+		RRScene scene(argvw[2], textureLocator, &solver->aborting);
 		bool saved = scene.save(argvw[3]);
 #else
 		RRScene scene(argv[2], NULL, &solver->aborting);
