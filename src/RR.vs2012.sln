@@ -52,6 +52,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintIO.vs2012", "Lig
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintEd.vs2012", "LightsprintEd\LightsprintEd.vs2012.vcxproj", "{1A354CD4-2F21-93DE-51B9-88DA14A602BF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibOVR", "..\..\OculusSDK\LibOVR\Projects\Win32\VS2012\LibOVR.vcxproj", "{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Win32 = Debug DLL|Win32
@@ -359,6 +361,22 @@ Global
 		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release static|Win32.Build.0 = Release static|Win32
 		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release static|x64.ActiveCfg = Release static|x64
 		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release static|x64.Build.0 = Release static|x64
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Debug DLL|Win32.ActiveCfg = Debug|Win32
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Debug DLL|Win32.Build.0 = Debug|Win32
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Debug DLL|x64.ActiveCfg = Debug|x64
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Debug DLL|x64.Build.0 = Debug|x64
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Debug static|Win32.ActiveCfg = Debug|Win32
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Debug static|Win32.Build.0 = Debug|Win32
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Debug static|x64.ActiveCfg = Debug|x64
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Debug static|x64.Build.0 = Debug|x64
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release DLL|Win32.ActiveCfg = Release|Win32
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release DLL|Win32.Build.0 = Release|Win32
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release DLL|x64.ActiveCfg = Release|x64
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release DLL|x64.Build.0 = Release|x64
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release static|Win32.ActiveCfg = Release|Win32
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release static|Win32.Build.0 = Release|Win32
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release static|x64.ActiveCfg = Release|x64
+		{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}.Release static|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -56,6 +56,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RLPower", "RENDERLights\RLP
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintEd.vs2010", "LightsprintEd\LightsprintEd.vs2010.vcxproj", "{1A354CD4-2F21-93DE-51B9-88DA14A602BF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibOVR", "..\..\OculusSDK\LibOVR\Projects\Win32\VS2010\LibOVR.vcxproj", "{934B40C7-F40A-4E4C-97A7-B9659BE0A441}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Win32 = Debug DLL|Win32
@@ -391,6 +393,18 @@ Global
 		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release static|Win32.Build.0 = Release static|Win32
 		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release static|x64.ActiveCfg = Release static|x64
 		{1A354CD4-2F21-93DE-51B9-88DA14A602BF}.Release static|x64.Build.0 = Release static|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug DLL|Win32.ActiveCfg = Debug|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug DLL|x64.ActiveCfg = Debug|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug DLL|x64.Build.0 = Debug|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug static|Win32.ActiveCfg = Debug|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug static|x64.ActiveCfg = Debug|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Debug static|x64.Build.0 = Debug|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release DLL|Win32.ActiveCfg = Release|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release DLL|x64.ActiveCfg = Release|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release DLL|x64.Build.0 = Release|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release static|Win32.ActiveCfg = Release|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release static|x64.ActiveCfg = Release|x64
+		{934B40C7-F40A-4E4C-97A7-B9659BE0A441}.Release static|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

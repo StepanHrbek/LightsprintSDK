@@ -602,6 +602,9 @@
     <ClCompile Include="SVUserProperties.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\OculusSDK\LibOVR\Projects\Win32\VS2010\LibOVR.vcxproj">
+      <Project>{934b40c7-f40a-4e4c-97a7-b9659be0a441}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\LightsprintCore\LightsprintCore.vs2010.vcxproj">
       <Project>{a93c8c21-6c34-4bb2-46b3-7c8d93ed3a4a}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
