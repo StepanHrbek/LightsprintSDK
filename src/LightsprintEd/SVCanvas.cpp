@@ -1942,6 +1942,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								#ifdef _WIN32
 									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)canvasWindow->GetHWND(),NULL,NULL);
 								#endif
+								ovrHmd_SetEnabledCaps(svframe->oculusHMD, ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
 								ovrHmd_ConfigureTracking(svframe->oculusHMD, ovrTrackingCap_Orientation|ovrTrackingCap_MagYawCorrection|ovrTrackingCap_Position, 0);
 
 								ovrGLConfig cfg;
