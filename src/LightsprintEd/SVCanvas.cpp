@@ -1947,6 +1947,9 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								oculusTexture[0] = new rr_gl::Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false);
 								oculusTexture[1] = NULL;
 
+								#ifdef _WIN32
+									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)canvasWindow->GetHWND(),NULL,NULL);
+								#endif
 								ovrHmd_ConfigureTracking(svframe->oculusHMD, ovrTrackingCap_Orientation|ovrTrackingCap_MagYawCorrection|ovrTrackingCap_Position, 0);
 
 								ovrGLConfig cfg;
@@ -1960,9 +1963,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								#endif
 								unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive; // taken from RoomTiny sample
 								ovrBool result = ovrHmd_ConfigureRendering(svframe->oculusHMD, &cfg.Config, distortionCaps, svframe->oculusHMD->DefaultEyeFov, oculusEyeRenderDesc);
-								#ifdef _WIN32
-									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)canvasWindow->GetHWND(),NULL,NULL);
-								#endif
 							}
 
 							//ppStereo.oculusDistortionK = convertVec4(svframe->oculusHMDInfo.DistortionK);
