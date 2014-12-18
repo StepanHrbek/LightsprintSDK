@@ -1958,11 +1958,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 									cfg.OGL.Window = canvasWindow->GetHWND();
 									cfg.OGL.DC = NULL;
 								#endif
-								unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette;
-								//distortionCaps |= ovrDistortionCap_SRGB;
-								//distortionCaps |= ovrDistortionCap_Overdrive;
-								//distortionCaps |= ovrDistortionCap_TimeWarp;
-								//distortionCaps |= ovrDistortionCap_ProfileNoTimewarpSpinWaits;
+								unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive; // taken from RoomTiny sample
 								ovrBool result = ovrHmd_ConfigureRendering(svframe->oculusHMD, &cfg.Config, distortionCaps, svframe->oculusHMD->DefaultEyeFov, oculusEyeRenderDesc);
 								#ifdef _WIN32
 									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)canvasWindow->GetHWND(),NULL,NULL);
