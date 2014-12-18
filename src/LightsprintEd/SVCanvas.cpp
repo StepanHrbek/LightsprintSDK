@@ -1968,8 +1968,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								//eyeFov[0] = FovPort::Min(eyeFov[0], FovPort(FovSideTanMax));
 								//eyeFov[1] = FovPort::Min(eyeFov[1], FovPort(FovSideTanMax));
 								ovrEyeRenderDesc eyeRenderDesc[2];
-								eyeRenderDesc[ovrEye_Left] = ovrHmd_GetRenderDesc(svframe->oculusHMD, ovrEye_Left,  eyeFov[ovrEye_Left]);
-								eyeRenderDesc[ovrEye_Right] = ovrHmd_GetRenderDesc(svframe->oculusHMD, ovrEye_Right,  eyeFov[ovrEye_Right]);
 								ovrBool result = ovrHmd_ConfigureRendering(svframe->oculusHMD, &cfg.Config, distortionCaps, eyeFov, eyeRenderDesc);
 								#ifdef _WIN32
 									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)canvasWindow->GetHWND(),NULL,NULL);
