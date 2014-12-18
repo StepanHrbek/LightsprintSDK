@@ -1123,8 +1123,8 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 	for (int j=0;j<(int)h;j++)
 	{
 		PathtracerWorker pathtracerWorker(ptj,_parameters,true,false,UINT_MAX);
-		pathtracerWorker.ray.rayLengthMin = priv->minimalSafeDistance; // necessary, e.g. 2011_BMW_5_series_F10_535_i_v1.1.rr3
-		pathtracerWorker.ray.rayLengthMax = 1e10f;
+		pathtracerWorker.ray.rayLengthMin = _camera.getFar()*1e-6f; // [#38] must be !0. priv->minimalSafeDistance is 0 in fully dynamic scenes
+		pathtracerWorker.ray.rayLengthMax = _camera.getFar()*2;
 		for (unsigned i=0;i<w;i++)
 		{
 			unsigned index = i+j*w;
