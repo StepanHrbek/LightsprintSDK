@@ -1960,15 +1960,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								//distortionCaps |= ovrDistortionCap_Overdrive;
 								//distortionCaps |= ovrDistortionCap_TimeWarp;
 								//distortionCaps |= ovrDistortionCap_ProfileNoTimewarpSpinWaits;
-								ovrFovPort eyeFov[2];
-								eyeFov[0] = svframe->oculusHMD->DefaultEyeFov[0];
-								eyeFov[1] = svframe->oculusHMD->DefaultEyeFov[1];
-								// Clamp Fov based on our dynamically adjustable FovSideTanMax.
-								// Most apps should use the default, but reducing Fov does reduce rendering cost.
-								//eyeFov[0] = FovPort::Min(eyeFov[0], FovPort(FovSideTanMax));
-								//eyeFov[1] = FovPort::Min(eyeFov[1], FovPort(FovSideTanMax));
 								ovrEyeRenderDesc eyeRenderDesc[2];
-								ovrBool result = ovrHmd_ConfigureRendering(svframe->oculusHMD, &cfg.Config, distortionCaps, eyeFov, eyeRenderDesc);
+								ovrBool result = ovrHmd_ConfigureRendering(svframe->oculusHMD, &cfg.Config, distortionCaps, svframe->oculusHMD->DefaultEyeFov, eyeRenderDesc);
 								#ifdef _WIN32
 									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)canvasWindow->GetHWND(),NULL,NULL);
 								#endif
