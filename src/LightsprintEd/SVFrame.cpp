@@ -552,17 +552,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	{
 		rr::RRReportInterval report(rr::INF2,"Checking Oculus Rift...\n");
 		oculusHMD = ovrHmd_Create(0);
-		/*
-		oculusManager = *OVR::DeviceManager::Create();
-		if (oculusManager)
-			oculusHMD = *oculusManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
-		if (oculusHMD)
-			oculusSensor = *oculusHMD->GetSensor();
-		if (oculusSensor)
-			oculusFusion.AttachToSensor(oculusSensor);
-		if (oculusHMD)
-			oculusHMD->GetDeviceInfo(&oculusHMDInfo);
-		*/
 	}
 #endif // SUPPORT_OCULUS
 

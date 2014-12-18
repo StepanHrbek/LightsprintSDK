@@ -196,13 +196,7 @@ namespace rr_ed
 		UnwrapDlg                    unwrapDlg;
 
 #ifdef SUPPORT_OCULUS
-		ovrHmd                         oculusHMD;
-		//OVR::HmdRenderInfo             oculusHMDInfo;
-		//OVR::Ptr<OVR::DeviceManager> oculusManager;
-		//OVR::Ptr<OVR::SensorDevice>  oculusSensor;
-		//OVR::Ptr<OVR::HMDDevice>     oculusHMD;
-		//OVR::SensorFusion            oculusFusion;
-		//OVR::HMDInfo                 oculusHMDInfo;
+		ovrHmd                       oculusHMD;
 #endif
 
 	private:
