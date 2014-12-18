@@ -1667,16 +1667,9 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr::RRVec3 oculusTrans = convertVec3(yawWithoutOculus.Transform(oculusHeadPose.Translation));
 			svs.camera.setPosition(svs.camera.getPosition()+oculusTrans-oldOculusTrans);
 			oldOculusTrans = oculusTrans;
-			// another way to copy (not add) oculus rotation to camera:
-			//OVR::Quatf q = svframe->oculusFusion.GetPredictedOrientation();
-			//rr::RRVec3 oldpos = svs.camera.getPosition();
-			//svs.camera.setPosition(rr::RRVec3(0));
-			//svs.camera.setYawPitchRollRad(rr::RRVec3(0));
-			//svs.camera.manipulateViewBy(rr::RRMatrix3x4::rotationByQuaternion(convertQuat(q)));
-			//svs.camera.setPosition(oldpos);
 			svframe->OnAnyChange(SVFrame::ES_RIFT,NULL,NULL,0);
 		}
-#endif
+#endif // SUPPORT_OCULUS
 
 
 		// aspect needs update after
