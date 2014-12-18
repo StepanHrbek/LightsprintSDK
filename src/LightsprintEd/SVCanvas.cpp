@@ -552,6 +552,8 @@ SVCanvas::~SVCanvas()
 
 #ifdef SUPPORT_OCULUS
 	// oculus
+	rr::RRReporter::report(rr::INF2,"0\n");
+	ovrHmd_ConfigureRendering(svframe->oculusHMD, NULL, 0, NULL, NULL);
 	rr::RRReporter::report(rr::INF2,"1\n");
 	for (unsigned i=0;i<2;i++)
 		if (oculusTexture[i])
