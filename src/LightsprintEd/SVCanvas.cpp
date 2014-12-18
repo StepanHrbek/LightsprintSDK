@@ -2221,6 +2221,9 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		const rr::RRMesh*           selectedPointMesh = NULL;
 		rr::RRMesh::TangentBasis    selectedPointBasis;
 		rr::RRMesh::TriangleBody    selectedTriangleBody;
+		rr::RRMesh::Triangle        selectedTriangle;
+		rr::RRVec3                  selectedTriangleCoordsLocal[3];
+		rr::RRVec3                  selectedTriangleCoordsWorld[3];
 		rr::RRMesh::TriangleNormals selectedTriangleNormals;
 		if (!svs.renderLightmaps2d)
 		{
@@ -2240,6 +2243,13 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				selectedPointMesh = selectedPointObject->getCollider()->getMesh();
 				const rr::RRMatrix3x4& hitMatrix = selectedPointObject->getWorldMatrixRef();
 				const rr::RRMatrix3x4& inverseHitMatrix = selectedPointObject->getInverseWorldMatrixRef();
+				selectedPointMesh->getTriangle(ray->hitTriangle,selectedTriangle);
+				selectedPointMesh->getVertex(selectedTriangle[0],selectedTriangleCoordsLocal[0]);
+				selectedPointMesh->getVertex(selectedTriangle[1],selectedTriangleCoordsLocal[1]);
+				selectedPointMesh->getVertex(selectedTriangle[2],selectedTriangleCoordsLocal[2]);
+				hitMatrix.transformPosition(selectedTriangleCoordsWorld[0] = selectedTriangleCoordsLocal[0]);
+				hitMatrix.transformPosition(selectedTriangleCoordsWorld[1] = selectedTriangleCoordsLocal[1]);
+				hitMatrix.transformPosition(selectedTriangleCoordsWorld[2] = selectedTriangleCoordsLocal[2]);
 				selectedPointMesh->getTriangleBody(ray->hitTriangle,selectedTriangleBody);
 				selectedPointMesh->getTriangleNormals(ray->hitTriangle,selectedTriangleNormals);
 				hitMatrix.transformPosition(selectedTriangleBody.vertex0);
@@ -2438,6 +2448,10 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 						textOutput(x,y+=18,h,"triangle in object: %d/%d",preTriangle.index,solver->getObject(preTriangle.object)->getCollider()->getMesh()->getNumTriangles());
 						textOutput(x,y+=18,h,"triangle in static scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
 					}
+					for (unsigned i=0;i<3;i++)
+						textOutput(x,y+=18,h,"trilocal[%d]: %f %f %f",i,selectedTriangleCoordsLocal[i][0],selectedTriangleCoordsLocal[i][1],selectedTriangleCoordsLocal[i][2]);
+					for (unsigned i=0;i<3;i++)
+						textOutput(x,y+=18,h,"triworld[%d]: %f %f %f",i,selectedTriangleCoordsWorld[i][0],selectedTriangleCoordsWorld[i][1],selectedTriangleCoordsWorld[i][2]);
 					textOutput(x,y+=18,h,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
 					textOutput(x,y+=18,h,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
 					if (selectedPointLightmap && selectedPointLightmap->getType()==rr::BT_2D_TEXTURE)
