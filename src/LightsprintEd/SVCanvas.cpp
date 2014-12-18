@@ -1654,17 +1654,17 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ovrTrackingState oculusTs;
 			ovrVector3f useHmdToEyeViewOffset[2] = {oculusEyeRenderDesc[0].HmdToEyeViewOffset, oculusEyeRenderDesc[1].HmdToEyeViewOffset};
 			ovrHmd_GetEyePoses(svframe->oculusHMD, 0, useHmdToEyeViewOffset, oculusEyePose, &oculusTs);
-			OVR::Posef oculusPose = oculusTs.HeadPose.ThePose;
+			OVR::Posef oculusHeadPose = oculusTs.HeadPose.ThePose;
 			// apply oculus rotation to our camera
 			static rr::RRVec3 oldOculusRot(0);
 			rr::RRVec3 oculusRot(0);
-			oculusPose.Rotation.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&oculusRot.x,&oculusRot.y,&oculusRot.z);
+			oculusHeadPose.Rotation.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&oculusRot.x,&oculusRot.y,&oculusRot.z);
 			svs.camera.setYawPitchRollRad(rr::RRVec3(svs.camera.getYawPitchRollRad().x + oculusRot.x-oldOculusRot.x, oculusRot.y, oculusRot.z));
 			oldOculusRot = oculusRot;
 			// apply oculus translation to our camera
 			static rr::RRVec3 oldOculusTrans(0);
 			rr::RRVec3 oculusTrans(0);
-			oculusTrans = convertVec3(oculusPose.Translation);
+			oculusTrans = convertVec3(oculusHeadPose.Translation);
 			oculusTrans = svs.camera.getRight() * oculusTrans.x + svs.camera.getUp() * oculusTrans.y - svs.camera.getDirection() * oculusTrans.z;
 			svs.camera.setPosition(svs.camera.getPosition()+oculusTrans-oldOculusTrans);
 			oldOculusTrans = oculusTrans;
