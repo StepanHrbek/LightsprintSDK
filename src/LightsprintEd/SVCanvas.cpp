@@ -536,7 +536,7 @@ void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
 
 SVCanvas::~SVCanvas()
 {
-	rr::RRReporter::report(rr::INF2,"0\n");
+	rr::RRReporter::report(rr::INF2,"-1\n");
 	// don't process events, if they are still coming
 	fullyCreated = false;
 
@@ -553,7 +553,8 @@ SVCanvas::~SVCanvas()
 #ifdef SUPPORT_OCULUS
 	// oculus
 	rr::RRReporter::report(rr::INF2,"0\n");
-	ovrHmd_ConfigureRendering(svframe->oculusHMD, NULL, 0, NULL, NULL);
+	if (svframe->oculusHMD)
+		ovrHmd_ConfigureRendering(svframe->oculusHMD, NULL, 0, NULL, NULL);
 	rr::RRReporter::report(rr::INF2,"1\n");
 	for (unsigned i=0;i<2;i++)
 		if (oculusTexture[i])
