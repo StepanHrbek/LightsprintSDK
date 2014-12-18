@@ -14,6 +14,9 @@
 #include "SVEntityIcons.h"
 #include "SVLightmapViewer.h"
 	#include "SVSaveLoad.h"
+#ifdef SUPPORT_OCULUS
+	#include "OVR.h"
+#endif
 
 namespace rr_ed
 {
@@ -143,6 +146,7 @@ namespace rr_ed
 
 #ifdef SUPPORT_OCULUS
 		rr_gl::Texture*            oculusTexture[2];
+		ovrEyeRenderDesc           oculusEyeRenderDesc[2];
 #endif
 
 		LightingIndirect           previousLightIndirect;

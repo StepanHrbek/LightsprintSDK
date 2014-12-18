@@ -1602,6 +1602,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	if (exitRequested || !fullyCreated || !winWidth || !winHeight) return result; // can't display without window
 #ifdef SUPPORT_OCULUS
 	bool oculusRenderingFrame = false;
+	ovrPosef oculusEyePose[2];
 #endif
 	if (svs.renderLightmaps2d)
 	{
@@ -1650,7 +1651,9 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		if (svframe->oculusActive())
 		{
 			// read data from oculus
-			ovrTrackingState oculusTs = ovrHmd_GetTrackingState(svframe->oculusHMD, ovr_GetTimeInSeconds());
+			ovrTrackingState oculusTs;
+			ovrVector3f useHmdToEyeViewOffset[2] = {oculusEyeRenderDesc[0].HmdToEyeViewOffset, oculusEyeRenderDesc[1].HmdToEyeViewOffset};
+			ovrHmd_GetEyePoses(svframe->oculusHMD, 0, useHmdToEyeViewOffset, oculusEyePose, &oculusTs);
 			OVR::Posef oculusPose = oculusTs.HeadPose.ThePose;
 			// apply oculus rotation to our camera
 			static rr::RRVec3 oldOculusRot(0);
@@ -1960,8 +1963,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								//distortionCaps |= ovrDistortionCap_Overdrive;
 								//distortionCaps |= ovrDistortionCap_TimeWarp;
 								//distortionCaps |= ovrDistortionCap_ProfileNoTimewarpSpinWaits;
-								ovrEyeRenderDesc eyeRenderDesc[2];
-								ovrBool result = ovrHmd_ConfigureRendering(svframe->oculusHMD, &cfg.Config, distortionCaps, svframe->oculusHMD->DefaultEyeFov, eyeRenderDesc);
+								ovrBool result = ovrHmd_ConfigureRendering(svframe->oculusHMD, &cfg.Config, distortionCaps, svframe->oculusHMD->DefaultEyeFov, oculusEyeRenderDesc);
 								#ifdef _WIN32
 									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)canvasWindow->GetHWND(),NULL,NULL);
 								#endif
@@ -2551,9 +2553,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 #ifdef SUPPORT_OCULUS
 	if (oculusRenderingFrame)
 	{
-		ovrPosef pose[2];
-		pose[ovrEye_Left] = ovrHmd_GetHmdPosePerEye(svframe->oculusHMD, ovrEye_Left);
-		pose[ovrEye_Right] = ovrHmd_GetHmdPosePerEye(svframe->oculusHMD, ovrEye_Right);
 		ovrTexture tex[2];
 		tex[0].Header.API = ovrRenderAPI_OpenGL;
 		tex[0].Header.TextureSize.w = winWidth;
@@ -2571,7 +2570,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		rr_gl::PreserveFlag p1(GL_SCISSOR_TEST,false);
 		rr_gl::PreserveScissor p2;
 		rr_gl::PreserveFrontFace p3;
-		ovrHmd_EndFrame(svframe->oculusHMD,pose,tex);
+		ovrHmd_EndFrame(svframe->oculusHMD,oculusEyePose,tex);
 		result = true; // SwapBuffers was just called from ovrHmd_EndFrame
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0); // at least this one is necessary for RL
