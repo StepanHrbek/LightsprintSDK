@@ -1659,13 +1659,12 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			static rr::RRVec3 oldOculusRot(0);
 			rr::RRVec3 oculusRot(0);
 			oculusHeadPose.Rotation.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&oculusRot.x,&oculusRot.y,&oculusRot.z);
+			OVR::Matrix4f yawWithoutOculus = OVR::Matrix4f::RotationY(svs.camera.getYawPitchRollRad().x-oldOculusRot.x);
 			svs.camera.setYawPitchRollRad(rr::RRVec3(svs.camera.getYawPitchRollRad().x + oculusRot.x-oldOculusRot.x, oculusRot.y, oculusRot.z));
 			oldOculusRot = oculusRot;
 			// apply oculus translation to our camera
 			static rr::RRVec3 oldOculusTrans(0);
-			rr::RRVec3 oculusTrans(0);
-			oculusTrans = convertVec3(oculusHeadPose.Translation);
-			oculusTrans = svs.camera.getRight() * oculusTrans.x + svs.camera.getUp() * oculusTrans.y - svs.camera.getDirection() * oculusTrans.z;
+			rr::RRVec3 oculusTrans = convertVec3(yawWithoutOculus.Transform(oculusHeadPose.Translation));
 			svs.camera.setPosition(svs.camera.getPosition()+oculusTrans-oldOculusTrans);
 			oldOculusTrans = oculusTrans;
 			// another way to copy (not add) oculus rotation to camera:
