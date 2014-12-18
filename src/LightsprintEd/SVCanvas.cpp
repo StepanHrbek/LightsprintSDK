@@ -167,7 +167,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
 #ifdef SUPPORT_OCULUS
 	oculusTexture[0] = NULL;
 	oculusTexture[1] = NULL;
-	oculusRenderingFrame = false;
 #endif
 }
 
@@ -1601,6 +1600,9 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	bool result = false;
 	if (exitRequested || !fullyCreated || !winWidth || !winHeight) return result; // can't display without window
+#ifdef SUPPORT_OCULUS
+	bool oculusRenderingFrame = false;
+#endif
 	if (svs.renderLightmaps2d)
 	{
 		if (solver->getObject(svs.selectedObjectIndex))
@@ -2558,7 +2560,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 #ifdef SUPPORT_OCULUS
 	if (oculusRenderingFrame)
 	{
-		oculusRenderingFrame = false;
 		ovrPosef pose[2];
 		pose[ovrEye_Left] = ovrHmd_GetHmdPosePerEye(svframe->oculusHMD, ovrEye_Left);
 		pose[ovrEye_Right] = ovrHmd_GetHmdPosePerEye(svframe->oculusHMD, ovrEye_Right);
