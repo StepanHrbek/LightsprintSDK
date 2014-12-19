@@ -56,6 +56,9 @@ namespace serialization {
 //
 // Q: If it has to be global, can we at least make it thread safe by storing pointer to state in TLS?
 // A: Maybe. So far we serialize serially, so it's low priority.
+//
+// Q: What happens when multiple SerializationRuntime exist?
+// A: The newest one is visible. When it destructs, older one becomes visible again.
 
 class SerializationRuntime
 {
@@ -66,14 +69,20 @@ public:
 	// Helps load 3:4 cross maps as cubemaps.
 	bool nextBufferIsCube;
 
+	// For diagnostics only.
+	const char* origin;
+
 	// Helps save each instance only once.
 	std::unordered_set<boost::serialization::RRBufferProxy*> bufferProxyInstances;
 	std::unordered_set<boost::serialization::RRMeshProxy*> meshProxyInstances;
 
-	inline SerializationRuntime(rr::RRFileLocator* fileLocator);
+	inline SerializationRuntime(rr::RRFileLocator* fileLocator, const char* origin);
 	inline ~SerializationRuntime();
 
 	static inline bool exists();
+
+private:
+	SerializationRuntime* backup;
 };
 
 
@@ -1055,11 +1064,17 @@ void serialize(Archive & ar, rr::RRScene& a, const unsigned int version)
 
 //------------------------- runtime implemented --------------------------------
 
-SerializationRuntime::SerializationRuntime(rr::RRFileLocator* fileLocator)
+SerializationRuntime::SerializationRuntime(rr::RRFileLocator* _fileLocator, const char* _origin)
 {
-	textureLocator = fileLocator;
+	textureLocator = _fileLocator;
 	nextBufferIsCube = false;
-	RR_ASSERT(!g_serializationRuntime);
+	origin = _origin;
+	if (g_serializationRuntime)
+	{
+		// this is potentially dangerous: it relies on boost.serialization being fully reentrant. maybe it is, but testing it is not easy
+		rr::RRReporter::report(rr::INF2,"SerializationRuntime %s inside %s.\n",origin,g_serializationRuntime->origin);
+	}
+	backup = g_serializationRuntime;
 	g_serializationRuntime = this;
 }
 
@@ -1069,7 +1084,10 @@ SerializationRuntime::~SerializationRuntime()
 		delete *bufferProxyInstances.begin();
 	while (!meshProxyInstances.empty())
 		delete *meshProxyInstances.begin();
-	g_serializationRuntime = NULL;
+	if (g_serializationRuntime!=this)
+		// Scopes of runtimes must not overlap (new A, new B, delete A, delete B. <- this is wrong).
+		rr::RRReporter::report(rr::ERRO,"SerializationRuntime %s scope overlaps.\n",origin);
+	g_serializationRuntime = backup;
 }
 
 bool SerializationRuntime::exists()

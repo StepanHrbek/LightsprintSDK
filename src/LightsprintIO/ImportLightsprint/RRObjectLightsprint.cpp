@@ -108,11 +108,6 @@ public:
 	{
 		try
 		{
-			if (SerializationRuntime::exists())
-			{
-				rr::RRReporter::report(rr::ERRO,"Scene %ls can't be loaded, other load/save in progress.\n",filename.w_str());
-				return NULL;
-			}
 			bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
 			if (!ifs || ifs.bad())
 			{
@@ -170,7 +165,7 @@ public:
 #endif
 			RRSceneLightsprint* scene = new RRSceneLightsprint;
 
-			SerializationRuntime serializationRuntime(textureLocator);
+			SerializationRuntime serializationRuntime(textureLocator,"load_rr3");
 
 			RRString oldReference;
 			std::string filenameOrVersion;
@@ -218,11 +213,6 @@ public:
 		}
 		try
 		{
-			if (SerializationRuntime::exists())
-			{
-				rr::RRReporter::report(rr::ERRO,"Scene %ls can't be saved, other load/save in progress.\n",filename.w_str());
-				return false;
-			}
 			bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc);
 			if (!ofs || ofs.bad())
 			{
@@ -278,7 +268,7 @@ public:
 			out.push(ofs);
 			portable_binary_oarchive ar(out);
 #endif
-			SerializationRuntime serializationRuntime(NULL);
+			SerializationRuntime serializationRuntime(NULL,"save_rr3");
 
 			std::string filenameOrVersion;
 			ar & boost::serialization::make_nvp("filename", filenameOrVersion); // former local charset filename, must be preserved, loader always tries to read it, we don't have any version number at this point in file
@@ -325,12 +315,6 @@ static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6
 {
 	try
 	{
-		if (SerializationRuntime::exists())
-		{
-			rr::RRReporter::report(rr::ERRO,"Buffer %ls can't be loaded, other load/save in progress.\n",filename.w_str());
-			return NULL;
-		}
-
 		bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
 		if (!ifs || ifs.bad())
 		{
@@ -343,7 +327,7 @@ static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6
 		in.push(ifs);
 		portable_binary_iarchive ar(in);
 
-		SerializationRuntime serializationRuntime(NULL);
+		SerializationRuntime serializationRuntime(NULL,"load_rrbuffer");
 
 		unsigned version;
 		ar & boost::serialization::make_nvp("version", version);
@@ -380,12 +364,6 @@ static bool saveBuffer(RRBuffer* buffer, const RRString& filename, const char* c
 	}
 	try
 	{
-		if (SerializationRuntime::exists())
-		{
-			rr::RRReporter::report(rr::ERRO,"Buffer %ls can't be saved, other load/save in progress.\n",filename.w_str());
-			return false;
-		}
-
 		bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc);
 		if (!ofs || ofs.bad())
 		{
@@ -398,7 +376,7 @@ static bool saveBuffer(RRBuffer* buffer, const RRString& filename, const char* c
 		out.push(ofs);
 		portable_binary_oarchive ar(out);
 
-		SerializationRuntime serializationRuntime(NULL);
+		SerializationRuntime serializationRuntime(NULL,"save_rrbuffer");
 
 		unsigned version = 0;
 		ar & boost::serialization::make_nvp("version", version);
@@ -423,12 +401,6 @@ static RRMaterials* loadMaterial(const RRString& filename, RRFileLocator* textur
 	RRMaterials* materials = new RRMaterials;
 	try
 	{
-		if (SerializationRuntime::exists())
-		{
-			rr::RRReporter::report(rr::ERRO,"Material %ls can't be loaded, other load/save in progress.\n",filename.w_str());
-			return NULL;
-		}
-
 		bf::ifstream ifs(RR_RR2PATH(filename),std::ios::in|std::ios::binary);
 		if (!ifs || ifs.bad())
 		{
@@ -441,7 +413,7 @@ static RRMaterials* loadMaterial(const RRString& filename, RRFileLocator* textur
 		in.push(ifs);
 		portable_binary_iarchive ar(in);
 
-		SerializationRuntime serializationRuntime(textureLocator);
+		SerializationRuntime serializationRuntime(textureLocator,"load_rrmaterial");
 
 		RRString oldReference;
 		ar & boost::serialization::make_nvp("filename", oldReference);
@@ -476,12 +448,6 @@ static bool saveMaterial(const RRMaterials* materials, const RRString& filename)
 	}
 	try
 	{
-		if (SerializationRuntime::exists())
-		{
-			rr::RRReporter::report(rr::ERRO,"Material %ls can't be saved, other load/save in progress.\n",filename.w_str());
-			return false;
-		}
-
 		bf::ofstream ofs(RR_RR2PATH(filename),std::ios::out|std::ios::binary|std::ios::trunc);
 		if (!ofs || ofs.bad())
 		{
@@ -494,7 +460,7 @@ static bool saveMaterial(const RRMaterials* materials, const RRString& filename)
 		out.push(ofs);
 		portable_binary_oarchive ar(out);
 
-		SerializationRuntime serializationRuntime(NULL);
+		SerializationRuntime serializationRuntime(NULL,"save_rrmaterial");
 
 		ar & boost::serialization::make_nvp("filename", filename);
 		ar & boost::serialization::make_nvp("materials",*materials);
