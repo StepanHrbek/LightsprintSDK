@@ -13,10 +13,6 @@
 #include "RRMath.h"
 
 // Common memory macros.
-#define RR_SAFE_FREE(a)         {free(a);a=NULL;}
-#define RR_SAFE_DELETE(a)       {delete a;a=NULL;}
-#define RR_SAFE_DELETE_ARRAY(a) {delete[] a;a=NULL;}
-#define RR_SAFE_RELEASE(a)      {if(a){(a)->Release();a=NULL;}}
 #if defined(__BIG_ENDIAN__) || defined(__PPC__) // || defined(XBOX)
 	#define RR_BIG_ENDIAN
 #endif
@@ -29,6 +25,44 @@
 
 namespace rr
 {
+
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//  RR_SAFE_XXX
+	//
+	//  does XXX bit more safely
+	//  in case of exception, pointer is already NULL, so half deleted object won't be accessible
+
+	template <class C> void RR_SAFE_FREE(C*& a)
+	{
+		C* tmp = a;
+		a = NULL;
+		free(tmp);
+	}
+
+	template <class C> void RR_SAFE_DELETE(C*& a)
+	{
+		C* tmp = a;
+		a = NULL;
+		delete tmp;
+	}
+
+	template <class C> void RR_SAFE_DELETE_ARRAY(C*& a)
+	{
+		C* tmp = a;
+		a = NULL;
+		delete[] tmp;
+	}
+
+	template <class C> void RR_SAFE_RELEASE(C*& a)
+	{
+		if (a)
+		{
+			C* tmp = a;
+			a = NULL;
+			tmp->Release();
+		}
+	}
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
