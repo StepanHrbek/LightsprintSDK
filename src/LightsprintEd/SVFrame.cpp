@@ -403,7 +403,7 @@ void SVFrame::UpdateEverything()
 	m_canvasWindow->svcanvas = nextCanvas;
 	{
 		rr::RRReportInterval report(rr::INF2,"Cleaning up...\n"); // temporary, we had crash somewhere around here, this will help locate it
-		RR_SAFE_DELETE(m_canvas);
+		rr::RR_SAFE_DELETE(m_canvas);
 	}
 	svs.releaseResources = oldReleaseResources;
 
@@ -720,7 +720,7 @@ SVFrame::~SVFrame()
 		if (oculusHMD)
 			ovrHmd_Destroy(oculusHMD);
 #endif
-		RR_SAFE_DELETE(textureLocator);
+		rr::RR_SAFE_DELETE(textureLocator);
 	}
 }
 

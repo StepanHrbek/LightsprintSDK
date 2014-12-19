@@ -560,26 +560,26 @@ SVCanvas::~SVCanvas()
 		if (oculusTexture[i])
 		{
 			delete oculusTexture[i]->getBuffer();
-			RR_SAFE_DELETE(oculusTexture[i]);
+			rr::RR_SAFE_DELETE(oculusTexture[i]);
 		}
 	rr::RRReporter::report(rr::INF2,"2\n");
 #endif
 
 	// pathtracer
-	RR_SAFE_DELETE(pathTracedBuffer);
+	rr::RR_SAFE_DELETE(pathTracedBuffer);
 
 	// logo
-	RR_SAFE_DELETE(logoImage);
+	rr::RR_SAFE_DELETE(logoImage);
 
 	// vignette
-	RR_SAFE_DELETE(vignetteImage);
+	rr::RR_SAFE_DELETE(vignetteImage);
 
 	// help
-	RR_SAFE_DELETE(helpImage);
+	rr::RR_SAFE_DELETE(helpImage);
 
-	RR_SAFE_DELETE(entityIcons);
-	RR_SAFE_DELETE(collisionHandler);
-	RR_SAFE_DELETE(ray);
+	rr::RR_SAFE_DELETE(entityIcons);
+	rr::RR_SAFE_DELETE(collisionHandler);
+	rr::RR_SAFE_DELETE(ray);
 	rr::RRReporter::report(rr::INF2,"8\n");
 
 	rr_gl::deleteAllTextures();
@@ -591,7 +591,7 @@ SVCanvas::~SVCanvas()
 		rr::RRReporter::report(rr::INF2,"10\n");
 		for (unsigned i=0;i<solver->getStaticObjects().size()+solver->getDynamicObjects().size();i++)
 		{
-			RR_SAFE_DELETE(solver->getObject(i)->illumination.getLayer(svs.layerRealtimeAmbient));
+			rr::RR_SAFE_DELETE(solver->getObject(i)->illumination.getLayer(svs.layerRealtimeAmbient));
 		}
 		rr::RRReporter::report(rr::INF2,"11\n");
 
@@ -611,13 +611,13 @@ SVCanvas::~SVCanvas()
 		textureRenderer = NULL;
 	}
 	rr::RRReporter::report(rr::INF2,"13\n");
-	RR_SAFE_DELETE(solver);
+	rr::RR_SAFE_DELETE(solver);
 	rr::RRReporter::report(rr::INF2,"14\n");
 	for (unsigned i=0;i<mergedScenes.size();i++) delete mergedScenes[i];
 	rr::RRReporter::report(rr::INF2,"15\n");
 	rr::RRReporter::report(rr::INF2,"16\n");
-	RR_SAFE_DELETE(lightField);
-	RR_SAFE_DELETE(lightFieldObjectIllumination);
+	rr::RR_SAFE_DELETE(lightField);
+	rr::RR_SAFE_DELETE(lightFieldObjectIllumination);
 	rr::RRReporter::report(rr::INF2,"17\n");
 	for (unsigned i=0;i<lightsToBeDeletedOnExit.size();i++) delete lightsToBeDeletedOnExit[i];
 	lightsToBeDeletedOnExit.clear();

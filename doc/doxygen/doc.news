@@ -25,7 +25,7 @@ CHANGES
 - RRCamera::getPositionInClipSpace() added
 - RRCamera::getPositionInViewport() replaces RRCamera::getPositionInWindow(), returns also depth
 - RRCamera::getRayOrigin() and RRCamera::getRayDirection() y parameter was negated, to make it compatible with RRCamera::getPositionInViewport()
-- RR_SAFE_XXX() functions NULL pointer _before_ freeing/deleting/releasing it, not _after_ (it's bit safer in case of exception)
+- RR_SAFE_XXX() functions moved to rr namespace; and they NULL pointer _before_ freeing/deleting/releasing object, not _after_ (it's bit safer in case of exception)
 
 \section news144 ------------------------------------ 2014.10.16 -------------------------------------
 
