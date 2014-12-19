@@ -127,7 +127,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
 	speedLean = 0;
 	exitRequested = 0;
 	menuHandle = 0;
-	envToBeDeletedOnExit = false;
 	mousePositionInWindow = rr::RRVec2(0);
 	centerObject = UINT_MAX;
 	centerTexel = UINT_MAX;
@@ -305,7 +304,6 @@ void SVCanvas::createContextCore()
 		rr::RRBuffer* env1 = svs.initialInputSolver->getEnvironment(1,&envAngle1);
 		solver->setEnvironment(env0,env1,envAngle0,envAngle1);
 		solver->setEnvironmentBlendFactor(svs.initialInputSolver->getEnvironmentBlendFactor());
-		envToBeDeletedOnExit = false;
 		solver->setStaticObjects(svs.initialInputSolver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BVH_FAST,svs.initialInputSolver); // smoothing and multiobject are taken from _solver
 		solver->setDynamicObjects(svs.initialInputSolver->getDynamicObjects());
 		solver->setLights(svs.initialInputSolver->getLights());
@@ -326,7 +324,6 @@ void SVCanvas::createContextCore()
 
 		// send everything to solver
 		solver->setEnvironment(mergedScenes[0]->environment,NULL,svs.skyboxRotationRad,svs.skyboxRotationRad);
-		envToBeDeletedOnExit = false;
 		solver->setStaticObjects(mergedScenes[0]->objects,NULL);
 		solver->setDynamicObjects(mergedScenes[0]->objects);
 		solver->setLights(mergedScenes[0]->lights);
@@ -599,12 +596,6 @@ SVCanvas::~SVCanvas()
 			rr::RR_SAFE_DELETE(solver->getObject(i)->illumination.getLayer(svs.layerRealtimeAmbient));
 		}
 		rr::RRReporter::report(rr::INF2,"11\n");
-
-		// delete env manually loaded by user
-		if (envToBeDeletedOnExit)
-		{
-			delete solver->getEnvironment();
-		}
 		rr::RRReporter::report(rr::INF2,"12\n");
 
 		// delete scaler created for scene loaded from disk

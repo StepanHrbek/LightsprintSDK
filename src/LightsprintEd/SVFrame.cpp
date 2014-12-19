@@ -1067,7 +1067,6 @@ void SVFrame::OnMenuEventCore2(unsigned eventCode)
 	rr_gl::RRSolverGL*& solver = m_canvas->solver;
 	bool& fireballLoadAttempted = m_canvas->fireballLoadAttempted;
 	int* windowCoord = m_canvas->windowCoord;
-	bool& envToBeDeletedOnExit = m_canvas->envToBeDeletedOnExit;
 
 	switch (eventCode)
 	{
@@ -1373,20 +1372,10 @@ save_scene_as:
 			{
 reload_skybox:
 				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename,textureLocator);
-				if (envToBeDeletedOnExit && solver->getEnvironment(0))
-				{
-					solver->getEnvironment(0)->stop();
-					// solver->setEnvironment(skybox,solver->getEnvironment(0),...) will work only if env still exists after delete.
-					// This is usually ensured by image cache that owns extra reference, but sometimes (quake-like cubemaps?)
-					// cube is not cached. Then we rely on solver adding reference to current envs. [#23]
-					// Hypothetically if we delete last env reference here, solver will crash some time later
-					// when it tries to use the deleted env.
-					delete solver->getEnvironment(0); // env is refcounted and should still exist after delete
-				}
 				if (skybox)
 				{
 					solver->setEnvironment(skybox,solver->getEnvironment(0),svs.skyboxRotationRad,svs.skyboxRotationRad);
-					envToBeDeletedOnExit = true;
+					delete skybox; // after solver creates its own reference, we can delete our skybox, we don't need it anymore
 					m_canvas->skyboxBlendingInProgress = true;
 					m_canvas->skyboxBlendingStartTime.setNow(); // starts 3sec smooth transition in SVCanvas::Paint()
 					if (svs.playVideos)
