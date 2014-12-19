@@ -34,7 +34,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 			{
 				RRBuffer*& buffer = illumination.getLayer(_layerLightmap);
 				if (!numVertices)
-					RR_SAFE_DELETE(buffer)
+					RR_SAFE_DELETE(buffer);
 				else
 				if (!buffer && _allocateNewBuffers)
 				{
