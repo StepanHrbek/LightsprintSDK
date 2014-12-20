@@ -308,16 +308,16 @@ namespace rr
 		{
 			RRVec3 dirIn;     ///< normalized direction of incoming light
 			RRVec3 dirNormal; ///< normalized surface normal
-			RRVec3 dirOut;    ///< normalized direction of leaving light
+			RRVec3 dirOut;    ///< normalized direction of exiting light
 			RRVec3 colorOut;  ///< color of leaving light (incoming light is 1)
 			RRReal pdf;       ///< probability density function
 			BrdfType brdfType;///< type of response
 		};
 
-		//! Returns color of light leaving surface in response to incoming white light (dirIn, dirNormal, dirOut -> colorOut)
+		//! Calculates color of light exiting surface in response to incoming white light (dirIn, dirNormal, dirOut -> colorOut)
 		void getResponse(Response& response, BrdfType type = BRDF_ALL) const;
 
-		//! Generates incoming direction and returns color of light leaving in response (dirNormal, dirOut -> dirIn, colorOut, pdf, brdfType
+		//! Calculates direction and color of light exiting surface in response to incoming white light (dirNormal, dirOut -> dirIn, colorOut, pdf, brdfType
 		void sampleResponse(Response& response, const RRVec3& randomness, BrdfType type = BRDF_ALL) const;
 
 
@@ -331,10 +331,10 @@ namespace rr
 		bool save(const RRString& filename) const;
 	};
 
-	//! RRMaterial optimized for use in RRObject::getPointMaterial().
+	//! RRMaterial optimized for use in RRObject::getPointMaterial(), not for general use.
 	//
 	//! RRPointMaterial creates and destructs faster than RRMaterial, because it does not own textures and name,
-	//! it's just shallow copy for immediate consumption.
+	//! it's just shallow copy for immediate consumption. So never manipulate textures and name in point materials.
 	struct RR_API RRPointMaterial : public RRMaterial
 	{
 		//! Fast and thread safe copy. getPointMaterial() implementations use it to copy triangle material to point material.
