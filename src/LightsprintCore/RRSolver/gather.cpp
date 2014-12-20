@@ -123,6 +123,7 @@ static RRVec3 getRandomEnterDirNormalized(HomogenousFiller2& filler, const RRMes
 /////////////////////////////////////////////////////////////////////////////
 //
 // for 1 texel: helper objects used while gathering
+// created in processTexel, for each texel separately
 
 class GatheringTools
 {

@@ -77,13 +77,15 @@ bool s_es = false; // todo: access s_es from Shader.h
 // SVCanvas
 
 // used when IsDisplaySupported()=true
+// Note that all attributes are ignored when one of them fails. It is usually clearly visible - image becomes aliased.
+// This happens when stereo is requested, but GPU doesn't support it.
 static int s_attribListQuad[] = {
 	WX_GL_RGBA,
 	WX_GL_DOUBLEBUFFER,
 	WX_GL_SAMPLE_BUFFERS, GL_TRUE, // makes no difference in Windows, is necessary in OSX for antialiasing
 	WX_GL_SAMPLES, 4, // antialiasing. can be later disabled by glDisable(GL_MULTISAMPLE), but it doesn't improve speed (tested on X1650). it must be disabled here (change 4 to 1) for higher fps
 	WX_GL_DEPTH_SIZE, 24, // default is 16, explicit 24 should reduce z-fight. 32 fails on all cards tested including hd5870 and gf460 (falls back to default without antialiasing)
-	WX_GL_STEREO, // required by SM_QUAD_BUFFERED. not yet tested on quadbuf-compatible systems. breaks multisampling on incompatible system (all attribs are ignored)
+	WX_GL_STEREO, // required by SM_QUAD_BUFFERED, starts quad buffered stereo. some GPUs don't support it; in such case wxWidgets falls back to default attributes without antialiasing
 	0, 0};
 
 // used when IsDisplaySupported()=false
