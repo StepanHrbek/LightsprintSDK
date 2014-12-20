@@ -968,13 +968,13 @@ namespace rr
 			RRMaterial::BrdfType brdfTypes;
 
 			// how many bounces before given optimization kicks in?
-			unsigned useFlatNormalsSinceDepth;
-			unsigned useSolverDirectSinceDepth;
-			unsigned useSolverIndirectSinceDepth;
+			unsigned useFlatNormalsSinceDepth; // unbiased = UINT_MAX
+			unsigned useSolverDirectSinceDepth; // unbiased = UINT_MAX
+			unsigned useSolverIndirectSinceDepth; // unbiased = UINT_MAX
 
 			// termination criteria
-			unsigned stopAtDepth;
-			RRReal   stopAtVisibility;
+			unsigned stopAtDepth; // unbiased = UINT_MAX
+			RRReal   stopAtVisibility; // unbiased = 0
 
 			PathTracingParameters()
 			{
