@@ -827,6 +827,13 @@ void RRPointMaterial::operator =(const RRMaterial& a)
 	memcpy(this,&a,sizeof(a));
 }
 
+RRPointMaterial& RRPointMaterial::operator =(const RRPointMaterial& a)
+{
+	// memcpy creates shallow copy, destructor guarantees we won't delete things we don't own
+	memcpy(this,&a,sizeof(a));
+	return *this;
+}
+
 RRPointMaterial::~RRPointMaterial()
 {
 	// NULL all pointers, so that ~RRMaterial has no work
