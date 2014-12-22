@@ -321,7 +321,7 @@ public:
 	void    abortStaticImprovement();
 	bool    shortenStaticImprovementIfBetterThan(real minimalImprovement);
 	bool    finishStaticImprovement();
-	bool    distribute(int minSteps, real maxError);//skonci kdyz nejvetsi mnozstvi nerozdistribuovane energie na jednom facu nepresahuje takovou cast energie lamp (0.001 is ok)
+	bool    distribute(int minSteps, real maxError, real maxSeconds);//skonci kdyz nejvetsi mnozstvi nerozdistribuovane energie na jednom facu nepresahuje takovou cast energie lamp (0.001 is ok)
 
 	real    avgAccuracy();
 

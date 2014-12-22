@@ -45,6 +45,8 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	//
 	// update factors (tri-tri GI factors, sky-tri direct factors)
 
+	RRTime packStart;
+
 	// allocate space for sky-tri factors
 	skyPatchHitsForAllTriangles = new (std::nothrow) PackedSkyTriangleFactor::UnpackedFactor[object->triangles];
 	if (!skyPatchHitsForAllTriangles)
@@ -240,6 +242,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	//
 	// convert sky-tri direct factors to GI factors
 
+	float secondsForDitrib = packStart.secondsPassed()/4; // we calculated all form factors in x seconds. spend no more than x/4 seconds to redistribute skylight. quality control is hard, some scenes would spend too much time here without time limit
 	RRVec3* directIrradiancePhysicalRGB = new (std::nothrow) RRVec3[object->triangles];
 	if (!directIrradiancePhysicalRGB)
 	{
@@ -261,7 +264,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 			// KA-RA/AS_blanc_05m-sub-collapse-color.FBX (skylight goes in by ceiling opening, ceiling is illuminated only by indirect skylight):
 			//   second parameter alone must be as low as 0.000001f for sky to illuminate ceiling
 			//   first parameter alone must be at least object->triangles
-			distribute(object->triangles,0.001f);
+			distribute(object->triangles,0.001f,secondsForDitrib/PackedSkyTriangleFactor::NUM_PATCHES);
 
 			// convert direct from sky patch to GI from sky patch
 			for (unsigned t=0;t<object->triangles;t++)

@@ -1236,15 +1236,16 @@ bool Scene::energyFromDistributedUntil(BestInfo source,RRStaticSolver::EndFunc& 
 //
 // improve global illumination in scene by only distributing energy
 
-bool Scene::distribute(int minSteps, real maxError)
+bool Scene::distribute(int minSteps, real maxError, real maxSeconds)
 {
 	bool distributed=false;
 	int steps=0;
 	int rezerva=20;
+	RRTime start;
 	while (1)
 	{
 		BestInfo source=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
-		if (!source.node || ( steps>minSteps && sum(abs(source.node->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--)) break;
+		if (!source.node || ( steps>minSteps && sum(abs(source.node->totalExitingFluxToDiffuse))<sum(abs(staticSourceExitingFlux*maxError)) && !rezerva--) || start.secondsPassed()>maxSeconds) break;
 
 		for (ChunkList<Factor>::const_iterator i=source.node->factors.begin(); *i; ++i)
 			distributeEnergyViaFactor(**i, source.node->totalExitingFluxToDiffuse, &staticReflectors);
