@@ -26,7 +26,7 @@ namespace rr
  - \subpage main_gamebryo26
  - \subpage main_ue3
 
- \section root_artists_guide Techniques
+ \section root_artists_guide GI techniques
  - \subpage main_techniques
 
  \section root_programmers_guide Programmer's guide
@@ -1039,6 +1039,41 @@ Material formats (1)
     and memory footprint lower.
 
 
+\page main_artist_ssgi SSGI
+
+  SSGI (screen space global illumination) technique is designed to work with any data, without limitations imposed by other GI techniques.
+
+  SSGI is a shader postprocess, that enhances final image by adding
+  short-distance GI effects -  color bleeding and ambient occlusion.
+
+    <table border=0><tr align=top><td>
+    \image html ssgi1on.jpg on
+    </td><td>
+    \image html ssgi1off.jpg off
+    </td></tr><tr><td>
+    \image html ssgi2on.jpg on
+    </td><td>
+    \image html ssgi2off.jpg off
+    </td></tr></table>
+
+
+\page main_artist_pathtracing Pathtracing
+
+  Pathtracing technique is designed to work with any data, without limitations imposed by other techniques.
+
+ \section artist_path_shadows Shadows on background
+
+    <table border=0><tr align=top><td>
+    \image html background1.jpg no shadows?
+    </td><td>
+    \image html background2.jpg add white plane
+    </td><td>
+    \image html background3.jpg change material name to "background"
+    </td></tr></table>
+
+  This is currently supported only by pathtracer, other techniques render "background" material fully visible.
+
+
 \page main_building Building
 
  \section building_windows Windows
@@ -1688,7 +1723,7 @@ Material formats (1)
   in the same way as in case of classical lightmaps.
   See \ref di1 for more details.
 
- \section da3 Data structures
+ \section da4 Data structures
 
   Lightsprint can store object's ambient occlusion and global ambient occlusion in
 
@@ -1696,7 +1731,7 @@ Material formats (1)
 
   - <b> \ref data_pixel_buffer </b>
 
- \section da4 Calculation
+ \section da5 Calculation
 
   Calculation of ambient occlusion is non-realtime process.
   To calculate ambient occlusion,
@@ -1716,7 +1751,7 @@ Material formats (1)
 
   See data structures (links above) for more details on calculation.
 
- \section da5 Use in renderer
+ \section da6 Use in renderer
 
    See data structures (links above) for more details on use in renderer.
 
@@ -2372,7 +2407,7 @@ Material formats (1)
 
 
 
-\page main_techniques GI techniques
+\page main_techniques Techniques
 
  As decades of research and thousands of papers show, there is no single GI technique that fits all users.
  So the very first decision in projects powered by Lightsprint SDK tends to be: "What technique(s) to use?"
@@ -2435,7 +2470,7 @@ Material formats (1)
 		<td>
 			- partial GI, only short-distance effects
 		</td>
-		<td></td>
+		<td>\ref main_artist_ssgi "artist's guide"</td>
 		<td>
 		</td>
 	</tr>
@@ -2445,9 +2480,9 @@ Material formats (1)
 		<td>the most accurate GI</td>
 		<td>
 			- noisy results
-			- slower
+			- slow
 		</td>
-		<td></td>
+		<td>\ref main_artist_pathtracing "artist's guide"</td>
 		<td>
 		</td>
 	</tr>
