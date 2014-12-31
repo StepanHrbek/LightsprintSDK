@@ -27,6 +27,7 @@ namespace rr
  - \subpage main_ue3
 
  \section root_artists_guide Artist's guide
+ - \subpage main_techniques
  - \subpage main_artist_offline
  - \subpage main_artist_realtime
 
@@ -137,6 +138,7 @@ Data input / output
 - \subpage supported_formats
 
 Global illumination
+- portfolio of \ref main_techniques, optimized for different use cases
 - realtime global illumination / realtime radiosity / realtime pathtracing
 - realtime penumbra shadows, soft shadows, RGB shadows, RGB blending
 - realtime color bleeding
@@ -2386,7 +2388,82 @@ Material formats (1)
  \section rt_sample Sample
   Realtime lighting is demonstrated in RealtimeRadiosity and RealtimeLights samples.
   You can comment out line that enables \ref calc_fireball to compare both realtime solvers.
-  SceneViewer sample supports both solvers without any source changes, you can switch them in menu.
+  SceneViewer sample supports both solvers without any source changes, you can select which one to use in Global Illumination panel.
+
+
+
+\page main_techniques GI techniques
+
+ As decades of research and thousands of papers show, there is no single GI technique that fits all users.
+ So the very first decision in projects powered by Lightsprint SDK tends to be: "What technique(s) to use?"
+ Lightsprint SDK offers following GI techniques:
+
+<table border="1">
+	<tr style="background-color:#80ffff">
+		<th>Technique</th>
+		<th>Class</th>
+		<th>Highlights</th>
+		<th>Limitations</th>
+		<th>Integration</th>
+	</tr>
+	<tr>
+		<th>Baked</th>
+		<td>realtime after precalculation</td>
+		<td>the fastest GI</td>
+		<td>
+			- static lighting
+			- limited specular reflections
+			- two sided faces share GI for both sides
+			- results (very slightly) depend on tessellation
+		</td>
+		<td>easy</td>
+	</tr>
+	<tr>
+		<th>Fireball</th>
+		<td>realtime after precalculation</td>
+		<td>the fastest GI with dynamic lights</td>
+		<td>
+			- results \ref main_artist_realtime "depend on tessellation"
+			- two sided faces share diffuse part of GI for both sides
+		</td>
+		<td>moderate</td>
+	</tr>
+	<tr>
+		<th>Architect</th>
+		<td>realtime</td>
+		<td>the fastest GI with dynamic lights and without any precalculations</td>
+		<td>
+			- results \ref main_artist_realtime "depend on tessellation"
+			- two sided faces share diffuse part of GI for both sides
+			- sky does not illuminate scene
+		</td>
+		<td>moderate</td>
+	</tr>
+	<tr>
+		<th>SSGI</th>
+		<td>realtime</td>
+		<td>the most simple one</td>
+		<td>
+			- partial GI, only short-distance effects
+		</td>
+		<td>easy</td>
+	</tr>
+	<tr>
+		<th>Pathtracing</th>
+		<td>interactive</td>
+		<td>the most accurate GI</td>
+		<td>
+			- noisy results
+		</td>
+		<td>easy</td>
+	</tr>
+</table>
+
+ Different techniques can be combined, so that e.g. selected objects have illumination realtime calculated,
+ other objects have it baked into lightmaps, cubemaps or vertex buffers, other objects use constant ambient,
+ and screen space GI is added as a postprocess.
+
+ You can quickly test these techniques with SceneViewer sample, see Global Illumination panel for settings.
 
 
  
