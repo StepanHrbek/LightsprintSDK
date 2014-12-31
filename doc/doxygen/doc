@@ -26,14 +26,11 @@ namespace rr
  - \subpage main_gamebryo26
  - \subpage main_ue3
 
- \section root_artists_guide Artist's guide
+ \section root_artists_guide Techniques
  - \subpage main_techniques
- - \subpage main_artist_offline
- - \subpage main_artist_realtime
 
  \section root_programmers_guide Programmer's guide
  - \subpage main_building
- - \subpage main_integration
  - \subpage main_inputs
  - \subpage main_data_access
  - \subpage main_conventions "Conventions (units, scale, floats...)"
@@ -811,14 +808,14 @@ Material formats (1)
 
 
 
-\page main_artist_offline Static GI
+\page main_artist_baking Baking
 
-  Static lighting is mainstream approach today.
+  Baked lighting is common approach today.
   Superior lighting quality is reached at cost of fixing lights in static positions,
   global illumination is precomputed.
 
-  Lightsprint SDK helps by building
-  - lightmaps, directional lightmaps, bent normals and ambient occlusion
+  Lightsprint SDK helps by baking
+  - lightmaps, directional lightmaps, ambient maps, environment maps, bent normals and light detail maps
     for static objects
   - lightfields for dynamic objects
   - unwrap, if you don't provide yours
@@ -926,11 +923,11 @@ Material formats (1)
   "occlusion" option in BuildLightmaps tool also creates penumbra shadows, it works by setting white environment.
 
 
-\page main_artist_realtime Realtime GI
+\page main_artist_fb_arch Fireball, Architect
 
   Realtime lighting using dynamic lights is a mainstream approach today,
   however its realism was always severely limited by lack of properly computed indirect light.
-  \n Lightsprint solves this realtime global illumination problem (see \ref samples_realtime "samples"),
+  \n Fireball and Architect techniques solve this realtime global illumination problem (see \ref samples_realtime "samples"),
   however, quality suffers in presence of certain geometry "errors", so you might have to clean up your geometry.
   \n Following hints help you get good performance and quality in your projects.
 
@@ -1067,24 +1064,7 @@ Material formats (1)
 
 
 
-\page main_integration Integration
-
- \section integr_tool Precalculations / for toolchain
-  - \ref main_gamebryo3 "Precalculations in LightSpeed"
-  - \ref main_gamebryo26 "Precalculations in Gamebryo 2.6"
-  - \ref main_ue3 "Precalculations in Unreal Engine 3"
-  - \subpage integration_tool_1
-  - \subpage integration_tool_2
-
- \section integr_rt Realtime / in game
-  - \subpage integration_realtime_1
-  - \subpage integration_realtime_2
-  - \subpage integration_realtime_3
-
-
-
-
-\page integration_tool_1 Precalculations in your scene loaded from disk
+\page integration_tool_1 Baking in your scene loaded from disk
 
  You can immediately calculate lightmaps, ambient maps and bent normals
  by opening your scene in existing Lightsprint samples.
@@ -1106,7 +1086,7 @@ Material formats (1)
 
 
 
-\page integration_tool_2 Precalculations in your scene accessed in memory
+\page integration_tool_2 Baking in your scene accessed in memory
 
   If you prefer working with scene stored in your C/C++ structures in system memory,
   write adapter for accessing your structures. (\subpage what_is_an_adapter)
@@ -2396,7 +2376,7 @@ Material formats (1)
 
  As decades of research and thousands of papers show, there is no single GI technique that fits all users.
  So the very first decision in projects powered by Lightsprint SDK tends to be: "What technique(s) to use?"
- Lightsprint SDK offers following GI techniques:
+ Lightsprint SDK offers:
 
 <table border="1">
 	<tr style="background-color:#80ffff">
@@ -2404,10 +2384,11 @@ Material formats (1)
 		<th>Class</th>
 		<th>Highlights</th>
 		<th>Limitations</th>
+		<th>Details</th>
 		<th>Integration</th>
 	</tr>
 	<tr>
-		<th>Baked</th>
+		<th>Baking</th>
 		<td>realtime after precalculation</td>
 		<td>the fastest GI</td>
 		<td>
@@ -2416,28 +2397,36 @@ Material formats (1)
 			- two sided faces share GI for both sides
 			- results (very slightly) depend on tessellation
 		</td>
-		<td>easy</td>
+		<td>\ref main_artist_baking "artist's guide"</td>
+		<td>
+			- \ref integration_tool_1
+			- \ref integration_tool_2
+		</td>
 	</tr>
 	<tr>
 		<th>Fireball</th>
 		<td>realtime after precalculation</td>
 		<td>the fastest GI with dynamic lights</td>
 		<td>
-			- results \ref main_artist_realtime "depend on tessellation"
+			- results \ref main_artist_fb_arch "depend on tessellation"
 			- two sided faces share diffuse part of GI for both sides
 		</td>
-		<td>moderate</td>
+		<td rowspan=2>\ref main_artist_fb_arch "artist's guide"</td>
+		<td rowspan=2>
+			- \ref integration_realtime_1
+			- \ref integration_realtime_2
+			- \ref integration_realtime_3
+		</td>
 	</tr>
 	<tr>
 		<th>Architect</th>
 		<td>realtime</td>
 		<td>the fastest GI with dynamic lights and without any precalculations</td>
 		<td>
-			- results \ref main_artist_realtime "depend on tessellation"
+			- results \ref main_artist_fb_arch "depend on tessellation"
 			- two sided faces share diffuse part of GI for both sides
 			- sky does not illuminate scene
 		</td>
-		<td>moderate</td>
 	</tr>
 	<tr>
 		<th>SSGI</th>
@@ -2446,7 +2435,9 @@ Material formats (1)
 		<td>
 			- partial GI, only short-distance effects
 		</td>
-		<td>easy</td>
+		<td></td>
+		<td>
+		</td>
 	</tr>
 	<tr>
 		<th>Pathtracing</th>
@@ -2454,8 +2445,11 @@ Material formats (1)
 		<td>the most accurate GI</td>
 		<td>
 			- noisy results
+			- slower
 		</td>
-		<td>easy</td>
+		<td></td>
+		<td>
+		</td>
 	</tr>
 </table>
 
