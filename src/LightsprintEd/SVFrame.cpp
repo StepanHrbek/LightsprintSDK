@@ -1148,7 +1148,9 @@ save_scene_as:
 					//sshot->unlock();
 
 				// save sshot
-				saveScreenshot(sshot);
+				//  if we simply saveScreenshot(sshot), pathtraced image would be 8bit.
+				//  so we save directly pathTracedBuffer. but then icons and other postprocesses disappear
+				saveScreenshot((svs.renderLightIndirect==LI_PATHTRACED)?m_canvas->pathTracedBuffer:sshot);
 
 				// cleanup
 				delete sshot;
