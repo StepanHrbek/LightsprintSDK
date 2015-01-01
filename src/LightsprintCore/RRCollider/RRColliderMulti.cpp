@@ -50,6 +50,7 @@ public:
 		bool b1,b3;
 		unsigned b2;
 
+		RRTime start;
 // embree must not be called in parallel, it would crash in glut based samples with probability=0.15 (surprisingly i did not see it crash in sceneviewer)
 // (embree is parallelized internally, #pragma would speed up only IT_BSP_ colliders but no one uses them, right?)
 //#pragma omp parallel for schedule(dynamic)
@@ -73,6 +74,7 @@ public:
 		if (disabledReporting)
 		{
 			RRReporter::setFilter(b1,b2,b3);
+			RRReporter::report(TIMI,"  done in %.1fs\n",start.secondsPassed());
 		}
 	}
 
