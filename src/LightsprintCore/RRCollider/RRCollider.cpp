@@ -149,6 +149,10 @@ public:
 		technique = _technique;
 		loadMesh(rtcScene,_mesh);
 		rtcCommit(rtcScene);
+		// rtcCommit used to be very slow for tiny meshes
+		// it's fast now. making all 23k objects dynamic in diacor takes 8.8s
+		// we can avoid threading overhead completely with rtcCommitThread(rtcScene,0,1), diacor would improve to 7.7s
+		// but building single 8M mesh would be probably much slower, so not worth it
 	}
 
 	virtual bool intersect(RRRay* rrRay) const
