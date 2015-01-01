@@ -1764,7 +1764,9 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			params.useSolverDirectSinceDepth = svs.pathShortcut ? shortcut+1 : UINT_MAX;
 			params.useSolverIndirectSinceDepth = svs.pathShortcut ? shortcut : UINT_MAX;
 			solver->pathTraceFrame(camera,pathTracedBuffer,pathTracedAccumulator,params);
-			rr_gl::ToneParameters tp = svs.tonemapping;
+			rr_gl::ToneParameters tp;
+			if (svs.renderTonemapping)
+				tp = svs.tonemapping;
 			tp.gamma *= 0.45f;
 			pathTracedAccumulator++;
 			solver->getRenderer()->getTextureRenderer()->render2D(rr_gl::getTexture(pathTracedBuffer,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),&tp,0,0,1,1);
