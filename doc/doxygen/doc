@@ -808,7 +808,7 @@ Material formats (1)
 
 
 
-\page main_artist_baking Baking
+\page technique_baking Baking
 
   Baked lighting is common approach today.
   Superior lighting quality is reached at cost of fixing lights in static positions,
@@ -923,7 +923,7 @@ Material formats (1)
   "occlusion" option in BuildLightmaps tool also creates penumbra shadows, it works by setting white environment.
 
 
-\page main_artist_fb_arch Fireball, Architect
+\page technique_fb_arch Fireball, Architect
 
   Realtime lighting using dynamic lights is a mainstream approach today,
   however its realism was always severely limited by lack of properly computed indirect light.
@@ -1039,7 +1039,7 @@ Material formats (1)
     and memory footprint lower.
 
 
-\page main_artist_ssgi SSGI
+\page technique_ssgi SSGI
 
   SSGI (screen space global illumination) technique is designed to work with any data, without limitations imposed by other GI techniques.
 
@@ -1057,7 +1057,7 @@ Material formats (1)
     </td></tr></table>
 
 
-\page main_artist_pathtracing Pathtracing
+\page technique_pathtracing Pathtracing
 
   Pathtracing technique is designed to work with any data, without limitations imposed by other techniques.
 
@@ -2421,6 +2421,8 @@ Material formats (1)
 		<th>Limitations</th>
 		<th>Details</th>
 		<th>Integration</th>
+		<th>Frame time</th>
+		<th>Precalc time</th>
 	</tr>
 	<tr>
 		<th>Baking</th>
@@ -2432,10 +2434,18 @@ Material formats (1)
 			- two sided faces share GI for both sides
 			- results (very slightly) depend on tessellation
 		</td>
-		<td>\ref main_artist_baking "artist's guide"</td>
+		<td>\subpage technique_baking "artist's guide"</td>
 		<td>
-			- \ref integration_tool_1
-			- \ref integration_tool_2
+			- \subpage integration_tool_1
+			- \subpage integration_tool_2
+		</td>
+		<td>
+			- # baked objects
+		</td>
+		<td>
+			- quality
+			- # baked texels
+			- # static triangles
 		</td>
 	</tr>
 	<tr>
@@ -2443,14 +2453,22 @@ Material formats (1)
 		<td>realtime after precalculation</td>
 		<td>the fastest GI with dynamic lights</td>
 		<td>
-			- results \ref main_artist_fb_arch "depend on tessellation"
+			- results \ref technique_fb_arch "depend on tessellation"
 			- two sided faces share diffuse part of GI for both sides
 		</td>
-		<td rowspan=2>\ref main_artist_fb_arch "artist's guide"</td>
+		<td rowspan=2>\subpage technique_fb_arch "artist's guide"</td>
 		<td rowspan=2>
-			- \ref integration_realtime_1
-			- \ref integration_realtime_2
-			- \ref integration_realtime_3
+			- \subpage integration_realtime_1
+			- \subpage integration_realtime_2
+			- \subpage integration_realtime_3
+		</td>
+		<td>
+			- # static triangles
+			- # dynamic objects
+		</td>
+		<td>
+			- quality
+			- # static triangles
 		</td>
 	</tr>
 	<tr>
@@ -2458,9 +2476,16 @@ Material formats (1)
 		<td>realtime</td>
 		<td>the fastest GI with dynamic lights and without any precalculations</td>
 		<td>
-			- results \ref main_artist_fb_arch "depend on tessellation"
+			- results \ref technique_fb_arch "depend on tessellation"
 			- two sided faces share diffuse part of GI for both sides
 			- sky does not illuminate scene
+		</td>
+		<td>
+			- # static triangles
+			- # dynamic objects
+		</td>
+		<td rowspan=3 align=center>
+			(no precalc)
 		</td>
 	</tr>
 	<tr>
@@ -2470,8 +2495,12 @@ Material formats (1)
 		<td>
 			- partial GI, only short-distance effects
 		</td>
-		<td>\ref main_artist_ssgi "artist's guide"</td>
+		<td>\subpage technique_ssgi "artist's guide"</td>
+		<td rowspan=2 align=center>
+			(easy)
+		</td>
 		<td>
+			- screen resolution
 		</td>
 	</tr>
 	<tr>
@@ -2482,17 +2511,28 @@ Material formats (1)
 			- noisy results
 			- slow
 		</td>
-		<td>\ref main_artist_pathtracing "artist's guide"</td>
+		<td>\subpage technique_pathtracing "artist's guide"</td>
 		<td>
+			- # triangles
+			- # dynamic objects
 		</td>
 	</tr>
 </table>
 
- Different techniques can be combined, so that e.g. selected objects have illumination realtime calculated,
- other objects have it baked into lightmaps, cubemaps or vertex buffers, other objects use constant ambient,
- and screen space GI is added as a postprocess.
+ \section tech_mix Combinations
 
- You can quickly test these techniques with SceneViewer sample, see Global Illumination panel for settings.
+  Different techniques can be combined, so that e.g. selected objects have illumination realtime calculated,
+  other objects have it baked into lightmaps, cubemaps or vertex buffers, other objects use constant ambient,
+  and screen space GI is added as a postprocess.
+
+ \section tech_speed Speed
+
+  Frame time and Precalc time columns show major factors that increase time spent in rendering frame, or in precalculation.
+  Writing down all factors is nearly impossible, as times depend also on materials and geometry in your scenes.  
+
+ \section tech_testing Testing
+
+  You can quickly test these techniques with SceneViewer sample, see Global Illumination panel for settings.
 
 
  

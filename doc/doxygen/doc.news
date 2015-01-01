@@ -13,7 +13,7 @@ namespace rr
 NEWS
 
 - <b>improved pathtracer</b>
-  - pathtracer can illuminate and cast shadows on background (\ref main_artist_pathtracing "instructions")
+  - pathtracer can illuminate and cast shadows on background (\ref technique_pathtracing "instructions")
     <table border=0><tr align=top><td>
     \image html background1.jpg
     </td><td>
