@@ -1101,7 +1101,7 @@ Material formats (1)
 
 \page integration_tool_1 Baking in your scene loaded from disk
 
- You can immediately calculate lightmaps, ambient maps and bent normals
+ You can immediately bake lightmaps, ambient maps, bent normals etc
  by opening your scene in existing Lightsprint samples.
 
  <table width=100% border=0 cellpadding=3 cellspacing=0><tr align=left style="background-color:#dddddd"><td>
@@ -2432,7 +2432,7 @@ Material formats (1)
 			- static lighting
 			- limited specular reflections
 			- two sided faces share GI for both sides
-			- results (very slightly) depend on tessellation
+			- lighting (very slightly) depends on tessellation
 		</td>
 		<td>\subpage technique_baking "artist's guide"</td>
 		<td>
@@ -2453,7 +2453,7 @@ Material formats (1)
 		<td>realtime after precalculation</td>
 		<td>the fastest GI with dynamic lights</td>
 		<td>
-			- results \ref technique_fb_arch "depend on tessellation"
+			- lighting \ref technique_fb_arch "depends on tessellation"
 			- two sided faces share diffuse part of GI for both sides
 		</td>
 		<td rowspan=2>\subpage technique_fb_arch "artist's guide"</td>
@@ -2476,7 +2476,7 @@ Material formats (1)
 		<td>realtime</td>
 		<td>the fastest GI with dynamic lights and without any precalculations</td>
 		<td>
-			- results \ref technique_fb_arch "depend on tessellation"
+			- lighting \ref technique_fb_arch "depends on tessellation"
 			- two sided faces share diffuse part of GI for both sides
 			- sky does not illuminate scene
 		</td>
@@ -2508,12 +2508,11 @@ Material formats (1)
 		<td>interactive</td>
 		<td>the most accurate GI</td>
 		<td>
-			- noisy results
-			- slow
+			- noisy rendering
 		</td>
 		<td>\subpage technique_pathtracing "artist's guide"</td>
 		<td>
-			- # triangles
+			- screen resolution
 			- # dynamic objects
 		</td>
 	</tr>
@@ -2966,7 +2965,7 @@ Material formats (1)
   <b>Following examples were written for Oculus SDK 0.3, they no longer apply to Oculus SDK 0.4.
   We will update this documentation once Oculus SDK stabilizes a bit.</b>
 
-  Once you have it, initialize Oculus Rift as usual, see Oculus SDK documentation. \ref oculus_init "Here" you can see how we initialize it.
+  Once you have it, initialize Oculus Rift as usual, see Oculus SDK documentation. \subpage oculus_init "Here" you can see how we initialize it.
 
   To render in stereo, with Oculus Rift distortion correction and chromatic aberation correction, add following plugin at the end of your rendering plugin chain:
   \code
