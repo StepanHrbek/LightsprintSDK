@@ -234,7 +234,9 @@ namespace rr
 		//! - 1sided material with sideBits[1].catchFrom=1 -> ray gets through, interacting with front face, skipping back face, creating incorrect caustics
 		//!
 		//! Note that higher transmittance does not decrease reflectance and emittance, they are independent properties.
-		//! There's single exception to this rule: higher transmittance decreases diffuseReflectance.texture (we multiply rgb from diffuse texture by opacity on the fly).
+		//! There's single exception to this rule: [#39] when reading transmittance from texture, diffuseReflectance is reduced on the fly (multiplied by 1-specularTransmittance),
+		//! because existing datasets expect it.
+		//! So e.g. billboard cloud material has cloud shape controlled only by transparency texture, diffuse color can be uniform white.
 		//!
 		//! Material with transparency stored in alpha of diffuse texture is initialized like \code
 		//!	diffuseReflectance.texture = RRBuffer::load(foo);
