@@ -247,6 +247,17 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 	else
 	{
 		// generic path
+		if (material.diffuseReflectance.texture)
+		{
+			RRMesh::TriangleMapping triangleMapping;
+			mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
+			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
+			material.diffuseReflectance.color = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
+			if (scaler)
+			{
+				material.diffuseReflectance.colorPhysical = scaler->getPhysicalFactor(material.diffuseReflectance.color);
+			}
+		}
 		if (material.specularTransmittance.texture)
 		{
 			RRMesh::TriangleMapping triangleMapping;
@@ -264,21 +275,9 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			{
 				material.specularTransmittance.colorPhysical = scaler->getPhysicalFactor(material.specularTransmittance.color);
 			}
-		}
-		if (material.diffuseReflectance.texture)
-		{
-			RRMesh::TriangleMapping triangleMapping;
-			mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
-			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-			material.diffuseReflectance.color = RRVec3(material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0)))
-				// [#39] we multiply dif texture by opacity on the fly
-				// because real world data are often in this format
-				// (typically texture with RGB=dif, A=opacity, where dif is NOT premultiplied)
-				* (RRVec3(1)-material.specularTransmittance.color);
-			if (scaler)
-			{
-				material.diffuseReflectance.colorPhysical = scaler->getPhysicalFactor(material.diffuseReflectance.color);
-			}
+			// [#39] we multiply dif by opacity on the fly, because real world data are often in this format
+			material.diffuseReflectance.color *= (RRVec3(1)-material.specularTransmittance.color); // multiply cust color in cust.scale - inaccurate, but result probably not used
+			material.diffuseReflectance.colorPhysical *= (RRVec3(1)-material.specularTransmittance.color); // multiply phys color in phys scale - accurate, used by pathtracer, makes cloud borders in clouds.rr3 white
 		}
 	}
 }
