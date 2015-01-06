@@ -230,7 +230,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 		RRVec2 materialUv= triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 		RRVec4 rgba = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
-		material.diffuseReflectance.color = rgba * rgba[3];
+		material.diffuseReflectance.color = rgba * rgba[3]; // [#39]
 		material.specularTransmittance.color = RRVec3(1-rgba[3]);
 		if (material.specularTransmittanceMapInverted)
 			material.specularTransmittance.color = RRVec3(1)-material.specularTransmittance.color;
@@ -271,7 +271,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 			material.diffuseReflectance.color = RRVec3(material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0)))
-				// we multiply dif texture by opacity on the fly
+				// [#39] we multiply dif texture by opacity on the fly
 				// because real world data are often in this format
 				// (typically texture with RGB=dif, A=opacity, where dif is NOT premultiplied)
 				* (RRVec3(1)-material.specularTransmittance.color);

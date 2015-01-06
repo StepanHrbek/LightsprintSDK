@@ -841,7 +841,7 @@ void main()
 					materialDiffuseMapColor *
 				#endif
 				#if defined(MATERIAL_TRANSPARENCY_BLEND) && ( !defined(MATERIAL_DIFFUSE_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) )
-					// outside shader, blend operation is: color_in_buffer = RGB + (1-A)*color_in_buffer
+					// [#39] outside shader, blend operation is: color_in_buffer = RGB + (1-A)*color_in_buffer
 					// so if we want RGB modulated by opacity, it must be done here in shader
 					// Q: do we want RGB modulated by opacity?
 					// A: yes, but only for 
