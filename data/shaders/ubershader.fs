@@ -359,10 +359,18 @@ vec4 toLinear()
 
 vec4 toLinear(vec4 color)
 {
-	#ifdef POSTPROCESS_GAMMA
-		return pow(color,vec4(postprocessGamma,postprocessGamma,postprocessGamma,1));
+	#ifdef POSTPROCESS_BRIGHTNESS
+		#ifdef POSTPROCESS_GAMMA
+			return pow(color*postprocessBrightness,vec4(postprocessGamma,postprocessGamma,postprocessGamma,1));
+		#else
+			return color*postprocessBrightness;
+		#endif
 	#else
-		return color;
+		#ifdef POSTPROCESS_GAMMA
+			return pow(color,vec4(postprocessGamma,postprocessGamma,postprocessGamma,1));
+		#else
+			return color;
+		#endif
 	#endif
 }
 
@@ -1023,9 +1031,9 @@ void main()
 		#ifdef POSTPROCESS_NORMALS
 			gl_FragColor.rgb = abs(worldNormalSmooth);
 		#endif
-		#ifdef POSTPROCESS_BRIGHTNESS
-			gl_FragColor.rgb *= postprocessBrightness.rgb;
-		#endif
+//		#ifdef POSTPROCESS_BRIGHTNESS
+//			gl_FragColor.rgb *= postprocessBrightness.rgb;
+//		#endif
 //		#ifdef POSTPROCESS_GAMMA
 //			gl_FragColor.rgb = pow(gl_FragColor.rgb,vec3(postprocessGamma,postprocessGamma,postprocessGamma));
 //		#endif
