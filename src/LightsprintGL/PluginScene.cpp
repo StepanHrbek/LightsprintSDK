@@ -4,6 +4,7 @@
 // --------------------------------------------------------------------------
 
 #define MIRRORS // enables implementation of mirrors, marks mirror source code
+//#define SRGB_CORRECT_BLENDING // looks slightly worse (clouds have darker borders), better keep disabled
 
 #include <algorithm> // sort
 #ifdef MIRRORS
@@ -797,12 +798,14 @@ public:
 			if (pp.wireframe)
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+#ifndef SRGB_CORRECT_BLENDING
 			// We want to blend in custom scale, therefore we have to disable GL_FRAMEBUFFER_SRGB while blending
 			// (otherwise framebuffer color is linearized, then blended, then converted back to sRGB, result would look more transparent).
 			// Other option would be to keep GL_FRAMEBUFFER_SRGB and convert blending factor to physical scale in shader
 			// (i.e. compensate for linearization and delinearization), but it would take more lines of code and results would be less accurate,
 			//  because we can't accurately compensate unknown function hardcoded in HW.
 			p0.change(false);
+#endif
 #endif
 
 			// Sort blended objects.
@@ -819,7 +822,11 @@ public:
 				fgUberProgramSetup.enableUsedMaterials(material,dynamic_cast<const rr::RRMeshArrays*>(object->getCollider()->getMesh()));
 				fgUberProgramSetup.reduceMaterials(_.uberProgramSetup);
 				fgUberProgramSetup.validate();
+#ifdef SRGB_CORRECT_BLENDING
 				MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,&_.clipPlanes,sp.srgbCorrect,&sp.brightness,sp.gamma*(sp.srgbCorrect?2.2f:1.f));
+#else
+				MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,&_.clipPlanes,false,&sp.brightness,sp.gamma);
+#endif
 				UberProgramSetup passUberProgramSetup;
 				RealtimeLight* light;
 				Program* program;
