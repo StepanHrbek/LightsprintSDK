@@ -106,10 +106,13 @@ RRSolver::~RRSolver()
 void RRSolver::setScaler(const RRScaler* _scaler)
 {
 	priv->scaler = _scaler;
+	// priv->lightIndirectMultiplier is in physical scale, but we need it in custom
+	float multiplier = priv->lightIndirectMultiplier;
+	if (_scaler) _scaler->getCustomScale(multiplier);
 	// update fast conversion table for our setDirectIllumination
 	for (unsigned i=0;i<256;i++)
 	{
-		RRVec3 c(i*priv->boostCustomIrradiance/255);
+		RRVec3 c(multiplier*i/255);
 		if (_scaler) _scaler->getPhysicalScale(c);
 		priv->customToPhysical[i] = c[0];
 	}
@@ -677,15 +680,6 @@ const unsigned* RRSolver::getDirectIllumination()
 	return priv->customIrradianceRGBA8;
 }
 
-void RRSolver::setDirectIlluminationBoost(RRReal boost)
-{
-	if (priv->boostCustomIrradiance != boost)
-	{
-		priv->boostCustomIrradiance = boost;
-		setScaler(getScaler()); // update customToPhysical[] byte->float conversion table
-	}
-}
-
 void RRSolver::calculateDirtyLights(CalculateParameters* _params)
 {
 	// replace NULL by default parameters
@@ -790,6 +784,11 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 		if (!priv->scene && !aborting) priv->staticSolverCreationFailed = true; // set after failure so that we don't try again
 		if (priv->scene) updateVertexLookupTableDynamicSolver();
 		if (aborting) RR_SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
+	}
+	if (_params->lightIndirectMultiplier!=priv->lightIndirectMultiplier)
+	{
+		priv->lightIndirectMultiplier = _params->lightIndirectMultiplier;
+		setScaler(getScaler()); // update customToPhysical[] byte->float conversion table
 	}
 	if (dirtyFactors)
 	{
@@ -998,11 +997,11 @@ void RRSolver::checkConsistency()
 		if (priv->scene&&priv->packedSolver) RRReporter::report(WARN,"  Solver type: both\n");
 
 	// boost
-	if (priv->boostCustomIrradiance<=0.1f || priv->boostCustomIrradiance>=10)
+	if (priv->lightIndirectMultiplier<=0.1f || priv->lightIndirectMultiplier>=10)
 	{
-		RRReporter::report(WARN,"  setDirectIlluminationBoost(%f) was called, is it intentional? Scene may get too %s.\n",
-			priv->boostCustomIrradiance,
-			(priv->boostCustomIrradiance<=0.1f)?"dark":"bright");
+		RRReporter::report(WARN,"  lightIndirectMultiplier=%f, is it intentional? Scene may get too %s.\n",
+			priv->lightIndirectMultiplier,
+			(priv->lightIndirectMultiplier<=0.1f)?"dark":"bright");
 	}
 
 	// histogram

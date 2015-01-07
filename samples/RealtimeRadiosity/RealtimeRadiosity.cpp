@@ -169,7 +169,6 @@ class Solver : public rr_gl::RRSolverGL
 public:
 	Solver() : RRSolverGL("../../data/shaders/","../../data/maps/")
 	{
-		setDirectIlluminationBoost(2);
 	}
 	// Called from RRSolverGL to update shadowmaps.
 	// If we delete this function, sample still works, but dynamic objects have no shadows.
@@ -218,7 +217,9 @@ void display(void)
 	// update shadowmaps, lightmaps
 	solver->reportDirectIlluminationChange(0,true,false,false);
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
-	solver->calculate();
+	rr::RRSolver::CalculateParameters params;
+	params.lightIndirectMultiplier = 2;
+	solver->calculate(&params);
 	static unsigned solutionVersion = 0;
 	if (solver->getSolutionVersion()!=solutionVersion)
 	{

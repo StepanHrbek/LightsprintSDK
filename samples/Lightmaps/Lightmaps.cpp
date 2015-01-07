@@ -331,7 +331,9 @@ void display(void)
 
 	solver->reportDirectIlluminationChange(0,true,false,false); // scene is animated -> direct illum changes
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
-	solver->calculate();
+	rr::RRSolver::CalculateParameters params;
+	params.lightIndirectMultiplier = 2;
+	solver->calculate(&params);
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	// configure plugins
@@ -428,7 +430,6 @@ int main(int argc, char** argv)
 	if (licError)
 		error(licError,false);
 	solver = new rr_gl::RRSolverGL("../../data/shaders/","../../data/maps/");
-	solver->setDirectIlluminationBoost(2);
 	solver->setScaler(rr::RRScaler::createRgbScaler());
 
 	// init static scene

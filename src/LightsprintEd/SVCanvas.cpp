@@ -1709,6 +1709,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			for (unsigned i=0;i<solver->realtimeLights.size();i++)
 				solver->realtimeLights[i]->shadowTransparencyRequested = svs.shadowTransparency;
 			rr::RRSolver::CalculateParameters params;
+			params.lightIndirectMultiplier = svs.renderLightIndirectMultiplier;
 			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			{
 				// rendering indirect -> calculate will update shadowmaps, possibly resample environment and emissive maps, improve indirect

@@ -156,16 +156,6 @@ namespace rr
 		//! Returns pointer previously passed to setDirectIllumination(), or NULL if it was not set yet.
 		const unsigned* getDirectIllumination();
 
-		//! Sets factor that multiplies intensity of direct illumination set by setDirectIllumination().
-		//
-		//! Default value is 1 = realistic.
-		//! 2 makes direct illumination in setDirectIllumination()
-		//! 2x stronger, so also computed indirect illumination is 2x stronger.
-		//! You can get the same results if you stay with default 1
-		//! and multiply computed indirect lighting in shader,
-		//! but this function does it for free, without slowing down shader.
-		void setDirectIlluminationBoost(RRReal boost);
-
 
 		//! Illumination smoothing parameters.
 		struct SmoothingParameters
@@ -321,6 +311,10 @@ namespace rr
 		//! Optional parameters of calculate(). Currently used only by Fireball.
 		struct RR_API CalculateParameters
 		{
+			//! Multiplies intensity of direct illumination set by setDirectIllumination().
+			//! As solvers use it to calculate indirect illumination, it effectively multiplies indirect illumination from lights.
+			float lightIndirectMultiplier;
+
 			//! Only for Fireball solver:
 			//! Multiplies emittance values in solver, but not emissive materials itself.
 			//! So when realtime rendering scene, emissive materials are not affected,
@@ -393,6 +387,7 @@ namespace rr
 			//! Sets default parameters. This is used if you send NULL instead of parameters.
 			CalculateParameters()
 			{
+				lightIndirectMultiplier = 1;
 				materialEmittanceMultiplier = 1;
 				materialEmittanceStaticQuality = 17;
 				materialEmittanceVideoQuality = 5;

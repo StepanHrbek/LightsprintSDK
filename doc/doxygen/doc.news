@@ -23,6 +23,7 @@ NEWS
 
 CHANGES
 
+- RRSolver::setDirectIlluminationBoost() removed, use RRSolver::CalculateParameters::lightIndirectMultiplier instead
 - RRCamera::setView() has more parameters, lets you zoom to whole scene or selected area
 - RRCamera::getPositionInClipSpace() added
 - RRCamera::getPositionInViewport() replaces RRCamera::getPositionInWindow(), returns also depth
