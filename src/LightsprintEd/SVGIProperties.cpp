@@ -377,11 +377,6 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propGIIndirectMultiplier)
 	{
 		svs.renderLightIndirectMultiplier = property->GetValue().GetDouble();
-		if (svframe->m_canvas->solver)
-		{
-			// affects realtime solution only
-			svframe->m_canvas->solver->setDirectIlluminationBoost(svs.renderLightIndirectMultiplier);
-		}
 	}
 	else
 	if (property==propGISSGI)
