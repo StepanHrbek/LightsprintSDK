@@ -94,13 +94,10 @@ namespace rr
 	//! Direct light source, directional/point/spot light with programmable function.
 	//
 	//! Standard point/spot/dir lights with physical, polynomial
-	//! or exponential distance attenuations are supported via createXxx functions.
+	//! or exponential distance attenuations are supported via createXxx functions,
+	//! custom lights with this interface can be created.
 	//!
 	//! All light properties are public and you are free to change them at any moment.
-	//!
-	//! Custom lights with this interface may be created.
-	//! Offline solver in LightsprintCore accesses #type, #position, #direction and getIrradiance().
-	//! Realtime renderer in LightsprintGL accesses all attributes.
 	//!
 	//! If you wish to control light properties for direct and indirect illumination separately,
 	//! you can do so by changing properties at the right moment during calculation.
@@ -108,8 +105,6 @@ namespace rr
 	//! while solver->renderScene() accesses light to calculate direct illumination.
 	//! For offline GI, solver->updateLightmaps(-1,-1,-1,NULL,indirectParams,) accesses light to calculate indirect illumination,
 	//! while solver->updateLightmaps(,,,directParams,NULL,) accesses light to calculate direct illumination.
-	//! There are other ways of controlling intensity of indirect illumination,
-	//! see RRSolverGL::setDirectIlluminationBoost().
 	//
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//! All custom implementations must be thread safe too.

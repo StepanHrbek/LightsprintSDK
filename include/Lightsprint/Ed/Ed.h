@@ -139,7 +139,7 @@ struct SceneViewerState
 	LightingIndirect renderLightIndirect;       //! Indirect illumination mode.
 	bool             renderLightDirectRelevant() {return renderLightIndirect!=LI_PATHTRACED && renderLightIndirect!=LI_LIGHTMAPS;}
 	bool             renderLightDirectActive() {return renderLightDirect && renderLightDirectRelevant();}
-	float            renderLightIndirectMultiplier; //! Makes indirect illumination this times brighter.
+	float            renderLightIndirectMultiplier; //! Makes indirect illumination this times brighter (in physical scale).
 	bool             renderLDM;                 //! Modulate indirect illumination by LDM.
 	bool             renderLDMRelevant() {return renderLightIndirect!=LI_PATHTRACED && renderLightIndirect!=LI_LIGHTMAPS && renderLightIndirect!=LI_AMBIENTMAPS && renderLightIndirect!=LI_NONE;}
 	bool             renderLDMEnabled() {return renderLDM && renderLDMRelevant();}
@@ -182,8 +182,8 @@ struct SceneViewerState
 	rr::RRVec3       contoursCreaseColor;
 	bool             playVideos;                //! Play videos, false = videos are paused.
 	rr_gl::RealtimeLight::ShadowTransparency shadowTransparency; //! Type of transparency in shadows, we copy it to all lights.
-	float            skyMultiplier;             //! Multiplies effect of sky lighting on scene.
-	float            emissiveMultiplier;        //! Multiplies effect of emissive materials on scene, without affecting emissive materials.
+	float            skyMultiplier;             //! Multiplies sky brightness (in physical scale). Affects complete GI in pathtracer, sky only in other techniques.
+	float            emissiveMultiplier;        //! Multiplies emittance (in physical scale). Affects complete GI in pathtracer, indirect effects only in other techniques.
 	bool             videoEmittanceAffectsGI;   //! Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.
 	unsigned         videoEmittanceGIQuality;   //! Quality if videoEmittanceAffectsGI is true.
 	bool             videoTransmittanceAffectsGI;//! Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame.
