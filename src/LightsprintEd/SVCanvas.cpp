@@ -1767,7 +1767,10 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			solver->pathTraceFrame(camera,pathTracedBuffer,pathTracedAccumulator,params);
 			rr_gl::ToneParameters tp;
 			if (svs.renderTonemapping)
+			{
 				tp = svs.tonemapping;
+				solver->getScaler()->getPhysicalScale(tp.color);
+			}
 			tp.gamma *= 0.45f;
 			pathTracedAccumulator++;
 			solver->getRenderer()->getTextureRenderer()->render2D(rr_gl::getTexture(pathTracedBuffer,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),&tp,0,0,1,1);
