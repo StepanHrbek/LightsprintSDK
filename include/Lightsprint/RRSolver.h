@@ -955,10 +955,11 @@ namespace rr
 
 		struct RR_API PathTracingParameters
 		{
-			RRReal lightsMultiplier;
+			// All multipliers work in physical scale.
+			RRReal lightDirectMultiplier;
+			RRReal lightIndirectMultiplier;
 			RRReal skyMultiplier;
 			RRReal emissiveMultiplier;
-			RRReal indirectIlluminationMultiplier;
 
 			RRMaterial::BrdfType brdfTypes;
 
@@ -973,10 +974,10 @@ namespace rr
 
 			PathTracingParameters()
 			{
-				lightsMultiplier = 1;
+				lightDirectMultiplier = 1;
+				lightIndirectMultiplier = 1;
 				skyMultiplier = 1;
 				emissiveMultiplier = 1;
-				indirectIlluminationMultiplier = 1;
 				brdfTypes = RRMaterial::BRDF_ALL;
 				useFlatNormalsSinceDepth = UINT_MAX;
 				useSolverDirectSinceDepth = UINT_MAX;

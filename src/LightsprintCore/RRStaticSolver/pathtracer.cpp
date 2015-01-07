@@ -185,6 +185,8 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		response.dirNormal = pixelNormal;
 		response.dirOut = -direction;
 
+		float lightMultiplier = numBounces ? parameters.lightIndirectMultiplier : parameters.lightDirectMultiplier;
+
 #ifdef MATERIAL_BACKGROUND_HACK
 		RRPointMaterial invisiblePlaneMaterial;
 		bool oldBouncedOffInvisiblePlane = bouncedOffInvisiblePlane;
@@ -198,7 +200,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				{
 					response.dirIn = (*lights)[i]->direction;
 					invisiblePlaneMaterial.getResponse(response,parameters.brdfTypes);
-					environmentAndSunsPhysical += (*lights)[i]->color * response.colorOut * parameters.lightsMultiplier;
+					environmentAndSunsPhysical += (*lights)[i]->color * response.colorOut * lightMultiplier;
 				}
 			RRVec3 floor = ptj.environment->getElementAtDirection(direction);
 			if (ptj.scaler && ptj.environment->getScaled())
@@ -211,7 +213,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 #endif
 
 		// add direct lighting
-		if (parameters.lightsMultiplier)
+		if (lightMultiplier)
 		if (numBounces>=parameters.useSolverDirectSinceDepth
 			&& ray.hitObject && !ray.hitObject->isDynamic // only available if we hit static object
 			&& (packedSolver || triangle))
@@ -221,7 +223,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			if (packedSolver)
 			{
 				// fireball
-				exitance += packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorPhysical * parameters.lightsMultiplier;
+				exitance += packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorPhysical * lightMultiplier;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 			else
@@ -232,7 +234,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				// zero area would create #INF in getIndirectIrradiance()
 				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 				RR_ASSERT(hitTriangle->area);
-				exitance += hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorPhysical * parameters.lightsMultiplier;
+				exitance += hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorPhysical * lightMultiplier;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 		}
@@ -272,7 +274,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 						if (totalContribution!=RRVec3(0) && !collider->intersect(&shadowRay))
 						{
 							// dokud neudelam bidir, shadow raye musej prolitat bez refrakce, s pocitanim pruhlednosti, jinak nevzniknou rgb stiny
-							exitance += totalContribution * collisionHandlerGatherLights.getVisibility() * parameters.lightsMultiplier;
+							exitance += totalContribution * collisionHandlerGatherLights.getVisibility() * lightMultiplier;
 							RR_ASSERT(IS_VEC3(exitance));
 						}
 					}
@@ -299,9 +301,6 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		float probabilityTran = (parameters.brdfTypes&RRMaterial::BRDF_TRANSMIT) ? RR_MAX(0,material->specularTransmittance.colorPhysical.avg()) : 0;
 		float probabilityStop = RR_MAX(0,1-probabilityDiff-probabilitySpec-probabilityTran);
 
-		if (parameters.indirectIlluminationMultiplier)
-		{
-
 		// add material's diffuse reflection using shortcut (reading irradiance from solver) 
 		// if shortcut is requested, use it always, to reduce noise
 		if (numBounces>=parameters.useSolverIndirectSinceDepth
@@ -311,7 +310,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			if (packedSolver)
 			{
 				// fireball:
-				exitance += packedSolver->getPointIrradianceIndirect(ray.hitTriangle,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical * parameters.indirectIlluminationMultiplier;// * splitToTwoSides;
+				exitance += packedSolver->getPointIrradianceIndirect(ray.hitTriangle,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));
 				probabilityDiff = 0; // exclude diffuse from next path
 			}
@@ -324,7 +323,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				// zero area would create #INF in getIndirectIrradiance()
 				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 				RR_ASSERT(hitTriangle->area);
-				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_PHYSICAL_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical * parameters.indirectIlluminationMultiplier;// * splitToTwoSides;
+				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_PHYSICAL_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));
 				probabilityDiff = 0; // exclude diffuse from next path
 			}
@@ -355,12 +354,10 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				if (responseStrength.avg()>parameters.stopAtVisibility)
 				{
 					// shoot it
-					exitance += getIncidentRadiance(eye+direction*ray.hitDistance,-response.dirIn,ray.hitObject,ray.hitTriangle,visibility*responseStrength,numBounces+1) * responseStrength * parameters.indirectIlluminationMultiplier;
+					exitance += getIncidentRadiance(eye+direction*ray.hitDistance,-response.dirIn,ray.hitObject,ray.hitTriangle,visibility*responseStrength,numBounces+1) * responseStrength;
 					RR_ASSERT(IS_VEC3(exitance));
 				}
 			}
-		}
-
 		}
 
 #ifdef MATERIAL_BACKGROUND_HACK
