@@ -1006,6 +1006,16 @@ void main()
 			#endif
 			)
 
+
+			//
+			// refraction
+			//
+
+			+ toLinear(
+			#if defined(LIGHT_INDIRECT_ENV_REFRACT) && (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA))
+				+ textureCube(lightIndirectEnvMap, refract(-worldEyeDir,worldNormal,1.0/materialRefractionIndex)) * vec4(transparencyRGB,0.0)
+			#endif
+			)
 			;
 
 		#ifdef FORCE_2D_POSITION
@@ -1013,9 +1023,7 @@ void main()
 		#else
 			#if defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)
 				#ifdef LIGHT_INDIRECT_ENV_REFRACT
-					vec3 worldViewRefracted = refract(-worldEyeDir,worldNormal,1.0/materialRefractionIndex);
-					vec3 background = textureCube(lightIndirectEnvMap, worldViewRefracted).rgb;
-					gl_FragColor.rgb = gl_FragColor.rgb + background * transparencyRGB;
+					// gl_FragColor.rgb already modified in // refraction
 				#else
 					gl_FragColor.a = opacityA;
 				#endif
