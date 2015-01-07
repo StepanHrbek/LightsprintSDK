@@ -1149,9 +1149,11 @@ save_scene_as:
 					//sshot->unlock();
 
 				// save sshot
-				//  if we simply saveScreenshot(sshot), pathtraced image would be 8bit.
-				//  so we save directly pathTracedBuffer. but then icons and other postprocesses disappear
-				saveScreenshot((svs.renderLightIndirect==LI_PATHTRACED)?m_canvas->pathTracedBuffer:sshot);
+				// when user manually changes sshot extension to exr or hdr, he probably want's floats,
+				// so let's directly save pathTracedBuffer instead of screen (even though it is not tonemapped, has no icons etc)
+				wxString sshotExt = userPreferences.sshotFilename.Right(4).Lower();
+				bool sshotHdr = sshotExt=="hdr" || sshotExt=="exr";
+				saveScreenshot((svs.renderLightIndirect==LI_PATHTRACED && sshotHdr)?m_canvas->pathTracedBuffer:sshot);
 
 				// cleanup
 				delete sshot;
