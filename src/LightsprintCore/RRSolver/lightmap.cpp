@@ -600,7 +600,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 		s_sec+=5;
 	}
 */
-	bool realtime = buffer && buffer->getType()==BT_VERTEX_BUFFER && !bentNormals && (!_params || (!_params->lightDirectMultiplier && !_params->applyEnvironment && !_params->quality));
+	bool realtime = buffer && buffer->getType()==BT_VERTEX_BUFFER && !bentNormals && (!_params || (!_params->lightDirectMultiplier && !_params->environmentMultiplier && !_params->quality));
 	RRReportInterval report(realtime?INF3:INF2,"Updating object %d/%d '%s', %s %d*%d, directional %d*%d, bent normals %d*%d...\n",
 		objectNumber,getStaticObjects().size(),((unsigned)objectNumber<getStaticObjects().size())?getStaticObjects()[objectNumber]->name.c_str():"",
 		(buffer && buffer->getType()==BT_VERTEX_BUFFER)?"vertex buffer":"lightmap",
@@ -619,11 +619,11 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 	if (_params) params = *_params;
 	if (params.lightDirectMultiplier && !getLights().size())
 		params.lightDirectMultiplier = 0;
-	if (params.applyEnvironment && !getEnvironment())
-		params.applyEnvironment = false;
+	if (params.environmentMultiplier && !getEnvironment())
+		params.environmentMultiplier = 0;
 	if (!getMultiObject()->faceGroups.containsEmittance())
 		params.materialEmittanceMultiplier = 0;
-	bool paramsAllowRealtime = !params.lightDirectMultiplier && !params.applyEnvironment && params.lightIndirectMultiplier && !params.quality;
+	bool paramsAllowRealtime = !params.lightDirectMultiplier && !params.environmentMultiplier && params.lightIndirectMultiplier && !params.quality;
 
 	// init solver
 	if ((!priv->scene
@@ -919,8 +919,8 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 		}
 		if (!envFound)
 		{
-			paramsDirect.applyEnvironment = false;
-			paramsIndirect.applyEnvironment = false;
+			paramsDirect.environmentMultiplier = 0;
+			paramsIndirect.environmentMultiplier = 0;
 		}
 
 		bool lightsFound = false;
@@ -932,10 +932,10 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 			paramsIndirect.lightDirectMultiplier = 0;
 		}
 
-		if (paramsDirect.lightIndirectMultiplier && (paramsIndirect.lightDirectMultiplier || paramsIndirect.applyEnvironment))
+		if (paramsDirect.lightIndirectMultiplier && (paramsIndirect.lightDirectMultiplier || paramsIndirect.environmentMultiplier))
 		{
 			if (_paramsDirect) // don't report if direct is NULL, silently disable it
-				RRReporter::report(WARN,"paramsDirect.lightIndirectMultiplier ignored, can't be combined with paramsIndirect.lightDirectMultiplier/applyEnvironment.\n");
+				RRReporter::report(WARN,"paramsDirect.lightIndirectMultiplier ignored, can't be combined with paramsIndirect.lightDirectMultiplier/environmentMultiplier.\n");
 			paramsDirect.lightIndirectMultiplier = 0;
 		}
 	}
@@ -949,8 +949,8 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 
 	std::vector<SortedBuffer> bufferSharing;
 
-	bool containsFirstGather = _paramsIndirect && ((paramsIndirect.lightIndirectMultiplier && paramsIndirect.quality) || paramsIndirect.lightDirectMultiplier || paramsIndirect.applyEnvironment);
-	bool containsRealtime = !paramsDirect.lightDirectMultiplier && !paramsDirect.applyEnvironment && paramsDirect.lightIndirectMultiplier && !paramsDirect.quality;
+	bool containsFirstGather = _paramsIndirect && ((paramsIndirect.lightIndirectMultiplier && paramsIndirect.quality) || paramsIndirect.lightDirectMultiplier || paramsIndirect.environmentMultiplier);
+	bool containsRealtime = !paramsDirect.lightDirectMultiplier && !paramsDirect.environmentMultiplier && paramsDirect.lightIndirectMultiplier && !paramsDirect.quality;
 	bool containsVertexBuffers = false;
 	bool containsPixelBuffers = false;
 	bool containsVertexBuffer[NUM_BUFFERS] = {0,0,0,0,0};
@@ -1001,9 +1001,9 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating %s (%d,%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)) with %d objects, %d lights...\n",
 		sizeOfAllBuffers?"lightmaps":"indirect illumination",
 		layerLightmap,layerDirectionalLightmap,layerBentNormals,
-		paramsDirect.lightDirectMultiplier?"lights ":"",paramsDirect.applyEnvironment?"env ":"",
+		paramsDirect.lightDirectMultiplier?"lights ":"",paramsDirect.environmentMultiplier?"env ":"",
 		paramsDirect.lightIndirectMultiplier?"cur ":"",
-		paramsIndirect.lightDirectMultiplier?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
+		paramsIndirect.lightDirectMultiplier?"lights ":"",paramsIndirect.environmentMultiplier?"env ":"",
 		paramsIndirect.lightIndirectMultiplier?"cur ":"",
 		getStaticObjects().size(),getLights().size());
 	
@@ -1029,7 +1029,7 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 
 	unsigned updatedBuffers = 0;
 
-	if (!paramsDirect.lightDirectMultiplier && !paramsDirect.applyEnvironment && !paramsDirect.lightIndirectMultiplier)
+	if (!paramsDirect.lightDirectMultiplier && !paramsDirect.environmentMultiplier && !paramsDirect.lightIndirectMultiplier)
 	{
 		RRReporter::report(WARN,"No light sources enabled.\n");
 	}

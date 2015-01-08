@@ -994,7 +994,7 @@ template<class Archive>
 void serialize(Archive & ar, rr::RRSolver::UpdateParameters& a, const unsigned int version)
 {
 	ar & make_nvp("lightDirectMultiplier",a.lightDirectMultiplier);
-	ar & make_nvp("applyEnvironment",a.applyEnvironment);
+	ar & make_nvp("environmentMultiplier",a.environmentMultiplier);
 	ar & make_nvp("lightIndirectMultiplier",a.lightIndirectMultiplier);
 	ar & make_nvp("quality",a.quality);
 	ar & make_nvp("qualityFactorRadiosity",a.qualityFactorRadiosity);

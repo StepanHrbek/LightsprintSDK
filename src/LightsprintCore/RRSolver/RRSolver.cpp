@@ -71,7 +71,7 @@ bool RRSolver::UpdateParameters::operator ==(const RRSolver::UpdateParameters& a
 {
 	return 1
 		&& a.lightDirectMultiplier==lightDirectMultiplier
-		&& a.applyEnvironment==applyEnvironment
+		&& a.environmentMultiplier==environmentMultiplier
 		&& a.lightIndirectMultiplier==lightIndirectMultiplier
 		&& a.quality==quality
 		&& a.qualityFactorRadiosity==qualityFactorRadiosity

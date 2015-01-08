@@ -160,7 +160,7 @@ void RRSolver::updateVertexLookupTablePackedSolver()
 //!  In comparison with updateLightmap(),
 //!  updateVertexBufferFromSolver() is very fast but less general, it always reads lighting from current solver,
 //!  without final gather. In other words, it assumes that
-//!  params.lightIndirectMultiplier=1; lightDirectMultiplier=0; applyEnvironment=0.
+//!  params.lightIndirectMultiplier=1; lightDirectMultiplier=0; environmentMultiplier=0.
 //!  For higher quality final gathered results, use updateLightmaps().
 unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params)
 {

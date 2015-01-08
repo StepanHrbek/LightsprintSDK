@@ -204,8 +204,8 @@ void keyboard(unsigned char c, int x, int y)
 				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRVec3(0.5f)));
 				//solver->setLights(lights);
 				//  c) compute GI from skybox (note: no effect in closed room)
-				//paramsDirect.applyEnvironment = true;
-				//paramsIndirect.applyEnvironment = true;
+				//paramsDirect.environmentMultiplier = 1;
+				//paramsIndirect.environmentMultiplier = 1;
 
 				// 2. objects
 				//  a) calculate whole scene at once

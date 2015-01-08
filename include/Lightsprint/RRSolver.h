@@ -462,14 +462,14 @@ namespace rr
 
 			//! Include environment set by setEnvironment() as a source of illumination.
 			//! True makes calculation non-realtime.
-			bool applyEnvironment;
+			RRReal environmentMultiplier;
 
 			//! Include current solution as a source of indirect illumination.
 			//
 			//! Current solution in solver is updated by calculate()
 			//! and possibly also by updateLightmaps() (depends on parameters).
 			//! \n Note that some functions restrict use of lightIndirectMultiplier
-			//! and lightDirectMultiplier/applyEnvironment at the same time.
+			//! and lightDirectMultiplier/environmentMultiplier at the same time.
 			RRReal lightIndirectMultiplier;
 
 			//! Include emissive materials as a source of illumination.
@@ -479,7 +479,7 @@ namespace rr
 			//
 			//! Relates to number of rays per texel or triangle,
 			//! time taken grows mostly linearly with this number.
-			//! (When !lightIndirectMultiplier and lightDirectMultiplier and !applyEnvironment,
+			//! (When !lightIndirectMultiplier and lightDirectMultiplier and !environmentMultiplier,
 			//! faster path is used.)
 			//!
 			//! Higher number = higher quality.
@@ -546,7 +546,7 @@ namespace rr
 			UpdateParameters()
 			{
 				lightDirectMultiplier = 0;
-				applyEnvironment = false;
+				environmentMultiplier = 0;
 				lightIndirectMultiplier = 1;
 				materialEmittanceMultiplier = 1;
 				quality = 0;
@@ -566,7 +566,7 @@ namespace rr
 			UpdateParameters(unsigned _quality)
 			{
 				lightDirectMultiplier = 1;
-				applyEnvironment = true;
+				environmentMultiplier = 1;
 				lightIndirectMultiplier = 0;
 				quality = _quality;
 				qualityFactorRadiosity = 1;

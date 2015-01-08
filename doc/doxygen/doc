@@ -1567,7 +1567,7 @@ Material formats (1)
 	RRSolver::UpdateParameters params;
 	params.quality = 1000;
 	params.lightIndirectMultiplier = 0;
-	params.applyEnvironment = true;
+	params.environmentMultiplier = 1;
 	params.lightDirectMultiplier = 1;
 	solver.updateLightmaps(-1,-1,-1,&params,&params,NULL);
 	params.lightIndirectMultiplier = 1;
@@ -1744,7 +1744,7 @@ Material formats (1)
   - Call RRSolver::updateLightmaps() with
     \n paramsDirect.lightIndirectMultiplier=0
     \n paramsDirect.lightDirectMultiplier=0
-    \n paramsDirect.applyEnvironment=true
+    \n paramsDirect.environmentMultiplier=1
     \n and paramsIndirect=NULL
     \n To calculate global ambient occlusion,
        set paramsIndirect equally to paramsDirect.
