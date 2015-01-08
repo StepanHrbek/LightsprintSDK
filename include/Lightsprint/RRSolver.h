@@ -461,8 +461,8 @@ namespace rr
 		struct RR_API UpdateParameters : public Multipliers
 		{
 			//RRReal lightDirectMultiplier; ... 0 for realtime updates
-			//RRReal environmentMultiplier; ... 0 for realtime updates
 			//RRReal lightIndirectMultiplier;
+			//RRReal environmentMultiplier; ... 0 for realtime updates
 			//RRReal materialEmittanceMultiplier;
 
 			//! Quality of computed illumination.
@@ -536,8 +536,8 @@ namespace rr
 			UpdateParameters()
 			{
 				lightDirectMultiplier = 0;
-				environmentMultiplier = 0;
 				lightIndirectMultiplier = 1;
+				environmentMultiplier = 0;
 				materialEmittanceMultiplier = 1;
 				quality = 0;
 				qualityFactorRadiosity = 1;
@@ -556,8 +556,8 @@ namespace rr
 			UpdateParameters(unsigned _quality)
 			{
 				lightDirectMultiplier = 1;
-				environmentMultiplier = 1;
 				lightIndirectMultiplier = 0;
+				environmentMultiplier = 1;
 				materialEmittanceMultiplier = 1;
 				quality = _quality;
 				qualityFactorRadiosity = 1;
