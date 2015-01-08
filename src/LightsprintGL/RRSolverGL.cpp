@@ -773,7 +773,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		}
 
 		// update cube
-		PluginParamsSky ppSky(NULL,this);
+		PluginParamsSky ppSky(NULL,this,1);
 		PluginParamsScene ppScene(&ppSky,this);
 		ppScene.uberProgramSetup.enableAllMaterials();
 		ppScene.uberProgramSetup.enableAllLights();

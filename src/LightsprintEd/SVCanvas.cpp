@@ -1793,7 +1793,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			const rr_gl::PluginParams* pluginChain = NULL;
 
 			// skybox plugin
-			rr_gl::PluginParamsSky ppSky(pluginChain,solver);
+			rr_gl::PluginParamsSky ppSky(pluginChain,solver,svs.skyMultiplier);
 			pluginChain = &ppSky;
 
 			// selection plugin

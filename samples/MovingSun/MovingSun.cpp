@@ -267,7 +267,7 @@ void display(void)
 	//rr::RRReportInterval report2(rr::INF1,"final...\n");
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	// configure plugins
-	rr_gl::PluginParamsSky ppSky(NULL,solver);
+	rr_gl::PluginParamsSky ppSky(NULL,solver,1);
 	rr_gl::PluginParamsScene ppScene(&ppSky,solver);
 	ppScene.solver = solver;
 	ppScene.lights = &solver->realtimeLights;

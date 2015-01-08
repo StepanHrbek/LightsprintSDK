@@ -44,7 +44,8 @@ public:
 				? getTexture(env1,false,false) // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
 				: getTexture(env1,false,false,GL_NEAREST,GL_NEAREST) // used by 2x2 sky
 				) : NULL;
-			_renderer.getTextureRenderer()->renderEnvironment(*_sp.camera,texture0,envAngleRad0,texture1,envAngleRad1,blendFactor,&_sp.brightness,_sp.gamma*(_sp.srgbCorrect?2.2f:1.f),true);
+			rr::RRVec4 brightness = _sp.brightness*pp.skyMultiplier;
+			_renderer.getTextureRenderer()->renderEnvironment(*_sp.camera,texture0,envAngleRad0,texture1,envAngleRad1,blendFactor,&brightness,_sp.gamma*(_sp.srgbCorrect?2.2f:1.f),true);
 		}
 	}
 

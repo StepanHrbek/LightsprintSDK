@@ -23,9 +23,11 @@ class RR_GL_API PluginParamsSky : public PluginParams
 public:
 	//! Solver with environment you want to render.
 	rr::RRSolver* solver;
+	//! Multiplier to use for sky rendering.
+	float skyMultiplier;
 
 	//! Convenience ctor, for setting plugin parameters.
-	PluginParamsSky(const PluginParams* _next, rr::RRSolver* _solver) : solver(_solver) {next=_next;}
+	PluginParamsSky(const PluginParams* _next, rr::RRSolver* _solver, float _skyMultiplier) : solver(_solver), skyMultiplier(_skyMultiplier) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;
