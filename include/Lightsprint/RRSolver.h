@@ -558,6 +558,7 @@ namespace rr
 				lightDirectMultiplier = 1;
 				environmentMultiplier = 1;
 				lightIndirectMultiplier = 0;
+				materialEmittanceMultiplier = 1;
 				quality = _quality;
 				qualityFactorRadiosity = 1;
 				insideObjectsThreshold = 1;
