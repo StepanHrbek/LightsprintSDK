@@ -273,11 +273,12 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 				material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
 			if (scaler)
 			{
-				material.specularTransmittance.colorPhysical = scaler->getPhysicalFactor(material.specularTransmittance.color);
+				// [#40] rr_gl renders transparency without srgb correction, so here we keep colorPhysical=color for pathtracer to produce similar results
+				material.specularTransmittance.colorPhysical = material.specularTransmittance.color; //scaler->getPhysicalFactor(material.specularTransmittance.color);
 			}
 			// [#39] we multiply dif by opacity on the fly, because real world data are often in this format
 			material.diffuseReflectance.color *= (RRVec3(1)-material.specularTransmittance.color); // multiply cust color in cust.scale - inaccurate, but result probably not used
-			material.diffuseReflectance.colorPhysical *= (RRVec3(1)-material.specularTransmittance.color); // multiply phys color in phys scale - accurate, used by pathtracer, makes cloud borders in clouds.rr3 white
+			material.diffuseReflectance.colorPhysical *= (RRVec3(1)-material.specularTransmittance.colorPhysical); // multiply phys color in phys scale - accurate, used by pathtracer, makes cloud borders in clouds.rr3 white
 		}
 	}
 }
