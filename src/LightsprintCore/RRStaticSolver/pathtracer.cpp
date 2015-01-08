@@ -291,7 +291,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			//float splitToTwoSides = material->sideBits[ray.hitFrontSide?1:0].emitTo ? 0.5f : 1;
 
 			// used in direct lighting final gather [per pixel emittance]
-			exitance += material->diffuseEmittance.colorPhysical * parameters.emissiveMultiplier;// * splitToTwoSides;
+			exitance += material->diffuseEmittance.colorPhysical * parameters.materialEmittanceMultiplier;// * splitToTwoSides;
 			RR_ASSERT(IS_VEC3(exitance));
 		}
 

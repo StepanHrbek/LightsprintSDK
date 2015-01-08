@@ -167,7 +167,7 @@ public:
 			pathTracingParameters.lightDirectMultiplier = _pti.context.params->applyLights?1.f:0.f;
 			pathTracingParameters.lightIndirectMultiplier = _pti.context.params->applyCurrentSolution?1.f:0.f;
 			pathTracingParameters.skyMultiplier = _pti.context.params->applyEnvironment?1.f:0.f;
-			pathTracingParameters.emissiveMultiplier = _pti.context.params->applyEmittance;
+			pathTracingParameters.materialEmittanceMultiplier = _pti.context.params->applyEmittance;
 			pathTracingParameters.brdfTypes = RRMaterial::BRDF_ALL;
 			pathTracingParameters.useFlatNormalsSinceDepth = 0;
 			pathTracingParameters.useSolverDirectSinceDepth = 0;

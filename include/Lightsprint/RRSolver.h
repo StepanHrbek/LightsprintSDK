@@ -314,14 +314,14 @@ namespace rr
 			RRReal lightDirectMultiplier;
 			RRReal lightIndirectMultiplier;
 			RRReal skyMultiplier;
-			RRReal emissiveMultiplier;
+			RRReal materialEmittanceMultiplier;
 
 			Multipliers()
 			{
 				lightDirectMultiplier = 1;
 				lightIndirectMultiplier = 1;
 				skyMultiplier = 1;
-				emissiveMultiplier = 1;
+				materialEmittanceMultiplier = 1;
 			}
 		};
 
