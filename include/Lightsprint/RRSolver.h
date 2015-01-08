@@ -308,6 +308,23 @@ namespace rr
 		void getAllBuffers(RRVector<RRBuffer*>& buffers, const RRVector<unsigned>* layers) const;
 
 
+		struct RR_API Multipliers
+		{
+			// All multipliers work in physical scale.
+			RRReal lightDirectMultiplier;
+			RRReal lightIndirectMultiplier;
+			RRReal skyMultiplier;
+			RRReal emissiveMultiplier;
+
+			Multipliers()
+			{
+				lightDirectMultiplier = 1;
+				lightIndirectMultiplier = 1;
+				skyMultiplier = 1;
+				emissiveMultiplier = 1;
+			}
+		};
+
 		//! Optional parameters of calculate(). Currently used only by Fireball.
 		struct RR_API CalculateParameters
 		{
@@ -953,14 +970,8 @@ namespace rr
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
 		RRObject* getMultiObject() const;
 
-		struct RR_API PathTracingParameters
+		struct RR_API PathTracingParameters : public Multipliers
 		{
-			// All multipliers work in physical scale.
-			RRReal lightDirectMultiplier;
-			RRReal lightIndirectMultiplier;
-			RRReal skyMultiplier;
-			RRReal emissiveMultiplier;
-
 			RRMaterial::BrdfType brdfTypes;
 
 			// how many bounces before given optimization kicks in?
@@ -974,10 +985,6 @@ namespace rr
 
 			PathTracingParameters()
 			{
-				lightDirectMultiplier = 1;
-				lightIndirectMultiplier = 1;
-				skyMultiplier = 1;
-				emissiveMultiplier = 1;
 				brdfTypes = RRMaterial::BRDF_ALL;
 				useFlatNormalsSinceDepth = UINT_MAX;
 				useSolverDirectSinceDepth = UINT_MAX;
