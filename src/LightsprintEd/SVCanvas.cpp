@@ -1718,6 +1718,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				params.materialEmittanceVideoQuality = svs.videoEmittanceAffectsGI?svs.videoEmittanceGIQuality+1:0;
 				params.materialTransmittanceStaticQuality = 0; // don't check static textures in each frame, we manually reportMaterialChange() when they change
 				params.materialTransmittanceVideoQuality = svs.videoTransmittanceAffectsGI?(svs.videoTransmittanceAffectsGIFull?2:1):0;
+				params.environmentMultiplier = svs.skyMultiplier;
 				params.environmentStaticQuality = 6000;
 				params.environmentVideoQuality = svs.videoEnvironmentAffectsGI?svs.videoEnvironmentGIQuality+1:0;
 				params.qualityIndirectDynamic = svs.fireballWorkPerFrame;

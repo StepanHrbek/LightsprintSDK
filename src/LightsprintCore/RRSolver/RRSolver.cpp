@@ -30,12 +30,26 @@ namespace rr
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Multipliers
+
+bool RRSolver::Multipliers::operator ==(const RRSolver::Multipliers& a) const
+{
+	return 1
+		&& a.lightDirectMultiplier==lightDirectMultiplier
+		&& a.lightIndirectMultiplier==lightIndirectMultiplier
+		&& a.environmentMultiplier==environmentMultiplier
+		&& a.materialEmittanceMultiplier==materialEmittanceMultiplier
+		;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // CalculateParameters
 
 bool RRSolver::CalculateParameters::operator ==(const RRSolver::CalculateParameters& a) const
 {
 	return 1
-		&& a.materialEmittanceMultiplier==materialEmittanceMultiplier
+		&& a.RRSolver::Multipliers::operator ==(*this)
 		&& a.materialEmittanceStaticQuality==materialEmittanceStaticQuality
 		&& a.materialEmittanceVideoQuality==materialEmittanceVideoQuality
 		&& a.materialEmittanceUsePointMaterials==materialEmittanceUsePointMaterials

@@ -308,9 +308,9 @@ namespace rr
 		void getAllBuffers(RRVector<RRBuffer*>& buffers, const RRVector<unsigned>* layers) const;
 
 
+		//! Multipliers for tweaking contribution of various light sources. They work in physical scale.
 		struct RR_API Multipliers
 		{
-			// All multipliers work in physical scale.
 			RRReal lightDirectMultiplier;
 			RRReal lightIndirectMultiplier;
 			RRReal environmentMultiplier;
@@ -323,20 +323,16 @@ namespace rr
 				environmentMultiplier = 1;
 				materialEmittanceMultiplier = 1;
 			}
+			bool operator ==(const Multipliers& a) const;
 		};
 
-		//! Optional parameters of calculate(). Currently used only by Fireball.
-		struct RR_API CalculateParameters
+		//! Optional parameters of calculate().
+		struct RR_API CalculateParameters : public Multipliers
 		{
-			//! Multiplies intensity of direct illumination set by setDirectIllumination().
-			//! As solvers use it to calculate indirect illumination, it effectively multiplies indirect illumination from lights.
-			float lightIndirectMultiplier;
-
-			//! Only for Fireball solver:
-			//! Multiplies emittance values in solver, but not emissive materials itself.
-			//! So when realtime rendering scene, emissive materials are not affected,
-			//! but indirect illumination they create is multiplied.
-			float materialEmittanceMultiplier;
+			//RRReal lightDirectMultiplier;       ...
+			//RRReal lightIndirectMultiplier;     ... works
+			//RRReal environmentMultiplier;       ... works with Fireball
+			//RRReal materialEmittanceMultiplier; ... works with Fireball
 
 			//! Only for Fireball solver:
 			//! Specifies what to do when emissive texture changes.
@@ -404,8 +400,6 @@ namespace rr
 			//! Sets default parameters. This is used if you send NULL instead of parameters.
 			CalculateParameters()
 			{
-				lightIndirectMultiplier = 1;
-				materialEmittanceMultiplier = 1;
 				materialEmittanceStaticQuality = 17;
 				materialEmittanceVideoQuality = 5;
 				materialEmittanceUsePointMaterials = false;
