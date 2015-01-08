@@ -824,7 +824,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 							solver->getLights()[i]->color = lightColors[i]*directLightMultiplier;
 
 						// build direct illumination
-						updateParameters.applyCurrentSolution = true;
+						updateParameters.lightIndirectMultiplier = 1;
 						solver->updateLightmaps(tmpLayer,-1,-1,&updateParameters,NULL,&svs.lightmapFilteringParameters);
 
 						// restore light intensities

@@ -468,9 +468,9 @@ namespace rr
 			//
 			//! Current solution in solver is updated by calculate()
 			//! and possibly also by updateLightmaps() (depends on parameters).
-			//! \n Note that some functions restrict use of applyCurrentSolution
+			//! \n Note that some functions restrict use of lightIndirectMultiplier
 			//! and lightDirectMultiplier/applyEnvironment at the same time.
-			bool applyCurrentSolution;
+			RRReal lightIndirectMultiplier;
 
 			//! Include emissive materials as a source of illumination.
 			RRReal materialEmittanceMultiplier;
@@ -479,7 +479,7 @@ namespace rr
 			//
 			//! Relates to number of rays per texel or triangle,
 			//! time taken grows mostly linearly with this number.
-			//! (When !applyCurrentSolution and lightDirectMultiplier and !applyEnvironment,
+			//! (When !lightIndirectMultiplier and lightDirectMultiplier and !applyEnvironment,
 			//! faster path is used.)
 			//!
 			//! Higher number = higher quality.
@@ -547,7 +547,7 @@ namespace rr
 			{
 				lightDirectMultiplier = 0;
 				applyEnvironment = false;
-				applyCurrentSolution = true;
+				lightIndirectMultiplier = 1;
 				materialEmittanceMultiplier = 1;
 				quality = 0;
 				qualityFactorRadiosity = 1;
@@ -567,7 +567,7 @@ namespace rr
 			{
 				lightDirectMultiplier = 1;
 				applyEnvironment = true;
-				applyCurrentSolution = false;
+				lightIndirectMultiplier = 0;
 				quality = _quality;
 				qualityFactorRadiosity = 1;
 				insideObjectsThreshold = 1;
@@ -727,14 +727,14 @@ namespace rr
 		//!  and quality specified in paramsIndirect.
 		//!  Internal state is properly updated even when buffers don't exist (so no other output is produced).
 		//!  Following updateLightmap() will include this indirect lighting into computed buffer
-		//!  if you call it with params->applyCurrentSolution=true and params->measure_internal=RM_IRRADIANCE_CUSTOM.
+		//!  if you call it with params->lightIndirectMultiplier=1 and params->measure_internal=RM_IRRADIANCE_CUSTOM.
 		//! \remarks
 		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them.
 		//!  All three ways produce the same quality, but first one may be faster in some cases.
 		//!  - create buffers for selected objects, make sure other buffers are NULL and call updateLightmaps()
 		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
 		//!  - call updateLightmaps(-1,-1,NULL,paramsIndirect,NULL) once to update current solution,
-		//!    call updateLightmap(params with applyCurrentSolution=true and measure_internal=RM_IRRADIANCE_CUSTOM) for all selected objects
+		//!    call updateLightmap(params with lightIndirectMultiplier=1 and measure_internal=RM_IRRADIANCE_CUSTOM) for all selected objects
 		//! \remarks
 		//!  Sharing one lightmap by multiple objects is not supported out of the box. Please consult us for possible solutions.
 		virtual unsigned updateLightmaps(int layerLightmap, int layerDirectionalLightmap, int layerBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);

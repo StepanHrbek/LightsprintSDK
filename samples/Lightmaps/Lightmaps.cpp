@@ -187,15 +187,15 @@ void keyboard(unsigned char c, int x, int y)
 			{
 				rr::RRSolver::UpdateParameters paramsDirect;
 				paramsDirect.quality = 1000;
-				paramsDirect.applyCurrentSolution = false;
+				paramsDirect.lightIndirectMultiplier = 0;
 				paramsDirect.aoIntensity = 1;
 				paramsDirect.aoSize = 1;
 				rr::RRSolver::UpdateParameters paramsIndirect;
-				paramsIndirect.applyCurrentSolution = false;
+				paramsIndirect.lightIndirectMultiplier = 0;
 
 				// 1. type of lighting
 				//  a) improve current GI lighting from realtime light
-				paramsDirect.applyCurrentSolution = true;
+				paramsDirect.lightIndirectMultiplier = 1;
 				//  b) compute GI from point/spot/dir lights
 				//paramsDirect.lightDirectMultiplier = 1;
 				//paramsIndirect.lightDirectMultiplier = 1;
