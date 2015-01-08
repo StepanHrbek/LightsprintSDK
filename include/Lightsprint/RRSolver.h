@@ -313,14 +313,14 @@ namespace rr
 			// All multipliers work in physical scale.
 			RRReal lightDirectMultiplier;
 			RRReal lightIndirectMultiplier;
-			RRReal skyMultiplier;
+			RRReal environmentMultiplier;
 			RRReal materialEmittanceMultiplier;
 
 			Multipliers()
 			{
 				lightDirectMultiplier = 1;
 				lightIndirectMultiplier = 1;
-				skyMultiplier = 1;
+				environmentMultiplier = 1;
 				materialEmittanceMultiplier = 1;
 			}
 		};

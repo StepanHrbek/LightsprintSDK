@@ -1757,7 +1757,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr::RRSolver::PathTracingParameters params;
 			params.lightDirectMultiplier = svs.renderLightDirect ? 1 : 0;
 			params.lightIndirectMultiplier = svs.renderLightIndirectMultiplier;
-			params.skyMultiplier =  svs.skyMultiplier;
+			params.environmentMultiplier =  svs.skyMultiplier;
 			params.materialEmittanceMultiplier = svs.renderMaterialEmission ? svs.emissiveMultiplier : 0;
 			params.brdfTypes = rr::RRMaterial::BrdfType( (svs.renderMaterialDiffuse?rr::RRMaterial::BRDF_DIFFUSE:0) + (svs.renderMaterialSpecular?rr::RRMaterial::BRDF_SPECULAR:0) + ((svs.renderMaterialTransparency!=T_OPAQUE)?rr::RRMaterial::BRDF_TRANSMIT:0) );
 			unsigned shortcut = (unsigned)sqrtf((float)(pathTracedAccumulator/10)); // starts at 0, increases on frames 10, 40, 90, 160 etc

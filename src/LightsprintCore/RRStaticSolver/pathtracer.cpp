@@ -147,13 +147,13 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		{
 #ifdef MATERIAL_BACKGROUND_HACK
 			if (bouncedOffInvisiblePlane)
-				return ptj.environmentAveragePhysical * parameters.skyMultiplier;
+				return ptj.environmentAveragePhysical * parameters.environmentMultiplier;
 #endif
 
 			RRVec3 irrad = ptj.environment->getElementAtDirection(direction);
 			if (ptj.scaler && ptj.environment->getScaled()) ptj.scaler->getPhysicalScale(irrad);
 			RR_ASSERT(IS_VEC3(irrad));
-			return irrad * parameters.skyMultiplier;
+			return irrad * parameters.environmentMultiplier;
 		}
 		return Channels(0);
 	}
@@ -194,7 +194,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		{
 			invisiblePlaneMaterial = *material;
 			bouncedOffInvisiblePlane = true;
-			RRVec3 environmentAndSunsPhysical = ptj.environmentAveragePhysical * parameters.skyMultiplier;
+			RRVec3 environmentAndSunsPhysical = ptj.environmentAveragePhysical * parameters.environmentMultiplier;
 			for (unsigned i=0;i<lights->size();i++)
 				if ((*lights)[i]->enabled && (*lights)[i]->type==RRLight::DIRECTIONAL)
 				{
