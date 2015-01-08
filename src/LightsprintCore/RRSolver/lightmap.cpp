@@ -622,7 +622,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 	if (params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
 	if (!getMultiObject()->faceGroups.containsEmittance())
-		params.applyEmittance = 0;
+		params.materialEmittanceMultiplier = 0;
 	bool paramsAllowRealtime = !params.applyLights && !params.applyEnvironment && params.applyCurrentSolution && !params.quality;
 
 	// init solver
@@ -902,7 +902,7 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	if (_paramsIndirect) paramsIndirect = *_paramsIndirect;
 
 	if (!getMultiObject() || !getMultiObject()->faceGroups.containsEmittance())
-		paramsDirect.applyEmittance = paramsIndirect.applyEmittance = 0;
+		paramsDirect.materialEmittanceMultiplier = paramsIndirect.materialEmittanceMultiplier = 0;
 
 	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
 	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;

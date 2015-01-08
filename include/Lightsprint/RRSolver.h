@@ -473,7 +473,7 @@ namespace rr
 			bool applyCurrentSolution;
 
 			//! Include emissive materials as a source of illumination.
-			RRReal applyEmittance;
+			RRReal materialEmittanceMultiplier;
 
 			//! Quality of computed illumination.
 			//
@@ -548,7 +548,7 @@ namespace rr
 				applyLights = false;
 				applyEnvironment = false;
 				applyCurrentSolution = true;
-				applyEmittance = 1;
+				materialEmittanceMultiplier = 1;
 				quality = 0;
 				qualityFactorRadiosity = 1;
 				insideObjectsThreshold = 1;

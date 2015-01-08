@@ -167,7 +167,7 @@ public:
 			pathTracingParameters.lightDirectMultiplier = _pti.context.params->applyLights?1.f:0.f;
 			pathTracingParameters.lightIndirectMultiplier = _pti.context.params->applyCurrentSolution?1.f:0.f;
 			pathTracingParameters.environmentMultiplier = _pti.context.params->applyEnvironment?1.f:0.f;
-			pathTracingParameters.materialEmittanceMultiplier = _pti.context.params->applyEmittance;
+			pathTracingParameters.materialEmittanceMultiplier = _pti.context.params->materialEmittanceMultiplier;
 			pathTracingParameters.brdfTypes = RRMaterial::BRDF_ALL;
 			pathTracingParameters.useFlatNormalsSinceDepth = 0;
 			pathTracingParameters.useSolverDirectSinceDepth = 0;
@@ -180,7 +180,7 @@ public:
 			irradiancePhysicalHemisphere[i] = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
-		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.params->applyEmittance!=0) ? RR_MAX(1,pti.context.params->quality) : 0;
+		rays = (tools.environment || pti.context.params->applyCurrentSolution || pti.context.params->materialEmittanceMultiplier!=0) ? RR_MAX(1,pti.context.params->quality) : 0;
 		pathtracerWorker.ray.rayLengthMin = pti.rayLengthMin;
 	}
 
@@ -942,7 +942,7 @@ bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 		return false;
 	}
 	UpdateParameters params = _params ? *_params : UpdateParameters();
-	params.applyEmittance = 0;
+	params.materialEmittanceMultiplier = 0;
 	if (!gatherPerTrianglePhysical(&params,finalGather,numPostImportTriangles)) // this is first gather -> don't gather emitors
 	{
 		delete finalGather;
@@ -950,7 +950,7 @@ bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 	}
 
 	// tmparray -> solver.direct
-	priv->scene->illuminationReset(false,true,_params?_params->applyEmittance:1,NULL,NULL,finalGather->data[LS_LIGHTMAP]);
+	priv->scene->illuminationReset(false,true,_params?_params->materialEmittanceMultiplier:1,NULL,NULL,finalGather->data[LS_LIGHTMAP]);
 	priv->solutionVersion++;
 	delete finalGather;
 
@@ -1031,7 +1031,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 	{
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 		calculateCore(0,&priv->previousCalculateParameters);
-		priv->scene->illuminationReset(true,true,_paramsIndirect?_paramsIndirect->applyEmittance:1,NULL,NULL,NULL); // required by endByQuality()
+		priv->scene->illuminationReset(true,true,_paramsIndirect?_paramsIndirect->materialEmittanceMultiplier:1,NULL,NULL,NULL); // required by endByQuality()
 
 		// first gather
 		unsigned tmp = paramsIndirect.quality;
@@ -1062,7 +1062,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 			}
 
 			// optimization: free memory taken by factors (we won't need them anymore), but preserve accumulators (we need them for final gather)
-			priv->scene->illuminationReset(true,false,_paramsIndirect?_paramsIndirect->applyEmittance:1,NULL,NULL,NULL);
+			priv->scene->illuminationReset(true,false,_paramsIndirect?_paramsIndirect->materialEmittanceMultiplier:1,NULL,NULL,NULL);
 		}
 	}
 	return true;
