@@ -22,7 +22,7 @@ namespace rr_gl
 //
 //! Set of simple parameters that affect output color.
 //
-//! Color changes are applied in following order:
+//! Color changes are applied in sRGB space in following order:
 //! - hue is increased by hsv[0] (in 0..360 range)
 //! - saturation is multiplied by hsv[1]
 //! - value(intensity) is multiplied by hsv[2]
