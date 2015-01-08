@@ -907,7 +907,7 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
 	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
 
-	// clear applyXxx that can be cleared
+	// clear xxxMultiplier that can be cleared
 	{
 		bool envFound = false;
 		RRBuffer* env = getEnvironment();

@@ -460,11 +460,6 @@ namespace rr
 		//! use NULL for default parameters.
 		struct RR_API UpdateParameters : public Multipliers
 		{
-			//RRReal lightDirectMultiplier; ... 0 for realtime updates
-			//RRReal lightIndirectMultiplier;
-			//RRReal environmentMultiplier; ... 0 for realtime updates
-			//RRReal materialEmittanceMultiplier;
-
 			//! Quality of computed illumination.
 			//
 			//! Relates to number of rays per texel or triangle,

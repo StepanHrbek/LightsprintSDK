@@ -23,6 +23,7 @@ NEWS
 
 CHANGES
 
+- various lighting multipliers scattered around SDK were replaced by single RRSolver::Multipliers
 - RRSolver::setDirectIlluminationBoost() removed, use RRSolver::CalculateParameters::lightIndirectMultiplier instead
 - RRCamera::setView() has more parameters, lets you zoom to whole scene or selected area
 - RRCamera::getPositionInClipSpace() added
