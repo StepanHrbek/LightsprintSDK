@@ -311,9 +311,13 @@ namespace rr
 		//! Multipliers for tweaking contribution of various light sources. They work in physical scale.
 		struct RR_API Multipliers
 		{
+			//! Multiplies direct illumination from RRLights.
 			RRReal lightDirectMultiplier;
+			//! Multiplies indirect illumination from RRLights.
 			RRReal lightIndirectMultiplier;
+			//! Multiplies environment(skybox) illumination.
 			RRReal environmentMultiplier;
+			//! Multiplies emittance of emissive materials.
 			RRReal materialEmittanceMultiplier;
 
 			Multipliers()
@@ -454,26 +458,12 @@ namespace rr
 		//!
 		//! If you use \ref calc_fireball, only default realtime parameters are supported,
 		//! use NULL for default parameters.
-		struct RR_API UpdateParameters
+		struct RR_API UpdateParameters : public Multipliers
 		{
-			//! Include lights set by setLights() as a source of illumination.
-			//! True makes calculation non-realtime.
-			RRReal lightDirectMultiplier;
-
-			//! Include environment set by setEnvironment() as a source of illumination.
-			//! True makes calculation non-realtime.
-			RRReal environmentMultiplier;
-
-			//! Include current solution as a source of indirect illumination.
-			//
-			//! Current solution in solver is updated by calculate()
-			//! and possibly also by updateLightmaps() (depends on parameters).
-			//! \n Note that some functions restrict use of lightIndirectMultiplier
-			//! and lightDirectMultiplier/environmentMultiplier at the same time.
-			RRReal lightIndirectMultiplier;
-
-			//! Include emissive materials as a source of illumination.
-			RRReal materialEmittanceMultiplier;
+			//RRReal lightDirectMultiplier; ... 0 for realtime updates
+			//RRReal environmentMultiplier; ... 0 for realtime updates
+			//RRReal lightIndirectMultiplier;
+			//RRReal materialEmittanceMultiplier;
 
 			//! Quality of computed illumination.
 			//
