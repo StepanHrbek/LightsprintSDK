@@ -278,6 +278,7 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 	memset(environmentExitancePhysical,0,sizeof(environmentExitancePhysical));
 	environmentVersion[0] = 0;
 	environmentVersion[1] = 0;
+	environmentMultiplier = 1;
 	environmentBlendFactor = 0;
 	// material emittance caching
 	materialEmittanceVersionSum[0] = 0;
@@ -350,7 +351,7 @@ static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQ
 	return 1;
 }
 
-bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffer* _environment1, unsigned _environmentStaticQuality, unsigned _environmentVideoQuality, float _environmentBlendFactor, const RRScaler* _scaler)
+bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffer* _environment1, float _environmentMultiplier, unsigned _environmentStaticQuality, unsigned _environmentVideoQuality, float _environmentBlendFactor, const RRScaler* _scaler)
 {
 	// convert environment to 13 patches, remember them
 	unsigned numChanges = 
@@ -358,11 +359,12 @@ bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffe
 		getSkyExitancePhysical(_environment1,_environmentStaticQuality,_environmentVideoQuality,_scaler,environmentExitancePhysical[1],environmentVersion[1]);
 
 	// caching, quit if things did not change
-	if (!numChanges && environmentBlendFactor==_environmentBlendFactor)
+	if (!numChanges && environmentMultiplier==_environmentMultiplier && environmentBlendFactor==_environmentBlendFactor)
 		return false;
+	environmentMultiplier = _environmentMultiplier;
+	environmentBlendFactor = _environmentBlendFactor;
 
 	// gamma correct blend of sky exitances
-	environmentBlendFactor = _environmentBlendFactor;
 	PackedSkyTriangleFactor::UnpackedFactor skyExitancePhysicalBlend;
 	for (unsigned i=0;i<PackedSkyTriangleFactor::NUM_PATCHES;i++)
 		skyExitancePhysicalBlend.patches[i] = environmentExitancePhysical[0][i]*(1-environmentBlendFactor)+environmentExitancePhysical[1][i]*environmentBlendFactor;
@@ -371,7 +373,7 @@ bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffe
 	for (unsigned t=0;t<numTriangles;t++)
 	{
 		RRVec3 triangleIrradiancePhysical = packedSolverFile->packedFactors->getC1(t)->packedSkyTriangleFactor.getTriangleIrradiancePhysical(skyExitancePhysicalBlend,packedSolverFile->intensityTable);
-		triangles[t].incidentFluxSky = triangleIrradiancePhysical * triangles[t].area;
+		triangles[t].incidentFluxSky = triangleIrradiancePhysical * (triangles[t].area * environmentMultiplier);
 	}
 	currentVersionInTriangles++;
 	return true;

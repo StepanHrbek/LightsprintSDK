@@ -25,7 +25,7 @@ public:
 	static RRPackedSolver* create(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);
 
 	//! \return False = no change detected.
-	bool setEnvironment(const RRBuffer* environment0, const RRBuffer* environment1, unsigned environmentStaticQuality, unsigned environmentVideoQuality, float environmentBlendFactor, const RRScaler* scaler);
+	bool setEnvironment(const RRBuffer* environment0, const RRBuffer* environment1, float environmentMultiplier, unsigned environmentStaticQuality, unsigned environmentVideoQuality, float environmentBlendFactor, const RRScaler* scaler);
 
 	//! Updates emittances in solver, but new values are not used until you call illuminationReset().
 	//!
@@ -97,6 +97,7 @@ private:
 	// environment caching
 	RRVec3   environmentExitancePhysical[2][13]; // PackedSkyTriangleFactor::UnpackedFactor made from environment0,1
 	unsigned environmentVersion[2]; // made from environment0,1. we use it to detect that environment texture has changed
+	float    environmentMultiplier;
 	float    environmentBlendFactor;
 	// material emittance caching
 	unsigned materialEmittanceVersionSum[2]; // 0=static, 1=video

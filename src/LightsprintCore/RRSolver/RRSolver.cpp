@@ -837,7 +837,7 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 			RRReportInterval report(INF3,"Updating illumination from environment...\n");
 			// loads environment to fireball
 			//!!! videa nejsou updatnuta, sampluju minuly snimek
-			if (priv->packedSolver->setEnvironment(priv->environment0,priv->environment1,_params->environmentStaticQuality,_params->environmentVideoQuality,priv->environmentBlendFactor,getScaler()))
+			if (priv->packedSolver->setEnvironment(priv->environment0,priv->environment1,_params->environmentMultiplier,_params->environmentStaticQuality,_params->environmentVideoQuality,priv->environmentBlendFactor,getScaler()))
 			{
 				priv->solutionVersion++;
 				if (_params->environmentVideoQuality) // rarely might be dirty because of static image change. worst case scenario = additional GI improves delayed 1 sec
