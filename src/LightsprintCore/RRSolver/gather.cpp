@@ -164,7 +164,7 @@ public:
 	{
 		if (_pti.context.params)
 		{
-			pathTracingParameters.lightDirectMultiplier = _pti.context.params->applyLights?1.f:0.f;
+			pathTracingParameters.lightDirectMultiplier = _pti.context.params->lightDirectMultiplier;
 			pathTracingParameters.lightIndirectMultiplier = _pti.context.params->applyCurrentSolution?1.f:0.f;
 			pathTracingParameters.environmentMultiplier = _pti.context.params->applyEnvironment?1.f:0.f;
 			pathTracingParameters.materialEmittanceMultiplier = _pti.context.params->materialEmittanceMultiplier;
@@ -373,7 +373,7 @@ public:
 			irradiancePhysicalLights[i] = RRVec3(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 0;
-		rounds = (pti.context.params->applyLights && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
+		rounds = (pti.context.params->lightDirectMultiplier && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
 		rays = numRelevantLights*rounds;
 		ray.hitObject = pti.context.solver->getMultiObject();
 		ray.rayLengthMin = pti.rayLengthMin;
@@ -598,7 +598,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		// - copying this condition to distant place would make code unnecessarily complex
 		//   (this simple condition depends on 2 other places that set rays)
 		// - performance loss is very small
-		//RR_LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%d, material.accepted.lights=%d, applyLights=%d, env=%d, applyEnv=%d).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params->applyLights,pti.context.solver->getEnvironment()?1:0,pti.context.params->applyEnvironment));
+		//RR_LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%d, material.accepted.lights=%d, lightDirectMultiplier=%d, env=%d, applyEnv=%d).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params->lightDirectMultiplier,pti.context.solver->getEnvironment()?1:0,pti.context.params->applyEnvironment));
 		return ProcessTexelResult();
 	}
 
@@ -817,19 +817,19 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 	params.quality = RR_MAX(1,params.quality);
 	
 	// optimize params
-	if (params.applyLights)
+	if (params.lightDirectMultiplier)
 	{
 		for (unsigned i=0;i<getLights().size();i++)
 			if (getLights()[i] && getLights()[i]->enabled)
 				goto hasAtLeastOneEnabledLight;
-		params.applyLights = false;
+		params.lightDirectMultiplier = 0;
 		hasAtLeastOneEnabledLight:;
 	}
 	if (params.applyEnvironment && !getEnvironment())
 		params.applyEnvironment = false;
 
 	RRReportInterval report(INF2,"Gathering(%s%s%s%d) ...\n",
-		params.applyLights?"lights ":"",params.applyEnvironment?"env ":"",params.applyCurrentSolution?"cur ":"",params.quality);
+		params.lightDirectMultiplier?"lights ":"",params.applyEnvironment?"env ":"",params.applyCurrentSolution?"cur ":"",params.quality);
 	LightmapperJob lmj(this);
 	lmj.params = &params;
 	lmj.gatherAllDirections = resultsPhysical->data[LS_DIRECTION1]||resultsPhysical->data[LS_DIRECTION2]||resultsPhysical->data[LS_DIRECTION3];
@@ -998,7 +998,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 	// set default params instead of NULL
 	UpdateParameters paramsIndirect;
 	paramsIndirect.applyCurrentSolution = false;
-	paramsIndirect.applyLights = false;
+	paramsIndirect.lightDirectMultiplier = 0;
 	paramsIndirect.applyEnvironment = false;
 	//paramsDirect.applyCurrentSolution = false;
 	if (_paramsIndirect)
@@ -1012,7 +1012,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 	}
 
 	RRReportInterval report(INF2,"Updating solver indirect(%s%s%s).\n",
-		paramsIndirect.applyLights?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
+		paramsIndirect.lightDirectMultiplier?"lights ":"",paramsIndirect.applyEnvironment?"env ":"",
 		paramsIndirect.applyCurrentSolution?"cur ":"");
 
 	if (paramsIndirect.applyCurrentSolution)
@@ -1021,13 +1021,13 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 		paramsIndirect.applyCurrentSolution = 0;
 	}
 	else
-	if (!paramsIndirect.applyLights && !paramsIndirect.applyEnvironment)
+	if (!paramsIndirect.lightDirectMultiplier && !paramsIndirect.applyEnvironment)
 	{
 		RR_ASSERT(0); // no lightsource enabled, todo: fill solver.direct with zeroes
 	}
 
 	// gather direct for requested indirect and propagate in solver
-	if (paramsIndirect.applyLights || paramsIndirect.applyEnvironment)
+	if (paramsIndirect.lightDirectMultiplier || paramsIndirect.applyEnvironment)
 	{
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 		calculateCore(0,&priv->previousCalculateParameters);

@@ -993,7 +993,7 @@ void serialize(Archive & ar, rr::RRSolver::CalculateParameters& a, const unsigne
 template<class Archive>
 void serialize(Archive & ar, rr::RRSolver::UpdateParameters& a, const unsigned int version)
 {
-	ar & make_nvp("applyLights",a.applyLights);
+	ar & make_nvp("lightDirectMultiplier",a.lightDirectMultiplier);
 	ar & make_nvp("applyEnvironment",a.applyEnvironment);
 	ar & make_nvp("applyCurrentSolution",a.applyCurrentSolution);
 	ar & make_nvp("quality",a.quality);

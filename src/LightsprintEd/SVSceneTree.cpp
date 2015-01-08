@@ -884,11 +884,11 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						// update everything in temp layer
 						rr::RRSolver::UpdateParameters paramsDirect(quality);
 						paramsDirect.materialEmittanceMultiplier = svs.emissiveMultiplier;
-						paramsDirect.applyLights = 0;
+						paramsDirect.lightDirectMultiplier = 0;
 						paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
 						paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
 						rr::RRSolver::UpdateParameters paramsIndirect(quality);
-						paramsIndirect.applyLights = 0;
+						paramsIndirect.lightDirectMultiplier = 0;
 						paramsIndirect.locality = -1;
 						paramsIndirect.qualityFactorRadiosity = 0;
 						rr::RRBuffer* oldEnv = solver->getEnvironment();

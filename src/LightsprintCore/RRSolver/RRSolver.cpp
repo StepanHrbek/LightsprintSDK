@@ -70,7 +70,7 @@ bool RRSolver::CalculateParameters::operator ==(const RRSolver::CalculateParamet
 bool RRSolver::UpdateParameters::operator ==(const RRSolver::UpdateParameters& a) const
 {
 	return 1
-		&& a.applyLights==applyLights
+		&& a.lightDirectMultiplier==lightDirectMultiplier
 		&& a.applyEnvironment==applyEnvironment
 		&& a.applyCurrentSolution==applyCurrentSolution
 		&& a.quality==quality

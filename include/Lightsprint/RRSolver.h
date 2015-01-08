@@ -458,7 +458,7 @@ namespace rr
 		{
 			//! Include lights set by setLights() as a source of illumination.
 			//! True makes calculation non-realtime.
-			bool applyLights;
+			RRReal lightDirectMultiplier;
 
 			//! Include environment set by setEnvironment() as a source of illumination.
 			//! True makes calculation non-realtime.
@@ -469,7 +469,7 @@ namespace rr
 			//! Current solution in solver is updated by calculate()
 			//! and possibly also by updateLightmaps() (depends on parameters).
 			//! \n Note that some functions restrict use of applyCurrentSolution
-			//! and applyLights/applyEnvironment at the same time.
+			//! and lightDirectMultiplier/applyEnvironment at the same time.
 			bool applyCurrentSolution;
 
 			//! Include emissive materials as a source of illumination.
@@ -479,7 +479,7 @@ namespace rr
 			//
 			//! Relates to number of rays per texel or triangle,
 			//! time taken grows mostly linearly with this number.
-			//! (When !applyCurrentSolution and applyLights and !applyEnvironment,
+			//! (When !applyCurrentSolution and lightDirectMultiplier and !applyEnvironment,
 			//! faster path is used.)
 			//!
 			//! Higher number = higher quality.
@@ -545,7 +545,7 @@ namespace rr
 			//! Sets default parameters for fast realtime update. Only direct lighting from RRSolver::setDirectIllumination() enters calculation.
 			UpdateParameters()
 			{
-				applyLights = false;
+				lightDirectMultiplier = 0;
 				applyEnvironment = false;
 				applyCurrentSolution = true;
 				materialEmittanceMultiplier = 1;
@@ -565,7 +565,7 @@ namespace rr
 			//! Sets default parameters for offline update. All lightsources in scene enter calculation.
 			UpdateParameters(unsigned _quality)
 			{
-				applyLights = true;
+				lightDirectMultiplier = 1;
 				applyEnvironment = true;
 				applyCurrentSolution = false;
 				quality = _quality;
@@ -701,17 +701,17 @@ namespace rr
 		//!  \n Negative number disables update of bent normals.
 		//! \param paramsDirect
 		//!  Parameters of the update process specific for direct illumination component of final color.
-		//!  With e.g. paramsDirect->applyLights, direct illumination created by lights 
+		//!  With e.g. paramsDirect->lightDirectMultiplier, direct illumination created by lights 
 		//!  set by setLights() is added to the final value stored into lightmap.
 		//!  \n Set both paramsDirect and paramsIndirect NULL for very fast/realtime update
 		//!  that fills vertex buffers with indirect illumination in physical scale, read from current solution in solver.
 		//!  Set only paramsDirect NULL for no direct illumination.
 		//! \param paramsIndirect
 		//!  Parameters of the update process specific for indirect illumination component of final color.
-		//!  With e.g. paramsIndirect->applyLights, indirect illumination created by lights
+		//!  With e.g. paramsIndirect->lightDirectMultiplier, indirect illumination created by lights
 		//!  set by setLights() is added to the final value stored into buffer.
 		//!  For global illumination created by e.g. lights,
-		//!  set both paramsDirect->applyLights and paramsIndirect->applyLights.
+		//!  set both paramsDirect->lightDirectMultiplier and paramsIndirect->lightDirectMultiplier.
 		//!  \n paramsIndirect->quality is ignored, only paramsDirect->quality matters.
 		//!  \n Set both paramsDirect and paramsIndirect NULL for very fast/realtime update
 		//!  that fills vertex buffers with indirect illumination in physical scale, read from current solution in solver.
