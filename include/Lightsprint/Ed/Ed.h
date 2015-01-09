@@ -139,7 +139,7 @@ struct SceneViewerState
 	LightingIndirect renderLightIndirect;       //! Indirect illumination mode.
 	bool             renderLightDirectRelevant() {return renderLightIndirect!=LI_PATHTRACED && renderLightIndirect!=LI_LIGHTMAPS;}
 	bool             renderLightDirectActive() {return renderLightDirect && renderLightDirectRelevant();}
-	float            renderLightIndirectMultiplier; //! Makes indirect illumination this times brighter (in physical scale).
+	rr::RRSolver::Multipliers multipliers;
 	bool             renderLDM;                 //! Modulate indirect illumination by LDM.
 	bool             renderLDMRelevant() {return renderLightIndirect!=LI_PATHTRACED && renderLightIndirect!=LI_LIGHTMAPS && renderLightIndirect!=LI_AMBIENTMAPS && renderLightIndirect!=LI_NONE;}
 	bool             renderLDMEnabled() {return renderLDM && renderLDMRelevant();}
@@ -182,8 +182,6 @@ struct SceneViewerState
 	rr::RRVec3       contoursCreaseColor;
 	bool             playVideos;                //! Play videos, false = videos are paused.
 	rr_gl::RealtimeLight::ShadowTransparency shadowTransparency; //! Type of transparency in shadows, we copy it to all lights.
-	float            skyMultiplier;             //! Multiplies sky brightness (in physical scale). Affects complete GI in pathtracer, sky only in other techniques.
-	float            emissiveMultiplier;        //! Multiplies emittance (in physical scale). Affects complete GI in pathtracer, indirect effects only in other techniques.
 	bool             videoEmittanceAffectsGI;   //! Makes video in emissive material slot affect GI in realtime, light emitted from video is recalculated in every frame.
 	unsigned         videoEmittanceGIQuality;   //! Quality if videoEmittanceAffectsGI is true.
 	bool             videoTransmittanceAffectsGI;//! Makes video in transparency material slot affect GI in realtime, light going through transparent regions is recalculated in every frame.
@@ -260,7 +258,7 @@ struct SceneViewerState
 		dofAutomaticFocusDistance = false;
 		renderLightDirect = true;
 		renderLightIndirect = LI_REALTIME_FIREBALL;
-		renderLightIndirectMultiplier = 1;
+		multipliers = rr::RRSolver::Multipliers();
 		renderLDM = true;
 		renderLightmaps2d = 0;
 		renderMaterialDiffuse = 1;
@@ -301,8 +299,6 @@ struct SceneViewerState
 		contoursCreaseColor = rr::RRVec3(0.7f);
 		playVideos = 1;
 		shadowTransparency = rr_gl::RealtimeLight::FRESNEL_SHADOWS;
-		skyMultiplier = 1;
-		emissiveMultiplier = 1;
 		videoEmittanceAffectsGI = true;
 		videoEmittanceGIQuality = 5;
 		videoTransmittanceAffectsGI = true;
@@ -376,7 +372,7 @@ struct SceneViewerState
 			&& a.dofAutomaticFocusDistance==dofAutomaticFocusDistance
 			&& a.renderLightDirect==renderLightDirect
 			&& a.renderLightIndirect==renderLightIndirect
-			&& a.renderLightIndirectMultiplier==renderLightIndirectMultiplier
+			&& a.multipliers==multipliers
 			&& a.renderLDM==renderLDM
 			&& a.renderLightmaps2d==renderLightmaps2d
 			&& a.renderLightmapsBilinear==renderLightmapsBilinear
@@ -420,8 +416,6 @@ struct SceneViewerState
 			&& a.contoursCreaseColor==contoursCreaseColor
 			&& a.playVideos==playVideos
 			&& a.shadowTransparency==shadowTransparency
-			&& a.skyMultiplier==skyMultiplier
-			&& a.emissiveMultiplier==emissiveMultiplier
 			&& a.videoEmittanceAffectsGI==videoEmittanceAffectsGI
 			&& a.videoEmittanceGIQuality==videoEmittanceGIQuality
 			&& a.videoTransmittanceAffectsGI==videoTransmittanceAffectsGI

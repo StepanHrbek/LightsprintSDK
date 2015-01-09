@@ -36,13 +36,13 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			AppendIn(propGIDirect,propGIShadowTransparency);
 		}
 
-		propGIIndirectMultiplier = new FloatProperty(_("Indirect multiplier"),_("Multiplies indirect illumination from lights. 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.renderLightIndirectMultiplier,svs.precision,0,10000,1,false);
+		propGIIndirectMultiplier = new FloatProperty(_("Indirect multiplier"),_("Multiplies indirect illumination from lights. 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.multipliers.lightIndirectMultiplier,svs.precision,0,10000,1,false);
 		AppendIn(propGITechnique,propGIIndirectMultiplier);
 
-		propGISkyMultiplier = new FloatProperty(_("Sky multiplier"),_("Multiplies sky lighting. 1=realistic."),svs.skyMultiplier,svs.precision,0,1e10f,1,false);
+		propGISkyMultiplier = new FloatProperty(_("Sky multiplier"),_("Multiplies sky lighting. 1=realistic."),svs.multipliers.environmentMultiplier,svs.precision,0,1e10f,1,false);
 		AppendIn(propGITechnique,propGISkyMultiplier);
 
-		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies material emittance. 1=realistic. In baked modes, it is applied when baking, not when rendering."),svs.emissiveMultiplier,svs.precision,0,1e10f,1,false);
+		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies material emittance. 1=realistic. In baked modes, it is applied when baking, not when rendering."),svs.multipliers.materialEmittanceMultiplier,svs.precision,0,1e10f,1,false);
 		AppendIn(propGITechnique,propGIEmisMultiplier);
 
 		propGIPathShortcut = new BoolRefProperty(_("Shortcut"),_("Lets pathtracer access indirect illumination stored in Fireball or Architect solver, if it was in use before."),svs.pathShortcut);
@@ -296,9 +296,9 @@ void SVGIProperties::updateProperties()
 		+ updateFloat(propGISSGIIntensity,svs.ssgiIntensity)
 		+ updateFloat(propGISSGIRadius,svs.ssgiRadius)
 		+ updateFloat(propGISSGIAngleBias,svs.ssgiAngleBias)
-		+ updateFloat(propGIIndirectMultiplier,svs.renderLightIndirectMultiplier)
-		+ updateFloat(propGISkyMultiplier,svs.skyMultiplier)
-		+ updateFloat(propGIEmisMultiplier,svs.emissiveMultiplier)
+		+ updateFloat(propGIIndirectMultiplier,svs.multipliers.lightIndirectMultiplier)
+		+ updateFloat(propGISkyMultiplier,svs.multipliers.environmentMultiplier)
+		+ updateFloat(propGIEmisMultiplier,svs.multipliers.materialEmittanceMultiplier)
 		+ updateInt(propGIFireballQuality,svs.fireballQuality)
 		+ updateInt(propGIFireballWorkPerFrame,svs.fireballWorkPerFrame)
 		+ updateBool(propGIFireballWorkTotal,svs.fireballWorkTotal>svs.fireballWorkPerFrame)
@@ -371,17 +371,17 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propGIIndirectMultiplier)
 	{
-		svs.renderLightIndirectMultiplier = property->GetValue().GetDouble();
+		svs.multipliers.lightIndirectMultiplier = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propGISkyMultiplier)
 	{
-		svs.skyMultiplier = property->GetValue().GetDouble();
+		svs.multipliers.environmentMultiplier = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propGIEmisMultiplier)
 	{
-		svs.emissiveMultiplier = property->GetValue().GetDouble();
+		svs.multipliers.materialEmittanceMultiplier = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propGISSGI)

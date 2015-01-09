@@ -799,14 +799,15 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					{
 						// update everything in temp layer
 						rr::RRSolver::UpdateParameters updateParameters(quality);
-						updateParameters.materialEmittanceMultiplier = svs.emissiveMultiplier;
+						updateParameters.rr::RRSolver::Multipliers::operator=(svs.multipliers);
+						updateParameters.lightIndirectMultiplier = 0;
 						updateParameters.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
 						updateParameters.aoSize = svs.lightmapDirectParameters.aoSize;
 #ifdef OLD_SIMPLE_GI
 						solver->updateLightmaps(tmpLayer,-1,-1,&updateParameters,&updateParameters,&svs.lightmapFilteringParameters);
 #else
 						float directLightMultiplier = ambient ? 0 : 1;
-						float indirectLightMultiplier = svs.renderLightIndirectMultiplier; // affects baked solution only
+						float indirectLightMultiplier = svs.multipliers.lightIndirectMultiplier; // affects baked solution only
 
 						// apply indirect light multiplier
 						std::vector<rr::RRVec3> lightColors;
@@ -879,16 +880,19 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						}
 						goto bake_cubemaps;
 					}
-					else
+					else // LDM
 					{
 						// update everything in temp layer
 						rr::RRSolver::UpdateParameters paramsDirect(quality);
-						paramsDirect.materialEmittanceMultiplier = svs.emissiveMultiplier;
+						paramsDirect.rr::RRSolver::Multipliers::operator=(svs.multipliers);
 						paramsDirect.lightDirectMultiplier = 0;
+						paramsDirect.lightIndirectMultiplier = 0;
 						paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
 						paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
 						rr::RRSolver::UpdateParameters paramsIndirect(quality);
+						paramsIndirect.rr::RRSolver::Multipliers::operator=(svs.multipliers);
 						paramsIndirect.lightDirectMultiplier = 0;
+						paramsIndirect.lightIndirectMultiplier = 0;
 						paramsIndirect.locality = -1;
 						paramsIndirect.qualityFactorRadiosity = 0;
 						rr::RRBuffer* oldEnv = solver->getEnvironment();

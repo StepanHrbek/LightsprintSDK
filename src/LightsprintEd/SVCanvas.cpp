@@ -1709,16 +1709,14 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			for (unsigned i=0;i<solver->realtimeLights.size();i++)
 				solver->realtimeLights[i]->shadowTransparencyRequested = svs.shadowTransparency;
 			rr::RRSolver::CalculateParameters params;
-			params.lightIndirectMultiplier = svs.renderLightIndirectMultiplier;
+			params.rr::RRSolver::Multipliers::operator=(svs.multipliers);
 			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			{
 				// rendering indirect -> calculate will update shadowmaps, possibly resample environment and emissive maps, improve indirect
-				params.materialEmittanceMultiplier = svs.emissiveMultiplier;
 				params.materialEmittanceStaticQuality = 17;
 				params.materialEmittanceVideoQuality = svs.videoEmittanceAffectsGI?svs.videoEmittanceGIQuality+1:0;
 				params.materialTransmittanceStaticQuality = 0; // don't check static textures in each frame, we manually reportMaterialChange() when they change
 				params.materialTransmittanceVideoQuality = svs.videoTransmittanceAffectsGI?(svs.videoTransmittanceAffectsGIFull?2:1):0;
-				params.environmentMultiplier = svs.skyMultiplier;
 				params.environmentStaticQuality = 6000;
 				params.environmentVideoQuality = svs.videoEnvironmentAffectsGI?svs.videoEnvironmentGIQuality+1:0;
 				params.qualityIndirectDynamic = svs.fireballWorkPerFrame;
@@ -1756,10 +1754,11 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				camera.apertureDiameter = 0;
 			camera.setAspect(pathTraceWidth/(float)pathTraceHeight); // [#37] not ,0.5
 			rr::RRSolver::PathTracingParameters params;
-			params.lightDirectMultiplier = svs.renderLightDirect ? 1 : 0;
-			params.lightIndirectMultiplier = svs.renderLightIndirectMultiplier;
-			params.environmentMultiplier =  svs.skyMultiplier;
-			params.materialEmittanceMultiplier = svs.renderMaterialEmission ? svs.emissiveMultiplier : 0;
+			params.rr::RRSolver::Multipliers::operator=(svs.multipliers);
+			if (!svs.renderLightDirect)
+				params.lightDirectMultiplier = 0;
+			if (!svs.renderMaterialEmission)
+				params.materialEmittanceMultiplier = 0;
 			params.brdfTypes = rr::RRMaterial::BrdfType( (svs.renderMaterialDiffuse?rr::RRMaterial::BRDF_DIFFUSE:0) + (svs.renderMaterialSpecular?rr::RRMaterial::BRDF_SPECULAR:0) + ((svs.renderMaterialTransparency!=T_OPAQUE)?rr::RRMaterial::BRDF_TRANSMIT:0) );
 			unsigned shortcut = (unsigned)sqrtf((float)(pathTracedAccumulator/10)); // starts at 0, increases on frames 10, 40, 90, 160 etc
 			params.useFlatNormalsSinceDepth = shortcut+1;
@@ -1794,7 +1793,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			const rr_gl::PluginParams* pluginChain = NULL;
 
 			// skybox plugin
-			rr_gl::PluginParamsSky ppSky(pluginChain,solver,svs.skyMultiplier);
+			rr_gl::PluginParamsSky ppSky(pluginChain,solver,svs.multipliers.environmentMultiplier);
 			pluginChain = &ppSky;
 
 			// selection plugin
