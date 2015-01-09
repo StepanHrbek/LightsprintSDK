@@ -144,27 +144,19 @@ namespace rr
 
 			// [#23] inc/dec refcount of environments entering/leaving solver
 			RR_SAFE_DELETE(environment0);
-			rr::RRReporter::report(rr::INF2,"g\n");
 			RR_SAFE_DELETE(environment1);
-			rr::RRReporter::report(rr::INF2,"h\n");
 		}
 		void deleteScene()
 		{
-			rr::RRReporter::report(rr::INF2,"a\n");
 			RR_SAFE_DELETE(packedSolver);
-			rr::RRReporter::report(rr::INF2,"b\n");
 			RR_SAFE_DELETE(scene);
 			// if forced (in sceneViewer) -> don't delete custom
-			rr::RRReporter::report(rr::INF2,"c\n");
 			if (forcedMultiObject) multiObject = NULL;
 			RR_SAFE_DELETE(superCollider);
-			rr::RRReporter::report(rr::INF2,"d\n");
 			RR_SAFE_DELETE(multiObject);
-			rr::RRReporter::report(rr::INF2,"e\n");
 			// clear tables that depend on scene (code that fills tables needs them empty)
 			postVertex2PostTriangleVertex.clear();
 			postVertex2Ivertex.clear();
-			rr::RRReporter::report(rr::INF2,"f\n");
 		}
 	};
 

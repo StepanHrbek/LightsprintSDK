@@ -540,7 +540,6 @@ void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
 
 SVCanvas::~SVCanvas()
 {
-	rr::RRReporter::report(rr::INF2,"-1\n");
 	// don't process events, if they are still coming
 	fullyCreated = false;
 
@@ -556,17 +555,14 @@ SVCanvas::~SVCanvas()
 
 #ifdef SUPPORT_OCULUS
 	// oculus
-	rr::RRReporter::report(rr::INF2,"0\n");
 	if (svframe->oculusHMD)
 		ovrHmd_ConfigureRendering(svframe->oculusHMD, NULL, 0, NULL, NULL);
-	rr::RRReporter::report(rr::INF2,"1\n");
 	for (unsigned i=0;i<2;i++)
 		if (oculusTexture[i])
 		{
 			delete oculusTexture[i]->getBuffer();
 			rr::RR_SAFE_DELETE(oculusTexture[i]);
 		}
-	rr::RRReporter::report(rr::INF2,"2\n");
 #endif
 
 	// pathtracer
@@ -584,21 +580,16 @@ SVCanvas::~SVCanvas()
 	rr::RR_SAFE_DELETE(entityIcons);
 	rr::RR_SAFE_DELETE(collisionHandler);
 	rr::RR_SAFE_DELETE(ray);
-	rr::RRReporter::report(rr::INF2,"8\n");
 
 	rr_gl::deleteAllTextures();
-	rr::RRReporter::report(rr::INF2,"9\n");
 	// delete objects referenced by solver
 	if (solver)
 	{
 		// delete all lightmaps for realtime rendering
-		rr::RRReporter::report(rr::INF2,"10\n");
 		for (unsigned i=0;i<solver->getStaticObjects().size()+solver->getDynamicObjects().size();i++)
 		{
 			rr::RR_SAFE_DELETE(solver->getObject(i)->illumination.getLayer(svs.layerRealtimeAmbient));
 		}
-		rr::RRReporter::report(rr::INF2,"11\n");
-		rr::RRReporter::report(rr::INF2,"12\n");
 
 		// delete scaler created for scene loaded from disk
 		if (!svs.initialInputSolver)
@@ -608,23 +599,15 @@ SVCanvas::~SVCanvas()
 
 		textureRenderer = NULL;
 	}
-	rr::RRReporter::report(rr::INF2,"13\n");
 	rr::RR_SAFE_DELETE(solver);
-	rr::RRReporter::report(rr::INF2,"14\n");
 	for (unsigned i=0;i<mergedScenes.size();i++) delete mergedScenes[i];
-	rr::RRReporter::report(rr::INF2,"15\n");
-	rr::RRReporter::report(rr::INF2,"16\n");
 	rr::RR_SAFE_DELETE(lightField);
 	rr::RR_SAFE_DELETE(lightFieldObjectIllumination);
-	rr::RRReporter::report(rr::INF2,"17\n");
 	for (unsigned i=0;i<lightsToBeDeletedOnExit.size();i++) delete lightsToBeDeletedOnExit[i];
 	lightsToBeDeletedOnExit.clear();
-	rr::RRReporter::report(rr::INF2,"18\n");
 	gluDeleteQuadric(lightFieldQuadric);
 	lightFieldQuadric = NULL;
-	rr::RRReporter::report(rr::INF2,"19\n");
 	delete context;
-	rr::RRReporter::report(rr::INF2,"20\n");
 }
 
 void SVCanvas::OnSize(wxSizeEvent& event)
