@@ -548,7 +548,7 @@ public:
 						// setup culling at the beginning
 						glDisable(GL_CULL_FACE);
 					}
-					MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,classUberProgramSetup,uberProgram,&_.clipPlanes,sp.srgbCorrect,&sp.brightness,sp.gamma*(sp.srgbCorrect?2.2f:1.f));
+					MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,classUberProgramSetup,uberProgram,pp.multipliers.lightDirectMultiplier,&_.clipPlanes,sp.srgbCorrect,&sp.brightness,sp.gamma*(sp.srgbCorrect?2.2f:1.f));
 					UberProgramSetup passUberProgramSetup;
 					RealtimeLight* light;
 					Program* program;
@@ -823,9 +823,9 @@ public:
 				fgUberProgramSetup.reduceMaterials(_.uberProgramSetup);
 				fgUberProgramSetup.validate();
 #ifdef SRGB_CORRECT_BLENDING
-				MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,&_.clipPlanes,sp.srgbCorrect,&sp.brightness,sp.gamma*(sp.srgbCorrect?2.2f:1.f));
+				MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,pp.multipliers.lightDirectMultiplier,&_.clipPlanes,sp.srgbCorrect,&sp.brightness,sp.gamma*(sp.srgbCorrect?2.2f:1.f));
 #else
-				MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,&_.clipPlanes,false,&sp.brightness,sp.gamma);
+				MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,pp.multipliers.lightDirectMultiplier,&_.clipPlanes,false,&sp.brightness,sp.gamma);
 #endif
 				UberProgramSetup passUberProgramSetup;
 				RealtimeLight* light;

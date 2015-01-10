@@ -1795,6 +1795,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 			// scene plugin
 			rr_gl::PluginParamsScene ppScene(pluginChain,solver);
+			ppScene.multipliers = svs.multipliers;
 			ppScene.uberProgramSetup.SHADOW_MAPS = 1;
 			ppScene.uberProgramSetup.LIGHT_DIRECT = svs.renderLightDirectActive();
 			ppScene.uberProgramSetup.LIGHT_DIRECT_COLOR = svs.renderLightDirectActive();
@@ -2039,7 +2040,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr_gl::UberProgramSetup uberProgramSetup;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
-			rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,&svs.tonemapping.color,svs.tonemapping.gamma,NULL);
+			rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,1,&svs.tonemapping.color,svs.tonemapping.gamma,NULL);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			glPushMatrix();
@@ -2054,7 +2055,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			uberProgramSetup.MATERIAL_DIFFUSE = false;
 			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.OBJECT_SPACE = true;
-			program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,&svs.tonemapping.color,svs.tonemapping.gamma,NULL);
+			program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,1,&svs.tonemapping.color,svs.tonemapping.gamma,NULL);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
@@ -2112,7 +2113,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
 				uberProgramSetup.LEGACY_GL = 1;
-				uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,NULL,1,NULL);
+				uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,1,NULL,1,NULL);
 			}
 
 			// render crosshair, using previously set shader
@@ -2188,7 +2189,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
 			uberProgramSetup.LEGACY_GL = 1;
-			uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,NULL,1,NULL);
+			uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,1,NULL,1,NULL);
 		}
 
 		// gather information about scene
@@ -2306,7 +2307,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
 				uberProgramSetup.LEGACY_GL = 1;
-				rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,NULL,1,NULL);
+				rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,1,NULL,1,NULL);
 				program->sendUniform("lightIndirectConst",rr::RRVec4(1));
 			}
 			int x = 10;

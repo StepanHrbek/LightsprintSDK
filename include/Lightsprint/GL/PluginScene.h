@@ -52,6 +52,9 @@ public:
 	//! but shader executes few extra instructions even if they are not needed, so fps might be super tiny bit lower.
 	UberProgramSetup uberProgramSetup;
 
+	//! lightDirectMultiplier is applied while rendering, the rest is ignored.
+	rr::RRSolver::Multipliers multipliers;
+
 	//! When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
 	const rr::RRLight* renderingFromThisLight;
 

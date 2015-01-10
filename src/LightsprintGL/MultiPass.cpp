@@ -9,7 +9,7 @@
 namespace rr_gl
 {
 
-MultiPass::MultiPass(const rr::RRCamera& _camera, const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight, UberProgramSetup _mainUberProgramSetup, UberProgram* _uberProgram, const ClipPlanes* _clipPlanes, bool _srgbCorrect, const rr::RRVec4* _brightness, float _gamma)
+MultiPass::MultiPass(const rr::RRCamera& _camera, const RealtimeLights* _lights, const rr::RRLight* _renderingFromThisLight, UberProgramSetup _mainUberProgramSetup, UberProgram* _uberProgram, float _lightDirectMultiplier, const ClipPlanes* _clipPlanes, bool _srgbCorrect, const rr::RRVec4* _brightness, float _gamma)
 	: camera(_camera)
 {
 	// inputs
@@ -23,6 +23,7 @@ MultiPass::MultiPass(const rr::RRCamera& _camera, const RealtimeLights* _lights,
 	colorMask = (!_renderingFromThisLight || _mainUberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB)?1:0;
 	mainUberProgramSetup = _mainUberProgramSetup;
 	uberProgram = _uberProgram;
+	lightDirectMultiplier = _lightDirectMultiplier;
 	clipPlanes = _clipPlanes;
 	brightness = _brightness;
 	gamma = _gamma;
@@ -229,7 +230,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.SHADOW_PENUMBRA = mainUberProgramSetup.SHADOW_MAPS && light->getRRLight().type==rr::RRLight::SPOT;
 		uberProgramSetup.SHADOW_CASCADE = mainUberProgramSetup.SHADOW_MAPS && light->getCamera()->isOrthogonal() && light->getNumShadowmaps()>1;
 		if (uberProgramSetup.SHADOW_SAMPLES && uberProgramSetup.FORCE_2D_POSITION) uberProgramSetup.SHADOW_SAMPLES = 1; // reduce shadow quality for DDI
-		uberProgramSetup.LIGHT_DIRECT_COLOR = mainUberProgramSetup.LIGHT_DIRECT_COLOR && light->getRRLight().color!=rr::RRVec3(1);
+		uberProgramSetup.LIGHT_DIRECT_COLOR = mainUberProgramSetup.LIGHT_DIRECT_COLOR && light->getRRLight().color*lightDirectMultiplier!=rr::RRVec3(1);
 		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && light->getProjectedTexture();
 		uberProgramSetup.LIGHT_DIRECTIONAL = light->getCamera()->isOrthogonal();
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = mainUberProgramSetup.LIGHT_DIRECT_ATT_SPOT && light->getRRLight().type==rr::RRLight::SPOT && !uberProgramSetup.LIGHT_DIRECT_MAP; // disables spot attenuation in presence of projected texture
@@ -275,7 +276,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		return NULL;
 	}
 	uberProgramSetup.validate(); // might be useful (however no problems detected without it)
-	Program* program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,brightness,gamma,clipPlanes);
+	Program* program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,lightDirectMultiplier,brightness,gamma,clipPlanes);
 	if (!program)
 	{
 		// try disable normal map
@@ -284,7 +285,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.MATERIAL_BUMP_MAP = 0;
 			uberProgramSetup.MATERIAL_BUMP_TYPE_HEIGHT = 0;
 			uberProgramSetup.MATERIAL_NORMAL_MAP_FLOW = 0;
-			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,brightness,gamma,clipPlanes);
+			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,lightDirectMultiplier,brightness,gamma,clipPlanes);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with normal map disabled.\n"));
 		}
 		// try disable transparency map
@@ -293,7 +294,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = 0;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = 1;
 			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
-			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,brightness,gamma,clipPlanes);
+			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,lightDirectMultiplier,brightness,gamma,clipPlanes);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with transparency map disabled.\n"));
 		}
 		// try disable specular reflection (saves SceneViewer+GF6150)
@@ -305,7 +306,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = 0;
 			uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = 0;
 			uberProgramSetup.validate(); // is useful (zeroes MATERIAL_SPECULAR_CONST, might do more)
-			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,brightness,gamma,clipPlanes);
+			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,lightDirectMultiplier,brightness,gamma,clipPlanes);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with specular disabled.\n"));
 		}
 		// try disable LDM (saves Lightsmark+GF6150)
@@ -313,7 +314,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		{
 			uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = 0;
 			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
-			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,brightness,gamma,clipPlanes);
+			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,lightDirectMultiplier,brightness,gamma,clipPlanes);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with LDM disabled.\n"));
 		}
 		// try disable emissive map
@@ -322,7 +323,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.MATERIAL_EMISSIVE_MAP = 0;
 			uberProgramSetup.MATERIAL_EMISSIVE_CONST = 1;
 			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
-			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,brightness,gamma,clipPlanes);
+			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,lightDirectMultiplier,brightness,gamma,clipPlanes);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with emissive map disabled.\n"));
 		}
 		// try disable diffuse map (saves SceneViewer+X300,X1650)
@@ -331,7 +332,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 0;
 			uberProgramSetup.MATERIAL_DIFFUSE_CONST = 1;
 			uberProgramSetup.validate(); // might be useful (however no problems detected without it)
-			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,brightness,gamma,clipPlanes);
+			program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,lightDirectMultiplier,brightness,gamma,clipPlanes);
 			if (program) RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Requested shader too big, ok with diffuse map disabled.\n"));
 		}
 		// try split blending shader in two

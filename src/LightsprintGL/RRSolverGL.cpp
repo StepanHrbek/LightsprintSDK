@@ -529,7 +529,7 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.MATERIAL_CULLING = false;
 		uberProgramSetup.FORCE_2D_POSITION = true;
-		Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,ddiLight,0,NULL,1,NULL);
+		Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,ddiLight,0,1,NULL,1,NULL);
 		if (!program)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n"));
@@ -693,7 +693,7 @@ void RRSolverGL::renderLights(const rr::RRCamera& _camera)
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 	uberProgramSetup.MATERIAL_DIFFUSE = 1;
 	uberProgramSetup.LEGACY_GL = 1;
-	Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,NULL,0,NULL,1,NULL);
+	Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,NULL,0,1,NULL,1,NULL);
 	uberProgramSetup.useCamera(program,&_camera);
 	for (unsigned i=0;i<getLights().size();i++)
 	{

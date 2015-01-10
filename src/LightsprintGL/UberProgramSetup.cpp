@@ -521,7 +521,7 @@ void UberProgramSetup::validate()
 	}
 }
 
-Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCamera* camera, RealtimeLight* light, unsigned firstInstance, const rr::RRVec4* brightness, float gamma, const ClipPlanes* clipPlanes)
+Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCamera* camera, RealtimeLight* light, unsigned firstInstance, float lightDirectMultiplier, const rr::RRVec4* brightness, float gamma, const ClipPlanes* clipPlanes)
 {
 	RR_LIMITED_TIMES(1,checkCapabilities());
 
@@ -635,7 +635,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (LIGHT_DIRECT_COLOR set).\n");
 			return NULL;
 		}
-		rr::RRVec4 color(light->getRRLight().color,1);
+		rr::RRVec4 color(light->getRRLight().color*lightDirectMultiplier,1);
 		if (light->getRRLight().distanceAttenuationType!=rr::RRLight::POLYNOMIAL)
 		{
 			color[0] = color[0]<0?-pow(-color[0],0.45f):pow(color[0],0.45f);
