@@ -582,6 +582,7 @@ public:
 								_.renderingFromThisLight?true:false,
 								objectBuffers.lightIndirectBuffer,
 								objectBuffers.lightIndirectDetailMap,
+								pp.multipliers.materialEmittanceMultiplier,
 								_.animationTime);
 
 							j += numRanges;
@@ -665,6 +666,7 @@ public:
 								false,
 								NULL,
 								NULL,
+								pp.multipliers.materialEmittanceMultiplier,
 								_.animationTime);
 						}
 					}
@@ -851,6 +853,7 @@ public:
 						_.renderingFromThisLight?true:false,
 						objectBuffers.lightIndirectBuffer,
 						objectBuffers.lightIndirectDetailMap,
+						pp.multipliers.materialEmittanceMultiplier,
 						_.animationTime);
 				}
 			}

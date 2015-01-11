@@ -806,7 +806,7 @@ float getMipLevel(const rr::RRMaterial* material)
 	return 0;
 }
 
-void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* material, float animationTime) const
+void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* material, float materialEmittanceMultiplier, float animationTime) const
 {
 	if (!program)
 	{
@@ -841,7 +841,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 
 	if (MATERIAL_EMISSIVE_CONST)
 	{
-		program->sendUniform("materialEmissiveConst",rr::RRVec4(material->diffuseEmittance.color,0.0f));
+		program->sendUniform("materialEmissiveConst",rr::RRVec4(material->diffuseEmittance.color*materialEmittanceMultiplier,0.0f));
 	}
 
 	if (MATERIAL_TRANSPARENCY_CONST)
@@ -870,6 +870,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 	{
 		program->sendTexture("materialEmissiveMap",NULL,TEX_CODE_2D_MATERIAL_EMISSIVE);
 		s_buffers1x1.bindPropertyTexture(material->diffuseEmittance,1);
+		program->sendUniform("materialEmittanceMultiplier",materialEmittanceMultiplier);
 	}
 
 	if (MATERIAL_TRANSPARENCY_MAP)

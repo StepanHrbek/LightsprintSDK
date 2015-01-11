@@ -89,6 +89,7 @@ public:
 		bool renderingFromLight, // true = renders also invisible backfaces (!renderFrom) that block photons (catchFrom)
 		rr::RRBuffer* lightIndirectBuffer,
 		const rr::RRBuffer* lightDetailMap,
+		float materialEmittanceMultiplier,
 		float animationTime);
 
 private:
@@ -155,6 +156,7 @@ public:
 		bool _renderingFromLight, // true = renders also invisible backfaces (!renderFrom) that block photons (catchFrom)
 		rr::RRBuffer* lightIndirectBuffer,
 		const rr::RRBuffer* lightDetailMap,
+		float materialEmittanceMultiplier,
 		float animationTime);
 };
 

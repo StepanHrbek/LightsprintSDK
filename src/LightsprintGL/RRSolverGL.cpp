@@ -547,6 +547,7 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 			false,
 			NULL,
 			NULL,
+			1,
 			0);
 
 

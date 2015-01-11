@@ -257,6 +257,7 @@ varying vec3 worldNormalSmooth;
 #ifdef MATERIAL_EMISSIVE_MAP
 	uniform sampler2D materialEmissiveMap;
 	varying vec2 materialEmissiveCoord;
+	uniform float materialEmittanceMultiplier;
 #endif
 
 #ifdef MATERIAL_TRANSPARENCY_CONST
@@ -542,7 +543,7 @@ void main()
 	// emittance
 
 	#ifdef MATERIAL_EMISSIVE_MAP
-		vec4 materialEmissiveMapColor = texture2D(materialEmissiveMap, materialEmissiveCoord);
+		vec4 materialEmissiveMapColor = texture2D(materialEmissiveMap, materialEmissiveCoord) * materialEmittanceMultiplier;
 	#endif
 
 
