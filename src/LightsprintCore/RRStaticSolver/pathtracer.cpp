@@ -31,14 +31,17 @@ PathtracerJob::PathtracerJob(const RRSolver* _solver)
 
 #ifdef MATERIAL_BACKGROUND_HACK
 	environmentAveragePhysical = RRVec3(0);
-	for (int i=-1;i<=1;i++)
-	for (int j=-1;j<=1;j++)
-	for (int k=-1;k<=1;k++)
-		if (i || j || k)
-			environmentAveragePhysical += environment->getElementAtDirection(RRVec3((float)i,(float)j,(float)k));
-	environmentAveragePhysical /= 26;
-	if (scaler && environment->getScaled())
-		scaler->getPhysicalScale(environmentAveragePhysical);
+	if (environment)
+	{
+		for (int i=-1;i<=1;i++)
+		for (int j=-1;j<=1;j++)
+		for (int k=-1;k<=1;k++)
+			if (i || j || k)
+				environmentAveragePhysical += environment->getElementAtDirection(RRVec3((float)i,(float)j,(float)k));
+		environmentAveragePhysical /= 26;
+		if (scaler && environment->getScaled())
+			scaler->getPhysicalScale(environmentAveragePhysical);
+	}
 #endif
 }
 
