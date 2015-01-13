@@ -185,7 +185,13 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 	for (unsigned i=0;i<numElements;)
 	{
 		RRVec4 elem = buffer->getElement(i);
-		if (scaler) scaler->getPhysicalFactor(elem);
+		if (scaler)
+		{
+			if (!isEmittance)
+				scaler->getPhysicalFactor(elem);
+			else
+				scaler->getPhysicalScale(elem);
+		}
 		sum += elem;
 		sumOfSquares += elem*elem;
 		numElementsTested++;
@@ -201,15 +207,19 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 	{
 		if (variance[i]<0) variance[i] = 0;
 	}
+	RRVec4 standardDeviation(sqrt(variance[0]),sqrt(variance[1]),sqrt(variance[2]),sqrt(variance[3]));
 	if (scaler)
 	{
-		scaler->getCustomFactor(average);
-		RRVec4 standardDeviation(
-			(variance[0]<0)?0:sqrt(variance[0]),
-			(variance[1]<0)?0:sqrt(variance[1]),
-			(variance[2]<0)?0:sqrt(variance[2]),
-			(variance[3]<0)?0:sqrt(variance[3]));
-		scaler->getCustomFactor(standardDeviation);
+		if (!isEmittance)
+		{
+			scaler->getCustomFactor(average);
+			scaler->getCustomFactor(standardDeviation);
+		}
+		else
+		{
+			scaler->getCustomScale(average);
+			scaler->getCustomScale(standardDeviation);
+		}
 		variance = standardDeviation*standardDeviation;
 	}
 	return variance;
