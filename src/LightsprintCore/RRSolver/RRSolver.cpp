@@ -667,9 +667,9 @@ void RRSolver::reportMaterialChange(bool dirtyShadows, bool dirtyGI)
 void RRSolver::reportDirectIlluminationChange(int lightIndex, bool dirtyShadows, bool dirtyGI, bool dirtyRange)
 {
 	REPORT(RRReporter::report(INF1,"<IlluminationChange>\n"));
-	// invalidate supercollider (-1=geometry change, supercollider has precalculated inverse matrices inside, needs rebuild)
-	if (lightIndex==-1)
-		priv->superColliderDirty = true;
+	// don't invalidate supercollider, it has pointers to object matrices, does not need update when matrices change
+	//if (lightIndex==-1) // (-1=geometry change)
+	//	priv->superColliderDirty = true;
 }
 
 void RRSolver::reportInteraction()
