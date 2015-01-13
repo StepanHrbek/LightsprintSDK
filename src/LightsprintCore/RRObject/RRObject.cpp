@@ -220,7 +220,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			material.specularShininess *= specColor.w;
 		if (scaler)
 		{
-			material.specularReflectance.colorPhysical = scaler->getPhysicalFactor(material.specularReflectance.color);
+			scaler->getPhysicalFactor(material.specularReflectance.colorPhysical = material.specularReflectance.color);
 		}
 	}
 	if (material.diffuseReflectance.texture && material.specularTransmittance.texture==material.diffuseReflectance.texture && material.specularTransmittanceInAlpha)
@@ -240,8 +240,8 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
 		if (scaler)
 		{
-			material.diffuseReflectance.colorPhysical = scaler->getPhysicalFactor(material.diffuseReflectance.color);
-			material.specularTransmittance.colorPhysical = scaler->getPhysicalFactor(material.specularTransmittance.color);
+			scaler->getPhysicalFactor(material.diffuseReflectance.colorPhysical = material.diffuseReflectance.color);
+			scaler->getPhysicalFactor(material.specularTransmittance.colorPhysical = material.specularTransmittance.color);
 		}
 	}
 	else
@@ -255,7 +255,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			material.diffuseReflectance.color = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
 			if (scaler)
 			{
-				material.diffuseReflectance.colorPhysical = scaler->getPhysicalFactor(material.diffuseReflectance.color);
+				scaler->getPhysicalFactor(material.diffuseReflectance.colorPhysical = material.diffuseReflectance.color);
 			}
 		}
 		if (material.specularTransmittance.texture)
@@ -274,7 +274,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			if (scaler)
 			{
 				// [#40] rr_gl renders transparency without srgb correction, so here we keep colorPhysical=color for pathtracer to produce similar results
-				material.specularTransmittance.colorPhysical = material.specularTransmittance.color; //scaler->getPhysicalFactor(material.specularTransmittance.color);
+				material.specularTransmittance.colorPhysical = material.specularTransmittance.color; //scaler->getPhysicalFactor();
 			}
 			// [#39] we multiply dif by opacity on the fly, because real world data are often in this format
 			material.diffuseReflectance.color *= (RRVec3(1)-material.specularTransmittance.color); // multiply cust color in cust.scale - inaccurate, but result probably not used

@@ -482,10 +482,10 @@ void RRMaterial::convertToCustomScale(const RRScaler* scaler)
 {
 	if (scaler)
 	{
-		diffuseReflectance.color = scaler->getCustomFactor(diffuseReflectance.colorPhysical);
-		diffuseEmittance.color = diffuseEmittance.colorPhysical; scaler->getCustomScale(diffuseEmittance.color);
-		specularReflectance.color = scaler->getCustomFactor(specularReflectance.colorPhysical);
-		specularTransmittance.color = scaler->getCustomFactor(specularTransmittance.colorPhysical);
+		scaler->getCustomFactor(diffuseReflectance.color = diffuseReflectance.colorPhysical);
+		scaler->getCustomScale(diffuseEmittance.color = diffuseEmittance.colorPhysical);
+		scaler->getCustomFactor(specularReflectance.color = specularReflectance.colorPhysical);
+		scaler->getCustomFactor(specularTransmittance.color = specularTransmittance.colorPhysical);
 	}
 	validate();
 }
@@ -494,10 +494,10 @@ void RRMaterial::convertToPhysicalScale(const RRScaler* scaler)
 {
 	if (scaler)
 	{
-		diffuseReflectance.colorPhysical = scaler->getPhysicalFactor(diffuseReflectance.color);
-		diffuseEmittance.colorPhysical = diffuseEmittance.color; scaler->getPhysicalScale(diffuseEmittance.colorPhysical);
-		specularReflectance.colorPhysical = scaler->getPhysicalFactor(specularReflectance.color);
-		specularTransmittance.colorPhysical = scaler->getPhysicalFactor(specularTransmittance.color);
+		scaler->getPhysicalFactor(diffuseReflectance.colorPhysical = diffuseReflectance.color);
+		scaler->getPhysicalScale(diffuseEmittance.colorPhysical = diffuseEmittance.color);
+		scaler->getPhysicalFactor(specularReflectance.colorPhysical = specularReflectance.color);
+		scaler->getPhysicalFactor(specularTransmittance.colorPhysical = specularTransmittance.color);
 	}
 	validate();
 }
