@@ -620,7 +620,10 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	// after adding/deleting texture, readonly changes
 	if (textureChanged)
 	{
-		updateReadOnly();
+		// update color and minimalQualityForPointMaterials
+		if (lastSolver)
+			material->updateColorsFromTextures(lastSolver->getScaler(),rr::RRMaterial::UTA_KEEP,false);
+		updateProperties(); // minimalQualityForPointMaterials, also updateReadOnly() to lock/unlock color
 	}
 
 	if (lastSolver)
