@@ -125,7 +125,7 @@ RRObject::RRObject()
 
 RRObject::~RRObject()
 {
-	delete[] worldMatrix;
+	delete worldMatrix;
 }
 
 void RRObject::setCollider(RRCollider* _collider)
@@ -315,38 +315,25 @@ void RRObject::setWorldMatrix(const RRMatrix3x4* _worldMatrix)
 	if (_worldMatrix && !_worldMatrix->isIdentity())
 	{
 		if (!worldMatrix)
-			worldMatrix = new RRMatrix3x4[2];
-		worldMatrix[0] = *_worldMatrix;
-		worldMatrix[0].invertedTo(worldMatrix[1]);
+			worldMatrix = new RRMatrix3x4Ex;
+		*worldMatrix = RRMatrix3x4Ex(*_worldMatrix);
 	}
 	else
 	{
-		RR_SAFE_DELETE_ARRAY(worldMatrix);
+		RR_SAFE_DELETE(worldMatrix);
 	}
 }
 
-const RRMatrix3x4* RRObject::getWorldMatrix() const
+const RRMatrix3x4Ex* RRObject::getWorldMatrix() const
 {
 	return worldMatrix;
 }
 
-const RRMatrix3x4& RRObject::getWorldMatrixRef() const
+const RRMatrix3x4Ex& RRObject::getWorldMatrixRef() const
 {
-	const RRMatrix3x4* wm = getWorldMatrix();
-	static RRMatrix3x4 identity = RRMatrix3x4::identity();
+	const RRMatrix3x4Ex* wm = getWorldMatrix();
+	static RRMatrix3x4Ex identity = RRMatrix3x4Ex(RRMatrix3x4::identity());
 	return wm?*wm:identity;
-}
-
-const RRMatrix3x4* RRObject::getInverseWorldMatrix() const
-{
-	return worldMatrix ? worldMatrix+1 : NULL;
-}
-
-const RRMatrix3x4& RRObject::getInverseWorldMatrixRef() const
-{
-	const RRMatrix3x4* iwm = getInverseWorldMatrix();
-	static RRMatrix3x4 identity = RRMatrix3x4::identity();
-	return iwm?*iwm:identity;
 }
 
 void* RRObject::getCustomData(const char* name) const

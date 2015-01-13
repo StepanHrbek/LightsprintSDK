@@ -20,6 +20,7 @@ NEWS
     \image html background3.jpg
     </td></tr></table>
   - pathtracer supports rotated environment and blend of two environments (like all other GI solvers)
+  - pathtracer properly illuminates objects with negative scale
 - multipliers for all GI components
   - all solvers and renderers accept new structure RRSolver::Multipliers
   - replaces various lighting multipliers scattered around SDK (e.g. RRSolver::setDirectIlluminationBoost())
@@ -27,6 +28,7 @@ NEWS
 
 CHANGES
 
+- RRMatrix3x4Ex added, some functions switched from RRMatrix3x4 to RRMatrix3x4Ex
 - RRCamera::setView() has more parameters, lets you zoom to whole scene or selected area
 - RRCamera::getPositionInClipSpace() added
 - RRCamera::getPositionInViewport() replaces RRCamera::getPositionInWindow(), returns also depth

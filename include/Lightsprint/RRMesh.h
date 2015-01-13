@@ -387,7 +387,8 @@ namespace rr
 		//! Creates and returns transformed mesh.
 		//
 		//! Created instance doesn't require additional memory, 
-		//! but it depends on 'this' mesh, 'this' must stay alive for whole life of created instance.
+		//! but it depends on 'this' mesh and 'transform' matrix, both must stay alive for whole life of created instance.
+		//! You can even modify 'this' and 'transform' later and created mesh gets modified too.
 		//!
 		//! Usually used when mesh in world space is needed and we have mesh in local space.
 		//! In this case, world space matrix (the one that transforms from local to world) should be passed in transform.
@@ -395,7 +396,7 @@ namespace rr
 		//! Only positions/normals/tangent space are transformed, custom channels are left untouched.
 		//!
 		//! Non-uniform transformations break tangent space orthogonality.
-		RRMesh* createTransformed(const RRMatrix3x4* transform) const;
+		RRMesh* createTransformed(const RRMatrix3x4Ex* transform) const;
 
 		//! Creates and returns union of multiple meshes (contains vertices and triangles of all meshes).
 		//

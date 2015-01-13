@@ -119,8 +119,10 @@ static RRVec3 getPointNormal(const RRRay& ray, const RRMaterial* material)
 	}
 
 	// convert objectspace normal to worldspace normal
-	const RRMatrix3x4* iwm = ray.hitObject->getInverseWorldMatrix();
-	return iwm ? iwm->getTransformedNormal(objectNormal).normalized() : objectNormal;
+	const RRMatrix3x4Ex* wm = ray.hitObject->getWorldMatrix();
+	// either we work with world-space mesh that was already transformed in RRTransformedMeshFilter
+	// or it's localspace and we transform normal here using the same code as in RRTransformedMeshFilter
+	return wm ? wm->getTransformedNormal(objectNormal).normalized() : objectNormal;
 }
 
 RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, unsigned numBounces)

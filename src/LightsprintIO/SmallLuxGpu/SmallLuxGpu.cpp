@@ -98,8 +98,7 @@ bool savePly(const RRObject* object, const RRString& filename)
 			return false;
 		}
 
-		const RRMatrix3x4& worldMatrix = object->getWorldMatrixRef();
-		const RRMatrix3x4& worldMatrixInv = object->getInverseWorldMatrixRef();
+		const RRMatrix3x4Ex& worldMatrix = object->getWorldMatrixRef();
 		const RRMeshArrays* mesh = dynamic_cast<const RRMeshArrays*>(object->getCollider()->getMesh());
 		unsigned numTriangles = mesh->getNumTriangles();
 		unsigned numVertices = mesh->getNumVertices();
@@ -138,9 +137,9 @@ bool savePly(const RRObject* object, const RRString& filename)
 		for (unsigned i=0;i<numVertices;i++)
 		{
 			if (uvChannel==-1)
-				ofs << convertPos(worldMatrix.getTransformedPosition(mesh->position[i])) << " " << convertDir(worldMatrixInv.getTransformedNormal(mesh->normal[i])) << "\n";
+				ofs << convertPos(worldMatrix.getTransformedPosition(mesh->position[i])) << " " << convertDir(worldMatrix.getTransformedNormal(mesh->normal[i])) << "\n";
 			else
-				ofs << convertPos(worldMatrix.getTransformedPosition(mesh->position[i])) << " " << convertDir(worldMatrixInv.getTransformedNormal(mesh->normal[i])) << " " << convertUv(mesh->texcoord[uvChannel][i]) << "\n";
+				ofs << convertPos(worldMatrix.getTransformedPosition(mesh->position[i])) << " " << convertDir(worldMatrix.getTransformedNormal(mesh->normal[i])) << " " << convertUv(mesh->texcoord[uvChannel][i]) << "\n";
 		}
 
 		// triangles

@@ -95,11 +95,11 @@ public:
 			if (objects[i]->enabled)
 			{
 				ray->hitObject = objects[i];
-				const RRMatrix3x4* m = ray->hitObject->getInverseWorldMatrix();
+				const RRMatrix3x4Ex* m = ray->hitObject->getWorldMatrix();
 				if (m)
 				{
-					m->transformPosition(ray->rayOrigin);
-					m->transformDirection(ray->rayDir);
+					m->inverse.transformPosition(ray->rayOrigin);
+					m->inverse.transformDirection(ray->rayDir);
 					storeCollisionHandler.scale = ray->rayDir.length();
 					ray->rayDir /= storeCollisionHandler.scale;
 					ray->rayLengthMin *= storeCollisionHandler.scale;

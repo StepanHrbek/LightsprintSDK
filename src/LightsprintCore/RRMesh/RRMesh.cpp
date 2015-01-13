@@ -408,7 +408,7 @@ RRMesh* RRMesh::createIndexed(unsigned flags, Format vertexFormat, void* vertexB
 	return NULL;
 }
 
-RRMesh* RRMesh::createTransformed(const RRMatrix3x4* transform) const
+RRMesh* RRMesh::createTransformed(const RRMatrix3x4Ex* transform) const
 {
 	if (!this) return NULL;
 	//!!! az bude refcounting, muzu pri identite vracet this

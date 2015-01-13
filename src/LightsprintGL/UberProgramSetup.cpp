@@ -966,7 +966,7 @@ void UberProgramSetup::useWorldMatrix(Program* program, const rr::RRObject* obje
 	}
 	if (OBJECT_SPACE && object)
 	{
-		const rr::RRMatrix3x4& world = object->getWorldMatrixRef();
+		const rr::RRMatrix3x4Ex& world = object->getWorldMatrixRef();
 		float worldMatrix[16] =
 		{
 			world.m[0][0],world.m[1][0],world.m[2][0],0,
@@ -978,7 +978,7 @@ void UberProgramSetup::useWorldMatrix(Program* program, const rr::RRObject* obje
 
 		if (program->uniformExists("inverseWorldMatrix")) // it is too difficult to find out whether uniform exists from defines
 		{
-			const rr::RRMatrix3x4& inverse = object->getInverseWorldMatrixRef();
+			const rr::RRMatrix3x4& inverse = world.inverse;
 			float inverseMatrix[9] =
 			{
 				inverse.m[0][0],inverse.m[1][0],inverse.m[2][0],

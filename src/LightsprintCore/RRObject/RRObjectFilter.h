@@ -44,13 +44,9 @@ public:
 	{
 		inherited->getTriangleLod(t,out);
 	}
-	virtual const RRMatrix3x4* getWorldMatrix() const
+	virtual const RRMatrix3x4Ex* getWorldMatrix() const
 	{
 		return inherited->getWorldMatrix();
-	}
-	virtual const RRMatrix3x4* getInverseWorldMatrix() const
-	{
-		return inherited->getInverseWorldMatrix();
 	}
 	virtual void setWorldMatrix(const RRMatrix3x4* _worldMatrix)
 	{

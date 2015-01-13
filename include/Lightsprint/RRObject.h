@@ -24,7 +24,6 @@ namespace rr
 	//! %RRObject provides information about
 	//! - materials and their assignment to faces, see #faceGroups
 	//! - transformation matrix, see getWorldMatrix() and setWorldMatrix()
-	//! - inverse transformation matrix, see getInverseWorldMatrix()
 	//! - collider for fast ray-mesh intersections, see getCollider() and setCollider()
 	//! - indirectly also mesh (via getCollider()->getMesh())
 	//! - LODs, see getTriangleLOD()
@@ -201,13 +200,9 @@ namespace rr
 		//!  May return NULL for identity/no transformation. 
 		//!  Pointer must be constant and stay valid for whole life of object.
 		//!  Matrix may change during object life.
-		virtual const RRMatrix3x4* getWorldMatrix() const;
+		virtual const RRMatrix3x4Ex* getWorldMatrix() const;
 		//! Returns object transformation from local to world space.
-		const RRMatrix3x4& getWorldMatrixRef() const;
-		//! Returns inverse of object transformation from local to world space, NULL in case of identity.
-		virtual const RRMatrix3x4* getInverseWorldMatrix() const;
-		//! Returns inverse of object transformation from local to world space.
-		const RRMatrix3x4& getInverseWorldMatrixRef() const;
+		const RRMatrix3x4Ex& getWorldMatrixRef() const;
 
 		//! Returns arbitrary additional data provided by adapter, or NULL for unsupported data.
 		//
@@ -397,7 +392,7 @@ namespace rr
 
 	private:
 		RRCollider* collider;
-		RRMatrix3x4* worldMatrix;
+		RRMatrix3x4Ex* worldMatrix;
 	};
 
 

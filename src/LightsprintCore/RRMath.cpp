@@ -223,33 +223,49 @@ RRVec3 RRMatrix3x4::getTransformedDirection(const RRVec3& a) const
 		a[0]*m[2][0] + a[1]*m[2][1] + a[2]*m[2][2]);
 }
 
-void RRMatrix3x4::transformNormal(RRVec3& a) const
+//////////////////////////////////////////////////////////////////////////////
+//
+// RRMatrix3x4Ex
+
+RRMatrix3x4Ex::RRMatrix3x4Ex(const RRMatrix3x4& a)
+{
+	RRMatrix3x4::operator=(a);
+	updateInverse();
+}
+
+void RRMatrix3x4Ex::updateInverse()
+{
+	invertedTo(inverse);
+	RRVec3 scale = getScale();
+	scaleSign = (scale[0]*scale[1]*scale[2]>=0) ? 1.f : -1.f;
+}
+
+void RRMatrix3x4Ex::transformNormal(RRVec3& a) const
 {
 	RR_ASSERT(m);
 	a = RRVec3(
-		a.x*m[0][0] + a.y*m[1][0] + a.z*m[2][0],
-		a.x*m[0][1] + a.y*m[1][1] + a.z*m[2][1],
-		a.x*m[0][2] + a.y*m[1][2] + a.z*m[2][2]);
+		a.x*inverse.m[0][0] + a.y*inverse.m[1][0] + a.z*inverse.m[2][0],
+		a.x*inverse.m[0][1] + a.y*inverse.m[1][1] + a.z*inverse.m[2][1],
+		a.x*inverse.m[0][2] + a.y*inverse.m[1][2] + a.z*inverse.m[2][2]) * scaleSign;
 }
 
-RRVec3 RRMatrix3x4::getTransformedNormal(const RRVec3& a) const
+RRVec3 RRMatrix3x4Ex::getTransformedNormal(const RRVec3& a) const
 {
 	RR_ASSERT(m);
 	return RRVec3(
-		a[0]*m[0][0] + a[1]*m[1][0] + a[2]*m[2][0],
-		a[0]*m[0][1] + a[1]*m[1][1] + a[2]*m[2][1],
-		a[0]*m[0][2] + a[1]*m[1][2] + a[2]*m[2][2]);
+		a[0]*inverse.m[0][0] + a[1]*inverse.m[1][0] + a[2]*inverse.m[2][0],
+		a[0]*inverse.m[0][1] + a[1]*inverse.m[1][1] + a[2]*inverse.m[2][1],
+		a[0]*inverse.m[0][2] + a[1]*inverse.m[1][2] + a[2]*inverse.m[2][2]) * scaleSign;
 }
 
-void RRMatrix3x4::transformPlane(RRVec4& a) const
+void RRMatrix3x4Ex::transformPlane(RRVec4& a) const
 {
 	a = getTransformedPlane(a);
 }
 
-RRVec4 RRMatrix3x4::getTransformedPlane(const RRVec4& a) const
+RRVec4 RRMatrix3x4Ex::getTransformedPlane(const RRVec4& a) const
 {
-	RRMatrix3x4 inverse;
-	return RRVec4::plane(invertedTo(inverse) ? inverse.getTransformedNormal(a) : getTransformedDirection(a), getTransformedPosition(a.pointInPlane()) );
+	return RRVec4::plane(getTransformedNormal(a), getTransformedPosition(a.pointInPlane()) );
 }
 
 //////////////////////////////////////////////////////////////////////////////

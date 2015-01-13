@@ -2230,8 +2230,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				selectedPointValid = true;
 				selectedPointObject = ray->hitObject;
 				selectedPointMesh = selectedPointObject->getCollider()->getMesh();
-				const rr::RRMatrix3x4& hitMatrix = selectedPointObject->getWorldMatrixRef();
-				const rr::RRMatrix3x4& inverseHitMatrix = selectedPointObject->getInverseWorldMatrixRef();
+				const rr::RRMatrix3x4Ex& hitMatrix = selectedPointObject->getWorldMatrixRef();
 				selectedPointMesh->getTriangle(ray->hitTriangle,selectedTriangle);
 				selectedPointMesh->getVertex(selectedTriangle[0],selectedTriangleCoordsLocal[0]);
 				selectedPointMesh->getVertex(selectedTriangle[1],selectedTriangleCoordsLocal[1]);
@@ -2246,9 +2245,9 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				hitMatrix.transformDirection(selectedTriangleBody.side2);
 				for (unsigned i=0;i<3;i++)
 				{
-					inverseHitMatrix.transformNormal(selectedTriangleNormals.vertex[i].normal);
-					inverseHitMatrix.transformNormal(selectedTriangleNormals.vertex[i].tangent);
-					inverseHitMatrix.transformNormal(selectedTriangleNormals.vertex[i].bitangent);
+					hitMatrix.transformNormal(selectedTriangleNormals.vertex[i].normal);
+					hitMatrix.transformNormal(selectedTriangleNormals.vertex[i].tangent);
+					hitMatrix.transformNormal(selectedTriangleNormals.vertex[i].bitangent);
 				}
 				selectedPointBasis.normal = selectedTriangleNormals.vertex[0].normal + (selectedTriangleNormals.vertex[1].normal-selectedTriangleNormals.vertex[0].normal)*ray->hitPoint2d[0] + (selectedTriangleNormals.vertex[2].normal-selectedTriangleNormals.vertex[0].normal)*ray->hitPoint2d[1];
 				selectedPointBasis.tangent = selectedTriangleNormals.vertex[0].tangent + (selectedTriangleNormals.vertex[1].tangent-selectedTriangleNormals.vertex[0].tangent)*ray->hitPoint2d[0] + (selectedTriangleNormals.vertex[2].tangent-selectedTriangleNormals.vertex[0].tangent)*ray->hitPoint2d[1];
