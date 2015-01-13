@@ -166,7 +166,7 @@ void RRMaterial::reset(bool twoSided)
 // When working with non-physical scale data, provide scaler for correct results.
 // Without scaler, mean would be a bit darker,
 //  triangle materials based on mean would produce darker lightmaps than point materials.
-RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& average)
+RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& average, bool isEmittance)
 {
 	RR_ASSERT(buffer);
 	if (buffer->getDuration())
@@ -217,10 +217,10 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 
 // extract mean and variance from buffer
 // convert mean to color, variance to scalar
-RRReal getVariance(const RRBuffer* _buffer, const RRScaler* _scaler, RRVec3& _average, bool _isTransmittanceInAlpha)
+RRReal getVariance(const RRBuffer* _buffer, const RRScaler* _scaler, RRVec3& _average, bool _isEmittance, bool _isTransmittanceInAlpha)
 {
 	RRVec4 average;
-	RRVec4 variance = getVariance(_buffer,_scaler,average);
+	RRVec4 variance = getVariance(_buffer,_scaler,average,_isEmittance);
 	if (_isTransmittanceInAlpha)
 	{
 		_average = RRVec3(1-average[3]);
@@ -246,11 +246,11 @@ void RRMaterial::Property::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 	}
 }
 
-RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub)
+RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool isEmittance, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub)
 {
 	if (texture && (updateEvenFromStub || !texture->isStub()))
 	{
-		RRReal variance = getVariance(texture,scaler,color,isTransmittanceInAlpha);
+		RRReal variance = getVariance(texture,scaler,color,isEmittance,isTransmittanceInAlpha);
 		if (!variance && !texture->isStub()) // don't remove stubs
 		{
 			switch (uniformTextureAction)
@@ -269,12 +269,12 @@ RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool
 void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs)
 {
 	float variance = 0.000001f;
-	variance += 5 * specularTransmittance.updateColorFromTexture(scaler,specularTransmittanceInAlpha,uniformTextureAction,updateEvenFromStubs);
-	variance += 3 * diffuseEmittance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs);
-	variance += 2 * diffuseReflectance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs);
-	variance += 1 * specularReflectance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs);
+	variance += 5 * specularTransmittance.updateColorFromTexture(scaler,0,specularTransmittanceInAlpha,uniformTextureAction,updateEvenFromStubs);
+	variance += 3 * diffuseEmittance.updateColorFromTexture(scaler,1,0,uniformTextureAction,updateEvenFromStubs);
+	variance += 2 * diffuseReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs);
+	variance += 1 * specularReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs);
 	RRVec2 bumpMultipliers = bumpMap.color; // backup bumpMap.color.xy, those are multipliers
-	bumpMap.updateColorFromTexture(NULL,0,uniformTextureAction,updateEvenFromStubs);
+	bumpMap.updateColorFromTexture(NULL,0,0,uniformTextureAction,updateEvenFromStubs);
 	bumpMap.color.x = bumpMultipliers.x;
 	bumpMap.color.y = bumpMultipliers.y;
 	minimalQualityForPointMaterials = unsigned(40/(variance*variance));

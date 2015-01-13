@@ -160,9 +160,9 @@ private:
 				// Processes the material's diffuse color
 				void ColorChunkProcessor(long length, long findex, rr::RRVec3& color);
 				// Processes the material's texture maps
-				char* TextureMapChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
+				char* TextureMapChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty, bool isEmittance);
 					// Processes the names of the textures and load the textures
-					char* MapNameChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty);
+					char* MapNameChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty, bool isEmittance);
 			
 			// Processes the model's geometry
 			void ObjectChunkProcessor(long length, long findex, int& objindex); // increases objindex if mesh is loaded. ignores lights, cameras

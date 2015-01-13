@@ -527,19 +527,19 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 
 			case 0xA200:
 				// Texture map 1
-				diffuseName = TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseReflectance);
+				diffuseName = TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseReflectance, false);
 				break;
 			case 0xA210:
 				// Opacity map
-				opacityName = TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularTransmittance);
+				opacityName = TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularTransmittance, false);
 				break;
 			case 0xA204:
 				// Specular map
-				free(TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularReflectance));
+				free(TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].specularReflectance, false));
 				break;
 			case 0xA33D:
 				// Self illum map
-				free(TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseEmittance));
+				free(TextureMapChunkProcessor(h.len, ftell(bin3ds), Materials[matindex].diffuseEmittance, true));
 				break;
 		}
 
@@ -710,7 +710,7 @@ void Model_3DS::IntColorChunkProcessor(long length, long findex, rr::RRVec3& col
 	fseek(bin3ds, findex, SEEK_SET);
 }
 
-char* Model_3DS::TextureMapChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
+char* Model_3DS::TextureMapChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty, bool isEmittance)
 {
 	char* name = NULL;
 
@@ -731,7 +731,7 @@ char* Model_3DS::TextureMapChunkProcessor(long length, long findex, rr::RRMateri
 		{
 			case 0xA300:
 				// Read the name of texture in the Diffuse Color map
-				name = MapNameChunkProcessor(h.len, ftell(bin3ds), materialProperty);
+				name = MapNameChunkProcessor(h.len, ftell(bin3ds), materialProperty, isEmittance);
 				break;
 		}
 
@@ -746,7 +746,7 @@ char* Model_3DS::TextureMapChunkProcessor(long length, long findex, rr::RRMateri
 	return name;
 }
 
-char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
+char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty, bool isEmittance)
 {
 	char name[580];
 
@@ -768,7 +768,7 @@ char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial:
 	if (materialProperty.texture)
 	{
 		rr::RRScaler* scaler = rr::RRScaler::createFastRgbScaler();
-		materialProperty.updateColorFromTexture(scaler,false,rr::RRMaterial::UTA_DELETE,true);
+		materialProperty.updateColorFromTexture(scaler,isEmittance,false,rr::RRMaterial::UTA_DELETE,true);
 		delete scaler;
 	}
 
