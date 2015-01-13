@@ -25,6 +25,7 @@ NEWS
   - all solvers and renderers accept new structure RRSolver::Multipliers
   - replaces various lighting multipliers scattered around SDK (e.g. RRSolver::setDirectIlluminationBoost())
   - available in sceneViewer(), see GI panel / Multipliers
+- \ref main_vs "Visual Studio 2012 and 2013 integration"
 
 CHANGES
 

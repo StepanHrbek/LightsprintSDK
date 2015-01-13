@@ -3018,6 +3018,12 @@ oculusHMD->GetDeviceInfo(&oculusHMDInfo);
 
  Lightsprint SDK works with Visual Studio out of the box, but it's possible to improve visualizations of Lightsprint types in debugger.
 
+ \section vs_2012 Visual Studio 2012, 2013
+
+ To improve visualizations, copy our <code>Lightsprint.SDK.natvis</code> file to Visual Studio folder <code>Common7/Packages/Debugger/Visualizations</code>.
+
+ \section vs_2010 Visual Studio 2010
+
  To improve visualizations, open Visual Studio file <code>Common7/Packages/Debugger/autoexp.dat</code> and insert following blocks of text
  - into [AutoExpand] section
    \code
