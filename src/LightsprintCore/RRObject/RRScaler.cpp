@@ -45,9 +45,6 @@ public:
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
-#ifdef _DEBUG
-		RRVec3 tmp = color;
-#endif
 		color = RRVec3(
 			(color[0]>=0)?pow(color[0],gamma):-pow(-color[0],gamma),
 			(color[1]>=0)?pow(color[1],gamma):-pow(-color[1],gamma),
@@ -88,9 +85,6 @@ public:
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
-#ifdef _DEBUG
-		RRVec3 tmp = color;
-#endif
 		color = RRVec3(
 			(color[0]>=0)?pow(color[0],gamma):-pow(-color[0],gamma),
 			(color[1]>=0)?pow(color[1],gamma):-pow(-color[1],gamma),
@@ -150,9 +144,9 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 		color = RRVec3(
-			powf(color[0],gamma),
-			powf(color[1],gamma),
-			powf(color[2],gamma)
+			pow(color[0],gamma),
+			pow(color[1],gamma),
+			pow(color[2],gamma)
 			);
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
@@ -164,9 +158,9 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 		color = RRVec3(
-			powf(color[0],invGamma),
-			powf(color[1],invGamma),
-			powf(color[2],invGamma)
+			pow(color[0],invGamma),
+			pow(color[1],invGamma),
+			pow(color[2],invGamma)
 			);
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
@@ -191,9 +185,9 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 		color = RRVec3(
-			powf(color[0],gamma),
-			powf(color[1],gamma),
-			powf(color[2],gamma)
+			pow(color[0],gamma),
+			pow(color[1],gamma),
+			pow(color[2],gamma)
 			);
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
@@ -205,9 +199,9 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 		color = RRVec3(
-			powf(color[0],invGamma),
-			powf(color[1],invGamma),
-			powf(color[2],invGamma)
+			pow(color[0],invGamma),
+			pow(color[1],invGamma),
+			pow(color[2],invGamma)
 			);
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
