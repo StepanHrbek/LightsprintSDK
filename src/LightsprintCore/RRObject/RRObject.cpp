@@ -197,9 +197,10 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		mesh->getTriangleMapping(t,triangleMapping,material.diffuseEmittance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 		material.diffuseEmittance.color = material.diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
+		material.diffuseEmittance.colorPhysical = material.diffuseEmittance.color;
 		if (scaler)
 		{
-			material.diffuseEmittance.colorPhysical = material.diffuseEmittance.color; scaler->getPhysicalScale(material.diffuseEmittance.colorPhysical);
+			scaler->getPhysicalScale(material.diffuseEmittance.colorPhysical);
 		}
 	}
 	if (material.specularReflectance.texture)
@@ -218,9 +219,10 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		}
 		else
 			material.specularShininess *= specColor.w;
+		material.specularReflectance.colorPhysical = material.specularReflectance.color;
 		if (scaler)
 		{
-			scaler->getPhysicalFactor(material.specularReflectance.colorPhysical = material.specularReflectance.color);
+			scaler->getPhysicalFactor(material.specularReflectance.colorPhysical);
 		}
 	}
 	if (material.diffuseReflectance.texture && material.specularTransmittance.texture==material.diffuseReflectance.texture && material.specularTransmittanceInAlpha)
@@ -238,10 +240,12 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			material.specularTransmittance.color = (material.specularTransmittance.color.avg()>=material.specularTransmittanceThreshold) ? RRVec3(1) : RRVec3(0);
 		if (rgba[3]==0)
 			material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
+		material.diffuseReflectance.colorPhysical = material.diffuseReflectance.color;
+		material.specularTransmittance.colorPhysical = material.specularTransmittance.color;
 		if (scaler)
 		{
-			scaler->getPhysicalFactor(material.diffuseReflectance.colorPhysical = material.diffuseReflectance.color);
-			scaler->getPhysicalFactor(material.specularTransmittance.colorPhysical = material.specularTransmittance.color);
+			scaler->getPhysicalFactor(material.diffuseReflectance.colorPhysical);
+			scaler->getPhysicalFactor(material.specularTransmittance.colorPhysical);
 		}
 	}
 	else
@@ -253,9 +257,10 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 			material.diffuseReflectance.color = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
+			material.diffuseReflectance.colorPhysical = material.diffuseReflectance.color;
 			if (scaler)
 			{
-				scaler->getPhysicalFactor(material.diffuseReflectance.colorPhysical = material.diffuseReflectance.color);
+				scaler->getPhysicalFactor(material.diffuseReflectance.colorPhysical);
 			}
 		}
 		if (material.specularTransmittance.texture)
@@ -271,10 +276,11 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 				material.specularTransmittance.color = (material.specularTransmittance.color.avg()>=material.specularTransmittanceThreshold) ? RRVec3(1) : RRVec3(0);
 			if (material.specularTransmittance.color==RRVec3(1))
 				material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
+			material.specularTransmittance.colorPhysical = material.specularTransmittance.color;
 			if (scaler)
 			{
 				// [#40] rr_gl renders transparency without srgb correction, so here we keep colorPhysical=color for pathtracer to produce similar results
-				material.specularTransmittance.colorPhysical = material.specularTransmittance.color; //scaler->getPhysicalFactor();
+				//scaler->getPhysicalFactor(material.specularTransmittance.colorPhysical);
 			}
 			// [#39] we multiply dif by opacity on the fly, because real world data are often in this format
 			material.diffuseReflectance.color *= (RRVec3(1)-material.specularTransmittance.color); // multiply cust color in cust.scale - inaccurate, but result probably not used
