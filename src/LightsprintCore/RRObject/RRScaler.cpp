@@ -13,7 +13,7 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRGammaScaler
+// RRGammaScaler - supports negative values
 //
 // With GammaScaler, you may directly work for example with 
 // approximate screen colors.
@@ -63,14 +63,52 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 		color = RRVec3(
-			// supports negative colors
 			(color[0]>=0)?pow(color[0],invGamma):-pow(-color[0],invGamma),
 			(color[1]>=0)?pow(color[1],invGamma):-pow(-color[1],invGamma),
 			(color[2]>=0)?pow(color[2],invGamma):-pow(-color[2],invGamma)
-			// faster, but returns NaN for negative colors
-			//pow(color[0],invGamma),
-			//pow(color[1],invGamma),
-			//pow(color[2],invGamma)
+			);
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+	}
+	virtual void getCustomFactor(RRReal& a) const
+	{
+		RR_ASSERT(_finite(a));
+		a = (a>=0)?pow(a,gamma):-pow(-a,gamma);
+		RR_ASSERT(_finite(a));
+	}
+	virtual void getPhysicalFactor(RRReal& a) const
+	{
+		RR_ASSERT(_finite(a));
+		a = (a>=0)?pow(a,invGamma):-pow(-a,invGamma);
+		RR_ASSERT(_finite(a));
+	}
+	virtual void getCustomFactor(RRVec3& color) const
+	{
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+#ifdef _DEBUG
+		RRVec3 tmp = color;
+#endif
+		color = RRVec3(
+			(color[0]>=0)?pow(color[0],gamma):-pow(-color[0],gamma),
+			(color[1]>=0)?pow(color[1],gamma):-pow(-color[1],gamma),
+			(color[2]>=0)?pow(color[2],gamma):-pow(-color[2],gamma)
+			);
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+	}
+	virtual void getPhysicalFactor(RRVec3& color) const
+	{
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+		color = RRVec3(
+			(color[0]>=0)?pow(color[0],invGamma):-pow(-color[0],invGamma),
+			(color[1]>=0)?pow(color[1],invGamma):-pow(-color[1],invGamma),
+			(color[2]>=0)?pow(color[2],invGamma):-pow(-color[2],invGamma)
 			);
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
@@ -83,7 +121,7 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRFastGammaScaler
+// RRFastGammaScaler - returns NaN for negative values
 //
 
 class RRFastGammaScaler : public RRScaler
@@ -121,6 +159,47 @@ public:
 		RR_ASSERT(_finite(color[2]));
 	}
 	virtual void getPhysicalScale(RRVec3& color) const
+	{
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+		color = RRVec3(
+			powf(color[0],invGamma),
+			powf(color[1],invGamma),
+			powf(color[2],invGamma)
+			);
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+	}
+
+	virtual void getCustomFactor(RRReal& a) const
+	{
+		RR_ASSERT(_finite(a));
+		a = pow(a,gamma);
+		RR_ASSERT(_finite(a));
+	}
+	virtual void getPhysicalFactor(RRReal& a) const
+	{
+		RR_ASSERT(_finite(a));
+		a = pow(a,invGamma);
+		RR_ASSERT(_finite(a));
+	}
+	virtual void getCustomFactor(RRVec3& color) const
+	{
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+		color = RRVec3(
+			powf(color[0],gamma),
+			powf(color[1],gamma),
+			powf(color[2],gamma)
+			);
+		RR_ASSERT(_finite(color[0]));
+		RR_ASSERT(_finite(color[1]));
+		RR_ASSERT(_finite(color[2]));
+	}
+	virtual void getPhysicalFactor(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
