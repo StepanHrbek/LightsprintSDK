@@ -222,7 +222,10 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 		}
 		variance = standardDeviation*standardDeviation;
 	}
-	return variance;
+	// -1               ... texture with random 0 1 or 0 20 returns the same as texture with random 0 255, which is max possible difference
+	// -0.9             ... texture with random 0 20 returns nearly as much as 0 255. 0 1 returns much less
+	// return variance; ... texture with random 0 1 is equal to 254 255, which is minimal possible difference
+	return standardDeviation*pow(average.avg()+0.00001f,-0.9f);
 }
 
 // extract mean and variance from buffer
@@ -279,15 +282,15 @@ RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool
 void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs)
 {
 	float variance = 0.000001f;
-	variance += 5 * specularTransmittance.updateColorFromTexture(scaler,0,specularTransmittanceInAlpha,uniformTextureAction,updateEvenFromStubs);
-	variance += 3 * diffuseEmittance.updateColorFromTexture(scaler,1,0,uniformTextureAction,updateEvenFromStubs);
-	variance += 2 * diffuseReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs);
+	variance += 3 * specularTransmittance.updateColorFromTexture(scaler,0,specularTransmittanceInAlpha,uniformTextureAction,updateEvenFromStubs);
+	variance += 2 * diffuseEmittance.updateColorFromTexture(scaler,1,0,uniformTextureAction,updateEvenFromStubs);
+	variance += 1 * diffuseReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs);
 	variance += 1 * specularReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs);
 	RRVec2 bumpMultipliers = bumpMap.color; // backup bumpMap.color.xy, those are multipliers
 	bumpMap.updateColorFromTexture(NULL,0,0,uniformTextureAction,updateEvenFromStubs);
 	bumpMap.color.x = bumpMultipliers.x;
 	bumpMap.color.y = bumpMultipliers.y;
-	minimalQualityForPointMaterials = unsigned(40/(variance*variance));
+	minimalQualityForPointMaterials = unsigned(100/(variance*variance));
 	//RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);
 }
 
