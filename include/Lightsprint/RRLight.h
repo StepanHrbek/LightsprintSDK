@@ -55,14 +55,14 @@ namespace rr
 		virtual void getPhysicalScale(RRVec3& value) const = 0;
 
 		//! Converts reflectance/transmittance from physical scale to user defined scale.
-		virtual void getCustomFactor(RRReal& value) const;
+		virtual void getCustomFactor(RRReal& factor) const;
 		//! Converts reflectance/transmittance from physical scale to user defined scale.
-		virtual void getCustomFactor(RRVec3& value) const;
+		virtual void getCustomFactor(RRVec3& factor) const;
 
 		//! Converts reflectance/transmittance from user defined scale to physical scale.
-		virtual void getPhysicalFactor(RRReal& value) const;
+		virtual void getPhysicalFactor(RRReal& factor) const;
 		//! Converts reflectance/transmittance from user defined scale to physical scale.
-		virtual void getPhysicalFactor(RRVec3& value) const;
+		virtual void getPhysicalFactor(RRVec3& factor) const;
 
 		virtual ~RRScaler() {}
 
