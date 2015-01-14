@@ -163,7 +163,8 @@ namespace rr
 		//! \param scaler
 		//!  Textures are expected in custom scale of this scaler.
 		//!  Average colors are computed in the same scale.
-		//!  Without scaler, computed averages may slightly differ from physically correct averages.
+		//!  Function would work even with scaler=NULL, and it would be faster, but computed averages would be slightly incorrect,
+		//!  and minimalQualityForPointMaterials would be much lower, slowing down lightmap baking with unnecessary texture lookups.
 		//! \param uniformTextureAction
 		//!  What to do with textures of constant color. Removing them may make rendering/calculations faster.
 		//! \param updateEvenFromStubs
