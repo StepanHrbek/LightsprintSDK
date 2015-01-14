@@ -282,10 +282,10 @@ RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool
 void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs)
 {
 	float variance = 0.000001f;
-	variance += 3 * specularTransmittance.updateColorFromTexture(scaler,0,specularTransmittanceInAlpha,uniformTextureAction,updateEvenFromStubs);
-	variance += 2 * diffuseEmittance.updateColorFromTexture(scaler,1,0,uniformTextureAction,updateEvenFromStubs);
-	variance += 1 * diffuseReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs);
-	variance += 1 * specularReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs);
+	variance = RR_MAX(variance, 3 * specularTransmittance.updateColorFromTexture(scaler,0,specularTransmittanceInAlpha,uniformTextureAction,updateEvenFromStubs));
+	variance = RR_MAX(variance, 2 * diffuseEmittance.updateColorFromTexture(scaler,1,0,uniformTextureAction,updateEvenFromStubs));
+	variance = RR_MAX(variance, 1 * diffuseReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs));
+	variance = RR_MAX(variance, 1 * specularReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs));
 	RRVec2 bumpMultipliers = bumpMap.color; // backup bumpMap.color.xy, those are multipliers
 	bumpMap.updateColorFromTexture(NULL,0,0,uniformTextureAction,updateEvenFromStubs);
 	bumpMap.color.x = bumpMultipliers.x;
