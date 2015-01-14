@@ -245,7 +245,8 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		if (scaler)
 		{
 			scaler->getPhysicalFactor(material.diffuseReflectance.colorPhysical);
-			scaler->getPhysicalFactor(material.specularTransmittance.colorPhysical);
+			// [#40] rr_gl renders transparency without srgb correction, so here we keep colorPhysical=color for pathtracer to produce similar results
+			//scaler->getPhysicalFactor(material.specularTransmittance.colorPhysical);
 		}
 	}
 	else
