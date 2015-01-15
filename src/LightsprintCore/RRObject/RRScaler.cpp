@@ -27,6 +27,8 @@ public:
 	{
 		gamma = agamma;
 		invGamma = 1/gamma;
+		for (unsigned i=0;i<256;i++)
+			toLinear[i] = pow(float(i)/255,invGamma);
 	}
 	virtual void toCustomSpace(RRReal& a) const
 	{
@@ -68,9 +70,15 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 	}
+	virtual RRVec3 getLinearSpace(const unsigned char rgb[3]) const
+	{
+		return RRVec3(toLinear[rgb[0]],toLinear[rgb[1]],toLinear[rgb[2]]);
+	}
+
 protected:
 	RRReal gamma;
 	RRReal invGamma;
+	RRReal toLinear[256];
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -85,6 +93,8 @@ public:
 	{
 		gamma = agamma;
 		invGamma = 1/gamma;
+		for (unsigned i=0;i<256;i++)
+			toLinear[i] = pow(float(i)/255,invGamma);
 	}
 	virtual void toCustomSpace(RRReal& a) const
 	{
@@ -126,10 +136,15 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 	}
+	virtual RRVec3 getLinearSpace(const unsigned char rgb[3]) const
+	{
+		return RRVec3(toLinear[rgb[0]],toLinear[rgb[1]],toLinear[rgb[2]]);
+	}
 
 protected:
 	RRReal gamma;
 	RRReal invGamma;
+	RRReal toLinear[256];
 };
 
 //////////////////////////////////////////////////////////////////////////////

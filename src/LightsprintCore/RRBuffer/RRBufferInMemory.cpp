@@ -291,6 +291,13 @@ RRVec4 RRBufferInMemory::getElement(unsigned index, const RRScaler* scaler) cons
 	}
 	unsigned ofs = index * getElementBits()/8;
 	RRVec4 result;
+	if (scaled && scaler && (format==BF_RGB || format==BF_RGBA))
+	{
+		result = scaler->getLinearSpace(data+ofs);
+		result.w = (format==BF_RGB) ? 1 : RR_BYTE2FLOAT(data[ofs+3]);
+	}
+	else
+	{
 	switch(format)
 	{
 		case BF_RGB:
@@ -341,6 +348,7 @@ RRVec4 RRBufferInMemory::getElement(unsigned index, const RRScaler* scaler) cons
 	}
 	if (scaler && scaled)
 		scaler->toLinearSpace(result);
+	}
 	//RR_ASSERT(result[0]>=0); // bent normals may be negative
 	return result;
 }

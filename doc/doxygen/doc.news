@@ -33,6 +33,7 @@ CHANGES
   - RRBuffer::getElement() and RRBuffer::setElement() inputs/outputs are in linear space when scaler is passed as parameter
   - RRScaler::toCustomSpace() replaces getCustomScale() and getCustomFactor()
   - RRScaler::toLinearSpace() replaces getPhysicalScale() and getPhysicalFactor()
+  - RRScaler::getLinearSpace() added
   - all this made baking and pathtracing 10-50% faster
 - reduced automatic RRMaterial::minimalQualityForPointMaterials, makes baking at the same settings bit slower, but quality higher
 - RRScaler::getCustomFactor() and RRScaler::getPhysicalFactor() write new value to parameter, instead of returning it

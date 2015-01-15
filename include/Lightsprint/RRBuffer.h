@@ -53,6 +53,8 @@ namespace rr
 		virtual void toLinearSpace(RRReal& value) const = 0;
 		//! Converts value from custom color space to linear space.
 		virtual void toLinearSpace(RRVec3& value) const = 0;
+		//! Converts value from custom color space to linear space.
+		virtual RRVec3 getLinearSpace(const unsigned char rgb[3]) const = 0;
 
 		virtual ~RRScaler() {}
 
