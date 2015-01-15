@@ -161,7 +161,7 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 		for (unsigned i=0;i<size;i++)
 			for (unsigned j=0;j<size;j++)
 			{
-				avg += t->getElementAtPosition(RRVec3(i/(float)size,j/(float)size,0));
+				avg += t->getElementAtPosition(RRVec3(i/(float)size,j/(float)size,0),NULL);
 			}
 		avg /= size*size*0.5f; // 0.5 for quake map boost
 		avg[3] *= 0.5f; // but not for alpha

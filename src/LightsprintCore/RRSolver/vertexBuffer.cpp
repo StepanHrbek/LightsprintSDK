@@ -204,7 +204,7 @@ unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vert
 			{
 				RRVec4 tmp;
 				tmp = *postVertex2Ivertex[postImportVertex];
-				vertexBuffer->setElement(postImportVertex,tmp);
+				vertexBuffer->setElement(postImportVertex,tmp,NULL);
 			}
 		}
 		vertexBuffer->version = getSolutionVersion();
@@ -244,7 +244,7 @@ unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vert
 				RR_ASSERT(indirect[i]<1500000);
 			}
 		}
-		vertexBuffer->setElement(postImportVertex,indirect);
+		vertexBuffer->setElement(postImportVertex,indirect,NULL);
 	}
 	vertexBuffer->version = getSolutionVersion();
 	return 1;
@@ -281,7 +281,7 @@ unsigned RRSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned object
 				RR_ASSERT(data[i]<1500000);
 			}
 		}
-		vertexBuffer->setElement(postImportVertex,data);
+		vertexBuffer->setElement(postImportVertex,data,NULL);
 	}
 	vertexBuffer->version = getSolutionVersion();
 	return 1;

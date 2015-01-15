@@ -1141,7 +1141,7 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 		for (unsigned i=0;i<w;i++)
 		{
 			unsigned index = i+j*w;
-			RRVec4 c = _frame->getElement(index);
+			RRVec4 c = _frame->getElement(index,NULL);
 			//for (int sy=0; sy<2; sy++)
 			//for (int sx=0; sx<2; sx++)
 			//for (int s=0; s<2; s++)
@@ -1153,7 +1153,7 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 				RRVec3 color = pathtracerWorker.getIncidentRadiance(_camera.getRayOrigin(positionInWindow),_camera.getRayDirection(positionInWindow).normalized(),NULL,UINT_MAX);
 				c = (c*RRReal(_accumulated)+RRVec4(color,0))/(_accumulated+1);
 			}
-			_frame->setElement(index,c);
+			_frame->setElement(index,c,NULL);
 		}
 	}
 }

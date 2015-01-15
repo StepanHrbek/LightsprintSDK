@@ -27,7 +27,7 @@ PathtracerJob::PathtracerJob(const RRSolver* _solver)
 	RRReal blendFactor = solver ? solver->getEnvironmentBlendFactor() : 0;
 	RRBuffer* environment0 = solver ? solver->getEnvironment(0,&angleRad0) : NULL;
 	RRBuffer* environment1 = solver ? solver->getEnvironment(1,&angleRad1) : NULL;
-	environment = RRBuffer::createEnvironmentBlend(environment0,environment1,angleRad0,angleRad1,blendFactor,scaler);
+	environment = RRBuffer::createEnvironmentBlend(environment0,environment1,angleRad0,angleRad1,blendFactor);
 
 #ifdef MATERIAL_BACKGROUND_HACK
 	environmentAveragePhysical = RRVec3(0);
@@ -37,10 +37,8 @@ PathtracerJob::PathtracerJob(const RRSolver* _solver)
 		for (int j=-1;j<=1;j++)
 		for (int k=-1;k<=1;k++)
 			if (i || j || k)
-				environmentAveragePhysical += environment->getElementAtDirection(RRVec3((float)i,(float)j,(float)k));
+				environmentAveragePhysical += environment->getElementAtDirection(RRVec3((float)i,(float)j,(float)k),scaler);
 		environmentAveragePhysical /= 26;
-		if (scaler && environment->getScaled())
-			scaler->toLinearSpace(environmentAveragePhysical);
 	}
 #endif
 }
@@ -96,13 +94,13 @@ static RRVec3 getPointNormal(const RRRay& ray, const RRMaterial* material)
 	{
 		// read localspace normal from bumpmap
 		RRVec2 uvInTextureSpace = tm.uv[0] + (tm.uv[1]-tm.uv[0])*ray.hitPoint2d[0] + (tm.uv[2]-tm.uv[0])*ray.hitPoint2d[1];
-		RRVec3 bumpElement = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1],0));
+		RRVec3 bumpElement = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1],0),NULL);
 		RRVec3 localNormal;
 		if (material->bumpMapTypeHeight)
 		{
 			float height = bumpElement.x;
-			float hx = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0]+1.f/material->bumpMap.texture->getWidth(),uvInTextureSpace[1],0)).x;
-			float hy = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1]+1.f/material->bumpMap.texture->getHeight(),0)).x;
+			float hx = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0]+1.f/material->bumpMap.texture->getWidth(),uvInTextureSpace[1],0),NULL).x;
+			float hy = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1]+1.f/material->bumpMap.texture->getHeight(),0),NULL).x;
 			localNormal = RRVec3(height-hx,height-hy,0.1f);
 		}
 		else
@@ -155,8 +153,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				return ptj.environmentAveragePhysical * parameters.environmentMultiplier;
 #endif
 
-			RRVec3 irrad = ptj.environment->getElementAtDirection(direction);
-			if (ptj.scaler && ptj.environment->getScaled()) ptj.scaler->toLinearSpace(irrad);
+			RRVec3 irrad = ptj.environment->getElementAtDirection(direction,ptj.scaler);
 			RR_ASSERT(IS_VEC3(irrad));
 			return irrad * parameters.environmentMultiplier;
 		}
@@ -207,9 +204,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 					invisiblePlaneMaterial.getResponse(response,parameters.brdfTypes);
 					environmentAndSunsPhysical += (*lights)[i]->color * response.colorOut * lightMultiplier;
 				}
-			RRVec3 floor = ptj.environment->getElementAtDirection(direction);
-			if (ptj.scaler && ptj.environment->getScaled())
-				ptj.scaler->toLinearSpace(floor);
+			RRVec3 floor = ptj.environment->getElementAtDirection(direction,ptj.scaler);
 			floor /= environmentAndSunsPhysical+RRVec3(1e-10f);
 			invisiblePlaneMaterial.diffuseReflectance.colorPhysical *= floor;
 			invisiblePlaneMaterial.specularReflectance.colorPhysical *= floor;

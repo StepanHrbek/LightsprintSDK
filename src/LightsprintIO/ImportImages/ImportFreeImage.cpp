@@ -594,7 +594,7 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 					for (unsigned i=0;i<numPixels;i++)
 					{
 						// read src pixel
-						rr::RRVec4 pixel = buffer->getElement(elementIndex++);
+						rr::RRVec4 pixel = buffer->getElement(elementIndex++,NULL);
 						// swap r<->b
 						if (swaprb)
 						{

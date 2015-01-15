@@ -59,7 +59,7 @@ static wxImage* loadImage(const wxString& filename)
 	for (unsigned j=0;j<height;j++)
 		for (unsigned i=0;i<width;i++)
 		{
-			rr::RRVec4 element = buffer->getElement(j*width+i);
+			rr::RRVec4 element = buffer->getElement(j*width+i,NULL);
 			image->SetRGB(i,j,(unsigned)(element[0]*255),(unsigned)(element[1]*255),(unsigned)(element[2]*255));
 			image->SetAlpha(i,j,(unsigned)(element[3]*255));
 		}

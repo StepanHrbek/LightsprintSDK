@@ -215,7 +215,7 @@ namespace rr
 		//
 		//! Index is index into array of all elements, x+y*width+z*width*height.
 		//! \n Not mandatory, implementation may be empty.
-		virtual void setElement(unsigned index, const RRVec4& element);
+		virtual void setElement(unsigned index, const RRVec4& element, const RRScaler* scaler);
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -243,22 +243,31 @@ namespace rr
 		virtual unsigned getBufferBytes() const;
 		//! \return Number of bits in one element, e.g. 96 for BF_RGBF, implementation defined for BF_DEPTH.
 		virtual unsigned getElementBits() const;
-		//! Returns value addressed by given integer coordinates as regular 3d array.
+		//! Returns value addressed by given integer coordinate.
 		//
-		//! Index is index into array of all elements, x+y*width+z*width*height.
-		//! Out of range indices are reported as error.
-		//! \n Not mandatory, implementation may always return 0.
-		virtual RRVec4 getElement(unsigned index) const;
+		//! \param index
+		//!  Index is index into array of all elements, x+y*width+z*width*height.
+		//!  Out of range indices are reported as error.
+		//! \param scaler
+		//!  If NULL, color is returned in native color space. With scaler set, RGB is returned in linear space, alpha in native space.
+		virtual RRVec4 getElement(unsigned index, const RRScaler* scaler) const;
 		//! Returns value addressed by given float coordinates.
 		//
-		//! Coordinates are array indices in 0..1 range covering whole buffer.
-		//! Out of range indices are wrapped to 0..1.
-		virtual RRVec4 getElementAtPosition(const RRVec3& position) const;
+		//! \param position
+		//!  Coordinates are array indices in 0..1 range covering whole buffer.
+		//!  Out of range indices are wrapped to 0..1.
+		//! \param scaler
+		//!  If NULL, color is returned in native color space. With scaler set, RGB is returned in linear space, alpha in native space.
+		virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRScaler* scaler) const;
 		//! Returns environment sample addressed by given direction (not necessarily normalized).
 		//
-		//! 2d texture is interpreted as 360*180 degree panorama.
-		//! Cube texture is interpreted as standard cube.
-		virtual RRVec4 getElementAtDirection(const RRVec3& direction) const;
+		//! \param direction
+		//!  Direction from center in which we look for element.
+		//!  2d texture is interpreted as 360*180 degree panorama.
+		//!  Cube texture is interpreted as standard cube.
+		//! \param scaler
+		//!  If NULL, color is returned in native color space. With scaler set, RGB is returned in linear space, alpha in native space.
+		virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRScaler* scaler) const;
 		//! Locks the buffer for accessing array of all elements at once. Not mandatory, may return NULL.
 		//
 		//! Behaviour of lock is not defined when buffer is already locked.
@@ -362,7 +371,7 @@ namespace rr
 		//! Parameters are identical to RRSolver::setEnvironment() and RRSolver::setEnvironmentBlendFactor().
 		//! Created buffer is suitable for pathtracing, it has only getElementAtDirection() implemented, other functions are not available.
 		//! It is cheap to create, as it doesn't copy any data, it accesses original buffers when needed.
-		static RRBuffer* createEnvironmentBlend(RRBuffer* environment0, RRBuffer* environment1, RRReal angleRad0, RRReal angleRad1, RRReal blendFactor, const RRScaler* scaler);
+		static RRBuffer* createEnvironmentBlend(RRBuffer* environment0, RRBuffer* environment1, RRReal angleRad0, RRReal angleRad1, RRReal blendFactor);
 
 
 		//////////////////////////////////////////////////////////////////////////////

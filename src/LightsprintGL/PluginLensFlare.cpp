@@ -72,7 +72,7 @@ public:
 				unsigned numElements = secondaryMap[i]->getNumElements();
 				for (unsigned j=0;j<numElements;j++)
 				{
-					rr::RRVec3 color = secondaryMap[i]->getElement(j);
+					rr::RRVec3 color = secondaryMap[i]->getElement(j,NULL);
 					sum += abs(color[0]-color[1])+abs(color[1]-color[2])+abs(color[2]-color[0]);
 				}
 				colorizeSecondaryMap[i] = sum/numElements<0.03f;

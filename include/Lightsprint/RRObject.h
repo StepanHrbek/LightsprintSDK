@@ -134,12 +134,11 @@ namespace rr
 		//!  When receiver!=NULL, you may return NULL to disable direct shadow casting of triangle for given light and receiver.
 		virtual RRMaterial* getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const;
 
-		//! Returns material description for point on object's surface.
+		//! Returns material description for point on object's surface, fills colorPhysical with values read from textures.
 		//
-		//! Use it to query material properties for any given pixel.
 		//! This is higher quality but slower per-pixel version of faster per-triangle getTriangleMaterial().
 		//! \n\n Default implementation takes point details from optional textures in material returned by getTriangleMaterial().
-		//! \n\n Offline GI solver uses getPointMaterial() only if requested lightmap quality>=getTriangleMaterial()->minimalQualityForPointMaterials.
+		//! \n\n Offline GI solver uses getPointMaterial() only if requested lightmap quality>getTriangleMaterial()->minimalQualityForPointMaterials.
 		//! Realtime GI solvers never call getPointMaterial().
 		//! \n\n Thread safe: yes, offline solver calls it from many thread concurrently.
 		//! \param t
@@ -149,8 +148,7 @@ namespace rr
 		//! \param out
 		//!  Undefined on input, function fills it with material for requested point.
 		//! \param scaler
-		//!  Function reads point details from textures to color, then uses scaler to convert color to colorPhysical.
-		//!  If scaler=NULL, conversion is skipped and colorPhysical contains material averages, it's the same for any uv.
+		//!  Function reads point details from textures, converts them with scaler and writes result to colorPhysical.
 		virtual void getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& out, const RRScaler* scaler) const;
 
 		//! Information about single object, its place in hierarchy of LODs.

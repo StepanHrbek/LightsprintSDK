@@ -336,9 +336,7 @@ static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQ
 		// direction is not perfect, directions to corners are taken slightly more often, we save time by not rejecting corners
 		RRVec3 direction((RRReal)((int)rnd()-(int)(RMAX/2)),(RRReal)((int)rnd()-(int)(RMAX/2)),(RRReal)((int)rnd()-(int)(RMAX/2)));
 		unsigned patchIndex = PackedSkyTriangleFactor::getPatchIndex(direction);
-		RRVec3 exitance = inSky->getElementAtDirection(direction);
-		if (inScaler)
-			inScaler->toLinearSpace(exitance);
+		RRVec3 exitance = inSky->getElementAtDirection(direction,inScaler);
 		inoutPatchExitancesPhysical[patchIndex] += exitance;
 		numSamplesGathered[patchIndex]++;
 	}
@@ -462,11 +460,7 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 					for (unsigned i=0;i<numSamples;i++)
 					{
 						RRVec2 materialUv = triangleMapping.uv[0]*(1-samplePoints[i][0]-samplePoints[i][1]) + triangleMapping.uv[1]*samplePoints[i][0] + triangleMapping.uv[2]*samplePoints[i][1];
-						RRVec3 color = diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
-						if (_scaler)
-						{
-							_scaler->toLinearSpace(color);
-						}
+						RRVec3 color = diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),_scaler);
 						sum += color;
 					}
 				}

@@ -755,7 +755,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		}
 		// store irradiance (no scaling yet)
 		if (pti.context.pixelBuffers[i])
-			pti.context.pixelBuffers[i]->setElement(pti.uv[0]+pti.uv[1]*pti.context.pixelBuffers[i]->getWidth(),result.irradiancePhysical[i]);
+			pti.context.pixelBuffers[i]->setElement(pti.uv[0]+pti.uv[1]*pti.context.pixelBuffers[i]->getWidth(),result.irradiancePhysical[i],NULL);
 	}
 //RRReporter::report(INF1,"texel=%f+%f=%f\n",gilights.irradiancePhysicalLights[LS_LIGHTMAP][0],hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][0],result.irradiance[LS_LIGHTMAP][0]);
 
@@ -777,8 +777,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		pti.context.pixelBuffers[LS_BENT_NORMALS]->setElement(pti.uv[0]+pti.uv[1]*pti.context.pixelBuffers[LS_BENT_NORMALS]->getWidth(),
 			// instead of result.bentNormal
 			// pass (x+1)/2 to prevent underflow when saving -1..1 in 8bit 0..1
-			(result.bentNormal+RRVec4(1,1,1,0))*RRVec4(0.5f,0.5f,0.5f,1)
-			);
+			(result.bentNormal+RRVec4(1,1,1,0))*RRVec4(0.5f,0.5f,0.5f,1),
+			NULL);
 	}
 
 	//RR_ASSERT(result.irradiance[0]>=0 && result.irradiance[1]>=0 && result.irradiance[2]>=0); small float error may generate negative value

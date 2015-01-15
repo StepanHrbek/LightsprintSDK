@@ -43,7 +43,7 @@ public:
 			else
 			{
 				buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,(index==2)?rr::BF_RGBA:rr::BF_RGB,true,NULL); // 2 = RGBA
-				buffer->setElement(0,rr::RRVec4(property.color,1-property.color.avg()));
+				buffer->setElement(0,rr::RRVec4(property.color,1-property.color.avg()),NULL);
 				getTexture(buffer,false,false);
 				buffers1x1[color] = buffer;
 			}

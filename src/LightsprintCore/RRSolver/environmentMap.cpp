@@ -213,10 +213,6 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 	// simplify tests for blending from if(env1 && blendFactor) to if(env1)
 	if (!blendFactor) environment1 = NULL;
 
-	// simplify tests for scaling from if(env0 && env0->getScaled() && scalerForReadingEnv0) to if(scalerForReadingEnv0)
-	const RRScaler* scalerForReadingEnv0 = (environment0 && environment0->getScaled()) ? scalerForReadingEnv : NULL;
-	const RRScaler* scalerForReadingEnv1 = (environment1 && environment1->getScaled()) ? scalerForReadingEnv : NULL;
-
 	// rather than adding 1 kit to every RRObjectIllumination, we added 10 to solver and pick one of them
 	// if user doesn't call updateEnvironmentMap() in parallel, we always use the same first kit
 	CubeGatheringKit* kit = NULL;
@@ -291,16 +287,13 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 						if (!environment1)
 						{
 							// 1 environment
-							exitanceHdr[ofs] = environment0->getElementAtDirection(dir);
-							if (scalerForReadingEnv0) scalerForReadingEnv0->toLinearSpace(exitanceHdr[ofs]);
+							exitanceHdr[ofs] = environment0->getElementAtDirection(dir,scalerForReadingEnv);
 						}
 						else
 						{
 							// blend of 2 environments
-							RRVec3 env0color = environment0->getElementAtDirection(dir);
-							if (scalerForReadingEnv0) scalerForReadingEnv0->toLinearSpace(env0color);
-							RRVec3 env1color = environment1->getElementAtDirection(dir);
-							if (scalerForReadingEnv1) scalerForReadingEnv1->toLinearSpace(env1color);
+							RRVec3 env0color = environment0->getElementAtDirection(dir,scalerForReadingEnv);
+							RRVec3 env1color = environment1->getElementAtDirection(dir,scalerForReadingEnv);
 							exitanceHdr[ofs] = env0color*(1-blendFactor)+env1color*blendFactor;
 						}
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
@@ -366,10 +359,6 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 	// simplify tests for blending from if(env1 && blendFactor) to if(env1)
 	if (!blendFactor) environment1 = NULL;
 
-	// simplify tests for scaling from if(env0->getScaled() && scalerForReadingEnv) to if(scalerForReadingEnv0)
-	const RRScaler* scalerForReadingEnv0 = (environment0 && environment0->getScaled()) ? scalerForReadingEnv : NULL;
-	const RRScaler* scalerForReadingEnv1 = (environment1 && environment1->getScaled()) ? scalerForReadingEnv : NULL;
-
 #pragma omp parallel for schedule(static)
 	for (int ofs=0;ofs<(int)(6*size*size);ofs++)
 	{
@@ -387,18 +376,15 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 			{
 				// 1 environment
 				RRVec3 dir = cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size);
-				exitanceHdr[ofs] = environment0->getElementAtDirection(dir);
-				if (scalerForReadingEnv0) scalerForReadingEnv0->toLinearSpace(exitanceHdr[ofs]);
+				exitanceHdr[ofs] = environment0->getElementAtDirection(dir,scalerForReadingEnv);
 				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 			}
 			else
 			{
 				// blend of 2 environments
 				RRVec3 dir = cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size);
-				RRVec3 env0color = environment0->getElementAtDirection(dir);
-				if (scalerForReadingEnv0) scalerForReadingEnv0->toLinearSpace(env0color);
-				RRVec3 env1color = environment1->getElementAtDirection(dir);
-				if (scalerForReadingEnv1) scalerForReadingEnv1->toLinearSpace(env1color);
+				RRVec3 env0color = environment0->getElementAtDirection(dir,scalerForReadingEnv);
+				RRVec3 env1color = environment1->getElementAtDirection(dir,scalerForReadingEnv);
 				exitanceHdr[ofs] = env0color*(1-blendFactor)+env1color*blendFactor;
 				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 			}
@@ -443,15 +429,11 @@ static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const
 {
 	RR_ASSERT(gatheredExitance);
 	if (!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
-	unsigned gatherSize = buffer->getWidth();
+	unsigned numElements = buffer->getNumElements();
 
-	if (!buffer->getScaled())
-		scaler = NULL;
-	for (unsigned i=0;i<gatherSize*gatherSize*6;i++)
+	for (unsigned i=0;i<numElements;i++)
 	{
-		RRVec3 exitance = gatheredExitance[i];
-		if (scaler) scaler->toCustomSpace(exitance);
-		buffer->setElement(i,RRVec4(exitance,0));
+		buffer->setElement(i,RRVec4(gatheredExitance[i],0),scaler);
 	}
 	// faster but works only for specularEnvMap BF_RGBF,!scaled
 	//illumination->specularEnvMap->reset(BT_CUBE_TEXTURE,specularSize,specularSize,6,illumination->specularEnvMap->getFormat(),false,(unsigned char*)gatheredExitance);

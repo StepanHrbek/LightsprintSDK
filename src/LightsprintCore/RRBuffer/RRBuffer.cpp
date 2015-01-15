@@ -36,24 +36,24 @@ unsigned RRBuffer::getNumElements() const
 	return getWidth()*getHeight()*getDepth();
 }
 
-void RRBuffer::setElement(unsigned index, const RRVec4& element)
+void RRBuffer::setElement(unsigned index, const RRVec4& element, const RRScaler* scaler)
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::setElement() called.\n"));
 }
 
-RRVec4 RRBuffer::getElement(unsigned index) const
+RRVec4 RRBuffer::getElement(unsigned index, const RRScaler* scaler) const
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElement() called.\n"));
 	return RRVec4(0);
 }
 
-RRVec4 RRBuffer::getElementAtPosition(const RRVec3& coord) const
+RRVec4 RRBuffer::getElementAtPosition(const RRVec3& coord, const RRScaler* scaler) const
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElementAtPosition() called.\n"));
 	return RRVec4(0);
 }
 
-RRVec4 RRBuffer::getElementAtDirection(const RRVec3& dir) const
+RRVec4 RRBuffer::getElementAtDirection(const RRVec3& dir, const RRScaler* scaler) const
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElementAtDirection() called.\n"));
 	return RRVec4(0);
@@ -83,7 +83,7 @@ RRBuffer* RRBuffer::createCopy()
 	return copy;
 }
 
-RRBuffer* RRBuffer::createCopy(RRBufferFormat _format, bool _scaled, const class RRScaler* _scaler) const
+RRBuffer* RRBuffer::createCopy(RRBufferFormat _format, bool _scaled, const RRScaler* _scaler) const
 {
 	RRBuffer* copy = RRBuffer::create(getType(),getWidth(),getHeight(),getDepth(),_format,_scaled,NULL);
 	copyElementsTo(copy,_scaler);
@@ -111,10 +111,10 @@ bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRScaler* scaler) con
 	const RRScaler* toPhys = (source->getScaled() && !destination->getScaled()) ? scaler : NULL;
 	for (unsigned i=0;i<size;i++)
 	{
-		RRVec4 color = source->getElement(i);
+		RRVec4 color = source->getElement(i,NULL);
 		if (toCust) toCust->toCustomSpace(color); else
 		if (toPhys) toPhys->toLinearSpace(color);
-		destination->setElement(i,color);
+		destination->setElement(i,color,NULL);
 	}
 	return true;
 }
@@ -168,7 +168,7 @@ RRBuffer* RRBuffer::createEquirectangular()
 						direction.z = sqrt(1-direction.x*direction.x-direction.y*direction.y);
 						if (i*2<width)
 							direction.z = -direction.z;
-						b->setElement(j*width+i,getElementAtDirection(direction));
+						b->setElement(j*width+i,getElementAtDirection(direction,NULL),NULL);
 					}
 				return b;
 			}
@@ -236,7 +236,7 @@ void RRBuffer::setFormat(RRBufferFormat newFormat)
 		unsigned numElements = getNumElements();
 		for (unsigned i=0;i<numElements;i++)
 		{
-			setElement(i,copy->getElement(i));
+			setElement(i,copy->getElement(i,NULL),NULL);
 		}
 		delete copy;
 	}
@@ -275,7 +275,7 @@ void RRBuffer::clear(RRVec4 clearColor)
 	unsigned numElements = getNumElements();
 	for (unsigned i=0;i<numElements;i++)
 	{
-		setElement(i,clearColor);
+		setElement(i,clearColor,NULL);
 	}
 }
 
@@ -295,9 +295,9 @@ void RRBuffer::invert()
 				unsigned numElements = getNumElements();
 				for (unsigned i=0;i<numElements;i++)
 				{
-					RRVec4 color = getElement(i);
+					RRVec4 color = getElement(i,NULL);
 					color = RRVec4(1)-color;
-					setElement(i,color);
+					setElement(i,color,NULL);
 				}
 			}
 			break;
@@ -329,7 +329,7 @@ void RRBuffer::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 				unsigned numElements = getNumElements();
 				for (unsigned i=0;i<numElements;i++)
 				{
-					setElement(i,getElement(i)*multiplier+addend);
+					setElement(i,getElement(i,NULL)*multiplier+addend,NULL);
 				}
 			}
 			break;
@@ -370,10 +370,10 @@ void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 					unsigned e2 = (flipX?xmax-1-x:x)+xmax*((flipY?ymax-1-y:y)+ymax*(flipZ?zmax-1-z:z));
 					if (e1<e2)
 					{
-						RRVec4 color1 = getElement(e1);
-						RRVec4 color2 = getElement(e2);
-						setElement(e1,color2);
-						setElement(e2,color1);
+						RRVec4 color1 = getElement(e1,NULL);
+						RRVec4 color2 = getElement(e2,NULL);
+						setElement(e1,color2,NULL);
+						setElement(e2,color1,NULL);
 					}
 				}
 			}
@@ -427,10 +427,10 @@ void RRBuffer::rotate(int degrees, unsigned depthLayer)
 						unsigned e2 = xmax-1-x+xmax*(ymax-1-y);
 						if (e1<e2)
 						{
-							RRVec4 color1 = getElement(e1+offset);
-							RRVec4 color2 = getElement(e2+offset);
-							setElement(e1+offset,color2);
-							setElement(e2+offset,color1);
+							RRVec4 color1 = getElement(e1+offset,NULL);
+							RRVec4 color2 = getElement(e2+offset,NULL);
+							setElement(e1+offset,color2,NULL);
+							setElement(e2+offset,color1,NULL);
 						}
 					}
 				}
@@ -452,13 +452,13 @@ void RRBuffer::rotate(int degrees, unsigned depthLayer)
 						{
 							RRVec4 color[4] =
 							{
-								getElement(e[0]+offset),
-								getElement(e[1]+offset),
-								getElement(e[2]+offset),
-								getElement(e[3]+offset)
+								getElement(e[0]+offset,NULL),
+								getElement(e[1]+offset,NULL),
+								getElement(e[2]+offset,NULL),
+								getElement(e[3]+offset,NULL)
 							};
 							for (unsigned i=0;i<4;i++)
-								setElement(e[i]+offset,color[(i+direction)%4]);
+								setElement(e[i]+offset,color[(i+direction)%4],NULL);
 						}
 					}
 				}
@@ -483,10 +483,10 @@ void RRBuffer::brightnessGamma(RRVec4 brightness, RRVec4 gamma)
 #pragma omp parallel for
 	for (int i=0;i<numElements;i++)
 	{
-		RRVec4 element = getElement(i);
+		RRVec4 element = getElement(i,NULL);
 		for (unsigned j=0;j<4;j++)
 			element[j] = pow(element[j]*brightness[j],gamma[j]);
-		setElement(i,element);
+		setElement(i,element,NULL);
 	}
 }
 
@@ -498,7 +498,7 @@ void RRBuffer::getMinMax(RRVec4* _mini, RRVec4* _maxi)
 	RRVec4 maxi(-1e20f);
 	for (unsigned i=0;i<numElements;i++)
 	{
-		RRVec4 color = getElement(i);
+		RRVec4 color = getElement(i,NULL);
 		for (unsigned j=0;j<4;j++)
 		{
 			mini[j] = RR_MIN(mini[j],color[j]);
@@ -646,7 +646,7 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 	RRVec4* destination = source+size;
 	for (unsigned i=0;i<size;i++)
 	{
-		source[i] = getElement(i);
+		source[i] = getElement(i,NULL);
 	}
 
 	// fill blurFlags, what neighbors to blur with
@@ -790,7 +790,7 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 	// copy temp back to buffer, preserve alpha
 	for (unsigned i=0;i<size;i++)
 		if (source[i][3]>0)
-			setElement(i,RRVec4(source[i][0],source[i][1],source[i][2],getElement(i)[3]));
+			setElement(i,RRVec4(source[i][0],source[i][1],source[i][2],getElement(i,NULL)[3]),NULL);
 	free(buf);
 	return true;
 }
@@ -811,7 +811,7 @@ bool RRBuffer::lightmapGrowForBilinearInterpolation(bool _wrap)
 	for (unsigned i=0;i<width;i++)
 	{
 		// we are processing texel i,j
-		if (getElement(i+j*width)[3]>0.002f)
+		if (getElement(i+j*width,NULL)[3]>0.002f)
 		{
 			// not empty, keep it unchanged
 			notEmpty = true;
@@ -837,7 +837,7 @@ bool RRBuffer::lightmapGrowForBilinearInterpolation(bool _wrap)
 						continue;
 				}
 				// read neighbor
-				RRVec4 c = getElement(x+y*width);
+				RRVec4 c = getElement(x+y*width,NULL);
 				unsigned texelFlags = FLOAT_TO_TEXELFLAGS(c[3]);
 				// is it good one?
 				if (0
@@ -855,7 +855,7 @@ bool RRBuffer::lightmapGrowForBilinearInterpolation(bool _wrap)
 			if (sum[3])
 				setElement(i+j*width,RRVec4(sum[0]/sum[3],sum[1]/sum[3],sum[2]/sum[3],
 					0.001f // small enough to be invisible for texelFlags, but big enough to be >0, to prevent growForeground() and fillBackground() from overwriting this texel
-					));
+					),NULL);
 		}
 	}
 	return notEmpty;
@@ -898,7 +898,7 @@ bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap, bool& _aborting)
 	RRVec4* destination = buf+size;
 	for (unsigned i=0;i<size;i++)
 	{
-		RRVec4 c = getElement(i);
+		RRVec4 c = getElement(i,NULL);
 		source[i] = c[3]>0 ? RRVec4(c[0],c[1],c[2],1) : RRVec4(0);
 	}
 
@@ -959,8 +959,8 @@ bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap, bool& _aborting)
 
 	// copy temp back to buffer
 	for (unsigned i=0;i<size;i++)
-		if (source[i][3]>0 && getElement(i)[3]==0)
-			setElement(i,RRVec4(source[i][0],source[i][1],source[i][2],0.001f));
+		if (source[i][3]>0 && getElement(i,NULL)[3]==0)
+			setElement(i,RRVec4(source[i][0],source[i][1],source[i][2],0.001f),NULL);
 	delete[] buf;
 	return true;
 }
@@ -977,8 +977,8 @@ bool RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 	unsigned numElements = getNumElements();
 	for (unsigned i=0;i<numElements;i++)
 	{
-		RRVec4 color = getElement(i);
-		setElement(i,(color[3]<=0)?backgroundColor:color);
+		RRVec4 color = getElement(i,NULL);
+		setElement(i,(color[3]<=0)?backgroundColor:color,NULL);
 	}
 	return true;
 }
@@ -1153,7 +1153,7 @@ bool RRBuffer::reload(const RRString& _filename, const char* _cubeSideName[6], c
 	{
 		unsigned pixels = loaded->getNumElements();
 		for (unsigned i=0;i<pixels;i++)
-			setElement(i,loaded->getElement(i));
+			setElement(i,loaded->getElement(i,NULL),NULL);
 	}
 	delete loaded;
 	return true;

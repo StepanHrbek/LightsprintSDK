@@ -20,7 +20,7 @@ namespace rr
 class RR_API RRBufferBlend : public RRBuffer
 {
 public:
-	RRBufferBlend(const RRBuffer* environment0, const RRBuffer* environment1, RRReal angleRad0, RRReal angleRad1, RRReal blendFactor, const RRScaler* scaler);
+	RRBufferBlend(const RRBuffer* environment0, const RRBuffer* environment1, RRReal angleRad0, RRReal angleRad1, RRReal blendFactor);
 
 	void report(const char* name) const
 	{
@@ -29,7 +29,7 @@ public:
 
 	// setting
 	virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data) {report("reset");return false;}
-	virtual void setElement(unsigned index, const RRVec4& element) {report("setElement");}
+	virtual void setElement(unsigned index, const RRVec4& element, const RRScaler* scaler) {report("setElement");}
 
 	// reading
 	virtual RRBufferType getType()                                   const {report("getType");return BT_2D_TEXTURE;}
@@ -39,9 +39,9 @@ public:
 	virtual RRBufferFormat getFormat()                               const {report("getFormat");return BF_RGBAF;}
 	virtual bool getScaled()                                         const {return false;}
 	virtual unsigned getBufferBytes()                                const {return sizeof(*this);}
-	virtual RRVec4 getElement(unsigned index)                        const {report("getElement");return RRVec4(0);}
-	virtual RRVec4 getElementAtPosition(const RRVec3& position)      const {report("getElementAtPosition");return RRVec4(0);}
-	virtual RRVec4 getElementAtDirection(const RRVec3& direction)    const;
+	virtual RRVec4 getElement(unsigned index, const RRScaler* scaler)                     const {report("getElement");return RRVec4(0);}
+	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRScaler* scaler)   const {report("getElementAtPosition");return RRVec4(0);}
+	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRScaler* scaler) const;
 	virtual unsigned char* lock(RRBufferLock lock)                         {report("lock");return NULL;}
 	virtual void unlock()                                                  {report("unlock");}
 	virtual bool isStub()                                                  {return false;}
@@ -56,8 +56,6 @@ protected:
 	RRMatrix3x4 rotation0;
 	RRMatrix3x4 rotation1;
 	RRReal blendFactor;
-	const RRScaler* scaler0;
-	const RRScaler* scaler1;
 };
 
 }; // namespace

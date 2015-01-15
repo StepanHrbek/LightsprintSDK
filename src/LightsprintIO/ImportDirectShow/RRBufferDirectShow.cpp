@@ -272,36 +272,42 @@ public:
 
 	// --------- element access ---------
 
-	virtual void setElement(unsigned index, const RRVec4& element)
+	virtual void setElement(unsigned index, const RRVec4& _element, const RRScaler* scaler)
 	{
 		if (index>=width*height)
 		{
 			RRReporter::report(WARN,"setElement(%d) out of range, buffer size %d*%d=%d.\n",index,width,height,width*height);
 			return;
 		}
+		RRVec4 element = _element;
+		if (scaler)
+			scaler->toCustomSpace(element);
 		front[3*index+0] = RR_FLOAT2BYTE(element[2]);
 		front[3*index+1] = RR_FLOAT2BYTE(element[1]);
 		front[3*index+2] = RR_FLOAT2BYTE(element[0]);
 		version++;
 	}
-	virtual RRVec4 getElement(unsigned index) const
+	virtual RRVec4 getElement(unsigned index, const RRScaler* scaler) const
 	{
 		if (index>=width*height)
 		{
 			RRReporter::report(WARN,"getElement(%d) out of range, buffer size %d*%d=%d.\n",index,width,height,width*height);
 			return RRVec4(0);
 		}
-		return RRVec4(
+		RRVec4 result(
 			RR_BYTE2FLOAT(front[index*3+2]),
 			RR_BYTE2FLOAT(front[index*3+1]),
 			RR_BYTE2FLOAT(front[index*3+0]),
 			1);
+		if (scaler)
+			scaler->toLinearSpace(result);
+		return result;
 	}
-	virtual RRVec4 getElementAtPosition(const RRVec3& position) const
+	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRScaler* scaler) const
 	{
-		return getElement(((unsigned)(position[0]*width)%width) + ((unsigned)(position[1]*height)%height) * width);
+		return getElement(((unsigned)(position[0]*width)%width) + ((unsigned)(position[1]*height)%height) * width, scaler);
 	}
-	virtual RRVec4 getElementAtDirection(const RRVec3& direction) const
+	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRScaler* scaler) const
 	{
 		// 360*180 degree panorama (equirectangular projection)
 		unsigned index = ((unsigned)( (asin(direction.y/direction.length())*(1.0f/RR_PI)+0.5f) * height) % height) * width;
@@ -313,7 +319,7 @@ public:
 			if (direction.z<0) angle = (rr::RRReal)(RR_PI-angle);
 			index += (unsigned)( (angle*(-0.5f/RR_PI)+0.75f) * width) % width;
 		}
-		return getElement(index);
+		return getElement(index, scaler);
 	}
 
 	// --------- whole buffer access ---------

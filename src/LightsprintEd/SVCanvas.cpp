@@ -2489,7 +2489,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 							centerObject = svs.selectedObjectIndex;
 							centerTexel = i + j*buffer->getWidth();
 							//!!!centerTriangle = ?;
-							rr::RRVec4 color = buffer->getElement(i+j*buffer->getWidth());
+							rr::RRVec4 color = buffer->getElement(i+j*buffer->getWidth(),NULL);
 							textOutput(x,y+=18,h,"color: %f %f %f %f",color[0],color[1],color[2],color[3]);
 						}
 					}

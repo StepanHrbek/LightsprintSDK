@@ -219,7 +219,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	return true;
 }
 
-void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
+void RRBufferInMemory::setElement(unsigned index, const RRVec4& _element, const RRScaler* scaler)
 {
 	if (!data)
 	{
@@ -231,6 +231,9 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 		RRReporter::report(WARN,"setElement(%d) out of range, buffer size %d*%d*%d=%d.\n",index,width,height,depth,width*height*depth);
 		return;
 	}
+	RRVec4 element = _element;
+	if (scaler && scaled)
+		scaler->toCustomSpace(element);
 	//RR_ASSERT(element[0]>=0); // bent normals may be negative
 	switch(format)
 	{
@@ -274,7 +277,7 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& element)
 	version++;
 }
 
-RRVec4 RRBufferInMemory::getElement(unsigned index) const
+RRVec4 RRBufferInMemory::getElement(unsigned index, const RRScaler* scaler) const
 {
 	if (!data)
 	{
@@ -336,6 +339,8 @@ RRVec4 RRBufferInMemory::getElement(unsigned index) const
 			RRReporter::report(WARN,"Unexpected buffer format.\n");
 			break;
 	}
+	if (scaler && scaled)
+		scaler->toLinearSpace(result);
 	//RR_ASSERT(result[0]>=0); // bent normals may be negative
 	return result;
 }
@@ -347,7 +352,7 @@ static float jitter()
 //	return (rand()-RAND_MAX/2)*(1.0f/RAND_MAX);
 }
 
-RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position) const
+RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRScaler* scaler) const
 {
 #if 0
 	// fast, no interpolation
@@ -355,7 +360,7 @@ RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position) const
 	coord[0] = (unsigned)(_position[0] * width) % width;
 	coord[1] = (unsigned)(_position[1] * height) % height;
 	coord[2] = (unsigned)(_position[2] * depth) % depth;
-	return getElement(coord[0]+coord[1]*width+coord[2]*width*height);
+	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,scaler);
 #else
 #if 0
 	// fast, temporal interpolation/noise
@@ -363,7 +368,7 @@ RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position) const
 	coord[0] = (unsigned)(jitter() + _position[0] * width) % width;
 	coord[1] = (unsigned)(jitter() + _position[1] * height) % height;
 	coord[2] = (unsigned)(_position[2] * depth) % depth;
-	return getElement(coord[0]+coord[1]*width+coord[2]*width*height);
+	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,scaler);
 #else
 	// slow, interpolation
 	RRVec3 position((fmodf(_position[0],1)+2)*width-0.5f,(fmodf(_position[1],1)+2)*height-0.5f,(fmodf(_position[2],1)+1)*depth);
@@ -372,16 +377,16 @@ RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position) const
 	coord[0] = (unsigned)(position[0]);
 	coord[1] = (unsigned)(position[1]);
 	coord[2] = ((unsigned)(position[2]) % depth)*width*height;
-	RRVec4 e00 = getElement(( coord[0]   %width)+( coord[1]   %height)*width+coord[2]);
-	RRVec4 e01 = getElement(( coord[0]   %width)+((coord[1]+1)%height)*width+coord[2]);
-	RRVec4 e10 = getElement(((coord[0]+1)%width)+( coord[1]   %height)*width+coord[2]);
-	RRVec4 e11 = getElement(((coord[0]+1)%width)+((coord[1]+1)%height)*width+coord[2]);
+	RRVec4 e00 = getElement(( coord[0]   %width)+( coord[1]   %height)*width+coord[2],scaler);
+	RRVec4 e01 = getElement(( coord[0]   %width)+((coord[1]+1)%height)*width+coord[2],scaler);
+	RRVec4 e10 = getElement(((coord[0]+1)%width)+( coord[1]   %height)*width+coord[2],scaler);
+	RRVec4 e11 = getElement(((coord[0]+1)%width)+((coord[1]+1)%height)*width+coord[2],scaler);
 	return e00*((1-remainder[0])*(1-remainder[1]))+e01*((1-remainder[0])*(remainder[1]))+e10*(remainder[0]*(1-remainder[1]))+e11*(remainder[0]*remainder[1]);
 #endif
 #endif
 }
 
-RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction) const
+RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction, const RRScaler* scaler) const
 {
 	unsigned coord[3];
 	switch(type)
@@ -422,7 +427,7 @@ RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction) const
 				break;
 			}
 	}
-	return getElement(coord[0]+coord[1]*width+coord[2]*width*height);
+	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,scaler);
 }
 
 }; // namespace

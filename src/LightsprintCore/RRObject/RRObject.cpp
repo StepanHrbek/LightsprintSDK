@@ -196,20 +196,15 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		RRMesh::TriangleMapping triangleMapping;
 		mesh->getTriangleMapping(t,triangleMapping,material.diffuseEmittance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		material.diffuseEmittance.color = material.diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
-		material.diffuseEmittance.colorPhysical = material.diffuseEmittance.color;
-		if (scaler)
-		{
-			scaler->toLinearSpace(material.diffuseEmittance.colorPhysical);
-		}
+		material.diffuseEmittance.colorPhysical = material.diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler);
 	}
 	if (material.specularReflectance.texture)
 	{
 		RRMesh::TriangleMapping triangleMapping;
 		mesh->getTriangleMapping(t,triangleMapping,material.specularReflectance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		RRVec4 specColor = material.specularReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
-		material.specularReflectance.color = specColor;
+		RRVec4 specColor = material.specularReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler);
+		material.specularReflectance.colorPhysical = specColor;
 		// shininess is modulated by specular map alpha. does nothing if specular map is RGB only [#18]
 		if (material.specularModel==RRMaterial::PHONG || material.specularModel==RRMaterial::BLINN_PHONG)
 		{
@@ -219,11 +214,6 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		}
 		else
 			material.specularShininess *= specColor.w;
-		material.specularReflectance.colorPhysical = material.specularReflectance.color;
-		if (scaler)
-		{
-			scaler->toLinearSpace(material.specularReflectance.colorPhysical);
-		}
 	}
 	if (material.diffuseReflectance.texture && material.specularTransmittance.texture==material.diffuseReflectance.texture && material.specularTransmittanceInAlpha)
 	{
@@ -231,7 +221,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		RRMesh::TriangleMapping triangleMapping;
 		mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 		RRVec2 materialUv= triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		RRVec4 rgba = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
+		RRVec4 rgba = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),NULL);
 		material.diffuseReflectance.color = rgba * rgba[3]; // [#39]
 		material.specularTransmittance.color = RRVec3(1-rgba[3]);
 		if (material.specularTransmittanceMapInverted)
@@ -246,7 +236,6 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		{
 			scaler->toLinearSpace(material.diffuseReflectance.colorPhysical);
 			// [#40] rr_gl renders transparency without srgb correction, so here we keep colorPhysical=color for pathtracer to produce similar results
-			//scaler->toLinearSpace(material.specularTransmittance.colorPhysical);
 		}
 	}
 	else
@@ -257,19 +246,14 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			RRMesh::TriangleMapping triangleMapping;
 			mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-			material.diffuseReflectance.color = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
-			material.diffuseReflectance.colorPhysical = material.diffuseReflectance.color;
-			if (scaler)
-			{
-				scaler->toLinearSpace(material.diffuseReflectance.colorPhysical);
-			}
+			material.diffuseReflectance.colorPhysical = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler);
 		}
 		if (material.specularTransmittance.texture)
 		{
 			RRMesh::TriangleMapping triangleMapping;
 			mesh->getTriangleMapping(t,triangleMapping,material.specularTransmittance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-			RRVec4 rgba = material.specularTransmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
+			RRVec4 rgba = material.specularTransmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),NULL);
 			material.specularTransmittance.color = material.specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
 			if (material.specularTransmittanceMapInverted)
 				material.specularTransmittance.color = RRVec3(1)-material.specularTransmittance.color;
@@ -278,11 +262,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			if (material.specularTransmittance.color==RRVec3(1))
 				material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
 			material.specularTransmittance.colorPhysical = material.specularTransmittance.color;
-			if (scaler)
-			{
-				// [#40] rr_gl renders transparency without srgb correction, so here we keep colorPhysical=color for pathtracer to produce similar results
-				//scaler->toLinearSpace(material.specularTransmittance.colorPhysical);
-			}
+			// [#40] rr_gl renders transparency without srgb correction, so here we keep colorPhysical=color for pathtracer to produce similar results
 			// [#39] we multiply dif by opacity on the fly, because real world data are often in this format
 			material.diffuseReflectance.color *= (RRVec3(1)-material.specularTransmittance.color); // multiply cust color in cust.scale - inaccurate, but result probably not used
 			material.diffuseReflectance.colorPhysical *= (RRVec3(1)-material.specularTransmittance.colorPhysical); // multiply phys color in phys scale - accurate, used by pathtracer, makes cloud borders in clouds.rr3 white

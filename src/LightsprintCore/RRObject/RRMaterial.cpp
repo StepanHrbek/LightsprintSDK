@@ -184,11 +184,7 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 	unsigned r = 1649317406;
 	for (unsigned i=0;i<numElements;)
 	{
-		RRVec4 elem = buffer->getElement(i);
-		if (scaler)
-		{
-			scaler->toLinearSpace(elem);
-		}
+		RRVec4 elem = buffer->getElement(i,scaler);
 		sum += elem;
 		sumOfSquares += elem*elem;
 		numElementsTested++;
@@ -292,7 +288,7 @@ unsigned RRMaterial::Property::createTextureFromColor(bool isTransmittance)
 	//   it will be relevant when we create texture, should we clear it?
 	//   no, instead we are adding alpha to satisfy both specularTransmittanceInAlpha=false and true
 	texture = RRBuffer::create(BT_2D_TEXTURE,1,1,1,isTransmittance?BF_RGBA:BF_RGB,true,NULL);
-	texture->setElement(0,RRVec4(color,1-color.avg()));
+	texture->setElement(0,RRVec4(color,1-color.avg()),NULL);
 	return 1;
 }
 
@@ -331,7 +327,7 @@ static RRReal getBlendImportance(RRBuffer* transmittanceTexture, bool opacityInA
 		{
 			unsigned x = (unsigned)((i+0.5f)*width/size);
 			unsigned y = (unsigned)((j+0.5f)*height/size);
-			RRVec4 color = transmittanceTexture->getElement(x+y*width);
+			RRVec4 color = transmittanceTexture->getElement(x+y*width,NULL);
 			RRReal blendImportance = getBlendImportance(color,opacityInAlpha);
 			if (blendImportance)
 			{
@@ -340,10 +336,10 @@ static RRReal getBlendImportance(RRBuffer* transmittanceTexture, bool opacityInA
 				for (unsigned n=0;n<4;n++)
 				{
 					RRVec4 neighbour = color;
-					if (n==0 && x>0) neighbour = transmittanceTexture->getElement(x-1+y*width);
-					if (n==1 && x+1<width) neighbour = transmittanceTexture->getElement(x+1+y*width);
-					if (n==2 && y>0) neighbour = transmittanceTexture->getElement(x+(y-1)*width);
-					if (n==3 && y+1<height) neighbour = transmittanceTexture->getElement(x+(y+1)*width);
+					if (n==0 && x>0) neighbour = transmittanceTexture->getElement(x-1+y*width,NULL);
+					if (n==1 && x+1<width) neighbour = transmittanceTexture->getElement(x+1+y*width,NULL);
+					if (n==2 && y>0) neighbour = transmittanceTexture->getElement(x+(y-1)*width,NULL);
+					if (n==3 && y+1<height) neighbour = transmittanceTexture->getElement(x+(y+1)*width,NULL);
 					for (unsigned a=0;a<4;a++)
 					{
 						colorMin[a] = RR_MIN(colorMin[a],neighbour[a]);
@@ -422,7 +418,7 @@ void RRMaterial::updateBumpMapType()
 		RRVec3 sum(0);
 		for (unsigned i=0;i<LOOKUPS;i++)
 		{
-			RRVec3 color = bumpMap.texture->getElement(numElements*i/LOOKUPS);
+			RRVec3 color = bumpMap.texture->getElement(numElements*i/LOOKUPS,NULL);
 			sum += color;
 		}
 		float blueness = sum.z-RR_MAX(sum.x,sum.y); // normal map should have it highly positive, gray height map zero, rgb used as height map can be anything (with average in zero)
