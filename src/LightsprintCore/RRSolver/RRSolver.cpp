@@ -126,9 +126,9 @@ void RRSolver::setScaler(const RRScaler* _scaler)
 	// update fast conversion table for our setDirectIllumination
 	for (unsigned i=0;i<256;i++)
 	{
-		RRVec3 c(multiplier*i/255);
+		RRReal c = multiplier*i/255;
 		if (_scaler) _scaler->toLinearSpace(c);
-		priv->customToPhysical[i] = c[0];
+		priv->customToPhysical[i] = c;
 	}
 	// tell realtime solver to update GI (=re-run DDI with new scaler)
 	reportDirectIlluminationChange(-1,false,true,false);
