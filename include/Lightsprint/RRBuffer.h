@@ -14,6 +14,71 @@
 namespace rr
 {
 
+	//////////////////////////////////////////////////////////////////////////////
+	//
+	//  RRScaler
+	//! Interface for physical <-> custom space transformer.
+	//
+	//! RRScaler may be used to transform irradiance/emittance/exitance/reflectance/transmittance
+	//! between physical linear W/m^2 space and custom user defined space.
+	//! Without scaler, all inputs/outputs work with specified physical units.
+	//! With appropriate scaler, you may directly work for example with screen colors (sRGB)
+	//! or photometric units.
+	//!
+	//! For best results, scaler should satisfy following conditions for any x,y,z:
+	//! \n toLinearSpace(x)*toLinearSpace(y)=toLinearSpace(x*y)
+	//! \n toLinearSpace(x*y)*toLinearSpace(z)=toLinearSpace(x)*toLinearSpace(y*z)
+	//! \n toCustomSpace is inverse of toLinear
+	//!
+	//! When implementing your own scaler, double check you don't generate NaNs or INFs,
+	//! for negative inputs.
+	//!
+	//! Contains built-in support for screen colors / sRGB, see createRgbScaler().
+	//
+	//////////////////////////////////////////////////////////////////////////////
+
+	class RR_API RRScaler : public RRUniformlyAllocated
+	{
+	public:
+		//////////////////////////////////////////////////////////////////////////////
+		// Interface
+		//////////////////////////////////////////////////////////////////////////////
+
+		//! Converts value from linear space to custom color space.
+		virtual void toCustomSpace(RRReal& value) const = 0;
+		//! Converts value from linear space to custom color space.
+		virtual void toCustomSpace(RRVec3& value) const = 0;
+
+		//! Converts value from custom color space to linear space.
+		virtual void toLinearSpace(RRReal& value) const = 0;
+		//! Converts value from custom color space to linear space.
+		virtual void toLinearSpace(RRVec3& value) const = 0;
+
+		virtual ~RRScaler() {}
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Tools
+		//////////////////////////////////////////////////////////////////////////////
+
+		//
+		// instance factory
+		//
+
+		//! Creates and returns scaler for sRGB space - screen colors.
+		//
+		//! Scaler converts between radiometry units (W/m^2) and screen colors.
+		//! \param power
+		//!  Exponent in formula screenSpace = physicalSpace^power.
+		//!  Use default value for typical screens or tweak it for different contrast.
+		static RRScaler* createRgbScaler(RRReal power=0.45f);
+
+		//! As createRgbScaler(), but slightly faster, with undefined results for negative numbers.
+		//! Be cautious and fall back to createRgbScaler() in case you find regression.
+		static RRScaler* createFastRgbScaler(RRReal power=0.45f);
+	};
+
+
 	//! Buffer type. Implementation is not required to support all of them.
 	enum RRBufferType
 	{
