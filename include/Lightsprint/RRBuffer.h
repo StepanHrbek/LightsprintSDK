@@ -334,7 +334,7 @@ namespace rr
 
 		//! Creates copy of buffer. Copy is located in system memory and is completely separated, both buffers may contain different data. Copy of video contains single frame.
 		RRBuffer* createCopy();
-		RRBuffer* createCopy(RRBufferFormat format, bool scaled, const class RRScaler* scaler) const;
+		RRBuffer* createCopy(RRBufferFormat format, bool scaled, const RRScaler* scaler) const;
 		//! Copies contents of buffer. Destination buffer format and scale are preserved, data are converted as necessary.
 		//
 		//! \param destination
@@ -342,7 +342,7 @@ namespace rr
 		//! \param scaler
 		//!  Scaler used if buffers differ in scale. May be NULL for no conversion.
 		//! \return True on success.
-		bool copyElementsTo(RRBuffer* destination, const class RRScaler* scaler) const;
+		bool copyElementsTo(RRBuffer* destination, const RRScaler* scaler) const;
 
 		//! Creates cube texture with specified colors of upper and lower hemisphere.
 		//
