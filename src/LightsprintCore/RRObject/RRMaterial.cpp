@@ -281,7 +281,7 @@ RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool
 
 void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs)
 {
-	float variance = 0.000001f;
+	float variance = 0;
 	variance = RR_MAX(variance, 3 * specularTransmittance.updateColorFromTexture(scaler,0,specularTransmittanceInAlpha,uniformTextureAction,updateEvenFromStubs));
 	variance = RR_MAX(variance, 2 * diffuseEmittance.updateColorFromTexture(scaler,1,0,uniformTextureAction,updateEvenFromStubs));
 	variance = RR_MAX(variance, 1 * diffuseReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs));
@@ -290,7 +290,7 @@ void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTexture
 	bumpMap.updateColorFromTexture(NULL,0,0,uniformTextureAction,updateEvenFromStubs);
 	bumpMap.color.x = bumpMultipliers.x;
 	bumpMap.color.y = bumpMultipliers.y;
-	minimalQualityForPointMaterials = unsigned(100/(variance*variance));
+	minimalQualityForPointMaterials = variance ? unsigned(100/(variance*variance)) : UINT_MAX;
 	//RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);
 }
 

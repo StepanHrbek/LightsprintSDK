@@ -184,7 +184,7 @@ public:
 		if (TEST_BIT(triangleMaterial,renderFrom))
 		{
 			// per-pixel materials
-			if (quality>=triangleMaterial->minimalQualityForPointMaterials)
+			if (quality>triangleMaterial->minimalQualityForPointMaterials)
 			{
 				unsigned pmi = (firstContactMaterial==pointMaterial)?1:0; // index into pointMaterial[], one that is not occupied by firstContactMaterial
 				hitObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial[pmi],scaler);
