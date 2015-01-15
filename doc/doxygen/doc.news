@@ -29,6 +29,9 @@ NEWS
 
 CHANGES
 
+- RRScaler simplification
+  - RRScaler::toCustomSpace() replaces getCustomScale() and getCustomFactor()
+  - RRScaler::toLinearSpace() replaces getPhysicalScale() and getPhysicalFactor()
 - reduced automatic RRMaterial::minimalQualityForPointMaterials, makes baking at the same settings bit slower, but quality higher
 - RRScaler::getCustomFactor() and RRScaler::getPhysicalFactor() write new value to parameter, instead of returning it
 - RRMatrix3x4Ex added, some functions switched from RRMatrix3x4 to RRMatrix3x4Ex
