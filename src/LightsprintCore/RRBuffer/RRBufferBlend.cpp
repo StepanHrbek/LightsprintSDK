@@ -52,14 +52,14 @@ RRVec4 RRBufferBlend::getElementAtDirection(const RRVec3& direction) const
 		rotation0.transformDirection(direction0);
 		color0 = environment0->getElementAtDirection(direction0);
 		if (scaler0)
-			scaler0->getPhysicalScale(color0);
+			scaler0->toLinearSpace(color0);
 	}
 	if (environment1)
 	{
 		rotation1.transformDirection(direction1);
 		color1 = environment1->getElementAtDirection(direction1);
 		if (scaler1)
-			scaler1->getPhysicalScale(color1);
+			scaler1->toLinearSpace(color1);
 	}
 	return color0*(1-blendFactor) + color1*blendFactor;
 }

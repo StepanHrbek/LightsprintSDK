@@ -166,7 +166,7 @@ void RRMaterial::reset(bool twoSided)
 // When working with non-physical scale data, provide scaler for correct results.
 // Without scaler, mean would be a bit darker,
 //  triangle materials based on mean would produce darker lightmaps than point materials.
-RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& average, bool isEmittance)
+RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& average)
 {
 	RR_ASSERT(buffer);
 	if (buffer->getDuration())
@@ -187,10 +187,7 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 		RRVec4 elem = buffer->getElement(i);
 		if (scaler)
 		{
-			if (!isEmittance)
-				scaler->getPhysicalFactor(elem);
-			else
-				scaler->getPhysicalScale(elem);
+			scaler->toLinearSpace(elem);
 		}
 		sum += elem;
 		sumOfSquares += elem*elem;
@@ -210,16 +207,8 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 	RRVec4 standardDeviation(sqrt(variance[0]),sqrt(variance[1]),sqrt(variance[2]),sqrt(variance[3]));
 	if (scaler)
 	{
-		if (!isEmittance)
-		{
-			scaler->getCustomFactor(average);
-			scaler->getCustomFactor(standardDeviation);
-		}
-		else
-		{
-			scaler->getCustomScale(average);
-			scaler->getCustomScale(standardDeviation);
-		}
+		scaler->toCustomSpace(average);
+		scaler->toCustomSpace(standardDeviation);
 		variance = standardDeviation*standardDeviation;
 	}
 	// -1               ... texture with random 0 1 or 0 20 returns the same as texture with random 0 255, which is max possible difference
@@ -230,10 +219,10 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 
 // extract mean and variance from buffer
 // convert mean to color, variance to scalar
-RRReal getVariance(const RRBuffer* _buffer, const RRScaler* _scaler, RRVec3& _average, bool _isEmittance, bool _isTransmittanceInAlpha)
+RRReal getVariance(const RRBuffer* _buffer, const RRScaler* _scaler, RRVec3& _average, bool _isTransmittanceInAlpha)
 {
 	RRVec4 average;
-	RRVec4 variance = getVariance(_buffer,_scaler,average,_isEmittance);
+	RRVec4 variance = getVariance(_buffer,_scaler,average);
 	if (_isTransmittanceInAlpha)
 	{
 		_average = RRVec3(1-average[3]);
@@ -259,11 +248,11 @@ void RRMaterial::Property::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 	}
 }
 
-RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool isEmittance, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub)
+RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub)
 {
 	if (texture && (updateEvenFromStub || !texture->isStub()))
 	{
-		RRReal variance = getVariance(texture,scaler,color,isEmittance,isTransmittanceInAlpha);
+		RRReal variance = getVariance(texture,scaler,color,isTransmittanceInAlpha);
 		if (!variance && !texture->isStub()) // don't remove stubs
 		{
 			switch (uniformTextureAction)
@@ -282,12 +271,12 @@ RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool
 void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs)
 {
 	float variance = 0;
-	variance = RR_MAX(variance, 3 * specularTransmittance.updateColorFromTexture(scaler,0,specularTransmittanceInAlpha,uniformTextureAction,updateEvenFromStubs));
-	variance = RR_MAX(variance, 2 * diffuseEmittance.updateColorFromTexture(scaler,1,0,uniformTextureAction,updateEvenFromStubs));
-	variance = RR_MAX(variance, 1 * diffuseReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs));
-	variance = RR_MAX(variance, 1 * specularReflectance.updateColorFromTexture(scaler,0,0,uniformTextureAction,updateEvenFromStubs));
+	variance = RR_MAX(variance, 3 * specularTransmittance.updateColorFromTexture(scaler,specularTransmittanceInAlpha,uniformTextureAction,updateEvenFromStubs));
+	variance = RR_MAX(variance, 2 * diffuseEmittance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs));
+	variance = RR_MAX(variance, 1 * diffuseReflectance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs));
+	variance = RR_MAX(variance, 1 * specularReflectance.updateColorFromTexture(scaler,0,uniformTextureAction,updateEvenFromStubs));
 	RRVec2 bumpMultipliers = bumpMap.color; // backup bumpMap.color.xy, those are multipliers
-	bumpMap.updateColorFromTexture(NULL,0,0,uniformTextureAction,updateEvenFromStubs);
+	bumpMap.updateColorFromTexture(NULL,0,uniformTextureAction,updateEvenFromStubs);
 	bumpMap.color.x = bumpMultipliers.x;
 	bumpMap.color.y = bumpMultipliers.y;
 	minimalQualityForPointMaterials = variance ? unsigned(100/(variance*variance)) : UINT_MAX;
@@ -495,10 +484,10 @@ void RRMaterial::convertToCustomScale(const RRScaler* scaler)
 {
 	if (scaler)
 	{
-		scaler->getCustomFactor(diffuseReflectance.color = diffuseReflectance.colorPhysical);
-		scaler->getCustomScale(diffuseEmittance.color = diffuseEmittance.colorPhysical);
-		scaler->getCustomFactor(specularReflectance.color = specularReflectance.colorPhysical);
-		scaler->getCustomFactor(specularTransmittance.color = specularTransmittance.colorPhysical);
+		scaler->toCustomSpace(diffuseReflectance.color = diffuseReflectance.colorPhysical);
+		scaler->toCustomSpace(diffuseEmittance.color = diffuseEmittance.colorPhysical);
+		scaler->toCustomSpace(specularReflectance.color = specularReflectance.colorPhysical);
+		scaler->toCustomSpace(specularTransmittance.color = specularTransmittance.colorPhysical);
 	}
 	validate();
 }
@@ -507,10 +496,10 @@ void RRMaterial::convertToPhysicalScale(const RRScaler* scaler)
 {
 	if (scaler)
 	{
-		scaler->getPhysicalFactor(diffuseReflectance.colorPhysical = diffuseReflectance.color);
-		scaler->getPhysicalScale(diffuseEmittance.colorPhysical = diffuseEmittance.color);
-		scaler->getPhysicalFactor(specularReflectance.colorPhysical = specularReflectance.color);
-		scaler->getPhysicalFactor(specularTransmittance.colorPhysical = specularTransmittance.color);
+		scaler->toLinearSpace(diffuseReflectance.colorPhysical = diffuseReflectance.color);
+		scaler->toLinearSpace(diffuseEmittance.colorPhysical = diffuseEmittance.color);
+		scaler->toLinearSpace(specularReflectance.colorPhysical = specularReflectance.color);
+		scaler->toLinearSpace(specularTransmittance.colorPhysical = specularTransmittance.color);
 	}
 	validate();
 }

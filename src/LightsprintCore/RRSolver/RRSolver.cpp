@@ -122,12 +122,12 @@ void RRSolver::setScaler(const RRScaler* _scaler)
 	priv->scaler = _scaler;
 	// priv->lightIndirectMultiplier is in physical scale, but we need it in custom
 	float multiplier = priv->lightIndirectMultiplier;
-	if (_scaler) _scaler->getCustomScale(multiplier);
+	if (_scaler) _scaler->toCustomSpace(multiplier);
 	// update fast conversion table for our setDirectIllumination
 	for (unsigned i=0;i<256;i++)
 	{
 		RRVec3 c(multiplier*i/255);
-		if (_scaler) _scaler->getPhysicalScale(c);
+		if (_scaler) _scaler->toLinearSpace(c);
 		priv->customToPhysical[i] = c[0];
 	}
 	// tell realtime solver to update GI (=re-run DDI with new scaler)

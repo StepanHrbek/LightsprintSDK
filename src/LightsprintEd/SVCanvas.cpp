@@ -1752,7 +1752,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (svs.renderTonemapping)
 			{
 				tp = svs.tonemapping;
-				solver->getScaler()->getPhysicalScale(tp.color);
+				solver->getScaler()->toLinearSpace(tp.color);
 			}
 			tp.gamma *= 0.45f;
 			pathTracedAccumulator++;

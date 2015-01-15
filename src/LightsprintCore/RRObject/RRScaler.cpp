@@ -28,19 +28,19 @@ public:
 		gamma = agamma;
 		invGamma = 1/gamma;
 	}
-	virtual void getCustomScale(RRReal& a) const
+	virtual void toCustomSpace(RRReal& a) const
 	{
 		RR_ASSERT(_finite(a));
 		a = (a>=0)?pow(a,gamma):-pow(-a,gamma);
 		RR_ASSERT(_finite(a));
 	}
-	virtual void getPhysicalScale(RRReal& a) const
+	virtual void toLinearSpace(RRReal& a) const
 	{
 		RR_ASSERT(_finite(a));
 		a = (a>=0)?pow(a,invGamma):-pow(-a,invGamma);
 		RR_ASSERT(_finite(a));
 	}
-	virtual void getCustomScale(RRVec3& color) const
+	virtual void toCustomSpace(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
@@ -54,47 +54,7 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 	}
-	virtual void getPhysicalScale(RRVec3& color) const
-	{
-		RR_ASSERT(_finite(color[0]));
-		RR_ASSERT(_finite(color[1]));
-		RR_ASSERT(_finite(color[2]));
-		color = RRVec3(
-			(color[0]>=0)?pow(color[0],invGamma):-pow(-color[0],invGamma),
-			(color[1]>=0)?pow(color[1],invGamma):-pow(-color[1],invGamma),
-			(color[2]>=0)?pow(color[2],invGamma):-pow(-color[2],invGamma)
-			);
-		RR_ASSERT(_finite(color[0]));
-		RR_ASSERT(_finite(color[1]));
-		RR_ASSERT(_finite(color[2]));
-	}
-	virtual void getCustomFactor(RRReal& a) const
-	{
-		RR_ASSERT(_finite(a));
-		a = (a>=0)?pow(a,gamma):-pow(-a,gamma);
-		RR_ASSERT(_finite(a));
-	}
-	virtual void getPhysicalFactor(RRReal& a) const
-	{
-		RR_ASSERT(_finite(a));
-		a = (a>=0)?pow(a,invGamma):-pow(-a,invGamma);
-		RR_ASSERT(_finite(a));
-	}
-	virtual void getCustomFactor(RRVec3& color) const
-	{
-		RR_ASSERT(_finite(color[0]));
-		RR_ASSERT(_finite(color[1]));
-		RR_ASSERT(_finite(color[2]));
-		color = RRVec3(
-			(color[0]>=0)?pow(color[0],gamma):-pow(-color[0],gamma),
-			(color[1]>=0)?pow(color[1],gamma):-pow(-color[1],gamma),
-			(color[2]>=0)?pow(color[2],gamma):-pow(-color[2],gamma)
-			);
-		RR_ASSERT(_finite(color[0]));
-		RR_ASSERT(_finite(color[1]));
-		RR_ASSERT(_finite(color[2]));
-	}
-	virtual void getPhysicalFactor(RRVec3& color) const
+	virtual void toLinearSpace(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
@@ -126,19 +86,19 @@ public:
 		gamma = agamma;
 		invGamma = 1/gamma;
 	}
-	virtual void getCustomScale(RRReal& a) const
+	virtual void toCustomSpace(RRReal& a) const
 	{
 		RR_ASSERT(_finite(a));
 		a = pow(a,gamma);
 		RR_ASSERT(_finite(a));
 	}
-	virtual void getPhysicalScale(RRReal& a) const
+	virtual void toLinearSpace(RRReal& a) const
 	{
 		RR_ASSERT(_finite(a));
 		a = pow(a,invGamma);
 		RR_ASSERT(_finite(a));
 	}
-	virtual void getCustomScale(RRVec3& color) const
+	virtual void toCustomSpace(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
@@ -152,7 +112,7 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 	}
-	virtual void getPhysicalScale(RRVec3& color) const
+	virtual void toLinearSpace(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
@@ -167,46 +127,6 @@ public:
 		RR_ASSERT(_finite(color[2]));
 	}
 
-	virtual void getCustomFactor(RRReal& a) const
-	{
-		RR_ASSERT(_finite(a));
-		a = pow(a,gamma);
-		RR_ASSERT(_finite(a));
-	}
-	virtual void getPhysicalFactor(RRReal& a) const
-	{
-		RR_ASSERT(_finite(a));
-		a = pow(a,invGamma);
-		RR_ASSERT(_finite(a));
-	}
-	virtual void getCustomFactor(RRVec3& color) const
-	{
-		RR_ASSERT(_finite(color[0]));
-		RR_ASSERT(_finite(color[1]));
-		RR_ASSERT(_finite(color[2]));
-		color = RRVec3(
-			pow(color[0],gamma),
-			pow(color[1],gamma),
-			pow(color[2],gamma)
-			);
-		RR_ASSERT(_finite(color[0]));
-		RR_ASSERT(_finite(color[1]));
-		RR_ASSERT(_finite(color[2]));
-	}
-	virtual void getPhysicalFactor(RRVec3& color) const
-	{
-		RR_ASSERT(_finite(color[0]));
-		RR_ASSERT(_finite(color[1]));
-		RR_ASSERT(_finite(color[2]));
-		color = RRVec3(
-			pow(color[0],invGamma),
-			pow(color[1],invGamma),
-			pow(color[2],invGamma)
-			);
-		RR_ASSERT(_finite(color[0]));
-		RR_ASSERT(_finite(color[1]));
-		RR_ASSERT(_finite(color[2]));
-	}
 protected:
 	RRReal gamma;
 	RRReal invGamma;
@@ -215,52 +135,6 @@ protected:
 //////////////////////////////////////////////////////////////////////////////
 //
 // RRScaler
-
-void RRScaler::getCustomScale(RRReal& value) const
-{
-	RRVec3 tmp(value);
-	getCustomScale(tmp);
-	value = tmp[0];
-}
-
-void RRScaler::getPhysicalScale(RRReal& value) const
-{
-	RRVec3 tmp(value);
-	getPhysicalScale(tmp);
-	value = tmp[0];
-}
-
-void RRScaler::getCustomFactor(RRVec3& value) const
-{
-	// for typical scalers like sRGB, result does not depend on 0.5 constant
-	RRVec3 tmp1 = value*0.5f;
-	RRVec3 tmp2(0.5f);
-	getCustomScale(tmp1);
-	getCustomScale(tmp2);
-	value = tmp1/tmp2;
-}
-void RRScaler::getCustomFactor(RRReal& value) const
-{
-	RRVec3 tmp(value);
-	getCustomFactor(tmp);
-	value = tmp[0];
-}
-
-void RRScaler::getPhysicalFactor(RRVec3& value) const
-{
-	// for typical scalers like sRGB, result does not depend on 0.5 constant
-	RRVec3 tmp1 = value*0.5f;
-	RRVec3 tmp2(0.5f);
-	getPhysicalScale(tmp1);
-	getPhysicalScale(tmp2);
-	value = tmp1/tmp2;
-}
-void RRScaler::getPhysicalFactor(RRReal& value) const
-{
-	RRVec3 tmp(value);
-	getPhysicalFactor(tmp);
-	value = tmp[0];
-}
 
 RRScaler* RRScaler::createRgbScaler(RRReal power)
 {

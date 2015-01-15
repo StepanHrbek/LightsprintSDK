@@ -115,7 +115,7 @@ namespace rr
 			//! Both color and texture are changed. 8bit texture may be changed to floats to avoid clamping.
 			void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
 			//! If texture exists, updates color to average color in texture and returns standard deviation of color in texture.
-			RRReal updateColorFromTexture(const RRScaler* scaler, bool isEmittance, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub);
+			RRReal updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub);
 			//! If texture does not exist, creates 1x1 stub texture from color. Returns number of textures created, 0 or 1.
 			unsigned createTextureFromColor(bool isTransmittance);
 			//! Returns true if both properties are identical (including using the same texture).

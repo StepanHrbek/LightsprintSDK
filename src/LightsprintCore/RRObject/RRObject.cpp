@@ -200,7 +200,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		material.diffuseEmittance.colorPhysical = material.diffuseEmittance.color;
 		if (scaler)
 		{
-			scaler->getPhysicalScale(material.diffuseEmittance.colorPhysical);
+			scaler->toLinearSpace(material.diffuseEmittance.colorPhysical);
 		}
 	}
 	if (material.specularReflectance.texture)
@@ -222,7 +222,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		material.specularReflectance.colorPhysical = material.specularReflectance.color;
 		if (scaler)
 		{
-			scaler->getPhysicalFactor(material.specularReflectance.colorPhysical);
+			scaler->toLinearSpace(material.specularReflectance.colorPhysical);
 		}
 	}
 	if (material.diffuseReflectance.texture && material.specularTransmittance.texture==material.diffuseReflectance.texture && material.specularTransmittanceInAlpha)
@@ -244,9 +244,9 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		material.specularTransmittance.colorPhysical = material.specularTransmittance.color;
 		if (scaler)
 		{
-			scaler->getPhysicalFactor(material.diffuseReflectance.colorPhysical);
+			scaler->toLinearSpace(material.diffuseReflectance.colorPhysical);
 			// [#40] rr_gl renders transparency without srgb correction, so here we keep colorPhysical=color for pathtracer to produce similar results
-			//scaler->getPhysicalFactor(material.specularTransmittance.colorPhysical);
+			//scaler->toLinearSpace(material.specularTransmittance.colorPhysical);
 		}
 	}
 	else
@@ -261,7 +261,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			material.diffuseReflectance.colorPhysical = material.diffuseReflectance.color;
 			if (scaler)
 			{
-				scaler->getPhysicalFactor(material.diffuseReflectance.colorPhysical);
+				scaler->toLinearSpace(material.diffuseReflectance.colorPhysical);
 			}
 		}
 		if (material.specularTransmittance.texture)
@@ -281,7 +281,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			if (scaler)
 			{
 				// [#40] rr_gl renders transparency without srgb correction, so here we keep colorPhysical=color for pathtracer to produce similar results
-				//scaler->getPhysicalFactor(material.specularTransmittance.colorPhysical);
+				//scaler->toLinearSpace(material.specularTransmittance.colorPhysical);
 			}
 			// [#39] we multiply dif by opacity on the fly, because real world data are often in this format
 			material.diffuseReflectance.color *= (RRVec3(1)-material.specularTransmittance.color); // multiply cust color in cust.scale - inaccurate, but result probably not used

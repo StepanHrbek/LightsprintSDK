@@ -338,7 +338,7 @@ static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQ
 		unsigned patchIndex = PackedSkyTriangleFactor::getPatchIndex(direction);
 		RRVec3 exitance = inSky->getElementAtDirection(direction);
 		if (inScaler)
-			inScaler->getPhysicalScale(exitance);
+			inScaler->toLinearSpace(exitance);
 		inoutPatchExitancesPhysical[patchIndex] += exitance;
 		numSamplesGathered[patchIndex]++;
 	}
@@ -465,7 +465,7 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 						RRVec3 color = diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0));
 						if (_scaler)
 						{
-							_scaler->getPhysicalScale(color);
+							_scaler->toLinearSpace(color);
 						}
 						sum += color;
 					}
@@ -714,7 +714,7 @@ bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 		if (scaler)
 		{
 			// scaler applied on density, not flux
-			scaler->getCustomScale(irrad);
+			scaler->toCustomSpace(irrad);
 		}
 		else
 		{

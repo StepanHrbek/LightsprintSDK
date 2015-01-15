@@ -26,9 +26,9 @@ namespace rr
 	//! or photometric units.
 	//!
 	//! For best results, scaler should satisfy following conditions for any x,y,z:
-	//! \n getPhysicalScale(x)*getPhysicalScale(y)=getPhysicalScale(x*y)
-	//! \n getPhysicalScale(x*y)*getPhysicalScale(z)=getPhysicalScale(x)*getPhysicalScale(y*z)
-	//! \n getCustomScale is inverse of getPhysicalScale
+	//! \n toLinearSpace(x)*toLinearSpace(y)=toLinearSpace(x*y)
+	//! \n toLinearSpace(x*y)*toLinearSpace(z)=toLinearSpace(x)*toLinearSpace(y*z)
+	//! \n toCustomSpace is inverse of toLinear
 	//!
 	//! When implementing your own scaler, double check you don't generate NaNs or INFs,
 	//! for negative inputs.
@@ -44,25 +44,15 @@ namespace rr
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Converts irradiance/emittance/exitance from physical scale (W/m^2) to user defined scale (usually sRGB, screen colors).
-		virtual void getCustomScale(RRReal& value) const;
-		//! Converts irradiance/emittance/exitance from physical scale (W/m^2) to user defined scale (usually sRGB, screen colors).
-		virtual void getCustomScale(RRVec3& value) const = 0;
+		//! Converts value from linear space to custom color space.
+		virtual void toCustomSpace(RRReal& value) const = 0;
+		//! Converts value from linear space to custom color space.
+		virtual void toCustomSpace(RRVec3& value) const = 0;
 
-		//! Converts irradiance/emittance/exitance from user defined scale (usually sRGB, screen colors) to physical scale (W/m^2).
-		virtual void getPhysicalScale(RRReal& value) const;
-		//! Converts irradiance/emittance/exitance from user defined scale (usually sRGB, screen colors) to physical scale (W/m^2).
-		virtual void getPhysicalScale(RRVec3& value) const = 0;
-
-		//! Converts reflectance/transmittance from physical scale to user defined scale.
-		virtual void getCustomFactor(RRReal& factor) const;
-		//! Converts reflectance/transmittance from physical scale to user defined scale.
-		virtual void getCustomFactor(RRVec3& factor) const;
-
-		//! Converts reflectance/transmittance from user defined scale to physical scale.
-		virtual void getPhysicalFactor(RRReal& factor) const;
-		//! Converts reflectance/transmittance from user defined scale to physical scale.
-		virtual void getPhysicalFactor(RRVec3& factor) const;
+		//! Converts value from custom color space to linear space.
+		virtual void toLinearSpace(RRReal& value) const = 0;
+		//! Converts value from custom color space to linear space.
+		virtual void toLinearSpace(RRVec3& value) const = 0;
 
 		virtual ~RRScaler() {}
 
@@ -296,7 +286,7 @@ namespace rr
 		//!  You may compute irradiance directly in physical scale and don't use it,
 		//!  which is the most efficient way,
 		//!  but if you calculate in custom scale, convert your result to physical
-		//!  scale using scaler->getPhysicalScale() before returning it.
+		//!  scale using scaler->toLinearSpace() before returning it.
 		//!  \n Lightsprint calculates internally in physical scale, that's why
 		//!  it's more efficient to expect result in physical scale
 		//!  rather than in screen colors or any other custom scale.

@@ -387,7 +387,7 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* sc
 
 	RRVec3 result = color * (distanceAttenuation * angleAttenuation);
 	if (scaler && distanceAttenuationType==POLYNOMIAL)
-		scaler->getPhysicalScale(result);
+		scaler->toLinearSpace(result);
 	RR_ASSERT(IS_VEC3(result));
 	return result;
 }

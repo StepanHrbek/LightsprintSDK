@@ -434,7 +434,7 @@ public:
 				if (!pti.context.gatherAllDirections)
 				{
 					if (pti.context.scaler && _light->directLambertScaled)
-						pti.context.scaler->getPhysicalScale(normalIncidence1);
+						pti.context.scaler->toLinearSpace(normalIncidence1);
 					irradiancePhysicalLights[LS_LIGHTMAP] += irrad * normalIncidence1;
 					RR_ASSERT(IS_VEC3(irrad));
 					RR_ASSERT(_finite(normalIncidence1));
@@ -454,7 +454,7 @@ public:
 							//normalIncidence2 = sqrt(normalIncidence1*normalIncidence2)*1.36f;
 
 							if (pti.context.scaler && _light->directLambertScaled)
-								pti.context.scaler->getPhysicalScale(normalIncidence2);
+								pti.context.scaler->toLinearSpace(normalIncidence2);
 							irradiancePhysicalLights[i] += irrad * normalIncidence2;
 							RR_ASSERT(IS_VEC3(irradiancePhysicalLights[0]));
 						}

@@ -193,7 +193,7 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 		if (scaler)
 		{
 			// scaler applied on density, not flux
-			scaler->getCustomScale(irrad);
+			scaler->toCustomSpace(irrad);
 		}
 		else
 		{

@@ -40,7 +40,7 @@ PathtracerJob::PathtracerJob(const RRSolver* _solver)
 				environmentAveragePhysical += environment->getElementAtDirection(RRVec3((float)i,(float)j,(float)k));
 		environmentAveragePhysical /= 26;
 		if (scaler && environment->getScaled())
-			scaler->getPhysicalScale(environmentAveragePhysical);
+			scaler->toLinearSpace(environmentAveragePhysical);
 	}
 #endif
 }
@@ -156,7 +156,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 #endif
 
 			RRVec3 irrad = ptj.environment->getElementAtDirection(direction);
-			if (ptj.scaler && ptj.environment->getScaled()) ptj.scaler->getPhysicalScale(irrad);
+			if (ptj.scaler && ptj.environment->getScaled()) ptj.scaler->toLinearSpace(irrad);
 			RR_ASSERT(IS_VEC3(irrad));
 			return irrad * parameters.environmentMultiplier;
 		}
@@ -209,7 +209,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				}
 			RRVec3 floor = ptj.environment->getElementAtDirection(direction);
 			if (ptj.scaler && ptj.environment->getScaled())
-				ptj.scaler->getPhysicalScale(floor);
+				ptj.scaler->toLinearSpace(floor);
 			floor /= environmentAndSunsPhysical+RRVec3(1e-10f);
 			invisiblePlaneMaterial.diffuseReflectance.colorPhysical *= floor;
 			invisiblePlaneMaterial.specularReflectance.colorPhysical *= floor;

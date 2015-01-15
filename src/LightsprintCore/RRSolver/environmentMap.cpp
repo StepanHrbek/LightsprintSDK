@@ -292,15 +292,15 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 						{
 							// 1 environment
 							exitanceHdr[ofs] = environment0->getElementAtDirection(dir);
-							if (scalerForReadingEnv0) scalerForReadingEnv0->getPhysicalScale(exitanceHdr[ofs]);
+							if (scalerForReadingEnv0) scalerForReadingEnv0->toLinearSpace(exitanceHdr[ofs]);
 						}
 						else
 						{
 							// blend of 2 environments
 							RRVec3 env0color = environment0->getElementAtDirection(dir);
-							if (scalerForReadingEnv0) scalerForReadingEnv0->getPhysicalScale(env0color);
+							if (scalerForReadingEnv0) scalerForReadingEnv0->toLinearSpace(env0color);
 							RRVec3 env1color = environment1->getElementAtDirection(dir);
-							if (scalerForReadingEnv1) scalerForReadingEnv1->getPhysicalScale(env1color);
+							if (scalerForReadingEnv1) scalerForReadingEnv1->toLinearSpace(env1color);
 							exitanceHdr[ofs] = env0color*(1-blendFactor)+env1color*blendFactor;
 						}
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
@@ -388,7 +388,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 				// 1 environment
 				RRVec3 dir = cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size);
 				exitanceHdr[ofs] = environment0->getElementAtDirection(dir);
-				if (scalerForReadingEnv0) scalerForReadingEnv0->getPhysicalScale(exitanceHdr[ofs]);
+				if (scalerForReadingEnv0) scalerForReadingEnv0->toLinearSpace(exitanceHdr[ofs]);
 				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 			}
 			else
@@ -396,9 +396,9 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 				// blend of 2 environments
 				RRVec3 dir = cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size);
 				RRVec3 env0color = environment0->getElementAtDirection(dir);
-				if (scalerForReadingEnv0) scalerForReadingEnv0->getPhysicalScale(env0color);
+				if (scalerForReadingEnv0) scalerForReadingEnv0->toLinearSpace(env0color);
 				RRVec3 env1color = environment1->getElementAtDirection(dir);
-				if (scalerForReadingEnv1) scalerForReadingEnv1->getPhysicalScale(env1color);
+				if (scalerForReadingEnv1) scalerForReadingEnv1->toLinearSpace(env1color);
 				exitanceHdr[ofs] = env0color*(1-blendFactor)+env1color*blendFactor;
 				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 			}
@@ -450,7 +450,7 @@ static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const
 	for (unsigned i=0;i<gatherSize*gatherSize*6;i++)
 	{
 		RRVec3 exitance = gatheredExitance[i];
-		if (scaler) scaler->getCustomScale(exitance);
+		if (scaler) scaler->toCustomSpace(exitance);
 		buffer->setElement(i,RRVec4(exitance,0));
 	}
 	// faster but works only for specularEnvMap BF_RGBF,!scaled
