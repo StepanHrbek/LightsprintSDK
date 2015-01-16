@@ -202,6 +202,8 @@ public:
 						return true;
 					}
 					// gathering light
+					//  this collison handler cares only about transmittance, but getPointMaterial reads all textures
+					//  it would be nice to send some flag to getPointMaterial above, to read only transmittance, but we don't have such flag yet
 					legal = pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].legal;
 					visibility *= pointMaterial[pmi].specularTransmittance.colorPhysical * RRReal( pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
 					RR_ASSERT(IS_VEC3(pointMaterial[pmi].specularTransmittance.colorPhysical));

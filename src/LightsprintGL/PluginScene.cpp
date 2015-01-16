@@ -4,7 +4,7 @@
 // --------------------------------------------------------------------------
 
 #define MIRRORS // enables implementation of mirrors, marks mirror source code
-//#define SRGB_CORRECT_BLENDING // [#40] transparency looks better without srgb correction
+//#define SRGB_CORRECT_BLENDING // transparency looks better without srgb correction
 
 #include <algorithm> // sort
 #ifdef MIRRORS
