@@ -236,7 +236,6 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 		{
 			scaler->toLinearSpace(material.diffuseReflectance.colorPhysical);
 			scaler->toLinearSpace(material.specularTransmittance.colorPhysical);
-			// [#40] rr_gl renders transparency without srgb correction, so here we keep colorPhysical=color for pathtracer to produce similar results
 		}
 	}
 	else
@@ -263,7 +262,6 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 			if (material.specularTransmittance.color==RRVec3(1))
 				material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
 			material.specularTransmittance.colorPhysical = material.specularTransmittance.color;
-			// [#40] rr_gl renders transparency without srgb correction, so here we keep colorPhysical=color for pathtracer to produce similar results
 			if (scaler)
 				scaler->toLinearSpace(material.specularTransmittance.colorPhysical);
 			// [#39] we multiply dif by opacity on the fly, because real world data are often in this format
