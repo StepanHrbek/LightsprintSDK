@@ -539,9 +539,9 @@ void RRPackedSolver::illuminationImprove(unsigned qualityDynamic, unsigned quali
 				numConsecutiveRoundsThatBeatMinimalTopFlux = 0;
 			}
 			else
-			if (numConsecutiveRoundsThatBeatMinimalTopFlux++>20)
+			if (numConsecutiveRoundsThatBeatMinimalTopFlux++>200) // happens too often with 20, probably false alarms, needs more testing
 			{
-				RRReporter::report(WARN,"Diverging solution. Please rebuild Fireball. This could happen if materials change but Fireball is not rebuilt.\n");
+				RRReporter::report(WARN,"Possibly diverging solution. This could happen if materials change but Fireball is not rebuilt.\n");
 				currentQuality = qualityStatic; // don't improve next time
 				return; // don't improve now
 			}
