@@ -47,7 +47,7 @@ RRVec4 RRBuffer::getElement(unsigned index, const RRScaler* scaler) const
 	return RRVec4(0);
 }
 
-RRVec4 RRBuffer::getElementAtPosition(const RRVec3& coord, const RRScaler* scaler) const
+RRVec4 RRBuffer::getElementAtPosition(const RRVec3& coord, const RRScaler* scaler, bool interpolated) const
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElementAtPosition() called.\n"));
 	return RRVec4(0);

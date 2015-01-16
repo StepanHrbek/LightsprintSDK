@@ -460,7 +460,7 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 					for (unsigned i=0;i<numSamples;i++)
 					{
 						RRVec2 materialUv = triangleMapping.uv[0]*(1-samplePoints[i][0]-samplePoints[i][1]) + triangleMapping.uv[1]*samplePoints[i][0] + triangleMapping.uv[2]*samplePoints[i][1];
-						RRVec3 color = diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),_scaler);
+						RRVec3 color = diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),_scaler,false);
 						sum += color;
 					}
 				}
@@ -470,7 +470,7 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 					for (unsigned i=0;i<numSamples;i++)
 					{
 						RRPointMaterial material;
-						object->getPointMaterial((unsigned)t,samplePoints[i],material,_scaler);
+						object->getPointMaterial((unsigned)t,samplePoints[i],_scaler,false,material);
 						sum += material.diffuseEmittance.colorPhysical;
 					}
 				}

@@ -360,16 +360,19 @@ static float jitter()
 //	return (rand()-RAND_MAX/2)*(1.0f/RAND_MAX);
 }
 
-RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRScaler* scaler) const
+RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRScaler* scaler, bool _interpolated) const
 {
-#if 0
+	if (!_interpolated)
+	{
 	// fast, no interpolation
 	unsigned coord[3];
 	coord[0] = (unsigned)(_position[0] * width) % width;
 	coord[1] = (unsigned)(_position[1] * height) % height;
 	coord[2] = (unsigned)(_position[2] * depth) % depth;
 	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,scaler);
-#else
+	}
+	else
+	{
 #if 0
 	// fast, temporal interpolation/noise
 	unsigned coord[3];
@@ -391,7 +394,7 @@ RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRS
 	RRVec4 e11 = getElement(((coord[0]+1)%width)+((coord[1]+1)%height)*width+coord[2],scaler);
 	return e00*((1-remainder[0])*(1-remainder[1]))+e01*((1-remainder[0])*(remainder[1]))+e10*(remainder[0]*(1-remainder[1]))+e11*(remainder[0]*remainder[1]);
 #endif
-#endif
+	}
 }
 
 RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction, const RRScaler* scaler) const

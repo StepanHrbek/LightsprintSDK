@@ -188,7 +188,7 @@ void RRObject::updateFaceGroupsFromTriangleMaterials()
 
 // Expects material prefilled with getTriangleMaterial(), both color and colorPhysical.
 // Updates color and (if scaler!=NULL) colorPhysical for properties with texture.
-static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, RRPointMaterial& material, const RRScaler* scaler)
+static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, const RRScaler* scaler, bool interpolated, RRPointMaterial& material)
 {
 	// Make color (and possibly also colorPhysical) more accurate using textures.
 	if (material.diffuseEmittance.texture)
@@ -196,14 +196,14 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		RRMesh::TriangleMapping triangleMapping;
 		mesh->getTriangleMapping(t,triangleMapping,material.diffuseEmittance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		material.diffuseEmittance.colorPhysical = material.diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler);
+		material.diffuseEmittance.colorPhysical = material.diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler,interpolated);
 	}
 	if (material.specularReflectance.texture)
 	{
 		RRMesh::TriangleMapping triangleMapping;
 		mesh->getTriangleMapping(t,triangleMapping,material.specularReflectance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		RRVec4 specColor = material.specularReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler);
+		RRVec4 specColor = material.specularReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler,interpolated);
 		material.specularReflectance.colorPhysical = specColor;
 		// shininess is modulated by specular map alpha. does nothing if specular map is RGB only [#18]
 		if (material.specularModel==RRMaterial::PHONG || material.specularModel==RRMaterial::BLINN_PHONG)
@@ -221,7 +221,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 		RRMesh::TriangleMapping triangleMapping;
 		mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 		RRVec2 materialUv= triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		RRVec4 rgba = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),NULL);
+		RRVec4 rgba = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),NULL,interpolated);
 		material.diffuseReflectance.color = rgba * rgba[3]; // [#39]
 		material.specularTransmittance.color = RRVec3(1-rgba[3]);
 		if (material.specularTransmittanceMapInverted)
@@ -246,14 +246,14 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 			RRMesh::TriangleMapping triangleMapping;
 			mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-			material.diffuseReflectance.colorPhysical = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler);
+			material.diffuseReflectance.colorPhysical = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler,interpolated);
 		}
 		if (material.specularTransmittance.texture)
 		{
 			RRMesh::TriangleMapping triangleMapping;
 			mesh->getTriangleMapping(t,triangleMapping,material.specularTransmittance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-			RRVec4 rgba = material.specularTransmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),NULL);
+			RRVec4 rgba = material.specularTransmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),NULL,interpolated);
 			material.specularTransmittance.color = material.specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
 			if (material.specularTransmittanceMapInverted)
 				material.specularTransmittance.color = RRVec3(1)-material.specularTransmittance.color;
@@ -270,7 +270,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, R
 	}
 }
 
-void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material, const RRScaler* scaler) const
+void RRObject::getPointMaterial(unsigned t, RRVec2 uv, const RRScaler* scaler, bool interpolated, RRPointMaterial& material) const
 {
 	// Material is undefined on input, fill it with per-triangle quality first.
 	const RRMaterial* perTriangleMaterial = getTriangleMaterial(t,NULL,NULL);
@@ -286,7 +286,7 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& material
 	}
 
 	// Improve precision using textures.
-	updatePointMaterial(getCollider()->getMesh(),t,uv,material,scaler);
+	updatePointMaterial(getCollider()->getMesh(),t,uv,scaler,interpolated,material);
 }
 
 void RRObject::getTriangleLod(unsigned t, LodInfo& out) const

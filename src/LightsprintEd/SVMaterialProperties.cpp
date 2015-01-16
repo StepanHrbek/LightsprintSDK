@@ -318,7 +318,7 @@ void SVMaterialProperties::setMaterial(rr::RRSolver* solver, rr::RRObject* objec
 	else
 	if (showPoint)
 	{
-		(object?object:solver->getMultiObject())->getPointMaterial(hitTriangle,hitPoint2d,materialPoint,solver->getScaler());
+		(object?object:solver->getMultiObject())->getPointMaterial(hitTriangle,hitPoint2d,solver->getScaler(),true,materialPoint);
 		material = &materialPoint;
 	}
 	else

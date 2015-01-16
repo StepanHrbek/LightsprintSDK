@@ -90,10 +90,10 @@ public:
 		return singles[mid.object].object->getTriangleMaterial(mid.index,light,receiver);
 	}
 
-	virtual void getPointMaterial(unsigned t, RRVec2 uv,RRPointMaterial& out, const RRScaler* scaler) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRScaler* scaler, bool interpolated, RRPointMaterial& out) const
 	{
 		RRMesh::PreImportNumber mid = postImportToMidImportTriangle[t];
-		singles[mid.object].object->getPointMaterial(mid.index,uv,out,scaler);
+		singles[mid.object].object->getPointMaterial(mid.index,uv,scaler,interpolated,out);
 	}
 
 	virtual void getTriangleLod(unsigned t, LodInfo& out) const
@@ -289,14 +289,14 @@ public:
 			: NULL;
 	}
 
-	virtual void getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& out, const RRScaler* scaler) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRScaler* scaler, bool interpolated, RRPointMaterial& out) const
 	{
 		unoptimizeTriangle(t);
 		if (t<pack[0].getNumTriangles())
-			pack[0].getImporter()->getPointMaterial(t,uv,out,scaler);
+			pack[0].getImporter()->getPointMaterial(t,uv,scaler,interpolated,out);
 		else
 			if (pack[1].getImporter()) // this test prevents crash, importer might be NULL when multiobject is made of 1 object and t exceeds number of triangles
-			pack[1].getImporter()->getPointMaterial(t-pack[0].getNumTriangles(),uv,out,scaler);
+			pack[1].getImporter()->getPointMaterial(t-pack[0].getNumTriangles(),uv,scaler,interpolated,out);
 	}
 
 

@@ -2413,7 +2413,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					rr::RRPointMaterial selectedPointMaterial;
 					if (material && material->minimalQualityForPointMaterials<10000)
 					{
-						selectedPointObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,selectedPointMaterial,solver->getScaler());
+						selectedPointObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,solver->getScaler(),true,selectedPointMaterial);
 						material = &selectedPointMaterial;
 					}
 					rr::RRMesh::TriangleMapping triangleMapping;

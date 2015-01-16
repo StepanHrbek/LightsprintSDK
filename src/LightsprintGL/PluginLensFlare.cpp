@@ -29,7 +29,7 @@ public:
 		RR_ASSERT(ray->rayFlags&rr::RRRay::FILL_SIDE);
 
 		rr::RRPointMaterial pointMaterial;
-		object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial,NULL); // custom scale transparency is sufficient (we don't have scaler at hand)
+		object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,NULL,true,pointMaterial); // custom scale transparency is identical to physical one (and even if not, it would be good enough here)
 		if (pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom)
 			transparency *= pointMaterial.specularTransmittance.color;
 		return transparency==rr::RRVec3(0);

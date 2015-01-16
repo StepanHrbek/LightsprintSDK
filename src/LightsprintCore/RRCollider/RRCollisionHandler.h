@@ -37,7 +37,7 @@ public:
 			return true;
 
 		RRPointMaterial pointMaterial;
-		objectToReadMaterialFrom->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial,NULL); // custom is sufficient, no scaler needed
+		objectToReadMaterialFrom->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,NULL,false,pointMaterial); // custom is sufficient, no scaler needed
 		if (pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom
 			// This makes selecting in sceneviewer see through transparent pixels, they don't have renderFrom cleared.
 			&& pointMaterial.specularTransmittance.color!=RRVec3(1))

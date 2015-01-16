@@ -91,7 +91,7 @@ public:
 			rr::RRVec3 offsetInBuffer = rr::RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),0); // 0..1
 			if (bokehBuffer)
 			{
-				sampledSum += bokehBuffer->getElementAtPosition(offsetInBuffer,NULL).RRVec3::avg();
+				sampledSum += bokehBuffer->getElementAtPosition(offsetInBuffer,NULL,false).RRVec3::avg();
 				numSamples++;
 				if (numSamples<100) // bad luck or black bokeh texture, stop sampling
 				if (sampledSum<1) // sample is not inside bokeh shape, or is in darker region

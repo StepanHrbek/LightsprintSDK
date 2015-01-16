@@ -39,8 +39,8 @@ public:
 	virtual RRBufferFormat getFormat()                               const {report("getFormat");return BF_RGBAF;}
 	virtual bool getScaled()                                         const {return false;}
 	virtual unsigned getBufferBytes()                                const {return sizeof(*this);}
-	virtual RRVec4 getElement(unsigned index, const RRScaler* scaler)                     const {report("getElement");return RRVec4(0);}
-	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRScaler* scaler)   const {report("getElementAtPosition");return RRVec4(0);}
+	virtual RRVec4 getElement(unsigned index, const RRScaler* scaler)const {report("getElement");return RRVec4(0);}
+	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRScaler* scaler, bool interpolated) const {report("getElementAtPosition");return RRVec4(0);}
 	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRScaler* scaler) const;
 	virtual unsigned char* lock(RRBufferLock lock)                         {report("lock");return NULL;}
 	virtual void unlock()                                                  {report("unlock");}

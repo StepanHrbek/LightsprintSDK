@@ -260,7 +260,9 @@ namespace rr
 		//!  Out of range indices are wrapped to 0..1.
 		//! \param scaler
 		//!  If NULL, color is returned in native color space. With scaler set, RGB is returned in linear space, alpha in native space.
-		virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRScaler* scaler) const;
+		//! \param interpolated
+		//!  Switches from nearest element selection to linear interpolation of 4 elements.
+		virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRScaler* scaler, bool interpolated) const;
 		//! Returns environment sample addressed by given direction (not necessarily normalized).
 		//
 		//! \param direction

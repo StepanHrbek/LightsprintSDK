@@ -145,11 +145,13 @@ namespace rr
 		//!  Triangle number.
 		//! \param uv
 		//!  2D coordinates of point, in triangle's space. Triangle vertices are in 0,0 1,0 0,1.
-		//! \param out
-		//!  Undefined on input, function fills it with material for requested point.
 		//! \param scaler
 		//!  Function reads point details from textures, converts them with scaler and writes result to colorPhysical.
-		virtual void getPointMaterial(unsigned t, RRVec2 uv, RRPointMaterial& out, const RRScaler* scaler) const;
+		//! \param interpolated
+		//!  Makes texture reads interpolated.
+		//! \param out
+		//!  Undefined on input, function fills it with material for requested point.
+		virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRScaler* scaler, bool interpolated, RRPointMaterial& out) const;
 
 		//! Information about single object, its place in hierarchy of LODs.
 		//

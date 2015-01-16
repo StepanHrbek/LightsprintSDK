@@ -303,7 +303,7 @@ public:
 			scaler->toLinearSpace(result);
 		return result;
 	}
-	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRScaler* scaler) const
+	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRScaler* scaler, bool interpolated) const
 	{
 		return getElement(((unsigned)(position[0]*width)%width) + ((unsigned)(position[1]*height)%height) * width, scaler);
 	}

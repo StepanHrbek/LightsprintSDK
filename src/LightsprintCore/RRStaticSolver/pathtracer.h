@@ -187,7 +187,7 @@ public:
 			if (quality>triangleMaterial->minimalQualityForPointMaterials)
 			{
 				unsigned pmi = (firstContactMaterial==pointMaterial)?1:0; // index into pointMaterial[], one that is not occupied by firstContactMaterial
-				hitObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial[pmi],scaler);
+				hitObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,scaler,quality>triangleMaterial->minimalQualityForPointMaterials,pointMaterial[pmi]);
 				if (TEST_BIT(&pointMaterial[pmi],renderFrom))
 				{
 					// gathering hemisphere
