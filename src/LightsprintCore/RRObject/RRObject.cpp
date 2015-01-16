@@ -286,7 +286,8 @@ void RRObject::getPointMaterial(unsigned t, RRVec2 uv, const RRScaler* scaler, b
 	}
 
 	// Improve precision using textures.
-	updatePointMaterial(getCollider()->getMesh(),t,uv,scaler,interpolated,material);
+	if (material.minimalQualityForPointMaterials<UINT_MAX)
+		updatePointMaterial(getCollider()->getMesh(),t,uv,scaler,interpolated,material);
 }
 
 void RRObject::getTriangleLod(unsigned t, LodInfo& out) const
