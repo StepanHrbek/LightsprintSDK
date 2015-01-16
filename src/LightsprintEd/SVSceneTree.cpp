@@ -509,6 +509,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 			if (entityIds.size()>1)
 				menu.Append(CM_OBJECTS_MERGE,_("Merge objects"),_("Merges objects together."));
 			menu.Append(CM_OBJECTS_MERGE_BY_MATERIALS,_("Merge/split by material"),_("Merge selected objects and then split them by material, so that for each material one object is created."));
+			menu.Append(CM_MATERIALS_MERGE,_("Merge materials"),_("Assign first material to all selected faces."));
 			menu.Append(CM_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
 			//if (svframe->userPreferences.testingBeta)
 				menu.Append(CM_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
@@ -981,6 +982,16 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			svframe->selectEntityInTreeAndUpdatePanel(EntityId(ST_OBJECT,svs.selectedObjectIndex),SEA_SELECT);
 			break;
 
+		case CM_MATERIALS_MERGE:
+			{
+				for (unsigned i=0;i<selectedObjects.size();i++)
+				{
+					selectedObjects[i]->faceGroups.resize(1);
+					selectedObjects[i]->faceGroups[0].numTriangles = selectedObjects[i]->getCollider()->getMesh()->getNumTriangles();
+					selectedObjects[i]->faceGroups[0].material = selectedObjects[0]->faceGroups[0].material;
+				}
+			}
+			break;
 		case CM_OBJECTS_SMOOTH: // right now, it smooths also dynamic objects
 			{
 				if (svframe->smoothDlg.ShowModal()==wxID_OK)
