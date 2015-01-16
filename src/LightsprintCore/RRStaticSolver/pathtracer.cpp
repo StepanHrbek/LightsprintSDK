@@ -55,9 +55,9 @@ PathtracerJob::~PathtracerJob()
 // PathtracerWorker
 //
 
-PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::PathTracingParameters& _parameters, bool _staticSceneContainsLods, unsigned _quality)
-	: ptj(_ptj), collisionHandlerGatherHemisphere(_ptj.scaler,_quality,_staticSceneContainsLods),
-	  collisionHandlerGatherLights(_ptj.scaler,_quality,_staticSceneContainsLods),
+PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::PathTracingParameters& _parameters, bool _staticSceneContainsLods, unsigned _qualityForPointMaterials, unsigned _qualityForInterpolation)
+	: ptj(_ptj), collisionHandlerGatherHemisphere(_ptj.scaler,_qualityForPointMaterials,_qualityForInterpolation,_staticSceneContainsLods),
+	  collisionHandlerGatherLights(_ptj.scaler,_qualityForPointMaterials,_qualityForInterpolation,_staticSceneContainsLods),
 	  parameters(_parameters)
 {
 	collisionHandlerGatherHemisphere.setHemisphere(ptj.solver->priv->scene);

@@ -159,6 +159,7 @@ public:
 			_pti.context,
 			pathTracingParameters,
 			_pti.context.staticSceneContainsLods,
+			_pti.context.params->quality,
 			_pti.context.params->quality)
 	{
 		if (_pti.context.params)
@@ -343,6 +344,7 @@ public:
 		collisionHandlerGatherLight(
 			_pti.context.scaler,
 			_pti.context.params->quality*2, // when gathering lights (possibly rendering direct shadows), make point details 2* more important
+			_pti.context.params->quality*2,
 			_pti.context.staticSceneContainsLods)
 	{
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());

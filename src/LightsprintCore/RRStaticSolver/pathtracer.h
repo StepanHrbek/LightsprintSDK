@@ -34,10 +34,11 @@ class RRCollisionHandlerFinalGathering : public RRCollisionHandler
 {
 public:
 	COLLISION_LOG(std::stringstream log);
-	RRCollisionHandlerFinalGathering(const RRScaler* _scaler, unsigned _quality, bool _staticSceneContainsLods)
+	RRCollisionHandlerFinalGathering(const RRScaler* _scaler, unsigned _qualityForPointMaterials, unsigned _qualityForInterpolation, bool _staticSceneContainsLods)
 	{
 		scaler = _scaler;
-		quality = _quality;
+		qualityForPointMaterials = _qualityForPointMaterials;
+		qualityForInterpolation = _qualityForInterpolation;
 		staticSceneContainsLods = _staticSceneContainsLods;
 		shooterObject = NULL;
 		shooterTriangleIndex = UINT_MAX; // set manually before intersect
@@ -184,10 +185,10 @@ public:
 		if (TEST_BIT(triangleMaterial,renderFrom))
 		{
 			// per-pixel materials
-			if (quality>triangleMaterial->minimalQualityForPointMaterials)
+			if (qualityForPointMaterials>triangleMaterial->minimalQualityForPointMaterials)
 			{
 				unsigned pmi = (firstContactMaterial==pointMaterial)?1:0; // index into pointMaterial[], one that is not occupied by firstContactMaterial
-				hitObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,scaler,quality>triangleMaterial->minimalQualityForPointMaterials,pointMaterial[pmi]);
+				hitObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,scaler,qualityForInterpolation>triangleMaterial->minimalQualityForPointMaterials,pointMaterial[pmi]);
 				if (TEST_BIT(&pointMaterial[pmi],renderFrom))
 				{
 					// gathering hemisphere
@@ -263,7 +264,8 @@ public:
 private:
 	RRObject::LodInfo shooterLod;
 	const RRScaler* scaler;
-	unsigned quality; // 0 to forbid point details, more = use point details more often, UINT_MAX = always
+	unsigned qualityForPointMaterials; // 0 to forbid point details, more = use point details more often, UINT_MAX = always
+	unsigned qualityForInterpolation;
 	bool staticSceneContainsLods;
 
 	// detector of triangles identical to shooter
@@ -299,7 +301,7 @@ public:
 	
 	const RRSolver* solver;
 	const RRScaler* scaler;
-	RRBuffer* environment; // blend of two rotated solver environments
+	const RRBuffer* environment; // blend of two rotated solver environments
 	const RRCollider* collider;
 
 #ifdef MATERIAL_BACKGROUND_HACK
@@ -328,9 +330,11 @@ public:
 	//!  Gather direct exitance from emitors (stored in material).
 	//! \param gatherIndirectLight
 	//!  Gather indirect exitance (stored in static solver). May include indirect light computed from direct realtime lights, direct emitors, rrlights, env.
-	//! \param quality
+	//! \param qualityForPointMaterials
 	//!  Desired illumination quality, used to enable/disable point materials.
-	PathtracerWorker(const PathtracerJob& ptj, const RRSolver::PathTracingParameters& parameters, bool staticSceneContainsLods, unsigned quality);
+	//! \param qualityForInterpolation
+	//!  Desired illumination quality, used to enable/disable point material interpolation.
+	PathtracerWorker(const PathtracerJob& ptj, const RRSolver::PathTracingParameters& parameters, bool staticSceneContainsLods, unsigned qualityForPointMaterials, unsigned qualityForInterpolation);
 
 	//! Returns color visible in given direction, in physical scale.
 	//

@@ -29,13 +29,13 @@ NEWS
 
 CHANGES
 
-- RRScaler refactoring
+- color spaces refactoring (sRGB vs linear) (for faster baking and pathtracing)
   - RRBuffer::getElement() and RRBuffer::setElement() inputs/outputs are in linear space when scaler is passed as parameter
   - RRScaler::toCustomSpace() replaces getCustomScale() and getCustomFactor()
   - RRScaler::toLinearSpace() replaces getPhysicalScale() and getPhysicalFactor()
   - RRScaler::getLinearSpace() added
-  - all this made baking and pathtracing 10-50% faster
-- reduced automatic RRMaterial::minimalQualityForPointMaterials, makes baking at the same settings bit slower, but quality higher
+- interpolation in RRBuffer::getElementAtPosition() is optional
+- reduced automatic RRMaterial::minimalQualityForPointMaterials, makes baking at the same settings slower, but quality higher
 - RRScaler::getCustomFactor() and RRScaler::getPhysicalFactor() write new value to parameter, instead of returning it
 - RRMatrix3x4Ex added, some functions switched from RRMatrix3x4 to RRMatrix3x4Ex
 - RRCamera::setView() has more parameters, lets you zoom to whole scene or selected area
