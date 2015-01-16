@@ -42,7 +42,7 @@ struct LightmapperJob : public PathtracerJob
 	bool staticSceneContainsLods; // scene contains LODs, additional work
 
 	LightmapperJob(RRSolver* _solver)
-		: PathtracerJob(_solver)
+		: PathtracerJob(_solver,false)
 	{
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
 			pixelBuffers[i] = NULL;

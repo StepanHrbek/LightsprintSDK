@@ -158,7 +158,6 @@ public:
 		pathtracerWorker(
 			_pti.context,
 			pathTracingParameters,
-			false,
 			_pti.context.staticSceneContainsLods,
 			_pti.context.params->quality)
 	{

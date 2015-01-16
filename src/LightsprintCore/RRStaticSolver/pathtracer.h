@@ -294,12 +294,13 @@ private:
 class PathtracerJob
 {
 public:
-	PathtracerJob(const RRSolver* solver);
+	PathtracerJob(const RRSolver* solver, bool dynamic);
 	~PathtracerJob();
 	
 	const RRSolver* solver;
 	const RRScaler* scaler;
 	RRBuffer* environment; // blend of two rotated solver environments
+	const RRCollider* collider;
 
 #ifdef MATERIAL_BACKGROUND_HACK
 	RRVec3 environmentAveragePhysical;
@@ -329,7 +330,7 @@ public:
 	//!  Gather indirect exitance (stored in static solver). May include indirect light computed from direct realtime lights, direct emitors, rrlights, env.
 	//! \param quality
 	//!  Desired illumination quality, used to enable/disable point materials.
-	PathtracerWorker(const PathtracerJob& ptj, const RRSolver::PathTracingParameters& parameters, bool dynamic, bool staticSceneContainsLods, unsigned quality);
+	PathtracerWorker(const PathtracerJob& ptj, const RRSolver::PathTracingParameters& parameters, bool staticSceneContainsLods, unsigned quality);
 
 	//! Returns color visible in given direction, in physical scale.
 	//
@@ -348,7 +349,6 @@ protected:
 	RRCollisionHandlerFinalGathering collisionHandlerGatherHemisphere;
 	RRCollisionHandlerFinalGathering collisionHandlerGatherLights;
 	const RRObject* multiObject;
-	const RRCollider* collider;
 	const RRLights* lights;
 	const RRPackedSolver* packedSolver; // shortcut for accessing indirect in Fireball solver
 	class Triangle* triangle; // shortcut for accessing indirect in Architect solver

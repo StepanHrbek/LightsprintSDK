@@ -18,7 +18,7 @@ extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 // PathtracerJob
 //
 
-PathtracerJob::PathtracerJob(const RRSolver* _solver)
+PathtracerJob::PathtracerJob(const RRSolver* _solver, bool _dynamic)
 {
 	solver = _solver;
 	scaler = solver ? solver->getScaler() : NULL;
@@ -28,6 +28,7 @@ PathtracerJob::PathtracerJob(const RRSolver* _solver)
 	RRBuffer* environment0 = solver ? solver->getEnvironment(0,&angleRad0) : NULL;
 	RRBuffer* environment1 = solver ? solver->getEnvironment(1,&angleRad1) : NULL;
 	environment = RRBuffer::createEnvironmentBlend(environment0,environment1,angleRad0,angleRad1,blendFactor);
+	collider = solver ? ( _dynamic ? solver->getCollider() : solver->getMultiObject()->getCollider() ) : NULL;
 
 #ifdef MATERIAL_BACKGROUND_HACK
 	environmentAveragePhysical = RRVec3(0);
@@ -54,7 +55,7 @@ PathtracerJob::~PathtracerJob()
 // PathtracerWorker
 //
 
-PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::PathTracingParameters& _parameters, bool _dynamic, bool _staticSceneContainsLods, unsigned _quality)
+PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::PathTracingParameters& _parameters, bool _staticSceneContainsLods, unsigned _quality)
 	: ptj(_ptj), collisionHandlerGatherHemisphere(_ptj.scaler,_quality,_staticSceneContainsLods),
 	  collisionHandlerGatherLights(_ptj.scaler,_quality,_staticSceneContainsLods),
 	  parameters(_parameters)
@@ -64,7 +65,6 @@ PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::Pa
 	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_POINT3D|RRRay::FILL_TRIANGLE; // 3D is only for shadowrays
 	lights = &ptj.solver->getLights();
 	multiObject = ptj.solver->getMultiObject();
-	collider = _dynamic ? ptj.solver->getCollider() : multiObject->getCollider();
 	packedSolver = ptj.solver->priv->packedSolver;
 	triangle = (ptj.solver->priv->scene && ptj.solver->priv->scene->scene && ptj.solver->priv->scene->scene->object) ? ptj.solver->priv->scene->scene->object->triangle : NULL;
 
@@ -140,7 +140,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 	ray.hitObject = multiObject; // non-RRMultiCollider does not fill ray.hitObject, we prefill it here, collisionHandler needs it filled
 	RR_ASSERT(ray.collisionHandler==&collisionHandlerGatherHemisphere);
 	collisionHandlerGatherHemisphere.setShooterTriangle(shooterObject,shooterTriangle);
-	if (!collider || !collider->intersect(&ray))
+	if (!ptj.collider || !ptj.collider->intersect(&ray))
 	{
 		// AO [#22]: possible hits were refused by handler, restore original hitDistance
 		ray.hitDistance = hitDistanceBackup;
@@ -271,7 +271,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 						material->getResponse(response,parameters.brdfTypes);
 						RRVec3 totalContribution = unobstructedLight * response.colorOut;
 						shadowRay.hitObject = multiObject; // non-RRMultiCollider does not fill ray.hitObject, we prefill it here, collisionHandler needs it filled
-						if (totalContribution!=RRVec3(0) && !collider->intersect(&shadowRay))
+						if (totalContribution!=RRVec3(0) && !ptj.collider->intersect(&shadowRay))
 						{
 							// dokud neudelam bidir, shadow raye musej prolitat bez refrakce, s pocitanim pruhlednosti, jinak nevzniknou rgb stiny
 							exitance += totalContribution * collisionHandlerGatherLights.getVisibility() * lightMultiplier;
