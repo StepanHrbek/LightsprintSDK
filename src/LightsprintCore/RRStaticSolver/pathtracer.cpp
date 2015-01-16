@@ -75,7 +75,7 @@ PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::Pa
 
 // material, ray.hitObject, ray.hitTriangle, ray.hitPoint2d -> normal
 // Lightsprint RRVec3(hitPlane) is normalized, goes from front side. point normal also goes from front side
-static RRVec3 getPointNormal(const RRRay& ray, const RRMaterial* material)
+static RRVec3 getPointNormal(const RRRay& ray, const RRMaterial* material, bool interpolated)
 {
 	RR_ASSERT(ray.hitObject);
 	RR_ASSERT(material);
@@ -94,13 +94,13 @@ static RRVec3 getPointNormal(const RRRay& ray, const RRMaterial* material)
 	{
 		// read localspace normal from bumpmap
 		RRVec2 uvInTextureSpace = tm.uv[0] + (tm.uv[1]-tm.uv[0])*ray.hitPoint2d[0] + (tm.uv[2]-tm.uv[0])*ray.hitPoint2d[1];
-		RRVec3 bumpElement = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1],0),NULL);
+		RRVec3 bumpElement = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1],0),NULL,interpolated);
 		RRVec3 localNormal;
 		if (material->bumpMapTypeHeight)
 		{
 			float height = bumpElement.x;
-			float hx = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0]+1.f/material->bumpMap.texture->getWidth(),uvInTextureSpace[1],0),NULL).x;
-			float hy = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1]+1.f/material->bumpMap.texture->getHeight(),0),NULL).x;
+			float hx = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0]+1.f/material->bumpMap.texture->getWidth(),uvInTextureSpace[1],0),NULL,interpolated).x;
+			float hy = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1]+1.f/material->bumpMap.texture->getHeight(),0),NULL,interpolated).x;
 			localNormal = RRVec3(height-hx,height-hy,0.1f);
 		}
 		else
@@ -174,7 +174,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		RRVec3 faceNormal = ray.hitPlane;
 		RRVec3 pixelNormal = faceNormal;
 		if (numBounces<parameters.useFlatNormalsSinceDepth)
-			pixelNormal = getPointNormal(ray,material);
+			pixelNormal = getPointNormal(ray,material,true);
 
 		// normals go from hit side now
 		if (!ray.hitFrontSide)
