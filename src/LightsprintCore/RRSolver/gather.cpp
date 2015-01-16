@@ -160,7 +160,7 @@ public:
 			pathTracingParameters,
 			_pti.context.staticSceneContainsLods,
 			_pti.context.params->quality,
-			_pti.context.params->quality)
+			0) // 0 turns off interpolation in lightmap baking (for all but shadow rays), UINT_MAX would enforce it
 	{
 		if (_pti.context.params)
 		{
@@ -344,7 +344,7 @@ public:
 		collisionHandlerGatherLight(
 			_pti.context.scaler,
 			_pti.context.params->quality*2, // when gathering lights (possibly rendering direct shadows), make point details 2* more important
-			_pti.context.params->quality*2,
+			_pti.context.params->quality/10, // but interpolation less important
 			_pti.context.staticSceneContainsLods)
 	{
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
