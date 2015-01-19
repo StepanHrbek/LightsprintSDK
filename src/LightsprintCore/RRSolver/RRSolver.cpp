@@ -70,9 +70,7 @@ bool RRSolver::CalculateParameters::operator ==(const RRSolver::CalculateParamet
 bool RRSolver::UpdateParameters::operator ==(const RRSolver::UpdateParameters& a) const
 {
 	return 1
-		&& a.lightMultiplier==lightMultiplier
-		&& a.environmentMultiplier==environmentMultiplier
-		&& a.currentSolutionMultiplier==currentSolutionMultiplier
+		&& a.RRSolver::Multipliers::operator ==(*this)
 		&& a.quality==quality
 		&& a.qualityFactorRadiosity==qualityFactorRadiosity
 		&& a.insideObjectsThreshold==insideObjectsThreshold
