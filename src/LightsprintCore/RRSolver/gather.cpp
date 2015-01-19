@@ -1029,7 +1029,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 	{
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 		calculateCore(0,&priv->previousCalculateParameters);
-		priv->scene->illuminationReset(true,true,_paramsIndirect?_paramsIndirect->materialEmittanceMultiplier:1,NULL,NULL,NULL); // required by endByQuality()
+		priv->scene->illuminationReset(true,true,paramsIndirect.materialEmittanceMultiplier,NULL,NULL,NULL); // required by endByQuality()
 
 		// first gather
 		unsigned tmp = paramsIndirect.quality;
