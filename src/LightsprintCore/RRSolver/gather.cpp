@@ -164,7 +164,8 @@ public:
 	{
 		if (_pti.context.params)
 		{
-			pathTracingParameters.RRSolver::Multipliers::operator=(*_pti.context.params);
+			pathTracingParameters.direct = *_pti.context.params;
+			pathTracingParameters.indirect = *_pti.context.params;
 			pathTracingParameters.brdfTypes = RRMaterial::BRDF_ALL;
 			pathTracingParameters.useFlatNormalsSinceDepth = 0;
 			pathTracingParameters.useSolverDirectSinceDepth = 0;

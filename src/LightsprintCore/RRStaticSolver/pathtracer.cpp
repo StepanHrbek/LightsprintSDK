@@ -149,14 +149,15 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		// ray left scene, add environment lighting
 		if (ptj.environment)
 		{
+			float environmentMultiplier = numBounces ? parameters.indirect.environmentMultiplier : parameters.direct.environmentMultiplier;
 #ifdef MATERIAL_BACKGROUND_HACK
 			if (bouncedOffInvisiblePlane)
-				return ptj.environmentAveragePhysical * parameters.environmentMultiplier;
+				return ptj.environmentAveragePhysical * environmentMultiplier;
 #endif
 
 			RRVec3 irrad = ptj.environment->getElementAtDirection(direction,ptj.scaler);
 			RR_ASSERT(IS_VEC3(irrad));
-			return irrad * parameters.environmentMultiplier;
+			return irrad * environmentMultiplier;
 		}
 		return Channels(0);
 	}
@@ -188,7 +189,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		response.dirNormal = pixelNormal;
 		response.dirOut = -direction;
 
-		float lightMultiplier = numBounces ? parameters.currentSolutionMultiplier : parameters.lightMultiplier;
+		float lightMultiplier = numBounces ? parameters.indirect.lightMultiplier : parameters.direct.lightMultiplier;
 
 #ifdef MATERIAL_BACKGROUND_HACK
 		RRPointMaterial invisiblePlaneMaterial;
@@ -197,7 +198,8 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		{
 			invisiblePlaneMaterial = *material;
 			bouncedOffInvisiblePlane = true;
-			RRVec3 environmentAndSunsPhysical = ptj.environmentAveragePhysical * parameters.environmentMultiplier;
+			float environmentMultiplier = numBounces ? parameters.indirect.environmentMultiplier : parameters.direct.environmentMultiplier;
+			RRVec3 environmentAndSunsPhysical = ptj.environmentAveragePhysical * environmentMultiplier;
 			for (unsigned i=0;i<lights->size();i++)
 				if ((*lights)[i]->enabled && (*lights)[i]->type==RRLight::DIRECTIONAL)
 				{
@@ -292,7 +294,8 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			//float splitToTwoSides = material->sideBits[ray.hitFrontSide?1:0].emitTo ? 0.5f : 1;
 
 			// used in direct lighting final gather [per pixel emittance]
-			exitance += material->diffuseEmittance.colorPhysical * parameters.materialEmittanceMultiplier;// * splitToTwoSides;
+			float materialEmittanceMultiplier = numBounces ? parameters.indirect.materialEmittanceMultiplier : parameters.direct.materialEmittanceMultiplier;
+			exitance += material->diffuseEmittance.colorPhysical * materialEmittanceMultiplier;// * splitToTwoSides;
 			RR_ASSERT(IS_VEC3(exitance));
 		}
 

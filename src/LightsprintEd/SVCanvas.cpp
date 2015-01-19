@@ -1737,11 +1737,12 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				camera.apertureDiameter = 0;
 			camera.setAspect(pathTraceWidth/(float)pathTraceHeight); // [#37] not ,0.5
 			rr::RRSolver::PathTracingParameters params;
-			params.rr::RRSolver::Multipliers::operator=(svs.multipliers);
+			params.direct = svs.getMultipliersDirect();
+			params.indirect = svs.getMultipliersIndirect();
 			if (!svs.renderLightDirect)
-				params.lightMultiplier = 0;
+				params.direct.lightMultiplier = 0;
 			if (!svs.renderMaterialEmission)
-				params.materialEmittanceMultiplier = 0;
+				params.direct.materialEmittanceMultiplier = 0;
 			params.brdfTypes = rr::RRMaterial::BrdfType( (svs.renderMaterialDiffuse?rr::RRMaterial::BRDF_DIFFUSE:0) + (svs.renderMaterialSpecular?rr::RRMaterial::BRDF_SPECULAR:0) + ((svs.renderMaterialTransparency!=T_OPAQUE)?rr::RRMaterial::BRDF_TRANSMIT:0) );
 			unsigned shortcut = (unsigned)sqrtf((float)(pathTracedAccumulator/10)); // starts at 0, increases on frames 10, 40, 90, 160 etc
 			params.useFlatNormalsSinceDepth = shortcut+1;

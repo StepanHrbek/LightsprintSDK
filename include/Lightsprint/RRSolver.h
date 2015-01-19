@@ -953,6 +953,12 @@ namespace rr
 
 		struct RR_API PathTracingParameters : public Multipliers
 		{
+			//! Multiplies direct illumination from sources.
+			Multipliers direct;
+			//! Multiplies indirect illumination from sources. Set both direct and indirect identical for realistic results.
+			Multipliers indirect;
+
+			//! Use only given types of materials.
 			RRMaterial::BrdfType brdfTypes;
 
 			// how many bounces before given optimization kicks in?
