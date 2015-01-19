@@ -137,6 +137,25 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// FloatRefProperty
+
+class FloatRefProperty : public FloatProperty
+{
+public:
+	FloatRefProperty(const wxString& label, const wxString& help, float &value, int precision, float mini, float maxi, float step, bool wrap)
+		: FloatProperty(label, help, value, precision, mini, maxi, step, wrap), ref(value)
+	{
+	}
+	virtual void OnSetValue()
+	{
+		ref = GetValue().GetDouble();
+	}
+	float& ref;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // ImageFileProperty
 
 class ImageFileProperty : public wxFileProperty
