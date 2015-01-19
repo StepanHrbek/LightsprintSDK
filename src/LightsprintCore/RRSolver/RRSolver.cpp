@@ -1013,7 +1013,7 @@ void RRSolver::checkConsistency()
 	// boost
 	if (priv->lightMultiplier<=0.1f || priv->lightMultiplier>=10)
 	{
-		RRReporter::report(WARN,"  lightIndirectMultiplier=%f, is it intentional? Scene may get too %s.\n",
+		RRReporter::report(WARN,"  lightMultiplier=%f, is it intentional? Scene may get too %s.\n",
 			priv->lightMultiplier,
 			(priv->lightMultiplier<=0.1f)?"dark":"bright");
 	}
