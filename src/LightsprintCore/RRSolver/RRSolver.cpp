@@ -121,7 +121,7 @@ void RRSolver::setScaler(const RRScaler* _scaler)
 {
 	priv->scaler = _scaler;
 	// priv->lightIndirectMultiplier is in physical scale, but we need it in custom
-	float multiplier = priv->lightIndirectMultiplier;
+	float multiplier = priv->lightMultiplier;
 	if (_scaler) _scaler->toCustomSpace(multiplier);
 	// update fast conversion table for our setDirectIllumination
 	for (unsigned i=0;i<256;i++)
@@ -799,9 +799,9 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 		if (priv->scene) updateVertexLookupTableDynamicSolver();
 		if (aborting) RR_SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
 	}
-	if (_params->lightIndirectMultiplier!=priv->lightIndirectMultiplier)
+	if (_params->lightIndirectMultiplier!=priv->lightMultiplier)
 	{
-		priv->lightIndirectMultiplier = _params->lightIndirectMultiplier;
+		priv->lightMultiplier = _params->lightIndirectMultiplier;
 		setScaler(getScaler()); // update customToPhysical[] byte->float conversion table
 	}
 	if (dirtyFactors)
@@ -1011,11 +1011,11 @@ void RRSolver::checkConsistency()
 		if (priv->scene&&priv->packedSolver) RRReporter::report(WARN,"  Solver type: both\n");
 
 	// boost
-	if (priv->lightIndirectMultiplier<=0.1f || priv->lightIndirectMultiplier>=10)
+	if (priv->lightMultiplier<=0.1f || priv->lightMultiplier>=10)
 	{
 		RRReporter::report(WARN,"  lightIndirectMultiplier=%f, is it intentional? Scene may get too %s.\n",
-			priv->lightIndirectMultiplier,
-			(priv->lightIndirectMultiplier<=0.1f)?"dark":"bright");
+			priv->lightMultiplier,
+			(priv->lightMultiplier<=0.1f)?"dark":"bright");
 	}
 
 	// histogram

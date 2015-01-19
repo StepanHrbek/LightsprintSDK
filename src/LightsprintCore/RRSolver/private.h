@@ -60,7 +60,7 @@ namespace rr
 
 		// scale: inputs
 		const RRScaler*  scaler;
-		RRReal     lightIndirectMultiplier;
+		RRReal     lightMultiplier;
 		// scale: function of inputs
 		RRReal     customToPhysical[256];
 
@@ -110,7 +110,7 @@ namespace rr
 
 			// scale: inputs
 			scaler = NULL;
-			lightIndirectMultiplier = 1;
+			lightMultiplier = 1;
 			// scale: function of inputs
 			for (unsigned i=0;i<256;i++)
 			{
