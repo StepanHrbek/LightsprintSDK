@@ -187,15 +187,15 @@ void keyboard(unsigned char c, int x, int y)
 			{
 				rr::RRSolver::UpdateParameters paramsDirect;
 				paramsDirect.quality = 1000;
-				paramsDirect.lightIndirectMultiplier = 0;
+				paramsDirect.currentSolutionMultiplier = 0;
 				paramsDirect.aoIntensity = 1;
 				paramsDirect.aoSize = 1;
 				rr::RRSolver::UpdateParameters paramsIndirect;
-				paramsIndirect.lightIndirectMultiplier = 0;
+				paramsIndirect.currentSolutionMultiplier = 0;
 
 				// 1. type of lighting
 				//  a) improve current GI lighting from realtime light
-				paramsDirect.lightIndirectMultiplier = 1;
+				paramsDirect.currentSolutionMultiplier = 1;
 				//  b) compute GI from point/spot/dir lights
 				//paramsDirect.lightDirectMultiplier = 1;
 				//paramsIndirect.lightDirectMultiplier = 1;
@@ -332,7 +332,7 @@ void display(void)
 	solver->reportDirectIlluminationChange(0,true,false,false); // scene is animated -> direct illum changes
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	rr::RRSolver::CalculateParameters params;
-	params.lightIndirectMultiplier = 2;
+	params.currentSolutionMultiplier = 2;
 	solver->calculate(&params);
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);

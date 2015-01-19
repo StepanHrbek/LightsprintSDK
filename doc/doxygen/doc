@@ -1566,11 +1566,11 @@ Material formats (1)
 	solver.setEnvironment(environment);
 	RRSolver::UpdateParameters params;
 	params.quality = 1000;
-	params.lightIndirectMultiplier = 0;
+	params.currentSolutionMultiplier = 0;
 	params.environmentMultiplier = 1;
 	params.lightDirectMultiplier = 1;
 	solver.updateLightmaps(-1,-1,-1,&params,&params,NULL);
-	params.lightIndirectMultiplier = 1;
+	params.currentSolutionMultiplier = 1;
 	params.measure_internal.direct = true;
 	while(!done)
 	{
@@ -1742,7 +1742,7 @@ Material formats (1)
     occluded by all other objects.
   - Set uniform white environment with RRSolver::setEnvironment(RRBuffer::createSky())
   - Call RRSolver::updateLightmaps() with
-    \n paramsDirect.lightIndirectMultiplier=0
+    \n paramsDirect.currentSolutionMultiplier=0
     \n paramsDirect.lightDirectMultiplier=0
     \n paramsDirect.environmentMultiplier=1
     \n and paramsIndirect=NULL

@@ -188,7 +188,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		response.dirNormal = pixelNormal;
 		response.dirOut = -direction;
 
-		float lightMultiplier = numBounces ? parameters.lightIndirectMultiplier : parameters.lightDirectMultiplier;
+		float lightMultiplier = numBounces ? parameters.currentSolutionMultiplier : parameters.lightDirectMultiplier;
 
 #ifdef MATERIAL_BACKGROUND_HACK
 		RRPointMaterial invisiblePlaneMaterial;

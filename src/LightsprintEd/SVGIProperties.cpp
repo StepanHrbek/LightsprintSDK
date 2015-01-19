@@ -36,7 +36,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			AppendIn(propGIDirect,propGIShadowTransparency);
 		}
 
-		propGIIndirectMultiplier = new FloatProperty(_("Indirect multiplier"),_("Multiplies indirect illumination from lights. 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.multipliers.lightIndirectMultiplier,svs.precision,0,10000,1,false);
+		propGIIndirectMultiplier = new FloatProperty(_("Indirect multiplier"),_("Multiplies indirect illumination from lights. 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.multipliers.currentSolutionMultiplier,svs.precision,0,10000,1,false);
 		AppendIn(propGITechnique,propGIIndirectMultiplier);
 
 		propGISkyMultiplier = new FloatProperty(_("Sky multiplier"),_("Multiplies sky lighting. 1=realistic."),svs.multipliers.environmentMultiplier,svs.precision,0,1e10f,1,false);
@@ -296,7 +296,7 @@ void SVGIProperties::updateProperties()
 		+ updateBoolRef(propGISRGBCorrect)
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
 		+ updateBoolRef(propGIPathShortcut)
-		+ updateFloat(propGIIndirectMultiplier,svs.multipliers.lightIndirectMultiplier)
+		+ updateFloat(propGIIndirectMultiplier,svs.multipliers.currentSolutionMultiplier)
 		+ updateFloat(propGISkyMultiplier,svs.multipliers.environmentMultiplier)
 		+ updateFloat(propGIEmisMultiplier,svs.multipliers.materialEmittanceMultiplier)
 		+ updateInt(propGIEmisVideoGIQuality,svs.videoEmittanceGIQuality)
@@ -379,7 +379,7 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propGIIndirectMultiplier)
 	{
-		svs.multipliers.lightIndirectMultiplier = property->GetValue().GetDouble();
+		svs.multipliers.currentSolutionMultiplier = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propGISkyMultiplier)

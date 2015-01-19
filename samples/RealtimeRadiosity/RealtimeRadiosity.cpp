@@ -218,7 +218,7 @@ void display(void)
 	solver->reportDirectIlluminationChange(0,true,false,false);
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	rr::RRSolver::CalculateParameters params;
-	params.lightIndirectMultiplier = 2;
+	params.currentSolutionMultiplier = 2;
 	solver->calculate(&params);
 	static unsigned solutionVersion = 0;
 	if (solver->getSolutionVersion()!=solutionVersion)

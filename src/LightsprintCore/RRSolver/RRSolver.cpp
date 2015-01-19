@@ -36,7 +36,7 @@ bool RRSolver::Multipliers::operator ==(const RRSolver::Multipliers& a) const
 {
 	return 1
 		&& a.lightDirectMultiplier==lightDirectMultiplier
-		&& a.lightIndirectMultiplier==lightIndirectMultiplier
+		&& a.currentSolutionMultiplier==currentSolutionMultiplier
 		&& a.environmentMultiplier==environmentMultiplier
 		&& a.materialEmittanceMultiplier==materialEmittanceMultiplier
 		;
@@ -72,7 +72,7 @@ bool RRSolver::UpdateParameters::operator ==(const RRSolver::UpdateParameters& a
 	return 1
 		&& a.lightDirectMultiplier==lightDirectMultiplier
 		&& a.environmentMultiplier==environmentMultiplier
-		&& a.lightIndirectMultiplier==lightIndirectMultiplier
+		&& a.currentSolutionMultiplier==currentSolutionMultiplier
 		&& a.quality==quality
 		&& a.qualityFactorRadiosity==qualityFactorRadiosity
 		&& a.insideObjectsThreshold==insideObjectsThreshold
@@ -120,7 +120,7 @@ RRSolver::~RRSolver()
 void RRSolver::setScaler(const RRScaler* _scaler)
 {
 	priv->scaler = _scaler;
-	// priv->lightIndirectMultiplier is in physical scale, but we need it in custom
+	// priv->currentSolutionMultiplier is in physical scale, but we need it in custom
 	float multiplier = priv->lightMultiplier;
 	if (_scaler) _scaler->toCustomSpace(multiplier);
 	// update fast conversion table for our setDirectIllumination
@@ -799,9 +799,9 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 		if (priv->scene) updateVertexLookupTableDynamicSolver();
 		if (aborting) RR_SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
 	}
-	if (_params->lightIndirectMultiplier!=priv->lightMultiplier)
+	if (_params->currentSolutionMultiplier!=priv->lightMultiplier)
 	{
-		priv->lightMultiplier = _params->lightIndirectMultiplier;
+		priv->lightMultiplier = _params->currentSolutionMultiplier;
 		setScaler(getScaler()); // update customToPhysical[] byte->float conversion table
 	}
 	if (dirtyFactors)

@@ -1548,7 +1548,7 @@ no_frame:
 
 	rr::RRSolver::CalculateParameters calculateParams = level->setup->calculateParams;
 
-	calculateParams.lightIndirectMultiplier = 2;
+	calculateParams.currentSolutionMultiplier = 2;
 
 #if FRAMERATE_SMOOTHING==1
 	// DDI in every frame, low fps, smooth
