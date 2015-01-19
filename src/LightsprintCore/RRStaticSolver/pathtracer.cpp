@@ -60,6 +60,7 @@ PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::Pa
 	  collisionHandlerGatherLights(_ptj.scaler,_qualityForPointMaterials,_qualityForInterpolation,_staticSceneContainsLods),
 	  parameters(_parameters)
 {
+	// don't use 'parameters' in ctor, GatheredIrradianceHemisphere sends us reference to empty params and fills them later
 	collisionHandlerGatherHemisphere.setHemisphere(ptj.solver->priv->scene);
 	ray.collisionHandler = &collisionHandlerGatherHemisphere;
 	ray.rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_PLANE|RRRay::FILL_POINT2D|RRRay::FILL_POINT3D|RRRay::FILL_TRIANGLE; // 3D is only for shadowrays
