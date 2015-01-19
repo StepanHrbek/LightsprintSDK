@@ -311,9 +311,9 @@ namespace rr
 		//! Multipliers for tweaking contribution of various light sources. They work in physical scale.
 		struct RR_API Multipliers
 		{
-			//! Multiplies direct illumination from RRLights.
-			RRReal lightDirectMultiplier;
-			//! Multiplies indirect illumination from RRLights.
+			//! Multiplies illumination from RRLights.
+			RRReal lightMultiplier;
+			//! Multiplies illumination from current solution in solver.
 			RRReal currentSolutionMultiplier;
 			//! Multiplies environment(skybox) illumination.
 			RRReal environmentMultiplier;
@@ -322,7 +322,7 @@ namespace rr
 
 			Multipliers()
 			{
-				lightDirectMultiplier = 1;
+				lightMultiplier = 1;
 				currentSolutionMultiplier = 1;
 				environmentMultiplier = 1;
 				materialEmittanceMultiplier = 1;
@@ -333,7 +333,7 @@ namespace rr
 		//! Optional parameters of calculate().
 		struct RR_API CalculateParameters : public Multipliers
 		{
-			//RRReal lightDirectMultiplier;       ...
+			//RRReal lightMultiplier;             ...
 			//RRReal currentSolutionMultiplier;   ... works
 			//RRReal environmentMultiplier;       ... works with Fireball
 			//RRReal materialEmittanceMultiplier; ... works with Fireball
@@ -464,7 +464,7 @@ namespace rr
 			//
 			//! Relates to number of rays per texel or triangle,
 			//! time taken grows mostly linearly with this number.
-			//! (When !currentSolutionMultiplier and lightDirectMultiplier and !environmentMultiplier,
+			//! (When !currentSolutionMultiplier and lightMultiplier and !environmentMultiplier,
 			//! faster path is used.)
 			//!
 			//! Higher number = higher quality.
@@ -530,7 +530,7 @@ namespace rr
 			//! Sets default parameters for fast realtime update. Only direct lighting from RRSolver::setDirectIllumination() enters calculation.
 			UpdateParameters()
 			{
-				lightDirectMultiplier = 0;
+				lightMultiplier = 0;
 				currentSolutionMultiplier = 1;
 				environmentMultiplier = 0;
 				materialEmittanceMultiplier = 1;
@@ -550,7 +550,7 @@ namespace rr
 			//! Sets default parameters for offline update. All lightsources in scene enter calculation.
 			UpdateParameters(unsigned _quality)
 			{
-				lightDirectMultiplier = 1;
+				lightMultiplier = 1;
 				currentSolutionMultiplier = 0;
 				environmentMultiplier = 1;
 				materialEmittanceMultiplier = 1;
@@ -687,17 +687,17 @@ namespace rr
 		//!  \n Negative number disables update of bent normals.
 		//! \param paramsDirect
 		//!  Parameters of the update process specific for direct illumination component of final color.
-		//!  With e.g. paramsDirect->lightDirectMultiplier, direct illumination created by lights 
+		//!  With e.g. paramsDirect->lightMultiplier, direct illumination created by lights 
 		//!  set by setLights() is added to the final value stored into lightmap.
 		//!  \n Set both paramsDirect and paramsIndirect NULL for very fast/realtime update
 		//!  that fills vertex buffers with indirect illumination in physical scale, read from current solution in solver.
 		//!  Set only paramsDirect NULL for no direct illumination.
 		//! \param paramsIndirect
 		//!  Parameters of the update process specific for indirect illumination component of final color.
-		//!  With e.g. paramsIndirect->lightDirectMultiplier, indirect illumination created by lights
+		//!  With e.g. paramsIndirect->lightMultiplier, indirect illumination created by lights
 		//!  set by setLights() is added to the final value stored into buffer.
 		//!  For global illumination created by e.g. lights,
-		//!  set both paramsDirect->lightDirectMultiplier and paramsIndirect->lightDirectMultiplier.
+		//!  set both paramsDirect->lightMultiplier and paramsIndirect->lightMultiplier.
 		//!  \n paramsIndirect->quality is ignored, only paramsDirect->quality matters.
 		//!  \n Set both paramsDirect and paramsIndirect NULL for very fast/realtime update
 		//!  that fills vertex buffers with indirect illumination in physical scale, read from current solution in solver.

@@ -197,8 +197,8 @@ void keyboard(unsigned char c, int x, int y)
 				//  a) improve current GI lighting from realtime light
 				paramsDirect.currentSolutionMultiplier = 1;
 				//  b) compute GI from point/spot/dir lights
-				//paramsDirect.lightDirectMultiplier = 1;
-				//paramsIndirect.lightDirectMultiplier = 1;
+				//paramsDirect.lightMultiplier = 1;
+				//paramsIndirect.lightMultiplier = 1;
 				// lights from scene file are already set, but you may set your own:
 				//rr::RRLights lights;
 				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRVec3(0.5f)));

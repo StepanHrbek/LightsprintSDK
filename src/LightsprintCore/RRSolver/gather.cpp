@@ -371,7 +371,7 @@ public:
 			irradiancePhysicalLights[i] = RRVec3(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 0;
-		rounds = (pti.context.params->lightDirectMultiplier && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
+		rounds = (pti.context.params->lightMultiplier && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
 		rays = numRelevantLights*rounds;
 		ray.hitObject = pti.context.solver->getMultiObject();
 		ray.rayLengthMin = pti.rayLengthMin;
@@ -596,7 +596,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		// - copying this condition to distant place would make code unnecessarily complex
 		//   (this simple condition depends on 2 other places that set rays)
 		// - performance loss is very small
-		//RR_LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%d, material.accepted.lights=%d, lightDirectMultiplier=%f, env=%d, environmentMultiplier=%f).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params->lightDirectMultiplier,pti.context.solver->getEnvironment()?1:0,pti.context.params->environmentMultiplier));
+		//RR_LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%d, material.accepted.lights=%d, lightMultiplier=%f, env=%d, environmentMultiplier=%f).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params->lightDirectMultiplier,pti.context.solver->getEnvironment()?1:0,pti.context.params->environmentMultiplier));
 		return ProcessTexelResult();
 	}
 
@@ -815,19 +815,19 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 	params.quality = RR_MAX(1,params.quality);
 	
 	// optimize params
-	if (params.lightDirectMultiplier)
+	if (params.lightMultiplier)
 	{
 		for (unsigned i=0;i<getLights().size();i++)
 			if (getLights()[i] && getLights()[i]->enabled)
 				goto hasAtLeastOneEnabledLight;
-		params.lightDirectMultiplier = 0;
+		params.lightMultiplier = 0;
 		hasAtLeastOneEnabledLight:;
 	}
 	if (params.environmentMultiplier && !getEnvironment())
 		params.environmentMultiplier = 0;
 
 	RRReportInterval report(INF2,"Gathering(%s%s%s%d) ...\n",
-		params.lightDirectMultiplier?"lights ":"",params.environmentMultiplier?"env ":"",params.currentSolutionMultiplier?"cur ":"",params.quality);
+		params.lightMultiplier?"lights ":"",params.environmentMultiplier?"env ":"",params.currentSolutionMultiplier?"cur ":"",params.quality);
 	LightmapperJob lmj(this);
 	lmj.params = &params;
 	lmj.gatherAllDirections = resultsPhysical->data[LS_DIRECTION1]||resultsPhysical->data[LS_DIRECTION2]||resultsPhysical->data[LS_DIRECTION3];
@@ -996,7 +996,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 	// set default params instead of NULL
 	UpdateParameters paramsIndirect;
 	paramsIndirect.currentSolutionMultiplier = 0;
-	paramsIndirect.lightDirectMultiplier = 0;
+	paramsIndirect.lightMultiplier = 0;
 	paramsIndirect.environmentMultiplier = 0;
 	//paramsDirect.currentSolutionMultiplier = 0;
 	if (_paramsIndirect)
@@ -1010,7 +1010,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 	}
 
 	RRReportInterval report(INF2,"Updating solver indirect(%s%s%s).\n",
-		paramsIndirect.lightDirectMultiplier?"lights ":"",paramsIndirect.environmentMultiplier?"env ":"",
+		paramsIndirect.lightMultiplier?"lights ":"",paramsIndirect.environmentMultiplier?"env ":"",
 		paramsIndirect.currentSolutionMultiplier?"cur ":"");
 
 	if (paramsIndirect.currentSolutionMultiplier)
@@ -1019,13 +1019,13 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 		paramsIndirect.currentSolutionMultiplier = 0;
 	}
 	else
-	if (!paramsIndirect.lightDirectMultiplier && !paramsIndirect.environmentMultiplier)
+	if (!paramsIndirect.lightMultiplier && !paramsIndirect.environmentMultiplier)
 	{
 		RR_ASSERT(0); // no lightsource enabled, todo: fill solver.direct with zeroes
 	}
 
 	// gather direct for requested indirect and propagate in solver
-	if (paramsIndirect.lightDirectMultiplier || paramsIndirect.environmentMultiplier)
+	if (paramsIndirect.lightMultiplier || paramsIndirect.environmentMultiplier)
 	{
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 		calculateCore(0,&priv->previousCalculateParameters);

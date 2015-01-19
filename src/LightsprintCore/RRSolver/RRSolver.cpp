@@ -35,7 +35,7 @@ namespace rr
 bool RRSolver::Multipliers::operator ==(const RRSolver::Multipliers& a) const
 {
 	return 1
-		&& a.lightDirectMultiplier==lightDirectMultiplier
+		&& a.lightMultiplier==lightMultiplier
 		&& a.currentSolutionMultiplier==currentSolutionMultiplier
 		&& a.environmentMultiplier==environmentMultiplier
 		&& a.materialEmittanceMultiplier==materialEmittanceMultiplier
@@ -70,7 +70,7 @@ bool RRSolver::CalculateParameters::operator ==(const RRSolver::CalculateParamet
 bool RRSolver::UpdateParameters::operator ==(const RRSolver::UpdateParameters& a) const
 {
 	return 1
-		&& a.lightDirectMultiplier==lightDirectMultiplier
+		&& a.lightMultiplier==lightMultiplier
 		&& a.environmentMultiplier==environmentMultiplier
 		&& a.currentSolutionMultiplier==currentSolutionMultiplier
 		&& a.quality==quality

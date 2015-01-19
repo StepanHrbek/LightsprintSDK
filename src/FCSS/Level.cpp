@@ -64,11 +64,11 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			// build light detail map
 			solver->getStaticObjects()[0]->illumination.getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,2048,2048,1,rr::BF_RGB,true,NULL);
 			rr::RRSolver::UpdateParameters paramsDirect(REBUILD_JPG ? 2000 : 20);
-			paramsDirect.lightDirectMultiplier = 0;
+			paramsDirect.lightMultiplier = 0;
 			paramsDirect.aoIntensity = 2;
 			paramsDirect.aoSize = 1;
 			rr::RRSolver::UpdateParameters paramsIndirect(REBUILD_JPG ? 2000 : 20);
-			paramsIndirect.lightDirectMultiplier = 0;
+			paramsIndirect.lightMultiplier = 0;
 			paramsIndirect.locality = -1;
 			paramsIndirect.qualityFactorRadiosity = 0;
 			rr::RRBuffer* oldEnv = solver->getEnvironment();

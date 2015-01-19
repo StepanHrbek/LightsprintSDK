@@ -1568,7 +1568,7 @@ Material formats (1)
 	params.quality = 1000;
 	params.currentSolutionMultiplier = 0;
 	params.environmentMultiplier = 1;
-	params.lightDirectMultiplier = 1;
+	params.lightMultiplier = 1;
 	solver.updateLightmaps(-1,-1,-1,&params,&params,NULL);
 	params.currentSolutionMultiplier = 1;
 	params.measure_internal.direct = true;
@@ -1743,7 +1743,7 @@ Material formats (1)
   - Set uniform white environment with RRSolver::setEnvironment(RRBuffer::createSky())
   - Call RRSolver::updateLightmaps() with
     \n paramsDirect.currentSolutionMultiplier=0
-    \n paramsDirect.lightDirectMultiplier=0
+    \n paramsDirect.lightMultiplier=0
     \n paramsDirect.environmentMultiplier=1
     \n and paramsIndirect=NULL
     \n To calculate global ambient occlusion,

@@ -886,13 +886,13 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						// update everything in temp layer
 						rr::RRSolver::UpdateParameters paramsDirect(quality);
 						paramsDirect.rr::RRSolver::Multipliers::operator=(svs.multipliers);
-						paramsDirect.lightDirectMultiplier = 0;
+						paramsDirect.lightMultiplier = 0;
 						paramsDirect.currentSolutionMultiplier = 0;
 						paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
 						paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
 						rr::RRSolver::UpdateParameters paramsIndirect(quality);
 						paramsIndirect.rr::RRSolver::Multipliers::operator=(svs.multipliers);
-						paramsIndirect.lightDirectMultiplier = 0;
+						paramsIndirect.lightMultiplier = 0;
 						paramsIndirect.currentSolutionMultiplier = 0;
 						paramsIndirect.locality = -1;
 						paramsIndirect.qualityFactorRadiosity = 0;

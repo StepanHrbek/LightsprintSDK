@@ -1739,7 +1739,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr::RRSolver::PathTracingParameters params;
 			params.rr::RRSolver::Multipliers::operator=(svs.multipliers);
 			if (!svs.renderLightDirect)
-				params.lightDirectMultiplier = 0;
+				params.lightMultiplier = 0;
 			if (!svs.renderMaterialEmission)
 				params.materialEmittanceMultiplier = 0;
 			params.brdfTypes = rr::RRMaterial::BrdfType( (svs.renderMaterialDiffuse?rr::RRMaterial::BRDF_DIFFUSE:0) + (svs.renderMaterialSpecular?rr::RRMaterial::BRDF_SPECULAR:0) + ((svs.renderMaterialTransparency!=T_OPAQUE)?rr::RRMaterial::BRDF_TRANSMIT:0) );
