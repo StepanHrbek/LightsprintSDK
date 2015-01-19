@@ -481,6 +481,13 @@ namespace rr
 			//! value x makes radiosity step x times longer. Example: 0.5 makes it 2x faster.
 			float qualityFactorRadiosity;
 
+			//! Higher value makes indirect illumination in corners darker, 0=disabled/lighter, default 1=normal, 2=darker.
+			RRReal aoIntensity;
+			//! Indirect illumination gets darker in this distance (in world units, usually meters) from corners.
+			//! Default 0=disabled.
+			//! If set too high, indirect illumination becomes black.
+			RRReal aoSize;
+
 			//! Deprecated. Only partially supported since 2007.08.21.
 			//
 			//! 0..1 ratio, texels with greater fraction of hemisphere 
@@ -497,7 +504,7 @@ namespace rr
 			//! leak under the rug). Set it to zero to disable any corrections.
 			RRReal rugDistance;
 
-			//! Distance in world space; illumination never comes from greater distance.
+			//! Distance in world space; reflected or emited light never comes from greater distance.
 			//
 			//! As long as it is bigger than scene size, results are realistic.
 			//! Setting it below scene size makes results less realistic, illumination
@@ -506,13 +513,6 @@ namespace rr
 			//! in this or lower distance from texel, illumination is read from 
 			//! outer environment/sky.)
 			RRReal locality;
-
-			//! Higher value makes indirect illumination in corners darker, 0=disabled/lighter, default 1=normal, 2=darker.
-			RRReal aoIntensity;
-			//! Indirect illumination gets darker in this distance (in world units, usually meters) from corners.
-			//! Default 0=disabled.
-			//! If set too high, indirect illumination becomes black.
-			RRReal aoSize;
 
 			//! For internal use only, don't change default RM_IRRADIANCE_CUSTOM_INDIRECT value.
 			RRRadiometricMeasure measure_internal;
@@ -536,11 +536,11 @@ namespace rr
 				materialEmittanceMultiplier = 1;
 				quality = 0;
 				qualityFactorRadiosity = 1;
+				aoIntensity = 1;
+				aoSize = 0;
 				insideObjectsThreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;
-				aoIntensity = 1;
-				aoSize = 0;
 				measure_internal = RM_IRRADIANCE_CUSTOM_INDIRECT;
 				debugObject = UINT_MAX;
 				debugTexel = UINT_MAX;
