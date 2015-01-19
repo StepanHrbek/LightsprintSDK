@@ -43,10 +43,6 @@ namespace rr_ed
 		wxPGProperty*     propGISkyMultiplier;
 		wxPGProperty*     propGIEmisMultiplier;
 		wxPGProperty*     propGIIndirectMultiplier;
-		BoolRefProperty*  propGISSGI;
-		wxPGProperty*     propGISSGIIntensity;
-		wxPGProperty*     propGISSGIRadius;
-		wxPGProperty*     propGISSGIAngleBias;
 		BoolRefProperty*  propGILDM;
 		BoolRefProperty*  propGIBilinear;
 
@@ -57,6 +53,24 @@ namespace rr_ed
 		ButtonProperty*   propGIFireballBuild;
 		wxPGProperty*     propGIFireballWorkPerFrame;
 		wxPGProperty*     propGIFireballWorkTotal;
+
+		wxPGProperty*     propGILightmap;
+		BoolRefProperty*  propGILightmapFloats;
+		wxPGProperty*     propGILightmapAOIntensity;
+		wxPGProperty*     propGILightmapAOSize;
+		wxPGProperty*     propGILightmapSmoothingAmount;
+		wxPGProperty*     propGILightmapSpreadForegroundColor;
+		wxPGProperty*     propGILightmapBackgroundColor;
+		BoolRefProperty*  propGILightmapWrapping;
+		ButtonProperty*   propGIBuildLmaps;
+		ButtonProperty*   propGIBuildAmbientMaps;
+		ButtonProperty*   propGIBuildLDMs;
+		ButtonProperty*   propGIBuildCubes;
+
+		BoolRefProperty*  propGISSGI;
+		wxPGProperty*     propGISSGIIntensity;
+		wxPGProperty*     propGISSGIRadius;
+		wxPGProperty*     propGISSGIAngleBias;
 
 		BoolRefProperty*  propGIRaytracedCubes;
 		wxPGProperty*     propGIRaytracedCubesRes;
@@ -77,19 +91,6 @@ namespace rr_ed
 		BoolRefProperty*  propGITranspVideoAffectsGIFull;
 		BoolRefProperty*  propGIEnvVideoAffectsGI;
 		wxPGProperty*     propGIEnvVideoGIQuality;
-
-		wxPGProperty*     propGILightmap;
-		BoolRefProperty*  propGILightmapFloats;
-		wxPGProperty*     propGILightmapAOIntensity;
-		wxPGProperty*     propGILightmapAOSize;
-		wxPGProperty*     propGILightmapSmoothingAmount;
-		wxPGProperty*     propGILightmapSpreadForegroundColor;
-		wxPGProperty*     propGILightmapBackgroundColor;
-		BoolRefProperty*  propGILightmapWrapping;
-		ButtonProperty*   propGIBuildLmaps;
-		ButtonProperty*   propGIBuildAmbientMaps;
-		ButtonProperty*   propGIBuildLDMs;
-		ButtonProperty*   propGIBuildCubes;
 
 		DECLARE_EVENT_TABLE()
 	};

@@ -48,21 +48,6 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGIPathShortcut = new BoolRefProperty(_("Shortcut"),_("Lets pathtracer access indirect illumination stored in Fireball or Architect solver, if it was in use before."),svs.pathShortcut);
 		AppendIn(propGITechnique,propGIPathShortcut);
 
-		// SSGI
-		{
-			propGISSGI = new BoolRefProperty(_("SSGI"),_("Screen space global illumination improves quality of constant and realtime indirect illumination. SSGI works without any precalculations, however, it is slower and looks worse than LDM."),svs.ssgiEnabled);
-			AppendIn(propGITechnique,propGISSGI);
-
-			propGISSGIIntensity = new FloatProperty(_("Intensity"),_("Multiplies effect of SSGI."),svs.ssgiIntensity,svs.precision,0,100,1,false);
-			AppendIn(propGISSGI,propGISSGIIntensity);
-
-			propGISSGIRadius = new FloatProperty(_("Radius")+" (m)",_("Max distance of occluder to create occlusion."),svs.ssgiRadius,svs.precision,0,100,1,false);
-			AppendIn(propGISSGI,propGISSGIRadius);
-
-			propGISSGIAngleBias = new FloatProperty(_("Hide false edges"),_("0 for full occlusion (makes false edges visible), increase to hide occlusion on false edges."),svs.ssgiAngleBias,svs.precision,0,100,1,false);
-			AppendIn(propGISSGI,propGISSGIAngleBias);
-		}
-
 		propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination. LDMs are faster and look better than SSGI, but they have to be baked first (which takes time and requires unwrap)."),svs.renderLDM);
 		AppendIn(propGITechnique,propGILDM);
 
@@ -130,48 +115,6 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		SetPropertyBackgroundColour(propGIFireball,importantPropertyBackgroundColor,false);
 	}
 
-	// cubes
-	{
-		propGIRaytracedCubes = new BoolRefProperty(_("Cubemap reflections"),_("Increases realism by realtime raytracing lowres or rasterizing hires cubemaps for diffuse and specular reflection and refraction. Note: Cubemaps automatically update only in realtime GI modes. Other modes preserve old cubemaps. You can manually update cubemaps by baking lightmaps or by switching to realtime GI and back."),svs.raytracedCubesEnabled);
-		Append(propGIRaytracedCubes);
-		
-		propGIRaytracedCubesRes = new FloatProperty(_("Cube resolution"),_("Resolution of cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16."),svs.raytracedCubesRes,0,1,1024,10,false);
-		AppendIn(propGIRaytracedCubes,propGIRaytracedCubesRes);
-
-		propGIRaytracedCubesMaxObjects = new FloatProperty(_("Max objects"),_("How many objects in scene before raytracing turns off automatically. Raytracing usually becomes bottleneck when there are more than 1000 objects."),svs.raytracedCubesMaxObjects,0,0,1000000,10,false);
-		AppendIn(propGIRaytracedCubes,propGIRaytracedCubesMaxObjects);
-
-		propGIRaytracedCubesSpecularThreshold = new FloatProperty(_("Specular threshold"),_("Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply."),svs.raytracedCubesSpecularThreshold,svs.precision,0,10,0.1f,false);
-		AppendIn(propGIRaytracedCubesRes,propGIRaytracedCubesSpecularThreshold);
-
-		propGIRaytracedCubesDepthThreshold = new FloatProperty(_("Depth threshold"),_("Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply."),svs.raytracedCubesDepthThreshold,svs.precision,0,1,0.1f,false);
-		AppendIn(propGIRaytracedCubesRes,propGIRaytracedCubesDepthThreshold);
-
-
-		SetPropertyBackgroundColour(propGIRaytracedCubes,importantPropertyBackgroundColor,false);
-	}
-
-	// mirrors
-	{
-		propGIMirrors = new BoolRefProperty(_("Mirror reflections"),_("Increases realism by realtime rendering mirror reflections. Applied to flat meshes without cube reflections."),svs.mirrorsEnabled);
-		Append(propGIMirrors);
-
-		propGIMirrorsDiffuse = new BoolRefProperty(_("Diffuse"),_("Enables mirroring when rendering diffuse reflection."),svs.mirrorsDiffuse);
-		AppendIn(propGIMirrors,propGIMirrorsDiffuse);
-
-		propGIMirrorsSpecular = new BoolRefProperty(_("Specular"),_("Enables mirroring when rendering specular reflection."),svs.mirrorsSpecular);
-		AppendIn(propGIMirrors,propGIMirrorsSpecular);
-
-		propGIMirrorsQuality = new BoolRefProperty(_("Higher quality"),_("Improves quality by making reflection of close objects sharper."),svs.mirrorsMipmaps);
-		AppendIn(propGIMirrors,propGIMirrorsQuality);
-
-		propGIMirrorsOcclusion = new BoolRefProperty(_("Occlusion query"),_("Optimization, improves fps in some scenes, reduces in others."),svs.mirrorsOcclusion);
-		AppendIn(propGIMirrors,propGIMirrorsOcclusion);
-
-		SetPropertyBackgroundColour(propGIMirrors,importantPropertyBackgroundColor,false);
-
-	}
-
 	// lightmap
 	{
 		propGILightmap = new wxStringProperty(_("Baking"), wxPG_LABEL);
@@ -221,6 +164,65 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		SetPropertyBackgroundColour(propGILightmap,importantPropertyBackgroundColor,false);
 	}
 
+	// SSGI
+	{
+		propGISSGI = new BoolRefProperty(_("SSGI"),_("Screen space global illumination improves quality of constant and realtime indirect illumination. SSGI works without any precalculations, however, it is slower and looks worse than LDM."),svs.ssgiEnabled);
+		Append(propGISSGI);
+
+		propGISSGIIntensity = new FloatProperty(_("Intensity"),_("Multiplies effect of SSGI."),svs.ssgiIntensity,svs.precision,0,100,1,false);
+		AppendIn(propGISSGI,propGISSGIIntensity);
+
+		propGISSGIRadius = new FloatProperty(_("Radius")+" (m)",_("Max distance of occluder to create occlusion."),svs.ssgiRadius,svs.precision,0,100,1,false);
+		AppendIn(propGISSGI,propGISSGIRadius);
+
+		propGISSGIAngleBias = new FloatProperty(_("Hide false edges"),_("0 for full occlusion (makes false edges visible), increase to hide occlusion on false edges."),svs.ssgiAngleBias,svs.precision,0,100,1,false);
+		AppendIn(propGISSGI,propGISSGIAngleBias);
+
+		SetPropertyBackgroundColour(propGISSGI,importantPropertyBackgroundColor,false);
+	}
+
+	// cubes
+	{
+		propGIRaytracedCubes = new BoolRefProperty(_("Cubemap reflections"),_("Increases realism by realtime raytracing lowres or rasterizing hires cubemaps for diffuse and specular reflection and refraction. Note: Cubemaps automatically update only in realtime GI modes. Other modes preserve old cubemaps. You can manually update cubemaps by baking lightmaps or by switching to realtime GI and back."),svs.raytracedCubesEnabled);
+		Append(propGIRaytracedCubes);
+		
+		propGIRaytracedCubesRes = new FloatProperty(_("Cube resolution"),_("Resolution of cube maps (total size is x*x*6 pixels). More = higher quality, slower. Default=16."),svs.raytracedCubesRes,0,1,1024,10,false);
+		AppendIn(propGIRaytracedCubes,propGIRaytracedCubesRes);
+
+		propGIRaytracedCubesMaxObjects = new FloatProperty(_("Max objects"),_("How many objects in scene before raytracing turns off automatically. Raytracing usually becomes bottleneck when there are more than 1000 objects."),svs.raytracedCubesMaxObjects,0,0,1000000,10,false);
+		AppendIn(propGIRaytracedCubes,propGIRaytracedCubesMaxObjects);
+
+		propGIRaytracedCubesSpecularThreshold = new FloatProperty(_("Specular threshold"),_("Only objects with specular color above threshold apply for specular cube reflection, 0=all objects apply, 1=only objects with spec color 1 apply."),svs.raytracedCubesSpecularThreshold,svs.precision,0,10,0.1f,false);
+		AppendIn(propGIRaytracedCubesRes,propGIRaytracedCubesSpecularThreshold);
+
+		propGIRaytracedCubesDepthThreshold = new FloatProperty(_("Depth threshold"),_("Only objects with depth above threshold apply for specular cube reflection, 0=all objects apply, 0.1=all but near planar objects apply, 1=none apply."),svs.raytracedCubesDepthThreshold,svs.precision,0,1,0.1f,false);
+		AppendIn(propGIRaytracedCubesRes,propGIRaytracedCubesDepthThreshold);
+
+
+		SetPropertyBackgroundColour(propGIRaytracedCubes,importantPropertyBackgroundColor,false);
+	}
+
+	// mirrors
+	{
+		propGIMirrors = new BoolRefProperty(_("Mirror reflections"),_("Increases realism by realtime rendering mirror reflections. Applied to flat meshes without cube reflections."),svs.mirrorsEnabled);
+		Append(propGIMirrors);
+
+		propGIMirrorsDiffuse = new BoolRefProperty(_("Diffuse"),_("Enables mirroring when rendering diffuse reflection."),svs.mirrorsDiffuse);
+		AppendIn(propGIMirrors,propGIMirrorsDiffuse);
+
+		propGIMirrorsSpecular = new BoolRefProperty(_("Specular"),_("Enables mirroring when rendering specular reflection."),svs.mirrorsSpecular);
+		AppendIn(propGIMirrors,propGIMirrorsSpecular);
+
+		propGIMirrorsQuality = new BoolRefProperty(_("Higher quality"),_("Improves quality by making reflection of close objects sharper."),svs.mirrorsMipmaps);
+		AppendIn(propGIMirrors,propGIMirrorsQuality);
+
+		propGIMirrorsOcclusion = new BoolRefProperty(_("Occlusion query"),_("Optimization, improves fps in some scenes, reduces in others."),svs.mirrorsOcclusion);
+		AppendIn(propGIMirrors,propGIMirrorsOcclusion);
+
+		SetPropertyBackgroundColour(propGIMirrors,importantPropertyBackgroundColor,false);
+
+	}
+
 	updateHide();
 }
 
@@ -236,13 +238,24 @@ void SVGIProperties::updateHide()
 	propGIFireball->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
 
 	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
+	propGILDM->Hide(!svs.renderLDMRelevant(),false);
+	//propGIIndirectMultiplier->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED,false);
+	//propGIEmisMultiplier->Hide(!realtimeGI,false);
+
+	propGIVideo->Hide(!realtimeGI,false);
+	propGIEmisVideoAffectsGI->Hide(!realtimeGI,false);
+	propGIEmisVideoGIQuality->Hide(!realtimeGI || !svs.videoEmittanceAffectsGI,false);
+	propGITranspVideoAffectsGI->Hide(!svs.renderLightDirectActive(),false);
+	propGITranspVideoAffectsGIFull->Hide(!realtimeGI || !svs.videoTransmittanceAffectsGI,false);
+	propGIEnvVideoAffectsGI->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
+	propGIEnvVideoGIQuality->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL || !svs.videoEnvironmentAffectsGI,false);
+
+	propGILightmap->Hide(svs.renderLightIndirect!=LI_LIGHTMAPS && svs.renderLightIndirect!=LI_AMBIENTMAPS,false);
+
 	propGISSGI->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
 	propGISSGIIntensity->Hide(!svs.ssgiEnabled,false);
 	propGISSGIRadius->Hide(!svs.ssgiEnabled,false);
 	propGISSGIAngleBias->Hide(!svs.ssgiEnabled,false);
-	propGILDM->Hide(!svs.renderLDMRelevant(),false);
-	//propGIIndirectMultiplier->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED,false);
-	//propGIEmisMultiplier->Hide(!realtimeGI,false);
 
 	propGIRaytracedCubes->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
 	propGIRaytracedCubesRes->Hide(!svs.raytracedCubesEnabled,false);
@@ -255,16 +268,6 @@ void SVGIProperties::updateHide()
 	propGIMirrorsSpecular->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsQuality->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsOcclusion->Hide(!svs.mirrorsEnabled,false);
-
-	propGIVideo->Hide(!realtimeGI,false);
-	propGIEmisVideoAffectsGI->Hide(!realtimeGI,false);
-	propGIEmisVideoGIQuality->Hide(!realtimeGI || !svs.videoEmittanceAffectsGI,false);
-	propGITranspVideoAffectsGI->Hide(!svs.renderLightDirectActive(),false);
-	propGITranspVideoAffectsGIFull->Hide(!realtimeGI || !svs.videoTransmittanceAffectsGI,false);
-	propGIEnvVideoAffectsGI->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
-	propGIEnvVideoGIQuality->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL || !svs.videoEnvironmentAffectsGI,false);
-
-	propGILightmap->Hide(svs.renderLightIndirect!=LI_LIGHTMAPS && svs.renderLightIndirect!=LI_AMBIENTMAPS,false);
 }
 
 void SVGIProperties::updateAfterGLInit()
@@ -282,38 +285,28 @@ void SVGIProperties::updateProperties()
 	unsigned numChangesRelevantForHiding =
 		+ updateBoolRef(propGIDirect)
 		+ updateInt(propGITechnique,svs.renderLightIndirect)
-		+ updateBoolRef(propGISSGI)
 		+ updateBoolRef(propGILDM)
 		+ updateBoolRef(propGIEmisVideoAffectsGI)
 		+ updateBoolRef(propGITranspVideoAffectsGI)
 		+ updateBoolRef(propGIEnvVideoAffectsGI)
+		+ updateBoolRef(propGISSGI)
 		+ updateBoolRef(propGIMirrors)
 		;
 	unsigned numChangesOther =
 		+ updateBoolRef(propGISRGBCorrect)
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
 		+ updateBoolRef(propGIPathShortcut)
-		+ updateFloat(propGISSGIIntensity,svs.ssgiIntensity)
-		+ updateFloat(propGISSGIRadius,svs.ssgiRadius)
-		+ updateFloat(propGISSGIAngleBias,svs.ssgiAngleBias)
 		+ updateFloat(propGIIndirectMultiplier,svs.multipliers.lightIndirectMultiplier)
 		+ updateFloat(propGISkyMultiplier,svs.multipliers.environmentMultiplier)
 		+ updateFloat(propGIEmisMultiplier,svs.multipliers.materialEmittanceMultiplier)
-		+ updateInt(propGIFireballQuality,svs.fireballQuality)
-		+ updateInt(propGIFireballWorkPerFrame,svs.fireballWorkPerFrame)
-		+ updateBool(propGIFireballWorkTotal,svs.fireballWorkTotal>svs.fireballWorkPerFrame)
-		+ updateBoolRef(propGIRaytracedCubes)
-		+ updateInt(propGIRaytracedCubesRes,svs.raytracedCubesRes)
-		+ updateInt(propGIRaytracedCubesMaxObjects,svs.raytracedCubesMaxObjects)
-		+ updateFloat(propGIRaytracedCubesSpecularThreshold,svs.raytracedCubesSpecularThreshold)
-		+ updateFloat(propGIRaytracedCubesDepthThreshold,svs.raytracedCubesDepthThreshold)
 		+ updateInt(propGIEmisVideoGIQuality,svs.videoEmittanceGIQuality)
 		+ updateBoolRef(propGITranspVideoAffectsGIFull)
 		+ updateInt(propGIEnvVideoGIQuality,svs.videoEnvironmentGIQuality)
-		+ updateBoolRef(propGIMirrorsDiffuse)
-		+ updateBoolRef(propGIMirrorsSpecular)
-		+ updateBoolRef(propGIMirrorsQuality)
-		+ updateBoolRef(propGIMirrorsOcclusion)
+
+		+ updateInt(propGIFireballQuality,svs.fireballQuality)
+		+ updateInt(propGIFireballWorkPerFrame,svs.fireballWorkPerFrame)
+		+ updateBool(propGIFireballWorkTotal,svs.fireballWorkTotal>svs.fireballWorkPerFrame)
+
 		+ updateBoolRef(propGILightmapFloats)
 		+ updateFloat(propGILightmapAOIntensity,svs.lightmapDirectParameters.aoIntensity)
 		+ updateFloat(propGILightmapAOSize,svs.lightmapDirectParameters.aoSize)
@@ -322,6 +315,21 @@ void SVGIProperties::updateProperties()
 		+ updateProperty(propGILightmapBackgroundColor,rr::RRVec3(svs.lightmapFilteringParameters.backgroundColor))
 		+ updateBoolRef(propGILightmapWrapping)
 		+ updateBoolRef(propGIBilinear)
+
+		+ updateFloat(propGISSGIIntensity,svs.ssgiIntensity)
+		+ updateFloat(propGISSGIRadius,svs.ssgiRadius)
+		+ updateFloat(propGISSGIAngleBias,svs.ssgiAngleBias)
+
+		+ updateBoolRef(propGIRaytracedCubes)
+		+ updateInt(propGIRaytracedCubesRes,svs.raytracedCubesRes)
+		+ updateInt(propGIRaytracedCubesMaxObjects,svs.raytracedCubesMaxObjects)
+		+ updateFloat(propGIRaytracedCubesSpecularThreshold,svs.raytracedCubesSpecularThreshold)
+		+ updateFloat(propGIRaytracedCubesDepthThreshold,svs.raytracedCubesDepthThreshold)
+
+		+ updateBoolRef(propGIMirrorsDiffuse)
+		+ updateBoolRef(propGIMirrorsSpecular)
+		+ updateBoolRef(propGIMirrorsQuality)
+		+ updateBoolRef(propGIMirrorsOcclusion)
 		;
 	if (numChangesRelevantForHiding+numChangesOther)
 	{
@@ -384,24 +392,19 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.multipliers.materialEmittanceMultiplier = property->GetValue().GetDouble();
 	}
 	else
-	if (property==propGISSGI)
+	if (property==propGIEmisVideoAffectsGI || property==propGITranspVideoAffectsGI || property==propGIEnvVideoAffectsGI)
 	{
 		updateHide();
 	}
 	else
-	if (property==propGISSGIIntensity)
+	if (property==propGIEmisVideoGIQuality)
 	{
-		svs.ssgiIntensity = property->GetValue().GetDouble();
+		svs.videoEmittanceGIQuality = property->GetValue().GetInteger();
 	}
 	else
-	if (property==propGISSGIRadius)
+	if (property==propGIEnvVideoGIQuality)
 	{
-		svs.ssgiRadius = property->GetValue().GetDouble();
-	}
-	else
-	if (property==propGISSGIAngleBias)
-	{
-		svs.ssgiAngleBias = property->GetValue().GetDouble();
+		svs.videoEnvironmentGIQuality = property->GetValue().GetInteger();
 	}
 	else
 	if (property==propGILDM)
@@ -409,6 +412,8 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		updateHide();
 	}
 	else
+
+	// fireball
 	if (property==propGIFireballQuality)
 	{
 		svs.fireballQuality = property->GetValue().GetInteger();
@@ -426,55 +431,8 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.fireballWorkTotal = property->GetValue().GetBool() ? 10000 : svs.fireballWorkPerFrame;
 	}
 	else
-	if (property==propGIRaytracedCubes)
-	{
-		updateHide();
-		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
-	}
-	else
-	if (property==propGIRaytracedCubesRes)
-	{
-		svs.raytracedCubesRes = propGIRaytracedCubesRes->GetValue().GetInteger();
-		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
-	}
-	else
-	if (property==propGIRaytracedCubesMaxObjects)
-	{
-		svs.raytracedCubesMaxObjects = property->GetValue().GetInteger();
-	}
-	else
-	if (property==propGIRaytracedCubesSpecularThreshold)
-	{
-		svs.raytracedCubesSpecularThreshold = property->GetValue().GetDouble();
-		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
-	}
-	else
-	if (property==propGIRaytracedCubesDepthThreshold)
-	{
-		svs.raytracedCubesDepthThreshold = property->GetValue().GetDouble();
-		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
-	}
-	else
-	if (property==propGIMirrors)
-	{
-		updateHide();
-	}
-	else
-	if (property==propGIEmisVideoAffectsGI || property==propGITranspVideoAffectsGI || property==propGIEnvVideoAffectsGI)
-	{
-		updateHide();
-	}
-	else
-	if (property==propGIEmisVideoGIQuality)
-	{
-		svs.videoEmittanceGIQuality = property->GetValue().GetInteger();
-	}
-	else
-	if (property==propGIEnvVideoGIQuality)
-	{
-		svs.videoEnvironmentGIQuality = property->GetValue().GetInteger();
-	}
-	else
+
+	// lightmaps
 	if (property==propGILightmapFloats)
 	{
 		// load selected set of maps from disk [#16]
@@ -528,6 +486,67 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 			}
 		}
 	}
+	else
+
+	// SSGI
+	if (property==propGISSGI)
+	{
+		updateHide();
+	}
+	else
+	if (property==propGISSGIIntensity)
+	{
+		svs.ssgiIntensity = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGISSGIRadius)
+	{
+		svs.ssgiRadius = property->GetValue().GetDouble();
+	}
+	else
+	if (property==propGISSGIAngleBias)
+	{
+		svs.ssgiAngleBias = property->GetValue().GetDouble();
+	}
+	else
+
+	// cubes
+	if (property==propGIRaytracedCubes)
+	{
+		updateHide();
+		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
+	}
+	else
+	if (property==propGIRaytracedCubesRes)
+	{
+		svs.raytracedCubesRes = propGIRaytracedCubesRes->GetValue().GetInteger();
+		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
+	}
+	else
+	if (property==propGIRaytracedCubesMaxObjects)
+	{
+		svs.raytracedCubesMaxObjects = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propGIRaytracedCubesSpecularThreshold)
+	{
+		svs.raytracedCubesSpecularThreshold = property->GetValue().GetDouble();
+		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
+	}
+	else
+	if (property==propGIRaytracedCubesDepthThreshold)
+	{
+		svs.raytracedCubesDepthThreshold = property->GetValue().GetDouble();
+		svframe->m_canvas->reallocateBuffersForRealtimeGI(false);
+	}
+	else
+
+	// mirrors
+	if (property==propGIMirrors)
+	{
+		updateHide();
+	}
+
 	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL,0);
 }
 
