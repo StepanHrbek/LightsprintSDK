@@ -1692,7 +1692,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			for (unsigned i=0;i<solver->realtimeLights.size();i++)
 				solver->realtimeLights[i]->shadowTransparencyRequested = svs.shadowTransparency;
 			rr::RRSolver::CalculateParameters params;
-			params.rr::RRSolver::Multipliers::operator=(svs.multipliers);
+			params.rr::RRSolver::Multipliers::operator=(svs.getMultipliersIndirect());
 			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			{
 				// rendering indirect -> calculate will update shadowmaps, possibly resample environment and emissive maps, improve indirect
@@ -1776,7 +1776,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			const rr_gl::PluginParams* pluginChain = NULL;
 
 			// skybox plugin
-			rr_gl::PluginParamsSky ppSky(pluginChain,solver,svs.multipliers.environmentMultiplier);
+			rr_gl::PluginParamsSky ppSky(pluginChain,solver,svs.getMultipliersDirect().environmentMultiplier);
 			pluginChain = &ppSky;
 
 			// selection plugin
@@ -1795,7 +1795,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 			// scene plugin
 			rr_gl::PluginParamsScene ppScene(pluginChain,solver);
-			ppScene.multipliers = svs.multipliers;
+			ppScene.multipliers = svs.getMultipliersDirect();
 			ppScene.uberProgramSetup.SHADOW_MAPS = 1;
 			ppScene.uberProgramSetup.LIGHT_DIRECT = svs.renderLightDirectActive();
 			ppScene.uberProgramSetup.LIGHT_DIRECT_COLOR = svs.renderLightDirectActive();

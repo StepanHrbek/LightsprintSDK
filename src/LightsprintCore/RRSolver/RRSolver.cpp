@@ -42,6 +42,16 @@ bool RRSolver::Multipliers::operator ==(const RRSolver::Multipliers& a) const
 		;
 }
 
+RRSolver::Multipliers RRSolver::Multipliers::operator *(const RRSolver::Multipliers& a) const
+{
+	RRSolver::Multipliers result;
+	result.lightMultiplier = a.lightMultiplier*lightMultiplier;
+	result.currentSolutionMultiplier = a.currentSolutionMultiplier*currentSolutionMultiplier;
+	result.environmentMultiplier = a.environmentMultiplier*environmentMultiplier;
+	result.materialEmittanceMultiplier = a.materialEmittanceMultiplier*materialEmittanceMultiplier;
+	return result;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // CalculateParameters

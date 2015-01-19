@@ -38,11 +38,9 @@ namespace rr_ed
 		wxPGProperty*     propGITechnique;
 	private:
 		BoolRefProperty*  propGISRGBCorrect;
-		BoolRefProperty*  propGIDirect;
+		BoolRefProperty*  propGILightDirect;
 		wxPGProperty*     propGIShadowTransparency;
-		wxPGProperty*     propGISkyMultiplier;
-		wxPGProperty*     propGIEmisMultiplier;
-		wxPGProperty*     propGIIndirectMultiplier;
+
 		BoolRefProperty*  propGILDM;
 		BoolRefProperty*  propGIPathShortcut;
 
@@ -73,6 +71,17 @@ namespace rr_ed
 		ButtonProperty*   propGIBuildLDMs;
 		ButtonProperty*   propGIBuildCubes;
 		BoolRefProperty*  propGIBilinear;
+
+		BoolRefProperty*  propGIMultipliers;
+		wxPGProperty*     propGILightMultiplier;
+		wxPGProperty*     propGILightMultiplierDirect;
+		wxPGProperty*     propGILightMultiplierIndirect;
+		wxPGProperty*     propGISkyMultiplier;
+		wxPGProperty*     propGISkyMultiplierDirect;
+		wxPGProperty*     propGISkyMultiplierIndirect;
+		wxPGProperty*     propGIEmisMultiplier;
+		wxPGProperty*     propGIEmisMultiplierDirect;
+		wxPGProperty*     propGIEmisMultiplierIndirect;
 
 		BoolRefProperty*  propGISSGI;
 		wxPGProperty*     propGISSGIIntensity;

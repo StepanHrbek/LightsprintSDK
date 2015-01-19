@@ -139,7 +139,14 @@ struct SceneViewerState
 	LightingIndirect renderLightIndirect;       //! Indirect illumination mode.
 	bool             renderLightDirectRelevant() {return renderLightIndirect!=LI_PATHTRACED && renderLightIndirect!=LI_LIGHTMAPS;}
 	bool             renderLightDirectActive() {return renderLightDirect && renderLightDirectRelevant();}
+
+	bool             multipliersEnabled;
 	rr::RRSolver::Multipliers multipliers;
+	rr::RRSolver::Multipliers multipliersDirect;
+	rr::RRSolver::Multipliers multipliersIndirect;
+	rr::RRSolver::Multipliers getMultipliersDirect()   {return multipliersEnabled ? multipliers*multipliersDirect : rr::RRSolver::Multipliers();}
+	rr::RRSolver::Multipliers getMultipliersIndirect() {return multipliersEnabled ? multipliers*multipliersIndirect : rr::RRSolver::Multipliers();}
+
 	bool             renderLDM;                 //! Modulate indirect illumination by LDM.
 	bool             renderLDMRelevant() {return renderLightIndirect!=LI_PATHTRACED && renderLightIndirect!=LI_LIGHTMAPS && renderLightIndirect!=LI_AMBIENTMAPS && renderLightIndirect!=LI_NONE;}
 	bool             renderLDMEnabled() {return renderLDM && renderLDMRelevant();}
@@ -258,7 +265,10 @@ struct SceneViewerState
 		dofAutomaticFocusDistance = false;
 		renderLightDirect = true;
 		renderLightIndirect = LI_REALTIME_FIREBALL;
+		multipliersEnabled = false;
 		multipliers = rr::RRSolver::Multipliers();
+		multipliersDirect = rr::RRSolver::Multipliers();
+		multipliersIndirect = rr::RRSolver::Multipliers();
 		renderLDM = true;
 		renderLightmaps2d = 0;
 		renderMaterialDiffuse = 1;
@@ -372,7 +382,10 @@ struct SceneViewerState
 			&& a.dofAutomaticFocusDistance==dofAutomaticFocusDistance
 			&& a.renderLightDirect==renderLightDirect
 			&& a.renderLightIndirect==renderLightIndirect
+			&& a.multipliersEnabled==multipliersEnabled
 			&& a.multipliers==multipliers
+			&& a.multipliersDirect==multipliersDirect
+			&& a.multipliersIndirect==multipliersIndirect
 			&& a.renderLDM==renderLDM
 			&& a.renderLightmaps2d==renderLightmaps2d
 			&& a.renderLightmapsBilinear==renderLightmapsBilinear

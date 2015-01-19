@@ -328,6 +328,7 @@ namespace rr
 				materialEmittanceMultiplier = 1;
 			}
 			bool operator ==(const Multipliers& a) const;
+			Multipliers operator *(const Multipliers& a) const;
 		};
 
 		//! Optional parameters of calculate().

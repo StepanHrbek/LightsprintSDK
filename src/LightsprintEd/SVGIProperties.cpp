@@ -19,31 +19,22 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		const wxChar* strings[] = {_("pathtracing (experimental)"),_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),NULL};
 		const long values[] = {LI_PATHTRACED,LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_LIGHTMAPS,LI_AMBIENTMAPS,LI_CONSTANT,LI_NONE};
 		propGITechnique = new wxEnumProperty(_("Technique"),wxPG_LABEL,strings,values);
-		propGITechnique->SetHelpString(_("What base GI technique to use. Note that additional techniques (Raytraced cubemaps, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
+		propGITechnique->SetHelpString(_("What base GI technique to use. Note that additional techniques (SSGI, Cubemap reflections, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
 		Append(propGITechnique);
 
 		propGISRGBCorrect = new BoolRefProperty(_("sRGB correctness"),_("Increases realism by correctly adding realtime lights (however, transparency in sRGB mode looks different). Works only if OpenGL 3.0+ or necessary extensions are found."),svs.srgbCorrect);
 		AppendIn(propGITechnique,propGISRGBCorrect);
 
-		propGIDirect = new BoolRefProperty(_("Direct illumination"),_("Enables direct illumination from lights."),svs.renderLightDirect);
-		AppendIn(propGITechnique,propGIDirect);
+		propGILightDirect = new BoolRefProperty(_("Direct illumination"),_("Enables direct illumination from lights."),svs.renderLightDirect);
+		AppendIn(propGITechnique,propGILightDirect);
 
 		{
 			const wxChar* strings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),_("24-bit (fresnel shadows)"),NULL};
 			const long values[] = {rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS,rr_gl::RealtimeLight::ALPHA_KEYED_SHADOWS,rr_gl::RealtimeLight::RGB_SHADOWS,rr_gl::RealtimeLight::FRESNEL_SHADOWS};
 			propGIShadowTransparency = new wxEnumProperty(_("Shadow transparency"),wxPG_LABEL,strings,values);
 			propGIShadowTransparency->SetHelpString(_("Changes how realistically semi-transparent shadows are rendered."));
-			AppendIn(propGIDirect,propGIShadowTransparency);
+			AppendIn(propGILightDirect,propGIShadowTransparency);
 		}
-
-		propGIIndirectMultiplier = new FloatProperty(_("Indirect multiplier"),_("Multiplies indirect illumination from lights. 1=realistic. In baked modes, it is applied when baking, not when rendering. Not applied in constant mode."),svs.multipliers.currentSolutionMultiplier,svs.precision,0,10000,1,false);
-		AppendIn(propGITechnique,propGIIndirectMultiplier);
-
-		propGISkyMultiplier = new FloatProperty(_("Sky multiplier"),_("Multiplies sky lighting. 1=realistic."),svs.multipliers.environmentMultiplier,svs.precision,0,1e10f,1,false);
-		AppendIn(propGITechnique,propGISkyMultiplier);
-
-		propGIEmisMultiplier = new FloatProperty(_("Emissive multiplier"),_("Multiplies material emittance. 1=realistic. In baked modes, it is applied when baking, not when rendering."),svs.multipliers.materialEmittanceMultiplier,svs.precision,0,1e10f,1,false);
-		AppendIn(propGITechnique,propGIEmisMultiplier);
 
 		propGIPathShortcut = new BoolRefProperty(_("Shortcut"),_("Lets pathtracer access indirect illumination stored in Fireball or Architect solver, if it was in use before."),svs.pathShortcut);
 		AppendIn(propGITechnique,propGIPathShortcut);
@@ -164,6 +155,38 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		SetPropertyBackgroundColour(propGILightmap,importantPropertyBackgroundColor,false);
 	}
 
+	// multipliers
+	{
+		propGIMultipliers = new BoolRefProperty(_("Multipliers"), _("In baked modes, multipliers are applied when baking, not when rendering."),svs.multipliersEnabled);
+		Append(propGIMultipliers);
+
+		{
+			propGILightMultiplier = new FloatRefProperty(_("Lights"),"",svs.multipliers.lightMultiplier,svs.precision,0,1e10f,1,false);
+			AppendIn(propGIMultipliers,propGILightMultiplier);
+			AppendIn(propGILightMultiplier,propGILightMultiplierDirect = new FloatRefProperty(_("Direct"),"",svs.multipliersDirect.lightMultiplier,svs.precision,0,1e10f,1,false));
+			AppendIn(propGILightMultiplier,propGILightMultiplierIndirect = new FloatRefProperty(_("Indirect"),"",svs.multipliersIndirect.lightMultiplier,svs.precision,0,1e10f,1,false));
+			Collapse(propGILightMultiplier);
+		}
+
+		{
+			propGISkyMultiplier = new FloatRefProperty(_("Sky"),"",svs.multipliers.environmentMultiplier,svs.precision,0,1e10f,1,false);
+			AppendIn(propGIMultipliers,propGISkyMultiplier);
+			AppendIn(propGISkyMultiplier,propGISkyMultiplierDirect = new FloatRefProperty(_("Direct"),"",svs.multipliersDirect.environmentMultiplier,svs.precision,0,1e10f,1,false));
+			AppendIn(propGISkyMultiplier,propGISkyMultiplierIndirect = new FloatRefProperty(_("Indirect"),"",svs.multipliersIndirect.environmentMultiplier,svs.precision,0,1e10f,1,false));
+			Collapse(propGISkyMultiplier);
+		}
+
+		{
+			propGIEmisMultiplier = new FloatRefProperty(_("Emissive materials"),"",svs.multipliers.materialEmittanceMultiplier,svs.precision,0,1e10f,1,false);
+			AppendIn(propGIMultipliers,propGIEmisMultiplier);
+			AppendIn(propGIEmisMultiplier,propGIEmisMultiplierDirect = new FloatRefProperty(_("Direct"),"",svs.multipliersDirect.materialEmittanceMultiplier,svs.precision,0,1e10f,1,false));
+			AppendIn(propGIEmisMultiplier,propGIEmisMultiplierIndirect = new FloatRefProperty(_("Indirect"),"",svs.multipliersIndirect.materialEmittanceMultiplier,svs.precision,0,1e10f,1,false));
+			Collapse(propGIEmisMultiplier);
+		}
+
+		SetPropertyBackgroundColour(propGIMultipliers,importantPropertyBackgroundColor,false);
+	}
+
 	// SSGI
 	{
 		propGISSGI = new BoolRefProperty(_("SSGI"),_("Screen space global illumination improves quality of constant and realtime indirect illumination. SSGI works without any precalculations, however, it is slower and looks worse than LDM."),svs.ssgiEnabled);
@@ -252,6 +275,10 @@ void SVGIProperties::updateHide()
 
 	propGILightmap->Hide(svs.renderLightIndirect!=LI_LIGHTMAPS && svs.renderLightIndirect!=LI_AMBIENTMAPS,false);
 
+	propGILightMultiplier->Hide(!svs.multipliersEnabled,false);
+	propGISkyMultiplier->Hide(!svs.multipliersEnabled,false);
+	propGIEmisMultiplier->Hide(!svs.multipliersEnabled,false);
+
 	propGISSGI->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
 	propGISSGIIntensity->Hide(!svs.ssgiEnabled,false);
 	propGISSGIRadius->Hide(!svs.ssgiEnabled,false);
@@ -283,12 +310,13 @@ void SVGIProperties::updateProperties()
 	// Other approach would be to create all properties again, however,
 	// this function would still have to support at least properties that user can change by hotkeys or mouse navigation.
 	unsigned numChangesRelevantForHiding =
-		+ updateBoolRef(propGIDirect)
+		+ updateBoolRef(propGILightDirect)
 		+ updateInt(propGITechnique,svs.renderLightIndirect)
 		+ updateBoolRef(propGILDM)
 		+ updateBoolRef(propGIEmisVideoAffectsGI)
 		+ updateBoolRef(propGITranspVideoAffectsGI)
 		+ updateBoolRef(propGIEnvVideoAffectsGI)
+		+ updateBoolRef(propGIMultipliers)
 		+ updateBoolRef(propGISSGI)
 		+ updateBoolRef(propGIMirrors)
 		;
@@ -296,9 +324,7 @@ void SVGIProperties::updateProperties()
 		+ updateBoolRef(propGISRGBCorrect)
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
 		+ updateBoolRef(propGIPathShortcut)
-		+ updateFloat(propGIIndirectMultiplier,svs.multipliers.currentSolutionMultiplier)
-		+ updateFloat(propGISkyMultiplier,svs.multipliers.environmentMultiplier)
-		+ updateFloat(propGIEmisMultiplier,svs.multipliers.materialEmittanceMultiplier)
+
 		+ updateInt(propGIEmisVideoGIQuality,svs.videoEmittanceGIQuality)
 		+ updateBoolRef(propGITranspVideoAffectsGIFull)
 		+ updateInt(propGIEnvVideoGIQuality,svs.videoEnvironmentGIQuality)
@@ -315,6 +341,16 @@ void SVGIProperties::updateProperties()
 		+ updateProperty(propGILightmapBackgroundColor,rr::RRVec3(svs.lightmapFilteringParameters.backgroundColor))
 		+ updateBoolRef(propGILightmapWrapping)
 		+ updateBoolRef(propGIBilinear)
+
+		+ updateFloat(propGILightMultiplier,svs.multipliers.lightMultiplier)
+		+ updateFloat(propGILightMultiplierDirect,svs.multipliersDirect.lightMultiplier)
+		+ updateFloat(propGILightMultiplierIndirect,svs.multipliersIndirect.lightMultiplier)
+		+ updateFloat(propGISkyMultiplier,svs.multipliers.environmentMultiplier)
+		+ updateFloat(propGISkyMultiplierDirect,svs.multipliersDirect.environmentMultiplier)
+		+ updateFloat(propGISkyMultiplierIndirect,svs.multipliersIndirect.environmentMultiplier)
+		+ updateFloat(propGIEmisMultiplier,svs.multipliers.materialEmittanceMultiplier)
+		+ updateFloat(propGIEmisMultiplierDirect,svs.multipliersDirect.materialEmittanceMultiplier)
+		+ updateFloat(propGIEmisMultiplierIndirect,svs.multipliersIndirect.materialEmittanceMultiplier)
 
 		+ updateFloat(propGISSGIIntensity,svs.ssgiIntensity)
 		+ updateFloat(propGISSGIRadius,svs.ssgiRadius)
@@ -367,7 +403,7 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		updateHide();
 	}
 	else
-	if (property==propGIDirect)
+	if (property==propGILightDirect)
 	{
 		updateHide();
 	}
@@ -377,19 +413,9 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		svs.shadowTransparency = (rr_gl::RealtimeLight::ShadowTransparency)property->GetValue().GetInteger();
 	}
 	else
-	if (property==propGIIndirectMultiplier)
+	if (property==propGIMultipliers)
 	{
-		svs.multipliers.currentSolutionMultiplier = property->GetValue().GetDouble();
-	}
-	else
-	if (property==propGISkyMultiplier)
-	{
-		svs.multipliers.environmentMultiplier = property->GetValue().GetDouble();
-	}
-	else
-	if (property==propGIEmisMultiplier)
-	{
-		svs.multipliers.materialEmittanceMultiplier = property->GetValue().GetDouble();
+		updateHide();
 	}
 	else
 	if (property==propGIEmisVideoAffectsGI || property==propGITranspVideoAffectsGI || property==propGIEnvVideoAffectsGI)
