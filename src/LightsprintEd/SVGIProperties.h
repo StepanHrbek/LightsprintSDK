@@ -44,9 +44,15 @@ namespace rr_ed
 		wxPGProperty*     propGIEmisMultiplier;
 		wxPGProperty*     propGIIndirectMultiplier;
 		BoolRefProperty*  propGILDM;
-		BoolRefProperty*  propGIBilinear;
-
 		BoolRefProperty*  propGIPathShortcut;
+
+		wxPGProperty*     propGIVideo;
+		BoolRefProperty*  propGIEmisVideoAffectsGI;
+		wxPGProperty*     propGIEmisVideoGIQuality;
+		BoolRefProperty*  propGITranspVideoAffectsGI;
+		BoolRefProperty*  propGITranspVideoAffectsGIFull;
+		BoolRefProperty*  propGIEnvVideoAffectsGI;
+		wxPGProperty*     propGIEnvVideoGIQuality;
 
 		wxPGProperty*     propGIFireball;
 		wxPGProperty*     propGIFireballQuality;
@@ -66,6 +72,7 @@ namespace rr_ed
 		ButtonProperty*   propGIBuildAmbientMaps;
 		ButtonProperty*   propGIBuildLDMs;
 		ButtonProperty*   propGIBuildCubes;
+		BoolRefProperty*  propGIBilinear;
 
 		BoolRefProperty*  propGISSGI;
 		wxPGProperty*     propGISSGIIntensity;
@@ -83,14 +90,6 @@ namespace rr_ed
 		BoolRefProperty*  propGIMirrorsSpecular;
 		BoolRefProperty*  propGIMirrorsQuality;
 		BoolRefProperty*  propGIMirrorsOcclusion;
-
-		wxPGProperty*     propGIVideo;
-		BoolRefProperty*  propGIEmisVideoAffectsGI;
-		wxPGProperty*     propGIEmisVideoGIQuality;
-		BoolRefProperty*  propGITranspVideoAffectsGI;
-		BoolRefProperty*  propGITranspVideoAffectsGIFull;
-		BoolRefProperty*  propGIEnvVideoAffectsGI;
-		wxPGProperty*     propGIEnvVideoGIQuality;
 
 		DECLARE_EVENT_TABLE()
 	};
