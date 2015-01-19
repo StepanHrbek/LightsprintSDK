@@ -1060,7 +1060,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 			}
 
 			// optimization: free memory taken by factors (we won't need them anymore), but preserve accumulators (we need them for final gather)
-			priv->scene->illuminationReset(true,false,_paramsIndirect?_paramsIndirect->materialEmittanceMultiplier:1,NULL,NULL,NULL);
+			priv->scene->illuminationReset(true,false,paramsIndirect.materialEmittanceMultiplier,NULL,NULL,NULL);
 		}
 	}
 	return true;
