@@ -671,6 +671,7 @@ const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo, float DEL
 				case FC_FRONT:front++;break;
 				case FC_SPLIT:split++;break;
 				case FC_BACK:back++;break;
+				case FC_NONE:; // just to prevent warning
 			}
 
 		int prize=split*SPLIT_PRIZE+plane*PLANE_PRIZE+ABS(front-back)*BALANCE_PRIZE;
