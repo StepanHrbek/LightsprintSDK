@@ -36,7 +36,6 @@ bool RRSolver::Multipliers::operator ==(const RRSolver::Multipliers& a) const
 {
 	return 1
 		&& a.lightMultiplier==lightMultiplier
-		&& a.currentSolutionMultiplier==currentSolutionMultiplier
 		&& a.environmentMultiplier==environmentMultiplier
 		&& a.materialEmittanceMultiplier==materialEmittanceMultiplier
 		;
@@ -46,7 +45,6 @@ RRSolver::Multipliers RRSolver::Multipliers::operator *(const RRSolver::Multipli
 {
 	RRSolver::Multipliers result;
 	result.lightMultiplier = a.lightMultiplier*lightMultiplier;
-	result.currentSolutionMultiplier = a.currentSolutionMultiplier*currentSolutionMultiplier;
 	result.environmentMultiplier = a.environmentMultiplier*environmentMultiplier;
 	result.materialEmittanceMultiplier = a.materialEmittanceMultiplier*materialEmittanceMultiplier;
 	return result;
@@ -81,6 +79,7 @@ bool RRSolver::UpdateParameters::operator ==(const RRSolver::UpdateParameters& a
 {
 	return 1
 		&& a.RRSolver::Multipliers::operator ==(*this)
+		&& a.currentSolutionMultiplier==currentSolutionMultiplier
 		&& a.quality==quality
 		&& a.qualityFactorRadiosity==qualityFactorRadiosity
 		&& a.insideObjectsThreshold==insideObjectsThreshold
@@ -807,9 +806,9 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 		if (priv->scene) updateVertexLookupTableDynamicSolver();
 		if (aborting) RR_SAFE_DELETE(priv->scene); // this is fundamental structure, so when aborted, try to create it fully next time
 	}
-	if (_params->currentSolutionMultiplier!=priv->lightMultiplier)
+	if (_params->lightMultiplier!=priv->lightMultiplier)
 	{
-		priv->lightMultiplier = _params->currentSolutionMultiplier;
+		priv->lightMultiplier = _params->lightMultiplier;
 		setScaler(getScaler()); // update customToPhysical[] byte->float conversion table
 	}
 	if (dirtyFactors)

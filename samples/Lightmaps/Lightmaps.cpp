@@ -332,7 +332,7 @@ void display(void)
 	solver->reportDirectIlluminationChange(0,true,false,false); // scene is animated -> direct illum changes
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps
 	rr::RRSolver::CalculateParameters params;
-	params.currentSolutionMultiplier = 2;
+	params.lightMultiplier = 2;
 	solver->calculate(&params);
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);

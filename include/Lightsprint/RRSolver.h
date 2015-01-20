@@ -313,8 +313,6 @@ namespace rr
 		{
 			//! Multiplies illumination from RRLights.
 			RRReal lightMultiplier;
-			//! Multiplies illumination from current solution in solver.
-			RRReal currentSolutionMultiplier;
 			//! Multiplies environment(skybox) illumination.
 			RRReal environmentMultiplier;
 			//! Multiplies emittance of emissive materials.
@@ -323,7 +321,6 @@ namespace rr
 			Multipliers()
 			{
 				lightMultiplier = 1;
-				currentSolutionMultiplier = 1;
 				environmentMultiplier = 1;
 				materialEmittanceMultiplier = 1;
 			}
@@ -461,6 +458,9 @@ namespace rr
 		//! use NULL for default parameters.
 		struct RR_API UpdateParameters : public Multipliers
 		{
+			//! Multiplies illumination from current solution in solver.
+			RRReal currentSolutionMultiplier;
+
 			//! Quality of computed illumination.
 			//
 			//! Relates to number of rays per texel or triangle,
