@@ -331,11 +331,6 @@ namespace rr
 		//! Optional parameters of calculate().
 		struct RR_API CalculateParameters : public Multipliers
 		{
-			//RRReal lightMultiplier;             ...
-			//RRReal currentSolutionMultiplier;   ... works
-			//RRReal environmentMultiplier;       ... works with Fireball
-			//RRReal materialEmittanceMultiplier; ... works with Fireball
-
 			//! Only for Fireball solver:
 			//! Specifies what to do when emissive texture changes.
 			//!  - 0 disables updates, existing lighting stays unchanged.
