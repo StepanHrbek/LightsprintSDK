@@ -951,7 +951,7 @@ namespace rr
 		//! Returns multiObject created by merging all static objects in scene, see setStaticObjects().
 		RRObject* getMultiObject() const;
 
-		struct RR_API PathTracingParameters : public Multipliers
+		struct RR_API PathTracingParameters
 		{
 			//! Multiplies direct illumination from sources.
 			Multipliers direct;
