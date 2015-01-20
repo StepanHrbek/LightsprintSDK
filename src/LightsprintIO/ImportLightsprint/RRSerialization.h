@@ -842,7 +842,8 @@ void save(Archive & ar, const rr::RRObject& a, const unsigned int version)
 {
 	ar & make_nvp("name",a.name);
 	ar & make_nvp("faceGroups",a.faceGroups);
-	ar & make_nvp("worldMatrix",RRMatrix3x4(a.getWorldMatrixRef()));
+	rr::RRMatrix3x4 matrix(a.getWorldMatrixRef());
+	ar & make_nvp("worldMatrix",matrix);
 	ar & make_nvp("isDynamic",a.isDynamic);
 	ar & make_nvp("enabled",a.enabled);
 	{
