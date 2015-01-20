@@ -8,8 +8,8 @@ Code By Nicholas Chapman.
 
 //grab rply src from: http://www.cs.princeton.edu/~diego/professional/rply/
 
-#include "rply.h"
 #include <assert.h>
+#include "rply.h" // redefines long to int, <assert.h> might contain long long
 
 //some code taken from http://www.cs.princeton.edu/~diego/professional/rply/
 
