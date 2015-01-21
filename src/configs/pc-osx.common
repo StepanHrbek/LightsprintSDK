@@ -9,6 +9,7 @@ C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++11 from CPP_FLAGS
 CPP_FLAGS += -std=c++11 # rvalue references, lambda
 CPP_FLAGS += -ftemplate-depth=256 # prevents “recursive template instantiation exceeded maximum depth of 128”
 CPP_FLAGS += -Wno-deprecated-declarations # disables _finite() warnings in many files
+CPP_FLAGS += -Wno-deprecated-register # disables register warnings in assimp
 #CPP_FLAGS += -Wno-bitfield-constant-conversion # disables warnings in bsp.cpp
 CPP_FLAGS += -I/opt/local/include
 CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/include/wx-3.0
@@ -17,12 +18,14 @@ CPP_FLAGS += -D__WXOSX_COCOA__
 CPP_FLAGS += -I../../3rd/OculusSDK/LibOVR/Include
 
 LINK_FLAGS += -L/opt/local/lib
+LINK_FLAGS += -L../../bin/pc-osx
 
 CORE_DEPS = \
 	-lstdc++ \
 	-lboost_filesystem-mt \
 	-lboost_system-mt \
-	-lboost_regex-mt
+	-lboost_regex-mt \
+	-lembree.2.4.0
 
 #	-lgomp # not yet supported by LLVM
 
@@ -42,8 +45,8 @@ GL_LIBS = \
 
 ED_DEPS = \
 	-L/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/lib \
-	-lwx_osx_cocoau-3.0.0.0.0 \
-	-lwx_osx_cocoau_gl-3.0.0.0.0 \
+	-lwx_osx_cocoau-3.0.0.2.0 \
+	-lwx_osx_cocoau_gl-3.0.0.2.0 \
 	-lboost_serialization-mt \
 	-lboost_iostreams-mt \
 	-lboost_locale-mt \
