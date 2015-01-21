@@ -51,6 +51,7 @@ ED_DEPS = \
 	-lboost_iostreams-mt \
 	-lboost_locale-mt \
 	-framework IOKit \
+        -framework Cocoa \
 	-lovr
 
 #	-F/opt/local/Library/Frameworks -framework wxWidgets
