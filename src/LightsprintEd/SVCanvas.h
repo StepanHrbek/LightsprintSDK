@@ -159,8 +159,7 @@ namespace rr_ed
 
 	#define PASS_EVENT(result,func,param)  result func(param& event) \
 		{ \
-			if (svcanvas) \
-				return svcanvas->func(event); \
+			return svcanvas ? svcanvas->func(event) : (result)0; \
 		};
 
 	class CanvasWindow : public wxGLCanvas
