@@ -503,7 +503,7 @@ void main()
 		// We don't use GL_ALPHA_TEST because Radeons ignore it when rendering into shadowmap (all Radeons, last version tested: Catalyst 9-10)
 		//  MATERIAL_TRANSPARENCY_BLEND = alpha blending, not alpha keying
 		//  MATERIAL_TRANSPARENCY_TO_RGB = rendering blended material into rgb shadowmap or rgb blending, not alpha keying
-		if (opacityA<materialTransparencyThreshold) discard;
+		if (opacityA<1.0-materialTransparencyThreshold) discard;
 	#endif
 	#ifdef MATERIAL_TRANSPARENCY_FRESNEL
 		float materialFresnelReflectance = clamp(fresnelReflectance(abs(dot(worldEyeDir,worldNormal))),0.0,0.999); // clamping to 1.0 produces strange artifact
