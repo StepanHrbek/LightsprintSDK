@@ -36,7 +36,6 @@ CHANGES
   - RRScaler::getLinearSpace() added
 - interpolation in RRBuffer::getElementAtPosition() is optional
 - reduced automatic RRMaterial::minimalQualityForPointMaterials, makes baking at the same settings slower, but quality higher
-- RRScaler::getCustomFactor() and RRScaler::getPhysicalFactor() write new value to parameter, instead of returning it
 - RRMatrix3x4Ex added, some functions switched from RRMatrix3x4 to RRMatrix3x4Ex
 - RRCamera::setView() has more parameters, lets you zoom to whole scene or selected area
 - RRCamera::getPositionInClipSpace() added
