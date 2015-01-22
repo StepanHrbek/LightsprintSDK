@@ -565,7 +565,7 @@ Material formats (1)
    - Copyright (c) 2013 Oculus VR, Inc. All rights reserved
 
   \section oculus_version Version
-   - version 0.4.2 is used internally by LightsprintEd library, it's not visible from outside (no headers or dll files)
+   - version 0.4.4 is used internally by LightsprintEd library, it's not visible from outside (no headers or dll files)
 
   \section oculus_build Installing/building LibOVR
    Only for LightsprintEd source code licensees:
@@ -2947,15 +2947,28 @@ Material formats (1)
 
  \section oculus_user User's guide
 
-  SceneViewer tool supports Oculus Rift out of the box.
+  Current Oculus SDK has two limitations for OpenGL renderers:
+  - users need to turn off desktop composition / Aero (otherwise image is not smooth, hurts eyes)
+  - users need to use "Extend desktop" mode, not "Direct HMD access" mode (otherwise Oculus SDK crashes)
+
+  SceneViewer tool supports Oculus Rift DK1 and DK2, with camera tracking and low persistency.
+
+  It is important to check whether your GPU can maintain smooth 60Hz in DK1 or 75Hz in DK2 before you put it on your head, as any drop in fps is very unpleasant for eyes.
+  So it is recommended to check <code>Scene / [x] FPS</code>, and <code>User preferences / [x] Max fps</code>, and tweak settings until you get good enough fps. Aim for 200fps in normal mono render.
+  Try disabling expensive effects to increase fps: <code>[ ] SSGI, [ ] DOF, [ ] Mirror reflections</code>. If it is still not enough, keep unchecking options and see which ones improve fps.
+  If you use many small objects that can be merged, try merging them.
+  If you use realtime lighting, try baking it into lightmaps.
+  If you use more than one GPU, try using only one.
+
   In order to render in stereo, check <code>Scene / Camera / Stereo</code>.
 
   Oculus Rift is one of multiple stereo devices supported, so changing <code>User preferences / Stereo mode</code> to <code>Oculus Rift</code> might be necessary.
 
-  Recently introduced Rift display mode <b>"Direct HMD access"</b> is not yet supported, switch to <b>"Extend Desktop"</b> mode.
   Then drag SceneViewer window to be mostly on Oculus part of desktop, and press alt-3 (to switch to window layout 3, which defaults to fullscreen with all panels closed).
   Later you can return back to layout 1 by alt-1.
   Alternatively you can manually close all panels and toggle fullscreen by F11.
+
+  In the end, you should see absolutely smooth image.
 
  \section oculus_programmer Programmer's guide
 

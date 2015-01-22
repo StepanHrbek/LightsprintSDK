@@ -21,6 +21,10 @@ NEWS
     </td></tr></table>
   - pathtracer supports rotated environment and blend of two environments (like all other GI solvers)
   - pathtracer properly illuminates objects with negative scale
+- <b>improved \ref main_oculus support</b>
+  - SceneViewer uses all DK2 features (camera, low persistency..) in "extend desktop" mode
+  - "direct HMD access" mode will work when Oculus developers fix it
+  - it is important to disable expensive effects (SSGI/DOF/mirrors...) to maintain smooth 75Hz, any drop below 75Hz is very unpleasant for eyes
 - multipliers for all GI components
   - all solvers and renderers accept new structure RRSolver::Multipliers
   - replaces various lighting multipliers scattered around SDK (e.g. RRSolver::setDirectIlluminationBoost())
