@@ -229,7 +229,8 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 		if (material.specularTransmittanceKeyed)
 			material.specularTransmittance.color = (material.specularTransmittance.color.avg()>=material.specularTransmittanceThreshold) ? RRVec3(1) : RRVec3(0);
 		if (rgba[3]==0)
-			material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
+			material.sideBits[0].catchFrom = material.sideBits[1].catchFrom =
+			material.sideBits[0].renderFrom = material.sideBits[1].renderFrom = 0;
 		material.diffuseReflectance.colorPhysical = material.diffuseReflectance.color;
 		material.specularTransmittance.colorPhysical = material.specularTransmittance.color;
 		if (scaler)
@@ -260,7 +261,8 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 			if (material.specularTransmittanceKeyed)
 				material.specularTransmittance.color = (material.specularTransmittance.color.avg()>=material.specularTransmittanceThreshold) ? RRVec3(1) : RRVec3(0);
 			if (material.specularTransmittance.color==RRVec3(1))
-				material.sideBits[0].catchFrom = material.sideBits[1].catchFrom = 0;
+				material.sideBits[0].catchFrom = material.sideBits[1].catchFrom =
+				material.sideBits[0].renderFrom = material.sideBits[1].renderFrom = 0;
 			material.specularTransmittance.colorPhysical = material.specularTransmittance.color;
 			if (scaler)
 				scaler->toLinearSpace(material.specularTransmittance.colorPhysical);
