@@ -916,7 +916,11 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 		{
 			unsigned numElements = env->getNumElements();
 			for (unsigned i=0;i<numElements;i++)
-				envFound |= env->getElement(i,NULL)!=RRVec4(0);
+				if (env->getElement(i,NULL)!=RRVec4(0))
+				{
+					envFound = true;
+					break;
+				}
 		}
 		if (!envFound)
 		{
