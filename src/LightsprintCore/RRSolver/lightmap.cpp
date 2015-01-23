@@ -584,6 +584,54 @@ RRBuffer* onlyLmap(RRBuffer* buffer)
 	return (buffer && buffer->getType()==BT_2D_TEXTURE) ? buffer : NULL;
 }
 
+void RRSolver::optimizeMultipliers(RRSolver::UpdateParameters& paramsDirect, RRSolver::UpdateParameters& paramsIndirect, bool testEnvForBlackness) const
+{
+	if (paramsDirect.lightMultiplier || paramsIndirect.lightMultiplier)
+	{
+		bool lightsFound = false;
+		for (unsigned i=0;i<getLights().size();i++)
+			lightsFound |= getLights()[i]->enabled && getLights()[i]->color!=RRVec3(0);
+		if (!lightsFound)
+		{
+			paramsDirect.lightMultiplier = 0;
+			paramsIndirect.lightMultiplier = 0;
+		}
+	}
+	if (paramsDirect.environmentMultiplier || paramsIndirect.environmentMultiplier)
+	{
+		bool envFound = false;
+		RRBuffer* env = getEnvironment();
+		if (env)
+		{
+			if (testEnvForBlackness)
+			{
+				unsigned numElements = env->getNumElements();
+				for (unsigned i=0;i<numElements;i++)
+					if (env->getElement(i,NULL)!=RRVec4(0))
+					{
+						envFound = true;
+						break;
+					}
+			}
+			else
+				envFound = true;
+		}
+		if (!envFound)
+		{
+			paramsDirect.environmentMultiplier = 0;
+			paramsIndirect.environmentMultiplier = 0;
+		}
+	}
+	if (paramsDirect.materialEmittanceMultiplier || paramsIndirect.materialEmittanceMultiplier)
+	{
+		if (!getMultiObject() || !getMultiObject()->faceGroups.containsEmittance())
+		{
+			paramsDirect.materialEmittanceMultiplier = 0;
+			paramsIndirect.materialEmittanceMultiplier = 0;
+		}
+	}
+}
+
 unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* directionalLightmaps[3], RRBuffer* bentNormals, const UpdateParameters* _params, const FilteringParameters* _filtering)
 {
 	if (aborting)
@@ -894,45 +942,7 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
 
 	// clear as many multipliers as possible
-	if (paramsDirect.lightMultiplier || paramsIndirect.lightMultiplier)
-	{
-		bool lightsFound = false;
-		for (unsigned i=0;i<getLights().size();i++)
-			lightsFound |= getLights()[i]->enabled && getLights()[i]->color!=RRVec3(0);
-		if (!lightsFound)
-		{
-			paramsDirect.lightMultiplier = 0;
-			paramsIndirect.lightMultiplier = 0;
-		}
-	}
-	if (paramsDirect.environmentMultiplier || paramsIndirect.environmentMultiplier)
-	{
-		bool envFound = false;
-		RRBuffer* env = getEnvironment();
-		if (env)
-		{
-			unsigned numElements = env->getNumElements();
-			for (unsigned i=0;i<numElements;i++)
-				if (env->getElement(i,NULL)!=RRVec4(0))
-				{
-					envFound = true;
-					break;
-				}
-		}
-		if (!envFound)
-		{
-			paramsDirect.environmentMultiplier = 0;
-			paramsIndirect.environmentMultiplier = 0;
-		}
-	}
-	if (paramsDirect.materialEmittanceMultiplier || paramsIndirect.materialEmittanceMultiplier)
-	{
-		if (!getMultiObject() || !getMultiObject()->faceGroups.containsEmittance())
-		{
-			paramsDirect.materialEmittanceMultiplier = 0;
-			paramsIndirect.materialEmittanceMultiplier = 0;
-		}
-	}
+	optimizeMultipliers(paramsDirect,paramsIndirect,true);
 	{
 		if (paramsDirect.useCurrentSolution && (paramsIndirect.lightMultiplier || paramsIndirect.environmentMultiplier))
 		{

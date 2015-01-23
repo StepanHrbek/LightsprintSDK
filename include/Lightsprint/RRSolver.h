@@ -998,6 +998,7 @@ namespace rr
 
 	private:
 
+		void optimizeMultipliers(UpdateParameters& paramsDirect, UpdateParameters& paramsIndirect, bool testEnvForBlackness) const;
 		//! Detects direct illumination on all faces in scene and sends it to the solver.
 		//
 		//! This is more general version of detectDirectIllumination(),
