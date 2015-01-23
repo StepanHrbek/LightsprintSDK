@@ -551,9 +551,6 @@ namespace rr
 			//! Sets default parameters for offline update. All lightsources in scene enter calculation.
 			UpdateParameters(unsigned _quality)
 			{
-				lightMultiplier = 1;
-				environmentMultiplier = 1;
-				materialEmittanceMultiplier = 1;
 				useCurrentSolution = false;
 				quality = _quality;
 				qualityFactorRadiosity = 1;
