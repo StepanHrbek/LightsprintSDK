@@ -22,6 +22,14 @@
 namespace rr
 {
 
+RRString getParamsAsString(const RRSolver::UpdateParameters& paramsDirect, const RRSolver::UpdateParameters& paramsIndirect)
+{
+	return RRString(0,L"DIRECT(%hs%hs%hs%hs),INDIRECT(%hs%hs%hs%hs)",
+		paramsDirect  .lightMultiplier?"lights ":"",paramsDirect  .environmentMultiplier?"env ":"",paramsDirect  .materialEmittanceMultiplier?"emi ":"",paramsDirect.useCurrentSolution?"cur":"",
+		paramsIndirect.lightMultiplier?"lights ":"",paramsIndirect.environmentMultiplier?"env ":"",paramsIndirect.materialEmittanceMultiplier?"emi ":"",paramsIndirect.useCurrentSolution?"cur":""
+		);
+}
+
 RRReal getArea(RRVec2 v0, RRVec2 v1, RRVec2 v2)
 {
 	RRReal a = (v1-v0).length();
@@ -1005,13 +1013,10 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 		}
 	}
 
-	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating %s (%d,%d,%d,DIRECT(%s%s%s),INDIRECT(%s%s%s)) with %d objects, %d lights...\n",
+	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating %s (%d,%d,%d,%ls) with %d objects, %d lights...\n",
 		sizeOfAllBuffers?"lightmaps":"indirect illumination",
 		layerLightmap,layerDirectionalLightmap,layerBentNormals,
-		paramsDirect.lightMultiplier?"lights ":"",paramsDirect.environmentMultiplier?"env ":"",
-		paramsDirect.useCurrentSolution?"cur ":"",
-		paramsIndirect.lightMultiplier?"lights ":"",paramsIndirect.environmentMultiplier?"env ":"",
-		paramsIndirect.useCurrentSolution?"cur ":"",
+		getParamsAsString(paramsDirect,paramsIndirect).w_str(),
 		getStaticObjects().size(),getLights().size());
 	
 	if (sizeOfAllBuffers>10000000 && (containsFirstGather||containsPixelBuffers||!containsRealtime))
