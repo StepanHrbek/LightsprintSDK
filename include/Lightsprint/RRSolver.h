@@ -461,7 +461,7 @@ namespace rr
 			//! using indirect multipliers sent to previous calls, so resuing solution with different multipliers has only limited effect.
 			bool useCurrentSolution;
 
-			//! Quality of computed illumination.
+			//! Quality of computed illumination, 0 for realtime.
 			//
 			//! Relates to number of rays per texel or triangle,
 			//! time taken grows mostly linearly with this number.
@@ -532,9 +532,9 @@ namespace rr
 			UpdateParameters()
 			{
 				lightMultiplier = 0;
-				useCurrentSolution = true;
 				environmentMultiplier = 0;
 				materialEmittanceMultiplier = 1;
+				useCurrentSolution = true;
 				quality = 0;
 				qualityFactorRadiosity = 1;
 				aoIntensity = 1;
@@ -552,9 +552,9 @@ namespace rr
 			UpdateParameters(unsigned _quality)
 			{
 				lightMultiplier = 1;
-				useCurrentSolution = false;
 				environmentMultiplier = 1;
 				materialEmittanceMultiplier = 1;
+				useCurrentSolution = false;
 				quality = _quality;
 				qualityFactorRadiosity = 1;
 				insideObjectsThreshold = 1;
