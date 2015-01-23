@@ -178,7 +178,7 @@ public:
 			irradiancePhysicalHemisphere[i] = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
-		rays = (tools.environment || pti.context.params->useCurrentSolution || pti.context.params->materialEmittanceMultiplier!=0) ? RR_MAX(1,pti.context.params->quality) : 0;
+		rays = (tools.environment || pti.context.params->materialEmittanceMultiplier!=0 || pti.context.params->useCurrentSolution) ? RR_MAX(1,pti.context.params->quality) : 0;
 		pathtracerWorker.ray.rayLengthMin = pti.rayLengthMin;
 	}
 
