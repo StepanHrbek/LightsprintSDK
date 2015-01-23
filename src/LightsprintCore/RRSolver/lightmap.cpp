@@ -890,9 +890,6 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	if (_paramsDirect) paramsDirect = *_paramsDirect;
 	if (_paramsIndirect) paramsIndirect = *_paramsIndirect;
 
-	if (!getMultiObject() || !getMultiObject()->faceGroups.containsEmittance())
-		paramsDirect.materialEmittanceMultiplier = paramsIndirect.materialEmittanceMultiplier = 0;
-
 	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
 	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
 
