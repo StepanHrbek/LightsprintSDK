@@ -453,14 +453,19 @@ namespace rr
 		//! use NULL for default parameters.
 		struct RR_API UpdateParameters : public Multipliers
 		{
-			//! Multiplies illumination from current solution in solver.
-			RRReal currentSolutionMultiplier;
+			//! Reuse indirect illumination already calculated and stored in solver?
+			//
+			//! Calls to updateLightmaps() or calculate() leave calculated indirect illumination stored in solver.
+			//! Following calls to updateLightmaps() can save time by reusing current solution instead of calculating it from scratch.
+			//! Note that when reusing current solution, majority of indirect light is already mixed in solver,
+			//! using indirect multipliers sent to previous calls, so resuing solution with different multipliers has only limited effect.
+			bool useCurrentSolution;
 
 			//! Quality of computed illumination.
 			//
 			//! Relates to number of rays per texel or triangle,
 			//! time taken grows mostly linearly with this number.
-			//! (When !currentSolutionMultiplier and lightMultiplier and !environmentMultiplier,
+			//! (When !useCurrentSolution and lightMultiplier and !environmentMultiplier,
 			//! faster path is used.)
 			//!
 			//! Higher number = higher quality.
@@ -527,7 +532,7 @@ namespace rr
 			UpdateParameters()
 			{
 				lightMultiplier = 0;
-				currentSolutionMultiplier = 1;
+				useCurrentSolution = true;
 				environmentMultiplier = 0;
 				materialEmittanceMultiplier = 1;
 				quality = 0;
@@ -547,7 +552,7 @@ namespace rr
 			UpdateParameters(unsigned _quality)
 			{
 				lightMultiplier = 1;
-				currentSolutionMultiplier = 0;
+				useCurrentSolution = false;
 				environmentMultiplier = 1;
 				materialEmittanceMultiplier = 1;
 				quality = _quality;
@@ -709,14 +714,14 @@ namespace rr
 		//!  and quality specified in paramsIndirect.
 		//!  Internal state is properly updated even when buffers don't exist (so no other output is produced).
 		//!  Following updateLightmap() will include this indirect lighting into computed buffer
-		//!  if you call it with params->currentSolutionMultiplier=1 and params->measure_internal=RM_IRRADIANCE_CUSTOM.
+		//!  if you call it with params->useCurrentSolution=true and params->measure_internal=RM_IRRADIANCE_CUSTOM.
 		//! \remarks
 		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them.
 		//!  All three ways produce the same quality, but first one may be faster in some cases.
 		//!  - create buffers for selected objects, make sure other buffers are NULL and call updateLightmaps()
 		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
 		//!  - call updateLightmaps(-1,-1,NULL,paramsIndirect,NULL) once to update current solution,
-		//!    call updateLightmap(params with currentSolutionMultiplier=1 and measure_internal=RM_IRRADIANCE_CUSTOM) for all selected objects
+		//!    call updateLightmap(params with useCurrentSolution=true and measure_internal=RM_IRRADIANCE_CUSTOM) for all selected objects
 		//! \remarks
 		//!  Sharing one lightmap by multiple objects is not supported out of the box. Please consult us for possible solutions.
 		virtual unsigned updateLightmaps(int layerLightmap, int layerDirectionalLightmap, int layerBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);

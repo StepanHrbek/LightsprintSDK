@@ -996,7 +996,7 @@ void serialize(Archive & ar, rr::RRSolver::UpdateParameters& a, const unsigned i
 {
 	ar & make_nvp("lightMultiplier",a.lightMultiplier);
 	ar & make_nvp("environmentMultiplier",a.environmentMultiplier);
-	ar & make_nvp("currentSolutionMultiplier",a.currentSolutionMultiplier);
+	ar & make_nvp("useCurrentSolution",a.useCurrentSolution);
 	ar & make_nvp("quality",a.quality);
 	ar & make_nvp("qualityFactorRadiosity",a.qualityFactorRadiosity);
 	ar & make_nvp("insideObjectsThreshold",a.insideObjectsThreshold);

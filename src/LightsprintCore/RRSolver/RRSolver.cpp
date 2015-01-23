@@ -79,7 +79,7 @@ bool RRSolver::UpdateParameters::operator ==(const RRSolver::UpdateParameters& a
 {
 	return 1
 		&& a.RRSolver::Multipliers::operator ==(*this)
-		&& a.currentSolutionMultiplier==currentSolutionMultiplier
+		&& a.useCurrentSolution==useCurrentSolution
 		&& a.quality==quality
 		&& a.qualityFactorRadiosity==qualityFactorRadiosity
 		&& a.insideObjectsThreshold==insideObjectsThreshold
@@ -127,7 +127,7 @@ RRSolver::~RRSolver()
 void RRSolver::setScaler(const RRScaler* _scaler)
 {
 	priv->scaler = _scaler;
-	// priv->currentSolutionMultiplier is in physical scale, but we need it in custom
+	// priv->lightMultiplier is in physical scale, but we need it in custom
 	float multiplier = priv->lightMultiplier;
 	if (_scaler) _scaler->toCustomSpace(multiplier);
 	// update fast conversion table for our setDirectIllumination

@@ -178,7 +178,7 @@ public:
 			irradiancePhysicalHemisphere[i] = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
-		rays = (tools.environment || pti.context.params->currentSolutionMultiplier || pti.context.params->materialEmittanceMultiplier!=0) ? RR_MAX(1,pti.context.params->quality) : 0;
+		rays = (tools.environment || pti.context.params->useCurrentSolution || pti.context.params->materialEmittanceMultiplier!=0) ? RR_MAX(1,pti.context.params->quality) : 0;
 		pathtracerWorker.ray.rayLengthMin = pti.rayLengthMin;
 	}
 
@@ -828,7 +828,7 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 		params.environmentMultiplier = 0;
 
 	RRReportInterval report(INF2,"Gathering(%s%s%s%d) ...\n",
-		params.lightMultiplier?"lights ":"",params.environmentMultiplier?"env ":"",params.currentSolutionMultiplier?"cur ":"",params.quality);
+		params.lightMultiplier?"lights ":"",params.environmentMultiplier?"env ":"",params.useCurrentSolution?"cur ":"",params.quality);
 	LightmapperJob lmj(this);
 	lmj.params = &params;
 	lmj.gatherAllDirections = resultsPhysical->data[LS_DIRECTION1]||resultsPhysical->data[LS_DIRECTION2]||resultsPhysical->data[LS_DIRECTION3];
@@ -996,10 +996,10 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 	}
 	// set default params instead of NULL
 	UpdateParameters paramsIndirect;
-	paramsIndirect.currentSolutionMultiplier = 0;
+	paramsIndirect.useCurrentSolution = false;
 	paramsIndirect.lightMultiplier = 0;
 	paramsIndirect.environmentMultiplier = 0;
-	//paramsDirect.currentSolutionMultiplier = 0;
+	//paramsDirect.useCurrentSolution = false;
 	if (_paramsIndirect)
 	{
 		paramsIndirect = *_paramsIndirect;
@@ -1012,12 +1012,12 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 
 	RRReportInterval report(INF2,"Updating solver indirect(%s%s%s).\n",
 		paramsIndirect.lightMultiplier?"lights ":"",paramsIndirect.environmentMultiplier?"env ":"",
-		paramsIndirect.currentSolutionMultiplier?"cur ":"");
+		paramsIndirect.useCurrentSolution?"cur ":"");
 
-	if (paramsIndirect.currentSolutionMultiplier)
+	if (paramsIndirect.useCurrentSolution)
 	{
-		RRReporter::report(WARN,"paramsIndirect.currentSolutionMultiplier ignored, set it in paramsDirect instead.\n");
-		paramsIndirect.currentSolutionMultiplier = 0;
+		RRReporter::report(WARN,"paramsIndirect.useCurrentSolution ignored, set it in paramsDirect instead.\n");
+		paramsIndirect.useCurrentSolution = 0;
 	}
 	else
 	if (!paramsIndirect.lightMultiplier && !paramsIndirect.environmentMultiplier)

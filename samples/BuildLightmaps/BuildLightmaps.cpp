@@ -567,7 +567,7 @@ int main(int argc, char** argv)
 		// calculate indirect illumination in solver
 		rr::RRSolver::UpdateParameters updateParameters(globalParameters.buildQuality);
 		solver->updateLightmaps(-1,-1,-1,NULL,&updateParameters,NULL);
-		updateParameters.currentSolutionMultiplier = 1;
+		updateParameters.useCurrentSolution = true;
 		updateParameters.aoIntensity = globalParameters.aoIntensity;
 		updateParameters.aoSize = globalParameters.aoSize;
 

@@ -801,7 +801,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						// update everything in temp layer
 						rr::RRSolver::UpdateParameters updateParameters(quality);
 						updateParameters.rr::RRSolver::Multipliers::operator=(svs.multipliers);
-						updateParameters.currentSolutionMultiplier = 0;
+						updateParameters.useCurrentSolution = false;
 						updateParameters.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
 						updateParameters.aoSize = svs.lightmapDirectParameters.aoSize;
 #ifdef OLD_SIMPLE_GI
@@ -826,7 +826,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 							solver->getLights()[i]->color = lightColors[i]*directLightMultiplier;
 
 						// build direct illumination
-						updateParameters.currentSolutionMultiplier = 1;
+						updateParameters.useCurrentSolution = true;
 						solver->updateLightmaps(tmpLayer,-1,-1,&updateParameters,NULL,&svs.lightmapFilteringParameters);
 
 						// restore light intensities
@@ -887,13 +887,13 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						rr::RRSolver::UpdateParameters paramsDirect(quality);
 						paramsDirect.rr::RRSolver::Multipliers::operator=(svs.multipliers);
 						paramsDirect.lightMultiplier = 0;
-						paramsDirect.currentSolutionMultiplier = 0;
+						paramsDirect.useCurrentSolution = false;
 						paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
 						paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
 						rr::RRSolver::UpdateParameters paramsIndirect(quality);
 						paramsIndirect.rr::RRSolver::Multipliers::operator=(svs.multipliers);
 						paramsIndirect.lightMultiplier = 0;
-						paramsIndirect.currentSolutionMultiplier = 0;
+						paramsIndirect.useCurrentSolution = false;
 						paramsIndirect.locality = -1;
 						paramsIndirect.qualityFactorRadiosity = 0;
 						rr::RRBuffer* oldEnv = solver->getEnvironment();
