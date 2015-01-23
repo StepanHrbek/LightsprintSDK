@@ -810,22 +810,11 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 	const RRMesh* multiMesh = multiObject->getCollider()->getMesh();
 	unsigned numPostImportTriangles = multiMesh->getNumTriangles();
 
-	// validate params
+	// init params
 	UpdateParameters params;
 	if (_params) params = *_params;
 	params.quality = RR_MAX(1,params.quality);
-	
-	// optimize params
-	if (params.lightMultiplier)
-	{
-		for (unsigned i=0;i<getLights().size();i++)
-			if (getLights()[i] && getLights()[i]->enabled)
-				goto hasAtLeastOneEnabledLight;
-		params.lightMultiplier = 0;
-		hasAtLeastOneEnabledLight:;
-	}
-	if (params.environmentMultiplier && !getEnvironment())
-		params.environmentMultiplier = 0;
+	optimizeMultipliers(params,params,false);
 
 	RRReportInterval report(INF2,"Gathering(%s%s%s%d) ...\n",
 		params.lightMultiplier?"lights ":"",params.environmentMultiplier?"env ":"",params.useCurrentSolution?"cur ":"",params.quality);
