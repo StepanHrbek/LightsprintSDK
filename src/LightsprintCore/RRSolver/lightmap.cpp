@@ -896,7 +896,8 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
 	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
 
-	// clear xxxMultiplier that can be cleared
+	// clear as many multipliers as possible
+	if (paramsDirect.environmentMultiplier || paramsIndirect.environmentMultiplier)
 	{
 		bool envFound = false;
 		RRBuffer* env = getEnvironment();
@@ -911,7 +912,9 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 			paramsDirect.environmentMultiplier = 0;
 			paramsIndirect.environmentMultiplier = 0;
 		}
-
+	}
+	if (paramsDirect.lightMultiplier || paramsIndirect.lightMultiplier)
+	{
 		bool lightsFound = false;
 		for (unsigned i=0;i<getLights().size();i++)
 			lightsFound |= getLights()[i]->enabled && getLights()[i]->color!=RRVec3(0);
@@ -920,7 +923,8 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 			paramsDirect.lightMultiplier = 0;
 			paramsIndirect.lightMultiplier = 0;
 		}
-
+	}
+	{
 		if (paramsDirect.useCurrentSolution && (paramsIndirect.lightMultiplier || paramsIndirect.environmentMultiplier))
 		{
 			if (_paramsDirect) // don't report if direct is NULL, silently disable it
