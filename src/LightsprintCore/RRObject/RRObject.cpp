@@ -226,7 +226,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 		if (material.specularTransmittanceMapInverted)
 			specularTransmittance = 1-specularTransmittance;
 		if (material.specularTransmittanceKeyed)
-			specularTransmittance = (specularTransmittance>=material.specularTransmittanceThreshold) ? 1 : 0;
+			specularTransmittance = (specularTransmittance>=material.specularTransmittanceThreshold) ? 1.f : 0.f;
 		if (specularTransmittance==1)
 			material.sideBits[0].catchFrom = material.sideBits[1].catchFrom =
 			material.sideBits[0].renderFrom = material.sideBits[1].renderFrom = 0;
