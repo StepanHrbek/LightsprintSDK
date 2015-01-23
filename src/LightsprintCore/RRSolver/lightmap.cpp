@@ -957,14 +957,6 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
 
 	optimizeMultipliers(paramsDirect,paramsIndirect,true);
-	{
-		if (paramsDirect.useCurrentSolution && (paramsIndirect.lightMultiplier || paramsIndirect.environmentMultiplier))
-		{
-			if (_paramsDirect) // don't report if direct is NULL, silently disable it
-				RRReporter::report(WARN,"paramsDirect.useCurrentSolution ignored, can't be combined with paramsIndirect.lightMultiplier/environmentMultiplier.\n");
-			paramsDirect.useCurrentSolution = 0;
-		}
-	}
 
 	int allLayers[NUM_BUFFERS];
 	allLayers[LS_LIGHTMAP] = layerLightmap;
