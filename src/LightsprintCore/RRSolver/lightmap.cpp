@@ -1052,7 +1052,7 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 
 	unsigned updatedBuffers = 0;
 
-	if (!paramsDirect.lightMultiplier && !paramsDirect.environmentMultiplier && !paramsDirect.useCurrentSolution)
+	if (!paramsDirect.lightMultiplier && !paramsDirect.environmentMultiplier && !paramsDirect.materialEmittanceMultiplier && !paramsDirect.useCurrentSolution)
 	{
 		RRReporter::report(WARN,"No light sources enabled.\n");
 	}
