@@ -1019,13 +1019,17 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 		RR_ASSERT(0); // no lightsource enabled, todo: fill solver.direct with zeroes
 	}
 
+	// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
+	calculateCore(0,&priv->previousCalculateParameters);
+	
+	// reset illumination in solver
+	// we need to do it even if there is no work (no light sources),
+	// because user can call updateLightmaps(direct(useCurrentSolution),NULL) and start finalgathering solver
+	priv->scene->illuminationReset(true,true,paramsIndirect.materialEmittanceMultiplier,NULL,NULL,NULL);
+
 	// gather direct for requested indirect and propagate in solver
 	if (paramsIndirect.lightMultiplier || paramsIndirect.environmentMultiplier || paramsIndirect.materialEmittanceMultiplier)
 	{
-		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
-		calculateCore(0,&priv->previousCalculateParameters);
-		priv->scene->illuminationReset(true,true,paramsIndirect.materialEmittanceMultiplier,NULL,NULL,NULL); // required by endByQuality()
-
 		// first gather
 		unsigned tmp = paramsIndirect.quality;
 		paramsIndirect.quality /= 2; // at 50% quality
