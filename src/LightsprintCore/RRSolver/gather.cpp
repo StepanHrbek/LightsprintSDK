@@ -940,8 +940,8 @@ bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 		return false;
 	}
 	UpdateParameters params = _params ? *_params : UpdateParameters();
-	params.materialEmittanceMultiplier = 0;
-	if (!gatherPerTrianglePhysical(&params,finalGather,numPostImportTriangles)) // this is first gather -> don't gather emitors
+	params.materialEmittanceMultiplier = 0; // this is first gather -> don't gather emitors
+	if (!gatherPerTrianglePhysical(&params,finalGather,numPostImportTriangles))
 	{
 		delete finalGather;
 		return false;
