@@ -584,6 +584,7 @@ RRBuffer* onlyLmap(RRBuffer* buffer)
 	return (buffer && buffer->getType()==BT_2D_TEXTURE) ? buffer : NULL;
 }
 
+// clears as many multipliers as possible
 void RRSolver::optimizeMultipliers(RRSolver::UpdateParameters& paramsDirect, RRSolver::UpdateParameters& paramsIndirect, bool testEnvForBlackness) const
 {
 	if (paramsDirect.lightMultiplier || paramsIndirect.lightMultiplier)
@@ -654,12 +655,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 	// init params
 	UpdateParameters params;
 	if (_params) params = *_params;
-	if (params.lightMultiplier && !getLights().size())
-		params.lightMultiplier = 0;
-	if (params.environmentMultiplier && !getEnvironment())
-		params.environmentMultiplier = 0;
-	if (!getMultiObject()->faceGroups.containsEmittance())
-		params.materialEmittanceMultiplier = 0;
+	optimizeMultipliers(params,params,false);
 	bool paramsAllowRealtime = !params.lightMultiplier && !params.environmentMultiplier && params.useCurrentSolution && !params.quality;
 
 	// init solver
@@ -941,7 +937,6 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
 	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
 
-	// clear as many multipliers as possible
 	optimizeMultipliers(paramsDirect,paramsIndirect,true);
 	{
 		if (paramsDirect.useCurrentSolution && (paramsIndirect.lightMultiplier || paramsIndirect.environmentMultiplier))
