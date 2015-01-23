@@ -803,7 +803,6 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						paramsDirect.rr::RRSolver::Multipliers::operator=(svs.getMultipliersDirect());
 						if (ambient)
 							paramsDirect.lightMultiplier = 0;
-						paramsDirect.useCurrentSolution = true;
 						paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
 						paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
 
@@ -816,6 +815,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						solver->updateLightmaps(-1,-1,-1,NULL,&paramsIndirect,NULL);
 
 						// build direct illumination
+						paramsDirect.useCurrentSolution = true;
 						solver->updateLightmaps(tmpLayer,-1,-1,&paramsDirect,NULL,&svs.lightmapFilteringParameters);
 #endif
 						// switch to .exr mode
