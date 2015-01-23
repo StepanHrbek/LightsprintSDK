@@ -924,6 +924,14 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 			paramsIndirect.lightMultiplier = 0;
 		}
 	}
+	if (paramsDirect.materialEmittanceMultiplier || paramsIndirect.materialEmittanceMultiplier)
+	{
+		if (!getMultiObject() || !getMultiObject()->faceGroups.containsEmittance())
+		{
+			paramsDirect.materialEmittanceMultiplier = 0;
+			paramsIndirect.materialEmittanceMultiplier = 0;
+		}
+	}
 	{
 		if (paramsDirect.useCurrentSolution && (paramsIndirect.lightMultiplier || paramsIndirect.environmentMultiplier))
 		{
