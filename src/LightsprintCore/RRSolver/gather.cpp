@@ -997,9 +997,6 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 	// set default params instead of NULL
 	UpdateParameters paramsIndirect;
 	paramsIndirect.useCurrentSolution = false;
-	paramsIndirect.lightMultiplier = 0;
-	paramsIndirect.environmentMultiplier = 0;
-	//paramsDirect.useCurrentSolution = false;
 	if (_paramsIndirect)
 	{
 		paramsIndirect = *_paramsIndirect;
