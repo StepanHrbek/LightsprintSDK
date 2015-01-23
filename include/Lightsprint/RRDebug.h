@@ -87,7 +87,7 @@ namespace rr
 		// tools
 		/////////////////////////////////////////////////////////////
 
-		//! Shortcut for customReport() with printf syntax.
+		//! Shortcut for customReport() with printf syntax: %ls for wide strings, %hs for singlebyte etc.
 		//! Usually called by Lightsprint internals with message for you.
 		static void report(RRReportType type, const char* format, ...);
 
