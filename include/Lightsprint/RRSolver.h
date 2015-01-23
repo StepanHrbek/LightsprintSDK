@@ -528,7 +528,7 @@ namespace rr
 			void (*debugRay)(const RRRay* ray, bool hit);
 
 
-			//! Sets default parameters for fast realtime update. Only direct lighting from RRSolver::setDirectIllumination() enters calculation.
+			//! Sets default parameters for fast realtime update, using current solution from solver.
 			UpdateParameters()
 			{
 				lightMultiplier = 0;
@@ -548,7 +548,7 @@ namespace rr
 				debugTriangle = UINT_MAX;
 				debugRay = NULL;
 			}
-			//! Sets default parameters for offline update. All lightsources in scene enter calculation.
+			//! Sets default parameters for complete baking, with all light sources enabled.
 			UpdateParameters(unsigned _quality)
 			{
 				useCurrentSolution = false;
