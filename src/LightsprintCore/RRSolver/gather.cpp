@@ -1020,7 +1020,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 	}
 
 	// gather direct for requested indirect and propagate in solver
-	if (paramsIndirect.lightMultiplier || paramsIndirect.environmentMultiplier)
+	if (paramsIndirect.lightMultiplier || paramsIndirect.environmentMultiplier || paramsIndirect.materialEmittanceMultiplier)
 	{
 		// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 		calculateCore(0,&priv->previousCalculateParameters);
