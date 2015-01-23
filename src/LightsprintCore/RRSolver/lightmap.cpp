@@ -664,7 +664,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 	UpdateParameters params;
 	if (_params) params = *_params;
 	optimizeMultipliers(params,params,false);
-	bool paramsAllowRealtime = !params.lightMultiplier && !params.environmentMultiplier && params.useCurrentSolution && !params.quality;
+	bool paramsAllowRealtime = !params.lightMultiplier && !params.environmentMultiplier && !params.materialEmittanceMultiplier && params.useCurrentSolution && !params.quality;
 
 	// init solver
 	if ((!priv->scene
