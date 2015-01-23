@@ -533,7 +533,7 @@ namespace rr
 			{
 				lightMultiplier = 0;
 				environmentMultiplier = 0;
-				materialEmittanceMultiplier = 1;
+				materialEmittanceMultiplier = 0;
 				useCurrentSolution = true;
 				quality = 0;
 				qualityFactorRadiosity = 1;
