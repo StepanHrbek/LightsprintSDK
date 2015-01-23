@@ -21,6 +21,17 @@
 namespace rr
 {
 
+RRString getIndirectParamsAsString(const RRSolver::UpdateParameters& paramsIndirect)
+{
+	return RRString(0,L"%hs%hs%hs%hs%d",
+		paramsIndirect.lightMultiplier?"lights ":"",
+		paramsIndirect.environmentMultiplier?"env ":"",
+		paramsIndirect.materialEmittanceMultiplier?"emi ":"",
+		paramsIndirect.useCurrentSolution?"cur ":"",
+		paramsIndirect.quality
+		);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // directional lightmaps, compatible with Unreal Engine 3
@@ -816,8 +827,7 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 	params.quality = RR_MAX(1,params.quality);
 	optimizeMultipliers(params,params,false);
 
-	RRReportInterval report(INF2,"Gathering(%s%s%s%d) ...\n",
-		params.lightMultiplier?"lights ":"",params.environmentMultiplier?"env ":"",params.useCurrentSolution?"cur ":"",params.quality);
+	RRReportInterval report(INF2,"Gathering(%ls) ...\n",getIndirectParamsAsString(params).w_str());
 	LightmapperJob lmj(this);
 	lmj.params = &params;
 	lmj.gatherAllDirections = resultsPhysical->data[LS_DIRECTION1]||resultsPhysical->data[LS_DIRECTION2]||resultsPhysical->data[LS_DIRECTION3];
@@ -996,9 +1006,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 		paramsIndirect.debugRay = NULL;
 	}
 
-	RRReportInterval report(INF2,"Updating solver indirect(%s%s%s).\n",
-		paramsIndirect.lightMultiplier?"lights ":"",paramsIndirect.environmentMultiplier?"env ":"",
-		paramsIndirect.useCurrentSolution?"cur ":"");
+	RRReportInterval report(INF2,"Updating solver indirect(%ls).\n",getIndirectParamsAsString(paramsIndirect).w_str());
 
 	if (paramsIndirect.useCurrentSolution)
 	{
