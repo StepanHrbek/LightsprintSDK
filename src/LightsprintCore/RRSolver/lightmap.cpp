@@ -942,6 +942,17 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	if (_paramsDirect) paramsDirect = *_paramsDirect;
 	if (_paramsIndirect) paramsIndirect = *_paramsIndirect;
 
+	// direct.environmentMultiplier in rr_gl renderer and pathtracer affects env-camera paths, not env-surface-camera paths
+	// direct.materialEmittanceMultiplier in rr_gl renderer and pathtracer affects emi-camera paths, not emi-surface-camera paths
+	// let's do the same here
+	// unfortunately we can't do the same in updateLightmap, because it receives only paramsDirect
+	// that's why we consider merging paramsDirect and paramsIndirect (this block can be removed after merging)
+	if (_paramsDirect && _paramsIndirect)
+	{
+		paramsDirect.environmentMultiplier = paramsIndirect.environmentMultiplier;
+		paramsDirect.materialEmittanceMultiplier = paramsIndirect.materialEmittanceMultiplier;
+	}
+
 	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
 	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
 
