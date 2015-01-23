@@ -975,7 +975,7 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 
 	std::vector<SortedBuffer> bufferSharing;
 
-	bool containsFirstGather = _paramsIndirect && ((paramsIndirect.useCurrentSolution && paramsIndirect.quality) || paramsIndirect.lightMultiplier || paramsIndirect.environmentMultiplier);
+	bool containsFirstGather = _paramsIndirect && paramsIndirect.quality;
 	bool containsRealtime = !paramsDirect.lightMultiplier && !paramsDirect.environmentMultiplier && paramsDirect.useCurrentSolution && !paramsDirect.quality;
 	bool containsVertexBuffers = false;
 	bool containsPixelBuffers = false;
