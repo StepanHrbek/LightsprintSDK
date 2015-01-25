@@ -178,6 +178,8 @@ public:
 			pathTracingParameters.direct = *_pti.context.params;
 			pathTracingParameters.indirect = *_pti.context.params;
 			pathTracingParameters.brdfTypes = RRMaterial::BRDF_ALL;
+			// bake with the fastest and the least noisy options (also the least realistic, corners have to be artificially darkened with aoIntensity/aoSize)
+			// keeping UINT_MAX should naturally darken corners, but noise makes it useless
 			pathTracingParameters.useFlatNormalsSinceDepth = 0;
 			pathTracingParameters.useSolverDirectSinceDepth = 0;
 			pathTracingParameters.useSolverIndirectSinceDepth = 0;
