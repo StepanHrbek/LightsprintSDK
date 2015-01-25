@@ -216,7 +216,6 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 #endif
 
 		// add direct lighting
-		if (lightMultiplier)
 		{
 		if (numBounces>=parameters.useSolverDirectSinceDepth
 			&& ray.hitObject && !ray.hitObject->isDynamic // only available if we hit static object
@@ -227,7 +226,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			if (packedSolver)
 			{
 				// fireball
-				exitance += packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorPhysical * lightMultiplier;
+				exitance += packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorPhysical;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 			else
@@ -238,11 +237,12 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				// zero area would create #INF in getIndirectIrradiance()
 				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 				RR_ASSERT(hitTriangle->area);
-				exitance += hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorPhysical * lightMultiplier;
+				exitance += hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorPhysical;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 		}
 		else
+		if (lightMultiplier)
 		{
 			// accurate: shoot shadow rays to lights
 			RRRay shadowRay;

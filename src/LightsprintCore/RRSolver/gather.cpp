@@ -440,7 +440,7 @@ public:
 			{
 				// direct visibility found (at least partial), add irradiance from light
 				// !_light->castShadows -> direct visibility guaranteed even without raycast
-				RRVec3 irrad = _light->getIrradiance(ray.rayOrigin,pti.context.scaler);
+				RRVec3 irrad = _light->getIrradiance(ray.rayOrigin,pti.context.scaler) * pti.context.params->lightMultiplier;
 				RR_ASSERT(IS_VEC3(irrad)); // getIrradiance() must return finite number
 				if (_light->castShadows)
 				{
