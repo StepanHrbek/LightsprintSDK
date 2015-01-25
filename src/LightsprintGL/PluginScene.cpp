@@ -199,6 +199,16 @@ public:
 		Mirrors mirrors;
 #endif
 
+		// solvers work with multipliers in linear space, convert them to srgb for rendering
+		rr::RRSolver::Multipliers multipliers = pp.multipliers;
+		const rr::RRScaler* scaler = pp.solver ? pp.solver->getScaler() : NULL; // selection plugin call scene with solver=NULL
+		if (scaler)
+		{
+			scaler->toCustomSpace(multipliers.lightMultiplier);
+			scaler->toCustomSpace(multipliers.environmentMultiplier);
+			scaler->toCustomSpace(multipliers.materialEmittanceMultiplier);
+		}
+
 		// Will we render multiobject or individual objects?
 		//unsigned lightIndirectVersion = _solver?_solver->getSolutionVersion():0;
 		bool needsIndividualStaticObjectsForEverything =
@@ -548,7 +558,7 @@ public:
 						// setup culling at the beginning
 						glDisable(GL_CULL_FACE);
 					}
-					MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,classUberProgramSetup,uberProgram,pp.multipliers.lightMultiplier,&_.clipPlanes,sp.srgbCorrect,&sp.brightness,sp.gamma*(sp.srgbCorrect?2.2f:1.f));
+					MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,classUberProgramSetup,uberProgram,multipliers.lightMultiplier,&_.clipPlanes,sp.srgbCorrect,&sp.brightness,sp.gamma*(sp.srgbCorrect?2.2f:1.f));
 					UberProgramSetup passUberProgramSetup;
 					RealtimeLight* light;
 					Program* program;
@@ -582,7 +592,7 @@ public:
 								_.renderingFromThisLight?true:false,
 								objectBuffers.lightIndirectBuffer,
 								objectBuffers.lightIndirectDetailMap,
-								pp.multipliers.materialEmittanceMultiplier,
+								multipliers.materialEmittanceMultiplier,
 								_.animationTime);
 
 							j += numRanges;
@@ -666,7 +676,7 @@ public:
 								false,
 								NULL,
 								NULL,
-								pp.multipliers.materialEmittanceMultiplier,
+								multipliers.materialEmittanceMultiplier,
 								_.animationTime);
 						}
 					}
@@ -825,9 +835,9 @@ public:
 				fgUberProgramSetup.reduceMaterials(_.uberProgramSetup);
 				fgUberProgramSetup.validate();
 #ifdef SRGB_CORRECT_BLENDING
-				MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,pp.multipliers.lightMultiplier,&_.clipPlanes,sp.srgbCorrect,&sp.brightness,sp.gamma*(sp.srgbCorrect?2.2f:1.f));
+				MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,multipliers.lightMultiplier,&_.clipPlanes,sp.srgbCorrect,&sp.brightness,sp.gamma*(sp.srgbCorrect?2.2f:1.f));
 #else
-				MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,pp.multipliers.lightMultiplier,&_.clipPlanes,false,&sp.brightness,sp.gamma);
+				MultiPass multiPass(*sp.camera,_.lights,_.renderingFromThisLight,fgUberProgramSetup,uberProgram,multipliers.lightMultiplier,&_.clipPlanes,false,&sp.brightness,sp.gamma);
 #endif
 				UberProgramSetup passUberProgramSetup;
 				RealtimeLight* light;
@@ -853,7 +863,7 @@ public:
 						_.renderingFromThisLight?true:false,
 						objectBuffers.lightIndirectBuffer,
 						objectBuffers.lightIndirectDetailMap,
-						pp.multipliers.materialEmittanceMultiplier,
+						multipliers.materialEmittanceMultiplier,
 						_.animationTime);
 				}
 			}

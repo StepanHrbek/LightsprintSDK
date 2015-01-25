@@ -29,6 +29,11 @@ public:
 
 		const PluginParamsSky& pp = *dynamic_cast<const PluginParamsSky*>(&_pp);
 
+		// solvers work with multipliers in linear space, convert them to srgb for rendering
+		float skyMultiplier = pp.skyMultiplier;
+		if (pp.solver->getScaler())
+			pp.solver->getScaler()->toCustomSpace(skyMultiplier);
+
 		rr::RRReal envAngleRad0 = 0;
 		const rr::RRBuffer* env0 = pp.solver->getEnvironment(0,&envAngleRad0);
 		if (_renderer.getTextureRenderer() && env0)
@@ -44,7 +49,7 @@ public:
 				? getTexture(env1,false,false) // smooth, no mipmaps (would break floats, 1.2->0.2), no compression (visible artifacts)
 				: getTexture(env1,false,false,GL_NEAREST,GL_NEAREST) // used by 2x2 sky
 				) : NULL;
-			rr::RRVec4 brightness = _sp.brightness*pp.skyMultiplier;
+			rr::RRVec4 brightness = _sp.brightness*skyMultiplier;
 			_renderer.getTextureRenderer()->renderEnvironment(*_sp.camera,texture0,envAngleRad0,texture1,envAngleRad1,blendFactor,&brightness,_sp.gamma*(_sp.srgbCorrect?2.2f:1.f),true);
 		}
 	}
