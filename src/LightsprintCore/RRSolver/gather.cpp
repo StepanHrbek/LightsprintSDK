@@ -1,5 +1,5 @@
 // --------------------------------------------------------------------------
-// Final gathering.
+// First and final gathering.
 // Copyright (c) 2006-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
@@ -133,8 +133,8 @@ static RRVec3 getRandomEnterDirNormalized(HomogenousFiller2& filler, const RRMes
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// for 1 texel: helper objects used while gathering
-// created in processTexel, for each texel separately
+// baking: helper objects
+// created in processTexel(), for each texel/triangle separately
 
 class GatheringTools
 {
@@ -154,7 +154,8 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// for 1 texel: irradiance gathered from hemisphere
+// baking: first or final gather of irradiance from hemisphere
+// created in processTexel(), for each texel/triangle separately
 
 class GatheredIrradianceHemisphere
 {
@@ -340,7 +341,8 @@ protected:
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// for 1 texel: irradiance gathered from lights
+// baking: first or final gather of irradiance from lights
+// created in processTexel(), for each texel/triangle separately
 //
 // handler computes direct visibility to light, taking transparency into account.
 // light paths with refraction and reflection are silently skipped
@@ -578,7 +580,8 @@ protected:
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// for 1 texel: complete gathering
+// baking: first or final gathering of irradiance from hemisphere and lights
+// called for each texel/triangle separately
 
 // thread safe: yes
 // returns:
@@ -802,8 +805,10 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	return result;
 }
 
-// CPU, gathers per-triangle lighting from RRLights, environment, current solution
-// may be called as first gather or final gather
+/////////////////////////////////////////////////////////////////////////////
+//
+// baking: first or final gathering into triangles
+
 bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots)
 {
 	if (aborting)
@@ -916,7 +921,10 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 	return !aborting;
 }
 
-// CPU version, detects per-triangle direct from RRLights, environment, gathers from current solution
+/////////////////////////////////////////////////////////////////////////////
+//
+// baking: updates direct illumination in solver
+
 bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 {
 	RRReportInterval report(INF2,"Updating solver direct ...\n");
@@ -975,6 +983,10 @@ public:
 	int targetQuality;
 	bool* aborting;
 };
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// baking: updates indirect illumination in solver
 
 bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsIndirect)
 {
