@@ -64,13 +64,13 @@ namespace rr
 		// instance factory
 		//
 
-		//! Creates and returns scaler for sRGB space - screen colors.
+		//! Creates and returns sRGB color space - the most common screen colors.
 		//
-		//! Scaler converts between radiometry units (W/m^2) and screen colors.
+		//! Our implementation approximates sRGB curve by pow() function.
 		//! \param power
-		//!  Exponent in formula screenSpace = physicalSpace^power.
-		//!  Use default value for typical screens or tweak it for different contrast.
-		static RRColorSpace* createRgbScaler(RRReal power=0.45f);
+		//!  Exponent in formula.
+		//!  Use default value for typical screen colors or tweak it for different contrast.
+		static RRColorSpace* create_sRGB(RRReal power=0.45f);
 	};
 
 

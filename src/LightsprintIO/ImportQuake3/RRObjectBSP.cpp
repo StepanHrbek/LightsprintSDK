@@ -183,7 +183,7 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 	s.minimalQualityForPointMaterials = s.specularTransmittance.texture ? 30 : 300;
 
 	// get average colors from textures. we already set them, but this will be slightly more precise thanks to scaler
-	RRColorSpace* scaler = RRColorSpace::createRgbScaler();
+	RRColorSpace* scaler = RRColorSpace::create_sRGB();
 	s.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE,true);
 	delete scaler;
 	// apply quake map boost again, updateColorsFromTextures removed it

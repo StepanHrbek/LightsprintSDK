@@ -374,7 +374,7 @@ int main(int argc, char** argv)
 	if (licError)
 		error(licError,false);
 	solver = new rr_gl::RRSolverGL("../../data/shaders/","../../data/maps/");
-	solver->setScaler(rr::RRColorSpace::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
+	solver->setScaler(rr::RRColorSpace::create_sRGB()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 
 	// load scene
 	rr::RRScene scene((argc>1)?argv[1]:DEFAULT_SCENE);

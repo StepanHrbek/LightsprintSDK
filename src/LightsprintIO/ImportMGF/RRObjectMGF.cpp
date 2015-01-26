@@ -145,7 +145,7 @@ void* add_material(C_MATERIAL* m)
 	mat->refractionIndex = m->nr;
 
 	// convert from physical scale, all samples expect inputs in screen colors
-	RRColorSpace* scaler = RRColorSpace::createRgbScaler();
+	RRColorSpace* scaler = RRColorSpace::create_sRGB();
 	mat->convertToCustomScale(scaler);
 	delete scaler;
 

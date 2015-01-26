@@ -85,7 +85,7 @@ protected:
 //
 // RRColorSpace
 
-RRColorSpace* RRColorSpace::createRgbScaler(RRReal power)
+RRColorSpace* RRColorSpace::create_sRGB(RRReal power)
 {
 	return new RRGammaScaler(power);
 }

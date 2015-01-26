@@ -570,7 +570,7 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 
 		// get average colors from textures
 		{
-			rr::RRColorSpace* scaler = rr::RRColorSpace::createRgbScaler();
+			rr::RRColorSpace* scaler = rr::RRColorSpace::create_sRGB();
 			a.updateColorsFromTextures(scaler,rr::RRMaterial::UTA_KEEP,false); // but don't update from stubs, we have valid colors (unlike all other scene formats)
 			delete scaler;
 		}

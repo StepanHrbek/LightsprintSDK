@@ -421,7 +421,7 @@ int main(int argc, char** argv)
 	if (licError)
 		error(licError,false);
 	solver = new rr_gl::RRSolverGL("../../data/shaders/","../../data/maps/");
-	solver->setScaler(rr::RRColorSpace::createRgbScaler());
+	solver->setScaler(rr::RRColorSpace::create_sRGB());
 
 	// init static scene
 	rr::RRScene scene("../../data/scenes/koupelna/koupelna4.dae");

@@ -562,7 +562,7 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 	unsigned dstbypp = (dstbipp+7)/8;
 
 	// is conversion to sRGB necesasary?
-	rr::RRColorSpace* scaler = (!buffer->getScaled() && fit==FIT_BITMAP) ? rr::RRColorSpace::createRgbScaler() : NULL;
+	rr::RRColorSpace* scaler = (!buffer->getScaled() && fit==FIT_BITMAP) ? rr::RRColorSpace::create_sRGB() : NULL;
 
 	FIBITMAP* dib = FreeImage_AllocateT(fit,buffer->getWidth(),buffer->getHeight(),dstbipp);
 	if (dib)

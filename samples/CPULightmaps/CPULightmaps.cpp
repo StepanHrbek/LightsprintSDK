@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 		error(licError,false);
 	rr::RRSolver* solver = new rr::RRSolver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	rr::RRColorSpace* scaler = rr::RRColorSpace::createRgbScaler();
+	rr::RRColorSpace* scaler = rr::RRColorSpace::create_sRGB();
 	solver->setScaler(scaler);
 
 	// load scene
