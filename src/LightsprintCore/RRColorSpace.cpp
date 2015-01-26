@@ -13,12 +13,9 @@ namespace rr
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRGammaScaler - supports negative values
+// RRGammaScaler
 //
-// With GammaScaler, you may directly work for example with 
-// approximate screen colors.
-// gamma=0.45 approximates screen colors
-// gamma=1 makes no difference
+// Transforms colors with pow() function.
 
 class RRGammaScaler : public RRColorSpace
 {
