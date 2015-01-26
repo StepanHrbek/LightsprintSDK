@@ -229,7 +229,7 @@ namespace rr
 		unsigned getNumElements() const;
 		//! \return Format of buffer, e.g. BF_RGBF.
 		virtual RRBufferFormat getFormat() const = 0;
-		//! \return False when buffer data are in physical (linear) scale, true for data in custom scale (screen colors, sRGB).
+		//! \return True for buffer in custom color space (usually sRGB), false for linear colors.
 		virtual bool getScaled() const = 0;
 		//! \return Size of buffer in bytes, pure buffer size without several fixed bytes of class size.
 		//

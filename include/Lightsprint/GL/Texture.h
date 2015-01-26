@@ -51,7 +51,7 @@ public:
 	//! \param compress
 	//!  Builds compressed texture.
 	//! \param scaledAsSRGB
-	//!  Builds SRGB (rather than RGB) texture for scaled buffers.
+	//!  Builds sRGB (rather than RGB) texture for scaled buffers.
 	void reset(bool buildMipMaps, bool compress, bool scaledAsSRGB);
 	//! Binds texture.
 	void bindTexture() const;
