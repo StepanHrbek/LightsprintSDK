@@ -18,7 +18,7 @@ namespace rr
 	//
 	//! Direct light source, directional/point/spot light with programmable function.
 	//
-	//! Standard point/spot/dir lights with physical, polynomial
+	//! Standard point/spot/dir lights with realistic, polynomial
 	//! or exponential distance attenuations are supported via createXxx functions,
 	//! custom lights with this interface can be created.
 	//!
@@ -212,19 +212,19 @@ namespace rr
 		// Offline rendering interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Irradiance in physical scale, programmable color, distance and spotlight attenuation function.
+		//! Returns irradiance as linear color, implements various attenuation functions.
 		//
 		//! \param receiverPosition
 		//!  Position of point in world space illuminated by this light.
 		//! \param scaler
-		//!  Currently active custom scaler, provided for your convenience.
-		//!  You may compute irradiance directly in physical scale and don't use it,
+		//!  Currently active color space, provided for your convenience.
+		//!  You can compute irradiance directly in linear colors and don't use it,
 		//!  which is the most efficient way,
-		//!  but if you calculate in custom scale, convert your result to physical
-		//!  scale using scaler->toLinear() before returning it.
-		//!  \n Lightsprint calculates internally in physical scale, that's why
-		//!  it's more efficient to expect result in physical scale
-		//!  rather than in screen colors or any other custom scale.
+		//!  but if you calculate in custom color space, convert your result to linear
+		//!  using scaler->toLinear() before returning it.
+		//!  \n Lightsprint calculates internally in linear colors, that's why
+		//!  it's more efficient to expect linear result
+		//!  rather than in screen colors or any other custom color space.
 		//! \return
 		//!  Irradiance at receiverPosition, in physical scale [W/m^2],
 		//!  assuming that receiver is oriented towards light.
