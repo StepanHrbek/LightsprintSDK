@@ -90,7 +90,7 @@ namespace rr
 			//! Validated linear color. Used by GI solvers and our pathtracer.
 			//
 			//! Solver needs it filled, but usually it happens automatically.
-			//! To keep colorLinear synchronized with color, solver calls RRObjects::updateColorPhysical() on incoming objects.
+			//! To keep colorLinear synchronized with color, solver calls RRObjects::updateColorLinear() on incoming objects.
 			//! Only if you modify color already passed to solver, you need to call RRMaterial::convertToLinear() to update colorLinear.
 			RRVec3                 colorLinear;
 			//! Material property expressed as a texture or video.

@@ -553,7 +553,7 @@ namespace rr
 		//! Converts color to colorLinear in all materials.
 		//
 		//! Solver calls it automatically from RRSolver::setStaticObjects() and setDynamicObjects().
-		void updateColorPhysical(const RRColorSpace* scaler) const;
+		void updateColorLinear(const RRColorSpace* scaler) const;
 
 		//! Flips front/back if at least this number of normals in triangle points to back side.
 		//

@@ -316,7 +316,7 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	// convert it to physical scale
 	if (!getScaler())
 		RRReporter::report(WARN,"scaler=NULL, call setScaler() if your data are in sRGB.\n");
-	getStaticObjects().updateColorPhysical(getScaler());
+	getStaticObjects().updateColorLinear(getScaler());
 
 	priv->staticSolverCreationFailed = false;
 
@@ -417,7 +417,7 @@ void RRSolver::setDynamicObjects(const RRObjects& _objects)
 	// convert it to physical scale
 	if (!getScaler())
 		RRReporter::report(WARN,"scaler=NULL, call setScaler() if your data are in sRGB.\n");
-	getDynamicObjects().updateColorPhysical(getScaler());
+	getDynamicObjects().updateColorLinear(getScaler());
 	// invalidate supercollider
 	priv->superColliderDirty = true;
 }
