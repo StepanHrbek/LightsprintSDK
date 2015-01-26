@@ -950,7 +950,14 @@ bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 		return false;
 	}
 	UpdateParameters params = _params ? *_params : UpdateParameters();
-	params.materialEmittanceMultiplier = 0; // this is first gather -> don't gather emitors
+#ifdef FIRST_GATHER_EMI
+	// for high quality settings with emissive textures
+	// 1. first gather lights+env+emi
+#else
+	// for medium/low quality and/or emittance without textures (we do this since rev1417)
+	// 1. first gather lights+env
+	params.materialEmittanceMultiplier = 0;
+#endif
 	if (!gatherPerTrianglePhysical(&params,finalGather,numPostImportTriangles))
 	{
 		delete finalGather;
@@ -958,7 +965,16 @@ bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 	}
 
 	// tmparray -> solver.direct
+#ifdef FIRST_GATHER_EMI
+	// 2. then tell arch solver to fill solver.direct with gathered lights+env+emi
+	priv->scene->illuminationReset(false,true,0,NULL,NULL,finalGather->data[LS_LIGHTMAP]);
+#else
+	// 2. then tell arch solver to fill solver.direct with gathered lights+env and add emi.color from materials
+	//    (arch solver does not yet support sampling from emi textures)
 	priv->scene->illuminationReset(false,true,_params?_params->materialEmittanceMultiplier:1,NULL,NULL,finalGather->data[LS_LIGHTMAP]);
+#endif
+	// 3. later we will calculate solver.indirect from solver.direct
+	// 4. later we will final gather emi from textures and when ray hits dif.surface, we illuminate it with solver.direct+solver.indirect [#41]
 	priv->solutionVersion++;
 	delete finalGather;
 
