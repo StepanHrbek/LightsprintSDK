@@ -16,47 +16,44 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	//  RRScaler
-	//! Interface for physical <-> custom space transformer.
+	//  RRColorSpace
+	//! Interface for custom color space.
 	//
-	//! RRScaler may be used to transform irradiance/emittance/exitance/reflectance/transmittance
-	//! between physical linear W/m^2 space and custom user defined space.
-	//! Without scaler, all inputs/outputs work with specified physical units.
-	//! With appropriate scaler, you may directly work for example with screen colors (sRGB)
-	//! or photometric units.
+	//! All data in Lightsprint SDK are flagged to be either in custom color space
+	//! or in linear colors.
+	//! This class, custom color space, implements conversion to linear colors and back.
 	//!
-	//! For best results, scaler should satisfy following conditions for any x,y,z:
-	//! \n toLinearSpace(x)*toLinearSpace(y)=toLinearSpace(x*y)
-	//! \n toLinearSpace(x*y)*toLinearSpace(z)=toLinearSpace(x)*toLinearSpace(y*z)
-	//! \n toCustomSpace is inverse of toLinear
+	//! If you work with the most common format, sRGB, use create_sRGB().
 	//!
-	//! When implementing your own scaler, double check you don't generate NaNs or INFs,
-	//! for negative inputs.
+	//! If your pipeline works with linear colors, just pass NULL where API needs color space.
 	//!
-	//! Contains built-in support for screen colors / sRGB, see createRgbScaler().
+	//! For other color spaces, you can implement your own RRColorSpace.
+	//! Please make sure that your code doesn't generate NaNs or INFs for negative inputs.
+	//! Custom color spaces are fully supported by realtime solvers, lightmap baking and pathtracer,
+	//! but not yet by OpenGL renderer, it has sRGB conversion hardcoded in shaders.
 	//
 	//////////////////////////////////////////////////////////////////////////////
 
-	class RR_API RRScaler : public RRUniformlyAllocated
+	class RR_API RRColorSpace : public RRUniformlyAllocated
 	{
 	public:
 		//////////////////////////////////////////////////////////////////////////////
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Converts value from linear space to custom color space.
+		//! Converts value from linear space.
 		virtual void toCustomSpace(RRReal& value) const = 0;
-		//! Converts value from linear space to custom color space.
+		//! Converts value from linear space.
 		virtual void toCustomSpace(RRVec3& value) const = 0;
 
-		//! Converts value from custom color space to linear space.
+		//! Converts value to linear space.
 		virtual void toLinearSpace(RRReal& value) const = 0;
-		//! Converts value from custom color space to linear space.
+		//! Converts value to linear space.
 		virtual void toLinearSpace(RRVec3& value) const = 0;
-		//! Converts value from custom color space to linear space.
+		//! Converts value to linear space.
 		virtual RRVec3 getLinearSpace(const unsigned char rgb[3]) const = 0;
 
-		virtual ~RRScaler() {}
+		virtual ~RRColorSpace() {}
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -73,11 +70,11 @@ namespace rr
 		//! \param power
 		//!  Exponent in formula screenSpace = physicalSpace^power.
 		//!  Use default value for typical screens or tweak it for different contrast.
-		static RRScaler* createRgbScaler(RRReal power=0.45f);
+		static RRColorSpace* createRgbScaler(RRReal power=0.45f);
 
 		//! As createRgbScaler(), but slightly faster, with undefined results for negative numbers.
 		//! Be cautious and fall back to createRgbScaler() in case you find regression.
-		static RRScaler* createFastRgbScaler(RRReal power=0.45f);
+		static RRColorSpace* createFastRgbScaler(RRReal power=0.45f);
 	};
 
 
@@ -217,7 +214,7 @@ namespace rr
 		//
 		//! Index is index into array of all elements, x+y*width+z*width*height.
 		//! \n Not mandatory, implementation may be empty.
-		virtual void setElement(unsigned index, const RRVec4& element, const RRScaler* scaler);
+		virtual void setElement(unsigned index, const RRVec4& element, const RRColorSpace* scaler);
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -252,7 +249,7 @@ namespace rr
 		//!  Out of range indices are reported as error.
 		//! \param scaler
 		//!  If NULL, color is returned in native color space. With scaler set, RGB is returned in linear space, alpha in native space.
-		virtual RRVec4 getElement(unsigned index, const RRScaler* scaler) const;
+		virtual RRVec4 getElement(unsigned index, const RRColorSpace* scaler) const;
 		//! Returns value addressed by given float coordinates.
 		//
 		//! \param position
@@ -262,7 +259,7 @@ namespace rr
 		//!  If NULL, color is returned in native color space. With scaler set, RGB is returned in linear space, alpha in native space.
 		//! \param interpolated
 		//!  Switches from nearest element selection to linear interpolation of 4 elements.
-		virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRScaler* scaler, bool interpolated) const;
+		virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* scaler, bool interpolated) const;
 		//! Returns environment sample addressed by given direction (not necessarily normalized).
 		//
 		//! \param direction
@@ -271,7 +268,7 @@ namespace rr
 		//!  Cube texture is interpreted as standard cube.
 		//! \param scaler
 		//!  If NULL, color is returned in native color space. With scaler set, RGB is returned in linear space, alpha in native space.
-		virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRScaler* scaler) const;
+		virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* scaler) const;
 		//! Locks the buffer for accessing array of all elements at once. Not mandatory, may return NULL.
 		//
 		//! Behaviour of lock is not defined when buffer is already locked.
@@ -347,7 +344,7 @@ namespace rr
 
 		//! Creates copy of buffer. Copy is located in system memory and is completely separated, both buffers may contain different data. Copy of video contains single frame.
 		RRBuffer* createCopy();
-		RRBuffer* createCopy(RRBufferFormat format, bool scaled, const RRScaler* scaler) const;
+		RRBuffer* createCopy(RRBufferFormat format, bool scaled, const RRColorSpace* scaler) const;
 		//! Copies contents of buffer. Destination buffer format and scale are preserved, data are converted as necessary.
 		//
 		//! \param destination
@@ -355,7 +352,7 @@ namespace rr
 		//! \param scaler
 		//!  Scaler used if buffers differ in scale. May be NULL for no conversion.
 		//! \return True on success.
-		bool copyElementsTo(RRBuffer* destination, const RRScaler* scaler) const;
+		bool copyElementsTo(RRBuffer* destination, const RRColorSpace* scaler) const;
 
 		//! Creates cube texture with specified colors of upper and lower hemisphere.
 		//

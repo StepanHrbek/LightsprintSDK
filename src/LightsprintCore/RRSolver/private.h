@@ -59,7 +59,7 @@ namespace rr
 		const unsigned* customIrradianceRGBA8; // NULL or array of getMultiObject()->getCollider()->getMesh()->getNumTriangles() elements
 
 		// scale: inputs
-		const RRScaler*  scaler;
+		const RRColorSpace*  scaler;
 		RRReal     lightMultiplier;
 		// scale: function of inputs
 		RRReal     customToPhysical[256];

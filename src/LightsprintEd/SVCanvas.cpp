@@ -295,7 +295,7 @@ void SVCanvas::createContextCore()
 	// init solver
 	solver = new rr_gl::RRSolverGL(RR_WX2RR(svs.pathToShaders), RR_WX2RR(svs.pathToMaps));
 	textureRenderer = solver->getRenderer()->getTextureRenderer();
-	solver->setScaler(rr::RRScaler::createRgbScaler());
+	solver->setScaler(rr::RRColorSpace::createRgbScaler());
 	if (svs.initialInputSolver)
 	{
 		delete solver->getScaler();

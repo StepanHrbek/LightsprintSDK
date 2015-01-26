@@ -261,7 +261,7 @@ void RRObjects::getAllMaterials(RRMaterials& materials) const
 			materials.push_back(*i);
 }
 
-void RRObjects::updateColorPhysical(const RRScaler* scaler) const
+void RRObjects::updateColorPhysical(const RRColorSpace* scaler) const
 {
 	typedef std::unordered_set<RRMaterial*> Set;
 	Set set;

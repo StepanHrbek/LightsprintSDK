@@ -170,7 +170,7 @@ namespace rr
 		//!  For valid inputs, illumination level is stored here. For invalid inputs, nothing is changed.
 		//! \return
 		//!  True if out was successfully filled. False may be caused by invalid inputs.
-		bool          getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const;
+		bool          getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRColorSpace* scaler, RRVec3& out) const;
 
 		//! Build Fireball. For internal use by RRSolver::buildFireball().
 		const class PackedSolverFile* buildFireball(unsigned raysPerTriangle, float importanceOfDetails, bool& aborting);

@@ -60,7 +60,7 @@ namespace rr
 		//! Set scaler used by this scene i/o operations.
 		//
 		//! It switches solver inputs and outputs from physical scale to custom scale defined by scaler,
-		//! e.g. screen colors. See RRScaler for details.
+		//! e.g. screen colors. See RRColorSpace for details.
 		//!
 		//! In 99% of cases you want to set scaler before using solver as nearly all
 		//! existing renderers and datasets use sRGB or other custom scale.
@@ -70,10 +70,10 @@ namespace rr
 		//!  It will be used by all data input and output paths in RRSolver, if not specified otherwise.
 		//!  Note that scaler is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.
-		virtual void setScaler(const RRScaler* scaler);
+		virtual void setScaler(const RRColorSpace* scaler);
 
 		//! Returns scaler used by this scene i/o operations, set by setScaler().
-		const RRScaler* getScaler() const;
+		const RRColorSpace* getScaler() const;
 
 
 		//! Sets environment around scene.

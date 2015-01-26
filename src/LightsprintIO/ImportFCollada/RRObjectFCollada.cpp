@@ -542,7 +542,7 @@ private:
 		material.name = effectStandard->GetParent()->GetName().c_str();
 
 		// get average colors from textures
-		RRScaler* scaler = RRScaler::createRgbScaler();
+		RRColorSpace* scaler = RRColorSpace::createRgbScaler();
 		material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE,true);
 		delete scaler;
 

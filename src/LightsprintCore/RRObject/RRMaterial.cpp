@@ -166,7 +166,7 @@ void RRMaterial::reset(bool twoSided)
 // When working with non-physical scale data, provide scaler for correct results.
 // Without scaler, mean would be a bit darker,
 //  triangle materials based on mean would produce darker lightmaps than point materials.
-RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& average)
+RRVec4 getVariance(const RRBuffer* buffer, const RRColorSpace* scaler, RRVec4& average)
 {
 	RR_ASSERT(buffer);
 	if (buffer->getDuration())
@@ -215,7 +215,7 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRScaler* scaler, RRVec4& avera
 
 // extract mean and variance from buffer
 // convert mean to color, variance to scalar
-RRReal getVariance(const RRBuffer* _buffer, const RRScaler* _scaler, RRVec3& _average, bool _isTransmittanceInAlpha)
+RRReal getVariance(const RRBuffer* _buffer, const RRColorSpace* _scaler, RRVec3& _average, bool _isTransmittanceInAlpha)
 {
 	RRVec4 average;
 	RRVec4 variance = getVariance(_buffer,_scaler,average);
@@ -244,7 +244,7 @@ void RRMaterial::Property::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 	}
 }
 
-RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub)
+RRReal RRMaterial::Property::updateColorFromTexture(const RRColorSpace* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub)
 {
 	if (texture && (updateEvenFromStub || !texture->isStub()))
 	{
@@ -264,7 +264,7 @@ RRReal RRMaterial::Property::updateColorFromTexture(const RRScaler* scaler, bool
 	return 0;
 }
 
-void RRMaterial::updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs)
+void RRMaterial::updateColorsFromTextures(const RRColorSpace* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs)
 {
 	float variance = 0;
 	variance = RR_MAX(variance, 3 * specularTransmittance.updateColorFromTexture(scaler,specularTransmittanceInAlpha,uniformTextureAction,updateEvenFromStubs));
@@ -476,7 +476,7 @@ bool RRMaterial::validate(RRReal redistributedPhotonsLimit)
 	return changed;
 }
 
-void RRMaterial::convertToCustomScale(const RRScaler* scaler)
+void RRMaterial::convertToCustomScale(const RRColorSpace* scaler)
 {
 	if (scaler)
 	{
@@ -488,7 +488,7 @@ void RRMaterial::convertToCustomScale(const RRScaler* scaler)
 	validate();
 }
 
-void RRMaterial::convertToPhysicalScale(const RRScaler* scaler)
+void RRMaterial::convertToPhysicalScale(const RRColorSpace* scaler)
 {
 	if (scaler)
 	{

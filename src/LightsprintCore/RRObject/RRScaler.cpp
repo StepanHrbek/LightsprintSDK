@@ -20,7 +20,7 @@ namespace rr
 // gamma=0.45 approximates screen colors
 // gamma=1 makes no difference
 
-class RRGammaScaler : public RRScaler
+class RRGammaScaler : public RRColorSpace
 {
 public:
 	RRGammaScaler(RRReal agamma)
@@ -86,7 +86,7 @@ protected:
 // RRFastGammaScaler - returns NaN for negative values
 //
 
-class RRFastGammaScaler : public RRScaler
+class RRFastGammaScaler : public RRColorSpace
 {
 public:
 	RRFastGammaScaler(RRReal agamma)
@@ -149,14 +149,14 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRScaler
+// RRColorSpace
 
-RRScaler* RRScaler::createRgbScaler(RRReal power)
+RRColorSpace* RRColorSpace::createRgbScaler(RRReal power)
 {
 	return new RRGammaScaler(power);
 }
 
-RRScaler* RRScaler::createFastRgbScaler(RRReal power)
+RRColorSpace* RRColorSpace::createFastRgbScaler(RRReal power)
 {
 	return new RRFastGammaScaler(power);
 }

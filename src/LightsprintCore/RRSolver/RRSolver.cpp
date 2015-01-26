@@ -125,7 +125,7 @@ RRSolver::~RRSolver()
 	delete priv;
 }
 
-void RRSolver::setScaler(const RRScaler* _scaler)
+void RRSolver::setScaler(const RRColorSpace* _scaler)
 {
 	priv->scaler = _scaler;
 	// priv->lightMultiplier is in physical scale, but we need it in custom
@@ -142,7 +142,7 @@ void RRSolver::setScaler(const RRScaler* _scaler)
 	reportDirectIlluminationChange(-1,false,true,false);
 }
 
-const RRScaler* RRSolver::getScaler() const
+const RRColorSpace* RRSolver::getScaler() const
 {
 	return priv->scaler;
 }

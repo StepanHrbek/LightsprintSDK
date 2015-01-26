@@ -8,7 +8,7 @@
 //! All rights reserved
 //////////////////////////////////////////////////////////////////////////////
 
-#include "RRLight.h" // RRScaler
+#include "RRLight.h" // RRColorSpace
 #include "RRBuffer.h"
 
 namespace rr
@@ -33,7 +33,7 @@ namespace rr
 		RRRadiometricMeasure(bool aexiting, bool ascaled, bool aflux, bool adirect, bool aindirect)
 			: exiting(aexiting), scaled(ascaled), flux(aflux), direct(adirect), indirect(aindirect), smoothed(1) {};
 		bool exiting : 1; ///< Selects between [0] incoming radiation (does not include emittance) and [1] exiting radiation (includes emittance). \n Typical setting: 0.
-		bool scaled  : 1; ///< Selects between [0] physical scale (W) and [1] custom scale provided by RRScaler. \n Typical setting: 1.
+		bool scaled  : 1; ///< Selects between [0] physical scale (W) and [1] custom scale provided by RRColorSpace. \n Typical setting: 1.
 		bool flux    : 1; ///< Selects between [0] radiant intensity (W/m^2) and [1] radiant flux (W). \n Typical setting: 0.
 		bool direct  : 1; ///< Makes direct radiation and emittance (your inputs) part of result. \n Typical setting: 0.
 		bool indirect: 1; ///< Makes indirect radiation (computed) part of result. \n Typical setting: 1.
@@ -115,7 +115,7 @@ namespace rr
 			//! Both color and texture are changed. 8bit texture may be changed to floats to avoid clamping.
 			void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
 			//! If texture exists, updates color to average color in texture and returns standard deviation of color in texture.
-			RRReal updateColorFromTexture(const RRScaler* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub);
+			RRReal updateColorFromTexture(const RRColorSpace* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub);
 			//! If texture does not exist, creates 1x1 stub texture from color. Returns number of textures created, 0 or 1.
 			unsigned createTextureFromColor(bool isTransmittance);
 			//! Returns true if both properties are identical (including using the same texture).
@@ -170,7 +170,7 @@ namespace rr
 		//! \param updateEvenFromStubs
 		//!  True=updates color even if texture is a stub. Pass true if you don't know color; stub texture is also wrong, but at least they will match.
 		//!  Pass false if you know color and don't want it to be overwritten by stub.
-		void          updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs);
+		void          updateColorsFromTextures(const RRColorSpace* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs);
 		//! Creates stub 1x1 textures for properties without texture.
 		//
 		//! LightsprintCore fully supports materials without textures, and working with flat colors instead of textures is faster.
@@ -197,9 +197,9 @@ namespace rr
 		bool          validate(RRReal redistributedPhotonsLimit=0.98f);
 
 		//! Converts material properties from physical to custom scale (colorPhysical -> color).
-		void          convertToCustomScale(const RRScaler* scaler);
+		void          convertToCustomScale(const RRColorSpace* scaler);
 		//! Converts material properties from custom to physical scale (color -> colorPhysical).
-		void          convertToPhysicalScale(const RRScaler* scaler);
+		void          convertToPhysicalScale(const RRColorSpace* scaler);
 
 		//! True if renderer needs blending to render the material.
 		bool          needsBlending() const;
@@ -350,7 +350,7 @@ namespace rr
 	private:
 		// Ensures that respective RRMaterial functions are not called.
 		void copyFrom(const RRMaterial& from) {}
-		void updateColorsFromTextures(const RRScaler* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs) {}
+		void updateColorsFromTextures(const RRColorSpace* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs) {}
 		unsigned createTexturesFromColors() {return 0;}
 	};
 

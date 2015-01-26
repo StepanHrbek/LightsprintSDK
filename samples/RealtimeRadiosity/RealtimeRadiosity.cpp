@@ -421,7 +421,7 @@ int main(int argc, char** argv)
 		error(licError,false);
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	solver->setScaler(rr::RRScaler::createRgbScaler());
+	solver->setScaler(rr::RRColorSpace::createRgbScaler());
 	solver->setStaticObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
 	solver->setEnvironment(environmentMap);
 	if (!solver->getMultiObject())

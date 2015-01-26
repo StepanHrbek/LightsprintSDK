@@ -36,24 +36,24 @@ unsigned RRBuffer::getNumElements() const
 	return getWidth()*getHeight()*getDepth();
 }
 
-void RRBuffer::setElement(unsigned index, const RRVec4& element, const RRScaler* scaler)
+void RRBuffer::setElement(unsigned index, const RRVec4& element, const RRColorSpace* scaler)
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::setElement() called.\n"));
 }
 
-RRVec4 RRBuffer::getElement(unsigned index, const RRScaler* scaler) const
+RRVec4 RRBuffer::getElement(unsigned index, const RRColorSpace* scaler) const
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElement() called.\n"));
 	return RRVec4(0);
 }
 
-RRVec4 RRBuffer::getElementAtPosition(const RRVec3& coord, const RRScaler* scaler, bool interpolated) const
+RRVec4 RRBuffer::getElementAtPosition(const RRVec3& coord, const RRColorSpace* scaler, bool interpolated) const
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElementAtPosition() called.\n"));
 	return RRVec4(0);
 }
 
-RRVec4 RRBuffer::getElementAtDirection(const RRVec3& dir, const RRScaler* scaler) const
+RRVec4 RRBuffer::getElementAtDirection(const RRVec3& dir, const RRColorSpace* scaler) const
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElementAtDirection() called.\n"));
 	return RRVec4(0);
@@ -83,14 +83,14 @@ RRBuffer* RRBuffer::createCopy()
 	return copy;
 }
 
-RRBuffer* RRBuffer::createCopy(RRBufferFormat _format, bool _scaled, const RRScaler* _scaler) const
+RRBuffer* RRBuffer::createCopy(RRBufferFormat _format, bool _scaled, const RRColorSpace* _scaler) const
 {
 	RRBuffer* copy = RRBuffer::create(getType(),getWidth(),getHeight(),getDepth(),_format,_scaled,NULL);
 	copyElementsTo(copy,_scaler);
 	return copy;
 }
 
-bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRScaler* scaler) const
+bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRColorSpace* scaler) const
 {
 	const RRBuffer* source = this; 
 	if (!source || !destination)
@@ -107,8 +107,8 @@ bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRScaler* scaler) con
 		return false;
 	}
 	unsigned size = w*h*d;
-	const RRScaler* toCust = (!source->getScaled() && destination->getScaled()) ? scaler : NULL;
-	const RRScaler* toPhys = (source->getScaled() && !destination->getScaled()) ? scaler : NULL;
+	const RRColorSpace* toCust = (!source->getScaled() && destination->getScaled()) ? scaler : NULL;
+	const RRColorSpace* toPhys = (source->getScaled() && !destination->getScaled()) ? scaler : NULL;
 	for (unsigned i=0;i<size;i++)
 	{
 		RRVec4 color = source->getElement(i,NULL);

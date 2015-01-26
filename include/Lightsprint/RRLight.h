@@ -230,7 +230,7 @@ namespace rr
 		//!  assuming that receiver is oriented towards light.
 		//!  Lights must return finite number, even when lighting model
 		//!  predicts infinite number (some types of attenuation + zero distance).
-		virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const;
+		virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRColorSpace* scaler) const;
 
 
 		//////////////////////////////////////////////////////////////////////////////

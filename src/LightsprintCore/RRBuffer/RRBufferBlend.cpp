@@ -39,7 +39,7 @@ RRBufferBlend::RRBufferBlend(const RRBuffer* _environment0, const RRBuffer* _env
 	blendFactor = _blendFactor;
 }
 
-RRVec4 RRBufferBlend::getElementAtDirection(const RRVec3& direction, const RRScaler* scaler) const
+RRVec4 RRBufferBlend::getElementAtDirection(const RRVec3& direction, const RRColorSpace* scaler) const
 {
 	RRVec3 direction0 = direction;
 	RRVec3 direction1 = direction;

@@ -187,7 +187,7 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 	const RRBuffer* environment0 = getEnvironment(0);
 	const RRBuffer* environment1 = getEnvironment(1);
 	float blendFactor = getEnvironmentBlendFactor();
-	const RRScaler* scalerForReadingEnv = getScaler();
+	const RRColorSpace* scalerForReadingEnv = getScaler();
 	unsigned gatherSize = reflectionEnvMap->getWidth();
 	unsigned numTriangles = getMultiObject() ? getMultiObject()->getCollider()->getMesh()->getNumTriangles() : 0;
 
@@ -339,9 +339,9 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 // thread safe: yes
 // converts triangle numbers to float exitance in physical scale
 #ifdef RR_DEVELOPMET
-static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const unsigned* customIrradianceRGBA8, const RRReal* customToPhysical, const RRObject* multiObject, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const unsigned* customIrradianceRGBA8, const RRReal* customToPhysical, const RRObject* multiObject, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRColorSpace* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 #else
-static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRScaler* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRColorSpace* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 #endif
 {
 	if (!scene && !packedSolver && !environment0)
@@ -425,7 +425,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 // main
 
 // returns number of buffers updated
-static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const RRScaler* scaler, RRBuffer* buffer)
+static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const RRColorSpace* scaler, RRBuffer* buffer)
 {
 	RR_ASSERT(gatheredExitance);
 	if (!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;

@@ -151,7 +151,7 @@ namespace rr
 		//!  Makes texture reads interpolated.
 		//! \param out
 		//!  Undefined on input, function fills it with material for requested point.
-		virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRScaler* scaler, bool interpolated, RRPointMaterial& out) const;
+		virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* scaler, bool interpolated, RRPointMaterial& out) const;
 
 		//! Information about single object, its place in hierarchy of LODs.
 		//
@@ -553,7 +553,7 @@ namespace rr
 		//! Converts color to colorPhysical in all materials.
 		//
 		//! Solver calls it automatically from RRSolver::setStaticObjects() and setDynamicObjects().
-		void updateColorPhysical(const RRScaler* scaler) const;
+		void updateColorPhysical(const RRColorSpace* scaler) const;
 
 		//! Flips front/back if at least this number of normals in triangle points to back side.
 		//

@@ -23,7 +23,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	extern rr_gl::RRSolverGL::DDIQuality lightStability;
 	solver = new rr_gl::RRSolverGL("shaders/","maps/",lightStability);
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	solver->setScaler(rr::RRScaler::createFastRgbScaler());
+	solver->setScaler(rr::RRColorSpace::createFastRgbScaler());
 	solver->setEnvironment(skyMap);
 
 	scene = new rr::RRScene(setup->filename);

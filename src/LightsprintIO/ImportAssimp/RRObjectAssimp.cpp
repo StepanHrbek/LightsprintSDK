@@ -198,7 +198,7 @@ public:
 
 			// get average colors from textures
 			{
-				RRScaler* scaler = RRScaler::createRgbScaler();
+				RRColorSpace* scaler = RRColorSpace::createRgbScaler();
 				material.updateColorsFromTextures(scaler,RRMaterial::UTA_NULL,true);
 				delete scaler;
 			}

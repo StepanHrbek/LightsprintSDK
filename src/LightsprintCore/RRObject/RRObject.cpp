@@ -188,7 +188,7 @@ void RRObject::updateFaceGroupsFromTriangleMaterials()
 
 // Expects material prefilled with getTriangleMaterial(), both color and colorPhysical.
 // Updates color and (if scaler!=NULL) colorPhysical for properties with texture.
-static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, const RRScaler* scaler, bool interpolated, RRPointMaterial& material)
+static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, const RRColorSpace* scaler, bool interpolated, RRPointMaterial& material)
 {
 	// Make color (and possibly also colorPhysical) more accurate using textures.
 	if (material.diffuseEmittance.texture)
@@ -275,7 +275,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 	}
 }
 
-void RRObject::getPointMaterial(unsigned t, RRVec2 uv, const RRScaler* scaler, bool interpolated, RRPointMaterial& material) const
+void RRObject::getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* scaler, bool interpolated, RRPointMaterial& material) const
 {
 	// Material is undefined on input, fill it with per-triangle quality first.
 	const RRMaterial* perTriangleMaterial = getTriangleMaterial(t,NULL,NULL);

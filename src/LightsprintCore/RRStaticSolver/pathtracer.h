@@ -34,7 +34,7 @@ class RRCollisionHandlerFinalGathering : public RRCollisionHandler
 {
 public:
 	COLLISION_LOG(std::stringstream log);
-	RRCollisionHandlerFinalGathering(const RRScaler* _scaler, unsigned _qualityForPointMaterials, unsigned _qualityForInterpolation, bool _staticSceneContainsLods)
+	RRCollisionHandlerFinalGathering(const RRColorSpace* _scaler, unsigned _qualityForPointMaterials, unsigned _qualityForInterpolation, bool _staticSceneContainsLods)
 	{
 		scaler = _scaler;
 		qualityForPointMaterials = _qualityForPointMaterials;
@@ -265,7 +265,7 @@ public:
 
 private:
 	RRObject::LodInfo shooterLod;
-	const RRScaler* scaler;
+	const RRColorSpace* scaler;
 	unsigned qualityForPointMaterials; // 0 to forbid point details, more = use point details more often, UINT_MAX = always
 	unsigned qualityForInterpolation;
 	bool staticSceneContainsLods;
@@ -302,7 +302,7 @@ public:
 	~PathtracerJob();
 	
 	const RRSolver* solver;
-	const RRScaler* scaler;
+	const RRColorSpace* scaler;
 	const RRBuffer* environment; // blend of two rotated solver environments
 	const RRCollider* collider;
 

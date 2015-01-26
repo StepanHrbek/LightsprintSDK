@@ -332,7 +332,7 @@ const RRLight& RRLight::operator=(const RRLight& a)
 	return *this;
 }
 
-RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRScaler* scaler) const
+RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRColorSpace* scaler) const
 {
 	RR_ASSERT(IS_VEC3(color));
 

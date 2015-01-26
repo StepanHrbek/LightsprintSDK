@@ -201,7 +201,7 @@ public:
 
 		// solvers work with multipliers in linear space, convert them to srgb for rendering
 		rr::RRSolver::Multipliers multipliers = pp.multipliers;
-		const rr::RRScaler* scaler = pp.solver ? pp.solver->getScaler() : NULL; // selection plugin call scene with solver=NULL
+		const rr::RRColorSpace* scaler = pp.solver ? pp.solver->getScaler() : NULL; // selection plugin call scene with solver=NULL
 		if (scaler)
 		{
 			scaler->toCustomSpace(multipliers.lightMultiplier);

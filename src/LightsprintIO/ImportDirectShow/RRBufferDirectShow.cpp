@@ -272,7 +272,7 @@ public:
 
 	// --------- element access ---------
 
-	virtual void setElement(unsigned index, const RRVec4& _element, const RRScaler* scaler)
+	virtual void setElement(unsigned index, const RRVec4& _element, const RRColorSpace* scaler)
 	{
 		if (index>=width*height)
 		{
@@ -287,7 +287,7 @@ public:
 		front[3*index+2] = RR_FLOAT2BYTE(element[0]);
 		version++;
 	}
-	virtual RRVec4 getElement(unsigned index, const RRScaler* scaler) const
+	virtual RRVec4 getElement(unsigned index, const RRColorSpace* scaler) const
 	{
 		if (index>=width*height)
 		{
@@ -303,11 +303,11 @@ public:
 			scaler->toLinearSpace(result);
 		return result;
 	}
-	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRScaler* scaler, bool interpolated) const
+	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* scaler, bool interpolated) const
 	{
 		return getElement(((unsigned)(position[0]*width)%width) + ((unsigned)(position[1]*height)%height) * width, scaler);
 	}
-	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRScaler* scaler) const
+	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* scaler) const
 	{
 		// 360*180 degree panorama (equirectangular projection)
 		unsigned index = ((unsigned)( (asin(direction.y/direction.length())*(1.0f/RR_PI)+0.5f) * height) % height) * width;

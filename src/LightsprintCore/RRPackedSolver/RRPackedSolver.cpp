@@ -302,7 +302,7 @@ RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolve
 //! inoutVersion serves as a cache.
 //! Optimized for simplicity, can be made faster later.
 //! Returns 0 if exitance did not change, 1 if it did.
-static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQuality, unsigned inVideoQuality, const RRScaler* inScaler, RRVec3 inoutPatchExitancesPhysical[PackedSkyTriangleFactor::NUM_PATCHES], unsigned& inoutSkyVersion)
+static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQuality, unsigned inVideoQuality, const RRColorSpace* inScaler, RRVec3 inoutPatchExitancesPhysical[PackedSkyTriangleFactor::NUM_PATCHES], unsigned& inoutSkyVersion)
 {
 	bool isVideo = inSky && inSky->getDuration();
 	unsigned quality = isVideo ? inVideoQuality : inStaticQuality;
@@ -349,7 +349,7 @@ static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQ
 	return 1;
 }
 
-bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffer* _environment1, float _environmentMultiplier, unsigned _environmentStaticQuality, unsigned _environmentVideoQuality, float _environmentBlendFactor, const RRScaler* _scaler)
+bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffer* _environment1, float _environmentMultiplier, unsigned _environmentStaticQuality, unsigned _environmentVideoQuality, float _environmentBlendFactor, const RRColorSpace* _scaler)
 {
 	// convert environment to 13 patches, remember them
 	unsigned numChanges = 
@@ -377,7 +377,7 @@ bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffe
 	return true;
 }
 
-bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, float _materialEmittanceMultiplier, unsigned _materialEmittanceStaticQuality, unsigned _materialEmittanceVideoQuality, bool _materialEmittanceUsePointMaterials, const RRScaler* _scaler)
+bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, float _materialEmittanceMultiplier, unsigned _materialEmittanceStaticQuality, unsigned _materialEmittanceVideoQuality, bool _materialEmittanceUsePointMaterials, const RRColorSpace* _scaler)
 {
 	// 0 = do no work
 	if (!_materialEmittanceStaticQuality && !_materialEmittanceVideoQuality)
@@ -653,7 +653,7 @@ RRVec3 RRPackedSolver::getPointIrradianceIndirect(unsigned triangle, const RRVec
 		+ nullToBlack(getTriangleIrradianceIndirect(triangle,2))*uv[1];
 }
 
-bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const
+bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRColorSpace* scaler, RRVec3& out) const
 {
 	RRVec3 irrad;
 

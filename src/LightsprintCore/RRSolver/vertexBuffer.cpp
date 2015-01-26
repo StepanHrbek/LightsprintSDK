@@ -262,7 +262,7 @@ unsigned RRSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned object
 		RR_ASSERT(0);
 		return 0;
 	}
-	const RRScaler* scaler = (vertexBuffer->getScaled() && allowScaling) ? priv->scaler : NULL;
+	const RRColorSpace* scaler = (vertexBuffer->getScaled() && allowScaling) ? priv->scaler : NULL;
 	unsigned numPostImportVertices = getStaticObjects()[objectHandle]->getCollider()->getMesh()->getNumVertices();
 	// load measure into each preImportVertex
 #pragma omp parallel for schedule(static)

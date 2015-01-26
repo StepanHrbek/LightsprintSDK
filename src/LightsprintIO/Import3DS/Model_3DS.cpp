@@ -571,7 +571,7 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	free(opacityName);
 
 	// get average colors from textures
-	rr::RRScaler* scaler = rr::RRScaler::createFastRgbScaler();
+	rr::RRColorSpace* scaler = rr::RRColorSpace::createFastRgbScaler();
 	Materials[matindex].updateColorsFromTextures(scaler,rr::RRMaterial::UTA_DELETE,true);
 	delete scaler;
 
@@ -767,7 +767,7 @@ char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial:
 	materialProperty.texcoord = 0;
 	if (materialProperty.texture)
 	{
-		rr::RRScaler* scaler = rr::RRScaler::createFastRgbScaler();
+		rr::RRColorSpace* scaler = rr::RRColorSpace::createFastRgbScaler();
 		materialProperty.updateColorFromTexture(scaler,false,rr::RRMaterial::UTA_DELETE,true);
 		delete scaler;
 	}

@@ -219,7 +219,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	return true;
 }
 
-void RRBufferInMemory::setElement(unsigned index, const RRVec4& _element, const RRScaler* scaler)
+void RRBufferInMemory::setElement(unsigned index, const RRVec4& _element, const RRColorSpace* scaler)
 {
 	if (!data)
 	{
@@ -277,7 +277,7 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& _element, const 
 	version++;
 }
 
-RRVec4 RRBufferInMemory::getElement(unsigned index, const RRScaler* scaler) const
+RRVec4 RRBufferInMemory::getElement(unsigned index, const RRColorSpace* scaler) const
 {
 	if (!data)
 	{
@@ -360,7 +360,7 @@ static float jitter()
 //	return (rand()-RAND_MAX/2)*(1.0f/RAND_MAX);
 }
 
-RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRScaler* scaler, bool _interpolated) const
+RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRColorSpace* scaler, bool _interpolated) const
 {
 	if (!_interpolated)
 	{
@@ -398,7 +398,7 @@ RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRS
 	}
 }
 
-RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction, const RRScaler* scaler) const
+RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction, const RRColorSpace* scaler) const
 {
 	unsigned coord[3];
 	switch(type)

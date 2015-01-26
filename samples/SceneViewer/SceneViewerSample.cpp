@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 
 	// Send scene to GI solver
 	rr::RRSolver* solver = new rr::RRSolver();
-	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
+	solver->setScaler(rr::RRColorSpace::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setStaticObjects(scene.objects,NULL);
 	solver->setDynamicObjects(scene.objects);
 	solver->setLights(scene.lights);

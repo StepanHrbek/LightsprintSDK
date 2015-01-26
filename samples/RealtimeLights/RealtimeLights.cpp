@@ -361,7 +361,7 @@ int main(int argc, char** argv)
 	if (licError)
 		error(licError,false);
 	solver = new rr_gl::RRSolverGL("../../data/shaders/","../../data/maps/");
-	solver->setScaler(rr::RRScaler::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
+	solver->setScaler(rr::RRColorSpace::createRgbScaler()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 
 	// load static scene
 	rr::RRScene staticScene("../../data/scenes/koupelna/koupelna4.dae");

@@ -152,7 +152,7 @@ RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle
 	return ivertex->getVertexDataFromTriangleData(questionedTriangle,questionedVertex012,perTriangleData,stride,scene->object->triangle,scene->object->triangles);
 }
 
-bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRScaler* scaler, RRVec3& out) const
+bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRColorSpace* scaler, RRVec3& out) const
 {
 	Channels irrad;
 	Object* obj;
