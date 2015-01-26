@@ -41,16 +41,16 @@ namespace rr
 		// Interface
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Converts value from linear space.
+		//! Converts from linear intensity.
 		virtual void fromLinear(RRReal& value) const = 0;
-		//! Converts value from linear space.
+		//! Converts from linear color.
 		virtual void fromLinear(RRVec3& value) const = 0;
 
-		//! Converts value to linear space.
+		//! Converts to linear intensity.
 		virtual void toLinear(RRReal& value) const = 0;
-		//! Converts value to linear space.
+		//! Converts to linear color.
 		virtual void toLinear(RRVec3& value) const = 0;
-		//! Converts value to linear space.
+		//! Converts to linear color.
 		virtual RRVec3 getLinearSpace(const unsigned char rgb[3]) const = 0;
 
 		virtual ~RRColorSpace() {}
