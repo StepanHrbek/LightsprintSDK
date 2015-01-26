@@ -224,7 +224,7 @@ void display(void)
 	if (solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = solver->getSolutionVersion();
-		solver->updateLightmaps(LAYER_AMBIENT_MAP,-1,-1,NULL,NULL,NULL);
+		solver->updateLightmaps(LAYER_AMBIENT_MAP,-1,-1,NULL,NULL);
 	}
 
 	// render

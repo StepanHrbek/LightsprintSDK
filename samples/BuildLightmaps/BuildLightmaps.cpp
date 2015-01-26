@@ -566,7 +566,7 @@ int main(int argc, char** argv)
 
 		// calculate indirect illumination in solver
 		rr::RRSolver::UpdateParameters updateParameters(globalParameters.buildQuality);
-		solver->updateLightmaps(-1,-1,-1,NULL,&updateParameters,NULL);
+		solver->updateLightmaps(-1,-1,-1,&updateParameters,NULL);
 		updateParameters.useCurrentSolution = true;
 		updateParameters.aoIntensity = globalParameters.aoIntensity;
 		updateParameters.aoSize = globalParameters.aoSize;
@@ -604,7 +604,6 @@ int main(int argc, char** argv)
 				LAYER_DIRECTIONAL1,
 				LAYER_BENT_NORMALS,
 				&updateParameters,
-				NULL,
 				NULL);
 
 			for (unsigned objectIndex=0;objectIndex<scene.objects.size();objectIndex++)

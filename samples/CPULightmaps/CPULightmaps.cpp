@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 	rr::RRSolver::UpdateParameters params(1000);
 	params.aoIntensity = 1;
 	params.aoSize = 1;
-	solver->updateLightmaps(0,1,4,&params,&params,NULL);
+	solver->updateLightmaps(0,1,4,&params,NULL);
 
 	// save GI lightmaps, bent normals
 	solver->getStaticObjects().saveLayer(0,"../../data/scenes/koupelna/koupelna4-windows_precalculated/","png");

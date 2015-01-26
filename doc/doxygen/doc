@@ -1564,12 +1564,8 @@ Material formats (1)
 	solver.setStaticObjects(objects);
 	solver.setLights(lights);
 	solver.setEnvironment(environment);
-	RRSolver::UpdateParameters params;
-	params.quality = 1000;
-	params.useCurrentSolution = false;
-	params.environmentMultiplier = 1;
-	params.lightMultiplier = 1;
-	solver.updateLightmaps(-1,-1,-1,&params,&params,NULL);
+	RRSolver::UpdateParameters params(1000);
+	solver.updateLightmaps(-1,-1,-1,&params,NULL);
 	params.useCurrentSolution = true;
 	params.measure_internal.direct = true;
 	while(!done)
@@ -1742,12 +1738,14 @@ Material formats (1)
     occluded by all other objects.
   - Set uniform white environment with RRSolver::setEnvironment(RRBuffer::createSky())
   - Call RRSolver::updateLightmaps() with
-    \n paramsDirect.useCurrentSolution=false
-    \n paramsDirect.lightMultiplier=0
-    \n paramsDirect.environmentMultiplier=1
-    \n and paramsIndirect=NULL
+    \n RRSolver::UpdateParameters params(quality);
+    \n params.direct.lightMultiplier=0
+    \n params.indirect.lightMultiplier=0
+    \n params.direct.materialEmittanceMultiplier=0
+    \n params.indirect.materialEmittanceMultiplier=0
+    \n params.indirect.environmentMultiplier=0
     \n To calculate global ambient occlusion,
-       set paramsIndirect equally to paramsDirect.
+       skip the last line, keep environmentMultiplier=1.
 
   See data structures (links above) for more details on calculation.
 

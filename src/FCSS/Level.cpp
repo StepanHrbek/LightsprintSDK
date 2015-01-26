@@ -63,21 +63,20 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 		{
 			// build light detail map
 			solver->getStaticObjects()[0]->illumination.getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,2048,2048,1,rr::BF_RGB,true,NULL);
-			rr::RRSolver::UpdateParameters paramsDirect(REBUILD_JPG ? 2000 : 20);
-			paramsDirect.lightMultiplier = 0;
-			paramsDirect.aoIntensity = 2;
-			paramsDirect.aoSize = 1;
-			rr::RRSolver::UpdateParameters paramsIndirect(REBUILD_JPG ? 2000 : 20);
-			paramsIndirect.lightMultiplier = 0;
-			paramsIndirect.locality = -1;
-			paramsIndirect.qualityFactorRadiosity = 0;
+			rr::RRSolver::UpdateParameters params(REBUILD_JPG ? 2000 : 20);
+			params.direct.lightMultiplier = 0;
+			params.indirect.lightMultiplier = 0;
+			params.aoIntensity = 2;
+			params.aoSize = 1;
+			params.locality = -1; // used to be in indirect only
+			params.qualityFactorRadiosity = 0; // used to be in indirect only
 			rr::RRBuffer* oldEnv = solver->getEnvironment();
 			rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.6f,0.7f,0.75f,1),rr::RRVec4(0.6f,0.7f,0.75f,1)); // kompenzuju tmave hnedy barvy padattic aby vysledna LDM obsahovala barvy kolem 0.5
 			solver->setEnvironment(newEnv);
 			rr::RRSolver::FilteringParameters filtering;
 			filtering.backgroundColor = rr::RRVec4(0.5f);
 			filtering.wrap = false;
-			solver->updateLightmaps(getLDMLayer(),-1,-1,&paramsDirect,&paramsIndirect,&filtering); 
+			solver->updateLightmaps(getLDMLayer(),-1,-1,&params,&filtering); 
 			solver->setEnvironment(oldEnv);
 			delete newEnv;
 			rr::RRVec4 mini(1),maxi(0);

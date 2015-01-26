@@ -451,8 +451,13 @@ namespace rr
 		//!
 		//! If you use \ref calc_fireball, only default realtime parameters are supported,
 		//! use NULL for default parameters.
-		struct RR_API UpdateParameters : public Multipliers
+		struct RR_API UpdateParameters
 		{
+			//! Multiplies direct illumination from sources.
+			Multipliers direct;
+			//! Multiplies indirect illumination from sources. Set both direct and indirect identical for realistic results.
+			Multipliers indirect;
+
 			//! Reuse indirect illumination already calculated and stored in solver?
 			//
 			//! Calls to updateLightmaps() or calculate() leave calculated indirect illumination stored in solver.
@@ -529,9 +534,12 @@ namespace rr
 			//! Sets default parameters for fast realtime update, using current solution from solver.
 			UpdateParameters()
 			{
-				lightMultiplier = 0;
-				environmentMultiplier = 0;
-				materialEmittanceMultiplier = 0;
+				direct.lightMultiplier = 0;
+				direct.environmentMultiplier = 0;
+				direct.materialEmittanceMultiplier = 0;
+				indirect.lightMultiplier = 0;
+				indirect.environmentMultiplier = 0;
+				indirect.materialEmittanceMultiplier = 0;
 				useCurrentSolution = true;
 				quality = 0;
 				qualityFactorRadiosity = 1;
@@ -681,23 +689,11 @@ namespace rr
 		//!  Bent normals will be computed into existing buffers in this layer,
 		//!  getStaticObjects()[objectNumber]->illumination->getLayer(layerBentNormals).
 		//!  \n Negative number disables update of bent normals.
-		//! \param paramsDirect
-		//!  Parameters of the update process specific for direct illumination component of final color.
-		//!  With e.g. paramsDirect->lightMultiplier, direct illumination created by lights 
-		//!  set by setLights() is added to the final value stored into lightmap.
-		//!  \n Set both paramsDirect and paramsIndirect NULL for very fast/realtime update
-		//!  that fills vertex buffers with indirect illumination in physical scale, read from current solution in solver.
-		//!  Set only paramsDirect NULL for no direct illumination.
-		//! \param paramsIndirect
-		//!  Parameters of the update process specific for indirect illumination component of final color.
-		//!  With e.g. paramsIndirect->lightMultiplier, indirect illumination created by lights
-		//!  set by setLights() is added to the final value stored into buffer.
-		//!  For global illumination created by e.g. lights,
-		//!  set both paramsDirect->lightMultiplier and paramsIndirect->lightMultiplier.
-		//!  \n paramsIndirect->quality is ignored, only paramsDirect->quality matters.
-		//!  \n Set both paramsDirect and paramsIndirect NULL for very fast/realtime update
-		//!  that fills vertex buffers with indirect illumination in physical scale, read from current solution in solver.
-		//!  Set only paramsIndirect NULL for no indirect illumination.
+		//! \param params
+		//!  Parameters of the update process.
+		//!  With NULL or quality=0, update is realtime, but options are limited, 
+		//!  only vertex buffers are filed with indirect illumination in physical scale, read from current solution in solver.
+		//!  With quality>0, you get much more flexibility, but update is non-realtime.
 		//! \param filtering
 		//!  Parameters of lightmap filtering, set NULL for default ones.
 		//! \return
@@ -706,7 +702,7 @@ namespace rr
 		//! \remarks
 		//!  As a byproduct of calculation with indirect ilumination, internal state of solver (current solution)
 		//!  is updated, so that it holds computed indirect illumination for sources
-		//!  and quality specified in paramsIndirect.
+		//!  and quality specified in params.
 		//!  Internal state is properly updated even when buffers don't exist (so no other output is produced).
 		//!  Following updateLightmap() will include this indirect lighting into computed buffer
 		//!  if you call it with params->useCurrentSolution=true and params->measure_internal=RM_IRRADIANCE_CUSTOM.
@@ -715,11 +711,11 @@ namespace rr
 		//!  All three ways produce the same quality, but first one may be faster in some cases.
 		//!  - create buffers for selected objects, make sure other buffers are NULL and call updateLightmaps()
 		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
-		//!  - call updateLightmaps(-1,-1,NULL,paramsIndirect,NULL) once to update current solution,
+		//!  - call updateLightmaps(-1,-1,params,NULL) once to update current solution,
 		//!    call updateLightmap(params with useCurrentSolution=true and measure_internal=RM_IRRADIANCE_CUSTOM) for all selected objects
 		//! \remarks
 		//!  Sharing one lightmap by multiple objects is not supported out of the box. Please consult us for possible solutions.
-		virtual unsigned updateLightmaps(int layerLightmap, int layerDirectionalLightmap, int layerBentNormals, const UpdateParameters* paramsDirect, const UpdateParameters* paramsIndirect, const FilteringParameters* filtering);
+		virtual unsigned updateLightmaps(int layerLightmap, int layerDirectionalLightmap, int layerBentNormals, const UpdateParameters* params, const FilteringParameters* filtering);
 		
 		//! Makes other solver functions abort, returning quickly with bogus results.
 		//
@@ -996,7 +992,7 @@ namespace rr
 
 	private:
 
-		void optimizeMultipliers(UpdateParameters& paramsDirect, UpdateParameters& paramsIndirect, bool testEnvForBlackness) const;
+		void optimizeMultipliers(UpdateParameters& params, bool testEnvForBlackness) const;
 		//! Detects direct illumination on all faces in scene and sends it to the solver.
 		//
 		//! This is more general version of detectDirectIllumination(),

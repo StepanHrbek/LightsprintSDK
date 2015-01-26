@@ -21,14 +21,14 @@
 namespace rr
 {
 
-RRString getIndirectParamsAsString(const RRSolver::UpdateParameters& paramsIndirect)
+RRString getIndirectParamsAsString(const RRSolver::UpdateParameters& params)
 {
 	return RRString(0,L"%hs%hs%hs%hs%d",
-		paramsIndirect.lightMultiplier?"lights ":"",
-		paramsIndirect.environmentMultiplier?"env ":"",
-		paramsIndirect.materialEmittanceMultiplier?"emi ":"",
-		paramsIndirect.useCurrentSolution?"cur ":"",
-		paramsIndirect.quality
+		params.indirect.lightMultiplier?"lights ":"",
+		params.indirect.environmentMultiplier?"env ":"",
+		params.indirect.materialEmittanceMultiplier?"emi ":"",
+		params.useCurrentSolution?"cur ":"",
+		params.quality
 		);
 }
 
@@ -142,7 +142,7 @@ public:
 	GatheringTools(const ProcessTexelParams& pti)
 	{
 		collider = pti.context.solver->getMultiObject()->getCollider();
-		environment = pti.context.params->environmentMultiplier ? pti.context.solver->getEnvironment() : NULL;
+		environment = pti.context.params->indirect.environmentMultiplier ? pti.context.solver->getEnvironment() : NULL;
 		fillerPos.Reset(pti.resetFiller);
 	}
 
@@ -176,8 +176,8 @@ public:
 	{
 		if (_pti.context.params)
 		{
-			pathTracingParameters.direct = *_pti.context.params;
-			pathTracingParameters.indirect = *_pti.context.params;
+			pathTracingParameters.direct = _pti.context.params->indirect; // both direct+indirect multipliers taken from single indirect source
+			pathTracingParameters.indirect = _pti.context.params->indirect; // it's ok, because this code runs at least 1 bounce from eye, all is indirect
 			pathTracingParameters.brdfTypes = RRMaterial::BRDF_ALL;
 			// bake with the fastest and the least noisy options (also the least realistic, corners have to be artificially darkened with aoIntensity/aoSize)
 			// keeping UINT_MAX should naturally darken corners, but noise makes it useless
@@ -192,7 +192,7 @@ public:
 			irradiancePhysicalHemisphere[i] = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
-		rays = (tools.environment || pti.context.params->materialEmittanceMultiplier!=0 || pti.context.params->useCurrentSolution) ? RR_MAX(1,pti.context.params->quality) : 0;
+		rays = (tools.environment || pti.context.params->indirect.materialEmittanceMultiplier!=0 || pti.context.params->useCurrentSolution) ? RR_MAX(1,pti.context.params->quality) : 0;
 		pathtracerWorker.ray.rayLengthMin = pti.rayLengthMin;
 	}
 
@@ -346,6 +346,8 @@ protected:
 //
 // handler computes direct visibility to light, taking transparency into account.
 // light paths with refraction and reflection are silently skipped
+//
+// reads direct.lightMultiplier (so when used for first gather, caller has to direct.lightMultiplier=indirect)
 
 class GatheredIrradianceLights
 {
@@ -387,7 +389,7 @@ public:
 			irradiancePhysicalLights[i] = RRVec3(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 0;
-		rounds = (pti.context.params->lightMultiplier && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
+		rounds = (pti.context.params->direct.lightMultiplier && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
 		rays = numRelevantLights*rounds;
 		ray.hitObject = pti.context.solver->getMultiObject();
 		ray.rayLengthMin = pti.rayLengthMin;
@@ -440,7 +442,7 @@ public:
 			{
 				// direct visibility found (at least partial), add irradiance from light
 				// !_light->castShadows -> direct visibility guaranteed even without raycast
-				RRVec3 irrad = _light->getIrradiance(ray.rayOrigin,pti.context.scaler) * pti.context.params->lightMultiplier;
+				RRVec3 irrad = _light->getIrradiance(ray.rayOrigin,pti.context.scaler) * pti.context.params->direct.lightMultiplier;
 				RR_ASSERT(IS_VEC3(irrad)); // getIrradiance() must return finite number
 				if (_light->castShadows)
 				{
@@ -809,6 +811,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 //
 // baking: first or final gathering into triangles
 
+// reads direct.lightMultiplier, indirect.env+emi
 bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots)
 {
 	if (aborting)
@@ -832,7 +835,7 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 	UpdateParameters params;
 	if (_params) params = *_params;
 	params.quality = RR_MAX(1,params.quality);
-	optimizeMultipliers(params,params,false);
+	optimizeMultipliers(params,false);
 
 	RRReportInterval report(INF2,"Gathering(%ls) ...\n",getIndirectParamsAsString(params).w_str());
 	LightmapperJob lmj(this);
@@ -925,6 +928,7 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 //
 // baking: updates direct illumination in solver
 
+// reads direct.lightMultiplier, indirect.env+emi
 bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 {
 	RRReportInterval report(INF2,"Updating solver direct ...\n");
@@ -956,7 +960,7 @@ bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 #else
 	// for medium/low quality and/or emittance without textures (we do this since rev1417)
 	// 1. first gather lights+env
-	params.materialEmittanceMultiplier = 0;
+	params.indirect.materialEmittanceMultiplier = 0;
 #endif
 	if (!gatherPerTrianglePhysical(&params,finalGather,numPostImportTriangles))
 	{
@@ -971,7 +975,7 @@ bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 #else
 	// 2. then tell arch solver to fill solver.direct with gathered lights+env and add emi.color from materials
 	//    (arch solver does not yet support sampling from emi textures)
-	priv->scene->illuminationReset(false,true,_params?_params->materialEmittanceMultiplier:1,NULL,NULL,finalGather->data[LS_LIGHTMAP]);
+	priv->scene->illuminationReset(false,true,_params?_params->indirect.materialEmittanceMultiplier:1,NULL,NULL,finalGather->data[LS_LIGHTMAP]);
 #endif
 	// 3. later we will calculate solver.indirect from solver.direct
 	// 4. later we will final gather emi from textures and when ray hits dif.surface, we illuminate it with solver.direct+solver.indirect [#41]
@@ -1038,29 +1042,19 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 
 	RRReportInterval report(INF2,"Updating solver indirect(%ls).\n",getIndirectParamsAsString(paramsIndirect).w_str());
 
-	if (paramsIndirect.useCurrentSolution)
-	{
-		RRReporter::report(WARN,"paramsIndirect.useCurrentSolution ignored, set it in paramsDirect instead.\n");
-		paramsIndirect.useCurrentSolution = 0;
-	}
-	else
-	if (!paramsIndirect.lightMultiplier && !paramsIndirect.environmentMultiplier)
-	{
-		RR_ASSERT(0); // no lightsource enabled, todo: fill solver.direct with zeroes
-	}
-
 	// fix all dirty flags, so next calculateCore doesn't call detectDirectIllumination etc
 	calculateCore(0,&priv->previousCalculateParameters);
 	
 	// reset illumination in solver
 	// we need to do it even if there is no work (no light sources),
 	// because user can call updateLightmaps(direct(useCurrentSolution),NULL) and start finalgathering solver
-	priv->scene->illuminationReset(true,true,paramsIndirect.materialEmittanceMultiplier,NULL,NULL,NULL);
+	priv->scene->illuminationReset(true,true,paramsIndirect.indirect.materialEmittanceMultiplier,NULL,NULL,NULL);
 
 	// gather direct for requested indirect and propagate in solver
-	if (paramsIndirect.lightMultiplier || paramsIndirect.environmentMultiplier || paramsIndirect.materialEmittanceMultiplier)
+	if (paramsIndirect.indirect.lightMultiplier || paramsIndirect.indirect.environmentMultiplier || paramsIndirect.indirect.materialEmittanceMultiplier)
 	{
 		// first gather
+		paramsIndirect.direct.lightMultiplier = paramsIndirect.indirect.lightMultiplier; // updateSolverDirectIllumination reads direct.lightMultiplier
 		unsigned tmp = paramsIndirect.quality;
 		paramsIndirect.quality /= 2; // at 50% quality
 		bool updated = updateSolverDirectIllumination(&paramsIndirect);
@@ -1089,7 +1083,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 			}
 
 			// optimization: free memory taken by factors (we won't need them anymore), but preserve accumulators (we need them for final gather)
-			priv->scene->illuminationReset(true,false,paramsIndirect.materialEmittanceMultiplier,NULL,NULL,NULL);
+			priv->scene->illuminationReset(true,false,paramsIndirect.indirect.materialEmittanceMultiplier,NULL,NULL,NULL);
 		}
 	}
 	return true;

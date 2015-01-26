@@ -22,11 +22,11 @@
 namespace rr
 {
 
-RRString getParamsAsString(const RRSolver::UpdateParameters& paramsDirect, const RRSolver::UpdateParameters& paramsIndirect)
+RRString getParamsAsString(const RRSolver::UpdateParameters& params)
 {
-	return RRString(0,L"DIRECT(%hs%hs%hs%hs),INDIRECT(%hs%hs%hs%hs)",
-		paramsDirect  .lightMultiplier?"lights ":"",paramsDirect  .environmentMultiplier?"env ":"",paramsDirect  .materialEmittanceMultiplier?"emi ":"",paramsDirect.useCurrentSolution?"cur":"",
-		paramsIndirect.lightMultiplier?"lights ":"",paramsIndirect.environmentMultiplier?"env ":"",paramsIndirect.materialEmittanceMultiplier?"emi ":"",paramsIndirect.useCurrentSolution?"cur":""
+	return RRString(0,L"DIRECT(%hs%hs%hs%hs),INDIRECT(%hs%hs%hs)",
+		params.direct  .lightMultiplier?"lights ":"",params.direct  .environmentMultiplier?"env ":"",params.direct  .materialEmittanceMultiplier?"emi ":"",params.useCurrentSolution?"cur":"",
+		params.indirect.lightMultiplier?"lights ":"",params.indirect.environmentMultiplier?"env ":"",params.indirect.materialEmittanceMultiplier?"emi":""
 		);
 }
 
@@ -593,20 +593,20 @@ RRBuffer* onlyLmap(RRBuffer* buffer)
 }
 
 // clears as many multipliers as possible
-void RRSolver::optimizeMultipliers(RRSolver::UpdateParameters& paramsDirect, RRSolver::UpdateParameters& paramsIndirect, bool testEnvForBlackness) const
+void RRSolver::optimizeMultipliers(RRSolver::UpdateParameters& params, bool testEnvForBlackness) const
 {
-	if (paramsDirect.lightMultiplier || paramsIndirect.lightMultiplier)
+	if (params.direct.lightMultiplier || params.indirect.lightMultiplier)
 	{
 		bool lightsFound = false;
 		for (unsigned i=0;i<getLights().size();i++)
 			lightsFound |= getLights()[i]->enabled && getLights()[i]->color!=RRVec3(0);
 		if (!lightsFound)
 		{
-			paramsDirect.lightMultiplier = 0;
-			paramsIndirect.lightMultiplier = 0;
+			params.direct.lightMultiplier = 0;
+			params.indirect.lightMultiplier = 0;
 		}
 	}
-	if (paramsDirect.environmentMultiplier || paramsIndirect.environmentMultiplier)
+	if (params.direct.environmentMultiplier || params.indirect.environmentMultiplier)
 	{
 		bool envFound = false;
 		RRBuffer* env = getEnvironment();
@@ -627,16 +627,16 @@ void RRSolver::optimizeMultipliers(RRSolver::UpdateParameters& paramsDirect, RRS
 		}
 		if (!envFound)
 		{
-			paramsDirect.environmentMultiplier = 0;
-			paramsIndirect.environmentMultiplier = 0;
+			params.direct.environmentMultiplier = 0;
+			params.indirect.environmentMultiplier = 0;
 		}
 	}
-	if (paramsDirect.materialEmittanceMultiplier || paramsIndirect.materialEmittanceMultiplier)
+	if (params.direct.materialEmittanceMultiplier || params.indirect.materialEmittanceMultiplier)
 	{
 		if (!getMultiObject() || !getMultiObject()->faceGroups.containsEmittance())
 		{
-			paramsDirect.materialEmittanceMultiplier = 0;
-			paramsIndirect.materialEmittanceMultiplier = 0;
+			params.direct.materialEmittanceMultiplier = 0;
+			params.indirect.materialEmittanceMultiplier = 0;
 		}
 	}
 }
@@ -663,7 +663,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 	// init params
 	UpdateParameters params;
 	if (_params) params = *_params;
-	optimizeMultipliers(params,params,false);
+	optimizeMultipliers(params,false);
 	bool paramsAllowRealtime = !params.quality;
 
 	// init solver
@@ -934,47 +934,30 @@ struct SortedBuffer
 };
 
 
-unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightmap, int layerBentNormals, const UpdateParameters* _paramsDirect, const UpdateParameters* _paramsIndirect, const FilteringParameters* _filtering)
+unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightmap, int layerBentNormals, const UpdateParameters* _params, const FilteringParameters* _filtering)
 {
-	UpdateParameters paramsDirect;
-	UpdateParameters paramsIndirect;
-	paramsIndirect.useCurrentSolution = false;
-	if (_paramsDirect) paramsDirect = *_paramsDirect;
-	if (_paramsIndirect) paramsIndirect = *_paramsIndirect;
-
-	// direct.environmentMultiplier in rr_gl renderer and pathtracer affects env-camera paths, not env-surface-camera paths
-	// direct.materialEmittanceMultiplier in rr_gl renderer and pathtracer affects emi-camera paths, not emi-surface-camera paths
-	// let's do the same here
-	// unfortunately we can't do the same in updateLightmap, because it receives only paramsDirect
-	// that's why we consider merging paramsDirect and paramsIndirect (this block can be removed after merging)
-	if (_paramsDirect && _paramsIndirect)
-	{
-		paramsDirect.environmentMultiplier = paramsIndirect.environmentMultiplier;
-		paramsDirect.materialEmittanceMultiplier = paramsIndirect.materialEmittanceMultiplier;
-	}
-
-	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
-	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
+	UpdateParameters params;
+	if (_params) params = *_params;
 
 	// clear as many multipliers as possible
-	if (!paramsDirect.quality)
+	if (!params.quality)
 	{
-		if (paramsDirect.lightMultiplier || paramsIndirect.lightMultiplier
-			|| paramsDirect.environmentMultiplier || paramsIndirect.environmentMultiplier
-			|| paramsDirect.materialEmittanceMultiplier || paramsIndirect.materialEmittanceMultiplier
-			|| !paramsDirect.useCurrentSolution)
+		if (params.direct.lightMultiplier || params.indirect.lightMultiplier
+			|| params.direct.environmentMultiplier || params.indirect.environmentMultiplier
+			|| params.direct.materialEmittanceMultiplier || params.indirect.materialEmittanceMultiplier
+			|| !params.useCurrentSolution)
 		{
-			paramsDirect.lightMultiplier = 0;
-			paramsIndirect.lightMultiplier = 0;
-			paramsDirect.environmentMultiplier = 0;
-			paramsIndirect.environmentMultiplier = 0;
-			paramsDirect.materialEmittanceMultiplier = 0;
-			paramsIndirect.materialEmittanceMultiplier = 0;
-			paramsDirect.useCurrentSolution = true;
+			params.direct.lightMultiplier = 0;
+			params.indirect.lightMultiplier = 0;
+			params.direct.environmentMultiplier = 0;
+			params.indirect.environmentMultiplier = 0;
+			params.direct.materialEmittanceMultiplier = 0;
+			params.indirect.materialEmittanceMultiplier = 0;
+			params.useCurrentSolution = true;
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(WARN,"updateLightmaps(): invalid arguments, quality=0 but multipliers>0 or !useCurrentSolution.\n"));
 		}
 	}
-	optimizeMultipliers(paramsDirect,paramsIndirect,true);
+	optimizeMultipliers(params,true);
 
 	int allLayers[NUM_BUFFERS];
 	allLayers[LS_LIGHTMAP] = layerLightmap;
@@ -985,8 +968,8 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 
 	std::vector<SortedBuffer> bufferSharing;
 
-	bool containsFirstGather = _paramsIndirect && paramsIndirect.quality;
-	bool containsRealtime = !paramsDirect.quality;
+	bool containsFirstGather = params.quality && !params.useCurrentSolution;
+	bool containsRealtime = !params.quality;
 	bool containsVertexBuffers = false;
 	bool containsPixelBuffers = false;
 	bool containsVertexBuffer[NUM_BUFFERS] = {0,0,0,0,0};
@@ -1037,13 +1020,21 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	RRReportInterval report((containsFirstGather||containsPixelBuffers||!containsRealtime)?INF1:INF3,"Updating %s (%d,%d,%d,%ls) with %d objects, %d lights...\n",
 		sizeOfAllBuffers?"lightmaps":"indirect illumination",
 		layerLightmap,layerDirectionalLightmap,layerBentNormals,
-		getParamsAsString(paramsDirect,paramsIndirect).w_str(),
+		getParamsAsString(params).w_str(),
 		getStaticObjects().size(),getLights().size());
 	
 	if (sizeOfAllBuffers>10000000 && (containsFirstGather||containsPixelBuffers||!containsRealtime))
 		RRReporter::report(INF1,"Memory taken by lightmaps: %dMB\n",sizeOfAllBuffers/1024/1024);
 
-	// 1. first gather: solver+lights+env -> solver.direct
+	// split parameters to slightly different direct and indirect ones
+	RRSolver::UpdateParameters paramsIndirect(params);
+	RRSolver::UpdateParameters paramsDirect(params);
+	paramsIndirect.useCurrentSolution = false;
+	paramsIndirect.aoIntensity = 0; // apply ao only in direct (it could have some effect also in indirect, but better keep testing simple and apply it only in direct)
+	paramsIndirect.aoSize = 0;
+	paramsDirect.locality = 100000; // we use locality only for LDM bake, and it needs it default in direct
+
+	// 1. first gather: lights+env+emi -> solver.direct
 	// 2. propagate: solver.direct -> solver.indirect
 	if (containsFirstGather)
 	{
@@ -1062,7 +1053,8 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 
 	unsigned updatedBuffers = 0;
 
-	if (!paramsDirect.lightMultiplier && !paramsDirect.environmentMultiplier && !paramsDirect.materialEmittanceMultiplier && !paramsDirect.useCurrentSolution)
+	if (!params.direct.lightMultiplier && //!params.direct.environmentMultiplier && !params.direct.materialEmittanceMultiplier && ... these two have no effect in final gather
+		!params.indirect.lightMultiplier && !params.indirect.environmentMultiplier && !params.indirect.materialEmittanceMultiplier && !paramsDirect.useCurrentSolution)
 	{
 		RRReporter::report(WARN,"No light sources enabled.\n");
 	}

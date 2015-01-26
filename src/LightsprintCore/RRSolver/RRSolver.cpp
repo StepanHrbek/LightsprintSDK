@@ -78,7 +78,8 @@ bool RRSolver::CalculateParameters::operator ==(const RRSolver::CalculateParamet
 bool RRSolver::UpdateParameters::operator ==(const RRSolver::UpdateParameters& a) const
 {
 	return 1
-		&& a.RRSolver::Multipliers::operator ==(*this)
+		&& a.direct==direct
+		&& a.indirect==indirect
 		&& a.useCurrentSolution==useCurrentSolution
 		&& a.quality==quality
 		&& a.qualityFactorRadiosity==qualityFactorRadiosity

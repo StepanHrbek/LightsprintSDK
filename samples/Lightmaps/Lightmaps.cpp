@@ -185,38 +185,29 @@ void keyboard(unsigned char c, int x, int y)
 		case 'p':
 			// Updates ambient maps (indirect illumination) in high quality.
 			{
-				rr::RRSolver::UpdateParameters paramsDirect;
-				paramsDirect.quality = 1000;
-				paramsDirect.useCurrentSolution = false;
-				paramsDirect.aoIntensity = 1;
-				paramsDirect.aoSize = 1;
-				rr::RRSolver::UpdateParameters paramsIndirect;
-				paramsIndirect.useCurrentSolution = false;
+				rr::RRSolver::UpdateParameters params(1000);
+				params.aoIntensity = 1;
+				params.aoSize = 1;
 
 				// 1. type of lighting
-				//  a) improve current GI lighting from realtime light
-				paramsDirect.useCurrentSolution = true;
-				//  b) compute GI from point/spot/dir lights
-				//paramsDirect.lightMultiplier = 1;
-				//paramsIndirect.lightMultiplier = 1;
-				// lights from scene file are already set, but you may set your own:
-				//rr::RRLights lights;
-				//lights.push_back(rr::RRLight::createPointLight(rr::RRVec3(1,1,1),rr::RRVec3(0.5f)));
-				//solver->setLights(lights);
-				//  c) compute GI from skybox (note: no effect in closed room)
-				//paramsDirect.environmentMultiplier = 1;
-				//paramsIndirect.environmentMultiplier = 1;
+				//  a) ambient maps from current solution
+				params.direct.lightMultiplier = 0;
+				params.useCurrentSolution = true;
+				//  b) lightmaps from current solution
+				params.useCurrentSolution = true;
+				//  c) ambient maps from scratch (takes more time, but quality could be higher)
+				params.direct.lightMultiplier = 0;
 
 				// 2. objects
 				//  a) calculate whole scene at once
-				solver->updateLightmaps(LAYER_OFFLINE_PIXEL,-1,-1,&paramsDirect,&paramsIndirect,NULL);
+				solver->updateLightmaps(LAYER_OFFLINE_PIXEL,-1,-1,&params,NULL);
 				//  b) calculate only one object
 				//static unsigned obj=0;
-				//solver->updateLightmap(obj,solver->getStaticObjects()[obj]->illumination->getLayer(LAYER_OFFLINE_PIXEL),NULL,NULL,&paramsDirect);
+				//solver->updateLightmap(obj,solver->getStaticObjects()[obj]->illumination->getLayer(LAYER_OFFLINE_PIXEL),NULL,NULL,&params);
 				//++obj%=solver->getStaticObjects().size();
 
 				// update vertex buffers too, for comparison with pixel buffers
-				solver->updateLightmaps(LAYER_OFFLINE_VERTEX,-1,-1,&paramsDirect,&paramsIndirect,NULL);
+				solver->updateLightmaps(LAYER_OFFLINE_VERTEX,-1,-1,&params,NULL);
 
 				// update lightfield
 				rr::RRVec4 aabbMin,aabbMax;

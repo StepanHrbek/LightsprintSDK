@@ -799,24 +799,23 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					if (!ldm)
 					{
 						// update everything in temp layer
-						rr::RRSolver::UpdateParameters paramsDirect(quality);
-						paramsDirect.rr::RRSolver::Multipliers::operator=(svs.getMultipliersDirect());
+						rr::RRSolver::UpdateParameters params(quality);
+						params.direct = svs.getMultipliersDirect();
+						params.indirect = svs.getMultipliersIndirect();
 						if (ambient)
-							paramsDirect.lightMultiplier = 0;
-						paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
-						paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
+							params.direct.lightMultiplier = 0;
+						params.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
+						params.aoSize = svs.lightmapDirectParameters.aoSize;
 
-						rr::RRSolver::UpdateParameters paramsIndirect(quality);
-						paramsIndirect.rr::RRSolver::Multipliers::operator=(svs.getMultipliersIndirect());
 #ifndef OLD_SIMPLE_GI
-						solver->updateLightmaps(tmpLayer,-1,-1,&paramsDirect,&paramsIndirect,&svs.lightmapFilteringParameters);
+						solver->updateLightmaps(tmpLayer,-1,-1,&params,&svs.lightmapFilteringParameters);
 #else
 						// calculate indirect illumination in solver
-						solver->updateLightmaps(-1,-1,-1,NULL,&paramsIndirect,NULL);
+						solver->updateLightmaps(-1,-1,-1,&params,NULL);
 
 						// build direct illumination
 						paramsDirect.useCurrentSolution = true;
-						solver->updateLightmaps(tmpLayer,-1,-1,&paramsDirect,NULL,&svs.lightmapFilteringParameters);
+						solver->updateLightmaps(tmpLayer,-1,-1,&params,&svs.lightmapFilteringParameters);
 #endif
 						// switch to .exr mode
 						bool hdr = svs.lightmapFloats;
@@ -869,24 +868,21 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					else // LDM
 					{
 						// update everything in temp layer
-						rr::RRSolver::UpdateParameters paramsDirect(quality);
-						paramsDirect.rr::RRSolver::Multipliers::operator=(svs.getMultipliersDirect());
-						paramsDirect.lightMultiplier = 0;
-						paramsDirect.useCurrentSolution = false;
-						paramsDirect.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2;
-						paramsDirect.aoSize = svs.lightmapDirectParameters.aoSize;
-
-						rr::RRSolver::UpdateParameters paramsIndirect(quality);
-						paramsIndirect.rr::RRSolver::Multipliers::operator=(svs.getMultipliersIndirect());
-						paramsIndirect.lightMultiplier = 0;
-						paramsIndirect.useCurrentSolution = false;
-						paramsIndirect.locality = -1;
-						paramsIndirect.qualityFactorRadiosity = 0;
-
+						rr::RRSolver::UpdateParameters params(quality);
+						params.direct = svs.getMultipliersDirect();
+						params.indirect = svs.getMultipliersIndirect();
+						params.direct.lightMultiplier = 0;
+						params.indirect.lightMultiplier = 1;
+						params.direct.environmentMultiplier = 1;
+						params.indirect.environmentMultiplier = 1;
+						params.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2; // used to be in direct only
+						params.aoSize = svs.lightmapDirectParameters.aoSize; // used to be in direct only
+						params.locality = -1; // used to be in indirect only
+						params.qualityFactorRadiosity = 0; // used to be in indirect only
 						rr::RRBuffer* oldEnv = solver->getEnvironment();
 						rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.65f),rr::RRVec4(0.65f)); // 0.65*typical materials = average color in LDM around 0.5
 						solver->setEnvironment(newEnv);
-						solver->updateLightmaps(tmpLayer,-1,-1,&paramsDirect,&paramsIndirect,&svs.lightmapFilteringParameters);
+						solver->updateLightmaps(tmpLayer,-1,-1,&params,&svs.lightmapFilteringParameters);
 						solver->setEnvironment(oldEnv,NULL,svs.skyboxRotationRad);
 						delete newEnv;
 

@@ -33,6 +33,7 @@ NEWS
 
 CHANGES
 
+- RRSolver::updateLightmaps() has paramsDirect and paramsIndirect merged, it makes work with all new multipliers much easier
 - color spaces refactoring (sRGB vs linear) (for faster baking and pathtracing)
   - RRBuffer::getElement() and RRBuffer::setElement() inputs/outputs are in linear space when scaler is passed as parameter
   - RRScaler::toCustomSpace() replaces getCustomScale() and getCustomFactor()
