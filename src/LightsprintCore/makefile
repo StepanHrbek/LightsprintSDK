@@ -62,7 +62,6 @@ RRMesh/RRMeshLessVertices.cpp \
 RRObject/RRMaterial.cpp \
 RRObject/RRObject.cpp \
 RRObject/RRObjects.cpp \
-RRObject/RRScaler.cpp \
 RRPackedSolver/PackedSolverFileBuild.cpp \
 RRPackedSolver/RRPackedSolver.cpp \
 RRSolver/environmentMap.cpp \
@@ -87,6 +86,7 @@ squish/singlecolourfit.cpp \
 squish/squish.cpp \
 Preferences.cpp \
 RRCamera.cpp \
+RRColorSpace.cpp \
 RRFileLocator.cpp \
 RRLight.cpp \
 RRLightField.cpp \

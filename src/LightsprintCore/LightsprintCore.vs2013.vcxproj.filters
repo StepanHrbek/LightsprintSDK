@@ -215,7 +215,6 @@
     </ClCompile>
     <ClCompile Include="Preferences.cpp" />
     <ClCompile Include="RRMemory.cpp" />
-    <ClCompile Include="RRObject\RRScaler.cpp" />
     <ClCompile Include="Unwrapper.cpp" />
     <ClCompile Include="RRFileLocator.cpp" />
     <ClCompile Include="RRTime.cpp" />
@@ -226,6 +225,7 @@
     <ClCompile Include="RRBuffer\RRBufferBlend.cpp">
       <Filter>RRBuffer</Filter>
     </ClCompile>
+    <ClCompile Include="RRColorSpace.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RRCollider\bsp.h">

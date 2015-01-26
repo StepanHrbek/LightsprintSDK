@@ -598,6 +598,7 @@
     <ClCompile Include="RRCollider\RRRay.cpp" />
     <ClCompile Include="RRCollider\fpcube.cpp" />
     <ClCompile Include="RRCollider\pcube.cpp" />
+    <ClCompile Include="RRColorSpace.cpp" />
     <ClCompile Include="RRFileLocator.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
@@ -691,7 +692,6 @@
     <ClCompile Include="squish\squish.cpp" />
     <ClCompile Include="Preferences.cpp" />
     <ClCompile Include="RRMemory.cpp" />
-    <ClCompile Include="RRObject\RRScaler.cpp" />
     <ClCompile Include="Unwrapper.cpp">
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
