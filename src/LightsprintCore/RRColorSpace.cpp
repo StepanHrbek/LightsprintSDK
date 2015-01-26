@@ -70,7 +70,7 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 	}
-	virtual RRVec3 getLinearSpace(const unsigned char rgb[3]) const
+	virtual RRVec3 getLinear(const unsigned char rgb[3]) const
 	{
 		return RRVec3(byteToLinear[rgb[0]],byteToLinear[rgb[1]],byteToLinear[rgb[2]]);
 	}

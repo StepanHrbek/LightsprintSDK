@@ -293,7 +293,7 @@ RRVec4 RRBufferInMemory::getElement(unsigned index, const RRColorSpace* scaler) 
 	RRVec4 result;
 	if (scaled && scaler && (format==BF_RGB || format==BF_RGBA))
 	{
-		result = scaler->getLinearSpace(data+ofs);
+		result = scaler->getLinear(data+ofs);
 		result.w = (format==BF_RGB) ? 1 : RR_BYTE2FLOAT(data[ofs+3]);
 	}
 	else
