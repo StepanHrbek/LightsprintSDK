@@ -87,13 +87,13 @@ namespace rr
 		//! Types of distance attenuation. Defines how light color is computed for given distance.
 		enum DistanceAttenuationType
 		{
-			//! Intensity in physical scale is color. Very good approximation of sunlight.
+			//! Linear intensity is color, i.e. no attenuation with distance. Good approximation of sunlight.
 			NONE,
-			//! Intensity in physical scale is color/distance^2. This is exactly how reality works.
+			//! Linear intensity is color/distance^2. This is how real world works.
 			PHYSICAL,
-			//! Intensity in custom scale is color/MAX(polynom[0]+polynom[1]*distance+polynom[2]*distance^2,polynom[3]). Used in fixed pipeline engines. polynom[3] was added to support Gamebryo.
+			//! Custom color space intensity is color/MAX(polynom[0]+polynom[1]*distance+polynom[2]*distance^2,polynom[3]). Used in fixed pipeline engines. polynom[3] was added to support Gamebryo.
 			POLYNOMIAL,
-			//! Intensity in physical scale is color*pow(MAX(0,1-(distance/radius)^2),fallOffExponent). Used in UE3.
+			//! Linear intensity is color*pow(MAX(0,1-(distance/radius)^2),fallOffExponent). Used in UE3.
 			EXPONENTIAL,
 		};
 		//! Type of distance attenuation.

@@ -33,7 +33,7 @@ namespace rr
 		RRRadiometricMeasure(bool aexiting, bool ascaled, bool aflux, bool adirect, bool aindirect)
 			: exiting(aexiting), scaled(ascaled), flux(aflux), direct(adirect), indirect(aindirect), smoothed(1) {};
 		bool exiting : 1; ///< Selects between [0] incoming radiation (does not include emittance) and [1] exiting radiation (includes emittance). \n Typical setting: 0.
-		bool scaled  : 1; ///< Selects between [0] physical scale (W) and [1] custom scale provided by RRColorSpace. \n Typical setting: 1.
+		bool scaled  : 1; ///< Selects between [0] linear colors (W) and [1] custom color space provided by RRColorSpace. \n Typical setting: 1.
 		bool flux    : 1; ///< Selects between [0] radiant intensity (W/m^2) and [1] radiant flux (W). \n Typical setting: 0.
 		bool direct  : 1; ///< Makes direct radiation and emittance (your inputs) part of result. \n Typical setting: 0.
 		bool indirect: 1; ///< Makes indirect radiation (computed) part of result. \n Typical setting: 1.
