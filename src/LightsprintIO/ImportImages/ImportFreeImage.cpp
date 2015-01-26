@@ -604,7 +604,7 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 						}
 						// convert to sRGB
 						if (scaler)
-							scaler->toCustomSpace(pixel);
+							scaler->fromLinear(pixel);
 						// write dst pixel
 						if ((i%width)==0) dst += 3-(((unsigned long)dst+3)&3); // compensate for freeimage's scanline padding
 						switch(dstbipp)

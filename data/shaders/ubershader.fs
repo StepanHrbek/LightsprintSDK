@@ -353,12 +353,12 @@ vec4 dividedByAlpha(vec4 color)
 	return color/color.a;
 }
 
-vec4 toLinearSpace()
+vec4 toLinear()
 {
 	return vec4(0.0,0.0,0.0,0.0);
 }
 
-vec4 toLinearSpace(vec4 color)
+vec4 toLinear(vec4 color)
 {
 	#ifdef POSTPROCESS_BRIGHTNESS
 		#ifdef POSTPROCESS_GAMMA
@@ -839,7 +839,7 @@ void main()
 			//
 
 			#if defined(MATERIAL_DIFFUSE) && (defined(LIGHT_DIRECT) || defined(LIGHT_INDIRECT_CONST) || defined(LIGHT_INDIRECT_VCOLOR) || defined(LIGHT_INDIRECT_MAP) || defined(LIGHT_INDIRECT_MAP2) || defined(LIGHT_INDIRECT_ENV_DIFFUSE) || defined(LIGHT_INDIRECT_MIRROR_DIFFUSE))
-			toLinearSpace(
+			toLinear(
 				#ifdef MATERIAL_DIFFUSE_X2
 					vec4(2.0,2.0,2.0,1.0) *
 				#endif
@@ -909,7 +909,7 @@ void main()
 			//
 
 			#ifdef MATERIAL_SPECULAR
-			+ toLinearSpace(
+			+ toLinear(
 				#ifdef MATERIAL_TRANSPARENCY_FRESNEL
 					(
 				#endif
@@ -995,7 +995,7 @@ void main()
 			// emission
 			//
 
-			+ toLinearSpace(
+			+ toLinear(
 			#ifdef MATERIAL_EMISSIVE_CONST
 				+ materialEmissiveConst
 				#ifdef MATERIAL_TRANSPARENCY_FRESNEL
@@ -1012,7 +1012,7 @@ void main()
 			// refraction
 			//
 
-			+ toLinearSpace(
+			+ toLinear(
 			#if defined(LIGHT_INDIRECT_ENV_REFRACT) && (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA))
 				+ textureCube(lightIndirectEnvMap, refract(-worldEyeDir,worldNormal,1.0/materialRefractionIndex)) * vec4(transparencyRGB,0.0)
 			#endif

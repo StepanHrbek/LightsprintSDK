@@ -30,19 +30,19 @@ public:
 		for (unsigned i=0;i<256;i++)
 			byteToLinear[i] = pow(float(i)/255,invGamma);
 	}
-	virtual void toCustomSpace(RRReal& a) const
+	virtual void fromLinear(RRReal& a) const
 	{
 		RR_ASSERT(_finite(a));
 		a = (a>=0)?pow(a,gamma):-pow(-a,gamma);
 		RR_ASSERT(_finite(a));
 	}
-	virtual void toLinearSpace(RRReal& a) const
+	virtual void toLinear(RRReal& a) const
 	{
 		RR_ASSERT(_finite(a));
 		a = (a>=0)?pow(a,invGamma):-pow(-a,invGamma);
 		RR_ASSERT(_finite(a));
 	}
-	virtual void toCustomSpace(RRVec3& color) const
+	virtual void fromLinear(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));
@@ -56,7 +56,7 @@ public:
 		RR_ASSERT(_finite(color[1]));
 		RR_ASSERT(_finite(color[2]));
 	}
-	virtual void toLinearSpace(RRVec3& color) const
+	virtual void toLinear(RRVec3& color) const
 	{
 		RR_ASSERT(_finite(color[0]));
 		RR_ASSERT(_finite(color[1]));

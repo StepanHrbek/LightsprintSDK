@@ -42,14 +42,14 @@ namespace rr
 		//////////////////////////////////////////////////////////////////////////////
 
 		//! Converts value from linear space.
-		virtual void toCustomSpace(RRReal& value) const = 0;
+		virtual void fromLinear(RRReal& value) const = 0;
 		//! Converts value from linear space.
-		virtual void toCustomSpace(RRVec3& value) const = 0;
+		virtual void fromLinear(RRVec3& value) const = 0;
 
 		//! Converts value to linear space.
-		virtual void toLinearSpace(RRReal& value) const = 0;
+		virtual void toLinear(RRReal& value) const = 0;
 		//! Converts value to linear space.
-		virtual void toLinearSpace(RRVec3& value) const = 0;
+		virtual void toLinear(RRVec3& value) const = 0;
 		//! Converts value to linear space.
 		virtual RRVec3 getLinearSpace(const unsigned char rgb[3]) const = 0;
 

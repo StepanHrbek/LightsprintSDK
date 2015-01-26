@@ -274,7 +274,7 @@ unsigned RRSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned object
 		if (t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
 			data = priv->scene->getVertexDataFromTriangleData(t,v,perTriangleDataPhysical,stride);
-			if (scaler) scaler->toCustomSpace(data);
+			if (scaler) scaler->fromLinear(data);
 			for (unsigned i=0;i<3;i++)
 			{
 				RR_ASSERT(_finite(data[i]));

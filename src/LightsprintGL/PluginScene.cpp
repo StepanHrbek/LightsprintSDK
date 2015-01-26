@@ -204,9 +204,9 @@ public:
 		const rr::RRColorSpace* scaler = pp.solver ? pp.solver->getScaler() : NULL; // selection plugin call scene with solver=NULL
 		if (scaler)
 		{
-			scaler->toCustomSpace(multipliers.lightMultiplier);
-			scaler->toCustomSpace(multipliers.environmentMultiplier);
-			scaler->toCustomSpace(multipliers.materialEmittanceMultiplier);
+			scaler->fromLinear(multipliers.lightMultiplier);
+			scaler->fromLinear(multipliers.environmentMultiplier);
+			scaler->fromLinear(multipliers.materialEmittanceMultiplier);
 		}
 
 		// Will we render multiobject or individual objects?

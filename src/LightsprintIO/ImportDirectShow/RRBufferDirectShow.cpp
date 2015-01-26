@@ -281,7 +281,7 @@ public:
 		}
 		RRVec4 element = _element;
 		if (scaler)
-			scaler->toCustomSpace(element);
+			scaler->fromLinear(element);
 		front[3*index+0] = RR_FLOAT2BYTE(element[2]);
 		front[3*index+1] = RR_FLOAT2BYTE(element[1]);
 		front[3*index+2] = RR_FLOAT2BYTE(element[0]);
@@ -300,7 +300,7 @@ public:
 			RR_BYTE2FLOAT(front[index*3+0]),
 			1);
 		if (scaler)
-			scaler->toLinearSpace(result);
+			scaler->toLinear(result);
 		return result;
 	}
 	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* scaler, bool interpolated) const

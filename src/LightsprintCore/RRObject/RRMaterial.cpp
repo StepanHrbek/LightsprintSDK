@@ -203,8 +203,8 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRColorSpace* scaler, RRVec4& a
 	RRVec4 standardDeviation(sqrt(variance[0]),sqrt(variance[1]),sqrt(variance[2]),sqrt(variance[3]));
 	if (scaler)
 	{
-		scaler->toCustomSpace(average);
-		scaler->toCustomSpace(standardDeviation);
+		scaler->fromLinear(average);
+		scaler->fromLinear(standardDeviation);
 		variance = standardDeviation*standardDeviation;
 	}
 	// -1               ... texture with random 0 1 or 0 20 returns the same as texture with random 0 255, which is max possible difference
@@ -480,10 +480,10 @@ void RRMaterial::convertToCustomScale(const RRColorSpace* scaler)
 {
 	if (scaler)
 	{
-		scaler->toCustomSpace(diffuseReflectance.color = diffuseReflectance.colorPhysical);
-		scaler->toCustomSpace(diffuseEmittance.color = diffuseEmittance.colorPhysical);
-		scaler->toCustomSpace(specularReflectance.color = specularReflectance.colorPhysical);
-		scaler->toCustomSpace(specularTransmittance.color = specularTransmittance.colorPhysical);
+		scaler->fromLinear(diffuseReflectance.color = diffuseReflectance.colorPhysical);
+		scaler->fromLinear(diffuseEmittance.color = diffuseEmittance.colorPhysical);
+		scaler->fromLinear(specularReflectance.color = specularReflectance.colorPhysical);
+		scaler->fromLinear(specularTransmittance.color = specularTransmittance.colorPhysical);
 	}
 	validate();
 }
@@ -492,10 +492,10 @@ void RRMaterial::convertToPhysicalScale(const RRColorSpace* scaler)
 {
 	if (scaler)
 	{
-		scaler->toLinearSpace(diffuseReflectance.colorPhysical = diffuseReflectance.color);
-		scaler->toLinearSpace(diffuseEmittance.colorPhysical = diffuseEmittance.color);
-		scaler->toLinearSpace(specularReflectance.colorPhysical = specularReflectance.color);
-		scaler->toLinearSpace(specularTransmittance.colorPhysical = specularTransmittance.color);
+		scaler->toLinear(diffuseReflectance.colorPhysical = diffuseReflectance.color);
+		scaler->toLinear(diffuseEmittance.colorPhysical = diffuseEmittance.color);
+		scaler->toLinear(specularReflectance.colorPhysical = specularReflectance.color);
+		scaler->toLinear(specularTransmittance.colorPhysical = specularTransmittance.color);
 	}
 	validate();
 }

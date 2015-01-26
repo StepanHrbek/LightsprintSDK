@@ -112,8 +112,8 @@ bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRColorSpace* scaler)
 	for (unsigned i=0;i<size;i++)
 	{
 		RRVec4 color = source->getElement(i,NULL);
-		if (toCust) toCust->toCustomSpace(color); else
-		if (toPhys) toPhys->toLinearSpace(color);
+		if (toCust) toCust->fromLinear(color); else
+		if (toPhys) toPhys->toLinear(color);
 		destination->setElement(i,color,NULL);
 	}
 	return true;

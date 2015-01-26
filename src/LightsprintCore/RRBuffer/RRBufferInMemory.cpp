@@ -233,7 +233,7 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& _element, const 
 	}
 	RRVec4 element = _element;
 	if (scaler && scaled)
-		scaler->toCustomSpace(element);
+		scaler->fromLinear(element);
 	//RR_ASSERT(element[0]>=0); // bent normals may be negative
 	switch(format)
 	{
@@ -347,7 +347,7 @@ RRVec4 RRBufferInMemory::getElement(unsigned index, const RRColorSpace* scaler) 
 			break;
 	}
 	if (scaler && scaled)
-		scaler->toLinearSpace(result);
+		scaler->toLinear(result);
 	}
 	//RR_ASSERT(result[0]>=0); // bent normals may be negative
 	return result;

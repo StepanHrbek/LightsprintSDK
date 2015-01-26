@@ -221,7 +221,7 @@ namespace rr
 		//!  You may compute irradiance directly in physical scale and don't use it,
 		//!  which is the most efficient way,
 		//!  but if you calculate in custom scale, convert your result to physical
-		//!  scale using scaler->toLinearSpace() before returning it.
+		//!  scale using scaler->toLinear() before returning it.
 		//!  \n Lightsprint calculates internally in physical scale, that's why
 		//!  it's more efficient to expect result in physical scale
 		//!  rather than in screen colors or any other custom scale.

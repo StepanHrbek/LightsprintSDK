@@ -234,8 +234,8 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 		material.specularTransmittance.colorPhysical = material.specularTransmittance.color = RRVec3(specularTransmittance);
 		if (scaler)
 		{
-			scaler->toLinearSpace(material.diffuseReflectance.colorPhysical);
-			scaler->toLinearSpace(material.specularTransmittance.colorPhysical);
+			scaler->toLinear(material.diffuseReflectance.colorPhysical);
+			scaler->toLinear(material.specularTransmittance.colorPhysical);
 		}
 		// [#39] we multiply dif by opacity on the fly, because real world data are often in this format
 		material.diffuseReflectance.color *= (RRVec3(1)-material.specularTransmittance.color); // multiply cust color in cust.scale - inaccurate, but result probably not used
@@ -267,7 +267,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 				material.sideBits[0].renderFrom = material.sideBits[1].renderFrom = 0;
 			material.specularTransmittance.colorPhysical = material.specularTransmittance.color;
 			if (scaler)
-				scaler->toLinearSpace(material.specularTransmittance.colorPhysical);
+				scaler->toLinear(material.specularTransmittance.colorPhysical);
 			// [#39] we multiply dif by opacity on the fly, because real world data are often in this format
 			material.diffuseReflectance.color *= (RRVec3(1)-material.specularTransmittance.color); // multiply cust color in cust.scale - inaccurate, but result probably not used
 			material.diffuseReflectance.colorPhysical *= (RRVec3(1)-material.specularTransmittance.colorPhysical); // multiply phys color in phys scale - accurate, used by pathtracer, makes cloud borders in clouds.rr3 white
