@@ -188,7 +188,7 @@ const char* UberProgramSetup::getSetupString()
 		LIGHT_DIRECT_MAP?"#define LIGHT_DIRECT_MAP\n":"",
 		LIGHT_DIRECTIONAL?"#define LIGHT_DIRECTIONAL\n":"",
 		LIGHT_DIRECT_ATT_SPOT?"#define LIGHT_DIRECT_ATT_SPOT\n":"",
-		LIGHT_DIRECT_ATT_PHYSICAL?"#define LIGHT_DIRECT_ATT_PHYSICAL\n":"",
+		LIGHT_DIRECT_ATT_REALISTIC?"#define LIGHT_DIRECT_ATT_REALISTIC\n":"",
 		LIGHT_DIRECT_ATT_POLYNOMIAL?"#define LIGHT_DIRECT_ATT_POLYNOMIAL\n":"",
 		LIGHT_DIRECT_ATT_EXPONENTIAL?"#define LIGHT_DIRECT_ATT_EXPONENTIAL\n":"",
 		LIGHT_INDIRECT_CONST?"#define LIGHT_INDIRECT_CONST\n":"",
@@ -352,7 +352,7 @@ void UberProgramSetup::validate()
 		LIGHT_DIRECT_MAP = 0;
 		LIGHT_DIRECTIONAL = 0;
 		LIGHT_DIRECT_ATT_SPOT = 0;
-		LIGHT_DIRECT_ATT_PHYSICAL = 0;
+		LIGHT_DIRECT_ATT_REALISTIC = 0;
 		LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
 		LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
 	}
@@ -470,7 +470,7 @@ void UberProgramSetup::validate()
 		LIGHT_DIRECT_MAP = 0;
 		LIGHT_DIRECTIONAL = 0;
 		LIGHT_DIRECT_ATT_SPOT = 0;
-		LIGHT_DIRECT_ATT_PHYSICAL = 0;
+		LIGHT_DIRECT_ATT_REALISTIC = 0;
 		LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
 		LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
 		LIGHT_INDIRECT_CONST = 0;
@@ -662,9 +662,9 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		program->sendUniform("lightDirectSpotExponent",RR_MAX(light->getRRLight().spotExponent,0.00000001f)); // GLSL has pow(0,0) undefined, we clamp exponent to small positive value to make result 0 (like offline solver)
 	}
 
-	if (LIGHT_DIRECT_ATT_PHYSICAL)
+	if (LIGHT_DIRECT_ATT_REALISTIC)
 	{
-		RR_ASSERT(light->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL);
+		RR_ASSERT(light->getRRLight().distanceAttenuationType==rr::RRLight::REALISTIC);
 	}
 
 	if (LIGHT_DIRECT_ATT_POLYNOMIAL)

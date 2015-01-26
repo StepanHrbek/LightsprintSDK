@@ -523,7 +523,7 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 		uberProgramSetup.LIGHT_DIRECT_MAP = uberProgramSetup.SHADOW_MAPS && ddiLight->getProjectedTexture();
 		uberProgramSetup.LIGHT_DIRECTIONAL = ddiLight->getCamera()->isOrthogonal();
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = ddiLight->getRRLight().type==rr::RRLight::SPOT && !ddiLight->getProjectedTexture();
-		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = ddiLight->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;
+		uberProgramSetup.LIGHT_DIRECT_ATT_REALISTIC = ddiLight->getRRLight().distanceAttenuationType==rr::RRLight::REALISTIC;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = ddiLight->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = ddiLight->getRRLight().distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 		uberProgramSetup.MATERIAL_DIFFUSE = true;

@@ -236,8 +236,8 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 					ofs << "scene.materials.light" << i << ".kr = 0 0 0\n";
 					ofs << "scene.materials.light" << i << ".kt = 1 1 1\n";
 					ofs << "scene.materials.light" << i << ".emission = " << (light->color * (4*RR_PI/(CUBE_SIZE*CUBE_SIZE*6))) << "\n";
-					if (light->distanceAttenuationType!=RRLight::PHYSICAL)
-						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu supports only lights with PHYSICAL distance attenuation.\n"));
+					if (light->distanceAttenuationType!=RRLight::REALISTIC)
+						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu supports only lights with REALISTIC distance attenuation.\n"));
 					bf::path plyFilename = RR_RR2PATH(filename);
 					char tmp[25];
 					sprintf(tmp,".light%d.ply",i);

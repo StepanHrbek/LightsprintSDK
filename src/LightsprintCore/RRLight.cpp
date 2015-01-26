@@ -94,7 +94,7 @@ public:
 	PointLightPhys(const RRVec3& _position, const RRVec3& _color)
 	{
 		type = POINT;
-		distanceAttenuationType = PHYSICAL;
+		distanceAttenuationType = REALISTIC;
 		position = warnIfNaN(_position,"position");
 		color = warnIfNegative(_color,"color");
 	}
@@ -169,7 +169,7 @@ public:
 	SpotLightPhys(const RRVec3& _position, const RRVec3& _color, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
 	{
 		type = SPOT;
-		distanceAttenuationType = PHYSICAL;
+		distanceAttenuationType = REALISTIC;
 		position = warnIfNaN(_position,"position");
 		color = warnIfNegative(_color,"color");
 		direction = warnIfZero(_direction,"direction").normalized();
@@ -347,7 +347,7 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRColorSpace
 	float distanceAttenuation = 1;
 	switch (distanceAttenuationType)
 	{
-		case PHYSICAL:
+		case REALISTIC:
 		{
 			distanceAttenuation = 1/(PREVENT_INF+(receiverPosition-position).length2());
 			RR_ASSERT(distanceAttenuation>=0 && _finite(distanceAttenuation));

@@ -99,7 +99,7 @@ void SVLightProperties::setLight(rr_gl::RealtimeLight* _rtlight, int _precision)
 		// distance attenuation
 		{
 			const wxChar* attenuationStrings[] = {_("none"),_("realistic"),_("polynomial"),_("exponential"),NULL};
-			const long attenuationValues[] = {rr::RRLight::NONE,rr::RRLight::PHYSICAL,rr::RRLight::POLYNOMIAL,rr::RRLight::EXPONENTIAL};
+			const long attenuationValues[] = {rr::RRLight::NONE,rr::RRLight::REALISTIC,rr::RRLight::POLYNOMIAL,rr::RRLight::EXPONENTIAL};
 			propDistanceAttType = new wxEnumProperty(_("Distance attenuation type"), wxPG_LABEL, attenuationStrings, attenuationValues, light->distanceAttenuationType);
 			Append(propDistanceAttType);
 

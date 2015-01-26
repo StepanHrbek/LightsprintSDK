@@ -148,7 +148,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.LIGHT_DIRECT_MAP = 0;
 		uberProgramSetup.LIGHT_DIRECTIONAL = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = 0;
-		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = 0;
+		uberProgramSetup.LIGHT_DIRECT_ATT_REALISTIC = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
 		uberProgramSetup.LIGHT_INDIRECT_CONST = 0;
@@ -210,7 +210,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.LIGHT_DIRECT_MAP = 0;
 		uberProgramSetup.LIGHT_DIRECTIONAL = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = 0;
-		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = 0;
+		uberProgramSetup.LIGHT_DIRECT_ATT_REALISTIC = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = 0;
 		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = 0;
 		if (mainUberProgramSetup.MATERIAL_TRANSPARENCY_BLEND) // final render: stop rgb blend
@@ -234,7 +234,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		uberProgramSetup.LIGHT_DIRECT_MAP = mainUberProgramSetup.LIGHT_DIRECT_MAP && light->getProjectedTexture();
 		uberProgramSetup.LIGHT_DIRECTIONAL = light->getCamera()->isOrthogonal();
 		uberProgramSetup.LIGHT_DIRECT_ATT_SPOT = mainUberProgramSetup.LIGHT_DIRECT_ATT_SPOT && light->getRRLight().type==rr::RRLight::SPOT && !uberProgramSetup.LIGHT_DIRECT_MAP; // disables spot attenuation in presence of projected texture
-		uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL = light->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;
+		uberProgramSetup.LIGHT_DIRECT_ATT_REALISTIC = light->getRRLight().distanceAttenuationType==rr::RRLight::REALISTIC;
 		uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL = light->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 		uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = light->getRRLight().distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 

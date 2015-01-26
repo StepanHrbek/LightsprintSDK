@@ -90,7 +90,7 @@ namespace rr
 			//! Linear intensity is color, i.e. no attenuation with distance. Good approximation of sunlight.
 			NONE,
 			//! Linear intensity is color/distance^2. This is how real world works.
-			PHYSICAL,
+			REALISTIC,
 			//! Custom color space intensity is color/MAX(polynom[0]+polynom[1]*distance+polynom[2]*distance^2,polynom[3]). Used in fixed pipeline engines. polynom[3] was added to support Gamebryo.
 			POLYNOMIAL,
 			//! Linear intensity is color*pow(MAX(0,1-(distance/radius)^2),fallOffExponent). Used in UE3.

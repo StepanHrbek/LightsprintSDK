@@ -103,7 +103,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 
 	uberProgramSetup.LIGHT_DIRECT_COLOR           = uberProgramSetup.LIGHT_DIRECT && light && light->getRRLight().color!=rr::RRVec3(1);
 	uberProgramSetup.LIGHT_DIRECT_MAP             = uberProgramSetup.LIGHT_DIRECT_MAP && uberProgramSetup.SHADOW_MAPS && light && light->getProjectedTexture();
-	uberProgramSetup.LIGHT_DIRECT_ATT_PHYSICAL    = uberProgramSetup.LIGHT_DIRECT && light && light->getRRLight().distanceAttenuationType==rr::RRLight::PHYSICAL;
+	uberProgramSetup.LIGHT_DIRECT_ATT_REALISTIC   = uberProgramSetup.LIGHT_DIRECT && light && light->getRRLight().distanceAttenuationType==rr::RRLight::REALISTIC;
 	uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL  = uberProgramSetup.LIGHT_DIRECT && light && light->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 	uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = uberProgramSetup.LIGHT_DIRECT && light && light->getRRLight().distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 	// use program
