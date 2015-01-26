@@ -91,7 +91,7 @@ namespace rr
 			//
 			//! Solver needs it filled, but usually it happens automatically.
 			//! To keep colorLinear synchronized with color, solver calls RRObjects::updateColorPhysical() on incoming objects.
-			//! Only if you modify color already passed to solver, you need to call RRMaterial::convertToPhysicalScale() to update colorLinear.
+			//! Only if you modify color already passed to solver, you need to call RRMaterial::convertToLinear() to update colorLinear.
 			RRVec3                 colorLinear;
 			//! Material property expressed as a texture or video.
 			//
@@ -197,9 +197,9 @@ namespace rr
 		bool          validate(RRReal redistributedPhotonsLimit=0.98f);
 
 		//! Converts material properties from physical to custom scale (colorLinear -> color).
-		void          convertToCustomScale(const RRColorSpace* scaler);
+		void          convertFromLinear(const RRColorSpace* scaler);
 		//! Converts material properties from custom to physical scale (color -> colorLinear).
-		void          convertToPhysicalScale(const RRColorSpace* scaler);
+		void          convertToLinear(const RRColorSpace* scaler);
 
 		//! True if renderer needs blending to render the material.
 		bool          needsBlending() const;

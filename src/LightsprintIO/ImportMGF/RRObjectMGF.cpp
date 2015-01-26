@@ -146,7 +146,7 @@ void* add_material(C_MATERIAL* m)
 
 	// convert from physical scale, all samples expect inputs in screen colors
 	RRColorSpace* scaler = RRColorSpace::create_sRGB();
-	mat->convertToCustomScale(scaler);
+	mat->convertFromLinear(scaler);
 	delete scaler;
 
 	g_scene->materials.push_back(mat);

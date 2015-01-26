@@ -1306,7 +1306,7 @@ save_scene_as:
 						if (materials->size()==1 || getMaterial("Available materials:",this,*materials,selectedMaterialIndex))
 						{
 							m_materialProperties->material->copyFrom(*(*materials)[selectedMaterialIndex]);
-							m_materialProperties->material->convertToPhysicalScale(m_canvas->solver->getScaler());
+							m_materialProperties->material->convertToLinear(m_canvas->solver->getScaler());
 						}
 						for (unsigned i=0;i<materials->size();i++)
 							delete (*materials)[i];

@@ -163,8 +163,8 @@ void RRMaterial::reset(bool twoSided)
 }
 
 // Extract mean and variance from buffer.
-// When working with non-physical scale data, provide scaler for correct results.
-// Without scaler, mean would be a bit darker,
+// When working with custom color space data, provide scaler for correct results.
+// Without scaler, mean of sRGB data would be a bit darker,
 //  triangle materials based on mean would produce darker lightmaps than point materials.
 RRVec4 getVariance(const RRBuffer* buffer, const RRColorSpace* scaler, RRVec4& average)
 {
@@ -476,7 +476,7 @@ bool RRMaterial::validate(RRReal redistributedPhotonsLimit)
 	return changed;
 }
 
-void RRMaterial::convertToCustomScale(const RRColorSpace* scaler)
+void RRMaterial::convertFromLinear(const RRColorSpace* scaler)
 {
 	if (scaler)
 	{
@@ -488,7 +488,7 @@ void RRMaterial::convertToCustomScale(const RRColorSpace* scaler)
 	validate();
 }
 
-void RRMaterial::convertToPhysicalScale(const RRColorSpace* scaler)
+void RRMaterial::convertToLinear(const RRColorSpace* scaler)
 {
 	if (scaler)
 	{

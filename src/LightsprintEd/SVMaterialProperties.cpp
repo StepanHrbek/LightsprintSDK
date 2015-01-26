@@ -597,11 +597,11 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		if (showPhysical)
 		{
-			material->convertToCustomScale(lastSolver->getScaler());
+			material->convertFromLinear(lastSolver->getScaler());
 		}
 		else
 		{
-			material->convertToPhysicalScale(lastSolver->getScaler());
+			material->convertToLinear(lastSolver->getScaler());
 		}
 	}
 

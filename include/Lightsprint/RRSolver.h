@@ -790,7 +790,7 @@ namespace rr
 		//! Complete code sequence to edit original material, synchronize copy in solver and report change could look like
 		//! \code
 		//! ... here you edit material's color
-		//! material->convertToPhysicalScale(solver->getScaler()); // converts material's color to colorLinear
+		//! material->convertToLinear(solver->getScaler()); // converts material's color to colorLinear
 		//! solver->reallocateBuffersForRealtimeGI(); // allocates specular reflection cubes if you add specular
 		//! solver->reportMaterialChange();
 		//! \endcode

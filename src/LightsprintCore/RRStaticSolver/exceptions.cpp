@@ -277,7 +277,7 @@ void RRObjects::updateColorPhysical(const RRColorSpace* scaler) const
 	// color->colorLinear
 	for (Set::const_iterator i=set.begin();i!=set.end();++i)
 		if (*i)
-			(*i)->convertToPhysicalScale(scaler);
+			(*i)->convertToLinear(scaler);
 }
 
 static std::wstring filenamized(RRString& name)
