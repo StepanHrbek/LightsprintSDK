@@ -87,7 +87,7 @@ namespace rr
 			//! It is color in custom (usually sRGB) scale. Used by importers, exporters and realtime renderes (except for our pathtracer).
 			//! We don't enforce any kind of color validation, so you can create unrealistic materials.
 			RRVec3                 color;
-			//! Color converted to physical (linear) scale and validated. Used by GI solvers and our pathtracer.
+			//! Validated linear color. Used by GI solvers and our pathtracer.
 			//
 			//! Solver needs it filled, but usually it happens automatically.
 			//! To keep colorPhysical synchronized with color, solver calls RRObjects::updateColorPhysical() on incoming objects.

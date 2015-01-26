@@ -295,7 +295,7 @@ namespace rr
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
 		//! \param colorPhysical
-		//!  Color of light, irradiance in physical (linear) scale of lit surface before applying distance attenuation.
+		//!  Linear color of light, irradiance of lit surface before applying distance attenuation.
 		//! \param radius
 		//!  Distance in world space, where light disappears due to its distance attenuation.
 		//!  Light has effect in sphere of given radius.
@@ -359,7 +359,7 @@ namespace rr
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
 		//! \param colorPhysical
-		//!  Light color, irradiance in physical (linear) scale of lit surface before applying distance attenuation.
+		//!  Linear light color, irradiance of lit surface before applying distance attenuation.
 		//! \param radius
 		//!  Distance in world space, where light disappears due to its distance attenuation.
 		//!  Light has effect in sphere of given radius.

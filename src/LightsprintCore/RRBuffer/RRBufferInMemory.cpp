@@ -175,7 +175,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	}
 	if ((_format==BF_RGB || _format==BF_BGR || _format==BF_RGBA || _format==BF_LUMINANCE) && !_scaled)
 	{
-//		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"If it's not for bent normals, integer buffer won't be precise enough for physical (linear) scale data. Switch to floats or custom scale.\n"));
+//		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"If it's not for bent normals, integer buffer won't be precise enough for linear colors. Switch to floats or custom scale.\n"));
 	}
 	if ((_format==BF_RGBF || _format==BF_RGBAF) && _scaled && _width>2) // ignore it for tiny buffers like 2*2*6 cube from createSky()
 	{

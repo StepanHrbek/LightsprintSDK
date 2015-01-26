@@ -85,10 +85,10 @@ namespace rr
 	//! Buffer format. Implementation is not required to support all of them.
 	enum RRBufferFormat
 	{
-		BF_RGB,   ///< Integer RGB, 24bits per pixel. Format of textures natively supported by virtually all hardware. Usually not suitable for vertex buffers in hardware. Ideal for textures in custom scale (screen colors), not suitable for data in physical (linear) scale due to limited precision.
+		BF_RGB,   ///< Integer RGB, 24bits per pixel. Format of textures natively supported by virtually all hardware. Usually not suitable for vertex buffers in hardware. Ideal for sRGB textures, not suitable for linear colors due to limited precision.
 		BF_BGR,   ///< Integer BGR, 24bits per pixel. For DirectX interoperability.
-		BF_RGBA,  ///< Integer RGBA, 32bits per pixel. Format natively supported by virtually all hardware. Ideal for data in custom scale (screen colors), not suitable for data in physical (linear) scale due to limited precision.
-		BF_RGBF,  ///< Floating point RGB, 96bits per pixel. High precision, suitable for any data, but some old GPUs don't support textures in this format. Ideal for vertex buffers in physical (linear) scale.
+		BF_RGBA,  ///< Integer RGBA, 32bits per pixel. Format natively supported by virtually all hardware. Ideal for sRGB textures, not suitable for linear colors due to limited precision.
+		BF_RGBF,  ///< Floating point RGB, 96bits per pixel. High precision, suitable for any data, but some old GPUs don't support textures in this format. Ideal for linear colors in vertex buffers.
 		BF_RGBAF, ///< Floating point RGBA, 128bits per pixel. High precision, suitable for any data, but some old GPUs don't support textures in this format.
 		BF_DEPTH, ///< Depth, implementation defined precision.
 		BF_DXT1,  ///< DXT1 compressed, can't be accessed per-pixel.
@@ -183,8 +183,8 @@ namespace rr
 		//! \param format
 		//!  Format of data.
 		//!  Implementation is not required to support all data formats.
-		//!  \n For physical(linear) scale data, it's recommended to use floating point format to avoid clamping.
-		//!  For scaled (sRGB) data, more compact 8bit format is usually sufficient, although it clamps values to 0..1 range.
+		//!  \n For linear colors, it's recommended to use floating point format to avoid clamping.
+		//!  For sRGB colors, more compact 8bit format is usually sufficient, although it clamps values to 0..1 range.
 		//! \param scaled
 		//!  True for buffer data in custom color space (usually screen colors, sRGB), false for linear colors.
 		//!  When buffer is updated or rendered later, this setting is respected.
@@ -352,7 +352,7 @@ namespace rr
 
 		//! Creates cube texture with specified colors of upper and lower hemisphere.
 		//
-		//! Set scaled true for colors in custom scale (screen colors), false for physical (linear) scale.
+		//! Set scaled true for colors in custom color space (usually sRGB), false for linear colors.
 		//! By default, white cube for ambient occlusion is created.
 		static RRBuffer* createSky(const RRVec4& upper = RRVec4(1), const RRVec4& lower = RRVec4(1), bool scaled = true);
 
