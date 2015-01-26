@@ -19,7 +19,7 @@
 //  #define LIGHT_INDIRECT_CONST
 //  #define LIGHT_INDIRECT_VCOLOR
 //  #define LIGHT_INDIRECT_VCOLOR2
-//  #define LIGHT_INDIRECT_VCOLOR_PHYSICAL
+//  #define LIGHT_INDIRECT_VCOLOR_LINEAR
 //  #define LIGHT_INDIRECT_MAP
 //  #define LIGHT_INDIRECT_MAP2
 //  #define LIGHT_INDIRECT_DETAIL_MAP
@@ -222,7 +222,7 @@ void main()
 		#else
 			lightIndirectColor = vertexColor;
 		#endif
-		#ifdef LIGHT_INDIRECT_VCOLOR_PHYSICAL
+		#ifdef LIGHT_INDIRECT_VCOLOR_LINEAR
 			lightIndirectColor = pow(lightIndirectColor,vec4(0.45,0.45,0.45,0.45));
 		#endif
 	#endif

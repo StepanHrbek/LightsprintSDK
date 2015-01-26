@@ -415,7 +415,7 @@ public:
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_CONST = _.uberProgramSetup.LIGHT_INDIRECT_CONST && !lightIndirectVcolor && !lightIndirectMap && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE; // keep const only if no other indirect diffuse is available
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR = lightIndirectVcolor!=NULL;
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = false;
-					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR_PHYSICAL = lightIndirectVcolor!=NULL && !lightIndirectVcolor->getScaled();
+					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR_LINEAR = lightIndirectVcolor!=NULL && !lightIndirectVcolor->getScaled();
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP = lightIndirectMap!=NULL;
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = objectBuffers.lightIndirectDetailMap!=NULL;

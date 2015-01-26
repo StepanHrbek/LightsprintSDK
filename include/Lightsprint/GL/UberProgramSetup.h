@@ -86,7 +86,7 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_INDIRECT_CONST          :1; ///< Illuminates material (both diffuse and specular components) by constant ambient light. Non-directional. Always available (does not need any data buffers), but the least realistic out of all LIGHT_INDIRECT_ options.
 	bool     LIGHT_INDIRECT_VCOLOR         :1; ///< Illuminates material's diffuse component by vertex colors (any vertex buffer you provide, or realtime radiosity calculated one). Non-directional.
 	bool     LIGHT_INDIRECT_VCOLOR2        :1; ///< Enables blend between two ambient vertex colors. Non-directional.
-	bool     LIGHT_INDIRECT_VCOLOR_PHYSICAL:1; ///< If indirect illumination by vertex colors is used, it is expected in physical/linear scale, converted to sRGB in shader.
+	bool     LIGHT_INDIRECT_VCOLOR_LINEAR  :1; ///< If indirect illumination by vertex colors is used, it is expected in physical/linear scale, converted to sRGB in shader.
 	bool     LIGHT_INDIRECT_MAP            :1; ///< Illuminates material's diffuse component by ambient map (any map you provide). Non-directional.
 	bool     LIGHT_INDIRECT_MAP2           :1; ///< Enables blend between two ambient maps. Non-directional.
 	bool     LIGHT_INDIRECT_DETAIL_MAP     :1; ///< Enables modulation of indirect light by light detail map. Non-directional.
