@@ -365,10 +365,11 @@ RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRS
 	if (!_interpolated)
 	{
 	// fast, no interpolation
+	RRVec3 position(fmodf(_position[0],1)+2,fmodf(_position[1],1)+2,fmodf(_position[2],1)+2);
 	unsigned coord[3];
-	coord[0] = (unsigned)(_position[0] * width) % width;
-	coord[1] = (unsigned)(_position[1] * height) % height;
-	coord[2] = (unsigned)(_position[2] * depth) % depth;
+	coord[0] = (unsigned)(position[0] * width) % width;
+	coord[1] = (unsigned)(position[1] * height) % height;
+	coord[2] = (unsigned)(position[2] * depth) % depth;
 	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,scaler);
 	}
 	else
@@ -382,7 +383,7 @@ RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRS
 	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,scaler);
 #else
 	// slow, interpolation
-	RRVec3 position((fmodf(_position[0],1)+2)*width-0.5f,(fmodf(_position[1],1)+2)*height-0.5f,(fmodf(_position[2],1)+1)*depth);
+	RRVec3 position((fmodf(_position[0],1)+2)*width-0.5f,(fmodf(_position[1],1)+2)*height-0.5f,(fmodf(_position[2],1)+2)*depth);
 	RRVec2 remainder(fmodf(position[0],1),fmodf(position[1],1));
 	unsigned coord[3];
 	coord[0] = (unsigned)(position[0]);
