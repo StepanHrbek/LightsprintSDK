@@ -3114,7 +3114,7 @@ rr::RRVector<*>{
    In typical situations, it is most straightforward to think and communicate
    in screen colors. This means you can set nearly all inputs in screen colors
    (scaled to 0-1 range) and read all outputs in screen colors.
-   To setup this mode, call RRSolver::setScaler(RRScaler::createRgbScaler()).
+   To setup this mode, call RRSolver::setScaler(RRColorSpace::create_sRGB()).
    RealtimeRadiosity sample demonstrates it.
 
  \section gunits2 Geometry units
