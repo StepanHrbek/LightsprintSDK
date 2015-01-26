@@ -652,8 +652,8 @@ void RRMaterial::getResponse(Response& response, BrdfType type) const
 			// intentionally no break
 		case BRDF_SPECULAR:
 			{
-				RRVec3 specularReflectance_colorPhysical = specularReflectance.colorLinear;
-				RRVec3 specularTransmittance_colorPhysical = specularTransmittance.colorLinear;
+				RRVec3 specularReflectance_colorLinear = specularReflectance.colorLinear;
+				RRVec3 specularTransmittance_colorLinear = specularTransmittance.colorLinear;
 
 				// fresnel effect
 				if (refractionIndex!=1)
@@ -663,8 +663,8 @@ void RRMaterial::getResponse(Response& response, BrdfType type) const
 					bool hitFrontSide = dif>=0; //!!! asi spatne, pokud jsem hitnul backside tak uz sem prisla obracena normala
 					float fresnelReflectance = getFresnelReflectance(dif,twoSided,hitFrontSide,refractionIndex);
 					RR_CLAMP(fresnelReflectance,0,0.999f); // clamping to 1 in shader produces strange artifact
-					specularReflectance_colorPhysical += specularTransmittance.colorLinear*fresnelReflectance;
-					specularTransmittance_colorPhysical *= 1-fresnelReflectance;
+					specularReflectance_colorLinear += specularTransmittance.colorLinear*fresnelReflectance;
+					specularTransmittance_colorLinear *= 1-fresnelReflectance;
 				}
 
 				RRVec3 dirInMajor = (type==BRDF_SPECULAR) ? reflect(response.dirOut,response.dirNormal) : refract(response.dirOut,response.dirNormal,this);
@@ -672,7 +672,7 @@ void RRMaterial::getResponse(Response& response, BrdfType type) const
 				RRReal phongShininess = (specularModel==PHONG || specularModel==BLINN_PHONG) ? specularShininess : (1/RR_MAX(specularShininess,MIN_ROUGHNESS)-1);
 				RRReal spec = specularResponse(PHONG,phongShininess,response,dirInMajor);
 				//RRReal spec = specularResponse(specularModel,specularShininess,response,dirInMajor);
-				response.colorOut = ((type==BRDF_SPECULAR) ? specularReflectance_colorPhysical : specularTransmittance_colorPhysical) * spec;
+				response.colorOut = ((type==BRDF_SPECULAR) ? specularReflectance_colorLinear : specularTransmittance_colorLinear) * spec;
 				RR_ASSERT(response.colorOut.finite());
 			}
 			break;
