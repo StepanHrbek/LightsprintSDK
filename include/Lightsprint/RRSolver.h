@@ -465,8 +465,6 @@ namespace rr
 			//
 			//! Relates to number of rays per texel or triangle,
 			//! time taken grows mostly linearly with this number.
-			//! (When !useCurrentSolution and lightMultiplier and !environmentMultiplier,
-			//! faster path is used.)
 			//!
 			//! Higher number = higher quality.
 			//! 1000 is usually sufficient for production, with small per pixel details
