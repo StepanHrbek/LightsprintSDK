@@ -71,10 +71,6 @@ namespace rr
 		//!  Exponent in formula screenSpace = physicalSpace^power.
 		//!  Use default value for typical screens or tweak it for different contrast.
 		static RRColorSpace* createRgbScaler(RRReal power=0.45f);
-
-		//! As createRgbScaler(), but slightly faster, with undefined results for negative numbers.
-		//! Be cautious and fall back to createRgbScaler() in case you find regression.
-		static RRColorSpace* createFastRgbScaler(RRReal power=0.45f);
 	};
 
 
