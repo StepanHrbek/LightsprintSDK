@@ -3088,8 +3088,8 @@ rr::RRVector<*>{
    not modulated by material color.
    \n Lightmap could contain direct, indirect or global (both) illumination.
    \n Lightmap with indirect illumination is sometimes called <b>ambient map</b>.
-   \n Textures are typically created in sRGB scale and 8bit per channel precision,
-   vertex buffers are typically created in physical scale and float precision, but this is completely user defined,
+   \n Textures are typically created in sRGB color space with 8bit per channel precision,
+   vertex buffers are typically created in linear space with float precision, but this is completely user defined,
    all combinations are supported.
 
  \section glinking Automatic library linking
