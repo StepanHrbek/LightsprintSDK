@@ -62,7 +62,7 @@ public:
 		rawField = NULL;
 		rawCell = NULL;
 		for (unsigned i=0;i<256;i++)
-			customToPhysical[i] = (unsigned)pow(float(i),2.2222f);
+			customToLinear[i] = (unsigned)pow(float(i),2.2222f);
 	}
 	virtual ~LightField()
 	{
@@ -145,14 +145,14 @@ public:
 			for (unsigned i=0;i<cellSize;i++)
 			{
 				rawCell[i] = (unsigned)pow(float((
-					cellWeight[0]*customToPhysical[rawField[cellOffset[0]+i]] +
-					cellWeight[1]*customToPhysical[rawField[cellOffset[1]+i]] +
-					cellWeight[2]*customToPhysical[rawField[cellOffset[2]+i]] +
-					cellWeight[3]*customToPhysical[rawField[cellOffset[3]+i]] +
-					cellWeight[4]*customToPhysical[rawField[cellOffset[4]+i]] +
-					cellWeight[5]*customToPhysical[rawField[cellOffset[5]+i]] +
-					cellWeight[6]*customToPhysical[rawField[cellOffset[6]+i]] +
-					cellWeight[7]*customToPhysical[rawField[cellOffset[7]+i]] ) /8192 ), 0.45f);
+					cellWeight[0]*customToLinear[rawField[cellOffset[0]+i]] +
+					cellWeight[1]*customToLinear[rawField[cellOffset[1]+i]] +
+					cellWeight[2]*customToLinear[rawField[cellOffset[2]+i]] +
+					cellWeight[3]*customToLinear[rawField[cellOffset[3]+i]] +
+					cellWeight[4]*customToLinear[rawField[cellOffset[4]+i]] +
+					cellWeight[5]*customToLinear[rawField[cellOffset[5]+i]] +
+					cellWeight[6]*customToLinear[rawField[cellOffset[6]+i]] +
+					cellWeight[7]*customToLinear[rawField[cellOffset[7]+i]] ) /8192 ), 0.45f);
 			}
 		}
 		else
@@ -182,22 +182,22 @@ public:
 			for (unsigned i=0;i<cellSize;i++)
 			{
 				rawCell[i] = (unsigned)pow(float((
-					cellWeight[0]*customToPhysical[rawField[cellOffset[0]+i]] +
-					cellWeight[1]*customToPhysical[rawField[cellOffset[1]+i]] +
-					cellWeight[2]*customToPhysical[rawField[cellOffset[2]+i]] +
-					cellWeight[3]*customToPhysical[rawField[cellOffset[3]+i]] +
-					cellWeight[4]*customToPhysical[rawField[cellOffset[4]+i]] +
-					cellWeight[5]*customToPhysical[rawField[cellOffset[5]+i]] +
-					cellWeight[6]*customToPhysical[rawField[cellOffset[6]+i]] +
-					cellWeight[7]*customToPhysical[rawField[cellOffset[7]+i]] +
-					cellWeight[8]*customToPhysical[rawField[cellOffset[8]+i]] +
-					cellWeight[9]*customToPhysical[rawField[cellOffset[9]+i]] +
-					cellWeight[10]*customToPhysical[rawField[cellOffset[10]+i]] +
-					cellWeight[11]*customToPhysical[rawField[cellOffset[11]+i]] +
-					cellWeight[12]*customToPhysical[rawField[cellOffset[12]+i]] +
-					cellWeight[13]*customToPhysical[rawField[cellOffset[13]+i]] +
-					cellWeight[14]*customToPhysical[rawField[cellOffset[14]+i]] +
-					cellWeight[15]*customToPhysical[rawField[cellOffset[15]+i]] ) /8192 ), 0.45f);
+					cellWeight[0]*customToLinear[rawField[cellOffset[0]+i]] +
+					cellWeight[1]*customToLinear[rawField[cellOffset[1]+i]] +
+					cellWeight[2]*customToLinear[rawField[cellOffset[2]+i]] +
+					cellWeight[3]*customToLinear[rawField[cellOffset[3]+i]] +
+					cellWeight[4]*customToLinear[rawField[cellOffset[4]+i]] +
+					cellWeight[5]*customToLinear[rawField[cellOffset[5]+i]] +
+					cellWeight[6]*customToLinear[rawField[cellOffset[6]+i]] +
+					cellWeight[7]*customToLinear[rawField[cellOffset[7]+i]] +
+					cellWeight[8]*customToLinear[rawField[cellOffset[8]+i]] +
+					cellWeight[9]*customToLinear[rawField[cellOffset[9]+i]] +
+					cellWeight[10]*customToLinear[rawField[cellOffset[10]+i]] +
+					cellWeight[11]*customToLinear[rawField[cellOffset[11]+i]] +
+					cellWeight[12]*customToLinear[rawField[cellOffset[12]+i]] +
+					cellWeight[13]*customToLinear[rawField[cellOffset[13]+i]] +
+					cellWeight[14]*customToLinear[rawField[cellOffset[14]+i]] +
+					cellWeight[15]*customToLinear[rawField[cellOffset[15]+i]] ) /8192 ), 0.45f);
 			}
 		}
 
@@ -266,7 +266,7 @@ public:
 	LightFieldParameters header;
 	unsigned char* rawField; // static array of precomputed cells
 	unsigned char* rawCell; // temporary cell used by updateEnvironmentMap (for blending precomputed cells)
-	unsigned customToPhysical[256]; // custom scale 8bit to phys scale ~18bit
+	unsigned customToLinear[256]; // custom scale 8bit to phys scale ~18bit
 };
 
 
