@@ -1035,7 +1035,7 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 			return 0;
 
 		paramsDirect.useCurrentSolution = true; // set solution generated here to be gathered in final gather
-		paramsDirect.measure_internal.direct = true; // it is stored in direct+indirect (after calculate)
+		paramsDirect.measure_internal.direct = true; // [#41] it is stored in direct+indirect (after calculate)
 		paramsDirect.measure_internal.indirect = true;
 		// musim gathernout direct i indirect.
 		// indirect je jasny, jedine v nem je vysledek spocteny v calculate().
