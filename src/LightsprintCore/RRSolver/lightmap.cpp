@@ -956,6 +956,24 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	// when direct=NULL, copy quality from indirect otherwise final gather would shoot only 1 ray per texel to gather indirect
 	if (!_paramsDirect && _paramsIndirect) paramsDirect.quality = paramsIndirect.quality;
 
+	// clear as many multipliers as possible
+	if (!paramsDirect.quality)
+	{
+		if (paramsDirect.lightMultiplier || paramsIndirect.lightMultiplier
+			|| paramsDirect.environmentMultiplier || paramsIndirect.environmentMultiplier
+			|| paramsDirect.materialEmittanceMultiplier || paramsIndirect.materialEmittanceMultiplier
+			|| !paramsDirect.useCurrentSolution)
+		{
+			paramsDirect.lightMultiplier = 0;
+			paramsIndirect.lightMultiplier = 0;
+			paramsDirect.environmentMultiplier = 0;
+			paramsIndirect.environmentMultiplier = 0;
+			paramsDirect.materialEmittanceMultiplier = 0;
+			paramsIndirect.materialEmittanceMultiplier = 0;
+			paramsDirect.useCurrentSolution = true;
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(WARN,"updateLightmaps(): invalid arguments, quality=0 but multipliers>0 or !useCurrentSolution.\n"));
+		}
+	}
 	optimizeMultipliers(paramsDirect,paramsIndirect,true);
 
 	int allLayers[NUM_BUFFERS];
