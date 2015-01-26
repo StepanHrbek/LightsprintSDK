@@ -270,9 +270,9 @@ namespace rr
 		//!  Direction of light in world space.
 		//! \param color
 		//!  Irradiance at receiver, assuming it is oriented towards light.
-		//! \param physicalScale
-		//!  True for color in physical scale, false for color in sRGB (screen color).
-		static RRLight* createDirectionalLight(const RRVec3& direction, const RRVec3& color, bool physicalScale);
+		//! \param linear
+		//!  True for linear color, false for custom color space (usually sRGB, screen color).
+		static RRLight* createDirectionalLight(const RRVec3& direction, const RRVec3& color, bool linear);
 
 		//! Creates omnidirectional point light with physically correct distance attenuation.
 		//

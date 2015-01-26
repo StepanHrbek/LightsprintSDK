@@ -60,18 +60,17 @@ const RRVec3 warnIfNaN(const RRVec3& a, const char* name)
 //////////////////////////////////////////////////////////////////////////////
 //
 // DirectionalLight
-// color is in physical scale
 
 class DirectionalLight : public RRLight
 {
 public:
-	DirectionalLight(const RRVec3& _direction, const RRVec3& _color, bool _physicalScale)
+	DirectionalLight(const RRVec3& _direction, const RRVec3& _color, bool _linear)
 	{
 		type = DIRECTIONAL;
 		distanceAttenuationType = NONE;
 		direction = warnIfZero(_direction,"direction").normalized();
 		color = warnIfNegative(_color,"color");
-		if (!_physicalScale)
+		if (!_linear)
 		{
 			color[0] = pow(color[0],SRGB2PHYS);
 			color[1] = pow(color[1],SRGB2PHYS);
@@ -86,17 +85,16 @@ public:
 //////////////////////////////////////////////////////////////////////////////
 //
 // PointLightPhys
-// color is in physical scale
 
 class PointLightPhys : public RRLight
 {
 public:
-	PointLightPhys(const RRVec3& _position, const RRVec3& _color)
+	PointLightPhys(const RRVec3& _position, const RRVec3& _linearColor)
 	{
 		type = POINT;
 		distanceAttenuationType = REALISTIC;
 		position = warnIfNaN(_position,"position");
-		color = warnIfNegative(_color,"color");
+		color = warnIfNegative(_linearColor,"color");
 	}
 };
 
@@ -104,17 +102,16 @@ public:
 //////////////////////////////////////////////////////////////////////////////
 //
 // PointLightNoAtt
-// color is in physical scale
 
 class PointLightNoAtt : public RRLight
 {
 public:
-	PointLightNoAtt(const RRVec3& _position, const RRVec3& _color)
+	PointLightNoAtt(const RRVec3& _position, const RRVec3& _colorLinear)
 	{
 		type = POINT;
 		distanceAttenuationType = NONE;
 		position = warnIfNaN(_position,"position");
-		color = warnIfNegative(_color,"color");
+		color = warnIfNegative(_colorLinear,"color");
 	}
 };
 
@@ -161,17 +158,16 @@ public:
 //////////////////////////////////////////////////////////////////////////////
 //
 // SpotLightPhys
-// color is in physical scale
 
 class SpotLightPhys : public RRLight
 {
 public:
-	SpotLightPhys(const RRVec3& _position, const RRVec3& _color, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
+	SpotLightPhys(const RRVec3& _position, const RRVec3& _colorLinear, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
 	{
 		type = SPOT;
 		distanceAttenuationType = REALISTIC;
 		position = warnIfNaN(_position,"position");
-		color = warnIfNegative(_color,"color");
+		color = warnIfNegative(_colorLinear,"color");
 		direction = warnIfZero(_direction,"direction").normalized();
 		#define DELTA 0.0001f
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
@@ -184,17 +180,16 @@ public:
 //////////////////////////////////////////////////////////////////////////////
 //
 // SpotLightNoAtt
-// color is in physical scale
 
 class SpotLightNoAtt : public RRLight
 {
 public:
-	SpotLightNoAtt(const RRVec3& _position, const RRVec3& _color, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
+	SpotLightNoAtt(const RRVec3& _position, const RRVec3& _colorLinear, const RRVec3& _direction, RRReal _outerAngleRad, RRReal _fallOffAngleRad)
 	{
 		type = SPOT;
 		distanceAttenuationType = NONE;
 		position = warnIfNaN(_position,"position");
-		color = warnIfNegative(_color,"color");
+		color = warnIfNegative(_colorLinear,"color");
 		direction = warnIfZero(_direction,"direction").normalized();
 		outerAngleRad = RR_CLAMPED(_outerAngleRad,DELTA,RR_PI*0.5f-DELTA);
 		fallOffAngleRad = RR_CLAMPED(_fallOffAngleRad,0,outerAngleRad);
@@ -424,9 +419,9 @@ bool RRLight::operator !=(const RRLight& a) const
 	return !(a==*this);
 }
 
-RRLight* RRLight::createDirectionalLight(const RRVec3& direction, const RRVec3& color, bool physicalScale)
+RRLight* RRLight::createDirectionalLight(const RRVec3& direction, const RRVec3& color, bool linear)
 {
-	return new DirectionalLight(direction,color,physicalScale);
+	return new DirectionalLight(direction,color,linear);
 }
 
 RRLight* RRLight::createPointLight(const RRVec3& position, const RRVec3& color)
