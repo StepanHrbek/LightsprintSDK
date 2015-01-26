@@ -1145,6 +1145,8 @@ bool RRBuffer::reload(const RRString& _filename, const char* _cubeSideName[6], c
 	const unsigned char* loadedData = loaded->lock(BL_READ);
 	reset(loaded->getType(),loaded->getWidth(),loaded->getHeight(),loaded->getDepth(),loaded->getFormat(),loaded->getScaled(),loadedData);
 	filename = loaded->filename; // [#36] reload() just tmp->load()s and then copies all, including filename
+	if (dynamic_cast<RRBufferInMemory*>(this))
+		dynamic_cast<RRBufferInMemory*>(this)->stub = loaded->isStub();
 	if (loadedData)
 	{
 		loaded->unlock();
