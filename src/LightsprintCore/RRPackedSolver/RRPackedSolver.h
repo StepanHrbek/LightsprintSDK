@@ -58,7 +58,7 @@ public:
 	//! Pointers are valid even without calling update, however data behind pointers
 	//! are valid only after calling update.
 	const RRVec3* getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const;
-	//! Returns RM_IRRADIANCE_PHYSICAL_INDIRECT for given point of static triangle. Fast, uses per-vertex values updated by getTriangleIrradianceIndirectUpdate().
+	//! Returns RM_IRRADIANCE_LINEAR_INDIRECT for given point of static triangle. Fast, uses per-vertex values updated by getTriangleIrradianceIndirectUpdate().
 	RRVec3 getPointIrradianceIndirect(unsigned triangle, const RRVec2& uv) const;
 
 	//! Returns any specified measure, slower but universal replacement for other getTriangleXxx() functions.

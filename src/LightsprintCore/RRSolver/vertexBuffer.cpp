@@ -145,11 +145,11 @@ void RRSolver::updateVertexLookupTablePackedSolver()
 //!  Destination vertex buffer for indirect illumination.
 //! \param params
 //!  Parameters of the update process, NULL for the default parameters that
-//!  specify fast update (takes milliseconds) of RM_IRRADIANCE_PHYSICAL_INDIRECT data.
+//!  specify fast update (takes milliseconds) of RM_IRRADIANCE_LINEAR_INDIRECT data.
 //!  \n Only subset of all parameters is supported, see remarks.
 //!  \n params->measure specifies type of information stored in vertex buffer.
 //!  For typical scenario with per pixel direct illumination and per vertex indirect illumination,
-//!  use RM_IRRADIANCE_PHYSICAL_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
+//!  use RM_IRRADIANCE_LINEAR_INDIRECT (faster) or RM_IRRADIANCE_CUSTOM_INDIRECT.
 //! \return
 //!  Number of vertex buffers updated, 0 or 1.
 //! \remarks

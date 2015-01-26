@@ -329,7 +329,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				// zero area would create #INF in getIndirectIrradiance()
 				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 				RR_ASSERT(hitTriangle->area);
-				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_PHYSICAL_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorLinear;// * splitToTwoSides;
+				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_LINEAR_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorLinear;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));
 				probabilityDiff = 0; // exclude diffuse from next path
 			}

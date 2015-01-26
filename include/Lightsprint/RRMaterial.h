@@ -41,7 +41,7 @@ namespace rr
 		bool operator ==(const RRRadiometricMeasure& a) const;
 	};
 	// Shortcuts for typical measures.
-	#define RM_IRRADIANCE_PHYSICAL_INDIRECT rr::RRRadiometricMeasure(0,0,0,0,1)
+	#define RM_IRRADIANCE_LINEAR_INDIRECT   rr::RRRadiometricMeasure(0,0,0,0,1)
 	#define RM_IRRADIANCE_CUSTOM_INDIRECT   rr::RRRadiometricMeasure(0,1,0,0,1)
 	#define RM_IRRADIANCE_PHYSICAL          rr::RRRadiometricMeasure(0,0,0,1,1)
 	#define RM_IRRADIANCE_CUSTOM            rr::RRRadiometricMeasure(0,1,0,1,1)
