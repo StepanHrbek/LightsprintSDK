@@ -294,14 +294,14 @@ namespace rr
 		//
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
-		//! \param colorPhysical
+		//! \param colorLinear
 		//!  Linear color of light, irradiance of lit surface before applying distance attenuation.
 		//! \param radius
 		//!  Distance in world space, where light disappears due to its distance attenuation.
 		//!  Light has effect in sphere of given radius.
 		//! \param fallOffExponent
 		//!  Distance attenuation in custom scale is computed as pow(MAX(0,1-(distance/radius)^2),fallOffExponent).
-		static RRLight* createPointLightRadiusExp(const RRVec3& position, const RRVec3& colorPhysical, RRReal radius, RRReal fallOffExponent);
+		static RRLight* createPointLightRadiusExp(const RRVec3& position, const RRVec3& colorLinear, RRReal radius, RRReal fallOffExponent);
 
 		//! Creates omnidirectional point light with polynom based distance attenuation (physically incorrect).
 		//
@@ -358,7 +358,7 @@ namespace rr
 		//! Light rays start in position and go in directions up to outerAngleRad diverting from major direction.
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
-		//! \param colorPhysical
+		//! \param colorLinear
 		//!  Linear light color, irradiance of lit surface before applying distance attenuation.
 		//! \param radius
 		//!  Distance in world space, where light disappears due to its distance attenuation.
@@ -376,7 +376,7 @@ namespace rr
 		//!  Light rays with direction diverted less than outerAngleRad from majorDirection,
 		//!  but more than outerAngleRad-fallOffAngleRad, are attenuated.
 		//!  If your data contain innerAngle, set fallOffAngle=outerAngle-innerAngle.
-		static RRLight* createSpotLightRadiusExp(const RRVec3& position, const RRVec3& colorPhysical, RRReal radius, RRReal fallOffExponent, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
+		static RRLight* createSpotLightRadiusExp(const RRVec3& position, const RRVec3& colorLinear, RRReal radius, RRReal fallOffExponent, const RRVec3& majorDirection, RRReal outerAngleRad, RRReal fallOffAngleRad);
 
 		//! Creates spot light with polynom based distance attenuation (physically incorrect).
 		//

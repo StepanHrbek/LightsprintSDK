@@ -186,17 +186,17 @@ void RRObject::updateFaceGroupsFromTriangleMaterials()
 	}
 }
 
-// Expects material prefilled with getTriangleMaterial(), both color and colorPhysical.
-// Updates color and (if scaler!=NULL) colorPhysical for properties with texture.
+// Expects material prefilled with getTriangleMaterial(), both color and colorLinear.
+// Updates color and (if scaler!=NULL) colorLinear for properties with texture.
 static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, const RRColorSpace* scaler, bool interpolated, RRPointMaterial& material)
 {
-	// Make color (and possibly also colorPhysical) more accurate using textures.
+	// Make color (and possibly also colorLinear) more accurate using textures.
 	if (material.diffuseEmittance.texture)
 	{
 		RRMesh::TriangleMapping triangleMapping;
 		mesh->getTriangleMapping(t,triangleMapping,material.diffuseEmittance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		material.diffuseEmittance.colorPhysical = material.diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler,interpolated);
+		material.diffuseEmittance.colorLinear = material.diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler,interpolated);
 	}
 	if (material.specularReflectance.texture)
 	{
@@ -204,7 +204,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 		mesh->getTriangleMapping(t,triangleMapping,material.specularReflectance.texcoord);
 		RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
 		RRVec4 specColor = material.specularReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler,interpolated);
-		material.specularReflectance.colorPhysical = specColor;
+		material.specularReflectance.colorLinear = specColor;
 		// shininess is modulated by specular map alpha. does nothing if specular map is RGB only [#18]
 		if (material.specularModel==RRMaterial::PHONG || material.specularModel==RRMaterial::BLINN_PHONG)
 		{
@@ -230,16 +230,16 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 		if (specularTransmittance==1)
 			material.sideBits[0].catchFrom = material.sideBits[1].catchFrom =
 			material.sideBits[0].renderFrom = material.sideBits[1].renderFrom = 0;
-		material.diffuseReflectance.colorPhysical = material.diffuseReflectance.color = rgba;
-		material.specularTransmittance.colorPhysical = material.specularTransmittance.color = RRVec3(specularTransmittance);
+		material.diffuseReflectance.colorLinear = material.diffuseReflectance.color = rgba;
+		material.specularTransmittance.colorLinear = material.specularTransmittance.color = RRVec3(specularTransmittance);
 		if (scaler)
 		{
-			scaler->toLinear(material.diffuseReflectance.colorPhysical);
-			scaler->toLinear(material.specularTransmittance.colorPhysical);
+			scaler->toLinear(material.diffuseReflectance.colorLinear);
+			scaler->toLinear(material.specularTransmittance.colorLinear);
 		}
 		// [#39] we multiply dif by opacity on the fly, because real world data are often in this format
 		material.diffuseReflectance.color *= (RRVec3(1)-material.specularTransmittance.color); // multiply cust color in cust.scale - inaccurate, but result probably not used
-		material.diffuseReflectance.colorPhysical *= (RRVec3(1)-material.specularTransmittance.colorPhysical); // multiply phys color in phys scale - accurate, used by pathtracer, makes cloud borders in clouds.rr3 white
+		material.diffuseReflectance.colorLinear *= (RRVec3(1)-material.specularTransmittance.colorLinear); // multiply phys color in phys scale - accurate, used by pathtracer, makes cloud borders in clouds.rr3 white
 	}
 	else
 	{
@@ -249,7 +249,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 			RRMesh::TriangleMapping triangleMapping;
 			mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-			material.diffuseReflectance.colorPhysical = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler,interpolated);
+			material.diffuseReflectance.colorLinear = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),scaler,interpolated);
 		}
 		if (material.specularTransmittance.texture)
 		{
@@ -265,12 +265,12 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 			if (material.specularTransmittance.color==RRVec3(1))
 				material.sideBits[0].catchFrom = material.sideBits[1].catchFrom =
 				material.sideBits[0].renderFrom = material.sideBits[1].renderFrom = 0;
-			material.specularTransmittance.colorPhysical = material.specularTransmittance.color;
+			material.specularTransmittance.colorLinear = material.specularTransmittance.color;
 			if (scaler)
-				scaler->toLinear(material.specularTransmittance.colorPhysical);
+				scaler->toLinear(material.specularTransmittance.colorLinear);
 			// [#39] we multiply dif by opacity on the fly, because real world data are often in this format
 			material.diffuseReflectance.color *= (RRVec3(1)-material.specularTransmittance.color); // multiply cust color in cust.scale - inaccurate, but result probably not used
-			material.diffuseReflectance.colorPhysical *= (RRVec3(1)-material.specularTransmittance.colorPhysical); // multiply phys color in phys scale - accurate, used by pathtracer, makes cloud borders in clouds.rr3 white
+			material.diffuseReflectance.colorLinear *= (RRVec3(1)-material.specularTransmittance.colorLinear); // multiply phys color in phys scale - accurate, used by pathtracer, makes cloud borders in clouds.rr3 white
 		}
 	}
 }

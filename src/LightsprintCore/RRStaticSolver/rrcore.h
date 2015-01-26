@@ -121,10 +121,10 @@ public:
 	// get direct light (entered by client, not calculated)
 	RRVec3  getDirectIncidentFlux()   const {return directIncidentFlux;}
 	//RRVec3  getDirectEmitingFlux()    const {return surface->diffuseEmittance.color*area;} // emissivity
-	RRVec3  getDirectExitingFlux(RRReal emissiveMultiplier) const {return directIncidentFlux*surface->diffuseReflectance.colorPhysical + surface->diffuseEmittance.colorPhysical*(area*emissiveMultiplier);} // emissivity + reflected light
+	RRVec3  getDirectExitingFlux(RRReal emissiveMultiplier) const {return directIncidentFlux*surface->diffuseReflectance.colorLinear + surface->diffuseEmittance.colorLinear*(area*emissiveMultiplier);} // emissivity + reflected light
 	RRVec3  getDirectIrradiance()     const {return directIncidentFlux/area;}
 	//RRVec3  getDirectEmittance()      const {return surface->diffuseEmittance.color;}
-	RRVec3  getDirectExitance(RRReal emissiveMultiplier) const {return directIncidentFlux/area*surface->diffuseReflectance.colorPhysical + surface->diffuseEmittance.colorPhysical*emissiveMultiplier;}
+	RRVec3  getDirectExitance(RRReal emissiveMultiplier) const {return directIncidentFlux/area*surface->diffuseReflectance.colorLinear + surface->diffuseEmittance.colorLinear*emissiveMultiplier;}
 
 	// get total light
 	//RRVec3  getTotalIncidentFlux()    const {return totalIncidentFlux;}

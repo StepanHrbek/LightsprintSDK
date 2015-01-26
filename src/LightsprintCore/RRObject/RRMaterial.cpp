@@ -59,7 +59,7 @@ bool RRSideBits::operator ==(const RRSideBits& a) const
 bool RRMaterial::Property::operator ==(const RRMaterial::Property& a) const
 {
 	return a.color==color
-		&& a.colorPhysical==colorPhysical
+		&& a.colorLinear==colorLinear
 		&& a.texcoord==texcoord
 		&& a.texture==texture
 		;
@@ -78,7 +78,7 @@ RRMaterial::RRMaterial()
 static void copyProperty(RRMaterial::Property& to, const RRMaterial::Property& from)
 {
 	to.color = from.color;
-	to.colorPhysical = from.colorPhysical;
+	to.colorLinear = from.colorLinear;
 	to.texcoord = from.texcoord;
 	// copy texture only if it differs, copying is bit expensive and thread unsafe
 	if (to.texture!=from.texture)
@@ -145,7 +145,7 @@ void RRMaterial::reset(bool twoSided)
 	sideBits[0]                  = sideBitsTmp[twoSided?1:0][0];
 	sideBits[1]                  = sideBitsTmp[twoSided?1:0][1];
 	diffuseReflectance.color     = RRVec3(0.5f);
-	diffuseReflectance.colorPhysical = RRVec3(0.5f);//!!!
+	diffuseReflectance.colorLinear = RRVec3(0.5f);//!!!
 	specularModel                = PHONG;
 	specularShininess            = DEFAULT_SHININESS;
 	specularTransmittanceInAlpha = false;
@@ -155,7 +155,7 @@ void RRMaterial::reset(bool twoSided)
 	bumpMapTypeHeight            = true;
 	refractionIndex              = 1;
 	bumpMap.color                = RRVec3(1);
-	bumpMap.colorPhysical        = RRVec3(1);
+	bumpMap.colorLinear        = RRVec3(1);
 	lightmapTexcoord             = UINT_MAX; // no unwrap by default
 	minimalQualityForPointMaterials = UINT_MAX; // Keep point materials disabled, adapter must explicitly want them.
 	name.clear();
@@ -450,23 +450,23 @@ bool RRMaterial::validate(RRReal redistributedPhotonsLimit)
 {
 	bool changed = false;
 
-	if (clamp3(diffuseReflectance.colorPhysical,0,10)) changed = true;
-	if (clamp3(specularReflectance.colorPhysical,0,10)) changed = true;
-	if (clamp3(specularTransmittance.colorPhysical,0,10)) changed = true;
-	if (clamp3(diffuseEmittance.colorPhysical,0,MAX_EMITTANCE)) changed = true;
+	if (clamp3(diffuseReflectance.colorLinear,0,10)) changed = true;
+	if (clamp3(specularReflectance.colorLinear,0,10)) changed = true;
+	if (clamp3(specularTransmittance.colorLinear,0,10)) changed = true;
+	if (clamp3(diffuseEmittance.colorLinear,0,MAX_EMITTANCE)) changed = true;
 
 	if (specularModel==PHONG || specularModel==BLINN_PHONG)
 		if (clamp1(specularShininess,0,MAX_SHININESS)) changed = true;
 	if (specularModel==TORRANCE_SPARROW || specularModel==BLINN_TORRANCE_SPARROW)
 		if (clamp1(specularShininess,MIN_ROUGHNESS,1)) changed = true;
 
-	RRVec3 sum = diffuseReflectance.colorPhysical+specularTransmittance.colorPhysical+specularReflectance.colorPhysical;
+	RRVec3 sum = diffuseReflectance.colorLinear+specularTransmittance.colorLinear+specularReflectance.colorLinear;
 	RRReal max = sum.maxi();
 	if (max>redistributedPhotonsLimit)
 	{
-		diffuseReflectance.colorPhysical *= redistributedPhotonsLimit/max;
-		specularReflectance.colorPhysical *= redistributedPhotonsLimit/max;
-		specularTransmittance.colorPhysical *= redistributedPhotonsLimit/max;
+		diffuseReflectance.colorLinear *= redistributedPhotonsLimit/max;
+		specularReflectance.colorLinear *= redistributedPhotonsLimit/max;
+		specularTransmittance.colorLinear *= redistributedPhotonsLimit/max;
 		changed = true;
 	}
 
@@ -480,10 +480,10 @@ void RRMaterial::convertToCustomScale(const RRColorSpace* scaler)
 {
 	if (scaler)
 	{
-		scaler->fromLinear(diffuseReflectance.color = diffuseReflectance.colorPhysical);
-		scaler->fromLinear(diffuseEmittance.color = diffuseEmittance.colorPhysical);
-		scaler->fromLinear(specularReflectance.color = specularReflectance.colorPhysical);
-		scaler->fromLinear(specularTransmittance.color = specularTransmittance.colorPhysical);
+		scaler->fromLinear(diffuseReflectance.color = diffuseReflectance.colorLinear);
+		scaler->fromLinear(diffuseEmittance.color = diffuseEmittance.colorLinear);
+		scaler->fromLinear(specularReflectance.color = specularReflectance.colorLinear);
+		scaler->fromLinear(specularTransmittance.color = specularTransmittance.colorLinear);
 	}
 	validate();
 }
@@ -492,10 +492,10 @@ void RRMaterial::convertToPhysicalScale(const RRColorSpace* scaler)
 {
 	if (scaler)
 	{
-		scaler->toLinear(diffuseReflectance.colorPhysical = diffuseReflectance.color);
-		scaler->toLinear(diffuseEmittance.colorPhysical = diffuseEmittance.color);
-		scaler->toLinear(specularReflectance.colorPhysical = specularReflectance.color);
-		scaler->toLinear(specularTransmittance.colorPhysical = specularTransmittance.color);
+		scaler->toLinear(diffuseReflectance.colorLinear = diffuseReflectance.color);
+		scaler->toLinear(diffuseEmittance.colorLinear = diffuseEmittance.color);
+		scaler->toLinear(specularReflectance.colorLinear = specularReflectance.color);
+		scaler->toLinear(specularTransmittance.colorLinear = specularTransmittance.color);
 	}
 	validate();
 }
@@ -638,12 +638,12 @@ void RRMaterial::getResponse(Response& response, BrdfType type) const
 			{
 				RRReal dif = -response.dirIn.dot(response.dirNormal);
 				RR_CLAMP(dif,0,1);
-				response.colorOut = diffuseReflectance.colorPhysical * dif; /* embree: /RR_PI */
+				response.colorOut = diffuseReflectance.colorLinear * dif; /* embree: /RR_PI */
 				RR_ASSERT(response.colorOut.finite());
 			}
 			break;
 		case BRDF_TRANSMIT:
-			if (specularTransmittance.texture && specularTransmittance.colorPhysical==RRVec3(1))
+			if (specularTransmittance.texture && specularTransmittance.colorLinear==RRVec3(1))
 			{
 				// hole in transparency texture, pass through without shininess and refraction
 				response.colorOut = RRVec3((response.dirIn==response.dirOut)?1.f:0.f);
@@ -652,8 +652,8 @@ void RRMaterial::getResponse(Response& response, BrdfType type) const
 			// intentionally no break
 		case BRDF_SPECULAR:
 			{
-				RRVec3 specularReflectance_colorPhysical = specularReflectance.colorPhysical;
-				RRVec3 specularTransmittance_colorPhysical = specularTransmittance.colorPhysical;
+				RRVec3 specularReflectance_colorPhysical = specularReflectance.colorLinear;
+				RRVec3 specularTransmittance_colorPhysical = specularTransmittance.colorLinear;
 
 				// fresnel effect
 				if (refractionIndex!=1)
@@ -663,7 +663,7 @@ void RRMaterial::getResponse(Response& response, BrdfType type) const
 					bool hitFrontSide = dif>=0; //!!! asi spatne, pokud jsem hitnul backside tak uz sem prisla obracena normala
 					float fresnelReflectance = getFresnelReflectance(dif,twoSided,hitFrontSide,refractionIndex);
 					RR_CLAMP(fresnelReflectance,0,0.999f); // clamping to 1 in shader produces strange artifact
-					specularReflectance_colorPhysical += specularTransmittance.colorPhysical*fresnelReflectance;
+					specularReflectance_colorPhysical += specularTransmittance.colorLinear*fresnelReflectance;
 					specularTransmittance_colorPhysical *= 1-fresnelReflectance;
 				}
 
@@ -736,7 +736,7 @@ void RRMaterial::sampleResponse(Response& response, const RRVec3& randomness, Br
 			}
 			break;
 		case BRDF_TRANSMIT:
-				if (specularTransmittance.texture && specularTransmittance.colorPhysical==RRVec3(1))
+				if (specularTransmittance.texture && specularTransmittance.colorLinear==RRVec3(1))
 				{
 					// hole in transparency texture, pass through without shininess and refraction
 					response.dirIn = response.dirOut;

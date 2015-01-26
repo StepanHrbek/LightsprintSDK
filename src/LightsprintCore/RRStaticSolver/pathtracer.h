@@ -205,8 +205,8 @@ public:
 					//  this collison handler cares only about transmittance, but getPointMaterial reads all textures
 					//  it would be nice to send some flag to getPointMaterial above, to read only transmittance, but we don't have such flag yet
 					legal = pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].legal;
-					visibility *= pointMaterial[pmi].specularTransmittance.colorPhysical * RRReal( pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
-					RR_ASSERT(IS_VEC3(pointMaterial[pmi].specularTransmittance.colorPhysical));
+					visibility *= pointMaterial[pmi].specularTransmittance.colorLinear * RRReal( pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
+					RR_ASSERT(IS_VEC3(pointMaterial[pmi].specularTransmittance.colorLinear));
 					RR_ASSERT(IS_VEC3(visibility));
 					COLLISION_LOG(log<<"collides()=?1\n");
 					return visibility==RRVec3(0);
@@ -224,8 +224,8 @@ public:
 				}
 				// gathering light
 				legal = triangleMaterial->sideBits[ray->hitFrontSide?0:1].legal;
-				visibility *= triangleMaterial->specularTransmittance.colorPhysical * RRReal( triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
-				RR_ASSERT(IS_VEC3(triangleMaterial->specularTransmittance.colorPhysical));
+				visibility *= triangleMaterial->specularTransmittance.colorLinear * RRReal( triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
+				RR_ASSERT(IS_VEC3(triangleMaterial->specularTransmittance.colorLinear));
 				RR_ASSERT(IS_VEC3(visibility));
 				COLLISION_LOG(log<<"collides()=?2\n");
 				return visibility==RRVec3(0);

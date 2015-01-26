@@ -179,7 +179,7 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 		// measure exiting
 		if (measure.exiting)
 		{
-			irrad = irrad * tri->surface->diffuseReflectance.colorPhysical + tri->surface->diffuseEmittance.colorPhysical*materialEmittanceMultiplier;
+			irrad = irrad * tri->surface->diffuseReflectance.colorLinear + tri->surface->diffuseEmittance.colorLinear*materialEmittanceMultiplier;
 		}
 	}
 	else

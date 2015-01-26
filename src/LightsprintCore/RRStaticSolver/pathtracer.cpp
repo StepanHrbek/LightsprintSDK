@@ -209,8 +209,8 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				}
 			RRVec3 floor = ptj.environment->getElementAtDirection(direction,ptj.scaler);
 			floor /= environmentAndSunsPhysical+RRVec3(1e-10f);
-			invisiblePlaneMaterial.diffuseReflectance.colorPhysical *= floor;
-			invisiblePlaneMaterial.specularReflectance.colorPhysical *= floor;
+			invisiblePlaneMaterial.diffuseReflectance.colorLinear *= floor;
+			invisiblePlaneMaterial.specularReflectance.colorLinear *= floor;
 			material = &invisiblePlaneMaterial;
 		}
 #endif
@@ -226,7 +226,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			if (packedSolver)
 			{
 				// fireball
-				exitance += packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorPhysical;
+				exitance += packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorLinear;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 			else
@@ -237,7 +237,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				// zero area would create #INF in getIndirectIrradiance()
 				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 				RR_ASSERT(hitTriangle->area);
-				exitance += hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorPhysical;
+				exitance += hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorLinear;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 		}
@@ -297,14 +297,14 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 
 			// used in direct lighting final gather [per pixel emittance]
 			float materialEmittanceMultiplier = numBounces ? parameters.indirect.materialEmittanceMultiplier : parameters.direct.materialEmittanceMultiplier;
-			exitance += material->diffuseEmittance.colorPhysical * materialEmittanceMultiplier;// * splitToTwoSides;
+			exitance += material->diffuseEmittance.colorLinear * materialEmittanceMultiplier;// * splitToTwoSides;
 			RR_ASSERT(IS_VEC3(exitance));
 		}
 
 		// probabilities that we reflect using given BRDF
-		float probabilityDiff = (parameters.brdfTypes&RRMaterial::BRDF_DIFFUSE) ? RR_MAX(0,material->diffuseReflectance.colorPhysical.avg()) : 0;
-		float probabilitySpec = (parameters.brdfTypes&RRMaterial::BRDF_SPECULAR) ? RR_MAX(0,material->specularReflectance.colorPhysical.avg()) : 0;
-		float probabilityTran = (parameters.brdfTypes&RRMaterial::BRDF_TRANSMIT) ? RR_MAX(0,material->specularTransmittance.colorPhysical.avg()) : 0;
+		float probabilityDiff = (parameters.brdfTypes&RRMaterial::BRDF_DIFFUSE) ? RR_MAX(0,material->diffuseReflectance.colorLinear.avg()) : 0;
+		float probabilitySpec = (parameters.brdfTypes&RRMaterial::BRDF_SPECULAR) ? RR_MAX(0,material->specularReflectance.colorLinear.avg()) : 0;
+		float probabilityTran = (parameters.brdfTypes&RRMaterial::BRDF_TRANSMIT) ? RR_MAX(0,material->specularTransmittance.colorLinear.avg()) : 0;
 		float probabilityStop = RR_MAX(0,1-probabilityDiff-probabilitySpec-probabilityTran);
 
 		// add material's diffuse reflection using shortcut (reading irradiance from solver) 
@@ -316,7 +316,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			if (packedSolver)
 			{
 				// fireball:
-				exitance += packedSolver->getPointIrradianceIndirect(ray.hitTriangle,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical;// * splitToTwoSides;
+				exitance += packedSolver->getPointIrradianceIndirect(ray.hitTriangle,ray.hitPoint2d) * material->diffuseReflectance.colorLinear;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));
 				probabilityDiff = 0; // exclude diffuse from next path
 			}
@@ -329,7 +329,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				// zero area would create #INF in getIndirectIrradiance()
 				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
 				RR_ASSERT(hitTriangle->area);
-				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_PHYSICAL_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorPhysical;// * splitToTwoSides;
+				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_PHYSICAL_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorLinear;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));
 				probabilityDiff = 0; // exclude diffuse from next path
 			}

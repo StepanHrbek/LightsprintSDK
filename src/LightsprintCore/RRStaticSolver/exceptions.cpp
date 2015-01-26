@@ -274,7 +274,7 @@ void RRObjects::updateColorPhysical(const RRColorSpace* scaler) const
 			set.insert(faceGroups[g].material);
 		}
 	}
-	// color->colorPhysical
+	// color->colorLinear
 	for (Set::const_iterator i=set.begin();i!=set.end();++i)
 		if (*i)
 			(*i)->convertToPhysicalScale(scaler);

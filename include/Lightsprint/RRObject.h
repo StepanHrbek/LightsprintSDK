@@ -134,7 +134,7 @@ namespace rr
 		//!  When receiver!=NULL, you may return NULL to disable direct shadow casting of triangle for given light and receiver.
 		virtual RRMaterial* getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const;
 
-		//! Returns material description for point on object's surface, fills colorPhysical with values read from textures.
+		//! Returns material description for point on object's surface, fills colorLinear with values read from textures.
 		//
 		//! This is higher quality but slower per-pixel version of faster per-triangle getTriangleMaterial().
 		//! \n\n Default implementation takes point details from optional textures in material returned by getTriangleMaterial().
@@ -146,7 +146,7 @@ namespace rr
 		//! \param uv
 		//!  2D coordinates of point, in triangle's space. Triangle vertices are in 0,0 1,0 0,1.
 		//! \param scaler
-		//!  Function reads point details from textures, converts them with scaler and writes result to colorPhysical.
+		//!  Function reads point details from textures, converts them with scaler and writes result to colorLinear.
 		//! \param interpolated
 		//!  Makes texture reads interpolated.
 		//! \param out
@@ -550,7 +550,7 @@ namespace rr
 		//! Removes duplicates, the same material is never listed twice.
 		void getAllMaterials(RRMaterials& materials) const;
 
-		//! Converts color to colorPhysical in all materials.
+		//! Converts color to colorLinear in all materials.
 		//
 		//! Solver calls it automatically from RRSolver::setStaticObjects() and setDynamicObjects().
 		void updateColorPhysical(const RRColorSpace* scaler) const;

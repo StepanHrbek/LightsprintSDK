@@ -90,9 +90,9 @@ namespace rr
 			//! Validated linear color. Used by GI solvers and our pathtracer.
 			//
 			//! Solver needs it filled, but usually it happens automatically.
-			//! To keep colorPhysical synchronized with color, solver calls RRObjects::updateColorPhysical() on incoming objects.
-			//! Only if you modify color already passed to solver, you need to call RRMaterial::convertToPhysicalScale() to update colorPhysical.
-			RRVec3                 colorPhysical;
+			//! To keep colorLinear synchronized with color, solver calls RRObjects::updateColorPhysical() on incoming objects.
+			//! Only if you modify color already passed to solver, you need to call RRMaterial::convertToPhysicalScale() to update colorLinear.
+			RRVec3                 colorLinear;
 			//! Material property expressed as a texture or video.
 			//
 			//! Texture is owned and deleted by RRMaterial, so in order to change texture,
@@ -107,7 +107,7 @@ namespace rr
 			Property()
 			{
 				color = RRVec3(0);
-				colorPhysical = RRVec3(0);
+				colorLinear = RRVec3(0);
 				texture = NULL;
 				texcoord = 0;
 			}
@@ -188,7 +188,7 @@ namespace rr
 		//! Updates bumpMapTypeHeight, tries to guess what type it is by looking at contents of bumpMap.texture.
 		void          updateBumpMapType();
 
-		//! Changes material's colorPhysical values to closest physically valid ones. Returns whether changes were made.
+		//! Changes material's colorLinear values to closest physically valid ones. Returns whether changes were made.
 		//
 		//! In physical scale, diffuse+specular+transmission must be below 1 (real world materials are below 0.98)
 		//! and this function enforces it. We call it automatically from solver.
@@ -196,9 +196,9 @@ namespace rr
 		//! but we don't enforce this at all, color stays unchanged.
 		bool          validate(RRReal redistributedPhotonsLimit=0.98f);
 
-		//! Converts material properties from physical to custom scale (colorPhysical -> color).
+		//! Converts material properties from physical to custom scale (colorLinear -> color).
 		void          convertToCustomScale(const RRColorSpace* scaler);
-		//! Converts material properties from custom to physical scale (color -> colorPhysical).
+		//! Converts material properties from custom to physical scale (color -> colorLinear).
 		void          convertToPhysicalScale(const RRColorSpace* scaler);
 
 		//! True if renderer needs blending to render the material.
