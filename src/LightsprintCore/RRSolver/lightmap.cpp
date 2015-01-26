@@ -646,7 +646,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 	if (aborting)
 		return 0;
 
-	bool realtime = buffer && buffer->getType()==BT_VERTEX_BUFFER && !bentNormals && (!_params || (!_params->lightMultiplier && !_params->environmentMultiplier && !_params->quality));
+	bool realtime = buffer && buffer->getType()==BT_VERTEX_BUFFER && !bentNormals && (!_params || !_params->quality);
 	RRReportInterval report(realtime?INF3:INF2,"Updating object %d/%d '%s', %s %d*%d, directional %d*%d, bent normals %d*%d...\n",
 		objectNumber,getStaticObjects().size(),((unsigned)objectNumber<getStaticObjects().size())?getStaticObjects()[objectNumber]->name.c_str():"",
 		(buffer && buffer->getType()==BT_VERTEX_BUFFER)?"vertex buffer":"lightmap",
@@ -664,7 +664,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 	UpdateParameters params;
 	if (_params) params = *_params;
 	optimizeMultipliers(params,params,false);
-	bool paramsAllowRealtime = !params.lightMultiplier && !params.environmentMultiplier && !params.materialEmittanceMultiplier && params.useCurrentSolution && !params.quality;
+	bool paramsAllowRealtime = !params.quality;
 
 	// init solver
 	if ((!priv->scene
@@ -968,7 +968,7 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 	std::vector<SortedBuffer> bufferSharing;
 
 	bool containsFirstGather = _paramsIndirect && paramsIndirect.quality;
-	bool containsRealtime = !paramsDirect.lightMultiplier && !paramsDirect.environmentMultiplier && paramsDirect.useCurrentSolution && !paramsDirect.quality;
+	bool containsRealtime = !paramsDirect.quality;
 	bool containsVertexBuffers = false;
 	bool containsPixelBuffers = false;
 	bool containsVertexBuffer[NUM_BUFFERS] = {0,0,0,0,0};
