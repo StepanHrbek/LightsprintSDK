@@ -38,14 +38,17 @@ CHANGES
   - create_sRGB() replaces createRgbScaler()
   - fromLinear() replaces getCustomScale() and getCustomFactor()
   - toLinear() replaces getPhysicalScale() and getPhysicalFactor()
+- RRBuffer
   - RRBuffer::getElement() and RRBuffer::setElement() inputs/outputs are linear when scaler is passed as parameter
-- interpolation in RRBuffer::getElementAtPosition() is optional
-- reduced automatic RRMaterial::minimalQualityForPointMaterials, makes baking at the same settings slower, but quality higher
+  - interpolation in RRBuffer::getElementAtPosition() is optional
+- RRMaterial
+  - reduced automatic RRMaterial::minimalQualityForPointMaterials, makes baking at the same settings slower, but quality higher
 - RRMatrix3x4Ex added, some functions switched from RRMatrix3x4 to RRMatrix3x4Ex
-- RRCamera::setView() has more parameters, lets you zoom to whole scene or selected area
-- RRCamera::getPositionInClipSpace() added
-- RRCamera::getPositionInViewport() replaces RRCamera::getPositionInWindow(), returns also depth
-- RRCamera::getRayOrigin() and RRCamera::getRayDirection() y parameter was negated, to make it compatible with RRCamera::getPositionInViewport()
+- RRCamera
+  - RRCamera::setView() has more parameters, lets you zoom to whole scene or selected area
+  - RRCamera::getPositionInClipSpace() added
+  - RRCamera::getPositionInViewport() replaces RRCamera::getPositionInWindow(), returns also depth
+  - RRCamera::getRayOrigin() and RRCamera::getRayDirection() y parameter was negated, to make it compatible with RRCamera::getPositionInViewport()
 - RR_SAFE_XXX() functions moved to rr namespace; and they NULL pointer _before_ freeing/deleting/releasing object, not _after_ (it's bit safer in case of exception)
 
 \section news144 ------------------------------------ 2014.10.16 -------------------------------------
