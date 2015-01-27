@@ -361,7 +361,7 @@ int main(int argc, char** argv)
 	if (licError)
 		error(licError,false);
 	solver = new rr_gl::RRSolverGL("../../data/shaders/","../../data/maps/");
-	solver->setScaler(rr::RRColorSpace::create_sRGB()); // switch inputs and outputs from HDR physical scale to RGB screenspace
+	solver->setColorSpace(rr::RRColorSpace::create_sRGB()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 
 	// load static scene
 	rr::RRScene staticScene("../../data/scenes/koupelna/koupelna4.dae");
@@ -432,7 +432,7 @@ int main(int argc, char** argv)
 	// free memory (just to check for leaks)
 	rr_gl::deleteAllTextures();
 	delete solver->getEnvironment();
-	delete solver->getScaler();
+	delete solver->getColorSpace();
 	delete solver;
 	delete robot;
 	delete potato;

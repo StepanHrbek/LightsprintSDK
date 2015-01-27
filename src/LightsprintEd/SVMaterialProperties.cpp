@@ -318,7 +318,7 @@ void SVMaterialProperties::setMaterial(rr::RRSolver* solver, rr::RRObject* objec
 	else
 	if (showPoint)
 	{
-		(object?object:solver->getMultiObject())->getPointMaterial(hitTriangle,hitPoint2d,solver->getScaler(),true,materialPoint);
+		(object?object:solver->getMultiObject())->getPointMaterial(hitTriangle,hitPoint2d,solver->getColorSpace(),true,materialPoint);
 		material = &materialPoint;
 	}
 	else
@@ -597,11 +597,11 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		if (showPhysical)
 		{
-			material->convertFromLinear(lastSolver->getScaler());
+			material->convertFromLinear(lastSolver->getColorSpace());
 		}
 		else
 		{
-			material->convertToLinear(lastSolver->getScaler());
+			material->convertToLinear(lastSolver->getColorSpace());
 		}
 	}
 
@@ -618,7 +618,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		// update color and minimalQualityForPointMaterials
 		if (lastSolver)
-			material->updateColorsFromTextures(lastSolver->getScaler(),rr::RRMaterial::UTA_KEEP,false);
+			material->updateColorsFromTextures(lastSolver->getColorSpace(),rr::RRMaterial::UTA_KEEP,false);
 		updateProperties(); // minimalQualityForPointMaterials, also updateReadOnly() to lock/unlock color
 	}
 

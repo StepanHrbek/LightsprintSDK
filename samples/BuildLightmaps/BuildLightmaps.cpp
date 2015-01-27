@@ -506,7 +506,7 @@ int main(int argc, char** argv)
 	//
 	// switch inputs and outputs from HDR physical scale to sRGB screenspace
 	//
-	solver->setScaler(rr::RRColorSpace::create_sRGB());
+	solver->setColorSpace(rr::RRColorSpace::create_sRGB());
 
 	//
 	// load scene
@@ -706,7 +706,7 @@ int main(int argc, char** argv)
 	//
 #ifndef NDEBUG
 	delete solver->getEnvironment();
-	delete solver->getScaler();
+	delete solver->getColorSpace();
 	RR_SAFE_DELETE(solver); // sets solver to NULL (it's important because reporter still references solver)
 	delete reporter;
 #endif

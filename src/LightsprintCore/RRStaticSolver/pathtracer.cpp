@@ -21,7 +21,7 @@ extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 PathtracerJob::PathtracerJob(const RRSolver* _solver, bool _dynamic)
 {
 	solver = _solver;
-	scaler = solver ? solver->getScaler() : NULL;
+	scaler = solver ? solver->getColorSpace() : NULL;
 	RRReal angleRad0 = 0;
 	RRReal angleRad1 = 0;
 	RRReal blendFactor = solver ? solver->getEnvironmentBlendFactor() : 0;

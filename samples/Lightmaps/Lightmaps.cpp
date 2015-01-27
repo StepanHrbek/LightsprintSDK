@@ -15,7 +15,7 @@
 //   point/spot/dir/programmable lights.
 // - Tweak materials and capture illumination from emissive materials.
 // - Everything is HDR internally, custom scale externally.
-//   Tweak setScaler() and/or RRBuffer
+//   Tweak setColorSpace() and/or RRBuffer
 //   to set your scale and get HDR textures.
 // - Tweak map resolution: search for rr::RRBuffer::create.
 // - Tweak map quality: search for quality =
@@ -421,7 +421,7 @@ int main(int argc, char** argv)
 	if (licError)
 		error(licError,false);
 	solver = new rr_gl::RRSolverGL("../../data/shaders/","../../data/maps/");
-	solver->setScaler(rr::RRColorSpace::create_sRGB());
+	solver->setColorSpace(rr::RRColorSpace::create_sRGB());
 
 	// init static scene
 	rr::RRScene scene("../../data/scenes/koupelna/koupelna4.dae");

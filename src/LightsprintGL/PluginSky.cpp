@@ -31,8 +31,8 @@ public:
 
 		// solvers work with multipliers in linear space, convert them to srgb for rendering
 		float skyMultiplier = pp.skyMultiplier;
-		if (pp.solver->getScaler())
-			pp.solver->getScaler()->fromLinear(skyMultiplier);
+		if (pp.solver->getColorSpace())
+			pp.solver->getColorSpace()->fromLinear(skyMultiplier);
 
 		rr::RRReal envAngleRad0 = 0;
 		const rr::RRBuffer* env0 = pp.solver->getEnvironment(0,&envAngleRad0);

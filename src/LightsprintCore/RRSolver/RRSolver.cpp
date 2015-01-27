@@ -125,7 +125,7 @@ RRSolver::~RRSolver()
 	delete priv;
 }
 
-void RRSolver::setScaler(const RRColorSpace* _scaler)
+void RRSolver::setColorSpace(const RRColorSpace* _scaler)
 {
 	priv->scaler = _scaler;
 	// priv->lightMultiplier is in physical scale, but we need it in custom
@@ -142,7 +142,7 @@ void RRSolver::setScaler(const RRColorSpace* _scaler)
 	reportDirectIlluminationChange(-1,false,true,false);
 }
 
-const RRColorSpace* RRSolver::getScaler() const
+const RRColorSpace* RRSolver::getColorSpace() const
 {
 	return priv->scaler;
 }
@@ -314,9 +314,9 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	priv->forcedMultiObject = _copyFrom ? true : false;
 
 	// convert it to physical scale
-	if (!getScaler())
-		RRReporter::report(WARN,"scaler=NULL, call setScaler() if your data are in sRGB.\n");
-	getStaticObjects().updateColorLinear(getScaler());
+	if (!getColorSpace())
+		RRReporter::report(WARN,"scaler=NULL, call setColorSpace() if your data are in sRGB.\n");
+	getStaticObjects().updateColorLinear(getColorSpace());
 
 	priv->staticSolverCreationFailed = false;
 
@@ -415,9 +415,9 @@ void RRSolver::setDynamicObjects(const RRObjects& _objects)
 		if (_objects[i]->isDynamic)
 			priv->dynamicObjects.push_back(_objects[i]);
 	// convert it to physical scale
-	if (!getScaler())
-		RRReporter::report(WARN,"scaler=NULL, call setScaler() if your data are in sRGB.\n");
-	getDynamicObjects().updateColorLinear(getScaler());
+	if (!getColorSpace())
+		RRReporter::report(WARN,"scaler=NULL, call setColorSpace() if your data are in sRGB.\n");
+	getDynamicObjects().updateColorLinear(getColorSpace());
 	// invalidate supercollider
 	priv->superColliderDirty = true;
 }
@@ -810,7 +810,7 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 	if (_params->lightMultiplier!=priv->lightMultiplier)
 	{
 		priv->lightMultiplier = _params->lightMultiplier;
-		setScaler(getScaler()); // update customToPhysical[] byte->float conversion table
+		setColorSpace(getColorSpace()); // update customToPhysical[] byte->float conversion table
 	}
 	if (dirtyFactors)
 	{
@@ -832,7 +832,7 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 			RRReportInterval report(INF3,"Updating illumination from emissive materials...\n");
 			// loads emittance from materials to fireball
 			//!!! videa nejsou updatnuta, sampluju minuly snimek
-			if (priv->packedSolver->setMaterialEmittance(forceEmittanceReload,_params->materialEmittanceMultiplier,_params->materialEmittanceStaticQuality,_params->materialEmittanceVideoQuality,_params->materialEmittanceUsePointMaterials,getScaler()))
+			if (priv->packedSolver->setMaterialEmittance(forceEmittanceReload,_params->materialEmittanceMultiplier,_params->materialEmittanceStaticQuality,_params->materialEmittanceVideoQuality,_params->materialEmittanceUsePointMaterials,getColorSpace()))
 			{
 				// Fireball::illuminationReset() must be called to start using new emittance
 				priv->dirtyCustomIrradiance = true;
@@ -845,7 +845,7 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 			RRReportInterval report(INF3,"Updating illumination from environment...\n");
 			// loads environment to fireball
 			//!!! videa nejsou updatnuta, sampluju minuly snimek
-			if (priv->packedSolver->setEnvironment(priv->environment0,priv->environment1,_params->environmentMultiplier,_params->environmentStaticQuality,_params->environmentVideoQuality,priv->environmentBlendFactor,getScaler()))
+			if (priv->packedSolver->setEnvironment(priv->environment0,priv->environment1,_params->environmentMultiplier,_params->environmentStaticQuality,_params->environmentVideoQuality,priv->environmentBlendFactor,getColorSpace()))
 			{
 				priv->solutionVersion++;
 				if (_params->environmentVideoQuality) // rarely might be dirty because of static image change. worst case scenario = additional GI improves delayed 1 sec
@@ -1065,7 +1065,7 @@ void RRSolver::checkConsistency()
 	avgPhys /= 256;
 	if (hist3[0]||hist3[1]!=1)
 	{
-		RRReporter::report(WARN,"  Wrong scaler set, see setScaler().\n");
+		RRReporter::report(WARN,"  Wrong scaler set, see setColorSpace().\n");
 		RRReporter::report(WARN,"    Scaling to negative/zero/positive result: %d/%d/%d (should be 0/1/255).\n",hist3[0],hist3[1],hist3[2]);
 	}
 	RRReporter::report(INF1,"  Scaling from custom scale 0..255 to average physical scale %f.\n",avgPhys);

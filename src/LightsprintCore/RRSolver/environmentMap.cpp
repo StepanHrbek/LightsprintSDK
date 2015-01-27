@@ -187,7 +187,7 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 	const RRBuffer* environment0 = getEnvironment(0);
 	const RRBuffer* environment1 = getEnvironment(1);
 	float blendFactor = getEnvironmentBlendFactor();
-	const RRColorSpace* scalerForReadingEnv = getScaler();
+	const RRColorSpace* scalerForReadingEnv = getColorSpace();
 	unsigned gatherSize = reflectionEnvMap->getWidth();
 	unsigned numTriangles = getMultiObject() ? getMultiObject()->getCollider()->getMesh()->getNumTriangles() : 0;
 
@@ -480,9 +480,9 @@ unsigned RRSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsi
 	if (!cubeMapGather(illumination,layerEnvironment,gatheredExitance))
 	{
 #ifdef RR_DEVELOPMET
-		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getDirectIllumination(),priv->customToPhysical,getMultiObject(),getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
+		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getDirectIllumination(),priv->customToPhysical,getMultiObject(),getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getColorSpace(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
 #else
-		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getScaler(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
+		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getColorSpace(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
 #endif
 	}
 

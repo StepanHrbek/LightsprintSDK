@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 	rr::RRSolver* solver = new rr::RRSolver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	rr::RRColorSpace* scaler = rr::RRColorSpace::create_sRGB();
-	solver->setScaler(scaler);
+	solver->setColorSpace(scaler);
 
 	// load scene
 	rr::RRScene scene("../../data/scenes/koupelna/koupelna4-windows.dae");

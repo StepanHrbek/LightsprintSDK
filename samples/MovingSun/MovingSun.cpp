@@ -374,7 +374,7 @@ int main(int argc, char** argv)
 	if (licError)
 		error(licError,false);
 	solver = new rr_gl::RRSolverGL("../../data/shaders/","../../data/maps/");
-	solver->setScaler(rr::RRColorSpace::create_sRGB()); // switch inputs and outputs from HDR physical scale to RGB screenspace
+	solver->setColorSpace(rr::RRColorSpace::create_sRGB()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 
 	// load scene
 	rr::RRScene scene((argc>1)?argv[1]:DEFAULT_SCENE);
@@ -465,7 +465,7 @@ int main(int argc, char** argv)
 	// free memory (just to check for leaks)
 	rr_gl::deleteAllTextures();
 	delete solver->getEnvironment();
-	delete solver->getScaler();
+	delete solver->getColorSpace();
 	delete solver->getLights()[0];
 	delete solver;
 	for (unsigned i=0;i<dynamicObjects.size();i++)

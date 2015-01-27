@@ -33,11 +33,13 @@ NEWS
 
 CHANGES
 
-- RRSolver::updateLightmaps() has paramsDirect and paramsIndirect merged, it makes work with all new multipliers much easier
 - RRColorSpace replaces RRScaler
   - create_sRGB() replaces createRgbScaler()
   - fromLinear() replaces getCustomScale() and getCustomFactor()
   - toLinear() replaces getPhysicalScale() and getPhysicalFactor()
+- RRSolver
+  - RRSolver::updateLightmaps() has paramsDirect and paramsIndirect merged, it makes work with all new multipliers much easier
+  - get/setScaler() renamed to get/setColorSpace()
 - RRBuffer
   - RRBuffer::getElement() and RRBuffer::setElement() inputs/outputs are linear when scaler is passed as parameter
   - interpolation in RRBuffer::getElementAtPosition() is optional

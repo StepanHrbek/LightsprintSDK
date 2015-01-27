@@ -70,10 +70,10 @@ namespace rr
 		//!  It will be used by all data input and output paths in RRSolver, if not specified otherwise.
 		//!  Note that scaler is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.
-		virtual void setScaler(const RRColorSpace* scaler);
+		virtual void setColorSpace(const RRColorSpace* scaler);
 
-		//! Returns scaler used by this scene i/o operations, set by setScaler().
-		const RRColorSpace* getScaler() const;
+		//! Returns scaler used by this scene i/o operations, set by setColorSpace().
+		const RRColorSpace* getColorSpace() const;
 
 
 		//! Sets environment around scene.
@@ -790,7 +790,7 @@ namespace rr
 		//! Complete code sequence to edit original material, synchronize copy in solver and report change could look like
 		//! \code
 		//! ... here you edit material's color
-		//! material->convertToLinear(solver->getScaler()); // converts material's color to colorLinear
+		//! material->convertToLinear(solver->getColorSpace()); // converts material's color to colorLinear
 		//! solver->reallocateBuffersForRealtimeGI(); // allocates specular reflection cubes if you add specular
 		//! solver->reportMaterialChange();
 		//! \endcode

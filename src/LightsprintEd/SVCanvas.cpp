@@ -295,11 +295,11 @@ void SVCanvas::createContextCore()
 	// init solver
 	solver = new rr_gl::RRSolverGL(RR_WX2RR(svs.pathToShaders), RR_WX2RR(svs.pathToMaps));
 	textureRenderer = solver->getRenderer()->getTextureRenderer();
-	solver->setScaler(rr::RRColorSpace::create_sRGB());
+	solver->setColorSpace(rr::RRColorSpace::create_sRGB());
 	if (svs.initialInputSolver)
 	{
-		delete solver->getScaler();
-		solver->setScaler(svs.initialInputSolver->getScaler());
+		delete solver->getColorSpace();
+		solver->setColorSpace(svs.initialInputSolver->getColorSpace());
 		rr::RRReal envAngle0 = 0;
 		rr::RRReal envAngle1 = 0;
 		rr::RRBuffer* env0 = svs.initialInputSolver->getEnvironment(0,&envAngle0);
@@ -594,7 +594,7 @@ SVCanvas::~SVCanvas()
 		// delete scaler created for scene loaded from disk
 		if (!svs.initialInputSolver)
 		{
-			delete solver->getScaler();
+			delete solver->getColorSpace();
 		}
 
 		textureRenderer = NULL;
@@ -1753,7 +1753,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (svs.renderTonemapping)
 			{
 				tp = svs.tonemapping;
-				solver->getScaler()->toLinear(tp.color);
+				solver->getColorSpace()->toLinear(tp.color);
 			}
 			tp.gamma *= 0.45f;
 			pathTracedAccumulator++;
@@ -2414,7 +2414,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					rr::RRPointMaterial selectedPointMaterial;
 					if (material && material->minimalQualityForPointMaterials<10000)
 					{
-						selectedPointObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,solver->getScaler(),true,selectedPointMaterial);
+						selectedPointObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,solver->getColorSpace(),true,selectedPointMaterial);
 						material = &selectedPointMaterial;
 					}
 					rr::RRMesh::TriangleMapping triangleMapping;
