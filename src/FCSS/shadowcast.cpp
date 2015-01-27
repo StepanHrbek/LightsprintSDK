@@ -238,12 +238,12 @@ void init_gl_resources()
 
 void done_gl_resources()
 {
-	RR_SAFE_DELETE(skyRenderer);
-	RR_SAFE_DELETE(uberProgram);
+	rr::RR_SAFE_DELETE(skyRenderer);
+	rr::RR_SAFE_DELETE(uberProgram);
 #ifdef CORNER_LOGO
-	RR_SAFE_DELETE(lightsprintMap);
+	rr::RR_SAFE_DELETE(lightsprintMap);
 #endif
-	RR_SAFE_DELETE(rrLight);
+	rr::RR_SAFE_DELETE(rrLight);
 	gluDeleteQuadric(quadric);
 }
 
@@ -284,7 +284,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 
 	camera.setAspect( winHeight ? (float) winWidth / (float) winHeight : 1 );
 
-	rr_gl::PluginParamsSky ppSky(NULL,level->solver);
+	rr_gl::PluginParamsSky ppSky(NULL,level->solver,1);
 	rr_gl::PluginParamsScene ppScene(&ppSky,level->solver);
 	ppScene.uberProgramSetup = uberProgramSetup;
 	ppScene.renderingFromThisLight = renderingFromThisLight;
