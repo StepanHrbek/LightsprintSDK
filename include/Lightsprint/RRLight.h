@@ -226,7 +226,7 @@ namespace rr
 		//!  it's more efficient to expect linear result
 		//!  rather than in screen colors or any other custom color space.
 		//! \return
-		//!  Irradiance at receiverPosition, in physical scale [W/m^2],
+		//!  Irradiance at receiverPosition as linear color,
 		//!  assuming that receiver is oriented towards light.
 		//!  Lights must return finite number, even when lighting model
 		//!  predicts infinite number (some types of attenuation + zero distance).
@@ -274,12 +274,12 @@ namespace rr
 		//!  True for linear color, false for custom color space (usually sRGB, screen color).
 		static RRLight* createDirectionalLight(const RRVec3& direction, const RRVec3& color, bool linear);
 
-		//! Creates omnidirectional point light with physically correct distance attenuation.
+		//! Creates omnidirectional point light with realistic distance attenuation.
 		//
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
 		//! \param irradianceAtDistance1
-		//!  Irradiance in physical scale at distance 1, assuming that receiver is oriented towards light.
+		//!  Irradiance as linear color at distance 1, assuming that receiver is oriented towards light.
 		static RRLight* createPointLight(const RRVec3& position, const RRVec3& irradianceAtDistance1);
 
 		//! Creates omnidirectional point light without distance attenuation.
@@ -287,7 +287,7 @@ namespace rr
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
 		//! \param irradianceAtDistance1
-		//!  Irradiance in physical scale at distance 1, assuming that receiver is oriented towards light.
+		//!  Irradiance as linear color at distance 1, assuming that receiver is oriented towards light.
 		static RRLight* createPointLightNoAtt(const RRVec3& position, const RRVec3& irradianceAtDistance1);
 
 		//! Creates omnidirectional point light with radius/exponent based distance attenuation (physically incorrect).
@@ -313,13 +313,13 @@ namespace rr
 		//!  Distance attenuation in custom scale is computed as 1/MAX(polynom[0]+polynom[1]*distance+polynom[2]*distance^2,polynom[3]).
 		static RRLight* createPointLightPoly(const RRVec3& position, const RRVec3& colorCustom, RRVec4 polynom);
 
-		//! Creates spot light with physically correct distance attenuation.
+		//! Creates spot light with realistic distance attenuation.
 		//
 		//! Light rays start in position and go in directions up to outerAngleRad diverting from major direction.
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
 		//! \param irradianceAtDistance1
-		//!  Irradiance in physical scale at distance 1, assuming that receiver is oriented towards light.
+		//!  Irradiance as linear color at distance 1, assuming that receiver is oriented towards light.
 		//! \param majorDirection
 		//!  Major direction of light in world space.
 		//! \param outerAngleRad
@@ -339,7 +339,7 @@ namespace rr
 		//! \param position
 		//!  Position of light source in world space, start of all light rays.
 		//! \param irradianceAtDistance1
-		//!  Irradiance in physical scale at distance 1, assuming that receiver is oriented towards light.
+		//!  Irradiance as linear color at distance 1, assuming that receiver is oriented towards light.
 		//! \param majorDirection
 		//!  Major direction of light in world space.
 		//! \param outerAngleRad
