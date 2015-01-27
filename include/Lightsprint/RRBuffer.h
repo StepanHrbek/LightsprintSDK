@@ -20,15 +20,15 @@ namespace rr
 	//! Interface for custom color space.
 	//
 	//! All data in Lightsprint SDK are flagged to be either in custom color space
-	//! or in linear colors.
+	//! or in linear colors, where linear colors can be any fixed multiple of physically based units.
 	//! This class, custom color space, implements conversion to linear colors and back.
 	//!
 	//! If you work with the most common format, sRGB, use create_sRGB().
 	//!
-	//! If your pipeline works with linear colors, just pass NULL where API needs color space.
+	//! If your pipeline works with linear colors, just pass NULL where API asks for color space.
 	//!
 	//! For other color spaces, you can implement your own RRColorSpace.
-	//! Please make sure that your code doesn't generate NaNs or INFs for negative inputs.
+	//! Please make sure that your implementation doesn't generate NaNs or INFs (especially for negative inputs).
 	//! Custom color spaces are fully supported by realtime solvers, lightmap baking and pathtracer,
 	//! but not yet by OpenGL renderer, it has sRGB conversion hardcoded in shaders.
 	//
