@@ -46,7 +46,7 @@ public:
 	RRVec3 getTriangleExitance(unsigned triangle) const;
 	//! Returns triangle exitance, physical, flat. For dynamic objects/point materials.
 	RRVec3 getTriangleIrradiance(unsigned triangle) const;
-	//! Returns RM_IRRADIANCE_PHYSICAL_DIRECT for given static triangle. Fast, no interpolation.
+	//! Returns RM_IRRADIANCE_LINEAR_DIRECT for given static triangle. Fast, no interpolation.
 	RRVec3 getTriangleIrradianceDirect(unsigned triangle) const;
 
 	//! Updates values behind pointers returned by getTriangleIrradianceIndirect().

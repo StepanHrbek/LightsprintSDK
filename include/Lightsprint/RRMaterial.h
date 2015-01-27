@@ -43,9 +43,9 @@ namespace rr
 	// Shortcuts for typical measures.
 	#define RM_IRRADIANCE_LINEAR_INDIRECT   rr::RRRadiometricMeasure(0,0,0,0,1)
 	#define RM_IRRADIANCE_CUSTOM_INDIRECT   rr::RRRadiometricMeasure(0,1,0,0,1)
-	#define RM_IRRADIANCE_PHYSICAL          rr::RRRadiometricMeasure(0,0,0,1,1)
+	#define RM_IRRADIANCE_LINEAR            rr::RRRadiometricMeasure(0,0,0,1,1)
 	#define RM_IRRADIANCE_CUSTOM            rr::RRRadiometricMeasure(0,1,0,1,1)
-	#define RM_EXITANCE_PHYSICAL            rr::RRRadiometricMeasure(1,0,0,1,1)
+	#define RM_EXITANCE_LINEAR              rr::RRRadiometricMeasure(1,0,0,1,1)
 	#define RM_EXITANCE_CUSTOM              rr::RRRadiometricMeasure(1,1,0,1,1)
 
 	//! Boolean attributes of one side of a surface. Usually exist in array of two elements, for front and back side.
