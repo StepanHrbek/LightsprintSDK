@@ -346,7 +346,7 @@ namespace rr
 		//! \param destination
 		//!  Destination buffer. Must have the same width, height, depth, may differ in format, scale.
 		//! \param colorSpace
-		//!  Scaler used if buffers differ in scale. May be NULL for no conversion.
+		//!  Color space used if one buffer is linear. NULL for no color space conversion.
 		//! \return True on success.
 		bool copyElementsTo(RRBuffer* destination, const RRColorSpace* colorSpace) const;
 

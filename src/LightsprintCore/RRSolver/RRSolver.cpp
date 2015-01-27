@@ -125,17 +125,17 @@ RRSolver::~RRSolver()
 	delete priv;
 }
 
-void RRSolver::setColorSpace(const RRColorSpace* _scaler)
+void RRSolver::setColorSpace(const RRColorSpace* _colorSpace)
 {
-	priv->colorSpace = _scaler;
+	priv->colorSpace = _colorSpace;
 	// priv->lightMultiplier is in physical scale, but we need it in custom
 	float multiplier = priv->lightMultiplier;
-	if (_scaler) _scaler->fromLinear(multiplier);
+	if (_colorSpace) _colorSpace->fromLinear(multiplier);
 	// update fast conversion table for our setDirectIllumination
 	for (unsigned i=0;i<256;i++)
 	{
 		RRReal c = multiplier*i/255;
-		if (_scaler) _scaler->toLinear(c);
+		if (_colorSpace) _colorSpace->toLinear(c);
 		priv->customToPhysical[i] = c;
 	}
 	// tell realtime solver to update GI (=re-run DDI with new colorSpace)

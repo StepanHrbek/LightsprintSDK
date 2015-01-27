@@ -66,7 +66,7 @@ namespace rr
 		//! existing renderers and datasets use sRGB or other custom scale.
 		//! Not setting colorSpace is allowed for future rendering pipelines working fully in physical scale.
 		//! \param colorSpace
-		//!  Scaler for converting illumination between physical and custom scale.
+		//!  Color space for converting illumination from/to linear colors.
 		//!  It will be used by all data input and output paths in RRSolver, if not specified otherwise.
 		//!  Note that colorSpace is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.

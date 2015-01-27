@@ -29,7 +29,7 @@ public:
 
 	//! Updates emittances in solver, but new values are not used until you call illuminationReset().
 	//!
-	//! Scaler is used to convert emissive texture values to physical scale.
+	//! Color space is used to convert emissive texture values to linear colors.
 	//! Used only if quality && !usePointMaterials.
 	//!
 	//! \return False = no change detected.

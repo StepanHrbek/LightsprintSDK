@@ -215,10 +215,10 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRColorSpace* colorSpace, RRVec
 
 // extract mean and variance from buffer
 // convert mean to color, variance to scalar
-RRReal getVariance(const RRBuffer* _buffer, const RRColorSpace* _scaler, RRVec3& _average, bool _isTransmittanceInAlpha)
+RRReal getVariance(const RRBuffer* _buffer, const RRColorSpace* _colorSpace, RRVec3& _average, bool _isTransmittanceInAlpha)
 {
 	RRVec4 average;
-	RRVec4 variance = getVariance(_buffer,_scaler,average);
+	RRVec4 variance = getVariance(_buffer,_colorSpace,average);
 	if (_isTransmittanceInAlpha)
 	{
 		_average = RRVec3(1-average[3]);

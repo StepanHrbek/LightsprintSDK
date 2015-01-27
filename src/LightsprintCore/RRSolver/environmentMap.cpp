@@ -187,7 +187,7 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 	const RRBuffer* environment0 = getEnvironment(0);
 	const RRBuffer* environment1 = getEnvironment(1);
 	float blendFactor = getEnvironmentBlendFactor();
-	const RRColorSpace* scalerForReadingEnv = getColorSpace();
+	const RRColorSpace* colorSpaceForEnv = getColorSpace();
 	unsigned gatherSize = reflectionEnvMap->getWidth();
 	unsigned numTriangles = getMultiObject() ? getMultiObject()->getCollider()->getMesh()->getNumTriangles() : 0;
 
@@ -287,13 +287,13 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 						if (!environment1)
 						{
 							// 1 environment
-							exitanceHdr[ofs] = environment0->getElementAtDirection(dir,scalerForReadingEnv);
+							exitanceHdr[ofs] = environment0->getElementAtDirection(dir,colorSpaceForEnv);
 						}
 						else
 						{
 							// blend of 2 environments
-							RRVec3 env0color = environment0->getElementAtDirection(dir,scalerForReadingEnv);
-							RRVec3 env1color = environment1->getElementAtDirection(dir,scalerForReadingEnv);
+							RRVec3 env0color = environment0->getElementAtDirection(dir,colorSpaceForEnv);
+							RRVec3 env1color = environment1->getElementAtDirection(dir,colorSpaceForEnv);
 							exitanceHdr[ofs] = env0color*(1-blendFactor)+env1color*blendFactor;
 						}
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
@@ -339,9 +339,9 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 // thread safe: yes
 // converts triangle numbers to float exitance in physical scale
 #ifdef RR_DEVELOPMET
-static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const unsigned* customIrradianceRGBA8, const RRReal* customToPhysical, const RRObject* multiObject, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRColorSpace* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const unsigned* customIrradianceRGBA8, const RRReal* customToPhysical, const RRObject* multiObject, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRColorSpace* colorSpaceForEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 #else
-static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRColorSpace* scalerForReadingEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRColorSpace* colorSpaceForEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 #endif
 {
 	if (!scene && !packedSolver && !environment0)
@@ -376,15 +376,15 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 			{
 				// 1 environment
 				RRVec3 dir = cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size);
-				exitanceHdr[ofs] = environment0->getElementAtDirection(dir,scalerForReadingEnv);
+				exitanceHdr[ofs] = environment0->getElementAtDirection(dir,colorSpaceForEnv);
 				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 			}
 			else
 			{
 				// blend of 2 environments
 				RRVec3 dir = cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size);
-				RRVec3 env0color = environment0->getElementAtDirection(dir,scalerForReadingEnv);
-				RRVec3 env1color = environment1->getElementAtDirection(dir,scalerForReadingEnv);
+				RRVec3 env0color = environment0->getElementAtDirection(dir,colorSpaceForEnv);
+				RRVec3 env1color = environment1->getElementAtDirection(dir,colorSpaceForEnv);
 				exitanceHdr[ofs] = env0color*(1-blendFactor)+env1color*blendFactor;
 				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 			}

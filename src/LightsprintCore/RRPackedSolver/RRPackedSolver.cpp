@@ -302,7 +302,7 @@ RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolve
 //! inoutVersion serves as a cache.
 //! Optimized for simplicity, can be made faster later.
 //! Returns 0 if exitance did not change, 1 if it did.
-static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQuality, unsigned inVideoQuality, const RRColorSpace* inScaler, RRVec3 inoutPatchExitancesPhysical[PackedSkyTriangleFactor::NUM_PATCHES], unsigned& inoutSkyVersion)
+static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQuality, unsigned inVideoQuality, const RRColorSpace* inColorSpace, RRVec3 inoutPatchExitancesPhysical[PackedSkyTriangleFactor::NUM_PATCHES], unsigned& inoutSkyVersion)
 {
 	bool isVideo = inSky && inSky->getDuration();
 	unsigned quality = isVideo ? inVideoQuality : inStaticQuality;
@@ -325,7 +325,7 @@ static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQ
 		return 1;
 	// do we have to scale sky to physical? no -> null colorSpace
 	if (!inSky->getScaled())
-		inScaler = NULL;
+		inColorSpace = NULL;
 	// select random generator
 	boost::rand48 rnd; // seed is reset, lower noise
 	const unsigned RMAX = rnd.max();
@@ -336,7 +336,7 @@ static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQ
 		// direction is not perfect, directions to corners are taken slightly more often, we save time by not rejecting corners
 		RRVec3 direction((RRReal)((int)rnd()-(int)(RMAX/2)),(RRReal)((int)rnd()-(int)(RMAX/2)),(RRReal)((int)rnd()-(int)(RMAX/2)));
 		unsigned patchIndex = PackedSkyTriangleFactor::getPatchIndex(direction);
-		RRVec3 exitance = inSky->getElementAtDirection(direction,inScaler);
+		RRVec3 exitance = inSky->getElementAtDirection(direction,inColorSpace);
 		inoutPatchExitancesPhysical[patchIndex] += exitance;
 		numSamplesGathered[patchIndex]++;
 	}
@@ -349,12 +349,12 @@ static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQ
 	return 1;
 }
 
-bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffer* _environment1, float _environmentMultiplier, unsigned _environmentStaticQuality, unsigned _environmentVideoQuality, float _environmentBlendFactor, const RRColorSpace* _scaler)
+bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffer* _environment1, float _environmentMultiplier, unsigned _environmentStaticQuality, unsigned _environmentVideoQuality, float _environmentBlendFactor, const RRColorSpace* _colorSpace)
 {
 	// convert environment to 13 patches, remember them
 	unsigned numChanges = 
-		getSkyExitancePhysical(_environment0,_environmentStaticQuality,_environmentVideoQuality,_scaler,environmentExitancePhysical[0],environmentVersion[0]) +
-		getSkyExitancePhysical(_environment1,_environmentStaticQuality,_environmentVideoQuality,_scaler,environmentExitancePhysical[1],environmentVersion[1]);
+		getSkyExitancePhysical(_environment0,_environmentStaticQuality,_environmentVideoQuality,_colorSpace,environmentExitancePhysical[0],environmentVersion[0]) +
+		getSkyExitancePhysical(_environment1,_environmentStaticQuality,_environmentVideoQuality,_colorSpace,environmentExitancePhysical[1],environmentVersion[1]);
 
 	// caching, quit if things did not change
 	if (!numChanges && environmentMultiplier==_environmentMultiplier && environmentBlendFactor==_environmentBlendFactor)
@@ -377,7 +377,7 @@ bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffe
 	return true;
 }
 
-bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, float _materialEmittanceMultiplier, unsigned _materialEmittanceStaticQuality, unsigned _materialEmittanceVideoQuality, bool _materialEmittanceUsePointMaterials, const RRColorSpace* _scaler)
+bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, float _materialEmittanceMultiplier, unsigned _materialEmittanceStaticQuality, unsigned _materialEmittanceVideoQuality, bool _materialEmittanceUsePointMaterials, const RRColorSpace* _colorSpace)
 {
 	// 0 = do no work
 	if (!_materialEmittanceStaticQuality && !_materialEmittanceVideoQuality)
@@ -460,7 +460,7 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 					for (unsigned i=0;i<numSamples;i++)
 					{
 						RRVec2 materialUv = triangleMapping.uv[0]*(1-samplePoints[i][0]-samplePoints[i][1]) + triangleMapping.uv[1]*samplePoints[i][0] + triangleMapping.uv[2]*samplePoints[i][1];
-						RRVec3 color = diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),_scaler,false);
+						RRVec3 color = diffuseEmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),_colorSpace,false);
 						sum += color;
 					}
 				}
@@ -470,7 +470,7 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 					for (unsigned i=0;i<numSamples;i++)
 					{
 						RRPointMaterial material;
-						object->getPointMaterial((unsigned)t,samplePoints[i],_scaler,false,material);
+						object->getPointMaterial((unsigned)t,samplePoints[i],_colorSpace,false,material);
 						sum += material.diffuseEmittance.colorLinear;
 					}
 				}

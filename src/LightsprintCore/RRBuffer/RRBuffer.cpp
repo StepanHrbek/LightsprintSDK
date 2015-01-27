@@ -83,10 +83,10 @@ RRBuffer* RRBuffer::createCopy()
 	return copy;
 }
 
-RRBuffer* RRBuffer::createCopy(RRBufferFormat _format, bool _scaled, const RRColorSpace* _scaler) const
+RRBuffer* RRBuffer::createCopy(RRBufferFormat _format, bool _scaled, const RRColorSpace* _colorSpace) const
 {
 	RRBuffer* copy = RRBuffer::create(getType(),getWidth(),getHeight(),getDepth(),_format,_scaled,NULL);
-	copyElementsTo(copy,_scaler);
+	copyElementsTo(copy,_colorSpace);
 	return copy;
 }
 

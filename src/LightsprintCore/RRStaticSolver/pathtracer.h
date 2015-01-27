@@ -34,9 +34,9 @@ class RRCollisionHandlerFinalGathering : public RRCollisionHandler
 {
 public:
 	COLLISION_LOG(std::stringstream log);
-	RRCollisionHandlerFinalGathering(const RRColorSpace* _scaler, unsigned _qualityForPointMaterials, unsigned _qualityForInterpolation, bool _staticSceneContainsLods)
+	RRCollisionHandlerFinalGathering(const RRColorSpace* _colorSpace, unsigned _qualityForPointMaterials, unsigned _qualityForInterpolation, bool _staticSceneContainsLods)
 	{
-		colorSpace = _scaler;
+		colorSpace = _colorSpace;
 		qualityForPointMaterials = _qualityForPointMaterials;
 		qualityForInterpolation = _qualityForInterpolation;
 		staticSceneContainsLods = _staticSceneContainsLods;
