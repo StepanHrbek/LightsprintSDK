@@ -261,7 +261,7 @@ void RRObjects::getAllMaterials(RRMaterials& materials) const
 			materials.push_back(*i);
 }
 
-void RRObjects::updateColorLinear(const RRColorSpace* scaler) const
+void RRObjects::updateColorLinear(const RRColorSpace* colorSpace) const
 {
 	typedef std::unordered_set<RRMaterial*> Set;
 	Set set;
@@ -277,7 +277,7 @@ void RRObjects::updateColorLinear(const RRColorSpace* scaler) const
 	// color->colorLinear
 	for (Set::const_iterator i=set.begin();i!=set.end();++i)
 		if (*i)
-			(*i)->convertToLinear(scaler);
+			(*i)->convertToLinear(colorSpace);
 }
 
 static std::wstring filenamized(RRString& name)

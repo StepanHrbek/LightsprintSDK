@@ -164,13 +164,13 @@ namespace rr
 		//!  For invalid vertex number, average value for whole triangle is taken instead of smoothed value in vertex.
 		//! \param measure
 		//!  Specifies what to measure, using what units.
-		//! \param scaler
-		//!  Custom scaler for results in non physical scale. Scale conversion is enabled by measure.scaled.
+		//! \param colorSpace
+		//!  Custom colorSpace for results in non physical scale. Scale conversion is enabled by measure.scaled.
 		//! \param out
 		//!  For valid inputs, illumination level is stored here. For invalid inputs, nothing is changed.
 		//! \return
 		//!  True if out was successfully filled. False may be caused by invalid inputs.
-		bool          getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRColorSpace* scaler, RRVec3& out) const;
+		bool          getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRColorSpace* colorSpace, RRVec3& out) const;
 
 		//! Build Fireball. For internal use by RRSolver::buildFireball().
 		const class PackedSolverFile* buildFireball(unsigned raysPerTriangle, float importanceOfDetails, bool& aborting);

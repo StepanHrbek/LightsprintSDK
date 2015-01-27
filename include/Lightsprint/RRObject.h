@@ -145,13 +145,13 @@ namespace rr
 		//!  Triangle number.
 		//! \param uv
 		//!  2D coordinates of point, in triangle's space. Triangle vertices are in 0,0 1,0 0,1.
-		//! \param scaler
-		//!  Function reads point details from textures, converts them with scaler and writes result to colorLinear.
+		//! \param colorSpace
+		//!  Function reads point details from textures, converts them with colorSpace and writes result to colorLinear.
 		//! \param interpolated
 		//!  Makes texture reads interpolated.
 		//! \param out
 		//!  Undefined on input, function fills it with material for requested point.
-		virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* scaler, bool interpolated, RRPointMaterial& out) const;
+		virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* colorSpace, bool interpolated, RRPointMaterial& out) const;
 
 		//! Information about single object, its place in hierarchy of LODs.
 		//
@@ -553,7 +553,7 @@ namespace rr
 		//! Converts color to colorLinear in all materials.
 		//
 		//! Solver calls it automatically from RRSolver::setStaticObjects() and setDynamicObjects().
-		void updateColorLinear(const RRColorSpace* scaler) const;
+		void updateColorLinear(const RRColorSpace* colorSpace) const;
 
 		//! Flips front/back if at least this number of normals in triangle points to back side.
 		//

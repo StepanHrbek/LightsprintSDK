@@ -3108,7 +3108,7 @@ rr::RRVector<*>{
    \n\n
    However, it is possible to communicate in screen colors
    or other units. Everything you need is to setup appropriate
-   convertor, see RRSolver::setColorSpace(). Scaler internally converts values from native
+   convertor, see RRSolver::setColorSpace(). RRColorSpace internally converts values from native
    physical radiometry scale to your custom scale and vice versa.
    \n\n
    In typical situations, it is most straightforward to think and communicate

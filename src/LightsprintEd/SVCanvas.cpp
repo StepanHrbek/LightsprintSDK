@@ -591,7 +591,7 @@ SVCanvas::~SVCanvas()
 			rr::RR_SAFE_DELETE(solver->getObject(i)->illumination.getLayer(svs.layerRealtimeAmbient));
 		}
 
-		// delete scaler created for scene loaded from disk
+		// delete colorSpace created for scene loaded from disk
 		if (!svs.initialInputSolver)
 		{
 			delete solver->getColorSpace();

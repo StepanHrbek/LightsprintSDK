@@ -216,12 +216,12 @@ namespace rr
 		//
 		//! \param receiverPosition
 		//!  Position of point in world space illuminated by this light.
-		//! \param scaler
+		//! \param colorSpace
 		//!  Currently active color space, provided for your convenience.
 		//!  You can compute irradiance directly in linear colors and don't use it,
 		//!  which is the most efficient way,
 		//!  but if you calculate in custom color space, convert your result to linear
-		//!  using scaler->toLinear() before returning it.
+		//!  using colorSpace->toLinear() before returning it.
 		//!  \n Lightsprint calculates internally in linear colors, that's why
 		//!  it's more efficient to expect linear result
 		//!  rather than in screen colors or any other custom color space.
@@ -230,7 +230,7 @@ namespace rr
 		//!  assuming that receiver is oriented towards light.
 		//!  Lights must return finite number, even when lighting model
 		//!  predicts infinite number (some types of attenuation + zero distance).
-		virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRColorSpace* scaler) const;
+		virtual RRVec3 getIrradiance(const RRVec3& receiverPosition, const RRColorSpace* colorSpace) const;
 
 
 		//////////////////////////////////////////////////////////////////////////////

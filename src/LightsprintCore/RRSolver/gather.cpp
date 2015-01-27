@@ -360,7 +360,7 @@ public:
 		: tools(_tools),
 		pti(_pti),
 		collisionHandlerGatherLight(
-			_pti.context.scaler,
+			_pti.context.colorSpace,
 			_pti.context.params->quality*2, // when gathering lights (possibly rendering direct shadows), make point details 2* more important
 			_pti.context.params->quality/10, // but interpolation less important
 			_pti.context.staticSceneContainsLods)
@@ -442,7 +442,7 @@ public:
 			{
 				// direct visibility found (at least partial), add irradiance from light
 				// !_light->castShadows -> direct visibility guaranteed even without raycast
-				RRVec3 irrad = _light->getIrradiance(ray.rayOrigin,pti.context.scaler) * pti.context.params->direct.lightMultiplier;
+				RRVec3 irrad = _light->getIrradiance(ray.rayOrigin,pti.context.colorSpace) * pti.context.params->direct.lightMultiplier;
 				RR_ASSERT(IS_VEC3(irrad)); // getIrradiance() must return finite number
 				if (_light->castShadows)
 				{
@@ -452,8 +452,8 @@ public:
 				}
 				if (!pti.context.gatherAllDirections)
 				{
-					if (pti.context.scaler && _light->directLambertScaled)
-						pti.context.scaler->toLinear(normalIncidence1);
+					if (pti.context.colorSpace && _light->directLambertScaled)
+						pti.context.colorSpace->toLinear(normalIncidence1);
 					irradiancePhysicalLights[LS_LIGHTMAP] += irrad * normalIncidence1;
 					RR_ASSERT(IS_VEC3(irrad));
 					RR_ASSERT(_finite(normalIncidence1));
@@ -472,8 +472,8 @@ public:
 							// helps a bit on sphere, but it's unclear how much it would help in general case
 							//normalIncidence2 = sqrt(normalIncidence1*normalIncidence2)*1.36f;
 
-							if (pti.context.scaler && _light->directLambertScaled)
-								pti.context.scaler->toLinear(normalIncidence2);
+							if (pti.context.colorSpace && _light->directLambertScaled)
+								pti.context.colorSpace->toLinear(normalIncidence2);
 							irradiancePhysicalLights[i] += irrad * normalIncidence2;
 							RR_ASSERT(IS_VEC3(irradiancePhysicalLights[0]));
 						}

@@ -10,7 +10,7 @@
 
 #include "RRPackedSolver.h"
 #include "PackedSolverFile.h"
-#include "Lightsprint/RRLight.h" // scaler
+#include "Lightsprint/RRLight.h" // colorSpace
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
 #endif
@@ -323,7 +323,7 @@ static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQ
 	}
 	if (!inSky)
 		return 1;
-	// do we have to scale sky to physical? no -> null scaler
+	// do we have to scale sky to physical? no -> null colorSpace
 	if (!inSky->getScaled())
 		inScaler = NULL;
 	// select random generator
@@ -653,7 +653,7 @@ RRVec3 RRPackedSolver::getPointIrradianceIndirect(unsigned triangle, const RRVec
 		+ nullToBlack(getTriangleIrradianceIndirect(triangle,2))*uv[1];
 }
 
-bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRColorSpace* scaler, RRVec3& out) const
+bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRColorSpace* colorSpace, RRVec3& out) const
 {
 	RRVec3 irrad;
 
@@ -705,10 +705,10 @@ bool RRPackedSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 	}
 	if (measure.scaled)
 	{
-		if (scaler)
+		if (colorSpace)
 		{
-			// scaler applied on density, not flux
-			scaler->fromLinear(irrad);
+			// colorSpace applied on density, not flux
+			colorSpace->fromLinear(irrad);
 		}
 		else
 		{

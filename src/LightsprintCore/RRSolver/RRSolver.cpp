@@ -127,7 +127,7 @@ RRSolver::~RRSolver()
 
 void RRSolver::setColorSpace(const RRColorSpace* _scaler)
 {
-	priv->scaler = _scaler;
+	priv->colorSpace = _scaler;
 	// priv->lightMultiplier is in physical scale, but we need it in custom
 	float multiplier = priv->lightMultiplier;
 	if (_scaler) _scaler->fromLinear(multiplier);
@@ -138,13 +138,13 @@ void RRSolver::setColorSpace(const RRColorSpace* _scaler)
 		if (_scaler) _scaler->toLinear(c);
 		priv->customToPhysical[i] = c;
 	}
-	// tell realtime solver to update GI (=re-run DDI with new scaler)
+	// tell realtime solver to update GI (=re-run DDI with new colorSpace)
 	reportDirectIlluminationChange(-1,false,true,false);
 }
 
 const RRColorSpace* RRSolver::getColorSpace() const
 {
-	return priv->scaler;
+	return priv->colorSpace;
 }
 
 void RRSolver::setEnvironment(RRBuffer* _environment0, RRBuffer* _environment1, RRReal _environmentAngleRad0, RRReal _environmentAngleRad1)
@@ -315,7 +315,7 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 
 	// convert it to physical scale
 	if (!getColorSpace())
-		RRReporter::report(WARN,"scaler=NULL, call setColorSpace() if your data are in sRGB.\n");
+		RRReporter::report(WARN,"colorSpace=NULL, call setColorSpace() if your data are in sRGB.\n");
 	getStaticObjects().updateColorLinear(getColorSpace());
 
 	priv->staticSolverCreationFailed = false;
@@ -416,7 +416,7 @@ void RRSolver::setDynamicObjects(const RRObjects& _objects)
 			priv->dynamicObjects.push_back(_objects[i]);
 	// convert it to physical scale
 	if (!getColorSpace())
-		RRReporter::report(WARN,"scaler=NULL, call setColorSpace() if your data are in sRGB.\n");
+		RRReporter::report(WARN,"colorSpace=NULL, call setColorSpace() if your data are in sRGB.\n");
 	getDynamicObjects().updateColorLinear(getColorSpace());
 	// invalidate supercollider
 	priv->superColliderDirty = true;
@@ -643,12 +643,12 @@ bool RRSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiomet
 {
 	if (priv->packedSolver)
 	{
-		return priv->packedSolver->getTriangleMeasure(triangle,vertex,measure,priv->scaler,out);
+		return priv->packedSolver->getTriangleMeasure(triangle,vertex,measure,priv->colorSpace,out);
 	}
 	else
 	if (priv->scene)
 	{
-		return priv->scene->getTriangleMeasure(triangle,vertex,measure,priv->scaler,out);
+		return priv->scene->getTriangleMeasure(triangle,vertex,measure,priv->colorSpace,out);
 	}
 	return false;
 }
@@ -1054,7 +1054,7 @@ void RRSolver::checkConsistency()
 		avg[j] /= numTriangles;
 	RRReporter::report(INF1,"  Average realtime direct irradiance: %d %d %d.\n",avg[0],avg[1],avg[2]);
 
-	// scaler
+	// colorSpace
 	RRReal avgPhys = 0;
 	unsigned hist3[3] = {0,0,0};
 	for (unsigned i=0;i<256;i++)
@@ -1065,7 +1065,7 @@ void RRSolver::checkConsistency()
 	avgPhys /= 256;
 	if (hist3[0]||hist3[1]!=1)
 	{
-		RRReporter::report(WARN,"  Wrong scaler set, see setColorSpace().\n");
+		RRReporter::report(WARN,"  Wrong colorSpace set, see setColorSpace().\n");
 		RRReporter::report(WARN,"    Scaling to negative/zero/positive result: %d/%d/%d (should be 0/1/255).\n",hist3[0],hist3[1],hist3[2]);
 	}
 	RRReporter::report(INF1,"  Scaling from custom scale 0..255 to average physical scale %f.\n",avgPhys);

@@ -272,7 +272,7 @@ public:
 
 	// --------- element access ---------
 
-	virtual void setElement(unsigned index, const RRVec4& _element, const RRColorSpace* scaler)
+	virtual void setElement(unsigned index, const RRVec4& _element, const RRColorSpace* colorSpace)
 	{
 		if (index>=width*height)
 		{
@@ -280,14 +280,14 @@ public:
 			return;
 		}
 		RRVec4 element = _element;
-		if (scaler)
-			scaler->fromLinear(element);
+		if (colorSpace)
+			colorSpace->fromLinear(element);
 		front[3*index+0] = RR_FLOAT2BYTE(element[2]);
 		front[3*index+1] = RR_FLOAT2BYTE(element[1]);
 		front[3*index+2] = RR_FLOAT2BYTE(element[0]);
 		version++;
 	}
-	virtual RRVec4 getElement(unsigned index, const RRColorSpace* scaler) const
+	virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace) const
 	{
 		if (index>=width*height)
 		{
@@ -299,15 +299,15 @@ public:
 			RR_BYTE2FLOAT(front[index*3+1]),
 			RR_BYTE2FLOAT(front[index*3+0]),
 			1);
-		if (scaler)
-			scaler->toLinear(result);
+		if (colorSpace)
+			colorSpace->toLinear(result);
 		return result;
 	}
-	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* scaler, bool interpolated) const
+	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const
 	{
-		return getElement(((unsigned)(position[0]*width)%width) + ((unsigned)(position[1]*height)%height) * width, scaler);
+		return getElement(((unsigned)(position[0]*width)%width) + ((unsigned)(position[1]*height)%height) * width, colorSpace);
 	}
-	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* scaler) const
+	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const
 	{
 		// 360*180 degree panorama (equirectangular projection)
 		unsigned index = ((unsigned)( (asin(direction.y/direction.length())*(1.0f/RR_PI)+0.5f) * height) % height) * width;
@@ -319,7 +319,7 @@ public:
 			if (direction.z<0) angle = (rr::RRReal)(RR_PI-angle);
 			index += (unsigned)( (angle*(-0.5f/RR_PI)+0.75f) * width) % width;
 		}
-		return getElement(index, scaler);
+		return getElement(index, colorSpace);
 	}
 
 	// --------- whole buffer access ---------

@@ -115,7 +115,7 @@ namespace rr
 			//! Both color and texture are changed. 8bit texture may be changed to floats to avoid clamping.
 			void multiplyAdd(RRVec4 multiplier, RRVec4 addend);
 			//! If texture exists, updates color to average color in texture and returns standard deviation of color in texture.
-			RRReal updateColorFromTexture(const RRColorSpace* scaler, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub);
+			RRReal updateColorFromTexture(const RRColorSpace* colorSpace, bool isTransmittanceInAlpha, UniformTextureAction uniformTextureAction, bool updateEvenFromStub);
 			//! If texture does not exist, creates 1x1 stub texture from color. Returns number of textures created, 0 or 1.
 			unsigned createTextureFromColor(bool isTransmittance);
 			//! Returns true if both properties are identical (including using the same texture).
@@ -160,17 +160,17 @@ namespace rr
 
 		//! Gathers information from textures, updates color for all Properties with texture. Updates also minimalQualityForPointMaterials.
 		//
-		//! \param scaler
-		//!  Textures are expected in custom scale of this scaler.
+		//! \param colorSpace
+		//!  Textures are expected in custom scale of this colorSpace.
 		//!  Average colors are computed in the same scale.
-		//!  Function would work even with scaler=NULL, and it would be faster, but computed averages would be slightly incorrect,
+		//!  Function would work even with colorSpace=NULL, and it would be faster, but computed averages would be slightly incorrect,
 		//!  and minimalQualityForPointMaterials would be much lower, slowing down lightmap baking with unnecessary texture lookups.
 		//! \param uniformTextureAction
 		//!  What to do with textures of constant color. Removing them may make rendering/calculations faster.
 		//! \param updateEvenFromStubs
 		//!  True=updates color even if texture is a stub. Pass true if you don't know color; stub texture is also wrong, but at least they will match.
 		//!  Pass false if you know color and don't want it to be overwritten by stub.
-		void          updateColorsFromTextures(const RRColorSpace* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs);
+		void          updateColorsFromTextures(const RRColorSpace* colorSpace, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs);
 		//! Creates stub 1x1 textures for properties without texture.
 		//
 		//! LightsprintCore fully supports materials without textures, and working with flat colors instead of textures is faster.
@@ -197,9 +197,9 @@ namespace rr
 		bool          validate(RRReal redistributedPhotonsLimit=0.98f);
 
 		//! Converts material properties from physical to custom scale (colorLinear -> color).
-		void          convertFromLinear(const RRColorSpace* scaler);
+		void          convertFromLinear(const RRColorSpace* colorSpace);
 		//! Converts material properties from custom to physical scale (color -> colorLinear).
-		void          convertToLinear(const RRColorSpace* scaler);
+		void          convertToLinear(const RRColorSpace* colorSpace);
 
 		//! True if renderer needs blending to render the material.
 		bool          needsBlending() const;
@@ -350,7 +350,7 @@ namespace rr
 	private:
 		// Ensures that respective RRMaterial functions are not called.
 		void copyFrom(const RRMaterial& from) {}
-		void updateColorsFromTextures(const RRColorSpace* scaler, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs) {}
+		void updateColorsFromTextures(const RRColorSpace* colorSpace, UniformTextureAction uniformTextureAction, bool updateEvenFromStubs) {}
 		unsigned createTexturesFromColors() {return 0;}
 	};
 

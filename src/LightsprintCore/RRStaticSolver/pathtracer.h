@@ -36,7 +36,7 @@ public:
 	COLLISION_LOG(std::stringstream log);
 	RRCollisionHandlerFinalGathering(const RRColorSpace* _scaler, unsigned _qualityForPointMaterials, unsigned _qualityForInterpolation, bool _staticSceneContainsLods)
 	{
-		scaler = _scaler;
+		colorSpace = _scaler;
 		qualityForPointMaterials = _qualityForPointMaterials;
 		qualityForInterpolation = _qualityForInterpolation;
 		staticSceneContainsLods = _staticSceneContainsLods;
@@ -188,7 +188,7 @@ public:
 			if (qualityForPointMaterials>triangleMaterial->minimalQualityForPointMaterials)
 			{
 				unsigned pmi = (firstContactMaterial==pointMaterial)?1:0; // index into pointMaterial[], one that is not occupied by firstContactMaterial
-				hitObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,scaler,qualityForInterpolation>triangleMaterial->minimalQualityForPointMaterials,pointMaterial[pmi]);
+				hitObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,colorSpace,qualityForInterpolation>triangleMaterial->minimalQualityForPointMaterials,pointMaterial[pmi]);
 				if (TEST_BIT(&pointMaterial[pmi],renderFrom))
 				{
 					// gathering hemisphere
@@ -265,7 +265,7 @@ public:
 
 private:
 	RRObject::LodInfo shooterLod;
-	const RRColorSpace* scaler;
+	const RRColorSpace* colorSpace;
 	unsigned qualityForPointMaterials; // 0 to forbid point details, more = use point details more often, UINT_MAX = always
 	unsigned qualityForInterpolation;
 	bool staticSceneContainsLods;
@@ -302,7 +302,7 @@ public:
 	~PathtracerJob();
 	
 	const RRSolver* solver;
-	const RRColorSpace* scaler;
+	const RRColorSpace* colorSpace;
 	const RRBuffer* environment; // blend of two rotated solver environments
 	const RRCollider* collider;
 

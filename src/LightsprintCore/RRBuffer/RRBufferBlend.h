@@ -8,7 +8,7 @@
 
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
-#include "Lightsprint/RRLight.h" // scaler
+#include "Lightsprint/RRLight.h" // colorSpace
 
 namespace rr
 {
@@ -29,7 +29,7 @@ public:
 
 	// setting
 	virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data) {report("reset");return false;}
-	virtual void setElement(unsigned index, const RRVec4& element, const RRColorSpace* scaler) {report("setElement");}
+	virtual void setElement(unsigned index, const RRVec4& element, const RRColorSpace* colorSpace) {report("setElement");}
 
 	// reading
 	virtual RRBufferType getType()                                   const {report("getType");return BT_2D_TEXTURE;}
@@ -39,9 +39,9 @@ public:
 	virtual RRBufferFormat getFormat()                               const {report("getFormat");return BF_RGBAF;}
 	virtual bool getScaled()                                         const {return false;}
 	virtual unsigned getBufferBytes()                                const {return sizeof(*this);}
-	virtual RRVec4 getElement(unsigned index, const RRColorSpace* scaler)const {report("getElement");return RRVec4(0);}
-	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* scaler, bool interpolated) const {report("getElementAtPosition");return RRVec4(0);}
-	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* scaler) const;
+	virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace)const {report("getElement");return RRVec4(0);}
+	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const {report("getElementAtPosition");return RRVec4(0);}
+	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const;
 	virtual unsigned char* lock(RRBufferLock lock)                         {report("lock");return NULL;}
 	virtual void unlock()                                                  {report("unlock");}
 	virtual bool isStub()                                                  {return false;}

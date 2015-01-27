@@ -182,10 +182,10 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 	s.lightmapTexcoord = CH_LIGHTMAP;
 	s.minimalQualityForPointMaterials = s.specularTransmittance.texture ? 30 : 300;
 
-	// get average colors from textures. we already set them, but this will be slightly more precise thanks to scaler
-	RRColorSpace* scaler = RRColorSpace::create_sRGB();
-	s.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE,true);
-	delete scaler;
+	// get average colors from textures. we already set them, but this will be slightly more precise thanks to colorSpace
+	RRColorSpace* colorSpace = RRColorSpace::create_sRGB();
+	s.updateColorsFromTextures(colorSpace,RRMaterial::UTA_DELETE,true);
+	delete colorSpace;
 	// apply quake map boost again, updateColorsFromTextures removed it
 	s.diffuseReflectance.color *= 2;
 

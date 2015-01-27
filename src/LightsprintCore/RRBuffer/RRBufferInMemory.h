@@ -20,7 +20,7 @@ class RR_API RRBufferInMemory : public RRBuffer
 public:
 	// setting
 	virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data);
-	virtual void setElement(unsigned index, const RRVec4& element, const RRColorSpace* scaler);
+	virtual void setElement(unsigned index, const RRVec4& element, const RRColorSpace* colorSpace);
 
 	// reading
 	virtual RRBufferType getType() const {return type;}
@@ -30,9 +30,9 @@ public:
 	virtual RRBufferFormat getFormat() const {return format;}
 	virtual bool getScaled() const {return scaled;}
 	virtual unsigned getBufferBytes() const;
-	virtual RRVec4 getElement(unsigned index, const RRColorSpace* scaler) const;
-	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* scaler, bool interpolated) const;
-	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* scaler) const;
+	virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace) const;
+	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const;
+	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const;
 	virtual unsigned char* lock(RRBufferLock lock) {if (lock!=BL_READ)version++;return data;}
 	virtual void unlock() {}
 	virtual bool isStub() {return stub;}

@@ -25,7 +25,7 @@ public:
 	static RRPackedSolver* create(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);
 
 	//! \return False = no change detected.
-	bool setEnvironment(const RRBuffer* environment0, const RRBuffer* environment1, float environmentMultiplier, unsigned environmentStaticQuality, unsigned environmentVideoQuality, float environmentBlendFactor, const RRColorSpace* scaler);
+	bool setEnvironment(const RRBuffer* environment0, const RRBuffer* environment1, float environmentMultiplier, unsigned environmentStaticQuality, unsigned environmentVideoQuality, float environmentBlendFactor, const RRColorSpace* colorSpace);
 
 	//! Updates emittances in solver, but new values are not used until you call illuminationReset().
 	//!
@@ -33,7 +33,7 @@ public:
 	//! Used only if quality && !usePointMaterials.
 	//!
 	//! \return False = no change detected.
-	bool setMaterialEmittance(bool materialEmittanceForceReload, float materialEmittanceMultiplier, unsigned materialEmittanceStaticQuality, unsigned materialEmittanceVideoQuality, bool materialEmittanceUsePointMaterials, const RRColorSpace* scaler);
+	bool setMaterialEmittance(bool materialEmittanceForceReload, float materialEmittanceMultiplier, unsigned materialEmittanceStaticQuality, unsigned materialEmittanceVideoQuality, bool materialEmittanceUsePointMaterials, const RRColorSpace* colorSpace);
 	//! Returns triangle emittance, physical, flat.
 	//RRVec3 getTriangleEmittance(unsigned t);
 	//! Sets triangle emittance, physical.
@@ -62,7 +62,7 @@ public:
 	RRVec3 getPointIrradianceIndirect(unsigned triangle, const RRVec2& uv) const;
 
 	//! Returns any specified measure, slower but universal replacement for other getTriangleXxx() functions.
-	bool getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRColorSpace* scaler, RRVec3& out) const;
+	bool getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRColorSpace* colorSpace, RRVec3& out) const;
 
 	//! Returns version of global illumination solution.
 	//

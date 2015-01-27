@@ -152,7 +152,7 @@ RRVec3 RRStaticSolver::getVertexDataFromTriangleData(unsigned questionedTriangle
 	return ivertex->getVertexDataFromTriangleData(questionedTriangle,questionedVertex012,perTriangleData,stride,scene->object->triangle,scene->object->triangles);
 }
 
-bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRColorSpace* scaler, RRVec3& out) const
+bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRadiometricMeasure measure, const RRColorSpace* colorSpace, RRVec3& out) const
 {
 	Channels irrad;
 	Object* obj;
@@ -190,10 +190,10 @@ bool RRStaticSolver::getTriangleMeasure(unsigned triangle, unsigned vertex, RRRa
 
 	if (measure.scaled)
 	{
-		if (scaler)
+		if (colorSpace)
 		{
-			// scaler applied on density, not flux
-			scaler->fromLinear(irrad);
+			// colorSpace applied on density, not flux
+			colorSpace->fromLinear(irrad);
 		}
 		else
 		{

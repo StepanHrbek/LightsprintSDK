@@ -57,22 +57,22 @@ namespace rr
 		virtual ~RRSolver();
 
 
-		//! Set scaler used by this scene i/o operations.
+		//! Set colorSpace used by this scene i/o operations.
 		//
-		//! It switches solver inputs and outputs from physical scale to custom scale defined by scaler,
+		//! It switches solver inputs and outputs from physical scale to custom scale defined by colorSpace,
 		//! e.g. screen colors. See RRColorSpace for details.
 		//!
-		//! In 99% of cases you want to set scaler before using solver as nearly all
+		//! In 99% of cases you want to set colorSpace before using solver as nearly all
 		//! existing renderers and datasets use sRGB or other custom scale.
-		//! Not setting scaler is allowed for future rendering pipelines working fully in physical scale.
-		//! \param scaler
+		//! Not setting colorSpace is allowed for future rendering pipelines working fully in physical scale.
+		//! \param colorSpace
 		//!  Scaler for converting illumination between physical and custom scale.
 		//!  It will be used by all data input and output paths in RRSolver, if not specified otherwise.
-		//!  Note that scaler is not adopted, you are still responsible for deleting it
+		//!  Note that colorSpace is not adopted, you are still responsible for deleting it
 		//!  when it's no longer needed.
-		virtual void setColorSpace(const RRColorSpace* scaler);
+		virtual void setColorSpace(const RRColorSpace* colorSpace);
 
-		//! Returns scaler used by this scene i/o operations, set by setColorSpace().
+		//! Returns colorSpace used by this scene i/o operations, set by setColorSpace().
 		const RRColorSpace* getColorSpace() const;
 
 

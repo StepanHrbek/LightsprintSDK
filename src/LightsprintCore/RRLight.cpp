@@ -327,7 +327,7 @@ const RRLight& RRLight::operator=(const RRLight& a)
 	return *this;
 }
 
-RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRColorSpace* scaler) const
+RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRColorSpace* colorSpace) const
 {
 	RR_ASSERT(IS_VEC3(color));
 
@@ -381,8 +381,8 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRColorSpace
 	}
 
 	RRVec3 result = color * (distanceAttenuation * angleAttenuation);
-	if (scaler && distanceAttenuationType==POLYNOMIAL)
-		scaler->toLinear(result);
+	if (colorSpace && distanceAttenuationType==POLYNOMIAL)
+		colorSpace->toLinear(result);
 	RR_ASSERT(IS_VEC3(result));
 	return result;
 }

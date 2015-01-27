@@ -210,7 +210,7 @@ namespace rr
 		//
 		//! Index is index into array of all elements, x+y*width+z*width*height.
 		//! \n Not mandatory, implementation may be empty.
-		virtual void setElement(unsigned index, const RRVec4& element, const RRColorSpace* scaler);
+		virtual void setElement(unsigned index, const RRVec4& element, const RRColorSpace* colorSpace);
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -243,28 +243,28 @@ namespace rr
 		//! \param index
 		//!  Index is index into array of all elements, x+y*width+z*width*height.
 		//!  Out of range indices are reported as error.
-		//! \param scaler
-		//!  If NULL, color is returned in native color space. With scaler set, RGB is returned in linear space, alpha in native space.
-		virtual RRVec4 getElement(unsigned index, const RRColorSpace* scaler) const;
+		//! \param colorSpace
+		//!  If NULL, color is returned in native color space. With colorSpace set, RGB is returned in linear space, alpha in native space.
+		virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace) const;
 		//! Returns value addressed by given float coordinates.
 		//
 		//! \param position
 		//!  Coordinates are array indices in 0..1 range covering whole buffer.
 		//!  Out of range indices are wrapped to 0..1.
-		//! \param scaler
-		//!  If NULL, color is returned in native color space. With scaler set, RGB is returned in linear space, alpha in native space.
+		//! \param colorSpace
+		//!  If NULL, color is returned in native color space. With colorSpace set, RGB is returned in linear space, alpha in native space.
 		//! \param interpolated
 		//!  Switches from nearest element selection to linear interpolation of 4 elements.
-		virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* scaler, bool interpolated) const;
+		virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const;
 		//! Returns environment sample addressed by given direction (not necessarily normalized).
 		//
 		//! \param direction
 		//!  Direction from center in which we look for element.
 		//!  2d texture is interpreted as 360*180 degree panorama.
 		//!  Cube texture is interpreted as standard cube.
-		//! \param scaler
-		//!  If NULL, color is returned in native color space. With scaler set, RGB is returned in linear space, alpha in native space.
-		virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* scaler) const;
+		//! \param colorSpace
+		//!  If NULL, color is returned in native color space. With colorSpace set, RGB is returned in linear space, alpha in native space.
+		virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const;
 		//! Locks the buffer for accessing array of all elements at once. Not mandatory, may return NULL.
 		//
 		//! Behaviour of lock is not defined when buffer is already locked.
@@ -340,15 +340,15 @@ namespace rr
 
 		//! Creates copy of buffer. Copy is located in system memory and is completely separated, both buffers may contain different data. Copy of video contains single frame.
 		RRBuffer* createCopy();
-		RRBuffer* createCopy(RRBufferFormat format, bool scaled, const RRColorSpace* scaler) const;
+		RRBuffer* createCopy(RRBufferFormat format, bool scaled, const RRColorSpace* colorSpace) const;
 		//! Copies contents of buffer. Destination buffer format and scale are preserved, data are converted as necessary.
 		//
 		//! \param destination
 		//!  Destination buffer. Must have the same width, height, depth, may differ in format, scale.
-		//! \param scaler
+		//! \param colorSpace
 		//!  Scaler used if buffers differ in scale. May be NULL for no conversion.
 		//! \return True on success.
-		bool copyElementsTo(RRBuffer* destination, const RRColorSpace* scaler) const;
+		bool copyElementsTo(RRBuffer* destination, const RRColorSpace* colorSpace) const;
 
 		//! Creates cube texture with specified colors of upper and lower hemisphere.
 		//

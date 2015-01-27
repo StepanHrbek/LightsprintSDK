@@ -112,7 +112,7 @@ public:
 		if (!material->sideBits[ray->hitFrontSide?0:1].renderFrom || material->specularTransmittance.color==RRVec3(1))
 			return false;
 		//RRPointMaterial pointMaterial;
-		//multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial,scaler);
+		//multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial,colorSpace);
 		//if (!pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom || pointMaterial.specularTransmittance.color==RRVec3(1))
 		//	return false;
 
@@ -425,7 +425,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 // main
 
 // returns number of buffers updated
-static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const RRColorSpace* scaler, RRBuffer* buffer)
+static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const RRColorSpace* colorSpace, RRBuffer* buffer)
 {
 	RR_ASSERT(gatheredExitance);
 	if (!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
@@ -433,7 +433,7 @@ static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const
 
 	for (unsigned i=0;i<numElements;i++)
 	{
-		buffer->setElement(i,RRVec4(gatheredExitance[i],0),scaler);
+		buffer->setElement(i,RRVec4(gatheredExitance[i],0),colorSpace);
 	}
 	// faster but works only for specularEnvMap BF_RGBF,!scaled
 	//illumination->specularEnvMap->reset(BT_CUBE_TEXTURE,specularSize,specularSize,6,illumination->specularEnvMap->getFormat(),false,(unsigned char*)gatheredExitance);
@@ -490,7 +490,7 @@ unsigned RRSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsi
 	if (illumination->cachedGatherSize)
 	{
 		// fill envmap
-		updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,priv->scaler,reflectionEnvMap);
+		updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,priv->colorSpace,reflectionEnvMap);
 	}
 
 	// cleanup

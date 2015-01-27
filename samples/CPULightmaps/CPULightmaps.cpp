@@ -52,8 +52,8 @@ int main(int argc, char** argv)
 		error(licError,false);
 	rr::RRSolver* solver = new rr::RRSolver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
-	rr::RRColorSpace* scaler = rr::RRColorSpace::create_sRGB();
-	solver->setColorSpace(scaler);
+	rr::RRColorSpace* colorSpace = rr::RRColorSpace::create_sRGB();
+	solver->setColorSpace(colorSpace);
 
 	// load scene
 	rr::RRScene scene("../../data/scenes/koupelna/koupelna4-windows.dae");
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
 
 	// release memory
 	delete solver;
-	delete scaler;
+	delete colorSpace;
 	delete reporter;
 
 	printf("\nPress any key to close...");

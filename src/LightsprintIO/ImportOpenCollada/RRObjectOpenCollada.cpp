@@ -1226,9 +1226,9 @@ public:
 			material.name = colladaMaterial.getName().c_str();
 
 			// get average colors from textures
-			RRColorSpace* scaler = RRColorSpace::create_sRGB();
-			material.updateColorsFromTextures(scaler,RRMaterial::UTA_DELETE,true);
-			delete scaler;
+			RRColorSpace* colorSpace = RRColorSpace::create_sRGB();
+			material.updateColorsFromTextures(colorSpace,RRMaterial::UTA_DELETE,true);
+			delete colorSpace;
 
 			// autodetect keying
 			material.updateKeyingFromTransmittance();

@@ -219,7 +219,7 @@ bool RRBufferInMemory::reset(RRBufferType _type, unsigned _width, unsigned _heig
 	return true;
 }
 
-void RRBufferInMemory::setElement(unsigned index, const RRVec4& _element, const RRColorSpace* scaler)
+void RRBufferInMemory::setElement(unsigned index, const RRVec4& _element, const RRColorSpace* colorSpace)
 {
 	if (!data)
 	{
@@ -232,8 +232,8 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& _element, const 
 		return;
 	}
 	RRVec4 element = _element;
-	if (scaler && scaled)
-		scaler->fromLinear(element);
+	if (colorSpace && scaled)
+		colorSpace->fromLinear(element);
 	//RR_ASSERT(element[0]>=0); // bent normals may be negative
 	switch(format)
 	{
@@ -277,7 +277,7 @@ void RRBufferInMemory::setElement(unsigned index, const RRVec4& _element, const 
 	version++;
 }
 
-RRVec4 RRBufferInMemory::getElement(unsigned index, const RRColorSpace* scaler) const
+RRVec4 RRBufferInMemory::getElement(unsigned index, const RRColorSpace* colorSpace) const
 {
 	if (!data)
 	{
@@ -291,9 +291,9 @@ RRVec4 RRBufferInMemory::getElement(unsigned index, const RRColorSpace* scaler) 
 	}
 	unsigned ofs = index * getElementBits()/8;
 	RRVec4 result;
-	if (scaled && scaler && (format==BF_RGB || format==BF_RGBA))
+	if (scaled && colorSpace && (format==BF_RGB || format==BF_RGBA))
 	{
-		result = scaler->getLinear(data+ofs);
+		result = colorSpace->getLinear(data+ofs);
 		result.w = (format==BF_RGB) ? 1 : RR_BYTE2FLOAT(data[ofs+3]);
 	}
 	else
@@ -346,8 +346,8 @@ RRVec4 RRBufferInMemory::getElement(unsigned index, const RRColorSpace* scaler) 
 			RRReporter::report(WARN,"Unexpected buffer format.\n");
 			break;
 	}
-	if (scaler && scaled)
-		scaler->toLinear(result);
+	if (colorSpace && scaled)
+		colorSpace->toLinear(result);
 	}
 	//RR_ASSERT(result[0]>=0); // bent normals may be negative
 	return result;
@@ -360,7 +360,7 @@ static float jitter()
 //	return (rand()-RAND_MAX/2)*(1.0f/RAND_MAX);
 }
 
-RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRColorSpace* scaler, bool _interpolated) const
+RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRColorSpace* colorSpace, bool _interpolated) const
 {
 	if (!_interpolated)
 	{
@@ -370,7 +370,7 @@ RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRC
 	coord[0] = (unsigned)(position[0] * width) % width;
 	coord[1] = (unsigned)(position[1] * height) % height;
 	coord[2] = (unsigned)(position[2] * depth) % depth;
-	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,scaler);
+	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,colorSpace);
 	}
 	else
 	{
@@ -380,7 +380,7 @@ RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRC
 	coord[0] = (unsigned)(jitter() + _position[0] * width) % width;
 	coord[1] = (unsigned)(jitter() + _position[1] * height) % height;
 	coord[2] = (unsigned)(_position[2] * depth) % depth;
-	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,scaler);
+	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,colorSpace);
 #else
 	// slow, interpolation
 	RRVec3 position((fmodf(_position[0],1)+2)*width-0.5f,(fmodf(_position[1],1)+2)*height-0.5f,(fmodf(_position[2],1)+2)*depth);
@@ -389,16 +389,16 @@ RRVec4 RRBufferInMemory::getElementAtPosition(const RRVec3& _position, const RRC
 	coord[0] = (unsigned)(position[0]);
 	coord[1] = (unsigned)(position[1]);
 	coord[2] = ((unsigned)(position[2]) % depth)*width*height;
-	RRVec4 e00 = getElement(( coord[0]   %width)+( coord[1]   %height)*width+coord[2],scaler);
-	RRVec4 e01 = getElement(( coord[0]   %width)+((coord[1]+1)%height)*width+coord[2],scaler);
-	RRVec4 e10 = getElement(((coord[0]+1)%width)+( coord[1]   %height)*width+coord[2],scaler);
-	RRVec4 e11 = getElement(((coord[0]+1)%width)+((coord[1]+1)%height)*width+coord[2],scaler);
+	RRVec4 e00 = getElement(( coord[0]   %width)+( coord[1]   %height)*width+coord[2],colorSpace);
+	RRVec4 e01 = getElement(( coord[0]   %width)+((coord[1]+1)%height)*width+coord[2],colorSpace);
+	RRVec4 e10 = getElement(((coord[0]+1)%width)+( coord[1]   %height)*width+coord[2],colorSpace);
+	RRVec4 e11 = getElement(((coord[0]+1)%width)+((coord[1]+1)%height)*width+coord[2],colorSpace);
 	return e00*((1-remainder[0])*(1-remainder[1]))+e01*((1-remainder[0])*(remainder[1]))+e10*(remainder[0]*(1-remainder[1]))+e11*(remainder[0]*remainder[1]);
 #endif
 	}
 }
 
-RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction, const RRColorSpace* scaler) const
+RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const
 {
 	unsigned coord[3];
 	switch(type)
@@ -439,7 +439,7 @@ RRVec4 RRBufferInMemory::getElementAtDirection(const RRVec3& direction, const RR
 				break;
 			}
 	}
-	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,scaler);
+	return getElement(coord[0]+coord[1]*width+coord[2]*width*height,colorSpace);
 }
 
 }; // namespace

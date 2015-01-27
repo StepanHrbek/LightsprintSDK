@@ -234,7 +234,7 @@ unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vert
 		RRVec4 indirect = RRVec4(0);
 		if (t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
-			priv->scene->getTriangleMeasure(t,v,measure,priv->scaler,indirect);
+			priv->scene->getTriangleMeasure(t,v,measure,priv->colorSpace,indirect);
 			// make it optional when negative values are supported
 			//for (unsigned i=0;i<3;i++)
 			//	indirect[i] = RR_MAX(0,indirect[i]);
@@ -262,7 +262,7 @@ unsigned RRSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned object
 		RR_ASSERT(0);
 		return 0;
 	}
-	const RRColorSpace* scaler = (vertexBuffer->getScaled() && allowScaling) ? priv->scaler : NULL;
+	const RRColorSpace* colorSpace = (vertexBuffer->getScaled() && allowScaling) ? priv->colorSpace : NULL;
 	unsigned numPostImportVertices = getStaticObjects()[objectHandle]->getCollider()->getMesh()->getNumVertices();
 	// load measure into each preImportVertex
 #pragma omp parallel for schedule(static)
@@ -274,7 +274,7 @@ unsigned RRSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned object
 		if (t<0x3fffffff) // UNDEFINED clamped to 30bit
 		{
 			data = priv->scene->getVertexDataFromTriangleData(t,v,perTriangleDataPhysical,stride);
-			if (scaler) scaler->fromLinear(data);
+			if (colorSpace) colorSpace->fromLinear(data);
 			for (unsigned i=0;i<3;i++)
 			{
 				RR_ASSERT(_finite(data[i]));

@@ -36,9 +36,9 @@ public:
 	{
 		return inherited->getTriangleMaterial(t,light,receiver);
 	}
-	virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* scaler, bool interpolated, RRPointMaterial& out) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* colorSpace, bool interpolated, RRPointMaterial& out) const
 	{
-		inherited->getPointMaterial(t,uv,scaler,interpolated,out);
+		inherited->getPointMaterial(t,uv,colorSpace,interpolated,out);
 	}
 	virtual void getTriangleLod(unsigned t, LodInfo& out) const
 	{

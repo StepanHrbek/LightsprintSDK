@@ -571,9 +571,9 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	free(opacityName);
 
 	// get average colors from textures
-	rr::RRColorSpace* scaler = rr::RRColorSpace::create_sRGB();
-	Materials[matindex].updateColorsFromTextures(scaler,rr::RRMaterial::UTA_DELETE,true);
-	delete scaler;
+	rr::RRColorSpace* colorSpace = rr::RRColorSpace::create_sRGB();
+	Materials[matindex].updateColorsFromTextures(colorSpace,rr::RRMaterial::UTA_DELETE,true);
+	delete colorSpace;
 
 	// autodetect keying
 	Materials[matindex].updateKeyingFromTransmittance();
@@ -767,9 +767,9 @@ char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial:
 	materialProperty.texcoord = 0;
 	if (materialProperty.texture)
 	{
-		rr::RRColorSpace* scaler = rr::RRColorSpace::create_sRGB();
-		materialProperty.updateColorFromTexture(scaler,false,rr::RRMaterial::UTA_DELETE,true);
-		delete scaler;
+		rr::RRColorSpace* colorSpace = rr::RRColorSpace::create_sRGB();
+		materialProperty.updateColorFromTexture(colorSpace,false,rr::RRMaterial::UTA_DELETE,true);
+		delete colorSpace;
 	}
 
 	// move the file pointer back to where we got it so

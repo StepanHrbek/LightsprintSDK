@@ -21,7 +21,7 @@ extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 PathtracerJob::PathtracerJob(const RRSolver* _solver, bool _dynamic)
 {
 	solver = _solver;
-	scaler = solver ? solver->getColorSpace() : NULL;
+	colorSpace = solver ? solver->getColorSpace() : NULL;
 	RRReal angleRad0 = 0;
 	RRReal angleRad1 = 0;
 	RRReal blendFactor = solver ? solver->getEnvironmentBlendFactor() : 0;
@@ -38,7 +38,7 @@ PathtracerJob::PathtracerJob(const RRSolver* _solver, bool _dynamic)
 		for (int j=-1;j<=1;j++)
 		for (int k=-1;k<=1;k++)
 			if (i || j || k)
-				environmentAveragePhysical += environment->getElementAtDirection(RRVec3((float)i,(float)j,(float)k),scaler);
+				environmentAveragePhysical += environment->getElementAtDirection(RRVec3((float)i,(float)j,(float)k),colorSpace);
 		environmentAveragePhysical /= 26;
 	}
 #endif
@@ -56,8 +56,8 @@ PathtracerJob::~PathtracerJob()
 //
 
 PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::PathTracingParameters& _parameters, bool _staticSceneContainsLods, unsigned _qualityForPointMaterials, unsigned _qualityForInterpolation)
-	: ptj(_ptj), collisionHandlerGatherHemisphere(_ptj.scaler,_qualityForPointMaterials,_qualityForInterpolation,_staticSceneContainsLods),
-	  collisionHandlerGatherLights(_ptj.scaler,_qualityForPointMaterials,_qualityForInterpolation,_staticSceneContainsLods),
+	: ptj(_ptj), collisionHandlerGatherHemisphere(_ptj.colorSpace,_qualityForPointMaterials,_qualityForInterpolation,_staticSceneContainsLods),
+	  collisionHandlerGatherLights(_ptj.colorSpace,_qualityForPointMaterials,_qualityForInterpolation,_staticSceneContainsLods),
 	  parameters(_parameters)
 {
 	// don't use 'parameters' in ctor, GatheredIrradianceHemisphere sends us reference to empty params and fills them later
@@ -155,7 +155,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				return ptj.environmentAveragePhysical * environmentMultiplier;
 #endif
 
-			RRVec3 irrad = ptj.environment->getElementAtDirection(direction,ptj.scaler);
+			RRVec3 irrad = ptj.environment->getElementAtDirection(direction,ptj.colorSpace);
 			RR_ASSERT(IS_VEC3(irrad));
 			return irrad * environmentMultiplier;
 		}
@@ -207,7 +207,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 					invisiblePlaneMaterial.getResponse(response,parameters.brdfTypes);
 					environmentAndSunsPhysical += (*lights)[i]->color * response.colorOut * lightMultiplier;
 				}
-			RRVec3 floor = ptj.environment->getElementAtDirection(direction,ptj.scaler);
+			RRVec3 floor = ptj.environment->getElementAtDirection(direction,ptj.colorSpace);
 			floor /= environmentAndSunsPhysical+RRVec3(1e-10f);
 			invisiblePlaneMaterial.diffuseReflectance.colorLinear *= floor;
 			invisiblePlaneMaterial.specularReflectance.colorLinear *= floor;
@@ -270,7 +270,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 					if (pixelNormal.dot(shadowRay.rayDir)>0 && faceNormal.dot(shadowRay.rayDir)>0) // bad normalmap -> some rays are terminated here
 					{
 						collisionHandlerGatherLights.setLight(light,NULL);
-						RRVec3 unobstructedLight = light->getIrradiance(shadowRay.rayOrigin,ptj.scaler);
+						RRVec3 unobstructedLight = light->getIrradiance(shadowRay.rayOrigin,ptj.colorSpace);
 						response.dirIn = -shadowRay.rayDir;
 						material->getResponse(response,parameters.brdfTypes);
 						RRVec3 totalContribution = unobstructedLight * response.colorOut;

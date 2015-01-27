@@ -145,9 +145,9 @@ void* add_material(C_MATERIAL* m)
 	mat->refractionIndex = m->nr;
 
 	// convert from physical scale, all samples expect inputs in screen colors
-	RRColorSpace* scaler = RRColorSpace::create_sRGB();
-	mat->convertFromLinear(scaler);
-	delete scaler;
+	RRColorSpace* colorSpace = RRColorSpace::create_sRGB();
+	mat->convertFromLinear(colorSpace);
+	delete colorSpace;
 
 	g_scene->materials.push_back(mat);
 	return (void *)mat;

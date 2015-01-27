@@ -39,7 +39,7 @@ RRBufferBlend::RRBufferBlend(const RRBuffer* _environment0, const RRBuffer* _env
 	blendFactor = _blendFactor;
 }
 
-RRVec4 RRBufferBlend::getElementAtDirection(const RRVec3& direction, const RRColorSpace* scaler) const
+RRVec4 RRBufferBlend::getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const
 {
 	RRVec3 direction0 = direction;
 	RRVec3 direction1 = direction;
@@ -48,12 +48,12 @@ RRVec4 RRBufferBlend::getElementAtDirection(const RRVec3& direction, const RRCol
 	if (environment0)
 	{
 		rotation0.transformDirection(direction0);
-		color0 = environment0->getElementAtDirection(direction0,scaler);
+		color0 = environment0->getElementAtDirection(direction0,colorSpace);
 	}
 	if (environment1)
 	{
 		rotation1.transformDirection(direction1);
-		color1 = environment1->getElementAtDirection(direction1,scaler);
+		color1 = environment1->getElementAtDirection(direction1,colorSpace);
 	}
 	return color0*(1-blendFactor) + color1*blendFactor;
 }

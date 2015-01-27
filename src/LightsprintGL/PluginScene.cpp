@@ -201,12 +201,12 @@ public:
 
 		// solvers work with multipliers in linear space, convert them to srgb for rendering
 		rr::RRSolver::Multipliers multipliers = pp.multipliers;
-		const rr::RRColorSpace* scaler = pp.solver ? pp.solver->getColorSpace() : NULL; // selection plugin call scene with solver=NULL
-		if (scaler)
+		const rr::RRColorSpace* colorSpace = pp.solver ? pp.solver->getColorSpace() : NULL; // selection plugin call scene with solver=NULL
+		if (colorSpace)
 		{
-			scaler->fromLinear(multipliers.lightMultiplier);
-			scaler->fromLinear(multipliers.environmentMultiplier);
-			scaler->fromLinear(multipliers.materialEmittanceMultiplier);
+			colorSpace->fromLinear(multipliers.lightMultiplier);
+			colorSpace->fromLinear(multipliers.environmentMultiplier);
+			colorSpace->fromLinear(multipliers.materialEmittanceMultiplier);
 		}
 
 		// Will we render multiobject or individual objects?

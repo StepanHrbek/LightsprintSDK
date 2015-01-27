@@ -562,7 +562,7 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 	unsigned dstbypp = (dstbipp+7)/8;
 
 	// is conversion to sRGB necesasary?
-	rr::RRColorSpace* scaler = (!buffer->getScaled() && fit==FIT_BITMAP) ? rr::RRColorSpace::create_sRGB() : NULL;
+	rr::RRColorSpace* colorSpace = (!buffer->getScaled() && fit==FIT_BITMAP) ? rr::RRColorSpace::create_sRGB() : NULL;
 
 	FIBITMAP* dib = FreeImage_AllocateT(fit,buffer->getWidth(),buffer->getHeight(),dstbipp);
 	if (dib)
@@ -603,8 +603,8 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 							pixel[2] = tmp;
 						}
 						// convert to sRGB
-						if (scaler)
-							scaler->fromLinear(pixel);
+						if (colorSpace)
+							colorSpace->fromLinear(pixel);
 						// write dst pixel
 						if ((i%width)==0) dst += 3-(((unsigned long)dst+3)&3); // compensate for freeimage's scanline padding
 						switch(dstbipp)
@@ -681,7 +681,7 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 		FreeImage_Unload(dib);
 	}
 
-	delete scaler;
+	delete colorSpace;
 
 	return result;
 }

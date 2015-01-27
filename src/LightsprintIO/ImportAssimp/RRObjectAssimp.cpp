@@ -198,9 +198,9 @@ public:
 
 			// get average colors from textures
 			{
-				RRColorSpace* scaler = RRColorSpace::create_sRGB();
-				material.updateColorsFromTextures(scaler,RRMaterial::UTA_NULL,true);
-				delete scaler;
+				RRColorSpace* colorSpace = RRColorSpace::create_sRGB();
+				material.updateColorsFromTextures(colorSpace,RRMaterial::UTA_NULL,true);
+				delete colorSpace;
 			}
 
 			// final decision on number of sides

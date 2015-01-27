@@ -36,24 +36,24 @@ unsigned RRBuffer::getNumElements() const
 	return getWidth()*getHeight()*getDepth();
 }
 
-void RRBuffer::setElement(unsigned index, const RRVec4& element, const RRColorSpace* scaler)
+void RRBuffer::setElement(unsigned index, const RRVec4& element, const RRColorSpace* colorSpace)
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::setElement() called.\n"));
 }
 
-RRVec4 RRBuffer::getElement(unsigned index, const RRColorSpace* scaler) const
+RRVec4 RRBuffer::getElement(unsigned index, const RRColorSpace* colorSpace) const
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElement() called.\n"));
 	return RRVec4(0);
 }
 
-RRVec4 RRBuffer::getElementAtPosition(const RRVec3& coord, const RRColorSpace* scaler, bool interpolated) const
+RRVec4 RRBuffer::getElementAtPosition(const RRVec3& coord, const RRColorSpace* colorSpace, bool interpolated) const
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElementAtPosition() called.\n"));
 	return RRVec4(0);
 }
 
-RRVec4 RRBuffer::getElementAtDirection(const RRVec3& dir, const RRColorSpace* scaler) const
+RRVec4 RRBuffer::getElementAtDirection(const RRVec3& dir, const RRColorSpace* colorSpace) const
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::getElementAtDirection() called.\n"));
 	return RRVec4(0);
@@ -90,7 +90,7 @@ RRBuffer* RRBuffer::createCopy(RRBufferFormat _format, bool _scaled, const RRCol
 	return copy;
 }
 
-bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRColorSpace* scaler) const
+bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRColorSpace* colorSpace) const
 {
 	const RRBuffer* source = this; 
 	if (!source || !destination)
@@ -107,8 +107,8 @@ bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRColorSpace* scaler)
 		return false;
 	}
 	unsigned size = w*h*d;
-	const RRColorSpace* toCust = (!source->getScaled() && destination->getScaled()) ? scaler : NULL;
-	const RRColorSpace* toPhys = (source->getScaled() && !destination->getScaled()) ? scaler : NULL;
+	const RRColorSpace* toCust = (!source->getScaled() && destination->getScaled()) ? colorSpace : NULL;
+	const RRColorSpace* toPhys = (source->getScaled() && !destination->getScaled()) ? colorSpace : NULL;
 	for (unsigned i=0;i<size;i++)
 	{
 		RRVec4 color = source->getElement(i,NULL);
