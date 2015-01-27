@@ -307,7 +307,7 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 					else if (priv->scene)
 					{
 						// read face exitance
-						priv->scene->getTriangleMeasure(face,3,RM_EXITANCE_LINEAR,NULL,exitanceHdr[ofs]);
+						priv->scene->getTriangleMeasure(face,3,RM_RADIOSITY_LINEAR,NULL,exitanceHdr[ofs]);
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 					}
 #ifdef RR_DEVELOPMET
@@ -398,7 +398,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 		else if (scene)
 		{
 			// read face exitance
-			scene->getTriangleMeasure(face,3,RM_EXITANCE_LINEAR,NULL,exitanceHdr[ofs]);
+			scene->getTriangleMeasure(face,3,RM_RADIOSITY_LINEAR,NULL,exitanceHdr[ofs]);
 			RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 		}
 #ifdef RR_DEVELOPMET
