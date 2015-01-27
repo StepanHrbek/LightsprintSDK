@@ -145,7 +145,7 @@ Global illumination
 - multithreaded, all cores/CPUs and GPU work at once
 - supports work distributed in cluster of computers
 - computed and rendered in HDR
-- custom scale on inputs/outputs (HDR/sRGB/other)
+- custom color space on inputs/outputs (linear/sRGB/other)
 
 \ref inputs_light_sources "Light source formats (inputs)"
 - spot, point, directinal lights
@@ -3079,7 +3079,7 @@ rr::RRVector<*>{
    \n\n
    <b>Object</b> is an instance of mesh, with position, rotation, scale
    and material properties.
-   <b>Static object</b> never moves, rotates, deforms or changes material properties.
+   <b>Static object</b> never moves, rotates, deforms or significantly changes material properties.
    <b>Dynamic object</b> freely changes these properties.
    \n\n
    <b>Scene</b> is a set of objects.
@@ -3101,15 +3101,10 @@ rr::RRVector<*>{
    \n (version with RR_ affects LightsprintCore, RR_GL_ affects LightsprintGL, RR_ED_ affects LightsprintEd, RR_IO_ affects LightsprintIO)
 
  \section gunits Illumination units (radiometry, photometry, screen)
-   Lightsprint computes all in HDR.
-   Whole documentation talks in radiometry terms like irradiance,
-   and Lightsprint internally works in radiometry units.
-   All illumination measure inputs and outputs are 32bit float per component values.
-   \n\n
-   However, it is possible to communicate in screen colors
+   Lightsprint solvers calculates in physically based units, in 32bit float per component precision.
+   However, it is possible to feed solvers and receive results in screen colors
    or other units. Everything you need is to setup appropriate
-   convertor, see RRSolver::setColorSpace(). RRColorSpace internally converts values from native
-   physical radiometry scale to your custom scale and vice versa.
+   convertor, see RRSolver::setColorSpace(). RRColorSpace converts your values to and from our linear colors.
    \n\n
    In typical situations, it is most straightforward to think and communicate
    in screen colors. This means you can set nearly all inputs in screen colors
@@ -3130,38 +3125,29 @@ rr::RRVector<*>{
  \section gscale Scale
    Lightsprint libraries support all types of scaled objects:
    positively, negatively, uniformly, non-uniformly.
-   Negative scale, however, often brings inconsistent lighting, as math behind scaling makes normals
-   point to back sides of triangles.
-   It's not entirely clear what users want here,
-   - keep negative scale as it is?
-   - automatically swap front/back sides?
-   - automatically change orienatation of normals?
-   Let us know what do you prefer.
+   Negative scale, however, could bring inconsistent lighting in some GI solvers.
 
  \section gowner Ownership
-   Dynamically created objects (using new, create() etc) are never adopted, ownership never changes.
-   \n This means that parameters that need to be destructed are never destructed inside called function,
-   responsibility for object is never passed to someone else.
-   When you create object, always delete it yourself when no longer needed.
-   \n\n The only exception to this rule is RRBuffer. Classes RRObjectIllumination and RRMaterial
-   adopt it and delete in destructor.
+   Dynamically created objects (using new, create() etc) are nearly never adopted, ownership does not change.
+   \n This means that parameters that need to be destructed are not destructed inside called function,
+   responsibility for object is not passed to someone else.
+   So when you create object, delete it yourself when no longer needed.
+   \n\n The only exception to this rule is RRBuffer - classes RRObjectIllumination and RRMaterial
+   adopt textures and delete them destructor.
 
  \section gref Reference counting
-   There is no internal reference counting, so if you create RRCollider out of RRMesh,
+   There is no internal reference counting in majority of Lightsprint SDK, so if you create e.g. RRCollider out of RRMesh,
    you are not allowed to destroy mesh before destroying collider. This danger should be
    mentioned on all appropriate places.
    \n\n The only exception to this rule is RRBuffer, it has built-in reference counter.
 
  \section gfinite Finite numbers
    If not otherwise specified, all inputs must be finite numbers.
-   With Inf or NaN on input, result of any operation is undefined.
-   (But still, we fixed all known errors caused by Inf/Nan
-    and if you find and report us other Inf/NaN problem,
-    we will fix it too.)
+   With Inf or NaN input, result of any operation is undefined.
 
  \section gnull NULL
    Although NULL is obsoleted by C++ and some discourage from using it,
-   we continue using it to distinguish zeros for pointers from zeros for non-pointers.
+   we continue using it to distinguish zeroes for pointers from zeros for non-pointers.
    So if you see x=0, x is NOT a pointer.
    If you see x=NULL, x IS a pointer.
 
@@ -3170,10 +3156,10 @@ rr::RRVector<*>{
    See RRMatrix3x4 for explanation why we found it optimal.
 
  \section gup Up vector
-   Although there is no limitation on orientation of 'up' vector,
-   all samples work with 'up' in positive Y (0,1,0) and all scene adapters
-   adapt scenes to 'up' in positive Y.
-   Source code of adapters is in samples/Import*, so you can easily change up.
+   Although there is no limitation on orientation of 'up' vector, lighting works the same in all directions,
+   all importers try to convert data so that 'up' is in positive Y (0,1,0),
+   and camera navigation in samples expects the same.
+   There is no special reason for Y axis, but it helps to be consistent across whole SDK.
 
 
 
