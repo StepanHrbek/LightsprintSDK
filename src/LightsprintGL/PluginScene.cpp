@@ -222,9 +222,13 @@ public:
 			&& (
 				// optimized render can't render LDM for more than 1 object
 				(_.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _.layerLDM!=UINT_MAX)
-				// if we are to use provided indirect, take it always from 1objects
-				// ([#12] if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
-				|| ((_.uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_.uberProgramSetup.LIGHT_INDIRECT_MAP) && !_.updateLayerLightmap && _.layerLightmap!=UINT_MAX)
+				// old: if we are to render provided indirect, take it always from 1objects
+				//      ([#12] if we are to update indirect, we update and render it in 1object or multiobject, whatever is faster. so both buffers must be allocated)
+				// new (with !_.updateLayerLightmap commented out):
+				//      if we are to render indirect, we update it to / take it always from 1objects
+				//      indirect in multiobject was broken at least since rev 5000.
+				//      it was rarely used (only in Arch solver with no mirrors, no cubemaps, no ldms), so it was not noticed sooner
+				|| ((_.uberProgramSetup.LIGHT_INDIRECT_VCOLOR||_.uberProgramSetup.LIGHT_INDIRECT_MAP) && /*!_.updateLayerLightmap &&*/ _.layerLightmap!=UINT_MAX)
 				// optimized render would look bad with single cube per-scene (sometimes such cube does not exist at all)
 				|| ((_.uberProgramSetup.MATERIAL_SPECULAR && _.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) && _.layerEnvironment!=UINT_MAX)
 				|| ((_.uberProgramSetup.MATERIAL_DIFFUSE && _.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE) && _.layerEnvironment!=UINT_MAX)
