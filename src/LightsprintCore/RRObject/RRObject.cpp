@@ -347,12 +347,13 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 		RRReporter::report(ERRO,"getCollider()=NULL.\n");
 		return 1;
 	}
-	if (!getCollider()->getMesh())
+	const rr::RRMesh* mesh = getCollider()->getMesh();
+	if (!mesh)
 	{
 		RRReporter::report(ERRO,"getCollider()->getMesh()=NULL.\n");
 		return 1;
 	}
-	getCollider()->getMesh()->checkConsistency(UINT_MAX,objectName,&numReports);
+	mesh->checkConsistency(UINT_MAX,objectName,&numReports);
 
 	// matrix
 	const RRMatrix3x4* world = getWorldMatrix();
@@ -372,10 +373,10 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 	unsigned numTrianglesInFacegroups = 0;
 	for (unsigned g=0;g<faceGroups.size();g++)
 		numTrianglesInFacegroups += faceGroups[g].numTriangles;
-	if (numTrianglesInFacegroups!=getCollider()->getMesh()->getNumTriangles())
+	if (numTrianglesInFacegroups!=mesh->getNumTriangles())
 	{
 		numReports++;
-		RRReporter::report(ERRO,"faceGroups define materials for %d triangles out of %d.\n",numTrianglesInFacegroups,getCollider()->getMesh()->getNumTriangles());
+		RRReporter::report(ERRO,"faceGroups define materials for %d triangles out of %d.\n",numTrianglesInFacegroups,mesh->getNumTriangles());
 	}
 
 	// materials
@@ -389,7 +390,23 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 		}
 		else
 		{
-			// todo: do texcoords exist?
+			RRMesh::TriangleMapping tm;
+			if (mesh->getNumTriangles())
+				for (unsigned i=0;i<5;i++)
+				{
+					const RRMaterial::Property& prop =
+						(i==0)?material->diffuseReflectance:(
+						 (i==1)?material->diffuseEmittance:(
+						  (i==2)?material->specularReflectance:(
+						   (i==3)?material->specularTransmittance:
+						    material->bumpMap
+						)));
+					if (prop.texture && !mesh->getTriangleMapping(0,tm,prop.texcoord))
+					{
+						numReports++;
+						RRReporter::report(WARN,"Material %s wants uv channel %d, but mesh does not have it.\n",material->name.c_str(),prop.texcoord);
+					}
+				}
 		}
 	}
 
