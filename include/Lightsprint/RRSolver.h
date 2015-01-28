@@ -1020,9 +1020,9 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// Checks dll at runtime, detects wrong dll configuration or version
+	// Checks dll at runtime, detects configuration mismatch
 	//
-	// First step of your application should be
+	// If you want to check dll configuration at runtime, make this first step of your application:
 	//   if (!RR_INTERFACE_OK) terminate_with_message(RR_INTERFACE_MISMATCH_MSG);
 	//////////////////////////////////////////////////////////////////////////////
 
