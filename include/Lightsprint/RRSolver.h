@@ -705,14 +705,14 @@ namespace rr
 		//!  and quality specified in params.
 		//!  Internal state is properly updated even when buffers don't exist (so no other output is produced).
 		//!  Following updateLightmap() will include this indirect lighting into computed buffer
-		//!  if you call it with params->useCurrentSolution=true and params->measure_internal=RM_IRRADIANCE_CUSTOM.
+		//!  if you call it with params->useCurrentSolution=true.
 		//! \remarks
 		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them.
 		//!  All three ways produce the same quality, but first one may be faster in some cases.
 		//!  - create buffers for selected objects, make sure other buffers are NULL and call updateLightmaps()
 		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
 		//!  - call updateLightmaps(-1,-1,params,NULL) once to update current solution,
-		//!    call updateLightmap(params with useCurrentSolution=true and measure_internal=RM_IRRADIANCE_CUSTOM) for all selected objects
+		//!    call updateLightmap(params with useCurrentSolution=true) for all selected objects
 		//! \remarks
 		//!  Sharing one lightmap by multiple objects is not supported out of the box. Please consult us for possible solutions.
 		virtual unsigned updateLightmaps(int layerLightmap, int layerDirectionalLightmap, int layerBentNormals, const UpdateParameters* params, const FilteringParameters* filtering);

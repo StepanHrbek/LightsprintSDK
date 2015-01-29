@@ -1567,7 +1567,6 @@ Material formats (1)
 	RRSolver::UpdateParameters params(1000);
 	solver.updateLightmaps(-1,-1,-1,&params,NULL);
 	params.useCurrentSolution = true;
-	params.measure_internal.direct = true;
 	while(!done)
 	{
 		unsigned objectIndex = ...; //get object that was not updated yet

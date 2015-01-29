@@ -814,7 +814,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						solver->updateLightmaps(-1,-1,-1,&params,NULL);
 
 						// build direct illumination
-						paramsDirect.useCurrentSolution = true;
+						params.useCurrentSolution = true;
+						//params.measure_internal.direct = true; [#41] this used to be mandatory, but has no visible effect now (rev7396)
 						solver->updateLightmaps(tmpLayer,-1,-1,&params,&svs.lightmapFilteringParameters);
 #endif
 						// switch to .exr mode
