@@ -1033,7 +1033,7 @@ namespace rr
 	//////////////////////////////////////////////////////////////////////////////
 
 	//! Returns if interface matches. False = dll mismatch, app should be terminated.
-	#define RR_INTERFACE_OK (RR_INTERFACE_ID_LIB()==RR_INTERFACE_ID_APP() && !strcmp(RR_INTERFACE_DESC_APP(),rr::RR_INTERFACE_DESC_LIB()))
+	#define RR_INTERFACE_OK (rr::RR_INTERFACE_ID_LIB()==RR_INTERFACE_ID_APP() && !strcmp(RR_INTERFACE_DESC_APP(),rr::RR_INTERFACE_DESC_LIB()))
 	//! Returns id of interface offered by library.
 	RR_API unsigned RR_INTERFACE_ID_LIB();
 	// Returns id of interface expected by app.
