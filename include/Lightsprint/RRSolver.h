@@ -1020,21 +1020,27 @@ namespace rr
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// Checks dll at runtime, detects configuration mismatch
+	// Checks API version at runtime, detects some configuration mismatches
 	//
-	// If you want to check dll configuration at runtime, make this first step of your application:
-	//   if (!RR_INTERFACE_OK) terminate_with_message(RR_INTERFACE_MISMATCH_MSG);
+	// If you want to catch the most common configuration problems at runtime,
+	// make this first step of your application:
+	//   if (!RR_INTERFACE_OK) warn_or_terminate_with_message(RR_INTERFACE_MISMATCH_MSG);
+	//
+	// Note that
+	//  1) this does not detect all incompatibilities, mismatches in compiler options can still cause havoc
+	//  2) detected incompatibility does not have to be fatal, you can try running anyway
+	//
 	//////////////////////////////////////////////////////////////////////////////
 
+	//! Returns if interface matches. False = dll mismatch, app should be terminated.
+	#define RR_INTERFACE_OK (RR_INTERFACE_ID_LIB()==RR_INTERFACE_ID_APP() && !strcmp(RR_INTERFACE_DESC_APP(),rr::RR_INTERFACE_DESC_LIB()))
 	//! Returns id of interface offered by library.
 	RR_API unsigned RR_INTERFACE_ID_LIB();
 	// Returns id of interface expected by app.
 	#define RR_INTERFACE_ID_APP() unsigned( sizeof(rr::RRSolver) + 6 )
-	//! Returns if interface matches. False = dll mismatch, app should be terminated.
-	#define RR_INTERFACE_OK (RR_INTERFACE_ID_APP()==rr::RR_INTERFACE_ID_LIB())
-	//! Returns description of interface offered by library + compile date.
+	//! Returns description of interface offered by library.
 	RR_API const char* RR_INTERFACE_DESC_LIB();
-	// Returns description of interface expected by app + compile date.
+	// Returns description of interface expected by app.
 	#if defined(_WIN32)
 		#define RR_INTERFACE_OS "win"
 	#elif defined(__APPLE__)
@@ -1057,9 +1063,25 @@ namespace rr
 	#else
 		#define RR_INTERFACE_DLLSTATIC "dll"
 	#endif
-	#define RR_INTERFACE_DESC_APP() ( RR_INTERFACE_OS RR_INTERFACE_BITS " " RR_INTERFACE_RLSDBG " " RR_INTERFACE_DLLSTATIC " (" __DATE__ " " __TIME__ ")" )
+	#define RR_STRINGIZE1(x) #x
+	#define RR_STRINGIZE(x) RR_STRINGIZE1(x)
+	#if defined(_MSC_VER)
+	#define RR_INTERFACE_COMPILER "Visual C++ " RR_STRINGIZE(_MSC_VER)
+	#elif defined(__clang__)
+		#define RR_INTERFACE_COMPILER "clang " RR_STRINGIZE(__clang_major__) "." RR_STRINGIZE(__clang_minor__)
+	#elif defined(__GNUC__)
+		#define RR_INTERFACE_COMPILER "gcc " RR_STRINGIZE(__GNUC__) "." RR_STRINGIZE(__GNUC_MINOR__)
+	#else
+		#define RR_INTERFACE_COMPILER "unknown"
+	#endif
+	#if defined(_CPPRTTI)
+		#define RR_INTERFACE_RTTI "rtti"
+	#else
+		#define RR_INTERFACE_RTTI ""
+	#endif
+	#define RR_INTERFACE_DESC_APP() ( RR_INTERFACE_COMPILER " " RR_INTERFACE_OS RR_INTERFACE_BITS " " RR_INTERFACE_RLSDBG " " RR_INTERFACE_DLLSTATIC " " RR_INTERFACE_RTTI )
 	// Returns description of version mismatch.
-	#define RR_INTERFACE_MISMATCH_MSG "LightsprintCore dll version mismatch.\nLibrary has interface: %d %s\nApplication expects  : %d %s\n",rr::RR_INTERFACE_ID_LIB(),rr::RR_INTERFACE_DESC_LIB(),RR_INTERFACE_ID_APP(),RR_INTERFACE_DESC_APP()
+	#define RR_INTERFACE_MISMATCH_MSG "LightsprintCore version mismatch.\nLibrary has interface: %s %d\nApplication expects  : %s %d\n",rr::RR_INTERFACE_DESC_LIB(),rr::RR_INTERFACE_ID_LIB(),RR_INTERFACE_DESC_APP(),RR_INTERFACE_ID_APP()
 
 } // namespace
 
