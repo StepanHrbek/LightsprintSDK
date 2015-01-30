@@ -1720,6 +1720,18 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			solver->calculate(&params);
 		}
 
+		// shared plugin data
+		rr_gl::PluginParamsShared ppShared;
+		ppShared.camera = &svs.camera;
+		ppShared.viewport[2] = winWidth;
+		ppShared.viewport[3] = winHeight;
+		ppShared.srgbCorrect = svs.srgbCorrect; // affects image even with direct lighting disabled (by adding dif+spec+emis correctly)
+		ppShared.brightness = rr::RRVec4( svs.renderTonemapping ? svs.tonemapping.color.RRVec3::avg() * pow(svs.tonemapping.gamma,0.45f) : 1 );
+		ppShared.gamma = svs.renderTonemapping ? svs.tonemapping.gamma : 1;
+
+		// start chaining plugins
+		const rr_gl::PluginParams* pluginChain = NULL;
+
 		if (svs.renderLightIndirect==LI_PATHTRACED)
 		{
 			rr::RRReportInterval report(rr::INF3,"pathtrace scene...\n");
@@ -1758,23 +1770,41 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			tp.gamma *= 0.45f;
 			pathTracedAccumulator++;
 			solver->getRenderer()->getTextureRenderer()->render2D(rr_gl::getTexture(pathTracedBuffer,false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE),&tp,0,0,1,1);
+			glClear(GL_DEPTH_BUFFER_BIT); // necessary for selection plugin
+
+			// copy&paste-d plugins that make sense with pathtracer
+
+			// selection plugin
+			rr_gl::PluginParamsScene ppSelection(pluginChain,NULL);
+			const EntityIds& selectedEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
+			rr::RRObjects selectedObjects;
+			for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
+				if ((*i).type==ST_OBJECT)
+					selectedObjects.push_back(solver->getObject((*i).index));
+			ppSelection.objects = &selectedObjects;
+			ppSelection.uberProgramSetup.OBJECT_SPACE = true;
+			ppSelection.uberProgramSetup.POSTPROCESS_NORMALS = true;
+			ppSelection.wireframe = true;
+			if (selectedObjects.size() && !_takingSshot)
+				pluginChain = &ppSelection;
+
+			// lens flare plugin
+			rr_gl::PluginParamsLensFlare ppLensFlare(pluginChain,svs.lensFlareSize,svs.lensFlareId,&solver->getLights(),solver->getMultiObject(),64);
+			if (svs.renderLensFlare && !svs.camera.isOrthogonal() && !svs.renderPanorama && !svs.renderStereo)
+				pluginChain = &ppLensFlare;
+
+			// FPS plugin
+			rr_gl::PluginParamsFPS ppFPS(pluginChain,fpsCounter.getFps());
+			if (svs.renderFPS)
+				pluginChain = &ppFPS;
+
+			// final render
+			solver->getRenderer()->render(pluginChain,ppShared);
 		}
 		else
 		{
 			rr::RRReportInterval report(rr::INF3,"render scene...\n");
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-
-			// shared plugin data
-			rr_gl::PluginParamsShared ppShared;
-			ppShared.camera = &svs.camera;
-			ppShared.viewport[2] = winWidth;
-			ppShared.viewport[3] = winHeight;
-			ppShared.srgbCorrect = svs.srgbCorrect; // affects image even with direct lighting disabled (by adding dif+spec+emis correctly)
-			ppShared.brightness = rr::RRVec4( svs.renderTonemapping ? svs.tonemapping.color.RRVec3::avg() * pow(svs.tonemapping.gamma,0.45f) : 1 );
-			ppShared.gamma = svs.renderTonemapping ? svs.tonemapping.gamma : 1;
-
-			// start chaining plugins
-			const rr_gl::PluginParams* pluginChain = NULL;
 
 			// skybox plugin
 			rr_gl::PluginParamsSky ppSky(pluginChain,solver,svs.getMultipliersDirect().environmentMultiplier);
