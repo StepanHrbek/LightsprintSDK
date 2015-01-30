@@ -955,8 +955,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		rr::RRCamera* cam = (event.LeftIsDown()
 			 && selectedType==ST_LIGHT && svs.selectedLightIndex<solver->getLights().size()) ? solver->realtimeLights[svs.selectedLightIndex]->getCamera() : &svs.camera;
 		s_ci.pos = svs.camera.getPosition();
-		s_ci.rayOrigin = svs.camera.getRayOrigin(mousePositionInWindow);
-		s_ci.rayDirection = svs.camera.getRayDirection(mousePositionInWindow);
+		svs.camera.getRay(mousePositionInWindow,s_ci.rayOrigin,s_ci.rayDirection);
 
 		// find scene distance, adjust search range to look only for closer icons
 		s_ci.hitDistance = svs.camera.getNear()*0.9f+svs.camera.getFar()*0.1f;
@@ -1128,9 +1127,11 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			// moving/rotating/scaling selection (gizmo)
 			rr::RRMatrix3x4 transformation;
 			bool preTransform = false;
+			rr::RRVec3 rayOriginOld,rayDirectionOld; svs.camera.getRay(oldMousePositionInWindow,rayOriginOld,rayDirectionOld);
+			rr::RRVec3 rayOriginNow,rayDirectionNow; svs.camera.getRay(mousePositionInWindow,rayOriginNow,rayDirectionNow);
 			rr::RRVec3 pan = svs.camera.isOrthogonal()
-				? svs.camera.getRayOrigin(mousePositionInWindow)-svs.camera.getRayOrigin(oldMousePositionInWindow)
-				: (svs.camera.getRayDirection(mousePositionInWindow)-svs.camera.getRayDirection(oldMousePositionInWindow))*(s_ci.hitDistance/s_ci.rayDirection.length());
+				? rayOriginNow-rayOriginOld
+				: (rayDirectionNow-rayDirectionOld)*(s_ci.hitDistance/s_ci.rayDirection.length());
 			rr::RRVec2 drag = RRVec2((newPosition.x-oldPosition.x)/(float)winWidth,(newPosition.y-oldPosition.y)/(float)winHeight);
 			switch (selectedTransformation)
 			{
@@ -1199,17 +1200,12 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		{
 			// panning
 			//  drag clicked pixel so that it stays under mouse
-			rr::RRVec3 pan;
-			if (svs.camera.isOrthogonal())
-			{
-				rr::RRVec2 origMousePositionInWindow = rr::RRVec2((s_ci.mouseX*2.0f+winWidth-canvasGetSize().x)/winWidth-1,1-(s_ci.mouseY*2.0f+winHeight-canvasGetSize().y)/winHeight); // in fact, it is mouse position in _viewport_ where viewport winWidth*winHeight is in center of window GetSize()
-				pan = svs.camera.getRayOrigin(origMousePositionInWindow)-svs.camera.getRayOrigin(mousePositionInWindow);
-			}
-			else
-			{
-				rr::RRVec3 newRayDirection = svs.camera.getRayDirection(mousePositionInWindow);
-				pan = (s_ci.rayDirection-newRayDirection)*(s_ci.hitDistance/s_ci.rayDirection.length());
-			}
+			rr::RRVec2 origMousePositionInWindow = rr::RRVec2((s_ci.mouseX*2.0f+winWidth-canvasGetSize().x)/winWidth-1,1-(s_ci.mouseY*2.0f+winHeight-canvasGetSize().y)/winHeight); // in fact, it is mouse position in _viewport_ where viewport winWidth*winHeight is in center of window GetSize()
+			rr::RRVec3 rayOriginOld,rayDirectionOld; svs.camera.getRay(origMousePositionInWindow,rayOriginOld,rayDirectionOld);
+			rr::RRVec3 rayOriginNow,rayDirectionNow; svs.camera.getRay(mousePositionInWindow,rayOriginNow,rayDirectionNow);
+			rr::RRVec3 pan = svs.camera.isOrthogonal()
+				? rayOriginOld-rayOriginNow
+				: (s_ci.rayDirection-rayDirectionNow)*(s_ci.hitDistance/s_ci.rayDirection.length());
 			svs.camera.setPosition(s_ci.pos + pan);
 			s_ciRenderCrosshair = true;
 		}
@@ -1895,8 +1891,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppDOF;
 				if (svs.dofAutomaticFocusDistance)
 				{
-					ray->rayOrigin = svs.camera.getRayOrigin(svs.camera.getScreenCenter());
-					ray->rayDir = svs.camera.getRayDirection(svs.camera.getScreenCenter()).normalized();
+					svs.camera.getRay(svs.camera.getScreenCenter(),ray->rayOrigin,ray->rayDir);
+					ray->rayDir.normalize();
 					ray->rayLengthMin = svs.camera.getNear();
 					ray->rayLengthMax = svs.camera.getFar();
 					ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
@@ -2248,8 +2244,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		if (!svs.renderLightmaps2d)
 		{
 			// ray and collisionHandler are used in this block
-			ray->rayOrigin = svs.camera.getRayOrigin(mousePositionInWindow);
-			ray->rayDir = svs.camera.getRayDirection(mousePositionInWindow).normalized();
+			svs.camera.getRay(mousePositionInWindow,ray->rayOrigin,ray->rayDir);
+			ray->rayDir.normalize();
 			ray->rayLengthMin = svs.camera.getNear();
 			ray->rayLengthMax = svs.camera.getFar();
 			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;

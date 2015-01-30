@@ -902,27 +902,25 @@ RRVec3 RRCamera::getPositionInViewport(RRVec3 worldPosition) const
 	return RRVec3((RRReal)(out[0]/out[3]),(RRReal)(out[1]/out[3]),(RRReal)(out[2]/out[3]));
 }
 
-RRVec3 RRCamera::getRayOrigin(RRVec2 posInWindow) const
+void RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) const
 {
 	if (!orthogonal)
-		return pos;
-	return
-		pos
-		+ getRight() * (posInWindow[0]+screenCenter[0]) * orthoSize * aspect
-		+ getUp()    * (posInWindow[1]+screenCenter[1]) * orthoSize
-		;
-}
-
-RRVec3 RRCamera::getRayDirection(RRVec2 posInWindow) const
-{
-	if (orthogonal)
-		return getDirection();
-	// CameraObjectDistance uses length of our result, don't normalize
-	return
-		getDirection()
-		+ getRight() * ( (posInWindow[0]+screenCenter[0]) * tan(getFieldOfViewHorizontalRad()/2) )
-		+ getUp()    * ( (posInWindow[1]+screenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
-		;
+	{
+		rayOrigin = pos;
+		rayDir = getDirection()
+			+ getRight() * ( (posInWindow[0]+screenCenter[0]) * tan(getFieldOfViewHorizontalRad()/2) )
+			+ getUp()    * ( (posInWindow[1]+screenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
+			;
+		// CameraObjectDistance uses length of our result, don't normalize
+	}
+	else
+	{
+		rayOrigin = pos
+			+ getRight() * (posInWindow[0]+screenCenter[0]) * orthoSize * aspect
+			+ getUp()    * (posInWindow[1]+screenCenter[1]) * orthoSize
+			;
+		rayDir = getDirection();
+	}
 }
 
 const RRCamera& RRCamera::operator=(const RRCamera& a)

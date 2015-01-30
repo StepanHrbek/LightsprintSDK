@@ -222,23 +222,22 @@ public:
 	//! Converts world space position to normalized device coordinates (left bottom near viewport corner in -1,-1,-1, right top far viewport corner in 1,1,1)
 	RRVec3 getPositionInViewport(RRVec3 worldPosition) const;
 
-	//! Converts position in viewport (2d) to world space ray origin (3d), suitable for shooting rays from camera.
+	//! Converts position in viewport (2d) to world space ray (3d origin, 3d direction), suitable for shooting rays from camera.
 	//
-	//! Position in viewport is part of normalized device coordinate, i.e. 0,0 represents center of viewport, -1,-1 left bottom viewport corner, 1,1 right top viewport corner.
-	//!
 	//! When shooting ray from camera to screen pixel, set \code
-	//! ray.rayOrigin = camera.getRayOrigin();
-	//! ray.rayDirection = camera.getRayDirection();
+	//! camera.getRay(positionInViewport,ray.rayOrigin,ray.rayDirection);
 	//! ray.rayLengthMin = camera.getNear();
 	//! ray.rayLengthMax = camera.getFar();
 	//! \endcode
-	RRVec3 getRayOrigin(RRVec2 positionInViewport) const;
-	//! Converts position in viewport (2d) to world space ray direction (3d), suitable for shooting rays from camera.
-	//
-	//! Position in viewport is part of normalized device coordinate, i.e. 0,0 represents center of viewport, -1,-1 left bottom viewport corner, 1,1 right top viewport corner.
-	//!
-	//! Direction is not normalized, length is >=1, so that ray lengths from near to far make rays reach exactly from near to far plane.
-	RRVec3 getRayDirection(RRVec2 positionInViewport) const;
+	//! \param positionInViewport
+	//!  Position in viewport is part of normalized device coordinate, i.e. 0,0 represents center of viewport,
+	//!  -1,-1 left bottom viewport corner, 1,1 right top viewport corner.
+	//! \param rayOrigin
+	//!  Returned ray origin.
+	//! \param rayDirection
+	//!  Returned ray direction.
+	//!  It is not normalized, length is >=1, so that ray lengths from near to far make rays reach exactly from near to far plane.
+	void getRay(RRVec2 positionInViewport, RRVec3& rayOrigin, RRVec3& rayDirection) const;
 
 	//! Assignment operator.
 	const RRCamera& operator=(const RRCamera& camera);

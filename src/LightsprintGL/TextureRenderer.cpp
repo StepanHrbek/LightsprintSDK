@@ -75,8 +75,9 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	rr::RRCamera camera = _camera;
 	if (!equirectangular)
 		camera.setYawPitchRollRad(camera.getYawPitchRollRad()+rr::RRVec3(_angleRad,0,0));
+	rr::RRVec3 unused;
 	for (unsigned i=0;i<4;i++)
-		direction[i] = camera.getRayDirection(position[i]);
+		 camera.getRay(position[i],unused,direction[i]);
 	glEnableVertexAttribArray(VAA_POSITION);
 	glVertexAttribPointer(VAA_POSITION, 2, GL_FLOAT, 0, 0, position);
 	glEnableVertexAttribArray(VAA_NORMAL);

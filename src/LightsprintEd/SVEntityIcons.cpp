@@ -158,7 +158,9 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 		for (unsigned i=0;i<entities.size();i++)
 		{
 			rr::RRVec2 piwCenter = eye.getPositionInViewport(entities[i].position); // in -1..1 range
-			rr::RRVec3 rayVisibleOrigin = eye.getRayOrigin(piwCenter) + eye.getRayDirection(piwCenter)*eye.getNear();
+			rr::RRVec3 rayOrigin, rayDirection;
+			svs.camera.getRay(piwCenter,rayOrigin,rayDirection);
+			rr::RRVec3 rayVisibleOrigin = rayOrigin + rayDirection*eye.getNear();
 			rr::RRVec3 rayDir = entities[i].position-rayVisibleOrigin;
 			if (eye.getDirection().dot( rayDir.normalized() )>0) // is in front of camera?
 			{

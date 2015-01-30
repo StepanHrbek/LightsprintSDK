@@ -170,7 +170,8 @@ public:
 						// is it visible, not occluded?
 						rr::RRVec3 transparencySum(0);
 						rr::RRVec3 dirSum(0);
-						ray->rayOrigin = _sp.camera->getRayOrigin(lightPositionInWindow);
+						rr::RRVec3 unused;
+						_sp.camera->getRay(lightPositionInWindow,ray->rayOrigin,unused);
 						ray->rayLengthMin = 0;
 						ray->rayLengthMax = 1e10f;
 						ray->rayFlags = 0;

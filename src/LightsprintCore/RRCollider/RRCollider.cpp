@@ -508,8 +508,9 @@ void RRCollider::getDistancesFromCamera(const RRCamera& camera, const RRObject* 
 		for (int j=-RAYS;j<=RAYS;j++)
 		{
 			RRVec2 posInWindow(i/float(RAYS),j/float(RAYS));
-			ray.rayOrigin = camera.getRayOrigin(posInWindow);
-			addRay(this,ray,camera.getRayDirection(posInWindow),distanceMinMax);
+			rr::RRVec3 dir;
+			camera.getRay(posInWindow,ray.rayOrigin,dir);
+			addRay(this,ray,dir,distanceMinMax);
 		}
 	}
 }
