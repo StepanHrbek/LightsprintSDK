@@ -24,6 +24,7 @@ public:
 
 	PluginRuntimePanorama(const PluginCreateRuntimeParams& params)
 	{
+		reentrancy = 1;
 		cubeTexture = new Texture(rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,1,1,6,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR); // A for mirroring
 		depthTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_DEPTH,false,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR);
 		cubeTextureIsSrgb = false;

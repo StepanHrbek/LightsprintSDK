@@ -143,6 +143,7 @@ public:
 
 	PluginRuntimeScene(const PluginCreateRuntimeParams& params)
 	{
+		reentrancy = MAX_RECURSION_DEPTH;
 		uberProgram = UberProgram::create(rr::RRString(0,L"%lsubershader.vs",params.pathToShaders.w_str()),rr::RRString(0,L"%lsubershader.fs",params.pathToShaders.w_str()));
 
 #ifdef MIRRORS
@@ -175,6 +176,7 @@ public:
 			return;
 		}
 
+		// this should already be enforced by reentrancy=...
 		RR_ASSERT(recursionDepth+1<MAX_RECURSION_DEPTH);
 		if (recursionDepth+1>=MAX_RECURSION_DEPTH)
 			return;

@@ -96,11 +96,18 @@ struct PluginParamsShared
 //
 //! Although it is possible to have two runtimes of the same type, renderer makes sure to create only one of each type and reuse them,
 //! runtimes are not created and deleted often.
+//!
+//! By default, plugins are reentrant, but they can change their reentrancy level in ctor, renderer will ensure that it is not exceeded.
 class RR_GL_API PluginRuntime
 {
 public:
 	virtual void render(Renderer&, const PluginParams&, const PluginParamsShared&) = 0;
 	virtual ~PluginRuntime() {};
+
+	// reentrancy check
+	PluginRuntime() {reentrancy=100; rendering=0;}
+	unsigned reentrancy; // how many times render() can run at once, 1 for non reentrant, 2 for minimal level of reentrancy etc
+	unsigned rendering; // how many times render() is already running
 };
 
 }; // namespace

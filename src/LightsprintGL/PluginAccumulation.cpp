@@ -34,6 +34,7 @@ public:
 
 	PluginRuntimeAccumulation(const PluginCreateRuntimeParams& params)
 	{
+		reentrancy = 1;
 		colorMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false);
 		depthMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false);
 		accumulationMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBF,true,RR_GHOST_BUFFER),false,false);
