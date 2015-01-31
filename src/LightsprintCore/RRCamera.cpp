@@ -582,8 +582,8 @@ void RRCamera::getStereoCameras(RRCamera& leftEye, RRCamera& rightEye) const
 	rightEye.screenCenter.x -= eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*displayDistance);
 	leftEye.stereoMode = SM_MONO;
 	rightEye.stereoMode = SM_MONO;
-	leftEye.updateView(true,true);
-	rightEye.updateView(true,true);
+	leftEye.updateView(false,false);
+	rightEye.updateView(false,false);
 	leftEye.updateProjection();
 	rightEye.updateProjection();
 }
