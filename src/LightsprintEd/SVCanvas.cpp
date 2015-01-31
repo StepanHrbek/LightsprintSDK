@@ -99,7 +99,7 @@ static int s_attribList[] = {
 
 CanvasWindow::CanvasWindow(SVFrame* _svframe)
 	: wxGLCanvas(_svframe, wxID_ANY, 
-	(_svframe->userPreferences.stereoMode==rr_gl::SM_QUAD_BUFFERED) ? s_attribListQuad : s_attribList,
+	(_svframe->userPreferences.stereoMode==rr::RRCamera::SM_QUAD_BUFFERED) ? s_attribListQuad : s_attribList,
 		wxDefaultPosition, wxDefaultSize, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE|wxWANTS_CHARS, "GLCanvas")
 {
 }
@@ -1716,6 +1716,14 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			solver->calculate(&params);
 		}
 
+		// override parts of svs.camera
+		svs.camera.stereoMode = svs.renderStereo ? svframe->userPreferences.stereoMode : rr::RRCamera::SM_MONO;
+		svs.camera.stereoSwap = svframe->userPreferences.stereoSwap;
+		svs.camera.panoramaMode = svs.renderPanorama ? svs.panoramaMode : rr::RRCamera::PM_OFF;
+		svs.camera.panoramaCoverage = svs.panoramaCoverage;
+		svs.camera.panoramaScale = svs.panoramaScale;
+		svs.camera.panoramaFisheyeFovDeg = svs.panoramaFovDeg;
+
 		// shared plugin data
 		rr_gl::PluginParamsShared ppShared;
 		rr::RRCamera ppSharedCamera = svs.camera; // we need to make small tweaks in camera before we send it to renderer, this is our local copy
@@ -1920,7 +1928,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppLensFlare;
 
 			// panorama plugin
-			rr_gl::PluginParamsPanorama ppPanorama(pluginChain,svs.panoramaMode,svs.panoramaCoverage,svs.panoramaScale,svs.panoramaFovDeg);
+			rr_gl::PluginParamsPanorama ppPanorama(pluginChain);
 			if (svs.renderPanorama)
 				pluginChain = &ppPanorama;
 
@@ -1930,25 +1938,25 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppBloom;
 
 			// stereo plugin
-			rr_gl::PluginParamsStereo ppStereo(pluginChain,svframe->userPreferences.stereoMode,svframe->userPreferences.stereoSwap);
+			rr_gl::PluginParamsStereo ppStereo(pluginChain);
 			if (svs.renderStereo)
 			{
-				switch (ppStereo.stereoMode)
+				switch (ppShared.camera->stereoMode)
 				{
 					// in interlaced mode, check whether image starts on odd or even scanline
-					case rr_gl::SM_INTERLACED:
+					case rr::RRCamera::SM_INTERLACED:
 						{
 							GLint viewport[4];
 							glGetIntegerv(GL_VIEWPORT,viewport);
 							int trueWinWidth, trueWinHeight;
 							canvasWindow->GetClientSize(&trueWinWidth, &trueWinHeight);
 							if ((canvasWindow->GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
-								ppStereo.stereoSwap = !ppStereo.stereoSwap;
+								ppSharedCamera.stereoSwap = !ppSharedCamera.stereoSwap;
 						}
 						break;
 #ifdef SUPPORT_OCULUS
 					// in oculus rift, adjust camera
-					case rr_gl::SM_OCULUS_RIFT:
+					case rr::RRCamera::SM_OCULUS_RIFT:
 						if (svframe->oculusActive()) // use oculusHMD only if it exists
 						{
 							// configure oculus renderer once in SVCanvas life

@@ -45,8 +45,16 @@ RRCamera::RRCamera()
 	updateProjection();
 
 	// stereo
+	stereoMode = SM_MONO;
+	stereoSwap = false;
 	eyeSeparation = 0.08f;
 	displayDistance = 0.5f;
+
+	// panorama
+	panoramaMode = PM_OFF;
+	panoramaCoverage = PC_FULL;
+	panoramaScale = 1;
+	panoramaFisheyeFovDeg = 180;
 
 	// dof
 	apertureDiameter = 0.04f;
@@ -74,8 +82,16 @@ RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspec
 	updateProjection();
 
 	// stereo
+	stereoMode = SM_MONO;
+	stereoSwap = false;
 	eyeSeparation = 0.08f;
 	displayDistance = 0.5f;
+
+	// panorama
+	panoramaMode = PM_OFF;
+	panoramaCoverage = PC_FULL;
+	panoramaScale = 1;
+	panoramaFisheyeFovDeg = 180;
 
 	// dof
 	apertureDiameter = 0.04f;
@@ -109,8 +125,16 @@ RRCamera::RRCamera(RRLight& _light)
 	updateProjection();
 
 	// stereo
+	stereoMode = SM_MONO;
+	stereoSwap = false;
 	eyeSeparation = 0.08f;
 	displayDistance = 0.5f;
+
+	// panorama
+	panoramaMode = PM_OFF;
+	panoramaCoverage = PC_FULL;
+	panoramaScale = 1;
+	panoramaFisheyeFovDeg = 180;
 
 	// dof
 	apertureDiameter = 0.04f;
@@ -556,6 +580,8 @@ void RRCamera::getStereoCameras(RRCamera& leftEye, RRCamera& rightEye) const
 	rightEye.pos += getRight()*(eyeSeparation/2);
 	leftEye.screenCenter.x += eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*displayDistance);
 	rightEye.screenCenter.x -= eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*displayDistance);
+	leftEye.stereoMode = SM_MONO;
+	rightEye.stereoMode = SM_MONO;
 	leftEye.updateView(true,true);
 	rightEye.updateView(true,true);
 	leftEye.updateProjection();
@@ -656,9 +682,20 @@ void RRCamera::blendLinear(const RRCamera& sample0, const RRCamera& sample1, flo
 	orthogonal = sample0.orthogonal;
 	orthoSize = blendNormal(sample0.orthoSize,sample1.orthoSize,blend);
 	screenCenter = blendNormal(sample0.screenCenter,sample1.screenCenter,blend);
+
+	// stereo
+	eyeSeparation = blendNormal(sample0.eyeSeparation,sample1.eyeSeparation,blend);
+	displayDistance = blendNormal(sample0.displayDistance,sample1.displayDistance,blend);
+
+	// panorama
+	panoramaScale = blendNormal(sample0.panoramaScale,sample1.panoramaScale,blend);
+	panoramaFisheyeFovDeg = blendNormal(sample0.panoramaFisheyeFovDeg,sample1.panoramaFisheyeFovDeg,blend);
+
+	// dof
 	apertureDiameter = blendNormal(sample0.apertureDiameter,sample1.apertureDiameter,blend);
 	dofNear = blendNormal(sample0.dofNear,sample1.dofNear,blend);
 	dofFar = blendNormal(sample0.dofFar,sample1.dofFar,blend);
+
 	updateView(true,true);
 	updateProjection();
 }
@@ -856,9 +893,15 @@ void RRCamera::blendAkima(unsigned numSamples, const RRCamera** samples, float* 
 	// interpolate
 	BLEND_RRVEC3(pos);
 	BLEND_RRVEC3_ANGLES(yawPitchRollRad);
-	BLEND_3FLOATS(apertureDiameter,dofNear,dofFar);
 	BLEND_3FLOATS(fieldOfViewVerticalDeg,anear,afar);
 	BLEND_4FLOATS(screenCenter.x,screenCenter.y,orthoSize,aspect);
+
+	// stereo + panorama
+	BLEND_4FLOATS(eyeSeparation,displayDistance,panoramaScale,panoramaFisheyeFovDeg);
+
+	// dof
+	BLEND_3FLOATS(apertureDiameter,dofNear,dofFar);
+
 	updateView(true,true);
 	updateProjection();
 }
@@ -941,8 +984,16 @@ const RRCamera& RRCamera::operator=(const RRCamera& a)
 	screenCenter = a.screenCenter;
 
 	// stereo
+	stereoMode = a.stereoMode;
+	stereoSwap = a.stereoSwap;
 	eyeSeparation = a.eyeSeparation;
 	displayDistance = a.displayDistance;
+
+	// panorama
+	panoramaMode = a.panoramaMode;
+	panoramaCoverage = a.panoramaCoverage;
+	panoramaScale = a.panoramaScale;
+	panoramaFisheyeFovDeg = a.panoramaFisheyeFovDeg;
 
 	// dof
 	apertureDiameter = a.apertureDiameter;
@@ -976,8 +1027,16 @@ bool RRCamera::operator==(const RRCamera& a) const
 		&& screenCenter==a.screenCenter
 
 		// stereo
+		&& stereoMode==a.stereoMode
+		&& stereoSwap==a.stereoSwap
 		&& eyeSeparation==a.eyeSeparation
 		&& displayDistance==a.displayDistance
+
+		// panorama
+		&& panoramaMode==a.panoramaMode
+		&& panoramaCoverage==a.panoramaCoverage
+		&& panoramaScale==a.panoramaScale
+		&& panoramaFisheyeFovDeg==a.panoramaFisheyeFovDeg
 
 		// dof
 		&& apertureDiameter==a.apertureDiameter
@@ -1035,8 +1094,16 @@ unsigned RRCamera::fixInvalidValues()
 		+ makeFinite(yawPitchRollRad[0],0)
 		+ makeFinite(yawPitchRollRad[1],0)
 		+ makeFinite(yawPitchRollRad[2],0)
+		
+		// stereo
 		+ makeFinite(eyeSeparation,0.08f)
 		+ makeFinite(displayDistance,0.5f)
+
+		// panorama
+		+ makeFinite(panoramaScale,1)
+		+ makeFinite(panoramaFisheyeFovDeg,180)
+		
+		// dof
 		+ makeFinite(apertureDiameter,0.04f)
 		+ makeFinite(dofNear,1)
 		+ makeFinite(dofFar,1);

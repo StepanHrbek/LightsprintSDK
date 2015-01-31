@@ -172,12 +172,64 @@ public:
 	// stereo
 	//////////////////////////////////////////////////////////////////////////////
 
+	enum StereoMode
+	{
+		SM_MONO             =0, ///< common non-stereo mode
+		SM_INTERLACED       =1, ///< interlaced, with top scanline visible by right eye, for passive displays \image html stereo_interlaced.png
+		SM_SIDE_BY_SIDE     =2, ///< left half is left eye \image html stereo_sidebyside.jpg
+		SM_TOP_DOWN         =3, ///< top half is left eye \image html stereo_topdown.jpg
+		SM_OCULUS_RIFT      =4, ///< for Oculus Rift with SDK 0.4+, later call Oculus SDK to distort image \image html stereo_oculus.jpg
+
+		//! quad buffered stereo, GL_BACK_RIGHT+GL_BACK_LEFT
+		//
+		//! note that GPU vendors put various artificial restrictions on quad buffered stereo; as of writing this
+		//! - Quadro and FirePro support quad buffered stereo
+		//! - Radeon supports quad buffered stereo in fullscreen only, on HD6000 and newer
+		//! - GeForce does NOT support quad buffered stereo
+		//! - Intel does NOT support quad buffered stereo
+		SM_QUAD_BUFFERED    =5,
+	};
+
+	//! One of camera stereo modes, or SM_MONO for common non-stereo render.
+	StereoMode stereoMode;
+	//! Swaps left and right eye.
+	bool stereoSwap;
 	//! For stereo effect: Distance (in meters) between left and right eye.
 	float eyeSeparation;
 	//! For stereo effect: Distance (in meters) between eye and objects rendered in display plane (so that closer objects appear in front of display, farther objects behind display).
 	float displayDistance;
 	//! Creates left and right camera.
 	void getStereoCameras(RRCamera& left, RRCamera& right) const;
+
+
+	//////////////////////////////////////////////////////////////////////////////
+	// panorama
+	//////////////////////////////////////////////////////////////////////////////
+
+	enum PanoramaMode
+	{
+		PM_OFF              =0, ///< common non-panorama mode
+		PM_EQUIRECTANGULAR  =1, ///< 360 degree render in equirectangular projection \image html pano-equirect.jpg
+		PM_LITTLE_PLANET    =2, ///< 360 degree render in stereographic (little planet) projection \image html pano-littleplanet.jpg
+		PM_FISHEYE          =3, ///< variable FOV fisheye render; suitable for dome projection with spherical mirror in center \image html pano-fisheye.jpg
+	};
+
+	enum PanoramaCoverage
+	{
+		PC_FULL_STRETCH     =0, ///< panorama covers whole output area \image html cover-stretch.jpg
+		PC_FULL             =1, ///< panorama covers as large output area as possible while preserving aspect ratio \image html cover-full.jpg
+		PC_TRUNCATE_BOTTOM  =2, ///< panorama covers full output width, going from top down, with aspect preserved. bottom might be cropped or empty, depending on output size \image html cover-trunc-bottom.jpg
+		PC_TRUNCATE_TOP     =3, ///< panorama covers full output width, going from bottom up, with aspect preserved. upper part might be cropped or empty, depending on output size \image html cover-trunc-top.jpg
+	};
+
+	//! One of camera panorama modes, or PM_OFF for common non-panorama render.
+	PanoramaMode panoramaMode;
+	//! One of panorama coverage modes.
+	PanoramaCoverage panoramaCoverage;
+	//! Panorama scale, 1 for normal size, 2 for bigger etc. Note that you can shift panorama with RRCamera::setScreenCenter().
+	float panoramaScale;
+	//! Fisheye field of view, 360 for full sphere, 180 for hemisphere.
+	float panoramaFisheyeFovDeg;
 
 
 	//////////////////////////////////////////////////////////////////////////////

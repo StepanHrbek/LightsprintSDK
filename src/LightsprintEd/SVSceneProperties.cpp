@@ -50,7 +50,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 			{
 			const wxChar* panoStrings[] = {_("Equirectangular"),_("Little planet"),_("Fisheye"),NULL};
-			const long panoValues[] = {rr_gl::PM_EQUIRECTANGULAR,rr_gl::PM_LITTLE_PLANET,rr_gl::PM_FISHEYE};
+			const long panoValues[] = {rr::RRCamera::PM_EQUIRECTANGULAR,rr::RRCamera::PM_LITTLE_PLANET,rr::RRCamera::PM_FISHEYE};
 			propCameraPanoramaMode = new wxEnumProperty(_("Mode"), wxPG_LABEL, panoStrings, panoValues);
 			AppendIn(propCameraPanorama,propCameraPanoramaMode);
 			}
@@ -60,7 +60,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 
 			{
 			const wxChar* panoStrings[] = {_("Full+stretch"),_("Full"),_("Truncate bottom"),_("Truncate top"),NULL};
-			const long panoValues[] = {rr_gl::PC_FULL_STRETCH,rr_gl::PC_FULL,rr_gl::PC_TRUNCATE_BOTTOM,rr_gl::PC_TRUNCATE_TOP};
+			const long panoValues[] = {rr::RRCamera::PC_FULL_STRETCH,rr::RRCamera::PC_FULL,rr::RRCamera::PC_TRUNCATE_BOTTOM,rr::RRCamera::PC_TRUNCATE_TOP};
 			propCameraPanoramaCoverage = new wxEnumProperty(_("Coverage"), wxPG_LABEL, panoStrings, panoValues);
 			AppendIn(propCameraPanoramaMode,propCameraPanoramaCoverage);
 			}
@@ -349,8 +349,8 @@ void SVSceneProperties::updateHide()
 	propCameraDisplayDistance->Hide(!svs.renderStereo,false);
 
 	propCameraPanoramaMode->Hide(!svs.renderPanorama,false);
-	propCameraPanoramaFovDeg->Hide(!svs.renderPanorama || svs.panoramaMode==rr_gl::PM_EQUIRECTANGULAR || svs.panoramaMode==rr_gl::PM_LITTLE_PLANET,false);
-	propCameraPanoramaCoverage->Hide(!svs.renderPanorama || svs.panoramaMode==rr_gl::PM_EQUIRECTANGULAR,false);
+	propCameraPanoramaFovDeg->Hide(!svs.renderPanorama || svs.panoramaMode==rr::RRCamera::PM_EQUIRECTANGULAR || svs.panoramaMode==rr::RRCamera::PM_LITTLE_PLANET,false);
+	propCameraPanoramaCoverage->Hide(!svs.renderPanorama || svs.panoramaMode==rr::RRCamera::PM_EQUIRECTANGULAR,false);
 	propCameraPanoramaScale->Hide(!svs.renderPanorama,false);
 
 	propCameraDofAccumulated->Hide(!svs.renderDof,false);
@@ -539,7 +539,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraPanoramaMode)
 	{
-		svs.panoramaMode = (rr_gl::PanoramaMode)property->GetValue().GetInteger();
+		svs.panoramaMode = (rr::RRCamera::PanoramaMode)property->GetValue().GetInteger();
 		updateHide();
 	}
 	else
@@ -550,7 +550,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propCameraPanoramaCoverage)
 	{
-		svs.panoramaCoverage = (rr_gl::PanoramaCoverage)property->GetValue().GetInteger();
+		svs.panoramaCoverage = (rr::RRCamera::PanoramaCoverage)property->GetValue().GetInteger();
 	}
 	else
 	if (property==propCameraPanoramaScale)

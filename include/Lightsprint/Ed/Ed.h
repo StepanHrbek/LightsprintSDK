@@ -15,8 +15,7 @@
 #endif
 
 #include "Lightsprint/GL/RealtimeLight.h"
-#include "Lightsprint/GL/PluginPanorama.h"
-#include "Lightsprint/GL/PluginStereo.h"
+#include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRSolver.h"
 #include <ctime> // struct tm
 
@@ -102,7 +101,7 @@ enum PivotPosition
 //! Optional parameters of sceneViewer()
 struct SceneViewerState
 {
-	rr::RRCamera     camera;                    //! Current camera.
+	rr::RRCamera     camera;                    //! Current camera. If you wish to pass panorama settings to sceneViewer, set SceneViewerState::panoramaXxx.
 	rr::RRTime       referenceTime;             //! Time when animation started/was in position 0.
 
 	rr::RRString     skyboxFilename;            //! Current skybox filename, e.g. skybox.hdr or skybox_ft.tga.
@@ -127,10 +126,10 @@ struct SceneViewerState
 	bool             fullscreen;                //! Ignored. Fullscreen/windowed bit is saved to and read from user preferences file. Quit sceneViewer() in fullscreen and it will start in fullscreen next time.
 	bool             renderStereo;              //! Enables stereo rendering.
 	bool             renderPanorama;            //! Enables 360 degree panorama rendering.
-	rr_gl::PanoramaMode panoramaMode;           //! Selects mode of panorama rendering.
-	rr_gl::PanoramaCoverage panoramaCoverage;   //! Selects screen area covered by panorama.
-	float            panoramaScale;             //! Scale of panorama, 1 for normal size, 2 for bigger etc. Note that you can shift panorama with RRCamera::setScreenCenter().
-	float            panoramaFovDeg;            //! For PM_FISHEYE: Field of view of panorama, 360 for full sphere, 180 for hemisphere.
+	rr::RRCamera::PanoramaMode panoramaMode;    //! Overrides the same variable in camera.
+	rr::RRCamera::PanoramaCoverage panoramaCoverage;//! Overrides the same variable in camera.
+	float            panoramaScale;             //! Overrides the same variable in camera.
+	float            panoramaFovDeg;            //! Overrides the same variable in camera.
 	bool             renderDof;                 //! Render depth of field effect.
 	bool             dofAccumulated;            //! For depth of field effect only: set dof near/far automatically.
 	rr::RRString     dofApertureShapeFilename;  //! For depth of field effect only: filename of bokeh image.
@@ -175,7 +174,7 @@ struct SceneViewerState
 	bool             renderHelp;                //! Render help overlay from sv_help.png.
 	bool             renderLogo;                //! Render logo overlay from sv_logo.png.
 	bool             renderTonemapping;         //! Render with tonemapping.
-	rr_gl::ToneParameters tonemapping;        //! If(renderTonemapping) color correction applied at render time.
+	rr_gl::ToneParameters tonemapping;          //! If(renderTonemapping) color correction applied at render time.
 	bool             tonemappingAutomatic;      //! Automatically adjust tonemappingBrightness.
 	float            tonemappingAutomaticTarget;//! Target average screen intensity for tonemappingAutomatic.
 	float            tonemappingAutomaticSpeed; //! Speed of automatic tonemapping change.
@@ -255,8 +254,8 @@ struct SceneViewerState
 		fullscreen = 0;
 		renderStereo = false;
 		renderPanorama = false;
-		panoramaMode = rr_gl::PM_EQUIRECTANGULAR;
-		panoramaCoverage = rr_gl::PC_FULL;
+		panoramaMode = rr::RRCamera::PM_EQUIRECTANGULAR;
+		panoramaCoverage = rr::RRCamera::PC_FULL;
 		panoramaScale = 1;
 		panoramaFovDeg = 180;
 		renderDof = false;

@@ -13,24 +13,6 @@
 namespace rr_gl
 {
 
-enum StereoMode
-{
-	SM_MONO             =0, ///< common non-stereo mode
-	SM_INTERLACED       =1, ///< interlaced, with top scanline visible by right eye, for passive displays \image html stereo_interlaced.png
-	SM_SIDE_BY_SIDE     =2, ///< left half is left eye \image html stereo_sidebyside.jpg
-	SM_TOP_DOWN         =3, ///< top half is left eye \image html stereo_topdown.jpg
-	SM_OCULUS_RIFT      =4, ///< for Oculus Rift with SDK 0.4+, later call Oculus SDK to distort image \image html stereo_oculus.jpg
-
-	//! quad buffered stereo, GL_BACK_RIGHT+GL_BACK_LEFT
-	//
-	//! note that GPU vendors put various artificial restrictions on quad buffered stereo; as of writing this
-	//! - Quadro and FirePro support quad buffered stereo
-	//! - Radeon supports quad buffered stereo in fullscreen only, on HD6000 and newer
-	//! - GeForce does NOT support quad buffered stereo
-	//! - Intel does NOT support quad buffered stereo
-	SM_QUAD_BUFFERED    =5,
-};
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // Stereo plugin
@@ -49,10 +31,6 @@ enum StereoMode
 class RR_GL_API PluginParamsStereo : public PluginParams
 {
 public:
-	//! One of camera stereo modes, or SM_MONO for common non-stereo render.
-	StereoMode stereoMode;
-	bool       stereoSwap;
-
 	// For Oculus Rift only, HMDInfo.DistortionK.
 	//rr::RRVec4 oculusDistortionK;
 	// For Oculus Rift only, HMDInfo.ChromaAbCorrection.
@@ -63,7 +41,7 @@ public:
 	const void* oculusTanHalfFov;
 
 	//! Convenience ctor, for setting plugin parameters. Additional Oculus Rift parameters are set to defaults.
-	PluginParamsStereo(const PluginParams* _next, StereoMode _stereoMode, bool _stereoSwap) : stereoMode(_stereoMode), stereoSwap(_stereoSwap), oculusTanHalfFov(NULL) {next=_next;}
+	PluginParamsStereo(const PluginParams* _next) : oculusTanHalfFov(NULL) {next=_next;}
 	//PluginParamsStereo(const PluginParams* _next, StereoMode _stereoMode, bool _stereoSwap) : stereoMode(_stereoMode), stereoSwap(_stereoSwap), oculusDistortionK(1,0.22f,0.24f,0), oculusChromaAbCorrection(0.996f,-0.004f,1.014f,0), oculusLensShift(0.152f), oculusTanHalfFov(NULL) {next=_next;}
 
 	// Convenience ctor, for setting plugin parameters, including Oculus Rift ones.

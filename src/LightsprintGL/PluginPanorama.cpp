@@ -34,7 +34,7 @@ public:
 	{
 		const PluginParamsPanorama& pp = *dynamic_cast<const PluginParamsPanorama*>(&_pp);
 		
-		if (pp.panoramaMode==PM_OFF || !cubeTexture)
+		if (_sp.camera->panoramaMode==rr::RRCamera::PM_OFF || !cubeTexture)
 			return;
 
 		// resize cube
@@ -48,20 +48,24 @@ public:
 		}
 
 		// render to cube
-		PluginParamsCube ppCube(_pp.next,cubeTexture,depthTexture,(pp.panoramaMode==PM_FISHEYE)?pp.fisheyeFovDeg:360);
-		_renderer.render(&ppCube,_sp);
+		PluginParamsShared sp = _sp;
+		rr::RRCamera camera = *_sp.camera;
+		camera.panoramaMode = rr::RRCamera::PM_OFF;
+		sp.camera = &camera;
+		PluginParamsCube ppCube(_pp.next,cubeTexture,depthTexture,(_sp.camera->panoramaMode==rr::RRCamera::PM_FISHEYE)?_sp.camera->panoramaFisheyeFovDeg:360);
+		_renderer.render(&ppCube,sp);
 
-		// composite
+		// panoramaCoverage [#44]
 		float x0 = 0;
 		float y0 = 0;
 		float w = 1;
 		float h = 1;
-		if (pp.panoramaMode!=rr_gl::PM_EQUIRECTANGULAR)
-		switch (pp.panoramaCoverage)
+		if (_sp.camera->panoramaMode!=rr::RRCamera::PM_EQUIRECTANGULAR)
+		switch (_sp.camera->panoramaCoverage)
 		{
-			case rr_gl::PC_FULL_STRETCH:
+			case rr::RRCamera::PC_FULL_STRETCH:
 				break;
-			case rr_gl::PC_FULL:
+			case rr::RRCamera::PC_FULL:
 				if (_sp.viewport[2]>_sp.viewport[3])
 				{
 					w = _sp.viewport[3]/float(_sp.viewport[2]);
@@ -73,20 +77,24 @@ public:
 					y0 = (1-h)/2;
 				}
 				break;
-			case rr_gl::PC_TRUNCATE_BOTTOM:
+			case rr::RRCamera::PC_TRUNCATE_BOTTOM:
 				h = _sp.viewport[2]/float(_sp.viewport[3]);
 				y0 = 1-h;
 				break;
-			case rr_gl::PC_TRUNCATE_TOP:
+			case rr::RRCamera::PC_TRUNCATE_TOP:
 				h = _sp.viewport[2]/float(_sp.viewport[3]);
 				break;
 		}
 		//x0 -= _sp.camera->getScreenCenter().x;
 		//y0 -= _sp.camera->getScreenCenter().y;
-		float scale = (pp.panoramaMode==PM_FISHEYE) ? pp.scale * 360/pp.fisheyeFovDeg : pp.scale;
+
+		// panoramaScale [#43]
+		float scale = (_sp.camera->panoramaMode==rr::RRCamera::PM_FISHEYE) ? _sp.camera->panoramaScale * 360/_sp.camera->panoramaFisheyeFovDeg : _sp.camera->panoramaScale;
+
+		// render to 2d
 		ToneParameters tp;
 		tp.gamma = _sp.srgbCorrect?0.45f:1.f;
-		_renderer.getTextureRenderer()->render2D(cubeTexture,&tp,x0+w/2-w*scale/2,y0+h/2-h*scale/2,w*scale,h*scale,-1,(pp.panoramaMode==PM_EQUIRECTANGULAR)?"#define CUBE_TO_EQUIRECTANGULAR\n":((pp.panoramaMode==PM_LITTLE_PLANET)?"#define CUBE_TO_LITTLE_PLANET\n":((pp.panoramaMode==PM_FISHEYE)?"#define CUBE_TO_FISHEYE\n":NULL)),pp.fisheyeFovDeg);
+		_renderer.getTextureRenderer()->render2D(cubeTexture,&tp,x0+w/2-w*scale/2,y0+h/2-h*scale/2,w*scale,h*scale,-1,(_sp.camera->panoramaMode==rr::RRCamera::PM_EQUIRECTANGULAR)?"#define CUBE_TO_EQUIRECTANGULAR\n":((_sp.camera->panoramaMode==rr::RRCamera::PM_LITTLE_PLANET)?"#define CUBE_TO_LITTLE_PLANET\n":((_sp.camera->panoramaMode==rr::RRCamera::PM_FISHEYE)?"#define CUBE_TO_FISHEYE\n":NULL)),_sp.camera->panoramaFisheyeFovDeg);
 	}
 
 	virtual ~PluginRuntimePanorama()

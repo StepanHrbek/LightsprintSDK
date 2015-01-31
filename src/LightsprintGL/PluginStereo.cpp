@@ -50,9 +50,9 @@ public:
 		const PluginParamsStereo& pp = *dynamic_cast<const PluginParamsStereo*>(&_pp);
 		
 #ifdef SCALE
-		if (pp.stereoMode==SM_MONO || !stereoUberProgram || !stereoTexture || !colorTexture || !depthTexture)
+		if (_sp.camera->stereoMode==rr::RRCamera::SM_MONO || !stereoUberProgram || !stereoTexture || !colorTexture || !depthTexture)
 #else
-		if (pp.stereoMode==SM_MONO || !stereoUberProgram || !stereoTexture)
+		if (_sp.camera->stereoMode==rr::RRCamera::SM_MONO || !stereoUberProgram || !stereoTexture)
 #endif
 			return;
 
@@ -60,7 +60,7 @@ public:
 
 #ifdef SCALE
 		FBO oldFBOState = FBO::getState();
-		if (pp.stereoMode==SM_OCULUS_RIFT)
+		if (_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)
 		{
 			// render to texture bigger than _sp.viewport
 			viewport[0] = 0;
@@ -93,8 +93,8 @@ public:
 		//  because lines blur with multisampled screen (even if multisampling is disabled)
 		rr::RRCamera eye[2]; // 0=left, 1=right
 		_sp.camera->getStereoCameras(eye[0],eye[1]);
-		bool swapEyes = pp.stereoSwap != (pp.stereoMode==SM_TOP_DOWN);
-		if (pp.stereoMode==SM_OCULUS_RIFT && pp.oculusTanHalfFov)
+		bool swapEyes = _sp.camera->stereoSwap != (_sp.camera->stereoMode==rr::RRCamera::SM_TOP_DOWN);
+		if (_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT && pp.oculusTanHalfFov)
 		{
 			float aspect = _sp.camera->getAspect()*0.5f;
 			for (unsigned e=0;e<2;e++)
@@ -114,7 +114,7 @@ public:
 			PreserveScissor p1;
 
 			FBO oldFBOStateQB;
-			if (pp.stereoMode==SM_QUAD_BUFFERED)
+			if (_sp.camera->stereoMode==rr::RRCamera::SM_QUAD_BUFFERED)
 				oldFBOStateQB = FBO::getState();
 
 			// render left
@@ -124,13 +124,13 @@ public:
 			left.viewport[1] = viewport[1];
 			left.viewport[2] = viewport[2];
 			left.viewport[3] = viewport[3];
-			if (pp.stereoMode==SM_QUAD_BUFFERED)
+			if (_sp.camera->stereoMode==rr::RRCamera::SM_QUAD_BUFFERED)
 			{
 				FBO::setRenderBuffers(GL_BACK_LEFT);
 			}
 			else
 			{
-				if (pp.stereoMode==SM_SIDE_BY_SIDE || pp.stereoMode==SM_OCULUS_RIFT)
+				if (_sp.camera->stereoMode==rr::RRCamera::SM_SIDE_BY_SIDE || _sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)
 					left.viewport[2] /= 2;
 				else
 					left.viewport[3] /= 2;
@@ -143,14 +143,14 @@ public:
 			// (it does not update layers as they were already updated when rendering left eye. this could change in future, if different eyes see different objects)
 			PluginParamsShared right = left;
 			right.camera = &eye[swapEyes?0:1];
-			if (pp.stereoMode==SM_QUAD_BUFFERED)
+			if (_sp.camera->stereoMode==rr::RRCamera::SM_QUAD_BUFFERED)
 			{
 				FBO::setRenderBuffers(GL_BACK_RIGHT);
 				glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			}
 			else
 			{
-				if (pp.stereoMode==SM_SIDE_BY_SIDE || pp.stereoMode==SM_OCULUS_RIFT)
+				if (_sp.camera->stereoMode==rr::RRCamera::SM_SIDE_BY_SIDE || _sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)
 					right.viewport[0] += right.viewport[2];
 				else
 					right.viewport[1] += right.viewport[3];
@@ -159,12 +159,12 @@ public:
 			glScissor(right.viewport[0],right.viewport[1],right.viewport[2],right.viewport[3]);
 			_renderer.render(_pp.next,right);
 
-			if (pp.stereoMode==SM_QUAD_BUFFERED)
+			if (_sp.camera->stereoMode==rr::RRCamera::SM_QUAD_BUFFERED)
 				oldFBOStateQB.restore();
 		}
 
 		// composite
-		if (pp.stereoMode==SM_INTERLACED)// || pp.stereoMode==SM_OCULUS_RIFT)
+		if (_sp.camera->stereoMode==rr::RRCamera::SM_INTERLACED)// || _sp.camera->stereoMode==SM_OCULUS_RIFT)
 		{
 			// disable depth
 			PreserveDepthTest p1;
@@ -173,7 +173,7 @@ public:
 			glDepthMask(0);
 
 			// turns top-down images to interlaced or oculus
-			if (pp.stereoMode==SM_OCULUS_RIFT)
+			if (_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)
 			{
 #ifdef SCALE
 				oldFBOState.restore();
@@ -192,15 +192,15 @@ public:
 			}
 			stereoTexture->bindTexture();
 			glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]/2*2,0);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (pp.stereoMode==SM_OCULUS_RIFT)?GL_LINEAR:GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (pp.stereoMode==SM_OCULUS_RIFT)?GL_LINEAR:GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)?GL_LINEAR:GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)?GL_LINEAR:GL_NEAREST);
 #endif
-			Program* stereoProgram = stereoUberProgram->getProgram((pp.stereoMode==SM_OCULUS_RIFT)?"#define OCULUS_RIFT\n":"#define INTERLACED\n");
+			Program* stereoProgram = stereoUberProgram->getProgram((_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)?"#define OCULUS_RIFT\n":"#define INTERLACED\n");
 			if (stereoProgram)
 			{
 				glDisable(GL_CULL_FACE);
 				stereoProgram->useIt();
-				if (pp.stereoMode==SM_INTERLACED)
+				if (_sp.camera->stereoMode==rr::RRCamera::SM_INTERLACED)
 				{
 					stereoProgram->sendTexture("map",stereoTexture);
 					stereoProgram->sendUniform("mapHalfHeight",float(_sp.viewport[3]/2));
@@ -253,7 +253,7 @@ public:
 		}
 
 		// restore viewport after rendering stereo (it could be non-default, e.g. when enhanced sshot is enabled)
-		//if (pp.stereoMode!=SM_OCULUS_RIFT)
+		//if (_sp.camera->stereoMode!=SM_OCULUS_RIFT)
 			glViewport(_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]);
 	}
 

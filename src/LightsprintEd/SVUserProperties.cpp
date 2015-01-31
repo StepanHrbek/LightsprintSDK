@@ -28,7 +28,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 	{
 		{
 			const wxChar* stereoStrings[] = {_("interlaced"),_("side by side"),_("top down"),_("Oculus Rift"),_("Quad Buffered"),NULL};
-			const long stereoValues[] = {rr_gl::SM_INTERLACED,rr_gl::SM_SIDE_BY_SIDE,rr_gl::SM_TOP_DOWN,rr_gl::SM_OCULUS_RIFT,rr_gl::SM_QUAD_BUFFERED};
+			const long stereoValues[] = {rr::RRCamera::SM_INTERLACED,rr::RRCamera::SM_SIDE_BY_SIDE,rr::RRCamera::SM_TOP_DOWN,rr::RRCamera::SM_OCULUS_RIFT,rr::RRCamera::SM_QUAD_BUFFERED};
 			propStereoMode = new wxEnumProperty(_("Stereo mode"), wxPG_LABEL, stereoStrings, stereoValues);
 			propStereoMode->SetValueFromInt(userPreferences.stereoMode,wxPG_FULL_VALUE);
 			propStereoMode->SetHelpString(_("Interlaced requires passive (polarized) display working in its native resolution. Quad buffered requires compatible GPU and display (consult GPU vendor). Quad buffered activates after application restart."));
@@ -197,7 +197,7 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propStereoMode)
 	{
-		userPreferences.stereoMode = (rr_gl::StereoMode)(propStereoMode->GetValue().GetInteger());
+		userPreferences.stereoMode = (rr::RRCamera::StereoMode)(propStereoMode->GetValue().GetInteger());
 	}
 	else
 	if (property==propImportUnitsEnum)

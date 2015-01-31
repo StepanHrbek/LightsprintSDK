@@ -50,6 +50,7 @@ CHANGES
   - convertToCustomScale renamed to convertFromLinear
 - RRMatrix3x4Ex added, some functions switched from RRMatrix3x4 to RRMatrix3x4Ex
 - RRCamera
+  - stereo and panorama enums and variables moved from stereo and panorama plugins to RRCamera
   - RRCamera::setView() has more parameters, lets you zoom to whole scene or selected area
   - RRCamera::getPositionInClipSpace() added
   - RRCamera::getPositionInViewport() replaces RRCamera::getPositionInWindow(), returns also depth

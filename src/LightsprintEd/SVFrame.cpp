@@ -1839,9 +1839,9 @@ rr::RRScene* SVFrame::loadScene(const wxString& _filename, float _units, unsigne
 bool SVFrame::oculusActive()
 {
 #ifdef SUPPORT_OCULUS
-	return !svs.renderLightmaps2d && svs.renderLightIndirect!=LI_PATHTRACED && svs.renderStereo && (userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT) && oculusHMD;
+	return !svs.renderLightmaps2d && svs.renderLightIndirect!=LI_PATHTRACED && svs.renderStereo && (userPreferences.stereoMode==rr::RRCamera::SM_OCULUS_RIFT) && oculusHMD;
 #else
-	return !svs.renderLightmaps2d && svs.renderLightIndirect!=LI_PATHTRACED && svs.renderStereo && (userPreferences.stereoMode==rr_gl::SM_OCULUS_RIFT);
+	return !svs.renderLightmaps2d && svs.renderLightIndirect!=LI_PATHTRACED && svs.renderStereo && (userPreferences.stereoMode==rr::RRCamera::SM_OCULUS_RIFT);
 #endif
 }
 
