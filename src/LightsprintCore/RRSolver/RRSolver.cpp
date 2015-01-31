@@ -1136,8 +1136,11 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 	if (!_frame)
 		return;
 	//RRReportInterval report(INF2,"Pathtracing frame...\n");
-	unsigned w = _frame->getWidth();
-	unsigned h = _frame->getHeight();
+	unsigned ww = _frame->getWidth();
+	unsigned hh = _frame->getHeight();
+	bool halfres = !_accumulated;
+	unsigned w = halfres?(ww+1)/2:ww;
+	unsigned h = halfres?(hh+1)/2:hh;
 	PathtracerJob ptj(this,true);
 #pragma omp parallel for schedule(dynamic)
 	for (int j=0;j<(int)h;j++)
@@ -1163,7 +1166,20 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 					: RRVec3(0);
 				c = (c*RRReal(_accumulated)+RRVec4(color,0))/(_accumulated+1);
 			}
-			_frame->setElement(index,c,NULL);
+			if (!halfres)
+				_frame->setElement(index,c,NULL);
+			else
+			{
+				_frame->setElement(2*i+2*j*ww,c,NULL);
+				if (2*i+1<ww)
+					_frame->setElement(2*i+1+2*j*ww,c,NULL);
+				if (2*j+1<hh)
+				{
+					_frame->setElement(2*i+(2*j+1)*ww,c,NULL);
+					if (2*i+1<ww)
+						_frame->setElement(2*i+1+(2*j+1)*ww,c,NULL);
+				}
+			}
 		}
 	}
 }
