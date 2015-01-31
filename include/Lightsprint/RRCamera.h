@@ -237,7 +237,9 @@ public:
 	//! \param rayDirection
 	//!  Returned ray direction.
 	//!  It is not normalized, length is >=1, so that ray lengths from near to far make rays reach exactly from near to far plane.
-	void getRay(RRVec2 positionInViewport, RRVec3& rayOrigin, RRVec3& rayDirection) const;
+	//! \return
+	//!  False when given position does not contain image; some panorama modes don't cover whole viewport.
+	bool getRay(RRVec2 positionInViewport, RRVec3& rayOrigin, RRVec3& rayDirection) const;
 
 	//! Assignment operator.
 	const RRCamera& operator=(const RRCamera& camera);

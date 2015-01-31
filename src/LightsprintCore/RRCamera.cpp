@@ -902,7 +902,7 @@ RRVec3 RRCamera::getPositionInViewport(RRVec3 worldPosition) const
 	return RRVec3((RRReal)(out[0]/out[3]),(RRReal)(out[1]/out[3]),(RRReal)(out[2]/out[3]));
 }
 
-void RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) const
+bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) const
 {
 	if (!orthogonal)
 	{
@@ -921,6 +921,8 @@ void RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) con
 			;
 		rayDir = getDirection();
 	}
+
+	return true;
 }
 
 const RRCamera& RRCamera::operator=(const RRCamera& a)
