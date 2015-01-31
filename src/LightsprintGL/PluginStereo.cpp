@@ -93,7 +93,7 @@ public:
 		//  because lines blur with multisampled screen (even if multisampling is disabled)
 		rr::RRCamera eye[2]; // 0=left, 1=right
 		_sp.camera->getStereoCameras(eye[0],eye[1]);
-		bool swapEyes = _sp.camera->stereoSwap != (_sp.camera->stereoMode==rr::RRCamera::SM_TOP_DOWN);
+		bool swapEyes = _sp.camera->stereoMode==rr::RRCamera::SM_TOP_DOWN;
 		if (_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT && pp.oculusTanHalfFov)
 		{
 			float aspect = _sp.camera->getAspect()*0.5f;

@@ -576,10 +576,11 @@ void RRCamera::getStereoCameras(RRCamera& leftEye, RRCamera& rightEye) const
 {
 	leftEye = *this;
 	rightEye = *this;
-	leftEye.pos -= getRight()*(eyeSeparation/2);
-	rightEye.pos += getRight()*(eyeSeparation/2);
-	leftEye.screenCenter.x += eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*displayDistance);
-	rightEye.screenCenter.x -= eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*displayDistance);
+	float localEyeSeparation = stereoSwap ? -eyeSeparation : eyeSeparation;
+	leftEye.pos -= getRight()*(localEyeSeparation/2);
+	rightEye.pos += getRight()*(localEyeSeparation/2);
+	leftEye.screenCenter.x += localEyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*displayDistance);
+	rightEye.screenCenter.x -= localEyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*displayDistance);
 	leftEye.stereoMode = SM_MONO;
 	rightEye.stereoMode = SM_MONO;
 	leftEye.updateView(false,false);
@@ -987,9 +988,9 @@ bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) con
 				posInWindow.y = posInWindow.y*2 - 1;
 			}
 		}
+		// emulate getStereoCameras() within our local variables
 		if (stereoSwap)
 			left = !left;
-		// emulate getStereoCameras() within our local variables
 		if (!left)
 		{
 			pos += getRight()*(eyeSeparation/2);
