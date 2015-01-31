@@ -62,6 +62,7 @@ RRSolverGL::RRSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pa
 	renderer = rr_gl::Renderer::create(pathToShaders, pathToMaps);
 	uberProgram1 = UberProgram::create(rr::RRString(0,L"%lsubershader.vs",pathToShaders.w_str()),rr::RRString(0,L"%lsubershader.fs",pathToShaders.w_str()));
 
+	updatingEnvironmentMap = 0;
 	depthTexture = Texture::createShadowmap(1,1,false);
 }
 
@@ -738,6 +739,10 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		{
 			return 0;
 		}
+
+		updatingEnvironmentMap++;
+		if (updatingEnvironmentMap>1)
+			rr::RRReporter::report(rr::WARN,"updateEnvironmentMap() called from updateEnvironmentMap(), not cool.\n");
 	
 		// find out scene size
 		rr::RRReal size = 1;
@@ -836,6 +841,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		illumination->cachedNumTriangles = getMultiObject() ? getMultiObject()->getCollider()->getMesh()->getNumTriangles() : 0;
 		illumination->cachedCenter = illumination->envMapWorldCenter;
 
+		updatingEnvironmentMap--;
 		return 1;
 	}
 }

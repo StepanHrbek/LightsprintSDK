@@ -136,6 +136,7 @@ namespace rr_gl
 		UberProgram* uberProgram1; // for updating shadowmaps and detecting direct illumination
 
 		// for updating envmaps
+		unsigned updatingEnvironmentMap;
 		Texture* depthTexture;
 	};
 
