@@ -1718,7 +1718,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 		// shared plugin data
 		rr_gl::PluginParamsShared ppShared;
-		ppShared.camera = &svs.camera;
+		rr::RRCamera ppSharedCamera = svs.camera; // we need to make small tweaks in camera before we send it to renderer, this is our local copy
+		ppShared.camera = &ppSharedCamera;
 		ppShared.viewport[2] = winWidth;
 		ppShared.viewport[3] = winHeight;
 		ppShared.srgbCorrect = svs.srgbCorrect; // affects image even with direct lighting disabled (by adding dif+spec+emis correctly)
@@ -1740,10 +1741,9 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pathTracedBuffer->reset(rr::BT_2D_TEXTURE,pathTraceWidth,pathTraceHeight,1,rr::BF_RGBF,false,NULL); // embree accepts only RGB,RGBA,RGBF
 				pathTracedAccumulator = 0;
 			}
-			rr::RRCamera camera = svs.camera;
 			if (!svs.renderDof)
-				camera.apertureDiameter = 0;
-			camera.setAspect(pathTraceWidth/(float)pathTraceHeight); // [#37] not ,0.5
+				ppSharedCamera.apertureDiameter = 0;
+			ppSharedCamera.setAspect(pathTraceWidth/(float)pathTraceHeight); // [#37] not ,0.5
 			rr::RRSolver::PathTracingParameters params;
 			params.direct = svs.getMultipliersDirect();
 			params.indirect = svs.getMultipliersIndirect();
@@ -1756,7 +1756,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			params.useFlatNormalsSinceDepth = shortcut+1;
 			params.useSolverDirectSinceDepth = svs.pathShortcut ? shortcut+1 : UINT_MAX;
 			params.useSolverIndirectSinceDepth = svs.pathShortcut ? shortcut : UINT_MAX;
-			solver->pathTraceFrame(camera,pathTracedBuffer,pathTracedAccumulator,params);
+			solver->pathTraceFrame(ppSharedCamera,pathTracedBuffer,pathTracedAccumulator,params);
 			rr_gl::ToneParameters tp;
 			if (svs.renderTonemapping)
 			{
