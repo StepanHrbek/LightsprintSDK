@@ -951,8 +951,10 @@ const RRCamera& RRCamera::operator=(const RRCamera& a)
 
 	light = a.light;
 
-	updateView(false,false);
-	updateProjection();
+	memcpy(viewMatrix,a.viewMatrix,16*sizeof(double));
+	memcpy(projectionMatrix,a.projectionMatrix,16*sizeof(double));
+	//updateView(false,false);
+	//updateProjection();
 
 	return *this;
 }
