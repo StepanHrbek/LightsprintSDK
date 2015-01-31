@@ -1792,6 +1792,11 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (selectedObjects.size() && !_takingSshot && !svs.renderStereo && !svs.renderPanorama)
 				pluginChain = &ppSelection;
 
+			// lens flare plugin
+			rr_gl::PluginParamsLensFlare ppLensFlare(pluginChain,svs.lensFlareSize,svs.lensFlareId,&solver->getLights(),solver->getMultiObject(),64);
+			if (svs.renderLensFlare && !svs.camera.isOrthogonal() && !svs.renderPanorama && !svs.renderStereo)
+				pluginChain = &ppLensFlare;
+
 			// FPS plugin
 			rr_gl::PluginParamsFPS ppFPS(pluginChain,fpsCounter.getFps());
 			if (svs.renderFPS)
