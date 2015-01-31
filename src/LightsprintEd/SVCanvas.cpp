@@ -1781,7 +1781,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppSelection.uberProgramSetup.OBJECT_SPACE = true;
 			ppSelection.uberProgramSetup.POSTPROCESS_NORMALS = true;
 			ppSelection.wireframe = true;
-			if (selectedObjects.size() && !_takingSshot)
+			if (selectedObjects.size() && !_takingSshot && !svs.renderStereo && !svs.renderPanorama)
 				pluginChain = &ppSelection;
 
 			// lens flare plugin
