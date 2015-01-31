@@ -19,6 +19,7 @@ NEWS
     </td><td>
     \image html background3.jpg
     </td></tr></table>
+  - pathtracer supports panorama and stereo modes
   - pathtracer supports rotated environment and blend of two environments (like all other GI solvers)
   - pathtracer properly illuminates objects with negative scale
 - <b>improved \ref main_oculus support</b>

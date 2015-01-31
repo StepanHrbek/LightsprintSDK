@@ -73,6 +73,7 @@ void main()
 		#if !defined(CUBE_TO_LITTLE_PLANET) && !defined(CUBE_TO_FISHEYE) && !defined(CUBE_TO_WARP)
 			#define CUBE_TO_EQUIRECTANGULAR // this happens when user renders cubemap as a 2d texture, without any #defines
 		#endif
+		// [#42]
 		#ifdef CUBE_TO_EQUIRECTANGULAR
 			// rotated so that render of empty scene with equirectangular environment E is E
 			// also implemented in createEquirectangular()

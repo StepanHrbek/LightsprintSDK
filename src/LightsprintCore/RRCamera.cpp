@@ -947,25 +947,155 @@ RRVec3 RRCamera::getPositionInViewport(RRVec3 worldPosition) const
 
 bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) const
 {
-	if (!orthogonal)
+	// de-stereo-ize posInWindow
+	bool left = true;
+	RRVec3 pos = this->pos;
+	RRVec2 screenCenter = this->screenCenter;
+	RRReal aspect = this->aspect;
+	if (stereoMode==SM_MONO || stereoMode==SM_INTERLACED || stereoMode==SM_OCULUS_RIFT || stereoMode==SM_QUAD_BUFFERED)
 	{
-		rayOrigin = pos;
-		rayDir = getDirection()
-			+ getRight() * ( (posInWindow[0]+screenCenter[0]) * tan(getFieldOfViewHorizontalRad()/2) )
-			+ getUp()    * ( (posInWindow[1]+screenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
-			;
-		// CameraObjectDistance uses length of our result, don't normalize
+		// done
 	}
 	else
+	{
+		// modify posInWindow
+		if (stereoMode==SM_SIDE_BY_SIDE)
+		{
+			aspect *= 0.5f;
+			if (posInWindow.x<0)
+			{
+				left = true;
+				posInWindow.x = posInWindow.x*2 + 1;
+			}
+			else
+			{
+				left = false;
+				posInWindow.x = posInWindow.x*2 - 1;
+			}
+		}
+		else if (stereoMode==SM_TOP_DOWN)
+		{
+			aspect *= 2;
+			if (posInWindow.y<0)
+			{
+				left = true;
+				posInWindow.y = posInWindow.y*2 + 1;
+			}
+			else
+			{
+				left = false;
+				posInWindow.y = posInWindow.y*2 - 1;
+			}
+		}
+		if (stereoSwap)
+			left = !left;
+		// emulate getStereoCameras() within our local variables
+		if (!left)
+		{
+			pos += getRight()*(eyeSeparation/2);
+			screenCenter.x += eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*displayDistance);
+		}
+		else
+		{
+			pos -= getRight()*(eyeSeparation/2);
+			screenCenter.x -= eyeSeparation/(2*tan(getFieldOfViewVerticalRad()*0.5f)*aspect*displayDistance);
+		}
+	}
+
+
+	// orthogonal
+	if (orthogonal)
 	{
 		rayOrigin = pos
 			+ getRight() * (posInWindow[0]+screenCenter[0]) * orthoSize * aspect
 			+ getUp()    * (posInWindow[1]+screenCenter[1]) * orthoSize
 			;
 		rayDir = getDirection();
+		return true;
 	}
 
-	return true;
+	// perspective
+	rayOrigin = pos;
+	if (panoramaMode==PM_OFF)
+	{
+		rayDir = getDirection()
+			+ getRight() * ( (posInWindow[0]+screenCenter[0]) * tan(getFieldOfViewHorizontalRad()/2) )
+			+ getUp()    * ( (posInWindow[1]+screenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
+			;
+		// CameraObjectDistance uses length of our result, don't normalize
+		return true;
+	}
+
+	// panoramaCoverage [#44]
+	float x0 = 0;
+	float y0 = 0;
+	float w = 1;
+	float h = 1;
+	if (panoramaMode!=PM_EQUIRECTANGULAR)
+	switch (panoramaCoverage)
+	{
+		case PC_FULL_STRETCH:
+			break;
+		case PC_FULL:
+			if (aspect>1)
+				posInWindow.x *= aspect;
+			else
+				posInWindow.y /= aspect;
+			break;
+		case PC_TRUNCATE_BOTTOM:
+			posInWindow.y = (posInWindow.y-(1-aspect))/aspect;
+			break;
+		case PC_TRUNCATE_TOP:
+			posInWindow.y = (posInWindow.y+(1-aspect))/aspect;
+			break;
+	}
+
+	// panoramaScale [#43]
+	float scale = (panoramaMode==rr::RRCamera::PM_FISHEYE) ? panoramaScale * 360/panoramaFisheyeFovDeg : panoramaScale;
+	posInWindow /= scale;
+
+	// panoramaMode [#42]
+	bool result = false;
+	if (panoramaMode==PM_EQUIRECTANGULAR)
+	{
+		//! spravne jen pro view angle 0,0,0
+		RRVec3 direction;
+		direction.y = sin(RR_PI/2*posInWindow.y);
+		direction.x = sin(RR_PI*(-posInWindow.x+0.5f)) * sqrt(1-direction.y*direction.y);
+		direction.z = 1-direction.x*direction.x-direction.y*direction.y;
+		direction.z = sqrt(RR_MAX(0,direction.z));
+		if (posInWindow.x<0)
+			direction.z = -direction.z;
+		rayDir = direction;
+		result = true;
+	}
+	if (panoramaMode==PM_LITTLE_PLANET)
+	{
+		RRVec3 direction;
+		direction.x = posInWindow.x*0.5f;
+		direction.z = posInWindow.y*0.5f;
+		float r = (posInWindow*0.5f).length()+0.000001f; // +epsilon fixes center pixel on intel
+		direction.x /= r; // /r instead of normalize() fixes noise on intel
+		direction.z /= r;
+		direction.y = tan(RR_PI*2*(r-0.25f)); // r=0 -> y=-inf, r=0.5 -> y=+inf
+		rayDir = direction;
+		result = r<0.5f;
+	}
+	if (panoramaMode==PM_FISHEYE)
+	{
+		RRVec3 direction;
+		direction.x = posInWindow.x*0.5f;
+		direction.y = posInWindow.y*0.5f;
+		float r = (posInWindow*0.5f).length()+0.000001f; // +epsilon fixes center pixel on intel
+		direction.x /= r; // /r instead of normalize() fixes noise on intel
+		direction.y /= r;
+		direction.z = tan(RR_PI*2*(r-0.25f)); // r=0 -> y=-inf, r=0.5 -> y=+inf
+		rayDir = direction;
+		result = r*360/panoramaFisheyeFovDeg<0.5f;
+	}
+	rr::RRMatrix3x4 view(viewMatrix,false);
+	view.transformDirection(rayDir);
+	return result;
 }
 
 const RRCamera& RRCamera::operator=(const RRCamera& a)
