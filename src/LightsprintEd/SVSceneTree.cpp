@@ -629,8 +629,9 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 	if (actionCode>=SVFrame::ME_FIRST)
 	{
 		svframe->OnMenuEventCore2(actionCode);
+		return; // skip OnAnyChange() at the end of function
 	}
-	else
+
 	switch (actionCode)
 	{
 		case CM_ROOT_SCALE:
@@ -1363,6 +1364,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			}
 			break;
 	}
+	svframe->OnAnyChange(SVFrame::ES_CONTEXT_MENU,NULL,NULL,actionCode);
 }
 
 
