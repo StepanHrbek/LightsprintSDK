@@ -1025,7 +1025,10 @@ void SVFrame::OnAnyChange(EventSource eventSource, const wxPGProperty* property,
 		&& !(eventSource==ES_KEYBOARD_MID_MOVEMENT && ((wxKeyEvent*)event)->GetKeyCode()==WXK_F9) // F9 saving screenshot
 		&& !(eventSource==ES_MENU && (menuEvent==ME_FILE_SAVE_SCREENSHOT || menuEvent==ME_FILE_SAVE_SCREENSHOT_ORIGINAL || menuEvent==ME_FILE_SAVE_SCREENSHOT_ENHANCED))
 		)
+	{
+		m_canvas->solver->reportInteraction();
 		m_canvas->pathTracedAccumulator = 0;
+	}
 }
 
 

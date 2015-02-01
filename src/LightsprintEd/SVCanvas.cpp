@@ -815,8 +815,6 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 //			return;
 	}
 
-	if (solver)
-		solver->reportInteraction();
 	if (needsRefresh)
 	{
 		canvasWindow->Refresh(false);
@@ -1361,7 +1359,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	}
 
 
-	solver->reportInteraction();
 	oldPosition = newPosition;
 	oldMousePositionInWindow = mousePositionInWindow;
 }
