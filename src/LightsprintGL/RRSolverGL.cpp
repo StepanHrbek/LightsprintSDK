@@ -19,7 +19,6 @@
 #include "RendererOfMesh.h" // DDI_TRIANGLES_X/Y
 #include "Shader.h" // s_es
 #include "Workaround.h"
-#include "tmpstr.h"
 
 #define REPORT(a) //a
 
@@ -53,7 +52,7 @@ RRSolverGL::RRSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pa
 	detectSmallMap = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,DDI_TRIANGLES_X,DDI_TRIANGLES_MAX_Y,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 
 	scaleDownProgram = Program::create(
-		tmpstr("#define SIZEX %d\n#define SIZEY %d\n",faceSizeX,faceSizeY),
+		rr::RRString(0,L"#define SIZEX %d\n#define SIZEY %d\n",faceSizeX,faceSizeY).c_str(),
 		rr::RRString(0,L"%lsscaledown_filter.vs",pathToShaders.w_str()),
 		rr::RRString(0,L"%lsscaledown_filter.fs",pathToShaders.w_str()));
 	if (!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %lsscaledown_filter.*\n",pathToShaders.w_str());

@@ -12,13 +12,34 @@
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRMemory.h"
 #include "Lightsprint/GL/PreserveState.h"
-#include "tmpstr.h"
 
 #define PHYS2SRGB 0.45f
 #define SRGB2PHYS 2.22222222f
 
 namespace rr_gl
 {
+
+//! Returns formatted string (printf-like) for immediate use.
+//
+//! Fully static, no allocations.
+//! Has slots for several strings, call to tmpstr() overwrites one of previously returned strings.
+const char* tmpstr(const char* fmt, ...)
+{
+	enum
+	{
+		MAX_STRINGS=2, // checkConsistency() needs 2 strings
+		MAX_STRING_SIZE=1000
+	};
+	static unsigned i = 0;
+	static char bufs[MAX_STRINGS][MAX_STRING_SIZE+1];
+	char* buf = bufs[++i%MAX_STRINGS];
+	va_list argptr;
+	va_start (argptr,fmt);
+	_vsnprintf (buf,MAX_STRING_SIZE,fmt,argptr);
+	buf[MAX_STRING_SIZE] = 0;
+	va_end (argptr);
+	return buf;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 //

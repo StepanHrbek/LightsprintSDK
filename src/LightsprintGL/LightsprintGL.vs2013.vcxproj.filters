@@ -19,7 +19,6 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgram.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgramSetup.h" />
     <ClInclude Include="Workaround.h" />
-    <ClInclude Include="tmpstr.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\FBO.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\Plugin.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginBloom.h" />

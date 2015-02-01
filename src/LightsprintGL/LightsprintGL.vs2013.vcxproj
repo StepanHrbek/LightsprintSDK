@@ -599,7 +599,6 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\TextureRenderer.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgram.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgramSetup.h" />
-    <ClInclude Include="tmpstr.h" />
     <ClInclude Include="Workaround.h" />
   </ItemGroup>
   <ItemGroup>
