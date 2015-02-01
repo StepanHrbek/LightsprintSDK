@@ -12,6 +12,12 @@
 #include "Lightsprint/RRObject.h"
 #include <unordered_set>
 #include <unordered_map>
+#ifdef RR_LINKS_BOOST
+	#include <boost/filesystem.hpp>
+	namespace bf = boost::filesystem;
+#else
+	#include "Lightsprint/RRFileLocator.h"
+#endif
 
 namespace rr
 {
@@ -682,6 +688,329 @@ void RRObjects::removeEmptyObjects()
 		if ((*this)[i]->getCollider()->getMesh()->getNumTriangles() && (*this)[i]->getCollider()->getMesh()->getNumVertices())
 			(*this)[numNonEmpty++] = (*this)[i];
 	numUsed = numNonEmpty;
+}
+
+void RRObjects::getAllMaterials(RRMaterials& materials) const
+{
+	typedef std::unordered_set<RRMaterial*> Set;
+	Set set;
+	// fill set
+	for (unsigned i=materials.size();i--;) // iteration from 0 would flip order of materials in RRMaterials. we don't promise to preserve order, but at least we try to, this mostly works (although it probably depends on implementation of unordered_set)
+		set.insert(materials[i]);
+	for (unsigned i=0;i<size();i++)
+	{
+		RRObject::FaceGroups& faceGroups = (*this)[i]->faceGroups;
+		for (unsigned g=0;g<faceGroups.size();g++)
+		{
+			set.insert(faceGroups[g].material);
+		}
+	}
+	// copy set to buffers
+	materials.clear();
+	for (Set::const_iterator i=set.begin();i!=set.end();++i)
+		if (*i)
+			materials.push_back(*i);
+}
+
+void RRObjects::updateColorLinear(const RRColorSpace* colorSpace) const
+{
+	typedef std::unordered_set<RRMaterial*> Set;
+	Set set;
+	// gather all materials (it has to be fast, using getAllMaterials would be slow)
+	for (unsigned i=0;i<size();i++)
+	{
+		RRObject::FaceGroups& faceGroups = (*this)[i]->faceGroups;
+		for (unsigned g=0;g<faceGroups.size();g++)
+		{
+			set.insert(faceGroups[g].material);
+		}
+	}
+	// color->colorLinear
+	for (Set::const_iterator i=set.begin();i!=set.end();++i)
+		if (*i)
+			(*i)->convertToLinear(colorSpace);
+}
+
+static std::wstring filenamized(RRString& name)
+{
+	std::wstring filename;
+	filename = name.w_str();
+	for (unsigned i=0;i<filename.size();i++)
+		if (wcschr(L"<>:\"/\\|?*",filename[i]))
+			filename[i] = '_';
+	return filename;
+}
+
+void splitName(std::wstring& prefix, unsigned long long& number)
+{
+	number = 0;
+	unsigned long long base = 1;
+	while (prefix.size() && prefix[prefix.size()-1]>='0' && prefix[prefix.size()-1]<='9')
+	{
+		number += base * (prefix[prefix.size()-1]-'0');
+		prefix.pop_back();
+		base *= 10;
+	}
+}
+
+std::wstring mergedName(const std::wstring& prefix, unsigned long long number)
+{
+	return prefix + ((number<10)?L"0":L"") + std::to_wstring(number);
+}
+
+void RRObjects::makeNamesUnique() const
+{
+	// naming scheme 1
+	// turns names xxx,xxx,xxx,xxx5,xxx5 into xxx,xxx01,xxx02,xxx5,xxx06
+	typedef std::unordered_set<std::wstring> Set;
+	typedef std::unordered_map<std::wstring,unsigned long long> Map;
+	Map filenamizedOriginals; // value = the highest number so far assigned to this filename, we skip lower numbers when searching for unused one
+	Set filenamizedAccepted;
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+	{
+		RRObject* object = (*this)[objectIndex];
+		filenamizedOriginals[filenamized(object->name)] = 0;
+	}
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+	{
+		RRObject* object = (*this)[objectIndex];
+		std::wstring filenamizedOriginal = filenamized(object->name);
+		std::wstring filenamizedCandidate = filenamizedOriginal;
+		if (filenamizedAccepted.find(filenamizedCandidate)==filenamizedAccepted.end())
+		{
+			// 1. accept "so far" unique names
+			filenamizedAccepted.insert(filenamizedCandidate);
+		}
+		else
+		{
+			// 2. split non-unique name to prefix + number
+			std::wstring filenamizedPrefix = filenamizedCandidate;
+			unsigned long long number;
+			splitName(filenamizedPrefix,number);
+			// optimization step1: skip numbers that are definitely not free
+			if (filenamizedOriginals[filenamizedOriginal])
+				number = filenamizedOriginals[filenamizedOriginal];
+			// 3. try increasing number until it becomes "globally" unique
+			do
+			{
+				number++;
+				filenamizedCandidate = mergedName(filenamizedPrefix,number);
+			}
+			while (filenamizedAccepted.find(filenamizedCandidate)!=filenamizedAccepted.end() || filenamizedOriginals.find(filenamizedCandidate)!=filenamizedOriginals.end());
+			filenamizedAccepted.insert(filenamizedCandidate);
+			// optimization step2: remember numbers that are definitely not free
+			filenamizedOriginals[filenamizedOriginal] = number;
+			// 4. construct final non-filenamized name
+			std::wstring rawPrefix = RR_RR2STDW(object->name);
+			unsigned long long rawNumber;
+			splitName(rawPrefix,rawNumber);
+			object->name = RR_STDW2RR(mergedName(rawPrefix,number));
+		}
+	}
+#if 0
+	// naming scheme 2
+	// turns names xxx,xxx,xxx,xxx.3,xxx.3 into xxx,xxx.2,xxx.4,xxx.3,xxx.3.2
+again:
+	bool modified = false;
+	typedef std::unordered_multimap<std::wstring,RRObject*> Map;
+	Map map;
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+	{
+		RRObject* object = (*this)[objectIndex];
+		map.insert(Map::value_type(filenamized(object->name),object));
+	}
+	for (Map::iterator i=map.begin();i!=map.end();)
+	{
+		Map::iterator j = i;
+		unsigned numEquals = 0;
+		while (j!=map.end() && i->first==j->first)
+		{
+			numEquals++;
+			j++;
+		}
+		if (numEquals>1)
+		{
+			unsigned numDigits = 0;
+			while (numEquals) {numDigits++; numEquals/=10;}
+			modified = true;
+			unsigned index = 1;
+			for (j=i;j!=map.end() && i->first==j->first;++j)
+			{
+				if (index>1)
+				{
+					// 1: try to format new name
+					// if it is already taken, increase index and goto 1
+					try_index:
+					RRString newNameCandidate;
+					newNameCandidate.format(L"%ls%hs%0*d",j->second->name.w_str(),j->second->name.empty()?"":".",numDigits,index);
+					if (map.find(filenamized(newNameCandidate))!=map.end())
+					{
+						index++;
+						goto try_index;
+					}
+					j->second->name = newNameCandidate;
+				}
+				index++;
+			}
+		}
+		i = j;
+	}
+	if (modified)
+	{
+		// "name" was changed to "name.1", but we did not yet check that "name.1" is free, let's run all checks again
+		goto again;
+	}
+#endif
+}
+
+
+unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRString& ext) const
+{
+	unsigned result = 0;
+	if (layerNumber>=0)
+	{
+		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+		{
+			RRObject* object = (*this)[objectIndex];
+			// first try to load per-pixel format
+			RRBuffer* buffer = NULL;
+			RRObject::LayerParameters layerParameters;
+			layerParameters.suggestedPath = path;
+			layerParameters.suggestedExt = ext;
+			object->recommendLayerParameters(layerParameters);
+#ifdef RR_LINKS_BOOST
+			boost::system::error_code ec;
+			if ( !bf::exists(RR_RR2PATH(layerParameters.actualFilename),ec) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
+#else
+			RRFileLocator fl;
+			if ( !fl.exists(layerParameters.actualFilename) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
+#endif
+			{
+				// if it fails, try to load per-vertex format
+				layerParameters.suggestedMapWidth = layerParameters.suggestedMapHeight = 0;
+				object->recommendLayerParameters(layerParameters);
+#ifdef RR_LINKS_BOOST
+				if (bf::exists(RR_RR2PATH(layerParameters.actualFilename),ec))
+#else
+				if (fl.exists(layerParameters.actualFilename))
+#endif
+					buffer = RRBuffer::load(layerParameters.actualFilename.c_str());
+			}
+			if (buffer && buffer->getType()==BT_VERTEX_BUFFER && buffer->getWidth()!=object->getCollider()->getMesh()->getNumVertices())
+			{
+				RR_LIMITED_TIMES(5,RRReporter::report(ERRO,"%ls has wrong size.\n",layerParameters.actualFilename.w_str()));
+				RR_SAFE_DELETE(buffer);
+			}
+			if (buffer)
+			{
+				delete object->illumination.getLayer(layerNumber);
+				object->illumination.getLayer(layerNumber) = buffer;
+				result++;
+				RRReporter::report(INF3,"Loaded %ls.\n",layerParameters.actualFilename.w_str());
+			}
+			else
+			{
+				RRReporter::report(INF3,"Not loaded %ls.\n",layerParameters.actualFilename.w_str());
+			}
+		}
+		RRReporter::report(INF2,"Loaded %d/%d buffers from %ls<object name>%ls to layer %d.\n",result,size(),path.w_str(),ext.w_str(),layerNumber);
+	}
+	return result;
+}
+
+unsigned RRObjects::saveLayer(int layerNumber, const RRString& path, const RRString& ext) const
+{
+	bool directoryCreated = false;
+	unsigned numBuffers = 0;
+	unsigned numSaved = 0;
+	if (layerNumber>=0)
+	{
+		for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+		{
+			RRObject* object = (*this)[objectIndex];
+			RRBuffer* buffer = object->illumination.getLayer(layerNumber);
+			if (buffer)
+			{
+				// create destination directories
+#ifdef RR_LINKS_BOOST
+				if (!directoryCreated)
+				{
+					bf::path prefix(RR_RR2PATH(path));
+					prefix.remove_filename();
+					boost::system::error_code ec;
+					bf::exists(prefix,ec) || bf::create_directories(prefix,ec);
+					directoryCreated = true;
+				}
+#endif
+
+				numBuffers++;
+				RRObject::LayerParameters layerParameters;
+				layerParameters.suggestedPath = path;
+				layerParameters.suggestedExt = ext;
+				layerParameters.suggestedMapWidth = layerParameters.suggestedMapHeight = (buffer->getType()==BT_VERTEX_BUFFER) ? 0 : 256;
+				object->recommendLayerParameters(layerParameters);
+				if (buffer->save(layerParameters.actualFilename))
+				{
+					numSaved++;
+					RRReporter::report(INF3,"Saved %ls.\n",layerParameters.actualFilename.w_str());
+				}
+				else
+				if (!layerParameters.actualFilename.empty())
+					RRReporter::report(WARN,"Not saved %ls.\n",layerParameters.actualFilename.w_str());
+			}
+		}
+		if (!numBuffers)
+			; // don't report saving empty layer
+		else
+		if (numSaved)
+			RRReporter::report(INF2,"Saved %d/%d buffers into %ls<object name>.%ls from layer %d.\n",numSaved,numBuffers,path.w_str(),ext.w_str(),layerNumber);
+		else
+			RRReporter::report(WARN,"Failed to save layer %d (%d buffers) into %ls.\n",layerNumber,numBuffers,path.w_str());
+	}
+	return numSaved;
+}
+
+unsigned RRObjects::layerExistsInMemory(int layerNumber) const
+{
+	unsigned result = 0;
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+		if ((*this)[objectIndex]->illumination.getLayer(layerNumber))
+			result++;
+	return result;
+}
+
+unsigned RRObjects::layerDeleteFromMemory(int layerNumber) const
+{
+	unsigned result = 0;
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+		if ((*this)[objectIndex]->illumination.getLayer(layerNumber))
+		{
+			RR_SAFE_DELETE((*this)[objectIndex]->illumination.getLayer(layerNumber));
+			result++;
+		}
+	return result;
+}
+
+unsigned RRObjects::layerDeleteFromDisk(const RRString& path, const RRString& ext) const
+{
+	unsigned result = 0;
+#ifdef RR_LINKS_BOOST
+	for (unsigned objectIndex=0;objectIndex<size();objectIndex++)
+	{
+		rr::RRObject::LayerParameters layerParameters;
+		layerParameters.suggestedPath = path;
+		layerParameters.suggestedExt = ext;
+		(*this)[objectIndex]->recommendLayerParameters(layerParameters);
+		bf::path path(RR_RR2PATH(layerParameters.actualFilename));
+		boost::system::error_code ec;
+		if (bf::exists(path,ec))
+		{
+			if (bf::remove(path,ec))
+				result++;
+		}
+	}
+#endif
+	return result;
 }
 
 } // namespace

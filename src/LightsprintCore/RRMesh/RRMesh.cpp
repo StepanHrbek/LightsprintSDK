@@ -19,6 +19,7 @@
 #include "../NumReports.h"
 #include "../RRMathPrivate.h"
 #include <cstdio>
+#include <unordered_map>
 
 #ifndef _MSC_VER
 	#include <stdint.h> // standard C99 header
@@ -763,8 +764,41 @@ unsigned RRMesh::getNumPreImportVertices() const
 	return numPreImportVertices;
 }
 
-
-// Moved to file with exceptions enabled:
-// RRReal RRMesh::findGroundLevel() const
+// this function logically belongs to RRMesh.cpp,
+// we put it here where exceptions are enabled
+// enabling exceptions in RRMesh.cpp would cause slow down
+RRReal RRMesh::findGroundLevel() const
+{
+	unsigned numTriangles = getNumTriangles();
+	if (numTriangles)
+	{
+		typedef std::unordered_map<RRReal,RRReal> YToArea;
+		YToArea yToArea;
+		for (unsigned t=0;t<numTriangles;t++)
+		{
+			RRMesh::TriangleBody tb;
+			getTriangleBody(t,tb);
+			if (tb.side1.y==0 && tb.side2.y==0 && orthogonalTo(tb.side1,tb.side2).y>0) // planar and facing up
+			{
+				RRReal area = calculateArea(tb.side1,tb.side2,tb.side2-tb.side1);
+				YToArea::iterator i = yToArea.find(tb.vertex0.y);
+				if (i==yToArea.end())
+					yToArea[tb.vertex0.y]=area;
+				else
+					yToArea[tb.vertex0.y]+=area;
+			}
+		}
+		YToArea::iterator best = yToArea.begin();
+		for (YToArea::iterator i=yToArea.begin();i!=yToArea.end();i++)
+		{
+			if (i->second>best->second) best = i;
+		}
+		return best->first;
+	}
+	else
+	{
+		return 0;
+	}
+}
 
 } //namespace

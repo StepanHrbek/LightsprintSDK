@@ -618,12 +618,6 @@
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
     </ClCompile>
-    <ClCompile Include="RRStaticSolver\exceptions.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
     <ClCompile Include="RRStaticSolver\pathtracer.cpp" />
     <ClCompile Include="RRStaticSolver\geometry_v.cpp" />
     <ClCompile Include="RRStaticSolver\interpol.cpp" />

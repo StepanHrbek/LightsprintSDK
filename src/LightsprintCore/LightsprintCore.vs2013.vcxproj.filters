@@ -105,9 +105,6 @@
     <ClCompile Include="RRObjectIllumination.cpp">
       <Filter>RRIllumination</Filter>
     </ClCompile>
-    <ClCompile Include="RRStaticSolver\exceptions.cpp">
-      <Filter>RRStaticSolver</Filter>
-    </ClCompile>
     <ClCompile Include="RRStaticSolver\pathtracer.cpp">
       <Filter>RRStaticSolver</Filter>
     </ClCompile>
