@@ -66,7 +66,7 @@
 	#define wxMSVC_VERSION_AUTO // used only when building this library, looks for wx libraries at different paths for different compilers
 #endif
 
-namespace rr_ed
+namespace rr_ed /// LightsprintEd - scene editor with global illumination
 {
 
 enum LightingIndirect

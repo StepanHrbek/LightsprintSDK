@@ -17,7 +17,7 @@
 #include "Renderer.h"
 #include "UberProgramSetup.h"
 
-//! LightsprintGL - multiplatform OpenGL based renderer that displays realtime global illumination.
+//! LightsprintGL - OpenGL based renderer that displays realtime global illumination.
 namespace rr_gl
 {
 

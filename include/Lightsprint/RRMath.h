@@ -102,7 +102,7 @@
 #define RR_FLOAT2BYTE(f)      RR_CLAMPED(int((f)*256),0,255)
 #define RR_BYTE2FLOAT(b)      ((b)*0.003921568627450980392156862745098f)
 
-namespace rr /// LightsprintCore - platform independent realtime global illumination solver.
+namespace rr /// LightsprintCore - graphics API independent realtime global illumination solver.
 {
 
 	//////////////////////////////////////////////////////////////////////////////

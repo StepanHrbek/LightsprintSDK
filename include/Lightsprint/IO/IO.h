@@ -52,7 +52,7 @@
 
 #include "Lightsprint/RRScene.h"
 
-namespace rr_io /// LightsprintIO - access to scenes and images on disk
+namespace rr_io /// LightsprintIO - import and export of scenes, textures, vertex buffers, videos, materials
 {
 
 //! Registers callbacks for loading and saving scenes, textures and videos in ~75 fileformats (\ref supported_formats).
