@@ -46,7 +46,6 @@ namespace rr_ed
 		wxPGProperty*     propGIShadowTransparency;
 
 		BoolRefProperty*  propGILDM;
-		BoolRefProperty*  propGIPathShortcut;
 
 		wxPGProperty*     propGIVideo;
 		BoolRefProperty*  propGIEmisVideoAffectsGI;

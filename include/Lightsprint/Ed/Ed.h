@@ -182,7 +182,6 @@ struct SceneViewerState
 	bool             tonemappingAutomatic;      //! Automatically adjust tonemappingBrightness.
 	float            tonemappingAutomaticTarget;//! Target average screen intensity for tonemappingAutomatic.
 	float            tonemappingAutomaticSpeed; //! Speed of automatic tonemapping change.
-	bool             pathShortcut;
 	bool             ssgiEnabled;               //! Apply SSGI postprocess.
 	float            ssgiIntensity;             //! Intensity of SSGI effect, with 1=default, 0=no effect.
 	float            ssgiRadius;                //! Distance of occluders (in meters) taken into account when calculating SSGI.
@@ -302,7 +301,6 @@ struct SceneViewerState
 		tonemappingAutomaticTarget = 0.5f;
 		tonemappingAutomaticSpeed = 1;
 		tonemapping = rr_gl::ToneParameters();
-		pathShortcut = true;
 		ssgiEnabled = true;
 		ssgiIntensity = 1.0f;
 		ssgiRadius = 0.3f;
@@ -422,7 +420,6 @@ struct SceneViewerState
 			&& a.tonemapping.gamma==tonemapping.gamma
 			&& a.tonemapping.hsv==tonemapping.hsv
 			&& a.tonemapping.steps==tonemapping.steps
-			&& a.pathShortcut==pathShortcut
 			&& a.ssgiEnabled==ssgiEnabled
 			&& a.ssgiIntensity==ssgiIntensity
 			&& a.ssgiRadius==ssgiRadius

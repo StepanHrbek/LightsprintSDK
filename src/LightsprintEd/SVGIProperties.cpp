@@ -40,9 +40,6 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 			AppendIn(propGILightDirect,propGIShadowTransparency);
 		}
 
-		propGIPathShortcut = new BoolRefProperty(_("Shortcut"),_("Lets pathtracer access indirect illumination stored in Fireball or Architect solver, if it was in use before."),svs.pathShortcut);
-		AppendIn(propGITechnique,propGIPathShortcut);
-
 		propGILDM = new BoolRefProperty(_("LDM"),_("Light detail maps improve quality of constant and realtime indirect illumination. LDMs are faster and look better than SSGI, but they have to be baked first (which takes time and requires unwrap)."),svs.renderLDM);
 		AppendIn(propGITechnique,propGILDM);
 
@@ -260,8 +257,6 @@ void SVGIProperties::updateHide()
 	propGISRGBCorrect->Hide(svs.renderLightIndirect==LI_PATHTRACED || (svframe->m_canvas && svframe->m_canvas->fullyCreated && !supportsSRGB()),false);
 	propGIShadowTransparency->Hide(!svs.renderLightDirectActive(),false);
 
-	propGIPathShortcut->Hide(svs.renderLightIndirect!=LI_PATHTRACED,false);
-
 	propGIFireball->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL && svs.renderLightIndirect!=LI_PATHTRACED_FIREBALL,false);
 
 	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_PATHTRACED_FIREBALL;
@@ -327,7 +322,6 @@ void SVGIProperties::updateProperties()
 	unsigned numChangesOther =
 		+ updateBoolRef(propGISRGBCorrect)
 		+ updateInt(propGIShadowTransparency,svs.shadowTransparency)
-		+ updateBoolRef(propGIPathShortcut)
 
 		+ updateInt(propGIEmisVideoGIQuality,svs.videoEmittanceGIQuality)
 		+ updateBoolRef(propGITranspVideoAffectsGIFull)
