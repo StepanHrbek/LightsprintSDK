@@ -200,6 +200,8 @@ namespace rr_ed
 		BakeDlg                      bakeDlg;
 		UnwrapDlg                    unwrapDlg;
 
+		rr::RRTime                   lastInteractionTime;
+
 #ifdef SUPPORT_OCULUS
 		ovrHmd                       oculusHMD;
 #endif

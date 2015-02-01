@@ -78,6 +78,7 @@ enum LightingIndirect
 	LI_REALTIME_ARCHITECT,   ///< Indirect illumination is realtime computed by Architect solver. No precalculations. If not sure, use Fireball.
 	LI_REALTIME_FIREBALL,    ///< Indirect illumination is realtime computed by Fireball solver. Fast.
 	LI_PATHTRACED,
+	LI_PATHTRACED_FIREBALL,
 };
 
 //! Transparency modes used by realtime renderer, to trade speed/quality. Offline GI solver always works as if the highest quality mode is selected.
@@ -266,7 +267,7 @@ struct SceneViewerState
 		dofApertureShapeFilename.clear();
 		dofAutomaticFocusDistance = false;
 		renderLightDirect = true;
-		renderLightIndirect = LI_REALTIME_FIREBALL;
+		renderLightIndirect = LI_PATHTRACED_FIREBALL;
 		multipliersEnabled = false;
 		multipliers = rr::RRSolver::Multipliers();
 		multipliersDirect = rr::RRSolver::Multipliers();

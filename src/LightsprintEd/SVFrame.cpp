@@ -1026,6 +1026,7 @@ void SVFrame::OnAnyChange(EventSource eventSource, const wxPGProperty* property,
 		&& !(eventSource==ES_MENU && (menuEvent==ME_FILE_SAVE_SCREENSHOT || menuEvent==ME_FILE_SAVE_SCREENSHOT_ORIGINAL || menuEvent==ME_FILE_SAVE_SCREENSHOT_ENHANCED))
 		)
 	{
+		lastInteractionTime.setNow();
 		m_canvas->solver->reportInteraction();
 		m_canvas->pathTracedAccumulator = 0;
 	}
@@ -1160,7 +1161,7 @@ save_scene_as:
 				// so let's directly save pathTracedBuffer instead of screen (even though it is not tonemapped, has no icons etc)
 				wxString sshotExt = userPreferences.sshotFilename.Right(4).Lower();
 				bool sshotHdr = sshotExt=="hdr" || sshotExt=="exr";
-				saveScreenshot((svs.renderLightIndirect==LI_PATHTRACED && sshotHdr)?m_canvas->pathTracedBuffer:sshot);
+				saveScreenshot(((svs.renderLightIndirect==LI_PATHTRACED || svs.renderLightIndirect==LI_PATHTRACED_FIREBALL) && sshotHdr)?m_canvas->pathTracedBuffer:sshot);
 
 				// cleanup
 				delete sshot;
@@ -1846,9 +1847,9 @@ rr::RRScene* SVFrame::loadScene(const wxString& _filename, float _units, unsigne
 bool SVFrame::oculusActive()
 {
 #ifdef SUPPORT_OCULUS
-	return !svs.renderLightmaps2d && svs.renderLightIndirect!=LI_PATHTRACED && svs.renderStereo && (userPreferences.stereoMode==rr::RRCamera::SM_OCULUS_RIFT) && oculusHMD;
+	return !svs.renderLightmaps2d && svs.renderLightIndirect!=LI_PATHTRACED && svs.renderLightIndirect!=LI_PATHTRACED_FIREBALL && svs.renderStereo && (userPreferences.stereoMode==rr::RRCamera::SM_OCULUS_RIFT) && oculusHMD;
 #else
-	return !svs.renderLightmaps2d && svs.renderLightIndirect!=LI_PATHTRACED && svs.renderStereo && (userPreferences.stereoMode==rr::RRCamera::SM_OCULUS_RIFT);
+	return !svs.renderLightmaps2d && svs.renderLightIndirect!=LI_PATHTRACED && svs.renderLightIndirect!=LI_PATHTRACED_FIREBALL && svs.renderStereo && (userPreferences.stereoMode==rr::RRCamera::SM_OCULUS_RIFT);
 #endif
 }
 

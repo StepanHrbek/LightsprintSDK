@@ -1142,7 +1142,7 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 	//RRReportInterval report(INF2,"Pathtracing frame...\n");
 	unsigned ww = _frame->getWidth();
 	unsigned hh = _frame->getHeight();
-	bool halfres = !_accumulated;
+	bool halfres = !_accumulated && _parameters.useSolverDirectSinceDepth==UINT_MAX;
 	unsigned w = halfres?(ww+1)/2:ww;
 	unsigned h = halfres?(hh+1)/2:hh;
 	PathtracerJob ptj(this,true);

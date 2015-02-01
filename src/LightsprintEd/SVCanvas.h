@@ -146,6 +146,7 @@ namespace rr_ed
 		// pathtracer
 		rr::RRBuffer*              pathTracedBuffer;
 		unsigned                   pathTracedAccumulator;
+		rr_ed::LightingIndirect    pathTracedTechnique;
 
 #ifdef SUPPORT_OCULUS
 		rr_gl::Texture*            oculusTexture[2];

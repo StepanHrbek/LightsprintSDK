@@ -952,7 +952,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					solver->RRSolverGL::updateEnvironmentMap(&selectedObjects[i]->illumination,
 						svs.layerBakedEnvironment,
 						(svs.renderLightIndirect==LI_LIGHTMAPS)?svs.layerBakedLightmap:UINT_MAX,
-						(svs.renderLightIndirect==LI_AMBIENTMAPS)?svs.layerBakedAmbient:((svs.renderLightIndirect==LI_REALTIME_FIREBALL||svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeAmbient:UINT_MAX));
+						(svs.renderLightIndirect==LI_AMBIENTMAPS)?svs.layerBakedAmbient:((svs.renderLightIndirect==LI_REALTIME_FIREBALL||svs.renderLightIndirect==LI_REALTIME_ARCHITECT||svs.renderLightIndirect==LI_PATHTRACED_FIREBALL)?svs.layerRealtimeAmbient:UINT_MAX));
 				}
 
 				// save cubes
