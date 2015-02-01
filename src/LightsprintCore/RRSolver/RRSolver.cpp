@@ -1177,7 +1177,7 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 				_frame->setElement(2*i+2*j*ww,c,NULL);
 				if (2*i+1<ww)
 					_frame->setElement(2*i+1+2*j*ww,c,NULL);
-				if (2*j+1<hh)
+				if (2*(unsigned)j+1<hh)
 				{
 					_frame->setElement(2*i+(2*j+1)*ww,c,NULL);
 					if (2*i+1<ww)
