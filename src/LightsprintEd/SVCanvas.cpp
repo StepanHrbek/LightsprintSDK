@@ -906,6 +906,9 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	if (exitRequested || !fullyCreated)
 		return;
 
+	if (event.Moving() || event.Entering() || event.Leaving())
+		return;
+
 	// when clicking faster than 5Hz, wxWidgets 2.9.1 drops some ButtonDown events
 	// let's keep an eye on unexpected ButtonUps and generate missing ButtonDowns 
 	#define EYE_ON(button,BUTTON) \
