@@ -2,8 +2,6 @@
 // RRMesh minimalistic example.
 //
 // RRMesh is constructed from vertex buffer.
-//
-// Copyright (C) 2006-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRMesh.h"

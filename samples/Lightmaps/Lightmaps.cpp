@@ -37,7 +37,6 @@
 // - map quality depends on unwrap quality.
 //   If your scene doesn't contain unwrap, you can build it with RRObjects::buildUnwrap().
 //
-// Copyright (C) 2006-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // Models by Raist, orillionbeta, atp creations
 // --------------------------------------------------------------------------
 

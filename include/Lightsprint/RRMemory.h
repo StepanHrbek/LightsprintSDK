@@ -1,12 +1,15 @@
-#ifndef RRMEMORY_H
-#define RRMEMORY_H
-
-//////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------
+// Copyright (C) 1999-2015 Stepan Hrbek
+// This file is part of Lightsprint SDK, you can use and/or redistribute it
+// only under terms of Lightsprint SDK license agreement. A copy of the agreement
+// is available by contacting Lightsprint at http://lightsprint.com
+//
 //! \file RRMemory.h
 //! \brief LightsprintCore | base elements related to memory allocation
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2014
-//! All rights reserved
-//////////////////////////////////////////////////////////////////////////////
+//----------------------------------------------------------------------------
+
+#ifndef RRMEMORY_H
+#define RRMEMORY_H
 
 #include <new> // operators new/delete
 #include <cstddef> // NULL

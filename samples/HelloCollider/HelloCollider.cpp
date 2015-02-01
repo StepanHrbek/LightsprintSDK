@@ -2,8 +2,6 @@
 // RRCollider minimalistic example.
 //
 // Simple mesh is constructed and collision with one ray detected.
-//
-// Copyright (C) 2006-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/RRCollider.h"

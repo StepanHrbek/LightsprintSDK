@@ -1,6 +1,5 @@
 // --------------------------------------------------------------------------
 // DynamicObject, 3d object without dynamic global illumination.
-// Copyright (C) 2005-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #include "DynamicObject.h"

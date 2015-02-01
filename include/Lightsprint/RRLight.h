@@ -1,12 +1,15 @@
+//----------------------------------------------------------------------------
+// Copyright (C) 1999-2015 Stepan Hrbek
+// This file is part of Lightsprint SDK, you can use and/or redistribute it
+// only under terms of Lightsprint SDK license agreement. A copy of the agreement
+// is available by contacting Lightsprint at http://lightsprint.com
+//
+//! \file RRLight.h
+//! \brief LightsprintCore | spot, point and directional lights
+//----------------------------------------------------------------------------
+
 #ifndef RRLIGHT_H
 #define RRLIGHT_H
-
-//////////////////////////////////////////////////////////////////////////////
-//! \file RRLight.h
-//! \brief LightsprintCore | light
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2014
-//! All rights reserved
-//////////////////////////////////////////////////////////////////////////////
 
 #include "RRBuffer.h"
 #include "RRVector.h"

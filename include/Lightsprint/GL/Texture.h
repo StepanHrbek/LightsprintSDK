@@ -1,8 +1,11 @@
-//--------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+// Copyright (C) 1999-2015 Stepan Hrbek
+// This file is part of Lightsprint SDK, you can use and/or redistribute it
+// only under terms of Lightsprint SDK license agreement. A copy of the agreement
+// is available by contacting Lightsprint at http://lightsprint.com
+//
 //! \file Texture.h
-//! \brief LightsprintGL | Texture in OpenGL 2.0, extension of RRBuffer
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2007-2014
-//! All rights reserved
+//! \brief LightsprintGL | texture, OpenGL wrapper around RRBuffer with 2d or cube data
 //--------------------------------------------------------------------------
 
 #ifndef TEXTURE_H

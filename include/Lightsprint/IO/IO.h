@@ -1,8 +1,11 @@
 //----------------------------------------------------------------------------
+// Copyright (C) 1999-2015 Stepan Hrbek
+// This file is part of Lightsprint SDK, you can use and/or redistribute it
+// only under terms of Lightsprint SDK license agreement. A copy of the agreement
+// is available by contacting Lightsprint at http://lightsprint.com
+//
 //! \file IO.h
-//! \brief LightsprintIO | scene import
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2006-2014
-//! All rights reserved
+//! \brief LightsprintIO | import and export of scenes, textures, videos, vertex buffers, materials
 //----------------------------------------------------------------------------
 
 #ifndef IMPORTSCENE_H

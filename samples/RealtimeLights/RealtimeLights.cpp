@@ -22,8 +22,6 @@
 // In comparison to SceneViewer sample, this one lacks features,
 // but is more open for your experiments, customization.
 // Everything important is in source code below.
-//
-// Copyright (C) 2007-2014 Stepan Hrbek, Lightsprint. All rights reserved.
 // --------------------------------------------------------------------------
 
 #ifdef _WIN32

@@ -1,8 +1,11 @@
 //----------------------------------------------------------------------------
+// Copyright (C) 1999-2015 Stepan Hrbek
+// This file is part of Lightsprint SDK, you can use and/or redistribute it
+// only under terms of Lightsprint SDK license agreement. A copy of the agreement
+// is available by contacting Lightsprint at http://lightsprint.com
+//
 //! \file RRCamera.h
-//! \brief LightsprintGL | frustum with adjustable pos, dir, aspect, fov, near, far
-//! \author Copyright (C) Stepan Hrbek, Lightsprint 2005-2014
-//! All rights reserved
+//! \brief LightsprintCore | RRCamera, camera with stereo and panorama support
 //----------------------------------------------------------------------------
 
 #ifndef RRCAMERA_H
@@ -17,7 +20,7 @@ namespace rr
 //
 // RRCamera
 
-//! Camera - view and projection matrices. Suitable also for use in lights.
+//! Camera - generates projection matrices for use in renderer, supports also stereo and panorama.
 //
 //! With yawPitchRollRad reset to 0, camera view direction is Z+ (0,0,1),
 //! up vector is Y+ (0,1,0) and right vector is X- (-1,0,0).

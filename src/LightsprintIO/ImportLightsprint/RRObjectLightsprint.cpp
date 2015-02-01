@@ -1,6 +1,10 @@
 // --------------------------------------------------------------------------
-// Lightsprint adapters for Lightsprint .rr3 and .rrbuffer formats.
-// Copyright (C) 2010-2014 Stepan Hrbek, Lightsprint. All rights reserved.
+// Copyright (C) 1999-2015 Stepan Hrbek
+// This file is part of Lightsprint SDK, you can use and/or redistribute it
+// only under terms of Lightsprint SDK license agreement. A copy of the agreement
+// is available by contacting Lightsprint at http://lightsprint.com
+//
+// Lightsprint adapters for .rr3, .rrbuffer, .rrmaterial formats.
 // --------------------------------------------------------------------------
 
 #include "../supported_formats.h"
