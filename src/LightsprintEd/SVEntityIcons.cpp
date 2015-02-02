@@ -104,7 +104,7 @@ SVEntityIcons::SVEntityIcons(wxString pathToMaps, rr_gl::UberProgram* uberProgra
 
 	uberProgramSetup.LIGHT_INDIRECT_CONST = true;
 	uberProgramSetup.MATERIAL_DIFFUSE = true;
-	uberProgramSetup.LEGACY_GL = 1;
+	uberProgramSetup.LEGACY_GL = true;
 	programArrows = uberProgramSetup.getProgram(uberProgram);
 }
 
@@ -122,27 +122,33 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 	// render arrows
 	rr_gl::PreserveFlag p0(GL_DEPTH_TEST,false);
 	programArrows->useIt();
-	uberProgramSetup.useCamera(programArrows,&eye);
+	glMatrixMode(GL_PROJECTION);
+	GLfloat frustumMatrix[16]={1,0,0,0, 0,1,0,0, 0,0,0.5,0, 0,0,1,1};
+	glLoadMatrixf(frustumMatrix);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	//GLfloat frustumMatrix[16]={1,0,0,0, 0,1,0,0, 0,0,0.5,0, 0,0,1,1};
+	//programArrows->sendUniform("modelViewProjectionMatrix",frustumMatrix,false,4);
 	glLineWidth(5);
 	for (unsigned i=0;i<entities.size();i++)
 	{
 		const SVEntity& entity = entities[i];
 		if (entity.parentPosition!=entity.position)
 		{
-			rr::RRVec3 a(entity.parentPosition);
-			rr::RRVec3 b(entity.position);
+			rr::RRVec2 a = eye.getPositionInViewport(entity.parentPosition);
+			rr::RRVec2 b = eye.getPositionInViewport(entity.position);
 			b = a*0.15f+b*0.85f; // make arrow little bit shorter
-			rr::RRVec3 c = eye.getDirection().cross(b-a)*0.1f;
-			rr::RRVec3 tmp1(a*0.1f+b*0.9f+c);
-			rr::RRVec3 tmp2(a*0.1f+b*0.9f-c);
-			programArrows->sendUniform("lightIndirectConst",rr::RRVec4((b-a).abs().normalized(),1.0f));
+			rr::RRVec2 c = rr::RRVec2(-(a-b).y,(a-b).x)*0.1f;
+			rr::RRVec2 tmp1(a*0.1f+b*0.9f+c);
+			rr::RRVec2 tmp2(a*0.1f+b*0.9f-c);
+			programArrows->sendUniform("lightIndirectConst",rr::RRVec4((entity.position-entity.parentPosition).abs().normalized(),1.0f));
 			glBegin(GL_LINES);
-			glVertex3fv(&b.x);
-			glVertex3fv(&a.x);
-			glVertex3fv(&b.x);
-			glVertex3fv(&tmp1.x);
-			glVertex3fv(&b.x);
-			glVertex3fv(&tmp2.x);
+			glVertex2fv(&b.x);
+			glVertex2fv(&a.x);
+			glVertex2fv(&b.x);
+			glVertex2fv(&tmp1.x);
+			glVertex2fv(&b.x);
+			glVertex2fv(&tmp2.x);
 			glEnd();
 		}
 	}
@@ -166,7 +172,7 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 			svs.camera.getRay(piwCenter,rayOrigin,rayDirection);
 			rr::RRVec3 rayVisibleOrigin = rayOrigin + rayDirection*eye.getNear();
 			rr::RRVec3 rayDir = entities[i].position-rayVisibleOrigin;
-			if (eye.getDirection().dot( rayDir.normalized() )>0) // is in front of camera?
+			if (eye.panoramaMode!=rr::RRCamera::PM_OFF || eye.getDirection().dot( rayDir.normalized() )>0) // is in front of camera?
 			{
 				// test visibility
 				bool visible = true;
