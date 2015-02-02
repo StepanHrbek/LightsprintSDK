@@ -944,10 +944,67 @@ RRVec4 RRCamera::getPositionInClipSpace(RRVec3 worldPosition) const
 
 RRVec3 RRCamera::getPositionInViewport(RRVec3 worldPosition) const
 {
-	double tmp[4],out[4];
-	for (int i=0; i<4; i++) tmp[i] = worldPosition[0] * viewMatrix[0*4+i] + worldPosition[1] * viewMatrix[1*4+i] + worldPosition[2] * viewMatrix[2*4+i] + viewMatrix[3*4+i];
-	for (int i=0; i<4; i++) out[i] = tmp[0] * projectionMatrix[0*4+i] + tmp[1] * projectionMatrix[1*4+i] + tmp[2] * projectionMatrix[2*4+i] + tmp[3] * projectionMatrix[3*4+i];
-	return RRVec3((RRReal)(out[0]/out[3]),(RRReal)(out[1]/out[3]),(RRReal)(out[2]/out[3]));
+	if (panoramaMode==PM_OFF)
+	{
+		double tmp[4],out[4];
+		for (int i=0; i<4; i++) tmp[i] = worldPosition[0] * viewMatrix[0*4+i] + worldPosition[1] * viewMatrix[1*4+i] + worldPosition[2] * viewMatrix[2*4+i] + viewMatrix[3*4+i];
+		for (int i=0; i<4; i++) out[i] = tmp[0] * projectionMatrix[0*4+i] + tmp[1] * projectionMatrix[1*4+i] + tmp[2] * projectionMatrix[2*4+i] + tmp[3] * projectionMatrix[3*4+i];
+		return RRVec3((RRReal)(out[0]/out[3]),(RRReal)(out[1]/out[3]),(RRReal)(out[2]/out[3]));
+	}
+	// panoramaMode [#42]
+	rr::RRMatrix3x4 view(viewMatrix,!false);
+	RRVec3 direction = worldPosition-pos;
+	view.transformDirection(direction);
+	RRVec2 posInWindow(0);
+	if (panoramaMode==PM_EQUIRECTANGULAR)
+	{
+		direction.normalize();
+		RRReal y = asin(direction.y)*2/RR_PI;
+		RRReal x = 0.5f - asin( direction.x / sqrt(1-direction.y*direction.y) ) / RR_PI;
+		posInWindow = RRVec2((direction.z>0)?x:-x,y);
+	}
+	if (panoramaMode==PM_LITTLE_PLANET)
+	{
+		direction /= sqrt(direction.x*direction.x+direction.z*direction.z) + 0.000001f;
+		float r = atan(direction.y)/RR_PI/2+0.25f;
+		posInWindow = RRVec2(direction.x*2*r,direction.z*2*r);
+	}
+	if (panoramaMode==PM_FISHEYE)
+	{
+		direction /= sqrt(direction.x*direction.x+direction.y*direction.y) + 0.000001f;
+		float r = atan(direction.z)/RR_PI/2+0.25f;
+		posInWindow = RRVec2(direction.x*2*r,direction.y*2*r);
+	}
+
+	// panoramaScale [#43]
+	float scale = (panoramaMode==rr::RRCamera::PM_FISHEYE) ? panoramaScale * 360/panoramaFisheyeFovDeg : panoramaScale;
+	posInWindow *= scale;
+
+	// panoramaCoverage [#44]
+	float x0 = 0;
+	float y0 = 0;
+	float w = 1;
+	float h = 1;
+	if (panoramaMode!=PM_EQUIRECTANGULAR)
+	switch (panoramaCoverage)
+	{
+		case PC_FULL_STRETCH:
+			break;
+		case PC_FULL:
+			if (aspect>1)
+				posInWindow.x /= aspect;
+			else
+				posInWindow.y *= aspect;
+			break;
+		case PC_TRUNCATE_BOTTOM:
+			posInWindow.y = posInWindow.y*aspect+(1-aspect);
+			break;
+		case PC_TRUNCATE_TOP:
+			posInWindow.y = posInWindow.y*aspect-(1-aspect);
+			break;
+	}
+
+	return RRVec3(posInWindow.x,posInWindow.y,1);
 }
 
 bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) const
@@ -1063,7 +1120,6 @@ bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) con
 	bool result = false;
 	if (panoramaMode==PM_EQUIRECTANGULAR)
 	{
-		//! spravne jen pro view angle 0,0,0
 		RRVec3 direction;
 		direction.y = sin(RR_PI/2*posInWindow.y);
 		direction.x = sin(RR_PI*(-posInWindow.x+0.5f)) * sqrt(1-direction.y*direction.y);
