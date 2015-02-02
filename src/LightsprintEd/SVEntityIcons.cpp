@@ -63,7 +63,11 @@ void SVEntities::markSelected(const EntityIds& selectedEntityIds)
 
 void SVEntities::addXYZ(rr::RRVec3 center, IconCode transformation, const rr::RRCamera& eye)
 {
-	float size1 = (eye.getPositionInViewport(center+eye.getRight()*iconSize)-eye.getPositionInViewport(center)).RRVec2::length()*2;
+	rr::RRVec3 piw = eye.getPositionInViewport(center);
+	float size1a = (eye.getPositionInViewport(center+eye.getRight()*iconSize)-piw).RRVec2::length();
+	float size1b = (eye.getPositionInViewport(center+eye.getUp()*iconSize)-piw).RRVec2::length();
+	float size1c = (eye.getPositionInViewport(center+eye.getDirection()*iconSize)-piw).RRVec2::length();
+	float size1 = RR_MAX3(size1a,size1b,size1c)*2;
 	float size2 = RR_CLAMPED(size1,0.02f,0.2f);
 	float adjustedIconSize = iconSize*size2/size1;
 

@@ -29,7 +29,7 @@ namespace rr_ed
 	class SVEntities : public std::vector<SVEntity>
 	{
 	public:
-		float iconSize;
+		float iconSize; // size in meters
 
 		void addLights(const rr::RRLights& lights, rr::RRVec3 dirlightPosition);
 		void markSelected(const EntityIds& selectedEntityIds);
