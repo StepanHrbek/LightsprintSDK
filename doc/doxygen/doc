@@ -1061,6 +1061,9 @@ Material formats (1)
 
   Pathtracing technique is designed to work with any data, without limitations imposed by other techniques.
 
+  Our current implementation is experimental, not yet ready for production.
+  In many cases results are too noisy and the noise does not disappear, even if you wait for very long time.
+
  \section artist_path_shadows Shadows on background
 
     <table border=0><tr align=top><td>
@@ -1072,6 +1075,23 @@ Material formats (1)
     </td></tr></table>
 
   This is currently supported only by pathtracer, other techniques render "background" material fully visible.
+
+ \section artist_fire_path Fire+Path
+
+  Fire+Path technique (available in SceneViewer) combines Fireball and pathtracing techniques.
+  It works by switching from Firebal to pathtracer after 0.2s of inactivity.
+  And as Fireball already has lower quality solution calculated, pathtracer uses it to reduce noise.
+
+  So it's like Fireball, with all its advantages and disadvantages, but quality improves when you stop moving.
+ 
+  Compared to plain pathtracer, Fire+Path starts with minimal noise thanks to using Fireball results,
+  but if those Fireball results were badly wrong, it takes longer to converge to good results.
+
+  Sometimes Fireball and pathtracer produce very different results, so switching between them looks strange.
+  It is usually because of unrealistic materials,
+  Fireball tries to render materials as they are, while pathtracer renders only physically possible parts of materials.
+  But other sources of differences are possible. In some cases, quality of Fireball lighting is simply too bad.
+
 
 
 \page main_building Building
