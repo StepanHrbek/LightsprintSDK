@@ -906,9 +906,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	if (exitRequested || !fullyCreated)
 		return;
 
-	if (event.Moving() || event.Entering() || event.Leaving())
-		return;
-
 	// when clicking faster than 5Hz, wxWidgets 2.9.1 drops some ButtonDown events
 	// let's keep an eye on unexpected ButtonUps and generate missing ButtonDowns 
 	#define EYE_ON(button,BUTTON) \
@@ -932,6 +929,10 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	bool contextMenu = event.GetId()==ID_CONTEXT_MENU;
 	wxPoint newPosition = (event.GetPosition()==wxPoint(-1,-1)) ? oldPosition : event.GetPosition(); // use previous coords for event that does not come with its own
 	mousePositionInWindow = rr::RRVec2((newPosition.x*2.0f+winWidth-canvasGetSize().x)/winWidth-1,1-(newPosition.y*2.0f+winHeight-canvasGetSize().y)/winHeight); // in fact, it is mouse position in _viewport_ where viewport winWidth*winHeight is in center of window GetSize()
+
+	// don't return until mousePositionInWindow is filled, renderHelpers needs it
+	if (event.Moving() || event.Entering() || event.Leaving())
+		return;
 
 	if (!winWidth || !winHeight || !solver)
 	{
