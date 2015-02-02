@@ -20,7 +20,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 {
 	// technique
 	{
-		const wxChar* strings[] = {_("pathtracing (experimental)"),_("path+Fire (experimental)"),_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),NULL};
+		const wxChar* strings[] = {_("pathtracing (experimental)"),_("Fire+path (experimental)"),_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),NULL};
 		const long values[] = {LI_PATHTRACED,LI_PATHTRACED_FIREBALL,LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_LIGHTMAPS,LI_AMBIENTMAPS,LI_CONSTANT,LI_NONE};
 		propGITechnique = new wxEnumProperty(_("Technique"),wxPG_LABEL,strings,values);
 		propGITechnique->SetHelpString(_("What base GI technique to use. Note that additional techniques (SSGI, Cubemap reflections, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
