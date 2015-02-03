@@ -499,15 +499,15 @@ RRMesh* RRObject::createWorldSpaceMesh() const
 }
 
 
-RRObject* RRObject::createMultiObject(const RRObjects* objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation)
+RRObject* RRObjects::createMultiObject(RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation) const
 {
-	if (!objects || !objects->size())
+	if (!size())
 		return NULL;
 	switch(speed)
 	{
-		case 0: return RRObjectMultiSmall::create(&(*objects)[0],objects->size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,false,cacheLocation);
-		case 1: return RRObjectMultiFast::create(&(*objects)[0],objects->size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,false,cacheLocation);
-		default: return RRObjectMultiFast::create(&(*objects)[0],objects->size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,true,cacheLocation);
+		case 0: return RRObjectMultiSmall::create(&(*this)[0],size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,false,cacheLocation);
+		case 1: return RRObjectMultiFast::create(&(*this)[0],size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,false,cacheLocation);
+		default: return RRObjectMultiFast::create(&(*this)[0],size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,true,cacheLocation);
 	}
 		
 }

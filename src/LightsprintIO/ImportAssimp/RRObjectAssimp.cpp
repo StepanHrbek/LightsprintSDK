@@ -307,7 +307,7 @@ public:
 			if (collapse && objectsInThisNode.size())
 			{
 				bool aborting = false;
-				RRObject* object = RRObject::createMultiObject(&objectsInThisNode,RRCollider::IT_LINEAR,aborting,-1,-1,true,0,NULL);
+				RRObject* object = objectsInThisNode.createMultiObject(RRCollider::IT_LINEAR,aborting,-1,-1,true,0,NULL);
 				object->name = convertStr(_node->mName);
 				push_back(object);
 			}

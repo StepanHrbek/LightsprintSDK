@@ -312,9 +312,9 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	// old smoothing code with stitching here in multiobject
 	//  stitching here (it's based on positions and normals only) would corrupt uvs in indexed render
 	//  we don't pass maxDistanceBetweenUvsToStitch+texcoords as parameters, therefore stitching here calls createOptimizedVertices(,,0,NULL) and different uvs are stitched
-	//priv->multiObject = _copyFrom ? _copyFrom->getMultiObject() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
+	//priv->multiObject = _copyFrom ? _copyFrom->getMultiObject() : getStaticObjects().createMultiObject(_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
 	// new smoothing stitches in Object::buildTopIVertices, no stitching here in multiobject
-	priv->multiObject = _copyFrom ? _copyFrom->getMultiObject() : RRObject::createMultiObject(&getStaticObjects(),_intersectTechnique,aborting,-1,0,false,0,_cacheLocation);
+	priv->multiObject = _copyFrom ? _copyFrom->getMultiObject() : getStaticObjects().createMultiObject(_intersectTechnique,aborting,-1,0,false,0,_cacheLocation);
 	priv->forcedMultiObject = _copyFrom ? true : false;
 
 	// convert it to physical scale

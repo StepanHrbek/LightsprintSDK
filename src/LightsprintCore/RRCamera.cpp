@@ -229,7 +229,7 @@ static void generateRandomCamera(const RRSolver* _solver, RRVec3& _pos, RRVec3& 
 	}
 	bool aborting = false;
 	RRObjects objects = _solver->getObjects();
-	RRObject* superObject = RRObject::createMultiObject(&objects,RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL);
+	RRObject* superObject = objects.createMultiObject(RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL);
 	if (!superObject)
 		goto empty;
 	const RRMesh* superMesh = superObject->getCollider()->getMesh();

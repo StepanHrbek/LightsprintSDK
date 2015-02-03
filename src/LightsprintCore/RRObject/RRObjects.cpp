@@ -371,7 +371,7 @@ RRObjects RRObjects::mergeObjects(bool splitByMaterial) const
 
 	rr::RRReporter::report(rr::INF2,"Merging...\n");
 	bool aborting = false;
-	rr::RRObject* oldObject = rr::RRObject::createMultiObject(this,rr::RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL);
+	rr::RRObject* oldObject = createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL);
 
 	// convert oldObject with Multi* into newObject with RRMeshArrays
 	// if we don't do it

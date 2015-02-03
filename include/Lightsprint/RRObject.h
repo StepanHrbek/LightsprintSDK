@@ -256,47 +256,6 @@ namespace rr
 		//! original object, so it is not allowed to let new instance live longer than original object.
 		RRMesh* createWorldSpaceMesh() const;
 
-		//! Creates and returns union of multiple objects (contains geometry and materials from all objects), in world space.
-		//
-		//! In contrast to mergeObjects(), createMultiObject() doesn't allocate additional memory, 
-		//! but it depends on original objects, they must stay alive for whole life of MultiObject.
-		//! \n This can be used to accelerate calculations, as one big object is nearly always faster than multiple small objects.
-		//! \n This can be used to simplify calculations, as processing one object may be simpler than processing array of objects.
-		//! \n\n For description how to access original triangles and vertices in MultiObject, 
-		//!  see RRMesh::createMultiMesh().
-		//! \param objects
-		//!  Collection of objects you want to create multiobject from.
-		//!  Objects from collection should stay alive for whole life of multiobjects (this is your responsibility).
-		//!  Collection alone may be destructed immediately by you.
-		//! \param intersectTechnique
-		//!  Technique used for collider construction.
-		//! \param aborting
-		//!  May be set asynchronously, aborts creation.
-		//! \param maxDistanceBetweenVerticesToStitch
-		//!  Distance in world units. Vertices with lower or equal distance may be stitched into one vertex
-		//!  (if they satisfy also maxRadiansBetweenNormalsToStitch).
-		//!  Zero may stitch only identical vertices, negative value means no action.
-		//!  \n Vertices are stitched even if uv coordinates differ. Therefore stitchig is safe for offline calculation,
-		//!  but it could break mapping in relatime renderer.
-		//! \param maxRadiansBetweenNormalsToStitch
-		//!  Vertices with lower or equal angle between normals may be stitched into one vertex
-		//!  (if they satisfy also maxDistanceBetweenVerticesToStitch).
-		//!  Zero may stitch only identical normals, negative value means no action.
-		//! \param optimizeTriangles
-		//!  True removes degenerated triangles.
-		//!  It is always good to get rid of degenerated triangles (true), but sometimes you know
-		//!  there are no degenerated triangles at all and you can save few cycles by setting false.
-		//! \param speed
-		//!  Could make object faster, but needs additional memory.
-		//!  \n 0 = normal speed, 0bytes/triangle overhead
-		//!  \n 1 = +speed, 12bytes/triangle overhead
-		//!  \n 2 = ++speed, 156bytes/triangle overhead
-		//! \param cacheLocation
-		//!  Directory for caching intermediate files used by RRCollider.
-		//!  It is passed to RRCollider::create(), so
-		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
-		static RRObject* createMultiObject(const class RRObjects* objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation);
-
 
 		// other tools
 
@@ -590,6 +549,43 @@ namespace rr
 		//! New structures contain copy of all triangle and vertex data in RRMeshArrays format.
 		//! Only materials are shared between old and new objects.
 		RRObjects mergeObjects(bool splitByMaterial) const;
+
+		//! Creates and returns union of multiple objects (contains geometry and materials from all objects), in world space.
+		//
+		//! In contrast to mergeObjects(), createMultiObject() doesn't allocate additional memory, 
+		//! but it depends on original objects, they must stay alive for whole life of MultiObject.
+		//! \n Merging can be used to accelerate calculations, as one big object is nearly always faster than multiple small objects.
+		//! \n Merging can be used to simplify calculations, as processing one object may be simpler than processing array of objects.
+		//! \n\n For description how to access original triangles and vertices in MultiObject, 
+		//!  see RRMesh::createMultiMesh().
+		//! \param intersectTechnique
+		//!  Technique used for collider construction.
+		//! \param aborting
+		//!  May be set asynchronously, aborts creation.
+		//! \param maxDistanceBetweenVerticesToStitch
+		//!  Distance in world units. Vertices with lower or equal distance may be stitched into one vertex
+		//!  (if they satisfy also maxRadiansBetweenNormalsToStitch).
+		//!  Zero may stitch only identical vertices, negative value means no action.
+		//!  \n Vertices are stitched even if uv coordinates differ. Therefore stitchig is safe for offline calculation,
+		//!  but it could break mapping in relatime renderer.
+		//! \param maxRadiansBetweenNormalsToStitch
+		//!  Vertices with lower or equal angle between normals may be stitched into one vertex
+		//!  (if they satisfy also maxDistanceBetweenVerticesToStitch).
+		//!  Zero may stitch only identical normals, negative value means no action.
+		//! \param optimizeTriangles
+		//!  True removes degenerated triangles.
+		//!  It is always good to get rid of degenerated triangles (true), but sometimes you know
+		//!  there are no degenerated triangles at all and you can save few cycles by setting false.
+		//! \param speed
+		//!  Could make object faster, but needs additional memory.
+		//!  \n 0 = normal speed, 0bytes/triangle overhead
+		//!  \n 1 = +speed, 12bytes/triangle overhead
+		//!  \n 2 = ++speed, 156bytes/triangle overhead
+		//! \param cacheLocation
+		//!  Directory for caching intermediate files used by RRCollider.
+		//!  It is passed to RRCollider::create(), so
+		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
+		RRObject* createMultiObject(RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation) const;
 
 		//! Rebuilds objects to make them smooth (possibly changing numbers of triangles, vertices, facegroups).
 		//

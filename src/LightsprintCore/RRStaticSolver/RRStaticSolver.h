@@ -70,7 +70,7 @@ namespace rr
 		//! \param object
 		//!  Object that contains whole static scene.
 		//!  Must be in world space (world matrix is identity).
-		//!  \n Such object can be created out of multiple objects using RRObject::createMultiObject().
+		//!  \n Such object can be created out of multiple objects using createMultiObject().
 		//! \param smoothing
 		//!  Illumination smoothing parameters.
 		//! \param aborting
