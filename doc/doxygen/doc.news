@@ -34,9 +34,6 @@ NEWS
 - improved scene viewer
   - "Fire+path" technique added, automatically switches from Fireball to Pathtracer after 0.2s of inactivity
   - icons, xyz gizmo, mouse navigation work also in panorama modes
-- misc
-  - RRObjects::mergeObjects() added
-  - RRObjects::createMultiObject() replaces RRObject::createMultiObject()
 
 CHANGES
 
@@ -65,6 +62,8 @@ CHANGES
 - RRLight
   - PHYSICAL renamed to REALISTIC
 - RRObjects
+  - RRObjects::mergeObjects() added
+  - RRObjects::createMultiObject() replaces RRObject::createMultiObject()
   - updateColorPhysical renamed to updateColorLinear
 - RR_SAFE_XXX() functions moved to rr namespace; and they NULL pointer _before_ freeing/deleting/releasing object, not _after_ (it's bit safer in case of exception)
 
