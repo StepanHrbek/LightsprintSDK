@@ -36,6 +36,7 @@ NEWS
   - icons, xyz gizmo, mouse navigation work also in panorama modes
 - misc
   - RRObjects::mergeObjects() added
+  - RRObjects::createMultiObject() replaces RRObject::createMultiObject()
 
 CHANGES
 

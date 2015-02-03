@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <vector>
 #include "Lightsprint/RRObject.h"
+#include "RRObjectMulti.h"
 #include <unordered_set>
 #include <unordered_map>
 #ifdef RR_LINKS_BOOST
@@ -348,6 +349,19 @@ unsigned updateColliders(const RRObjects& objects, bool& aborting)
 		}
 	}
 	return (unsigned)updatedColliders.size();
+}
+
+RRObject* RRObjects::createMultiObject(RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation) const
+{
+	if (!size())
+		return NULL;
+	switch(speed)
+	{
+		case 0: return RRObjectMultiSmall::create(&(*this)[0],size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,false,cacheLocation);
+		case 1: return RRObjectMultiFast::create(&(*this)[0],size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,false,cacheLocation);
+		default: return RRObjectMultiFast::create(&(*this)[0],size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,true,cacheLocation);
+	}
+		
 }
 
 RRObjects RRObjects::mergeObjects(bool splitByMaterial) const

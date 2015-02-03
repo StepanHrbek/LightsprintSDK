@@ -12,7 +12,6 @@
 #include "../RRCollider/RRCollisionHandler.h"
 #include "RRObjectFilter.h"
 #include "RRObjectFilterTransformed.h"
-#include "RRObjectMulti.h"
 #include "../NumReports.h"
 #include <cstdio> // _vsnprintf
 
@@ -498,19 +497,6 @@ RRMesh* RRObject::createWorldSpaceMesh() const
 	return this ? getCollider()->getMesh()->createTransformed(getWorldMatrix()) : NULL;
 }
 
-
-RRObject* RRObjects::createMultiObject(RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation) const
-{
-	if (!size())
-		return NULL;
-	switch(speed)
-	{
-		case 0: return RRObjectMultiSmall::create(&(*this)[0],size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,false,cacheLocation);
-		case 1: return RRObjectMultiFast::create(&(*this)[0],size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,false,cacheLocation);
-		default: return RRObjectMultiFast::create(&(*this)[0],size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,true,cacheLocation);
-	}
-		
-}
 
 
 //////////////////////////////////////////////////////////////////////////////
