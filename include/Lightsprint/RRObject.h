@@ -258,8 +258,8 @@ namespace rr
 
 		//! Creates and returns union of multiple objects (contains geometry and materials from all objects), in world space.
 		//
-		//! Created instance (MultiObject) doesn't require additional memory, 
-		//! but it depends on all objects from array, they must stay alive for whole life of MultiObject.
+		//! In contrast to mergeObjects(), createMultiObject() doesn't allocate additional memory, 
+		//! but it depends on original objects, they must stay alive for whole life of MultiObject.
 		//! \n This can be used to accelerate calculations, as one big object is nearly always faster than multiple small objects.
 		//! \n This can be used to simplify calculations, as processing one object may be simpler than processing array of objects.
 		//! \n\n For description how to access original triangles and vertices in MultiObject, 
@@ -583,6 +583,13 @@ namespace rr
 		//!  Number of objects modified.
 		virtual unsigned optimizeFaceGroups(RRObject* object = NULL) const;
 
+
+		//! Merges objects from collection, and optionally splits them by materials.
+		//
+		//! Returns newly created object or collection of objects that doesn't depend on old objects, colliders and meshes.
+		//! New structures contain copy of all triangle and vertex data in RRMeshArrays format.
+		//! Only materials are shared between old and new objects.
+		RRObjects mergeObjects(bool splitByMaterial) const;
 
 		//! Rebuilds objects to make them smooth (possibly changing numbers of triangles, vertices, facegroups).
 		//

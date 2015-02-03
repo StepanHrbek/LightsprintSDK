@@ -813,8 +813,10 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						params.aoSize = svs.lightmapDirectParameters.aoSize;
 
 #ifndef OLD_SIMPLE_GI
+						// bake in one step
 						solver->updateLightmaps(tmpLayer,-1,-1,&params,&svs.lightmapFilteringParameters);
 #else
+						// bake in two steps, should produce the same results in the same time
 						// calculate indirect illumination in solver
 						solver->updateLightmaps(-1,-1,-1,&params,NULL);
 
@@ -1018,85 +1020,14 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				// display log window with 'abort' while this function runs
 				LogWithAbort logWithAbort(this,solver,_("Merging objects..."));
 
-				// don't merge tangents if sources clearly have no tangents
-				bool tangents = false;
-				{
-					for (unsigned i=0;i<selectedObjects.size();i++)
-					{
-						const rr::RRObject* object = selectedObjects[i];
-						const rr::RRMeshArrays* meshArrays = dynamic_cast<const rr::RRMeshArrays*>(object->getCollider()->getMesh());
-						if (!meshArrays || meshArrays->tangent)
-							tangents = true;
-					}
-				}
-
-				rr::RRReporter::report(rr::INF2,"Merging...\n");
-				rr::RRObject* oldObject = rr::RRObject::createMultiObject(&selectedObjects,rr::RRCollider::IT_LINEAR,solver->aborting,-1,-1,false,0,NULL);
-
-				// convert oldObject with Multi* into newObject with RRMeshArrays
-				// if we don't do it
-				// - solver->getMultiObject() preimport numbers would point to many 1objects, although there is only one 1object now
-				// - attempt to smooth scene would fail, it needs arrays
-				const rr::RRCollider* oldCollider = oldObject->getCollider();
-				const rr::RRMesh* oldMesh = oldCollider->getMesh();
-				rr::RRVector<unsigned> texcoords;
-				oldMesh->getUvChannels(texcoords);
-				rr::RRMeshArrays* newMesh = oldMesh->createArrays(true,texcoords,tangents);
-				rr::RRCollider* newCollider = rr::RRCollider::create(newMesh,NULL,rr::RRCollider::IT_LINEAR,solver->aborting);
-				rr::RRObject* newObject = new rr::RRObject;
-				newObject->faceGroups = oldObject->faceGroups;
-				newObject->setCollider(newCollider);
-				newObject->isDynamic = !containsStaticObject(selectedObjects);
-				delete oldObject;
-
-				rr::RRObjects newList;
-				newList.push_back(newObject); // memleak, newObject is never freed
-				// ensure that there is one facegroup per material
-				rr::RRReporter::report(rr::INF2,"Optimizing...\n");
-				newList.optimizeFaceGroups(newObject); // we know there are no other instances of newObject's mesh
-
-				if (actionCode==CM_OBJECTS_MERGE_BY_MATERIALS)
-				{
-					rr::RRReporter::report(rr::INF2,"Splitting...\n");
-					// split by facegroups=materials
-					newList.clear();
-					unsigned firstTriangleIndex = 0;
-					for (unsigned f=0;f<newObject->faceGroups.size();f++)
-					{
-						// create splitObject from newObject->faceGroups[f]
-						rr::RRMeshArrays* splitMesh = NULL;
-						{
-							// temporarily hide triangles with other materials
-							unsigned tmpNumTriangles = newMesh->numTriangles;
-							newMesh->numTriangles = newObject->faceGroups[f].numTriangles;
-							newMesh->triangle += firstTriangleIndex;
-							// filter out unused vertices
-							const rr::RRMesh* optimizedMesh = newMesh->createOptimizedVertices(0,0,0,&texcoords);
-							// read result into new mesh
-							splitMesh = optimizedMesh->createArrays(true,texcoords,tangents);
-							// delete temporaries
-							delete optimizedMesh;
-							// unhide triangles
-							newMesh->triangle -= firstTriangleIndex;
-							newMesh->numTriangles = tmpNumTriangles;
-						}
-						rr::RRCollider* splitCollider = rr::RRCollider::create(splitMesh,NULL,rr::RRCollider::IT_LINEAR,solver->aborting);
-						rr::RRObject* splitObject = new rr::RRObject;
-						splitObject->faceGroups.push_back(newObject->faceGroups[f]);
-						splitObject->setCollider(splitCollider);
-						splitObject->isDynamic = newObject->isDynamic;
-						splitObject->name = splitObject->faceGroups[0].material->name; // name object by material
-						newList.push_back(splitObject); // memleak, splitObject is never freed
-						firstTriangleIndex += newObject->faceGroups[f].numTriangles;
-					}
-				}
+				rr::RRObjects newObjects = selectedObjects.mergeObjects(actionCode==CM_OBJECTS_MERGE_BY_MATERIALS);
 
 				rr::RRReporter::report(rr::INF2,"Updating objects in solver...\n");
 				for (unsigned objectIndex=0;objectIndex<allObjects.size();objectIndex++)
 					if (contextEntityIds.find(EntityId(ST_OBJECT,objectIndex))==contextEntityIds.end())
-						newList.push_back(allObjects[objectIndex]);
-				solver->setStaticObjects(newList,NULL);
-				solver->setDynamicObjects(newList);
+						newObjects.push_back(allObjects[objectIndex]);
+				solver->setStaticObjects(newObjects,NULL);
+				solver->setDynamicObjects(newObjects);
 
 				svframe->m_canvas->addOrRemoveScene(NULL,false,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
 			}

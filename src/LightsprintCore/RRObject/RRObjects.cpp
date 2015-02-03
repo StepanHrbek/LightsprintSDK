@@ -350,6 +350,90 @@ unsigned updateColliders(const RRObjects& objects, bool& aborting)
 	return (unsigned)updatedColliders.size();
 }
 
+RRObjects RRObjects::mergeObjects(bool splitByMaterial) const
+{
+	unsigned numDynamicObjects = 0;
+	for (unsigned i=0;i<size();i++)
+		if ((*this)[i]->isDynamic)
+			numDynamicObjects++;
+
+	// don't merge tangents if sources clearly have no tangents
+	bool tangents = false;
+	{
+		for (unsigned i=0;i<size();i++)
+		{
+			const rr::RRObject* object = (*this)[i];
+			const rr::RRMeshArrays* meshArrays = dynamic_cast<const rr::RRMeshArrays*>(object->getCollider()->getMesh());
+			if (!meshArrays || meshArrays->tangent)
+				tangents = true;
+		}
+	}
+
+	rr::RRReporter::report(rr::INF2,"Merging...\n");
+	bool aborting = false;
+	rr::RRObject* oldObject = rr::RRObject::createMultiObject(this,rr::RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL);
+
+	// convert oldObject with Multi* into newObject with RRMeshArrays
+	// if we don't do it
+	// - solver->getMultiObject() preimport numbers would point to many 1objects, although there is only one 1object now
+	// - attempt to smooth scene would fail, it needs arrays
+	const rr::RRCollider* oldCollider = oldObject->getCollider();
+	const rr::RRMesh* oldMesh = oldCollider->getMesh();
+	rr::RRVector<unsigned> texcoords;
+	oldMesh->getUvChannels(texcoords);
+	rr::RRMeshArrays* newMesh = oldMesh->createArrays(true,texcoords,tangents);
+	rr::RRCollider* newCollider = rr::RRCollider::create(newMesh,NULL,rr::RRCollider::IT_LINEAR,aborting);
+	rr::RRObject* newObject = new rr::RRObject;
+	newObject->faceGroups = oldObject->faceGroups;
+	newObject->setCollider(newCollider);
+	newObject->isDynamic = numDynamicObjects>size()/2;
+	delete oldObject;
+
+	rr::RRObjects newList;
+	newList.push_back(newObject); // memleak, newObject is never freed
+	// ensure that there is one facegroup per material
+	rr::RRReporter::report(rr::INF2,"Optimizing...\n");
+	newList.optimizeFaceGroups(newObject); // we know there are no other instances of newObject's mesh
+
+	if (splitByMaterial)
+	{
+		rr::RRReporter::report(rr::INF2,"Splitting...\n");
+		// split by facegroups=materials
+		newList.clear();
+		unsigned firstTriangleIndex = 0;
+		for (unsigned f=0;f<newObject->faceGroups.size();f++)
+		{
+			// create splitObject from newObject->faceGroups[f]
+			rr::RRMeshArrays* splitMesh = NULL;
+			{
+				// temporarily hide triangles with other materials
+				unsigned tmpNumTriangles = newMesh->numTriangles;
+				newMesh->numTriangles = newObject->faceGroups[f].numTriangles;
+				newMesh->triangle += firstTriangleIndex;
+				// filter out unused vertices
+				const rr::RRMesh* optimizedMesh = newMesh->createOptimizedVertices(0,0,0,&texcoords);
+				// read result into new mesh
+				splitMesh = optimizedMesh->createArrays(true,texcoords,tangents);
+				// delete temporaries
+				delete optimizedMesh;
+				// unhide triangles
+				newMesh->triangle -= firstTriangleIndex;
+				newMesh->numTriangles = tmpNumTriangles;
+			}
+			rr::RRCollider* splitCollider = rr::RRCollider::create(splitMesh,NULL,rr::RRCollider::IT_LINEAR,aborting);
+			rr::RRObject* splitObject = new rr::RRObject;
+			splitObject->faceGroups.push_back(newObject->faceGroups[f]);
+			splitObject->setCollider(splitCollider);
+			splitObject->isDynamic = newObject->isDynamic;
+			splitObject->name = splitObject->faceGroups[0].material->name; // name object by material
+			newList.push_back(splitObject); // memleak, splitObject is never freed
+			firstTriangleIndex += newObject->faceGroups[f].numTriangles;
+		}
+	}
+
+	return newList;
+}
+
 void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool removeUnusedVertices, bool removeDegeneratedTriangles, bool stitchPositions, bool stitchNormals, bool generateNormals, float maxDistanceBetweenVerticesToSmooth, float maxRadiansBetweenNormalsToSmooth, float maxDistanceBetweenUvsToSmooth, bool report) const
 {
 	// gather unique meshes (only mesharrays, basic mesh does not have API for editing)
