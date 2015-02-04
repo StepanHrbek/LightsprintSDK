@@ -146,16 +146,15 @@ public:
 	//! Sets distance of both near and far clipping planes from camera automatically.
 	//
 	//! Uses raycasting, performance hit is acceptable even if called once per frame.
+	//! In panorama modes, it shoots in all directions.
 	//! \param solver
 	//!  Camera is tested against geometry in given solver. Range is not adjusted if it is NULL.
-	//! \param panorama
-	//!  If true, rays are shot to all directions, as if rendering panorama.
 	//! \param shadowRays
 	//!  True to set range using all shadow casters rather than just visible objects.
 	//! \param numRays
 	//!  How many rays it shoots to measure distances. Higher = more accurate, but slower.
 	//!  0 for defaults (around 100).
-	void  setRangeDynamically(const class RRSolver* solver, bool panorama, bool shadowRays, unsigned numRays = 0);
+	void  setRangeDynamically(const class RRSolver* solver, bool shadowRays, unsigned numRays = 0);
 
 	//! Only if orthogonal: Returns world space distance between top and bottom of viewport.
 	float getOrthoSize() const {return orthoSize;}
