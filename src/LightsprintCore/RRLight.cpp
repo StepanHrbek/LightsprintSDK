@@ -9,6 +9,7 @@
 
 #include "Lightsprint/RRLight.h"
 #include "Lightsprint/RRDebug.h"
+#include "Lightsprint/RRCamera.h"
 #include "RRMathPrivate.h"
 
 #define PHYS2SRGB 0.45f
@@ -371,20 +372,33 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRColorSpace
 			break;
 	}
 
-	float angleAttenuation = 1;
+	RRVec3 result = color * distanceAttenuation;
+
 	if (type==SPOT)
 	{
-		RR_ASSERT(IS_NORMALIZED(direction)); // must be normalized, otherwise acos might return NaN
-		float angleCos = dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized());
-		float angleRad = acos(RR_CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
-		RR_ASSERT(_finite(angleRad));
-		angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
-		//RR_ASSERT(_finite(angleAttenuation)); // may be +/-1.#INF after division by zero, but next line clamps it back to 0,1 range
-		// c++ defines pow(0,0)=1. we want 0, therefore we have to clamp exponent to small positive value
-		angleAttenuation = pow(RR_CLAMPED(angleAttenuation,0,1),((distanceAttenuationType!=POLYNOMIAL)?SRGB2PHYS:1)*RR_MAX(spotExponent,1e-10f));
+		if (rtProjectedTexture)
+		{
+			RRCamera camera(position,RRVec3(0),1,RR_CLAMPED(RR_RAD2DEG(outerAngleRad)*2,0.0000001f,179.9f),0.01f,1000);
+			camera.setDirection(direction);
+			RRVec3 piw = camera.getPositionInViewport(receiverPosition);
+			result *= (piw.x>-1 && piw.x<1 && piw.y>-1 && piw.y<1 && piw.z>-1 && piw.z<1)
+				? rtProjectedTexture->getElementAtPosition(RRVec3(piw.x*0.5f+0.5f,piw.y*0.5f+0.5f,0),colorSpace,false)
+				: RRVec3(0);
+		}
+		else
+		{
+			RR_ASSERT(IS_NORMALIZED(direction)); // must be normalized, otherwise acos might return NaN
+			float angleCos = dot(direction,(receiverPosition-position+RRVec3(PREVENT_INF)).normalized());
+			float angleRad = acos(RR_CLAMPED(angleCos,-1,1)); // clamp prevents NaN from values like -1.0001 or +1.0001
+			RR_ASSERT(_finite(angleRad));
+			float angleAttenuation = (outerAngleRad-angleRad)/fallOffAngleRad;
+			//RR_ASSERT(_finite(angleAttenuation)); // may be +/-1.#INF after division by zero, but next line clamps it back to 0,1 range
+			// c++ defines pow(0,0)=1. we want 0, therefore we have to clamp exponent to small positive value
+			angleAttenuation = pow(RR_CLAMPED(angleAttenuation,0,1),((distanceAttenuationType!=POLYNOMIAL)?SRGB2PHYS:1)*RR_MAX(spotExponent,1e-10f));
+			result *= angleAttenuation;
+		}
 	}
 
-	RRVec3 result = color * (distanceAttenuation * angleAttenuation);
 	if (colorSpace && distanceAttenuationType==POLYNOMIAL)
 		colorSpace->toLinear(result);
 	RR_ASSERT(IS_VEC3(result));

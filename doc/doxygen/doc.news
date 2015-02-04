@@ -31,6 +31,8 @@ NEWS
   - replaces various lighting multipliers scattered around SDK (e.g. RRSolver::setDirectIlluminationBoost())
   - available in sceneViewer(), see GI panel / Multipliers
 - \ref main_vs "Visual Studio 2012 and 2013 integration"
+- full support for textures projected by light
+  - RRLight::rtProjectedTexture works in all situations, also in baking and in pathtracer
 - improved scene viewer
   - "Fire+path" technique added, automatically switches from Fireball to Pathtracer after 0.2s of inactivity
   - icons, xyz gizmo, mouse navigation work also in panorama modes
