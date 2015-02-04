@@ -256,15 +256,17 @@ namespace rr
 		//!  Point to shoot from.
 		//! \param object
 		//!  Optional, enables testing materials, rays don't stop when they go through transparent pixels.
+		//! \param shadowRays
+		//!  True if you wish to measure distance to the nearest shadow caster (even if it is invisible), rather than to visible object.
 		//! \param distanceMinMax
 		//!  Has to be initialized. distanceMinMax[0] is decreased whenever closer collision is found,
 		//!  distanceMinMax[1] is increased whenever farther collision is found.
 		//!  Stays unchanged when ray doesn't collide at all.
 		//! \param numRays
 		//!  Approximately how many rays it shoots (higher number = slower but more accurate).
-		void getDistancesFromPoint(const RRVec3& point, const RRObject* object, RRVec2& distanceMinMax, unsigned numRays = 300) const;
+		void getDistancesFromPoint(const RRVec3& point, const RRObject* object, bool shadowRays, RRVec2& distanceMinMax, unsigned numRays = 300) const;
 		//! Similar to getDistancesFromPoint, but shoots from camera.
-		void getDistancesFromCamera(const RRCamera& camera, const RRObject* object, RRVec2& distanceMinMax, unsigned numRays = 100) const;
+		void getDistancesFromCamera(const RRCamera& camera, const RRObject* object, bool shadowRays, RRVec2& distanceMinMax, unsigned numRays = 100) const;
 
 
 		//! \return Mesh that was passed to create().

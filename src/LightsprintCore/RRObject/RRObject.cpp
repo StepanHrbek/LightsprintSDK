@@ -484,7 +484,7 @@ void RRObject::updateIlluminationEnvMapCenter()
 
 RRCollisionHandler* RRObject::createCollisionHandlerFirstVisible() const
 {
-	return new RRCollisionHandlerFirstVisible(this);
+	return new RRCollisionHandlerFirstVisible(this,false);
 }
 
 

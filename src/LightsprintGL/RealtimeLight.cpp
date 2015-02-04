@@ -249,7 +249,7 @@ namespace rr_gl
 			if (rrlight.type==rr::RRLight::POINT)
 			{
 				// POINT
-				collider->getDistancesFromPoint(rrlight.position,object,distanceMinMax,numRays?numRays:300);
+				collider->getDistancesFromPoint(rrlight.position,object,true,distanceMinMax,numRays?numRays:300);
 			}
 			else
 			{
@@ -257,7 +257,7 @@ namespace rr_gl
 				rr::RRCamera shadowmapCamera;
 				for (unsigned i=0;i<getNumShadowmaps();i++)
 				{
-					collider->getDistancesFromCamera(getShadowmapCamera(i,shadowmapCamera),object,distanceMinMax,numRays?numRays:100);
+					collider->getDistancesFromCamera(getShadowmapCamera(i,shadowmapCamera),object,true,distanceMinMax,numRays?numRays:100);
 				}
 			}
 			if (distanceMinMax[1]>=distanceMinMax[0]

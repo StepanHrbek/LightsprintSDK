@@ -21,9 +21,10 @@ namespace rr
 class RRCollisionHandlerFirstVisible : public RRCollisionHandler
 {
 public:
-	RRCollisionHandlerFirstVisible(const RRObject* _object)
+	RRCollisionHandlerFirstVisible(const RRObject* _object, bool _shadowRays)
 	{
 		object = _object;
+		shadowRays = _shadowRays;
 	}
 	virtual void init(RRRay* ray)
 	{
@@ -42,7 +43,9 @@ public:
 
 		RRPointMaterial pointMaterial;
 		objectToReadMaterialFrom->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,NULL,false,pointMaterial); // custom is sufficient, no colorSpace needed
-		if (pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom
+		if ( (pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom
+			 || (shadowRays && pointMaterial.sideBits[ray->hitFrontSide?1:0].renderFrom) // [#]
+			)
 			// This makes selecting in sceneviewer see through transparent pixels, they don't have renderFrom cleared.
 			&& pointMaterial.specularTransmittance.color!=RRVec3(1))
 			return result = true;
@@ -55,6 +58,7 @@ public:
 private:
 	bool result;
 	const RRObject* object;
+	bool shadowRays;
 };
 
 

@@ -59,6 +59,10 @@ CHANGES
   - RRCamera::getPositionInClipSpace() added
   - RRCamera::getPositionInViewport() replaces RRCamera::getPositionInWindow(), returns also depth
   - RRCamera::getRay() replaces getRayOrigin() and getRayDirection(). y parameter was negated, to make it compatible with RRCamera::getPositionInViewport()
+  - RRCamera::setRangeDynamically() has new parameter shadowRays
+- RRCollider
+  - RRCollider::getDistancesFromCamera() has new parameter shadowRays
+  - RRCollider::getDistancesFromPoint() has new parameter shadowRays
 - RRLight
   - PHYSICAL renamed to REALISTIC
 - RRObjects
