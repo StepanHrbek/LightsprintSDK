@@ -363,13 +363,16 @@ void SVCanvas::createContextCore()
 		switch (svs.renderLightIndirect)
 		{
 			case LI_REALTIME_FIREBALL:
-			case LI_PATHTRACED_FIREBALL:
 				// try to load FB. if not found, create it
 				svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL);
 				break;
 			case LI_REALTIME_ARCHITECT:
 				// create architect
 				svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT);
+				break;
+			case LI_PATHTRACED_FIREBALL:
+				svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL);
+				svs.renderLightIndirect = LI_PATHTRACED_FIREBALL;
 				break;
 			default:
 				// no action needed for other modes. just to avoid warning
