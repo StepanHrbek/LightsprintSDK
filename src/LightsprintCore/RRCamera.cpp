@@ -665,7 +665,7 @@ void RRLight::blendLinear(const RRLight& sample0, const RRLight& sample1, RRReal
 	enabled = sample0.enabled;
 	castShadows = sample0.castShadows;
 	directLambertScaled = sample0.directLambertScaled;
-	//rtProjectedTexture = sample0.rtProjectedTexture ? a.rtProjectedTexture->createReference() : NULL;
+	//projectedTexture = sample0.projectedTexture ? a.projectedTexture->createReference() : NULL;
 	rtNumShadowmaps = sample0.rtNumShadowmaps;
 	rtShadowmapSize = sample0.rtShadowmapSize;
 	rtShadowmapBias = blendNormal(sample0.rtShadowmapBias,sample1.rtShadowmapBias,blend);

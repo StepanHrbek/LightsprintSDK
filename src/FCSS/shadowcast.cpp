@@ -301,7 +301,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	ppShared.brightness = currentFrame.brightness;
 	ppShared.gamma = currentFrame.gamma;
 	demoPlayer->getBoost(ppShared.brightness,ppShared.gamma);
-	rrLight->rtProjectedTexture = demoPlayer->getProjector(currentFrame.projectorIndex);
+	rrLight->projectedTexture = demoPlayer->getProjector(currentFrame.projectorIndex);
 
 	level->solver->getRenderer()->render(captureVideo?(rr_gl::PluginParams*)&ppScene:(rr_gl::PluginParams*)&ppFPS,ppShared);
 }

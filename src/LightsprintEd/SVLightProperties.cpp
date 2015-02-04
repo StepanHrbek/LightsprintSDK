@@ -90,9 +90,9 @@ void SVLightProperties::setLight(rr_gl::RealtimeLight* _rtlight, int _precision)
 		}
 		{
 			propTexture = new ImageFileProperty(_("Projected texture or video"),_("Texture or video projected by light. Both color and texture are applied. Type in c@pture to project live video input."));
-			updateString(propTexture,getTextureDescription(light->rtProjectedTexture));
+			updateString(propTexture,getTextureDescription(light->projectedTexture));
 			Append(propTexture);
-			propTexture->updateIcon(light->rtProjectedTexture);
+			propTexture->updateIcon(light->projectedTexture);
 			//SetPropertyAttribute( _("FileProperty"), wxPG_FILE_WILDCARD, _("All files")+": (*.*)|*.*" );
 
 			propTextureChangeAffectsGI = new wxBoolProperty(_("Realtime GI from projected video"), wxPG_LABEL, rtlight->changesInProjectedTextureAffectGI);
@@ -173,7 +173,7 @@ void SVLightProperties::updateHide()
 	propOuterAngle->Hide(light->type!=rr::RRLight::SPOT,false);
 	propRadius->Hide(light->distanceAttenuationType!=rr::RRLight::EXPONENTIAL,false);
 	propTexture->Hide(light->type!=rr::RRLight::SPOT,false);
-	propTextureChangeAffectsGI->Hide(!light->rtProjectedTexture,false);
+	propTextureChangeAffectsGI->Hide(!light->projectedTexture,false);
 	propDistanceAttType->Hide(light->type==rr::RRLight::DIRECTIONAL,false);
 	propConstant->Hide(light->distanceAttenuationType!=rr::RRLight::POLYNOMIAL,false);
 	propLinear->Hide(light->distanceAttenuationType!=rr::RRLight::POLYNOMIAL,false);
@@ -298,7 +298,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propTexture)
 	{
-		propTexture->updateBufferAndIcon(light->rtProjectedTexture,svs.playVideos);
+		propTexture->updateBufferAndIcon(light->projectedTexture,svs.playVideos);
 		updateHide();
 		rtlight->dirtyShadowmap = true;
 		rtlight->dirtyGI = true;

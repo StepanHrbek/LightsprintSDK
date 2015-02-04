@@ -89,14 +89,14 @@ namespace rr
 
 		//! Projected texture.
 		//
-		//! Relevant only for realtime renderer (has rt prefix), only for type=SPOT.
+		//! Relevant only for type=SPOT.
 		//! You may set/change it at any time, renderer updates automatically.
 		//!
 		//! Works as a replacement for spotlight parameters outerAngleRad, fallOffAngleRad, spotExponent. 
 		//! When set, realtime spotlight is modulated only by texture.
 		//!
 		//! When you set texture, ownership is passed to light, light deletes texture in destructor.
-		RRBuffer* rtProjectedTexture;
+		RRBuffer* projectedTexture;
 
 		//! Types of distance attenuation. Defines how light color is computed for given distance.
 		enum DistanceAttenuationType
@@ -208,7 +208,7 @@ namespace rr
 		//! Assignment (default one would not increase projected texture refcount).
 		const RRLight& operator=(const RRLight&);
 		//! Destruct light.
-		virtual ~RRLight() {delete rtProjectedTexture;}
+		virtual ~RRLight() {delete projectedTexture;}
 
 
 		//////////////////////////////////////////////////////////////////////////////

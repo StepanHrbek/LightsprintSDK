@@ -636,7 +636,7 @@ void serialize(Archive & ar, rr::RRLight& a, const unsigned int version)
 	ar & make_nvp("spotExponent",a.spotExponent);
 	ar & make_nvp("fallOffAngleRad",a.fallOffAngleRad);
 	ar & make_nvp("castShadows",a.castShadows);
-	ar & make_nvp("rtProjectedTexture",prefix_buffer(a.rtProjectedTexture)); postfix_buffer(Archive,a.rtProjectedTexture);
+	ar & make_nvp("rtProjectedTexture",prefix_buffer(a.projectedTexture)); postfix_buffer(Archive,a.projectedTexture);
 	if (version<1)
 	{
 		float rtMaxShadowSize;

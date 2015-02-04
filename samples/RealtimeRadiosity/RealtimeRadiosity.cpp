@@ -436,9 +436,9 @@ int main(int argc, char** argv)
 	// init light
 	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(0.4f,0.2f,1),RR_DEG2RAD(30),0.1f);
 	// project texture
-	//rrlight->rtProjectedTexture = rr::RRBuffer::load("../../data/maps/spot0.png");
+	//rrlight->projectedTexture = rr::RRBuffer::load("../../data/maps/spot0.png");
 	// Project video. You can do this in any other sample or context, simply use video instead of image, then call play().
-	rrlight->rtProjectedTexture = rr::RRBuffer::load("../../data/video/Televisi1960.avi");
+	rrlight->projectedTexture = rr::RRBuffer::load("../../data/video/Televisi1960.avi");
 	rrlight->rtShadowmapSize = 512;
 	rr::RRLights rrlights;
 	rrlights.push_back(rrlight);
@@ -452,8 +452,8 @@ int main(int argc, char** argv)
 	solver->loadFireball("",true) || solver->buildFireball(5000,"");
 
 	// start playing video
-	if (rrlight->rtProjectedTexture)
-		rrlight->rtProjectedTexture->play();
+	if (rrlight->projectedTexture)
+		rrlight->projectedTexture->play();
 
 	rr::RRReporter::report(rr::INF2,
 		"\n"

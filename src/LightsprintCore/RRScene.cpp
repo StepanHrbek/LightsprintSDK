@@ -494,7 +494,7 @@ void RRScene::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsign
 		set.insert(_buffers[i]);
 	// - maps from lights
 	for (unsigned i=0;i<lights.size();i++)
-		set.insert(lights[i]->rtProjectedTexture);
+		set.insert(lights[i]->projectedTexture);
 	// - maps from materials
 	/* shorter but slower (more allocations)
 	RRMaterials materials;

@@ -1259,8 +1259,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						else
 						{
 							// to be deleted, stop video playback
-							if (solver->getLights()[lightIndex]->rtProjectedTexture)
-								solver->getLights()[lightIndex]->rtProjectedTexture->stop();
+							if (solver->getLights()[lightIndex]->projectedTexture)
+								solver->getLights()[lightIndex]->projectedTexture->stop();
 						}
 					if (newList.size()!=solver->getLights().size())
 					{

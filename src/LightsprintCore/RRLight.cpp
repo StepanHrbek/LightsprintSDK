@@ -271,7 +271,7 @@ RRLight::RRLight()
 	enabled	= true;
 	castShadows = true;
 	directLambertScaled = false;
-	rtProjectedTexture = NULL;
+	projectedTexture = NULL;
 	rtNumShadowmaps = 6;
 	rtShadowmapSize = 1024;
 	rtShadowmapBias = RRVec2(1);
@@ -295,7 +295,7 @@ RRLight::RRLight(const RRLight& a)
 	enabled	= a.enabled;
 	castShadows = a.castShadows;
 	directLambertScaled = a.directLambertScaled;
-	rtProjectedTexture = a.rtProjectedTexture ? a.rtProjectedTexture->createReference() : NULL;
+	projectedTexture = a.projectedTexture ? a.projectedTexture->createReference() : NULL;
 	rtNumShadowmaps = a.rtNumShadowmaps;
 	rtShadowmapSize = a.rtShadowmapSize;
 	rtShadowmapBias = a.rtShadowmapBias;
@@ -319,10 +319,10 @@ const RRLight& RRLight::operator=(const RRLight& a)
 	enabled	= a.enabled;
 	castShadows = a.castShadows;
 	directLambertScaled = a.directLambertScaled;
-	if (rtProjectedTexture!=a.rtProjectedTexture)
+	if (projectedTexture!=a.projectedTexture)
 	{
-		delete rtProjectedTexture;
-		rtProjectedTexture = a.rtProjectedTexture ? a.rtProjectedTexture->createReference() : NULL;
+		delete projectedTexture;
+		projectedTexture = a.projectedTexture ? a.projectedTexture->createReference() : NULL;
 	}
 	rtNumShadowmaps = a.rtNumShadowmaps;
 	rtShadowmapSize = a.rtShadowmapSize;
@@ -376,13 +376,13 @@ RRVec3 RRLight::getIrradiance(const RRVec3& receiverPosition, const RRColorSpace
 
 	if (type==SPOT)
 	{
-		if (rtProjectedTexture)
+		if (projectedTexture)
 		{
 			RRCamera camera(position,RRVec3(0),1,RR_CLAMPED(RR_RAD2DEG(outerAngleRad)*2,0.0000001f,179.9f),0.01f,1000);
 			camera.setDirection(direction);
 			RRVec3 piw = camera.getPositionInViewport(receiverPosition);
 			result *= (piw.x>-1 && piw.x<1 && piw.y>-1 && piw.y<1 && piw.z>-1 && piw.z<1)
-				? rtProjectedTexture->getElementAtPosition(RRVec3(piw.x*0.5f+0.5f,piw.y*0.5f+0.5f,0),colorSpace,false)
+				? projectedTexture->getElementAtPosition(RRVec3(piw.x*0.5f+0.5f,piw.y*0.5f+0.5f,0),colorSpace,false)
 				: RRVec3(0);
 		}
 		else
@@ -426,7 +426,7 @@ bool RRLight::operator ==(const RRLight& a) const
 		&& a.castShadows==castShadows
 		&& a.directLambertScaled==directLambertScaled
 		&& a.name==name
-		&& a.rtProjectedTexture==rtProjectedTexture
+		&& a.projectedTexture==projectedTexture
 		&& a.rtNumShadowmaps==rtNumShadowmaps
 		&& a.customData==customData
 		;

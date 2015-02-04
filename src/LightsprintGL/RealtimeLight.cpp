@@ -93,7 +93,7 @@ namespace rr_gl
 			return NULL;
 		}
 		// Automatically dirty GI if texture changes.
-		rr::RRBuffer* buffer = getRRLight().rtProjectedTexture;
+		rr::RRBuffer* buffer = getRRLight().projectedTexture;
 		if (changesInProjectedTextureAffectGI && buffer)
 		{
 			const Texture* oldTexture = (Texture*)buffer->customData;

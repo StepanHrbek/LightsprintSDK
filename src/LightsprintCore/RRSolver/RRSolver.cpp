@@ -582,7 +582,7 @@ void RRSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsig
 		set.insert(_buffers[i]);
 	// - maps from lights
 	for (unsigned i=0;i<getLights().size();i++)
-		set.insert(getLights()[i]->rtProjectedTexture);
+		set.insert(getLights()[i]->projectedTexture);
 	// - maps from materials
 	/* shorter but slower (more allocations)
 	RRMaterials materials;
