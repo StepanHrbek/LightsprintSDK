@@ -93,7 +93,7 @@ namespace rr
 		//! You may set/change it at any time, renderer updates automatically.
 		//!
 		//! Works as a replacement for spotlight parameters outerAngleRad, fallOffAngleRad, spotExponent. 
-		//! When set, realtime spotlight is modulated only by texture.
+		//! When set, spotlight is modulated by both texture and color.
 		//!
 		//! When you set texture, ownership is passed to light, light deletes texture in destructor.
 		RRBuffer* projectedTexture;
@@ -155,7 +155,7 @@ namespace rr
 		//! Enables workaround for error in game engines.
 		//
 		//! False = realistic lighting, default.
-		//! True = copy error that is present in 99% of game engines,
+		//! True = copy error that used to be present in 99% of game engines,
 		//! calculate direct Lambertian reflection in sRGB, make offline calculated
 		//! lightmaps more similar to realtime lighting in game engines.
 		//! Affects offline solver only, realtime solvers integrate with arbitrary direct
