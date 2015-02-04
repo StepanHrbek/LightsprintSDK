@@ -246,7 +246,7 @@ done:
 			// Default constructor sets nearly all off, perfect for shadowmap.
 			// MATERIAL_TRANSPARENCY_BLEND is off because it would trigger distance sorting which we don't need,
 			//  not even for rgb shadows (they multiply each other, order doesn't matter).
-			// MATERIAL_CULLING is off because rendering both sides reduces shadow bias problem. And 1-sided faces are often expected to cast shadow in both directions.
+			// [#45] MATERIAL_CULLING is off because rendering both sides reduces shadow bias problem. And 1-sided faces are often expected to cast shadow in both directions.
 			//  Even if we put it on, honourOfflineFlags in RendererOfMesh will turn it off for virtually all materials.
 			UberProgramSetup uberProgramSetup;
 			switch(light->shadowTransparencyActual)

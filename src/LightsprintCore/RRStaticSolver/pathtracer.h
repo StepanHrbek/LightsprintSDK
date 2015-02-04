@@ -98,7 +98,7 @@ public:
 	}
 
 	// Tests one side after setHemisphere(), two sides after setLight().
-	#define TEST_BIT(material,bit) ((material)->sideBits[ray->hitFrontSide?0:1].bit || (light && (material)->sideBits[ray->hitFrontSide?1:0].bit))
+	#define TEST_BIT(material,bit) ((material)->sideBits[ray->hitFrontSide?0:1].bit || (light && (material)->sideBits[ray->hitFrontSide?1:0].bit)) // [#45] shadowRays collide with both sides
 
 	virtual void init(RRRay* ray)
 	{
