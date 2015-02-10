@@ -196,17 +196,24 @@ static void copyBufferToVBO(rr::RRBuffer* buffer, unsigned VBO)
 	RR_ASSERT(buffer);
 	RR_ASSERT(buffer->getType()==rr::BT_VERTEX_BUFFER);
 	RR_ASSERT(VBO);
-	const unsigned char* data = buffer->lock(rr::BL_READ);
-	if (data)
+	if (buffer && buffer->getType()==rr::BT_VERTEX_BUFFER && VBO)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, buffer->getBufferBytes(), data, GL_STREAM_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		buffer->unlock();
+		const unsigned char* data = buffer->lock(rr::BL_READ);
+		if (data)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, buffer->getBufferBytes(), data, GL_STREAM_DRAW);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			buffer->unlock();
+		}
+		else
+		{
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Rendering empty (or unlockable) vertex buffer.\n"));
+		}
 	}
 	else
 	{
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Rendering empty (or unlockable) vertex buffer.\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"copyBufferToVBO invalid arguments.\n"));
 	}
 }
 
@@ -326,6 +333,11 @@ void MeshArraysVBOs::renderMesh(
 			void bindUvChannel(const rr::RRVector<unsigned>& _texcoordVBO, unsigned _vaa, unsigned _uvChannel, const rr::RRBuffer* _buffer, const rr::RRString& _objectName, const rr::RRString& _materialName)
 			{
 				RR_ASSERT(_vaa<=VAA_UV_LAST);
+				if (_vaa>VAA_UV_LAST)
+				{
+					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"bindUvChannel invalid arguments.\n"));
+					return;
+				}
 				if (boundUvChannel[_vaa]==_uvChannel)
 				{
 					// already set
