@@ -135,7 +135,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 		for (int i=0;i<argc;i++)
 		{
 			argv[i] = (char*)malloc(wcslen(argvw[i])+1);
-			sprintf(argv[i], "%ws", argvw[i]);
+			if (argv[i])
+				sprintf(argv[i], "%ws", argvw[i]);
 		}
 		argv[argc] = NULL;
 		return main(argc,argv);

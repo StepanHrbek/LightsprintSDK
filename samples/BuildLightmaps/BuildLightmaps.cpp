@@ -729,7 +729,8 @@ int parseCommandline(const wchar_t* commandline)
 		for (int i=0;i<argc;i++)
 		{
 			argv[i] = (char*)malloc(wcslen(argvw[i])+1);
-			sprintf(argv[i], "%ws", argvw[i]);
+			if (argv[i])
+				sprintf(argv[i], "%ws", argvw[i]);
 		}
 		argv[argc] = NULL;
 		if (argvw && argc==2 && argvw[1][0]=='@')
