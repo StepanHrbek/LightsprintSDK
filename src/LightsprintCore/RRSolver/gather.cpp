@@ -166,6 +166,7 @@ class GatheredIrradianceHemisphere
 public:
 	// once before shooting (quick init that computes 'rays')
 	// inputs:
+	//  - pti.context.params
 	//  - pti.ray[0]
 	//  - pti.tri.triangleIndex
 	GatheredIrradianceHemisphere(const GatheringTools& _tools, const ProcessTexelParams& _pti) :
@@ -380,7 +381,7 @@ public:
 			const RRLights& allLights = _pti.context.solver->getLights();
 			const RRObject* multiObject = _pti.context.solver->getMultiObject();
 			for (unsigned i=0;i<allLights.size();i++)
-				if (allLights[i]->enabled && multiObject->getTriangleMaterial(_pti.subTexels->begin()->multiObjPostImportTriIndex,allLights[i],NULL))
+				if (allLights[i]->enabled && _pti.subTexels && multiObject->getTriangleMaterial(_pti.subTexels->begin()->multiObjPostImportTriIndex,allLights[i],NULL))
 				{
 					pti.relevantLights[numRelevantLights++] = allLights[i];
 				}
