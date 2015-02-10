@@ -1026,7 +1026,7 @@ void Scene::shotFromToHalfspace(ShootingKernel* shootingKernel,Triangle* sourceN
 	RRReal cosa = sqrt(1-tmp);
 	// emit only inside?
 	// emit to both sides?
-	if (sourceNode->surface->sideBits[1].emitTo && (!sourceNode->surface->sideBits[0].emitTo || (RAND%2)))
+	if (sourceNode->surface && sourceNode->surface->sideBits[1].emitTo && (!sourceNode->surface->sideBits[0].emitTo || (RAND%2)))
 		cosa = -cosa;
 	// don't emit?
 	//  this case is catched in Reflectors::insert()
