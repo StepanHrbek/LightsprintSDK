@@ -869,14 +869,15 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 
 	if (priv->dirtyCustomIrradiance)
 	{
-		REPORT(RRReportInterval report(INF3,"Updating solver energies...\n"));
 		if (priv->packedSolver)
 		{
+			REPORT(RRReportInterval report(INF3,"Reset FB illum...\n"));
 			priv->packedSolver->illuminationReset(priv->customIrradianceRGBA8,priv->customToPhysical);
 		}
 		else
 		if (priv->scene)
 		{
+			REPORT(RRReportInterval report(INF3,"Reset Arch illum...\n"));
 			priv->scene->illuminationReset(false,true,_params->materialEmittanceMultiplier,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
 		}
 		priv->solutionVersion++;
@@ -887,10 +888,10 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 		priv->dirtyCustomIrradiance = false;
 	}
 
-	REPORT(RRReportInterval report(INF3,"Radiosity...\n"));
 	RRTime now;
 	if (priv->packedSolver)
 	{
+		REPORT(RRReportInterval report(INF3,"Improve FB illum...\n"));
 		unsigned oldVer = priv->packedSolver->getSolutionVersion();
 
 		// when video affects GI, we must avoid additional improves (video 15fps + our window 30fps = every odd frame would be more improved, brighter)
@@ -906,6 +907,7 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 	else
 	if (priv->scene)
 	{
+		REPORT(RRReportInterval report(INF3,"Improve Arch illum...\n"));
 		EndByTime endByTime;
 		endByTime.aborting = &aborting;
 		endByTime.endTime.addSeconds(improveStep);
