@@ -197,12 +197,15 @@ int my_hface(int ac,char** av)
 		vertex[i-1]=vp->client_data;
 	}
 	RR_ASSERT(c_cmaterial);
-	if (c_cmaterial->clock!=-1)
+	if (c_cmaterial)
 	{
-		c_cmaterial->clock=-1;
-		c_cmaterial->client_data=(char *)add_material(c_cmaterial);
+		if (c_cmaterial->clock!=-1)
+		{
+			c_cmaterial->clock=-1;
+			c_cmaterial->client_data=(char *)add_material(c_cmaterial);
+		}
+		add_polygon(ac-1,vertex,c_cmaterial->client_data);
 	}
-	add_polygon(ac-1,vertex,c_cmaterial->client_data);
 	delete[] vertex;
 	return(MG_OK);
 }
