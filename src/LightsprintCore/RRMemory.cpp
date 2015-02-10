@@ -105,11 +105,14 @@ RRString::RRString(const RRString& a)
 		size_t bytes1 = (char*)a.wstr-a.str;
 		size_t bytes2 = (wcslen(a.wstr)+1)*sizeof(wchar_t);
 		str = (char*)malloc(bytes1+bytes2);
+		if (!str)
+			goto fail;
 		memcpy(str,a.str,bytes1+bytes2);
 		wstr = (wchar_t*)(str+bytes1);
 	}
 	else
 	{
+		fail:
 		str = NULL;
 		wstr = NULL;
 	}
@@ -125,6 +128,8 @@ RRString::RRString(const char* a)
 		RR_ASSERT(bytes1>0);
 		RR_ASSERT(bytes2>0);
 		str = (char*)malloc(bytes1+bytes2);
+		if (!str)
+			goto fail;
 		wstr = (wchar_t*)(str+bytes1);
 		memcpy(str,a,bytes1);
 		size_t result = mbstowcs(wstr,a,wchars); // VS2008 runtime sometimes fails if third parameter is INT_MAX
@@ -136,6 +141,7 @@ RRString::RRString(const char* a)
 	}
 	else
 	{
+		fail:
 		str = NULL;
 		wstr = NULL;
 	}
@@ -150,6 +156,8 @@ RRString::RRString(const wchar_t* a)
 		RR_ASSERT(bytes1>0);
 		RR_ASSERT(bytes2>0);
 		str = (char*)malloc(bytes1+bytes2);
+		if (!str)
+			goto fail;
 		wstr = (wchar_t*)(str+bytes1);
 		memcpy(wstr,a,bytes2);
 		mbstate_t mbstate;
@@ -169,6 +177,7 @@ RRString::RRString(const wchar_t* a)
 	}
 	else
 	{
+		fail:
 		str = NULL;
 		wstr = NULL;
 	}
