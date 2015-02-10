@@ -47,7 +47,9 @@ static RRVec3 convertPos(const float* a)
 TVertex TVertex::operator+(const TVertex& a) const
 {
 	TVertex result;
-	for (unsigned i=0;i<10;i++) result.mPosition[i] = (RRReal)(mPosition[i]+a.mPosition[i]);
+	for (unsigned i=0;i<3;i++) result.mPosition[i] = (RRReal)(mPosition[i]+a.mPosition[i]);
+	for (unsigned i=0;i<4;i++) result.mTexCoord[i/2][i%2] = (RRReal)(mTexCoord[i/2][i%2]+a.mTexCoord[i/2][i%2]);
+	for (unsigned i=0;i<3;i++) result.mNormal[i] = (RRReal)(mNormal[i]+a.mNormal[i]);
 	for (unsigned i=0;i<4;i++) result.mColor[i] = (unsigned char)RR_CLAMPED(mColor[i]+a.mColor[i],0,255);
 	return result;
 }
@@ -55,7 +57,9 @@ TVertex TVertex::operator+(const TVertex& a) const
 TVertex TVertex::operator*(double a) const
 {
 	TVertex result;
-	for (unsigned i=0;i<10;i++) result.mPosition[i] = (RRReal)(mPosition[i]*a);
+	for (unsigned i=0;i<3;i++) result.mPosition[i] = (RRReal)(mPosition[i]*a);
+	for (unsigned i=0;i<4;i++) result.mTexCoord[i/2][i%2] = (RRReal)(mTexCoord[i/2][i%2]*a);
+	for (unsigned i=0;i<3;i++) result.mNormal[i] = (RRReal)(mNormal[i]*a);
 	for (unsigned i=0;i<4;i++) result.mColor[i] = (unsigned char)RR_CLAMPED(mColor[i]*a,0,255);
 	return result;
 }
