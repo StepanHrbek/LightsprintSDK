@@ -173,6 +173,11 @@ void RRMaterial::reset(bool twoSided)
 RRVec4 getVariance(const RRBuffer* buffer, const RRColorSpace* colorSpace, RRVec4& average)
 {
 	RR_ASSERT(buffer);
+	if (!buffer)
+	{
+		average = RRVec4(0);
+		return RRVec4(0);
+	}
 	if (buffer->getDuration())
 	{
 		// video changes in time, ignore current frame and return average gray
@@ -317,6 +322,8 @@ static RRReal getBlendImportance(RRBuffer* transmittanceTexture, bool opacityInA
 {
 	RRReal blendImportanceSum = 0;
 	RR_ASSERT(transmittanceTexture);
+	if (!transmittanceTexture)
+		return 0;
 	if (transmittanceTexture->getDuration())
 	{
 		// video changes in time, ignore current frame and blend
@@ -556,7 +563,7 @@ RRVec3 refract(const RRVec3& I, const RRVec3& N, float eta)
 RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m)
 {
 	RR_ASSERT(m);
-	if (m->sideBits[0].receiveFrom && m->sideBits[1].receiveFrom) // testing .reflect instead of .receiveFrom broke caustic under glass sphere in scene5.mgf because updateSideBitsFromColors() sets .reflect even for back of 1sided face, sphere was treated as bubble
+	if (!m || (m->sideBits[0].receiveFrom && m->sideBits[1].receiveFrom)) // testing .reflect instead of .receiveFrom broke caustic under glass sphere in scene5.mgf because updateSideBitsFromColors() sets .reflect even for back of 1sided face, sphere was treated as bubble
 	{
 		// 2sided faces simulate thin layer, don't change light direction
 		return I;
