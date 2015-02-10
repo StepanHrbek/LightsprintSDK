@@ -329,13 +329,15 @@ public:
 	{
 		RR_ASSERT(g_serializationRuntime);
 		buffer = NULL;
-		g_serializationRuntime->bufferProxyInstances.insert(this);
+		if (g_serializationRuntime)
+			g_serializationRuntime->bufferProxyInstances.insert(this);
 	}
 	~RRBufferProxy()
 	{
 		RR_ASSERT(g_serializationRuntime);
 		delete buffer; // all unique buffers are created and deleted once
-		g_serializationRuntime->bufferProxyInstances.erase(this);
+		if (g_serializationRuntime)
+			g_serializationRuntime->bufferProxyInstances.erase(this);
 	}
 };
 
@@ -376,10 +378,15 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 	{
 		fixPath(filename);
 		RR_ASSERT(g_serializationRuntime);
-		if (g_serializationRuntime->nextBufferIsCube)
-			a.buffer = rr::RRBuffer::loadCube(filename,g_serializationRuntime->textureLocator);
+		if (g_serializationRuntime)
+		{
+			if (g_serializationRuntime->nextBufferIsCube)
+				a.buffer = rr::RRBuffer::loadCube(filename,g_serializationRuntime->textureLocator);
+			else
+				a.buffer = rr::RRBuffer::load(filename,NULL,g_serializationRuntime->textureLocator);
+		}
 		else
-			a.buffer = rr::RRBuffer::load(filename,NULL,g_serializationRuntime->textureLocator);
+			a.buffer = NULL;
 	}
 }
 
@@ -786,12 +793,14 @@ public:
 	RRMeshProxy()
 	{
 		RR_ASSERT(g_serializationRuntime);
-		g_serializationRuntime->meshProxyInstances.insert(this);
+		if (g_serializationRuntime)
+			g_serializationRuntime->meshProxyInstances.insert(this);
 	}
 	~RRMeshProxy()
 	{
 		RR_ASSERT(g_serializationRuntime);
-		g_serializationRuntime->meshProxyInstances.erase(this);
+		if (g_serializationRuntime)
+			g_serializationRuntime->meshProxyInstances.erase(this);
 	}
 };
 
@@ -1050,12 +1059,15 @@ template<class Archive>
 void serialize(Archive & ar, rr::RRScene& a, const unsigned int version)
 {
 	RR_ASSERT(g_serializationRuntime);
-	g_serializationRuntime->nextBufferIsCube = false;
+	if (g_serializationRuntime)
+		g_serializationRuntime->nextBufferIsCube = false;
 	ar & make_nvp("objects",a.objects);
 	ar & make_nvp("lights",a.lights);
-	g_serializationRuntime->nextBufferIsCube = true; // global is not thread safe, don't load two .rr3 at once
+	if (g_serializationRuntime)
+		g_serializationRuntime->nextBufferIsCube = true; // global is not thread safe, don't load two .rr3 at once
 	ar & make_nvp("environment",prefix_buffer(a.environment)); postfix_buffer(Archive,a.environment);
-	g_serializationRuntime->nextBufferIsCube = false;
+	if (g_serializationRuntime)
+		g_serializationRuntime->nextBufferIsCube = false;
 	if (version>0)
 	{
 		ar & make_nvp("cameras",a.cameras);
