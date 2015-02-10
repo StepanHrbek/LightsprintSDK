@@ -80,10 +80,13 @@ PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::Pa
 
 // material, ray.hitObject, ray.hitTriangle, ray.hitPoint2d -> normal
 // Lightsprint RRVec3(hitPlane) is normalized, goes from front side. point normal also goes from front side
-static RRVec3 getPointNormal(const RRRay& ray, const RRMaterial* material, bool interpolated)
+// returns whether result was set
+static bool getPointNormal(const RRRay& ray, const RRMaterial* material, bool interpolated, RRVec3& result)
 {
 	RR_ASSERT(ray.hitObject);
 	RR_ASSERT(material);
+	if (!ray.hitObject || !material)
+		return false;
 
 	// calculate interpolated objectspace normal
 	const RRMesh* mesh = ray.hitObject->getCollider()->getMesh();
@@ -125,7 +128,8 @@ static RRVec3 getPointNormal(const RRRay& ray, const RRMaterial* material, bool 
 	const RRMatrix3x4Ex* wm = ray.hitObject->getWorldMatrix();
 	// either we work with world-space mesh that was already transformed in RRTransformedMeshFilter
 	// or it's localspace and we transform normal here using the same code as in RRTransformedMeshFilter
-	return wm ? wm->getTransformedNormal(objectNormal).normalized() : objectNormal;
+	result = wm ? wm->getTransformedNormal(objectNormal).normalized() : objectNormal;
+	return true;
 }
 
 RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& direction, const RRObject* shooterObject, unsigned shooterTriangle, RRVec3 visibility, unsigned numBounces)
@@ -180,7 +184,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		RRVec3 faceNormal = ray.hitPlane;
 		RRVec3 pixelNormal = faceNormal;
 		if (numBounces<parameters.useFlatNormalsSinceDepth)
-			pixelNormal = getPointNormal(ray,material,true);
+			getPointNormal(ray,material,true,pixelNormal);
 
 		// normals go from hit side now
 		if (!ray.hitFrontSide)
