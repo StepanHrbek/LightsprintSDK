@@ -146,7 +146,7 @@ public:
 	GatheringTools(const ProcessTexelParams& pti)
 	{
 		collider = pti.context.solver->getMultiObject()->getCollider();
-		environment = pti.context.params->indirect.environmentMultiplier ? pti.context.solver->getEnvironment() : NULL;
+		environment = pti.context.params.indirect.environmentMultiplier ? pti.context.solver->getEnvironment() : NULL;
 		fillerPos.Reset(pti.resetFiller);
 	}
 
@@ -175,20 +175,17 @@ public:
 			_pti.context,
 			pathTracingParameters,
 			_pti.context.staticSceneContainsLods,
-			_pti.context.params->quality,
+			_pti.context.params.quality,
 			0) // 0 turns off interpolation in lightmap baking (for all but shadow rays), UINT_MAX would enforce it
 	{
-		if (_pti.context.params)
-		{
-			pathTracingParameters.direct = _pti.context.params->indirect; // both direct+indirect multipliers taken from single indirect source
-			pathTracingParameters.indirect = _pti.context.params->indirect; // it's ok, because this code runs at least 1 bounce from eye, all is indirect
-			pathTracingParameters.brdfTypes = RRMaterial::BRDF_ALL;
-			// bake with the fastest and the least noisy options (also the least realistic, corners have to be artificially darkened with aoIntensity/aoSize)
-			// keeping UINT_MAX should naturally darken corners, but noise makes it useless
-			pathTracingParameters.useFlatNormalsSinceDepth = 0;
-			pathTracingParameters.useSolverDirectSinceDepth = 0;
-			pathTracingParameters.useSolverIndirectSinceDepth = 0;
-		}
+		pathTracingParameters.direct = _pti.context.params.indirect; // both direct+indirect multipliers taken from single indirect source
+		pathTracingParameters.indirect = _pti.context.params.indirect; // it's ok, because this code runs at least 1 bounce from eye, all is indirect
+		pathTracingParameters.brdfTypes = RRMaterial::BRDF_ALL;
+		// bake with the fastest and the least noisy options (also the least realistic, corners have to be artificially darkened with aoIntensity/aoSize)
+		// keeping UINT_MAX should naturally darken corners, but noise makes it useless
+		pathTracingParameters.useFlatNormalsSinceDepth = 0;
+		pathTracingParameters.useSolverDirectSinceDepth = 0;
+		pathTracingParameters.useSolverIndirectSinceDepth = 0;
 
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
 		// used by processTexel even when not shooting to hemisphere
@@ -196,7 +193,7 @@ public:
 			irradiancePhysicalHemisphere[i] = RRVec3(0);
 		bentNormalHemisphere = RRVec3(0);
 		reliabilityHemisphere = 0;
-		rays = (tools.environment || pti.context.params->indirect.materialEmittanceMultiplier!=0 || pti.context.params->useCurrentSolution) ? RR_MAX(1,pti.context.params->quality) : 0;
+		rays = (tools.environment || pti.context.params.indirect.materialEmittanceMultiplier!=0 || pti.context.params.useCurrentSolution) ? RR_MAX(1,pti.context.params.quality) : 0;
 		pathtracerWorker.ray.rayLengthMin = pti.rayLengthMin;
 	}
 
@@ -220,7 +217,7 @@ public:
 		maxSingleRayContribution = 0; // max sum of all irradiance components in physical scale
 		// init ray
 		//pti.rays[0].rayLengthMin = 0; // Our caller already set rayLengthMin to nice small value, keep it. Small bias is important for UE3 terrain segments that overlap. 0 would be better only if triangles don't overlap.
-		pathtracerWorker.ray.rayLengthMax = pti.context.params->locality;
+		pathtracerWorker.ray.rayLengthMax = pti.context.params.locality;
 	}
 
 	// 1 ray
@@ -274,7 +271,7 @@ public:
 		bentNormalHemisphere += dir * irrad.abs().avg();
 		hitsScene++;
 		hitsReliable++;
-		if (pathtracerWorker.ray.hitDistance>pti.context.params->aoSize)
+		if (pathtracerWorker.ray.hitDistance>pti.context.params.aoSize)
 			hitsDistant++;
 	}
 
@@ -292,7 +289,7 @@ public:
 			reliabilityHemisphere = 0;
 		}
 		else
-		if (hitsInside>(hitsReliable+hitsUnreliable)*pti.context.params->insideObjectsThreshold)
+		if (hitsInside>(hitsReliable+hitsUnreliable)*pti.context.params.insideObjectsThreshold)
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
@@ -305,8 +302,8 @@ public:
 		{
 			// get average hit, hemisphere hits don't accumulate
 			float factor = 1/(RRReal)hitsReliable;
-			if (pti.context.params->aoIntensity>0 && pti.context.params->aoSize>0)
-				factor *= pow(hitsDistant/(float)hitsReliable,pti.context.params->aoIntensity);
+			if (pti.context.params.aoIntensity>0 && pti.context.params.aoSize>0)
+				factor *= pow(hitsDistant/(float)hitsReliable,pti.context.params.aoIntensity);
 			for (unsigned i=0;i<NUM_LIGHTMAPS;i++)
 			{
 				irradiancePhysicalHemisphere[i] *= factor;
@@ -365,8 +362,8 @@ public:
 		pti(_pti),
 		collisionHandlerGatherLight(
 			_pti.context.colorSpace,
-			_pti.context.params->quality*2, // when gathering lights (possibly rendering direct shadows), make point details 2* more important
-			_pti.context.params->quality/10, // but interpolation less important
+			_pti.context.params.quality*2, // when gathering lights (possibly rendering direct shadows), make point details 2* more important
+			_pti.context.params.quality/10, // but interpolation less important
 			_pti.context.staticSceneContainsLods)
 	{
 		RR_ASSERT(_pti.subTexels && _pti.subTexels->size());
@@ -393,7 +390,7 @@ public:
 			irradiancePhysicalLights[i] = RRVec3(0);
 		bentNormalLights = RRVec3(0);
 		reliabilityLights = 0;
-		rounds = (pti.context.params->direct.lightMultiplier && numRelevantLights) ? pti.context.params->quality/10+1 : 0;
+		rounds = (pti.context.params.direct.lightMultiplier && numRelevantLights) ? pti.context.params.quality/10+1 : 0;
 		rays = numRelevantLights*rounds;
 		ray.hitObject = pti.context.solver->getMultiObject();
 		ray.rayLengthMin = pti.rayLengthMin;
@@ -423,7 +420,7 @@ public:
 		RRVec3 dir = (_light->type==RRLight::DIRECTIONAL)?-_light->direction:(_light->position-ray.rayOrigin);
 		RRReal dirsize = dir.length();
 		dir /= dirsize;
-		if (_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params->locality;
+		if (_light->type==RRLight::DIRECTIONAL) dirsize *= pti.context.params.locality;
 		float normalIncidence1 = dot(dir,_basisSkewedNormalized.normal);
 		if (normalIncidence1<=0 || !_finite(normalIncidence1))
 		{
@@ -446,7 +443,7 @@ public:
 			{
 				// direct visibility found (at least partial), add irradiance from light
 				// !_light->castShadows -> direct visibility guaranteed even without raycast
-				RRVec3 irrad = _light->getIrradiance(ray.rayOrigin,pti.context.colorSpace) * pti.context.params->direct.lightMultiplier;
+				RRVec3 irrad = _light->getIrradiance(ray.rayOrigin,pti.context.colorSpace) * pti.context.params.direct.lightMultiplier;
 				RR_ASSERT(IS_VEC3(irrad)); // getIrradiance() must return finite number
 				if (_light->castShadows)
 				{
@@ -495,7 +492,7 @@ public:
 				hitsUnreliable++;
 			}
 			else
-			if (ray.hitDistance<pti.context.params->rugDistance)
+			if (ray.hitDistance<pti.context.params.rugDistance)
 			{
 				// no visibility, ray hit rug, very close object -> unreliable
 				hitsRug++;
@@ -534,7 +531,7 @@ public:
 			reliabilityLights = 0;
 		}
 		else
-		if (hitsInside>rays*pti.context.params->insideObjectsThreshold)
+		if (hitsInside>rays*pti.context.params.insideObjectsThreshold)
 		{
 			// remove exterior visibility from texels inside object
 			//  stops blackness from exterior leaking under the wall into interior (koupelna4 scene)
@@ -619,7 +616,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		// - copying this condition to distant place would make code unnecessarily complex
 		//   (this simple condition depends on 2 other places that set rays)
 		// - performance loss is very small
-		//RR_LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%d, material.accepted.lights=%d, lightMultiplier=%f, env=%d, environmentMultiplier=%f).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params->lightDirectMultiplier,pti.context.solver->getEnvironment()?1:0,pti.context.params->environmentMultiplier));
+		//RR_LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%d, material.accepted.lights=%d, lightMultiplier=%f, env=%d, environmentMultiplier=%f).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params.lightDirectMultiplier,pti.context.solver->getEnvironment()?1:0,pti.context.params.environmentMultiplier));
 		return ProcessTexelResult();
 	}
 
@@ -643,7 +640,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 
 	// shoot
 	extern void (*g_logRay)(const RRRay* ray,bool hit);
-	g_logRay = pti.context.params->debugRay;
+	g_logRay = pti.context.params.debugRay;
 	while (1)
 	{
 		/////////////////////////////////////////////////////////////////
@@ -842,8 +839,7 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 	optimizeMultipliers(params,false);
 
 	RRReportInterval report(INF2,"Gathering(%ls) ...\n",getIndirectParamsAsString(params).w_str());
-	LightmapperJob lmj(this);
-	lmj.params = &params;
+	LightmapperJob lmj(this,params);
 	lmj.gatherAllDirections = resultsPhysical->data[LS_DIRECTION1]||resultsPhysical->data[LS_DIRECTION2]||resultsPhysical->data[LS_DIRECTION3];
 	lmj.staticSceneContainsLods = priv->staticSceneContainsLods;
 	RR_ASSERT(numResultSlots==numPostImportTriangles);

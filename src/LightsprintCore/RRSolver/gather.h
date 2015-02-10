@@ -40,17 +40,16 @@ enum LightmapSemantic
 struct LightmapperJob : public PathtracerJob
 {
 	RRBuffer* pixelBuffers[NUM_BUFFERS]; // classical lmap, 3 directional lmaps, bent normal map
-	const RRSolver::UpdateParameters* params;
+	const RRSolver::UpdateParameters params;
 	RRObject* singleObjectReceiver;
 	bool gatherAllDirections; // LS_DIRECTIONn irradiances are gathered too
 	bool staticSceneContainsLods; // scene contains LODs, additional work
 
-	LightmapperJob(RRSolver* _solver)
-		: PathtracerJob(_solver,false)
+	LightmapperJob(RRSolver* _solver, const RRSolver::UpdateParameters& _params)
+		: PathtracerJob(_solver,false), params(_params)
 	{
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
 			pixelBuffers[i] = NULL;
-		params = NULL;
 		singleObjectReceiver = NULL;
 		gatherAllDirections = true;
 		staticSceneContainsLods = false;

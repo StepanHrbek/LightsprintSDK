@@ -185,7 +185,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 			{
 				for (unsigned x=xminu;x<xmaxu;x++)
 				{
-					if (!lmj.solver || ((lmj.params->debugTexel==UINT_MAX || lmj.params->debugTexel==x+y*mapWidth) && !lmj.solver->aborting)) // process only texel selected for debugging
+					if (!lmj.solver || ((lmj.params.debugTexel==UINT_MAX || lmj.params.debugTexel==x+y*mapWidth) && !lmj.solver->aborting)) // process only texel selected for debugging
 					{
 						// start with full texel, 4 vertices
 						unsigned polySize = 4;
@@ -378,7 +378,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 			unsigned indexInRect = (i-rectXMin)+(j-rectYMin)*(rectXMaxPlus1-rectXMin);
 			if (texelsRect[indexInRect].size())
 			{
-				if (!lmj.solver || ((lmj.params->debugTexel==UINT_MAX || lmj.params->debugTexel==i+j*mapWidth) && !lmj.solver->aborting)) // process only texel selected for debugging
+				if (!lmj.solver || ((lmj.params.debugTexel==UINT_MAX || lmj.params.debugTexel==i+j*mapWidth) && !lmj.solver->aborting)) // process only texel selected for debugging
 				{
 					ProcessTexelParams ptp(lmj);
 					ptp.uv[0] = i;
@@ -554,7 +554,7 @@ const char* checkUnwrapConsistency(const RRObject* object)
 	{
 		UnwrapStatisticsEx us;
 		us.subtexelsInMapSpace = true;
-		LightmapperJob lmj(NULL);
+		LightmapperJob lmj(NULL,RRSolver::UpdateParameters());
 		lmj.singleObjectReceiver = reinterpret_cast<RRObject*>(&us);
 		enumerateTexelsFull(object,-1,MAP_WIDTH,MAP_WIDTH,us.callback,lmj,0,us);
 		float missing = us.numTrianglesWithoutUnwrap/(float)numTriangles;
@@ -802,7 +802,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 	// PER-PIXEL (NON-REALTIME)
 	if (numPixelBuffers)
 	{
-		LightmapperJob lmj(this);
+		LightmapperJob lmj(this,params);
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
 			if (allPixelBuffers[i])
 			{
@@ -816,7 +816,6 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 				}
 				lmj.pixelBuffers[i]->clear();
 			}
-		lmj.params = &params;
 		lmj.singleObjectReceiver = getStaticObjects()[objectNumber]; // safe objectNumber, checked in updateLightmap()
 		lmj.gatherAllDirections = allPixelBuffers[LS_DIRECTION1] || allPixelBuffers[LS_DIRECTION2] || allPixelBuffers[LS_DIRECTION3];
 		lmj.staticSceneContainsLods = priv->staticSceneContainsLods;
