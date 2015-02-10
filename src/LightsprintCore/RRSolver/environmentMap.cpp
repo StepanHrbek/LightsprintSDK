@@ -432,7 +432,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const RRColorSpace* colorSpace, RRBuffer* buffer)
 {
 	RR_ASSERT(gatheredExitance);
-	if (!buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
+	if (!gatheredExitance || !buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
 	unsigned numElements = buffer->getNumElements();
 
 	for (unsigned i=0;i<numElements;i++)
