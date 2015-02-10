@@ -1141,6 +1141,8 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 {
 	if (!_frame)
 		return;
+	if (_parameters.useSolverIndirectSinceDepth<UINT_MAX && priv->packedSolver) // when using shortcut, this fireball update is necessary
+		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
 	//RRReportInterval report(INF2,"Pathtracing frame...\n");
 	unsigned ww = _frame->getWidth();
 	unsigned hh = _frame->getHeight();
