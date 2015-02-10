@@ -384,13 +384,16 @@ bool RRPackedSolver::setEnvironment(const RRBuffer* _environment0, const RRBuffe
 
 bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, float _materialEmittanceMultiplier, unsigned _materialEmittanceStaticQuality, unsigned _materialEmittanceVideoQuality, bool _materialEmittanceUsePointMaterials, const RRColorSpace* _colorSpace)
 {
+	if (!object)
+		return false;
+
 	// 0 = do no work
 	if (!_materialEmittanceStaticQuality && !_materialEmittanceVideoQuality)
 		return false;
 
 	// caching, return false if things did not change
 	unsigned versionSum[2] = {0,0}; // 0=static, 1=video
-	for (unsigned g=0;object && g<object->faceGroups.size();g++)
+	for (unsigned g=0;g<object->faceGroups.size();g++)
 	{
 		const RRMaterial* material = object->faceGroups[g].material;
 		if (material && material->diffuseEmittance.texture)
