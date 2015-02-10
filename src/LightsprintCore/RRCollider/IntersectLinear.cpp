@@ -392,7 +392,7 @@ bool RayHits::getHitOrdered(RRRay* ray, const RRMesh* mesh)
 {
 	RR_ASSERT(ray);
 	bool hit = false;
-	if (backupSlotsUsed)
+	if (ray && backupSlotsUsed)
 	{
 		// restore the most close hit
 		getSlots()[theBestSlot].restoreBackupTo(ray,mesh);
