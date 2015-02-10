@@ -277,12 +277,12 @@ void RRMeshArrays::getTriangleBody(unsigned t, TriangleBody& out) const
 
 void RRMeshArrays::getTriangleNormals(unsigned t, TriangleNormals& out) const
 {
-	if (t>=numTriangles)
+	RR_ASSERT(normal);
+	if (t>=numTriangles || !normal)
 	{
 		RR_ASSERT(0);
 		return;
 	}
-	RR_ASSERT(normal);
 	if (tangent && bitangent)
 	{
 		for (unsigned v=0;v<3;v++)
