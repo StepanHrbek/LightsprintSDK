@@ -150,10 +150,10 @@ RRHash RRObject::getHash() const
 				}
 
 				mesh->getTriangleNormals(t,triangleNormals);
-				mesh->getTriangleMapping(t,triangleMapping[0],material->diffuseReflectance.texcoord);
-				mesh->getTriangleMapping(t,triangleMapping[1],material->specularReflectance.texcoord);
-				mesh->getTriangleMapping(t,triangleMapping[2],material->diffuseEmittance.texcoord);
-				mesh->getTriangleMapping(t,triangleMapping[3],material->specularTransmittance.texcoord);
+				mesh->getTriangleMapping(t,triangleMapping[0],material ? material->diffuseReflectance.texcoord : 0);
+				mesh->getTriangleMapping(t,triangleMapping[1],material ? material->specularReflectance.texcoord : 0);
+				mesh->getTriangleMapping(t,triangleMapping[2],material ? material->diffuseEmittance.texcoord : 0);
+				mesh->getTriangleMapping(t,triangleMapping[3],material ? material->specularTransmittance.texcoord : 0);
 			}
 		};
 
