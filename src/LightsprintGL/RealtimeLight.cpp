@@ -341,9 +341,12 @@ namespace rr_gl
 				{
 					// edit output (view matrix) to avoid rounding errors, inputs stay unmodified
 					RR_ASSERT(instance<6);
-					rr::RRCamera::View views[6] = {rr::RRCamera::TOP,rr::RRCamera::BOTTOM,rr::RRCamera::FRONT,rr::RRCamera::BACK,rr::RRCamera::LEFT,rr::RRCamera::RIGHT};
-					light.setView(views[instance],NULL,NULL,NULL);
-					light.setOrthogonal(false);
+					if (instance<6)
+					{
+						rr::RRCamera::View views[6] = {rr::RRCamera::TOP,rr::RRCamera::BOTTOM,rr::RRCamera::FRONT,rr::RRCamera::BACK,rr::RRCamera::LEFT,rr::RRCamera::RIGHT};
+						light.setView(views[instance],NULL,NULL,NULL);
+						light.setOrthogonal(false);
+					}
 				}
 				break;
 			case rr::RRLight::SPOT:
