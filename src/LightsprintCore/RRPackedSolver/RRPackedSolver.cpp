@@ -274,6 +274,7 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 	// varying data
 	packedBests = new PackedBests; packedBests->init(triangles,0,numTriangles,1);
 	ivertexIndirectIrradiance = new RRVec3[packedSolverFile->packedIvertices->getNumC1()];
+	memset(ivertexIndirectIrradiance,0,sizeof(RRVec3)*packedSolverFile->packedIvertices->getNumC1());
 	currentVersionInVertices = 0;
 	currentVersionInTriangles = 1;
 	currentQuality = 0;
