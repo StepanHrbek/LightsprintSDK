@@ -220,7 +220,6 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 #endif
 
 		// add direct lighting
-		{
 		if (numBounces>=parameters.useSolverDirectSinceDepth
 			&& ray.hitObject && !ray.hitObject->isDynamic // only available if we hit static object
 			&& (packedSolver || triangle))
@@ -289,7 +288,6 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				}
 			}
 			ray.rayLengthMax = 1e10f;
-		}
 		}
 
 		// add material's own emission
