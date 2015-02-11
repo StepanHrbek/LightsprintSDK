@@ -45,7 +45,7 @@ namespace rr
 		//
 		//! Is called at the beginning of RRCollider::intersect().
 		//! May set additional flags in ray.
-		virtual void init(class RRRay* ray) = 0;
+		virtual void init(class RRRay& ray) = 0;
 
 		//! Handles each collision detected by single intersection test.
 		//
@@ -56,7 +56,7 @@ namespace rr
 		//! In general case, intersections are reported unordered.
 		//! Intersections are reported in order from the nearest one (and first positive result ends testing) only for IT_BSP techniques.
 		//! \return Return false if you want to discard intersection and continue testing.
-		virtual bool collides(const class RRRay* ray) = 0;
+		virtual bool collides(const class RRRay& ray) = 0;
 
 		//! Cleans up after single intersection test.
 		//
@@ -88,10 +88,10 @@ namespace rr
 		//! Initializes 1 RRRay. All is zeroed, all FILL flags on.
 		RRRay();
 
-		//! Creates 1 RRRay. All is zeroed, all FILL flags on. You may destroy it by delete.
+		//! Creates 1 RRRay. All is zeroed, all FILL flags on. Use delete when no longer needed.
 		static RRRay* create();
 
-		//! Creates array of RRRays. You may destroy them by delete[].
+		//! Creates array of RRRays. Use delete[] when no longer needed.
 		static RRRay* create(unsigned n);
 
 		//! Flags define which outputs to fill. (Some outputs may be filled even when not requested by flag.)
@@ -218,7 +218,7 @@ namespace rr
 		//! \n If you are not familiar with OpenMP, be sure to examine it. With OpenMP, which is built-in 
 		//!  feature of modern compilers, searching multiple intersections
 		//!  at the same time is matter of one or few lines of code.
-		virtual bool intersect(RRRay* ray) const = 0;
+		virtual bool intersect(RRRay& ray) const = 0;
 
 		//! Intersects mesh with batch of rays at once.
 		//

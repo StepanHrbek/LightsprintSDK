@@ -114,7 +114,7 @@ int main(int argc, char** argv)
 			ray.rayLengthMax = size;
 
 			//do the trace
-			if (collider->intersect(&ray))
+			if (collider->intersect(ray))
 				num_hits++;//count the hit.
 		}
 	}

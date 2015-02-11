@@ -21,20 +21,20 @@ namespace rr_gl
 class CollisionHandlerTransparency : public rr::RRCollisionHandler
 {
 public:
-	virtual void init(rr::RRRay* ray)
+	virtual void init(rr::RRRay& ray)
 	{
-		ray->rayFlags |= rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D;
+		ray.rayFlags |= rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D;
 		transparency = rr::RRVec3(1);
 	}
-	virtual bool collides(const rr::RRRay* ray)
+	virtual bool collides(const rr::RRRay& ray)
 	{
-		RR_ASSERT(ray->rayFlags&rr::RRRay::FILL_POINT2D);
-		RR_ASSERT(ray->rayFlags&rr::RRRay::FILL_TRIANGLE);
-		RR_ASSERT(ray->rayFlags&rr::RRRay::FILL_SIDE);
+		RR_ASSERT(ray.rayFlags&rr::RRRay::FILL_POINT2D);
+		RR_ASSERT(ray.rayFlags&rr::RRRay::FILL_TRIANGLE);
+		RR_ASSERT(ray.rayFlags&rr::RRRay::FILL_SIDE);
 
 		rr::RRPointMaterial pointMaterial;
-		object->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,NULL,true,pointMaterial); // custom scale transparency is identical to physical one (and even if not, it would be good enough here)
-		if (pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom)
+		object->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,NULL,true,pointMaterial); // custom scale transparency is identical to physical one (and even if not, it would be good enough here)
+		if (pointMaterial.sideBits[ray.hitFrontSide?0:1].renderFrom)
 			transparency *= pointMaterial.specularTransmittance.color;
 		return transparency==rr::RRVec3(0);
 	}
@@ -57,7 +57,6 @@ class PluginRuntimeLensFlare : public PluginRuntime
 	rr::RRBuffer* primaryMap[NUM_PRIMARY_MAPS];
 	rr::RRBuffer* secondaryMap[NUM_SECONDARY_MAPS];
 	bool colorizeSecondaryMap[NUM_SECONDARY_MAPS];
-	rr::RRRay* ray;
 	class CollisionHandlerTransparency* collisionHandlerTransparency;
 
 public:
@@ -82,15 +81,12 @@ public:
 				colorizeSecondaryMap[i] = sum/numElements<0.03f;
 			}
 		}
-		ray = rr::RRRay::create();
 		collisionHandlerTransparency = new CollisionHandlerTransparency;
-		ray->collisionHandler = collisionHandlerTransparency;
 	}
 
 	virtual ~PluginRuntimeLensFlare()
 	{
 		delete collisionHandlerTransparency;
-		delete ray;
 		for (unsigned i=0;i<NUM_PRIMARY_MAPS;i++)
 			delete primaryMap[i];
 		for (unsigned i=0;i<NUM_SECONDARY_MAPS;i++)
@@ -175,10 +171,12 @@ public:
 						rr::RRVec3 transparencySum(0);
 						rr::RRVec3 dirSum(0);
 						rr::RRVec3 unused;
-						_sp.camera->getRay(lightPositionInWindow,ray->rayOrigin,unused);
-						ray->rayLengthMin = 0;
-						ray->rayLengthMax = 1e10f;
-						ray->rayFlags = 0;
+						rr::RRRay ray;
+						ray.collisionHandler = collisionHandlerTransparency;
+						_sp.camera->getRay(lightPositionInWindow,ray.rayOrigin,unused);
+						ray.rayLengthMin = 0;
+						ray.rayLengthMax = 1e10f;
+						ray.rayFlags = 0;
 						collisionHandlerTransparency->object = pp.scene;
 
 						// generate everything from _flareId
@@ -187,11 +185,11 @@ public:
 
 						for (unsigned i=0;i<RR_MAX(pp.quality,1);i++)
 						{
-							ray->rayDir = ( rr::RRVec3(rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f)*0.02f - light->direction.normalized() ).normalized();
-							ray->hitObject = pp.scene; // we set hitObject for colliders that don't set it
+							ray.rayDir = ( rr::RRVec3(rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f)*0.02f - light->direction.normalized() ).normalized();
+							ray.hitObject = pp.scene; // we set hitObject for colliders that don't set it
 							pp.scene->getCollider()->intersect(ray);
 							transparencySum += collisionHandlerTransparency->transparency;
-							dirSum -= ray->rayDir*collisionHandlerTransparency->transparency.sum();
+							dirSum -= ray.rayDir*collisionHandlerTransparency->transparency.sum();
 						}
 						// cleanup
 						srand(oldSeed);

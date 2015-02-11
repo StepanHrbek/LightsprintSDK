@@ -186,18 +186,18 @@ void TriangleSRLNP::setGeometry(unsigned atriangleIdx, const Vec3* a, const Vec3
 	}
 }
 
-static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
+static bool intersect_triangleSRLNP(RRRay& ray, const TriangleSRLNP *t)
 // do ray and triangle intersect?
-// inputs:            t, ray->hitPoint3d (must be ray-triangleplane intersection), ray->rayFlags, ray->rayDir
+// inputs:            t, ray.hitPoint3d (must be ray-triangleplane intersection), ray.rayFlags, ray.rayDir
 // outputs if miss:   false 
-// outputs if hit:    true, ray->hitFrontSide, ray->hitPoint2d, ray->hitPlane
+// outputs if hit:    true, ray.hitFrontSide, ray.hitPoint2d, ray.hitPlane
 {
 	FILL_STATISTIC(intersectStats.intersect_triangleSRLNP++);
 	RR_ASSERT(ray);
 	RR_ASSERT(t);
 
 	real u,v;
-	#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t->s3[Y])*t->r3[X]-(ray->hitPoint3d[X]-t->s3[X])*t->r3[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t->s3[Z]-t->l3[Z]*v) * t->ir3[Z];
+	#define CASE(X,Y,Z) v=((ray.hitPoint3d[Y]-t->s3[Y])*t->r3[X]-(ray.hitPoint3d[X]-t->s3[X])*t->r3[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray.hitPoint3d[Z]-t->s3[Z]-t->l3[Z]*v) * t->ir3[Z];
 #if 1
 	//RR_ASSERT(t->intersectByte<9); // degenerated triangles are 10, others shoud be in 0..8
 	static const unsigned tablo[9+2][3] = {{0,1,2},{1,2,2},{2,0,2},{0,1,0},{1,2,0},{2,0,0},{0,1,1},{1,2,1},{2,0,1}
@@ -234,29 +234,29 @@ static bool intersect_triangleSRLNP(RRRay* ray, const TriangleSRLNP *t)
 	#undef CASE
 
 #ifdef FILL_HITSIDE
-	if (ray->rayFlags&RRRay::FILL_SIDE)
+	if (ray.rayFlags&RRRay::FILL_SIDE)
 	{
-		//bool hitFrontSide=size2(ray->rayDir-t->n3)>2;
-		bool hitFrontSide=dot(ray->rayDir,RRVec3(t->n4))<0;
-		ray->hitFrontSide=hitFrontSide;
+		//bool hitFrontSide=size2(ray.rayDir-t->n3)>2;
+		bool hitFrontSide=dot(ray.rayDir,RRVec3(t->n4))<0;
+		ray.hitFrontSide=hitFrontSide;
 	}
 #endif
 
 #ifdef FILL_HITPOINT2D
-	ray->hitPoint2d[0]=u;
-	ray->hitPoint2d[1]=v;
+	ray.hitPoint2d[0]=u;
+	ray.hitPoint2d[1]=v;
 #endif
 #ifdef FILL_HITPLANE
-	ray->hitPlane=t->n4;
+	ray.hitPlane=t->n4;
 #endif
 	return true;
 }
 
-static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMesh::TriangleBody* t2)
+static bool intersect_triangleNP(RRRay& ray, const TriangleNP *t, const RRMesh::TriangleBody* t2)
 // do ray and triangle intersect?
-// inputs:            t, t2, ray->hitPoint3d (must be ray-triangleplane intersection), ray->rayFlags, ray->rayDir
+// inputs:            t, t2, ray.hitPoint3d (must be ray-triangleplane intersection), ray.rayFlags, ray.rayDir
 // outputs if miss:   false 
-// outputs if hit:    true, ray->hitFrontSide, ray->hitPoint2d, ray->hitPlane
+// outputs if hit:    true, ray.hitFrontSide, ray.hitPoint2d, ray.hitPlane
 {
 	FILL_STATISTIC(intersectStats.intersect_triangleNP++);
 	RR_ASSERT(ray);
@@ -266,7 +266,7 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMesh::
 	real u,v;
 	switch(t->intersectByte)
 	{
-		#define CASE(X,Y,Z) v=((ray->hitPoint3d[Y]-t2->vertex0[Y])*t2->side1[X]-(ray->hitPoint3d[X]-t2->vertex0[X])*t2->side1[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray->hitPoint3d[Z]-t2->vertex0[Z]-t2->side2[Z]*v)/t2->side1[Z];                break
+		#define CASE(X,Y,Z) v=((ray.hitPoint3d[Y]-t2->vertex0[Y])*t2->side1[X]-(ray.hitPoint3d[X]-t2->vertex0[X])*t2->side1[Y]) * t->intersectReal;                if (v<0 || v>1) return false;                u=(ray.hitPoint3d[Z]-t2->vertex0[Z]-t2->side2[Z]*v)/t2->side1[Z];                break
 		case 0:CASE(0,1,2);
 		case 1:CASE(1,2,2);
 		case 2:CASE(2,0,2);
@@ -282,26 +282,26 @@ static bool intersect_triangleNP(RRRay* ray, const TriangleNP *t, const RRMesh::
 	if (u<0 || u+v>1) return false;
 
 #ifdef FILL_HITSIDE
-	if (ray->rayFlags&RRRay::FILL_SIDE)
+	if (ray.rayFlags&RRRay::FILL_SIDE)
 	{
-		//bool hitFrontSide=size2(ray->rayDir-t->n3)>2;
-		bool hitFrontSide=dot(ray->rayDir,RRVec3(t->n4))<0;
-		ray->hitFrontSide=hitFrontSide;
+		//bool hitFrontSide=size2(ray.rayDir-t->n3)>2;
+		bool hitFrontSide=dot(ray.rayDir,RRVec3(t->n4))<0;
+		ray.hitFrontSide=hitFrontSide;
 	}
 #endif
 #ifdef FILL_HITPOINT2D
-	ray->hitPoint2d[0]=u;
-	ray->hitPoint2d[1]=v;
+	ray.hitPoint2d[0]=u;
+	ray.hitPoint2d[1]=v;
 #endif
 #ifdef FILL_HITPLANE
-	ray->hitPlane=t->n4;
+	ray.hitPlane=t->n4;
 #endif
 	return true;
 }
 
 
 template IBP
-bool IntersectBspFast IBP2::intersect_bspSRLNP(RRRay* ray, const BspTree *t, real distanceMax) const
+bool IntersectBspFast IBP2::intersect_bspSRLNP(RRRay& ray, const BspTree *t, real distanceMax) const
 // input:                t, rayOrigin, rayDir, skip, hitDistanceMin, hitDistanceMax
 // returns:              true if ray hits t
 // modifies when hit:    (distanceMin, hitPoint3d) hitPoint2d, hitFrontSide, hitDistance
@@ -330,7 +330,7 @@ begin:
 		//FILL_STATISTIC(intersectStats.intersect_kd++);
 
 		// failuje, vysvetleni nahore u #define TEST_RANGE
-		//RR_ASSERT(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
+		//RR_ASSERT(ray.hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 		// test leaf
 		if (t->kd.isLeaf()) 
@@ -350,18 +350,18 @@ begin:
 			{
 				TriangleSRLNP* currentTriangle = triangleSRLNP+triangle->getTriangleIndex();
 				const RRVec4& n = currentTriangle->n4;
-				real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
-				real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];
+				real nDotDir = ray.rayDir[0]*n[0]+ray.rayDir[1]*n[1]+ray.rayDir[2]*n[2];
+				real nDotOrigin = ray.rayOrigin[0]*n[0]+ray.rayOrigin[1]*n[1]+ray.rayOrigin[2]*n[2]+n[3];
 				real distancePlane = -nDotOrigin / nDotDir;
 				DBG(bool hit=false);
-				if (distancePlane>=ray->hitDistanceMin && distancePlane<=distanceMax)
+				if (distancePlane>=ray.hitDistanceMin && distancePlane<=distanceMax)
 				{
 					update_hitPoint3d(ray,distancePlane);
 					if (intersect_triangleSRLNP(ray,currentTriangle))
 					{
 						DBG(hit=true);
-						ray->hitTriangle = triangle->getTriangleIndex();
-						ray->hitDistance = distancePlane;
+						ray.hitTriangle = triangle->getTriangleIndex();
+						ray.hitDistance = distancePlane;
 						rayHits.insertHitUnordered(ray);
 					}
 				}
@@ -380,8 +380,8 @@ begin:
 		// kd node is split at splitValue
 		real splitValue = t->kd.getSplitValue();
 		// our ray segment is pointMinVal..pointMaxVal
-		real pointMinVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*ray->hitDistanceMin;
-		real pointMaxVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*distanceMax;
+		real pointMinVal = ray.rayOrigin[t->kd.splitAxis]+ray.rayDir[t->kd.splitAxis]*ray.hitDistanceMin;
+		real pointMaxVal = ray.rayOrigin[t->kd.splitAxis]+ray.rayDir[t->kd.splitAxis]*distanceMax;
 		// kd splitting plane belongs to back(negative) son
 		// when pointMinVal==splitValue, ray segment starts at splitting plane (back)
 		// when pointMinVal>splitValue, ray segment starts in front
@@ -393,15 +393,15 @@ begin:
 			{
 				RR_ASSERT(t->kd.getFront()->bsp.size<MAX_SIZE);
 				t = t->kd.getFront();
-				TEST_RANGE(ray->hitDistanceMin,distanceMax,1,t);
+				TEST_RANGE(ray.hitDistanceMin,distanceMax,1,t);
 				goto begin;
 			}
 			// front and back
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
-			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getFront());
+			real distSplit = (splitValue-ray.rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
+			TEST_RANGE(ray.hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getFront());
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getBack());
 			if (intersect_bspSRLNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
-			ray->hitDistanceMin = distSplit-DELTA_BSP;
+			ray.hitDistanceMin = distSplit-DELTA_BSP;
 			RR_ASSERT(t->kd.getBack()->bsp.size<MAX_SIZE);
 			t = t->kd.getBack();
 			goto begin;
@@ -415,15 +415,15 @@ begin:
 			{
 				RR_ASSERT(t->kd.getBack()->bsp.size<MAX_SIZE);
 				t = t->kd.getBack();
-				TEST_RANGE(ray->hitDistanceMin,distanceMax,1,t);
+				TEST_RANGE(ray.hitDistanceMin,distanceMax,1,t);
 				goto begin;
 			}
 			// back and front
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
-			TEST_RANGE(ray->hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getBack());
+			real distSplit = (splitValue-ray.rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
+			TEST_RANGE(ray.hitDistanceMin,distSplit+DELTA_BSP,1,t->kd.getBack());
 			TEST_RANGE(distSplit-DELTA_BSP,distanceMax,1,t->kd.getFront());
 			if (intersect_bspSRLNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
-			ray->hitDistanceMin = distSplit-DELTA_BSP;
+			ray.hitDistanceMin = distSplit-DELTA_BSP;
 			RR_ASSERT(t->kd.getFront()->bsp.size<MAX_SIZE);
 			t = t->kd.getFront();
 			goto begin;
@@ -438,39 +438,39 @@ begin:
 	RR_ASSERT(triangleSRLNP);
 	const RRVec4& n=triangleSRLNP[triangle->getTriangleIndex()].n4;
 
-	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
-	real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];
-	//real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2]+ray->rayDir[3]*n[3];
-	//real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+ray->rayOrigin[3]*n[3];
+	real nDotDir = ray.rayDir[0]*n[0]+ray.rayDir[1]*n[1]+ray.rayDir[2]*n[2];
+	real nDotOrigin = ray.rayOrigin[0]*n[0]+ray.rayOrigin[1]*n[1]+ray.rayOrigin[2]*n[2]+n[3];
+	//real nDotDir = ray.rayDir[0]*n[0]+ray.rayDir[1]*n[1]+ray.rayDir[2]*n[2]+ray.rayDir[3]*n[3];
+	//real nDotOrigin = ray.rayOrigin[0]*n[0]+ray.rayOrigin[1]*n[1]+ray.rayOrigin[2]*n[2]+ray.rayOrigin[3]*n[3];
 	real distancePlane = -nDotOrigin / nDotDir;
-	float distanceMinLocation = nDotOrigin + nDotDir * ray->hitDistanceMin; // +=point at distanceMin is in front, -=back, 0=plane
+	float distanceMinLocation = nDotOrigin + nDotDir * ray.hitDistanceMin; // +=point at distanceMin is in front, -=back, 0=plane
 	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front
 		|| (distanceMinLocation==0 && nDotDir<0); // point at distanceMin is in plane and rayDir is from front to back
 	/*
 	Reference: Old well behaving code.
 	float distanceMinLocation = // +=point at distanceMin is in front, -=back, 0=plane
-		n[0]*(ray->rayOrigin[0]+ray->rayDir[0]*ray->hitDistanceMin)+
-		n[1]*(ray->rayOrigin[1]+ray->rayDir[1]*ray->hitDistanceMin)+
-		n[2]*(ray->rayOrigin[2]+ray->rayDir[2]*ray->hitDistanceMin)+
+		n[0]*(ray.rayOrigin[0]+ray.rayDir[0]*ray.hitDistanceMin)+
+		n[1]*(ray.rayOrigin[1]+ray.rayDir[1]*ray.hitDistanceMin)+
+		n[2]*(ray.rayOrigin[2]+ray.rayDir[2]*ray.hitDistanceMin)+
 		n[3];
-	real nDotDir = ray->rayDir[0]*n.x+ray->rayDir[1]*n.y+ray->rayDir[2]*n.z;
+	real nDotDir = ray.rayDir[0]*n.x+ray.rayDir[1]*n.y+ray.rayDir[2]*n.z;
 	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front
 		|| (distanceMinLocation==0 && nDotDir<0); // point at distanceMin is in plane and rayDir is from front to back
-	real distancePlane = -(ray->rayOrigin[0]*n.x+ray->rayOrigin[1]*n.y+ray->rayOrigin[2]*n.z+n.d) / nDotDir;
+	real distancePlane = -(ray.rayOrigin[0]*n.x+ray.rayOrigin[1]*n.y+ray.rayOrigin[2]*n.z+n.d) / nDotDir;
 	*/
 
 	// test only one half
 	// distancePlane = 1/0 (ray parallel to plane) is handled here
-	if (distancePlane<ray->hitDistanceMin || distancePlane>distanceMax)
+	if (distancePlane<ray.hitDistanceMin || distancePlane>distanceMax)
 	{
 		if (frontback)
 		{
-			TEST_RANGE(ray->hitDistanceMin,distanceMax,t->bsp.front,front);
+			TEST_RANGE(ray.hitDistanceMin,distanceMax,t->bsp.front,front);
 			if (!t->bsp.front) return false;
 			RR_ASSERT(front->bsp.size<MAX_SIZE);
 			t=front;
 		} else {
-			TEST_RANGE(ray->hitDistanceMin,distanceMax,t->bsp.back,back);
+			TEST_RANGE(ray.hitDistanceMin,distanceMax,t->bsp.back,back);
 			if (!t->bsp.back) return false;
 			RR_ASSERT(back->bsp.size<MAX_SIZE);
 			t=back;
@@ -481,7 +481,7 @@ begin:
 	// distancePlane = 0/0 (ray inside plane) is handled here
 	if (_isnan(distancePlane)/*nDotDir==0*/) 
 	{
-		distancePlane = ray->hitDistanceMin;
+		distancePlane = ray.hitDistanceMin;
 		// this sequence of tests follows:
 		// front: hitDistanceMin..hitDistanceMin+DELTA_BSP
 		// plane
@@ -492,10 +492,10 @@ begin:
 	if (frontback)
 	{
 		if (t->bsp.front && intersect_bspSRLNP(ray,front,distancePlane+DELTA_BSP)) return true;
-		TEST_RANGE(ray->hitDistanceMin,distancePlane+DELTA_BSP,t->bsp.front,front);
+		TEST_RANGE(ray.hitDistanceMin,distancePlane+DELTA_BSP,t->bsp.front,front);
 	} else {
 		if (t->bsp.back && intersect_bspSRLNP(ray,back,distancePlane+DELTA_BSP)) return true;
-		TEST_RANGE(ray->hitDistanceMin,distancePlane+DELTA_BSP,t->bsp.back,back);
+		TEST_RANGE(ray.hitDistanceMin,distancePlane+DELTA_BSP,t->bsp.back,back);
 	}
 
 	// test plane
@@ -507,13 +507,13 @@ begin:
 		{
 			RR_ASSERT(IS_NUMBER(distancePlane));
 #ifdef FILL_HITTRIANGLE
-			ray->hitTriangle = triangle->getTriangleIndex();
+			ray.hitTriangle = triangle->getTriangleIndex();
 #endif
 #ifdef FILL_HITDISTANCE
-			ray->hitDistance = distancePlane;
+			ray.hitDistance = distancePlane;
 #endif
 #ifdef COLLISION_HANDLER
-			if (!ray->collisionHandler || ray->collisionHandler->collides(ray)) 
+			if (!ray.collisionHandler || ray.collisionHandler->collides(ray)) 
 #endif
 				return true;
 		}
@@ -533,17 +533,17 @@ begin:
 		RR_ASSERT(front->bsp.size<MAX_SIZE);
 		t=front;
 	}
-	ray->hitDistanceMin = distancePlane-DELTA_BSP;
+	ray.hitDistanceMin = distancePlane-DELTA_BSP;
 	goto begin;
 }
 
 DBG(static int q1=0);
 
 template IBP
-bool IntersectBspFast IBP2::intersect_bspNP(RRRay* ray, const BspTree *t, real distanceMax) const
+bool IntersectBspFast IBP2::intersect_bspNP(RRRay& ray, const BspTree *t, real distanceMax) const
 {
 begin:
-	DBG(q1++;RRReporter::report(INF1,"intersect_bsp(%s%d) %d %f..%f\n",t->bsp.kd?"kd":"bsp",t->kd.splitAxis,q1,ray->hitDistanceMin,distanceMax));
+	DBG(q1++;RRReporter::report(INF1,"intersect_bsp(%s%d) %d %f..%f\n",t->bsp.kd?"kd":"bsp",t->kd.splitAxis,q1,ray.hitDistanceMin,distanceMax));
 	FILL_STATISTIC(intersectStats.intersect_bspNP++);
 	RR_ASSERT(ray);
 	RR_ASSERT(t);
@@ -552,7 +552,7 @@ begin:
 	if (t->bsp.kd)
 	{
 		FILL_STATISTIC(intersectStats.intersect_kd++);
-		RR_ASSERT(ray->hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
+		RR_ASSERT(ray.hitDistanceMin<=distanceMax); // rovnost je pripustna, napr kdyz mame projit usecku <5,10> a synove jsou <5,5> a <5,10>
 
 		// test leaf
 		if (t->kd.isLeaf()) 
@@ -573,11 +573,11 @@ begin:
 			{
 				TriangleNP* currentTriangle = triangleNP+triangle->getTriangleIndex();
 				const RRVec4& n = currentTriangle->n4;
-				real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
-				real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];
+				real nDotDir = ray.rayDir[0]*n[0]+ray.rayDir[1]*n[1]+ray.rayDir[2]*n[2];
+				real nDotOrigin = ray.rayOrigin[0]*n[0]+ray.rayOrigin[1]*n[1]+ray.rayOrigin[2]*n[2]+n[3];
 				real distancePlane = -nDotOrigin / nDotDir;
 				DBG(bool hit=false);
-				if (distancePlane>=ray->hitDistanceMin && distancePlane<=distanceMax)
+				if (distancePlane>=ray.hitDistanceMin && distancePlane<=distanceMax)
 				{
 					RRMesh::TriangleBody srl;
 					importer->getTriangleBody(triangle->getTriangleIndex(),srl);
@@ -585,8 +585,8 @@ begin:
 					if (intersect_triangleNP(ray,currentTriangle,&srl))
 					{
 						DBG(hit=true);
-						ray->hitTriangle = triangle->getTriangleIndex();
-						ray->hitDistance = distancePlane;
+						ray.hitTriangle = triangle->getTriangleIndex();
+						ray.hitDistance = distancePlane;
 						rayHits.insertHitUnordered(ray);
 					}
 				}
@@ -597,8 +597,8 @@ begin:
 
 		// test subtrees
 		real splitValue = t->kd.getSplitValue();
-		real pointMinVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*ray->hitDistanceMin;
-		real pointMaxVal = ray->rayOrigin[t->kd.splitAxis]+ray->rayDir[t->kd.splitAxis]*distanceMax;
+		real pointMinVal = ray.rayOrigin[t->kd.splitAxis]+ray.rayDir[t->kd.splitAxis]*ray.hitDistanceMin;
+		real pointMaxVal = ray.rayOrigin[t->kd.splitAxis]+ray.rayDir[t->kd.splitAxis]*distanceMax;
 		if (pointMinVal>splitValue) 
 		{
 			// front only
@@ -611,10 +611,10 @@ begin:
 			}
 			// front and back
 			DBG(RRReporter::report(INF1," kd FRONT+back\n"));
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
+			real distSplit = (splitValue-ray.rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			if (intersect_bspNP(ray,t->kd.getFront(),distSplit+DELTA_BSP)) return true;
 			DBG(RRReporter::report(INF1," kd front+BACK\n"));
-			ray->hitDistanceMin = distSplit-DELTA_BSP;
+			ray.hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getBack();
 			goto begin;
 		} else {
@@ -628,10 +628,10 @@ begin:
 			}
 			// back and front
 			DBG(RRReporter::report(INF1," kd BACK+front\n"));
-			real distSplit = (splitValue-ray->rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
+			real distSplit = (splitValue-ray.rayOrigin[t->kd.splitAxis]) DIVIDE_BY_RAYDIR[t->kd.splitAxis];
 			if (intersect_bspNP(ray,t->kd.getBack(),distSplit+DELTA_BSP)) return true;
 			DBG(RRReporter::report(INF1," kd back+FRONT\n"));
-			ray->hitDistanceMin = distSplit-DELTA_BSP;
+			ray.hitDistanceMin = distSplit-DELTA_BSP;
 			t = t->kd.getFront();
 			goto begin;
 		}
@@ -643,16 +643,16 @@ begin:
 	RR_ASSERT(triangleNP);
 
 	const RRVec4& n=triangleNP[triangle->getTriangleIndex()].n4;
-	real nDotDir = ray->rayDir[0]*n[0]+ray->rayDir[1]*n[1]+ray->rayDir[2]*n[2];
-	real nDotOrigin = ray->rayOrigin[0]*n[0]+ray->rayOrigin[1]*n[1]+ray->rayOrigin[2]*n[2]+n[3];
+	real nDotDir = ray.rayDir[0]*n[0]+ray.rayDir[1]*n[1]+ray.rayDir[2]*n[2];
+	real nDotOrigin = ray.rayOrigin[0]*n[0]+ray.rayOrigin[1]*n[1]+ray.rayOrigin[2]*n[2]+n[3];
 	real distancePlane = -nDotOrigin / nDotDir;
-	float distanceMinLocation = nDotOrigin + nDotDir * ray->hitDistanceMin; // +=point at distanceMin is in front, -=back, 0=plane
+	float distanceMinLocation = nDotOrigin + nDotDir * ray.hitDistanceMin; // +=point at distanceMin is in front, -=back, 0=plane
 	bool frontback = (distanceMinLocation>0)  // point at distanceMin is in front
 		|| (distanceMinLocation==0 && nDotDir<0); // point at distanceMin is in plane and rayDir is from front to back
 
 	// test only one half
 	// distancePlane = 1/0 (ray parallel to plane) is handled here
-	if (distancePlane<ray->hitDistanceMin || distancePlane>distanceMax)
+	if (distancePlane<ray.hitDistanceMin || distancePlane>distanceMax)
 	{
 		if (frontback)
 		{
@@ -672,7 +672,7 @@ begin:
 	// distancePlane = 0/0 (ray inside plane) is handled here
 	if (_isnan(distancePlane)) // nDotDir==0
 	{
-		distancePlane = ray->hitDistanceMin;
+		distancePlane = ray.hitDistanceMin;
 		// this sequence of tests follows:
 		// front: hitDistanceMin..hitDistanceMin+DELTA_BSP
 		// plane
@@ -701,13 +701,13 @@ begin:
 		{
 			RR_ASSERT(IS_NUMBER(distancePlane));
 #ifdef FILL_HITTRIANGLE
-			ray->hitTriangle = triangle->getTriangleIndex();
+			ray.hitTriangle = triangle->getTriangleIndex();
 #endif
 #ifdef FILL_HITDISTANCE
-			ray->hitDistance = distancePlane;
+			ray.hitDistance = distancePlane;
 #endif
 #ifdef COLLISION_HANDLER
-			if (!ray->collisionHandler || ray->collisionHandler->collides(ray)) 
+			if (!ray.collisionHandler || ray.collisionHandler->collides(ray)) 
 #endif
 				return true;
 		}
@@ -727,7 +727,7 @@ begin:
 		DBG(RRReporter::report(INF1," bsp back+FRONT go\n"));
 		t=front;
 	}
-	ray->hitDistanceMin=distancePlane-DELTA_BSP;
+	ray.hitDistanceMin=distancePlane-DELTA_BSP;
 	goto begin;
 }
 
@@ -793,16 +793,16 @@ size_t IntersectBspFast IBP2::getMemoryOccupied() const
 }
 
 // debug ray
-void (*g_logRay)(const RRRay* ray,bool hit);
+void (*g_logRay)(const RRRay& ray,bool hit);
 
 template IBP
-bool IntersectBspFast IBP2::intersect(RRRay* ray) const
+bool IntersectBspFast IBP2::intersect(RRRay& ray) const
 {
 #ifdef BUNNY_BENCHMARK_OPTIMIZATIONS
 	RR_ASSERT(intersectTechnique==IT_BSP_FASTEST);
 	return box.intersect(ray) &&
 		update_rayDir(ray) &&
-		intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
+		intersect_bspSRLNP(ray,tree,ray.hitDistanceMax);
 #endif
 
 	FILL_STATISTIC(intersectStats.intersect_mesh++);
@@ -811,8 +811,8 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	RR_ASSERT(tree);
 
 #ifdef COLLISION_HANDLER
-	if (ray->collisionHandler)
-		ray->collisionHandler->init(ray);
+	if (ray.collisionHandler)
+		ray.collisionHandler->init(ray);
 #endif
 
 	// collisionHandler->init/done must be called _always_, users depend on it,
@@ -820,15 +820,15 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	if (box.intersect(ray))
 	{
 		update_rayDir(ray);
-		RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
+		RR_ASSERT(fabs(size2(ray.rayDir)-1)<0.001);//ocekava normalizovanej dir
 		switch(intersectTechnique)
 		{
 			case IT_BSP_FASTEST:
 			case IT_BSP_FASTER:
-				hit = intersect_bspSRLNP(ray,tree,ray->hitDistanceMax);
+				hit = intersect_bspSRLNP(ray,tree,ray.hitDistanceMax);
 				break;
 			case IT_BSP_FAST:
-				hit = intersect_bspNP(ray,tree,ray->hitDistanceMax);
+				hit = intersect_bspNP(ray,tree,ray.hitDistanceMax);
 				break;
 			default:
 				RR_ASSERT(0);
@@ -836,8 +836,8 @@ bool IntersectBspFast IBP2::intersect(RRRay* ray) const
 	}
 
 #ifdef COLLISION_HANDLER
-	if (ray->collisionHandler)
-		hit = ray->collisionHandler->done();
+	if (ray.collisionHandler)
+		hit = ray.collisionHandler->done();
 #endif
 
 

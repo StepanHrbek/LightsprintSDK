@@ -137,7 +137,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
 	centerObject = UINT_MAX;
 	centerTexel = UINT_MAX;
 	centerTriangle = UINT_MAX;
-	ray = NULL;
 	collisionHandler = NULL;
 	fontInited = false;
 
@@ -409,7 +408,6 @@ void SVCanvas::createContextCore()
 
 	svframe->userPreferences.applySwapInterval();
 
-	ray = rr::RRRay::create();
 	collisionHandler = solver->getMultiObject()->createCollisionHandlerFirstVisible();
 
 	exitRequested = false;
@@ -524,8 +522,6 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 	// fix dangling pointer in collisionHandler
 	delete collisionHandler;
 	collisionHandler = solver->getMultiObject()->createCollisionHandlerFirstVisible();
-	// now that we have new collisionHandler, fix dangling pointer in ray
-	ray->collisionHandler = collisionHandler;
 
 	// alloc rtgi buffers, otherwise new objects would have no realtime indirect
 	// (it has to be called even when removing static objects, because multiobject is rebuilt and has no rtgi buffer;
@@ -588,7 +584,6 @@ SVCanvas::~SVCanvas()
 
 	rr::RR_SAFE_DELETE(entityIcons);
 	rr::RR_SAFE_DELETE(collisionHandler);
-	rr::RR_SAFE_DELETE(ray);
 
 	rr_gl::deleteAllTextures();
 	// delete objects referenced by solver
@@ -970,23 +965,24 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 
 		// find scene distance, adjust search range to look only for closer icons
 		s_ci.hitDistance = svs.camera.getNear()*0.9f+svs.camera.getFar()*0.1f;
-		ray->rayOrigin = s_ci.rayOrigin;
+		rr::RRRay ray;
+		ray.rayOrigin = s_ci.rayOrigin;
 		rr::RRVec3 directionToMouse = s_ci.rayDirection;
 		float directionToMouseLength = directionToMouse.length();
-		ray->rayDir = directionToMouse/directionToMouseLength;
-		ray->rayLengthMin = svs.camera.getNear()*directionToMouseLength;
-		ray->rayLengthMax = svs.camera.getFar()*directionToMouseLength;
-		ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D;
-		ray->hitObject = solver->getMultiObject(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
-		ray->collisionHandler = collisionHandler;
+		ray.rayDir = directionToMouse/directionToMouseLength;
+		ray.rayLengthMin = svs.camera.getNear()*directionToMouseLength;
+		ray.rayLengthMax = svs.camera.getFar()*directionToMouseLength;
+		ray.rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_TRIANGLE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D;
+		ray.hitObject = solver->getMultiObject(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
+		ray.collisionHandler = collisionHandler;
 		if (solver->getCollider()->intersect(ray))
 		{
 			// in next step, look only for closer lights
-			ray->rayLengthMax = ray->hitDistance;
-			s_ci.hitTriangle = ray->hitTriangle;
-			s_ci.hitDistance = ray->hitDistance;
-			s_ci.hitPoint2d = ray->hitPoint2d;
-			s_ci.hitPoint3d = ray->hitPoint3d;
+			ray.rayLengthMax = ray.hitDistance;
+			s_ci.hitTriangle = ray.hitTriangle;
+			s_ci.hitDistance = ray.hitDistance;
+			s_ci.hitPoint2d = ray.hitPoint2d;
+			s_ci.hitPoint3d = ray.hitPoint3d;
 		}
 		else
 		{
@@ -1008,7 +1004,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		else
 		{
 			s_ci.clickedEntity.type = (s_ci.hitTriangle==UINT_MAX) ? ST_CAMERA : ST_OBJECT;
-			if (ray->hitObject==NULL || ray->hitObject==solver->getMultiObject())
+			if (ray.hitObject==NULL || ray.hitObject==solver->getMultiObject())
 			{
 				if (s_ci.hitTriangle==UINT_MAX)
 				{
@@ -1027,10 +1023,10 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				unsigned numStaticObjects = solver->getStaticObjects().size();
 				unsigned numDynamicObjects = solver->getDynamicObjects().size();
 				for (unsigned i=0;i<numStaticObjects;i++)
-					if (solver->getStaticObjects()[i]==ray->hitObject)
+					if (solver->getStaticObjects()[i]==ray.hitObject)
 						s_ci.clickedEntity.index = i;
 				for (unsigned i=0;i<numDynamicObjects;i++)
-					if (solver->getDynamicObjects()[i]==ray->hitObject)
+					if (solver->getDynamicObjects()[i]==ray.hitObject)
 						s_ci.clickedEntity.index = numStaticObjects+i;
 			}
 			s_ci.clickedEntity.iconCode = IC_LAST;
@@ -1914,20 +1910,21 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppDOF;
 				if (svs.dofAutomaticFocusDistance)
 				{
-					svs.camera.getRay(svs.camera.getScreenCenter(),ray->rayOrigin,ray->rayDir);
-					ray->rayDir.normalize();
-					ray->rayLengthMin = svs.camera.getNear();
-					ray->rayLengthMax = svs.camera.getFar();
-					ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
-					ray->hitObject = solver->getMultiObject(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
-					ray->collisionHandler = collisionHandler;
+					rr::RRRay ray;
+					svs.camera.getRay(svs.camera.getScreenCenter(),ray.rayOrigin,ray.rayDir);
+					ray.rayDir.normalize();
+					ray.rayLengthMin = svs.camera.getNear();
+					ray.rayLengthMax = svs.camera.getFar();
+					ray.rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
+					ray.hitObject = solver->getMultiObject(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
+					ray.collisionHandler = collisionHandler;
 					float ratio = sqrtf(svs.camera.dofFar/svs.camera.dofNear);
 					if (!_finite(ratio) || ratio<1)
 						ratio = 1;
 					if (solver->getCollider()->intersect(ray))
 					{
-						svs.camera.dofNear = ray->hitDistance/ratio;
-						svs.camera.dofFar = ray->hitDistance*ratio;
+						svs.camera.dofNear = ray.hitDistance/ratio;
+						svs.camera.dofFar = ray.hitDistance*ratio;
 					}
 					else
 					{
@@ -2226,7 +2223,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				svframe->m_sceneTree->getAABBOf(selectedEntityIds,PP_CENTER,mini,maxi,pivot);
 				renderedIcons.addXYZ(pivot,(&selectedEntityIds==&autoEntityIds)?selectedTransformation:IC_STATIC,svs.camera);
 			}
-			entityIcons->renderIcons(renderedIcons,solver->getRenderer()->getTextureRenderer(),svs.camera,solver->getCollider(),ray,svs);
+			entityIcons->renderIcons(renderedIcons,solver->getRenderer()->getTextureRenderer(),svs.camera,solver->getCollider(),collisionHandler,svs);
 		}
 	}
 
@@ -2264,32 +2261,33 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		rr::RRVec3                  selectedTriangleCoordsLocal[3];
 		rr::RRVec3                  selectedTriangleCoordsWorld[3];
 		rr::RRMesh::TriangleNormals selectedTriangleNormals;
+		rr::RRRay ray; // filled only when !svs.renderLightmaps2d
 		if (!svs.renderLightmaps2d)
 		{
 			// ray and collisionHandler are used in this block
-			svs.camera.getRay(mousePositionInWindow,ray->rayOrigin,ray->rayDir);
-			ray->rayDir.normalize();
-			ray->rayLengthMin = svs.camera.getNear();
-			ray->rayLengthMax = svs.camera.getFar();
-			ray->rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
-			ray->hitObject = solver->getMultiObject(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
-			ray->collisionHandler = collisionHandler;
+			svs.camera.getRay(mousePositionInWindow,ray.rayOrigin,ray.rayDir);
+			ray.rayDir.normalize();
+			ray.rayLengthMin = svs.camera.getNear();
+			ray.rayLengthMax = svs.camera.getFar();
+			ray.rayFlags = rr::RRRay::FILL_DISTANCE|rr::RRRay::FILL_PLANE|rr::RRRay::FILL_POINT2D|rr::RRRay::FILL_POINT3D|rr::RRRay::FILL_SIDE|rr::RRRay::FILL_TRIANGLE;
+			ray.hitObject = solver->getMultiObject(); // solver->getCollider()->intersect() usually sets hitObject, but sometimes it does not, we set it instead
+			ray.collisionHandler = collisionHandler;
 			if (solver->getCollider()->intersect(ray))
 			{
-				ray->convertHitFromMultiToSingleObject(solver);
+				ray.convertHitFromMultiToSingleObject(solver);
 				selectedPointValid = true;
-				selectedPointObject = ray->hitObject;
+				selectedPointObject = ray.hitObject;
 				selectedPointMesh = selectedPointObject->getCollider()->getMesh();
 				const rr::RRMatrix3x4Ex& hitMatrix = selectedPointObject->getWorldMatrixRef();
-				selectedPointMesh->getTriangle(ray->hitTriangle,selectedTriangle);
+				selectedPointMesh->getTriangle(ray.hitTriangle,selectedTriangle);
 				selectedPointMesh->getVertex(selectedTriangle[0],selectedTriangleCoordsLocal[0]);
 				selectedPointMesh->getVertex(selectedTriangle[1],selectedTriangleCoordsLocal[1]);
 				selectedPointMesh->getVertex(selectedTriangle[2],selectedTriangleCoordsLocal[2]);
 				hitMatrix.transformPosition(selectedTriangleCoordsWorld[0] = selectedTriangleCoordsLocal[0]);
 				hitMatrix.transformPosition(selectedTriangleCoordsWorld[1] = selectedTriangleCoordsLocal[1]);
 				hitMatrix.transformPosition(selectedTriangleCoordsWorld[2] = selectedTriangleCoordsLocal[2]);
-				selectedPointMesh->getTriangleBody(ray->hitTriangle,selectedTriangleBody);
-				selectedPointMesh->getTriangleNormals(ray->hitTriangle,selectedTriangleNormals);
+				selectedPointMesh->getTriangleBody(ray.hitTriangle,selectedTriangleBody);
+				selectedPointMesh->getTriangleNormals(ray.hitTriangle,selectedTriangleNormals);
 				hitMatrix.transformPosition(selectedTriangleBody.vertex0);
 				hitMatrix.transformDirection(selectedTriangleBody.side1);
 				hitMatrix.transformDirection(selectedTriangleBody.side2);
@@ -2299,9 +2297,9 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					hitMatrix.transformNormal(selectedTriangleNormals.vertex[i].tangent);
 					hitMatrix.transformNormal(selectedTriangleNormals.vertex[i].bitangent);
 				}
-				selectedPointBasis.normal = selectedTriangleNormals.vertex[0].normal + (selectedTriangleNormals.vertex[1].normal-selectedTriangleNormals.vertex[0].normal)*ray->hitPoint2d[0] + (selectedTriangleNormals.vertex[2].normal-selectedTriangleNormals.vertex[0].normal)*ray->hitPoint2d[1];
-				selectedPointBasis.tangent = selectedTriangleNormals.vertex[0].tangent + (selectedTriangleNormals.vertex[1].tangent-selectedTriangleNormals.vertex[0].tangent)*ray->hitPoint2d[0] + (selectedTriangleNormals.vertex[2].tangent-selectedTriangleNormals.vertex[0].tangent)*ray->hitPoint2d[1];
-				selectedPointBasis.bitangent = selectedTriangleNormals.vertex[0].bitangent + (selectedTriangleNormals.vertex[1].bitangent-selectedTriangleNormals.vertex[0].bitangent)*ray->hitPoint2d[0] + (selectedTriangleNormals.vertex[2].bitangent-selectedTriangleNormals.vertex[0].bitangent)*ray->hitPoint2d[1];
+				selectedPointBasis.normal = selectedTriangleNormals.vertex[0].normal + (selectedTriangleNormals.vertex[1].normal-selectedTriangleNormals.vertex[0].normal)*ray.hitPoint2d[0] + (selectedTriangleNormals.vertex[2].normal-selectedTriangleNormals.vertex[0].normal)*ray.hitPoint2d[1];
+				selectedPointBasis.tangent = selectedTriangleNormals.vertex[0].tangent + (selectedTriangleNormals.vertex[1].tangent-selectedTriangleNormals.vertex[0].tangent)*ray.hitPoint2d[0] + (selectedTriangleNormals.vertex[2].tangent-selectedTriangleNormals.vertex[0].tangent)*ray.hitPoint2d[1];
+				selectedPointBasis.bitangent = selectedTriangleNormals.vertex[0].bitangent + (selectedTriangleNormals.vertex[1].bitangent-selectedTriangleNormals.vertex[0].bitangent)*ray.hitPoint2d[0] + (selectedTriangleNormals.vertex[2].bitangent-selectedTriangleNormals.vertex[0].bitangent)*ray.hitPoint2d[1];
 			}
 		}
 
@@ -2332,7 +2330,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			drawTangentBasis(selectedTriangleBody.vertex0,selectedTriangleNormals.vertex[0]);
 			drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side1,selectedTriangleNormals.vertex[1]);
 			drawTangentBasis(selectedTriangleBody.vertex0+selectedTriangleBody.side2,selectedTriangleNormals.vertex[2]);
-			drawTangentBasis(ray->hitPoint3d,selectedPointBasis);
+			drawTangentBasis(ray.hitPoint3d,selectedPointBasis);
 			drawTriangle(selectedTriangleBody);
 		}
 
@@ -2458,18 +2456,18 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				if (selectedPointValid)
 				{
-					rr::RRMesh::PreImportNumber preTriangle = selectedPointMesh->getPreImportTriangle(ray->hitTriangle);
-					const rr::RRMaterial* selectedTriangleMaterial = selectedPointObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
+					rr::RRMesh::PreImportNumber preTriangle = selectedPointMesh->getPreImportTriangle(ray.hitTriangle);
+					const rr::RRMaterial* selectedTriangleMaterial = selectedPointObject->getTriangleMaterial(ray.hitTriangle,NULL,NULL);
 					const rr::RRMaterial* material = selectedTriangleMaterial;
 					rr::RRPointMaterial selectedPointMaterial;
 					if (material && material->minimalQualityForPointMaterials<10000)
 					{
-						selectedPointObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,solver->getColorSpace(),true,selectedPointMaterial);
+						selectedPointObject->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,solver->getColorSpace(),true,selectedPointMaterial);
 						material = &selectedPointMaterial;
 					}
 					rr::RRMesh::TriangleMapping triangleMapping;
-					selectedPointMesh->getTriangleMapping(ray->hitTriangle,triangleMapping,material?material->lightmapTexcoord:0);
-					rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray->hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray->hitPoint2d[1];
+					selectedPointMesh->getTriangleMapping(ray.hitTriangle,triangleMapping,material?material->lightmapTexcoord:0);
+					rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray.hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray.hitPoint2d[1];
 					textOutput(x,y+=18*2,h,"[pointed by mouse]");
 					if (selectedPointObject->isDynamic)
 						textOutput(x,y+=18,h,"dynamic object: %ls",selectedPointObject->name.w_str());
@@ -2479,19 +2477,19 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					textOutput(x,y+=18,h,"offline lightmap: %s %dx%d",selectedPointLightmap?(selectedPointLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",selectedPointLightmap?selectedPointLightmap->getWidth():0,selectedPointLightmap?selectedPointLightmap->getHeight():0);
 					if (selectedPointObject->isDynamic)
 					{
-						textOutput(x,y+=18,h,"triangle in object: %d/%d",ray->hitTriangle,selectedPointMesh->getNumTriangles());
+						textOutput(x,y+=18,h,"triangle in object: %d/%d",ray.hitTriangle,selectedPointMesh->getNumTriangles());
 						textOutput(x,y+=18,h,"triangle in static scene:");
 					}
 					else
 					{
 						textOutput(x,y+=18,h,"triangle in object: %d/%d",preTriangle.index,solver->getObject(preTriangle.object)->getCollider()->getMesh()->getNumTriangles());
-						textOutput(x,y+=18,h,"triangle in static scene: %d/%d",ray->hitTriangle,numTrianglesMulti);
+						textOutput(x,y+=18,h,"triangle in static scene: %d/%d",ray.hitTriangle,numTrianglesMulti);
 					}
 					for (unsigned i=0;i<3;i++)
 						textOutput(x,y+=18,h,"trilocal[%d]: %f %f %f",i,selectedTriangleCoordsLocal[i][0],selectedTriangleCoordsLocal[i][1],selectedTriangleCoordsLocal[i][2]);
 					for (unsigned i=0;i<3;i++)
 						textOutput(x,y+=18,h,"triworld[%d]: %f %f %f",i,selectedTriangleCoordsWorld[i][0],selectedTriangleCoordsWorld[i][1],selectedTriangleCoordsWorld[i][2]);
-					textOutput(x,y+=18,h,"uv in triangle: %f %f",ray->hitPoint2d[0],ray->hitPoint2d[1]);
+					textOutput(x,y+=18,h,"uv in triangle: %f %f",ray.hitPoint2d[0],ray.hitPoint2d[1]);
 					textOutput(x,y+=18,h,"uv in lightmap: %f %f",uvInLightmap[0],uvInLightmap[1]);
 					if (selectedPointLightmap && selectedPointLightmap->getType()==rr::BT_2D_TEXTURE)
 					{
@@ -2503,22 +2501,22 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 							// diagnose texel
 							centerObject = preTriangle.object;
 							centerTexel = i + j*selectedPointLightmap->getWidth();
-							centerTriangle = ray->hitTriangle;
+							centerTriangle = ray.hitTriangle;
 						}
 					}
 					if (centerObject==UINT_MAX)
 					{
 						// diagnose triangle
 						centerObject = preTriangle.object;
-						centerTriangle = ray->hitTriangle;
+						centerTriangle = ray.hitTriangle;
 					}
-					textOutput(x,y+=18,h,"distance: %f",ray->hitDistance);
-					textOutput(x,y+=18,h,"pos: %f %f %f",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
-					textOutput(x,y+=18,h,"plane:  %f %f %f %f",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2],ray->hitPlane[3]);
+					textOutput(x,y+=18,h,"distance: %f",ray.hitDistance);
+					textOutput(x,y+=18,h,"pos: %f %f %f",ray.hitPoint3d[0],ray.hitPoint3d[1],ray.hitPoint3d[2]);
+					textOutput(x,y+=18,h,"plane:  %f %f %f %f",ray.hitPlane[0],ray.hitPlane[1],ray.hitPlane[2],ray.hitPlane[3]);
 					textOutput(x,y+=18,h,"normal: %f %f %f",selectedPointBasis.normal[0],selectedPointBasis.normal[1],selectedPointBasis.normal[2]);
 					textOutput(x,y+=18,h,"tangent: %f %f %f",selectedPointBasis.tangent[0],selectedPointBasis.tangent[1],selectedPointBasis.tangent[2]);
 					textOutput(x,y+=18,h,"bitangent: %f %f %f",selectedPointBasis.bitangent[0],selectedPointBasis.bitangent[1],selectedPointBasis.bitangent[2]);
-					textOutput(x,y+=18,h,"side: %s",ray->hitFrontSide?"front":"back");
+					textOutput(x,y+=18,h,"side: %s",ray.hitFrontSide?"front":"back");
 				}
 				textOutput(x,y+=18*2,h,"numbers of casters/lights show potential, what is allowed");
 			}

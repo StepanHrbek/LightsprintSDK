@@ -149,7 +149,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 	ray.hitObject = multiObject; // non-RRMultiCollider does not fill ray.hitObject, we prefill it here, collisionHandler needs it filled
 	RR_ASSERT(ray.collisionHandler==&collisionHandlerGatherHemisphere);
 	collisionHandlerGatherHemisphere.setShooterTriangle(shooterObject,shooterTriangle);
-	if (!ptj.collider || !ptj.collider->intersect(&ray))
+	if (!ptj.collider || !ptj.collider->intersect(ray))
 	{
 		// AO [#22]: possible hits were refused by handler, restore original hitDistance
 		ray.hitDistance = hitDistanceBackup;
@@ -282,7 +282,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 						material->getResponse(response,parameters.brdfTypes);
 						RRVec3 totalContribution = unobstructedLight * response.colorOut;
 						shadowRay.hitObject = multiObject; // non-RRMultiCollider does not fill ray.hitObject, we prefill it here, collisionHandler needs it filled
-						if (totalContribution!=RRVec3(0) && !ptj.collider->intersect(&shadowRay))
+						if (totalContribution!=RRVec3(0) && !ptj.collider->intersect(shadowRay))
 						{
 							// dokud neudelam bidir, shadow raye musej prolitat bez refrakce, s pocitanim pruhlednosti, jinak nevzniknou rgb stiny
 							exitance += totalContribution * collisionHandlerGatherLights.getVisibility() * lightMultiplier;

@@ -86,24 +86,24 @@ public:
 		singleObjectNumber = _singleObjectNumber;
 		singleObjectWorldRadius = _singleObjectWorldRadius;
 	}
-	virtual void init(RRRay* ray)
+	virtual void init(RRRay& ray)
 	{
-		ray->rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_DISTANCE;
+		ray.rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_DISTANCE;
 		hitTriangleMemory = UINT_MAX;
 		hitDistanceMemory = 0;
 	}
-	virtual bool collides(const RRRay* ray)
+	virtual bool collides(const RRRay& ray)
 	{
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_DISTANCE);
+		RR_ASSERT(ray.rayFlags&RRRay::FILL_SIDE);
+		RR_ASSERT(ray.rayFlags&RRRay::FILL_TRIANGLE);
+		RR_ASSERT(ray.rayFlags&RRRay::FILL_DISTANCE);
 
 		// don't collide with self
-		RRMesh::PreImportNumber preImport = multiObject->getCollider()->getMesh()->getPreImportTriangle(ray->hitTriangle);
+		RRMesh::PreImportNumber preImport = multiObject->getCollider()->getMesh()->getPreImportTriangle(ray.hitTriangle);
 		if (preImport.object==singleObjectNumber)
 		{
 			// forget about intersections closer than this self-intersection
-			if (hitDistanceMemory<ray->hitDistance)
+			if (hitDistanceMemory<ray.hitDistance)
 			{
 				hitTriangleMemory = UINT_MAX;
 				hitDistanceMemory = 0;
@@ -112,20 +112,20 @@ public:
 		}
 
 		// don't collide with transparent points
-		RRMaterial* material = multiObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL);
-		if (!material->sideBits[ray->hitFrontSide?0:1].renderFrom || material->specularTransmittance.color==RRVec3(1))
+		RRMaterial* material = multiObject->getTriangleMaterial(ray.hitTriangle,NULL,NULL);
+		if (!material->sideBits[ray.hitFrontSide?0:1].renderFrom || material->specularTransmittance.color==RRVec3(1))
 			return false;
 		//RRPointMaterial pointMaterial;
-		//multiObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,pointMaterial,colorSpace);
-		//if (!pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom || pointMaterial.specularTransmittance.color==RRVec3(1))
+		//multiObject->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,pointMaterial,colorSpace);
+		//if (!pointMaterial.sideBits[ray.hitFrontSide?0:1].renderFrom || pointMaterial.specularTransmittance.color==RRVec3(1))
 		//	return false;
 
-		if (hitTriangleMemory==UINT_MAX || ray->hitDistance<hitDistanceMemory)
+		if (hitTriangleMemory==UINT_MAX || ray.hitDistance<hitDistanceMemory)
 		{
-			hitTriangleMemory = ray->hitTriangle;
-			hitDistanceMemory = ray->hitDistance;
+			hitTriangleMemory = ray.hitTriangle;
+			hitDistanceMemory = ray.hitDistance;
 		}
-		return ray->hitDistance>singleObjectWorldRadius;
+		return ray.hitDistance>singleObjectWorldRadius;
 	}
 	virtual bool done()
 	{
@@ -247,7 +247,7 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 	for (int side=0;side<6;side++)
 	{
 		kit->handler6[side].setup(multiObject,objectNumber,illumination->envMapWorldRadius);
-		RRRay* ray = kit->ray6+side;
+		RRRay& ray = kit->ray6[side];
 		for (unsigned j=0;j<gatherSize;j++)
 			for (unsigned i=0;i<gatherSize;i++)
 			{
@@ -257,15 +257,15 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 				if (multiObject)
 				{
 					// find face
-					ray->rayOrigin = illumination->envMapWorldCenter;
-					ray->rayDir = dir.normalized();
-					ray->rayLengthMin = 0;
-					ray->rayLengthMax = 10000; //!!! hard limit
-					ray->rayFlags = RRRay::FILL_TRIANGLE;
-					ray->hitObject = multiObject;
-					if (ray->hitObject->getCollider()->intersect(ray))
+					ray.rayOrigin = illumination->envMapWorldCenter;
+					ray.rayDir = dir.normalized();
+					ray.rayLengthMin = 0;
+					ray.rayLengthMax = 10000; //!!! hard limit
+					ray.rayFlags = RRRay::FILL_TRIANGLE;
+					ray.hitObject = multiObject;
+					if (ray.hitObject->getCollider()->intersect(ray))
 					{
-						face = kit->handler6[side].gethHitTriangle(); //ray->hitTriangle;
+						face = kit->handler6[side].gethHitTriangle(); //ray.hitTriangle;
 						if (face>=numTriangles)
 						{
 							RR_ASSERT(0);

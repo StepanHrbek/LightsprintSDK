@@ -17,7 +17,7 @@ namespace rr
 //
 // box in 3d
 
-void Box::init(RRVec3 _min, RRVec3 _max)
+void Box::init(const RRVec3& _min, const RRVec3& _max)
 {
 	min = _min;
 	max = _max;
@@ -35,50 +35,50 @@ void Box::init(RRVec3 _min, RRVec3 _max)
 float minf(const float a, const float b) { return a < b ? a : b; }
 float maxf(const float a, const float b) { return a > b ? a : b; }
 
-bool Box::intersect(RRRay* ray) const
+bool Box::intersect(RRRay& ray) const
 // inputs: rayOrigin, rayDir[Inv], rayLengthMin, rayLengthMax
 // outputs: hitDistanceMin, hitDistanceMax
 // source: Thierry Berger-Perrin, http://ompf.org/ray/ray_box.html
 {
 	float
 #ifdef BOX_INPUT_INVDIR
-		l1	= (min[0] - ray->rayOrigin[0]) * ray->rayDirInv[0],
-		l2	= (max[0] - ray->rayOrigin[0]) * ray->rayDirInv[0],
+		l1	= (min[0] - ray.rayOrigin[0]) * ray.rayDirInv[0],
+		l2	= (max[0] - ray.rayOrigin[0]) * ray.rayDirInv[0],
 		lmin	= minf(l1,l2),
 		lmax	= maxf(l1,l2);
 
-	l1	= (min[1] - ray->rayOrigin[1]) * ray->rayDirInv[1];
-	l2	= (max[1] - ray->rayOrigin[1]) * ray->rayDirInv[1];
+	l1	= (min[1] - ray.rayOrigin[1]) * ray.rayDirInv[1];
+	l2	= (max[1] - ray.rayOrigin[1]) * ray.rayDirInv[1];
 	lmin	= maxf(minf(l1,l2), lmin);
 	lmax	= minf(maxf(l1,l2), lmax);
 
-	l1	= (min[2] - ray->rayOrigin[2]) * ray->rayDirInv[2];
-	l2	= (max[2] - ray->rayOrigin[2]) * ray->rayDirInv[2];
+	l1	= (min[2] - ray.rayOrigin[2]) * ray.rayDirInv[2];
+	l2	= (max[2] - ray.rayOrigin[2]) * ray.rayDirInv[2];
 	lmin	= maxf(minf(l1,l2), lmin);
 	lmax	= minf(maxf(l1,l2), lmax);
 #else
-		l1	= (min[0] - ray->rayOrigin[0]) / ray->rayDir[0],
-		l2	= (max[0] - ray->rayOrigin[0]) / ray->rayDir[0],
+		l1	= (min[0] - ray.rayOrigin[0]) / ray.rayDir[0],
+		l2	= (max[0] - ray.rayOrigin[0]) / ray.rayDir[0],
 		lmin	= minf(l1,l2),
 		lmax	= maxf(l1,l2);
 
-	l1	= (min[1] - ray->rayOrigin[1]) / ray->rayDir[1];
-	l2	= (max[1] - ray->rayOrigin[1]) / ray->rayDir[1];
+	l1	= (min[1] - ray.rayOrigin[1]) / ray.rayDir[1];
+	l2	= (max[1] - ray.rayOrigin[1]) / ray.rayDir[1];
 	lmin	= maxf(minf(l1,l2), lmin);
 	lmax	= minf(maxf(l1,l2), lmax);
 
-	l1	= (min[2] - ray->rayOrigin[2]) / ray->rayDir[2];
-	l2	= (max[2] - ray->rayOrigin[2]) / ray->rayDir[2];
+	l1	= (min[2] - ray.rayOrigin[2]) / ray.rayDir[2];
+	l2	= (max[2] - ray.rayOrigin[2]) / ray.rayDir[2];
 	lmin	= maxf(minf(l1,l2), lmin);
 	lmax	= minf(maxf(l1,l2), lmax);
 #endif
 
 #ifndef COLLIDER_INPUT_UNLIMITED_DISTANCE
-	lmin	= maxf(ray->rayLengthMin, lmin);
-	lmax	= minf(ray->rayLengthMax, lmax);
+	lmin	= maxf(ray.rayLengthMin, lmin);
+	lmax	= minf(ray.rayLengthMax, lmax);
 #endif
-	ray->hitDistanceMin = lmin;
-	ray->hitDistanceMax = lmax;
+	ray.hitDistanceMin = lmin;
+	ray.hitDistanceMax = lmax;
 
 	//return ((lmax > 0.f) & (lmax >= lmin));
 	//return ((lmax > 0.f) & (lmax > lmin));
@@ -109,7 +109,7 @@ static const float _MM_ALIGN16
 ps_cst_plus_inf[4]	= {  flt_plus_inf,  flt_plus_inf,  flt_plus_inf,  flt_plus_inf },
 ps_cst_minus_inf[4]	= { -flt_plus_inf, -flt_plus_inf, -flt_plus_inf, -flt_plus_inf };
 
-bool Box::intersect(RRRay* ray) const
+bool Box::intersect(const RRRay& ray) const
 // inputs: rayOrigin, rayDirInv, rayLengthMin, rayLengthMax
 // outputs: hitDistanceMin, hitDistanceMax
 // source: Thierry Berger-Perrin, http://www.flipcode.com/cgi-bin/fcarticles.cgi?show=4&id=65014
@@ -118,16 +118,16 @@ bool Box::intersect(RRRay* ray) const
 	const __m128
 		box_min	= loadps(&min),
 		box_max	= loadps(&max),
-		pos	= loadps(&ray->rayOrigin),
+		pos	= loadps(&ray.rayOrigin),
 #ifdef BOX_INPUT_INVDIR
 		// use a mul if inverted directions are available
-		inv_dir	= loadps(&ray->rayDirInv);
+		inv_dir	= loadps(&ray.rayDirInv);
 
 	const __m128 l1 = mulps(subps(box_min, pos), inv_dir);
 	const __m128 l2 = mulps(subps(box_max, pos), inv_dir);
 #else
 		// use a div if inverted directions aren't available
-		dir	= loadps(&ray->rayDir);
+		dir	= loadps(&ray.rayDir);
 
 	const __m128 l1 = divps(subps(box_min, pos), dir);
 	const __m128 l2 = divps(subps(box_max, pos), dir);
@@ -135,7 +135,7 @@ bool Box::intersect(RRRay* ray) const
 
 #ifdef USE_FAST_BOX
 	// returns bogus result and bogus min/max interval when
-	// (ray->rayOrigin==min || ray->rayOrigin==max) && ray->rayDir==0
+	// (ray.rayOrigin==min || ray.rayOrigin==max) && ray.rayDir==0
 	// in at least one axis.
 	__m128 lmax = maxps(l1, l2);
 	__m128 lmin = minps(l1, l2);
@@ -170,36 +170,36 @@ bool Box::intersect(RRRay* ray) const
 
 #ifdef COLLIDER_INPUT_UNLIMITED_DISTANCE
 	const bool ret = ( _mm_comige_ss(lmax, _mm_setzero_ps()) & _mm_comige_ss(lmax,lmin) ) != 0;
-	storess(lmin, &ray->hitDistanceMin);
-	storess(lmax, &ray->hitDistanceMax);
+	storess(lmin, &ray.hitDistanceMin);
+	storess(lmax, &ray.hitDistanceMax);
 	return ret;
 #else
 	float t_near,t_far;
 	storess(lmin, &t_near);
 	storess(lmax, &t_far);
 
-	ray->hitDistanceMin = RR_MAX(t_near,ray->rayLengthMin);
-	ray->hitDistanceMax = RR_MIN(t_far,ray->rayLengthMax);
-	return ray->hitDistanceMin<ray->hitDistanceMax;
+	ray.hitDistanceMin = RR_MAX(t_near,ray.rayLengthMin);
+	ray.hitDistanceMax = RR_MIN(t_far,ray.rayLengthMax);
+	return ray.hitDistanceMin<ray.hitDistanceMax;
 #endif
 }
 
 // the same for unaligned box
-bool Box::intersectUnaligned(RRRay* ray) const
+bool Box::intersectUnaligned(const RRRay& ray) const
 {
 	const __m128
 		box_min	= _mm_loadu_ps(&min.x),
 		box_max	= _mm_loadu_ps(&max.x),
-		pos	= loadps(&ray->rayOrigin),
+		pos	= loadps(&ray.rayOrigin),
 #ifdef BOX_INPUT_INVDIR
 		// use a mul if inverted directions are available
-		inv_dir	= loadps(&ray->rayDirInv);
+		inv_dir	= loadps(&ray.rayDirInv);
 
 	const __m128 l1 = mulps(subps(box_min, pos), inv_dir);
 	const __m128 l2 = mulps(subps(box_max, pos), inv_dir);
 #else
 		// use a div if inverted directions aren't available
-		dir	= loadps(&ray->rayDir);
+		dir	= loadps(&ray.rayDir);
 
 	const __m128 l1 = divps(subps(box_min, pos), dir);
 	const __m128 l2 = divps(subps(box_max, pos), dir);
@@ -222,9 +222,9 @@ bool Box::intersectUnaligned(RRRay* ray) const
 	storess(lmin, &t_near);
 	storess(lmax, &t_far);
 
-	ray->hitDistanceMin = RR_MAX(t_near,ray->rayLengthMin);
-	ray->hitDistanceMax = RR_MIN(t_far,ray->rayLengthMax);
-	return ray->hitDistanceMin<ray->hitDistanceMax;
+	ray.hitDistanceMin = RR_MAX(t_near,ray.rayLengthMin);
+	ray.hitDistanceMax = RR_MIN(t_far,ray.rayLengthMax);
+	return ray.hitDistanceMin<ray.hitDistanceMax;
 }
 
 #endif

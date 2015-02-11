@@ -45,7 +45,8 @@ class EmbreeCollider : public RRCollider
 
 	struct Ray : public RTCRay
 	{
-		RRRay* rrRay;
+		RRRay& rrRay;
+		Ray(RRRay& _rrRay) : rrRay(_rrRay) {}
 	};
 
 	template <class C, class D>
@@ -103,11 +104,11 @@ class EmbreeCollider : public RRCollider
 		Ray& rtcRay = *(Ray*)&_rtcRay;
 
 		// copy rtcRay to rrRay
-		copyRtcHitToRr(rtcRay,*rtcRay.rrRay);
+		copyRtcHitToRr(rtcRay,rtcRay.rrRay);
 
-		if (rtcRay.rrRay->collisionHandler)
+		if (rtcRay.rrRay.collisionHandler)
 		{
-			if (!rtcRay.rrRay->collisionHandler->collides(rtcRay.rrRay))
+			if (!rtcRay.rrRay.collisionHandler->collides(rtcRay.rrRay))
 				rtcRay.geomID = RTC_INVALID_GEOMETRY_ID;
 		}
 	}
@@ -159,41 +160,40 @@ public:
 		// but building single 8M mesh would be probably much slower, so not worth it
 	}
 
-	virtual bool intersect(RRRay* rrRay) const
+	virtual bool intersect(RRRay& rrRay) const
 	{
-		if (rrRay->collisionHandler)
-			rrRay->collisionHandler->init(rrRay);
-		Ray rtcRay;
-		rtcRay.rrRay = rrRay;
-		copyRrRayToRtc(*rrRay,rtcRay);
+		if (rrRay.collisionHandler)
+			rrRay.collisionHandler->init(rrRay);
+		Ray rtcRay(rrRay);
+		copyRrRayToRtc(rrRay,rtcRay);
 		
 		// backup rrRay.hitXxx (callback overwrites it, but all intersections can be rejected)
-		RRReal          hitDistance  = rrRay->hitDistance;
-		unsigned        hitTriangle  = rrRay->hitTriangle;
-		RRVec2          hitPoint2d   = rrRay->hitPoint2d;
-		RRVec4          hitPlane     = rrRay->hitPlane;
-		RRVec3          hitPoint3d   = rrRay->hitPoint3d;
-		bool            hitFrontSide = rrRay->hitFrontSide;
+		RRReal          hitDistance  = rrRay.hitDistance;
+		unsigned        hitTriangle  = rrRay.hitTriangle;
+		RRVec2          hitPoint2d   = rrRay.hitPoint2d;
+		RRVec4          hitPlane     = rrRay.hitPlane;
+		RRVec3          hitPoint3d   = rrRay.hitPoint3d;
+		bool            hitFrontSide = rrRay.hitFrontSide;
 
 		rtcIntersect(rtcScene,rtcRay);
 		bool result = rtcRay.primID!=RTC_INVALID_GEOMETRY_ID;
-		if (rrRay->collisionHandler)
+		if (rrRay.collisionHandler)
 		{
-			// rrRay->hitXxx is overwritten, here we fix it
-			// (when custom handler rejects collisions, wrong data are left in rrRay->hitXxx)
+			// rrRay.hitXxx is overwritten, here we fix it
+			// (when custom handler rejects collisions, wrong data are left in rrRay.hitXxx)
 			if (result)
-				copyRtcHitToRr(rtcRay,*rtcRay.rrRay);
+				copyRtcHitToRr(rtcRay,rtcRay.rrRay);
 			else
 			{
 				// restore rrRay.hitXxx (callback overwrites it, but all intersections can be rejected)
-				rrRay->hitDistance = hitDistance;
-				rrRay->hitTriangle = hitTriangle;
-				rrRay->hitPoint2d = hitPoint2d;
-				rrRay->hitPlane = hitPlane;
-				rrRay->hitPoint3d = hitPoint3d;
-				rrRay->hitFrontSide = hitFrontSide;
+				rrRay.hitDistance = hitDistance;
+				rrRay.hitTriangle = hitTriangle;
+				rrRay.hitPoint2d = hitPoint2d;
+				rrRay.hitPlane = hitPlane;
+				rrRay.hitPoint3d = hitPoint3d;
+				rrRay.hitFrontSide = hitFrontSide;
 			}
-			result = rrRay->collisionHandler->done();
+			result = rrRay.collisionHandler->done();
 		}
 		return result;
 	};
@@ -238,7 +238,7 @@ public:
 	{
 		delete collider;
 	}
-	virtual bool intersect(RRRay* ray) const
+	virtual bool intersect(RRRay& ray) const
 	{
 		return collider->intersect(ray);
 	}
@@ -442,7 +442,7 @@ void RRCollider::intersectBatch(RRRay* ray, unsigned numRays) const
 	#pragma omp parallel for schedule(static,1)
 	for (int i=0;i<(int)numRays;i++)
 	{
-		if (!intersect(ray+i)) ray[i].hitDistance = -1;
+		if (!intersect(ray[i])) ray[i].hitDistance = -1;
 	}
 }
 
@@ -455,7 +455,7 @@ static void addRay(const RRCollider* collider, RRRay& ray, RRVec3 dir, RRVec2& d
 	float dirLength = dir.length();
 	dir.normalize();
 	ray.rayDir = dir;
-	if (dir.finite() && collider->intersect(&ray))
+	if (dir.finite() && collider->intersect(ray))
 	{
 		// calculation of distanceOfPotentialNearPlane depends on dir length
 		float distanceOfPotentialNearPlane = ray.hitDistance/dirLength;

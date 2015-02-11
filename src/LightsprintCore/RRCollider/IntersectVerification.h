@@ -20,7 +20,7 @@ namespace rr
 	public:
 		static IntersectVerification* create(const RRMesh* aimporter, bool& aborting) {return new IntersectVerification(aimporter,aborting);}
 		virtual ~IntersectVerification();
-		virtual bool      intersect(RRRay* ray) const;
+		virtual bool      intersect(RRRay& ray) const;
 		virtual IntersectTechnique getTechnique() const {return IT_VERIFICATION;}
 		virtual size_t    getMemoryOccupied() const;
 	protected:

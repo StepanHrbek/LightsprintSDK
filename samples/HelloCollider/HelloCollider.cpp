@@ -37,11 +37,11 @@ int main()
 	const RRCollider* collider = RRCollider::create(mesh,NULL,RRCollider::IT_BVH_FAST,aborting);
 
 	// create ray (contains both ray and intersection results)
-	RRRay* ray = RRRay::create();
-	ray->rayOrigin = RRVec3(0,-1,0.3f);
-	ray->rayDir = RRVec3(0,1,0);
-	ray->rayLengthMin = 0;
-	ray->rayLengthMax = 1000;
+	RRRay ray;
+	ray.rayOrigin = RRVec3(0,-1,0.3f);
+	ray.rayDir = RRVec3(0,1,0);
+	ray.rayLengthMin = 0;
+	ray.rayLengthMax = 1000;
 
 	// find intersection
 	bool hit = collider->intersect(ray);
@@ -50,13 +50,13 @@ int main()
 	if (hit)
 	{
 		printf("Intersection was detected.\n\n");
-		printf(" distance = %f\n",ray->hitDistance);
-		printf(" position in object space = %f %f %f\n",ray->hitPoint3d[0],ray->hitPoint3d[1],ray->hitPoint3d[2]);
-		printf(" position in triangle space = %f %f\n",ray->hitPoint2d[0],ray->hitPoint2d[1]);
-		printf(" triangle index in mesh = %d\n",ray->hitTriangle);
-		printf(" triangle index before import = %d\n",mesh->getPreImportTriangle(ray->hitTriangle).index);
-		printf(" triangle side = %s\n",ray->hitFrontSide?"front":"back");
-		printf(" triangle plane = %f %f %f %f\n",ray->hitPlane[0],ray->hitPlane[1],ray->hitPlane[2],ray->hitPlane[3]);
+		printf(" distance = %f\n",ray.hitDistance);
+		printf(" position in object space = %f %f %f\n",ray.hitPoint3d[0],ray.hitPoint3d[1],ray.hitPoint3d[2]);
+		printf(" position in triangle space = %f %f\n",ray.hitPoint2d[0],ray.hitPoint2d[1]);
+		printf(" triangle index in mesh = %d\n",ray.hitTriangle);
+		printf(" triangle index before import = %d\n",mesh->getPreImportTriangle(ray.hitTriangle).index);
+		printf(" triangle side = %s\n",ray.hitFrontSide?"front":"back");
+		printf(" triangle plane = %f %f %f %f\n",ray.hitPlane[0],ray.hitPlane[1],ray.hitPlane[2],ray.hitPlane[3]);
 	}
 	else
 	{
@@ -66,7 +66,6 @@ int main()
 	fgetc(stdin);
 
 	// cleanup
-	delete ray;
 	delete collider;
 	delete mesh;
 

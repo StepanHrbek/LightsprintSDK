@@ -20,11 +20,11 @@ namespace rr
 	public:
 		static IntersectBspCompact* create(const RRMesh* aimporter, IntersectTechnique aintersectTechnique, bool& aborting, const char* cacheLocation, const char* ext, BuildParams* buildParams) {return new IntersectBspCompact(aimporter,aintersectTechnique,aborting,cacheLocation,ext,buildParams);}
 		virtual ~IntersectBspCompact();
-		virtual bool      intersect(RRRay* ray) const;
+		virtual bool      intersect(RRRay& ray) const;
 		virtual IntersectTechnique getTechnique() const {return IT_BSP_COMPACT;}
 		virtual size_t    getMemoryOccupied() const;
 		// must be public because it calls itself with different template params
-		bool              intersect_bsp(RRRay* ray, const BspTree *t, real distanceMax) const; 
+		bool              intersect_bsp(RRRay& ray, const BspTree *t, real distanceMax) const; 
 	protected:
 		IntersectBspCompact(const RRMesh* aimporter, IntersectTechnique aintersectTechnique, bool& aborting, const char* cacheLocation, const char* ext, BuildParams* buildParams);
 		BspTree*          tree;

@@ -66,6 +66,7 @@ CHANGES
 - RRCollider
   - RRCollider::getDistancesFromCamera() has new parameter shadowRays
   - RRCollider::getDistancesFromPoint() has new parameter shadowRays
+  - all RRRay* changed to RRRay&
 - RRLight
   - PHYSICAL renamed to REALISTIC
 - RRObjects

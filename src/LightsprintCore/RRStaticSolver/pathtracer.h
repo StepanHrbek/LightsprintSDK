@@ -98,12 +98,12 @@ public:
 	}
 
 	// Tests one side after setHemisphere(), two sides after setLight().
-	#define TEST_BIT(material,bit) ((material)->sideBits[ray->hitFrontSide?0:1].bit || (light && (material)->sideBits[ray->hitFrontSide?1:0].bit)) // [#45] shadowRays collide with both sides
+	#define TEST_BIT(material,bit) ((material)->sideBits[ray.hitFrontSide?0:1].bit || (light && (material)->sideBits[ray.hitFrontSide?1:0].bit)) // [#45] shadowRays collide with both sides
 
-	virtual void init(RRRay* ray)
+	virtual void init(RRRay& ray)
 	{
 		COLLISION_LOG(log<<"init()\n");
-		ray->rayFlags |= RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
+		ray.rayFlags |= RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
 
 		// gathering hemisphere
 		firstContactMaterial = NULL;
@@ -112,15 +112,15 @@ public:
 		visibility = RRVec3(1);
 	}
 
-	virtual bool collides(const RRRay* ray)
+	virtual bool collides(const RRRay& ray)
 	{
-		COLLISION_LOG(log<<"origin="<<ray->rayOrigin.x<<" "<<ray->rayOrigin.y<<" "<<ray->rayOrigin.z<<" dir="<<ray->rayDir.x<<" "<<ray->rayDir.y<<" "<<ray->rayDir.z<<" hitDistance="<<ray->hitDistance<<" hitTriangle="<<ray->hitTriangle<<"  ");
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_DISTANCE);
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_POINT2D);
+		COLLISION_LOG(log<<"origin="<<ray.rayOrigin.x<<" "<<ray.rayOrigin.y<<" "<<ray.rayOrigin.z<<" dir="<<ray.rayDir.x<<" "<<ray.rayDir.y<<" "<<ray.rayDir.z<<" hitDistance="<<ray.hitDistance<<" hitTriangle="<<ray.hitTriangle<<"  ");
+		RR_ASSERT(ray.rayFlags&RRRay::FILL_DISTANCE);
+		RR_ASSERT(ray.rayFlags&RRRay::FILL_SIDE);
+		RR_ASSERT(ray.rayFlags&RRRay::FILL_TRIANGLE);
+		RR_ASSERT(ray.rayFlags&RRRay::FILL_POINT2D);
 
-		const RRObject* hitObject = ray->hitObject;
+		const RRObject* hitObject = ray.hitObject;
 		RR_ASSERT(hitObject);
 
 		// don't collide with disabled objects
@@ -128,15 +128,15 @@ public:
 			return false;
 
 		// don't collide with shooter
-		if (ray->hitTriangle==shooterTriangleIndex && hitObject==shooterObject)
+		if (ray.hitTriangle==shooterTriangleIndex && hitObject==shooterObject)
 		{
 			COLLISION_LOG(log<<"collides()=false1\n");
 			return false;
 		}
 		// don't collide with other triangles at the same location
 		if (shooterObject && shooterTriangleIndex!=UINT_MAX
-			//&& triangle[shooterTriangleIndex].area==triangle[ray->hitTriangle].area // optimization, but too dangerous, areas of identical triangles might differ because of different vertex order
-			&& ray->hitDistance<1000*ray->rayLengthMin) // [#38] optimization, perform these tests only for hits in small distance (ideally zero, but there is floating point error). we expect our caller to set rayLengthMin to minimalSafeDistance; float error in scene drezy is 1000x bigger
+			//&& triangle[shooterTriangleIndex].area==triangle[ray.hitTriangle].area // optimization, but too dangerous, areas of identical triangles might differ because of different vertex order
+			&& ray.hitDistance<1000*ray.rayLengthMin) // [#38] optimization, perform these tests only for hits in small distance (ideally zero, but there is floating point error). we expect our caller to set rayLengthMin to minimalSafeDistance; float error in scene drezy is 1000x bigger
 		{
 			if (!shooterVertexLoaded)
 			{
@@ -150,7 +150,7 @@ public:
 			}
 			const RRMesh* hitMesh = hitObject->getCollider()->getMesh();
 			RRMesh::Triangle t;
-			hitMesh->getTriangle(ray->hitTriangle,t);
+			hitMesh->getTriangle(ray.hitTriangle,t);
 			for (unsigned i=0;i<3;i++)
 			{
 				RRVec3 hitVertex;
@@ -167,7 +167,7 @@ public:
 		if (staticSceneContainsLods)
 		{
 			RRObject::LodInfo shadowCasterLod;
-			hitObject->getTriangleLod(ray->hitTriangle,shadowCasterLod);
+			hitObject->getTriangleLod(ray.hitTriangle,shadowCasterLod);
 			if ((shadowCasterLod.base==shooterLod.base && shadowCasterLod.level!=shooterLod.level) // non-shooting LOD of shooter
 				|| (shadowCasterLod.base!=shooterLod.base && shadowCasterLod.level)) // non-base LOD of non-shooter
 			{
@@ -178,9 +178,9 @@ public:
 
 		const RRMaterial* triangleMaterial = (triangle && !hitObject->isDynamic) // we can access solver's material only for static objects
 			// gathering hemisphere: don't collide when triangle has surface=NULL (triangle was rejected by setGeometry, everything should work as if it does not exist)
-			? triangle[ray->hitTriangle].surface // read from rrcore, faster than hitObject->getTriangleMaterial(ray->hitTriangle,NULL,NULL)
+			? triangle[ray.hitTriangle].surface // read from rrcore, faster than hitObject->getTriangleMaterial(ray.hitTriangle,NULL,NULL)
 			// gathering light: don't collide when object has shadow casting disabled
-			: hitObject->getTriangleMaterial(ray->hitTriangle,light,singleObjectReceiver);
+			: hitObject->getTriangleMaterial(ray.hitTriangle,light,singleObjectReceiver);
 		if (!triangleMaterial)
 		{
 			COLLISION_LOG(log<<"collides()=false4\n");
@@ -192,7 +192,7 @@ public:
 			if (qualityForPointMaterials>triangleMaterial->minimalQualityForPointMaterials)
 			{
 				unsigned pmi = (firstContactMaterial==pointMaterial)?1:0; // index into pointMaterial[], one that is not occupied by firstContactMaterial
-				hitObject->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,colorSpace,qualityForInterpolation>triangleMaterial->minimalQualityForPointMaterials,pointMaterial[pmi]);
+				hitObject->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,colorSpace,qualityForInterpolation>triangleMaterial->minimalQualityForPointMaterials,pointMaterial[pmi]);
 				if (TEST_BIT(&pointMaterial[pmi],renderFrom))
 				{
 					// gathering hemisphere
@@ -208,8 +208,8 @@ public:
 					// gathering light
 					//  this collison handler cares only about transmittance, but getPointMaterial reads all textures
 					//  it would be nice to send some flag to getPointMaterial above, to read only transmittance, but we don't have such flag yet
-					legal = pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].legal;
-					visibility *= pointMaterial[pmi].specularTransmittance.colorLinear * RRReal( pointMaterial[pmi].sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
+					legal = pointMaterial[pmi].sideBits[ray.hitFrontSide?0:1].legal;
+					visibility *= pointMaterial[pmi].specularTransmittance.colorLinear * RRReal( pointMaterial[pmi].sideBits[ray.hitFrontSide?0:1].transmitFrom * legal );
 					RR_ASSERT(IS_VEC3(pointMaterial[pmi].specularTransmittance.colorLinear));
 					RR_ASSERT(IS_VEC3(visibility));
 					COLLISION_LOG(log<<"collides()=?1\n");
@@ -227,8 +227,8 @@ public:
 					return true;
 				}
 				// gathering light
-				legal = triangleMaterial->sideBits[ray->hitFrontSide?0:1].legal;
-				visibility *= triangleMaterial->specularTransmittance.colorLinear * RRReal( triangleMaterial->sideBits[ray->hitFrontSide?0:1].transmitFrom * legal );
+				legal = triangleMaterial->sideBits[ray.hitFrontSide?0:1].legal;
+				visibility *= triangleMaterial->specularTransmittance.colorLinear * RRReal( triangleMaterial->sideBits[ray.hitFrontSide?0:1].transmitFrom * legal );
 				RR_ASSERT(IS_VEC3(triangleMaterial->specularTransmittance.colorLinear));
 				RR_ASSERT(IS_VEC3(visibility));
 				COLLISION_LOG(log<<"collides()=?2\n");

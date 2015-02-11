@@ -102,7 +102,6 @@ namespace rr_ed
 		unsigned                   centerObject; // object pointed by mouse
 		unsigned                   centerTexel; // texel pointed by mouse
 		unsigned                   centerTriangle; // triangle pointed by mouse, multiObjPostImport
-		rr::RRRay*                 ray; // all users use this ray to prevent allocations in every frame
 		rr::RRCollisionHandler*    collisionHandler; // all users use this collision handler to prevent allocations in every frame
 		bool                       fontInited;
 	public:

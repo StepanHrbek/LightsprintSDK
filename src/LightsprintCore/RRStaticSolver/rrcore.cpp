@@ -678,30 +678,30 @@ public:
 		shooterTriangleIndex = t;
 	}
 
-	virtual void init(RRRay* ray)
+	virtual void init(RRRay& ray)
 	{
-		ray->rayFlags |= RRRay::FILL_TRIANGLE;
+		ray.rayFlags |= RRRay::FILL_TRIANGLE;
 		result = false;
 	}
 
-	virtual bool collides(const RRRay* ray)
+	virtual bool collides(const RRRay& ray)
 	{
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
+		RR_ASSERT(ray.rayFlags&RRRay::FILL_TRIANGLE);
 
 		// don't collide with shooter
-		if (ray->hitTriangle==shooterTriangleIndex)
+		if (ray.hitTriangle==shooterTriangleIndex)
 			return false;
 
 		// don't collide with lod!0
-		if (!triangle[ray->hitTriangle].isLod0)
+		if (!triangle[ray.hitTriangle].isLod0)
 			return false;
 
 		// Don't collide when object has NULL material (illegal input), or catchFrom=false.
 		// For a very long time, we did not use any !catchFrom materials, and this was commented out as unnecessary.
 		// Then we started using !catchFrom (when both front and back are disabled in SV), here we respond to !catchFrom.
-		if (!triangle[ray->hitTriangle].surface)
+		if (!triangle[ray.hitTriangle].surface)
 			return false;
-		if (!triangle[ray->hitTriangle].surface->sideBits[ray->hitFrontSide?0:1].catchFrom)
+		if (!triangle[ray.hitTriangle].surface->sideBits[ray.hitFrontSide?0:1].catchFrom)
 			return false;
 
 		return result = true;
@@ -868,7 +868,7 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	ray.hitObject = object->importer;
 	shootingKernel->collisionHandlerLod0->setShooterTriangle((unsigned)(skip-object->triangle));
 	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
-		&& ray.hitObject->getCollider()->intersect(&ray)) ? &object->triangle[ray.hitTriangle] : NULL;
+		&& ray.hitObject->getCollider()->intersect(ray)) ? &object->triangle[ray.hitTriangle] : NULL;
 	if (!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
 	{
 		if (!hitTriangle && skyPatchHitsForCurrentTriangle)

@@ -37,9 +37,9 @@ namespace rr
 		Vec3    min;
 		real    pad;
 		Vec3    max;
-		void    init(RRVec3 _min, RRVec3 _max);
-		bool    intersect(RRRay* ray) const;
-		bool    intersectUnaligned(RRRay* ray) const;
+		void    init(const RRVec3& min, const RRVec3& max);
+		bool    intersect(const RRRay& ray) const;
+		bool    intersectUnaligned(const RRRay& ray) const;
 	};
 }
 

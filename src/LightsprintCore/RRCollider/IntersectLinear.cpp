@@ -21,45 +21,45 @@ using namespace std; // necessary for isnan() on Mac
 namespace rr
 {
 
-PRIVATE bool update_rayDir(RRRay* ray)
+PRIVATE bool update_rayDir(RRRay& ray)
 {
 #ifdef COLLIDER_INPUT_INVDIR
-	ray->rayDir[0] = 1/ray->rayDirInv[0];
-	ray->rayDir[1] = 1/ray->rayDirInv[1];
-	ray->rayDir[2] = 1/ray->rayDirInv[2];
+	ray.rayDir[0] = 1/ray.rayDirInv[0];
+	ray.rayDir[1] = 1/ray.rayDirInv[1];
+	ray.rayDir[2] = 1/ray.rayDirInv[2];
 #else
 #ifdef TRAVERSAL_INPUT_DIR_INVDIR
-	ray->rayDirInv[0] = 1/ray->rayDir[0];
-	ray->rayDirInv[1] = 1/ray->rayDir[1];
-	ray->rayDirInv[2] = 1/ray->rayDir[2];
+	ray.rayDirInv[0] = 1/ray.rayDir[0];
+	ray.rayDirInv[1] = 1/ray.rayDir[1];
+	ray.rayDirInv[2] = 1/ray.rayDir[2];
 #endif
 #endif
 	return true;
 }
 
-PRIVATE void update_hitPoint3d(RRRay* ray, real distance)
+PRIVATE void update_hitPoint3d(RRRay& ray, real distance)
 {
-	ray->hitPoint3d[0] = ray->rayOrigin[0] + ray->rayDir[0]*distance;
-	ray->hitPoint3d[1] = ray->rayOrigin[1] + ray->rayDir[1]*distance;
-	ray->hitPoint3d[2] = ray->rayOrigin[2] + ray->rayDir[2]*distance;
+	ray.hitPoint3d[0] = ray.rayOrigin[0] + ray.rayDir[0]*distance;
+	ray.hitPoint3d[1] = ray.rayOrigin[1] + ray.rayDir[1]*distance;
+	ray.hitPoint3d[2] = ray.rayOrigin[2] + ray.rayDir[2]*distance;
 }
 
-PRIVATE void update_hitPlane(RRRay* ray, const RRMesh* importer)
+PRIVATE void update_hitPlane(RRRay& ray, const RRMesh* importer)
 {
 	RRMesh::TriangleBody t2;
-	importer->getTriangleBody(ray->hitTriangle,t2);
+	importer->getTriangleBody(ray.hitTriangle,t2);
 	Vec3 n;
 	n.x = t2.side1[1] * t2.side2[2] - t2.side1[2] * t2.side2[1];
 	n.y = t2.side1[2] * t2.side2[0] - t2.side1[0] * t2.side2[2];
 	n.z = t2.side1[0] * t2.side2[1] - t2.side1[1] * t2.side2[0];
 	real siz = size(n);
-	ray->hitPlane[0] = n.x/siz;
-	ray->hitPlane[1] = n.y/siz;
-	ray->hitPlane[2] = n.z/siz;
-	ray->hitPlane[3] = -(t2.vertex0[0] * ray->hitPlane[0] + t2.vertex0[1] * ray->hitPlane[1] + t2.vertex0[2] * ray->hitPlane[2]);
+	ray.hitPlane[0] = n.x/siz;
+	ray.hitPlane[1] = n.y/siz;
+	ray.hitPlane[2] = n.z/siz;
+	ray.hitPlane[3] = -(t2.vertex0[0] * ray.hitPlane[0] + t2.vertex0[1] * ray.hitPlane[1] + t2.vertex0[2] * ray.hitPlane[2]);
 }
 
-PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
+PRIVATE bool intersect_triangle(RRRay& ray, const RRMesh::TriangleBody* t)
 // input:                ray, t
 // returns:              true if ray hits t
 // modifies when hit:    hitDistance, hitPoint2D, hitFrontSide
@@ -70,7 +70,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
 	RR_ASSERT(t);
 
 	// calculate determinant - also used to calculate U parameter
-	Vec3 pvec = orthogonalTo(ray->rayDir,t->side2);
+	Vec3 pvec = orthogonalTo(ray.rayDir,t->side2);
 	real det = dot(t->side1,pvec);
 
 	// cull test
@@ -82,7 +82,7 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
 	//if (det>-EPSILON && det<EPSILON) return false;
 
 	// calculate distance from vert0 to ray origin
-	Vec3 tvec = ray->rayOrigin-t->vertex0;
+	Vec3 tvec = ray.rayOrigin-t->vertex0;
 
 	// calculate U parameter and test bounds
 	real u = dot(tvec,pvec)/det;
@@ -92,20 +92,20 @@ PRIVATE bool intersect_triangle(RRRay* ray, const RRMesh::TriangleBody* t)
 	Vec3 qvec = orthogonalTo(tvec,t->side1);
 
 	// calculate V parameter and test bounds
-	real v = dot(ray->rayDir,qvec)/det;
+	real v = dot(ray.rayDir,qvec)/det;
 	if (v<0 || u+v>1) return false;
 
 	// calculate distance where ray intersects triangle
 	real dist = dot(t->side2,qvec)/det;
-	if (dist<ray->hitDistanceMin || dist>ray->hitDistanceMax) return false;
+	if (dist<ray.hitDistanceMin || dist>ray.hitDistanceMax) return false;
 
-	ray->hitDistance = dist;
+	ray.hitDistance = dist;
 #ifdef FILL_HITPOINT2D
-	ray->hitPoint2d[0] = u;
-	ray->hitPoint2d[1] = v;
+	ray.hitPoint2d[0] = u;
+	ray.hitPoint2d[1] = v;
 #endif
 #ifdef FILL_HITSIDE
-	ray->hitFrontSide = hitFrontSide;
+	ray.hitFrontSide = hitFrontSide;
 #endif
 	return true;
 }
@@ -159,7 +159,7 @@ bool IntersectLinear::isValidTriangle(unsigned i) const
 // but not with *skip and not more far than *hitDistance
 //bool Object::intersection(RRVec3 eye,Vec3 direction,Triankle *skip,
 //  Triangle **hitTriangle,Hit *hitPoint2d,bool *hitFrontSide,real *hitDistance)
-bool IntersectLinear::intersect(RRRay* ray) const
+bool IntersectLinear::intersect(RRRay& ray) const
 {
 	DBG(printf("\n"));
 	FILL_STATISTIC(intersectStats.intersect_mesh++);
@@ -171,8 +171,8 @@ bool IntersectLinear::intersect(RRRay* ray) const
 
 #ifdef COLLISION_HANDLER
 	char backup[sizeof(RRRay)];
-	if (ray->collisionHandler)
-		ray->collisionHandler->init(ray);
+	if (ray.collisionHandler)
+		ray.collisionHandler->init(ray);
 #endif
 
 	// collisionHandler->init/done must be called _always_, users depend on it,
@@ -197,9 +197,9 @@ bool IntersectLinear::intersect(RRRay* ray) const
 			if (boxUnaligned.intersect(ray))
 #endif
 			{
-				ray->hitDistance = ray->hitDistanceMax;
+				ray.hitDistance = ray.hitDistanceMax;
 				update_rayDir(ray);
-				RR_ASSERT(fabs(size2(ray->rayDir)-1)<0.001);//ocekava normalizovanej dir
+				RR_ASSERT(fabs(size2(ray.rayDir)-1)<0.001);//ocekava normalizovanej dir
 				FILL_STATISTIC(intersectStats.intersect_linear++);
 				for (unsigned t=0;t<triangles;t++)
 				{
@@ -207,34 +207,34 @@ bool IntersectLinear::intersect(RRRay* ray) const
 					importer->getTriangleBody(t,t2);
 					if (intersect_triangle(ray,&t2))
 					{
-						ray->hitTriangle = t;
+						ray.hitTriangle = t;
 			#ifdef COLLISION_HANDLER
-						if (ray->collisionHandler) 
+						if (ray.collisionHandler) 
 						{
 			#ifdef FILL_HITPOINT3D
-							if (ray->rayFlags&RRRay::FILL_POINT3D)
+							if (ray.rayFlags&RRRay::FILL_POINT3D)
 							{
-								update_hitPoint3d(ray,ray->hitDistance);
+								update_hitPoint3d(ray,ray.hitDistance);
 							}
 			#endif
 			#ifdef FILL_HITPLANE
-							if (ray->rayFlags&RRRay::FILL_PLANE)
+							if (ray.rayFlags&RRRay::FILL_PLANE)
 							{
 								update_hitPlane(ray,importer);
 							}
 			#endif
 							// hits are reported in random order
-							if (ray->collisionHandler->collides(ray)) 
+							if (ray.collisionHandler->collides(ray)) 
 							{
-								memcpy(backup,ray,sizeof(*ray)); // the best hit is stored, *ray may be overwritten by other faces that seems better until they get refused by collides
-								ray->hitDistanceMax = ray->hitDistance;
+								memcpy(backup,&ray,sizeof(ray)); // the best hit is stored, ray may be overwritten by other faces that seems better until they get refused by collides
+								ray.hitDistanceMax = ray.hitDistance;
 								hit = true;
 							}
 						}
 						else
 			#endif
 						{
-							ray->hitDistanceMax = ray->hitDistance;
+							ray.hitDistanceMax = ray.hitDistance;
 							hit = true;
 						}
 					}
@@ -244,26 +244,26 @@ bool IntersectLinear::intersect(RRRay* ray) const
 	}
 
 #ifdef COLLISION_HANDLER
-	if (ray->collisionHandler)
-		hit = ray->collisionHandler->done();
+	if (ray.collisionHandler)
+		hit = ray.collisionHandler->done();
 #endif
 
 	if (hit) 
 	{
 #ifdef COLLISION_HANDLER
-		if (ray->collisionHandler)
+		if (ray.collisionHandler)
 		{
-			memcpy(ray,backup,sizeof(*ray)); // the best hit is restored
+			memcpy(&ray,backup,sizeof(ray)); // the best hit is restored
 		}
 #endif
 #ifdef FILL_HITPOINT3D
-		if (ray->rayFlags&RRRay::FILL_POINT3D)
+		if (ray.rayFlags&RRRay::FILL_POINT3D)
 		{
-			update_hitPoint3d(ray,ray->hitDistance);
+			update_hitPoint3d(ray,ray.hitDistance);
 		}
 #endif
 #ifdef FILL_HITPLANE
-		if (ray->rayFlags&RRRay::FILL_PLANE)
+		if (ray.rayFlags&RRRay::FILL_PLANE)
 		{
 			update_hitPlane(ray,importer);
 		}
@@ -282,31 +282,31 @@ IntersectLinear::~IntersectLinear()
 //
 // RayHitBackup
 
-void RayHitBackup::createBackupOf(const RRRay* ray)
+void RayHitBackup::createBackupOf(const RRRay& ray)
 {
-	hitTriangle = ray->hitTriangle;
-	hitObject = ray->hitObject;
-	hitDistance = ray->hitDistance;
+	hitTriangle = ray.hitTriangle;
+	hitObject = ray.hitObject;
+	hitDistance = ray.hitDistance;
 	#ifdef FILL_HITPOINT2D
-		hitPoint2d = ray->hitPoint2d;
+		hitPoint2d = ray.hitPoint2d;
 	#endif
 	#ifdef FILL_HITSIDE
-		hitFrontSide = ray->hitFrontSide;
+		hitFrontSide = ray.hitFrontSide;
 	#endif
 }
 
-// if mesh is NULL, ray->hitObject must be set
-void RayHitBackup::restoreBackupTo(RRRay* ray, const RRMesh* mesh)
+// if mesh is NULL, ray.hitObject must be set
+void RayHitBackup::restoreBackupTo(RRRay& ray, const RRMesh* mesh)
 {
 	// some data are copied
-	ray->hitTriangle = hitTriangle;
-	ray->hitObject = hitObject;
-	ray->hitDistance = hitDistance;
+	ray.hitTriangle = hitTriangle;
+	ray.hitObject = hitObject;
+	ray.hitDistance = hitDistance;
 	#ifdef FILL_HITPOINT2D
-		ray->hitPoint2d = hitPoint2d;
+		ray.hitPoint2d = hitPoint2d;
 	#endif
 	#ifdef FILL_HITSIDE
-		ray->hitFrontSide = hitFrontSide;
+		ray.hitFrontSide = hitFrontSide;
 		if (hitObject)
 		{
 			// corrects hitFrontSide for objects with negative scale
@@ -314,29 +314,29 @@ void RayHitBackup::restoreBackupTo(RRRay* ray, const RRMesh* mesh)
 			// static objects somehow end up good, probably thanks to merging into multiobject
 			RRVec3 scale = hitObject->getWorldMatrixRef().getScale();
 			if (scale.x*scale.y*scale.z<0) 
-				ray->hitFrontSide = !hitFrontSide;
+				ray.hitFrontSide = !hitFrontSide;
 		}
 	#endif
 	// some data are autogenerated
 	#ifdef FILL_HITPOINT3D
-		if (ray->rayFlags&RRRay::FILL_POINT3D)
+		if (ray.rayFlags&RRRay::FILL_POINT3D)
 		{
-			RR_ASSERT(ray->rayFlags&RRRay::FILL_DISTANCE); //!!! this is not ensured
-			update_hitPoint3d(ray,ray->hitDistance);
+			RR_ASSERT(ray.rayFlags&RRRay::FILL_DISTANCE); //!!! this is not ensured
+			update_hitPoint3d(ray,ray.hitDistance);
 		}
 	#endif
 	#ifdef FILL_HITPLANE
-		if (ray->rayFlags&RRRay::FILL_PLANE)
+		if (ray.rayFlags&RRRay::FILL_PLANE)
 		{
 			// sets local space hitPlane
-			update_hitPlane(ray,mesh?mesh:ray->hitObject->getCollider()->getMesh());
+			update_hitPlane(ray,mesh?mesh:ray.hitObject->getCollider()->getMesh());
 			// converts it to world space
-			if (ray->hitObject && ray->hitObject->getWorldMatrix())
+			if (ray.hitObject && ray.hitObject->getWorldMatrix())
 			{
-				ray->hitObject->getWorldMatrix()->transformPlane(ray->hitPlane);
+				ray.hitObject->getWorldMatrix()->transformPlane(ray.hitPlane);
 				// normalize
-				RRReal length = ray->hitPlane.RRVec3::length();
-				ray->hitPlane /= length;
+				RRReal length = ray.hitPlane.RRVec3::length();
+				ray.hitPlane /= length;
 			}
 		}
 	#endif
@@ -367,7 +367,7 @@ RayHitBackup* RayHits::getSlots()
 	return backupSlotDynamic ? backupSlotDynamic : backupSlotStatic;
 }
 
-void RayHits::insertHitUnordered(const RRRay* ray)
+void RayHits::insertHitUnordered(const RRRay& ray)
 {
 	RR_ASSERT(ray);
 	if (backupSlotsUsed==STATIC_SLOTS)
@@ -384,24 +384,24 @@ void RayHits::insertHitUnordered(const RRRay* ray)
 		delete[] tmp;
 	}
 	getSlots()[backupSlotsUsed++].createBackupOf(ray);
-	if (ray->hitDistance<getSlots()[theBestSlot].getHitDistance()) theBestSlot = backupSlotsUsed-1;
+	if (ray.hitDistance<getSlots()[theBestSlot].getHitDistance()) theBestSlot = backupSlotsUsed-1;
 }
 
-// if mesh is NULL, ray->hitObject must be set
-bool RayHits::getHitOrdered(RRRay* ray, const RRMesh* mesh)
+// if mesh is NULL, ray.hitObject must be set
+bool RayHits::getHitOrdered(RRRay& ray, const RRMesh* mesh)
 {
 	RR_ASSERT(ray);
 	bool hit = false;
-	if (ray && backupSlotsUsed)
+	if (backupSlotsUsed)
 	{
 		// restore the most close hit
 		getSlots()[theBestSlot].restoreBackupTo(ray,mesh);
 
 #ifdef COLLISION_HANDLER
-		if (ray->collisionHandler)
+		if (ray.collisionHandler)
 		{
 			// optimization: try theBestSlot first, before qsort
-			if (ray->collisionHandler->collides(ray)) 
+			if (ray.collisionHandler->collides(ray)) 
 			{
 				hit = true;
 			}
@@ -417,7 +417,7 @@ bool RayHits::getHitOrdered(RRRay* ray, const RRMesh* mesh)
 				for (unsigned i=1;i<backupSlotsUsed;i++)
 				{
 					getSlots()[i].restoreBackupTo(ray,mesh);
-					if (ray->collisionHandler->collides(ray)) 
+					if (ray.collisionHandler->collides(ray)) 
 					{
 						hit = true;
 						break;

@@ -262,7 +262,7 @@ static void generateRandomCamera(const RRSolver* _solver, RRVec3& _pos, RRVec3& 
 			ray.rayLengthMax = _maxdist;
 			ray.rayFlags = RRRay::FILL_TRIANGLE|RRRay::FILL_SIDE;
 			ray.hitObject = _solver->getMultiObject();
-			if (collider->intersect(&ray))
+			if (collider->intersect(ray))
 			{
 				const RRMaterial* material = ray.hitObject->getTriangleMaterial(ray.hitTriangle,NULL,NULL);
 				if ((material && material->sideBits[ray.hitFrontSide?0:1].renderFrom) || (!material && ray.hitFrontSide))

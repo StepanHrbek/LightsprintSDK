@@ -440,7 +440,7 @@ public:
 			//ray.hitObject = already set in ctor
 			ray.collisionHandler = &collisionHandlerGatherLight;
 			collisionHandlerGatherLight.setLight(_light,pti.context.singleObjectReceiver);
-			if (!_light->castShadows || !tools.collider->intersect(&ray))
+			if (!_light->castShadows || !tools.collider->intersect(ray))
 			{
 				// direct visibility found (at least partial), add irradiance from light
 				// !_light->castShadows -> direct visibility guaranteed even without raycast
@@ -640,7 +640,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	for (TexelSubTexels::const_iterator i=pti.subTexels->begin();i!=pti.subTexels->end();++i) areaMax += i->areaInMapSpace;
 
 	// shoot
-	extern void (*g_logRay)(const RRRay* ray,bool hit);
+	extern void (*g_logRay)(const RRRay& ray,bool hit);
 	g_logRay = pti.context.params.debugRay;
 	while (1)
 	{

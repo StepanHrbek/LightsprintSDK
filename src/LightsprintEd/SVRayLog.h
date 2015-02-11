@@ -30,7 +30,7 @@ namespace rr_ed
 		static Ray log[MAX_RAYS];
 		static unsigned size;
 
-		static void push_back(const rr::RRRay* ray, bool hit);
+		static void push_back(const rr::RRRay& ray, bool hit);
 	};
 
 }; // namespace

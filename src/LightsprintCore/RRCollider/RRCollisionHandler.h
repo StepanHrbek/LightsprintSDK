@@ -26,25 +26,25 @@ public:
 		object = _object;
 		shadowRays = _shadowRays;
 	}
-	virtual void init(RRRay* ray)
+	virtual void init(RRRay& ray)
 	{
-		ray->rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
+		ray.rayFlags |= RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
 		result = false;
 	}
-	virtual bool collides(const RRRay* ray)
+	virtual bool collides(const RRRay& ray)
 	{
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_POINT2D);
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_TRIANGLE);
-		RR_ASSERT(ray->rayFlags&RRRay::FILL_SIDE);
+		RR_ASSERT(ray.rayFlags&RRRay::FILL_POINT2D);
+		RR_ASSERT(ray.rayFlags&RRRay::FILL_TRIANGLE);
+		RR_ASSERT(ray.rayFlags&RRRay::FILL_SIDE);
 
-		const RRObject* objectToReadMaterialFrom = ray->hitObject?ray->hitObject:object;
+		const RRObject* objectToReadMaterialFrom = ray.hitObject?ray.hitObject:object;
 		if (!objectToReadMaterialFrom)
 			return true;
 
 		RRPointMaterial pointMaterial;
-		objectToReadMaterialFrom->getPointMaterial(ray->hitTriangle,ray->hitPoint2d,NULL,false,pointMaterial); // custom is sufficient, no colorSpace needed
-		if ( (pointMaterial.sideBits[ray->hitFrontSide?0:1].renderFrom
-			 || (shadowRays && pointMaterial.sideBits[ray->hitFrontSide?1:0].renderFrom) // [#45] shadowRays collide with both sides
+		objectToReadMaterialFrom->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,NULL,false,pointMaterial); // custom is sufficient, no colorSpace needed
+		if ( (pointMaterial.sideBits[ray.hitFrontSide?0:1].renderFrom
+			 || (shadowRays && pointMaterial.sideBits[ray.hitFrontSide?1:0].renderFrom) // [#45] shadowRays collide with both sides
 			)
 			// This makes selecting in sceneviewer see through transparent pixels, they don't have renderFrom cleared.
 			&& pointMaterial.specularTransmittance.color!=RRVec3(1))

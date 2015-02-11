@@ -1010,18 +1010,18 @@ void keyboard(unsigned char c, int x, int y)
 		case '8':
 		case '9':
 			{
-				rr::RRRay* ray = rr::RRRay::create();
+				rr::RRRay ray;
 				rr::RRVec3 dir = currentFrame.eye.getDirection();
-				ray->rayOrigin = currentFrame.eye.getPosition();
-				ray->rayDir = dir;
-				ray->rayLengthMin = 0;
-				ray->rayLengthMax = 1000;
-				ray->rayFlags = rr::RRRay::FILL_POINT3D;
-				ray->hitObject = level->solver->getMultiObject();
+				ray.rayOrigin = currentFrame.eye.getPosition();
+				ray.rayDir = dir;
+				ray.rayLengthMin = 0;
+				ray.rayLengthMax = 1000;
+				ray.rayFlags = rr::RRRay::FILL_POINT3D;
+				ray.hitObject = level->solver->getMultiObject();
 				// kdyz neni kolize se scenou, umistit 10m daleko
-				if (!ray->hitObject->getCollider()->intersect(ray))
+				if (!ray.hitObject->getCollider()->intersect(ray))
 				{
-					ray->hitPoint3d = ray->rayOrigin+dir*10;
+					ray.hitPoint3d = ray.rayOrigin+dir*10;
 				}
 				// keys 1/2/3... index one of few sceneobjects
 				unsigned selectedObject_indexInScene = c-'1';
@@ -1031,12 +1031,12 @@ void keyboard(unsigned char c, int x, int y)
 					selectedObject_indexInDemo = level->setup->objects[selectedObject_indexInScene];
 					if (!modif)
 					{
-						if (demoPlayer->getDynamicObjects()->getPos(selectedObject_indexInDemo)==ray->hitPoint3d)
+						if (demoPlayer->getDynamicObjects()->getPos(selectedObject_indexInDemo)==ray.hitPoint3d)
 							// hide (move to 0)
 							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,rr::RRVec3(0));
 						else
 							// move to given position
-							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray->hitPoint3d);//+rr::RRVec3(0,1.2f,0));
+							demoPlayer->getDynamicObjects()->setPos(selectedObject_indexInDemo,ray.hitPoint3d);//+rr::RRVec3(0,1.2f,0));
 					}
 				}
 				level->solver->reportDirectIlluminationChange(0,true,false,false);

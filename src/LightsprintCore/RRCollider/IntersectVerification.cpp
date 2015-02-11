@@ -47,7 +47,7 @@ size_t IntersectVerification::getMemoryOccupied() const
 	return sum;
 }
 
-bool IntersectVerification::intersect(RRRay* ray) const
+bool IntersectVerification::intersect(RRRay& ray) const
 {
 	RRRay* rayArray = RRRay::create(IT_VERIFICATION);
 	bool hit[IT_VERIFICATION];
@@ -61,19 +61,19 @@ bool IntersectVerification::intersect(RRRay* ray) const
 	bool diffAny = false;
 	for (unsigned i=0;i<IT_VERIFICATION;i++)
 	{
-		rayArray[i] = *ray;
-		hit[i] = collider[i]->intersect(rayArray+i);
+		rayArray[i] = ray;
+		hit[i] = collider[i]->intersect(rayArray[i]);
 		if (hit[i]!=hit[0]) diffHit = true;
 		if (i!=0 && hit[i] && hit[0])
 		{
 			real delta;
 #define DIFFERS(a,b) ( (a!=b) && fabs(a-b)>delta )
-			if (ray->rayFlags&RRRay::FILL_TRIANGLE) if (rayArray[i].hitTriangle!=rayArray[0].hitTriangle) diffTriangle = true;
-			if (ray->rayFlags&RRRay::FILL_SIDE)     if (rayArray[i].hitFrontSide!=rayArray[0].hitFrontSide) diffSide = true;
-			if (ray->rayFlags&RRRay::FILL_DISTANCE) {delta=10*DELTA_BSP;if (DIFFERS(rayArray[i].hitDistance,rayArray[0].hitDistance)) diffDistance = true;}
-			if (ray->rayFlags&RRRay::FILL_POINT2D)  {delta=0.001f;if (DIFFERS(rayArray[i].hitPoint2d[0],rayArray[0].hitPoint2d[0]) || DIFFERS(rayArray[i].hitPoint2d[1],rayArray[0].hitPoint2d[1])) diffPoint2d = true;}
-			if (ray->rayFlags&RRRay::FILL_POINT3D)  {delta=10*DELTA_BSP;if (DIFFERS(rayArray[i].hitPoint3d[0],rayArray[0].hitPoint3d[0]) || DIFFERS(rayArray[i].hitPoint3d[1],rayArray[0].hitPoint3d[1]) || DIFFERS(rayArray[i].hitPoint3d[2],rayArray[0].hitPoint3d[2])) diffPoint3d = true;}
-			if (ray->rayFlags&RRRay::FILL_PLANE)    {delta=0.001f;if (DIFFERS(rayArray[i].hitPlane[0],rayArray[0].hitPlane[0]) || DIFFERS(rayArray[i].hitPlane[1],rayArray[0].hitPlane[1]) || DIFFERS(rayArray[i].hitPlane[2],rayArray[0].hitPlane[2]) || DIFFERS(rayArray[i].hitPlane[3],rayArray[0].hitPlane[3])) diffPlane = true;}
+			if (ray.rayFlags&RRRay::FILL_TRIANGLE) if (rayArray[i].hitTriangle!=rayArray[0].hitTriangle) diffTriangle = true;
+			if (ray.rayFlags&RRRay::FILL_SIDE)     if (rayArray[i].hitFrontSide!=rayArray[0].hitFrontSide) diffSide = true;
+			if (ray.rayFlags&RRRay::FILL_DISTANCE) {delta=10*DELTA_BSP;if (DIFFERS(rayArray[i].hitDistance,rayArray[0].hitDistance)) diffDistance = true;}
+			if (ray.rayFlags&RRRay::FILL_POINT2D)  {delta=0.001f;if (DIFFERS(rayArray[i].hitPoint2d[0],rayArray[0].hitPoint2d[0]) || DIFFERS(rayArray[i].hitPoint2d[1],rayArray[0].hitPoint2d[1])) diffPoint2d = true;}
+			if (ray.rayFlags&RRRay::FILL_POINT3D)  {delta=10*DELTA_BSP;if (DIFFERS(rayArray[i].hitPoint3d[0],rayArray[0].hitPoint3d[0]) || DIFFERS(rayArray[i].hitPoint3d[1],rayArray[0].hitPoint3d[1]) || DIFFERS(rayArray[i].hitPoint3d[2],rayArray[0].hitPoint3d[2])) diffPoint3d = true;}
+			if (ray.rayFlags&RRRay::FILL_PLANE)    {delta=0.001f;if (DIFFERS(rayArray[i].hitPlane[0],rayArray[0].hitPlane[0]) || DIFFERS(rayArray[i].hitPlane[1],rayArray[0].hitPlane[1]) || DIFFERS(rayArray[i].hitPlane[2],rayArray[0].hitPlane[2]) || DIFFERS(rayArray[i].hitPlane[3],rayArray[0].hitPlane[3])) diffPlane = true;}
 #undef DIFFERS
 		}
 	}
@@ -87,7 +87,7 @@ bool IntersectVerification::intersect(RRRay* ray) const
 	for (unsigned j=0;j<4;j++) TEST_DIFF(diffPlane,"plane=","%f",hit[i]?rayArray[i].hitPlane[j]:0);
 #undef TEST_DIFF
 	if (diffAny) RRReporter::report(INF2,"\n");
-	*ray = rayArray[0];
+	ray = rayArray[0];
 	delete[] rayArray;
 	return hit[0];
 }

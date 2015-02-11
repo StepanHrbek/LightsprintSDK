@@ -119,7 +119,7 @@ bool SVEntityIcons::isOk() const
 	return true;
 }
 
-void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRRay* ray, const SceneViewerStateEx& svs)
+void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRenderer* textureRenderer, const rr::RRCamera& eye, const rr::RRCollider* supercollider, rr::RRCollisionHandler* collisionHandler, const SceneViewerStateEx& svs)
 {
 	if (!programArrows)
 		return;
@@ -180,15 +180,16 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 			{
 				// test visibility
 				bool visible = true;
-				if (supercollider && ray)
+				if (supercollider)
 				{
-					ray->rayOrigin = rayVisibleOrigin;
-					ray->rayDir = rayDir.normalized();
-					ray->rayLengthMin = 0;
-					ray->rayLengthMax = rayDir.length();
-					ray->rayFlags = 0;
-					ray->hitObject = NULL;
-					//ray->collisionHandler = collisionHandlerFirstVisible from SVCanvas, already set
+					rr::RRRay ray;
+					ray.rayOrigin = rayVisibleOrigin;
+					ray.rayDir = rayDir.normalized();
+					ray.rayLengthMin = 0;
+					ray.rayLengthMax = rayDir.length();
+					ray.rayFlags = 0;
+					ray.hitObject = NULL;
+					ray.collisionHandler = collisionHandler;
 					visible = !supercollider->intersect(ray);
 				}
 

@@ -531,7 +531,7 @@ namespace rr
 			//! For debugging only, to be described later. (multiObjPostImport)
 			unsigned debugTriangle;
 			//! For debugging only, to be described later.
-			void (*debugRay)(const RRRay* ray, bool hit);
+			void (*debugRay)(const RRRay& ray, bool hit);
 
 
 			//! Sets default parameters for fast realtime update, using current solution from solver.
