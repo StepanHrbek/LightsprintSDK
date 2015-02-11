@@ -266,7 +266,7 @@ struct SceneViewerState
 		dofApertureShapeFilename.clear();
 		dofAutomaticFocusDistance = false;
 		renderLightDirect = true;
-		renderLightIndirect = LI_PATHTRACED_FIREBALL;
+		renderLightIndirect = LI_REALTIME_FIREBALL;
 		multipliersEnabled = false;
 		multipliers = rr::RRSolver::Multipliers();
 		multipliersDirect = rr::RRSolver::Multipliers();
