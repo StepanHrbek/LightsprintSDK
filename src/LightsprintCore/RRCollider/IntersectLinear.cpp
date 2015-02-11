@@ -328,7 +328,11 @@ void RayHitBackup::restoreBackupTo(RRRay& ray, const RRMesh* mesh)
 		if (ray.rayFlags&RRRay::FILL_PLANE)
 		{
 			// sets local space hitPlane
-			update_hitPlane(ray,mesh?mesh:ray.hitObject->getCollider()->getMesh());
+			if (!mesh && ray.hitObject)
+				mesh = ray.hitObject->getCollider()->getMesh();
+			RR_ASSERT(mesh);
+			if (mesh)
+				update_hitPlane(ray,mesh);
 			// converts it to world space
 			if (ray.hitObject && ray.hitObject->getWorldMatrix())
 			{
