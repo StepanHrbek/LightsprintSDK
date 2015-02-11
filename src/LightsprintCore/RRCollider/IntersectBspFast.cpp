@@ -193,7 +193,6 @@ static bool intersect_triangleSRLNP(RRRay& ray, const TriangleSRLNP *t)
 // outputs if hit:    true, ray.hitFrontSide, ray.hitPoint2d, ray.hitPlane
 {
 	FILL_STATISTIC(intersectStats.intersect_triangleSRLNP++);
-	RR_ASSERT(ray);
 	RR_ASSERT(t);
 
 	real u,v;
@@ -259,7 +258,6 @@ static bool intersect_triangleNP(RRRay& ray, const TriangleNP *t, const RRMesh::
 // outputs if hit:    true, ray.hitFrontSide, ray.hitPoint2d, ray.hitPlane
 {
 	FILL_STATISTIC(intersectStats.intersect_triangleNP++);
-	RR_ASSERT(ray);
 	RR_ASSERT(t);
 	RR_ASSERT(t2);
 
@@ -313,7 +311,6 @@ bool IntersectBspFast IBP2::intersect_bspSRLNP(RRRay& ray, const BspTree *t, rea
 #define MAX_SIZE 100000000 // max size of node, for runtime checks of consistency
 begin:
 	FILL_STATISTIC(intersectStats.intersect_bspSRLNP++);
-	RR_ASSERT(ray);
 	RR_ASSERT(t);
 
 	// KD
@@ -545,7 +542,6 @@ bool IntersectBspFast IBP2::intersect_bspNP(RRRay& ray, const BspTree *t, real d
 begin:
 	DBG(q1++;RRReporter::report(INF1,"intersect_bsp(%s%d) %d %f..%f\n",t->bsp.kd?"kd":"bsp",t->kd.splitAxis,q1,ray.hitDistanceMin,distanceMax));
 	FILL_STATISTIC(intersectStats.intersect_bspNP++);
-	RR_ASSERT(ray);
 	RR_ASSERT(t);
 
 	// KD

@@ -31,7 +31,6 @@ static bool intersect_triangle(RRRay& ray, const RRMesh::TriangleBody* t, RRReal
 // modifies when no hit: <nothing is changed>
 {
 	FILL_STATISTIC(intersectStats.intersect_triangle++);
-	RR_ASSERT(ray);
 	RR_ASSERT(t);
 
 	// calculate determinant - also used to calculate U parameter
@@ -81,7 +80,6 @@ template IBP
 bool IntersectBspCompact IBP2::intersect_bsp(RRRay& ray, const BspTree* t, real distanceMax) const
 {
 begin:
-	RR_ASSERT(ray);
 	RR_ASSERT(t);
 
 	// transition to sons with different size

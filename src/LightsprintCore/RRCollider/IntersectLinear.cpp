@@ -66,7 +66,6 @@ PRIVATE bool intersect_triangle(RRRay& ray, const RRMesh::TriangleBody* t)
 // modifies when no hit: <nothing is changed>
 {
 	FILL_STATISTIC(intersectStats.intersect_triangle++);
-	RR_ASSERT(ray);
 	RR_ASSERT(t);
 
 	// calculate determinant - also used to calculate U parameter
@@ -369,7 +368,6 @@ RayHitBackup* RayHits::getSlots()
 
 void RayHits::insertHitUnordered(const RRRay& ray)
 {
-	RR_ASSERT(ray);
 	if (backupSlotsUsed==STATIC_SLOTS)
 	{
 		backupSlotDynamic = new RayHitBackup[backupSlotsAllocated=4*STATIC_SLOTS];
@@ -390,7 +388,6 @@ void RayHits::insertHitUnordered(const RRRay& ray)
 // if mesh is NULL, ray.hitObject must be set
 bool RayHits::getHitOrdered(RRRay& ray, const RRMesh* mesh)
 {
-	RR_ASSERT(ray);
 	bool hit = false;
 	if (backupSlotsUsed)
 	{
