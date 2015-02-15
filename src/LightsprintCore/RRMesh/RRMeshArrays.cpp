@@ -566,6 +566,201 @@ unsigned RRMeshArrays::manipulateMapping(unsigned sourceChannel, const float* ma
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// RRMeshArrays factory
+
+RRMeshArrays* RRMeshArrays::rectangle()
+{
+	RRMeshArrays* arrays = new RRMeshArrays;
+
+	enum {W=10,H=10,TRIANGLES=W*H*2,VERTICES=(W+1)*(H+1)};
+	rr::RRVector<unsigned> texcoords;
+	texcoords.push_back(0);
+	arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
+	for (unsigned j=0;j<H;j++)
+	for (unsigned i=0;i<W;i++)
+	{
+		arrays->triangle[2*(i+W*j)  ][0] = i  + j   *(W+1);
+		arrays->triangle[2*(i+W*j)  ][1] = i  +(j+1)*(W+1);
+		arrays->triangle[2*(i+W*j)  ][2] = i+1+(j+1)*(W+1);
+		arrays->triangle[2*(i+W*j)+1][0] = i  + j   *(W+1);
+		arrays->triangle[2*(i+W*j)+1][1] = i+1+(j+1)*(W+1);
+		arrays->triangle[2*(i+W*j)+1][2] = i+1+ j   *(W+1);
+	}
+	for (unsigned i=0;i<VERTICES;i++)
+	{
+		arrays->position[i] = rr::RRVec3((i%(W+1))/(float)W-0.5f,0,i/(W+1)/(float)H-0.5f);
+		arrays->normal[i] = rr::RRVec3(0,1,0);
+		arrays->texcoord[0][i] = rr::RRVec2(i/(W+1)/(float)H,(i%(W+1))/(float)W);
+	}
+
+	return arrays;
+}
+
+RRMeshArrays* RRMeshArrays::plane()
+{
+	RRMeshArrays* arrays = new RRMeshArrays;
+
+	enum {H=6,TRIANGLES=1+6*H,VERTICES=3+3*H};
+	rr::RRVector<unsigned> texcoords;
+	texcoords.push_back(0);
+	arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
+	arrays->triangle[0][0] = 0;
+	arrays->triangle[0][1] = 1;
+	arrays->triangle[0][2] = 2;
+	for (unsigned i=0;i<TRIANGLES-1;i+=2)
+	{
+		arrays->triangle[i+1][0] = i/6*3+((2+((i/2)%3))%3);
+		arrays->triangle[i+1][1] = i/6*3+((1+((i/2)%3))%3);
+		arrays->triangle[i+1][2] = i/6*3+((0+((i/2)%3))%3)+3;
+		arrays->triangle[i+2][0] = i/6*3+((2+((i/2)%3))%3);
+		arrays->triangle[i+2][1] = i/6*3+((0+((i/2)%3))%3)+3;
+		arrays->triangle[i+2][2] = i/6*3+((1+((i/2)%3))%3)+3;
+	}
+	float v[] = {1.732f,-1, -1.732f,-1, 0,2};
+	for (unsigned i=0;i<VERTICES;i++)
+	{
+		arrays->position[i] = rr::RRVec3(v[(i%3)*2],0,v[(i%3)*2+1])*powf(4,i/3.f)*((i/3)%2?1:-1.f);
+		arrays->normal[i] = rr::RRVec3(0,1,0);
+		arrays->texcoord[0][i] = rr::RRVec2(arrays->position[i].z,arrays->position[i].x);
+	}
+
+	return arrays;
+}
+
+RRMeshArrays* RRMeshArrays::box()
+{
+	RRMeshArrays* arrays = new RRMeshArrays;
+
+	enum {TRIANGLES=12,VERTICES=24};
+	const unsigned char triangles[3*TRIANGLES] = {0,1,2,2,3,0, 4,5,6,6,7,4, 8,9,10,10,11,8, 12,13,14,14,15,12, 16,17,18,18,19,16, 20,21,22,22,23,20};
+	const unsigned char positions[3*VERTICES] = {
+		0,1,0, 0,1,1, 1,1,1, 1,1,0,
+		0,1,1, 0,0,1, 1,0,1, 1,1,1,
+		1,1,1, 1,0,1, 1,0,0, 1,1,0,
+		1,1,0, 1,0,0, 0,0,0, 0,1,0,
+		0,1,0, 0,0,0, 0,0,1, 0,1,1,
+		1,0,0, 1,0,1, 0,0,1, 0,0,0};
+	const unsigned char uvs[2*VERTICES] = {0,1, 0,0, 1,0, 1,1};
+	rr::RRVector<unsigned> texcoords;
+	texcoords.push_back(0);
+	arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
+	for (unsigned i=0;i<TRIANGLES;i++)
+		for (unsigned j=0;j<3;j++)
+			// commented out code can replace constant arrays, but 2 cube sides have mapping rotated
+			//arrays->triangle[i][j] = i*2+((i%2)?1-(((i/2)%2)?2-j:j):(((i/2)%2)?2-j:j));
+			arrays->triangle[i][j] = triangles[3*i+j];
+	for (unsigned i=0;i<VERTICES;i++)
+	{
+		for (unsigned j=0;j<3;j++)
+			//arrays->position[i][j] = ((j==((i/8)%3)) ? ((i/4)%2) : ((j==((1+i/8)%3)) ? ((i/2)%2) : (i%2))) - 0.5f;
+			arrays->position[i][j] = positions[3*i+j]-0.5f;
+		//arrays->texcoord[0][i] = ((i/4)%2) ? rr::RRVec2((i/2)%2,i%2) : rr::RRVec2(1-(i/2)%2,(i%2));
+		for (unsigned j=0;j<2;j++)
+			arrays->texcoord[0][i][j] = uvs[2*(i%4)+j];
+	}
+	arrays->buildNormals();
+
+	return arrays;
+}
+
+RRMeshArrays* RRMeshArrays::sphere()
+{
+	RRMeshArrays* arrays = new RRMeshArrays;
+
+	enum {W=30,H=15,TRIANGLES=W*H*2,VERTICES=(W+1)*(H+1)};
+	rr::RRVector<unsigned> texcoords;
+	texcoords.push_back(0);
+	arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
+	for (unsigned j=0;j<H;j++)
+	for (unsigned i=0;i<W;i++)
+	{
+		arrays->triangle[2*(i+W*j)  ][0] = i  + j   *(W+1);
+		arrays->triangle[2*(i+W*j)  ][1] = i+1+(j+1)*(W+1);
+		arrays->triangle[2*(i+W*j)  ][2] = i  +(j+1)*(W+1);
+		arrays->triangle[2*(i+W*j)+1][0] = i  + j   *(W+1);
+		arrays->triangle[2*(i+W*j)+1][1] = i+1+ j   *(W+1);
+		arrays->triangle[2*(i+W*j)+1][2] = i+1+(j+1)*(W+1);
+	}
+	for (unsigned i=0;i<VERTICES;i++)
+	{
+		arrays->normal[i] = rr::RRVec3(cos(2*RR_PI*(i%(W+1))/W)*sin(i/(W+1)*RR_PI/H),cos(i/(W+1)*RR_PI/H),sin(2*RR_PI*(i%(W+1))/W)*sin(i/(W+1)*RR_PI/H));
+		if (i/(W+1)==H)
+		{
+			// sin(0)==0 so north pole is centered; sin(RR_PI)!=0 so south pole is slightly off; also center from getAABB() is slightly off zero
+			// this centers south pole
+			// with uncentered south pole, RL's spherical mapping would look bad around pole (all south pole vertices would stitched)
+			arrays->normal[i] = rr::RRVec3(0,-1,0);
+		}
+		arrays->position[i] = arrays->normal[i]/2;
+		arrays->texcoord[0][i] = rr::RRVec2(1-(i%(W+1))/(float)W,1-i/(W+1)/(float)H);
+	}
+
+	return arrays;
+}
+
+RRMeshArrays* RRMeshArrays::cylinder()
+{
+	RRMeshArrays* arrays = new RRMeshArrays;
+
+	enum {W=30,TRIANGLES=(W-2)+W+W+(W-2),VERTICES=W+(W+1)+(W+1)+W};
+	rr::RRVector<unsigned> texcoords;
+	texcoords.push_back(0);
+	arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
+	unsigned v = 0;
+	unsigned t = 0;
+	// add sides
+	for (unsigned j=0;j<2;j++)
+	for (unsigned i=0;i<W+1;i++)
+	{
+		arrays->position[v] = rr::RRVec3(cos(2*RR_PI*i/W),j?1:-1.f,sin(2*RR_PI*i/W))*0.5f;
+		arrays->normal[v] = rr::RRVec3(cos(2*RR_PI*i/W),0,sin(2*RR_PI*i/W));
+		arrays->texcoord[0][v] = rr::RRVec2((float)(W-i)/W,j?1.f:0);
+		if (j==0 && i!=W)
+		{
+			arrays->triangle[t][0] = v+1;
+			arrays->triangle[t][1] = v;
+			arrays->triangle[t++][2] = v+W+1;
+		}
+		else
+		if (j==1 && i!=W)
+		{
+			arrays->triangle[t][0] = v;
+			arrays->triangle[t][1] = v+1;
+			arrays->triangle[t++][2] = v-W;
+		}
+		v++;
+	}
+	// add top+bottom
+	for (unsigned j=0;j<2;j++)
+	for (unsigned i=0;i<W;i++)
+	{
+		arrays->position[v] = rr::RRVec3(cos(2*RR_PI*i/W),j?1:-1.f,sin(2*RR_PI*i/W))*0.5f;
+		arrays->normal[v] = rr::RRVec3(0,j?1:-1.f,0);
+		arrays->texcoord[0][v] = rr::RRVec2(cos(2*RR_PI*i/W)*(j?-0.5f:0.5f)+0.5f,sin(2*RR_PI*i/W)*0.5f+0.5f);
+		if (j==0 && i<W-2)
+		{
+			arrays->triangle[t][0] = v;
+			arrays->triangle[t][1] = v+1;
+			arrays->triangle[t++][2] = v-i+W-1;
+		}
+		else
+		if (j==1 && i<W-2)
+		{
+			arrays->triangle[t][0] = v+1;
+			arrays->triangle[t][1] = v;
+			arrays->triangle[t++][2] = v-i+W-1;
+		}
+		v++;
+	}
+	RR_ASSERT(t==TRIANGLES);
+	RR_ASSERT(v==VERTICES);
+
+	return arrays;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // RRMesh
 
 RRMeshArrays* RRMesh::createArrays(bool indexed, const RRVector<unsigned>& texcoords, bool tangents) const

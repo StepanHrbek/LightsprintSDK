@@ -8,6 +8,12 @@ namespace rr
 
 \page main_news What's new
 
+\section news146 ------------------------------------ 2015.0x.xx -------------------------------------
+
+NEWS
+
+- RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
+
 \section news145 ------------------------------------ 2015.02.11 -------------------------------------
 
 NEWS

@@ -631,6 +631,18 @@ namespace rr
 		//! \return
 		//!  Returns 1 on success, 0 on failure (mesh was not modified).
 		unsigned             manipulateMapping(unsigned sourceChannel, const float* matrix2x3, unsigned destinationChannel);
+
+
+		//////////////////////////////////////////////////////////////////////////////
+		// Facory
+		//////////////////////////////////////////////////////////////////////////////
+
+		static RRMeshArrays* rectangle();
+		static RRMeshArrays* plane();
+		static RRMeshArrays* box();
+		static RRMeshArrays* sphere();
+		static RRMeshArrays* cylinder();
+
 	private:
 		unsigned poolSize; ///< All arrays in mesh are allocated from one pool of this size.
 	};
