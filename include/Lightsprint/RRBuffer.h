@@ -290,6 +290,8 @@ namespace rr
 		virtual void stop() {}
 		//! For video buffers, pauses playing buffer.
 		virtual void pause() {}
+		//! For video buffers, seeks to given number of seconds from start.
+		virtual void seek(float secondsFromStart) {}
 		//! \return Duration of dynamic content (video) in seconds, 0 for static content (image, vertex colors), -1 for unlimited dynamic content (video capture).
 		virtual float getDuration() const {return 0;}
 

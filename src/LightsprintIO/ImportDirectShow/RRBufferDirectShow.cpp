@@ -382,6 +382,14 @@ public:
 		if (dsControl)
 			dsControl->Pause();
 	}
+	virtual void seek(float secondsFromStart)
+	{
+		if (dsSeeking)
+		{
+			LONGLONG pos = (LONGLONG)(secondsFromStart*1e7f); // default unit = 100 nanoseconds, can be changed with SetTimeFormat
+			dsSeeking->SetPositions(&pos,AM_SEEKING_AbsolutePositioning,NULL,AM_SEEKING_NoPositioning);
+		}
+	}
 	virtual void setVolume(int volume)
 	{
 		if (dsAudio)
@@ -394,6 +402,12 @@ public:
 	}
 	virtual float getDuration() const
 	{
+		if (dsSeeking)
+		{
+			LONGLONG pos = 0; // default unit = 100 nanoseconds, can be changed with SetTimeFormat
+			if (dsSeeking->GetStopPosition(&pos)==S_OK)
+				return pos*1e-7f;
+		}
 		return -1;
 	}
 

@@ -13,6 +13,7 @@ namespace rr
 NEWS
 
 - RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
+- RRBuffer::seek()
 
 \section news145 ------------------------------------ 2015.02.11 -------------------------------------
 
