@@ -447,13 +447,7 @@ void SVFrame::UpdateEverything()
 	updateAllPanels();
 
 	// start playing videos
-	if (svs.playVideos)
-	{
-		svs.playVideos = false;
-		wxKeyEvent event;
-		event.m_keyCode = ' ';
-		m_canvas->OnKeyDown(event);
-	}
+	m_canvas->configureVideoPlayback(svs.playVideos);
 
 	OnAnyChange(ES_MISC,NULL,NULL,0);
 

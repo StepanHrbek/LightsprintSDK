@@ -53,6 +53,8 @@ namespace rr_ed
 
 		void dropMaterialAt(rr::RRMaterial* droppedMaterial, bool droppedShift, bool droppedAlt, const rr::RRObject* destinationObject, unsigned destinationTriangle);
 
+		void configureVideoPlayback(bool play, float secondsFromStart=-1); // play/pause/seek videos according to params, doesn't touch svs. don't seek if negative
+
 		// set context, paint, swap, catch exceptions
 		void OnPaint(wxPaintEvent& event);
 		// paints to current buffer, may be called from outside to paint hires screenshot to texture

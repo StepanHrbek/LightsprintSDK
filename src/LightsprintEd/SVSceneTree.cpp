@@ -1177,9 +1177,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						if (svs.playVideos)
 						{
 							// stop videos
-							wxKeyEvent event;
-							event.m_keyCode = ' ';
-							svframe->m_canvas->OnKeyDown(event);
+							svs.playVideos = false;
+							svframe->m_canvas->configureVideoPlayback(false);
 						}
 						solver->setStaticObjects(newList,NULL);
 						solver->setDynamicObjects(newList);

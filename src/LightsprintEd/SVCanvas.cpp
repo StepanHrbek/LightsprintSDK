@@ -704,6 +704,23 @@ int SVCanvas::FilterEvent(wxKeyEvent& event)
 	return wxApp::Event_Skip;
 }
 
+void SVCanvas::configureVideoPlayback(bool play, float secondFromStart)
+{
+//rr::RRReporter::report(rr::INF1,"video %hs seek %f\n",svs.animationPlaying?"play":"stop",svs.animationPlayingPosition);
+	rr::RRVector<rr::RRBuffer*> buffers;
+	if (solver)
+		solver->getAllBuffers(buffers,NULL);
+	if (secondFromStart>=0)
+		for (unsigned i=0;i<buffers.size();i++)
+			buffers[i]->seek(secondFromStart);
+	for (unsigned i=0;i<buffers.size();i++)
+		if (play)
+			buffers[i]->play();
+		else
+			buffers[i]->pause();
+}
+
+
 void SVCanvas::OnKeyDown(wxKeyEvent& event)
 {
 	s_shiftDown = event.ShiftDown();
@@ -717,18 +734,9 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	switch(evkey)
 	{
 		case ' ':
-			// pause/play videos
-			if (solver)
-			{
-				rr::RRVector<rr::RRBuffer*> buffers;
-				solver->getAllBuffers(buffers,NULL);
-				svs.playVideos = !svs.playVideos;
-				for (unsigned i=0;i<buffers.size();i++)
-					if (svs.playVideos)
-						buffers[i]->play();
-					else
-						buffers[i]->pause();
-			}
+			// toggle video playback
+			svs.playVideos = !svs.playVideos;
+			configureVideoPlayback(svs.playVideos);
 			break;
 
 		case WXK_F9: svframe->OnMenuEventCore(SVFrame::ME_FILE_SAVE_SCREENSHOT); break;
