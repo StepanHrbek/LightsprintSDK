@@ -675,7 +675,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	// it would work with restored or never minimized window, but
 	//  - window 1x1 on screen is ugly
 	//  - window moved outside screen is ok, not visible, but Centre() is later ignored if user moves other window meanwhile
-	//wxPaintEvent e;
 	//m_canvas->Paint(false);
 
 	// render first visible frame, with good panels, disabled glcanvas
@@ -1236,7 +1235,6 @@ save_scene_as:
 					svs.tonemappingAutomatic = false;
 
 					// 6. render to texColor
-					wxPaintEvent e;
 					m_canvas->Paint(true,"");
 
 					// 7. downscale to sshot
