@@ -706,7 +706,6 @@ int SVCanvas::FilterEvent(wxKeyEvent& event)
 
 void SVCanvas::configureVideoPlayback(bool play, float secondFromStart)
 {
-//rr::RRReporter::report(rr::INF1,"video %hs seek %f\n",svs.animationPlaying?"play":"stop",svs.animationPlayingPosition);
 	rr::RRVector<rr::RRBuffer*> buffers;
 	if (solver)
 		solver->getAllBuffers(buffers,NULL);
