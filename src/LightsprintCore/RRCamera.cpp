@@ -784,13 +784,15 @@ static Y interpolAkima(unsigned numPoints, const X* x, std::function<Y (int)> y,
 	if (numPointsAfterXx >=1) { x3 = x[numPointsBeforeXx  ]; y3 = y(numPointsBeforeXx  ); }
 	if (numPointsAfterXx >=2) { x4 = x[numPointsBeforeXx+1]; y4 = y(numPointsBeforeXx+1); }
 	if (numPointsAfterXx >=3) { x5 = x[numPointsBeforeXx+2]; y5 = y(numPointsBeforeXx+2); }
-	// - extrapolate missing and the most common invalid values (x[i]>=x[i+1])
-	if (numPointsBeforeXx< 1 || x2>=x3) { x2 = x3*2-x4; y2 = y3*2-y4; }
-	if (numPointsBeforeXx< 2 || x1>=x2) { x1 = x2*2-x3; y1 = y2*2-y3; }
-	if (numPointsBeforeXx< 3 || x0>=x1) { x0 = x1*2-x2; y0 = y1*2-y2; }
-	if (numPointsAfterXx < 1 || x3<=x2) { x3 = x2*2-x1; y3 = y2*2-y1; }
-	if (numPointsAfterXx < 2 || x4<=x3) { x4 = x3*2-x2; y4 = y3*2-y2; }
-	if (numPointsAfterXx < 3 || x5<=x4) { x5 = x4*2-x3; y5 = y4*2-y3; }
+	// - extrapolate missing values
+	if (numPointsBeforeXx< 1) { x2 = x3*2-x4; y2 = y3*2-y4; }
+	if (numPointsBeforeXx< 2) { x1 = x2*2-x3; y1 = y2*2-y3; }
+	if (numPointsBeforeXx< 3) { x0 = x1*2-x2; y0 = y1*2-y2; }
+	if (numPointsAfterXx < 1) { x3 = x2*2-x1; y3 = y2*2-y1; }
+	if (numPointsAfterXx < 2) { x4 = x3*2-x2; y4 = y3*2-y2; }
+	if (numPointsAfterXx < 3) { x5 = x4*2-x3; y5 = y4*2-y3; }
+	// - ensure that x2!=x3
+	if (x2==x3) return (numPointsBeforeXx>=1) ? y2 : y3;
 	// - understand values as angles in radians, move from 0.1*PI to 1.9*PI like from 0.1*PI to -0.1*PI
 	if (minimizeRotations)
 	{
@@ -802,11 +804,11 @@ static Y interpolAkima(unsigned numPoints, const X* x, std::function<Y (int)> y,
 	}
 
 	// perform Akima interpolation
-	Y m0 = (y1-y0)/(x1-x0);
-	Y m1 = (y2-y1)/(x2-x1);
-	Y m2 = (y3-y2)/(x3-x2);
-	Y m3 = (y4-y3)/(x4-x3);
-	Y m4 = (y5-y4)/(x5-x4);
+	Y m2 = (y3-y2)/(x3-x2); // x2!=x3
+	Y m1 = (x2-x1) ? (y2-y1)/(x2-x1) : m2; // don't divide by zero, use the most close good value instead
+	Y m0 = (x1-x0) ? (y1-y0)/(x1-x0) : m1;
+	Y m3 = (x4-x3) ? (y4-y3)/(x4-x3) : m2;
+	Y m4 = (x5-x4) ? (y5-y4)/(x5-x4) : m3;
 	Y d0 = abs(m1-m0);
 	Y d1 = abs(m2-m1);
 	Y d2 = abs(m3-m2);
