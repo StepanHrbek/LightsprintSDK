@@ -22,6 +22,9 @@ namespace rr
 //
 // generic loaders/savers
 
+#define SEPARATOR1 ';'
+#define SEPARATOR2 ' ' // we might need different char later
+
 // case insensitive match
 static bool extensionMatches(const char* filename, const char* extension) // ext="3ds"
 {
@@ -49,7 +52,7 @@ static bool extensionListMatches(const RRString& filename, const char* extension
 	for (const char* src = extensionList; *src ; )
 	{
 		char* dst = extension;
-		if (src[0]==';')
+		if (src[0]==SEPARATOR1 || src[0]==SEPARATOR2)
 			src++;
 		if (src[0]=='*' && src[1]=='.')
 		{
@@ -57,12 +60,12 @@ static bool extensionListMatches(const RRString& filename, const char* extension
 			if (*src=='*')
 				return true; // *.* match
 		}
-		if (src[0]==':' && (src[1]==';' || src[1]==0)) // [#14] : is our symbol that matches everything, but unlike *.*, fileselector does not understand it
+		if (src[0]==':' && (src[1]==SEPARATOR1 || src[1]==SEPARATOR2 || src[1]==0)) // [#14] : is our symbol that matches everything, but unlike *.*, fileselector does not understand it
 		{
 			src += 1;
 			return true; // : matches all, like *.*
 		}
-		while (*src!=0 && *src!=';')
+		while (*src!=0 && *src!=SEPARATOR1 && *src!=SEPARATOR2)
 			*dst++ = *src++;
 		*dst = 0;
 		if (*extension && extensionMatches(filename.c_str(),extension))
@@ -115,6 +118,11 @@ struct LoadersAndSavers
 			else
 				_snprintf(loaderExtensions+strlen(loaderExtensions),S_EXTENSIONS_LEN-strlen(loaderExtensions),";%s",extensions);
 			loaderExtensions[S_EXTENSIONS_LEN-1] = 0;
+			
+			// convert all separators to SEPARATOR1
+			for (char* c=loaderExtensions;*c;c++)
+				if (*c==SEPARATOR2)
+					*c = SEPARATOR1;
 		}
 		else
 		{
@@ -137,6 +145,11 @@ struct LoadersAndSavers
 			else
 				_snprintf(saverExtensions+strlen(saverExtensions),S_EXTENSIONS_LEN-strlen(saverExtensions),";%s",extensions);
 			saverExtensions[S_EXTENSIONS_LEN-1] = 0;
+			
+			// convert all separators to SEPARATOR1
+			for (char* c=saverExtensions;*c;c++)
+				if (*c==SEPARATOR2)
+					*c = SEPARATOR1;
 		}
 		else
 		{
