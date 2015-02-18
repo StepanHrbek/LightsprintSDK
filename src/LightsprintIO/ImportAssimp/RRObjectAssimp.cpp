@@ -533,11 +533,13 @@ void registerLoaderAssimp()
 	std::string str(convertStr(extensions));
 #if defined(SUPPORT_OPENCOLLADA) || defined(SUPPORT_FCOLLADA)
 	// hide assimp collada loader if better one exists
-	str.erase(str.find("*.dae;"),6);
+	if (str.find("*.dae;")!=std::string::npos)
+		str.erase(str.find("*.dae;"),6);
 #endif
 #ifdef SUPPORT_3DS
 	// hide assimp 3ds loader if better? one exists
-	str.erase(str.find("*.3ds;"),6);
+	if (str.find("*.3ds;")!=std::string::npos)
+		str.erase(str.find("*.3ds;"),6);
 #endif
 #if defined(ASSIMP_SUPPORT_ONLY_FORMATS)
 	str = ASSIMP_SUPPORT_ONLY_FORMATS;
