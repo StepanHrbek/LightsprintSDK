@@ -936,10 +936,6 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	wxPoint newPosition = (event.GetPosition()==wxPoint(-1,-1)) ? oldPosition : event.GetPosition(); // use previous coords for event that does not come with its own
 	mousePositionInWindow = rr::RRVec2((newPosition.x*2.0f+winWidth-canvasGetSize().x)/winWidth-1,1-(newPosition.y*2.0f+winHeight-canvasGetSize().y)/winHeight); // in fact, it is mouse position in _viewport_ where viewport winWidth*winHeight is in center of window GetSize()
 
-	// don't return until mousePositionInWindow is filled, renderHelpers needs it
-	if (event.Moving() || event.Entering() || event.Leaving())
-		return;
-
 	if (!winWidth || !winHeight || !solver)
 	{
 		return;
@@ -1197,18 +1193,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		if (event.LeftIsDown())
 		{
 			// rotating camera
-			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
-			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
-			while (!svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),
-				(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5*svs.camera.getFieldOfViewHorizontalDeg()/90)
-				*rr::RRMatrix3x4::rotationByAxisAngle(svs.camera.getRight(),dragY*5*svs.camera.getFieldOfViewHorizontalDeg()/90))
-				.centeredAround(svs.camera.getPosition()),
-				false,false) && dragY)
-			{
-				// disable Y component and try rotation again, maybe this time pitch won't overflow 90/-90
-				// this makes rotation smoother when looking straight up/down
-				dragY = 0;
-			}
+			goto rotating_camera;
 		}
 		else
 		if (event.MiddleIsDown())
@@ -1242,6 +1227,39 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 		svframe->OnAnyChange(SVFrame::ES_MOUSE_MID_MOVEMENT,NULL,&event,0);
 	}
+
+	// when nothing happens, just some passive mouse movement event, don't return (7421 was wrong, 7426 fix is no longer sufficient)
+	// 1) above, mousePositionInWindow needs to be filled, renderHelpers needs it
+	// 2) below, camera can rotate on passive mouse movement
+	// 3) below, some actions (dragging) end by first event without buttons
+
+	// passive movement: possibly rotate camera
+	if (event.Moving() || event.Entering() || event.Leaving())
+	{
+		if (svframe->oculusActive() && svs.fullscreen)
+		{
+			// avoid camera discontinuity when mouse enters viewport
+			if (event.Entering())
+				oldPosition = newPosition;
+
+			// rotating camera
+		rotating_camera:
+			float dragX = (newPosition.x-oldPosition.x)/(float)winWidth;
+			float dragY = (newPosition.y-oldPosition.y)/(float)winHeight;
+			while (!svframe->m_sceneTree->manipulateEntity(EntityId(ST_CAMERA,0),
+				(rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,1,0),dragX*5*svs.camera.getFieldOfViewHorizontalDeg()/90)
+				*rr::RRMatrix3x4::rotationByAxisAngle(svs.camera.getRight(),dragY*5*svs.camera.getFieldOfViewHorizontalDeg()/90))
+				.centeredAround(svs.camera.getPosition()),
+				false,false) && dragY)
+			{
+				// disable Y component and try rotation again, maybe this time pitch won't overflow 90/-90
+				// this makes rotation smoother when looking straight up/down
+				dragY = 0;
+			}
+		}
+	}
+
+	// passive movement: end dragging etc
 	if (!event.ButtonDown() && !event.Dragging()
 		&& !event.LeftIsDown() && !event.MiddleIsDown() && !event.RightIsDown()) // when dragging leaves window, event arrives with LeftIsDown() && !Dragging(). this makes dragging survive such event
 	{
