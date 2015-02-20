@@ -413,6 +413,7 @@ public:
 					}
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = _.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && objectBuffers.reflectionEnvMap;
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = _.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR && objectBuffers.reflectionEnvMap;
+					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT = _.uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT && objectBuffers.reflectionEnvMap;
 #ifdef MIRRORS
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = objectBuffers.mirrorColorMap && !objectBuffers.lightIndirectBuffer && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE;
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = objectBuffers.mirrorColorMap!=NULL;
