@@ -67,12 +67,12 @@ void error(const char* message, bool gfxRelated)
 
 Model_3DS                  m3ds;
 rr::RRCamera               eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0),1.3f,70,0.3f,60);
-rr_gl::RealtimeLight*      realtimeLight = NULL;
-rr::RRBuffer*              environmentMap = NULL;
-rr_gl::TextureRenderer*    textureRenderer = NULL;
-rr_gl::UberProgram*        uberProgram = NULL;
-DynamicObject*             robot = NULL;
-DynamicObject*             potato = NULL;
+rr_gl::RealtimeLight*      realtimeLight = nullptr;
+rr::RRBuffer*              environmentMap = nullptr;
+rr_gl::TextureRenderer*    textureRenderer = nullptr;
+rr_gl::UberProgram*        uberProgram = nullptr;
+DynamicObject*             robot = nullptr;
+DynamicObject*             potato = nullptr;
 int                        winWidth = 0;
 int                        winHeight = 0;
 bool                       modeMovingEye = false;
@@ -90,17 +90,17 @@ void renderScene(const rr::RRCamera& camera, rr_gl::UberProgramSetup uberProgram
 {
 	// render skybox
 	if (uberProgramSetup.LIGHT_DIRECT && environmentMap)
-		textureRenderer->renderEnvironment(camera,rr_gl::getTexture(environmentMap),0,NULL,0,0,NULL,1,false);
+		textureRenderer->renderEnvironment(camera,rr_gl::getTexture(environmentMap),0,nullptr,0,0,nullptr,1,false);
 
 	// render static scene
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,realtimeLight,0,1,NULL,1,NULL);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,realtimeLight,0,1,nullptr,1,nullptr);
 	if (!program)
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
-		program->sendTexture("materialDiffuseMap",NULL); // activate unit, Draw will bind textures
-	m3ds.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
+		program->sendTexture("materialDiffuseMap",nullptr); // activate unit, Draw will bind textures
+	m3ds.Draw(nullptr,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,nullptr,nullptr);
 
 	// render dynamic objects
 	// enable object space
@@ -330,7 +330,7 @@ int main(int argc, char** argv)
 	environmentMap = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
 
 	// init static .3ds scene
-	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",NULL,0.03f))
+	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",nullptr,0.03f))
 		error("",false);
 
 	// init dynamic objects

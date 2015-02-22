@@ -53,7 +53,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propCamera,propCameraPanorama);
 
 			{
-			const wxChar* panoStrings[] = {_("Equirectangular"),_("Little planet"),_("Fisheye"),NULL};
+			const wxChar* panoStrings[] = {_("Equirectangular"),_("Little planet"),_("Fisheye"),nullptr};
 			const long panoValues[] = {rr::RRCamera::PM_EQUIRECTANGULAR,rr::RRCamera::PM_LITTLE_PLANET,rr::RRCamera::PM_FISHEYE};
 			propCameraPanoramaMode = new wxEnumProperty(_("Mode"), wxPG_LABEL, panoStrings, panoValues);
 			AppendIn(propCameraPanorama,propCameraPanoramaMode);
@@ -63,7 +63,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propCameraPanoramaMode,propCameraPanoramaFovDeg);
 
 			{
-			const wxChar* panoStrings[] = {_("Full+stretch"),_("Full"),_("Truncate bottom"),_("Truncate top"),NULL};
+			const wxChar* panoStrings[] = {_("Full+stretch"),_("Full"),_("Truncate bottom"),_("Truncate top"),nullptr};
 			const long panoValues[] = {rr::RRCamera::PC_FULL_STRETCH,rr::RRCamera::PC_FULL,rr::RRCamera::PC_TRUNCATE_BOTTOM,rr::RRCamera::PC_TRUNCATE_TOP};
 			propCameraPanoramaCoverage = new wxEnumProperty(_("Coverage"), wxPG_LABEL, panoStrings, panoValues);
 			AppendIn(propCameraPanoramaMode,propCameraPanoramaCoverage);
@@ -108,7 +108,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propCameraSpeed = new FloatProperty(_("Speed")+" (m/s)",_("Controls how quickly camera moves when controlled by arrows/wsad."),svs.cameraMetersPerSecond,svs.precision,0,1e10f,1,false);
 		AppendIn(propCamera,propCameraSpeed);
 
-		const wxChar* viewStrings[] = {_("Custom"),_("Top"),_("Bottom"),_("Front"),_("Back"),_("Left"),_("Right"),NULL};
+		const wxChar* viewStrings[] = {_("Custom"),_("Top"),_("Bottom"),_("Front"),_("Back"),_("Left"),_("Right"),nullptr};
 		const long viewValues[] = {SVFrame::ME_VIEW_RANDOM,SVFrame::ME_VIEW_TOP,SVFrame::ME_VIEW_BOTTOM,SVFrame::ME_VIEW_FRONT,SVFrame::ME_VIEW_BACK,SVFrame::ME_VIEW_LEFT,SVFrame::ME_VIEW_RIGHT};
 		propCameraView = new wxEnumProperty(_("View"), wxPG_LABEL, viewStrings, viewValues);
 		AppendIn(propCamera,propCameraView);
@@ -245,7 +245,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderMaterialEmittance = new BoolRefProperty(_("Emittance"),_("Toggles rendering emittance of emissive surfaces."),svs.renderMaterialEmission);
 		AppendIn(propRenderMaterials,propRenderMaterialEmittance);
 
-		const wxChar* tfrStrings[] = {_("off (opaque)"),_("1-bit (alpha keying)"),_("8-bit (alpha blending)"),_("24bit (RGB blending)"),NULL};
+		const wxChar* tfrStrings[] = {_("off (opaque)"),_("1-bit (alpha keying)"),_("8-bit (alpha blending)"),_("24bit (RGB blending)"),nullptr};
 		const long tfrValues[] = {T_OPAQUE,T_ALPHA_KEY,T_ALPHA_BLEND,T_RGB_BLEND};
 		propRenderMaterialTransparency = new wxEnumProperty(_("Transparency"),wxPG_LABEL,tfrStrings,tfrValues);
 		propRenderMaterialTransparency->SetHelpString(_("Changes how realistically semi-transparent surfaces are rendered."));
@@ -866,7 +866,7 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		svs.gridSegmentSize = property->GetValue().GetDouble();
 	}
-	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL,0);
+	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,nullptr,0);
 }
 
 BEGIN_EVENT_TABLE(SVSceneProperties, wxPropertyGrid)

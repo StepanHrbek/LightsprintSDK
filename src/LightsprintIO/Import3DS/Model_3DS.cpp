@@ -99,7 +99,7 @@ Model_3DS::~Model_3DS()
 
 bool Model_3DS::Load(const rr::RRString& _filename, const rr::RRFileLocator* _textureLocator, float _scale)
 {
-	rr::RRFileLocator* localLocator = _textureLocator ? NULL : rr::RRFileLocator::create();
+	rr::RRFileLocator* localLocator = _textureLocator ? nullptr : rr::RRFileLocator::create();
 	if (localLocator)
 		localLocator->setParent(true,_filename);
 	textureLocator = _textureLocator ? _textureLocator : localLocator;
@@ -118,7 +118,7 @@ bool Model_3DS::Load(const rr::RRString& _filename, const rr::RRFileLocator* _te
 
 	if (!bin3ds)
 	{
-		textureLocator = NULL;
+		textureLocator = nullptr;
 		RR_SAFE_DELETE(localLocator);
 		printf("file not found: %ls\n",_filename.w_str());
 		return false;
@@ -198,7 +198,7 @@ bool Model_3DS::Load(const rr::RRString& _filename, const rr::RRFileLocator* _te
 	if (!identity)
 		rr::RRReporter::report(rr::WARN,"Object transformations in .3ds are not supported.\n");
 
-	textureLocator = NULL;
+	textureLocator = nullptr;
 	RR_SAFE_DELETE(localLocator);
 	return true;
 }
@@ -477,8 +477,8 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 	// chunk's data findex + the size of the header
 	fseek(bin3ds, findex, SEEK_SET);
 
-	char* diffuseName = NULL;
-	char* opacityName = NULL;
+	char* diffuseName = nullptr;
+	char* opacityName = nullptr;
 
 	rr::RRVec3 specularColor;
 	bool specularColorSet = false;
@@ -712,7 +712,7 @@ void Model_3DS::IntColorChunkProcessor(long length, long findex, rr::RRVec3& col
 
 char* Model_3DS::TextureMapChunkProcessor(long length, long findex, rr::RRMaterial::Property& materialProperty)
 {
-	char* name = NULL;
+	char* name = nullptr;
 
 	ChunkHeader h;
 
@@ -763,7 +763,7 @@ char* Model_3DS::MapNameChunkProcessor(long length, long findex, rr::RRMaterial:
 	}
 
 	// Load the texture
-	materialProperty.texture = rr::RRBuffer::load(name,NULL,textureLocator);
+	materialProperty.texture = rr::RRBuffer::load(name,nullptr,textureLocator);
 	materialProperty.texcoord = 0;
 	if (materialProperty.texture)
 	{

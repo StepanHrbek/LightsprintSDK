@@ -112,9 +112,9 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
 	: svs(_svs)
 {
 	renderEmptyFrames = UINT_MAX;
-	context = NULL;
+	context = nullptr;
 	svframe = _svframe;
-	solver = NULL;
+	solver = nullptr;
 	selectedType = ST_CAMERA;
 	winWidth = 0;
 	winHeight = 0;
@@ -137,26 +137,26 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
 	centerObject = UINT_MAX;
 	centerTexel = UINT_MAX;
 	centerTriangle = UINT_MAX;
-	collisionHandler = NULL;
+	collisionHandler = nullptr;
 	fontInited = false;
 
 	helpLoadAttempted = false;
-	helpImage = NULL;
+	helpImage = nullptr;
 
 
 	vignetteLoadAttempted = false;
-	vignetteImage = NULL;
+	vignetteImage = nullptr;
 
 	logoLoadAttempted = false;
-	logoImage = NULL;
+	logoImage = nullptr;
 
-	lightField = NULL;
-	lightFieldQuadric = NULL;
-	lightFieldObjectIllumination = NULL;
+	lightField = nullptr;
+	lightFieldQuadric = nullptr;
+	lightFieldObjectIllumination = nullptr;
 
-	textureRenderer = NULL;
+	textureRenderer = nullptr;
 
-	entityIcons = NULL;
+	entityIcons = nullptr;
 	sunIconPosition = rr::RRVec3(0);
 	renderedIcons.iconSize = 1;
 	fullyCreated = false;
@@ -166,12 +166,12 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
 
 	previousLightIndirect = LI_NONE;
 
-	pathTracedBuffer = NULL;
+	pathTracedBuffer = nullptr;
 	pathTracedAccumulator = 0;
 	pathTracedTechnique = LI_PATHTRACED;
 #ifdef SUPPORT_OCULUS
-	oculusTexture[0] = NULL;
-	oculusTexture[1] = NULL;
+	oculusTexture[0] = nullptr;
+	oculusTexture[1] = nullptr;
 #endif
 }
 
@@ -230,9 +230,9 @@ public:
 				{
 					if (glDebugMessageCallbackARB)
 					{
-						glDebugMessageCallbackARB(debugCallback, NULL);
+						glDebugMessageCallbackARB(debugCallback, nullptr);
 						glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-						glDebugMessageControlARB(GL_DONT_CARE,GL_DEBUG_TYPE_PERFORMANCE_ARB,GL_DONT_CARE,0,NULL,GL_FALSE);
+						glDebugMessageControlARB(GL_DONT_CARE,GL_DEBUG_TYPE_PERFORMANCE_ARB,GL_DONT_CARE,0,nullptr,GL_FALSE);
 					}
 					else
 						rr::RRReporter::report(rr::WARN,"OpenGL debug messages not supported by driver.\n");
@@ -310,7 +310,7 @@ void SVCanvas::createContextCore()
 		rr::RRBuffer* env1 = svs.initialInputSolver->getEnvironment(1,&envAngle1);
 		solver->setEnvironment(env0,env1,envAngle0,envAngle1);
 		solver->setEnvironmentBlendFactor(svs.initialInputSolver->getEnvironmentBlendFactor());
-		solver->setStaticObjects(svs.initialInputSolver->getStaticObjects(),NULL,NULL,rr::RRCollider::IT_BVH_FAST,svs.initialInputSolver); // smoothing and multiobject are taken from _solver
+		solver->setStaticObjects(svs.initialInputSolver->getStaticObjects(),nullptr,nullptr,rr::RRCollider::IT_BVH_FAST,svs.initialInputSolver); // smoothing and multiobject are taken from _solver
 		solver->setDynamicObjects(svs.initialInputSolver->getDynamicObjects());
 		solver->setLights(svs.initialInputSolver->getLights());
 		solver->setDirectIllumination(svs.initialInputSolver->getDirectIllumination());
@@ -329,8 +329,8 @@ void SVCanvas::createContextCore()
 		}
 
 		// send everything to solver
-		solver->setEnvironment(mergedScenes[0]->environment,NULL,svs.skyboxRotationRad,svs.skyboxRotationRad);
-		solver->setStaticObjects(mergedScenes[0]->objects,NULL);
+		solver->setEnvironment(mergedScenes[0]->environment,nullptr,svs.skyboxRotationRad,svs.skyboxRotationRad);
+		solver->setStaticObjects(mergedScenes[0]->objects,nullptr);
 		solver->setDynamicObjects(mergedScenes[0]->objects);
 		solver->setLights(mergedScenes[0]->lights);
 	}
@@ -342,7 +342,7 @@ void SVCanvas::createContextCore()
 	if (solver->getEnvironment())
 		rr::RRReporter::report(rr::INF3,"skybox: solver.env[%s]=%s, svs.env=%s\n",solver->getEnvironment()->isStub()?"stub":"ok",solver->getEnvironment()->filename.c_str(),svs.skyboxFilename.c_str());
 	else
-		rr::RRReporter::report(rr::INF3,"skybox: solver.env=NULL, svs.env=%s\n",svs.skyboxFilename.c_str());
+		rr::RRReporter::report(rr::INF3,"skybox: solver.env=nullptr, svs.env=%s\n",svs.skyboxFilename.c_str());
 	if ((!solver->getEnvironment() || solver->getEnvironment()->isStub()) && !svs.skyboxFilename.empty())
 	{
 		rr::RRReportInterval report(rr::INF3,"Loading skybox...\n");
@@ -402,7 +402,7 @@ void SVCanvas::createContextCore()
 	if (svs.selectedObjectIndex>=solver->getStaticObjects().size()) svs.selectedObjectIndex = 0;
 	lightFieldQuadric = gluNewQuadric();
 	lightFieldObjectIllumination = new rr::RRObjectIllumination;
-	lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,NULL);
+	lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,16,16,6,rr::BF_RGB,true,nullptr);
 	entityIcons = new SVEntityIcons(svs.pathToMaps,solver->getUberProgram());
 	recalculateIconSizeAndPosition();
 
@@ -467,7 +467,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 				objects.insert(objects.end(),scene->objects.begin(),scene->objects.end());
 				lights.insert(lights.end(),scene->lights.begin(),scene->lights.end());
 				if (!solver->getEnvironment() && scene->environment)
-					solver->setEnvironment(scene->environment,NULL,svs.skyboxRotationRad);
+					solver->setEnvironment(scene->environment,nullptr,svs.skyboxRotationRad);
 			}
 			else
 			{
@@ -489,7 +489,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 		}
 		objects.removeEmptyObjects();
 		if (staticObjectsModified)
-			solver->setStaticObjects(objects,NULL);
+			solver->setStaticObjects(objects,nullptr);
 		solver->setDynamicObjects(objects);
 		solver->setLights(lights);
 	}
@@ -530,7 +530,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 
 	recalculateIconSizeAndPosition();
 
-	svframe->OnAnyChange(SVFrame::ES_MISC,NULL,NULL,0);
+	svframe->OnAnyChange(SVFrame::ES_MISC,nullptr,nullptr,0);
 }
 
 void SVCanvas::reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers)
@@ -561,7 +561,7 @@ SVCanvas::~SVCanvas()
 #ifdef SUPPORT_OCULUS
 	// oculus
 	if (svframe->oculusHMD)
-		ovrHmd_ConfigureRendering(svframe->oculusHMD, NULL, 0, NULL, NULL);
+		ovrHmd_ConfigureRendering(svframe->oculusHMD, nullptr, 0, nullptr, nullptr);
 	for (unsigned i=0;i<2;i++)
 		if (oculusTexture[i])
 		{
@@ -601,7 +601,7 @@ SVCanvas::~SVCanvas()
 			delete solver->getColorSpace();
 		}
 
-		textureRenderer = NULL;
+		textureRenderer = nullptr;
 	}
 	rr::RR_SAFE_DELETE(solver);
 	for (unsigned i=0;i<mergedScenes.size();i++) delete mergedScenes[i];
@@ -610,7 +610,7 @@ SVCanvas::~SVCanvas()
 	for (unsigned i=0;i<lightsToBeDeletedOnExit.size();i++) delete lightsToBeDeletedOnExit[i];
 	lightsToBeDeletedOnExit.clear();
 	gluDeleteQuadric(lightFieldQuadric);
-	lightFieldQuadric = NULL;
+	lightFieldQuadric = nullptr;
 	delete context;
 }
 
@@ -709,7 +709,7 @@ void SVCanvas::configureVideoPlayback(bool play, float secondFromStart)
 	//rr::RRReporter::report(rr::INF2,"video %hs %f\n",play?"play":"stop",secondFromStart);
 	rr::RRVector<rr::RRBuffer*> buffers;
 	if (solver)
-		solver->getAllBuffers(buffers,NULL);
+		solver->getAllBuffers(buffers,nullptr);
 	if (secondFromStart>=0)
 		for (unsigned i=0;i<buffers.size();i++)
 			buffers[i]->seek(secondFromStart);
@@ -827,7 +827,7 @@ void SVCanvas::OnKeyDown(wxKeyEvent& event)
 	{
 		canvasWindow->Refresh(false);
 	}
-	svframe->OnAnyChange(SVFrame::ES_KEYBOARD_MID_MOVEMENT,NULL,&event,0);
+	svframe->OnAnyChange(SVFrame::ES_KEYBOARD_MID_MOVEMENT,nullptr,&event,0);
 }
 
 void SVCanvas::OnKeyUp(wxKeyEvent& event)
@@ -870,7 +870,7 @@ void SVCanvas::OnKeyUp(wxKeyEvent& event)
 	event.Skip();
 	bool movesNow = (speedForward-speedBack) || (speedRight-speedLeft) || (speedUp-speedDown) || speedY || speedLean;
 	if (didMove && !movesNow)
-		svframe->OnAnyChange(SVFrame::ES_KEYBOARD_END,NULL,&event,0);
+		svframe->OnAnyChange(SVFrame::ES_KEYBOARD_END,nullptr,&event,0);
 }
 
 extern bool getFactor(wxWindow* parent, float& factor, const wxString& message, const wxString& caption);
@@ -1008,7 +1008,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		else
 		{
 			s_ci.clickedEntity.type = (s_ci.hitTriangle==UINT_MAX) ? ST_CAMERA : ST_OBJECT;
-			if (ray.hitObject==NULL || ray.hitObject==solver->getMultiObject())
+			if (ray.hitObject==nullptr || ray.hitObject==solver->getMultiObject())
 			{
 				if (s_ci.hitTriangle==UINT_MAX)
 				{
@@ -1087,13 +1087,13 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				}
 				else
 				{
-					// static object: pass NULL + triangle in multiobject, m_materialProperties will show custom+physical versions
-					// m_materialProperties has extra 'object=NULL' path for looking up material in multiobjCustom and multiObjPhysical
+					// static object: pass nullptr + triangle in multiobject, m_materialProperties will show custom+physical versions
+					// m_materialProperties has extra 'object=nullptr' path for looking up material in multiobjCustom and multiObjPhysical
 					rr::RRMesh::PreImportNumber pre;
 					pre.object = s_ci.clickedEntity.index;
 					pre.index = s_ci.hitTriangle;
 					unsigned post = solver->getMultiObject()->getCollider()->getMesh()->getPostImportTriangle(pre);
-					svframe->m_materialProperties->setMaterial(solver,NULL,post,s_ci.hitPoint2d);
+					svframe->m_materialProperties->setMaterial(solver,nullptr,post,s_ci.hitPoint2d);
 				}
 			}
 		}
@@ -1225,7 +1225,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 			}
 			s_ciRenderCrosshair = true;
 		}
-		svframe->OnAnyChange(SVFrame::ES_MOUSE_MID_MOVEMENT,NULL,&event,0);
+		svframe->OnAnyChange(SVFrame::ES_MOUSE_MID_MOVEMENT,nullptr,&event,0);
 	}
 
 	// when nothing happens, just some passive mouse movement event, don't return (7421 was wrong, 7426 fix is no longer sufficient)
@@ -1264,7 +1264,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 		&& !event.LeftIsDown() && !event.MiddleIsDown() && !event.RightIsDown()) // when dragging leaves window, event arrives with LeftIsDown() && !Dragging(). this makes dragging survive such event
 	{
 		if (s_ciRelevant)
-			svframe->OnAnyChange(SVFrame::ES_MOUSE_END,NULL,&event,0);
+			svframe->OnAnyChange(SVFrame::ES_MOUSE_END,nullptr,&event,0);
 		// dragging ended, all s_xxx become invalid
 		s_ciRelevant = false;
 		s_ciRenderCrosshair = false;
@@ -1383,7 +1383,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				svs.camera.setFieldOfViewVerticalDeg(fov);
 			}
 		}
-		svframe->OnAnyChange(SVFrame::ES_MOUSE_END,NULL,&event,0);
+		svframe->OnAnyChange(SVFrame::ES_MOUSE_END,nullptr,&event,0);
 	}
 
 
@@ -1465,7 +1465,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 				);
 			bool movesNow = (speedForward-speedBack) || (speedRight-speedLeft) || (speedUp-speedDown) || speedY || speedLean;
 			if (movesNow)
-				svframe->OnAnyChange(SVFrame::ES_KEYBOARD_MID_MOVEMENT,NULL,&event,0);
+				svframe->OnAnyChange(SVFrame::ES_KEYBOARD_MID_MOVEMENT,nullptr,&event,0);
 		}
 	}
 
@@ -1628,8 +1628,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				svs.renderLightmapsBilinear);
 		else
 			lv.setObject(
-				NULL,
-				NULL,
+				nullptr,
+				nullptr,
 				svs.renderLightmapsBilinear);
 		lv.OnPaint(textureRenderer,canvasGetSize());
 	}
@@ -1679,7 +1679,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr::RRVec3 oculusTrans = convertVec3(yawWithoutOculus.Transform(oculusHeadPose.Translation));
 			svs.camera.setPosition(svs.camera.getPosition()+oculusTrans-oldOculusTrans);
 			oldOculusTrans = oculusTrans;
-			svframe->OnAnyChange(SVFrame::ES_RIFT,NULL,NULL,0);
+			svframe->OnAnyChange(SVFrame::ES_RIFT,nullptr,nullptr,0);
 		}
 #endif // SUPPORT_OCULUS
 
@@ -1767,7 +1767,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		ppShared.gamma = svs.renderTonemapping ? svs.tonemapping.gamma : 1;
 
 		// start chaining plugins
-		const rr_gl::PluginParams* pluginChain = NULL;
+		const rr_gl::PluginParams* pluginChain = nullptr;
 
 		if (svs.renderLightIndirect==LI_PATHTRACED || (svs.renderLightIndirect==LI_PATHTRACED_FIREBALL && svframe->lastInteractionTime.secondsPassed()>0.2f))
 		{
@@ -1778,12 +1778,12 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pathTracedAccumulator = 0;
 			}
 			if (!pathTracedBuffer)
-				pathTracedBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,false,NULL);
+				pathTracedBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,false,nullptr);
 			unsigned pathTraceWidth = winWidth;
 			unsigned pathTraceHeight = winHeight;
 			if (pathTraceWidth!=pathTracedBuffer->getWidth() || pathTraceHeight!=pathTracedBuffer->getHeight())
 			{
-				pathTracedBuffer->reset(rr::BT_2D_TEXTURE,pathTraceWidth,pathTraceHeight,1,rr::BF_RGBF,false,NULL); // embree accepts only RGB,RGBA,RGBF
+				pathTracedBuffer->reset(rr::BT_2D_TEXTURE,pathTraceWidth,pathTraceHeight,1,rr::BF_RGBF,false,nullptr); // embree accepts only RGB,RGBA,RGBF
 				pathTracedAccumulator = 0;
 			}
 			if (!svs.renderDof)
@@ -1816,7 +1816,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			// copy&paste-d plugins that make sense with pathtracer
 
 			// selection plugin
-			rr_gl::PluginParamsScene ppSelection(pluginChain,NULL);
+			rr_gl::PluginParamsScene ppSelection(pluginChain,nullptr);
 			const EntityIds& selectedEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
 			rr::RRObjects selectedObjects;
 			for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
@@ -1852,7 +1852,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			pluginChain = &ppSky;
 
 			// selection plugin
-			rr_gl::PluginParamsScene ppSelection(pluginChain,NULL);
+			rr_gl::PluginParamsScene ppSelection(pluginChain,nullptr);
 			const EntityIds& selectedEntityIds = svframe->m_sceneTree->getEntityIds(SVSceneTree::MEI_SELECTED);
 			rr::RRObjects selectedObjects;
 			for (EntityIds::const_iterator i=selectedEntityIds.begin();i!=selectedEntityIds.end();++i)
@@ -2001,10 +2001,10 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 							if (!oculusTexture[0])
 							{
 								oculusTexture[0] = new rr_gl::Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false);
-								oculusTexture[1] = NULL;
+								oculusTexture[1] = nullptr;
 
 								#ifdef _WIN32
-									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)canvasWindow->GetHWND(),NULL,NULL);
+									ovrHmd_AttachToWindow(svframe->oculusHMD,(void*)canvasWindow->GetHWND(),nullptr,nullptr);
 								#endif
 								ovrHmd_SetEnabledCaps(svframe->oculusHMD, ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
 								ovrHmd_ConfigureTracking(svframe->oculusHMD, ovrTrackingCap_Orientation|ovrTrackingCap_MagYawCorrection|ovrTrackingCap_Position, 0);
@@ -2016,7 +2016,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								cfg.OGL.Header.Multisample = 1;
 								#ifdef _WIN32
 									cfg.OGL.Window = canvasWindow->GetHWND();
-									cfg.OGL.DC = NULL;
+									cfg.OGL.DC = nullptr;
 								#endif
 								unsigned distortionCaps = ovrDistortionCap_Chromatic | ovrDistortionCap_Vignette | ovrDistortionCap_TimeWarp | ovrDistortionCap_Overdrive; // taken from RoomTiny sample
 								ovrBool result = ovrHmd_ConfigureRendering(svframe->oculusHMD, &cfg.Config, distortionCaps, svframe->oculusHMD->DefaultEyeFov, oculusEyeRenderDesc);
@@ -2113,7 +2113,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr_gl::UberProgramSetup uberProgramSetup;
 			uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE = true;
 			uberProgramSetup.MATERIAL_DIFFUSE = true;
-			rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,1,&svs.tonemapping.color,svs.tonemapping.gamma,NULL);
+			rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,nullptr,0,1,&svs.tonemapping.color,svs.tonemapping.gamma,nullptr);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			glPushMatrix();
@@ -2128,7 +2128,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			uberProgramSetup.MATERIAL_DIFFUSE = false;
 			uberProgramSetup.MATERIAL_SPECULAR = true;
 			uberProgramSetup.OBJECT_SPACE = true;
-			program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,1,&svs.tonemapping.color,svs.tonemapping.gamma,NULL);
+			program = uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,nullptr,0,1,&svs.tonemapping.color,svs.tonemapping.gamma,nullptr);
 			uberProgramSetup.useIlluminationEnvMap(program,lightFieldObjectIllumination->getLayer(svs.layerBakedEnvironment));
 			// render
 			float worldMatrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, lightFieldObjectIllumination->envMapWorldCenter[0]+sphereShift[0],lightFieldObjectIllumination->envMapWorldCenter[1],lightFieldObjectIllumination->envMapWorldCenter[2]+sphereShift[1],1};
@@ -2149,7 +2149,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-				textureRenderer->render2D(rr_gl::getTexture(vignetteImage,false,false),NULL,0,0,1,1);
+				textureRenderer->render2D(rr_gl::getTexture(vignetteImage,false,false),nullptr,0,0,1,1);
 				glDisable(GL_BLEND);
 			}
 		}
@@ -2171,7 +2171,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					float h = logoImage->getHeight()/(float)winHeight;
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					textureRenderer->render2D(rr_gl::getTexture(logoImage,false,false),NULL,1-w,1-h,w,h);
+					textureRenderer->render2D(rr_gl::getTexture(logoImage,false,false),nullptr,1-w,1-h,w,h);
 					glDisable(GL_BLEND);
 				}
 			}
@@ -2186,7 +2186,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
 				uberProgramSetup.LEGACY_GL = 1;
-				uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,1,NULL,1,NULL);
+				uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,nullptr,0,1,nullptr,1,nullptr);
 			}
 
 			// render crosshair, using previously set shader
@@ -2262,25 +2262,25 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 			uberProgramSetup.MATERIAL_DIFFUSE = 1;
 			uberProgramSetup.LEGACY_GL = 1;
-			uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,NULL,0,1,NULL,1,NULL);
+			uberProgramSetup.useProgram(solver->getUberProgram(),&svs.camera,nullptr,0,1,nullptr,1,nullptr);
 		}
 
 		// gather information about scene
 		unsigned numLights = solver->getLights().size();
 		static rr::RRTime time;
 		const rr::RRObject* multiObject = solver->getMultiObject();
-		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : NULL;
+		const rr::RRMesh* multiMesh = multiObject ? multiObject->getCollider()->getMesh() : nullptr;
 		unsigned numTrianglesMulti = multiMesh ? multiMesh->getNumTriangles() : 0;
 
 		// gather information about selected object
 		rr::RRObject* singleObject = solver->getObject(svs.selectedObjectIndex);
-		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : NULL;
+		const rr::RRMesh* singleMesh = singleObject ? singleObject->getCollider()->getMesh() : nullptr;
 		unsigned numTrianglesSingle = singleMesh ? singleMesh->getNumTriangles() : 0;
 
 		// gather information about selected point and triangle (pointed by mouse)
 		bool                        selectedPointValid = false; // true = all selectedXxx below are valid
-		const rr::RRObject*         selectedPointObject = NULL;
-		const rr::RRMesh*           selectedPointMesh = NULL;
+		const rr::RRObject*         selectedPointObject = nullptr;
+		const rr::RRMesh*           selectedPointMesh = nullptr;
 		rr::RRMesh::TangentBasis    selectedPointBasis;
 		rr::RRMesh::TriangleBody    selectedTriangleBody;
 		rr::RRMesh::Triangle        selectedTriangle;
@@ -2380,7 +2380,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				uberProgramSetup.LIGHT_INDIRECT_CONST = 1;
 				uberProgramSetup.MATERIAL_DIFFUSE = 1;
 				uberProgramSetup.LEGACY_GL = 1;
-				rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),NULL,NULL,0,1,NULL,1,NULL);
+				rr_gl::Program* program = uberProgramSetup.useProgram(solver->getUberProgram(),nullptr,nullptr,0,1,nullptr,1,nullptr);
 				program->sendUniform("lightIndirectConst",rr::RRVec4(1));
 			}
 			int x = 10;
@@ -2444,7 +2444,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				textOutput(x,y+=18*2,h,"[object %d/%d]",svs.selectedObjectIndex,numObjects);
 				textOutput(x,y+=18,h,"triangles: %d/%d",numTrianglesSingle,numTrianglesMulti);
 				textOutput(x,y+=18,h,"vertices: %d/%d",singleMesh->getNumVertices(),multiMesh?multiMesh->getNumVertices():0);
-				static const rr::RRObject* lastObject = NULL;
+				static const rr::RRObject* lastObject = nullptr;
 				static rr::RRVec3 bboxMinL;
 				static rr::RRVec3 bboxMaxL;
 				static rr::RRVec3 centerL;
@@ -2483,7 +2483,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				if (selectedPointValid)
 				{
 					rr::RRMesh::PreImportNumber preTriangle = selectedPointMesh->getPreImportTriangle(ray.hitTriangle);
-					const rr::RRMaterial* selectedTriangleMaterial = selectedPointObject->getTriangleMaterial(ray.hitTriangle,NULL,NULL);
+					const rr::RRMaterial* selectedTriangleMaterial = selectedPointObject->getTriangleMaterial(ray.hitTriangle,nullptr,nullptr);
 					const rr::RRMaterial* material = selectedTriangleMaterial;
 					rr::RRPointMaterial selectedPointMaterial;
 					if (material && material->minimalQualityForPointMaterials<10000)
@@ -2564,7 +2564,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 							centerObject = svs.selectedObjectIndex;
 							centerTexel = i + j*buffer->getWidth();
 							//!!!centerTriangle = ?;
-							rr::RRVec4 color = buffer->getElement(i+j*buffer->getWidth(),NULL);
+							rr::RRVec4 color = buffer->getElement(i+j*buffer->getWidth(),nullptr);
 							textOutput(x,y+=18,h,"color: %f %f %f %f",color[0],color[1],color[2],color[3]);
 						}
 					}
@@ -2612,7 +2612,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			textureRenderer->render2D(rr_gl::getTexture(helpImage,false,false),NULL,(1-w)*0.5f,(1-h)*0.5f,w,h);
+			textureRenderer->render2D(rr_gl::getTexture(helpImage,false,false),nullptr,(1-w)*0.5f,(1-h)*0.5f,w,h);
 			glDisable(GL_BLEND);
 		}
 	}

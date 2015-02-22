@@ -148,7 +148,7 @@ public:
 	//! Uses raycasting, performance hit is acceptable even if called once per frame.
 	//! In panorama modes, it shoots in all directions.
 	//! \param solver
-	//!  Camera is tested against geometry in given solver. Range is not adjusted if it is NULL.
+	//!  Camera is tested against geometry in given solver. Range is not adjusted if it is nullptr.
 	//! \param shadowRays
 	//!  True to set range using all shadow casters rather than just visible objects.
 	//! \param numRays

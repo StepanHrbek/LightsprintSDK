@@ -21,7 +21,7 @@ namespace rr_gl
 //
 //! Initializes glew library and some OpenGL states.
 //! Should be called only once, soon after OpenGL context creation.
-//! \return NULL on success, error message when OpenGL was not initialized properly.
+//! \return nullptr on success, error message when OpenGL was not initialized properly.
 RR_GL_API const char* initializeGL();
 
 

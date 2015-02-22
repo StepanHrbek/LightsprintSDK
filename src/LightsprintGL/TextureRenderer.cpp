@@ -65,7 +65,7 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 {
 	if (!_texture || !_texture->getBuffer())
 	{
-		RR_LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering NULL environment.\n"));
+		RR_LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering nullptr environment.\n"));
 		return false;
 	}
 	if (!_texture->getBuffer()->getScaled())
@@ -79,7 +79,7 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	Program* program = skyProgram ? skyProgram->getProgram(tmpstr("#define POSTPROCESS_BRIGHTNESS\n%s%s",
 		equirectangular?"#define PROJECTION_EQUIRECTANGULAR\n":"#define PROJECTION_CUBE\n",
 		(_gamma!=1)?"#define POSTPROCESS_GAMMA\n":""
-		)) : NULL;
+		)) : nullptr;
 	if (!program)
 	{
 		RR_ASSERT(0);
@@ -118,7 +118,7 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 {
 	if (!_texture0 || !_texture0->getBuffer())
 	{
-		RR_LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering NULL environment.\n"));
+		RR_LIMITED_TIMES(1, rr::RRReporter::report(rr::WARN,"Rendering nullptr environment.\n"));
 		return false;
 	}
 	rr::RRVec3 brightness = _brightness ? (rr::RRVec3)*_brightness : rr::RRVec3(1);
@@ -158,11 +158,11 @@ Program* TextureRenderer::render2dBegin(const ToneParameters* tp, const char* ex
 	ToneParameters tp0;
 	if (!tp)
 		tp = &tp0;
-	Program* program = twodProgram ? twodProgram->getProgram(tmpstr("#define TEXTURE\n%s%s%s%s",(tp->gamma!=1)?"#define GAMMA\n":"",(tp->hsv!=rr::RRVec3(0,1,1))?"#define HSV\n":"",(tp->steps>0 && tp->steps<256)?"#define STEPS\n":"",extraDefines?extraDefines:"")) : NULL;
+	Program* program = twodProgram ? twodProgram->getProgram(tmpstr("#define TEXTURE\n%s%s%s%s",(tp->gamma!=1)?"#define GAMMA\n":"",(tp->hsv!=rr::RRVec3(0,1,1))?"#define HSV\n":"",(tp->steps>0 && tp->steps<256)?"#define STEPS\n":"",extraDefines?extraDefines:"")) : nullptr;
 	if (!program)
 	{
 		RR_ASSERT(0);
-		return NULL;
+		return nullptr;
 	}
 	// render 2d
 	program->useIt();

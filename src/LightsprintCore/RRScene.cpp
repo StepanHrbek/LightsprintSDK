@@ -126,7 +126,7 @@ struct LoadersAndSavers
 		}
 		else
 		{
-			RRReporter::report(WARN,"Invalid argument (NULL) in registerLoader().\n");
+			RRReporter::report(WARN,"Invalid argument (nullptr) in registerLoader().\n");
 		}
 	}
 
@@ -153,7 +153,7 @@ struct LoadersAndSavers
 		}
 		else
 		{
-			RRReporter::report(WARN,"Invalid argument (NULL) in registerSaver().\n");
+			RRReporter::report(WARN,"Invalid argument (nullptr) in registerSaver().\n");
 		}
 	}
 
@@ -207,8 +207,8 @@ struct LoadersAndSavers
 		if (_filename.empty())
 		{
 			// don't warn, it's documented as a valid way to create empty scene
-			//RRReporter::report(WARN,"RRScene(NULL), invalid argument.\n");
-			return NULL;
+			//RRReporter::report(WARN,"RRScene(nullptr), invalid argument.\n");
+			return nullptr;
 		}
 
 		RRReportInterval report(INF1,"Loading %s %ls...\n",classname,_filename.w_str());
@@ -217,14 +217,14 @@ struct LoadersAndSavers
 		if (loaders.empty())
 		{
 			RRReporter::report(WARN,"No loaders registered, call rr_io::registerLoaders() or RR%s::registerLoader() first.\n",classname);
-			return NULL;
+			return nullptr;
 		}
 
 		// tell texture locator scene filename
 		RRFileLocator* localTextureLocator = _textureLocator?_textureLocator:RRFileLocator::create();
 		localTextureLocator->setParent(true,_filename);
 
-		RRClass* loaded = NULL;
+		RRClass* loaded = nullptr;
 
 		// test whether file exists (to properly report this common error)
 		if (!localTextureLocator->exists(_filename))
@@ -354,9 +354,9 @@ const char* RRScene::getSupportedSaverExtensions()
 
 RRScene::RRScene(const RRString& _filename, RRFileLocator* _textureLocator, bool* _aborting)
 {
-	protectedObjects = NULL;
-	protectedLights = NULL;
-	environment = NULL;
+	protectedObjects = nullptr;
+	protectedLights = nullptr;
+	environment = nullptr;
 	implementation = s_sceneLoadersAndSavers.load(_filename,_textureLocator,_aborting,"Scene");
 	if (implementation)
 	{
@@ -402,7 +402,7 @@ const char* RRMaterials::getSupportedSaverExtensions()
 
 bool RRMaterial::load(const RRString& _filename, RRFileLocator* _textureLocator)
 {
-	RRMaterials* loaded = s_materialLoadersAndSavers.load(_filename,_textureLocator,NULL,"Material");
+	RRMaterials* loaded = s_materialLoadersAndSavers.load(_filename,_textureLocator,nullptr,"Material");
 	if (loaded && loaded->size())
 	{
 		copyFrom(*(*loaded)[0]);
@@ -425,7 +425,7 @@ bool RRMaterial::save(const RRString& filename) const
 
 RRMaterials* RRMaterials::load(const RRString& _filename, RRFileLocator* _textureLocator)
 {
-	return s_materialLoadersAndSavers.load(_filename,_textureLocator,NULL,"Material");
+	return s_materialLoadersAndSavers.load(_filename,_textureLocator,nullptr,"Material");
 }
 
 bool RRMaterials::save(const RRString& filename) const
@@ -440,10 +440,10 @@ bool RRMaterials::save(const RRString& filename) const
 
 RRScene::RRScene()
 {
-	implementation = NULL;
-	protectedObjects = NULL;
-	protectedLights = NULL;
-	environment = NULL;
+	implementation = nullptr;
+	protectedObjects = nullptr;
+	protectedLights = nullptr;
+	environment = nullptr;
 }
 
 void RRScene::transform(const RRMatrix3x4& transformation)

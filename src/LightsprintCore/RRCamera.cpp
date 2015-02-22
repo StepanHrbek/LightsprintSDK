@@ -31,7 +31,7 @@ namespace rr
 
 RRCamera::RRCamera()
 {
-	light = NULL;
+	light = nullptr;
 
 	// view
 	pos = RRVec3(0);
@@ -68,7 +68,7 @@ RRCamera::RRCamera()
 
 RRCamera::RRCamera(const RRVec3& _pos, const RRVec3& _yawPitchRoll, float _aspect, float _fieldOfViewVerticalDeg, float _anear, float _afar)
 {
-	light = NULL;
+	light = nullptr;
 
 	// view
 	pos = _pos;
@@ -229,7 +229,7 @@ static void generateRandomCamera(const RRSolver* _solver, RRVec3& _pos, RRVec3& 
 	}
 	bool aborting = false;
 	RRObjects objects = _solver->getObjects();
-	RRObject* superObject = objects.createMultiObject(RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL);
+	RRObject* superObject = objects.createMultiObject(RRCollider::IT_LINEAR,aborting,-1,-1,false,0,nullptr);
 	if (!superObject)
 		goto empty;
 	const RRMesh* superMesh = superObject->getCollider()->getMesh();
@@ -264,7 +264,7 @@ static void generateRandomCamera(const RRSolver* _solver, RRVec3& _pos, RRVec3& 
 			ray.hitObject = _solver->getMultiObject();
 			if (collider->intersect(ray))
 			{
-				const RRMaterial* material = ray.hitObject->getTriangleMaterial(ray.hitTriangle,NULL,NULL);
+				const RRMaterial* material = ray.hitObject->getTriangleMaterial(ray.hitTriangle,nullptr,nullptr);
 				if ((material && material->sideBits[ray.hitFrontSide?0:1].renderFrom) || (!material && ray.hitFrontSide))
 					hitTriangles.insert(ray.hitTriangle);
 			}
@@ -285,7 +285,7 @@ void RRCamera::setView(RRCamera::View _view, const RRSolver* _solver, const RRVe
 	RRVec3 mini(0),maxi(0);
 	if (_solver)
 	{
-		_solver->getAABB(&mini,&maxi,NULL);
+		_solver->getAABB(&mini,&maxi,nullptr);
 	}
 	else
 	if (_mini && _maxi && *_mini!=*_maxi)
@@ -506,7 +506,7 @@ void RRCamera::setRangeDynamically(const RRSolver* solver, bool shadowRays, unsi
 
 	// get scene bbox, taking large dynamic planes into account (large static planes are not allowed, they break collider)
 	RRVec3 sceneMin(0), sceneMax(0);
-	const RRObject* planeObject = solver->getAABB(&sceneMin,&sceneMax,NULL);
+	const RRObject* planeObject = solver->getAABB(&sceneMin,&sceneMax,nullptr);
 
 	// calculate far as a distance to bbox
 	RRReal maxDist = 0;
@@ -522,7 +522,7 @@ void RRCamera::setRangeDynamically(const RRSolver* solver, bool shadowRays, unsi
 	if (planeObject)
 	{
 		RRVec3 mini,maxi;
-		planeObject->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+		planeObject->getCollider()->getMesh()->getAABB(&mini,&maxi,nullptr);
 		RRVec3 size(maxi-mini);
 		rr::RRVec4 plane = size.x ? ( size.y ? rr::RRVec4(0,0,1,-mini.z) : rr::RRVec4(0,1,0,-mini.y) ) : rr::RRVec4(1,0,0,-mini.x);
 		planeObject->getWorldMatrixRef().transformPlane(plane);
@@ -665,7 +665,7 @@ void RRLight::blendLinear(const RRLight& sample0, const RRLight& sample1, RRReal
 	enabled = sample0.enabled;
 	castShadows = sample0.castShadows;
 	directLambertScaled = sample0.directLambertScaled;
-	//projectedTexture = sample0.projectedTexture ? a.projectedTexture->createReference() : NULL;
+	//projectedTexture = sample0.projectedTexture ? a.projectedTexture->createReference() : nullptr;
 	rtNumShadowmaps = sample0.rtNumShadowmaps;
 	rtShadowmapSize = sample0.rtShadowmapSize;
 	rtShadowmapBias = blendNormal(sample0.rtShadowmapBias,sample1.rtShadowmapBias,blend);

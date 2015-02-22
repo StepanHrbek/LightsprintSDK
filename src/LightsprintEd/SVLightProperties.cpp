@@ -25,7 +25,7 @@ namespace rr_ed
 SVLightProperties::SVLightProperties(SVFrame* _svframe)
 	: SVProperties(_svframe)
 {
-	rtlight = NULL;
+	rtlight = nullptr;
 }
 
 
@@ -55,7 +55,7 @@ void SVLightProperties::setLight(rr_gl::RealtimeLight* _rtlight, int _precision)
 
 		// light type
 		{
-			const wxChar* typeStrings[] = {_("Directional"),_("Point"),_("Spot"),NULL};
+			const wxChar* typeStrings[] = {_("Directional"),_("Point"),_("Spot"),nullptr};
 			const long typeValues[] = {rr::RRLight::DIRECTIONAL,rr::RRLight::POINT,rr::RRLight::SPOT};
 			propType = new wxEnumProperty(_("Light type"), wxPG_LABEL, typeStrings, typeValues, light->type);
 			Append(propType);
@@ -102,7 +102,7 @@ void SVLightProperties::setLight(rr_gl::RealtimeLight* _rtlight, int _precision)
 
 		// distance attenuation
 		{
-			const wxChar* attenuationStrings[] = {_("none"),_("realistic"),_("polynomial"),_("exponential"),NULL};
+			const wxChar* attenuationStrings[] = {_("none"),_("realistic"),_("polynomial"),_("exponential"),nullptr};
 			const long attenuationValues[] = {rr::RRLight::NONE,rr::RRLight::REALISTIC,rr::RRLight::POLYNOMIAL,rr::RRLight::EXPONENTIAL};
 			propDistanceAttType = new wxEnumProperty(_("Distance attenuation type"), wxPG_LABEL, attenuationStrings, attenuationValues, light->distanceAttenuationType);
 			Append(propDistanceAttType);
@@ -131,7 +131,7 @@ void SVLightProperties::setLight(rr_gl::RealtimeLight* _rtlight, int _precision)
 			propCastShadows = new BoolRefProperty(_("Cast shadows"), _("Shadows add realism, but reduce speed."), light->castShadows);
 			Append(propCastShadows);
 			
-			const wxChar* tsStrings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),_("24-bit (fresnel shadows)"),NULL};
+			const wxChar* tsStrings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),_("24-bit (fresnel shadows)"),nullptr};
 			const long tsValues[] = {rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS,rr_gl::RealtimeLight::ALPHA_KEYED_SHADOWS,rr_gl::RealtimeLight::RGB_SHADOWS,rr_gl::RealtimeLight::FRESNEL_SHADOWS};
 			propShadowTransparency = new wxEnumProperty(_("Shadow transparency"),wxPG_LABEL,tsStrings,tsValues);
 			propShadowTransparency->SetHelpString(_("How shadows actually work. Can be controlled via Scene properties / GI / Shadow transparency."));
@@ -397,7 +397,7 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		rtlight->dirtyShadowmap = true;
 	}
 	rtlight->updateAfterRRLightChanges();
-	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL,0);
+	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,nullptr,0);
 }
 
 BEGIN_EVENT_TABLE(SVLightProperties, wxPropertyGrid)

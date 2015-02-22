@@ -33,7 +33,7 @@ public:
 		RR_ASSERT(ray.rayFlags&rr::RRRay::FILL_SIDE);
 
 		rr::RRPointMaterial pointMaterial;
-		object->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,NULL,true,pointMaterial); // custom scale transparency is identical to physical one (and even if not, it would be good enough here)
+		object->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,nullptr,true,pointMaterial); // custom scale transparency is identical to physical one (and even if not, it would be good enough here)
 		if (pointMaterial.sideBits[ray.hitFrontSide?0:1].renderFrom)
 			transparency *= pointMaterial.specularTransmittance.color;
 		return transparency==rr::RRVec3(0);
@@ -75,7 +75,7 @@ public:
 				unsigned numElements = secondaryMap[i]->getNumElements();
 				for (unsigned j=0;j<numElements;j++)
 				{
-					rr::RRVec3 color = secondaryMap[i]->getElement(j,NULL);
+					rr::RRVec3 color = secondaryMap[i]->getElement(j,nullptr);
 					sum += abs(color[0]-color[1])+abs(color[1]-color[2])+abs(color[2]-color[0]);
 				}
 				colorizeSecondaryMap[i] = sum/numElements<0.03f;
@@ -121,7 +121,7 @@ public:
 		rr::RRVec2 topleft = center-size/2;
 		rr::RRBuffer* map = primaryMap[rand()%NUM_PRIMARY_MAPS];
 		if (map)
-			_textureRenderer->render2D(getTexture(map),NULL,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
+			_textureRenderer->render2D(getTexture(map),nullptr,topleft.x*0.5f+0.5f,topleft.y*0.5f+0.5f,size.x*0.5f,size.y*0.5f);
 
 		unsigned numSecondaryFlares = rand()%10;
 		for (unsigned i=0;i<numSecondaryFlares;i++)

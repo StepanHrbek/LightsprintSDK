@@ -28,8 +28,8 @@ void Program::logMessages(bool enable)
 Program::Program(const char* defines, const rr::RRString& vertexShader, const rr::RRString& fragmentShader)
 {
 	handle = glCreateProgram();
-	vertex = NULL;
-	fragment = NULL;
+	vertex = nullptr;
+	fragment = nullptr;
 	linked = 0;
 
 	if (s_showLog)

@@ -49,10 +49,10 @@ public:
 	//!  Filename of scene. If it is empty, scene will be empty.
 	//! \param textureLocator
 	//!  Optional custom file locator, for finding texture files in unusual location.
-	//!  NULL = default locator will be used.
+	//!  nullptr = default locator will be used.
 	//! \param aborting
 	//!  Import may be asynchronously aborted by setting *aborting to true.
-	RRScene(const RRString& filename, RRFileLocator* textureLocator = NULL, bool* aborting = NULL);
+	RRScene(const RRString& filename, RRFileLocator* textureLocator = nullptr, bool* aborting = nullptr);
 	//! Saves 3d scene to file.
 	//
 	//! Scene save is attempted using savers registered via registerSaver().
@@ -109,7 +109,7 @@ public:
 	//! \param buffers
 	//!  In-out collection of buffers.
 	//!  Unique input buffers are preserved, new buffers from scene are added to collection.
-	//!  Ordering of input buffers may change and duplicates and NULL buffers are removed.
+	//!  Ordering of input buffers may change and duplicates and nullptr buffers are removed.
 	//! \param layers
 	//!  Illumination from given layers will be gathered too.
 	void getAllBuffers(RRVector<RRBuffer*>& buffers, const RRVector<unsigned>* layers) const;
@@ -138,12 +138,12 @@ public:
 	//! Returns list of supported loader extensions in "*.dae;*.3ds;*.md5mesh" format.
 	//
 	//! All extensions of registered loaders are returned in one static string, don't free() it.
-	//! NULL is returned if no loaders were registered.
+	//! nullptr is returned if no loaders were registered.
 	static const char* getSupportedLoaderExtensions();
 	//! Returns list of supported saver extensions in "*.dae;*.3ds;*.md5mesh" format.
 	//
 	//! All extensions of registered savers are returned in one static string, don't free() it.
-	//! NULL is returned if no savers were registered.
+	//! nullptr is returned if no savers were registered.
 	static const char* getSupportedSaverExtensions();
 
 protected:

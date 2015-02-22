@@ -24,7 +24,7 @@ public:
 
 	PluginRuntimeToneMapping(const PluginCreateRuntimeParams& params)
 	{
-		colorTexture = NULL;
+		colorTexture = nullptr;
 	}
 
 	virtual ~PluginRuntimeToneMapping()
@@ -44,7 +44,7 @@ public:
 
 		if (!_renderer.getTextureRenderer()) return;
 
-		if (!colorTexture) colorTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		if (!colorTexture) colorTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,nullptr),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		colorTexture->bindTexture();
 		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3],0);
 		_renderer.getTextureRenderer()->render2D(colorTexture,&pp.tp,0,0,1,1);

@@ -56,7 +56,7 @@ err:
 	rr::RRReporter::report(rr::ERRO,"FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
 err_printed:
 	delete music;
-	return NULL;
+	return nullptr;
 }
 
 Music::Music()

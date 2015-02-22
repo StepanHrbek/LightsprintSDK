@@ -146,7 +146,7 @@ public:
 	GatheringTools(const ProcessTexelParams& pti)
 	{
 		collider = pti.context.solver->getMultiObject()->getCollider();
-		environment = pti.context.params.indirect.environmentMultiplier ? pti.context.solver->getEnvironment() : NULL;
+		environment = pti.context.params.indirect.environmentMultiplier ? pti.context.solver->getEnvironment() : nullptr;
 		fillerPos.Reset(pti.resetFiller);
 	}
 
@@ -381,7 +381,7 @@ public:
 			const RRLights& allLights = _pti.context.solver->getLights();
 			const RRObject* multiObject = _pti.context.solver->getMultiObject();
 			for (unsigned i=0;i<allLights.size();i++)
-				if (allLights[i]->enabled && _pti.subTexels && multiObject->getTriangleMaterial(_pti.subTexels->begin()->multiObjPostImportTriIndex,allLights[i],NULL))
+				if (allLights[i]->enabled && _pti.subTexels && multiObject->getTriangleMaterial(_pti.subTexels->begin()->multiObjPostImportTriIndex,allLights[i],nullptr))
 				{
 					pti.relevantLights[numRelevantLights++] = allLights[i];
 				}
@@ -625,7 +625,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	gilights.init();
 
 	// cached data reused for all rays from one triangleIndex
-	const SubTexel* cache_subTexelPtr = NULL;
+	const SubTexel* cache_subTexelPtr = nullptr;
 	unsigned cache_triangleIndex = UINT_MAX;
 	RRMesh::TriangleBody cache_tb;
 	RRMesh::TriangleNormals cache_bases;
@@ -758,7 +758,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			}
 		}
 	}
-	g_logRay = NULL;
+	g_logRay = nullptr;
 
 	hemisphere.done();
 	gilights.done();
@@ -777,7 +777,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		}
 		// store irradiance (no scaling yet)
 		if (pti.context.pixelBuffers[i])
-			pti.context.pixelBuffers[i]->setElement(pti.uv[0]+pti.uv[1]*pti.context.pixelBuffers[i]->getWidth(),result.irradiancePhysical[i],NULL);
+			pti.context.pixelBuffers[i]->setElement(pti.uv[0]+pti.uv[1]*pti.context.pixelBuffers[i]->getWidth(),result.irradiancePhysical[i],nullptr);
 	}
 //RRReporter::report(INF1,"texel=%f+%f=%f\n",gilights.irradiancePhysicalLights[LS_LIGHTMAP][0],hemisphere.irradiancePhysicalHemisphere[LS_LIGHTMAP][0],result.irradiance[LS_LIGHTMAP][0]);
 
@@ -800,7 +800,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 			// instead of result.bentNormal
 			// pass (x+1)/2 to prevent underflow when saving -1..1 in 8bit 0..1
 			(result.bentNormal+RRVec4(1,1,1,0))*RRVec4(0.5f,0.5f,0.5f,1),
-			NULL);
+			nullptr);
 	}
 
 	//RR_ASSERT(result.irradiance[0]>=0 && result.irradiance[1]>=0 && result.irradiance[2]>=0); small float error may generate negative value
@@ -912,7 +912,7 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 			//ptp.relevantLightsFilled = false;
 			// pass filled array (is common for all triangles in singleobject)
 			ptp.numRelevantLights = (unsigned)relevantLightsPerObject[objectNumber].size();
-			ptp.relevantLights = ptp.numRelevantLights ? &(relevantLightsPerObject[objectNumber][0]) : NULL; // dirty conversion, from std::vector to array
+			ptp.relevantLights = ptp.numRelevantLights ? &(relevantLightsPerObject[objectNumber][0]) : nullptr; // dirty conversion, from std::vector to array
 			ptp.relevantLightsFilled = true;
 
 			resultsPhysical->store(t,processTexel(ptp));
@@ -972,11 +972,11 @@ bool RRSolver::updateSolverDirectIllumination(const UpdateParameters* _params)
 	// tmparray -> solver.direct
 #ifdef FIRST_GATHER_EMI
 	// 2. then tell arch solver to fill solver.direct with gathered lights+env+emi
-	priv->scene->illuminationReset(false,true,0,NULL,NULL,finalGather->data[LS_LIGHTMAP]);
+	priv->scene->illuminationReset(false,true,0,nullptr,nullptr,finalGather->data[LS_LIGHTMAP]);
 #else
 	// 2. then tell arch solver to fill solver.direct with gathered lights+env and add emi.color from materials
 	//    (arch solver does not yet support sampling from emi textures)
-	priv->scene->illuminationReset(false,true,_params?_params->indirect.materialEmittanceMultiplier:1,NULL,NULL,finalGather->data[LS_LIGHTMAP]);
+	priv->scene->illuminationReset(false,true,_params?_params->indirect.materialEmittanceMultiplier:1,nullptr,nullptr,finalGather->data[LS_LIGHTMAP]);
 #endif
 	// 3. later we will calculate solver.indirect from solver.direct
 	// 4. later we will final gather emi from textures and when ray hits dif.surface, we illuminate it with solver.direct+solver.indirect [#41]
@@ -1028,7 +1028,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 			return false;
 		}
 	}
-	// set default params instead of NULL
+	// set default params instead of nullptr
 	UpdateParameters paramsIndirect;
 	paramsIndirect.useCurrentSolution = false;
 	if (_paramsIndirect)
@@ -1038,7 +1038,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 		paramsIndirect.debugObject = UINT_MAX;
 		paramsIndirect.debugTexel = UINT_MAX;
 		paramsIndirect.debugTriangle = UINT_MAX;
-		paramsIndirect.debugRay = NULL;
+		paramsIndirect.debugRay = nullptr;
 	}
 
 	RRReportInterval report(INF2,"Updating solver indirect(%ls).\n",getIndirectParamsAsString(paramsIndirect).w_str());
@@ -1048,8 +1048,8 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 	
 	// reset illumination in solver
 	// we need to do it even if there is no work (no light sources),
-	// because user can call updateLightmaps(direct(useCurrentSolution),NULL) and start finalgathering solver
-	priv->scene->illuminationReset(true,true,paramsIndirect.indirect.materialEmittanceMultiplier,NULL,NULL,NULL);
+	// because user can call updateLightmaps(direct(useCurrentSolution),nullptr) and start finalgathering solver
+	priv->scene->illuminationReset(true,true,paramsIndirect.indirect.materialEmittanceMultiplier,nullptr,nullptr,nullptr);
 
 	// gather direct for requested indirect and propagate in solver
 	if (paramsIndirect.indirect.lightMultiplier || paramsIndirect.indirect.environmentMultiplier || paramsIndirect.indirect.materialEmittanceMultiplier)
@@ -1084,7 +1084,7 @@ bool RRSolver::updateSolverIndirectIllumination(const UpdateParameters* _paramsI
 			}
 
 			// optimization: free memory taken by factors (we won't need them anymore), but preserve accumulators (we need them for final gather)
-			priv->scene->illuminationReset(true,false,paramsIndirect.indirect.materialEmittanceMultiplier,NULL,NULL,NULL);
+			priv->scene->illuminationReset(true,false,paramsIndirect.indirect.materialEmittanceMultiplier,nullptr,nullptr,nullptr);
 		}
 	}
 	return true;

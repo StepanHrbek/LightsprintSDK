@@ -65,7 +65,7 @@ public:
 	static ArrayWithArrays* load(const char* filename)
 	{
 		FILE* f = fopen(filename,"rb");
-		if (!f) return NULL;
+		if (!f) return nullptr;
 		fseek(f,0,SEEK_END);
 		unsigned sizeInBytes = ftell(f);
 		char* data = new char[sizeInBytes];
@@ -452,9 +452,9 @@ class PackedSolverFile
 public:
 	PackedSolverFile()
 	{
-		packedFactors = NULL;
-		packedIvertices = NULL;
-		packedSmoothTriangles = NULL;
+		packedFactors = nullptr;
+		packedIvertices = nullptr;
+		packedSmoothTriangles = nullptr;
 		packedSmoothTrianglesBytes = 0;
 
 		// build table so that intensity goes up to 0.023,
@@ -512,13 +512,13 @@ public:
 #else
 		FILE* f = fopen(RR_RR2CHAR(filename),"rb");
 #endif
-		if (!f) return NULL;
+		if (!f) return nullptr;
 		// load header
 		Header header;
 		if (fread(&header,sizeof(Header),1,f)!=1 || header.version!=FIREBALL_STRUCTURE_VERSION || (hashThatMustMatch && header.hash!=*hashThatMustMatch))
 		{
 			fclose(f);
-			return NULL;
+			return nullptr;
 		}
 		PackedSolverFile* psf = new PackedSolverFile;
 		// load intensityTable

@@ -38,7 +38,7 @@ public:
 	PluginRuntimeDOF(const PluginCreateRuntimeParams& params)
 	{
 		// accumulation based
-		bokehBuffer = NULL;
+		bokehBuffer = nullptr;
 
 		// shader based
 		smallColor1 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_LINEAR,GL_LINEAR,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
@@ -95,7 +95,7 @@ public:
 			rr::RRVec3 offsetInBuffer = rr::RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),0); // 0..1
 			if (bokehBuffer)
 			{
-				sampledSum += bokehBuffer->getElementAtPosition(offsetInBuffer,NULL,false).RRVec3::avg();
+				sampledSum += bokehBuffer->getElementAtPosition(offsetInBuffer,nullptr,false).RRVec3::avg();
 				numSamples++;
 				if (numSamples<100) // bad luck or black bokeh texture, stop sampling
 				if (sampledSum<1) // sample is not inside bokeh shape, or is in darker region

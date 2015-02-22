@@ -12,7 +12,7 @@
 
 // helper for rr_io,
 // single global variable shared by all libraries that include RRSerialization.h
-RR_API class SerializationRuntime* g_serializationRuntime = NULL;
+RR_API class SerializationRuntime* g_serializationRuntime = nullptr;
 
 #ifdef RR_LINKS_BOOST
 

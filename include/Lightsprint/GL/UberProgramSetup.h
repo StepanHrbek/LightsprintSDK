@@ -56,7 +56,7 @@ struct ClipPlanes
 //! All attribute values are converted to "#define ATTRIBUTE [value]" format
 //! and inserted at the beginning of ubershader.
 //!
-//! Some combinations of attributes are not supported and getProgram will return NULL.
+//! Some combinations of attributes are not supported and getProgram will return nullptr.
 //! Call validate() to get the nearest supported combination.
 //!
 //! LIGHT_INDIRECT_XXX flags enable rendering of indirect illumination in various situations, using various techniques.
@@ -97,7 +97,7 @@ struct RR_GL_API UberProgramSetup
 	bool     LIGHT_INDIRECT_ENV_SPECULAR   :1; ///< Illuminates material's specular component by environment map (any map you provide, or lowres realtime raytraced one). Affects only flat objects with environment map preallocated. Directional, works with normal maps. Recommended for all objects without LIGHT_INDIRECT_MIRROR_SPECULAR.
 	bool     LIGHT_INDIRECT_ENV_REFRACT    :1; ///< Modifies behaviour of MATERIAL_TRANSPARENCY_BLEND. While MATERIAL_TRANSPARENCY_BLEND without LIGHT_INDIRECT_ENV_REFRACT enables one of GPU blending modes where background is read from framebuffer and objects have to be sorted, MATERIAL_TRANSPARENCY_BLEND with LIGHT_INDIRECT_ENV_REFRACT samples background from environment map (any map you provide, or automatically raytraced lowres one) and it does not need transparent objects sorted. LIGHT_INDIRECT_ENV_REFRACT can only be enabled manually, it is not set automatically. When enabled, MATERIAL_TRANSPARENCY_TO_RGB must be disabled.
 	bool     LIGHT_INDIRECT_MIRROR_DIFFUSE :1; ///< Illuminates material's diffuse component by realtime rasterized highres mirror reflection. Affects only flat objects without environment map. Directional, works with normal maps. Recommended for all large dynamic planes (as a slower but higher quality option). Small dynamic planes look better with LIGHT_INDIRECT_ENV_DIFFUSE, static planes look better with LIGHT_INDIRECT_VCOLOR(unless number of vertices is very low) or LIGHT_INDIRECT_MAP.
-	bool     LIGHT_INDIRECT_MIRROR_SPECULAR:1; ///< Illuminates material's specular component by realtime rasterized highres mirror reflection. Affects only flat objects without environment map. Directional, works with normal maps. Recommended for all planes (as a slower but higher quality option), except for very small ones, where much faster LIGHT_INDIRECT_ENV_SPECULAR might be good enough. (If you don't see mirroring, is specularEnvMap NULL? Is volume of mesh AABB zero? Object can be arbitrarily rotated, but original mesh before rotation must be axis aligned.)
+	bool     LIGHT_INDIRECT_MIRROR_SPECULAR:1; ///< Illuminates material's specular component by realtime rasterized highres mirror reflection. Affects only flat objects without environment map. Directional, works with normal maps. Recommended for all planes (as a slower but higher quality option), except for very small ones, where much faster LIGHT_INDIRECT_ENV_SPECULAR might be good enough. (If you don't see mirroring, is specularEnvMap nullptr? Is volume of mesh AABB zero? Object can be arbitrarily rotated, but original mesh before rotation must be axis aligned.)
 	bool     LIGHT_INDIRECT_MIRROR_MIPMAPS :1; ///< Enables higher quality mirroring (builds lightIndirectMirrorMap with mipmaps).
 
 	// Various material features.
@@ -170,7 +170,7 @@ struct RR_GL_API UberProgramSetup
 	//
 	//! With meshArrays provided, enables only features supported by mesh,
 	//! e.g. MATERIAL_BUMP_MAP only if tangents, bitangents and selected uv channel are present.
-	//! With meshArrays NULL, works as if mesh contains all uv channels necessary, but no tangents (so normal maps will be disabled).
+	//! With meshArrays nullptr, works as if mesh contains all uv channels necessary, but no tangents (so normal maps will be disabled).
 	void enableUsedMaterials(const rr::RRMaterial* material, const rr::RRMeshArrays* meshArrays);
 
 	//! Reduces material setup, removes properties not present in fullMaterial.
@@ -194,7 +194,7 @@ struct RR_GL_API UberProgramSetup
 	//! that may be processed in one pass with this setup (material & lighting).
 	//! The same number is set to SHADOW_MAPS.
 	//! \n\n If one of arguments in argv is penumbraX for X=1..8, X is returned.
-	unsigned detectMaxShadowmaps(UberProgram* uberProgram, int argc = 0, const char*const*argv = NULL);
+	unsigned detectMaxShadowmaps(UberProgram* uberProgram, int argc = 0, const char*const*argv = nullptr);
 	//! Check whether number of texture image units supported by platform is high enough, warns if it isn't.
 	static void checkCapabilities();
 	//! Change invalid settings to closest valid settings.

@@ -94,9 +94,9 @@ namespace rr
 		//!  Buffer is not adopted, you are still responsible for deleting it when it's no longer needed.
 		//! \param angleRad0
 		//! \param angleRad1
-		void setEnvironment(RRBuffer* environment0, RRBuffer* environment1=NULL, RRReal angleRad0=0, RRReal angleRad1=0);
+		void setEnvironment(RRBuffer* environment0, RRBuffer* environment1=nullptr, RRReal angleRad0=0, RRReal angleRad1=0);
 		//! Returns scene environment set by setEnvironment().
-		RRBuffer* getEnvironment(unsigned environmentIndex=0, RRReal* angleRad=NULL) const;
+		RRBuffer* getEnvironment(unsigned environmentIndex=0, RRReal* angleRad=nullptr) const;
 
 		//! Sets environment blend factor, specifies how two environments are blended together.
 		//
@@ -153,10 +153,10 @@ namespace rr
 		//!  You are free to set always the same array or each time different one,
 		//!  performace is identical.
 		//!
-		//!  Setting NULL is the same as setting array filled by zeroes, no custom irradiance.
+		//!  Setting nullptr is the same as setting array filled by zeroes, no custom irradiance.
 		void setDirectIllumination(const unsigned* perTriangleIrradianceRGBA);
 
-		//! Returns pointer previously passed to setDirectIllumination(), or NULL if it was not set yet.
+		//! Returns pointer previously passed to setDirectIllumination(), or nullptr if it was not set yet.
 		const unsigned* getDirectIllumination();
 
 
@@ -226,16 +226,16 @@ namespace rr
 		//!     Changing illumiation stored in objects is safe.
 		//! \param smoothing
 		//!  Static scene illumination smoothing.
-		//!  Set NULL for default values.
+		//!  Set nullptr for default values.
 		//! \param cacheLocation
 		//!  Whether and where to cache colliders (speeds up startup when opening the same geometry next time).
 		//!  It is passed to RRCollider::create(), so
-		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
+		//!  default nullptr caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
 		//! \param intersectTechnique
 		//!  Intersection technique used by solver. Techniques differ by speed and memory requirements.
 		//! \param copyFrom
-		//!  Should stay NULL (used by sceneViewer to reuse multiObject and smoothing from old solver).
-		virtual void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=NULL, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BVH_FAST, RRSolver* copyFrom = NULL);
+		//!  Should stay nullptr (used by sceneViewer to reuse multiObject and smoothing from old solver).
+		virtual void setStaticObjects(const RRObjects& objects, const SmoothingParameters* smoothing, const char* cacheLocation=nullptr, RRCollider::IntersectTechnique intersectTechnique=RRCollider::IT_BVH_FAST, RRSolver* copyFrom = nullptr);
 		//! Returns static contents of scene, all static objects at once. It is very fast, returning reference to existing collection.
 		const RRObjects& getStaticObjects() const;
 
@@ -263,13 +263,13 @@ namespace rr
 		//! Returns collection of all objects in scene. It is slower than getStaticObjects() and getDynamicObjects(), returning newly allocated collection.
 		RRObjects getObjects() const;
 
-		//! Returns given object or NULL for out of range index. Objects are indexed from 0, static objects go first, then dynamic.
+		//! Returns given object or nullptr for out of range index. Objects are indexed from 0, static objects go first, then dynamic.
 		RRObject* getObject(unsigned index) const;
 
 
 		//! Returns collider for whole scene, both static and dynamic.
 		//
-		//! Never returns NULL, even if scene is empty.
+		//! Never returns nullptr, even if scene is empty.
 		//! Returned collider is valid until next getCollider() call. It is owned by solver, you don't delete it.
 		//!
 		//! This is slightly heavier operation as it updates acceleration structures.
@@ -305,7 +305,7 @@ namespace rr
 		//! \param buffers
 		//!  In-out collection of buffers.
 		//!  Unique input buffers are preserved, new buffers from solver are added to collection.
-		//!  Ordering of input buffers may change and duplicates and NULL buffers are removed.
+		//!  Ordering of input buffers may change and duplicates and nullptr buffers are removed.
 		//! \param layers
 		//!  Illumination from given layers will be gathered too.
 		void getAllBuffers(RRVector<RRBuffer*>& buffers, const RRVector<unsigned>* layers) const;
@@ -397,7 +397,7 @@ namespace rr
 			//! 0.05 = update less frequently, faster.
 			float secondsBetweenDDI;
 
-			//! Sets default parameters. This is used if you send NULL instead of parameters.
+			//! Sets default parameters. This is used if you send nullptr instead of parameters.
 			CalculateParameters()
 			{
 				materialEmittanceStaticQuality = 17;
@@ -434,7 +434,7 @@ namespace rr
 		//!
 		//! \param params
 		//!  Optional calculation parameters. Currently used only by Fireball.
-		virtual void calculate(CalculateParameters* params = NULL);
+		virtual void calculate(CalculateParameters* params = nullptr);
 
 		//! Returns version of global illumination solution.
 		//
@@ -453,7 +453,7 @@ namespace rr
 		//! While some light types can be disabled here, light from emissive materials always enters calculation.
 		//!
 		//! If you use \ref calc_fireball, only default realtime parameters are supported,
-		//! use NULL for default parameters.
+		//! use nullptr for default parameters.
 		struct RR_API UpdateParameters
 		{
 			//! Multiplies direct illumination from sources.
@@ -555,7 +555,7 @@ namespace rr
 				debugObject = UINT_MAX;
 				debugTexel = UINT_MAX;
 				debugTriangle = UINT_MAX;
-				debugRay = NULL;
+				debugRay = nullptr;
 			}
 			//! Sets default parameters for complete baking, with all light sources enabled.
 			UpdateParameters(unsigned _quality)
@@ -572,7 +572,7 @@ namespace rr
 				debugObject = UINT_MAX;
 				debugTexel = UINT_MAX;
 				debugTriangle = UINT_MAX;
-				debugRay = NULL;
+				debugRay = nullptr;
 			}
 			bool operator ==(const UpdateParameters& a) const;
 		};
@@ -626,7 +626,7 @@ namespace rr
 		//!  In case of vertex buffer, -1 is allowed for multiobject with whole static scene.
 		//! \param lightmap
 		//!  Buffer for storing calculated illumination.
-		//!  \n May be NULL.
+		//!  \n May be nullptr.
 		//!  \n Types supported: BT_VERTEX_BUFFER, BT_2D_TEXTURE, however with \ref calc_fireball,
 		//!     only vertex buffer is supported.
 		//!  \n Formats supported: All color formats, RGB, RGBA, bytes, floats.
@@ -636,19 +636,19 @@ namespace rr
 		//! \param directionalLightmap
 		//!  Pointer to array of three lightmaps for storing calculated directional illumination.
 		//!  \n Compatible with Unreal Engine 3 directional lightmaps.
-		//!  \n May be NULL.
+		//!  \n May be nullptr.
 		//!  \n Supports the same types and formats as parameter 'lightmap'.
 		//! \param bentNormals
 		//!  Buffer for storing calculated bent normals, compact representation of directional information.
-		//!  \n May be NULL.
+		//!  \n May be nullptr.
 		//!  \n RGB values (range 0..1) are calculated from XYZ worldspace normalized normals
 		//!     (range -1..1) by this formula: (XYZ+1)/2.
 		//!  \n Supports the same types and formats as parameter 'lightmap'.
 		//! \param params
-		//!  Parameters of the update process. Set NULL for default parameters that
+		//!  Parameters of the update process. Set nullptr for default parameters that
 		//!  specify very fast realtime/preview update.
 		//! \param filtering
-		//!  Parameters of lightmap filtering, set NULL for default ones.
+		//!  Parameters of lightmap filtering, set nullptr for default ones.
 		//! \return
 		//!  Number of lightmaps and bent normal maps updated, 0 1 or 2.
 		//!  If it's lower than you expect, read system messages (RRReporter) for more details on possible failure.
@@ -656,7 +656,7 @@ namespace rr
 		//!  In comparison with more general updateLightmaps() function, this one
 		//!  lacks paramsIndirect. However, you can still include indirect illumination
 		//!  while updating single lightmap, see updateLightmaps() remarks.
-		virtual unsigned updateLightmap(int objectNumber, RRBuffer* lightmap, RRBuffer* directionalLightmap[3], RRBuffer* bentNormals, const UpdateParameters* params, const FilteringParameters* filtering=NULL);
+		virtual unsigned updateLightmap(int objectNumber, RRBuffer* lightmap, RRBuffer* directionalLightmap[3], RRBuffer* bentNormals, const UpdateParameters* params, const FilteringParameters* filtering=nullptr);
 
 		//! For all static objects, calculates and updates lightmap and/or bent normal; in per-pixel or per-vertex; with direct, indirect or global illumination.
 		//
@@ -694,11 +694,11 @@ namespace rr
 		//!  \n Negative number disables update of bent normals.
 		//! \param params
 		//!  Parameters of the update process.
-		//!  With NULL or quality=0, update is realtime, but options are limited, 
+		//!  With nullptr or quality=0, update is realtime, but options are limited, 
 		//!  only vertex buffers are filed with indirect illumination in physical scale, read from current solution in solver.
 		//!  With quality>0, you get much more flexibility, but update is non-realtime.
 		//! \param filtering
-		//!  Parameters of lightmap filtering, set NULL for default ones.
+		//!  Parameters of lightmap filtering, set nullptr for default ones.
 		//! \return
 		//!  Number of lightmaps updated.
 		//!  If it's lower than you expect, read system messages (RRReporter) for more details on possible failure.
@@ -712,9 +712,9 @@ namespace rr
 		//! \remarks
 		//!  Update of selected objects (rather than all objects) is supported in multiple ways, use one of them.
 		//!  All three ways produce the same quality, but first one may be faster in some cases.
-		//!  - create buffers for selected objects, make sure other buffers are NULL and call updateLightmaps()
+		//!  - create buffers for selected objects, make sure other buffers are nullptr and call updateLightmaps()
 		//!  - if you don't need indirect illumination, simply call updateLightmap() for all selected objects
-		//!  - call updateLightmaps(-1,-1,params,NULL) once to update current solution,
+		//!  - call updateLightmaps(-1,-1,params,nullptr) once to update current solution,
 		//!    call updateLightmap(params with useCurrentSolution=true) for all selected objects
 		//! \remarks
 		//!  Sharing one lightmap by multiple objects is not supported out of the box. Please consult us for possible solutions.
@@ -991,7 +991,7 @@ namespace rr
 		//
 		//! Realtime GI implementations (like rr_gl::RRSolverGL)
 		//! call it from calculate(), before updating shadowmaps.
-		void calculateDirtyLights(CalculateParameters* params = NULL);
+		void calculateDirtyLights(CalculateParameters* params = nullptr);
 
 	private:
 
@@ -1010,7 +1010,7 @@ namespace rr
 
 		bool gatherPerTrianglePhysical(const UpdateParameters* aparams, const class GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots);
 		unsigned updateVertexBufferFromPerTriangleDataPhysical(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleDataPhysical, unsigned stride, bool allowScaling) const;
-		void calculateCore(float improveStep,CalculateParameters* params=NULL);
+		void calculateCore(float improveStep,CalculateParameters* params=nullptr);
 		unsigned updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 		void updateVertexLookupTableDynamicSolver();
 		void updateVertexLookupTablePackedSolver();

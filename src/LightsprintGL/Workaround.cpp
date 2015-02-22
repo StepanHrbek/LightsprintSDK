@@ -18,7 +18,7 @@ namespace rr_gl
 //
 // Workaround
 
-static const char* s_renderer = NULL;
+static const char* s_renderer = nullptr;
 static bool        s_isGeforce = false;
 static bool        s_isQuadro = false;
 static bool        s_isRadeon = false;
@@ -39,11 +39,11 @@ static void init()
 		s_renderer = (const char*)glGetString(GL_RENDERER);
 		if (!s_renderer) s_renderer = "";
 
-		s_isIntel = strstr(s_renderer,"Intel")!=NULL;
-		s_isGeforce = strstr(s_renderer,"GeForce")!=NULL;
-		s_isQuadro = strstr(s_renderer,"Quadro")!=NULL;
+		s_isIntel = strstr(s_renderer,"Intel")!=nullptr;
+		s_isGeforce = strstr(s_renderer,"GeForce")!=nullptr;
+		s_isQuadro = strstr(s_renderer,"Quadro")!=nullptr;
 		s_isRadeon = strstr(s_renderer,"Radeon") || strstr(s_renderer,"RADEON");
-		s_isFire = strstr(s_renderer,"Fire")!=NULL;
+		s_isFire = strstr(s_renderer,"Fire")!=nullptr;
 
 		// find 3-4digit model number
 		#define IS_DIGIT(c) ((c)>='0' && (c)<='9')
@@ -61,9 +61,9 @@ static void init()
 			}
 
 		// try to compile texture2DLod()
-		const GLchar* source[] = {"uniform samplerCube map; void main() { gl_FragColor = textureCubeLod(map,vec3(1.0,1.0,1.0),2.0); }\n",NULL};
+		const GLchar* source[] = {"uniform samplerCube map; void main() { gl_FragColor = textureCubeLod(map,vec3(1.0,1.0,1.0),2.0); }\n",nullptr};
 		GLuint handle = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(handle, 1, source, NULL);
+		glShaderSource(handle, 1, source, nullptr);
 		glCompileShader(handle);
 		GLint compiled;
 		glGetShaderiv(handle, GL_COMPILE_STATUS, &compiled);

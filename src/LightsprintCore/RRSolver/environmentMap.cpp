@@ -112,7 +112,7 @@ public:
 		}
 
 		// don't collide with transparent points
-		RRMaterial* material = multiObject->getTriangleMaterial(ray.hitTriangle,NULL,NULL);
+		RRMaterial* material = multiObject->getTriangleMaterial(ray.hitTriangle,nullptr,nullptr);
 		if (!material->sideBits[ray.hitFrontSide?0:1].renderFrom || material->specularTransmittance.color==RRVec3(1))
 			return false;
 		//RRPointMaterial pointMaterial;
@@ -171,8 +171,8 @@ CubeGatheringKit::~CubeGatheringKit()
 // OMP parallel inside
 // thread safe: yes
 // outputs:
-//  - triangleNumbers, multiobj postImport numbers, UINT_MAX for skybox, may be NULL
-//  - exitanceHdr, float exitance in physical scale, may be NULL
+//  - triangleNumbers, multiobj postImport numbers, UINT_MAX for skybox, may be nullptr
+//  - exitanceHdr, float exitance in physical scale, may be nullptr
 //  - false=exitanceHdr not filled, true=exitanceHdr filled
 bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerEnvironment, RRVec3* exitanceHdr)
 {
@@ -215,11 +215,11 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 	}
 
 	// simplify tests for blending from if(env1 && blendFactor) to if(env1)
-	if (!blendFactor) environment1 = NULL;
+	if (!blendFactor) environment1 = nullptr;
 
 	// rather than adding 1 kit to every RRObjectIllumination, we added 10 to solver and pick one of them
 	// if user doesn't call updateEnvironmentMap() in parallel, we always use the same first kit
-	CubeGatheringKit* kit = NULL;
+	CubeGatheringKit* kit = nullptr;
 	#pragma omp critical(cubeGatheringKits)
 	{
 		for (unsigned i=0;i<10;i++)
@@ -311,14 +311,14 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 					else if (priv->scene)
 					{
 						// read face exitance
-						priv->scene->getTriangleMeasure(face,3,RM_RADIOSITY_LINEAR,NULL,exitanceHdr[ofs]);
+						priv->scene->getTriangleMeasure(face,3,RM_RADIOSITY_LINEAR,nullptr,exitanceHdr[ofs]);
 						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 					}
 #ifdef RR_DEVELOPMET
 					else if (priv->customIrradianceRGBA8 && priv->customToPhysical && getMultiObject())
 					{
 						// no solver, return DDI
-						RRMaterial* triangleMaterial = getMultiObject()->getTriangleMaterial(face,NULL,NULL);
+						RRMaterial* triangleMaterial = getMultiObject()->getTriangleMaterial(face,nullptr,nullptr);
 						unsigned rgba8 = priv->customIrradianceRGBA8[face];
 						RRVec3 physicalIrradiance(priv->customToPhysical[rgba8&0xff],priv->customToPhysical[(rgba8>>8)&0xff],priv->customToPhysical[(rgba8>>16)&0xff]);
 						exitanceHdr[ofs] = triangleMaterial ? triangleMaterial->diffuseReflectance.color*physicalIrradiance+triangleMaterial->diffuseEmittance.color : RRVec3(0);
@@ -361,7 +361,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 	}
 
 	// simplify tests for blending from if(env1 && blendFactor) to if(env1)
-	if (!blendFactor) environment1 = NULL;
+	if (!blendFactor) environment1 = nullptr;
 
 #pragma omp parallel for schedule(static)
 	for (int ofs=0;ofs<(int)(6*size*size);ofs++)
@@ -402,14 +402,14 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 		else if (scene)
 		{
 			// read face exitance
-			scene->getTriangleMeasure(face,3,RM_RADIOSITY_LINEAR,NULL,exitanceHdr[ofs]);
+			scene->getTriangleMeasure(face,3,RM_RADIOSITY_LINEAR,nullptr,exitanceHdr[ofs]);
 			RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
 		}
 #ifdef RR_DEVELOPMET
 		else if (customIrradianceRGBA8 && customToPhysical && multiObject)
 		{
 			// no solver, return DDI
-			RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(face,NULL,NULL);
+			RRMaterial* triangleMaterial = multiObject->getTriangleMaterial(face,nullptr,nullptr);
 			unsigned rgba8 = customIrradianceRGBA8[face];
 			RRVec3 physicalIrradiance(customToPhysical[rgba8&0xff],customToPhysical[(rgba8>>8)&0xff],customToPhysical[(rgba8>>16)&0xff]);
 			exitanceHdr[ofs] = triangleMaterial ? triangleMaterial->diffuseReflectance.color*physicalIrradiance+triangleMaterial->diffuseEmittance.color : RRVec3(0);

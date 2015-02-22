@@ -18,10 +18,10 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	partStart = 0;
 	demoPosition = 0;
 	referencePosition = 0;
-	loadingMap = NULL;
-	music = NULL;
-	skyMap = NULL;
-	dynamicObjects = NULL;
+	loadingMap = nullptr;
+	music = nullptr;
+	skyMap = nullptr;
+	dynamicObjects = nullptr;
 	nextSceneIndex = 0;
 	// scenes have constructor
 	// projectors have constructor
@@ -97,7 +97,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 			}
 			// alloc cubes
 			if ((specular && specularCubeSize) || (diffuse && diffuseCubeSize))
-				object->illumination.getLayer(LAYER_ENVIRONMENT) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,RR_MAX(diffuseCubeSize,specularCubeSize),RR_MAX(diffuseCubeSize,specularCubeSize),6,rr::BF_RGBA,true,NULL);
+				object->illumination.getLayer(LAYER_ENVIRONMENT) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,RR_MAX(diffuseCubeSize,specularCubeSize),RR_MAX(diffuseCubeSize,specularCubeSize),6,rr::BF_RGBA,true,nullptr);
 		}
 		else
 		{
@@ -134,7 +134,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	fclose(f);
 
 	// load music - step2
-	music = supportMusic ? Music::load(bufmusic) : NULL;
+	music = supportMusic ? Music::load(bufmusic) : nullptr;
 	pauseMusic = _pauseMusic;
 	//if (music) music->setPaused(pauseMusic);
 	paused = true;
@@ -166,7 +166,7 @@ Level* DemoPlayer::getPart(unsigned index)
 	if (index<scenes.size())
 		return scenes[index];
 	else
-		return NULL;
+		return nullptr;
 }
 
 Level* DemoPlayer::getNextPart(bool seekInMusic, bool loop)
@@ -182,7 +182,7 @@ Level* DemoPlayer::getNextPart(bool seekInMusic, bool loop)
 		return scenes[nextSceneIndex-1];
 	}
 	else
-		return NULL;
+		return nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -321,7 +321,7 @@ rr::RRBuffer* DemoPlayer::getProjector(unsigned projectorIndex)
 	{
 		RR_LIMITED_TIMES(3,rr::RRReporter::report(rr::WARN,"\"projector = %d\" used in .ani, but only %d projectors defined in .cfg.\n",projectorIndex,projectors.size()));
 		RR_ASSERT(0);
-		return NULL;
+		return nullptr;
 	}
 }
 

@@ -113,9 +113,9 @@ Unwrapper::Unwrapper()
 	sumCharts = 0;
 	sumVerticesOld = 0;
 	sumVerticesNew = 0;
-	hwnd = NULL;
-	d3d = NULL;
-	d3dDevice = NULL;
+	hwnd = nullptr;
+	d3d = nullptr;
+	d3dDevice = nullptr;
 
 	// create window to make d3d happy
 	WNDCLASS wc;
@@ -123,9 +123,9 @@ Unwrapper::Unwrapper()
 	wc.lpfnWndProc   = DefWindowProc;
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
-	wc.hInstance     = NULL;
-	wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
-	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	wc.hInstance     = nullptr;
+	wc.hIcon         = LoadIcon(nullptr, IDI_APPLICATION);
+	wc.hCursor       = LoadCursor(nullptr, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
 	wc.lpszMenuName  = 0;
 	wc.lpszClassName = "a";
@@ -133,12 +133,12 @@ Unwrapper::Unwrapper()
 	RECT rect = {0, 0, 100, 100};
 	DWORD dwStyle = WS_OVERLAPPED | WS_MINIMIZEBOX;
 	AdjustWindowRect(&rect, dwStyle, false);
-	hwnd = CreateWindow("a", "a", dwStyle, 0, 0, rect.right-rect.left, rect.bottom-rect.top, NULL, NULL, NULL, NULL);
+	hwnd = CreateWindow("a", "a", dwStyle, 0, 0, rect.right-rect.left, rect.bottom-rect.top, nullptr, nullptr, nullptr, nullptr);
 
 	// create d3d to make d3ddevice happy
 #ifdef DYNAMIC_LOAD
 	hModD3D9 = LoadLibrary("d3d9.dll");
-	hModD3DX9 = NULL; //LoadLibrary("d3dx9_32.dll");
+	hModD3DX9 = nullptr; //LoadLibrary("d3dx9_32.dll");
 	for (unsigned version=43;!hModD3DX9 && version>=31;version--)
 	{
 		char d3dxFilename[] = "d3dx9_??.dll";
@@ -147,15 +147,15 @@ Unwrapper::Unwrapper()
 		hModD3DX9 = LoadLibrary(d3dxFilename);
 	}
 
-	Direct3DCreate9      = hModD3D9  ? (LPDIRECT3DCREATE9)     GetProcAddress(hModD3D9,  "Direct3DCreate9")      : NULL;
-	D3DXCreateMesh       = hModD3DX9 ? (LPD3DXCREATEMESH)      GetProcAddress(hModD3DX9, "D3DXCreateMesh")       : NULL;
-	D3DXCleanMesh        = hModD3DX9 ? (LPD3DXCLEANMESH)       GetProcAddress(hModD3DX9, "D3DXCleanMesh")        : NULL;
-	D3DXValidMesh        = hModD3DX9 ? (LPD3DXVALIDMESH)       GetProcAddress(hModD3DX9, "D3DXValidMesh")        : NULL;
-	D3DXUVAtlasCreate    = hModD3DX9 ? (LPD3DXUVATLASCREATE)   GetProcAddress(hModD3DX9, "D3DXUVAtlasCreate")    : NULL;
-	D3DXUVAtlasPartition = hModD3DX9 ? (LPD3DXUVATLASPARTITION)GetProcAddress(hModD3DX9, "D3DXUVAtlasPartition") : NULL;
-	D3DXUVAtlasPack      = hModD3DX9 ? (LPD3DXUVATLASPACK)     GetProcAddress(hModD3DX9, "D3DXUVAtlasPack")      : NULL;
+	Direct3DCreate9      = hModD3D9  ? (LPDIRECT3DCREATE9)     GetProcAddress(hModD3D9,  "Direct3DCreate9")      : nullptr;
+	D3DXCreateMesh       = hModD3DX9 ? (LPD3DXCREATEMESH)      GetProcAddress(hModD3DX9, "D3DXCreateMesh")       : nullptr;
+	D3DXCleanMesh        = hModD3DX9 ? (LPD3DXCLEANMESH)       GetProcAddress(hModD3DX9, "D3DXCleanMesh")        : nullptr;
+	D3DXValidMesh        = hModD3DX9 ? (LPD3DXVALIDMESH)       GetProcAddress(hModD3DX9, "D3DXValidMesh")        : nullptr;
+	D3DXUVAtlasCreate    = hModD3DX9 ? (LPD3DXUVATLASCREATE)   GetProcAddress(hModD3DX9, "D3DXUVAtlasCreate")    : nullptr;
+	D3DXUVAtlasPartition = hModD3DX9 ? (LPD3DXUVATLASPARTITION)GetProcAddress(hModD3DX9, "D3DXUVAtlasPartition") : nullptr;
+	D3DXUVAtlasPack      = hModD3DX9 ? (LPD3DXUVATLASPACK)     GetProcAddress(hModD3DX9, "D3DXUVAtlasPack")      : nullptr;
 
-	d3d = Direct3DCreate9 ? Direct3DCreate9(D3D_SDK_VERSION) : NULL;
+	d3d = Direct3DCreate9 ? Direct3DCreate9(D3D_SDK_VERSION) : nullptr;
 	if (!d3d || !D3DXCreateMesh || !D3DXUVAtlasPartition || !D3DXUVAtlasPack)
 		RRReporter::report(WARN,"Unwrap not built, please install DirectX runtime%s.\n",
 			(!hModD3D9)?" (d3d9.dll not found)":((!hModD3DX9)?" (d3dx9_nn.dll not found, 44>nn>30)":""));
@@ -186,9 +186,9 @@ Unwrapper::Unwrapper()
 
 IDirect3DVertexBuffer9* Unwrapper::createVBuffer(void* data, unsigned numBytes) const
 {
-	IDirect3DVertexBuffer9* vbuf = NULL;
-	HRESULT hr = d3dDevice->CreateVertexBuffer(numBytes,0,0,D3DPOOL_SYSTEMMEM,&vbuf,NULL);
-	void* lock = NULL;
+	IDirect3DVertexBuffer9* vbuf = nullptr;
+	HRESULT hr = d3dDevice->CreateVertexBuffer(numBytes,0,0,D3DPOOL_SYSTEMMEM,&vbuf,nullptr);
+	void* lock = nullptr;
 	hr = vbuf->Lock(0,numBytes,&lock,D3DLOCK_DISCARD);
 	memcpy(lock,data,numBytes);
 	hr = vbuf->Unlock();
@@ -210,19 +210,19 @@ ID3DXMesh* Unwrapper::createID3DXMesh(const RRMeshArrays* rrMesh, const UvChanne
 {
 	if (!d3dDevice || !D3DXCreateMesh)
 	{
-		return NULL;
+		return nullptr;
 	}
 	if (keepChannels.size()+1>MAX_CHANNELS)
 	{
 		RRReporter::report(WARN,"Unwrap not built, too many uv channels.\n");
-		return NULL; // keepChannels must not contain too many channels
+		return nullptr; // keepChannels must not contain too many channels
 	}
 	unsigned numTriangles = rrMesh->getNumTriangles();
 	unsigned numVertices = rrMesh->getNumVertices();
 	if (!numTriangles || !numVertices)
-		return NULL; // fail now or D3DXCreateMesh fails few lines below
+		return nullptr; // fail now or D3DXCreateMesh fails few lines below
 	// allocate mesh
-	Vertex* vertexData = NULL;
+	Vertex* vertexData = nullptr;
 	D3DVERTEXELEMENT9 dxMeshDeclaration[MAX_FVF_DECL_SIZE] = {
 		{0,(WORD)((char*)&vertexData->position   -(char*)vertexData),D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_POSITION,0},
 		{0,(WORD)((char*)&vertexData->normal     -(char*)vertexData),D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_NORMAL,0},
@@ -235,10 +235,10 @@ ID3DXMesh* Unwrapper::createID3DXMesh(const RRMeshArrays* rrMesh, const UvChanne
 		{0,(WORD)((char*)&vertexData->texcoord[4]-(char*)vertexData),D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD,4},
 		{0xFF,0,D3DDECLTYPE_UNUSED, 0,0,0}//D3DDECL_END
 	};
-	ID3DXMesh* dxMesh = NULL;
+	ID3DXMesh* dxMesh = nullptr;
 	HRESULT hr = D3DXCreateMesh(numTriangles,numVertices,D3DXMESH_32BIT|D3DXMESH_SYSTEMMEM,dxMeshDeclaration,d3dDevice,&dxMesh);
 	// copy indices
-	RRMesh::Triangle* indexData = NULL;
+	RRMesh::Triangle* indexData = nullptr;
 	hr = dxMesh->LockIndexBuffer(0/*D3DLOCK_DISCARD*/,(LPVOID*)&indexData);
 	memcpy(indexData,rrMesh->triangle,sizeof(RRMesh::Triangle)*numTriangles);
 	hr = dxMesh->UnlockIndexBuffer();
@@ -275,12 +275,12 @@ void Unwrapper::copyToRRMesh(RRMeshArrays* rrMesh, ID3DXMesh* dxMesh, const UvCh
 		texcoords.push_back(*i);
 	rrMesh->resizeMesh(numTriangles,numVertices,&texcoords,rrMesh->tangent?true:false,false);
 	// copy indices
-	DWORD* indexData = NULL;
+	DWORD* indexData = nullptr;
 	HRESULT hr = dxMesh->LockIndexBuffer(D3DLOCK_READONLY,(LPVOID*)&indexData);
 	memcpy(rrMesh->triangle,indexData,sizeof(RRMesh::Triangle)*numTriangles);
 	dxMesh->UnlockIndexBuffer();
 	// copy vertices
-	Vertex* vertexData = NULL;
+	Vertex* vertexData = nullptr;
 	hr = dxMesh->LockVertexBuffer(0,(LPVOID*)&vertexData);
 	for (unsigned v=0;v<numVertices;v++)
 	{
@@ -359,7 +359,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 				{
 					// generated adjacency would make all edges smooth,
 					// let's break adjacency where we want hard edge
-					const RRMesh* rrMeshStitched = rrMesh->createOptimizedVertices(0.001f,RR_DEG2RAD(3),0,NULL);
+					const RRMesh* rrMeshStitched = rrMesh->createOptimizedVertices(0.001f,RR_DEG2RAD(3),0,nullptr);
 					for (unsigned t=0;t<numTriangles;t++)
 					{
 						RRMesh::Triangle triangleIndices;
@@ -389,8 +389,8 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 						DWORD* adjacencyOut = new (std::nothrow) DWORD[3*numTriangles];
 						if (adjacencyOut)
 						{
-							ID3DXMesh* dxMeshOut = NULL;
-							ID3DXBuffer* errorsAndWarnings = NULL;
+							ID3DXMesh* dxMeshOut = nullptr;
+							ID3DXBuffer* errorsAndWarnings = nullptr;
 							// D3DXCleanMesh can change number of vertices
 							HRESULT err = 19191919;
 
@@ -413,9 +413,9 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 									RRReporter::report(WARN,"D3DXCleanMesh() crashed for mesh %ls, better save your work and restart.\n",keepChannels.objectName.w_str());
 								// after crash or thread termination, outputs might be corrupted (not observed, but most likely possible)
 								// better leak memory than crash
-								dxMeshOut = NULL;
-								adjacencyOut = NULL;
-								errorsAndWarnings = NULL;
+								dxMeshOut = nullptr;
+								adjacencyOut = nullptr;
+								errorsAndWarnings = nullptr;
 							}
 							else
 							if (err==D3D_OK)
@@ -424,13 +424,13 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 								{
 									dxMeshIn->Release();
 									dxMeshIn = dxMeshOut;
-									dxMeshOut = NULL;
+									dxMeshOut = nullptr;
 								}
 								if (adjacencyOut!=adjacency)
 								{
 									delete[] adjacency;
 									adjacency = adjacencyOut;
-									adjacencyOut = NULL;
+									adjacencyOut = nullptr;
 								}
 								if (errorsAndWarnings)
 								{
@@ -448,7 +448,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					// report remaining errors
 					if (!aborting && D3DXValidMesh)
 					{
-						ID3DXBuffer* errorsAndWarnings2 = NULL;
+						ID3DXBuffer* errorsAndWarnings2 = nullptr;
 						D3DXValidMesh(dxMeshIn,adjacency,&errorsAndWarnings2);
 						if (errorsAndWarnings2)
 						{
@@ -460,7 +460,7 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 					if (!aborting)
 					{
 #if 0
-					ID3DXMesh* dxMeshOut = NULL;
+					ID3DXMesh* dxMeshOut = nullptr;
 					FLOAT maxStretch = 0;
 					UINT numCharts = 0;
 					HRESULT err = D3DXUVAtlasCreate(
@@ -472,13 +472,13 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 						gutter,
 						MAX_CHANNELS-1, // textureIndex
 						adjacency,
-						NULL, // falseEdges,
-						NULL, // metric tensor array
+						nullptr, // falseEdges,
+						nullptr, // metric tensor array
 						&callback,0.0001f,&aborting,
 						D3DXUVATLAS_DEFAULT,
 						&dxMeshOut,
-						NULL, // face partitioning
-						NULL, // vertex remap array
+						nullptr, // face partitioning
+						nullptr, // vertex remap array
 						&maxStretch, // max stretch
 						&numCharts // num charts
 						);
@@ -498,11 +498,11 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 						RRReporter::report(WARN,"Build failed for mesh %ls: %s.\n",keepChannels.objectName.w_str(),DXGetErrorDescription9(err));
 					}
 #else
-					ID3DXMesh* dxMeshOut = NULL;
+					ID3DXMesh* dxMeshOut = nullptr;
 					FLOAT maxStretch = 0;
 					UINT numCharts = 0;
-					LPD3DXBUFFER partitionResultAdjacency = NULL;
-					LPD3DXBUFFER facePartitioning = NULL;
+					LPD3DXBUFFER partitionResultAdjacency = nullptr;
+					LPD3DXBUFFER facePartitioning = nullptr;
 					HRESULT err = 19191919;
 
 					BEGIN_ABORTABLE_SECTION
@@ -514,13 +514,13 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 							0.8f, // maxStretch
 							MAX_CHANNELS-1, // textureIndex
 							adjacency,
-							NULL, // falseEdges,
-							NULL, // metric tensor array
+							nullptr, // falseEdges,
+							nullptr, // metric tensor array
 							&callback,0.0001f,&aborting,
 							(numTriangles>=minTrianglesForFastUnwrap)?D3DXUVATLAS_GEODESIC_FAST:D3DXUVATLAS_GEODESIC_QUALITY, //D3DXUVATLAS_DEFAULT works as if minTrianglesForFastUnwrap=25k
 							&dxMeshOut,
 							&facePartitioning,
-							NULL, // vertex remap array
+							nullptr, // vertex remap array
 							&partitionResultAdjacency,
 							&maxStretch, // max stretch
 							&numCharts // num charts
@@ -539,9 +539,9 @@ bool Unwrapper::buildUnwrap(RRMeshArrays* rrMesh, unsigned unwrapChannel, const 
 							RRReporter::report(WARN,"D3DXUVAtlasPartition() crashed for mesh %ls, better save your work and restart.\n",keepChannels.objectName.w_str());
 						// after crash or thread termination, outputs might be corrupted (not observed, but most likely possible)
 						// better leak memory than crash
-						facePartitioning = NULL;
-						partitionResultAdjacency = NULL;
-						dxMeshOut = NULL;
+						facePartitioning = nullptr;
+						partitionResultAdjacency = nullptr;
+						dxMeshOut = nullptr;
 					}
 					else
 					if (err==D3D_OK)

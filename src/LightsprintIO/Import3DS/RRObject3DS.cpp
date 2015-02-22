@@ -100,7 +100,7 @@ RRObject3DS::RRObject3DS(Model_3DS* _model, unsigned _objectIdx)
 
 	// create collider
 	bool aborting = false;
-	setCollider(RRCollider::create(this,NULL,RRCollider::IT_LINEAR,aborting));
+	setCollider(RRCollider::create(this,nullptr,RRCollider::IT_LINEAR,aborting));
 }
 
 RRObject3DS::~RRObject3DS()
@@ -209,7 +209,7 @@ public:
 		{
 			delete scene;
 			RRReporter::report(WARN,"Failed loading scene %ls.\n",filename.w_str());
-			return NULL;
+			return nullptr;
 		}
 		else
 		{

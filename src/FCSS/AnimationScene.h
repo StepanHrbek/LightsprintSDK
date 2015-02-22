@@ -46,7 +46,7 @@ public:
 	// returns total length of animation in seconds
 	float getTotalTime() const;
 
-	// returns frame for given abs time (0..length), NULL for times outside range
+	// returns frame for given abs time (0..length), nullptr for times outside range
 	// warning: time->frame conversion is not reliable
 	//          frame to be used by player, not by editor
 	const AnimationFrame* getFrameByTime(float absSeconds);

@@ -115,10 +115,10 @@ namespace bf = boost::filesystem;
 rr::RRReporter* reporter;
 AnimationFrame currentFrame(0);
 GLUquadricObj *quadric;
-rr::RRLight* rrLight = NULL; // allocated/deleted once per program run, used by all levels
-rr_gl::RealtimeLight* realtimeLight = NULL; // never allocated/deleted, just shortcut for level->solver->realtimeLights[0]
+rr::RRLight* rrLight = nullptr; // allocated/deleted once per program run, used by all levels
+rr_gl::RealtimeLight* realtimeLight = nullptr; // never allocated/deleted, just shortcut for level->solver->realtimeLights[0]
 #ifdef CORNER_LOGO
-	rr_gl::Texture* lightsprintMap = NULL; // small logo in the corner
+	rr_gl::Texture* lightsprintMap = nullptr; // small logo in the corner
 #endif
 rr_gl::Program* ambientProgram; // it had color controlled via glColor, but because of catalyst 8.11 bug, we switched to uniform lightIndirectConst
 rr_gl::TextureRenderer* skyRenderer;
@@ -138,17 +138,17 @@ bool needReportEyeChange = 0;
 bool needReportLightChange = 0;
 bool needImmediateDDI = 1; // nastaveno pri strihu, pri rucnim pohybu svetlem mysi nebo klavesnici
 bool gameOn = 0;
-Level* level = NULL;
+Level* level = nullptr;
 bool seekInMusicAtSceneSwap = false;
 //class DynamicObjects* dynaobjects;
 bool shotRequested;
-DemoPlayer* demoPlayer = NULL;
+DemoPlayer* demoPlayer = nullptr;
 unsigned selectedObject_indexInDemo = 0;
 bool renderInfo = 1;
 const char* cfgFile = CFG_FILE;
 rr_gl::RRSolverGL::DDIQuality lightStability = rr_gl::RRSolverGL::DDI_AUTO;
 char globalOutputDirectory[1000] = "."; // without trailing slash
-const char* customScene = NULL;
+const char* customScene = nullptr;
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -213,7 +213,7 @@ void init_gl_resources()
 	rrLight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(1),rr::RRVec3(1),rr::RRVec3(1),RR_DEG2RAD(40),0.1f);
 
 #ifdef CORNER_LOGO
-	lightsprintMap = rr_gl::Texture::load("maps/Lightsprint230.png", NULL, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
+	lightsprintMap = rr_gl::Texture::load("maps/Lightsprint230.png", nullptr, false, false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 #endif
 
 	uberProgram = rr_gl::UberProgram::create("shaders/ubershader.vs", "shaders/ubershader.fs");
@@ -256,7 +256,7 @@ void done_gl_resources()
 
 const rr::RRCollider* getSceneCollider()
 {
-	if (!level) return NULL;
+	if (!level) return nullptr;
 	return level->solver->getMultiObject()->getCollider();
 }
 
@@ -284,7 +284,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 
 	camera.setAspect( winHeight ? (float) winWidth / (float) winHeight : 1 );
 
-	rr_gl::PluginParamsSky ppSky(NULL,level->solver,1);
+	rr_gl::PluginParamsSky ppSky(nullptr,level->solver,1);
 	rr_gl::PluginParamsScene ppScene(&ppSky,level->solver);
 	ppScene.uberProgramSetup = uberProgramSetup;
 	ppScene.renderingFromThisLight = renderingFromThisLight;
@@ -319,7 +319,7 @@ void drawEyeViewShadowed(rr_gl::UberProgramSetup uberProgramSetup, unsigned firs
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
 
-	renderScene(uberProgramSetup,firstInstance,currentFrame.eye,NULL);
+	renderScene(uberProgramSetup,firstInstance,currentFrame.eye,nullptr);
 
 	if (supportEditor)
 		drawLight();
@@ -368,7 +368,7 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.MATERIAL_DIFFUSE_MAP = 1;
 			uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
 
-			renderScene(uberProgramSetup,0,currentFrame.eye,NULL);
+			renderScene(uberProgramSetup,0,currentFrame.eye,nullptr);
 		}
 
 		// render everything
@@ -401,7 +401,7 @@ void updateThumbnail(AnimationFrame& frame)
 	level->solver->calculate();
 	// render into thumbnail
 	if (!frame.thumbnail)
-		frame.thumbnail = rr::RRBuffer::create(rr::BT_2D_TEXTURE,160,120,1,rr::BF_RGB,true,NULL);
+		frame.thumbnail = rr::RRBuffer::create(rr::BT_2D_TEXTURE,160,120,1,rr::BF_RGB,true,nullptr);
 	glViewport(0,0,160,120);
 	currentFrame.eye = frame.eye; // while rendering, we call setupForRender(currentFrame.eye);
 	drawEyeViewSoftShadowed();
@@ -497,7 +497,7 @@ static void drawHelpMessage(int screen)
 	{
 		{
 		"H - help",
-		NULL
+		nullptr
 		},
 		{
 		PRODUCT_NAME ", (C) Stepan Hrbek",
@@ -530,7 +530,7 @@ static void drawHelpMessage(int screen)
 		"'N'   - expand shadow frustum near clip plane",
 		"'c'   - compress shadow frustum far clip plane",
 		"'C'   - expand shadow frustum far clip plane",*/
-		NULL,
+		nullptr,
 		}
 /*
 		,{
@@ -555,7 +555,7 @@ static void drawHelpMessage(int screen)
 		"  - atp creations                : \"Scary frog alien\" model",
 		"  - Stora_tomtefar               : \"Viking\" model",
 		"  - Amethyst7                    : \"Purple Nebula\" skybox",
-		NULL
+		nullptr
 		}
 */
 	};
@@ -588,7 +588,7 @@ static void drawHelpMessage(int screen)
 		ambientProgram->sendUniform("materialDiffuseConst",rr::RRVec4(1.0f,1.0f,1.0f,1.0f));
 		int x = (winWidth-rectWidth)/2+20;
 		int y = (winHeight-rectHeight)/2+30;
-		for (i=0; message[screen][i] != NULL; i++) 
+		for (i=0; message[screen][i] != nullptr; i++) 
 		{
 			if (message[screen][i][0] != '\0')
 			{
@@ -620,7 +620,7 @@ static void drawHelpMessage(int screen)
 			// paused: frame index = editor cursor
 			frameIndex = level->animationEditor->frameCursor;
 			transitionDone = 0;
-			AnimationFrame* frame = level->setup->getFrameByIndex(frameIndex); // muze byt NULL (kurzor za koncem)
+			AnimationFrame* frame = level->setup->getFrameByIndex(frameIndex); // muze byt nullptr (kurzor za koncem)
 			transitionTotal = frame ? frame->transitionToNextTime : 0;
 		}
 		else
@@ -653,7 +653,7 @@ static void drawHelpMessage(int screen)
 void showImage(const rr_gl::Texture* tex)
 {
 	if (!tex) return;
-	skyRenderer->render2D(tex,NULL,0,0,1,1);
+	skyRenderer->render2D(tex,nullptr,0,0,1,1);
 	glutSwapBuffers();
 }
 
@@ -1183,10 +1183,10 @@ void mainMenu(int item)
 	switch (item)
 	{
 		case ME_SCENE_VIEWER:
-			rr_ed::sceneViewer(level->solver,"","","",NULL,true);
+			rr_ed::sceneViewer(level->solver,"","","",nullptr,true);
 			break;
 		case ME_TOGGLE_VIDEO:
-			captureVideo = captureVideo ? NULL : "jpg";
+			captureVideo = captureVideo ? nullptr : "jpg";
 			break;
 		case ME_TOGGLE_INFO:
 			renderInfo = !renderInfo;
@@ -1204,7 +1204,7 @@ void mainMenu(int item)
 			if (supportEditor)
 				level->setup->save();
 			//delete level;
-			level = NULL;
+			level = nullptr;
 			seekInMusicAtSceneSwap = true;
 			break;
 	}
@@ -1382,7 +1382,7 @@ no_level:
 		}
 
 		// najde aktualni frame
-		const AnimationFrame* frame = level->setup ? level->setup->getFrameByTime(demoPlayer->getPartPosition()) : NULL;
+		const AnimationFrame* frame = level->setup ? level->setup->getFrameByTime(demoPlayer->getPartPosition()) : nullptr;
 		if (frame)
 		{
 			// pokud existuje, nastavi ho
@@ -1507,7 +1507,7 @@ no_frame:
 			{
 				// play scene finished, jump to next scene
 				//delete level;
-				level = NULL;
+				level = nullptr;
 				seekInMusicAtSceneSwap = false;
 				goto no_level;
 			}
@@ -1637,7 +1637,7 @@ no_frame:
 			sprintf(buf,"%s/frame%04d.%s",globalOutputDirectory,++videoShots,captureVideo);
 		else
 			sprintf(buf,"%s/Lightsmark_%02d.png",globalOutputDirectory,++manualShots);
-		rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,NULL);
+		rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,winWidth,winHeight,1,rr::BF_RGB,true,nullptr);
 		glReadBuffer(GL_BACK);
 		rr_gl::readPixelsToBuffer(sshot);
 			//unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
@@ -1680,11 +1680,11 @@ void enableInteraction(bool enable)
 	else
 	{
 		glutSpecialFunc(specialPlayerOnly);
-		glutSpecialUpFunc(NULL);
-		glutMouseFunc(NULL);
-		glutPassiveMotionFunc(NULL);
+		glutSpecialUpFunc(nullptr);
+		glutMouseFunc(nullptr);
+		glutPassiveMotionFunc(nullptr);
 		glutKeyboardFunc(keyboardPlayerOnly);
-		glutKeyboardUpFunc(NULL);
+		glutKeyboardUpFunc(nullptr);
 	}
 }
 
@@ -1871,7 +1871,7 @@ int main(int argc, char** argv)
 
 #ifdef _WIN32
 	// remember cwd before we change it (we can't print it yet because log is opened after change)
-	char* cwd = _getcwd(NULL,0);
+	char* cwd = _getcwd(nullptr,0);
 #endif
 
 	// data are in ../../data
@@ -1925,7 +1925,7 @@ int main(int argc, char** argv)
 	if (customScene)
 	{
 		if (customScene[0])
-			rr_ed::sceneViewer(NULL,customScene,"maps/skybox/skybox_bk.jpg","",NULL,false);
+			rr_ed::sceneViewer(nullptr,customScene,"maps/skybox/skybox_bk.jpg","",nullptr,false);
 		else
 		{
 			rr_ed::SceneViewerState svs;
@@ -1935,7 +1935,7 @@ int main(int argc, char** argv)
 			svs.camera.setDirection(rr::RRVec3(0.64f,-0.3f,-0.7f));
 			svs.cameraMetersPerSecond = 1;
 			svs.autodetectCamera = false;
-			rr_ed::sceneViewer(NULL,"scenes/wop_padattic/wop_padatticBB.bsp","","",&svs,false);
+			rr_ed::sceneViewer(nullptr,"scenes/wop_padattic/wop_padatticBB.bsp","","",&svs,false);
 		}
 		return 0;
 	}
@@ -2037,7 +2037,7 @@ int main(int argc, char** argv)
 		error(licError,false);
 
 #ifdef SET_ICON
-	HWND hWnd = FindWindowA(NULL,PRODUCT_NAME);
+	HWND hWnd = FindWindowA(nullptr,PRODUCT_NAME);
 	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
 #endif
 
@@ -2064,15 +2064,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 			argv[i] = (char*)malloc(wcslen(argvw[i])+1);
 			sprintf(argv[i], "%ws", argvw[i]);
 		}
-		argv[argc] = NULL;
+		argv[argc] = nullptr;
 		return main(argc,argv);
 	}
 	else
 	{
 		// someone calls us with invalid arguments, but don't panic, build argv from module filename
 		char szFileName[MAX_PATH];
-		GetModuleFileNameA(NULL,szFileName,MAX_PATH);
-		char* argv[2] = {szFileName,NULL};
+		GetModuleFileNameA(nullptr,szFileName,MAX_PATH);
+		char* argv[2] = {szFileName,nullptr};
 		return main(1,argv);
 	}
 }

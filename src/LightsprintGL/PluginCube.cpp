@@ -29,7 +29,7 @@ public:
 		params.counters =
 			countCube.init("cube",
 			countCubeResize.init("cube.resize",
-			NULL));
+			nullptr));
 	}
 
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)

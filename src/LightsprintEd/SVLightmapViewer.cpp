@@ -19,8 +19,8 @@ SVLightmapViewer::SVLightmapViewer()
 	alpha = false;
 	zoom = 1;
 	center = rr::RRVec2(0);
-	buffer = NULL;
-	object = NULL;
+	buffer = nullptr;
+	object = nullptr;
 }
 
 void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject* _object, bool _bilinear)
@@ -41,7 +41,7 @@ void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject*
 		rr::RRReporter::report(rr::INF2,"Median texel size: %f * %f m\n",density/_pixelBuffer->getWidth(),density/_pixelBuffer->getHeight());
 	}
 
-	buffer = (_pixelBuffer && (_pixelBuffer->getType()==rr::BT_2D_TEXTURE || _pixelBuffer->getType()==rr::BT_CUBE_TEXTURE)) ? _pixelBuffer : NULL;
+	buffer = (_pixelBuffer && (_pixelBuffer->getType()==rr::BT_2D_TEXTURE || _pixelBuffer->getType()==rr::BT_CUBE_TEXTURE)) ? _pixelBuffer : nullptr;
 	object = _object;
 	if (buffer)
 	{
@@ -124,14 +124,14 @@ void SVLightmapViewer::OnPaint(rr_gl::TextureRenderer* textureRenderer, wxSize w
 
 	// render lightmap
 	if (buffer)
-		textureRenderer->render2D(rr_gl::getTexture(buffer),NULL,t_x,t_y,t_w,t_h,-1,alpha?"#define SHOW_ALPHA0\n":NULL);
+		textureRenderer->render2D(rr_gl::getTexture(buffer),nullptr,t_x,t_y,t_w,t_h,-1,alpha?"#define SHOW_ALPHA0\n":nullptr);
 
 	// render mapping edges
-	const rr::RRMesh* mesh = object ? object->getCollider()->getMesh() : NULL;
+	const rr::RRMesh* mesh = object ? object->getCollider()->getMesh() : nullptr;
 	unsigned numTriangles = mesh ? mesh->getNumTriangles() : 0;
 	if (numTriangles)
 	{
-		rr_gl::Program* lineProgram = textureRenderer->twodProgram->getProgram(NULL);
+		rr_gl::Program* lineProgram = textureRenderer->twodProgram->getProgram(nullptr);
 		if (lineProgram)
 		{
 			lineProgram->useIt();
@@ -152,7 +152,7 @@ void SVLightmapViewer::OnPaint(rr_gl::TextureRenderer* textureRenderer, wxSize w
 				glBegin(GL_LINES);
 				for (unsigned i=0;i<numTriangles;i++)
 				{
-					const rr::RRMaterial* material = object->getTriangleMaterial(i,NULL,NULL);
+					const rr::RRMaterial* material = object->getTriangleMaterial(i,nullptr,nullptr);
 					if (material)
 					{
 						rr::RRMesh::TriangleMapping mapping;

@@ -55,26 +55,26 @@ public:
 		refCount = 1;
 		filename = _filename; // [#36] exact filename we are trying to open (we don't have a locator -> no attempts to open similar names)
 		version = rand();
-		front = NULL;
-		back = NULL;
+		front = nullptr;
+		back = nullptr;
 		backReady = false;
 		width = 0;
 		height = 0;
 		duration = -1; // unlimited
-		dsGraph = NULL;
-		dsControl = NULL;
-		dsEvent = NULL;
-		dsSeeking = NULL;
-		dsAudio = NULL;
-		dsGrabberFilter = NULL;
-		dsGrabber = NULL;
+		dsGraph = nullptr;
+		dsControl = nullptr;
+		dsEvent = nullptr;
+		dsSeeking = nullptr;
+		dsAudio = nullptr;
+		dsGrabberFilter = nullptr;
+		dsGrabber = nullptr;
 
-		HRESULT hr = CoInitialize(NULL);
+		HRESULT hr = CoInitialize(nullptr);
 
 		if (_filename.empty())
 			return;
 
-		hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC, IID_IGraphBuilder, (void **)&dsGraph);
+		hr = CoCreateInstance(CLSID_FilterGraph, nullptr, CLSCTX_INPROC, IID_IGraphBuilder, (void **)&dsGraph);
 		if (dsGraph)
 		{
 			// query interfaces
@@ -84,7 +84,7 @@ public:
 			hr = dsGraph->QueryInterface(IID_IBasicAudio, (void **)&dsAudio);
 
 			// setup graph
-			hr = CoCreateInstance(CLSID_SampleGrabber, NULL, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&dsGrabberFilter);
+			hr = CoCreateInstance(CLSID_SampleGrabber, nullptr, CLSCTX_INPROC_SERVER, IID_IBaseFilter, (void**)&dsGrabberFilter);
 			if (dsGrabberFilter)
 			{
 				hr = dsGraph->AddFilter(dsGrabberFilter, L"GrabberFilter");
@@ -103,13 +103,13 @@ public:
 			if (_filename=="c@pture")
 			{
 				// capture from video input
-				IPin*           capRnd  = NULL; hr = dsGrabberFilter->FindPin(L"In",&capRnd);
-				ICreateDevEnum* capDevs = NULL; hr = CoCreateInstance(CLSID_SystemDeviceEnum,0,CLSCTX_INPROC,IID_ICreateDevEnum,(void**)&capDevs);
-				IEnumMoniker*   capCams = NULL; hr = capDevs ? capDevs->CreateClassEnumerator(CLSID_VideoInputDeviceCategory,&capCams,0) : 0;
-				IMoniker*       capMon  = NULL; hr = capCams ? capCams->Next(1,&capMon,0) : 0;
-				IBaseFilter*    capCam  = NULL; hr = capMon ? capMon->BindToObject(0,0,IID_IBaseFilter,(void**)&capCam) : 0;
-				IEnumPins*      capPins = NULL; hr = capCam ? capCam->EnumPins(&capPins) : 0;
-				IPin*           capCap  = NULL; hr = capPins ? capPins->Next(1,&capCap,0) : 0;
+				IPin*           capRnd  = nullptr; hr = dsGrabberFilter->FindPin(L"In",&capRnd);
+				ICreateDevEnum* capDevs = nullptr; hr = CoCreateInstance(CLSID_SystemDeviceEnum,0,CLSCTX_INPROC,IID_ICreateDevEnum,(void**)&capDevs);
+				IEnumMoniker*   capCams = nullptr; hr = capDevs ? capDevs->CreateClassEnumerator(CLSID_VideoInputDeviceCategory,&capCams,0) : 0;
+				IMoniker*       capMon  = nullptr; hr = capCams ? capCams->Next(1,&capMon,0) : 0;
+				IBaseFilter*    capCam  = nullptr; hr = capMon ? capMon->BindToObject(0,0,IID_IBaseFilter,(void**)&capCam) : 0;
+				IEnumPins*      capPins = nullptr; hr = capCam ? capCam->EnumPins(&capPins) : 0;
+				IPin*           capCap  = nullptr; hr = capPins ? capPins->Next(1,&capCap,0) : 0;
 				hr = dsGraph->AddFilter(capCam,L"Capture Source");
 				hr = dsGraph->Connect(capCap,capRnd);
 				hr = dsGraph->Render(capCap);
@@ -124,12 +124,12 @@ public:
 			else
 			{
 				// play file
-				hr = dsGraph->RenderFile(_filename.w_str(), NULL);
+				hr = dsGraph->RenderFile(_filename.w_str(), nullptr);
 			}
 
 			// disable auto show
 			{
-				IVideoWindow* dsWindow = NULL;
+				IVideoWindow* dsWindow = nullptr;
 				hr = dsGraph->QueryInterface(IID_IVideoWindow, (void**)&dsWindow);
 				if (dsWindow)
 				{
@@ -151,12 +151,12 @@ public:
 					{
 						CoTaskMemFree((PVOID)mt.pbFormat);
 						mt.cbFormat = 0;
-						mt.pbFormat = NULL;
+						mt.pbFormat = nullptr;
 					}
-					if (mt.pUnk != NULL)
+					if (mt.pUnk != nullptr)
 					{
 						mt.pUnk->Release();
-						mt.pUnk = NULL;
+						mt.pUnk = nullptr;
 					}
 				}
 			}
@@ -360,7 +360,7 @@ public:
 				if (ev==EC_COMPLETE)
 				{
 					LONGLONG nula = 0;
-					dsSeeking->SetPositions(&nula,AM_SEEKING_AbsolutePositioning,NULL,AM_SEEKING_NoPositioning);
+					dsSeeking->SetPositions(&nula,AM_SEEKING_AbsolutePositioning,nullptr,AM_SEEKING_NoPositioning);
 				}
 				dsEvent->FreeEventParams(ev,p1,p2);
 			}
@@ -387,7 +387,7 @@ public:
 		if (dsSeeking)
 		{
 			LONGLONG pos = (LONGLONG)(secondsFromStart*1e7f); // default unit = 100 nanoseconds, can be changed with SetTimeFormat
-			dsSeeking->SetPositions(&pos,AM_SEEKING_AbsolutePositioning,NULL,AM_SEEKING_NoPositioning);
+			dsSeeking->SetPositions(&pos,AM_SEEKING_AbsolutePositioning,nullptr,AM_SEEKING_NoPositioning);
 		}
 	}
 	virtual void setVolume(int volume)

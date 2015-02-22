@@ -86,7 +86,7 @@ namespace rr_gl
 		//! Note that RRSolverGL::calculate() calls setDirectIllumination() automatically.
 		//! If you want to provide your own direct illumination data, switch from RRSolverGL to
 		//! rr::RRSolver and call setDirectIllumination() manually before calculate().
-		virtual void calculate(CalculateParameters* params = NULL) override;
+		virtual void calculate(CalculateParameters* params = nullptr) override;
 
 		//! Calculates and updates object's environment map, stored in given layer of given illumination.
 		//
@@ -97,7 +97,7 @@ namespace rr_gl
 
 		//! Realtime lights, set by setLights(). You may modify them freely.
 		rr::RRVector<RealtimeLight*> realtimeLights;
-		//! Scene observer, inited to NULL. You may modify it freely. Shadow quality is optimized for observer.
+		//! Scene observer, inited to nullptr. You may modify it freely. Shadow quality is optimized for observer.
 		rr::RRCamera* observer;
 		//! Users can reuse our uberprogram for their own rendering.
 		UberProgram* getUberProgram() {return uberProgram1;}
@@ -110,7 +110,7 @@ namespace rr_gl
 		//! \return Pointer to array of detected average per-triangle direct-lighting irradiances in custom scale
 		//!  (= average triangle colors when material is not applied).
 		//!  Values are stored in RGBA8 format.
-		//!  Return NULL when direct illumination was not detected for any reason, this
+		//!  Return nullptr when direct illumination was not detected for any reason, this
 		//!  function will be called again in next calculate().
 		virtual const unsigned* detectDirectIllumination();
 	private:

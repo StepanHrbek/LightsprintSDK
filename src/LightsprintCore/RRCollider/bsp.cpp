@@ -189,7 +189,7 @@ struct BBOX
 
 BspBuilder(bool& _aborting) : buildParams(RRCollider::IT_BSP_FASTEST), aborting(_aborting)
 {
-	bsptree = NULL;
+	bsptree = nullptr;
 	bsptree_id = CACHE_SIZE;
 }
 
@@ -200,7 +200,7 @@ BSP_TREE *new_node()
 		return bsptree+bsptree_id++;
 	bsptree = nALLOC(BSP_TREE,CACHE_SIZE+1);
 	if (!bsptree)
-		return NULL;
+		return nullptr;
 	bsptree[CACHE_SIZE].front = oldbsptree;
 	bsptree_id = 1;
 	return bsptree;
@@ -390,15 +390,15 @@ VERTEX *find_best_root_kd(BBOX *bbox, const FACE **list, ROOT_INFO* bestinfo)
 	ROOT_INFO info, /*info2,*/ best_dee, best_havran;
 
 	best_dee.prize = UINT_MAX;
-	best_dee.face = NULL;
+	best_dee.face = nullptr;
 	best_havran.fprize = 1e30f;
-	best_havran.face = NULL;
+	best_havran.face = nullptr;
 
 	// prepare sortarrays
 	unsigned faces=0;
 	for (int i=0;list[i];i++) faces++;
 	RR_ASSERT(faces);
-	if (!faces) return NULL;
+	if (!faces) return nullptr;
 	FACE** minx = new FACE*[faces];
 
 
@@ -541,19 +541,19 @@ next:
 	if (buildParams.kdHavran)
 	{
 		if (!info.face) info = best_dee;
-		if (!info.face) return NULL;
+		if (!info.face) return nullptr;
 	} 
 	else
 #endif
 	{
 		if (!info.face || info.front==0 || info.back+info.plane==0) info = best_dee;
 		//if (!info.face || info.front<=faces/100 || info.back+info.plane<=faces/100) info = best_dee;
-		if (!info.face || info.front==0 || info.back+info.plane==0) return NULL;
+		if (!info.face || info.front==0 || info.back+info.plane==0) return nullptr;
 	}
 
 	FACE* f = info.face;
 	RR_ASSERT(f);
-	if (!f) return NULL;
+	if (!f) return nullptr;
 	VERTEX* result;
 	if (info.max)
 	{
@@ -573,7 +573,7 @@ next:
 /*
 FACE *find_best_root_bsp_all(const FACE **list)
 {
-	int i,j,prize,best_prize=0; FACE *best=NULL;
+	int i,j,prize,best_prize=0; FACE *best=nullptr;
 
 	for (i=0;list[i];i++) 
 	{
@@ -590,7 +590,7 @@ FACE *find_best_root_bsp_all(const FACE **list)
 
 		prize = split*SPLIT_PRIZE+plane*PLANE_PRIZE+ABS(front-back)*BALANCE_PRIZE;
 
-		if (prize<best_prize || best==NULL) { best_prize=prize; best=list[i]; }
+		if (prize<best_prize || best==nullptr) { best_prize=prize; best=list[i]; }
 	}
 
 	return best;
@@ -636,7 +636,7 @@ static int compare_face_q_desc( const void *p1, const void *p2 )
 const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo, float DELTA_INSIDE_PLANE)
 {
 	int best_prize=0; 
-	const FACE *best=NULL;
+	const FACE *best=nullptr;
 	float px=0,py=0,pz=0;
 	unsigned pn=0;
 	FACE_Q *tmp;
@@ -648,7 +648,7 @@ const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo, float DEL
 		px+=x; py+=y; pz+=z; pn++; 
 	}
 
-	if (!pn) return NULL;
+	if (!pn) return nullptr;
 
 	px/=pn; py/=pn; pz/=pn;
 
@@ -680,7 +680,7 @@ const FACE *find_best_root_bsp(const FACE **list, ROOT_INFO* bestinfo, float DEL
 
 		int prize=split*SPLIT_PRIZE+plane*PLANE_PRIZE+ABS(front-back)*BALANCE_PRIZE;
 
-		if (prize<best_prize || best==NULL) 
+		if (prize<best_prize || best==nullptr) 
 		{ 
 			best_prize=prize; 
 			bestinfo->back = back;
@@ -704,7 +704,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 {
 	if (aborting)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	unsigned pn=0;
@@ -715,13 +715,13 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	if (!t)
 	{
 		RRReporter::report(ERRO,"Not enough memory to build collider.\n");
-		return NULL;
+		return nullptr;
 	}
 	memset(t,0,sizeof(BSP_TREE));
 
 	// select splitting plane
-	const FACE* bsproot = NULL;
-	const VERTEX* kdroot = NULL; 
+	const FACE* bsproot = nullptr;
+	const VERTEX* kdroot = nullptr; 
 	ROOT_INFO info_bsp, info_kd;
 	if (!kd_allowed || pn<buildParams.kdMinFacesInTree)
 	{
@@ -735,23 +735,23 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 			if (kdroot)
 			{
 				if (info_kd.value<=bbox->lo[info_kd.axis] || info_kd.value>=bbox->hi[info_kd.axis]) 
-					kdroot = NULL; // split je na kraji boxu, tj. jeden ze synu je stejne velky jako otec, jisty nekonecny rozvoj -> nebrat
+					kdroot = nullptr; // split je na kraji boxu, tj. jeden ze synu je stejne velky jako otec, jisty nekonecny rozvoj -> nebrat
 			}
 		}
 		else
 #endif
 		{
 			if (info_kd.front==0 || info_kd.back+info_kd.plane==0) 
-				kdroot = NULL; // jeden ze synu bude obsahovat stejne trianglu jako otec, nebezpeci nekonecneho rozvoje -> nebrat
+				kdroot = nullptr; // jeden ze synu bude obsahovat stejne trianglu jako otec, nebezpeci nekonecneho rozvoje -> nebrat
 		}
 		if ((buildParams.kdHavran==0 && pn<buildParams.bspMaxFacesInTree) || !kdroot)
 		{
 			bsproot = find_best_root_bsp(space,&info_bsp,bbox->minSafeDistance);
 			if (bsproot) RR_ASSERT(info_bsp.plane>=1);
 			if (buildParams.kdHavran==0 && kdroot && info_kd.prize<info_bsp.prize+pn)
-				bsproot=NULL; 
+				bsproot=nullptr; 
 			else
-				kdroot=NULL;
+				kdroot=nullptr;
 		}
 	}
 	
@@ -759,12 +759,12 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	//if (buildParams.kdLeaf && bsproot && info_bsp.front==0 && info_bsp.back==0 && info_bsp.plane<3) // minimum of kdleaves: builds the fastest kd, but build time&space is exponential on some speedtree meshes
 	if (buildParams.kdLeaf && bsproot && info_bsp.split>info_bsp.front+info_bsp.back+info_bsp.plane) // more kdleaves: problematic meshes fixed, normal meshes unchanged
 	{
-		t->plane  =NULL;
+		t->plane  =nullptr;
 		t->leaf   =space;
-		t->front  =NULL;
-		t->back   =NULL; 
+		t->front  =nullptr;
+		t->back   =nullptr; 
 		t->axis   =3;
-		t->kdroot =NULL; 
+		t->kdroot =nullptr; 
 		return t; 
 	}
 
@@ -772,11 +772,11 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	if (!bsproot && !kdroot) 
 	{
 		t->plane  =space;
-		t->leaf   =NULL;
-		t->front  =NULL;
-		t->back   =NULL; 
+		t->leaf   =nullptr;
+		t->front  =nullptr;
+		t->back   =nullptr; 
 		t->axis   =3; 
-		t->kdroot =NULL; 
+		t->kdroot =nullptr; 
 		return t; 
 	}
 
@@ -827,9 +827,9 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	front_num += split_num;
 
 	// alloc front/back/plane
-	const FACE **plane=NULL;
-	const FACE **front=NULL;
-	const FACE **back=NULL;
+	const FACE **plane=nullptr;
+	const FACE **front=nullptr;
+	const FACE **back=nullptr;
 	if (front_num>0) { front=nALLOC(const FACE*,front_num+1); }
 	if (kdroot)
 	{
@@ -872,9 +872,9 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 	if (!kdroot) RR_ASSERT(plane_id==plane_num);
 	if (kdroot) RR_ASSERT(back_id+plane_id==back_num+plane_num);
 
-	if (back) back[back_id]=NULL;
-	if (front) front[front_id]=NULL;
-	if (plane) plane[plane_id]=NULL;
+	if (back) back[back_id]=nullptr;
+	if (front) front[front_id]=nullptr;
+	if (plane) plane[plane_id]=nullptr;
 
 	delete [] sides;
 	free(space);
@@ -889,7 +889,7 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		if (bbox_front.maxVertexValue == -cutValue) bbox_front.updateMaxVertexValue();
 		bbox_back.hi[info_kd.axis] = cutValue;
 		if (bbox_back.maxVertexValue == cutValue) bbox_back.updateMaxVertexValue();
-		t->leaf = NULL;
+		t->leaf = nullptr;
 		t->axis = info_kd.axis;
 		t->kdroot = kdroot;
 	} else {
@@ -903,8 +903,8 @@ BSP_TREE *create_bsp(const FACE **space, BBOX *bbox, bool kd_allowed)
 		//unsigned kdHavranOld = buildParams.kdHavran;
 		//if (!kdroot) buildParams.kdHavran = 0;
 
-	t->front = front ? create_bsp(front,&bbox_front,kd_allowed) : NULL;
-	t->back = back ? create_bsp(back,&bbox_back,kd_allowed) : NULL;
+	t->front = front ? create_bsp(front,&bbox_front,kd_allowed) : nullptr;
+	t->back = back ? create_bsp(back,&bbox_back,kd_allowed) : nullptr;
 
 		//buildParams.kdHavran = kdHavranOld;
 
@@ -1129,7 +1129,7 @@ static const FACE **make_list(OBJECT *o)
 {
 	const FACE **l=nALLOC(const FACE*,o->face_num+1); int i;
 	for (i=0;i<o->face_num;i++) l[i]=o->face+i;
-	l[o->face_num]=NULL; return l;
+	l[o->face_num]=nullptr; return l;
 }
 
 BSP_TREE* create_bsp(OBJECT *obj,bool kd_allowed)
@@ -1206,12 +1206,12 @@ bool createAndSaveBsp(OBJECT *obj, bool& aborting, BuildParams* buildParams, FIL
 	{
 		// save to memory
 		// get size
-		unsigned size = builder->save_bsp IBP2(obj, bsp, NULL, NULL);
+		unsigned size = builder->save_bsp IBP2(obj, bsp, nullptr, nullptr);
 		ok = size!=0;
 		if (ok)
 		{
 			*m = malloc(size);
-			unsigned saved = builder->save_bsp IBP2(obj, bsp, NULL, *m);
+			unsigned saved = builder->save_bsp IBP2(obj, bsp, nullptr, *m);
 			RR_ASSERT(saved = size);
 		}
 	}

@@ -252,7 +252,7 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 					// create temporary box at light->position[j]
 					enum {TRIANGLES=12,VERTICES=24};
 					rr::RRMeshArrays* arrays = new rr::RRMeshArrays;
-					arrays->resizeMesh(TRIANGLES,VERTICES,NULL,false,false);
+					arrays->resizeMesh(TRIANGLES,VERTICES,nullptr,false,false);
 					for (unsigned i=0;i<TRIANGLES;i++)
 						for (unsigned j=0;j<3;j++)
 							arrays->triangle[i][j] = i*2+((i%2)?1-(((i/2)%2)?2-j:j):(((i/2)%2)?2-j:j));
@@ -261,7 +261,7 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 							arrays->position[i][j] = ( ((j==((i/8)%3)) ? ((i/4)%2) : ((j==((1+i/8)%3)) ? ((i/2)%2) : (i%2))) - 0.5f )*CUBE_SIZE + light->position[j];
 					arrays->buildNormals();
 					bool aborting = false;
-					RRCollider* collider = RRCollider::create(arrays,NULL,RRCollider::IT_LINEAR,aborting);
+					RRCollider* collider = RRCollider::create(arrays,nullptr,RRCollider::IT_LINEAR,aborting);
 					RRObject object;
 					object.setCollider(collider);
 					savePly(&object,RR_PATH2RR(plyFilename));

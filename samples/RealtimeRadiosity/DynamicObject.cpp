@@ -15,23 +15,23 @@ DynamicObject* DynamicObject::create(const char* _filename,float _scale,rr_gl::U
 	DynamicObject* d = new DynamicObject();
 	d->model = new Model_3DS;
 	//d->model->smoothAll = true; // use for characters from lowpolygon3d.com
-	if (d->model->Load(_filename,NULL,_scale) && d->model->numObjects)
+	if (d->model->Load(_filename,nullptr,_scale) && d->model->numObjects)
 	{
 		d->material = _material;
 		// create envmaps
 		if (d->material.MATERIAL_DIFFUSE || d->material.MATERIAL_SPECULAR)
-			d->illumination->getLayer(LAYER_ENVIRONMENT) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,_reflectionCubeSize,_reflectionCubeSize,6,rr::BF_RGBA,true,NULL);
+			d->illumination->getLayer(LAYER_ENVIRONMENT) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,_reflectionCubeSize,_reflectionCubeSize,6,rr::BF_RGBA,true,nullptr);
 		d->updatePosition();
 		return d;
 	}
 	if (!d->model->numObjects) rr::RRReporter::report(rr::WARN,"Model %s contains no objects.\n",_filename);
 	delete d;
-	return NULL;
+	return nullptr;
 }
 
 DynamicObject::DynamicObject()
 {
-	model = NULL;
+	model = nullptr;
 	illumination = new rr::RRObjectIllumination;
 	worldFoot = rr::RRVec3(0);
 	rotYZ = rr::RRVec2(0);
@@ -63,7 +63,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	{
 		// direct light is disabled in shader so let's ignore direct lights
 		// (withouth this, we would enable SHADOW_SAMPLES and it's invalid with LIGHT_DIRECT=0)
-		lights = NULL;
+		lights = nullptr;
 	}
 	// mix uberProgramSetup with our material setup
 	// but only when indirect illum is on.
@@ -81,7 +81,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	}
 	uberProgramSetup.ANIMATION_WAVE = material.ANIMATION_WAVE;
 	// temporary simplification, select only 1 light from list
-	rr_gl::RealtimeLight* light = NULL;
+	rr_gl::RealtimeLight* light = nullptr;
 	if (lights)
 		for (unsigned i=0;i<lights->size();i++)
 		{
@@ -106,7 +106,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	uberProgramSetup.LIGHT_DIRECT_ATT_POLYNOMIAL  = uberProgramSetup.LIGHT_DIRECT && light && light->getRRLight().distanceAttenuationType==rr::RRLight::POLYNOMIAL;
 	uberProgramSetup.LIGHT_DIRECT_ATT_EXPONENTIAL = uberProgramSetup.LIGHT_DIRECT && light && light->getRRLight().distanceAttenuationType==rr::RRLight::EXPONENTIAL;
 	// use program
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,light,firstInstance,1,brightness,gamma,NULL);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,light,firstInstance,1,brightness,gamma,nullptr);
 	if (!program)
 	{
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));
@@ -130,7 +130,7 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	}
 
 	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
-		program->sendTexture("materialDiffuseMap",NULL); // activate unit, Draw will bind textures
+		program->sendTexture("materialDiffuseMap",nullptr); // activate unit, Draw will bind textures
 
-	model->Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
+	model->Draw(nullptr,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,nullptr,nullptr);
 }

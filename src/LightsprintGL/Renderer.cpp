@@ -54,7 +54,7 @@ class RendererImpl : public Renderer
 public:
 	RendererImpl(const rr::RRString& _pathToShaders, const rr::RRString& _pathToMaps) : pathToShaders(_pathToShaders), pathToMaps(_pathToMaps)
 	{
-		counters = NULL;
+		counters = nullptr;
 		textureRenderer = new TextureRenderer(pathToShaders);
 	}
 

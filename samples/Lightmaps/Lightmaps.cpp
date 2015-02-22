@@ -86,10 +86,10 @@ enum Layer// arbitrary layer numbers
 Layer                      renderLayer = LAYER_REALTIME;
 rr::RRCamera               eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0), 1.3f,70,0.1f,100);
 rr::RRCamera*              light;
-rr_gl::RRSolverGL*  solver = NULL;
-rr::RRLightField*          lightField = NULL;
-rr::RRObject*              robot = NULL;
-rr::RRObject*              potato = NULL;
+rr_gl::RRSolverGL*  solver = nullptr;
+rr::RRLightField*          lightField = nullptr;
+rr::RRObject*              robot = nullptr;
+rr::RRObject*              potato = nullptr;
 int                        winWidth = 0;
 int                        winHeight = 0;
 bool                       modeMovingEye = false;
@@ -106,7 +106,7 @@ static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVe
 	if (!object)
 		return;
 	rr::RRVec3 mini,center;
-	object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+	object->getCollider()->getMesh()->getAABB(&mini,nullptr,&center);
 	float sz = sin(RR_DEG2RAD(rotYZ[1]));
 	float cz = cos(RR_DEG2RAD(rotYZ[1]));
 	float sy = sin(RR_DEG2RAD(rotYZ[0]));
@@ -199,18 +199,18 @@ void keyboard(unsigned char c, int x, int y)
 
 				// 2. objects
 				//  a) calculate whole scene at once
-				solver->updateLightmaps(LAYER_OFFLINE_PIXEL,-1,-1,&params,NULL);
+				solver->updateLightmaps(LAYER_OFFLINE_PIXEL,-1,-1,&params,nullptr);
 				//  b) calculate only one object
 				//static unsigned obj=0;
-				//solver->updateLightmap(obj,solver->getStaticObjects()[obj]->illumination->getLayer(LAYER_OFFLINE_PIXEL),NULL,NULL,&params);
+				//solver->updateLightmap(obj,solver->getStaticObjects()[obj]->illumination->getLayer(LAYER_OFFLINE_PIXEL),nullptr,nullptr,&params);
 				//++obj%=solver->getStaticObjects().size();
 
 				// update vertex buffers too, for comparison with pixel buffers
-				solver->updateLightmaps(LAYER_OFFLINE_VERTEX,-1,-1,&params,NULL);
+				solver->updateLightmaps(LAYER_OFFLINE_VERTEX,-1,-1,&params,nullptr);
 
 				// update lightfield
 				rr::RRVec4 aabbMin,aabbMax;
-				solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
+				solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,nullptr);
 				aabbMin.w = aabbMax.w = 0;
 				if (!lightField) lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
 				if (lightField)
@@ -244,7 +244,7 @@ void keyboard(unsigned char c, int x, int y)
 			}
 
 		case 'r':
-			eye.setView(rr::RRCamera::RANDOM,solver,NULL,NULL);
+			eye.setView(rr::RRCamera::RANDOM,solver,nullptr,nullptr);
 			break;
 
 		case 27:
@@ -327,7 +327,7 @@ void display(void)
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	// configure plugins
-	rr_gl::PluginParamsSky ppSky(NULL,solver,1);
+	rr_gl::PluginParamsSky ppSky(nullptr,solver,1);
 	rr_gl::PluginParamsScene ppScene(&ppSky,solver);
 	ppScene.solver = solver;
 	ppScene.lights = &solver->realtimeLights;
@@ -424,7 +424,7 @@ int main(int argc, char** argv)
 
 	// init static scene
 	rr::RRScene scene("../../data/scenes/koupelna/koupelna4.dae");
-	solver->setStaticObjects(scene.objects, NULL);
+	solver->setStaticObjects(scene.objects, nullptr);
 
 	// init dynamic objects
 	rr::RRScene robotScene("../../data/objects/I_Robot_female.3ds");
@@ -432,8 +432,8 @@ int main(int argc, char** argv)
 	rr::RRScene potatoScene("../../data/objects/potato/potato01.3ds");
 	potatoScene.normalizeUnits(0.004f);
 	bool aborting = false;
-	robot = robotScene.objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
-	potato = potatoScene.objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
+	robot = robotScene.objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,nullptr);
+	potato = potatoScene.objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,nullptr);
 	robot->isDynamic = true;
 	potato->isDynamic = true;
 	rr::RRObjects dynamicObjects;
@@ -460,7 +460,7 @@ int main(int argc, char** argv)
 		unsigned res = 16;
 		float sizeFactor = 5;
 		while (res<2048 && (float)res<sizeFactor*sqrtf((float)(solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumTriangles()))) res*=2;
-		solver->getStaticObjects()[i]->illumination.getLayer(LAYER_OFFLINE_PIXEL) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
+		solver->getStaticObjects()[i]->illumination.getLayer(LAYER_OFFLINE_PIXEL) = rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,nullptr);
 	}
 	// create remaining cubemaps and multiObject vertex buffers
 	solver->allocateBuffersForRealtimeGI(LAYER_REALTIME,LAYER_ENVIRONMENT);

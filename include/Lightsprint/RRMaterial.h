@@ -79,7 +79,7 @@ namespace rr
 		{
 			UTA_KEEP,   ///< Keep uniform texture.
 			UTA_DELETE, ///< Delete uniform texture.
-			UTA_NULL    ///< NULL pointer to uniform texture, but don't delete it.
+			UTA_NULL    ///< nullptr pointer to uniform texture, but don't delete it.
 		};
 
 		//! Part of material description.
@@ -111,7 +111,7 @@ namespace rr
 			{
 				color = RRVec3(0);
 				colorLinear = RRVec3(0);
-				texture = NULL;
+				texture = nullptr;
 				texcoord = 0;
 			}
 			//! Changes property to property*multiplier+addend.
@@ -166,7 +166,7 @@ namespace rr
 		//! \param colorSpace
 		//!  Textures are expected in custom scale of this colorSpace.
 		//!  Average colors are computed in the same scale.
-		//!  Function would work even with colorSpace=NULL, and it would be faster, but computed averages would be slightly incorrect,
+		//!  Function would work even with colorSpace=nullptr, and it would be faster, but computed averages would be slightly incorrect,
 		//!  and minimalQualityForPointMaterials would be much lower, slowing down lightmap baking with unnecessary texture lookups.
 		//! \param uniformTextureAction
 		//!  What to do with textures of constant color. Removing them may make rendering/calculations faster.
@@ -248,7 +248,7 @@ namespace rr
 		//!	specularTransmittanceInAlpha = true;
 		//! \endcode
 		Property      specularTransmittance;
-		//! Whether specular transmittance is in specularTransmittance.texture's Alpha (0=transparent) or in RGB (1,1,1=transparent). It is irrelevant when specularTransmittance.texture==NULL.
+		//! Whether specular transmittance is in specularTransmittance.texture's Alpha (0=transparent) or in RGB (1,1,1=transparent). It is irrelevant when specularTransmittance.texture==nullptr.
 		bool          specularTransmittanceInAlpha;
 		//! Whether 1-bit alpha keying is used instead of smooth alpha blending in realtime render. 1-bit alpha keying is faster but removes semi-translucency. Smooth alpha blend renders semi-translucency, but artifacts appear on meshes where semi-translucent faces overlap.
 		bool          specularTransmittanceKeyed;
@@ -405,12 +405,12 @@ namespace rr
 		//! Returns list of supported loader extensions in "*.rrmaterial;*.mtl" format.
 		//
 		//! All extensions of registered loaders are returned in one static string, don't free() it.
-		//! NULL is returned if no loaders were registered.
+		//! nullptr is returned if no loaders were registered.
 		static const char* getSupportedLoaderExtensions();
 		//! Returns list of supported saver extensions in "*.rrmaterial;*.mtl" format.
 		//
 		//! All extensions of registered savers are returned in one static string, don't free() it.
-		//! NULL is returned if no savers were registered.
+		//! nullptr is returned if no savers were registered.
 		static const char* getSupportedSaverExtensions();
 	};
 

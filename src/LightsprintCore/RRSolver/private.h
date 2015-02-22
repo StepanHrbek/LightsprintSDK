@@ -60,7 +60,7 @@ namespace rr
 		float      environmentAngleRad0;
 		float      environmentAngleRad1;
 		float      environmentBlendFactor;
-		const unsigned* customIrradianceRGBA8; // NULL or array of getMultiObject()->getCollider()->getMesh()->getNumTriangles() elements
+		const unsigned* customIrradianceRGBA8; // nullptr or array of getMultiObject()->getCollider()->getMesh()->getNumTriangles() elements
 
 		// scale: inputs
 		const RRColorSpace*  colorSpace;
@@ -86,7 +86,7 @@ namespace rr
 		unsigned   solutionVersion; // incremented each time we want user to update lightmaps (not after every change in solution, slightly less frequently)
 		RRPackedSolver* packedSolver;
 		unsigned   materialTransmittanceVersionSum[2];
-		CalculateParameters previousCalculateParameters; // copy of previous non-NULL params sent by user (we pass it to calculate when we call it internally)
+		CalculateParameters previousCalculateParameters; // copy of previous non-nullptr params sent by user (we pass it to calculate when we call it internally)
 
 		// read results
 		struct TriangleVertexPair {unsigned triangleIndex:30;unsigned vertex012:2;TriangleVertexPair(unsigned _triangleIndex,unsigned _vertex012):triangleIndex(_triangleIndex),vertex012(_vertex012){}}; // packed as 30+2 bits is much faster than 32+32 bits
@@ -97,23 +97,23 @@ namespace rr
 		Private()
 		{
 			// scene: inputs
-			environment0 = NULL;
-			environment1 = NULL;
+			environment0 = nullptr;
+			environment1 = nullptr;
 			environmentAngleRad0 = 0;
 			environmentAngleRad1 = 0;
 			environmentBlendFactor = 0;
 			// scene: function of inputs
-			multiObject = NULL;
+			multiObject = nullptr;
 			forcedMultiObject = false;
 			staticSceneContainsLods = false;
-			superCollider = NULL;
+			superCollider = nullptr;
 			superColliderDirty = false;
 			superColliderMeshVersion = 0;
 			// lights
-			customIrradianceRGBA8 = NULL;
+			customIrradianceRGBA8 = nullptr;
 
 			// scale: inputs
-			colorSpace = NULL;
+			colorSpace = nullptr;
 			lightMultiplier = 1;
 			// scale: function of inputs
 			for (unsigned i=0;i<256;i++)
@@ -122,7 +122,7 @@ namespace rr
 			}
 
 			// calculate
-			scene = NULL;
+			scene = nullptr;
 			staticSolverCreationFailed = false;
 			dirtyCustomIrradiance = true;
 			dirtyMaterials = true;
@@ -138,7 +138,7 @@ namespace rr
 			readingResultsPeriodSteps = 0;
 			solutionVersion = 1; // set solver to 1 so users can start with 0 and solver (even if incremented) will differ
 			minimalSafeDistance = 0;
-			packedSolver = NULL;
+			packedSolver = nullptr;
 			materialTransmittanceVersionSum[0] = 0;
 			materialTransmittanceVersionSum[1] = 0;
 		}
@@ -155,7 +155,7 @@ namespace rr
 			RR_SAFE_DELETE(packedSolver);
 			RR_SAFE_DELETE(scene);
 			// if forced (in sceneViewer) -> don't delete custom
-			if (forcedMultiObject) multiObject = NULL;
+			if (forcedMultiObject) multiObject = nullptr;
 			RR_SAFE_DELETE(superCollider);
 			RR_SAFE_DELETE(multiObject);
 			// clear tables that depend on scene (code that fills tables needs them empty)

@@ -122,7 +122,7 @@ public:
 			}
 		}
 		ray.collisionHandler = oldCollisionHandler;
-		bool hitAcceptedByHandler = rayHits.getHitOrdered(ray,NULL);
+		bool hitAcceptedByHandler = rayHits.getHitOrdered(ray,nullptr);
 		if (oldCollisionHandler)
 			hitAcceptedByHandler = oldCollisionHandler->done();
 		return hitAcceptedByHandler;
@@ -130,7 +130,7 @@ public:
 
 	virtual const RRMesh* getMesh() const
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	virtual IntersectTechnique getTechnique() const

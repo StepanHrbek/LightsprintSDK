@@ -15,11 +15,11 @@ AnimationFrame::AnimationFrame(AnimationFrame& copy) :
 	dynaPosRot = copy.dynaPosRot;
 	transitionToNextTime = copy.transitionToNextTime;
 	layerNumber = copy.layerNumber;
-	thumbnail = NULL; // don't duplicate pointer, would be deleted twice
+	thumbnail = nullptr; // don't duplicate pointer, would be deleted twice
 	strcpy(overlayFilename,copy.overlayFilename);
 	overlaySeconds = copy.overlaySeconds;
 	overlayMode = copy.overlayMode;
-	overlayMap = copy.overlayMap; copy.overlayMap = NULL; // don't duplicate pointer, would be deleted twice
+	overlayMap = copy.overlayMap; copy.overlayMap = nullptr; // don't duplicate pointer, would be deleted twice
 	shadowType = copy.shadowType;
 	indirectType = copy.indirectType;
 	volume = copy.volume;
@@ -34,11 +34,11 @@ AnimationFrame::AnimationFrame(unsigned _layerNumber) :
 	transitionToNextTime = 3;
 	projectorIndex = 0;
 	layerNumber = _layerNumber;
-	thumbnail = NULL;
+	thumbnail = nullptr;
 	overlayFilename[0] = 0;
 	overlaySeconds = 5;
 	overlayMode = 0;
-	overlayMap = NULL;
+	overlayMap = nullptr;
 	shadowType = 2; // soft
 	indirectType = 2; // realtime per vertex
 	volume = 1;
@@ -106,11 +106,11 @@ const AnimationFrame* AnimationFrame::blend(const AnimationFrame& that, float al
 	// blend projectorIndex
 	blended.projectorIndex = projectorIndex;
 	// blend thumbnail
-	blended.thumbnail = NULL; // don't duplicate map, would be deleted more than once
+	blended.thumbnail = nullptr; // don't duplicate map, would be deleted more than once
 	// blend overlay
 	blended.overlayFilename[0] = 0;
 	blended.overlaySeconds = this->overlaySeconds;
-	blended.overlayMap = NULL; // don't duplicate map, would be deleted more than once
+	blended.overlayMap = nullptr; // don't duplicate map, would be deleted more than once
 	// technique
 	blended.shadowType = this->shadowType;
 	blended.indirectType = this->indirectType;
@@ -174,7 +174,7 @@ bool AnimationFrame::loadOver(FILE* f)
 	// load overlay
 	overlayFilename[0] = 0;
 	if (fscanf(f,"2d_overlay = %f,%d,%s\n",&overlaySeconds,&overlayMode,overlayFilename)==3) loaded = true;
-	overlayMap = overlayFilename[0] ? rr::RRBuffer::load(overlayFilename) : NULL;
+	overlayMap = overlayFilename[0] ? rr::RRBuffer::load(overlayFilename) : nullptr;
 	// load technique
 	if (fscanf(f,"shadow_type = %d\n",&shadowType)==1) loaded = true;
 	if (fscanf(f,"indirect_type = %d\n",&indirectType)==1) loaded = true;

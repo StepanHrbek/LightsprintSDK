@@ -40,7 +40,7 @@ static std::vector<RRBuffer::Saver*> s_savers;
 
 RRBuffer::RRBuffer()
 {
-	customData = NULL;
+	customData = nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ RRVec4 RRBuffer::getElementAtDirection(const RRVec3& dir, const RRColorSpace* co
 unsigned char* RRBuffer::lock(RRBufferLock lock)
 {
 	RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Default empty RRBuffer::lock() called.\n"));
-	return NULL;
+	return nullptr;
 }
 
 void RRBuffer::unlock()
@@ -101,7 +101,7 @@ RRBuffer* RRBuffer::createCopy()
 
 RRBuffer* RRBuffer::createCopy(RRBufferFormat _format, bool _scaled, const RRColorSpace* _colorSpace) const
 {
-	RRBuffer* copy = RRBuffer::create(getType(),getWidth(),getHeight(),getDepth(),_format,_scaled,NULL);
+	RRBuffer* copy = RRBuffer::create(getType(),getWidth(),getHeight(),getDepth(),_format,_scaled,nullptr);
 	copyElementsTo(copy,_colorSpace);
 	return copy;
 }
@@ -123,14 +123,14 @@ bool RRBuffer::copyElementsTo(RRBuffer* destination, const RRColorSpace* colorSp
 		return false;
 	}
 	unsigned size = w*h*d;
-	const RRColorSpace* toCust = (!source->getScaled() && destination->getScaled()) ? colorSpace : NULL;
-	const RRColorSpace* toPhys = (source->getScaled() && !destination->getScaled()) ? colorSpace : NULL;
+	const RRColorSpace* toCust = (!source->getScaled() && destination->getScaled()) ? colorSpace : nullptr;
+	const RRColorSpace* toPhys = (source->getScaled() && !destination->getScaled()) ? colorSpace : nullptr;
 	for (unsigned i=0;i<size;i++)
 	{
-		RRVec4 color = source->getElement(i,NULL);
+		RRVec4 color = source->getElement(i,nullptr);
 		if (toCust) toCust->fromLinear(color); else
 		if (toPhys) toPhys->toLinear(color);
-		destination->setElement(i,color,NULL);
+		destination->setElement(i,color,nullptr);
 	}
 	return true;
 }
@@ -167,14 +167,14 @@ RRBuffer* RRBuffer::createSky(const RRVec4& upper, const RRVec4& lower, bool sca
 RRBuffer* RRBuffer::createEquirectangular()
 {
 	if (!this)
-		return NULL;
+		return nullptr;
 	switch (getType())
 	{
 		case BT_CUBE_TEXTURE:
 			{
 				unsigned width = getWidth()*3;
 				unsigned height = getHeight()*2;
-				RRBuffer* b = RRBuffer::create(BT_2D_TEXTURE,width,height,1,getFormat(),getScaled(),NULL);
+				RRBuffer* b = RRBuffer::create(BT_2D_TEXTURE,width,height,1,getFormat(),getScaled(),nullptr);
 				for (unsigned j=0;j<height;j++)
 					for (unsigned i=0;i<width;i++)
 					{
@@ -184,14 +184,14 @@ RRBuffer* RRBuffer::createEquirectangular()
 						direction.z = sqrt(1-direction.x*direction.x-direction.y*direction.y);
 						if (i*2<width)
 							direction.z = -direction.z;
-						b->setElement(j*width+i,getElementAtDirection(direction,NULL),NULL);
+						b->setElement(j*width+i,getElementAtDirection(direction,nullptr),nullptr);
 					}
 				return b;
 			}
 		case BT_2D_TEXTURE:
 			return createReference();
 		default: //BT_VERTEX_BUFFER
-			return NULL;
+			return nullptr;
 	}
 }
 
@@ -209,7 +209,7 @@ void RRBuffer::setFormat(RRBufferFormat newFormat)
 	if (getFormat()==BF_DXT1 || getFormat()==BF_DXT3 || getFormat()==BF_DXT5)
 	{
 		RRBuffer* copy = createCopy();
-		reset(getType(),getWidth(),getHeight(),getDepth(),BF_RGBA,getScaled(),NULL);
+		reset(getType(),getWidth(),getHeight(),getDepth(),BF_RGBA,getScaled(),nullptr);
 		int flags;
 		switch (getFormat())
 		{
@@ -230,7 +230,7 @@ void RRBuffer::setFormat(RRBufferFormat newFormat)
 	{
 		setFormat(BF_RGBA);
 		RRBuffer* copy = createCopy();
-		reset(getType(),getWidth(),getHeight(),getDepth(),newFormat,getScaled(),NULL);
+		reset(getType(),getWidth(),getHeight(),getDepth(),newFormat,getScaled(),nullptr);
 		int flags;
 		switch (getFormat())
 		{
@@ -248,11 +248,11 @@ void RRBuffer::setFormat(RRBufferFormat newFormat)
 	else
 	{
 		RRBuffer* copy = createCopy();
-		reset(getType(),getWidth(),getHeight(),getDepth(),newFormat,getScaled(),NULL);
+		reset(getType(),getWidth(),getHeight(),getDepth(),newFormat,getScaled(),nullptr);
 		unsigned numElements = getNumElements();
 		for (unsigned i=0;i<numElements;i++)
 		{
-			setElement(i,copy->getElement(i,NULL),NULL);
+			setElement(i,copy->getElement(i,nullptr),nullptr);
 		}
 		delete copy;
 	}
@@ -291,7 +291,7 @@ void RRBuffer::clear(RRVec4 clearColor)
 	unsigned numElements = getNumElements();
 	for (unsigned i=0;i<numElements;i++)
 	{
-		setElement(i,clearColor,NULL);
+		setElement(i,clearColor,nullptr);
 	}
 }
 
@@ -311,9 +311,9 @@ void RRBuffer::invert()
 				unsigned numElements = getNumElements();
 				for (unsigned i=0;i<numElements;i++)
 				{
-					RRVec4 color = getElement(i,NULL);
+					RRVec4 color = getElement(i,nullptr);
 					color = RRVec4(1)-color;
-					setElement(i,color,NULL);
+					setElement(i,color,nullptr);
 				}
 			}
 			break;
@@ -345,7 +345,7 @@ void RRBuffer::multiplyAdd(RRVec4 multiplier, RRVec4 addend)
 				unsigned numElements = getNumElements();
 				for (unsigned i=0;i<numElements;i++)
 				{
-					setElement(i,getElement(i,NULL)*multiplier+addend,NULL);
+					setElement(i,getElement(i,nullptr)*multiplier+addend,nullptr);
 				}
 			}
 			break;
@@ -386,10 +386,10 @@ void RRBuffer::flip(bool flipX, bool flipY, bool flipZ)
 					unsigned e2 = (flipX?xmax-1-x:x)+xmax*((flipY?ymax-1-y:y)+ymax*(flipZ?zmax-1-z:z));
 					if (e1<e2)
 					{
-						RRVec4 color1 = getElement(e1,NULL);
-						RRVec4 color2 = getElement(e2,NULL);
-						setElement(e1,color2,NULL);
-						setElement(e2,color1,NULL);
+						RRVec4 color1 = getElement(e1,nullptr);
+						RRVec4 color2 = getElement(e2,nullptr);
+						setElement(e1,color2,nullptr);
+						setElement(e2,color1,nullptr);
 					}
 				}
 			}
@@ -443,10 +443,10 @@ void RRBuffer::rotate(int degrees, unsigned depthLayer)
 						unsigned e2 = xmax-1-x+xmax*(ymax-1-y);
 						if (e1<e2)
 						{
-							RRVec4 color1 = getElement(e1+offset,NULL);
-							RRVec4 color2 = getElement(e2+offset,NULL);
-							setElement(e1+offset,color2,NULL);
-							setElement(e2+offset,color1,NULL);
+							RRVec4 color1 = getElement(e1+offset,nullptr);
+							RRVec4 color2 = getElement(e2+offset,nullptr);
+							setElement(e1+offset,color2,nullptr);
+							setElement(e2+offset,color1,nullptr);
 						}
 					}
 				}
@@ -468,13 +468,13 @@ void RRBuffer::rotate(int degrees, unsigned depthLayer)
 						{
 							RRVec4 color[4] =
 							{
-								getElement(e[0]+offset,NULL),
-								getElement(e[1]+offset,NULL),
-								getElement(e[2]+offset,NULL),
-								getElement(e[3]+offset,NULL)
+								getElement(e[0]+offset,nullptr),
+								getElement(e[1]+offset,nullptr),
+								getElement(e[2]+offset,nullptr),
+								getElement(e[3]+offset,nullptr)
 							};
 							for (unsigned i=0;i<4;i++)
-								setElement(e[i]+offset,color[(i+direction)%4],NULL);
+								setElement(e[i]+offset,color[(i+direction)%4],nullptr);
 						}
 					}
 				}
@@ -499,10 +499,10 @@ void RRBuffer::brightnessGamma(RRVec4 brightness, RRVec4 gamma)
 #pragma omp parallel for
 	for (int i=0;i<numElements;i++)
 	{
-		RRVec4 element = getElement(i,NULL);
+		RRVec4 element = getElement(i,nullptr);
 		for (unsigned j=0;j<4;j++)
 			element[j] = pow(element[j]*brightness[j],gamma[j]);
-		setElement(i,element,NULL);
+		setElement(i,element,nullptr);
 	}
 }
 
@@ -514,7 +514,7 @@ void RRBuffer::getMinMax(RRVec4* _mini, RRVec4* _maxi)
 	RRVec4 maxi(-1e20f);
 	for (unsigned i=0;i<numElements;i++)
 	{
-		RRVec4 color = getElement(i,NULL);
+		RRVec4 color = getElement(i,nullptr);
 		for (unsigned j=0;j<4;j++)
 		{
 			mini[j] = RR_MIN(mini[j],color[j]);
@@ -560,7 +560,7 @@ public:
 
 		// stitch vertices with the same position + nearly the same normal (ignore unwrap differences)
 		// this makes looking for shared edges easier
-		const RRMesh* mesh = mesh0->createOptimizedVertices(0,RR_DEG2RAD(1),0,NULL);
+		const RRMesh* mesh = mesh0->createOptimizedVertices(0,RR_DEG2RAD(1),0,nullptr);
 		if (!mesh)
 		{
 			RR_LIMITED_TIMES(10,RRReporter::report(WARN,"Unwrap seams won't be filtered.\n"));
@@ -662,7 +662,7 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 	RRVec4* destination = source+size;
 	for (unsigned i=0;i<size;i++)
 	{
-		source[i] = getElement(i,NULL);
+		source[i] = getElement(i,nullptr);
 	}
 
 	// fill blurFlags, what neighbors to blur with
@@ -806,7 +806,7 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 	// copy temp back to buffer, preserve alpha
 	for (unsigned i=0;i<size;i++)
 		if (source[i][3]>0)
-			setElement(i,RRVec4(source[i][0],source[i][1],source[i][2],getElement(i,NULL)[3]),NULL);
+			setElement(i,RRVec4(source[i][0],source[i][1],source[i][2],getElement(i,nullptr)[3]),nullptr);
 	free(buf);
 	return true;
 }
@@ -827,7 +827,7 @@ bool RRBuffer::lightmapGrowForBilinearInterpolation(bool _wrap)
 	for (unsigned i=0;i<width;i++)
 	{
 		// we are processing texel i,j
-		if (getElement(i+j*width,NULL)[3]>0.002f)
+		if (getElement(i+j*width,nullptr)[3]>0.002f)
 		{
 			// not empty, keep it unchanged
 			notEmpty = true;
@@ -853,7 +853,7 @@ bool RRBuffer::lightmapGrowForBilinearInterpolation(bool _wrap)
 						continue;
 				}
 				// read neighbor
-				RRVec4 c = getElement(x+y*width,NULL);
+				RRVec4 c = getElement(x+y*width,nullptr);
 				unsigned texelFlags = FLOAT_TO_TEXELFLAGS(c[3]);
 				// is it good one?
 				if (0
@@ -871,7 +871,7 @@ bool RRBuffer::lightmapGrowForBilinearInterpolation(bool _wrap)
 			if (sum[3])
 				setElement(i+j*width,RRVec4(sum[0]/sum[3],sum[1]/sum[3],sum[2]/sum[3],
 					0.001f // small enough to be invisible for texelFlags, but big enough to be >0, to prevent growForeground() and fillBackground() from overwriting this texel
-					),NULL);
+					),nullptr);
 		}
 	}
 	return notEmpty;
@@ -914,7 +914,7 @@ bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap, bool& _aborting)
 	RRVec4* destination = buf+size;
 	for (unsigned i=0;i<size;i++)
 	{
-		RRVec4 c = getElement(i,NULL);
+		RRVec4 c = getElement(i,nullptr);
 		source[i] = c[3]>0 ? RRVec4(c[0],c[1],c[2],1) : RRVec4(0);
 	}
 
@@ -975,8 +975,8 @@ bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap, bool& _aborting)
 
 	// copy temp back to buffer
 	for (unsigned i=0;i<size;i++)
-		if (source[i][3]>0 && getElement(i,NULL)[3]==0)
-			setElement(i,RRVec4(source[i][0],source[i][1],source[i][2],0.001f),NULL);
+		if (source[i][3]>0 && getElement(i,nullptr)[3]==0)
+			setElement(i,RRVec4(source[i][0],source[i][1],source[i][2],0.001f),nullptr);
 	delete[] buf;
 	return true;
 }
@@ -993,8 +993,8 @@ bool RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 	unsigned numElements = getNumElements();
 	for (unsigned i=0;i<numElements;i++)
 	{
-		RRVec4 color = getElement(i,NULL);
-		setElement(i,(color[3]<=0)?backgroundColor:color,NULL);
+		RRVec4 color = getElement(i,nullptr);
+		setElement(i,(color[3]<=0)?backgroundColor:color,nullptr);
 	}
 	return true;
 }
@@ -1008,7 +1008,7 @@ RRBuffer* load_noncached(const RRString& _filename, const char* _cubeSideName[6]
 {
 	if (_filename.empty())
 	{
-		return NULL;
+		return nullptr;
 	}
 	for (unsigned i=0;i<s_loaders.size();i++)
 	{
@@ -1016,7 +1016,7 @@ RRBuffer* load_noncached(const RRString& _filename, const char* _cubeSideName[6]
 		if (loaded)
 			return loaded;
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -1025,7 +1025,7 @@ class ImageCache
 public:
 	RRBuffer* load_cached(const RRString& filename, const char* cubeSideName[6])
 	{
-		bool sixfiles = wcsstr(filename.w_str(),L"%s")!=NULL;
+		bool sixfiles = wcsstr(filename.w_str(),L"%s")!=nullptr;
 #ifdef RR_LINKS_BOOST
 		boost::system::error_code ec;
 		bool exists = !sixfiles && bf::exists(RR_RR2PATH(filename),ec);
@@ -1054,7 +1054,7 @@ public:
 				bool cachedCube = i->second.buffer->getType()==BT_CUBE_TEXTURE;
 				if ((cached2dCross && cubeSideName)
 #ifdef RR_LINKS_BOOST
-					|| (cachedCube && !cubeSideName && bf::path(RR_RR2PATH(filename)).extension()!=".rrbuffer")) // .rrbuffer is the only format that can produce cube even with cubeSideName=NULL, exclude it from test here
+					|| (cachedCube && !cubeSideName && bf::path(RR_RR2PATH(filename)).extension()!=".rrbuffer")) // .rrbuffer is the only format that can produce cube even with cubeSideName=nullptr, exclude it from test here
 #else
 					|| (cachedCube && !cubeSideName))
 #endif
@@ -1151,7 +1151,7 @@ RRBuffer* load_cached(const RRString& filename, const char* cubeSideName[6])
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
 		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRBuffer import crashed.\n"));
-		return NULL;
+		return nullptr;
 	}
 #endif
 }
@@ -1184,7 +1184,7 @@ bool RRBuffer::save(const RRString& _filename, const char* _cubeSideName[6], con
 	}
 	if (!this)
 	{
-		RRReporter::report(WARN,"Attempted NULL->save().\n");
+		RRReporter::report(WARN,"Attempted nullptr->save().\n");
 		return false;
 	}
 	if (s_savers.empty())
@@ -1206,12 +1206,12 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 {
 	if (_filename.empty())
 	{
-		return NULL;
+		return nullptr;
 	}
 	if (s_loaders.empty())
 	{
 		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't load images, register loader first, see LightsprintIO.\n"));
-		return NULL;
+		return nullptr;
 	}
 
 	if (_fileLocator && _filename!="c@pture") // otherwise "c@pture" would be loaded as stub
@@ -1228,7 +1228,7 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 				if (_cubeSideName && _cubeSideName[0])
 					location_buf.replace(ofs,2,RRString(_cubeSideName[0]).w_str());
 				else
-					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Texture filename %ls contains %%s, but cubeSideNames is NULL.\n",location.w_str()));
+					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Texture filename %ls contains %%s, but cubeSideNames is nullptr.\n",location.w_str()));
 			}
 			bool exists = _fileLocator->exists(RR_STDW2RR(location_buf));
 			RRReporter::report(INF3,"%d%c %ls\n",attempt,exists?'+':'-',location.w_str());
@@ -1243,7 +1243,7 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 		RRString stubname = _fileLocator->getLocation(_filename,RRFileLocator::ATTEMPT_STUB);
 		if (!stubname.empty())
 		{
-			RRBuffer* stub = load_cached(stubname,NULL);
+			RRBuffer* stub = load_cached(stubname,nullptr);
 			RRBuffer* result;
 			if (stub)
 			{
@@ -1267,7 +1267,7 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 		}
 		// load with fileLocator failed, and there's no stub, warn
 		RRReporter::report(WARN,"Failed to load %ls.\n",_filename.w_str());
-		return NULL;
+		return nullptr;
 	}
 	else
 	{
@@ -1285,7 +1285,7 @@ bool RRBuffer::reload(const RRString& _filename, const char* _cubeSideName[6], c
 	}
 	if (!this)
 	{
-		RRReporter::report(WARN,"Attempted NULL->reload().\n");
+		RRReporter::report(WARN,"Attempted nullptr->reload().\n");
 		return false;
 	}
 
@@ -1310,7 +1310,7 @@ bool RRBuffer::reload(const RRString& _filename, const char* _cubeSideName[6], c
 	{
 		unsigned pixels = loaded->getNumElements();
 		for (unsigned i=0;i<pixels;i++)
-			setElement(i,loaded->getElement(i,NULL),NULL);
+			setElement(i,loaded->getElement(i,nullptr),nullptr);
 	}
 	delete loaded;
 	return true;
@@ -1349,7 +1349,7 @@ RRBuffer* RRBuffer::loadCube(const RRString& _filename, const RRFileLocator* _fi
 {
 	if (_filename.empty())
 	{
-		return NULL;
+		return nullptr;
 	}
 	std::wstring filename = RR_RR2STDW(_filename);
 	const char** cubeSideNames = selectCubeSideNames(filename);

@@ -12,7 +12,7 @@
 #define RRMEMORY_H
 
 #include <new> // operators new/delete
-#include <cstddef> // NULL
+#include <cstddef> // nullptr
 #include "RRMath.h"
 
 // Common memory macros.
@@ -34,26 +34,26 @@ namespace rr
 	//  RR_SAFE_XXX
 	//
 	//  does XXX bit more safely
-	//  in case of exception, pointer is already NULL, so half deleted object won't be accessible
+	//  in case of exception, pointer is already nullptr, so half deleted object won't be accessible
 
 	template <class C> void RR_SAFE_FREE(C*& a)
 	{
 		C* tmp = a;
-		a = NULL;
+		a = nullptr;
 		free(tmp);
 	}
 
 	template <class C> void RR_SAFE_DELETE(C*& a)
 	{
 		C* tmp = a;
-		a = NULL;
+		a = nullptr;
 		delete tmp;
 	}
 
 	template <class C> void RR_SAFE_DELETE_ARRAY(C*& a)
 	{
 		C* tmp = a;
-		a = NULL;
+		a = nullptr;
 		delete[] tmp;
 	}
 
@@ -62,7 +62,7 @@ namespace rr
 		if (a)
 		{
 			C* tmp = a;
-			a = NULL;
+			a = nullptr;
 			tmp->Release();
 		}
 	}
@@ -184,15 +184,15 @@ namespace rr
 		bool operator !=(const wchar_t* a) const;
 		
 		// accessors
-		const char* c_str() const {return str?str:"";} ///< String in local charset. Unrepresentable characters are replaced by ?. Never returns NULL, empty string is "".
-		const wchar_t* w_str() const {return wstr?wstr:L"";} ///< String in utf16 or utf32. Never returns NULL, empty string is L"".
-		bool empty() const {return str==NULL;}
+		const char* c_str() const {return str?str:"";} ///< String in local charset. Unrepresentable characters are replaced by ?. Never returns nullptr, empty string is "".
+		const wchar_t* w_str() const {return wstr?wstr:L"";} ///< String in utf16 or utf32. Never returns nullptr, empty string is L"".
+		bool empty() const {return str==nullptr;}
 
 		~RRString();
 		void _skipDestructor(); ///< For internal use only.
 	private:
-		char* str; ///< Never "", empty string is NULL.
-		wchar_t* wstr; ///< Never "", empty string is NULL.
+		char* str; ///< Never "", empty string is nullptr.
+		wchar_t* wstr; ///< Never "", empty string is nullptr.
 	};
 
 	//////////////////////////////////////////////////////////////////////////////

@@ -147,7 +147,7 @@ public:
 	EmbreeCollider(RRCollider::IntersectTechnique _technique, const RRMesh* _mesh)
 	{
 		if (!s_numEmbreeColliders++)
-			rtcInit(NULL);
+			rtcInit(nullptr);
 
 		rrMesh = _mesh;
 		rtcScene = rtcNewScene( RTC_SCENE_DYNAMIC | ((_technique==IT_BVH_COMPACT) ? (RTC_SCENE_INCOHERENT|RTC_SCENE_COMPACT) : RTC_SCENE_INCOHERENT), RTC_INTERSECT1);
@@ -254,7 +254,7 @@ public:
 	{
 		if (technique!=collider->getTechnique())
 		{
-			RRCollider* newCollider = create(getMesh(),NULL,technique,aborting);
+			RRCollider* newCollider = create(getMesh(),nullptr,technique,aborting);
 			if (aborting)
 				delete newCollider;
 			else
@@ -286,7 +286,7 @@ RRCollider* defaultBuilder(const RRMesh* mesh, const RRObjects* objects, RRColli
 {
 	if (!mesh)
 	{
-		return objects ? createMultiCollider(*objects,intersectTechnique,aborting) : NULL;
+		return objects ? createMultiCollider(*objects,intersectTechnique,aborting) : nullptr;
 	}
 	BuildParams bp(intersectTechnique);
 	if (!buildParams || ((BuildParams*)buildParams)->size<sizeof(BuildParams)) buildParams = &bp;
@@ -297,7 +297,7 @@ RRCollider* defaultBuilder(const RRMesh* mesh, const RRObjects* objects, RRColli
 #ifdef EMBREE
 			return new EmbreeCollider(intersectTechnique,mesh);
 #else
-			return NULL;
+			return nullptr;
 #endif
 		// needs explicit instantiation at the end of IntersectBspFast.cpp and IntersectBspCompact.cpp and bsp.cpp
 		case RRCollider::IT_BSP_COMPACT:
@@ -407,7 +407,7 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 			if (strlen(tmp)<270)
 				sprintf(tmp+strlen(tmp)," %d",(unsigned)i->first);
 		RRReporter::report(ERRO,"No builder registered for IntersectTechnique %d. Registered builders:%s.\n",(int)intersectTechnique,tmp);
-		return NULL;
+		return nullptr;
 	}
 
 	RRCollider* result = (RRCollider*)1;
@@ -418,17 +418,17 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 	catch(std::bad_alloc e)
 	{
 		RRReporter::report(ERRO,"Not enough memory, collider not created.\n");
-		result = NULL;
+		result = nullptr;
 	}
 	catch(...)
 	{
 		RRReporter::report(ERRO,"Builder for IntersectTechnique %d failed.\n",(int)intersectTechnique);
-		result = NULL;
+		result = nullptr;
 	}
 	if (result==(RRCollider*)1)
 	{
 		RRReporter::report(ERRO,"Builder for IntersectTechnique %d crashed.\n",(int)intersectTechnique);
-		result = NULL;
+		result = nullptr;
 	}
 	if (!result && intersectTechnique!=IT_LINEAR)
 	{
@@ -524,7 +524,7 @@ void RRCollider::getDistancesFromCamera(const RRCamera& camera, const RRObject* 
 
 const char* loadLicense(const char* filename)
 {
-	return NULL;
+	return nullptr;
 }
 
 

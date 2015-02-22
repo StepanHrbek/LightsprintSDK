@@ -25,7 +25,7 @@
 	// in osx: correct
 	#include <sys/time.h>
 	#define TIME          timeval
-	#define GETTIME(t)    gettimeofday(&t,NULL);
+	#define GETTIME(t)    gettimeofday(&t,nullptr);
 	#define SUBTRACT(a,b) ((a.tv_sec-b.tv_sec)+(a.tv_usec-b.tv_usec)*1e-6f)
 	#define ADD(t,s)      {int is=floor(s+t.tv_usec*1e-6f);t.tv_sec+=is;t.tv_usec+=(s-is)*1e6f;}
 
@@ -34,7 +34,7 @@
 	// precision decreases when system runs longer
 	// in linux, osx: sometimes runs slower than real time
 	#include <omp.h>
-	#include <cstring> // NULL
+	#include <cstring> // nullptr
 	#define TIME          double
 	#define GETTIME(t)    t=omp_get_wtime()
 	#define SUBTRACT(a,b) (a-b)

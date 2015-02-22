@@ -53,7 +53,7 @@ static wxImage* loadImage(const wxString& filename)
 	//    wxBitmap(fname.bmp) works only in Windows and ignores alphachannel
 	rr::RRBuffer* buffer = rr::RRBuffer::load(RR_WX2RR(filename));
 	if (!buffer)
-		return NULL;
+		return nullptr;
 	buffer->flip(false,true,false);
 	unsigned width = buffer->getWidth();
 	unsigned height = buffer->getHeight();
@@ -63,7 +63,7 @@ static wxImage* loadImage(const wxString& filename)
 	for (unsigned j=0;j<height;j++)
 		for (unsigned i=0;i<width;i++)
 		{
-			rr::RRVec4 element = buffer->getElement(j*width+i,NULL);
+			rr::RRVec4 element = buffer->getElement(j*width+i,nullptr);
 			image->SetRGB(i,j,(unsigned)(element[0]*255),(unsigned)(element[1]*255),(unsigned)(element[2]*255));
 			image->SetAlpha(i,j,(unsigned)(element[3]*255));
 		}
@@ -75,7 +75,7 @@ static wxIcon* loadIcon(const wxString& filename)
 {
 	wxImage* image = loadImage(filename);
 	if (!image)
-		return NULL;
+		return nullptr;
 	wxBitmap bitmap(*image);
 	wxIcon* icon = new wxIcon();
 	icon->CopyFromBitmap(bitmap);
@@ -109,13 +109,13 @@ public:
 		wcex.lpfnWndProc	= DefWindowProc;
 		wcex.cbClsExtra		= 0;
 		wcex.cbWndExtra		= 0;
-		wcex.hInstance		= NULL;
-		wcex.hIcon			= LoadIcon(NULL, IDI_APPLICATION);
-		wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
+		wcex.hInstance		= nullptr;
+		wcex.hIcon			= LoadIcon(nullptr, IDI_APPLICATION);
+		wcex.hCursor		= LoadCursor(nullptr, IDC_ARROW);
 		wcex.hbrBackground	= (HBRUSH)GetStockObject(BLACK_BRUSH);
-		wcex.lpszMenuName	= NULL;
+		wcex.lpszMenuName	= nullptr;
 		wcex.lpszClassName	= TEXT("Splash");
-		wcex.hIconSm		= LoadIcon(NULL, IDI_APPLICATION);
+		wcex.hIconSm		= LoadIcon(nullptr, IDI_APPLICATION);
 		RegisterClassEx(&wcex);
 
 		// create window
@@ -123,7 +123,7 @@ public:
 		SystemParametersInfo(SPI_GETWORKAREA,0,&workArea,0);
 		int x = workArea.left + RR_MAX(0,workArea.right-workArea.left-buffer->getWidth())/2 + dx;
 		int y = workArea.top + RR_MAX(0,workArea.bottom-workArea.top-buffer->getHeight())/2 + dy;
-		hWnd = CreateWindowEx(WS_EX_LAYERED|WS_EX_TOPMOST,TEXT("Splash"),TEXT("Splash"),WS_POPUPWINDOW|WS_VISIBLE,x,y,buffer->getWidth(),buffer->getHeight(),NULL,NULL,NULL,NULL);
+		hWnd = CreateWindowEx(WS_EX_LAYERED|WS_EX_TOPMOST,TEXT("Splash"),TEXT("Splash"),WS_POPUPWINDOW|WS_VISIBLE,x,y,buffer->getWidth(),buffer->getHeight(),nullptr,nullptr,nullptr,nullptr);
 		if (!hWnd)
 		{
 			RR_ASSERT(0);
@@ -132,7 +132,7 @@ public:
 		}
 
 		// copy image to windows
-		HDC hdcScreen = GetDC(NULL);
+		HDC hdcScreen = GetDC(nullptr);
 		HDC hdcBackBuffer = CreateCompatibleDC(hdcScreen);
 		HBITMAP hbmBackBuffer = CreateCompatibleBitmap(hdcScreen, buffer->getWidth(), buffer->getHeight());
 		HGDIOBJ hbmOld = SelectObject(hdcBackBuffer, hbmBackBuffer);
@@ -176,10 +176,10 @@ public:
 		bf.SourceConstantAlpha = 255;
 		bf.BlendFlags = 0;
 		bf.BlendOp = AC_SRC_OVER;
-		UpdateLayeredWindow(hWnd, NULL, NULL, &size, hdcBackBuffer, &ptSrc, 0, &bf, ULW_ALPHA);
+		UpdateLayeredWindow(hWnd, nullptr, nullptr, &size, hdcBackBuffer, &ptSrc, 0, &bf, ULW_ALPHA);
 		SelectObject(hdcBackBuffer, hbmOld);
 		DeleteDC(hdcBackBuffer);
-		_beginthread(windowThreadFunc,0,NULL);
+		_beginthread(windowThreadFunc,0,nullptr);
 		g_alphaSplashOn = true;
 
 		delete buffer;
@@ -194,7 +194,7 @@ private:
 	static void windowThreadFunc(void* instanceData)
 	{
 		MSG msg;
-		while (GetMessage(&msg,NULL,0,0))
+		while (GetMessage(&msg,nullptr,0,0))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
@@ -210,14 +210,14 @@ class AlphaSplashScreen
 public:
 	AlphaSplashScreen(const wxString& filename, bool evenIfAlphaIgnored, int dx=0, int dy=0)
 	{
-		splash = NULL;
+		splash = nullptr;
 		if (!evenIfAlphaIgnored)
 			return;
 		wxImage* image = loadImage(filename);
 		if (!image)
 			return;
 		wxBitmap bitmap(*image);
-		splash = new wxSplashScreen(bitmap,wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT,600000,NULL,-1,wxDefaultPosition,wxDefaultSize,wxNO_BORDER|wxSTAY_ON_TOP);
+		splash = new wxSplashScreen(bitmap,wxSPLASH_CENTRE_ON_SCREEN|wxSPLASH_TIMEOUT,600000,nullptr,-1,wxDefaultPosition,wxDefaultSize,wxNO_BORDER|wxSTAY_ON_TOP);
 	}
 	~AlphaSplashScreen()
 	{
@@ -398,9 +398,9 @@ void SVFrame::UpdateEverything()
 	LogWithAbort logWithAbort(this,nextCanvas->solver,_("Loading scene..."));
 
 	// stop showing properties of stuff we are going to delete
-	m_objectProperties->setObject(NULL,0);
-	m_lightProperties->setLight(NULL,0);
-	m_materialProperties->setMaterial(NULL,NULL,0,rr::RRVec2(0));
+	m_objectProperties->setObject(nullptr,0);
+	m_lightProperties->setLight(nullptr,0);
+	m_materialProperties->setMaterial(nullptr,nullptr,0,rr::RRVec2(0));
 
 	bool oldReleaseResources = svs.releaseResources;
 	svs.releaseResources = true; // we are not returning yet, we should shutdown
@@ -411,10 +411,10 @@ void SVFrame::UpdateEverything()
 	}
 	svs.releaseResources = oldReleaseResources;
 
-	// initialInputSolver may be changed only if canvas is NULL
-	// we NULL it to avoid rendering solver contents again (new scene was opened)
+	// initialInputSolver may be changed only if canvas is nullptr
+	// we nullptr it to avoid rendering solver contents again (new scene was opened)
 	// it has also minor drawback: initialInputSolver->abort will be ignored
-	if (!firstUpdate) svs.initialInputSolver = NULL;
+	if (!firstUpdate) svs.initialInputSolver = nullptr;
 
 	// creates canvas
 	m_canvas = nextCanvas;
@@ -449,7 +449,7 @@ void SVFrame::UpdateEverything()
 	// start playing videos
 	m_canvas->configureVideoPlayback(svs.playVideos);
 
-	OnAnyChange(ES_MISC,NULL,NULL,0);
+	OnAnyChange(ES_MISC,nullptr,nullptr,0);
 
 	m_canvas->renderEmptyFrames = 1;
 }
@@ -503,21 +503,21 @@ SVFrame* SVFrame::Create(SceneViewerStateEx& svs)
 	// workaround for http://trac.wxwidgets.org/ticket/11787
 	// fixed after 2.9.1, in 65666 (small detail finished in 65787)
 	// solves crash in second Toolbench Relighting 
-	wxPGEditor_TextCtrl = NULL;
-	wxPGEditor_Choice = NULL;
-	wxPGEditor_ComboBox = NULL;
-	wxPGEditor_TextCtrlAndButton = NULL;
-	wxPGEditor_CheckBox = NULL;
-	wxPGEditor_ChoiceAndButton = NULL;
-//	wxPGEditor_SpinCtrl = NULL;
-//	wxPGEditor_DatePickerCtrl = NULL;
+	wxPGEditor_TextCtrl = nullptr;
+	wxPGEditor_Choice = nullptr;
+	wxPGEditor_ComboBox = nullptr;
+	wxPGEditor_TextCtrlAndButton = nullptr;
+	wxPGEditor_CheckBox = nullptr;
+	wxPGEditor_ChoiceAndButton = nullptr;
+//	wxPGEditor_SpinCtrl = nullptr;
+//	wxPGEditor_DatePickerCtrl = nullptr;
 
 
 	// open at ~50% of screen size
 	int x,y,width,height;
 	::wxClientDisplayRect(&x,&y,&width,&height);
 	const int border = (width+height)/25;
-	return new SVFrame(NULL, APP_NAME+" - "+_("loading"), wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border), svs);
+	return new SVFrame(nullptr, APP_NAME+" - "+_("loading"), wxPoint(x+2*border,y+border), wxSize(width-4*border,height-2*border), svs);
 }
 
 SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos, const wxSize& _size, SceneViewerStateEx& _svs)
@@ -525,18 +525,18 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 {
 	fullyInited = false;
 	updateMenuBarNeeded = false;
-	m_canvas = NULL;
-	m_canvasWindow = NULL;
+	m_canvas = nullptr;
+	m_canvasWindow = nullptr;
 	LogWithAbort::logIsOn = !svs.openLogWindows;
 
 	// zero at least the most important variables, before starting dangerous work
-	m_userProperties = NULL;
-	m_sceneProperties = NULL;
-	m_giProperties = NULL;
-	m_lightProperties = NULL;
-	m_objectProperties = NULL;
-	m_materialProperties = NULL;
-	m_sceneTree = NULL;
+	m_userProperties = nullptr;
+	m_sceneProperties = nullptr;
+	m_giProperties = nullptr;
+	m_lightProperties = nullptr;
+	m_objectProperties = nullptr;
+	m_materialProperties = nullptr;
+	m_sceneTree = nullptr;
 
 #ifdef NDEBUG
 	rr::RRTime splashStart;
@@ -751,7 +751,7 @@ void SVFrame::UpdateMenuBar()
 #endif
 	updateMenuBarNeeded = false;
 	wxMenuBar *menuBar = new wxMenuBar;
-	wxMenu *winMenu = NULL;
+	wxMenu *winMenu = nullptr;
 
 	// File...
 	if (rr::RRScene::getSupportedLoaderExtensions())
@@ -894,7 +894,7 @@ void SVFrame::saveScreenshot(rr::RRBuffer* sshot)
 	// fix empty filename
 	if (userPreferences.sshotFilename.empty())
 	{
-		time_t t = time(NULL);
+		time_t t = time(nullptr);
 		userPreferences.sshotFilename += wxString::Format("screenshot%04d.jpg",(int)(t%10000));
 	}
 
@@ -910,7 +910,7 @@ void SVFrame::saveScreenshot(rr::RRBuffer* sshot)
 		{
 			// there is nothing like wxStandardPaths::Get().GetDesktopDir()
 			char screenshotFilename[1000]=".";
-			SHGetSpecialFolderPathA(NULL, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
+			SHGetSpecialFolderPathA(nullptr, screenshotFilename, CSIDL_DESKTOP, FALSE); // CSIDL_PERSONAL
 			tmp = screenshotFilename;
 		}
 #endif
@@ -921,7 +921,7 @@ void SVFrame::saveScreenshot(rr::RRBuffer* sshot)
 	// save
 	rr::RRBuffer::SaveParameters saveParameters;
 	saveParameters.jpegQuality = 100;
-	if (sshot->save(RR_WX2RR(finalFilename),NULL,&saveParameters))
+	if (sshot->save(RR_WX2RR(finalFilename),nullptr,&saveParameters))
 		rr::RRReporter::report(rr::INF2,"Saved %ls.\n",RR_WX2WCHAR(finalFilename));
 	else
 	{
@@ -1004,7 +1004,7 @@ bool SVFrame::saveScene(wxString sceneFilename)
 		scene.environment = m_canvas->solver->getEnvironment();
 		scene.cameras.push_back(svs.camera);
 		result = scene.save(RR_WX2RR(sceneFilename));
-		scene.environment = NULL; // would be deleted in destructor otherwise
+		scene.environment = nullptr; // would be deleted in destructor otherwise
 	}
 	return result;
 }
@@ -1142,7 +1142,7 @@ save_scene_as:
 			{
 				// Grab content of backbuffer to sshot.
 				wxSize size = m_canvasWindow->GetSize();
-				rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,NULL);
+				rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,size.x,size.y,1,rr::BF_RGB,true,nullptr);
 				glReadBuffer(GL_BACK);
 				rr_gl::readPixelsToBuffer(sshot);
 					//unsigned char* pixels = sshot->lock(rr::BL_DISCARD_AND_WRITE);
@@ -1190,7 +1190,7 @@ save_scene_as:
 
 				// 2. alloc temporary textures
 				//    (it must have alpha, because mirror needs render target with alpha. radeons work even without alpha, geforces need it)
-				rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_RGBA,true,NULL);
+				rr::RRBuffer* bufColor = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_RGBA,true,nullptr);
 				rr::RRBuffer* bufDepth = rr::RRBuffer::create(rr::BT_2D_TEXTURE,bigSize.x,bigSize.y,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 				rr_gl::Texture texColor(bufColor,false,false);
 				rr_gl::Texture texDepth(bufDepth,false,false);
@@ -1232,7 +1232,7 @@ save_scene_as:
 					m_canvas->Paint(true,"");
 
 					// 7. downscale to sshot
-					rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,smallSize.x,smallSize.y,1,rr::BF_RGB,true,NULL);
+					rr::RRBuffer* sshot = rr::RRBuffer::create(rr::BT_2D_TEXTURE,smallSize.x,smallSize.y,1,rr::BF_RGB,true,nullptr);
 					unsigned char* pixelsBig = bufColor->lock(rr::BL_DISCARD_AND_WRITE);
 					glPixelStorei(GL_PACK_ALIGNMENT,1);
 					glReadPixels(0,0,bigSize.x,bigSize.y,GL_RGBA,GL_UNSIGNED_BYTE,pixelsBig);
@@ -1297,7 +1297,7 @@ save_scene_as:
 					break;
 				if (dialog.GetPath().empty())
 					break;
-				rr::RRMaterials* materials = rr::RRMaterials::load(RR_WX2RR(dialog.GetPath()),NULL);
+				rr::RRMaterials* materials = rr::RRMaterials::load(RR_WX2RR(dialog.GetPath()),nullptr);
 				if (materials)
 				{
 					if (materials->size())
@@ -1343,13 +1343,13 @@ save_scene_as:
 
 		//////////////////////////////// VIEW ///////////////////////////////
 
-		case ME_VIEW_TOP:    svs.camera.setView(rr::RRCamera::TOP   ,solver,NULL,NULL); break;
-		case ME_VIEW_BOTTOM: svs.camera.setView(rr::RRCamera::BOTTOM,solver,NULL,NULL); break;
-		case ME_VIEW_LEFT:   svs.camera.setView(rr::RRCamera::LEFT  ,solver,NULL,NULL); break;
-		case ME_VIEW_RIGHT:  svs.camera.setView(rr::RRCamera::RIGHT ,solver,NULL,NULL); break;
-		case ME_VIEW_FRONT:  svs.camera.setView(rr::RRCamera::FRONT ,solver,NULL,NULL); break;
-		case ME_VIEW_BACK:   svs.camera.setView(rr::RRCamera::BACK  ,solver,NULL,NULL); break;
-		case ME_VIEW_RANDOM: svs.camera.setView(rr::RRCamera::RANDOM,solver,NULL,NULL); svs.cameraMetersPerSecond = svs.camera.getFar()*0.08f; break;
+		case ME_VIEW_TOP:    svs.camera.setView(rr::RRCamera::TOP   ,solver,nullptr,nullptr); break;
+		case ME_VIEW_BOTTOM: svs.camera.setView(rr::RRCamera::BOTTOM,solver,nullptr,nullptr); break;
+		case ME_VIEW_LEFT:   svs.camera.setView(rr::RRCamera::LEFT  ,solver,nullptr,nullptr); break;
+		case ME_VIEW_RIGHT:  svs.camera.setView(rr::RRCamera::RIGHT ,solver,nullptr,nullptr); break;
+		case ME_VIEW_FRONT:  svs.camera.setView(rr::RRCamera::FRONT ,solver,nullptr,nullptr); break;
+		case ME_VIEW_BACK:   svs.camera.setView(rr::RRCamera::BACK  ,solver,nullptr,nullptr); break;
+		case ME_VIEW_RANDOM: svs.camera.setView(rr::RRCamera::RANDOM,solver,nullptr,nullptr); svs.cameraMetersPerSecond = svs.camera.getFar()*0.08f; break;
 
 
 		//////////////////////////////// ENVIRONMENT ///////////////////////////////
@@ -1388,7 +1388,7 @@ reload_skybox:
 				}
 				else
 				{
-					solver->setEnvironment(NULL,NULL);
+					solver->setEnvironment(nullptr,nullptr);
 				}
 			}
 			break;
@@ -1465,7 +1465,7 @@ reload_skybox:
 				}
 
 				rr::RRVec4 aabbMin,aabbMax;
-				solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
+				solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,nullptr);
 				aabbMin.y = aabbMax.y = svs.camera.pos.y;
 				aabbMin.w = aabbMax.w = 0;
 				delete m_canvas->lightField;
@@ -1482,7 +1482,7 @@ reload_skybox:
 				}
 
 				rr::RRVec4 aabbMin,aabbMax;
-				solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);
+				solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,nullptr);
 				aabbMin.w = aabbMax.w = 0;
 				delete m_canvas->lightField;
 				m_canvas->lightField = rr::RRLightField::create(aabbMin,aabbMax-aabbMin,1);
@@ -1506,7 +1506,7 @@ reload_skybox:
 						params.debugTriangle = (m_canvas->centerTexel==UINT_MAX)?m_canvas->centerTriangle:UINT_MAX;
 						params.debugRay = SVRayLog::push_back;
 						SVRayLog::size = 0;
-						solver->updateLightmaps(svs.layerBakedLightmap,-1,-1,&params,NULL);
+						solver->updateLightmaps(svs.layerBakedLightmap,-1,-1,&params,nullptr);
 					}
 				}
 				else
@@ -1526,7 +1526,7 @@ reload_skybox:
 			{
 				// wxFULLSCREEN_ALL does not work for menu (probably wx error), hide it manualy
 				wxMenuBar* oldMenuBar = GetMenuBar();
-				SetMenuBar(NULL);
+				SetMenuBar(nullptr);
 				delete oldMenuBar;
 			}
 			ShowFullScreen(svs.fullscreen,wxFULLSCREEN_ALL);
@@ -1592,7 +1592,7 @@ reload_skybox:
 					rr::RRReporter::report(rr::WARN,"With Global illumination/sRGB correctness unchecked, lighting differes from pathtracer a lot.\n");
 				_chdir("../../data/scenes/SmallLuxGpu");
 				saveScene("scene.scn");
-				_spawnl(_P_NOWAIT,"../../../bin/win32/slg4.exe","../../../bin/win32/slg4.exe","scene.cfg",NULL);
+				_spawnl(_P_NOWAIT,"../../../bin/win32/slg4.exe","../../../bin/win32/slg4.exe","scene.cfg",nullptr);
 #if defined(_M_X64) || defined(_LP64)
 				_chdir("../../../bin/x64");
 #else
@@ -1640,7 +1640,7 @@ reload_skybox:
 		case ME_ABOUT:
 			{
 #ifdef __WXMAC__
-				wxIcon* icon = NULL; // icon asserts in wx 2.9.1 @ OSX 10.6
+				wxIcon* icon = nullptr; // icon asserts in wx 2.9.1 @ OSX 10.6
 #else
 				wxIcon* icon = loadIcon(svs.pathToMaps+"sv_logo.png");
 #endif
@@ -1659,7 +1659,7 @@ reload_skybox:
 
 	UpdateMenuBar();
 
-	OnAnyChange(ES_MENU,NULL,NULL,eventCode);
+	OnAnyChange(ES_MENU,nullptr,nullptr,eventCode);
 }
 	catch(...)
 	{
@@ -1729,7 +1729,7 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 						{
 							hitTriangle = m_canvas->solver->getMultiObject()->getCollider()->getMesh()->getPostImportTriangle(rr::RRMesh::PreImportNumber(entity.index,0));
 						}
-						m_materialProperties->setMaterial(m_canvas->solver,NULL,hitTriangle,rr::RRVec2(0));
+						m_materialProperties->setMaterial(m_canvas->solver,nullptr,hitTriangle,rr::RRVec2(0));
 					}
 					else
 					// end of optional code
@@ -1787,7 +1787,7 @@ void SVFrame::updateAllPanels()
 		// update selected light
 		if (!validateIndex(svs.selectedLightIndex,m_canvas->solver->getLights().size()))
 		{
-			m_lightProperties->setLight(NULL,svs.precision);
+			m_lightProperties->setLight(nullptr,svs.precision);
 			if (m_canvas->selectedType==ST_LIGHT)
 				m_canvas->selectedType = ST_CAMERA;
 		}
@@ -1799,7 +1799,7 @@ void SVFrame::updateAllPanels()
 		// update selected object
 		if (!validateIndex(svs.selectedObjectIndex,m_canvas->solver->getStaticObjects().size()+m_canvas->solver->getDynamicObjects().size()))
 		{
-			m_objectProperties->setObject(NULL,svs.precision);
+			m_objectProperties->setObject(nullptr,svs.precision);
 		}
 		else
 		{

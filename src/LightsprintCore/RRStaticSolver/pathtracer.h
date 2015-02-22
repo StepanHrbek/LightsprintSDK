@@ -44,15 +44,15 @@ public:
 		qualityForPointMaterials = _qualityForPointMaterials;
 		qualityForInterpolation = _qualityForInterpolation;
 		staticSceneContainsLods = _staticSceneContainsLods;
-		shooterObject = NULL;
+		shooterObject = nullptr;
 		shooterTriangleIndex = UINT_MAX; // set manually before intersect
 
 		// gathering hemisphere
-		triangle = NULL;
+		triangle = nullptr;
 
 		// gathering light
-		light = NULL;
-		singleObjectReceiver = NULL;
+		light = nullptr;
+		singleObjectReceiver = nullptr;
 	}
 
 	void setShooterTriangle(const RRObject* _object, unsigned _triangle)
@@ -78,7 +78,7 @@ public:
 	void setHemisphere(const RRStaticSolver* _staticSolver)
 	{
 		COLLISION_LOG(log<<"setHemisphere()\n");
-		triangle = _staticSolver ? _staticSolver->scene->object->triangle : NULL;
+		triangle = _staticSolver ? _staticSolver->scene->object->triangle : nullptr;
 	}
 
 	//! Configures handler for gathering illumination from light (collides when any side has renderFrom).
@@ -106,7 +106,7 @@ public:
 		ray.rayFlags |= RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_TRIANGLE|RRRay::FILL_POINT2D;
 
 		// gathering hemisphere
-		firstContactMaterial = NULL;
+		firstContactMaterial = nullptr;
 
 		// gathering light
 		visibility = RRVec3(1);
@@ -177,8 +177,8 @@ public:
 		}
 
 		const RRMaterial* triangleMaterial = (triangle && !hitObject->isDynamic) // we can access solver's material only for static objects
-			// gathering hemisphere: don't collide when triangle has surface=NULL (triangle was rejected by setGeometry, everything should work as if it does not exist)
-			? triangle[ray.hitTriangle].surface // read from rrcore, faster than hitObject->getTriangleMaterial(ray.hitTriangle,NULL,NULL)
+			// gathering hemisphere: don't collide when triangle has surface=nullptr (triangle was rejected by setGeometry, everything should work as if it does not exist)
+			? triangle[ray.hitTriangle].surface // read from rrcore, faster than hitObject->getTriangleMaterial(ray.hitTriangle,nullptr,nullptr)
 			// gathering light: don't collide when object has shadow casting disabled
 			: hitObject->getTriangleMaterial(ray.hitTriangle,light,singleObjectReceiver);
 		if (!triangleMaterial)
@@ -241,10 +241,10 @@ public:
 
 	virtual bool done()
 	{
-		COLLISION_LOG(log<<"done()="<<(!light?firstContactMaterial!=NULL:visibility==RRVec3(0))<<"\n\n");
+		COLLISION_LOG(log<<"done()="<<(!light?firstContactMaterial!=nullptr:visibility==RRVec3(0))<<"\n\n");
 		return !light
 			// gathering hemisphere
-			? firstContactMaterial!=NULL
+			? firstContactMaterial!=nullptr
 			// gathering light
 			: visibility==RRVec3(0);
 	}

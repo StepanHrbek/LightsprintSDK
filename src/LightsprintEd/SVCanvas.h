@@ -42,11 +42,11 @@ namespace rr_ed
 
 		void recalculateIconSizeAndPosition();
 
-		//! Adds scene to solver or removes it from solver. If scene is NULL, just reloads current data in solver.
+		//! Adds scene to solver or removes it from solver. If scene is nullptr, just reloads current data in solver.
 		//! - scene,true = add scene, setStaticObjects, reallocateBuffersForRealtimeGI, cleanup
 		//! - scene,false = remove scene, setStaticObjects, cleanup
-		//! - NULL,true = setStaticObjects, reallocateBuffersForRealtimeGI, cleanup
-		//! - NULL,false = cleanup
+		//! - nullptr,true = setStaticObjects, reallocateBuffersForRealtimeGI, cleanup
+		//! - nullptr,false = cleanup
 		void addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjectsAlreadyModified);
 
 		void reallocateBuffersForRealtimeGI(bool reallocateAlsoVbuffers);
@@ -171,7 +171,7 @@ namespace rr_ed
 	class CanvasWindow : public wxGLCanvas
 	{
 	public:
-		SVCanvas* svcanvas; // possibly NULL
+		SVCanvas* svcanvas; // possibly nullptr
 
 		CanvasWindow(class SVFrame* svframe);
 		PASS_EVENT(void, OnPaint, wxPaintEvent);

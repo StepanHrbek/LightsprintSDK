@@ -81,7 +81,7 @@ void setupLights(rr_gl::RRSolverGL* _solver, const rr::RRCamera* _observer, floa
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::RRSolverGL*  solver = NULL;
+rr_gl::RRSolverGL*  solver = nullptr;
 rr::RRCamera               eye(rr::RRVec3(-1.856f,1.440f,2.097f), rr::RRVec3(2.404f,0.02f,0), 1.3f,90,0.1f,1000);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
@@ -117,7 +117,7 @@ static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVe
 	if (!object)
 		return;
 	rr::RRVec3 mini,center;
-	object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+	object->getCollider()->getMesh()->getAABB(&mini,nullptr,&center);
 	float sz = sin(RR_DEG2RAD(rotYZ[1]));
 	float cz = cos(RR_DEG2RAD(rotYZ[1]));
 	float sy = sin(RR_DEG2RAD(rotYZ[0]));
@@ -244,7 +244,7 @@ void display(void)
 
 	// move characters
 	rr::RRVec3 aabbMin,aabbMax; // AABB of static scene
-	solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,NULL);	
+	solver->getMultiObject()->getCollider()->getMesh()->getAABB(&aabbMin,&aabbMax,nullptr);	
 	for (unsigned i=0;i<DYNAMIC_OBJECTS;i++)
 	{
 		float a = 1;
@@ -266,7 +266,7 @@ void display(void)
 	//rr::RRReportInterval report2(rr::INF1,"final...\n");
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	// configure plugins
-	rr_gl::PluginParamsSky ppSky(NULL,solver,1);
+	rr_gl::PluginParamsSky ppSky(nullptr,solver,1);
 	rr_gl::PluginParamsScene ppScene(&ppSky,solver);
 	ppScene.solver = solver;
 	ppScene.lights = &solver->realtimeLights;
@@ -379,7 +379,7 @@ int main(int argc, char** argv)
 	rr::RRScene scene((argc>1)?argv[1]:DEFAULT_SCENE);
 	if (!scene.objects.size())
 		error("No objects in scene.",false);
-	solver->setStaticObjects(scene.objects, NULL);
+	solver->setStaticObjects(scene.objects, nullptr);
 	groundLevel = solver->getMultiObject()->getCollider()->getMesh()->findGroundLevel();
 
 	// init environment
@@ -397,8 +397,8 @@ int main(int argc, char** argv)
 	}
 
 	// auto-set camera, speed
-	//srand((unsigned)time(NULL));
-	eye.setView(rr::RRCamera::RANDOM,solver,NULL,NULL);
+	//srand((unsigned)time(nullptr));
+	eye.setView(rr::RRCamera::RANDOM,solver,nullptr,nullptr);
 	cameraSpeed = eye.getFar()*CAM_SPEED;
 
 	// init dynamic objects
@@ -416,7 +416,7 @@ int main(int argc, char** argv)
 	for (unsigned i=0;i<DYNAMIC_OBJECTS;i++)
 	{
 		bool aborting = false;
-		rr::RRObject* object = characters[i%9]->objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
+		rr::RRObject* object = characters[i%9]->objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,nullptr);
 		object->isDynamic = true;
 		dynamicObjects.push_back(object);
 	}

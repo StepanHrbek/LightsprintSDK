@@ -168,7 +168,7 @@ wxTreeItemId SVSceneTree::entityIdToItemId(EntityId entity) const
 
 EntityId SVSceneTree::itemIdToEntityId(wxTreeItemId item) const
 {
-	ItemData* data = item.IsOk() ? (ItemData*)GetItemData(item) : NULL;
+	ItemData* data = item.IsOk() ? (ItemData*)GetItemData(item) : nullptr;
 	return data ? data->entityId : EntityId();
 }
 
@@ -194,7 +194,7 @@ unsigned SVSceneTree::manipulateEntity(EntityId entity, const rr::RRMatrix3x4& t
 					{
 						// preTransform = contains scale only, apply scale before worldMatrix, but preserve world center
 						rr::RRVec3 localCenter(0);
-						object->getCollider()->getMesh()->getAABB(NULL,NULL,&localCenter);
+						object->getCollider()->getMesh()->getAABB(nullptr,nullptr,&localCenter);
 						matrix = object->getWorldMatrixRef() * transformation.centeredAround(localCenter);
 					}
 					object->setWorldMatrix(&matrix);
@@ -406,7 +406,7 @@ void SVSceneTree::OnSelChanged(wxTreeEvent& event)
 	callDepth--;	
 	if (needsUpdateContent)
 	{
-//		updateContent(NULL);
+//		updateContent(nullptr);
 	}
 }
 
@@ -552,7 +552,7 @@ rr::RRObject* SVSceneTree::addMesh(rr::RRMesh* mesh, wxString name, bool inFront
 {
 	// this leaks memory, but it is not called often = not serious
 	bool aborting = false;
-	rr::RRCollider* collider = rr::RRCollider::create(mesh,NULL,rr::RRCollider::IT_LINEAR,aborting);
+	rr::RRCollider* collider = rr::RRCollider::create(mesh,nullptr,rr::RRCollider::IT_LINEAR,aborting);
 	rr::RRObject* object = new rr::RRObject;
 	object->setCollider(collider);
 	rr::RRMaterial* material = new rr::RRMaterial;
@@ -643,7 +643,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					scene.objects = allObjects;
 					scene.lights = solver->getLights();
 					scene.normalizeUnits(currentUnitLengthInMeters);
-					svframe->m_canvas->addOrRemoveScene(NULL,true,true);
+					svframe->m_canvas->addOrRemoveScene(nullptr,true,true);
 				}
 			}
 			break;
@@ -654,7 +654,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				scene.objects = allObjects;
 				scene.lights = solver->getLights();
 				scene.normalizeUpAxis(currentUpAxis);
-				svframe->m_canvas->addOrRemoveScene(NULL,true,true);
+				svframe->m_canvas->addOrRemoveScene(nullptr,true,true);
 				currentUpAxis = 2-currentUpAxis;
 			}
 			break;
@@ -669,7 +669,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			if (solver)
 			{
 				rr::RRLights newList = solver->getLights();
-				rr::RRLight* newLight = NULL;
+				rr::RRLight* newLight = nullptr;
 				switch (actionCode)
 				{
 					case CM_LIGHT_DIR: newLight = rr::RRLight::createDirectionalLight(rr::RRVec3(-1),rr::RRVec3(1),true); newLight->name = "Sun"; break;
@@ -740,7 +740,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					// so it's better if following setStaticObjects is not aborted
 					solver->aborting = false;
 
-					svframe->m_canvas->addOrRemoveScene(NULL,true,containsStaticObject(selectedObjectsAndInstances)); // calls svframe->updateAllPanels();
+					svframe->m_canvas->addOrRemoveScene(nullptr,true,containsStaticObject(selectedObjectsAndInstances)); // calls svframe->updateAllPanels();
 				}
 			}
 			break;
@@ -793,8 +793,8 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 								h = RR_MAX(1,multiplier[mapType] * arrays->unwrapHeight);
 							}
 							selectedObjects[i]->illumination.getLayer(tmpLayer) = w*h
-								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,w,h,1,ldm?rr::BF_RGB:rr::BF_RGBF,true,NULL) // A is only for debugging, F prevents clamping to 1 in very bright regions
-								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,selectedObjects[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+								? rr::RRBuffer::create(rr::BT_2D_TEXTURE,w,h,1,ldm?rr::BF_RGB:rr::BF_RGBF,true,nullptr) // A is only for debugging, F prevents clamping to 1 in very bright regions
+								: rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,selectedObjects[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,nullptr);
 						}
 
 					// if in fireball mode, leave it, otherwise updateLightmaps() below fails
@@ -818,7 +818,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 #else
 						// bake in two steps, should produce the same results in the same time
 						// calculate indirect illumination in solver
-						solver->updateLightmaps(-1,-1,-1,&params,NULL);
+						solver->updateLightmaps(-1,-1,-1,&params,nullptr);
 
 						// build direct illumination
 						params.useCurrentSolution = true;
@@ -891,7 +891,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.65f),rr::RRVec4(0.65f)); // 0.65*typical materials = average color in LDM around 0.5
 						solver->setEnvironment(newEnv);
 						solver->updateLightmaps(tmpLayer,-1,-1,&params,&svs.lightmapFilteringParameters);
-						solver->setEnvironment(oldEnv,NULL,svs.skyboxRotationRad);
+						solver->setEnvironment(oldEnv,nullptr,svs.skyboxRotationRad);
 						delete newEnv;
 
 						// save temp layer
@@ -903,7 +903,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 							{
 								delete selectedObjects[i]->illumination.getLayer(svs.layerBakedLDM);
 								selectedObjects[i]->illumination.getLayer(svs.layerBakedLDM) = selectedObjects[i]->illumination.getLayer(tmpLayer);
-								selectedObjects[i]->illumination.getLayer(tmpLayer) = NULL;
+								selectedObjects[i]->illumination.getLayer(tmpLayer) = nullptr;
 							}
 
 						// make results visible
@@ -1009,7 +1009,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 							uvDistance,
 							true);
 
-						svframe->m_canvas->addOrRemoveScene(NULL,true,containsStaticObject(selectedObjectsAndInstances)); // calls svframe->updateAllPanels();
+						svframe->m_canvas->addOrRemoveScene(nullptr,true,containsStaticObject(selectedObjectsAndInstances)); // calls svframe->updateAllPanels();
 					}
 				}
 			}
@@ -1026,10 +1026,10 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				for (unsigned objectIndex=0;objectIndex<allObjects.size();objectIndex++)
 					if (contextEntityIds.find(EntityId(ST_OBJECT,objectIndex))==contextEntityIds.end())
 						newObjects.push_back(allObjects[objectIndex]);
-				solver->setStaticObjects(newObjects,NULL);
+				solver->setStaticObjects(newObjects,nullptr);
 				solver->setDynamicObjects(newObjects);
 
-				svframe->m_canvas->addOrRemoveScene(NULL,false,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
+				svframe->m_canvas->addOrRemoveScene(nullptr,false,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
 			}
 			break;
 		case CM_OBJECTS_TANGENTS:
@@ -1038,7 +1038,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				LogWithAbort logWithAbort(this,solver,_("Building tangents..."));
 
 				selectedObjects.buildTangents(true);
-				svframe->m_canvas->addOrRemoveScene(NULL,true,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
+				svframe->m_canvas->addOrRemoveScene(nullptr,true,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
 			}
 			break;
 
@@ -1047,7 +1047,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			{
 				for (unsigned i=0;i<selectedObjects.size();i++)
 					selectedObjects[i]->isDynamic = actionCode==CM_OBJECTS_DYNAMIC;
-				svframe->m_canvas->addOrRemoveScene(NULL,true,true);
+				svframe->m_canvas->addOrRemoveScene(nullptr,true,true);
 			}
 			break;
 
@@ -1100,7 +1100,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					selectedObjects.layerDeleteFromDisk(LAYER_PREFIX,LDM_POSTFIX);
 				}
 
-				svframe->m_canvas->addOrRemoveScene(NULL,true,containsStaticObject(selectedObjectsAndInstances)); // calls svframe->updateAllPanels(); // necessary at least after deleting empty facegroups
+				svframe->m_canvas->addOrRemoveScene(nullptr,true,containsStaticObject(selectedObjectsAndInstances)); // calls svframe->updateAllPanels(); // necessary at least after deleting empty facegroups
 			}
 			break;
 
@@ -1116,7 +1116,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 					scene.cameras.push_back(svs.camera);
 					scene.environment = solver->getEnvironment();
 					scene.save(RR_WX2RR(selectedFilename));
-					scene.environment = NULL; // would be deleted in destructor otherwise
+					scene.environment = nullptr; // would be deleted in destructor otherwise
 				}
 			}
 			break;
@@ -1180,10 +1180,10 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 							svs.playVideos = false;
 							svframe->m_canvas->configureVideoPlayback(false);
 						}
-						solver->setStaticObjects(newList,NULL);
+						solver->setStaticObjects(newList,nullptr);
 						solver->setDynamicObjects(newList);
 
-						svframe->m_canvas->addOrRemoveScene(NULL,false,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
+						svframe->m_canvas->addOrRemoveScene(nullptr,false,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
 					}
 				}
 
@@ -1192,7 +1192,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			}
 			break;
 	}
-	svframe->OnAnyChange(SVFrame::ES_CONTEXT_MENU,NULL,NULL,actionCode);
+	svframe->OnAnyChange(SVFrame::ES_CONTEXT_MENU,nullptr,nullptr,actionCode);
 }
 
 

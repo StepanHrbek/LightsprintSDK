@@ -7,7 +7,7 @@
 // RealtimeLight, provides multiple generated instances of light for area light simulation.
 // --------------------------------------------------------------------------
 
-#include <cstring> // NULL
+#include <cstring> // nullptr
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRSolver.h"
@@ -25,8 +25,8 @@ namespace rr_gl
 	{
 		RR_ASSERT(&_rrlight);
 
-		//smallMapGPU = Texture::create(NULL,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
-		smallMapCPU = NULL;
+		//smallMapGPU = Texture::create(nullptr,w,h,false,Texture::TF_RGBA,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		smallMapCPU = nullptr;
 		numTriangles = 0;
 		dirtyShadowmap = true;
 		dirtyGI = true;
@@ -71,7 +71,7 @@ namespace rr_gl
 			if (solver)
 			{
 				rr::RRVec3 sceneMin, sceneMax;
-				solver->getAABB(&sceneMin,&sceneMax,NULL);
+				solver->getAABB(&sceneMin,&sceneMax,nullptr);
 				csmSceneSize = sceneMax-sceneMin;
 				getCamera()->setPosition((sceneMax+sceneMin)/2);
 				getCamera()->setRange(-0.5f*csmSceneSize.length(),0.5f*csmSceneSize.length());
@@ -90,7 +90,7 @@ namespace rr_gl
 		// Ignore projected texture for point and dir lights.
 		if (getRRLight().type!=rr::RRLight::SPOT)
 		{
-			return NULL;
+			return nullptr;
 		}
 		// Automatically dirty GI if texture changes.
 		rr::RRBuffer* buffer = getRRLight().projectedTexture;
@@ -181,16 +181,16 @@ namespace rr_gl
 		if (instance>=numShadowmaps)
 		{
 			RR_ASSERT(0);
-			return NULL;
+			return nullptr;
 		}
 		// resize vector if necessary
 		while (shadowmaps[c].size()<=instance)
-			shadowmaps[c].push_back(NULL);
+			shadowmaps[c].push_back(nullptr);
 		// delete shadowmap if size does not match
 		Texture*& shadowmap = shadowmaps[c][instance];
 		if (shadowmap && (shadowmap->getBuffer()->getWidth()!=rrlight.rtShadowmapSize || shadowmap->getBuffer()->getHeight()!=rrlight.rtShadowmapSize))
 			RR_SAFE_DELETE(shadowmap);
-		// allocate shadowmap if it is NULL
+		// allocate shadowmap if it is nullptr
 		if (!shadowmap)
 		{
 			shadowmap = Texture::createShadowmap(rrlight.rtShadowmapSize,rrlight.rtShadowmapSize,color);
@@ -344,7 +344,7 @@ namespace rr_gl
 					if (instance<6)
 					{
 						rr::RRCamera::View views[6] = {rr::RRCamera::TOP,rr::RRCamera::BOTTOM,rr::RRCamera::FRONT,rr::RRCamera::BACK,rr::RRCamera::LEFT,rr::RRCamera::RIGHT};
-						light.setView(views[instance],NULL,NULL,NULL);
+						light.setView(views[instance],nullptr,nullptr,nullptr);
 						light.setOrthogonal(false);
 					}
 				}

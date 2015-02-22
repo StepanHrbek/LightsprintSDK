@@ -11,7 +11,7 @@
 
 LevelSetup::LevelSetup(const char* afilename)
 {
-	filename = NULL;
+	filename = nullptr;
 	scale = 1;
 	load(afilename);
 };
@@ -138,7 +138,7 @@ AnimationFrame* LevelSetup::getFrameByIndex(unsigned index)
 	if (index<frames.size())
 		return *getFrameIterByIndex(index);
 	else
-		return NULL;
+		return nullptr;
 }
 
 float LevelSetup::getFrameTime(unsigned index) const
@@ -170,7 +170,7 @@ float LevelSetup::getTotalTime() const
 const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)
 {
 	if (absSeconds<0)
-		return NULL;
+		return nullptr;
 	Frames::const_iterator i=frames.begin();
 	while (i!=frames.end() && (*i)->transitionToNextTime<absSeconds)
 	{
@@ -178,10 +178,10 @@ const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)
 		i++;
 	}
 	if (i==frames.end())
-		return NULL;
+		return nullptr;
 	Frames::const_iterator j = i; j++;
 	if (j==frames.end())
-		return NULL;
+		return nullptr;
 
 	// round absSeconds to nearest lower multiply of 1/60s to make light move in small steps, reduce number of shadowmap updates
 	float absSecondsRounded = unsigned(absSeconds*MAX_LIGHT_UPDATE_FREQUENCY)/float(MAX_LIGHT_UPDATE_FREQUENCY);

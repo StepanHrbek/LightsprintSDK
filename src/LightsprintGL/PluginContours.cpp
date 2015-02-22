@@ -27,7 +27,7 @@ public:
 	PluginRuntimeContours(const PluginCreateRuntimeParams& params)
 	{
 		bigDepth = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
-		contoursProgram = Program::create(NULL,rr::RRString(0,L"%lscontours.vs",params.pathToShaders.w_str()),rr::RRString(0,L"%lscontours.fs",params.pathToShaders.w_str()));
+		contoursProgram = Program::create(nullptr,rr::RRString(0,L"%lscontours.vs",params.pathToShaders.w_str()),rr::RRString(0,L"%lscontours.fs",params.pathToShaders.w_str()));
 	}
 
 	virtual ~PluginRuntimeContours()

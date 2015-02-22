@@ -64,7 +64,7 @@ namespace rr_ed
 	public:
 		SVSceneTree(SVFrame* svframe);
 
-		//! Updates whole tree contents. If solver is NULL, lights and objects are not updated.
+		//! Updates whole tree contents. If solver is nullptr, lights and objects are not updated.
 		void updateContent(rr_gl::RRSolverGL* solver);
 
 		//! Selects entity in tree, without changing anything outside tree.

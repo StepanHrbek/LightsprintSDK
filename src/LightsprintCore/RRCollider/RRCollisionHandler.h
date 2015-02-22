@@ -42,7 +42,7 @@ public:
 			return true;
 
 		RRPointMaterial pointMaterial;
-		objectToReadMaterialFrom->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,NULL,false,pointMaterial); // custom is sufficient, no colorSpace needed
+		objectToReadMaterialFrom->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,nullptr,false,pointMaterial); // custom is sufficient, no colorSpace needed
 		if ( (pointMaterial.sideBits[ray.hitFrontSide?0:1].renderFrom
 			 || (shadowRays && pointMaterial.sideBits[ray.hitFrontSide?1:0].renderFrom) // [#45] shadowRays collide with both sides
 			)

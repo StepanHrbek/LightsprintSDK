@@ -194,27 +194,27 @@ namespace rr
 	template IBP
 	PRIVATE BspTree* load(FILE *f)
 	{
-		if (!f) return NULL;
+		if (!f) return nullptr;
 		BspTree head;
 		size_t read = fread(&head,sizeof(head),1,f);
-		if (!read) return NULL;
+		if (!read) return nullptr;
 		fseek(f,-(int)sizeof(head),SEEK_CUR);
 		BspTree* tree = (BspTree*)malloc(head.bsp.size);
 		read = fread(tree,1,head.bsp.size,f);
 		if (read == head.bsp.size) return tree;
 		free(tree);
-		return NULL;
+		return nullptr;
 	}
 
 	template IBP
 	PRIVATE BspTree* load(const RRMesh* importer, bool& aborting, const char* cacheLocation, const char* ext, BuildParams* buildParams, IntersectLinear* intersector)
 	{
-		if (!intersector) return NULL;
-		if (!importer) return NULL;
+		if (!intersector) return nullptr;
+		if (!importer) return nullptr;
 		unsigned triangles = importer->getNumTriangles();
-		if (!triangles) return NULL;
-		if (!buildParams || buildParams->size<sizeof(BuildParams)) return NULL;
-		BspTree* tree = NULL;
+		if (!triangles) return nullptr;
+		if (!buildParams || buildParams->size<sizeof(BuildParams)) return nullptr;
+		BspTree* tree = nullptr;
 		RRString name = importer->getHash().getFileName(TREE_VERSION,cacheLocation,ext);
 
 		// try to load tree from disk
@@ -263,7 +263,7 @@ namespace rr
 					RRReporter::report(INF2,"%d degenerated triangles removed from collider.\n",obj.face_num-ii);
 				obj.face_num = ii;
 				RR_ASSERT(!tree);
-				createAndSaveBsp IBP2(&obj,aborting,buildParams,NULL,(void**)&tree); // failure -> tree stays NULL 
+				createAndSaveBsp IBP2(&obj,aborting,buildParams,nullptr,(void**)&tree); // failure -> tree stays nullptr 
 			}
 			else
 			{

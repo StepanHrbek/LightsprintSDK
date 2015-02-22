@@ -111,7 +111,7 @@ public:
 	//! \param collider
 	//!  Collider to be used for distance testing.
 	//! \param object
-	//!  Object to be used for material testing, may be NULL.
+	//!  Object to be used for material testing, may be nullptr.
 	//! \param numRays
 	//!  How many rays it shoots to measure distances. Higher = more accurate, but slower.
 	//!  0 for defaults (around 300 for pointlight, 100 for spotlight).

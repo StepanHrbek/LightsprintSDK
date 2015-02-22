@@ -99,8 +99,8 @@ public:
 
 	ExtraData()
 	{
-		currValue = NULL;
-		defferedValue = NULL;
+		currValue = nullptr;
+		defferedValue = nullptr;
 	}
 
 	virtual ~ExtraData()
@@ -110,18 +110,18 @@ public:
 
 	void elementData(const char* text, unsigned int length)
 	{
-		if(currValue != NULL)
+		if(currValue != nullptr)
 			error = !convertStringToFloat(text,length,*currValue);
 	}
 
 	void elementEnd(const char* name)
 	{
-		if(currValue != NULL && error)
+		if(currValue != nullptr && error)
 		{
 			RRReporter::report(WARN,"Extra '%s' was not of a convertable float value.\n",name);
 		}
 
-		currValue = NULL;
+		currValue = nullptr;
 	}
 };
 
@@ -137,7 +137,7 @@ public:
 
 	virtual void elementBegin(const char* name, const char* currentProfile, const GeneratedSaxParser::xmlChar** attributes)
 	{
-		currValue = NULL;
+		currValue = nullptr;
 
 		if(strcmp(name,"intensity")==0)
 			currValue = &intensity;
@@ -156,7 +156,7 @@ public:
 
 	virtual void elementBegin(const char* name, const char* currentProfile, const GeneratedSaxParser::xmlChar** attributes)
 	{
-		currValue = NULL;
+		currValue = nullptr;
 
 		// shared
 		if(strcmp(name,"double_sided")==0)
@@ -194,16 +194,16 @@ public:
 
 	virtual void elementBegin(const char* name, const char* currentProfile, const GeneratedSaxParser::xmlChar** attributes)
 	{
-		currValue = NULL;
+		currValue = nullptr;
 
 		// shared
 		if(strcmp(name,"double_sided")==0)
 			currValue = &double_sided;
 		else if(strcmp(name,"float")==0)
 		{
-			if(defferedValue != NULL)
+			if(defferedValue != nullptr)
 				currValue = defferedValue;
-			defferedValue = NULL;
+			defferedValue = nullptr;
 		}
 		else if(strcmp(name,"bump")==0)
 		{
@@ -236,8 +236,8 @@ public:
 
 	ExtraDataCallbackHandler()
 	{
-		currProfile = NULL;
-		currExtraData = NULL;
+		currProfile = nullptr;
+		currExtraData = nullptr;
 	}
 
 	virtual ~ExtraDataCallbackHandler()
@@ -262,7 +262,7 @@ public:
 				RR_ASSERT(false);
 			}
 
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -271,7 +271,7 @@ public:
 	{
 		ExtraData* extraData = getData( id, true );
 
-		if(extraData == NULL)
+		if(extraData == nullptr)
 		{
 			ExtraData* defaultData = new T();
 			mapExtra.insert( std::make_pair( id, defaultData ) );
@@ -288,7 +288,7 @@ public:
         COLLADAFW::Object* object )
 	{
 		// parse for extra elements that we have data structures for
-		currExtraData = NULL;
+		currExtraData = nullptr;
 		currProfile = profileName;
 
 		// v1.4 and v1.5 hashes for the following elements are the same
@@ -312,7 +312,7 @@ public:
 				break;
 		}
 
-		return (currExtraData != NULL);
+		return (currExtraData != nullptr);
 	}
 
 	virtual bool elementBegin( const GeneratedSaxParser::ParserChar* elementName, const GeneratedSaxParser::xmlChar** attributes)
@@ -392,9 +392,9 @@ public:
 
 	RRObjectsOpenCollada():RRObjects()
 	{
-		meshes = NULL;
-		materials = NULL;
-		colliders = NULL;
+		meshes = nullptr;
+		materials = nullptr;
+		colliders = nullptr;
 		numMaterials = 0;
 		numMeshes = 0;
 		nextMesh = 0;
@@ -409,23 +409,23 @@ public:
 
 		for (unsigned i=0;i<numMeshes;i++)
 		{
-			if(colliders[i] != NULL)
+			if(colliders[i] != nullptr)
 				delete colliders[i];
 		}
 
-		if(colliders != NULL)
+		if(colliders != nullptr)
 			delete [] colliders;
 
-		if(meshes != NULL)
+		if(meshes != nullptr)
 			delete [] meshes;
 
 		for (unsigned i=0;i<numMaterials;i++)
 		{
-			if(materials[i] != NULL)
+			if(materials[i] != nullptr)
 				delete materials[i];
 		}
 
-		if(materials != NULL)
+		if(materials != nullptr)
 			free(materials);
 	}
 };
@@ -519,7 +519,7 @@ struct MaterialBindingPlaceholder
 
 	MaterialBindingPlaceholder()
 	{
-		boundBindingArray = NULL;
+		boundBindingArray = nullptr;
 	}
 };
 
@@ -631,13 +631,13 @@ public:
 		objects = _objects;
 		lights = _lights;
 		textureLocator = _textureLocator;
-		instanceVisualScene = NULL;
+		instanceVisualScene = nullptr;
 		rescaleUnit = 1;
 	}
 
 	~RRWriterOpenCollada()
 	{
-		if(instanceVisualScene != NULL)
+		if(instanceVisualScene != nullptr)
 			delete instanceVisualScene;
 	}
 
@@ -701,7 +701,7 @@ public:
 			RRVec3 color = RRVec3((rr::RRReal)light.getColor().getRed(),(rr::RRReal)light.getColor().getGreen(),(rr::RRReal)light.getColor().getBlue()) * extraLight->intensity;
 			RRVec4 polynom((rr::RRReal)light.getConstantAttenuation(),(rr::RRReal)(light.getLinearAttenuation()/rescaleUnit),(rr::RRReal)(light.getQuadraticAttenuation()/rescaleUnit/rescaleUnit),(rr::RRReal)0.0001f);
 
-			RRLight* rrLight = NULL;
+			RRLight* rrLight = nullptr;
 
 			switch( light.getLightType() )
 			{
@@ -730,7 +730,7 @@ public:
 				break;
 			}
 
-			if(rrLight != NULL)
+			if(rrLight != nullptr)
 			{
 				std::string name = instanceLight->getName().c_str();
 				if(name  == "")
@@ -935,7 +935,7 @@ public:
 		if (semanticName == "")
 			return UINT_MAX;
 
-		if(colladaBinding != NULL)
+		if(colladaBinding != nullptr)
 		{
 			for(unsigned textbind = 0; textbind < colladaBinding->getTextureCoordinateBindingArray().getCount(); textbind++)
 			{
@@ -974,7 +974,7 @@ public:
 		if(!cot.isTexture())
 			return UINT_MAX;
 
-		if(colladaBinding != NULL)
+		if(colladaBinding != nullptr)
 		{
 			for(unsigned textbind = 0; textbind < colladaBinding->getTextureCoordinateBindingArray().getCount(); textbind++)
 			{
@@ -1037,7 +1037,7 @@ public:
 				COLLADAFW::Image& image = imageIter->second;
 				const COLLADABU::URI& uri = image.getImageURI();
 				COLLADABU::String imagePath = COLLADABU::URI::uriDecode( uri.toNativePath() );
-				RRBuffer* buffer = rr::RRBuffer::load(imagePath.c_str(),NULL,textureLocator);
+				RRBuffer* buffer = rr::RRBuffer::load(imagePath.c_str(),nullptr,textureLocator);
 				if(buffer)
 				{
 					prop.texcoord = uvChannel;
@@ -1222,7 +1222,7 @@ public:
 						COLLADAFW::Image& image = imageIter->second;
 						const COLLADABU::URI& uri = image.getImageURI();
 						COLLADABU::String imagePath = COLLADABU::URI::uriDecode( uri.toNativePath() );
-						material.bumpMap.texture = rr::RRBuffer::load(imagePath.c_str(),NULL,textureLocator);
+						material.bumpMap.texture = rr::RRBuffer::load(imagePath.c_str(),nullptr,textureLocator);
 						material.bumpMap.texcoord = nmC;
 					}
 				}
@@ -1257,14 +1257,14 @@ public:
 		{
 			RRReporter::report(INF3,"Finished with first pass\n");
 
-			if(instanceVisualScene == NULL)
+			if(instanceVisualScene == nullptr)
 			{
 				RRReporter::report(WARN,"No visual scene instance found in the file.\n");
 				return;
 			}
 
 			// get active visual scene
-			const COLLADAFW::VisualScene  *activeScene = NULL;
+			const COLLADAFW::VisualScene  *activeScene = nullptr;
 			for ( VectorVisualScene::iterator iter = visualSceneArray.begin(); iter != visualSceneArray.end(); iter++)
 			{
 				if ( instanceVisualScene->getInstanciatedObjectId() == (*iter).getUniqueId() )
@@ -1274,7 +1274,7 @@ public:
 				}
 			}
 
-			if(activeScene == NULL)
+			if(activeScene == nullptr)
 			{
 				RRReporter::report(WARN,"Instanced visual scene not found in <library_visual_scenes>.\n");
 				return;
@@ -1342,7 +1342,7 @@ public:
 			objects->colliders = new RRCollider*[numberOfMeshes];
 
 			for(int i=0; i<numberOfMeshes; i++)
-				objects->colliders[i] = NULL;
+				objects->colliders[i] = nullptr;
 
 			// create array for all possible material instances
 			int numberOfMaterialInstances = 0;
@@ -1354,7 +1354,7 @@ public:
 			objects->materials = (RRMaterial**)malloc(sizeof(RRMaterial*)*numberOfMaterialInstances);
 
 			for(int i=0; i<numberOfMaterialInstances; i++)
-				objects->materials[i] = NULL;
+				objects->materials[i] = nullptr;
 
 			// NOTE because of possible transparency bug, let's find out which is the prevalent transparency default
 			// let's assume that one would not want most of the objects to be completely transparent
@@ -1411,7 +1411,7 @@ public:
 				// handle all without defined bindings, for which a material was found with the local string
 				for(MapUniqueToMaterialId::iterator unboundIter = bindingPlaceholder.unboundBindingArray.begin(); unboundIter != bindingPlaceholder.unboundBindingArray.end(); unboundIter++ )
 				{
-					handleMaterialBinding(bindingPlaceholder, NULL, unboundIter->first, unboundIter->second, transparencyInverted, nextMaterial);
+					handleMaterialBinding(bindingPlaceholder, nullptr, unboundIter->first, unboundIter->second, transparencyInverted, nextMaterial);
 				}
 			}
 
@@ -1469,7 +1469,7 @@ public:
 		if(parseStep != RUN_COPY_ELEMENTS)
 			return true;
 
-		if(scene->getInstanceVisualScene() != NULL)
+		if(scene->getInstanceVisualScene() != nullptr)
 			instanceVisualScene = scene->getInstanceVisualScene ()->clone ();
 
 		return true;
@@ -1493,12 +1493,12 @@ public:
 
 		UniqueData()
 		{
-			data = NULL;
+			data = nullptr;
 		}
 
 		void cleanup()
 		{
-			if(data != NULL)
+			if(data != nullptr)
 				delete [] data;
 		}
 	};
@@ -2231,7 +2231,7 @@ public:
 
 			// create collider
 			bool aborting = false;
-			objects->colliders[ objects->nextMesh ] = RRCollider::create(mesh,NULL,RRCollider::IT_LINEAR,aborting);
+			objects->colliders[ objects->nextMesh ] = RRCollider::create(mesh,nullptr,RRCollider::IT_LINEAR,aborting);
 
 			// set all assigned instances
 			for(VectorRRObjectOpenCollada::iterator iter = meshPlaceholder.objectsWithMesh.begin(); iter != meshPlaceholder.objectsWithMesh.end(); iter++)
@@ -2407,7 +2407,7 @@ private:
 
 RRScene* RRSceneOpenCollada::load(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 {
-	//return NULL;
+	//return nullptr;
 	RRReportInterval report(INF3,"Importing with OpenCollada\n");
 
 	RRSceneOpenCollada* scene = new RRSceneOpenCollada;
@@ -2418,7 +2418,7 @@ RRScene* RRSceneOpenCollada::load(const RRString& filename, RRFileLocator* textu
 	RRWriterOpenCollada writer(objects, lights, scene->cameras, filename, textureLocator);
 
 	if( !writer.parseDocument() )
-		return NULL;
+		return nullptr;
 
 	scene->protectedObjects = objects;
 	scene->protectedLights = lights;

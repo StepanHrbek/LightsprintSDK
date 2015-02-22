@@ -24,11 +24,11 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	: SVProperties(_svframe)
 {
 	locked = false;
-	lastSolver = NULL;
-	lastObject = NULL;
+	lastSolver = nullptr;
+	lastObject = nullptr;
 	lastTriangle = UINT_MAX;
 	lastPoint2d = rr::RRVec2(0);
-	material = NULL;
+	material = nullptr;
 	materialIsInStaticScene = true;
 	showPoint = false;
 	showPhysical = false;
@@ -66,7 +66,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	AppendIn(propSpecular,new wxIntProperty(_("uv")));
 	AppendIn(propSpecular,new ImageFileProperty(_("texture or video"),_("Specular texture or video. Type in c@pture to use live video input. Alpha (if present) modulates shininess/roughness.")));
 	{
-		const wxChar* strings[] = {wxT("Phong"),wxT("Blinn-Phong"),wxT("Torrance-Sparrow (Gaussian)"),wxT("Blinn-Torrance-Sparrow"),NULL};
+		const wxChar* strings[] = {wxT("Phong"),wxT("Blinn-Phong"),wxT("Torrance-Sparrow (Gaussian)"),wxT("Blinn-Torrance-Sparrow"),nullptr};
 		const long values[] = {rr::RRMaterial::PHONG,rr::RRMaterial::BLINN_PHONG,rr::RRMaterial::TORRANCE_SPARROW,rr::RRMaterial::BLINN_TORRANCE_SPARROW};
 		propSpecularModel = new wxEnumProperty(_("model"),wxPG_LABEL,strings,values);
 		propSpecularModel->SetHelpString(_("Changes shape and intensity of specular highlights."));
@@ -116,7 +116,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	Append(propLightmapTexcoord = new wxIntProperty(_("Lightmap uv")));
 	Append(propQualityForPoints = new wxIntProperty(_("Quality for point materials")));
 
-	setMaterial(NULL,NULL,UINT_MAX,rr::RRVec2(0)); // hides properties, they were not filled yet
+	setMaterial(nullptr,nullptr,UINT_MAX,rr::RRVec2(0)); // hides properties, they were not filled yet
 }
 
 // compose root property out of child properties
@@ -126,7 +126,7 @@ static void composeMaterialPropertyRoot(wxPGProperty* prop, rr::RRMaterial::Prop
 	wxPGProperty* propColor = prop->GetPropertyByName(_("color"));
 	if ((!propColor || material.color==rr::RRVec3(0)) && !material.texture) // !propColor catches bumpMap, it does not have color, needs either texture or none
 	{
-		prop->SetValueImage(*(wxBitmap*)NULL);
+		prop->SetValueImage(*(wxBitmap*)nullptr);
 		prop->SetValueFromString(_("none"));
 	}
 	else
@@ -301,8 +301,8 @@ void SVMaterialProperties::setMaterial(rr::RRMaterial* _material)
 }
 
 // copy material to propertygrid
-// if object!=NULL, show custom data for hitTriangle in object, show no physical data
-// if object==NULL, show custom/physical data for hitTriangle in getMultiObject[Custom|Physical]()
+// if object!=nullptr, show custom data for hitTriangle in object, show no physical data
+// if object==nullptr, show custom/physical data for hitTriangle in getMultiObject[Custom|Physical]()
 void SVMaterialProperties::setMaterial(rr::RRSolver* solver, rr::RRObject* object, unsigned hitTriangle, rr::RRVec2 hitPoint2d)
 {
 	if (locked) return;
@@ -317,7 +317,7 @@ void SVMaterialProperties::setMaterial(rr::RRSolver* solver, rr::RRObject* objec
 
 	if (hitTriangle==UINT_MAX || !solver || (object && showPhysical))
 	{
-		material = NULL;
+		material = nullptr;
 	}
 	else
 	if (showPoint)
@@ -327,7 +327,7 @@ void SVMaterialProperties::setMaterial(rr::RRSolver* solver, rr::RRObject* objec
 	}
 	else
 	{
-		material = (object?object:solver->getMultiObject())->getTriangleMaterial(hitTriangle,NULL,NULL);
+		material = (object?object:solver->getMultiObject())->getTriangleMaterial(hitTriangle,nullptr,nullptr);
 	}
 
 	updateProperties();
@@ -633,7 +633,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 			lastSolver->reportMaterialChange(transmittanceChanged,true);
 	}
 
-	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL,0);
+	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,nullptr,0);
 }
 
 BEGIN_EVENT_TABLE(SVMaterialProperties, wxPropertyGrid)

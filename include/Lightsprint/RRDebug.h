@@ -144,20 +144,20 @@ namespace rr
 		//! // you don't have to delete solver here, but if you do, do it safely, reporter still references solver.
 		//! // plain 'delete solver;' would make reporter destructor write to freed memory!
 		//! RR_SAFE_DELETE(solver);
-		//! // leave window, set current reporter to NULL. window passively exists until user closes it
+		//! // leave window, set current reporter to nullptr. window passively exists until user closes it
 		//! delete reporter;
 		//! // here solver is no longer referenced (even if window may still exist)
 		//! \endcode
 		//! \param solver
-		//!  Pointer to solver. It may be NULL or non-NULL, you are free to change it at any moment, but restrictions exist:
+		//!  Pointer to solver. It may be nullptr or non-nullptr, you are free to change it at any moment, but restrictions exist:
 		//!  - The pointer must exist at least as long as the reporter,
 		//!    make sure that you don't pass local pointer that is going out of scope before you delete the reporter.
-		//!  - The pointer must be NULL or point to valid solver, make sure that you NULL it when you delete the solver.
+		//!  - The pointer must be nullptr or point to valid solver, make sure that you nullptr it when you delete the solver.
 		//! \param caption
-		//!  Optional custom window caption, NULL for default one.
+		//!  Optional custom window caption, nullptr for default one.
 		//! \param closeWhenDone
 		//!  Closes window immediately after reporting ends, rather than asking user what to do.
-		static RRReporter* createWindowedReporter(class RRSolver*& solver, const char* caption = NULL, bool closeWhenDone = false);
+		static RRReporter* createWindowedReporter(class RRSolver*& solver, const char* caption = nullptr, bool closeWhenDone = false);
 
 		//! Helper, converts number of bytes to human readable string, e.g. 12345678 to "12 MB".
 		static const char* bytesToString(size_t bytes);

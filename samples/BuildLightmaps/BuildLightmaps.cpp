@@ -139,10 +139,10 @@ struct Parameters
 	Parameters(int argc, char** argv, int objectIndex=-1)
 	{
 		// set defaults
-		sceneFilename = NULL;
+		sceneFilename = nullptr;
 		skyUpper = rr::RRVec4(0);
 		skyLower = rr::RRVec4(0);
-		skyBox = NULL;
+		skyBox = nullptr;
 		emissiveMultiplier = 1;
 		buildQuality = 0;
 		directLightMultiplier = 1;
@@ -333,12 +333,12 @@ struct Parameters
 	{
 		if (!buildNothing)
 		{
-			illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.createBuffer(false,true,L".lightmap") : NULL;
-			illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? layerParameters.createBuffer(false,true,L".occlusion") : NULL; // floats not necessary, alpha for smoothing
-			illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional1") : NULL;
-			illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional2") : NULL;
-			illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional3") : NULL;
-			illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? layerParameters.createBuffer(false,true,L".bentnormals") : NULL;
+			illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.createBuffer(false,true,L".lightmap") : nullptr;
+			illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? layerParameters.createBuffer(false,true,L".occlusion") : nullptr; // floats not necessary, alpha for smoothing
+			illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional1") : nullptr;
+			illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional2") : nullptr;
+			illumination->getLayer(LAYER_DIRECTIONAL3) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional3") : nullptr;
+			illumination->getLayer(LAYER_BENT_NORMALS) = buildBentNormals ? layerParameters.createBuffer(false,true,L".bentnormals") : nullptr;
 		}
 	}
 
@@ -509,7 +509,7 @@ int main(int argc, char** argv)
 	//
 	// load scene
 	//
-	rr::RRScene scene(globalParameters.sceneFilename,NULL);
+	rr::RRScene scene(globalParameters.sceneFilename,nullptr);
 	if (!scene.objects.size() && !globalParameters.runViewer)
 		error(solver->aborting,"No objects loaded.");
 	scene.objects.multiplyEmittance(globalParameters.emissiveMultiplier);
@@ -517,7 +517,7 @@ int main(int argc, char** argv)
 	//
 	// set solver geometry
 	//
-	solver->setStaticObjects(scene.objects, NULL);
+	solver->setStaticObjects(scene.objects, nullptr);
 	solver->setDynamicObjects(scene.objects); // this is only for sceneViewer, dynamic objects are ignored when baking lightmaps
 
 	//
@@ -530,7 +530,7 @@ int main(int argc, char** argv)
 	else
 	{
 		solver->setLights(scene.lights);
-		rr::RRBuffer* environment = NULL;
+		rr::RRBuffer* environment = nullptr;
 		if (globalParameters.skyBox)
 		{
 			environment = rr::RRBuffer::loadCube(globalParameters.skyBox);
@@ -564,7 +564,7 @@ int main(int argc, char** argv)
 
 		// calculate indirect illumination in solver
 		rr::RRSolver::UpdateParameters updateParameters(globalParameters.buildQuality);
-		solver->updateLightmaps(-1,-1,-1,&updateParameters,NULL);
+		solver->updateLightmaps(-1,-1,-1,&updateParameters,nullptr);
 		updateParameters.useCurrentSolution = true;
 		updateParameters.aoIntensity = globalParameters.aoIntensity;
 		updateParameters.aoSize = globalParameters.aoSize;
@@ -602,7 +602,7 @@ int main(int argc, char** argv)
 				LAYER_DIRECTIONAL1,
 				LAYER_BENT_NORMALS,
 				&updateParameters,
-				NULL);
+				nullptr);
 
 			for (unsigned objectIndex=0;objectIndex<scene.objects.size();objectIndex++)
 			if (!solver->aborting)
@@ -640,7 +640,7 @@ int main(int argc, char** argv)
 				directionalBuffers[1] = illumination.getLayer(LAYER_DIRECTIONAL2);
 				directionalBuffers[2] = illumination.getLayer(LAYER_DIRECTIONAL3);
 				// build direct illumination
-				solver->updateLightmap(objectIndex,illumination.getLayer(globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP),directionalBuffers,illumination.getLayer(LAYER_BENT_NORMALS),&updateParameters,NULL);
+				solver->updateLightmap(objectIndex,illumination.getLayer(globalParameters.buildOcclusion ? LAYER_OCCLUSION : LAYER_LIGHTMAP),directionalBuffers,illumination.getLayer(LAYER_BENT_NORMALS),&updateParameters,nullptr);
 				// postprocess
 				objectParameters.layersPostprocess(scene.objects[objectIndex],solver->aborting);
 				// save
@@ -665,7 +665,7 @@ int main(int argc, char** argv)
 		rr::RRReporter::report(rr::INF2,"Saved %d files.\n",saved);
 		// saving 0 files is strange, force user to read log and quit
 		if (!saved)
-			error(solver->aborting,NULL);
+			error(solver->aborting,nullptr);
 	}
 
 	//
@@ -705,7 +705,7 @@ int main(int argc, char** argv)
 #ifndef NDEBUG
 	delete solver->getEnvironment();
 	delete solver->getColorSpace();
-	RR_SAFE_DELETE(solver); // sets solver to NULL (it's important because reporter still references solver)
+	RR_SAFE_DELETE(solver); // sets solver to nullptr (it's important because reporter still references solver)
 	delete reporter;
 #endif
 
@@ -732,7 +732,7 @@ int parseCommandline(const wchar_t* commandline)
 			if (argv[i])
 				sprintf(argv[i], "%ws", argvw[i]);
 		}
-		argv[argc] = NULL;
+		argv[argc] = nullptr;
 		if (argvw && argc==2 && argvw[1][0]=='@')
 		{
 			// read argv from file
@@ -753,8 +753,8 @@ int parseCommandline(const wchar_t* commandline)
 	{
 		// someone calls us with invalid arguments, but don't panic, build argv from module filename
 		char szFileName[MAX_PATH];
-		GetModuleFileNameA(NULL,szFileName,MAX_PATH);
-		char* argv[2] = {szFileName,NULL};
+		GetModuleFileNameA(nullptr,szFileName,MAX_PATH);
+		char* argv[2] = {szFileName,nullptr};
 		return main(1,argv);
 	}
 }

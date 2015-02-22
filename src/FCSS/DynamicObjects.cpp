@@ -16,7 +16,7 @@ static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVe
 	if (!object)
 		return;
 	rr::RRVec3 mini,center;
-	object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+	object->getCollider()->getMesh()->getAABB(&mini,nullptr,&center);
 	float sz = sin(RR_DEG2RAD(rotYZ[1]));
 	float cz = cos(RR_DEG2RAD(rotYZ[1]));
 	float sy = sin(RR_DEG2RAD(rotYZ[0]));
@@ -58,7 +58,7 @@ bool DynamicObjects::addObject(const char* filename, float scale)
 	}
 	scene->normalizeUnits(scale);
 	bool aborting = false;
-	rr::RRObject* dynobj = scene->objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL);
+	rr::RRObject* dynobj = scene->objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,-1,false,0,nullptr);
 	dynobj->isDynamic = true;
 	push_back(dynobj);
 	scenesToBeDeleted.push_back(scene);
@@ -71,7 +71,7 @@ rr::RRVec3 DynamicObjects::getPos(unsigned objIndex) const
 		return rr::RRVec3(0);
 	RRObject* object = (*this)[objIndex];
 	rr::RRVec3 mini,center;
-	object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+	object->getCollider()->getMesh()->getAABB(&mini,nullptr,&center);
 	return object->getWorldMatrixRef().getTranslation() - rr::RRVec3(center.x,mini.y,center.z);
 }
 
@@ -81,7 +81,7 @@ void DynamicObjects::setPos(unsigned objIndex, rr::RRVec3 worldFoot)
 	{
 		RRObject* object = (*this)[objIndex];
 		rr::RRVec3 mini,center;
-		object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+		object->getCollider()->getMesh()->getAABB(&mini,nullptr,&center);
 		rr::RRMatrix3x4 worldMatrix = object->getWorldMatrixRef();
 		worldMatrix.setTranslation(worldFoot - rr::RRVec3(center.x,mini.y,center.z));
 		object->setWorldMatrix(&worldMatrix);
@@ -171,7 +171,7 @@ void DynamicObjects::copySceneToAnimationFrame_ignoreThumbnail(AnimationFrame& f
 		{
 			rr::RRObject* object = (*this)[demoIndex];
 			rr::RRVec3 mini,center;
-			object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+			object->getCollider()->getMesh()->getAABB(&mini,nullptr,&center);
 			rr::RRMatrix3x4 wm = object->getWorldMatrixRef();
 
 			tmp.pos = wm.getTranslation()-rr::RRVec3(center.x,mini.y,center.z);

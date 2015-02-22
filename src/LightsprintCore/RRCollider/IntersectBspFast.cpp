@@ -732,8 +732,8 @@ IntersectBspFast IBP2::IntersectBspFast(const RRMesh* aimporter, IntersectTechni
 {
 	RRReportInterval report(INF3,"Building collider for %d triangles ...\n",aimporter?aimporter->getNumTriangles():0);
 
-	triangleNP = NULL;
-	triangleSRLNP = NULL;
+	triangleNP = nullptr;
+	triangleSRLNP = nullptr;
 	intersectTechnique = aintersectTechnique;
 
 	switch(intersectTechnique)

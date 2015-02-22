@@ -57,12 +57,12 @@ namespace rr
 		//! Specifies material assigned to a group of triangles.
 		struct FaceGroup
 		{
-			RRMaterial* material; ///< Material assigned to all triangles in group. Must not be NULL.
+			RRMaterial* material; ///< Material assigned to all triangles in group. Must not be nullptr.
 			unsigned numTriangles; ///< Number of triangles in group.
 
 			FaceGroup()
 			{
-				material = NULL; // Material must not stay NULL, set it as soon as possible.
+				material = nullptr; // Material must not stay nullptr, set it as soon as possible.
 				numTriangles = 0;
 			}
 			FaceGroup(RRMaterial* _material, unsigned _numTriangles)
@@ -93,11 +93,11 @@ namespace rr
 		//! Assignment of materials to triangles.
 		//
 		//! First facegroup describes first numTriangles in object, next facegroup next triangles etc.
-		//! Results are undefined if faceGroups contains NULL materials or fewer triangles than mesh.
+		//! Results are undefined if faceGroups contains nullptr materials or fewer triangles than mesh.
 		FaceGroups faceGroups;
 
 		//! Returns collider of underlying mesh. It is also access to mesh itself (via getCollider()->getMesh()).
-		//! Must always return valid collider, implementation is not allowed to return NULL.
+		//! Must always return valid collider, implementation is not allowed to return nullptr.
 		virtual RRCollider* getCollider() const {return collider;}
 		//! Sets collider and mesh.
 		//
@@ -112,7 +112,7 @@ namespace rr
 		//! Default implementation is just different way to access data stored in faceGroups.
 		//! However, this function may provide additional information.
 		//! If you wish to disable lighting or shadowing for specific light-caster-receiver combinations,
-		//! reimplement this function to return NULL for that combination of parameters,
+		//! reimplement this function to return nullptr for that combination of parameters,
 		//! fall back to default implementation for others combinations.
 		//!
 		//! Although more precise per-pixel material query is available in getPointMaterial(),
@@ -127,14 +127,14 @@ namespace rr
 		//! \param t
 		//!  Triangle number.
 		//! \param light
-		//!  NULL or one of lights in scene.
-		//!  With light==NULL, returned material must be always the same non-NULL.
-		//!  With light!=NULL, it is allowed to return NULL to disable lighting or shadowing, see receiver for details.
+		//!  nullptr or one of lights in scene.
+		//!  With light==nullptr, returned material must be always the same non-nullptr.
+		//!  With light!=nullptr, it is allowed to return nullptr to disable lighting or shadowing, see receiver for details.
 		//! \param receiver
-		//!  NULL or one of static objects in scene.
-		//!  Used only when light!=NULL, controls properties of given light.
-		//!  When receiver==NULL, you may return NULL to make triangle invisible for given light (disables both direct lighting and shadow-casting).
-		//!  When receiver!=NULL, you may return NULL to disable direct shadow casting of triangle for given light and receiver.
+		//!  nullptr or one of static objects in scene.
+		//!  Used only when light!=nullptr, controls properties of given light.
+		//!  When receiver==nullptr, you may return nullptr to make triangle invisible for given light (disables both direct lighting and shadow-casting).
+		//!  When receiver!=nullptr, you may return nullptr to disable direct shadow casting of triangle for given light and receiver.
 		virtual RRMaterial* getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const;
 
 		//! Returns material description for point on object's surface, fills colorLinear with values read from textures.
@@ -191,23 +191,23 @@ namespace rr
 		//! Sets object transformation from local to world space.
 		//
 		//! It copies data from your matrix rather than remembering your pointer.
-		//! NULL is accepted as no transformation.
-		//! If you set identity matrix, getWorldMatrix() will return NULL.
+		//! nullptr is accepted as no transformation.
+		//! If you set identity matrix, getWorldMatrix() will return nullptr.
 		virtual void setWorldMatrix(const RRMatrix3x4* worldMatrix);
 
 		//! Returns object transformation from local to world space.
 		//
-		//! Returns NULL for identity, for use in "if (matrix) slow_transform_path; else fast_identity_path;" scenarios.
+		//! Returns nullptr for identity, for use in "if (matrix) slow_transform_path; else fast_identity_path;" scenarios.
 		//! Transformation can be changed by setWorldMatrix().
 		//! \return Pointer to matrix that transforms object space to world space.
-		//!  May return NULL for identity/no transformation. 
+		//!  May return nullptr for identity/no transformation. 
 		//!  Pointer must be constant and stay valid for whole life of object.
 		//!  Matrix may change during object life.
 		virtual const RRMatrix3x4Ex* getWorldMatrix() const;
 		//! Returns object transformation from local to world space.
 		const RRMatrix3x4Ex& getWorldMatrixRef() const;
 
-		//! Returns arbitrary additional data provided by adapter, or NULL for unsupported data.
+		//! Returns arbitrary additional data provided by adapter, or nullptr for unsupported data.
 		//
 		//! \param name
 		//!  Identifier of custom data requested. It is good practise to use names 
@@ -328,8 +328,8 @@ namespace rr
 			//! \param forceAlpha
 			//!  Creates buffer with alpha channel.
 			//! \param insertBeforeExtension
-			//!  Buffer's filename is set to actualFilename with this string inserted before extension. May be NULL.
-			RRBuffer* createBuffer(bool forceFloats = false, bool forceAlpha = false, const wchar_t* insertBeforeExtension = NULL) const;
+			//!  Buffer's filename is set to actualFilename with this string inserted before extension. May be nullptr.
+			RRBuffer* createBuffer(bool forceFloats = false, bool forceAlpha = false, const wchar_t* insertBeforeExtension = nullptr) const;
 		};
 
 		//! Recommends layer parameters (resolution, filename etc).
@@ -429,9 +429,9 @@ namespace rr
 		//! For the best control, you can allocate these buffers manually, using code like
 		//! <code>
 		//! for (all static objects)
-		//!		illumination.getLayer(layerLightmap) = RRBuffer::create(BT_VERTEX_BUFFER,getNumVertices(),1,1,BF_RGBF,false,NULL);
+		//!		illumination.getLayer(layerLightmap) = RRBuffer::create(BT_VERTEX_BUFFER,getNumVertices(),1,1,BF_RGBF,false,nullptr);
 		//! for (all objects that need environment map)
-		//!		illumination.getLayer(layerEnvironment) = RRBuffer::create(BT_CUBE_TEXTURE,16,16,6,BF_RGBA,true,NULL);
+		//!		illumination.getLayer(layerEnvironment) = RRBuffer::create(BT_CUBE_TEXTURE,16,16,6,BF_RGBA,true,nullptr);
 		//! </code>
 		//! 
 		//! However, you can save time by calling this helper function, once for solver's static objects, once for dynamic ones.
@@ -476,7 +476,7 @@ namespace rr
 		//! Reports inconsistencies found in objects.
 		//
 		//! \param objectType
-		//!  Optional identifier of collection, e.g "static", "dynamic". May be NULL.
+		//!  Optional identifier of collection, e.g "static", "dynamic". May be nullptr.
 		//! \return Number of problem reported.
 		unsigned checkConsistency(const char* objectType) const;
 
@@ -537,10 +537,10 @@ namespace rr
 		//! is skipped to avoid breaking materials in other object. If you know that no other instance with the same mesh
 		//! exists, you can safely use any collection, even empty.
 		//! \param object
-		//!  Object to be optimized. If it is NULL, all objects in this collection are optimized.
+		//!  Object to be optimized. If it is nullptr, all objects in this collection are optimized.
 		//! \return
 		//!  Number of objects modified.
-		virtual unsigned optimizeFaceGroups(RRObject* object = NULL) const;
+		virtual unsigned optimizeFaceGroups(RRObject* object = nullptr) const;
 
 
 		//! Merges objects from collection, and optionally splits them by materials.
@@ -584,7 +584,7 @@ namespace rr
 		//! \param cacheLocation
 		//!  Directory for caching intermediate files used by RRCollider.
 		//!  It is passed to RRCollider::create(), so
-		//!  default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
+		//!  default nullptr caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
 		RRObject* createMultiObject(RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation) const;
 
 		//! Rebuilds objects to make them smooth (possibly changing numbers of triangles, vertices, facegroups).

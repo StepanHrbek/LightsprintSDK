@@ -31,8 +31,8 @@ namespace rr
 	//! you can do so by changing properties at the right moment during calculation.
 	//! For realtime GI, solver->calculate() accesses light to calculate indirect illumination,
 	//! while solver->renderScene() accesses light to calculate direct illumination.
-	//! For offline GI, solver->updateLightmaps(-1,-1,-1,NULL,indirectParams,) accesses light to calculate indirect illumination,
-	//! while solver->updateLightmaps(,,,directParams,NULL,) accesses light to calculate direct illumination.
+	//! For offline GI, solver->updateLightmaps(-1,-1,-1,nullptr,indirectParams,) accesses light to calculate indirect illumination,
+	//! while solver->updateLightmaps(,,,directParams,nullptr,) accesses light to calculate direct illumination.
 	//
 	//! Thread safe: yes, may be accessed by any number of threads simultaneously.
 	//! All custom implementations must be thread safe too.
@@ -195,7 +195,7 @@ namespace rr
 		//! Optional name of light.
 		RRString name;
 
-		//! Custom data, initialized to NULL, never accessed by LightsprintCore again. 
+		//! Custom data, initialized to nullptr, never accessed by LightsprintCore again. 
 		//
 		//! Adapters may use it to store pointer to original structure that was
 		//! adapted for Lightsprint.

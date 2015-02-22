@@ -42,7 +42,7 @@ namespace serialization {
 // Global serialization state, single instance must exist during serialization.
 //
 // Q: How do I use it?
-// A: Add "SerializationRuntime sr(NULL);" at the beginning of your serialization code.
+// A: Add "SerializationRuntime sr(nullptr);" at the beginning of your serialization code.
 //
 // Q: Is it thread safe?
 // A: No, serialization state is stored in single global variable, multiple threads serializing at the same time would break it.
@@ -306,7 +306,7 @@ rr::RRBuffer* loadBufferContents(Archive & ar, const unsigned int version)
 	ar & make_nvp("format",format);
 	bool scaled;
 	ar & make_nvp("scaled",scaled);
-	rr::RRBuffer* buffer = rr::RRBuffer::create(type,width,height,depth,format,scaled,NULL);
+	rr::RRBuffer* buffer = rr::RRBuffer::create(type,width,height,depth,format,scaled,nullptr);
 	binary_object bo(buffer->lock(rr::BL_DISCARD_AND_WRITE),buffer->getBufferBytes());
 	ar & make_nvp("data",bo);
 	buffer->unlock();
@@ -328,7 +328,7 @@ public:
 	RRBufferProxy()
 	{
 		RR_ASSERT(g_serializationRuntime);
-		buffer = NULL;
+		buffer = nullptr;
 		if (g_serializationRuntime)
 			g_serializationRuntime->bufferProxyInstances.insert(this);
 	}
@@ -342,13 +342,13 @@ public:
 };
 
 #define prefix_buffer(b)          (*(RRBufferProxy**)&(b))
-#define postfix_buffer(Archive,b) {if (Archive::is_loading::value && b) b = prefix_buffer(b)->buffer?prefix_buffer(b)->buffer->createReference():NULL;} // all non-unique buffers get their own reference
+#define postfix_buffer(Archive,b) {if (Archive::is_loading::value && b) b = prefix_buffer(b)->buffer?prefix_buffer(b)->buffer->createReference():nullptr;} // all non-unique buffers get their own reference
 
 
 template<class Archive>
 void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 {
-	// only unique non-NULL buffers get here
+	// only unique non-nullptr buffers get here
 	rr::RRBuffer& a = *(rr::RRBuffer*)&aa;
 	if (a.filename.empty())
 	{
@@ -367,7 +367,7 @@ void save(Archive & ar, const RRBufferProxy& aa, const unsigned int version)
 template<class Archive>
 void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 {
-	// only unique non-NULL buffers get here
+	// only unique non-nullptr buffers get here
 	rr::RRString filename;
 	ar & make_nvp("filename",filename);
 	if (filename.empty())
@@ -383,10 +383,10 @@ void load(Archive & ar, RRBufferProxy& a, const unsigned int version)
 			if (g_serializationRuntime->nextBufferIsCube)
 				a.buffer = rr::RRBuffer::loadCube(filename,g_serializationRuntime->textureLocator);
 			else
-				a.buffer = rr::RRBuffer::load(filename,NULL,g_serializationRuntime->textureLocator);
+				a.buffer = rr::RRBuffer::load(filename,nullptr,g_serializationRuntime->textureLocator);
 		}
 		else
-			a.buffer = NULL;
+			a.buffer = nullptr;
 	}
 }
 
@@ -427,7 +427,7 @@ void save(Archive & ar, const rr::RRVector<C*>& a, const unsigned int version)
 			count++;
 	ar & make_nvp("count",count);
 	for (unsigned i=0;i<a.size();i++)
-		if (a[i]) // skip NULL items
+		if (a[i]) // skip nullptr items
 			ar & make_nvp("item",*a[i]);
 }
 
@@ -807,7 +807,7 @@ public:
 template<class Archive>
 void save(Archive & ar, const RRMeshProxy& a, const unsigned int version)
 {
-	// here we get only unique non-NULL meshes
+	// here we get only unique non-nullptr meshes
 	// we can't save any mesh, only RRMeshArrays, so conversion might be necessary
 	rr::RRMesh* mesh = (rr::RRMesh*)&a;
 	rr::RRMeshArrays* meshArrays = dynamic_cast<rr::RRMeshArrays*>(mesh);
@@ -825,7 +825,7 @@ void save(Archive & ar, const RRMeshProxy& a, const unsigned int version)
 template<class Archive>
 void load(Archive & ar, RRMeshProxy& a, const unsigned int version)
 {
-	// here we get only unique non-NULL meshes
+	// here we get only unique non-nullptr meshes
 	a.mesh = new rr::RRMeshArrays;
 	load(ar,*a.mesh,version);
 }
@@ -862,7 +862,7 @@ void save(Archive & ar, const rr::RRObject& a, const unsigned int version)
 	{
 		RRMeshProxy* proxy = (RRMeshProxy*)a.getCollider()->getMesh();
 		if (!proxy)
-			rr::RRReporter::report(rr::ERRO,"Saved NULL mesh.\n");
+			rr::RRReporter::report(rr::ERRO,"Saved nullptr mesh.\n");
 		ar & make_nvp("mesh",proxy);
 	}
 }
@@ -886,16 +886,16 @@ void load(Archive & ar, rr::RRObject& a, const unsigned int version)
 		ar & make_nvp("enabled",a.enabled);
 	}
 	{
-		RRMeshProxy* proxy = NULL;
+		RRMeshProxy* proxy = nullptr;
 		ar & make_nvp("mesh",proxy);
 		if (proxy && proxy->mesh)
 		{
 			bool aborting = false;
-			a.setCollider(rr::RRCollider::create(proxy->mesh,NULL,rr::RRCollider::IT_LINEAR,aborting));
+			a.setCollider(rr::RRCollider::create(proxy->mesh,nullptr,rr::RRCollider::IT_LINEAR,aborting));
 		}
 		else
 		{
-			rr::RRReporter::report(rr::ERRO,"Loaded NULL mesh.\n");
+			rr::RRReporter::report(rr::ERRO,"Loaded nullptr mesh.\n");
 		}
 	}
 }
@@ -1109,7 +1109,7 @@ SerializationRuntime::~SerializationRuntime()
 
 bool SerializationRuntime::exists()
 {
-	return g_serializationRuntime!=NULL;
+	return g_serializationRuntime!=nullptr;
 }
 
 //---------------------------------------------------------------------------

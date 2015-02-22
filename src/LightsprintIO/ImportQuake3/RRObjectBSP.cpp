@@ -155,7 +155,7 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 	while (strchr(strippedName,'/') || strchr(strippedName,'\\')) strippedName++;
 	bool knownMissingTexture = (g_lightsmarkAttic && !(strcmp(strippedName,"poltergeist") && strcmp(strippedName,"flare") && strcmp(strippedName,"padtele_green") && strcmp(strippedName,"padjump_green") && strcmp(strippedName,"padbubble"))) // temporary: don't report known missing textures in Lightsmark
 		|| (g_lightsmarkCloister && !(strcmp(strippedName,"utopiaatoll")));
-	RRBuffer* t = knownMissingTexture ? NULL : RRBuffer::load(m->mName,NULL,textureLocator);
+	RRBuffer* t = knownMissingTexture ? nullptr : RRBuffer::load(m->mName,nullptr,textureLocator);
 	// we used to flip here, but information about flipping is lost, it is not saved to rr3.
 	// today we flip in convertUv() and flipped uvs are saved to rr3.
 	//if (t)
@@ -169,7 +169,7 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 		for (unsigned i=0;i<size;i++)
 			for (unsigned j=0;j<size;j++)
 			{
-				avg += t->getElementAtPosition(RRVec3(i/(float)size,j/(float)size,0),NULL,false);
+				avg += t->getElementAtPosition(RRVec3(i/(float)size,j/(float)size,0),nullptr,false);
 			}
 		avg /= size*size*0.5f; // 0.5 for quake map boost
 		avg[3] *= 0.5f; // but not for alpha
@@ -184,7 +184,7 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 	s.diffuseReflectance.texcoord = CH_DIFFUSE;
 	// alpha is transparency (1=opaque)
 	s.specularTransmittance.color = RRVec3(1-avg[3]);
-	s.specularTransmittance.texture = (!t || avg[3]==1) ? NULL : t->createReference();
+	s.specularTransmittance.texture = (!t || avg[3]==1) ? nullptr : t->createReference();
 	s.specularTransmittance.texcoord = CH_DIFFUSE;
 	s.specularTransmittanceInAlpha = true;
 	s.lightmapTexcoord = CH_LIGHTMAP;
@@ -362,7 +362,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 	if (g_lightsmarkCloister)
 	{
 		RRVec3 mini,maxi;
-		getAABB(&mini,&maxi,NULL);
+		getAABB(&mini,&maxi,nullptr);
 		mini -= (maxi-mini)*0.01f;
 		maxi += (maxi-mini)*0.01f;
 		RR_SAFE_DELETE(aabbCache);
@@ -399,7 +399,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 
 	// create collider
 	bool aborting = false;
-	setCollider(RRCollider::create(this,NULL,RRCollider::IT_LINEAR,aborting));
+	setCollider(RRCollider::create(this,nullptr,RRCollider::IT_LINEAR,aborting));
 }
 
 RRObjectQuake3::~RRObjectQuake3()
@@ -530,7 +530,7 @@ public:
 		{
 			delete scene;
 			RRReporter::report(WARN,"Failed loading scene %ls.\n",filename.w_str());
-			return NULL;
+			return nullptr;
 		}
 		else
 		{
@@ -540,8 +540,8 @@ public:
 				textureLocator->setParent(true,RR_PATH2RR(bf::path(RR_RR2PATH(filename)).parent_path()));
 				textureLocator->setExtensions(true,".jpg;.png;.tga");
 			}
-			g_lightsmarkAttic = strstr(filename.c_str(),"wop_padattic")!=NULL;
-			g_lightsmarkCloister = strstr(filename.c_str(),"wop_padcloister")!=NULL;
+			g_lightsmarkAttic = strstr(filename.c_str(),"wop_padattic")!=nullptr;
+			g_lightsmarkCloister = strstr(filename.c_str(),"wop_padcloister")!=nullptr;
 			scene->protectedObjects = adaptObjectsFromTMapQ3(&scene->scene_bsp,textureLocator);
 			g_lightsmarkCloister = false;
 			g_lightsmarkAttic = false;

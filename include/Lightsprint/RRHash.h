@@ -37,9 +37,9 @@ namespace rr
 		//! \param version
 		//!  Additional number melted into hash, different versions produce different filenames.
 		//! \param prefix
-		//!  Optional prefix (e.g. "c:/path/") of returned filename. If NULL, temporary directory is used.
+		//!  Optional prefix (e.g. "c:/path/") of returned filename. If nullptr, temporary directory is used.
 		//! \param postfix
-		//!  Optional postfix (e.g. ".extension") of returned filename. If NULL, no postfix is appended.
+		//!  Optional postfix (e.g. ".extension") of returned filename. If nullptr, no postfix is appended.
 		RRString getFileName(unsigned version, const char* prefix, const char* postfix) const;
 
 		bool operator !=(const RRHash& a) const;

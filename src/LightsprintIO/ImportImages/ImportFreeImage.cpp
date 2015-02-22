@@ -56,10 +56,10 @@ static unsigned getBytesPerPixel(RRBufferFormat format)
 static unsigned char* loadFreeImage(const RRString& filename,bool flipV,bool flipH,unsigned& width,unsigned& height,RRBufferFormat& outFormat,bool& outScaled)
 {
 	// uncomment if you wish to skip loading from network
-//	if (filename && filename[0]=='\\' && filename[1]=='\\') return NULL;
+//	if (filename && filename[0]=='\\' && filename[1]=='\\') return nullptr;
 
 	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
-	unsigned char* pixels = NULL;
+	unsigned char* pixels = nullptr;
 
 	// check the file signature and deduce its format
 #ifdef _WIN32
@@ -341,7 +341,7 @@ static bool reloadVertexBuffer(RRBuffer* texture, const RRString& filename)
 	unsigned datasize = ftell(f)-sizeof(VBUHeader);
 	fseek(f,0,SEEK_SET);
 	// read header
-	VBUHeader header(NULL);
+	VBUHeader header(nullptr);
 	fread(&header,sizeof(header),1,f);
 	if (header.getDataSize()!=datasize)
 	{
@@ -384,8 +384,8 @@ static bool reloadCube(RRBuffer* texture, const RRString& filenameMask, const ch
 	unsigned height = 0;
 	RRBufferFormat format = BF_DEPTH;
 	bool scaled = true;
-	unsigned char* pixels = NULL;
-	bool sixFiles = wcsstr(filenameMask.w_str(),L"%s")!=NULL;
+	unsigned char* pixels = nullptr;
+	bool sixFiles = wcsstr(filenameMask.w_str(),L"%s")!=nullptr;
 	if (!sixFiles)
 	{
 		// LOAD PIXELS FROM SINGLE FILE.HDR
@@ -409,7 +409,7 @@ static bool reloadCube(RRBuffer* texture, const RRString& filenameMask, const ch
 	else
 	{
 		// LOAD PIXELS FROM SIX FILES
-		unsigned char* sides[6] = {NULL,NULL,NULL,NULL,NULL,NULL};
+		unsigned char* sides[6] = {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
 		for (unsigned side=0;side<6;side++)
 		{
 			std::wstring buf = RR_RR2STDW(filenameMask);
@@ -457,7 +457,7 @@ static bool reloadCube(RRBuffer* texture, const RRString& filenameMask, const ch
 
 static RRBuffer* load(const RRString& filename, const char* cubeSideName[6])
 {
-	RRBuffer* buffer = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,NULL);
+	RRBuffer* buffer = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,nullptr);
 	bool reloaded = (wcsstr(filename.w_str(),L".vbu") || wcsstr(filename.w_str(),L".VBU"))
 		? reloadVertexBuffer(buffer,filename)
 		: (cubeSideName
@@ -566,7 +566,7 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 	unsigned dstbypp = (dstbipp+7)/8;
 
 	// is conversion to sRGB necesasary?
-	rr::RRColorSpace* colorSpace = (!buffer->getScaled() && fit==FIT_BITMAP) ? rr::RRColorSpace::create_sRGB() : NULL;
+	rr::RRColorSpace* colorSpace = (!buffer->getScaled() && fit==FIT_BITMAP) ? rr::RRColorSpace::create_sRGB() : nullptr;
 
 	FIBITMAP* dib = FreeImage_AllocateT(fit,buffer->getWidth(),buffer->getHeight(),dstbipp);
 	if (dib)
@@ -598,7 +598,7 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 					for (unsigned i=0;i<numPixels;i++)
 					{
 						// read src pixel
-						rr::RRVec4 pixel = buffer->getElement(elementIndex++,NULL);
+						rr::RRVec4 pixel = buffer->getElement(elementIndex++,nullptr);
 						// swap r<->b
 						if (swaprb)
 						{

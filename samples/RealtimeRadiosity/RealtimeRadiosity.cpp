@@ -67,13 +67,13 @@ void error(const char* message, bool gfxRelated)
 
 Model_3DS                  m3ds;
 rr::RRCamera               eye(rr::RRVec3(-1.416f,1.741f,-3.646f), rr::RRVec3(9.09f,0.05f,0),1.3f,70,0.3f,60);
-rr_gl::RealtimeLight*      realtimeLight = NULL;
-rr::RRBuffer*              environmentMap = NULL;
-rr_gl::TextureRenderer*    textureRenderer = NULL;
-rr_gl::UberProgram*        uberProgram = NULL;
-rr_gl::RRSolverGL*  solver = NULL;
-DynamicObject*             robot = NULL;
-DynamicObject*             potato = NULL;
+rr_gl::RealtimeLight*      realtimeLight = nullptr;
+rr::RRBuffer*              environmentMap = nullptr;
+rr_gl::TextureRenderer*    textureRenderer = nullptr;
+rr_gl::UberProgram*        uberProgram = nullptr;
+rr_gl::RRSolverGL*  solver = nullptr;
+DynamicObject*             robot = nullptr;
+DynamicObject*             potato = nullptr;
 int                        winWidth = 0;
 int                        winHeight = 0;
 bool                       modeMovingEye = false;
@@ -91,7 +91,7 @@ float                      speedLeft = 0;
 const float* lockVertexIllum(void* solver,unsigned object)
 {
 	rr::RRBuffer* vertexBuffer = ((rr::RRSolver*)solver)->getStaticObjects()[object]->illumination.getLayer(LAYER_AMBIENT_MAP);
-	return vertexBuffer && (vertexBuffer->getFormat()==rr::BF_RGBF) ? (float*)(vertexBuffer->lock(rr::BL_READ)) : NULL;
+	return vertexBuffer && (vertexBuffer->getFormat()==rr::BF_RGBF) ? (float*)(vertexBuffer->lock(rr::BL_READ)) : nullptr;
 }
 
 // callback that cleans vertex illumination
@@ -106,18 +106,18 @@ void renderScene(const rr::RRCamera& camera, rr_gl::UberProgramSetup uberProgram
 {
 	// render skybox
 	if (uberProgramSetup.LIGHT_DIRECT && environmentMap)
-		textureRenderer->renderEnvironment(camera,rr_gl::getTexture(environmentMap),0,NULL,0,0,NULL,1,false);
+		textureRenderer->renderEnvironment(camera,rr_gl::getTexture(environmentMap),0,nullptr,0,0,nullptr,1,false);
 
 	// render static scene
 	rr::RRVec4 brightness(2);// render static scene
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,realtimeLight,0,1,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&brightness:NULL,1,NULL);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,realtimeLight,0,1,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&brightness:nullptr,1,nullptr);
 	if (!program)
 		error("Failed to compile or link GLSL program.\n",true);
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
-		program->sendTexture("materialDiffuseMap",NULL); // calls glActiveTexture(), Draw will bind textures
-	m3ds.Draw(solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:NULL,unlockVertexIllum);
+		program->sendTexture("materialDiffuseMap",nullptr); // calls glActiveTexture(), Draw will bind textures
+	m3ds.Draw(solver,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,uberProgramSetup.LIGHT_INDIRECT_VCOLOR?lockVertexIllum:nullptr,unlockVertexIllum);
 
 	// render dynamic objects
 	// enable object space
@@ -140,7 +140,7 @@ void renderScene(const rr::RRCamera& camera, rr_gl::UberProgramSetup uberProgram
 		potato->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->RRSolver::updateEnvironmentMap(potato->illumination,LAYER_ENVIRONMENT,UINT_MAX,LAYER_AMBIENT_MAP);
-		potato->render(uberProgram,uberProgramSetup,camera,&solver->realtimeLights,0,NULL,1);
+		potato->render(uberProgram,uberProgramSetup,camera,&solver->realtimeLights,0,nullptr,1);
 	}
 	if (robot)
 	{
@@ -150,7 +150,7 @@ void renderScene(const rr::RRCamera& camera, rr_gl::UberProgramSetup uberProgram
 		robot->updatePosition();
 		if (uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR)
 			solver->RRSolver::updateEnvironmentMap(robot->illumination,LAYER_ENVIRONMENT,UINT_MAX,LAYER_AMBIENT_MAP);
-		robot->render(uberProgram,uberProgramSetup,camera,&solver->realtimeLights,0,NULL,1);
+		robot->render(uberProgram,uberProgramSetup,camera,&solver->realtimeLights,0,nullptr,1);
 	}
 }
 
@@ -223,7 +223,7 @@ void display(void)
 	if (solver->getSolutionVersion()!=solutionVersion)
 	{
 		solutionVersion = solver->getSolutionVersion();
-		solver->updateLightmaps(LAYER_AMBIENT_MAP,-1,-1,NULL,NULL);
+		solver->updateLightmaps(LAYER_AMBIENT_MAP,-1,-1,nullptr,nullptr);
 	}
 
 	// render
@@ -400,7 +400,7 @@ int main(int argc, char** argv)
 	//environmentMap = rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg");
 
 	// init static .3ds scene
-	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",NULL,0.03f))
+	if (!m3ds.Load("../../data/scenes/koupelna/koupelna4.3DS",nullptr,0.03f))
 		error("",false);
 
 	// init dynamic objects
@@ -421,7 +421,7 @@ int main(int argc, char** argv)
 	solver = new Solver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	solver->setColorSpace(rr::RRColorSpace::create_sRGB());
-	solver->setStaticObjects(*adaptObjectsFrom3DS(&m3ds),NULL);
+	solver->setStaticObjects(*adaptObjectsFrom3DS(&m3ds),nullptr);
 	solver->setEnvironment(environmentMap);
 	if (!solver->getMultiObject())
 		error("No objects in scene.",false);
@@ -431,7 +431,7 @@ int main(int argc, char** argv)
 	for (unsigned i=0;i<solver->getStaticObjects().size();i++)
 		if (solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices())
 			solver->getStaticObjects()[i]->illumination.getLayer(LAYER_AMBIENT_MAP) =
-				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+				rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,solver->getStaticObjects()[i]->getCollider()->getMesh()->getNumVertices(),1,1,rr::BF_RGBF,false,nullptr);
 
 	// init light
 	rr::RRLight* rrlight = rr::RRLight::createSpotLightNoAtt(rr::RRVec3(-1.802f,0.715f,0.850f),rr::RRVec3(1),rr::RRVec3(0.4f,0.2f,1),RR_DEG2RAD(30),0.1f);

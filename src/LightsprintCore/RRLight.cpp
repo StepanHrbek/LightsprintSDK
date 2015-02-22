@@ -271,12 +271,12 @@ RRLight::RRLight()
 	enabled	= true;
 	castShadows = true;
 	directLambertScaled = false;
-	projectedTexture = NULL;
+	projectedTexture = nullptr;
 	rtNumShadowmaps = 6;
 	rtShadowmapSize = 1024;
 	rtShadowmapBias = RRVec2(1);
 	//name = "";
-	customData = NULL;
+	customData = nullptr;
 }
 
 RRLight::RRLight(const RRLight& a)
@@ -295,7 +295,7 @@ RRLight::RRLight(const RRLight& a)
 	enabled	= a.enabled;
 	castShadows = a.castShadows;
 	directLambertScaled = a.directLambertScaled;
-	projectedTexture = a.projectedTexture ? a.projectedTexture->createReference() : NULL;
+	projectedTexture = a.projectedTexture ? a.projectedTexture->createReference() : nullptr;
 	rtNumShadowmaps = a.rtNumShadowmaps;
 	rtShadowmapSize = a.rtShadowmapSize;
 	rtShadowmapBias = a.rtShadowmapBias;
@@ -322,7 +322,7 @@ const RRLight& RRLight::operator=(const RRLight& a)
 	if (projectedTexture!=a.projectedTexture)
 	{
 		delete projectedTexture;
-		projectedTexture = a.projectedTexture ? a.projectedTexture->createReference() : NULL;
+		projectedTexture = a.projectedTexture ? a.projectedTexture->createReference() : nullptr;
 	}
 	rtNumShadowmaps = a.rtNumShadowmaps;
 	rtShadowmapSize = a.rtShadowmapSize;

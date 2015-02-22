@@ -12,19 +12,19 @@
 DynamicObject* DynamicObject::create(const char* filename,float scale)
 {
 	DynamicObject* d = new DynamicObject();
-	if (d->model.Load(filename,NULL,scale) && d->model.numObjects)
+	if (d->model.Load(filename,nullptr,scale) && d->model.numObjects)
 	{
 		return d;
 	}
 	if (!d->model.numObjects) printf("Model %s contains no objects.\n",filename);
 	delete d;
-	return NULL;
+	return nullptr;
 }
 
 void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSetup uberProgramSetup,const rr::RRCamera& camera,rr_gl::RealtimeLight* light,unsigned firstInstance,rr::RRBuffer* lightIndirectEnvSpecular,float rot)
 {
 	// use program
-	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,light,firstInstance,1,NULL,1,NULL);
+	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,light,firstInstance,1,nullptr,1,nullptr);
 	if (!program)
 	{
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program for dynamic object.\n"));
@@ -47,6 +47,6 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	}
 	// render
 	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
-		program->sendTexture("materialDiffuseMap",NULL); // activate unit, Draw will bind textures
-	model.Draw(NULL,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,NULL,NULL);
+		program->sendTexture("materialDiffuseMap",nullptr); // activate unit, Draw will bind textures
+	model.Draw(nullptr,uberProgramSetup.LIGHT_DIRECT,uberProgramSetup.MATERIAL_DIFFUSE_MAP,uberProgramSetup.MATERIAL_EMISSIVE_MAP,nullptr,nullptr);
 }

@@ -197,14 +197,14 @@ void RRSolver::setLights(const RRLights& _lights)
 {
 	if (!&_lights)
 	{
-		RRReporter::report(WARN,"setLights: Invalid input, lights=NULL.\n");
+		RRReporter::report(WARN,"setLights: Invalid input, lights=nullptr.\n");
 		return;
 	}
 	for (unsigned i=0;i<_lights.size();i++)
 	{
 		if (!_lights[i])
 		{
-			RRReporter::report(WARN,"setLights: Invalid input, lights[%d]=NULL.\n",i);
+			RRReporter::report(WARN,"setLights: Invalid input, lights[%d]=nullptr.\n",i);
 			return;
 		}
 	}
@@ -222,27 +222,27 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	// check inputs
 	if (!&_objects)
 	{
-		RRReporter::report(WARN,"setStaticObjects: Invalid input, objects=NULL.\n");
+		RRReporter::report(WARN,"setStaticObjects: Invalid input, objects=nullptr.\n");
 		return;
 	}
 	for (unsigned i=0;i<_objects.size();i++)
 	{
 		if (!_objects[i])
 		{
-			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]=NULL.\n",i);
+			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]=nullptr.\n",i);
 			return;
 		}
 		if (_objects[i]->isDynamic)
 			continue;
 		if (!_objects[i]->getCollider())
 		{
-			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]->getCollider()=NULL.\n",i);
+			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]->getCollider()=nullptr.\n",i);
 			return;
 		}
 		const RRMesh* mesh = _objects[i]->getCollider()->getMesh();
 		if (!mesh)
 		{
-			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]->getCollider()->getMesh()=NULL.\n",i);
+			RRReporter::report(WARN,"setStaticObjects: Invalid input, objects[%d]->getCollider()->getMesh()=nullptr.\n",i);
 			return;
 		}
 		unsigned numTriangles = mesh->getNumTriangles();
@@ -311,7 +311,7 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	}
 	// old smoothing code with stitching here in multiobject
 	//  stitching here (it's based on positions and normals only) would corrupt uvs in indexed render
-	//  we don't pass maxDistanceBetweenUvsToStitch+texcoords as parameters, therefore stitching here calls createOptimizedVertices(,,0,NULL) and different uvs are stitched
+	//  we don't pass maxDistanceBetweenUvsToStitch+texcoords as parameters, therefore stitching here calls createOptimizedVertices(,,0,nullptr) and different uvs are stitched
 	//priv->multiObject = _copyFrom ? _copyFrom->getMultiObject() : getStaticObjects().createMultiObject(_intersectTechnique,aborting,priv->smoothing.vertexWeldDistance,fabs(priv->smoothing.maxSmoothAngle),priv->smoothing.vertexWeldDistance>=0,0,_cacheLocation);
 	// new smoothing stitches in Object::buildTopIVertices, no stitching here in multiobject
 	priv->multiObject = _copyFrom ? _copyFrom->getMultiObject() : getStaticObjects().createMultiObject(_intersectTechnique,aborting,-1,0,false,0,_cacheLocation);
@@ -319,7 +319,7 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 
 	// convert it to physical scale
 	if (!getColorSpace())
-		RRReporter::report(WARN,"colorSpace=NULL, call setColorSpace() if your data are in sRGB.\n");
+		RRReporter::report(WARN,"colorSpace=nullptr, call setColorSpace() if your data are in sRGB.\n");
 	getStaticObjects().updateColorLinear(getColorSpace());
 
 	priv->staticSolverCreationFailed = false;
@@ -349,7 +349,7 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 		{
 			if (!aborting)
 			{
-				const RRMaterial* material = priv->multiObject->getTriangleMaterial(t,NULL,NULL);
+				const RRMaterial* material = priv->multiObject->getTriangleMaterial(t,nullptr,nullptr);
 
 				RRObject::LodInfo lodInfo;
 				priv->multiObject->getTriangleLod(t,lodInfo);
@@ -391,24 +391,24 @@ void RRSolver::setDynamicObjects(const RRObjects& _objects)
 	// check inputs
 	if (!&_objects)
 	{
-		RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects=NULL.\n");
+		RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects=nullptr.\n");
 		return;
 	}
 	for (unsigned i=0;i<_objects.size();i++)
 	{
 		if (!_objects[i])
 		{
-			RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects[%d]=NULL.\n",i);
+			RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects[%d]=nullptr.\n",i);
 			return;
 		}
 		if (!_objects[i]->getCollider())
 		{
-			RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects[%d]->getCollider()=NULL.\n",i);
+			RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects[%d]->getCollider()=nullptr.\n",i);
 			return;
 		}
 		if (!_objects[i]->getCollider()->getMesh())
 		{
-			RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects[%d]->getCollider()->getMesh()=NULL.\n",i);
+			RRReporter::report(WARN,"setDynamicObjects: Invalid input, objects[%d]->getCollider()->getMesh()=nullptr.\n",i);
 			return;
 		}
 	}
@@ -420,7 +420,7 @@ void RRSolver::setDynamicObjects(const RRObjects& _objects)
 			priv->dynamicObjects.push_back(_objects[i]);
 	// convert it to physical scale
 	if (!getColorSpace())
-		RRReporter::report(WARN,"colorSpace=NULL, call setColorSpace() if your data are in sRGB.\n");
+		RRReporter::report(WARN,"colorSpace=nullptr, call setColorSpace() if your data are in sRGB.\n");
 	getDynamicObjects().updateColorLinear(getColorSpace());
 	// invalidate supercollider
 	priv->superColliderDirty = true;
@@ -445,7 +445,7 @@ RRObject* RRSolver::getObject(unsigned index) const
 	index -= getStaticObjects().size();
 	if (index<getDynamicObjects().size())
 		return getDynamicObjects()[index];
-	return NULL;
+	return nullptr;
 }
 
 RRCollider* RRSolver::getCollider() const
@@ -478,7 +478,7 @@ RRCollider* RRSolver::getCollider() const
 		priv->superColliderObjects.insert(priv->superColliderObjects.end(),priv->dynamicObjects.begin(),priv->dynamicObjects.end());
 		delete priv->superCollider;
 		bool aborting = false;
-		priv->superCollider = RRCollider::create(NULL,&priv->superColliderObjects,RRCollider::IT_BVH_FAST,aborting);
+		priv->superCollider = RRCollider::create(nullptr,&priv->superColliderObjects,RRCollider::IT_BVH_FAST,aborting);
 		priv->superColliderDirty = false;
 		
 		// update superColliderMin/Max/Center
@@ -487,7 +487,7 @@ RRCollider* RRSolver::getCollider() const
 		priv->superColliderMin = RRVec3(1e37f);
 		priv->superColliderMax = RRVec3(-1e37f);
 		priv->superColliderCenter = RRVec3(0);
-		priv->superColliderPlane = NULL;
+		priv->superColliderPlane = nullptr;
 		if (getMultiObject())
 		{
 			getMultiObject()->getCollider()->getMesh()->getAABB(&priv->superColliderMin,&priv->superColliderMax,&priv->superColliderCenter);
@@ -708,7 +708,7 @@ const unsigned* RRSolver::getDirectIllumination()
 
 void RRSolver::calculateDirtyLights(CalculateParameters* _params)
 {
-	// replace NULL by default parameters
+	// replace nullptr by default parameters
 	static CalculateParameters s_params;
 	if (!_params) _params = &s_params;
 
@@ -784,7 +784,7 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 {
 	if (!getMultiObject()) return;
 
-	// replace NULL by default parameters
+	// replace nullptr by default parameters
 	static CalculateParameters s_params;
 	if (!_params) _params = &s_params;
 
@@ -824,7 +824,7 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 		RR_SAFE_DELETE(priv->packedSolver);
 		if (priv->scene)
 		{
-			priv->scene->illuminationReset(true,true,_params->materialEmittanceMultiplier,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
+			priv->scene->illuminationReset(true,true,_params->materialEmittanceMultiplier,priv->customIrradianceRGBA8,priv->customToPhysical,nullptr);
 		}
 		priv->solutionVersion++;
 		priv->readingResultsPeriodSteps = 0;
@@ -878,7 +878,7 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 		if (priv->scene)
 		{
 			REPORT(RRReportInterval report(INF3,"Reset Arch illum...\n"));
-			priv->scene->illuminationReset(false,true,_params->materialEmittanceMultiplier,priv->customIrradianceRGBA8,priv->customToPhysical,NULL);
+			priv->scene->illuminationReset(false,true,_params->materialEmittanceMultiplier,priv->customIrradianceRGBA8,priv->customToPhysical,nullptr);
 		}
 		priv->solutionVersion++;
 		priv->readingResultsPeriodSteps = 0;
@@ -1015,7 +1015,7 @@ void RRSolver::checkConsistency()
 	const unsigned* detected = priv->customIrradianceRGBA8;
 	if (!detected)
 	{
-		RRReporter::report(WARN,"  setDirectIllumination() not called yet (or called with NULL), no realtime lighting.\n");
+		RRReporter::report(WARN,"  setDirectIllumination() not called yet (or called with nullptr), no realtime lighting.\n");
 		return;
 	}
 
@@ -1118,7 +1118,7 @@ void RRSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironm
 			RRObjectIllumination& multiIllumination = getMultiObject()->illumination;
 			if (!multiIllumination.getLayer(layerLightmap))
 				multiIllumination.getLayer(layerLightmap) =
-					RRBuffer::create(BT_VERTEX_BUFFER,getMultiObject()->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,false,NULL); // [multiobj indir is indexed]
+					RRBuffer::create(BT_VERTEX_BUFFER,getMultiObject()->getCollider()->getMesh()->getNumVertices(),1,1,BF_RGBF,false,nullptr); // [multiobj indir is indexed]
 		}
 		for (unsigned i=0;i<getDynamicObjects().size();i++)
 		{
@@ -1159,7 +1159,7 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 		for (unsigned i=0;i<w;i++)
 		{
 			unsigned index = i+j*w;
-			RRVec4 c = _frame->getElement(index,NULL);
+			RRVec4 c = _frame->getElement(index,nullptr);
 			//for (int sy=0; sy<2; sy++)
 			//for (int sx=0; sx<2; sx++)
 			//for (int s=0; s<2; s++)
@@ -1170,22 +1170,22 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 				RRVec2 positionInWindow(2*(dx+i)/w-1,2*(dy+j)/h-1);
 				RRVec3 rayOrigin, rayDir;
 				RRVec3 color = _camera.getRay(positionInWindow,rayOrigin,rayDir)
-					? pathtracerWorker.getIncidentRadiance(rayOrigin,rayDir.normalized(),NULL,UINT_MAX)
+					? pathtracerWorker.getIncidentRadiance(rayOrigin,rayDir.normalized(),nullptr,UINT_MAX)
 					: RRVec3(0);
 				c = (c*RRReal(_accumulated)+RRVec4(color,0))/(_accumulated+1);
 			}
 			if (!halfres)
-				_frame->setElement(index,c,NULL);
+				_frame->setElement(index,c,nullptr);
 			else
 			{
-				_frame->setElement(2*i+2*j*ww,c,NULL);
+				_frame->setElement(2*i+2*j*ww,c,nullptr);
 				if (2*i+1<ww)
-					_frame->setElement(2*i+1+2*j*ww,c,NULL);
+					_frame->setElement(2*i+1+2*j*ww,c,nullptr);
 				if (2*(unsigned)j+1<hh)
 				{
-					_frame->setElement(2*i+(2*j+1)*ww,c,NULL);
+					_frame->setElement(2*i+(2*j+1)*ww,c,nullptr);
 					if (2*i+1<ww)
-						_frame->setElement(2*i+1+(2*j+1)*ww,c,NULL);
+						_frame->setElement(2*i+1+(2*j+1)*ww,c,nullptr);
 				}
 			}
 		}

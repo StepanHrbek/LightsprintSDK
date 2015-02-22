@@ -71,7 +71,7 @@ struct AnimationFrame
 	// existing frame is modified
 	bool loadOver(FILE* f);
 
-	// load frame from opened .ani file, return NULL on failure
+	// load frame from opened .ani file, return nullptr on failure
 	// new frame is created
 	static AnimationFrame* loadNew(FILE* f);
 

@@ -139,10 +139,10 @@ void CSHA1::Update(const UINT_8* pbData, UINT_32 uLen)
 // Hash in file contents
 bool CSHA1::HashFile(const TCHAR* tszFileName)
 {
-	if(tszFileName == NULL) return false;
+	if(tszFileName == nullptr) return false;
 
 	FILE* fpIn = _tfopen(tszFileName, _T("rb"));
-	if(fpIn == NULL) return false;
+	if(fpIn == nullptr) return false;
 
 	_fseeki64(fpIn, 0, SEEK_END);
 	const INT_64 lFileSize = _ftelli64(fpIn);
@@ -207,7 +207,7 @@ void CSHA1::Final()
 // Get the final hash as a pre-formatted string
 bool CSHA1::ReportHash(TCHAR* tszReport, REPORT_TYPE rtReportType) const
 {
-	if(tszReport == NULL) return false;
+	if(tszReport == nullptr) return false;
 
 	TCHAR tszTemp[16];
 
@@ -253,7 +253,7 @@ bool CSHA1::ReportHashStl(std::basic_string<TCHAR>& strOut, REPORT_TYPE rtReport
 // Get the raw message digest
 bool CSHA1::GetHash(UINT_8* pbDest) const
 {
-	if(pbDest == NULL) return false;
+	if(pbDest == nullptr) return false;
 	memcpy(pbDest, m_digest, 20);
 	return true;
 }

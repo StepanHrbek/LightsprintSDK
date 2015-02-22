@@ -37,8 +37,8 @@ public:
 		bigColor3 = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 		bigDepth = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,16,16,1,rr::BF_DEPTH,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST,GL_CLAMP_TO_EDGE,GL_CLAMP_TO_EDGE);
 		ssgiUberProgram = UberProgram::create(rr::RRString(0,L"%lsssgi.vs",params.pathToShaders.w_str()),rr::RRString(0,L"%lsssgi.fs",params.pathToShaders.w_str()));
-		ssgiProgram1 = ssgiUberProgram ? ssgiUberProgram->getProgram("#define PASS 1\n") : NULL;
-		ssgiProgram2 = ssgiUberProgram ? ssgiUberProgram->getProgram("#define PASS 2\n") : NULL;
+		ssgiProgram1 = ssgiUberProgram ? ssgiUberProgram->getProgram("#define PASS 1\n") : nullptr;
+		ssgiProgram2 = ssgiUberProgram ? ssgiUberProgram->getProgram("#define PASS 2\n") : nullptr;
 	}
 
 	virtual ~PluginRuntimeSSGI()
@@ -140,7 +140,7 @@ public:
 		glBlendFunc(GL_ZERO,GL_SRC_COLOR);
 		TextureRenderer::renderQuad();
 		//if (_textureRenderer)
-		//	_textureRenderer->render2D(bigDepth,NULL,0,0.35f,0.3f,0.3f,-1);
+		//	_textureRenderer->render2D(bigDepth,nullptr,0,0.35f,0.3f,0.3f,-1);
 	}
 };
 

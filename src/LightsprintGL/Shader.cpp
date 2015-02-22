@@ -55,13 +55,13 @@ Shader* Shader::create(const char* defines, const rr::RRString& filename, GLenum
 	{
 	}
 	rr::RRReporter::report(rr::ERRO,"Shader %ls not found.\n",filename.w_str());
-	return NULL;
+	return nullptr;
 }
 
 Shader::Shader(const rr::RRString& filenameDiagnosticOnly, const GLchar** source, GLenum shaderType)
 {
 	handle = glCreateShader(shaderType);
-	glShaderSource(handle, NUM_LINES, source, NULL);
+	glShaderSource(handle, NUM_LINES, source, nullptr);
 	compile(filenameDiagnosticOnly);
 }
 

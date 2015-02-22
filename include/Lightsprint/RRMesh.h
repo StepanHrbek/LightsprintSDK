@@ -306,11 +306,11 @@ namespace rr
 		//! Returns axis aligned bounding box and center of mesh. Fast (cached).
 		//
 		//! \param mini
-		//!  NULL or pointer to vec3 to be filled with minimum of computed AABB.
+		//!  nullptr or pointer to vec3 to be filled with minimum of computed AABB.
 		//! \param maxi
-		//!  NULL or pointer to vec3 to be filled with maximum of computed AABB.
+		//!  nullptr or pointer to vec3 to be filled with maximum of computed AABB.
 		//! \param center
-		//!  NULL or pointer to vec3 to be filled with average vertex position.
+		//!  nullptr or pointer to vec3 to be filled with average vertex position.
 		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
 
 		//! Returns average distance between two vertices. Slow (not cached).
@@ -332,12 +332,12 @@ namespace rr
 		//!  Optional lightmap texcoord channel (it is stored in RRMaterial::lightmapTexcoord).
 		//!  UINT_MAX disables unwrap check.
 		//! \param meshName
-		//!  Optional mesh name included in report if inconsistency is found. May be NULL.
+		//!  Optional mesh name included in report if inconsistency is found. May be nullptr.
 		//! \param numReports
-		//!  Reserved, keep it NULL.
+		//!  Reserved, keep it nullptr.
 		//! \return
 		//!  Number of problem reported, 0 for valid mesh.
-		virtual unsigned     checkConsistency(unsigned lightmapTexcoord, const char* meshName, class NumReports* numReports = NULL) const;
+		virtual unsigned     checkConsistency(unsigned lightmapTexcoord, const char* meshName, class NumReports* numReports = nullptr) const;
 
 
 		//////////////////////////////////////////////////////////////////////////////
@@ -369,7 +369,7 @@ namespace rr
 		//! \param vertexBuffer Your vertex buffer.
 		//! \param vertexCount Number of vertices in your vertex buffer.
 		//! \param vertexStride Distance (in bytes) between n-th and (n+1)th vertex in your vertex buffer.
-		//! \return Newly created instance of RRMesh or NULL in case of unsupported or invalid inputs.
+		//! \return Newly created instance of RRMesh or nullptr in case of unsupported or invalid inputs.
 		static RRMesh* create(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride);
 
 		//! Creates %RRMesh from your vertex and index buffers.
@@ -383,7 +383,7 @@ namespace rr
 		//! \param indexBuffer Your index buffer.
 		//! \param indexCount Number of indices in your index buffer.
 		//! \param vertexStitchMaxDistance Max distance for vertex stitching. For default 0, vertices with equal coordinates are stitched and get equal vertex index (number of vertices returned by getNumVertices() is then lower). For negative value, no stitching is performed. For positive value, also vertices in lower or equal distance will be stitched.
-		//! \return Newly created instance of RRMesh or NULL in case of unsupported or invalid inputs.
+		//! \return Newly created instance of RRMesh or nullptr in case of unsupported or invalid inputs.
 		static RRMesh* createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance = 0);
 
 
@@ -444,7 +444,7 @@ namespace rr
 		//!  Vertices are not merged if their uvs from texcoords differ more.
 		//! \param texcoords
 		//!  Vertices are not merged if their uvs from texcoords differ more than maxDistanceBetweenUvsToMerge.
-		//!  May be NULL. Uvs not listed in texcoords are ignored, differences in such channels don't prevent merging.
+		//!  May be nullptr. Uvs not listed in texcoords are ignored, differences in such channels don't prevent merging.
 		const RRMesh* createOptimizedVertices(float maxDistanceBetweenVerticesToMerge, float maxRadiansBetweenNormalsToMerge, float maxDistanceBetweenUvsToMerge, const RRVector<unsigned>* texcoords) const;
 
 		//! Creates and returns identical mesh with optimized set of triangles (removes degenerated triangles).
@@ -522,15 +522,15 @@ namespace rr
 
 		// Per-triangle data.
 		unsigned numTriangles;
-		Triangle* triangle; ///< 32bit triangle list, may be NULL only in completely empty mesh.
+		Triangle* triangle; ///< 32bit triangle list, may be nullptr only in completely empty mesh.
 
 		// Per-vertex data, use resizeMesh() for allocations.
 		unsigned numVertices;
-		RRVec3* position; ///< May be NULL only in completely empty mesh.
-		RRVec3* normal; ///< May be NULL only in completely empty mesh.
-		RRVec3* tangent; ///< May be NULL.
-		RRVec3* bitangent; ///< May be NULL.
-		RRVector<RRVec2*> texcoord; ///< May contain mix of NULL and non-NULL channels, e.g. texcoord[5] array is missing but texcoord[6] array is present.
+		RRVec3* position; ///< May be nullptr only in completely empty mesh.
+		RRVec3* normal; ///< May be nullptr only in completely empty mesh.
+		RRVec3* tangent; ///< May be nullptr.
+		RRVec3* bitangent; ///< May be nullptr.
+		RRVector<RRVec2*> texcoord; ///< May contain mix of nullptr and non-nullptr channels, e.g. texcoord[5] array is missing but texcoord[6] array is present.
 
 		//! Memory management.
 		//
@@ -625,7 +625,7 @@ namespace rr
 		//!  Matrix to transform data with.
 		//!  As this is the only function working with 2x3 matrix, we pass just pointer to 6 floats instead of creating new class.
 		//!  Uvs are transformed as in uv=RRVec2(u*matrix[0]+v*matrix[1]+matrix[2],u*matrix[3]+v*matrix[4]+matrix[5]);
-		//!  NULL works as identity, i.e. no transformation.
+		//!  nullptr works as identity, i.e. no transformation.
 		//! \param destinationChannel
 		//!  Channel results are saved to. If there is no such channel, it is created.
 		//! \return

@@ -23,9 +23,9 @@ namespace rr_gl
 
 MeshArraysVBOs::MeshArraysVBOs()
 {
-	createdFromMesh = NULL;
+	createdFromMesh = nullptr;
 	createdFromMeshVersion = 0;
-	createdFromLightIndirectBuffer = NULL;
+	createdFromLightIndirectBuffer = nullptr;
 	createdFromLightIndirectVersion = UINT_MAX;
 	createdIndexed = false;
 	createdOk = false;
@@ -284,9 +284,9 @@ void MeshArraysVBOs::renderMesh(
 		}
 		else
 		{
-			// INDEXED FROM VBUFFER THAT IS NULL
+			// INDEXED FROM VBUFFER THAT IS nullptr
 			// scene will be rendered without indirect illumination
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Render of indirect illumination buffer requested, but the buffer is NULL.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Render of indirect illumination buffer requested, but the buffer is nullptr.\n"));
 			glDisableVertexAttribArray(VAA_COLOR);
 #ifndef RR_GL_ES2
 			glColor3b(0,0,0);
@@ -537,8 +537,8 @@ static Helpers s_helpers;
 
 MeshVBOs::MeshVBOs()
 {
-	createdFromMesh[0] = NULL;
-	createdFromMesh[1] = NULL;
+	createdFromMesh[0] = nullptr;
+	createdFromMesh[1] = nullptr;
 	createdFromNumTriangles[0] = 0;
 	createdFromNumTriangles[1] = 0;
 	createdFromNumVertices[0] = 0;
@@ -550,14 +550,14 @@ MeshVBOs::MeshVBOs()
 MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _indexed)
 {
 	if (!_mesh)
-		return NULL;
+		return nullptr;
 
 	unsigned index = _indexed?0:1;
 	unsigned numTriangles = _mesh->getNumTriangles();
 	unsigned numVertices = _mesh->getNumVertices();
 
 	if (!numTriangles || !numVertices)
-		return NULL;
+		return nullptr;
 	
 	// RRMesh update
 	if (createdFromMesh[index]!=_mesh || createdFromNumTriangles[index]!=numTriangles || createdFromNumVertices[index]!=numVertices)
@@ -567,7 +567,7 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _index
 		createdFromNumVertices[index] = numVertices;
 
 		{
-			const rr::RRMeshArrays* meshArrays = _indexed ? dynamic_cast<const rr::RRMeshArrays*>(_mesh) : NULL;
+			const rr::RRMeshArrays* meshArrays = _indexed ? dynamic_cast<const rr::RRMeshArrays*>(_mesh) : nullptr;
 			if (!meshArrays)
 			{
 				s_helpers.texcoords.clear();
@@ -591,7 +591,7 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _index
 			meshArraysVBOs[index].update(meshArrays,_indexed);
 	}
 
-	return updatedOk[index] ? &meshArraysVBOs[index] : NULL;
+	return updatedOk[index] ? &meshArraysVBOs[index] : nullptr;
 }
 
 
@@ -639,7 +639,7 @@ void RendererOfMesh::renderMesh(
 	/////////////////////////////////////////////////////////////////////////
 
 	const rr::RRMesh* mesh = _object->getCollider()->getMesh();
-	MeshArraysVBOs* meshArraysVBOs = NULL;
+	MeshArraysVBOs* meshArraysVBOs = nullptr;
 
 	if (!dontUseIndexed)
 	{

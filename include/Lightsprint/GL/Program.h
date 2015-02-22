@@ -110,7 +110,7 @@ public:
 	//! Shaders are created by concatenating string defines
 	//! and contents of file vertexShader / fragmentShader.
 	//! \param defines
-	//!  String inserted before compilation at the beginning of shader source code. May be NULL.
+	//!  String inserted before compilation at the beginning of shader source code. May be nullptr.
 	//! \param vertexShader
 	//!  Name of text file with GLSL vertex shader. May be empty for fixed pipeline.
 	//! \param fragmentShader
@@ -135,8 +135,8 @@ public:
 	//!
 	//! Following fragments of code do the same
 	//! - sendTexture(name,tex);
-	//! - sendTexture(name,NULL); tex->bindTexture();
-	//! - unsigned unit = sendTexture(name,NULL); glActiveTexture(GL_TEXTURE0+unit); tex->bindTexture();
+	//! - sendTexture(name,nullptr); tex->bindTexture();
+	//! - unsigned unit = sendTexture(name,nullptr); glActiveTexture(GL_TEXTURE0+unit); tex->bindTexture();
 	//!
 	//! When doing multiple renders that differ only in textures, use codes
 	//! - useIt(); for (int i=0;i<100;i++) { sendTexture(name1,...,1); sendTexture(name2,...,2); draw(); }

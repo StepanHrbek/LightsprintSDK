@@ -22,12 +22,12 @@ IntersectVerification::IntersectVerification(const RRMesh* importer, bool& abort
 {
 	for (unsigned i=0;i<IT_VERIFICATION;i++)
 	{
-		collider[i] = RRCollider::create(importer,NULL,(RRCollider::IntersectTechnique)i,aborting);
+		collider[i] = RRCollider::create(importer,nullptr,(RRCollider::IntersectTechnique)i,aborting);
 		/*if (collider[i]->getTechnique()!=i)
 		{
 			RR_ASSERT(0);
 			delete collider[i];
-			collider[i] = RRCollider::create(importer,NULL,RRCollider::IT_LINEAR);
+			collider[i] = RRCollider::create(importer,nullptr,RRCollider::IT_LINEAR);
 		}*/
 	}
 	unsigned vertices = importer->getNumVertices();

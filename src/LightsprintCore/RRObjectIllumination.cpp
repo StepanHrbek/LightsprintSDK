@@ -28,21 +28,21 @@ RRObjectIllumination::RRObjectIllumination()
 	cachedCenter = RRVec3(0);
 	cachedGatherSize = 0;
 	cachedNumTriangles = 0;
-	cachedTriangleNumbers = NULL;
+	cachedTriangleNumbers = nullptr;
 }
 
 RRBuffer*& RRObjectIllumination::getLayer(unsigned layerNumber)
 {
 	LayersMap::iterator i = layersMap->find(layerNumber);
 	if (i!=layersMap->end()) return i->second;
-	return (*layersMap)[layerNumber] = NULL;
+	return (*layersMap)[layerNumber] = nullptr;
 }
 
 RRBuffer* RRObjectIllumination::getLayer(unsigned layerNumber) const
 {
 	LayersMap::iterator i = layersMap->find(layerNumber);
 	if (i!=layersMap->end()) return i->second;
-	return NULL;
+	return nullptr;
 }
 
 RRObjectIllumination::~RRObjectIllumination()

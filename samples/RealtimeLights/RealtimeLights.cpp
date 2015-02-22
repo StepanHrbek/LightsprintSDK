@@ -74,9 +74,9 @@ void error(const char* message, bool gfxRelated)
 //
 // globals are ugly, but required by GLUT design with callbacks
 
-rr_gl::RRSolverGL*  solver = NULL;
-rr::RRObject*              robot = NULL;
-rr::RRObject*              potato = NULL;
+rr_gl::RRSolverGL*  solver = nullptr;
+rr::RRObject*              robot = nullptr;
+rr::RRObject*              potato = nullptr;
 rr::RRCamera               eye(rr::RRVec3(-0.856f,1.440f,2.097f), rr::RRVec3(5.744f,0.02f,0), 1.3f,110,0.1f,1000);
 unsigned                   selectedLightIndex = 0; // index into lights, light controlled by mouse/arrows
 int                        winWidth = 0;
@@ -97,7 +97,7 @@ static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVe
 	if (!object)
 		return;
 	rr::RRVec3 mini,center;
-	object->getCollider()->getMesh()->getAABB(&mini,NULL,&center);
+	object->getCollider()->getMesh()->getAABB(&mini,nullptr,&center);
 	float sz = sin(RR_DEG2RAD(rotYZ[1]));
 	float cz = cos(RR_DEG2RAD(rotYZ[1]));
 	float sy = sin(RR_DEG2RAD(rotYZ[0]));
@@ -260,7 +260,7 @@ void display(void)
 
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	// configure plugins
-	rr_gl::PluginParamsSky ppSky(NULL,solver,1);
+	rr_gl::PluginParamsSky ppSky(nullptr,solver,1);
 	rr_gl::PluginParamsScene ppScene(&ppSky,solver);
 	ppScene.solver = solver;
 	ppScene.lights = &solver->realtimeLights;
@@ -363,7 +363,7 @@ int main(int argc, char** argv)
 
 	// load static scene
 	rr::RRScene staticScene("../../data/scenes/koupelna/koupelna4.dae");
-	solver->setStaticObjects(staticScene.objects, NULL);
+	solver->setStaticObjects(staticScene.objects, nullptr);
 
 	// load dynamic objects
 	rr::RRScene robotScene("../../data/objects/I_Robot_female.3ds");
@@ -371,8 +371,8 @@ int main(int argc, char** argv)
 	rr::RRScene potatoScene("../../data/objects/potato/potato01.3ds");
 	potatoScene.normalizeUnits(0.004f);
 	bool aborting = false;
-	robot = robotScene.objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
-	potato = potatoScene.objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,NULL);
+	robot = robotScene.objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,nullptr);
+	potato = potatoScene.objects.createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,0,true,0,nullptr);
 	if (robot) robot->isDynamic = true;
 	if (potato) potato->isDynamic = true;
 	rr::RRObjects dynamicObjects;

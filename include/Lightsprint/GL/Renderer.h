@@ -30,7 +30,7 @@ class RR_GL_API NamedCounter
 public:
 	unsigned count; ///< Count, zeroed at creation time, incremented by plugin, read and possibly modified by application.
 	const char* name; ///< Name, set at creation time, never modified or freed.
-	NamedCounter* next; ///< Pointer to next counter, NULL for end of list.
+	NamedCounter* next; ///< Pointer to next counter, nullptr for end of list.
 
 	NamedCounter* init(const char* _name, NamedCounter* _next)
 	{
@@ -108,7 +108,7 @@ public:
 //! Example of calling renderer with plugin chain (see samples for complete code):
 //! \code
 //! // declare first plugin in chain, to render skybox on background
-//! PluginParamsSky ppSky(NULL,solver);
+//! PluginParamsSky ppSky(nullptr,solver);
 //!
 //! // declare second plugin, to render objects over background
 //! PluginParamsScene ppScene(&ppSky,solver);

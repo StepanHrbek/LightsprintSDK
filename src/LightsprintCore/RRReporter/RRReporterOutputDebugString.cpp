@@ -54,7 +54,7 @@ RRReporter* RRReporter::createOutputDebugStringReporter()
 
 rr::RRReporter* rr::RRReporter::createOutputDebugStringReporter()
 {
-	return NULL;
+	return nullptr;
 }
 
 #endif // !_WIN32

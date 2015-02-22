@@ -39,7 +39,7 @@ wxString FloatProperty::ValueToString( wxVariant& value, int argFlags ) const
 	wxString tmp;
 	return (m_precision<0)
 		? wxString::Format("%g",value.GetDouble()) // renders 1e-10 as 1e-10 rather than 0, which is wxWidgets default behaviour
-		: wxPropertyGrid::DoubleToString(tmp,value.GetDouble(),m_precision,true,NULL); // default code, removes unnecessary zeroes
+		: wxPropertyGrid::DoubleToString(tmp,value.GetDouble(),m_precision,true,nullptr); // default code, removes unnecessary zeroes
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -145,7 +145,7 @@ static wxColour RRVec32wxColour(RRVec3 c)
 WX_PG_IMPLEMENT_PROPERTY_CLASS(HDRColorProperty,wxPGProperty,RRVec3,const RRVec3&,TextCtrl)
 
 HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& help, int precision, const RRVec3& rgb )
-	: wxPGProperty(label,wxPG_LABEL), image(2,1), bitmap(NULL)
+	: wxPGProperty(label,wxPG_LABEL), image(2,1), bitmap(nullptr)
 {
 	SetValue(WXVARIANT(rgb));
 	SetHelpString(help);
@@ -338,8 +338,8 @@ ImageFileProperty::ImageFileProperty(const wxString& label, const wxString& help
 	: wxFileProperty(label)
 {
 	SetHelpString(help);
-	image = NULL;
-	bitmap = NULL;
+	image = nullptr;
+	bitmap = nullptr;
 }
 
 ImageFileProperty::~ImageFileProperty()
@@ -350,7 +350,7 @@ ImageFileProperty::~ImageFileProperty()
 
 void ImageFileProperty::updateIcon(rr::RRBuffer* buffer)
 {
-	if (buffer && m_parentState) // be careful, wxWidgets SetValueImage would crash if m_parentState is NULL
+	if (buffer && m_parentState) // be careful, wxWidgets SetValueImage would crash if m_parentState is nullptr
 	{
 		wxSize size = wxSize(20,15);//GetImageSize();
 		delete image;
@@ -361,7 +361,7 @@ void ImageFileProperty::updateIcon(rr::RRBuffer* buffer)
 			for (int j=0;j<size.y;j++)
 			for (int i=0;i<size.x;i++)
 			{
-				rr::RRVec4 rgba = buffer->getElementAtPosition(rr::RRVec3((i+0.45f)/size.x,(j+0.45f)/size.y,0),NULL,false);
+				rr::RRVec4 rgba = buffer->getElementAtPosition(rr::RRVec3((i+0.45f)/size.x,(j+0.45f)/size.y,0),nullptr,false);
 				data[(i+j*size.x)*3+0] = RR_FLOAT2BYTE(rgba[0]);
 				data[(i+j*size.x)*3+1] = RR_FLOAT2BYTE(rgba[1]);
 				data[(i+j*size.x)*3+2] = RR_FLOAT2BYTE(rgba[2]);
@@ -372,7 +372,7 @@ void ImageFileProperty::updateIcon(rr::RRBuffer* buffer)
 		SetValueImage(*bitmap);
 	}
 	else
-		SetValueImage(*(wxBitmap*)NULL);
+		SetValueImage(*(wxBitmap*)nullptr);
 }
 
 void ImageFileProperty::updateBufferAndIcon(rr::RRBuffer*& buffer, bool playVideos)
@@ -720,7 +720,7 @@ const CityLocation cityLocations[] =
 	{wxT("Wilmington, N.C., USA"),34,14,'N',77,57,'W'},
 	{wxT("Winnipeg, Man., Canada"),49,54,'N',97,7,'W'},
 	{wxT("Zurich, Switzerland"),47,21,'N',8,31,'E'}, // Zürich
-	{NULL,0,0,'N',0,0,'W'}
+	{nullptr,0,0,'N',0,0,'W'}
 };
 
 static unsigned findCity(RRVec2 latitudeLongitude)

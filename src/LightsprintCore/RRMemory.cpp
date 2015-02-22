@@ -94,8 +94,8 @@ void RRAligned::operator delete[](void* p, std::size_t n)
 
 RRString::RRString()
 {
-	str = NULL;
-	wstr = NULL;
+	str = nullptr;
+	wstr = nullptr;
 }
 
 RRString::RRString(const RRString& a)
@@ -113,8 +113,8 @@ RRString::RRString(const RRString& a)
 	else
 	{
 		fail:
-		str = NULL;
-		wstr = NULL;
+		str = nullptr;
+		wstr = nullptr;
 	}
 }
 
@@ -123,7 +123,7 @@ RRString::RRString(const char* a)
 	if (a&&a[0])
 	{
 		size_t bytes1 = strlen(a)+1;
-		size_t wchars = mbstowcs(NULL,a,0)+1; // +1 for null terminator
+		size_t wchars = mbstowcs(nullptr,a,0)+1; // +1 for null terminator
 		size_t bytes2 = (wchars+1)*sizeof(wchar_t); // +1 for null terminator even in case of invalid string (mbstowcs=-1)
 		RR_ASSERT(bytes1>0);
 		RR_ASSERT(bytes2>0);
@@ -142,8 +142,8 @@ RRString::RRString(const char* a)
 	else
 	{
 		fail:
-		str = NULL;
-		wstr = NULL;
+		str = nullptr;
+		wstr = nullptr;
 	}
 }
 
@@ -178,16 +178,16 @@ RRString::RRString(const wchar_t* a)
 	else
 	{
 		fail:
-		str = NULL;
-		wstr = NULL;
+		str = nullptr;
+		wstr = nullptr;
 	}
 }
 
 void RRString::clear()
 {
 	free(str);
-	str = NULL;
-	wstr = NULL;
+	str = nullptr;
+	wstr = nullptr;
 }
 
 static void form(RRString* thiz, const wchar_t* fmt, va_list& argptr)
@@ -225,8 +225,8 @@ static void form(RRString* thiz, const wchar_t* fmt, va_list& argptr)
 
 RRString::RRString(unsigned zero, const wchar_t* fmt, ...)
 {
-	str = NULL;
-	wstr = NULL;
+	str = nullptr;
+	wstr = nullptr;
 	va_list argptr;
 	va_start(argptr,fmt);
 	form(this,fmt,argptr);

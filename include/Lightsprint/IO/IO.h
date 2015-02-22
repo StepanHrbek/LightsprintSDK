@@ -67,7 +67,7 @@ namespace rr_io /// LightsprintIO - import and export of scenes, textures, verte
 //! \param argc
 //!  Copy of your main() argument. Used only for import isolation on non-Windows platforms, can be 0 otherwise.
 //! \param argv
-//!  Copy of your main() argument. Used only for import isolation on non-Windows platforms, can be NULL otherwise.
+//!  Copy of your main() argument. Used only for import isolation on non-Windows platforms, can be nullptr otherwise.
 //! \param step Keep empty.
 //!  Only if you need to register your own isolated loader for fileformat already supported by LightsprintIO, all without modifying LightsprintIO,
 //!  call registerLoaders(1); registerYourLoader(); registerLoaders(2); isolateSceneLoaders();
@@ -100,7 +100,7 @@ void RR_IO_API registerLoaders(int argc, char** argv, unsigned step = 0);
 //! \param argc
 //!  Copy of your main() argument. Used only on non-Windows platforms, can be 0 otherwise.
 //! \param argv
-//!  Copy of your main() argument. Used only on non-Windows platforms, can be NULL otherwise.
+//!  Copy of your main() argument. Used only on non-Windows platforms, can be nullptr otherwise.
 void RR_IO_API isolateSceneLoaders(int argc, char** argv);
 
 

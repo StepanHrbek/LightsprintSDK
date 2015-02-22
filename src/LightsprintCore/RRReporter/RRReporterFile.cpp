@@ -42,7 +42,7 @@ public:
 		if (file && flush)
 		{
 			fclose(file);
-			file = NULL;
+			file = nullptr;
 		}
 	}
 	~RRReporterFile()

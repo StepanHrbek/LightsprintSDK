@@ -31,14 +31,14 @@ public:
 		const PluginParamsShowDDI& pp = *dynamic_cast<const PluginParamsShowDDI*>(&_pp);
 
 		// locate ppScene in chain
-		PluginParamsScene* ppScene = NULL;
+		PluginParamsScene* ppScene = nullptr;
 		const PluginParams* ppi = &_pp;
 		while (ppi && !ppScene)
 		{
 			ppi = ppi->next;
 			ppScene = const_cast<PluginParamsScene*>(dynamic_cast<const PluginParamsScene*>(ppi));
 		}
-		PluginParamsScene ppSceneBackup(NULL,NULL);
+		PluginParamsScene ppSceneBackup(nullptr,nullptr);
 
 		// change ppScene to show DDI
 		if (ppScene)
@@ -54,7 +54,7 @@ public:
 				if (ddi)
 				{
 					unsigned numTriangles = multiObject->getCollider()->getMesh()->getNumTriangles();
-					rr::RRBuffer* vbuf = multiObject->illumination.getLayer(LAYER_DDI) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,3*numTriangles,1,1,rr::BF_RGBA,true,NULL);
+					rr::RRBuffer* vbuf = multiObject->illumination.getLayer(LAYER_DDI) = rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,3*numTriangles,1,1,rr::BF_RGBA,true,nullptr);
 					unsigned* vbufData = (unsigned*)vbuf->lock(rr::BL_DISCARD_AND_WRITE);
 					if (vbufData)
 					{

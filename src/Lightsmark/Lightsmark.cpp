@@ -44,14 +44,14 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 			// fill resolution
 			DEVMODE currentMode;
-			EnumDisplaySettings(NULL,ENUM_CURRENT_SETTINGS,&currentMode);
+			EnumDisplaySettings(nullptr,ENUM_CURRENT_SETTINGS,&currentMode);
 
 			typedef std::set<Mode> Modes;
 			Modes modes;
 			for (unsigned i=0;1;i++)
 			{
 				DEVMODE mode;
-				if (!EnumDisplaySettings(NULL,i,&mode)) break;
+				if (!EnumDisplaySettings(nullptr,i,&mode)) break;
 				if (mode.dmBitsPerPel==32 && mode.dmPelsWidth>=480 && mode.dmPelsHeight>=480)
 				{
 					Mode m;
@@ -179,20 +179,20 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShowWindow(hDlg, SW_MINIMIZE);
 
 			// run
-			//ShellExecuteA( NULL, "open", "backend.exe", params, NULL, SW_SHOWNORMAL );
+			//ShellExecuteA( nullptr, "open", "backend.exe", params, nullptr, SW_SHOWNORMAL );
 
 			// run & wait
 			SHELLEXECUTEINFOA ShExecInfo = {0};
 			ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
 			ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-			ShExecInfo.hwnd = NULL;
-			ShExecInfo.lpVerb = NULL;
+			ShExecInfo.hwnd = nullptr;
+			ShExecInfo.lpVerb = nullptr;
 			bool x64 = SendDlgItemMessage(hDlg,IDC_X64,BM_GETCHECK,0,0)==BST_CHECKED;
 			ShExecInfo.lpFile = x64 ? "..\\..\\bin\\x64\\backend.exe" : "..\\..\\bin\\win32\\backend.exe";
 			ShExecInfo.lpParameters = buf;
-			ShExecInfo.lpDirectory = NULL; //"..\\..\\data"; WINE can't emulate and GPUShaderPerf can't stand non-NULL here, let's rather change dir in backend
+			ShExecInfo.lpDirectory = nullptr; //"..\\..\\data"; WINE can't emulate and GPUShaderPerf can't stand non-nullptr here, let's rather change dir in backend
 			ShExecInfo.nShow = SW_SHOW;
-			ShExecInfo.hInstApp = NULL;
+			ShExecInfo.hInstApp = nullptr;
 			DWORD score = 0;
 			bool showLog = 0;
 			if (ShellExecuteExA(&ShExecInfo))
@@ -230,7 +230,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				// try to open log at location 1
 				const char* log1 = "..\\..\\log.txt";
 				if (FileSize64(log1))
-					ShellExecuteA( NULL, "open", log1, NULL, NULL, SW_SHOWNORMAL );
+					ShellExecuteA( nullptr, "open", log1, nullptr, nullptr, SW_SHOWNORMAL );
 				else
 				{
 					// try to open log at location 2, used when location 1 is not writeable
@@ -241,7 +241,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 						char log2[1000];
 						sprintf(log2,"%s\\Lightsmark 2012\\log.txt",appdata);
 						if (FileSize64(log2))
-							ShellExecuteA( NULL, "open", log2, NULL, NULL, SW_SHOWNORMAL );
+							ShellExecuteA( nullptr, "open", log2, nullptr, nullptr, SW_SHOWNORMAL );
 					}
 				}
 			}
@@ -252,11 +252,11 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if (LOWORD(wParam)==IDC_WEB)
 		{
-			ShellExecuteA( NULL, "open", "http://dee.cz/lightsmark", NULL, NULL, SW_SHOWNORMAL );
+			ShellExecuteA( nullptr, "open", "http://dee.cz/lightsmark", nullptr, nullptr, SW_SHOWNORMAL );
 		}
 		if (LOWORD(wParam)==IDC_README)
 		{
-			ShellExecuteA( NULL, "open", "..\\..\\readme.txt", NULL, NULL, SW_SHOWNORMAL );
+			ShellExecuteA( nullptr, "open", "..\\..\\readme.txt", nullptr, nullptr, SW_SHOWNORMAL );
 		}
 		break;
 	}
@@ -267,6 +267,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 {
 	HMODULE hRE = LoadLibrary(_T("riched20.dll"));
 	g_hInst = hInstance;
-	DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), NULL, About);
+	DialogBox(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), nullptr, About);
 	return 0;
 }

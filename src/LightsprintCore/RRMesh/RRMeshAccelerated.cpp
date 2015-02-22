@@ -65,7 +65,7 @@ protected:
 
 const RRMesh* RRMesh::createAccelerated() const
 {
-	RRMeshAccelerated* result = NULL;
+	RRMeshAccelerated* result = nullptr;
 	if (this)
 	{
 		result = new RRMeshAccelerated(this);

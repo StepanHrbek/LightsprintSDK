@@ -89,7 +89,7 @@ public:
 	RRObjectsAssimp(const aiScene* _scene, const RRFileLocator* _textureLocator)
 	{
 		textureLocator = _textureLocator;
-		materials = NULL;
+		materials = nullptr;
 		numMeshes = 0;
 
 		if (!_scene)
@@ -192,9 +192,9 @@ public:
 			aimaterial->Get(AI_MATKEY_REFRACTI,material.refractionIndex);
 
 			// bumpMap
-			convertMaterialProperty(aimaterial,aiTextureType_NORMALS,NULL,0,0,material,material.bumpMap);
+			convertMaterialProperty(aimaterial,aiTextureType_NORMALS,nullptr,0,0,material,material.bumpMap);
 			if (!material.bumpMap.texture)
-				convertMaterialProperty(aimaterial,aiTextureType_HEIGHT,NULL,0,0,material,material.bumpMap);
+				convertMaterialProperty(aimaterial,aiTextureType_HEIGHT,nullptr,0,0,material,material.bumpMap);
 
 			// lightmapTexcoord
 			if (aimaterial->Get(_AI_MATKEY_UVWSRC_BASE,aiTextureType_LIGHTMAP,0,(int&)material.lightmapTexcoord)!=AI_SUCCESS)
@@ -266,7 +266,7 @@ public:
 		for (unsigned c=0;c<numMeshes;c++)
 		{
 			bool aborting = false;
-			colliders[c] = RRCollider::create(meshes+c,NULL,RRCollider::IT_LINEAR,aborting);
+			colliders[c] = RRCollider::create(meshes+c,nullptr,RRCollider::IT_LINEAR,aborting);
 		}
 
 		// adapt objects
@@ -307,7 +307,7 @@ public:
 			if (collapse && objectsInThisNode.size())
 			{
 				bool aborting = false;
-				RRObject* object = objectsInThisNode.createMultiObject(RRCollider::IT_LINEAR,aborting,-1,-1,true,0,NULL);
+				RRObject* object = objectsInThisNode.createMultiObject(RRCollider::IT_LINEAR,aborting,-1,-1,true,0,nullptr);
 				object->name = convertStr(_node->mName);
 				push_back(object);
 			}
@@ -326,7 +326,7 @@ public:
 		if (str.length)
 		{
 			//property.texture = RRBuffer::load(convertStr(str));
-			property.texture = RRBuffer::load(convertStr(str),NULL,textureLocator);
+			property.texture = RRBuffer::load(convertStr(str),nullptr,textureLocator);
 			aimaterial->Get(_AI_MATKEY_UVWSRC_BASE,aitype,0,(int&)property.texcoord);
 			if (property.texture)
 			{
@@ -408,7 +408,7 @@ public:
 				// ignore specular and ambient lights, what a hack, we are adding realism, not declaring war on it
 				&& ailight->mColorDiffuse!=aiColor3D(0,0,0))
 			{
-				RRLight* light = NULL;
+				RRLight* light = nullptr;
 				switch (ailight->mType)
 				{
 					case aiLightSource_DIRECTIONAL:
@@ -490,12 +490,12 @@ public:
 			//|aiProcess_OptimizeGraph
 			//|aiProcess_FlipUVs
 			//|aiProcess_FlipWindingOrder
-			,NULL,propertyStore);
+			,nullptr,propertyStore);
 		aiReleasePropertyStore(propertyStore);
 		if (!aiscene)
 		{
 			RRReporter::report(ERRO,aiGetErrorString());
-			return NULL;
+			return nullptr;
 		}
 		RRSceneAssimp* scene = new RRSceneAssimp;
 		RRReportInterval report(INF3,"Adapting scene...\n");

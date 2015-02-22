@@ -34,12 +34,12 @@ public:
 		if (!mesh)
 		{
 			RR_ASSERT(0);
-			return NULL;
+			return nullptr;
 		}
 		switch(numMeshes)
 		{
 			case 0: 
-				return NULL;
+				return nullptr;
 			case 1: 
 				return mesh[0];
 			default:
@@ -230,12 +230,12 @@ public:
 		if (!mesh)
 		{
 			RR_ASSERT(0);
-			return NULL;
+			return nullptr;
 		}
 		switch(numMeshes)
 		{
 			case 0: 
-				return NULL;
+				return nullptr;
 			case 1: 
 				return mesh[0];
 			default:

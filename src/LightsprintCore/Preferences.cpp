@@ -37,11 +37,11 @@ float Preferences::getValue(const char* location, const char* variable, float de
 	{
 		HKEY hkey2;
 		DWORD dwDisposition;
-		if (RegCreateKeyEx(hkey1, TEXT(subkey), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey2, &dwDisposition)==ERROR_SUCCESS)
+		if (RegCreateKeyEx(hkey1, TEXT(subkey), 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &hkey2, &dwDisposition)==ERROR_SUCCESS)
 		{
 			DWORD dwType = REG_BINARY;
 			DWORD dwSize = sizeof(value);
-			RegQueryValueEx(hkey2, TEXT(variable), NULL, &dwType, (PBYTE)&value, &dwSize);
+			RegQueryValueEx(hkey2, TEXT(variable), nullptr, &dwType, (PBYTE)&value, &dwSize);
 			RegCloseKey(hkey2);
 		}
 		RegCloseKey(hkey1);
@@ -65,7 +65,7 @@ void Preferences::setValue(const char* location, const char* variable, float val
 	{
 		HKEY hkey2;
 		DWORD dwDisposition;
-		if (RegCreateKeyEx(hkey1, TEXT(subkey), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkey2, &dwDisposition)==ERROR_SUCCESS)
+		if (RegCreateKeyEx(hkey1, TEXT(subkey), 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &hkey2, &dwDisposition)==ERROR_SUCCESS)
 		{
 			DWORD dwType = REG_BINARY;
 			DWORD dwSize = sizeof(value);

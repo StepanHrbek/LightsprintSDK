@@ -75,7 +75,7 @@ bool RRMaterial::Property::operator ==(const RRMaterial::Property& a) const
 
 RRMaterial::RRMaterial()
 {
-	preview = NULL;
+	preview = nullptr;
 }
 
 
@@ -89,7 +89,7 @@ static void copyProperty(RRMaterial::Property& to, const RRMaterial::Property& f
 	{
 		// texture is owned by material, so old one must be deleted, new one created (reference only)
 		delete to.texture;
-		to.texture = from.texture ? from.texture->createReference() : NULL;
+		to.texture = from.texture ? from.texture->createReference() : nullptr;
 	}
 }
 
@@ -263,7 +263,7 @@ RRReal RRMaterial::Property::updateColorFromTexture(const RRColorSpace* colorSpa
 			switch (uniformTextureAction)
 			{
 				case UTA_DELETE: delete texture;
-				case UTA_NULL: texture = NULL;
+				case UTA_NULL: texture = nullptr;
 				case UTA_KEEP:
 				default:;
 			}
@@ -281,7 +281,7 @@ void RRMaterial::updateColorsFromTextures(const RRColorSpace* colorSpace, Unifor
 	variance = RR_MAX(variance, 1 * diffuseReflectance.updateColorFromTexture(colorSpace,0,uniformTextureAction,updateEvenFromStubs));
 	variance = RR_MAX(variance, 1 * specularReflectance.updateColorFromTexture(colorSpace,0,uniformTextureAction,updateEvenFromStubs));
 	RRVec2 bumpMultipliers = bumpMap.color; // backup bumpMap.color.xy, those are multipliers
-	bumpMap.updateColorFromTexture(NULL,0,uniformTextureAction,updateEvenFromStubs);
+	bumpMap.updateColorFromTexture(nullptr,0,uniformTextureAction,updateEvenFromStubs);
 	bumpMap.color.x = bumpMultipliers.x;
 	bumpMap.color.y = bumpMultipliers.y;
 	minimalQualityForPointMaterials = variance ? unsigned(100/(variance*variance)) : UINT_MAX;
@@ -296,8 +296,8 @@ unsigned RRMaterial::Property::createTextureFromColor(bool isTransmittance)
 	//   specularTransmittanceInAlpha was irrelevant without texture
 	//   it will be relevant when we create texture, should we clear it?
 	//   no, instead we are adding alpha to satisfy both specularTransmittanceInAlpha=false and true
-	texture = RRBuffer::create(BT_2D_TEXTURE,1,1,1,isTransmittance?BF_RGBA:BF_RGB,true,NULL);
-	texture->setElement(0,RRVec4(color,1-color.avg()),NULL);
+	texture = RRBuffer::create(BT_2D_TEXTURE,1,1,1,isTransmittance?BF_RGBA:BF_RGB,true,nullptr);
+	texture->setElement(0,RRVec4(color,1-color.avg()),nullptr);
 	return 1;
 }
 
@@ -338,7 +338,7 @@ static RRReal getBlendImportance(RRBuffer* transmittanceTexture, bool opacityInA
 		{
 			unsigned x = (unsigned)((i+0.5f)*width/size);
 			unsigned y = (unsigned)((j+0.5f)*height/size);
-			RRVec4 color = transmittanceTexture->getElement(x+y*width,NULL);
+			RRVec4 color = transmittanceTexture->getElement(x+y*width,nullptr);
 			RRReal blendImportance = getBlendImportance(color,opacityInAlpha);
 			if (blendImportance)
 			{
@@ -347,10 +347,10 @@ static RRReal getBlendImportance(RRBuffer* transmittanceTexture, bool opacityInA
 				for (unsigned n=0;n<4;n++)
 				{
 					RRVec4 neighbour = color;
-					if (n==0 && x>0) neighbour = transmittanceTexture->getElement(x-1+y*width,NULL);
-					if (n==1 && x+1<width) neighbour = transmittanceTexture->getElement(x+1+y*width,NULL);
-					if (n==2 && y>0) neighbour = transmittanceTexture->getElement(x+(y-1)*width,NULL);
-					if (n==3 && y+1<height) neighbour = transmittanceTexture->getElement(x+(y+1)*width,NULL);
+					if (n==0 && x>0) neighbour = transmittanceTexture->getElement(x-1+y*width,nullptr);
+					if (n==1 && x+1<width) neighbour = transmittanceTexture->getElement(x+1+y*width,nullptr);
+					if (n==2 && y>0) neighbour = transmittanceTexture->getElement(x+(y-1)*width,nullptr);
+					if (n==3 && y+1<height) neighbour = transmittanceTexture->getElement(x+(y+1)*width,nullptr);
 					for (unsigned a=0;a<4;a++)
 					{
 						colorMin[a] = RR_MIN(colorMin[a],neighbour[a]);
@@ -429,7 +429,7 @@ void RRMaterial::updateBumpMapType()
 		RRVec3 sum(0);
 		for (unsigned i=0;i<LOOKUPS;i++)
 		{
-			RRVec3 color = bumpMap.texture->getElement(numElements*i/LOOKUPS,NULL);
+			RRVec3 color = bumpMap.texture->getElement(numElements*i/LOOKUPS,nullptr);
 			sum += color;
 		}
 		float blueness = sum.z-RR_MAX(sum.x,sum.y); // normal map should have it highly positive, gray height map zero, rgb used as height map can be anything (with average in zero)
@@ -845,14 +845,14 @@ RRPointMaterial& RRPointMaterial::operator =(const RRPointMaterial& a)
 
 RRPointMaterial::~RRPointMaterial()
 {
-	// NULL all pointers, so that ~RRMaterial has no work
+	// nullptr all pointers, so that ~RRMaterial has no work
 	memset(&name,0,sizeof(name));
-	diffuseReflectance.texture = NULL;
-	specularReflectance.texture = NULL;
-	diffuseEmittance.texture = NULL;
-	specularTransmittance.texture = NULL;
-	bumpMap.texture = NULL;
-	preview = NULL;
+	diffuseReflectance.texture = nullptr;
+	specularReflectance.texture = nullptr;
+	diffuseEmittance.texture = nullptr;
+	specularTransmittance.texture = nullptr;
+	bumpMap.texture = nullptr;
+	preview = nullptr;
 }
 
 } // namespace

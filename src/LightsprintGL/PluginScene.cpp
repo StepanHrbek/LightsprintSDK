@@ -69,7 +69,7 @@ struct UberProgramSetupHasher
 	}
 };
 
-static rr::RRVector<PerObjectBuffers>* s_perObjectBuffers = NULL; // used by sort()
+static rr::RRVector<PerObjectBuffers>* s_perObjectBuffers = nullptr; // used by sort()
 
 bool FaceGroupRange::operator <(const FaceGroupRange& a) const // for sort()
 {
@@ -78,15 +78,15 @@ bool FaceGroupRange::operator <(const FaceGroupRange& a) const // for sort()
 
 rr::RRBuffer* onlyVbuf(rr::RRBuffer* buffer)
 {
-	return (buffer && buffer->getType()==rr::BT_VERTEX_BUFFER) ? buffer : NULL;
+	return (buffer && buffer->getType()==rr::BT_VERTEX_BUFFER) ? buffer : nullptr;
 }
 rr::RRBuffer* onlyLmap(rr::RRBuffer* buffer)
 {
-	return (buffer && buffer->getType()==rr::BT_2D_TEXTURE) ? buffer : NULL;
+	return (buffer && buffer->getType()==rr::BT_2D_TEXTURE) ? buffer : nullptr;
 }
 rr::RRBuffer* onlyCube(rr::RRBuffer* buffer)
 {
-	return (buffer && buffer->getType()==rr::BT_CUBE_TEXTURE) ? buffer : NULL;
+	return (buffer && buffer->getType()==rr::BT_CUBE_TEXTURE) ? buffer : nullptr;
 }
 
 extern float getMipLevel(const rr::RRMaterial* material);
@@ -166,7 +166,7 @@ public:
 			countSceneUpdatedCube.init("scene.updated.cube",
 			countSceneRenderMeshOpaque.init("scene.rendermesh.opaque",
 			countSceneRenderMeshBlended.init("scene.rendermesh.blended",
-			NULL))))))))));
+			nullptr))))))))));
 	}
 
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
@@ -207,7 +207,7 @@ public:
 
 		// solvers work with multipliers in linear space, convert them to srgb for rendering
 		rr::RRSolver::Multipliers multipliers = pp.multipliers;
-		const rr::RRColorSpace* colorSpace = pp.solver ? pp.solver->getColorSpace() : NULL; // selection plugin call scene with solver=NULL
+		const rr::RRColorSpace* colorSpace = pp.solver ? pp.solver->getColorSpace() : nullptr; // selection plugin call scene with solver=nullptr
 		if (colorSpace)
 		{
 			colorSpace->fromLinear(multipliers.lightMultiplier);
@@ -301,18 +301,18 @@ public:
 					PerObjectBuffers objectBuffers;
 					objectBuffers.object = object;
 					objectBuffers.meshRenderer = _renderer.getMeshRenderer(mesh);
-					rr::RRBuffer* lightIndirectVcolor = _.uberProgramSetup.LIGHT_INDIRECT_VCOLOR ? onlyVbuf(illumination.getLayer(_.layerLightmap)) : NULL;
-					rr::RRBuffer* lightIndirectMap = _.uberProgramSetup.LIGHT_INDIRECT_MAP ? onlyLmap(illumination.getLayer(_.layerLightmap)) : NULL;
+					rr::RRBuffer* lightIndirectVcolor = _.uberProgramSetup.LIGHT_INDIRECT_VCOLOR ? onlyVbuf(illumination.getLayer(_.layerLightmap)) : nullptr;
+					rr::RRBuffer* lightIndirectMap = _.uberProgramSetup.LIGHT_INDIRECT_MAP ? onlyLmap(illumination.getLayer(_.layerLightmap)) : nullptr;
 					objectBuffers.lightIndirectBuffer = lightIndirectVcolor?lightIndirectVcolor:lightIndirectMap;
-					objectBuffers.lightIndirectDetailMap = _.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? onlyLmap(illumination.getLayer(_.layerLDM)) : NULL;
-					objectBuffers.reflectionEnvMap = (_.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) ? onlyCube(illumination.getLayer(_.layerEnvironment)) : NULL;
+					objectBuffers.lightIndirectDetailMap = _.uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? onlyLmap(illumination.getLayer(_.layerLDM)) : nullptr;
+					objectBuffers.reflectionEnvMap = (_.uberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE || _.uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR) ? onlyCube(illumination.getLayer(_.layerEnvironment)) : nullptr;
 #ifdef MIRRORS
-					objectBuffers.mirrorColorMap = NULL;
+					objectBuffers.mirrorColorMap = nullptr;
 					objectBuffers.mirrorPlane = rr::RRVec4(0);
 					if ((_.uberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE || _.uberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR) && !onlyCube(illumination.getLayer(_.layerEnvironment)))
 					{
 						rr::RRVec3 mini,maxi;
-						mesh->getAABB(&mini,&maxi,NULL);
+						mesh->getAABB(&mini,&maxi,nullptr);
 						rr::RRVec3 size = maxi-mini;
 
 						// is it planar?
@@ -416,7 +416,7 @@ public:
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT = _.uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT && objectBuffers.reflectionEnvMap;
 #ifdef MIRRORS
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = objectBuffers.mirrorColorMap && !objectBuffers.lightIndirectBuffer && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE;
-					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = objectBuffers.mirrorColorMap!=NULL;
+					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_SPECULAR = objectBuffers.mirrorColorMap!=nullptr;
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = objectBuffers.mirrorColorMap && _.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS;
 #else
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE = false;
@@ -424,13 +424,13 @@ public:
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS = false;
 #endif
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_CONST = _.uberProgramSetup.LIGHT_INDIRECT_CONST && !lightIndirectVcolor && !lightIndirectMap && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_ENV_DIFFUSE && !objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MIRROR_DIFFUSE; // keep const only if no other indirect diffuse is available
-					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR = lightIndirectVcolor!=NULL;
+					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR = lightIndirectVcolor!=nullptr;
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR2 = false;
-					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR_LINEAR = lightIndirectVcolor!=NULL && !lightIndirectVcolor->getScaled();
-					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP = lightIndirectMap!=NULL;
+					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_VCOLOR_LINEAR = lightIndirectVcolor!=nullptr && !lightIndirectVcolor->getScaled();
+					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP = lightIndirectMap!=nullptr;
 					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_MAP2 = false;
-					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = objectBuffers.lightIndirectDetailMap!=NULL;
-					objectBuffers.objectUberProgramSetup.OBJECT_SPACE = object->getWorldMatrix()!=NULL;
+					objectBuffers.objectUberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP = objectBuffers.lightIndirectDetailMap!=nullptr;
+					objectBuffers.objectUberProgramSetup.OBJECT_SPACE = object->getWorldMatrix()!=nullptr;
 					// autoset POSTPROCESS_ if not set (for top fps), keep it on if set (for fewer shaders)
 					if (sp.brightness!=rr::RRVec4(1))
 						objectBuffers.objectUberProgramSetup.POSTPROCESS_BRIGHTNESS = true;
@@ -462,7 +462,7 @@ public:
 									{
 										blendedAlreadyFoundInObject = true;
 										rr::RRVec3 center;
-										mesh->getAABB(NULL,NULL,&center);
+										mesh->getAABB(nullptr,nullptr,&center);
 										const rr::RRMatrix3x4* worldMatrix = object->getWorldMatrix();
 										if (worldMatrix)
 											worldMatrix->transformPosition(center);
@@ -507,14 +507,14 @@ public:
 							{
 								// updates indexed 1object buffer
 								countSceneUpdateVbuf.count++;
-								countSceneUpdatedVbuf.count += _.solver->updateLightmap(i,lightIndirectVcolor,NULL,NULL,NULL);
+								countSceneUpdatedVbuf.count += _.solver->updateLightmap(i,lightIndirectVcolor,nullptr,nullptr,nullptr);
 							}
 							else
 							if (pass==0)
 							{
 								// -1 = updates indexed multiobject buffer
 								countSceneUpdateVbuf.count++;
-								countSceneUpdatedVbuf.count += _.solver->updateLightmap(-1,lightIndirectVcolor,NULL,NULL,NULL);
+								countSceneUpdatedVbuf.count += _.solver->updateLightmap(-1,lightIndirectVcolor,nullptr,nullptr,nullptr);
 							}
 						}
 					}
@@ -611,7 +611,7 @@ public:
 							//if (objectBuffers.mirrorColorMap)
 							//{
 							//	glDisable(GL_BLEND);
-							//	_renderer.getTextureRenderer()->render2D(getTexture(objectBuffers.mirrorColorMap,false,false),NULL,0,0,0.5f,0.5f);
+							//	_renderer.getTextureRenderer()->render2D(getTexture(objectBuffers.mirrorColorMap,false,false),nullptr,0,0,0.5f,0.5f);
 							//}
 #endif
 						}
@@ -662,10 +662,10 @@ public:
 					skip_mirror:
 #endif
 						// mirror is completely occluded, don't render mirrorColorMap, delete it
-						// mirror might still be rendered later in final render, but mirrorColorMap will be NULL
+						// mirror might still be rendered later in final render, but mirrorColorMap will be nullptr
 						for (unsigned j=0;j<perObjectBuffers[0].size();j++)
 							if (perObjectBuffers[0][j].mirrorColorMap==i->second)
-								perObjectBuffers[0][j].mirrorColorMap = NULL;
+								perObjectBuffers[0][j].mirrorColorMap = nullptr;
 						RR_SAFE_DELETE(i->second);
 						continue;
 					}
@@ -685,8 +685,8 @@ public:
 								&fgrange,1,
 								mirrorMaskUberProgramSetup,
 								false,
-								NULL,
-								NULL,
+								nullptr,
+								nullptr,
 								multipliers.materialEmittanceMultiplier,
 								_.animationTime);
 						}
@@ -749,7 +749,7 @@ public:
 					glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
 					glDepthFunc(GL_ALWAYS); // depth test must stay enabled, otherwise depth would not be written
 					glDisable(GL_CULL_FACE);
-					_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,0,-1,1,1,"#define MIRROR_MASK_DEPTH\n"); // keeps depth test enabled
+					_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap),nullptr,1,0,-1,1,1,"#define MIRROR_MASK_DEPTH\n"); // keeps depth test enabled
 					glDepthFunc(GL_LEQUAL);
 
 					// render scene into mirrorDepthMap, mirrorColorMap.rgb
@@ -773,7 +773,7 @@ public:
 					//if (_.uberProgramSetup.LIGHT_INDIRECT_MIRROR_MIPMAPS)
 					{
 						glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_TRUE);
-						_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap),NULL,1,0,-1,1,-1,"#define MIRROR_MASK_ALPHA\n"); // disables depth test
+						_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap),nullptr,1,0,-1,1,-1,"#define MIRROR_MASK_ALPHA\n"); // disables depth test
 					}
 
 					oldState.restore();
@@ -794,9 +794,9 @@ public:
 					glDisable(GL_BLEND);
 					// debug: render textures to backbuffer with z=-1 to pass z-test
 					//        z-write is disabled, so everything rendered later (mirrors and glasses) overlaps them
-					//_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap,false,false),NULL,0.7f,0.7f,0.3f,0.3f,-1,"#define MIRROR_MASK_DEBUG\n"); // rendered up, MIRROR_MASK_DEBUG is necessary to show alpha as rgb
-					//_renderer.getTextureRenderer()->render2D(getTexture(mirrorDepthMap,false,false),NULL,1,0.35f,-0.3f,0.3f,-1);
-					//_renderer.getTextureRenderer()->render2D(getTexture(mirrorColorMap,false,false),NULL,1,0.0f,-0.3f,0.3f,-1); // rendered down
+					//_renderer.getTextureRenderer()->render2D(getTexture(mirrorMaskMap,false,false),nullptr,0.7f,0.7f,0.3f,0.3f,-1,"#define MIRROR_MASK_DEBUG\n"); // rendered up, MIRROR_MASK_DEBUG is necessary to show alpha as rgb
+					//_renderer.getTextureRenderer()->render2D(getTexture(mirrorDepthMap,false,false),nullptr,1,0.35f,-0.3f,0.3f,-1);
+					//_renderer.getTextureRenderer()->render2D(getTexture(mirrorColorMap,false,false),nullptr,1,0.0f,-0.3f,0.3f,-1); // rendered down
 				}
 				glDepthMask(GL_TRUE);
 				glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);

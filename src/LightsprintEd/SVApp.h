@@ -39,7 +39,7 @@ struct SceneViewerStateEx : public SceneViewerState
 
 	SceneViewerStateEx()
 	{
-		initialInputSolver = NULL;
+		initialInputSolver = nullptr;
 		releaseResources = true;
 	}
 	bool operator ==(const SceneViewerStateEx& a) const

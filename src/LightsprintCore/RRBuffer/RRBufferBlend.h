@@ -46,12 +46,12 @@ public:
 	virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace)const {report("getElement");return RRVec4(0);}
 	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const {report("getElementAtPosition");return RRVec4(0);}
 	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const;
-	virtual unsigned char* lock(RRBufferLock lock)                         {report("lock");return NULL;}
+	virtual unsigned char* lock(RRBufferLock lock)                         {report("lock");return nullptr;}
 	virtual void unlock()                                                  {report("unlock");}
 	virtual bool isStub()                                                  {return false;}
 
 	// reference counting
-	virtual RRBuffer* createReference()                                    {report("createReference");return NULL;}
+	virtual RRBuffer* createReference()                                    {report("createReference");return nullptr;}
 	virtual unsigned getReferenceCount()                                   {report("getReferenceCount");return 1;}
 
 protected:

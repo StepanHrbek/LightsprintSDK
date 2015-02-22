@@ -63,8 +63,8 @@ class LightField : public RRLightField
 public:
 	LightField()
 	{
-		rawField = NULL;
-		rawCell = NULL;
+		rawField = nullptr;
+		rawCell = nullptr;
 		for (unsigned i=0;i<256;i++)
 			customToLinear[i] = (unsigned)pow(float(i),2.2222f);
 	}
@@ -83,7 +83,7 @@ public:
 			RRReporter::report(WARN,"timeSlot %d is out of valid range 0..%d\n",timeSlot,header.gridSize[3]);
 			return;
 		}
-		RRBuffer* reflectionEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.envMapSize,header.envMapSize,6,BF_RGB,true,NULL);
+		RRBuffer* reflectionEnvMap = RRBuffer::create(BT_CUBE_TEXTURE,header.envMapSize,header.envMapSize,6,BF_RGB,true,nullptr);
 		if (!header.envMapSize || !reflectionEnvMap)
 			return;
 		enum {LAYER_CUBE};
@@ -291,7 +291,7 @@ RRLightField* RRLightField::create(RRVec4 aabbMin, RRVec4 aabbSize, RRReal spaci
 	if (!lightField->reallocData())
 	{
 		delete lightField;
-		return NULL;
+		return nullptr;
 	}
 	return lightField;
 }

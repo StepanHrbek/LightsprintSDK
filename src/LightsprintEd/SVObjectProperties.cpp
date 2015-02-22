@@ -18,7 +18,7 @@ namespace rr_ed
 SVObjectProperties::SVObjectProperties(SVFrame* _svframe)
 	: SVProperties(_svframe)
 {
-	object = NULL;
+	object = nullptr;
 }
 
 void SVObjectProperties::setObject(rr::RRObject* _object, int _precision)
@@ -211,7 +211,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propDynamic)
 	{
-		svframe->m_canvas->addOrRemoveScene(NULL,true,true);
+		svframe->m_canvas->addOrRemoveScene(nullptr,true,true);
 		updateHide();
 	}
 	else
@@ -235,7 +235,7 @@ void SVObjectProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		// (alternatively we can keep user entered values, not update, but user would be surprised when he returns back to this object later)
 		updateProperties();
 	}
-		svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL,0);
+		svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,nullptr,0);
 }
 
 void SVObjectProperties::OnPropertySelect(wxPropertyGridEvent& event)

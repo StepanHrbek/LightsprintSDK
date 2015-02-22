@@ -51,7 +51,7 @@ public:
 	{
 		numUsed = 0;
 		numAllocated = 0;
-		c = NULL;
+		c = nullptr;
 	}
 	//! Creates vector by copying.
 	//! Uses memcpy to copy elements (unlike std::vector).
@@ -65,7 +65,7 @@ public:
 			memcpy(c,a.c,sizeof(C)*numUsed);
 		}
 		else
-			c = NULL;
+			c = nullptr;
 	}
 	//! Assigns vector.
 	//! Uses memcpy to copy elements (unlike std::vector).
@@ -82,7 +82,7 @@ public:
 				memcpy(c,a.c,sizeof(C)*numUsed);
 			}
 			else
-				c = NULL;
+				c = nullptr;
 		}
 		return *this;
 	}
@@ -98,7 +98,7 @@ public:
 		c = a.c;
 		numAllocated = a.numAllocated;
 		numUsed = a.numUsed;
-		a.c = NULL;
+		a.c = nullptr;
 		a.numAllocated = 0;
 		a.numUsed = 0;
 	}

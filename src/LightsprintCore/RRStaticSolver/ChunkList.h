@@ -28,21 +28,21 @@ class Pool
 public:
 	Pool()
 	{
-		firstBlock = NULL;
-		freeBlock = NULL;
+		firstBlock = nullptr;
+		freeBlock = nullptr;
 		elementsUsed = 0;
 		allocationFailed = false;
 	}
 	C* allocate()
 	{
 		if (!reserve(1))
-			return NULL;
+			return nullptr;
 		if (elementsUsed==Block::BLOCK_SIZE)
 		{
 			freeBlock = freeBlock->next;
 			elementsUsed = 0;
 		}
-		freeBlock->element[elementsUsed].next = NULL;
+		freeBlock->element[elementsUsed].next = nullptr;
 		return freeBlock->element + elementsUsed++;
 	}
 	// free everything
@@ -77,7 +77,7 @@ private:
 	public:
 		Block()
 		{
-			next = NULL;
+			next = nullptr;
 		}
 		~Block()
 		{
@@ -141,7 +141,7 @@ public:
 
 	ChunkList()
 	{
-		firstChunk = NULL;
+		firstChunk = nullptr;
 		numElements = 0;
 	}
 	// no need for destructor, pool takes care of memory
@@ -154,7 +154,7 @@ public:
 	// Discards ChunkList content without deleting it. To be called when pool is deleted.
 	void clear()
 	{
-		firstChunk = NULL;
+		firstChunk = nullptr;
 		numElements = 0;
 	}
 
@@ -228,11 +228,11 @@ public:
 		}
 		const C* operator *() const
 		{
-			return remainingElements ? chunk->element+elementInChunk : NULL;
+			return remainingElements ? chunk->element+elementInChunk : nullptr;
 		}
 		const C* operator ->() const
 		{
-			return remainingElements ? chunk->element+elementInChunk : NULL;
+			return remainingElements ? chunk->element+elementInChunk : nullptr;
 		}
 		void operator ++()
 		{
@@ -264,7 +264,7 @@ public:
 	}
 	void* end() const // i!=end()
 	{
-		return NULL;
+		return nullptr;
 	}
 	C* operator ->() const // begin()->counter = 1;
 	{

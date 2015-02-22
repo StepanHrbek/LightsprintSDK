@@ -23,7 +23,7 @@ IVertex::IVertex()
 	RR_ASSERT(this);
 	corners=0;
 	cornersAllocatedLn2=STATIC_CORNERS_LN2;
-	dynamicCorner=NULL;
+	dynamicCorner=nullptr;
 	powerTopLevel=0;
 	cacheTime=__frameNumber-1;
 	cacheValid=0;
@@ -137,7 +137,7 @@ bool Object::buildTopIVertices(const RRSolver::SmoothingParameters* smoothing, b
 	// it's kind of smoothing, stitched vertices share one ivertex, one irradiance
 	// we don't want to stitch multiobject, it would require !indexed render (complicated to ensure, slower)
 	const RRMesh* originalMesh = importer->getCollider()->getMesh();
-	const RRMesh* stitchedMesh = originalMesh->createOptimizedVertices(smoothing->vertexWeldDistance,fabs(smoothing->maxSmoothAngle),0,NULL);
+	const RRMesh* stitchedMesh = originalMesh->createOptimizedVertices(smoothing->vertexWeldDistance,fabs(smoothing->maxSmoothAngle),0,nullptr);
 	unsigned stitchedVertices = stitchedMesh->getNumVertices();
 
 	// build 1 ivertex for each stitched vertex, insert all corners

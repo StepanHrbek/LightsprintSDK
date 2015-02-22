@@ -49,13 +49,13 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 				else
 				if (!buffer && _allocateNewBuffers)
 				{
-					buffer = RRBuffer::create(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,NULL);
+					buffer = RRBuffer::create(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,nullptr);
 					buffersTouched++;
 				}
 				else
 				if (buffer && _changeExistingBuffers)
 				{
-					buffer->reset(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,NULL);
+					buffer->reset(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,nullptr);
 					buffersTouched++;
 				}
 			}
@@ -76,7 +76,7 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 				bool useMirror;
 				{
 					RRVec3 mini,maxi;
-					mesh->getAABB(&mini,&maxi,NULL);
+					mesh->getAABB(&mini,&maxi,nullptr);
 					RRVec3 size = maxi-mini;
 					float sizeMidi = size.sum()-size.maxi()-size.mini();
 					// continue only for non-planar objects, cubical reflection looks bad on plane
@@ -159,10 +159,10 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 				if (desiredEnvMapSize!=currentEnvMapSize)
 				{
 					if (!currentEnvMapSize)
-						buffer = RRBuffer::create(BT_CUBE_TEXTURE,desiredEnvMapSize,desiredEnvMapSize,6,BF_RGBA,true,NULL);
+						buffer = RRBuffer::create(BT_CUBE_TEXTURE,desiredEnvMapSize,desiredEnvMapSize,6,BF_RGBA,true,nullptr);
 					else if (desiredEnvMapSize)
 					{
-						buffer->reset(BT_CUBE_TEXTURE,desiredEnvMapSize,desiredEnvMapSize,6,BF_RGBA,true,NULL);
+						buffer->reset(BT_CUBE_TEXTURE,desiredEnvMapSize,desiredEnvMapSize,6,BF_RGBA,true,nullptr);
 						buffer->filename.clear(); // contents was destroyed, buffer is no longer related to file on disk
 						buffer->version = rand()*11111; // updateEnvironmentMap() considers version++ from reset() too small change to update, upper 16bits must change
 					}
@@ -354,7 +354,7 @@ unsigned updateColliders(const RRObjects& objects, bool& aborting)
 RRObject* RRObjects::createMultiObject(RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, unsigned speed, const char* cacheLocation) const
 {
 	if (!size())
-		return NULL;
+		return nullptr;
 	switch(speed)
 	{
 		case 0: return RRObjectMultiSmall::create(&(*this)[0],size(),intersectTechnique,aborting,maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,optimizeTriangles,false,cacheLocation);
@@ -385,7 +385,7 @@ RRObjects RRObjects::mergeObjects(bool splitByMaterial) const
 
 	rr::RRReporter::report(rr::INF2,"Merging...\n");
 	bool aborting = false;
-	rr::RRObject* oldObject = createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,-1,false,0,NULL);
+	rr::RRObject* oldObject = createMultiObject(rr::RRCollider::IT_LINEAR,aborting,-1,-1,false,0,nullptr);
 
 	// convert oldObject with Multi* into newObject with RRMeshArrays
 	// if we don't do it
@@ -396,7 +396,7 @@ RRObjects RRObjects::mergeObjects(bool splitByMaterial) const
 	rr::RRVector<unsigned> texcoords;
 	oldMesh->getUvChannels(texcoords);
 	rr::RRMeshArrays* newMesh = oldMesh->createArrays(true,texcoords,tangents);
-	rr::RRCollider* newCollider = rr::RRCollider::create(newMesh,NULL,rr::RRCollider::IT_LINEAR,aborting);
+	rr::RRCollider* newCollider = rr::RRCollider::create(newMesh,nullptr,rr::RRCollider::IT_LINEAR,aborting);
 	rr::RRObject* newObject = new rr::RRObject;
 	newObject->faceGroups = oldObject->faceGroups;
 	newObject->setCollider(newCollider);
@@ -418,7 +418,7 @@ RRObjects RRObjects::mergeObjects(bool splitByMaterial) const
 		for (unsigned f=0;f<newObject->faceGroups.size();f++)
 		{
 			// create splitObject from newObject->faceGroups[f]
-			rr::RRMeshArrays* splitMesh = NULL;
+			rr::RRMeshArrays* splitMesh = nullptr;
 			{
 				// temporarily hide triangles with other materials
 				unsigned tmpNumTriangles = newMesh->numTriangles;
@@ -434,7 +434,7 @@ RRObjects RRObjects::mergeObjects(bool splitByMaterial) const
 				newMesh->triangle -= firstTriangleIndex;
 				newMesh->numTriangles = tmpNumTriangles;
 			}
-			rr::RRCollider* splitCollider = rr::RRCollider::create(splitMesh,NULL,rr::RRCollider::IT_LINEAR,aborting);
+			rr::RRCollider* splitCollider = rr::RRCollider::create(splitMesh,nullptr,rr::RRCollider::IT_LINEAR,aborting);
 			rr::RRObject* splitObject = new rr::RRObject;
 			splitObject->faceGroups.push_back(newObject->faceGroups[f]);
 			splitObject->setCollider(splitCollider);
@@ -484,7 +484,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 	for (std::unordered_set<RRMeshArrays*>::iterator i=arrays.begin();i!=arrays.end();++i)
 	{
 		RRMeshArrays* mesh = *i;
-		bool tangents = mesh->tangent!=NULL;
+		bool tangents = mesh->tangent!=nullptr;
 
 		// create temporary list of objects with this mesh
 		RRObjects objects;
@@ -518,7 +518,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 		if (stitchPositions)
 		{
 			// calc smooth positions from mesh1, write them back to mesh1
-			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,100,0,NULL); // stitch more, even if normals or uvs differ
+			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,100,0,nullptr); // stitch more, even if normals or uvs differ
 			RRMeshArrays* mesh5 = mesh4->createArrays(true,texcoords,tangents);
 			for (unsigned t=0;t<mesh1->numTriangles;t++)
 			{
@@ -545,7 +545,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 		if (stitchNormals)
 		{
 			// calc smooth normals from mesh1, write them back to mesh1
-			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,0,NULL); // stitch more, even if uvs differ
+			const RRMesh* mesh4 = mesh1->createOptimizedVertices(maxLocalDistanceBetweenVerticesToSmooth,maxRadiansBetweenNormalsToSmooth,0,nullptr); // stitch more, even if uvs differ
 			RRMeshArrays* mesh5 = mesh4->createArrays(true,texcoords,tangents);
 			// generate normals (2)
 			//   positions might have changed in createOptimizedVertices(), generate again
@@ -574,7 +574,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 		bool removedDegeneratedTriangles = mesh3!=mesh2;
 
 		// remove unused vertices (previously used in degenerated triangles)
-		const RRMesh* mesh4 = removeUnusedVertices ? mesh3->createOptimizedVertices(-1,-1,-1,NULL) : mesh3;
+		const RRMesh* mesh4 = removeUnusedVertices ? mesh3->createOptimizedVertices(-1,-1,-1,nullptr) : mesh3;
 
 		// fix facegroups in objects
 		if (removeDegeneratedTriangles) // facegroups should be unchanged if we did not remove triangles
@@ -586,7 +586,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 				for (unsigned postImportTriangle=0;postImportTriangle<mesh4_numTriangles;postImportTriangle++)
 				{
 					unsigned preImportTriangle = mesh4->getPreImportTriangle(postImportTriangle).index;
-					RRMaterial* m = objects[j]->getTriangleMaterial(preImportTriangle,NULL,NULL);
+					RRMaterial* m = objects[j]->getTriangleMaterial(preImportTriangle,nullptr,nullptr);
 					if (!faceGroups.size() || faceGroups[faceGroups.size()-1].material!=m)
 					{
 						faceGroups.push_back(RRObject::FaceGroup(m,1));
@@ -759,7 +759,7 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 		for (unsigned j=0;j<i->first->texcoord.size();j++)
 			if (i->second.find(j)==i->second.end() && i->first->texcoord[j])
 			{
-				i->first->texcoord[j] = NULL;
+				i->first->texcoord[j] = nullptr;
 				i->first->version++;
 			}
 		// clear unwrapChannel
@@ -772,8 +772,8 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 	{
 		if (i->first->tangent || i->first->bitangent)
 		{
-			i->first->tangent = NULL;
-			i->first->bitangent = NULL;
+			i->first->tangent = nullptr;
+			i->first->bitangent = nullptr;
 			i->first->version++;
 		}
 	}
@@ -971,17 +971,17 @@ unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRStr
 		{
 			RRObject* object = (*this)[objectIndex];
 			// first try to load per-pixel format
-			RRBuffer* buffer = NULL;
+			RRBuffer* buffer = nullptr;
 			RRObject::LayerParameters layerParameters;
 			layerParameters.suggestedPath = path;
 			layerParameters.suggestedExt = ext;
 			object->recommendLayerParameters(layerParameters);
 #ifdef RR_LINKS_BOOST
 			boost::system::error_code ec;
-			if ( !bf::exists(RR_RR2PATH(layerParameters.actualFilename),ec) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
+			if ( !bf::exists(RR_RR2PATH(layerParameters.actualFilename),ec) || !(buffer=RRBuffer::load(layerParameters.actualFilename,nullptr)) )
 #else
 			RRFileLocator fl;
-			if ( !fl.exists(layerParameters.actualFilename) || !(buffer=RRBuffer::load(layerParameters.actualFilename,NULL)) )
+			if ( !fl.exists(layerParameters.actualFilename) || !(buffer=RRBuffer::load(layerParameters.actualFilename,nullptr)) )
 #endif
 			{
 				// if it fails, try to load per-vertex format

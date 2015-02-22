@@ -58,10 +58,10 @@ RRSolverGL::RRSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pa
 	if (!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %lsscaledown_filter.*\n",pathToShaders.w_str());
 
 	lastDDITime.addSeconds(-1000000);
-	detectedDirectSum = NULL;
+	detectedDirectSum = nullptr;
 	detectedNumTriangles = 0;
 
-	observer = NULL;
+	observer = nullptr;
 	renderer = rr_gl::Renderer::create(pathToShaders, pathToMaps);
 	uberProgram1 = UberProgram::create(rr::RRString(0,L"%lsubershader.vs",pathToShaders.w_str()),rr::RRString(0,L"%lsubershader.fs",pathToShaders.w_str()));
 
@@ -162,7 +162,7 @@ void RRSolverGL::calculate(CalculateParameters* _params)
 	{
 		// must be called at least once after all lights are removed
 		// it's no performance problem to call it many times in row
-		setDirectIllumination(NULL);
+		setDirectIllumination(nullptr);
 	}
 
 	if (getLights().size()!=realtimeLights.size())
@@ -291,7 +291,7 @@ done:
 				Texture* shadowmap = light->getShadowmap(i);
 				if (!shadowmap)
 				{
-					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (shadow=NULL).\n"));
+					RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (shadow=nullptr).\n"));
 				}
 				else
 				{
@@ -310,7 +310,7 @@ done:
 						Texture* colormap = light->getShadowmap(i,true);
 						if (!colormap)
 						{
-							RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (color=NULL).\n"));
+							RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (color=nullptr).\n"));
 						}
 						else
 						{
@@ -338,8 +338,8 @@ done:
 						bool depthClamp = light->getRRLight().type==rr::RRLight::DIRECTIONAL && i && Workaround::supportsDepthClamp();
 						if (depthClamp) glEnable(GL_DEPTH_CLAMP);
 #endif
-						PluginParamsScene ppScene(NULL,this);
-						ppScene.lights = NULL;
+						PluginParamsScene ppScene(nullptr,this);
+						ppScene.lights = nullptr;
 						ppScene.uberProgramSetup = uberProgramSetup;
 						ppScene.renderingFromThisLight = &light->getRRLight();
 						PluginParamsShared ppShared;
@@ -361,9 +361,9 @@ done:
 
 const unsigned* RRSolverGL::detectDirectIllumination()
 {
-	if (!getMultiObject()) return NULL;
+	if (!getMultiObject()) return nullptr;
 	unsigned numTriangles = getMultiObject()->getCollider()->getMesh()->getNumTriangles();
-	if (!numTriangles) return NULL;
+	if (!numTriangles) return nullptr;
 
 	PreserveViewport p1;
 
@@ -410,7 +410,7 @@ const unsigned* RRSolverGL::detectDirectIllumination()
 	}
 
 	// find the only enabled light
-	RealtimeLight* theOnlyEnabledLight = NULL;
+	RealtimeLight* theOnlyEnabledLight = nullptr;
 	for (unsigned i=0;i<realtimeLights.size();i++)
 	{
 		if (realtimeLights[i] && realtimeLights[i]->getRRLight().enabled)
@@ -447,8 +447,8 @@ const unsigned* RRSolverGL::detectDirectIllumination()
 		// return data for the only light, no summing
 		return theOnlyEnabledLight->smallMapCPU;
 	}
-	// return NULL for no lights
-	return NULL;
+	// return nullptr for no lights
+	return nullptr;
 }
 
 unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigned* _results, unsigned _space)
@@ -533,7 +533,7 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 		uberProgramSetup.MATERIAL_DIFFUSE = true;
 		uberProgramSetup.MATERIAL_CULLING = false;
 		uberProgramSetup.FORCE_2D_POSITION = true;
-		Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,ddiLight,0,1,NULL,1,NULL);
+		Program* program = uberProgramSetup.useProgram(uberProgram1,nullptr,ddiLight,0,1,nullptr,1,nullptr);
 		if (!program)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"setupShader: Failed to compile or link GLSL program.\n"));
@@ -549,8 +549,8 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 			1,
 			uberProgramSetup,
 			false,
-			NULL,
-			NULL,
+			nullptr,
+			nullptr,
 			1,
 			0);
 
@@ -684,7 +684,7 @@ void drawRealtimeLight(RealtimeLight* light)
 
 /*void RRSolverGL::renderScene(const RenderParameters& _renderParameters)
 {
-	renderer->render(this, NULL, _renderParameters.uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : NULL, _renderParameters);
+	renderer->render(this, nullptr, _renderParameters.uberProgramSetup.LIGHT_DIRECT ? &realtimeLights : nullptr, _renderParameters);
 }*/
 
 void RRSolverGL::renderLights(const rr::RRCamera& _camera)
@@ -698,7 +698,7 @@ void RRSolverGL::renderLights(const rr::RRCamera& _camera)
 	uberProgramSetup.LIGHT_INDIRECT_VCOLOR = 1;
 	uberProgramSetup.MATERIAL_DIFFUSE = 1;
 	uberProgramSetup.LEGACY_GL = 1;
-	Program* program = uberProgramSetup.useProgram(uberProgram1,NULL,NULL,0,1,NULL,1,NULL);
+	Program* program = uberProgramSetup.useProgram(uberProgram1,nullptr,nullptr,0,1,nullptr,1,nullptr);
 	uberProgramSetup.useCamera(program,&_camera);
 	for (unsigned i=0;i<getLights().size();i++)
 	{
@@ -752,7 +752,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		if (getMultiObject())
 		{
 			rr::RRVec3 mini,maxi;
-			getMultiObject()->getCollider()->getMesh()->getAABB(&mini,&maxi,NULL);
+			getMultiObject()->getCollider()->getMesh()->getAABB(&mini,&maxi,nullptr);
 			size = (maxi-mini).length();
 		}
 
@@ -782,7 +782,7 @@ unsigned RRSolverGL::updateEnvironmentMap(rr::RRObjectIllumination* illumination
 		}
 
 		// update cube
-		PluginParamsSky ppSky(NULL,this,1);
+		PluginParamsSky ppSky(nullptr,this,1);
 		PluginParamsScene ppScene(&ppSky,this);
 		ppScene.uberProgramSetup.enableAllMaterials();
 		ppScene.uberProgramSetup.enableAllLights();

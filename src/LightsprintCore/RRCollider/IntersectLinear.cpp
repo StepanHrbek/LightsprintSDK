@@ -123,7 +123,7 @@ IntersectLinear::IntersectLinear(const RRMesh* aimporter)
 
 	// only for kd/bsp, not used by linear
 	triangles = importer->getNumTriangles();
-	importer->getAABB(&box.min,&box.max,NULL);
+	importer->getAABB(&box.min,&box.max,nullptr);
 	box.init(box.min,box.max);
 	// lower number = danger of numeric errors
 	// higher number = slower intersection
@@ -187,7 +187,7 @@ bool IntersectLinear::intersect(RRRay& ray) const
 		{
 			// don't use this->box, mesh may be dynamic
 			Box boxUnaligned;
-			importer->getAABB(&boxUnaligned.min,&boxUnaligned.max,NULL);
+			importer->getAABB(&boxUnaligned.min,&boxUnaligned.max,nullptr);
 			boxUnaligned.init(boxUnaligned.min,boxUnaligned.max);
 
 #ifdef USE_SSE
@@ -294,7 +294,7 @@ void RayHitBackup::createBackupOf(const RRRay& ray)
 	#endif
 }
 
-// if mesh is NULL, ray.hitObject must be set
+// if mesh is nullptr, ray.hitObject must be set
 void RayHitBackup::restoreBackupTo(RRRay& ray, const RRMesh* mesh)
 {
 	// some data are copied
@@ -359,7 +359,7 @@ int RayHitBackup::compareBackupDistance(const void* elem1, const void* elem2)
 
 RayHits::RayHits()
 {
-	backupSlotDynamic = NULL;
+	backupSlotDynamic = nullptr;
 	backupSlotsUsed = 0;
 	backupSlotsAllocated = 0;
 	theBestSlot = 0;
@@ -389,7 +389,7 @@ void RayHits::insertHitUnordered(const RRRay& ray)
 	if (ray.hitDistance<getSlots()[theBestSlot].getHitDistance()) theBestSlot = backupSlotsUsed-1;
 }
 
-// if mesh is NULL, ray.hitObject must be set
+// if mesh is nullptr, ray.hitObject must be set
 bool RayHits::getHitOrdered(RRRay& ray, const RRMesh* mesh)
 {
 	bool hit = false;

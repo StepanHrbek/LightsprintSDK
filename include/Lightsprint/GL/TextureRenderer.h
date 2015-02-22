@@ -73,8 +73,8 @@ public:
 
 	//! Renders cubemap, equirectangular 2d texture or blend of two such maps as if camera is in center.
 	//
-	//! Use blendFactor=0 to render only texture0, texture1 then may be NULL.
-	//! For non-NULL color, texture color is multiplied by color.
+	//! Use blendFactor=0 to render only texture0, texture1 then may be nullptr.
+	//! For non-nullptr color, texture color is multiplied by color.
 	//! Color is finally gamma corrected by gamma, 1 = no correction.
 	//! Angles rotate environments around top/down axis.
 	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture0, float angleRad0, const Texture* texture1, float angleRad1, float blendFactor, const rr::RRVec4* brightness, float gamma, bool allowDepthTest);
@@ -87,7 +87,7 @@ public:
 	//! \param texture
 	//!  Texture (2d or cube) to be rendered. Cube textures are rendered in equirectangular projection.
 	//! \param tp
-	//!  For non-NULL tp, output is tonemapped using given parameters.
+	//!  For non-nullptr tp, output is tonemapped using given parameters.
 	//! \param x
 	//!  Position of texture's left side in viewport, 0=leftmost, 1=rightmost.
 	//! \param y
@@ -100,13 +100,13 @@ public:
 	//!  Depth in 0..1 range to be assigned to all rendered fragments.
 	//!  Additional effect of z in render2D() (not in render2dQuad()) is: "if (z<0) temporarily disable GL_DEPTH_TEST"
 	//! \param extraDefines
-	//!  Usually NULL, may be additional glsl code inserted at the beginning of shader, to enable special rendering paths.
+	//!  Usually nullptr, may be additional glsl code inserted at the beginning of shader, to enable special rendering paths.
 	//! \param fisheyeFovDeg
 	//!  For internal use.
-	void render2D(const Texture* texture, const ToneParameters* tp, float x,float y,float w,float h,float z=-1, const char* extraDefines=NULL, float fisheyeFovDeg=180);
+	void render2D(const Texture* texture, const ToneParameters* tp, float x,float y,float w,float h,float z=-1, const char* extraDefines=nullptr, float fisheyeFovDeg=180);
 
 	//! Component of render2D(), initializes pipeline.
-	Program* render2dBegin(const ToneParameters* tp, const char* extraDefines=NULL, float fisheyeFovDeg=180);
+	Program* render2dBegin(const ToneParameters* tp, const char* extraDefines=nullptr, float fisheyeFovDeg=180);
 	//! Component of render2D(), renders textured quad. May be called multiple times between render2dBegin() and render2dEnd().
 	void render2dQuad(const Texture* texture, float x,float y,float w,float h,float z=-1);
 	//! Component of render2D(), restores pipeline.
@@ -119,7 +119,7 @@ public:
 
 	//! Helper, renders quad, identical to glBegin();4x glVertex();glEnd(); with coordinates from -1,-1 to 1,1.
 	//! Optional parameter lets you provide your own coordinates.
-	static void renderQuad(const float* positions = NULL);
+	static void renderQuad(const float* positions = nullptr);
 
 private:
 	bool renderEnvironment(const rr::RRCamera& camera, const Texture* texture, float angleRad, const rr::RRVec3& brightness, float gamma);

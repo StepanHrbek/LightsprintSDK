@@ -20,7 +20,7 @@ namespace rr
 RRStaticSolver::~RRStaticSolver()
 {
 	//RR_ASSERT(_CrtIsValidHeapPointer(scene));
-	//RR_ASSERT(_CrtIsMemoryBlock(scene,sizeof(Scene),NULL,NULL,NULL));
+	//RR_ASSERT(_CrtIsMemoryBlock(scene,sizeof(Scene),nullptr,nullptr,nullptr));
 	delete scene;
 }
 
@@ -34,13 +34,13 @@ RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRSolver::Smooth
 {
 	if (!_object)
 	{
-		return NULL; // no input
+		return nullptr; // no input
 	}
 	const RRMesh* mesh = _object->getCollider()->getMesh();
 	Object *obj = Object::create(mesh->getNumVertices(),mesh->getNumTriangles());
 	if (!obj)
 	{
-		return NULL; // not enough memory (already reported)
+		return nullptr; // not enough memory (already reported)
 	}
 	RRStaticSolver* solver = new RRStaticSolver(_object,_smoothing,obj,_aborting); // obj is filled but not yet adopted
 	   
@@ -48,7 +48,7 @@ RRStaticSolver* RRStaticSolver::create(RRObject* _object, const RRSolver::Smooth
 	{
 		delete solver;
 		delete obj;
-		return NULL; // not enough memory (already reported) or abort
+		return nullptr; // not enough memory (already reported) or abort
 	}
 
 	solver->scene->objInsertStatic(obj); // obj is adopted
@@ -73,8 +73,8 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRSolver::SmoothingPara
 		if (aborting) break;
 		RRMesh::Triangle tv;
 		mesh->getTriangle(fi,tv);
-		const RRMaterial* s=importer->getTriangleMaterial(fi,NULL,NULL);
-		if (!s) RR_LIMITED_TIMES(1,RRReporter::report(WARN,"At least one triangle has NULL material -> expect crash.\n"));
+		const RRMaterial* s=importer->getTriangleMaterial(fi,nullptr,nullptr);
+		if (!s) RR_LIMITED_TIMES(1,RRReporter::report(WARN,"At least one triangle has nullptr material -> expect crash.\n"));
 		Triangle *t = &obj->triangle[fi];
 		RRMesh::TriangleBody body;
 		mesh->getTriangleBody(fi,body);
@@ -84,7 +84,7 @@ RRStaticSolver::RRStaticSolver(RRObject* importer, const RRSolver::SmoothingPara
 		}
 		else
 		{
-			t->surface=NULL; // marks invalid triangles
+			t->surface=nullptr; // marks invalid triangles
 			t->area=0; // just to have consistency through all invalid triangles
 		}
 		// initialize isLod0

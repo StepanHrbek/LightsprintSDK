@@ -31,13 +31,13 @@ using namespace rr;
 
 static bool s_isolationEnabled = false;
 #ifndef _WIN32
-	static const char* s_thisProgramFilename = NULL;
+	static const char* s_thisProgramFilename = nullptr;
 #endif
 
 RRScene* loadIsolated(const RRString& filename, RRFileLocator* textureLocator, bool* aborting)
 {
 	if (!s_isolationEnabled)
-		return NULL;
+		return nullptr;
 
 	bf::path input = RR_RR2PATH(filename);
 	
@@ -52,19 +52,19 @@ RRScene* loadIsolated(const RRString& filename, RRFileLocator* textureLocator, b
 		RRReportInterval report(INF2,"Isolated process converts it to .rr3...\n");
 #ifdef _WIN32
 		wchar_t thisProgramFilename[MAX_PATH];
-		GetModuleFileNameW(NULL,thisProgramFilename,MAX_PATH);
+		GetModuleFileNameW(nullptr,thisProgramFilename,MAX_PATH);
 		intptr_t exitCode = _wspawnl(_P_WAIT,
 			thisProgramFilename,
 			(std::wstring(L"\"")+thisProgramFilename+L"\"").c_str(), // add "", filenames with spaces need it
 			L"-isolated-conversion",
 			(std::wstring(L"\"")+input.wstring()+L"\"").c_str(),
 			(std::wstring(L"\"")+output.wstring()+L"\"").c_str(),
-			NULL);
+			nullptr);
 		bool success = exitCode==0;
 		if (!success)
 		{
 			RRReporter::report(WARN,"Isolated conversion failed with exit code %d.\n",exitCode);
-			return NULL;
+			return nullptr;
 		}
 #else
 		pid_t child_pid = fork();
@@ -76,7 +76,7 @@ RRScene* loadIsolated(const RRString& filename, RRFileLocator* textureLocator, b
 				"-isolated-conversion",
 				input.string().c_str(),
 				output.string().c_str(),
-				NULL);
+				nullptr);
 			// child only gets here if exec fails
 			RRReporter::report(WARN,"Isolated conversion failed execl().\n");
 			exit(0);
@@ -88,7 +88,7 @@ RRScene* loadIsolated(const RRString& filename, RRFileLocator* textureLocator, b
 		if (!success)
 		{
 			RRReporter::report(WARN,"Isolated conversion failed with waitResult=%d exited=%d exitcode=%d.\n",(int)waitResult,WIFEXITED(status)?1:0,exitCode);
-			return NULL;
+			return nullptr;
 		}
 #endif
 	}
@@ -163,7 +163,7 @@ void registerLoaderIsolationStep2(int argc, char** argv)
 		RRScene scene(argvw[2], textureLocator, &solver->aborting);
 		bool saved = scene.save(argvw[3]);
 #else
-		RRScene scene(argv[2], NULL, &solver->aborting);
+		RRScene scene(argv[2], nullptr, &solver->aborting);
 		bool saved = scene.save(argv[3]);
 #endif
 		exit(saved?0:1); // 0=success

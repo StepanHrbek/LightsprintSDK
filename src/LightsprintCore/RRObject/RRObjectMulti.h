@@ -29,17 +29,17 @@ class RRObjectMultiFast : public RRObject
 public:
 	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, bool accelerate, const char* cacheLocation)
 	{
-		if (!objects || !numObjects) return NULL;
+		if (!objects || !numObjects) return nullptr;
 		// only in top level of hierarchy: create multicollider
-		RRCollider* multiCollider = NULL;
-		const RRMesh** transformedMeshes = NULL;
+		RRCollider* multiCollider = nullptr;
+		const RRMesh** transformedMeshes = nullptr;
 		bool vertexStitching = maxDistanceBetweenVerticesToStitch>=0 && maxRadiansBetweenNormalsToStitch>=0;
 
 		{
 			// create multimesh
 			transformedMeshes = new const RRMesh*[numObjects+MI_MAX];
 			for (unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
-			for (unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = NULL;
+			for (unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = nullptr;
 
 			const RRMesh* oldMesh = transformedMeshes[0];
 			const RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects,true);
@@ -50,7 +50,7 @@ public:
 			if (vertexStitching && !aborting)
 			{
 				oldMesh = multiMesh;
-				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,0,NULL);
+				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,0,nullptr);
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles
@@ -71,14 +71,14 @@ public:
 
 
 			// create multicollider
-			multiCollider = RRCollider::create(multiMesh,NULL,intersectTechnique,aborting,cacheLocation);
+			multiCollider = RRCollider::create(multiMesh,nullptr,intersectTechnique,aborting,cacheLocation);
 
 			if (!multiCollider)
 			{
 				// not enough memory
 				for (unsigned i=0;i<numObjects+MI_MAX;i++) delete transformedMeshes[i];
 				delete[] transformedMeshes;
-				return NULL;
+				return nullptr;
 			}
 		}
 
@@ -116,7 +116,7 @@ public:
 	}
 
 private:
-	RRObjectMultiFast(RRObject* const* _objects, unsigned _numObjects, RRCollider* _multiCollider = NULL, const RRMesh** _transformedMeshes = NULL)
+	RRObjectMultiFast(RRObject* const* _objects, unsigned _numObjects, RRCollider* _multiCollider = nullptr, const RRMesh** _transformedMeshes = nullptr)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -194,17 +194,17 @@ class RRObjectMultiSmall : public RRObject
 public:
 	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, float maxDistanceBetweenVerticesToStitch, float maxRadiansBetweenNormalsToStitch, bool optimizeTriangles, bool accelerate, const char* cacheLocation)
 	{
-		if (!objects || !numObjects) return NULL;
+		if (!objects || !numObjects) return nullptr;
 		// only in top level of hierarchy: create multicollider
-		RRCollider* multiCollider = NULL;
-		const RRMesh** transformedMeshes = NULL;
+		RRCollider* multiCollider = nullptr;
+		const RRMesh** transformedMeshes = nullptr;
 		bool vertexStitching = maxDistanceBetweenVerticesToStitch>=0 && maxRadiansBetweenNormalsToStitch>=0;
 
 		{
 			// create multimesh
 			transformedMeshes = new const RRMesh*[numObjects+MI_MAX];
 			for (unsigned i=0;i<numObjects;i++) transformedMeshes[i] = objects[i]->createWorldSpaceMesh();
-			for (unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = NULL;
+			for (unsigned i=0;i<MI_MAX;i++) transformedMeshes[numObjects+i] = nullptr;
 
 			const RRMesh* oldMesh = transformedMeshes[0];
 			const RRMesh* multiMesh = RRMesh::createMultiMesh(transformedMeshes,numObjects,false);
@@ -215,7 +215,7 @@ public:
 			if (vertexStitching && !aborting)
 			{
 				oldMesh = multiMesh;
-				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,0,NULL);
+				multiMesh = multiMesh->createOptimizedVertices(maxDistanceBetweenVerticesToStitch,maxRadiansBetweenNormalsToStitch,0,nullptr);
 				if (multiMesh!=oldMesh) transformedMeshes[numObjects+MI_OPTI_VERTICES] = multiMesh; // remember for freeing time
 			}
 			// remove degenerated triangles
@@ -236,14 +236,14 @@ public:
 
 
 			// create multicollider
-			multiCollider = RRCollider::create(multiMesh,NULL,intersectTechnique,aborting,cacheLocation);
+			multiCollider = RRCollider::create(multiMesh,nullptr,intersectTechnique,aborting,cacheLocation);
 
 			if (!multiCollider)
 			{
 				// not enough memory
 				for (unsigned i=0;i<numObjects+MI_MAX;i++) delete transformedMeshes[i];
 				delete[] transformedMeshes;
-				return NULL;
+				return nullptr;
 			}
 		}
 
@@ -288,9 +288,9 @@ public:
 	{
 		unoptimizeTriangle(t);
 		if (t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMaterial(t,light,receiver);
-		return pack[1].getImporter() ? // this test prevents crash, importer might be NULL when multiobject is made of 1 object and t exceeds number of triangles
+		return pack[1].getImporter() ? // this test prevents crash, importer might be nullptr when multiobject is made of 1 object and t exceeds number of triangles
 			pack[1].getImporter()->getTriangleMaterial(t-pack[0].getNumTriangles(),light,receiver)
-			: NULL;
+			: nullptr;
 	}
 
 	virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* colorSpace, bool interpolated, RRPointMaterial& out) const override
@@ -299,7 +299,7 @@ public:
 		if (t<pack[0].getNumTriangles())
 			pack[0].getImporter()->getPointMaterial(t,uv,colorSpace,interpolated,out);
 		else
-			if (pack[1].getImporter()) // this test prevents crash, importer might be NULL when multiobject is made of 1 object and t exceeds number of triangles
+			if (pack[1].getImporter()) // this test prevents crash, importer might be nullptr when multiobject is made of 1 object and t exceeds number of triangles
 			pack[1].getImporter()->getPointMaterial(t-pack[0].getNumTriangles(),uv,colorSpace,interpolated,out);
 	}
 
@@ -308,7 +308,7 @@ public:
 	{
 		unoptimizeTriangle(t);
 		if (t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleLod(t,out);
-		if (pack[1].getImporter()) // this test prevents crash, importer might be NULL when multiobject is made of 1 object and t exceeds number of triangles
+		if (pack[1].getImporter()) // this test prevents crash, importer might be nullptr when multiobject is made of 1 object and t exceeds number of triangles
 			return pack[1].getImporter()->getTriangleLod(t-pack[0].getNumTriangles(),out);
 	}
 
@@ -332,7 +332,7 @@ public:
 	}
 
 private:
-	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider* multiCollider = NULL, const RRMesh** transformedMeshes = NULL)
+	static RRObject* create(RRObject* const* objects, unsigned numObjects, RRCollider* multiCollider = nullptr, const RRMesh** transformedMeshes = nullptr)
 		// All parameters (meshes, array of meshes) are destructed by caller, not by us.
 		// Array of meshes must live during this call.
 		// Meshes must live as long as created multimesh.
@@ -340,7 +340,7 @@ private:
 		switch(numObjects)
 		{
 		case 0: 
-			return NULL;
+			return nullptr;
 		case 1: 
 			RR_ASSERT(objects);
 			if (!multiCollider) return objects[0]; 

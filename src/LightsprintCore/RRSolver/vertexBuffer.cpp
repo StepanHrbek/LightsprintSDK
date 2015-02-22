@@ -62,7 +62,7 @@ void RRSolver::updateVertexLookupTableDynamicSolver()
 					multiMesh->getPreImportVertex(postImportMultiVertex,postImportMultiTriangle);
 				if (priv->scene && !priv->scene->scene->object->triangle[postImportMultiTriangle].topivertex[v])
 				{
-					// static solver doesn't like this triangle and set surface NULL, probably because it is a needle
+					// static solver doesn't like this triangle and set surface nullptr, probably because it is a needle
 					// let it UNDEFINED
 				}
 				else
@@ -148,7 +148,7 @@ void RRSolver::updateVertexLookupTablePackedSolver()
 //! \param vertexBuffer
 //!  Destination vertex buffer for indirect illumination.
 //! \param params
-//!  Parameters of the update process, NULL for the default parameters that
+//!  Parameters of the update process, nullptr for the default parameters that
 //!  specify fast update (takes milliseconds) of RM_IRRADIANCE_LINEAR_INDIRECT data.
 //!  \n Only subset of all parameters is supported, see remarks.
 //!  \n params->measure specifies type of information stored in vertex buffer.
@@ -192,7 +192,7 @@ unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vert
 		priv->packedSolver->getTriangleIrradianceIndirectUpdate();
 		const std::vector<const RRVec3*>& postVertex2Ivertex = priv->postVertex2Ivertex[1+objectNumber];
 		RR_ASSERT(postVertex2Ivertex.size()==numPostImportVertices); // [multiobj indir is indexed]
-		RRVec3* lock = vertexBuffer->getFormat()==BF_RGBF ? (RRVec3*)(vertexBuffer->lock(BL_DISCARD_AND_WRITE)) : NULL;
+		RRVec3* lock = vertexBuffer->getFormat()==BF_RGBF ? (RRVec3*)(vertexBuffer->lock(BL_DISCARD_AND_WRITE)) : nullptr;
 		if (lock)
 		{
 			#pragma omp parallel for schedule(static) if(numPostImportVertices>35000)
@@ -208,7 +208,7 @@ unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vert
 			{
 				RRVec4 tmp;
 				tmp = *postVertex2Ivertex[postImportVertex];
-				vertexBuffer->setElement(postImportVertex,tmp,NULL);
+				vertexBuffer->setElement(postImportVertex,tmp,nullptr);
 			}
 		}
 		vertexBuffer->version = getSolutionVersion();
@@ -248,7 +248,7 @@ unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vert
 				RR_ASSERT(indirect[i]<1500000);
 			}
 		}
-		vertexBuffer->setElement(postImportVertex,indirect,NULL);
+		vertexBuffer->setElement(postImportVertex,indirect,nullptr);
 	}
 	vertexBuffer->version = getSolutionVersion();
 	return 1;
@@ -266,7 +266,7 @@ unsigned RRSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned object
 		RR_ASSERT(0);
 		return 0;
 	}
-	const RRColorSpace* colorSpace = (vertexBuffer->getScaled() && allowScaling) ? priv->colorSpace : NULL;
+	const RRColorSpace* colorSpace = (vertexBuffer->getScaled() && allowScaling) ? priv->colorSpace : nullptr;
 	unsigned numPostImportVertices = getStaticObjects()[objectHandle]->getCollider()->getMesh()->getNumVertices();
 	// load measure into each preImportVertex
 #pragma omp parallel for schedule(static)
@@ -285,7 +285,7 @@ unsigned RRSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned object
 				RR_ASSERT(data[i]<1500000);
 			}
 		}
-		vertexBuffer->setElement(postImportVertex,data,NULL);
+		vertexBuffer->setElement(postImportVertex,data,nullptr);
 	}
 	vertexBuffer->version = getSolutionVersion();
 	return 1;

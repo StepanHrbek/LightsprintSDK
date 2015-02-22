@@ -116,7 +116,7 @@ public:
 			if (!ifs || ifs.bad())
 			{
 				rr::RRReporter::report(rr::WARN,"Scene %ls can't be loaded, file does not exist.\n",filename.w_str());
-				return NULL;
+				return nullptr;
 			}
 
 #ifdef USE_TEXT
@@ -205,7 +205,7 @@ public:
 		catch(...)
 		{
 			rr::RRReporter::report(rr::ERRO,"Failed to load scene %ls.\n",filename.w_str());
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -272,7 +272,7 @@ public:
 			out.push(ofs);
 			portable_binary_oarchive ar(out);
 #endif
-			SerializationRuntime serializationRuntime(NULL,"save_rr3");
+			SerializationRuntime serializationRuntime(nullptr,"save_rr3");
 
 			std::string filenameOrVersion;
 			ar & boost::serialization::make_nvp("filename", filenameOrVersion); // former local charset filename, must be preserved, loader always tries to read it, we don't have any version number at this point in file
@@ -323,7 +323,7 @@ static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6
 		if (!ifs || ifs.bad())
 		{
 			//rr::RRReporter::report(rr::WARN,"Buffer %ls can't be loaded, file does not exist.\n",filename.w_str());
-			return NULL;
+			return nullptr;
 		}
 
 		boost::iostreams::filtering_stream<boost::iostreams::input> in;
@@ -331,7 +331,7 @@ static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6
 		in.push(ifs);
 		portable_binary_iarchive ar(in);
 
-		SerializationRuntime serializationRuntime(NULL,"load_rrbuffer");
+		SerializationRuntime serializationRuntime(nullptr,"load_rrbuffer");
 
 		unsigned version;
 		ar & boost::serialization::make_nvp("version", version);
@@ -344,7 +344,7 @@ static RRBuffer* loadBuffer(const RRString& filename, const char* cubeSideName[6
 	{
 		// importers don't report failure, it is reported at the end of RRBuffer::load()
 		//rr::RRReporter::report(rr::ERRO,"Failed to load buffer %ls.\n",filename.w_str());
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -380,7 +380,7 @@ static bool saveBuffer(RRBuffer* buffer, const RRString& filename, const char* c
 		out.push(ofs);
 		portable_binary_oarchive ar(out);
 
-		SerializationRuntime serializationRuntime(NULL,"save_rrbuffer");
+		SerializationRuntime serializationRuntime(nullptr,"save_rrbuffer");
 
 		unsigned version = 0;
 		ar & boost::serialization::make_nvp("version", version);
@@ -409,7 +409,7 @@ static RRMaterials* loadMaterial(const RRString& filename, RRFileLocator* textur
 		if (!ifs || ifs.bad())
 		{
 			//rr::RRReporter::report(rr::WARN,"Buffer %ls can't be loaded, file does not exist.\n",filename.w_str());
-			return NULL;
+			return nullptr;
 		}
 
 		boost::iostreams::filtering_stream<boost::iostreams::input> in;
@@ -435,7 +435,7 @@ static RRMaterials* loadMaterial(const RRString& filename, RRFileLocator* textur
 	{
 		rr::RRReporter::report(rr::ERRO,"Failed to load material %ls.\n",filename.w_str());
 		delete materials;
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -464,7 +464,7 @@ static bool saveMaterial(const RRMaterials* materials, const RRString& filename)
 		out.push(ofs);
 		portable_binary_oarchive ar(out);
 
-		SerializationRuntime serializationRuntime(NULL,"save_rrmaterial");
+		SerializationRuntime serializationRuntime(nullptr,"save_rrmaterial");
 
 		ar & boost::serialization::make_nvp("filename", filename);
 		ar & boost::serialization::make_nvp("materials",*materials);

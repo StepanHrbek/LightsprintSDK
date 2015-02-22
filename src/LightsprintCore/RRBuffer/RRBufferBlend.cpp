@@ -23,7 +23,7 @@ RRBuffer* RRBuffer::createEnvironmentBlend(RRBuffer* environment0, RRBuffer* env
 	// optimization, don't blend when not needed
 	if (!environment1 && !angleRad0)
 	{
-		return environment0 ? environment0->createReference() : NULL;
+		return environment0 ? environment0->createReference() : nullptr;
 	}
 
 	return new RRBufferBlend(environment0, environment1, angleRad0, angleRad1, blendFactor);

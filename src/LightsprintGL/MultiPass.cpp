@@ -17,8 +17,8 @@ MultiPass::MultiPass(const rr::RRCamera& _camera, const RealtimeLights* _lights,
 	: camera(_camera)
 {
 	// inputs
-	lights = _mainUberProgramSetup.LIGHT_DIRECT ? _lights : NULL;
-	unsigned numLights = 0; // count only non-NULL enabled lights
+	lights = _mainUberProgramSetup.LIGHT_DIRECT ? _lights : nullptr;
+	unsigned numLights = 0; // count only non-nullptr enabled lights
 	if (lights)
 		for (unsigned i=0;i<lights->size();i++)
 			if ((*lights)[i] && (*lights)[i]->getRRLight().enabled)
@@ -73,14 +73,14 @@ MultiPass::MultiPass(const rr::RRCamera& _camera, const RealtimeLights* _lights,
 
 Program* MultiPass::getNextPass(UberProgramSetup& _outUberProgramSetup, RealtimeLight*& _outLight)
 {
-	// skip NULL and disabled lights
+	// skip nullptr and disabled lights
 	if (lights && lightIndex>=0)
 		while (lightIndex<(int)lights->size() && (!(*lights)[lightIndex] || !(*lights)[lightIndex]->getRRLight().enabled))
 			lightIndex++;
 
-	// return NULL when done
+	// return nullptr when done
 	if (lightIndex>=(int)(lights?lights->size():0))
-		return NULL;
+		return nullptr;
 
 	Program* result = getPass(lightIndex,_outUberProgramSetup,_outLight);
 
@@ -91,7 +91,7 @@ Program* MultiPass::getNextPass(UberProgramSetup& _outUberProgramSetup, Realtime
 }
 
 // returns program and all outXxx are set, do render
-// or returns NULL and outXxx stay unchanged, rendering is done
+// or returns nullptr and outXxx stay unchanged, rendering is done
 Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSetup, RealtimeLight*& _outLight)
 {
 	UberProgramSetup uberProgramSetup = mainUberProgramSetup;
@@ -143,7 +143,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		// before Z pass
 		if(!uberProgramSetup.comment)
 			uberProgramSetup.comment = "// Z pass\n";
-		light = NULL;
+		light = nullptr;
 		uberProgramSetup.SHADOW_MAPS = 0;
 		uberProgramSetup.SHADOW_SAMPLES = 0;
 		uberProgramSetup.SHADOW_COLOR = 0;
@@ -189,7 +189,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		// disable dif/spec/emi, they write to RGB too
 		if(!uberProgramSetup.comment)
 			uberProgramSetup.comment = "// multiply pass\n";
-		light = NULL;
+		light = nullptr;
 		uberProgramSetup.MATERIAL_DIFFUSE = 0;
 		uberProgramSetup.MATERIAL_SPECULAR = 0;
 		uberProgramSetup.MATERIAL_EMISSIVE_CONST = 0;
@@ -202,10 +202,10 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	{
 		// before ambi+emi pass
 		// adjust program for render without lights
-		//uberProgramSetup.setLightDirect(NULL,NULL);
+		//uberProgramSetup.setLightDirect(nullptr,nullptr);
 		if(!uberProgramSetup.comment)
 			uberProgramSetup.comment = "// ambi+emi pass\n";
-		light = NULL;
+		light = nullptr;
 		uberProgramSetup.SHADOW_MAPS = 0;
 		uberProgramSetup.SHADOW_SAMPLES = 0;
 		uberProgramSetup.SHADOW_COLOR = 0;
@@ -277,7 +277,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 	{
 		// _lightIndex out of range, all passes done
 		RR_ASSERT(0); // we should never get here, 'done' is catched earlier
-		return NULL;
+		return nullptr;
 	}
 	uberProgramSetup.validate(); // might be useful (however no problems detected without it)
 	Program* program = uberProgramSetup.useProgram(uberProgram,&camera,light,0,lightDirectMultiplier,brightness,gamma,clipPlanes);
@@ -350,7 +350,7 @@ Program* MultiPass::getPass(int _lightIndex, UberProgramSetup& _outUberProgramSe
 		if (!program)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Failed to compile or link GLSL program.\n"));
-			return NULL;
+			return nullptr;
 		}
 	}
 

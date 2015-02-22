@@ -89,7 +89,7 @@ RRBufferInMemory::RRBufferInMemory()
 	format = BF_RGB;
 	scaled = false;
 	stub = false;
-	data = NULL;
+	data = nullptr;
 	version = rand();
 }
 
@@ -117,7 +117,7 @@ RRBufferInMemory::~RRBufferInMemory()
 	{
 		if (customData)
 		{
-			RRReporter::report(WARN,"Deleting buffer with non-NULL customData, memory leak? If it links to Texture, delete the Texture first.\n");
+			RRReporter::report(WARN,"Deleting buffer with non-nullptr customData, memory leak? If it links to Texture, delete the Texture first.\n");
 		}
 		// destruct
 		delete[] data;

@@ -16,8 +16,8 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	//rr::RRReportInterval report(rr::INF1,"Loading %s...\n",setup->filename);
 
 	setup = levelSetup;
-	animationEditor = supportEditor ? new AnimationEditor(levelSetup) : NULL;
-	solver = NULL;
+	animationEditor = supportEditor ? new AnimationEditor(levelSetup) : nullptr;
+	solver = nullptr;
 
 	// init radiosity solver
 	extern rr_gl::RRSolverGL::DDIQuality lightStability;
@@ -58,11 +58,11 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	{
 		char* ldmName = _strdup(setup->filename);
 		strcpy(ldmName+strlen(ldmName)-3,"jpg");
-		rr::RRBuffer* ldm = REBUILD_JPG ? NULL : rr::RRBuffer::load(ldmName);
+		rr::RRBuffer* ldm = REBUILD_JPG ? nullptr : rr::RRBuffer::load(ldmName);
 		if (!ldm)
 		{
 			// build light detail map
-			solver->getStaticObjects()[0]->illumination.getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,2048,2048,1,rr::BF_RGB,true,NULL);
+			solver->getStaticObjects()[0]->illumination.getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,2048,2048,1,rr::BF_RGB,true,nullptr);
 			rr::RRSolver::UpdateParameters params(REBUILD_JPG ? 2000 : 20);
 			params.direct.lightMultiplier = 0;
 			params.indirect.lightMultiplier = 0;

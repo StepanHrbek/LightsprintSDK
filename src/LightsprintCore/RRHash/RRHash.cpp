@@ -121,7 +121,7 @@ RRHash RRObject::getHash() const
 					((unsigned long*)&triangle)[j] = SWAP_32(((unsigned long*)&triangle)[j]);
 #endif
 				// optimization: avoid slow getTriangleMaterial()
-				//const RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
+				//const RRMaterial* material = object->getTriangleMaterial(t,nullptr,nullptr);
 				//RR_ASSERT(material==_material);
 
 				if (material)

@@ -256,7 +256,7 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 	defaultMaterial.reset(false);
 	for (unsigned t=0;t<numTriangles;t++)
 	{
-		const RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
+		const RRMaterial* material = object->getTriangleMaterial(t,nullptr,nullptr);
 		triangles[t].material = material ? material : &defaultMaterial;
 		triangles[t].area = mesh->getTriangleArea(t);
 		triangles[t].areaInv = triangles[t].area ? 1/triangles[t].area : 1; // so we don't return INF exitance from degenerated triangle (now we mostly return 0)
@@ -293,14 +293,14 @@ RRPackedSolver::RRPackedSolver(const RRObject* _object, const PackedSolverFile* 
 	materialEmittanceVideoQuality = 0;
 	materialEmittanceUsePointMaterials = false;
 	numSamplePoints = 0;
-	samplePoints = NULL;
+	samplePoints = nullptr;
 }
 
 RRPackedSolver* RRPackedSolver::create(const RRObject* object, const PackedSolverFile* adopt_packedSolverFile)
 {
 	if (object && adopt_packedSolverFile && adopt_packedSolverFile->isCompatible(object))
 		return new RRPackedSolver(object,adopt_packedSolverFile);
-	return NULL;
+	return nullptr;
 }
 
 //! Converts environment to physical exitances, one per patch.
@@ -330,7 +330,7 @@ static unsigned getSkyExitancePhysical(const RRBuffer* inSky, unsigned inStaticQ
 		return 1;
 	// do we have to scale sky to physical? no -> null colorSpace
 	if (!inSky->getScaled())
-		inColorSpace = NULL;
+		inColorSpace = nullptr;
 	// select random generator
 	boost::rand48 rnd; // seed is reset, lower noise
 	const unsigned RMAX = rnd.max();
@@ -642,7 +642,7 @@ const RRVec3* RRPackedSolver::getTriangleIrradianceIndirect(unsigned triangle, u
 	if (triangle>=0x3fffffff || vertex>=3 // wrong inputs, shouldn't happen (btw, it's not ffff, UNDEFINED is clamped to 30 + 2 bits)
 		|| packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]>=packedSolverFile->packedIvertices->getNumC1()) // ffff in packed file -> triangle is degen or needle
 	{
-		return NULL;
+		return nullptr;
 	}
 	return &ivertexIndirectIrradiance[packedSolverFile->packedSmoothTriangles[triangle].ivertexIndex[vertex]];
 }

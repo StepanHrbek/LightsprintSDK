@@ -188,7 +188,7 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 					ray.rayLengthMin = 0;
 					ray.rayLengthMax = rayDir.length();
 					ray.rayFlags = 0;
-					ray.hitObject = NULL;
+					ray.hitObject = nullptr;
 					ray.collisionHandler = collisionHandler;
 					visible = !supercollider->intersect(ray);
 				}
@@ -217,7 +217,7 @@ const SVEntity* SVEntityIcons::intersectIcons(const SVEntities& entities, rr::RR
 			mousePositionInWindow.y>=piwIconRectangles[i].second.y && mousePositionInWindow.y<piwIconRectangles[i].second.y+piwIconRectangles[i].second.w )
 			return piwIconRectangles[i].first;
 	}
-	return NULL;
+	return nullptr;
 }
 
 SVEntityIcons::~SVEntityIcons()

@@ -26,7 +26,7 @@ class RR_GL_API PluginCreateRuntimeParams
 public:
 	rr::RRString pathToShaders;
 	rr::RRString pathToMaps;
-	NamedCounter*& counters; ///< Renderer maintains linked list of all counters, this is its end, always NULL. Plugins can expose their own counters by appending them here, i.e. counters = &myCounter.
+	NamedCounter*& counters; ///< Renderer maintains linked list of all counters, this is its end, always nullptr. Plugins can expose their own counters by appending them here, i.e. counters = &myCounter.
 	
 	PluginCreateRuntimeParams(NamedCounter*& _counters) : counters(_counters) 
 	{
@@ -79,7 +79,7 @@ struct PluginParamsShared
 
 	PluginParamsShared()
 	{
-		camera = NULL;
+		camera = nullptr;
 		viewport[0] = 0;
 		viewport[1] = 0;
 		viewport[2] = 0;

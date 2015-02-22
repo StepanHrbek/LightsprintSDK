@@ -172,15 +172,15 @@ namespace rr
 
 		//! Creates and returns collider, acceleration structure for finding ray x mesh intersections.
 		//
-		//! \param mesh Mesh you want to collide with. If set, objects must be NULL.
-		//! \param objects Objects you want to collide with. If set, mesh must be NULL.
+		//! \param mesh Mesh you want to collide with. If set, objects must be nullptr.
+		//! \param objects Objects you want to collide with. If set, mesh must be nullptr.
 		//! \param intersectTechnique Technique used for accelerating collision searches. See #IntersectTechnique.
 		//! \param aborting May be set asynchronously. When set, collider creation is aborted.
 		//! \param cacheLocation Optional location of cache, path to directory where acceleration structures may be cached.
-		//!        Default NULL caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
+		//!        Default nullptr caches in temp, "*" or any other invalid path disables caching, any valid is path where to cache colliders.
 		//! \param buildParams Optional additional parameters, specific for each technique and not revealed for public use.
 		//! \return Created collider.
-		static RRCollider* create(const RRMesh* mesh, const class RRObjects* objects, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation=NULL, void* buildParams=0);
+		static RRCollider* create(const RRMesh* mesh, const class RRObjects* objects, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation=nullptr, void* buildParams=0);
 
 		//! Finds ray x mesh intersections.
 		//
@@ -191,7 +191,7 @@ namespace rr
 		//! <ray->rayLengthMin,ray->rayLengthMax> and fills output attributes in ray
 		//! specified by ray->rayFlags.
 		//! \n See RRRay for more details on inputs, especially flags that further specify collision test.
-		//! \n When ray->collisionHandler!=NULL, it is called and it may accept or refuse intersection.
+		//! \n When ray->collisionHandler!=nullptr, it is called and it may accept or refuse intersection.
 		//! \n When collisionHandler accepts intersection, true is returned.
 		//! When collisionHandler rejects intersection, search continues.
 		//! \n False is returned when there were no accepted intersection.
@@ -270,7 +270,7 @@ namespace rr
 
 
 		//! \return Mesh that was passed to create().
-		//!  Must always return valid mesh, implementation is not allowed to return NULL.
+		//!  Must always return valid mesh, implementation is not allowed to return nullptr.
 		virtual const RRMesh* getMesh() const = 0;
 
 		//! \return Technique used by collider. May differ from technique requested in create().
@@ -300,8 +300,8 @@ namespace rr
 	//! at least in release builds.
 	//! \n May connect to Lightsprint servers for verification.
 	//! \return
-	//!  Error message for failed license check, NULL for successful check.
-	//!  If it's not NULL, lighting computed by other functions
+	//!  Error message for failed license check, nullptr for successful check.
+	//!  If it's not nullptr, lighting computed by other functions
 	//!  may be incorrect and calculation takes much longer time.
 	RR_API const char* loadLicense(const char* filename);
 

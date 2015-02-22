@@ -114,13 +114,13 @@ namespace rr
 		//! \param emissiveMultiplier
 		//! \param directIrradianceCustomRGBA8
 		//!  Array of per-triangle detected direct irradiances in RGBA8 format, one value per multiobject triangle.
-		//!  May be NULL.
+		//!  May be nullptr.
 		//! \param customToPhysical
 		//!  Table used to convert custom scale bytes to physical scale floats.
-		//!  May be NULL if directIrradianceCustomRGBA8 is NULL.
+		//!  May be nullptr if directIrradianceCustomRGBA8 is nullptr.
 		//! \param directIrradiancePhysicalRGB
 		//!  Array of per-triangle detected direct irradiances in RGB format, one value per multiobject triangle.
-		//!  May be NULL.
+		//!  May be nullptr.
 		//! \return Calculation state, see Improvement.
 		Improvement   illuminationReset(bool resetFactors, bool resetPropagation, RRReal emissiveMultiplier, const unsigned* directIrradianceCustomRGBA8, const RRReal customToPhysical[256], const RRVec3* directIrradiancePhysicalRGB);
 

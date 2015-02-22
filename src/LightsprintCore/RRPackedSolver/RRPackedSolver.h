@@ -58,7 +58,7 @@ public:
 	//! Returns triangle indirect irradiance, physical, gouraud, includes skylight. For static objects.
 	//
 	//! Pointer is guaranteed to stay constant, you can reuse it in next frames.
-	//! It may return NULL (for degenated and needle triangles).
+	//! It may return nullptr (for degenated and needle triangles).
 	//! Pointers are valid even without calling update, however data behind pointers
 	//! are valid only after calling update.
 	const RRVec3* getTriangleIrradianceIndirect(unsigned triangle, unsigned vertex) const;
@@ -80,7 +80,7 @@ public:
 private:
 	RRPackedSolver(const RRObject* object, const class PackedSolverFile* adopt_packedSolverFile);
 
-	// all objects exist, pointers are never NULL
+	// all objects exist, pointers are never nullptr
 
 	// constant precomputed data
 	const class PackedSolverFile* packedSolverFile;

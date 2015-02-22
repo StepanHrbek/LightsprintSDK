@@ -77,7 +77,7 @@ RRBuffer* RRObject::LayerParameters::createBuffer(bool forceFloats, bool forceAl
 			f = actualFormat;
 			break;
 	}
-	RRBuffer* buffer = RRBuffer::create(actualType,actualWidth,actualHeight,1,f,actualScaled,NULL);
+	RRBuffer* buffer = RRBuffer::create(actualType,actualWidth,actualHeight,1,f,actualScaled,nullptr);
 	if (buffer)
 	{
 		if (insertBeforeExtension)
@@ -120,8 +120,8 @@ bool RRObject::FaceGroups::containsEmittance() const
 
 RRObject::RRObject()
 {
-	collider = NULL;
-	worldMatrix = NULL;
+	collider = nullptr;
+	worldMatrix = nullptr;
 	enabled = true;
 	isDynamic = false;
 }
@@ -135,7 +135,7 @@ void RRObject::setCollider(RRCollider* _collider)
 {
 	collider = _collider;
 	if (!_collider)
-		RRReporter::report(ERRO,"setCollider(NULL) called, collider must never be NULL.\n");
+		RRReporter::report(ERRO,"setCollider(nullptr) called, collider must never be nullptr.\n");
 }
 
 RRMaterial* RRObject::getTriangleMaterial(unsigned t, const class RRLight* light, const RRObject* receiver) const
@@ -161,7 +161,7 @@ RRMaterial* RRObject::getTriangleMaterial(unsigned t, const class RRLight* light
 	{
 		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::faceGroups empty.\n"));
 	}
-	return NULL;
+	return nullptr;
 }
 
 void RRObject::updateFaceGroupsFromTriangleMaterials()
@@ -177,7 +177,7 @@ void RRObject::updateFaceGroupsFromTriangleMaterials()
 	unsigned numTriangles = getCollider()->getMesh()->getNumTriangles();
 	for (unsigned t=0;t<numTriangles;t++)
 	{
-		RRMaterial* material2 = getTriangleMaterial(t,NULL,NULL);
+		RRMaterial* material2 = getTriangleMaterial(t,nullptr,nullptr);
 		if (!t || material2!=material)
 		{
 			faceGroups.push_back(FaceGroup(material=material2,1));
@@ -190,7 +190,7 @@ void RRObject::updateFaceGroupsFromTriangleMaterials()
 }
 
 // Expects material prefilled with getTriangleMaterial(), both color and colorLinear.
-// Updates color and (if colorSpace!=NULL) colorLinear for properties with texture.
+// Updates color and (if colorSpace!=nullptr) colorLinear for properties with texture.
 static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, const RRColorSpace* colorSpace, bool interpolated, RRPointMaterial& material)
 {
 	// Make color (and possibly also colorLinear) more accurate using textures.
@@ -224,7 +224,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 		RRMesh::TriangleMapping triangleMapping;
 		mesh->getTriangleMapping(t,triangleMapping,material.diffuseReflectance.texcoord);
 		RRVec2 materialUv= triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-		RRVec4 rgba = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),NULL,interpolated);
+		RRVec4 rgba = material.diffuseReflectance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),nullptr,interpolated);
 		RRReal specularTransmittance = 1-rgba[3];
 		if (material.specularTransmittanceMapInverted)
 			specularTransmittance = 1-specularTransmittance;
@@ -259,7 +259,7 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 			RRMesh::TriangleMapping triangleMapping;
 			mesh->getTriangleMapping(t,triangleMapping,material.specularTransmittance.texcoord);
 			RRVec2 materialUv = triangleMapping.uv[0]*(1-uv[0]-uv[1]) + triangleMapping.uv[1]*uv[0] + triangleMapping.uv[2]*uv[1];
-			RRVec4 rgba = material.specularTransmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),NULL,interpolated);
+			RRVec4 rgba = material.specularTransmittance.texture->getElementAtPosition(RRVec3(materialUv[0],materialUv[1],0),nullptr,interpolated);
 			material.specularTransmittance.color = material.specularTransmittanceInAlpha ? RRVec3(1-rgba[3]) : rgba;
 			if (material.specularTransmittanceMapInverted)
 				material.specularTransmittance.color = RRVec3(1)-material.specularTransmittance.color;
@@ -281,14 +281,14 @@ static void updatePointMaterial(const rr::RRMesh* mesh, unsigned t, RRVec2 uv, c
 void RRObject::getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* colorSpace, bool interpolated, RRPointMaterial& material) const
 {
 	// Material is undefined on input, fill it with per-triangle quality first.
-	const RRMaterial* perTriangleMaterial = getTriangleMaterial(t,NULL,NULL);
+	const RRMaterial* perTriangleMaterial = getTriangleMaterial(t,nullptr,nullptr);
 	if (perTriangleMaterial)
 	{
 		material = *perTriangleMaterial;
 	}
 	else
 	{
-		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned NULL.\n"));
+		RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"RRObject::getTriangleMaterial returned nullptr.\n"));
 		material.reset(false);
 		RR_ASSERT(0);
 	}
@@ -334,7 +334,7 @@ const RRMatrix3x4Ex& RRObject::getWorldMatrixRef() const
 
 void* RRObject::getCustomData(const char* name) const
 {
-	return NULL;
+	return nullptr;
 }
 
 extern const char* checkUnwrapConsistency(const RRObject* object); // our small helper in lightmap.cpp
@@ -347,13 +347,13 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 	// collider, mesh
 	if (!getCollider())
 	{
-		RRReporter::report(ERRO,"getCollider()=NULL.\n");
+		RRReporter::report(ERRO,"getCollider()=nullptr.\n");
 		return 1;
 	}
 	const rr::RRMesh* mesh = getCollider()->getMesh();
 	if (!mesh)
 	{
-		RRReporter::report(ERRO,"getCollider()->getMesh()=NULL.\n");
+		RRReporter::report(ERRO,"getCollider()->getMesh()=nullptr.\n");
 		return 1;
 	}
 	mesh->checkConsistency(UINT_MAX,objectName,&numReports);
@@ -389,7 +389,7 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 		if (!material)
 		{
 			numReports++;
-			RRReporter::report(ERRO,"NULL material.\n");
+			RRReporter::report(ERRO,"nullptr material.\n");
 		}
 		else
 		{
@@ -494,7 +494,7 @@ RRCollisionHandler* RRObject::createCollisionHandlerFirstVisible() const
 
 RRMesh* RRObject::createWorldSpaceMesh() const
 {
-	return this ? getCollider()->getMesh()->createTransformed(getWorldMatrix()) : NULL;
+	return this ? getCollider()->getMesh()->createTransformed(getWorldMatrix()) : nullptr;
 }
 
 
@@ -506,7 +506,7 @@ RRMesh* RRObject::createWorldSpaceMesh() const
 // formats filename from prefix(path), object number and postfix(ext)
 inline void formatFilename(const RRString& path, const RRString& suggestedName, const RRString& objectName, const RRString& ext, bool isVertexBuffer, RRString& out)
 {
-	wchar_t* tmp = NULL;
+	wchar_t* tmp = nullptr;
 	const wchar_t* finalExt;
 	if (isVertexBuffer)
 	{

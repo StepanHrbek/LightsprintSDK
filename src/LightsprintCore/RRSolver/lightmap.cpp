@@ -95,7 +95,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 
 	// 1. preallocate texels
 	unsigned numTexelsInRect = (rectXMaxPlus1-rectXMin)*(rectYMaxPlus1-rectYMin);
-	TexelSubTexels* texelsRect = NULL;
+	TexelSubTexels* texelsRect = nullptr;
 	try
 	{
 		texelsRect = new TexelSubTexels[numTexelsInRect];
@@ -127,7 +127,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 			// gather data about triangle t
 			RRMesh::TriangleMapping mapping;
 			{
-				const RRMaterial* material = singleObject->getTriangleMaterial(singlePostImportTriangle,NULL,NULL);
+				const RRMaterial* material = singleObject->getTriangleMaterial(singlePostImportTriangle,nullptr,nullptr);
 				unsigned lightmapTexcoord = material ? material->lightmapTexcoord : UINT_MAX;
 				if (singleMesh->getTriangleMapping(singlePostImportTriangle,mapping,lightmapTexcoord))
 				{
@@ -355,7 +355,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 	for (unsigned i=0;i<numAllLights;i++)
 	{
 		RRLight* light = lmj.solver->getLights()[i];
-		if (light && light->enabled && multiObject->getTriangleMaterial(multiPostImportTriangleNumber,light,NULL))
+		if (light && light->enabled && multiObject->getTriangleMaterial(multiPostImportTriangleNumber,light,nullptr))
 		{
 			for (int k=0;k<numThreads;k++)
 				relevantLightsForObject[k*numAllLights+numRelevantLights] = light;
@@ -554,7 +554,7 @@ const char* checkUnwrapConsistency(const RRObject* object)
 	{
 		UnwrapStatisticsEx us;
 		us.subtexelsInMapSpace = true;
-		LightmapperJob lmj(NULL,RRSolver::UpdateParameters());
+		LightmapperJob lmj(nullptr,RRSolver::UpdateParameters());
 		lmj.singleObjectReceiver = reinterpret_cast<RRObject*>(&us);
 		enumerateTexelsFull(object,-1,MAP_WIDTH,MAP_WIDTH,us.callback,lmj,0,us);
 		float missing = us.numTrianglesWithoutUnwrap/(float)numTriangles;
@@ -584,16 +584,16 @@ const char* checkUnwrapConsistency(const RRObject* object)
 			return buf;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 RRBuffer* onlyVbuf(RRBuffer* buffer)
 {
-	return (buffer && buffer->getType()==BT_VERTEX_BUFFER) ? buffer : NULL;
+	return (buffer && buffer->getType()==BT_VERTEX_BUFFER) ? buffer : nullptr;
 }
 RRBuffer* onlyLmap(RRBuffer* buffer)
 {
-	return (buffer && buffer->getType()==BT_2D_TEXTURE) ? buffer : NULL;
+	return (buffer && buffer->getType()==BT_2D_TEXTURE) ? buffer : nullptr;
 }
 
 // clears as many multipliers as possible
@@ -620,7 +620,7 @@ void RRSolver::optimizeMultipliers(RRSolver::UpdateParameters& params, bool test
 			{
 				unsigned numElements = env->getNumElements();
 				for (unsigned i=0;i<numElements;i++)
-					if (env->getElement(i,NULL)!=RRVec4(0))
+					if (env->getElement(i,nullptr)!=RRVec4(0))
 					{
 						envFound = true;
 						break;
@@ -711,9 +711,9 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 
 		RRBuffer* allBuffers[NUM_BUFFERS];
 		allBuffers[LS_LIGHTMAP] = buffer;
-		allBuffers[LS_DIRECTION1] = directionalLightmaps?directionalLightmaps[0]:NULL;
-		allBuffers[LS_DIRECTION2] = directionalLightmaps?directionalLightmaps[1]:NULL;
-		allBuffers[LS_DIRECTION3] = directionalLightmaps?directionalLightmaps[2]:NULL;
+		allBuffers[LS_DIRECTION1] = directionalLightmaps?directionalLightmaps[0]:nullptr;
+		allBuffers[LS_DIRECTION2] = directionalLightmaps?directionalLightmaps[1]:nullptr;
+		allBuffers[LS_DIRECTION3] = directionalLightmaps?directionalLightmaps[2]:nullptr;
 		allBuffers[LS_BENT_NORMALS] = bentNormals;
 
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
@@ -806,7 +806,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
 			if (allPixelBuffers[i])
 			{
-				lmj.pixelBuffers[i] = RRBuffer::create(BT_2D_TEXTURE,pixelBufferWidth,pixelBufferHeight,1,BF_RGBAF,false,NULL);
+				lmj.pixelBuffers[i] = RRBuffer::create(BT_2D_TEXTURE,pixelBufferWidth,pixelBufferHeight,1,BF_RGBAF,false,nullptr);
 				if (!lmj.pixelBuffers[i])
 				{
 					for (unsigned i=0;i<NUM_BUFFERS;i++)
@@ -869,7 +869,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 						numBuffersEmpty++;
 					lmj.pixelBuffers[b]->lightmapGrow(_filtering->spreadForegroundColor,_filtering->wrap,aborting);
 					lmj.pixelBuffers[b]->lightmapFillBackground(_filtering->backgroundColor);
-					lmj.pixelBuffers[b]->copyElementsTo(allPixelBuffers[b],(b==LS_BENT_NORMALS)?NULL:priv->colorSpace);
+					lmj.pixelBuffers[b]->copyElementsTo(allPixelBuffers[b],(b==LS_BENT_NORMALS)?nullptr:priv->colorSpace);
 					allPixelBuffers[b]->version = getSolutionVersion();
 					updatedBuffers++;
 				}
@@ -892,7 +892,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 			unsigned numVertices = mesh->getNumVertices();
 			for (unsigned t=0;t<numTriangles;t++)
 			{
-				const RRMaterial* material = object->getTriangleMaterial(t,NULL,NULL);
+				const RRMaterial* material = object->getTriangleMaterial(t,nullptr,nullptr);
 				if (material)
 				{
 					if (uvIndexSet && material->lightmapTexcoord!=uvIndex)
@@ -907,7 +907,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 			// We found something unrelated but important to say.
 			if (multipleUvIndicesUsed) hint = "is it intentional that materials in object use different uv indices for lightmap?";
 			// This is probably unrelated, but serious problem that must be fixed.
-			if (uvIndexSet==false) hint = "all materials are NULL!";
+			if (uvIndexSet==false) hint = "all materials are nullptr!";
 			// We found the reasons.
 			if (pixelBufferWidth*pixelBufferHeight==0) hint = "map size is 0!";
 			if (numTriangles==0) hint = "mesh has 0 triangles!";
@@ -1137,7 +1137,7 @@ unsigned RRSolver::updateLightmaps(int layerLightmap, int layerDirectionalLightm
 				unsigned numPixelBuffers = 0;
 				for (unsigned i=0;i<NUM_BUFFERS;i++)
 				{
-					allPixelBuffers[i] = (allLayers[i]>=0) ? onlyLmap(getStaticObjects()[object]->illumination.getLayer(allLayers[i])) : NULL;
+					allPixelBuffers[i] = (allLayers[i]>=0) ? onlyLmap(getStaticObjects()[object]->illumination.getLayer(allLayers[i])) : nullptr;
 					if (allPixelBuffers[i]) numPixelBuffers++;
 				}
 

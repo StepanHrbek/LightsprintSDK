@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 		printf("\n\nHit enter to close...");
 		fgetc(stdin);
 #else
-		MessageBox(NULL,licError,"SceneViewer exiting...",MB_OK);
+		MessageBox(nullptr,licError,"SceneViewer exiting...",MB_OK);
 #endif
 		exit(0);
 	}
@@ -82,11 +82,11 @@ int main(int argc, char** argv)
 	rr_ed::SceneViewerState svs;
 #ifdef NDEBUG
 	// release returns quickly without freeing resources
-	rr_ed::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,false);
+	rr_ed::sceneViewer(nullptr,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,false);
 	return 0;
 #endif
 	// debug frees everything and reports memory leaks
-	rr_ed::sceneViewer(NULL,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,true);
+	rr_ed::sceneViewer(nullptr,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,true);
 #else
 	// View scene _in memory_ in scene viewer.
 
@@ -98,13 +98,13 @@ int main(int argc, char** argv)
 	// Send scene to GI solver
 	rr::RRSolver* solver = new rr::RRSolver();
 	solver->setColorSpace(rr::RRColorSpace::create_sRGB()); // switch inputs and outputs from HDR physical scale to RGB screenspace
-	solver->setStaticObjects(scene.objects,NULL);
+	solver->setStaticObjects(scene.objects,nullptr);
 	solver->setDynamicObjects(scene.objects);
 	solver->setLights(scene.lights);
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
 
 	// View solver in scene viewer
-	rr_ed::sceneViewer(solver,sceneFilename,NULL,"../../data/",NULL,true);
+	rr_ed::sceneViewer(solver,sceneFilename,nullptr,"../../data/",nullptr,true);
 
 	// Cleanup
 	delete solver->getEnvironment();
@@ -138,15 +138,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 			if (argv[i])
 				sprintf(argv[i], "%ws", argvw[i]);
 		}
-		argv[argc] = NULL;
+		argv[argc] = nullptr;
 		return main(argc,argv);
 	}
 	else
 	{
 		// someone calls us with invalid arguments, but don't panic, build argv from module filename
 		char szFileName[MAX_PATH];
-		GetModuleFileNameA(NULL,szFileName,MAX_PATH);
-		char* argv[2] = {szFileName,NULL};
+		GetModuleFileNameA(nullptr,szFileName,MAX_PATH);
+		char* argv[2] = {szFileName,nullptr};
 		return main(1,argv);
 	}
 }

@@ -25,14 +25,14 @@ extern RRVec3 refract(const RRVec3& I, const RRVec3& N, const RRMaterial* m);
 PathtracerJob::PathtracerJob(const RRSolver* _solver, bool _dynamic)
 {
 	solver = _solver;
-	colorSpace = solver ? solver->getColorSpace() : NULL;
+	colorSpace = solver ? solver->getColorSpace() : nullptr;
 	RRReal angleRad0 = 0;
 	RRReal angleRad1 = 0;
 	RRReal blendFactor = solver ? solver->getEnvironmentBlendFactor() : 0;
-	RRBuffer* environment0 = solver ? solver->getEnvironment(0,&angleRad0) : NULL;
-	RRBuffer* environment1 = solver ? solver->getEnvironment(1,&angleRad1) : NULL;
+	RRBuffer* environment0 = solver ? solver->getEnvironment(0,&angleRad0) : nullptr;
+	RRBuffer* environment1 = solver ? solver->getEnvironment(1,&angleRad1) : nullptr;
 	environment = RRBuffer::createEnvironmentBlend(environment0,environment1,angleRad0,angleRad1,blendFactor);
-	collider = solver ? ( _dynamic ? solver->getCollider() : solver->getMultiObject()->getCollider() ) : NULL;
+	collider = solver ? ( _dynamic ? solver->getCollider() : solver->getMultiObject()->getCollider() ) : nullptr;
 
 #ifdef MATERIAL_BACKGROUND_HACK
 	environmentAveragePhysical = RRVec3(0);
@@ -71,7 +71,7 @@ PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::Pa
 	lights = &ptj.solver->getLights();
 	multiObject = ptj.solver->getMultiObject();
 	packedSolver = ptj.solver->priv->packedSolver;
-	triangle = (ptj.solver->priv->scene && ptj.solver->priv->scene->scene && ptj.solver->priv->scene->scene->object) ? ptj.solver->priv->scene->scene->object->triangle : NULL;
+	triangle = (ptj.solver->priv->scene && ptj.solver->priv->scene->scene && ptj.solver->priv->scene->scene->object) ? ptj.solver->priv->scene->scene->object->triangle : nullptr;
 
 #ifdef MATERIAL_BACKGROUND_HACK
 	bouncedOffInvisiblePlane = false;
@@ -102,13 +102,13 @@ static bool getPointNormal(const RRRay& ray, const RRMaterial* material, bool in
 	{
 		// read localspace normal from bumpmap
 		RRVec2 uvInTextureSpace = tm.uv[0] + (tm.uv[1]-tm.uv[0])*ray.hitPoint2d[0] + (tm.uv[2]-tm.uv[0])*ray.hitPoint2d[1];
-		RRVec3 bumpElement = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1],0),NULL,interpolated);
+		RRVec3 bumpElement = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1],0),nullptr,interpolated);
 		RRVec3 localNormal;
 		if (material->bumpMapTypeHeight)
 		{
 			float height = bumpElement.x;
-			float hx = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0]+1.f/material->bumpMap.texture->getWidth(),uvInTextureSpace[1],0),NULL,interpolated).x;
-			float hy = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1]+1.f/material->bumpMap.texture->getHeight(),0),NULL,interpolated).x;
+			float hx = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0]+1.f/material->bumpMap.texture->getWidth(),uvInTextureSpace[1],0),nullptr,interpolated).x;
+			float hy = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1]+1.f/material->bumpMap.texture->getHeight(),0),nullptr,interpolated).x;
 			localNormal = RRVec3(height-hx,height-hy,0.1f);
 		}
 		else
@@ -239,10 +239,10 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			else
 			{
 				// architect
-				Triangle* hitTriangle = triangle ? &triangle[ray.hitTriangle] : NULL;
+				Triangle* hitTriangle = triangle ? &triangle[ray.hitTriangle] : nullptr;
 				RR_ASSERT(!triangle || (hitTriangle->surface && hitTriangle->area)); // triangles rejected by setGeometry() have surface=area=0, collisionHandler should reject them too
 				// zero area would create #INF in getIndirectIrradiance()
-				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
+				// that's why triangles with zero area are rejected in setGeometry (they get surface=nullptr), and later rejected by collisionHandler (based on surface=nullptr), they should not get here
 				RR_ASSERT(hitTriangle->area);
 				exitance += hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorLinear;
 				RR_ASSERT(IS_VEC3(exitance));
@@ -276,7 +276,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 					}
 					if (pixelNormal.dot(shadowRay.rayDir)>0 && faceNormal.dot(shadowRay.rayDir)>0) // bad normalmap -> some rays are terminated here
 					{
-						collisionHandlerGatherLights.setLight(light,NULL);
+						collisionHandlerGatherLights.setLight(light,nullptr);
 						RRVec3 unobstructedLight = light->getIrradiance(shadowRay.rayOrigin,ptj.colorSpace);
 						response.dirIn = -shadowRay.rayDir;
 						material->getResponse(response,parameters.brdfTypes);
@@ -330,10 +330,10 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			if (triangle)
 			{
 				// if we have triangle, it means that we can access indirect irradiance stored in Architect solver (and we hit static object)
-				Triangle* hitTriangle = triangle ? &triangle[ray.hitTriangle] : NULL;
+				Triangle* hitTriangle = triangle ? &triangle[ray.hitTriangle] : nullptr;
 				RR_ASSERT(!triangle || (hitTriangle->surface && hitTriangle->area)); // triangles rejected by setGeometry() have surface=area=0, collisionHandler should reject them too
 				// zero area would create #INF in getIndirectIrradiance()
-				// that's why triangles with zero area are rejected in setGeometry (they get surface=NULL), and later rejected by collisionHandler (based on surface=NULL), they should not get here
+				// that's why triangles with zero area are rejected in setGeometry (they get surface=nullptr), and later rejected by collisionHandler (based on surface=nullptr), they should not get here
 				RR_ASSERT(hitTriangle->area);
 				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_LINEAR_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorLinear;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));

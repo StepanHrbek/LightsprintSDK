@@ -55,7 +55,7 @@ int main()
 
 	// create collider (able to find ray x mesh intersections)
 	bool aborting = false;
-	const RRCollider* collider = RRCollider::create(multiMesh,NULL,RRCollider::IT_BVH_FAST,aborting);
+	const RRCollider* collider = RRCollider::create(multiMesh,nullptr,RRCollider::IT_BVH_FAST,aborting);
 
 	// create ray (contains both ray and intersection results)
 	RRRay ray;

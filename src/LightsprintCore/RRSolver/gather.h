@@ -49,8 +49,8 @@ struct LightmapperJob : public PathtracerJob
 		: PathtracerJob(_solver,false), params(_params)
 	{
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
-			pixelBuffers[i] = NULL;
-		singleObjectReceiver = NULL;
+			pixelBuffers[i] = nullptr;
+		singleObjectReceiver = nullptr;
 		gatherAllDirections = true;
 		staticSceneContainsLods = false;
 	};
@@ -101,7 +101,7 @@ struct ProcessTexelParams
 		//          ideally we should set higher random numbers when higher quality is set
 		resetFiller = rand()&0xffff;
 		rayLengthMin = 0;
-		relevantLights = NULL;
+		relevantLights = nullptr;
 	}
 	const LightmapperJob& context;
 	TexelSubTexels* subTexels;
@@ -135,11 +135,11 @@ public:
 	static GatheredPerTriangleData* create(unsigned numTriangles, bool gatherLightmap, bool gatherDirections, bool gatherBentNormals)
 	{
 		GatheredPerTriangleData* a = new GatheredPerTriangleData;
-		a->data[LS_LIGHTMAP] = gatherLightmap ? new (std::nothrow) RRVec3[numTriangles] : NULL;
-		a->data[LS_DIRECTION1] = gatherDirections ? new (std::nothrow) RRVec3[numTriangles] : NULL;
-		a->data[LS_DIRECTION2] = gatherDirections ? new (std::nothrow) RRVec3[numTriangles] : NULL;
-		a->data[LS_DIRECTION3] = gatherDirections ? new (std::nothrow) RRVec3[numTriangles] : NULL;
-		a->data[LS_BENT_NORMALS] = gatherBentNormals ? new (std::nothrow) RRVec3[numTriangles] : NULL;
+		a->data[LS_LIGHTMAP] = gatherLightmap ? new (std::nothrow) RRVec3[numTriangles] : nullptr;
+		a->data[LS_DIRECTION1] = gatherDirections ? new (std::nothrow) RRVec3[numTriangles] : nullptr;
+		a->data[LS_DIRECTION2] = gatherDirections ? new (std::nothrow) RRVec3[numTriangles] : nullptr;
+		a->data[LS_DIRECTION3] = gatherDirections ? new (std::nothrow) RRVec3[numTriangles] : nullptr;
+		a->data[LS_BENT_NORMALS] = gatherBentNormals ? new (std::nothrow) RRVec3[numTriangles] : nullptr;
 		if ((gatherLightmap && !a->data[LS_LIGHTMAP])
 			|| (gatherDirections && (!a->data[LS_DIRECTION1] || !a->data[LS_DIRECTION2] || !a->data[LS_DIRECTION3]))
 			|| (gatherBentNormals && !a->data[LS_BENT_NORMALS]))
@@ -163,7 +163,7 @@ protected:
 	GatheredPerTriangleData()
 	{
 		for (unsigned i=0;i<NUM_BUFFERS;i++)
-			data[i] = NULL;
+			data[i] = nullptr;
 	}
 };
 

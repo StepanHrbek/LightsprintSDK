@@ -22,12 +22,12 @@ RRMeshArrays::RRMeshArrays()
 {
 	poolSize = 0;
 	numTriangles = 0;
-	triangle = NULL;
+	triangle = nullptr;
 	numVertices = 0;
-	position = NULL;
-	normal = NULL;
-	tangent = NULL;
-	bitangent = NULL;
+	position = nullptr;
+	normal = nullptr;
+	tangent = nullptr;
+	bitangent = nullptr;
 	// MeshArraysVBOs synces to mesh arrays pointer and version.
 	// if someone deletes mesh arrays and creates new (different) one, pointer may be identical,
 	// so make at least version different.
@@ -50,18 +50,18 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 
 	// preserve contents 1.
 	RRVector<unsigned> tmp;
-	RRMeshArrays* backup = _preserveContents ? createArrays(true,_texcoords?*_texcoords:tmp,_tangents) : NULL;
+	RRMeshArrays* backup = _preserveContents ? createArrays(true,_texcoords?*_texcoords:tmp,_tangents) : nullptr;
 
 	// free/alloc
 	char* pool = (char*)triangle;
 	if (newSize>poolSize)
 	{
 		free(triangle);
-		pool = newSize ? (char*)malloc(newSize) : NULL;
+		pool = newSize ? (char*)malloc(newSize) : nullptr;
 		if (newSize && !pool)
 		{
 			RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d triangles, %d vertices.\n",_numTriangles,_numVertices);
-			resizeMesh(0,0,NULL,false,false);
+			resizeMesh(0,0,nullptr,false,false);
 			return false;
 		}
 	}
@@ -74,15 +74,15 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 	// fill pointers
 	for (unsigned i=0;i<texcoord.size();i++)
 	{
-		texcoord[i] = NULL;
+		texcoord[i] = nullptr;
 	}
 	if (!newSize)
 	{
-		triangle = NULL;
-		position = NULL;
-		normal = NULL;
-		tangent = NULL;
-		bitangent = NULL;
+		triangle = nullptr;
+		position = nullptr;
+		normal = nullptr;
+		tangent = nullptr;
+		bitangent = nullptr;
 	}
 	else
 	{
@@ -99,8 +99,8 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 			}
 			else
 			{
-				tangent = NULL;
-				bitangent = NULL;
+				tangent = nullptr;
+				bitangent = nullptr;
 			}
 		}
 		if (_texcoords)
@@ -114,7 +114,7 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 				}
 				if ((*_texcoords)[i]>=texcoord.size())
 				{
-					texcoord.resize((*_texcoords)[i]+1,NULL);
+					texcoord.resize((*_texcoords)[i]+1,nullptr);
 				}
 				texcoord[(*_texcoords)[i]] = (RRVec2*)pool; pool += ALIGN16(numVertices*sizeof(RRVec2));
 			}
@@ -454,7 +454,7 @@ void RRMeshArrays::buildTangents(unsigned uvChannel)
 		delete tmp;
 	}
 	// does uvChannel exist?
-	const RRVec2* uv = uvChannel<texcoord.size() ? texcoord[uvChannel] : NULL;
+	const RRVec2* uv = uvChannel<texcoord.size() ? texcoord[uvChannel] : nullptr;
 	// generate tangents
 	if (!uv)
 	{
@@ -768,7 +768,7 @@ RRMeshArrays* RRMesh::createArrays(bool indexed, const RRVector<unsigned>& texco
 	RRMeshArrays* importer = new RRMeshArrays();
 	if (importer->reload(this,indexed,texcoords,tangents)) return importer;
 	delete importer;
-	return NULL;
+	return nullptr;
 }
 
 } // namespace rr

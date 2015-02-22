@@ -20,7 +20,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 {
 	// technique
 	{
-		const wxChar* strings[] = {_("pathtracing (experimental)"),_("Fire+path (experimental)"),_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),NULL};
+		const wxChar* strings[] = {_("pathtracing (experimental)"),_("Fire+path (experimental)"),_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),nullptr};
 		const long values[] = {LI_PATHTRACED,LI_PATHTRACED_FIREBALL,LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_LIGHTMAPS,LI_AMBIENTMAPS,LI_CONSTANT,LI_NONE};
 		propGITechnique = new wxEnumProperty(_("Technique"),wxPG_LABEL,strings,values);
 		propGITechnique->SetHelpString(_("What base GI technique to use. Note that additional techniques (SSGI, Cubemap reflections, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
@@ -33,7 +33,7 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		AppendIn(propGITechnique,propGILightDirect);
 
 		{
-			const wxChar* strings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),_("24-bit (fresnel shadows)"),NULL};
+			const wxChar* strings[] = {_("0-bit (opaque shadows)"),_("1-bit (alpha keyed shadows)"),_("24-bit (rgb shadows)"),_("24-bit (fresnel shadows)"),nullptr};
 			const long values[] = {rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS,rr_gl::RealtimeLight::ALPHA_KEYED_SHADOWS,rr_gl::RealtimeLight::RGB_SHADOWS,rr_gl::RealtimeLight::FRESNEL_SHADOWS};
 			propGIShadowTransparency = new wxEnumProperty(_("Shadow transparency"),wxPG_LABEL,strings,values);
 			propGIShadowTransparency->SetHelpString(_("Changes how realistically semi-transparent shadows are rendered."));
@@ -576,7 +576,7 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		updateHide();
 	}
 
-	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL,0);
+	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,nullptr,0);
 }
 
 BEGIN_EVENT_TABLE(SVGIProperties, wxPropertyGrid)

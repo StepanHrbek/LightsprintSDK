@@ -72,11 +72,11 @@ unsigned  __frameNumber=1; // frame number increased after each draw
 
 Triangle::Triangle()
 {
-	topivertex[0]=NULL;
-	topivertex[1]=NULL;
-	topivertex[2]=NULL;
+	topivertex[0]=nullptr;
+	topivertex[1]=nullptr;
+	topivertex[2]=nullptr;
 	area=0;       // says that setGeometry wasn't called yet
-	surface=NULL; // says that setSurface wasn't called yet
+	surface=nullptr; // says that setSurface wasn't called yet
 	reset(true);
 	hits=0;
 	isLod0=0;
@@ -161,7 +161,7 @@ Channels Triangle::setSurface(const RRMaterial *s, const RRVec3& _sourceIrradian
 	RR_ASSERT(area!=0);//setGeometry must be called before setSurface
 	//RR_ASSERT(s); problem was already reported one level up, let's try to survive
 
-	// aby to necrashlo kdyz uzivatel neopravnene zada NULL
+	// aby to necrashlo kdyz uzivatel neopravnene zada nullptr
 	static RRMaterial emergencyMaterial;
 	static bool emergencyInited = false;
 	if (!emergencyInited)
@@ -276,7 +276,7 @@ RRVec3 Triangle::getPointMeasure(RRRadiometricMeasure measure, const RRVec2& uv)
 Reflectors::Reflectors()
 {
 	nodesAllocated=0;
-	node=NULL;
+	node=nullptr;
 	nodes=0;
 	reset();
 }
@@ -401,7 +401,7 @@ restart:
 	// get best from cache
 	if (!bests)
 	{
-		BestInfo result = {NULL,0};
+		BestInfo result = {nullptr,0};
 		return result;
 	}
 	BestInfo result = bestNode[0];
@@ -500,7 +500,7 @@ BestInfo Reflectors::best(real allEnergyInScene)
 	// get best from cache
 	if (!bests)
 	{
-		BestInfo result = {NULL,0};
+		BestInfo result = {nullptr,0};
 		return result;
 	}
 	BestInfo result = bestNode[0];
@@ -558,7 +558,7 @@ void Triangles::insert(Triangle *key)
 //removes triangle from set
 Triangle *Triangles::get()
 {
-	if (!triangles) return NULL;
+	if (!triangles) return nullptr;
 //        if (!trianglesAfterResurrection) trianglesAfterResurrection=triangles;
 	triangles--;
 	return triangle[triangles];
@@ -596,9 +596,9 @@ Object::Object()
 {
 	vertices=0;
 	triangles=0;
-	triangle=NULL;
+	triangle=nullptr;
 	objSourceExitingFlux=Channels(0);
-	topivertexArray = NULL;
+	topivertexArray = nullptr;
 }
 
 unsigned Object::getTriangleIndex(Triangle* t)
@@ -696,7 +696,7 @@ public:
 		if (!triangle[ray.hitTriangle].isLod0)
 			return false;
 
-		// Don't collide when object has NULL material (illegal input), or catchFrom=false.
+		// Don't collide when object has nullptr material (illegal input), or catchFrom=false.
 		// For a very long time, we did not use any !catchFrom materials, and this was commented out as unnecessary.
 		// Then we started using !catchFrom (when both front and back are disabled in SV), here we respond to !catchFrom.
 		if (!triangle[ray.hitTriangle].surface)
@@ -728,7 +728,7 @@ ShootingKernel::ShootingKernel()
 	sceneRay->rayFlags = RRRay::FILL_DISTANCE|RRRay::FILL_SIDE|RRRay::FILL_POINT2D|RRRay::FILL_TRIANGLE|RRRay::FILL_PLANE;
 	sceneRay->rayLengthMin = SHOT_OFFSET; // offset 0.1mm resi situaci kdy jsou 2 facy ve stejne poloze, jen obracene zady k sobe. bez offsetu se vzajemne zasahuji.
 	sceneRay->rayLengthMax = BIG_REAL;
-	sceneRay->collisionHandler = collisionHandlerLod0 = NULL;
+	sceneRay->collisionHandler = collisionHandlerLod0 = nullptr;
 	recursionDepth = 0;
 }
 
@@ -778,16 +778,16 @@ ShootingKernels::~ShootingKernels()
 
 Scene::Scene()
 {
-	object=NULL;
+	object=nullptr;
 	phase=0;
-	improvingStatic.node=NULL;
+	improvingStatic.node=nullptr;
 	shotsForNewFactors=0;
 	shotsAccumulated=0;
 	shotsForFactorsTotal=0;
 	shotsTotal=0;
 	staticSourceExitingFlux=Channels(0);
-	skyPatchHitsForAllTriangles = NULL;
-	skyPatchHitsForCurrentTriangle = NULL;
+	skyPatchHitsForAllTriangles = nullptr;
+	skyPatchHitsForCurrentTriangle = nullptr;
 }
 
 Scene::~Scene()
@@ -868,8 +868,8 @@ HitChannels Scene::rayTracePhoton(ShootingKernel* shootingKernel, const RRVec3& 
 	ray.hitObject = object->importer;
 	shootingKernel->collisionHandlerLod0->setShooterTriangle((unsigned)(skip-object->triangle));
 	Triangle* hitTriangle = (object->triangles // although we may dislike it, somebody may feed objects with no faces which confuses intersect_bsp
-		&& ray.hitObject->getCollider()->intersect(ray)) ? &object->triangle[ray.hitTriangle] : NULL;
-	if (!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma NULL)
+		&& ray.hitObject->getCollider()->intersect(ray)) ? &object->triangle[ray.hitTriangle] : nullptr;
+	if (!hitTriangle || !hitTriangle->surface) // !hitTriangle is common, !hitTriangle->surface is error (bsp se generuje z meshe a surfacu(null=zahodit face), bsp hash se generuje jen z meshe. -> po zmene materialu nacte stary bsp a zasahne triangl ktery mel surface ok ale nyni ma nullptr)
 	{
 		if (!hitTriangle && skyPatchHitsForCurrentTriangle)
 		{
@@ -1273,16 +1273,16 @@ RRStaticSolver::Improvement Scene::improveStatic(RRStaticSolver::EndFunc& endfun
 
 	do
 	{
-		if (improvingStatic.node==NULL)
+		if (improvingStatic.node==nullptr)
 			improvingStatic=staticReflectors.best(sum(abs(staticSourceExitingFlux)));
-		if (improvingStatic.node==NULL) 
+		if (improvingStatic.node==nullptr) 
 		{
 			improved = RRStaticSolver::FINISHED;
 			break;
 		}
 		if (energyFromDistributedUntil(improvingStatic,endfunc))
 		{
-			improvingStatic.node=NULL;
+			improvingStatic.node=nullptr;
 			improved=RRStaticSolver::IMPROVED;
 		}
 	}
@@ -1307,7 +1307,7 @@ void Scene::abortStaticImprovement()
 		}
 		shotsAccumulated=0;
 		phase=0;
-		improvingStatic.node=NULL;
+		improvingStatic.node=nullptr;
 	}
 }
 
@@ -1315,7 +1315,7 @@ void Scene::abortStaticImprovement()
 
 bool Scene::shortenStaticImprovementIfBetterThan(real minimalImprovement)
 {
-	RR_ASSERT((improvingStatic.node!=NULL) == (phase!=0));
+	RR_ASSERT((improvingStatic.node!=nullptr) == (phase!=0));
 	if (improvingStatic.node)
 	{
 		// za techto podminek at uz dal nestrili
@@ -1335,7 +1335,7 @@ public:
 
 bool Scene::finishStaticImprovement()
 {
-	RR_ASSERT((improvingStatic.node!=NULL) == (phase!=0));
+	RR_ASSERT((improvingStatic.node!=nullptr) == (phase!=0));
 	if (improvingStatic.node)
 	{
 		RR_ASSERT(phase>0);
@@ -1343,7 +1343,7 @@ bool Scene::finishStaticImprovement()
 		bool e=energyFromDistributedUntil(improvingStatic,neverEnd);
 		RR_ASSERT(e); e=e;
 		RR_ASSERT(phase==0);
-		improvingStatic.node=NULL;
+		improvingStatic.node=nullptr;
 		return true;
 	}
 	return false;

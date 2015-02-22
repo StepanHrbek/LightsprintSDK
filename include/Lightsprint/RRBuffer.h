@@ -11,7 +11,7 @@
 #ifndef RRBUFFER_H
 #define RRBUFFER_H
 
-#include <cstring> // NULL
+#include <cstring> // nullptr
 #include "RRFileLocator.h"
 
 namespace rr
@@ -28,7 +28,7 @@ namespace rr
 	//!
 	//! If you work with the most common format, sRGB, use create_sRGB().
 	//!
-	//! If your pipeline works with linear colors, just pass NULL where API asks for color space.
+	//! If your pipeline works with linear colors, just pass nullptr where API asks for color space.
 	//!
 	//! For other color spaces, you can implement your own RRColorSpace.
 	//! Please make sure that your implementation doesn't generate NaNs or INFs (especially for negative inputs).
@@ -201,7 +201,7 @@ namespace rr
 		//!  data are scaled once. In case of realtime GI where lightmaps are computed once and rendered once,
 		//!  you should save time by setting false and scaling data in renderer/shader (GPU is usually faster).
 		//! \param data
-		//!  Data to be copied into texture. When set to NULL, contents of texture stays uninitialized.
+		//!  Data to be copied into texture. When set to nullptr, contents of texture stays uninitialized.
 		//!  Format of data is specified by format, interpretation of data is partially specified by scaled.
 		//!  Special value RR_GHOST_BUFFER creates buffer without any memory allocated for elements
 		//!  (it's good when buffer is needed, but its contents is never accessed, e.g. when creating uninitialized texture in rr_gl::Texture).
@@ -247,7 +247,7 @@ namespace rr
 		//!  Index is index into array of all elements, x+y*width+z*width*height.
 		//!  Out of range indices are reported as error.
 		//! \param colorSpace
-		//!  If NULL, color is returned in native color space. With colorSpace set, RGB is returned in linear space, alpha in native space.
+		//!  If nullptr, color is returned in native color space. With colorSpace set, RGB is returned in linear space, alpha in native space.
 		virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace) const;
 		//! Returns value addressed by given float coordinates.
 		//
@@ -255,7 +255,7 @@ namespace rr
 		//!  Coordinates are array indices in 0..1 range covering whole buffer.
 		//!  Out of range indices are wrapped to 0..1.
 		//! \param colorSpace
-		//!  If NULL, color is returned in native color space. With colorSpace set, RGB is returned in linear space, alpha in native space.
+		//!  If nullptr, color is returned in native color space. With colorSpace set, RGB is returned in linear space, alpha in native space.
 		//! \param interpolated
 		//!  Switches from nearest element selection to linear interpolation of 4 elements.
 		virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const;
@@ -266,9 +266,9 @@ namespace rr
 		//!  2d texture is interpreted as 360*180 degree panorama.
 		//!  Cube texture is interpreted as standard cube.
 		//! \param colorSpace
-		//!  If NULL, color is returned in native color space. With colorSpace set, RGB is returned in linear space, alpha in native space.
+		//!  If nullptr, color is returned in native color space. With colorSpace set, RGB is returned in linear space, alpha in native space.
 		virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const;
-		//! Locks the buffer for accessing array of all elements at once. Not mandatory, may return NULL.
+		//! Locks the buffer for accessing array of all elements at once. Not mandatory, may return nullptr.
 		//
 		//! Behaviour of lock is not defined when buffer is already locked.
 		//! \return
@@ -303,7 +303,7 @@ namespace rr
 		RRBuffer();
 		virtual ~RRBuffer() {};
 
-		//! Returns true if buffer is a stub. When asked to, RRBuffer::load() returns stubs instead of NULL for missing textures.
+		//! Returns true if buffer is a stub. When asked to, RRBuffer::load() returns stubs instead of nullptr for missing textures.
 		//
 		//! Stubs are designed to work like other buffers, ideally you won't need this function.
 		//! We need it only
@@ -321,7 +321,7 @@ namespace rr
 		//! Version of data in buffer, modified each time buffer content changes.
 		unsigned version;
 
-		//! For your private use, not accessed by LightsprintCore. Initialized to NULL.
+		//! For your private use, not accessed by LightsprintCore. Initialized to nullptr.
 		//
 		//! If you use LightsprintGL, you should not modify it,
 		//! it is set to Texture*.
@@ -332,7 +332,7 @@ namespace rr
 		// Tools for creation/copying
 		//////////////////////////////////////////////////////////////////////////////
 
-		//! Creates buffer in system memory. See reset() for parameter details. Returns NULL when parameters are invalid or allocation fails.
+		//! Creates buffer in system memory. See reset() for parameter details. Returns nullptr when parameters are invalid or allocation fails.
 		static RRBuffer* create(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data);
 
 		//! Creates reference to the same buffer. Both buffer and reference must be deleted (in any order).
@@ -351,7 +351,7 @@ namespace rr
 		//! \param destination
 		//!  Destination buffer. Must have the same width, height, depth, may differ in format, scale.
 		//! \param colorSpace
-		//!  Color space used if one buffer is linear. NULL for no color space conversion.
+		//!  Color space used if one buffer is linear. nullptr for no color space conversion.
 		//! \return True on success.
 		bool copyElementsTo(RRBuffer* destination, const RRColorSpace* colorSpace) const;
 
@@ -365,7 +365,7 @@ namespace rr
 		//
 		//! When called on cubemap, it creates new 2d texture with the same number of pixels.
 		//! When called on 2d texture, it already is equirectangular, so it returns new reference to the same texture.
-		//! When called on other buffer type (vertex buffer), it returns NULL.
+		//! When called on other buffer type (vertex buffer), it returns nullptr.
 		RRBuffer* createEquirectangular();
 
 		//! Creates blend of two rotated environments (2d or cubemaps), as in RRSolver's environment.
@@ -386,8 +386,8 @@ namespace rr
 		//! - load("path/lightmap.png") - loads 2d texture (jpg, gif, dds etc)
 		//! - load("path/lightmap.rrbuffer") - loads e.g. vertex buffer
 		//! - load("path/cube_%%s.png", {"bk","ft","dn","up","rt","lf"}) - loads cubemap from 6 files
-		//! - load("path/cube.hdr", non-NULL) - loads cubemap from 1 file, expects cross-shaped image with aspect 3:4 or 4:3
-		//! - load("path/cube.hdr", NULL) - loads the same file as 2d texture
+		//! - load("path/cube.hdr", non-nullptr) - loads cubemap from 1 file, expects cross-shaped image with aspect 3:4 or 4:3
+		//! - load("path/cube.hdr", nullptr) - loads the same file as 2d texture
 		//! - load("path/video.avi") - initializes video streamed to 2d texture, streaming is started by play()
 		//! - load("c@pture") - initializes live video capture to 2d texture, capturing is started by play()
 		//! \param filename
@@ -398,20 +398,20 @@ namespace rr
 		//!  Array of six unique names of cube sides in following order:
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
 		//!  \n Examples: {"0","1","2","3","4","5"}, {"bk","ft","dn","up","rt","lf"}.
-		//!  \n Must be NULL for vertex buffers and 2d textures, non-NULL for cubemaps (even cubemaps in 1 file).
+		//!  \n Must be nullptr for vertex buffers and 2d textures, non-nullptr for cubemaps (even cubemaps in 1 file).
 		//! \param fileLocator
-		//!  NULL = load will be attempted only from filename.
-		//!  Non-NULL = load will be attempted from paths offered by fileLocator.
+		//!  nullptr = load will be attempted only from filename.
+		//!  Non-nullptr = load will be attempted from paths offered by fileLocator.
 		//!  When load fails, fileLocator is asked whether stub buffer with original filename should be created,
 		//!  see RRFileLocator::setAttempt(RRFileLocator::ATTEMPT_STUB,...).
 		//! \return
 		//!  Returns newly created buffer.
-		//!  In case of failure, NULL is returned and details logged via RRReporter.
+		//!  In case of failure, nullptr is returned and details logged via RRReporter.
 		//! \remark
 		//!  Image load/save is implemented outside LightsprintCore.
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
 		//!  or use registerLoader() to assign custom code.
-		static RRBuffer* load(const RRString& filename, const char* cubeSideName[6] = NULL, const RRFileLocator* fileLocator = NULL);
+		static RRBuffer* load(const RRString& filename, const char* cubeSideName[6] = nullptr, const RRFileLocator* fileLocator = nullptr);
 		//! Loads texture from 1 or 6 files to system memory, converting it to cubemap if possible.
 		//
 		//! This is convenience function working with incomplete information,
@@ -425,9 +425,9 @@ namespace rr
 		//!  - any other 2d image; is loaded into 2d map
 		//!  It should be full filename, e.g. cube_ft.jpg rather than cube_%%s.jpg.
 		//! \param fileLocator
-		//!  NULL = load will be attempted only from filename.
-		//!  Non-NULL = load will be attempted from paths offered by fileLocator.
-		static RRBuffer* loadCube(const RRString& filename, const RRFileLocator* fileLocator = NULL);
+		//!  nullptr = load will be attempted only from filename.
+		//!  Non-nullptr = load will be attempted from paths offered by fileLocator.
+		static RRBuffer* loadCube(const RRString& filename, const RRFileLocator* fileLocator = nullptr);
 		//! Similar to load(), but loads from disk into existing buffer.
 		//
 		//! Default implementation uses buffer's load() and reset()
@@ -451,14 +451,14 @@ namespace rr
 		//!  x+ side, x- side, y+ side, y- side, z+ side, z- side.
 		//!  Examples: {"0","1","2","3","4","5"}, {"bk","ft","dn","up","rt","lf"}.
 		//! \param saveParameters
-		//!  Rarely used additional parameters, keep NULL for defaults.
+		//!  Rarely used additional parameters, keep nullptr for defaults.
 		//! \return
 		//!  True on successful save of complete buffer.
 		//! \remark
 		//!  Image load/save is implemented outside LightsprintCore.
 		//!  Make samples/Import/ImportFreeImage.cpp part of your project to enable save/load
 		//!  or use registerLoader() to assign custom code.
-		bool save(const RRString& filenameMask, const char* cubeSideName[6] = NULL, const SaveParameters* saveParameters = NULL);
+		bool save(const RRString& filenameMask, const char* cubeSideName[6] = nullptr, const SaveParameters* saveParameters = nullptr);
 
 		//! Type of user defined function that loads content from file into new buffer.
 		typedef RRBuffer* (Loader)(const RRString& filename, const char* cubeSideName[6]);
@@ -467,7 +467,7 @@ namespace rr
 		//! Hooks external code that handles loading content from files into new buffers.
 		//
 		//! Usually called from rr_io::registerLoaders().
-		//! Initial state is no code hooked, attempts to load buffer are ignored, load() returns NULL.
+		//! Initial state is no code hooked, attempts to load buffer are ignored, load() returns nullptr.
 		static void registerLoader(Loader* loader);
 		//! Hooks external code that handles saving images to disk.
 		//
@@ -526,7 +526,7 @@ namespace rr
 		//!  True = smooth through lightmap boundaries.
 		//! \param object
 		//!  Object this lightmap is for, used only for smoothing across unwrap seams.
-		//!  When NULL, separated unwrap regions are smoothed separately, unwrap seams stay visible in lightmap.
+		//!  When nullptr, separated unwrap regions are smoothed separately, unwrap seams stay visible in lightmap.
 		//! \return
 		//!  True on success, may fail when allocation fails or buffer is not 2d texture.
 		virtual bool lightmapSmooth(float sigma, bool wrap, const class RRObject* object);

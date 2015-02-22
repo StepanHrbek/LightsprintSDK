@@ -38,8 +38,8 @@ public:
 
 	PluginRuntimeToneMappingAdjustment(const PluginCreateRuntimeParams& params)
 	{
-		bigTexture = NULL;
-		smallTexture = NULL;
+		bigTexture = nullptr;
+		smallTexture = nullptr;
 #ifdef PBO
 		glGenBuffers(2,pbo);
 		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pbo[0]);
@@ -77,7 +77,7 @@ public:
 
 		if (!_renderer.getTextureRenderer()) return;
 
-		if (!bigTexture) bigTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+		if (!bigTexture) bigTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,nullptr),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		bigTexture->bindTexture();
 		glCopyTexImage2D(GL_TEXTURE_2D,0,GL_RGB,_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3],0);
 
@@ -88,12 +88,12 @@ public:
 		unsigned avg = 0;
 		if (!smallTexture)
 		{
-			smallTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,SMALL_W,SMALL_H,1,rr::BF_RGB,true,NULL),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
+			smallTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,SMALL_W,SMALL_H,1,rr::BF_RGB,true,nullptr),false,false,GL_NEAREST,GL_NEAREST,GL_REPEAT,GL_REPEAT);
 		}
 		FBO oldFBOState = FBO::getState();
 		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallTexture,oldFBOState);
 		glViewport(0,0,SMALL_W,SMALL_H);
-		_renderer.getTextureRenderer()->render2D(bigTexture,NULL,0,0,1,1);
+		_renderer.getTextureRenderer()->render2D(bigTexture,nullptr,0,0,1,1);
 #ifdef PBO
 		glBindBuffer(GL_PIXEL_PACK_BUFFER,pbo[pboIndex]);
 		glReadPixels(0,0,SMALL_W,SMALL_H,GL_RGB,GL_UNSIGNED_BYTE,0);

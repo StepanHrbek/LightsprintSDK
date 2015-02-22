@@ -98,7 +98,7 @@ public:
 		// render to 2d
 		ToneParameters tp;
 		tp.gamma = _sp.srgbCorrect?0.45f:1.f;
-		_renderer.getTextureRenderer()->render2D(cubeTexture,&tp,x0+w/2-w*scale/2,y0+h/2-h*scale/2,w*scale,h*scale,-1,(_sp.camera->panoramaMode==rr::RRCamera::PM_EQUIRECTANGULAR)?"#define CUBE_TO_EQUIRECTANGULAR\n":((_sp.camera->panoramaMode==rr::RRCamera::PM_LITTLE_PLANET)?"#define CUBE_TO_LITTLE_PLANET\n":((_sp.camera->panoramaMode==rr::RRCamera::PM_FISHEYE)?"#define CUBE_TO_FISHEYE\n":NULL)),_sp.camera->panoramaFisheyeFovDeg);
+		_renderer.getTextureRenderer()->render2D(cubeTexture,&tp,x0+w/2-w*scale/2,y0+h/2-h*scale/2,w*scale,h*scale,-1,(_sp.camera->panoramaMode==rr::RRCamera::PM_EQUIRECTANGULAR)?"#define CUBE_TO_EQUIRECTANGULAR\n":((_sp.camera->panoramaMode==rr::RRCamera::PM_LITTLE_PLANET)?"#define CUBE_TO_LITTLE_PLANET\n":((_sp.camera->panoramaMode==rr::RRCamera::PM_FISHEYE)?"#define CUBE_TO_FISHEYE\n":nullptr)),_sp.camera->panoramaFisheyeFovDeg);
 	}
 
 	virtual ~PluginRuntimePanorama()

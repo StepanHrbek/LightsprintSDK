@@ -242,7 +242,7 @@ struct SceneViewerState
 		envLongitudeDeg = 14+26/60.f; // Prague
 		envLatitudeDeg = 50+5/60.f;
 		envSpeed = 0;
-		time_t now = time(NULL);
+		time_t now = time(nullptr);
 		envDateTime = *localtime(&now);
 
 		layerBakedLightmap = 192837463; // any numbers unlikely to collide with user's layer numbers, better than 0 that nearly always collides
@@ -481,16 +481,16 @@ struct SceneViewerState
 //! If you need new feature added, we offer to do it for you or license you full scene viewer source code.
 //!
 //! \param inputSolver
-//!  Solver to be displayed. This is handy for debugging scene already present in solver. May be NULL.
+//!  Solver to be displayed. This is handy for debugging scene already present in solver. May be nullptr.
 //! \param inputFilename
-//!  If inputSolver is NULL, we attempt to open and display this file. This is handy for scene viewer applications.
+//!  If inputSolver is nullptr, we attempt to open and display this file. This is handy for scene viewer applications.
 //! \param skyboxFilename
 //!  If RRBuffer::loadCube() loads this skybox successfully, it is used, overriding eventual environment from inputSolver.
 //! \param pathToData
 //!  Path to directory with data, where subdirectories maps, shaders are expected.
 //!  Must be terminated with slash (or be empty for current dir).
 //! \param svs
-//!  Initial state of viewer. Use NULL for default state with realtime GI and random camera.
+//!  Initial state of viewer. Use nullptr for default state with realtime GI and random camera.
 //! \param releaseResources
 //!  Resources allocated by scene viewer will be released on exit.
 //!  It could take some time in huge scenes, so there's option to not release them, let them leak.

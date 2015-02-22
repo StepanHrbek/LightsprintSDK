@@ -46,8 +46,8 @@ public:
 			}
 			else
 			{
-				buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,(index==2)?rr::BF_RGBA:rr::BF_RGB,true,NULL); // 2 = RGBA
-				buffer->setElement(0,rr::RRVec4(property.color,1-property.color.avg()),NULL);
+				buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,(index==2)?rr::BF_RGBA:rr::BF_RGB,true,nullptr); // 2 = RGBA
+				buffer->setElement(0,rr::RRVec4(property.color,1-property.color.avg()),nullptr);
 				getTexture(buffer,false,false);
 				buffers1x1[color] = buffer;
 			}
@@ -121,7 +121,7 @@ void UberProgramSetup::enableAllMaterials()
 }
 
 // true if both material and mesh have everything necessary for mapping
-// NULL mesh is trusted to have everything necessary
+// nullptr mesh is trusted to have everything necessary
 static bool hasMap(const rr::RRMaterial::Property& property, const rr::RRMeshArrays* meshArrays)
 {
 	return property.texture && (!meshArrays || (meshArrays->texcoord.size()>property.texcoord && meshArrays->texcoord[property.texcoord]));
@@ -533,7 +533,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 	if (!program)
 	{
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useProgram: failed to compile or link GLSL shader.\n"));
-		return NULL;
+		return nullptr;
 	}
 	program->useIt();
 
@@ -549,7 +549,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		if (!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (SHADOW_MAPS>0).\n");
-			return NULL;
+			return nullptr;
 		}
 		Texture* shadowmap = light->getShadowmap(firstInstance+i);
 		if (shadowmap)
@@ -605,12 +605,12 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		if (!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (LIGHT_DIRECT set).\n");
-			return NULL;
+			return nullptr;
 		}
 		if (!light->getCamera())
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: light->getCamera()==NULL.\n");
-			return NULL;
+			rr::RRReporter::report(rr::ERRO,"useProgram: light->getCamera()==nullptr.\n");
+			return nullptr;
 		}
 
 		if (LIGHT_DIRECT_MAP && !SHADOW_MAPS)
@@ -637,7 +637,7 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 		if (!light)
 		{
 			rr::RRReporter::report(rr::ERRO,"useProgram: no light set (LIGHT_DIRECT_COLOR set).\n");
-			return NULL;
+			return nullptr;
 		}
 		rr::RRVec4 color(light->getRRLight().color*lightDirectMultiplier,1);
 		if (light->getRRLight().distanceAttenuationType!=rr::RRLight::POLYNOMIAL)
@@ -653,8 +653,8 @@ Program* UberProgramSetup::useProgram(UberProgram* uberProgram, const rr::RRCame
 	{
 		if (!light->getProjectedTexture())
 		{
-			rr::RRReporter::report(rr::ERRO,"useProgram: LIGHT_DIRECT_MAP set, but getProjectedTexture()==NULL.\n");
-			return NULL;
+			rr::RRReporter::report(rr::ERRO,"useProgram: LIGHT_DIRECT_MAP set, but getProjectedTexture()==nullptr.\n");
+			return nullptr;
 		}
 		program->sendTexture("lightDirectMap", light->getProjectedTexture(), TEX_CODE_2D_LIGHT_DIRECT);
 	}
@@ -754,7 +754,7 @@ void UberProgramSetup::useCamera(Program* program, const rr::RRCamera* camera)
 {
 	if (!program || !camera)
 	{
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useCamera(NULL)\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useCamera(nullptr)\n"));
 		return;
 	}
 	if (!FORCE_2D_POSITION && camera)
@@ -814,12 +814,12 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 {
 	if (!program)
 	{
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): program=NULL\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useMaterial(): program=nullptr\n"));
 		return;
 	}
 	if (!material)
 	{
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useMaterial(): material=NULL\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useMaterial(): material=nullptr\n"));
 		rr::RRMaterial s_material;
 		RR_LIMITED_TIMES(1,s_material.reset(false));
 		material = &s_material;
@@ -860,26 +860,26 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 
 	if (MATERIAL_DIFFUSE_MAP)
 	{
-		program->sendTexture("materialDiffuseMap",NULL,TEX_CODE_2D_MATERIAL_DIFFUSE);
+		program->sendTexture("materialDiffuseMap",nullptr,TEX_CODE_2D_MATERIAL_DIFFUSE);
 		s_buffers1x1.bindPropertyTexture(material->diffuseReflectance,0);
 	}
 
 	if (MATERIAL_SPECULAR_MAP)
 	{
-		program->sendTexture("materialSpecularMap",NULL,TEX_CODE_2D_MATERIAL_SPECULAR);
+		program->sendTexture("materialSpecularMap",nullptr,TEX_CODE_2D_MATERIAL_SPECULAR);
 		s_buffers1x1.bindPropertyTexture(material->specularReflectance,1);
 	}
 
 	if (MATERIAL_EMISSIVE_MAP)
 	{
-		program->sendTexture("materialEmissiveMap",NULL,TEX_CODE_2D_MATERIAL_EMISSIVE);
+		program->sendTexture("materialEmissiveMap",nullptr,TEX_CODE_2D_MATERIAL_EMISSIVE);
 		s_buffers1x1.bindPropertyTexture(material->diffuseEmittance,1);
 		program->sendUniform("materialEmittanceMultiplier",materialEmittanceMultiplier);
 	}
 
 	if (MATERIAL_TRANSPARENCY_MAP)
 	{
-		program->sendTexture("materialTransparencyMap",NULL,TEX_CODE_2D_MATERIAL_TRANSPARENCY);
+		program->sendTexture("materialTransparencyMap",nullptr,TEX_CODE_2D_MATERIAL_TRANSPARENCY);
 		s_buffers1x1.bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
 	}
 	if ((MATERIAL_TRANSPARENCY_CONST || MATERIAL_TRANSPARENCY_MAP || MATERIAL_TRANSPARENCY_IN_ALPHA) && !MATERIAL_TRANSPARENCY_BLEND && !MATERIAL_TRANSPARENCY_TO_RGB)
@@ -893,7 +893,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 
 	if (MATERIAL_BUMP_MAP)
 	{
-		program->sendTexture("materialBumpMap",NULL,TEX_CODE_2D_MATERIAL_BUMP);
+		program->sendTexture("materialBumpMap",nullptr,TEX_CODE_2D_MATERIAL_BUMP);
 		getTexture(material->bumpMap.texture,true,false);
 		s_buffers1x1.bindPropertyTexture(material->bumpMap,1);
 		// it is difficult to tell exactly when "materialBumpMapData" is in use, condition above is only simple superset, uniformExists() test is necessary
@@ -916,14 +916,14 @@ void UberProgramSetup::useIlluminationEnvMap(Program* program, const rr::RRBuffe
 {
 	if (!program)
 	{
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationEnvMaps(program=NULL).\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationEnvMaps(program=nullptr).\n"));
 		return;
 	}
 	if ((LIGHT_INDIRECT_ENV_DIFFUSE && MATERIAL_DIFFUSE) || (LIGHT_INDIRECT_ENV_SPECULAR && MATERIAL_SPECULAR) || (LIGHT_INDIRECT_ENV_REFRACT && MATERIAL_TRANSPARENCY_BLEND && (MATERIAL_TRANSPARENCY_CONST || MATERIAL_TRANSPARENCY_MAP || MATERIAL_TRANSPARENCY_IN_ALPHA)))
 	{
 		if (!reflectionEnvMap)
 		{
-			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: reflectionEnvMap==NULL.\n"));
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationEnvMaps: reflectionEnvMap==nullptr.\n"));
 			return;
 		}
 		program->sendTexture("lightIndirectEnvMap",getTexture(reflectionEnvMap,true,false),TEX_CODE_CUBE_LIGHT_INDIRECT);
@@ -941,7 +941,7 @@ void UberProgramSetup::useIlluminationMirror(Program* program, const rr::RRBuffe
 {
 	if (!program)
 	{
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationMirror(program=NULL).\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useIlluminationMirror(program=nullptr).\n"));
 		return;
 	}
 	if ((MATERIAL_DIFFUSE && LIGHT_INDIRECT_MIRROR_DIFFUSE) || (MATERIAL_SPECULAR && LIGHT_INDIRECT_MIRROR_SPECULAR))
@@ -949,7 +949,7 @@ void UberProgramSetup::useIlluminationMirror(Program* program, const rr::RRBuffe
 		if (!mirrorMap)
 		{
 			// don't warn, this happens when we skip occluded mirror (but it already has mirroring enabled in material)
-			//RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationMirror: mirrorMap==NULL.\n"));
+			//RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"useIlluminationMirror: mirrorMap==nullptr.\n"));
 			return;
 		}
 		program->sendTexture("lightIndirectMirrorMap",getTexture(mirrorMap,true,false),TEX_CODE_2D_LIGHT_INDIRECT_MIRROR);
@@ -965,7 +965,7 @@ void UberProgramSetup::useWorldMatrix(Program* program, const rr::RRObject* obje
 {
 	if (!program)
 	{
-		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useWorldMatrix(program=NULL).\n"));
+		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"useWorldMatrix(program=nullptr).\n"));
 		return;
 	}
 	if (OBJECT_SPACE && object)

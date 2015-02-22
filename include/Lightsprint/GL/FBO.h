@@ -36,9 +36,9 @@ public:
 	//! \param target
 	//!  GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP_POSITIVE_X or _NEGATIVE_X or _POSITIVE_Y or _NEGATIVE_Y or _POSITIVE_Z or _NEGATIVE_Z.
 	//! \param texture
-	//!  Texture to be set as render target. May be NULL. If you set both color and depth, sizes must match.
+	//!  Texture to be set as render target. May be nullptr. If you set both color and depth, sizes must match.
 	//! \param oldState
-	//!  When setting NULL color texture, setRenderBuffers(oldState.buffers) restores old buffers.
+	//!  When setting nullptr color texture, setRenderBuffers(oldState.buffers) restores old buffers.
 	static void setRenderTarget(GLenum attachment, GLenum target, const Texture* texture, const FBO& oldState);
 	//! Wrapper for glDrawBuffer() and glReadBuffer().
 	//

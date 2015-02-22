@@ -101,7 +101,7 @@ public:
 		}
 
 		// downscale bigMap to smallMap1
-		FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,NULL,oldFBOState);
+		FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,nullptr,oldFBOState);
 		FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,smallMap1,oldFBOState);
 		scaleDownProgram->useIt();
 		scaleDownProgram->sendUniform("map",0);

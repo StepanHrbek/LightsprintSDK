@@ -33,10 +33,10 @@ public:
 	//! Source of static and dynamic objects and illumination. Direct lights from solver are ignored if you set #lights differently.
 	rr::RRSolver* solver;
 
-	//! Objects to be rendered, or NULL for all objects from solver.
-	//! \n NULL: All objects from solver are rendered. You can request renderer to update illumination buffers with data from solver.
-	//! \n non-NULL: Given objects are rendered. Possible request to update illumination buffers at render time is ignored.
-	//! \n When rendering all objects from solver, it is recommended to pass NULL rather than collection of all objects, as it could be faster.
+	//! Objects to be rendered, or nullptr for all objects from solver.
+	//! \n nullptr: All objects from solver are rendered. You can request renderer to update illumination buffers with data from solver.
+	//! \n non-nullptr: Given objects are rendered. Possible request to update illumination buffers at render time is ignored.
+	//! \n When rendering all objects from solver, it is recommended to pass nullptr rather than collection of all objects, as it could be faster.
 	const rr::RRObjects* objects;
 
 	//!  Set of lights, source of direct illumination in rendered scene.
@@ -58,7 +58,7 @@ public:
 	//! Multipliers applied to rendered lights and materials.
 	rr::RRSolver::Multipliers multipliers;
 
-	//! When rendering shadows into shadowmap, set it to respective light, otherwise NULL.
+	//! When rendering shadows into shadowmap, set it to respective light, otherwise nullptr.
 	const rr::RRLight* renderingFromThisLight;
 
 	//! True = updates illumination stored in buffers in layerLightmap layer before rendering it.
@@ -109,9 +109,9 @@ public:
 	{
 		next = _next;
 		solver = _solver;
-		objects = NULL;
-		lights = _solver?&_solver->realtimeLights:NULL;
-		renderingFromThisLight = NULL;
+		objects = nullptr;
+		lights = _solver?&_solver->realtimeLights:nullptr;
+		renderingFromThisLight = nullptr;
 		updateLayerLightmap = false;
 		updateLayerEnvironment = false;
 		layerLightmap = UINT_MAX;

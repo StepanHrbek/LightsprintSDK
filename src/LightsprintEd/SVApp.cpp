@@ -40,7 +40,7 @@ namespace rr_ed
 
 void tm_setNow(tm& a)
 {
-	time_t now = time(NULL);
+	time_t now = time(nullptr);
 	a = *localtime(&now);
 }
 
@@ -89,7 +89,7 @@ public:
 	SVFrame* svframe;
 	SVApp()
 	{
-		svframe = NULL;
+		svframe = nullptr;
 	}
 	bool OnInit()
 	{
@@ -111,7 +111,7 @@ public:
 	}
 	virtual int OnExit()
 	{
-		svframe = NULL;
+		svframe = nullptr;
 #ifdef SUPPORT_OCULUS
 		ovr_Shutdown();
 #endif
@@ -132,7 +132,7 @@ static wxAppConsole *wxCreateApp()
 void sceneViewer(rr::RRSolver* _inputSolver, const rr::RRString& _inputFilename, const rr::RRString& _skyboxFilename, const rr::RRString& _pathToData, SceneViewerState* _svs, bool _releaseResources)
 {
 	// randomize all rand()s
-	srand (time(NULL));
+	srand (time(nullptr));
 
 	// immediately abort if requested
 	if (_inputSolver && _inputSolver->aborting) return;
@@ -156,7 +156,7 @@ void sceneViewer(rr::RRSolver* _inputSolver, const rr::RRString& _inputFilename,
 
 	wxApp::SetInitializerFunction(wxCreateApp);
 	int argc = 0;
-	char** argv = NULL;
+	char** argv = nullptr;
 	wxEntry(argc,argv);
 }
  

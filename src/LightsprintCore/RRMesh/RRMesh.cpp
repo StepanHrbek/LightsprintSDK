@@ -144,7 +144,7 @@ struct AABBCache
 
 RRMesh::RRMesh()
 {
-	aabbCache = NULL;
+	aabbCache = nullptr;
 }
 
 RRMesh::~RRMesh()
@@ -299,7 +299,7 @@ RRMesh* RRMesh::create(unsigned flags, Format vertexFormat, void* vertexBuffer, 
 			RRReporter::report(WARN,"Support for this vertex format was not implemented yet, please let us know you want it.\n");
 			break;
 	}
-	return NULL;
+	return nullptr;
 }
 
 RRMesh* RRMesh::createIndexed(unsigned flags, Format vertexFormat, void* vertexBuffer, unsigned vertexCount, unsigned vertexStride, Format indexFormat, void* indexBuffer, unsigned indexCount, float vertexStitchMaxDistance)
@@ -410,12 +410,12 @@ RRMesh* RRMesh::createIndexed(unsigned flags, Format vertexFormat, void* vertexB
 		RRReporter::report(WARN,"Support for this vertex format was not implemented yet, please let us know you want it.\n");
 		break;
 	}
-	return NULL;
+	return nullptr;
 }
 
 RRMesh* RRMesh::createTransformed(const RRMatrix3x4Ex* transform) const
 {
-	if (!this) return NULL;
+	if (!this) return nullptr;
 	//!!! az bude refcounting, muzu pri identite vracet this
 	//return transform ? new RRTransformedMeshFilter(this,transform) : this;
 	return new RRTransformedMeshFilter(this,transform);
@@ -428,7 +428,7 @@ const RRMesh* RRMesh::createMultiMesh(const RRMesh* const* meshes, unsigned numM
 
 const RRMesh* RRMesh::createOptimizedVertices(float maxDistanceBetweenVerticesToMerge, float maxRadiansBetweenNormalsToMerge, float maxDistanceBetweenUvsToMerge, const RRVector<unsigned>* texcoords) const
 {
-	if (!this) return NULL;
+	if (!this) return nullptr;
 
 	// negative values are legal, filter can still remove unused vertices
 	//if (maxDistanceBetweenVerticesToMerge<0 || maxRadiansBetweenNormalsToMerge<0)
@@ -443,7 +443,7 @@ const RRMesh* RRMesh::createOptimizedVertices(float maxDistanceBetweenVerticesTo
 
 const RRMesh* RRMesh::createOptimizedTriangles() const
 {
-	if (!this) return NULL;
+	if (!this) return nullptr;
 	RRMesh* tmp = new RRLessTrianglesFilter(this);
 	if (tmp->getNumTriangles()<getNumTriangles())
 		return tmp;
@@ -463,7 +463,7 @@ public:
 
 RRMesh* RRMesh::createVertexBufferRuler() const
 {
-	if (!this) return NULL;
+	if (!this) return nullptr;
 	return new RRHidePreImportFilter(this);
 }
 
@@ -482,7 +482,7 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 			numReports[0]++;
 			RRReporter::report(WARN,"numTriangles=%d, numVertices=%d, position=%s, normal=%s: all must be present, or all zero.\n",a->numTriangles,a->numVertices,a->position?"present":"missing",a->normal?"present":"missing");
 		}
-		if ((a->tangent==NULL) != (a->bitangent==NULL))
+		if ((a->tangent==nullptr) != (a->bitangent==nullptr))
 		{
 			numReports[0]++;
 			RRReporter::report(WARN,"tangent=%s, bitangent=%s: it's unusual to provide only one.\n",a->tangent?"present":"none",a->bitangent?"present":"none");

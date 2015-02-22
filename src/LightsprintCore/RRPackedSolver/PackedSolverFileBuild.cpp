@@ -36,11 +36,11 @@ public:
 PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importanceOfDetails, bool& aborting)
 {
 	if (aborting)
-		return NULL;
+		return nullptr;
 	if (object->triangles>PackedFactor::MAX_TRIANGLES)
 	{
 		RRReporter::report(WARN,"Fireball not created, max %d triangles per solver supported.\n",PackedFactor::MAX_TRIANGLES);
-		return NULL;
+		return nullptr;
 	}
 	RR_CLAMP(importanceOfDetails,0,1);
 
@@ -56,7 +56,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	if (!skyPatchHitsForAllTriangles)
 	{
 		RRReporter::report(WARN,"Fireball not created, allocating %s failed(1).\n",RRReporter::bytesToString(sizeof(PackedSkyTriangleFactor::UnpackedFactor)*object->triangles));
-		return NULL;
+		return nullptr;
 	}
 
 	RRReal sceneArea = 0;
@@ -65,7 +65,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	{
 		RRReporter::report(WARN,"Fireball not created, allocating %s failed(2).\n",RRReporter::bytesToString(sizeof(unsigned)*object->triangles));
 		RR_SAFE_DELETE_ARRAY(skyPatchHitsForAllTriangles);
-		return NULL;
+		return nullptr;
 	}
 
 	{
@@ -98,7 +98,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 			}
 
 			// stop updating sky-tri factors
-			skyPatchHitsForCurrentTriangle = NULL;
+			skyPatchHitsForCurrentTriangle = nullptr;
 		}
 	}
 
@@ -193,7 +193,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 		RR_SAFE_DELETE(packedSolverFile);
 		RR_SAFE_DELETE_ARRAY(skyPatchHitsForAllTriangles);
 		RR_SAFE_DELETE_ARRAY(actualRaysFromTriangle);
-		return NULL;
+		return nullptr;
 	}
 
 	// 4 pruchod pres triangly:
@@ -233,7 +233,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 			else
 			{
 				// ivertex missing, we have no lighting data
-				// this is legal: needles and degenerates are catched here, both with surface=NULL
+				// this is legal: needles and degenerates are catched here, both with surface=nullptr
 				// we must be ready for them even in runtime
 				packedSolverFile->packedSmoothTriangles[t].ivertexIndex[v] = UINT_MAX; // invalid value, will be displayed as pink
 			}
@@ -262,7 +262,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 				directIrradiancePhysicalRGB[t] = RRVec3(skyPatchHitsForAllTriangles[t].patches[p][0]/actualRaysFromTriangle[t]);
 			}
 			// 0 disables emissive component, they are added later in realtime (this allows for realtime changes in materials)
-			resetStaticIllumination(false,true,0,NULL,NULL,directIrradiancePhysicalRGB);
+			resetStaticIllumination(false,true,0,nullptr,nullptr,directIrradiancePhysicalRGB);
 
 			// calculate
 			// KA-RA/AS_blanc_05m-sub-collapse-color.FBX (skylight goes in by ceiling opening, ceiling is illuminated only by indirect skylight):
@@ -336,7 +336,7 @@ bool RRSolver::buildFireball(unsigned raysPerTriangle, const RRString& _filename
 		);
 
 	RRHash hash = getMultiObject()->getHash();
-	RRString filename = _filename.empty() ? hash.getFileName(FIREBALL_FILENAME_VERSION,NULL,".fireball") : _filename;
+	RRString filename = _filename.empty() ? hash.getFileName(FIREBALL_FILENAME_VERSION,nullptr,".fireball") : _filename;
 
 	if (packedSolverFile->save(filename,hash))
 		RRReporter::report(INF2,"Saved to %ls\n",filename.w_str());
@@ -353,7 +353,7 @@ bool RRSolver::buildFireball(unsigned raysPerTriangle, const RRString& _filename
 		priv->dirtyCustomIrradiance = true; // request reload of direct illumination into solver
 		RR_SAFE_DELETE(priv->scene);
 	}
-	return priv->packedSolver!=NULL;
+	return priv->packedSolver!=nullptr;
 }
 
 bool RRSolver::loadFireball(const RRString& _filename, bool onlyPerfectMatch)
@@ -371,9 +371,9 @@ bool RRSolver::loadFireball(const RRString& _filename, bool onlyPerfectMatch)
 	RRHash hash;
 	if (_filename.empty() || onlyPerfectMatch) // save time, don't hash if we don't need it
 		hash = getMultiObject()->getHash();
-	RRString filename = _filename.empty() ? hash.getFileName(FIREBALL_FILENAME_VERSION,NULL,".fireball") : _filename;
+	RRString filename = _filename.empty() ? hash.getFileName(FIREBALL_FILENAME_VERSION,nullptr,".fireball") : _filename;
 
-	priv->packedSolver = RRPackedSolver::create(getMultiObject(),PackedSolverFile::load(filename,onlyPerfectMatch?&hash:NULL));
+	priv->packedSolver = RRPackedSolver::create(getMultiObject(),PackedSolverFile::load(filename,onlyPerfectMatch?&hash:nullptr));
 	if (priv->packedSolver)
 	{
 		//RRReporter::report(INF2,"Loaded Fireball (%s, triangles=%d)\n",filename,getMultiObject()?getMultiObject()->getCollider()->getMesh()->getNumTriangles():0);
@@ -382,7 +382,7 @@ bool RRSolver::loadFireball(const RRString& _filename, bool onlyPerfectMatch)
 		priv->dirtyCustomIrradiance = true; // request reload of direct illumination into solver
 		RR_SAFE_DELETE(priv->scene);
 	}
-	return priv->packedSolver!=NULL;
+	return priv->packedSolver!=nullptr;
 }
 
 void RRSolver::leaveFireball()

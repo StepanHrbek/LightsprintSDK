@@ -223,7 +223,7 @@ const char* initializeGL()
 	glDepthFunc(GL_LEQUAL);
 	glEnable(GL_DEPTH_TEST);
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -234,9 +234,9 @@ const char* initializeGL()
 Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int magn, int mini, int wrapS, int wrapT)
 {
 	if (!_buffer)
-		rr::RRReporter::report(rr::ERRO,"Creating texture from NULL buffer.\n");
+		rr::RRReporter::report(rr::ERRO,"Creating texture from nullptr buffer.\n");
 
-	buffer = _buffer ? _buffer->createReference() : NULL;
+	buffer = _buffer ? _buffer->createReference() : nullptr;
 	if (buffer)
 		buffer->customData = this;
 
@@ -349,7 +349,7 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 		// in case of need, we can paste here CPU cubemap filtering code removed in revision 5296 from environmentMap.cpp
 		for (unsigned side=0;side<6;side++)
 		{
-			const unsigned char* sideData = data?data+side*buffer->getWidth()*buffer->getHeight()*(buffer->getElementBits()/8):NULL;
+			const unsigned char* sideData = data?data+side*buffer->getWidth()*buffer->getHeight()*(buffer->getElementBits()/8):nullptr;
 #ifndef RR_GL_ES2
 			glGetError();
 #endif
@@ -431,7 +431,7 @@ Texture::~Texture()
 	if (buffer)
 	{
 		// delete buffer's pointer to us, we are destructing
-		buffer->customData = NULL;
+		buffer->customData = nullptr;
 		// delete our pointer to buffer, buffer may or may not destruct
 		delete buffer;
 	}
@@ -454,11 +454,11 @@ Texture* Texture::createShadowmap(unsigned width, unsigned height, bool color)
 	if (width==0 || height==0)
 	{
 		rr::RRReporter::report(rr::ERRO,"Attempt to create %dx%d shadowmap.\n",width,height);
-		return NULL;
+		return nullptr;
 	}
 	rr::RRBuffer* buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,color?rr::BF_RGB:rr::BF_DEPTH,true,RR_GHOST_BUFFER);
 	if (!buffer)
-		return NULL;
+		return nullptr;
 #ifdef RR_GL_ES2
 	Texture* texture = new Texture(buffer,false,false, filtering(), filtering(), GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE);
 #else
@@ -478,7 +478,7 @@ static std::vector<Texture*> s_textures;
 Texture* getTexture(const rr::RRBuffer* _buffer, bool _buildMipMaps, bool _compress, int _magn, int _mini, int _wrapS, int _wrapT)
 {
 	if (!_buffer)
-		return NULL;
+		return nullptr;
 	rr::RRBuffer* buffer = const_cast<rr::RRBuffer*>(_buffer); //!!! new Texture() may modify customData in const object
 	Texture* texture = (Texture*)(buffer->customData);
 	if (texture)
@@ -524,8 +524,8 @@ static unsigned char* getFormatLockBuffer(rr::RRBuffer* buffer, GLenum& glformat
 	//GLenum gltype; // GL_UNSIGNED_BYTE, GL_FLOAT
 	if (!buffer)
 	{
-		rr::RRReporter::report(rr::ERRO,"readPixelsToBuffer() failed, buffer=NULL.\n");
-		return NULL;
+		rr::RRReporter::report(rr::ERRO,"readPixelsToBuffer() failed, buffer=nullptr.\n");
+		return nullptr;
 	}
 	switch(buffer->getFormat())
 	{
@@ -541,13 +541,13 @@ static unsigned char* getFormatLockBuffer(rr::RRBuffer* buffer, GLenum& glformat
 		case rr::BF_DEPTH: glformat = GL_DEPTH_COMPONENT; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_LUMINANCE: glformat = GL_LUMINANCE; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_LUMINANCEF: glformat = GL_LUMINANCE; gltype = GL_FLOAT; break;
-		default: rr::RRReporter::report(rr::ERRO,"readPixelsToBuffer() failed, buffer format not supported.\n"); return NULL;
+		default: rr::RRReporter::report(rr::ERRO,"readPixelsToBuffer() failed, buffer format not supported.\n"); return nullptr;
 	}
 	unsigned char* pixels = buffer->lock(rr::BL_DISCARD_AND_WRITE); // increases buffer version
 	if (!pixels)
 	{
 		rr::RRReporter::report(rr::ERRO,"readPixelsToBuffer() failed, buffer can't be locked.\n");
-		return NULL;
+		return nullptr;
 	}
 	return pixels;
 }

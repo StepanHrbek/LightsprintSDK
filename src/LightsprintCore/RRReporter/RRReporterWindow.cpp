@@ -82,7 +82,7 @@ public:
 		// Wait until window initializes.
 		// It is necessary: in case of immediate end, first messages would be sent to uninitialized window and lost.
 		while (!instanceData->shown) Sleep(1);
-		time_t t = time(NULL);
+		time_t t = time(nullptr);
 		localReport(INF1,"STARTED %s",asctime(localtime(&t)));
 	}
 
@@ -180,7 +180,7 @@ public:
 
 	virtual ~RRReporterWindow()
 	{
-		time_t t = time(NULL);
+		time_t t = time(nullptr);
 		localReport(INF1,"FINISHED %s",asctime(localtime(&t)));
 		SendDlgItemMessageA(hWnd,IDC_BUTTON_ABORT_CLOSE,WM_SETTEXT,0,(LPARAM)"Close");
 		InstanceData* instanceData = (InstanceData*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
@@ -195,7 +195,7 @@ public:
 			if (instanceData->numLines[ERRO]) localReport(WARN," %d ERRORS\n",instanceData->numLines[ERRO]);
 			if (instanceData->numLines[ASSE]) localReport(WARN," %d ASSERTS\n",instanceData->numLines[ASSE]);
 			instanceData->reporterDeleted = true;
-			instanceData->abortCallback = NULL;
+			instanceData->abortCallback = nullptr;
 
 			// manual abort was requested in past (window stayed open because reporterDeleted = false)
 			// now we finally reached "delete reporter"
@@ -260,7 +260,7 @@ private:
 
 	static void windowThreadFunc(void* instanceData)
 	{
-		DialogBoxIndirectParam(GetModuleHandle(NULL),getDialogResource(),NULL,DlgProc,(LPARAM)instanceData);
+		DialogBoxIndirectParam(GetModuleHandle(nullptr),getDialogResource(),nullptr,DlgProc,(LPARAM)instanceData);
 		delete instanceData;
 	}
 
@@ -275,7 +275,7 @@ private:
 					if (instanceData)
 					{
 						*instanceData->hWndInReporter = hWnd; // set at window birth
-						instanceData->hWndInReporter = NULL; // we don't need it anymore
+						instanceData->hWndInReporter = nullptr; // we don't need it anymore
 						SetWindowLongPtr(hWnd,GWLP_USERDATA,(LONG_PTR)instanceData);
 
 						// load preferences
@@ -388,7 +388,7 @@ RRReporter* RRReporter::createWindowedReporter(RRCallback* abortCallback)
 #ifdef _WIN32
 	return new RRReporterWindow(abortCallback);
 #else
-	return NULL;
+	return nullptr;
 #endif
 }
 */
@@ -460,7 +460,7 @@ RRReporter* RRReporter::createWindowedReporter(class RRSolver*& _solver, const c
 
 rr::RRReporter* rr::RRReporter::createWindowedReporter(rr::RRSolver*& _solver, const char* caption, bool closeWhenDone)
 {
-	return NULL;
+	return nullptr;
 }
 
 #endif

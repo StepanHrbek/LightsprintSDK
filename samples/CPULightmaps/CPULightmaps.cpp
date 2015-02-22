@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 
 	// load scene
 	rr::RRScene scene("../../data/scenes/koupelna/koupelna4-windows.dae");
-	solver->setStaticObjects(scene.objects, NULL);
+	solver->setStaticObjects(scene.objects, nullptr);
 	solver->setLights(scene.lights);
 
 	// create buffers for computed GI
@@ -71,14 +71,14 @@ int main(int argc, char** argv)
 			while (res<2048 && (float)res<5*sqrtf((float)(mesh->getNumTriangles()))) res*=2;
 			for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
 				solver->getStaticObjects()[i]->illumination.getLayer(layerNumber) =
-					rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,NULL);
+					rr::RRBuffer::create(rr::BT_2D_TEXTURE,res,res,1,rr::BF_RGB,true,nullptr);
 		}
 		else
 		{
 			// allocate vertex buffers for other objects
 			for (unsigned layerNumber=0;layerNumber<5;layerNumber++)
 				solver->getStaticObjects()[i]->illumination.getLayer(layerNumber) =
-					rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,NULL);
+					rr::RRBuffer::create(rr::BT_VERTEX_BUFFER,mesh->getNumVertices(),1,1,rr::BF_RGBF,false,nullptr);
 		}
 	}
 
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
 	rr::RRSolver::UpdateParameters params(1000);
 	params.aoIntensity = 1;
 	params.aoSize = 1;
-	solver->updateLightmaps(0,1,4,&params,NULL);
+	solver->updateLightmaps(0,1,4,&params,nullptr);
 
 	// save GI lightmaps, bent normals
 	solver->getStaticObjects().saveLayer(0,"../../data/scenes/koupelna/koupelna4-windows_precalculated/","png");

@@ -440,9 +440,9 @@ public:
 private:
 	void loadTexture(FUDaeTextureChannel::Channel channel, RRMaterial::Property& materialProperty, const FCDMaterialInstance* materialInstance, const FCDEffectStandard* effectStandard)
 	{
-		materialProperty.texture = NULL;
+		materialProperty.texture = nullptr;
 		materialProperty.texcoord = 0;
-		const FCDTexture* texture = effectStandard->GetTextureCount(channel) ? effectStandard->GetTexture(channel,0) : NULL;
+		const FCDTexture* texture = effectStandard->GetTextureCount(channel) ? effectStandard->GetTexture(channel,0) : nullptr;
 		if (texture)
 		{
 			// load texture
@@ -450,7 +450,7 @@ private:
 			if (image)
 			{
 				const fstring& filename = image->GetFilename();
-				materialProperty.texture = RRBuffer::load(filename.c_str(),NULL,textureLocator);
+				materialProperty.texture = RRBuffer::load(filename.c_str(),nullptr,textureLocator);
 			}
 			// load texcoord
 			if (materialInstance)
@@ -459,7 +459,7 @@ private:
 				if (set)
 				{
 					const FCDMaterialInstanceBindVertexInput* materialInstanceBindVertexInput = materialInstance->FindVertexInputBinding(set->GetSemantic());
-					if (materialInstanceBindVertexInput) // is NULL in kalasatama.dae
+					if (materialInstanceBindVertexInput) // is nullptr in kalasatama.dae
 					{
 						// 1 for <input semantic="TEXCOORD" source="#lobby_ceiling-mesh-map-channel1" offset="2" set="1"/>
 						// 0 for <input semantic="TEXCOORD" source="#lobby_ceiling-mesh-map-channel1" offset="2"/> (data from meshlab, 0 is default in fcollada)
@@ -528,7 +528,7 @@ private:
 		//  default is to use channel with the highest number
 		material.lightmapTexcoord = LIGHTMAP_CHANNEL;
 		//  but if scene contains ambient map, use its channel
-		const FCDTexture* texture = effectStandard->GetTextureCount(FUDaeTextureChannel::AMBIENT) ? effectStandard->GetTexture(FUDaeTextureChannel::AMBIENT,0) : NULL;
+		const FCDTexture* texture = effectStandard->GetTextureCount(FUDaeTextureChannel::AMBIENT) ? effectStandard->GetTexture(FUDaeTextureChannel::AMBIENT,0) : nullptr;
 		if (texture && materialInstance)
 		{
 			const FCDEffectParameterInt* set = texture->GetSet();
@@ -627,7 +627,7 @@ RRObjectFCollada::RRObjectFCollada(const FCDSceneNode* _node, const FCDGeometryI
 
 	// create transformation matrices
 	RRMatrix3x4 worldMatrix;
-	getNodeMatrices(node,&worldMatrix,NULL);
+	getNodeMatrices(node,&worldMatrix,nullptr);
 	setWorldMatrix(&worldMatrix);
 
 	// init facegroups
@@ -709,7 +709,7 @@ const RRCollider* RRObjectsFCollada::newColliderCached(const FCDGeometryMesh* me
 	if (!mesh)
 	{
 		RR_ASSERT(0);
-		return NULL;
+		return nullptr;
 	}
 	for (size_t i=0;i<mesh->GetPolygonsCount();i++)
 	{
@@ -727,7 +727,7 @@ const RRCollider* RRObjectsFCollada::newColliderCached(const FCDGeometryMesh* me
 		}
 	}
 	// mesh has 0 triangles (could consist of lines, points)
-	return NULL;
+	return nullptr;
 triangle_found:
 
 	ColliderCache::iterator i = colliderCache.find(mesh);
@@ -738,7 +738,7 @@ triangle_found:
 	else
 	{
 		bool aborting = false;
-		return colliderCache[mesh] = RRCollider::create(new RRMeshFCollada(mesh),NULL,RRCollider::IT_LINEAR,aborting);
+		return colliderCache[mesh] = RRCollider::create(new RRMeshFCollada(mesh),nullptr,RRCollider::IT_LINEAR,aborting);
 	}
 }
 
@@ -748,22 +748,22 @@ RRObjectFCollada* RRObjectsFCollada::newObject(const FCDSceneNode* node, const F
 {
 	if (!geometryInstance)
 	{
-		return NULL;
+		return nullptr;
 	}
 	const FCDGeometry* geometry = static_cast<const FCDGeometry*>(geometryInstance->GetEntity());
 	if (!geometry)
 	{
-		return NULL;
+		return nullptr;
 	}
 	const FCDGeometryMesh* mesh = geometry->GetMesh();
 	if (!mesh)
 	{
-		return NULL;
+		return nullptr;
 	}
 	const RRCollider* collider = newColliderCached(mesh);
 	if (!collider)
 	{
-		return NULL;
+		return nullptr;
 	}
 	return new RRObjectFCollada(node,geometryInstance,collider,&materialCache);
 }
@@ -913,14 +913,14 @@ void RRLightsFCollada::addNode(const FCDSceneNode* node)
 			{
 				// get position and direction
 				RRMatrix3x4 invWorldMatrix;
-				getNodeMatrices(node,NULL,&invWorldMatrix);
+				getNodeMatrices(node,nullptr,&invWorldMatrix);
 				RRVec3 position = invWorldMatrix.getTransformedPosition(RRVec3(0));
 				RRVec3 direction = invWorldMatrix.getTransformedDirection(RRVec3(0,0,-1));
 
 				// create RRLight
 				RRVec3 color = RRVec3(light->GetColor()->x,light->GetColor()->y,light->GetColor()->z)*light->GetIntensity();
 				RRVec4 polynom(light->GetConstantAttenuationFactor(),light->GetLinearAttenuationFactor(),light->GetQuadraticAttenuationFactor(),0.0001f);
-				RRLight* rrlight = NULL;
+				RRLight* rrlight = nullptr;
 				switch(light->GetLightType())
 				{
 					case FCDLight::POINT:
@@ -983,7 +983,7 @@ public:
 				RRReporter::report(ERRO,"Collada %d.%d.%d is not fully supported, please use Collada 1.4.1. We recommend OpenCollada plugins for Max and Maya, http://opencollada.org. (%ls)\n",version.major,version.minor,version.revision,filename.w_str());
 			RRReporter::report(wrongVersion?WARN:ERRO,"%s\n",errorHandler.GetErrorString());
 			delete scene;
-			return NULL;
+			return nullptr;
 		}
 		else
 		{

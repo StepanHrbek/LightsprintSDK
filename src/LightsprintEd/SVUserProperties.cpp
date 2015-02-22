@@ -31,7 +31,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 	// stereo
 	{
 		{
-			const wxChar* stereoStrings[] = {_("interlaced"),_("side by side"),_("top down"),_("Oculus Rift"),_("Quad Buffered"),NULL};
+			const wxChar* stereoStrings[] = {_("interlaced"),_("side by side"),_("top down"),_("Oculus Rift"),_("Quad Buffered"),nullptr};
 			const long stereoValues[] = {rr::RRCamera::SM_INTERLACED,rr::RRCamera::SM_SIDE_BY_SIDE,rr::RRCamera::SM_TOP_DOWN,rr::RRCamera::SM_OCULUS_RIFT,rr::RRCamera::SM_QUAD_BUFFERED};
 			propStereoMode = new wxEnumProperty(_("Stereo mode"), wxPG_LABEL, stereoStrings, stereoValues);
 			propStereoMode->SetValueFromInt(userPreferences.stereoMode,wxPG_FULL_VALUE);
@@ -53,7 +53,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 
 		// units
 		{
-			const wxChar* viewStrings[] = {_("custom"),wxT("m"),_("inch"),wxT("cm"),wxT("mm"),NULL};
+			const wxChar* viewStrings[] = {_("custom"),wxT("m"),_("inch"),wxT("cm"),wxT("mm"),nullptr};
 			const long viewValues[] = {ImportParameters::U_CUSTOM,ImportParameters::U_M,ImportParameters::U_INCH,ImportParameters::U_CM,ImportParameters::U_MM};
 			propImportUnitsEnum = new wxEnumProperty(_("Units"), wxPG_LABEL, viewStrings, viewValues);
 			propImportUnitsEnum->SetValueFromInt(userPreferences.import.unitEnum,wxPG_FULL_VALUE);
@@ -69,7 +69,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 
 		// up
 		{
-			const wxChar* viewStrings[] = {wxT("x"),wxT("y"),wxT("z"),NULL};
+			const wxChar* viewStrings[] = {wxT("x"),wxT("y"),wxT("z"),nullptr};
 			const long viewValues[] = {0,1,2};
 			propImportUp = new wxEnumProperty(_("Up axis"), wxPG_LABEL, viewStrings, viewValues);
 			propImportUp->SetValueFromInt(userPreferences.import.up,wxPG_FULL_VALUE);
@@ -82,7 +82,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 
 		// flipFrontBack
 		{
-			const wxChar* flipStrings[] = {_("never"),_("when 3 normals point back"),_("when 2 or 3 normals point back"),NULL};
+			const wxChar* flipStrings[] = {_("never"),_("when 3 normals point back"),_("when 2 or 3 normals point back"),nullptr};
 			const long flipValues[] = {4,3,2};
 			propImportFlipFrontBack = new wxEnumProperty(_("Flip front/back"), wxPG_LABEL, flipStrings, flipValues);
 			propImportFlipFrontBack->SetValueFromInt(userPreferences.import.flipFrontBack,wxPG_FULL_VALUE);
@@ -116,7 +116,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 			AppendIn(propSshotEnhanced,propSshotEnhancedHeight);
 
 			{
-				const wxChar* viewStrings[] = {_("none"),wxT("4x"),wxT("8x"),wxT("16x"),NULL};
+				const wxChar* viewStrings[] = {_("none"),wxT("4x"),wxT("8x"),wxT("16x"),nullptr};
 				const long viewValues[] = {1,4,9,16};
 				propSshotEnhancedFSAA = new wxEnumProperty(_("Antialiasing"), wxPG_LABEL, viewStrings, viewValues);
 				propSshotEnhancedFSAA->SetValueFromInt(userPreferences.sshotEnhancedFSAA,wxPG_FULL_VALUE);
@@ -125,7 +125,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 			}
 
 			{
-				const wxChar* viewStrings[] = {wxT("0.5x"),_("default"),wxT("2x"),wxT("4x"),NULL};
+				const wxChar* viewStrings[] = {wxT("0.5x"),_("default"),wxT("2x"),wxT("4x"),nullptr};
 				const long viewValues[] = {1,2,4,8};
 				propSshotEnhancedShadowResolutionFactor = new wxEnumProperty(_("Shadow resolution"), wxPG_LABEL, viewStrings, viewValues);
 				propSshotEnhancedShadowResolutionFactor->SetValueFromInt(userPreferences.sshotEnhancedShadowResolutionFactor*2,wxPG_FULL_VALUE);
@@ -134,7 +134,7 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 			}
 
 			{
-				const wxChar* viewStrings[] = {wxT("1"),wxT("2"),wxT("4"),_("default"),wxT("8"),NULL};
+				const wxChar* viewStrings[] = {wxT("1"),wxT("2"),wxT("4"),_("default"),wxT("8"),nullptr};
 				const long viewValues[] = {1,2,4,0,8};
 				propSshotEnhancedShadowSamples = new wxEnumProperty(_("Shadow samples"), wxPG_LABEL, viewStrings, viewValues);
 				propSshotEnhancedShadowSamples->SetValueFromInt(userPreferences.sshotEnhancedShadowSamples,wxPG_FULL_VALUE);
@@ -272,7 +272,7 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		rr::RRReporter::setFilter(true,svframe->userPreferences.testingLogMore?3:2,true);
 	}
-	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,NULL,0);
+	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,nullptr,0);
 }
 
 BEGIN_EVENT_TABLE(SVUserProperties, wxPropertyGrid)

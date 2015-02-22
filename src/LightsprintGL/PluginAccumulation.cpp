@@ -17,7 +17,7 @@ namespace rr_gl
 
 PluginRuntime* PluginParamsAccumulation::createRuntime(const PluginCreateRuntimeParams& params) const
 {
-	return NULL;
+	return nullptr;
 }
 
 #else //!RR_GL_ES2
@@ -87,7 +87,7 @@ public:
 
 			accumulationMap->getBuffer()->reset(rr::BT_2D_TEXTURE,w,h,1,rr::BF_RGBF,true,RR_GHOST_BUFFER);
 			accumulationMap->bindTexture();
-			glTexImage2D(GL_TEXTURE_2D,0,GL_RGB32F_ARB,w,h,0,GL_RGB,GL_FLOAT,NULL); // GL_RGB32F_ARB prevents banding, simple accumulationMap->reset() would use GL_RGB16F_ARB
+			glTexImage2D(GL_TEXTURE_2D,0,GL_RGB32F_ARB,w,h,0,GL_RGB,GL_FLOAT,nullptr); // GL_RGB32F_ARB prevents banding, simple accumulationMap->reset() would use GL_RGB16F_ARB
 		}
 
 		{
@@ -123,7 +123,7 @@ public:
 			glDepthMask(0);
 			PreserveFlag p5(GL_BLEND,numAccumulatedFrames?true:false);
 			glBlendFunc(GL_ONE, GL_ONE);
-			_renderer.getTextureRenderer()->render2D(colorMap,NULL,0,0,1,1,-1);
+			_renderer.getTextureRenderer()->render2D(colorMap,nullptr,0,0,1,1,-1);
 			glViewport(_sp.viewport[0],_sp.viewport[1],w,h);
 			numAccumulatedFrames++;
 			accumulatedBrightness += _sp.srgbCorrect ? pow(brightnessAdjustment,2.2f) : brightnessAdjustment;

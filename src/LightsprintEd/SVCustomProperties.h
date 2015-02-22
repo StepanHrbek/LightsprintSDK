@@ -105,7 +105,7 @@ class ButtonProperty : public wxStringProperty // if we use wxPGProperty, value 
 {
 	WX_PG_DECLARE_PROPERTY_CLASS(ButtonProperty)
 public:
-	ButtonProperty(const wxString& label = wxPG_LABEL, const wxString& help = wxPG_LABEL, rr_ed::SVFrame* svframe = NULL, int menuItem = 0);
+	ButtonProperty(const wxString& label = wxPG_LABEL, const wxString& help = wxPG_LABEL, rr_ed::SVFrame* svframe = nullptr, int menuItem = 0);
 	void updateImage();
 	virtual bool OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wxEvent &event);
 private:
