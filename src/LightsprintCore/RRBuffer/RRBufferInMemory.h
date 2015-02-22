@@ -23,30 +23,30 @@ class RR_API RRBufferInMemory : public RRBuffer
 {
 public:
 	// setting
-	virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data);
-	virtual void setElement(unsigned index, const RRVec4& element, const RRColorSpace* colorSpace);
+	virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data) override;
+	virtual void setElement(unsigned index, const RRVec4& element, const RRColorSpace* colorSpace) override;
 
 	// reading
-	virtual RRBufferType getType() const {return type;}
-	virtual unsigned getWidth() const {return width;}
-	virtual unsigned getHeight() const {return height;}
-	virtual unsigned getDepth() const {return depth;}
-	virtual RRBufferFormat getFormat() const {return format;}
-	virtual bool getScaled() const {return scaled;}
-	virtual unsigned getBufferBytes() const;
-	virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace) const;
-	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const;
-	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const;
-	virtual unsigned char* lock(RRBufferLock lock) {if (lock!=BL_READ)version++;return data;}
-	virtual void unlock() {}
-	virtual bool isStub() {return stub;}
+	virtual RRBufferType getType() const override {return type;}
+	virtual unsigned getWidth() const override {return width;}
+	virtual unsigned getHeight() const override {return height;}
+	virtual unsigned getDepth() const override {return depth;}
+	virtual RRBufferFormat getFormat() const override {return format;}
+	virtual bool getScaled() const override {return scaled;}
+	virtual unsigned getBufferBytes() const override;
+	virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace) const override;
+	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const override;
+	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const override;
+	virtual unsigned char* lock(RRBufferLock lock) override {if (lock!=BL_READ)version++;return data;}
+	virtual void unlock() override {}
+	virtual bool isStub() override {return stub;}
 
 	// reference counting
 	void* operator new(std::size_t n);
 	void operator delete(void* p, std::size_t n);
 	RRBufferInMemory();
-	virtual RRBuffer* createReference();
-	virtual unsigned getReferenceCount() {return refCount;}
+	virtual RRBuffer* createReference() override;
+	virtual unsigned getReferenceCount() override {return refCount;}
 	virtual ~RRBufferInMemory();
 protected:
 	// refCount is aligned and modified only by ++ and -- in createReference() and delete.

@@ -231,44 +231,44 @@ public:
 
 	// --------- refcounting ---------
 
-	virtual RRBuffer* createReference()
+	virtual RRBuffer* createReference() override
 	{
 		if (this)
 			refCount++;
 		return this;
 	}
-	virtual unsigned getReferenceCount()
+	virtual unsigned getReferenceCount() override
 	{
 		return refCount;
 	}
 
 	// --------- type/size/format are fixed ---------
 
-	virtual RRBufferType getType() const
+	virtual RRBufferType getType() const override
 	{
 		return BT_2D_TEXTURE;
 	}
-	virtual unsigned getWidth() const
+	virtual unsigned getWidth() const override
 	{
 		return width;
 	}
-	virtual unsigned getHeight() const
+	virtual unsigned getHeight() const override
 	{
 		return height;
 	}
-	virtual unsigned getDepth() const
+	virtual unsigned getDepth() const override
 	{
 		return 1;
 	}
-	virtual RRBufferFormat getFormat() const
+	virtual RRBufferFormat getFormat() const override
 	{
 		return BF_BGR;
 	}
-	virtual bool getScaled() const
+	virtual bool getScaled() const override
 	{
 		return true;
 	}
-	virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data)
+	virtual bool reset(RRBufferType type, unsigned width, unsigned height, unsigned depth, RRBufferFormat format, bool scaled, const unsigned char* data) override
 	{
 		RRReporter::report(WARN,"reset() has no effect on video buffers.\n");
 		return false;
@@ -276,7 +276,7 @@ public:
 
 	// --------- element access ---------
 
-	virtual void setElement(unsigned index, const RRVec4& _element, const RRColorSpace* colorSpace)
+	virtual void setElement(unsigned index, const RRVec4& _element, const RRColorSpace* colorSpace) override
 	{
 		if (index>=width*height)
 		{
@@ -291,7 +291,7 @@ public:
 		front[3*index+2] = RR_FLOAT2BYTE(element[0]);
 		version++;
 	}
-	virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace) const
+	virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace) const override
 	{
 		if (index>=width*height)
 		{
@@ -307,11 +307,11 @@ public:
 			colorSpace->toLinear(result);
 		return result;
 	}
-	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const
+	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const override
 	{
 		return getElement(((unsigned)(position[0]*width)%width) + ((unsigned)(position[1]*height)%height) * width, colorSpace);
 	}
-	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const
+	virtual RRVec4 getElementAtDirection(const RRVec3& direction, const RRColorSpace* colorSpace) const override
 	{
 		// 360*180 degree panorama (equirectangular projection)
 		unsigned index = ((unsigned)( (asin(direction.y/direction.length())*(1.0f/RR_PI)+0.5f) * height) % height) * width;
@@ -328,17 +328,17 @@ public:
 
 	// --------- whole buffer access ---------
 
-	virtual unsigned char* lock(RRBufferLock lock)
+	virtual unsigned char* lock(RRBufferLock lock) override
 	{
 		return front;
 	}
-	virtual void unlock()
+	virtual void unlock() override
 	{
 	}
 
 	// --------- video access ---------
 
-	virtual bool update()
+	virtual bool update() override
 	{
 		// swap front and back buffers
 		if (backReady)
@@ -367,22 +367,22 @@ public:
 		}
 		return false;
 	}
-	virtual void play()
+	virtual void play() override
 	{
 		if (dsControl)
 			dsControl->Run();
 	}
-	virtual void stop()
+	virtual void stop() override
 	{
 		if (dsControl)
 			dsControl->Stop();
 	}
-	virtual void pause()
+	virtual void pause() override
 	{
 		if (dsControl)
 			dsControl->Pause();
 	}
-	virtual void seek(float secondsFromStart)
+	virtual void seek(float secondsFromStart) override
 	{
 		if (dsSeeking)
 		{
@@ -400,7 +400,7 @@ public:
 		if (dsAudio)
 			dsAudio->put_Balance(balance); //-10000..10000
 	}
-	virtual float getDuration() const
+	virtual float getDuration() const override
 	{
 		if (dsSeeking)
 		{
