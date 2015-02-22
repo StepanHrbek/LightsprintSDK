@@ -587,15 +587,15 @@ namespace rr
 
 		RRMeshArrays();
 		virtual ~RRMeshArrays();
-		virtual unsigned     getNumVertices() const;
-		virtual void         getVertex(unsigned v, Vertex& out) const;
-		virtual unsigned     getNumTriangles() const;
-		virtual void         getTriangle(unsigned t, Triangle& out) const;
-		virtual void         getTriangleBody(unsigned i, TriangleBody& out) const;
-		virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const;
-		virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const;
-		virtual void         getUvChannels(RRVector<unsigned>& out) const;
-		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center) const;
+		virtual unsigned     getNumVertices()                                                       const override;
+		virtual void         getVertex(unsigned v, Vertex& out)                                     const override;
+		virtual unsigned     getNumTriangles()                                                      const override;
+		virtual void         getTriangle(unsigned t, Triangle& out)                                 const override;
+		virtual void         getTriangleBody(unsigned i, TriangleBody& out)                         const override;
+		virtual void         getTriangleNormals(unsigned t, TriangleNormals& out)                   const override;
+		virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const override;
+		virtual void         getUvChannels(RRVector<unsigned>& out)                                 const override;
+		virtual void         getAABB(RRVec3* mini, RRVec3* maxi, RRVec3* center)                    const override;
 
 
 		//////////////////////////////////////////////////////////////////////////////

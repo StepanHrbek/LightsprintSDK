@@ -41,16 +41,16 @@ public:
 		delete[] ValidIndex;
 	}
 
-	virtual unsigned getNumTriangles() const
+	virtual unsigned getNumTriangles() const override
 	{
 		return ValidIndices;
 	}
-	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
+	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const override
 	{
 		RR_ASSERT(t<ValidIndices);
 		inherited->getTriangle(ValidIndex[t],out);
 	}
-	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const override
 	{
 		if (t>=ValidIndices)
 		{
@@ -60,7 +60,7 @@ public:
 		t = ValidIndex[t];
 		inherited->getTriangleNormals(t,out);
 	}
-	virtual bool getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
+	virtual bool getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const override
 	{
 		if (t>=ValidIndices)
 		{
@@ -70,7 +70,7 @@ public:
 		t = ValidIndex[t];
 		return inherited->getTriangleMapping(t,out,channel);
 	}
-	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const
+	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const override
 	{
 		if (postImportTriangle>=ValidIndices)
 		{
@@ -80,7 +80,7 @@ public:
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
 		return inherited->getPreImportTriangle(midImportTriangle);
 	}
-	virtual unsigned getPostImportTriangle(PreImportNumber preImportTriangle) const 
+	virtual unsigned getPostImportTriangle(PreImportNumber preImportTriangle) const override
 	{
 		// check that this slow code is not called often
 //!!! is called when RRSolver works with single object
@@ -92,7 +92,7 @@ public:
 				return post;
 		return RRMesh::UNDEFINED;
 	}
-	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
+	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const override
 	// getPreImportVertex: postImportTriangle must be converted to midImportTriangle before calling inherited importer
 	// getPostImportVertex:  no conversion needed
 	{
@@ -104,7 +104,7 @@ public:
 		unsigned midImportTriangle = ValidIndex[postImportTriangle];
 		return inherited->getPreImportVertex(postImportVertex, midImportTriangle);
 	}
-	virtual void getTriangleBody(unsigned t, RRMesh::TriangleBody& out) const
+	virtual void getTriangleBody(unsigned t, RRMesh::TriangleBody& out) const override
 	{
 		RR_ASSERT(t<ValidIndices);
 		inherited->getTriangleBody(ValidIndex[t],out);

@@ -220,17 +220,17 @@ dupl:;
 		delete[] Dupl2Unique;
 	}
 
-	virtual unsigned getNumVertices() const
+	virtual unsigned getNumVertices() const override
 	{
 		return UniqueVertices;
 	}
-	virtual void getVertex(unsigned postImportVertex, RRMesh::Vertex& out) const
+	virtual void getVertex(unsigned postImportVertex, RRMesh::Vertex& out) const override
 	{
 		RR_ASSERT(postImportVertex<UniqueVertices);
 		unsigned midImportVertex = Unique2Dupl[postImportVertex];
 		inherited->getVertex(midImportVertex,out);
 	}
-	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
+	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const override
 	{
 		if (postImportVertex>=UniqueVertices)
 		{
@@ -259,7 +259,7 @@ dupl:;
 		RR_ASSERT(0);
 		return PreImportNumber(UNDEFINED,UNDEFINED);
 	}
-	virtual unsigned getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const
+	virtual unsigned getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const override
 	{
 		unsigned midImportVertex = inherited->getPostImportVertex(preImportVertex,preImportTriangle);
 		if (midImportVertex>=inherited->getNumVertices()) 
@@ -269,7 +269,7 @@ dupl:;
 		}
 		return Dupl2Unique[midImportVertex];
 	}
-	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
+	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const override
 	{
 		inherited->getTriangle(t,out);
 		out[0] = Dupl2Unique[out[0]]; RR_ASSERT(out[0]<UniqueVertices);
@@ -352,11 +352,11 @@ dupl:;
 		delete[] Dupl2Unique;
 	}
 
-	virtual unsigned getNumVertices() const
+	virtual unsigned getNumVertices() const override
 	{
 		return UniqueVertices;
 	}
-	virtual void getVertex(unsigned postImportVertex, RRMesh::Vertex& out) const
+	virtual void getVertex(unsigned postImportVertex, RRMesh::Vertex& out) const override
 	{
 		RR_ASSERT(postImportVertex<UniqueVertices);
 		unsigned midImportVertex = Unique2Dupl[postImportVertex];
@@ -365,7 +365,7 @@ dupl:;
 		INHERITED::getVertex(midImportVertex,out);
 		//out = *(RRMesh::Vertex*)(INHERITED::VBuffer+midImportVertex*INHERITED::Stride);
 	}
-	virtual RRMesh::PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const
+	virtual RRMesh::PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const override
 	{
 		if (postImportVertex>=UniqueVertices)
 		{
@@ -394,7 +394,7 @@ dupl:;
 		RR_ASSERT(0);
 		return RRMesh::PreImportNumber(RRMesh::UNDEFINED,RRMesh::UNDEFINED);
 	}
-	virtual unsigned getPostImportVertex(RRMesh::PreImportNumber preImportVertex, RRMesh::PreImportNumber preImportTriangle) const
+	virtual unsigned getPostImportVertex(RRMesh::PreImportNumber preImportVertex, RRMesh::PreImportNumber preImportTriangle) const override
 	{
 		unsigned midImportVertex = INHERITED::getPostImportVertex(preImportVertex,preImportTriangle);
 		if (midImportVertex>=INHERITED::getNumVertices()) 
@@ -404,7 +404,7 @@ dupl:;
 		}
 		return Dupl2Unique[midImportVertex];
 	}
-	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
+	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const override
 	{
 		INHERITED::getTriangle(t,out);
 		out[0] = Dupl2Unique[out[0]]; RR_ASSERT(out[0]<UniqueVertices);

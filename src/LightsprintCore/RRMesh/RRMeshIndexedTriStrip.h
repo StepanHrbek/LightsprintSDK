@@ -27,11 +27,11 @@ public:
 		RR_ASSERT(tmp==vertices);
 	}
 
-	virtual unsigned getNumTriangles() const
+	virtual unsigned getNumTriangles() const override
 	{
 		return Indices-2;
 	}
-	virtual void getTriangle(unsigned t, Triangle& out) const
+	virtual void getTriangle(unsigned t, Triangle& out) const override
 	{
 		RR_ASSERT(t<Indices-2);
 		RR_ASSERT(IBuffer);
@@ -39,7 +39,7 @@ public:
 		out[1] = IBuffer[t+1+(t%2)]; RR_ASSERT(out[1]<Vertices);
 		out[2] = IBuffer[t+2-(t%2)]; RR_ASSERT(out[2]<Vertices);
 	}
-	virtual void getTriangleBody(unsigned t, TriangleBody& out) const
+	virtual void getTriangleBody(unsigned t, TriangleBody& out) const override
 	{
 		RR_ASSERT(t<Indices-2);
 		RR_ASSERT(VBuffer);

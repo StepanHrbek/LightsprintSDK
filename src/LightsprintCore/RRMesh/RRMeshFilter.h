@@ -35,53 +35,53 @@ public:
 	}
 
 	// vertices
-	virtual unsigned     getNumVertices() const
+	virtual unsigned     getNumVertices() const override
 	{
 		return numVertices;
 	}
-	virtual void         getVertex(unsigned v, Vertex& out) const
+	virtual void         getVertex(unsigned v, Vertex& out) const override
 	{
 		inherited->getVertex(v,out);
 	}
 
 	// triangles
-	virtual unsigned     getNumTriangles() const
+	virtual unsigned     getNumTriangles() const override
 	{
 		return numTriangles;
 	}
-	virtual void         getTriangle(unsigned t, Triangle& out) const
+	virtual void         getTriangle(unsigned t, Triangle& out) const override
 	{
 		inherited->getTriangle(t,out);
 	}
-	virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const
+	virtual void         getTriangleNormals(unsigned t, TriangleNormals& out) const override
 	{
 		inherited->getTriangleNormals(t,out);
 	}
-	virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
+	virtual bool         getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const override
 	{
 		return inherited->getTriangleMapping(t,out,channel);
 	}
 
 	// preimport/postimport conversions
-	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
+	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const override
 	{
 		return inherited->getPreImportVertex(postImportVertex, postImportTriangle);
 	}
-	virtual unsigned     getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const 
+	virtual unsigned     getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const override
 	{
 		return inherited->getPostImportVertex(preImportVertex, preImportTriangle);
 	}
-	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const 
+	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const override
 	{
 		return inherited->getPreImportTriangle(postImportTriangle);
 	}
-	virtual unsigned     getPostImportTriangle(PreImportNumber preImportTriangle) const 
+	virtual unsigned     getPostImportTriangle(PreImportNumber preImportTriangle) const override
 	{
 		return inherited->getPostImportTriangle(preImportTriangle);
 	}
 
 	// tools
-	virtual void         getUvChannels(RRVector<unsigned>& out) const
+	virtual void         getUvChannels(RRVector<unsigned>& out) const override
 	{
 		inherited->getUvChannels(out);
 	}

@@ -71,7 +71,7 @@ namespace rr_gl
 
 
 		//! Sets dirty flags in given light, or in all lights if lightIndex is -1.
-		virtual void reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI, bool dirtyRange);
+		virtual void reportDirectIlluminationChange(int lightIndex, bool dirtyShadowmap, bool dirtyGI, bool dirtyRange) override;
 
 		//! Updates shadowmaps, detects direct illumination, calculates GI.
 		//
@@ -86,14 +86,14 @@ namespace rr_gl
 		//! Note that RRSolverGL::calculate() calls setDirectIllumination() automatically.
 		//! If you want to provide your own direct illumination data, switch from RRSolverGL to
 		//! rr::RRSolver and call setDirectIllumination() manually before calculate().
-		virtual void calculate(CalculateParameters* params = NULL);
+		virtual void calculate(CalculateParameters* params = NULL) override;
 
 		//! Calculates and updates object's environment map, stored in given layer of given illumination.
 		//
 		//! Function renders map with LightsprintGL's renderer, honouring all light and material properties,
 		//! with indirect illumination taken from buffers in layerXxx.
 		//! If your envmap has low resolution (less than approximately 32x32x6), consider calling RRSolver::updateEnvironmentMap() instead, which is faster.
-		virtual unsigned updateEnvironmentMap(rr::RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap);
+		virtual unsigned updateEnvironmentMap(rr::RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap) override;
 
 		//! Realtime lights, set by setLights(). You may modify them freely.
 		rr::RRVector<RealtimeLight*> realtimeLights;

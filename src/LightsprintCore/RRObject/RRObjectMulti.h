@@ -88,19 +88,19 @@ public:
 		return result;
 	}
 
-	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const override
 	{
 		RRMesh::PreImportNumber mid = postImportToMidImportTriangle[t];
 		return singles[mid.object].object->getTriangleMaterial(mid.index,light,receiver);
 	}
 
-	virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* colorSpace, bool interpolated, RRPointMaterial& out) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* colorSpace, bool interpolated, RRPointMaterial& out) const override
 	{
 		RRMesh::PreImportNumber mid = postImportToMidImportTriangle[t];
 		singles[mid.object].object->getPointMaterial(mid.index,uv,colorSpace,interpolated,out);
 	}
 
-	virtual void getTriangleLod(unsigned t, LodInfo& out) const
+	virtual void getTriangleLod(unsigned t, LodInfo& out) const override
 	{
 		RRMesh::PreImportNumber mid = postImportToMidImportTriangle[t];
 		singles[mid.object].object->getTriangleLod(mid.index,out);
@@ -284,7 +284,7 @@ public:
 		t = unoptimizedMesh->getPostImportTriangle(preImportTriangle);
 	}
 
-	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const override
 	{
 		unoptimizeTriangle(t);
 		if (t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleMaterial(t,light,receiver);
@@ -293,7 +293,7 @@ public:
 			: NULL;
 	}
 
-	virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* colorSpace, bool interpolated, RRPointMaterial& out) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* colorSpace, bool interpolated, RRPointMaterial& out) const override
 	{
 		unoptimizeTriangle(t);
 		if (t<pack[0].getNumTriangles())
@@ -304,7 +304,7 @@ public:
 	}
 
 
-	virtual void getTriangleLod(unsigned t, LodInfo& out) const
+	virtual void getTriangleLod(unsigned t, LodInfo& out) const override
 	{
 		unoptimizeTriangle(t);
 		if (t<pack[0].getNumTriangles()) return pack[0].getImporter()->getTriangleLod(t,out);

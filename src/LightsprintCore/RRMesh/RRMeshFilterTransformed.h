@@ -32,7 +32,7 @@ public:
 		m = object->getWorldMatrix();
 	}*/
 
-	virtual void getVertex(unsigned v, Vertex& out) const
+	virtual void getVertex(unsigned v, Vertex& out) const override
 	{
 		inherited->getVertex(v,out);
 		if (m)
@@ -40,7 +40,7 @@ public:
 			m->transformPosition(out);
 		}
 	}
-	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const override
 	{
 		inherited->getTriangleNormals(t,out);
 		if (m)

@@ -48,11 +48,11 @@ public:
 	}
 
 	// vertices
-	virtual unsigned     getNumVertices() const
+	virtual unsigned     getNumVertices() const override
 	{
 		return numVerticesMulti;
 	}
-	virtual void         getVertex(unsigned v, Vertex& out) const
+	virtual void         getVertex(unsigned v, Vertex& out) const override
 	{
 		RR_ASSERT(v<numVerticesMulti);
 		RR_ASSERT(postImportToMidImportVertex[v].object<numSingles);
@@ -60,11 +60,11 @@ public:
 	}
 
 	// triangles
-	virtual unsigned     getNumTriangles() const
+	virtual unsigned     getNumTriangles() const override
 	{
 		return numTrianglesMulti;
 	}
-	virtual void         getTriangle(unsigned t, Triangle& out) const
+	virtual void         getTriangle(unsigned t, Triangle& out) const override
 	{
 		RR_ASSERT(t<numTrianglesMulti);
 		RR_ASSERT(postImportToMidImportTriangle[t].object<numSingles);
@@ -75,13 +75,13 @@ public:
 		out[2] += single->numVerticesBefore;
 	}
 
-	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const override
 	{
 		RR_ASSERT(t<numTrianglesMulti);
 		RR_ASSERT(postImportToMidImportTriangle[t].object<numSingles);
 		singles[postImportToMidImportTriangle[t].object].mesh->getTriangleNormals(postImportToMidImportTriangle[t].index,out);
 	}
-	virtual bool getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
+	virtual bool getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const override
 	{
 		if (t>=numTrianglesMulti || postImportToMidImportTriangle[t].object>=numSingles)
 		{
@@ -92,7 +92,7 @@ public:
 		// warning: all mappings overlap
 	}
 
-	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
+	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const override
 	{
 		RR_ASSERT(postImportTriangle<numTrianglesMulti);
 		RR_ASSERT(postImportVertex<numVerticesMulti);
@@ -104,7 +104,7 @@ public:
 		preImportMulti.index = preImportSingle.index;
 		return preImportMulti;
 	}
-	virtual unsigned     getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const 
+	virtual unsigned     getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const override
 	{
 		PreImportNumber preImportV = preImportVertex;
 		PreImportNumber preImportT = preImportTriangle;
@@ -114,7 +114,7 @@ public:
 		if (midImportVertex==UNDEFINED) return UNDEFINED;
 		return singles[preImportV.object].numVerticesBefore+midImportVertex;
 	}
-	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const
+	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const override
 	{
 		RR_ASSERT(postImportTriangle<numTrianglesMulti);
 		RR_ASSERT(postImportToMidImportTriangle[postImportTriangle].object<numSingles);
@@ -125,7 +125,7 @@ public:
 		preImportMulti.index = preImportSingle.index;
 		return preImportMulti;
 	}
-	virtual unsigned     getPostImportTriangle(PreImportNumber preImportTriangle) const
+	virtual unsigned     getPostImportTriangle(PreImportNumber preImportTriangle) const override
 	{
 		PreImportNumber preImport = preImportTriangle;
 		RR_ASSERT(preImport.object<numSingles);
@@ -134,7 +134,7 @@ public:
 		return singles[preImport.object].numTrianglesBefore+midImportTriangle;
 	}
 
-	virtual void getUvChannels(RRVector<unsigned>& out) const
+	virtual void getUvChannels(RRVector<unsigned>& out) const override
 	{
 		out.clear();
 		TriangleMapping mapping;
@@ -246,11 +246,11 @@ public:
 	}
 
 	// vertices
-	virtual unsigned     getNumVertices() const
+	virtual unsigned     getNumVertices() const override
 	{
 		return pack[0].getNumVertices()+pack[1].getNumVertices();
 	}
-	virtual void         getVertex(unsigned v, Vertex& out) const
+	virtual void         getVertex(unsigned v, Vertex& out) const override
 	{
 		if (v<pack[0].getNumVertices()) 
 			pack[0].getMesh()->getVertex(v,out);
@@ -259,11 +259,11 @@ public:
 	}
 
 	// triangles
-	virtual unsigned     getNumTriangles() const
+	virtual unsigned     getNumTriangles() const override
 	{
 		return pack[0].getNumTriangles()+pack[1].getNumTriangles();
 	}
-	virtual void         getTriangle(unsigned t, Triangle& out) const
+	virtual void         getTriangle(unsigned t, Triangle& out) const override
 	{
 		if (t<pack[0].getNumTriangles()) 
 		{
@@ -279,14 +279,14 @@ public:
 		}
 	}
 
-	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const
+	virtual void getTriangleNormals(unsigned t, TriangleNormals& out) const override
 	{
 		if (t<pack[0].getNumTriangles()) 
 			pack[0].getMesh()->getTriangleNormals(t,out);
 		else
 			pack[1].getMesh()->getTriangleNormals(t-pack[0].getNumTriangles(),out);
 	}
-	virtual bool getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const
+	virtual bool getTriangleMapping(unsigned t, TriangleMapping& out, unsigned channel) const override
 	{
 		// warning: all mappings overlap
 		if (t<pack[0].getNumTriangles()) 
@@ -300,7 +300,7 @@ public:
 	//{
 	//}
 
-	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const 
+	virtual PreImportNumber getPreImportVertex(unsigned postImportVertex, unsigned postImportTriangle) const override
 	{
 		if (postImportVertex<pack[0].getNumVertices()) 
 		{
@@ -317,7 +317,7 @@ public:
 			return preImport;
 		}
 	}
-	virtual unsigned     getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const 
+	virtual unsigned     getPostImportVertex(PreImportNumber preImportVertex, PreImportNumber preImportTriangle) const override
 	{
 		PreImportNumber preImportV = preImportVertex;
 		PreImportNumber preImportT = preImportTriangle;
@@ -342,7 +342,7 @@ public:
 			return pack[0].getNumVertices() + tmp;
 		}
 	}
-	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const 
+	virtual PreImportNumber getPreImportTriangle(unsigned postImportTriangle) const override
 	{
 		if (postImportTriangle<pack[0].getNumTriangles()) 
 		{
@@ -359,7 +359,7 @@ public:
 			return preImport;
 		}
 	}
-	virtual unsigned     getPostImportTriangle(PreImportNumber preImportTriangle) const 
+	virtual unsigned     getPostImportTriangle(PreImportNumber preImportTriangle) const override
 	{
 		PreImportNumber preImport = preImportTriangle;
 		if (preImport.object<pack[0].getNumObjects()) 
@@ -381,7 +381,7 @@ public:
 		}
 	}
 
-	virtual void getUvChannels(RRVector<unsigned>& out) const
+	virtual void getUvChannels(RRVector<unsigned>& out) const override
 	{
 		// get channels from 2 sons
 		RRVector<unsigned> a,b;

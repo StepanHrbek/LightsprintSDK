@@ -28,31 +28,31 @@ public:
 		faceGroups = object->faceGroups;
 	}
 
-	virtual RRCollider* getCollider() const
+	virtual RRCollider* getCollider() const override
 	{
 		return inherited->getCollider();
 	}
-	virtual void setCollider(RRCollider* _collider)
+	virtual void setCollider(RRCollider* _collider) override
 	{
 		inherited->setCollider(_collider);
 	}
-	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const
+	virtual RRMaterial* getTriangleMaterial(unsigned t, const RRLight* light, const RRObject* receiver) const override
 	{
 		return inherited->getTriangleMaterial(t,light,receiver);
 	}
-	virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* colorSpace, bool interpolated, RRPointMaterial& out) const
+	virtual void getPointMaterial(unsigned t, RRVec2 uv, const RRColorSpace* colorSpace, bool interpolated, RRPointMaterial& out) const override
 	{
 		inherited->getPointMaterial(t,uv,colorSpace,interpolated,out);
 	}
-	virtual void getTriangleLod(unsigned t, LodInfo& out) const
+	virtual void getTriangleLod(unsigned t, LodInfo& out) const override
 	{
 		inherited->getTriangleLod(t,out);
 	}
-	virtual const RRMatrix3x4Ex* getWorldMatrix() const
+	virtual const RRMatrix3x4Ex* getWorldMatrix() const override
 	{
 		return inherited->getWorldMatrix();
 	}
-	virtual void setWorldMatrix(const RRMatrix3x4* _worldMatrix)
+	virtual void setWorldMatrix(const RRMatrix3x4* _worldMatrix) override
 	{
 		return inherited->setWorldMatrix(_worldMatrix);
 	}

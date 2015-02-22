@@ -27,11 +27,11 @@ public:
 		tmp = tmp;
 		RR_ASSERT(tmp==vertices);
 	}
-	virtual unsigned getNumTriangles() const
+	virtual unsigned getNumTriangles() const override
 	{
 		return INHERITED::Indices/3;
 	}
-	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const
+	virtual void getTriangle(unsigned t, RRMesh::Triangle& out) const override
 	{
 		RR_ASSERT(t*3<INHERITED::Indices);
 		RR_ASSERT(INHERITED::IBuffer);
@@ -39,7 +39,7 @@ public:
 		out[1] = INHERITED::IBuffer[t*3+1]; RR_ASSERT(out[1]<INHERITED::Vertices);
 		out[2] = INHERITED::IBuffer[t*3+2]; RR_ASSERT(out[2]<INHERITED::Vertices);
 	}
-	virtual void getTriangleBody(unsigned t, RRMesh::TriangleBody& out) const
+	virtual void getTriangleBody(unsigned t, RRMesh::TriangleBody& out) const override
 	{
 		RR_ASSERT(t*3<INHERITED::Indices);
 		RR_ASSERT(INHERITED::VBuffer);
