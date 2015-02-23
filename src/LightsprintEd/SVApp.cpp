@@ -10,10 +10,8 @@
 #include "SVApp.h"
 #include "SVFrame.h"
 #include "SVObjectProperties.h"
-#ifdef __APPLE__
-	#include <boost/filesystem.hpp>
-	namespace bf = boost::filesystem;
-#endif
+#include <boost/filesystem.hpp>
+namespace bf = boost::filesystem;
 #ifdef SUPPORT_OCULUS
 	#include "OVR.h"
 	#if defined(_M_X64) || defined(_LP64)
@@ -30,6 +28,8 @@
 	#endif
 	#pragma comment(lib,"ws2_32.lib")
 #endif
+
+	#define NORMALIZED(x) RR_PATH2RR(bf::system_complete(RR_RR2PATH(x)).make_preferred()) // make paths absolute
 
 namespace rr_ed
 {
@@ -142,14 +142,14 @@ void sceneViewer(rr::RRSolver* _inputSolver, const rr::RRString& _inputFilename,
 	if (_svs) s_svs.SceneViewerState::operator=(*_svs);
 	if (!_inputFilename.empty())
 	{
-		s_svs.sceneFilename = RR_RR2WX(_inputFilename);
+		s_svs.sceneFilename = NORMALIZED(_inputFilename);
 	}
 	if (!_skyboxFilename.empty())
 	{
-		s_svs.skyboxFilename = _skyboxFilename;
+		s_svs.skyboxFilename = NORMALIZED(_skyboxFilename);
 	}
 	s_svs.initialInputSolver = _inputSolver;
-	s_svs.pathToData = RR_RR2WX(_pathToData);
+	s_svs.pathToData = NORMALIZED(_pathToData);
 	s_svs.pathToShaders = s_svs.pathToData+"shaders/";
 	s_svs.pathToMaps = s_svs.pathToData+"maps/";
 	s_svs.releaseResources = _releaseResources;
