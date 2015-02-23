@@ -80,13 +80,15 @@ int main(int argc, char** argv)
 	// See how adapters in src/LightsprintIO/ImportXXX/RRObjectXXX.cpp register,
 	// you can do the same for your own file format.
 	rr_ed::SceneViewerState svs;
-#ifdef NDEBUG
-	// release returns quickly without freeing resources
-	rr_ed::sceneViewer(nullptr,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,false);
+	rr_ed::sceneViewer(nullptr,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,
+#ifdef _DEBUG
+		// debug frees everything and reports memory leaks
+		true);
+#else
+		// release returns quickly without freeing resources
+		false);
 	return 0;
 #endif
-	// debug frees everything and reports memory leaks
-	rr_ed::sceneViewer(nullptr,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,true);
 #else
 	// View scene _in memory_ in scene viewer.
 
