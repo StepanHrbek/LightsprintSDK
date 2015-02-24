@@ -52,6 +52,7 @@ protected:
 	// refCount is aligned and modified only by ++ and -- in createReference() and delete.
 	// this and volatile makes it mostly thread safe, at least on x86
 	// (still we clearly say it's not thread safe)
+	// proper std::atomic<unsigned> or boost::detail::atomic_count would be probably more expensive
 	volatile unsigned refCount;
 
 	RRBufferType type;

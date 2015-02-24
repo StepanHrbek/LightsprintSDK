@@ -366,6 +366,9 @@ namespace rr
 		//! When called on cubemap, it creates new 2d texture with the same number of pixels.
 		//! When called on 2d texture, it already is equirectangular, so it returns new reference to the same texture.
 		//! When called on other buffer type (vertex buffer), it returns nullptr.
+		//!
+		//! In other words, this function returns environment rendered with equirectangular camera.
+		//! For rendering with other camera types, you can use RRSolver::pathTraceFrame().
 		RRBuffer* createEquirectangular();
 
 		//! Creates blend of two rotated environments (2d or cubemaps), as in RRSolver's environment.
