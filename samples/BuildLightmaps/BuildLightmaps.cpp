@@ -488,15 +488,6 @@ int main(int argc, char** argv)
 	}
 
 	//
-	// load licence
-	//
-	const char* licError = rr::loadLicense("../../data/licence_number");
-	if (licError)
-	{
-		error(solver->aborting,licError);
-	}
-
-	//
 	// init image loaders
 	//
 	rr_io::registerLoaders(argc,argv);

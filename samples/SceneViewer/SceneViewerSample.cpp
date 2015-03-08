@@ -61,19 +61,6 @@ int main(int argc, char** argv)
 	free(exedir);
 #endif // _WIN32
 
-	const char* licError = rr::loadLicense("../../data/licence_number");
-	if (licError)
-	{
-#if defined(_DEBUG) || !defined(_WIN32)
-		puts(licError);
-		printf("\n\nHit enter to close...");
-		fgetc(stdin);
-#else
-		MessageBox(nullptr,licError,"SceneViewer exiting...",MB_OK);
-#endif
-		exit(0);
-	}
-
 	const char* sceneFilename = (argc>1)?argv[1]:"../../data/scenes/koupelna/koupelna4.dae";
 #if 1
 	// View scene _on disk_ in scene viewer.

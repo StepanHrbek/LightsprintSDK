@@ -2032,10 +2032,6 @@ int main(int argc, char** argv)
 	rr::RRReporter::report(rr::INF1,"  penumbra quality: %d\n",INSTANCES_PER_PASS);
 	if (!INSTANCES_PER_PASS) error("",true);
 
-	const char* licError = rr::loadLicense("licence_number");
-	if (licError)
-		error(licError,false);
-
 #ifdef SET_ICON
 	HWND hWnd = FindWindowA(nullptr,PRODUCT_NAME);
 	SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon);

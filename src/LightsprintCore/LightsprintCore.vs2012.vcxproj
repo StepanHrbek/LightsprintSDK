@@ -352,7 +352,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;GATE_LICENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -415,7 +415,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;..\..\3rd\rsa;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;GATE_LICENSE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;SUPPORT_INTERPOL;RR_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -761,7 +761,6 @@
     <ClInclude Include="squish\simd_ve.h" />
     <ClInclude Include="squish\singlecolourfit.h" />
     <ClInclude Include="squish\squish.h" />
-    <ClInclude Include="LicGen.h" />
     <ClInclude Include="Preferences.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRDebug.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRMemory.h" />

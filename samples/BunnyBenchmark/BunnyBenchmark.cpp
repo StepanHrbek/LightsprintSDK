@@ -27,11 +27,6 @@ int main(int argc, char** argv)
 
 	RRReporter::report(INF1,"Stanford Bunny Benchmark\n");
 
-	// provide license information
-	const char* licError = loadLicense("../../data/licence_number");
-	if (licError)
-		RRReporter::report(ERRO,"%s\n",licError);
-
 	// load mesh from disk
 	PlyMesh plyMesh;
 	PlyMeshReader reader;

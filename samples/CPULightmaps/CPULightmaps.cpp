@@ -45,9 +45,6 @@ int main(int argc, char** argv)
 	rr_io::registerLoaders(argc,argv);
 
 	// init scene and solver
-	const char* licError = rr::loadLicense("../../data/licence_number");
-	if (licError)
-		error(licError,false);
 	rr::RRSolver* solver = new rr::RRSolver();
 	// switch inputs and outputs from HDR physical scale to RGB screenspace
 	rr::RRColorSpace* colorSpace = rr::RRColorSpace::create_sRGB();

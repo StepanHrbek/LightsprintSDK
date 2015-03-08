@@ -369,9 +369,6 @@ int main(int argc, char** argv)
 #endif // _MSC_VER
 
 	// init solver
-	const char* licError = rr::loadLicense("../../data/licence_number");
-	if (licError)
-		error(licError,false);
 	solver = new rr_gl::RRSolverGL("../../data/shaders/","../../data/maps/");
 	solver->setColorSpace(rr::RRColorSpace::create_sRGB()); // switch inputs and outputs from HDR physical scale to RGB screenspace
 

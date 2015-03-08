@@ -277,7 +277,6 @@ protected:
 // RRCollider
 
 
-
 static std::map<unsigned,RRCollider::Builder*> s_builders;
 
 RRCollider* createMultiCollider(const RRObjects& objects, RRCollider::IntersectTechnique technique, bool& aborting);
@@ -517,14 +516,6 @@ void RRCollider::getDistancesFromCamera(const RRCamera& camera, const RRObject* 
 			addRay(this,ray,dir,distanceMinMax);
 		}
 	}
-}
-
-
-
-
-const char* loadLicense(const char* filename)
-{
-	return nullptr;
 }
 
 

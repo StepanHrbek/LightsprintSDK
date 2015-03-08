@@ -291,20 +291,6 @@ namespace rr
 
 
 
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	//! Loads license from file.
-	//
-	//! Must be called before any other work with library,
-	//! at least in release builds.
-	//! \n May connect to Lightsprint servers for verification.
-	//! \return
-	//!  Error message for failed license check, nullptr for successful check.
-	//!  If it's not nullptr, lighting computed by other functions
-	//!  may be incorrect and calculation takes much longer time.
-	RR_API const char* loadLicense(const char* filename);
-
 } // namespace
 
 #endif

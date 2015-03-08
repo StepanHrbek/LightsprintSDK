@@ -10,8 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "offline rendering samples",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E2D79514-4603-434B-B393-32BE2B77CED4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSA.vs2013", "..\3rd\RSA\RSA.vs2013.vcxproj", "{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FCSS.vs2013", "FCSS\FCSS.vs2013.vcxproj", "{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintGL.vs2013", "LightsprintGL\LightsprintGL.vs2013.vcxproj", "{2D2907C3-3E69-234A-306C-243C989A3411}"
@@ -29,9 +27,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BunnyBenchmark.vs2013", "..\samples\BunnyBenchmark\BunnyBenchmark.vs2013.vcxproj", "{C97F516C-5EFA-479A-A42A-B0AFEAF1E236}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintCore.vs2013", "LightsprintCore\LightsprintCore.vs2013.vcxproj", "{A93C8C21-6C34-4BB2-46B3-7C8D93ED3A4A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226} = {9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloMesh.vs2013", "..\samples\HelloMesh\HelloMesh.vs2013.vcxproj", "{3E151752-D431-5192-2E7D-4742826B1CDE}"
 EndProject
@@ -68,21 +63,6 @@ Global
 		Release static|x64 = Release static|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug DLL|x64.ActiveCfg = Debug static|x64
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug DLL|x64.Build.0 = Debug static|x64
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug static|Win32.Build.0 = Debug static|Win32
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug static|x64.ActiveCfg = Debug static|x64
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Debug static|x64.Build.0 = Debug static|x64
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release DLL|Win32.ActiveCfg = Release static|Win32
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release DLL|Win32.Build.0 = Release static|Win32
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release DLL|x64.ActiveCfg = Release static|x64
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release DLL|x64.Build.0 = Release static|x64
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release static|Win32.ActiveCfg = Release static|Win32
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release static|Win32.Build.0 = Release static|Win32
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release static|x64.ActiveCfg = Release static|x64
-		{9AD0AFDC-4269-48F8-A8B1-F5A025FE3226}.Release static|x64.Build.0 = Release static|x64
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Debug DLL|x64.ActiveCfg = Debug static|x64
 		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}.Debug static|Win32.ActiveCfg = Debug static|Win32

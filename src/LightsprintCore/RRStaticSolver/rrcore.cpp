@@ -12,7 +12,6 @@
 #include <cstdio>    // printf
 #include <cstdlib>
 #include <cstring>
-#include "../LicGen.h"
 #include "rrcore.h"
 #ifdef _OPENMP
 	#include <omp.h> // known error in msvc manifest code: needs omp.h even when using only pragmas
@@ -29,7 +28,6 @@ namespace rr
 #define REFRESH_FIRST          1     // first refresh has this number of photons (zahada: vyssi cislo rrbench zpomaluje misto zrychluje)
 #define REFRESH_MULTIPLY       4     // next refresh has multiplied number of photons
 //#define SUPPORT_NEGATIVE_LIGHT // support negative values in additionalIrradiance, reset(), getTriangleMeasure() [used for bent normals pertriangle->pervertex]
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -1103,8 +1101,7 @@ void Scene::refreshFormFactorsFromUntil(BestInfo source,RRStaticSolver::EndFunc&
 	if (phase==1)
 	{
 		// parallel shooting, can be aborted after every 50000 shots
-		while (shotsAccumulated<shotsForNewFactors
-			)
+		while (shotsAccumulated<shotsForNewFactors)
 		{
 			int shotsTodo = RR_MIN(shotsForNewFactors-shotsAccumulated,100000);
 			#pragma omp parallel for if(shotsTodo>30)
@@ -1166,8 +1163,7 @@ void Scene::refreshFormFactorsFromUntil(BestInfo source,RRStaticSolver::EndFunc&
 		Factor f;
 		for (unsigned kernelNum=0;kernelNum<shootingKernels.numKernels;kernelNum++)
 		{
-			while ((f.destination=shootingKernels.shootingKernel[kernelNum].hitTriangles.get())
-				)
+			while ((f.destination=shootingKernels.shootingKernel[kernelNum].hitTriangles.get()))
 			{
 				f.power = f.destination->hits/shotsAccumulated;
 				RR_ASSERT(f.power>0);
