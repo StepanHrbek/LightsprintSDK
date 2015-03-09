@@ -138,6 +138,7 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 	{
 		const SVEntity& entity = entities[i];
 		if (entity.parentPosition!=entity.position)
+		if (eye.panoramaMode!=rr::RRCamera::PM_OFF || eye.getDirection().dot( (entity.parentPosition-eye.getPosition()).normalized() )>0) // is arrow in front of camera?
 		{
 			rr::RRVec2 a = eye.getPositionInViewport(entity.parentPosition);
 			rr::RRVec2 b = eye.getPositionInViewport(entity.position);
