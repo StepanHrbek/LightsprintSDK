@@ -63,8 +63,8 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 			AppendIn(propCameraPanoramaMode,propCameraPanoramaFovDeg);
 
 			{
-			const wxChar* panoStrings[] = {_("Full+stretch"),_("Full"),_("Truncate bottom"),_("Truncate top"),nullptr};
-			const long panoValues[] = {rr::RRCamera::PC_FULL_STRETCH,rr::RRCamera::PC_FULL,rr::RRCamera::PC_TRUNCATE_BOTTOM,rr::RRCamera::PC_TRUNCATE_TOP};
+			const wxChar* panoStrings[] = {_("Full+stretch"),_("Full"),_("Truncate bottom"),_("Truncate top"),_("Truncate top+bottom"),nullptr};
+			const long panoValues[] = {rr::RRCamera::PC_FULL_STRETCH,rr::RRCamera::PC_FULL,rr::RRCamera::PC_TRUNCATE_BOTTOM,rr::RRCamera::PC_TRUNCATE_TOP,rr::RRCamera::PC_TRUNCATE_TOP_BOT};
 			propCameraPanoramaCoverage = new wxEnumProperty(_("Coverage"), wxPG_LABEL, panoStrings, panoValues);
 			AppendIn(propCameraPanoramaMode,propCameraPanoramaCoverage);
 			}

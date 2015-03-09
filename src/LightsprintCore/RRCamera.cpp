@@ -1004,6 +1004,9 @@ RRVec3 RRCamera::getPositionInViewport(RRVec3 worldPosition) const
 		case PC_TRUNCATE_TOP:
 			posInWindow.y = posInWindow.y*aspect-(1-aspect);
 			break;
+		case PC_TRUNCATE_TOP_BOT:
+			posInWindow.y = posInWindow.y*aspect;
+			break;
 	}
 
 	return RRVec3(posInWindow.x,posInWindow.y,1);
@@ -1111,6 +1114,9 @@ bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) con
 			break;
 		case PC_TRUNCATE_TOP:
 			posInWindow.y = (posInWindow.y+(1-aspect))/aspect;
+			break;
+		case PC_TRUNCATE_TOP_BOT:
+			posInWindow.y = posInWindow.y/aspect;
 			break;
 	}
 

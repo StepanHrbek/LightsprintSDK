@@ -88,6 +88,10 @@ public:
 			case rr::RRCamera::PC_TRUNCATE_TOP:
 				h = _sp.viewport[2]/float(_sp.viewport[3]);
 				break;
+			case rr::RRCamera::PC_TRUNCATE_TOP_BOT:
+				h = _sp.viewport[2]/float(_sp.viewport[3]);
+				y0 = (1-h)/2;
+				break;
 		}
 		//x0 -= _sp.camera->getScreenCenter().x;
 		//y0 -= _sp.camera->getScreenCenter().y;

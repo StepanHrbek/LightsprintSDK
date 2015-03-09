@@ -224,6 +224,7 @@ public:
 		PC_FULL             =1, ///< panorama covers as large output area as possible while preserving aspect ratio \image html cover-full.jpg
 		PC_TRUNCATE_BOTTOM  =2, ///< panorama covers full output width, going from top down, with aspect preserved. bottom might be cropped or empty, depending on output size \image html cover-trunc-bottom.jpg
 		PC_TRUNCATE_TOP     =3, ///< panorama covers full output width, going from bottom up, with aspect preserved. upper part might be cropped or empty, depending on output size \image html cover-trunc-top.jpg
+		PC_TRUNCATE_TOP_BOT =4, ///< panorama covers full output width, with top and bottom part equally truncated \image html cover-trunc-top-bot.jpg
 	};
 
 	//! One of camera panorama modes, or PM_OFF for common non-panorama render.
