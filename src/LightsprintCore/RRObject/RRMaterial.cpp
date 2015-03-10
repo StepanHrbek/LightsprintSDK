@@ -17,8 +17,14 @@
 #include <climits> // UINT_MAX
 
 #define DEFAULT_SHININESS 1000
-#define MIN_ROUGHNESS 5e-7f // 1e-8 and smaller generate #IND in BLINN_TORRANCE_SPARROW. 1e-7 makes car in test/cuberefl-car too bright (becomes about normal at 5e-7f)
-#define MAX_SHININESS (1/MIN_ROUGHNESS)
+#define MAX_SHININESS 500000
+					// prevents errors from limited float precision:
+					// - test\cuberefl-car.rr3   - car reflection has banding visible if shininess>1'000'000
+					// - 2015-03!bake\boris2.rr3 - floor lightmap contains bright dots (hooks reflect some photons with reflectance>>1) if shininess>500'000
+#define MIN_ROUGHNESS (1/MAX_SHININESS)
+					// prevents errors from limited float precision:
+					// - BLINN_TORRANCE_SPARROW  - generates #IND if roughness<1/100'000'000
+					// - test\cuberefl-car.rr3   - car reflection is too bright if roughness<1/2'000'000
 #define MAX_EMITTANCE 1e6f
 
 namespace rr
@@ -587,7 +593,7 @@ static RRReal specularResponse(RRMaterial::SpecularModel specularModel, RRReal s
 			{
 				//specularShininess = RR_MIN(specularShininess,MAX_SHININESS);
 				spec = response.dirIn.dot(dirInMajor.normalized());
-				spec = pow(RR_MAX(0,spec),specularShininess) * (specularShininess+1);
+				spec = pow(RR_CLAMPED(spec,0,1),specularShininess) * (specularShininess+1);
 			}
 			else
 			{
@@ -680,7 +686,7 @@ void RRMaterial::getResponse(Response& response, BrdfType type) const
 
 				RRVec3 dirInMajor = (type==BRDF_SPECULAR) ? reflect(response.dirOut,response.dirNormal) : refract(response.dirOut,response.dirNormal,this);
 				// we have importance sampling implemented only for PHONG, so other models are temporarily converted to PHONG
-				RRReal phongShininess = (specularModel==PHONG || specularModel==BLINN_PHONG) ? specularShininess : (1/RR_MAX(specularShininess,MIN_ROUGHNESS)-1);
+				RRReal phongShininess = (specularModel==PHONG || specularModel==BLINN_PHONG) ? RR_MIN(specularShininess,MAX_SHININESS) : (1/RR_MAX(specularShininess,MIN_ROUGHNESS)-1);
 				RRReal spec = specularResponse(PHONG,phongShininess,response,dirInMajor);
 				//RRReal spec = specularResponse(specularModel,specularShininess,response,dirInMajor);
 				response.colorOut = ((type==BRDF_SPECULAR) ? specularReflectance_colorLinear : specularTransmittance_colorLinear) * spec;
@@ -761,7 +767,7 @@ void RRMaterial::sampleResponse(Response& response, const RRVec3& randomness, Br
 			{
 				RRVec3 dirInMajor = (type==BRDF_SPECULAR) ? reflect(response.dirOut,response.dirNormal) : refract(response.dirOut,response.dirNormal,this);
 				// we have importance sampling implemented only for PHONG, so other models are temporarily converted to PHONG
-				RRReal phongShininess = (specularModel==PHONG || specularModel==BLINN_PHONG) ? specularShininess : (1/RR_MAX(specularShininess,MIN_ROUGHNESS)-1);
+				RRReal phongShininess = (specularModel==PHONG || specularModel==BLINN_PHONG) ? RR_MIN(specularShininess,MAX_SHININESS) : (1/RR_MAX(specularShininess,MIN_ROUGHNESS)-1);
 				RRVec4 sample = sampleHemisphereSpecular(randomness,dirInMajor,phongShininess);
 				response.dirIn = sample;
 				response.pdf = sample.w;
