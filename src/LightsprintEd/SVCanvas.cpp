@@ -1256,6 +1256,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 				// this makes rotation smoother when looking straight up/down
 				dragY = 0;
 			}
+			svframe->OnAnyChange(SVFrame::ES_MOUSE_MID_MOVEMENT,nullptr,&event,0);
 		}
 	}
 
