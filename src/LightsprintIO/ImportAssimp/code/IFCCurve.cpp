@@ -91,7 +91,7 @@ public:
 		a = std::fmod(a,static_cast<IfcFloat>( AI_MATH_TWO_PI ));
 		b = std::fmod(b,static_cast<IfcFloat>( AI_MATH_TWO_PI ));
 		const IfcFloat setting = static_cast<IfcFloat>( AI_MATH_PI * conv.settings.conicSamplingAngle / 180.0 );
-		return static_cast<size_t>( std::ceil(abs( b-a)) / setting);
+		return static_cast<size_t>( std::ceil(std::abs( b-a)) / setting);
 	}
 
 	// --------------------------------------------------
@@ -276,7 +276,7 @@ public:
 		IfcFloat acc = 0;
 		BOOST_FOREACH(const CurveEntry& entry, curves) {
 			const ParamRange& range = entry.first->GetParametricRange();
-			const IfcFloat delta = abs(range.second-range.first);
+			const IfcFloat delta = std::abs(range.second-range.first);
 			if (u < acc+delta) {
 				return entry.first->Eval( entry.second ? (u-acc) + range.first : range.second-(u-acc));
 			}
@@ -295,7 +295,7 @@ public:
 		IfcFloat acc = 0;
 		BOOST_FOREACH(const CurveEntry& entry, curves) {
 			const ParamRange& range = entry.first->GetParametricRange();
-			const IfcFloat delta = abs(range.second-range.first);
+			const IfcFloat delta = std::abs(range.second-range.first);
 			if (a <= acc+delta && b >= acc) {
 				const IfcFloat at =  std::max(static_cast<IfcFloat>( 0. ),a-acc), bt = std::min(delta,b-acc);
 				cnt += entry.first->EstimateSampleCount( entry.second ? at + range.first : range.second - bt, entry.second ? bt + range.first : range.second - at );
@@ -569,7 +569,7 @@ bool Curve :: InRange(IfcFloat u) const
 IfcFloat Curve :: GetParametricRangeDelta() const
 {
 	const ParamRange& range = GetParametricRange();
-	return abs(range.second - range.first);
+	return std::abs(range.second - range.first);
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -648,10 +648,10 @@ void Curve :: SampleDiscrete(TempMesh& out,IfcFloat a, IfcFloat b) const
 	ai_assert(InRange(a) && InRange(b));
 
 	const size_t cnt = std::max(static_cast<size_t>(0),EstimateSampleCount(a,b));
-	out.verts.reserve( out.verts.size() + cnt );
+	out.verts.reserve( out.verts.size() + cnt + 1);
 
 	IfcFloat p = a, delta = (b-a)/cnt;
-	for(size_t i = 0; i < cnt; ++i, p += delta) {
+	for(size_t i = 0; i <= cnt; ++i, p += delta) {
 		out.verts.push_back(Eval(p));
 	}
 }

@@ -168,7 +168,7 @@ void Parser::LogInfo(const char* szWarn)
 }
 
 // ------------------------------------------------------------------------------------------------
-void Parser::LogError(const char* szWarn)
+AI_WONT_RETURN void Parser::LogError(const char* szWarn)
 {
 	ai_assert(NULL != szWarn);
 
@@ -1525,7 +1525,7 @@ void Parser::ParseLV3MeshWeightsBlock(ASE::Mesh& mesh)
 				continue;
 			}
 			// Number of bones
-			if (TokenMatch(filePtr,"MESH_NUMBONE" ,11))
+			if (TokenMatch(filePtr,"MESH_NUMBONE" ,12))
 			{
 				ParseLV4MeshLong(iNumBones);
 				continue;
@@ -1559,7 +1559,7 @@ void Parser::ParseLV4MeshBones(unsigned int iNumBones,ASE::Mesh& mesh)
 			++filePtr;
 
 			// Mesh bone with name ...
-			if (TokenMatch(filePtr,"MESH_BONE_NAME" ,16))
+			if (TokenMatch(filePtr,"MESH_BONE_NAME" ,14))
 			{
 				// parse an index ...
 				if(SkipSpaces(&filePtr))

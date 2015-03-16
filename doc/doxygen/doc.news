@@ -14,7 +14,8 @@ NEWS
 
 - RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
 - RRBuffer::seek()
-- RRCamera::TRUNCATE_TOP_BOT
+- RRCamera::PC_TRUNCATE_TOP_BOT
+- import of *.ifc, *.ifczip
 
 CHANGES
 

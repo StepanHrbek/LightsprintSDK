@@ -176,7 +176,7 @@ void ColladaLoader::InternReadFile( const std::string& pFile, aiScene* pScene, I
 				 0,  0,  1,  0,
 				 0, -1,  0,  0,
 				 0,  0,  0,  1);
-        }
+		}
 	// store all meshes
 	StoreSceneMeshes( pScene);
 
@@ -985,6 +985,47 @@ void ColladaLoader::CreateAnimation( aiScene* pScene, const ColladaParser& pPars
 				entry.mTransformId = srcChannel.mTarget.substr( slashPos+1);
 			}
 
+			std::string::size_type bracketPos = srcChannel.mTarget.find('(');
+			if (bracketPos != std::string::npos)
+			{
+				entry.mTransformId = srcChannel.mTarget.substr(slashPos + 1, bracketPos - slashPos - 1);
+				std::string subElement = srcChannel.mTarget.substr(bracketPos);
+			
+				if (subElement == "(0)(0)")
+					entry.mSubElement = 0; 
+				else if (subElement == "(1)(0)")
+					entry.mSubElement = 1;
+				else if (subElement == "(2)(0)")
+					entry.mSubElement = 2;
+				else if (subElement == "(3)(0)")
+					entry.mSubElement = 3;
+				else if (subElement == "(0)(1)")
+					entry.mSubElement = 4;
+				else if (subElement == "(1)(1)")
+					entry.mSubElement = 5;
+				else if (subElement == "(2)(1)")
+					entry.mSubElement = 6;
+				else if (subElement == "(3)(1)")
+					entry.mSubElement = 7;
+				else if (subElement == "(0)(2)")
+					entry.mSubElement = 8;
+				else if (subElement == "(1)(2)")
+					entry.mSubElement = 9;
+				else if (subElement == "(2)(2)")
+					entry.mSubElement = 10;
+				else if (subElement == "(3)(2)")
+					entry.mSubElement = 11;
+				else if (subElement == "(0)(3)")
+					entry.mSubElement = 12;
+				else if (subElement == "(1)(3)")
+					entry.mSubElement = 13;
+				else if (subElement == "(2)(3)")
+					entry.mSubElement = 14;
+				else if (subElement == "(3)(3)")
+					entry.mSubElement = 15;
+
+			}
+
 			// determine which transform step is affected by this channel
 			entry.mTransformIndex = SIZE_MAX;
 			for( size_t a = 0; a < srcNode->mTransforms.size(); ++a)
@@ -1338,7 +1379,7 @@ void ColladaLoader::BuildMaterials( ColladaParser& pParser, aiScene* /*pScene*/)
 
 		// create material
 		aiMaterial* mat = new aiMaterial;
-		aiString name( matIt->first);
+		aiString name( material.mName.empty() ? matIt->first : material.mName );
 		mat->AddProperty(&name,AI_MATKEY_NAME);
 
 		// store the material
