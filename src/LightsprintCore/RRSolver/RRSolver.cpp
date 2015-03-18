@@ -1151,7 +1151,7 @@ void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _acc
 	unsigned h = halfres?(hh+1)/2:hh;
 	PathtracerJob ptj(this,true);
 #pragma omp parallel for schedule(dynamic)
-	for (int j=0;j<(int)h;j++)
+	for (int j=0;j<(int)h;j++) if (!aborting)
 	{
 		PathtracerWorker pathtracerWorker(ptj,_parameters,false,UINT_MAX,_accumulated?UINT_MAX:0);
 		pathtracerWorker.ray.rayLengthMin = _camera.getFar()*1e-6f; // [#38] must be !0. priv->minimalSafeDistance is 0 in fully dynamic scenes
