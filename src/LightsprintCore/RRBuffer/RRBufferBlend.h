@@ -24,7 +24,8 @@ namespace rr
 class RR_API RRBufferBlend : public RRBuffer
 {
 public:
-	RRBufferBlend(const RRBuffer* environment0, const RRBuffer* environment1, RRReal angleRad0, RRReal angleRad1, RRReal blendFactor);
+	RRBufferBlend(RRBuffer* environment0, RRBuffer* environment1, RRReal angleRad0, RRReal angleRad1, RRReal blendFactor);
+	virtual ~RRBufferBlend();
 
 	void report(const char* name) const
 	{
@@ -55,8 +56,8 @@ public:
 	virtual unsigned getReferenceCount()                                   {report("getReferenceCount");return 1;}
 
 protected:
-	const RRBuffer* environment0;
-	const RRBuffer* environment1;
+	RRBuffer* environment0;
+	RRBuffer* environment1;
 	RRMatrix3x4 rotation0;
 	RRMatrix3x4 rotation1;
 	RRReal blendFactor;

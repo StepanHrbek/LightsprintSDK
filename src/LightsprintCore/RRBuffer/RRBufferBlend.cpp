@@ -34,10 +34,13 @@ RRBuffer* RRBuffer::createEnvironmentBlend(RRBuffer* environment0, RRBuffer* env
 //
 // RRBufferBlend
 
-RRBufferBlend::RRBufferBlend(const RRBuffer* _environment0, const RRBuffer* _environment1, RRReal _angleRad0, RRReal _angleRad1, RRReal _blendFactor)
+RRBufferBlend::RRBufferBlend(RRBuffer* _environment0, RRBuffer* _environment1, RRReal _angleRad0, RRReal _angleRad1, RRReal _blendFactor)
 {
-	environment0 = _environment0;
-	environment1 = _environment1;
+	// creating references adds small overhead, but it protects us against users who delete original buffers before they delete us
+	// (on the other hand, createReference is not 100% thread safe, so now we are not 100% thread safe too.
+	//  but hopefully no one creates us in worker threads, it's more efficient to create us once in job setup)
+	environment0 = _environment0 ? _environment0->createReference() : nullptr;
+	environment1 = _environment1 ? _environment1->createReference() : nullptr;
 	rotation0 = RRMatrix3x4::rotationByYawPitchRoll(RRVec3(_angleRad0,0,0));
 	rotation1 = RRMatrix3x4::rotationByYawPitchRoll(RRVec3(_angleRad1,0,0));
 	blendFactor = _blendFactor;
@@ -60,6 +63,12 @@ RRVec4 RRBufferBlend::getElementAtDirection(const RRVec3& direction, const RRCol
 		color1 = environment1->getElementAtDirection(direction1,colorSpace);
 	}
 	return color0*(1-blendFactor) + color1*blendFactor;
+}
+
+RRBufferBlend::~RRBufferBlend()
+{
+	delete environment0;
+	delete environment1;
 }
 
 }; // namespace
