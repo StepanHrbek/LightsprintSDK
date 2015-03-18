@@ -1843,13 +1843,15 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			{
 				while (!isKeyOrButtonPressed())
 					boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
-				solver->aborting = true; 
+				solver->aborting = true;
 			},solver);
 			if (!pathTracedAccumulator) pathTracedBuffer->clear(); // if we interrupt pathtracing first frame, it would contains uninitialized pixels
-			// BOOST_SCOPE_EXIT here would ensure that thread is killed even if pathTraceFrame throws
+			// danger 1: if pathTraceFrame() throws, we don't interrupt t and it writes to solver->aborting forever. when we delete solver, it crashes
+			//           BOOST_SCOPE_EXIT here would fix it, but it makes code harder to read
 			solver->pathTraceFrame(ppSharedCamera,pathTracedBuffer,pathTracedAccumulator,params);
-			t.interrupt(); // thread spends most of time in interruptible boost::this_thread::sleep_for(), so it should end quickly
-			t.join();
+			t.interrupt(); // boost::this_thread::sleep_for() is interruptible
+			// danger 2: if pathTraceFrame() ends and we abort it at the same time, aborting might stay true, so next operation[s] will abort too
+			//           t.join() here would fix it, but we would have to benchmark, ensure that it does not slowdown
 			solver->aborting = false;
 			prevIdleTime.setNow(); // without this, OnIdle would think that we spent all time since last OnIdle pressing key
 
