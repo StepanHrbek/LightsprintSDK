@@ -1001,9 +1001,26 @@ bool SVFrame::saveScene(wxString sceneFilename)
 		rr::RRScene scene;
 		scene.objects = m_canvas->solver->getObjects();
 		scene.lights = m_canvas->solver->getLights();
+		// export to .scn for SmallLuxGPU4 has some tweaks
+		// (it's the only format that saves env to new file, rather than passing just filename. so it can export env rotate+blend)
+		bool exportToSlg4 = sceneFilename.EndsWith(".scn");
+
 		scene.environment = m_canvas->solver->getEnvironment();
+		if (exportToSlg4 && m_canvas->solver)
+		{
+			rr::RRReal angleRad0 = 0;
+			rr::RRReal angleRad1 = 0;
+			rr::RRReal blendFactor = m_canvas->solver->getEnvironmentBlendFactor();
+			rr::RRBuffer* environment0 = m_canvas->solver->getEnvironment(0,&angleRad0);
+			rr::RRBuffer* environment1 = m_canvas->solver->getEnvironment(1,&angleRad1);
+			scene.environment = rr::RRBuffer::createEnvironmentBlend(environment0,environment1,angleRad0,angleRad1,blendFactor);
+		}
 		scene.cameras.push_back(svs.camera);
+		if (exportToSlg4 && !svs.renderDof)
+			scene.cameras[0].apertureDiameter = 0;
 		result = scene.save(RR_WX2RR(sceneFilename));
+		if (exportToSlg4)
+			delete scene.environment;
 		scene.environment = nullptr; // would be deleted in destructor otherwise
 	}
 	return result;
@@ -1721,7 +1738,7 @@ void SVFrame::selectEntityInTreeAndUpdatePanel(EntityId entity, SelectEntityActi
 					// start of optional code
 					// lets panel find both custom+physical materials for static objects
 					// (advantage: changes will be propagated to physical materials used by pathtracer
-					//             there is also chance occassional FB divergence was caused by not-updated physical materials)
+					//             there is also chance occasional FB divergence was caused by not-updated physical materials)
 					if (!object->isDynamic)
 					{
 						unsigned hitTriangle = 0; // some triangle of selected object in multiobject
