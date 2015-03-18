@@ -97,6 +97,7 @@ namespace rr_ed
 		float                      speedDown;
 		float                      speedLean;
 		float                      speedY;
+		rr::RRTime                 prevIdleTime;
 		bool                       exitRequested;
 		int                        menuHandle;
 		SVLightmapViewer           lv; // 2d lightmap viewer

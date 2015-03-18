@@ -37,6 +37,7 @@
 	#include <GL/wglew.h>
 #endif
 #include <cctype>
+#include <boost/thread.hpp>
 #include <boost/filesystem.hpp> // extension()==".gsa"
 #ifdef SUPPORT_OCULUS
 	#include "../Src/OVR_CAPI_GL.h"
@@ -646,6 +647,8 @@ void SVCanvas::OnSizeCore(bool force)
 
 static bool s_shiftDown = false;
 
+// called on any keypress, e.g. each press in numeric property, not just on enter
+// processed synchronously with other events, so it is only called after we finish rendering frame, it can't interrupt rendering [#47]
 int SVCanvas::FilterEvent(wxKeyEvent& event)
 {
 	if (exitRequested || !fullyCreated)
@@ -1437,8 +1440,7 @@ void SVCanvas::OnIdle(wxIdleEvent& event)
 		svframe->m_log->flushQueue();
 
 	// camera/light movement
-	static rr::RRTime prevTime;
-	float seconds = prevTime.secondsSinceLastQuery();
+	float seconds = prevIdleTime.secondsSinceLastQuery();
 	if (seconds>0)
 	{
 		// ray is used in this block
@@ -1608,6 +1610,26 @@ bool SVCanvas::Paint(bool _takingSshot, const wxString& extraMessage)
 }
 
 
+// [#47] called from renderer to detect user interaction (so that very slow rendering can be aborted)
+bool g_hasPendingEvents = false;
+bool hasPendingEvents()
+{
+	// a) return wxAppConsole::GetInstance()->HasPendingEvents(); does not work, it is always false
+	// b) test state of the most important buttons
+	wxMouseState ms = wxGetMouseState();
+	bool m = ms.LeftIsDown() || ms.RightIsDown() || ms.MiddleIsDown();
+	bool k = wxGetKeyState(wxKeyCode('w')) || wxGetKeyState(wxKeyCode('s')) || wxGetKeyState(wxKeyCode('a')) || wxGetKeyState(wxKeyCode('d'))
+		|| wxGetKeyState(wxKeyCode('q')) || wxGetKeyState(wxKeyCode('z'))
+		|| wxGetKeyState(WXK_LEFT) || wxGetKeyState(WXK_RIGHT) || wxGetKeyState(WXK_UP) || wxGetKeyState(WXK_DOWN)
+		|| wxGetKeyState(WXK_ESCAPE) || wxGetKeyState(WXK_F4);
+	if (m || k)
+	{
+		g_hasPendingEvents = true;
+		//wxAppConsole::GetInstance()->OnAnyChange(SVFrame::ES_MOUSE,nullptr,nullptr,0);
+	}
+	return m || k;
+}
+
 bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 {
 	rr::RRReportInterval report(rr::INF3,"display...\n");
@@ -1770,8 +1792,16 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		// start chaining plugins
 		const rr_gl::PluginParams* pluginChain = nullptr;
 
+		if (g_hasPendingEvents)
+		{
+			g_hasPendingEvents = false;
+			svframe->lastInteractionTime.setNow();
+		}
 		if (svs.renderLightIndirect==LI_PATHTRACED || (svs.renderLightIndirect==LI_PATHTRACED_FIREBALL && svframe->lastInteractionTime.secondsPassed()>0.2f))
 		{
+			//
+			// renderpath 1 - pathtracer
+			//
 			rr::RRReportInterval report(rr::INF3,"pathtrace scene...\n");
 			if (svs.renderLightIndirect!=pathTracedTechnique)
 			{
@@ -1802,7 +1832,21 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			params.useFlatNormalsSinceDepth = shortcut+1;
 			params.useSolverDirectSinceDepth = svs.renderLightIndirect==LI_PATHTRACED_FIREBALL ? shortcut+1 : UINT_MAX;
 			params.useSolverIndirectSinceDepth = svs.renderLightIndirect==LI_PATHTRACED_FIREBALL ? shortcut : UINT_MAX;
+
+			boost::thread t([](rr::RRSolver* solver)
+			{
+				while (!hasPendingEvents())
+					boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+				solver->aborting = true; 
+			},solver);
+			if (!pathTracedAccumulator) pathTracedBuffer->clear(); // if we interrupt pathtracing first frame, it would contains uninitialized pixels
+			// BOOST_SCOPE_EXIT here would ensure that thread is killed even if pathTraceFrame throws
 			solver->pathTraceFrame(ppSharedCamera,pathTracedBuffer,pathTracedAccumulator,params);
+			t.interrupt(); // thread spends most of time in interruptible boost::this_thread::sleep_for(), so it should end quickly
+			t.join();
+			solver->aborting = false;
+			prevIdleTime.setNow(); // without this, OnIdle would think that we spent all time since last OnIdle pressing key
+
 			rr_gl::ToneParameters tp;
 			if (svs.renderTonemapping)
 			{
@@ -1845,6 +1889,9 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		}
 		else
 		{
+			//
+			// renderpath 2 - rasterizer
+			//
 			rr::RRReportInterval report(rr::INF3,"render scene...\n");
 			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
