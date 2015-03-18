@@ -1833,6 +1833,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			params.useSolverDirectSinceDepth = svs.renderLightIndirect==LI_PATHTRACED_FIREBALL ? shortcut+1 : UINT_MAX;
 			params.useSolverIndirectSinceDepth = svs.renderLightIndirect==LI_PATHTRACED_FIREBALL ? shortcut : UINT_MAX;
 
+			// solver->pathTraceFrame() with decorations that make it abortable
 			boost::thread t([](rr::RRSolver* solver)
 			{
 				while (!hasPendingEvents())
