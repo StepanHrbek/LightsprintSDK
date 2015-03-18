@@ -786,8 +786,7 @@ Material formats (1)
   they use Lightsprint integrated into game engine and tools.
   Integration needs access only to small subset of SDK's files.
   For example in case of Unreal Engine 3 integration,
-  the only new files for artists are LightsprintCore.vs2005.dll
-  and licence_number.
+  the only new file for artists is LightsprintCore.vs2005.dll.
   Artists may also need documentation (doc/Lightsprint.chm) to
   check brief \ref root_artists_guide.
   Programmers should include relevant files into game's engine/toolchain,

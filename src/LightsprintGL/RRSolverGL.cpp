@@ -296,7 +296,7 @@ done:
 				else
 				{
 					// these settings hide all cases of shadow acne at cost of large shadow bias
-					// decrease to reduce bias, while allowing occassional acne
+					// decrease to reduce bias, while allowing occasional acne
 					float slopeBias = (light->getNumShadowSamples(i)==1)?2.6f:8.f;
 					float fixedBias = slopeBias*500;
 					Workaround::needsIncreasedBias(slopeBias,fixedBias,light->getRRLight());

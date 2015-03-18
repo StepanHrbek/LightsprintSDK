@@ -169,7 +169,7 @@ void main()
 #endif
 
 #ifdef MIRROR_MASK_DEPTH
-	if (color.a*tex.a<0.7) discard; // big pixels with over 70% of surface covered by hires mirror are nearly always inside lowres mirror. 0.65 would result in occassional leaks, some pixels with 65% coverage are outside lowres mirror. (btw, when we had lowres exactly 50% of hires, 0.51 seemed sufficient)
+	if (color.a*tex.a<0.7) discard; // big pixels with over 70% of surface covered by hires mirror are nearly always inside lowres mirror. 0.65 would result in occasional leaks, some pixels with 65% coverage are outside lowres mirror. (btw, when we had lowres exactly 50% of hires, 0.51 seemed sufficient)
 #endif
 #ifdef MIRROR_MASK_ALPHA
 	gl_FragColor = vec4(0.0,0.0,0.0,step(0.7,color.a*tex.a)); // the same 0.7 threshold
