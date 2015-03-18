@@ -1852,8 +1852,11 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			t.interrupt(); // boost::this_thread::sleep_for() is interruptible
 			// danger 2: if pathTraceFrame() ends and we abort it at the same time, aborting might stay true, so next operation[s] will abort too
 			//           t.join() here would fix it, but we would have to benchmark, ensure that it does not slowdown
+			bool skipThisFrame = solver->aborting;
 			solver->aborting = false;
 			prevIdleTime.setNow(); // without this, OnIdle would think that we spent all time since last OnIdle pressing key
+			if (skipThisFrame)
+				return true; // pretend that SwapBuffers was already called
 
 			rr_gl::ToneParameters tp;
 			if (svs.renderTonemapping)
