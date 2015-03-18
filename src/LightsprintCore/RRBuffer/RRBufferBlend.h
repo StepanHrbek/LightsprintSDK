@@ -36,12 +36,12 @@ public:
 	virtual void setElement(unsigned index, const RRVec4& element, const RRColorSpace* colorSpace) {report("setElement");}
 
 	// reading
-	virtual RRBufferType getType()                                   const {report("getType");return BT_2D_TEXTURE;}
-	virtual unsigned getWidth()                                      const {report("getWidth");return 1;}
-	virtual unsigned getHeight()                                     const {report("getHeight");return 1;}
-	virtual unsigned getDepth()                                      const {report("getDepth");return 1;}
-	virtual RRBufferFormat getFormat()                               const {report("getFormat");return BF_RGBAF;}
-	virtual bool getScaled()                                         const {return false;}
+	virtual RRBufferType getType()                                   const {return BT_CUBE_TEXTURE;} // necessary for createEquirectangular() to work
+	virtual unsigned getWidth()                                      const {return environment0?environment0->getWidth():1;} // necessary for createEquirectangular() to work
+	virtual unsigned getHeight()                                     const {return environment0?environment0->getHeight():1;} // necessary for createEquirectangular() to work
+	virtual unsigned getDepth()                                      const {return 6;}
+	virtual RRBufferFormat getFormat()                               const {return environment0?environment0->getFormat():BF_RGBA;}
+	virtual bool getScaled()                                         const {return environment0?environment0->getScaled():false;}
 	virtual unsigned getBufferBytes()                                const {return sizeof(*this);}
 	virtual RRVec4 getElement(unsigned index, const RRColorSpace* colorSpace)const {report("getElement");return RRVec4(0);}
 	virtual RRVec4 getElementAtPosition(const RRVec3& position, const RRColorSpace* colorSpace, bool interpolated) const {report("getElementAtPosition");return RRVec4(0);}

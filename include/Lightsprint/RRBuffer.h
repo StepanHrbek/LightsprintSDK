@@ -374,7 +374,8 @@ namespace rr
 		//! Creates blend of two rotated environments (2d or cubemaps), as in RRSolver's environment.
 		//
 		//! Parameters are identical to RRSolver::setEnvironment() and RRSolver::setEnvironmentBlendFactor().
-		//! Created buffer is suitable for pathtracing, it has only getElementAtDirection() implemented, other functions are not available.
+		//! Created buffer is suitable only for pathtracing and for createEquirectangular(),
+		//! because it has only getElementAtDirection() and some basic getWidth/Height() implemented, other functions are not available.
 		//! It is cheap to create, as it doesn't copy any data, it accesses original buffers when needed.
 		static RRBuffer* createEnvironmentBlend(RRBuffer* environment0, RRBuffer* environment1, RRReal angleRad0, RRReal angleRad1, RRReal blendFactor);
 
