@@ -1611,8 +1611,8 @@ bool SVCanvas::Paint(bool _takingSshot, const wxString& extraMessage)
 
 
 // [#47] called from renderer to detect user interaction (so that very slow rendering can be aborted)
-bool g_hasPendingEvents = false;
-bool hasPendingEvents()
+bool g_wasKeyOrButtonPressed = false;
+bool isKeyOrButtonPressed()
 {
 	// a) return wxAppConsole::GetInstance()->HasPendingEvents(); does not work, it is always false
 	// b) test state of the most important buttons
@@ -1624,7 +1624,7 @@ bool hasPendingEvents()
 		|| wxGetKeyState(WXK_ESCAPE) || wxGetKeyState(WXK_F4);
 	if (m || k)
 	{
-		g_hasPendingEvents = true;
+		g_wasKeyOrButtonPressed = true;
 		//wxAppConsole::GetInstance()->OnAnyChange(SVFrame::ES_MOUSE,nullptr,nullptr,0);
 	}
 	return m || k;
@@ -1792,9 +1792,14 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		// start chaining plugins
 		const rr_gl::PluginParams* pluginChain = nullptr;
 
-		if (g_hasPendingEvents)
+		if (g_wasKeyOrButtonPressed)
 		{
-			g_hasPendingEvents = false;
+			g_wasKeyOrButtonPressed = false;
+			// We can do this in first OnPaint right after solver->pathTraceFrame(),
+			//  but eventual drop-down animation is not yet running and countdown to pathtracer already started,
+			//  we would need to increase countdown from 0.2s to 0.3s.
+			// So we better finish first OnPaint, let wx run eventual drop-down animation,
+			//  and start countdown here at the beginning of second OnPaint.
 			svframe->lastInteractionTime.setNow();
 		}
 		if (svs.renderLightIndirect==LI_PATHTRACED || (svs.renderLightIndirect==LI_PATHTRACED_FIREBALL && svframe->lastInteractionTime.secondsPassed()>0.2f))
@@ -1836,7 +1841,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			// solver->pathTraceFrame() with decorations that make it abortable
 			boost::thread t([](rr::RRSolver* solver)
 			{
-				while (!hasPendingEvents())
+				while (!isKeyOrButtonPressed())
 					boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
 				solver->aborting = true; 
 			},solver);
