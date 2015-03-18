@@ -12,10 +12,14 @@ namespace rr
 
 NEWS
 
-- RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
-- RRBuffer::seek()
-- RRCamera::PC_TRUNCATE_TOP_BOT
-- import of *.ifc, *.ifczip
+- <b>improved pathtracer</b>
+  - path+fire mode in SceneViewer is very responsive (you can navigate camera in realtime, majority of settings in panels respond in realtime)
+  - SmallLuxGPU4 pathtracer updated to the most recent version, supports more Lightsprint SDK features, so slg4 renders are closer to Lightsprint renders
+- misc
+  - RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
+  - RRBuffer::seek()
+  - RRCamera::PC_TRUNCATE_TOP_BOT
+  - import of *.ifc, *.ifczip
 
 CHANGES
 
