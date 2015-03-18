@@ -77,8 +77,6 @@ enum LightingIndirect
 	LI_AMBIENTMAPS,          ///< Indirect illumination is taken from baked ambient maps in layerBakedAmbient.
 	LI_REALTIME_ARCHITECT,   ///< Indirect illumination is realtime computed by Architect solver. No precalculations. If not sure, use Fireball.
 	LI_REALTIME_FIREBALL,    ///< Indirect illumination is realtime computed by Fireball solver. Fast.
-	LI_PATHTRACED,
-	LI_PATHTRACED_FIREBALL,
 };
 
 //! Transparency modes used by realtime renderer, to trade speed/quality. Offline GI solver always works as if the highest quality mode is selected.
@@ -140,7 +138,7 @@ struct SceneViewerState
 	bool             dofAutomaticFocusDistance; //! For depth of field effect only: set dof near/far automatically.
 	bool             renderLightDirect;         //! False disables realtime direct lighting based on glsl+shadowmaps.
 	LightingIndirect renderLightIndirect;       //! Indirect illumination mode.
-	bool             renderLightDirectRelevant() {return renderLightIndirect!=LI_PATHTRACED && renderLightIndirect!=LI_LIGHTMAPS;}
+	bool             renderLightDirectRelevant() {return renderLightIndirect!=LI_LIGHTMAPS;}
 	bool             renderLightDirectActive() {return renderLightDirect && renderLightDirectRelevant();}
 
 	bool             multipliersEnabled;
@@ -151,7 +149,7 @@ struct SceneViewerState
 	rr::RRSolver::Multipliers getMultipliersIndirect() {return multipliersEnabled ? multipliers*multipliersIndirect : rr::RRSolver::Multipliers();}
 
 	bool             renderLDM;                 //! Modulate indirect illumination by LDM.
-	bool             renderLDMRelevant() {return renderLightIndirect!=LI_PATHTRACED && renderLightIndirect!=LI_LIGHTMAPS && renderLightIndirect!=LI_AMBIENTMAPS && renderLightIndirect!=LI_NONE;}
+	bool             renderLDMRelevant() {return renderLightIndirect!=LI_LIGHTMAPS && renderLightIndirect!=LI_AMBIENTMAPS && renderLightIndirect!=LI_NONE;}
 	bool             renderLDMEnabled() {return renderLDM && renderLDMRelevant();}
 	bool             renderLightmaps2d;         //! When not rendering realtime, show static lightmaps in 2D.
 	bool             renderLightmapsBilinear;   //! Render lightmaps with bilinear interpolation rather than without it.
@@ -182,6 +180,8 @@ struct SceneViewerState
 	bool             tonemappingAutomatic;      //! Automatically adjust tonemappingBrightness.
 	float            tonemappingAutomaticTarget;//! Target average screen intensity for tonemappingAutomatic.
 	float            tonemappingAutomaticSpeed; //! Speed of automatic tonemapping change.
+	bool             pathEnabled;               //! Enables pathtracer after 0.2s of inactivity.
+	bool             pathShortcut;              //! Lets pathtracer reuse indirect from Fireball/Arch solvers, if available.
 	bool             ssgiEnabled;               //! Apply SSGI postprocess.
 	float            ssgiIntensity;             //! Intensity of SSGI effect, with 1=default, 0=no effect.
 	float            ssgiRadius;                //! Distance of occluders (in meters) taken into account when calculating SSGI.
@@ -301,6 +301,8 @@ struct SceneViewerState
 		tonemappingAutomaticTarget = 0.5f;
 		tonemappingAutomaticSpeed = 1;
 		tonemapping = rr_gl::ToneParameters();
+		pathEnabled = false;
+		pathShortcut = true;
 		ssgiEnabled = true;
 		ssgiIntensity = 1.0f;
 		ssgiRadius = 0.3f;
@@ -420,6 +422,8 @@ struct SceneViewerState
 			&& a.tonemapping.gamma==tonemapping.gamma
 			&& a.tonemapping.hsv==tonemapping.hsv
 			&& a.tonemapping.steps==tonemapping.steps
+			&& a.pathEnabled==pathEnabled
+			&& a.pathShortcut==pathShortcut
 			&& a.ssgiEnabled==ssgiEnabled
 			&& a.ssgiIntensity==ssgiIntensity
 			&& a.ssgiRadius==ssgiRadius

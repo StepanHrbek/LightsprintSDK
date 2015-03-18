@@ -20,8 +20,8 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 {
 	// technique
 	{
-		const wxChar* strings[] = {_("pathtracing (experimental)"),_("Fire+path (experimental)"),_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),nullptr};
-		const long values[] = {LI_PATHTRACED,LI_PATHTRACED_FIREBALL,LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_LIGHTMAPS,LI_AMBIENTMAPS,LI_CONSTANT,LI_NONE};
+		const wxChar* strings[] = {_("realtime Fireball (fast)"),_("realtime Architect (no precalc)"),_("lightmaps"),_("ambient maps"),_("constant ambient"),_("none"),nullptr};
+		const long values[] = {LI_REALTIME_FIREBALL,LI_REALTIME_ARCHITECT,LI_LIGHTMAPS,LI_AMBIENTMAPS,LI_CONSTANT,LI_NONE};
 		propGITechnique = new wxEnumProperty(_("Technique"),wxPG_LABEL,strings,values);
 		propGITechnique->SetHelpString(_("What base GI technique to use. Note that additional techniques (SSGI, Cubemap reflections, Mirror reflections) are enabled separately, so even if you set 'constant ambient' or 'none' here, you might still see indirect light from cubemaps or mirrors."));
 		Append(propGITechnique);
@@ -188,6 +188,17 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		SetPropertyBackgroundColour(propGIMultipliers,importantPropertyBackgroundColor,false);
 	}
 
+	// pathtracer
+	{
+		propGIPath = new BoolRefProperty(_("Pathtracer"),_("Switches to pathtracing after moment of inactivity."),svs.pathEnabled);
+		Append(propGIPath);
+
+		propGIPathShortcut = new BoolRefProperty(_("Shortcut"),_("Reuses data from Fireball/Architect solvers if available, for less noise, but slower convergence."),svs.pathShortcut);
+		AppendIn(propGIPath,propGIPathShortcut);
+
+		SetPropertyBackgroundColour(propGIPath,importantPropertyBackgroundColor,false);
+	}
+
 	// SSGI
 	{
 		propGISSGI = new BoolRefProperty(_("SSGI"),_("Screen space global illumination improves quality of constant and realtime indirect illumination. SSGI works without any precalculations, however, it is slower and looks worse than LDM."),svs.ssgiEnabled);
@@ -254,12 +265,12 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 //! Must not be called in every frame, float property that is unhid in every frame loses focus immediately after click, can't be edited.
 void SVGIProperties::updateHide()
 {
-	propGISRGBCorrect->Hide(svs.renderLightIndirect==LI_PATHTRACED || (svframe->m_canvas && svframe->m_canvas->fullyCreated && !supportsSRGB()),false);
+	propGISRGBCorrect->Hide(svframe->m_canvas && svframe->m_canvas->fullyCreated && !supportsSRGB(),false);
 	propGIShadowTransparency->Hide(!svs.renderLightDirectActive(),false);
 
-	propGIFireball->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL && svs.renderLightIndirect!=LI_PATHTRACED_FIREBALL,false);
+	propGIFireball->Hide(svs.renderLightIndirect!=LI_REALTIME_FIREBALL,false);
 
-	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_PATHTRACED_FIREBALL;
+	bool realtimeGI = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
 	propGILDM->Hide(!svs.renderLDMRelevant(),false);
 	//propGIIndirectMultiplier->Hide(svs.renderLightIndirect==LI_NONE || svs.renderLightIndirect==LI_CONSTANT || svs.renderLightIndirect==LI_BAKED,false);
 	//propGIEmisMultiplier->Hide(!realtimeGI,false);
@@ -278,18 +289,17 @@ void SVGIProperties::updateHide()
 	propGISkyMultiplier->Hide(!svs.multipliersEnabled,false);
 	propGIEmisMultiplier->Hide(!svs.multipliersEnabled,false);
 
-	propGISSGI->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
+	propGIPathShortcut->Hide(!svs.pathEnabled,false);
+
 	propGISSGIIntensity->Hide(!svs.ssgiEnabled,false);
 	propGISSGIRadius->Hide(!svs.ssgiEnabled,false);
 	propGISSGIAngleBias->Hide(!svs.ssgiEnabled,false);
 
-	propGIRaytracedCubes->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
 	propGIRaytracedCubesRes->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesSpecularThreshold->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesDepthThreshold->Hide(!svs.raytracedCubesEnabled,false);
 	
-	propGIMirrors->Hide(svs.renderLightIndirect==LI_PATHTRACED,false);
 	propGIMirrorsDiffuse->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsSpecular->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsQuality->Hide(!svs.mirrorsEnabled,false);
@@ -398,11 +408,6 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 			svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL);
 		if (svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT);
-		if (svs.renderLightIndirect==LI_PATHTRACED_FIREBALL)
-		{
-			svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL);
-			svs.renderLightIndirect = (LightingIndirect)property->GetValue().GetInteger();
-		}
 		updateHide();
 	}
 	else
@@ -514,6 +519,13 @@ void SVGIProperties::OnPropertyChange(wxPropertyGridEvent& event)
 				}
 			}
 		}
+	}
+	else
+
+	// path
+	if (property==propGIPath)
+	{
+		updateHide();
 	}
 	else
 

@@ -169,7 +169,6 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
 
 	pathTracedBuffer = nullptr;
 	pathTracedAccumulator = 0;
-	pathTracedTechnique = LI_PATHTRACED;
 #ifdef SUPPORT_OCULUS
 	oculusTexture[0] = nullptr;
 	oculusTexture[1] = nullptr;
@@ -370,10 +369,6 @@ void SVCanvas::createContextCore()
 				// create architect
 				svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_ARCHITECT);
 				break;
-			case LI_PATHTRACED_FIREBALL:
-				svframe->OnMenuEventCore(SVFrame::ME_LIGHTING_INDIRECT_FIREBALL);
-				svs.renderLightIndirect = LI_PATHTRACED_FIREBALL;
-				break;
 			default:
 				// no action needed for other modes. just to avoid warning
 				break;
@@ -502,7 +497,7 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 	// fix svs.renderLightIndirect, setStaticObjects() just silently switched solver to architect
 	// must be changed if setStaticObjects() behaviour changes
 	// we don't switch to architect, but rather to const ambient, because architect ignores environment, scenes without lights are black
-	if (staticObjectsModified && (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_PATHTRACED_FIREBALL))
+	if (staticObjectsModified && svs.renderLightIndirect==LI_REALTIME_FIREBALL)
 	{
 		svs.renderLightIndirect = LI_CONSTANT;
 	}
@@ -1665,7 +1660,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			float blend = skyboxBlendingStartTime.secondsPassed()/3;
 			// blending adds small CPU+GPU overhead, so don't blend if not necessary
 			// blend only if 3sec period running && second texture is present && differs from first one
-			if (blend>=0 && blend<=1 && solver->getEnvironment(1) && solver->getEnvironment(0)!=solver->getEnvironment(1) && svs.renderLightIndirect!=LI_PATHTRACED)
+			if (blend>=0 && blend<=1 && solver->getEnvironment(1) && solver->getEnvironment(0)!=solver->getEnvironment(1))
 			{
 				// blend
 				solver->setEnvironmentBlendFactor(1-blend);
@@ -1737,14 +1732,14 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			svs.camera.setRangeDynamically(solver,false,svs.cameraDynamicNearNumRays);
 		}
 
-		if (svs.renderLightDirectActive() || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_PATHTRACED_FIREBALL)
+		if (svs.renderLightDirectActive() || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
 			for (unsigned i=0;i<solver->realtimeLights.size();i++)
 				solver->realtimeLights[i]->shadowTransparencyRequested = svs.shadowTransparency;
 			rr::RRSolver::CalculateParameters params;
 			params.rr::RRSolver::Multipliers::operator=(svs.getMultipliersIndirect());
-			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_PATHTRACED_FIREBALL)
+			if (svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 			{
 				// rendering indirect -> calculate will update shadowmaps, possibly resample environment and emissive maps, improve indirect
 				params.materialEmittanceStaticQuality = 17;
@@ -1802,17 +1797,12 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			//  and start countdown here at the beginning of second OnPaint.
 			svframe->lastInteractionTime.setNow();
 		}
-		if (svs.renderLightIndirect==LI_PATHTRACED || (svs.renderLightIndirect==LI_PATHTRACED_FIREBALL && svframe->lastInteractionTime.secondsPassed()>0.2f))
+		if (svs.pathEnabled && svframe->lastInteractionTime.secondsPassed()>0.2f)
 		{
 			//
 			// renderpath 1 - pathtracer
 			//
 			rr::RRReportInterval report(rr::INF3,"pathtrace scene...\n");
-			if (svs.renderLightIndirect!=pathTracedTechnique)
-			{
-				pathTracedTechnique = svs.renderLightIndirect;
-				pathTracedAccumulator = 0;
-			}
 			if (!pathTracedBuffer)
 				pathTracedBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,false,nullptr);
 			unsigned pathTraceWidth = winWidth;
@@ -1835,8 +1825,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			params.brdfTypes = rr::RRMaterial::BrdfType( (svs.renderMaterialDiffuse?rr::RRMaterial::BRDF_DIFFUSE:0) + (svs.renderMaterialSpecular?rr::RRMaterial::BRDF_SPECULAR:0) + ((svs.renderMaterialTransparency!=T_OPAQUE)?rr::RRMaterial::BRDF_TRANSMIT:0) );
 			unsigned shortcut = (unsigned)sqrtf((float)(pathTracedAccumulator/10)); // starts at 0, increases on frames 10, 40, 90, 160 etc
 			params.useFlatNormalsSinceDepth = shortcut+1;
-			params.useSolverDirectSinceDepth = svs.renderLightIndirect==LI_PATHTRACED_FIREBALL ? shortcut+1 : UINT_MAX;
-			params.useSolverIndirectSinceDepth = svs.renderLightIndirect==LI_PATHTRACED_FIREBALL ? shortcut : UINT_MAX;
+			params.useSolverDirectSinceDepth = svs.pathShortcut ? shortcut+1 : UINT_MAX;
+			params.useSolverIndirectSinceDepth = svs.pathShortcut ? shortcut : UINT_MAX;
 
 			// solver->pathTraceFrame() with decorations that make it abortable
 			boost::thread t([](rr::RRSolver* solver)
@@ -1962,10 +1952,10 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			// There was updateLayers=true by accident since rev 5221 (I think development version of mirrors needed it to update mirrors, and I forgot to revert it).
 			// It was error, because "true" when rendering static lmap allows PluginScene [#12] to use multiobj.
 			// And as lmap is always stored in 1obj, PluginScene can't find it in multiobj. Error was visible only with specular cubes disabled (they also enforce 1obj).
-			ppScene.updateLayerLightmap = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_PATHTRACED_FIREBALL;
-			ppScene.updateLayerEnvironment = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_PATHTRACED_FIREBALL;
+			ppScene.updateLayerLightmap = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
+			ppScene.updateLayerEnvironment = svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT;
 			ppScene.layerLightmap = (svs.renderLightIndirect==LI_LIGHTMAPS)?svs.layerBakedLightmap:((svs.renderLightIndirect==LI_AMBIENTMAPS)?svs.layerBakedAmbient:svs.layerRealtimeAmbient);
-			ppScene.layerEnvironment = svs.raytracedCubesEnabled?((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_PATHTRACED_FIREBALL)?svs.layerRealtimeEnvironment:svs.layerBakedEnvironment):UINT_MAX;
+			ppScene.layerEnvironment = svs.raytracedCubesEnabled?((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)?svs.layerRealtimeEnvironment:svs.layerBakedEnvironment):UINT_MAX;
 			ppScene.layerLDM = svs.renderLDMEnabled()?svs.layerBakedLDM:UINT_MAX;
 			ppScene.wireframe = svs.renderWireframe;
 			ppScene.mirrorOcclusionQuery = svs.mirrorsOcclusion;
@@ -2125,7 +2115,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				&& svs.tonemappingAutomatic
 				&& !svs.renderWireframe
 				&& (((svs.renderLightIndirect==LI_LIGHTMAPS || svs.renderLightIndirect==LI_AMBIENTMAPS) && solver->containsLightSource())
-					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT || svs.renderLightIndirect==LI_PATHTRACED_FIREBALL) && solver->containsRealtimeGILightSource())
+					|| ((svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT) && solver->containsRealtimeGILightSource())
 					|| svs.renderLightIndirect==LI_CONSTANT
 					|| (solver->getEnvironment() && solver->getStaticObjects().size()+solver->getDynamicObjects().size()==0)
 					);
@@ -2453,10 +2443,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				const char* strIndirect = "?";
 				switch (svs.renderLightIndirect)
 				{
-					case LI_PATHTRACED: strIndirect = "path"; break;
 					case LI_REALTIME_FIREBALL: strIndirect = "fireball"; break;
 					case LI_REALTIME_ARCHITECT: strIndirect = "architect"; break;
-					case LI_PATHTRACED_FIREBALL: strIndirect = "path-fire"; break;
 					case LI_LIGHTMAPS: strIndirect = "lightmaps"; break;
 					case LI_AMBIENTMAPS: strIndirect = "ambientmaps"; break;
 					case LI_CONSTANT: strIndirect = "constant"; break;

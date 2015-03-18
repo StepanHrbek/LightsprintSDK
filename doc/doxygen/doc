@@ -1063,6 +1063,11 @@ Material formats (1)
   Our current implementation is experimental, not yet ready for production.
   In many cases results are too noisy and the noise does not disappear, even if you wait for very long time.
 
+  Sometimes Fireball and pathtracer produce very different results, so switching between them looks strange.
+  It is usually because of unrealistic materials,
+  Fireball tries to render materials as they are, while pathtracer renders only physically possible parts of materials.
+  But other sources of differences are possible. In some cases, quality of Fireball lighting is simply too bad.
+
  \section artist_path_shadows Shadows on background
 
     <table border=0><tr align=top><td>
@@ -1075,21 +1080,15 @@ Material formats (1)
 
   This is currently supported only by pathtracer, other techniques render "background" material fully visible.
 
- \section artist_fire_path Fire+Path
+ \section artist_fire_path Shortcut
 
-  Fire+Path technique (available in SceneViewer) combines Fireball and pathtracing techniques.
-  It works by switching from Firebal to pathtracer after 0.2s of inactivity.
-  And as Fireball already has lower quality solution calculated, pathtracer uses it to reduce noise.
+  Checkbox "Shortcut" in SceneViewer lets pathtracer reuse illumination already calculated
+  by Fireball or Architect solver.
 
-  So it's like Fireball, with all its advantages and disadvantages, but quality improves when you stop moving.
- 
-  Compared to plain pathtracer, Fire+Path starts with minimal noise thanks to using Fireball results,
-  but if those Fireball results were badly wrong, it takes longer to converge to good results.
+  This greatly reduces noise in first seconds, but it makes convergence to proper results slower, so it harms long renders.
 
-  Sometimes Fireball and pathtracer produce very different results, so switching between them looks strange.
-  It is usually because of unrealistic materials,
-  Fireball tries to render materials as they are, while pathtracer renders only physically possible parts of materials.
-  But other sources of differences are possible. In some cases, quality of Fireball lighting is simply too bad.
+  It is recommended to use Shortcut only with Fireball or Architect solver. If you switch to other technique
+  and manipulate scene, Shorcut can produce wrong results because it accesses outdated data in Fireball/Architect solvers.
 
 
 

@@ -86,6 +86,9 @@ namespace rr_ed
 		wxPGProperty*     propGIEmisMultiplierDirect;
 		wxPGProperty*     propGIEmisMultiplierIndirect;
 
+		wxPGProperty*     propGIPath;
+		wxPGProperty*     propGIPathShortcut;
+
 		BoolRefProperty*  propGISSGI;
 		wxPGProperty*     propGISSGIIntensity;
 		wxPGProperty*     propGISSGIRadius;
