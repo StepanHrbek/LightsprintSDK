@@ -140,7 +140,7 @@ std::ostream & operator<<(std::ostream &os, const SlgTexture& slgTexture)
 	}
 	// texture not found in textures? fall back to flat color
 	if (slgTexture.property)
-		return os << slgTexture.property->color;
+		return os << slgTexture.property->colorLinear;
 	// we should not get here
 	RR_ASSERT(0);
 	return os;
