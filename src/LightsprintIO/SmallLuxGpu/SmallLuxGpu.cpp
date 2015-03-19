@@ -395,6 +395,8 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 							ofs	<< "scene.lights.light" << i << ".coneangle = " << RR_RAD2DEG(light->outerAngleRad) << "\n";
 							ofs << "scene.lights.light" << i << ".conedeltaangle = " << RR_RAD2DEG(light->fallOffAngleRad) << "\n";
 							ofs << "scene.lights.light" << i << ".power = " << light->spotExponent << "\n"; // it seems to have no effect
+							if (light->spotExponent!=1)
+								RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu light: does not support spot exponent.\n"));
 						}
 						ofs << "scene.lights.light" << i << ".target = " << convertPos(light->position+light->direction) << "\n";
 						break;
