@@ -111,7 +111,7 @@ std::ostream & operator<<(std::ostream &os, const SlgTexture& slgTexture)
 						os << "	scene.textures.sampler" << numSamplers << ".type = scale\n";
 						os << "	scene.textures.sampler" << numSamplers << ".texture1 = tex" << textureIndex << "\n";
 						os << "	scene.textures.sampler" << numSamplers << ".texture2 = " << 0.01f*slgTexture.material->bumpMap.color.y;
-						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu bump works differently, can't be exported accurately.\n"));
+						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu material: bump works differently, can't be exported accurately.\n"));
 						numSamplers++;
 					}
 					else
@@ -123,7 +123,10 @@ std::ostream & operator<<(std::ostream &os, const SlgTexture& slgTexture)
 						os << "	scene.textures.sampler" << numSamplers << ".texture2 = 0\n";
 						if (slgTexture.material->specularTransmittanceInAlpha)
 							os << "	scene.textures.sampler" << numSamplers << ".channel = alpha\n";
-						os << "	scene.textures.sampler" << numSamplers << ".gamma = 0.45";
+						if (!slgTexture.material->specularTransmittanceInAlpha)
+							RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu material: current slg4 ignores specular transmittance texture color, works in grayscale.\n"));
+						os << "	scene.textures.sampler" << numSamplers << ".gamma = 0.45"; // does not work
+						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu material: specular transmittance has wrong gamma.\n"));
 						numSamplers++;
 					}
 					else
@@ -174,7 +177,7 @@ bool savePly(const RRObject* object, const RRString& filename)
 				if (uvChannel==-1)
 					uvChannel = i;
 				else
-					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu .ply doesn't support multiple uvs, mapping might be broken.\n"));
+					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu object: .ply doesn't support multiple uvs, mapping might be broken.\n"));
 			}
 
 		// header
@@ -247,12 +250,14 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 		if (scene->cameras.size())
 		{
 			const RRCamera& eye = scene->cameras[0];
+			if (eye.isOrthogonal())
+				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu camera: does not support ortho.\n"));
 			ofs << "scene.camera.lookat.orig = " << convertPos(eye.getPosition()) << "\n";
 			ofs << "scene.camera.lookat.target = " << convertPos(eye.getPosition()+eye.getDirection()) << "\n";
 			ofs << "scene.camera.up = " << convertDir(eye.getUp()) << "\n";
 			ofs << "scene.camera.fieldofview = " << eye.getFieldOfViewHorizontalDeg() << "\n";
 			if (eye.getScreenCenter()!=RRVec2(0))
-				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu does not support non-zero screenCenter.\n"));
+				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu camera: does not support non-zero screenCenter.\n"));
 			// dof
 			ofs << "scene.camera.focaldistance = " << (eye.dofNear+eye.dofFar)/2 << "\n";
 			ofs << "scene.camera.lensradius = " << eye.apertureDiameter << "\n";
@@ -270,13 +275,13 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 						ofs << "scene.camera.horizontalstereo.oculusrift.barrelpostpro.enable = 1\n";
 						break;
 					default:
-						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu does not support this stereo mode (only side-by-side and Oculus Rift).\n"));
+						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu camera: does not support this stereo mode (only side-by-side and Oculus Rift).\n"));
 						break;
 				}
 			}
 			// panorama
 			if (eye.panoramaMode!=RRCamera::PM_OFF)
-				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu does not support panorama modes.\n"));
+				RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu camera: does not support panorama modes.\n"));
 			ofs << "################################################################################\n";
 		}
 
@@ -382,7 +387,7 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 							ofs << "scene.lights.light" << i << ".fov = " << RR_RAD2DEG(light->outerAngleRad) << "\n";
 							//!!! texture is 90 deg rotated. it seems that transformation depends on position+target
 							//ofs << "scene.lights.light" << i << ".transformation = 1.0 0.0 0.0 0.0  0.0 1.0 0.0 0.0  0.0 0.0 1.0 0.0  0.0 0.0 0.0 1.0\n";
-							RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu renders projected texture 90deg rotated, did not yet find solution.\n"));
+							RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu light: projected texture is 90deg rotated.\n"));
 						}
 						else
 						{
@@ -404,12 +409,12 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 				{
 					ofs << "scene.lights.light" << i << ".position = " << convertPos(light->position) << "\n";
 					if (light->distanceAttenuationType!=RRLight::REALISTIC)
-						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu supports only REALISTIC distance attenuation.\n"));
+						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu light: does not support non-REALISTIC distance attenuation.\n"));
 				}
 				if (!light->castShadows)
-					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu does not support disabled shadows.\n"));
+					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu light: does not support disabled shadows.\n"));
 				if (light->directLambertScaled)
-					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu does not support sRGB incorrect lights.\n"));
+					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu light: does not support sRGB incorrect adding.\n"));
 				if (i+1<scene->lights.size())
 					ofs << "\n";
 			}
@@ -492,7 +497,7 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 				if (i+1<materials.size())
 					ofs << "#\n";
 				if (m->specularTransmittanceKeyed)
-					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu does not support 1bit specular transmittance.\n"));
+					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu material: does not support 1bit specular transmittance.\n"));
 			}
 		}
 		ofs << "################################################################################\n";
@@ -510,7 +515,7 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 				ofs << "scene.objects.obj" << i << ".ply = " << plyFilename.filename().string() << "\n"; //!!! breaks unicode
 				savePly(object,RR_PATH2RR(plyFilename));
 				if (object->faceGroups.size()!=1)
-					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu doesn't support multiple materials per mesh, split objects by materials before exporting.\n"));
+					RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu object: doesn't support multiple materials per mesh, split objects by materials before exporting.\n"));
 				if (object->faceGroups.size())
 				{
 					const RRMaterial* m = object->faceGroups[0].material;
