@@ -394,7 +394,7 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 							ofs << "scene.lights.light" << i << ".type = spot\n";
 							ofs	<< "scene.lights.light" << i << ".coneangle = " << RR_RAD2DEG(light->outerAngleRad) << "\n";
 							ofs << "scene.lights.light" << i << ".conedeltaangle = " << RR_RAD2DEG(light->fallOffAngleRad) << "\n";
-							ofs << "scene.lights.light" << i << ".power = " << light->spotExponent << "\n";
+							ofs << "scene.lights.light" << i << ".power = " << light->spotExponent << "\n"; // it seems to have no effect
 						}
 						ofs << "scene.lights.light" << i << ".target = " << convertPos(light->position+light->direction) << "\n";
 						break;
@@ -402,8 +402,10 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 						ofs << "scene.lights.light" << i << ".type = point\n";
 						break;
 				}
-				ofs << "scene.lights.light" << i << ".color = " << light->color << "\n";
-				ofs << "scene.lights.light" << i << ".gain = 3 3 3\n";
+				// slg4_dir and slg4_point use color*gain, but slg4_spot uses only gain
+				//ofs << "scene.lights.light" << i << ".color = " << light->color << "\n";
+				//ofs << "scene.lights.light" << i << ".gain = 3 3 3\n";
+				ofs << "scene.lights.light" << i << ".gain = " << light->color*3 << "\n";
 				
 				if (light->type!=RRLight::DIRECTIONAL)
 				{
