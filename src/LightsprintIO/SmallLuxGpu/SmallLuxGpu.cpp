@@ -77,22 +77,23 @@ struct SlgTexture
 {
 	const RRMaterial* material;
 	const RRMaterial::Property* property;
-	const RRLight* light;
+	//const RRLight* light;
 	const RRBuffer* buffer;
 	SlgTexture(const RRMaterial* _material, const RRMaterial::Property* _property)
 	{
 		material = _material;
 		property = _property;
-		light = nullptr;
+	//	light = nullptr;
 		buffer = (material && property) ? property->texture : nullptr;
 	}
-	SlgTexture(const RRLight* _light)
-	{
-		material = nullptr;
-		property = nullptr;
-		light = _light;
-		buffer = light ? light->projectedTexture : nullptr;
-	}
+	// doesn't work, slg4 light wants filename, not texture
+	//SlgTexture(const RRLight* _light)
+	//{
+	//	material = nullptr;
+	//	property = nullptr;
+	//	light = _light;
+	//	buffer = light ? light->projectedTexture : nullptr;
+	//}
 };
 
 std::ostream & operator<<(std::ostream &os, const SlgTexture& slgTexture)
@@ -289,8 +290,8 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 		RRMaterials materials;
 		scene->objects.getAllMaterials(materials);
 		textures.clear();
-		for (unsigned i=0;i<scene->lights.size();i++)
-			textures.insert(scene->lights[i]->projectedTexture);
+		//for (unsigned i=0;i<scene->lights.size();i++)
+		//	textures.insert(scene->lights[i]->projectedTexture);
 		for (unsigned i=0;i<materials.size();i++)
 			if (materials[i])
 			{
@@ -383,7 +384,8 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 						if (light->projectedTexture)
 						{
 							ofs << "scene.lights.light" << i << ".type = projection\n";
-							ofs << "scene.lights.light" << i << ".mapfile = " << SlgTexture(light) << "\n"; //!!! no unicode
+							//ofs << "scene.lights.light" << i << ".mapfile = " << SlgTexture(light) << "\n"; //!!! no unicode
+							ofs << "scene.lights.light" << i << ".mapfile = " << light->projectedTexture->filename.c_str() << "\n"; //!!! no unicode
 							ofs << "scene.lights.light" << i << ".fov = " << RR_RAD2DEG(light->outerAngleRad) << "\n";
 							//!!! texture is 90 deg rotated. it seems that transformation depends on position+target
 							//ofs << "scene.lights.light" << i << ".transformation = 1.0 0.0 0.0 0.0  0.0 1.0 0.0 0.0  0.0 0.0 1.0 0.0  0.0 0.0 0.0 1.0\n";
