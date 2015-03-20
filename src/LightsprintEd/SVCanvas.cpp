@@ -1840,8 +1840,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			//           BOOST_SCOPE_EXIT here would fix it, but it makes code harder to read
 			solver->pathTraceFrame(ppSharedCamera,pathTracedBuffer,pathTracedAccumulator,params);
 			t.interrupt(); // boost::this_thread::sleep_for() is interruptible
-			// danger 2: if pathTraceFrame() ends and we abort it at the same time, aborting might stay true, so next operation[s] will abort too
-			//           t.join() here would fix it, but we would have to benchmark, ensure that it does not slowdown
+			t.join(); // without join, release version terminates ocassionally when isKeyOrButtonPressed detects button click
 			bool skipThisFrame = solver->aborting;
 			solver->aborting = false;
 			prevIdleTime.setNow(); // without this, OnIdle would think that we spent all time since last OnIdle pressing key
