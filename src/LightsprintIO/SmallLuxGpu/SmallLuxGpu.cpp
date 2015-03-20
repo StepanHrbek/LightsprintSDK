@@ -132,6 +132,11 @@ std::ostream & operator<<(std::ostream &os, const SlgTexture& slgTexture)
 					}
 					else
 					{
+/*
+[#39] TODO: kdyz je specTrans=textura
+	-zmenit difRefl na difRefl*(1-specTrans)
+	-zmenit specRefl na specRefl*(1-specTrans)
+*/
 						os << "tex" << textureIndex;
 					}
 					return os;
@@ -429,11 +434,6 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 			ofs << "################################################################################\n";
 
 		// materials
-/*
-[#39] TODO: kdyz je specTrans=textura
-	-zmenit difRefl na difRefl*(1-specTrans)
-	-zmenit specRefl na specRefl*(1-specTrans)
-*/
 		ofs << "scene.materials.null.type = null\n";
 		ofs << "#\n";
 		for (unsigned i=0;i<materials.size();i++)
