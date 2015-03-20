@@ -443,14 +443,14 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 			{
 				if (m->specularReflectance.color==RRVec3(0) && m->specularTransmittance.color==RRVec3(0))
 				{
-					// dif = matte
+					// [dif] = matte
 					ofs << "scene.materials.mat" << i << ".type = matte\n";
 					ofs << "scene.materials.mat" << i << ".kd = " << SlgTexture(m,&m->diffuseReflectance) << "\n";
 				}
 				else
 				if (m->specularReflectance.color!=RRVec3(0) && m->specularTransmittance.color==RRVec3(0))
 				{
-					// dif+spec = glossy
+					// [dif+]spec = glossy
 					ofs << "scene.materials.mat" << i << ".type = glossy2\n";
 					ofs << "scene.materials.mat" << i << ".kd = " << SlgTexture(m,&m->diffuseReflectance) << "\n";
 					ofs << "scene.materials.mat" << i << ".ks = " << SlgTexture(m,&m->specularReflectance) << "\n";
@@ -458,9 +458,9 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 					ofs << "scene.materials.mat" << i << ".vroughness = " << getRoughness(m) << "\n";
 				}
 				else
-				if (m->diffuseReflectance.color==RRVec3(0) && m->specularReflectance.color!=RRVec3(0) && m->specularTransmittance.color!=RRVec3(0))
+				if (m->diffuseReflectance.color==RRVec3(0) && m->specularTransmittance.color!=RRVec3(0))
 				{
-					// spec+trans = glass
+					// [spec+]trans = glass
 					ofs << "scene.materials.mat" << i << ".type = glass\n";
 					ofs << "scene.materials.mat" << i << ".kr = " << SlgTexture(m,&m->specularReflectance) << "\n";
 					ofs << "scene.materials.mat" << i << ".exp = " << m->specularShininess << "\n";
