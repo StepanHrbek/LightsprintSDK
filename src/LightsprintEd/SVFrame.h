@@ -200,7 +200,7 @@ namespace rr_ed
 		BakeDlg                      bakeDlg;
 		UnwrapDlg                    unwrapDlg;
 
-		rr::RRTime                   lastInteractionTime;
+		rr::RRTime                   lastInteractionTime; // OnAnyChange() called, e.g. because item from drop-down list was selected (requires several clicks)
 
 #ifdef SUPPORT_OCULUS
 		ovrHmd                       oculusHMD;

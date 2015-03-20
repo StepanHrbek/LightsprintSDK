@@ -1606,7 +1606,7 @@ bool SVCanvas::Paint(bool _takingSshot, const wxString& extraMessage)
 
 
 // [#47] called from renderer to detect user interaction (so that very slow rendering can be aborted)
-bool g_wasKeyOrButtonPressed = false;
+rr::RRTime g_lastRawInteractionTime;
 bool isKeyOrButtonPressed()
 {
 	// a) return wxAppConsole::GetInstance()->HasPendingEvents(); does not work, it is always false
@@ -1619,7 +1619,9 @@ bool isKeyOrButtonPressed()
 		|| wxGetKeyState(WXK_ESCAPE) || wxGetKeyState(WXK_F4);
 	if (m || k)
 	{
-		g_wasKeyOrButtonPressed = true;
+		// we need to make difference between lastInteractionTime (wx event processed by us), and raw interaction possibly with other program
+		g_lastRawInteractionTime.setNow();
+		// definitely don't call OnAnyChange, we are not in main thread
 		//wxAppConsole::GetInstance()->OnAnyChange(SVFrame::ES_MOUSE,nullptr,nullptr,0);
 	}
 	return m || k;
@@ -1786,22 +1788,13 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 		// start chaining plugins
 		const rr_gl::PluginParams* pluginChain = nullptr;
-
-		if (g_wasKeyOrButtonPressed)
-		{
-			g_wasKeyOrButtonPressed = false;
-			// We can do this in first OnPaint right after solver->pathTraceFrame(),
-			//  but eventual drop-down animation is not yet running and countdown to pathtracer already started,
-			//  we would need to increase countdown from 0.2s to 0.3s.
-			// So we better finish first OnPaint, let wx run eventual drop-down animation,
-			//  and start countdown here at the beginning of second OnPaint.
-			svframe->lastInteractionTime.setNow();
-		}
 		if (svs.pathEnabled && svframe->lastInteractionTime.secondsPassed()>0.2f)
 		{
 			//
 			// renderpath 1 - pathtracer
 			//
+			if (g_lastRawInteractionTime.secondsPassed()<0.3f) // at least 0.3s for drop-down list animation to finish
+				return true; // pretend that SwapBuffers was already called
 			rr::RRReportInterval report(rr::INF3,"pathtrace scene...\n");
 			if (!pathTracedBuffer)
 				pathTracedBuffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGBF,false,nullptr);
@@ -1836,8 +1829,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				solver->aborting = true;
 			},solver);
 			if (!pathTracedAccumulator) pathTracedBuffer->clear(); // if we interrupt pathtracing first frame, it would contains uninitialized pixels
-			// danger 1: if pathTraceFrame() throws, we don't interrupt t and it writes to solver->aborting forever. when we delete solver, it crashes
-			//           BOOST_SCOPE_EXIT here would fix it, but it makes code harder to read
+			// danger: if pathTraceFrame() throws, we don't interrupt t and it writes to solver->aborting forever. when we delete solver, it crashes
+			//         BOOST_SCOPE_EXIT here would fix it, but it makes code harder to read
 			solver->pathTraceFrame(ppSharedCamera,pathTracedBuffer,pathTracedAccumulator,params);
 			t.interrupt(); // boost::this_thread::sleep_for() is interruptible
 			t.join(); // without join, release version terminates ocassionally when isKeyOrButtonPressed detects button click
