@@ -173,8 +173,8 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 
 	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
 	RR_ASSERT(IS_NUMBER(ray.hitDistance));
-	const RRMaterial* material = collisionHandlerGatherHemisphere.getContactMaterial(); // could be point detail, unlike hitTriangle->surface 
-	RRSideBits side=material->sideBits[ray.hitFrontSide?0:1];
+	RRMaterial& material = *(RRMaterial*)collisionHandlerGatherHemisphere.getContactMaterial(); // could be point detail, unlike hitTriangle->surface 
+	RRSideBits side = material.sideBits[ray.hitFrontSide?0:1];
 	Channels exitance = Channels(0);
 	RR_ASSERT(side.renderFrom); // guaranteed by RRCollisionHandlerFinalGathering
 	if (side.legal)
@@ -183,7 +183,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		RRVec3 faceNormal = ray.hitPlane;
 		RRVec3 pixelNormal = faceNormal;
 		if (numBounces<parameters.useFlatNormalsSinceDepth)
-			getPointNormal(ray,*material,true,pixelNormal);
+			getPointNormal(ray,material,true,pixelNormal);
 
 		// normals go from hit side now
 		if (!ray.hitFrontSide)
@@ -199,11 +199,9 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		float lightMultiplier = numBounces ? parameters.indirect.lightMultiplier : parameters.direct.lightMultiplier;
 
 #ifdef MATERIAL_BACKGROUND_HACK
-		RRPointMaterial invisiblePlaneMaterial;
 		bool oldBouncedOffInvisiblePlane = bouncedOffInvisiblePlane;
-		if (!bouncedOffInvisiblePlane && material && material->name=="background" && ptj.environment)
+		if (!bouncedOffInvisiblePlane && material.name=="background" && ptj.environment)
 		{
-			invisiblePlaneMaterial = *material;
 			bouncedOffInvisiblePlane = true;
 			float environmentMultiplier = numBounces ? parameters.indirect.environmentMultiplier : parameters.direct.environmentMultiplier;
 			RRVec3 environmentAndSunsPhysical = ptj.environmentAveragePhysical * environmentMultiplier;
@@ -211,14 +209,13 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				if ((*lights)[i]->enabled && (*lights)[i]->type==RRLight::DIRECTIONAL)
 				{
 					response.dirIn = (*lights)[i]->direction;
-					invisiblePlaneMaterial.getResponse(response,parameters.brdfTypes);
+					material.getResponse(response,parameters.brdfTypes);
 					environmentAndSunsPhysical += (*lights)[i]->color * response.colorOut * lightMultiplier;
 				}
 			RRVec3 floor = ptj.environment->getElementAtDirection(direction,ptj.colorSpace);
 			floor /= environmentAndSunsPhysical+RRVec3(1e-10f);
-			invisiblePlaneMaterial.diffuseReflectance.colorLinear *= floor;
-			invisiblePlaneMaterial.specularReflectance.colorLinear *= floor;
-			material = &invisiblePlaneMaterial;
+			material.diffuseReflectance.colorLinear *= floor;
+			material.specularReflectance.colorLinear *= floor;
 		}
 #endif
 
@@ -232,7 +229,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			if (packedSolver)
 			{
 				// fireball
-				exitance += packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material->diffuseReflectance.colorLinear;
+				exitance += packedSolver->getTriangleIrradianceDirect(ray.hitTriangle) * material.diffuseReflectance.colorLinear;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 			else
@@ -243,7 +240,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				// zero area would create #INF in getIndirectIrradiance()
 				// that's why triangles with zero area are rejected in setGeometry (they get surface=nullptr), and later rejected by collisionHandler (based on surface=nullptr), they should not get here
 				RR_ASSERT(hitTriangle->area);
-				exitance += hitTriangle->getDirectIrradiance() * material->diffuseReflectance.colorLinear;
+				exitance += hitTriangle->getDirectIrradiance() * material.diffuseReflectance.colorLinear;
 				RR_ASSERT(IS_VEC3(exitance));
 			}
 		}
@@ -278,7 +275,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 						collisionHandlerGatherLights.setLight(light,nullptr);
 						RRVec3 unobstructedLight = light->getIrradiance(shadowRay.rayOrigin,ptj.colorSpace);
 						response.dirIn = -shadowRay.rayDir;
-						material->getResponse(response,parameters.brdfTypes);
+						material.getResponse(response,parameters.brdfTypes);
 						RRVec3 totalContribution = unobstructedLight * response.colorOut;
 						shadowRay.hitObject = multiObject; // non-RRMultiCollider does not fill ray.hitObject, we prefill it here, collisionHandler needs it filled
 						if (totalContribution!=RRVec3(0) && !ptj.collider->intersect(shadowRay))
@@ -298,18 +295,18 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		{
 			// we emit everything to both sides of 2sided face, thus doubling energy
 			// this may be changed later
-			//float splitToTwoSides = material->sideBits[ray.hitFrontSide?1:0].emitTo ? 0.5f : 1;
+			//float splitToTwoSides = material.sideBits[ray.hitFrontSide?1:0].emitTo ? 0.5f : 1;
 
 			// used in direct lighting final gather [per pixel emittance]
 			float materialEmittanceMultiplier = numBounces ? parameters.indirect.materialEmittanceMultiplier : parameters.direct.materialEmittanceMultiplier;
-			exitance += material->diffuseEmittance.colorLinear * materialEmittanceMultiplier;// * splitToTwoSides;
+			exitance += material.diffuseEmittance.colorLinear * materialEmittanceMultiplier;// * splitToTwoSides;
 			RR_ASSERT(IS_VEC3(exitance));
 		}
 
 		// probabilities that we reflect using given BRDF
-		float probabilityDiff = (parameters.brdfTypes&RRMaterial::BRDF_DIFFUSE) ? RR_MAX(0,material->diffuseReflectance.colorLinear.avg()) : 0;
-		float probabilitySpec = (parameters.brdfTypes&RRMaterial::BRDF_SPECULAR) ? RR_MAX(0,material->specularReflectance.colorLinear.avg()) : 0;
-		float probabilityTran = (parameters.brdfTypes&RRMaterial::BRDF_TRANSMIT) ? RR_MAX(0,material->specularTransmittance.colorLinear.avg()) : 0;
+		float probabilityDiff = (parameters.brdfTypes&RRMaterial::BRDF_DIFFUSE) ? RR_MAX(0,material.diffuseReflectance.colorLinear.avg()) : 0;
+		float probabilitySpec = (parameters.brdfTypes&RRMaterial::BRDF_SPECULAR) ? RR_MAX(0,material.specularReflectance.colorLinear.avg()) : 0;
+		float probabilityTran = (parameters.brdfTypes&RRMaterial::BRDF_TRANSMIT) ? RR_MAX(0,material.specularTransmittance.colorLinear.avg()) : 0;
 		float probabilityStop = RR_MAX(0,1-probabilityDiff-probabilitySpec-probabilityTran);
 
 		// add material's diffuse reflection using shortcut (reading irradiance from solver) 
@@ -321,7 +318,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			if (packedSolver)
 			{
 				// fireball:
-				exitance += packedSolver->getPointIrradianceIndirect(ray.hitTriangle,ray.hitPoint2d) * material->diffuseReflectance.colorLinear;// * splitToTwoSides;
+				exitance += packedSolver->getPointIrradianceIndirect(ray.hitTriangle,ray.hitPoint2d) * material.diffuseReflectance.colorLinear;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));
 				probabilityDiff = 0; // exclude diffuse from next path
 			}
@@ -334,7 +331,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 				// zero area would create #INF in getIndirectIrradiance()
 				// that's why triangles with zero area are rejected in setGeometry (they get surface=nullptr), and later rejected by collisionHandler (based on surface=nullptr), they should not get here
 				RR_ASSERT(hitTriangle->area);
-				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_LINEAR_INDIRECT,ray.hitPoint2d) * material->diffuseReflectance.colorLinear;// * splitToTwoSides;
+				exitance += hitTriangle->getPointMeasure(RM_IRRADIANCE_LINEAR_INDIRECT,ray.hitPoint2d) * material.diffuseReflectance.colorLinear;// * splitToTwoSides;
 				RR_ASSERT(IS_VEC3(exitance));
 				probabilityDiff = 0; // exclude diffuse from next path
 			}
@@ -354,7 +351,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 			float intensity = (probabilityDiff+probabilitySpec+probabilityTran+probabilityStop) / ( (r<probabilityDiff) ? probabilityDiff : ( (r<probabilityDiff+probabilitySpec) ? probabilitySpec : probabilityTran ) );
 
 			// select ray
-			material->sampleResponse(response,RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX)),brdfType);
+			material.sampleResponse(response,RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),rand()/float(RAND_MAX)),brdfType);
 
 			// if it is good
 			if (response.pdf>0 // not invalid
