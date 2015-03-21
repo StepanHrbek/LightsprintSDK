@@ -344,7 +344,7 @@ namespace rr
 	struct RR_API RRPointMaterial : public RRMaterial
 	{
 		//! Fast and thread safe copy. getPointMaterial() implementations use it to copy triangle material to point material.
-		void operator =(const RRMaterial& a);
+		RRPointMaterial& operator =(const RRMaterial& a);
 		//! Makes it possible to store pointmaterials in vector.
 		RRPointMaterial& operator =(const RRPointMaterial& a);
 		//! Unlike RRMaterial, RRPointMaterial does not delete textures and name.

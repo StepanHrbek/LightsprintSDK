@@ -836,10 +836,11 @@ void RRMaterial::sampleResponse(Response& response, const RRVec3& randomness, Br
 //
 // RRPointMaterial
 
-void RRPointMaterial::operator =(const RRMaterial& a)
+RRPointMaterial& RRPointMaterial::operator =(const RRMaterial& a)
 {
 	// memcpy creates shallow copy, destructor guarantees we won't delete things we don't own
 	memcpy(this,&a,sizeof(a));
+	return *this;
 }
 
 RRPointMaterial& RRPointMaterial::operator =(const RRPointMaterial& a)
