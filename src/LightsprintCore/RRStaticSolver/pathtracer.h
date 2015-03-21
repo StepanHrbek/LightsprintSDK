@@ -98,7 +98,9 @@ public:
 	}
 
 	// Tests one side after setHemisphere(), two sides after setLight().
-	#define TEST_BIT(material,bit) ((material)->sideBits[ray.hitFrontSide?0:1].bit || (light && (material)->sideBits[ray.hitFrontSide?1:0].bit)) // [#45] shadowRays collide with both sides
+	#define TEST_BIT(material) ((material)->sideBits[ray.hitFrontSide?0:1].renderFrom \
+		|| (light && (material)->sideBits[ray.hitFrontSide?1:0].renderFrom) /* [#45] shadowRays collide with both sides */ \
+		|| ((material)->sideBits[ray.hitFrontSide?1:0].transmitFrom && (material)->specularTransmittance.color!=RRVec3(0))) // 1sided glass refracts also from backside
 
 	virtual void init(RRRay& ray)
 	{
@@ -186,14 +188,14 @@ public:
 			COLLISION_LOG(log<<"collides()=false4\n");
 			return false;
 		}
-		if (TEST_BIT(triangleMaterial,renderFrom))
+		if (TEST_BIT(triangleMaterial))
 		{
 			// per-pixel materials
 			if (qualityForPointMaterials>triangleMaterial->minimalQualityForPointMaterials)
 			{
 				unsigned pmi = (firstContactMaterial==pointMaterial)?1:0; // index into pointMaterial[], one that is not occupied by firstContactMaterial
 				hitObject->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,colorSpace,qualityForInterpolation>triangleMaterial->minimalQualityForPointMaterials,pointMaterial[pmi]);
-				if (TEST_BIT(&pointMaterial[pmi],renderFrom))
+				if (TEST_BIT(&pointMaterial[pmi]))
 				{
 					// gathering hemisphere
 					if (!light)
