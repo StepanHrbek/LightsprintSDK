@@ -190,6 +190,8 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		{
 			faceNormal = -faceNormal;
 			pixelNormal = -pixelNormal;
+			// when we negate normal, we need to invert index too, otherwise rays hitting backside would refract incorrectly
+			material.refractionIndex = 1/material.refractionIndex;
 		}
 
 		RRMaterial::Response response;
