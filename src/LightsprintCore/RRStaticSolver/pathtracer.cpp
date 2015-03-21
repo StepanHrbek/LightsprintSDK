@@ -173,7 +173,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 
 	//LOG_RAY(eye,direction,hitTriangle?ray.hitDistance:0.2f,hitTriangle);
 	RR_ASSERT(IS_NUMBER(ray.hitDistance));
-	RRMaterial& material = *(RRMaterial*)collisionHandlerGatherHemisphere.getContactMaterial(); // could be point detail, unlike hitTriangle->surface 
+	RRPointMaterial& material = collisionHandlerGatherHemisphere.getContactMaterial(); // intersect would fail if material was nullptr
 	RRSideBits side = material.sideBits[ray.hitFrontSide?0:1];
 	Channels exitance = Channels(0);
 	RR_ASSERT(side.renderFrom); // guaranteed by RRCollisionHandlerFinalGathering

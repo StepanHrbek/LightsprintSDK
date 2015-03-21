@@ -250,9 +250,15 @@ public:
 	}
 
 	// gathering hemisphere: returns contact material from previous collision
-	const RRMaterial* getContactMaterial()
+	// danger!, it is legal to call this only when gathering hemisphere and done() returned true (so firstContactMaterial!=nullptr)
+	RRPointMaterial& getContactMaterial()
 	{
-		return firstContactMaterial;
+		return (firstContactMaterial==pointMaterial+1)
+			? pointMaterial[1]
+			: ((firstContactMaterial==pointMaterial)
+				? pointMaterial[0]
+				: (pointMaterial[0]=*firstContactMaterial)
+			  );
 	}
 
 	// gathering light: returns visibility between ends of last ray
