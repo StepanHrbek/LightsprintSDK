@@ -81,11 +81,10 @@ PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::Pa
 // material, ray.hitObject, ray.hitTriangle, ray.hitPoint2d -> normal
 // Lightsprint RRVec3(hitPlane) is normalized, goes from front side. point normal also goes from front side
 // returns whether result was set
-static bool getPointNormal(const RRRay& ray, const RRMaterial* material, bool interpolated, RRVec3& result)
+static bool getPointNormal(const RRRay& ray, const RRMaterial& material, bool interpolated, RRVec3& result)
 {
 	RR_ASSERT(ray.hitObject);
-	RR_ASSERT(material);
-	if (!ray.hitObject || !material)
+	if (!ray.hitObject)
 		return false;
 
 	// calculate interpolated objectspace normal
@@ -98,24 +97,24 @@ static bool getPointNormal(const RRRay& ray, const RRMaterial* material, bool in
 
 	// if material has bumpmap, read it
 	RRMesh::TriangleMapping tm;
-	if (material->bumpMap.texture && mesh->getTriangleMapping(ray.hitTriangle,tm,material->bumpMap.texcoord))
+	if (material.bumpMap.texture && mesh->getTriangleMapping(ray.hitTriangle,tm,material.bumpMap.texcoord))
 	{
 		// read localspace normal from bumpmap
 		RRVec2 uvInTextureSpace = tm.uv[0] + (tm.uv[1]-tm.uv[0])*ray.hitPoint2d[0] + (tm.uv[2]-tm.uv[0])*ray.hitPoint2d[1];
-		RRVec3 bumpElement = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1],0),nullptr,interpolated);
+		RRVec3 bumpElement = material.bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1],0),nullptr,interpolated);
 		RRVec3 localNormal;
-		if (material->bumpMapTypeHeight)
+		if (material.bumpMapTypeHeight)
 		{
 			float height = bumpElement.x;
-			float hx = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0]+1.f/material->bumpMap.texture->getWidth(),uvInTextureSpace[1],0),nullptr,interpolated).x;
-			float hy = material->bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1]+1.f/material->bumpMap.texture->getHeight(),0),nullptr,interpolated).x;
+			float hx = material.bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0]+1.f/material.bumpMap.texture->getWidth(),uvInTextureSpace[1],0),nullptr,interpolated).x;
+			float hy = material.bumpMap.texture->getElementAtPosition(RRVec3(uvInTextureSpace[0],uvInTextureSpace[1]+1.f/material.bumpMap.texture->getHeight(),0),nullptr,interpolated).x;
 			localNormal = RRVec3(height-hx,height-hy,0.1f);
 		}
 		else
 		{
 			localNormal = bumpElement*2-RRVec3(1);
 		}
-		localNormal.z /= material->bumpMap.color.x;
+		localNormal.z /= material.bumpMap.color.x;
 		localNormal.normalize();
 
 		// convert localspace normal to objectspace normal
@@ -184,7 +183,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 		RRVec3 faceNormal = ray.hitPlane;
 		RRVec3 pixelNormal = faceNormal;
 		if (numBounces<parameters.useFlatNormalsSinceDepth)
-			getPointNormal(ray,material,true,pixelNormal);
+			getPointNormal(ray,*material,true,pixelNormal);
 
 		// normals go from hit side now
 		if (!ray.hitFrontSide)
