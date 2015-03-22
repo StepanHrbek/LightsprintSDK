@@ -461,9 +461,10 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 				if (m->diffuseReflectance.color==RRVec3(0) && m->specularTransmittance.color!=RRVec3(0))
 				{
 					// [spec+]trans = glass
-					ofs << "scene.materials.mat" << i << ".type = glass\n";
-					ofs << "scene.materials.mat" << i << ".kr = " << SlgTexture(m,&m->specularReflectance) << "\n";
-					ofs << "scene.materials.mat" << i << ".exp = " << m->specularShininess << "\n";
+					ofs << "scene.materials.mat" << i << ".type = roughglass\n";
+					ofs << "scene.materials.mat" << i << ".kr = " << SlgTexture(m,&m->specularReflectance) << "\n"; // has no effect (2015-03)
+					ofs << "scene.materials.mat" << i << ".uroughness = " << getRoughness(m) << "\n";
+					ofs << "scene.materials.mat" << i << ".vroughness = " << getRoughness(m) << "\n";
 					ofs << "scene.materials.mat" << i << ".kt = " << SlgTexture(m,&m->specularTransmittance) << "\n";
 					ofs << "scene.materials.mat" << i << ".interiorior = " << m->refractionIndex << "\n";
 					ofs << "scene.materials.mat" << i << ".exteriorior = 1\n";
