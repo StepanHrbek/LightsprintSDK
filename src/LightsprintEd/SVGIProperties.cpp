@@ -326,6 +326,7 @@ void SVGIProperties::updateProperties()
 		+ updateBoolRef(propGITranspVideoAffectsGI)
 		+ updateBoolRef(propGIEnvVideoAffectsGI)
 		+ updateBoolRef(propGIMultipliers)
+		+ updateBoolRef(propGIPath)
 		+ updateBoolRef(propGISSGI)
 		+ updateBoolRef(propGIMirrors)
 		;
@@ -359,6 +360,8 @@ void SVGIProperties::updateProperties()
 		+ updateFloat(propGIEmisMultiplier,svs.multipliers.materialEmittanceMultiplier)
 		+ updateFloat(propGIEmisMultiplierDirect,svs.multipliersDirect.materialEmittanceMultiplier)
 		+ updateFloat(propGIEmisMultiplierIndirect,svs.multipliersIndirect.materialEmittanceMultiplier)
+
+		+ updateBoolRef(propGIPathShortcut)
 
 		+ updateFloat(propGISSGIIntensity,svs.ssgiIntensity)
 		+ updateFloat(propGISSGIRadius,svs.ssgiRadius)
