@@ -1085,9 +1085,26 @@ bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) con
 	rayOrigin = pos;
 	if (panoramaMode==PM_OFF)
 	{
+		rr::RRVec2 localScreenCenter = screenCenter;
+		if (apertureDiameter)
+		{
+			// randomize ray according to apertureDiameter and default bokeh shape [#48]
+		more_samples_needed:
+			rr::RRVec3 offsetInBuffer = rr::RRVec3(rand()/float(RAND_MAX),rand()/float(RAND_MAX),0); // 0..1
+			rr::RRVec2 a(offsetInBuffer.x*2-1,offsetInBuffer.y*2-1);
+			if (a.length2()>1) // sample is not inside default bokeh shape (circle)
+				goto more_samples_needed;
+			rr::RRReal dofDistance = (dofFar+dofNear)/2;
+			rr::RRVec2 offsetInMeters = rr::RRVec2(offsetInBuffer.x-0.5f,offsetInBuffer.y-0.5f)*apertureDiameter; // how far do we move camera in right,up directions, -apertureDiameter/2..apertureDiameter/2 (m)
+			rayOrigin += getRight()*offsetInMeters.x+getUp()*offsetInMeters.y;
+			rr::RRVec2 visibleMetersAtFocusedDistance(tan(getFieldOfViewHorizontalRad()/2)*dofDistance,tan(getFieldOfViewVerticalRad()/2)*dofDistance); // from center to edge (m)
+			rr::RRVec2 offsetOnScreen = offsetInMeters/visibleMetersAtFocusedDistance; // how far do we move camera in -1..1 screen space 
+			localScreenCenter -= offsetOnScreen;
+		}
+
 		rayDir = getDirection()
-			+ getRight() * ( (posInWindow[0]+screenCenter[0]) * tan(getFieldOfViewHorizontalRad()/2) )
-			+ getUp()    * ( (posInWindow[1]+screenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
+			+ getRight() * ( (posInWindow[0]+localScreenCenter[0]) * tan(getFieldOfViewHorizontalRad()/2) )
+			+ getUp()    * ( (posInWindow[1]+localScreenCenter[1]) * tan(getFieldOfViewVerticalRad()  /2) )
 			;
 		// CameraObjectDistance uses length of our result, don't normalize
 		return true;
