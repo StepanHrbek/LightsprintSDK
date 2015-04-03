@@ -108,7 +108,7 @@ public:
 					goto more_samples_needed;
 			}
 
-			// jitter camera
+			// jitter camera [#48]
 			PluginParamsShared sp(_sp);
 			rr::RRCamera camera(*_sp.camera);
 			rr::RRReal dofDistance = (camera.dofFar+camera.dofNear)/2;

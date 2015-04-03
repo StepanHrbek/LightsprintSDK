@@ -15,6 +15,7 @@ NEWS
 - <b>improved pathtracer</b>
   - pathtracing in SceneViewer responds in realtime, no more waiting until frame finishes rendering
   - pathtracing in SceneViewer is enabled with checkbox rather than selected from drop-down list of techniques
+  - supports DOF
   - SmallLuxGPU4 pathtracer updated to the most recent version, supports more Lightsprint SDK features, so slg4 renders are closer to Lightsprint renders
 - misc
   - RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
