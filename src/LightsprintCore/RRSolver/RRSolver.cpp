@@ -1137,7 +1137,7 @@ void RRSolver::allocateBuffersForRealtimeGI(int layerLightmap, int layerEnvironm
 	}
 }
 
-void RRSolver::pathTraceFrame(RRCamera& _camera, RRBuffer* _frame, unsigned _accumulated, const PathTracingParameters& _parameters)
+void RRSolver::pathTraceFrame(const RRCamera& _camera, RRBuffer* _frame, unsigned _accumulated, const PathTracingParameters& _parameters)
 {
 	if (!_frame)
 		return;
