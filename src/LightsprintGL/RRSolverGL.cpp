@@ -327,7 +327,7 @@ done:
 						if (light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS || light->shadowTransparencyActual==RealtimeLight::FRESNEL_SHADOWS)
 						{
 							// we assert that color mask is 1, clear would be masked otherwise
-							glClearColor(1,1,1,1);
+							glClearColor(1,1,1,1); // [#49] unshadowed areas have a=1
 							glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 						}
 						else

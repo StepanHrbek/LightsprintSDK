@@ -357,6 +357,13 @@ vec4 dividedByAlpha(vec4 color)
 	return color/color.a;
 }
 
+vec4 filterOutWhiteBackground(vec4 color)
+{
+	// valid samples have alpha=0
+	// background samples (to be filtered out) have color=1, alpha=1 [#49]
+	return (color.a==1.0) ? color : vec4((color.rgb - color.aaa) / (1.0-color.a),1.0);
+}
+
 vec4 toLinear()
 {
 	return vec4(0.0,0.0,0.0,0.0);
@@ -581,9 +588,13 @@ void main()
 			//	#endif
 			//#else
 				#if SHADOW_SAMPLES==1
-					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * texture2DProj(shadowColorMap,shadowCoord.xyw)
-				#else
-					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * texture2D(shadowColorMap,center.xy)
+					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( texture2DProj(shadowColorMap,shadowCoord.xyw) )
+				#elif SHADOW_SAMPLES==2
+					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( 0.5 * ( texture2D(shadowColorMap, (center+shift1).xy) +texture2D(shadowColorMap, (center-shift1).xy) ) )
+				#elif SHADOW_SAMPLES==4
+					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( 0.25 * ( texture2D(shadowColorMap, (center+shift1).xy) +texture2D(shadowColorMap, (center-shift1).xy) +texture2D(shadowColorMap, (center+shift2).xy) +texture2D(shadowColorMap, (center-shift2).xy) ) )
+				#elif SHADOW_SAMPLES==8
+					#define SHADOW_COLOR_LOOKUP(shadowColorMap,shadowCoord) * filterOutWhiteBackground( 0.125 * ( texture2D(shadowColorMap, (center+shift1).xy) +texture2D(shadowColorMap, (center-shift1).xy) +texture2D(shadowColorMap, (center+shift2).xy) +texture2D(shadowColorMap, (center-shift2).xy) +texture2D(shadowColorMap, (center+shift3).xy) +texture2D(shadowColorMap, (center-shift3).xy) +texture2D(shadowColorMap, (center+shift4).xy) +texture2D(shadowColorMap, (center-shift4).xy) ) )
 				#endif
 			//#endif
 		#else

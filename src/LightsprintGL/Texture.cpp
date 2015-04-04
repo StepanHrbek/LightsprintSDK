@@ -456,7 +456,7 @@ Texture* Texture::createShadowmap(unsigned width, unsigned height, bool color)
 		rr::RRReporter::report(rr::ERRO,"Attempt to create %dx%d shadowmap.\n",width,height);
 		return nullptr;
 	}
-	rr::RRBuffer* buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,color?rr::BF_RGB:rr::BF_DEPTH,true,RR_GHOST_BUFFER);
+	rr::RRBuffer* buffer = rr::RRBuffer::create(rr::BT_2D_TEXTURE,width,height,1,color?rr::BF_RGBA:rr::BF_DEPTH,true,RR_GHOST_BUFFER); // [#49] RGBA because unshadowed areas have a=1, colored shadows have a=0
 	if (!buffer)
 		return nullptr;
 #ifdef RR_GL_ES2
