@@ -79,6 +79,12 @@ public:
 			return;
 		}
 
+		// disable DOF for the rest of plugin chain (if we don't, sky in shader based version would shake)
+		PluginParamsShared sp(_sp);
+		rr::RRCamera camera = *_sp.camera;
+		camera.apertureDiameter = 0;
+		sp.camera = &camera;
+
 		// accumulation based version
 		if (pp.accumulated)
 		{
@@ -109,15 +115,12 @@ public:
 			}
 
 			// jitter camera [#48]
-			PluginParamsShared sp(_sp);
-			rr::RRCamera camera(*_sp.camera);
 			rr::RRReal dofDistance = (camera.dofFar+camera.dofNear)/2;
-			rr::RRVec2 offsetInMeters = rr::RRVec2(offsetInBuffer.x-0.5f,offsetInBuffer.y-0.5f)*camera.apertureDiameter; // how far do we move camera in right,up directions, -apertureDiameter/2..apertureDiameter/2 (m)
+			rr::RRVec2 offsetInMeters = rr::RRVec2(offsetInBuffer.x-0.5f,offsetInBuffer.y-0.5f)*_sp.camera->apertureDiameter; // how far do we move camera in right,up directions, -apertureDiameter/2..apertureDiameter/2 (m)
 			camera.setPosition(camera.getPosition()+camera.getRight()*offsetInMeters.x+camera.getUp()*offsetInMeters.y);
 			rr::RRVec2 visibleMetersAtFocusedDistance(tan(camera.getFieldOfViewHorizontalRad()/2)*dofDistance,tan(camera.getFieldOfViewVerticalRad()/2)*dofDistance); // from center to edge (m)
 			rr::RRVec2 offsetOnScreen = offsetInMeters/visibleMetersAtFocusedDistance; // how far do we move camera in -1..1 screen space 
 			camera.setScreenCenter(camera.getScreenCenter()-offsetOnScreen);
-			sp.camera = &camera;
 
 			// render frame
 			_renderer.render(_pp.next,sp);
@@ -125,7 +128,7 @@ public:
 		}
 
 		// shader based version
-		_renderer.render(_pp.next,_sp);
+		_renderer.render(_pp.next,sp);
 
 		if (!smallColor1 || !smallColor2 || !smallColor3 || !bigColor || !bigDepth || !dofProgram1 || !dofProgram2 || !dofProgram3)
 		{

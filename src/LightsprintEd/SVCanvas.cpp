@@ -1780,6 +1780,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		rr_gl::PluginParamsShared ppShared;
 		rr::RRCamera ppSharedCamera = svs.camera; // we need to make small tweaks in camera before we send it to renderer, this is our local copy
 		ppShared.camera = &ppSharedCamera;
+		if (!svs.renderDof)
+			ppSharedCamera.apertureDiameter = 0;
 		ppShared.viewport[2] = winWidth;
 		ppShared.viewport[3] = winHeight;
 		ppShared.srgbCorrect = svs.srgbCorrect; // affects image even with direct lighting disabled (by adding dif+spec+emis correctly)
@@ -1805,8 +1807,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pathTracedBuffer->reset(rr::BT_2D_TEXTURE,pathTraceWidth,pathTraceHeight,1,rr::BF_RGBF,false,nullptr); // embree accepts only RGB,RGBA,RGBF
 				pathTracedAccumulator = 0;
 			}
-			if (!svs.renderDof)
-				ppSharedCamera.apertureDiameter = 0;
 			ppSharedCamera.setAspect(pathTraceWidth/(float)pathTraceHeight); // [#37] not ,0.5
 			rr::RRSolver::PathTracingParameters params;
 			params.direct = svs.getMultipliersDirect();
