@@ -1012,7 +1012,7 @@ RRVec3 RRCamera::getPositionInViewport(RRVec3 worldPosition) const
 	return RRVec3(posInWindow.x,posInWindow.y,1);
 }
 
-bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) const
+bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir, bool randomized) const
 {
 	// de-stereo-ize posInWindow
 	bool left = true;
@@ -1086,7 +1086,7 @@ bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir) con
 	if (panoramaMode==PM_OFF)
 	{
 		rr::RRVec2 localScreenCenter = screenCenter;
-		if (apertureDiameter)
+		if (randomized && apertureDiameter)
 		{
 			// randomize ray according to apertureDiameter and default bokeh shape [#48]
 		more_samples_needed:

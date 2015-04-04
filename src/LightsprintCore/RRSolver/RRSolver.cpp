@@ -1169,7 +1169,7 @@ void RRSolver::pathTraceFrame(const RRCamera& _camera, RRBuffer* _frame, unsigne
 				//RRVec2 positionInWindow((sx+.5+dx+2*i)/w-1,1-(sy+.5+dy+2*j)/h);
 				RRVec2 positionInWindow(2*(dx+i)/w-1,2*(dy+j)/h-1);
 				RRVec3 rayOrigin, rayDir;
-				RRVec3 color = _camera.getRay(positionInWindow,rayOrigin,rayDir)
+				RRVec3 color = _camera.getRay(positionInWindow,rayOrigin,rayDir,true)
 					? pathtracerWorker.getIncidentRadiance(rayOrigin,rayDir.normalized(),nullptr,UINT_MAX)
 					: RRVec3(0);
 				c = (c*RRReal(_accumulated)+RRVec4(color,0))/(_accumulated+1);
