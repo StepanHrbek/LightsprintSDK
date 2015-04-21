@@ -741,7 +741,10 @@ unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshNam
 	if (numBadNormalDirections)
 	{
 		numReports[0]++;
-		RRReporter::report(WARN,"%d (of %d) triangle vertex normals point to triangle's back side. It is shortcoming of 3d model, makes lighting around vertex less realistic.\n",numBadNormalDirections,numTriangles*3);
+		if (numBadNormalDirections==numTriangles*3)
+			RRReporter::report(WARN,"All vertex normals point to triangle's back side. It is shortcoming of 3d model, makes lighting wrong. You can try 'Smooth' function from context menu to rebuild normals.\n");
+		else
+			RRReporter::report(WARN,"%d (of %d) vertex normals point to triangle's back side. It is shortcoming of 3d model, makes lighting around such vertices less realistic. You can try 'Smooth' function from context menu to rebuild normals.\n",numBadNormalDirections,numTriangles*3);
 	}
 	return *numReports;
 }
