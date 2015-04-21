@@ -16,7 +16,7 @@
 //! - opened via rr::RRBuffer::load()
 //! - converted to texture via rr_gl::getTexture()
 //! - pixels are available via rr::RRBuffer::lock(), getElement(), setElement()
-//! - can be used in material, projected by light
+//! - can be used in material, environment, projected by light
 //!
 //! Video is not like static image
 //! - video can't be reset() and reload()
