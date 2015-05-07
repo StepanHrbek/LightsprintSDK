@@ -23,12 +23,11 @@ AnimationScene.cpp \
 DemoPlayer.cpp \
 DynamicObjects.cpp \
 Level.cpp \
-Music.cpp \
 shadowcast.cpp
 
 # libraries
 
-LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLUT_LIB) $(FMOD_LIB)
+LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLUT_LIB)
 
 # include directories
 
@@ -44,5 +43,3 @@ LIB_DIRS = .
 
 include $(CFG_DIR)/../makefile.core
 
-$(TARGET)::
-	install_name_tool -change ./libfmodex.dylib $(FMOD_LIB) $(TARGET)

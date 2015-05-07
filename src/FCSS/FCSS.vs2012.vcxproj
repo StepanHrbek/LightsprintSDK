@@ -417,7 +417,6 @@
     <ClCompile Include="DemoPlayer.cpp" />
     <ClCompile Include="DynamicObjects.cpp" />
     <ClCompile Include="Level.cpp" />
-    <ClCompile Include="Music.cpp" />
     <ClCompile Include="shadowcast.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -427,7 +426,6 @@
     <ClInclude Include="DemoPlayer.h" />
     <ClInclude Include="DynamicObjects.h" />
     <ClInclude Include="Level.h" />
-    <ClInclude Include="Music.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

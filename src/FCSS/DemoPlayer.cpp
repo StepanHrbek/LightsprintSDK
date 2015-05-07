@@ -1,6 +1,5 @@
 #include "Level.h"
 #include "DemoPlayer.h"
-#include "Music.h"
 #include "DynamicObjects.h"
 //#include "LevelSequence.h"
 #include "Lightsprint/GL/RRSolverGL.h"
@@ -134,7 +133,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	fclose(f);
 
 	// load music - step2
-	music = supportMusic ? Music::load(bufmusic) : nullptr;
+	music = supportMusic ? rr::RRBuffer::load(bufmusic) : nullptr;
 	pauseMusic = _pauseMusic;
 	//if (music) music->setPaused(pauseMusic);
 	paused = true;
@@ -200,7 +199,7 @@ void DemoPlayer::advance()
 	}
 	if (music)
 	{
-		music->poll();
+//		music->poll();
 	}
 }
 
@@ -209,7 +208,7 @@ void DemoPlayer::advanceBy(float seconds)
 	demoPosition += seconds;
 	referenceTime.setNow();
 	referencePosition = demoPosition;
-	if (music) music->poll();
+//	if (music) music->poll();
 }
 
 void DemoPlayer::setPaused(bool _paused)
@@ -220,7 +219,10 @@ void DemoPlayer::setPaused(bool _paused)
 	//if (music && pauseMusic)
 	if (music && (pauseMusic || !paused)) // even if we don't pause music, it's paused from constructor, so proceed with unpausing
 	{
-		music->setPaused(paused);
+		if (paused)
+			music->pause();
+		else
+			music->play();
 	}
 }
 
@@ -231,7 +233,7 @@ bool DemoPlayer::getPaused() const
 
 void DemoPlayer::setDemoPosition(float seconds)
 {
-	if (music && pauseMusic) music->setPosition(seconds);
+	if (music && pauseMusic) music->seek(seconds);
 	demoPosition = seconds;
 	referenceTime.setNow();
 	referencePosition = demoPosition;
@@ -288,18 +290,18 @@ float DemoPlayer::getPartLength(unsigned part) const
 
 float DemoPlayer::getMusicPosition() const
 {
-	return music ? music->getPosition() : 0;
+	// not supported by RRBuffer
+	return 0;
 }
 
 float DemoPlayer::getMusicLength() const
 {
-	return music ? music->getLength() : 0;
+	return music ? music->getDuration() : 0;
 }
 
 void DemoPlayer::setVolume(float volume)
 {
-	if (music)
-		music->setVolume(volume);
+	// not supported by RRBuffer (because not supported by portaudio)
 }
 
 /////////////////////////////////////////////////////////////////////////////

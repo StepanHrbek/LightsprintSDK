@@ -54,7 +54,7 @@ private:
 	rr::RRBuffer* loadingMap;
 
 	// music
-	class Music* music;
+	rr::RRBuffer* music;
 
 	// sky
 	rr::RRBuffer* skyMap;

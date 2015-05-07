@@ -55,7 +55,7 @@
   - Mark Kilgard, Nate Robins    : GLUT library
   - Milan Ikits, Marcelo Magallon: GLEW library
   - many contributors            : FreeImage library
-  - Firelight Technologies       : FMOD library
+  - libav and FFmpeg authors     : FFmpeg library
   - Matthew Fairfax              : 3ds loader
   - Nicolas Baudrey              : bsp loader
   - Vojta Nedved                 : "Difficult life" music
