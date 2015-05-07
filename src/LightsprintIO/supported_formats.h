@@ -19,7 +19,8 @@
 #define SUPPORT_QUAKE3      // Quake 3 .bsp
 #define SUPPORT_MGF         // Materials and Geometry Format .mgf
 #define SUPPORT_IMAGES      // jpg, png, dds, hdr, exr, tga, tif, pcx, bmp, gif, ico etc
-#define SUPPORT_DIRECTSHOW  // avi, wmv, mpg etc
+#define SUPPORT_FFMPEG      // avi, wmv, mpg, mp3 etc
+#define SUPPORT_DIRECTSHOW  // avi, wmv, mpg, c@pture etc (mostly obsoleted by FFmpeg)
 //#define SUPPORT_OBJ       // Wavefront .obj (obsoleted by Assimp)
 #define SUPPORT_ISOLATION   // makes scene import run in isolated process
 #define SUPPORT_SMALLLUXGPU // SmallLuxGpu .scn, .ply
@@ -39,4 +40,9 @@
 // For now, we include SmallLuxGpu only in Windows.
 #if defined(SUPPORT_SMALLLUXGPU) && !defined(_WIN32)
 	#undef SUPPORT_SMALLLUXGPU
+#endif
+
+// VS2010/2012 have some headers missing. Probably easy to fix, but why not just use VS2013/15 and let the old ones die?
+#if defined(_MSC_VER) && (_MSC_VER < 1800)
+	#undef SUPPORT_FFMPEG
 #endif

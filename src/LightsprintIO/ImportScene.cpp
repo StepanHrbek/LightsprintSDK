@@ -11,6 +11,7 @@
 
 #include "supported_formats.h"
 #include "ImportImages/ImportFreeImage.h"
+#include "ImportFFmpeg/RRBufferFFmpeg.h"
 #include "ImportDirectShow/RRBufferDirectShow.h"
 #include "ImportLightsprint/RRObjectLightsprint.h"
 #include "Import3DS/RRObject3DS.h"
@@ -36,6 +37,11 @@ if (phase==0 || phase==1)
 
 #ifdef SUPPORT_LIGHTSPRINT
 	registerLoaderLightsprint();
+#endif
+
+#ifdef SUPPORT_FFMPEG
+	// should be the last one, because it is probably very slow in rejecting unsupported formats
+	registerLoaderFFmpeg();
 #endif
 
 #ifdef SUPPORT_DIRECTSHOW

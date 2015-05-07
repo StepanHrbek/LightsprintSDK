@@ -725,6 +725,7 @@
     <ClCompile Include="ImportAssimp\contrib\unzip\ioapi.c" />
     <ClCompile Include="ImportAssimp\contrib\unzip\unzip.c" />
     <ClCompile Include="ImportFCollada\RRObjectFCollada.cpp" />
+    <ClCompile Include="ImportFFmpeg\RRBufferFFmpeg.cpp" />
     <ClCompile Include="ImportIsolation\RRSceneIsolation.cpp" />
     <ClCompile Include="ImportMGF\badarg.c" />
     <ClCompile Include="ImportMGF\context.c" />
@@ -1183,6 +1184,7 @@
     <ClInclude Include="ImportAssimp\include\assimp\vector3.h" />
     <ClInclude Include="ImportAssimp\include\assimp\version.h" />
     <ClInclude Include="ImportFCollada\RRObjectFCollada.h" />
+    <ClInclude Include="ImportFFmpeg\RRBufferFFmpeg.h" />
     <ClInclude Include="ImportIsolation\RRSceneIsolation.h" />
     <ClInclude Include="ImportMGF\lookup.h" />
     <ClInclude Include="ImportMGF\messages.h" />

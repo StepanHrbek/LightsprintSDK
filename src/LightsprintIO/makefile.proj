@@ -204,6 +204,8 @@ ImportAssimp/contrib/zlib/trees.c \
 ImportAssimp/contrib/zlib/uncompr.c \
 ImportAssimp/contrib/zlib/zutil.c \
 ImportAssimp/contrib/ConvertUTF/ConvertUTF.c \
+ImportFFmpeg/RRBufferFFmpeg.cpp \
+ImportFFmpeg/RRBufferFFmpeg.h \
 ImportImages/ImportFreeImage.cpp \
 ImportIsolation/RRSceneIsolation.cpp \
 ImportLightsprint/RRObjectLightsprint.cpp \

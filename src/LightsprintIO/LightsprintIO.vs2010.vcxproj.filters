@@ -160,6 +160,9 @@
     <Filter Include="SmallLuxGpu">
       <UniqueIdentifier>{9234e5b9-54fc-4ddf-b555-d14bf46e91d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="FFmpeg">
+      <UniqueIdentifier>{c6c20607-d479-4049-8537-adcf8fa2b650}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Import3DS\Model_3DS.cpp">
@@ -1317,6 +1320,9 @@
     </ClCompile>
     <ClCompile Include="ImportAssimp\code\XGLLoader.cpp">
       <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="ImportFFmpeg\RRBufferFFmpeg.cpp">
+      <Filter>FFmpeg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -3067,6 +3073,9 @@
     </ClInclude>
     <ClInclude Include="ImportAssimp\code\XMLTools.h">
       <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="ImportFFmpeg\RRBufferFFmpeg.h">
+      <Filter>FFmpeg</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
