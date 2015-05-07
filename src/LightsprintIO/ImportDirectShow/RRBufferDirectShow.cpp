@@ -5,11 +5,15 @@
 // is available by contacting Lightsprint at http://lightsprint.com
 //
 // Video load & play using DirectShow.
+// - it is for Windows only (RRBufferFFmpeg is multiplatform)
+// - under some conditions, it stops playing after switch to fullscreen (RRBufferFFmpeg has no problem with fullscreen)
+// - in clean Windows, it supports only few codecs and fileformats (RRBufferFFmpeg supports much wider range)
+// + it has better license (RRBufferFFmpeg can be built as LGPL or GPL, which is problem for some users)
+// + it can play output from webcam (open filename "c@pture)
 // --------------------------------------------------------------------------
 
 #include "../supported_formats.h"
 #ifdef SUPPORT_DIRECTSHOW
-
 
 #include "RRBufferDirectShow.h"
 #include "Lightsprint/RRBuffer.h"
