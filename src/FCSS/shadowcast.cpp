@@ -240,9 +240,12 @@ void done_gl_resources()
 {
 	rr::RR_SAFE_DELETE(skyRenderer);
 	rr::RR_SAFE_DELETE(uberProgram);
+	rr_gl::deleteAllTextures();
 #ifdef CORNER_LOGO
 	rr::RR_SAFE_DELETE(lightsprintMap);
 #endif
+	if (rrLight)
+		rrLight->projectedTexture = nullptr;
 	rr::RR_SAFE_DELETE(rrLight);
 	gluDeleteQuadric(quadric);
 }
@@ -540,7 +543,7 @@ static void drawHelpMessage(int screen)
 		"  - Mark Kilgard, Nate Robins    : GLUT library",
 		"  - Milan Ikits, Marcelo Magallon: GLEW library",
 		"  - many contributors            : FreeImage library",
-		"  - Firelight Technologies       : FMOD library",
+		"  - libav and FFmpeg authors     : FFmpeg library",
 		"  - Matthew Fairfax              : 3ds loader",
 		"  - Nicolas Baudrey              : bsp loader",
 		"  - Vojta Nedved                 : \"Difficult life\" music",
