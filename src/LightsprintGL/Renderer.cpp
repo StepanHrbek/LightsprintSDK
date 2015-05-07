@@ -108,6 +108,7 @@ public:
 	{
 		for (std::unordered_map<std::type_index,PluginRuntime*>::iterator i = pluginRuntimes.begin(); i!=pluginRuntimes.end(); ++i)
 			delete i->second;
+		delete textureRenderer;
 	}
 
 	virtual NamedCounter* getCounters()
