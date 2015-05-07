@@ -1273,6 +1273,8 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 	{
 		RRBuffer* result = load_cached(_filename,_cubeSideName);
 		RRReporter::report(INF3,"@%c %ls\n",result?'+':'-',_filename.w_str());
+		if (!result)
+			RRReporter::report(WARN,"Failed to load %ls.\n",_filename.w_str());
 		return result;
 	}
 }
