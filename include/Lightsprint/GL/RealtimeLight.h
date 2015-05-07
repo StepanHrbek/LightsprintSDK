@@ -65,11 +65,11 @@ public:
 
 	//! Returns camera you can use to control light's position, direction etc. Changes made to this camera are automatically propagated to original RRLight.
 	rr::RRCamera* getCamera() const;
-	//! Assigns new camera to this light, returns previously assigned camera.
+	//! Assigns new camera to this light.
 	//
-	//! You are responsible for deleting both cameras when they are no longer needed.
+	//! Ownership is not passed.
 	//! Should not be used in new programs.
-	rr::RRCamera* setCamera(rr::RRCamera* camera);
+	void setCamera(rr::RRCamera* camera);
 
 	//! Returns number of shadowmaps (depth maps or color maps).
 	virtual unsigned getNumShadowmaps(bool color = false) const;

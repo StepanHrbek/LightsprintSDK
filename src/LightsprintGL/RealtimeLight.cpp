@@ -143,12 +143,14 @@ namespace rr_gl
 		return camera;
 	}
 
-	rr::RRCamera* RealtimeLight::setCamera(rr::RRCamera* _camera)
+	void RealtimeLight::setCamera(rr::RRCamera* _camera)
 	{
-		rr::RRCamera* oldCamera = camera;
+		if (deleteCamera)
+		{
+			delete camera;
+			deleteCamera = false;
+		}
 		camera = _camera;
-		deleteCamera = false;
-		return oldCamera;
 	}
 
 	unsigned RealtimeLight::getNumShadowmaps(bool color) const
