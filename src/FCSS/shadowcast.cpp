@@ -13,6 +13,7 @@ unsigned INSTANCES_PER_PASS;
 #else
 	#define CONSOLE
 #endif
+//#define SUPPORT_RR_ED // builds sceneViewer() in
 //#define CORNER_LOGO
 //#define PRODUCT_NAME "3+1"
 //#define CFG_FILE "3+1.cfg"
@@ -98,7 +99,9 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "Lightsprint/GL/UberProgram.h"
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/GL/UberProgramSetup.h"
-#include "Lightsprint/Ed/Ed.h"
+#ifdef SUPPORT_RR_ED
+	#include "Lightsprint/Ed/Ed.h"
+#endif
 #include "Lightsprint/IO/IO.h"
 #include "AnimationEditor.h"
 #include "DemoPlayer.h"
@@ -1166,7 +1169,9 @@ void keyboardUp(unsigned char c, int x, int y)
 
 enum
 {
+#ifdef SUPPORT_RR_ED
 	ME_SCENE_VIEWER,
+#endif
 	ME_TOGGLE_VIDEO,
 	ME_TOGGLE_INFO,
 	ME_UPDATE_LIGHTMAPS_0,
@@ -1185,9 +1190,11 @@ void mainMenu(int item)
 {
 	switch (item)
 	{
+#ifdef SUPPORT_RR_ED
 		case ME_SCENE_VIEWER:
 			rr_ed::sceneViewer(level->solver,"","","",nullptr,true);
 			break;
+#endif
 		case ME_TOGGLE_VIDEO:
 			captureVideo = captureVideo ? nullptr : "jpg";
 			break;
@@ -1219,7 +1226,9 @@ void initMenu()
 {
 	int menu = glutCreateMenu(mainMenu);
 	glutAddMenuEntry("Toggle info panel",ME_TOGGLE_INFO);
+#ifdef SUPPORT_RR_ED
 	glutAddMenuEntry("Debugger",ME_SCENE_VIEWER);
+#endif
 	glutAddMenuEntry("Scene previous", ME_PREVIOUS_SCENE);
 	glutAddMenuEntry("Scene next", ME_NEXT_SCENE);
 	glutAddMenuEntry("Toggle help",ME_TOGGLE_HELP);
@@ -1733,7 +1742,7 @@ void parseOptions(int argc, const char*const*argv)
 			cfgFile = argv[i];
 		}
 		else
-		if (!strcmp("editor2", argv[i]))
+		if (!strcmp("editor", argv[i]))
 		{
 			supportEditor = 1;
 			fullscreen = 0;
@@ -1808,11 +1817,13 @@ void parseOptions(int argc, const char*const*argv)
 			supportMusic = false;
 		}
 		else
+#ifdef SUPPORT_RR_ED
 		if (!strcmp("editor1", argv[i]))
 		{
 			customScene = "";
 		}
 		else
+#endif
 		if (bf::exists(argv[i],ec))
 		{
 			customScene = argv[i];
@@ -1844,9 +1855,11 @@ void parseOptions(int argc, const char*const*argv)
 			"  verbose                   - log also shader diagnostic messages\n"
 			"  capture=[jpg|tga]         - capture into sequence of images at 30fps\n"
 			"  opaqueshadows             - use simpler shadows\n"
+#ifdef SUPPORT_RR_ED
 			"  editor1                   - open scene editor\n"
+#endif
 			"  filename.dae/obj/3ds/...  -  with custom 3d scene (40 fileformats)\n"
-			"  editor2                   - open animation editor\n";
+			"  editor                    - open animation editor\n";
 #if defined(_WIN32)
 		MessageBox(0,usage,caption,MB_OK);
 #else
@@ -1925,6 +1938,7 @@ int main(int argc, char** argv)
 
 	rr_io::registerLoaders(argc,argv);
 
+#ifdef SUPPORT_RR_ED
 	if (customScene)
 	{
 		if (customScene[0])
@@ -1942,6 +1956,7 @@ int main(int argc, char** argv)
 		}
 		return 0;
 	}
+#endif
 
 	// init GLUT
 	glutInit(&argc, argv);
