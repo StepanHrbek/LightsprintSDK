@@ -23,7 +23,7 @@ AnimationScene.cpp \
 DemoPlayer.cpp \
 DynamicObjects.cpp \
 Level.cpp \
-shadowcast.cpp
+LightsmarkBackend.cpp
 
 # libraries
 
