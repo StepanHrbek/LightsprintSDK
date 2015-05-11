@@ -6,8 +6,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "realtime rendering samples"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "offline rendering samples", "offline rendering samples", "{DC77EDC9-4CFB-438A-92BE-DA33ED8C8D96}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E2D79514-4603-434B-B393-32BE2B77CED4}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsmarkBackend.vs2012", "LightsmarkBackend\LightsmarkBackend.vs2012.vcxproj", "{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintGL.vs2012", "LightsprintGL\LightsprintGL.vs2012.vcxproj", "{2D2907C3-3E69-234A-306C-243C989A3411}"
