@@ -1897,7 +1897,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17B34A921F9942BAB0252444D2791470"
             {
-            "SourcePath" = "8:..\\Lightsmark\\Lightsmark.rc"
+            "SourcePath" = "8:..\\LightsmarkFrontend\\Lightsmark.rc"
             "TargetName" = "8:Lightsmark.rc"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
@@ -3677,7 +3677,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_71830EFFF49D43BDAE3188B43F88A600"
             {
-            "SourcePath" = "8:..\\Lightsmark\\Lightsmark.bmp"
+            "SourcePath" = "8:..\\LightsmarkFrontend\\Lightsmark.bmp"
             "TargetName" = "8:Lightsmark.bmp"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
@@ -3837,7 +3837,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7B1D065FB3E341BC84DDADBF2D16AEAD"
             {
-            "SourcePath" = "8:..\\Lightsmark\\Lightsmark.ico"
+            "SourcePath" = "8:..\\LightsmarkFrontend\\Lightsmark.ico"
             "TargetName" = "8:Lightsmark.ico"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
@@ -5108,7 +5108,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA72E2677BBB41C6B0778D0A09C63AB1"
             {
-            "SourcePath" = "8:..\\Lightsmark\\resource.h"
+            "SourcePath" = "8:..\\LightsmarkFrontend\\resource.h"
             "TargetName" = "8:resource.h"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
@@ -5628,7 +5628,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D1A1F7CFF5D648578C443398AFEC304F"
             {
-            "SourcePath" = "8:..\\Lightsmark\\Lightsmark.cpp"
+            "SourcePath" = "8:..\\LightsmarkFrontend\\Lightsmark.cpp"
             "TargetName" = "8:Lightsmark.cpp"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
@@ -5788,7 +5788,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D8AC168709D245ABBD7B7BDAC9398994"
             {
-            "SourcePath" = "8:..\\Lightsmark\\Lightsmark.vcproj"
+            "SourcePath" = "8:..\\LightsmarkFrontend\\Lightsmark.vcproj"
             "TargetName" = "8:Lightsmark.vcproj"
             "Tag" = "8:"
             "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
@@ -6028,7 +6028,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E664C994488046F1A81B09CDF5859B07"
             {
-            "SourcePath" = "8:..\\Lightsmark\\readme.txt"
+            "SourcePath" = "8:..\\LightsmarkFrontend\\readme.txt"
             "TargetName" = "8:readme.txt"
             "Tag" = "8:"
             "Folder" = "8:_9763831053554B918AFC705580101164"

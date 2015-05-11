@@ -107,6 +107,9 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #include "DemoPlayer.h"
 #include "DynamicObjects.h"
 #include "../LightsprintCore/RRSolver/report.h"
+#ifdef RR_DEVELOPMENT
+	#include "../../src/LightsprintCore/RRStaticSolver/rrcore.h"
+#endif
 #include "resource.h"
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
