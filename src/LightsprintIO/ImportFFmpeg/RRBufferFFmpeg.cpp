@@ -483,8 +483,8 @@ public:
 		}
 
 		// Dump information about file onto standard error
-		av_dump_format(avFormatContext, 0, filename.c_str(), 0);
-  
+		//av_dump_format(avFormatContext, 0, filename.c_str(), 0);
+
 		// Open streams
 		for (unsigned i=0; i<avFormatContext->nb_streams; i++)
 		{
