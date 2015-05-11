@@ -1494,7 +1494,7 @@ no_level:
 			if (objMoved)
 				reportObjectMovement();
 			/*
-			co tohle melo delat? animationTime ve fcss nedela vubec nic (pouze v RealtimeRadiosity samplu neco)
+			co tohle melo delat? animationTime v LightsmarkBackend nedela vubec nic (pouze v RealtimeRadiosity samplu neco)
 			for (unsigned i=0;i<10;i++)
 			{
 				// vsem objektum nastavi animacni cas (ten je pak konstantni pro shadowmapy i final render)

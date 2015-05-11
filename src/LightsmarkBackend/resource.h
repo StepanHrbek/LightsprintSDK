@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by FCSS.rc
+// Used by LightsmarkBackend.rc
 //
 #define IDI_ICON1                       109
 
