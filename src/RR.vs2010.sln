@@ -39,8 +39,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeLights.vs2010", "..
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneViewer.vs2010", "..\samples\SceneViewer\SceneViewer.vs2010.vcxproj", "{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32dlg", "win32dlg\win32dlg.vcxproj", "{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MovingSun.vs2010", "..\samples\MovingSun\MovingSun.vs2010.vcxproj", "{2691A4C3-6413-8964-A425-B51468532572}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintIO.vs2010", "LightsprintIO\LightsprintIO.vs2010.vcxproj", "{98765432-1234-11D0-8D11-00A0C91BC942}"
@@ -295,18 +293,6 @@ Global
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release static|Win32.Build.0 = Release static|Win32
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release static|x64.ActiveCfg = Release static|x64
 		{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}.Release static|x64.Build.0 = Release static|x64
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug DLL|Win32.ActiveCfg = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug DLL|Win32.Build.0 = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug DLL|x64.ActiveCfg = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug static|Win32.ActiveCfg = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug static|Win32.Build.0 = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Debug static|x64.ActiveCfg = Debug|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release DLL|Win32.ActiveCfg = Release|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release DLL|Win32.Build.0 = Release|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release DLL|x64.ActiveCfg = Release|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release static|Win32.ActiveCfg = Release|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release static|Win32.Build.0 = Release|Win32
-		{69F52EF0-87B8-48C4-8F67-8F075ABA23C6}.Release static|x64.ActiveCfg = Release|Win32
 		{2691A4C3-6413-8964-A425-B51468532572}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
 		{2691A4C3-6413-8964-A425-B51468532572}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
 		{2691A4C3-6413-8964-A425-B51468532572}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
