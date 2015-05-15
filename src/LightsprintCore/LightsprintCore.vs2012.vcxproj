@@ -555,10 +555,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="RRBuffer\RRBufferBlend.cpp" />
-    <ClCompile Include="RRCamera.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Async</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Async</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="RRCamera.cpp" />
     <ClCompile Include="RRCollider\bsp.cpp" />
     <ClCompile Include="RRCollider\geometry.cpp" />
     <ClCompile Include="RRCollider\IntersectBspCompact.cpp" />
@@ -566,22 +563,12 @@
     <ClCompile Include="RRCollider\IntersectLinear.cpp" />
     <ClCompile Include="RRCollider\RRColliderMulti.cpp" />
     <ClCompile Include="RRCollider\IntersectVerification.cpp" />
-    <ClCompile Include="RRCollider\RRCollider.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="RRCollider\RRCollider.cpp" />
     <ClCompile Include="RRCollider\RRRay.cpp" />
     <ClCompile Include="RRCollider\fpcube.cpp" />
     <ClCompile Include="RRCollider\pcube.cpp" />
     <ClCompile Include="RRColorSpace.cpp" />
-    <ClCompile Include="RRFileLocator.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="RRFileLocator.cpp" />
     <ClCompile Include="RRMesh\RRMesh.cpp" />
     <ClCompile Include="RRMesh\RRMeshAccelerated.cpp" />
     <ClCompile Include="RRMesh\RRMeshArrays.cpp" />
@@ -589,47 +576,17 @@
     <ClCompile Include="RRObject\RRObject.cpp" />
     <ClCompile Include="RRObject\RRObjects.cpp" />
     <ClCompile Include="RRLightField.cpp" />
-    <ClCompile Include="RRObjectIllumination.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="RRObjectIllumination.cpp" />
     <ClCompile Include="RRStaticSolver\pathtracer.cpp" />
     <ClCompile Include="RRStaticSolver\geometry_v.cpp" />
     <ClCompile Include="RRStaticSolver\interpol.cpp" />
     <ClCompile Include="RRStaticSolver\rrcore.cpp" />
     <ClCompile Include="RRStaticSolver\RRStaticSolver.cpp" />
-    <ClCompile Include="RRSolver\environmentMap.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
-    <ClCompile Include="RRSolver\gather.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
-    <ClCompile Include="RRSolver\lightmap.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
-    <ClCompile Include="RRSolver\RRSolver.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
-    <ClCompile Include="RRSolver\vertexBuffer.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="RRSolver\environmentMap.cpp" />
+    <ClCompile Include="RRSolver\gather.cpp" />
+    <ClCompile Include="RRSolver\lightmap.cpp" />
+    <ClCompile Include="RRSolver\RRSolver.cpp" />
+    <ClCompile Include="RRSolver\vertexBuffer.cpp" />
     <ClCompile Include="RRPackedSolver\PackedSolverFileBuild.cpp" />
     <ClCompile Include="RRPackedSolver\RRPackedSolver.cpp" />
     <ClCompile Include="RRLight.cpp" />
@@ -641,12 +598,7 @@
     <ClCompile Include="RRReporter\RRReporterPrintf.cpp" />
     <ClCompile Include="RRReporter\RRReporterWindow.cpp" />
     <ClCompile Include="RRReporter\RRReportInterval.cpp" />
-    <ClCompile Include="RRScene.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="RRScene.cpp" />
     <ClCompile Include="RRObject\RRMaterial.cpp" />
     <ClCompile Include="RRHash\RRHash.cpp" />
     <ClCompile Include="RRHash\sha1.cpp" />
@@ -663,12 +615,7 @@
     <ClCompile Include="squish\squish.cpp" />
     <ClCompile Include="Preferences.cpp" />
     <ClCompile Include="RRMemory.cpp" />
-    <ClCompile Include="Unwrapper.cpp">
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Sync</ExceptionHandling>
-      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">Sync</ExceptionHandling>
-    </ClCompile>
+    <ClCompile Include="Unwrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Lightsprint\RRCamera.h" />
