@@ -123,7 +123,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;RR_IO_BUILD;RR_STATIC;RR_IO_STATIC;ASSIMP_BUILD_NO_C4D_IMPORTER;NISHIPPING;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;RR_IO_BUILD;ASSIMP_BUILD_NO_C4D_IMPORTER;NISHIPPING;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -174,7 +174,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;RR_IO_BUILD;RR_STATIC;RR_IO_STATIC;ASSIMP_BUILD_NO_C4D_IMPORTER;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;RR_IO_BUILD;ASSIMP_BUILD_NO_C4D_IMPORTER;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -221,7 +221,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;RR_IO_BUILD;RR_STATIC;RR_IO_STATIC;ASSIMP_BUILD_NO_C4D_IMPORTER;NIDEBUG;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;RR_IO_BUILD;ASSIMP_BUILD_NO_C4D_IMPORTER;NIDEBUG;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -268,7 +268,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\include;..\..\include\Windows;$(EGB_PATH)\SDK\Win32\Include;$(GAMEBRYO_GI_PATH)\SDK\Win32\Include;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated15;ImportOpenCollada\COLLADASaxFrameworkLoader\include\generated14;ImportOpenCollada\COLLADASaxFrameworkLoader\include;ImportOpenCollada\COLLADABaseUtils\include;ImportOpenCollada\COLLADAFramework\include;ImportOpenCollada\GeneratedSaxParser\include;ImportOpenCollada\Externals\expat\lib;ImportOpenCollada\Externals\MathMLSolver\include;ImportOpenCollada\Externals\MathMLSolver\include\AST;ImportOpenCollada\Externals\pcre\include;ImportOpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;RR_IO_BUILD;RR_STATIC;RR_IO_STATIC;ASSIMP_BUILD_NO_C4D_IMPORTER;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;RR_IO_BUILD;ASSIMP_BUILD_NO_C4D_IMPORTER;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
