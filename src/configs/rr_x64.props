@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(BOOST_DIR);$(IncludePath)</IncludePath>
-    <LibraryPath>$(BOOST_DIR)\lib64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(BOOST_DIR);$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;$(IncludePath)</IncludePath>
+    <LibraryPath>$(BOOST_DIR)\lib64;$(WXWIDGETS_DIR)\lib\vc$(PlatformToolsetVersion)_x64_lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />
