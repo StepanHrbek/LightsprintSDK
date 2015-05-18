@@ -16,6 +16,7 @@
 
 #ifdef RR_HAS_LAMBDAS
 	#include <functional> // blendAkima
+	// VS2010 crashes when compiling this in release win32, unless we set "C++ Exceptions" to "Yes with SEH exceptions"
 #else
 	#pragma message ( "Skipping Akima interpolation, requires C++11 compiler." )
 	// not recognized by msvc 2005, 2008:
@@ -772,7 +773,7 @@ static Y interpolAkima(unsigned numPoints, const X* x, std::function<Y (int)> y,
 	unsigned numPointsAfterXx = numPoints-numPointsBeforeXx;
 
 	// for testing only: do linear interpolation instead of Akima
-	//return y[numPointsBeforeXx-1]+(y[numPointsBeforeXx]-y[numPointsBeforeXx-1])*(xx-x[numPointsBeforeXx-1])/(x[numPointsBeforeXx]-x[numPointsBeforeXx-1]);
+	//return y(numPointsBeforeXx-1)+(y(numPointsBeforeXx)-y(numPointsBeforeXx-1))*(xx-x[numPointsBeforeXx-1])/(x[numPointsBeforeXx]-x[numPointsBeforeXx-1]);
 
 	// create fixed size dataset
 	X x0,x1,x2,x3,x4,x5;

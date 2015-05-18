@@ -526,7 +526,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="RRBuffer\RRBufferBlend.cpp" />
-    <ClCompile Include="RRCamera.cpp" />
+    <ClCompile Include="RRCamera.cpp">
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">Async</ExceptionHandling>
+      <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">Async</ExceptionHandling>
+    </ClCompile>
     <ClCompile Include="RRCollider\bsp.cpp" />
     <ClCompile Include="RRCollider\geometry.cpp" />
     <ClCompile Include="RRCollider\IntersectBspCompact.cpp" />
