@@ -1,50 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\configs\rr_win32.props" />
+  <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  <Import Project="..\configs\rr_win32.props" Condition="'$(Platform)'=='Win32'" />
+  <Import Project="..\configs\rr_x64.props" Condition="'$(Platform)'=='x64'" />
+  <ImportGroup Condition="'$(Configuration)'=='Debug DLL'" Label="PropertySheets">
     <Import Project="..\configs\rr_shared.props" />
     <Import Project="..\configs\rr_debug.props" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\configs\rr_win32.props" />
-    <Import Project="..\configs\rr_shared.props" />
-    <Import Project="..\configs\rr_release.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\configs\rr_win32.props" />
-    <Import Project="..\configs\rr_static.props" />
-    <Import Project="..\configs\rr_debug.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\configs\rr_win32.props" />
-    <Import Project="..\configs\rr_static.props" />
-    <Import Project="..\configs\rr_release.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\configs\rr_x64.props" />
-    <Import Project="..\configs\rr_shared.props" />
-    <Import Project="..\configs\rr_debug.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\configs\rr_x64.props" />
+  <ImportGroup Condition="'$(Configuration)'=='Release DLL'" Label="PropertySheets">
     <Import Project="..\configs\rr_shared.props" />
     <Import Project="..\configs\rr_release.props" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\configs\rr_x64.props" />
+  <ImportGroup Condition="'$(Configuration)'=='Debug static'" Label="PropertySheets">
     <Import Project="..\configs\rr_static.props" />
     <Import Project="..\configs\rr_debug.props" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\configs\rr_x64.props" />
+  <ImportGroup Condition="'$(Configuration)'=='Release static'" Label="PropertySheets">
     <Import Project="..\configs\rr_static.props" />
     <Import Project="..\configs\rr_release.props" />
   </ImportGroup>
