@@ -98,28 +98,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">..\..\lib\$(Platform)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">..\..\lib\$(Platform)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">..\..\lib\$(Platform)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">..\..\lib\$(Platform)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">..\..\lib\$(Platform)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">..\..\lib\$(Platform)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">..\..\lib\$(Platform)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">..\..\lib\$(Platform)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug static|x64'">$(ProjectName)_sd</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug DLL|x64'">$(ProjectName)_dd</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">$(ProjectName)_sr</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">$(ProjectName)_sr</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug static|Win32'">$(ProjectName)_sd</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug DLL|Win32'">$(ProjectName)_dd</TargetName>
+    <OutDir>..\..\lib\$(Platform)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">
     <Midl>

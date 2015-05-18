@@ -49,7 +49,14 @@
     <Import Project="..\configs\rr_release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup>
+    <OutDir>..\..\bin\$(Platform)\</OutDir>
+    <IntDir>..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
+    <TargetName Condition="'$(Configuration)'=='Release DLL'">$(ProjectName)</TargetName>
+    <TargetName Condition="'$(Configuration)'=='Release static'">$(ProjectName)_sr</TargetName>
+    <TargetName Condition="'$(Configuration)'=='Debug DLL'">$(ProjectName)_dd</TargetName>
+    <TargetName Condition="'$(Configuration)'=='Debug static'">$(ProjectName)_sd</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup />
   <ItemGroup />
 </Project>
