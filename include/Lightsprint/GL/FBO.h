@@ -40,6 +40,8 @@ public:
 	//! \param oldState
 	//!  When setting nullptr color texture, setRenderBuffers(oldState.buffers) restores old buffers.
 	static void setRenderTarget(GLenum attachment, GLenum target, const Texture* texture, const FBO& oldState);
+	//! Similar to setRenderTarget(), but with raw OpenGL texture id instead of Lightsprint Texture.
+	static void setRenderTargetGL(GLenum attachment, GLenum target, GLuint texture, const FBO& oldState);
 	//! Wrapper for glDrawBuffer() and glReadBuffer().
 	//
 	//! It is used internally by setRenderTarget(), it is rarely needed outside.
@@ -57,8 +59,6 @@ public:
 	//! Initializes new instance of default framebuffer, without modifying OpenGL state. Calling restore() would restore default framebuffer.
 	FBO();
 private:
-	static void setRenderTargetGL(GLenum attachment, GLenum target, GLuint texture, const FBO& oldState);
-
 	// Saved state.
 	GLenum buffers; // GL_COLOR_ATTACHMENT0, GL_NONE, GL_BACK_LEFT, GL_BACK_RIGHT
 	GLuint fb_id;
