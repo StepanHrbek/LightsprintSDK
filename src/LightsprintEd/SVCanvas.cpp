@@ -2063,9 +2063,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								ovrBool result = ovrHmd_ConfigureRendering(svframe->oculusHMD, &cfg.Config, distortionCaps, svframe->oculusHMD->DefaultEyeFov, oculusEyeRenderDesc);
 							}
 
-							//ppStereo.oculusDistortionK = convertVec4(svframe->oculusHMDInfo.DistortionK);
-							//ppStereo.oculusChromaAbCorrection = convertVec4(svframe->oculusHMDInfo.ChromaAbCorrection);
-							//ppStereo.oculusLensShift = 1-2.f*svframe->oculusHMDInfo.LensSeparationDistance/svframe->oculusHMDInfo.HScreenSize;
 							ppStereo.oculusTanHalfFov = (void*)svframe->oculusHMD->DefaultEyeFov;
 							// enforce screenCenter 0
 							//svs.camera.setScreenCenter(rr::RRVec2(0));
