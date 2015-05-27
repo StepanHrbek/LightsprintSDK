@@ -176,7 +176,12 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 	RRPointMaterial& material = collisionHandlerGatherHemisphere.getContactMaterial(); // intersect would fail if material was nullptr
 	RRSideBits side = material.sideBits[ray.hitFrontSide?0:1];
 	Channels exitance = Channels(0);
-	RR_ASSERT(side.renderFrom); // guaranteed by RRCollisionHandlerFinalGathering
+	// we used to RR_ASSERT(side.renderFrom);
+	// but it is no longer guaranteed by RRCollisionHandlerFinalGathering,
+	//  - shadow rays collide also when theOtherSide.renderFrom [#45]
+	//      - no problem, we are not shadow ray
+	//  - 1sided glass refracts also from backside (when theOtherSide.transmitFrom && specularTransmittance.color)
+	//      - it should be ok to continue even without renderFrom
 	if (side.legal)
 	{
 		// normals initially go from front side
