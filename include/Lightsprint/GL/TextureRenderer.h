@@ -86,6 +86,8 @@ public:
 	//! but render2dBegin() + N*render2dQuad() + render2dEnd() is slightly faster.
 	//! \param texture
 	//!  Texture (2d or cube) to be rendered. Cube textures are rendered in equirectangular projection.
+	//!  It is legal to pass nullptr texture as long as you glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D,id);
+	//!  ahead of rendering.
 	//! \param tp
 	//!  For non-nullptr tp, output is tonemapped using given parameters.
 	//! \param x

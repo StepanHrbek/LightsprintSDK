@@ -186,13 +186,15 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 {
 	if (!texture)
 	{
-		RR_ASSERT(0);
-		return;
+		// this is legal as long as you bind texture ahead of rendering
+		//RR_ASSERT(0);
+		//return;
 	}
-	texture->bindTexture();
+	if (texture)
+		texture->bindTexture();
 
 #ifndef RR_GL_ES2
-	if (texture->getBuffer()->getFormat()==rr::BF_DEPTH)
+	if (texture && texture->getBuffer()->getFormat()==rr::BF_DEPTH)
 		// must be GL_NONE for sampler2D, otherwise result is undefined
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
 #endif
@@ -204,7 +206,7 @@ void TextureRenderer::render2dQuad(const Texture* texture, float x,float y,float
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 #ifndef RR_GL_ES2
-	if (texture->getBuffer()->getFormat()==rr::BF_DEPTH)
+	if (texture && texture->getBuffer()->getFormat()==rr::BF_DEPTH)
 		// must be GL_COMPARE_REF_TO_TEXTURE for sampler2DShadow, otherwise result is undefined
 		// we keep all depth textures ready for sampler2DShadow
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
