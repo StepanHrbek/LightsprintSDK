@@ -550,6 +550,14 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	{
 		rr::RRReportInterval report(rr::INF2,"Checking Oculus Rift...\n");
 		ovrResult err = ovrHmd_Create(0,&oculusHMD);
+		if (!OVR_SUCCESS(err))
+		{
+			ovrResult err = ovrHmd_CreateDebug(ovrHmd_DK2,&oculusHMD);
+			if (OVR_SUCCESS(err))
+				rr::RRReporter::report(rr::INF2,"Real Oculus Rift not available, faking one.\n");
+			else
+				rr::RRReporter::report(rr::INF2,"Oculus Rift not available.\n");
+		}
 	}
 #endif // SUPPORT_OCULUS
 
