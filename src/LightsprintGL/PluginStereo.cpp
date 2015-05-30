@@ -86,28 +86,30 @@ public:
 			{
 				PluginParamsShared oneEye = _sp;
 				oneEye.camera = &eye[swapEyes?1-e:e];
-				oneEye.viewport[0] = viewport[0];
-				oneEye.viewport[1] = viewport[1];
-				oneEye.viewport[2] = viewport[2];
-				oneEye.viewport[3] = viewport[3];
-				if (_sp.camera->stereoMode==rr::RRCamera::SM_QUAD_BUFFERED)
 				{
-					if (e==0)
+					oneEye.viewport[0] = viewport[0];
+					oneEye.viewport[1] = viewport[1];
+					oneEye.viewport[2] = viewport[2];
+					oneEye.viewport[3] = viewport[3];
+					if (_sp.camera->stereoMode==rr::RRCamera::SM_QUAD_BUFFERED)
 					{
-						FBO::setRenderBuffers(GL_BACK_LEFT);
+						if (e==0)
+						{
+							FBO::setRenderBuffers(GL_BACK_LEFT);
+						}
+						else
+						{
+							FBO::setRenderBuffers(GL_BACK_RIGHT);
+							glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+						}
 					}
 					else
 					{
-						FBO::setRenderBuffers(GL_BACK_RIGHT);
-						glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+						int ofs = (_sp.camera->stereoMode==rr::RRCamera::SM_SIDE_BY_SIDE || _sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)?0:1;
+						oneEye.viewport[2+ofs] /= 2;
+						if (e==1)
+							oneEye.viewport[ofs] += oneEye.viewport[2+ofs];
 					}
-				}
-				else
-				{
-					int ofs = (_sp.camera->stereoMode==rr::RRCamera::SM_SIDE_BY_SIDE || _sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)?0:1;
-					oneEye.viewport[2+ofs] /= 2;
-					if (e==1)
-						oneEye.viewport[ofs] += oneEye.viewport[2+ofs];
 				}
 				glViewport(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
 				glScissor(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
