@@ -29,6 +29,7 @@ struct OvrFovPort
 class PluginRuntimeStereo : public PluginRuntime
 {
 	Texture* stereoTexture;
+	Texture* oculusDepthTexture[2];
 	UberProgram* stereoUberProgram;
 
 public:
@@ -36,6 +37,8 @@ public:
 	PluginRuntimeStereo(const PluginCreateRuntimeParams& params)
 	{
 		stereoTexture = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,1,1,1,rr::BF_RGB,true,RR_GHOST_BUFFER),false,false,GL_NEAREST,GL_NEAREST); // GL_NEAREST is for interlaced
+		oculusDepthTexture[0] = nullptr;
+		oculusDepthTexture[1] = nullptr;
 		stereoUberProgram = UberProgram::create(rr::RRString(0,L"%lsstereo.vs",params.pathToShaders.w_str()),rr::RRString(0,L"%lsstereo.fs",params.pathToShaders.w_str()));
 	}
 
@@ -61,10 +64,10 @@ public:
 		bool swapEyes = _sp.camera->stereoMode==rr::RRCamera::SM_TOP_DOWN;
 		if (_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT && pp.oculusTanHalfFov)
 		{
-			float aspect = _sp.camera->getAspect()*0.5f;
 			for (unsigned e=0;e<2;e++)
 			{
 				const OvrFovPort& tanHalfFov = ((const OvrFovPort*)(pp.oculusTanHalfFov))[e];
+				float aspect = pp.oculusW[e]/(float)pp.oculusH[e];
 				eye[e].setAspect(aspect);
 				eye[e].setScreenCenter(rr::RRVec2( -( tanHalfFov.LeftTan - tanHalfFov.RightTan ) / ( tanHalfFov.LeftTan + tanHalfFov.RightTan ), ( tanHalfFov.UpTan - tanHalfFov.DownTan ) / ( tanHalfFov.UpTan + tanHalfFov.DownTan ) ));
 				eye[e].setFieldOfViewVerticalDeg(RR_RAD2DEG( 2*atan( (tanHalfFov.LeftTan + tanHalfFov.RightTan)/(2*aspect) ) ));
@@ -74,19 +77,39 @@ public:
 		{
 			// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
 			// it could be faster, althout I did not see any speedup
-			PreserveFlag p0(GL_SCISSOR_TEST,true);
+			PreserveFlag p0(GL_SCISSOR_TEST,_sp.camera->stereoMode!=rr::RRCamera::SM_OCULUS_RIFT);
 			PreserveScissor p1;
 
-			FBO oldFBOStateQB;
-			if (_sp.camera->stereoMode==rr::RRCamera::SM_QUAD_BUFFERED)
-				oldFBOStateQB = FBO::getState();
+			FBO oldFBOState;
+			if (_sp.camera->stereoMode==rr::RRCamera::SM_QUAD_BUFFERED || _sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)
+				oldFBOState = FBO::getState();
 
 			// render left and right eye
 			for (unsigned e=0;e<2;e++)
 			{
 				PluginParamsShared oneEye = _sp;
 				oneEye.camera = &eye[swapEyes?1-e:e];
+				if (_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)
 				{
+					// render to textures
+					oneEye.viewport[0] = 0;
+					oneEye.viewport[1] = 0;
+					oneEye.viewport[2] = pp.oculusW[e];
+					oneEye.viewport[3] = pp.oculusH[e];
+					if (!oculusDepthTexture[e])
+						oculusDepthTexture[e] = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,pp.oculusW[e],pp.oculusH[e],1,rr::BF_DEPTH,false,RR_GHOST_BUFFER),false,false);
+					if (oculusDepthTexture[e]->getBuffer()->getWidth()!=pp.oculusW[e] || oculusDepthTexture[e]->getBuffer()->getWidth()!=pp.oculusH[e])
+					{
+						oculusDepthTexture[e]->getBuffer()->reset(rr::BT_2D_TEXTURE,pp.oculusW[e],pp.oculusH[e],1,rr::BF_DEPTH,false,RR_GHOST_BUFFER);
+						oculusDepthTexture[e]->reset(false,false,false);
+					}
+					rr_gl::FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,oculusDepthTexture[e],oldFBOState);
+					rr_gl::FBO::setRenderTargetGL(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,pp.oculusTextureId[e],oldFBOState);
+					glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+				}
+				else
+				{
+					// render to parts of current render target
 					oneEye.viewport[0] = viewport[0];
 					oneEye.viewport[1] = viewport[1];
 					oneEye.viewport[2] = viewport[2];
@@ -105,7 +128,7 @@ public:
 					}
 					else
 					{
-						int ofs = (_sp.camera->stereoMode==rr::RRCamera::SM_SIDE_BY_SIDE || _sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)?0:1;
+						int ofs = (_sp.camera->stereoMode==rr::RRCamera::SM_SIDE_BY_SIDE)?0:1;
 						oneEye.viewport[2+ofs] /= 2;
 						if (e==1)
 							oneEye.viewport[ofs] += oneEye.viewport[2+ofs];
@@ -116,8 +139,8 @@ public:
 				_renderer.render(_pp.next,oneEye);
 			}
 
-			if (_sp.camera->stereoMode==rr::RRCamera::SM_QUAD_BUFFERED)
-				oldFBOStateQB.restore();
+			if (_sp.camera->stereoMode==rr::RRCamera::SM_QUAD_BUFFERED || _sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)
+				oldFBOState.restore();
 		}
 
 		// composite
@@ -156,6 +179,12 @@ public:
 		if (stereoTexture)
 			delete stereoTexture->getBuffer();
 		RR_SAFE_DELETE(stereoTexture);
+		for (unsigned eye=0;eye<2;eye++)
+		{
+			if (oculusDepthTexture[eye])
+				delete oculusDepthTexture[eye]->getBuffer();
+			RR_SAFE_DELETE(oculusDepthTexture[eye]);
+		}
 	}
 };
 

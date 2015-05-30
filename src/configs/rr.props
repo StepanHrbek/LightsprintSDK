@@ -21,6 +21,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
+    <IncludePath>$(OCULUS_DIR)\Include;$(OCULUS_DIR)Kernel\Src;$(IncludePath)</IncludePath>
     <OutDir>..\..\bin\$(Platform)\</OutDir>
     <IntDir>..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
     <TargetName Condition="'$(Configuration)'=='Release DLL'">$(ProjectName)</TargetName>

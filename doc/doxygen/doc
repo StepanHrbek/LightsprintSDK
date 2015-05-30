@@ -567,12 +567,11 @@ Material formats (1)
    - Copyright (c) 2013 Oculus VR, Inc. All rights reserved
 
   \section oculus_version Version
-   - version 0.4.4 is used internally by LightsprintEd library, it's not visible from outside (no headers or dll files)
+   - version 0.6.0.0 is used internally by LightsprintEd library, it's not visible from outside (no headers or dll files)
 
   \section oculus_build Installing/building LibOVR
    Only for LightsprintEd source code licensees:
    - install <a href="http://oculusvr.com/">Oculus VR SDK</a>
-   - if it does not contain LibOVR prebuilt for your compiler, follow Oculus VR SDK instructions to build it
    - set environment variable OCULUS_DIR to point to LibOVR dir inside Oculus SDK, so e.g. c:\\OculusSDK\\LibOVR
 
   \section oculus_remove Removing LibOVR
@@ -580,6 +579,21 @@ Material formats (1)
    If you wish to remove Oculus Rift support
    - remove <code>\#define SUPPORT_OCULUS</code> from LightsprintEd project files and build as usual
 
+  \section oculus_integr Integrating LibOVR
+   So far LibOVR is not part of Lightsprint SDK, you need to install it separately.
+   But version 0.6 is much smaller, just a shim, so size is not problem.
+   Is it good idea to make it part of Lightsprint SDK?
+
+   <b>-</b> We would have to integrate Oculus build into Lightsprint build; not sure how much work it is for all platforms.
+
+   <b>+</b> Bisect would be easier, old Lightsprint revisions would run out of the box (right now we have to disable Oculus SDK before building).
+
+   <b>+</b> Stable branches would be possible.
+
+   <b>+</b> Old Oculus versions would run out of the box. But it's not a big advantage, no one wants to debug old Oculus when new one is available.
+
+   <b>-</b> Some users might already have Oculus fixed on different path, and having Oculus twice is not nice.
+  
 \page tpl_art 2d art
   - scene viewer uses icons from <a href="http://www.fatcow.com/free-icons/index.bml">Fat Cow</a>, under <a href="http://creativecommons.org/licenses/by/3.0/us/">Creative Commons Attribution 3.0 License</a>
   - optional, remove by replacing <code>data/maps/sv_*.png</code> icons
@@ -1118,6 +1132,7 @@ Material formats (1)
   Setting up third party libraries
   - \ref tpl_boost
   - \ref tpl_wx (you need it only if you build LightsprintEd from source code)
+  - \ref tpl_oculus (you need it only if you build LightsprintEd from source code)
 
   Lightsprint SDK includes solutions for all supported Visual C++ compilers,
   simply open solution and build.
@@ -1131,7 +1146,6 @@ Material formats (1)
 
   Lightsprint SDK includes makefiles for OSX/Linux on all supported architectures.
   Simply run make in directory you want to make.
-  (OSX and Linux support is included on request)
 
 
 
@@ -3009,7 +3023,7 @@ Material formats (1)
   If you wish to support Oculus Rift outside of our scene viewer, or if you rebuild scene viewer from source code, you need Oculus SDK.
   We don't ship it with Lightsprint SDK, it is up to you to get it and build it ("libovr" library).
 
-  <b>Following examples were written for Oculus SDK 0.3, they no longer apply to Oculus SDK 0.4.
+  <b>Following examples were written for Oculus SDK 0.3, they no longer apply to current Oculus SDK.
   We will update this documentation once Oculus SDK stabilizes a bit.</b>
 
   Once you have it, initialize Oculus Rift as usual, see Oculus SDK documentation. \subpage oculus_init "Here" you can see how we initialize it.
@@ -3512,8 +3526,7 @@ rr::RRVector<*>{
  - original scene without any modifications is loaded to show engine robustness
  - undocumented feature: enter interactive mode by spacebar, control everything yourself, F1=help
  - complete Lightsmark is not part of SDK,
-   but you can <a href="http://dee.cz/lightsmark">download it here</a>,
-   source code on request
+   but you can <a href="http://dee.cz/lightsmark">download it here</a>
 
  <hr>
  <b>SceneViewer</b>

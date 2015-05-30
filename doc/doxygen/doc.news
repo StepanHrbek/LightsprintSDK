@@ -27,6 +27,7 @@ NEWS
   - RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
   - RRCamera::PC_TRUNCATE_TOP_BOT
   - import of *.ifc, *.ifczip
+  - Oculus Rift integration updated to Oculus SDK version 0.6.0.0
 
 CHANGES
 

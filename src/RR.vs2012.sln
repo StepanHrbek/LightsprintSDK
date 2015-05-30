@@ -40,7 +40,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintIO.vs2012", "Lig
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintEd.vs2012", "LightsprintEd\LightsprintEd.vs2012.vcxproj", "{1A354CD4-2F21-93DE-51B9-88DA14A602BF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibOVR", "..\..\OculusSDK\LibOVR\Projects\Win32\VS2012\LibOVR.vcxproj", "{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibOVR", "%OCULUS_DIR%\Projects\Windows\VS2012\LibOVR.vcxproj", "{CCFFB3F0-DDC4-4F01-8116-A5BFC53B331C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

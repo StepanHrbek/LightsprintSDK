@@ -549,7 +549,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 #ifdef SUPPORT_OCULUS
 	{
 		rr::RRReportInterval report(rr::INF2,"Checking Oculus Rift...\n");
-		oculusHMD = ovrHmd_Create(0);
+		ovrResult err = ovrHmd_Create(0,&oculusHMD);
 	}
 #endif // SUPPORT_OCULUS
 

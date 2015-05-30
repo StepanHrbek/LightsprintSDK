@@ -14,18 +14,8 @@
 namespace bf = boost::filesystem;
 #ifdef SUPPORT_OCULUS
 	#include "OVR.h"
-	#if defined(_M_X64) || defined(_LP64)
-		#define RR_64 "64"
-	#else
-		#define RR_64
-	#endif
-	#ifdef NDEBUG
-		#pragma comment(lib,"libovr" RR_64)
-		#pragma comment(linker, "/NODEFAULTLIB:libcpmt.lib") // libovr is compiled with static crt, force it to use our dll crt
-	#else
-		#pragma comment(lib,"libovr" RR_64 "d")
-		#pragma comment(linker, "/NODEFAULTLIB:libcpmtd.lib")
-	#endif
+	#pragma comment(lib,"libovr")
+	#pragma comment(linker, "/NODEFAULTLIB:libcpmt.lib") // libovr is compiled with static crt, force it to use our dll crt
 	#pragma comment(lib,"ws2_32.lib")
 #endif
 
@@ -98,7 +88,7 @@ public:
 		bf::current_path(s_initPath);
 #endif
 #ifdef SUPPORT_OCULUS
-		ovr_Initialize();
+		ovrResult err = ovr_Initialize(nullptr);
 #endif
 		svframe = SVFrame::Create(s_svs);
 		return true;

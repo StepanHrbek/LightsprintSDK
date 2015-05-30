@@ -150,7 +150,11 @@ namespace rr_ed
 		unsigned                   pathTracedAccumulator;
 
 #ifdef SUPPORT_OCULUS
-		rr_gl::Texture*            oculusTexture[2];
+		ovrSwapTextureSet*         oculusSwapTextureSet[2];
+		bool                       oculusTracking;
+		ovrTexture*                oculusMirrorTexture;
+		unsigned                   oculusMirrorFBO;
+		unsigned                   oculusFrameIndex;
 		ovrEyeRenderDesc           oculusEyeRenderDesc[2];
 #endif
 
