@@ -463,6 +463,9 @@
     <ClCompile Include="SceneViewerSample.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="$(OCULUS_DIR)\Projects\Windows\VS2013\LibOVR.vcxproj">
+      <Project>{ea50e705-5113-49e5-b105-2512edc8ddc6}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\LightsprintEd\LightsprintEd.vs2013.vcxproj">
       <Project>{1a354cd4-2f21-93de-51b9-88da14a602bf}</Project>
     </ProjectReference>

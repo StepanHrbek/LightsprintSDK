@@ -454,6 +454,9 @@
     <ClCompile Include="BuildLightmaps.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="$(OCULUS_DIR)\Projects\Windows\VS2010\LibOVR.vcxproj">
+      <Project>{ea50e705-5113-49e5-b105-2512edc8ddc6}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\LightsprintEd\LightsprintEd.vs2010.vcxproj">
       <Project>{1a354cd4-2f21-93de-51b9-88da14a602bf}</Project>
       <Private>true</Private>
@@ -461,6 +464,9 @@
       <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
       <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\LightsprintGL\LightsprintGL.vs2010.vcxproj">
+      <Project>{2d2907c3-3e69-234a-306c-243c989a3411}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\src\LightsprintIO\LightsprintIO.vs2010.vcxproj">
       <Project>{98765432-1234-11d0-8d11-00a0c91bc942}</Project>
