@@ -1886,7 +1886,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			// renderpath 2 - rasterizer
 			//
 			rr::RRReportInterval report(rr::INF3,"render scene...\n");
-			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
 			// skybox plugin
 			rr_gl::PluginParamsSky ppSky(pluginChain,solver,svs.getMultipliersDirect().environmentMultiplier);
@@ -2123,6 +2122,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppShowDDI;
 
 			// final render
+			glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 			solver->getRenderer()->render(pluginChain,ppShared);
 
 
