@@ -67,7 +67,7 @@ public:
 	RRReporterWindow(RRCallback* _abortCallback, const char* _caption, bool _closeWhenDone)
 	{
 		// necessary for changing text color
-		LoadLibrary("riched20.dll");
+		LoadLibraryA("riched20.dll");
 
 		hWnd = 0;
 		// instance data are allocated here, deleted at the end of thread life
@@ -188,9 +188,9 @@ public:
 		if (instanceData)
 		{
 			char caption[200];
-			GetWindowText(hWnd,caption,100);
+			GetWindowTextA(hWnd,caption,100);
 			strcat(caption," [FINISHED]");
-			SetWindowText(hWnd,caption);
+			SetWindowTextA(hWnd,caption);
 			if (instanceData->numLines[WARN]) localReport(WARN," %d WARNINGS\n",instanceData->numLines[WARN]); // warnings must go first, becuase all these messages are warnings, they increase count
 			if (instanceData->numLines[ERRO]) localReport(WARN," %d ERRORS\n",instanceData->numLines[ERRO]);
 			if (instanceData->numLines[ASSE]) localReport(WARN," %d ASSERTS\n",instanceData->numLines[ASSE]);
@@ -288,7 +288,7 @@ private:
 						}
 
 						if (instanceData->caption)
-							SetWindowText(hWnd,instanceData->caption);
+							SetWindowTextA(hWnd,instanceData->caption);
 						if (instanceData->closeWhenDone)
 						{
 							ShowWindow(GetDlgItem(hWnd,IDC_WHENDONE),SW_HIDE);

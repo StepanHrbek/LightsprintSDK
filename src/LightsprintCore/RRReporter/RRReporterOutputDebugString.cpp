@@ -32,14 +32,14 @@ public:
 			char space[1000];
 			memset(space,' ',indentation);
 			space[indentation] = 0;
-			OutputDebugString(space);
+			OutputDebugStringA(space);
 		}
 		// type
 		if (type<ERRO || type>TIMI) type = INF9;
 		static const char* typePrefix[] = {"ERROR: ","Assertion failed: ","Warning: ","","","","",""};
-		OutputDebugString(typePrefix[type]);
+		OutputDebugStringA(typePrefix[type]);
 		// message
-		OutputDebugString(message);
+		OutputDebugStringA(message);
 	}
 };
 

@@ -37,11 +37,11 @@ float Preferences::getValue(const char* location, const char* variable, float de
 	{
 		HKEY hkey2;
 		DWORD dwDisposition;
-		if (RegCreateKeyEx(hkey1, TEXT(subkey), 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &hkey2, &dwDisposition)==ERROR_SUCCESS)
+		if (RegCreateKeyExA(hkey1, subkey, 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &hkey2, &dwDisposition)==ERROR_SUCCESS)
 		{
 			DWORD dwType = REG_BINARY;
 			DWORD dwSize = sizeof(value);
-			RegQueryValueEx(hkey2, TEXT(variable), nullptr, &dwType, (PBYTE)&value, &dwSize);
+			RegQueryValueExA(hkey2, variable, nullptr, &dwType, (PBYTE)&value, &dwSize);
 			RegCloseKey(hkey2);
 		}
 		RegCloseKey(hkey1);
@@ -65,11 +65,11 @@ void Preferences::setValue(const char* location, const char* variable, float val
 	{
 		HKEY hkey2;
 		DWORD dwDisposition;
-		if (RegCreateKeyEx(hkey1, TEXT(subkey), 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &hkey2, &dwDisposition)==ERROR_SUCCESS)
+		if (RegCreateKeyExA(hkey1, subkey, 0, nullptr, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &hkey2, &dwDisposition)==ERROR_SUCCESS)
 		{
 			DWORD dwType = REG_BINARY;
 			DWORD dwSize = sizeof(value);
-			RegSetValueEx(hkey2, TEXT(variable), 0, dwType, (PBYTE)&value, dwSize);
+			RegSetValueExA(hkey2, variable, 0, dwType, (PBYTE)&value, dwSize);
 			RegCloseKey(hkey2);
 		}
 		RegCloseKey(hkey1);

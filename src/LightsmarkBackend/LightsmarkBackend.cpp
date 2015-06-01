@@ -1864,7 +1864,7 @@ void parseOptions(int argc, const char*const*argv)
 			"  filename.dae/obj/3ds/...  -  with custom 3d scene (40 fileformats)\n"
 			"  editor                    - open animation editor\n";
 #if defined(_WIN32)
-		MessageBox(0,usage,caption,MB_OK);
+		MessageBoxA(0,usage,caption,MB_OK);
 #else
 		printf("\n%s\n\n%s",caption,usage);
 #endif

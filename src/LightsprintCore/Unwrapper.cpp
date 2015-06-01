@@ -133,18 +133,18 @@ Unwrapper::Unwrapper()
 	RECT rect = {0, 0, 100, 100};
 	DWORD dwStyle = WS_OVERLAPPED | WS_MINIMIZEBOX;
 	AdjustWindowRect(&rect, dwStyle, false);
-	hwnd = CreateWindow("a", "a", dwStyle, 0, 0, rect.right-rect.left, rect.bottom-rect.top, nullptr, nullptr, nullptr, nullptr);
+	hwnd = CreateWindowA("a", "a", dwStyle, 0, 0, rect.right-rect.left, rect.bottom-rect.top, nullptr, nullptr, nullptr, nullptr);
 
 	// create d3d to make d3ddevice happy
 #ifdef DYNAMIC_LOAD
-	hModD3D9 = LoadLibrary("d3d9.dll");
+	hModD3D9 = LoadLibraryA("d3d9.dll");
 	hModD3DX9 = nullptr; //LoadLibrary("d3dx9_32.dll");
 	for (unsigned version=43;!hModD3DX9 && version>=31;version--)
 	{
 		char d3dxFilename[] = "d3dx9_??.dll";
 		d3dxFilename[6] = '0'+version/10;
 		d3dxFilename[7] = '0'+version%10;
-		hModD3DX9 = LoadLibrary(d3dxFilename);
+		hModD3DX9 = LoadLibraryA(d3dxFilename);
 	}
 
 	Direct3DCreate9      = hModD3D9  ? (LPDIRECT3DCREATE9)     GetProcAddress(hModD3D9,  "Direct3DCreate9")      : nullptr;
