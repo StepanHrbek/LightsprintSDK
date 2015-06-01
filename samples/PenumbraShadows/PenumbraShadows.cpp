@@ -213,6 +213,8 @@ void keyboard(unsigned char c, int x, int y)
 		case 27:
 			// immediate exit without freeing memory, leaks may be reported
 			// see e.g. RealtimeLights sample for freeing memory before exit
+			// ok, at least textures need to be freed from video memory, otherwise debug version complains
+			rr_gl::deleteAllTextures();
 			exit(0);
 	}
 }
