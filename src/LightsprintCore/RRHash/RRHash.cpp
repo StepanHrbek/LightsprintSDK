@@ -203,9 +203,6 @@ RRString RRHash::getFileName(unsigned version, const char* cacheLocation, const 
 	std::string filename;
 	if (!cacheLocation)
 	{
-#ifdef XBOX
-		filename = "game:\\"; // xbox 360
-#else
 #ifdef RR_LINKS_BOOST
 		boost::system::error_code ec;
 		bf::path path = bf::temp_directory_path(ec) / "Lightsprint";
@@ -213,7 +210,6 @@ RRString RRHash::getFileName(unsigned version, const char* cacheLocation, const 
 		filename = path.string() + "/";
 #else
 		// in default directory
-#endif
 #endif
 	}
 	else

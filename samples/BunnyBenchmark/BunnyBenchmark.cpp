@@ -19,11 +19,7 @@ using namespace rr;
 
 int main(int argc, char** argv)
 {
-#ifdef XBOX
-	RRReporter* reporter = RRReporter::createFileReporter("game:\\results.txt");
-#else
 	RRReporter* reporter = RRReporter::createPrintfReporter();
-#endif
 
 	RRReporter::report(INF1,"Stanford Bunny Benchmark\n");
 
@@ -32,11 +28,7 @@ int main(int argc, char** argv)
 	PlyMeshReader reader;
 	try
 	{
-#ifdef XBOX
-		reader.readFile("game:\\bun_zipper.ply",plyMesh);
-#else
 		reader.readFile("../../data/objects/bun_zipper.ply",plyMesh);
-#endif
 	}
 	catch(PlyMeshReaderExcep* e)
 	{

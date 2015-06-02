@@ -16,7 +16,7 @@
 #include "RRMath.h"
 
 // Common memory macros.
-#if defined(__BIG_ENDIAN__) || defined(__PPC__) // || defined(XBOX)
+#if defined(__BIG_ENDIAN__) || defined(__PPC__)
 	#define RR_BIG_ENDIAN
 #endif
 #if defined(_MSC_VER)
