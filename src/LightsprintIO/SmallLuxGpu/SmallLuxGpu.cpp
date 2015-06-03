@@ -554,4 +554,4 @@ void registerSmallLuxGpu()
 	RRScene::registerSaver("*.scn",saveSmallLuxGpu);
 }
 
-#endif // SUPPORT_LIGHTSPRINT
+#endif // SUPPORT_SMALLLUXGPU
