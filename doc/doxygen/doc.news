@@ -28,6 +28,7 @@ NEWS
   - RRCamera::PC_TRUNCATE_TOP_BOT
   - import of *.ifc, *.ifczip
   - Oculus Rift integration updated to Oculus SDK version 0.6.0.0
+  - simplified Visual Studio projects, with huge .vcxproj files reduced to small .props
 
 CHANGES
 
