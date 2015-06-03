@@ -1,34 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  <Import Project="..\configs\rr_win32.props" Condition="'$(Platform)'=='Win32'" />
-  <Import Project="..\configs\rr_x64.props" Condition="'$(Platform)'=='x64'" />
-  <ImportGroup Condition="'$(Configuration)'=='Debug DLL'" Label="PropertySheets">
-    <Import Project="..\configs\rr_shared.props" />
-    <Import Project="..\configs\rr_debug.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)'=='Release DLL'" Label="PropertySheets">
-    <Import Project="..\configs\rr_shared.props" />
-    <Import Project="..\configs\rr_release.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)'=='Debug static'" Label="PropertySheets">
-    <Import Project="..\configs\rr_static.props" />
-    <Import Project="..\configs\rr_debug.props" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)'=='Release static'" Label="PropertySheets">
-    <Import Project="..\configs\rr_static.props" />
-    <Import Project="..\configs\rr_release.props" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
+  <!-- we can put <ItemGroup Label="ProjectConfigurations"> here and remove it from all vcxproj, but VS2010 does not support it -->
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <!--CharacterSet></CharacterSet--> <!-- we set it only for projects that need it. different projects have different needs -->
+    <PlatformToolset Condition="'$(DefaultPlatformToolset)'==''">v100</PlatformToolset> <!-- workaround for vs2010 -->
+    <PlatformToolset Condition="'$(DefaultPlatformToolset)'!=''">$(DefaultPlatformToolset)</PlatformToolset>
+    <UseOfMfc>false</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />  <!-- needs CharacterSet+ConfigurationType+PlatformToolset+UseOfMfc, sets TargetExt -->
+  <!--Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" /--> <!-- per-user settings, ideally should be empty -->
+  <Import Project="rr_win32.props"   Condition="'$(Platform)'=='Win32'" />
+  <Import Project="rr_x64.props"     Condition="'$(Platform)'=='x64'" />
+  <Import Project="rr_shared.props"  Condition="'$(Configuration)'=='Debug DLL' or '$(Configuration)'=='Release DLL'" />
+  <Import Project="rr_static.props"  Condition="'$(Configuration)'=='Debug static' or '$(Configuration)'=='Release static'" />
+  <Import Project="rr_debug.props"   Condition="'$(Configuration)'=='Debug static' or '$(Configuration)'=='Debug DLL'" />
+  <Import Project="rr_release.props" Condition="'$(Configuration)'=='Release static' or '$(Configuration)'=='Release DLL'" />
   <PropertyGroup>
-    <IncludePath>$(OCULUS_DIR)\Include;$(OCULUS_DIR)Kernel\Src;$(IncludePath)</IncludePath>
-    <OutDir>..\..\bin\$(Platform)\</OutDir>
+    <IncludePath>..\..\include;..\..\include\Windows;$(BOOST_DIR);$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;$(OCULUS_DIR)\Include;$(OCULUS_DIR)Kernel\Src;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\lib\$(Platform);$(LibraryPath)</LibraryPath>
+    <OutDir Condition="'$(ConfigurationType)'!='StaticLibrary'">..\..\bin\$(Platform)\</OutDir>
+    <OutDir Condition="'$(ConfigurationType)'=='StaticLibrary'">..\..\lib\$(Platform)\</OutDir>
     <IntDir>..\..\tmp\$(ProjectName)\$(Configuration).$(Platform)\</IntDir>
     <TargetName Condition="'$(Configuration)'=='Release DLL'">$(ProjectName)</TargetName>
     <TargetName Condition="'$(Configuration)'=='Release static'">$(ProjectName)_sr</TargetName>
     <TargetName Condition="'$(Configuration)'=='Debug DLL'">$(ProjectName)_dd</TargetName>
     <TargetName Condition="'$(Configuration)'=='Debug static'">$(ProjectName)_sd</TargetName>
   </PropertyGroup>
-  <ItemDefinitionGroup />
+  <ItemDefinitionGroup>
+    <Bscmake>
+      <OutputFile>$(IntDir)$(TargetName).bsc</OutputFile>
+    </Bscmake>
+    <ClCompile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <StringPooling>true</StringPooling>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies> <!-- usually not needed, we enable it only for selected libraries -->
+    </ProjectReference>
+    <Midl>
+      <TypeLibraryName>$(IntDir)$(TargetName).tlb</TypeLibraryName>
+    </Midl>
+  </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

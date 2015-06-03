@@ -1,11 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Label="PropertySheets" />
-  <PropertyGroup Label="UserMacros" />
+  <ImportGroup />
   <PropertyGroup>
-    <IncludePath>$(BOOST_DIR);$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;$(IncludePath)</IncludePath>
     <LibraryPath>$(BOOST_DIR)\lib64;$(WXWIDGETS_DIR)\lib\vc$(PlatformToolsetVersion)_x64_lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
-  <ItemDefinitionGroup />
+  <ItemDefinitionGroup>
+    <Link>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

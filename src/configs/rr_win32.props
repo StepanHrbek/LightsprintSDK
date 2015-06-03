@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?> 
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Label="PropertySheets" />
-  <PropertyGroup Label="UserMacros" />
+  <ImportGroup />
   <PropertyGroup>
-    <IncludePath>$(BOOST_DIR);$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;$(IncludePath)</IncludePath>
     <LibraryPath>$(BOOST_DIR)\lib32;$(WXWIDGETS_DIR)\lib\vc$(PlatformToolsetVersion)_lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
@@ -11,6 +9,7 @@
       <!-- for users who download prebuilt ffmpeg from zeranoe, SafeExceptionHandlers need to be disabled in win32 -->
       <!-- if you build your own ffmpeg, feel free to delete following line -->
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
