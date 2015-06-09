@@ -20,6 +20,11 @@
 	#include "Lightsprint/RRFileLocator.h"
 #endif
 
+#define REALTIME_VBUF_FORMAT BF_RGBF
+#define REALTIME_VBUF_SCALED false
+#define REALTIME_ENV_FORMAT BF_RGBA // RGBF,false would be bit faster, but very ancient GPUs don't support such textures
+#define REALTIME_ENV_SCALED true
+
 namespace rr
 {
 
@@ -49,13 +54,13 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 				else
 				if (!buffer && _allocateNewBuffers)
 				{
-					buffer = RRBuffer::create(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,nullptr);
+					buffer = RRBuffer::create(BT_VERTEX_BUFFER,numVertices,1,1,REALTIME_VBUF_FORMAT,REALTIME_VBUF_SCALED,nullptr);
 					buffersTouched++;
 				}
 				else
 				if (buffer && _changeExistingBuffers)
 				{
-					buffer->reset(BT_VERTEX_BUFFER,numVertices,1,1,BF_RGBF,false,nullptr);
+					buffer->reset(BT_VERTEX_BUFFER,numVertices,1,1,REALTIME_VBUF_FORMAT,REALTIME_VBUF_SCALED,nullptr);
 					buffersTouched++;
 				}
 			}
@@ -159,10 +164,10 @@ unsigned RRObjects::allocateBuffersForRealtimeGI(int _layerLightmap, int _layerE
 				if (desiredEnvMapSize!=currentEnvMapSize)
 				{
 					if (!currentEnvMapSize)
-						buffer = RRBuffer::create(BT_CUBE_TEXTURE,desiredEnvMapSize,desiredEnvMapSize,6,BF_RGBA,true,nullptr);
+						buffer = RRBuffer::create(BT_CUBE_TEXTURE,desiredEnvMapSize,desiredEnvMapSize,6,REALTIME_ENV_FORMAT,REALTIME_ENV_SCALED,nullptr);
 					else if (desiredEnvMapSize)
 					{
-						buffer->reset(BT_CUBE_TEXTURE,desiredEnvMapSize,desiredEnvMapSize,6,BF_RGBA,true,nullptr);
+						buffer->reset(BT_CUBE_TEXTURE,desiredEnvMapSize,desiredEnvMapSize,6,REALTIME_ENV_FORMAT,REALTIME_ENV_SCALED,nullptr);
 						buffer->filename.clear(); // contents was destroyed, buffer is no longer related to file on disk
 						buffer->version = rand()*11111; // updateEnvironmentMap() considers version++ from reset() too small change to update, upper 16bits must change
 					}
