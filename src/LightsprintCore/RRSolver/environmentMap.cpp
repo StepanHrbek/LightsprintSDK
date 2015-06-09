@@ -19,6 +19,10 @@
 
 #define CENTER_GRANULARITY 0.01f // if envmap center moves less than granularity, it is considered unchanged. prevents updates when dynamic object rotates (=position slightly fluctuates)
 
+// 0 created huge fps fluctuations/drops in Lightsmark. 32/128 is just safe guess, not benchmarked. another option would be to kick omp away and parallelize on higher level
+#define OMP_MIN_SIZE_GATHER 32
+#define OMP_MIN_SIZE_CONVERT 128
+
 namespace rr
 {
 
@@ -243,7 +247,7 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 		for (objectNumber=0;objectNumber<staticObjects.size() && &staticObjects[objectNumber]->illumination!=illumination;objectNumber++) ;
 	}
 
-	#pragma omp parallel for schedule(dynamic) // fastest: dynamic, static
+	#pragma omp parallel for schedule(dynamic) if (gatherSize>=OMP_MIN_SIZE_GATHER)
 	for (int side=0;side<6;side++)
 	{
 		kit->handler6[side].setup(multiObject,objectNumber,illumination->envMapWorldRadius);
@@ -363,7 +367,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 	// simplify tests for blending from if(env1 && blendFactor) to if(env1)
 	if (!blendFactor) environment1 = nullptr;
 
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(static) if (size>=OMP_MIN_SIZE_CONVERT)
 	for (int ofs=0;ofs<(int)(6*size*size);ofs++)
 	{
 		unsigned face = triangleNumbers[ofs];
