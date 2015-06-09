@@ -22,8 +22,8 @@
 
 #define REALTIME_VBUF_FORMAT BF_RGBF
 #define REALTIME_VBUF_SCALED false
-#define REALTIME_ENV_FORMAT BF_RGBA // RGBF,false would be bit faster, but very ancient GPUs don't support such textures
-#define REALTIME_ENV_SCALED true
+#define REALTIME_ENV_FORMAT BF_RGBA
+#define REALTIME_ENV_SCALED true // false is faster, but it works better with RGBF and very ancient GPUs don't support such textures
 
 namespace rr
 {
