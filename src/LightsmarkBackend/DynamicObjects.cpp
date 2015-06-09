@@ -15,6 +15,12 @@ static void transformObject(rr::RRObject* object, rr::RRVec3 worldFoot, rr::RRVe
 {
 	if (!object)
 		return;
+
+	// disable object if it has all coordinates 0
+	object->enabled = worldFoot!=RRVec3(0) || rotYZ!=RRVec2(0);
+	if (!object->enabled)
+		return;
+
 	rr::RRVec3 mini,center;
 	object->getCollider()->getMesh()->getAABB(&mini,nullptr,&center);
 	float sz = sin(RR_DEG2RAD(rotYZ[1]));
