@@ -437,14 +437,19 @@ static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const
 {
 	RR_ASSERT(gatheredExitance);
 	if (!gatheredExitance || !buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
-	unsigned numElements = buffer->getNumElements();
-
-	for (unsigned i=0;i<numElements;i++)
+	if (buffer->getFormat()==rr::BF_RGBF && !buffer->getScaled())
 	{
-		buffer->setElement(i,RRVec4(gatheredExitance[i],0),colorSpace);
+		// faster but works only for BF_RGBF,!scaled
+		buffer->reset(BT_CUBE_TEXTURE,buffer->getWidth(),buffer->getWidth(),6,rr::BF_RGBF,false,(const unsigned char*)gatheredExitance);
 	}
-	// faster but works only for specularEnvMap BF_RGBF,!scaled
-	//illumination->specularEnvMap->reset(BT_CUBE_TEXTURE,specularSize,specularSize,6,illumination->specularEnvMap->getFormat(),false,(unsigned char*)gatheredExitance);
+	else
+	{
+		unsigned numElements = buffer->getNumElements();
+		for (unsigned i=0;i<numElements;i++)
+		{
+			buffer->setElement(i,RRVec4(gatheredExitance[i],0),colorSpace);
+		}
+	}
 
 	// setting version from solver is not enough, cube would not update if it only moves around scene
 	// furthermore, setting version differently may lead to updating always, even if it is not necessary
