@@ -11,6 +11,7 @@
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), sponzu zpomali ze 103 na 83, z 65 na 49
 //#define SHOW_CONVERGENCE
 #define MAX_BESTS 1000
+#define OMP_MIN_TRIANGLES 300000 // 0 created huge fps fluctuations/drops in 30k scenes. 300k is just safe guess, not benchmarked
 
 #include "RRPackedSolver.h"
 #include "PackedSolverFile.h"
@@ -440,7 +441,7 @@ bool RRPackedSolver::setMaterialEmittance(bool _materialEmittanceForceReload, fl
 	materialEmittanceUsePointMaterials = _materialEmittanceUsePointMaterials;
 
 	// prepsat na cykl pres fgrupy (typicky usetri spoustu prace tim ze zahodi cely fgrupy bez emisivity), zmerit co je rychlejsi
-	#pragma omp parallel for
+	#pragma omp parallel for if(numTriangles>OMP_MIN_TRIANGLES)
 	for (int t=0;(unsigned)t<numTriangles;t++)
 	{
 		// removed optimization: very uniform materials (minimalQualityForPointMaterials>=quality*1000) used material color, not texture
@@ -498,7 +499,7 @@ void RRPackedSolver::illuminationReset(const unsigned* customDirectIrradiance, c
 	packedBests->reset();
 	if (customDirectIrradiance)
 	{
-		#pragma omp parallel for schedule(static)
+		#pragma omp parallel for schedule(static) if(numTriangles>OMP_MIN_TRIANGLES)
 		for (int t=0;(unsigned)t<numTriangles;t++)
 		{
 			unsigned color = customDirectIrradiance[t];
@@ -622,7 +623,7 @@ void RRPackedSolver::getTriangleIrradianceIndirectUpdate()
 	currentVersionInVertices = currentVersionInTriangles;
 	PackedIvertices* packedIvertices = packedSolverFile->packedIvertices;
 	int numIvertices = (int)packedIvertices->getNumC1();
-#pragma omp parallel for schedule(static)
+	#pragma omp parallel for schedule(static) if(numIvertices>OMP_MIN_TRIANGLES)
 	for (int i=0;i<numIvertices;i++)
 	{
 		RRVec3 irrad(0);
