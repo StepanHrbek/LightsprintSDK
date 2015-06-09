@@ -11,7 +11,7 @@
 //#define PARTIAL_SORT // best vybira pomoci partial_sort(), sponzu zpomali ze 103 na 83, z 65 na 49
 //#define SHOW_CONVERGENCE
 #define MAX_BESTS 1000
-#define OMP_MIN_TRIANGLES 300000 // 0 created huge fps fluctuations/drops in 30k scenes. 300k is just safe guess, not benchmarked
+#define OMP_MIN_TRIANGLES 300000 // [#52] 0 created huge fps fluctuations/drops in 30k scenes. 300k is just safe guess, not benchmarked
 
 #include "RRPackedSolver.h"
 #include "PackedSolverFile.h"

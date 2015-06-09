@@ -19,7 +19,7 @@
 
 #define CENTER_GRANULARITY 0.01f // if envmap center moves less than granularity, it is considered unchanged. prevents updates when dynamic object rotates (=position slightly fluctuates)
 
-// 0 created huge fps fluctuations/drops in Lightsmark. 32/128 is just safe guess, not benchmarked. another option would be to kick omp away and parallelize on higher level
+// [#52] 0 created huge fps fluctuations/drops in Lightsmark. 32/128 is just safe guess, not benchmarked. another option would be to kick omp away and parallelize on higher level
 #define OMP_MIN_SIZE_GATHER 32
 #define OMP_MIN_SIZE_CONVERT 128
 
