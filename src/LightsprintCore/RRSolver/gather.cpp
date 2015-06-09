@@ -888,7 +888,7 @@ bool RRSolver::gatherPerTrianglePhysical(const UpdateParameters* _params, const 
 		}
 	}
 
-#pragma omp parallel for schedule(dynamic)
+	#pragma omp parallel for schedule(dynamic)
 	for (int t=0;t<(int)numPostImportTriangles;t++)
 	{
 		if ((t%10000)==0) RRReporter::report(INF3,"step %d/%d\n",t/10000,(numPostImportTriangles+10000-1)/10000);

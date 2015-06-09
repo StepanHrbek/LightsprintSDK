@@ -618,7 +618,7 @@ void Object::resetStaticIllumination(bool resetFactors, bool resetPropagation, R
 	RRReal tmpx = 0;
 	RRReal tmpy = 0;
 	RRReal tmpz = 0;
-#pragma omp parallel for schedule(static,1) reduction(+:tmpx,tmpy,tmpz) // fastest: indifferent
+	#pragma omp parallel for schedule(static,1) if(triangles>RR_OMP_MIN_ELEMENTS) reduction(+:tmpx,tmpy,tmpz) // fastest: indifferent
 	for (int t=0;(unsigned)t<triangles;t++) if (triangle[t].surface) 
 	{
 		// smaze akumulatory (ale necha jim flag zda jsou v reflectors)
@@ -1104,7 +1104,7 @@ void Scene::refreshFormFactorsFromUntil(BestInfo source,RRStaticSolver::EndFunc&
 		while (shotsAccumulated<shotsForNewFactors)
 		{
 			int shotsTodo = RR_MIN(shotsForNewFactors-shotsAccumulated,100000);
-			#pragma omp parallel for if(shotsTodo>30)
+			#pragma omp parallel for schedule(dynamic) if(shotsTodo>RR_OMP_MIN_ELEMENTS/30)
 			for (int i=0;i<shotsTodo;i++)
 			{
 				#ifdef _OPENMP

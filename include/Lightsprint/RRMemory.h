@@ -26,6 +26,8 @@
 	#define RR_ALIGNED __attribute__((aligned(16)))
 #endif
 
+#define RR_OMP_MIN_ELEMENTS 200000 // we cycle over greater number of triangles or pixels in parallel (individual cases are adjusted)
+
 namespace rr
 {
 

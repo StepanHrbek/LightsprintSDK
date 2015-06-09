@@ -17,8 +17,6 @@
 #include "gather.h"
 #include "../RRStaticSolver/rrcore.h"
 
-#define OMP_MIN_VERTICES 300000 // [#52] 300k is just guess, not benchmarked
-
 namespace rr
 {
 
@@ -197,7 +195,7 @@ unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vert
 		RRVec3* lock = vertexBuffer->getFormat()==BF_RGBF ? (RRVec3*)(vertexBuffer->lock(BL_DISCARD_AND_WRITE)) : nullptr;
 		if (lock)
 		{
-			#pragma omp parallel for schedule(static) if(numPostImportVertices>OMP_MIN_VERTICES)
+			#pragma omp parallel for schedule(static) if(numPostImportVertices>RR_OMP_MIN_ELEMENTS)
 			for (int postImportVertex=0;(unsigned)postImportVertex<numPostImportVertices;postImportVertex++)
 			{
 				lock[postImportVertex] = *postVertex2Ivertex[postImportVertex];
@@ -232,7 +230,7 @@ unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vert
 	measure.scaled = vertexBuffer->getScaled();
 
 	// load measure into each preImportVertex
-#pragma omp parallel for schedule(static) if(numPostImportVertices>OMP_MIN_VERTICES)
+	#pragma omp parallel for schedule(static) if(numPostImportVertices>RR_OMP_MIN_ELEMENTS)
 	for (int postImportVertex=0;(unsigned)postImportVertex<numPostImportVertices;postImportVertex++)
 	{
 		unsigned t = (objectNumber<0)?postImportVertex/3:priv->postVertex2PostTriangleVertex[objectNumber][postImportVertex].triangleIndex;
@@ -271,7 +269,7 @@ unsigned RRSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned object
 	const RRColorSpace* colorSpace = (vertexBuffer->getScaled() && allowScaling) ? priv->colorSpace : nullptr;
 	unsigned numPostImportVertices = getStaticObjects()[objectHandle]->getCollider()->getMesh()->getNumVertices();
 	// load measure into each preImportVertex
-#pragma omp parallel for schedule(static) if(numPostImportVertices>OMP_MIN_VERTICES)
+	#pragma omp parallel for schedule(static) if(numPostImportVertices>RR_OMP_MIN_ELEMENTS)
 	for (int postImportVertex=0;(unsigned)postImportVertex<numPostImportVertices;postImportVertex++)
 	{
 		unsigned t = priv->postVertex2PostTriangleVertex[objectHandle][postImportVertex].triangleIndex;

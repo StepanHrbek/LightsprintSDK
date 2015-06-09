@@ -1150,7 +1150,7 @@ void RRSolver::pathTraceFrame(const RRCamera& _camera, RRBuffer* _frame, unsigne
 	unsigned w = halfres?(ww+1)/2:ww;
 	unsigned h = halfres?(hh+1)/2:hh;
 	PathtracerJob ptj(this,true);
-#pragma omp parallel for schedule(dynamic)
+	#pragma omp parallel for schedule(dynamic)
 	for (int j=0;j<(int)h;j++) if (!aborting)
 	{
 		PathtracerWorker pathtracerWorker(ptj,_parameters,false,UINT_MAX,_accumulated?UINT_MAX:0);

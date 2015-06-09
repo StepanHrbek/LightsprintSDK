@@ -496,7 +496,7 @@ void RRBuffer::brightnessGamma(RRVec4 brightness, RRVec4 gamma)
 	}
 	// slow getElement path, faster path can be written using lock and direct access
 	int numElements = getNumElements();
-#pragma omp parallel for
+	#pragma omp parallel for schedule(static) if(numElements>RR_OMP_MIN_ELEMENTS)
 	for (int i=0;i<numElements;i++)
 	{
 		RRVec4 element = getElement(i,nullptr);
@@ -731,7 +731,7 @@ bool RRBuffer::lightmapSmooth(float _sigma, bool _wrap, const RRObject* _object)
 		sigma2sum -= sigma2;
 
 		// dst=blur(src)
-		#pragma omp parallel for schedule(static)
+		#pragma omp parallel for schedule(static) if(size>RR_OMP_MIN_ELEMENTS)
 		for (int j=0;j<(int)height;j++)
 		for (int i=0;i<(int)width;i++)
 		{
@@ -925,7 +925,7 @@ bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap, bool& _aborting)
 		if (_wrap)
 		{
 			// faster version with wrap
-			#pragma omp parallel for schedule(static)
+			#pragma omp parallel for schedule(static) if(size>RR_OMP_MIN_ELEMENTS)
 			for (int i=0;i<(int)size;i++)
 			{
 				RRVec4 c = source[i];
@@ -945,7 +945,7 @@ bool RRBuffer::lightmapGrow(unsigned _numSteps, bool _wrap, bool& _aborting)
 		else
 		{
 			// slower version without wrap
-			#pragma omp parallel for schedule(static)
+			#pragma omp parallel for schedule(static) if(size>RR_OMP_MIN_ELEMENTS)
 			for (int i=0;i<(int)size;i++)
 			{
 				RRVec4 c = source[i];

@@ -427,7 +427,7 @@ const unsigned* RRSolverGL::detectDirectIllumination()
 				if (updatedSmallMaps && realtimeLights.size()>1)
 				{
 					unsigned numLights = realtimeLights.size();
-					#pragma omp parallel for
+					#pragma omp parallel for schedule(static) if(numTriangles>RR_OMP_MIN_ELEMENTS)
 					for (int b=0;b<(int)numTriangles*4;b++)
 					{
 						unsigned sum = 0;

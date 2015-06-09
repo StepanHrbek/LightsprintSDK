@@ -284,7 +284,7 @@ PackedSolverFile* Scene::packSolver(unsigned avgRaysFromTriangle, float importan
 	//
 	// pack sky-tri GI factors
 
-#pragma omp parallel for
+	#pragma omp parallel for schedule(static) if(object->triangles>RR_OMP_MIN_ELEMENTS)
 	for (int t=0;(unsigned)t<object->triangles;t++)
 	{
 		PackedFactorHeader* pfh = packedSolverFile->packedFactors->getC1((unsigned)t);
