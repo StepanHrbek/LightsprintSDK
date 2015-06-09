@@ -436,15 +436,6 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 	return result;
 }
 
-void RRCollider::intersectBatch(RRRay* ray, unsigned numRays) const
-{
-	#pragma omp parallel for schedule(static,1)
-	for (int i=0;i<(int)numRays;i++)
-	{
-		if (!intersect(ray[i])) ray[i].hitDistance = -1;
-	}
-}
-
 ////////////////////////////////////////////////////////////////////////////
 //
 // RRCollider getDistanceFromXxx

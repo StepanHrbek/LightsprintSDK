@@ -220,35 +220,6 @@ namespace rr
 		//!  at the same time is matter of one or few lines of code.
 		virtual bool intersect(RRRay& ray) const = 0;
 
-		//! Intersects mesh with batch of rays at once.
-		//
-		//! Ease of use:
-		//!  Unlike intersect(), intersectBatch() makes use of all available cores/processors.
-		//!
-		//! Performance:
-		//!  Batches always add overhead. Small batches add thread creation overhead (not significant 
-		//!  for big ones). Big batches add slow system memory write/read overhead (not significant for small ones).
-		//!  The most efficient technique is to avoid batches, create multiple threads in your code and
-		//!  process individual rays using intersect() immediately after their creation, when they are still in L1 cache
-		//!  (it's safe to run intersect() from multiple threads at once).
-		//!
-		//! Coherent rays:
-		//!  Coherent rays in batch are processed faster, but only because the same memory words
-		//!  are accessed, no special algorithm that depends on equal rayOrigins is used.
-		//!
-		//! Conclusion:
-		//!  If performance is critical for you, experiment, try multiple approaches.
-		//!  Use intersectBatch() if you have multiple cores and you don't want to manage threads yourself.
-		//!  Otherwise look at BunnyBenchmark sample where OpenMP threading and intersect() are used for higher performance.
-		//!
-		//! \param ray
-		//!  Array of rays. Each ray contains both inputs and outputs.
-		//!  For each ray, hitDistance=-1 says that ray had no intersection with mesh,
-		//!  any other value means that intersection was detected.
-		//! \param numRays
-		//!  Number of rays in array.
-		void intersectBatch(RRRay* ray, unsigned numRays) const;
-
 
 		//! Shoots rays from point, measures distance to first collision, updates distanceMinMax. It can be used for automatic near/far adjustment.
 		//

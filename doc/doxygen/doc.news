@@ -33,6 +33,7 @@ NEWS
 CHANGES
 
 - removed loadLicense(), no longer needed
+- removed RRCollider::intersectBatch(), probably never used
 
 \section news145 ------------------------------------ 2015.02.11 -------------------------------------
 
