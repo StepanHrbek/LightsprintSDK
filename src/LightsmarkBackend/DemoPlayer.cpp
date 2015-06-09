@@ -108,7 +108,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 	{
 		Level* level = new Level(new LevelSetup(buf),skyMap,supportEditor);
 		level->solver->setDynamicObjects(*dynamicObjects);
-		level->solver->allocateBuffersForRealtimeGI(LAYER_LIGHTMAPS,LAYER_ENVIRONMENT);
+		level->solver->allocateBuffersForRealtimeGI(LAYER_LIGHTMAPS,LAYER_ENVIRONMENT,4,16,0); // 0 to avoid allocating cubemap for static scene in Lightsmark
 		scenes.push_back(level);
 	}
 	nextSceneIndex = 0;
