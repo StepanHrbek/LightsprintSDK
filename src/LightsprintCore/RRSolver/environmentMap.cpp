@@ -178,7 +178,7 @@ CubeGatheringKit::~CubeGatheringKit()
 //  - triangleNumbers, multiobj postImport numbers, UINT_MAX for skybox, may be nullptr
 //  - exitanceHdr, float exitance in physical scale, may be nullptr
 //  - false=exitanceHdr not filled, true=exitanceHdr filled
-bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerEnvironment, RRVec3* exitanceHdr)
+bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerEnvironment)
 {
 	if (!illumination)
 	{
@@ -281,42 +281,43 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 				{
 					illumination->cachedTriangleNumbers[ofs] = face;
 				}
-				if (exitanceHdr)
+				if (1)
 				{
+					RRVec3 exitanceHdr;
 					if (face==UINT_MAX)
 					{
 						// read exitance of sky
 						if (!environment0)
 						{
 							// no environment
-							exitanceHdr[ofs] = RRVec3(0);
+							exitanceHdr = RRVec3(0);
 						}
 						else
 						if (!environment1)
 						{
 							// 1 environment
-							exitanceHdr[ofs] = environment0->getElementAtDirection(dir,colorSpaceForEnv);
+							exitanceHdr = environment0->getElementAtDirection(dir,colorSpaceForEnv);
 						}
 						else
 						{
 							// blend of 2 environments
 							RRVec3 env0color = environment0->getElementAtDirection(dir,colorSpaceForEnv);
 							RRVec3 env1color = environment1->getElementAtDirection(dir,colorSpaceForEnv);
-							exitanceHdr[ofs] = env0color*(1-blendFactor)+env1color*blendFactor;
+							exitanceHdr = env0color*(1-blendFactor)+env1color*blendFactor;
 						}
-						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
+						RR_ASSERT(IS_VEC3(exitanceHdr));
 					}
 					else if (priv->packedSolver)
 					{
 						// read face exitance
-						exitanceHdr[ofs] = priv->packedSolver->getTriangleExitance(face);
-						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
+						exitanceHdr = priv->packedSolver->getTriangleExitance(face);
+						RR_ASSERT(IS_VEC3(exitanceHdr));
 					}
 					else if (priv->scene)
 					{
 						// read face exitance
-						priv->scene->getTriangleMeasure(face,3,RM_RADIOSITY_LINEAR,nullptr,exitanceHdr[ofs]);
-						RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
+						priv->scene->getTriangleMeasure(face,3,RM_RADIOSITY_LINEAR,nullptr,exitanceHdr);
+						RR_ASSERT(IS_VEC3(exitanceHdr));
 					}
 #ifdef RR_DEVELOPMET
 					else if (priv->customIrradianceRGBA8 && priv->customToPhysical && getMultiObject())
@@ -325,14 +326,15 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 						RRMaterial* triangleMaterial = getMultiObject()->getTriangleMaterial(face,nullptr,nullptr);
 						unsigned rgba8 = priv->customIrradianceRGBA8[face];
 						RRVec3 physicalIrradiance(priv->customToPhysical[rgba8&0xff],priv->customToPhysical[(rgba8>>8)&0xff],priv->customToPhysical[(rgba8>>16)&0xff]);
-						exitanceHdr[ofs] = triangleMaterial ? triangleMaterial->diffuseReflectance.color*physicalIrradiance+triangleMaterial->diffuseEmittance.color : RRVec3(0);
+						exitanceHdr = triangleMaterial ? triangleMaterial->diffuseReflectance.color*physicalIrradiance+triangleMaterial->diffuseEmittance.color : RRVec3(0);
 					}
 #endif
 					else
 					{
 						// no solver, return darkness
-						exitanceHdr[ofs] = RRVec3(0);
+						exitanceHdr = RRVec3(0);
 					}
+					reflectionEnvMap->setElement(ofs,RRVec4(exitanceHdr,0),colorSpaceForEnv);
 				}
 			}
 	}
@@ -349,7 +351,7 @@ bool RRSolver::cubeMapGather(RRObjectIllumination* illumination, unsigned layerE
 #ifdef RR_DEVELOPMET
 static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const unsigned* customIrradianceRGBA8, const RRReal* customToPhysical, const RRObject* multiObject, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRColorSpace* colorSpaceForEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
 #else
-static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRColorSpace* colorSpaceForEnv, unsigned size, unsigned* triangleNumbers, RRVec3* exitanceHdr)
+static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, const RRPackedSolver* packedSolver, const RRBuffer* environment0, const RRBuffer* environment1, float blendFactor, const RRColorSpace* colorSpaceForEnv, unsigned size, unsigned* triangleNumbers, RRBuffer* cube)
 #endif
 {
 	if (!scene && !packedSolver && !environment0)
@@ -358,7 +360,7 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 		RR_ASSERT(0);
 		return;
 	}
-	if (!triangleNumbers || !exitanceHdr)
+	if (!triangleNumbers || !cube)
 	{
 		RR_ASSERT(0);
 		return;
@@ -371,21 +373,22 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 	for (int ofs=0;ofs<(int)(6*size*size);ofs++)
 	{
 		unsigned face = triangleNumbers[ofs];
+		RRVec3 exitanceHdr;
 		if (face==UINT_MAX)
 		{
 			// read exitance of sky
 			if (!environment0)
 			{
 				// no environment
-				exitanceHdr[ofs] = RRVec3(0);
+				exitanceHdr = RRVec3(0);
 			}
 			else
 			if (!environment1)
 			{
 				// 1 environment
 				RRVec3 dir = cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size);
-				exitanceHdr[ofs] = environment0->getElementAtDirection(dir,colorSpaceForEnv);
-				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
+				exitanceHdr = environment0->getElementAtDirection(dir,colorSpaceForEnv);
+				RR_ASSERT(IS_VEC3(exitanceHdr));
 			}
 			else
 			{
@@ -393,21 +396,21 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 				RRVec3 dir = cubeSide[ofs/(size*size)].getTexelDir(size,ofs%size,(ofs/size)%size);
 				RRVec3 env0color = environment0->getElementAtDirection(dir,colorSpaceForEnv);
 				RRVec3 env1color = environment1->getElementAtDirection(dir,colorSpaceForEnv);
-				exitanceHdr[ofs] = env0color*(1-blendFactor)+env1color*blendFactor;
-				RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
+				exitanceHdr = env0color*(1-blendFactor)+env1color*blendFactor;
+				RR_ASSERT(IS_VEC3(exitanceHdr));
 			}
 		}
 		else if (packedSolver)
 		{
 			// read face exitance
-			exitanceHdr[ofs] = packedSolver->getTriangleExitance(face);
-			RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
+			exitanceHdr = packedSolver->getTriangleExitance(face);
+			RR_ASSERT(IS_VEC3(exitanceHdr));
 		}
 		else if (scene)
 		{
 			// read face exitance
-			scene->getTriangleMeasure(face,3,RM_RADIOSITY_LINEAR,nullptr,exitanceHdr[ofs]);
-			RR_ASSERT(IS_VEC3(exitanceHdr[ofs]));
+			scene->getTriangleMeasure(face,3,RM_RADIOSITY_LINEAR,nullptr,exitanceHdr);
+			RR_ASSERT(IS_VEC3(exitanceHdr));
 		}
 #ifdef RR_DEVELOPMET
 		else if (customIrradianceRGBA8 && customToPhysical && multiObject)
@@ -422,8 +425,9 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 		else
 		{
 			// no solver, return darkness
-			exitanceHdr[ofs] = RRVec3(0);
+			exitanceHdr = RRVec3(0);
 		}
+		cube->setElement(ofs,RRVec4(exitanceHdr,0),colorSpaceForEnv);
 	}
 }
 
@@ -431,33 +435,6 @@ static void cubeMapConvertTrianglesToExitances(const RRStaticSolver* scene, cons
 /////////////////////////////////////////////////////////////////////////////
 //
 // main
-
-// returns number of buffers updated
-static unsigned filterToBuffer(unsigned version, RRVec3* gatheredExitance, const RRColorSpace* colorSpace, RRBuffer* buffer)
-{
-	RR_ASSERT(gatheredExitance);
-	if (!gatheredExitance || !buffer || buffer->getType()!=BT_CUBE_TEXTURE) return 0;
-	if (buffer->getFormat()==rr::BF_RGBF && !buffer->getScaled())
-	{
-		// faster but works only for BF_RGBF,!scaled
-		buffer->reset(BT_CUBE_TEXTURE,buffer->getWidth(),buffer->getWidth(),6,rr::BF_RGBF,false,(const unsigned char*)gatheredExitance);
-	}
-	else
-	{
-		unsigned numElements = buffer->getNumElements();
-		for (unsigned i=0;i<numElements;i++)
-		{
-			buffer->setElement(i,RRVec4(gatheredExitance[i],0),colorSpace);
-		}
-	}
-
-	// setting version from solver is not enough, cube would not update if it only moves around scene
-	// furthermore, setting version differently may lead to updating always, even if it is not necessary
-	//buffer->version = version;
-	buffer->version++;
-	buffer->version = (version<<16)+(buffer->version&65535);
-	return 1;
-}
 
 
 unsigned RRSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsigned layerEnvironment, unsigned layerLightmap, unsigned layerAmbientMap)
@@ -470,7 +447,7 @@ unsigned RRSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsi
 	unsigned solutionVersion = getSolutionVersion();
 	bool centerMoved = (illumination->envMapWorldCenter-illumination->cachedCenter).abs().sum()>CENTER_GRANULARITY;
 	RRBuffer* reflectionEnvMap = illumination->getLayer(layerEnvironment);
-	unsigned gatherSize = (reflectionEnvMap && (centerMoved || (reflectionEnvMap->version>>16)!=(solutionVersion&65535))) ? reflectionEnvMap->getWidth() : 0;
+	unsigned gatherSize = (reflectionEnvMap && reflectionEnvMap->getType()==BT_CUBE_TEXTURE && (centerMoved || (reflectionEnvMap->version>>16)!=(solutionVersion&65535))) ? reflectionEnvMap->getWidth() : 0;
 	if (!gatherSize)
 	{
 		return 0;
@@ -487,29 +464,25 @@ unsigned RRSolver::updateEnvironmentMap(RRObjectIllumination* illumination, unsi
 		//RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Fireball lights not detected yet, reflection map will be updated to black, call calculate().\n"));
 	}
 
-	// alloc temp space
-	RRVec3* gatheredExitance = new RRVec3[6*gatherSize*gatherSize];
-
-	if (!cubeMapGather(illumination,layerEnvironment,gatheredExitance))
+	if (!cubeMapGather(illumination,layerEnvironment))
 	{
 #ifdef RR_DEVELOPMET
-		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getDirectIllumination(),priv->customToPhysical,getMultiObject(),getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getColorSpace(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
+		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getDirectIllumination(),priv->customToPhysical,getMultiObject(),getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getColorSpace(),gatherSize,illumination->cachedTriangleNumbers,reflectionEnvMap);
 #else
-		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getColorSpace(),gatherSize,illumination->cachedTriangleNumbers,gatheredExitance);
+		cubeMapConvertTrianglesToExitances(priv->scene,priv->packedSolver,getEnvironment(0),getEnvironment(1),getEnvironmentBlendFactor(),getColorSpace(),gatherSize,illumination->cachedTriangleNumbers,reflectionEnvMap);
 #endif
 	}
 
-	unsigned updatedMaps = 0;
 	if (illumination->cachedGatherSize)
 	{
-		// fill envmap
-		updatedMaps += filterToBuffer(solutionVersion,gatheredExitance,priv->colorSpace,reflectionEnvMap);
+		// setting version from solver is not enough, cube would not update if it only moves around scene
+		// furthermore, setting version differently may lead to updating always, even if it is not necessary
+		//buffer->version = version;
+		reflectionEnvMap->version++;
+		reflectionEnvMap->version = (solutionVersion<<16)+(reflectionEnvMap->version&65535);
+		return 1;
 	}
-
-	// cleanup
-	delete[] gatheredExitance;
-
-	return updatedMaps;
+	return 0;
 }
 
 
