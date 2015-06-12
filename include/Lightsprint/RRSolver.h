@@ -434,7 +434,7 @@ namespace rr
 		//!
 		//! \param params
 		//!  Optional calculation parameters. Currently used only by Fireball.
-		virtual void calculate(CalculateParameters* params = nullptr);
+		virtual void calculate(const CalculateParameters* params = nullptr);
 
 		//! Returns version of global illumination solution.
 		//
@@ -991,7 +991,7 @@ namespace rr
 		//
 		//! Realtime GI implementations (like rr_gl::RRSolverGL)
 		//! call it from calculate(), before updating shadowmaps.
-		void calculateDirtyLights(CalculateParameters* params = nullptr);
+		void calculateDirtyLights(const CalculateParameters* params = nullptr);
 
 	private:
 
@@ -1010,7 +1010,7 @@ namespace rr
 
 		bool gatherPerTrianglePhysical(const UpdateParameters* aparams, const class GatheredPerTriangleData* resultsPhysical, unsigned numResultSlots);
 		unsigned updateVertexBufferFromPerTriangleDataPhysical(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleDataPhysical, unsigned stride, bool allowScaling) const;
-		void calculateCore(float improveStep,CalculateParameters* params=nullptr);
+		void calculateCore(float improveStep, const CalculateParameters* params=nullptr);
 		unsigned updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params);
 		void updateVertexLookupTableDynamicSolver();
 		void updateVertexLookupTablePackedSolver();

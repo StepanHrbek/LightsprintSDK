@@ -86,7 +86,7 @@ namespace rr_gl
 		//! Note that RRSolverGL::calculate() calls setDirectIllumination() automatically.
 		//! If you want to provide your own direct illumination data, switch from RRSolverGL to
 		//! rr::RRSolver and call setDirectIllumination() manually before calculate().
-		virtual void calculate(CalculateParameters* params = nullptr) override;
+		virtual void calculate(const CalculateParameters* params = nullptr) override;
 
 		//! Calculates and updates object's environment map, stored in given layer of given illumination.
 		//

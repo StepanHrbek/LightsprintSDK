@@ -706,7 +706,7 @@ const unsigned* RRSolver::getDirectIllumination()
 	return priv->customIrradianceRGBA8;
 }
 
-void RRSolver::calculateDirtyLights(CalculateParameters* _params)
+void RRSolver::calculateDirtyLights(const CalculateParameters* _params)
 {
 	// replace nullptr by default parameters
 	static CalculateParameters s_params;
@@ -780,7 +780,7 @@ public:
 
 // calculates radiosity in existing times (improveStep = seconds to spend in improving),
 //  does no timing adjustments
-void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
+void RRSolver::calculateCore(float improveStep, const CalculateParameters* _params)
 {
 	if (!getMultiObject()) return;
 
@@ -930,7 +930,7 @@ void RRSolver::calculateCore(float improveStep,CalculateParameters* _params)
 }
 
 // adjusts timing, does no radiosity calculation (but calls calculateCore that does)
-void RRSolver::calculate(CalculateParameters* _params)
+void RRSolver::calculate(const CalculateParameters* _params)
 {
 	RRTime calcBeginTime;
 	//printf("%f %f %f\n",calcBeginTime*1.0f,lastInteractionTime*1.0f,lastCalcEndTime*1.0f);

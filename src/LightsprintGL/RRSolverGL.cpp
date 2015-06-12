@@ -113,7 +113,7 @@ void RRSolverGL::reportDirectIlluminationChange(int lightIndex, bool dirtyShadow
 		}
 }
 
-void RRSolverGL::calculate(CalculateParameters* _params)
+void RRSolverGL::calculate(const CalculateParameters* _params)
 {
 	REPORT(rr::RRReportInterval report(rr::INF3,"calculate GL...\n"));
 
