@@ -126,7 +126,7 @@ void RRSolverGL::calculate(const CalculateParameters* _params)
 	updateShadowmaps();
 
 	// early exit if quality=0
-	// used in "no radiosity" part of Lightsmark
+	// [#53] used in "no radiosity" part of Lightsmark
 	if (params.qualityIndirectDynamic==0) return;
 
 	// detect only dirty lights

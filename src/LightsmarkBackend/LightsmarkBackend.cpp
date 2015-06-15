@@ -1587,7 +1587,7 @@ no_frame:
 #if FRAMERATE_SMOOTHING==1
 	// DDI in every frame, low fps, smooth
 	calculateParams.secondsBetweenDDI = 0;
-	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = currentFrame.wantsConstantAmbient() ? 0 : INDIRECT_QUALITY;
+	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = currentFrame.wantsConstantAmbient() ? 0 : INDIRECT_QUALITY; // [#53] limits work in no radiosity mode
 #endif
 
 #if FRAMERATE_SMOOTHING==2
