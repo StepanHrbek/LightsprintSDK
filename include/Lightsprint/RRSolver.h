@@ -397,6 +397,9 @@ namespace rr
 			//! 0.05 = update less frequently, faster.
 			float secondsBetweenDDI;
 
+			//! Experimental, RRSolverGL::calculate() does not call RRSolver::calculate().
+			bool skipRRSolver;
+
 			//! Sets default parameters. This is used if you send nullptr instead of parameters.
 			CalculateParameters()
 			{
@@ -410,6 +413,7 @@ namespace rr
 				qualityIndirectDynamic = 3;
 				qualityIndirectStatic = 3;
 				secondsBetweenDDI = 0;
+				skipRRSolver = false;
 			}
 			bool operator ==(const CalculateParameters& a) const;
 		};

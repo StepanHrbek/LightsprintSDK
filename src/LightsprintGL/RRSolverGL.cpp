@@ -170,7 +170,8 @@ void RRSolverGL::calculate(const CalculateParameters* _params)
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Inconsistency: getLights().size=%d realtimeLights.size()=%d. Don't insert/delete realtimeLights directly, use setLights().\n",getLights().size(),realtimeLights.size()));
 	}
 
-	RRSolver::calculate(_params);
+	if (!params.skipRRSolver)
+		RRSolver::calculate(_params);
 }
 
 void RRSolverGL::updateShadowmaps()
