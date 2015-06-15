@@ -5,7 +5,8 @@
 unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
-#define INDIRECT_QUALITY           5 // default is 3, increase to 5 fixes book in first 5 seconds
+#define GI_UPDATE_QUALITY          5 // default is 3, increase to 5 fixes book in first 5 seconds
+#define GI_UPDATE_INTERVAL         0 // start GI update as often as possible (but can be affected by MAX_LIGHT_UPDATE_FREQUENCY)
 #define BACKGROUND_THREAD            // run improve+updateLightmaps+UpdateEnvironmentMap asynchronously, on background
 #if defined(NDEBUG) && defined(_WIN32)
 	//#define SET_ICON
@@ -1484,8 +1485,8 @@ no_frame:
 
 	rr::RRSolver::CalculateParameters calculateParams = level->setup->calculateParams;
 	calculateParams.lightMultiplier = 2;
-	calculateParams.secondsBetweenDDI = 0; // DDI in every frame
-	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = currentFrame.wantsConstantAmbient() ? 0 : INDIRECT_QUALITY; // [#53] limits work in no radiosity mode
+	calculateParams.secondsBetweenDDI = GI_UPDATE_INTERVAL;
+	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = currentFrame.wantsConstantAmbient() ? 0 : GI_UPDATE_QUALITY; // [#53] limits work in no radiosity mode
 	needImmediateDDI = false;
 #ifdef BACKGROUND_THREAD
 	calculateParams.skipRRSolver = true;
