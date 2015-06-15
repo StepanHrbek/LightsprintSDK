@@ -8,6 +8,7 @@ unsigned INSTANCES_PER_PASS;
 #define FRAMERATE_SMOOTHING        3 // 1=slow&smooth 2=fast&flickering 3=fast&smooth
 #define SECONDS_BETWEEN_DDI        0.05f // only used in FRAMERATE_SMOOTHING 2,3    btw dalsi threshold ktery muze ovlivnit plynulost je v DynamicObjects::copyAnimationFrameToScene
 #define INDIRECT_QUALITY           5 // default is 3, increase to 5 fixes book in first 5 seconds
+#define BACKGROUND_THREAD            // run improve+updateLightmaps+UpdateEnvironmentMap asynchronously, on background
 #if defined(NDEBUG) && defined(_WIN32)
 	//#define SET_ICON
 #else
@@ -111,6 +112,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 	#include "../../src/LightsprintCore/RRStaticSolver/rrcore.h"
 #endif
 #include "resource.h"
+#include <thread>
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
@@ -155,6 +157,11 @@ const char* cfgFile = CFG_FILE;
 rr_gl::RRSolverGL::DDIQuality lightStability = rr_gl::RRSolverGL::DDI_AUTO;
 char globalOutputDirectory[1000] = "."; // without trailing slash
 const char* customScene = nullptr;
+#ifdef BACKGROUND_THREAD
+	std::thread backgroundThread;
+	enum ThreadState { TS_NONE, TS_RUNNING, TS_FINISHED };
+	ThreadState backgroundThreadState = TS_NONE;
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -297,8 +304,13 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	rr_gl::PluginParamsScene ppScene(&ppSky,level->solver);
 	ppScene.uberProgramSetup = uberProgramSetup;
 	ppScene.renderingFromThisLight = renderingFromThisLight;
+#ifdef BACKGROUND_THREAD
+	ppScene.updateLayerLightmap = false;
+	ppScene.updateLayerEnvironment = false;
+#else
 	ppScene.updateLayerLightmap = true;
 	ppScene.updateLayerEnvironment = true;
+#endif
 	ppScene.layerLightmap = LAYER_LIGHTMAPS;
 	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
 	ppScene.layerLDM = uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX;
@@ -925,6 +937,13 @@ void keyboard(unsigned char c, int x, int y)
 			}
 
 			rr::RRReporter::report(rr::INF1,supportEditor ? "Quitting editor.\n" : "Escaped by user, benchmarking unfinished.\n");
+#ifdef BACKGROUND_THREAD
+			if (backgroundThreadState!=TS_NONE)
+			{
+				backgroundThread.join();
+				backgroundThreadState = TS_NONE;
+			}
+#endif
 			// rychlejsi ukonceni:
 			//if (supportEditor) delete level; // aby se ulozily zmeny v animaci
 			// pomalejsi ukonceni s uvolnenim pameti:
@@ -1582,10 +1601,46 @@ no_frame:
 	calculateParams.secondsBetweenDDI = 0;
 	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = needImmediateDDI ? INDIRECT_QUALITY : 0;
 #endif
-	
-	needImmediateDDI = false;
-	level->solver->calculate(&calculateParams);
 
+	needImmediateDDI = false;
+#ifdef BACKGROUND_THREAD
+	calculateParams.skipRRSolver = true;
+	if (backgroundThreadState==TS_FINISHED)
+	{
+		backgroundThread.join();
+		backgroundThreadState = TS_NONE;
+	}
+	if (backgroundThreadState!=TS_NONE)
+	{
+		// [#53] if we can't start new background thread, skip DDI and all CPU work, update only shadowmaps
+		calculateParams.qualityIndirectDynamic = 0;
+	}
+#endif
+	level->solver->calculate(&calculateParams);
+#ifdef BACKGROUND_THREAD
+	// early exit if quality=0
+	// [#53] used in "no radiosity" part of Lightsmark
+	if (calculateParams.qualityIndirectDynamic)
+	{
+		RR_ASSERT(backgroundThreadState==TS_NONE);
+		backgroundThreadState = TS_RUNNING;
+		backgroundThread = std::thread([calculateParams]()
+		{
+			// asynchronously update indirect illumination
+			// 1. update it in solver
+			level->solver->RRSolver::calculate(&calculateParams);
+			// 2. update it in lightmaps/envmaps (we can let renderer do this synchronously, but this asynchronous update is cheaper)
+			level->solver->updateLightmaps(LAYER_LIGHTMAPS,-1,-1,NULL,NULL);
+			for (unsigned i=0;i<level->solver->getDynamicObjects().size();i++)
+			{
+				rr::RRObject* object = level->solver->getDynamicObjects()[i];
+				if (object->enabled)
+					level->solver->RRSolver::updateEnvironmentMap(&object->illumination,LAYER_ENVIRONMENT,-1,LAYER_LIGHTMAPS);
+			}
+			backgroundThreadState = TS_FINISHED;
+		});
+	}
+#endif
 	needRedisplay = 0;
 
 	drawEyeViewSoftShadowed();
