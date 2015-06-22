@@ -185,7 +185,7 @@ namespace rr_ed
 			ME_ABOUT,
 		};
 
-		CanvasWindow*               m_canvasWindow;
+		CanvasWindow*                m_canvasWindow;
 		SVCanvas*                    m_canvas; // public only for SVSceneTree, SVComment
 		class SVSceneTree*           m_sceneTree; // public only for SVComment
 		class SVLightProperties*     m_lightProperties; // public only for SVCanvas
