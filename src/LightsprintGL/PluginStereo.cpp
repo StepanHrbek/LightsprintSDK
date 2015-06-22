@@ -46,8 +46,14 @@ public:
 	{
 		const PluginParamsStereo& pp = *dynamic_cast<const PluginParamsStereo*>(&_pp);
 		
-		if (_sp.camera->stereoMode==rr::RRCamera::SM_MONO || !stereoUberProgram || !stereoTexture)
+		if (_sp.camera->stereoMode==rr::RRCamera::SM_MONO
+			|| !stereoUberProgram
+			|| !stereoTexture
+			|| (_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT && (!pp.oculusW[0] || !pp.oculusW[1] || !pp.oculusH[0] || !pp.oculusH[1])))
+		{
+			// can't render, possibly invalid arguments
 			return;
+		}
 
 		unsigned viewport[4] = {_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]}; // our temporary viewport, could differ from _sp.viewport
 
