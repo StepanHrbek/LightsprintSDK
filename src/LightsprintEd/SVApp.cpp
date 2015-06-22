@@ -65,6 +65,21 @@ void tm_addSeconds(tm& a, double _seconds)
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// oculus logging
+
+#ifdef SUPPORT_OCULUS
+void OVR_CDECL ovrLogCallback(int level, const char* message)
+{
+	rr::RRReporter::report((level==ovrLogLevel_Error)?rr::ERRO:(
+		(level==ovrLogLevel_Info)?rr::INF2:(
+		(level==ovrLogLevel_Debug)?rr::WARN:
+		rr::WARN))
+		,"%s\n",message);
+}
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // SVApp
 
 // the only instance used by whole scene viewer
@@ -88,7 +103,12 @@ public:
 		bf::current_path(s_initPath);
 #endif
 #ifdef SUPPORT_OCULUS
-		ovrResult err = ovr_Initialize(nullptr);
+		ovrInitParams oculusInitParams;
+		oculusInitParams.Flags = 0;
+		oculusInitParams.RequestedMinorVersion = 0;
+		oculusInitParams.LogCallback = &ovrLogCallback;
+		oculusInitParams.ConnectionTimeoutMS = 0;
+		ovrResult err = ovr_Initialize(&oculusInitParams);
 #endif
 		svframe = SVFrame::Create(s_svs);
 		return true;
