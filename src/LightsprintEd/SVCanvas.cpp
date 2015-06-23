@@ -572,11 +572,12 @@ SVCanvas::~SVCanvas()
 		ovrHmd_DestroyMirrorTexture(svframe->oculusHMD, oculusMirrorTexture);
 		oculusMirrorTexture = nullptr;
 	}
-	for (unsigned eye=0;eye<2;eye++) if (oculusSwapTextureSet[eye])
-	{
-		ovrHmd_DestroySwapTextureSet(svframe->oculusHMD,oculusSwapTextureSet[eye]);
-		oculusSwapTextureSet[eye] = nullptr;
-	}
+	for (unsigned eye=0;eye<2;eye++)
+		if (oculusSwapTextureSet[eye])
+		{
+			ovrHmd_DestroySwapTextureSet(svframe->oculusHMD,oculusSwapTextureSet[eye]);
+			oculusSwapTextureSet[eye] = nullptr;
+		}
 #endif
 
 	// pathtracer
@@ -2078,14 +2079,14 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 							if (oculusSwapTextureSet[0] && oculusSwapTextureSet[1]) // if texture creation fails, don't start oculus rendering
 							{
-							for (unsigned eye=0;eye<2;eye++)
-							{
-								oculusSwapTextureSet[eye]->CurrentIndex = (oculusSwapTextureSet[eye]->CurrentIndex + 1) % oculusSwapTextureSet[eye]->TextureCount;
-								ppStereo.oculusW[eye] = oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex].Header.TextureSize.w;
-								ppStereo.oculusH[eye] = oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex].Header.TextureSize.h;
-								ppStereo.oculusTextureId[eye] = ((ovrGLTexture*)&oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex])->OGL.TexId;
-							}
-							oculusRenderingFrame = true;
+								for (unsigned eye=0;eye<2;eye++)
+								{
+									oculusSwapTextureSet[eye]->CurrentIndex = (oculusSwapTextureSet[eye]->CurrentIndex + 1) % oculusSwapTextureSet[eye]->TextureCount;
+									ppStereo.oculusW[eye] = oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex].Header.TextureSize.w;
+									ppStereo.oculusH[eye] = oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex].Header.TextureSize.h;
+									ppStereo.oculusTextureId[eye] = ((ovrGLTexture*)&oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex])->OGL.TexId;
+								}
+								oculusRenderingFrame = true;
 							}
 						}
 						break;
