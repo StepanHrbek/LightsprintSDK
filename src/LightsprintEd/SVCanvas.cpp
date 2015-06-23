@@ -572,7 +572,7 @@ SVCanvas::~SVCanvas()
 		ovrHmd_DestroyMirrorTexture(svframe->oculusHMD, oculusMirrorTexture);
 		oculusMirrorTexture = nullptr;
 	}
-	for (unsigned eye=0;eye<2;eye++)
+	for (unsigned eye=0;eye<2;eye++) if (oculusSwapTextureSet[eye])
 	{
 		ovrHmd_DestroySwapTextureSet(svframe->oculusHMD,oculusSwapTextureSet[eye]);
 		oculusSwapTextureSet[eye] = nullptr;
@@ -2076,6 +2076,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 							//float DistortionScale = 1.3f; // the same constant exists in PluginStereo
 							//svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(DistortionScale*svframe->oculusHMDInfo.VScreenSize/(2*svframe->oculusHMDInfo.EyeToScreenDistance))));
 
+							if (oculusSwapTextureSet[0] && oculusSwapTextureSet[1]) // if texture creation fails, don't start oculus rendering
+							{
 							for (unsigned eye=0;eye<2;eye++)
 							{
 								oculusSwapTextureSet[eye]->CurrentIndex = (oculusSwapTextureSet[eye]->CurrentIndex + 1) % oculusSwapTextureSet[eye]->TextureCount;
@@ -2084,6 +2086,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								ppStereo.oculusTextureId[eye] = ((ovrGLTexture*)&oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex])->OGL.TexId;
 							}
 							oculusRenderingFrame = true;
+							}
 						}
 						break;
 #endif // SUPPORT_OCULUS
