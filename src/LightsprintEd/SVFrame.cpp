@@ -530,6 +530,9 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	LogWithAbort::logIsOn = !svs.openLogWindows;
 
 	// zero at least the most important variables, before starting dangerous work
+#ifdef SUPPORT_OCULUS
+	oculusHMD = nullptr;
+#endif
 	m_userProperties = nullptr;
 	m_sceneProperties = nullptr;
 	m_giProperties = nullptr;
@@ -545,7 +548,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	// load preferences (must be done very early)
 	userPreferences.load("");
-
+/* [#54]
 #ifdef SUPPORT_OCULUS
 	{
 		rr::RRReportInterval report(rr::INF2,"Checking Oculus Rift...\n");
@@ -560,6 +563,7 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 		}
 	}
 #endif // SUPPORT_OCULUS
+*/
 
 	// create properties (based also on data from preferences)
 	m_canvasWindow = new CanvasWindow(this);
@@ -721,10 +725,16 @@ SVFrame::~SVFrame()
 	m_mgr.UnInit();
 	if (fullyInited)
 	{
+/* [#54]
 #ifdef SUPPORT_OCULUS
+		rr::RR_SAFE_DELETE(m_canvas); // maybe we need to delete textures in m_canvas before oculusHMD?
 		if (oculusHMD)
+		{
 			ovrHmd_Destroy(oculusHMD);
+			oculusHMD = nullptr;
+		}
 #endif
+*/
 		rr::RR_SAFE_DELETE(textureLocator);
 	}
 }

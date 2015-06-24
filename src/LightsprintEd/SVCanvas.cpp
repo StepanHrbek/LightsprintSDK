@@ -270,6 +270,22 @@ public:
 
 void SVCanvas::createContextCore()
 {
+#ifdef SUPPORT_OCULUS
+	// [#54] moved from SVCanvas because of https://forums.oculus.com/viewtopic.php?f=20&t=24518
+	{
+		rr::RRReportInterval report(rr::INF2,"Checking Oculus Rift...\n");
+		ovrResult err = ovrHmd_Create(0,&svframe->oculusHMD);
+		if (!OVR_SUCCESS(err))
+		{
+			ovrResult err = ovrHmd_CreateDebug(ovrHmd_DK2,&svframe->oculusHMD);
+			if (OVR_SUCCESS(err))
+				rr::RRReporter::report(rr::INF2,"Real Oculus Rift not available, faking one.\n");
+			else
+				rr::RRReporter::report(rr::INF2,"Oculus Rift not available.\n");
+		}
+	}
+#endif // SUPPORT_OCULUS
+
 	context = new SVContext(canvasWindow,false,false,false);
 	canvasWindow->SetCurrent(*context);
 
@@ -578,6 +594,12 @@ SVCanvas::~SVCanvas()
 			ovrHmd_DestroySwapTextureSet(svframe->oculusHMD,oculusSwapTextureSet[eye]);
 			oculusSwapTextureSet[eye] = nullptr;
 		}
+	// [#54]
+	if (svframe->oculusHMD)
+	{
+		ovrHmd_Destroy(svframe->oculusHMD);
+		svframe->oculusHMD = nullptr;
+	}
 #endif
 
 	// pathtracer
