@@ -74,6 +74,7 @@ public:
 		// TODO: optimize these six renders down to one, with geometry shader
 		rr::RRVec3 s_viewAngles[6] = // 6x yawPitchRollRad
 		{
+			// [#55] rotated so that render of empty scene with environment E is E
 			// if we capture empty scene with skybox, we get original skybox:
 			rr::RRVec3(-RR_PI/2,0,RR_PI), // LEFT
 			rr::RRVec3(RR_PI/2,0,RR_PI), // RIGHT
