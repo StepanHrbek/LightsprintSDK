@@ -178,6 +178,7 @@ RRBuffer* RRBuffer::createEquirectangular()
 				for (unsigned j=0;j<height;j++)
 					for (unsigned i=0;i<width;i++)
 					{
+						// [#55] rotated so that createEquirectangular() of empty scene with equirectangular environment E is E
 						RRVec3 direction;
 						direction.y = sin(RR_PI*((j+0.5f)/height-0.5f));
 						direction.x = sin(RR_PI*(-2.0f*(i+0.5f)/width+1.5f)) * sqrt(1-direction.y*direction.y);

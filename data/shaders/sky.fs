@@ -40,6 +40,7 @@ void main()
 	float PI = 3.14159265358979323846264;
 	vec2 angle = vec2(asin(normalize(dir.xz).x),asin(normalize(dir).y));
 	if (dir.z<0.0) angle.x = PI-angle.x;
+	// [#55] rotated so that render of empty scene with equirectangular environment E is E
 	gl_FragColor = texture2D(map,angle*shape.xy+shape.zw);
 #endif
 
