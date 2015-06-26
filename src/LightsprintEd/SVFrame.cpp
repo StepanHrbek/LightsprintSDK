@@ -391,6 +391,9 @@ void SVFrame::UpdateEverything()
 	if (m_canvas)
 		m_canvas->fullyCreated = false;
 
+	// ~SVCanvas can take some time (in huge scenes) and it can log problems, so it's good to open log window before ~SVCanvas.
+	// But log window needs pointer to solver in new SVCanvas, so we create new SVCanvas before deleting old one.
+	// It does not cause any troubles as long as SVCanvas() only zeroes variables, does not allocate stuff/context/etc.
 	SVCanvas* nextCanvas = new SVCanvas(svs,this);
 	bool firstUpdate = !m_canvas;
 
