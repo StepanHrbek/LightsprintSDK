@@ -144,12 +144,14 @@ static wxColour RRVec32wxColour(RRVec3 c)
 
 WX_PG_IMPLEMENT_PROPERTY_CLASS(HDRColorProperty,wxPGProperty,RRVec3,const RRVec3&,TextCtrl)
 
-HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& help, int precision, const RRVec3& rgb )
+HDRColorProperty::HDRColorProperty( const wxString& label, const wxString& help, int precision, const RRVec3& rgb, bool children )
 	: wxPGProperty(label,wxPG_LABEL), image(2,1), bitmap(nullptr)
 {
 	SetValue(WXVARIANT(rgb));
 	SetHelpString(help);
 	RRVec3 hsv = rgb.getHsvFromRgb();
+	if (!children)
+		return;
 	SetAttribute("MotionSpin",true);
 	SetEditor("SpinCtrl");
 	AddPrivateChild(new FloatProperty(_("red"),_("Red component intensity"),rgb[0],precision,0,10000,0.1f,false));
