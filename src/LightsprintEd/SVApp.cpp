@@ -14,9 +14,6 @@
 namespace bf = boost::filesystem;
 #ifdef SUPPORT_OCULUS
 	#include "OVR.h"
-	#pragma comment(lib,"libovr")
-	#pragma comment(linker, "/NODEFAULTLIB:libcpmt.lib") // libovr is compiled with static crt, force it to use our dll crt
-	#pragma comment(lib,"ws2_32.lib")
 #endif
 
 	#define NORMALIZED(x) RR_PATH2RR(bf::system_complete(RR_RR2PATH(x)).make_preferred()) // make paths absolute
