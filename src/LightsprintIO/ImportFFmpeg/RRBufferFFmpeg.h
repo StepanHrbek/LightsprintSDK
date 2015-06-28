@@ -4,7 +4,7 @@
 // only under terms of Lightsprint SDK license agreement. A copy of the agreement
 // is available by contacting Lightsprint at http://lightsprint.com
 //
-// Video load & play using FFmpeg.
+// Video load & play using FFmpeg/libav.
 // --------------------------------------------------------------------------
 
 #ifndef RRBUFFERFFMPEG_H
@@ -20,6 +20,6 @@
 //!
 //! Video is not like static image
 //! - video can't be reset() and reload()
-void registerLoaderFFmpeg();
+void registerLoaderFFmpegLibav();
 
 #endif

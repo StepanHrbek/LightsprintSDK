@@ -4,7 +4,7 @@
 // only under terms of Lightsprint SDK license agreement. A copy of the agreement
 // is available by contacting Lightsprint at http://lightsprint.com
 //
-// Video load & play using FFmpeg and portaudio.
+// Video load & play using FFmpeg/libav and portaudio.
 // When you open video or audio, it is stopped.
 // Resolution and duration (as provided by ffmpeg) are known immediately,
 // but contents of first frame is not avaiable until background thread
@@ -27,7 +27,7 @@
 // --------------------------------------------------------------------------
 
 #include "../supported_formats.h"
-#ifdef SUPPORT_FFMPEG
+#if defined(SUPPORT_FFMPEG) || defined(SUPPORT_LIBAV)
 
 #include "RRBufferFFmpeg.h"
 #include "Lightsprint/RRBuffer.h"
@@ -68,6 +68,12 @@ extern "C"
 using namespace rr;
 
 #define WAIT_FOR_CONSUMER
+
+#ifdef SUPPORT_LIBAV
+	#define LIB_NAME "libav"
+#else
+	#define LIB_NAME "ffmpeg"
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -299,6 +305,43 @@ public:
 	// video_proc
 	/////////////////////////////////////////////////////////////////////////
 
+#ifdef SUPPORT_LIBAV
+	// libav
+	struct PtsCorrectionContext
+	{
+		int64_t num_faulty_pts; /// Number of incorrect PTS values so far
+		int64_t num_faulty_dts; /// Number of incorrect DTS values so far
+		int64_t last_pts;       /// PTS of the last frame
+		int64_t last_dts;       /// DTS of the last frame
+	};
+	void init_pts_correction(PtsCorrectionContext *ctx)
+	{
+		ctx->num_faulty_pts = ctx->num_faulty_dts = 0;
+		ctx->last_pts = ctx->last_dts = INT64_MIN;
+	}
+	int64_t guess_correct_pts(PtsCorrectionContext *ctx, int64_t reordered_pts, int64_t dts)
+	{
+		int64_t pts = AV_NOPTS_VALUE;
+
+		if (dts != AV_NOPTS_VALUE)
+		{
+			ctx->num_faulty_dts += dts <= ctx->last_dts;
+			ctx->last_dts = dts;
+		}
+		if (reordered_pts != AV_NOPTS_VALUE)
+		{
+			ctx->num_faulty_pts += reordered_pts <= ctx->last_pts;
+			ctx->last_pts = reordered_pts;
+		}
+		if ((ctx->num_faulty_pts<=ctx->num_faulty_dts || dts == AV_NOPTS_VALUE) && reordered_pts != AV_NOPTS_VALUE)
+			pts = reordered_pts;
+		else
+			pts = dts;
+
+		return pts;
+	}
+#endif
+
 	int video_proc()
 	{
 		AVFrame* avFrame = NULL;
@@ -319,7 +362,11 @@ public:
 			if (!avFrame)
 				avFrame = av_frame_alloc();
 			avcodec_decode_video2(video_avCodecContext, avFrame, &got_frame, avPacket);
+#ifdef SUPPORT_LIBAV
+			int64_t pts = guess_correct_pts(&ptsCorrectionContext,avFrame->pkt_pts,avFrame->pkt_dts);
+#else
 			int64_t pts = av_frame_get_best_effort_timestamp(avFrame);
+#endif
 			if (pts==AV_NOPTS_VALUE)
 			{
 				pts = 0;
@@ -437,18 +484,19 @@ public:
 		AVCodec* avCodec = avcodec_find_decoder(avFormatContext->streams[stream_index]->codec->codec_id);
 		if (!avCodec)
 		{
-			RRReporter::report(WARN,"ffmpeg: unsupported codec\n");
+			RRReporter::report(WARN,LIB_NAME ": unsupported codec\n");
 			return nullptr;
 		}
 		AVCodecContext* avCodecContext = avcodec_alloc_context3(avCodec);
 		int err = avcodec_copy_context(avCodecContext, avFormatContext->streams[stream_index]->codec);
 		if (err)
 		{
-			//#define REPORT(func) RRReporter::report(WARN,"ffmpeg: " func "()=%c%c%c%c\n",char(-err),char((-err)>>8),char((-err)>>16),char((-err)>>24))
+			#define AV_ERROR_MAX_STRING_SIZE 64
+			//#define REPORT(func) RRReporter::report(WARN,LIB_NAME ": " func "()=%c%c%c%c\n",char(-err),char((-err)>>8),char((-err)>>16),char((-err)>>24))
 			#define REPORT(func,err) { \
 				char tmp[AV_ERROR_MAX_STRING_SIZE]; \
-				av_make_error_string(tmp,AV_ERROR_MAX_STRING_SIZE,err); \
-				RRReporter::report(WARN,"ffmpeg: " func "()=%s\n",tmp); \
+				av_strerror(err,tmp,AV_ERROR_MAX_STRING_SIZE); \
+				RRReporter::report(WARN,LIB_NAME ": " func "()=%s\n",tmp); \
 			}			
 			REPORT("avcodec_copy_context",err);
 			return nullptr;
@@ -465,6 +513,10 @@ public:
 	// fills width,height,duration etc, but not image_xxx
 	bool open_file(const RRString& filename)
 	{
+#ifdef SUPPORT_LIBAV
+		init_pts_correction(&ptsCorrectionContext);
+#endif
+
 		// Open video file (fill avFormatContext)
 		int err = avformat_open_input(&avFormatContext, filename.c_str(), NULL, NULL);
 		if (err)
@@ -476,7 +528,7 @@ public:
 
 		// Retrieve stream information (fill avFormatContext->streams)
 		err = avformat_find_stream_info(avFormatContext, NULL);
-		if (err)
+		if (err<0) // only negative is error, libav returns 80 on success
 		{
 			REPORT("avformat_find_stream_info",err);
 			return false;
@@ -593,6 +645,10 @@ public:
 	AVCodecContext*   video_avCodecContext;   // set once by ctor
 	Queue<AVPacketWrapper*> video_packetQueue;// changed by demux_thread and video_thread
 	struct SwsContext*video_swsContext;
+
+#ifdef SUPPORT_LIBAV
+	PtsCorrectionContext ptsCorrectionContext;
+#endif
 
 	// yuv images (consumer)
 	VideoPicture*     image_visible;          // filled by update(), visible from outside
@@ -811,9 +867,9 @@ private:
 //
 // main
 
-void registerLoaderFFmpeg()
+void registerLoaderFFmpegLibav()
 {
 	RRBuffer::registerLoader(RRBufferFFmpeg::load);
 }
 
-#endif // SUPPORT_FFMPEG
+#endif // SUPPORT_FFMPEG || SUPPORT_LIBAV

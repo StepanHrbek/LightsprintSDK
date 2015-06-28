@@ -39,9 +39,9 @@ if (phase==0 || phase==1)
 	registerLoaderLightsprint();
 #endif
 
-#ifdef SUPPORT_FFMPEG
+#if defined(SUPPORT_FFMPEG) || defined(SUPPORT_LIBAV)
 	// should be the last one, because it is probably very slow in rejecting unsupported formats
-	registerLoaderFFmpeg();
+	registerLoaderFFmpegLibav();
 #endif
 
 #ifdef SUPPORT_DIRECTSHOW
