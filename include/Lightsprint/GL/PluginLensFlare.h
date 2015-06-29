@@ -12,6 +12,7 @@
 #define PLUGINLENSFLARE_H
 
 #include "Plugin.h"
+#include "Lightsprint/RRSolver.h"
 
 namespace rr_gl
 {
@@ -34,13 +35,17 @@ public:
 	unsigned flareId;
 	//! Collection of lights in scene.
 	const rr::RRLights* lights;
+	//! Collider used for occlusion testing.
+	const rr::RRCollider* collider;
 	//! Object with all scene geometry, used for occlusion testing.
 	const rr::RRObject* scene;
 	//! Number of rays shot. Higher quality makes effect of gradual occlusion smoother.
 	unsigned quality;
 
 	//! Convenience ctor, for setting plugin parameters.
-	PluginParamsLensFlare(const PluginParams* _next, float _flareSize, unsigned _flareId, const rr::RRLights* _lights, const rr::RRObject* _scene, unsigned _quality) : flareSize(_flareSize), flareId(_flareId), lights(_lights), scene(_scene), quality(_quality) {next=_next;}
+	PluginParamsLensFlare(const PluginParams* _next, float _flareSize, unsigned _flareId, const rr::RRSolver* _solver, unsigned _quality) : flareSize(_flareSize), flareId(_flareId), lights(&_solver->getLights()), collider(_solver->getCollider()), scene(_solver->getMultiObject()), quality(_quality) {next=_next;}
+	//! Convenience ctor, for setting plugin parameters.
+	PluginParamsLensFlare(const PluginParams* _next, float _flareSize, unsigned _flareId, const rr::RRLights* _lights, const rr::RRCollider* _collider, const rr::RRObject* _scene, unsigned _quality) : flareSize(_flareSize), flareId(_flareId), lights(_lights), collider(_collider), scene(_scene), quality(_quality) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;

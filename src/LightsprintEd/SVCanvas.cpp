@@ -1895,7 +1895,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppSelection;
 
 			// lens flare plugin
-			rr_gl::PluginParamsLensFlare ppLensFlare(pluginChain,svs.lensFlareSize,svs.lensFlareId,&solver->getLights(),solver->getMultiObject(),64);
+			rr_gl::PluginParamsLensFlare ppLensFlare(pluginChain,svs.lensFlareSize,svs.lensFlareId,solver,64);
 			if (svs.renderLensFlare && !svs.camera.isOrthogonal() && !svs.renderPanorama && !svs.renderStereo)
 				pluginChain = &ppLensFlare;
 
@@ -2028,7 +2028,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 
 			// lens flare plugin
-			rr_gl::PluginParamsLensFlare ppLensFlare(pluginChain,svs.lensFlareSize,svs.lensFlareId,&solver->getLights(),solver->getMultiObject(),64);
+			rr_gl::PluginParamsLensFlare ppLensFlare(pluginChain,svs.lensFlareSize,svs.lensFlareId,solver,64);
 			if (svs.renderLensFlare && !svs.camera.isOrthogonal() && !svs.renderPanorama && !svs.renderStereo)
 				pluginChain = &ppLensFlare;
 

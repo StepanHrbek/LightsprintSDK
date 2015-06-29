@@ -9,7 +9,6 @@
 
 #include "Lightsprint/GL/PluginLensFlare.h"
 #include "Lightsprint/GL/PreserveState.h"
-#include "Lightsprint/RRObject.h"
 
 namespace rr_gl
 {
@@ -33,7 +32,7 @@ public:
 		RR_ASSERT(ray.rayFlags&rr::RRRay::FILL_SIDE);
 
 		rr::RRPointMaterial pointMaterial;
-		object->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,nullptr,true,pointMaterial); // custom scale transparency is identical to physical one (and even if not, it would be good enough here)
+		ray.hitObject->getPointMaterial(ray.hitTriangle,ray.hitPoint2d,nullptr,true,pointMaterial); // custom scale transparency is identical to physical one (and even if not, it would be good enough here)
 		if (pointMaterial.sideBits[ray.hitFrontSide?0:1].renderFrom)
 			transparency *= pointMaterial.specularTransmittance.color;
 		return transparency==rr::RRVec3(0);
@@ -42,7 +41,6 @@ public:
 	{
 		return false;
 	}
-	const rr::RRObject* object;
 	rr::RRVec3 transparency;
 };
 
@@ -161,7 +159,7 @@ public:
 				rr::RRVec2 lightPositionInWindow = _sp.camera->getPositionInViewport(_sp.camera->getPosition()-light->direction*1e10f);
 				if (_sp.camera->getDirection().dot(light->direction)<0 && lightPositionInWindow.x>-1 && lightPositionInWindow.x<1 && lightPositionInWindow.y>-1 && lightPositionInWindow.y<1)
 				{
-					if (!pp.scene)
+					if (!pp.collider)
 					{
 						renderLensFlare(pp.flareSize,pp.flareId,_renderer.getTextureRenderer(),_sp.camera->getAspect(),lightPositionInWindow);
 					}
@@ -177,7 +175,6 @@ public:
 						ray.rayLengthMin = 0;
 						ray.rayLengthMax = 1e10f;
 						ray.rayFlags = 0;
-						collisionHandlerTransparency->object = pp.scene;
 
 						// generate everything from _flareId
 						unsigned oldSeed = rand();
@@ -187,7 +184,7 @@ public:
 						{
 							ray.rayDir = ( rr::RRVec3(rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f,rand()/(float)RAND_MAX-0.5f)*0.02f - light->direction.normalized() ).normalized();
 							ray.hitObject = pp.scene; // we set hitObject for colliders that don't set it
-							pp.scene->getCollider()->intersect(ray);
+							pp.collider->intersect(ray);
 							transparencySum += collisionHandlerTransparency->transparency;
 							dirSum -= ray.rayDir*collisionHandlerTransparency->transparency.sum();
 						}
