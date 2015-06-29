@@ -32,13 +32,11 @@
 #include "RRBufferFFmpeg.h"
 #include "Lightsprint/RRBuffer.h"
 #include "Lightsprint/RRDebug.h"
-#include <chrono>
-#include <condition_variable>
+#include <boost/chrono.hpp> // we use boost only because of vs2010/12,
+#include <boost/thread.hpp> // otherwise we would include <chrono>, <condition_variable>, <mutex>, <thread> and replace boost:: with std::
 #include <cstdio>
 #include <cstdlib>
-#include <mutex>
 #include <queue>
-#include <thread>
 
 // audio (by portaudio)
 #include "portaudio.h"
@@ -105,13 +103,13 @@ class Queue
 public:
 	void push(C c)
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		boost::lock_guard<boost::mutex> lock(mutex);
 		queue.push(c);
 		cond.notify_one();
 	}
 	C pop(bool& aborting)
 	{
-		std::unique_lock<std::mutex> lock(mutex);
+		boost::unique_lock<boost::mutex> lock(mutex);
 		while (!aborting)
 		{
 			if (!queue.empty())
@@ -126,7 +124,7 @@ public:
 	}
 	void clear()
 	{
-		std::lock_guard<std::mutex> lock(mutex);
+		boost::lock_guard<boost::mutex> lock(mutex);
 		while (!queue.empty())
 		{
 			delete queue.front();
@@ -140,8 +138,8 @@ public:
 
 private:
 	std::queue<C> queue;
-	std::mutex mutex;
-	std::condition_variable cond;
+	boost::mutex mutex;
+	boost::condition_variable cond;
 };
 
 
@@ -208,7 +206,7 @@ public:
 		av_register_all();		
 		open_file(_filename); // we can call this from demux_thread, but we prefer blocking until width/height/duration are known
 		if (audio_avStream || video_avStream)
-			demux_thread = std::thread(&FFmpegPlayer::demux_proc, this);
+			demux_thread = boost::thread(&FFmpegPlayer::demux_proc, this);
 	}
 
 	virtual ~FFmpegPlayer()
@@ -288,7 +286,7 @@ public:
 			}
 			else
 			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
 			}
 		}
 
@@ -354,7 +352,7 @@ public:
 				if (aborting)
 					break;
 				// empty packet = new data after seek are coming, we should clean up old data
-				std::unique_lock<std::mutex> lock(image_mutex);
+				boost::unique_lock<boost::mutex> lock(image_mutex);
 				RR_SAFE_DELETE(image_ready);
 				continue;
 			}
@@ -381,7 +379,7 @@ public:
 				int dstStride[] = {-3*buffer->getWidth(), 0};
 				sws_scale(video_swsContext, (uint8_t const * const *)avFrame->data, avFrame->linesize, 0, video_avCodecContext->height, dst, dstStride);
 				buffer->unlock();
-				std::unique_lock<std::mutex> lock(image_mutex);
+				boost::unique_lock<boost::mutex> lock(image_mutex);
 #ifdef WAIT_FOR_CONSUMER
 				// optional: pause decoding until consumer eats image_ready
 				// this thread does less work, but displayed picture is older
@@ -422,7 +420,7 @@ public:
 #ifdef WAIT_FOR_CONSUMER
 				{
 					// wake up video_proc if it waits in [#50]. it continues only if we also delete image_ready
-					std::lock_guard<std::mutex> lock(image_mutex);
+					boost::lock_guard<boost::mutex> lock(image_mutex);
 					RR_SAFE_DELETE(image_ready);
 					image_cond.notify_one();
 				}
@@ -434,7 +432,7 @@ public:
 			if (std::min(video_packetQueue.size(),audio_packetQueue.size())>50)
 			{
 				// queues are full, sleep
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+				boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
 			}
 			else
 			{
@@ -547,7 +545,7 @@ public:
 				audio_avCodecContext = open_stream(audio_streamIndex);
 				if (audio_avCodecContext)
 				{
-					audio_thread = std::thread(&FFmpegPlayer::audio_proc,this);
+					audio_thread = boost::thread(&FFmpegPlayer::audio_proc,this);
 				}
 			}
 			if (video_streamIndex==-1 && avFormatContext->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO)
@@ -560,7 +558,7 @@ public:
 					video_swsContext = sws_getContext(video_avCodecContext->width, video_avCodecContext->height, video_avCodecContext->pix_fmt, video_avCodecContext->width, video_avCodecContext->height, PIX_FMT_RGB24, SWS_BILINEAR, NULL, NULL, NULL );
 					width = video_avCodecContext->width;
 					height = video_avCodecContext->height;
-					video_thread = std::thread(&FFmpegPlayer::video_proc,this);
+					video_thread = boost::thread(&FFmpegPlayer::video_proc,this);
 				}
 			}
 		}
@@ -579,7 +577,7 @@ public:
 		if (!playing && image_visible)
 			return false;
 		// all access to image_ready must be protected, background thread writes to it
-		std::lock_guard<std::mutex> lock(image_mutex);
+		boost::lock_guard<boost::mutex> lock(image_mutex);
 		if (!image_ready || startTime.secondsPassed()<image_ready->pts)
 			return false;
 		// propagate image_ready to image_visible and notify decoding thread
@@ -628,18 +626,18 @@ public:
 	bool              aborting;               // changed by main thread, signal to all background threads
 
 	// demux
-	std::thread       demux_thread;           // set once by ctor, feeds video and audio threads from file
+	boost::thread     demux_thread;           // set once by ctor, feeds video and audio threads from file
 	AVFormatContext*  avFormatContext;        // set once by ctor
 
 	// ffmpeg audio (producer)
-	std::thread       audio_thread;           // set once by ctor, decodes audio packets and feeds portaudio
+	boost::thread     audio_thread;           // set once by ctor, decodes audio packets and feeds portaudio
 	int               audio_streamIndex;      // set once by ctor
 	AVStream*         audio_avStream;         // set once by ctor
 	AVCodecContext*   audio_avCodecContext;   // set once by ctor
 	Queue<AVPacketWrapper*> audio_packetQueue;// changed by demux_thread and audio_thread
 
 	// ffmpeg video (producer)
-	std::thread       video_thread;           // set once by ctor, decodes video packets and feeds image_ready
+	boost::thread     video_thread;           // set once by ctor, decodes video packets and feeds image_ready
 	int               video_streamIndex;      // set once by ctor
 	AVStream*         video_avStream;         // set once by ctor
 	AVCodecContext*   video_avCodecContext;   // set once by ctor
@@ -653,8 +651,8 @@ public:
 	// yuv images (consumer)
 	VideoPicture*     image_visible;          // filled by update(), visible from outside
 	VideoPicture*     image_ready;            // filled by video_thread, cleared by update()
-	std::mutex        image_mutex;            // protects writes to image_visible and image_ready
-	std::condition_variable image_cond;
+	boost::mutex      image_mutex;            // protects writes to image_visible and image_ready
+	boost::condition_variable image_cond;
 };
 
 
