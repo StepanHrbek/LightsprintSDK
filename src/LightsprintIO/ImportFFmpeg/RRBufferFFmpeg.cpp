@@ -283,6 +283,12 @@ public:
 					}
 					delete avPacket;
 				}
+				else
+				{
+					// empty packet = we are either aborting or seeking
+					if (!aborting)
+						avcodec_flush_buffers(audio_avCodecContext);
+				}
 			}
 			else
 			{
@@ -352,6 +358,7 @@ public:
 				if (aborting)
 					break;
 				// empty packet = new data after seek are coming, we should clean up old data
+				avcodec_flush_buffers(video_avCodecContext);
 				boost::unique_lock<boost::mutex> lock(image_mutex);
 				RR_SAFE_DELETE(image_ready);
 				continue;
@@ -412,11 +419,9 @@ public:
 				audio_packetQueue.clear();
 				video_packetQueue.clear();
 				if (audio_avCodecContext)
-					avcodec_flush_buffers(audio_avCodecContext);
+					audio_packetQueue.push(nullptr); // avcodec_flush_buffers()
 				if (video_avCodecContext)
-					avcodec_flush_buffers(video_avCodecContext);
-				// empty packet ensures proper clearing of image_ready and image_inProgress
-				video_packetQueue.push(nullptr);
+					video_packetQueue.push(nullptr); // avcodec_flush_buffers() + proper clearing of image_ready and image_inProgress
 #ifdef WAIT_FOR_CONSUMER
 				{
 					// wake up video_proc if it waits in [#50]. it continues only if we also delete image_ready
