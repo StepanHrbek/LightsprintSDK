@@ -429,7 +429,7 @@ public:
 				seekSecondsFromStart = -1;
 			}
 
-			if (std::min(video_packetQueue.size(),audio_packetQueue.size())>50)
+			if (std::min(video_avStream?video_packetQueue.size():1000,audio_avStream?audio_packetQueue.size():1000)>50)
 			{
 				// queues are full, sleep
 				boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
