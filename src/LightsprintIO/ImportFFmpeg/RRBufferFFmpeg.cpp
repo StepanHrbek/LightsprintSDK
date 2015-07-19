@@ -584,7 +584,9 @@ public:
 		delete image_visible;
 		image_visible = image_ready;
 		image_ready = nullptr;
+#ifdef WAIT_FOR_CONSUMER
 		image_cond.notify_one();
+#endif
 		return true;
 	}
 	void play()
@@ -652,7 +654,9 @@ public:
 	VideoPicture*     image_visible;          // filled by update(), visible from outside
 	VideoPicture*     image_ready;            // filled by video_thread, cleared by update()
 	boost::mutex      image_mutex;            // protects writes to image_visible and image_ready
+#ifdef WAIT_FOR_CONSUMER
 	boost::condition_variable image_cond;
+#endif
 };
 
 
