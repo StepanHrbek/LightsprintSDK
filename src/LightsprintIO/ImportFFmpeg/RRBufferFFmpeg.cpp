@@ -427,6 +427,7 @@ public:
 			{
 				audio_packetQueue.clear();
 				video_packetQueue.clear();
+			skip_queue_clear:
 				if (hasAudio())
 					audio_packetQueue.push(nullptr); // avcodec_flush_buffers()
 				if (hasVideo())
@@ -456,6 +457,14 @@ public:
 				if (err < 0)
 				{
 					delete avPacket;
+					if (err==AVERROR_EOF) // ffplay tests also avio_feof(avFormatContext->pb), but notes that it's hack
+					{
+						// loop
+						seekSecondsFromStart = 0;
+						startTime.setNow(); // !!! risky, main thread can modify it at the same time if user calls pause()/play()
+						// if we don't skip queue.clear() above, we lose 50 packets at the end of video
+						goto skip_queue_clear;
+					}
 				}
 				else
 				{
@@ -642,7 +651,7 @@ public:
 	unsigned          height;                 // set once by ctor
 	float             duration;               // set once by ctor
 	bool              playing;                // changed by main thread, signal to audio_thread
-	RRTime            startTime;              // changed by main thread, only valid when playing
+	RRTime            startTime;              // changed by main thread, only valid when playing. also changed by demux_proc when looping (risky)
 	float             stoppedSecondsFromStart;// changed by main thread, only valid when !playing
 	float             seekSecondsFromStart;   // changed by main thread, signal to demux_thread
 	bool              aborting;               // changed by main thread, signal to all background threads
