@@ -459,14 +459,14 @@ public:
 				}
 				else
 				{
-				// send packet to other thread
-				if (avPacket->stream_index == video_streamIndex)
-					video_packetQueue.push(avPacket);
-				else
-				if (avPacket->stream_index == audio_streamIndex)
-					audio_packetQueue.push(avPacket);
-				else
-					delete avPacket;
+					// send packet to other thread
+					if (avPacket->stream_index == video_streamIndex)
+						video_packetQueue.push(avPacket);
+					else
+					if (avPacket->stream_index == audio_streamIndex)
+						audio_packetQueue.push(avPacket);
+					else
+						delete avPacket;
 				}
 			}
 		}
