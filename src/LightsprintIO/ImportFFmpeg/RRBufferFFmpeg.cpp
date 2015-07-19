@@ -390,6 +390,8 @@ public:
 //printf(" v %f\n",(float)(pts * av_q2d(video_avStream->time_base)));
 				VideoPicture* image_inProgress = new VideoPicture(avFrame, pts * av_q2d(video_avStream->time_base));
 				RRBuffer* buffer = image_inProgress->buffer;
+				if (buffer)
+				{
 				unsigned char* data = buffer->lock(rr::BL_DISCARD_AND_WRITE);
 				uint8_t* dst[] = {data+buffer->getWidth()*(buffer->getHeight()-1)*3, nullptr};
 				int dstStride[] = {-3*buffer->getWidth(), 0};
@@ -404,6 +406,13 @@ public:
 #endif
 				delete image_ready;
 				image_ready = image_inProgress;
+				}
+				else
+				{
+					// when something goes terribly wrong and we run out of memory, this is the most likely allocation failure
+					delete image_inProgress;
+					RR_LIMITED_TIMES(1,RRReporter::report(ERRO,"Video playback run out of address space.\n"));
+				}
 			}
 			delete avPacket;
 		}
