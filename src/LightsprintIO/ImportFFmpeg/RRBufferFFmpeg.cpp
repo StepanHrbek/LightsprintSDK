@@ -65,7 +65,7 @@ extern "C"
 
 using namespace rr;
 
-#define WAIT_FOR_CONSUMER
+#define WAIT_FOR_CONSUMER // don't decode next frame until consumer eats current one. (limits decoding speed, necessary)
 
 #ifdef SUPPORT_LIBAV
 	#define LIB_NAME "libav"
@@ -277,8 +277,8 @@ public:
 					if (got_frame && avFrame->nb_samples)
 					{
 //int64_t pts = av_frame_get_best_effort_timestamp(avFrame); if (pts==AV_NOPTS_VALUE) pts = 0; printf("a %f\n",(float)(pts * av_q2d(audio_avStream->time_base)));
-						// very simple, but has no synchronization,
-						// we might need to leave Pa_WriteStream for audio callback later
+						// very simple, but the only synchronization is blocking when buffer is full,
+						// we might need to leave Pa_WriteStream for audio callback later, to improve accuracy
 						Pa_WriteStream(pa_stream,avFrame->data,avFrame->nb_samples);
 					}
 					delete avPacket;
@@ -580,7 +580,7 @@ public:
 		boost::lock_guard<boost::mutex> lock(image_mutex);
 		if (!image_ready || startTime.secondsPassed()<image_ready->pts)
 			return false;
-		// propagate image_ready to image_visible and notify decoding thread
+		// propagate image_ready to image_visible and wake up video_proc if it waits in [#50]
 		delete image_visible;
 		image_visible = image_ready;
 		image_ready = nullptr;
