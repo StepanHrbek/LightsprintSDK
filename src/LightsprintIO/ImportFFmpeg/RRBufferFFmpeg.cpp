@@ -205,7 +205,7 @@ public:
 		// open file and start decoding first frame on background
 		av_register_all();		
 		open_file(_filename); // we can call this from demux_thread, but we prefer blocking until width/height/duration are known
-		if (audio_avStream || video_avStream)
+		if (hasAudio() || hasVideo()) // hasXxx works only after open_file()
 			demux_thread = boost::thread(&FFmpegPlayer::demux_proc, this);
 	}
 
@@ -235,6 +235,15 @@ public:
 		RR_SAFE_DELETE(image_ready);
 	}
 
+	bool hasAudio()
+	{
+		return audio_avCodecContext;
+	}
+
+	bool hasVideo()
+	{
+		return video_avCodecContext;
+	}
 
 	/////////////////////////////////////////////////////////////////////////
 	// audio_proc
@@ -418,9 +427,9 @@ public:
 			{
 				audio_packetQueue.clear();
 				video_packetQueue.clear();
-				if (audio_avCodecContext)
+				if (hasAudio())
 					audio_packetQueue.push(nullptr); // avcodec_flush_buffers()
-				if (video_avCodecContext)
+				if (hasVideo())
 					video_packetQueue.push(nullptr); // avcodec_flush_buffers() + proper clearing of image_ready and image_inProgress
 #ifdef WAIT_FOR_CONSUMER
 				{
@@ -434,7 +443,7 @@ public:
 				seekSecondsFromStart = -1;
 			}
 
-			if (std::min(video_avStream?video_packetQueue.size():1000,audio_avStream?audio_packetQueue.size():1000)>50)
+			if (std::min(hasVideo()?video_packetQueue.size():1000,hasAudio()?audio_packetQueue.size():1000)>50)
 			{
 				// queues are full, sleep
 				boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
@@ -683,7 +692,7 @@ public:
 	static RRBuffer* load(const RRString& _filename, const char* _cubeSideName[6])
 	{
 		RRBufferFFmpeg* video = new RRBufferFFmpeg(_filename);
-		if (!video->player->audio_avStream && !video->player->video_avStream)
+		if (!video->player->hasAudio() && !video->player->hasVideo())
 			RR_SAFE_DELETE(video);
 		return video;
 	}
