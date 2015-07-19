@@ -392,20 +392,20 @@ public:
 				RRBuffer* buffer = image_inProgress->buffer;
 				if (buffer)
 				{
-				unsigned char* data = buffer->lock(rr::BL_DISCARD_AND_WRITE);
-				uint8_t* dst[] = {data+buffer->getWidth()*(buffer->getHeight()-1)*3, nullptr};
-				int dstStride[] = {-3*buffer->getWidth(), 0};
-				sws_scale(video_swsContext, (uint8_t const * const *)avFrame->data, avFrame->linesize, 0, video_avCodecContext->height, dst, dstStride);
-				buffer->unlock();
-				boost::unique_lock<boost::mutex> lock(image_mutex);
+					unsigned char* data = buffer->lock(rr::BL_DISCARD_AND_WRITE);
+					uint8_t* dst[] = {data+buffer->getWidth()*(buffer->getHeight()-1)*3, nullptr};
+					int dstStride[] = {-3*buffer->getWidth(), 0};
+					sws_scale(video_swsContext, (uint8_t const * const *)avFrame->data, avFrame->linesize, 0, video_avCodecContext->height, dst, dstStride);
+					buffer->unlock();
+					boost::unique_lock<boost::mutex> lock(image_mutex);
 #ifdef WAIT_FOR_CONSUMER
-				// optional: pause decoding until consumer eats image_ready
-				// this thread does less work, but displayed picture is older
-				while (image_ready && !aborting)
-					image_cond.wait(lock); // [#50]
+					// optional: pause decoding until consumer eats image_ready
+					// this thread does less work, but displayed picture is older
+					while (image_ready && !aborting)
+						image_cond.wait(lock); // [#50]
 #endif
-				delete image_ready;
-				image_ready = image_inProgress;
+					delete image_ready;
+					image_ready = image_inProgress;
 				}
 				else
 				{
