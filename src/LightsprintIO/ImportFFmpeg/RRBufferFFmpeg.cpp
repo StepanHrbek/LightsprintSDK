@@ -580,7 +580,8 @@ public:
 			{
 				audio_streamIndex = i;
 				audio_avStream = avFormatContext->streams[audio_streamIndex];
-				audio_avCodecContext = open_stream(audio_streamIndex);
+				if (audio_avStream)
+					audio_avCodecContext = open_stream(audio_streamIndex);
 				if (audio_avCodecContext)
 				{
 					audio_thread = boost::thread(&FFmpegPlayer::audio_proc,this);
@@ -590,7 +591,8 @@ public:
 			{
 				video_streamIndex = i;
 				video_avStream = avFormatContext->streams[video_streamIndex];
-				video_avCodecContext = open_stream(video_streamIndex);
+				if (video_avStream)
+					video_avCodecContext = open_stream(video_streamIndex);
 				if (video_avCodecContext)
 				{
 					video_swsContext = sws_getContext(video_avCodecContext->width, video_avCodecContext->height, video_avCodecContext->pix_fmt, video_avCodecContext->width, video_avCodecContext->height, PIX_FMT_RGB24, SWS_BILINEAR, NULL, NULL, NULL );
