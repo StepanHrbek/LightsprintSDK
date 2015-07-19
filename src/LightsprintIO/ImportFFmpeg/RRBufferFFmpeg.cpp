@@ -453,7 +453,12 @@ public:
 				// read packet
 				AVPacketWrapper* avPacket = new AVPacketWrapper;
 				int err = av_read_frame(avFormatContext, avPacket);
-
+				if (err < 0)
+				{
+					delete avPacket;
+				}
+				else
+				{
 				// send packet to other thread
 				if (avPacket->stream_index == video_streamIndex)
 					video_packetQueue.push(avPacket);
@@ -462,6 +467,7 @@ public:
 					audio_packetQueue.push(avPacket);
 				else
 					delete avPacket;
+				}
 			}
 		}
 		av_frame_free(&avFrame);
