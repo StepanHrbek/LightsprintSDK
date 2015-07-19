@@ -385,7 +385,7 @@ public:
 			{
 				pts = 0;
 			}
-			if(got_frame)
+			if (got_frame)
 			{
 //printf(" v %f\n",(float)(pts * av_q2d(video_avStream->time_base)));
 				VideoPicture* image_inProgress = new VideoPicture(avFrame, pts * av_q2d(video_avStream->time_base));
