@@ -1,5 +1,7 @@
 /bin
 /lib
+/Library
+/RL_*
 /tmp
 *.opensdf
 *.sdf
