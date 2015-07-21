@@ -324,6 +324,7 @@ Material formats (1)
  - for baking and pathtracing, 3D API is not needed
 
  Compilers
+ - Visual C++ 2015 (32bit, 64bit)
  - Visual C++ 2013.4 (32bit, 64bit)
  - Visual C++ 2012.4 (32bit, 64bit)
  - Visual C++ 2010 SP1 with all security updates (32bit, 64bit)
@@ -3079,9 +3080,9 @@ oculusHMD->GetDeviceInfo(&oculusHMDInfo);
 
  Lightsprint SDK works with Visual Studio out of the box, but it's possible to improve visualizations of Lightsprint types in debugger.
 
- \section vs_2012 Visual Studio 2012, 2013
+ \section vs_2012 Visual Studio 2012 - 2015
 
- To improve visualizations, copy our <code>Lightsprint.SDK.natvis</code> file to Visual Studio folder <code>Common7/Packages/Debugger/Visualizations</code>.
+ To improve visualizations, copy our <code>Lightsprint.SDK.natvis</code> file to Visual Studio folder <code>Common7/Packages/Debugger/Visualizers</code>.
 
  \section vs_2010 Visual Studio 2010
 

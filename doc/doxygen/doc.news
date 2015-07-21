@@ -23,6 +23,7 @@ NEWS
   - pathtracing in SceneViewer is enabled with checkbox rather than selected from drop-down list of techniques
   - supports DOF
   - SmallLuxGPU4 pathtracer updated to the most recent version, supports more Lightsprint SDK features, so slg4 renders are closer to Lightsprint renders
+- Visual Studio 2015 support
 - misc
   - RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
   - RRCamera::PC_TRUNCATE_TOP_BOT
