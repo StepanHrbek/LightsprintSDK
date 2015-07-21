@@ -10,8 +10,9 @@ if not exist %WX%\build\msw\wx_vc9.sln (
 	exit
 )
 if not exist %WX%\include\wx\msw\setup.h (
-	echo Using default setup. You can break now, tweak setup in %WX%\include\wx\msw\setup.h and rerun.
+	echo Using default setup. Tweak setup in %WX%\include\wx\msw\setup.h and rerun.
 	copy %WX%\include\wx\msw\setup0.h %WX%\include\wx\msw\setup.h
+	exit
 )
 
 set WX=%WXWIDGETS_DIR%
