@@ -218,7 +218,10 @@ public:
 		if (audio_thread.joinable())
 			audio_thread.join();
 		if (video_thread.joinable())
+		{
+			image_cond.notify_one(); // wake up video_proc if it waits in [#50]
 			video_thread.join();
+		}
 
 		// ffmpeg audio (producer)
 		audio_avStream = nullptr;
