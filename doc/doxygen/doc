@@ -326,7 +326,7 @@ Material formats (1)
  Compilers
  - Visual C++ 2015 (32bit, 64bit)
  - Visual C++ 2013.5 (32bit, 64bit)
- - Visual C++ 2012.4 (32bit, 64bit)
+ - Visual C++ 2012.5 (32bit, 64bit)
  - Visual C++ 2010 SP1 with all security updates (32bit, 64bit)
  - GCC (32bit, 64bit)
  - Clang (64bit)
