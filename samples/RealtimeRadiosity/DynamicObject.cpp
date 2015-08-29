@@ -4,7 +4,7 @@
 
 #include "Lightsprint/GL/RRSolverGL.h"
 #include "DynamicObject.h"
-#include "../src/LightsprintIO/Import3DS/Model_3DS.h"
+#include "../src/LightsprintIO/3DS/Model_3DS.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

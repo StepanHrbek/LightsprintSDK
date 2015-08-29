@@ -714,7 +714,7 @@ Material formats (1)
     - Open the file <code>FCollada/FUtils/FUFileManager.cpp</code> and change "size" to "(unsigned int) size" at line 392.
     - On 64-bit platforms, open the file <code>FCollada/FUtils/FUStringBuilder.h</code> and replace "long" by "long long" at lines 139 and 140.
     - When building FCollada, use O2 optimization level for 64bit release version and O1 for 32bit to prevent linking issues with templates.
-    - We provide a makefile located at "src/LightsprintIO/ImportFCollada" for your convenience.
+    - We provide a makefile located at "src/LightsprintIO/FCollada" for your convenience.
 
  \page fcollada_patch FCollada patch
 
@@ -769,7 +769,7 @@ Material formats (1)
 \page tpl_fragments code fragments
   - .3ds .bsp and .mgf loaders contain 3rd party open source code
   - optional, remove loaders by deleting <code>\#define SUPPORT_3DS, \#define SUPPORT_QUAKE3, \#define SUPPORT_MGF</code> in <code>src/LightsprintIO/supported_formats.h</code>
-  - for copyright information, see headers of individual files in src/LightsprintIO/Import*
+  - for copyright information, see headers of individual files in src/LightsprintIO/*
 
 \page tpl_gamebryo Gamebryo
   - www: <a href="http://emergent.net">Gamebryo</a>
@@ -1242,7 +1242,7 @@ Material formats (1)
   - RRObjectOBJ.h/cpp (250 lines) streams data from disk directly into subclassed RRMesh and RRObject. For simplicity, it loads whole scene as a single object.
   - RRObjectMGF.h/cpp (350 lines) streams data from disk directly into subclassed RRMesh and RRObject. For simplicity, it loads whole scene as a single object.
 
-  Source code of adapters is in src/LightsprintIO/ImportXXX/RRObjectXXX.h|cpp.
+  Source code of adapters is in src/LightsprintIO/Xxx/RRObjectXxx.h|cpp.
   Only selected adapters have source code included in evaluation version.
 
 \page detect_material_properties Detect material properties
@@ -2627,7 +2627,7 @@ Material formats (1)
 
  \section inputs_3p_structures Third party data structures in memory (Unreal Engine 3, Gamebryo, FCollada etc)
   - \ref api_io source code consists of 3rd party loaders and our adapters, that adapt 3rd party data structures into Lightsprint data structures, without duplicating data
-  - instead of linking whole \ref api_io, your project may directly use adapter source code <code>src/LightsprintIO/ImportXxx/RRObjectXxx.cpp+h</code>
+  - instead of linking whole \ref api_io, your project may directly use adapter source code <code>src/LightsprintIO/Xxx/RRObjectXxx.cpp+h</code>
   - Unreal Engine 3 structures in memory are adapted using <code>src/LightsprintUE3/RRObjectUE3.cpp+h</code> (see also \ref main_ue3 "UE3 intro")
 
  \section inputs_structures Lightsprint data structures in memory
@@ -3171,7 +3171,7 @@ rr::RRVector<*>{
    0.01 and 100 units), so using meters may give you advantage in typical scenes.
    \n\n
    If it's possible, existing scene adapters adapt your scene from custom
-   units to meters. (Source code of adapters is in samples/Import*)
+   units to meters. (Source code of adapters is in src/LightsprintIO/*)
 
  \section gscale Scale
    Lightsprint libraries support all types of scaled objects:

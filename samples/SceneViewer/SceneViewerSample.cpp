@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 #if 1
 	// View scene _on disk_ in scene viewer.
 	// Works only for scenes in registered file formats.
-	// See how adapters in src/LightsprintIO/ImportXXX/RRObjectXXX.cpp register,
+	// See how adapters in src/LightsprintIO/Xxx/RRObjectXxx.cpp register,
 	// you can do the same for your own file format.
 	rr_ed::SceneViewerState svs;
 	rr_ed::sceneViewer(nullptr,sceneFilename,"../../data/maps/skybox/skybox_%s.jpg","../../data/",&svs,

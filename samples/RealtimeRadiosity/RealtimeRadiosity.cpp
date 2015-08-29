@@ -34,8 +34,8 @@
 #include <ctime>
 #include "Lightsprint/GL/TextureRenderer.h"
 #include "Lightsprint/RRSolver.h"
-#include "../src/LightsprintIO/Import3DS/Model_3DS.h"
-#include "../src/LightsprintIO/Import3DS/RRObject3DS.h"
+#include "../src/LightsprintIO/3DS/Model_3DS.h"
+#include "../src/LightsprintIO/3DS/RRObject3DS.h"
 #include "DynamicObject.h"
 #include "Lightsprint/IO/IO.h"
 #ifdef __APPLE__

@@ -6,20 +6,20 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\LightsprintIO\Import3DS\Model_3DS.cpp">
+    <ClCompile Include="..\..\src\LightsprintIO\3DS\Model_3DS.cpp">
       <Filter>3DS</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\LightsprintIO\Import3DS\RRObject3DS.cpp">
+    <ClCompile Include="..\..\src\LightsprintIO\3DS\RRObject3DS.cpp">
       <Filter>3DS</Filter>
     </ClCompile>
     <ClCompile Include="DynamicObject.cpp" />
     <ClCompile Include="RealtimeRadiosity.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\src\LightsprintIO\Import3DS\Model_3DS.h">
+    <ClInclude Include="..\..\src\LightsprintIO\3DS\Model_3DS.h">
       <Filter>3DS</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\LightsprintIO\Import3DS\RRObject3DS.h">
+    <ClInclude Include="..\..\src\LightsprintIO\3DS\RRObject3DS.h">
       <Filter>3DS</Filter>
     </ClInclude>
     <ClInclude Include="DynamicObject.h" />

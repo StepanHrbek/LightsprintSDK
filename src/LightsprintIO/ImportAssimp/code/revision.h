@@ -1,1 +1,0 @@
-#define GitVersion 123
