@@ -14,9 +14,50 @@
 	#include <windows.h> // EXCEPTION_EXECUTE_HANDLER
 #endif
 #include <unordered_set>
+#include <boost/regex.hpp> // wildcard matching
+#include <boost/algorithm/string/replace.hpp> // wildcard matching
 
 namespace rr
 {
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// wildcard matching
+
+// for a long time, we had a simple extension test here
+// but since RRFileLocator already depends on regex, we can afford proper wildcard matching at no extra cost
+
+void escapeRegex(std::string &regex)
+{
+    boost::replace_all(regex, "\\", "\\\\");
+    boost::replace_all(regex, "^", "\\^");
+    boost::replace_all(regex, ".", "\\.");
+    boost::replace_all(regex, "$", "\\$");
+    boost::replace_all(regex, "|", "\\|");
+    boost::replace_all(regex, "(", "\\(");
+    boost::replace_all(regex, ")", "\\)");
+    boost::replace_all(regex, "[", "\\[");
+    boost::replace_all(regex, "]", "\\]");
+    boost::replace_all(regex, "*", "\\*");
+    boost::replace_all(regex, "+", "\\+");
+    boost::replace_all(regex, "?", "\\?");
+    boost::replace_all(regex, "/", "\\/");
+}
+
+bool matchTextWithWildcards(const std::string& text, std::string wildcardPattern, bool caseSensitive = false)
+{
+    // Escape all regex special chars
+    escapeRegex(wildcardPattern);
+
+    // Convert chars '*?' back to their regex equivalents
+    boost::replace_all(wildcardPattern, "\\?", ".");
+    boost::replace_all(wildcardPattern, "\\*", ".*");
+
+    boost::regex pattern(wildcardPattern, caseSensitive ? boost::regex::normal : boost::regex::icase);
+
+    return regex_match(text, pattern);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -26,19 +67,9 @@ namespace rr
 #define SEPARATOR2 ' ' // we might need different char later
 
 // case insensitive match
-static bool extensionMatches(const char* filename, const char* extension) // ext="3ds"
+static bool extensionMatches(const char* filename, const char* extension) // ext="*.3ds"
 {
-	if (!filename || !extension)
-	{
-		RR_ASSERT(0);
-		return false;
-	}
-	size_t filelen = strlen(filename);
-	size_t extlen = strlen(extension);
-	if (filelen<1+extlen) return false; // filename too short
-	if (_stricmp(filename+filelen-extlen,extension)) return false; // different extension 
-	if (filename[filelen-extlen-1]!='.') return false; // extension not be preceded by '.'
-	return true;
+	return matchTextWithWildcards(filename,extension);
 }
 
 static bool extensionListMatches(const RRString& filename, const char* extensionList) // ext="*.3ds;*.mesh.xml"
@@ -54,12 +85,6 @@ static bool extensionListMatches(const RRString& filename, const char* extension
 		char* dst = extension;
 		if (src[0]==SEPARATOR1 || src[0]==SEPARATOR2)
 			src++;
-		if (src[0]=='*' && src[1]=='.')
-		{
-			src += 2;
-			if (*src=='*')
-				return true; // *.* match
-		}
 		if (src[0]==':' && (src[1]==SEPARATOR1 || src[1]==SEPARATOR2 || src[1]==0)) // [#14] : is our symbol that matches everything, but unlike *.*, fileselector does not understand it
 		{
 			src += 1;
