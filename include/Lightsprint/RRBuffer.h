@@ -472,12 +472,12 @@ namespace rr
 		//
 		//! Usually called from rr_io::registerLoaders().
 		//! Initial state is no code hooked, attempts to load buffer are ignored, load() returns nullptr.
-		static void registerLoader(Loader* loader);
+		static void registerLoader(const char* extensions, Loader* loader);
 		//! Hooks external code that handles saving images to disk.
 		//
 		//! Usually called from rr_io::registerLoaders().
 		//! Initial state is no code hooked, attempts to save buffer are ignored, save() returns false.
-		static void registerSaver(Saver* saver);
+		static void registerSaver(const char* extensions, Saver* saver);
 
 
 		//////////////////////////////////////////////////////////////////////////////

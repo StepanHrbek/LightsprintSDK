@@ -695,10 +695,42 @@ bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6
 //
 // main
 
+// converts "jpg,gif" to "*.jpg;*.gif"
+std::string convertExtensionList(const char* freeImageFormat)
+{
+	std::string result;
+	bool add = true;
+	for (;*freeImageFormat;freeImageFormat++)
+	{
+		if (*freeImageFormat==',')
+		{
+			result += ';';
+			add = true;
+		}
+		else
+		{
+			if (add)
+				result += "*.";
+			add = false;
+			result += *freeImageFormat;
+		}
+	}
+	return result;
+}
+
 void registerLoaderImages()
 {
-	RRBuffer::registerLoader(load);
-	RRBuffer::registerSaver(save);
+	// FreeImage formats
+	for (FREE_IMAGE_FORMAT fif = FREE_IMAGE_FORMAT(0); fif<FreeImage_GetFIFCount(); fif = FREE_IMAGE_FORMAT(fif+1))
+	{
+		if (FreeImage_FIFSupportsReading(fif))
+			RRBuffer::registerLoader(convertExtensionList(FreeImage_GetFIFExtensionList(fif)).c_str(),load);
+		if (FreeImage_FIFSupportsWriting(fif))
+			RRBuffer::registerSaver(convertExtensionList(FreeImage_GetFIFExtensionList(fif)).c_str(),save);
+	}
+	// our own legacy format from early Lightsprint SDK versions, will be removed
+	RRBuffer::registerLoader("*.vbu",load);
+	RRBuffer::registerSaver("*.vbu",save);
 }
 
 #endif // SUPPORT_IMAGES

@@ -469,7 +469,13 @@ private:
 
 void registerLoaderDirectShow()
 {
-	RRBuffer::registerLoader(RRBufferDirectShow::load);
+	// We list only several important fileformats here.
+	// If you need directshow to work with different fileformats, modify our list.
+	// You can even change it to "c@pture;*.*".
+	// Note that directshow might be able to open also still image fileformats like *.jpg" if you include their extensions here.
+	// Right now, only c@pture is unique to directshow loader,
+	// videos are better served by FFmpeg loader, still images are better served by FreeImage loader.
+	RRBuffer::registerLoader("c@pture;*.avi;*.mkv;*.mov;*.wmv;*.mpg;*.mpeg;*.mp4",RRBufferDirectShow::load);
 }
 
 #endif // SUPPORT_DIRECTSHOW

@@ -1167,12 +1167,12 @@ void RRBuffer::deleteFromCache()
 //
 // save & load
 
-void RRBuffer::registerLoader(Loader* loader)
+void RRBuffer::registerLoader(const char* extensions, Loader* loader)
 {
 	s_loaders.push_back(loader);
 }
 
-void RRBuffer::registerSaver(Saver* saver)
+void RRBuffer::registerSaver(const char* extensions, Saver* saver)
 {
 	s_savers.push_back(saver);
 }

@@ -487,8 +487,8 @@ void registerLoaderLightsprint()
 {
 	RRScene::registerLoader("*.rr3",RRSceneLightsprint::load);
 	RRScene::registerSaver("*.rr3",RRSceneLightsprint::save);
-	RRBuffer::registerLoader(loadBuffer);
-	RRBuffer::registerSaver(saveBuffer);
+	RRBuffer::registerLoader("*.rrbuffer",loadBuffer);
+	RRBuffer::registerSaver("*.rrbuffer",saveBuffer);
 	RRMaterials::registerLoader("*.rrmaterial",loadMaterial);
 	RRMaterials::registerSaver("*.rrmaterial",saveMaterial);
 }
