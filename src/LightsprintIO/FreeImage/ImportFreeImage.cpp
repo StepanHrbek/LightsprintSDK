@@ -455,7 +455,7 @@ static bool reloadCube(RRBuffer* texture, const RRString& filenameMask, const ch
 	return true;
 }
 
-static RRBuffer* load(const RRString& filename, const char* cubeSideName[6])
+static RRBuffer* loadFreeImage(const RRString& filename, const char* cubeSideName[6])
 {
 	RRBuffer* buffer = RRBuffer::create(BT_VERTEX_BUFFER,1,1,1,BF_RGBA,true,nullptr);
 	bool reloaded = (wcsstr(filename.w_str(),L".vbu") || wcsstr(filename.w_str(),L".VBU"))
@@ -485,7 +485,7 @@ BOOL FIFSupportsExportBPP(FREE_IMAGE_FORMAT fif, int bpp)
 	}
 }
 
-bool save(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
+bool saveFreeImage(RRBuffer* buffer, const RRString& filename, const char* cubeSideName[6], const RRBuffer::SaveParameters* saveParameters)
 {
 	bool result = false;
 
@@ -724,13 +724,13 @@ void registerLoaderImages()
 	for (FREE_IMAGE_FORMAT fif = FREE_IMAGE_FORMAT(0); fif<FreeImage_GetFIFCount(); fif = FREE_IMAGE_FORMAT(fif+1))
 	{
 		if (FreeImage_FIFSupportsReading(fif))
-			RRBuffer::registerLoader(convertExtensionList(FreeImage_GetFIFExtensionList(fif)).c_str(),load);
+			RRBuffer::registerLoader(convertExtensionList(FreeImage_GetFIFExtensionList(fif)).c_str(),loadFreeImage);
 		if (FreeImage_FIFSupportsWriting(fif))
-			RRBuffer::registerSaver(convertExtensionList(FreeImage_GetFIFExtensionList(fif)).c_str(),save);
+			RRBuffer::registerSaver(convertExtensionList(FreeImage_GetFIFExtensionList(fif)).c_str(),saveFreeImage);
 	}
 	// our own legacy format from early Lightsprint SDK versions, will be removed
-	RRBuffer::registerLoader("*.vbu",load);
-	RRBuffer::registerSaver("*.vbu",save);
+	RRBuffer::registerLoader("*.vbu",loadFreeImage);
+	RRBuffer::registerSaver("*.vbu",saveFreeImage);
 }
 
 #endif // SUPPORT_IMAGES
