@@ -66,12 +66,6 @@ bool matchTextWithWildcards(const std::string& text, std::string wildcardPattern
 #define SEPARATOR1 ';'
 #define SEPARATOR2 ' ' // we might need different char later
 
-// case insensitive match
-static bool extensionMatches(const char* filename, const char* extension) // ext="*.3ds"
-{
-	return matchTextWithWildcards(filename,extension);
-}
-
 static bool extensionListMatches(const RRString& filename, const char* extensionList) // ext="*.3ds;*.mesh.xml"
 {
 	if (!extensionList)
@@ -99,7 +93,7 @@ static bool extensionListMatches(const RRString& filename, const char* extension
 				RR_ASSERT(0); // our small buffer would overflow, extensionList contains long string not separated by ;
 		}
 		*dst = 0;
-		if (*extension && extensionMatches(filename.c_str(),extension))
+		if (*extension && matchTextWithWildcards(filename.c_str(),extension))
 			return true;
 	}
 	return false;
