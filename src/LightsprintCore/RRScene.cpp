@@ -91,7 +91,13 @@ static bool extensionListMatches(const RRString& filename, const char* extension
 			return true; // : matches all, like *.*
 		}
 		while (*src!=0 && *src!=SEPARATOR1 && *src!=SEPARATOR2)
-			*dst++ = *src++;
+		{
+			*dst = *src++;
+			if (dst+1<extension+sizeof(extension))
+				dst++;
+			else
+				RR_ASSERT(0); // our small buffer would overflow, extensionList contains long string not separated by ;
+		}
 		*dst = 0;
 		if (*extension && extensionMatches(filename.c_str(),extension))
 			return true;
