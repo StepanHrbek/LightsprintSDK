@@ -860,19 +860,25 @@ void SVFrame::UpdateMenuBar()
 	delete oldMenuBar;
 }
 
-static wxString getSupportedLoaderExtensions(SceneViewerStateEx& svs)
+wxString convertExtensionsToWx(wxString extensions)
 {
-	// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
-	wxString extensions = rr::RRScene::getSupportedLoaderExtensions();
-	wxString wxextensions = _("All scene formats")+"|"+extensions;
+	wxString wxextensions = _("All formats")+"|"+extensions;
 	while (!extensions.empty())
 	{
 		size_t i = extensions.find(';');
 		wxString ext = (i==-1) ? extensions : extensions.substr(0,i);
 		wxextensions += wxString("|")+ext+'|'+ext;
 		extensions.erase(0,ext.size()+1);
+		// maybe we can remove redundant ones here
+		// (proper solution would be to let user select which loader to use)
 	}
 	return wxextensions;
+}
+
+static wxString getSupportedLoaderExtensions(SceneViewerStateEx& svs)
+{
+	// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
+	return convertExtensionsToWx(rr::RRScene::getSupportedLoaderExtensions());
 }
 
 static void incrementFilename(wxString& filename)

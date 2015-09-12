@@ -336,10 +336,16 @@ bool ButtonProperty::OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wx
 //
 // ImageFileProperty
 
+namespace rr_ed
+{
+	extern wxString convertExtensionsToWx(wxString extensions);
+}
+
 ImageFileProperty::ImageFileProperty(const wxString& label, const wxString& help)
 	: wxFileProperty(label)
 {
 	SetHelpString(help);
+	SetAttribute("Wildcard",rr_ed::convertExtensionsToWx(rr::RRBuffer::getSupportedLoaderExtensions()));
 	image = nullptr;
 	bitmap = nullptr;
 }
