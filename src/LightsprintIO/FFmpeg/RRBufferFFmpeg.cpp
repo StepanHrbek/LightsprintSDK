@@ -917,7 +917,7 @@ void registerLoaderFFmpegLibav()
 	// We list only several important fileformats here.
 	// If you need FFmpeg to work with different fileformats, modify our list.
 	// You can even change it to "*.*".
-	RRBuffer::registerLoader("*.*",RRBufferFFmpeg::load);
+	RRBuffer::registerLoader("*.avi;*.mkv;*.mov;*.wmv;*.mpg;*.mpeg;*.mp4;*.mp3;*.wav",RRBufferFFmpeg::load);
 }
 
 #endif // SUPPORT_FFMPEG || SUPPORT_LIBAV
