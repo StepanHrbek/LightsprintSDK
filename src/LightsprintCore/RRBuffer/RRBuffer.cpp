@@ -1158,7 +1158,7 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 		return nullptr;
 	}
 
-	if (_fileLocator && _filename!="c@pture") // otherwise "c@pture" would be loaded as stub
+	if (_fileLocator)
 	{
 		for (unsigned attempt=0;attempt<UINT_MAX;attempt++)
 		{
