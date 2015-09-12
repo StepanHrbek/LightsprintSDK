@@ -14,7 +14,7 @@
 	#include <windows.h> // EXCEPTION_EXECUTE_HANDLER
 #endif
 #include <unordered_set>
-#include <boost/regex.hpp> // wildcard matching
+#include <regex> // wildcard matching
 #include <boost/algorithm/string/replace.hpp> // wildcard matching
 
 namespace rr
@@ -44,7 +44,7 @@ void escapeRegex(std::string &regex)
     boost::replace_all(regex, "/", "\\/");
 }
 
-bool matchTextWithWildcards(const std::string& text, std::string wildcardPattern, bool caseSensitive = false)
+bool matchTextWithWildcards(const std::string& text, std::string wildcardPattern)
 {
     // Escape all regex special chars
     escapeRegex(wildcardPattern);
@@ -53,7 +53,7 @@ bool matchTextWithWildcards(const std::string& text, std::string wildcardPattern
     boost::replace_all(wildcardPattern, "\\?", ".");
     boost::replace_all(wildcardPattern, "\\*", ".*");
 
-    boost::regex pattern(wildcardPattern, caseSensitive ? boost::regex::normal : boost::regex::icase);
+    std::regex pattern(wildcardPattern, std::regex::icase);
 
     return regex_match(text, pattern);
 }

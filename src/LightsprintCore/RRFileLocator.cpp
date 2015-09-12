@@ -21,7 +21,7 @@ RR_API class SerializationRuntime* g_serializationRuntime = nullptr;
 #include <boost/algorithm/string.hpp> // split, is_any_of
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/regex.hpp>
+#include <regex>
 namespace bf = boost::filesystem;
 
 namespace rr
@@ -177,8 +177,8 @@ protected:
 	// use regex to replace parts of filename
 	static bf::path getRegexReplacedFilename(const bf::path& filename, const std::wstring& regex, const std::wstring& format)
 	{
-		boost::wregex re(regex);
-		std::wstring output = boost::regex_replace(filename.wstring(),re,format,boost::regex_constants::format_default|boost::regex_constants::format_first_only|boost::regex_constants::format_no_copy);
+		std::wregex re(regex);
+		std::wstring output = std::regex_replace(filename.wstring(),re,format,std::regex_constants::format_default|std::regex_constants::format_first_only|std::regex_constants::format_no_copy);
 //		RRReporter::report(INF3,"     regex: %s -> %ls\n",filename.string().c_str(),output.c_str());
 		return bf::path(output);
 	}
