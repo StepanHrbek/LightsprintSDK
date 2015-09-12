@@ -116,7 +116,7 @@ struct SaverExtensions
 };
 
 template <class RRClass>
-struct LoadersAndSavers
+struct LoadersAndSavers1
 {
 	// collection of registered loaders
 	std::vector<LoaderExtensions<RRClass> > loaders;
@@ -191,7 +191,13 @@ struct LoadersAndSavers
 	{
 		return savers.empty() ? "" : saverExtensions;
 	}
+};
 
+// LoadersAndSavers is split because buffer loading uses different set of parameters
+// and we can use variadic templates only after dropping visual studio 2010, 2012
+template <class RRClass>
+struct LoadersAndSavers2 : public LoadersAndSavers1<RRClass>
+{
 	static RRClass* callLoader(typename RRClass::Loader* _loader, const RRString& _filename, RRFileLocator* _locator, bool* _aborting, const char* classname)
 	{
 #ifdef _MSC_VER
@@ -353,9 +359,131 @@ struct LoadersAndSavers
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// RRBuffer loaders/savers
+
+static LoadersAndSavers1<RRBuffer> s_bufferLoadersAndSavers;
+
+void RRBuffer::registerLoader(const char* extensions, Loader* loader)
+{
+	s_bufferLoadersAndSavers.registerLoader(extensions, loader);
+}
+
+void RRBuffer::registerSaver(const char* extensions, Saver* saver)
+{
+	s_bufferLoadersAndSavers.registerSaver(extensions, saver);
+}
+
+const char* RRBuffer::getSupportedLoaderExtensions()
+{
+	return s_bufferLoadersAndSavers.getSupportedLoaderExtensions();
+}
+
+const char* RRBuffer::getSupportedSaverExtensions()
+{
+	return s_bufferLoadersAndSavers.getSupportedSaverExtensions();
+}
+
+RRBuffer* load_noncached(const RRString& _filename, const char* _cubeSideName[6])
+{
+	if (_filename.empty())
+	{
+		// don't warn, it probably happens
+		return nullptr;
+	}
+
+	// test whether loaders were registered
+	if (s_bufferLoadersAndSavers.loaders.empty())
+	{
+		RR_LIMITED_TIMES(1, RRReporter::report(WARN, "Can't load images, register loader first, see LightsprintIO.\n"));
+		return nullptr;
+	}
+
+	RRBuffer* loaded = nullptr;
+
+	// test whether file exists (to properly report this common error)
+	RRFileLocator fl;
+	if (!fl.exists(_filename))
+	{
+		RRReporter::report(WARN,"%ls does not exist.\n",_filename.w_str());
+	}
+	else
+	{
+		// attempt load
+		bool loaderFound = false;
+		for (unsigned i=0;i<s_bufferLoadersAndSavers.loaders.size();i++)
+		{
+			if (extensionListMatches(_filename,s_bufferLoadersAndSavers.loaders[i].extensions.c_str()))
+			{
+				loaderFound = true;
+				try
+				{
+					loaded = s_bufferLoadersAndSavers.loaders[i].loader(_filename,_cubeSideName);
+				}
+				catch (...)
+				{
+					RRReporter::report(WARN,"Buffer import ended by throwing C++ exception, something is broken.\n");
+				}
+				if (loaded)
+				{
+					break; // loaded, success
+				}
+				// load failed, but don't give up for cycle yet,
+				//  it's possible that another loader for the same extension will succeed
+			}
+		}
+
+		// report result
+		if (!loaderFound)
+		{
+			RRReporter::report(WARN,"%ls not loaded, no loader for this extension was registered.\n",_filename.w_str());
+		}
+		else
+		if (!loaded)
+		{
+			// when file does exist but loading fails, loaders usually don't report why
+			RRReporter::report(WARN,"%ls load failed.\n",_filename.w_str());
+		}
+	}
+	return loaded;
+}
+
+bool RRBuffer::save(const RRString& _filename, const char* _cubeSideName[6], const SaveParameters* _parameters)
+{
+	if (_filename.empty())
+	{
+		return false;
+	}
+	if (!this)
+	{
+		RRReporter::report(WARN, "Attempted nullptr->save().\n");
+		return false;
+	}
+	if (s_bufferLoadersAndSavers.savers.empty())
+	{
+		RR_LIMITED_TIMES(1, RRReporter::report(WARN, "Can't save images, register saver first, see LightsprintIO.\n"));
+		return false;
+	}
+	for (unsigned i = 0; i<s_bufferLoadersAndSavers.savers.size(); i++)
+	{
+		if (extensionListMatches(_filename,s_bufferLoadersAndSavers.savers[i].extensions.c_str()))
+		{
+			if (s_bufferLoadersAndSavers.savers[i].saver(this, _filename, _cubeSideName, _parameters))
+			{
+				filename = _filename; // [#36] filename of last successful save (although this could be weird if we save one frame of video)
+				return true;
+			}
+		}
+	}
+	RRReporter::report(WARN, "Failed to save %ls.\n", _filename.w_str());
+	return false;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // RRScene loaders/savers
 
-static LoadersAndSavers<RRScene> s_sceneLoadersAndSavers;
+static LoadersAndSavers2<RRScene> s_sceneLoadersAndSavers;
 
 void RRScene::registerLoader(const char* extensions, Loader* loader)
 {
@@ -403,7 +531,7 @@ bool RRScene::save(const RRString& filename) const
 //
 // RRMaterials loaders/savers
 
-static LoadersAndSavers<RRMaterials> s_materialLoadersAndSavers;
+static LoadersAndSavers2<RRMaterials> s_materialLoadersAndSavers;
 
 void RRMaterials::registerLoader(const char* extensions, Loader* loader)
 {

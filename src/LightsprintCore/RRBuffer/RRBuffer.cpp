@@ -35,9 +35,6 @@
 namespace rr
 {
 
-static std::vector<RRBuffer::Loader*> s_loaders;
-static std::vector<RRBuffer::Saver*> s_savers;
-
 RRBuffer::RRBuffer()
 {
 	customData = nullptr;
@@ -1005,20 +1002,7 @@ bool RRBuffer::lightmapFillBackground(RRVec4 backgroundColor)
 //
 // ImageCache
 
-RRBuffer* load_noncached(const RRString& _filename, const char* _cubeSideName[6])
-{
-	if (_filename.empty())
-	{
-		return nullptr;
-	}
-	for (unsigned i=0;i<s_loaders.size();i++)
-	{
-		RRBuffer* loaded = s_loaders[i](_filename,_cubeSideName);
-		if (loaded)
-			return loaded;
-	}
-	return nullptr;
-}
+extern RRBuffer* load_noncached(const RRString& _filename, const char* _cubeSideName[6]);
 
 
 class ImageCache
@@ -1167,51 +1151,10 @@ void RRBuffer::deleteFromCache()
 //
 // save & load
 
-void RRBuffer::registerLoader(const char* extensions, Loader* loader)
-{
-	s_loaders.push_back(loader);
-}
-
-void RRBuffer::registerSaver(const char* extensions, Saver* saver)
-{
-	s_savers.push_back(saver);
-}
-
-bool RRBuffer::save(const RRString& _filename, const char* _cubeSideName[6], const SaveParameters* _parameters)
-{
-	if (_filename.empty())
-	{
-		return false;
-	}
-	if (!this)
-	{
-		RRReporter::report(WARN,"Attempted nullptr->save().\n");
-		return false;
-	}
-	if (s_savers.empty())
-	{
-		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't save images, register saver first, see LightsprintIO.\n"));
-		return false;
-	}
-	for (unsigned i=0;i<s_savers.size();i++)
-		if (s_savers[i](this,_filename,_cubeSideName,_parameters))
-		{
-			filename = _filename; // [#36] filename of last successful save (although this could be weird if we save one frame of video)
-			return true;
-		}
-	RRReporter::report(WARN,"Failed to save %ls.\n",_filename.w_str());
-	return false;
-}
-
 RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6], const RRFileLocator* _fileLocator)
 {
 	if (_filename.empty())
 	{
-		return nullptr;
-	}
-	if (s_loaders.empty())
-	{
-		RR_LIMITED_TIMES(1,RRReporter::report(WARN,"Can't load images, register loader first, see LightsprintIO.\n"));
 		return nullptr;
 	}
 
@@ -1266,8 +1209,9 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 				bufferInMemory->stub = true;
 			return result;
 		}
-		// load with fileLocator failed, and there's no stub, warn
-		RRReporter::report(WARN,"Failed to load %ls.\n",_filename.w_str());
+		// load with fileLocator failed, and there's no stub
+		// load_noncached ensures that all failures were already reported
+		//RRReporter::report(WARN,"Failed to find or load %ls.\n",_filename.w_str());
 		return nullptr;
 	}
 	else
@@ -1275,7 +1219,10 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 		RRBuffer* result = load_cached(_filename,_cubeSideName);
 		RRReporter::report(INF3,"@%c %ls\n",result?'+':'-',_filename.w_str());
 		if (!result)
-			RRReporter::report(WARN,"Failed to load %ls.\n",_filename.w_str());
+		{
+			// load_noncached ensures that all failures were already reported
+			//RRReporter::report(WARN,"Failed to load %ls.\n",_filename.w_str());
+		}
 		return result;
 	}
 }

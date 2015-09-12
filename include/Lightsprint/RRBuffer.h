@@ -478,6 +478,16 @@ namespace rr
 		//! Usually called from rr_io::registerLoaders().
 		//! Initial state is no code hooked, attempts to save buffer are ignored, save() returns false.
 		static void registerSaver(const char* extensions, Saver* saver);
+		//! Returns list of supported loader extensions in "*.jpg;*.png" format.
+		//
+		//! All extensions of registered loaders are returned in one static string, don't free() it.
+		//! nullptr is returned if no loaders were registered.
+		static const char* RRBuffer::getSupportedLoaderExtensions();
+		//! Returns list of supported saver extensions in "*.jpg;*.png" format.
+		//
+		//! All extensions of registered savers are returned in one static string, don't free() it.
+		//! nullptr is returned if no savers were registered.
+		static const char* RRBuffer::getSupportedSaverExtensions();
 
 
 		//////////////////////////////////////////////////////////////////////////////

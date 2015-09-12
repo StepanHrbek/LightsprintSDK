@@ -26,6 +26,7 @@ NEWS
 - Visual Studio 2015 support
 - misc
   - RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
+  - RRBuffer::getSupportedLoaderExtensions() and RRBuffer::getSupportedSaverExtensions()
   - RRCamera::PC_TRUNCATE_TOP_BOT
   - import of *.ifc, *.ifczip
   - Oculus Rift integration updated to Oculus SDK version 0.6.0.0
