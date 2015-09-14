@@ -361,6 +361,14 @@ vec4 filterOutWhiteBackground(vec4 color)
 {
 	// valid samples have alpha=0
 	// background samples (to be filtered out) have color=1, alpha=1 [#49]
+
+	// a) no filtering, but rgb shadows have bright borders
+	// good for exteriors, but interiors look wrong
+	return color;
+
+	// b) added in svn7567 to fix rgb shadows (removes bright borders),
+	// but it worsens fully illuminated areas (creates dark borders around glass)
+	// good for interiors, but exteriors look wrong
 	return (color.a==1.0) ? color : vec4((color.rgb - color.aaa) / (1.0-color.a),1.0);
 }
 
