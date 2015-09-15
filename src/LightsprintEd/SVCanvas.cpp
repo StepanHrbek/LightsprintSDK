@@ -1761,6 +1761,28 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			svs.camera.setRangeDynamically(solver,false,svs.cameraDynamicNearNumRays);
 		}
 
+		// when sky changes, ask all cubemaps for update
+		{
+			static unsigned previousEnvVersion = 0;
+			rr::RRBuffer* env = solver->getEnvironment(0);
+			if (env && env->version!=previousEnvVersion)
+			{
+				previousEnvVersion = env->version;
+				// ask all cubemaps for update
+				for (unsigned j=0;j<2;j++)
+				{
+					const rr::RRObjects& objects = j?solver->getDynamicObjects():solver->getStaticObjects();
+					for (unsigned k=0;k<objects.size();k++)
+					{
+						rr::RRObject* object = objects[k];
+						rr::RRBuffer* cube = object->illumination.getLayer(svs.layerRealtimeEnvironment);
+						if (cube)
+							cube->version = rand();
+					}
+				}
+			}
+		}
+
 		if (svs.renderLightDirectActive() || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
