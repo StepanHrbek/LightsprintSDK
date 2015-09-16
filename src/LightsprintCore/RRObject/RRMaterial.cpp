@@ -165,7 +165,7 @@ void RRMaterial::reset(bool twoSided)
 	bumpMapTypeHeight            = true;
 	refractionIndex              = 1;
 	bumpMap.color                = RRVec3(1);
-	bumpMap.colorLinear        = RRVec3(1);
+	bumpMap.colorLinear          = RRVec3(1);
 	lightmapTexcoord             = UINT_MAX; // no unwrap by default
 	minimalQualityForPointMaterials = UINT_MAX; // Keep point materials disabled, adapter must explicitly want them.
 	name.clear();
