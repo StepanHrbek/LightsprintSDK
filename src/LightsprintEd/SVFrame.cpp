@@ -1421,7 +1421,7 @@ save_scene_as:
 			{
 reload_skybox:
 				if (solver->getEnvironment())
-					solver->getEnvironment()->stop();
+					solver->getEnvironment()->stop(); // [#56]
 				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename,textureLocator);
 				if (skybox)
 				{
