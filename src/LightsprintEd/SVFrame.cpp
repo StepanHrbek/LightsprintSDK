@@ -1420,6 +1420,8 @@ save_scene_as:
 		case ME_ENV_RELOAD: // not a menu item, just command we can call from outside
 			{
 reload_skybox:
+				if (solver->getEnvironment())
+					solver->getEnvironment()->stop();
 				rr::RRBuffer* skybox = rr::RRBuffer::loadCube(svs.skyboxFilename,textureLocator);
 				if (skybox)
 				{
