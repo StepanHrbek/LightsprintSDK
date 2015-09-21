@@ -401,8 +401,9 @@ RRBuffer* load_noncached(const RRString& _filename, const char* _cubeSideName[6]
 	RRBuffer* loaded = nullptr;
 
 	// test whether file exists (to properly report this common error)
+	bool sixfiles = wcsstr(_filename.w_str(),L"%s")!=nullptr;
 	RRFileLocator fl;
-	if (!fl.exists(_filename))
+	if (!sixfiles && !fl.exists(_filename))
 	{
 		RRReporter::report(WARN,"%ls does not exist.\n",_filename.w_str());
 	}
