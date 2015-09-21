@@ -53,6 +53,7 @@ portable_binary_iarchive::load_impl(boost::intmax_t & l, char maxsize){
         l = -l;
 }
 
+#if BOOST_VERSION<105900
 void
 portable_binary_iarchive::load_override(
     boost::archive::class_name_type & t, int
@@ -60,6 +61,15 @@ portable_binary_iarchive::load_override(
     std::string cn;
     cn.reserve(BOOST_SERIALIZATION_MAX_KEY_SIZE);
     load_override(cn, 0);
+#else
+void
+portable_binary_iarchive::load_override(
+    boost::archive::class_name_type & t
+){
+    std::string cn;
+    cn.reserve(BOOST_SERIALIZATION_MAX_KEY_SIZE);
+    load_override(cn);
+#endif
     if(cn.size() > (BOOST_SERIALIZATION_MAX_KEY_SIZE - 1))
         boost::serialization::throw_exception(
             boost::archive::archive_exception(

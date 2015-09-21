@@ -153,6 +153,7 @@ protected:
     // template ordering
     typedef boost::archive::detail::common_iarchive<portable_binary_iarchive> 
         detail_common_iarchive;
+#if BOOST_VERSION<105900
     template<class T>
     void load_override(T & t, BOOST_PFTO int){
         this->detail_common_iarchive::load_override(t, 0);
@@ -163,6 +164,17 @@ protected:
         boost::archive::class_id_optional_type & /* t */, 
         int
     ){}
+#else
+    template<class T>
+    void load_override(T & t){
+        this->detail_common_iarchive::load_override(t);
+    }
+    void load_override(boost::archive::class_name_type & t);
+    // binary files don't include the optional information 
+    void load_override(
+        boost::archive::class_id_optional_type & /* t */
+    ){}
+#endif
 
     void init(unsigned int flags);
 public:

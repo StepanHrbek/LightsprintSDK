@@ -13,7 +13,9 @@
 
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
+#if BOOST_VERSION<105900
 #include <boost/serialization/pfto.hpp>
+#endif
 #include <boost/static_assert.hpp>
 
 #include <climits>
