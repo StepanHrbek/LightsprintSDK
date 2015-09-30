@@ -405,6 +405,9 @@ RRBuffer* load_noncached(const RRString& _filename, const char* _cubeSideName[6]
 	RRFileLocator fl;
 	if (!sixfiles && !fl.exists(_filename))
 	{
+		// this probably never happens, we are called only for files that exist
+		// when 1file does not exist, it is reported here
+		// when 6file does not exist, it is not reported
 		RRReporter::report(WARN,"%ls does not exist.\n",_filename.w_str());
 	}
 	else

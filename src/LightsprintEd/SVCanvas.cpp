@@ -361,6 +361,8 @@ void SVCanvas::createContextCore()
 	reallocateBuffersForRealtimeGI(true);
 
 	// load skybox from filename only if we don't have it from inputsolver or scene yet
+	// (note that ME_ENV_RELOAD does not replace env immediately, it creates smooth transition from old one.
+	//  so if old one is missing, it creates transition from missing texture stub)
 	if (solver->getEnvironment())
 		rr::RRReporter::report(rr::INF3,"skybox: solver.env[%s]=%s, svs.env=%s\n",solver->getEnvironment()->isStub()?"stub":"ok",solver->getEnvironment()->filename.c_str(),svs.skyboxFilename.c_str());
 	else
