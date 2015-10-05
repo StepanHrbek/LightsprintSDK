@@ -88,7 +88,7 @@ void main()
 			vec4 tex = textureCube(map,direction);
 		#endif
 		#ifdef CUBE_TO_LITTLE_PLANET
-			direction.xz = uv.xy-vec2(0.5,0.5);
+			direction.xz = vec2(uv.x-0.5,0.5-uv.y);
 			float r = length(direction.xz)+0.000001; // +epsilon fixes center pixel on intel
 			direction.xz = direction.xz/r; // /r instead of normalize() fixes noise on intel
 			direction.y = tan(RR_PI*2.0*(r-0.25)); // r=0 -> y=-inf, r=0.5 -> y=+inf

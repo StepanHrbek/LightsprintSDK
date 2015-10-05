@@ -970,7 +970,7 @@ RRVec3 RRCamera::getPositionInViewport(RRVec3 worldPosition) const
 	{
 		direction /= sqrt(direction.x*direction.x+direction.z*direction.z) + 0.000001f;
 		float r = atan(direction.y)/RR_PI/2+0.25f;
-		posInWindow = RRVec2(direction.x*2*r,direction.z*2*r);
+		posInWindow = RRVec2(direction.x*2*r,-direction.z*2*r);
 	}
 	if (panoramaMode==PM_FISHEYE)
 	{
@@ -1160,7 +1160,7 @@ bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir, boo
 	{
 		RRVec3 direction;
 		direction.x = posInWindow.x*0.5f;
-		direction.z = posInWindow.y*0.5f;
+		direction.z = -posInWindow.y*0.5f;
 		float r = (posInWindow*0.5f).length()+0.000001f; // +epsilon fixes center pixel on intel
 		direction.x /= r; // /r instead of normalize() fixes noise on intel
 		direction.z /= r;
