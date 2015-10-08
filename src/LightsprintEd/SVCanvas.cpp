@@ -341,7 +341,7 @@ void SVCanvas::createContextCore()
 	if (!svs.sceneFilename.empty())
 	{
 		// load scene
-		rr::RRScene* scene = svframe->loadScene(svs.sceneFilename,svframe->userPreferences.import.getUnitLength(svs.sceneFilename),svframe->userPreferences.import.getUpAxis(svs.sceneFilename),true);
+		rr::RRScene* scene = svframe->loadScene(svs.sceneFilename,true,svframe->userPreferences.import.getUnitLength(svs.sceneFilename),svframe->userPreferences.import.getUpAxis(svs.sceneFilename),true);
 		mergedScenes.push_back(scene);
 
 		if (scene->cameras.size())
