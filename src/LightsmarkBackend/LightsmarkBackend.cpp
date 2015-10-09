@@ -176,6 +176,17 @@ float              g_fpsAvg = 0;
 
 bool exiting = false;
 
+void stopBackgroundThread()
+{
+#ifdef BACKGROUND_THREAD
+	if (backgroundThreadState!=TS_NONE)
+	{
+		backgroundThread.join();
+		backgroundThreadState = TS_NONE;
+	}
+#endif
+}
+
 void error(const char* message, bool gfxRelated)
 {
 	rr::RRReporter::report(rr::ERRO,message);
@@ -190,6 +201,7 @@ void error(const char* message, bool gfxRelated)
 	fgetc(stdin);
 #endif
 	exiting = true;
+	stopBackgroundThread();
 	exit(0);
 }
 
@@ -936,13 +948,7 @@ void keyboard(unsigned char c, int x, int y)
 			}
 
 			rr::RRReporter::report(rr::INF1,supportEditor ? "Quitting editor.\n" : "Escaped by user, benchmarking unfinished.\n");
-#ifdef BACKGROUND_THREAD
-			if (backgroundThreadState!=TS_NONE)
-			{
-				backgroundThread.join();
-				backgroundThreadState = TS_NONE;
-			}
-#endif
+			stopBackgroundThread();
 			// rychlejsi ukonceni:
 			//if (supportEditor) delete level; // aby se ulozily zmeny v animaci
 			// pomalejsi ukonceni s uvolnenim pameti:
@@ -1234,6 +1240,7 @@ void mainMenu(int item)
 		case ME_NEXT_SCENE:
 			if (supportEditor)
 				level->setup->save();
+			stopBackgroundThread();
 			//delete level;
 			level = nullptr;
 			seekInMusicAtSceneSwap = true;
@@ -1338,6 +1345,7 @@ void display()
 	if (!level)
 	{
 no_level:
+		stopBackgroundThread();
 		level = demoPlayer->getNextPart(seekInMusicAtSceneSwap,supportEditor);
 		needRedisplay = 1;
 
@@ -1345,6 +1353,7 @@ no_level:
 		if (!level)
 		{
 			rr::RRReporter::report(rr::INF1,"Finished, average fps = %.2f.\n",g_fpsAvg);
+			stopBackgroundThread();
 			exiting = true;
 			exit((unsigned)(g_fpsAvg*10));
 			//keyboard(27,0,0);
@@ -1443,6 +1452,7 @@ no_frame:
 			else
 			{
 				// play scene finished, jump to next scene
+				stopBackgroundThread();
 				//delete level;
 				level = nullptr;
 				seekInMusicAtSceneSwap = false;
