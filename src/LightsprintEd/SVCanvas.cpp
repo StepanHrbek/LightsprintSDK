@@ -1924,7 +1924,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppLensFlare;
 
 			// FPS plugin
-			rr_gl::PluginParamsFPS ppFPS(pluginChain,fpsCounter.getFps());
+			rr_gl::PluginParamsFPS ppFPS(pluginChain,fpsCounter,false);
 			if (svs.renderFPS)
 				pluginChain = &ppFPS;
 
@@ -2173,7 +2173,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppToneMappingAdjustment;
 
 			// FPS plugin
-			rr_gl::PluginParamsFPS ppFPS(pluginChain,fpsCounter.getFps());
+			rr_gl::PluginParamsFPS ppFPS(pluginChain,fpsCounter,false);
 			if (svs.renderFPS)
 				pluginChain = &ppFPS;
 
@@ -2773,6 +2773,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 #endif
 
 
+	fpsCounter.addFrame();
 	return result;
 }
 

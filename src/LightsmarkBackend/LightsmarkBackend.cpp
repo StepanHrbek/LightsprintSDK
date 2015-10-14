@@ -325,7 +325,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	ppScene.layerLightmap = LAYER_LIGHTMAPS;
 	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
 	ppScene.layerLDM = uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX;
-	rr_gl::PluginParamsFPS ppFPS(&ppScene,g_fpsCounter.getFps());
+	rr_gl::PluginParamsFPS ppFPS(&ppScene,g_fpsCounter,true);
 	rr_gl::PluginParamsShared ppShared;
 	ppShared.camera = &camera;
 	ppShared.viewport[2] = winWidth;
@@ -1628,6 +1628,8 @@ no_frame:
 			demoPlayer->setPaused(supportEditor);
 		}
 	}
+
+	g_fpsCounter.addFrame();
 }
 
 void enableInteraction(bool enable)

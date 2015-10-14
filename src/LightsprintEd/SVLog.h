@@ -12,6 +12,7 @@
 
 #include "Lightsprint/Ed/Ed.h"
 #include "SVFrame.h"
+#include <queue>
 
 namespace rr_ed
 {

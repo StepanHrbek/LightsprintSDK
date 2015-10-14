@@ -10,6 +10,8 @@
 #include "Lightsprint/GL/PluginFPS.h"
 #include "Lightsprint/GL/PreserveState.h"
 #include <cstdio> // sprintf
+#include <vector>
+#include <algorithm>
 
 namespace rr_gl
 {
@@ -18,13 +20,16 @@ namespace rr_gl
 //
 // FpsCounter
 
-unsigned FpsCounter::getFps()
+void FpsCounter::addFrame()
 {
 	rr::RRTime now;
-	while (times.size() && now.secondsSince(times.front())>1) times.pop();
-	times.push(now);
-	unsigned fpsToRender = (unsigned)times.size();
-	return fpsToRender;
+	while (times.size() && now.secondsSince(times.front())>1) times.pop_front();
+	times.push_back(now);
+}
+
+unsigned FpsCounter::getFps()
+{
+	return (unsigned)times.size();
 }
 
 
@@ -36,6 +41,7 @@ class PluginRuntimeFPS : public PluginRuntime
 {
 	rr::RRBuffer* mapDigit[10];
 	rr::RRBuffer* mapFps;
+	std::vector<float> durations;
 
 public:
 
@@ -59,10 +65,11 @@ public:
 		PreserveFlag p0(GL_DEPTH_TEST,false);
 		if (_renderer.getTextureRenderer() && _renderer.getTextureRenderer()->render2dBegin(nullptr))
 		{
+			// render fps number
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			char fpsstr[10];
-			sprintf(fpsstr,"%d",pp.fpsToRender);
+			sprintf(fpsstr,"%d",pp.fpsCounter.getFps());
 			float wpix = 1.f/_sp.viewport[2];
 			float hpix = 1.f/_sp.viewport[3];
 			float x = 1-(mapFps->getWidth()+5+mapDigit[0]->getWidth()*3)*wpix;
@@ -75,6 +82,27 @@ public:
 				_renderer.getTextureRenderer()->render2dQuad(rr_gl::getTexture(digit),x,y+(mapFps->getHeight()-digit->getHeight())*hpix,digit->getWidth()*wpix,digit->getHeight()*hpix);
 				x += (digit->getWidth()-6)*wpix;
 			}
+
+			// render percentile graph
+			if (pp.percentileGraph && pp.fpsCounter.times.size()>1)
+			{
+				durations.resize(pp.fpsCounter.times.size()-1);
+				std::deque<rr::RRTime>::const_iterator time1 = pp.fpsCounter.times.begin();
+				for (unsigned i=0;i<pp.fpsCounter.times.size()-1;i++)
+				{
+					rr::RRTime time0 = *time1;
+					++time1;
+					durations[i] = time1->secondsSince(time0);
+				}
+				std::sort(durations.begin(),durations.end());
+				for (unsigned i=0;i<100;i++)
+				{
+					float duration = durations[durations.size()*i/100];
+					float durationMax = durations[durations.size()*99/100]*1.05f;
+					_renderer.getTextureRenderer()->render2dQuad(rr_gl::getTexture(mapDigit[0]),i/100.f,duration/durationMax,0.01f,0.01f);
+				}
+			}
+
 			_renderer.getTextureRenderer()->render2dEnd();
 			glDisable(GL_BLEND);
 		}
