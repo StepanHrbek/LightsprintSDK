@@ -397,7 +397,7 @@ public:
 				{
 					unsigned char* data = buffer->lock(rr::BL_DISCARD_AND_WRITE);
 					uint8_t* dst[] = {data+buffer->getWidth()*(buffer->getHeight()-1)*3, nullptr};
-					int dstStride[] = {-3*buffer->getWidth(), 0};
+					int dstStride[] = {-3*(int)buffer->getWidth(), 0};
 					sws_scale(video_swsContext, (uint8_t const * const *)avFrame->data, avFrame->linesize, 0, video_avCodecContext->height, dst, dstStride);
 					buffer->unlock();
 					boost::unique_lock<boost::mutex> lock(image_mutex);
