@@ -23,12 +23,13 @@ NEWS
   - pathtracing in SceneViewer is enabled with checkbox rather than selected from drop-down list of techniques
   - supports DOF
   - SmallLuxGPU4 pathtracer updated to the most recent version, supports more Lightsprint SDK features, so slg4 renders are closer to Lightsprint renders
+- <b>improved importers</b>
+  - import of *.ifc, *.ifczip
+  - RRBuffer::getSupportedLoaderExtensions() and RRBuffer::getSupportedSaverExtensions()
 - Visual Studio 2015 support
 - misc
   - RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
-  - RRBuffer::getSupportedLoaderExtensions() and RRBuffer::getSupportedSaverExtensions()
   - RRCamera::PC_TRUNCATE_TOP_BOT
-  - import of *.ifc, *.ifczip
   - Oculus Rift integration updated to Oculus SDK version 0.6.0.0
   - simplified Visual Studio projects, with huge .vcxproj files reduced to small .props
 
