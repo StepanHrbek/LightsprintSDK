@@ -262,7 +262,7 @@ void SVMaterialProperties::updateProperties()
 		updateFloat(propBumpMultiplier1,material->bumpMap.color.x);
 		updateFloat(propBumpMultiplier2,material->bumpMap.color.y);
 
-		updateInt(propLightmapTexcoord,material->lightmapTexcoord);
+		updateInt(propLightmapTexcoord,material->lightmap.texcoord);
 		updateInt(propQualityForPoints,material->minimalQualityForPointMaterials);
 	}
 	updateHide();
@@ -588,7 +588,7 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propLightmapTexcoord)
 	{
-		material->lightmapTexcoord = property->GetValue().GetInteger();
+		material->lightmap.texcoord = property->GetValue().GetInteger();
 	}
 	else
 	if (property==propQualityForPoints)

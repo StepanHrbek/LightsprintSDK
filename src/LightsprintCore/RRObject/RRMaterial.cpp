@@ -108,6 +108,7 @@ void RRMaterial::copyFrom(const RRMaterial& a)
 	copyProperty(specularReflectance,a.specularReflectance);
 	copyProperty(specularTransmittance,a.specularTransmittance);
 	copyProperty(bumpMap,a.bumpMap);
+	copyProperty(lightmap,a.lightmap);
 	specularModel = a.specularModel;
 	specularShininess = a.specularShininess;
 	specularTransmittanceInAlpha = a.specularTransmittanceInAlpha;
@@ -116,7 +117,7 @@ void RRMaterial::copyFrom(const RRMaterial& a)
 	specularTransmittanceMapInverted = a.specularTransmittanceMapInverted;
 	refractionIndex = a.refractionIndex;
 	bumpMapTypeHeight = a.bumpMapTypeHeight;
-	lightmapTexcoord = a.lightmapTexcoord;
+	lightmap.texcoord = a.lightmap.texcoord;
 	minimalQualityForPointMaterials = a.minimalQualityForPointMaterials;
 	if (name!=a.name) name = a.name;
 	RR_SAFE_DELETE(preview);
@@ -131,6 +132,7 @@ bool RRMaterial::operator ==(const RRMaterial& a) const
 		&& a.specularReflectance==specularReflectance
 		&& a.specularTransmittance==specularTransmittance
 		&& a.bumpMap==bumpMap
+		&& a.lightmap==lightmap
 		&& a.specularModel==specularModel
 		&& a.specularShininess==specularShininess
 		&& a.specularTransmittanceInAlpha==specularTransmittanceInAlpha
@@ -139,7 +141,7 @@ bool RRMaterial::operator ==(const RRMaterial& a) const
 		&& a.specularTransmittanceMapInverted==specularTransmittanceMapInverted
 		&& a.refractionIndex==refractionIndex
 		&& a.bumpMapTypeHeight==bumpMapTypeHeight
-		&& a.lightmapTexcoord==lightmapTexcoord
+		&& a.lightmap.texcoord==lightmap.texcoord
 		&& a.minimalQualityForPointMaterials==minimalQualityForPointMaterials
 		&& a.name==name
 		;
@@ -166,7 +168,9 @@ void RRMaterial::reset(bool twoSided)
 	refractionIndex              = 1;
 	bumpMap.color                = RRVec3(1);
 	bumpMap.colorLinear          = RRVec3(1);
-	lightmapTexcoord             = UINT_MAX; // no unwrap by default
+	lightmap.color               = RRVec3(0.5f);
+	lightmap.colorLinear         = RRVec3(0.5f);
+	lightmap.texcoord            = UINT_MAX; // no unwrap by default
 	minimalQualityForPointMaterials = UINT_MAX; // Keep point materials disabled, adapter must explicitly want them.
 	name.clear();
 	RR_SAFE_DELETE(preview);
@@ -290,6 +294,7 @@ void RRMaterial::updateColorsFromTextures(const RRColorSpace* colorSpace, Unifor
 	bumpMap.updateColorFromTexture(nullptr,0,uniformTextureAction,updateEvenFromStubs);
 	bumpMap.color.x = bumpMultipliers.x;
 	bumpMap.color.y = bumpMultipliers.y;
+	//lightmap.updateColorFromTexture(nullptr,0,UTA_KEEP,updateEvenFromStubs); lightmap.color not used, so no need to update it
 	minimalQualityForPointMaterials = variance ? unsigned(100/(variance*variance)) : UINT_MAX;
 	//RRReporter::report(INF2,"%d\n",minimalQualityForPointMaterials);
 }
@@ -529,6 +534,7 @@ RRMaterial::~RRMaterial()
 	delete specularReflectance.texture;
 	delete specularTransmittance.texture;
 	delete bumpMap.texture;
+	delete lightmap.texture;
 	delete preview;
 }
 
@@ -859,6 +865,7 @@ RRPointMaterial::~RRPointMaterial()
 	diffuseEmittance.texture = nullptr;
 	specularTransmittance.texture = nullptr;
 	bumpMap.texture = nullptr;
+	lightmap.texture = nullptr;
 	preview = nullptr;
 }
 

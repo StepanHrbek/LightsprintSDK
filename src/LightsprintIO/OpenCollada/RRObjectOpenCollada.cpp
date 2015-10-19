@@ -1123,7 +1123,7 @@ public:
 						material.diffuseEmittance.texcoord      = deC;
 						material.specularReflectance.texcoord   = srC;
 						material.specularTransmittance.texcoord = stC;
-						material.lightmapTexcoord               = lmC;
+						material.lightmap.texcoord              = lmC;
 						material.bumpMap.texcoord               = nmC;
 
 						RRReporter::report(INF3,"Found cached material with different indices.\n");
@@ -1155,7 +1155,7 @@ public:
 
 			// init material
 			material.reset( extraEffect->double_sided == 1.f || extraGeometry->double_sided == 1.f );
-			material.lightmapTexcoord = bindingPlaceholder.sourceMesh->lastUVSet;
+			material.lightmap.texcoord = bindingPlaceholder.sourceMesh->lastUVSet;
 
 			// shininess
 			if (common->getShininess().getType() == COLLADAFW::FloatOrParam::FLOAT)
@@ -1176,6 +1176,7 @@ public:
 				applyColorOrTexture(material.specularReflectance, common->getSpecular(), srC, common, extraEffect->spec_level);
 			applyColorOrTexture(material.diffuseEmittance, common->getEmission(), deC, common, extraEffect->emission_level);
 			applyColorOrTexture(material.specularTransmittance,common->getOpacity(), stC, common, 1.0f, 0.5f, transparencyInverted);
+			applyColorOrTexture(material.lightmap, common->getAmbient(), lmC, common);
 
 			// refraction
 			if(common->getIndexOfRefraction().getType() == COLLADAFW::FloatOrParam::FLOAT)
@@ -1188,7 +1189,7 @@ public:
 				material.refractionIndex = 1.f;
 
 			if( lmC != UINT_MAX )
-				material.lightmapTexcoord = lmC;
+				material.lightmap.texcoord = lmC;
 
 			// transparency in diffuse texture
 			if(!material.specularTransmittance.texture && material.diffuseReflectance.texture)
@@ -1421,7 +1422,7 @@ public:
 			RRReporter::report(INF3,"Finished with materials\n");
 
 			objects->defaultMaterial.reset(false);
-			objects->defaultMaterial.lightmapTexcoord = UINT_MAX;
+			objects->defaultMaterial.lightmap.texcoord = UINT_MAX;
 			objects->defaultMaterial.updateKeyingFromTransmittance();
 			objects->defaultMaterial.updateSideBitsFromColors();
 
@@ -2244,7 +2245,7 @@ public:
 
 				for(VectorFaceGroupPlaceholder::iterator fgiter = faceGroupArray.begin(); fgiter != faceGroupArray.end(); fgiter++)
 				{
-					rr::RRMaterial* mat;
+					RRMaterial* mat;
 
 					if(notBound)
 					{

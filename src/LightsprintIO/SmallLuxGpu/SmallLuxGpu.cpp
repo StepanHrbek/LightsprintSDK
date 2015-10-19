@@ -305,6 +305,7 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 				textures.insert(materials[i]->diffuseEmittance.texture);
 				textures.insert(materials[i]->specularTransmittance.texture);
 				textures.insert(materials[i]->bumpMap.texture);
+				// skipping lightmap
 			}
 		unsigned textrueIndex = 0;
 		for (std::set<RRBuffer*>::const_iterator i=textures.begin();i!=textures.end();++i)
@@ -501,6 +502,7 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 				{
 					ofs << "scene.materials.mat" << i << (m->bumpMapTypeHeight?".bumptex = ":".normaltex = ") << SlgTexture(m,&m->bumpMap) << "\n";
 				}
+				// skipping lightmap
 				if (i+1<materials.size())
 					ofs << "#\n";
 				if (m->specularTransmittanceKeyed)

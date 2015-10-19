@@ -417,7 +417,7 @@ void MeshArraysVBOs::renderMesh(
 							if (_uberProgramSetup.MATERIAL_BUMP_MAP)
 								uvChannelBinding.bindUvChannel(texcoordVBO,VAA_UV_MATERIAL_BUMP,material->bumpMap.texcoord,material->bumpMap.texture,_object->name,material->name);
 							if ((_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer) || (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
-								uvChannelBinding.bindUvChannel(texcoordVBO,VAA_UV_UNWRAP,material->lightmapTexcoord,(const rr::RRBuffer*)1,_object->name,material->name);
+								uvChannelBinding.bindUvChannel(texcoordVBO,VAA_UV_UNWRAP,material->lightmap.texcoord,(const rr::RRBuffer*)1,_object->name,material->name);
 
 							// render one facegroup
 							if (createdIndexed)

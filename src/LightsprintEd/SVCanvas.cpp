@@ -2589,7 +2589,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 						material = &selectedPointMaterial;
 					}
 					rr::RRMesh::TriangleMapping triangleMapping;
-					selectedPointMesh->getTriangleMapping(ray.hitTriangle,triangleMapping,material?material->lightmapTexcoord:0);
+					selectedPointMesh->getTriangleMapping(ray.hitTriangle,triangleMapping,material?material->lightmap.texcoord:0);
 					rr::RRVec2 uvInLightmap = triangleMapping.uv[0] + (triangleMapping.uv[1]-triangleMapping.uv[0])*ray.hitPoint2d[0] + (triangleMapping.uv[2]-triangleMapping.uv[0])*ray.hitPoint2d[1];
 					textOutput(x,y+=18*2,h,"[pointed by mouse]");
 					if (selectedPointObject->isDynamic)

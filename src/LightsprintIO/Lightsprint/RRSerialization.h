@@ -546,7 +546,14 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	{
 		ar & make_nvp("normalMap",a.bumpMap);
 	}
-	ar & make_nvp("lightmapTexcoord",a.lightmapTexcoord);
+	if (version<6)
+	{
+		ar & make_nvp("lightmapTexcoord",a.lightmap.texcoord);
+	}
+	else
+	{
+		ar & make_nvp("lightmap",a.lightmap);
+	}
 	ar & make_nvp("minimalQualityForPointMaterials",a.minimalQualityForPointMaterials);
 
 	if (version<3 && Archive::is_loading::value)
@@ -1127,7 +1134,7 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRCamera)
 #endif
 
 BOOST_CLASS_VERSION(rr::RRString,1)
-BOOST_CLASS_VERSION(rr::RRMaterial,5)
+BOOST_CLASS_VERSION(rr::RRMaterial,6)
 #ifndef DONT_SERIALIZE_RRLIGHT
 BOOST_CLASS_VERSION(rr::RRLight,5)
 #endif

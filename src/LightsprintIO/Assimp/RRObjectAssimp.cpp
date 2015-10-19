@@ -196,9 +196,10 @@ public:
 			if (!material.bumpMap.texture)
 				convertMaterialProperty(aimaterial,aiTextureType_HEIGHT,nullptr,0,0,material,material.bumpMap);
 
-			// lightmapTexcoord
-			if (aimaterial->Get(_AI_MATKEY_UVWSRC_BASE,aiTextureType_LIGHTMAP,0,(int&)material.lightmapTexcoord)!=AI_SUCCESS)
-				aimaterial->Get(_AI_MATKEY_UVWSRC_BASE,aiTextureType_AMBIENT,0,(int&)material.lightmapTexcoord);
+			// lightmap
+			convertMaterialProperty(aimaterial,aiTextureType_LIGHTMAP,nullptr,0,0,material,material.lightmap);
+			if (!material.lightmap.texture)
+				convertMaterialProperty(aimaterial,aiTextureType_AMBIENT,nullptr,0,0,material,material.lightmap);
 
 			// get average colors from textures
 			{

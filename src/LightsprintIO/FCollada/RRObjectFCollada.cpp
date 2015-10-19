@@ -524,9 +524,9 @@ private:
 			material.specularTransmittanceInAlpha = true;
 		}
 
-		// get lightmapTexcoord
+		// get lightmap.texcoord
 		//  default is to use channel with the highest number
-		material.lightmapTexcoord = LIGHTMAP_CHANNEL;
+		material.lightmap.texcoord = LIGHTMAP_CHANNEL;
 		//  but if scene contains ambient map, use its channel
 		const FCDTexture* texture = effectStandard->GetTextureCount(FUDaeTextureChannel::AMBIENT) ? effectStandard->GetTexture(FUDaeTextureChannel::AMBIENT,0) : nullptr;
 		if (texture && materialInstance)
@@ -538,7 +538,7 @@ private:
 				if (materialInstanceBindVertexInput)
 				{
 					// wow, scene has uv channel marked as "this is for lightmaps" (ok, ambient maps)
-					material.lightmapTexcoord = materialInstanceBindVertexInput->inputSet;
+					material.lightmap.texcoord = materialInstanceBindVertexInput->inputSet;
 				}
 			}
 		}

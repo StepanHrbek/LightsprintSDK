@@ -497,7 +497,7 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 			case 0xA081:
 				// change default 1-sided to 2-sided
 				//  depends on setting 1-sided in Material constructor
-				//  we must not call reset() here, it would destroy lightmapTexcoord
+				//  we must not call reset() here, it would destroy lightmap.texcoord
 				Materials[matindex].sideBits[1].renderFrom = 1;
 				Materials[matindex].sideBits[1].receiveFrom = 1;
 				Materials[matindex].sideBits[1].reflect = 1;

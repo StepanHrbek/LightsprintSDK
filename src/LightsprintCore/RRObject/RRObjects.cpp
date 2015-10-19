@@ -723,7 +723,7 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 									INSERT_PROP(specularReflectance);
 									INSERT_PROP(diffuseEmittance);
 									INSERT_PROP(specularTransmittance);
-									if (!deleteUnwrap) INSERT(lightmapTexcoord);
+									if (!deleteUnwrap) INSERT(lightmap.texcoord);
 									#undef INSERT
 								}
 							}
@@ -747,14 +747,14 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 		}
 	}
 
-	// 2. clear lightmapTexcoord
+	// 2. clear lightmap.texcoord
 	if (deleteUnwrap)
 		for (unsigned i=0;i<objects.size();i++)
 			for (unsigned fg=0;fg<objects[i]->faceGroups.size();fg++)
 			{
 				RRMaterial* material = objects[i]->faceGroups[fg].material;
 				if (material)
-					material->lightmapTexcoord = UINT_MAX;
+					material->lightmap.texcoord = UINT_MAX;
 			}
 
 	// 3. delete unused uvs, clear unwrapChannel

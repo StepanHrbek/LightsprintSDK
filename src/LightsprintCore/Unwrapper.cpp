@@ -716,14 +716,14 @@ try_next_channel:
 	}
 	RRReporter::report(INF2,"%d meshes in %d objects, unwrapping to channel %d.\n",meshes.size(),size(),unwrapChannel);
 
-	// 3. change all lightmapTexcoord to unwrapChannel
+	// 3. change all lightmap.texcoord to unwrapChannel
 	for (unsigned i=0;i<objects.size();i++)
 	{
 		for (unsigned fg=0;fg<objects[i]->faceGroups.size();fg++)
 		{
 			RRMaterial* material = objects[i]->faceGroups[fg].material;
 			if (material)
-				material->lightmapTexcoord = unwrapChannel;
+				material->lightmap.texcoord = unwrapChannel;
 		}
 	}
 

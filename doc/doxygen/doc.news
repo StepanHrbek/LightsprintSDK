@@ -25,6 +25,7 @@ NEWS
   - SmallLuxGPU4 pathtracer updated to the most recent version, supports more Lightsprint SDK features, so slg4 renders are closer to Lightsprint renders
 - <b>improved importers</b>
   - import of *.ifc, *.ifczip
+  - importers load lightmaps from material's lightmap or ambient channel (e.g. Collada has ambient)
   - RRBuffer::getSupportedLoaderExtensions() and RRBuffer::getSupportedSaverExtensions()
 - Visual Studio 2015 support
 - misc
@@ -37,6 +38,7 @@ CHANGES
 
 - removed loadLicense(), no longer needed
 - removed RRCollider::intersectBatch(), probably never used
+- RRMaterial::lightmap .texcoord replaces RRMaterial::lightmapTexcoord, for easier import/export of lightmaps in various scene formats (collada..)
 
 \section news145 ------------------------------------ 2015.02.11 -------------------------------------
 

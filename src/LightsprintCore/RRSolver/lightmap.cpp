@@ -128,7 +128,7 @@ bool enumerateTexelsPartial(const RRObject* multiObject, unsigned objectNumber,
 			RRMesh::TriangleMapping mapping;
 			{
 				const RRMaterial* material = singleObject->getTriangleMaterial(singlePostImportTriangle,nullptr,nullptr);
-				unsigned lightmapTexcoord = material ? material->lightmapTexcoord : UINT_MAX;
+				unsigned lightmapTexcoord = material ? material->lightmap.texcoord : UINT_MAX;
 				if (singleMesh->getTriangleMapping(singlePostImportTriangle,mapping,lightmapTexcoord))
 				{
 					unwrapStatistics.numTrianglesWithUnwrap++;
@@ -895,9 +895,9 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 				const RRMaterial* material = object->getTriangleMaterial(t,nullptr,nullptr);
 				if (material)
 				{
-					if (uvIndexSet && material->lightmapTexcoord!=uvIndex)
+					if (uvIndexSet && material->lightmap.texcoord!=uvIndex)
 						multipleUvIndicesUsed = true;
-					uvIndex = material->lightmapTexcoord;
+					uvIndex = material->lightmap.texcoord;
 					uvIndexSet = true;
 				}
 			}

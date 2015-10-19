@@ -552,7 +552,7 @@ public:
 			return;
 		{
 			RRMesh::TriangleMapping tm;
-			if (!mesh0->getTriangleMapping(0,tm,material->lightmapTexcoord))
+			if (!mesh0->getTriangleMapping(0,tm,material->lightmap.texcoord))
 				return;
 		}
 
@@ -587,7 +587,7 @@ public:
 			RRMesh::Triangle tv1;
 			mesh->getTriangle(t1,tv1);
 			RRMesh::TriangleMapping tm1;
-			mesh->getTriangleMapping(t1,tm1,material->lightmapTexcoord);
+			mesh->getTriangleMapping(t1,tm1,material->lightmap.texcoord);
 			// for all 3 edges of t1
 			for (unsigned e=0;e<3;e++)
 			{
@@ -612,7 +612,7 @@ public:
 							RRMesh::Triangle tv2;
 							mesh->getTriangle(t2,tv2);
 							RRMesh::TriangleMapping tm2;
-							mesh->getTriangleMapping(t2,tm2,material->lightmapTexcoord);
+							mesh->getTriangleMapping(t2,tm2,material->lightmap.texcoord);
 							seam.edge2[0] = tm2.uv[(tv2[0]==tv1[e])?0:((tv2[1]==tv1[e])?1:2)];
 							seam.edge2[1] = tm2.uv[(tv2[0]==tv1[(e+1)%3])?0:((tv2[1]==tv1[(e+1)%3])?1:2)];
 							// do edge coords differ?

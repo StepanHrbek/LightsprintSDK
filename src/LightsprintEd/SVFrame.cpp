@@ -1876,6 +1876,29 @@ void SVFrame::commitPropertyChanges()
 rr::RRScene* SVFrame::loadScene(const wxString& _filename, bool _transformations, float _units, unsigned _upAxis, bool _popup)
 {
 	rr::RRScene* scene = new rr::RRScene(RR_WX2RR(_filename),textureLocator,&m_canvas->solver->aborting);
+
+	// if there were lightmaps found, move them from RRMaterial::lightmap to RRObjectIllumination layer svs.layerBakedLightmap
+	bool lightmapsFound = false;
+	for (unsigned i=0;i<scene->objects.size();i++)
+	{
+		rr::RRObject* object = scene->objects[i];
+		for (unsigned fg=0;fg<object->faceGroups.size();fg++)
+		{
+			rr::RRBuffer* lightmap = ((rr::RRMaterial*)(object->faceGroups[fg].material))->lightmap.texture;
+			if (lightmap)
+			{
+				((rr::RRMaterial*)(object->faceGroups[fg].material))->lightmap.texture = nullptr;
+				object->illumination.getLayer(svs.layerBakedLightmap) = lightmap;
+				lightmapsFound = true;
+			}
+		}
+	}
+	if (lightmapsFound)
+	{
+		// maybe we should automatically switch renderer to lightmap mode after import of lightmaps?
+		rr::RRReporter::report(rr::INF2,"Lightmaps imported, switch \"Global Illumination/Technique\" to \"lightmaps\" to see them.\n");
+	}
+
 	if (_transformations)
 	{
 		scene->objects.removeEmptyObjects();

@@ -28,9 +28,9 @@ void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject*
 	if (_pixelBuffer && _pixelBuffer->getType()==rr::BT_2D_TEXTURE && _object && (_pixelBuffer!=buffer || _object!=object) && _object->faceGroups.size())
 	{
 		// report median texel size
-		unsigned unwrapChannel = _object->faceGroups[0].material->lightmapTexcoord;
+		unsigned unwrapChannel = _object->faceGroups[0].material->lightmap.texcoord;
 		for (unsigned g=0;g<_object->faceGroups.size();g++)
-			if (_object->faceGroups[g].material->lightmapTexcoord!=unwrapChannel)
+			if (_object->faceGroups[g].material->lightmap.texcoord!=unwrapChannel)
 			{
 				RR_LIMITED_TIMES(10,rr::RRReporter::report(rr::INF2,"Median texel size: not calculated, unwrap scattered across different uv channels\n"));
 				return;
@@ -156,7 +156,7 @@ void SVLightmapViewer::OnPaint(rr_gl::TextureRenderer* textureRenderer, wxSize w
 					if (material)
 					{
 						rr::RRMesh::TriangleMapping mapping;
-						mesh->getTriangleMapping(i,mapping,material->lightmapTexcoord);
+						mesh->getTriangleMapping(i,mapping,material->lightmap.texcoord);
 						for (unsigned j=0;j<3;j++)
 						{
 							mapping.uv[j] = transformUvToScreen(mapping.uv[j]);

@@ -403,6 +403,7 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 						  (i==2)?material->specularReflectance:(
 						   (i==3)?material->specularTransmittance:
 						    material->bumpMap
+							// no need to test also lightmap
 						)));
 					if (prop.texture && !mesh->getTriangleMapping(0,tm,prop.texcoord))
 					{
@@ -413,10 +414,10 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 		}
 	}
 
-	// lightmapTexcoord
+	// lightmap.texcoord
 	unsigned noUnwrap = 0;
 	for (unsigned g=0;g<faceGroups.size();g++)
-		if (faceGroups[g].material->lightmapTexcoord==UINT_MAX)
+		if (faceGroups[g].material->lightmap.texcoord==UINT_MAX)
 			noUnwrap++;
 	if (noUnwrap==faceGroups.size())
 	{
@@ -431,10 +432,10 @@ unsigned RRObject::checkConsistency(const char* _objectNumber) const
 	}
 	for (unsigned g=1;g<faceGroups.size();g++)
 	{
-		if (faceGroups[g].material->lightmapTexcoord!=faceGroups[g-1].material->lightmapTexcoord)
+		if (faceGroups[g].material->lightmap.texcoord!=faceGroups[g-1].material->lightmap.texcoord)
 		{
 			numReports++;
-			RRReporter::report(WARN,"Combines materials with different lightmapTexcoord (%d,%d..).\n",faceGroups[g-1].material->lightmapTexcoord,faceGroups[g].material->lightmapTexcoord);
+			RRReporter::report(WARN,"Combines materials with different lightmap.texcoord (%d,%d..).\n",faceGroups[g-1].material->lightmap.texcoord,faceGroups[g].material->lightmap.texcoord);
 			break;
 		}
 	}

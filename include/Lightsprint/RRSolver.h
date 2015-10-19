@@ -616,7 +616,7 @@ namespace rr
 		//! Combinations like per-pixel colors, per-vertex bent normals are supported too.
 		//! Format of buffer is preserved.
 		//!
-		//! For 2d texture buffer (lightmap, bentNormalMap), uv channel material->lightmapTexcoord is used.
+		//! For 2d texture buffer (lightmap, bentNormalMap), uv channel material->lightmap.texcoord is used.
 		//! All uv coordinates must be in 0..1 range and two triangles
 		//! must not overlap in texture space.
 		//! If it's not satisfied, contents of created lightmap is undefined.
@@ -673,7 +673,7 @@ namespace rr
 		//! -# call updatelightmaps()
 		//! -# enjoy buffers with computed lighting, you can do buffer->save(), buffer->lock(), renderer->render()...
 		//!
-		//! For 2d texture buffer (lightmap, bentNormalMap), uv channel material->lightmapTexcoord is used.
+		//! For 2d texture buffer (lightmap, bentNormalMap), uv channel material->lightmap.texcoord is used.
 		//! All uv coordinates must be in 0..1 range and two triangles
 		//! must not overlap in texture space.
 		//! If it's not satisfied, contents of created lightmap is undefined.

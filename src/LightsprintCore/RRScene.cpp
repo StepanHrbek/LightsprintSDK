@@ -677,6 +677,7 @@ void RRScene::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsign
 			set.insert(materials[i]->diffuseEmittance.texture);
 			set.insert(materials[i]->specularTransmittance.texture);
 			set.insert(materials[i]->bumpMap.texture);
+			// skipping lightmap in material, we use illumination layers instead
 		}
 	*/
 	for (int i=0;i<(int)objects.size();i++)
@@ -695,6 +696,7 @@ void RRScene::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsign
 					set.insert(m->diffuseEmittance.texture);
 					set.insert(m->specularTransmittance.texture);
 					set.insert(m->bumpMap.texture);
+					// skipping lightmap in material, we use illumination layers instead
 				}
 			}
 		}

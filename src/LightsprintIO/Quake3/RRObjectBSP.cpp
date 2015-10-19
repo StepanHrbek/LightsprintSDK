@@ -187,7 +187,7 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 	s.specularTransmittance.texture = (!t || avg[3]==1) ? nullptr : t->createReference();
 	s.specularTransmittance.texcoord = CH_DIFFUSE;
 	s.specularTransmittanceInAlpha = true;
-	s.lightmapTexcoord = CH_LIGHTMAP;
+	s.lightmap.texcoord = CH_LIGHTMAP;
 	s.minimalQualityForPointMaterials = s.specularTransmittance.texture ? 30 : 300;
 
 	// get average colors from textures. we already set them, but this will be slightly more precise thanks to colorSpace
