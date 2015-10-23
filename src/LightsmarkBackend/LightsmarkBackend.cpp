@@ -316,8 +316,8 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	ppScene.uberProgramSetup = uberProgramSetup;
 	ppScene.renderingFromThisLight = renderingFromThisLight;
 #ifdef BACKGROUND_THREAD
-	ppScene.updateLayerLightmap = false;
-	ppScene.updateLayerEnvironment = false;
+	ppScene.updateLayerLightmap = needImmediateDDI;
+	ppScene.updateLayerEnvironment = needImmediateDDI;
 #else
 	ppScene.updateLayerLightmap = true;
 	ppScene.updateLayerEnvironment = true;
@@ -1500,10 +1500,17 @@ no_frame:
 	calculateParams.lightMultiplier = 2;
 	calculateParams.secondsBetweenDDI = GI_UPDATE_INTERVAL;
 	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = currentFrame.wantsConstantAmbient() ? 0 : GI_UPDATE_QUALITY; // [#53] limits work in no radiosity mode
-	needImmediateDDI = false;
 #ifdef BACKGROUND_THREAD
-	calculateParams.skipRRSolver = true;
-	if (backgroundThreadState==TS_FINISHED)
+	if (!needImmediateDDI)
+	{
+		calculateParams.skipRRSolver = true;
+		calculateParams.delayDDI = 3;
+	}
+	else
+	{
+		realtimeLight->dirtyGI = true;
+	}
+	if (backgroundThreadState==TS_FINISHED || (backgroundThreadState==TS_RUNNING && needImmediateDDI))
 	{
 		backgroundThread.join();
 		backgroundThreadState = TS_NONE;
@@ -1518,7 +1525,7 @@ no_frame:
 #ifdef BACKGROUND_THREAD
 	// early exit if quality=0
 	// [#53] used in "no radiosity" part of Lightsmark
-	if (calculateParams.qualityIndirectDynamic)
+	if (calculateParams.qualityIndirectDynamic && !needImmediateDDI)
 	{
 		RR_ASSERT(backgroundThreadState==TS_NONE);
 		backgroundThreadState = TS_RUNNING;
@@ -1542,6 +1549,8 @@ no_frame:
 	needRedisplay = 0;
 
 	drawEyeViewSoftShadowed();
+
+	needImmediateDDI = false; // don't clear before rendering, renderer would not update vbufs+env
 
 	if (wireFrame)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
