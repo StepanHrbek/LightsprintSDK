@@ -687,7 +687,7 @@
     <ClCompile Include="Lightsprint\RRObjectLightsprint.cpp">
       <Filter>Lightsprint</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="IO.cpp" />
     <ClCompile Include="Assimp\contrib\unzip\ioapi.c">
       <Filter>Assimp\contrib\unzip</Filter>
     </ClCompile>
