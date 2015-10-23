@@ -104,7 +104,11 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 
 	// load Fireball
 	char* fbname = _strdup(setup->filename);
+#ifdef NDEBUG
 	strcpy(fbname+strlen(fbname)-3,"fib");
+#else
+	strcpy(fbname+strlen(fbname)-3,"fid");
+#endif
 	if (REBUILD_FIB)
 		solver->buildFireball(5000,fbname);
 	else
