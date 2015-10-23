@@ -8,6 +8,7 @@ unsigned INSTANCES_PER_PASS;
 #define GI_UPDATE_QUALITY          5 // default is 3, increase to 5 fixes book in first 5 seconds
 #define GI_UPDATE_INTERVAL         -1 // start GI update as often as possible (but can be affected by MAX_LIGHT_UPDATE_FREQUENCY)
 #define BACKGROUND_THREAD            // run improve+updateLightmaps+UpdateEnvironmentMap asynchronously, on background
+#define DDI_EVERY_FRAME            1 // 1=slower but equal frame times, 0=faster but unequal frame times
 #if defined(NDEBUG) && defined(_WIN32)
 	//#define SET_ICON
 #else
@@ -1518,14 +1519,14 @@ no_frame:
 	if (backgroundThreadState!=TS_NONE)
 	{
 		// [#53] if we can't start new background thread, skip DDI and all CPU work, update only shadowmaps
-		calculateParams.qualityIndirectDynamic = 0;
+		calculateParams.qualityIndirectDynamic = DDI_EVERY_FRAME;
 	}
 #endif
 	level->solver->calculate(&calculateParams);
 #ifdef BACKGROUND_THREAD
 	// early exit if quality=0
 	// [#53] used in "no radiosity" part of Lightsmark
-	if (calculateParams.qualityIndirectDynamic && !needImmediateDDI)
+	if (calculateParams.qualityIndirectDynamic!=DDI_EVERY_FRAME && !needImmediateDDI)
 	{
 		RR_ASSERT(backgroundThreadState==TS_NONE);
 		backgroundThreadState = TS_RUNNING;
