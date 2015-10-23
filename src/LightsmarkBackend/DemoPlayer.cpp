@@ -91,6 +91,7 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 				rr::RRMaterial* material = object->faceGroups[0].material;
 				material->diffuseReflectance.color = rr::RRVec3(diffuse);
 				material->specularReflectance.color = rr::RRVec3(specular);
+				material->specularShininess = 4000; // an attempt to approximate Lightsmark 2008 look
 				material->updateSideBitsFromColors();
 			}
 			// alloc cubes
