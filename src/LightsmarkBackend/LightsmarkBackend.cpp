@@ -1425,11 +1425,13 @@ no_level:
 
 		// najde aktualni frame
 		const AnimationFrame* frame = level->setup ? level->setup->getFrameByTime(demoPlayer->getPartPosition()) : nullptr;
+		unsigned frameIndex = level->setup->getFrameIndexByTime(demoPlayer->getPartPosition(),nullptr,nullptr);
 		if (frame)
 		{
 			// pokud existuje, nastavi ho
 			static AnimationFrame prevFrame(0);
-			bool animationCut = frame->layerNumber!=prevFrame.layerNumber; // za strih povazuje i mezisnimky, to je zbytecne
+			static unsigned prevFrameIndex(0);
+			bool animationCut = frameIndex>prevFrameIndex+1; // if we skip frame, there was probably animation cut (cut requires frame with duration 0)
 			if (animationCut && !frame->wantsConstantAmbient()) needImmediateDDI = true; // po strihu chceme okamzite aktualizovat GI
 			demoPlayer->setVolume(frame->volume);
 			bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr::RRCamera))!=0;
@@ -1437,6 +1439,7 @@ no_level:
 			if (objMoved)
 				reportObjectMovement();
 			prevFrame = *frame;
+			prevFrameIndex = frameIndex;
 		}
 		else
 		{
