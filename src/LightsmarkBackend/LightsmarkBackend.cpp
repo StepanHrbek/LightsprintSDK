@@ -6,7 +6,7 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_SOFT       512
 #define SHADOW_MAP_SIZE_HARD       2048
 #define GI_UPDATE_QUALITY          5 // default is 3, increase to 5 fixes book in first 5 seconds
-#define GI_UPDATE_INTERVAL         0 // start GI update as often as possible (but can be affected by MAX_LIGHT_UPDATE_FREQUENCY)
+#define GI_UPDATE_INTERVAL         -1 // start GI update as often as possible (but can be affected by MAX_LIGHT_UPDATE_FREQUENCY)
 #define BACKGROUND_THREAD            // run improve+updateLightmaps+UpdateEnvironmentMap asynchronously, on background
 #if defined(NDEBUG) && defined(_WIN32)
 	//#define SET_ICON
