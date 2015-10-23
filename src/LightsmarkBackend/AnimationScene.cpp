@@ -3,7 +3,7 @@
 
 // limits frequency of light and object position/rotation changes
 // increases fps, but makes frame times uneven
-#define MAX_LIGHT_UPDATE_FREQUENCY 60
+//#define MAX_LIGHT_UPDATE_FREQUENCY 60
 
 /////////////////////////////////////////////////////////////////////////////
 //
