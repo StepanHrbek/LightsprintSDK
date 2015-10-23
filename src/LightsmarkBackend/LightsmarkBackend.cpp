@@ -1423,16 +1423,16 @@ no_level:
 			demoPlayer->advance();
 		}
 
-		// najde aktualni frame
+		// find current frame
 		const AnimationFrame* frame = level->setup ? level->setup->getFrameByTime(demoPlayer->getPartPosition()) : nullptr;
 		unsigned frameIndex = level->setup->getFrameIndexByTime(demoPlayer->getPartPosition(),nullptr,nullptr);
 		if (frame)
 		{
-			// pokud existuje, nastavi ho
+			// if it exists, use it
 			static AnimationFrame prevFrame(0);
 			static unsigned prevFrameIndex(0);
 			bool animationCut = frameIndex>prevFrameIndex+1; // if we skip frame, there was probably animation cut (cut requires frame with duration 0)
-			if (animationCut && !frame->wantsConstantAmbient()) needImmediateDDI = true; // po strihu chceme okamzite aktualizovat GI
+			if (animationCut && !frame->wantsConstantAmbient()) needImmediateDDI = true; // after cut, GI should be updated without delays
 			demoPlayer->setVolume(frame->volume);
 			bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr::RRCamera))!=0;
 			bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->setup,*frame,lightChanged);
@@ -1443,7 +1443,7 @@ no_level:
 		}
 		else
 		{
-			// pokud neexistuje, jde na dalsi level nebo skonci 
+			// if it does not exist, go to next level or terminate
 no_frame:
 			if (level->animationEditor)
 			{
