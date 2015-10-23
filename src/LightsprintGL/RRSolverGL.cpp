@@ -23,6 +23,7 @@
 #define REPORT(a) //a
 
 #define CENTER_GRANULARITY 0.01f // if envmap center moves less than granularity, it is considered unchanged. prevents updates when dynamic object rotates (=position slightly fluctuates)
+#define DDI_READBACK_DELAY // support for delayDDI
 
 namespace rr_gl
 {
@@ -60,6 +61,14 @@ RRSolverGL::RRSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pa
 	lastDDITime.addSeconds(-1000000);
 	detectedDirectSum = nullptr;
 	detectedNumTriangles = 0;
+#ifdef DDI_READBACK_DELAY
+	memset(ddiPbo,0,sizeof(ddiPbo));
+	memset(ddiPboWidth,0,sizeof(ddiPboWidth));
+	memset(ddiPboHeight,0,sizeof(ddiPboHeight));
+	glGenBuffers(DDI_PBOS,ddiPbo);
+	ddiPboIndex = 0;
+	ddiPboQueueSize = 0;
+#endif
 
 	observer = nullptr;
 	renderer = rr_gl::Renderer::create(pathToShaders, pathToMaps);
@@ -81,6 +90,9 @@ RRSolverGL::~RRSolverGL()
 	delete detectBigMap;
 	if (detectSmallMap) delete detectSmallMap->getBuffer();
 	delete detectSmallMap;
+#ifdef DDI_READBACK_DELAY
+	glDeleteBuffers(DDI_PBOS,ddiPbo);
+#endif
 }
 
 void RRSolverGL::setLights(const rr::RRLights& _lights)
@@ -154,7 +166,7 @@ void RRSolverGL::calculate(const CalculateParameters* _params)
 			if (now.secondsSince(lastDDITime)>=params.secondsBetweenDDI) // limits frequency of DDI
 			{
 				lastDDITime = now;
-				setDirectIllumination(detectDirectIllumination());
+				setDirectIllumination(detectDirectIllumination(params.delayDDI));
 			}
 		}
 	}
@@ -360,7 +372,7 @@ done:
 	}
 }
 
-const unsigned* RRSolverGL::detectDirectIllumination()
+const unsigned* RRSolverGL::detectDirectIllumination(unsigned _delayDDI)
 {
 	if (!getMultiObject()) return nullptr;
 	unsigned numTriangles = getMultiObject()->getCollider()->getMesh()->getNumTriangles();
@@ -405,7 +417,7 @@ const unsigned* RRSolverGL::detectDirectIllumination()
 			if (!light->shadowOnly)
 			{
 				if (observer) light->positionOfLastDDI = observer->getPosition();
-				updatedSmallMaps += detectDirectIlluminationTo(light,light->smallMapCPU,light->numTriangles);
+				updatedSmallMaps += detectDirectIlluminationTo(light,light->smallMapCPU,sizeof(unsigned)*(numTriangles+2047),_delayDDI);
 			}
 		}
 	}
@@ -452,7 +464,7 @@ const unsigned* RRSolverGL::detectDirectIllumination()
 	return nullptr;
 }
 
-unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigned* _results, unsigned _space)
+unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigned* _results, unsigned _spaceBytes, unsigned _delayDDI)
 {
 	if (!scaleDownProgram || !_results)
 	{
@@ -574,8 +586,57 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 
 		// read downscaled image to memory
 		REPORT(rr::RRReportInterval report(rr::INF3,"glReadPix %dx%d\n", triCountX, triCountYInThisPass));
-		RR_ASSERT(_space+2047>=firstCapturedTriangle+triCountX*triCountYInThisPass);
+		RR_ASSERT(_spaceBytes>=(firstCapturedTriangle+triCountX*triCountYInThisPass)*sizeof(unsigned));
+#ifdef DDI_READBACK_DELAY
+		_delayDDI = RR_MIN(_delayDDI,DDI_PBOS-1);
+		if (_delayDDI && realtimeLights.size()==1 && numPasses==1)
+		{
+
+			// start PBO
+			unsigned startIndex = ddiPboIndex;
+			glBindBuffer(GL_PIXEL_PACK_BUFFER, ddiPbo[startIndex]);
+			if (ddiPboWidth[startIndex]!=triCountX || ddiPboHeight[startIndex]!=triCountYInThisPass)
+			{
+				ddiPboWidth[startIndex] = triCountX;
+				ddiPboHeight[startIndex] = triCountYInThisPass;
+				glBufferData(GL_PIXEL_PACK_BUFFER, ddiPboWidth[startIndex]*ddiPboHeight[startIndex]*4, NULL, GL_DYNAMIC_READ);
+			}
+			glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_BGRA, GL_UNSIGNED_BYTE, 0);
+			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+			// increase counters
+			ddiPboIndex = (ddiPboIndex+1)%DDI_PBOS;
+			if (ddiPboQueueSize<_delayDDI)
+			{
+				ddiPboQueueSize++;
+				return 0;
+			}
+
+			// stop PBO
+			unsigned stopIndex = (ddiPboIndex+DDI_PBOS-1-_delayDDI)%DDI_PBOS;
+			glBindBuffer(GL_PIXEL_PACK_BUFFER, ddiPbo[stopIndex]);
+			const unsigned* pixel_data = (const unsigned*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+			RR_ASSERT(pixel_data);
+			if (pixel_data)
+			{
+				size_t bytes = ddiPboWidth[stopIndex]*ddiPboHeight[stopIndex]*sizeof(unsigned);
+				RR_ASSERT(bytes <= _spaceBytes);
+				if (bytes <= _spaceBytes)
+					memcpy(_results,pixel_data,bytes);
+				glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);
+			}
+			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+
+
+		}
+		else
+		{
+#endif
 		glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_RGBA, GL_UNSIGNED_BYTE, _results+firstCapturedTriangle); // GL_RGBA+GL_UNSIGNED_BYTE is the only fixed combination supported by OpenGL ES 2.0
+#ifdef DDI_READBACK_DELAY
+			ddiPboQueueSize = 0;
+		}
+#endif
 	}
 
 	return 1;

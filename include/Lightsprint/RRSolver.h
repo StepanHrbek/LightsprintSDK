@@ -392,6 +392,12 @@ namespace rr
 			unsigned qualityIndirectStatic;
 
 			//! Only for RRSolverGL:
+			//! For how many frames indirect illumination can trail behind direct illumination.
+			//! 0 = indirect synchronized with direct, highest quality.
+			//! 3 = indirect slightly delayed behind direct, faster.
+			unsigned delayDDI;
+
+			//! Only for RRSolverGL:
 			//! For how many seconds indirect illumination can stay unchanged.
 			//! 0 = update in each frame, highest quality.
 			//! 0.05 = update less frequently, faster.
@@ -412,6 +418,7 @@ namespace rr
 				environmentVideoQuality = 300;
 				qualityIndirectDynamic = 3;
 				qualityIndirectStatic = 3;
+				delayDDI = 0;
 				secondsBetweenDDI = 0;
 				skipRRSolver = false;
 			}

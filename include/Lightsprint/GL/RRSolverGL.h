@@ -112,7 +112,7 @@ namespace rr_gl
 		//!  Values are stored in RGBA8 format.
 		//!  Return nullptr when direct illumination was not detected for any reason, this
 		//!  function will be called again in next calculate().
-		virtual const unsigned* detectDirectIllumination();
+		virtual const unsigned* detectDirectIllumination(unsigned delayDDI);
 	private:
 		//! Updates shadowmaps for lights with RealtimeLight::dirtyShadowmap flag set.
 		//
@@ -121,7 +121,7 @@ namespace rr_gl
 		//! \n Called by calculate().
 		virtual void updateShadowmaps();
 		//! Helper function called from detectDirectIllumination().
-		unsigned detectDirectIlluminationTo(RealtimeLight* light, unsigned* results, unsigned space);
+		unsigned detectDirectIlluminationTo(RealtimeLight* light, unsigned* results, unsigned spaceBytes, unsigned delayDDI);
 
 		// for DDI
 		Texture* detectBigMap;
@@ -133,6 +133,13 @@ namespace rr_gl
 		unsigned* detectedDirectSum;
 		unsigned detectedNumTriangles;
 		unsigned lastDDINumLightsEnabled;
+		// for DDI delayed readback
+		enum {DDI_PBOS=4}; // 1-3 is not enough to prevent stalls, 5 or more reduces fps (reason unknown)
+		GLuint ddiPbo[DDI_PBOS];
+		unsigned ddiPboWidth[DDI_PBOS];
+		unsigned ddiPboHeight[DDI_PBOS];
+		unsigned ddiPboIndex; // place for next DDI, 0..DDI_PBOS-1
+		unsigned ddiPboQueueSize; // number of DDIs in flight, 0..DDI_PBOS-1
 
 		// for internal rendering (shadowmaps)
 		Renderer* renderer;
