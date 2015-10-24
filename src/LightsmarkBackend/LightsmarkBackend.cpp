@@ -1516,17 +1516,20 @@ no_frame:
 		backgroundThread.join();
 		backgroundThreadState = TS_NONE;
 	}
+#if !DDI_EVERY_FRAME
 	if (backgroundThreadState!=TS_NONE)
 	{
 		// [#53] if we can't start new background thread, skip DDI and all CPU work, update only shadowmaps
-		calculateParams.qualityIndirectDynamic = DDI_EVERY_FRAME;
+		calculateParams.qualityIndirectDynamic = 0;
 	}
+#endif
+	bool requestingDDI = calculateParams.qualityIndirectDynamic && realtimeLight->dirtyGI;
 #endif
 	level->solver->calculate(&calculateParams);
 #ifdef BACKGROUND_THREAD
 	// early exit if quality=0
 	// [#53] used in "no radiosity" part of Lightsmark
-	if (calculateParams.qualityIndirectDynamic!=DDI_EVERY_FRAME && !needImmediateDDI)
+	if (backgroundThreadState==TS_NONE && requestingDDI && !needImmediateDDI)
 	{
 		RR_ASSERT(backgroundThreadState==TS_NONE);
 		backgroundThreadState = TS_RUNNING;
