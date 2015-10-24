@@ -242,7 +242,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 						for (unsigned v=0;v<3;v++)
 						{
 							RRVec3 pos = convertPos(model->mVertices[ti[v]].mPosition);
-							if (pos.y<-18.2f || pos.z>11.5f) clipped++;
+							if (pos.y<-18.12f || pos.z>11.5f) clipped++;
 							//if (x<23||x>24||y<-6||y>-4||z<-5||z>-3) clipped++; // zoom on geometry errors
 						}
 						if (clipped==3) continue;
@@ -265,7 +265,7 @@ RRObjectQuake3::RRObjectQuake3(TMapQ3* amodel, const RRFileLocator* textureLocat
 				}
 			}
 			else
-			if (model->mFaces[f].mType==2) // 2=patch
+			if (model->mFaces[f].mType==2 && !g_lightsmarkAttic) // 2=patch
 			{
 				// patch consists of segments LxL squares big, L1*L1 vertices big
 				const TFace& patch = model->mFaces[f];
