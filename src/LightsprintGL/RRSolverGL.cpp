@@ -24,6 +24,7 @@
 
 #define CENTER_GRANULARITY 0.01f // if envmap center moves less than granularity, it is considered unchanged. prevents updates when dynamic object rotates (=position slightly fluctuates)
 #define DDI_READBACK_DELAY // support for delayDDI
+#define DDI_READBACK_SPLIT // split delayed readback into 3 frames
 
 namespace rr_gl
 {
@@ -166,6 +167,7 @@ void RRSolverGL::calculate(const CalculateParameters* _params)
 			if (now.secondsSince(lastDDITime)>=params.secondsBetweenDDI) // limits frequency of DDI
 			{
 				lastDDITime = now;
+				//rr::RRReporter::report(rr::INF1,"d");
 				setDirectIllumination(detectDirectIllumination(params.delayDDI));
 			}
 		}
@@ -250,6 +252,7 @@ done:
 		bool isDirtyOnlyBecauseObserverHasMoved = !light->dirtyShadowmap && observer && observer->getPosition()!=light->getObserverPos() && light->getCamera()->isOrthogonal() && light->getNumShadowmaps();
 		if (light->dirtyShadowmap || isDirtyOnlyBecauseObserverHasMoved)
 		{
+			//rr::RRReporter::report(rr::INF1,"s");
 			REPORT(rr::RRReportInterval report(rr::INF3,"Updating shadowmap (light %d)...\n",i));
 			if (light->dirtyRange && getMultiObject())
 				light->setRangeDynamically(getCollider(),getMultiObject()); // getMultiObject()->getCollider() would makes it test static objects only
@@ -505,7 +508,7 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 	unsigned faceSizeX = (detectionQuality==DDI_8X8)?8:4;
 	unsigned faceSizeY = (detectionQuality==DDI_8X8)?8:4;
 
-	// calculate mapping for FORCED_2D
+	// [#10] calculate mapping for FORCED_2D
 	//  We have working space for 256x256 tringles, so scene with 80k triangles must be split to two passes.
 	//  We do 256x157,256x157 passes, but 256x256,256x57 would work too.
 	//  This calculation is repeated in MeshArraysVBOs where we render to texture, here we read texture back.
@@ -527,6 +530,14 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 
 		// clear
 		glViewport(0, 0, pixelWidth,pixelHeightInOnePass);
+#if defined(DDI_READBACK_DELAY)
+		if (_delayDDI && realtimeLights.size()==1 && numPasses==1)
+		{
+			// skip glClear, it's usually not needed
+			// here we suppose that at least first DDI goes without _delayDDI, so glClear is called at least once
+		}
+		else
+#endif
 		glClear(GL_COLOR_BUFFER_BIT); // old pixels are overwritten, so clear is usually not needed, but individual light-triangle lighting may be disabled by getTriangleMaterial()=triangles are not rendered, and we need to detect 0 rather than uninitialized value
 
 		// setup shader
@@ -555,6 +566,15 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 		// render scene
 		glDisable(GL_CULL_FACE);
 		FaceGroupRange fgRange(0,0,0,firstCapturedTriangle,lastCapturedTrianglePlus1);
+#if defined(DDI_READBACK_DELAY) && defined(DDI_READBACK_SPLIT)
+		if (_delayDDI && realtimeLights.size()==1 && numPasses==1)
+		{
+			static unsigned part = 2;
+			part = (part+1)%3;
+			fgRange.triangleFirst = lastCapturedTrianglePlus1*part/3;
+			fgRange.triangleLastPlus1 = lastCapturedTrianglePlus1*(part+1)/3;
+		}
+#endif
 		renderer->getMeshRenderer(getMultiObject()->getCollider()->getMesh())->renderMesh(
 			program,
 			getMultiObject(),
@@ -619,10 +639,10 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 			RR_ASSERT(pixel_data);
 			if (pixel_data)
 			{
-				size_t bytes = ddiPboWidth[stopIndex]*ddiPboHeight[stopIndex]*sizeof(unsigned);
+				size_t bytes = (lastCapturedTrianglePlus1-firstCapturedTriangle)*sizeof(unsigned);
 				RR_ASSERT(bytes <= _spaceBytes);
 				if (bytes <= _spaceBytes)
-					memcpy(_results,pixel_data,bytes);
+					memcpy(_results+firstCapturedTriangle,pixel_data,bytes);
 				glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);
 			}
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
