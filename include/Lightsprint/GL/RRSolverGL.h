@@ -134,7 +134,7 @@ namespace rr_gl
 		unsigned detectedNumTriangles;
 		unsigned lastDDINumLightsEnabled;
 		// for DDI delayed readback
-		enum {DDI_PBOS=4}; // 1-3 is not enough to prevent stalls, 5 or more reduces fps (reason unknown)
+		enum {DDI_PBOS=4}; // 1-3 is not enough to prevent stalls, 5 or more reduces radeon fps (reason unknown)
 		GLuint ddiPbo[DDI_PBOS];
 		unsigned ddiPboWidth[DDI_PBOS];
 		unsigned ddiPboHeight[DDI_PBOS];

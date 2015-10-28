@@ -94,7 +94,7 @@ bool MeshArraysVBOs::update(const rr::RRMeshArrays* _mesh, bool _indexed)
 		}
 		if (!_indexed)
 		{
-			// calculate mapping for FORCED_2D
+			// [#10] calculate mapping for FORCED_2D
 			//  We have working space for 256x256 tringles, so scene with 80k triangles must be split to two passes.
 			//  We do 256x157,256x157 passes, but 256x256,256x57 would work too.
 			//  Here we render to texture, this calculation is repeated in RRSolverGL::detectDirectIlluminationTo where we read texture back.
