@@ -610,7 +610,7 @@ bool saveFreeImage(RRBuffer* buffer, const RRString& filename, const char* cubeS
 						if (colorSpace)
 							colorSpace->fromLinear(pixel);
 						// write dst pixel
-						if ((i%width)==0) dst += 3-(((unsigned long)dst+3)&3); // compensate for freeimage's scanline padding
+						if ((i%width)==0) dst += 3-(((intptr_t)dst+3)&3); // compensate for freeimage's scanline padding
 						switch(dstbipp)
 						{
 							case 128:
