@@ -61,7 +61,7 @@ public:
 		numAllocated = a.numAllocated;
 		if (numAllocated)
 		{
-			c = (C*)malloc(sizeof(C)*numAllocated);
+			c = (C*)malloc(sizeof(C)*numAllocated); // failure not handled
 			memcpy(c,a.c,sizeof(C)*numUsed);
 		}
 		else
@@ -78,7 +78,7 @@ public:
 			numAllocated = a.numAllocated;
 			if (numAllocated)
 			{
-				c = (C*)malloc(sizeof(C)*numAllocated);
+				c = (C*)malloc(sizeof(C)*numAllocated); // failure not handled
 				memcpy(c,a.c,sizeof(C)*numUsed);
 			}
 			else
@@ -134,7 +134,7 @@ public:
 			{
 				numAllocated *= 2;
 			}
-			c = (C*)std::realloc(c,sizeof(C)*numAllocated);
+			c = (C*)std::realloc(c,sizeof(C)*numAllocated); // failure not handled
 		}
 		c[numUsed++] = a;
 	}
