@@ -703,7 +703,7 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 		{
 			if (objectNumber>=(int)getStaticObjects().size() || objectNumber<0)
 			{
-				RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%d).\n",objectNumber,getStaticObjects().size()-1);
+				RRReporter::report(WARN,"Invalid objectNumber (%d, valid is 0..%zd).\n",objectNumber,getStaticObjects().size()-1);
 				return 0;
 			}
 			vertexBufferWidth = getStaticObjects()[objectNumber]->getCollider()->getMesh()->getNumVertices();

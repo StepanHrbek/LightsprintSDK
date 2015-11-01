@@ -169,7 +169,7 @@ void RRSolver::updateVertexLookupTablePackedSolver()
 unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vertexBuffer, const UpdateParameters* params)
 {
 	if (objectNumber<10 || (objectNumber<100 && !(objectNumber%10)) || (objectNumber<1000 && !(objectNumber%100)) || !(objectNumber%1000))
-		RRReporter::report(INF3,"Updating vertex buffer for object %d/%d.\n",objectNumber,getStaticObjects().size());
+		RRReporter::report(INF3,"Updating vertex buffer for object %d/%zd.\n",objectNumber,getStaticObjects().size());
 
 	if (!vertexBuffer || objectNumber>=(int)getStaticObjects().size() || objectNumber<-1)
 	{
@@ -259,7 +259,7 @@ unsigned RRSolver::updateVertexBufferFromSolver(int objectNumber, RRBuffer* vert
 // Fast, but used only in offline solutions.
 unsigned RRSolver::updateVertexBufferFromPerTriangleDataPhysical(unsigned objectHandle, RRBuffer* vertexBuffer, RRVec3* perTriangleDataPhysical, unsigned stride, bool allowScaling) const
 {
-	RRReporter::report(INF3,"Updating object %d/%d, vertex buffer.\n",objectHandle,getStaticObjects().size());
+	RRReporter::report(INF3,"Updating object %d/%zd, vertex buffer.\n",objectHandle,getStaticObjects().size());
 
 	if (!priv->scene || !vertexBuffer || objectHandle>=getStaticObjects().size())
 	{

@@ -66,7 +66,7 @@ public:
 				if (!disabledReporting && objects.size()>100)
 				{
 					disabledReporting = true;
-					RRReporter::report(INF2,"Updating multicollider for %d objects...\n",objects.size());
+					RRReporter::report(INF2,"Updating multicollider for %zd objects...\n",objects.size());
 					RRReporter::getFilter(b1,b2,b3);
 					RRReporter::setFilter(true,1,false);
 				}

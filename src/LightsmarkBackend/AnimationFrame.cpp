@@ -184,7 +184,7 @@ bool AnimationFrame::loadOver(FILE* f)
 	if (fscanf(f,"duration = %f\n",&transitionToNextTime)==1) loaded = true;
 	//if (0!=fscanf(f,"\n"))
 	//	return false;
-	//rr::RRReporter::report(rr::INF1,"  frame with %d objects\n",dynaPosRot.size());
+	//rr::RRReporter::report(rr::INF1,"  frame with %zd objects\n",dynaPosRot.size());
 	return loaded;
 }
 
@@ -235,6 +235,6 @@ bool AnimationFrame::save(FILE* f, const AnimationFrame& prev) const
 	if (transitionToNextTime!=prev.transitionToNextTime)
 		fprintf(f,"duration = %.3f\n",transitionToNextTime);
 	fprintf(f,"\n");
-	//rr::RRReporter::report(rr::INF1,"  frame with %d objects\n",dynaPosRot.size());
+	//rr::RRReporter::report(rr::INF1,"  frame with %zd objects\n",dynaPosRot.size());
 	return true;
 }

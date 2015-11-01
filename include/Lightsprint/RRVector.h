@@ -161,7 +161,7 @@ public:
 		}
 	}
 	//! Returns number of elements in vector (like std::vector).
-	unsigned size() const
+	size_t size() const
 	{
 		return numUsed;
 	}
