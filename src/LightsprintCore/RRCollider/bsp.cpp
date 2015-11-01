@@ -136,7 +136,7 @@ enum FaceClass
 	FC_NONE, // 2d outside bbox, 1d may be in front or back
 };
 
-#define nALLOC(A,B) (A *)malloc((B)*sizeof(A))
+#define nALLOC(A,B) (A *)malloc((B)*sizeof(A)) //!!! failures not handled
 #define ALLOC(A) nALLOC(A,1)
 
 #define SQR(A) ((A)*(A))
