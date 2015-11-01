@@ -11,10 +11,6 @@
 #ifndef RRVECTOR_H
 #define RRVECTOR_H
 
-#include <cstdlib>
-#include <cstring> // memcpy
-#include "RRDebug.h"
-
 #ifndef __has_extension
   #define __has_extension(x) 0 // stub for LLVM macro on non-LLVM compilers
 #endif
@@ -30,6 +26,26 @@
 #endif
 
 #endif //!__ANDROID__
+
+#include "RRDebug.h"
+
+#if 0
+
+#include <vector>
+
+namespace rr
+{
+
+//! Shortcut for std::vector.
+template<class C>
+class RRVector : public std::vector<C>
+{
+};
+
+#else
+
+#include <cstdlib>
+#include <cstring> // memcpy
 
 namespace rr
 {
@@ -245,6 +261,8 @@ protected:
 	unsigned numAllocated;
 	unsigned numUsed;
 };
+
+#endif
 
 } // namespace
 
