@@ -200,9 +200,12 @@ namespace rr
 		if (!read) return nullptr;
 		fseek(f,-(int)sizeof(head),SEEK_CUR);
 		BspTree* tree = (BspTree*)malloc(head.bsp.size);
-		read = fread(tree,1,head.bsp.size,f);
-		if (read == head.bsp.size) return tree;
-		free(tree);
+		if (tree)
+		{
+			read = fread(tree,1,head.bsp.size,f);
+			if (read == head.bsp.size) return tree;
+			free(tree);
+		}
 		return nullptr;
 	}
 
