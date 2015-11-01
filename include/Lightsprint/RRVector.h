@@ -36,12 +36,14 @@ namespace rr
 
 //! Portable but limited, minimalistic std::vector replacement.
 //
-//! Purpose of RRVector is to replace STL in public Lightsprint headers,
-//! to make Lightsprint work with any STL implementation.
 //! It works like std::vector in simple cases in Lightsprint SDK interface
 //! where C is pointer, RRObject* or RRLight*, and vector size is small
 //! (no risk of allocation failure).
 //! It is not suitable for anything more complex.
+//!
+//! Purpose of RRVector used to be to replace STL in public Lightsprint headers,
+//! to make Lightsprint binaries work with any STL implementation.
+//! It is also bit smaller than std::vector.
 template<class C>
 class RRVector
 {
@@ -61,7 +63,7 @@ public:
 		numAllocated = a.numAllocated;
 		if (numAllocated)
 		{
-			c = (C*)malloc(sizeof(C)*numAllocated); // failure not handled
+			c = (C*)malloc(sizeof(C)*numAllocated); //!!! failure not handled
 			memcpy(c,a.c,sizeof(C)*numUsed);
 		}
 		else
@@ -78,7 +80,7 @@ public:
 			numAllocated = a.numAllocated;
 			if (numAllocated)
 			{
-				c = (C*)malloc(sizeof(C)*numAllocated); // failure not handled
+				c = (C*)malloc(sizeof(C)*numAllocated); //!!! failure not handled
 				memcpy(c,a.c,sizeof(C)*numUsed);
 			}
 			else
@@ -134,7 +136,7 @@ public:
 			{
 				numAllocated *= 2;
 			}
-			c = (C*)std::realloc(c,sizeof(C)*numAllocated); // failure not handled
+			c = (C*)std::realloc(c,sizeof(C)*numAllocated); //!!! failure not handled
 		}
 		c[numUsed++] = a;
 	}
@@ -147,10 +149,11 @@ public:
 			numUsed--;
 		}
 	}
-	//! Removes i-th element from vector (i is not iterator unlike std::vector).
+	//! Removes i-th element from vector.
 	//! Destructor is not called (unlike std::vector).
-	void erase(unsigned i)
+	void erase(C* e)
 	{
+		unsigned i = e-c;
 		if (numUsed)
 		{
 			numUsed--;

@@ -681,7 +681,7 @@ void RRObjects::deleteComponents(bool deleteTangents, bool deleteUnwrap, bool de
 		for (unsigned i=fg.size();i--;)
 		{
 			if (!fg[i].numTriangles)
-				fg.erase(i);
+				fg.erase(fg.begin()+i);
 		}
 	}
 
