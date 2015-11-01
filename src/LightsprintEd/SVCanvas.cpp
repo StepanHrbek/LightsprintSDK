@@ -495,14 +495,14 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 					for (unsigned j=0;j<scene->objects.size();j++)
 						if (objects[i]==scene->objects[j])
 						{
-							objects.erase(i);
+							objects.erase(objects.begin()+i);
 							break;
 						}
 				for (unsigned i=lights.size();i--;)
 					for (unsigned j=0;j<scene->lights.size();j++)
 						if (lights[i]==scene->lights[j])
 						{
-							lights.erase(i);
+							lights.erase(lights.begin()+i);
 							break;
 						}
 			}
