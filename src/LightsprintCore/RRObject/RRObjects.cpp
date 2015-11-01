@@ -790,7 +790,7 @@ void RRObjects::removeEmptyObjects()
 	for (unsigned i=0;i<size();i++)
 		if ((*this)[i]->getCollider()->getMesh()->getNumTriangles() && (*this)[i]->getCollider()->getMesh()->getNumVertices())
 			(*this)[numNonEmpty++] = (*this)[i];
-	numUsed = numNonEmpty;
+	resize(numNonEmpty);
 }
 
 void RRObjects::getAllMaterials(RRMaterials& materials) const
