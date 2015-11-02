@@ -647,9 +647,9 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 		if (mergeVertices && maxDistanceBetweenVerticesToSmooth>0)
 		{
 			if (numMeshesDifferentScales)
-				RRReporter::report(WARN,"Stitching distance approximated in %d/%zd meshes: instances have different scale.\n",numMeshesDifferentScales,arrays.size());
+				RRReporter::report(WARN,"Stitching distance approximated in %d/%"RR_SIZE_T"d meshes: instances have different scale.\n",numMeshesDifferentScales,arrays.size());
 			if (numMeshesNonUniformScale)
-				RRReporter::report(WARN,"Stitching distance approximated in %d/%zd meshes: non-uniform scale.\n",numMeshesNonUniformScale,arrays.size());
+				RRReporter::report(WARN,"Stitching distance approximated in %d/%"RR_SIZE_T"d meshes: non-uniform scale.\n",numMeshesNonUniformScale,arrays.size());
 		}
 	}
 }
@@ -1016,7 +1016,7 @@ unsigned RRObjects::loadLayer(int layerNumber, const RRString& path, const RRStr
 				RRReporter::report(INF3,"Not loaded %ls.\n",layerParameters.actualFilename.w_str());
 			}
 		}
-		RRReporter::report(INF2,"Loaded %d/%zd buffers from %ls<object name>%ls to layer %d.\n",result,size(),path.w_str(),ext.w_str(),layerNumber);
+		RRReporter::report(INF2,"Loaded %d/%"RR_SIZE_T"d buffers from %ls<object name>%ls to layer %d.\n",result,size(),path.w_str(),ext.w_str(),layerNumber);
 	}
 	return result;
 }

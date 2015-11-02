@@ -21,6 +21,11 @@
 #else
 	#define RR_ASSERT(a) 0
 #endif
+#ifdef _MSC_VER
+	#define RR_SIZE_T "I" // printf("%Id",size_t)
+#else
+	#define RR_SIZE_T "z" // printf("%zd",size_t)
+#endif
 
 namespace rr
 {

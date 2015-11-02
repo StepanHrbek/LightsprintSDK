@@ -321,7 +321,7 @@ rr::RRBuffer* DemoPlayer::getProjector(unsigned projectorIndex)
 	}
 	else
 	{
-		RR_LIMITED_TIMES(3,rr::RRReporter::report(rr::WARN,"\"projector = %d\" used in .ani, but only %zd projectors defined in .cfg.\n",projectorIndex,projectors.size()));
+		RR_LIMITED_TIMES(3,rr::RRReporter::report(rr::WARN,"\"projector = %d\" used in .ani, but only %"RR_SIZE_T"d projectors defined in .cfg.\n",projectorIndex,projectors.size()));
 		RR_ASSERT(0);
 		return nullptr;
 	}

@@ -714,7 +714,7 @@ try_next_channel:
 			goto try_next_channel;
 		}
 	}
-	RRReporter::report(INF2,"%zd meshes in %zd objects, unwrapping to channel %d.\n",meshes.size(),size(),unwrapChannel);
+	RRReporter::report(INF2,"%"RR_SIZE_T"d meshes in %"RR_SIZE_T"d objects, unwrapping to channel %d.\n",meshes.size(),size(),unwrapChannel);
 
 	// 3. change all lightmap.texcoord to unwrapChannel
 	for (unsigned i=0;i<objects.size();i++)
@@ -765,10 +765,10 @@ try_next_channel:
 #endif // !VS2003
 
 	if (aborting)
-		RRReporter::report(INF2,"Aborted after unwrapping %d of %zd meshes.\n",unwrapper.sumMeshesUnwrapped,meshes.size());
+		RRReporter::report(INF2,"Aborted after unwrapping %d of %"RR_SIZE_T"d meshes.\n",unwrapper.sumMeshesUnwrapped,meshes.size());
 	else
 	if (unwrapper.sumMeshesFailed)
-		RRReporter::report(WARN,"Failed to unwrap %d of %zd meshes.\n",unwrapper.sumMeshesFailed,meshes.size());
+		RRReporter::report(WARN,"Failed to unwrap %d of %"RR_SIZE_T"d meshes.\n",unwrapper.sumMeshesFailed,meshes.size());
 	if (unwrapper.sumMeshesUnwrapped)
 		RRReporter::report(INF2,"%.1f charts/mesh, vertex count increased by %d%%.\n",unwrapper.sumCharts/(float)unwrapper.sumMeshesUnwrapped,(int)(100*unwrapper.getVertexOverhead()));
 	return unwrapChannel;

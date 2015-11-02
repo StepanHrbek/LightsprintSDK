@@ -74,7 +74,7 @@ void SVSceneTree::updateContent(rr_gl::RRSolverGL* solver)
 	// update lights
 	if (solver)
 	{
-		SetItemText(lights,wxString::Format(_("%zd lights"),solver?solver->getLights().size():0));
+		SetItemText(lights,wxString::Format(_("%"RR_SIZE_T"d lights"),solver?solver->getLights().size():0));
 		DeleteChildren(lights);
 		for (unsigned i=0;solver && i<solver->getLights().size();i++)
 		{
@@ -91,7 +91,7 @@ void SVSceneTree::updateContent(rr_gl::RRSolverGL* solver)
 	// update static objects
 	if (solver)
 	{
-		SetItemText(staticObjects,wxString::Format(_("%zd static objects"),solver?solver->getStaticObjects().size():0));
+		SetItemText(staticObjects,wxString::Format(_("%"RR_SIZE_T"d static objects"),solver?solver->getStaticObjects().size():0));
 		DeleteChildren(staticObjects);
 		unsigned numStaticObjects = solver->getStaticObjects().size();
 		for (unsigned i=0;solver && i<numStaticObjects;i++)
@@ -108,7 +108,7 @@ void SVSceneTree::updateContent(rr_gl::RRSolverGL* solver)
 	// update dynamic objects
 	if (solver)
 	{
-		SetItemText(dynamicObjects,wxString::Format(_("%zd dynamic objects"),solver?solver->getDynamicObjects().size():0));
+		SetItemText(dynamicObjects,wxString::Format(_("%"RR_SIZE_T"d dynamic objects"),solver?solver->getDynamicObjects().size():0));
 		DeleteChildren(dynamicObjects);
 		unsigned numStaticObjects = solver->getStaticObjects().size();
 		unsigned numDynamicObjects = solver->getDynamicObjects().size();
