@@ -1278,7 +1278,7 @@ public:
 			if(activeScene == nullptr)
 			{
 				RRReporter::report(WARN,"Instanced visual scene not found in <library_visual_scenes>.\n");
-				return;
+				activeScene = &*visualSceneArray.begin();
 			}
 
 			// import all nodes from visual scene + library nodes
