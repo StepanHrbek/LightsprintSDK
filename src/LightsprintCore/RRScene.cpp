@@ -16,6 +16,8 @@
 #include <unordered_set>
 #include <regex> // wildcard matching
 #include <boost/algorithm/string/replace.hpp> // wildcard matching
+#include <boost/filesystem.hpp> // RRScene::save()
+namespace bf = boost::filesystem;
 
 namespace rr
 {
@@ -485,6 +487,54 @@ bool RRBuffer::save(const RRString& _filename, const char* _cubeSideName[6], con
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// preprocessed scene
+
+class OneMaterialPerObject : public RRScene
+{
+public:
+	OneMaterialPerObject(const RRScene& scene, unsigned copyLayerToMaterialLightmaps)
+	{
+		lights = scene.lights;
+		cameras = scene.cameras;
+		for (unsigned i=0;i<scene.objects.size();i++)
+		{
+			RRObjects origObjects;
+			RRMaterials origMaterials;
+			origObjects.push_back(scene.objects[i]);
+			origObjects.getAllMaterials(origMaterials);
+			RRObjects splitObjects = origObjects.mergeObjects(true);
+			for (unsigned j=0;j<splitObjects.size();j++)
+			{
+				splitObjects[j]->name = scene.objects[i]->name;
+				if (copyLayerToMaterialLightmaps!=UINT_MAX)
+				{
+					RRMaterial* m = new RRMaterial;
+					m->copyFrom(*splitObjects[j]->faceGroups[0].material);
+					m->lightmap.texture = scene.objects[i]->illumination.getLayer(copyLayerToMaterialLightmaps);
+					splitObjects[j]->faceGroups[0].material = m;
+					materials.push_back(m);
+				}
+				objects.push_back(splitObjects[j]);
+			}
+		}
+	}
+	~OneMaterialPerObject()
+	{
+		for (unsigned i=0;i<objects.size();i++)
+			delete objects[i];
+		for (unsigned i=0;i<materials.size();i++)
+		{
+			materials[i]->lightmap.texture = nullptr;
+			delete materials[i];
+		}
+	}
+private:
+	RRMaterials materials;
+};
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // RRScene loaders/savers
 
 static LoadersAndSavers2<RRScene> s_sceneLoadersAndSavers;
@@ -527,7 +577,20 @@ RRScene::RRScene(const RRString& _filename, RRFileLocator* _textureLocator, bool
 
 bool RRScene::save(const RRString& filename) const
 {
-	return s_sceneLoadersAndSavers.save(this,filename,"Scene");
+	std::string ext = bf::path(RR_RR2PATH(filename)).extension().string();
+	
+	// these can be controlled by additional parameters sent to save(),
+	// but let's guess what user wants and keep API simple, for now
+	#define SUPPORTS_MULTIMATERIALS ext==".rr3"
+	#define LIGHTMAP_LAYER 192837463 // default lightmap layer number in SceneViewer
+
+	// directly save multimaterials to capable fileformats
+	if (SUPPORTS_MULTIMATERIALS)
+		return s_sceneLoadersAndSavers.save(this,filename,"Scene");
+
+	// split multimaterials for other fileformats; and copy lightmaps to materials
+	OneMaterialPerObject oneMaterialPerObject(*this,LIGHTMAP_LAYER);
+	return s_sceneLoadersAndSavers.save(&oneMaterialPerObject,filename,"Scene");
 }
 
 
