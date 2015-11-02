@@ -1895,8 +1895,12 @@ rr::RRScene* SVFrame::loadScene(const wxString& _filename, bool _transformations
 	}
 	if (lightmapsFound)
 	{
-		// maybe we should automatically switch renderer to lightmap mode after import of lightmaps?
-		rr::RRReporter::report(rr::INF2,"Lightmaps imported, switch \"Global Illumination/Technique\" to \"lightmaps\" to see them.\n");
+		// automatically switch renderer to lightmap mode after import of lightmaps
+		if (svs.renderLightIndirect != LI_LIGHTMAPS)
+		{
+			rr::RRReporter::report(rr::INF2,"Lightmaps imported, switching \"Global Illumination/Technique\" to \"lightmaps\" to show them.\n");
+			svs.renderLightIndirect = LI_LIGHTMAPS;
+		}
 	}
 
 	if (_transformations)
