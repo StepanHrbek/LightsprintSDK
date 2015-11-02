@@ -886,6 +886,9 @@
     <ClCompile Include="OpenCollada\COLLADAFramework\src\COLLADAFWInstanceKinematicsScene.cpp">
       <Filter>OpenCollada\COLLADAFramework\src</Filter>
     </ClCompile>
+    <ClCompile Include="FFmpeg\RRBufferFFmpeg.cpp">
+      <Filter>FFmpeg</Filter>
+    </ClCompile>
     <ClCompile Include="Assimp\code\3DSConverter.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -914,9 +917,6 @@
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="Assimp\code\AssimpCExport.cpp">
-      <Filter>Assimp\code</Filter>
-    </ClCompile>
-    <ClCompile Include="Assimp\code\AssimpPCH.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="Assimp\code\AssxmlExporter.cpp">
@@ -953,6 +953,9 @@
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="Assimp\code\BVHLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="Assimp\code\C4DImporter.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="Assimp\code\CalcTangentsProcess.cpp">
@@ -1063,7 +1066,7 @@
     <ClCompile Include="Assimp\code\HMPLoader.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
-    <ClCompile Include="Assimp\code\IfcBoolean.cpp">
+    <ClCompile Include="Assimp\code\IFCBoolean.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="Assimp\code\IFCCurve.cpp">
@@ -1195,6 +1198,12 @@
     <ClCompile Include="Assimp\code\OgreXmlSerializer.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="Assimp\code\OpenGEXExporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="Assimp\code\OpenGEXImporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="Assimp\code\OptimizeGraph.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -1273,6 +1282,9 @@
     <ClCompile Include="Assimp\code\StandardShapes.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="Assimp\code\StepExporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="Assimp\code\STEPFileEncoding.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -1306,6 +1318,9 @@
     <ClCompile Include="Assimp\code\ValidateDataStructure.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
+    <ClCompile Include="Assimp\code\Version.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
     <ClCompile Include="Assimp\code\VertexTriangleAdjacency.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -1320,9 +1335,6 @@
     </ClCompile>
     <ClCompile Include="Assimp\code\XGLLoader.cpp">
       <Filter>Assimp\code</Filter>
-    </ClCompile>
-    <ClCompile Include="FFmpeg\RRBufferFFmpeg.cpp">
-      <Filter>FFmpeg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2402,6 +2414,57 @@
     <ClInclude Include="Isolation\RRSceneIsolation.h">
       <Filter>Isolation</Filter>
     </ClInclude>
+    <ClInclude Include="Assimp\include\assimp\Compiler\poppack1.h">
+      <Filter>Assimp\include\compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\include\assimp\Compiler\pushpack1.h">
+      <Filter>Assimp\include\compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\contrib\clipper\clipper.hpp">
+      <Filter>Assimp\contrib\clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\poly2tri.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\common\shapes.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\common\utils.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\sweep\advancing_front.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\sweep\cdt.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\sweep\sweep.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\sweep\sweep_context.h">
+      <Filter>Assimp\contrib\poly2tri</Filter>
+    </ClInclude>
+    <ClInclude Include="SmallLuxGpu\SmallLuxGpu.h">
+      <Filter>SmallLuxGpu</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenCollada\COLLADAFramework\include\COLLADAFWPolylist.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenCollada\COLLADAFramework\include\COLLADAFWSpline.h">
+      <Filter>OpenCollada\COLLADAFramework\include</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSplineLoader.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSplineLoader14.h">
+      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\include\assimp\Compiler\pstdint.h">
+      <Filter>Assimp\include\compiler</Filter>
+    </ClInclude>
+    <ClInclude Include="FFmpeg\RRBufferFFmpeg.h">
+      <Filter>FFmpeg</Filter>
+    </ClInclude>
     <ClInclude Include="Assimp\include\assimp\ai_assert.h">
       <Filter>Assimp\include</Filter>
     </ClInclude>
@@ -2468,6 +2531,9 @@
     <ClInclude Include="Assimp\include\assimp\mesh.h">
       <Filter>Assimp\include</Filter>
     </ClInclude>
+    <ClInclude Include="Assimp\include\assimp\metadata.h">
+      <Filter>Assimp\include</Filter>
+    </ClInclude>
     <ClInclude Include="Assimp\include\assimp\NullLogger.hpp">
       <Filter>Assimp\include</Filter>
     </ClInclude>
@@ -2498,54 +2564,6 @@
     <ClInclude Include="Assimp\include\assimp\version.h">
       <Filter>Assimp\include</Filter>
     </ClInclude>
-    <ClInclude Include="Assimp\include\assimp\Compiler\poppack1.h">
-      <Filter>Assimp\include\compiler</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\include\assimp\Compiler\pushpack1.h">
-      <Filter>Assimp\include\compiler</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\contrib\clipper\clipper.hpp">
-      <Filter>Assimp\contrib\clipper</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\poly2tri.h">
-      <Filter>Assimp\contrib\poly2tri</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\common\shapes.h">
-      <Filter>Assimp\contrib\poly2tri</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\common\utils.h">
-      <Filter>Assimp\contrib\poly2tri</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\sweep\advancing_front.h">
-      <Filter>Assimp\contrib\poly2tri</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\sweep\cdt.h">
-      <Filter>Assimp\contrib\poly2tri</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\sweep\sweep.h">
-      <Filter>Assimp\contrib\poly2tri</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\contrib\poly2tri\poly2tri\sweep\sweep_context.h">
-      <Filter>Assimp\contrib\poly2tri</Filter>
-    </ClInclude>
-    <ClInclude Include="SmallLuxGpu\SmallLuxGpu.h">
-      <Filter>SmallLuxGpu</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenCollada\COLLADAFramework\include\COLLADAFWPolylist.h">
-      <Filter>OpenCollada\COLLADAFramework\include</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenCollada\COLLADAFramework\include\COLLADAFWSpline.h">
-      <Filter>OpenCollada\COLLADAFramework\include</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenCollada\COLLADASaxFrameworkLoader\include\COLLADASaxFWLSplineLoader.h">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include</Filter>
-    </ClInclude>
-    <ClInclude Include="OpenCollada\COLLADASaxFrameworkLoader\include\generated14\COLLADASaxFWLSplineLoader14.h">
-      <Filter>OpenCollada\COLLADASaxFrameworkLoader\include\generated14</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\include\assimp\Compiler\pstdint.h">
-      <Filter>Assimp\include\compiler</Filter>
-    </ClInclude>
     <ClInclude Include="Assimp\code\3DSExporter.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
@@ -2571,9 +2589,6 @@
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="Assimp\code\AssbinLoader.h">
-      <Filter>Assimp\code</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\code\AssimpPCH.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="Assimp\code\AssxmlExporter.h">
@@ -2621,7 +2636,10 @@
     <ClInclude Include="Assimp\code\BVHLoader.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
-    <ClInclude Include="Assimp\code\ByteSwap.h">
+    <ClInclude Include="Assimp\code\ByteSwapper.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\code\C4DImporter.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="Assimp\code\CalcTangentsProcess.h">
@@ -2667,6 +2685,9 @@
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="Assimp\code\DefaultProgressHandler.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\code\Defines.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="Assimp\code\DXFHelper.h">
@@ -2804,6 +2825,9 @@
     <ClInclude Include="Assimp\code\LWSLoader.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
+    <ClInclude Include="Assimp\code\Macros.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
     <ClInclude Include="Assimp\code\MakeVerboseFormat.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
@@ -2900,6 +2924,15 @@
     <ClInclude Include="Assimp\code\OgreXmlSerializer.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
+    <ClInclude Include="Assimp\code\OpenGEXExporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\code\OpenGEXImporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\code\OpenGEXStructs.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
     <ClInclude Include="Assimp\code\OptimizeGraph.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
@@ -2960,6 +2993,9 @@
     <ClInclude Include="Assimp\code\RemoveVCProcess.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
+    <ClInclude Include="Assimp\code\revision.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
     <ClInclude Include="Assimp\code\SceneCombiner.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
@@ -2997,6 +3033,9 @@
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="Assimp\code\StdOStreamLogStream.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\code\StepExporter.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
     <ClInclude Include="Assimp\code\STEPFile.h">
@@ -3073,9 +3112,6 @@
     </ClInclude>
     <ClInclude Include="Assimp\code\XMLTools.h">
       <Filter>Assimp\code</Filter>
-    </ClInclude>
-    <ClInclude Include="FFmpeg\RRBufferFFmpeg.h">
-      <Filter>FFmpeg</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

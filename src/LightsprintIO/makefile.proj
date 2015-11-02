@@ -43,7 +43,6 @@ Assimp/code/ASEParser.cpp \
 Assimp/code/AssbinExporter.cpp \
 Assimp/code/AssbinLoader.cpp \
 Assimp/code/Assimp.cpp \
-Assimp/code/AssimpPCH.cpp \
 Assimp/code/AssimpCExport.cpp \
 Assimp/code/AssxmlExporter.cpp \
 Assimp/code/B3Der.cpp \
@@ -134,6 +133,8 @@ Assimp/code/ObjFileParser.cpp \
 Assimp/code/OFFLoader.cpp \
 Assimp/code/OgreBinarySerializer.cpp \
 Assimp/code/Ogreer.cpp \
+Assimp/code/OgreGEXExporter.cpp \
+Assimp/code/OgreGEXImporter.cpp \
 Assimp/code/OgreMaterial.cpp \
 Assimp/code/OgreStructs.cpp \
 Assimp/code/OgreXmlSerializer.cpp \
@@ -163,6 +164,7 @@ Assimp/code/SpatialSort.cpp \
 Assimp/code/SplitByBoneCountProcess.cpp \
 Assimp/code/SplitLargeMeshes.cpp \
 Assimp/code/StandardShapes.cpp \
+Assimp/code/StepExporter.cpp \
 Assimp/code/STEPFileEncoding.cpp \
 Assimp/code/STEPFileReader.cpp \
 Assimp/code/STLExporter.cpp \
@@ -174,6 +176,7 @@ Assimp/code/TextureTransform.cpp \
 Assimp/code/TriangulateProcess.cpp \
 Assimp/code/UnrealLoader.cpp \
 Assimp/code/ValidateDataStructure.cpp \
+Assimp/code/Version.cpp \
 Assimp/code/VertexTriangleAdjacency.cpp \
 Assimp/code/XFileer.cpp \
 Assimp/code/XFileExporter.cpp \

@@ -41,8 +41,8 @@
   <Import Project="..\..\src\configs\rr_lib.props" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;OpenCollada\COLLADASaxFrameworkLoader\include\generated15;OpenCollada\COLLADASaxFrameworkLoader\include\generated14;OpenCollada\COLLADASaxFrameworkLoader\include;OpenCollada\COLLADABaseUtils\include;OpenCollada\COLLADAFramework\include;OpenCollada\GeneratedSaxParser\include;OpenCollada\Externals\expat\lib;OpenCollada\Externals\MathMLSolver\include;OpenCollada\Externals\MathMLSolver\include\AST;OpenCollada\Externals\pcre\include;OpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;WIN32;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;SUPPORT_OCULUS;RR_IO_BUILD;ASSIMP_BUILD_NO_C4D_IMPORTER;NISHIPPING;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Assimp\include;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;OpenCollada\COLLADASaxFrameworkLoader\include\generated15;OpenCollada\COLLADASaxFrameworkLoader\include\generated14;OpenCollada\COLLADASaxFrameworkLoader\include;OpenCollada\COLLADABaseUtils\include;OpenCollada\COLLADAFramework\include;OpenCollada\GeneratedSaxParser\include;OpenCollada\Externals\expat\lib;OpenCollada\Externals\MathMLSolver\include;OpenCollada\Externals\MathMLSolver\include\AST;OpenCollada\Externals\pcre\include;OpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;WIN32;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;SUPPORT_OCULUS;RR_IO_BUILD;ASSIMP_BUILD_NO_C4D_IMPORTER;ASSIMP_BUILD_NO_OPENGEX_IMPORTER;NISHIPPING;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>C:\Program Files\Microsoft DirectX SDK (August 2008)\Lib\x86;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -61,7 +61,6 @@
     <ClCompile Include="Assimp\code\AssbinLoader.cpp" />
     <ClCompile Include="Assimp\code\Assimp.cpp" />
     <ClCompile Include="Assimp\code\AssimpCExport.cpp" />
-    <ClCompile Include="Assimp\code\AssimpPCH.cpp" />
     <ClCompile Include="Assimp\code\AssxmlExporter.cpp" />
     <ClCompile Include="Assimp\code\B3DImporter.cpp" />
     <ClCompile Include="Assimp\code\BaseImporter.cpp" />
@@ -74,6 +73,7 @@
     <ClCompile Include="Assimp\code\BlenderScene.cpp" />
     <ClCompile Include="Assimp\code\BlenderTessellator.cpp" />
     <ClCompile Include="Assimp\code\BVHLoader.cpp" />
+    <ClCompile Include="Assimp\code\C4DImporter.cpp" />
     <ClCompile Include="Assimp\code\CalcTangentsProcess.cpp" />
     <ClCompile Include="Assimp\code\COBLoader.cpp" />
     <ClCompile Include="Assimp\code\ColladaExporter.cpp" />
@@ -110,7 +110,7 @@
     <ClCompile Include="Assimp\code\GenFaceNormalsProcess.cpp" />
     <ClCompile Include="Assimp\code\GenVertexNormalsProcess.cpp" />
     <ClCompile Include="Assimp\code\HMPLoader.cpp" />
-    <ClCompile Include="Assimp\code\IfcBoolean.cpp" />
+    <ClCompile Include="Assimp\code\IFCBoolean.cpp" />
     <ClCompile Include="Assimp\code\IFCCurve.cpp" />
     <ClCompile Include="Assimp\code\IFCGeometry.cpp" />
     <ClCompile Include="Assimp\code\IFCLoader.cpp" />
@@ -154,6 +154,8 @@
     <ClCompile Include="Assimp\code\OgreMaterial.cpp" />
     <ClCompile Include="Assimp\code\OgreStructs.cpp" />
     <ClCompile Include="Assimp\code\OgreXmlSerializer.cpp" />
+    <ClCompile Include="Assimp\code\OpenGEXExporter.cpp" />
+    <ClCompile Include="Assimp\code\OpenGEXImporter.cpp" />
     <ClCompile Include="Assimp\code\OptimizeGraph.cpp" />
     <ClCompile Include="Assimp\code\OptimizeMeshes.cpp" />
     <ClCompile Include="Assimp\code\PlyExporter.cpp" />
@@ -180,6 +182,7 @@
     <ClCompile Include="Assimp\code\SplitByBoneCountProcess.cpp" />
     <ClCompile Include="Assimp\code\SplitLargeMeshes.cpp" />
     <ClCompile Include="Assimp\code\StandardShapes.cpp" />
+    <ClCompile Include="Assimp\code\StepExporter.cpp" />
     <ClCompile Include="Assimp\code\STEPFileEncoding.cpp" />
     <ClCompile Include="Assimp\code\STEPFileReader.cpp" />
     <ClCompile Include="Assimp\code\STLExporter.cpp" />
@@ -191,6 +194,7 @@
     <ClCompile Include="Assimp\code\TriangulateProcess.cpp" />
     <ClCompile Include="Assimp\code\UnrealLoader.cpp" />
     <ClCompile Include="Assimp\code\ValidateDataStructure.cpp" />
+    <ClCompile Include="Assimp\code\Version.cpp" />
     <ClCompile Include="Assimp\code\VertexTriangleAdjacency.cpp" />
     <ClCompile Include="Assimp\code\XFileExporter.cpp" />
     <ClCompile Include="Assimp\code\XFileImporter.cpp" />
@@ -449,7 +453,6 @@
     <ClInclude Include="Assimp\code\AssbinExporter.h" />
     <ClInclude Include="Assimp\code\AssbinLoader.h" />
     <ClInclude Include="Assimp\code\assbin_chunks.h" />
-    <ClInclude Include="Assimp\code\AssimpPCH.h" />
     <ClInclude Include="Assimp\code\AssxmlExporter.h" />
     <ClInclude Include="Assimp\code\B3DImporter.h" />
     <ClInclude Include="Assimp\code\BaseImporter.h" />
@@ -465,7 +468,8 @@
     <ClInclude Include="Assimp\code\BlenderTessellator.h" />
     <ClInclude Include="Assimp\code\BlobIOSystem.h" />
     <ClInclude Include="Assimp\code\BVHLoader.h" />
-    <ClInclude Include="Assimp\code\ByteSwap.h" />
+    <ClInclude Include="Assimp\code\ByteSwapper.h" />
+    <ClInclude Include="Assimp\code\C4DImporter.h" />
     <ClInclude Include="Assimp\code\CalcTangentsProcess.h" />
     <ClInclude Include="Assimp\code\CInterfaceIOWrapper.h" />
     <ClInclude Include="Assimp\code\COBLoader.h" />
@@ -481,6 +485,7 @@
     <ClInclude Include="Assimp\code\DefaultIOStream.h" />
     <ClInclude Include="Assimp\code\DefaultIOSystem.h" />
     <ClInclude Include="Assimp\code\DefaultProgressHandler.h" />
+    <ClInclude Include="Assimp\code\Defines.h" />
     <ClInclude Include="Assimp\code\DXFHelper.h" />
     <ClInclude Include="Assimp\code\DXFLoader.h" />
     <ClInclude Include="Assimp\code\Exceptional.h" />
@@ -526,6 +531,7 @@
     <ClInclude Include="Assimp\code\LWOFileData.h" />
     <ClInclude Include="Assimp\code\LWOLoader.h" />
     <ClInclude Include="Assimp\code\LWSLoader.h" />
+    <ClInclude Include="Assimp\code\Macros.h" />
     <ClInclude Include="Assimp\code\MakeVerboseFormat.h" />
     <ClInclude Include="Assimp\code\MaterialSystem.h" />
     <ClInclude Include="Assimp\code\MD2FileData.h" />
@@ -558,6 +564,9 @@
     <ClInclude Include="Assimp\code\OgreParsingUtils.h" />
     <ClInclude Include="Assimp\code\OgreStructs.h" />
     <ClInclude Include="Assimp\code\OgreXmlSerializer.h" />
+    <ClInclude Include="Assimp\code\OpenGEXExporter.h" />
+    <ClInclude Include="Assimp\code\OpenGEXImporter.h" />
+    <ClInclude Include="Assimp\code\OpenGEXStructs.h" />
     <ClInclude Include="Assimp\code\OptimizeGraph.h" />
     <ClInclude Include="Assimp\code\OptimizeMeshes.h" />
     <ClInclude Include="Assimp\code\ParsingUtils.h" />
@@ -592,6 +601,7 @@
     <ClInclude Include="Assimp\code\SplitLargeMeshes.h" />
     <ClInclude Include="Assimp\code\StandardShapes.h" />
     <ClInclude Include="Assimp\code\StdOStreamLogStream.h" />
+    <ClInclude Include="Assimp\code\StepExporter.h" />
     <ClInclude Include="Assimp\code\STEPFile.h" />
     <ClInclude Include="Assimp\code\STEPFileEncoding.h" />
     <ClInclude Include="Assimp\code\STEPFileReader.h" />
@@ -653,6 +663,7 @@
     <ClInclude Include="Assimp\include\assimp\matrix3x3.h" />
     <ClInclude Include="Assimp\include\assimp\matrix4x4.h" />
     <ClInclude Include="Assimp\include\assimp\mesh.h" />
+    <ClInclude Include="Assimp\include\assimp\metadata.h" />
     <ClInclude Include="Assimp\include\assimp\NullLogger.hpp" />
     <ClInclude Include="Assimp\include\assimp\postprocess.h" />
     <ClInclude Include="Assimp\include\assimp\ProgressHandler.hpp" />
