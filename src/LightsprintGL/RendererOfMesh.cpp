@@ -351,7 +351,7 @@ void MeshArraysVBOs::renderMesh(
 				boundUvChannel[_vaa] = _uvChannel;
 				if (_uvChannel>=_texcoordVBO.size() || _texcoordVBO[_uvChannel]==0)
 				{
-					RR_LIMITED_TIMES(10,rr::RRReporter::report(rr::WARN,"Material '%s' in object '%s' needs non existing uv channel %d (texcoord.size=%"RR_SIZE_T"d).\n",_materialName.c_str(),_objectName.c_str(),_uvChannel,_texcoordVBO.size()));
+					RR_LIMITED_TIMES(10,rr::RRReporter::report(rr::WARN,"Material '%s' in object '%s' needs non existing uv channel %d (texcoord.size=%" RR_SIZE_T "d).\n",_materialName.c_str(),_objectName.c_str(),_uvChannel,_texcoordVBO.size()));
 					return;
 				}
 				BIND_VBO2(_vaa,_texcoordVBO[_uvChannel]);
@@ -574,7 +574,7 @@ MeshArraysVBOs* MeshVBOs::getMeshArraysVBOs(const rr::RRMesh* _mesh, bool _index
 				_mesh->getUvChannels(s_helpers.texcoords);
 				if (s_helpers.texcoords.size()>20)
 				{
-					rr::RRReporter::report(rr::WARN,"Mesh has %"RR_SIZE_T"d uv channels, consider removing some to save memory.\n",s_helpers.texcoords.size());
+					rr::RRReporter::report(rr::WARN,"Mesh has %" RR_SIZE_T "d uv channels, consider removing some to save memory.\n",s_helpers.texcoords.size());
 				}
 				// copy data to arrays
 				s_helpers.meshArrays.reload(_mesh,_indexed,s_helpers.texcoords,true); // [#11] !arrays don't expose presence of tangents. always copy tangents to VBO even though some memory is wasted when there are no tangents; this allows PluginScene to render multiobj instead of many 1objs

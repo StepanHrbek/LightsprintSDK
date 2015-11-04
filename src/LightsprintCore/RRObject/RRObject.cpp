@@ -459,7 +459,7 @@ unsigned RRObjects::checkConsistency(const char* objectType) const
 	unsigned numReports = 0;
 	for (unsigned i=0;i<size();i++)
 	{
-		const char* objectNumber = tmpstr("%s%sobject %d/%"RR_SIZE_T"d",objectType?objectType:"",objectType?" ":"",i,size());
+		const char* objectNumber = tmpstr("%s%sobject %d/%" RR_SIZE_T "d",objectType?objectType:"",objectType?" ":"",i,size());
 		numReports += (*this)[i]->checkConsistency(objectNumber);
 	}
 	return numReports;

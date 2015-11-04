@@ -2595,7 +2595,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					if (selectedPointObject->isDynamic)
 						textOutput(x,y+=18,h,"dynamic object: %ls",selectedPointObject->name.w_str());
 					else
-						textOutput(x,y+=18,h,"static object: %d/%"RR_SIZE_T"d",preTriangle.object,solver->getStaticObjects().size());
+						textOutput(x,y+=18,h,"static object: %d/%" RR_SIZE_T "d",preTriangle.object,solver->getStaticObjects().size());
 					rr::RRBuffer* selectedPointLightmap = selectedPointObject->illumination.getLayer(svs.layerBakedLightmap);
 					textOutput(x,y+=18,h,"offline lightmap: %s %dx%d",selectedPointLightmap?(selectedPointLightmap->getType()==rr::BT_2D_TEXTURE?"per-pixel":"per-vertex"):"none",selectedPointLightmap?selectedPointLightmap->getWidth():0,selectedPointLightmap?selectedPointLightmap->getHeight():0);
 					if (selectedPointObject->isDynamic)

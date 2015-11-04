@@ -443,7 +443,7 @@ public:
 					unsigned triangleInFgLastPlus1 = 0;
 					bool objectWillBeRendered = false; // solid 1obj won't be rendered if we mix solid from multiobj and blended from 1objs. then it does not need indirect updated
 					if (faceGroups.size()>65535) // FaceGroupRange contains 16bit shorts
-						RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Object has %"RR_SIZE_T"d facegroups, that's sick (we render only first 65535).\n",faceGroups.size()));
+						RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Object has %" RR_SIZE_T "d facegroups, that's sick (we render only first 65535).\n",faceGroups.size()));
 					for (unsigned g=0;g<faceGroups.size();g++)
 					{
 						triangleInFgLastPlus1 += faceGroups[g].numTriangles;

@@ -299,7 +299,7 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 
 	// create new
 
-	RRReportInterval report(_copyFrom?INF9:INF2,"Attaching %"RR_SIZE_T"d static objects...\n",getStaticObjects().size());
+	RRReportInterval report(_copyFrom?INF9:INF2,"Attaching %" RR_SIZE_T "d static objects...\n",getStaticObjects().size());
 
 	// create multi in custom scale
 	unsigned origNumVertices = 0;

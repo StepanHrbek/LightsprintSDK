@@ -617,7 +617,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 		// - copying this condition to distant place would make code unnecessarily complex
 		//   (this simple condition depends on 2 other places that set rays)
 		// - performance loss is very small
-		//RR_LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%"RR_SIZE_T"d, material.accepted.lights=%d, lightMultiplier=%f, env=%d, environmentMultiplier=%f).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params.lightDirectMultiplier,pti.context.solver->getEnvironment()?1:0,pti.context.params.environmentMultiplier));
+		//RR_LIMITED_TIMES(1,RRReporter::report(WARN,"processTexel: No lightsources (lights=%" RR_SIZE_T "d, material.accepted.lights=%d, lightMultiplier=%f, env=%d, environmentMultiplier=%f).\n",pti.context.solver->getLights().size(),gilights.getNumMaterialAcceptedLights(),pti.context.params.lightDirectMultiplier,pti.context.solver->getEnvironment()?1:0,pti.context.params.environmentMultiplier));
 		return ProcessTexelResult();
 	}
 
