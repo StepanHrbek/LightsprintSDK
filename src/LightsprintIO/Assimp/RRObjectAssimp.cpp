@@ -13,6 +13,7 @@
 #include "RRObjectAssimp.h"
 #include "Lightsprint/RRScene.h"
 #include "include/assimp/cimport.h"
+#include "include/assimp/cexport.h"
 #include "include/assimp/config.h"
 #include "include/assimp/postprocess.h"
 #include "include/assimp/scene.h"
@@ -37,41 +38,37 @@ using namespace rr;
 //
 // utility functions
 
-inline RRVec2 convertUv(const aiVector3D& v)
+static RRVec2 convertUv(const aiVector3D& v)
 {
 	return RRVec2(v.x, v.y);
 }
 
-inline RRVec3 convertPos(const aiVector3D& v)
+static RRVec3 convertPos(const aiVector3D& v)
 {
 	return RRVec3(v.x, v.y, v.z);
 }
 
-inline RRVec3 convertDir(const aiVector3D& v)
+static RRVec3 convertDir(const aiVector3D& v)
 {
 	return RRVec3(v.x, v.y, v.z);
 }
 
-inline RRVec3 convertColor(const aiColor3D& c)
+static RRVec3 convertColor(const aiColor3D& c)
 {
 	return RRVec3(c.r, c.g, c.b);
 }
 
-inline const char* convertStr(const aiString& s)
+static RRString convertStr(const aiString& s)
 {
 	return s.data;
 }
 
-RRMatrix3x4 convertMatrix(const aiMatrix4x4& transform)
+static RRMatrix3x4 convertMatrix(const aiMatrix4x4& m)
 {
-	RRMatrix3x4 wm;
-	for (unsigned i=0;i<3;i++)
-		for (unsigned j=0;j<4;j++)
-			wm.m[i][j] = transform[i][j];
-	return wm;
+	return RRMatrix3x4(m[0][0],m[0][1],m[0][2],m[0][3], m[1][0],m[1][1],m[1][2],m[1][3], m[2][0],m[2][1],m[2][2],m[2][3]);
 }
 
-RRCamera convertCamera(const aiCamera& c)
+static RRCamera convertCamera(const aiCamera& c)
 {
 	RRCamera camera(convertPos(c.mPosition),RRVec3(0),c.mAspect?c.mAspect:1,90,c.mClipPlaneNear,c.mClipPlaneFar);
 	camera.setDirection(convertDir(c.mLookAt));
@@ -124,8 +121,8 @@ public:
 			aiShadingMode model = aiShadingMode_Phong;
 			aimaterial->Get(AI_MATKEY_SHADING_MODEL,model);
 			material.specularModel = (model==aiShadingMode_Blinn)
-				? ((material.specularShininess<=1)?rr::RRMaterial::BLINN_TORRANCE_SPARROW:rr::RRMaterial::BLINN_PHONG)
-				: rr::RRMaterial::PHONG;
+				? ((material.specularShininess<=1)?RRMaterial::BLINN_TORRANCE_SPARROW:RRMaterial::BLINN_PHONG)
+				: RRMaterial::PHONG;
 
 			// diffuseReflectance
 			if (model==aiShadingMode_NoShading)
@@ -209,7 +206,7 @@ public:
 			}
 
 			// final decision on number of sides
-			if (unknownNumberOfSides && material.specularTransmittance.color!=rr::RRVec3(0))
+			if (unknownNumberOfSides && material.specularTransmittance.color!=RRVec3(0))
 			{
 				// turn transparent 1-sided into 2-sided, it could be closer to what user expects (e.g. sanmiguel.obj leaves clearly need 2-sided, while walls are fine with any setting, but 1-sided walls need less fillrate)
 				material.sideBits[1].renderFrom = 1;
@@ -454,7 +451,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// RRSceneAssimp
+// RRSceneAssimp - importer
 
 class RRSceneAssimp : public RRScene
 {
@@ -531,7 +528,7 @@ void registerLoaderAssimp()
 {
 	aiString extensions;
 	aiGetExtensionList(&extensions);
-	std::string str(convertStr(extensions));
+	std::string str(extensions.C_Str());
 #if defined(SUPPORT_OPENCOLLADA) || defined(SUPPORT_FCOLLADA)
 	// hide assimp collada loader if better one exists
 	if (str.find("*.dae;")!=std::string::npos)
