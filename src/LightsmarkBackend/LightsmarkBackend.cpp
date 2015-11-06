@@ -1907,7 +1907,7 @@ int main(int argc, char** argv)
 	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2015 [Linux %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #endif
 
-	rr_io::registerLoaders(argc,argv);
+	rr_io::registerIO(argc,argv);
 
 #ifdef SUPPORT_RR_ED
 	if (customScene)

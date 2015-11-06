@@ -354,7 +354,7 @@ int main(int argc, char** argv)
 	//rr::RRReporter::setFilter(true,3,true); // log more
 	//rr_gl::Program::logMessages(true); // log also results of shader compiler
 
-	rr_io::registerLoaders(argc,argv);
+	rr_io::registerIO(argc,argv);
 
 	// init GLUT
 	glutInit(&argc, argv);

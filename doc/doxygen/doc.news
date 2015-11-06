@@ -27,6 +27,7 @@ NEWS
   - import of *.ifc, *.ifczip
   - importers load lightmaps from material's lightmap or ambient channel (e.g. Collada has ambient)
   - RRBuffer::getSupportedLoaderExtensions() and RRBuffer::getSupportedSaverExtensions()
+  - you can export in isolated process, see rr_io::isolateIO()
 - Visual Studio 2015 support
 - misc
   - RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
@@ -39,6 +40,9 @@ CHANGES
 - removed loadLicense(), no longer needed
 - removed RRCollider::intersectBatch(), probably never used
 - RRMaterial::lightmap .texcoord replaces RRMaterial::lightmapTexcoord, for easier import/export of lightmaps in various scene formats (collada..)
+- renames in rr_io
+  - rr_io::registerLoaders() renamed to rr_io::registerIO(), because it registers also savers
+  - rr_io::isolateSceneLoaders() renamed to rr_io::isolateIO(), because it isolates also scene exporters
 
 \section news145 ------------------------------------ 2015.02.11 -------------------------------------
 

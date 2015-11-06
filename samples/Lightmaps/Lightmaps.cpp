@@ -388,7 +388,7 @@ int main(int argc, char** argv)
 	// log messages to console
 	rr::RRReporter::createPrintfReporter();
 
-	rr_io::registerLoaders(argc,argv);
+	rr_io::registerIO(argc,argv);
 
 	// init GLUT
 	glutInit(&argc, argv);

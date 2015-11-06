@@ -36,7 +36,7 @@ public:
 	//! Scene load is attempted using loaders registered via registerLoader().
 	//! Loaders for ~35 formats (\ref supported_formats)
 	//! are implemented in LightsprintIO library,
-	//! rr_io::registerLoaders() will register all of them for you.
+	//! rr_io::registerIO() will register all of them for you.
 	//!
 	//! Our loaders try to load all textures from proper paths specified by scene file,
 	//! but if it fails, additional attempts are made as specified by textureLocator.
@@ -130,7 +130,7 @@ public:
 	//! Extensions are case insensitive, in "*.dae;*.3ds;*.md5mesh" format.
 	//!
 	//! Several loaders are implemented in LightsprintIO library,
-	//! rr_io::registerLoaders() will register all of them for you (by calling this function several times).
+	//! rr_io::registerIO() will register all of them for you (by calling this function several times).
 	//!
 	//! Multiple loaders may be registered, even for the same extension.
 	//! If first loader fails to load scene, second one is tried etc.

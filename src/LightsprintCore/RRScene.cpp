@@ -249,7 +249,7 @@ struct LoadersAndSavers2 : public LoadersAndSavers1<RRClass>
 		// test whether loaders were registered
 		if (loaders.empty())
 		{
-			RRReporter::report(WARN,"No loaders registered, call rr_io::registerLoaders() or RR%s::registerLoader() first.\n",classname);
+			RRReporter::report(WARN,"No loaders registered, call rr_io::registerIO() or RR%s::registerLoader() first.\n",classname);
 			return nullptr;
 		}
 
@@ -323,7 +323,7 @@ struct LoadersAndSavers2 : public LoadersAndSavers1<RRClass>
 		// test whether savers were registered
 		if (savers.empty())
 		{
-			RRReporter::report(WARN,"No savers registered, call rr_io::registerLoaders() or RR%s::registerSaver() first.\n",classname);
+			RRReporter::report(WARN,"No savers registered, call rr_io::registerIO() or RR%s::registerSaver() first.\n",classname);
 			return false;
 		}
 

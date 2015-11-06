@@ -336,7 +336,7 @@ int main(int argc, char** argv)
 	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
 	//rr::RRReporter::setFilter(true,1,true);
 
-	rr_io::registerLoaders(argc,argv);
+	rr_io::registerIO(argc,argv);
 
 	// init keys
 	memset(keyPressed,sizeof(keyPressed),0);

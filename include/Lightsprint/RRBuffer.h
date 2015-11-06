@@ -470,12 +470,12 @@ namespace rr
 		typedef bool (Saver)(RRBuffer* buffer, const RRString& filenameMask, const char* cubeSideName[6], const SaveParameters* parameters);
 		//! Hooks external code that handles loading content from files into new buffers.
 		//
-		//! Usually called from rr_io::registerLoaders().
+		//! Usually called from rr_io::registerIO().
 		//! Initial state is no code hooked, attempts to load buffer are ignored, load() returns nullptr.
 		static void registerLoader(const char* extensions, Loader* loader);
 		//! Hooks external code that handles saving images to disk.
 		//
-		//! Usually called from rr_io::registerLoaders().
+		//! Usually called from rr_io::registerIO().
 		//! Initial state is no code hooked, attempts to save buffer are ignored, save() returns false.
 		static void registerSaver(const char* extensions, Saver* saver);
 		//! Returns list of supported loader extensions in "*.jpg;*.png" format.

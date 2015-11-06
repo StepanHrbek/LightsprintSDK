@@ -70,23 +70,23 @@ namespace rr_io /// LightsprintIO - import and export of scenes, textures, verte
 //!  Copy of your main() argument. Used only for import isolation on non-Windows platforms, can be nullptr otherwise.
 //! \param step Keep empty.
 //!  Only if you need to register your own isolated loader for fileformat already supported by LightsprintIO, all without modifying LightsprintIO,
-//!  call registerLoaders(1); registerYourLoader(); registerLoaders(2); isolateSceneLoaders();
-void RR_IO_API registerLoaders(int argc, char** argv, unsigned step = 0);
+//!  call registerIO(1); registerYourLoader(); registerIO(2); isolateIO();
+void RR_IO_API registerIO(int argc, char** argv, unsigned step = 0);
 
-//! Isolates scene loaders, makes them run in separated processes.
+//! Isolates scene loaders and saver, makes them run in separated processes.
 //
 //! Isolation increases robustness of main application, by protecting it
-//! against various ill effects of low quality importers.
-//! Although no problems are known within Lightsprint's importers, imagine that one day in future,
+//! against various ill effects of low quality importers and exporters.
+//! Although no problems are known within Lightsprint's importers/exporters, imagine that one day in future,
 //! you run e.g. into memory corruption problem. Without isolated importers,
 //! any part of codebase can be responsible for corruption, it's tough problem to debug. With isolation,
-//! importers are ruled out as a source of problem (importers make around 50% of lines of code in Lightsprint SDK).
+//! importers/exporters are ruled out as a source of problem (they make more than 50% of lines of code in Lightsprint SDK).
 //!
-//! When isolating loaders, your program startup should look like \code
+//! When isolating loaders/savers, your program startup should look like \code
 //! register_your_non_isolated_loaders();
-//! rr_io::registerLoaders();
+//! rr_io::registerIO();
 //! register_your_isolated_loaders();
-//! rr_io::isolateSceneLoaders();
+//! rr_io::isolateIO();
 //! \endcode
 //!
 //! Isolation works by rerunning our own executable as a separated process with special arguments each time scene needs to be imported.
@@ -101,7 +101,7 @@ void RR_IO_API registerLoaders(int argc, char** argv, unsigned step = 0);
 //!  Copy of your main() argument. Used only on non-Windows platforms, can be 0 otherwise.
 //! \param argv
 //!  Copy of your main() argument. Used only on non-Windows platforms, can be nullptr otherwise.
-void RR_IO_API isolateSceneLoaders(int argc, char** argv);
+void RR_IO_API isolateIO(int argc, char** argv);
 
 
 } // namespace rr_io

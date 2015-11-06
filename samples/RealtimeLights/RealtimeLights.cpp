@@ -333,7 +333,7 @@ int main(int argc, char** argv)
 	//rr::RRReporter::setFilter(true,3,true);
 	//rr_gl::Program::logMessages(true);
 
-	rr_io::registerLoaders(argc,argv);
+	rr_io::registerIO(argc,argv);
 
 	// init GLUT
 	glutInit(&argc, argv);

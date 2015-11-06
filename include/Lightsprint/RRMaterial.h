@@ -406,7 +406,7 @@ namespace rr
 		//! Extensions are case insensitive, in "*.rrmaterial;*.mtl" format.
 		//!
 		//! Several loaders are implemented in LightsprintIO library,
-		//! rr_io::registerLoaders() will register all of them for you (by calling this function several times).
+		//! rr_io::registerIO() will register all of them for you (by calling this function several times).
 		//!
 		//! Multiple loaders may be registered, even for the same extension.
 		//! If first loader fails to load scene, second one is tried etc.
