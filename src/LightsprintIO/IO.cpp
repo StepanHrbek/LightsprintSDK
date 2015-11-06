@@ -58,7 +58,7 @@ if (phase==0 || phase==1)
 #ifdef SUPPORT_ISOLATION
 	// anything registered before stays as is
 	// anything registred later becomes isolated
-	registerLoaderIsolationStep1(argc,argv);
+	registerIsolationStep1(argc,argv);
 #endif
 
 }
@@ -104,7 +104,7 @@ void rr_io::isolateIO(int argc, char** argv)
 {
 #ifdef SUPPORT_ISOLATION
 	// note that when we are called to do isolated conversion, step 2 converts scene and then exits program
-	registerLoaderIsolationStep2(argc,argv);
+	registerIsolationStep2(argc,argv);
 #endif
 }
 

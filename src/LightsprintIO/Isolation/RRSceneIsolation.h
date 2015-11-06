@@ -13,7 +13,7 @@
 #include "Lightsprint/RRScene.h"
 
 //! Makes scene import use isolated process.
-void registerLoaderIsolationStep1(int argc, char** argv);
-void registerLoaderIsolationStep2(int argc, char** argv);
+void registerIsolationStep1(int argc, char** argv);
+void registerIsolationStep2(int argc, char** argv);
 
 #endif
