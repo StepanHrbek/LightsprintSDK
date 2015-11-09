@@ -299,7 +299,6 @@ void SVGIProperties::updateHide()
 	propGIRaytracedCubesMaxObjects->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesSpecularThreshold->Hide(!svs.raytracedCubesEnabled,false);
 	propGIRaytracedCubesDepthThreshold->Hide(!svs.raytracedCubesEnabled,false);
-	
 	propGIMirrorsDiffuse->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsSpecular->Hide(!svs.mirrorsEnabled,false);
 	propGIMirrorsQuality->Hide(!svs.mirrorsEnabled,false);
