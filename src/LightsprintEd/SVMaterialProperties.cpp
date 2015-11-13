@@ -343,6 +343,7 @@ void SVMaterialProperties::OnIdle(wxIdleEvent& event)
 	}
 }
 
+
 void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 {
 	bool diffuseChanged = false;
