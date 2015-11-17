@@ -83,6 +83,7 @@ $(CFG_DIR)/current:
 	fi
 
 ps3-linux ps3-linux-debug \
+pc-linux pc-linux-debug \
 pc-linux32 pc-linux32-debug \
 pc-linux32-static pc-linux32-static-debug \
 pc-linux64 pc-linux64-debug \

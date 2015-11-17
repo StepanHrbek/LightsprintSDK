@@ -1,0 +1,77 @@
+OS = Linux
+BITS = 64
+
+#CC = gcc
+#CXX = g++
+#default clang has no openmp
+#CXX = -Wno-unused-value
+C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++11 from CPP_FLAGS 
+CPP_FLAGS += -std=c++11 # rvalue references, lambda
+#CPP_FLAGS += -ftemplate-depth=256 # prevents “recursive template instantiation exceeded maximum depth of 128”
+#CPP_FLAGS += -Wno-deprecated-declarations # disables _finite() warnings in many files
+#CPP_FLAGS += -Wno-deprecated-register # disables register warnings in assimp
+##CPP_FLAGS += -Wno-bitfield-constant-conversion # disables warnings in bsp.cpp
+CPP_FLAGS += -I/opt/local/include
+#CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/include/wx-3.0
+#CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/lib/wx/include/osx_cocoa-unicode-3.0
+#CPP_FLAGS += -D__WXOSX_COCOA__
+#CPP_FLAGS += -I../../3rd/OculusSDK/LibOVR/Include
+
+#LINK_FLAGS += -L/opt/local/lib
+#LINK_FLAGS += -L../../bin/pc-osx
+
+CORE_DEPS = \
+	-lstdc++ \
+	-lboost_filesystem \
+	-lboost_system \
+	-lboost_regex \
+	-lembree.2.4.0
+
+#	-lgomp # not yet supported by LLVM
+
+CORE_LIBS = \
+	$(CORE_DEPS) \
+	../../bin/$(CONFIG)/libLightsprintCore.so
+
+GL_DEPS = \
+	-framework OpenGL \
+	-framework CoreFoundation \
+	-framework ApplicationServices \
+	-lGLEW \
+
+GL_LIBS = \
+	$(GL_DEPS) \
+	../../bin/$(CONFIG)/libLightsprintGL.so
+
+ED_DEPS = \
+	-L/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/lib \
+	-lwx_osx_cocoau-3.0.0.2.0 \
+	-lwx_osx_cocoau_gl-3.0.0.2.0 \
+	-lboost_serialization \
+	-lboost_iostreams \
+	-lboost_locale \
+	-framework IOKit \
+	-framework Cocoa \
+	-lovr
+
+#	-F/opt/local/Library/Frameworks -framework wxWidgets
+
+# ED needs boost_* only if CUSTOMIZED_FOR_3DRENDER 
+
+ED_LIBS = \
+	$(ED_DEPS) \
+	../../bin/$(CONFIG)/libLightsprintEd.so
+
+IO_DEPS = \
+	-lfreeimage \
+	-lboost_serialization \
+	-lboost_iostreams \
+	-lboost_locale
+
+IO_LIBS = \
+	$(IO_DEPS) \
+	../../bin/$(CONFIG)/libLightsprintIO.so
+
+GLUT_LIB = \
+	-framework GLUT
+

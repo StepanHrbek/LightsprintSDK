@@ -1,0 +1,9 @@
+include $(CFG_DIR)/pc-linux.common
+
+CONFIG = pc-linux-debug
+
+CPP_FLAGS += -O0
+CPP_FLAGS += -ggdb
+CPP_FLAGS += -D_DEBUG
+
+#LINK_FLAGS += -L../../3rd/OculusSDK/LibOVR/Lib/Mac/Debug
