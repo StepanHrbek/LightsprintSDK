@@ -47,6 +47,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <cmath>
+#include <cstdlib> // free()
 #include <cstring>
 #include "Model_3DS.h"
 #ifndef RR_IO_BUILD
