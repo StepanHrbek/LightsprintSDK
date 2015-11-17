@@ -45,8 +45,8 @@ Assimp/code/AssbinLoader.cpp \
 Assimp/code/Assimp.cpp \
 Assimp/code/AssimpCExport.cpp \
 Assimp/code/AssxmlExporter.cpp \
-Assimp/code/B3Der.cpp \
-Assimp/code/Baseer.cpp \
+Assimp/code/B3DImporter.cpp \
+Assimp/code/BaseImporter.cpp \
 Assimp/code/BaseProcess.cpp \
 Assimp/code/Bitmap.cpp \
 Assimp/code/BlenderBMesh.cpp \
@@ -76,7 +76,7 @@ Assimp/code/FBXConverter.cpp \
 Assimp/code/FBXDeformer.cpp \
 Assimp/code/FBXDocument.cpp \
 Assimp/code/FBXDocumentUtil.cpp \
-Assimp/code/FBXer.cpp \
+Assimp/code/FBXImporter.cpp \
 Assimp/code/FBXMaterial.cpp \
 Assimp/code/FBXMeshGeometry.cpp \
 Assimp/code/FBXModel.cpp \
@@ -101,8 +101,8 @@ Assimp/code/IFCOpenings.cpp \
 Assimp/code/IFCProfile.cpp \
 Assimp/code/IFCReaderGen.cpp \
 Assimp/code/IFCUtil.cpp \
-Assimp/code/er.cpp \
-Assimp/code/erRegistry.cpp \
+Assimp/code/Importer.cpp \
+Assimp/code/ImporterRegistry.cpp \
 Assimp/code/ImproveCacheLocality.cpp \
 Assimp/code/IRRLoader.cpp \
 Assimp/code/IRRShared.cpp \
@@ -127,17 +127,17 @@ Assimp/code/MS3DLoader.cpp \
 Assimp/code/NFFLoader.cpp \
 Assimp/code/NDOLoader.cpp \
 Assimp/code/ObjExporter.cpp \
-Assimp/code/ObjFileer.cpp \
-Assimp/code/ObjFileMtler.cpp \
+Assimp/code/ObjFileImporter.cpp \
+Assimp/code/ObjFileMtlImporter.cpp \
 Assimp/code/ObjFileParser.cpp \
 Assimp/code/OFFLoader.cpp \
 Assimp/code/OgreBinarySerializer.cpp \
-Assimp/code/Ogreer.cpp \
-Assimp/code/OgreGEXExporter.cpp \
-Assimp/code/OgreGEXImporter.cpp \
+Assimp/code/OgreImporter.cpp \
 Assimp/code/OgreMaterial.cpp \
 Assimp/code/OgreStructs.cpp \
 Assimp/code/OgreXmlSerializer.cpp \
+Assimp/code/OpenGEXExporter.cpp \
+Assimp/code/OpenGEXImporter.cpp \
 Assimp/code/OptimizeGraph.cpp \
 Assimp/code/OptimizeMeshes.cpp \
 Assimp/code/PlyExporter.cpp \
@@ -178,7 +178,7 @@ Assimp/code/UnrealLoader.cpp \
 Assimp/code/ValidateDataStructure.cpp \
 Assimp/code/Version.cpp \
 Assimp/code/VertexTriangleAdjacency.cpp \
-Assimp/code/XFileer.cpp \
+Assimp/code/XFileImporter.cpp \
 Assimp/code/XFileExporter.cpp \
 Assimp/code/XFileParser.cpp \
 Assimp/code/XGLLoader.cpp \
@@ -433,6 +433,7 @@ LIBS += $(CORE_LIBS) $(IO_DEPS)
 
 INC_DIRS = .
 INC_DIRS += ../../include \
+Assimp/include \
 OpenCollada/COLLADASaxFrameworkLoader/include/generated15 \
 OpenCollada/COLLADASaxFrameworkLoader/include/generated14 \
 OpenCollada/COLLADASaxFrameworkLoader/include \
