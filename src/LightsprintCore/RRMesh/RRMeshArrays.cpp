@@ -7,6 +7,7 @@
 // Mesh with direct access.
 // --------------------------------------------------------------------------
 
+#include <cstdlib>
 #include <cstring>
 #include "Lightsprint/RRMesh.h"
 #include "../RRMathPrivate.h"

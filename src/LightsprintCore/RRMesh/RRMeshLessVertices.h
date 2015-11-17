@@ -12,6 +12,7 @@
 #include "RRMeshFilter.h"
 #include <cmath>
 #include <cstdlib> // qsort
+#include <cstring> // memset
 
 namespace rr
 {
