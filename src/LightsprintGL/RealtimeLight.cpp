@@ -7,6 +7,7 @@
 // RealtimeLight, provides multiple generated instances of light for area light simulation.
 // --------------------------------------------------------------------------
 
+#include <cstdlib> // abs()
 #include <cstring> // nullptr
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDebug.h"

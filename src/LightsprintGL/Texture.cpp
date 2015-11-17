@@ -8,6 +8,7 @@
 // --------------------------------------------------------------------------
 
 #include <climits> // UINT_MAX
+#include <cstdio> // sscanf()
 #include <cstdlib> // rand
 #include "Lightsprint/GL/FBO.h"
 #include "Lightsprint/GL/PreserveState.h"

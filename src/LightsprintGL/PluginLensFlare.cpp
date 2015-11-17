@@ -7,6 +7,7 @@
 // Lens flare postprocess.
 // --------------------------------------------------------------------------
 
+#include <cstdlib> // rand()
 #include "Lightsprint/GL/PluginLensFlare.h"
 #include "Lightsprint/GL/PreserveState.h"
 

@@ -7,6 +7,7 @@
 // Depth of field postprocess.
 // --------------------------------------------------------------------------
 
+#include <cstdlib> // rand()
 #include "Lightsprint/GL/PluginDOF.h"
 #include "Lightsprint/GL/PreserveState.h"
 

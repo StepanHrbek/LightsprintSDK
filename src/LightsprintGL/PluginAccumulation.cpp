@@ -7,6 +7,7 @@
 // Accumulates frames, outputs average.
 // --------------------------------------------------------------------------
 
+#include <cstdlib> // rand()
 #include "Lightsprint/GL/PluginAccumulation.h"
 #include "Lightsprint/GL/PreserveState.h"
 
