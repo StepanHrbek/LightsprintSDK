@@ -29,7 +29,7 @@
 
 #include "RRDebug.h"
 
-#if 0
+#ifdef __GNUC__ // gcc4 fails with our RRVector
 
 #include <vector>
 
