@@ -35,7 +35,7 @@ void Box::init(const RRVec3& _min, const RRVec3& _max)
 float minf(const float a, const float b) { return a < b ? a : b; }
 float maxf(const float a, const float b) { return a > b ? a : b; }
 
-bool Box::intersect(RRRay& ray) const
+bool Box::intersect(const RRRay& ray) const
 // inputs: rayOrigin, rayDir[Inv], rayLengthMin, rayLengthMax
 // outputs: hitDistanceMin, hitDistanceMax
 // source: Thierry Berger-Perrin, http://ompf.org/ray/ray_box.html
