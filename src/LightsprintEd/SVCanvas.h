@@ -12,7 +12,7 @@
 
 #include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/GL/PluginFPS.h"
-#include "wx/GLCanvas.h"
+#include "wx/glcanvas.h"
 #include "wx/joystick.h"
 #include "SVApp.h"
 #include "SVEntityIcons.h"
