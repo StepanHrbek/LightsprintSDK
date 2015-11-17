@@ -24,8 +24,9 @@ CORE_DEPS = \
 	-lstdc++ \
 	-lboost_filesystem \
 	-lboost_system \
-	-lboost_regex \
-	-lembree.2.4.0
+	-lboost_regex
+
+#	-lembree.2.4.0
 
 #	-lgomp # not yet supported by LLVM
 
