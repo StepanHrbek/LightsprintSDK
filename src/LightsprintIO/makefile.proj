@@ -27,6 +27,7 @@ CPP_FLAGS += $(CPP_IO_FLAGS)
 CPP_FLAGS += -DRR_IO_BUILD
 CPP_FLAGS += -DLINUX
 CPP_FLAGS += -DGENERATEDSAXPARSER_XMLPARSER_EXPAT -DPCRE_STATIC -DCOMPILED_FROM_DSP
+CPP_FLAGS += -DASSIMP_BUILD_NO_C4D_IMPORTER -DASSIMP_BUILD_NO_OPENGEX_IMPORTER
 
 # source files
 
@@ -146,7 +147,7 @@ Assimp/code/PlyParser.cpp \
 Assimp/code/PretransformVertices.cpp \
 Assimp/code/ProcessHelper.cpp \
 Assimp/code/PostStepRegistry.cpp \
-Assimp/code/Q3BSPFileer.cpp \
+Assimp/code/Q3BSPFileImporter.cpp \
 Assimp/code/Q3BSPFileParser.cpp \
 Assimp/code/Q3BSPZipArchive.cpp \
 Assimp/code/Q3DLoader.cpp \
