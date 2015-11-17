@@ -1,4 +1,22 @@
 #/bin/sh
 
-# Install Lightsprint SDK dependencies in Debian (most likely works also in Ubuntu)
-sudo apt-get install g++ make libboost-dev libboost-serialization-dev libboost-filesystem-dev libboost-iostreams-dev libglew-dev libfreeimage-dev freeglut3-dev
+# Install Lightsprint SDK development dependencies in Debian (most likely works also in Ubuntu)
+# In case that you need only binary dependencies, try removing all -dev.
+
+# for build system
+sudo apt-get install g++ make
+
+# for LightsprintCore
+sudo apt-get install libboost-dev libboost-filesystem-dev
+
+# for LightsprintGL
+sudo apt-get install libglew-dev
+
+# for LightsprintIO
+sudo apt-get install libboost-serialization-dev libboost-iostreams-dev libfreeimage-dev
+
+# for LightsprintEd
+sudo apt-get install libwxgtk3.0-dev
+
+# for samples
+sudo apt-get install freeglut3-dev
