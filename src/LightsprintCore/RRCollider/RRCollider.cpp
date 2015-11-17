@@ -294,7 +294,8 @@ RRCollider* defaultBuilder(const RRMesh* mesh, const RRObjects* objects, RRColli
 #ifdef SUPPORT_EMBREE
 			return new EmbreeCollider(intersectTechnique,mesh);
 #else
-			return nullptr;
+			//return nullptr;
+			return defaultBuilder(mesh,objects,RRCollider::IT_BSP_FAST,aborting,cacheLocation,nullptr);
 #endif
 		// needs explicit instantiation at the end of IntersectBspFast.cpp and IntersectBspCompact.cpp and bsp.cpp
 		case RRCollider::IT_BSP_COMPACT:
