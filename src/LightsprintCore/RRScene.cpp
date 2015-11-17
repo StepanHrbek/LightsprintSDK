@@ -200,6 +200,9 @@ struct LoadersAndSavers1
 template <class RRClass>
 struct LoadersAndSavers2 : public LoadersAndSavers1<RRClass>
 {
+	using LoadersAndSavers1<RRClass>::loaders; // some compilers don't need this, but they should
+	using LoadersAndSavers1<RRClass>::savers; // http://stackoverflow.com/questions/4643074/why-do-i-have-to-access-template-base-class-members-through-the-this-pointer
+
 	static RRClass* callLoader(typename RRClass::Loader* _loader, const RRString& _filename, RRFileLocator* _locator, bool* _aborting, const char* classname)
 	{
 #ifdef _MSC_VER
