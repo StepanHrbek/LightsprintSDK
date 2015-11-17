@@ -35,9 +35,7 @@ CORE_LIBS = \
 	../../bin/$(CONFIG)/libLightsprintCore.so
 
 GL_DEPS = \
-	-framework OpenGL \
-	-framework CoreFoundation \
-	-framework ApplicationServices \
+	-lGL \
 	-lGLEW \
 
 GL_LIBS = \
