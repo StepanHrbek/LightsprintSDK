@@ -7,8 +7,6 @@
 // RRCollider class - generic code for ray-mesh intersections.
 // --------------------------------------------------------------------------
 
-#define EMBREE
-
 #include <map>
 #include "RRCollisionHandler.h"
 #include "IntersectBspCompact.h"
@@ -20,7 +18,7 @@
 #ifdef _MSC_VER
 	#include <excpt.h> // EXCEPTION_EXECUTE_HANDLER
 #endif
-#ifdef EMBREE
+#ifdef SUPPORT_EMBREE
 	#include "embree2/rtcore.h"
 	#include "embree2/rtcore_ray.h"
 	#pragma comment(lib,"embree.lib")
@@ -29,7 +27,7 @@
 namespace rr
 {
 
-#ifdef EMBREE
+#ifdef SUPPORT_EMBREE
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -220,7 +218,7 @@ public:
 	};
 };
 
-#endif // EMBREE
+#endif // SUPPORT_EMBREE
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -293,7 +291,7 @@ RRCollider* defaultBuilder(const RRMesh* mesh, const RRObjects* objects, RRColli
 	{
 		case RRCollider::IT_BVH_COMPACT:
 		case RRCollider::IT_BVH_FAST:
-#ifdef EMBREE
+#ifdef SUPPORT_EMBREE
 			return new EmbreeCollider(intersectTechnique,mesh);
 #else
 			return nullptr;
