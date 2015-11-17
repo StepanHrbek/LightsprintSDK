@@ -13,7 +13,7 @@ sudo apt-get install libboost-dev libboost-filesystem-dev
 sudo apt-get install libglew-dev
 
 # for LightsprintIO
-sudo apt-get install libboost-serialization-dev libboost-iostreams-dev libfreeimage-dev
+sudo apt-get install libboost-serialization-dev libboost-iostreams-dev libfreeimage-dev libassimp-dev
 
 # for LightsprintEd
 sudo apt-get install libwxgtk3.0-dev
