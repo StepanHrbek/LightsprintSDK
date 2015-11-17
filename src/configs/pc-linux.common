@@ -27,7 +27,6 @@ CORE_DEPS = \
 	-lboost_regex
 
 #	-lembree.2.4.0
-
 #	-lgomp # not yet supported by LLVM
 
 CORE_LIBS = \
@@ -43,19 +42,7 @@ GL_LIBS = \
 	../../bin/$(CONFIG)/libLightsprintGL.so
 
 ED_DEPS = \
-	-L/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/lib \
-	-lwx_osx_cocoau-3.0.0.2.0 \
-	-lwx_osx_cocoau_gl-3.0.0.2.0 \
-	-lboost_serialization \
-	-lboost_iostreams \
-	-lboost_locale \
-	-framework IOKit \
-	-framework Cocoa \
-	-lovr
-
-#	-F/opt/local/Library/Frameworks -framework wxWidgets
-
-# ED needs boost_* only if CUSTOMIZED_FOR_3DRENDER 
+	`wx-config --libs` \
 
 ED_LIBS = \
 	$(ED_DEPS) \
