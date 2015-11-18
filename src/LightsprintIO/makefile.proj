@@ -35,7 +35,6 @@ SOURCES = \
 3DS/RRObject3DS.cpp \
 Assimp/RRObjectAssimp.cpp \
 FFmpeg/RRBufferFFmpeg.cpp \
-FFmpeg/RRBufferFFmpeg.h \
 FreeImage/ImportFreeImage.cpp \
 Isolation/RRSceneIsolation.cpp \
 Lightsprint/RRObjectLightsprint.cpp \
