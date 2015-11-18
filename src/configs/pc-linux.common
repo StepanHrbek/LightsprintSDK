@@ -38,16 +38,22 @@ ED_LIBS = \
 	../../bin/$(CONFIG)/libLightsprintEd.so
 
 IO_DEPS = \
+	-lboost_iostreams \
+	-lboost_locale \
+	-lboost_serialization \
 	-lassimp \
 	-lfreeimage \
-	-lboost_serialization \
-	-lboost_iostreams \
-	-lboost_locale
+	-lportaudio \
+	-lavcodec \
+	-lavdevice \
+	-lavformat \
+	-lswscale \
+
 
 IO_LIBS = \
 	$(IO_DEPS) \
 	../../bin/$(CONFIG)/libLightsprintIO.so
 
 GLUT_LIB = \
-	-framework GLUT
+	-lglut
 
