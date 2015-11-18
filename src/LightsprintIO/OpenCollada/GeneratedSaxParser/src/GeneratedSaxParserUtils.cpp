@@ -1543,7 +1543,7 @@ namespace GeneratedSaxParser
         return _isnan( value ) ? true : false;
 #else
         using namespace std;
-        return isnan( value );
+        return std::isnan( value );
 #endif
     }
 
