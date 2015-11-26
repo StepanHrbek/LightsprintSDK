@@ -20,15 +20,12 @@ namespace rr
 	//
 	//! Provides possible file locations when exact location is not known.
 	//
-	//! All inputs and outputs are in local charset (may change in future).
-	//! \n Inputs don't have to be permanent, internal copies are created.
+	//! For simple use cases, default implementation that ignores all setXxx() functions
+	//! is sufficient. In case of need, use create() for advanced locator.
 	//!
-	//! Locator supports multiple libraries, parents etc,
-	//! call setLibrary(true,lib1); setLibrary(true,lib2); to add two libraries.
-	//! Call setLibrary(false,lib1); to remove one of previously added libraries.
-	//!
-	//! Default implementation ignores all setXxx() functions,
-	//! use create() for advanced locator.
+	//! Locator supports multiple extension replacements, path relocations, regex replacements etc,
+	//! call setXxx(true,xxx1); setXxx(true,xxx2); to add two of them.
+	//! Later you can call e.g. setXxx(false,xxx1); to remove first one.
 	//!
 	//! Thread safe: yes (you can use multiple instances in parallel, multiple getXxx() in parallel,
 	//!  just don't call setXxx() when some function already runs on the same instance)
@@ -93,14 +90,19 @@ namespace rr
 
 		enum AttemptNumber
 		{
-			//! When RRBuffer::load() fails and non-empty location was specified by RRFileLocator::setAttempt(ATTEMPT_STUB,...),
+			//! When RRBuffer::load() fails and non-empty stub filename is specified by RRFileLocator::setAttempt(ATTEMPT_STUB,...),
 			//! RRBuffer::load() creates stub buffer with original filename and stub content.
 			//! This is important when processing and saving scene without textures
 			//! (either intentionally, e.g. to speed up scene conversion, or unintentionally, e.g. when disk with textures is unmapped),
 			//! stubs preserve paths to textures, even if those textures are not loaded.
 			//! Stub content is loaded from location specified by RRFileLocator::setAttempt(ATTEMPT_STUB,...).
 			//! If load fails, small 2d texture is generated in memory.
-			ATTEMPT_STUB = 10000
+			ATTEMPT_STUB = 10000,
+			//! Only supported by RRBuffer loaders.
+			//! When non-empty stub location is specified by RRFileLocator::setAttempt(ATTEMPT_LOCATE_ONLY,...)
+			//! and requested file can be located, given stub is loaded (or small 2d texture generated if load fails)
+			//! and its filename is set to the located filename.
+			ATTEMPT_LOCATE_ONLY = 10001,
 		};
 	};
 

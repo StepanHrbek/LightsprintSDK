@@ -1151,6 +1151,42 @@ void RRBuffer::deleteFromCache()
 //
 // save & load
 
+static RRBuffer* loadStub(const RRString& _filename, const RRString& _stubname)
+{
+	if (!_stubname.empty())
+	{
+		// we don't know whether file is missing (this is the most common case, and it was not yet reported)
+		// or file failed to load (it was already reported from load_cached())
+		// better report twice in rare cases than not report in common case
+		RRReporter::report(WARN,"%ls not loaded.\n",_filename.w_str());
+		RRBuffer* stub = load_cached(_stubname,nullptr);
+		RRBuffer* result;
+		if (stub)
+		{
+			// by returning copy, we preserve stub intact in cache, next time we won't have to load it from disk
+			result = stub->createCopy();
+			delete stub;
+		}
+		else
+		{
+			unsigned char data[3*16*16];
+			for (unsigned i=0;i<16;i++)
+			for (unsigned j=0;j<16;j++)
+				data[3*(i+16*j)+2] = data[3*(i+16*j)+1] = data[3*(i+16*j)] = (((i/2^j/2)%2)?0:255);
+			result = RRBuffer::create(BT_2D_TEXTURE,16,16,1,BF_RGB,true,(unsigned char*)data);
+		}
+		result->filename = _filename; // [#36] stub contains original filename (of file that was not located)
+		RRBufferInMemory* bufferInMemory = dynamic_cast<RRBufferInMemory*>(result);
+		if (bufferInMemory)
+			bufferInMemory->stub = true;
+		return result;
+	}
+	// load with fileLocator failed, and there's no stub
+	// load_noncached ensures that all failures were already reported
+	//RRReporter::report(WARN,"Failed to find or load %ls.\n",_filename.w_str());
+	return nullptr;
+}
+
 RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6], const RRFileLocator* _fileLocator)
 {
 	if (_filename.empty())
@@ -1160,6 +1196,21 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 
 	if (_fileLocator)
 	{
+		// locate only
+		RRString stubname = _fileLocator->getLocation(_filename,RRFileLocator::ATTEMPT_LOCATE_ONLY); // note: search probably fails if filename contains %s
+		if (!stubname.empty())
+		{
+			RRString locatedFilename = _fileLocator->getLocation(_filename, "");
+			if (!locatedFilename.empty())
+			{
+				RRBuffer* result = loadStub(_filename,stubname);
+				if (result)
+					result->filename = locatedFilename;
+				return result;
+			}
+		}
+		else
+		// load with fileLocator
 		for (unsigned attempt=0;attempt<UINT_MAX;attempt++)
 		{
 			RRString location = _fileLocator->getLocation(_filename,attempt);
@@ -1183,40 +1234,9 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 					return result;
 			}
 		}
-		// load with fileLocator failed, return stub if specified in getLocation("",0)
-		RRString stubname = _fileLocator->getLocation(_filename,RRFileLocator::ATTEMPT_STUB);
-		if (!stubname.empty())
-		{
-			// we don't know whether file is missing (this is the most common case, and it was not yet reported)
-			// or file failed to load (it was already reported from load_cached())
-			// better report twice in rare cases than not report in common case
-			RRReporter::report(WARN,"%ls not loaded.\n",_filename.w_str());
-			RRBuffer* stub = load_cached(stubname,nullptr);
-			RRBuffer* result;
-			if (stub)
-			{
-				// by returning copy, we preserve stub intact in cache, next time we won't have to load it from disk
-				result = stub->createCopy();
-				delete stub;
-			}
-			else
-			{
-				unsigned char data[3*16*16];
-				for (unsigned i=0;i<16;i++)
-				for (unsigned j=0;j<16;j++)
-					data[3*(i+16*j)+2] = data[3*(i+16*j)+1] = data[3*(i+16*j)] = (((i/2^j/2)%2)?0:255);
-				result = RRBuffer::create(BT_2D_TEXTURE,16,16,1,BF_RGB,true,(unsigned char*)data);
-			}
-			result->filename = _filename; // [#36] stub contains original filename (of file that was not located)
-			RRBufferInMemory* bufferInMemory = dynamic_cast<RRBufferInMemory*>(result);
-			if (bufferInMemory)
-				bufferInMemory->stub = true;
-			return result;
-		}
-		// load with fileLocator failed, and there's no stub
-		// load_noncached ensures that all failures were already reported
-		//RRReporter::report(WARN,"Failed to find or load %ls.\n",_filename.w_str());
-		return nullptr;
+		// not found or load failed, return stub
+		stubname = _fileLocator->getLocation(_filename,RRFileLocator::ATTEMPT_STUB);
+		return loadStub(_filename,stubname);
 	}
 	else
 	{
