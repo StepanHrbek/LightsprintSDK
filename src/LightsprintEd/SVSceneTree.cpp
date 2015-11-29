@@ -56,6 +56,14 @@ SVSceneTree::SVSceneTree(SVFrame* _svframe)
 	Expand(root); // must go after appends, otherwise it does not expand
 }
 
+bool SVSceneTree::okToDelete()
+{
+	wxMessageDialog* dialog = new wxMessageDialog(this,_("Are you sure you want to delete?"),_("This operation can't be undone"),wxOK|wxCANCEL);
+	int ans = dialog->ShowModal();
+	dialog->Destroy();
+	return ans==wxID_OK;
+}
+
 void SVSceneTree::updateContent(rr_gl::RRSolverGL* solver)
 {
 	if (callDepth)
@@ -1134,7 +1142,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			}
 			break;
 		case CM_DELETE:
-			if (solver)
+			if (solver && okToDelete())
 			{
 				// display log window with 'abort' while this function runs
 				bool containsObjects = false;

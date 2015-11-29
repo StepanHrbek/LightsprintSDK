@@ -64,6 +64,8 @@ namespace rr_ed
 	public:
 		SVSceneTree(SVFrame* svframe);
 
+		bool okToDelete();
+
 		//! Updates whole tree contents. If solver is nullptr, lights and objects are not updated.
 		void updateContent(rr_gl::RRSolverGL* solver);
 
