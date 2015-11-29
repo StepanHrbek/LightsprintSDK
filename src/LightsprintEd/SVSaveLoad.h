@@ -46,7 +46,7 @@ namespace rr_ed
 	struct UserPreferences
 	{
 		bool        tooltips;
-		int         swapInterval; // value sent to wglSwapInterval, 0 for max fps, -1 for oculus
+		int         swapInterval; // value sent to wglSwapInterval, 0 for max fps, 0 for oculus 0.6, -1 to reasonably limit fps
 		rr::RRCamera::StereoMode stereoMode;
 		bool        stereoSwap;
 
