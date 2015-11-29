@@ -171,6 +171,8 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 void SVUserProperties::updateProperties()
 {
 	propSshotFilename->SetValue(userPreferences.sshotFilename);
+	propSwapInterval->SetValue(userPreferences.swapInterval==0);
+	propStereoMode->SetValueFromInt(userPreferences.stereoMode,wxPG_FULL_VALUE);
 }
 
 void SVUserProperties::updateHide()
