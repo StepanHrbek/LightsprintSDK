@@ -960,6 +960,7 @@ void SVFrame::saveScreenshot(rr::RRBuffer* sshot)
 	m_userProperties->updateProperties();
 }
 
+
 void SVFrame::TogglePane(wxWindow* window)
 {
 	if (window)
