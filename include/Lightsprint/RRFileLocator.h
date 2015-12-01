@@ -96,11 +96,11 @@ namespace rr
 			//! (either intentionally, e.g. to speed up scene conversion, or unintentionally, e.g. when disk with textures is unmapped),
 			//! stubs preserve paths to textures, even if those textures are not loaded.
 			//! Stub content is loaded from location specified by RRFileLocator::setAttempt(ATTEMPT_STUB,...).
-			//! If load fails, small 2d texture is generated in memory.
+			//! If stub location is ":" or load fails, small 2d texture is generated in memory.
 			ATTEMPT_STUB = 10000,
 			//! Only supported by RRBuffer loaders.
 			//! When non-empty stub location is specified by RRFileLocator::setAttempt(ATTEMPT_LOCATE_ONLY,...)
-			//! and requested file can be located, given stub is loaded (or small 2d texture generated if load fails)
+			//! and requested file can be located, given stub is loaded (if stub location is ":" or load fails, small 2d texture is generated)
 			//! and its filename is set to the located filename.
 			ATTEMPT_LOCATE_ONLY = 10001,
 		};

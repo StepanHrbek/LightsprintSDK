@@ -1155,7 +1155,7 @@ static RRBuffer* loadStub(const RRString& _filename, const RRString& _stubname)
 {
 	if (!_stubname.empty())
 	{
-		// ":" is a name of file that definitely does not exist. when used for stub, don't even warn
+		// ":" is a name of file that definitely does not exist. when used for stub, don't even try loading, don't warn
 		RRBuffer* stub = (_stubname==":") ? nullptr : load_cached(_stubname,nullptr);
 		RRBuffer* result;
 		if (stub)
