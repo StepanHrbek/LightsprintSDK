@@ -1046,7 +1046,21 @@ bool SVFrame::saveScene(wxString sceneFilename)
 		scene.cameras.push_back(svs.camera);
 		if (exportToSlg4 && !svs.renderDof)
 			scene.cameras[0].apertureDiameter = 0;
-		result = scene.save(RR_WX2RR(sceneFilename));
+		bool exportToRr3 = sceneFilename.EndsWith(".rr3");
+		if (exportToRr3)
+		{
+			result = scene.save(RR_WX2RR(sceneFilename));
+		}
+		else
+		{
+			unsigned copyLayerToMaterialLightmaps = 
+				(svs.renderLightIndirect==LI_AMBIENTMAPS) ? svs.layerBakedAmbient : (
+				(svs.renderLightIndirect==LI_LIGHTMAPS) ? svs.layerBakedLightmap : (
+				svs.renderLDMEnabled() ? svs.layerBakedLDM : svs.layerBakedLightmap ) );
+			rr::RRScene* tempScene = scene.preprocessScene(true, copyLayerToMaterialLightmaps);
+			result = tempScene->save(RR_WX2RR(sceneFilename));
+			delete tempScene;
+		}
 		if (exportToSlg4)
 			delete scene.environment;
 		scene.environment = nullptr; // would be deleted in destructor otherwise
