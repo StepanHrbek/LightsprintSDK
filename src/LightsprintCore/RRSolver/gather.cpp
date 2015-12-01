@@ -716,15 +716,15 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 				else
 				{
 					// interpolate per-vertex normals (getPointNormal() would do the same, but it's slower, this is optimized path)
-				RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
-				cache_basis_skewed_normalized.normal = (cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1]).normalized();
-				cache_basis_skewed_normalized.tangent = (cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1]).normalized();
-				cache_basis_skewed_normalized.bitangent = (cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1]).normalized();
-				//if (!cache_basis_skewed.normal.finite()) // shows #IND normal in undead scene
-				//	RR_LIMITED_TIMES(10,RRReporter::report(INF1,"cached_normal=%f %f %f uvInTriSpace=%f %f\n",cache_basis_skewed.normal[0],cache_basis_skewed.normal[1],cache_basis_skewed.normal[2],uvInTriangleSpace[0],uvInTriangleSpace[1]));
-				// 2. What is cache_basis_orthonormal?
-				//    Helper for homogenous shooting to hemisphere, must be orthonormal.
-				cache_basis_orthonormal.normal = cache_basis_skewed_normalized.normal;
+					RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
+					cache_basis_skewed_normalized.normal = (cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1]).normalized();
+					cache_basis_skewed_normalized.tangent = (cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1]).normalized();
+					cache_basis_skewed_normalized.bitangent = (cache_bases.vertex[0].bitangent*wInTriangleSpace + cache_bases.vertex[1].bitangent*uvInTriangleSpace[0] + cache_bases.vertex[2].bitangent*uvInTriangleSpace[1]).normalized();
+					//if (!cache_basis_skewed.normal.finite()) // shows #IND normal in undead scene
+					//	RR_LIMITED_TIMES(10,RRReporter::report(INF1,"cached_normal=%f %f %f uvInTriSpace=%f %f\n",cache_basis_skewed.normal[0],cache_basis_skewed.normal[1],cache_basis_skewed.normal[2],uvInTriangleSpace[0],uvInTriangleSpace[1]));
+					// 2. What is cache_basis_orthonormal?
+					//    Helper for homogenous shooting to hemisphere, must be orthonormal.
+					cache_basis_orthonormal.normal = cache_basis_skewed_normalized.normal;
 				}
 				cache_basis_orthonormal.buildBasisFromNormal();
 			}
