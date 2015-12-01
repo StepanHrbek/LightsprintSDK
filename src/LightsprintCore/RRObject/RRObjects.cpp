@@ -434,7 +434,8 @@ RRObjects RRObjects::mergeObjects(bool splitByMaterial) const
 				// read result into new mesh
 				splitMesh = optimizedMesh->createArrays(true,texcoords,tangents);
 				// delete temporaries
-				delete optimizedMesh;
+				if (optimizedMesh!=newMesh)
+					delete optimizedMesh;
 				// unhide triangles
 				newMesh->triangle -= firstTriangleIndex;
 				newMesh->numTriangles = tmpNumTriangles;
