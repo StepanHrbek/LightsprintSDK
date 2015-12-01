@@ -1155,10 +1155,6 @@ static RRBuffer* loadStub(const RRString& _filename, const RRString& _stubname)
 {
 	if (!_stubname.empty())
 	{
-		// we don't know whether file is missing (this is the most common case, and it was not yet reported)
-		// or file failed to load (it was already reported from load_cached())
-		// better report twice in rare cases than not report in common case
-		RRReporter::report(WARN,"%ls not loaded.\n",_filename.w_str());
 		RRBuffer* stub = load_cached(_stubname,nullptr);
 		RRBuffer* result;
 		if (stub)
@@ -1234,6 +1230,10 @@ RRBuffer* RRBuffer::load(const RRString& _filename, const char* _cubeSideName[6]
 					return result;
 			}
 		}
+		// we don't know whether file is missing (this is the most common case, and it was not yet reported)
+		// or file failed to load (it was already reported from load_cached())
+		// better report twice in rare cases than not report in common case
+		RRReporter::report(WARN,"%ls not loaded.\n",_filename.w_str());
 		// not found or load failed, return stub
 		stubname = _fileLocator->getLocation(_filename,RRFileLocator::ATTEMPT_STUB);
 		return loadStub(_filename,stubname);
