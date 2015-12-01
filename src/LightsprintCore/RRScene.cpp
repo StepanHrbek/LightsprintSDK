@@ -16,8 +16,6 @@
 #include <unordered_set>
 #include <regex> // wildcard matching
 #include <boost/algorithm/string/replace.hpp> // wildcard matching
-#include <boost/filesystem.hpp> // RRScene::save()
-namespace bf = boost::filesystem;
 
 namespace rr
 {
@@ -535,6 +533,15 @@ private:
 	RRMaterials materials;
 };
 
+RRScene* RRScene::preprocessScene(bool splitMultimaterials, unsigned copyLayerToMaterialLightmaps)
+{
+	if (!splitMultimaterials)
+		RRReporter::report(WARN, "preprocessScene(false,) not implemented yet, does the same as preprocessScene(true,).\n");
+
+	// warning: splitMultimaterials ignored, always true
+	return new OneMaterialPerObject(*this,copyLayerToMaterialLightmaps);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -580,20 +587,7 @@ RRScene::RRScene(const RRString& _filename, RRFileLocator* _textureLocator, bool
 
 bool RRScene::save(const RRString& filename) const
 {
-	std::string ext = bf::path(RR_RR2PATH(filename)).extension().string();
-	
-	// these can be controlled by additional parameters sent to save(),
-	// but let's guess what user wants and keep API simple, for now
-	#define SUPPORTS_MULTIMATERIALS ext==".rr3"
-	#define LIGHTMAP_LAYER 192837463 // default lightmap layer number in SceneViewer
-
-	// directly save multimaterials to capable fileformats
-	if (SUPPORTS_MULTIMATERIALS)
-		return s_sceneLoadersAndSavers.save(this,filename,"Scene");
-
-	// split multimaterials for other fileformats; and copy lightmaps to materials
-	OneMaterialPerObject oneMaterialPerObject(*this,LIGHTMAP_LAYER);
-	return s_sceneLoadersAndSavers.save(&oneMaterialPerObject,filename,"Scene");
+	return s_sceneLoadersAndSavers.save(this,filename,"Scene");
 }
 
 

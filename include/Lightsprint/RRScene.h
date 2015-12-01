@@ -116,6 +116,18 @@ public:
 	//!  Illumination from given layers will be gathered too.
 	void getAllBuffers(RRVector<RRBuffer*>& buffers, const RRVector<unsigned>* layers) const;
 
+	//! Preprocess scene before saving.
+	//
+	//! Various fileformats have various limitations, and preprocessing scene before save() can work around them.
+	//! Created scene is intended only for saving, delete it after save().
+	//! \param splitMultimaterials
+	//!  Split objects with multiple facegroups(materials) into multiple object with one facegroup(material).
+	//!  This is recommended for .scn (SmallLuxGPU) and Assimp based exporters.
+	//! \param copyLayerToMaterialLightmaps
+	//!  Copy lighting from this layer into RRMaterial::lightmap.
+	//!  This is recommended for Assimp based exporters, if you wish to export lightmaps or ambient maps.
+	RRScene* preprocessScene(bool splitMultimaterials, unsigned copyLayerToMaterialLightmaps);
+
 
 	//////////////////////////////////////////////////////////////////////////////
 	// Loaders/Savers
