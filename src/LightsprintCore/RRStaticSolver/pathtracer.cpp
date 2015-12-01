@@ -81,7 +81,7 @@ PathtracerWorker::PathtracerWorker(const PathtracerJob& _ptj, const RRSolver::Pa
 // material, ray.hitObject, ray.hitTriangle, ray.hitPoint2d -> normal
 // Lightsprint RRVec3(hitPlane) is normalized, goes from front side. point normal also goes from front side
 // returns whether result was set
-static bool getPointNormal(const RRRay& ray, const RRMaterial& material, bool interpolated, RRVec3& result)
+bool getPointNormal(const RRRay& ray, const RRMaterial& material, bool interpolated, RRVec3& result)
 {
 	RR_ASSERT(ray.hitObject);
 	if (!ray.hitObject)

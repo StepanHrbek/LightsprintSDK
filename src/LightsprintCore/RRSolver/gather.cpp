@@ -581,6 +581,8 @@ protected:
 	RRCollisionHandlerFinalGathering collisionHandlerGatherLight;
 };
 
+// helper from pathtracer.cpp
+bool getPointNormal(const RRRay& ray, const RRMaterial& material, bool interpolated, RRVec3& result);
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -631,6 +633,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 	RRMesh::TriangleNormals cache_bases;
 	RRMesh::TangentBasis cache_basis_skewed_normalized;
 	RRMesh::TangentBasis cache_basis_orthonormal;
+	RRMaterial* cache_material;
 
 
 	// init subtexel selector
@@ -687,19 +690,32 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 				const RRMesh* multiMesh = pti.context.solver->getMultiObject()->getCollider()->getMesh();
 				multiMesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
 				multiMesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,cache_bases);
+				cache_material = pti.context.solver->getMultiObject()->getTriangleMaterial(subTexel->multiObjPostImportTriIndex,nullptr,nullptr);
 			}
 			// update cached subtexel data
 			// (simplification: average tangent base is used for all rays from subtexel)
 			if (subTexel!=cache_subTexelPtr)
 			{
 				cache_subTexelPtr = subTexel;
-				// tangent bases precomputed for center of texel are used by all rays from subtexel, saves 6% of time in lightmap build
+				// tangent bases precomputed for center of texel are used by all rays from subtexel, saves 6% of time in lightmap build without bumpmap (not measured with bumpmap)
 				// 1. What is cache_basis_skewed_normalized?
 				//    Basis used for lightmap calculation, must exactly match basis in shader.
 				//    UE3 shader uses linear interpolation of vertex bases, i.e. we need cache_basis_skewed.
 				//    GB (Gamebryo GI Package 2.1.1) shader uses normalized linear interpolation of vertex bases,
 				//     i.e. we need cache_basis_skewed_normalized.
 				RRVec2 uvInTriangleSpace = ( subTexel->uvInTriangleSpace[0] + subTexel->uvInTriangleSpace[1] + subTexel->uvInTriangleSpace[2] )*0.333333333f; // uv of center of subtexel
+				if (cache_material && cache_material->bumpMap.texture)
+				{
+					// read normal from bump map
+					RRRay ray;
+					ray.hitObject = pti.context.solver->getMultiObject();
+					ray.hitTriangle = cache_triangleIndex;
+					ray.hitPoint2d = uvInTriangleSpace;
+					getPointNormal(ray,*cache_material,true,cache_basis_orthonormal.normal);
+				}
+				else
+				{
+					// interpolate per-vertex normals (getPointNormal() would do the same, but it's slower, this is optimized path)
 				RRReal wInTriangleSpace = 1-uvInTriangleSpace[0]-uvInTriangleSpace[1];
 				cache_basis_skewed_normalized.normal = (cache_bases.vertex[0].normal*wInTriangleSpace + cache_bases.vertex[1].normal*uvInTriangleSpace[0] + cache_bases.vertex[2].normal*uvInTriangleSpace[1]).normalized();
 				cache_basis_skewed_normalized.tangent = (cache_bases.vertex[0].tangent*wInTriangleSpace + cache_bases.vertex[1].tangent*uvInTriangleSpace[0] + cache_bases.vertex[2].tangent*uvInTriangleSpace[1]).normalized();
@@ -709,6 +725,7 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 				// 2. What is cache_basis_orthonormal?
 				//    Helper for homogenous shooting to hemisphere, must be orthonormal.
 				cache_basis_orthonormal.normal = cache_basis_skewed_normalized.normal;
+				}
 				cache_basis_orthonormal.buildBasisFromNormal();
 			}
 

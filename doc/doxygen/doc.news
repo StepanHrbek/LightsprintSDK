@@ -30,6 +30,7 @@ NEWS
   - you can export in isolated process, see rr_io::isolateIO()
 - Visual Studio 2015 support
 - misc
+  - higher quality baking for models with bump maps
   - RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
   - RRCamera::PC_TRUNCATE_TOP_BOT
   - Oculus Rift integration updated to Oculus SDK version 0.6.0.0
