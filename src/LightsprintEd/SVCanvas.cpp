@@ -274,6 +274,9 @@ void SVCanvas::createContextCore()
 	// [#54] moved from SVCanvas because of https://forums.oculus.com/viewtopic.php?f=20&t=24518
 	{
 		rr::RRReportInterval report(rr::INF2,"Checking Oculus Rift...\n");
+		int numHmds = ovrHmd_Detect();
+		if (numHmds<1)
+			goto no_oculus; // skip both ovrHmd_Create, they would crash
 		ovrResult err = ovrHmd_Create(0,&svframe->oculusHMD);
 		if (!OVR_SUCCESS(err))
 		{
@@ -281,7 +284,10 @@ void SVCanvas::createContextCore()
 			if (OVR_SUCCESS(err))
 				rr::RRReporter::report(rr::INF2,"Real Oculus Rift not available, faking one.\n");
 			else
+			{
+				no_oculus:
 				rr::RRReporter::report(rr::INF2,"Oculus Rift not available.\n");
+			}
 		}
 	}
 #endif // SUPPORT_OCULUS
