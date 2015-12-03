@@ -2109,7 +2109,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								}
 								if (1) // mirroring HMD to SV window
 								{
-									oculusResult = ovrHmd_CreateMirrorTextureGL(svframe->oculusHMD,GL_RGBA,svframe->oculusHMD->Resolution.w/2,svframe->oculusHMD->Resolution.h/2,(ovrTexture**)&oculusMirrorTexture);
+									oculusResult = ovrHmd_CreateMirrorTextureGL(svframe->oculusHMD,GL_RGBA,svframe->oculusHMD->Resolution.w,svframe->oculusHMD->Resolution.h,(ovrTexture**)&oculusMirrorTexture);
 									RR_ASSERT(OVR_SUCCESS(oculusResult));
 									// [#51] code from oculus sample
 									glGenFramebuffers(1, &oculusMirrorFBO);
