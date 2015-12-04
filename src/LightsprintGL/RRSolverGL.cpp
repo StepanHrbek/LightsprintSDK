@@ -679,7 +679,7 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 				ddiPboHeight[startIndex] = triCountYInThisPass;
 				glBufferData(GL_PIXEL_PACK_BUFFER, ddiPboWidth[startIndex]*ddiPboHeight[startIndex]*4, NULL, GL_DYNAMIC_READ);
 			}
-			glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_BGRA, GL_UNSIGNED_BYTE, 0);
+			glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
 			// increase counters
