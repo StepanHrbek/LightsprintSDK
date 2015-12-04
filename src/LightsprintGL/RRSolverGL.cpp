@@ -25,9 +25,29 @@
 #define CENTER_GRANULARITY 0.01f // if envmap center moves less than granularity, it is considered unchanged. prevents updates when dynamic object rotates (=position slightly fluctuates)
 #define DDI_READBACK_DELAY // support for delayDDI
 #define DDI_READBACK_SPLIT // split delayed readback into 3 frames
+//#define AMD_PINNED_MEMORY // use AMD_pinned_memory extension when available
 
 namespace rr_gl
 {
+
+#if defined(DDI_READBACK_DELAY) && defined(AMD_PINNED_MEMORY)
+void* AlignedMalloc(size_t size,int byteAlign)
+{
+	void *mallocPtr = malloc(size + byteAlign + sizeof(void*));
+	RR_ASSERT(mallocPtr);
+	size_t ptrInt = (size_t)mallocPtr;
+
+	ptrInt = (ptrInt + byteAlign + sizeof(void*)) / byteAlign * byteAlign;
+	*(((void**)ptrInt) - 1) = mallocPtr;
+
+	return (void*)ptrInt;
+}
+
+void AlignedFree(void *ptr)
+{
+	free(*(((void**)ptr) - 1));
+}
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -63,13 +83,26 @@ RRSolverGL::RRSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pa
 	detectedDirectSum = nullptr;
 	detectedNumTriangles = 0;
 #ifdef DDI_READBACK_DELAY
+	ddiPinnedPbo = 0;
+	ddiPinnedMemory = nullptr;
 	memset(ddiPbo,0,sizeof(ddiPbo));
 	memset(ddiPboWidth,0,sizeof(ddiPboWidth));
 	memset(ddiPboHeight,0,sizeof(ddiPboHeight));
-	glGenBuffers(DDI_PBOS,ddiPbo);
 	ddiPboIndex = 0;
 	ddiPboQueueSize = 0;
-#endif
+#ifdef AMD_PINNED_MEMORY
+	if (GLEW_AMD_pinned_memory)
+	{
+		glGenBuffers(1,&ddiPinnedPbo);
+		ddiPinnedMemory = (unsigned*)AlignedMalloc(DDI_TRIANGLES_X*DDI_TRIANGLES_MAX_Y*4,4096); // 4k aligned (platform dependent)
+		glBindBuffer(GL_EXTERNAL_VIRTUAL_MEMORY_BUFFER_AMD, ddiPinnedPbo);
+		glBufferData(GL_EXTERNAL_VIRTUAL_MEMORY_BUFFER_AMD, DDI_TRIANGLES_X*DDI_TRIANGLES_MAX_Y*4, ddiPinnedMemory, GL_STREAM_COPY);//GL_DYNAMIC_READ);
+		glBindBuffer(GL_EXTERNAL_VIRTUAL_MEMORY_BUFFER_AMD, 0);
+	}
+	else
+#endif // AMD_PINNED_MEMORY
+	glGenBuffers(DDI_PBOS,ddiPbo);
+#endif // DDI_READBACK_DELAY
 
 	observer = nullptr;
 	renderer = rr_gl::Renderer::create(pathToShaders, pathToMaps);
@@ -92,8 +125,16 @@ RRSolverGL::~RRSolverGL()
 	if (detectSmallMap) delete detectSmallMap->getBuffer();
 	delete detectSmallMap;
 #ifdef DDI_READBACK_DELAY
+#ifdef AMD_PINNED_MEMORY
+	if (ddiPinnedMemory)
+	{
+		glDeleteBuffers(1,&ddiPinnedPbo);
+		AlignedFree(ddiPinnedMemory);
+	}
+	else
+#endif // AMD_PINNED_MEMORY
 	glDeleteBuffers(DDI_PBOS,ddiPbo);
-#endif
+#endif // DDI_READBACK_DELAY
 }
 
 void RRSolverGL::setLights(const rr::RRLights& _lights)
@@ -612,6 +653,23 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 		if (_delayDDI && realtimeLights.size()==1 && numPasses==1)
 		{
 
+#ifdef AMD_PINNED_MEMORY
+			if (ddiPinnedMemory)
+			{
+				// start readback
+				glBindBuffer(GL_PIXEL_PACK_BUFFER, ddiPinnedPbo);
+				glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+				glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+				// use it without waiting
+				size_t bytes = triCountX*triCountYInThisPass*sizeof(unsigned);
+				RR_ASSERT(bytes <= _spaceBytes);
+				if (bytes <= _spaceBytes)
+					memcpy(_results,ddiPinnedMemory,bytes);
+			}
+			else
+			{
+#endif // AMD_PINNED_MEMORY
+
 			// start PBO
 			unsigned startIndex = ddiPboIndex;
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, ddiPbo[startIndex]);
@@ -647,14 +705,26 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 			}
 			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
-
+#ifdef AMD_PINNED_MEMORY
+			}
+#endif // AMD_PINNED_MEMORY
 		}
 		else
 		{
-#endif
+#endif // DDI_READBACK_DELAY
 		glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_RGBA, GL_UNSIGNED_BYTE, _results+firstCapturedTriangle); // GL_RGBA+GL_UNSIGNED_BYTE is the only fixed combination supported by OpenGL ES 2.0
 #ifdef DDI_READBACK_DELAY
 			ddiPboQueueSize = 0;
+#ifdef AMD_PINNED_MEMORY
+			if (ddiPinnedMemory && realtimeLights.size()==1 && numPasses==1)
+			{
+				// before starting delayed readbacks, user should call DDI once without delay, to fill ddiPinnedMemory with valid data
+				size_t bytes = triCountX*triCountYInThisPass*sizeof(unsigned);
+				RR_ASSERT(bytes <= _spaceBytes);
+				if (bytes <= _spaceBytes)
+					memcpy(ddiPinnedMemory,_results,bytes);
+			}
+#endif // AMD_PINNED_MEMORY
 		}
 #endif
 	}
