@@ -500,7 +500,7 @@ Material formats (1)
 \page tpl_glew GLEW
   - www: <a href="http://glew.sourceforge.net/">GLEW</a>
   - license: <a href="http://glew.sourceforge.net/glew.txt">modified BSD license</a>
-  - Windows: precompiled version 1.7.0 is a part of SDK
+  - Windows: precompiled version 1.13.0 is a part of SDK
   - OSX: install with <code>sudo port install glew</code>
   - Ubuntu: install with <code>sudo apt-get install libglew1.5-dev</code>
   - Fedora: install with <code>pkcon install glew-devel</code>
