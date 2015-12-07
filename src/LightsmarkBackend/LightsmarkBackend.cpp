@@ -2010,6 +2010,7 @@ int main(int argc, char** argv)
 	uberProgramGlobalSetup.MATERIAL_SPECULAR = 1; // for robot
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_CONST = 1; // for robot
 	uberProgramGlobalSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
+	uberProgramGlobalSetup.MATERIAL_CULLING = 1; // 17% speedup (15% because of 1sided faces in padattic, 2% because robot is 1sided too)
 	uberProgramGlobalSetup.POSTPROCESS_BRIGHTNESS = 1;
 
 	// init shaders
