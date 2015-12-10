@@ -172,7 +172,7 @@ const AnimationFrame* LevelSetup::getFrameByTime(float absSeconds)
 	if (absSeconds<0)
 		return nullptr;
 	Frames::const_iterator i=frames.begin();
-	while (i!=frames.end() && (*i)->transitionToNextTime<absSeconds)
+	while (i!=frames.end() && (*i)->transitionToNextTime<=absSeconds) // "<=" is important because with low precision timer and high fps, we often end exactly on keyframe, and "=" helps skip zero duration keyframes
 	{
 		absSeconds -= (*i)->transitionToNextTime;
 		i++;
@@ -196,7 +196,7 @@ unsigned LevelSetup::getFrameIndexByTime(float absSeconds, float* transitionDone
 {
 	unsigned result = 0;
 	Frames::const_iterator i=frames.begin();
-	while (i!=frames.end() && (*i)->transitionToNextTime<=absSeconds)
+	while (i!=frames.end() && (*i)->transitionToNextTime<=absSeconds) // the same "<=" as in getFrameByTime()
 	{
 		absSeconds -= (*i)->transitionToNextTime;
 		i++;
