@@ -1435,7 +1435,7 @@ no_level:
 			bool animationCut = frameIndex>prevFrameIndex+1; // if we skip frame, there was probably animation cut (cut requires frame with duration 0)
 			if (animationCut && !frame->wantsConstantAmbient()) needImmediateDDI = true; // after cut, GI should be updated without delays
 			demoPlayer->setVolume(frame->volume);
-			bool lightChanged = memcmp(&frame->light,&prevFrame.light,sizeof(rr::RRCamera))!=0;
+			bool lightChanged = frame->light!=prevFrame.light;
 			bool objMoved = demoPlayer->getDynamicObjects()->copyAnimationFrameToScene(level->setup,*frame,lightChanged);
 			if (objMoved)
 				reportObjectMovement();
