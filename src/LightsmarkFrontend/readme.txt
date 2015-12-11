@@ -28,8 +28,8 @@
    - free disk space: 100 MB
 
 3. What's new in Lightsmark 2015
-   - GI updates at full framerate (was naively updated at 20Hz),
-     so fps is lower, but smooth, no spikes at 20Hz
+   - smoother framerate, because GI updates in every frame,
+     rather than just 20x per second
    - OSX support (was Windows+Linux only)
    - new integrated scene editor
 

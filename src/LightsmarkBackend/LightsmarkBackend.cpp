@@ -1513,6 +1513,9 @@ no_frame:
 	}
 	if (backgroundThreadState==TS_FINISHED || (backgroundThreadState==TS_RUNNING && needImmediateDDI))
 	{
+		// todo: 
+		//  if (needImmediateDDI) {this is one of 15 very slow frames in lightsmark, because main thread waits for background to finish}
+		//  but we are going to discard calculated indir, so we can set solver->aborting to speed up join()
 		backgroundThread.join();
 		backgroundThreadState = TS_NONE;
 	}
@@ -1522,9 +1525,9 @@ no_frame:
 		// [#53] if we can't start new background thread, skip DDI and all CPU work, update only shadowmaps
 		calculateParams.qualityIndirectDynamic = 0;
 	}
-#endif
+#endif // !DDI_EVERY_FRAME
 	bool requestingDDI = calculateParams.qualityIndirectDynamic && realtimeLight->dirtyGI;
-#endif
+#endif // BACKGROUND_THREAD
 	level->solver->calculate(&calculateParams);
 #ifdef BACKGROUND_THREAD
 	// early exit if quality=0
@@ -1549,7 +1552,7 @@ no_frame:
 			backgroundThreadState = TS_FINISHED;
 		});
 	}
-#endif
+#endif // BACKGROUND_THREAD
 	needRedisplay = 0;
 
 	drawEyeViewSoftShadowed();
