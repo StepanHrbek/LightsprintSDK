@@ -469,6 +469,7 @@ static void output(int x, int y, const char* string)
 static void drawHelpMessage(int screen)
 {
 	if (shotRequested) return;
+	if (!screen && !showTimingInfo) return; // nothing to draw
 //	if (!big && gameOn) return;
 
 /* misto glutu pouzije truetype fonty z windows
