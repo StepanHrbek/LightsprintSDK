@@ -35,6 +35,7 @@ bool glcache_enabled = false;
 enum {NUM_CAPS=65536};
 char glcache_isEnabled[NUM_CAPS]; // 0=false,1=true,2=unknown
 GLint glcache_viewport[4];
+GLint glcache_scissor[4];
 GLenum glcache_cullFace;
 GLenum glcache_activeTexture;
 struct { GLenum target; GLuint buffer; } glcache_bindBuffer[4] = {
@@ -107,6 +108,22 @@ void glViewport(GLint x, GLint y, GLsizei w, GLsizei h)
 	}
 }
 
+void glScissor(GLint x, GLint y, GLsizei w, GLsizei h)
+{
+	if (!glcache_enabled ||
+		glcache_scissor[0] != x ||
+		glcache_scissor[1] != y ||
+		glcache_scissor[2] != w ||
+		glcache_scissor[3] != h )
+	{
+		glcache_scissor[0] = x;
+		glcache_scissor[1] = y;
+		glcache_scissor[2] = w;
+		glcache_scissor[3] = h;
+		::glScissor(x,y,w,h);
+	}
+}
+
 void glGetIntegerv(GLenum pname, GLint* params)
 {
 	if (glcache_enabled && params)
@@ -118,6 +135,12 @@ void glGetIntegerv(GLenum pname, GLint* params)
 				params[1] = glcache_viewport[1];
 				params[2] = glcache_viewport[2];
 				params[3] = glcache_viewport[3];
+				return;
+			case GL_SCISSOR_BOX:
+				params[0] = glcache_scissor[0];
+				params[1] = glcache_scissor[1];
+				params[2] = glcache_scissor[2];
+				params[3] = glcache_scissor[3];
 				return;
 			case GL_CULL_FACE_MODE:
 				params[0] = glcache_cullFace;

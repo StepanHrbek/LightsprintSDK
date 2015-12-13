@@ -374,7 +374,7 @@ void drawEyeViewSoftShadowed(void)
 		if (splitscreen)
 		{
 			rr_gl::glEnable(GL_SCISSOR_TEST);
-			glScissor(0,0,(unsigned)(winWidth*splitscreen),winHeight);
+			rr_gl::glScissor(0,0,(unsigned)(winWidth*splitscreen),winHeight);
 			rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
 			uberProgramSetup.LIGHT_DIRECT = true;
@@ -386,7 +386,7 @@ void drawEyeViewSoftShadowed(void)
 			uberProgramSetup.LIGHT_INDIRECT_ENV_SPECULAR = false;
 			uberProgramSetup.FORCE_2D_POSITION = false;
 			drawEyeViewShadowed(uberProgramSetup,0);
-			glScissor((unsigned)(winWidth*splitscreen),0,winWidth-(unsigned)(winWidth*splitscreen),winHeight);
+			rr_gl::glScissor((unsigned)(winWidth*splitscreen),0,winWidth-(unsigned)(winWidth*splitscreen),winHeight);
 		}
 
 		if (numInstances>1)
