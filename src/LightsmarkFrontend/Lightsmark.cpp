@@ -166,7 +166,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 				bool editor = SendDlgItemMessage(hDlg,IDC_EDITOR,BM_GETCHECK,0,0)==BST_CHECKED;
 				if (editor)
-					strcat(buf," editor2");
+					strcat(buf," editor");
 
 				bool music = SendDlgItemMessage(hDlg,IDC_MUSIC,BM_GETCHECK,0,0)==BST_CHECKED;
 				if (!music)
@@ -179,7 +179,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShowWindow(hDlg, SW_MINIMIZE);
 
 			// run
-			//ShellExecuteA( nullptr, "open", "backend.exe", params, nullptr, SW_SHOWNORMAL );
+			//ShellExecuteA( nullptr, "open", "LightsmarkBackend.vs2015.exe", params, nullptr, SW_SHOWNORMAL );
 
 			// run & wait
 			SHELLEXECUTEINFOA ShExecInfo = {0};
@@ -188,7 +188,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShExecInfo.hwnd = nullptr;
 			ShExecInfo.lpVerb = nullptr;
 			bool x64 = SendDlgItemMessage(hDlg,IDC_X64,BM_GETCHECK,0,0)==BST_CHECKED;
-			ShExecInfo.lpFile = x64 ? "..\\..\\bin\\x64\\backend.exe" : "..\\..\\bin\\win32\\backend.exe";
+			ShExecInfo.lpFile = x64 ? "..\\..\\bin\\x64\\LightsmarkBackend.vs2015.exe" : "..\\..\\bin\\win32\\LightsmarkBackend.vs2015.exe";
 			ShExecInfo.lpParameters = buf;
 			ShExecInfo.lpDirectory = nullptr; //"..\\..\\data"; WINE can't emulate and GPUShaderPerf can't stand non-nullptr here, let's rather change dir in backend
 			ShExecInfo.nShow = SW_SHOW;
