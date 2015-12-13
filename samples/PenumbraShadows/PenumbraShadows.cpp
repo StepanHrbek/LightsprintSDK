@@ -96,7 +96,7 @@ void renderScene(const rr::RRCamera& camera, rr_gl::UberProgramSetup uberProgram
 	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,realtimeLight,0,1,nullptr,1,nullptr);
 	if (!program)
 		error("Failed to compile or link GLSL program.\n",true);
-	glEnable(GL_CULL_FACE);
+	rr_gl::glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 		program->sendTexture("materialDiffuseMap",nullptr); // activate unit, Draw will bind textures
@@ -142,17 +142,17 @@ void updateShadowmap(unsigned mapIndex)
 	realtimeLight->getShadowmapCamera(mapIndex,lightInstance);
 	glColorMask(0,0,0,0);
 	rr_gl::Texture* shadowmap = realtimeLight->getShadowmap(mapIndex);
-	glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
+	rr_gl::glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
 	rr_gl::FBO oldFBOState = rr_gl::FBO::getState();
 	rr_gl::FBO::setRenderTarget(GL_DEPTH_ATTACHMENT,GL_TEXTURE_2D,shadowmap,oldFBOState);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_POLYGON_OFFSET_FILL);
+	rr_gl::glEnable(GL_POLYGON_OFFSET_FILL);
 	rr_gl::UberProgramSetup uberProgramSetup; // default constructor sets nearly all off, perfect for shadowmap
 	uberProgramSetup.MATERIAL_CULLING = 0;
 	renderScene(lightInstance,uberProgramSetup);
 	oldFBOState.restore();
-	glDisable(GL_POLYGON_OFFSET_FILL);
-	glViewport(0, 0, winWidth, winHeight);
+	rr_gl::glDisable(GL_POLYGON_OFFSET_FILL);
+	rr_gl::glViewport(0, 0, winWidth, winHeight);
 	glColorMask(1,1,1,1);
 }
 
@@ -223,7 +223,7 @@ void reshape(int w, int h)
 {
 	winWidth = w;
 	winHeight = h;
-	glViewport(0, 0, w, h);
+	rr_gl::glViewport(0, 0, w, h);
 	eye.setAspect( winWidth/(float)winHeight );
 	// the most simple bias setting sufficient for this sample
 	// other samples use Lightsprint renderer with more robust bias setting
@@ -309,7 +309,7 @@ int main(int argc, char** argv)
 #endif
 
 	// init GL
-	const char* err = rr_gl::initializeGL();
+	const char* err = rr_gl::initializeGL(true);
 	if (err)
 		error(err,true);
 

@@ -1281,7 +1281,7 @@ save_scene_as:
 						));
 					m_canvas->winWidth = bigSize.x;
 					m_canvas->winHeight = bigSize.y;
-					glViewport(0,0,bigSize.x,bigSize.y);
+					rr_gl::glViewport(0,0,bigSize.x,bigSize.y);
 
 					// 4. disable automatic tonemapping, uses FBO, would not work
 					bool oldTonemapping = svs.tonemappingAutomatic;
@@ -1326,7 +1326,7 @@ save_scene_as:
 
 				// 3a. cleanup
 				oldFBOState.restore();
-				m_canvas->OnSizeCore(true); //glViewport(0,0,m_canvas->winWidth,m_canvas->winHeight);
+				m_canvas->OnSizeCore(true); //rr_gl::glViewport(0,0,m_canvas->winWidth,m_canvas->winHeight);
 
 				// 2. cleanup
 				delete bufDepth;

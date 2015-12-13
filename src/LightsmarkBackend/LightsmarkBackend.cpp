@@ -373,7 +373,7 @@ void drawEyeViewSoftShadowed(void)
 		glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 		if (splitscreen)
 		{
-			glEnable(GL_SCISSOR_TEST);
+			rr_gl::glEnable(GL_SCISSOR_TEST);
 			glScissor(0,0,(unsigned)(winWidth*splitscreen),winHeight);
 			rr_gl::UberProgramSetup uberProgramSetup = uberProgramGlobalSetup;
 			uberProgramSetup.SHADOW_MAPS = 1;
@@ -421,7 +421,7 @@ void drawEyeViewSoftShadowed(void)
 		drawEyeViewShadowed(uberProgramSetup,0);
 
 		if (splitscreen)
-			glDisable(GL_SCISSOR_TEST);
+			rr_gl::glDisable(GL_SCISSOR_TEST);
 }
 
 // captures current scene into thumbnail
@@ -435,7 +435,7 @@ void updateThumbnail(AnimationFrame& frame)
 	// render into thumbnail
 	if (!frame.thumbnail)
 		frame.thumbnail = rr::RRBuffer::create(rr::BT_2D_TEXTURE,160,120,1,rr::BF_RGB,true,nullptr);
-	glViewport(0,0,160,120);
+	rr_gl::glViewport(0,0,160,120);
 	currentFrame.eye = frame.eye; // while rendering, we call setupForRender(currentFrame.eye);
 	drawEyeViewSoftShadowed();
 	rr_gl::readPixelsToBuffer(frame.thumbnail);
@@ -443,7 +443,7 @@ void updateThumbnail(AnimationFrame& frame)
 		//glReadPixels(0,0,160,120,GL_RGB,GL_UNSIGNED_BYTE,pixels);
 		//frame.thumbnail->unlock();
 	rr_gl::getTexture(frame.thumbnail,true,true); // false,true made render of thumbnails terribly slow on X300
-	glViewport(0,0,winWidth,winHeight);
+	rr_gl::glViewport(0,0,winWidth,winHeight);
 }
 
 // fills animation frame with current scene
@@ -497,7 +497,7 @@ static void drawHelpMessage(int screen)
 
 		// set state
 		ambientProgram->useIt();
-		glDisable(GL_DEPTH_TEST);
+		rr_gl::glDisable(GL_DEPTH_TEST);
 		glPushMatrix();
 		glLoadIdentity();
 		glMatrixMode(GL_PROJECTION);
@@ -506,10 +506,10 @@ static void drawHelpMessage(int screen)
 		gluOrtho2D(0, winWidth, winHeight, 0);
 		// box
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
+		rr_gl::glEnable(GL_BLEND);
 		glColor4f(0.0,0.0,0.0,0.6);
 		glRecti(RR_MIN(winWidth-30,500), 30, 30, RR_MIN(winHeight-30,100));
-		glDisable(GL_BLEND);
+		rr_gl::glDisable(GL_BLEND);
 		// text
 		glColor3f(1,1,1);
 		output(100,60,"For more information on Realtime Global Illumination");
@@ -518,7 +518,7 @@ static void drawHelpMessage(int screen)
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
 		glPopMatrix();
-		glEnable(GL_DEPTH_TEST);
+		rr_gl::glEnable(GL_DEPTH_TEST);
 
 		glEndList();
 	}
@@ -596,7 +596,7 @@ static void drawHelpMessage(int screen)
 
 	ambientProgram->useIt();
 
-	glDisable(GL_DEPTH_TEST);
+	rr_gl::glDisable(GL_DEPTH_TEST);
 
 	glPushMatrix();
 	glLoadIdentity();
@@ -607,7 +607,7 @@ static void drawHelpMessage(int screen)
 	gluOrtho2D(0, winWidth, winHeight, 0);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
+	rr_gl::glEnable(GL_BLEND);
 	ambientProgram->sendUniform("materialDiffuseConst",rr::RRVec4(0.0f,0.0f,0.0f,0.6f));
 
 	// Drawn clockwise because the flipped Y axis flips CCW and CW.
@@ -617,7 +617,7 @@ static void drawHelpMessage(int screen)
 		unsigned rectHeight = 360;
 		ambientProgram->sendUniform("materialDiffuseConst",rr::RRVec4(0.0f,0.1f,0.3f,0.6f));
 		glRecti((winWidth+rectWidth)/2, (winHeight-rectHeight)/2, (winWidth-rectWidth)/2, (winHeight+rectHeight)/2);
-		glDisable(GL_BLEND);
+		rr_gl::glDisable(GL_BLEND);
 		ambientProgram->sendUniform("materialDiffuseConst",rr::RRVec4(1.0f,1.0f,1.0f,1.0f));
 		int x = (winWidth-rectWidth)/2+20;
 		int y = (winHeight-rectHeight)/2+30;
@@ -635,7 +635,7 @@ static void drawHelpMessage(int screen)
 	{
 		int x = 40, y = 50;
 		glRecti(RR_MIN(winWidth-30,500), 30, 30, RR_MIN(winHeight-30,100));
-		glDisable(GL_BLEND);
+		rr_gl::glDisable(GL_BLEND);
 		ambientProgram->sendUniform("materialDiffuseConst",rr::RRVec4(1.0f,1.0f,1.0f,1.0f));
 		char buf[200];
 		float demoLength = demoPlayer->getDemoLength();
@@ -673,14 +673,14 @@ static void drawHelpMessage(int screen)
 	}
 	else
 	{
-		glDisable(GL_BLEND);
+		rr_gl::glDisable(GL_BLEND);
 	}
 
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
-	glEnable(GL_DEPTH_TEST);
+	rr_gl::glEnable(GL_DEPTH_TEST);
 }
 
 void showImage(const rr_gl::Texture* tex)
@@ -693,24 +693,24 @@ void showImage(const rr_gl::Texture* tex)
 void showOverlay(const rr::RRBuffer* tex)
 {
 	if (!tex) return;
-	glEnable(GL_BLEND);
+	rr_gl::glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 	rr_gl::ToneParameters tp;
 	tp.color = rr::RRVec4(currentFrame.brightness,1);
 	skyRenderer->render2D(rr_gl::getTexture(tex,false,false),&tp,0,0,1,1);
-	glDisable(GL_BLEND);
+	rr_gl::glDisable(GL_BLEND);
 }
 
 void showOverlay(const rr::RRBuffer* logo,float intensity,float x,float y,float w,float h)
 {
 	if (!logo) return;
-	glEnable(GL_BLEND);
+	rr_gl::glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	rr_gl::ToneParameters tp;
 	tp.color = rr::RRVec4(intensity);
 	skyRenderer->render2D(rr_gl::getTexture(logo,true,false),&tp,x,y,w,h);
-	glDisable(GL_BLEND);
+	rr_gl::glDisable(GL_BLEND);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1272,7 +1272,7 @@ void reshape(int w, int h)
 
 	winWidth = w;
 	winHeight = h;
-	glViewport(0, 0, w, h);
+	rr_gl::glViewport(0, 0, w, h);
 
 	if (!demoPlayer)
 	{
@@ -1693,8 +1693,8 @@ void init_gl_states()
 
 	glLineStipple(1, 0xf0f0);
 
-	glEnable(GL_CULL_FACE);
-	glEnable(GL_NORMALIZE);
+	rr_gl::glEnable(GL_CULL_FACE);
+	rr_gl::glEnable(GL_NORMALIZE);
 
 	glFrontFace(GL_CCW);
 
@@ -1982,7 +1982,7 @@ int main(int argc, char** argv)
 #endif
 
 	// init GL
-	const char* err = rr_gl::initializeGL();
+	const char* err = rr_gl::initializeGL(true);
 	if (err)
 	{
 		rr::RRReporter::report(rr::ERRO,err);
@@ -1991,11 +1991,11 @@ int main(int argc, char** argv)
 	}
 
 	int i1=0,i2=0,i3=0,i4=0,i5=0;
-	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&i1);
-	glGetIntegerv(GL_MAX_TEXTURE_UNITS,&i2);
-	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,&i3);
-	glGetIntegerv(GL_MAX_TEXTURE_COORDS,&i4);
-	glGetIntegerv(GL_MAX_VARYING_FLOATS,&i5);
+	::glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS,&i1);
+	::glGetIntegerv(GL_MAX_TEXTURE_UNITS,&i2);
+	::glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,&i3);
+	::glGetIntegerv(GL_MAX_TEXTURE_COORDS,&i4);
+	::glGetIntegerv(GL_MAX_VARYING_FLOATS,&i5);
 	rr::RRReporter::report(rr::INF1,"  %d image units, %d units, %d combined, %d coords, %d varyings.\n",i1,i2,i3,i4,i5);
 
 	init_gl_states();
@@ -2013,7 +2013,7 @@ int main(int argc, char** argv)
 	uberProgramGlobalSetup.MATERIAL_SPECULAR = 1; // for robot
 	uberProgramGlobalSetup.MATERIAL_SPECULAR_CONST = 1; // for robot
 	uberProgramGlobalSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = 1;
-	uberProgramGlobalSetup.MATERIAL_CULLING = 1; // 17% speedup (15% because of 1sided faces in padattic, 2% because robot is 1sided too)
+	uberProgramGlobalSetup.MATERIAL_CULLING = 1; // 17% speedup (15% because of 1sided faces in padattic, 2% if robot is 1sided too)
 	uberProgramGlobalSetup.POSTPROCESS_BRIGHTNESS = 1;
 
 	// init shaders

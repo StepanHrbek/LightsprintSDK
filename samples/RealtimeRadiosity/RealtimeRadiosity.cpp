@@ -113,7 +113,7 @@ void renderScene(const rr::RRCamera& camera, rr_gl::UberProgramSetup uberProgram
 	rr_gl::Program* program = uberProgramSetup.useProgram(uberProgram,&camera,realtimeLight,0,1,uberProgramSetup.POSTPROCESS_BRIGHTNESS?&brightness:nullptr,1,nullptr);
 	if (!program)
 		error("Failed to compile or link GLSL program.\n",true);
-	glEnable(GL_CULL_FACE);
+	rr_gl::glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	if (uberProgramSetup.MATERIAL_DIFFUSE_MAP)
 		program->sendTexture("materialDiffuseMap",nullptr); // calls glActiveTexture(), Draw will bind textures
@@ -283,7 +283,7 @@ void reshape(int w, int h)
 {
 	winWidth = w;
 	winHeight = h;
-	glViewport(0, 0, w, h);
+	rr_gl::glViewport(0, 0, w, h);
 	eye.setAspect( winWidth/(float)winHeight );
 }
 
@@ -377,7 +377,7 @@ int main(int argc, char** argv)
 #endif
 
 	// init GL
-	const char* err = rr_gl::initializeGL();
+	const char* err = rr_gl::initializeGL(true);
 	if (err)
 		error(err,true);
 

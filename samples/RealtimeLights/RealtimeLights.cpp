@@ -193,7 +193,7 @@ void reshape(int w, int h)
 {
 	winWidth = w;
 	winHeight = h;
-	glViewport(0, 0, w, h);
+	rr_gl::glViewport(0, 0, w, h);
 	eye.setAspect( winWidth/(float)winHeight );
 }
 
@@ -342,7 +342,7 @@ int main(int argc, char** argv)
 	glutInitWindowSize(800,600);glutCreateWindow("Lightsprint RealtimeLights"); // for windowed mode
 
 	// init GL
-	const char* err = rr_gl::initializeGL();
+	const char* err = rr_gl::initializeGL(true);
 	if (err)
 		error(err,true);
 	

@@ -21,8 +21,28 @@ namespace rr_gl
 //
 //! Initializes glew library and some OpenGL states.
 //! Should be called only once, soon after OpenGL context creation.
-//! \return nullptr on success, error message when OpenGL was not initialized properly.
-RR_GL_API const char* initializeGL();
+//! \param enableGLStateCaching
+//!  True to enable GL state caching.
+//!  State caching reduces number of GL calls, increasing fps,
+//!  but it requires you to always call rr_gl::glXxx() instead of glXxx().
+//!  If you forget, cached state diverges from real GL state.
+//! \return
+//!  nullptr on success, error message when OpenGL was not initialized properly.
+RR_GL_API const char* initializeGL(bool enableGLStateCaching);
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// functions to call when GL state caching is enabled
+
+RR_GL_API void glEnable(GLenum cap);
+RR_GL_API void glDisable(GLenum cap);
+RR_GL_API GLboolean glIsEnabled(GLenum cap);
+RR_GL_API void glViewport(GLint x, GLint y, GLsizei w, GLsizei h);
+RR_GL_API void glGetIntegerv(GLenum pname, GLint* params);
+RR_GL_API void glCullFace(GLenum mode);
+RR_GL_API void glActiveTexture(GLenum texture);
+RR_GL_API void glBindBuffer(GLenum target, GLuint buffer);
 
 
 /////////////////////////////////////////////////////////////////////////////

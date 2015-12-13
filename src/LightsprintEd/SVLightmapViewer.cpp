@@ -46,7 +46,7 @@ void SVLightmapViewer::setObject(rr::RRBuffer* _pixelBuffer, const rr::RRObject*
 	if (buffer)
 	{
 		rr_gl::getTexture(buffer,true,_pixelBuffer->getType()==rr::BT_2D_TEXTURE); // no compression for cubemaps, it would prevent rendering into them later
-		glActiveTexture(GL_TEXTURE0);
+		rr_gl::glActiveTexture(GL_TEXTURE0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, _bilinear?GL_LINEAR:GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, _bilinear?GL_LINEAR:GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -113,7 +113,7 @@ void SVLightmapViewer::OnPaint(rr_gl::TextureRenderer* textureRenderer, wxSize w
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// setup states
-	glDisable(GL_DEPTH_TEST);
+	rr_gl::glDisable(GL_DEPTH_TEST);
 
 	updateTransformation(windowSize);
 	rr::RRVec2 quad[4];
@@ -174,7 +174,7 @@ void SVLightmapViewer::OnPaint(rr_gl::TextureRenderer* textureRenderer, wxSize w
 	}
 
 	// restore states
-	glEnable(GL_DEPTH_TEST);
+	rr_gl::glEnable(GL_DEPTH_TEST);
 	glUseProgram(0); // prevents crashes in Radeon driver in BuildLightmaps sample
 }
 

@@ -32,6 +32,7 @@ NEWS
 - Visual Studio 2015 support
 - misc
   - higher quality baking for models with bump maps
+  - rr_gl::initializeGL() parameter can enable GL state caching and possibly reduce number of GL calls (10% speedup Lightsmark, when CPU bound)
   - RRMeshArrays::plane(), rectangle(), box(), sphere(), cylinder()
   - RRCamera::PC_TRUNCATE_TOP_BOT
   - Oculus Rift integration updated to Oculus SDK version 0.6.0.0

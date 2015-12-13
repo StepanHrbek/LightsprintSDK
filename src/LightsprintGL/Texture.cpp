@@ -29,6 +29,143 @@ namespace rr_gl
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// locally cached state
+
+bool glcache_enabled = false;
+enum {NUM_CAPS=65536};
+char glcache_isEnabled[NUM_CAPS]; // 0=false,1=true,2=unknown
+GLint glcache_viewport[4];
+GLenum glcache_cullFace;
+GLenum glcache_activeTexture;
+struct { GLenum target; GLuint buffer; } glcache_bindBuffer[4] = {
+	{GL_ARRAY_BUFFER,0},
+	{GL_ELEMENT_ARRAY_BUFFER,0},
+	{GL_PIXEL_PACK_BUFFER_ARB,0},
+	{GL_EXTERNAL_VIRTUAL_MEMORY_BUFFER_AMD,0}};
+
+
+void configureGLStateCache(bool enable)
+{
+	if (enable && !glcache_enabled)
+	{
+		for (unsigned i=0;i<NUM_CAPS;i++)
+			glcache_isEnabled[i] = 2;
+		::glGetIntegerv(GL_VIEWPORT, glcache_viewport);
+		::glGetIntegerv(GL_CULL_FACE_MODE, (GLint*)&glcache_cullFace);
+		::glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&glcache_activeTexture);
+		// glcache_bindBuffer not filled, could be problem if you call configureGLStateCache() in wrong moment
+	}
+	glcache_enabled = enable;
+}
+
+void glEnable(GLenum cap)
+{
+	if (!glcache_enabled || cap>=NUM_CAPS || glcache_isEnabled[cap] != 1)
+	{
+		glcache_isEnabled[cap] = 1;
+		::glEnable(cap);
+	}
+}
+
+void glDisable(GLenum cap)
+{
+	if (!glcache_enabled || cap>=NUM_CAPS || glcache_isEnabled[cap] != 0)
+	{
+		glcache_isEnabled[cap] = 0;
+		::glDisable(cap);
+	}
+}
+
+GLboolean glIsEnabled(GLenum cap)
+{
+	if (glcache_enabled && cap<NUM_CAPS)
+	{
+		switch (glcache_isEnabled[cap])
+		{
+			case 0: return GL_FALSE;
+			case 1: return GL_TRUE;
+			default: return (glcache_isEnabled[cap] = ::glIsEnabled(cap)?1:0) ? GL_TRUE : GL_FALSE;
+		}
+	}
+	else
+		return ::glIsEnabled(cap);
+}
+
+void glViewport(GLint x, GLint y, GLsizei w, GLsizei h)
+{
+	if (!glcache_enabled ||
+		glcache_viewport[0] != x ||
+		glcache_viewport[1] != y ||
+		glcache_viewport[2] != w ||
+		glcache_viewport[3] != h )
+	{
+		glcache_viewport[0] = x;
+		glcache_viewport[1] = y;
+		glcache_viewport[2] = w;
+		glcache_viewport[3] = h;
+		::glViewport(x,y,w,h);
+	}
+}
+
+void glGetIntegerv(GLenum pname, GLint* params)
+{
+	if (glcache_enabled && params)
+	{
+		switch (pname)
+		{
+			case GL_VIEWPORT:
+				params[0] = glcache_viewport[0];
+				params[1] = glcache_viewport[1];
+				params[2] = glcache_viewport[2];
+				params[3] = glcache_viewport[3];
+				return;
+			case GL_CULL_FACE_MODE:
+				params[0] = glcache_cullFace;
+				return;
+		}
+	}
+	::glGetIntegerv(pname, params);
+}
+
+void glCullFace(GLenum mode)
+{
+	if (!glcache_enabled || glcache_cullFace != mode)
+	{
+		glcache_cullFace = mode;
+		::glCullFace(mode);
+	}
+}
+
+void glActiveTexture(GLenum texture)
+{
+	if (!glcache_enabled || glcache_activeTexture != texture)
+	{
+		glcache_activeTexture = texture;
+		::glActiveTexture(texture);
+	}
+}
+
+void glBindBuffer(GLenum target, GLuint buffer)
+{
+	if (glcache_enabled)
+	{
+		for (unsigned i=0;i<4;i++)
+			if (glcache_bindBuffer[i].target == target)
+			{
+				if (glcache_bindBuffer[i].buffer != buffer)
+				{
+					glcache_bindBuffer[i].buffer = buffer;
+					::glBindBuffer(target, buffer);
+				}
+				return;
+			}
+	}
+	::glBindBuffer(target, buffer);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // FBO
 
 static FBO      s_fboState;
@@ -177,7 +314,7 @@ void FBO::restore()
 //
 // init GL
 
-const char* initializeGL()
+const char* initializeGL(bool enableGLStateCaching)
 {
 #ifdef __ANDROID__
 
@@ -216,6 +353,7 @@ const char* initializeGL()
 
 #endif //!__ANDROID__
 
+	configureGLStateCache(enableGLStateCaching);
 	FBO_init();
 
 	// init misc GL states

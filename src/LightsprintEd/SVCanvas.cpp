@@ -237,7 +237,7 @@ public:
 					if (glDebugMessageCallbackARB)
 					{
 						glDebugMessageCallbackARB(debugCallback, nullptr);
-						glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+						rr_gl::glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 						glDebugMessageControlARB(GL_DONT_CARE,GL_DEBUG_TYPE_PERFORMANCE_ARB,GL_DONT_CARE,0,nullptr,GL_FALSE);
 					}
 					else
@@ -299,7 +299,7 @@ void SVCanvas::createContextCore()
 	s_oldAllocHook = _CrtSetAllocHook(newAllocHook);
 #endif
 
-	const char* error = rr_gl::initializeGL();
+	const char* error = rr_gl::initializeGL(true);
 	if (error)
 	{
 		rr::RRReporter::report(rr::ERRO,error);
@@ -680,7 +680,7 @@ void SVCanvas::OnSizeCore(bool force)
 			else
 				winHeight = w*svframe->userPreferences.sshotEnhancedHeight/svframe->userPreferences.sshotEnhancedWidth;
 		}
-		glViewport((w-winWidth)/2,(h-winHeight)/2,winWidth,winHeight);
+		rr_gl::glViewport((w-winWidth)/2,(h-winHeight)/2,winWidth,winHeight);
 	}
 }
 
@@ -2252,10 +2252,10 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			if (vignetteImage && textureRenderer)
 			{
-				glEnable(GL_BLEND);
+				rr_gl::glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				textureRenderer->render2D(rr_gl::getTexture(vignetteImage,false,false),nullptr,0,0,1,1);
-				glDisable(GL_BLEND);
+				rr_gl::glDisable(GL_BLEND);
 			}
 		}
 
@@ -2274,10 +2274,10 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				{
 					float w = logoImage->getWidth()/(float)winWidth;
 					float h = logoImage->getHeight()/(float)winHeight;
-					glEnable(GL_BLEND);
+					rr_gl::glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 					textureRenderer->render2D(rr_gl::getTexture(logoImage,false,false),nullptr,1-w,1-h,w,h);
-					glDisable(GL_BLEND);
+					rr_gl::glDisable(GL_BLEND);
 				}
 			}
 		}
@@ -2473,7 +2473,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			centerObject = UINT_MAX; // reset pointer to texel in the center of screen, it will be set again ~100 lines below
 			centerTexel = UINT_MAX;
 			centerTriangle = UINT_MAX;
-			glDisable(GL_DEPTH_TEST);
+			rr_gl::glDisable(GL_DEPTH_TEST);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			glMatrixMode(GL_PROJECTION);
@@ -2673,7 +2673,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					}
 				}
 			}
-			glEnable(GL_DEPTH_TEST);
+			rr_gl::glEnable(GL_DEPTH_TEST);
 		}
 	}
 
@@ -2713,10 +2713,10 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				w /= h;
 				h = 1;
 			}
-			glEnable(GL_BLEND);
+			rr_gl::glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			textureRenderer->render2D(rr_gl::getTexture(helpImage,false,false),nullptr,(1-w)*0.5f,(1-h)*0.5f,w,h);
-			glDisable(GL_BLEND);
+			rr_gl::glDisable(GL_BLEND);
 		}
 	}
 
@@ -2725,8 +2725,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	if (oculusRenderingFrame)
 	{
 		oculusOldFBOState.restore();
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0); // at least this one is necessary for RL
+		rr_gl::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		rr_gl::glBindBuffer(GL_ARRAY_BUFFER, 0); // at least this one is necessary for RL
 
 		// distort image to HMD
 		ovrViewScaleDesc oculusViewScaleDesc;
@@ -2765,13 +2765,13 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (textureRenderer->render2dBegin(nullptr))
 			{
 				rr_gl::PreserveFlag p0(GL_DEPTH_TEST,false);
-				glActiveTexture(GL_TEXTURE0);
+				rr_gl::glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D,((ovrGLTexture*)&oculusMirrorTexture)->OGL.TexId);
 				textureRenderer->render2dQuad(nullptr,0,0,1,1);
 				textureRenderer->render2dEnd();
 			}
 			/* */
-			//glActiveTexture(GL_TEXTURE0);
+			//rr_gl::glActiveTexture(GL_TEXTURE0);
 			//glBindTexture(GL_TEXTURE_2D,((ovrGLTexture*)oculusMirrorTexture)->OGL.TexId);
 			//textureRenderer->render2D(nullptr,nullptr,0,0,1,1);
 		}
