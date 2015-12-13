@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2015 for Windows Desktop
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Collider samples", "Collider samples", "{0835826C-4BA7-43CD-8525-A2553DE5D2C3}"
 EndProject
@@ -43,6 +43,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintEd.vs2015", "LightsprintEd\LightsprintEd.vs2015.vcxproj", "{1A354CD4-2F21-93DE-51B9-88DA14A602BF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibOVR", "%OCULUS_DIR%\Projects\Windows\VS2015\LibOVR.vcxproj", "{EA50E705-5113-49E5-B105-2512EDC8DDC6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsmarkFrontend", "LightsmarkFrontend\LightsmarkFrontend.vcxproj", "{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -344,6 +346,20 @@ Global
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release static|Win32.Build.0 = Release|Win32
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release static|x64.ActiveCfg = Release|x64
 		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release static|x64.Build.0 = Release|x64
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|Win32.Build.0 = Debug static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|x64.ActiveCfg = Debug static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|x64.Build.0 = Debug static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|Win32.ActiveCfg = Debug static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|Win32.Build.0 = Debug static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|x64.ActiveCfg = Debug static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|Win32.ActiveCfg = Release static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|Win32.Build.0 = Release static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|x64.ActiveCfg = Release static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|x64.Build.0 = Release static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.ActiveCfg = Release static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.Build.0 = Release static|Win32
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|x64.ActiveCfg = Release static|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
