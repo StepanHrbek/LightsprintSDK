@@ -42,11 +42,11 @@ public:
 		smallTexture = nullptr;
 #ifdef PBO
 		glGenBuffers(2,pbo);
-		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pbo[0]);
-		glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, SMALL_W*SMALL_H*SMALL_E, 0, GL_STREAM_READ_ARB);
-		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pbo[1]);
-		glBufferDataARB(GL_PIXEL_PACK_BUFFER_ARB, SMALL_W*SMALL_H*SMALL_E, 0, GL_STREAM_READ_ARB);
-		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[0]);
+		glBufferData(GL_PIXEL_PACK_BUFFER, SMALL_W*SMALL_H*SMALL_E, 0, GL_STREAM_READ_ARB);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, pbo[1]);
+		glBufferData(GL_PIXEL_PACK_BUFFER, SMALL_W*SMALL_H*SMALL_E, 0, GL_STREAM_READ_ARB);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 		pboIndex = 0;
 		pboTime.addSeconds(-10);
 #endif
