@@ -318,7 +318,7 @@ void SVCanvas::createContextCore()
 
 	{
 		int viewport[4];
-		glGetIntegerv(GL_VIEWPORT,viewport);
+		rr_gl::glGetIntegerv(GL_VIEWPORT,viewport);
 		winWidth = viewport[2];
 		winHeight = viewport[3];
 	}
@@ -2082,7 +2082,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					case rr::RRCamera::SM_INTERLACED:
 						{
 							GLint viewport[4];
-							glGetIntegerv(GL_VIEWPORT,viewport);
+							rr_gl::glGetIntegerv(GL_VIEWPORT,viewport);
 							int trueWinWidth, trueWinHeight;
 							canvasWindow->GetClientSize(&trueWinWidth, &trueWinHeight);
 							if ((canvasWindow->GetScreenPosition().y+trueWinHeight-viewport[1]-viewport[3])&1)
