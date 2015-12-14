@@ -41,6 +41,7 @@ GLenum glcache_activeTexture;
 GLboolean glcache_depthMask;
 GLboolean glcache_colorMask[4];
 GLint glcache_blendFunc[2];
+GLfloat glcache_clearColor[4];
 struct { GLenum target; GLuint buffer; } glcache_bindBuffer[4] = {
 	{GL_ARRAY_BUFFER,0},
 	{GL_ELEMENT_ARRAY_BUFFER,0},
@@ -61,6 +62,7 @@ void configureGLStateCache(bool enable)
 		::glGetBooleanv(GL_COLOR_WRITEMASK,glcache_colorMask);
 		::glGetIntegerv(GL_BLEND_SRC_RGB,&glcache_blendFunc[0]);
 		::glGetIntegerv(GL_BLEND_DST_RGB,&glcache_blendFunc[1]);
+		::glGetFloatv(GL_COLOR_CLEAR_VALUE,glcache_clearColor);
 		// glcache_bindBuffer not filled, could be problem if you call configureGLStateCache() in wrong moment
 	}
 	glcache_enabled = enable;
@@ -167,6 +169,12 @@ void glGetIntegerv(GLenum pname, GLint* params)
 			case GL_BLEND_DST_RGB:
 				params[0] = glcache_blendFunc[1];
 				return;
+			case GL_COLOR_CLEAR_VALUE:
+				params[0] = glcache_clearColor[0];
+				params[1] = glcache_clearColor[1];
+				params[2] = glcache_clearColor[2];
+				params[3] = glcache_clearColor[3];
+				return;
 		}
 	}
 	::glGetIntegerv(pname, params);
@@ -236,6 +244,18 @@ void glBlendFunc(GLenum sfactor, GLenum dfactor)
 		glcache_blendFunc[0] = sfactor;
 		glcache_blendFunc[1] = dfactor;
 		::glBlendFunc(sfactor, dfactor);
+	}
+}
+
+void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
+{
+	if (!glcache_enabled || glcache_clearColor[0]!=red || glcache_clearColor[1]!=green || glcache_clearColor[2]!=blue || glcache_clearColor[3]!=alpha)
+	{
+		glcache_clearColor[0] = red;
+		glcache_clearColor[1] = green;
+		glcache_clearColor[2] = blue;
+		glcache_clearColor[3] = alpha;
+		::glClearColor(red,green,blue,alpha);
 	}
 }
 

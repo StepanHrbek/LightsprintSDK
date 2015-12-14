@@ -726,9 +726,9 @@ void toggleWireFrame(void)
 {
 	wireFrame = !wireFrame;
 	if (wireFrame) {
-		glClearColor(0.1f,0.2f,0.2f,0);
+		rr_gl::glClearColor(0.1f,0.2f,0.2f,0);
 	} else {
-		glClearColor(0,0,0,0);
+		rr_gl::glClearColor(0,0,0,0);
 	}
 	glutPostRedisplay();
 }
@@ -1686,7 +1686,7 @@ void init_gl_states()
 	//glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &samplers2);
 	//printf("GPU limits: samplers=%d / %d\n",samplers1,samplers2);
 
-	glClearColor(0,0,0,0);
+	rr_gl::glClearColor(0,0,0,0);
 
 	/* GL_LEQUAL ensures that when fragments with equal depth are
 	generated within a single rendering pass, the last fragment

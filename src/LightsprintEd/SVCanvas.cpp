@@ -1554,9 +1554,9 @@ void SVCanvas::OnPaint(wxPaintEvent& event)
 
 	if (renderEmptyFrames || !fullyCreated)
 	{
-		glClearColor(0.31f,0.31f,0.31f,0);
+		rr_gl::glClearColor(0.31f,0.31f,0.31f,0);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glClearColor(0,0,0,0);
+		rr_gl::glClearColor(0,0,0,0);
 		if (renderEmptyFrames)
 			renderEmptyFrames--;
 		canvasWindow->SwapBuffers();
@@ -1627,9 +1627,9 @@ bool SVCanvas::Paint(bool _takingSshot, const wxString& extraMessage)
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
 		RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"3D renderer crashed, you'll see no image. The rest of application (menus, windows, hotkeys) may still work.\n"));
-		glClearColor(1,0,0,0);
+		rr_gl::glClearColor(1,0,0,0);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glClearColor(0,0,0,0);
+		rr_gl::glClearColor(0,0,0,0);
 	}
 #endif
 	return result;
