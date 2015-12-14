@@ -1142,7 +1142,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 			}
 			break;
 		case CM_DELETE:
-			if (solver && okToDelete())
+			if (solver)
 			{
 				// display log window with 'abort' while this function runs
 				bool containsObjects = false;
