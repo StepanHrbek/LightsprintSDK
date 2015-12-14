@@ -305,6 +305,7 @@ done:
 			//  not even for rgb shadows (they multiply each other, order doesn't matter).
 			// [#45] MATERIAL_CULLING is off because rendering both sides reduces shadow bias problem. And 1-sided faces are often expected to cast shadow in both directions.
 			//  Even if we put it on, honourOfflineFlags in RendererOfMesh will turn it off for virtually all materials.
+			//  Even if we put it on and disable honourOfflineFlags, so Lightsmark shadows become 1sided(=reduced overdraw), fps does not significantly change.
 			UberProgramSetup uberProgramSetup;
 			switch(light->shadowTransparencyActual)
 			{
