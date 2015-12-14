@@ -52,7 +52,7 @@ void AnimationEditor::renderThumbnails(rr_gl::TextureRenderer* renderer) const
 		{
 			GLboolean blend = rr_gl::glIsEnabled(GL_BLEND);
 			rr_gl::glEnable(GL_BLEND);
-			//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			//rr_gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			float move = fabs((clock()%CLOCKS_PER_SEC)/(float)CLOCKS_PER_SEC-0.5f);
 			renderer->render2D(rr_gl::getTexture(cursorMap),nullptr,x,y+h*(0.1f+move),w*0.3f,h*0.4f);
 			if (!blend)

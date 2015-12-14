@@ -165,7 +165,7 @@ void SVEntityIcons::renderIcons(const SVEntities& entities, rr_gl::TextureRender
 	rr_gl::PreserveAlphaTest p3;
 	rr_gl::PreserveAlphaFunc p4;
 	rr_gl::glEnable(GL_ALPHA_TEST); glAlphaFunc(GL_GREATER,0.03f); // keyed icons (alpha0=transparent)
-	rr_gl::glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // blended icons (alpha0=transparent)
+	rr_gl::glEnable(GL_BLEND); rr_gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // blended icons (alpha0=transparent)
 	piwIconRectangles.clear();
 	if (textureRenderer)
 	{

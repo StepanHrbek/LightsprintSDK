@@ -2253,7 +2253,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			if (vignetteImage && textureRenderer)
 			{
 				rr_gl::glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+				rr_gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				textureRenderer->render2D(rr_gl::getTexture(vignetteImage,false,false),nullptr,0,0,1,1);
 				rr_gl::glDisable(GL_BLEND);
 			}
@@ -2275,7 +2275,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 					float w = logoImage->getWidth()/(float)winWidth;
 					float h = logoImage->getHeight()/(float)winHeight;
 					rr_gl::glEnable(GL_BLEND);
-					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					rr_gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 					textureRenderer->render2D(rr_gl::getTexture(logoImage,false,false),nullptr,1-w,1-h,w,h);
 					rr_gl::glDisable(GL_BLEND);
 				}
@@ -2714,7 +2714,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				h = 1;
 			}
 			rr_gl::glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			rr_gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			textureRenderer->render2D(rr_gl::getTexture(helpImage,false,false),nullptr,(1-w)*0.5f,(1-h)*0.5f,w,h);
 			rr_gl::glDisable(GL_BLEND);
 		}

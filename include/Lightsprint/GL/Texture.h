@@ -46,6 +46,7 @@ RR_GL_API void glActiveTexture(GLenum texture);
 RR_GL_API void glBindBuffer(GLenum target, GLuint buffer);
 RR_GL_API void glDepthMask(GLboolean depth);
 RR_GL_API void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+RR_GL_API void glBlendFunc(GLenum sfactor, GLenum dfactor);
 
 
 /////////////////////////////////////////////////////////////////////////////

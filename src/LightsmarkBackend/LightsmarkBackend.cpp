@@ -506,7 +506,7 @@ static void drawHelpMessage(int screen)
 		glLoadIdentity();
 		gluOrtho2D(0, winWidth, winHeight, 0);
 		// box
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		rr_gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		rr_gl::glEnable(GL_BLEND);
 		glColor4f(0.0,0.0,0.0,0.6);
 		glRecti(RR_MIN(winWidth-30,500), 30, 30, RR_MIN(winHeight-30,100));
@@ -607,7 +607,7 @@ static void drawHelpMessage(int screen)
 	glLoadIdentity();
 	gluOrtho2D(0, winWidth, winHeight, 0);
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	rr_gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	rr_gl::glEnable(GL_BLEND);
 	ambientProgram->sendUniform("materialDiffuseConst",rr::RRVec4(0.0f,0.0f,0.0f,0.6f));
 
@@ -695,8 +695,8 @@ void showOverlay(const rr::RRBuffer* tex)
 {
 	if (!tex) return;
 	rr_gl::glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
+	//rr_gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	rr_gl::glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 	rr_gl::ToneParameters tp;
 	tp.color = rr::RRVec4(currentFrame.brightness,1);
 	skyRenderer->render2D(rr_gl::getTexture(tex,false,false),&tp,0,0,1,1);
@@ -707,7 +707,7 @@ void showOverlay(const rr::RRBuffer* logo,float intensity,float x,float y,float 
 {
 	if (!logo) return;
 	rr_gl::glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	rr_gl::glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	rr_gl::ToneParameters tp;
 	tp.color = rr::RRVec4(intensity);
 	skyRenderer->render2D(rr_gl::getTexture(logo,true,false),&tp,x,y,w,h);
