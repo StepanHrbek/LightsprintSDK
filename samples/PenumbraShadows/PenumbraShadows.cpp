@@ -140,7 +140,7 @@ void updateShadowmap(unsigned mapIndex)
 {
 	rr::RRCamera lightInstance;
 	realtimeLight->getShadowmapCamera(mapIndex,lightInstance);
-	glColorMask(0,0,0,0);
+	rr_gl::glColorMask(0,0,0,0);
 	rr_gl::Texture* shadowmap = realtimeLight->getShadowmap(mapIndex);
 	rr_gl::glViewport(0, 0, shadowmap->getBuffer()->getWidth(), shadowmap->getBuffer()->getHeight());
 	rr_gl::FBO oldFBOState = rr_gl::FBO::getState();
@@ -153,7 +153,7 @@ void updateShadowmap(unsigned mapIndex)
 	oldFBOState.restore();
 	rr_gl::glDisable(GL_POLYGON_OFFSET_FILL);
 	rr_gl::glViewport(0, 0, winWidth, winHeight);
-	glColorMask(1,1,1,1);
+	rr_gl::glColorMask(1,1,1,1);
 }
 
 

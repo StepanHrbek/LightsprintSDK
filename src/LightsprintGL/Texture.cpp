@@ -38,6 +38,8 @@ GLint glcache_viewport[4];
 GLint glcache_scissor[4];
 GLenum glcache_cullFace;
 GLenum glcache_activeTexture;
+GLboolean glcache_depthMask;
+GLboolean glcache_colorMask[4];
 struct { GLenum target; GLuint buffer; } glcache_bindBuffer[4] = {
 	{GL_ARRAY_BUFFER,0},
 	{GL_ELEMENT_ARRAY_BUFFER,0},
@@ -54,6 +56,8 @@ void configureGLStateCache(bool enable)
 		::glGetIntegerv(GL_VIEWPORT, glcache_viewport);
 		::glGetIntegerv(GL_CULL_FACE_MODE, (GLint*)&glcache_cullFace);
 		::glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&glcache_activeTexture);
+		::glGetBooleanv(GL_DEPTH_WRITEMASK,&glcache_depthMask);
+		::glGetBooleanv(GL_COLOR_WRITEMASK,glcache_colorMask);
 		// glcache_bindBuffer not filled, could be problem if you call configureGLStateCache() in wrong moment
 	}
 	glcache_enabled = enable;
@@ -145,6 +149,15 @@ void glGetIntegerv(GLenum pname, GLint* params)
 			case GL_CULL_FACE_MODE:
 				params[0] = glcache_cullFace;
 				return;
+			case GL_DEPTH_WRITEMASK:
+				params[0] = glcache_depthMask;
+				return;
+			case GL_COLOR_WRITEMASK:
+				params[0] = glcache_colorMask[0];
+				params[1] = glcache_colorMask[1];
+				params[2] = glcache_colorMask[2];
+				params[3] = glcache_colorMask[3];
+				return;
 		}
 	}
 	::glGetIntegerv(pname, params);
@@ -184,6 +197,27 @@ void glBindBuffer(GLenum target, GLuint buffer)
 			}
 	}
 	::glBindBuffer(target, buffer);
+}
+
+void glDepthMask(GLboolean depth)
+{
+	if (!glcache_enabled || glcache_depthMask != depth)
+	{
+		glcache_depthMask = depth;
+		::glDepthMask(depth);
+	}
+}
+
+void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+{
+	if (!glcache_enabled || glcache_colorMask[0]!=red || glcache_colorMask[1]!=green || glcache_colorMask[2]!=blue || glcache_colorMask[3]!=alpha)
+	{
+		glcache_colorMask[0] = red;
+		glcache_colorMask[1] = green;
+		glcache_colorMask[2] = blue;
+		glcache_colorMask[3] = alpha;
+		::glColorMask(red, green, blue, alpha);
+	}
 }
 
 
