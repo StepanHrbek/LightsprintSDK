@@ -154,6 +154,40 @@ void glGetIntegerv(GLenum pname, GLint* params)
 			case GL_CULL_FACE_MODE:
 				params[0] = glcache_cullFace;
 				return;
+			case GL_BLEND_SRC_RGB:
+				params[0] = glcache_blendFunc[0];
+				return;
+			case GL_BLEND_DST_RGB:
+				params[0] = glcache_blendFunc[1];
+				return;
+		}
+	}
+	::glGetIntegerv(pname, params);
+}
+
+void glGetFloatv(GLenum pname, GLfloat* params)
+{
+	if (glcache_enabled && params)
+	{
+		switch (pname)
+		{
+			case GL_COLOR_CLEAR_VALUE:
+				params[0] = glcache_clearColor[0];
+				params[1] = glcache_clearColor[1];
+				params[2] = glcache_clearColor[2];
+				params[3] = glcache_clearColor[3];
+				return;
+		}
+	}
+	::glGetFloatv(pname, params);
+}
+
+void glGetBooleanv(GLenum pname, GLboolean* params)
+{
+	if (glcache_enabled && params)
+	{
+		switch (pname)
+		{
 			case GL_DEPTH_WRITEMASK:
 				params[0] = glcache_depthMask;
 				return;
@@ -163,21 +197,9 @@ void glGetIntegerv(GLenum pname, GLint* params)
 				params[2] = glcache_colorMask[2];
 				params[3] = glcache_colorMask[3];
 				return;
-			case GL_BLEND_SRC_RGB:
-				params[0] = glcache_blendFunc[0];
-				return;
-			case GL_BLEND_DST_RGB:
-				params[0] = glcache_blendFunc[1];
-				return;
-			case GL_COLOR_CLEAR_VALUE:
-				params[0] = glcache_clearColor[0];
-				params[1] = glcache_clearColor[1];
-				params[2] = glcache_clearColor[2];
-				params[3] = glcache_clearColor[3];
-				return;
 		}
 	}
-	::glGetIntegerv(pname, params);
+	::glGetBooleanv(pname, params);
 }
 
 void glCullFace(GLenum mode)

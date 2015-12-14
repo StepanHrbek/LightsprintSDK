@@ -41,6 +41,8 @@ RR_GL_API GLboolean glIsEnabled(GLenum cap);
 RR_GL_API void glViewport(GLint x, GLint y, GLsizei w, GLsizei h);
 RR_GL_API void glScissor(GLint x, GLint y, GLsizei w, GLsizei h);
 RR_GL_API void glGetIntegerv(GLenum pname, GLint* params);
+RR_GL_API void glGetFloatv(GLenum pname, GLfloat* params);
+RR_GL_API void glGetBooleanv(GLenum pname, GLboolean* params);
 RR_GL_API void glCullFace(GLenum mode);
 RR_GL_API void glActiveTexture(GLenum texture);
 RR_GL_API void glBindBuffer(GLenum target, GLuint buffer);
