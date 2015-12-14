@@ -35,14 +35,11 @@ RR_GL_API const char* initializeGL(bool enableGLStateCaching);
 //
 // functions to call when GL state caching is enabled
 
+// setters
 RR_GL_API void glEnable(GLenum cap);
 RR_GL_API void glDisable(GLenum cap);
-RR_GL_API GLboolean glIsEnabled(GLenum cap);
 RR_GL_API void glViewport(GLint x, GLint y, GLsizei w, GLsizei h);
 RR_GL_API void glScissor(GLint x, GLint y, GLsizei w, GLsizei h);
-RR_GL_API void glGetIntegerv(GLenum pname, GLint* params);
-RR_GL_API void glGetFloatv(GLenum pname, GLfloat* params);
-RR_GL_API void glGetBooleanv(GLenum pname, GLboolean* params);
 RR_GL_API void glCullFace(GLenum mode);
 RR_GL_API void glActiveTexture(GLenum texture);
 RR_GL_API void glBindBuffer(GLenum target, GLuint buffer);
@@ -50,6 +47,12 @@ RR_GL_API void glDepthMask(GLboolean depth);
 RR_GL_API void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 RR_GL_API void glBlendFunc(GLenum sfactor, GLenum dfactor);
 RR_GL_API void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+
+// getters
+RR_GL_API GLboolean glIsEnabled(GLenum cap);
+RR_GL_API void glGetIntegerv(GLenum pname, GLint* params);
+RR_GL_API void glGetFloatv(GLenum pname, GLfloat* params);
+RR_GL_API void glGetBooleanv(GLenum pname, GLboolean* params);
 
 
 /////////////////////////////////////////////////////////////////////////////

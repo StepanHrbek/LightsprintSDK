@@ -68,6 +68,8 @@ void configureGLStateCache(bool enable)
 	glcache_enabled = enable;
 }
 
+// --- setters ---
+
 void glEnable(GLenum cap)
 {
 	if (!glcache_enabled || cap>=NUM_CAPS || glcache_isEnabled[cap] != 1)
@@ -84,21 +86,6 @@ void glDisable(GLenum cap)
 		glcache_isEnabled[cap] = 0;
 		::glDisable(cap);
 	}
-}
-
-GLboolean glIsEnabled(GLenum cap)
-{
-	if (glcache_enabled && cap<NUM_CAPS)
-	{
-		switch (glcache_isEnabled[cap])
-		{
-			case 0: return GL_FALSE;
-			case 1: return GL_TRUE;
-			default: return (glcache_isEnabled[cap] = ::glIsEnabled(cap)?1:0) ? GL_TRUE : GL_FALSE;
-		}
-	}
-	else
-		return ::glIsEnabled(cap);
 }
 
 void glViewport(GLint x, GLint y, GLsizei w, GLsizei h)
@@ -131,75 +118,6 @@ void glScissor(GLint x, GLint y, GLsizei w, GLsizei h)
 		glcache_scissor[3] = h;
 		::glScissor(x,y,w,h);
 	}
-}
-
-void glGetIntegerv(GLenum pname, GLint* params)
-{
-	if (glcache_enabled && params)
-	{
-		switch (pname)
-		{
-			case GL_VIEWPORT:
-				params[0] = glcache_viewport[0];
-				params[1] = glcache_viewport[1];
-				params[2] = glcache_viewport[2];
-				params[3] = glcache_viewport[3];
-				return;
-			case GL_SCISSOR_BOX:
-				params[0] = glcache_scissor[0];
-				params[1] = glcache_scissor[1];
-				params[2] = glcache_scissor[2];
-				params[3] = glcache_scissor[3];
-				return;
-			case GL_CULL_FACE_MODE:
-				params[0] = glcache_cullFace;
-				return;
-			case GL_BLEND_SRC_RGB:
-				params[0] = glcache_blendFunc[0];
-				return;
-			case GL_BLEND_DST_RGB:
-				params[0] = glcache_blendFunc[1];
-				return;
-		}
-	}
-	::glGetIntegerv(pname, params);
-}
-
-void glGetFloatv(GLenum pname, GLfloat* params)
-{
-	if (glcache_enabled && params)
-	{
-		switch (pname)
-		{
-			case GL_COLOR_CLEAR_VALUE:
-				params[0] = glcache_clearColor[0];
-				params[1] = glcache_clearColor[1];
-				params[2] = glcache_clearColor[2];
-				params[3] = glcache_clearColor[3];
-				return;
-		}
-	}
-	::glGetFloatv(pname, params);
-}
-
-void glGetBooleanv(GLenum pname, GLboolean* params)
-{
-	if (glcache_enabled && params)
-	{
-		switch (pname)
-		{
-			case GL_DEPTH_WRITEMASK:
-				params[0] = glcache_depthMask;
-				return;
-			case GL_COLOR_WRITEMASK:
-				params[0] = glcache_colorMask[0];
-				params[1] = glcache_colorMask[1];
-				params[2] = glcache_colorMask[2];
-				params[3] = glcache_colorMask[3];
-				return;
-		}
-	}
-	::glGetBooleanv(pname, params);
 }
 
 void glCullFace(GLenum mode)
@@ -279,6 +197,92 @@ void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 		glcache_clearColor[3] = alpha;
 		::glClearColor(red,green,blue,alpha);
 	}
+}
+
+// --- getters ---
+
+GLboolean glIsEnabled(GLenum cap)
+{
+	if (glcache_enabled && cap<NUM_CAPS)
+	{
+		switch (glcache_isEnabled[cap])
+		{
+			case 0: return GL_FALSE;
+			case 1: return GL_TRUE;
+			default: return (glcache_isEnabled[cap] = ::glIsEnabled(cap)?1:0) ? GL_TRUE : GL_FALSE;
+		}
+	}
+	else
+		return ::glIsEnabled(cap);
+}
+
+void glGetIntegerv(GLenum pname, GLint* params)
+{
+	if (glcache_enabled && params)
+	{
+		switch (pname)
+		{
+			case GL_VIEWPORT:
+				params[0] = glcache_viewport[0];
+				params[1] = glcache_viewport[1];
+				params[2] = glcache_viewport[2];
+				params[3] = glcache_viewport[3];
+				return;
+			case GL_SCISSOR_BOX:
+				params[0] = glcache_scissor[0];
+				params[1] = glcache_scissor[1];
+				params[2] = glcache_scissor[2];
+				params[3] = glcache_scissor[3];
+				return;
+			case GL_CULL_FACE_MODE:
+				params[0] = glcache_cullFace;
+				return;
+			case GL_BLEND_SRC_RGB:
+				params[0] = glcache_blendFunc[0];
+				return;
+			case GL_BLEND_DST_RGB:
+				params[0] = glcache_blendFunc[1];
+				return;
+		}
+	}
+	::glGetIntegerv(pname, params);
+}
+
+void glGetFloatv(GLenum pname, GLfloat* params)
+{
+	if (glcache_enabled && params)
+	{
+		switch (pname)
+		{
+			case GL_COLOR_CLEAR_VALUE:
+				params[0] = glcache_clearColor[0];
+				params[1] = glcache_clearColor[1];
+				params[2] = glcache_clearColor[2];
+				params[3] = glcache_clearColor[3];
+				return;
+		}
+	}
+	::glGetFloatv(pname, params);
+}
+
+void glGetBooleanv(GLenum pname, GLboolean* params)
+{
+	if (glcache_enabled && params)
+	{
+		switch (pname)
+		{
+			case GL_DEPTH_WRITEMASK:
+				params[0] = glcache_depthMask;
+				return;
+			case GL_COLOR_WRITEMASK:
+				params[0] = glcache_colorMask[0];
+				params[1] = glcache_colorMask[1];
+				params[2] = glcache_colorMask[2];
+				params[3] = glcache_colorMask[3];
+				return;
+		}
+	}
+	::glGetBooleanv(pname, params);
 }
 
 
