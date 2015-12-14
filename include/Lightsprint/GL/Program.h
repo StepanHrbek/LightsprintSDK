@@ -12,6 +12,8 @@
 #define PROGRAM_H
 
 #include "Lightsprint/RRMemory.h"
+#include <string> // locationCache
+#include <unordered_map> // locationCache
 #ifdef __ANDROID__
 	#include <GLES2/gl2.h>
 #else
@@ -185,6 +187,7 @@ private:
 	bool linked;
 	unsigned nextTextureUnit; // texture unit to be used in next setTexture()
 	signed char assignedTextureUnit[16]; // indexed by code
+	std::unordered_map<std::string,int> locationCache; // accelerates getLoc()
 };
 
 }; // namespace

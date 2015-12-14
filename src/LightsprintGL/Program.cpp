@@ -257,11 +257,17 @@ void Program::sendUniformArray(const char* name, int count, const rr::RRVec4* x)
 
 int Program::getLoc(const char* name)
 {
+	std::unordered_map<std::string,int>::iterator i = locationCache.find(name);
+	if (i!=locationCache.end())
+	{
+		return i->second;
+	}
 	int loc = glGetUniformLocation(handle, name);
 	if (loc == -1)
 	{
-		RR_LIMITED_TIMES(10,rr::RRReporter::report(rr::ERRO,"Variable %s disappeared from shader. It is either driver error or renderer error.\n",name));
+		rr::RRReporter::report(rr::ERRO,"Variable %s disappeared from shader. It is either driver error or renderer error.\n",name);
 	}
+	locationCache[name] = loc;
 	return loc;
 }
 
