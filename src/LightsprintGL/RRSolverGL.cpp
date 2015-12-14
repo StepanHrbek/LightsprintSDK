@@ -375,12 +375,14 @@ done:
 							FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,colormap,p4.state);
 						}
 					}
+/* checking GL state is slow
 					if (!FBO::isOk())
 					{
 						// 8800GTS returns this in some near out of memory situations, perhaps with texture that already failed to initialize
 						RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::ERRO,"Shadowmap update failed (FBO).\n"));
 					}
 					else
+*/
 					{
 						if (light->shadowTransparencyActual==RealtimeLight::RGB_SHADOWS || light->shadowTransparencyActual==RealtimeLight::FRESNEL_SHADOWS)
 						{
