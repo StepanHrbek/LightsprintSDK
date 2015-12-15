@@ -620,7 +620,7 @@ RRMeshArrays* RRMeshArrays::plane()
 	float v[] = {1.732f,-1, -1.732f,-1, 0,2};
 	for (unsigned i=0;i<VERTICES;i++)
 	{
-		arrays->position[i] = rr::RRVec3(v[(i%3)*2],0,v[(i%3)*2+1])*powf(4,i/3.f)*((i/3)%2?1:-1.f);
+		arrays->position[i] = rr::RRVec3(v[(i%3)*2],0,v[(i%3)*2+1])*powf(4,i/3)*((i/3)%2?1:-1.f);
 		arrays->normal[i] = rr::RRVec3(0,1,0);
 		arrays->texcoord[0][i] = rr::RRVec2(arrays->position[i].z,arrays->position[i].x);
 	}
