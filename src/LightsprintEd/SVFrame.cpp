@@ -867,7 +867,8 @@ wxString convertExtensionsToWx(wxString extensions)
 	{
 		size_t i = extensions.find(';');
 		wxString ext = (i==-1) ? extensions : extensions.substr(0,i);
-		wxextensions += wxString("|")+ext+'|'+ext;
+		if (ext!=":") // ":" is mask of isolated loader/saver files. when chosing what loader to call, it means "*.*". when offering formats to user, it means nothing
+			wxextensions += wxString("|")+ext+'|'+ext;
 		extensions.erase(0,ext.size()+1);
 		// maybe we can remove redundant ones here
 		// (proper solution would be to let user select which loader to use)
