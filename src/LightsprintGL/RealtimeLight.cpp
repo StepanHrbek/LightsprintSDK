@@ -12,6 +12,7 @@
 #include "Lightsprint/GL/RealtimeLight.h"
 #include "Lightsprint/RRDebug.h"
 #include "Lightsprint/RRSolver.h"
+#include "Shader.h" // s_es
 #include "Workaround.h"
 
 namespace rr_gl
@@ -197,6 +198,15 @@ namespace rr_gl
 		if (!shadowmap)
 		{
 			shadowmap = Texture::createShadowmap(rrlight.rtShadowmapSize,rrlight.rtShadowmapSize,color);
+#ifndef RR_GL_ES2
+			// set depth border
+			// this makes Sun overshoot, illuminate geometry outside its shadowmap range
+			if (!s_es && !color)
+			{
+				rr::RRVec4 depthBorder((getRRLight().type==rr::RRLight::DIRECTIONAL && instance==0)?1.0f:0);
+				glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &depthBorder.x);
+			}
+#endif
 			dirtyShadowmap = true;
 
 			static int i = 0;
