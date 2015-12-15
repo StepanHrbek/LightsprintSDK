@@ -204,7 +204,8 @@ namespace rr_gl
 			if (!s_es && !color)
 			{
 				rr::RRVec4 depthBorder((getRRLight().type==rr::RRLight::DIRECTIONAL && instance==0)?1.0f:0);
-				glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &depthBorder.x);
+				if (depthBorder.x)
+					glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &depthBorder.x);
 			}
 #endif
 			dirtyShadowmap = true;
