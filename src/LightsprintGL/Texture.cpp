@@ -47,7 +47,7 @@ struct { GLenum target; GLuint buffer; } glcache_bindBuffer[4] = {
 	{GL_ELEMENT_ARRAY_BUFFER,0},
 	{GL_PIXEL_PACK_BUFFER_ARB,0},
 	{GL_EXTERNAL_VIRTUAL_MEMORY_BUFFER_AMD,0}};
-
+struct { GLint size; GLenum type; GLboolean normalized; GLsizei stride; const void *pointer; } glcache_vertexAttribPointer[16];
 
 void configureGLStateCache(bool enable)
 {
@@ -64,6 +64,7 @@ void configureGLStateCache(bool enable)
 		::glGetIntegerv(GL_BLEND_DST_RGB,&glcache_blendFunc[1]);
 		::glGetFloatv(GL_COLOR_CLEAR_VALUE,glcache_clearColor);
 		// glcache_bindBuffer not filled, could be problem if you call configureGLStateCache() in wrong moment
+		memset(glcache_vertexAttribPointer,0,sizeof(glcache_vertexAttribPointer));
 	}
 	glcache_enabled = enable;
 }
@@ -196,6 +197,24 @@ void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 		glcache_clearColor[2] = blue;
 		glcache_clearColor[3] = alpha;
 		::glClearColor(red,green,blue,alpha);
+	}
+}
+
+void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer)
+{
+	if (!glcache_enabled || index>=16 ||
+		glcache_vertexAttribPointer[index].size != size ||
+		glcache_vertexAttribPointer[index].type != type ||
+		glcache_vertexAttribPointer[index].normalized != normalized ||
+		glcache_vertexAttribPointer[index].stride != stride ||
+		glcache_vertexAttribPointer[index].pointer != pointer)
+	{
+		glcache_vertexAttribPointer[index].size = size;
+		glcache_vertexAttribPointer[index].type = type;
+		glcache_vertexAttribPointer[index].normalized = normalized;
+		glcache_vertexAttribPointer[index].stride = stride;
+		glcache_vertexAttribPointer[index].pointer = pointer;
+		::glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 	}
 }
 

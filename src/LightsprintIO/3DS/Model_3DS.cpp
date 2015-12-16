@@ -253,7 +253,7 @@ void Model_3DS::Draw(
 			if (vertexColors)
 			{
 				glEnableVertexAttribArray(rr_gl::VAA_COLOR);
-				glVertexAttribPointer(rr_gl::VAA_COLOR, 3, GL_FLOAT, GL_FALSE, 0, vertexColors);
+				rr_gl::glVertexAttribPointer(rr_gl::VAA_COLOR, 3, GL_FLOAT, GL_FALSE, 0, vertexColors);
 				if (releaseVertexColors) releaseVertexColors(model,i);
 			}
 		}
@@ -267,20 +267,20 @@ void Model_3DS::Draw(
 		if (texturedDiffuse)
 		{
 			glEnableVertexAttribArray(rr_gl::VAA_UV_MATERIAL_DIFFUSE);
-			glVertexAttribPointer(rr_gl::VAA_UV_MATERIAL_DIFFUSE, 2, GL_FLOAT, GL_FALSE, 0, Objects[i].TexCoords);
+			rr_gl::glVertexAttribPointer(rr_gl::VAA_UV_MATERIAL_DIFFUSE, 2, GL_FLOAT, GL_FALSE, 0, Objects[i].TexCoords);
 		}
 		if (texturedEmissive)
 		{
 			glEnableVertexAttribArray(rr_gl::VAA_UV_MATERIAL_EMISSIVE);
-			glVertexAttribPointer(rr_gl::VAA_UV_MATERIAL_EMISSIVE, 2, GL_FLOAT, GL_FALSE, 0, Objects[i].TexCoords);
+			rr_gl::glVertexAttribPointer(rr_gl::VAA_UV_MATERIAL_EMISSIVE, 2, GL_FLOAT, GL_FALSE, 0, Objects[i].TexCoords);
 		}
 		if (lit)
 		{
 			glEnableVertexAttribArray(rr_gl::VAA_NORMAL);
-			glVertexAttribPointer(rr_gl::VAA_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, Objects[i].Normals);
+			rr_gl::glVertexAttribPointer(rr_gl::VAA_NORMAL, 3, GL_FLOAT, GL_FALSE, 0, Objects[i].Normals);
 		}
 		glEnableVertexAttribArray(rr_gl::VAA_POSITION);
-		glVertexAttribPointer(rr_gl::VAA_POSITION, 3, GL_FLOAT, GL_FALSE, 0, Objects[i].Vertexes);
+		rr_gl::glVertexAttribPointer(rr_gl::VAA_POSITION, 3, GL_FLOAT, GL_FALSE, 0, Objects[i].Vertexes);
 
 		// Loop through the faces as sorted by material and draw them
 		for (int j = 0; j < Objects[i].numMatFaces; j ++)
