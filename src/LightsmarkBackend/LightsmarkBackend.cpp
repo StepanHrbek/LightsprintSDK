@@ -1695,7 +1695,6 @@ void init_gl_states()
 	glLineStipple(1, 0xf0f0);
 
 	rr_gl::glEnable(GL_CULL_FACE);
-	rr_gl::glEnable(GL_NORMALIZE);
 
 	glFrontFace(GL_CCW);
 
