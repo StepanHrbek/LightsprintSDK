@@ -1692,8 +1692,6 @@ void init_gl_states()
 	generated within a single rendering pass, the last fragment
 	results. */
 
-	glLineStipple(1, 0xf0f0);
-
 	rr_gl::glEnable(GL_CULL_FACE);
 
 	glFrontFace(GL_CCW);
