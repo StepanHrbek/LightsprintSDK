@@ -1677,9 +1677,6 @@ void enableInteraction(bool enable)
 
 void init_gl_states()
 {
-	rr_gl::glClearColor(0,0,0,0);
-	rr_gl::glEnable(GL_CULL_FACE);
-	glFrontFace(GL_CCW);
 #if defined(_WIN32)
 	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
 #endif
