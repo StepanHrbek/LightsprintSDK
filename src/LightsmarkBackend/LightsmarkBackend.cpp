@@ -1677,25 +1677,9 @@ void enableInteraction(bool enable)
 
 void init_gl_states()
 {
-	//GLint depthBits;
-	//glGetIntegerv(GL_DEPTH_BITS, &depthBits);
-	//printf("backbuffer depth precision = %d\n", depthBits);
-
-	//GLint samplers1=0,samplers2=0;
-	//glGetIntegerv(GL_MAX_TEXTURE_UNITS, &samplers1);
-	//glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &samplers2);
-	//printf("GPU limits: samplers=%d / %d\n",samplers1,samplers2);
-
 	rr_gl::glClearColor(0,0,0,0);
-
-	/* GL_LEQUAL ensures that when fragments with equal depth are
-	generated within a single rendering pass, the last fragment
-	results. */
-
 	rr_gl::glEnable(GL_CULL_FACE);
-
 	glFrontFace(GL_CCW);
-
 #if defined(_WIN32)
 	if (wglSwapIntervalEXT) wglSwapIntervalEXT(0);
 #endif
