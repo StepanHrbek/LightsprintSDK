@@ -8,14 +8,15 @@
 // --------------------------------------------------------------------------
 
 #define MIRRORS // enables implementation of mirrors, marks mirror source code
+#define SORT_MATERIALS // render simpler materials first. adds some (small) CPU overhead
 //#define SRGB_CORRECT_BLENDING // transparency looks better without srgb correction
 
 #include <algorithm> // sort
-#ifdef MIRRORS
-	#include <map>
-#endif
+#include <map>
 #include <cstdio>
-#include <unordered_map>
+#ifndef SORT_MATERIALS
+	#include <unordered_map>
+#endif
 #include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PreserveState.h"
 #include "Lightsprint/GL/RRSolverGL.h"
@@ -59,6 +60,7 @@ struct PerObjectBuffers
 //
 // misc helpers
 
+#ifndef SORT_MATERIALS
 // for unordered_map<UberProgramSetup,>
 struct UberProgramSetupHasher
 {
@@ -68,6 +70,7 @@ struct UberProgramSetupHasher
 		return p[0]+p[1];
 	}
 };
+#endif
 
 static rr::RRVector<PerObjectBuffers>* s_perObjectBuffers = nullptr; // used by sort()
 
@@ -125,7 +128,11 @@ class PluginRuntimeScene : public PluginRuntime
 	rr::RRObjects multiObjects; // used in first half of render()
 	//! Gathered per-object information.
 	rr::RRVector<PerObjectBuffers> perObjectBuffers[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
+#ifdef SORT_MATERIALS
+	typedef std::map<UberProgramSetup,rr::RRVector<FaceGroupRange>*> ShaderFaceGroups; // sorts by UberShaderSetup::operator<
+#else
 	typedef std::unordered_map<UberProgramSetup,rr::RRVector<FaceGroupRange>*,UberProgramSetupHasher> ShaderFaceGroups;
+#endif
 	//! Gathered non-blended object information.
 	ShaderFaceGroups nonBlendedFaceGroupsMap[MAX_RECURSION_DEPTH]; // used in whole render(), indexed by [recursionDepth]
 	//! Gathered blended object information.
