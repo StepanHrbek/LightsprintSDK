@@ -184,8 +184,10 @@ struct RR_GL_API UberProgramSetup
 	//! Example: "#define SHADOW_MAPS 2\n#define SHADOW_SAMPLES 4\n#define MATERIAL_DIFFUSE\n".
 	const char* getSetupString();
 
-	// Operators for unordered_map in renderer.
-	bool operator ==(const UberProgramSetup& a) const;
+	// Operators for map/unordered_map in renderer.
+	bool operator ==(const UberProgramSetup& a) const; // == identical program
+	bool operator <(const UberProgramSetup& a) const; // suitable for map<>. cheap program < expensive program
+	unsigned getComplexity() const;
 
 	//! Returns uberProgram with parameter values defined by our attributes.
 	//! UberProgram with parameter values defined is Program.

@@ -252,6 +252,43 @@ bool UberProgramSetup::operator ==(const UberProgramSetup& a) const
 	return memcmp(this,&a,sizeof(*this))==0;
 }
 
+bool UberProgramSetup::operator <(const UberProgramSetup& a) const
+{
+	// renderer uses this in map<> to sort materials by complexity, render simpler ones first
+
+	// optional optimization: test for the most common state first
+	//   CPU bound lightsmark with unordered_map<> had score 2630
+	//   this optimization improves map<> score 2570->2630, so it eliminates overhead of ordering
+	if (*this==a)
+		return false;
+
+	unsigned numMapsA = getComplexity();
+	unsigned numMapsB = a.getComplexity();
+	unsigned* pa = (unsigned*)this;
+	unsigned* pb = (unsigned*)&a;
+	if (numMapsA!=numMapsB)
+		return numMapsA<numMapsB;
+	if (pa[0]!=pb[0])
+		return pa[0]<pb[0];
+	return pa[1]<pb[1];
+}
+
+unsigned UberProgramSetup::getComplexity() const
+{
+	// return number of textures accessed
+	return SHADOW_MAPS
+		+ (LIGHT_DIRECT_MAP?1:0)
+		+ (LIGHT_INDIRECT_MAP?1:0)
+		+ (LIGHT_INDIRECT_DETAIL_MAP?1:0)
+		+ (LIGHT_INDIRECT_ENV_SPECULAR?1:0)
+		+ (LIGHT_INDIRECT_MIRROR_SPECULAR?1:0)
+		+ (MATERIAL_DIFFUSE_MAP?1:0)
+		+ (MATERIAL_SPECULAR_MAP?1:0)
+		+ (MATERIAL_EMISSIVE_MAP?1:0)
+		+ (MATERIAL_TRANSPARENCY_MAP?1:0)
+		+ (MATERIAL_BUMP_MAP?1:0);
+}
+
 Program* UberProgramSetup::getProgram(UberProgram* uberProgram)
 {
 	return uberProgram->getProgram(getSetupString());
