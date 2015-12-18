@@ -73,18 +73,24 @@ void configureGLStateCache(bool enable)
 
 void glEnable(GLenum cap)
 {
-	if (!glcache_enabled || cap>=NUM_CAPS || glcache_isEnabled[cap] != 1)
+	if (!glcache_enabled || cap>=NUM_CAPS)
+		goto skip_cache;
+	if (glcache_isEnabled[cap] != 1)
 	{
 		glcache_isEnabled[cap] = 1;
+		skip_cache:
 		::glEnable(cap);
 	}
 }
 
 void glDisable(GLenum cap)
 {
-	if (!glcache_enabled || cap>=NUM_CAPS || glcache_isEnabled[cap] != 0)
+	if (!glcache_enabled || cap>=NUM_CAPS)
+		goto skip_cache;
+	if (glcache_isEnabled[cap] != 0)
 	{
 		glcache_isEnabled[cap] = 0;
+		skip_cache:
 		::glDisable(cap);
 	}
 }
@@ -202,8 +208,9 @@ void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 
 void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer)
 {
-	if (!glcache_enabled || index>=16 ||
-		glcache_vertexAttribPointer[index].size != size ||
+	if (!glcache_enabled || index>=16)
+		goto skip_cache;
+	if (glcache_vertexAttribPointer[index].size != size ||
 		glcache_vertexAttribPointer[index].type != type ||
 		glcache_vertexAttribPointer[index].normalized != normalized ||
 		glcache_vertexAttribPointer[index].stride != stride ||
@@ -214,6 +221,7 @@ void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean norm
 		glcache_vertexAttribPointer[index].normalized = normalized;
 		glcache_vertexAttribPointer[index].stride = stride;
 		glcache_vertexAttribPointer[index].pointer = pointer;
+		skip_cache:
 		::glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 	}
 }
