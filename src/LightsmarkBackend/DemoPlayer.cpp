@@ -93,6 +93,13 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 				material->specularReflectance.color = rr::RRVec3(specular);
 				material->specularShininess = 4000; // an attempt to approximate Lightsmark 2008 look
 				material->updateSideBitsFromColors();
+				// make robot in Lightsmark 2sided
+				// (maybe editing I_Robot_female.3ds would be better than hardcoding it here... but I prefer working with original data
+				//  and original broken loader, so that everything looks like Lightsmark 2007)
+				rr::RRMaterial twosided;
+				twosided.reset(true);
+				material->sideBits[1] = twosided.sideBits[1];
+				//material->sideBits[1].catchFrom = material->sideBits[1].renderFrom; // lets light pass through backsides of 1sided materials
 			}
 			// alloc cubes
 			if ((specular && specularCubeSize) || (diffuse && diffuseCubeSize))
