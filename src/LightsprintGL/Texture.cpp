@@ -47,7 +47,7 @@ struct { GLenum target; GLuint buffer; } glcache_bindBuffer[4] = {
 	{GL_ELEMENT_ARRAY_BUFFER,0},
 	{GL_PIXEL_PACK_BUFFER_ARB,0},
 	{GL_EXTERNAL_VIRTUAL_MEMORY_BUFFER_AMD,0}};
-struct { GLint size; GLenum type; GLboolean normalized; GLsizei stride; const void *pointer; } glcache_vertexAttribPointer[16];
+struct { GLint size; GLenum type; GLboolean normalized; GLsizei stride; const void *pointer; GLuint vbo; } glcache_vertexAttribPointer[16];
 
 void configureGLStateCache(bool enable)
 {
@@ -208,19 +208,22 @@ void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha)
 
 void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer)
 {
+	// pointer is often 0, but meaning differs if second parameter in glBindBuffer(GL_ARRAY_BUFFER, VBO[VBO_xxx]); differs
 	if (!glcache_enabled || index>=16)
 		goto skip_cache;
 	if (glcache_vertexAttribPointer[index].size != size ||
 		glcache_vertexAttribPointer[index].type != type ||
 		glcache_vertexAttribPointer[index].normalized != normalized ||
 		glcache_vertexAttribPointer[index].stride != stride ||
-		glcache_vertexAttribPointer[index].pointer != pointer)
+		glcache_vertexAttribPointer[index].pointer != pointer ||
+		glcache_vertexAttribPointer[index].vbo != glcache_bindBuffer[0].buffer) // glcache_bindBuffer[0].target==GL_ARRAY_BUFFER
 	{
 		glcache_vertexAttribPointer[index].size = size;
 		glcache_vertexAttribPointer[index].type = type;
 		glcache_vertexAttribPointer[index].normalized = normalized;
 		glcache_vertexAttribPointer[index].stride = stride;
 		glcache_vertexAttribPointer[index].pointer = pointer;
+		glcache_vertexAttribPointer[index].vbo = glcache_bindBuffer[0].buffer; // glcache_bindBuffer[0].target==GL_ARRAY_BUFFER
 		skip_cache:
 		::glVertexAttribPointer(index, size, type, normalized, stride, pointer);
 	}
