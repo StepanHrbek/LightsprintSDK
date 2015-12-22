@@ -24,7 +24,7 @@ NEWS
   - supports DOF
   - SmallLuxGPU4 pathtracer updated to the most recent version, supports more Lightsprint SDK features, so slg4 renders are closer to Lightsprint renders
 - <b>improved import/export</b>
-  - import of *.ifc, *.ifczip
+  - import of *.ifc, *.ifczip, *.glTF, *glB
   - importers load lightmaps from material's lightmap or ambient channel (e.g. Collada has ambient)
   - RRBuffer::getSupportedLoaderExtensions() and RRBuffer::getSupportedSaverExtensions()
   - you can export in isolated process, see rr_io::isolateIO()

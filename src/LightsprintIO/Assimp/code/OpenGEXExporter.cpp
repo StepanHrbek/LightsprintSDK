@@ -37,8 +37,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----------------------------------------------------------------------
 */
-#ifndef ASSIMP_BUILD_NO_OPENGEX_IMPORTER
-
 #include "OpenGEXExporter.h"
 
 namespace Assimp {
@@ -50,7 +48,6 @@ OpenGEXExporter::OpenGEXExporter() {
 OpenGEXExporter::~OpenGEXExporter() {
 }
 
+
 } // Namespace openGEX
 } // Namespace Assimp
-
-#endif // ASSIMP_BUILD_NO_OPENGEX_IMPORTER

@@ -1198,12 +1198,6 @@
     <ClCompile Include="Assimp\code\OgreXmlSerializer.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
-    <ClCompile Include="Assimp\code\OpenGEXExporter.cpp">
-      <Filter>Assimp\code</Filter>
-    </ClCompile>
-    <ClCompile Include="Assimp\code\OpenGEXImporter.cpp">
-      <Filter>Assimp\code</Filter>
-    </ClCompile>
     <ClCompile Include="Assimp\code\OptimizeGraph.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
@@ -1334,6 +1328,15 @@
       <Filter>Assimp\code</Filter>
     </ClCompile>
     <ClCompile Include="Assimp\code\XGLLoader.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="Assimp\code\glTFExporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="Assimp\code\glTFImporter.cpp">
+      <Filter>Assimp\code</Filter>
+    </ClCompile>
+    <ClCompile Include="Assimp\code\SIBImporter.cpp">
       <Filter>Assimp\code</Filter>
     </ClCompile>
   </ItemGroup>
@@ -2825,15 +2828,6 @@
     <ClInclude Include="Assimp\code\OgreXmlSerializer.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
-    <ClInclude Include="Assimp\code\OpenGEXExporter.h">
-      <Filter>Assimp\code</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\code\OpenGEXImporter.h">
-      <Filter>Assimp\code</Filter>
-    </ClInclude>
-    <ClInclude Include="Assimp\code\OpenGEXStructs.h">
-      <Filter>Assimp\code</Filter>
-    </ClInclude>
     <ClInclude Include="Assimp\code\OptimizeGraph.h">
       <Filter>Assimp\code</Filter>
     </ClInclude>
@@ -3113,6 +3107,21 @@
     <ClInclude Include="Assimp\include\assimp\version.h">
       <Filter>Assimp\include</Filter>
     </ClInclude>
+    <ClInclude Include="Assimp\code\glTFAsset.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\code\glTFAssetWriter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\code\glTFExporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\code\glTFImporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
+    <ClInclude Include="Assimp\code\SIBImporter.h">
+      <Filter>Assimp\code</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assimp\code\BlenderDNA.inl">
@@ -3141,6 +3150,12 @@
     </None>
     <None Include="Assimp\include\assimp\vector3.inl">
       <Filter>Assimp\include</Filter>
+    </None>
+    <None Include="Assimp\code\glTFAsset.inl">
+      <Filter>Assimp\code</Filter>
+    </None>
+    <None Include="Assimp\code\glTFAssetWriter.inl">
+      <Filter>Assimp\code</Filter>
     </None>
   </ItemGroup>
 </Project>

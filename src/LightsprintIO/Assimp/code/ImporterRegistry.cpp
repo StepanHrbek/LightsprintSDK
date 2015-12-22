@@ -101,6 +101,9 @@ corresponding preprocessor flag to selectively disable formats.
 #ifndef ASSIMP_BUILD_NO_RAW_IMPORTER
 #   include "RawLoader.h"
 #endif
+#ifndef ASSIMP_BUILD_NO_SIB_IMPORTER
+#   include "SIBImporter.h"
+#endif
 #ifndef ASSIMP_BUILD_NO_OFF_IMPORTER
 #   include "OFFLoader.h"
 #endif
@@ -170,7 +173,9 @@ corresponding preprocessor flag to selectively disable formats.
 #ifndef ASSIMP_BUILD_NO_ASSBIN_IMPORTER
 #   include "AssbinLoader.h"
 #endif
-
+#ifndef ASSIMP_BUILD_NO_GLTF_IMPORTER
+#   include "glTFImporter.h"
+#endif
 #ifndef ASSIMP_BUILD_NO_C4D_IMPORTER
 #   include "C4DImporter.h"
 #endif
@@ -235,6 +240,9 @@ void GetImporterInstanceList(std::vector< BaseImporter* >& out)
 #endif
 #if (!defined ASSIMP_BUILD_NO_RAW_IMPORTER)
     out.push_back( new RAWImporter());
+#endif
+#if (!defined ASSIMP_BUILD_NO_SIB_IMPORTER)
+    out.push_back( new SIBImporter());
 #endif
 #if (!defined ASSIMP_BUILD_NO_OFF_IMPORTER)
     out.push_back( new OFFImporter());
@@ -305,8 +313,10 @@ void GetImporterInstanceList(std::vector< BaseImporter* >& out)
 #if ( !defined ASSIMP_BUILD_NO_ASSBIN_IMPORTER )
     out.push_back( new AssbinImporter() );
 #endif
-
-#ifndef ASSIMP_BUILD_NO_C4D_IMPORTER
+#if ( !defined ASSIMP_BUILD_NO_GLTF_IMPORTER )
+    out.push_back( new glTFImporter() );
+#endif
+#if ( !defined ASSIMP_BUILD_NO_C4D_IMPORTER )
     out.push_back( new C4DImporter() );
 #endif
 }
