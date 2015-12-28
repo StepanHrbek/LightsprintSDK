@@ -991,7 +991,7 @@ bool SVFrame::chooseSceneFilename(wxString fileSelectorCaption, wxString& select
 	//  windows would append valid extension if we just delete bad one, wx 2.9.1 @ osx needs valid ext from us
 	bf::path presetFilename = RR_WX2PATH(selectedFilename);
 	{
-		wxString extension = RR_PATH2WX(presetFilename.extension());
+		wxString extension = wxString(RR_PATH2WX(presetFilename.extension())).Lower();
 		bool extensionSupportsSave = !extension.empty() && extensions.find(extension)!=-1;
 		if (!extensionSupportsSave) presetFilename.replace_extension(".rr3");
 	}
