@@ -999,6 +999,27 @@ bool SVFrame::chooseSceneFilename(wxString fileSelectorCaption, wxString& select
 	// dialog
 	wxFileDialog dialog(this,fileSelectorCaption,"","",wxextensions,wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 	dialog.SetPath(RR_PATH2WX(presetFilename));
+
+	int filterIndex = 0;
+	{
+		int filterIndexCandidate = -1;
+		wxString presetExtension = wxString(RR_PATH2WX(presetFilename.extension())).Lower();
+		wxString filters = wxextensions;
+		while (!filters.IsEmpty())
+		{
+			filters = filters.AfterFirst('|');
+			wxString filter = filters.BeforeFirst('|');
+			filters = filters.AfterFirst('|');
+			filterIndexCandidate++;
+			if (filter.Contains(presetExtension))
+			{
+				filterIndex = filterIndexCandidate;
+				break;
+			}
+		}
+	}
+	dialog.SetFilterIndex(filterIndex);
+
 	if (dialog.ShowModal()!=wxID_OK)
 		return false;
 	selectedFilename = dialog.GetPath();
