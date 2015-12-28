@@ -518,6 +518,7 @@ const char* initializeGL(bool enableGLStateCaching)
 
 #endif //!__ANDROID__
 
+	glcache_enabled = false; // as long as there is no demand to expose configureGLStateCache(), we keep it private & call it only once per context. so when creating second context, reset flag from previous one
 	configureGLStateCache(enableGLStateCaching);
 	FBO_init();
 
