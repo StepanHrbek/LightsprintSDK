@@ -860,15 +860,15 @@ void SVFrame::UpdateMenuBar()
 	delete oldMenuBar;
 }
 
-wxString convertExtensionsToWx(wxString extensions)
+wxString convertExtensionsToWx(wxString extensions, bool allFormats)
 {
-	wxString wxextensions = _("All formats")+"|"+extensions;
+	wxString wxextensions = allFormats ? _("All formats")+"|"+extensions : "";
 	while (!extensions.empty())
 	{
 		size_t i = extensions.find(';');
 		wxString ext = (i==-1) ? extensions : extensions.substr(0,i);
 		if (ext!=":") // ":" is mask of isolated loader/saver files. when chosing what loader to call, it means "*.*". when offering formats to user, it means nothing
-			wxextensions += wxString("|")+ext+'|'+ext;
+			wxextensions += wxString(wxextensions.IsEmpty() ? "" : "|") + ext+'|'+ext;
 		extensions.erase(0,ext.size()+1);
 		// maybe we can remove redundant ones here
 		// (proper solution would be to let user select which loader to use)
@@ -879,7 +879,7 @@ wxString convertExtensionsToWx(wxString extensions)
 static wxString getSupportedLoaderExtensions(SceneViewerStateEx& svs)
 {
 	// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
-	return convertExtensionsToWx(rr::RRScene::getSupportedLoaderExtensions());
+	return convertExtensionsToWx(rr::RRScene::getSupportedLoaderExtensions(),true);
 }
 
 static void incrementFilename(wxString& filename)
@@ -985,7 +985,7 @@ bool SVFrame::chooseSceneFilename(wxString fileSelectorCaption, wxString& select
 {
 	wxString extensions = rr::RRScene::getSupportedSaverExtensions();
 	// wildcard format: "BMP and GIF files (*.bmp;*.gif)|*.bmp;*.gif|PNG files (*.png)|*.png"
-	wxString wxextensions = convertExtensionsToWx(extensions);
+	wxString wxextensions = convertExtensionsToWx(extensions,false);
 
 	// replace extension if current one can't be saved
 	//  windows would append valid extension if we just delete bad one, wx 2.9.1 @ osx needs valid ext from us
@@ -1335,7 +1335,7 @@ save_scene_as:
 
 		case ME_MATERIAL_LOAD:
 			{
-				wxFileDialog dialog(this,_("Enter material filename"),"","",convertExtensionsToWx(rr::RRMaterials::getSupportedLoaderExtensions()),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,_("Enter material filename"),"","",convertExtensionsToWx(rr::RRMaterials::getSupportedLoaderExtensions(),true),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 				if (dialog.GetPath().empty())
@@ -1361,7 +1361,7 @@ save_scene_as:
 
 		case ME_MATERIAL_SAVE:
 			{
-				wxFileDialog dialog(this,_("Enter material filename"),"","",convertExtensionsToWx(rr::RRMaterials::getSupportedSaverExtensions()),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+				wxFileDialog dialog(this,_("Enter material filename"),"","",convertExtensionsToWx(rr::RRMaterials::getSupportedSaverExtensions(),false),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 				if (dialog.GetPath().empty())
@@ -1372,7 +1372,7 @@ save_scene_as:
 
 		case ME_MATERIAL_SAVE_ALL:
 			{
-				wxFileDialog dialog(this,_("Enter material library filename"),"","",convertExtensionsToWx(rr::RRMaterials::getSupportedSaverExtensions()),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+				wxFileDialog dialog(this,_("Enter material library filename"),"","",convertExtensionsToWx(rr::RRMaterials::getSupportedSaverExtensions(),false),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 				if (dialog.GetPath().empty())
@@ -1408,7 +1408,7 @@ save_scene_as:
 			goto reload_skybox;
 		case ME_ENV_OPEN:
 			{
-				wxFileDialog dialog(this,_("Choose a skybox image"),"","",convertExtensionsToWx(rr::RRBuffer::getSupportedLoaderExtensions()),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,_("Choose a skybox image"),"","",convertExtensionsToWx(rr::RRBuffer::getSupportedLoaderExtensions(),true),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.skyboxFilename.empty()?svs.pathToMaps+"skybox/":wxString(RR_RR2WX(svs.skyboxFilename)));
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
