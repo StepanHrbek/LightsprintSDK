@@ -56,6 +56,7 @@ void configureGLStateCache(bool enable)
 		for (unsigned i=0;i<NUM_CAPS;i++)
 			glcache_isEnabled[i] = 2;
 		::glGetIntegerv(GL_VIEWPORT, glcache_viewport);
+		::glGetIntegerv(GL_SCISSOR_BOX, glcache_scissor);
 		::glGetIntegerv(GL_CULL_FACE_MODE, (GLint*)&glcache_cullFace);
 		::glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&glcache_activeTexture);
 		::glGetBooleanv(GL_DEPTH_WRITEMASK,&glcache_depthMask);
@@ -63,7 +64,10 @@ void configureGLStateCache(bool enable)
 		::glGetIntegerv(GL_BLEND_SRC_RGB,&glcache_blendFunc[0]);
 		::glGetIntegerv(GL_BLEND_DST_RGB,&glcache_blendFunc[1]);
 		::glGetFloatv(GL_COLOR_CLEAR_VALUE,glcache_clearColor);
-		// glcache_bindBuffer not filled, could be problem if you call configureGLStateCache() in wrong moment
+		::glGetIntegerv(GL_ARRAY_BUFFER_BINDING,(GLint*)&glcache_bindBuffer[0].buffer);
+		::glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING,(GLint*)&glcache_bindBuffer[1].buffer);
+		::glGetIntegerv(GL_PIXEL_PACK_BUFFER_BINDING,(GLint*)&glcache_bindBuffer[2].buffer);
+		glcache_bindBuffer[3].buffer = 0;
 		memset(glcache_vertexAttribPointer,0,sizeof(glcache_vertexAttribPointer));
 	}
 	glcache_enabled = enable;
@@ -272,6 +276,15 @@ void glGetIntegerv(GLenum pname, GLint* params)
 				return;
 			case GL_BLEND_DST_RGB:
 				params[0] = glcache_blendFunc[1];
+				return;
+			case GL_ARRAY_BUFFER_BINDING:
+				params[0] = glcache_bindBuffer[0].buffer;
+				return;
+			case GL_ELEMENT_ARRAY_BUFFER_BINDING:
+				params[0] = glcache_bindBuffer[1].buffer;
+				return;
+			case GL_PIXEL_PACK_BUFFER_BINDING:
+				params[0] = glcache_bindBuffer[2].buffer;
 				return;
 		}
 	}
