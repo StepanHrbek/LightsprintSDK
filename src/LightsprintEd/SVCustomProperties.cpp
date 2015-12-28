@@ -338,14 +338,14 @@ bool ButtonProperty::OnEvent(wxPropertyGrid *propgrid, wxWindow *wnd_primary, wx
 
 namespace rr_ed
 {
-	extern wxString convertExtensionsToWx(wxString extensions);
+	extern wxString convertExtensionsToWx(wxString extensions, bool allFormats);
 }
 
 ImageFileProperty::ImageFileProperty(const wxString& label, const wxString& help)
 	: wxFileProperty(label)
 {
 	SetHelpString(help);
-	SetAttribute("Wildcard",rr_ed::convertExtensionsToWx(rr::RRBuffer::getSupportedLoaderExtensions()));
+	SetAttribute("Wildcard",rr_ed::convertExtensionsToWx(rr::RRBuffer::getSupportedLoaderExtensions(),true));
 	image = nullptr;
 	bitmap = nullptr;
 }
