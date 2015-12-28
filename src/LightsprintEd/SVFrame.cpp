@@ -1335,7 +1335,7 @@ save_scene_as:
 
 		case ME_MATERIAL_LOAD:
 			{
-				wxFileDialog dialog(this,_("Enter material filename"),"","",rr::RRMaterials::getSupportedLoaderExtensions(),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,_("Enter material filename"),"","",convertExtensionsToWx(rr::RRMaterials::getSupportedLoaderExtensions()),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 				if (dialog.GetPath().empty())
@@ -1361,7 +1361,7 @@ save_scene_as:
 
 		case ME_MATERIAL_SAVE:
 			{
-				wxFileDialog dialog(this,_("Enter material filename"),"","",rr::RRMaterials::getSupportedSaverExtensions(),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+				wxFileDialog dialog(this,_("Enter material filename"),"","",convertExtensionsToWx(rr::RRMaterials::getSupportedSaverExtensions()),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 				if (dialog.GetPath().empty())
@@ -1372,7 +1372,7 @@ save_scene_as:
 
 		case ME_MATERIAL_SAVE_ALL:
 			{
-				wxFileDialog dialog(this,_("Enter material library filename"),"","",rr::RRMaterials::getSupportedSaverExtensions(),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+				wxFileDialog dialog(this,_("Enter material library filename"),"","",convertExtensionsToWx(rr::RRMaterials::getSupportedSaverExtensions()),wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
 				if (dialog.GetPath().empty())
@@ -1408,7 +1408,7 @@ save_scene_as:
 			goto reload_skybox;
 		case ME_ENV_OPEN:
 			{
-				wxFileDialog dialog(this,_("Choose a skybox image"),"","","*.*",wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+				wxFileDialog dialog(this,_("Choose a skybox image"),"","",convertExtensionsToWx(rr::RRBuffer::getSupportedLoaderExtensions()),wxFD_OPEN|wxFD_FILE_MUST_EXIST);
 				dialog.SetPath(svs.skyboxFilename.empty()?svs.pathToMaps+"skybox/":wxString(RR_RR2WX(svs.skyboxFilename)));
 				if (dialog.ShowModal()!=wxID_OK)
 					break;
