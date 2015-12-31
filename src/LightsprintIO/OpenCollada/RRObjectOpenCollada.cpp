@@ -21,6 +21,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <boost/locale.hpp>
 
 #include "COLLADAFWPrerequisites.h"
 #include "COLLADAFWIWriter.h"
@@ -53,6 +54,12 @@
 #pragma warning(disable:4267) // there are too many size_t -> unsigned conversions
 
 using namespace rr;
+
+RRString convertStr(COLLADAFW::String s)
+{
+	// suppose that all strings coming from opencollada are utf8
+	return RR_STDW2RR(boost::locale::conv::utf_to_utf<wchar_t>(s.c_str()));
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -735,7 +742,7 @@ public:
 				std::string name = instanceLight->getName().c_str();
 				if(name  == "")
 					name  = node->getName();
-				rrLight->name = name.c_str();
+				rrLight->name = convertStr(name);
 
 				lights->push_back(rrLight);
 			}
@@ -816,7 +823,7 @@ public:
 
 			RRMatrix3x4 wm = convertMatrix(matrix);
 			object->setWorldMatrix( &wm );
-			object->name = name.c_str();
+			object->name = convertStr(name);
 
 			(*iter).second.instanced = true;
 			(*iter).second.objectsWithMesh.push_back(object);
@@ -1037,7 +1044,7 @@ public:
 				COLLADAFW::Image& image = imageIter->second;
 				const COLLADABU::URI& uri = image.getImageURI();
 				COLLADABU::String imagePath = COLLADABU::URI::uriDecode( uri.toNativePath() );
-				RRBuffer* buffer = rr::RRBuffer::load(imagePath.c_str(),nullptr,textureLocator);
+				RRBuffer* buffer = rr::RRBuffer::load(convertStr(imagePath),nullptr,textureLocator);
 				if(buffer)
 				{
 					prop.texcoord = uvChannel;
@@ -1223,13 +1230,13 @@ public:
 						COLLADAFW::Image& image = imageIter->second;
 						const COLLADABU::URI& uri = image.getImageURI();
 						COLLADABU::String imagePath = COLLADABU::URI::uriDecode( uri.toNativePath() );
-						material.bumpMap.texture = rr::RRBuffer::load(imagePath.c_str(),nullptr,textureLocator);
+						material.bumpMap.texture = rr::RRBuffer::load(convertStr(imagePath),nullptr,textureLocator);
 						material.bumpMap.texcoord = nmC;
 					}
 				}
 			}
 
-			material.name = colladaMaterial.getName().c_str();
+			material.name = convertStr(colladaMaterial.getName());
 
 			// get average colors from textures
 			RRColorSpace* colorSpace = RRColorSpace::create_sRGB();
