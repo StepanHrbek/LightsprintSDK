@@ -39,6 +39,7 @@ NEWS
   - simplified Visual Studio projects, with huge .vcxproj files reduced to small .props
   - FPS plugin can render also percentile graph
   - RRFileLocator::ATTEMPT_LOCATE_ONLY
+  - RRMesh::checkNormals(), RRMesh::checkTangents()
 
 CHANGES
 

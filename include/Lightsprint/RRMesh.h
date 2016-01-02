@@ -326,6 +326,18 @@ namespace rr
 		//! Returns hash of mesh geometry (positions, not normals and uvs). Slow (not cached).
 		virtual RRHash       getHash() const;
 
+		//! Tangent space issues sorted by seriousness.
+		enum TangentSpaceState
+		{
+			TSS_PERFECT,
+			TSS_NOT_ORTHOGONAL, // dot outside <-0.01,0.01>
+			TSS_DENORMALIZED, // length outside <0.9,1.1>
+			TSS_INVALID, // inf, nan
+			TSS_MISSING,
+		};
+		TangentSpaceState checkNormals() const;
+		TangentSpaceState checkTangents() const;
+
 		//! Reports inconsistencies found in mesh.
 		//
 		//! \param lightmapTexcoord

@@ -69,6 +69,7 @@ void RRMesh::getTriangleBody(unsigned i, TriangleBody& out) const
 
 void RRMesh::TangentBasis::buildBasisFromNormal()
 {
+	RR_ASSERT(IS_VEC3(normal));
 	tangent = orthogonalTo(normal).normalized();
 	bitangent = orthogonalTo(normal,tangent);
 }
@@ -465,6 +466,56 @@ RRMesh* RRMesh::createVertexBufferRuler() const
 {
 	if (!this) return nullptr;
 	return new RRHidePreImportFilter(this);
+}
+
+RRMesh::TangentSpaceState RRMesh::checkNormals() const
+{
+	bool nanOrInf = false;
+	bool denormalized = false;
+	unsigned numTriangles = getNumTriangles();
+	for (unsigned t=0;t<numTriangles;t++)
+	{
+		TriangleNormals triangleNormals;
+		getTriangleNormals(t,triangleNormals);
+		for (unsigned j=0;j<3;j++)
+		{
+			if (!IS_VEC3(triangleNormals.vertex[j].normal)) nanOrInf = true;
+			if (fabs(size2(triangleNormals.vertex[j].normal)-1)>0.1f) denormalized = true;
+		}
+	}
+	if (nanOrInf) return TSS_INVALID;
+	if (denormalized) return TSS_DENORMALIZED;
+	return TSS_PERFECT;
+}
+
+RRMesh::TangentSpaceState RRMesh::checkTangents() const
+{
+	const rr::RRMeshArrays* arrays = dynamic_cast<const rr::RRMeshArrays*>(this);
+	if (arrays && (!arrays->tangent || !arrays->bitangent))
+		return RRMesh::TSS_MISSING;
+	bool nanOrInf = false;
+	bool denormalized = false;
+	bool notOrthogonal = false;
+	unsigned numTriangles = getNumTriangles();
+	for (unsigned t=0;t<numTriangles;t++)
+	{
+		TriangleNormals triangleNormals;
+		getTriangleNormals(t,triangleNormals);
+		for (unsigned j=0;j<3;j++)
+		{
+			if (!IS_VEC3(triangleNormals.vertex[j].tangent)) nanOrInf = true;
+			if (!IS_VEC3(triangleNormals.vertex[j].bitangent)) nanOrInf = true;
+			if (fabs(size2(triangleNormals.vertex[j].tangent)-1)>0.1f) denormalized = true;
+			if (fabs(size2(triangleNormals.vertex[j].bitangent)-1)>0.1f) denormalized = true;
+			if (fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrthogonal = true;
+			if (fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
+			if (fabs(dot(triangleNormals.vertex[j].tangent,triangleNormals.vertex[j].bitangent))>0.01f) notOrthogonal = true;
+		}
+	}
+	if (nanOrInf) return TSS_INVALID;
+	if (denormalized) return TSS_DENORMALIZED;
+	if (notOrthogonal) return TSS_NOT_ORTHOGONAL;
+	return TSS_PERFECT;
 }
 
 unsigned RRMesh::checkConsistency(unsigned lightmapTexcoord, const char* meshName, class NumReports* numReports) const
