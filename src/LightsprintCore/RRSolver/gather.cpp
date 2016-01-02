@@ -712,6 +712,9 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 					ray.hitTriangle = cache_triangleIndex;
 					ray.hitPoint2d = uvInTriangleSpace;
 					getPointNormal(ray,*cache_material,true,cache_basis_orthonormal.normal);
+					cache_basis_orthonormal.buildBasisFromNormal();
+					// fill also cache_basis_skewed_normalized, code below still needs it
+					cache_basis_skewed_normalized = cache_basis_orthonormal;
 				}
 				else
 				{
@@ -725,8 +728,8 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 					// 2. What is cache_basis_orthonormal?
 					//    Helper for homogenous shooting to hemisphere, must be orthonormal.
 					cache_basis_orthonormal.normal = cache_basis_skewed_normalized.normal;
+					cache_basis_orthonormal.buildBasisFromNormal();
 				}
-				cache_basis_orthonormal.buildBasisFromNormal();
 			}
 
 			// random 2d pos in subtexel
