@@ -85,7 +85,10 @@ bool getPointNormal(const RRRay& ray, const RRMaterial& material, bool interpola
 {
 	RR_ASSERT(ray.hitObject);
 	if (!ray.hitObject)
+	{
+		RR_ASSERT(IS_VEC3(result));
 		return false;
+	}
 
 	// calculate interpolated objectspace normal
 	const RRMesh* mesh = ray.hitObject->getCollider()->getMesh();
@@ -121,6 +124,7 @@ bool getPointNormal(const RRRay& ray, const RRMaterial& material, bool interpola
 		pointBasis.tangent = tn.vertex[0].tangent + (tn.vertex[1].tangent-tn.vertex[0].tangent)*ray.hitPoint2d[0] + (tn.vertex[2].tangent-tn.vertex[0].tangent)*ray.hitPoint2d[1];
 		pointBasis.bitangent = tn.vertex[0].bitangent + (tn.vertex[1].bitangent-tn.vertex[0].bitangent)*ray.hitPoint2d[0] + (tn.vertex[2].bitangent-tn.vertex[0].bitangent)*ray.hitPoint2d[1];
 		objectNormal = (pointBasis.tangent*localNormal.x+pointBasis.bitangent*localNormal.y+pointBasis.normal*localNormal.z).normalized();
+		RR_ASSERT(IS_VEC3(objectNormal));
 	}
 
 	// convert objectspace normal to worldspace normal
@@ -128,6 +132,7 @@ bool getPointNormal(const RRRay& ray, const RRMaterial& material, bool interpola
 	// either we work with world-space mesh that was already transformed in RRTransformedMeshFilter
 	// or it's localspace and we transform normal here using the same code as in RRTransformedMeshFilter
 	result = wm ? wm->getTransformedNormal(objectNormal).normalized() : objectNormal;
+	RR_ASSERT(IS_VEC3(result));
 	return true;
 }
 
