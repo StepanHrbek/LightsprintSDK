@@ -16,7 +16,7 @@ namespace bf = boost::filesystem;
 	#include "OVR.h"
 #endif
 
-	#define NORMALIZED(x) RR_PATH2RR(bf::system_complete(RR_RR2PATH(x)).make_preferred()) // make paths absolute
+#define NORMALIZED(x) RR_PATH2RR(bf::system_complete(RR_RR2PATH(x)).make_preferred()) // make paths absolute
 
 namespace rr_ed
 {
