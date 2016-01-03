@@ -523,8 +523,12 @@ namespace rr
 		//! \return Number of triangles flipped.
 		virtual unsigned flipFrontBack(unsigned numNormalsThatMustPointBack, bool report) const;
 
-		//! Builds tangents in all meshes, or in all meshes that don't have tangents. Returns number of meshes modified.
-		virtual unsigned buildTangents(bool overwriteExistingTangents) const;
+		//! Builds tangents in selected meshes. Returns number of meshes modified.
+		//
+		//! \param stateThatWarrantsRebuild
+		//!  Pass TSS_MISSING to build only missing tangents, TSS_INVALID to rebuild also invalid ones etc.
+		//!  TSS_PERFECT rebuilds all tangents, even perfect ones.
+		virtual unsigned buildTangents(RRMesh::TangentSpaceState stateThatWarrantsRebuild) const;
 
 		//! Merges facegroups with the same material. Reorders triangles in mesh if necessary.
 		//

@@ -40,6 +40,7 @@ NEWS
   - FPS plugin can render also percentile graph
   - RRFileLocator::ATTEMPT_LOCATE_ONLY
   - RRMesh::checkNormals(), RRMesh::checkTangents()
+  - RRObject::buildTangents() parameter lets you rebuild invalid tangents but keep good ones
 
 CHANGES
 

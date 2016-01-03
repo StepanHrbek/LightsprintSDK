@@ -1045,7 +1045,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 				// display log window with 'abort' while this function runs
 				LogWithAbort logWithAbort(this,solver,_("Building tangents..."));
 
-				selectedObjects.buildTangents(true);
+				selectedObjects.buildTangents(rr::RRMesh::TSS_PERFECT);
 				svframe->m_canvas->addOrRemoveScene(nullptr,true,containsStaticObject(selectedObjects)); // calls svframe->updateAllPanels();
 			}
 			break;

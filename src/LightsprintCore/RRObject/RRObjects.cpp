@@ -236,7 +236,7 @@ unsigned RRObjects::flipFrontBack(unsigned numNormalsThatMustPointBack, bool rep
 	return numFlips;
 }
 
-unsigned RRObjects::buildTangents(bool overwriteExistingTangents) const
+unsigned RRObjects::buildTangents(RRMesh::TangentSpaceState stateThatWarrantsRebuild) const
 {
 	unsigned numBuilds = 0;
 	for (unsigned i=0;i<size();i++)
@@ -251,10 +251,18 @@ unsigned RRObjects::buildTangents(bool overwriteExistingTangents) const
 					break;
 			}
 		rr::RRMeshArrays* arrays = dynamic_cast<rr::RRMeshArrays*>(const_cast<rr::RRMesh*>((*this)[i]->getCollider()->getMesh()));
-		if (arrays && (overwriteExistingTangents || !arrays->tangent))
+		if (arrays)
 		{
-			arrays->buildTangents(uvChannel);
-			numBuilds++;
+			RRMesh::TangentSpaceState tss = arrays->checkTangents();
+			if (tss>=stateThatWarrantsRebuild)
+			{
+				arrays->buildTangents(uvChannel);
+				numBuilds++;
+			}
+		}
+		else
+		{
+			// silently ignore non-RRMeshArrays, thay are too rare to care
 		}
 	}
 	return numBuilds;
