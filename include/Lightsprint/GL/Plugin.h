@@ -12,6 +12,7 @@
 #define PLUGIN_H
 
 #include "Renderer.h"
+#include <array>
 
 namespace rr_gl
 {
@@ -64,7 +65,7 @@ struct PluginParamsShared
 	//! Viewport we are rendering to, in OpenGL format.
 	//! This does not replace glViewport call, it's a copy of data passed to the most recent glViewport.
 	//! Although it's never accessed in basic rendering, mirrors and other effects need it.
-	unsigned viewport[4];
+	std::array<unsigned,4> viewport;
 
 	//! True = calculates illumination in slower but more accurate sRGB correct way.
 	//! However, transparency is also calculated in sRGB, which makes it look different.
