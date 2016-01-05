@@ -81,11 +81,19 @@ void serialize(Archive & ar, rr_ed::ImportParameters& a, const unsigned int vers
 	ar & make_nvp("unitEnum",a.unitEnum);
 	ar & make_nvp("unitFloat",a.unitFloat);
 	ar & make_nvp("unitForce",a.unitForce);
-	ar & make_nvp("up",a.up);
+	ar & make_nvp("up",a.upEnum);
 	ar & make_nvp("upForce",a.upForce);
 	if (version>0)
 	{
-		ar & make_nvp("flipFrontBack",a.flipFrontBack);
+		ar & make_nvp("flipFrontBack",a.flipFrontBackEnum);
+	}
+	if (version>1)
+	{
+		ar & make_nvp("removeEmpty",a.removeEmpty);
+		ar & make_nvp("unitEnabled",a.unitEnabled);
+		ar & make_nvp("upEnabled",a.upEnabled);
+		ar & make_nvp("flipFrontBackEnabled",a.flipFrontBackEnabled);
+		ar & make_nvp("tangentsEnabled",a.tangentsEnabled);
 	}
 }
 
@@ -165,7 +173,7 @@ void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int versi
 } // namespace
 } // namespace
 
-BOOST_CLASS_VERSION(rr_ed::ImportParameters,1);
+BOOST_CLASS_VERSION(rr_ed::ImportParameters,2);
 BOOST_CLASS_VERSION(rr_ed::UserPreferences::WindowLayout,3)
 BOOST_CLASS_VERSION(rr_ed::UserPreferences,19)
 
@@ -180,12 +188,21 @@ namespace rr_ed
 
 ImportParameters::ImportParameters()
 {
+	removeEmpty = true;
+	
+	unitEnabled = true;
 	unitEnum = U_M;
 	unitFloat = 1;
 	unitForce = false;
-	up = 0;
+
+	upEnabled = true;
+	upEnum = 0;
 	upForce = false;
-	flipFrontBack = 3;
+
+	flipFrontBackEnabled = true;
+	flipFrontBackEnum = 3;
+
+	tangentsEnabled = true;
 }
 
 bool ImportParameters::knowsUnitLength(const wxString& filename) const
@@ -215,7 +232,7 @@ unsigned ImportParameters::getUpAxis(const wxString& filename) const
 	bool alreadyNormalized = ext!=".obj" && ext!=".stl";
 	if (alreadyNormalized && !upForce)
 		return 1;
-	return up;
+	return upEnum;
 }
 
 /////////////////////////////////////////////////////////////////////////////

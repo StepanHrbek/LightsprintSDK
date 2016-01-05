@@ -1925,10 +1925,16 @@ rr::RRScene* SVFrame::loadScene(const wxString& _filename, bool _transformations
 
 	if (_transformations)
 	{
-		scene->objects.removeEmptyObjects();
-		scene->normalizeUnits(_units);
-		scene->normalizeUpAxis(_upAxis);
-		scene->objects.flipFrontBack(userPreferences.import.flipFrontBack,true);
+		if (userPreferences.import.removeEmpty)
+			scene->objects.removeEmptyObjects();
+		if (userPreferences.import.unitEnabled)
+			scene->normalizeUnits(_units);
+		if (userPreferences.import.upEnabled)
+			scene->normalizeUpAxis(_upAxis);
+		if (userPreferences.import.flipFrontBackEnabled)
+			scene->objects.flipFrontBack(userPreferences.import.flipFrontBackEnum,true);
+		if (userPreferences.import.tangentsEnabled)
+			scene->objects.buildTangents(rr::RRMesh::TSS_INVALID);
 	}
 	return scene;
 }

@@ -51,44 +51,59 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 		Append(propImport);
 		SetPropertyReadOnly(propImport,true,wxPG_DONT_RECURSE);
 
+		propImportRemoveEmptyObjects = new BoolRefProperty(_("Remove empty"),_("Remove empty objects"),userPreferences.import.removeEmpty);
+		AppendIn(propImport,propImportRemoveEmptyObjects);
+
 		// units
 		{
+			propImportUnitsEnabled = new BoolRefProperty(_("Fix units"),_("Attempt to convert units to meters"),userPreferences.import.unitEnabled);
+			AppendIn(propImport,propImportUnitsEnabled);
+
 			const wxChar* viewStrings[] = {_("custom"),wxT("m"),_("inch"),wxT("cm"),wxT("mm"),nullptr};
 			const long viewValues[] = {ImportParameters::U_CUSTOM,ImportParameters::U_M,ImportParameters::U_INCH,ImportParameters::U_CM,ImportParameters::U_MM};
-			propImportUnitsEnum = new wxEnumProperty(_("Units"), wxPG_LABEL, viewStrings, viewValues);
+			propImportUnitsEnum = new wxEnumProperty(_("Source units"), wxPG_LABEL, viewStrings, viewValues);
 			propImportUnitsEnum->SetValueFromInt(userPreferences.import.unitEnum,wxPG_FULL_VALUE);
 			propImportUnitsEnum->SetHelpString(_("How long it is if imported scene file says 1?"));
-			AppendIn(propImport,propImportUnitsEnum);
+			AppendIn(propImportUnitsEnabled,propImportUnitsEnum);
 
 			propImportUnitsFloat = new FloatProperty(_("Unit length in meters"),_("Define any other unit by specifying its lenth in meters."),userPreferences.import.unitFloat,svs.precision,0,10000000,1,false);
 			AppendIn(propImportUnitsEnum,propImportUnitsFloat);
 
-			propImportUnitsForce = new BoolRefProperty(_("Force units"),_("Checked = selected units are used always. Unchecked = only if file does not know its own units."),userPreferences.import.unitForce);
-			AppendIn(propImport,propImportUnitsForce);
+			propImportUnitsForce = new BoolRefProperty(_("Force"),_("Checked = selected units are used always. Unchecked = only if file does not know its own units."),userPreferences.import.unitForce);
+			AppendIn(propImportUnitsEnabled,propImportUnitsForce);
 		}
 
 		// up
 		{
+			propImportUpEnabled = new BoolRefProperty(_("Fix coordinate system"),_("Attempt to orient axes in right directions"),userPreferences.import.upEnabled);
+			AppendIn(propImport,propImportUpEnabled);
+
 			const wxChar* viewStrings[] = {wxT("x"),wxT("y"),wxT("z"),nullptr};
 			const long viewValues[] = {0,1,2};
-			propImportUp = new wxEnumProperty(_("Up axis"), wxPG_LABEL, viewStrings, viewValues);
-			propImportUp->SetValueFromInt(userPreferences.import.up,wxPG_FULL_VALUE);
-			propImportUp->SetHelpString(_("What axis in imported scene file points up?"));
-			AppendIn(propImport,propImportUp);
+			propImportUpEnum = new wxEnumProperty(_("Up axis"), wxPG_LABEL, viewStrings, viewValues);
+			propImportUpEnum->SetValueFromInt(userPreferences.import.upEnum,wxPG_FULL_VALUE);
+			propImportUpEnum->SetHelpString(_("What axis in imported scene file points up?"));
+			AppendIn(propImportUpEnabled,propImportUpEnum);
 
-			propImportUpForce = new BoolRefProperty(_("Force up"),_("Checked = selected up is used always. Unchecked = only if file does not know its own up."),userPreferences.import.upForce);
-			AppendIn(propImport,propImportUpForce);
+			propImportUpForce = new BoolRefProperty(_("Force"),_("Checked = selected up is used always. Unchecked = only if file does not know its own up."),userPreferences.import.upForce);
+			AppendIn(propImportUpEnabled,propImportUpForce);
 		}
 
 		// flipFrontBack
 		{
+			propImportFlipFrontBackEnabled = new BoolRefProperty(_("Fix front/back"),_("Attempt to fix front/back"),userPreferences.import.flipFrontBackEnabled);
+			AppendIn(propImport,propImportFlipFrontBackEnabled);
+
 			const wxChar* flipStrings[] = {_("never"),_("when 3 normals point back"),_("when 2 or 3 normals point back"),nullptr};
 			const long flipValues[] = {4,3,2};
-			propImportFlipFrontBack = new wxEnumProperty(_("Flip front/back"), wxPG_LABEL, flipStrings, flipValues);
-			propImportFlipFrontBack->SetValueFromInt(userPreferences.import.flipFrontBack,wxPG_FULL_VALUE);
-			propImportFlipFrontBack->SetHelpString(_("Changes order of vertices in some triangles (flips front/back). The idea is to make normals point to front side, it is important for correct illumination."));
-			AppendIn(propImport,propImportFlipFrontBack);
+			propImportFlipFrontBackEnum = new wxEnumProperty(_("Flip front/back"), wxPG_LABEL, flipStrings, flipValues);
+			propImportFlipFrontBackEnum->SetValueFromInt(userPreferences.import.flipFrontBackEnum,wxPG_FULL_VALUE);
+			propImportFlipFrontBackEnum->SetHelpString(_("Changes order of vertices in some triangles (flips front/back). The idea is to make normals point to front side, it is important for correct illumination."));
+			AppendIn(propImportFlipFrontBackEnabled,propImportFlipFrontBackEnum);
 		}
+
+		propImportTangents = new BoolRefProperty(_("Fix tangents"),_("Build missing tangents, fix broken ones, keep good ones."),userPreferences.import.tangentsEnabled);
+		AppendIn(propImport,propImportTangents);
 
 		SetPropertyBackgroundColour(propImport,importantPropertyBackgroundColor,false);
 	}
@@ -177,7 +192,12 @@ void SVUserProperties::updateProperties()
 
 void SVUserProperties::updateHide()
 {
-	propImportUnitsFloat->Hide(userPreferences.import.unitEnum!=ImportParameters::U_CUSTOM,false);
+	propImportUnitsEnum->Hide(!userPreferences.import.unitEnabled,false);
+	propImportUnitsFloat->Hide(!userPreferences.import.unitEnabled || userPreferences.import.unitEnum!=ImportParameters::U_CUSTOM,false);
+	propImportUnitsForce->Hide(!userPreferences.import.unitEnabled,false);
+	propImportUpEnum->Hide(!userPreferences.import.upEnabled,false);
+	propImportUpForce->Hide(!userPreferences.import.upEnabled,false);
+	propImportFlipFrontBackEnum->Hide(!userPreferences.import.flipFrontBackEnabled,false);
 	propSshotEnhancedWidth->Hide(!userPreferences.sshotEnhanced,false);
 	propSshotEnhancedHeight->Hide(!userPreferences.sshotEnhanced,false);
 	propSshotEnhancedFSAA->Hide(!userPreferences.sshotEnhanced,false);
@@ -206,6 +226,11 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		userPreferences.stereoMode = (rr::RRCamera::StereoMode)(propStereoMode->GetValue().GetInteger());
 	}
 	else
+	if (property==propImportUnitsEnabled)
+	{
+		updateHide();
+	}
+	else
 	if (property==propImportUnitsEnum)
 	{
 		userPreferences.import.unitEnum = (ImportParameters::Unit)(property->GetValue().GetInteger());
@@ -217,14 +242,24 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		userPreferences.import.unitFloat = property->GetValue().GetDouble();
 	}
 	else
-	if (property==propImportUp)
+	if (property==propImportUpEnabled)
 	{
-		userPreferences.import.up = property->GetValue().GetInteger();
+		updateHide();
 	}
 	else
-	if (property==propImportFlipFrontBack)
+	if (property==propImportUpEnum)
 	{
-		userPreferences.import.flipFrontBack = property->GetValue().GetInteger();
+		userPreferences.import.upEnum = property->GetValue().GetInteger();
+	}
+	else
+	if (property==propImportFlipFrontBackEnabled)
+	{
+		updateHide();
+	}
+	else
+	if (property==propImportFlipFrontBackEnum)
+	{
+		userPreferences.import.flipFrontBackEnum = property->GetValue().GetInteger();
 	}
 	else
 	if (property==propSshotFilename)

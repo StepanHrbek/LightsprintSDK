@@ -42,12 +42,17 @@ namespace rr_ed
 		wxPGProperty*     propStereoSwap;
 
 		wxPGProperty*     propImport;
+		wxPGProperty*     propImportRemoveEmptyObjects;
+		wxPGProperty*     propImportUnitsEnabled;
 		wxPGProperty*     propImportUnitsEnum;
 		wxPGProperty*     propImportUnitsFloat;
 		wxPGProperty*     propImportUnitsForce;
-		wxPGProperty*     propImportUp;
+		wxPGProperty*     propImportUpEnabled;
+		wxPGProperty*     propImportUpEnum;
 		wxPGProperty*     propImportUpForce;
-		wxPGProperty*     propImportFlipFrontBack;
+		wxPGProperty*     propImportFlipFrontBackEnabled;
+		wxPGProperty*     propImportFlipFrontBackEnum;
+		wxPGProperty*     propImportTangents;
 
 
 		wxPGProperty*     propSshot;

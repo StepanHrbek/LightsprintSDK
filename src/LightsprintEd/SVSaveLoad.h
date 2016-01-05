@@ -19,6 +19,9 @@ namespace rr_ed
 
 	struct ImportParameters
 	{
+		bool        removeEmpty;
+
+		bool        unitEnabled;
 		enum Unit
 		{
 			U_CUSTOM,
@@ -31,10 +34,14 @@ namespace rr_ed
 		float       unitFloat;
 		bool        unitForce; // false=use selected units only if file does not know, true=use selected units even if file knows its units
 
-		unsigned    up; // 0=x,1=y,2=z
+		bool        upEnabled;
+		unsigned    upEnum; // 0=x,1=y,2=z
 		bool        upForce; // false=use selected up only if file does not know, true=use selected up even if file knows its up
 
-		unsigned flipFrontBack; // 2, 3 or 4; passed to flipFrontBack() as numNormalsThatMustPointBack parameter
+		bool        flipFrontBackEnabled;
+		unsigned    flipFrontBackEnum; // 2, 3 or 4; passed to flipFrontBack() as numNormalsThatMustPointBack parameter
+
+		bool        tangentsEnabled;
 
 		ImportParameters();
 
