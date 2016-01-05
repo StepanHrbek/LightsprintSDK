@@ -84,8 +84,8 @@ namespace rr_ed
 
 		bool oculusActive(); // true if active (not necessarily fullscreen)
 
-		//! Loads and returns scene with normalized units and up axis.
-		rr::RRScene* loadScene(const wxString& filename, bool transformations, float units, unsigned upAxis, bool popup);
+		//! Loads and returns scene with optional automatic transformations.
+		rr::RRScene* loadScene(const wxString& filename, bool transformations);
 
 		//! Asks for saveable scene filename, modifies it only on success.
 		bool chooseSceneFilename(wxString fileSelectorCaption, wxString& selectedFilename);
