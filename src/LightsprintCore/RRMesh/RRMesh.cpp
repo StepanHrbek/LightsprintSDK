@@ -503,8 +503,8 @@ RRMesh::TangentSpaceState RRMesh::checkTangents() const
 		getTriangleNormals(t,triangleNormals);
 		for (unsigned j=0;j<3;j++)
 		{
-			if (!IS_VEC3(triangleNormals.vertex[j].tangent)) nanOrInf = true;
-			if (!IS_VEC3(triangleNormals.vertex[j].bitangent)) nanOrInf = true;
+			if (!IS_VEC3(triangleNormals.vertex[j].tangent) || triangleNormals.vertex[j].tangent==RRVec3(0)) nanOrInf = true;
+			if (!IS_VEC3(triangleNormals.vertex[j].bitangent) || triangleNormals.vertex[j].bitangent==RRVec3(0)) nanOrInf = true;
 			if (fabs(size2(triangleNormals.vertex[j].tangent)-1)>0.1f) denormalized = true;
 			if (fabs(size2(triangleNormals.vertex[j].bitangent)-1)>0.1f) denormalized = true;
 			if (fabs(dot(triangleNormals.vertex[j].normal,triangleNormals.vertex[j].tangent))>0.01f) notOrthogonal = true;
