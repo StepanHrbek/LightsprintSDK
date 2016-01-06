@@ -499,6 +499,9 @@ namespace rr
 			//! value x makes radiosity step x times longer. Example: 0.5 makes it 2x faster.
 			float qualityFactorRadiosity;
 
+			//! Use bump maps, when available. It makes lightmaps more detailed, but calculation is bit slower.
+			bool useBumpMaps;
+
 			//! Higher value makes indirect illumination in corners darker, 0=disabled/lighter, default 1=normal, 2=darker.
 			RRReal aoIntensity;
 			//! Indirect illumination gets darker in this distance (in world units, usually meters) from corners.
@@ -557,6 +560,7 @@ namespace rr
 				useCurrentSolution = true;
 				quality = 0;
 				qualityFactorRadiosity = 1;
+				useBumpMaps = true;
 				aoIntensity = 1;
 				aoSize = 0;
 				insideObjectsThreshold = 1;
@@ -574,6 +578,7 @@ namespace rr
 				useCurrentSolution = false;
 				quality = _quality;
 				qualityFactorRadiosity = 1;
+				useBumpMaps = true;
 				insideObjectsThreshold = 1;
 				rugDistance = 0.001f;
 				locality = 100000;

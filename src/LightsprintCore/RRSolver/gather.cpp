@@ -690,7 +690,9 @@ ProcessTexelResult processTexel(const ProcessTexelParams& pti)
 				const RRMesh* multiMesh = pti.context.solver->getMultiObject()->getCollider()->getMesh();
 				multiMesh->getTriangleBody(subTexel->multiObjPostImportTriIndex,cache_tb);
 				multiMesh->getTriangleNormals(subTexel->multiObjPostImportTriIndex,cache_bases);
-				cache_material = pti.context.solver->getMultiObject()->getTriangleMaterial(subTexel->multiObjPostImportTriIndex,nullptr,nullptr);
+				cache_material = pti.context.params.useBumpMaps
+					? pti.context.solver->getMultiObject()->getTriangleMaterial(subTexel->multiObjPostImportTriIndex,nullptr,nullptr)
+					: nullptr;
 			}
 			// update cached subtexel data
 			// (simplification: average tangent base is used for all rays from subtexel)
