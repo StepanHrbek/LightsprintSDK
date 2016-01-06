@@ -116,6 +116,9 @@ SVGIProperties::SVGIProperties(SVFrame* _svframe)
 		propGILightmapFloats = new BoolRefProperty(_("HDR"),_("Renders lightmaps in floating point/high dynamic range format. Off = baked illumination is clamped to 0..1 range. HDR takes more memory, save it for scenes where LDR can't capture lighting well. Note that baking saves both LDR(.png) and HDR(.exr) maps to disk, this checkbox selects which ones to render."),svs.lightmapFloats);
 		AppendIn(propGILightmap,propGILightmapFloats);
 
+		propGILightmapUseBump = new BoolRefProperty(_("Bump"),_("Use bump maps when available, for more detailed lightmaps."),svs.lightmapDirectParameters.useBumpMaps);
+		AppendIn(propGILightmap,propGILightmapUseBump);
+
 		propGILightmapAOIntensity = new FloatProperty(_("AO intensity"),_("Higher value makes indirect illumination in corners darker, 0=disabled/lighter, 1=normal, 2=darker."),svs.lightmapDirectParameters.aoIntensity,svs.precision,0,10,1,false);
 		AppendIn(propGILightmap,propGILightmapAOIntensity);
 
@@ -342,6 +345,7 @@ void SVGIProperties::updateProperties()
 		+ updateBool(propGIFireballWorkTotal,svs.fireballWorkTotal>svs.fireballWorkPerFrame)
 
 		+ updateBoolRef(propGILightmapFloats)
+		+ updateBoolRef(propGILightmapUseBump)
 		+ updateFloat(propGILightmapAOIntensity,svs.lightmapDirectParameters.aoIntensity)
 		+ updateFloat(propGILightmapAOSize,svs.lightmapDirectParameters.aoSize)
 		+ updateFloat(propGILightmapSmoothingAmount,svs.lightmapFilteringParameters.smoothingAmount)

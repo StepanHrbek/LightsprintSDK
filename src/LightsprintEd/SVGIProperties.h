@@ -63,6 +63,7 @@ namespace rr_ed
 
 		wxPGProperty*     propGILightmap;
 		BoolRefProperty*  propGILightmapFloats;
+		BoolRefProperty*  propGILightmapUseBump;
 		wxPGProperty*     propGILightmapAOIntensity;
 		wxPGProperty*     propGILightmapAOSize;
 		wxPGProperty*     propGILightmapSmoothingAmount;

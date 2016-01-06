@@ -817,6 +817,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						params.indirect = svs.getMultipliersIndirect();
 						if (ambient)
 							params.direct.lightMultiplier = 0;
+						params.useBumpMaps = svs.lightmapDirectParameters.useBumpMaps;
 						params.aoIntensity = svs.lightmapDirectParameters.aoIntensity;
 						params.aoSize = svs.lightmapDirectParameters.aoSize;
 
@@ -891,6 +892,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						params.indirect.lightMultiplier = 1;
 						params.direct.environmentMultiplier = 1;
 						params.indirect.environmentMultiplier = 1;
+						params.useBumpMaps = svs.lightmapDirectParameters.useBumpMaps;
 						params.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2; // used to be in direct only
 						params.aoSize = svs.lightmapDirectParameters.aoSize; // used to be in direct only
 						params.locality = -1; // used to be in indirect only
