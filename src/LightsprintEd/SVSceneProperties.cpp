@@ -181,7 +181,7 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		AppendIn(propEnv,propEnvDate);
 
 		// hours will use wxTimePickerCtrl when wx2.9.3 is released
-		propEnvTime = new FloatProperty(_("Local time (hour)"),_("Hour, 0..24, local time used for Sun and sky simulation."),svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f,svs.precision,0,24,1,true);
+		propEnvTime = new FloatProperty(_("Local mean time (hour)"),_("Hour, 0..24, local mean time used for Sun and sky simulation."),svs.envDateTime.tm_hour+svs.envDateTime.tm_min/60.f,svs.precision,0,24,1,true);
 		AppendIn(propEnv,propEnvTime);
 
 		propEnvSpeed = new FloatProperty(_("Speed"),_("How quickly simulation runs, 0=stopped, 1=realtime, 3600=one day in 24seconds."),svs.envSpeed,svs.precision,0,1000000,1,false);
