@@ -319,7 +319,7 @@ struct Parameters
 			}
 			else
 			{
-				// if outputpath is empty, output to the same subdir as scene viewer (filenameof3dscene_precalculated/)
+				// if outputpath is empty, [#58] output to the same subdir as scene viewer (filenameof3dscene_precalculated/)
 				int ofs = (int)outputPath.rfind('.',-1);
 				if (ofs>=0) outputPath.replace(ofs,999,"_precalculated/");
 			}
@@ -333,7 +333,7 @@ struct Parameters
 	{
 		if (!buildNothing)
 		{
-			illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.createBuffer(false,true,L".lightmap") : nullptr;
+			illumination->getLayer(LAYER_LIGHTMAP)     = !buildOcclusion  ? layerParameters.createBuffer(false,true,L".lightmap") : nullptr; // [#58] the same scheme as in SceneViewer
 			illumination->getLayer(LAYER_OCCLUSION)    = buildOcclusion   ? layerParameters.createBuffer(false,true,L".occlusion") : nullptr; // floats not necessary, alpha for smoothing
 			illumination->getLayer(LAYER_DIRECTIONAL1) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional1") : nullptr;
 			illumination->getLayer(LAYER_DIRECTIONAL2) = buildDirectional ? layerParameters.createBuffer(false,true,L".directional2") : nullptr;
