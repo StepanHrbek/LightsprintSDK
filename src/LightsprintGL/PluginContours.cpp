@@ -77,7 +77,7 @@ public:
 		// trace contours
 		PreserveFlag p4(GL_BLEND,GL_TRUE);
 		PreserveBlendFunc p5;
-		glBlendFunc(GL_ZERO,GL_SRC_COLOR);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		contoursProgram->useIt();
 		contoursProgram->sendTexture("depthMap",bigDepth);
 		contoursProgram->sendUniform("tPixelSize",1.0f/w,1.0f/h);

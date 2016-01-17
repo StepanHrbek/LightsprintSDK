@@ -28,14 +28,14 @@ namespace rr_gl
 class RR_GL_API PluginParamsContours : public PluginParams
 {
 public:
-	//! Color of silhouettes.
-	rr::RRVec3 silhouetteColor;
+	//! Color and opacity of silhouettes.
+	rr::RRVec4 silhouetteColor;
 
-	//! Color of creases.
-	rr::RRVec3 creaseColor;
+	//! Color and opacity of creases.
+	rr::RRVec4 creaseColor;
 
 	//! Convenience ctor, for setting plugin parameters.
-	PluginParamsContours(const PluginParams* _next, const rr::RRVec3& _silhouetteColor, const rr::RRVec3& _creaseColor) : silhouetteColor(_silhouetteColor), creaseColor(_creaseColor) {next=_next;}
+	PluginParamsContours(const PluginParams* _next, const rr::RRVec4& _silhouetteColor, const rr::RRVec4& _creaseColor) : silhouetteColor(_silhouetteColor), creaseColor(_creaseColor) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;

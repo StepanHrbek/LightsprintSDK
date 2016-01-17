@@ -2019,7 +2019,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppSSGI;
 
 			// Contours plugin
-			rr_gl::PluginParamsContours ppContours(pluginChain,svs.contoursSilhouetteColor,svs.contoursCreaseColor);
+			rr_gl::PluginParamsContours ppContours(pluginChain,rr::RRVec4(svs.contoursSilhouetteColor,1-svs.contoursSilhouetteColor.avg()),rr::RRVec4(svs.contoursCreaseColor,1-svs.contoursCreaseColor.avg()));
 			if (svs.contoursEnabled)
 				pluginChain = &ppContours;
 
