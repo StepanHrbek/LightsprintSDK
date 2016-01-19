@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2015, assimp team
+Copyright (c) 2006-2016, assimp team
 
 All rights reserved.
 
@@ -56,14 +56,13 @@ using namespace Assimp;
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
 GenVertexNormalsProcess::GenVertexNormalsProcess()
-{
-    this->configMaxAngle = AI_DEG_TO_RAD(175.f);
+: configMaxAngle( AI_DEG_TO_RAD( 175.f ) ) {
+    // empty
 }
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-GenVertexNormalsProcess::~GenVertexNormalsProcess()
-{
+GenVertexNormalsProcess::~GenVertexNormalsProcess() {
     // nothing to do here
 }
 

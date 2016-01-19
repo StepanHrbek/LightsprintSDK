@@ -3,7 +3,7 @@
 Open Asset Import Library (assimp)
 ---------------------------------------------------------------------------
 
-Copyright (c) 2006-2015, assimp team
+Copyright (c) 2006-2016, assimp team
 
 All rights reserved.
 
@@ -358,7 +358,9 @@ void ObjFileMtlImporter::getTexture() {
 
     std::string texture;
     m_DataIt = getName<DataArrayIt>( m_DataIt, m_DataItEnd, texture );
-    out->Set( texture );
+    if ( NULL!=out ) {
+        out->Set( texture );
+    }
 }
 
 /* /////////////////////////////////////////////////////////////////////////////
@@ -376,11 +378,10 @@ void ObjFileMtlImporter::getTexture() {
  * Because aiMaterial supports clamp option, so we also want to return it
  * /////////////////////////////////////////////////////////////////////////////
  */
-void ObjFileMtlImporter::getTextureOption(bool &clamp, int &clampIndex, aiString *&out)
-{
+void ObjFileMtlImporter::getTextureOption(bool &clamp, int &clampIndex, aiString *&out) {
     m_DataIt = getNextToken<DataArrayIt>(m_DataIt, m_DataItEnd);
 
-    //If there is any more texture option
+    // If there is any more texture option
     while (!isEndOfBuffer(m_DataIt, m_DataItEnd) && *m_DataIt == '-')
     {
         const char *pPtr( &(*m_DataIt) );
