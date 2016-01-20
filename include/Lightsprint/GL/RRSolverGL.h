@@ -61,7 +61,7 @@ namespace rr_gl
 		//! By default, light's near/far range is autodetected from distance to static objects in solver (to avoid clipping),
 		//! but if you wish to set range manually, clear RealtimeLight::dirtyRange after setLights()
 		//! to prevent autodetection and set your own range.
-		virtual void setLights(const rr::RRLights& lights);
+		virtual void setLights(const rr::RRLights& lights) override;
 
 		//! Renders scene in solver, with all static and dynamic objects, lights, environment.
 		//virtual void renderScene(const RenderParameters& renderParameters);
