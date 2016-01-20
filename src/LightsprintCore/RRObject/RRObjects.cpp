@@ -517,7 +517,7 @@ void RRObjects::smoothAndStitch(bool splitVertices, bool mergeVertices, bool rem
 			{
 				RRVec3 scaleJ = objects[j]->getWorldMatrixRef().getScale().abs();
 				differentScales |= scaleJ!=scale;
-				nonUniformScale |= abs(scaleJ.x-scaleJ.y)+abs(scaleJ.x-scaleJ.z)>0.1f*scaleJ.avg(); // warn only if error gets over 10% of stitch distance
+				nonUniformScale |= std::abs(scaleJ.x-scaleJ.y)+std::abs(scaleJ.x-scaleJ.z)>0.1f*scaleJ.avg(); // warn only if error gets over 10% of stitch distance
 			}
 			if (differentScales) numMeshesDifferentScales++;
 			if (nonUniformScale) numMeshesNonUniformScale++;
