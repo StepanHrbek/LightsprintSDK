@@ -126,7 +126,7 @@ namespace rr_gl
 		// Dirty flags only if we are sure that light did change. Caller can always set dirty himself, if we don't.
 		if (getCamera()->getPosition()!=rrlight.position
 			|| getCamera()->getDirection()!=rrlight.direction
-			|| (rrlight.type==rr::RRLight::SPOT && abs(rrlight.outerAngleRad*2-getCamera()->getFieldOfViewVerticalRad())>0.01f))
+			|| (rrlight.type==rr::RRLight::SPOT && std::abs(rrlight.outerAngleRad*2-getCamera()->getFieldOfViewVerticalRad())>0.01f))
 		{
 			dirtyShadowmap = true;
 			dirtyGI = true;
