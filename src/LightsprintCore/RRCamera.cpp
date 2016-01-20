@@ -10,6 +10,7 @@
 #include <cmath>
 #include <set> // generateRandomCamera
 #include <cfloat> // _finite in generateRandomCamera
+#include <cstdlib> // rand
 #include "Lightsprint/RRCamera.h"
 #include "Lightsprint/RRObject.h"
 	#include "Lightsprint/RRSolver.h"
@@ -199,7 +200,7 @@ bool RRCamera::manipulateViewBy(const RRMatrix3x4& transformation, bool rollChan
 	matrix.setTranslation(pos);
 	matrix = transformation * matrix;
 	RRVec3 newRot = matrix.getYawPitchRoll();
-	if (!yawInversionAllowed && abs(abs(yawPitchRollRad.x-newRot.x)-RR_PI)<RR_PI/2) // rot.x change is closer to -180 or 180 than to 0 or 360. this happens when rot.y overflows 90 or -90
+	if (!yawInversionAllowed && fabs(fabs(yawPitchRollRad.x-newRot.x)-RR_PI)<RR_PI/2) // rot.x change is closer to -180 or 180 than to 0 or 360. this happens when rot.y overflows 90 or -90
 		return false;
 	pos = matrix.getTranslation();
 	yawPitchRollRad = RRVec3(newRot.x,newRot.y,rollChangeAllowed?newRot.z:oldRoll); // prevent unwanted roll distortion (yawpitch changes would accumulate rounding errors in roll)
