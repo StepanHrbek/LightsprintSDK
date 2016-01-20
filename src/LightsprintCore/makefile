@@ -105,7 +105,6 @@ LIBS += $(CORE_DEPS)
 
 INC_DIRS = .
 INC_DIRS += ../../include
-INC_DIRS += ../LicGen/include
 
 # library directories
 
