@@ -536,7 +536,7 @@ void RRCamera::setRangeDynamically(const RRSolver* solver, bool shadowRays, unsi
 
 	// calculate distance to visible geometry (raycasting)
 	RRVec2 distanceMinMax(1e10f,0);
-	if (panoramaMode!=PM_OFF)
+	if (panoramaMode!=PM_OFF || stereoMode==SM_OCULUS_RIFT)
 		solver->getCollider()->getDistancesFromPoint(getPosition(),solver->getMultiObject(),shadowRays,distanceMinMax,numRays);
 	else
 		solver->getCollider()->getDistancesFromCamera(*this,solver->getMultiObject(),shadowRays,distanceMinMax,numRays);
