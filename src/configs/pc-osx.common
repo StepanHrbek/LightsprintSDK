@@ -16,7 +16,7 @@ CPP_FLAGS += -I/opt/local/include
 CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/include/wx-3.0
 CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/lib/wx/include/osx_cocoa-unicode-3.0
 CPP_FLAGS += -D__WXOSX_COCOA__
-CPP_FLAGS += -I../../3rd/OculusSDK/LibOVR/Include
+#CPP_FLAGS += -I../../3rd/OculusSDK/LibOVR/Include
 
 LINK_FLAGS += -L/opt/local/lib
 LINK_FLAGS += -L../../bin/pc-osx
@@ -52,9 +52,9 @@ ED_DEPS = \
 	-lboost_iostreams-mt \
 	-lboost_locale-mt \
 	-framework IOKit \
-	-framework Cocoa \
-	-lovr
+	-framework Cocoa
 
+#	-lovr
 #	-F/opt/local/Library/Frameworks -framework wxWidgets
 
 # ED needs boost_* only if CUSTOMIZED_FOR_3DRENDER 
