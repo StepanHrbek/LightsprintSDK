@@ -13,10 +13,11 @@
 
 #include <boost/config.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/static_assert.hpp>
+#include <boost/version.hpp>
 #if BOOST_VERSION<105900
 #include <boost/serialization/pfto.hpp>
 #endif
-#include <boost/static_assert.hpp>
 
 #include <climits>
 #if CHAR_BIT != 8
