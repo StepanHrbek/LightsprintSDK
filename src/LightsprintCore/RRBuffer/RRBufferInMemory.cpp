@@ -110,8 +110,8 @@ RRBufferInMemory::~RRBufferInMemory()
 		// skip destructor
 		filename._skipDestructor();
 		// backup first 4 or 8 bytes
-		// note: this works well with known compilers, but it can fail with hypothetical one, so we don’t disable compiler warning
-		memcpy(&g_classHeader,this,sizeof(void*)); // -Wdynamic-class-memaccess warning is ok
+		// (void*) silences warning, we do bad stuff, but it works well with major compilers
+		memcpy(&g_classHeader,(void*)this,sizeof(void*));
 	}
 	else
 	{
@@ -133,8 +133,8 @@ void RRBufferInMemory::operator delete(void* p, std::size_t n)
 		if (b->refCount)
 		{
 			// fix instance after destructor (restore first 4 or 8 bytes)
-			// note: this works well with known compilers, but it can fail with hypothetical one, so we don’t disable compiler warning
-			memcpy(b,&g_classHeader,sizeof(void*)); // -Wdynamic-class-memaccess warning is ok
+			// (void*) silences warning, we do bad stuff, but it works well with major compilers
+			memcpy((void*)b,&g_classHeader,sizeof(void*));
 			// however, if last reference remains, try to delete it from cache
 			if (b->refCount==1)
 				b->deleteFromCache();

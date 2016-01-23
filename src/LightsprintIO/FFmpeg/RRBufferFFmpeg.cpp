@@ -750,8 +750,9 @@ public:
 			// skip destructor
 			filename._skipDestructor();
 			// store instance header before destruction
+			// (void*) silences warning, we do bad stuff, but it works well with major compilers
 			g_classHeaderSize = RR_MIN(16,(char*)&filename-(char*)this); // filename must be first member variable in RRBuffer
-			memcpy(g_classHeader,this,g_classHeaderSize);
+			memcpy(g_classHeader,(void*)this,g_classHeaderSize);
 		}
 		else
 		{
@@ -770,7 +771,8 @@ public:
 			{
 				// fix instance after destructor, restore first 4 or 8 bytes from backup
 				// (it's not safe to restore from local static RRBufferFFmpeg)
-				memcpy(b,g_classHeader,g_classHeaderSize);
+				// (void*) silences warning, we do bad stuff, but it works well with major compilers
+				memcpy((void*)b,g_classHeader,g_classHeaderSize);
 				// however, if last reference remains, try to delete it from cache
 				if (b->refCount==1)
 					b->deleteFromCache();
