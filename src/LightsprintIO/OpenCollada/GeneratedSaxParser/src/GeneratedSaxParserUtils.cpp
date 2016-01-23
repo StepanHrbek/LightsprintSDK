@@ -1542,8 +1542,12 @@ namespace GeneratedSaxParser
 #if defined(COLLADABU_OS_WIN) && !defined(__MINGW32__)
         return _isnan( value ) ? true : false;
 #else
+#ifdef isnan
+        return isnan( value );
+#else
         using namespace std;
         return std::isnan( value );
+#endif
 #endif
     }
 
