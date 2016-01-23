@@ -11,6 +11,7 @@ CPP_FLAGS += -ftemplate-depth=256 # prevents “recursive template instantiation
 CPP_FLAGS += -Wno-deprecated-declarations # disables _finite() warnings in many files
 CPP_FLAGS += -Wno-deprecated-register # disables register warnings in assimp
 #CPP_FLAGS += -Wno-bitfield-constant-conversion # disables warnings in bsp.cpp
+CPP_FLAGS += -Wno-potentially-evaluated-expression # disables tons of warnings in wxWidgets headers
 CPP_FLAGS += -I/opt/local/include
 CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/include/wx-3.0
 CPP_FLAGS += -I/opt/local/Library/Frameworks/wxWidgets.framework/Versions/wxWidgets/3.0/lib/wx/include/osx_cocoa-unicode-3.0
