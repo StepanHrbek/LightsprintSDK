@@ -598,7 +598,7 @@ public:
 					video_avCodecContext = open_stream(video_streamIndex);
 				if (video_avCodecContext)
 				{
-					video_swsContext = sws_getContext(video_avCodecContext->width, video_avCodecContext->height, video_avCodecContext->pix_fmt, video_avCodecContext->width, video_avCodecContext->height, PIX_FMT_RGB24, SWS_BILINEAR, NULL, NULL, NULL );
+					video_swsContext = sws_getContext(video_avCodecContext->width, video_avCodecContext->height, video_avCodecContext->pix_fmt, video_avCodecContext->width, video_avCodecContext->height, AV_PIX_FMT_RGB24, SWS_BILINEAR, NULL, NULL, NULL );
 					width = video_avCodecContext->width;
 					height = video_avCodecContext->height;
 					video_thread = boost::thread(&FFmpegPlayer::video_proc,this);
