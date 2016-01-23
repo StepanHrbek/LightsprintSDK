@@ -63,10 +63,17 @@ ED_LIBS = \
 	../../bin/$(CONFIG)/libLightsprintEd.so
 
 IO_DEPS = \
-	-lfreeimage \
+	-lassimp \
 	-lboost_serialization-mt \
 	-lboost_iostreams-mt \
-	-lboost_locale-mt
+	-lboost_locale-mt \
+	-lboost_thread-mt \
+	-lfreeimage \
+	-lportaudio \
+	-lavcodec \
+	-lavformat \
+	-lavutil \
+	-lswscale
 
 IO_LIBS = \
 	$(IO_DEPS) \
