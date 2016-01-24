@@ -3,7 +3,7 @@ BITS = 64
 
 #CC = gcc
 #CXX = g++
-#default clang has no openmp
+#CPP_FLAGS += -fopenmp -D_OPENMP # apple clang still has no openmp
 #CXX = -Wno-unused-value
 C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++11 from CPP_FLAGS 
 CPP_FLAGS += -std=c++11 # rvalue references, lambda
