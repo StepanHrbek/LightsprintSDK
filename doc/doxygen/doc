@@ -627,7 +627,9 @@ Material formats (1)
   - www: <a href="http://assimp.sourceforge.net/">Assimp</a>
   - license: <a href="http://assimp.sourceforge.net/main_license.html">3-clause BSD license</a>
   - optional, remove by deleting <code>\#define SUPPORT_ASSIMP</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
-  - git head from 2016-01-19 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+  - Windows: git head from 2016-01-19 (\subpage assimp_patch "patched") is used internally by LightsprintIO library, it's not visible from outside (no headers or dll files)
+  - OSX: install with <code>sudo port install assimp</code>
+  - Ubuntu: install with <code>sudo apt-get install libassimp-dev</code>
 
  \page assimp_patch Assimp patch
 
@@ -638,6 +640,7 @@ Material formats (1)
   - Fix of .obj crash (https://github.com/assimp/assimp/blob/master/CREDITS).
   - Fix of memory leak (https://sourceforge.net/tracker/index.php?func=detail&aid=3134561&group_id=226462&atid=1067632)
   - Fix of VS2010 compilation (rev 993)
+  - several more, see assimp on github
 
 \page tpl_freeimage FreeImage
   - www: <a href="http://freeimage.sourceforge.net/">FreeImage</a>
@@ -654,7 +657,7 @@ Material formats (1)
     if <a href="https://www.ffmpeg.org/doxygen/2.6/md_LICENSE.html">optional components</a> are selected at FFmpeg/libav build time
   - optional, remove by deleting <code>\#define SUPPORT_FFMPEG</code> and <code>\#define SUPPORT_LIBAV</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
   - Windows: download precompiled version for example from <a href="http://builds.libav.org/windows/">here</a>, <a href="http://ffmpeg.zeranoe.com/builds/">here</a>, or build your own FFmpeg/libav from source code
-  - OSX: install with <code>sudo port install ffmpeg-devel ?</code>
+  - OSX: install with <code>sudo port install ffmpeg-devel -gpl2 -x11</code>
   - Ubuntu: install with <code>sudo apt-get install libav ?</code>
 
 \page tpl_portaudio portaudio
@@ -662,7 +665,7 @@ Material formats (1)
   - license: <a href="http://portaudio.com/license.html">MIT like</a>
   - optional, remove by deleting <code>\#define SUPPORT_FFMPEG</code> and <code>\#define SUPPORT_LIBAV</code> in <code>src/LightsprintIO/supported_formats.h</code> (for Linux, remove linking from makefile)
   - Windows: precompiled svn revision 1953 is a part of SDK
-  - OSX: install with <code>sudo port install portaudio ?</code>
+  - OSX: install with <code>sudo port install portaudio</code>
   - Ubuntu: install with <code>sudo apt-get install portaudio19 ?</code>
 
 \page tpl_opencollada OpenCollada
