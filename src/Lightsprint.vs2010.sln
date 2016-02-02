@@ -30,11 +30,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloCollider.vs2010", "..\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MultiMeshCollider.vs2010", "..\samples\MultiMeshCollider\MultiMeshCollider.vs2010.vcxproj", "{A227AA12-51AE-F012-A334-A2690FBC1DFA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsmarkFrontend", "LightsmarkFrontend\LightsmarkFrontend.vcxproj", "{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88} = {5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealtimeLights.vs2010", "..\samples\RealtimeLights\RealtimeLights.vs2010.vcxproj", "{AFCEB39A-138F-36C2-60DA-3851702EF5C1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SceneViewer.vs2010", "..\samples\SceneViewer\SceneViewer.vs2010.vcxproj", "{2CA3701A-B342-AEF3-3B11-3B42CC2EFAAB}"
@@ -253,18 +248,6 @@ Global
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release static|Win32.Build.0 = Release static|Win32
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release static|x64.ActiveCfg = Release static|x64
 		{A227AA12-51AE-F012-A334-A2690FBC1DFA}.Release static|x64.Build.0 = Release static|x64
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|Win32.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug DLL|x64.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|Win32.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|Win32.Build.0 = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|x64.ActiveCfg = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Debug static|x64.Build.0 = Debug static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|Win32.ActiveCfg = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release DLL|x64.ActiveCfg = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.ActiveCfg = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.Build.0 = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|x64.ActiveCfg = Release static|Win32
-		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|x64.Build.0 = Release static|Win32
 		{AFCEB39A-138F-36C2-60DA-3851702EF5C1}.Debug DLL|Win32.ActiveCfg = Debug DLL|Win32
 		{AFCEB39A-138F-36C2-60DA-3851702EF5C1}.Debug DLL|Win32.Build.0 = Debug DLL|Win32
 		{AFCEB39A-138F-36C2-60DA-3851702EF5C1}.Debug DLL|x64.ActiveCfg = Debug DLL|x64
