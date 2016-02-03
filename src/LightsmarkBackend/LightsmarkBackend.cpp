@@ -7,7 +7,9 @@ unsigned INSTANCES_PER_PASS;
 #define SHADOW_MAP_SIZE_HARD       2048
 #define GI_UPDATE_QUALITY          5 // default is 3, increase to 5 fixes book in first 5 seconds
 #define GI_UPDATE_INTERVAL         -1 // start GI update as often as possible (but can be affected by MAX_LIGHT_UPDATE_FREQUENCY)
-#define BACKGROUND_THREAD            // run improve+updateLightmaps+UpdateEnvironmentMap asynchronously, on background
+#if !defined(_MSC_VER) || _MSC_VER>=1700 // <thread> not supported in VS2010 and older
+	#define BACKGROUND_THREAD      // run improve+updateLightmaps+UpdateEnvironmentMap asynchronously, on background
+#endif
 #define DDI_EVERY_FRAME            1 // 1=slower but equal frame times, 0=faster but unequal frame times
 #if defined(NDEBUG) && defined(_WIN32)
 	//#define SET_ICON
@@ -112,7 +114,9 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 	#include "../../src/LightsprintCore/RRStaticSolver/rrcore.h"
 #endif
 #include "resource.h"
-#include <thread>
+#ifdef BACKGROUND_THREAD
+	#include <thread>
+#endif
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
