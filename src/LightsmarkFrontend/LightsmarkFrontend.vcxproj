@@ -115,7 +115,7 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LightsmarkBackend\LightsmarkBackend.vs2010.vcxproj">
+    <ProjectReference Include="..\LightsmarkBackend\LightsmarkBackend.vs2015.vcxproj">
       <Project>{5a0a9769-ea99-4a20-bc0d-74f39fdcca88}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
