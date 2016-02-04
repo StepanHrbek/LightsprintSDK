@@ -22,7 +22,7 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
-#define PRODUCT_NAME "Lightsmark 2015"
+#define PRODUCT_NAME "Lightsmark 2016"
 #define CFG_FILE "Lightsmark.cfg"
 //#define CFG_FILE "mgf.cfg"
 //#define CFG_FILE "test.cfg"
@@ -1794,7 +1794,7 @@ void parseOptions(int argc, const char*const*argv)
 	if (badArgument)
 	{
 		const char* caption = 
-			"Lightsmark 2015 back-end                                       (C) Stepan Hrbek";
+			PRODUCT_NAME " back-end                                       (C) Stepan Hrbek";
 		const char* usage = 
 #if defined(_WIN32)
 			"Usage: backend.exe [arg1] [arg2] ...\n"
@@ -1804,7 +1804,7 @@ void parseOptions(int argc, const char*const*argv)
 			"\nArguments:\n"
 			"  window                    - run in window\n"
 			"  640x480                   - run in given resolution (default is 1280x1024)\n"
-			"  silent                    - run without music (default si music)\n"
+			"  silent                    - run without music (default is music)\n"
 			"  bigscreen                 - boost brightness\n"
 			"  stability=[low|auto|high] - set lighting stability (default is auto)\n"
 			"  penumbra[1|2|3|4|5|6|7|8] - set penumbra precision (default is auto)\n"
@@ -1882,15 +1882,15 @@ int main(int argc, char** argv)
 	}
 #endif
 #ifdef _WIN32
-	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2015 [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
+	rr::RRReporter::report(rr::INF1,"This is " PRODUCT_NAME " [Windows %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 	rr::RRReporter::report(rr::INF1,"Started: %s in %s\n",GetCommandLine(),cwd);
 	free(cwd);
 	if (globalOutputDirectory[1])
 		rr::RRReporter::report(rr::INF1,"Program directory not writeable, log+screenshots sent to %s\n",globalOutputDirectory);
 #elif defined(__APPLE__)
-	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2015 [OSX %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
+	rr::RRReporter::report(rr::INF1,"This is " PRODUCT_NAME " [OSX %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #else
-	rr::RRReporter::report(rr::INF1,"This is Lightsmark 2015 [Linux %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
+	rr::RRReporter::report(rr::INF1,"This is " PRODUCT_NAME " [Linux %dbit] log. Check it if benchmark doesn't work properly.\n",sizeof(void*)*8);
 #endif
 
 	rr_io::registerIO(argc,argv);

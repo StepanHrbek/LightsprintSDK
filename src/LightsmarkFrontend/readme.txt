@@ -1,5 +1,5 @@
 
-   LIGHTSMARK 2015                                           v3.0, 2015-0x-xx
+   LIGHTSMARK 2016                                           v3.0, 2016-0x-xx
    __________________________________________________________________________
 
    Lightsmark is free open source multiplatform GPU benchmark.
@@ -27,7 +27,7 @@
    - RAM: at least 512 MB
    - free disk space: 100 MB
 
-3. What's new in Lightsmark 2015
+3. What's new in Lightsmark 2016
    - smoother framerate, because GI updates in every frame,
      rather than just 20x per second
    - OSX support (was Windows+Linux only)
@@ -48,14 +48,14 @@
    - OSX
      run backend in bin/pc-osx
 
-   Linux notes
-   - First of all, run bin/install_dependencies.sh
+   Linux+OSX notes
+   - First of all, see bin/install_dependencies.sh
    - To see list of options, run backend ?
    - Score is printed to console and returned as a result code.
 
-   Vista/7 notes
+   Windows notes
    - If you use installer, screenshots can't be saved to data directory,
-     they go to %LOCALAPPDATA%\Lightsmark 2015
+     they go to %LOCALAPPDATA%\Lightsmark 2016
 
 5. Credits
    Created by Stepan Hrbek using
