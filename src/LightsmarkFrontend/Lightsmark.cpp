@@ -179,7 +179,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShowWindow(hDlg, SW_MINIMIZE);
 
 			// run
-			//ShellExecuteA( nullptr, "open", "LightsmarkBackend.vs2015.exe", params, nullptr, SW_SHOWNORMAL );
+			//ShellExecuteA( nullptr, "open", "LightsmarkBackend.exe", params, nullptr, SW_SHOWNORMAL );
 
 			// run & wait
 			SHELLEXECUTEINFOA ShExecInfo = {0};
@@ -188,7 +188,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			ShExecInfo.hwnd = nullptr;
 			ShExecInfo.lpVerb = nullptr;
 			bool x64 = SendDlgItemMessage(hDlg,IDC_X64,BM_GETCHECK,0,0)==BST_CHECKED;
-			ShExecInfo.lpFile = x64 ? "..\\..\\bin\\x64\\LightsmarkBackend.vs2015.exe" : "..\\..\\bin\\win32\\LightsmarkBackend.vs2015.exe";
+			ShExecInfo.lpFile = x64 ? "..\\..\\bin\\x64\\backend.exe" : "..\\..\\bin\\win32\\backend.exe";
 			ShExecInfo.lpParameters = buf;
 			ShExecInfo.lpDirectory = nullptr; //"..\\..\\data"; WINE can't emulate and GPUShaderPerf can't stand non-nullptr here, let's rather change dir in backend
 			ShExecInfo.nShow = SW_SHOW;
@@ -239,7 +239,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 					if (appdata)
 					{
 						char log2[1000];
-						sprintf(log2,"%s\\Lightsmark 2015\\log.txt",appdata);
+						sprintf(log2,"%s\\Lightsmark 2016\\log.txt",appdata);
 						if (FileSize64(log2))
 							ShellExecuteA( nullptr, "open", log2, nullptr, nullptr, SW_SHOWNORMAL );
 					}
