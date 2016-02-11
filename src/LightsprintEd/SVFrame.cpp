@@ -481,7 +481,8 @@ void SVFrame::userPreferencesApplyToWx()
 	if (!svs.fullscreen && !IsMaximized())
 	{
 		wxRect& rect = layout.rectangle;
-		if (rect.IsEmpty())
+		if (rect.IsEmpty() // rectangle is still empty from ctor, if preferences were not loaded
+			|| rect.x==-32000 || rect.y==-32000) // window at -32000 was observed, without any explanation
 			rect = GetRect();
 		SetSize(rect);
 	}
