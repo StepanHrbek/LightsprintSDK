@@ -134,10 +134,13 @@ namespace rr_gl
 		unsigned detectedNumTriangles;
 		unsigned lastDDINumLightsEnabled;
 		// for DDI delayed readback
-		// - with AMD_pinned_memory
+		// - with AMD_pinned_memory (extension)
 		void* ddiPinnedMemory;
 		unsigned ddiPinnedPbo;
-		// - without AMD_pinned_memory
+		// - with ARB_buffer_storage (core in 4.4)
+		void* ddiBufferStorage;
+		unsigned ddiBufferStoragePbo;
+		// - with ARB_pixel_buffer_object (core in 2.1)
 		enum {DDI_PBOS=4}; // 1-3 is not enough to prevent stalls, 5 or more reduces radeon fps (reason unknown)
 		GLuint ddiPbo[DDI_PBOS];
 		unsigned ddiPboWidth[DDI_PBOS];

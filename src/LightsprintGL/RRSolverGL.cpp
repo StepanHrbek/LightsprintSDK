@@ -26,6 +26,7 @@
 #define DDI_READBACK_DELAY // support for delayDDI
 #define DDI_READBACK_SPLIT // split delayed readback into 3 frames
 //#define AMD_PINNED_MEMORY // use AMD_pinned_memory extension when available (did not yet see better fps, but it improves behavior in GPUPerf)
+//#define ARB_BUFFER_STORAGE // use ARB_buffer_storage/GL 4.4 when available (did not yet see better fps)
 
 namespace rr_gl
 {
@@ -85,6 +86,8 @@ RRSolverGL::RRSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pa
 #ifdef DDI_READBACK_DELAY
 	ddiPinnedPbo = 0;
 	ddiPinnedMemory = nullptr;
+	ddiBufferStorage = nullptr;
+	ddiBufferStoragePbo = 0;
 	memset(ddiPbo,0,sizeof(ddiPbo));
 	memset(ddiPboWidth,0,sizeof(ddiPboWidth));
 	memset(ddiPboHeight,0,sizeof(ddiPboHeight));
@@ -101,6 +104,23 @@ RRSolverGL::RRSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pa
 	}
 	else
 #endif // AMD_PINNED_MEMORY
+#ifdef ARB_BUFFER_STORAGE
+	if (GLEW_ARB_buffer_storage)
+	{
+		glGenBuffers(1,&ddiBufferStoragePbo);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, ddiBufferStoragePbo);
+		glBufferStorage(GL_PIXEL_PACK_BUFFER, DDI_TRIANGLES_X*DDI_TRIANGLES_MAX_Y*4, NULL, GL_MAP_READ_BIT|GL_MAP_PERSISTENT_BIT|GL_MAP_COHERENT_BIT);//|GL_CLIENT_STORAGE_BIT);
+		ddiBufferStorage = glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, DDI_TRIANGLES_X*DDI_TRIANGLES_MAX_Y*4, GL_MAP_READ_BIT|GL_MAP_PERSISTENT_BIT|GL_MAP_COHERENT_BIT);
+		if (!ddiBufferStorage)
+		{
+			rr::RRReporter::report(rr::WARN,"Buffer storage (GL 4.4) available, but persistent buffer fails.\n");
+			// fall back to GL 2.1 path
+			glGenBuffers(DDI_PBOS,ddiPbo);
+		}
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+	}
+	else
+#endif // ARB_BUFFER_STORAGE
 	glGenBuffers(DDI_PBOS,ddiPbo);
 #endif // DDI_READBACK_DELAY
 
@@ -133,6 +153,16 @@ RRSolverGL::~RRSolverGL()
 	}
 	else
 #endif // AMD_PINNED_MEMORY
+#ifdef ARB_BUFFER_STORAGE
+	if (ddiBufferStorage)
+	{
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, ddiBufferStoragePbo);
+		glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+		glDeleteBuffers(1,&ddiBufferStoragePbo);
+	}
+	else
+#endif // ARB_BUFFER_STORAGE
 	glDeleteBuffers(DDI_PBOS,ddiPbo);
 #endif // DDI_READBACK_DELAY
 }
@@ -672,6 +702,23 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 			else
 			{
 #endif // AMD_PINNED_MEMORY
+#ifdef ARB_BUFFER_STORAGE
+			if (ddiBufferStorage)
+			{
+				// start readback
+				glBindBuffer(GL_PIXEL_PACK_BUFFER, ddiBufferStoragePbo);
+				glReadPixels(0, 0, triCountX, triCountYInThisPass, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+				glMemoryBarrier(GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT);
+				glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+				// use it without waiting
+				size_t bytes = triCountX*triCountYInThisPass*sizeof(unsigned);
+				RR_ASSERT(bytes <= _spaceBytes);
+				if (bytes <= _spaceBytes)
+					memcpy(_results,ddiBufferStorage,bytes);
+			}
+			else
+			{
+#endif // ARB_BUFFER_STORAGE
 
 			// start PBO
 			unsigned startIndex = ddiPboIndex;
@@ -711,6 +758,9 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 #ifdef AMD_PINNED_MEMORY
 			}
 #endif // AMD_PINNED_MEMORY
+#ifdef ARB_BUFFER_STORAGE
+			}
+#endif // ARB_BUFFER_STORAGE
 		}
 		else
 		{
@@ -728,6 +778,17 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 					memcpy(ddiPinnedMemory,_results,bytes);
 			}
 #endif // AMD_PINNED_MEMORY
+#ifdef ARB_BUFFER_STORAGE
+			if (ddiBufferStorage && realtimeLights.size()==1 && numPasses==1)
+			{
+				// before starting delayed readbacks, user should call DDI once without delay, to fill ddiBufferStorage with valid data
+				// (uh, writing to read-only buffer is undefined)
+				size_t bytes = triCountX*triCountYInThisPass*sizeof(unsigned);
+				RR_ASSERT(bytes <= _spaceBytes);
+				if (bytes <= _spaceBytes)
+					memcpy(ddiBufferStorage,_results,bytes);
+			}
+#endif // ARB_BUFFER_STORAGE
 		}
 #endif
 	}
