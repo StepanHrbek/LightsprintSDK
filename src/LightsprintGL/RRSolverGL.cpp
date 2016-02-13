@@ -753,7 +753,7 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 				if (pixel_data)
 				{
 					memcpy(_results+firstCapturedTriangle,pixel_data,bytes);
-					glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);
+					glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
 				}
 				glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 			}

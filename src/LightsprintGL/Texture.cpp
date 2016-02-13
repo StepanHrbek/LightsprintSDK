@@ -45,7 +45,7 @@ GLfloat glcache_clearColor[4];
 struct { GLenum target; GLuint buffer; } glcache_bindBuffer[4] = {
 	{GL_ARRAY_BUFFER,0},
 	{GL_ELEMENT_ARRAY_BUFFER,0},
-	{GL_PIXEL_PACK_BUFFER_ARB,0},
+	{GL_PIXEL_PACK_BUFFER,0},
 	{GL_EXTERNAL_VIRTUAL_MEMORY_BUFFER_AMD,0}};
 struct { GLint size; GLenum type; GLboolean normalized; GLsizei stride; const void *pointer; GLuint vbo; } glcache_vertexAttribPointer[16];
 
