@@ -742,18 +742,20 @@ unsigned RRSolverGL::detectDirectIlluminationTo(RealtimeLight* ddiLight, unsigne
 
 			// stop PBO
 			unsigned stopIndex = (ddiPboIndex+DDI_PBOS-1-_delayDDI)%DDI_PBOS;
-			glBindBuffer(GL_PIXEL_PACK_BUFFER, ddiPbo[stopIndex]);
-			const unsigned* pixel_data = (const unsigned*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-			RR_ASSERT(pixel_data);
-			if (pixel_data)
+			size_t bytes = (lastCapturedTrianglePlus1-firstCapturedTriangle)*sizeof(unsigned);
+			RR_ASSERT(bytes <= _spaceBytes);
+			if (bytes <= _spaceBytes)
 			{
-				size_t bytes = (lastCapturedTrianglePlus1-firstCapturedTriangle)*sizeof(unsigned);
-				RR_ASSERT(bytes <= _spaceBytes);
-				if (bytes <= _spaceBytes)
+				glBindBuffer(GL_PIXEL_PACK_BUFFER, ddiPbo[stopIndex]);
+				const unsigned* pixel_data = (const unsigned*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+				RR_ASSERT(pixel_data);
+				if (pixel_data)
+				{
 					memcpy(_results+firstCapturedTriangle,pixel_data,bytes);
-				glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);
+					glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);
+				}
+				glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 			}
-			glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 
 #ifdef AMD_PINNED_MEMORY
 			}
