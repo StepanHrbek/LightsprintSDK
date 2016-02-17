@@ -1506,7 +1506,7 @@ no_frame:
 	level->solver->reportInteraction();
 
 	rr::RRSolver::CalculateParameters calculateParams = level->setup->calculateParams;
-	calculateParams.lightMultiplier = 2;
+	calculateParams.lightMultiplier = pow(2.0f,2.22f); // lightsmark 2007/8 used to boost something 2x without pow. this multiplier is pow compensated
 	calculateParams.secondsBetweenDDI = GI_UPDATE_INTERVAL;
 	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = currentFrame.wantsConstantAmbient() ? 0 : GI_UPDATE_QUALITY; // [#53] limits work in no radiosity mode
 #ifdef BACKGROUND_THREAD
