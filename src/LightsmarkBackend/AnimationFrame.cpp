@@ -152,6 +152,7 @@ bool AnimationFrame::loadOver(FILE* f)
 	if (fscanf(f,"light = {{%f,%f,%f},%f,%f,%f,%f,%f,%f,%f}\n",&pos[0],&pos[1],&pos[2],&yawPitchRollRad[0],&yawPitchRollRad[2],&yawPitchRollRad[1],&aspect,&fov,&anear,&afar)==10)
 	{
 		yawPitchRollRad[0] += RR_PI;
+		yawPitchRollRad[2] *= -1;
 		light.setPosition(pos);
 		light.setYawPitchRollRad(yawPitchRollRad);
 		light.setAspect(aspect);
