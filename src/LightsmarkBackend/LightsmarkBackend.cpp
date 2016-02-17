@@ -43,6 +43,7 @@ const char* captureVideo = 0;
 float splitscreen = 0.0f; // 0=disabled, 0.5=leva pulka obrazovky ma konst.ambient
 bool supportMusic = 1;
 bool alphashadows = 1; // 0=opaque shadows, bad sun's shadow, 1=alpha keyed, fixes sun, danger:driver might optimize lightIndirectConstColor away
+bool srgbEnabled = 0;
 /*
 !kamera nebo svetlo jsou mirne posunute, chyba je nejlip videt v prvnim snimku lightsmarku
  myslel jsem ze to zpusobila rev 2319 kdy jsem zrusil RealtimeLight bez originu, ale chyba byla pritomna uz nejmin 10 revizi driv
@@ -337,6 +338,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	ppShared.viewport[3] = winHeight;
 	ppShared.brightness = currentFrame.brightness;
 	ppShared.gamma = currentFrame.gamma;
+	ppShared.srgbCorrect = srgbEnabled;
 	demoPlayer->getBoost(ppShared.brightness,ppShared.gamma);
 	rrLight->projectedTexture = demoPlayer->getProjector(currentFrame.projectorIndex);
 
@@ -1751,6 +1753,11 @@ void parseOptions(int argc, const char*const*argv)
 			alphashadows = false;
 		}
 		else
+		if (!strcmp("srgb", argv[i]))
+		{
+			srgbEnabled = true;
+		}
+		else
 		if (sscanf(argv[i],"penumbra%d", &tmp)==1)
 		{
 			// handled elsewhere
@@ -1812,6 +1819,7 @@ void parseOptions(int argc, const char*const*argv)
 			"  verbose                   - log also shader diagnostic messages\n"
 			"  capture=[jpg|tga]         - capture into sequence of images at 30fps\n"
 			"  opaqueshadows             - use simpler shadows\n"
+			"  srgb                      - accumulate light more accurately\n"
 #ifdef SUPPORT_RR_ED
 			"  editor1                   - open scene editor\n"
 #endif
