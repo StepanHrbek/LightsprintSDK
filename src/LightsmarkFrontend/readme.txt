@@ -2,7 +2,7 @@
    LIGHTSMARK 2016                                           v3.0, 2016-0x-xx
    __________________________________________________________________________
 
-   Lightsmark is free open source multiplatform GPU benchmark.
+   Lightsmark is free multiplatform GPU benchmark.
 
    Details and updates: http://dee.cz/lightsmark
 
@@ -28,10 +28,9 @@
    - free disk space: 100 MB
 
 3. What's new in Lightsmark 2016
-   - smoother framerate, because GI updates in every frame,
-     rather than just 20x per second
+   - GI updates in every frame -> smoother framerate, lower fps
+   - default res increased to 1920x1080
    - OSX support (was Windows+Linux only)
-   - new integrated scene editor
 
 4. Platforms
 
