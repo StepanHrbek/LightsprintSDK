@@ -1378,6 +1378,7 @@ no_level:
 		realtimeLight->shadowTransparencyRequested = alphashadows
 			? rr_gl::RealtimeLight::ALPHA_KEYED_SHADOWS // cweb_m01drk.tga is blended, but it is well hidden in scene, it is not worth enabling colored shadows mode
 			: rr_gl::RealtimeLight::FULLY_OPAQUE_SHADOWS; // disables alpha keying in shadows (to stay compatible with Lightsmark 2007)
+		realtimeLight->oneSidedShadows = true; // [#59]
 
 		//for (unsigned i=0;i<6;i++)
 		//	level->solver->calculate();
