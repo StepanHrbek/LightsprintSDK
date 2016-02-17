@@ -32,9 +32,9 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "eg-sponza-sun.cfg"
 //#define CFG_FILE "Lowpoly.cfg"
 int fullscreen = 1;
-int resolutionx = 1280;
-int resolutiony = 1024;
-bool resolutionSet = false; // false = not set from cmdline, use default 1280x1024 and fallback to 1024x768
+int resolutionx = 1920;
+int resolutiony = 1080;
+bool resolutionSet = false; // false = not set from cmdline, use default 1920x1080 and fallback to 1024x768
 bool supportEditor = 0;
 bool bigscreenCompensation = 0;
 bool bigscreenSimulator = 0;
@@ -1811,7 +1811,7 @@ void parseOptions(int argc, const char*const*argv)
 #endif
 			"\nArguments:\n"
 			"  window                    - run in window\n"
-			"  640x480                   - run in given resolution (default is 1280x1024)\n"
+			"  640x480                   - run in given resolution (default is 1920x1080)\n"
 			"  silent                    - run without music (default is music)\n"
 			"  bigscreen                 - boost brightness\n"
 			"  stability=[low|auto|high] - set lighting stability (default is auto)\n"
@@ -1933,7 +1933,7 @@ int main(int argc, char** argv)
 		int scry = glutGet(GLUT_SCREEN_HEIGHT);
 		if (!resolutionSet && (scrx<resolutionx || scry<resolutiony))
 		{
-			rr::RRReporter::report(rr::WARN,"Default 1280x1024 too high for your screen, switching to %dx%d.\n",scrx,scry);
+			rr::RRReporter::report(rr::WARN,"Default 1920x1080 too high for your screen, switching to %dx%d.\n",scrx,scry);
 			resolutionx = scrx;
 			resolutiony = scry;
 		}

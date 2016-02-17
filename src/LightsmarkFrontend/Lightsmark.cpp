@@ -75,13 +75,13 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 				if (SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_FINDSTRING,0,(LPARAM)buf)<0)
 				{
 					SendDlgItemMessageA(hDlg,IDC_RESOLUTION,CB_ADDSTRING,0,(LPARAM)buf);
-					// if possible, set 1280x1024
-					if (i->w==1280 && i->h==1024 && i->fullscr)
+					// if possible, set 1920x1080
+					if (i->w==1920 && i->h==1080 && i->fullscr)
 					{
 						SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_SETCURSEL,modeIdx,0);
 						defaultFound = true;
 					}
-					// if 1280x1024 was not found yet, set desktop res
+					// if 1920x1080 was not found yet, set desktop res
 					if (!defaultFound && i->w==currentMode.dmPelsWidth && i->h==currentMode.dmPelsHeight && i->fullscr)
 					{
 						SendDlgItemMessage(hDlg,IDC_RESOLUTION,CB_SETCURSEL,modeIdx,0);
