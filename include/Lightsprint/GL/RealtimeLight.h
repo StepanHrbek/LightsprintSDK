@@ -137,6 +137,8 @@ public:
 	ShadowTransparency shadowTransparencyRequested;
 	//! Actual shadow transparency mode. For reading only, set by RRSolverGL::updateShadowmaps().
 	ShadowTransparency shadowTransparencyActual;
+	//! Default twosided shadows are nearly always better, this option exists only to make Lightsmark renders like in 2007/8.
+	bool oneSidedShadows;
 
 	//! Helper for GI calculation, used by RRSolverGL.
 	unsigned* smallMapCPU;

@@ -569,6 +569,13 @@ public:
 				rr::RRVector<FaceGroupRange>*& nonBlendedFaceGroups = i->second;
 				if (nonBlendedFaceGroups && nonBlendedFaceGroups->size())
 				{
+					// [#59] decide between 1sided and 2sided shadows in fast path (slow path is always 2sided)
+					if (_.renderingFromThisLight && _.renderingFromThisLight->oneSidedShadows)
+					{
+						glEnable(GL_CULL_FACE);
+						glCullFace(GL_BACK);
+					}
+
 					const UberProgramSetup& classUberProgramSetup = i->first;
 					if (_.uberProgramSetup.MATERIAL_CULLING && !classUberProgramSetup.MATERIAL_CULLING)
 					{

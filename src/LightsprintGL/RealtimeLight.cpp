@@ -45,6 +45,7 @@ namespace rr_gl
 		areaSize = 0.2f;
 		shadowTransparencyRequested = FRESNEL_SHADOWS;
 		shadowTransparencyActual = FRESNEL_SHADOWS;
+		oneSidedShadows = false;
 		numInstancesInArea = 1;
 		positionOfLastDDI = rr::RRVec3(1e6);
 		numSoftShadowSamples = 4;

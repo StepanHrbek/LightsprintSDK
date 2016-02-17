@@ -381,6 +381,12 @@ void MeshArraysVBOs::renderMesh(
 							// set face culling
 							if (_uberProgramSetup.MATERIAL_CULLING)
 							{
+								// Q: Are shadows 1sided or 2sided?
+								// A: In this rarely used slow (facegroup) path, shadows are always 2sided,
+								//    any of honourOfflineFlags=true and missing MATERIAL_CULLING=true in RRSolverGL::updateShadowmaps() makes them 2sided, even for typical 1sided faces.
+								//    In usually used fast (facegrouprange) path (60 lines below),
+								//    sidedness is controlled from outside, see [#59].
+
 								// honourOfflineFlags
 								//  +if flags for offline solver say catch light from both directions, we should render shadow 2-sided to create the same image in realtime
 								//  -makes overdraw rgb shadow darker than object itself (rgb sm=frontcolor*backcolor)
