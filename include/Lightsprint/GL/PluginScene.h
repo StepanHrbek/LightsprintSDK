@@ -59,7 +59,7 @@ public:
 	rr::RRSolver::Multipliers multipliers;
 
 	//! When rendering shadows into shadowmap, set it to respective light, otherwise nullptr.
-	const rr::RRLight* renderingFromThisLight;
+	const RealtimeLight* renderingFromThisLight;
 
 	//! True = updates illumination stored in buffers in layerLightmap layer before rendering it.
 	//

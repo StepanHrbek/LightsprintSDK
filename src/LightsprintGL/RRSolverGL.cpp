@@ -431,7 +431,7 @@ done:
 						PluginParamsScene ppScene(nullptr,this);
 						ppScene.lights = nullptr;
 						ppScene.uberProgramSetup = uberProgramSetup;
-						ppScene.renderingFromThisLight = &light->getRRLight();
+						ppScene.renderingFromThisLight = light;
 						PluginParamsShared ppShared;
 						ppShared.camera = &light->getShadowmapCamera(i,lightInstance);
 						ppShared.viewport[2] = light->getRRLight().rtShadowmapSize;

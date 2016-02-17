@@ -307,7 +307,7 @@ void drawLight(void)
 	glPopMatrix();
 }
 
-void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr::RRCamera& camera, const rr::RRLight* renderingFromThisLight)
+void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstance, rr::RRCamera& camera, const rr_gl::RealtimeLight* renderingFromThisLight)
 {
 	if (!level) return;
 
