@@ -547,11 +547,13 @@ public:
 			}
 		}
 
-		PreserveCullFace p1;
-		PreserveCullMode p2;
-		PreserveBlend p3;     // changed by RendererOfMesh (in MultiPass)
-		PreserveColorMask p4; // changed by RendererOfMesh
-		PreserveDepthMask p5; // changed by RendererOfMesh
+		PreserveCullFace p1;  // changed by RendererOfMesh and us
+		PreserveCullMode p2;  // changed by RendererOfMesh
+		PreserveBlend p3;     // changed by RendererOfMesh (in MultiPass) and us
+		PreserveColorMask p4; // changed by RendererOfMesh and us
+		PreserveDepthMask p5; // changed by RendererOfMesh and us
+		//DepthFunc changed by us
+		//PolygonMode changed by us
 
 #ifndef RR_GL_ES2
 		if (pp.wireframe)
