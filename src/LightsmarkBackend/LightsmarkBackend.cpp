@@ -133,7 +133,7 @@ rr_gl::RealtimeLight* realtimeLight = nullptr; // never allocated/deleted, just 
 #ifdef CORNER_LOGO
 	rr_gl::Texture* lightsprintMap = nullptr; // small logo in the corner
 #endif
-rr_gl::Program* ambientProgram; // it had color controlled via glColor, but because of catalyst 8.11 bug, we switched to uniform lightIndirectConst
+rr_gl::Program* ambientProgram; // has color controlled by uniform lightIndirectConst
 rr_gl::TextureRenderer* skyRenderer;
 rr_gl::UberProgram* uberProgram;
 rr_gl::UberProgramSetup uberProgramGlobalSetup;
@@ -253,6 +253,7 @@ void init_gl_resources()
 	uberProgramSetup.MATERIAL_DIFFUSE_CONST = true;
 	uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = true;
 	uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = true;
+	uberProgramSetup.LEGACY_GL = true;
 	ambientProgram = uberProgram->getProgram(uberProgramSetup.getSetupString());
 
 	skyRenderer = new rr_gl::TextureRenderer("shaders/");
