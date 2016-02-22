@@ -331,7 +331,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 #endif
 	ppScene.layerLightmap = LAYER_LIGHTMAPS;
 	ppScene.layerEnvironment = LAYER_ENVIRONMENT;
-	ppScene.layerLDM = uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? level->getLDMLayer() : UINT_MAX;
+	ppScene.layerLDM = uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP ? LAYER_LDM : UINT_MAX;
 	rr_gl::PluginParamsFPS ppFPS(&ppScene,g_fpsCounter,!true);
 	rr_gl::PluginParamsShared ppShared;
 	ppShared.camera = &camera;

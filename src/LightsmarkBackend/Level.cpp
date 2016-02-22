@@ -62,7 +62,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 		if (!ldm)
 		{
 			// build light detail map
-			solver->getStaticObjects()[0]->illumination.getLayer(getLDMLayer()) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,2048,2048,1,rr::BF_RGB,true,nullptr);
+			solver->getStaticObjects()[0]->illumination.getLayer(LAYER_LDM) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,2048,2048,1,rr::BF_RGB,true,nullptr);
 			rr::RRSolver::UpdateParameters params(REBUILD_JPG ? 2000 : 20);
 			params.direct.lightMultiplier = 0;
 			params.indirect.lightMultiplier = 0;
@@ -76,7 +76,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			rr::RRSolver::FilteringParameters filtering;
 			filtering.backgroundColor = rr::RRVec4(0.5f);
 			filtering.wrap = false;
-			solver->updateLightmaps(getLDMLayer(),-1,-1,&params,&filtering); 
+			solver->updateLightmaps(LAYER_LDM,-1,-1,&params,&filtering); 
 			solver->setEnvironment(oldEnv);
 			delete newEnv;
 			rr::RRVec4 mini(1),maxi(0);
@@ -99,7 +99,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			}
 		}
 		free(ldmName);
-		solver->getStaticObjects()[0]->illumination.getLayer(getLDMLayer()) = ldm;
+		solver->getStaticObjects()[0]->illumination.getLayer(LAYER_LDM) = ldm;
 	}
 
 	// load Fireball

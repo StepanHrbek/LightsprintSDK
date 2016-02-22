@@ -22,8 +22,6 @@ public:
 
 	unsigned saveIllumination(const char* path);
 	unsigned loadIllumination(const char* path);
-
-	unsigned getLDMLayer() {return 1;}
 };
 
 // arbitrary unique numbers
@@ -31,6 +29,7 @@ enum
 {
 	LAYER_LIGHTMAPS,
 	LAYER_ENVIRONMENT,
+	LAYER_LDM,
 };
 
 #endif
