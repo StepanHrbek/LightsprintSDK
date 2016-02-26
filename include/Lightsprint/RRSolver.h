@@ -605,7 +605,7 @@ namespace rr
 			//! However, some GPU antialiasing modes read samples from unused regions anyway, so in order to hide this problem,
 			//! it's good to fill lightmap background with nearby foreground colors (which is done by default).
 			unsigned spreadForegroundColor;
-			//! Color of unused background pixels.
+			//! Color of unused background pixels. In color space of destination buffer.
 			RRVec4 backgroundColor;
 			//! Smooth colors between opposite borders.
 			//! Generally, enable wrap if lightmap is to be later applied with wrapping enabled.

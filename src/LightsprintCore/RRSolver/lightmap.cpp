@@ -868,7 +868,10 @@ unsigned RRSolver::updateLightmap(int objectNumber, RRBuffer* buffer, RRBuffer* 
 					else
 						numBuffersEmpty++;
 					lmj.pixelBuffers[b]->lightmapGrow(_filtering->spreadForegroundColor,_filtering->wrap,aborting);
-					lmj.pixelBuffers[b]->lightmapFillBackground(_filtering->backgroundColor);
+					RRVec4 backgroundColor = _filtering->backgroundColor;
+					if (priv->colorSpace && allPixelBuffers[b]->getScaled()) // if target is sRGB...
+						priv->colorSpace->toLinear(backgroundColor); // ...convert background to linear, copyElements will convert it back to sRGB
+					lmj.pixelBuffers[b]->lightmapFillBackground(backgroundColor);
 					lmj.pixelBuffers[b]->copyElementsTo(allPixelBuffers[b],(b==LS_BENT_NORMALS)?nullptr:priv->colorSpace);
 					allPixelBuffers[b]->version = getSolutionVersion();
 					updatedBuffers++;
