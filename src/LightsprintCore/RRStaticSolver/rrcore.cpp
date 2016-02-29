@@ -262,9 +262,14 @@ RRVec3 Triangle::getMeasure(RRRadiometricMeasure measure, RRReal emissiveMultipl
 RRVec3 Triangle::getPointMeasure(RRRadiometricMeasure measure, const RRVec2& uv) const
 {
 	RR_ASSERT(measure==RM_IRRADIANCE_LINEAR || measure==rr::RRRadiometricMeasure(0,0,0,1,0) || measure==RM_IRRADIANCE_LINEAR_INDIRECT);
+	if (topivertex[0] && topivertex[1] && topivertex[2])
 	return topivertex[0]->irradiance(measure)*(1-uv[0]-uv[1])
 		+ topivertex[1]->irradiance(measure)*uv[0]
 		+ topivertex[2]->irradiance(measure)*uv[1];
+	// happens in Lightsmark's LDM build, probably when ray hits needle
+	// we used to exclude needles from collider, but they are probably included now
+	RR_ASSERT(0);
+	return RRVec3(0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
