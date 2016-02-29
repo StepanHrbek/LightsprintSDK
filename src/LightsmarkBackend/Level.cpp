@@ -78,6 +78,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			filtering.backgroundColor = rr::RRVec4(0.5f);
 			filtering.wrap = false;
 			//filtering.spreadForegroundColor = 0; // 0 is better for debugging, default 1000 is better for jpg compression as it reduces sharp edges
+			filtering.smoothingAmount = 0; // LDM is made once, we can afford so high quality that filtering is not needed
 			solver->updateLightmaps(LAYER_LDM,-1,-1,&params,&filtering); 
 			solver->setEnvironment(oldEnv);
 			delete newEnv;
