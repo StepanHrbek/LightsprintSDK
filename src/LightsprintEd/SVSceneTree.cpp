@@ -895,7 +895,7 @@ void SVSceneTree::runContextMenuAction(unsigned actionCode, const EntityIds cont
 						params.useBumpMaps = svs.lightmapDirectParameters.useBumpMaps;
 						params.aoIntensity = svs.lightmapDirectParameters.aoIntensity*2; // used to be in direct only
 						params.aoSize = svs.lightmapDirectParameters.aoSize; // used to be in direct only
-						params.locality = -1; // used to be in indirect only
+						params.locality = -1; // used to be in indirect only. -1 propagates to ray.hitDistanceMax in first gathering, so nothing is hit, all faces gather sky color=0.65.
 						params.qualityFactorRadiosity = 0; // used to be in indirect only
 						rr::RRBuffer* oldEnv = solver->getEnvironment();
 						rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.65f),rr::RRVec4(0.65f)); // 0.65*typical materials = average color in LDM around 0.5
