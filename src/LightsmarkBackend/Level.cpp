@@ -3,6 +3,7 @@
 const unsigned REBUILD_FIB = 0; // 1 = rebuild precomputed .fib (fireball)          0 = build at low quality only if it's missing
 const unsigned REBUILD_JPG = 0; // 1 = rebuild precomputed .jpg (light detail map)  0 = build at low quality only if it's missing
 // jeste pomaha v RRMaterial.cpp zmenit "minimalQualityForPointMaterials =" na 1, udela vsude point matrose
+// bez toho by svetlost LDM zavisela na quality (mensi q = casteji saha na color, ktera je umele zesvetlena; vetsi q = casteji saha na tex, ktera je tmavsi)
 
 extern void error(const char* message, bool gfxRelated);
 
@@ -76,6 +77,7 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			rr::RRSolver::FilteringParameters filtering;
 			filtering.backgroundColor = rr::RRVec4(0.5f);
 			filtering.wrap = false;
+			//filtering.spreadForegroundColor = 0; // 0 is better for debugging, default 1000 is better for jpg compression as it reduces sharp edges
 			solver->updateLightmaps(LAYER_LDM,-1,-1,&params,&filtering); 
 			solver->setEnvironment(oldEnv);
 			delete newEnv;
