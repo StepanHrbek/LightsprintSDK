@@ -46,12 +46,20 @@ public:
 	{
 		const PluginParamsStereo& pp = *dynamic_cast<const PluginParamsStereo*>(&_pp);
 		
-		if (_sp.camera->stereoMode==rr::RRCamera::SM_MONO
-			|| !stereoUberProgram
-			|| !stereoTexture
-			|| (_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT && (!pp.oculusW[0] || !pp.oculusW[1] || !pp.oculusH[0] || !pp.oculusH[1])))
+		bool mono = _sp.camera->stereoMode==rr::RRCamera::SM_MONO;
+		if (_sp.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT && (!pp.oculusW[0] || !pp.oculusW[1] || !pp.oculusH[0] || !pp.oculusH[1]))
 		{
-			// can't render, possibly invalid arguments
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Oculus not configured, rendering mono.\n"));
+			mono = true;
+		}
+		if (!stereoUberProgram || !stereoTexture)
+		{
+			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Stereo plugin failed, rendering mono.\n"));
+			mono = true;
+		}
+		if (mono)
+		{
+			_renderer.render(_pp.next,_sp);
 			return;
 		}
 
