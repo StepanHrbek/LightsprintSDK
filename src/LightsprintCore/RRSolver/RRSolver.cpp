@@ -45,6 +45,11 @@ bool RRSolver::Multipliers::operator ==(const RRSolver::Multipliers& a) const
 		;
 }
 
+bool RRSolver::Multipliers::operator !=(const RRSolver::Multipliers& a) const
+{
+	return !(*this==a);
+}
+
 RRSolver::Multipliers RRSolver::Multipliers::operator *(const RRSolver::Multipliers& a) const
 {
 	RRSolver::Multipliers result;
