@@ -61,7 +61,7 @@ bool RRMeshArrays::resizeMesh(unsigned _numTriangles, unsigned _numVertices, con
 		pool = newSize ? (char*)malloc(newSize) : nullptr;
 		if (newSize && !pool)
 		{
-			RRReporter::report(ERRO,"Allocation failed when resizing mesh to %d triangles, %d vertices.\n",_numTriangles,_numVertices);
+			RRReporter::report(ERRO,"Allocation of %dMB failed when resizing mesh to %d triangles, %d vertices, %d uv channels.\n",newSize/1024/1024,_numTriangles,_numVertices,_texcoords?_texcoords->size():0);
 			resizeMesh(0,0,nullptr,false,false);
 			return false;
 		}
