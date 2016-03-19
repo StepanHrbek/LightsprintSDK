@@ -65,7 +65,8 @@ extern "C"
 
 using namespace rr;
 
-#define WAIT_FOR_CONSUMER // don't decode next frame until consumer eats current one. (limits decoding speed, necessary)
+#define MAX_IMAGE_QUEUE_LENGTH 30
+#define MAX_PACKET_QUEUE_LENGTH 30
 
 #ifdef SUPPORT_LIBAV
 	#define LIB_NAME "libav"
@@ -101,13 +102,14 @@ template<class C>
 class Queue
 {
 public:
+	// for packet queues, pop is blocking
 	void push(C c)
 	{
 		boost::lock_guard<boost::mutex> lock(mutex);
 		queue.push(c);
 		cond.notify_one();
 	}
-	C pop(bool& aborting)
+	C blocking_pop(bool& aborting)
 	{
 		boost::unique_lock<boost::mutex> lock(mutex);
 		while (!aborting)
@@ -120,8 +122,34 @@ public:
 			}
 			cond.wait(lock);
 		}
-		return NULL;
+		return nullptr;
 	}
+
+	// for image queue, push is blocking
+	void blocking_push(C c, bool& aborting)
+	{
+		boost::unique_lock<boost::mutex> lock(mutex);
+		while (!aborting && queue.size()>=MAX_IMAGE_QUEUE_LENGTH)
+			cond.wait(lock); // [#50]
+		queue.push(c);
+	}
+	// pop all outdated elements, return the least outdated one (delete others)
+	C pop_outdated(const RRTime& startTime)
+	{
+		C result = nullptr;
+		float secondsPassed = startTime.secondsPassed();
+		boost::lock_guard<boost::mutex> lock(mutex);
+		while (!queue.empty() && queue.front()->pts<secondsPassed)
+		{
+			delete result;
+			result = queue.front();
+			queue.pop();
+		}
+		if (result)
+			cond.notify_one();
+		return result;
+	}
+
 	void clear()
 	{
 		boost::lock_guard<boost::mutex> lock(mutex);
@@ -130,10 +158,15 @@ public:
 			delete queue.front();
 			queue.pop();
 		}
+		cond.notify_one(); // wake up [#50]
 	}
 	size_t size()
 	{
 		return queue.size();
+	}
+	~Queue()
+	{
+		clear();
 	}
 
 private:
@@ -188,6 +221,8 @@ public:
 		stoppedSecondsFromStart = 0;
 		seekSecondsFromStart = -1; // no seek
 		aborting = false;
+
+		demux_working = false;
 		avFormatContext = nullptr;
 
 		audio_streamIndex = -1;
@@ -200,7 +235,6 @@ public:
 		video_swsContext = nullptr;
 
 		image_visible = nullptr;
-		image_ready = nullptr;
 
 		// open file and start decoding first frame on background
 		av_register_all();		
@@ -219,23 +253,20 @@ public:
 			audio_thread.join();
 		if (video_thread.joinable())
 		{
-			image_cond.notify_one(); // wake up video_proc if it waits in [#50]
+			image_queue.clear(); // wake up video_proc if it waits in [#50]
 			video_thread.join();
 		}
 
 		// ffmpeg audio (producer)
 		audio_avStream = nullptr;
 		audio_avCodecContext = nullptr;
-		audio_packetQueue.clear();
 
 		// ffmpeg video (producer)
 		video_avStream = nullptr;
 		video_avCodecContext = nullptr;
-		video_packetQueue.clear();
 
 		// yuv images (consumer)
 		RR_SAFE_DELETE(image_visible);
-		RR_SAFE_DELETE(image_ready);
 	}
 
 	bool hasAudio()
@@ -281,14 +312,13 @@ public:
 			}
 			if (pa_started)
 			{
-				AVPacketWrapper* avPacket = audio_packetQueue.pop(aborting);
+				AVPacketWrapper* avPacket = audio_packetQueue.blocking_pop(aborting);
 				if (avPacket)
 				{
 					int got_frame = 0;
 					int len = avcodec_decode_audio4(audio_avCodecContext, avFrame, &got_frame, avPacket);
 					if (got_frame && avFrame->nb_samples)
 					{
-//int64_t pts = av_frame_get_best_effort_timestamp(avFrame); if (pts==AV_NOPTS_VALUE) pts = 0; printf("a %f\n",(float)(pts * av_q2d(audio_avStream->time_base)));
 						// very simple, but the only synchronization is blocking when buffer is full,
 						// we might need to leave Pa_WriteStream for audio callback later, to improve accuracy
 						Pa_WriteStream(pa_stream,avFrame->data,avFrame->nb_samples);
@@ -363,7 +393,7 @@ public:
 		AVFrame* avFrame = NULL;
 		while (!aborting)
 		{
-			AVPacketWrapper* avPacket = video_packetQueue.pop(aborting);
+			AVPacketWrapper* avPacket = video_packetQueue.blocking_pop(aborting);
 			if (!avPacket)
 			{
 				// empty packet = maybe we are aborting?
@@ -371,8 +401,7 @@ public:
 					break;
 				// empty packet = new data after seek are coming, we should clean up old data
 				avcodec_flush_buffers(video_avCodecContext);
-				boost::unique_lock<boost::mutex> lock(image_mutex);
-				RR_SAFE_DELETE(image_ready);
+				image_queue.clear(); // remove old images, step 2 (something possibly pushed since step 1)
 				continue;
 			}
 			int got_frame = 0;
@@ -390,7 +419,6 @@ public:
 			}
 			if (got_frame)
 			{
-//printf(" v %f\n",(float)(pts * av_q2d(video_avStream->time_base)));
 				VideoPicture* image_inProgress = new VideoPicture(avFrame, pts * av_q2d(video_avStream->time_base));
 				RRBuffer* buffer = image_inProgress->buffer;
 				if (buffer)
@@ -400,15 +428,7 @@ public:
 					int dstStride[] = {-3*(int)buffer->getWidth(), 0};
 					sws_scale(video_swsContext, (uint8_t const * const *)avFrame->data, avFrame->linesize, 0, video_avCodecContext->height, dst, dstStride);
 					buffer->unlock();
-					boost::unique_lock<boost::mutex> lock(image_mutex);
-#ifdef WAIT_FOR_CONSUMER
-					// optional: pause decoding until consumer eats image_ready
-					// this thread does less work, but displayed picture is older
-					while (image_ready && !aborting)
-						image_cond.wait(lock); // [#50]
-#endif
-					delete image_ready;
-					image_ready = image_inProgress;
+					image_queue.blocking_push(image_inProgress,aborting); // [#50]
 				}
 				else
 				{
@@ -432,31 +452,26 @@ public:
 	{
 		AVFrame* avFrame = av_frame_alloc();
 		//open_file();
+		demux_working = true;
 		while (!aborting)
 		{
 			// seek
 			if (seekSecondsFromStart>=0)
 			{
+				demux_working = true;
 				audio_packetQueue.clear();
 				video_packetQueue.clear();
+				image_queue.clear(); // remove old images, step 1 (if video_proc is blocked in blocking_push, this unblocks it)
 			skip_queue_clear:
 				if (hasAudio())
 					audio_packetQueue.push(nullptr); // avcodec_flush_buffers()
 				if (hasVideo())
 					video_packetQueue.push(nullptr); // avcodec_flush_buffers() + proper clearing of image_ready and image_inProgress
-#ifdef WAIT_FOR_CONSUMER
-				{
-					// wake up video_proc if it waits in [#50]. it continues only if we also delete image_ready
-					boost::lock_guard<boost::mutex> lock(image_mutex);
-					RR_SAFE_DELETE(image_ready);
-					image_cond.notify_one();
-				}
-#endif
-				int err = av_seek_frame(avFormatContext, -1, (int64_t)(seekSecondsFromStart * AV_TIME_BASE), AVSEEK_FLAG_ANY);
+				int err = av_seek_frame(avFormatContext, -1, (int64_t)(seekSecondsFromStart * AV_TIME_BASE), AVSEEK_FLAG_BACKWARD);//AVSEEK_FLAG_ANY);
 				seekSecondsFromStart = -1;
 			}
 
-			if (std::min(hasVideo()?video_packetQueue.size():1000,hasAudio()?audio_packetQueue.size():1000)>50)
+			if (std::min(hasVideo()?video_packetQueue.size():1000,hasAudio()?audio_packetQueue.size():1000)>MAX_PACKET_QUEUE_LENGTH || !demux_working)
 			{
 				// queues are full, sleep
 				boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
@@ -471,11 +486,8 @@ public:
 					delete avPacket;
 					if (err==AVERROR_EOF) // ffplay tests also avio_feof(avFormatContext->pb), but notes that it's hack
 					{
-						// loop
-						seekSecondsFromStart = 0;
-						startTime.setNow(); // !!! risky, main thread can modify it at the same time if user calls pause()/play()
-						// if we don't skip queue.clear() above, we lose 50 packets at the end of video
-						goto skip_queue_clear;
+						// this makes demux_proc sleep until main thread requests seek
+						demux_working = false;
 					}
 				}
 				else
@@ -492,6 +504,7 @@ public:
 			}
 		}
 		av_frame_free(&avFrame);
+		demux_working = false;
 		return 0;
 	}
 
@@ -619,17 +632,21 @@ public:
 		// "&& image_visible" part makes first frame load even when video stops
 		if (!playing && image_visible)
 			return false;
-		// all access to image_ready must be protected, background thread writes to it
-		boost::lock_guard<boost::mutex> lock(image_mutex);
-		if (!image_ready || startTime.secondsPassed()<image_ready->pts)
-			return false;
-		// propagate image_ready to image_visible and wake up video_proc if it waits in [#50]
-		delete image_visible;
-		image_visible = image_ready;
-		image_ready = nullptr;
-#ifdef WAIT_FOR_CONSUMER
-		image_cond.notify_one();
-#endif
+		// loop
+		//  a) play until both audio and video end
+		//     "falling snow" looks wrong, it has 1s longer audio than video, video stops for 1s before looping
+		//     if (playing && !demux_working && !audio_packetQueue.size() && !video_packetQueue.size() && !image_queue.size())
+		//  b) play until video ends (or audio, in audio only files)
+		if (playing && !demux_working && ((!hasVideo() && !audio_packetQueue.size()) || (!video_packetQueue.size() && !image_queue.size())))
+		{
+			seek(0);
+		}
+		VideoPicture* image = image_queue.pop_outdated(startTime);
+		if (image)
+		{
+			delete image_visible;
+			image_visible = image;
+		}
 		return true;
 	}
 	void play()
@@ -672,6 +689,7 @@ public:
 
 	// demux
 	boost::thread     demux_thread;           // set once by ctor, feeds video and audio threads from file
+	bool              demux_working;          // set on start, cleared when demux reaches end of stream, set on seek
 	AVFormatContext*  avFormatContext;        // set once by ctor
 
 	// ffmpeg audio (producer)
@@ -694,12 +712,8 @@ public:
 #endif
 
 	// yuv images (consumer)
+	Queue<VideoPicture*> image_queue;
 	VideoPicture*     image_visible;          // filled by update(), visible from outside
-	VideoPicture*     image_ready;            // filled by video_thread, cleared by update()
-	boost::mutex      image_mutex;            // protects writes to image_visible and image_ready
-#ifdef WAIT_FOR_CONSUMER
-	boost::condition_variable image_cond;
-#endif
 };
 
 
@@ -872,7 +886,7 @@ public:
 		if (result)
 		{
 			version++;
-			buffer = player->image_visible->buffer;
+			buffer = player->image_visible ? player->image_visible->buffer : nullptr;
 		}
 		return result;
 	}
@@ -906,7 +920,7 @@ private:
 	volatile unsigned refCount;
 
 	FFmpegPlayer* player; // indirection helps when we want player to survive ~RRBufferFFmpeg()
-	RRBuffer* buffer; // shorcut to player->image_visible->buffer
+	RRBuffer* buffer; // shortcut for player->image_visible->buffer
 };
 
 
