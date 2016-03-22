@@ -254,7 +254,11 @@ bool UberProgramSetup::operator ==(const UberProgramSetup& a) const
 
 bool UberProgramSetup::operator <(const UberProgramSetup& a) const
 {
-	// renderer uses this in map<> to sort materials by complexity, render simpler ones first
+	// [#52] PluginScene with SORT_MATERIALS uses this in map<> to sort materials by complexity, render simpler ones first
+	// disabled because
+	//  1) speedup only theoretical, not detected
+	//  2) problem detected in RL cutting planes,  renderer 'remembers' initial state of last 3 checkboxes, change has no effect
+	//     probably caused by this func testing only 64bits, while last 3 bits of setup ignored
 
 	// optional optimization: test for the most common state first
 	//   CPU bound lightsmark with unordered_map<> had score 2630

@@ -8,7 +8,7 @@
 // --------------------------------------------------------------------------
 
 #define MIRRORS // enables implementation of mirrors, marks mirror source code
-#define SORT_MATERIALS // render simpler materials first. adds some (small) CPU overhead
+//#define SORT_MATERIALS // [#52] render simpler materials first. adds some (small) CPU overhead
 //#define SRGB_CORRECT_BLENDING // transparency looks better without srgb correction
 
 #include <algorithm> // sort
