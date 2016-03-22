@@ -133,13 +133,12 @@ public:
 			cond.wait(lock); // [#50]
 		queue.push(c);
 	}
-	// pop all outdated elements, return the least outdated one (delete others)
-	C pop_outdated(const RRTime& startTime)
+	// pop all older elements, return the newest one of them (delete others)
+	C pop_older(double seconds)
 	{
 		C result = nullptr;
-		float secondsPassed = startTime.secondsPassed();
 		boost::lock_guard<boost::mutex> lock(mutex);
-		while (!queue.empty() && queue.front()->pts<secondsPassed)
+		while (!queue.empty() && queue.front()->pts<seconds)
 		{
 			delete result;
 			result = queue.front();
@@ -391,6 +390,7 @@ public:
 	int video_proc()
 	{
 		AVFrame* avFrame = NULL;
+		unsigned imagesPushedSinceSeek = 0;
 		while (!aborting)
 		{
 			AVPacketWrapper* avPacket = video_packetQueue.blocking_pop(aborting);
@@ -402,6 +402,7 @@ public:
 				// empty packet = new data after seek are coming, we should clean up old data
 				avcodec_flush_buffers(video_avCodecContext);
 				image_queue.clear(); // remove old images, step 2 (something possibly pushed since step 1)
+				imagesPushedSinceSeek = 0;
 				continue;
 			}
 			int got_frame = 0;
@@ -428,6 +429,8 @@ public:
 					int dstStride[] = {-3*(int)buffer->getWidth(), 0};
 					sws_scale(video_swsContext, (uint8_t const * const *)avFrame->data, avFrame->linesize, 0, video_avCodecContext->height, dst, dstStride);
 					buffer->unlock();
+					if (!imagesPushedSinceSeek++)
+						image_inProgress->pts = -1; // ensure that first frame after seek is always popped by pop_older()
 					image_queue.blocking_push(image_inProgress,aborting); // [#50]
 				}
 				else
@@ -629,9 +632,6 @@ public:
 
 	bool update()
 	{
-		// "&& image_visible" part makes first frame load even when video stops
-		if (!playing && image_visible)
-			return false;
 		// loop
 		//  a) play until both audio and video end
 		//     "falling snow" looks wrong, it has 1s longer audio than video, video stops for 1s before looping
@@ -641,7 +641,7 @@ public:
 		{
 			seek(0);
 		}
-		VideoPicture* image = image_queue.pop_outdated(startTime);
+		VideoPicture* image = image_queue.pop_older(playing ? startTime.secondsPassed() : stoppedSecondsFromStart);
 		if (image)
 		{
 			delete image_visible;
