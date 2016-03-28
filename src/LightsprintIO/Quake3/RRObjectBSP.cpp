@@ -143,7 +143,7 @@ enum
 // enables Lightsmark 2008 specific code. it affects only wop_padattic scene, you can safely delete it
 bool g_lightsmarkAttic = false;
 bool g_lightsmarkCloister = false;
-#define DIFFUSE_MULTIPLIER 2
+#define DIFFUSE_MULTIPLIER 1
 
 // Inputs: m
 // Outputs: t, s

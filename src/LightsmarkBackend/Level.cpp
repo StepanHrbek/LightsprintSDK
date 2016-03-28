@@ -5,7 +5,7 @@ const unsigned REBUILD_JPG = 0; // 1 = rebuild precomputed .jpg (light detail ma
 // jeste pomaha v RRMaterial.cpp zmenit "minimalQualityForPointMaterials =" na 1, udela vsude point matrose
 // bez toho by svetlost LDM zavisela na quality (mensi q = casteji saha na color, ktera je umele zesvetlena; vetsi q = casteji saha na tex, ktera je tmavsi)
 
-#define MATERIAL_MULTIPLIER 1 // replaces DIFFUSE_MULTIPLIER in .bsp loader
+#define MATERIAL_MULTIPLIER 2 // replaces DIFFUSE_MULTIPLIER in .bsp loader
 
 extern void error(const char* message, bool gfxRelated);
 
