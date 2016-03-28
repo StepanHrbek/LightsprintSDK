@@ -143,6 +143,7 @@ enum
 // enables Lightsmark 2008 specific code. it affects only wop_padattic scene, you can safely delete it
 bool g_lightsmarkAttic = false;
 bool g_lightsmarkCloister = false;
+#define DIFFUSE_MULTIPLIER 2
 
 // Inputs: m
 // Outputs: t, s
@@ -171,8 +172,8 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 			{
 				avg += t->getElementAtPosition(RRVec3(i/(float)size,j/(float)size,0),nullptr,false);
 			}
-		avg /= size*size*0.5f; // 0.5 for quake map boost
-		avg[3] *= 0.5f; // but not for alpha
+		avg /= size*size/DIFFUSE_MULTIPLIER; // boost rgb
+		avg[3] /= DIFFUSE_MULTIPLIER; // but not for alpha
 		if (avg[3]==0) avg[3]=1; // all pixels 100% transparent? must be special material we can't handle, make it fully opaque, better than invisible
 	}
 
@@ -195,7 +196,7 @@ static void fillMaterial(RRMaterial& s, TTexture* m, const RRFileLocator* textur
 	s.updateColorsFromTextures(colorSpace,RRMaterial::UTA_DELETE,true);
 	delete colorSpace;
 	// apply quake map boost again, updateColorsFromTextures removed it
-	s.diffuseReflectance.color *= 2;
+	s.diffuseReflectance.color *= DIFFUSE_MULTIPLIER;
 
 	// autodetect keying
 	s.updateKeyingFromTransmittance();
