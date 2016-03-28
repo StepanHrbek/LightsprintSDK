@@ -26,6 +26,7 @@
 					// - BLINN_TORRANCE_SPARROW  - generates #IND if roughness<1/100'000'000
 					// - test\cuberefl-car.rr3   - car reflection is too bright if roughness<1/2'000'000
 #define MAX_EMITTANCE 1e6f
+//#define BACKSIDE_ILLEGAL // sets 'illegal' flag on invisible backsides. no longer used, but LDM generator in Lightsmark still needs it
 
 namespace rr
 {
@@ -151,8 +152,12 @@ bool RRMaterial::operator ==(const RRMaterial& a) const
 void RRMaterial::reset(bool twoSided)
 {
 	RRSideBits sideBitsTmp[2][2]={
-		{{1,1,1,1,1,1,1},{0,0,1,1,0,0,1}}, // definition of default 1-sided (front side, back side)
-		{{1,1,1,1,1,1,1},{1,0,1,1,1,1,1}}, // definition of default 2-sided (front side, back side)
+#ifdef BACKSIDE_ILLEGAL
+		{{1,1,1,1,1,1,1},{0,0,1,0,0,0,1}}, // definition of default 1-sided (front side, illegal invisible back side)
+#else
+		{{1,1,1,1,1,1,1},{0,0,1,1,0,0,1}}, // definition of default 1-sided (front side, legal invisible back side)
+#endif
+		{{1,1,1,1,1,1,1},{1,0,1,1,1,1,1}}, // definition of default 2-sided (front side, visible back side)
 	};
 	sideBits[0]                  = sideBitsTmp[twoSided?1:0][0];
 	sideBits[1]                  = sideBitsTmp[twoSided?1:0][1];
