@@ -102,8 +102,10 @@ DemoPlayer::DemoPlayer(const char* demoCfg, bool supportEditor, bool supportMusi
 				//material->sideBits[1].catchFrom = material->sideBits[1].renderFrom; // lets light pass through backsides of 1sided materials
 			}
 			// alloc cubes
-			if ((specular && specularCubeSize) || (diffuse && diffuseCubeSize))
-				object->illumination.getLayer(LAYER_ENVIRONMENT) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,RR_MAX(diffuseCubeSize,specularCubeSize),RR_MAX(diffuseCubeSize,specularCubeSize),6,rr::BF_RGBA,true,nullptr);
+			// no longer necessary, following allocateBuffersForRealtimeGI() allocates also cubes for dynamic objects (in REALTIME_ENV_xxx format)
+			// if we require non-default parameters in future, we can explicitly allocate here and tell allocateBuffersForRealtimeGI() to not reallocate
+			//if ((specular && specularCubeSize) || (diffuse && diffuseCubeSize))
+			//	object->illumination.getLayer(LAYER_ENVIRONMENT) = rr::RRBuffer::create(rr::BT_CUBE_TEXTURE,RR_MAX(diffuseCubeSize,specularCubeSize),RR_MAX(diffuseCubeSize,specularCubeSize),6,rr::BF_RGBA,true,nullptr);
 		}
 		else
 		{
