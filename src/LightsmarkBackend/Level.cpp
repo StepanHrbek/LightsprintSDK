@@ -5,6 +5,8 @@ const unsigned REBUILD_JPG = 0; // 1 = rebuild precomputed .jpg (light detail ma
 // jeste pomaha v RRMaterial.cpp zmenit "minimalQualityForPointMaterials =" na 1, udela vsude point matrose
 // bez toho by svetlost LDM zavisela na quality (mensi q = casteji saha na color, ktera je umele zesvetlena; vetsi q = casteji saha na tex, ktera je tmavsi)
 
+#define MATERIAL_MULTIPLIER 1 // replaces DIFFUSE_MULTIPLIER in .bsp loader
+
 extern void error(const char* message, bool gfxRelated);
 
 /////////////////////////////////////////////////////////////////////////////
@@ -36,6 +38,18 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 	}
 
 	scene->normalizeUnits(setup->scale);
+
+	// modify reflectance to be more like in Lightsmark 2007/8
+	// this is optional step, reduces realism
+	rr::RRMaterials materials;
+	scene->objects.getAllMaterials(materials);
+	for (unsigned i=0;i<materials.size();i++)
+	{
+		// recalculate color without sRGB correction
+		materials[i]->updateColorsFromTextures(nullptr,rr::RRMaterial::UTA_DELETE,true);
+		// make materials reflect more indirect light, to make effect more visible
+		materials[i]->diffuseReflectance.color *= MATERIAL_MULTIPLIER;
+	}
 
 	// smoothuje scenu.
 	// pozor, odstrani pritom triangly v zavislosti na vysledcich floatovych operaci, ruzna cpu ruzne triangly.
