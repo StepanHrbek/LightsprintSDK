@@ -11,6 +11,8 @@ unsigned INSTANCES_PER_PASS;
 	#define BACKGROUND_THREAD      // run improve+updateLightmaps+UpdateEnvironmentMap asynchronously, on background
 #endif
 #define DDI_EVERY_FRAME            1 // 1=slower but equal frame times, 0=faster but unequal frame times
+#define MAIN_MULTIPLIER            1.0f
+#define INDIRECT_MULTIPLIER        pow(2.0f,2.22f) // i think lightsmark 2007/8 used to boost indirect 2x in sRGB. current multiplier works in linear, so pow is necessary to keep level
 #if defined(NDEBUG) && defined(_WIN32)
 	//#define SET_ICON
 #else
@@ -337,7 +339,7 @@ void renderScene(rr_gl::UberProgramSetup uberProgramSetup, unsigned firstInstanc
 	ppShared.camera = &camera;
 	ppShared.viewport[2] = winWidth;
 	ppShared.viewport[3] = winHeight;
-	ppShared.brightness = currentFrame.brightness;
+	ppShared.brightness = currentFrame.brightness*MAIN_MULTIPLIER;
 	ppShared.gamma = currentFrame.gamma;
 	ppShared.srgbCorrect = srgbEnabled;
 	demoPlayer->getBoost(ppShared.brightness,ppShared.gamma);
@@ -1507,7 +1509,7 @@ no_frame:
 	level->solver->reportInteraction();
 
 	rr::RRSolver::CalculateParameters calculateParams = level->setup->calculateParams;
-	calculateParams.lightMultiplier = pow(2.0f,2.22f); // lightsmark 2007/8 used to boost something 2x without pow. this multiplier is pow compensated
+	calculateParams.lightMultiplier = INDIRECT_MULTIPLIER;
 	calculateParams.secondsBetweenDDI = GI_UPDATE_INTERVAL;
 	calculateParams.qualityIndirectStatic = calculateParams.qualityIndirectDynamic = currentFrame.wantsConstantAmbient() ? 0 : GI_UPDATE_QUALITY; // [#53] limits work in no radiosity mode
 #ifdef BACKGROUND_THREAD
