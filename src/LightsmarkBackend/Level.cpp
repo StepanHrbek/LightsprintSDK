@@ -77,6 +77,8 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 		if (!ldm)
 		{
 			// build light detail map
+			// since Lightsmark 2008, this LDM builder stopped darkening floor under boxes
+			// old behavior can be restored by #define BACKSIDE_ILLEGAL and #define TEST_BIT(material) 1 at proper places
 			solver->getStaticObjects()[0]->illumination.getLayer(LAYER_LDM) = ldm = rr::RRBuffer::create(rr::BT_2D_TEXTURE,2048,2048,1,rr::BF_RGB,true,nullptr);
 			rr::RRSolver::UpdateParameters params(REBUILD_JPG ? 2000 : 20);
 			params.direct.lightMultiplier = 0;
