@@ -83,12 +83,12 @@ Level::Level(LevelSetup* levelSetup, rr::RRBuffer* skyMap, bool supportEditor)
 			rr::RRSolver::UpdateParameters params(REBUILD_JPG ? 2000 : 20);
 			params.direct.lightMultiplier = 0;
 			params.indirect.lightMultiplier = 0;
-			params.aoIntensity = 2;
+			params.aoIntensity = 1;
 			params.aoSize = 1;
 			params.locality = -1; // used to be in indirect only
 			params.qualityFactorRadiosity = 0; // used to be in indirect only
 			rr::RRBuffer* oldEnv = solver->getEnvironment();
-			rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.6f,0.7f,0.75f,1),rr::RRVec4(0.6f,0.7f,0.75f,1)); // kompenzuju tmave hnedy barvy padattic aby vysledna LDM obsahovala barvy kolem 0.5
+			rr::RRBuffer* newEnv = rr::RRBuffer::createSky(rr::RRVec4(0.75f,0.9f,1.2f,1),rr::RRVec4(0.75f,0.9f,1.2f,1)); // hand picked sky color to make average LDM color close to 0.5
 			solver->setEnvironment(newEnv);
 			rr::RRSolver::FilteringParameters filtering;
 			filtering.backgroundColor = rr::RRVec4(0.5f);
