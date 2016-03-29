@@ -11,8 +11,8 @@ unsigned INSTANCES_PER_PASS;
 	#define BACKGROUND_THREAD      // run improve+updateLightmaps+UpdateEnvironmentMap asynchronously, on background
 #endif
 #define DDI_EVERY_FRAME            1 // 1=slower but equal frame times, 0=faster but unequal frame times
-#define MAIN_MULTIPLIER            1.0f
-#define INDIRECT_MULTIPLIER        pow(2.0f,2.22f) // i think lightsmark 2007/8 used to boost indirect 2x in sRGB. current multiplier works in linear, so pow is necessary to keep level
+#define MAIN_MULTIPLIER            0.7f
+#define INDIRECT_MULTIPLIER        pow(2.3f,2.22f) // i think lightsmark 2007/8 used to boost indirect 2x in sRGB. current multiplier works in linear, so pow is necessary to keep level
 #if defined(NDEBUG) && defined(_WIN32)
 	//#define SET_ICON
 #else
