@@ -750,8 +750,8 @@ void main()
 		vec4 lightDirect =
 			
 			// scalar
-			// pow(,0.45) because Lambert's cosine law works in linear space, we work in sRGB
-			step(0.0,d) * pow(d,0.45)
+			// pow(,0.45) because Lambert's cosine law works in linear space, we work in sRGB. abs() because pow is undefined for negative
+			step(0.0,d) * pow(abs(d),0.45)
 			#ifndef LIGHT_DIRECTIONAL
 				#ifdef LIGHT_DIRECT_ATT_REALISTIC
 					* pow(distance,-0.9)
