@@ -47,7 +47,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	Append(propPhysical = new BoolRefProperty(_("In physical scale"),_("Displays values in linear physical scale, rather than in sRGB."),showPhysical));
 
 	Append(propName = new wxStringProperty(_("Name")));
-	propName->SetHelpString(_("If name contains \"water\" and normal map is set, we animate mapping to simulate flow."));
+	propName->SetHelpString(_("If name is \"background\", white material becomes invisible, yet still receiving shadows and illumination. If name contains \"water\" and normal map is set, mapping becomes animated to simulate flow."));
 
 	Append(propFront = new wxBoolProperty(_("Front")));
 	SetPropertyEditor(propFront,wxPGEditor_CheckBox);

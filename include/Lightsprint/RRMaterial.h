@@ -297,6 +297,10 @@ namespace rr
 		unsigned      minimalQualityForPointMaterials;
 		//! Optional name of material.
 		//
+		//! If name is "background", pathtracer renders material with color of environment, so it becomes kind of invisible,
+		//! yet still receiving illumination and shadows. It's typically used on a plane under pathtraced car, surrounded only by environment map,
+		//! ensuring that car casts shadows on environment.
+		//!
 		//! If name contains "water" and static normal map is set, realtime renderer animates mapping
 		//! to simulate flow of waves.
 		RRString      name;
