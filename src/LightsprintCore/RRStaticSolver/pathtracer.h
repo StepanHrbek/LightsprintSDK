@@ -15,7 +15,7 @@
 #include "Lightsprint/RRIllumination.h" // toto je jedine misto kde kod z RRStaticSolver zavisi na RRIllumination
 #include "../RRStaticSolver/rrcore.h" // optional direct access to materials in rrcore
 
-#define MATERIAL_BACKGROUND_HACK // pathtracer renders material with name "background" with background color
+#define MATERIAL_BACKGROUND_HACK // pathtracer renders material with name containing "background" with background color
 //#define COLLISION_LOG(x) x
 #define COLLISION_LOG(x)
 COLLISION_LOG(#include <sstream>)
