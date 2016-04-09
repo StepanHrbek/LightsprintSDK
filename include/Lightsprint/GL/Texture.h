@@ -45,6 +45,7 @@ RR_GL_API void glActiveTexture(GLenum texture);
 RR_GL_API void glBindBuffer(GLenum target, GLuint buffer);
 RR_GL_API void glDepthMask(GLboolean depth);
 RR_GL_API void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
+RR_GL_API void glBlendEquation(GLenum equation);
 RR_GL_API void glBlendFunc(GLenum sfactor, GLenum dfactor);
 RR_GL_API void glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
 RR_GL_API void glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);

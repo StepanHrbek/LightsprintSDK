@@ -40,7 +40,8 @@ GLenum glcache_cullFace;
 GLenum glcache_activeTexture;
 GLboolean glcache_depthMask;
 GLboolean glcache_colorMask[4];
-GLint glcache_blendFunc[2];
+GLenum glcache_blendEquation;
+GLenum glcache_blendFunc[2];
 GLfloat glcache_clearColor[4];
 struct { GLenum target; GLuint buffer; } glcache_bindBuffer[4] = {
 	{GL_ARRAY_BUFFER,0},
@@ -61,8 +62,9 @@ void configureGLStateCache(bool enable)
 		::glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint*)&glcache_activeTexture);
 		::glGetBooleanv(GL_DEPTH_WRITEMASK,&glcache_depthMask);
 		::glGetBooleanv(GL_COLOR_WRITEMASK,glcache_colorMask);
-		::glGetIntegerv(GL_BLEND_SRC_RGB,&glcache_blendFunc[0]);
-		::glGetIntegerv(GL_BLEND_DST_RGB,&glcache_blendFunc[1]);
+		::glGetIntegerv(GL_BLEND_EQUATION_RGB,(GLint*)&glcache_blendEquation);
+		::glGetIntegerv(GL_BLEND_SRC_RGB,(GLint*)&glcache_blendFunc[0]);
+		::glGetIntegerv(GL_BLEND_DST_RGB,(GLint*)&glcache_blendFunc[1]);
 		::glGetFloatv(GL_COLOR_CLEAR_VALUE,glcache_clearColor);
 		::glGetIntegerv(GL_ARRAY_BUFFER_BINDING,(GLint*)&glcache_bindBuffer[0].buffer);
 		::glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING,(GLint*)&glcache_bindBuffer[1].buffer);
@@ -188,6 +190,15 @@ void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha
 	}
 }
 
+void glBlendEquation(GLenum equation)
+{
+	if (!glcache_enabled || glcache_blendEquation!=equation)
+	{
+		glcache_blendEquation = equation;
+		::glBlendEquation(equation);
+	}
+}
+
 void glBlendFunc(GLenum sfactor, GLenum dfactor)
 {
 	if (!glcache_enabled || glcache_blendFunc[0]!=sfactor || glcache_blendFunc[1]!=dfactor)
@@ -270,6 +281,9 @@ void glGetIntegerv(GLenum pname, GLint* params)
 				return;
 			case GL_CULL_FACE_MODE:
 				params[0] = glcache_cullFace;
+				return;
+			case GL_BLEND_EQUATION_RGB:
+				params[0] = glcache_blendEquation;
 				return;
 			case GL_BLEND_SRC_RGB:
 				params[0] = glcache_blendFunc[0];
