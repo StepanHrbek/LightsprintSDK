@@ -199,6 +199,10 @@ struct VideoPicture
 	//AVFrame* avFrame;
 	RRBuffer* buffer;
 	double pts;
+	// debugging info
+	double dbg_seekSeconds;
+	unsigned dbg_numImagesSinceStart;
+	unsigned dbg_numImagesSinceSeek;
 
 	VideoPicture(AVFrame*& _avFrame, double _pts)
 	{
@@ -405,6 +409,8 @@ public:
 	int video_proc()
 	{
 		AVFrame* avFrame = NULL;
+		double dbg_seekSeconds = -1;
+		unsigned dbg_numImagesSinceStart = 0;
 		unsigned imagesPushedSinceSeek = 0;
 		while (!aborting)
 		{
@@ -422,6 +428,7 @@ public:
 				avcodec_flush_buffers(video_avCodecContext);
 				image_queue.clear(); // remove old images, step 2 (something possibly pushed since step 1)
 				imagesPushedSinceSeek = 0;
+				dbg_seekSeconds = seekPacket ? seekPacket->seekSeconds : -1;
 				delete seekPacket;
 				continue;
 			}
@@ -449,6 +456,10 @@ public:
 					int dstStride[] = {-3*(int)buffer->getWidth(), 0};
 					sws_scale(video_swsContext, (uint8_t const * const *)avFrame->data, avFrame->linesize, 0, video_avCodecContext->height, dst, dstStride);
 					buffer->unlock();
+					image_inProgress->dbg_seekSeconds = dbg_seekSeconds;
+					image_inProgress->dbg_numImagesSinceStart = dbg_numImagesSinceStart;
+					image_inProgress->dbg_numImagesSinceSeek = imagesPushedSinceSeek;
+					dbg_numImagesSinceStart++;
 					if (!imagesPushedSinceSeek++)
 						image_inProgress->pts = -1; // ensure that first frame after seek is always popped by pop_older()
 					image_queue.blocking_push(image_inProgress,aborting); // [#50]
