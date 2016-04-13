@@ -153,7 +153,7 @@ public:
 	{
 		C result = nullptr;
 		boost::lock_guard<boost::mutex> lock(mutex);
-		while (!queue.empty() && queue.front()->pts<seconds)
+		while (!queue.empty() && (queue.front()->pts<seconds || !queue.front()->dbg_numImagesSinceSeek)) // always pop if it is first frame after seek
 		{
 			delete result;
 			result = queue.front();
@@ -460,8 +460,7 @@ public:
 					image_inProgress->dbg_numImagesSinceStart = dbg_numImagesSinceStart;
 					image_inProgress->dbg_numImagesSinceSeek = imagesPushedSinceSeek;
 					dbg_numImagesSinceStart++;
-					if (!imagesPushedSinceSeek++)
-						image_inProgress->pts = -1; // ensure that first frame after seek is always popped by pop_older()
+					imagesPushedSinceSeek++;
 					image_queue.blocking_push(image_inProgress,aborting); // [#50]
 				}
 				else
