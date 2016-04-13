@@ -68,6 +68,7 @@ using namespace rr;
 #define MAX_IMAGE_QUEUE_LENGTH 30
 #define MAX_PACKET_QUEUE_LENGTH 30
 #define SEEK_SECONDS_BACK 0 // it seems that seek(x) goes to first keyframe after x, so after seek(x) we might be at x+2. if we want x exactly, we can try seek(x-few seconds), then video_proc automatically decodes until reaching x
+#define SKIP_SEEK_SECONDS_FORWARD 2 // when stopped and seek(x) means going little bit forward, do nothing, video_proc automatically decodes until reaching x
 
 #ifdef SUPPORT_LIBAV
 	#define LIB_NAME "libav"
@@ -675,7 +676,11 @@ public:
 			startTime.addSeconds(secondsFromStart);
 		}
 		else
+		{
+			float jump = secondsFromStart-stoppedSecondsFromStart;
 			stoppedSecondsFromStart = secondsFromStart;
+			if (jump>=0 && jump<=SKIP_SEEK_SECONDS_FORWARD) return; // do nothing when stopped and seeking little bit forward (heavily used by RL anim capture)
+		}
 		seekSecondsFromStart = secondsFromStart;
 	}
 
