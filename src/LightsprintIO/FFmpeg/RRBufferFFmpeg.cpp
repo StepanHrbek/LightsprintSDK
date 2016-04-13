@@ -67,6 +67,7 @@ using namespace rr;
 
 #define MAX_IMAGE_QUEUE_LENGTH 30
 #define MAX_PACKET_QUEUE_LENGTH 30
+#define SEEK_SECONDS_BACK 0 // it seems that seek(x) goes to first keyframe after x, so after seek(x) we might be at x+2. if we want x exactly, we can try seek(x-few seconds), then video_proc automatically decodes until reaching x
 
 #ifdef SUPPORT_LIBAV
 	#define LIB_NAME "libav"
@@ -470,7 +471,7 @@ public:
 					audio_packetQueue.push(nullptr); // avcodec_flush_buffers()
 				if (hasVideo())
 					video_packetQueue.push(nullptr); // avcodec_flush_buffers() + proper clearing of image_ready and image_inProgress
-				int err = av_seek_frame(avFormatContext, -1, (int64_t)(seekSecondsFromStart * AV_TIME_BASE), AVSEEK_FLAG_BACKWARD);//AVSEEK_FLAG_ANY);
+				int err = av_seek_frame(avFormatContext, -1, (int64_t)(RR_MAX(0,seekSecondsFromStart-SEEK_SECONDS_BACK) * AV_TIME_BASE), AVSEEK_FLAG_BACKWARD);//AVSEEK_FLAG_ANY);
 				seekSecondsFromStart = -1;
 			}
 
