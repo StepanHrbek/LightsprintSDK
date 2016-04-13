@@ -136,7 +136,7 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 	camera.setPosition(rr::RRVec3(0));
 
 	// render
-	bool result = renderEnvironment(camera,_texture0,_angleRad0,brightness*(1-_blendFactor),_gamma);
+	bool result = renderEnvironment(camera,_texture0,_angleRad0,brightness*pow(1-_blendFactor,1/_gamma),_gamma);
 	if (result && _blendFactor)
 	{
 		// setup render states
@@ -147,7 +147,7 @@ bool TextureRenderer::renderEnvironment(const rr::RRCamera& _camera, const Textu
 		_texture1->bindTexture();
 
 		// render
-		result = renderEnvironment(camera,_texture1,_angleRad1,brightness*_blendFactor,_gamma);
+		result = renderEnvironment(camera,_texture1,_angleRad1,brightness*pow(_blendFactor,1/_gamma),_gamma);
 	}
 
 	return result;
