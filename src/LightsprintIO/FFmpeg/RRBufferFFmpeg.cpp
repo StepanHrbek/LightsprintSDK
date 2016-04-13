@@ -88,10 +88,23 @@ struct AVPacketWrapper : public AVPacket
 	{
 		av_new_packet(this,0);
 	}
-	~AVPacketWrapper()
+	virtual ~AVPacketWrapper()
 	{
 		av_free_packet(this);
 	}
+};
+
+//! Optional extension, for debugging.
+
+//! demux_proc can send nullptr or SeekPacket to tell audio/video_proc to seek, both work.
+//! SeekPacket holds extra data for debugging.
+struct SeekPacket : public AVPacketWrapper
+{
+	SeekPacket(double _seekSeconds)
+	{
+		seekSeconds = _seekSeconds;
+	}
+	double seekSeconds;
 };
 
 
@@ -396,15 +409,20 @@ public:
 		while (!aborting)
 		{
 			AVPacketWrapper* avPacket = video_packetQueue.blocking_pop(aborting);
-			if (!avPacket)
+			SeekPacket* seekPacket = dynamic_cast<SeekPacket*>(avPacket);
+			if (!avPacket || seekPacket)
 			{
 				// empty packet = maybe we are aborting?
 				if (aborting)
+				{
+					delete seekPacket;
 					break;
+				}
 				// empty packet = new data after seek are coming, we should clean up old data
 				avcodec_flush_buffers(video_avCodecContext);
 				image_queue.clear(); // remove old images, step 2 (something possibly pushed since step 1)
 				imagesPushedSinceSeek = 0;
+				delete seekPacket;
 				continue;
 			}
 			int got_frame = 0;
@@ -471,8 +489,8 @@ public:
 				if (hasAudio())
 					audio_packetQueue.push(nullptr); // avcodec_flush_buffers()
 				if (hasVideo())
-					video_packetQueue.push(nullptr); // avcodec_flush_buffers() + proper clearing of image_ready and image_inProgress
-				int err = av_seek_frame(avFormatContext, -1, (int64_t)(RR_MAX(0,seekSecondsFromStart-SEEK_SECONDS_BACK) * AV_TIME_BASE), AVSEEK_FLAG_BACKWARD);//AVSEEK_FLAG_ANY);
+					video_packetQueue.push(new SeekPacket(seekSecondsFromStart)); // avcodec_flush_buffers() + proper clearing of image_ready and image_inProgress
+				int err = av_seek_frame(avFormatContext, -1, (int64_t)(RR_MAX(0,seekSecondsFromStart-SEEK_SECONDS_BACK) * AV_TIME_BASE), AVSEEK_FLAG_BACKWARD); //|AVSEEK_FLAG_ANY
 				seekSecondsFromStart = -1;
 			}
 
