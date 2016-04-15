@@ -135,7 +135,7 @@ public:
 				queue.pop();
 				return result;
 			}
-			cond.wait(lock);
+			cond.wait(lock); // blocking [#61], [#62]
 		}
 		return nullptr;
 	}
@@ -145,7 +145,7 @@ public:
 	{
 		boost::unique_lock<boost::mutex> lock(mutex);
 		while (!aborting && queue.size()>=MAX_IMAGE_QUEUE_LENGTH)
-			cond.wait(lock); // [#50]
+			cond.wait(lock); // blocking [#50]
 		queue.push(c);
 	}
 	// pop all older elements, return the newest one of them (delete others)
@@ -172,7 +172,7 @@ public:
 			delete queue.front();
 			queue.pop();
 		}
-		cond.notify_one(); // wake up [#50]
+		cond.notify_one(); // wake up [#50], [#61], [#62]
 	}
 	size_t size()
 	{
@@ -271,7 +271,7 @@ public:
 			audio_thread.join();
 		if (video_thread.joinable())
 		{
-			image_queue.clear(); // wake up video_proc if it waits in [#50]
+			image_queue.clear(); // wake up video_proc if blocked in [#50]
 			video_thread.join();
 		}
 
@@ -330,7 +330,7 @@ public:
 			}
 			if (pa_started)
 			{
-				AVPacketWrapper* avPacket = audio_packetQueue.blocking_pop(aborting);
+				AVPacketWrapper* avPacket = audio_packetQueue.blocking_pop(aborting); // blocking [#62]
 				if (avPacket)
 				{
 					int got_frame = 0;
@@ -339,7 +339,7 @@ public:
 					{
 						// very simple, but the only synchronization is blocking when buffer is full,
 						// we might need to leave Pa_WriteStream for audio callback later, to improve accuracy
-						Pa_WriteStream(pa_stream,avFrame->data,avFrame->nb_samples);
+						Pa_WriteStream(pa_stream,avFrame->data,avFrame->nb_samples); // blocking, but only for a short time period, no need for external wake up
 					}
 					delete avPacket;
 				}
@@ -414,7 +414,7 @@ public:
 		unsigned imagesPushedSinceSeek = 0;
 		while (!aborting)
 		{
-			AVPacketWrapper* avPacket = video_packetQueue.blocking_pop(aborting);
+			AVPacketWrapper* avPacket = video_packetQueue.blocking_pop(aborting); // blocking [#61]
 			SeekPacket* seekPacket = dynamic_cast<SeekPacket*>(avPacket);
 			if (!avPacket || seekPacket)
 			{
@@ -461,7 +461,7 @@ public:
 					image_inProgress->dbg_numImagesSinceSeek = imagesPushedSinceSeek;
 					dbg_numImagesSinceStart++;
 					imagesPushedSinceSeek++;
-					image_queue.blocking_push(image_inProgress,aborting); // [#50]
+					image_queue.blocking_push(image_inProgress,aborting); // blocking [#50]
 				}
 				else
 				{
