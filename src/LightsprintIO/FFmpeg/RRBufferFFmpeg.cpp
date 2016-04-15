@@ -268,10 +268,14 @@ public:
 		if (demux_thread.joinable())
 			demux_thread.join();
 		if (audio_thread.joinable())
+		{
+			audio_packetQueue.clear(); // wake up audio_proc if blocked in [#62]
 			audio_thread.join();
+		}
 		if (video_thread.joinable())
 		{
 			image_queue.clear(); // wake up video_proc if blocked in [#50]
+			video_packetQueue.clear(); // wake up video_proc if blocked in [#61]
 			video_thread.join();
 		}
 
@@ -415,15 +419,14 @@ public:
 		while (!aborting)
 		{
 			AVPacketWrapper* avPacket = video_packetQueue.blocking_pop(aborting); // blocking [#61]
+			if (aborting)
+			{
+				delete avPacket;
+				break;
+			}
 			SeekPacket* seekPacket = dynamic_cast<SeekPacket*>(avPacket);
 			if (!avPacket || seekPacket)
 			{
-				// empty packet = maybe we are aborting?
-				if (aborting)
-				{
-					delete seekPacket;
-					break;
-				}
 				// empty packet = new data after seek are coming, we should clean up old data
 				avcodec_flush_buffers(video_avCodecContext);
 				image_queue.clear(); // remove old images, step 2 (something possibly pushed since step 1)
