@@ -232,6 +232,7 @@ public:
 
 	FFmpegPlayer(const RRString& _filename)
 	{
+		looping = true;
 		playing = false;
 		width = 0;
 		height = 0;
@@ -674,7 +675,7 @@ public:
 		//     "falling snow" looks wrong, it has 1s longer audio than video, video stops for 1s before looping
 		//     if (playing && !demux_working && !audio_packetQueue.size() && !video_packetQueue.size() && !image_queue.size())
 		//  b) play until video ends (or audio, in audio only files)
-		if (playing && !demux_working && ((!hasVideo() && !audio_packetQueue.size()) || (!video_packetQueue.size() && !image_queue.size())))
+		if (looping && playing && !demux_working && ((!hasVideo() && !audio_packetQueue.size()) || (!video_packetQueue.size() && !image_queue.size())))
 		{
 			seek(0);
 		}
@@ -722,6 +723,7 @@ public:
 	unsigned          width;                  // set once by ctor
 	unsigned          height;                 // set once by ctor
 	float             duration;               // set once by ctor
+	bool              looping;                // set once by ctor
 	bool              playing;                // changed by main thread, signal to audio_thread
 	RRTime            startTime;              // changed by main thread, only valid when playing. also changed by demux_proc when looping (risky)
 	float             stoppedSecondsFromStart;// changed by main thread, only valid when !playing
