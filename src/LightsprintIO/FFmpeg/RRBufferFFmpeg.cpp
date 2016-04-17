@@ -706,6 +706,10 @@ public:
 	}
 	void seek(float secondsFromStart)
 	{
+		if (looping && duration>0)
+		{
+			secondsFromStart = fmod(secondsFromStart,duration);
+		}
 		if (playing)
 		{
 			startTime.setNow();
