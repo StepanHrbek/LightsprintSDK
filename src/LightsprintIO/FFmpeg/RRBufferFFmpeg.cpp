@@ -612,7 +612,6 @@ public:
 			REPORT("avformat_open_input",err);
 			return false;
 		}
-		duration = (float)avFormatContext->duration / (float)AV_TIME_BASE;
 
 		// Retrieve stream information (fill avFormatContext->streams)
 		err = avformat_find_stream_info(avFormatContext, NULL);
@@ -621,6 +620,11 @@ public:
 			REPORT("avformat_find_stream_info",err);
 			return false;
 		}
+
+		// some sources claim that duration is filled after avformat_open_input,
+		// but experiments show it is not filled before avformat_find_stream_info
+		duration = (float)avFormatContext->duration / (float)AV_TIME_BASE;
+		// in case of need, duration_estimation_method tells how accurate it is
 
 		// Dump information about file onto standard error
 		//av_dump_format(avFormatContext, 0, filename.c_str(), 0);
