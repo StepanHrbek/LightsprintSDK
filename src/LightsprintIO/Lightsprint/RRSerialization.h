@@ -541,6 +541,10 @@ void serialize(Archive & ar, rr::RRMaterial& a, const unsigned int version)
 	{
 		ar & make_nvp("specularTransmittanceMapInverted",a.specularTransmittanceMapInverted);
 	}
+	if (version>6)
+	{
+		ar & make_nvp("specularTransmittanceBackground",a.specularTransmittanceBackground);
+	}
 	ar & make_nvp("refractionIndex",a.refractionIndex);
 	if (version>1)
 	{
@@ -667,6 +671,12 @@ void serialize(Archive & ar, rr::RRLight& a, const unsigned int version)
 	if (version>4)
 	{
 		ar & make_nvp("rtShadowmapBias",a.rtShadowmapBias);
+	}
+	if (version>5)
+	{
+		ar & make_nvp("rtShadowmapAutomaticNearFar",a.rtShadowmapAutomaticNearFar);
+		ar & make_nvp("rtShadowmapNear",a.rtShadowmapNear);
+		ar & make_nvp("rtShadowmapFar",a.rtShadowmapFar);
 	}
 	if (version>3)
 	{
@@ -1134,9 +1144,9 @@ BOOST_SERIALIZATION_SPLIT_FREE(rr::RRCamera)
 #endif
 
 BOOST_CLASS_VERSION(rr::RRString,1)
-BOOST_CLASS_VERSION(rr::RRMaterial,6)
+BOOST_CLASS_VERSION(rr::RRMaterial,7)
 #ifndef DONT_SERIALIZE_RRLIGHT
-BOOST_CLASS_VERSION(rr::RRLight,5)
+BOOST_CLASS_VERSION(rr::RRLight,6)
 #endif
 BOOST_CLASS_VERSION(RRMeshProxy,1) // this is actually RRMeshArrays version, load of RRMeshProxy only send it to load of RRMeshArrays
 BOOST_CLASS_VERSION(rr::RRObject,2)
