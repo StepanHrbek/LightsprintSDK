@@ -671,6 +671,9 @@ void RRLight::blendLinear(const RRLight& sample0, const RRLight& sample1, RRReal
 	rtNumShadowmaps = sample0.rtNumShadowmaps;
 	rtShadowmapSize = sample0.rtShadowmapSize;
 	rtShadowmapBias = blendNormal(sample0.rtShadowmapBias,sample1.rtShadowmapBias,blend);
+	rtShadowmapAutomaticNearFar = sample0.rtShadowmapAutomaticNearFar;
+	rtShadowmapNear = blendNormal(sample0.rtShadowmapNear,sample1.rtShadowmapNear,blend);
+	rtShadowmapFar = blendNormal(sample0.rtShadowmapFar,sample1.rtShadowmapFar,blend);
 	name = sample0.name;
 	customData = sample0.customData;
 }

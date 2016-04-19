@@ -41,6 +41,9 @@ NEWS
   - RRFileLocator::ATTEMPT_LOCATE_ONLY
   - RRMesh::checkNormals(), RRMesh::checkTangents()
   - RRObject::buildTangents() parameter lets you rebuild invalid tangents but keep good ones
+  - RRLight::rtShadowmapAutomaticNearFar lets you disable automatic near/far and specify your own values
+  - RRLight::rtShadowmapNear
+  - RRLight::rtShadowmapFar
 
 CHANGES
 

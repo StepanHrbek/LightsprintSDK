@@ -139,6 +139,12 @@ namespace rr_gl
 		// Copy outerAngle to FOV
 		getCamera()->setAspect(1);
 		getCamera()->setFieldOfViewVerticalDeg( (rrlight.type==rr::RRLight::SPOT) ? RR_RAD2DEG(rrlight.outerAngleRad)*2 : 90 ); // aspect must be already set
+		// Copy shadowmap near/far.
+		if (!rrlight.rtShadowmapAutomaticNearFar)
+		{
+			getCamera()->setNear(rrlight.rtShadowmapNear);
+			getCamera()->setFar(rrlight.rtShadowmapFar);
+		}
 	}
 
 	rr::RRCamera* RealtimeLight::getCamera() const
@@ -256,6 +262,8 @@ namespace rr_gl
 	void RealtimeLight::setRangeDynamically(const rr::RRCollider* collider, const rr::RRObject* object, unsigned numRays)
 	{
 		if (!object)
+			return;
+		if (!rrlight.rtShadowmapAutomaticNearFar)
 			return;
 
 		if (rrlight.type!=rr::RRLight::DIRECTIONAL)

@@ -275,6 +275,9 @@ RRLight::RRLight()
 	rtNumShadowmaps = 6;
 	rtShadowmapSize = 1024;
 	rtShadowmapBias = RRVec2(1);
+	rtShadowmapAutomaticNearFar = true;
+	rtShadowmapNear = 0.1f;
+	rtShadowmapFar = 100;
 	//name = "";
 	customData = nullptr;
 }
@@ -299,6 +302,9 @@ RRLight::RRLight(const RRLight& a)
 	rtNumShadowmaps = a.rtNumShadowmaps;
 	rtShadowmapSize = a.rtShadowmapSize;
 	rtShadowmapBias = a.rtShadowmapBias;
+	rtShadowmapAutomaticNearFar = a.rtShadowmapAutomaticNearFar;
+	rtShadowmapNear = a.rtShadowmapNear;
+	rtShadowmapFar = a.rtShadowmapFar;
 	name = a.name;
 	customData = a.customData;
 }
@@ -327,6 +333,9 @@ const RRLight& RRLight::operator=(const RRLight& a)
 	rtNumShadowmaps = a.rtNumShadowmaps;
 	rtShadowmapSize = a.rtShadowmapSize;
 	rtShadowmapBias = a.rtShadowmapBias;
+	rtShadowmapAutomaticNearFar = a.rtShadowmapAutomaticNearFar;
+	rtShadowmapNear = a.rtShadowmapNear;
+	rtShadowmapFar = a.rtShadowmapFar;
 	name = a.name;
 	customData = a.customData;
 	return *this;

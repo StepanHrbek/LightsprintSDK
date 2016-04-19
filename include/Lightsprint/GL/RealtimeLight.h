@@ -105,6 +105,8 @@ public:
 	//! Uses raycasting, performance hit for one light is acceptable even if called once per frame;
 	//! but it could be too much when called for many lights in every frame.
 	//!
+	//! Does nothing if RRLight::rtShadowmapAutomaticNearFar is not set.
+	//!
 	//! Instead of directly calling setRangeDynamically(), you can set #dirtyRange, solver will call
 	//! setRangeDynamically() automatically before updating shadowmaps. This way you avoid calling
 	//! setRangeDynamically() twice if different parts of code request update.

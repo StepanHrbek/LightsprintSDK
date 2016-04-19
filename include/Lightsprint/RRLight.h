@@ -187,6 +187,20 @@ namespace rr
 		//! x controls slope/factor part of bias, y controls fixed part.
 		//! Set 1 for default automatic bias, more for larger bias, less for smaller.
 		RRVec2 rtShadowmapBias;
+		//! Enables automatic update of shadowmap near/far.
+		bool rtShadowmapAutomaticNearFar;
+		//! Shadowmap near plane distance.
+		//
+		//! Relevant only for realtime renderer (has rt prefix).
+		//! Only shadow casters in near..far distance cast shadows. Ignored for directional light.
+		//! Ignored if rtShadowmapAutomaticNearFar is false.
+		RRReal rtShadowmapNear;
+		//! Shadowmap far plane distance.
+		//
+		//! Relevant only for realtime renderer (has rt prefix).
+		//! Only shadow casters in near..far distance cast shadows. Ignored for directional light.
+		//! Ignored if rtShadowmapAutomaticNearFar is false.
+		RRReal rtShadowmapFar;
 
 		//////////////////////////////////////////////////////////////////////////////
 		// Misc

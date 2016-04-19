@@ -70,6 +70,7 @@ namespace rr_ed
 		wxPGProperty*     propShadowmapRes;
 		wxPGProperty*     propShadowSamples;
 		wxPGProperty*     propShadowBias;
+		BoolRefProperty*  propShadowAutomaticNearFar;
 		wxPGProperty*     propNear;
 		wxPGProperty*     propFar;
 

@@ -151,11 +151,14 @@ void SVLightProperties::setLight(rr_gl::RealtimeLight* _rtlight, int _precision)
 			propShadowBias = new RRVec2Property(_("Shadow Bias"),_("Controls distance of shadow from shadow caster, default=1."),svs.precision,light->rtShadowmapBias,1);
 			AppendIn(propCastShadows,propShadowBias);
 
+			propShadowAutomaticNearFar = new BoolRefProperty(_("Automatic near/far"), _("Makes renderer automatically choose near/far values."), light->rtShadowmapAutomaticNearFar);
+			AppendIn(propCastShadows,propShadowAutomaticNearFar);
+
 			propNear = new FloatProperty(_("Near")+" (m)",_("Near plane distance for generating shadowmaps. Greater value reduces shadow bias."),rtlight->getCamera()->getNear(),_precision,0,1e10f,0.1f,false);
-			AppendIn(propCastShadows,propNear);
+			AppendIn(propShadowAutomaticNearFar,propNear);
 
 			propFar = new FloatProperty(_("Far")+" (m)",_("Far plane distance for generating shadowmaps."),rtlight->getCamera()->getFar(),_precision,0,1e10f,1,false);
-			AppendIn(propCastShadows,propFar);
+			AppendIn(propShadowAutomaticNearFar,propFar);
 		}
 
 		updateHide();
@@ -187,8 +190,11 @@ void SVLightProperties::updateHide()
 	propShadowmapRes->Hide(!light->castShadows,false);
 	propShadowSamples->Hide(!light->castShadows,false);
 	propShadowBias->Hide(!light->castShadows,false);
+	propShadowAutomaticNearFar->Hide(!light->castShadows,false);
 	propNear->Hide(!light->castShadows,false);
 	propFar->Hide(!light->castShadows,false);
+	propNear->Enable(!light->rtShadowmapAutomaticNearFar);
+	propFar->Enable(!light->rtShadowmapAutomaticNearFar);
 }
 
 void SVLightProperties::updatePosDir()
@@ -197,6 +203,7 @@ void SVLightProperties::updatePosDir()
 	{
 		unsigned numChanges =
 			updateBoolRef(propEnabled) +
+			updateBoolRef(propShadowAutomaticNearFar) +
 			updateFloat(propNear,rtlight->getCamera()->getNear()) +
 			updateFloat(propFar,rtlight->getCamera()->getFar()) +
 			updateProperty(propPosition,rtlight->getCamera()->getPosition()) +
@@ -385,16 +392,26 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		rtlight->dirtyShadowmap = true;
 	}
 	else
+	if (property==propShadowAutomaticNearFar)
+	{
+		rtlight->dirtyRange = true;
+		rtlight->dirtyShadowmap = true; // necessary, otherwise dirtyRange is ignored
+		rtlight->dirtyGI = true; // after change in near/far, sometimes GI changes significantly
+		updateHide();
+	}	
+	else
 	if (property==propNear)
 	{
-		rtlight->getCamera()->setNear(property->GetValue().GetDouble());
+		light->rtShadowmapNear = property->GetValue().GetDouble();
 		rtlight->dirtyShadowmap = true;
+		rtlight->dirtyGI = true; // after change in near/far, sometimes GI changes significantly
 	}
 	else
 	if (property==propFar)
 	{
-		rtlight->getCamera()->setFar(property->GetValue().GetDouble());
+		light->rtShadowmapFar = property->GetValue().GetDouble();
 		rtlight->dirtyShadowmap = true;
+		rtlight->dirtyGI = true; // after change in near/far, sometimes GI changes significantly
 	}
 	rtlight->updateAfterRRLightChanges();
 	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,nullptr,0);
