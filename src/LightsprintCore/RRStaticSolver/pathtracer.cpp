@@ -212,8 +212,7 @@ RRVec3 PathtracerWorker::getIncidentRadiance(const RRVec3& eye, const RRVec3& di
 
 #ifdef MATERIAL_BACKGROUND_HACK
 		bool oldBouncedOffInvisiblePlane = bouncedOffInvisiblePlane;
-		//if (!bouncedOffInvisiblePlane && material.name=="background" && ptj.environment)
-		if (!bouncedOffInvisiblePlane && !strncmp(material.name.c_str(),"background",10) && ptj.environment) // strncmp in each bounce might make pathtracer 1% slower, compared to plain ==
+		if (!bouncedOffInvisiblePlane && material.specularTransmittanceBackground && ptj.environment)
 		{
 			bouncedOffInvisiblePlane = true;
 			float environmentMultiplier = numBounces ? parameters.indirect.environmentMultiplier : parameters.direct.environmentMultiplier;

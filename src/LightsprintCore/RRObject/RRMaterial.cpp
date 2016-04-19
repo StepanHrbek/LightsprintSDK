@@ -116,6 +116,7 @@ void RRMaterial::copyFrom(const RRMaterial& a)
 	specularTransmittanceKeyed = a.specularTransmittanceKeyed;
 	specularTransmittanceThreshold = a.specularTransmittanceThreshold;
 	specularTransmittanceMapInverted = a.specularTransmittanceMapInverted;
+	specularTransmittanceBackground = a.specularTransmittanceBackground;
 	refractionIndex = a.refractionIndex;
 	bumpMapTypeHeight = a.bumpMapTypeHeight;
 	lightmap.texcoord = a.lightmap.texcoord;
@@ -140,6 +141,7 @@ bool RRMaterial::operator ==(const RRMaterial& a) const
 		&& a.specularTransmittanceKeyed==specularTransmittanceKeyed
 		&& a.specularTransmittanceThreshold==specularTransmittanceThreshold
 		&& a.specularTransmittanceMapInverted==specularTransmittanceMapInverted
+		&& a.specularTransmittanceBackground==specularTransmittanceBackground
 		&& a.refractionIndex==refractionIndex
 		&& a.bumpMapTypeHeight==bumpMapTypeHeight
 		&& a.lightmap.texcoord==lightmap.texcoord
@@ -169,6 +171,7 @@ void RRMaterial::reset(bool twoSided)
 	specularTransmittanceKeyed   = false;
 	specularTransmittanceThreshold = 0.5f;
 	specularTransmittanceMapInverted = false;
+	specularTransmittanceBackground = false;
 	bumpMapTypeHeight            = true;
 	refractionIndex              = 1;
 	bumpMap.color                = RRVec3(1);

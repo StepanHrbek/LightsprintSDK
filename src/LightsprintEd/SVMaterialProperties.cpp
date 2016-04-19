@@ -47,7 +47,7 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	Append(propPhysical = new BoolRefProperty(_("In physical scale"),_("Displays values in linear physical scale, rather than in sRGB."),showPhysical));
 
 	Append(propName = new wxStringProperty(_("Name")));
-	propName->SetHelpString(_("If name contains \"background\", white material becomes invisible, yet still receiving shadows and illumination. If name contains \"water\" and normal map is set, mapping becomes animated to simulate flow."));
+	propName->SetHelpString(_("If name starts with \"water\" and normal map is set, mapping becomes animated to simulate flow."));
 
 	Append(propFront = new wxBoolProperty(_("Front")));
 	SetPropertyEditor(propFront,wxPGEditor_CheckBox);
@@ -98,6 +98,9 @@ SVMaterialProperties::SVMaterialProperties(SVFrame* _svframe)
 	AppendIn(propTransparent,propTransparencyMapInverted = new wxBoolProperty(_("inverted")));
 	SetPropertyEditor(propTransparencyMapInverted,wxPGEditor_CheckBox);
 	propTransparencyMapInverted->SetHelpString(_("Inverts how transparency texture is interpreted."));
+	AppendIn(propTransparent,propTransparencyBackground = new wxBoolProperty(_("background")));
+	SetPropertyEditor(propTransparencyBackground,wxPGEditor_CheckBox);
+	propTransparencyBackground->SetHelpString(_("For pathtracer only. Makes environment visible through this material, so it becomes kind of invisible, yet still receiving light and shadows."));
 	AppendIn(propTransparent,propRefraction = new FloatProperty("refraction index",_("Index of refraction when light hits surface from front side."),1,svs.precision,0.25f,4,0.1f,false));
 	SetPropertyBackgroundColour(propTransparent,importantPropertyBackgroundColor,false);
 	Collapse(propTransparent);
@@ -257,6 +260,7 @@ void SVMaterialProperties::updateProperties()
 		updateFloat(propTransparencyThreshold,material->specularTransmittanceThreshold);
 		updateBool(propTransparencyInAlpha,material->specularTransmittanceInAlpha);
 		updateBool(propTransparencyMapInverted,material->specularTransmittanceMapInverted);
+		updateBool(propTransparencyBackground,material->specularTransmittanceBackground);
 		updateFloat(propRefraction,material->refractionIndex);
 		updateBool(propBumpType,material->bumpMapTypeHeight);
 		updateFloat(propBumpMultiplier1,material->bumpMap.color.x);
@@ -579,6 +583,11 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 		if (material->specularTransmittance.texture)
 			material->specularTransmittance.color = rr::RRVec3(1)-material->specularTransmittance.color;
 		transmittanceChanged = true;
+	}
+	else
+	if (property==propTransparencyBackground)
+	{
+		material->specularTransmittanceBackground = property->GetValue().GetBool();
 	}
 	else
 	if (property==propRefraction)

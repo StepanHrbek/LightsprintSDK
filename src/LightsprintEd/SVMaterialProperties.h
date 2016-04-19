@@ -77,6 +77,7 @@ namespace rr_ed
 		wxPGProperty*     propTransparencyThreshold;
 		wxPGProperty*     propTransparencyInAlpha;
 		wxPGProperty*     propTransparencyMapInverted;
+		wxPGProperty*     propTransparencyBackground;
 		wxPGProperty*     propRefraction;
 		wxPGProperty*     propBumpMap;
 		wxPGProperty*     propBumpType;

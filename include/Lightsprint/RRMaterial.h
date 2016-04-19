@@ -256,6 +256,10 @@ namespace rr
 		RRReal        specularTransmittanceThreshold;
 		//! Whether specular transmittance map is inverted. True = values read from map should be inverted before use. This inversion is implemented in getPointMaterial() and in shaders.
 		bool          specularTransmittanceMapInverted;
+		//! If set, pathtracer renders material with color of environment, so it becomes kind of invisible,
+		//! yet still receiving illumination and shadows. It's typically used on a plane under pathtraced car, surrounded only by environment map;
+		//! results look like car casting shadows on environment.
+		bool          specularTransmittanceBackground;
 		//! For 1-sided faces, it is refractive index of matter behind surface divided by refractive index of matter in front of surface
 		//! (1-sided surfaces are treated as volume boundaries, this index tells what happens when light leaves matter in front of boundary and enters matter behind).
 		//! For 2-sided faces, it is refractive index of matter inside thin layer divided by refractive index of matter around
@@ -297,11 +301,7 @@ namespace rr
 		unsigned      minimalQualityForPointMaterials;
 		//! Optional name of material.
 		//
-		//! If name contains "background", pathtracer renders material with color of environment, so it becomes kind of invisible,
-		//! yet still receiving illumination and shadows. It's typically used on a plane under pathtraced car, surrounded only by environment map;
-		//! results look like car casting shadows on environment.
-		//!
-		//! If name contains "water" and static normal map is set, realtime renderer animates mapping
+		//! If name starts with "water" and static normal map is set, realtime renderer animates mapping
 		//! to simulate flow of waves.
 		RRString      name;
 		//! Optional image of material, for use e.g. by material library. It is owned by material, deleted in dtor. Not saved to .rrmaterial.
