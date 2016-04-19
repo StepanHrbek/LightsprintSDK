@@ -403,15 +403,11 @@ void SVLightProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propNear)
 	{
 		light->rtShadowmapNear = property->GetValue().GetDouble();
-		rtlight->dirtyShadowmap = true;
-		rtlight->dirtyGI = true; // after change in near/far, sometimes GI changes significantly
 	}
 	else
 	if (property==propFar)
 	{
 		light->rtShadowmapFar = property->GetValue().GetDouble();
-		rtlight->dirtyShadowmap = true;
-		rtlight->dirtyGI = true; // after change in near/far, sometimes GI changes significantly
 	}
 	rtlight->updateAfterRRLightChanges();
 	svframe->OnAnyChange(SVFrame::ES_PROPERTY,property,nullptr,0);

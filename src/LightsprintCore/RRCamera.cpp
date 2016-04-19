@@ -123,8 +123,8 @@ RRCamera::RRCamera(RRLight& _light)
 	// projection
 	aspect = 1; // ctor must set it directly, setAspect() may fail if old aspect is NaN
 	fieldOfViewVerticalDeg = (_light.type==RRLight::SPOT) ? RR_CLAMPED(RR_RAD2DEG(_light.outerAngleRad)*2,0.0000001f,179.9f) : 90;
-	anear = (_light.type==RRLight::DIRECTIONAL) ? 10.f : .1f;
-	afar = (_light.type==RRLight::DIRECTIONAL) ? 200.f : 100.f;
+	anear = _light.rtShadowmapNear;
+	afar = _light.rtShadowmapFar;
 	orthogonal = _light.type==RRLight::DIRECTIONAL;
 	orthoSize = 100;
 	screenCenter = RRVec2(0);

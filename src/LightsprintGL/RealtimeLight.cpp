@@ -122,12 +122,13 @@ namespace rr_gl
 		{
 			// when leaving directional, clear orthogonal and reasonable near/far
 			getCamera()->setOrthogonal(false);
-			getCamera()->setRange(0.1f,100);
+			getCamera()->setRange(rrlight.rtShadowmapNear,rrlight.rtShadowmapFar);
 		}
 		// Dirty flags only if we are sure that light did change. Caller can always set dirty himself, if we don't.
 		if (getCamera()->getPosition()!=rrlight.position
 			|| getCamera()->getDirection()!=rrlight.direction
-			|| (rrlight.type==rr::RRLight::SPOT && std::abs(rrlight.outerAngleRad*2-getCamera()->getFieldOfViewVerticalRad())>0.01f))
+			|| (rrlight.type==rr::RRLight::SPOT && std::abs(rrlight.outerAngleRad*2-getCamera()->getFieldOfViewVerticalRad())>0.01f)
+			|| (!rrlight.rtShadowmapAutomaticNearFar && (getCamera()->getNear()!=rrlight.rtShadowmapNear || getCamera()->getFar()!=rrlight.rtShadowmapFar)))
 		{
 			dirtyShadowmap = true;
 			dirtyGI = true;
