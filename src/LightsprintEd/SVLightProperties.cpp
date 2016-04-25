@@ -154,10 +154,10 @@ void SVLightProperties::setLight(rr_gl::RealtimeLight* _rtlight, int _precision)
 			propShadowAutomaticNearFar = new BoolRefProperty(_("Automatic near/far"), _("Makes renderer automatically choose near/far values."), light->rtShadowmapAutomaticNearFar);
 			AppendIn(propCastShadows,propShadowAutomaticNearFar);
 
-			propNear = new FloatProperty(_("Near")+" (m)",_("Near plane distance for generating shadowmaps. Greater value reduces shadow bias."),rtlight->getCamera()->getNear(),_precision,0,1e10f,0.1f,false);
+			propNear = new FloatProperty(_("Near")+" (m)",_("Near plane distance for generating shadowmaps. Greater value reduces shadow bias."),rtlight->getCamera()->getNear(),_precision,-1e10f,1e10f,0.1f,false);
 			AppendIn(propShadowAutomaticNearFar,propNear);
 
-			propFar = new FloatProperty(_("Far")+" (m)",_("Far plane distance for generating shadowmaps."),rtlight->getCamera()->getFar(),_precision,0,1e10f,1,false);
+			propFar = new FloatProperty(_("Far")+" (m)",_("Far plane distance for generating shadowmaps."),rtlight->getCamera()->getFar(),_precision,-1e10f,1e10f,1,false);
 			AppendIn(propShadowAutomaticNearFar,propFar);
 		}
 
