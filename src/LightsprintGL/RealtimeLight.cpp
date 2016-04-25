@@ -77,7 +77,8 @@ namespace rr_gl
 				solver->getAABB(&sceneMin,&sceneMax,nullptr);
 				csmSceneSize = sceneMax-sceneMin;
 				getCamera()->setPosition((sceneMax+sceneMin)/2);
-				getCamera()->setRange(-0.5f*csmSceneSize.length(),0.5f*csmSceneSize.length());
+				if (rrlight.rtShadowmapAutomaticNearFar)
+					getCamera()->setRange(-0.5f*csmSceneSize.length(),0.5f*csmSceneSize.length());
 				getCamera()->setOrthoSize(csmSceneSize.maxi());
 			}
 		}
