@@ -59,7 +59,7 @@ class EmbreeCollider : public RRCollider
 	{
 		copyVec3(rrRay.rayOrigin,rtcRay.org);
 		copyVec3(rrRay.rayDir,rtcRay.dir);
-		rtcRay.tnear = rrRay.rayLengthMin;
+		rtcRay.tnear = rrRay.rayLengthMin; //!!! our rayLengthMin is usually negative for orthogonal cameras, embree clamps tnear to 0
 		rtcRay.tfar = rrRay.rayLengthMax;
 		rtcRay.geomID = RTC_INVALID_GEOMETRY_ID;
 		rtcRay.primID = RTC_INVALID_GEOMETRY_ID;
