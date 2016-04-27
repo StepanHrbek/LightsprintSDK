@@ -57,10 +57,21 @@ class EmbreeCollider : public RRCollider
 
 	static void copyRrRayToRtc(const RRRay& rrRay, RTCRay& rtcRay)
 	{
-		copyVec3(rrRay.rayOrigin,rtcRay.org);
 		copyVec3(rrRay.rayDir,rtcRay.dir);
-		rtcRay.tnear = rrRay.rayLengthMin; //!!! our rayLengthMin is usually negative for orthogonal cameras, embree clamps tnear to 0
-		rtcRay.tfar = rrRay.rayLengthMax;
+		if (rrRay.rayLengthMin>=0)
+		{
+			copyVec3(rrRay.rayOrigin,rtcRay.org);
+			rtcRay.tnear = rrRay.rayLengthMin;
+			rtcRay.tfar = rrRay.rayLengthMax;
+		}
+		else
+		{
+			// our rayLengthMin is usually negative for orthogonal cameras
+			// embree would clamp tnear to 0, we need to prevent that
+			copyVec3(rrRay.rayOrigin+rrRay.rayDir*rrRay.rayLengthMin,rtcRay.org);
+			rtcRay.tnear = 0;
+			rtcRay.tfar = rrRay.rayLengthMax-rrRay.rayLengthMin;
+		}
 		rtcRay.geomID = RTC_INVALID_GEOMETRY_ID;
 		rtcRay.primID = RTC_INVALID_GEOMETRY_ID;
 		rtcRay.instID = RTC_INVALID_GEOMETRY_ID;
@@ -70,19 +81,20 @@ class EmbreeCollider : public RRCollider
 
 	static void copyRtcHitToRr(const RTCRay& rtcRay, RRRay& rrRay)
 	{
+		float rtcRay_tfar_fixed = (rrRay.rayLengthMin>=0) ? rtcRay.tfar : (rtcRay.tfar+rrRay.rayLengthMin);
 		if (rrRay.rayFlags&RRRay::FILL_DISTANCE)
-			rrRay.hitDistance = rtcRay.tfar;
+			rrRay.hitDistance = rtcRay_tfar_fixed;
 		if (rrRay.rayFlags&RRRay::FILL_TRIANGLE)
 			rrRay.hitTriangle = rtcRay.primID;
 		if (rrRay.rayFlags&RRRay::FILL_POINT2D)
 			rrRay.hitPoint2d = RRVec2(rtcRay.u,rtcRay.v);
 		if (rrRay.rayFlags&RRRay::FILL_POINT3D)
-			rrRay.hitPoint3d = rrRay.rayOrigin + rrRay.rayDir*rtcRay.tfar;
+			rrRay.hitPoint3d = rrRay.rayOrigin + rrRay.rayDir*rtcRay_tfar_fixed;
 		if (rrRay.rayFlags&RRRay::FILL_PLANE)
 		{
 			// embree Ng is unnormalized, goes from back side
 			// Lightsprint RRVec3(hitPlane) is normalized, goes from front side
-			RRVec3 hitPoint3d = rrRay.rayOrigin + rrRay.rayDir*rtcRay.tfar;
+			RRVec3 hitPoint3d = rrRay.rayOrigin + rrRay.rayDir*rtcRay_tfar_fixed;
 			RRVec3 n(-rtcRay.Ng[0],-rtcRay.Ng[1],-rtcRay.Ng[2]);
 			float siz = n.length();
 			rrRay.hitPlane[0] = n.x/siz;
