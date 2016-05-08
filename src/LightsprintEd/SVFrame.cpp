@@ -1626,9 +1626,10 @@ reload_skybox:
 			break;
 		case ME_WINDOW_RESIZE:
 			{
-				unsigned w = m_canvas->winWidth;
-				unsigned h = m_canvas->winHeight;
-				if (getResolution(_("3d viewport"),this,w,h) && (w!=m_canvas->winWidth || h!=m_canvas->winHeight))
+				wxSize canvasSize = m_canvasWindow->GetSize();
+				unsigned w = canvasSize.x;
+				unsigned h = canvasSize.y;
+				if (getResolution(_("3d viewport"),this,w,h) && (w!=canvasSize.x || h!=canvasSize.y))
 				{
 					if (svs.fullscreen)
 					{
@@ -1643,8 +1644,9 @@ reload_skybox:
 					//m_canvas->SetSize(w,h);
 					// resize window, don't touch panes
 					wxSize windowSize = GetClientSize();
-					SetClientSize(windowSize.x+w-m_canvas->winWidth,windowSize.y+h-m_canvas->winHeight);
-					if (m_canvas->winWidth!=w || m_canvas->winHeight!=h)
+					SetClientSize(windowSize.x+w-canvasSize.x,windowSize.y+h-canvasSize.y);
+					wxSize canvasSize2 = m_canvasWindow->GetSize();
+					if (canvasSize2.x!=w || canvasSize2.y!=h)
 					{
 						bool panes = IS_SHOWN(m_sceneTree) || IS_SHOWN(m_userProperties) || IS_SHOWN(m_sceneProperties) || IS_SHOWN(m_giProperties) || IS_SHOWN(m_lightProperties) || IS_SHOWN(m_objectProperties) || IS_SHOWN(m_materialProperties);
 						wxMessageBox(panes?_("There's not enough space. You can make more space by resizing or closing panes."):_("There's not enough space. Switch to fullscreen mode for maximal resolution."));
