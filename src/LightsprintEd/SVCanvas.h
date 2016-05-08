@@ -86,8 +86,8 @@ namespace rr_ed
 		class wxGLContext*         context; // context for this canvas (we have only one canvas, so there's no need to share context yet)
 		class SVFrame*             svframe;
 		SceneViewerStateEx&        svs;
-		int                        winWidth; // current size
-		int                        winHeight; // current size
+		int                        winWidth; // [#63] active area of canvas, possibly smaller than canvas (in enhanced rendering mode)
+		int                        winHeight;
 		int                        windowCoord[4]; // x,y,w,h of window when user switched to fullscreen
 		float                      speedForward;
 		float                      speedBack;

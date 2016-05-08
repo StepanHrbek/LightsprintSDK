@@ -670,9 +670,11 @@ void SVCanvas::OnSizeCore(bool force)
 		&& (force || w!=winWidth || h!=winHeight))
 	{
 		canvasWindow->SetCurrent(*context);
+		// [#63] for a moment, winWidth is whole canvas size
 		winWidth = w;
 		winHeight = h;
 		// with Enhanced screenshot checked, viewport maintains the same aspect as screenshot
+		// [#63] winWidth is reduced to active area of canvas
 		if (svframe->userPreferences.sshotEnhanced)
 		{
 			if (w*svframe->userPreferences.sshotEnhancedHeight > h*svframe->userPreferences.sshotEnhancedWidth)
@@ -680,7 +682,6 @@ void SVCanvas::OnSizeCore(bool force)
 			else
 				winHeight = w*svframe->userPreferences.sshotEnhancedHeight/svframe->userPreferences.sshotEnhancedWidth;
 		}
-		rr_gl::glViewport((w-winWidth)/2,(h-winHeight)/2,winWidth,winHeight);
 	}
 }
 
@@ -1839,8 +1840,13 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		ppShared.camera = &ppSharedCamera;
 		if (!svs.renderDof)
 			ppSharedCamera.apertureDiameter = 0;
+		int w, h;
+		canvasWindow->GetClientSize(&w, &h);
+		ppShared.viewport[0] = (w-winWidth)/2; // [#63] choose active area in canvas
+		ppShared.viewport[1] = (h-winHeight)/2;
 		ppShared.viewport[2] = winWidth;
 		ppShared.viewport[3] = winHeight;
+		rr_gl::glViewport(ppShared.viewport[0],ppShared.viewport[1],ppShared.viewport[2],ppShared.viewport[3]);
 		ppShared.srgbCorrect = svs.srgbCorrect; // affects image even with direct lighting disabled (by adding dif+spec+emis correctly)
 		ppShared.brightness = rr::RRVec4( svs.renderTonemapping ? svs.tonemapping.color.RRVec3::avg() * pow(svs.tonemapping.gamma,0.45f) : 1 );
 		ppShared.gamma = svs.renderTonemapping ? svs.tonemapping.gamma : 1;
