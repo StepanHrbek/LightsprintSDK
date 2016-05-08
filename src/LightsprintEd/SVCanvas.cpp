@@ -1842,8 +1842,8 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppSharedCamera.apertureDiameter = 0;
 		int w, h;
 		canvasWindow->GetClientSize(&w, &h);
-		ppShared.viewport[0] = (w-winWidth)/2; // [#63] choose active area in canvas
-		ppShared.viewport[1] = (h-winHeight)/2;
+		ppShared.viewport[0] = (_takingSshot && svframe->userPreferences.sshotEnhanced) ? 0 : (w-winWidth)/2; // [#63] choose active area in canvas
+		ppShared.viewport[1] = (_takingSshot && svframe->userPreferences.sshotEnhanced) ? 0 : (h-winHeight)/2;
 		ppShared.viewport[2] = winWidth;
 		ppShared.viewport[3] = winHeight;
 		rr_gl::glViewport(ppShared.viewport[0],ppShared.viewport[1],ppShared.viewport[2],ppShared.viewport[3]);
