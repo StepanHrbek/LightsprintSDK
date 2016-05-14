@@ -42,7 +42,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>Assimp\include;Assimp\contrib\rapidjson\include;C:\Program Files\Microsoft DirectX SDK (August 2008)\Include;C:\Program Files (x86)\Microsoft DirectX SDK (August 2008)\Include;OpenCollada\COLLADASaxFrameworkLoader\include\generated15;OpenCollada\COLLADASaxFrameworkLoader\include\generated14;OpenCollada\COLLADASaxFrameworkLoader\include;OpenCollada\COLLADABaseUtils\include;OpenCollada\COLLADAFramework\include;OpenCollada\GeneratedSaxParser\include;OpenCollada\Externals\expat\lib;OpenCollada\Externals\MathMLSolver\include;OpenCollada\Externals\MathMLSolver\include\AST;OpenCollada\Externals\pcre\include;OpenCollada\Externals\UTF\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;WIN32;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;SUPPORT_OCULUS;RR_IO_BUILD;ASSIMP_BUILD_NO_C4D_IMPORTER;ASSIMP_BUILD_NO_OPENGEX_IMPORTER;NISHIPPING;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;WIN32;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;RR_IO_BUILD;ASSIMP_BUILD_NO_C4D_IMPORTER;ASSIMP_BUILD_NO_OPENGEX_IMPORTER;NISHIPPING;GENERATEDSAXPARSER_XMLPARSER_EXPAT;PCRE_STATIC;COMPILED_FROM_DSP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions Condition="'$(Platform)'=='x64'">/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Lib>
