@@ -30,7 +30,7 @@ NEWS
   - you can export in isolated process, see rr_io::isolateIO()
   - RRScene::preprocessScene() works around limitations of some fileformats
 - Visual Studio 2015 support
-  - we recommend using Visual Studio 2015 Update 1 (RTM is also good), as
+  - for source code licensee, we recommend using Visual Studio 2015 Update 1 (RTM is also good), as
     <a href="https://connect.microsoft.com/VisualStudio/feedback/details/2563889/compile-error-c2996-recursive-function-template-definition-is-emitted-for-supposedly-compilable-code">Update 2 regression</a>
     <a href="http://stackoverflow.com/questions/21139528/what-does-it-mean-if-visual-studio-2012-throws-a-compile-error-that-shouldnt-ex">(more)</a>
     prevents normal compilation of LightsprintIO.
