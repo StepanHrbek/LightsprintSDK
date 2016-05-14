@@ -1,0 +1,1 @@
+..\..\..\bin\win32\slg4.exe scene.cfg
