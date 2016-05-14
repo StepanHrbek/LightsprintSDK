@@ -27,6 +27,10 @@
 // .rr3 code uses boost, http://boost.org.
 // If you don't have boost, install it or comment out #define SUPPORT_LIGHTSPRINT.
 
+// .rr3 import fails to compile with Visual Studio 2015.2.
+// This is caused by Visual Studio 2015.2 bug, see e.g. https://connect.microsoft.com/VisualStudio/feedback/details/2563889/compile-error-c2996-recursive-function-template-definition-is-emitted-for-supposedly-compilable-code
+// If you can't use different Visual Studio version, comment out #define SUPPORT_LIGHTSPRINT.
+
 #include "RRObjectLightsprint.h"
 #include "RRSerialization.h"
 #ifdef USE_TEXT
