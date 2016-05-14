@@ -325,7 +325,7 @@ Material formats (1)
  - for baking and pathtracing, 3D API is not needed
 
  Compilers
- - Visual C++ 2015.2 (32bit, 64bit)
+ - Visual C++ 2015.1 (32bit, 64bit) (note: 2015.2 fails compiling .rr3 import in LightsprintIO, fix promised for 2015.3)
  - Visual C++ 2013.5 (32bit, 64bit)
  - Visual C++ 2012.5 (32bit, 64bit)
  - Visual C++ 2010 SP1 with all security updates (32bit, 64bit)
