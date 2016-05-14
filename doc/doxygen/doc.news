@@ -8,7 +8,7 @@ namespace rr
 
 \page main_news What's new
 
-\section news146 ------------------------------------ 2016.0x.xx -------------------------------------
+\section news146 ------------------------------------ 2016.05.14 -------------------------------------
 
 NEWS
 
@@ -30,6 +30,13 @@ NEWS
   - you can export in isolated process, see rr_io::isolateIO()
   - RRScene::preprocessScene() works around limitations of some fileformats
 - Visual Studio 2015 support
+  - we recommend using Visual Studio 2015 Update 1 (RTM is also good), as
+    <a href="https://connect.microsoft.com/VisualStudio/feedback/details/2563889/compile-error-c2996-recursive-function-template-definition-is-emitted-for-supposedly-compilable-code">Update 2 regression</a>
+    <a href="http://stackoverflow.com/questions/21139528/what-does-it-mean-if-visual-studio-2012-throws-a-compile-error-that-shouldnt-ex">(more)</a>
+    prevents normal compilation of LightsprintIO.
+    Fix is promised for 2015.3.
+    If you need 2015.2, you can try commenting out \#define SUPPORT_LIGHTSPRINT, to build without Lightsprint fileformats.
+  - Oculus Rift is not yet working with VS2015 (it works with 2010, 2012, 2013)
 - misc
   - higher quality baking for models with bump maps (RRSolver::UpdateParameters::useBumpMaps)
   - rr_gl::initializeGL() parameter can enable GL state caching and possibly reduce number of GL calls (10% speedup Lightsmark, when CPU bound)
@@ -53,14 +60,6 @@ CHANGES
 - renames in rr_io
   - rr_io::registerLoaders() renamed to rr_io::registerIO(), because it registers also savers
   - rr_io::isolateSceneLoaders() renamed to rr_io::isolateIO(), because it isolates also scene exporters
-
-NOTES
-
-- We recommend not installing Visual Studio 2015.2, due to
-  <a href="https://connect.microsoft.com/VisualStudio/feedback/details/2563889/compile-error-c2996-recursive-function-template-definition-is-emitted-for-supposedly-compilable-code">regression</a>
-  <a href="http://stackoverflow.com/questions/21139528/what-does-it-mean-if-visual-studio-2012-throws-a-compile-error-that-shouldnt-ex">(more)</a>.
-  Fix is promised for 2015.3. 2015.1 and older versions work fine.
-  If you need 2015.2, you can try commenting out \#define SUPPORT_LIGHTSPRINT, to build without Lightsprint fileformats.
 
 
 \section news145 ------------------------------------ 2015.02.11 -------------------------------------

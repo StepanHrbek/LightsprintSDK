@@ -2994,17 +2994,19 @@ Material formats (1)
 
 \page main_oculus Oculus Rift
 
- Lightsprint SDK includes everything necessary for work with Oculus Rift head mounted display.
+ Lightsprint SDK supports work with Oculus Rift head mounted display, using Oculus SDK 0.6.
 
  \image html stereo_oculus.jpg
 
  \section oculus_user User's guide
 
-  Current Oculus SDK has two limitations for OpenGL renderers:
+  Oculus runtime 0.6 had two limitations for OpenGL renderers:
   - users need to turn off desktop composition / Aero (otherwise image is not smooth, hurts eyes)
   - users need to use "Extend desktop" mode, not "Direct HMD access" mode (otherwise Oculus SDK crashes)
 
-  SceneViewer tool supports Oculus Rift DK1 and DK2, with camera tracking and low persistency.
+  Newer Oculus runtimes work equally well or better.
+
+  SceneViewer tool supports Oculus Rift with camera tracking and low persistency.
 
   It is important to check whether your GPU can maintain smooth 60Hz in DK1 or 75Hz in DK2 before you put it on your head, as any drop in fps is very unpleasant for eyes.
   So it is recommended to check <code>Scene / [x] FPS</code>, and <code>User preferences / [x] Max fps</code>, and tweak settings until you get good enough fps. Aim for 200fps in normal mono render.
