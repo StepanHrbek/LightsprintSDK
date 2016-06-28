@@ -313,7 +313,7 @@ void MeshArraysVBOs::renderMesh(
 	// shortcut
 	const rr::RRObject::FaceGroups& faceGroups = _object->faceGroups;
 
-	// render by FaceGroup or FaceGroupRange?
+	// render by FaceGroup (slow path) or FaceGroupRange (fast path)?
 	// facegroups in range differ only by material
 	if (_uberProgramSetup.MATERIAL_DIFFUSE_CONST || _uberProgramSetup.MATERIAL_DIFFUSE_MAP
 		|| _uberProgramSetup.MATERIAL_SPECULAR // even if specular color=1, setMaterial() must be called to set shininess, shininess does not have any default
@@ -324,7 +324,7 @@ void MeshArraysVBOs::renderMesh(
 		|| (_uberProgramSetup.LIGHT_INDIRECT_MAP && _lightIndirectBuffer)
 		|| (_uberProgramSetup.LIGHT_INDIRECT_DETAIL_MAP && _lightDetailMap))
 	{
-		// render by FaceGroup
+		// render by FaceGroup (slow path)
 
 		// cache uv channel binding
 		struct UvChannelBinding
@@ -443,7 +443,7 @@ void MeshArraysVBOs::renderMesh(
 	}
 	else
 	{
-		// render by FaceGroupRange
+		// render by FaceGroupRange (fast path)
 		for (unsigned r=0;r<_numFaceGroupRanges;r++)
 		{
 			unsigned objSubsetFirstIndex = 3*_faceGroupRange[r].triangleFirst;
