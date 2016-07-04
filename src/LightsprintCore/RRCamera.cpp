@@ -453,6 +453,14 @@ void RRCamera::setFieldOfViewVerticalDeg(float _fieldOfViewVerticalDeg)
 	}
 }
 
+void RRCamera::setFieldOfViewHorizontalDeg(float _fieldOfViewHorizontalDeg)
+{
+	float a = aspect;
+	aspect = 1;//setAspect(1);
+	setFieldOfViewVerticalDeg(_fieldOfViewHorizontalDeg);
+	setAspect(a,1);
+}
+
 void RRCamera::setNear(float _near)
 {
 	if (_finite(_near) && _near!=anear)

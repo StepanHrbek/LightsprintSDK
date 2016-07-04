@@ -132,6 +132,8 @@ public:
 	float getFieldOfViewHorizontalRad() const {return atan(tan(getFieldOfViewVerticalRad()*0.5f)*aspect)*2;}
 	//! Sets vertical FOV in degrees, from 0 to 180.
 	void  setFieldOfViewVerticalDeg(float fieldOfViewVerticalDeg);
+	//! Sets horizontal FOV in degrees, from 0 to 180. Converts to vertical FOV internally (numerically unstable).
+	void  setFieldOfViewHorizontalDeg(float fieldOfViewHorizontalDeg);
 
 	//! Returns near clipping plane distance from camera.
 	float getNear()                     const {return anear;}
