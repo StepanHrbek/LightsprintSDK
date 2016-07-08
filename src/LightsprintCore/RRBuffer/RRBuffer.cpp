@@ -1310,7 +1310,7 @@ static const char** selectCubeSideNames(std::wstring& _filename)
 			RRString suffix = cubeSideNames[c][s];
 			size_t suffixLen = strlen(cubeSideNames[c][s]);
 			size_t suffixOfs = _filename.size()-4-suffixLen;
-			if (_filename.substr(suffixOfs,suffixLen)==suffix.w_str())
+			if (suffixOfs>=0 && suffixOfs<1000 && _filename.substr(suffixOfs,suffixLen)==suffix.w_str())
 			{
 				_filename.replace(suffixOfs,suffixLen,L"%s");
 				return cubeSideNames[c];
