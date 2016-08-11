@@ -8,7 +8,7 @@
 // --------------------------------------------------------------------------
 
 #include "../supported_formats.h"
-#ifdef SUPPORT_IMAGES
+#ifdef SUPPORT_FREEIMAGE
 
 // This file is the only connection between Lightsprint and FreeImage.
 // If you don't use LightsprintIO, add this .cpp to your project
@@ -733,5 +733,5 @@ void registerLoaderImages()
 	RRBuffer::registerSaver("*.vbu",saveFreeImage);
 }
 
-#endif // SUPPORT_IMAGES
+#endif // SUPPORT_FREEIMAGE
 

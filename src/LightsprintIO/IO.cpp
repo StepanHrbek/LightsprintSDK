@@ -31,7 +31,7 @@ if (phase==0 || phase==1)
 	// if multiple loaders support the same format,
 	// register more robust implementations first
 
-#ifdef SUPPORT_IMAGES
+#ifdef SUPPORT_FREEIMAGE
 	registerLoaderImages();
 #endif
 
