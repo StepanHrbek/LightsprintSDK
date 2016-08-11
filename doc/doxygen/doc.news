@@ -2053,6 +2053,1175 @@ CHANGES
 - loading cubemaps made of 6 files via RRBuffer::load() works with default parameters flipV and flipH = false,
   previously these had to be true
 
+\section news79 ------------------------------------ 2009.04.15 -------------------------------------
+
+CHANGES
+
+- RRMaterial moved to new header RRMaterial.h
+  \n (no changes to old code needed)
+
+FIXES
+
+- under specific circumstances, generic getPointMaterial() was called instead of custom one
+
+\section news78 ------------------------------------ 2009.04.03 -------------------------------------
+
+NEWS
+
+- improved Collada import, workarounds for Google SketchUp bugs
+- rr_gl::sceneViewer() additional parameter makes it possible to specify skybox by filename
+
+FIXES
+
+- under rare circumstances, random pixels in lightmaps received random colors
+
+\section news77 ------------------------------------ 2009.03.25 -------------------------------------
+
+NEWS
+
+- full Visual Studio 2005 x64 support
+- improved rr_gl::sceneViewer()
+  - new parameter makes it possible to view scene from file rather than from solver in memory
+  - new File menu with Open scene, Save screenshot
+- new texture manipulation functions
+  - RRBuffer::createCopy()
+  - RRBuffer::setFormat()
+  - RRBuffer::setFormatFloats()
+  - RRBuffer::invert()
+  - RRBuffer::multiplyAdd() extends old to RRBuffer::multiply()
+  - RRMaterial::Property::multiplyAdd() extends old RRMaterial::Property::multiply()
+- improved scene import
+  - rr_io::ImportScene with fixed set of formats replaced by extensible RRScene
+  - parameter stripPaths was removed, all loaders load textures from full paths as if stripPaths=false,
+    but if it fails, second attempt is made automatically in scene directory as if stripPaths=true
+  - RRScene::getSupportedFormats()
+  - improved .3ds import (transparency, opacity map, self illum map...)
+- improved transparency realtime rendering
+
+CHANGES
+
+- rr_io::setImageLoader() replaced by rr_io::registerLoaders()
+  \n new function registers also 3d scene loaders that did not need registration before
+- RRObjects moved from RRDynamicSolver.h to RRObject.h
+
+FIXES
+
+- MovingSun sample lighting was incorrect
+
+\section news76 ------------------------------------ 2009.03.14 -------------------------------------
+
+NEWS
+
+- Improved handling of overlapping triangles.
+  \n It's still recommended to avoid them, but if you must use them, chances are that precomputed lightmaps will be ok.
+  \n Previously \ref main_ue3 "UE3" skylight created dark strips where terrain segments overlap.
+- tangent space vectors are displayed in rr_gl::sceneViewer() with helpers enabled
+
+FIXES
+
+- UE3 materials had swapped R and B (incorrect color bleeding)
+- one of cascaded shadow maps was not updated (incorrect realtime sunlight shadows)
+
+\section news75 ------------------------------------ 2009.02.23 -------------------------------------
+
+NEWS
+
+- \ref main_ue3 "UE3 integration" produces higher quality lightmaps in proximity of SpeedTree meshes
+  (fixed per-pixel material detection)
+
+\section news74 ------------------------------------ 2009.02.19 -------------------------------------
+
+NEWS
+
+- emissive multiplier, lets you boost or reduce emissivity in materials
+  - new parameter "emissivemultiplier=1" in BuildLightmaps tool
+  - new parameter in rr_io::ImportSceneRRLight::ImportSceneRRLight()
+  - adapters call new RRMaterial::Property::multiply() to apply emissive multiplier
+
+\section news73 ------------------------------------ 2009.02.06 -------------------------------------
+
+NEWS
+
+- RRLight::rtProjectedTextureFilename
+  \n lets you specify texture projected by light
+
+CHANGES
+
+- rr_gl::RealtimeLight::lightDirectMap replaced by
+  - rr_gl::RealtimeLight::setProjectedTexture()
+  - rr_gl::RealtimeLight::getProjectedTexture()
+- RRLight::createMutableLight() replaced by new RRLight()
+  \n RRLight is now fully implemented, previously RRLight::getIrradiance() was pure/abstract
+
+\section news72 ------------------------------------ 2009.01.10 -------------------------------------
+
+NEWS
+
+- sample BuildLightmaps supports setting sky from commandline (HDR or LDR texture or 6 textures or flat color or upper and lower hemisphere color)
+- improved realtime render of float textures
+  - uses floats where available, falls back to 8bit on ancient GPUs
+  - HDR skyboxes in physical scale are converted to sRGB in shader
+
+FIXED
+
+- Gamebryo adapter allocated too much memory and crashed in some scenes
+
+\section news71 ------------------------------------ 2009.01.08 -------------------------------------
+
+NEWS
+
+- \ref main_ue3 "UE3 integration" produces higher quality lightmaps: now also SpeedTree materials are evaluated per-pixel
+
+CHANGES
+
+- default behaviour of back side of one sided material was changed
+  \n Previously, photons that hit back side of one-sided face were removed from simulation. Windows had to be made of 2-sided faces to transmit light in both directions.
+  \n Now photons are allowed to go through back side and refract according to material transmittance and refraction index. Windows transmit light in both directions even if they are made of 1-sided faces.
+
+\section news70 ------------------------------------ 2009.01.07 -------------------------------------
+
+NEWS
+
+- \ref main_ue3 "UE3 integration" produces higher quality lightmaps: staticmesh and bspsurface materials are evaluated per-pixel
+- 2x faster windowed reporter (RRReporter::createWindowedReporter())
+  \n (real world example: building preview quality lightmaps in scene with 11000 meshes and windowed reporter took 600s, now 500s)
+
+CHANGES
+
+- rr_gl::sceneViewer() second parameter removed (bool createWindow)
+  \n window is always created, false was ignored since sceneViewer rewrite in 2008.12.8
+
+\section news69 ------------------------------------ 2008.12.19 -------------------------------------
+
+NEWS
+
+- BuildLightmaps tool lets you change lightmap resolution, format etc for individual objects
+- new RRObjects::recommendLayerParameters() recommends lightmap resolution, filename etc
+
+CHANGES
+
+- RRObjects::LayerParameters replaces RRIlluminatedObject::LayerParameters (added in previous release)
+- RRObjects::createLayer() was removed (added in previous release),
+  \n new RRObjects::recommendLayerParameters() is more flexible
+
+\section news68 ------------------------------------ 2008.12.8 -------------------------------------
+
+NEWS
+
+- \ref main_gamebryo26 "Gamebryo integration"
+- new \ref samples_offline "BuildLightmaps tool"
+- new GUI in rr_gl::sceneViewer()
+  - all light properties editable in new Light Properties window
+  - context menu changed to menu bar
+  - LightsprintGL does not depend on glut (remains in SDK, because samples use it)
+  - LightsprintGL depends on wxWidgets (precompiled Windows version added to SDK)
+  - minor other changes in controls
+- simplified mesh adapters (RRMesh implementations in LightsprintIO reduced by 30%)
+  - RRChanneledData removed
+  - RRMesh::getTriangleMapping() extended to support multiple texcoord channels
+  - RRMaterial::lightmapTexcoord added
+- point materials API simplified, point materials faster, used more often
+  - for point materials, you need only to set material textures and call RRMaterial::updateColorsFromTextures(),
+    everything else is handled by default implementation of RRObject::getPointMaterial()
+  - custom RRObject::getPointMaterial() implementations removed from adapters
+  - RRMaterial::minimalQualityForPointMaterials replaces RRSideBits::pointDetails (no need to touch it)
+  - Point materials in Collada and Quake3 scenes are used more often. For identical quality settings,
+    new solver produces illumination of slightly higher quality in slightly longer time.
+- RRMaterial::specularReflectance extended to support colors and textures
+- realtime lights more flexible
+  - rr_gl::RealtimeLight always contains RRLight
+  - it's always legal to edit RRLight properties as long as you call rr_gl::RealtimeLight::updateAfterRRLightChanges() later
+  - minor other changes in rr_gl::RealtimeLight
+- RRObjects made more flexible
+  - RRObjects::createLayer() creates empty buffers for whole layer
+  - RRObjects::loadLayer() replaces RRObjects::loadIllumination()
+  - RRObjects::saveLayer() replaces RRObjects::saveIllumination()
+
+CHANGES
+
+- sample AmbientOcclusion removed, replaced by BuildLightmaps
+- samples/samples.vs200x.sln removed, replaced by src/Lightsprint.vs200x.sln
+
+\section news67 ------------------------------------ 2008.11.16 -------------------------------------
+
+NEWS
+
+- distance attenuation model POLYNOMIAL was extended to support Gamebryo,
+  \n RRLight::polynom extended from RRVec3 to RRVec4
+
+\section news66 ------------------------------------ 2008.11.2 -------------------------------------
+
+NEWS
+
+- log window has lots of new features
+  \n (no API changes, it's still created by RRReporter::createWindowedReporter())
+- doesn't rely on doubles having double precision
+  \n so if you use D3DCREATE_FPU_PRESERVE because of Lightsprint, feel free to remove it
+- RRLight::createMutableLight()
+
+CHANGES
+
+- rr_gl::Camera::dir changed from RRVec4 to RRVec3, fourth element was not used
+- RRMesh::Plane removed, RRMesh::getTrianglePlane() second parameter changed to RRVec4
+- RRRay::hitPlane changed from RRVec3p to RRVec4
+
+\section news65 ------------------------------------ 2008.10.4 -------------------------------------
+
+NEWS
+
+- parallel radiosity, offline lightmap build 5-50% faster
+- Visual Studio 2005 x64 support (partial)
+
+\section news64 ------------------------------------ 2008.9.24 -------------------------------------
+
+NEWS
+
+- faster asynchronous abort, parameter <code>bool& aborting</code> added to several functions
+- RRReporter::createWindowedReporter()
+  \n Creates window to display messages.
+  \n User can abort tasks between reporter create and reporter delete be closing the window.
+- rr_gl::Camera::setNearDynamically() sets near dynamically to prevent clipping of near objects
+  \n rr_gl::sceneViewer() uses it by default
+- in rr_gl::Camera, dir, right and up vectors are guaranteed to be orthonormal
+  \n (previously they were denormalized and up was not orthogonal to dir)
+- RRCollisionHandler::init() has new parameter that allows it to set required ray flags
+  \n (caller is no longer reponsible for setting ray flags for collision handler)
+
+CHANGES
+
+- rr_gl::updateLightmapsWithDialog() removed, use more generic RRReporter::createWindowedReporter()
+- in rr_gl::Camera, several variables were made private, use new get/setters to access them
+  \n (it's no longer possible to set invalid values like FOV over 180 degrees)
+
+\section news63 ------------------------------------ 2008.9.14 -------------------------------------
+
+NEWS
+
+- INF and NaN vertices in meshes mostly harmless
+  \n (see RRDynamicSolver::SmoothingParameters::vertexWeldDistance for details)
+- fixed crash while processing specific SpeedTree meshes
+- rr_gl::Water - water effect with waves, reflection, fresnel
+  \n (it's back with improved compatibility and quality)
+
+CHANGES
+
+- game engine integration projects moved from samples/ImportXXX to src/LightsprintXXX
+- cleanup: removed RRMesh::getInvWorldMatrix(), RRDynamicSolver::SmoothingParameters::subdivisionSpeed,
+  honourExpensiveLightingShadowingFlags
+
+\section news62 ------------------------------------ 2008.8.20 -------------------------------------
+
+NEWS
+
+- 32bit Linux support (64bit was already supported)
+- outside SDK: new realtime GI demo <a href="http://dee.cz/lightsmark">Lightsmark 2008</a>
+
+CHANGES
+
+- single function loadLicense() replaces old classes RRLicense and RRLicenseCollider
+- verify() functions renamed to checkConsistency() (because UE3 contains macro verify)
+
+\section news61 ------------------------------------ 2008.7.11 -------------------------------------
+
+NEWS
+
+- Light Detail Maps
+  \n precomputed maps that greatly enhance precision of realtime GI at cost of single lookup in shader
+  \n available in rr_gl::sceneViewer(), better example will follow
+- extended rr_gl::sceneViewer(), it's possible to set initial camera and more than 20 other parameters.
+  (For realtime GI viewer, change last two parameters from -1,false to NULL.
+  For static GI viewer, see AmbientOcclusion sample.)
+- optimized Architect solver (smaller, faster)
+
+CHANGES
+
+- removed honourExpensiveFlags option in renderer, so all objects cast shadows
+
+\section news60 ------------------------------------ 2008.6.26 -------------------------------------
+
+NEWS
+
+- Linux and PS3 Linux added as fully supported platforms
+- improved LightsprintGL renderer (better transparency, 2sided faces, specular reflections)
+- improved Collada import (1/2sided faces)
+
+CHANGES
+
+- standalone scene loaders merged into LightsprintIO library
+
+\section news59 ------------------------------------ 2008.6.9 -------------------------------------
+
+NEWS
+
+- MovingSun sample, shows global illumination under moving Sun, with moving objects
+- Lightfield extended from 3D to 4D, it captures illumination in space and time.
+- RRMesh::findGroundLevel(), helper for automatic processing of unknown scene
+- RRObject::generateRandomCamera(), helper for automatic processing of unknown scene
+- rr_gl::Camera::updateDirFromAngles makes it possible to control camera direction as vector rather than 3 angles
+- rr_gl::Camera::setDirection() sets direction as vector rather than angles (one time operation)
+
+CHANGES
+
+- Lightfield creation moved from RRDynamicSolver::createLightField()
+  to RRLightField::create() and RRLightField::captureLighting()
+
+\section news58 ------------------------------------ 2008.6.3 -------------------------------------
+
+NEWS
+
+- rr_gl::ToneMapping, support for automatic tone mapping,
+  \n demonstrated in SceneViewer sample
+- improved Collada support (faster load, reads more textures, more texcoords, workaround for broken documents)
+- improved LightsprintGL renderer (renders more textures)
+- improved rr_gl::sceneViewer() (inserting and deleting lights)
+- rr_gl::getTexture(), rr_gl::Texture() and rr_gl::Texture::reset() have new parameter compression
+  that enables texture compression.
+  \n WARNING: If you call rr_gl::getTexture() or rr_gl::Texture() with more than two parameters,
+   old code is incorrect now, it needs new parameter to be inserted between second and third one.
+
+CHANGES
+
+- extended RRMaterial, now it includes textures
+  \n In your code, change material->diffuseReflectance to material->diffuseReflectance.color.
+   Do the same for diffuseEmittance and specularTransmittance.
+- removed texture channels CHANNEL_TRIANGLE_DIFFUSE_TEX, CHANNEL_TRIANGLE_EMISSIVE_TEX, CHANNEL_TRIANGLE_TRANSPARENCY_TEX
+  (use e.g. material->diffuseReflectance.texture instead)
+- moved texcoord channels (CHANNEL_TRIANGLE_VERTICES_*_UV) from RRMesh to RRObject
+  \n As adapter writer, move your getChannelData() and getChannelSize() from your RRMesh
+     implementation to your RRObject implementation.
+  \n As adapter user, change mesh->getChannelData(RRMesh::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,...);
+  \n to object->getChannelData(RRObject::CHANNEL_TRIANGLE_VERTICES_DIFFUSE_UV,...);
+
+\section news57 ------------------------------------ 2008.5.13 -------------------------------------
+
+NEWS
+
+- RRLightField
+  \n new structure for fast GI with dynamic objects and static lights
+  \n demonstrated in sample Lightmaps, see \ref samples_realtime
+- cascaded shadowmapping
+  \n automatically used by rr_gl::RRDynamicSolverGL for higher quality directional lights
+- RRDynamicSolver::leaveFireball() switches back from game to architect solver
+- improved rr_gl::sceneViewer() (optional Fireball, LightField)
+- Fireball size limit relaxed to 4 billion triangles
+
+\section news56 ------------------------------------ 2008.5.9 -------------------------------------
+
+NEWS
+
+- improved Collada import (transparency, image cache)
+- improved rr_gl::sceneViewer() (textures, transparency)
+
+\section news55 ------------------------------------ 2008.5.2 -------------------------------------
+
+NEWS
+
+- rr_gl::sceneViewer() initializes more quickly, reduced memory requirements
+- Collada adapter supports directory flattening, loading all textures from selected directory
+- improved precision in scenes with geometry translated far (tens of km) from center
+  \n however, it's still recommended to place objects near world center
+
+CHANGES
+
+- RRDynamicSolver::detectDirectIllumination() changed to RRDynamicSolver::setDirectIllumination()
+- more detailed parameters in RRDynamicSolver::reportDirectIlluminationChange()
+- classes that don't support copying now throw compile error on attempt to copy
+- more RRMesh and RRCollider functions and instances are const (to emphasize fact that they never change)
+
+\section news54 ------------------------------------ 2008.4.14 -------------------------------------
+
+NEWS
+
+- supports scenes with up to 4 billion meshes and 4 billion triangles/vertices per mesh (was 8k and 512k)
+- supports spot exponent (in RRLight::createSpotPoly())
+- import of .obj files (geometry only, no materials)
+- RRDynamicSolver::setStaticObjects()'s new parameter cacheLocation (you can disable collider cache)
+
+CHANGES
+
+- RRMesh::MultiMeshPreImportNumber renamed to RRMesh::PreImportNumber
+- all PreImport numbers changed from unsigned to RRMesh::PreImportNumber
+  \n so compiler prevents you from accidentally using PreImport number for PostImport and vice versa
+  \n If you implemented following functions from RRMesh interface, change your declarations to match
+     new interface:
+  - RRMesh::getPreImportVertex()
+  - RRMesh::getPostImportVertex()
+  - RRMesh::getPreImportTriangle()
+  - RRMesh::getPostImportTriangle()
+- moved RRDynamicSolver::SmoothingParams::intersectTechnique to RRDynamicSolver::setStaticObjects() parameter
+  \n (default value was preserved)
+- removed RRMesh::createCopy()
+
+\section news53 ------------------------------------ 2008.4.6 -------------------------------------
+
+NEWS
+
+- native 64bit support for all libraries and samples
+
+CHANGES
+
+- removed RRObject::getTriangleIllumination
+
+\section news52 ------------------------------------ 2008.3.26 -------------------------------------
+
+NEWS
+
+- 5x faster lightmap build in scenes with hundreds of lights
+
+\section news51 ------------------------------------ 2008.3.21 -------------------------------------
+
+NEWS
+
+- global illumination is computed for all LODs at the same time
+  \n implement RRObject::getTriangleLod() to enable calculation with LODs
+
+CHANGES
+
+- RRDynamicSolver::updateEnvironmentMap() preserves size and format of your maps,
+  \n RRObjectIllumination::diffuseEnvMapSize and specularEnvMapSize no longer needed, deleted
+
+\section news50 ------------------------------------ 2008.3.11 -------------------------------------
+
+NEWS
+
+- directional lightmaps support new format
+  \n for 3 or 4 normal directions, 3 or 4 lightmaps are generated per object
+  \n compatible with Unreal Engine 3
+  \n see additional parameter in RRDynamicSolver::updateLightmap()
+     and RRDynamicSolver::updateLightmaps()
+- 1.2-10x faster lightmap build
+- alpha in lightmaps with alpha channel is set to 0/1 for unused/used texels or vertices
+- RRMesh::createAccelerated()
+  \n creates faster mesh, duplicating most frequently accessed data
+  \n new parameter in RRObject::createMultiObject() enables it
+- RRDynamicSolver::UpdateParameters::qualityFactorRadiosity
+  \n finer quality control
+
+CHANGES
+
+- RRMesh::TriangleNormals newly contains also tangents
+- RRBuffer::setElement accepts RRVec4 rather than RRVec3
+- newer FCollada 3.05B is used in samples accessing Collada files
+
+\section news49 ------------------------------------ 2008.2.20 -------------------------------------
+
+NEWS
+
+- RRDynamicSolver::aborting
+  \n lets you abort running calculation
+- rr_gl::updateLightmapsWithDialog()
+  \n enhanced RRDynamicSolver::updateLightmaps(), with abort button, adjustable quality, log, scene viewer
+
+\section news48 ------------------------------------ 2008.2.17 -------------------------------------
+
+CHANGES
+
+- LightsprintCore doesn't depend on FreeImage
+  \n To load textures using FreeImage, include samples/Import/ImportFreeImage.cpp in your project.
+
+\section news47 ------------------------------------ 2008.2.7 -------------------------------------
+
+NEWS
+
+- non-fireball solvers use 2x less memory
+- non-fireball solvers initialize faster (1000x faster in scene with 6000 meshes)
+
+\section news46 ------------------------------------ 2008.1.28 -------------------------------------
+
+NEWS
+
+- lightmap building is 10x faster
+
+\section news45 ------------------------------------ 2008.1.21 -------------------------------------
+
+NEWS
+
+- samples/ImportMGF - loader of .mgf scenes
+- samples/Import - universal loader of collada, 3ds, quake3, mgf scenes
+- SceneViewer sample supports collada, 3ds, quake3, mgf
+- RRScaler and RRMaterial have new scaling functions
+
+CHANGES
+
+- by default, debug libraries are used when building debug exe, release when building release
+  \n defining RR_DEBUG or RR_GL_DEBUG has no effect
+
+\section news44 ------------------------------------ 2008.1.15 -------------------------------------
+
+NEWS
+
+- rr_gl::sceneViewer() supports browsing lightmaps and mappings in 2d
+
+CHANGES
+
+- lightmapViewer and Water removed from public API
+
+\section news43 ------------------------------------ 2008.1.11 -------------------------------------
+
+NEWS
+
+- sample SceneViewer, simple Collada viewer with debugging functions
+- RRDynamicSolver::UpdateParameters(quality) sets default parameters for offline rendering
+
+CHANGES
+
+- change solver->saveIllumination() to solver->getStaticObjects().saveIllumination()
+- change solver->loadIllumination() to solver->getStaticObjects().loadIllumination()
+
+\section news42 ------------------------------------ 2008.1.5 -------------------------------------
+
+NEWS
+
+- Visual C++ 2008 support (testing)
+
+\section news41 ------------------------------------ 2007.12.28 -------------------------------------
+
+NEWS
+
+- all scene adapters (Collada/3DS/Quake3) are OpenGL/Direct3D independent
+- all skyboxes are realtime renderable (now including createSky())
+
+CHANGES
+
+- MAJOR CLEANUP, API made simpler, cleaner, reduced by 10%
+- RRBuffer replaces all RRIlluminationXxx classes
+  - rename RRIlluminationVertexBuffer to RRBuffer
+  - rename RRIlluminationPixelBuffer to RRBuffer
+  - rename RRIlluminationEnvironmentMap to RRBuffer
+  - rename createUniform to createSky
+  - fix function calls where names or parameters changed due to unification
+- updateLightmap() and updateLightmaps() support all types of buffers,
+  updateVertexBuffer() and updateVertexBuffers() removed
+  - rename updateVertexBuffer() to updateLightmap()
+  - rename updateVertexBuffers() to updateLightmaps()
+- removed RRColor* abstractions
+  - rename RRColor to RRVec3
+  - rename RRColorRGBF to RRVec3
+  - rename RRColorRGBAF to RRVec4
+  - rename RRColorRGBA8 to unsigned
+- RRObjectIllumination::getLayer() returns buffer instead of structure with two buffers
+  - change getLayer(n)->vertexBuffer to getLayer(n)
+  - change getLayer(n)->pixelBuffer to getLayer(n)
+  - make sure you don't save both vertex and pixel buffer to single layer,
+    use only one of them or use different layers
+- removed newVertexBuffer(), newPixelBuffer(), createMissingBuffers
+  - delete third parameter from updateLightmaps()
+  - if it was true, create buffers manually (example: see getLayer(...) = ... in samples)
+  - delete your implementation (if any) of newVertexBuffer(), newPixelBuffer()
+- removed UpdateParameters::measure
+  - delete lines where you set it
+- optional lightmap filtering parameters moved from pixel buffer constructor to updateLightmaps()
+- removed realtime update of lightmaps
+
+\section news40 ------------------------------------ 2007.12.06 -------------------------------------
+
+NEWS
+
+- sceneViewer(), debugging console, single function viewer of scene with movable lights, realtime global illumination
+  \n RRDynamicSolver is usually black box. This viewer shows what's inside solver.
+- realtime directional lights
+- initial Unreal Engine 3 integration, see samples\ImportUE3\instructions.txt
+
+CHANGES
+
+- RRDynamicSolver can be used without subclassing (for offline), all functions implemented
+- RRObject::getTriangleMaterial() has one new parameter
+  \n It is possible to disable direct shadow casting for selected triangle, light and receiver.
+
+\section news39 ------------------------------------ 2007.11.27 -------------------------------------
+
+NEWS
+
+- added RRLight::castShadows, may be disabled to copy behaviour of other engines
+- added RRLight::customData, may point to light in third party engine
+- sample RealtimeLights supports custom Collada scenes out of the box (use drag&drop or commandline argument)
+- added RRIlluminationPixelBuffer::lockRGBF() for reading lightmap pixels in native floating point precision
+  (temporarily, will be replaced by more general buffers soon)
+
+CHANGES
+
+- RRObject::getTriangleMaterial() has one new parameter
+  \n It is possible to have lights that interact with selected objects (or triangles) only.
+  Suitable for testing UE3's lighting channels.
+- removed RRStaticSolver and sample HelloStaticSolver
+- removed RRObjectWithIllumination
+  and RRDynamicSolver::getMultiObjectPhysicalWithIllumination()
+  and RRObject::createObjectWithIllumination()
+
+\section news38 ------------------------------------ 2007.11.17 -------------------------------------
+
+NEWS
+
+- Realtime renderer unified with offline, both use lights set by RRDynamicSolver::setLights().
+  \n Majority of offline features now suppoted in realtime.
+- new sample RealtimeLights shows multiple movable lights with realtime GI, without precalculations
+
+CHANGES
+
+- New rr_gl::RealtimeLight is RRLight for realtime rendering. Made out of old rr_gl::AreaLight.
+- RRLight::SPOT added to differentiate between POINT and SPOT lights
+- internal RRLight attributes made public so realtime renderer can read them
+
+\section news37 ------------------------------------ 2007.11.08 -------------------------------------
+
+NEWS
+
+- sample RealtimeRadiosity shows lighting of animated object
+- wrapping in lightmap build is optional
+
+FIXES
+
+- proper smoothing in lightmaps with large triangles
+
+\section news36 ------------------------------------ 2007.10.31 -------------------------------------
+
+NEWS
+
+- GeForce 5xxx support added, other compatibility improvements
+- RRIlluminationEnvironmentMap::createSky()
+  \n creates environment with two uniform colors for upper and lower hemisphere
+- rr_gl::RRDynamicSolverGL works in higher precision, may be changed in constructor
+
+CHANGES
+
+- rr::RRMaterial::specularTransmittance extended from scalar value to rgb
+- removed SmoothingParameters::smoothMode
+- removed RRColorI8
+
+\section news35 ------------------------------------ 2007.10.14 -------------------------------------
+
+NEWS
+
+- extended RRObjectIllumination, reflection maps for dynamic objects added
+- RRDynamicSolver::updateEnvironmentMapCache() added for better parallelization
+- RRDynamicSolver::verify(),
+  \n tests data in solver and reports problems, analogous to RRMesh::verify()
+- faster realtime lighting, higher quality penumbra shadows
+- RRIlluminationVertexBuffer::lockWriting(), optional lock for writing
+
+CHANGES
+
+- renamed RRDynamicSolver::setObjects() -> RRDynamicSolver::setStaticObjects()
+- modified RRDynamicSolver::calculate(), takes parameters from
+  \n RRDynamicSolver::CalculateParams, makes realtime lighting quality adjustable
+- renamed and modified RRDynamicSolver::updateEnvironmentMaps() to RRDynamicSolver::updateEnvironmentMap(),
+  \n parameters moved to RRObjectIllumination
+- renamed RRIlluminationVertexBuffer::lock() -> RRIlluminationVertexBuffer::lockReading()
+
+\section news34 ------------------------------------ 2007.9.23 -------------------------------------
+
+CHANGES
+
+- RRDynamicSolver::detectDirectIllumination() returns pointer to array of irradiances,
+  \n rather than directly pushing irradiances into RRObject.
+- RRDynamicSolver::setDirectIlluminationBoost() replaces RRDynamicSolverGL::boostDetectedDirectIllumination
+- RRReportType CONT removed
+
+\section news33 ------------------------------------ 2007.9.20 -------------------------------------
+
+NEWS
+
+- Fireball: faster, higher quality, smaller, realtime solver, recommended for games.
+  \n New functions:
+  \n   RRDynamicSolver::buildFireball() - build from scratch
+  \n   RRDynamicSolver::loadFireball() - load from disk
+  \n Demonstrated in:
+  \n   RealtimeRadiosity sample
+- RRVector::clear(), similar to std::vector::clear()
+
+\section news32 ------------------------------------ 2007.9.11 -------------------------------------
+
+NEWS
+
+- RRLight::createPointLightRadiusExp()
+- RRLight::createSpotLightRadiusExp()
+- RRLight::createPointLightPoly()
+- RRLight::createSpotLightPoly()
+  \n new light variants with non-physical distance attenuations
+
+\section news31 ------------------------------------ 2007.8.31 -------------------------------------
+
+NEWS
+
+- sample MultiMeshCollider shows ray test against static scene with multiple meshes
+- RRMesh::createTransformed() creates copy of mesh, transformed by matrix
+- RRMesh::createVertexBufferRuler() creates mesh that look identical,
+  \n but its vertex numbering is directive for vertex buffers created by RRDynamicSolver
+  \n (vertex buffers otherwise use original vertex numbering valid before filters and optimizers
+  were applied to mesh)
+
+
+\section news30 ------------------------------------ 2007.8.24 -------------------------------------
+
+CHANGES
+
+- removed Water sample
+
+\section news29 ------------------------------------ 2007.8.21 -------------------------------------
+
+NEWS
+
+- Support for per-pixel materials for higher quality lighting.
+  \n Suitable for diffuse/specular/transparency textures, even procedural ones.
+  \n Specified by RRObject::getPointMaterial() and RRSideBits::pointDetails.
+  \n Automatically used by solvers.
+- proper reflection and refraction, creates caustics etc (rewritten final gather pass)
+- antialiased shadows (were aliased in scenes lit by RRLight)
+
+CHANGES
+
+- features gone with old final gather, to be removed or reworked
+  \n RRDynamicSolver::UpdateParameters::insideObjectsTreshold
+  \n RRDynamicSolver::UpdateParameters::rugDistance
+  \n RRSideBits::legal
+- stitchDistance renamed to vertexWeldDistance
+- default SmoothingParameters disable minFeatureSize and limit vertex weld to identical vertices
+
+\section news28 ------------------------------------ 2007.8.4 -------------------------------------
+
+CHANGES
+
+- solver 2x faster on dualcore when exe made by vs2003.
+  Calls LightsprintCore.dll made by vs2005.
+
+\section news27 ------------------------------------ 2007.7.28 -------------------------------------
+
+NEWS
+
+- improved reporting:
+  \n RRReporter supports filtering, indentation, verbosity levels
+  \n RRReportType created out of simpler RRReporter::Type
+  \n RRReportInterval added for reporting processes with time taken
+
+CHANGES
+
+- contents of include/Lightsprint/DemoEngine moved to include/Lightsprint/GL
+  \n (libraries were merged recently, so header directories merge too)
+
+\section news26 ------------------------------------ 2007.7.22 -------------------------------------
+
+CHANGES
+
+- when object is deleted, correct heap is automatically used,
+  so it's safer to mix vs2003/vs2005 and demo/release runtimes in 1 project
+- libraries DemoEngine and RRGPUOpenGL merged into LightsprintGL
+- namespaces de and rr_gl merged into rr_gl
+- samples in debug configuration are linked with release libraries
+- automatic dll linking (using \#pragma) has new rules:
+  - default is automatic link of Release DLL
+  - \#define RR_DEBUG / RR_GL_DEBUG selects Debug DLL
+  - \#define RR_MANUAL_LINK / RR_GL_MANUAL_LINK disables automatic DLL linking
+    (prefix RR_GL_ is for LightsprintGL, RR_ is for LightsprintCore)
+- 3% faster ray-scene intersections (1.5% faster GI)
+
+\section news25 ------------------------------------ 2007.7.8 -------------------------------------
+
+NEWS
+
+- bent normal support, both per pixel and per vertex.
+  \n See new parameters in updateLightmap(), updateLightmaps(), updateVertexBuffers()
+
+CHANGES
+
+- LightsprintCore independent to DemoEngine
+
+\section news24 ------------------------------------ 2007.6.23 -------------------------------------
+
+NEWS
+
+- RRIlluminationPixelBuffer::create() offers new map filtering options
+
+\section news23 ------------------------------------ 2007.6.19 -------------------------------------
+
+NEWS
+
+- RRDynamicSolver::UpdateParams::locality for more local illumination
+
+CHANGES
+
+- removed STL from API (better compatibility, fixed STLport issue)
+  \n warning: RRObjects and RRLights are similar to std::vector, not identical
+
+\section news22 ------------------------------------ 2007.6.18 -------------------------------------
+
+NEWS
+
+- VS2003 support
+
+CHANGES
+
+- 50% faster lightmap precalculations
+- RRMesh+RRCollider+RRVision merged into LightsprintCore library
+- samples renamed to better reflect their contents:
+  \n HelloDemoEngine -> PenumbraShadows
+  \n HelloRealtimeRadiosity -> RealtimeRadiosity
+  \n HelloVision -> HelloStaticSolver
+
+\section news21 ------------------------------------ 2007.6.12 -------------------------------------
+
+NEWS
+
+- RRIlluminationEnvironmentMap::createUniform()
+
+\section news20 ------------------------------------ 2007.6.8 -------------------------------------
+
+NEWS
+
+- sample CPULightmaps, GPU-less lightmap precalculator
+- RRIlluminationPixelBuffer::create() in system memory
+- RRIlluminationPixelBuffer::load() into system memory
+- RRIlluminationEnvironmentMap::create() in system memory
+- RRIlluminationEnvironmentMap::load() into system memory
+
+CHANGES
+
+- RRVec4 and RRColorRGBAF operators use all 4 components (was 3)
+- old RRVec4 becomes RRVec3p (operators use 3 components)
+- Texture create/load parameters magfilter, minfilter, wrapS, wrapT
+  are mandatory
+
+\section news19 ------------------------------------ 2007.5.31 -------------------------------------
+
+CHANGES
+
+- huge memory savings when subdivision is turned off, prevents quick out of memory
+- include/Lightsprint/RRGPUOpenGL.h
+  \n include/Lightsprint/RRGPUOpenGL/LightmapViewer.h
+  \n include/Lightsprint/RRGPUOpenGL/RendererOfRRObject.h
+  \n include/Lightsprint/RRGPUOpenGL/RendererOfScene.h
+  \n ->
+  \n include/Lightsprint/GL/RRDynamicSolverGL.h
+  \n include/Lightsprint/GL/LightmapViewer.h
+  \n include/Lightsprint/GL/RendererOfRRObject.h
+  \n include/Lightsprint/GL/RendererOfScene.h
+
+\section news18 ------------------------------------ 2007.5.25 -------------------------------------
+
+NEWS
+
+- Windows Vista support
+- Visual Studio 2005 SP1 support
+- "day edition" - light computed into layers, layers are blended at replay time
+- updateVertexBuffer() a updateVertexBuffers() support RRLights a RREnvironment light sources
+- support for float textures
+- support for cube textures stored in one 2d image (.hdr)
+- AmbientOcclusion sample
+
+CHANGES
+
+- RRIllumination library removed, is part of RRVision library now
+- increased compaibility via private assemblies in bin/win32
+- renamed RRDynamicSolver::Lights to RRLights
+
+\section news17 ------------------------------------ 2007.5.2 -------------------------------------
+
+NEWS
+
+- rr_gl::RendererOfScene, renders scene from RRDynamicSolver
+
+CHANGES
+
+- more flexible updates of RRDynamicSolver illumination
+  - RRDynamicSolver::calculate() doesn't update illumination buffers
+  - new RRDynamicSolver::getSolutionVersion() helps with timing of updates
+  - new RRDynamicSolver::updateVertexBuffer()
+  - new RRDynamicSolver::updateVertexBuffers() does work previously done by calculate(), with more options
+  - more flexible RRDynamicSolver::updateLightmaps()
+- renamed RRObjectIllumination::Channel -> RRObjectIllumination::Layer
+
+\section news16 ------------------------------------ 2007.4.20 -------------------------------------
+
+NEWS
+
+- de::Water, renders water with reflection and waves
+- sample Water, renders water with reflection and waves
+
+\section news15 ------------------------------------ 2007.4.13 -------------------------------------
+
+NEWS
+
+- multiple static or dynamic solvers may run in parallel
+- Lightmaps sample
+
+CHANGES
+
+- RealtimeRadiosity library merged into Vision
+- name changes
+  \n file RRVision.h -> RRObject.h, RRStaticSolver.h
+  \n file RRRealtimeRadiosity.h -> RRDynamicSolver.h
+  \n class RRScene -> RRStaticSolver
+  \n class RRRealtimeRadiosity -> RRDynamicSolver
+  \n class RRRealtimeRadiosity::Object -> RRIlluminatedObject
+  \n class RRRealtimeRadiosity::Objects -> RRObjects
+  \n class RRRealtimeRadiosityGL -> RRDynamicSolverGL
+  \n func RRRealtimeRadiosity::getScene() -> getStaticSolver()
+- interface of adapters unified and cleaned up
+
+\section news14 ------------------------------------ 2007.3.20 -------------------------------------
+
+NEWS
+
+- Debug DLL configuration added
+- Collada and Quake3 wrappers added to samples
+- IT_BSP_FASTER, new intersection technique between IT_BSP_FAST and IT_BSP_FASTEST
+
+CHANGES
+
+- RRObject contains RRChanneledData interface
+- getTriangleNormals/getTriangleMapping moved from RRObject to RRMesh
+- RRSurface renamed to RRMaterial
+- material numbers removed from API (were in RRObject)
+
+\section news13 ------------------------------------ 2007.2.28 -------------------------------------
+
+NEWS
+
+- Texture::save() saves texture to file
+- LightsprintGL supports save & load of RRIlluminationPixelBuffer and RRIlluminationEnvironmentMap
+- RRRealtimeRadiosity::IlluminationMapParameters structure
+  with parameters of final gathering
+
+\section news12 ------------------------------------ 2007.2.7 -------------------------------------
+
+NEWS
+
+- final gathering,
+  \n used internally, boosts quality of ambient maps
+- RRRealtimeRadiosity::updatePixelBuffer,
+  \n manual request for update of ambient map
+- extended RRRealtimeRadiosity::Request,
+  \n finer control of data updates in RRRealtimeRadiosity::calculate()
+
+CHANGES
+
+- new RRGPUOpenGL library, previously part of HelloRealtimeRadiosity
+- DemoEngine depends on GLEW library, previously part of DemoEngine
+- DemoEngine depends on FreeImage library, used internally by de::Texture::load()
+
+\section news11 ------------------------------------ 2007.1.16 -------------------------------------
+
+CHANGES
+
+- DemoEngine API cleaned (reduced from 16 to 9 classes) and moved to namespace de
+
+\section news10 ------------------------------------ 2007.1.6 -------------------------------------
+
+NEW FEATURES
+
+- HelloDemoEngine sample
+
+CHANGES
+
+- DemoEngine doesn't deppend on Lightsprint engine
+- 8x faster detection of direct illumination in HelloRealtimeRadiosity
+
+\section news9 ------------------------------------- 2007.1.2 -------------------------------------
+
+NEW FEATURES
+
+- RRScene::SmoothingParameters 
+  \n illumination smoothing parameters, set per object
+  \n obsoletes RRScene states MIN_FEATURE_SIZE and MAX_SMOOTH_ANGLE
+- RRObject::createObjectWithPhysicalSurfaces
+  \n converts surfaces from custom to physical scale
+  \n simplifies work in custom scale
+- adaptive subdivision may be turned on
+
+CHANGES
+
+- 13% faster radiosity solver
+- RRScene simplified, calculates with 1 world space object
+  \n use createMultiObject to calculate with multiple objects
+  \n use createWorldSpaceObject() to calculate with transformed object
+- RRRealtimeRadiosity expects surfaces in custom scale
+  \n simplification, you don't have to convert them to physical scale
+- RRScaler interface changed from scalar to more efficient vector operation
+- RRRadiometricMeasure extended to support optional
+  scale, direct/indirect, smooth
+  \n simplifies access to physical scale values
+  \n obsoletes RRScene states GET_SOURCE, GET_REFLECTED, GET_SMOOTH
+- RRRealtimeRadiosity::updateEnvironmentMaps supports precise and fast mode
+- RRScene states removed
+  \n (SceneStateU, SceneStateF, resetStates, getState, setState, getStateF, setStateF)
+- getScaler/setScaler moved from RRScene to RRRealtimeRadiosity
+- renamed RRObjectAdditionalIllumination -> RRObjectWithIllumination
+- renamed createAdditionalIllumination -> createObjectWithIllumination
+- renamed s/getAdditionalMeasure -> s/getTriangleIllumination
+
+\section news8 ------------------------------------- 2006.11.16 -------------------------------------
+
+NEW FEATURES
+
+- dynamic object illumination, see RRIlluminationEnvironmentMap
+- RR_INTERFACE_OK
+  \n check whether correct dll is used
+
+CHANGES
+
+- 5% faster radiosity solver
+- smoother HelloRealtimeRadiosity sample
+
+\section news7 ------------------------------------- 2006.10.5 -------------------------------------
+
+CHANGES
+
+- parallelized parts of code, up to 30% faster on dualcore CPU
+
+\section news6 ------------------------------------- 2006.9.20 -------------------------------------
+
+NEW FEATURES
+
+- Illumination library
+  \n calculated illumination storage
+  \n extends code previously placed in RRIllumPrecalculated.h and RRIllumPrecalculatedSurface.h
+- lightmap support via rr::RRIlluminationPixelBuffer
+- rr::RRIlluminationPixelBufferInOpenGL
+  \n implementation of lightmap in OpenGL
+
+CHANGES
+
+- libraries depend on msvcrt80.dll, use for example
+  Microsoft's public vcredist_x86.exe to install it on your machines
+- RRObject::getTriangleMapping() default implementation
+  generates improved unwrap
+
+\section news5 ------------------------------------- 2006.9 -------------------------------------
+
+NEW FEATURES
+
+- Math: components(), sum(), avg(), length(), length2(), normalize(), normalized() on rr::RRVec2, rr::RRVec3
+
+CHANGES
+
+- HelloRealtimeRadiosity: controls changed to FPS classic
+- HelloRealtimeRadiosity: improved performance on multicore CPU
+
+FIXES
+
+- RealtimeRadiosity: not updated vertex buffers when primary light completely disappears
+- HelloRealtimeRadiosity: incorrect illum if you loaded something 50+ x bigger than sample scene
+- HelloRealtimeRadiosity: backprojection from spotlight
+
+\section news4 ------------------------------------- 2006.8 -------------------------------------
+
+NEW FEATURES
+
+- RealtimeRadiosity library
+  \n computes radiosity in dynamic scenes
+- DemoEngine library
+  \n engine replacement for writing demos
+- RRScene::getSubtriangleMeasure()
+  \n provides detailed info on illumination of adaptively subdivided mesh
+  \n allows for custom generation of lightmaps
+- rr::RRCollider::intersectBatch()
+  \n searches collisions on all cores/CPUs at once
+- rr::RRChanneledData
+  \n extends rr::RRMesh and rr::RRObject to allow storage of
+     additional data of user defined types
+- rr::RRObject::createWorldSpaceObject()
+  \n creates object transformed to worldspace
+  \n brings negative scale support
+- rr::RRObject::createCollisionHandlerFirstVisible()
+  \n finds collision with first visible surface,
+  \n supports even objects mixing both single and doublesided surfaces
+- rr::RRMesh::createOptimizedTriangles()
+  \n creates optimized mesh without degenerated triangles
+- rr::RRSurface::validate() makes surface physically correct
+  \n helps you prepare valid data before start of calculation
+- rr::RRScene::illuminationReset() supports preserving factors
+  \n allows realtime radiosity in static scene without precalculations
+- rr::RRObject::createMultiObject() can optimize triangles
+  \n simplifies work with multiple objects
+- rr::RRMesh::save(), rr::RRMesh::load()
+  \n any mesh can be saved to file and loaded later
+- HelloRealtimeRadiosity sample
+  \n demonstrates realtime radiosity with one dynamic light
+- HelloMesh sample
+  \n demonstrates how to create simple mesh
+- HelloCollider sample
+  \n demonstrates how to detect ray-mesh collision
+- BunnyBenchmark sample
+  \n measures Collider's score in Stanford Bunny Benchmark
+
+CHANGES
+
+- new scheduler and other optimizations in radiosity solver
+  \n 10% faster radiosity calculation on average
+- Math and Mesh become standalone libraries, were part of Collider
+- license info is retrieved from file, not from two char*
+- name changes
+  \n namespaces rrCollider and rrVision -> rr
+  \n RRMeshImporter -> rr::RRMesh
+  \n RRObjectImporter -> rr::RRObject
+  \n RRAdditionalObjectImporter -> rr::RRObjectAdditionalIllumination
+  \n RRMeshSurfaceImporter -> rr::RRCollisionHandler
+  \n RRLicense -> rr::RRLicenseCollider
+  \n RRCollider::getImporter() -> rr::RRCollider::getMesh()
+
+FIXES
+
+- fixed smoothing on complicated meshes
+- fixed delete 0 on rr::RRAligned
+
+\section news3 ------------------------------------- 2006.3.23 -------------------------------------
+
+NEW FEATURES
+
+- rrCollider::RRMeshImporter::MultiMeshPreImportNumber
+  \n defines format of PreImport index in MultiMesh
+  \n simplifies work with MultiMeshes created by rrCollider::RRMeshImporter::createMultiMesh()
+- rrCollider::RRVec2 newly equipped with arithmetic operators
+  \n simplifies work with 2d vectors
+
+CHANGES
+
+- column-major RRMatrix4x4 replaced by row-major rrVision::RRMatrix3x4
+- on several places, behaviour is defined for invalid inputs
+- improved documentation
+
+
+\section news2 ------------------------------------- 2006.3.10 -------------------------------------
+
+NEW FEATURES
+
+- sample "HelloVision"
+  \n performs minimalistic illumination calculation
+  \n gives first insight into Vision usage
+
+
+\section news1 ------------------------------------- 2006.2.26 -------------------------------------
+
+NEW FEATURES
+
+- documentation
+- rrVision::RRSideBits
+  \n precise surface behaviour control
+  \n allows to simulate new range of surfaces
+- rrVision::RRScaler
+  \n automatic input and output scaling
+  \n simplifies work with any units including radiometric,
+  photometric and linear screen space
+- rrVision::RRRadiometricMeasure
+  \n more general interface to many inputs and outputs
+  \n simplifies data transfers
+- rrCollider::RRMeshImporter::verify()
+  \n mesh importer correctness verification
+  \n simplifies testing mesh data and writing new importers
+- rrVision::RRAdditionalObjectImporter
+  \n simplifies transfer of captured direct illumination
+- rrCollider::RRVec2, rrCollider::RRVec3, rrCollider::RRVec4, rrVision::RRMatrix4x4
+  \n primitives with basic mathematics
+  \n simplifies inputs and outputs, adds type control
+- rrVision::RRSceneStatistics
+  \n new statistics of scene processing
+  \n gives insight into processing when needed
+
+CHANGES
+
+- +2% faster on average
+- more input data verifications during calculation
+- \#define RR*_IMPORT no longer needed
+
 */
 
 };
