@@ -11,6 +11,6 @@
 #define IMPORTFREEIMAGE_H
 
 //! Makes it possible to load 2d images, cube maps and vertex buffers via rr::RRBuffer::load().
-void registerLoaderImages();
+void registerLoaderFreeImage();
 
 #endif

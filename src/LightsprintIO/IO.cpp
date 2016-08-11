@@ -32,7 +32,7 @@ if (phase==0 || phase==1)
 	// register more robust implementations first
 
 #ifdef SUPPORT_FREEIMAGE
-	registerLoaderImages();
+	registerLoaderFreeImage();
 #endif
 
 #ifdef SUPPORT_LIGHTSPRINT

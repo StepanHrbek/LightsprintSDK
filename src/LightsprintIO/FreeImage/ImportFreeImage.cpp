@@ -718,7 +718,7 @@ std::string convertExtensionList(const char* freeImageFormat)
 	return result;
 }
 
-void registerLoaderImages()
+void registerLoaderFreeImage()
 {
 	// FreeImage formats
 	for (FREE_IMAGE_FORMAT fif = FREE_IMAGE_FORMAT(0); fif<FreeImage_GetFIFCount(); fif = FREE_IMAGE_FORMAT(fif+1))
