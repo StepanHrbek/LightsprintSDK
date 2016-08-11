@@ -1,9 +1,8 @@
 \!*
 /bin
 /lib
-/Library
-/RL_*
 /tmp
+*.opendb
 *.opensdf
 *.sdf
 *.suo
