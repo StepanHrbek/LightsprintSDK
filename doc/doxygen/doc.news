@@ -30,11 +30,10 @@ NEWS
   - you can export in isolated process, see rr_io::isolateIO()
   - RRScene::preprocessScene() works around limitations of some fileformats
 - Visual Studio 2015 support
-  - for source code licensee, we recommend using Visual Studio 2015 Update 1 (RTM is also good), as
+  - when building from source code, we recommend avoiding Visual Studio 2015 Update 2 (Update 1 and RTM are good, Update 3 not tested yet), as
     <a href="https://connect.microsoft.com/VisualStudio/feedback/details/2563889/compile-error-c2996-recursive-function-template-definition-is-emitted-for-supposedly-compilable-code">Update 2 regression</a>
     <a href="http://stackoverflow.com/questions/21139528/what-does-it-mean-if-visual-studio-2012-throws-a-compile-error-that-shouldnt-ex">(more)</a>
     prevents normal compilation of LightsprintIO.
-    Fix is promised for 2015.3.
     If you need 2015.2, you can try commenting out \#define SUPPORT_LIGHTSPRINT, to build without Lightsprint fileformats.
   - Oculus Rift is not yet working with VS2015 (it works with 2010, 2012, 2013)
 - misc
