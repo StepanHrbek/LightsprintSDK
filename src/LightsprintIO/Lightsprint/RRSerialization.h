@@ -93,8 +93,10 @@ private:
 //------------------------- filename portability --------------------------------
 
 // to be called on deserialized paths
-// fixes Windows paths on non Windows platforms
-// other solution would be to save only generic paths, but we already have many datafiles saved with Windows native paths
+// 1. fixes Windows backslashes on non Windows platforms
+//    other solution would be to save only generic paths, but we already have many datafiles saved with Windows native paths
+// 2. normalizes unicode, see https://en.wikipedia.org/wiki/Filename#Unicode_interoperability
+//    without normalization, copying projects between OSes breaks links because filenames change
 static void fixPath(rr::RRString& filename)
 {
 	try
