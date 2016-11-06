@@ -8,6 +8,17 @@ namespace rr
 
 \page main_news What's new
 
+\section news147 ------------------------------------ 2016.xx.xx -------------------------------------
+
+NEWS
+
+- <b>improved \ref main_oculus support</b>
+  - Oculus CV1 support
+  - upgraded from Oculus SDK 0.6 to 1.9
+  - integration moved from LightsprintEd to LightsprintGL library
+  - supported also in Visual Studio 2015
+
+
 \section news146 ------------------------------------ 2016.05.14 -------------------------------------
 
 NEWS

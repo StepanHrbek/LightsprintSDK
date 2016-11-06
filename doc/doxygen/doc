@@ -569,22 +569,21 @@ Material formats (1)
    - Copyright (c) 2013 Oculus VR, Inc. All rights reserved
 
   \section oculus_version Version
-   - version 0.6.0.0 is used internally by LightsprintEd library, it's not visible from outside (no headers or dll files)
+   - version 1.9 is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
 
-  \section oculus_build Installing/building LibOVR
-   Only for LightsprintEd source code licensees:
-   - install <a href="http://oculusvr.com/">Oculus VR SDK</a>
+  \section oculus_install Installing LibOVR
+   Only for LightsprintGL source code licensees:
+   - install <a href="http://oculusvr.com/">Oculus SDK</a>
    - set environment variable OCULUS_DIR to point to LibOVR dir inside Oculus SDK, so e.g. c:\\OculusSDK\\LibOVR
 
   \section oculus_remove Removing LibOVR
-   Only for LightsprintEd source code licensees:
+   Only for LightsprintGL source code licensees:
    If you wish to remove Oculus Rift support
-   - remove <code>\#define SUPPORT_OCULUS</code> from LightsprintEd project files and build as usual
+   - remove <code>\#define SUPPORT_OCULUS</code> from LightsprintGL project files and build as usual
 
   \section oculus_integr Integrating LibOVR
-   So far LibOVR is not part of Lightsprint SDK, you need to install it separately.
-   But version 0.6 is much smaller, just a shim, so size is not problem.
-   Is it good idea to make it part of Lightsprint SDK?
+   LibOVR is not part of Lightsprint SDK, you need to install it separately.
+   Would it be good idea to make it part of Lightsprint SDK?
 
    <b>-</b> We would have to integrate Oculus build into Lightsprint build; not sure how much work it is for all platforms.
 
@@ -1138,8 +1137,8 @@ Material formats (1)
 
   Setting up third party libraries
   - \ref tpl_boost
+  - \ref tpl_oculus (you need it only if you build LightsprintGL from source code)
   - \ref tpl_wx (you need it only if you build LightsprintEd from source code)
-  - \ref tpl_oculus (you need it only if you build LightsprintEd from source code)
 
   Lightsprint SDK includes solutions for all supported Visual C++ compilers,
   simply open solution and build.
@@ -2996,11 +2995,11 @@ Material formats (1)
 
 \page main_oculus Oculus Rift
 
- Lightsprint SDK supports work with Oculus Rift head mounted display, using Oculus SDK 0.6.
+ Lightsprint SDK supports work with Oculus Rift head mounted display, using Oculus SDK 1.9.
 
  \image html stereo_oculus.jpg
 
- \section oculus_user User's guide
+ \section oculus_user User's guide (for Oculus 0.6, needs update!)
 
   Oculus runtime 0.6 had two limitations for OpenGL renderers:
   - users need to turn off desktop composition / Aero (otherwise image is not smooth, hurts eyes)
@@ -3029,57 +3028,8 @@ Material formats (1)
 
  \section oculus_programmer Programmer's guide
 
-  If you wish to support Oculus Rift outside of our scene viewer, or if you rebuild scene viewer from source code, you need Oculus SDK.
-  We don't ship it with Lightsprint SDK, it is up to you to get it and build it ("libovr" library).
-
-  <b>Following examples were written for Oculus SDK 0.3, they no longer apply to current Oculus SDK.
-  We will update this documentation once Oculus SDK stabilizes a bit.</b>
-
-  Once you have it, initialize Oculus Rift as usual, see Oculus SDK documentation. \subpage oculus_init "Here" you can see how we initialize it.
-
-  To render in stereo, with Oculus Rift distortion correction and chromatic aberation correction, add following plugin at the end of your rendering plugin chain:
-  \code
-PluginParamsStereo ppStereo(pluginChain,SM_OCULUS_RIFT,oculusHMDInfo.DistortionK,
-	oculusHMDInfo.ChromaAbCorrection,1-2.f*oculusHMDInfo.LensSeparationDistance/oculusHMDInfo.HScreenSize);
-  \endcode
-
-  To rotate Lightsprint camera according to Oculus Rift rotation, do
-  \code
-float yaw,pitch,roll;
-oculusFusion.GetPredictedOrientation().GetEulerAngles<OVR::Axis_Y,OVR::Axis_X,OVR::Axis_Z>(&yaw,&pitch,&roll);
-camera.setYawPitchRollRad(RRVec3(yaw,pitch,roll));
-  \endcode
-
-  To improve realism, enforce following camera settings:
-  \code
-camera.setScreenCenter(rr::RRVec2(0));
-camera.eyeSeparation = oculusHMDInfo.InterpupillaryDistance;
-camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(1.3f*oculusHMDInfo.VScreenSize/(2.f*oculusHMDInfo.EyeToScreenDistance))));
-  \endcode
-
-
-\page oculus_init Oculus initialization
-
-  We use following code to initialize Oculus Rift.
-  There is nothing Lightsprint specific in it.
-
-  \code
-OVR::Ptr<OVR::DeviceManager> oculusManager;
-OVR::Ptr<OVR::SensorDevice>  oculusSensor;
-OVR::Ptr<OVR::HMDDevice>     oculusHMD;
-OVR::SensorFusion            oculusFusion;
-OVR::HMDInfo                 oculusHMDInfo;
-  \endcode
-
-  \code
-OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
-oculusManager = *OVR::DeviceManager::Create();
-if (oculusManager) oculusHMD = *oculusManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice();
-if (oculusHMD) oculusSensor = *oculusHMD->GetSensor();
-if (oculusSensor) oculusFusion.AttachToSensor(oculusSensor);
-oculusHMD->GetDeviceInfo(&oculusHMDInfo);
-  \endcode
-
+  First of all, you need to install Oculus SDK and set OCULUS_DIR environment variable, see \ref oculus_install .
+  Then, see very simple interface in PluginOculus.h
 
 
   

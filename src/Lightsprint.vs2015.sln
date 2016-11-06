@@ -44,6 +44,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsprintEd.vs2015", "Lig
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LightsmarkFrontend", "LightsmarkFrontend\LightsmarkFrontend.vcxproj", "{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LightsmarkSetup", "LightsmarkSetup\LightsmarkSetup.vdproj", "{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF} = {3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}
+		{5A0A9769-EA99-4A20-BC0D-74F39FDCCA88} = {5A0A9769-EA99-4A20-BC0D-74F39FDCCA88}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibOVR", "%OCULUS_DIR%\Projects\Windows\VS2015\LibOVR.vcxproj", "{EA50E705-5113-49E5-B105-2512EDC8DDC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug DLL|Win32 = Debug DLL|Win32
@@ -342,6 +350,38 @@ Global
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.ActiveCfg = Release static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|Win32.Build.0 = Release static|Win32
 		{3ABC0316-2C40-4CCA-8A70-C7D22CDA33FF}.Release static|x64.ActiveCfg = Release static|Win32
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Debug DLL|Win32.ActiveCfg = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Debug DLL|Win32.Build.0 = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Debug DLL|x64.ActiveCfg = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Debug DLL|x64.Build.0 = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Debug static|Win32.ActiveCfg = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Debug static|Win32.Build.0 = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Debug static|x64.ActiveCfg = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Debug static|x64.Build.0 = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Release DLL|Win32.ActiveCfg = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Release DLL|Win32.Build.0 = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Release DLL|x64.ActiveCfg = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Release DLL|x64.Build.0 = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Release static|Win32.ActiveCfg = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Release static|Win32.Build.0 = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Release static|x64.ActiveCfg = Release static
+		{837F81B1-F70F-4D44-BB94-5FFAA35C8F79}.Release static|x64.Build.0 = Release static
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Debug DLL|Win32.ActiveCfg = Debug|Win32
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Debug DLL|Win32.Build.0 = Debug|Win32
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Debug DLL|x64.ActiveCfg = Debug|x64
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Debug DLL|x64.Build.0 = Debug|x64
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Debug static|Win32.ActiveCfg = Debug|Win32
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Debug static|Win32.Build.0 = Debug|Win32
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Debug static|x64.ActiveCfg = Debug|x64
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Debug static|x64.Build.0 = Debug|x64
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release DLL|Win32.ActiveCfg = Release|Win32
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release DLL|Win32.Build.0 = Release|Win32
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release DLL|x64.ActiveCfg = Release|x64
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release DLL|x64.Build.0 = Release|x64
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release static|Win32.ActiveCfg = Release|Win32
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release static|Win32.Build.0 = Release|Win32
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release static|x64.ActiveCfg = Release|x64
+		{EA50E705-5113-49E5-B105-2512EDC8DDC6}.Release static|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
