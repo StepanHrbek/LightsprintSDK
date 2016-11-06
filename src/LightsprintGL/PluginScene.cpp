@@ -103,7 +103,7 @@ struct PlaneCompare // comparing RRVec4 looks strange, so we do it here rather t
 		return a.x<b.x || (a.x==b.x && (a.y<b.y || (a.y==b.y && (a.z<b.z || (a.z==b.z && a.w<b.w)))));
 	}
 };
-#endif
+#endif // MIRRORS
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -819,7 +819,7 @@ public:
 
 				}
 			}
-#endif
+#endif // MIRRORS
 		}
 
 #ifndef RR_GL_ES2
