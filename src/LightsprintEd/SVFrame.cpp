@@ -712,6 +712,9 @@ SVFrame::~SVFrame()
 	{
 		rr::RR_SAFE_DELETE(textureLocator);
 	}
+	// GUI elements like panels and m_canvasWindow are deleted automatically by wxWidgets
+	// we only need to delete m_canvas
+	rr::RR_SAFE_DELETE(m_canvas);
 }
 
 
