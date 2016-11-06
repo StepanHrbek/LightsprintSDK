@@ -23,6 +23,7 @@
 #include "Lightsprint/GL/PluginDOF.h"
 #include "Lightsprint/GL/PluginFPS.h"
 #include "Lightsprint/GL/PluginLensFlare.h"
+#include "Lightsprint/GL/PluginOculus.h"
 #include "Lightsprint/GL/PluginPanorama.h"
 #include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PluginShowDDI.h"
@@ -39,9 +40,6 @@
 #include <cctype>
 #include <boost/thread.hpp>
 #include <boost/filesystem.hpp> // extension()==".gsa"
-#ifdef SUPPORT_OCULUS
-	#include "OVR_CAPI_GL.h"
-#endif
 
 //#define SUPPORT_GL_ES
 
@@ -169,16 +167,8 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
 
 	pathTracedBuffer = nullptr;
 	pathTracedAccumulator = 0;
-#ifdef SUPPORT_OCULUS
-	for (unsigned eye=0;eye<2;eye++)
-	{
-		oculusSwapTextureSet[eye] = nullptr;
-	}
-	oculusTracking = false;
-	oculusMirrorTexture = nullptr;
-	oculusMirrorFBO = 0;
-	oculusFrameIndex = 0;
-#endif
+
+	oculusDevice = nullptr;
 }
 
 class SVContext : public wxGLContext
@@ -270,27 +260,7 @@ public:
 
 void SVCanvas::createContextCore()
 {
-#ifdef SUPPORT_OCULUS
-	// [#54] moved from SVCanvas because of https://forums.oculus.com/viewtopic.php?f=20&t=24518
-	{
-		rr::RRReportInterval report(rr::INF2,"Checking Oculus Rift...\n");
-		int numHmds = ovrHmd_Detect();
-		if (numHmds<1)
-			goto no_oculus; // skip both ovrHmd_Create, they would crash
-		ovrResult err = ovrHmd_Create(0,&svframe->oculusHMD);
-		if (!OVR_SUCCESS(err))
-		{
-			ovrResult err = ovrHmd_CreateDebug(ovrHmd_DK2,&svframe->oculusHMD);
-			if (OVR_SUCCESS(err))
-				rr::RRReporter::report(rr::INF2,"Real Oculus Rift not available, faking one.\n");
-			else
-			{
-				no_oculus:
-				rr::RRReporter::report(rr::INF2,"Oculus Rift not available.\n");
-			}
-		}
-	}
-#endif // SUPPORT_OCULUS
+	oculusDevice = rr_gl::OculusDevice::create();
 
 	context = new SVContext(canvasWindow,false,false,false);
 	canvasWindow->SetCurrent(*context);
@@ -584,31 +554,7 @@ SVCanvas::~SVCanvas()
 		return;
 	}
 
-#ifdef SUPPORT_OCULUS
-	// oculus
-	if (oculusMirrorFBO)
-	{
-		glDeleteFramebuffers(1, &oculusMirrorFBO);
-		oculusMirrorFBO = 0;
-	}
-	if (oculusMirrorTexture)
-	{
-		ovrHmd_DestroyMirrorTexture(svframe->oculusHMD, oculusMirrorTexture);
-		oculusMirrorTexture = nullptr;
-	}
-	for (unsigned eye=0;eye<2;eye++)
-		if (oculusSwapTextureSet[eye])
-		{
-			ovrHmd_DestroySwapTextureSet(svframe->oculusHMD,oculusSwapTextureSet[eye]);
-			oculusSwapTextureSet[eye] = nullptr;
-		}
-	// [#54]
-	if (svframe->oculusHMD)
-	{
-		ovrHmd_Destroy(svframe->oculusHMD);
-		svframe->oculusHMD = nullptr;
-	}
-#endif
+	rr::RR_SAFE_DELETE(oculusDevice);
 
 	// pathtracer
 	rr::RR_SAFE_DELETE(pathTracedBuffer);
@@ -1431,26 +1377,6 @@ void SVCanvas::OnContextMenuCreate(wxContextMenuEvent& _event)
 }
 
 
-#ifdef SUPPORT_OCULUS
-template<class T>
-static rr::RRVec3 convertVec3(OVR::Vector3<T> a)
-{
-	return rr::RRVec3(a[0],a[1],a[2]);
-}
-static rr::RRVec4 convertVec4(float a[4])
-{
-	return rr::RRVec4(a[0],a[1],a[2],a[3]);
-}
-//static rr::RRVec4 convertQuat(OVR::Quatf q)
-//{
-//	return rr::RRVec4(q.x,q.y,q.z,q.w);
-//}
-//static rr::RRMatrix3x4 convertMatrix(OVR::Matrix4f m)
-//{
-//	return rr::RRMatrix3x4(m.M[0][0],m.M[0][1],m.M[0][2],m.M[0][3],m.M[1][0],m.M[1][1],m.M[1][2],m.M[1][3],m.M[2][0],m.M[2][1],m.M[2][2],m.M[2][3]);
-//}
-#endif
-
 void SVCanvas::OnIdle(wxIdleEvent& event)
 {
 	if ((svs.initialInputSolver && svs.initialInputSolver->aborting) || (fullyCreated && !solver) || (solver && solver->aborting) || exitRequested)
@@ -1664,14 +1590,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	bool result = false;
 	if (exitRequested || !fullyCreated || !winWidth || !winHeight) return result; // can't display without window
-#ifdef SUPPORT_OCULUS
 	bool oculusRenderingFrame = false;
-	ovrPosef oculusEyePose[2];
-	ovrResult oculusResult;
-	rr_gl::FBO oculusOldFBOState;
-	ovrVector3f oculusHmdToEyeViewOffset[2] = {oculusEyeRenderDesc[0].HmdToEyeViewOffset, oculusEyeRenderDesc[1].HmdToEyeViewOffset};
-	oculusFrameIndex++;
-#endif
 	if (svs.renderLightmaps2d)
 	{
 		if (solver->getObject(svs.selectedObjectIndex))
@@ -1714,30 +1633,12 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		}
 
 
-#ifdef SUPPORT_OCULUS
 		// oculus camera rotation+translation
 		if (svframe->oculusActive())
 		{
-			// read data from oculus
-			ovrFrameTiming oculusFrameTiming = ovrHmd_GetFrameTiming(svframe->oculusHMD, oculusFrameIndex);
-			ovrTrackingState oculusTrackingState = ovrHmd_GetTrackingState(svframe->oculusHMD, oculusFrameTiming.DisplayMidpointSeconds);
-			ovr_CalcEyePoses(oculusTrackingState.HeadPose.ThePose, oculusHmdToEyeViewOffset, oculusEyePose);
-			OVR::Posef oculusHeadPose = oculusTrackingState.HeadPose.ThePose;
-			// apply oculus rotation to our camera
-			static rr::RRVec3 oldOculusRot(0);
-			rr::RRVec3 oculusRot(0);
-			oculusHeadPose.Rotation.GetEulerAngles<OVR::Axis_Y, OVR::Axis_X, OVR::Axis_Z>(&oculusRot.x,&oculusRot.y,&oculusRot.z);
-			OVR::Matrix4f yawWithoutOculus = OVR::Matrix4f::RotationY(svs.camera.getYawPitchRollRad().x-oldOculusRot.x);
-			svs.camera.setYawPitchRollRad(rr::RRVec3(svs.camera.getYawPitchRollRad().x + oculusRot.x-oldOculusRot.x, oculusRot.y, oculusRot.z));
-			oldOculusRot = oculusRot;
-			// apply oculus translation to our camera
-			static rr::RRVec3 oldOculusTrans(0);
-			rr::RRVec3 oculusTrans = convertVec3(yawWithoutOculus.Transform(oculusHeadPose.Translation));
-			svs.camera.setPosition(svs.camera.getPosition()+oculusTrans-oldOculusTrans);
-			oldOculusTrans = oculusTrans;
+			oculusDevice->updateCamera(svs.camera);
 			svframe->OnAnyChange(SVFrame::ES_RIFT,nullptr,nullptr,0);
 		}
-#endif // SUPPORT_OCULUS
 
 
 		// aspect needs update after
@@ -2080,6 +1981,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 
 			// stereo plugin
 			rr_gl::PluginParamsStereo ppStereo(pluginChain);
+			rr_gl::PluginParamsOculus ppOculus(pluginChain);
 			if (svs.renderStereo)
 			{
 				switch (ppShared.camera->stereoMode)
@@ -2095,64 +1997,22 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								ppSharedCamera.stereoSwap = !ppSharedCamera.stereoSwap;
 						}
 						break;
-#ifdef SUPPORT_OCULUS
 					// in oculus rift, adjust camera
 					case rr::RRCamera::SM_OCULUS_RIFT:
 						if (svframe->oculusActive()) // use oculusHMD only if it exists
 						{
-							// configure oculus renderer once in SVCanvas life
-							if (!oculusTracking)
-							{
-								ovrHmd_SetEnabledCaps(svframe->oculusHMD, ovrHmdCap_LowPersistence | ovrHmdCap_DynamicPrediction);
-								oculusResult = ovrHmd_ConfigureTracking(svframe->oculusHMD, ovrTrackingCap_Orientation|ovrTrackingCap_MagYawCorrection|ovrTrackingCap_Position, 0);
-								oculusTracking = true;
-								RR_ASSERT(OVR_SUCCESS(oculusResult));
-								for (unsigned eye=0;eye<2;eye++)
-								{
-									ovrSizei idealTextureSize = ovrHmd_GetFovTextureSize(svframe->oculusHMD, (ovrEyeType)eye, svframe->oculusHMD->DefaultEyeFov[eye], 1);
-									oculusResult = ovrHmd_CreateSwapTextureSetGL(svframe->oculusHMD,GL_RGBA,idealTextureSize.w,idealTextureSize.h,&oculusSwapTextureSet[eye]); // it seems that oculus runtime ignores GL_RGBA request and creates GL_RGB. this leads to "mirror reflections disabled" warning
-									RR_ASSERT(OVR_SUCCESS(oculusResult));
-								}
-								if (1) // mirroring HMD to SV window
-								{
-									oculusResult = ovrHmd_CreateMirrorTextureGL(svframe->oculusHMD,GL_RGBA,svframe->oculusHMD->Resolution.w,svframe->oculusHMD->Resolution.h,(ovrTexture**)&oculusMirrorTexture);
-									RR_ASSERT(OVR_SUCCESS(oculusResult));
-									// [#51] code from oculus sample
-									glGenFramebuffers(1, &oculusMirrorFBO);
-									glBindFramebuffer(GL_READ_FRAMEBUFFER, oculusMirrorFBO);
-									glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ((ovrGLTexture*)oculusMirrorTexture)->OGL.TexId, 0);
-									glFramebufferRenderbuffer(GL_READ_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-									glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-								}
-							}
-
-							ppStereo.oculusTanHalfFov = (void*)svframe->oculusHMD->DefaultEyeFov;
-							// enforce screenCenter 0
-							//svs.camera.setScreenCenter(rr::RRVec2(0));
-							// enforce realistic eyeSeparation
-							svs.camera.eyeSeparation = ovrHmd_GetFloat(svframe->oculusHMD, OVR_KEY_IPD, svs.camera.eyeSeparation);
-							// enforce realistic FOV
-							//float DistortionScale = 1.3f; // the same constant exists in PluginStereo
-							//svs.camera.setFieldOfViewVerticalDeg(RR_RAD2DEG(2*atan(DistortionScale*svframe->oculusHMDInfo.VScreenSize/(2*svframe->oculusHMDInfo.EyeToScreenDistance))));
-
-							if (oculusSwapTextureSet[0] && oculusSwapTextureSet[1]) // if texture creation fails, don't start oculus rendering
-							{
-								for (unsigned eye=0;eye<2;eye++)
-								{
-									oculusSwapTextureSet[eye]->CurrentIndex = (oculusSwapTextureSet[eye]->CurrentIndex + 1) % oculusSwapTextureSet[eye]->TextureCount;
-									ppStereo.oculusW[eye] = oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex].Header.TextureSize.w;
-									ppStereo.oculusH[eye] = oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex].Header.TextureSize.h;
-									ppStereo.oculusTextureId[eye] = ((ovrGLTexture*)&oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex])->OGL.TexId;
-								}
-								oculusRenderingFrame = true;
-							}
+							ppOculus.oculusDevice = oculusDevice;
+							oculusDevice->startFrame(winWidth,winHeight);
+							oculusRenderingFrame = true;
 						}
 						break;
-#endif // SUPPORT_OCULUS
 					default: // prevents clang warning
 						break;
 				}
-				pluginChain = &ppStereo;
+				if (ppShared.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)
+					pluginChain =  &ppOculus;
+				else
+					pluginChain =  &ppStereo;
 			}
 
 			// accumulation plugin
@@ -2727,62 +2587,10 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	}
 
 
-#ifdef SUPPORT_OCULUS
 	if (oculusRenderingFrame)
 	{
-		oculusOldFBOState.restore();
-		rr_gl::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		rr_gl::glBindBuffer(GL_ARRAY_BUFFER, 0); // at least this one is necessary for RL
-
-		// distort image to HMD
-		ovrViewScaleDesc oculusViewScaleDesc;
-		oculusViewScaleDesc.HmdSpaceToWorldScaleInMeters = 1.0f;
-		ovrLayerEyeFov oculusLayerEyeFov;
-		oculusLayerEyeFov.Header.Type = ovrLayerType_EyeFov;
-		oculusLayerEyeFov.Header.Flags = ovrLayerFlag_TextureOriginAtBottomLeft;
-		for (int eye = 0; eye < 2; eye++)
-		{
-			oculusViewScaleDesc.HmdToEyeViewOffset[eye] = oculusHmdToEyeViewOffset[eye];
-			oculusLayerEyeFov.ColorTexture[eye] = oculusSwapTextureSet[eye];
-			oculusLayerEyeFov.Viewport[eye].Pos.x = 0;
-			oculusLayerEyeFov.Viewport[eye].Pos.y = 0;
-			oculusLayerEyeFov.Viewport[eye].Size.w = oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex].Header.TextureSize.w;
-			oculusLayerEyeFov.Viewport[eye].Size.h = oculusSwapTextureSet[eye]->Textures[oculusSwapTextureSet[eye]->CurrentIndex].Header.TextureSize.h;
-			oculusLayerEyeFov.Fov[eye] = svframe->oculusHMD->DefaultEyeFov[eye];
-			oculusLayerEyeFov.RenderPose[eye] = oculusEyePose[eye];
-		}
-		ovrLayerHeader* oculusLayerHeader = &oculusLayerEyeFov.Header;
-		oculusResult = ovrHmd_SubmitFrame(svframe->oculusHMD, oculusFrameIndex, &oculusViewScaleDesc, &oculusLayerHeader, 1);
-		RR_ASSERT(OVR_SUCCESS(oculusResult));
-
-		// mirror distorted image from HMD to window
-		if (oculusMirrorFBO)
-		{
-			// ([#51] code from oculus sample. simply using textureRenderer with oculusMirrorTexture renders black, dunno why)
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, oculusMirrorFBO);
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-			GLint w = ((ovrGLTexture*)oculusMirrorTexture)->OGL.Header.TextureSize.w;
-			GLint h = ((ovrGLTexture*)oculusMirrorTexture)->OGL.Header.TextureSize.h;
-			glBlitFramebuffer(0, h, w, 0, 0, 0, w, h, GL_COLOR_BUFFER_BIT, GL_NEAREST); // nearly any parameter change produces GL_INVALID_OPERATION. reading texture in shader also fails.
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-			/*
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-			if (textureRenderer->render2dBegin(nullptr))
-			{
-				rr_gl::PreserveFlag p0(GL_DEPTH_TEST,false);
-				rr_gl::glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D,((ovrGLTexture*)&oculusMirrorTexture)->OGL.TexId);
-				textureRenderer->render2dQuad(nullptr,0,0,1,1);
-				textureRenderer->render2dEnd();
-			}
-			/* */
-			//rr_gl::glActiveTexture(GL_TEXTURE0);
-			//glBindTexture(GL_TEXTURE_2D,((ovrGLTexture*)oculusMirrorTexture)->OGL.TexId);
-			//textureRenderer->render2D(nullptr,nullptr,0,0,1,1);
-		}
+		oculusDevice->submitFrame();
 	}
-#endif
 
 
 	fpsCounter.addFrame();

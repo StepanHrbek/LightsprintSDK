@@ -17,9 +17,6 @@
 #include "SVDialogs.h"
 #include "wx/aui/aui.h"
 #include "wx/propgrid/propgrid.h"
-#ifdef SUPPORT_OCULUS
-	#include "OVR.h"
-#endif
 
 //#define DEBUG_TEXEL ...not working, will be revived later when needed
 //#define SV_LIGHTFIELD
@@ -201,10 +198,6 @@ namespace rr_ed
 		UnwrapDlg                    unwrapDlg;
 
 		rr::RRTime                   lastInteractionTime; // OnAnyChange() called, e.g. because item from drop-down list was selected (requires several clicks)
-
-#ifdef SUPPORT_OCULUS
-		ovrHmd                       oculusHMD;
-#endif
 
 	private:
 		//! Creates empty frame.

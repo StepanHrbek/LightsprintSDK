@@ -534,9 +534,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	LogWithAbort::logIsOn = !svs.openLogWindows;
 
 	// zero at least the most important variables, before starting dangerous work
-#ifdef SUPPORT_OCULUS
-	oculusHMD = nullptr;
-#endif
 	m_userProperties = nullptr;
 	m_sceneProperties = nullptr;
 	m_giProperties = nullptr;
@@ -552,22 +549,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	// load preferences (must be done very early)
 	userPreferences.load("");
-/* [#54]
-#ifdef SUPPORT_OCULUS
-	{
-		rr::RRReportInterval report(rr::INF2,"Checking Oculus Rift...\n");
-		ovrResult err = ovrHmd_Create(0,&oculusHMD);
-		if (!OVR_SUCCESS(err))
-		{
-			ovrResult err = ovrHmd_CreateDebug(ovrHmd_DK2,&oculusHMD);
-			if (OVR_SUCCESS(err))
-				rr::RRReporter::report(rr::INF2,"Real Oculus Rift not available, faking one.\n");
-			else
-				rr::RRReporter::report(rr::INF2,"Oculus Rift not available.\n");
-		}
-	}
-#endif // SUPPORT_OCULUS
-*/
 
 	// create properties (based also on data from preferences)
 	m_canvasWindow = new CanvasWindow(this);
@@ -729,16 +710,6 @@ SVFrame::~SVFrame()
 	m_mgr.UnInit();
 	if (fullyInited)
 	{
-/* [#54]
-#ifdef SUPPORT_OCULUS
-		rr::RR_SAFE_DELETE(m_canvas); // maybe we need to delete textures in m_canvas before oculusHMD?
-		if (oculusHMD)
-		{
-			ovrHmd_Destroy(oculusHMD);
-			oculusHMD = nullptr;
-		}
-#endif
-*/
 		rr::RR_SAFE_DELETE(textureLocator);
 	}
 }
@@ -1944,11 +1915,7 @@ rr::RRScene* SVFrame::loadScene(const wxString& _filename, bool _transformations
 
 bool SVFrame::oculusActive()
 {
-#ifdef SUPPORT_OCULUS
-	return !svs.renderLightmaps2d && svs.renderStereo && (userPreferences.stereoMode==rr::RRCamera::SM_OCULUS_RIFT) && oculusHMD;
-#else
-	return !svs.renderLightmaps2d && svs.renderStereo && (userPreferences.stereoMode==rr::RRCamera::SM_OCULUS_RIFT);
-#endif
+	return !svs.renderLightmaps2d && svs.renderStereo && (userPreferences.stereoMode==rr::RRCamera::SM_OCULUS_RIFT) && m_canvas->oculusDevice;
 }
 
 

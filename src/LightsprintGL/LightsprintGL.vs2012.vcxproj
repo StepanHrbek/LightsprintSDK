@@ -41,7 +41,7 @@
   <Import Project="..\..\src\configs\rr_lib.props" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;RR_GL_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;SUPPORT_OCULUS;RR_GL_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -54,6 +54,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginDOF.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginFPS.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginLensFlare.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\PluginOculus.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginPanorama.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginScene.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginShowDDI.h" />
@@ -86,6 +87,7 @@
     <ClCompile Include="PluginDOF.cpp" />
     <ClCompile Include="PluginFPS.cpp" />
     <ClCompile Include="PluginLensFlare.cpp" />
+    <ClCompile Include="PluginOculus.cpp" />
     <ClCompile Include="PluginPanorama.cpp" />
     <ClCompile Include="PluginScene.cpp" />
     <ClCompile Include="PluginShowDDI.cpp" />
@@ -127,6 +129,10 @@
     <None Include="..\..\data\shaders\ubershader.vs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="$(OCULUS_DIR)\Projects\Windows\VS2012\LibOVR.vcxproj">
+      <Project>{ea50e705-5113-49e5-b105-2512edc8ddc6}</Project>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
     <ProjectReference Include="..\LightsprintCore\LightsprintCore.vs2012.vcxproj">
       <Project>{a93c8c21-6c34-4bb2-46b3-7c8d93ed3a4a}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

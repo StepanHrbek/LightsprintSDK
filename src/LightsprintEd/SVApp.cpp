@@ -10,11 +10,9 @@
 #include "SVApp.h"
 #include "SVFrame.h"
 #include "SVObjectProperties.h"
+#include "Lightsprint/GL/PluginOculus.h"
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
-#ifdef SUPPORT_OCULUS
-	#include "OVR.h"
-#endif
 
 #define NORMALIZED(x) RR_PATH2RR(bf::system_complete(RR_RR2PATH(x)).make_preferred()) // make paths absolute
 
@@ -60,20 +58,6 @@ void tm_addSeconds(tm& a, double _seconds)
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// oculus logging
-
-#ifdef SUPPORT_OCULUS
-void OVR_CDECL ovrLogCallback(int level, const char* message)
-{
-	rr::RRReporter::report((level==ovrLogLevel_Error)?rr::ERRO:(
-		(level==ovrLogLevel_Info)?rr::INF2:(
-		(level==ovrLogLevel_Debug)?rr::WARN:
-		rr::WARN))
-		,"%s\n",message);
-}
-#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -99,14 +83,7 @@ public:
 		// current dir is wrong here, fix it
 		bf::current_path(s_initPath);
 #endif
-#ifdef SUPPORT_OCULUS
-		ovrInitParams oculusInitParams;
-		oculusInitParams.Flags = 0;
-		oculusInitParams.RequestedMinorVersion = 0;
-		oculusInitParams.LogCallback = &ovrLogCallback;
-		oculusInitParams.ConnectionTimeoutMS = 0;
-		ovrResult err = ovr_Initialize(&oculusInitParams);
-#endif
+		rr_gl::OculusDevice::initialize();
 		svframe = SVFrame::Create(s_svs);
 		return true;
 	}
@@ -119,9 +96,7 @@ public:
 	virtual int OnExit()
 	{
 		svframe = nullptr;
-#ifdef SUPPORT_OCULUS
-		ovr_Shutdown();
-#endif
+		rr_gl::OculusDevice::shutdown();
 		return 0;
 	}
 };

@@ -44,11 +44,12 @@
   <Import Project="..\..\src\configs\rr_lib.props" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;SUPPORT_OCULUS;RR_ED_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;RR_ED_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Lightsprint\Ed\Ed.h" />
+    <ClInclude Include="PluginOculus.h" />
     <ClInclude Include="SVApp.h" />
     <ClInclude Include="SVCanvas.h" />
     <ClInclude Include="SVCustomProperties.h" />
@@ -70,6 +71,7 @@
     <ClInclude Include="SVUserProperties.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="PluginOculus.cpp" />
     <ClCompile Include="SVApp.cpp" />
     <ClCompile Include="SVCanvas.cpp" />
     <ClCompile Include="SVCustomProperties.cpp" />
@@ -89,10 +91,6 @@
     <ClCompile Include="SVUserProperties.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(OCULUS_DIR)\Projects\Windows\VS2013\LibOVR.vcxproj">
-      <Project>{ea50e705-5113-49e5-b105-2512edc8ddc6}</Project>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
     <ProjectReference Include="..\LightsprintCore\LightsprintCore.vs2013.vcxproj">
       <Project>{a93c8c21-6c34-4bb2-46b3-7c8d93ed3a4a}</Project>
     </ProjectReference>

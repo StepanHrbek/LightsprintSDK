@@ -106,6 +106,7 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/GL/PluginDOF.h" \
                          "../../include/Lightsprint/GL/PluginFPS.h" \
                          "../../include/Lightsprint/GL/PluginLensFlare.h" \
+                         "../../include/Lightsprint/GL/PluginOculus.h" \
                          "../../include/Lightsprint/GL/PluginPanorama.h" \
                          "../../include/Lightsprint/GL/PluginScene.h" \
                          "../../include/Lightsprint/GL/PluginShowDDI.h" \

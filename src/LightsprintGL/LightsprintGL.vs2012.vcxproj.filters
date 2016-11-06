@@ -36,6 +36,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginAccumulation.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginToneMappingAdjustment.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginContours.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\PluginOculus.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MultiPass.cpp" />
@@ -66,6 +67,7 @@
     <ClCompile Include="PluginAccumulation.cpp" />
     <ClCompile Include="PluginToneMappingAdjustment.cpp" />
     <ClCompile Include="PluginContours.cpp" />
+    <ClCompile Include="PluginOculus.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\data\shaders\scaledown_filter.fs">

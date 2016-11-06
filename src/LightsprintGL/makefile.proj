@@ -28,6 +28,7 @@ CPP_FLAGS += -DSUPPORT_OFFLINE
 CPP_FLAGS += -DSUPPORT_FIREBALL
 CPP_FLAGS += -DSUPPORT_ARCHITECT
 CPP_FLAGS += -DSUPPORT_LIGHTFIELD
+#CPP_FLAGS += -DSUPPORT_OCULUS
 
 # source files
 
@@ -41,6 +42,7 @@ PluginCube.cpp \
 PluginDOF.cpp \
 PluginFPS.cpp \
 PluginLensFlare.cpp \
+PluginOculus.cpp \
 PluginPanorama.cpp \
 PluginScene.cpp \
 PluginShowDDI.cpp \

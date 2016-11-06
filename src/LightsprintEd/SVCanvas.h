@@ -12,15 +12,13 @@
 
 #include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/GL/PluginFPS.h"
+#include "Lightsprint/GL/PluginOculus.h"
 #include "wx/glcanvas.h"
 #include "wx/joystick.h"
 #include "SVApp.h"
 #include "SVEntityIcons.h"
 #include "SVLightmapViewer.h"
 #include "SVSaveLoad.h"
-#ifdef SUPPORT_OCULUS
-	#include "OVR.h"
-#endif
 
 namespace rr_ed
 {
@@ -149,14 +147,7 @@ namespace rr_ed
 		rr::RRBuffer*              pathTracedBuffer;
 		unsigned                   pathTracedAccumulator;
 
-#ifdef SUPPORT_OCULUS
-		ovrSwapTextureSet*         oculusSwapTextureSet[2];
-		bool                       oculusTracking;
-		ovrTexture*                oculusMirrorTexture;
-		unsigned                   oculusMirrorFBO;
-		unsigned                   oculusFrameIndex;
-		ovrEyeRenderDesc           oculusEyeRenderDesc[2];
-#endif
+		rr_gl::OculusDevice*       oculusDevice;
 
 		LightingIndirect           previousLightIndirect;
 

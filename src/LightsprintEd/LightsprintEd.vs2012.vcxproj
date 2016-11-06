@@ -44,7 +44,7 @@
   <Import Project="..\..\src\configs\rr_lib.props" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;SUPPORT_OCULUS;RR_ED_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;RR_ED_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -89,10 +89,6 @@
     <ClCompile Include="SVUserProperties.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(OCULUS_DIR)\Projects\Windows\VS2012\LibOVR.vcxproj">
-      <Project>{ccffb3f0-ddc4-4f01-8116-a5bfc53b331c}</Project>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
     <ProjectReference Include="..\LightsprintCore\LightsprintCore.vs2012.vcxproj">
       <Project>{a93c8c21-6c34-4bb2-46b3-7c8d93ed3a4a}</Project>
     </ProjectReference>
