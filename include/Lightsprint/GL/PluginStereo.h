@@ -28,22 +28,12 @@ namespace rr_gl
 //! \image html stereo_sidebyside.jpg
 //! </td></tr><tr align=top><td>
 //! \image html stereo_topdown.jpg
-//! </td><td>
-//! \image html stereo_oculus.jpg
 //! </td></tr></table>
 class RR_GL_API PluginParamsStereo : public PluginParams
 {
 public:
-	// For Oculus Rift only, left+right textures to render to.
-	unsigned oculusW[2];
-	unsigned oculusH[2];
-	unsigned oculusTextureId[2];
-
-	//! For Oculus Rift only, ovrFovPort DefaultEyeFov[2]. We type it to void* to avoid Oculus SDK dependency.
-	const void* oculusTanHalfFov;
-
-	//! Convenience ctor, for setting plugin parameters. Additional Oculus Rift parameters are cleared.
-	PluginParamsStereo(const PluginParams* _next) : oculusTanHalfFov(nullptr) {next=_next; oculusW[0]=0; oculusW[1]=0; oculusH[0]=0; oculusH[1]=0; oculusTextureId[0]=0; oculusTextureId[1]=0; oculusTanHalfFov=0;}
+	//! Convenience ctor, for setting plugin parameters.
+	PluginParamsStereo(const PluginParams* _next) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;
