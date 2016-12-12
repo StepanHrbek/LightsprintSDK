@@ -98,6 +98,7 @@ public:
 			fieldOfViewVerticalDeg[eye] = RR_RAD2DEG(2*atan((left+right)/(2*aspect)));
 			screenCenter[eye] = rr::RRVec2(-(left-right)/(left+right),(top-bottom)/(top+bottom));
 			eyeRenderTexture[eye] = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,optimalW,optimalH,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false);
+			eyeRenderTexture[eye]->reset(false,false,true);
 			eyeDepthBuffer[eye]   = Texture::createShadowmap(optimalW,optimalH);
 		}
 	};
