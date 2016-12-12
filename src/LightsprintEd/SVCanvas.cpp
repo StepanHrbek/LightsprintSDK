@@ -24,6 +24,7 @@
 #include "Lightsprint/GL/PluginFPS.h"
 #include "Lightsprint/GL/PluginLensFlare.h"
 #include "Lightsprint/GL/PluginOculus.h"
+#include "Lightsprint/GL/PluginOpenVR.h"
 #include "Lightsprint/GL/PluginPanorama.h"
 #include "Lightsprint/GL/PluginScene.h"
 #include "Lightsprint/GL/PluginShowDDI.h"
@@ -1642,11 +1643,11 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		svs.camera.panoramaFisheyeFovDeg = svs.panoramaFovDeg;
 
 		// create / switch vr device
-		if (svs.camera.stereoMode==rr::RRCamera::SM_OCULUS_RIFT)
+		if (svs.camera.stereoMode==rr::RRCamera::SM_OCULUS_RIFT || svs.camera.stereoMode==rr::RRCamera::SM_OPENVR)
 		if (svs.camera.stereoMode!=vrDeviceType)
 		{
 			rr::RR_SAFE_DELETE(vrDevice);
-			vrDevice = rr_gl::createOculusDevice();
+			vrDevice = (svs.camera.stereoMode==rr::RRCamera::SM_OCULUS_RIFT) ? rr_gl::createOculusDevice() : rr_gl::createOpenVRDevice();
 			vrDeviceType = svs.camera.stereoMode;
 		}
 

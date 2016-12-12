@@ -43,6 +43,7 @@ PluginDOF.cpp \
 PluginFPS.cpp \
 PluginLensFlare.cpp \
 PluginOculus.cpp \
+PluginOpenVR.cpp \
 PluginPanorama.cpp \
 PluginScene.cpp \
 PluginShowDDI.cpp \

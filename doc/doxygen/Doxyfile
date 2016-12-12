@@ -107,6 +107,7 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/GL/PluginFPS.h" \
                          "../../include/Lightsprint/GL/PluginLensFlare.h" \
                          "../../include/Lightsprint/GL/PluginOculus.h" \
+                         "../../include/Lightsprint/GL/PluginOpenVR.h" \
                          "../../include/Lightsprint/GL/PluginPanorama.h" \
                          "../../include/Lightsprint/GL/PluginScene.h" \
                          "../../include/Lightsprint/GL/PluginShowDDI.h" \
@@ -124,6 +125,7 @@ INPUT                  = "../../include/Lightsprint/RRBuffer.h" \
                          "../../include/Lightsprint/GL/TextureRenderer.h" \
                          "../../include/Lightsprint/GL/UberProgram.h" \
                          "../../include/Lightsprint/GL/UberProgramSetup.h" \
+                         "../../include/Lightsprint/GL/VRDevice.h" \
                          "../../include/Lightsprint/Ed/Ed.h" \
                          "../../include/Lightsprint/IO/IO.h" \
                          "../../doc/doxygen/doc" \

@@ -1918,7 +1918,8 @@ rr::RRScene* SVFrame::loadScene(const wxString& _filename, bool _transformations
 
 bool SVFrame::vrActive()
 {
-	return !svs.renderLightmaps2d && svs.renderStereo && (userPreferences.stereoMode==rr::RRCamera::SM_OCULUS_RIFT) && m_canvas->vrDevice;
+	return !svs.renderLightmaps2d && svs.renderStereo && m_canvas->vrDevice
+		 && (userPreferences.stereoMode==rr::RRCamera::SM_OCULUS_RIFT || userPreferences.stereoMode==rr::RRCamera::SM_OPENVR);
 }
 
 

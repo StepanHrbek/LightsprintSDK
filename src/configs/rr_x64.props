@@ -2,7 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup />
   <PropertyGroup>
-    <LibraryPath>$(BOOST_DIR)\lib64;$(WXWIDGETS_DIR)\lib\vc$(PlatformToolsetVersion)_x64_lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(BOOST_DIR)\lib64;$(WXWIDGETS_DIR)\lib\vc$(PlatformToolsetVersion)_x64_lib;$(OPENVR_DIR)\lib\win64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>

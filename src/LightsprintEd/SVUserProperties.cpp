@@ -31,8 +31,8 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 	// stereo
 	{
 		{
-			const wxChar* stereoStrings[] = {_("interlaced"),_("side by side"),_("top down"),_("Oculus Rift"),_("Quad Buffered"),nullptr};
-			const long stereoValues[] = {rr::RRCamera::SM_INTERLACED,rr::RRCamera::SM_SIDE_BY_SIDE,rr::RRCamera::SM_TOP_DOWN,rr::RRCamera::SM_OCULUS_RIFT,rr::RRCamera::SM_QUAD_BUFFERED};
+			const wxChar* stereoStrings[] = {_("interlaced"),_("side by side"),_("top down"),_("Oculus Rift"),_("HTC Vive"),_("Quad Buffered"),nullptr};
+			const long stereoValues[] = {rr::RRCamera::SM_INTERLACED,rr::RRCamera::SM_SIDE_BY_SIDE,rr::RRCamera::SM_TOP_DOWN,rr::RRCamera::SM_OCULUS_RIFT,rr::RRCamera::SM_OPENVR,rr::RRCamera::SM_QUAD_BUFFERED};
 			propStereoMode = new wxEnumProperty(_("Stereo mode"), wxPG_LABEL, stereoStrings, stereoValues);
 			propStereoMode->SetValueFromInt(userPreferences.stereoMode,wxPG_FULL_VALUE);
 			propStereoMode->SetHelpString(_("Interlaced requires passive (polarized) display working in its native resolution. Quad buffered requires compatible GPU and display (consult GPU vendor). Quad buffered activates after application restart."));

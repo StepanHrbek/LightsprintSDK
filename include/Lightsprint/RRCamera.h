@@ -184,7 +184,7 @@ public:
 		SM_INTERLACED       =1, ///< interlaced, with top scanline visible by right eye, for passive displays \image html stereo_interlaced.png
 		SM_SIDE_BY_SIDE     =2, ///< left half is left eye \image html stereo_sidebyside.jpg
 		SM_TOP_DOWN         =3, ///< top half is left eye \image html stereo_topdown.jpg
-		SM_OCULUS_RIFT      =4, ///< for Oculus Rift with SDK 0.4+, later call Oculus SDK to distort image \image html stereo_oculus.jpg
+		SM_OCULUS_RIFT      =4, ///< for Oculus Rift compatible devices \image html stereo_oculus.jpg
 
 		//! quad buffered stereo, GL_BACK_RIGHT+GL_BACK_LEFT
 		//
@@ -194,6 +194,7 @@ public:
 		//! - GeForce does NOT support quad buffered stereo
 		//! - Intel does NOT support quad buffered stereo
 		SM_QUAD_BUFFERED    =5,
+		SM_OPENVR           =6, ///< for OpenVR compatible devices (HTC Vive) \image html stereo_oculus.jpg
 	};
 
 	//! One of camera stereo modes, or SM_MONO for common non-stereo render.

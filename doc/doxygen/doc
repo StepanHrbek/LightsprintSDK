@@ -20,7 +20,7 @@ namespace rr
  - \subpage main_credits
 
  \section root_integrations Integrations
- - \subpage main_oculus
+ - \subpage main_vr
  - \subpage main_vs
  - \subpage main_gamebryo3
  - \subpage main_gamebryo26
@@ -560,6 +560,37 @@ Material formats (1)
    \section wx_patch_accepted Accepted patches
    We fixed crash when scene viewer is opened for second time http://trac.wxwidgets.org/ticket/11787
 
+\page tpl_openvr OpenVR
+  \section openvr_www Web
+   - <a href="https://github.com/ValveSoftware/openvr">github.com/ValveSoftware/openvr</a>
+
+  \section openvr_license License
+   - <a href="https://github.com/ValveSoftware/openvr/blob/master/LICENSE">OpenVR SDK License</a>
+   - Copyright (c) 2015, Valve Corporation. All rights reserved
+
+  \section openvr_version Version
+   - version 1.04 is dynamically linked to LightsprintGL library
+
+  \section openvr_install Installing OpenVR SDK
+   - install <a href="https://github.com/ValveSoftware/openvr">OpenVR SDK</a>
+   - set environment variable OPENVR_DIR to point to OpenVR SDK root, so e.g. c:\\OpenVR
+
+  \section openvr_remove Removing OpenVR SDK
+   If you wish to remove OpenVR support
+   - remove <code>\#define SUPPORT_OPENVR</code> from LightsprintGL project files and build as usual
+
+  \section openvr_integr Integrating OpenVR
+   OpenVR SDK is not part of Lightsprint SDK, you need to install it separately.
+   Would it be good idea to make it part of Lightsprint SDK?
+
+   <b>+</b> Bisect would be easier, old Lightsprint revisions would run out of the box (right now we have to disable OpenVR before building).
+
+   <b>+</b> Stable branches would be possible.
+
+   <b>+</b> Old OpenVR versions would run out of the box. But it's not a big advantage, no one wants to debug old OpenVR when new one is available.
+
+   <b>-</b> Some users might already have OpenVR fixed on different path, and having OpenVR twice is not nice.
+
 \page tpl_oculus LibOVR
   \section oculus_www Web
    - <a href="http://oculusvr.com/">oculusvr.com</a>
@@ -572,12 +603,10 @@ Material formats (1)
    - version 1.9 is used internally by LightsprintGL library, it's not visible from outside (no headers or dll files)
 
   \section oculus_install Installing LibOVR
-   Only for LightsprintGL source code licensees:
    - install <a href="http://oculusvr.com/">Oculus SDK</a>
    - set environment variable OCULUS_DIR to point to LibOVR dir inside Oculus SDK, so e.g. c:\\OculusSDK\\LibOVR
 
   \section oculus_remove Removing LibOVR
-   Only for LightsprintGL source code licensees:
    If you wish to remove Oculus Rift support
    - remove <code>\#define SUPPORT_OCULUS</code> from LightsprintGL project files and build as usual
 
@@ -2993,43 +3022,35 @@ Material formats (1)
 
 
 
-\page main_oculus Oculus Rift
+\page main_vr Oculus Rift, HTC Vive etc
 
- Lightsprint SDK supports work with Oculus Rift head mounted display, using Oculus SDK 1.9.
+ Lightsprint SDK supports work with majority of PC-connected HMD devices
+ - Oculus Rift and compatibles
+ - OpenVR / HTC Vive and compatibles
 
  \image html stereo_oculus.jpg
 
- \section oculus_user User's guide (for Oculus 0.6, needs update!)
+ \section vr_user User's guide
 
-  Oculus runtime 0.6 had two limitations for OpenGL renderers:
-  - users need to turn off desktop composition / Aero (otherwise image is not smooth, hurts eyes)
-  - users need to use "Extend desktop" mode, not "Direct HMD access" mode (otherwise Oculus SDK crashes)
+  SceneViewer tool supports VR
 
-  Newer Oculus runtimes work equally well or better.
+  - Oculus Rift and HTC Vive represent two families of stereo devices supported, so change <code>User preferences / Stereo mode</code> to one of them.
+  - In order to maximize rendering speed, check <code>User preferences / Max FPS</code>
+  - It is good idea to check whether your GPU can maintain rendering at 90Hz before you put HMD on your head, as any drop in fps is very unpleasant for eyes.
+    So it is recommended to check <code>Scene / [x] FPS</code> and tweak settings until you get good enough fps. Aim for 200fps in normal mono render.
+    Try disabling expensive effects to increase fps: <code>[ ] SSGI, [ ] DOF, [ ] Mirror reflections</code>. If it is still not enough, keep unchecking options and see which ones improve fps.
+    If you use many small objects that can be merged, try merging them.
+    If you use realtime lighting, try baking it into lightmaps.
+    If you use more than one GPU, try using only one.
+  - Switch to stereo mode by checking <code>Scene / Camera / Stereo</code>.
 
-  SceneViewer tool supports Oculus Rift with camera tracking and low persistency.
+ \section vr_programmer Programmer's guide
 
-  It is important to check whether your GPU can maintain smooth 60Hz in DK1 or 75Hz in DK2 before you put it on your head, as any drop in fps is very unpleasant for eyes.
-  So it is recommended to check <code>Scene / [x] FPS</code>, and <code>User preferences / [x] Max fps</code>, and tweak settings until you get good enough fps. Aim for 200fps in normal mono render.
-  Try disabling expensive effects to increase fps: <code>[ ] SSGI, [ ] DOF, [ ] Mirror reflections</code>. If it is still not enough, keep unchecking options and see which ones improve fps.
-  If you use many small objects that can be merged, try merging them.
-  If you use realtime lighting, try baking it into lightmaps.
-  If you use more than one GPU, try using only one.
+  First of all, you need to install one of third party SDKs
+  - \ref openvr_install
+  - \ref oculus_install
 
-  In order to render in stereo, check <code>Scene / Camera / Stereo</code>.
-
-  Oculus Rift is one of multiple stereo devices supported, so changing <code>User preferences / Stereo mode</code> to <code>Oculus Rift</code> might be necessary.
-
-  Then drag SceneViewer window to be mostly on Oculus part of desktop, and press alt-3 (to switch to window layout 3, which defaults to fullscreen with all panels closed).
-  Later you can return back to layout 1 by alt-1.
-  Alternatively you can manually close all panels and toggle fullscreen by F11.
-
-  In the end, you should see absolutely smooth image.
-
- \section oculus_programmer Programmer's guide
-
-  First of all, you need to install Oculus SDK and set OCULUS_DIR environment variable, see \ref oculus_install .
-  Then, see very simple interface in PluginOculus.h
+  Then, simply use PluginStereo in your rendering pipeline.
 
 
   

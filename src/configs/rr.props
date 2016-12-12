@@ -17,7 +17,7 @@
   <Import Project="rr_debug.props"   Condition="'$(Configuration)'=='Debug static' or '$(Configuration)'=='Debug DLL'" />
   <Import Project="rr_release.props" Condition="'$(Configuration)'=='Release static' or '$(Configuration)'=='Release DLL'" />
   <PropertyGroup>
-    <IncludePath>..\..\include;..\..\include\Windows;$(BOOST_DIR);$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;$(OCULUS_DIR)\Include;$(OCULUS_DIR)Kernel\Src;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\include;..\..\include\Windows;$(BOOST_DIR);$(WXWIDGETS_DIR)\include;$(WXWIDGETS_DIR)\include\msvc;$(OCULUS_DIR)\Include;$(OCULUS_DIR)Kernel\Src;$(OPENVR_DIR)\Headers;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\lib\$(Platform);$(LibraryPath)</LibraryPath>
     <OutDir Condition="'$(ConfigurationType)'!='StaticLibrary'">..\..\bin\$(Platform)\</OutDir>
     <OutDir Condition="'$(ConfigurationType)'=='StaticLibrary'">..\..\lib\$(Platform)\</OutDir>

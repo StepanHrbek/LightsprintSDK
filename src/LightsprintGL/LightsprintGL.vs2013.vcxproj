@@ -41,7 +41,7 @@
   <Import Project="..\..\src\configs\rr_lib.props" />
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;SUPPORT_OCULUS;RR_GL_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;SUPPORT_OFFLINE;SUPPORT_ARCHITECT;SUPPORT_FIREBALL;SUPPORT_LIGHTFIELD;SUPPORT_INTERPOL;SUPPORT_OCULUS;SUPPORT_OPENVR;RR_GL_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -55,6 +55,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginFPS.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginLensFlare.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginOculus.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\PluginOpenVR.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginPanorama.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginScene.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginShowDDI.h" />
@@ -76,6 +77,7 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\TextureRenderer.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgram.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\UberProgramSetup.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\VRDevice.h" />
     <ClInclude Include="Workaround.h" />
   </ItemGroup>
   <ItemGroup>
@@ -89,6 +91,7 @@
     <ClCompile Include="PluginFPS.cpp" />
     <ClCompile Include="PluginLensFlare.cpp" />
     <ClCompile Include="PluginOculus.cpp" />
+    <ClCompile Include="PluginOpenVR.cpp" />
     <ClCompile Include="PluginPanorama.cpp" />
     <ClCompile Include="PluginScene.cpp" />
     <ClCompile Include="PluginShowDDI.cpp" />

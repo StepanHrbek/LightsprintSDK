@@ -12,9 +12,9 @@ namespace rr
 
 NEWS
 
-- <b>improved \ref main_oculus support</b>
-  - Oculus CV1 support
-  - upgraded from Oculus SDK 0.6 to 1.9
+- <b>improved \ref main_vr support</b>
+  - <b>OpenVR / HTC Vive support</b>
+  - <b>Oculus CV1 support</b> (upgraded from Oculus SDK 0.6 to 1.9)
   - integration moved from LightsprintEd to LightsprintGL library
   - supported also in Visual Studio 2015
 
@@ -86,7 +86,7 @@ NEWS
   - pathtracer supports panorama and stereo modes
   - pathtracer supports rotated environment and blend of two environments (like all other GI solvers)
   - pathtracer properly illuminates objects with negative scale
-- <b>improved \ref main_oculus support</b>
+- <b>improved \ref main_vr support</b>
   - SceneViewer uses all DK2 features (camera, low persistency..) in "extend desktop" mode
   - "direct HMD access" mode will work when Oculus developers fix it
   - it is important to disable expensive effects (SSGI/DOF/mirrors...) to maintain smooth 75Hz, any drop below 75Hz is very unpleasant for eyes
@@ -244,7 +244,7 @@ NEWS
   - configurable aperture/bokeh shape
   - configurable aperture size
   - works by adding new plugin rr_gl::PluginParamsAccumulation somewhere after rr_gl::PluginParamsDOF
-- <b>\ref main_oculus support</b>
+- <b>\ref main_vr support</b>
     <table border=0><tr align=top><td>
     \image html stereo_oculus.jpg
     </td></tr></table>

@@ -9,6 +9,7 @@
 
 #include "Lightsprint/GL/PluginStereo.h"
 #include "Lightsprint/GL/PluginOculus.h"
+#include "Lightsprint/GL/PluginOpenVR.h"
 #include "Lightsprint/GL/PreserveState.h"
 
 namespace rr_gl
@@ -44,6 +45,10 @@ public:
 			case rr::RRCamera::SM_OCULUS_RIFT:
 				// in SM_OCULUS_RIFT mode, pass control to separated Oculus plugin
 				return _renderer.render(&PluginParamsOculus(_pp.next,pp.vrDevice),_sp);
+
+			case rr::RRCamera::SM_OPENVR:
+				// in SM_OPENVR mode, pass control to separated OpenVR plugin
+				return _renderer.render(&PluginParamsOpenVR(_pp.next,pp.vrDevice),_sp);
 
 			default:;
 		}

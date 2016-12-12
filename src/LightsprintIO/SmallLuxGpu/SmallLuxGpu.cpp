@@ -278,10 +278,11 @@ bool saveSmallLuxGpu(const RRScene* scene, const RRString& filename)
 					case RRCamera::SM_SIDE_BY_SIDE:
 						break;
 					case RRCamera::SM_OCULUS_RIFT:
+					case RRCamera::SM_OPENVR:
 						ofs << "scene.camera.horizontalstereo.oculusrift.barrelpostpro.enable = 1\n";
 						break;
 					default:
-						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu camera: does not support this stereo mode (only side-by-side and Oculus Rift).\n"));
+						RR_LIMITED_TIMES(1,RRReporter::report(WARN,"SmallLuxGpu camera: does not support this stereo mode (only side-by-side and Oculus/OpenVR).\n"));
 						break;
 				}
 			}
