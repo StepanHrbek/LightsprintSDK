@@ -202,6 +202,7 @@ class OculusDevice : public VRDevice
 
 public:
 	// scope = permanent, public only for PluginRuntimeOculus
+	float                eyeSeparation; // updated by updateCamera(), read by render()
 	ovrHmdDesc           oculusHmdDesc;
 	TextureBuffer*       oculusEyeRenderTexture[2];
 	DepthBuffer*         oculusEyeDepthBuffer[2];
@@ -292,8 +293,7 @@ public:
 		camera.setPosition(camera.getPosition()+oculusTrans-oldOculusTrans);
 		oldOculusTrans = oculusTrans;
 
-		// overrides camera eyeSeparation, user's custom setting is lost
-		camera.eyeSeparation = fabs(eyeRenderDesc[0].HmdToEyeOffset.x-eyeRenderDesc[1].HmdToEyeOffset.x);
+		eyeSeparation = fabs(eyeRenderDesc[0].HmdToEyeOffset.x-eyeRenderDesc[1].HmdToEyeOffset.x);
 	};
 
 	virtual void startFrame(unsigned mirrorW, unsigned mirrorH)
@@ -456,9 +456,10 @@ public:
 		}
 
 		vr->startFrame(_sp.viewport[2],_sp.viewport[3]);
-
+		rr::RRCamera spcamera = *_sp.camera;
+		spcamera.eyeSeparation = vr->eyeSeparation; // override eyeSeparation
 		rr::RRCamera eye[2]; // 0=left, 1=right
-		_sp.camera->getStereoCameras(eye[0],eye[1]);
+		spcamera.getStereoCameras(eye[0],eye[1]);
 
 		// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
 		// it could be faster, althout I did not see any speedup
@@ -476,7 +477,7 @@ public:
 			float aspect = w/(float)h;
 			float fieldOfViewVerticalDeg = RR_RAD2DEG( 2*atan( (tanHalfFov.LeftTan + tanHalfFov.RightTan)/(2*aspect) ) );
 			rr::RRVec2 screenCenter = rr::RRVec2( -( tanHalfFov.LeftTan - tanHalfFov.RightTan ) / ( tanHalfFov.LeftTan + tanHalfFov.RightTan ), ( tanHalfFov.UpTan - tanHalfFov.DownTan ) / ( tanHalfFov.UpTan + tanHalfFov.DownTan ) );
-			eye[e].setProjection(false,aspect,fieldOfViewVerticalDeg,eye[e].getNear(),eye[e].getFar(),100,screenCenter);
+			eye[e].setProjection(false,aspect,fieldOfViewVerticalDeg,eye[e].getNear(),eye[e].getFar(),100,screenCenter); // override FOV, screenCenter
 
 			PluginParamsShared oneEye = _sp;
 			oneEye.camera = &eye[e];

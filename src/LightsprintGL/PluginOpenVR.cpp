@@ -46,6 +46,7 @@ class OpenVRDevice : public VRDevice
 public:
 	unsigned             optimalW;
 	unsigned             optimalH;
+	float                eyeSeparation;
 	float                aspect;
 	float                fieldOfViewVerticalDeg[2];
 	rr::RRVec2           screenCenter[2];
@@ -88,6 +89,9 @@ public:
 			return;
 		}
 		m_pHMD->GetRecommendedRenderTargetSize( &optimalW, &optimalH );
+		vr::HmdMatrix34_t left = m_pHMD->GetEyeToHeadTransform(vr::Eye_Left);
+		vr::HmdMatrix34_t right = m_pHMD->GetEyeToHeadTransform(vr::Eye_Right);
+		eyeSeparation = right.m[0][3]-left.m[0][3];
 		aspect = optimalW/(float)optimalH;
 		for (unsigned eye=0;eye<2;eye++)
 		{
@@ -150,9 +154,6 @@ public:
 		rr::RRVec3 openvrTrans = yawWithoutOpenVR.getTransformedDirection(m_mat4HMDPose.getTranslation());// convertVec3(yawWithoutOpenVR.Transform(openvrHeadPose.Position));
 		camera.setPosition(camera.getPosition()+openvrTrans-oldOpenVRTrans);
 		oldOpenVRTrans = openvrTrans;
-
-		// overrides camera eyeSeparation, user's custom setting is lost
-		//camera.eyeSeparation = fabs(eyeRenderDesc[0].HmdToEyeOffset.x-eyeRenderDesc[1].HmdToEyeOffset.x);
 	};
 
 	virtual void startFrame(unsigned mirrorW, unsigned mirrorH)
@@ -212,8 +213,8 @@ public:
 			// surprisingly it does not crash if we add some wait here before vr::VR_Shutdown()
 			// but it still does not make system reliable, vr::VR_Init() freezes after +-10 init/shutdown cycles
 			// so better crash immediately
-			vr::VR_Shutdown();
 			m_pHMD = NULL;
+			vr::VR_Shutdown();
 		}
 		for (unsigned eye=0;eye<2;eye++)
 		{
@@ -273,8 +274,10 @@ public:
 
 		vr->startFrame(_sp.viewport[2],_sp.viewport[3]);
 
+		rr::RRCamera spcamera = *_sp.camera;
+		spcamera.eyeSeparation = vr->eyeSeparation; // override eyeSeparation
 		rr::RRCamera eye[2]; // 0=left, 1=right
-		_sp.camera->getStereoCameras(eye[0],eye[1]);
+		spcamera.getStereoCameras(eye[0],eye[1]);
 
 		// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
 		// it could be faster, althout I did not see any speedup
