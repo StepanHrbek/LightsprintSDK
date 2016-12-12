@@ -8,6 +8,7 @@
 // --------------------------------------------------------------------------
 
 #include "Lightsprint/GL/PluginStereo.h"
+#include "Lightsprint/GL/PluginOculus.h"
 #include "Lightsprint/GL/PreserveState.h"
 
 namespace rr_gl
@@ -33,20 +34,27 @@ public:
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 	{
 		const PluginParamsStereo& pp = *dynamic_cast<const PluginParamsStereo*>(&_pp);
-		
-		bool mono = _sp.camera->stereoMode==rr::RRCamera::SM_MONO;
+
+		switch (_sp.camera->stereoMode)
+		{
+			case rr::RRCamera::SM_MONO:
+				// in SM_MONO mode, pass control to next plugin, i.e. do nothing
+				return _renderer.render(_pp.next,_sp);
+
+			case rr::RRCamera::SM_OCULUS_RIFT:
+				// in SM_OCULUS_RIFT mode, pass control to separated Oculus plugin
+				return _renderer.render(&PluginParamsOculus(_pp.next,pp.vrDevice),_sp);
+
+			default:;
+		}
+
 		if (!stereoUberProgram || !stereoTexture)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Stereo plugin failed, rendering mono.\n"));
-			mono = true;
-		}
-		if (mono)
-		{
-			_renderer.render(_pp.next,_sp);
-			return;
+			return _renderer.render(_pp.next,_sp);
 		}
 
-		unsigned viewport[4] = {_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]}; // our temporary viewport, could differ from _sp.viewport
+		std::array<unsigned,4> viewport = _sp.viewport; // our temporary viewport, could differ from _sp.viewport
 
 		// why rendering to multisampled screen rather than 1-sampled texture?
 		//  we prefer quality over minor speedup

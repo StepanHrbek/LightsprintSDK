@@ -147,7 +147,8 @@ namespace rr_ed
 		rr::RRBuffer*              pathTracedBuffer;
 		unsigned                   pathTracedAccumulator;
 
-		rr_gl::OculusDevice*       oculusDevice;
+		rr::RRCamera::StereoMode   vrDeviceType;
+		rr_gl::VRDevice*           vrDevice;
 
 		LightingIndirect           previousLightIndirect;
 

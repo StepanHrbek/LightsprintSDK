@@ -173,11 +173,21 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// OculusDeviceImpl
+// OculusDevice
 
-class OculusDeviceImpl : public OculusDevice
+void OVR_CDECL ovrLogCallback(uintptr_t userData, int level, const char* message)
+{
+	rr::RRReporter::report((level==ovrLogLevel_Error)?rr::ERRO:(
+		(level==ovrLogLevel_Info)?rr::INF2:(
+		(level==ovrLogLevel_Debug)?rr::WARN:
+		rr::WARN))
+		,"%s %d\n",message,(int)userData);
+}
+
+class OculusDevice : public VRDevice
 {
 	// scope = permanent
+	bool                 oculusInited;
 	ovrSession           oculusSession;
 	bool                 oculusTexturesCreated;
 	ovrMirrorTexture     oculusMirrorTexture;
@@ -196,10 +206,11 @@ public:
 	TextureBuffer*       oculusEyeRenderTexture[2];
 	DepthBuffer*         oculusEyeDepthBuffer[2];
 
-	OculusDeviceImpl()
+	OculusDevice()
 	{
 		rr::RRReportInterval report(rr::INF2,"Checking Oculus Rift...\n");
 
+		oculusInited = false;
 		oculusSession = nullptr;
 		for (unsigned eye=0;eye<2;eye++)
 		{
@@ -213,16 +224,29 @@ public:
 		oculusMirrorH = 0;
 		oculusFrameIndex = 0;
 
-		ovrGraphicsLuid luid;
-		// [#54] moved from OculusDevice::initialize() because of https://forums.oculus.com/viewtopic.php?f=20&t=24518
-		ovrResult result = ovr_Create(&oculusSession, &luid);
+		ovrInitParams oculusInitParams;
+		oculusInitParams.Flags = 0;
+		oculusInitParams.RequestedMinorVersion = 0;
+		oculusInitParams.LogCallback = &ovrLogCallback;
+		oculusInitParams.ConnectionTimeoutMS = 0;
+		ovrResult result = ovr_Initialize(&oculusInitParams);
 		if (!OVR_SUCCESS(result))
 			rr::RRReporter::report(rr::INF2,"Oculus Rift not available.\n");
 		else
-		if (Compare(luid, GetDefaultAdapterLuid()))
-			rr::RRReporter::report(rr::WARN,"GPU Oculus Rift is connected to is not the default one.\n");
-		else
-			oculusHmdDesc = ovr_GetHmdDesc(oculusSession);
+		{
+			oculusInited = true;
+
+			ovrGraphicsLuid luid;
+			// [#54] moved from OculusDevice::initialize() because of https://forums.oculus.com/viewtopic.php?f=20&t=24518
+			ovrResult result = ovr_Create(&oculusSession, &luid);
+			if (!OVR_SUCCESS(result))
+				rr::RRReporter::report(rr::INF2,"Oculus Rift unavailable.\n");
+			else
+			if (Compare(luid, GetDefaultAdapterLuid()))
+				rr::RRReporter::report(rr::WARN,"GPU Oculus Rift is connected to is not the default one.\n");
+			else
+				oculusHmdDesc = ovr_GetHmdDesc(oculusSession);
+		}
 	};
 
 	virtual bool isOk()
@@ -356,7 +380,7 @@ public:
 		oculusFrameIndex++;
 	};
 
-	virtual ~OculusDeviceImpl()
+	virtual ~OculusDevice()
 	{
 		if (oculusMirrorFBO)
 		{
@@ -379,6 +403,11 @@ public:
 			ovr_Destroy(oculusSession);
 			oculusSession = nullptr;
 		}
+		if (oculusInited)
+		{
+			ovr_Shutdown();
+			oculusInited = false;
+		}
 	};
 };
 
@@ -387,37 +416,12 @@ public:
 //
 // OculusDevice
 
-void OVR_CDECL ovrLogCallback(uintptr_t userData, int level, const char* message)
+VRDevice* createOculusDevice()
 {
-	rr::RRReporter::report((level==ovrLogLevel_Error)?rr::ERRO:(
-		(level==ovrLogLevel_Info)?rr::INF2:(
-		(level==ovrLogLevel_Debug)?rr::WARN:
-		rr::WARN))
-		,"%s %d\n",message,(int)userData);
-}
-
-void OculusDevice::initialize()
-{
-	ovrInitParams oculusInitParams;
-	oculusInitParams.Flags = 0;
-	oculusInitParams.RequestedMinorVersion = 0;
-	oculusInitParams.LogCallback = &ovrLogCallback;
-	oculusInitParams.ConnectionTimeoutMS = 0;
-	ovrResult err = ovr_Initialize(&oculusInitParams);
-	int i=1;
-}
-
-OculusDevice* OculusDevice::create()
-{
-	OculusDevice* od = new OculusDeviceImpl();
-	if (!od->isOk())
-		rr::RR_SAFE_DELETE(od);
-	return od;
-}
-
-void OculusDevice::shutdown()
-{
-	ovr_Shutdown();
+	OculusDevice* vr = new OculusDevice();
+	if (!vr->isOk())
+		rr::RR_SAFE_DELETE(vr);
+	return vr;
 }
 
 
@@ -437,10 +441,10 @@ public:
 	virtual void render(Renderer& _renderer, const PluginParams& _pp, const PluginParamsShared& _sp)
 	{
 		const PluginParamsOculus& pp = *dynamic_cast<const PluginParamsOculus*>(&_pp);
-		const OculusDeviceImpl* or = dynamic_cast<const OculusDeviceImpl*>(pp.oculusDevice);
+		OculusDevice* vr = dynamic_cast<OculusDevice*>(pp.vrDevice);
 
 		bool mono = _sp.camera->stereoMode!=rr::RRCamera::SM_OCULUS_RIFT;
-		if (!mono && (!or || !or->oculusEyeRenderTexture[0] || !or->oculusEyeRenderTexture[1]))
+		if (!mono && !vr)
 		{
 			RR_LIMITED_TIMES(1,rr::RRReporter::report(rr::WARN,"Oculus Rift not available, rendering mono.\n"));
 			mono = true;
@@ -451,18 +455,10 @@ public:
 			return;
 		}
 
+		vr->startFrame(_sp.viewport[2],_sp.viewport[3]);
+
 		rr::RRCamera eye[2]; // 0=left, 1=right
 		_sp.camera->getStereoCameras(eye[0],eye[1]);
-		for (unsigned e=0;e<2;e++)
-		{
-			unsigned w = or->oculusEyeRenderTexture[e]->texSize.w;
-			unsigned h = or->oculusEyeRenderTexture[e]->texSize.h;
-			const ::ovrFovPort& tanHalfFov = or->oculusHmdDesc.DefaultEyeFov[e];
-			float aspect = w/(float)h;
-			eye[e].setAspect(aspect);
-			eye[e].setScreenCenter(rr::RRVec2( -( tanHalfFov.LeftTan - tanHalfFov.RightTan ) / ( tanHalfFov.LeftTan + tanHalfFov.RightTan ), ( tanHalfFov.UpTan - tanHalfFov.DownTan ) / ( tanHalfFov.UpTan + tanHalfFov.DownTan ) ));
-			eye[e].setFieldOfViewVerticalDeg(RR_RAD2DEG( 2*atan( (tanHalfFov.LeftTan + tanHalfFov.RightTan)/(2*aspect) ) ));
-		}
 
 		// GL_SCISSOR_TEST and glScissor() ensure that mirror renderer clears alpha only in viewport, not in whole render target (2x more fragments)
 		// it could be faster, althout I did not see any speedup
@@ -474,29 +470,38 @@ public:
 		// render left and right eye
 		for (unsigned e=0;e<2;e++)
 		{
+			unsigned w = vr->oculusEyeRenderTexture[e]->texSize.w;
+			unsigned h = vr->oculusEyeRenderTexture[e]->texSize.h;
+			const ::ovrFovPort& tanHalfFov = vr->oculusHmdDesc.DefaultEyeFov[e];
+			float aspect = w/(float)h;
+			float fieldOfViewVerticalDeg = RR_RAD2DEG( 2*atan( (tanHalfFov.LeftTan + tanHalfFov.RightTan)/(2*aspect) ) );
+			rr::RRVec2 screenCenter = rr::RRVec2( -( tanHalfFov.LeftTan - tanHalfFov.RightTan ) / ( tanHalfFov.LeftTan + tanHalfFov.RightTan ), ( tanHalfFov.UpTan - tanHalfFov.DownTan ) / ( tanHalfFov.UpTan + tanHalfFov.DownTan ) );
+			eye[e].setProjection(false,aspect,fieldOfViewVerticalDeg,eye[e].getNear(),eye[e].getFar(),100,screenCenter);
+
 			PluginParamsShared oneEye = _sp;
 			oneEye.camera = &eye[e];
 			//oneEye.srgbCorrect = false;
 
-			or->oculusEyeRenderTexture[e]->SetAndClearRenderSurface(or->oculusEyeDepthBuffer[e],oldFBOState); // does not clear
+			vr->oculusEyeRenderTexture[e]->SetAndClearRenderSurface(vr->oculusEyeDepthBuffer[e],oldFBOState); // does not clear
 			// also, it sets GL_FRAMEBUFFER_SRGB. not restoring it at the end of this function feels like error,
 			// but for some reason, restoring it makes sRGB wrong
 
 			// render to textures
-			oneEye.viewport = {0,0,or->oculusEyeRenderTexture[e]->texSize.w,or->oculusEyeRenderTexture[e]->texSize.h};
-
+			oneEye.viewport = {0,0,w,h};
 			glViewport(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
 			glScissor(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			_renderer.render(_pp.next,oneEye);
 
 			oldFBOState.restore(); // OculusRoomTiny sample claims this is necessary workaround. but no effect visible
-			or->oculusEyeRenderTexture[e]->Commit();
+			vr->oculusEyeRenderTexture[e]->Commit();
 		}
 		oldFBOState.restore();
 
 		// restore viewport after rendering stereo (it could be non-default, e.g. when enhanced sshot is enabled)
 		glViewport(_sp.viewport[0],_sp.viewport[1],_sp.viewport[2],_sp.viewport[3]);
+
+		vr->submitFrame();
 	}
 
 	virtual ~PluginRuntimeOculus()
@@ -527,17 +532,9 @@ PluginRuntime* PluginParamsOculus::createRuntime(const PluginCreateRuntimeParams
 namespace rr_gl
 {
 
-void OculusDevice::initialize()
+VRDevice* createOculusDevice()
 {
-}
-
-OculusDevice* OculusDevice::create()
-{
-	return new OculusDevice();
-}
-
-void OculusDevice::shutdown()
-{
+	return nullptr;
 }
 
 PluginRuntime* PluginParamsOculus::createRuntime(const PluginCreateRuntimeParams& params) const

@@ -168,7 +168,8 @@ SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
 	pathTracedBuffer = nullptr;
 	pathTracedAccumulator = 0;
 
-	oculusDevice = nullptr;
+	vrDevice = nullptr;
+	vrDeviceType = rr::RRCamera::SM_MONO;
 }
 
 class SVContext : public wxGLContext
@@ -260,8 +261,6 @@ public:
 
 void SVCanvas::createContextCore()
 {
-	oculusDevice = rr_gl::OculusDevice::create();
-
 	context = new SVContext(canvasWindow,false,false,false);
 	canvasWindow->SetCurrent(*context);
 
@@ -547,14 +546,16 @@ SVCanvas::~SVCanvas()
 #ifdef REPORT_HEAP_STATISTICS
 	_CrtSetAllocHook(s_oldAllocHook);
 #endif
+
+	rr::RR_SAFE_DELETE(vrDevice);
+	vrDeviceType = rr::RRCamera::SM_MONO;
+
 	if (!svs.releaseResources)
 	{
 		// user requested fast exit without releasing resources
 		// save time and don't release scene
 		return;
 	}
-
-	rr::RR_SAFE_DELETE(oculusDevice);
 
 	// pathtracer
 	rr::RR_SAFE_DELETE(pathTracedBuffer);
@@ -1212,7 +1213,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 	// passive movement: possibly rotate camera
 	if (event.Moving() || event.Entering() || event.Leaving())
 	{
-		if (svframe->oculusActive() && svs.fullscreen)
+		if (svframe->vrActive() && svs.fullscreen)
 		{
 			// avoid camera discontinuity when mouse enters viewport
 			if (event.Entering())
@@ -1590,7 +1591,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 	rr::RRReportInterval report(rr::INF3,"display...\n");
 	bool result = false;
 	if (exitRequested || !fullyCreated || !winWidth || !winHeight) return result; // can't display without window
-	bool oculusRenderingFrame = false;
 	if (svs.renderLightmaps2d)
 	{
 		if (solver->getObject(svs.selectedObjectIndex))
@@ -1633,10 +1633,27 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		}
 
 
-		// oculus camera rotation+translation
-		if (svframe->oculusActive())
+		// override parts of svs.camera
+		svs.camera.stereoMode = svs.renderStereo ? svframe->userPreferences.stereoMode : rr::RRCamera::SM_MONO;
+		svs.camera.stereoSwap = svframe->userPreferences.stereoSwap;
+		svs.camera.panoramaMode = svs.renderPanorama ? svs.panoramaMode : rr::RRCamera::PM_OFF;
+		svs.camera.panoramaCoverage = svs.panoramaCoverage;
+		svs.camera.panoramaScale = svs.panoramaScale;
+		svs.camera.panoramaFisheyeFovDeg = svs.panoramaFovDeg;
+
+		// create / switch vr device
+		if (svs.camera.stereoMode==rr::RRCamera::SM_OCULUS_RIFT)
+		if (svs.camera.stereoMode!=vrDeviceType)
 		{
-			oculusDevice->updateCamera(svs.camera);
+			rr::RR_SAFE_DELETE(vrDevice);
+			vrDevice = rr_gl::createOculusDevice();
+			vrDeviceType = svs.camera.stereoMode;
+		}
+
+		// vr camera rotation+translation
+		if (svframe->vrActive())
+		{
+			vrDevice->updateCamera(svs.camera);
 			svframe->OnAnyChange(SVFrame::ES_RIFT,nullptr,nullptr,0);
 		}
 
@@ -1726,14 +1743,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 			solver->calculate(&params);
 		}
-
-		// override parts of svs.camera
-		svs.camera.stereoMode = svs.renderStereo ? svframe->userPreferences.stereoMode : rr::RRCamera::SM_MONO;
-		svs.camera.stereoSwap = svframe->userPreferences.stereoSwap;
-		svs.camera.panoramaMode = svs.renderPanorama ? svs.panoramaMode : rr::RRCamera::PM_OFF;
-		svs.camera.panoramaCoverage = svs.panoramaCoverage;
-		svs.camera.panoramaScale = svs.panoramaScale;
-		svs.camera.panoramaFisheyeFovDeg = svs.panoramaFovDeg;
 
 		// shared plugin data
 		rr_gl::PluginParamsShared ppShared;
@@ -1980,8 +1989,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 				pluginChain = &ppBloom;
 
 			// stereo plugin
-			rr_gl::PluginParamsStereo ppStereo(pluginChain);
-			rr_gl::PluginParamsOculus ppOculus(pluginChain);
+			rr_gl::PluginParamsStereo ppStereo(pluginChain,vrDevice);
 			if (svs.renderStereo)
 			{
 				switch (ppShared.camera->stereoMode)
@@ -1997,22 +2005,10 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 								ppSharedCamera.stereoSwap = !ppSharedCamera.stereoSwap;
 						}
 						break;
-					// in oculus rift, adjust camera
-					case rr::RRCamera::SM_OCULUS_RIFT:
-						if (svframe->oculusActive()) // use oculusHMD only if it exists
-						{
-							ppOculus.oculusDevice = oculusDevice;
-							oculusDevice->startFrame(winWidth,winHeight);
-							oculusRenderingFrame = true;
-						}
-						break;
 					default: // prevents clang warning
 						break;
 				}
-				if (ppShared.camera->stereoMode==rr::RRCamera::SM_OCULUS_RIFT)
-					pluginChain =  &ppOculus;
-				else
-					pluginChain =  &ppStereo;
+				pluginChain =  &ppStereo;
 			}
 
 			// accumulation plugin
@@ -2585,13 +2581,6 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			rr_gl::glDisable(GL_BLEND);
 		}
 	}
-
-
-	if (oculusRenderingFrame)
-	{
-		oculusDevice->submitFrame();
-	}
-
 
 	fpsCounter.addFrame();
 	return result;

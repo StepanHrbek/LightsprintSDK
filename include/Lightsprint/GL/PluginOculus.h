@@ -8,37 +8,17 @@
 //! \brief LightsprintGL | support for Oculus SDK 1.8 devices
 //----------------------------------------------------------------------------
 
-// This used to be part of PluginStereo where it logically belongs.
-// But since there is much more Oculus code than stereo code, and
-// since SteamVR code might come next, it's better to separate.
-
 #ifndef PLUGINOCULUS_H
 #define PLUGINOCULUS_H
 
 #include "Plugin.h"
+#include "VRDevice.h"
 
 namespace rr_gl
 {
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// Oculus device
-
-class RR_GL_API OculusDevice
-{
-public:
-	// interface
-	virtual ~OculusDevice() {};
-	virtual bool isOk() {return false;};
-	virtual void updateCamera(rr::RRCamera& camera) {};
-	virtual void startFrame(unsigned mirrorW, unsigned mirrorH) {};
-	virtual void submitFrame() {};
-
-	// tools
-	static void initialize(); // to be called first
-	static OculusDevice* create(); // can be created and deleted repeatedly, but only one at a time
-	static void shutdown(); // to be called last
-};
+//! Can be created and deleted repeatedly, but only one at a time.
+RR_GL_API VRDevice* createOculusDevice();
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -53,10 +33,10 @@ public:
 class RR_GL_API PluginParamsOculus : public PluginParams
 {
 public:
-	OculusDevice* oculusDevice;
+	VRDevice* vrDevice;
 
 	//! Convenience ctor, for setting plugin parameters. Additional Oculus Rift parameters are cleared.
-	PluginParamsOculus(const PluginParams* _next) : oculusDevice(nullptr) {next=_next; }
+	PluginParamsOculus(const PluginParams* _next, VRDevice* _vrDevice) : vrDevice(_vrDevice) {next=_next; }
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;

@@ -12,6 +12,7 @@
 #define PLUGINSTEREO_H
 
 #include "Plugin.h"
+#include "VRDevice.h"
 
 namespace rr_gl
 {
@@ -26,14 +27,19 @@ namespace rr_gl
 //! \image html stereo_interlaced.png
 //! </td><td>
 //! \image html stereo_sidebyside.jpg
-//! </td></tr><tr align=top><td>
+//! </td><td>
 //! \image html stereo_topdown.jpg
+//! </td><td>
+//! \image html stereo_oculus.jpg
 //! </td></tr></table>
 class RR_GL_API PluginParamsStereo : public PluginParams
 {
 public:
+	//! VR device to use for rendering in SM_OCULUS_RIFT and SM_OPENVR modes.
+	VRDevice* vrDevice;
+
 	//! Convenience ctor, for setting plugin parameters.
-	PluginParamsStereo(const PluginParams* _next) {next=_next;}
+	PluginParamsStereo(const PluginParams* _next, VRDevice* _vrDevice) : vrDevice(_vrDevice) {next=_next;}
 
 	//! Access to actual plugin code, called by Renderer.
 	virtual PluginRuntime* createRuntime(const PluginCreateRuntimeParams& params) const;

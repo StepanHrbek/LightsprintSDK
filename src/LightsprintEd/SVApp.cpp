@@ -10,7 +10,6 @@
 #include "SVApp.h"
 #include "SVFrame.h"
 #include "SVObjectProperties.h"
-#include "Lightsprint/GL/PluginOculus.h"
 #include <boost/filesystem.hpp>
 namespace bf = boost::filesystem;
 
@@ -83,7 +82,6 @@ public:
 		// current dir is wrong here, fix it
 		bf::current_path(s_initPath);
 #endif
-		rr_gl::OculusDevice::initialize();
 		svframe = SVFrame::Create(s_svs);
 		return true;
 	}
@@ -96,7 +94,6 @@ public:
 	virtual int OnExit()
 	{
 		svframe = nullptr;
-		rr_gl::OculusDevice::shutdown();
 		return 0;
 	}
 };

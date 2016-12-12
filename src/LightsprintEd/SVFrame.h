@@ -79,7 +79,7 @@ namespace rr_ed
 		void userPreferencesGatherFromWx();
 		void userPreferencesApplyToWx();
 
-		bool oculusActive(); // true if active (not necessarily fullscreen)
+		bool vrActive(); // true if available (runtime found) and enabled (stereo checked, oculus or steamvr selected) (not necessarily fullscreen)
 
 		//! Loads and returns scene with optional automatic transformations.
 		rr::RRScene* loadScene(const wxString& filename, bool transformations);
