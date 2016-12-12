@@ -483,10 +483,7 @@ public:
 			// but for some reason, restoring it makes sRGB wrong
 
 			// render to textures
-			oneEye.viewport[0] = 0;
-			oneEye.viewport[1] = 0;
-			oneEye.viewport[2] = or->oculusEyeRenderTexture[e]->texSize.w;
-			oneEye.viewport[3] = or->oculusEyeRenderTexture[e]->texSize.h;
+			oneEye.viewport = {0,0,or->oculusEyeRenderTexture[e]->texSize.w,or->oculusEyeRenderTexture[e]->texSize.h};
 
 			glViewport(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
 			glScissor(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);

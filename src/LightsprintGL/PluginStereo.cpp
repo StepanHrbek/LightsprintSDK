@@ -77,10 +77,7 @@ public:
 				oneEye.camera = &eye[swapEyes?1-e:e];
 				{
 					// render to parts of current render target
-					oneEye.viewport[0] = viewport[0];
-					oneEye.viewport[1] = viewport[1];
-					oneEye.viewport[2] = viewport[2];
-					oneEye.viewport[3] = viewport[3];
+					oneEye.viewport = viewport;
 					if (_sp.camera->stereoMode==rr::RRCamera::SM_QUAD_BUFFERED)
 					{
 						if (e==0)

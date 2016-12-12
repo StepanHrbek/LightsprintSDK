@@ -114,10 +114,7 @@ public:
 		cubeCamera.setScreenCenter(rr::RRVec2(0,0));
 		PluginParamsShared sp = _sp;
 		sp.camera = &cubeCamera;
-		sp.viewport[0] = 0;
-		sp.viewport[1] = 0;
-		sp.viewport[2] = size;
-		sp.viewport[3] = size;
+		sp.viewport = {0,0,size,size};
 		for (unsigned side=0;side<6;side++)
 		{
 			// a) six fixed views (world x+, x-, etc)
