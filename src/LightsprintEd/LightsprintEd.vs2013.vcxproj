@@ -49,7 +49,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Lightsprint\Ed\Ed.h" />
-    <ClInclude Include="PluginOculus.h" />
     <ClInclude Include="SVApp.h" />
     <ClInclude Include="SVCanvas.h" />
     <ClInclude Include="SVCustomProperties.h" />
@@ -71,7 +70,6 @@
     <ClInclude Include="SVUserProperties.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="PluginOculus.cpp" />
     <ClCompile Include="SVApp.cpp" />
     <ClCompile Include="SVCanvas.cpp" />
     <ClCompile Include="SVCustomProperties.cpp" />
