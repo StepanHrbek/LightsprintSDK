@@ -23,6 +23,9 @@ namespace rr_gl
 
 //! Renders scene (calls next plugin) twice, once for left eye, once for right eye.
 //
+//! Stereo mode is selected by rr::RRCamera::stereoMode.
+//! For SM_OCULUS_RIFT and SM_OPENVR modes, stereo plugin calls specialized
+//! oculus and openvr plugins, other modes are implemented internally.
 //! <table border=0><tr align=top><td>
 //! \image html stereo_interlaced.png
 //! </td><td>

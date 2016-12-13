@@ -27,6 +27,8 @@ RR_GL_API VRDevice* createOpenVRDevice();
 
 //! Renders scene (calls next plugin) twice, once for left eye, once for right eye.
 //
+//! For camera in SM_OPENVR mode, output is sent to OpenVR HMD.
+//! All other modes fall back to mono rendering.
 //! <table border=0><tr align=top><td>
 //! \image html stereo_oculus.jpg
 //! </td></tr></table>

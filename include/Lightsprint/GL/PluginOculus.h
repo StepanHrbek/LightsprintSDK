@@ -27,6 +27,8 @@ RR_GL_API VRDevice* createOculusDevice();
 
 //! Renders scene (calls next plugin) twice, once for left eye, once for right eye.
 //
+//! For camera in SM_OCULUS_RIFT mode, output is sent to Oculus Rift HMD.
+//! All other modes fall back to mono rendering.
 //! <table border=0><tr align=top><td>
 //! \image html stereo_oculus.jpg
 //! </td></tr></table>
