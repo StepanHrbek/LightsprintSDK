@@ -1,5 +1,5 @@
 
-   LIGHTSMARK 2016                                           v3.0, 2016-0x-xx
+   LIGHTSMARK 2017                                           v3.0, 2017-0x-xx
    __________________________________________________________________________
 
    Lightsmark is free multiplatform GPU benchmark.
@@ -22,13 +22,12 @@
      * AMD/ATI GPUs since Radeon 9500 released in 2002
      * NVIDIA GPUs since GeForce FX released in 2003
      * Intel GPUs since GMA 4500 released in 2008
-     * use the most recent drivers
    - CPU: x86/x64 with SSE
    - RAM: at least 512 MB
    - free disk space: 100 MB
 
-3. What's new in Lightsmark 2016
-   - GI updates in every frame -> smoother framerate, lower fps
+3. What's new in Lightsmark 2017
+   - GI updates in every frame -> smoother framerate
    - default res increased to 1920x1080
    - OSX support (was Windows+Linux only)
 
@@ -54,7 +53,7 @@
 
    Windows notes
    - If you use installer, screenshots can't be saved to data directory,
-     they go to %LOCALAPPDATA%\Lightsmark 2016
+     they go to %LOCALAPPDATA%\Lightsmark 2017
 
 5. Credits
    Created by Stepan Hrbek using

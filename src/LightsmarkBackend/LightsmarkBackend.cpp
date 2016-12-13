@@ -24,7 +24,7 @@ unsigned INSTANCES_PER_PASS;
 //#define CFG_FILE "3+1.cfg"
 //#define CFG_FILE "LightsprintDemo.cfg"
 //#define CFG_FILE "Candella.cfg"
-#define PRODUCT_NAME "Lightsmark 2016"
+#define PRODUCT_NAME "Lightsmark 2017"
 #define CFG_FILE "Lightsmark.cfg"
 //#define CFG_FILE "mgf.cfg"
 //#define CFG_FILE "test.cfg"

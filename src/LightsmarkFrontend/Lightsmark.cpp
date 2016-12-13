@@ -239,7 +239,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 					if (appdata)
 					{
 						char log2[1000];
-						sprintf(log2,"%s\\Lightsmark 2016\\log.txt",appdata);
+						sprintf(log2,"%s\\Lightsmark 2017\\log.txt",appdata);
 						if (FileSize64(log2))
 							ShellExecuteA( nullptr, "open", log2, nullptr, nullptr, SW_SHOWNORMAL );
 					}
