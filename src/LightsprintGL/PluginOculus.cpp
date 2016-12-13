@@ -488,7 +488,10 @@ public:
 			// but for some reason, restoring it makes sRGB wrong
 
 			// render to textures
-			oneEye.viewport = {0,0,w,h};
+			oneEye.viewport[0] = 0;
+			oneEye.viewport[1] = 0;
+			oneEye.viewport[2] = w;
+			oneEye.viewport[3] = h;
 			glViewport(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
 			glScissor(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

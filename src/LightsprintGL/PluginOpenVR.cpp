@@ -302,7 +302,10 @@ public:
 			glEnable(GL_FRAMEBUFFER_SRGB);
 
 			// render to textures
-			oneEye.viewport = {0,0,vr->optimalW,vr->optimalH};
+			oneEye.viewport[0] = 0;
+			oneEye.viewport[1] = 0;
+			oneEye.viewport[2] = vr->optimalW;
+			oneEye.viewport[3] = vr->optimalH;
 			glViewport(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
 			glScissor(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

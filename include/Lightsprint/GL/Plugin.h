@@ -81,7 +81,10 @@ struct PluginParamsShared
 	PluginParamsShared()
 	{
 		camera = nullptr;
-		viewport = {0,0,0,0};
+		viewport[0] = 0;
+		viewport[1] = 0;
+		viewport[2] = 0;
+		viewport[3] = 0;
 		srgbCorrect = false;
 		brightness = rr::RRVec4(1);
 		gamma = 1;
