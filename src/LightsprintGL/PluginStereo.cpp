@@ -43,12 +43,18 @@ public:
 				return _renderer.render(_pp.next,_sp);
 
 			case rr::RRCamera::SM_OCULUS_RIFT:
+				{
 				// in SM_OCULUS_RIFT mode, pass control to separated Oculus plugin
-				return _renderer.render(&PluginParamsOculus(_pp.next,pp.vrDevice),_sp);
+				PluginParamsOculus oculus(_pp.next,pp.vrDevice);
+				return _renderer.render(&oculus,_sp);
+				}
 
 			case rr::RRCamera::SM_OPENVR:
+				{
 				// in SM_OPENVR mode, pass control to separated OpenVR plugin
-				return _renderer.render(&PluginParamsOpenVR(_pp.next,pp.vrDevice),_sp);
+				PluginParamsOpenVR openvr(_pp.next,pp.vrDevice);
+				return _renderer.render(&openvr,_sp);
+				}
 
 			default:;
 		}
