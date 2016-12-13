@@ -27,6 +27,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_048F4BF2D1BC4BEEBD5CCF4145A0A4DA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_077655714FCE48D8B7065CC49B60BD7A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -52,6 +58,12 @@
         "Entry"
         {
         "MsmKey" = "8:_084B80D786D346489E95EF0016D3B1FA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_08A017B6457945BE9491FE4C1F43A170"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -99,6 +111,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_11B264CE4A52431EA3659517457C1FE6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_1362A7CEDC824F8A972CCEACF71160D7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -118,12 +136,6 @@
         "Entry"
         {
         "MsmKey" = "8:_176217DEB4A0443D9E9DE9B072E3B308"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_17B34A921F9942BAB0252444D2791470"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -195,7 +207,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_20DC18EB2B0C41E6A54E8C41C40836D9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_20EECBA6310F4D528E7D5D96221CB482"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_22E64EC70EC64CD18977822532556F51"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -237,6 +261,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2963A96E03E74A4EBF6C62571BD8371B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2A224B7A5F09427A8A608D406DD1B760"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2A69C325B3F34F8995B0106009D772E6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -261,7 +297,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2E42A5A4F54B416EB6E8E5A6C99D5334"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2F2DA27E51F441EDA4C67D06C689A28C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_313FF268C0694BC3BC128E95CD2E4CC5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -274,12 +322,6 @@
         "Entry"
         {
         "MsmKey" = "8:_33135B1B516344BE8BC20EDB8ED204F5"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3343E518D88248F499C9A7013E250DEE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -346,6 +388,12 @@
         "Entry"
         {
         "MsmKey" = "8:_3F65C3CE259145309FDB3AB5287F55A4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3F6F9FC9608E4972BD445FADC1CB83C9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -501,13 +549,31 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_5C61D40BE1DA4BFFABA369551AAF2F88"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5D1782CA18AB41978E2F6D8D3702F52A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+        "MsmKey" = "8:_5D4B73259C6944C99C9D864232B4A538"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_60B5CB7076A7443985C7ECCF0EBF6530"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_61223DBE99AE4E5D8F88DF79C46672A5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -597,13 +663,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_699978C7295645C49134DD653D9D50CF"
+        "MsmKey" = "8:_695D28CEA9AB480FBF8D54F1DF5CFF66"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_6B8B6318411A44B2BBCAFF0EC6A1BE4E"
+        "MsmKey" = "8:_699978C7295645C49134DD653D9D50CF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -657,12 +723,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_71830EFFF49D43BDAE3188B43F88A600"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_721D63BB450748208B8C40CB0C25F1F4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -675,7 +735,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_7381185D26D542BEB62797E943F0D126"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_745347D995FA416FA5E229D848DB5EF3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_745E06D491594FF1A6A7E6B918B6D90D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -700,12 +772,6 @@
         "Entry"
         {
         "MsmKey" = "8:_79ECA6A0212B43BDA5F30B51771BE00C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_7B1D065FB3E341BC84DDADBF2D16AEAD"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -747,7 +813,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7DCC413840B947D586EF5CD886852820"
+        "MsmKey" = "8:_7EA4202A794E4C19AFC5EC67E8F48EB9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -765,6 +831,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_82E4E6B6E7AC432498910FDD0EA54CB9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_82E9BBF8EE6F4002B31700AA6DC7ADAE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -772,6 +844,12 @@
         "Entry"
         {
         "MsmKey" = "8:_843F11F7924C4FEA8B50B351C2D09DE8"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8961ED55823D4958ACA460A414D3604C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -807,12 +885,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8CEAC788B4EA41FC83C8245DDF25080C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_8E271C07222248698799C858FF8ADCDB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -837,12 +909,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9099C9E4A28D4FBF989F93CA2880DD60"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_9274070465204B43A55FE06C0EAF8C8C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -856,6 +922,12 @@
         "Entry"
         {
         "MsmKey" = "8:_93C38A2C351B4CBC95058C4F9361DC6B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_93EE50F4314D40CEACE147ECD85D6AD3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -897,7 +969,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9A545A3F7C474D3F92A442CFB024BA6F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9B22D7CCAABB4BE7BCBB73F9E8B6B9FC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9D3DCBFFFB694B7C91CE721D4C06B520"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -933,6 +1017,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_A21535DEFD3B4A74BE62692233AFE5DE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_A428CA86CE8543FA8141068D10FA92D1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -946,12 +1036,6 @@
         "Entry"
         {
         "MsmKey" = "8:_A54FD0BC79FA41159B8BD9EE1D58484D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_A585E9B6BA514CFD956476AF37CF6768"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -981,6 +1065,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_A98D21B306E04B33A3811E7210D972EF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_A9C4C3EFDDAD40288C25C58DAC483B2C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -999,6 +1089,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_AFA5B2F1884643AE9E8C2D0FB62C473D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B01FBD8969A8463A9B52B1EEEBDC20EC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1006,6 +1102,12 @@
         "Entry"
         {
         "MsmKey" = "8:_B267E8F57D2E4CBBB2AF10031FB38E6E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B2A032FAD5314F4FA655E5E3AF2B1E4E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1083,12 +1185,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_BA72E2677BBB41C6B0778D0A09C63AB1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_BA8C96F910C8442D83D40A16314C2D12"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1161,6 +1257,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C399D8CF4DB143C280C24D9FF77033C4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C4DCA783CE3B47B496D5CBA43E5A8CCE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1203,7 +1305,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C9ACF7156AF84DF7BF02EB8BA69EF3A2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C9E68FDEB70A4733A2A6E7C2EBC1EE6E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C9FFFCE473FC4F45818BB56678E68F17"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1239,13 +1353,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D1A1F7CFF5D648578C443398AFEC304F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D294C8AEAE684B43A05E8B0729CBD1AE"
+        "MsmKey" = "8:_CFFB69AAABFE4620B7DBE19A2C3A336F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1287,7 +1395,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D8AC168709D245ABBD7B7BDAC9398994"
+        "MsmKey" = "8:_DA2C43EDEEA84E438C5FA438041267C2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DAADBF40D1054F88B84ACD4DDD5576BF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1329,6 +1443,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E06352BEB8794216931ABA5ECB351575"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E06B3648ED6A45B5B9A36462C16FBD99"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1359,6 +1479,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E5AF1E4EB15841518AB47EAF8A5E7C13"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E664C994488046F1A81B09CDF5859B07"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1366,6 +1492,12 @@
         "Entry"
         {
         "MsmKey" = "8:_E7339421044F44D8BCEC25D1736972DE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E80645081CC241FBB2EEB9ED839A33B0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1383,13 +1515,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EC9325987B8D48AAB142B289F2A20E91"
+        "MsmKey" = "8:_EBB58EB1BC234DBCA590E48292F3150A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_ECE7ACE8935D480BA85D697F59F795FD"
+        "MsmKey" = "8:_EC9325987B8D48AAB142B289F2A20E91"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1449,6 +1581,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_FA4A5618AC784AF183AC62251C410888"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_FB00A9D560FD4C8F85B3D58127BFBDA7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1471,12 +1609,6 @@
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_7DCC413840B947D586EF5CD886852820"
-        "MsmSig" = "8:_UNDEFINED"
-        }
     }
     "Configurations"
     {
@@ -1485,7 +1617,7 @@
         "DisplayName" = "8:Release static"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:..\\..\\Lightsmark2011.3.0.msi"
+        "OutputFilename" = "8:..\\..\\Lightsmark2017.3.0.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -1527,7 +1659,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "Version" = "8:2.0.50727"
+                "FrameworkVersion" = "8:2.0.50727 "
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=9832"
                 }
@@ -1561,6 +1693,26 @@
             "TargetName" = "8:wood019.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_048F4BF2D1BC4BEEBD5CCF4145A0A4DA"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\avcodec-56.dll"
+            "TargetName" = "8:avcodec-56.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1661,6 +1813,26 @@
             "TargetName" = "8:border003.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_08A017B6457945BE9491FE4C1F43A170"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\LightsprintGL.vs2015.dll"
+            "TargetName" = "8:LightsprintGL.vs2015.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1895,26 +2067,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17B34A921F9942BAB0252444D2791470"
-            {
-            "SourcePath" = "8:..\\LightsmarkFrontend\\Lightsmark.rc"
-            "TargetName" = "8:Lightsmark.rc"
-            "Tag" = "8:"
-            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_186052876AC54B838FAF177B0D8D93A2"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wall_stone102.jpg"
@@ -2135,12 +2287,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20DC18EB2B0C41E6A54E8C41C40836D9"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\glew32.dll"
+            "TargetName" = "8:glew32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20EECBA6310F4D528E7D5D96221CB482"
             {
             "SourcePath" = "8:..\\..\\data\\maps\\cursor.png"
             "TargetName" = "8:cursor.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_22E64EC70EC64CD18977822532556F51"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\avutil-54.dll"
+            "TargetName" = "8:avutil-54.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2275,6 +2467,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2963A96E03E74A4EBF6C62571BD8371B"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\avresample-2.dll"
+            "TargetName" = "8:avresample-2.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A224B7A5F09427A8A608D406DD1B760"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\backend.exe"
+            "TargetName" = "8:backend.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2A69C325B3F34F8995B0106009D772E6"
             {
             "SourcePath" = "8:..\\..\\bin\\win32\\Lightsmark.exe"
@@ -2355,6 +2587,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2E42A5A4F54B416EB6E8E5A6C99D5334"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\libvorbis-0.dll"
+            "TargetName" = "8:libvorbis-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2F2DA27E51F441EDA4C67D06C689A28C"
             {
             "SourcePath" = "8:..\\..\\data\\maps\\txt-5.png"
@@ -2401,26 +2653,6 @@
             "TargetName" = "8:door15.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3343E518D88248F499C9A7013E250DEE"
-            {
-            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC90.CRT\\msvcr90.dll"
-            "TargetName" = "8:msvcr90.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_1C4B12450A5E4A56A025F12E00BD4FAD"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2641,6 +2873,26 @@
             "TargetName" = "8:klink03.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3F6F9FC9608E4972BD445FADC1CB83C9"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\LightsprintCore.vs2015.dll"
+            "TargetName" = "8:LightsprintCore.vs2015.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3155,6 +3407,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5C61D40BE1DA4BFFABA369551AAF2F88"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\swscale-3.dll"
+            "TargetName" = "8:swscale-3.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5D1782CA18AB41978E2F6D8D3702F52A"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\desiree.jpg"
@@ -3175,12 +3447,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5D4B73259C6944C99C9D864232B4A538"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\glut32.dll"
+            "TargetName" = "8:glut32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_60B5CB7076A7443985C7ECCF0EBF6530"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\cart01c.jpg"
             "TargetName" = "8:cart01c.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_61223DBE99AE4E5D8F88DF79C46672A5"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\portaudio_x64.dll"
+            "TargetName" = "8:portaudio_x64.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3475,12 +3787,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_699978C7295645C49134DD653D9D50CF"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_695D28CEA9AB480FBF8D54F1DF5CFF66"
             {
-            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\newspaperfloor2.jpg"
-            "TargetName" = "8:newspaperfloor2.jpg"
+            "SourcePath" = "8:..\\..\\bin\\x64\\embree.dll"
+            "TargetName" = "8:embree.dll"
             "Tag" = "8:"
-            "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3495,12 +3807,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B8B6318411A44B2BBCAFF0EC6A1BE4E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_699978C7295645C49134DD653D9D50CF"
             {
-            "SourcePath" = "8:UninstallLightsmark2011.bat"
-            "TargetName" = "8:UninstallLightsmark2011.bat"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\newspaperfloor2.jpg"
+            "TargetName" = "8:newspaperfloor2.jpg"
             "Tag" = "8:"
-            "Folder" = "8:_EB60A55B498A414FA79500F96C98CA82"
+            "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3675,26 +3987,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_71830EFFF49D43BDAE3188B43F88A600"
-            {
-            "SourcePath" = "8:..\\LightsmarkFrontend\\Lightsmark.bmp"
-            "TargetName" = "8:Lightsmark.bmp"
-            "Tag" = "8:"
-            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_721D63BB450748208B8C40CB0C25F1F4"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\werk01.jpg"
@@ -3735,12 +4027,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7381185D26D542BEB62797E943F0D126"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\avformat-56.dll"
+            "TargetName" = "8:avformat-56.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_745347D995FA416FA5E229D848DB5EF3"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\textile12.jpg"
             "TargetName" = "8:textile12.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_745E06D491594FF1A6A7E6B918B6D90D"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\embree.dll"
+            "TargetName" = "8:embree.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3821,26 +4153,6 @@
             "TargetName" = "8:mov2b.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7B1D065FB3E341BC84DDADBF2D16AEAD"
-            {
-            "SourcePath" = "8:..\\LightsmarkFrontend\\Lightsmark.ico"
-            "TargetName" = "8:Lightsmark.ico"
-            "Tag" = "8:"
-            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3975,23 +4287,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_7DCC413840B947D586EF5CD886852820"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7EA4202A794E4C19AFC5EC67E8F48EB9"
             {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:msvcm90, Version=9.0.21022.8, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=x86"
-                "ScatterAssemblies"
-                {
-                    "_7DCC413840B947D586EF5CD886852820"
-                    {
-                    "Name" = "8:msvcm90.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC90.CRT\\msvcm90.dll"
-            "TargetName" = "8:"
+            "SourcePath" = "8:..\\..\\bin\\x64\\zlib1.dll"
+            "TargetName" = "8:zlib1.dll"
             "Tag" = "8:"
-            "Folder" = "8:_1C4B12450A5E4A56A025F12E00BD4FAD"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4046,6 +4347,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_82E4E6B6E7AC432498910FDD0EA54CB9"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\LightsprintIO.vs2015.dll"
+            "TargetName" = "8:LightsprintIO.vs2015.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_82E9BBF8EE6F4002B31700AA6DC7ADAE"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\oldmetal.jpg"
@@ -4072,6 +4393,26 @@
             "TargetName" = "8:lablue.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8961ED55823D4958ACA460A414D3604C"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\libogg-0.dll"
+            "TargetName" = "8:libogg-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4186,26 +4527,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8CEAC788B4EA41FC83C8245DDF25080C"
-            {
-            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC90.CRT\\msvcp90.dll"
-            "TargetName" = "8:msvcp90.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_1C4B12450A5E4A56A025F12E00BD4FAD"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8E271C07222248698799C858FF8ADCDB"
             {
             "SourcePath" = "8:..\\..\\data\\maps\\txt-indirect-lighting.png"
@@ -4286,26 +4607,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9099C9E4A28D4FBF989F93CA2880DD60"
-            {
-            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC90.OPENMP\\Microsoft.VC90.OpenMP.manifest"
-            "TargetName" = "8:Microsoft.VC90.OpenMP.manifest"
-            "Tag" = "8:"
-            "Folder" = "8:_0D5A8F930A4345E588798A7732D64E1F"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9274070465204B43A55FE06C0EAF8C8C"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\metal_suitcase.tga"
@@ -4352,6 +4653,26 @@
             "TargetName" = "8:book02f.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_93EE50F4314D40CEACE147ECD85D6AD3"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\libvo-aacenc-0.dll"
+            "TargetName" = "8:libvo-aacenc-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4486,12 +4807,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A545A3F7C474D3F92A442CFB024BA6F"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\FreeImage.dll"
+            "TargetName" = "8:FreeImage.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9B22D7CCAABB4BE7BCBB73F9E8B6B9FC"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\aklotz64.jpg"
             "TargetName" = "8:aklotz64.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9D3DCBFFFB694B7C91CE721D4C06B520"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\LightsprintIO.vs2015.dll"
+            "TargetName" = "8:LightsprintIO.vs2015.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4606,6 +4967,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A21535DEFD3B4A74BE62692233AFE5DE"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\avutil-54.dll"
+            "TargetName" = "8:avutil-54.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A428CA86CE8543FA8141068D10FA92D1"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\color30.tga"
@@ -4652,26 +5033,6 @@
             "TargetName" = "8:color03.tga"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A585E9B6BA514CFD956476AF37CF6768"
-            {
-            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC90.OPENMP\\vcomp90.dll"
-            "TargetName" = "8:vcomp90.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_0D5A8F930A4345E588798A7732D64E1F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4766,6 +5127,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A98D21B306E04B33A3811E7210D972EF"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\swscale-3.dll"
+            "TargetName" = "8:swscale-3.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A9C4C3EFDDAD40288C25C58DAC483B2C"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\boo_035.jpg"
@@ -4826,6 +5207,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AFA5B2F1884643AE9E8C2D0FB62C473D"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\LightsprintGL.vs2015.dll"
+            "TargetName" = "8:LightsprintGL.vs2015.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B01FBD8969A8463A9B52B1EEEBDC20EC"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\testlvlbase.tga"
@@ -4852,6 +5253,26 @@
             "TargetName" = "8:txt-global-illumination.png"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B2A032FAD5314F4FA655E5E3AF2B1E4E"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\libvorbis-0.dll"
+            "TargetName" = "8:libvorbis-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5106,26 +5527,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA72E2677BBB41C6B0778D0A09C63AB1"
-            {
-            "SourcePath" = "8:..\\LightsmarkFrontend\\resource.h"
-            "TargetName" = "8:resource.h"
-            "Tag" = "8:"
-            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA8C96F910C8442D83D40A16314C2D12"
             {
             "SourcePath" = "8:..\\..\\data\\maps\\txt-realtime-radiosity.png"
@@ -5366,6 +5767,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C399D8CF4DB143C280C24D9FF77033C4"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\libvorbisenc-2.dll"
+            "TargetName" = "8:libvorbisenc-2.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C4DCA783CE3B47B496D5CBA43E5A8CCE"
             {
             "SourcePath" = "8:..\\..\\bin\\win32\\FreeImage.dll"
@@ -5506,12 +5927,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C9ACF7156AF84DF7BF02EB8BA69EF3A2"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\avformat-56.dll"
+            "TargetName" = "8:avformat-56.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C9E68FDEB70A4733A2A6E7C2EBC1EE6E"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\book01.jpg"
             "TargetName" = "8:book01.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C9FFFCE473FC4F45818BB56678E68F17"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\portaudio_x86.dll"
+            "TargetName" = "8:portaudio_x86.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5626,32 +6087,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D1A1F7CFF5D648578C443398AFEC304F"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CFFB69AAABFE4620B7DBE19A2C3A336F"
             {
-            "SourcePath" = "8:..\\LightsmarkFrontend\\Lightsmark.cpp"
-            "TargetName" = "8:Lightsmark.cpp"
+            "SourcePath" = "8:..\\..\\bin\\x64\\avresample-2.dll"
+            "TargetName" = "8:avresample-2.dll"
             "Tag" = "8:"
-            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D294C8AEAE684B43A05E8B0729CBD1AE"
-            {
-            "SourcePath" = "8:..\\..\\bin\\win32\\fmodex.dll"
-            "TargetName" = "8:fmodex.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5786,12 +6227,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D8AC168709D245ABBD7B7BDAC9398994"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DA2C43EDEEA84E438C5FA438041267C2"
             {
-            "SourcePath" = "8:..\\LightsmarkFrontend\\Lightsmark.vcproj"
-            "TargetName" = "8:Lightsmark.vcproj"
+            "SourcePath" = "8:..\\..\\bin\\x64\\libopus-0.dll"
+            "TargetName" = "8:libopus-0.dll"
             "Tag" = "8:"
-            "Folder" = "8:_BF095A5CADD740A7BFCB12A70646B929"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DAADBF40D1054F88B84ACD4DDD5576BF"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\LightsprintCore.vs2015.dll"
+            "TargetName" = "8:LightsprintCore.vs2015.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5926,6 +6387,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E06352BEB8794216931ABA5ECB351575"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\libopus-0.dll"
+            "TargetName" = "8:libopus-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E06B3648ED6A45B5B9A36462C16FBD99"
             {
             "SourcePath" = "8:..\\..\\data\\maps\\txt-8.png"
@@ -6026,6 +6507,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E5AF1E4EB15841518AB47EAF8A5E7C13"
+            {
+            "SourcePath" = "8:..\\..\\bin\\win32\\avcodec-56.dll"
+            "TargetName" = "8:avcodec-56.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E664C994488046F1A81B09CDF5859B07"
             {
             "SourcePath" = "8:..\\LightsmarkFrontend\\readme.txt"
@@ -6048,10 +6549,30 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E7339421044F44D8BCEC25D1736972DE"
             {
-            "SourcePath" = "8:..\\..\\data\\maps\\Lightsmark.jpg"
-            "TargetName" = "8:Lightsmark.jpg"
+            "SourcePath" = "8:..\\..\\data\\maps\\Lightsmark2017.jpg"
+            "TargetName" = "8:Lightsmark2017.jpg"
             "Tag" = "8:"
             "Folder" = "8:_4B02E7FFFCF240CAB8B63D483016DCD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E80645081CC241FBB2EEB9ED839A33B0"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\libvo-aacenc-0.dll"
+            "TargetName" = "8:libvo-aacenc-0.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6106,12 +6627,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EC9325987B8D48AAB142B289F2A20E91"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EBB58EB1BC234DBCA590E48292F3150A"
             {
-            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\pack001b.jpg"
-            "TargetName" = "8:pack001b.jpg"
+            "SourcePath" = "8:..\\..\\bin\\win32\\libogg-0.dll"
+            "TargetName" = "8:libogg-0.dll"
             "Tag" = "8:"
-            "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
+            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6126,12 +6647,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ECE7ACE8935D480BA85D697F59F795FD"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EC9325987B8D48AAB142B289F2A20E91"
             {
-            "SourcePath" = "8:..\\..\\bin\\win32\\Microsoft.VC90.CRT\\Microsoft.VC90.CRT.manifest"
-            "TargetName" = "8:Microsoft.VC90.CRT.manifest"
+            "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\pack001b.jpg"
+            "TargetName" = "8:pack001b.jpg"
             "Tag" = "8:"
-            "Folder" = "8:_1C4B12450A5E4A56A025F12E00BD4FAD"
+            "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6326,6 +6847,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FA4A5618AC784AF183AC62251C410888"
+            {
+            "SourcePath" = "8:..\\..\\bin\\x64\\libvorbisenc-2.dll"
+            "TargetName" = "8:libvorbisenc-2.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FB00A9D560FD4C8F85B3D58127BFBDA7"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\wood006.jpg"
@@ -6442,6 +6983,17 @@
                     "Property" = "8:_DD30BA5C08C14969A1891967F69C8E13"
                         "Folders"
                         {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_44DA2427846243C7AD8FB7F23F541045"
+                            {
+                            "Name" = "8:x64"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_8BB3278DCDCD43E2AE42E1AEC5220063"
+                                "Folders"
+                                {
+                                }
+                            }
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_88925D45A92146909EDBC28D4C24ECB8"
                             {
                             "Name" = "8:win32"
@@ -6451,28 +7003,6 @@
                             "Property" = "8:_18DDFFCF82144435BD9B8A686C22B3F7"
                                 "Folders"
                                 {
-                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_0D5A8F930A4345E588798A7732D64E1F"
-                                    {
-                                    "Name" = "8:Microsoft.VC90.OPENMP"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_0279A751039A4799AF718458EA5FF04A"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
-                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_1C4B12450A5E4A56A025F12E00BD4FAD"
-                                    {
-                                    "Name" = "8:Microsoft.VC90.CRT"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_2679655D8C5C4C7A8417F3769438ABAD"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
                                 }
                             }
                         }
@@ -6554,39 +7084,6 @@
                             }
                         }
                     }
-                    "{9EF0B969-E518-4E46-987F-47570745A589}:_D3979488A7B34C39AABD81A685816A59"
-                    {
-                    "Name" = "8:src"
-                    "AlwaysCreate" = "11:FALSE"
-                    "Condition" = "8:"
-                    "Transitive" = "11:FALSE"
-                    "Property" = "8:_357469D6171B427A917B93EDDEC58D9E"
-                        "Folders"
-                        {
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_BF095A5CADD740A7BFCB12A70646B929"
-                            {
-                            "Name" = "8:Lightsmark2011"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_1DAF6405BB9942A6AC1BD6BC2C21AB04"
-                                "Folders"
-                                {
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            "{1525181F-901A-416C-8A58-119130FE478E}:_EB60A55B498A414FA79500F96C98CA82"
-            {
-            "Name" = "8:#1924"
-            "AlwaysCreate" = "11:FALSE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Property" = "8:WindowsFolder"
-                "Folders"
-                {
                 }
             }
             "{1525181F-901A-416C-8A58-119130FE478E}:_F2A258E18B7C470398967808E506FA04"
@@ -6600,7 +7097,7 @@
                 {
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_097D787AABE747568E8EF7F01DA61193"
                     {
-                    "Name" = "8:Lightsmark 2011"
+                    "Name" = "8:Lightsmark 2017"
                     "AlwaysCreate" = "11:FALSE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
@@ -6626,23 +7123,24 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:Lightsmark 2011"
-        "ProductCode" = "8:{9418C162-91BF-47DC-B302-60EC1A6749E0}"
-        "PackageCode" = "8:{BB57087D-6F20-49C6-A824-69ADECA61412}"
-        "UpgradeCode" = "8:{4E49BA74-956E-434A-A126-4E9050FB5A0F}"
+        "ProductName" = "8:Lightsmark 2017"
+        "ProductCode" = "8:{F4BA3648-A449-4932-86FC-E2CE14D4EDBD}"
+        "PackageCode" = "8:{86D9D8B0-1F5A-496C-B628-B120FA8E0EB6}"
+        "UpgradeCode" = "8:{F5B81FD3-356B-4E7A-A0E2-B344325EA190}"
+        "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.0"
+        "ProductVersion" = "8:3.0"
         "Manufacturer" = "8:Stepan Hrbek"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:Lightsmark 2011"
+        "Title" = "8:Lightsmark 2017"
         "Subject" = "8:"
         "ARPCONTACT" = "8:Stepan Hrbek"
         "Keywords" = "8:realtime global illumination penumbra shadows"
-        "ARPCOMMENTS" = "8:Realtime Global Illumination Benchmark"
+        "ARPCOMMENTS" = "8:Next Generation Lighting Benchmark"
         "ARPURLINFOABOUT" = "8:http://lightsmark.com"
         "ARPPRODUCTICON" = "8:_2A69C325B3F34F8995B0106009D772E6"
         "ARPIconIndex" = "3:109"
@@ -6749,9 +7247,9 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_2F207F4FE01B4C8CAF953EA5928E0384"
             {
-            "Name" = "8:Lightsmark 2011"
+            "Name" = "8:Lightsmark 2017"
             "Arguments" = "8:"
-            "Description" = "8:Next Generation Lighting Benchmark"
+            "Description" = "8:Next Generation Lighting Benchmark, excavated after 10 years"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:109"
             "Transitive" = "11:FALSE"
@@ -6761,25 +7259,11 @@
             "Icon" = "8:_2A69C325B3F34F8995B0106009D772E6"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_52F2A91E637447DCBDA832FA8A255C6D"
-            {
-            "Name" = "8:Uninstall Lightsmark"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:7"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_6B8B6318411A44B2BBCAFF0EC6A1BE4E"
-            "Folder" = "8:_097D787AABE747568E8EF7F01DA61193"
-            "WorkingFolder" = "8:_EB60A55B498A414FA79500F96C98CA82"
-            "Icon" = "8:"
-            "Feature" = "8:"
-            }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_8A181E126E364E478BBE79A36008FD1F"
             {
-            "Name" = "8:Lightsmark 2011"
+            "Name" = "8:Lightsmark 2017"
             "Arguments" = "8:"
-            "Description" = "8:Next Generation Lighting Benchmark"
+            "Description" = "8:Next Generation Lighting Benchmark, excavated after 10 years"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:109"
             "Transitive" = "11:FALSE"
@@ -6976,7 +7460,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:Runs on most of NVIDIA and ATI graphics cards made since 2003 (GeForce 5200-9800/260-280, Radeon 9500-9800/Xnumber/HDnumber), but it is very important to use recent drivers."
+                            "Value" = "8:Archeologists rejoice, this is the old good next gen stuff, carefully excavated after 10 years under the ground."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -7223,6 +7707,34 @@
         }
         "MergeModule"
         {
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_11B264CE4A52431EA3659517457C1FE6"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:c:\\program files (x86)\\common files\\merge modules\\microsoft_vc140_openmp_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_313FF268C0694BC3BC128E95CD2E4CC5"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:c:\\program files (x86)\\common files\\merge modules\\microsoft_vc140_crt_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
         "ProjectOutput"
         {
