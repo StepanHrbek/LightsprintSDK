@@ -33,7 +33,7 @@ LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLUT_LIB)
 
 INC_DIRS = .
 INC_DIRS += ../../include
-INC_DIRS += ../../samples/RealtimeRadiosity
+#INC_DIRS += ../../samples/RealtimeRadiosity
 
 # library directories
 
