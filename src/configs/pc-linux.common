@@ -11,6 +11,7 @@ CPP_FLAGS += -I/opt/local/include
 
 CORE_DEPS = \
 	-lstdc++ \
+	-lpthread \
 	-lboost_filesystem \
 	-lboost_system \
 	-lboost_regex
