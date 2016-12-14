@@ -39,10 +39,11 @@ void DynamicObject::render(rr_gl::UberProgram* uberProgram,rr_gl::UberProgramSet
 	if (uberProgramSetup.OBJECT_SPACE)
 	{
 		rr::RRObject object;
-		object.setWorldMatrix(&( 
+		rr::RRMatrix3x4 mat =
 			rr::RRMatrix3x4::translation(worldFoot)
 			* rr::RRMatrix3x4::rotationByYawPitchRoll(rr::RRVec3(rot*RR_PI/180,0,0))
-			* rr::RRMatrix3x4::translation(rr::RRVec3(-model.localCenter.x,-model.localMinY,-model.localCenter.z)) ));
+			* rr::RRMatrix3x4::translation(rr::RRVec3(-model.localCenter.x,-model.localMinY,-model.localCenter.z));
+		object.setWorldMatrix(&mat);
 		uberProgramSetup.useWorldMatrix(program,&object);
 	}
 	// render
