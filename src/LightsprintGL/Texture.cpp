@@ -568,6 +568,7 @@ Texture::Texture(rr::RRBuffer* _buffer, bool _buildMipmaps, bool _compress, int 
 
 	glGenTextures(1, &id);
 	internalFormat = 0;
+	version = 0;
 	reset(_buildMipmaps,_compress,false);
 
 	// changes anywhere
@@ -631,7 +632,7 @@ void Texture::reset(bool _buildMipmaps, bool _compress, bool _scaledAsSRGB)
 		case rr::BF_LUMINANCE: glinternal = srgb?(_compress?GL_COMPRESSED_SLUMINANCE:GL_SLUMINANCE8):(_compress?GL_COMPRESSED_LUMINANCE:GL_LUMINANCE8); glformat = GL_LUMINANCE; gltype = GL_UNSIGNED_BYTE; break;
 		case rr::BF_LUMINANCEF: glinternal = srgb?(_compress?GL_COMPRESSED_SLUMINANCE:GL_SLUMINANCE):(_compress?GL_COMPRESSED_LUMINANCE:GL_LUMINANCE16); glformat = GL_LUMINANCE; gltype = GL_FLOAT; break;
 #endif
-		default: rr::RRReporter::report(rr::ERRO,"Texture of unknown format created.\n"); break;
+		default: rr::RRReporter::report(rr::ERRO,"Texture of unknown format created.\n"); return;
 	}
 #ifndef RR_GL_ES2
 	if (s_es)
