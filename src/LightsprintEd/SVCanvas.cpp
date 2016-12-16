@@ -1273,7 +1273,7 @@ void SVCanvas::OnMouseEvent(wxMouseEvent& event)
 					if (event.ShiftDown() || getFactor(svframe,numCopies,_("How many times to multiply selected objects and lights?\n(You can unshare materials by minus sign.)"),_("Selection multiplier")))
 					{
 						bool explodeMaterials = numCopies<0;
-						numCopies = event.ShiftDown() ? 2 : RR_MAX(1,(int)abs(numCopies));
+						numCopies = event.ShiftDown() ? 2 : RR_MAX(1,(int)std::abs(numCopies));
 						// multiply selection N times
 						rr::RRLights lights = solver->getLights();
 						rr::RRObjects objects = solver->getObjects();
