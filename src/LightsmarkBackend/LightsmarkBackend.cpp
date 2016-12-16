@@ -78,6 +78,7 @@ scita se primary a zkorigovany indirect, vysledkem je ze primo osvicena mista js
 #ifdef __APPLE__
 	#include <GLUT/glut.h>
 	#include <ApplicationServices/ApplicationServices.h>
+	#include <OpenGL/OpenGL.h> // CGLGetCurrentContext
 #else
 	#ifdef _WIN32
 		#include <GL/wglew.h>
@@ -1276,6 +1277,13 @@ void reshape(int w, int h)
 {
 	// we are called with desktop resolution in vista from exit(), glViewport crashes in HD2400 driver
 	if (exiting) return;
+
+#ifdef __APPLE__
+	// apple needs this to disable vsync since OSX 10.11
+	GLint sync = 0;
+	CGLContextObj ctx = CGLGetCurrentContext();
+	CGLSetParameter(ctx, kCGLCPSwapInterval, &sync);
+#endif
 
 	winWidth = w;
 	winHeight = h;
