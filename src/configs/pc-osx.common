@@ -51,6 +51,7 @@ ED_DEPS = \
 	-lboost_serialization-mt \
 	-lboost_iostreams-mt \
 	-lboost_locale-mt \
+	-lboost_thread-mt \
 	-framework IOKit \
 	-framework Cocoa
 
