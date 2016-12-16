@@ -1370,6 +1370,12 @@ no_level:
 		{
 			rr::RRReporter::report(rr::INF1,"Finished, average fps = %.2f.\n",g_fpsAvg);
 			stopBackgroundThread();
+			
+			// free stuff (optional)
+			delete demoPlayer;
+			done_gl_resources();
+			delete reporter;
+
 			exiting = true;
 			exit((unsigned)(g_fpsAvg*10));
 			//keyboard(27,0,0);
