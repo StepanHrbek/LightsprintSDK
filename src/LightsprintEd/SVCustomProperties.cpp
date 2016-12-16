@@ -380,7 +380,12 @@ void ImageFileProperty::updateIcon(rr::RRBuffer* buffer)
 		SetValueImage(*bitmap);
 	}
 	else
-		SetValueImage(*(wxBitmap*)nullptr);
+	{
+		// remove icon by sending any bitmap with IsOk()==false
+		// (sending nullptr was crashing in LLVM/OSX) 
+		bitmap = new wxBitmap();
+		SetValueImage(*bitmap);
+	}
 }
 
 void ImageFileProperty::updateBufferAndIcon(rr::RRBuffer*& buffer, bool playVideos)
