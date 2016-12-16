@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "AnimationScene.h"
 #include "Lightsprint/RRDebug.h"
 
