@@ -163,8 +163,8 @@ char globalOutputDirectory[1000] = "."; // without trailing slash
 const char* customScene = nullptr;
 #ifdef BACKGROUND_THREAD
 	std::thread backgroundThread;
-	enum ThreadState { TS_NONE, TS_RUNNING, TS_FINISHED };
-	ThreadState backgroundThreadState = TS_NONE;
+	enum MyThreadState { TS_NONE, TS_RUNNING, TS_FINISHED }; // 'My' avoids conflict with OSX typedef
+	MyThreadState backgroundThreadState = TS_NONE;
 #endif
 
 
