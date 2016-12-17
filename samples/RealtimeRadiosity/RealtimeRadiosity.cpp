@@ -45,6 +45,10 @@
 	#include <GL/glut.h>
 #endif
 
+// only longjmp can break us from glut mainloop
+#include <setjmp.h>
+jmp_buf jmp;
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -271,11 +275,9 @@ void keyboard(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case 27:
-			// immediate exit without freeing memory, leaks may be reported
-			// see e.g. RealtimeLights sample for freeing memory before exit
-			// ok, at least textures need to be freed from video memory, otherwise debug version complains
-			rr_gl::deleteAllTextures();
-			exit(0);
+			// only longjmp can break us from glut mainloop
+			// (exceptions don't propagate through foreign stack)
+			longjmp(jmp,0);
 	}
 }
 
@@ -350,7 +352,7 @@ int main(int argc, char** argv)
 		error("",false);
 	}
 	// log messages to console
-	rr::RRReporter::createPrintfReporter();
+	rr::RRReporter* reporter = rr::RRReporter::createPrintfReporter();
 	//rr::RRReporter::setFilter(true,3,true); // log more
 	//rr_gl::Program::logMessages(true); // log also results of shader compiler
 
@@ -466,6 +468,18 @@ int main(int argc, char** argv)
 		"  left button = switch between camera and light\n"
 		"\n");
 
-	glutMainLoop();
+
+	// only longjmp can break us from glut mainloop
+	if (!setjmp(jmp))
+		glutMainLoop();
+
+	// free memory (just to check for leaks)
+	rr_gl::deleteAllTextures();
+	delete solver->getEnvironment();
+	delete solver->getColorSpace();
+	delete solver;
+	delete robot;
+	delete potato;
+	delete reporter;
 	return 0;
 }
