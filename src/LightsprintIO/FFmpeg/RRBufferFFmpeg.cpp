@@ -311,13 +311,57 @@ public:
 		bool pa_started = false;
 		PaStream* pa_stream = nullptr;
 
-		if (Pa_Initialize()!=paNoError)
+		PaError err = Pa_Initialize();
+		if (err!=paNoError)
+		{
+			rr::RRReporter::report(rr::WARN,"Pa_Initialize()=%d\n",(int)err);
 			return -1;
+		}
+
+		/* look for the best device for our data
+		int numDevices = Pa_GetDeviceCount();
+		if (numDevices<0)
+		{
+			rr::RRReporter::report(rr::WARN,"Pa_GetDeviceCount()=%d\n",(int)numDevices);
+			return -1;
+		}
+		for (i=0;i<numDevices;i++)
+		{
+			const PaDeviceInfo *deviceInfo = Pa_GetDeviceInfo(i);
+			...
+		}*/
+
+		bool convert_to_planar = false;
+		bool convert_to_interleaved = false;
+		char* buf = nullptr;
+		unsigned bufBytes = 0;
 
 		PaSampleFormat pa_sampleFormat = convert(audio_avCodecContext->sample_fmt);
-		if (Pa_OpenDefaultStream(&pa_stream, 0, audio_avCodecContext->channels, pa_sampleFormat, audio_avCodecContext->sample_rate, paFramesPerBufferUnspecified, nullptr, nullptr ) != paNoError)
-			return -1;
-			
+		err = Pa_OpenDefaultStream(&pa_stream, 0, audio_avCodecContext->channels, pa_sampleFormat, audio_avCodecContext->sample_rate, paFramesPerBufferUnspecified, nullptr, nullptr );
+		if (err!=paNoError)
+		{
+			err = Pa_OpenDefaultStream(&pa_stream, 0, audio_avCodecContext->channels, pa_sampleFormat^paNonInterleaved, audio_avCodecContext->sample_rate, paFramesPerBufferUnspecified, nullptr, nullptr );
+			if (err==paNoError)
+			{
+				unsigned sampleBytes = Pa_GetSampleSize(pa_sampleFormat); // in one channel
+				if (pa_sampleFormat&paNonInterleaved)
+				{
+					convert_to_interleaved = true;
+					//rr::RRReporter::report(rr::INF2,"interleaving, sampleBytes=%d\n",sampleBytes);
+				}
+				else
+				{
+					convert_to_planar = true;
+					//rr::RRReporter::report(rr::INF2,"deinterleaving, sampleBytes=%d\n",sampleBytes);
+				}
+			}
+			else
+			{
+				rr::RRReporter::report(rr::WARN,"Pa_OpenDefaultStream()=%d, channels=%d, format=%d->0x%x, rate=%d\n",(int)err,(int)audio_avCodecContext->channels,(int)audio_avCodecContext->sample_fmt,(int)pa_sampleFormat,(int)audio_avCodecContext->sample_rate);
+				return -1;
+			}
+		}
+
 		AVFrame* avFrame = av_frame_alloc();
 
 		while (!aborting)
@@ -342,9 +386,44 @@ public:
 					int len = avcodec_decode_audio4(audio_avCodecContext, avFrame, &got_frame, avPacket);
 					if (got_frame && avFrame->nb_samples)
 					{
-						// very simple, but the only synchronization is blocking when buffer is full,
-						// we might need to leave Pa_WriteStream for audio callback later, to improve accuracy
-						Pa_WriteStream(pa_stream,avFrame->data,avFrame->nb_samples); // blocking, but only for a short time period, no need for external wake up
+						unsigned sampleBytes = Pa_GetSampleSize(pa_sampleFormat); // in one channel
+						unsigned channelBytes = sampleBytes*avFrame->nb_samples;
+						unsigned allBytes = channelBytes*audio_avCodecContext->channels;
+						if (buf && allBytes>bufBytes)
+							RR_SAFE_DELETE_ARRAY(buf);
+						if (convert_to_interleaved)
+						{
+							if (!buf)
+								buf = new char[bufBytes=allBytes];
+							char* dst = buf;
+							for (unsigned s=0;s<avFrame->nb_samples;s++)
+								for (unsigned c=0;c<audio_avCodecContext->channels;c++)
+								{
+									memcpy(dst,&avFrame->data[c][s*sampleBytes],sampleBytes);
+									dst += sampleBytes;
+								}
+							Pa_WriteStream(pa_stream,buf,avFrame->nb_samples);
+						}
+						else if (convert_to_planar)
+						{
+							if (!buf)
+								buf = new char[bufBytes=allBytes];
+							char* bufPtrs[8] = {buf,buf+channelBytes,buf+2*channelBytes,buf+3*channelBytes,buf+4*channelBytes,buf+5*channelBytes,buf+6*channelBytes,buf+7*channelBytes};
+							uint8_t* src = avFrame->data[0];
+							for (unsigned s=0;s<avFrame->nb_samples;s++)
+								for (unsigned c=0;c<audio_avCodecContext->channels;c++)
+								{
+									memcpy(&bufPtrs[c][s*sampleBytes],src,sampleBytes);
+									src += sampleBytes;
+								}
+							Pa_WriteStream(pa_stream,bufPtrs,avFrame->nb_samples);
+						}
+						else
+						{
+							// very simple, but the only synchronization is blocking when buffer is full,
+							// we might need to leave Pa_WriteStream for audio callback later, to improve accuracy
+							Pa_WriteStream(pa_stream,avFrame->data,avFrame->nb_samples); // blocking, but only for a short time period, no need for external wake up
+						}
 					}
 					delete avPacket;
 				}
@@ -361,6 +440,7 @@ public:
 			}
 		}
 
+		delete[] buf;
 		av_frame_free(&avFrame);
 		if (pa_started)
 			Pa_StopStream(pa_stream);
@@ -561,7 +641,7 @@ public:
 			case AV_SAMPLE_FMT_U8P: return paUInt8|paNonInterleaved;
 			case AV_SAMPLE_FMT_S16P: return paInt16|paNonInterleaved;
 			case AV_SAMPLE_FMT_S32P: return paInt32|paNonInterleaved;
-			case AV_SAMPLE_FMT_FLTP: return paFloat32|paNonInterleaved;				
+			case AV_SAMPLE_FMT_FLTP: return paFloat32|paNonInterleaved;
 			default: return 0;
 		}
 	}
