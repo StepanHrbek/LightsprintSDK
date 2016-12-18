@@ -135,12 +135,11 @@ RRReal RRMesh::getTriangleArea(unsigned i) const
 //
 // RRMesh tools
 
-struct AABBCache
+struct AABBCache // 36 bytes of data
 {
 	RRVec3 mini;
 	RRVec3 maxi;
 	RRVec3 center;
-	unsigned version;
 };
 
 RRMesh::RRMesh()
@@ -201,7 +200,6 @@ void RRMesh::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const
 			aabbCache->maxi = RRVec3(0);
 			aabbCache->center = RRVec3(0);
 		}
-		aabbCache->version = 0;
 		RR_ASSERT(IS_VEC3(aabbCache->mini));
 		RR_ASSERT(IS_VEC3(aabbCache->maxi));
 		RR_ASSERT(IS_VEC3(aabbCache->center));
