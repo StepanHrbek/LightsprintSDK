@@ -17,6 +17,7 @@ NEWS
   - <b>Oculus CV1 support</b> (upgraded from Oculus SDK 0.6 to 1.9)
   - integration moved from LightsprintEd to LightsprintGL library
   - supported also in Visual Studio 2015
+- support for videos with alpha channel
 
 
 \section news146 ------------------------------------ 2016.05.14 -------------------------------------
