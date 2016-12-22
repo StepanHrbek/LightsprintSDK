@@ -199,8 +199,10 @@ RRVec4 getVariance(const RRBuffer* buffer, const RRColorSpace* colorSpace, RRVec
 	if (buffer->getDuration())
 	{
 		// video changes in time, ignore current frame and return average gray
-		average = RRVec4(0.5,0.5,0.5,1);
-		return RRVec4(0.5,0.5,0.5,0);
+		RRBufferFormat videoFormat = buffer->getFormat();
+		bool videoAlpha = videoFormat==BF_RGBA || videoFormat==BF_RGBAF;
+		average = RRVec4(0.5,0.5,0.5,videoAlpha?0.5f:1);
+		return RRVec4(0.5,0.5,0.5,videoAlpha?0.5f:0);
 	}
 	unsigned numElements = buffer->getWidth()*buffer->getHeight();
 	RR_ASSERT(numElements);

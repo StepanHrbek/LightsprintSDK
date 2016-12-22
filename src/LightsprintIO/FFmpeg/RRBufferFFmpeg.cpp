@@ -53,6 +53,7 @@ extern "C"
 	#include <libavcodec/avcodec.h>
 	#include <libavformat/avformat.h>
 	#include <libavutil/avutil.h>
+	#include <libavutil/pixdesc.h>
 	#include <libavutil/time.h>
 	#include <libswscale/swscale.h>
 }
@@ -204,11 +205,12 @@ struct VideoPicture
 	unsigned dbg_numImagesSinceStart;
 	unsigned dbg_numImagesSinceSeek;
 
-	VideoPicture(AVFrame*& _avFrame, double _pts)
+	// _format can be calculated from _avFrame, but caller already knows it
+	VideoPicture(AVFrame*& _avFrame, double _pts, rr::RRBufferFormat _format)
 	{
 		//avFrame = _avFrame;
 		//_avFrame = NULL;
-		buffer = RRBuffer::create(BT_2D_TEXTURE, _avFrame->width, _avFrame->height, 1, BF_RGB, true, nullptr);
+		buffer = RRBuffer::create(BT_2D_TEXTURE, _avFrame->width, _avFrame->height, 1, _format, true, nullptr);
 //		buffer = RRBuffer::create(BT_2D_TEXTURE, _avFrame->width, _avFrame->height, 1, BF_LUMINANCE, true, _avFrame->data[0]); // SDL_YV12_OVERLAY, screen
 //		sws_scale(video_swsContext, (uint8_t const * const *)avFrame->data, avFrame->linesize, 0, video_avCodecContext->height, avFrameRGB->data, avFrameRGB->linesize);
 		pts = _pts;
@@ -236,6 +238,7 @@ public:
 		playing = false;
 		width = 0;
 		height = 0;
+		format = rr::BF_RGB;
 		duration = -1; // unknown
 		stoppedSecondsFromStart = 0;
 		seekSecondsFromStart = -1; // no seek
@@ -531,13 +534,14 @@ public:
 			}
 			if (got_frame)
 			{
-				VideoPicture* image_inProgress = new VideoPicture(avFrame, pts * av_q2d(video_avStream->time_base));
+				VideoPicture* image_inProgress = new VideoPicture(avFrame, pts * av_q2d(video_avStream->time_base), format);
 				RRBuffer* buffer = image_inProgress->buffer;
 				if (buffer)
 				{
+					unsigned bypp = (format==rr::BF_RGB)?3:((format==rr::BF_RGBA)?4:1);
 					unsigned char* data = buffer->lock(rr::BL_DISCARD_AND_WRITE);
-					uint8_t* dst[] = {data+buffer->getWidth()*(buffer->getHeight()-1)*3, nullptr};
-					int dstStride[] = {-3*(int)buffer->getWidth(), 0};
+					uint8_t* dst[] = {data+buffer->getWidth()*(buffer->getHeight()-1)*bypp, nullptr};
+					int dstStride[] = {bypp*-(int)buffer->getWidth(), 0};
 					sws_scale(video_swsContext, (uint8_t const * const *)avFrame->data, avFrame->linesize, 0, video_avCodecContext->height, dst, dstStride);
 					buffer->unlock();
 					image_inProgress->dbg_seekSeconds = dbg_seekSeconds;
@@ -732,9 +736,15 @@ public:
 					video_avCodecContext = open_stream(video_streamIndex);
 				if (video_avCodecContext)
 				{
-					video_swsContext = sws_getContext(video_avCodecContext->width, video_avCodecContext->height, video_avCodecContext->pix_fmt, video_avCodecContext->width, video_avCodecContext->height, AV_PIX_FMT_RGB24, SWS_BILINEAR, NULL, NULL, NULL );
+					const AVPixFmtDescriptor* fmt_desc = av_pix_fmt_desc_get(video_avCodecContext->pix_fmt);
+					unsigned idx = RR_CLAMPED(fmt_desc->nb_components,1,4);
+					rr::RRBufferFormat rrFormats[5] = {rr::BF_LUMINANCE,rr::BF_LUMINANCE,rr::BF_RGB,rr::BF_RGB,rr::BF_RGBA};
+					AVPixelFormat avFormats[5] = {AV_PIX_FMT_GRAY8,AV_PIX_FMT_GRAY8,AV_PIX_FMT_RGB24,AV_PIX_FMT_RGB24,AV_PIX_FMT_RGBA};
+					AVPixelFormat avFormat = avFormats[idx];
+					video_swsContext = sws_getContext(video_avCodecContext->width, video_avCodecContext->height, video_avCodecContext->pix_fmt, video_avCodecContext->width, video_avCodecContext->height, avFormat, SWS_BILINEAR, NULL, NULL, NULL );
 					width = video_avCodecContext->width;
 					height = video_avCodecContext->height;
+					format = rrFormats[idx];
 					video_thread = boost::thread(&FFmpegPlayer::video_proc,this);
 				}
 			}
@@ -806,6 +816,7 @@ public:
 
 	unsigned          width;                  // set once by ctor
 	unsigned          height;                 // set once by ctor
+	rr::RRBufferFormat format;                // set once by ctor
 	float             duration;               // set once by ctor
 	bool              looping;                // set once by ctor
 	bool              playing;                // changed by main thread, signal to audio_thread
@@ -964,7 +975,7 @@ public:
 	}
 	virtual RRBufferFormat getFormat() const override
 	{
-		return BF_RGB;
+		return player->format;
 	}
 	virtual bool getScaled() const override
 	{
