@@ -217,6 +217,9 @@ void display(void)
 	// this would print diagnostic messages from solver internals
 	//solver->checkConsistency();
 
+	// update videos
+	solver->processBuffers(nullptr,[](rr::RRBuffer* buffer){buffer->update();});
+
 	// update shadowmaps, lightmaps
 	solver->reportDirectIlluminationChange(0,true,false,false);
 	solver->reportInteraction(); // scene is animated -> call in each frame for higher fps

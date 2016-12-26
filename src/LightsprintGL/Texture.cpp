@@ -812,10 +812,10 @@ Texture* getTexture(const rr::RRBuffer* _buffer, bool _buildMipMaps, bool _compr
 		s_textures.push_back(texture);
 	}
 
-	// It's easier to have automatic update(). For now, we don't register any unwanted effects, but one day,
-	// we will possibly switch to manual update() and remove next line.
-	// (potentially unwanted: video rendered several times per frame may be different each time it is rendered)
-	buffer->update();
+	//buffer->update();
+	// We no longer update videos on each texture access, because there are usually multiple accesses during render
+	// and having texture change between accesses is really bad (performance, synchronization).
+	// You are responsible for updating all videos once before rendering frame.
 
 	if (texture->version!=_buffer->version)
 		texture->reset(_buildMipMaps,_compress,false);

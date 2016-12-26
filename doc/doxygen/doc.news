@@ -13,12 +13,22 @@ namespace rr
 NEWS
 
 - <b>improved \ref main_vr support</b>
-  - <b>OpenVR / HTC Vive support</b>
-  - <b>Oculus CV1 support</b> (upgraded from Oculus SDK 0.6 to 1.9)
+  - OpenVR / HTC Vive support
+  - Oculus CV1 support (upgraded from Oculus SDK 0.6 to 1.9)
   - integration moved from LightsprintEd to LightsprintGL library
   - supported also in Visual Studio 2015
-- support for videos with alpha channel
-- more general RRSolver::processBuffers() replaces RRSolver::getAllBuffers()
+- improved video playback
+  - support for videos with alpha channel
+  - better synchronization when rendering with multiple videos
+  - more general RRSolver::processBuffers() replaces RRSolver::getAllBuffers()
+    (makes it easy to start or stop all videos at once)
+
+CHANGES
+
+- RRBuffer::update() is no longer called on each texture access.
+  If you render scene with video texture(s), update them manually before rendering scene:
+  - either call <code>video->update();</code> for each video
+  - or call <code>solver->processBuffers(nullptr,[](rr::RRBuffer* buffer){buffer->update();});</code> once
 
 
 \section news146 ------------------------------------ 2016.05.14 -------------------------------------

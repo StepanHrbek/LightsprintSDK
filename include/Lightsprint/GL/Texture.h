@@ -120,6 +120,7 @@ protected:
 //!
 //! Parameters beyond buffer are ignored if texture already exists and buffer version did not change.
 //! Change buffer version or use Texture::reset() to force texture update.
+//! For video textures, call buffer->update() manually, otherwise texture contents doesn't change.
 RR_GL_API Texture* getTexture(const rr::RRBuffer* buffer, bool buildMipMaps = true, bool compress = true, int magn = GL_LINEAR, int mini = GL_LINEAR, int wrapS = GL_REPEAT, int wrapT = GL_REPEAT);
 
 //! Deletes all textures created by getTexture(). (But you can delete textures one by one as well.)

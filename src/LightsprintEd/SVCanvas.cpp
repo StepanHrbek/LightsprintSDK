@@ -1711,6 +1711,11 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			}
 		}
 
+		// ask all videos to update
+		// (videos used to update in getTexture, i.e. on each access, but it happens multiple times during render and videos get out of sync.
+		//  here we update only once)
+		solver->processBuffers(nullptr,[](rr::RRBuffer* buffer){buffer->update();});
+
 		if (svs.renderLightDirectActive() || svs.renderLightIndirect==LI_REALTIME_FIREBALL || svs.renderLightIndirect==LI_REALTIME_ARCHITECT)
 		{
 			rr::RRReportInterval report(rr::INF3,"calculate...\n");
