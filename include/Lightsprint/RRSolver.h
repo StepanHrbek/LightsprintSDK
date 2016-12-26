@@ -11,6 +11,7 @@
 #ifndef RRSOLVER_H
 #define RRSOLVER_H
 
+#include <functional>
 #include "RRVector.h"
 #include "RRIllumination.h"
 #include "RRObject.h"
@@ -299,16 +300,14 @@ namespace rr
 		const RRObject* getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center) const;
 
 
-		//! Inserts all buffers found in solver's materials, lights, environment and illumination layers into collection.
+		//! Does something once for each buffer in solver's materials, lights, environment and illumination layers.
 		//
 		//! Can be used to gather all texture filenames, to pause all videos etc.
-		//! \param buffers
-		//!  In-out collection of buffers.
-		//!  Unique input buffers are preserved, new buffers from solver are added to collection.
-		//!  Ordering of input buffers may change and duplicates and nullptr buffers are removed.
 		//! \param layers
-		//!  Illumination from given layers will be gathered too.
-		void getAllBuffers(RRVector<RRBuffer*>& buffers, const RRVector<unsigned>* layers) const;
+		//!  Illumination from given layers will be processed too.
+		//! \param func
+		//!  Code to run for each buffer once.
+		void processBuffers(const RRVector<unsigned>* layers, std::function<void (RRBuffer*)> func) const;
 
 
 		//! Multipliers for tweaking contribution of various light sources. They work in physical scale.

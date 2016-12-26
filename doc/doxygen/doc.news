@@ -18,6 +18,7 @@ NEWS
   - integration moved from LightsprintEd to LightsprintGL library
   - supported also in Visual Studio 2015
 - support for videos with alpha channel
+- more general RRSolver::processBuffers() replaces RRSolver::getAllBuffers()
 
 
 \section news146 ------------------------------------ 2016.05.14 -------------------------------------

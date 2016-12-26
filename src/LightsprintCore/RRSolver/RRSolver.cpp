@@ -575,16 +575,13 @@ const RRObject* RRSolver::getAABB(RRVec3* _mini, RRVec3* _maxi, RRVec3* _center)
 	}
 }
 
-void RRSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsigned>* _layers) const
+void RRSolver::processBuffers(const RRVector<unsigned>* _layers, std::function<void (RRBuffer*)> _func) const
 {
 	if (!this)
 		return;
 	typedef std::unordered_set<RRBuffer*> Set;
 	Set set;
-	// fill set
-	// - original contents of vector
-	for (unsigned i=0;i<_buffers.size();i++)
-		set.insert(_buffers[i]);
+	// fill set (to get rid of duplicates)
 	// - maps from lights
 	for (unsigned i=0;i<getLights().size();i++)
 		set.insert(getLights()[i]->projectedTexture);
@@ -638,11 +635,10 @@ void RRSolver::getAllBuffers(RRVector<RRBuffer*>& _buffers, const RRVector<unsig
 					set.insert(objects[i]->illumination.getLayer((*_layers)[j]));
 		}
 	}
-	// copy set back to vector
-	_buffers.clear();
+	// process buffers from set
 	for (Set::const_iterator i=set.begin();i!=set.end();++i)
 		if (*i)
-			_buffers.push_back(*i);
+			_func(*i);
 }
 
 RRObject* RRSolver::getMultiObject() const

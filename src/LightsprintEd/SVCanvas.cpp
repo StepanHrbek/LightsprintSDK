@@ -687,7 +687,7 @@ void SVCanvas::configureVideoPlayback(bool play, float secondFromStart)
 	//rr::RRReporter::report(rr::INF2,"video %hs %f\n",play?"play":"stop",secondFromStart);
 	rr::RRVector<rr::RRBuffer*> buffers;
 	if (solver)
-		solver->getAllBuffers(buffers,nullptr);
+		solver->processBuffers(nullptr,[&buffers](rr::RRBuffer* buffer){buffers.push_back(buffer);});
 	if (secondFromStart>=0)
 		for (unsigned i=0;i<buffers.size();i++)
 			buffers[i]->seek(secondFromStart);
