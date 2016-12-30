@@ -601,7 +601,7 @@ RRMeshArrays* RRMeshArrays::plane()
 {
 	RRMeshArrays* arrays = new RRMeshArrays;
 
-	enum {H=6,TRIANGLES=1+6*H,VERTICES=3+3*H};
+	enum {H=6,TRIANGLES=1+6*H,VERTICES=3+3*H+2}; // 2 extra (unused) vertices
 	rr::RRVector<unsigned> texcoords;
 	texcoords.push_back(0);
 	arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
@@ -624,6 +624,11 @@ RRMeshArrays* RRMeshArrays::plane()
 		arrays->normal[i] = rr::RRVec3(0,1,0);
 		arrays->texcoord[0][i] = rr::RRVec2(arrays->position[i].z,arrays->position[i].x);
 	}
+
+	// adjust 2 extra (unused) vertices to make also center of bounding box in 0
+	// (center of gravity already is in 0)
+	arrays->position[VERTICES-1].x = arrays->position[VERTICES-1].z;
+	arrays->position[VERTICES-2] = -arrays->position[VERTICES-1];
 
 	return arrays;
 }
