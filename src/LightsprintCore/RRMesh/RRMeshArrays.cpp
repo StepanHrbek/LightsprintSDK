@@ -573,7 +573,7 @@ RRMeshArrays* RRMeshArrays::rectangle()
 {
 	RRMeshArrays* arrays = new RRMeshArrays;
 
-	enum {W=10,H=10,TRIANGLES=W*H*2,VERTICES=(W+1)*(H+1)};
+	enum {W=1,H=1,TRIANGLES=W*H*2,VERTICES=(W+1)*(H+1)};
 	rr::RRVector<unsigned> texcoords;
 	texcoords.push_back(0);
 	arrays->resizeMesh(TRIANGLES,VERTICES,&texcoords,false,false);
