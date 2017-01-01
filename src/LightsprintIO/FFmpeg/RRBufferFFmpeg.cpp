@@ -541,7 +541,7 @@ public:
 					unsigned bypp = (format==rr::BF_RGB)?3:((format==rr::BF_RGBA)?4:1);
 					unsigned char* data = buffer->lock(rr::BL_DISCARD_AND_WRITE);
 					uint8_t* dst[] = {data+buffer->getWidth()*(buffer->getHeight()-1)*bypp, nullptr};
-					int dstStride[] = {bypp*-(int)buffer->getWidth(), 0};
+					int dstStride[] = {(int)bypp*-(int)buffer->getWidth(), 0};
 					sws_scale(video_swsContext, (uint8_t const * const *)avFrame->data, avFrame->linesize, 0, video_avCodecContext->height, dst, dstStride);
 					buffer->unlock();
 					image_inProgress->dbg_seekSeconds = dbg_seekSeconds;
