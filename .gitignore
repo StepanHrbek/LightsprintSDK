@@ -7,3 +7,4 @@
 *.sdf
 *.suo
 *.user
+.DS_Store
