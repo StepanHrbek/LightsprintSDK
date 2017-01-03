@@ -203,7 +203,9 @@ public:
 	//  - pti.tri.normal
 	void init()
 	{
-		if (!rays) return;
+		//skipping init when rays=0 was unsafe optmization, we still use hits[Un]Reliable
+		//if (!rays) return;
+
 		// prepare homogenous filler
 		fillerDir.Reset(pti.resetFiller);
 		// init counters
@@ -400,7 +402,9 @@ public:
 	// before shooting
 	void init()
 	{
-		if (!rays) return;
+		//skipping init when rays=0 was unsafe optmization
+		//if (!rays) return;
+
 		hitsReliable = 0;
 		hitsUnreliable = 0;
 		hitsLight = 0;
