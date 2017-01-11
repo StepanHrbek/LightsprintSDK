@@ -123,15 +123,17 @@ RRString::RRString(const char* a)
 	if (a&&a[0])
 	{
 		size_t bytes1 = strlen(a)+1;
+		size_t bytesp = (bytes1+sizeof(wchar_t)-1)/sizeof(wchar_t)*sizeof(wchar_t)-bytes1; // padding, linux/gcc needs wchars aligned
 		size_t wchars = mbstowcs(nullptr,a,0)+1; // +1 for null terminator
 		size_t bytes2 = (wchars+1)*sizeof(wchar_t); // +1 for null terminator even in case of invalid string (mbstowcs=-1)
 		RR_ASSERT(bytes1>0);
 		RR_ASSERT(bytes2>0);
-		str = (char*)malloc(bytes1+bytes2);
+		str = (char*)malloc(bytes1+bytesp+bytes2);
 		if (!str)
 			goto fail;
-		wstr = (wchar_t*)(str+bytes1);
+		wstr = (wchar_t*)(str+bytes1+bytesp);
 		memcpy(str,a,bytes1);
+		memset(str+bytes1,0,bytesp);
 		size_t result = mbstowcs(wstr,a,wchars); // VS2008 runtime sometimes fails if third parameter is INT_MAX
 		if (result==(size_t)-1)
 		{
