@@ -1,0 +1,7 @@
+CONFIG = linux-debug
+
+include $(CFG_DIR)/linux.common
+
+CPP_FLAGS += -O0
+CPP_FLAGS += -ggdb
+CPP_FLAGS += -D_DEBUG

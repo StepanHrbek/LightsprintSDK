@@ -17,8 +17,6 @@ else
 	LIB_EXT = so
 endif
 
-#	-lstdc++ \
-
 CORE_DEPS = \
 	-lgomp \
 	-lpthread \
@@ -61,7 +59,6 @@ IO_DEPS = \
 	-lavformat \
 	-lavutil \
 	-lswscale \
-
 
 IO_LIBS = \
 	$(IO_DEPS) \
