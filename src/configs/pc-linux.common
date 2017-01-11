@@ -9,19 +9,28 @@ CPP_FLAGS += -I/opt/local/include
 #LINK_FLAGS += -L/opt/local/lib
 #LINK_FLAGS += -L../../bin/pc-osx
 
+ifdef STATIC
+	LIB_DIR = lib
+	LIB_EXT = a
+else
+	LIB_DIR = bin
+	LIB_EXT = so
+endif
+
+#	-lstdc++ \
+
 CORE_DEPS = \
-	-lstdc++ \
+	-lgomp \
 	-lpthread \
 	-lboost_filesystem \
 	-lboost_system \
 	-lboost_regex
 
 #	-lembree.2.4.0
-#	-lgomp # not yet supported by LLVM
 
 CORE_LIBS = \
 	$(CORE_DEPS) \
-	../../bin/$(CONFIG)/libLightsprintCore.so
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintCore.$(LIB_EXT)
 
 GL_DEPS = \
 	-lGL \
@@ -29,31 +38,34 @@ GL_DEPS = \
 
 GL_LIBS = \
 	$(GL_DEPS) \
-	../../bin/$(CONFIG)/libLightsprintGL.so
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintGL.$(LIB_EXT)
 
 ED_DEPS = \
-	`wx-config --libs` \
+	-lGLU \
+	`wx-config --libs aui,gl,propgrid` \
 
 ED_LIBS = \
 	$(ED_DEPS) \
-	../../bin/$(CONFIG)/libLightsprintEd.so
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintEd.$(LIB_EXT)
 
 IO_DEPS = \
 	-lboost_iostreams \
 	-lboost_locale \
 	-lboost_serialization \
+	-lboost_thread \
 	-lassimp \
 	-lfreeimage \
 	-lportaudio \
 	-lavcodec \
 	-lavdevice \
 	-lavformat \
+	-lavutil \
 	-lswscale \
 
 
 IO_LIBS = \
 	$(IO_DEPS) \
-	../../bin/$(CONFIG)/libLightsprintIO.so
+	../../$(LIB_DIR)/$(CONFIG)/libLightsprintIO.$(LIB_EXT)
 
 GLUT_LIB = \
 	-lglut
