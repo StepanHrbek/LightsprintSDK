@@ -191,13 +191,17 @@ void registerIsolationStep2(int argc, char** argv)
 		// b) load with textures - slower
 		RRFileLocator* textureLocator = RRFileLocator::create();
 		textureLocator->setAttempt(RRFileLocator::ATTEMPT_STUB,"yes"); // load with stubs, so that paths to missing textures are not lost
+		bool saved;
+		{
 #ifdef _WIN32
-		RRScene scene(argvw[2], textureLocator, &solver->aborting);
-		bool saved = scene.save(argvw[3]);
+			RRScene scene(argvw[2], textureLocator, &solver->aborting);
+			saved = scene.save(argvw[3]);
 #else
-		RRScene scene(argv[2], textureLocator, &solver->aborting);
-		bool saved = scene.save(argv[3]);
+			RRScene scene(argv[2], textureLocator, &solver->aborting);
+			saved = scene.save(argv[3]);
 #endif
+			// free scene by leaving scope (otherwise leaks are reported)
+		}
 		exit(saved?0:1); // 0=success
 	}
 #ifdef _WIN32
