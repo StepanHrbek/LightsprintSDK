@@ -27,7 +27,7 @@ LightsmarkBackend.cpp
 
 # libraries
 
-LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLUT_LIB)
+LIBS += $(IO_LIBS) $(GL_LIBS) $(CORE_LIBS) $(GLUT_LIB) -lGLU
 
 # include directories
 
