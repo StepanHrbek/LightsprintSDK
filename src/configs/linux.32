@@ -1,0 +1,2 @@
+CPP_FLAGS += -m32
+LINK_FLAGS += -m32

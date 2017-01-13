@@ -1,0 +1,3 @@
+CPP_FLAGS += -O0
+CPP_FLAGS += -ggdb
+CPP_FLAGS += -D_DEBUG

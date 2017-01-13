@@ -1,0 +1,2 @@
+LIB_DIR = bin
+LIB_EXT = so

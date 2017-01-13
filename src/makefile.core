@@ -85,11 +85,10 @@ $(CFG_DIR)/current:
 	fi
 
 ps3-linux ps3-linux-debug \
-linux32 linux64 linux32-debug linux64-debug \
-pc-linux32 pc-linux32-debug \
-pc-linux32-static pc-linux32-static-debug \
-pc-linux64 pc-linux64-debug \
-pc-linux64-static pc-linux64-static-debug \
+linux32 linux32-debug \
+linux32-static linux32-static-debug \
+linux64 linux64-debug \
+linux64-static linux64-static-debug \
 pc-mingw32 pc-mingw32-debug \
 pc-osx pc-osx-debug:
 	@echo "CONFIG = $@" > $(CFG_DIR)/current

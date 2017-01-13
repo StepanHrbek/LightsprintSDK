@@ -1,6 +1,6 @@
-CONFIG = linux64-debug
+CONFIG = linux64-static-debug
 
 include $(CFG_DIR)/linux.64
-include $(CFG_DIR)/linux.shared
+include $(CFG_DIR)/linux.static
 include $(CFG_DIR)/linux.debug
 include $(CFG_DIR)/linux.common

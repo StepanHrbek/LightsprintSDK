@@ -1,21 +1,8 @@
 OS = Linux
-BITS = 64
 
 C_EXTRA_FLAGS = -std=gnu99 # for .c files, override -std=c++11 from CPP_FLAGS 
 CPP_FLAGS += -std=c++11 # rvalue references, lambda
-CPP_FLAGS += -I/opt/local/include
 #CPP_FLAGS += -I../../3rd/OculusSDK/LibOVR/Include
-
-#LINK_FLAGS += -L/opt/local/lib
-#LINK_FLAGS += -L../../bin/pc-osx
-
-ifdef STATIC
-	LIB_DIR = lib
-	LIB_EXT = a
-else
-	LIB_DIR = bin
-	LIB_EXT = so
-endif
 
 CORE_DEPS = \
 	-lgomp \

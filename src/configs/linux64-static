@@ -1,6 +1,6 @@
-CONFIG = linux64
+CONFIG = linux64-static
 
 include $(CFG_DIR)/linux.64
-include $(CFG_DIR)/linux.shared
+include $(CFG_DIR)/linux.static
 include $(CFG_DIR)/linux.release
 include $(CFG_DIR)/linux.common

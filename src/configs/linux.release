@@ -1,0 +1,6 @@
+CPP_FLAGS += -O2
+CPP_FLAGS += -fomit-frame-pointer
+CPP_FLAGS += -fopenmp
+CPP_FLAGS += -DNDEBUG
+
+#LINK_FLAGS += -s
