@@ -513,9 +513,13 @@ void SVMaterialProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propTransparent->GetPropertyByName(_("color")))
 	{
+		bool wasLimit = material->specularTransmittance.color==rr::RRVec3(0) || material->specularTransmittance.color==rr::RRVec3(1);
 		material->specularTransmittance.color << property->GetValue();
+		bool isLimit = material->specularTransmittance.color==rr::RRVec3(0) || material->specularTransmittance.color==rr::RRVec3(1);
 		composeMaterialPropertyRoot(propTransparent,material->specularTransmittance);
-		propTransparency1bit->SetValue(material->specularTransmittanceKeyed = material->specularTransmittance.color==rr::RRVec3(0) || material->specularTransmittance.color==rr::RRVec3(1));
+		// update 1bit, but only when color enters or leaves limit. don't update when color changes from 0.5 to 0.6
+		if (wasLimit!=isLimit)
+			propTransparency1bit->SetValue(material->specularTransmittanceKeyed = isLimit);
 		transmittanceChanged = true;
 	}
 	else
