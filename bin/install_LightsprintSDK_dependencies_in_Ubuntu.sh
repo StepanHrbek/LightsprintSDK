@@ -7,7 +7,7 @@
 sudo apt-get install g++ make
 
 # for LightsprintCore
-sudo apt-get install libboost-dev libboost-filesystem-dev
+sudo apt-get install libboost-dev libboost-filesystem-dev libboost-regex-dev
 
 # for LightsprintGL
 sudo apt-get install libglew-dev
