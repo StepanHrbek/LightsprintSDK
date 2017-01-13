@@ -1913,6 +1913,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_CONST = svs.renderMaterialTransparency!=T_OPAQUE;
 			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_MAP = svs.renderMaterialTransparency!=T_OPAQUE && svs.renderMaterialTextures;
 			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_IN_ALPHA = svs.renderMaterialTransparency!=T_OPAQUE;
+			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_NOISE = svs.renderMaterialTransparencyNoise;
 			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND = svs.renderMaterialTransparency==T_ALPHA_BLEND || svs.renderMaterialTransparency==T_RGB_BLEND;
 			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB = svs.renderMaterialTransparency==T_RGB_BLEND && !ppScene.uberProgramSetup.LIGHT_INDIRECT_ENV_REFRACT; // renderer processes _TO_RGB as multipass, this is not necessary (and not working) with _REFRACT, therefore we disable _TO_RGB when _REFRACT
 			ppScene.uberProgramSetup.MATERIAL_TRANSPARENCY_FRESNEL = svs.renderMaterialTransparencyFresnel;

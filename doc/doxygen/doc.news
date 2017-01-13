@@ -22,6 +22,10 @@ NEWS
   - better synchronization when rendering with multiple videos
   - more general RRSolver::processBuffers() replaces RRSolver::getAllBuffers()
     (makes it easy to start or stop all videos at once)
+- blending can be simulated with 1bit noise, looks the same when rendering faces in any order. enabled with:
+  - Scene properties / Render materials / Transparency / Noise
+  - rr_ed::SceneViewerState::renderMaterialTransparencyNoise
+  - rr_gl::UberProgramSetup::MATERIAL_TRANSPARENCY_NOISE
 
 CHANGES
 

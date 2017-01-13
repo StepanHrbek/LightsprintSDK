@@ -111,6 +111,7 @@ void UberProgramSetup::enableAllMaterials()
 	MATERIAL_TRANSPARENCY_CONST = true;
 	MATERIAL_TRANSPARENCY_MAP = true;
 	MATERIAL_TRANSPARENCY_IN_ALPHA = true;
+	MATERIAL_TRANSPARENCY_NOISE = true;
 	MATERIAL_TRANSPARENCY_BLEND = true;
 	MATERIAL_TRANSPARENCY_TO_RGB = true;
 	MATERIAL_TRANSPARENCY_FRESNEL = true;
@@ -158,6 +159,7 @@ void UberProgramSetup::enableUsedMaterials(const rr::RRMaterial* material, const
 	MATERIAL_TRANSPARENCY_IN_ALPHA = material->specularTransmittance.color!=rr::RRVec3(0) && material->specularTransmittanceInAlpha;
 	MATERIAL_TRANSPARENCY_BLEND = material->specularTransmittance.color!=rr::RRVec3(0) && !material->specularTransmittanceKeyed;
 	MATERIAL_TRANSPARENCY_TO_RGB = MATERIAL_TRANSPARENCY_BLEND;
+	MATERIAL_TRANSPARENCY_NOISE = (MATERIAL_TRANSPARENCY_MAP || MATERIAL_TRANSPARENCY_CONST || MATERIAL_TRANSPARENCY_IN_ALPHA) && !MATERIAL_TRANSPARENCY_BLEND && !MATERIAL_TRANSPARENCY_TO_RGB;
 	MATERIAL_TRANSPARENCY_FRESNEL = material->refractionIndex!=1 && (MATERIAL_TRANSPARENCY_BLEND
 		|| (MATERIAL_EMISSIVE_CONST && MATERIAL_BUMP_MAP) // keeps Fresnel on deep water surface (deep water has emittance instead of transmittance)
 		);
@@ -178,7 +180,7 @@ const char* UberProgramSetup::getSetupString()
 	sprintf(specularModel,"#define MATERIAL_SPECULAR_MODEL %d\n",(int)MATERIAL_SPECULAR_MODEL);
 
 	static char setup[2000]; // at the time of writing this comment, theoretical max string length is around 1800
-	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
+	sprintf(setup,"%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
 		comment?comment:"",
 		SHADOW_MAPS?shadowMaps:"",
 		SHADOW_SAMPLES?shadowSamples:"",
@@ -220,6 +222,7 @@ const char* UberProgramSetup::getSetupString()
 		MATERIAL_TRANSPARENCY_CONST?"#define MATERIAL_TRANSPARENCY_CONST\n":"",
 		MATERIAL_TRANSPARENCY_MAP?"#define MATERIAL_TRANSPARENCY_MAP\n":"",
 		MATERIAL_TRANSPARENCY_IN_ALPHA?"#define MATERIAL_TRANSPARENCY_IN_ALPHA\n":"",
+		MATERIAL_TRANSPARENCY_NOISE?"#define MATERIAL_TRANSPARENCY_NOISE\n":"",
 		MATERIAL_TRANSPARENCY_BLEND?"#define MATERIAL_TRANSPARENCY_BLEND\n":"",
 		MATERIAL_TRANSPARENCY_TO_RGB?"#define MATERIAL_TRANSPARENCY_TO_RGB\n":"",
 		MATERIAL_TRANSPARENCY_FRESNEL?"#define MATERIAL_TRANSPARENCY_FRESNEL\n":"",
@@ -367,6 +370,7 @@ void UberProgramSetup::reduceMaterials(const UberProgramSetup& fullMaterial)
 		|| (fullMaterial.MATERIAL_TRANSPARENCY_CONST && MATERIAL_TRANSPARENCY_MAP && !fullMaterial.MATERIAL_TRANSPARENCY_MAP);
 	MATERIAL_TRANSPARENCY_MAP      &= fullMaterial.MATERIAL_TRANSPARENCY_MAP;
 	MATERIAL_TRANSPARENCY_IN_ALPHA &= fullMaterial.MATERIAL_TRANSPARENCY_IN_ALPHA;
+	MATERIAL_TRANSPARENCY_NOISE    &= fullMaterial.MATERIAL_TRANSPARENCY_NOISE;
 	MATERIAL_TRANSPARENCY_BLEND    &= fullMaterial.MATERIAL_TRANSPARENCY_BLEND;
 	MATERIAL_TRANSPARENCY_TO_RGB   &= fullMaterial.MATERIAL_TRANSPARENCY_TO_RGB;
 	MATERIAL_TRANSPARENCY_FRESNEL  &= fullMaterial.MATERIAL_TRANSPARENCY_FRESNEL;
@@ -913,7 +917,7 @@ void UberProgramSetup::useMaterial(Program* program, const rr::RRMaterial* mater
 		program->sendTexture("materialTransparencyMap",nullptr,TEX_CODE_2D_MATERIAL_TRANSPARENCY);
 		s_buffers1x1.bindPropertyTexture(material->specularTransmittance,2); // 2 = RGBA
 	}
-	if ((MATERIAL_TRANSPARENCY_CONST || MATERIAL_TRANSPARENCY_MAP || MATERIAL_TRANSPARENCY_IN_ALPHA) && !MATERIAL_TRANSPARENCY_BLEND && !MATERIAL_TRANSPARENCY_TO_RGB)
+	if ((MATERIAL_TRANSPARENCY_CONST || MATERIAL_TRANSPARENCY_MAP || MATERIAL_TRANSPARENCY_IN_ALPHA) && !MATERIAL_TRANSPARENCY_NOISE && !MATERIAL_TRANSPARENCY_BLEND && !MATERIAL_TRANSPARENCY_TO_RGB)
 	{
 		program->sendUniform("materialTransparencyThreshold",material->specularTransmittanceThreshold);
 	}

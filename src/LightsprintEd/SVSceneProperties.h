@@ -93,6 +93,7 @@ namespace rr_ed
 		BoolRefProperty*  propRenderMaterialSpecular;
 		BoolRefProperty*  propRenderMaterialEmittance;
 		wxPGProperty*     propRenderMaterialTransparency;
+		BoolRefProperty*  propRenderMaterialTransparencyNoise;
 		BoolRefProperty*  propRenderMaterialTransparencyFresnel;
 		BoolRefProperty*  propRenderMaterialTransparencyRefraction;
 		BoolRefProperty*  propRenderMaterialBumpMaps;

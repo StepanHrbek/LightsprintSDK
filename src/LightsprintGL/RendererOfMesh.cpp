@@ -370,9 +370,10 @@ void MeshArraysVBOs::renderMesh(
 				{
 					// skip whole facegroup when alpha keying with constant alpha below specularTransmittanceThreshold
 					// GPU would do the same for all pixels, this is faster
+					//  MATERIAL_TRANSPARENCY_NOISE = alpha keying with chance of rendering few pixels even for very transparent materials
 					//  MATERIAL_TRANSPARENCY_BLEND = alpha blending, not alpha keying
 					//  MATERIAL_TRANSPARENCY_TO_RGB = rendering blended material to rgb shadowmap or rgb blending, not alpha keying
-					if (!(_uberProgramSetup.MATERIAL_TRANSPARENCY_CONST && !_uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && !_uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB && material->specularTransmittance.color.avg()>material->specularTransmittanceThreshold))
+					if (!(_uberProgramSetup.MATERIAL_TRANSPARENCY_CONST && !_uberProgramSetup.MATERIAL_TRANSPARENCY_NOISE && !_uberProgramSetup.MATERIAL_TRANSPARENCY_BLEND && !_uberProgramSetup.MATERIAL_TRANSPARENCY_TO_RGB && material->specularTransmittance.color.avg()>material->specularTransmittanceThreshold))
 					{
 						unsigned fgSubsetNumIndices = 3*faceGroups[fg].numTriangles;
 						unsigned fgSubsetFirstIndex = fgFirstIndex;

@@ -159,6 +159,7 @@ struct SceneViewerState
 	bool             renderMaterialSpecular;    //! Render specular reflections.
 	bool             renderMaterialEmission;    //! Render emissivity.
 	Transparency     renderMaterialTransparency;//! Render transparency. Allows realtime renderer to use modes up to this one. Offline GI always uses the highest one.
+	bool             renderMaterialTransparencyNoise; //! When rendering 1bit transparency, use noise to simulate different levels of transparency.
 	bool             renderMaterialTransparencyFresnel; //! When rendering transparency, modulate result by fresnel term.
 	bool             renderMaterialTransparencyRefraction; //! When rendering transparency, approximate refraction with cubemaps.
 	bool             renderMaterialBumpMaps;  //! Render normal maps.
@@ -278,6 +279,7 @@ struct SceneViewerState
 		renderMaterialSpecular = 1;
 		renderMaterialEmission = 1;
 		renderMaterialTransparency = T_RGB_BLEND;
+		renderMaterialTransparencyNoise = true;
 		renderMaterialTransparencyFresnel = true;
 		renderMaterialTransparencyRefraction = 0;
 		renderMaterialBumpMaps = 1;
@@ -398,6 +400,7 @@ struct SceneViewerState
 			&& a.renderMaterialSpecular==renderMaterialSpecular
 			&& a.renderMaterialEmission==renderMaterialEmission
 			&& a.renderMaterialTransparency==renderMaterialTransparency
+			&& a.renderMaterialTransparencyNoise==renderMaterialTransparencyNoise
 			&& a.renderMaterialTransparencyFresnel==renderMaterialTransparencyFresnel
 			&& a.renderMaterialTransparencyRefraction==renderMaterialTransparencyRefraction
 			&& a.renderMaterialBumpMaps==renderMaterialBumpMaps

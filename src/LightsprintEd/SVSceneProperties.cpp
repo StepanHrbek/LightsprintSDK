@@ -251,6 +251,9 @@ SVSceneProperties::SVSceneProperties(SVFrame* _svframe)
 		propRenderMaterialTransparency->SetHelpString(_("Changes how realistically semi-transparent surfaces are rendered."));
 		AppendIn(propRenderMaterials,propRenderMaterialTransparency);
 
+		propRenderMaterialTransparencyNoise = new BoolRefProperty(_("Noise"),_("Toggles using noise to simulate alpha blending."),svs.renderMaterialTransparencyNoise);
+		AppendIn(propRenderMaterialTransparency,propRenderMaterialTransparencyNoise);
+
 		propRenderMaterialTransparencyFresnel = new BoolRefProperty(_("Fresnel"),_("Toggles using fresnel term."),svs.renderMaterialTransparencyFresnel);
 		AppendIn(propRenderMaterialTransparency,propRenderMaterialTransparencyFresnel);
 
@@ -391,6 +394,7 @@ void SVSceneProperties::updateHide()
 	propToneMappingColor->Hide(!svs.renderTonemapping,false);
 
 	propRenderMaterialDiffuseColor->Hide(!svs.renderMaterialDiffuse,false);
+	propRenderMaterialTransparencyNoise->Hide(svs.renderMaterialTransparency==T_OPAQUE,false);
 	propRenderMaterialTransparencyFresnel->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
 	propRenderMaterialTransparencyRefraction->Hide(svs.renderMaterialTransparency==T_OPAQUE || svs.renderMaterialTransparency==T_ALPHA_KEY,false);
 
@@ -480,6 +484,7 @@ void SVSceneProperties::updateProperties()
 		+ updateBoolRef(propRenderMaterialSpecular)
 		+ updateBoolRef(propRenderMaterialEmittance)
 		+ updateInt(propRenderMaterialTransparency,svs.renderMaterialTransparency)
+		+ updateBoolRef(propRenderMaterialTransparencyNoise)
 		+ updateBoolRef(propRenderMaterialTransparencyFresnel)
 		+ updateBoolRef(propRenderMaterialTransparencyRefraction)
 		+ updateBoolRef(propRenderMaterialBumpMaps)
@@ -792,6 +797,12 @@ void SVSceneProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	{
 		svs.renderMaterialTransparency = (Transparency)(property->GetValue().GetInteger());
 		updateHide();
+	}
+	else
+	if (property==propRenderMaterialTransparencyNoise)
+	{
+		// update 1bit shadowmaps
+		svframe->m_canvas->solver->reportDirectIlluminationChange(-1,true,false,false);
 	}
 	else
 	if (property==propRenderMaterialTransparencyFresnel)

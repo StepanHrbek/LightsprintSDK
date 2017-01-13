@@ -45,6 +45,7 @@
 //  #define MATERIAL_TRANSPARENCY_CONST
 //  #define MATERIAL_TRANSPARENCY_MAP
 //  #define MATERIAL_TRANSPARENCY_IN_ALPHA
+//  #define MATERIAL_TRANSPARENCY_NOISE
 //  #define MATERIAL_TRANSPARENCY_BLEND
 //  #define MATERIAL_TRANSPARENCY_TO_RGB
 //  #define MATERIAL_TRANSPARENCY_FRESNEL
@@ -277,7 +278,7 @@ varying vec3 worldNormalSmooth;
 	uniform bool materialTransparencyMapInverted;
 #endif
 
-#if (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)) && !defined(MATERIAL_TRANSPARENCY_BLEND) && !defined(MATERIAL_TRANSPARENCY_TO_RGB)
+#if (defined(MATERIAL_TRANSPARENCY_CONST) || defined(MATERIAL_TRANSPARENCY_MAP) || defined(MATERIAL_TRANSPARENCY_IN_ALPHA)) && !defined(MATERIAL_TRANSPARENCY_NOISE) && !defined(MATERIAL_TRANSPARENCY_BLEND) && !defined(MATERIAL_TRANSPARENCY_TO_RGB)
 	uniform float materialTransparencyThreshold;
 #endif
 
@@ -424,6 +425,16 @@ void main()
 	#endif
 
 
+	/////////////////////////////////////////////////////////////////////
+	//
+	// noise
+
+	#if (defined(SHADOW_MAPS) && defined(SHADOW_SAMPLES)) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR) || defined(MATERIAL_TRANSPARENCY_NOISE)
+		float noise = sin(dot(worldPos,vec3(52.714,112.9898,78.233))) * 43758.5453;
+		vec2 noiseSinCos = vec2(sin(noise),cos(noise));
+	#endif
+
+
 	//////////////////////////////////////////////////////////////////////////////
 	//
 	// material
@@ -522,7 +533,11 @@ void main()
 		// We don't use GL_ALPHA_TEST because Radeons ignore it when rendering into shadowmap (all Radeons, last version tested: Catalyst 9-10)
 		//  MATERIAL_TRANSPARENCY_BLEND = alpha blending, not alpha keying
 		//  MATERIAL_TRANSPARENCY_TO_RGB = rendering blended material into rgb shadowmap or rgb blending, not alpha keying
-		if (opacityA<1.0-materialTransparencyThreshold) discard;
+		#if defined(MATERIAL_TRANSPARENCY_NOISE)
+			if (opacityA<fract(noise)) discard;
+		#else
+			if (opacityA<1.0-materialTransparencyThreshold) discard;
+		#endif
 	#endif
 	#ifdef MATERIAL_TRANSPARENCY_FRESNEL
 		float materialFresnelReflectance = clamp(fresnelReflectance(abs(dot(worldEyeDir,worldNormal))),0.0,0.999); // clamping to 1.0 produces strange artifact
@@ -563,16 +578,6 @@ void main()
 
 	#ifdef MATERIAL_EMISSIVE_MAP
 		vec4 materialEmissiveMapColor = texture2D(materialEmissiveMap, materialEmissiveCoord) * materialEmittanceMultiplier;
-	#endif
-
-
-	/////////////////////////////////////////////////////////////////////
-	//
-	// noise
-
-	#if (defined(SHADOW_MAPS) && defined(SHADOW_SAMPLES)) || defined(LIGHT_INDIRECT_MIRROR_SPECULAR)
-		float noise = sin(dot(worldPos,vec3(52.714,112.9898,78.233))) * 43758.5453;
-		vec2 noiseSinCos = vec2(sin(noise),cos(noise));
 	#endif
 
 
