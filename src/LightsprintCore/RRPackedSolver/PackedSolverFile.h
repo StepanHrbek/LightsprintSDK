@@ -43,6 +43,7 @@ public:
 	{
 		data = _adopt_data;
 		sizeInBytes = _sizeInBytes; // full size
+		numC1 = 1; // has to be at least 1 for getC1(0) to pass
 		numC1 = data ? getC1(0)->arrayOffset/sizeof(C1)-1 : 0;
 	}
 	//! Constructor used when empty array is created and then filled with newC1, newC2.
