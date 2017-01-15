@@ -106,6 +106,7 @@ CanvasWindow::CanvasWindow(SVFrame* _svframe)
 	(_svframe->userPreferences.stereoMode==rr::RRCamera::SM_QUAD_BUFFERED) ? s_attribListQuad : s_attribList,
 		wxDefaultPosition, wxDefaultSize, wxCLIP_SIBLINGS|wxFULL_REPAINT_ON_RESIZE|wxWANTS_CHARS, "GLCanvas")
 {
+	svcanvas = nullptr;
 }
 
 SVCanvas::SVCanvas( SceneViewerStateEx& _svs, SVFrame *_svframe)
