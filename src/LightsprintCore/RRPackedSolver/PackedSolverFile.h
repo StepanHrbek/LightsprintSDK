@@ -554,7 +554,7 @@ public:
 	{
 		delete packedFactors;
 		delete packedIvertices;
-		delete packedSmoothTriangles;
+		delete[] packedSmoothTriangles;
 	}
 	PackedFactorsThread* packedFactors;
 	PackedIvertices* packedIvertices;
