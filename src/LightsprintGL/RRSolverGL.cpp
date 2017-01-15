@@ -80,6 +80,7 @@ RRSolverGL::RRSolverGL(const rr::RRString& pathToShaders, const rr::RRString& pa
 		rr::RRString(0,L"%lsscaledown_filter.fs",pathToShaders.w_str()));
 	if (!scaleDownProgram) rr::RRReporter::report(rr::ERRO,"Helper shaders failed: %lsscaledown_filter.*\n",pathToShaders.w_str());
 
+	lastDDINumLightsEnabled = UINT_MAX;
 	lastDDITime.addSeconds(-1000000);
 	detectedDirectSum = nullptr;
 	detectedNumTriangles = 0;
