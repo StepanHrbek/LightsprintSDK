@@ -619,8 +619,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 
 	m_mgr.SetManagedWindow(this);
 
-	UpdateEverything(); // slow. if specified by filename, loads scene from disk. creates context
-
 	// setup dock art (colors etc)
 	wxAuiDockArt* dockArt = new wxAuiDefaultDockArt;
 	//dockArt->SetMetric(wxAUI_DOCKART_SASH_SIZE,4);
@@ -668,10 +666,6 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	//  - window moved outside screen is ok, not visible, but Centre() is later ignored if user moves other window meanwhile
 	//m_canvas->Paint(false);
 
-	// render first visible frame, with good panels, disabled glcanvas
-	// window was created with wxMINIMIZE, this makes it visible
-	Restore();
-
 	// 1. setup frame size+location. it would be nice to do this before we make window visible, but SetSize does not work on minimized window
 	// 2. synchronize fullscreen state between 3 places
 	// - userPreferences.windowLayout[userPreferences.currentWindowLayout].fullscreen
@@ -686,10 +680,23 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	svs.fullscreen = false;
 	userPreferencesApplyToWx();
 
+	// render first visible frame, with good panels, disabled glcanvas
+	// window was created with wxMINIMIZE, this makes it visible
+	// we would like to do this _after_ userPreferencesApplyToWx() to keep window resizing invisible,
+	//  but then restoring fullscreen layout (at least in in Linux) fails, we have to call ApplyToWx() once more later
+	Restore();
+
+	// must go after Restore(), otherwise Linux port in SetCurrent() complains about canvasWindow not shown
+	UpdateEverything(); // slow. if specified by filename, loads scene from disk. creates context
+
 	// SetFocus in UpdateEverything() is not sufficient, adding panes changes focus, so here we set it again
 	m_canvasWindow->SetFocus();
 
 	m_mgr.Update();
+
+	// ApplyToWx once more, first one before Restore() did not apply fullscreen (at least in Linux)
+	svs.fullscreen = false;
+	userPreferencesApplyToWx();
 
 	// switch to normal rendering (with enabled glcanvas)
 	// still, do at least 1 empty frame to quickly clear canvas (important in windows classic mode)
