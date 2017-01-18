@@ -687,7 +687,8 @@ SVFrame::SVFrame(wxWindow* _parent, const wxString& _title, const wxPoint& _pos,
 	Restore();
 
 	// must go after Restore(), otherwise Linux port in SetCurrent() complains about canvasWindow not shown
-	UpdateEverything(); // slow. if specified by filename, loads scene from disk. creates context
+	UpdateEverything();
+ // slow. if specified by filename, loads scene from disk. creates context
 
 	// SetFocus in UpdateEverything() is not sufficient, adding panes changes focus, so here we set it again
 	m_canvasWindow->SetFocus();
