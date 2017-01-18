@@ -15,8 +15,12 @@ unsigned INSTANCES_PER_PASS;
 #define INDIRECT_MULTIPLIER        pow(2.3f,2.22f) // i think lightsmark 2007/8 used to boost indirect 2x in sRGB. current multiplier works in linear, so pow is necessary to keep level
 #if defined(NDEBUG) && defined(_WIN32)
 	//#define SET_ICON
+	#pragma comment( linker, "/subsystem:windows" )
 #else
 	#define CONSOLE
+	#ifdef _WIN32
+		#pragma comment( linker, "/subsystem:console" )
+	#endif
 #endif
 //#define SUPPORT_RR_ED // builds sceneViewer() in
 //#define CORNER_LOGO
