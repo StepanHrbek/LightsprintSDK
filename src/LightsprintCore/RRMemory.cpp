@@ -305,7 +305,8 @@ RRString::~RRString()
 	if (((size_t)str)&1)
 	{
 		// don't destruct this time, just clear flag from _skipDestructor()
-		str--;
+		// volatile prevents gcc from optimizing parts of destructor away
+		((char *volatile*)(&str))[0] --;
 	}
 	else
 	{
