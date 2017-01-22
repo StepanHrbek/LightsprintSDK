@@ -39,10 +39,10 @@
     <RootNamespace>LightsmarkBackend</RootNamespace>
   </PropertyGroup>
   <Import Project="..\..\src\configs\rr_app.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|x64'">
     <TargetName>backend</TargetName>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release DLL|Win32'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release static|Win32'">
     <TargetName>backend</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup>
