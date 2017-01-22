@@ -63,12 +63,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_08A017B6457945BE9491FE4C1F43A170"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0965443CB05B4D919A8D7AF883061603"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -388,12 +382,6 @@
         "Entry"
         {
         "MsmKey" = "8:_3F65C3CE259145309FDB3AB5287F55A4"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3F6F9FC9608E4972BD445FADC1CB83C9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -831,12 +819,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_82E4E6B6E7AC432498910FDD0EA54CB9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_82E9BBF8EE6F4002B31700AA6DC7ADAE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -981,12 +963,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9D3DCBFFFB694B7C91CE721D4C06B520"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_9FA1D45A496F4B478230F697B8A31038"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1084,12 +1060,6 @@
         "Entry"
         {
         "MsmKey" = "8:_AD1E485283424C3B87947FD842E64EE7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_AFA5B2F1884643AE9E8C2D0FB62C473D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1401,12 +1371,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DAADBF40D1054F88B84ACD4DDD5576BF"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_DB0E0C2E91D245DCB9CA2FE3EF1E9697"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1659,7 +1623,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:2.0.50727 "
+                "FrameworkVersion" = "8:2.0.50727  "
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=9832"
                 }
@@ -1813,26 +1777,6 @@
             "TargetName" = "8:border003.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_08A017B6457945BE9491FE4C1F43A170"
-            {
-            "SourcePath" = "8:..\\..\\bin\\win32\\LightsprintGL.vs2015.dll"
-            "TargetName" = "8:LightsprintGL.vs2015.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2873,26 +2817,6 @@
             "TargetName" = "8:klink03.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3F6F9FC9608E4972BD445FADC1CB83C9"
-            {
-            "SourcePath" = "8:..\\..\\bin\\win32\\LightsprintCore.vs2015.dll"
-            "TargetName" = "8:LightsprintCore.vs2015.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4347,26 +4271,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_82E4E6B6E7AC432498910FDD0EA54CB9"
-            {
-            "SourcePath" = "8:..\\..\\bin\\win32\\LightsprintIO.vs2015.dll"
-            "TargetName" = "8:LightsprintIO.vs2015.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_88925D45A92146909EDBC28D4C24ECB8"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_82E9BBF8EE6F4002B31700AA6DC7ADAE"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\oldmetal.jpg"
@@ -4847,26 +4751,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9D3DCBFFFB694B7C91CE721D4C06B520"
-            {
-            "SourcePath" = "8:..\\..\\bin\\x64\\LightsprintIO.vs2015.dll"
-            "TargetName" = "8:LightsprintIO.vs2015.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9FA1D45A496F4B478230F697B8A31038"
             {
             "SourcePath" = "8:..\\..\\data\\scenes\\wop_padattic\\metal08.tga"
@@ -5193,26 +5077,6 @@
             "TargetName" = "8:woodlatten02.jpg"
             "Tag" = "8:"
             "Folder" = "8:_E744EDB35E7F4263BA8AD2431CC28965"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AFA5B2F1884643AE9E8C2D0FB62C473D"
-            {
-            "SourcePath" = "8:..\\..\\bin\\x64\\LightsprintGL.vs2015.dll"
-            "TargetName" = "8:LightsprintGL.vs2015.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6231,26 +6095,6 @@
             {
             "SourcePath" = "8:..\\..\\bin\\x64\\libopus-0.dll"
             "TargetName" = "8:libopus-0.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DAADBF40D1054F88B84ACD4DDD5576BF"
-            {
-            "SourcePath" = "8:..\\..\\bin\\x64\\LightsprintCore.vs2015.dll"
-            "TargetName" = "8:LightsprintCore.vs2015.dll"
             "Tag" = "8:"
             "Folder" = "8:_44DA2427846243C7AD8FB7F23F541045"
             "Condition" = "8:"
