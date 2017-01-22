@@ -120,6 +120,9 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 			cf.yHeight = 500;
 			cf.yOffset = 0;
 			SendDlgItemMessage( hDlg,IDC_SCORE,EM_SETCHARFORMAT,4,(LPARAM)&cf);
+
+			// unhide 64bit checkbox, since installer now installs both 32+64bit
+			ShowWindow(GetDlgItem(hDlg,IDC_X64),SW_SHOWNORMAL);
 		}
 		return (INT_PTR)TRUE;
 
