@@ -1155,6 +1155,7 @@ bool RRCamera::getRay(RRVec2 posInWindow, RRVec3& rayOrigin, RRVec3& rayDir, boo
 	posInWindow /= scale;
 
 	// panoramaMode [#42]
+	// (response to apertureDiameter, dofNear, dofFar not implemented yet)
 	bool result = false;
 	if (panoramaMode==PM_EQUIRECTANGULAR)
 	{
