@@ -58,6 +58,7 @@ Texture.cpp \
 TextureRenderer.cpp \
 UberProgram.cpp \
 UberProgramSetup.cpp \
+VRDevice.cpp \
 Workaround.cpp
 
 # libraries

@@ -255,7 +255,7 @@ public:
 		return oculusSession;
 	};
 
-	virtual void updateCamera(rr::RRCamera& camera)
+	virtual void getPose(rr::RRVec3& _outPos, rr::RRVec3& _outRot)
 	{
 		ovrSessionStatus sessionStatus;
 		ovr_GetSessionStatus(oculusSession, &sessionStatus);
@@ -275,23 +275,11 @@ public:
 
 		ovr_GetEyePoses(oculusSession, oculusFrameIndex, ovrTrue, HmdToEyeOffset, oculusEyeRenderPose, &oculusSensorSampleTime);
 
-		//double oculusFrameTiming = ovr_GetPredictedDisplayTime(oculusSession, oculusFrameIndex);
 		ovrTrackingState oculusTrackingState = ovr_GetTrackingState(oculusSession, 0, false);//oculusFrameTiming.DisplayMidpointSeconds);
-		//ovr_CalcEyePoses(oculusTrackingState.HeadPose.ThePose, oculusHmdToEyeViewOffset, oculusEyePose);
 		ovrPosef oculusHeadPose = oculusTrackingState.HeadPose.ThePose;
-		// apply oculus rotation to our camera
-		static rr::RRVec3 oldOculusRot(0);
-		rr::RRVec3 oculusRot(0);
 		OVR::Quat<float> oculusHeadPose_Orientation = oculusHeadPose.Orientation;
-		oculusHeadPose_Orientation.GetYawPitchRoll(&oculusRot.x,&oculusRot.y,&oculusRot.z);
-		OVR::Matrix4f yawWithoutOculus = OVR::Matrix4f::RotationY(camera.getYawPitchRollRad().x-oldOculusRot.x);
-		camera.setYawPitchRollRad(rr::RRVec3(camera.getYawPitchRollRad().x + oculusRot.x-oldOculusRot.x, oculusRot.y, oculusRot.z));
-		oldOculusRot = oculusRot;
-		// apply oculus translation to our camera
-		static rr::RRVec3 oldOculusTrans(0);
-		rr::RRVec3 oculusTrans = convertVec3(yawWithoutOculus.Transform(oculusHeadPose.Position));
-		camera.setPosition(camera.getPosition()+oculusTrans-oldOculusTrans);
-		oldOculusTrans = oculusTrans;
+		oculusHeadPose_Orientation.GetYawPitchRoll(&_outRot.x,&_outRot.y,&_outRot.z);
+		_outPos = convertVec3(oculusHeadPose.Position);
 
 		eyeSeparation = fabs(eyeRenderDesc[0].HmdToEyeOffset.x-eyeRenderDesc[1].HmdToEyeOffset.x);
 	};

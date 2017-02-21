@@ -12,7 +12,7 @@
 
 #include "Lightsprint/Ed/Ed.h"
 #include "Lightsprint/GL/PluginFPS.h"
-#include "Lightsprint/GL/PluginOculus.h"
+#include "Lightsprint/GL/VRDevice.h"
 #include "wx/glcanvas.h"
 #include "wx/joystick.h"
 #include "SVApp.h"

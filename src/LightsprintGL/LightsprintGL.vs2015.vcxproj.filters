@@ -38,6 +38,8 @@
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginToneMappingAdjustment.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginContours.h" />
     <ClInclude Include="..\..\include\Lightsprint\GL\PluginOculus.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\PluginOpenVR.h" />
+    <ClInclude Include="..\..\include\Lightsprint\GL\VRDevice.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MultiPass.cpp" />
@@ -69,6 +71,8 @@
     <ClCompile Include="PluginToneMappingAdjustment.cpp" />
     <ClCompile Include="PluginContours.cpp" />
     <ClCompile Include="PluginOculus.cpp" />
+    <ClCompile Include="PluginOpenVR.cpp" />
+    <ClCompile Include="VRDevice.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\data\shaders\scaledown_filter.fs">

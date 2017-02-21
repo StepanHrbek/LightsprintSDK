@@ -112,10 +112,10 @@ public:
 		return m_pHMD;
 	};
 
-	virtual void updateCamera(rr::RRCamera& camera)
+	virtual void getPose(rr::RRVec3& _outPos, rr::RRVec3& _outRot)
 	{
 		vr::VRCompositor()->WaitGetPoses(m_rTrackedDevicePose, vr::k_unMaxTrackedDeviceCount, NULL, 0 );
-
+		/*
 		m_strPoseClasses = "";
 		for ( int nDevice = 0; nDevice < vr::k_unMaxTrackedDeviceCount; ++nDevice )
 		{
@@ -142,18 +142,13 @@ public:
 		{
 			m_mat4HMDPose = m_rmat4DevicePose[vr::k_unTrackedDeviceIndex_Hmd];
 		}
-
-		// apply openvr rotation to our camera
-		static rr::RRVec3 oldOpenVRRot(0);
-		rr::RRVec3 openvrRot = m_mat4HMDPose.getYawPitchRoll();
-		rr::RRMatrix3x4 yawWithoutOpenVR = rr::RRMatrix3x4::rotationByAxisAngle(rr::RRVec3(0,-1,0),camera.getYawPitchRollRad().x-oldOpenVRRot.x);
-		camera.setYawPitchRollRad(rr::RRVec3(camera.getYawPitchRollRad().x + openvrRot.x-oldOpenVRRot.x, openvrRot.y, openvrRot.z));
-		oldOpenVRRot = openvrRot;
-		// apply openvr translation to our camera
-		static rr::RRVec3 oldOpenVRTrans(0);
-		rr::RRVec3 openvrTrans = yawWithoutOpenVR.getTransformedDirection(m_mat4HMDPose.getTranslation());// convertVec3(yawWithoutOpenVR.Transform(openvrHeadPose.Position));
-		camera.setPosition(camera.getPosition()+openvrTrans-oldOpenVRTrans);
-		oldOpenVRTrans = openvrTrans;
+		*/
+		if ( m_rTrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid )
+		{
+			m_mat4HMDPose = convertMatrix(m_rTrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking);
+		}
+		_outPos = m_mat4HMDPose.getTranslation();
+		_outRot = m_mat4HMDPose.getYawPitchRoll();
 	};
 
 	virtual void startFrame(unsigned mirrorW, unsigned mirrorH)

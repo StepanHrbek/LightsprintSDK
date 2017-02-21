@@ -109,6 +109,7 @@
     <ClCompile Include="TextureRenderer.cpp" />
     <ClCompile Include="UberProgram.cpp" />
     <ClCompile Include="UberProgramSetup.cpp" />
+    <ClCompile Include="VRDevice.cpp" />
     <ClCompile Include="Workaround.cpp" />
   </ItemGroup>
   <ItemGroup>
