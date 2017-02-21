@@ -338,7 +338,7 @@ PluginRuntime* PluginParamsOpenVR::createRuntime(const PluginCreateRuntimeParams
 }; // namespace
 
 
-#else // SUPPORT_OCULUS
+#else // SUPPORT_OPENVR
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -360,5 +360,5 @@ PluginRuntime* PluginParamsOpenVR::createRuntime(const PluginCreateRuntimeParams
 
 }; // namespace
 
-#endif // SUPPORT_OCULUS
+#endif // SUPPORT_OPENVR
 
