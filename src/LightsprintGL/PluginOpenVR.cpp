@@ -92,7 +92,7 @@ public:
 		vr::HmdMatrix34_t left = m_pHMD->GetEyeToHeadTransform(vr::Eye_Left);
 		vr::HmdMatrix34_t right = m_pHMD->GetEyeToHeadTransform(vr::Eye_Right);
 		eyeSeparation = right.m[0][3]-left.m[0][3];
-		aspect = optimalW/(float)optimalH;
+		aspect = optimalW/(float)optimalH; //*1.5f; for pimax 4k with piplay 1.1.92 and 2k checked
 		for (unsigned eye=0;eye<2;eye++)
 		{
 			float left,right,top,bottom;
