@@ -1144,7 +1144,7 @@ Material formats (1)
     </td><td>
     \image html background2.jpg add white plane
     </td><td>
-    \image html background3.jpg change material name to "background"
+    \image html background3.jpg check Material / transparency / background
     </td></tr></table>
 
   This is currently supported only by pathtracer, other techniques render "background" material fully visible.
@@ -2592,7 +2592,7 @@ Material formats (1)
 		<td>interactive</td>
 		<td>the most accurate GI</td>
 		<td>
-			- noisy rendering
+			- very noisy, noise reduction not implemented yet
 		</td>
 		<td>\subpage technique_pathtracing "artist's guide"</td>
 		<td>
