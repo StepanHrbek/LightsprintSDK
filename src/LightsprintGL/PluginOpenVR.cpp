@@ -305,8 +305,6 @@ public:
 			glScissor(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			_renderer.render(_pp.next,oneEye);
-
-			oldFBOState.restore(); // OpenVRRoomTiny sample claims this is necessary workaround. but no effect visible
 		}
 		oldFBOState.restore();
 
