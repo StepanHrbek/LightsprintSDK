@@ -1,6 +1,8 @@
 @echo off
 if x%1==x exit
 
+Setlocal
+
 set ACTION=%1
 set COMPILER=%2
 set TARGET=%3
@@ -31,7 +33,10 @@ del "src\Lightsprint.%COMPILER%.%TARGET%.sln"
 
 del %ERR%
 echo OK, done.
+Endlocal
 goto:eof
 
 :error
 echo !!!!!!!!!!!!!!!!!!!!!!! ERROR (see %ERR%) !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+exit
+rem now that builds are parallel, we build platforms serially. here we abort sequence of builds when one fails
