@@ -464,11 +464,12 @@ Material formats (1)
  Used by LightsprintGL (optional OpenGL support):
  - \subpage tpl_boost
  - \subpage tpl_glew
+ - \subpage tpl_openvr
+ - \subpage tpl_oculus
 
  Used by LightsprintEd (optional scene editor):
  - \subpage tpl_boost
  - \subpage tpl_wx
- - \subpage tpl_oculus
  - \subpage tpl_art
 
  Used by LightsprintIO (optional file format support):
@@ -572,8 +573,9 @@ Material formats (1)
    - version 1.04 is dynamically linked to LightsprintGL library
 
   \section openvr_install Installing OpenVR SDK
-   - install <a href="https://github.com/ValveSoftware/openvr">OpenVR SDK</a>
+   - clone <a href="https://github.com/ValveSoftware/openvr">OpenVR SDK</a>
    - set environment variable OPENVR_DIR to point to OpenVR SDK root, so e.g. c:\\OpenVR
+   - copy respective openvr_api.dll files to Lightsprint SDK bin\\win32 and bin\\x64 folders (TODO: can we do this in post build step?)
 
   \section openvr_remove Removing OpenVR SDK
    If you wish to remove OpenVR support
@@ -582,14 +584,7 @@ Material formats (1)
   \section openvr_integr Integrating OpenVR
    OpenVR SDK is not part of Lightsprint SDK, you need to install it separately.
    Would it be good idea to make it part of Lightsprint SDK?
-
-   <b>+</b> Bisect would be easier, old Lightsprint revisions would run out of the box (right now we have to disable OpenVR before building).
-
-   <b>+</b> Stable branches would be possible.
-
-   <b>+</b> Old OpenVR versions would run out of the box. But it's not a big advantage, no one wants to debug old OpenVR when new one is available.
-
-   <b>-</b> Some users might already have OpenVR fixed on different path, and having OpenVR twice is not nice.
+   See similar discussion in \ref oculus_integr
 
 \page tpl_oculus LibOVR
   \section oculus_www Web
@@ -1167,6 +1162,7 @@ Material formats (1)
 
   Setting up third party libraries
   - \ref tpl_boost
+  - \ref tpl_openvr (you need it only if you build LightsprintGL from source code)
   - \ref tpl_oculus (you need it only if you build LightsprintGL from source code)
   - \ref tpl_wx (you need it only if you build LightsprintEd from source code)
 
@@ -1174,6 +1170,8 @@ Material formats (1)
   simply open solution and build.
 
  \section building_linux Others
+
+  TODO: this section needs update.
 
   Setting up third party libraries:
   - OSX: <code>sudo port install boost -python27 freeglut freeimage glew wxWidgets-3.0</code> (warning: freeglut has a lot of dependencies. we only need it in some samples)
