@@ -46,6 +46,8 @@ class OpenVRDevice : public VRDevice
 public:
 	unsigned             optimalW;
 	unsigned             optimalH;
+	unsigned             effectiveW;
+	unsigned             effectiveH;
 	float                eyeSeparation;
 	float                aspect;
 	float                fieldOfViewVerticalDeg[2];
@@ -64,6 +66,8 @@ public:
 
 		optimalW = 0;
 		optimalH = 0;
+		effectiveW = 0;
+		effectiveH = 0;
 		aspect = 1;
 		for (unsigned eye=0;eye<2;eye++)
 		{
@@ -72,7 +76,11 @@ public:
 			eyeRenderTexture[eye] = nullptr;
 			eyeDepthBuffer[eye] = nullptr;
 		}
+		openvrInit();
+	};
 
+	void openvrInit()
+	{
 		vr::EVRInitError eError = vr::VRInitError_None;
 		m_pHMD = vr::VR_Init( &eError, vr::VRApplication_Scene );
 		if ( eError != vr::VRInitError_None )
@@ -101,13 +109,10 @@ public:
 			top = -top;
 			fieldOfViewVerticalDeg[eye] = RR_RAD2DEG(2*atan((left+right)/(2*aspect)));
 			screenCenter[eye] = rr::RRVec2(-(left-right)/(left+right),(top-bottom)/(top+bottom));
-			eyeRenderTexture[eye] = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,optimalW,optimalH,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false);
-			eyeRenderTexture[eye]->reset(false,false,true);
-			eyeDepthBuffer[eye]   = Texture::createShadowmap(optimalW,optimalH);
 		}
-	};
+	}
 
-	virtual bool isOk()
+	bool isOk()
 	{
 		return m_pHMD;
 	};
@@ -151,8 +156,38 @@ public:
 		_outRot = m_mat4HMDPose.getYawPitchRoll();
 	};
 
-	virtual void startFrame(unsigned mirrorW, unsigned mirrorH)
+	void startFrame(unsigned mirrorW, unsigned mirrorH)
 	{
+		// resize textures after resMultiplier change
+		effectiveW = ((unsigned)(optimalW*resMultiplier)+3)&0xfffffffc;
+		effectiveH = ((unsigned)(optimalH*resMultiplier)+3)&0xfffffffc;
+		bool wrongRes[2];
+		for (unsigned eye=0;eye<2;eye++)
+			wrongRes[eye] = eyeRenderTexture[eye] && (eyeRenderTexture[eye]->getBuffer()->getWidth()!=effectiveW || eyeRenderTexture[eye]->getBuffer()->getHeight()!=effectiveH);
+		if (wrongRes[0] || wrongRes[1])
+		{
+			// at the moment, resize is not possible according to https://github.com/ValveSoftware/openvr/issues/147
+			// so instead we restart whole OpenVR
+			rr::RRReporter::report(rr::INF2,"Restarting openvr in order to change resolution.\n");
+			openvrDone(); // alternatively we can call inplace dtor+ctor, but it would reset resMultiplier
+			openvrInit();
+			// recalculate effectiveW/H, zeroed in openvrInit
+			effectiveW = ((unsigned)(optimalW*resMultiplier)+3)&0xfffffffc;
+			effectiveH = ((unsigned)(optimalH*resMultiplier)+3)&0xfffffffc;
+		}
+		for (unsigned eye=0;eye<2;eye++)
+		{
+			if (!eyeRenderTexture[eye] || wrongRes[eye])
+			{
+				if (eyeRenderTexture[eye]) delete eyeRenderTexture[eye]->getBuffer();
+				delete eyeRenderTexture[eye];
+				eyeRenderTexture[eye] = new Texture(rr::RRBuffer::create(rr::BT_2D_TEXTURE,effectiveW,effectiveH,1,rr::BF_RGBA,true,RR_GHOST_BUFFER),false,false);
+				eyeRenderTexture[eye]->reset(false,false,true);
+				delete eyeDepthBuffer[eye];
+				eyeDepthBuffer[eye] = Texture::createShadowmap(effectiveW,effectiveH);
+			}
+		}
+
 		// Process SteamVR events
 		vr::VREvent_t event;
 		while( m_pHMD->PollNextEvent( &event, sizeof( event ) ) )
@@ -189,18 +224,18 @@ public:
 		}
 	}
 
-	virtual void submitFrame()
+	void submitFrame()
 	{
 		if ( m_pHMD )
 		{
-			vr::Texture_t leftEyeTexture = {(void*)eyeRenderTexture[0]->getId(), vr::API_OpenGL, vr::ColorSpace_Gamma };
+			vr::Texture_t leftEyeTexture = {(void*)(intptr_t)eyeRenderTexture[0]->getId(), vr::API_OpenGL, vr::ColorSpace_Gamma };
 			vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
-			vr::Texture_t rightEyeTexture = {(void*)eyeRenderTexture[1]->getId(), vr::API_OpenGL, vr::ColorSpace_Gamma };
+			vr::Texture_t rightEyeTexture = {(void*)(intptr_t)eyeRenderTexture[1]->getId(), vr::API_OpenGL, vr::ColorSpace_Gamma };
 			vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
 		}
 	};
 
-	virtual ~OpenVRDevice()
+	void openvrDone()
 	{
 		if ( m_pHMD )
 		{
@@ -211,6 +246,11 @@ public:
 			m_pHMD = NULL;
 			vr::VR_Shutdown();
 		}
+	}
+
+	virtual ~OpenVRDevice()
+	{
+		openvrDone();
 		for (unsigned eye=0;eye<2;eye++)
 		{
 			if (eyeRenderTexture[eye])
@@ -299,8 +339,8 @@ public:
 			// render to textures
 			oneEye.viewport[0] = 0;
 			oneEye.viewport[1] = 0;
-			oneEye.viewport[2] = vr->optimalW;
-			oneEye.viewport[3] = vr->optimalH;
+			oneEye.viewport[2] = vr->effectiveW;
+			oneEye.viewport[3] = vr->effectiveH;
 			glViewport(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
 			glScissor(oneEye.viewport[0],oneEye.viewport[1],oneEye.viewport[2],oneEye.viewport[3]);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

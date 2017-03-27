@@ -31,6 +31,8 @@ namespace rr_gl
 class RR_GL_API VRDevice
 {
 public:
+	VRDevice() {resMultiplier=1;}
+
 	//! Returns HMD position and rotation.
 	virtual void getPose(rr::RRVec3& outPos, rr::RRVec3& outRot) = 0;
 
@@ -42,6 +44,9 @@ public:
 	
 	//! Releases HMD, so it can be acquired by other programs.
 	virtual ~VRDevice() {};
+
+	// Changing resolution breaks openvr https://github.com/ValveSoftware/openvr/issues/147
+	float resMultiplier;
 };
 
 

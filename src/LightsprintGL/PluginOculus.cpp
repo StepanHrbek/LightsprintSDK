@@ -189,7 +189,6 @@ class OculusDevice : public VRDevice
 	// scope = permanent
 	bool                 oculusInited;
 	ovrSession           oculusSession;
-	bool                 oculusTexturesCreated;
 	ovrMirrorTexture     oculusMirrorTexture;
 	unsigned             oculusMirrorFBO;
 	unsigned             oculusMirrorW;
@@ -218,7 +217,6 @@ public:
 			oculusEyeRenderTexture[eye] = nullptr;
 			oculusEyeDepthBuffer[eye] = nullptr;
 		}
-		oculusTexturesCreated = false;
 		oculusMirrorTexture = nullptr;
 		oculusMirrorFBO = 0;
 		oculusMirrorW = 0;
@@ -286,15 +284,19 @@ public:
 
 	virtual void startFrame(unsigned mirrorW, unsigned mirrorH)
 	{
-		// configure oculus renderer once in SVCanvas life
-		if (!oculusTexturesCreated)
+		// adjust texture size when resMultiplier changes
+		for (unsigned eye=0;eye<2;eye++)
 		{
-			oculusTexturesCreated = true;
-			for (unsigned eye=0;eye<2;eye++)
+			ovrSizei idealTextureSize = ovr_GetFovTextureSize(oculusSession, (ovrEyeType)eye, oculusHmdDesc.DefaultEyeFov[eye], 1);
+			ovrSizei effectiveTextureSize;
+			effectiveTextureSize.w = ((unsigned)(idealTextureSize.w*resMultiplier)+3)&0xfffc;
+			effectiveTextureSize.h = ((unsigned)(idealTextureSize.h*resMultiplier)+3)&0xfffc;
+			if (!oculusEyeRenderTexture[eye] || oculusEyeRenderTexture[eye]->texSize!=effectiveTextureSize)
 			{
-				ovrSizei idealTextureSize = ovr_GetFovTextureSize(oculusSession, (ovrEyeType)eye, oculusHmdDesc.DefaultEyeFov[eye], 1);
-				oculusEyeRenderTexture[eye] = new TextureBuffer(oculusSession, idealTextureSize);
-				oculusEyeDepthBuffer[eye]   = Texture::createShadowmap(idealTextureSize.w,idealTextureSize.h);
+				delete oculusEyeRenderTexture[eye];
+				oculusEyeRenderTexture[eye] = new TextureBuffer(oculusSession, effectiveTextureSize);
+				delete oculusEyeDepthBuffer[eye];
+				oculusEyeDepthBuffer[eye]   = Texture::createShadowmap(effectiveTextureSize.w,effectiveTextureSize.h);
 				if (!oculusEyeRenderTexture[eye]->TextureChain)
 				{
 					rr::RRReporter::report(rr::ERRO,"Oculus: Texture chain fail.\n");
