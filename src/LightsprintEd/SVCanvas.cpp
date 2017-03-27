@@ -1655,6 +1655,7 @@ bool SVCanvas::PaintCore(bool _takingSshot, const wxString& extraMessage)
 		// vr camera rotation+translation
 		if (svframe->vrActive())
 		{
+			vrDevice->resMultiplier = std::sqrt(svframe->userPreferences.stereoSupersampling);
 			vrDevice->updateCamera(svs.camera);
 			svframe->OnAnyChange(SVFrame::ES_RIFT,nullptr,nullptr,0);
 		}

@@ -133,6 +133,10 @@ void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int versi
 	}
 	ar & make_nvp("stereoMode",a.stereoMode);
 	ar & make_nvp("stereoSwap",a.stereoSwap);
+	if (version>19)
+	{
+		ar & make_nvp("stereoSupersampling",a.stereoSupersampling);
+	}
 	ar & make_nvp("currentWindowLayout",a.currentWindowLayout);
 	ar & make_nvp("windowLayout",a.windowLayout);
 	if (version>3)
@@ -175,7 +179,7 @@ void serialize(Archive & ar, rr_ed::UserPreferences& a, const unsigned int versi
 
 BOOST_CLASS_VERSION(rr_ed::ImportParameters,2);
 BOOST_CLASS_VERSION(rr_ed::UserPreferences::WindowLayout,3)
-BOOST_CLASS_VERSION(rr_ed::UserPreferences,19)
+BOOST_CLASS_VERSION(rr_ed::UserPreferences,20)
 
 //---------------------------------------------------------------------------
 

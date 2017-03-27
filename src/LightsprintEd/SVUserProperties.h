@@ -40,6 +40,7 @@ namespace rr_ed
 
 		wxPGProperty*     propStereoMode;
 		wxPGProperty*     propStereoSwap;
+		wxPGProperty*     propStereoSupersampling;
 
 		wxPGProperty*     propImport;
 		wxPGProperty*     propImportRemoveEmptyObjects;

@@ -43,6 +43,9 @@ SVUserProperties::SVUserProperties(SVFrame* _svframe)
 		propStereoSwap->SetHelpString(_("Swaps left and right eye."));
 		SetPropertyEditor(propStereoSwap,wxPGEditor_CheckBox);
 		AppendIn(propStereoMode,propStereoSwap);
+
+		propStereoSupersampling = new FloatProperty("Supersampling",_("Multiplies number of pixels rendered, 1 for no change."),userPreferences.stereoSupersampling,svs.precision,0.1f,16,0.1f,false);
+		AppendIn(propStereoMode,propStereoSupersampling);
 	}
 
 	// import
@@ -192,6 +195,7 @@ void SVUserProperties::updateProperties()
 
 void SVUserProperties::updateHide()
 {
+	//propStereoSupersampling->Hide(!userPreferences.stereo.mode!=VR,false);
 	propImportUnitsEnum->Hide(!userPreferences.import.unitEnabled,false);
 	propImportUnitsFloat->Hide(!userPreferences.import.unitEnabled || userPreferences.import.unitEnum!=ImportParameters::U_CUSTOM,false);
 	propImportUnitsForce->Hide(!userPreferences.import.unitEnabled,false);
@@ -224,6 +228,11 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	if (property==propStereoMode)
 	{
 		userPreferences.stereoMode = (rr::RRCamera::StereoMode)(propStereoMode->GetValue().GetInteger());
+	}
+	else
+	if (property==propStereoSupersampling)
+	{
+		userPreferences.stereoSupersampling = property->GetValue().GetDouble();
 	}
 	else
 	if (property==propImportUnitsEnabled)

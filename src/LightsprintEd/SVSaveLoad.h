@@ -56,6 +56,7 @@ namespace rr_ed
 		int         swapInterval; // value sent to wglSwapInterval, 0 for max fps, 0 for oculus 0.6, -1 to reasonably limit fps
 		rr::RRCamera::StereoMode stereoMode;
 		bool        stereoSwap;
+		float       stereoSupersampling;
 
 		unsigned    currentWindowLayout;
 		struct WindowLayout
@@ -96,6 +97,7 @@ namespace rr_ed
 			swapInterval = -1;
 			stereoMode = rr::RRCamera::SM_SIDE_BY_SIDE;
 			stereoSwap = false;
+			stereoSupersampling = 1;
 			currentWindowLayout = 0;
 			resetLayouts();
 			sshotFilename = "";
