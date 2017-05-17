@@ -570,7 +570,7 @@ Material formats (1)
    - Copyright (c) 2015, Valve Corporation. All rights reserved
 
   \section openvr_version Version
-   - version 1.04 is dynamically linked to LightsprintGL library
+   - version 1.07 is dynamically linked to LightsprintGL library
 
   \section openvr_install Installing OpenVR SDK
    - clone <a href="https://github.com/ValveSoftware/openvr">OpenVR SDK</a>

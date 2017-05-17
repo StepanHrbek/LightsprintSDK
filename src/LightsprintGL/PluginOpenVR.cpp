@@ -217,7 +217,7 @@ public:
 		for( vr::TrackedDeviceIndex_t unDevice = 0; unDevice < vr::k_unMaxTrackedDeviceCount; unDevice++ )
 		{
 			vr::VRControllerState_t state;
-			if( m_pHMD->GetControllerState( unDevice, &state ) )
+			//if( m_pHMD->GetControllerState( unDevice, &state ) )
 			{
 				//m_rbShowTrackedDevice[ unDevice ] = state.ulButtonPressed == 0;
 			}
@@ -228,9 +228,9 @@ public:
 	{
 		if ( m_pHMD )
 		{
-			vr::Texture_t leftEyeTexture = {(void*)(intptr_t)eyeRenderTexture[0]->getId(), vr::API_OpenGL, vr::ColorSpace_Gamma };
+			vr::Texture_t leftEyeTexture = {(void*)(intptr_t)eyeRenderTexture[0]->getId(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
 			vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
-			vr::Texture_t rightEyeTexture = {(void*)(intptr_t)eyeRenderTexture[1]->getId(), vr::API_OpenGL, vr::ColorSpace_Gamma };
+			vr::Texture_t rightEyeTexture = {(void*)(intptr_t)eyeRenderTexture[1]->getId(), vr::TextureType_OpenGL, vr::ColorSpace_Gamma };
 			vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
 		}
 	};
