@@ -94,7 +94,7 @@ int main(int argc, char** argv)
 	solver->setEnvironment(rr::RRBuffer::loadCube("../../data/maps/skybox/skybox_ft.jpg"));
 
 	// View solver in scene viewer
-	rr_ed::sceneViewer(solver,sceneFilename,nullptr,"../../data/",nullptr,true);
+	rr_ed::sceneViewer(solver,"","","../../data/",nullptr,true);
 
 	// Cleanup
 	delete solver->getEnvironment();
