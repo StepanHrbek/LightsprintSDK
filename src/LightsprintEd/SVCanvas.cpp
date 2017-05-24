@@ -482,6 +482,11 @@ void SVCanvas::addOrRemoveScene(rr::RRScene* scene, bool add, bool staticObjects
 							lights.erase(lights.begin()+i);
 							break;
 						}
+
+				// when deleting selected material, we have to clear it from material panel
+				// this can be skipped for now only because we never delete materials
+				// (when deleting objects, materials stay in memory)
+				//svframe->m_materialProperties->setMaterial(nullptr);
 			}
 		}
 		objects.removeEmptyObjects();
