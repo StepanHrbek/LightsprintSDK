@@ -53,7 +53,7 @@ namespace rr_ed
 	struct UserPreferences
 	{
 		bool        tooltips;
-		int         swapInterval; // value sent to wglSwapInterval, 0 for max fps, 0 for oculus 0.6, -1 to reasonably limit fps
+		int         swapInterval; // value sent to wglSwapInterval, 0 for max fps/oculus, 1 for vsync, -1 and -2 for adaptive sync on nvidia but possible crashes on radeon
 		rr::RRCamera::StereoMode stereoMode;
 		bool        stereoSwap;
 		float       stereoSupersampling;
@@ -94,7 +94,7 @@ namespace rr_ed
 		UserPreferences()
 		{
 			tooltips = true;
-			swapInterval = -1;
+			swapInterval = 1;
 			stereoMode = rr::RRCamera::SM_SIDE_BY_SIDE;
 			stereoSwap = false;
 			stereoSupersampling = 1;

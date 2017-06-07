@@ -221,7 +221,7 @@ void SVUserProperties::OnPropertyChange(wxPropertyGridEvent& event)
 	else
 	if (property==propSwapInterval)
 	{
-		userPreferences.swapInterval = property->GetValue().GetBool()?0:-1;
+		userPreferences.swapInterval = property->GetValue().GetBool()?0:1;
 		userPreferences.applySwapInterval();
 	}
 	else
