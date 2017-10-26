@@ -1165,6 +1165,7 @@ Material formats (1)
   - \ref tpl_openvr (you need it only if you build LightsprintGL from source code)
   - \ref tpl_oculus (you need it only if you build LightsprintGL from source code)
   - \ref tpl_wx (you need it only if you build LightsprintEd from source code)
+  - \ref tpl_ffmpeg (you need it only if you build LightsprintIO from source code)
 
   Lightsprint SDK includes solutions for all supported Visual C++ compilers,
   simply open solution and build.
