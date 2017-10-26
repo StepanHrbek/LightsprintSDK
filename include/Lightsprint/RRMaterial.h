@@ -102,6 +102,9 @@ namespace rr
 			//! delete old one before assigning new one.
 			//! Assignment and copy constructor in Property make only shallow copy, ~Property() doesn't delete texture.
 			//! Assignment and copy constructor in RRMaterial are disabled, ~RRMaterial() deletes textures.
+			//!
+			//! Note: When you set material textures, you need to set also minimalQualityForPointMaterials or call updateColorsFromTexture() 
+			//! which does it for you (otherwise pathtracer/baking won't use the textures).
 			RRBuffer*              texture;
 			//! Texcoord channel used by texture. Call RRMesh::getTriangleMapping(texcoord) to get mapping for texture.
 			unsigned               texcoord;
