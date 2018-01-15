@@ -83,6 +83,7 @@ public:
 		contoursProgram->sendUniform("tPixelSize",1.0f/w,1.0f/h);
 		contoursProgram->sendUniform("silhouetteColor",pp.silhouetteColor);
 		contoursProgram->sendUniform("creaseColor",pp.creaseColor);
+		glDisable(GL_CULL_FACE);
 		TextureRenderer::renderQuad();
 	}
 };

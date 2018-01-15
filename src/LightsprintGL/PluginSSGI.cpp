@@ -115,6 +115,7 @@ public:
 			FBO oldFBOState = FBO::getState();
 			FBO::setRenderTarget(GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,bigColor2,oldFBOState);
 			glViewport(0,0,w,h);
+			glDisable(GL_CULL_FACE);
 			TextureRenderer::renderQuad();
 
 			// bigColor3 = blurred(bigColor2)
