@@ -10,12 +10,18 @@
 // #define GAMMA
 // #define SHOW_ALPHA0
 // #define MIRROR_MASK
+// #define DIVIDE_UV_BY_W
 
 attribute vec2 vertexPosition;
 
 #ifdef TEXTURE
-	attribute vec2 vertexUvDiffuse;
-	varying vec2 uv;
+	#ifdef DIVIDE_UV_BY_W
+		attribute vec3 vertexUvDiffuse; // c++ code uses "vertexUvDiffuse" name for both uv and uvw
+		varying vec3 uvw;
+	#else
+		attribute vec2 vertexUvDiffuse;
+		varying vec2 uv;
+	#endif
 #endif
 
 #ifdef CUBE_TO_WARP
@@ -28,7 +34,11 @@ void main()
 {
 	gl_Position = vec4(vertexPosition,1.0,1.0);
 #ifdef TEXTURE
-	uv = vertexUvDiffuse;
+	#ifdef DIVIDE_UV_BY_W
+		uvw = vertexUvDiffuse;
+	#else
+		uv = vertexUvDiffuse;
+	#endif
 #endif
 #ifdef CUBE_TO_WARP
 	gl_Position.xy *= scale;

@@ -17,6 +17,7 @@
 // #define STEPS
 // #define SHOW_ALPHA0
 // #define MIRROR_MASK
+// #define DIVIDE_UV_BY_W
 
 #define RR_PI 3.1415926535897932384626433832795
 
@@ -35,7 +36,11 @@ uniform float gamma;
 	#else
 		uniform sampler2D map;
 	#endif
-	varying vec2 uv;
+	#ifdef DIVIDE_UV_BY_W
+		varying vec3 uvw;
+	#else
+		varying vec2 uv;
+	#endif
 #endif
 #ifdef SHOW_ALPHA0
 	#extension GL_EXT_gpu_shader4 : require // testing bits is much easier with GL3/DX10 generation GPU
@@ -72,6 +77,9 @@ void main()
 {
 
 #ifdef TEXTURE
+	#ifdef DIVIDE_UV_BY_W
+		vec2 uv = uvw.xy / uvw.z;
+	#endif
 	#ifdef TEXTURE_IS_CUBE
 		vec3 direction;
 		#if !defined(CUBE_TO_EQUIRECTANGULAR) && !defined(CUBE_TO_LITTLE_PLANET) && !defined(CUBE_TO_FISHEYE) && !defined(CUBE_TO_WARP)
