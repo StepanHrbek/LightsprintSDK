@@ -39,6 +39,7 @@ RRReporter/RRReporterPrintf.cpp \
 RRReporter/RRReporterWindow.cpp \
 RRReporter/RRReportInterval.cpp \
 RRCollider/bsp.cpp \
+RRCollider/EmbreeCollider.cpp \
 RRCollider/fpcube.cpp \
 RRCollider/geometry.cpp \
 RRCollider/IntersectBspCompact.cpp \

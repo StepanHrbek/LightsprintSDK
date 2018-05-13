@@ -48,6 +48,7 @@
     <ClCompile Include="RRBuffer\RRBufferBlend.cpp" />
     <ClCompile Include="RRCamera.cpp" />
     <ClCompile Include="RRCollider\bsp.cpp" />
+    <ClCompile Include="RRCollider\EmbreeCollider.cpp" />
     <ClCompile Include="RRCollider\geometry.cpp" />
     <ClCompile Include="RRCollider\IntersectBspCompact.cpp" />
     <ClCompile Include="RRCollider\IntersectBspFast.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="RRBuffer\RRBufferBlend.h" />
     <ClInclude Include="RRCollider\bsp.h" />
     <ClInclude Include="RRCollider\config.h" />
+    <ClInclude Include="RRCollider\EmbreeCollider.h" />
     <ClInclude Include="RRCollider\geometry.h" />
     <ClInclude Include="RRCollider\IntersectBsp.h" />
     <ClInclude Include="RRCollider\IntersectBspCompact.h" />

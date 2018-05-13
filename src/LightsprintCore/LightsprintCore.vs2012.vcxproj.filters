@@ -223,6 +223,9 @@
       <Filter>RRBuffer</Filter>
     </ClCompile>
     <ClCompile Include="RRColorSpace.cpp" />
+    <ClCompile Include="RRCollider\EmbreeCollider.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RRCollider\bsp.h">
@@ -411,7 +414,6 @@
     <ClInclude Include="squish\squish.h">
       <Filter>squish</Filter>
     </ClInclude>
-    <ClInclude Include="LicGen.h" />
     <ClInclude Include="Preferences.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRDebug.h" />
     <ClInclude Include="..\..\include\Lightsprint\RRMemory.h" />
@@ -424,6 +426,9 @@
     </ClInclude>
     <ClInclude Include="RRBuffer\RRBufferBlend.h">
       <Filter>RRBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCollider\EmbreeCollider.h">
+      <Filter>RRCollider</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

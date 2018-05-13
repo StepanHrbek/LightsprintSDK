@@ -223,6 +223,9 @@
       <Filter>RRBuffer</Filter>
     </ClCompile>
     <ClCompile Include="RRColorSpace.cpp" />
+    <ClCompile Include="RRCollider\EmbreeCollider.cpp">
+      <Filter>RRCollider</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RRCollider\bsp.h">
@@ -423,6 +426,9 @@
     </ClInclude>
     <ClInclude Include="RRBuffer\RRBufferBlend.h">
       <Filter>RRBuffer</Filter>
+    </ClInclude>
+    <ClInclude Include="RRCollider\EmbreeCollider.h">
+      <Filter>RRCollider</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
