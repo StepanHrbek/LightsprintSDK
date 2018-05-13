@@ -8,10 +8,11 @@ namespace rr
 
 \page main_news What's new
 
-\section news148 ------------------------------------ 2017.0x.xx -------------------------------------
+\section news148 ------------------------------------ 2018.0x.xx -------------------------------------
 
 NEWS
 
+- embree updated to 3.1.0
 - openvr updated to 1.07
 
 
