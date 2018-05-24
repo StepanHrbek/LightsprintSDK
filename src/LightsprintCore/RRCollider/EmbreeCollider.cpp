@@ -9,6 +9,7 @@
 
 #ifdef SUPPORT_EMBREE
 
+#include "Lightsprint/RRObject.h"
 #include "EmbreeCollider.h"
 #include "embree3/rtcore.h"
 #include "embree3/rtcore_ray.h"
@@ -293,18 +294,26 @@ public:
 	};
 };
 
-RRCollider* createEmbreeCollider(const RRMesh* mesh, RRCollider::IntersectTechnique intersectTechnique, bool& aborting)
+static RRCollider* embreeBuilder(const RRMesh* mesh, const RRObjects* objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation, void* buildParams)
 {
-	return new EmbreeCollider(intersectTechnique,mesh);
+	return new EmbreeCollider(intersectTechnique, mesh);
 }
 
-RRCollider* createEmbreeMultiCollider(const RRObjects& objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting)
+void registerEmbree()
 {
-	return nullptr;//new RRColliderMulti(objects,technique,aborting);
-	//RTCGeometry geometry = rtcNewGeometry(s_embreeDevice,RTC_GEOMETRY_TYPE_INSTANCE);
-	// rtcCommitScene on the instanced scene should be called first, followed by rtcCommitGeometry on the instance, followed by rtcCommitScene for the top-level scene containing the instance.
+	RRCollider::registerTechnique(RRCollider::IT_BVH_COMPACT,embreeBuilder);
+	RRCollider::registerTechnique(RRCollider::IT_BVH_FAST,embreeBuilder);
 }
 
 } //namespace
+
+#else // SUPPORT_EMBREE
+
+namespace rr
+{
+	void registerEmbree()
+	{
+	}
+}
 
 #endif // SUPPORT_EMBREE

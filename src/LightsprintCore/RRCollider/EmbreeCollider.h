@@ -12,13 +12,10 @@
 
 #ifdef SUPPORT_EMBREE
 
-#include "Lightsprint/RRCollider.h"
-
 namespace rr
 {
 
-RRCollider* createEmbreeCollider(const RRMesh* mesh, RRCollider::IntersectTechnique intersectTechnique, bool& aborting);
-RRCollider* createEmbreeMultiCollider(const RRObjects& objects, RRCollider::IntersectTechnique intersectTechnique, bool& aborting);
+void registerEmbree();
 
 } //namespace
 

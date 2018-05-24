@@ -99,12 +99,7 @@ RRCollider* defaultBuilder(const RRMesh* mesh, const RRObjects* objects, RRColli
 	{
 		case RRCollider::IT_BVH_COMPACT:
 		case RRCollider::IT_BVH_FAST:
-#ifdef SUPPORT_EMBREE
-			return createEmbreeCollider(mesh,intersectTechnique,aborting);
-#else
-			//return nullptr;
 			return defaultBuilder(mesh,objects,RRCollider::IT_BSP_FAST,aborting,cacheLocation,nullptr);
-#endif
 		// needs explicit instantiation at the end of IntersectBspFast.cpp and IntersectBspCompact.cpp and bsp.cpp
 		case RRCollider::IT_BSP_COMPACT:
 			if (mesh->getNumTriangles()<=256)
@@ -200,9 +195,8 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 		registerTechnique(IT_BSP_FAST,defaultBuilder);
 		registerTechnique(IT_BSP_FASTER,defaultBuilder);
 		registerTechnique(IT_BSP_FASTEST,defaultBuilder);
-		registerTechnique(IT_BVH_COMPACT,defaultBuilder);
-		registerTechnique(IT_BVH_FAST,defaultBuilder);
 		registerTechnique(IT_VERIFICATION,defaultBuilder);
+		registerEmbree(); // when enabled, embree adds its own techniques and overrides IT_LINEAR registered above
 	}
 
 	Builder* builder = s_builders[intersectTechnique];
