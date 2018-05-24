@@ -33,6 +33,12 @@ IntersectVerification::IntersectVerification(const RRMesh* importer, bool& abort
 	unsigned vertices = importer->getNumVertices();
 }
 
+void IntersectVerification::update()
+{
+	for (unsigned i=0;i<IT_VERIFICATION;i++)
+		collider[i]->update();
+}
+
 IntersectVerification::~IntersectVerification()
 {
 	for (unsigned i=0;i<IT_VERIFICATION;i++)

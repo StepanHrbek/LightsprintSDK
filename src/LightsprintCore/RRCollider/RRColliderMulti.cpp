@@ -82,6 +82,11 @@ public:
 		}
 	}
 
+	virtual void update()
+	{
+		// always reads matrices from objects, no need to update
+	};
+
 	virtual bool intersect(RRRay& ray) const
 	{
 		RRCollisionHandler* oldCollisionHandler = ray.collisionHandler;

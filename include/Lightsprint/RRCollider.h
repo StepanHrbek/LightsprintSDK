@@ -182,6 +182,13 @@ namespace rr
 		//! \return Created collider.
 		static RRCollider* create(const RRMesh* mesh, const class RRObjects* objects, IntersectTechnique intersectTechnique, bool& aborting, const char* cacheLocation=nullptr, void* buildParams=0);
 
+		//! Faster alternative to deleting and recreating collider.
+		//
+		//! When working with single RRMesh, default BVH collider rereads all mesh data (updates fully) while BSP colliders stay unchanged, they don't implement update() yet.
+		//! When working with RRObject[s], collider rereads object's transformation matrices, but ignores possible changes in triangle meshes
+		//! (you are responsible for calling collider->update() on colliders that had mesh changed).
+		virtual void update() = 0;
+
 		//! Finds ray x mesh intersections.
 		//
 		//! \param ray All inputs and outputs for search.

@@ -19,13 +19,14 @@ namespace rr
 	{
 	public:
 		static IntersectVerification* create(const RRMesh* aimporter, bool& aborting) {return new IntersectVerification(aimporter,aborting);}
+		virtual void      update();
 		virtual ~IntersectVerification();
 		virtual bool      intersect(RRRay& ray) const;
 		virtual IntersectTechnique getTechnique() const {return IT_VERIFICATION;}
 		virtual size_t    getMemoryOccupied() const;
 	protected:
 		IntersectVerification(const RRMesh* aimporter, bool& aborting);
-		const RRCollider* collider[IT_VERIFICATION];
+		RRCollider* collider[IT_VERIFICATION];
 	};
 
 }

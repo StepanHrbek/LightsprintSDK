@@ -33,6 +33,7 @@ namespace rr
 	{
 	public:
 		static IntersectLinear* create(const RRMesh* aimporter) {return new IntersectLinear(aimporter);}
+		virtual void      update() {}; // always reads data from mesh, no need to update
 		virtual ~IntersectLinear();
 		virtual bool      intersect(RRRay& ray) const;
 		virtual bool      isValidTriangle(unsigned i) const;

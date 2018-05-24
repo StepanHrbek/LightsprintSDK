@@ -36,6 +36,10 @@ public:
 	{
 		collider = IntersectLinear::create(mesh);
 	}
+	virtual void update()
+	{
+		collider->update();
+	};
 	virtual ~IntersectWrapper()
 	{
 		delete collider;

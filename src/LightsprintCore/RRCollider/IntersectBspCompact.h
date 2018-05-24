@@ -19,6 +19,7 @@ namespace rr
 	{
 	public:
 		static IntersectBspCompact* create(const RRMesh* aimporter, IntersectTechnique aintersectTechnique, bool& aborting, const char* cacheLocation, const char* ext, BuildParams* buildParams) {return new IntersectBspCompact(aimporter,aintersectTechnique,aborting,cacheLocation,ext,buildParams);}
+		virtual void      update() {RR_LIMITED_TIMES(1,RRReporter::report(WARN,"BSP collider update() not implemented yet.\n"));};
 		virtual ~IntersectBspCompact();
 		virtual bool      intersect(RRRay& ray) const;
 		virtual IntersectTechnique getTechnique() const {return IT_BSP_COMPACT;}

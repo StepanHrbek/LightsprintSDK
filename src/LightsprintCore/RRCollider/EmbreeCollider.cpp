@@ -233,6 +233,17 @@ public:
 		rtcCommitScene(rtcScene);
 	}
 
+	virtual void update()
+	{
+		if (rrMesh)
+		{
+			//??? does this leak, do i have to delete something
+			rtcDetachGeometry(rtcScene,0);
+			rtcAttachGeometry(rtcScene,loadMesh(rrMesh));
+		}
+		rtcCommitScene(rtcScene);
+	}
+
 	virtual bool intersect(RRRay& rrRay) const
 	{
 		if (rrRay.collisionHandler)

@@ -59,6 +59,7 @@ namespace rr
 	{
 	public:
 		static IntersectBspFast* create(const RRMesh* aimporter, IntersectTechnique aintersectTechnique, bool& aborting, const char* cacheLocation, const char* ext, BuildParams* buildParams) {return new IntersectBspFast(aimporter,aintersectTechnique,aborting,cacheLocation,ext,buildParams);}
+		virtual void      update() {RR_LIMITED_TIMES(1,RRReporter::report(WARN,"BSP collider update() not implemented yet.\n"));};
 		virtual ~IntersectBspFast();
 		virtual bool      intersect(RRRay& ray) const;
 		virtual bool      isValidTriangle(unsigned i) const;
