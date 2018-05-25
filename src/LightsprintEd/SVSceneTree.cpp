@@ -522,7 +522,7 @@ void SVSceneTree::OnContextMenuCreate(wxTreeEvent& event)
 				menu.Append(CM_OBJECTS_MERGE,_("Merge objects"),_("Merges objects together."));
 			menu.Append(CM_OBJECTS_MERGE_BY_MATERIALS,_("Merge/split by material"),_("Merge selected objects and then split them by material, so that for each material one object is created."));
 			menu.Append(CM_MATERIALS_MERGE,_("Merge materials"),_("Assign first material to all selected faces."));
-			menu.Append(CM_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals."));
+			menu.Append(CM_OBJECTS_SMOOTH,_("Smooth..."),_("Rebuild objects to have smooth normals, stitch vertices etc."));
 			//if (svframe->userPreferences.testingBeta)
 				menu.Append(CM_OBJECTS_TANGENTS,_("Build tangents"),_("Rebuild objects to have tangents and bitangents."));
 			if (temporaryContext!=staticObjects && !IS_SHOWN(svframe->m_objectProperties) && temporaryContextItems.size()==1)
