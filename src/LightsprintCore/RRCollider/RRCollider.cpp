@@ -99,6 +99,7 @@ RRCollider* defaultBuilder(const RRMesh* mesh, const RRObjects* objects, RRColli
 	{
 		case RRCollider::IT_BVH_COMPACT:
 		case RRCollider::IT_BVH_FAST:
+			 // we pretend we support BVH so that everything works even without embree
 			return defaultBuilder(mesh,objects,RRCollider::IT_BSP_FAST,aborting,cacheLocation,nullptr);
 		// needs explicit instantiation at the end of IntersectBspFast.cpp and IntersectBspCompact.cpp and bsp.cpp
 		case RRCollider::IT_BSP_COMPACT:
@@ -191,6 +192,8 @@ RRCollider* RRCollider::create(const RRMesh* mesh, const RRObjects* objects, Int
 	if (s_builders.empty())
 	{
 		registerTechnique(IT_LINEAR,defaultBuilder);
+		registerTechnique(IT_BVH_COMPACT,defaultBuilder); // we pretend we support BVH so that everything works even without embree
+		registerTechnique(IT_BVH_FAST,defaultBuilder); // we pretend we support BVH so that everything works even without embree
 		registerTechnique(IT_BSP_COMPACT,defaultBuilder);
 		registerTechnique(IT_BSP_FAST,defaultBuilder);
 		registerTechnique(IT_BSP_FASTER,defaultBuilder);
