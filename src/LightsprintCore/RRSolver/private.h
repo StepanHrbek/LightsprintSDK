@@ -46,7 +46,8 @@ namespace rr
 		bool       staticSceneContainsLods;
 		RRCollider*superCollider;
 		unsigned   superColliderMeshVersion;
-		bool       superColliderDirty;
+		bool       superColliderDirtyBig; // set of objects did change
+		bool       superColliderDirtySmall; // matrix of existing object did change
 		RRObjects  superColliderObjects; // used only temporarily inside getCollider(). stored here to avoid allocation in every getCollider
 		RRVec3     superColliderMin;
 		RRVec3     superColliderMax;
@@ -107,7 +108,8 @@ namespace rr
 			forcedMultiObject = false;
 			staticSceneContainsLods = false;
 			superCollider = nullptr;
-			superColliderDirty = false;
+			superColliderDirtyBig = false;
+			superColliderDirtySmall = false;
 			superColliderMeshVersion = 0;
 			// lights
 			customIrradianceRGBA8 = nullptr;

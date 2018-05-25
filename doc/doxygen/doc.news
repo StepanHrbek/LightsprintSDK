@@ -12,6 +12,8 @@ namespace rr
 
 NEWS
 
+- order of magnitude faster ray-scene intersections in scenes with many dynamic objects
+  (pathtracing used to be slower with dynamic objects, now there's no difference between static/dynamic)
 - embree updated to 3.1.0
 - openvr updated to 1.07
 - RRCollider::update() added

@@ -383,7 +383,7 @@ void RRSolver::setStaticObjects(const RRObjects& _objects, const SmoothingParame
 	}
 
 	// invalidate supercollider
-	priv->superColliderDirty = true;
+	priv->superColliderDirtyBig = true;
 }
 
 const RRObjects& RRSolver::getStaticObjects() const
@@ -428,7 +428,7 @@ void RRSolver::setDynamicObjects(const RRObjects& _objects)
 		RRReporter::report(WARN,"colorSpace=nullptr, call setColorSpace() if your data are in sRGB.\n");
 	getDynamicObjects().updateColorLinear(getColorSpace());
 	// invalidate supercollider
-	priv->superColliderDirty = true;
+	priv->superColliderDirtyBig = true;
 }
 
 const RRObjects& RRSolver::getDynamicObjects() const
@@ -453,6 +453,10 @@ RRObject* RRSolver::getObject(unsigned index) const
 	return nullptr;
 }
 
+// This implementation works, but there is some guesswork inside, superColliderDirtyBig/Small are fuzzily defined etc.
+// Ideally we would like to simplify, create scene collider from individual objects, not from multiobject.
+// However, GI solvers rely on multiobject a lot, getting rid of it might be impossible (they don't use this collider, they use multiobject's one).
+// The best we can do without breaking old GI solvers is stop using multiobject here.
 RRCollider* RRSolver::getCollider() const
 {
 	if (!priv->dynamicObjects.size() && getMultiObject())
@@ -470,11 +474,11 @@ RRCollider* RRSolver::getCollider() const
 	{
 		priv->superColliderMeshVersion = superColliderMeshVersion;
 		// invalidate supercollider
-		priv->superColliderDirty = true;
+		priv->superColliderDirtyBig = true;
 	}
 
 	// build supercollider if it does not exist yet
-	if (!priv->superCollider || priv->superColliderDirty)
+	if (!priv->superCollider || priv->superColliderDirtyBig)
 	{
 		priv->superColliderObjects.clear();
 		if (getMultiObject())
@@ -484,7 +488,7 @@ RRCollider* RRSolver::getCollider() const
 		delete priv->superCollider;
 		bool aborting = false;
 		priv->superCollider = RRCollider::create(nullptr,&priv->superColliderObjects,RRCollider::IT_BVH_FAST,aborting);
-		priv->superColliderDirty = false;
+		priv->superColliderDirtyBig = false;
 		
 		// update superColliderMin/Max/Center
 		unsigned numVerticesSum = 0;
@@ -543,6 +547,13 @@ RRCollider* RRSolver::getCollider() const
 				break;
 		}
 		priv->superColliderCenter /= (RRReal)numVerticesSum;
+	}
+
+	// update matrices in collider
+	if (priv->superColliderDirtySmall)
+	{
+		priv->superCollider->update();
+		priv->superColliderDirtySmall = false;
 	}
 
 	return priv->superCollider;
@@ -685,6 +696,7 @@ void RRSolver::reportDirectIlluminationChange(int lightIndex, bool dirtyShadows,
 	// don't invalidate supercollider, it has pointers to object matrices, does not need update when matrices change
 	//if (lightIndex==-1) // (-1=geometry change)
 	//	priv->superColliderDirty = true;
+	priv->superColliderDirtySmall = true;
 }
 
 void RRSolver::reportInteraction()
