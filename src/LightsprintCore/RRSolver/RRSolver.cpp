@@ -550,7 +550,7 @@ RRCollider* RRSolver::getCollider() const
 	}
 
 	// update matrices in collider
-	if (priv->superColliderDirtySmall)
+	if (priv->superCollider && priv->superColliderDirtySmall)
 	{
 		priv->superCollider->update();
 		priv->superColliderDirtySmall = false;
