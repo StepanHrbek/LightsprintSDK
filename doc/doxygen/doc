@@ -496,8 +496,9 @@ Material formats (1)
 \page tpl_embree embree
   - www: <a href="http://embree.github.io/">embree</a>
   - license: <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache 2.0 license</a>
-  - version 3.1.0 with binaries provided by Intel is a part of SDK
+  - version 3.1.0 with 64bit binaries provided by Intel is a part of SDK
   - embree3.dll built by Intel depends on tbb.dll which depends on msvc[p|r]120.dll
+  - if you use SDK in 32bit, consider building 32bit embree and remove undef in EmbreeCollider.cpp
   - used for ray-mesh intersections, we can replace it with our own collider if necessary
 
 \page tpl_glew GLEW

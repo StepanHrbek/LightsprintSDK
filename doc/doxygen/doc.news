@@ -14,7 +14,10 @@ NEWS
 
 - order of magnitude faster ray-scene intersections in scenes with many dynamic objects
   (pathtracing used to be slower with dynamic objects, now there's no difference between static/dynamic)
-- embree updated to 3.1.0 (note: embree3.dll prebuilt by Intel depends on tbb.dll which depends on msvc[p|r]120.dll)
+- embree updated to 3.1.0
+  - we include only 64bit embree, 32bit SDK runs without embree
+  - if you use SDK in 32bit, consider building 32bit embree for faster intersections
+  - embree3.dll prebuilt by Intel depends on tbb.dll which depends on msvc[p|r]120.dll
 - openvr updated to 1.07
 - RRCollider::update() added
 

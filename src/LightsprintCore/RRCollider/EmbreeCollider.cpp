@@ -7,6 +7,12 @@
 // EmbreeCollider class - Embree based colliders.
 // --------------------------------------------------------------------------
 
+#if !defined(_M_X64) && !defined(_LP64)
+// We don't provide 32bit embree build.
+// If you use SDK in 32bit, consider building embree and removing this undef to speed up ray scene intersections.
+#undef SUPPORT_EMBREE
+#endif
+
 #ifdef SUPPORT_EMBREE
 
 #include "Lightsprint/RRObject.h"
