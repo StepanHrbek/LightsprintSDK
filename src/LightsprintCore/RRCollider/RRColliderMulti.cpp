@@ -4,7 +4,7 @@
 // only under terms of Lightsprint SDK license agreement. A copy of the agreement
 // is available by contacting Lightsprint at http://lightsprint.com
 //
-// Ray-mesh intersection traversal - with multiple objects.
+// Ray-scene intersection traversal - with multiple objects. Obsoleted by embree.
 // --------------------------------------------------------------------------
 
 #include "IntersectLinear.h"
@@ -13,6 +13,12 @@
 
 namespace rr
 {
+
+////////////////////////////////////////////////////////////////////////////
+//
+// StoreCollisionHandler
+//
+// Helper handler that stores all intersections before passing them ordered to real handler.
 
 class StoreCollisionHandler : public RRCollisionHandler
 {
@@ -41,8 +47,15 @@ private:
 	RayHits& rayHits;
 };
 
-// Reads matrices from objects, does not need rebuild each time object moves.
-// (However, more clever supercollider with KD would need rebuilding supercollider [#21])
+////////////////////////////////////////////////////////////////////////////
+//
+// RRColliderMulti
+//
+// This is the old multicollider without second-level acceleration structure.
+// It is used only if you undefine USE_EMBREE or comment out registerEmbree().
+// It reads matrices directly from objects, so it does not need update() called each time object moves.
+// It is obsoleted by EmbreeCollider that builds second-level acceleration structure (but needs update()).
+
 class RRColliderMulti : public RRCollider
 {
 public:
