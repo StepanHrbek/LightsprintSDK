@@ -495,6 +495,7 @@ class OneMaterialPerObject : public RRScene
 public:
 	OneMaterialPerObject(const RRScene& scene, unsigned copyLayerToMaterialLightmaps)
 	{
+		environment = scene.environment;
 		lights = scene.lights;
 		cameras = scene.cameras;
 		for (unsigned i=0;i<scene.objects.size();i++)
@@ -521,6 +522,7 @@ public:
 	}
 	~OneMaterialPerObject()
 	{
+		environment = nullptr;
 		for (unsigned i=0;i<objects.size();i++)
 			delete objects[i];
 		for (unsigned i=0;i<materials.size();i++)
